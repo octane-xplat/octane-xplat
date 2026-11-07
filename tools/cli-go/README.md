@@ -378,38 +378,33 @@ the worker will survive an npm tarball. The consumer gate checks the complete
 release-worker inventory and executes an offline upgrade from the installed bin.
 Final npm consumer packaging and Windows real-console events remain separate gates.
 
-`test:go-package` builds a private host-specific npm tarball containing the
-inference-enabled native bin, the release upgrade worker and curated Vite/worker
-exports. It installs that tarball into an isolated consumer with lifecycle scripts
-disabled, verifies no optional engine peers were installed, executes the native
-bin and package-manager command, and runs the installed Node worker's action
-validator. The bin is the executable itself; no postinstall or runtime launcher
-is needed. The package is private and restricted to the current OS/architecture;
-this is consumer qualification, not the final multi-platform registry layout.
-It does not publish or change the production CLI package. The same gate is
-available as `test:go-package:portable` in full inference snapshots.
+`test:go-package` stages the production tarball through
+`stage-release.mjs` — the published `@octane-xplat/cli` with its
+postinstall, `native-platforms.json` inventory, `native-worker/`, empty
+`bin/xplat.exe` placeholder, and five optional
+`@octane-xplat/cli-native-<os>-<cpu>` payload packages — then installs it
+into an isolated consumer whose `overrides` maps the host payload to the
+staged tarball. It verifies the postinstall selects the real host image,
+the native bin and package-manager command run, and the bundled release
+worker upgrades an older project. The stager's manifest/inventory and
+install-native's unsupported-host exit are covered in
+`stage-release.test.mjs` (run by the same task).
 
-`test:go-registry` exercises the single-name layout through a private loopback
-registry. The main package keeps the small exports and upgrade worker; exact
-optional `@octane-xplat/cli-native-<os>-<arch>` packages carry each native image.
-Node runs only the install hook, which checks the payload version, size and hash
-before replacing the bin. No runtime launcher or network downloader is added.
-The test checks trusted Bun installation, manual repair after `--ignore-scripts`,
-missing/corrupt payload refusal without changing a working bin, and that foreign
-native tarballs are not downloaded. Registry metadata for other targets may be
-requested. Reported download bytes sum the main and selected tarballs, excluding
-registry metadata, HTTP overhead and optional model/runtime assets.
+`test:go-registry` exercises the same production layout through a private
+loopback registry — all five payload packages publish beside the CLI. It
+checks trusted Bun installation selects only the host payload, manual
+repair after `--ignore-scripts`, missing/corrupt payload refusal without
+changing a working bin, and that foreign native tarballs are not
+downloaded.
 Keep the packaged `.exe` slot empty until selection: Bun's Windows bin shim caches
 a placeholder shebang before postinstall and would keep trying that interpreter
 after native replacement. With scripts disabled, the slot is not executable;
 run the installed `install-native.mjs` with Node after installing optional payloads.
 
-Build all three current inference targets with matching source inputs before
-this gate; it refuses stale or mixed releases. Use the cross-build commands above
-with `--filter=@octane-xplat/cli`, then run the host gate below. Full inference
-snapshots include all three images for `test:go-registry:portable`. These private
-fixtures cover darwin-arm64, linux-x64 and win32-x64 only; they do not publish
-platform packages or change the production npm manifest.
+Both gates need only the host's core `-cli` build (`build:go`); the fixture
+fabricates inert records for the four cross targets — foreign payloads are
+never executed. The stager refuses stale or mixed releases via the build
+records' `inputs`.
 
 ```sh
 goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"Go native npm consumer"}' -- bun run turbo run test:go-package --filter=@octane-xplat/cli

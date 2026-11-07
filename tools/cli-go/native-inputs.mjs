@@ -85,7 +85,6 @@ export function nativeInputs(root) {
     'packages/cli/src/linux/host/bridge-selftest.linux.js',
     'packages/cli/package.json',
     'packages/create/compatibility.json',
-    'packages/cli/src/cli-channel.ts',
     'packages/cli/src/package-manager.ts',
     'packages/cli/src/package-root.ts',
     'packages/cli/src/mcp/discovery.ts',

@@ -63,7 +63,8 @@
 		"./mcp/*": "./dist/mcp/*.js",
 		"./mcp/*.mjs": "./dist/mcp/*.js",
 		"./worker": "./dist/build-worker.js",
-		"./tsrx-mapper": "./bin/tsrx-mapper.mjs"
+		"./tsrx-mapper": "./bin/tsrx-mapper.mjs",
+		"./package.json": "./package.json"
 	},
 	"typescript": {
 		"contentMapper": {
@@ -102,7 +103,7 @@
 		"test:go-response-roots": "node --test --test-name-pattern=response.roots ../../tools/cli-go/doctor.test.mjs ../../tools/cli-go/patches.test.mjs",
 		"test:go-doctor": "node --test ../../tools/cli-go/doctor.test.mjs",
 		"test:go-release-worker": "node --test ../../tools/cli-go/release-worker.test.mjs",
-		"test:go-package": "node --test ../../tools/cli-go/package.test.mjs",
+		"test:go-package": "node --test ../../tools/cli-go/package.test.mjs ../../tools/cli-go/stage-release.test.mjs",
 		"test:go-registry": "node --test ../../tools/cli-go/registry-package.test.mjs",
 		"test:go-device-relay": "node --test test/dev-device-relay.test.mjs",
 		"test:go-workshop-macos": "node --test ../../tools/cli-go/workshop-macos.test.mjs",

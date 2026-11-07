@@ -167,14 +167,29 @@ runner's platform; see
 [executable packaging](toolchain.md#cli-runtime-and-executable-packaging)
 and [consumer installation](../../docs/packages/package-cli.md#single-file-executable).
 
-## Native CLI channel
+## Native CLI payloads
 
-The native CLI publishes under the `nim` dist-tag: its npm versions pin the
-framework release with an `x.y.z-nim.N` suffix (see
-`packages/cli/src/cli-channel.ts`), separate from lockstep `latest`/`nightly`.
-The experimental `release.yml` track `nim` was removed with the Nim and
-TypeScript CLI implementations — the Go CLI is the sole implementation and no
-automated lane currently cuts a `-nim.N` version.
+`xplat` is a native Go executable published inside `@octane-xplat/cli`. Its
+postinstall (`install-native.mjs`) copies the matching image out of five
+optional payload packages — `@octane-xplat/cli-native-darwin-arm64`,
+`-darwin-x64`, `-linux-x64`, `-linux-arm64`, `-win32-x64` — pinned at the
+lockstep version (`native-platforms.json` records each image's bytes and
+SHA-256; the `bin/xplat.exe` slot stays an empty placeholder until then).
+The `nim` channel is gone: the CLI and its payloads publish at the lockstep
+version like every other package.
+
+The publish jobs build the five core (CGO-off) binaries after versions are
+final: `setup-go` reads `packages/cli/go/go.mod`, then
+`GOOS=<os> GOARCH=<arch> XPLAT_GO_VERSION=<version> node tools/cli-go/build.mjs --cli`
+for each target into `research/go-cli`. `scripts/publish-release.ts
+--native-dir research/go-cli` stages the layout through
+`tools/cli-go/stage-release.mjs` (the same implementation the packaging gates
+use), publishes the payloads first, then the CLI, then the rest.
+
+Before the first automated release, create a minimal `0.0.1` stub and
+configure the `release.yml` trusted publisher for each of the five payload
+names (same bootstrap as any new publishable package, below);
+`scripts/check-trusted-publishers.ts` already covers them in its default set.
 
 ## Add a publishable package
 

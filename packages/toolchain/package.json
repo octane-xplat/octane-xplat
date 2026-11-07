@@ -29,6 +29,8 @@
 	},
 	"dependencies": {
 		"@octane-xplat/cli": "workspace:*",
+		"@octane-xplat/fmt": "0.2.0",
+		"@octane-xplat/lint": "workspace:*",
 		"@octanejs/vite-plugin": "0.5.0",
 		"@tsrx/oxc": "0.20.0",
 		"typescript": "7.1.0-beta",

@@ -190,6 +190,10 @@ test('Bun catalogs, native channel choices, patch bytes and excluded packages ag
   assert.ok(plan.files.some((file) => file.path.endsWith('.patch')))
   assert.deepEqual(readFileSync(join(dir, 'apps/excluded/package.json')), excluded)
   assert.equal(JSON.parse(readFileSync(join(dir, 'package.json'))).engines.node, '>=30')
+  // The CLI installs its native executable from a postinstall Bun must trust.
+  assert.deepEqual(JSON.parse(readFileSync(join(dir, 'package.json'))).trustedDependencies, [
+    '@octane-xplat/cli',
+  ])
   if (process.platform !== 'win32') {
     assert.equal(statSync(manifest).mode & 0o777, 0o640)
   }

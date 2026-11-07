@@ -138,18 +138,48 @@ and Windows x64.
 ## Native executable
 
 `xplat` is a native Go executable; the TypeScript and Nim implementations are
-removed. Published platform packages ship the matching binary, and the package
-`bin` resolves it for the install platform (darwin/linux/windows on
-arm64/amd64). Contributors with this repository installed can build and run it
-locally; `bun run xplat` inside an app workspace resolves the local
-`research/go-cli` build:
+removed. When you install `@octane-xplat/cli` (directly or through the
+`octane-xplat` package), its install script copies the executable for your
+machine out of an optional payload package:
+`@octane-xplat/cli-native-darwin-arm64`, `-darwin-x64`, `-linux-x64`,
+`-linux-arm64` or `-win32-x64`.
+
+Package managers only run install scripts you allow. New starters already
+list the CLI, and `xplat upgrade` adds it to Bun projects:
+
+```json
+{ "trustedDependencies": ["@octane-xplat/cli"] }
+```
+
+pnpm needs the same permission. Run `pnpm approve-builds @octane-xplat/cli`,
+or allow it in `pnpm-workspace.yaml`:
+
+```yaml
+allowBuilds:
+  '@octane-xplat/cli': true
+```
+
+If `xplat` reports that the native executable was not installed, the script
+did not run, for example after `bun install --ignore-scripts`. Run the
+command `xplat` prints; it finishes the installation in place:
+
+```sh
+node "/path/to/@octane-xplat/cli/install-native.mjs"
+```
+
+`bun pm trust @octane-xplat/cli` cannot repair an app that gets the CLI
+through `octane-xplat`, because Bun only trusts direct dependencies by name.
+On a platform without a payload, installation still succeeds and `xplat`
+cannot run. Contributors with this repository
+installed can build and run the binary locally; `bun run xplat` inside an
+app workspace resolves the local `research/go-cli` build:
 
 ```sh
 turbo run build:go --filter=@octane-xplat/cli
 bun run xplat catalog --json
 ```
 
-Keep the project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli@nim` package installed;
+Keep the project's Node >=22.22.2, Bun 1.4.4, Vite and matching `@octane-xplat/cli` package installed;
 the native executable does not include those tools. A web build returns a job
 that you can inspect and cancel:
 
@@ -344,7 +374,7 @@ Install it in an already configured macOS app, then build in the foreground or
 start a job. Its host assets stay in the project toolchain:
 
 ```sh
-bun add --dev @octane-xplat/macos-build @octane-xplat/cli@nim
+bun add --dev @octane-xplat/macos-build @octane-xplat/cli
 xplat build --targets macos
 xplat runtime build --platform macos --json
 ```
@@ -493,16 +523,9 @@ pnpm install --no-frozen-lockfile
 pnpm run xplat doctor
 ```
 
-The native CLI is the one channel exception: an exact CLI pin
-whose base matches this framework release may use the `nim.N` suffix. Its
-installed version must match that exact pin. The upgrade planner
-preserves the CLI choice and rejects catalog/override conflicts before writing;
-other framework and compiler pins keep their release rules. Save the exact
-version when opting in to the native channel:
-
-```sh
-bun add --dev --exact @octane-xplat/cli@nim
-```
+The CLI publishes at the same lockstep version as every other package — the
+`nim` channel is removed. The upgrade planner treats `@octane-xplat/cli`
+like any managed pin.
 
 | Managed together when declared                                      | Kept under application/library ownership                              |
 | ------------------------------------------------------------------- | --------------------------------------------------------------------- |

@@ -64,3 +64,24 @@ export function appCliFile(app, exportPath, siblingFile) {
     return null
   }
 }
+
+/** Resolve a tool's module entry from the app, falling back only to the
+ *  installed umbrella's declared dependency. Returns null when neither has it. */
+export function resolveProjectTool(fromDir, name) {
+  try {
+    return createRequire(join(fromDir, 'package.json')).resolve(name)
+  } catch {}
+  const umbrella = installedPackageRoot(fromDir, 'octane-xplat')
+  if (!umbrella) {
+    return null
+  }
+  const manifest = JSON.parse(readFileSync(join(umbrella, 'package.json'), 'utf8'))
+  if (!manifest.dependencies?.[name]) {
+    return null
+  }
+  try {
+    return createRequire(join(umbrella, 'package.json')).resolve(name)
+  } catch {
+    return null
+  }
+}

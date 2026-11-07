@@ -260,11 +260,9 @@ try {
 
     const { planFormat } = await import('./fmt-plan.ts')
     data = await planFormat(process.cwd(), request.inputs, request.stdin, async () => {
-      const localRequire = createRequire(join(process.cwd(), 'package.json'))
-      let entry: string
-      try {
-        entry = localRequire.resolve('@octane-xplat/fmt')
-      } catch {
+      const { resolveProjectTool } = await import('./package-root.ts')
+      const entry = resolveProjectTool(process.cwd(), '@octane-xplat/fmt')
+      if (!entry) {
         throw new Error(
           'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
         )

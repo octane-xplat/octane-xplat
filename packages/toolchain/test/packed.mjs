@@ -1,11 +1,27 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
+import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { stageRelease } from '../../../tools/cli-go/stage-release.mjs'
+import { nativeFixture, hostTarget } from '../../../tools/cli-go/stage-fixture.mjs'
 
 const repo = fileURLToPath(new URL('../../../', import.meta.url))
+
+// Bun never runs lifecycle scripts for transitive file: deps (and this test
+// also installs with --ignore-scripts), so the CLI's postinstall has not run
+// and bin/xplat.exe is the empty placeholder. The registry gate covers the
+// real transitive postinstall; here, follow the documented repair: xplat
+// prints the exact install-native command.
+function repairNativeCli(dir) {
+  const unrepaired = spawnSync('bun', ['run', 'xplat', '--version'], { cwd: dir, encoding: 'utf8' })
+  assert.notEqual(unrepaired.status, 0)
+  const repair = unrepaired.stderr.match(/^\s*node "(.+install-native\.mjs)"$/m)
+  assert.ok(repair, unrepaired.stderr)
+  run(process.execPath, [repair[1]], dir)
+}
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/toolchain')
 mkdirSync(scratch, { recursive: true })
 const root = mkdtempSync(join(scratch, 'consumer-'))
@@ -47,6 +63,28 @@ try {
   }
 
   pack('octane-xplat')
+  // The published CLI is the staged production layout: postinstall selects
+  // the host payload out of optionalDependencies.
+  const nativeDir = nativeFixture(
+    repo,
+    join(
+      repo,
+      `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}`,
+    ),
+  )
+  const staged = stageRelease({
+    root: repo,
+    version: json(join(repo, 'packages/cli/package.json')).version,
+    nativeDir,
+    outputDir: join(root, 'staged-cli'),
+  })
+  overrides['@octane-xplat/cli'] = `file:${staged.cli.archive}`
+  for (const payload of staged.payloads) {
+    overrides[payload.manifest.name] = `file:${payload.archive}`
+  }
+  // The umbrella now supplies lint/fmt to consumers; pack them into the
+  // overrides so their workspace versions resolve.
+  pack('@octane-xplat/lint')
   const { composeTargets } = await import('../../create/dist/scaffold.js')
   const app = join(root, 'app')
   composeTargets(['web'], app)
@@ -105,13 +143,33 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
 `,
   )
 
-  run('bun', ['install', '--ignore-scripts'], app)
+  run('bun', ['install'], app)
+  repairNativeCli(app)
+  const cliBin = join(
+    app,
+    `node_modules/.bun/${readdirSync(join(app, 'node_modules/.bun')).find((d) => d.startsWith('@octane-xplat+cli@'))}/node_modules/@octane-xplat/cli/bin/xplat.exe`,
+  )
+  const hostRecord = JSON.parse(
+    readFileSync(
+      join(
+        repo,
+        `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}.json`,
+      ),
+    ),
+  )
+  assert.equal(
+    createHash('sha256').update(readFileSync(cliBin)).digest('hex'),
+    hostRecord.sha256,
+    'postinstall repair must select the host payload',
+  )
   // These tools must work without direct app declarations or top-level links.
   for (const name of [
     'typescript',
     '@tsrx/content-mapper',
     '@octanejs/vite-plugin',
     '@octane-xplat/cli',
+    '@octane-xplat/lint',
+    `@octane-xplat/cli-native-${process.platform}-${process.arch}`,
   ]) {
     assert.throws(() => readFileSync(join(app, 'node_modules', name, 'package.json')))
   }
@@ -147,6 +205,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
   write(join(starter, 'package.json'), starterManifest)
   writeFileSync(join(starter, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
   run('bun', ['install', '--ignore-scripts'], starter)
+  repairNativeCli(starter)
   run('bun', ['run', 'lint'], starter)
   run('bun', ['run', 'typecheck'], starter)
   run('bun', ['run', 'build'], starter)
@@ -155,5 +214,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
     'Packed isolated consumer: CLI, TSRX typecheck (positive and negative), lint, format, and web production build passed',
   )
 } finally {
-  rmSync(root, { recursive: true, force: true })
+  if (!process.env.PACKED_KEEP) {
+    rmSync(root, { recursive: true, force: true })
+  }
 }

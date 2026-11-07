@@ -7,8 +7,12 @@ subject applies to your task; [AGENTS.md](../../AGENTS.md) is the entry point.
 
 The [Go implementation](../../packages/cli/go/README.md) is the sole CLI.
 [Build tooling](../../tools/cli-go/README.md) owns pinned builds, runtime
-snapshots, correctness checks and size/startup measurements; the package `bin`
-dispatches to the platform binary. Node is an installed prerequisite for
+snapshots, correctness checks and size/startup measurements. Published
+`@octane-xplat/cli` installs the native bin via postinstall from five
+optional `@octane-xplat/cli-native-<os>-<cpu>` payload packages staged by
+`tools/cli-go/stage-release.mjs`; in-repo `bin/xplat.mjs` stays the dev
+launcher and is stripped from the tarball. Projects need
+`@octane-xplat/cli` in `trustedDependencies`. Node is an installed prerequisite for
 explicit JavaScript workers; the executable does not bundle a JS runtime or
 call a JavaScript CLI. Workspace matching supports literal paths, `*` within a path segment and
 exclusions; advanced glob grammar is deliberately unsupported. Discovery and

@@ -8,20 +8,18 @@ import {
   readdirSync,
   rmSync,
   realpathSync,
-  copyFileSync,
 } from 'node:fs'
 
 import { join, resolve } from 'node:path'
-import { fileURLToPath } from 'node:url'
-import { packNativeConsumer } from './pack.mjs'
+import { stageRelease } from './stage-release.mjs'
+import { nativeFixture, hostTarget } from './stage-fixture.mjs'
 import { scratchRun } from './scratch.mjs'
 import { sha256 } from './native-inputs.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
-const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary = join(
   root,
-  `research/go-cli/xplat-go-${target}-cli-onnx${process.platform === 'win32' ? '.exe' : ''}`,
+  `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}`,
 )
 
 function run(exe, args, options = {}) {
@@ -31,56 +29,49 @@ function run(exe, args, options = {}) {
   return result
 }
 
-test('private npm consumer uses the native bin with opt-in engines and a real project worker', (t) => {
+test('production package installs a direct native bin through the optional host payload', (t) => {
   const scratch = realpathSync(scratchRun(root, 'go-npm-consumer'))
   t.after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
-  const packaged = packNativeConsumer(root, binary, scratch)
-  const { tarball, pkg, build } = packaged
-  const retained = join(root, 'research/go-cli/retained')
-  mkdirSync(retained, { recursive: true })
-  const retainedTarball = join(retained, `npm-consumer-${target}-${packaged.sha256}.tgz`)
-  copyFileSync(tarball, retainedTarball)
-  assert.equal(pkg.private, true)
-  for (const field of [
-    'dependencies',
-    'optionalDependencies',
-    'devDependencies',
-    'scripts',
-    'publishConfig',
-  ]) {
-    assert.equal(pkg[field], undefined)
-  }
-  assert.deepEqual(Object.keys(pkg.exports).sort(), [
-    './linux-gtk/vite',
-    './macos/vite',
-    './vite',
-    './worker',
+  const nativeDir = nativeFixture(root, binary)
+  t.after(() => rmSync(nativeDir, { recursive: true, force: true }))
+  const staged = stageRelease({
+    root,
+    version: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version,
+    nativeDir,
+    outputDir: join(scratch, 'stage'),
+  })
+  const { manifest: pkg, archive: tarball } = staged.cli
+  const hostPayload = `@octane-xplat/cli-native-${process.platform}-${process.arch}`
+  const payload = staged.payloads.find((item) => item.manifest.name === hostPayload)
+  assert.ok(payload)
+  // Workspace dependencies not yet on npm at this version resolve through
+  // the same tarball override a consumer test would use.
+  const depTarball = join(scratch, 'docs-search.tgz')
+  run('bun', [
+    'pm',
+    'pack',
+    '--ignore-scripts',
+    '--filename',
+    depTarball,
+    join(root, 'packages/docs-search'),
   ])
-  assert.ok(Object.values(pkg.peerDependenciesMeta).every((value) => value.optional))
+  assert.equal(pkg.private, undefined)
+  assert.equal(pkg.bin.xplat, './bin/xplat.exe')
+  assert.equal(pkg.scripts.postinstall, 'node install-native.mjs')
+  assert.equal(pkg.optionalDependencies[hostPayload], pkg.version)
+  for (const { manifest } of staged.payloads) {
+    assert.equal(manifest.private, undefined)
+  }
   const inventory = run('tar', ['-tzf', tarball]).stdout.split(/\r?\n/).filter(Boolean)
-  assert.ok(inventory.includes('package/bin/xplat.exe'))
-  assert.ok(inventory.includes('package/native-worker/manifest.json'))
-  for (const file of Object.keys(build.releaseWorker.files)) {
-    assert.ok(
-      inventory.includes('package/native-worker/' + file),
-      'Packed release worker missing ' + file,
-    )
-  }
-  assert.ok(
-    inventory.every((name) =>
-      /^package\/(package\.json|LICENSE|THIRD-PARTY-NOTICES\.txt|bin\/xplat\.exe|dist\/.+|native-worker\/.+)$/.test(
-        name,
-      ),
-    ),
-  )
-  for (const path of [
-    'dist/cli.js',
-    'dist/commands/dev.js',
-    'dist/mcp/docs-service.js',
-    'dist/macos/jsc-host/prebuilt/macos/host',
+  for (const name of [
+    'package/bin/xplat.exe',
+    'package/install-native.mjs',
+    'package/native-platforms.json',
+    'package/native-worker/manifest.json',
   ]) {
-    assert.ok(!inventory.includes('package/' + path), path)
+    assert.ok(inventory.includes(name), 'Packed CLI missing ' + name)
   }
+  assert.ok(!inventory.includes('package/bin/xplat.mjs'))
   const consumer = join(scratch, 'consumer Ω')
   mkdirSync(consumer)
   writeFileSync(
@@ -88,78 +79,31 @@ test('private npm consumer uses the native bin with opt-in engines and a real pr
     JSON.stringify({
       private: true,
       dependencies: { '@octane-xplat/cli': `file:${tarball}` },
+      overrides: {
+        [hostPayload]: `file:${payload.archive}`,
+        '@octane-xplat/docs-search': `file:${depTarball}`,
+      },
+      trustedDependencies: ['@octane-xplat/cli'],
     }),
   )
-  run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
+  // The published manifest carries real dependencies — resolve them from
+  // the registry like a consumer install.
+  run('bun', ['install', '--linker', 'isolated'], {
     cwd: consumer,
-    env: {
-      ...process.env,
-      NODE_PATH: '',
-      HTTP_PROXY: 'http://127.0.0.1:1',
-      HTTPS_PROXY: 'http://127.0.0.1:1',
-      NO_PROXY: '',
-    },
+    env: { ...process.env, NODE_PATH: '' },
   })
   const installed = join(consumer, 'node_modules/@octane-xplat/cli')
-  assert.deepEqual(
-    readdirSync(join(consumer, 'node_modules')).filter((name) => !name.startsWith('.')),
-    ['@octane-xplat'],
-  )
-  assert.deepEqual(readdirSync(join(consumer, 'node_modules/@octane-xplat')), ['cli'])
   const native = join(installed, 'bin/xplat.exe')
-  assert.equal(sha256(readFileSync(native)), build.sha256)
+  const image = JSON.parse(readFileSync(binary + '.json'))
+  assert.equal(sha256(readFileSync(native)), image.sha256)
   assert.equal(
     run(native, ['--version'], { env: { ...process.env, PATH: '' } }).stdout.trim(),
     pkg.version,
   )
-  const catalog = JSON.parse(
-    run(native, ['catalog', '--json'], { env: { ...process.env, PATH: '' } }).stdout,
-  )
-  assert.equal(catalog.ok, true)
   assert.equal(
     run('bun', ['run', '--silent', 'xplat', '--version'], { cwd: consumer }).stdout.trim(),
     pkg.version,
   )
-  // Resolve through this isolated project, then execute a bounded JS-only operation.
-  const worker = run(
-    process.execPath,
-    ['--input-type=module', '-e', 'console.log(import.meta.resolve("@octane-xplat/cli/worker"))'],
-    { cwd: consumer },
-  ).stdout.trim()
-  assert.ok(worker.startsWith('file:'))
-  const request = join(scratch, 'request.json'),
-    response = join(scratch, 'response.json')
-  writeFileSync(
-    request,
-    JSON.stringify({
-      protocol: 'octane-build-worker',
-      version: 1,
-      id: 'packed-worker',
-      project: consumer,
-      operation: 'action-validate',
-      phase: 'input',
-      action: {
-        id: 'packed.action',
-        title: 'Packed action',
-        description: 'Validates fixture input only',
-        effects: { summary: 'No side effects' },
-        input: { fields: { value: { type: 'string', default: 'packed' } } },
-      },
-      value: {},
-    }),
-  )
-  run(process.execPath, [fileURLToPath(worker), request, response], {
-    cwd: consumer,
-    env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '' },
-  })
-  const result = JSON.parse(readFileSync(response))
-  assert.equal(result.ok, true, JSON.stringify(result))
-  assert.equal(result.id, 'packed-worker')
-  assert.deepEqual(result.data.declaration, [])
-  assert.equal(result.data.checked.ok, true, JSON.stringify(result))
-  assert.deepEqual(result.data.checked.value, { value: 'packed' })
-  // Upgrade policy belongs to the invoked release, even in an older project
-  // with no installed helpers. Exercise it from the actual installed tarball.
   const older = join(scratch, 'older project')
   mkdirSync(older)
   writeFileSync(
@@ -180,24 +124,7 @@ test('private npm consumer uses the native bin with opt-in engines and a real pr
     JSON.parse(readFileSync(join(older, 'package.json'))).workspaces.catalogs.xplat[
       '@octane-xplat/cli'
     ],
-    build.releaseWorker.frameworkVersion,
+    image.releaseWorker.frameworkVersion,
   )
-  writeFileSync(
-    join(root, `research/go-cli/npm-consumer-${target}.json`),
-    JSON.stringify(
-      {
-        target,
-        passed: true,
-        sourceInputs: build.inputs,
-        executableSha256: build.sha256,
-        tarballBytes: packaged.bytes,
-        tarballSha256: packaged.sha256,
-        retainedTarball,
-        scope:
-          'Private host npm tarball, real isolated Bun install, direct native bin and bounded Node worker; no production publish, Vite engine execution, model loading or other host qualification.',
-      },
-      null,
-      2,
-    ) + '\n',
-  )
+  console.log('Production tarball: postinstall selected the host payload and ran the native bin')
 })

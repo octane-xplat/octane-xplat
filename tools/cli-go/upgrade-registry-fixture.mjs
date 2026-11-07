@@ -4,6 +4,7 @@ import { readFileSync, writeFileSync, renameSync } from 'node:fs'
 import { createHash } from 'node:crypto'
 const input = JSON.parse(readFileSync(process.argv[2]))
 const { ready, requests } = input
+const maxRequests = input.maxRequests ?? 32
 const packages = (
   input.packages ?? [
     { archive: input.archive, manifest: { name: '@octane-xplat/patches', version: input.version } },
@@ -21,7 +22,7 @@ const packages = (
 const seen = []
 const server = createServer((request, response) => {
   const path = decodeURIComponent(new URL(request.url, 'http://localhost').pathname)
-  if (request.method !== 'GET' || seen.length >= 32) {
+  if (request.method !== 'GET' || seen.length >= maxRequests) {
     response.writeHead(400).end()
     return
   }

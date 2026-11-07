@@ -21,6 +21,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises'
 import { dirname } from 'node:path'
 import { lockstepPackages, publishablePackages } from './publishable.ts'
+import { nativePlatformPackages } from '../tools/cli-go/stage-release.mjs'
 
 const registry = process.env.NPM_CONFIG_REGISTRY ?? 'https://registry.npmjs.org'
 const requestUrl = process.env.ACTIONS_ID_TOKEN_REQUEST_URL
@@ -37,7 +38,11 @@ if (!requestUrl || !requestToken) {
 const selected =
   process.argv.length > 2
     ? publishablePackages().filter((p) => process.argv.slice(2).includes(p.name))
-    : lockstepPackages()
+    : [
+        ...lockstepPackages(),
+        // The five native payload packages publish with the lockstep set.
+        ...nativePlatformPackages.map((name) => ({ name })),
+      ]
 
 if (!selected.length) {
   console.error('check-trusted-publishers: no matching packages')

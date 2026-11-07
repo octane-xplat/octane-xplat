@@ -26,6 +26,7 @@
 				"@nativescript/types": "9.1.4",
 				"@octane-xplat/cli": "0.19.0",
 				"@octane-xplat/jsx": "0.19.0",
+				"@octane-xplat/lint": "0.19.0",
 				"@octane-xplat/ui": "0.19.0",
 				"@octanejs/vite-plugin": "0.5.0",
 				"@tsrx/oxc": "0.20.0",
@@ -79,7 +80,9 @@
 		"@nativescript/core": "catalog:xplat",
 		"@nativescript/types": "catalog:xplat",
 		"@octane-xplat/cli": "catalog:xplat",
+		"@octane-xplat/fmt": "0.2.0",
 		"@octane-xplat/jsx": "catalog:xplat",
+		"@octane-xplat/lint": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
 		"@octanejs/vite-plugin": "catalog:xplat",
 		"@tsrx/oxc": "catalog:xplat",
@@ -180,6 +183,7 @@
 		"@nativescript-community/sqlite-bridge@4.1.1": "patches/@nativescript-community__sqlite-bridge@4.1.1.patch"
 	},
 	"trustedDependencies": [
+		"@octane-xplat/cli",
 		"esbuild",
 		"@parcel/watcher"
 	]

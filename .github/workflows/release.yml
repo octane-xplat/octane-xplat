@@ -520,6 +520,22 @@ jobs:
         if: steps.unpublished.outputs.exists != 'true'
         run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
+      - uses: actions/setup-go@v6
+        if: steps.unpublished.outputs.exists != 'true'
+        with:
+          go-version-file: packages/cli/go/go.mod
+          cache: false
+
+      # The published CLI installs its native bin from five optional payload
+      # packages — cross-build the core (CGO-off) image for each npm target.
+      - name: Build native CLI payloads
+        if: steps.unpublished.outputs.exists != 'true'
+        run: |
+          set -euo pipefail
+          for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
+            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" node tools/cli-go/build.mjs --cli
+          done
+
       - name: Tag the release
         if: >-
           steps.unpublished.outputs.exists != 'true' &&
@@ -533,7 +549,7 @@ jobs:
       # The helper skips registry versions already published when resuming a release.
       - name: Publish to npm
         if: steps.unpublished.outputs.exists != 'true'
-        run: node scripts/publish-release.ts
+        run: node scripts/publish-release.ts --native-dir research/go-cli
 
       # The release commit consumed the pending notes into the root logs,
       # which the docs changelog page renders — the Release body links the
@@ -700,8 +716,20 @@ jobs:
       - name: Check nightly patch artifact
         run: bun run turbo run pack:check --filter=@octane-xplat/patches
 
+      - uses: actions/setup-go@v6
+        with:
+          go-version-file: packages/cli/go/go.mod
+          cache: false
+
+      - name: Build native CLI payloads
+        run: |
+          set -euo pipefail
+          for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
+            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" node tools/cli-go/build.mjs --cli
+          done
+
       - name: Publish nightly to npm
-        run: node scripts/publish-release.ts --tag nightly
+        run: node scripts/publish-release.ts --tag nightly --native-dir research/go-cli
 
       # Checkout persists the RELEASE_TOKEN credential — retagging a workflow
       # change requires Workflows: write, which GITHUB_TOKEN cannot hold.

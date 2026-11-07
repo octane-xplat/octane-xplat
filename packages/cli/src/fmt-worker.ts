@@ -1,9 +1,8 @@
 // One bounded operation; the native CLI owns publication and process lifetime.
 import { readFileSync, writeFileSync } from 'node:fs'
-import { createRequire } from 'node:module'
-import { join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { planFormat } from './fmt-plan.ts'
+import { resolveProjectTool } from './package-root.ts'
 
 const [input, output] = process.argv.slice(2)
 const request = JSON.parse(readFileSync(input, 'utf8'))
@@ -20,12 +19,9 @@ try {
     throw new Error('Invalid format operation request')
   }
 
-  const localRequire = createRequire(join(request.project, 'package.json'))
   const data = await planFormat(request.project, request.inputs, request.stdin, async () => {
-    let entry: string
-    try {
-      entry = localRequire.resolve('@octane-xplat/fmt')
-    } catch {
+    const entry = resolveProjectTool(request.project, '@octane-xplat/fmt')
+    if (!entry) {
       throw new Error(
         'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
       )

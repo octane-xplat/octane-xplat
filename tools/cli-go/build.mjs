@@ -16,7 +16,6 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 
-import { nativeCliPin } from '../../packages/cli/src/cli-channel.ts'
 import { nativeInputs } from './native-inputs.mjs'
 import { buildReleaseWorker } from './release-worker.mjs'
 
@@ -48,11 +47,21 @@ assert.equal(
   'Synchronize CLI/framework source versions',
 )
 
-const version = process.env.XPLAT_GO_VERSION ?? sourceVersion + '-nim.0'
+// The CLI publishes at the lockstep version like every other package.
+const version = process.env.XPLAT_GO_VERSION ?? sourceVersion
+assert.equal(version, sourceVersion, 'Native CLI builds pin the lockstep package version')
+const embedded = JSON.parse(
+  readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')),
+)
 assert.equal(
-  nativeCliPin(version, sourceVersion),
-  version,
-  'Use the exact same-release native prerelease pin',
+  embedded.catalog.cli.version,
+  sourceVersion,
+  'bump-versions.ts must keep catalog cli.version in sync',
+)
+assert.equal(
+  embedded.version,
+  sourceVersion,
+  'bump-versions.ts must keep the catalog release version in sync',
 )
 
 const releaseWorker = cli ? buildReleaseWorker(root, join(work, 'release-worker'), version) : null

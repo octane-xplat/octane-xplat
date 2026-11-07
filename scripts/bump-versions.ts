@@ -35,6 +35,16 @@ for (const { name, dir } of lockstepPackages()) {
   console.log(`${name} -> ${version}`)
 }
 
+// The embedded CLI catalog carries the release version too — the binary
+// reports it.
+const catalogFile = 'packages/cli/go/internal/assets/catalog.json'
+const catalog = JSON.parse(readFileSync(catalogFile, 'utf8'))
+catalog.catalog.cli.version = version
+catalog.version = version
+catalog.frameworkVersion = version
+writeFileSync(catalogFile, JSON.stringify(catalog))
+console.log('go catalog -> ' + version)
+
 compatibility.frameworkVersion = version
 
 // The tsrx-typegen starter pin follows the in-repo version once that version

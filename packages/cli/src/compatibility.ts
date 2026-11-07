@@ -22,7 +22,6 @@ import {
 
 import { canonicalPatchesDir, loadPatchManifest, specifierPackage } from './patches.ts'
 import { masonCorePackage, masonFullPackage, masonLegacyPackage } from './mason-engine.ts'
-import { nativeCliPin } from './cli-channel.ts'
 
 export { compatibility, managedPackage, managedSpecifier }
 
@@ -116,7 +115,6 @@ export function planUpgrade(dir: string): UpgradePlan {
   const expected = new Map<string, Set<string>>()
   const expectedSpecs = new Map<string, Set<string>>()
   const applicable = new Set<string>()
-  const nativeCatalogs: { declared: string; version: string; label: string }[] = []
   const packages = paths.map((path) => {
     const file = join(path, 'package.json')
     const raw = readFileSync(file, 'utf8')
@@ -187,31 +185,6 @@ export function planUpgrade(dir: string): UpgradePlan {
           continue
         }
 
-        if (name === '@octane-xplat/cli' && (spec === 'nim' || spec.includes('-nim.'))) {
-          const native = nativeCliPin(spec, compatibility.frameworkVersion)
-          if (!native) {
-            throw new Error(
-              `CLI nim channel requires an exact ${compatibility.frameworkVersion}-nim.N pin; install a compatible CLI prerelease before upgrading`,
-            )
-          }
-
-          // Keep explicit per-project/catalog choice. A shared stable catalog
-          // must not switch another app's CLI implementation or native build.
-          plan.skipped.push(`${label}: keep ${name} ${declared} (nim channel)`)
-          if (declared.startsWith('catalog:')) {
-            nativeCatalogs.push({ declared, version: native, label })
-          }
-
-          applicable.add(name)
-          const versions = expected.get(name) ?? new Set<string>()
-          versions.add(native)
-          expected.set(name, versions)
-          const specs = expectedSpecs.get(name) ?? new Set<string>()
-          specs.add(native)
-          expectedSpecs.set(name, specs)
-          continue
-        }
-
         const desired = managedSpecifier(name, profile)!
         if ((/^[\w+.-]+:/.test(spec) || spec.includes('/')) && spec !== desired) {
           throw new Error(
@@ -255,20 +228,29 @@ export function planUpgrade(dir: string): UpgradePlan {
     }
   }
 
-  // A later stable app can rewrite a managed catalog shared by an earlier
-  // native app. Validate the completed plan, independent of traversal order.
-  const alignedConfig = ws.toJS() ?? {}
-  for (const choice of nativeCatalogs) {
-    if (resolveCatalog(choice.declared, '@octane-xplat/cli', alignedConfig) !== choice.version) {
-      throw new Error(
-        `${choice.label}: CLI ${choice.declared} would switch the nim channel; give stable and native CLI choices separate catalogs before upgrading`,
-      )
-    }
+  // The CLI's postinstall selects its native executable; Bun runs it only for
+  // trusted packages, wherever the CLI or the umbrella is declared.
+  const rootPackage = packages.find((pkg) => pkg.path === root)
+  const usesCli = packages.some(({ pkg }) =>
+    dependencySections.some((section) =>
+      ['@octane-xplat/cli', 'octane-xplat'].some((name) => pkg[section]?.[name]),
+    ),
+  )
+  if (
+    manager === 'bun' &&
+    rootPackage &&
+    usesCli &&
+    !(rootPackage.pkg.trustedDependencies ?? []).includes('@octane-xplat/cli')
+  ) {
+    rootPackage.pkg.trustedDependencies = [
+      ...(rootPackage.pkg.trustedDependencies ?? []),
+      '@octane-xplat/cli',
+    ]
+    plan.updates.push('.: trust the @octane-xplat/cli install script')
   }
 
   // pnpm uses root overrides, including legacy package.json settings. Preserve
   // unrelated selectors and stop on ambiguous profile-specific overrides.
-  const rootPackage = packages.find((pkg) => pkg.path === root)
   for (const overrides of [config.overrides ?? {}, rootPackage?.pkg.pnpm?.overrides ?? {}]) {
     for (const [selector, value] of Object.entries(overrides)) {
       const name = specifierPackage(selector.split('>').at(-1)!)

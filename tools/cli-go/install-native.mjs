@@ -19,6 +19,17 @@ const pkg = JSON.parse(readFileSync(join(root, 'package.json')))
 const manifest = JSON.parse(readFileSync(join(root, 'native-platforms.json')))
 const target = `${process.platform}-${process.arch}`
 const record = manifest.targets?.[target]
+if (manifest.version === 1 && manifest.cliVersion === pkg.version && !record) {
+  // An unsupported host must not fail the whole app install; the bin stays
+  // the empty placeholder and reports this message when invoked.
+  console.error(
+    `xplat has no native executable for ${target}; supported: ${Object.keys(
+      manifest.targets ?? {},
+    ).join(', ')}`,
+  )
+  process.exit(0)
+}
+
 if (manifest.version !== 1 || manifest.cliVersion !== pkg.version || !record) {
   throw new Error(`This CLI package has no native executable for ${target}.`)
 }
