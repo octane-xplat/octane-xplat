@@ -24,3 +24,10 @@ bun run turbo run test:coverage --filter=@xplat/component-workshop
 The docs build depends on this app, then assembles its output after the docs and
 demo builds. Referenced sandbox artwork is copied from its canonical public asset
 folder; browser previews do not establish native runtime or OS-input qualification.
+
+After publishing a preview, verify its source revision, asset routing and live
+preview activation. Pass the deployed URL and its full source commit:
+
+```sh
+bun run turbo run verify:deployment --filter=@xplat/component-workshop -- https://PREVIEW.pages.dev/workshop/ FULL_GIT_REVISION
+```

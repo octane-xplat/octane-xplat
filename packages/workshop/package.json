@@ -1,7 +1,7 @@
 {
 	"name": "@octane-xplat/workshop",
 	"version": "0.20.0",
-	"description": "Component workshop for Octane Xplat — typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
+	"description": "Component workshop for Octane Xplat \u2014 typed stories, metadata discovery, adaptive shell, lifecycle and warm reload",
 	"keywords": [
 		"components",
 		"cross-platform",
@@ -68,7 +68,7 @@
 		"typecheck": "node ../../scripts/typecheck.ts",
 		"test": "vitest run && tsc --runExternalCode --noEmit -p tsconfig.test.json",
 		"test:e2e": "bun run --filter @xplat/workshop-demo test:e2e",
-		"test:packed": "bun run build && node tests/packed-consumer.web.mjs",
+		"test:packed": "node tests/packed-consumer.web.mjs",
 		"test:packed:linux": "node tests/packed-consumer.linux.mjs",
 		"test:packed:macos": "node tests/packed-consumer.macos.mjs",
 		"test:packed:windows": "node tests/packed-windows-preflight.mjs",

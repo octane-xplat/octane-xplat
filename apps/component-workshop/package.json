@@ -8,7 +8,8 @@
     "build": "node scripts/build.ts",
     "typecheck": "node ../../scripts/typecheck.ts",
     "test:coverage": "node scripts/coverage.ts",
-    "test:browser": "node scripts/browser.ts"
+    "test:browser": "node scripts/browser.ts",
+    "verify:deployment": "node scripts/verify-deployment.ts"
   },
   "dependencies": {
     "@octane-xplat/ads": "workspace:*",

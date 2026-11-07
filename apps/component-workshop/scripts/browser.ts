@@ -92,6 +92,14 @@ try {
   await page.getByRole('searchbox').fill('not-a-component')
   assert.equal(await page.locator('section:visible').count(), 0)
   assert.deepEqual(errors, [], 'gallery errors')
+  await page.getByRole('searchbox').fill('')
+  await page.goto(`${base}?view=story&story=button/basic`)
+  await page.getByRole('link', { name: 'Gallery', exact: true }).waitFor()
+  await page.goBack()
+  await page.waitForSelector('.xw-gallery')
+  await page.locator('.xw-gallery section').first().scrollIntoViewIfNeeded()
+  await page.waitForFunction(() => document.querySelectorAll('.xw-gallery iframe').length > 0)
+
   // Exercise every representative in its actual compiled frame, without image capture.
   const failures: string[] = []
   const runnable = Object.keys(catalog).filter((key) => !catalog[key].capabilities?.length)

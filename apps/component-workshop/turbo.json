@@ -36,6 +36,9 @@
         "$TURBO_ROOT$/packages/*/src/index.ts",
         "$TURBO_ROOT$/packages/*/package.json"
       ]
+    },
+    "verify:deployment": {
+      "cache": false
     }
   }
 }

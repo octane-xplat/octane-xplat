@@ -101,7 +101,7 @@ export const Basic = defineStory({
 Gallery previews mount in separate browser frames, each with fresh state and
 owned fixtures. Up to two load concurrently and eight remain active. Distant
 previews may release their resources and reset when revisited; a focused preview
-stays active. **Load / Retry preview** works without viewport observation, and
+stays active. Navigation starts fresh preview state when you return. **Load / Retry preview** works without viewport observation, and
 **Reset** creates fresh story state. This is lazy mounting, not server-rendered
 component hydration. Non-web stories stay visible as platform-only entries.
 

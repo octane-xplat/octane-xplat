@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { discoverStories } from './discover.ts'
 import { xplatWorkshop } from './vite.ts'
 import { galleryEntries } from '../gallery.ts'
-import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { xplatBoundary, xplatCss, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
 
 const escape = (value) =>
   String(value).replace(
@@ -108,6 +108,7 @@ export async function buildStaticWorkshop({
     base,
     mode: 'production',
     plugins: [
+      xplatCss('web'),
       ...xplatWorkshop({ cwd: root, config, target }),
       ...octane(),
       xplatBoundary('web'),

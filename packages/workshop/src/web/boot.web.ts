@@ -6,6 +6,13 @@ import { resolveDefinition } from './entry.web'
 
 /** Start the gallery, inspector, or isolated preview according to URL state. */
 export function bootWorkshop(options: WorkshopBootOptions): void {
+  // A cached document has already released its sessions on pagehide.
+  // Start fresh when browser history restores that document.
+  window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+      location.reload()
+    }
+  })
   const params = new URLSearchParams(location.search)
   const view =
     params.get('view') ??
@@ -18,7 +25,15 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
   }
   const story = params.get('story') ?? options.initialStoryId
   if (view !== 'frame') {
-    startWorkshop({ ...options, initialStoryId: story })
+    const runtime = startWorkshop({ ...options, initialStoryId: story })
+    window.addEventListener(
+      'pagehide',
+      () => {
+        void runtime.session.dispose()
+      },
+      { once: true },
+    )
+
     return
   }
   const token = params.get('token')

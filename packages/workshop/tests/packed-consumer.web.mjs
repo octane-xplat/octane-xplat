@@ -456,6 +456,17 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
   const staticRoot = join(consumer, 'out/static')
   const html = readFileSync(join(staticRoot, 'index.html'), 'utf8')
   assert.match(html, /src="\/nested\/assets\//)
+  const staticCSS = files(staticRoot)
+    .filter((file) => file.endsWith('.css'))
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n')
+
+  assert.doesNotMatch(
+    staticCSS,
+    /@platform\b/,
+    'static publication must compile platform CSS directives',
+  )
+
   const shipped = files(staticRoot)
     .map((file) => readFileSync(file, 'utf8'))
     .join('\n')
