@@ -1,4 +1,5 @@
 import { serverBoundary } from '@octane-xplat/lib/server-boundary'
+import { xplatTsrx } from '@octane-xplat/build/vite'
 import { fileURLToPath } from 'node:url'
 import { normalizePath, type Plugin } from 'vite'
 
@@ -9,7 +10,7 @@ export function webHost(): Plugin[] {
 	const entry = import.meta.resolve('@octane-xplat/ui/routing/web-host')
 	const browserRoot = normalizePath(fileURLToPath(new URL('./browser-root.web.ts', entry)))
 	const serverRoot = fileURLToPath(new URL('./browser-root.server.web.ts', entry))
-	return [serverBoundary(), {
+	return [serverBoundary(), xplatTsrx('web'), {
 		name: 'xplat-web-host',
 		enforce: 'pre',
 		config: () => ({
