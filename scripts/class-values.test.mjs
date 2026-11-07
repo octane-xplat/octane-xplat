@@ -17,7 +17,7 @@ function normalizer(path, name) {
   const { outputText } = ts.transpileModule(declaration.getText(ast), {
     compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.CommonJS },
   })
-  return new Function(`${outputText}\nreturn ${name}`)()
+  return new Function('exports', `${outputText}\nreturn ${name}`)({})
 }
 
 const normalizers = {
@@ -30,7 +30,7 @@ const normalizers = {
     'normalizeClass',
   ),
   macOS: normalizer(
-    new URL('../packages/macos-appkit/src/index.ts', import.meta.url),
+    new URL('../packages/macos-appkit/src/style-values.ts', import.meta.url),
     'normalizeClass',
   ),
   GTK: normalizer(
