@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { parse } from 'yaml'
-import { RELEASE_TRACKS, releaseChannel, verifyEvidence } from './release-channel.ts'
+import { RELEASE_TRACKS, latestEvidenceArtifact, releaseChannel, verifyEvidence } from './release-channel.ts'
 
 const repository = 'octane-xplat/octane-xplat'
 const sha = 'a'.repeat(40)
@@ -27,6 +27,7 @@ function fixture(track = 'stable') {
   const run = {
     id: runId,
     head_sha: sha,
+    run_attempt: 1,
     // ci evidence comes from a main push; stable evidence from the
     // bot-maintained release pull request.
     head_branch: track === 'stable' ? 'release/lockstep' : 'main',
@@ -109,6 +110,8 @@ test('recording evidence covers the complete job set for its track', () => {
             tree,
             '--run-id',
             '200',
+            '--run-attempt',
+            '2',
             '--out',
             out,
           ],
@@ -117,6 +120,7 @@ test('recording evidence covers the complete job set for its track', () => {
 
         assert.equal(run.status, 0, run.stderr)
         const actual = JSON.parse(readFileSync(join(out, 'ci-evidence.json'), 'utf8'))
+        assert.equal(actual.runAttempt, 2)
         assert.equal(actual.track, track)
         assert.equal(actual.status, result === 'success' ? 'success' : 'failure')
         assert.equal(actual.jobs[lane], result)
@@ -330,8 +334,8 @@ function withGithubFixture(callback) {
     assert.equal(packed.status, 0, packed.stderr)
     const base = `repos/${repository}/actions`
     const responses = {
-      [`${base}/runs/200/artifacts?per_page=100`]: {
-        artifacts: [{ id: 1, name: `ci-evidence-stable-${tree}` }],
+      [`${base}/runs/200/artifacts?per_page=100&page=1`]: {
+        artifacts: [{ id: 1, name: `ci-evidence-stable-${tree}`, created_at: '2026-11-07T12:13:19Z' }],
       },
       [`${base}/runs/200`]: context.run,
       [`${base}/runs/200/jobs?filter=latest&per_page=100`]: { jobs: context.jobs },
@@ -385,7 +389,7 @@ else {
         },
       )
 
-    callback({ execute, output, responses, data })
+    callback({ execute, output, responses, data, directory, zip })
   } finally {
     rmSync(directory, { recursive: true, force: true })
   }
@@ -461,4 +465,76 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   assert.equal(release.jobs['tsrx-typegen-resume'].concurrency.group, 'release-tsrx-typegen')
   assert.equal(release.jobs['tsrx-typegen'].concurrency.group, 'release-tsrx-typegen')
   assert.equal(release.jobs.nightly.if, "needs.nightly-gate.outputs.publish == 'true'")
+})
+
+test('rerun artifact selection uses creation time and ID regardless of status or expiry', () => {
+  const older = { id: 1, name: 'evidence', created_at: '2026-11-07T11:53:01Z', status: 'success' }
+  const newer = { id: 2, name: 'evidence', created_at: '2026-11-07T12:13:19Z', status: 'failure', expired: true }
+  assert.equal(latestEvidenceArtifact([newer, older], 'evidence'), newer)
+  assert.equal(latestEvidenceArtifact([older, newer], 'evidence'), newer)
+  assert.equal(latestEvidenceArtifact([{ ...newer, id: 3 }, newer], 'evidence').id, 3)
+  assert.equal(latestEvidenceArtifact([older], 'other'), undefined)
+  assert.throws(() => latestEvidenceArtifact([{ ...older, created_at: 'invalid' }], 'evidence'))
+})
+
+test('stable CLI selects the newer report across artifact pages after a passing rerun', () => {
+  withGithubFixture(({ execute, responses, data }) => {
+    const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
+    const current = responses[path].artifacts[0]
+    responses[path] = { total_count: 2, artifacts: [{ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }] }
+    responses[path.replace('&page=1', '&page=2')] = { total_count: 2, artifacts: [current] }
+    writeFileSync(data, JSON.stringify(responses))
+    const result = execute(['--tree', tree])
+    assert.equal(result.status, 0, result.stderr)
+    assert.match(result.stdout, /release channel: stable/)
+  })
+})
+
+test('stable CLI rejects expired newest evidence instead of falling back', () => {
+  withGithubFixture(({ execute, responses, data }) => {
+    const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
+    const current = responses[path].artifacts[0]
+    responses[path].artifacts = [{ ...current, expired: true }, { ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }]
+    writeFileSync(data, JSON.stringify(responses))
+    const result = execute(['--tree', tree])
+    assert.notEqual(result.status, 0)
+    assert.match(result.stderr, /expired/)
+  })
+})
+
+test('an older success cannot qualify a failed latest attempt', () => {
+  const { evidence, context } = fixture()
+  context.jobs[0].conclusion = 'failure'
+  assert.throws(() => verifyEvidence(evidence, context), /latest result disagrees/)
+  evidence.jobs[context.jobs[0].name] = 'failure'
+  evidence.status = 'failure'
+  assert.equal(verifyEvidence(evidence, context), 'none')
+})
+
+test('attempt-bound evidence rejects a stale attempt and keeps existing records usable', () => {
+  const { evidence, context } = fixture()
+  context.run.run_attempt = 2
+  assert.equal(verifyEvidence(evidence, context), 'stable')
+  evidence.runAttempt = 1
+  assert.throws(() => verifyEvidence(evidence, context), /different CI attempt/)
+  evidence.runAttempt = 2
+  assert.equal(verifyEvidence(evidence, context), 'stable')
+})
+
+
+test('invalid newest contents are rejected without trying an older artifact', () => {
+  withGithubFixture(({ execute, responses, data, directory, zip }) => {
+    const { evidence } = fixture()
+    evidence.sha = 'wrong'
+    writeFileSync(join(directory, 'ci-evidence.json'), JSON.stringify(evidence))
+    const packed = spawnSync('zip', ['-q', zip, 'ci-evidence.json'], { cwd: directory, encoding: 'utf8' })
+    assert.equal(packed.status, 0, packed.stderr)
+    const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
+    const current = responses[path].artifacts[0]
+    responses[path].artifacts.push({ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' })
+    writeFileSync(data, JSON.stringify(responses))
+    const rejected = execute(['--tree', tree])
+    assert.notEqual(rejected.status, 0)
+    assert.match(rejected.stderr, /different revision/)
+  })
 })

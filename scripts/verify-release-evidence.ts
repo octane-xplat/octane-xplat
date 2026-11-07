@@ -41,7 +41,7 @@ import {
 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { RELEASE_TRACKS, verifyEvidence } from './release-channel.ts'
+import { RELEASE_TRACKS, latestEvidenceArtifact, verifyEvidence } from './release-channel.ts'
 
 const args = process.argv.slice(2)
 const mode = args[0]
@@ -68,6 +68,8 @@ if (mode === 'record') {
     assert.ok(tree, '--tree required for stable evidence')
   }
 
+  const runAttempt = Number(value('run-attempt') ?? process.env.GITHUB_RUN_ATTEMPT ?? 1)
+  assert.ok(Number.isSafeInteger(runAttempt) && runAttempt > 0, 'invalid evidence attempt')
   const needs = JSON.parse(value('jobs') ?? '{}')
   const jobs = Object.fromEntries(required.map((job) => [job, needs[job]?.result ?? 'absent']))
 
@@ -83,6 +85,7 @@ if (mode === 'record') {
         ...(track === 'stable' ? { tree } : {}),
         sha,
         runId: Number(runId),
+        runAttempt,
         status,
         required,
         jobs,
@@ -111,12 +114,16 @@ if (mode === 'verify') {
 
   const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
   const findArtifact = (id) => {
-    const { artifacts = [] } = JSON.parse(
-      gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100`),
-    )
-    const matches = artifacts.filter((artifact) => artifact.name === artifactName)
-    assert.ok(matches.length <= 1, 'ambiguous release evidence artifacts')
-    return matches[0]
+    const artifacts = []
+    for (let page = 1; ; page++) {
+      const result = JSON.parse(gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100&page=${page}`))
+      artifacts.push(...(result.artifacts ?? []))
+      if (artifacts.length >= (result.total_count ?? artifacts.length)) {
+        break
+      }
+      assert.ok(result.artifacts?.length, 'incomplete evidence artifact listing')
+    }
+    return latestEvidenceArtifact(artifacts, artifactName)
   }
 
   let evidenceRunId = runId ? Number(runId) : null

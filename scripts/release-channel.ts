@@ -18,6 +18,20 @@ export function releaseChannel(jobs, track = 'stable') {
   return RELEASE_TRACKS[track].jobs.every((job) => jobs?.[job] === 'success') ? track : 'none'
 }
 
+// GitHub retains artifacts from earlier attempts under the same name.
+// Select by GitHub metadata before inspecting status; an older success must
+// never replace a newer failure or invalid report.
+export function latestEvidenceArtifact(artifacts, name) {
+  const matches = artifacts.filter((artifact) => artifact.name === name)
+  for (const artifact of matches) {
+    assert.ok(Number.isSafeInteger(artifact.id) && artifact.id > 0, 'invalid evidence artifact ID')
+    assert.ok(Number.isFinite(Date.parse(artifact.created_at)), 'invalid evidence artifact timestamp')
+  }
+  return matches.sort((a, b) =>
+    Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id,
+  )[0]
+}
+
 // Compare the artifact with GitHub's run and latest job results, rather than
 // accepting a jobs map solely because it names the expected revision.
 export function verifyEvidence(evidence, { sha, tree, runId, track, repository, run, jobs }) {
@@ -35,6 +49,10 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
   assert.deepEqual(evidence.required, required.jobs, 'evidence does not cover the required jobs')
   assert.equal(evidence.status, channel === 'none' ? 'failure' : 'success')
   assert.equal(run.id, runId, 'GitHub returned a different CI run')
+  if (evidence.runAttempt !== undefined) {
+    assert.ok(Number.isSafeInteger(evidence.runAttempt) && evidence.runAttempt > 0, 'invalid evidence attempt')
+    assert.equal(evidence.runAttempt, run.run_attempt, 'evidence belongs to a different CI attempt')
+  }
   assert.equal(run.head_sha, sha, 'CI tested a different revision')
   assert.equal(
     run.head_branch,

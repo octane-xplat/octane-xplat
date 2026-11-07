@@ -101,7 +101,11 @@ The release gate verifies `ci-evidence-<track>-<sha>` against GitHub's workflow
 identity and latest job results; stable evidence is keyed by tree instead
 (`ci-evidence-stable-<tree>`), recording both the tested sha and
 `git rev-parse <sha>^{tree}` so a merge commit with an identical tree reuses
-the pull request's qualification. Verifying `stable` by tree searches the
+the pull request's qualification. Reruns retain earlier evidence artifacts. The verifier
+selects the newest matching artifact within a run by GitHub creation time and
+artifact ID, then checks its identity and results against GitHub's latest jobs.
+New records also bind the run attempt. An expired, invalid, or failing newest
+record cannot fall back to an older success. Verifying `stable` by tree searches the
 release PR's completed runs; absent evidence resolves `channel=none` rather
 than failing, which queues the inline `qualify` job. A failed or missing
 required gate cannot promote to that track. Browser journeys remain local and
