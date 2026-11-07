@@ -119,14 +119,15 @@ and typechecks.
 /absolute/path/to/xplat-go typecheck
 ```
 
-The Go CLI ships on the npm `nim` tag. Its installed catalog distinguishes
-implemented commands from schema-only discovery. Native `status` reports actual installed bindings, tool observations,
+The Go CLI ships as the published `@octane-xplat/cli` package at the
+framework's lockstep version — the `nim` tag is removed. Its installed
+catalog distinguishes implemented commands from schema-only discovery.
+Native `status` reports actual installed bindings, tool observations,
 guidance and source coverage; `capabilities` describes the providers wired into
 that build. Tool presence does not qualify an SDK/device or runtime check.
-Canonical compatibility checks accept an exact same-release `@octane-xplat/cli`
-`nim` prerelease; its installed version must match. The upgrade planner
-preserves this choice and rejects shared-catalog or override conflicts before
-writes. Keep other framework pins strict.
+The upgrade planner treats `@octane-xplat/cli` like any managed pin and
+rejects shared-catalog or override conflicts before writes. Keep other
+framework pins strict.
 Native `typecheck` is available on macOS using the project-installed
 TSRX checker and CLI-owned worker; it never executes baked loaders. Native `routes`
 bakes data and watches route/configuration edits on macOS, with owned worker
