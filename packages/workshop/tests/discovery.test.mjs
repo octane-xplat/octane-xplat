@@ -198,26 +198,29 @@ describe('gallery metadata', () => {
   it('reads literal component identity and presentation without evaluating components', () => {
     const source = STORY.replace(
       'component: Counter,',
-      "componentId: 'app/Counter', gallery: { primary: true, height: 240 }, component: throwsIfEvaluated(),",
+      "componentId: 'app/Counter', gallery: { primary: true, height: 240, group: 'primitives' }, component: throwsIfEvaluated(),",
     )
     const { stories, diagnostics } = scanStoryFile(source, 'gallery.stories.tsx')
     expect(diagnostics).toEqual([])
     expect(stories[0]).toMatchObject({
       componentId: 'app/Counter',
-      gallery: { primary: true, height: 240 },
+      gallery: { primary: true, height: 240, group: 'primitives' },
     })
   })
-  it.each(['{ height: 0 }', "{ primary: 'yes' }", '{ unknown: true }', 'computed()'])(
-    'rejects invalid gallery metadata %s',
-    (gallery) => {
-      expect(
-        scanStoryFile(
-          STORY.replace('component: Counter,', `gallery: ${gallery}, component: Counter,`),
-          'bad.stories.tsx',
-        ).diagnostics.length,
-      ).toBeGreaterThan(0)
-    },
-  )
+  it.each([
+    '{ height: 0 }',
+    "{ primary: 'yes' }",
+    "{ group: 'basic' }",
+    '{ unknown: true }',
+    'computed()',
+  ])('rejects invalid gallery metadata %s', (gallery) => {
+    expect(
+      scanStoryFile(
+        STORY.replace('component: Counter,', `gallery: ${gallery}, component: Counter,`),
+        'bad.stories.tsx',
+      ).diagnostics.length,
+    ).toBeGreaterThan(0)
+  })
 })
 
 describe('platform story suffixes', () => {

@@ -25,7 +25,7 @@ explicit inputs, recover from failures, and keep workshop data out of production
 - AC4: Release all owned roots and resources on switching/reset; stale asynchronous work cannot mount, and failed/timed-out cleanup requires target restart.
 - AC5: Save story/component source, observe a fresh successful revision, retain clearly stale content on a bad edit, and recover after correction.
 - AC6: Use search, compact panels and stage-only mode through keyboard and screen reader; preserve composition, selection and healthy state through layout changes.
-- AC8: Browse a metadata-grouped browser gallery, defer offscreen fixtures, bound active previews, preserve focused examples, and recover a failed preview independently.
+- AC8: Browse a metadata-grouped browser gallery with keyboard-operable Components/Primitives tabs and scoped search, defer offscreen fixtures, bound active previews, preserve focused examples, and recover a failed preview independently.
 - AC9: Build an explicitly public static catalog at a nested URL base without a dev server; new web-capable starters include a working story and command.
 - AC7: Build the ordinary production entry with stories, fixture data and workshop dependencies excluded.
 

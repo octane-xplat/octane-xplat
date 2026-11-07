@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'sizeprovider/basic',
   title: 'SizeProvider / Basic',
   componentId: '@octane-xplat/ui#SizeProvider',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

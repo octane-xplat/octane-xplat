@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'checkindicator/basic',
   title: 'CheckIndicator / Basic',
   componentId: '@octane-xplat/ui#CheckIndicator',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

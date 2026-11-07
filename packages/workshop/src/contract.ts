@@ -192,6 +192,9 @@ interface StoryFixtureField<F> {
   fixture: FixtureFactory<F>
 }
 
+/** Gallery tabs for compositions and basic building blocks. */
+export type GalleryGroup = 'components' | 'primitives'
+
 /**
  * A complete story declaration. `id`, `title`, `targets`, and `capabilities`
  * must be literal values — discovery reads them statically without
@@ -210,6 +213,8 @@ export type StoryDefinition<P = Record<string, never>, S = void, F = void> = {
   componentId?: string
   /** Literal gallery presentation. Only one applicable variant may be primary. */
   gallery?: {
+    /** Gallery tab; defaults to components. Keep explicit values consistent across variants. */
+    group?: GalleryGroup
     /** Prefer this variant in the gallery. */
     primary?: boolean
     /** Reserved preview height in CSS pixels; must be positive and finite. */

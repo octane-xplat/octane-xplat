@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'richtext/basic',
   title: 'RichText / Basic',
   componentId: '@octane-xplat/ui#RichText',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'tablerow/basic',
   title: 'TableRow / Basic',
   componentId: '@octane-xplat/ui#TableRow',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

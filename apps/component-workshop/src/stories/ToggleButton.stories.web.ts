@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'togglebutton/basic',
   title: 'ToggleButton / Basic',
   componentId: '@octane-xplat/ui#ToggleButton',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

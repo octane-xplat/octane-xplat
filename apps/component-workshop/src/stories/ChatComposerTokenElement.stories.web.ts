@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'chatcomposertokenelement/basic',
   title: 'ChatComposerTokenElement / Basic',
   componentId: '@octane-xplat/ui/chat#ChatComposerTokenElement',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

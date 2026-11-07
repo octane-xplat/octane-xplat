@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'vstack/basic',
   title: 'VStack / Basic',
   componentId: '@octane-xplat/ui#VStack',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

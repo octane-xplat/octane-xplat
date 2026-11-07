@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'tablefooter/basic',
   title: 'TableFooter / Basic',
   componentId: '@octane-xplat/ui#TableFooter',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'chatmessagemetadata/basic',
   title: 'ChatMessageMetadata / Basic',
   componentId: '@octane-xplat/ui/chat#ChatMessageMetadata',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

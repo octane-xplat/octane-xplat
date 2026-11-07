@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'spacer/basic',
   title: 'Spacer / Basic',
   componentId: '@octane-xplat/ui#Spacer',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

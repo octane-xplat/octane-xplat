@@ -1,6 +1,6 @@
 ### Browse and publish component workshops
 
-New web-capable app and library starters include Workshop with a working example. The new Gallery shows story components on one page and loads interactive previews as you scroll. Give variants the same `componentId` to group them and set `gallery.primary` to choose the first preview.
+New web-capable app and library starters include Workshop with a working example. The new Gallery shows story components on one page and loads interactive previews as you scroll. The default Components tab leads with compositions; put basic building blocks in Primitives with `gallery.group`. Give variants the same `componentId` to group them and set `gallery.primary` to choose the first preview.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
@@ -10,7 +10,7 @@ export const Basic = defineStory({
   id: 'save/basic',
   title: 'Save button / Basic',
   componentId: 'app/SaveButton',
-  gallery: { primary: true, height: 160 },
+  gallery: { primary: true, height: 160, group: 'primitives' },
   targets: ['web'],
   component: Button,
   args: { label: 'Save' },

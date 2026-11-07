@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'colorswatch/basic',
   title: 'ColorSwatch / Basic',
   componentId: '@octane-xplat/ui#ColorSwatch',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

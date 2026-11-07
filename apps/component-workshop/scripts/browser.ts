@@ -57,8 +57,33 @@ try {
   const errors: string[] = []
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(base)
-  await page.waitForSelector('.xw-gallery section')
+  await page.waitForSelector('.xw-gallery section:visible')
   assert.equal(await page.locator('.xw-gallery section').count(), Object.keys(catalog).length)
+  const components = page.getByRole('tab', { name: 'Components', exact: true })
+  const primitives = page.getByRole('tab', { name: 'Primitives', exact: true })
+  assert.equal(await components.getAttribute('aria-selected'), 'true')
+  const componentCount = await page.locator('section[data-group="components"]').count()
+  const primitiveCount = await page.locator('section[data-group="primitives"]').count()
+  assert.ok(componentCount > 0 && primitiveCount > 0)
+  assert.equal(componentCount + primitiveCount, Object.keys(catalog).length)
+  assert.equal(await page.locator('section:visible').count(), componentCount)
+  await page.getByRole('searchbox').fill('VStack')
+  assert.equal(await page.locator('section:visible').count(), 0)
+  await primitives.click()
+  assert.equal(await page.getByRole('searchbox').inputValue(), 'VStack')
+  assert.equal(await page.locator('section:visible').count(), 1)
+  assert.equal(await page.locator('nav[aria-label="Component index"] a:not([hidden])').count(), 1)
+  await page.getByRole('searchbox').fill('')
+  await page.reload()
+  assert.equal(await primitives.getAttribute('aria-selected'), 'true')
+  assert.equal(await page.locator('section:visible').count(), primitiveCount)
+  await primitives.focus()
+  await page.keyboard.press('ArrowLeft')
+  assert.equal(await components.getAttribute('aria-selected'), 'true')
+  await page.keyboard.press('End')
+  assert.equal(await primitives.getAttribute('aria-selected'), 'true')
+  await page.keyboard.press('Home')
+  assert.equal(await components.getAttribute('aria-selected'), 'true')
   await page.waitForFunction(() => document.querySelectorAll('iframe').length > 0)
   assert.ok(
     (await page.locator('iframe').count()) < 8,
@@ -79,9 +104,13 @@ try {
     'NavLink',
     'ToastViewport',
   ]) {
-    await page
-      .locator(`section[id="component=${encodeURIComponent(catalog[name].package + '#' + name)}"]`)
-      .scrollIntoViewIfNeeded()
+    const card = page.locator(
+      `section[id="component=${encodeURIComponent(catalog[name].package + '#' + name)}"]`,
+    )
+
+    const group = await card.getAttribute('data-group')
+    await (group === 'primitives' ? primitives : components).click()
+    await card.scrollIntoViewIfNeeded()
 
     await page.waitForTimeout(180)
     assert.ok((await page.locator('iframe').count()) <= 8, 'active preview budget exceeded')
@@ -94,7 +123,7 @@ try {
   assert.deepEqual(errors, [], 'gallery errors')
   await page.getByRole('button', { name: 'Clear search', exact: true }).click()
   assert.equal(await page.getByRole('searchbox').inputValue(), '')
-  assert.equal(await page.locator('section:visible').count(), Object.keys(catalog).length)
+  assert.equal(await page.locator('section:visible').count(), componentCount)
   assert.equal(
     await page.getByRole('searchbox').evaluate((node) => node === document.activeElement),
     true,
@@ -119,11 +148,18 @@ try {
     'search must retain visible keyboard focus',
   )
 
+  await page.goto(`${base}#component=${encodeURIComponent('@octane-xplat/ui#Text')}`)
+  await page
+    .locator('section[id="component=%40octane-xplat%2Fui%23Text"]')
+    .waitFor({ state: 'visible' })
+
+  assert.equal(await primitives.getAttribute('aria-selected'), 'true')
+
   await page.goto(`${base}?view=story&story=button/basic`)
   await page.getByRole('link', { name: 'Gallery', exact: true }).waitFor()
   await page.goBack()
   await page.waitForSelector('.xw-gallery')
-  await page.locator('.xw-gallery section').first().scrollIntoViewIfNeeded()
+  await page.locator('.xw-gallery section:visible').first().scrollIntoViewIfNeeded()
   await page.waitForFunction(() => document.querySelectorAll('.xw-gallery iframe').length > 0)
 
   // Exercise every representative in its actual compiled frame, without image capture.

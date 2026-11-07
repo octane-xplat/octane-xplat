@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'pressable/basic',
   title: 'Pressable / Basic',
   componentId: '@octane-xplat/ui#Pressable',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

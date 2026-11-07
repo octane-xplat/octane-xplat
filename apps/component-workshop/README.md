@@ -14,6 +14,11 @@ bun run turbo run test:browser --filter=@xplat/component-workshop
 coverage check compares UI root, Chat, Markdown, and publishable visual leaf
 exports with that mapping. Context objects, hooks, services, private packages,
 and OS-authentic `ui/ios`/`ui/android` subpaths are outside this browser inventory.
+The default **Components** tab leads with richer examples. Basic layout, type,
+controls and supporting pieces use literal `gallery: { group: 'primitives' }`
+metadata in their stories to appear in **Primitives**. Classification belongs to
+the story, rather than a component-name heuristic in the shared gallery.
+
 Permission-, credential-, and ad-configuration-dependent entries remain visible
 with prerequisite diagnostics and never activate from scrolling.
 

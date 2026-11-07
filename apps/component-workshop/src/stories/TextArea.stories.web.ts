@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'textarea/basic',
   title: 'TextArea / Basic',
   componentId: '@octane-xplat/ui#TextArea',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

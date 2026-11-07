@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'progressbar/basic',
   title: 'ProgressBar / Basic',
   componentId: '@octane-xplat/ui#ProgressBar',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'searchinput/basic',
   title: 'SearchInput / Basic',
   componentId: '@octane-xplat/ui#SearchInput',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'colorfield/basic',
   title: 'ColorField / Basic',
   componentId: '@octane-xplat/ui#ColorField',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

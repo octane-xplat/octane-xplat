@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'powersearchtoken/basic',
   title: 'PowerSearchToken / Basic',
   componentId: '@octane-xplat/ui#PowerSearchToken',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

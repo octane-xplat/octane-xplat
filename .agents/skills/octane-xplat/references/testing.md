@@ -52,7 +52,10 @@ bun run xplat workshop dev --target web --story counter/basic
 
 New web-capable app/library starters include `bun run workshop`. The browser
 Gallery groups literal `componentId` values and lazily mounts isolated previews;
-`gallery.primary` chooses a representative. Distant previews can reset after
+`gallery.primary` chooses a representative. Set `gallery.group: 'primitives'`
+for simple building blocks; unmarked entries stay in the default Components tab.
+The tabs appear only when primitives exist. Search and index follow the active
+tab, and component anchors reveal the matching tab. Distant previews can reset after
 eviction. Static publishing intentionally includes the public catalog; ordinary
 app production exclusion still applies. This does not qualify native hosts.
 

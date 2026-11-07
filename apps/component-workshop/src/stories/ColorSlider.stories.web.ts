@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'colorslider/basic',
   title: 'ColorSlider / Basic',
   componentId: '@octane-xplat/ui#ColorSlider',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

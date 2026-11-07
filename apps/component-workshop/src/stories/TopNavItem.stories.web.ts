@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'topnavitem/basic',
   title: 'TopNavItem / Basic',
   componentId: '@octane-xplat/ui#TopNavItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

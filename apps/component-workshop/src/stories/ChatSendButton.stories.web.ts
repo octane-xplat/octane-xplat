@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'chatsendbutton/basic',
   title: 'ChatSendButton / Basic',
   componentId: '@octane-xplat/ui/chat#ChatSendButton',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

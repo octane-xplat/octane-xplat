@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'aspectratio/basic',
   title: 'AspectRatio / Basic',
   componentId: '@octane-xplat/ui#AspectRatio',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

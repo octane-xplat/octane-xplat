@@ -57,7 +57,7 @@ try {
   })
 
   await page.goto(url.href)
-  await page.waitForSelector('.xw-gallery section')
+  await page.waitForSelector('.xw-gallery section:visible')
   assert.equal(await page.locator('.xw-gallery section').count(), manifest.components)
   await page.waitForFunction(() =>
     [...document.querySelectorAll('.xw-gallery section [role="status"]')].some(
@@ -67,7 +67,14 @@ try {
 
   const count = await page.locator('iframe').count()
   assert.ok(count > 0 && count <= 8)
+  const components = page.getByRole('tab', { name: 'Components', exact: true })
+  const primitives = page.getByRole('tab', { name: 'Primitives', exact: true })
+  assert.equal(await components.getAttribute('aria-selected'), 'true')
+  await primitives.click()
   const search = page.getByRole('searchbox')
+  await search.fill('VStack')
+  assert.equal(await page.locator('section:visible').count(), 1)
+  await components.click()
   await search.fill('ColorPicker')
   assert.equal(await page.locator('section:visible').count(), 1)
   await page.locator('section:visible').scrollIntoViewIfNeeded()

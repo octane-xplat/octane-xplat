@@ -69,7 +69,7 @@ bun run xplat workshop init --no-scripts
 
 Choose **Gallery** in the inspector toolbar, or open the printed server URL with
 `?view=gallery`. Every component represented by a story has a section. Examples
-load as they approach the viewport. **Open story** links let you inspect other
+load as they approach the viewport. **View story** links let you inspect other
 variants and edit controls. Try the framework's [public component workshop](https://octane-xplat.goddardai.org/workshop/).
 
 ```sh
@@ -82,6 +82,9 @@ Use a literal `componentId` to group variants of the same component. Set
 preview space in CSS pixels. Without a component ID, each story gets its own
 section; without a primary variant, the applicable story with the first sorted
 ID is selected. Duplicate applicable primaries produce a discovery diagnostic.
+Put simple building blocks in **Primitives** with `gallery.group`; unmarked
+components stay in **Components**, the default tab. Explicit group values must
+agree across variants of one component.
 
 ```tsx
 import { Button } from '@octane-xplat/ui'
@@ -91,17 +94,27 @@ export const Basic = defineStory({
   id: 'save/basic',
   title: 'Save button / Basic',
   componentId: 'app/SaveButton',
-  gallery: { primary: true, height: 160 },
+  gallery: { primary: true, height: 160, group: 'primitives' },
   targets: ['web'],
   component: Button,
   args: { label: 'Save' },
 })
 ```
 
+Tabs appear when the catalog includes primitives. Search and the component index
+follow the selected tab; switching tabs preserves your search. Direct component
+links open the appropriate tab. To link to Primitives itself, add `group=primitives`:
+
+```sh
+bun run xplat workshop dev --target web
+# Open the printed URL with ?view=gallery&group=primitives
+```
+
 Gallery previews mount in separate browser frames, each with fresh state and
 owned fixtures. Up to two load concurrently and eight remain active. Distant
 previews may release their resources and reset when revisited; a focused preview
-stays active. Navigation starts fresh preview state when you return. **Load / Retry preview** works without viewport observation, and
+stays active while it remains visible. Search and tab changes release previews
+that they hide. Navigation starts fresh preview state when you return. **Load / Retry preview** works without viewport observation, and
 **Reset** creates fresh story state. This is lazy mounting, not server-rendered
 component hydration. Non-web stories stay visible as platform-only entries.
 

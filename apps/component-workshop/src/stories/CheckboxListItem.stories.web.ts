@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'checkboxlistitem/basic',
   title: 'CheckboxListItem / Basic',
   componentId: '@octane-xplat/ui#CheckboxListItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'breadcrumbitem/basic',
   title: 'BreadcrumbItem / Basic',
   componentId: '@octane-xplat/ui#BreadcrumbItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

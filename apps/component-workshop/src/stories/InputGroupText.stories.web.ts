@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'inputgrouptext/basic',
   title: 'InputGroupText / Basic',
   componentId: '@octane-xplat/ui#InputGroupText',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'gridspan/basic',
   title: 'GridSpan / Basic',
   componentId: '@octane-xplat/ui#GridSpan',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

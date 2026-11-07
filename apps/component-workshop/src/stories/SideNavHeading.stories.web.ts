@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'sidenavheading/basic',
   title: 'SideNavHeading / Basic',
   componentId: '@octane-xplat/ui#SideNavHeading',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'radioindicator/basic',
   title: 'RadioIndicator / Basic',
   componentId: '@octane-xplat/ui#RadioIndicator',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

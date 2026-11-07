@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'metadatalistitem/basic',
   title: 'MetadataListItem / Basic',
   componentId: '@octane-xplat/ui#MetadataListItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

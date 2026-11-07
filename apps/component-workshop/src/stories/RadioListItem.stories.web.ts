@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'radiolistitem/basic',
   title: 'RadioListItem / Basic',
   componentId: '@octane-xplat/ui#RadioListItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

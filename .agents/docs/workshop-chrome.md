@@ -15,14 +15,16 @@ portable composition dependency is unchanged.
 
 ## Browser gallery
 
-The gallery uses a cream page, deep muted green masthead and black actions,
+The gallery uses a cream page, restrained deep muted green type and black controls,
 with local `--gallery-*` variables in `packages/workshop/src/web/gallery.web.css`.
 These colors belong to the parent gallery document; preview frames keep their
 own component theme. Do not replace shared `--color-*` tokens to brand the gallery.
 
-A sticky search row, numbered component headings and the collapsible index keep
-the large catalog navigable. Component identity and target metadata remain
-secondary to the preview. Keep loading/failure messages beside recovery actions,
+A sticky search row, Components/Primitives tabs and the collapsible index keep
+the large catalog navigable. Use whitespace and thin separators instead of
+boxed cards, badges, decorative numbering or patterned preview backgrounds.
+Component identity stays searchable and available on each heading's tooltip;
+show target labels only when the targets extend beyond the browser. Keep loading/failure messages beside recovery actions,
 and retain the clear-search empty state. Narrow layouts wrap metadata and action
 rows while leaving each specimen's layout inside its own frame.
 
@@ -99,7 +101,8 @@ focus, selection, disabled controls, theme isolation, reduced motion and toolbar
 geometry at 320, 390, 640 and 800 pixels, alongside the existing story behavior
 checks. The packed consumer runs the same journey. The gallery browser gate checks
 search recovery, keyboard focus and horizontal overflow from 320 to 1280 pixels,
-as well as lazy loading and every runnable showcase specimen. These checks use
+as well as keyboard tab navigation, scoped search, primitive deep links,
+lazy loading and every runnable showcase specimen. These checks use
 DOM and computed styles without image capture.
 Native source/type/build checks do not prove OS focus, hit-testing, theme changes
 or visual parity. Keep actual-host and screen-reader/IME gates explicit.

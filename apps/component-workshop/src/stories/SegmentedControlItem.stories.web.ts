@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'segmentedcontrolitem/basic',
   title: 'SegmentedControlItem / Basic',
   componentId: '@octane-xplat/ui#SegmentedControlItem',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -3,11 +3,11 @@
  * and the shell. Metadata is literal and statically readable — discovery
  * never evaluates story modules.
  */
-import type { WorkshopTarget } from './contract'
+import type { GalleryGroup, WorkshopTarget } from './contract'
 
 export interface StoryMeta {
   componentId?: string
-  gallery?: { primary?: boolean; height?: number }
+  gallery?: { primary?: boolean; height?: number; group?: GalleryGroup }
   id: string
   title: string
   /** Effective targets after declared targets ∩ file-suffix applicability. */

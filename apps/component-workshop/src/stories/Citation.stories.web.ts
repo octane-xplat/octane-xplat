@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'citation/basic',
   title: 'Citation / Basic',
   componentId: '@octane-xplat/ui#Citation',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

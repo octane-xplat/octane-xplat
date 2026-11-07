@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'scrollablearea/basic',
   title: 'ScrollableArea / Basic',
   componentId: '@octane-xplat/ui#ScrollableArea',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -1,4 +1,5 @@
 import { galleryEntries, type GalleryEntry } from '../gallery'
+import type { GalleryGroup } from '../contract'
 import type { WorkshopBootOptions } from './entry.web'
 
 interface Card {
@@ -6,6 +7,7 @@ interface Card {
   section: HTMLElement
   stage: HTMLElement
   status: HTMLElement
+  anchor: HTMLAnchorElement
   frame?: HTMLIFrameElement
   token?: string
   state: 'idle' | 'queued' | 'loading' | 'ready' | 'error' | 'disposing'
@@ -38,10 +40,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   const container = element('main')
   container.className = 'xw-gallery'
   const heading = element('h1', 'Component workshop')
-  const intro = element(
-    'p',
-    'Try a component in place, or open its story to explore variants and controls.',
-  )
+  const intro = element('p', 'A library of cross-platform components, ready to explore.')
   const nav = element('a', 'Open story inspector')
   nav.href = '?view=story'
   const search = element('input')
@@ -57,11 +56,9 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   const mastheadInner = element('div')
   mastheadInner.className = 'xw-gallery-shell xw-gallery-heading'
   const introduction = element('div')
-  const eyebrow = element('p', 'WORKSHOP / COMPONENT LIBRARY')
-  eyebrow.className = 'xw-gallery-eyebrow'
   intro.className = 'xw-gallery-intro'
   nav.className = 'xw-gallery-inspector'
-  introduction.append(eyebrow, heading, intro)
+  introduction.append(heading, intro)
   mastheadInner.append(introduction, nav)
   masthead.append(mastheadInner)
 
@@ -71,8 +68,8 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   toolbarInner.className = 'xw-gallery-shell xw-gallery-tools'
   const searchLabel = element('label')
   searchLabel.className = 'xw-gallery-search'
-  searchLabel.append(element('span', 'Find a component'), search)
-  search.placeholder = 'Search by name or package…'
+  searchLabel.append(search)
+  search.placeholder = 'Find a component…'
   count.className = 'xw-gallery-count'
   toolbarInner.append(searchLabel, count)
   toolbar.append(toolbarInner)
@@ -88,10 +85,9 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   list.className = 'xw-gallery-list'
   const empty = element('div')
   empty.className = 'xw-gallery-empty'
-  empty.append(
-    element('h2', 'No components found'),
-    element('p', 'Try another component name or package.'),
-  )
+  const emptyHeading = element('h2', 'No components found')
+  const emptyHint = element('p', 'Try another component name or package.')
+  empty.append(emptyHeading, emptyHint)
   const clear = element('button', 'Clear search')
   clear.type = 'button'
   clear.onclick = () => {
@@ -102,7 +98,45 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   empty.append(clear)
   empty.hidden = true
   list.append(empty)
-  body.append(contents, note, list)
+  const tabs = element('div')
+  tabs.className = 'xw-gallery-tabs'
+  tabs.setAttribute('role', 'tablist')
+  tabs.setAttribute('aria-label', 'Component categories')
+  const tabButtons = new Map<GalleryGroup, HTMLButtonElement>()
+  list.id = 'xw-gallery-panel'
+  let activeGroup: GalleryGroup =
+    new URLSearchParams(location.search).get('group') === 'primitives' ? 'primitives' : 'components'
+  for (const group of ['components', 'primitives'] as const) {
+    const tab = element('button', group === 'components' ? 'Components' : 'Primitives')
+    tab.type = 'button'
+    tab.id = `xw-gallery-tab-${group}`
+    tab.setAttribute('role', 'tab')
+    tab.setAttribute('aria-controls', list.id)
+    tab.onclick = () => selectGroup(group, true)
+    tab.onkeydown = (event) => {
+      if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) {
+        return
+      }
+      event.preventDefault()
+      const next =
+        event.key === 'Home'
+          ? 'components'
+          : event.key === 'End'
+            ? 'primitives'
+            : activeGroup === 'components'
+              ? 'primitives'
+              : 'components'
+      selectGroup(next, true)
+      tabButtons.get(next)?.focus()
+    }
+
+    tabButtons.set(group, tab)
+    tabs.append(tab)
+  }
+  const browse = element('div')
+  browse.className = 'xw-gallery-browse'
+  browse.append(contents, note)
+  body.append(tabs, browse, list)
   container.append(masthead, toolbar, body)
   const cards: Card[] = []
   let disposed = false
@@ -239,15 +273,14 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     section.id = `component=${encodeURIComponent(entry.componentId)}`
     section.className = 'xw-gallery-card'
     section.dataset.phase = 'idle'
+    section.dataset.group = entry.group
     const title = element('h2', entry.title)
-    const identity = element('code', entry.componentId)
-    identity.className = 'xw-gallery-id'
-    const support = element(
-      'p',
-      'Targets: ' + [...new Set(entry.variants.flatMap((v) => v.targets))].join(' · '),
-    )
+    title.title = entry.componentId
+    const targets = [...new Set(entry.variants.flatMap((variant) => variant.targets))]
+    const support = element('p', 'Targets: ' + targets.join(' · '))
 
     support.className = 'xw-gallery-targets'
+    support.hidden = targets.length === 1 && targets[0] === 'web'
     const stage = element('div')
     stage.className = 'xw-gallery-stage'
     stage.style.minHeight = `${entry.height}px`
@@ -263,7 +296,19 @@ export function startGallery(options: WorkshopBootOptions): () => void {
 
     status.setAttribute('role', 'status')
     status.className = 'xw-gallery-status'
-    const card: Card = { entry, section, stage, status, near: false, state: 'idle', touched: 0 }
+    const anchor = element('a', entry.title)
+    anchor.href = `#${section.id}`
+    const card: Card = {
+      entry,
+      section,
+      stage,
+      status,
+      anchor,
+      near: false,
+      state: 'idle',
+      touched: 0,
+    }
+
     const load = element('button', 'Load / Retry preview')
     load.className = 'xw-gallery-reload'
     load.type = 'button'
@@ -289,38 +334,33 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     const cardHeader = element('header')
     cardHeader.className = 'xw-gallery-card-head'
     const label = element('div')
-    const titleRow = element('div')
-    titleRow.className = 'xw-gallery-title-row'
-    const number = element('span', String(cards.length + 1).padStart(3, '0'))
-    number.className = 'xw-gallery-number'
-    number.setAttribute('aria-hidden', 'true')
-    titleRow.append(number, title)
-    label.append(titleRow, identity)
+    label.append(title)
     cardHeader.append(label, support)
     const footer = element('footer')
     footer.className = 'xw-gallery-card-foot'
     const actions = element('div')
     actions.className = 'xw-gallery-actions'
     actions.append(load, reset)
-    footer.append(status, actions)
     const variants = element('div')
     variants.className = 'xw-gallery-variants'
     variants.setAttribute('role', 'group')
-    const variantsLabel = element('span', 'Stories')
-    variantsLabel.className = 'xw-gallery-variants-label'
-    variants.append(variantsLabel)
     variants.setAttribute('aria-label', `${entry.title} stories`)
-    section.append(cardHeader, stage, footer, variants)
+    footer.append(status, variants, actions)
+    section.append(cardHeader, stage, footer)
     for (const variant of entry.variants) {
-      const link = element('a', variant.title.split('/').at(-1)?.trim() || variant.title)
+      const link = element(
+        'a',
+        entry.variants.length === 1
+          ? 'View story'
+          : variant.title.split('/').at(-1)?.trim() || variant.title,
+      )
+
       link.setAttribute('aria-label', `Open ${variant.title} story`)
       link.title = variant.title
       link.href = `?view=story&story=${encodeURIComponent(variant.id)}`
       variants.append(link)
     }
 
-    const anchor = element('a', entry.title)
-    anchor.href = `#${section.id}`
     index.append(anchor)
     list.append(section)
     cards.push(card)
@@ -328,15 +368,38 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   if (options.diagnostics?.length) {
     container.prepend(element('p', options.diagnostics.map((d) => d.message).join('\n')))
   }
+  const hasPrimitives = entries.some((entry) => entry.group === 'primitives')
+  tabs.hidden = !hasPrimitives
+  if (hasPrimitives) {
+    list.setAttribute('role', 'tabpanel')
+  } else {
+    activeGroup = 'components'
+  }
   host.replaceChildren(container)
+  function selectGroup(group: GalleryGroup, clearAnchor = false): void {
+    activeGroup = group
+    const url = new URL(location.href)
+    if (group === 'primitives') {
+      url.searchParams.set('group', group)
+    } else {
+      url.searchParams.delete('group')
+    }
+    if (clearAnchor) {
+      url.hash = ''
+    }
+    history.replaceState(history.state, '', url)
+    filter()
+  }
   const filter = () => {
     const query = search.value.trim().toLowerCase()
     for (const card of cards) {
       card.section.hidden =
+        card.entry.group !== activeGroup ||
         !`${card.entry.componentId} ${card.entry.title} ${card.entry.variants.map((v) => v.title).join(' ')}`
           .toLowerCase()
           .includes(query)
 
+      card.anchor.hidden = card.section.hidden
       if (card.section.hidden) {
         if (!focused(card)) {
           retire(card)
@@ -348,7 +411,20 @@ export function startGallery(options: WorkshopBootOptions): () => void {
       }
     }
     const visible = cards.filter((card) => !card.section.hidden).length
-    count.textContent = `${visible}${query ? ` of ${cards.length}` : ''} component${(query ? cards.length : visible) === 1 ? '' : 's'}`
+    const total = cards.filter((card) => card.entry.group === activeGroup).length
+    count.textContent = `${visible}${query ? ` of ${total}` : ''} ${activeGroup === 'primitives' ? 'primitive' : 'component'}${(query ? total : visible) === 1 ? '' : 's'}`
+    for (const [group, tab] of tabButtons) {
+      tab.setAttribute('aria-selected', String(group === activeGroup))
+      tab.tabIndex = group === activeGroup ? 0 : -1
+    }
+    if (hasPrimitives) {
+      list.setAttribute('aria-labelledby', `xw-gallery-tab-${activeGroup}`)
+    }
+    emptyHeading.textContent =
+      activeGroup === 'primitives' ? 'No primitives found' : 'No components found'
+    emptyHint.textContent = hasPrimitives
+      ? 'Try another name or switch tabs.'
+      : 'Try another component name or package.'
     empty.hidden = visible > 0
     pump()
   }
@@ -384,7 +460,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     const card = cards.find((item) => `#${item.section.id}` === location.hash)
     if (card) {
       search.value = ''
-      filter()
+      selectGroup(card.entry.group)
       queue(card)
       card.section.scrollIntoView()
     }

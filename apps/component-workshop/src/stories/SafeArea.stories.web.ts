@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'safearea/basic',
   title: 'SafeArea / Basic',
   componentId: '@octane-xplat/ui#SafeArea',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

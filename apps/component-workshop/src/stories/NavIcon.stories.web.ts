@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'navicon/basic',
   title: 'NavIcon / Basic',
   componentId: '@octane-xplat/ui#NavIcon',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

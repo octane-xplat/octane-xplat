@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'hstack/basic',
   title: 'HStack / Basic',
   componentId: '@octane-xplat/ui#HStack',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

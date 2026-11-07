@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'chip/basic',
   title: 'Chip / Basic',
   componentId: '@octane-xplat/ui#Chip',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -5,6 +5,7 @@ export const Basic = defineStory({
   id: 'dropdownmenusection/basic',
   title: 'DropdownMenuSection / Basic',
   componentId: '@octane-xplat/ui#DropdownMenuSection',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

@@ -31,6 +31,21 @@ describe('gallery representatives', () => {
     expect(galleryEntries(entries)[0].selected?.id).toBe('a')
     expect(galleryEntries([...entries].reverse())).toEqual(galleryEntries(entries))
   })
+  it('uses explicit group metadata across variants and defaults other components', () => {
+    const entries = galleryEntries([
+      story('a', { componentId: 'button' }),
+      story('b', { componentId: 'button', gallery: { group: 'primitives' } }),
+      story('chart', { title: 'Chart / Basic' }),
+    ])
+    expect(entries.find((entry) => entry.componentId === 'button')?.group).toBe('primitives')
+    expect(entries.find((entry) => entry.componentId === 'chart')?.group).toBe('components')
+    expect(() =>
+      galleryEntries([
+        story('a', { componentId: 'button', gallery: { group: 'primitives' } }),
+        story('b', { componentId: 'button', gallery: { group: 'components' } }),
+      ]),
+    ).toThrow('conflicting gallery groups')
+  })
   it('rejects conflicting representatives', () => {
     expect(() =>
       galleryEntries(

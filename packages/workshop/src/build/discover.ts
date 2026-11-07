@@ -490,7 +490,9 @@ export function scanStoryFile(source, file) {
 					(story.gallery === null ||
 						Array.isArray(story.gallery) ||
 						typeof story.gallery !== 'object' ||
-						Object.keys(story.gallery).some((key) => !['primary', 'height'].includes(key)) ||
+						Object.keys(story.gallery).some((key) => !['primary', 'height', 'group'].includes(key)) ||
+						(story.gallery.group !== undefined &&
+							!['components', 'primitives'].includes(story.gallery.group)) ||
 						(story.gallery.primary !== undefined && typeof story.gallery.primary !== 'boolean') ||
 						(story.gallery.height !== undefined &&
 							(!Number.isFinite(story.gallery.height) || story.gallery.height <= 0)))))
@@ -499,7 +501,7 @@ export function scanStoryFile(source, file) {
 				file,
 				exportName,
 				message:
-					'invalid componentId or gallery metadata (expected primary: boolean, height: positive CSS pixels)',
+					'invalid componentId or gallery metadata (expected group: components or primitives, primary: boolean, height: positive CSS pixels)',
 			})
 
 			failed = true
@@ -638,12 +640,20 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 
 	const merged = [...byRow.values()].map((group) => group.find((e) => e.applicable) ?? group[0])
 	const primaries = new Map()
+	const galleryGroups = new Map()
 	for (const entry of merged) {
+		const key = entry.componentId ?? entry.id
+		if (entry.gallery?.group !== undefined) {
+			if (galleryGroups.has(key) && galleryGroups.get(key) !== entry.gallery.group) {
+				diagnostics.push({ file: entry.file, message: `conflicting gallery groups for ${key}` })
+			}
+
+			galleryGroups.set(key, entry.gallery.group)
+		}
 		if (!entry.applicable || !entry.gallery?.primary) {
 			continue
 		}
 
-		const key = entry.componentId ?? entry.id
 		if (primaries.has(key)) {
 			diagnostics.push({ file: entry.file, message: `multiple primary gallery stories for ${key}` })
 		}

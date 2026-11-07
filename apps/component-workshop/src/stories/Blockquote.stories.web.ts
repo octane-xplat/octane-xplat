@@ -6,6 +6,7 @@ export const Basic = defineStory({
   id: 'blockquote/basic',
   title: 'Blockquote / Basic',
   componentId: '@octane-xplat/ui#Blockquote',
+  gallery: { group: 'primitives' },
   targets: ['web'],
   component: Example,
   args: {},

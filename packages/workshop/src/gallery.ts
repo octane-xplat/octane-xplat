@@ -1,9 +1,11 @@
 import type { StoryMeta } from './catalog'
+import type { GalleryGroup } from './contract'
 
 /** One component and its deterministic representative in the gallery. */
 export interface GalleryEntry {
   componentId: string
   title: string
+  group: GalleryGroup
   selected: StoryMeta | undefined
   variants: readonly StoryMeta[]
   height: number
@@ -26,9 +28,14 @@ export function galleryEntries(entries: readonly StoryMeta[]): GalleryEntry[] {
       if (primary.length > 1) {
         throw new Error(`multiple primary gallery stories for ${componentId}`)
       }
+      const explicitGroups = new Set(variants.flatMap((entry) => entry.gallery?.group ?? []))
+      if (explicitGroups.size > 1) {
+        throw new Error(`conflicting gallery groups for ${componentId}`)
+      }
       const selected = primary[0] ?? applicable[0]
       return {
         componentId,
+        group: explicitGroups.values().next().value ?? 'components',
         title: variants[0].title.split('/').slice(0, -1).join('/').trim() || variants[0].title,
         variants,
         selected,
