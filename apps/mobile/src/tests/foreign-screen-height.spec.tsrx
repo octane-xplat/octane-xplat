@@ -103,6 +103,11 @@ it('fills a same-cell layer with intrinsic content without a native height pin (
           [bounds, layer, screen, stage].map((item) => ({
             id: item.id,
             ...item.getActualSize(),
+            nativeWidthDips: item.ios?.frame.size.width,
+            nativeHeightDips: item.ios?.frame.size.height,
+            masonWidthPixels: item.ios?.node?.computedLayout.width,
+            masonHeightPixels: item.ios?.node?.computedLayout.height,
+            parentId: item.parent?.id,
             styleHeight: item.style.height,
             flexGrow: item.style.flexGrow,
             minHeight: item.style.minHeight,

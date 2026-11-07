@@ -1,0 +1,65 @@
+diff --git a/common.js b/common.js
+--- a/common.js
++++ b/common.js
+@@ -1020,6 +1020,39 @@
+     get _masonPlacedNatively() {
+         return __APPLE__ && !!this[isMasonView_] && !!this.parent?.[isMasonView_];
+     }
++    // Refresh nested roots before the outer Rust compute takes the shared lock.
++    // Otherwise core can reuse the foreign host's previous exact frame as its
++    // intrinsic minimum, preventing a grid/flex ancestor from shrinking.
++    _masonWarmForeignRoots() {
++        if (!__APPLE__) return;
++        for (let ancestor = this.parent; ancestor; ancestor = ancestor.parent) {
++            if (ancestor[isMasonView_]) return;
++        }
++        const native = this.nativeViewProtected;
++        const mason = native?.mason ?? native?.node?.mason;
++        if (typeof mason?.invalidateForeignView !== 'function') return;
++        const containsMason = (view) => {
++            let found = false;
++            view.eachChildView?.((child) => {
++                found = !!child[isMasonView_] || containsMason(child);
++                return !found;
++            });
++            return found;
++        };
++        const visit = (parent) => parent.eachChildView?.((child) => {
++            if (child[isMasonView_]) {
++                visit(child);
++            } else if (child.nativeViewProtected && containsMason(child)) {
++                // Settle the deepest independent roots first. Both axes must
++                // be unconstrained: a previous width can also preserve height.
++                visit(child);
++                child.measure(0, 0);
++                mason.invalidateForeignView(child.nativeViewProtected);
++            }
++            return true;
++        });
++        visit(this);
++    }
+     /** Size a non-Mason child with core's measure: its native view rarely implements sizeThatFits. */
+     _masonMeasureForeign(child) {
+         if (!__APPLE__ || child[isMasonView_] || !child.nativeViewProtected)
+diff --git a/scroll/index.ios.js b/scroll/index.ios.js
+--- a/scroll/index.ios.js
++++ b/scroll/index.ios.js
+@@ -50,6 +50,7 @@
+     onMeasure(widthMeasureSpec, heightMeasureSpec) {
+         const nativeView = this._view;
+         if (nativeView) {
++            if (this.parent && !this.parent[isMasonView_]) this._masonWarmForeignRoots();
+             // As a root, the box is the viewport: clamped to the specs so the content overflows it and scrolls.
+             // @ts-ignore
+             setMeasuredFromNative(this, nativeView.mason_measure(widthMeasureSpec, heightMeasureSpec, !!this.parent && !this.parent[isMasonView_], true));
+diff --git a/view/index.ios.js b/view/index.ios.js
+--- a/view/index.ios.js
++++ b/view/index.ios.js
+@@ -56,6 +56,7 @@
+             const root = !this.parent?.[isMasonView_];
+             if (root && pendingAddHosts > 0)
+                 flushNativeAddsDeep(this);
++            if (root) this._masonWarmForeignRoots();
+             // One native call computes a root for the host's specs, or reads a child's placed box.
+             // @ts-ignore
+             setMeasuredFromNative(this, nativeView.mason_measure(widthMeasureSpec, heightMeasureSpec, root, false));

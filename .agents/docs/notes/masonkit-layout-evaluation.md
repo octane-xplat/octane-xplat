@@ -98,6 +98,18 @@ Beta.6's published deferred-intrinsic correction does not by itself resolve the
 inner-stage width report or establish that Xplat adopted that release. Check the
 installed pin and rebuilt artifact before claiming the fix is active.
 
+Core beta.7 can retain a foreign RootLayout's previous exact frame as its
+intrinsic minimum when a bounded parent shrinks ([#172](https://github.com/octane-xplat/octane-xplat/issues/172)). Xplat's
+core JavaScript patch refreshes nested foreign roots deepest-first, with both
+axes unconstrained, before the outer View/Scroll root takes the engine lock.
+It then invalidates the foreign leaf's cached engine measurement. Inner roots
+skip this warmup while they have a Mason ancestor; measurement callbacks must
+not re-enter the shared Rust compute. No native frame or style height is pinned.
+Remove the patch only when the unmodified maintained
+`apps/mobile/src/tests/foreign-screen-height.spec.tsrx` resize sequence passes
+against the replacement engine, including the final 200×500 to 107×300 shrink.
+This height correction does not establish nested iOS width parity.
+
 ## Scroll commands after the cutover
 
 Scroll hosts must expose public offsets and seek commands independently of

@@ -17,6 +17,13 @@
 			"dropWhen": "A published @nativescript/core release contains the remaining flexbox measure/alignment, continuous corners, cascade layers, custom Android and computed iOS variable-font weight mapping, and percentage-translate fixes (NativeScript/NativeScript#11481)."
 		},
 		{
+			"specifier": "@octane-xplat/nativescript-mason-core@1.0.0-beta.7",
+			"file": "@octane-xplat__nativescript-mason-core@1.0.0-beta.7.patch",
+			"scope": "runtime",
+			"why": "On iOS, a nested foreign RootLayout can retain its preceding exact frame as an intrinsic minimum, preventing a same-cell Grid layer from shrinking. Before an outer Mason View/Scroll root measures, refresh nested foreign roots deepest-first with both axes unconstrained and invalidate their cached engine leaf measurements. Roots inside a Mason ancestor skip the warmup so native measurement callbacks do not re-enter the shared Rust compute. No frame or style height is pinned; the maintained foreign-screen-height resize assertions remain unchanged.",
+			"dropWhen": "An upstream Mason core release refreshes or invalidates nested foreign-root intrinsic measurements before outer layout and passes the maintained iOS same-cell Screen resize sequence, including 200x500 to 107x300, without this warmup."
+		},
+		{
 			"specifier": "css@3.0.0",
 			"file": "css@3.0.0.patch",
 			"scope": "build",
