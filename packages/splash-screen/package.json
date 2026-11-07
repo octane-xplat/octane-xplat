@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/splash-screen",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Expo-shaped native launch-screen hold and dismissal for Octane Xplat",
 	"keywords": [
 		"cross-platform",
