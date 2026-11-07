@@ -193,3 +193,38 @@ describe('metadata integrity', () => {
     expect(entries[0].reason).toMatch(/unknown\/unqualified.*camera/)
   })
 })
+
+describe('gallery metadata', () => {
+  it('reads literal component identity and presentation without evaluating components', () => {
+    const source = STORY.replace(
+      'component: Counter,',
+      "componentId: 'app/Counter', gallery: { primary: true, height: 240 }, component: throwsIfEvaluated(),",
+    )
+    const { stories, diagnostics } = scanStoryFile(source, 'gallery.stories.tsx')
+    expect(diagnostics).toEqual([])
+    expect(stories[0]).toMatchObject({
+      componentId: 'app/Counter',
+      gallery: { primary: true, height: 240 },
+    })
+  })
+  it.each(['{ height: 0 }', "{ primary: 'yes' }", '{ unknown: true }', 'computed()'])(
+    'rejects invalid gallery metadata %s',
+    (gallery) => {
+      expect(
+        scanStoryFile(
+          STORY.replace('component: Counter,', `gallery: ${gallery}, component: Counter,`),
+          'bad.stories.tsx',
+        ).diagnostics.length,
+      ).toBeGreaterThan(0)
+    },
+  )
+})
+
+describe('platform story suffixes', () => {
+  it.each(['ts', 'tsx', 'tsrx', 'js', 'jsx', 'mts', 'mjs'])(
+    'filters .stories.web.%s before loading a module',
+    (extension) => {
+      expect(applicableTargets(['web', 'ios'], `example.stories.web.${extension}`)).toEqual(['web'])
+    },
+  )
+})

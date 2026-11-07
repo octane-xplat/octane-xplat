@@ -204,7 +204,7 @@ export function checkDocumentation(root: string) {
       try {
         if (/^https:\/\/octane-xplat\.goddardai\.org(?:\/|$)/.test(href)) {
           const url = new URL(href)
-          if (/^\/(?:llms(?:-full)?\.txt|demos\/)/.test(url.pathname)) {
+          if (/^\/(?:llms(?:-full)?\.txt|demos\/|workshop\/$)/.test(url.pathname)) {
             continue
           }
 

@@ -5,3 +5,5 @@
  */
 export { createWebStageHost } from './mount.web'
 export { startWorkshop, catalogDidUpdate } from './entry.web'
+
+export { bootWorkshop } from './boot.web'

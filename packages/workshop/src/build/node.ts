@@ -55,14 +55,17 @@ export function findConfigFile(root) {
 	return null
 }
 
-export async function loadWorkshopConfig(root) {
+export async function loadWorkshopConfig(
+	root,
+	environment = { command: 'serve', mode: 'development' },
+) {
 	const file = findConfigFile(root)
 	if (!file) {
 		return { config: {}, file: null }
 	}
 
 	const { loadConfigFromFile } = await importFrom(root, 'vite')
-	const result = await loadConfigFromFile({ command: 'serve', mode: 'development' }, file)
+	const result = await loadConfigFromFile(environment, file)
 
 	return { config: result.config?.default ?? result.config ?? {}, file }
 }
@@ -249,9 +252,11 @@ function initInput(root, name) {
 			if (info.isSymbolicLink()) {
 				throw new WorkshopUsageError(`workshop init refuses aliased paths: ${name}`)
 			}
+
 			if (at === path && (!info.isFile() || info.size > 1024 * 1024)) {
 				throw new WorkshopUsageError(`workshop init requires an ordinary file under 1 MiB: ${name}`)
 			}
+
 			if (at !== path && !info.isDirectory()) {
 				throw new WorkshopUsageError(`workshop init parent is not a directory: ${name}`)
 			}
@@ -269,6 +274,7 @@ function initInput(root, name) {
 		if (bytes.length > 1024 * 1024) {
 			throw new WorkshopUsageError(`workshop init file exceeds 1 MiB: ${name}`)
 		}
+
 		mode = info.mode & 0o777
 	} catch (error) {
 		if (error.code !== 'ENOENT') {
@@ -314,6 +320,7 @@ export async function planWorkshopInit({ cwd = process.cwd(), scripts = true } =
 				mode: 0o644,
 				content: Buffer.from(text).toString('base64'),
 			})
+
 			created.push(name)
 		}
 	}
@@ -328,6 +335,7 @@ export async function planWorkshopInit({ cwd = process.cwd(), scripts = true } =
 		) {
 			throw new WorkshopUsageError('package.json and scripts must be objects')
 		}
+
 		manifest.scripts ??= {}
 		if (!manifest.scripts.workshop) {
 			manifest.scripts.workshop = 'xplat workshop dev --target web'
@@ -337,6 +345,7 @@ export async function planWorkshopInit({ cwd = process.cwd(), scripts = true } =
 				mode: pkg.mode,
 				content: Buffer.from(JSON.stringify(manifest, null, 2) + '\n').toString('base64'),
 			})
+
 			created.push('package.json script "workshop"')
 		} else {
 			skipped.push('package.json script "workshop" already exists')
@@ -505,4 +514,16 @@ export async function workshopDev({
 		throw error
 	}
 	return server
+}
+
+/** Explicitly publish browser stories; ordinary application builds still exclude them. */
+export async function workshopBuild(options = {}) {
+	const root = consumerRoot(options.cwd ?? process.cwd())
+	const { config } = await loadWorkshopConfig(root)
+	const { buildStaticWorkshop } = await import('./static.ts')
+	const result = await buildStaticWorkshop({ ...options, cwd: root, config })
+	console.log(
+		`Workshop built: ${result.components} components, ${result.stories} stories → ${result.outDir}`,
+	)
+	return result
 }

@@ -6,6 +6,8 @@
 import type { WorkshopTarget } from './contract'
 
 export interface StoryMeta {
+  componentId?: string
+  gallery?: { primary?: boolean; height?: number }
   id: string
   title: string
   /** Effective targets after declared targets ∩ file-suffix applicability. */
@@ -38,7 +40,7 @@ export const SUFFIX_TARGETS: Record<string, readonly WorkshopTarget[]> = {
 }
 
 export const PLATFORM_SUFFIX_RE: RegExp =
-  /\.stories\.(web|mobile|ios|android|macos|windows|linux)\.[cm]?[jt]srx?$/
+  /\.stories\.(web|mobile|ios|android|macos|windows|linux)\.[cm]?[jt]s(?:rx|x)?$/
 
 export function storyFileTag(file: string): string | null {
   return PLATFORM_SUFFIX_RE.exec(file)?.[1] ?? null

@@ -3,6 +3,9 @@
 > Components exported by `@octane-xplat/ui` and its purpose entrypoints,
 > grouped by job.
 
+[Browse interactive component examples](https://octane-xplat.goddardai.org/workshop/) on one scrolling page.
+Previews show browser behavior and load as you approach them.
+
 This is a lookup page; you don't need to learn the whole list. A component
 is a reusable screen piece, and **props** are the options you give it.
 Start with [building a small screen](primitives.md#a-practical-example) if

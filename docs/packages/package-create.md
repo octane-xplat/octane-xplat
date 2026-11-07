@@ -220,3 +220,23 @@ provides prerequisites, live-update boundaries, and version guidance. The
 starter's Xplat skill is included; NativeScript's official skills are optional
 and installed separately. Ask your agent to report checks and targets actually
 run. [llms.txt](https://octane-xplat.goddardai.org/llms.txt) indexes the docs.
+
+## Preview a component
+
+Web-capable app starters and library starters include Workshop as a development
+dependency. Run the script and choose the generated **Welcome / Basic** or
+**Badge / Basic** story. Stories stay out of the ordinary app's import graph;
+the library's publish file list excludes its stories.
+
+```sh
+bun run workshop
+```
+
+See [the Workshop guide](../testing/component-workshop.md) for grouped variants,
+the scrolling gallery, and explicit static publication. Native-only starters
+include the authoring package but need the web target for this browser script.
+
+```sh
+bun run xplat add web
+bun run workshop
+```

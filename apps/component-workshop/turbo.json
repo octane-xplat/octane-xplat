@@ -1,0 +1,41 @@
+{
+  "extends": [
+    "//"
+  ],
+  "tasks": {
+    "build": {
+      "dependsOn": [
+        "^build",
+        "^typegen"
+      ],
+      "outputs": [
+        "dist/**"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/demos/src/**",
+        "$TURBO_ROOT$/packages/video/tests/fixtures/clip.mp4",
+        "$TURBO_ROOT$/packages/*/src/index.ts",
+        "$TURBO_ROOT$/packages/*/package.json"
+      ],
+      "env": [
+        "GITHUB_SHA"
+      ]
+    },
+    "test:browser": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
+    },
+    "test:coverage": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/demos/src/**",
+        "$TURBO_ROOT$/packages/video/tests/fixtures/clip.mp4",
+        "$TURBO_ROOT$/packages/*/src/index.ts",
+        "$TURBO_ROOT$/packages/*/package.json"
+      ]
+    }
+  }
+}

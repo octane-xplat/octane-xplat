@@ -59,6 +59,8 @@ export function catalogDidUpdate(
 }
 
 export interface WorkshopBootOptions {
+  /** Initial page when URL state does not select a view. */
+  defaultView?: 'story' | 'gallery'
   /** Discovered story catalog. */
   catalog: CatalogEntry[]
   /** Config/catalog diagnostics. */
@@ -214,6 +216,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
   options.hot?.on?.('vite:ws:connect', () => session.markConnected())
 
   const hostElement = document.getElementById('workshop-root') ?? document.body
+  hostElement.replaceChildren()
   createRoot(hostElement).render(createElement(WorkshopApp as never, { runtime } as never))
 
   // Hash selection: #/story/<id> survives reloads and deep-links a story.
@@ -275,7 +278,10 @@ function groupKeys(entries: CatalogEntry[]): string[] {
   return [...keys]
 }
 
-function resolveDefinition(loaded: unknown, entry: CatalogEntry): StoryDefinition<any, any, any> {
+export function resolveDefinition(
+  loaded: unknown,
+  entry: CatalogEntry,
+): StoryDefinition<any, any, any> {
   const mod = loaded as Record<string, unknown>
   const candidate: unknown = mod?.[entry.exportName]
   const definition = candidate as StoryDefinition<any, any, any> | undefined

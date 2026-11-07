@@ -28,6 +28,7 @@
 				"@octane-xplat/jsx": "0.20.0",
 				"@octane-xplat/lint": "0.20.0",
 				"@octane-xplat/ui": "0.20.0",
+				"@octane-xplat/workshop": "0.20.0",
 				"@octanejs/vite-plugin": "0.5.0",
 				"@tsrx/oxc": "0.20.0",
 				"octane": "0.16.3",
@@ -41,7 +42,8 @@
 	"files": [
 		"src",
 		"types",
-		"LICENSE"
+		"LICENSE",
+		"!src/**/*.stories.*"
 	],
 	"type": "module",
 	"exports": {
@@ -67,7 +69,8 @@
 		"test:packed": "node tests/packed-consumer.mjs",
 		"prepack": "bun run typegen && tsrx-typegen --pack-check",
 		"pack:check": "bun run test:packed",
-		"format": "xplat fmt"
+		"format": "xplat fmt",
+		"workshop": "xplat workshop dev --target web"
 	},
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:xplat",
@@ -78,6 +81,7 @@
 		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/lint": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",
+		"@octane-xplat/workshop": "catalog:xplat",
 		"@octanejs/vite-plugin": "catalog:xplat",
 		"@tsrx/oxc": "catalog:xplat",
 		"octane": "catalog:xplat",
@@ -125,14 +129,17 @@
 		"@lexical/yjs": "0.53.0",
 		"@nativescript-community/vite-octane>esbuild": "0.27.7",
 		"@nativescript/vite>esbuild": "0.27.7",
+		"@nativescript/vite>typescript": "5.9.3",
 		"@tiptap/core": "3.32.2",
 		"@tiptap/extension-blockquote": "3.32.2",
 		"@tiptap/extension-bold": "3.32.2",
+		"@tiptap/extension-bubble-menu": "3.32.2",
 		"@tiptap/extension-bullet-list": "3.32.2",
 		"@tiptap/extension-code": "3.32.2",
 		"@tiptap/extension-code-block": "3.32.2",
 		"@tiptap/extension-document": "3.32.2",
 		"@tiptap/extension-dropcursor": "3.32.2",
+		"@tiptap/extension-floating-menu": "3.32.2",
 		"@tiptap/extension-gapcursor": "3.32.2",
 		"@tiptap/extension-hard-break": "3.32.2",
 		"@tiptap/extension-heading": "3.32.2",
@@ -154,10 +161,7 @@
 		"lexical": "0.53.0",
 		"oxlint-tsgolint": "7.0.2005",
 		"regenerate": "1.5.0",
-		"vite>esbuild": "0.27.7",
-		"@nativescript/vite>typescript": "5.9.3",
-		"@tiptap/extension-bubble-menu": "3.32.2",
-		"@tiptap/extension-floating-menu": "3.32.2"
+		"vite>esbuild": "0.27.7"
 	},
 	"engines": {
 		"bun": ">=1.4.4",

@@ -319,3 +319,15 @@ condition order and the app's target configuration. If a linked app reports
 invalid hooks or missing runtime ownership, inspect duplicate Octane resolution
 and retry with the isolated tarball. Report the target and exact toolchain used;
 a passing browser build does not establish native runtime or asset delivery.
+
+## Preview your library in Workshop
+
+The library starter includes a **Badge / Basic** story and the Workshop browser
+command. Run it from the generated package, choose the story, and edit its label
+control. This preview is development tooling; the package's publish file list
+excludes its story files. Use the [Workshop guide](../testing/component-workshop.md)
+to add variants or build an explicit public catalog.
+
+```sh
+bun run workshop
+```

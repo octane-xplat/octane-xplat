@@ -144,6 +144,7 @@ test('workshop schemas are native and expose partial migration truthfully', () =
       ['workshop doctor', 'implemented'],
       ['workshop list', 'implemented'],
       ['workshop dev', 'implemented'],
+      ['workshop build', 'implemented'],
     ],
   )
   success(run(dir, ['list', '--help'], { PATH: '' }))
@@ -667,4 +668,36 @@ test('native service reports project setup errors and preserves worker exit stat
     `import{readFileSync,writeFileSync}from'node:fs';const req=JSON.parse(readFileSync(process.argv[2]));writeFileSync(process.argv[3],JSON.stringify({protocol:req.protocol,version:req.version,id:req.id,ok:true,data:{version:1,project:req.project,operation:req.operation,target:req.target,state:'accepted'},warnings:[]}));process.exitCode=7;`,
   )
   assert.equal(run(dir, ['dev']).status, 7)
+})
+
+test('static build dispatches a finite selected-project operation and exposes native flags', () => {
+  const dir = fixture({ workshop: false })
+  const schema = run(dir, ['build', '--schema'], { PATH: '' })
+  success(schema)
+  assert.deepEqual(
+    JSON.parse(schema.stdout).data.input.flags.map((flag) => flag.flag),
+    ['target', 'out-dir', 'base'],
+  )
+  put(dir, 'node_modules/@octane-xplat/workshop/package.json', {
+    name: '@octane-xplat/workshop',
+    type: 'module',
+    exports: { './node': './engine.js' },
+  })
+  put(
+    dir,
+    'node_modules/@octane-xplat/workshop/engine.js',
+    `
+import { resolve } from 'node:path'
+export async function workshopBuild(options) {
+  if (options.target !== 'web' || options.base !== '/nested/') throw new Error('build options were lost')
+  return { outDir: resolve(options.cwd, options.outDir), components: 2, stories: 3 }
+}
+`,
+  )
+  const result = run(dir, ['build', '--base', '/nested/', '--out-dir', 'dist/public'])
+  success(result)
+  assert.match(result.stdout, /2 components, 3 stories/)
+  const native = run(dir, ['build', '--target', 'ios'])
+  assert.notEqual(native.status, 0)
+  assert.match(native.stderr, /supports only web/)
 })

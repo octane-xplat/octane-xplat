@@ -1,0 +1,1238 @@
+{
+  "View": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/ContextMenuShowcase.tsrx",
+    "export": "ContextMenuShowcase"
+  },
+  "VStack": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/vstack/VStackShowcase.tsrx",
+    "export": "VStackShowcase"
+  },
+  "HStack": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/hstack/HStackShowcase.tsrx",
+    "export": "HStackShowcase"
+  },
+  "Grid": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/grid/GridShowcase.tsrx",
+    "export": "GridShowcase"
+  },
+  "GridSpan": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/gridspan/GridSpanShowcase.tsrx",
+    "export": "GridSpanShowcase"
+  },
+  "Stack": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/divider/DividerShowcase.tsrx",
+    "export": "DividerShowcase"
+  },
+  "StackItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/stackitem/StackItemShowcase.tsrx",
+    "export": "StackItemShowcase"
+  },
+  "Center": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/center/CenterShowcase.tsrx",
+    "export": "CenterShowcase"
+  },
+  "Section": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/toolbar/ToolbarCardHeader.tsrx",
+    "export": "ToolbarCardHeader"
+  },
+  "Layout": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/layout/LayoutShowcase.tsrx",
+    "export": "LayoutShowcase"
+  },
+  "LayoutHeader": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/layoutheader/LayoutHeaderShowcase.tsrx",
+    "export": "LayoutHeaderShowcase"
+  },
+  "LayoutContent": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/layoutcontent/LayoutContentShowcase.tsrx",
+    "export": "LayoutContentShowcase"
+  },
+  "LayoutFooter": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/layoutfooter/LayoutFooterShowcase.tsrx",
+    "export": "LayoutFooterShowcase"
+  },
+  "LayoutPanel": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/layoutpanel/LayoutPanelShowcase.tsrx",
+    "export": "LayoutPanelShowcase"
+  },
+  "AspectRatio": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/media/AspectRatioShowcase.tsrx",
+    "export": "AspectRatioShowcase"
+  },
+  "VisuallyHidden": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/visuallyhidden/VisuallyHiddenShowcase.tsrx",
+    "export": "VisuallyHiddenShowcase"
+  },
+  "Absolute": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/LayoutDemo.tsrx",
+    "export": "LayoutDemo"
+  },
+  "Spacer": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/LayoutDemo.tsrx",
+    "export": "LayoutDemo"
+  },
+  "Text": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/text/TextShowcase.tsrx",
+    "export": "TextShowcase"
+  },
+  "RichText": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/RichTextDemo.tsrx",
+    "export": "RichTextDemo"
+  },
+  "RichTextSpan": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/RichTextDemo.tsrx",
+    "export": "RichTextDemo"
+  },
+  "Pressable": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/GoalCounter.tsrx",
+    "export": "GoalCounter"
+  },
+  "Button": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/button/ButtonShowcase.tsrx",
+    "export": "ButtonShowcase"
+  },
+  "IconButton": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/iconbutton/IconButtonShowcase.tsrx",
+    "export": "IconButtonShowcase"
+  },
+  "ButtonGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/buttongroup/ButtonGroupShowcase.tsrx",
+    "export": "ButtonGroupShowcase"
+  },
+  "ToggleButton": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/togglebutton/ToggleButtonShowcase.tsrx",
+    "export": "ToggleButtonShowcase"
+  },
+  "ToggleButtonGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/togglebutton/ToggleButtonGroupShowcase.tsrx",
+    "export": "ToggleButtonGroupShowcase"
+  },
+  "ClickableCard": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/card/ClickableCardShowcase.tsrx",
+    "export": "ClickableCardShowcase"
+  },
+  "SelectableCard": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/card/SelectableCardShowcase.tsrx",
+    "export": "SelectableCardShowcase"
+  },
+  "MoreMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/MoreMenuShowcase.tsrx",
+    "export": "MoreMenuShowcase"
+  },
+  "PowerSearch": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/powersearch/PowerSearchShowcase.tsrx",
+    "export": "PowerSearchShowcase"
+  },
+  "Collapsible": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/collapsible/CollapsibleShowcase.tsrx",
+    "export": "CollapsibleShowcase"
+  },
+  "CollapsibleGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/collapsiblegroup/CollapsibleGroupShowcase.tsrx",
+    "export": "CollapsibleGroupShowcase"
+  },
+  "DropdownMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/DropdownMenuShowcase.tsrx",
+    "export": "DropdownMenuShowcase"
+  },
+  "ContextMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/ContextMenuShowcase.tsrx",
+    "export": "ContextMenuShowcase"
+  },
+  "Badge": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/badge/BadgeShowcase.tsrx",
+    "export": "BadgeShowcase"
+  },
+  "Skeleton": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/skeleton/SkeletonShowcase.tsrx",
+    "export": "SkeletonShowcase"
+  },
+  "Avatar": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/avatar/AvatarShowcase.tsrx",
+    "export": "AvatarShowcase"
+  },
+  "AvatarStatusDot": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/avatarstatusdot/AvatarStatusDotShowcase.tsrx",
+    "export": "AvatarStatusDotShowcase"
+  },
+  "AvatarGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/avatargroup/AvatarGroupShowcase.tsrx",
+    "export": "AvatarGroupShowcase"
+  },
+  "AvatarGroupOverflow": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/avatargroupoverflow/AvatarGroupOverflowShowcase.tsrx",
+    "export": "AvatarGroupOverflowShowcase"
+  },
+  "FormLayout": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/formlayout/FormLayoutShowcase.tsrx",
+    "export": "FormLayoutShowcase"
+  },
+  "InputGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/inputgroup/InputGroupShowcase.tsrx",
+    "export": "InputGroupShowcase"
+  },
+  "InputGroupText": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/inputgroup/InputGroupBasic.tsrx",
+    "export": "InputGroupBasic"
+  },
+  "Item": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/item/ItemShowcase.tsrx",
+    "export": "ItemShowcase"
+  },
+  "List": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/list/ListShowcase.tsrx",
+    "export": "ListShowcase"
+  },
+  "ListItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/listitem/ListItemShowcase.tsrx",
+    "export": "ListItemShowcase"
+  },
+  "BaseTypeahead": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/typeahead/BaseTypeaheadShowcase.tsrx",
+    "export": "BaseTypeaheadShowcase"
+  },
+  "Typeahead": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/typeahead/TypeaheadShowcase.tsrx",
+    "export": "TypeaheadShowcase"
+  },
+  "TypeaheadItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/typeahead/TypeaheadItemShowcase.tsrx",
+    "export": "TypeaheadItemShowcase"
+  },
+  "Token": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/token/TokenShowcase.tsrx",
+    "export": "TokenShowcase"
+  },
+  "Tokenizer": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/tokenizer/TokenizerShowcase.tsrx",
+    "export": "TokenizerShowcase"
+  },
+  "ComplexSelector": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/complexselector/ComplexSelectorShowcase.tsrx",
+    "export": "ComplexSelectorShowcase"
+  },
+  "Calendar": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/calendar/CalendarShowcase.tsrx",
+    "export": "CalendarShowcase"
+  },
+  "DateInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/datetime/DateInputShowcase.tsrx",
+    "export": "DateInputShowcase"
+  },
+  "TimeInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/datetime/TimeInputShowcase.tsrx",
+    "export": "TimeInputShowcase"
+  },
+  "DateTimeInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/datetime/DateTimeInputShowcase.tsrx",
+    "export": "DateTimeInputShowcase"
+  },
+  "DateRangeInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/datetime/DateRangeInputShowcase.tsrx",
+    "export": "DateRangeInputShowcase"
+  },
+  "AppShell": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/appshell/AppShellShowcase.tsrx",
+    "export": "AppShellShowcase"
+  },
+  "TopNav": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnav/TopNavShowcase.tsrx",
+    "export": "TopNavShowcase"
+  },
+  "TopNavHeading": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavheading/TopNavHeadingShowcase.tsrx",
+    "export": "TopNavHeadingShowcase"
+  },
+  "TopNavItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavitem/TopNavItemShowcase.tsrx",
+    "export": "TopNavItemShowcase"
+  },
+  "TopNavMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavmenu/TopNavMenuShowcase.tsrx",
+    "export": "TopNavMenuShowcase"
+  },
+  "TopNavMegaMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavmegamenu/TopNavMegaMenuShowcase.tsrx",
+    "export": "TopNavMegaMenuShowcase"
+  },
+  "TopNavMegaMenuItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavmegamenuitem/TopNavMegaMenuItemShowcase.tsrx",
+    "export": "TopNavMegaMenuItemShowcase"
+  },
+  "TopNavMegaMenuFeaturedCard": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/topnavmegamenufeaturedcard/TopNavMegaMenuFeaturedCardShowcase.tsrx",
+    "export": "TopNavMegaMenuFeaturedCardShowcase"
+  },
+  "SideNav": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/sidenav/SideNavShowcase.tsrx",
+    "export": "SideNavShowcase"
+  },
+  "SideNavSection": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/sidenavsection/SideNavSectionShowcase.tsrx",
+    "export": "SideNavSectionShowcase"
+  },
+  "SideNavHeading": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/sidenavheading/SideNavHeadingShowcase.tsrx",
+    "export": "SideNavHeadingShowcase"
+  },
+  "SideNavItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/sidenavitem/SideNavItemShowcase.tsrx",
+    "export": "SideNavItemShowcase"
+  },
+  "SideNavCollapseButton": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/sidenavcollapsebutton/SideNavCollapseButtonShowcase.tsrx",
+    "export": "SideNavCollapseButtonShowcase"
+  },
+  "MobileNav": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/mobilenav/MobileNavShowcase.tsrx",
+    "export": "MobileNavShowcase"
+  },
+  "MobileNavToggle": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/mobilenavtoggle/MobileNavToggleShowcase.tsrx",
+    "export": "MobileNavToggleShowcase"
+  },
+  "NavIcon": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/navicon/NavIconShowcase.tsrx",
+    "export": "NavIconShowcase"
+  },
+  "NavHeadingMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/navheadingmenu/NavHeadingMenuShowcase.tsrx",
+    "export": "NavHeadingMenuShowcase"
+  },
+  "NavHeadingMenuItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/navheadingmenu/NavHeadingMenuShowcase.tsrx",
+    "export": "NavHeadingMenuShowcase"
+  },
+  "TabList": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/tablist/TabListShowcase.tsrx",
+    "export": "TabListShowcase"
+  },
+  "Tab": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/tab/TabShowcase.tsrx",
+    "export": "TabShowcase"
+  },
+  "TabMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/tabmenu/TabMenuShowcase.tsrx",
+    "export": "TabMenuShowcase"
+  },
+  "Toolbar": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/toolbar/ToolbarThreeSlot.tsrx",
+    "export": "ToolbarThreeSlot"
+  },
+  "OverflowList": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/overflowlist/OverflowListShowcase.tsrx",
+    "export": "OverflowListShowcase"
+  },
+  "ResizeHandle": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/resizable/ResizableShowcase.tsrx",
+    "export": "ResizableShowcase"
+  },
+  "BreadcrumbItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/breadcrumbitem/BreadcrumbItemShowcase.tsrx",
+    "export": "BreadcrumbItemShowcase"
+  },
+  "Pagination": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/internationalization/InternationalizationProvider03RtlDirection.web.tsrx",
+    "export": "InternationalizationProvider03RtlDirection"
+  },
+  "Stepper": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/stepper/StepperShowcase.tsrx",
+    "export": "StepperShowcase"
+  },
+  "CommandPalette": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/commandpalette/CommandPaletteShowcase.tsrx",
+    "export": "CommandPaletteShowcase"
+  },
+  "Card": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/card/CardShowcase.tsrx",
+    "export": "CardShowcase"
+  },
+  "Kbd": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/kbd/KbdShowcase.tsrx",
+    "export": "KbdShowcase"
+  },
+  "Banner": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/banner/BannerShowcase.tsrx",
+    "export": "BannerShowcase"
+  },
+  "User": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/codeblock/CodeBlockHighlightedLines.tsrx",
+    "export": "CodeBlockHighlightedLines"
+  },
+  "Link": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/link/LinkShowcase.tsrx",
+    "export": "LinkShowcase"
+  },
+  "LinkProvider": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/link/LinkProviderCustomLink.tsrx",
+    "export": "LinkProviderCustomLink"
+  },
+  "TextInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/textinput/TextInputShowcase.tsrx",
+    "export": "TextInputShowcase"
+  },
+  "TextArea": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/textarea/TextAreaShowcase.tsrx",
+    "export": "TextAreaShowcase"
+  },
+  "SearchInput": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/SearchDemo.tsrx",
+    "export": "SearchDemo"
+  },
+  "SegmentedControl": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/segmented/SegmentedControlShowcase.tsrx",
+    "export": "SegmentedControlShowcase"
+  },
+  "ScrollableArea": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/scrollablearea/ScrollableAreaShowcase.tsrx",
+    "export": "ScrollableAreaShowcase"
+  },
+  "Image": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/media/AspectRatioSquareImage.tsrx",
+    "export": "AspectRatioSquareImage"
+  },
+  "Overlay": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/OverlayDemo.tsrx",
+    "export": "OverlayDemo"
+  },
+  "Popover": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/popover/PopoverShowcase.tsrx",
+    "export": "PopoverShowcase"
+  },
+  "Dialog": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/dialog/DialogShowcase.tsrx",
+    "export": "DialogShowcase"
+  },
+  "DialogHeader": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/dialog/DialogHeaderShowcase.tsrx",
+    "export": "DialogHeaderShowcase"
+  },
+  "AlertDialog": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/dialog/AlertDialogAsyncAction.tsrx",
+    "export": "AlertDialogAsyncAction"
+  },
+  "HoverCard": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/hovercard/HoverCardShowcase.tsrx",
+    "export": "HoverCardShowcase"
+  },
+  "Tooltip": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/tooltip/TooltipShowcase.tsrx",
+    "export": "TooltipShowcase"
+  },
+  "Carousel": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/carousel/CarouselShowcase.tsrx",
+    "export": "CarouselShowcase"
+  },
+  "Lightbox": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/media/LightboxShowcase.tsrx",
+    "export": "LightboxShowcase"
+  },
+  "Toast": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/toast/ToastShowcase.tsrx",
+    "export": "ToastShowcase"
+  },
+  "Screen": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/GlassDemo.tsrx",
+    "export": "GlassDemo"
+  },
+  "Switch": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/switch/SwitchWithDescription.tsrx",
+    "export": "SwitchWithDescription"
+  },
+  "RadioListItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/radiolist/RadioListItemShowcase.tsrx",
+    "export": "RadioListItemShowcase"
+  },
+  "CheckboxListItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/checkbox/CheckboxListItemShowcase.tsrx",
+    "export": "CheckboxListItemShowcase"
+  },
+  "SegmentedControlItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/segmented/SegmentedControlItemShowcase.tsrx",
+    "export": "SegmentedControlItemShowcase"
+  },
+  "SelectorOption": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/selector/SelectorOptionShowcase.tsrx",
+    "export": "SelectorOptionShowcase"
+  },
+  "Step": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/stepper/StepShowcase.tsrx",
+    "export": "StepShowcase"
+  },
+  "FieldLabel": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/field/FieldLabelShowcase.tsrx",
+    "export": "FieldLabelShowcase"
+  },
+  "FieldStatus": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/field/FieldStatusShowcase.tsrx",
+    "export": "FieldStatusShowcase"
+  },
+  "SafeArea": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/demos/DeviceDemo.tsrx",
+    "export": "DeviceDemo"
+  },
+  "Slider": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/slider/SliderShowcase.tsrx",
+    "export": "SliderShowcase"
+  },
+  "Icon": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/icon/IconShowcase.tsrx",
+    "export": "IconShowcase"
+  },
+  "Heading": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/heading/HeadingShowcase.tsrx",
+    "export": "HeadingShowcase"
+  },
+  "BottomSheet": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/bottomsheet/BottomSheetShowcase.tsrx",
+    "export": "BottomSheetShowcase"
+  },
+  "BottomSheetSwitcher": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/bottomsheet/BottomSheetSwitcherReviewFlow.tsrx",
+    "export": "BottomSheetSwitcherReviewFlow"
+  },
+  "Blockquote": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/blockquote/BlockquoteShowcase.tsrx",
+    "export": "BlockquoteShowcase"
+  },
+  "Code": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/code/CodeShowcase.tsrx",
+    "export": "CodeShowcase"
+  },
+  "CodeBlock": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/syntaxtheme/SyntaxThemeDarkPreset.tsrx",
+    "export": "SyntaxThemeDarkPreset"
+  },
+  "MetadataList": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/metadatalist/MetadataListShowcase.tsrx",
+    "export": "MetadataListShowcase"
+  },
+  "MetadataListItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/metadatalistitem/MetadataListItemShowcase.tsrx",
+    "export": "MetadataListItemShowcase"
+  },
+  "Thumbnail": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/media/ThumbnailShowcase.tsrx",
+    "export": "ThumbnailShowcase"
+  },
+  "ProgressBar": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/progressbar/ProgressBarShowcase.tsrx",
+    "export": "ProgressBarShowcase"
+  },
+  "StatusDot": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/statusdot/StatusDotShowcase.tsrx",
+    "export": "StatusDotShowcase"
+  },
+  "Timestamp": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/timestamp/TimestampShowcase.tsrx",
+    "export": "TimestampShowcase"
+  },
+  "Timer": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/timer/TimerShowcase.tsrx",
+    "export": "TimerShowcase"
+  },
+  "Citation": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/citation/CitationShowcase.tsrx",
+    "export": "CitationShowcase"
+  },
+  "Outline": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/outline/OutlineShowcase.tsrx",
+    "export": "OutlineShowcase"
+  },
+  "DropdownMenuItem": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/DropdownMenuItemShowcase.tsrx",
+    "export": "DropdownMenuItemShowcase"
+  },
+  "DropdownMenuDivider": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/pages/shell-nav.tsrx",
+    "export": "ShellNavTemplate"
+  },
+  "DropdownMenuSubMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/menu/DropdownMenuWithSubmenu.tsrx",
+    "export": "DropdownMenuWithSubmenu"
+  },
+  "InternationalizationProvider": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/internationalization/InternationalizationProvider01ShippedLocale.tsrx",
+    "export": "InternationalizationProvider01ShippedLocale"
+  },
+  "ChatLayout": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatlayout/ChatLayoutShowcase.tsrx",
+    "export": "ChatLayoutShowcase"
+  },
+  "ChatLayoutScrollButton": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatlayoutscrollbutton/ChatLayoutScrollButtonLabels.tsrx",
+    "export": "ChatLayoutScrollButtonLabels"
+  },
+  "ChatMessageList": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatmessagelist/ChatMessageListShowcase.tsrx",
+    "export": "ChatMessageListShowcase"
+  },
+  "ChatMessage": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatmessage/ChatMessageShowcase.tsrx",
+    "export": "ChatMessageShowcase"
+  },
+  "ChatMessageBubble": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatmessagebubble/ChatMessageBubbleShowcase.tsrx",
+    "export": "ChatMessageBubbleShowcase"
+  },
+  "ChatMessageMetadata": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatmessagemetadata/ChatMessageMetadataShowcase.tsrx",
+    "export": "ChatMessageMetadataShowcase"
+  },
+  "ChatSystemMessage": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatsystemmessage/ChatSystemMessageShowcase.tsrx",
+    "export": "ChatSystemMessageShowcase"
+  },
+  "ChatToolCalls": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chattoolcalls/ChatToolCallsShowcase.tsrx",
+    "export": "ChatToolCallsShowcase"
+  },
+  "ChatTokenizedText": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chattokenizedtext/ChatTokenizedTextShowcase.tsrx",
+    "export": "ChatTokenizedTextShowcase"
+  },
+  "ChatComposer": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatcomposer/ChatComposerShowcase.tsrx",
+    "export": "ChatComposerShowcase"
+  },
+  "ChatComposerInput": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatcomposerinput/ChatComposerInputShowcase.tsrx",
+    "export": "ChatComposerInputShowcase"
+  },
+  "ChatComposerDrawer": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatcomposerdrawer/ChatComposerDrawerShowcase.tsrx",
+    "export": "ChatComposerDrawerShowcase"
+  },
+  "ChatSendButton": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatsendbutton/ChatSendButtonShowcase.tsrx",
+    "export": "ChatSendButtonShowcase"
+  },
+  "ChatDictationButton": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "@xplat/astryx-sandbox/examples/chatdictationbutton/ChatDictationButtonBasic.tsrx",
+    "export": "ChatDictationButtonBasic"
+  },
+  "Markdown": {
+    "package": "@octane-xplat/ui/markdown",
+    "module": "@xplat/astryx-sandbox/examples/markdown/MarkdownShowcase.tsrx",
+    "export": "MarkdownShowcase"
+  },
+  "FocusScope": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "FocusScopeExample"
+  },
+  "PowerSearchToken": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "PowerSearchTokenExample"
+  },
+  "PowerSearchFilterEditor": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "PowerSearchFilterEditorExample"
+  },
+  "Accordion": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "AccordionExample"
+  },
+  "SizeProvider": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "SizeProviderExample"
+  },
+  "FieldGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "FieldGroupExample"
+  },
+  "GridList": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "GridListExample"
+  },
+  "PinInput": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "PinInputExample"
+  },
+  "InputRating": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "InputRatingExample"
+  },
+  "NavigationMenu": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "NavigationMenuExample"
+  },
+  "Timeline": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TimelineExample"
+  },
+  "Alert": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "AlertExample"
+  },
+  "Chip": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ChipExample"
+  },
+  "ProgressGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ProgressGroupExample"
+  },
+  "NavLink": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "NavLinkExample"
+  },
+  "VirtualList": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "VirtualListExample"
+  },
+  "WebView": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "WebViewExample"
+  },
+  "LayerProvider": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "LayerProviderExample"
+  },
+  "ToastViewport": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ToastViewportExample"
+  },
+  "Tabs": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TabsExample"
+  },
+  "KeyboardAvoiding": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "KeyboardAvoidingExample"
+  },
+  "Meter": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MeterExample"
+  },
+  "ColorArea": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ColorAreaExample"
+  },
+  "ColorSlider": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ColorSliderExample"
+  },
+  "ColorSwatch": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ColorSwatchExample"
+  },
+  "ColorField": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ColorFieldExample"
+  },
+  "ColorPicker": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "ColorPickerExample"
+  },
+  "IconRegistryProvider": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "IconRegistryProviderExample"
+  },
+  "CheckboxIndicator": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "CheckboxIndicatorExample"
+  },
+  "CheckIndicator": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "CheckIndicatorExample"
+  },
+  "RadioIndicator": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "RadioIndicatorExample"
+  },
+  "DropdownMenuLink": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "DropdownMenuSection": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "DropdownMenuSeparator": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "DropdownMenuCheckboxItem": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "DropdownMenuRadioGroup": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "DropdownMenuRadioItem": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "MenuPartsExample"
+  },
+  "ChatComposerTokenElement": {
+    "package": "@octane-xplat/ui/chat",
+    "module": "../examples.web.tsrx",
+    "export": "ChatComposerTokenElementExample"
+  },
+  "MarkdownScreen": {
+    "package": "@octane-xplat/ui/markdown",
+    "module": "../examples.web.tsrx",
+    "export": "MarkdownScreenExample"
+  },
+  "MarkdownPluginNodeRenderer": {
+    "package": "@octane-xplat/ui/markdown",
+    "module": "../examples.web.tsrx",
+    "export": "MarkdownPluginNodeRendererExample"
+  },
+  "maps-MapView": {
+    "package": "@octane-xplat/maps",
+    "symbol": "MapView",
+    "module": "@octane-xplat/maps",
+    "export": "MapView",
+    "capabilities": [
+      "map-provider-configuration"
+    ]
+  },
+  "image-crop-ImageCrop": {
+    "package": "@octane-xplat/image-crop",
+    "symbol": "ImageCrop",
+    "module": "../leaves.web.tsrx",
+    "export": "ImageCropExample",
+    "capabilities": []
+  },
+  "ads-BannerAd": {
+    "package": "@octane-xplat/ads",
+    "symbol": "BannerAd",
+    "module": "@octane-xplat/ads",
+    "export": "BannerAd",
+    "capabilities": [
+      "native-ad-unit-and-consent"
+    ],
+    "file": "ads-BannerAd.stories.ts"
+  },
+  "drawer-Drawer": {
+    "package": "@octane-xplat/drawer",
+    "symbol": "Drawer",
+    "module": "../leaves.web.tsrx",
+    "export": "DrawerExample",
+    "capabilities": []
+  },
+  "video-Video": {
+    "package": "@octane-xplat/video",
+    "symbol": "Video",
+    "module": "../leaves.web.tsrx",
+    "export": "VideoExample",
+    "capabilities": []
+  },
+  "lexical-LexicalEditor": {
+    "package": "@octane-xplat/lexical",
+    "symbol": "LexicalEditor",
+    "module": "@xplat/demos/LexicalEditorDemo.tsrx",
+    "export": "LexicalEditorDemo",
+    "capabilities": []
+  },
+  "rolling-text-RollingText": {
+    "package": "@octane-xplat/rolling-text",
+    "symbol": "RollingText",
+    "module": "../leaves.web.tsrx",
+    "export": "RollingTextExample",
+    "capabilities": []
+  },
+  "auth-AppleSignInButton": {
+    "package": "@octane-xplat/auth",
+    "symbol": "AppleSignInButton",
+    "module": "@octane-xplat/auth",
+    "export": "AppleSignInButton",
+    "capabilities": [
+      "provider-credentials"
+    ]
+  },
+  "auth-GoogleSignInButton": {
+    "package": "@octane-xplat/auth",
+    "symbol": "GoogleSignInButton",
+    "module": "@octane-xplat/auth",
+    "export": "GoogleSignInButton",
+    "capabilities": [
+      "provider-credentials"
+    ]
+  },
+  "tiptap-TiptapEditor": {
+    "package": "@octane-xplat/tiptap",
+    "symbol": "TiptapEditor",
+    "module": "@xplat/demos/TiptapEditorDemo.tsrx",
+    "export": "TiptapEditorDemo",
+    "capabilities": []
+  },
+  "camera-CameraView": {
+    "package": "@octane-xplat/camera",
+    "symbol": "CameraView",
+    "module": "@octane-xplat/camera",
+    "export": "CameraView",
+    "capabilities": [
+      "camera-permission"
+    ]
+  },
+  "charts-Chart": {
+    "package": "@octane-xplat/charts",
+    "symbol": "Chart",
+    "module": "../leaves.web.tsrx",
+    "export": "ChartExample",
+    "capabilities": []
+  },
+  "motion-MotionConfig": {
+    "package": "@octane-xplat/motion",
+    "symbol": "MotionConfig",
+    "module": "../leaves.web.tsrx",
+    "export": "MotionExample",
+    "capabilities": []
+  },
+  "motion-Presence": {
+    "package": "@octane-xplat/motion",
+    "symbol": "Presence",
+    "module": "../leaves.web.tsrx",
+    "export": "MotionExample",
+    "capabilities": []
+  },
+  "motion-LayoutGroup": {
+    "package": "@octane-xplat/motion",
+    "symbol": "LayoutGroup",
+    "module": "../leaves.web.tsrx",
+    "export": "MotionExample",
+    "capabilities": []
+  },
+  "image-Image": {
+    "package": "@octane-xplat/image",
+    "symbol": "Image",
+    "module": "../leaves.web.tsrx",
+    "export": "ImageExample",
+    "capabilities": []
+  },
+  "canvas-Canvas": {
+    "package": "@octane-xplat/canvas",
+    "symbol": "Canvas",
+    "module": "@xplat/demos/CanvasDemo.tsrx",
+    "export": "CanvasDemo",
+    "capabilities": []
+  },
+  "table-DataGrid": {
+    "package": "@octane-xplat/table",
+    "symbol": "DataGrid",
+    "module": "../leaves.web.tsrx",
+    "export": "DataGridExample",
+    "capabilities": []
+  },
+  "icons-Icon": {
+    "package": "@octane-xplat/icons",
+    "symbol": "Icon",
+    "module": "../leaves.web.tsrx",
+    "export": "IconExample",
+    "capabilities": []
+  },
+  "lottie-Lottie": {
+    "package": "@octane-xplat/lottie",
+    "symbol": "Lottie",
+    "module": "@xplat/demos/LottieDemo.tsrx",
+    "export": "LottieDemo",
+    "capabilities": []
+  },
+  "files-FileInput": {
+    "package": "@octane-xplat/files",
+    "symbol": "FileInput",
+    "module": "@xplat/demos/FileInputDemo.tsrx",
+    "export": "FileInputDemo",
+    "capabilities": []
+  },
+  "smooth-corners-SmoothCorners": {
+    "package": "@octane-xplat/smooth-corners",
+    "symbol": "SmoothCorners",
+    "module": "../leaves.web.tsrx",
+    "export": "SmoothCornersExample",
+    "capabilities": []
+  },
+  "richtext-RichTextEditor": {
+    "package": "@octane-xplat/richtext",
+    "symbol": "RichTextEditor",
+    "module": "@xplat/demos/RichTextEditorDemo.tsrx",
+    "export": "RichTextEditorDemo",
+    "capabilities": []
+  },
+  "barcode-scanner-BarcodeScanner": {
+    "package": "@octane-xplat/barcode-scanner",
+    "symbol": "BarcodeScanner",
+    "module": "@octane-xplat/barcode-scanner",
+    "export": "BarcodeScanner",
+    "capabilities": [
+      "camera-and-barcode-support"
+    ]
+  },
+  "keyboard-KeyboardProvider": {
+    "package": "@octane-xplat/keyboard",
+    "symbol": "KeyboardProvider",
+    "module": "../leaves.web.tsrx",
+    "export": "KeyboardExample",
+    "capabilities": []
+  },
+  "keyboard-KeyboardAwareScrollView": {
+    "package": "@octane-xplat/keyboard",
+    "symbol": "KeyboardAwareScrollView",
+    "module": "../leaves.web.tsrx",
+    "export": "KeyboardExample",
+    "capabilities": []
+  },
+  "keyboard-KeyboardStickyView": {
+    "package": "@octane-xplat/keyboard",
+    "symbol": "KeyboardStickyView",
+    "module": "../leaves.web.tsrx",
+    "export": "KeyboardExample",
+    "capabilities": []
+  },
+  "pager-Pager": {
+    "package": "@octane-xplat/pager",
+    "symbol": "Pager",
+    "module": "../leaves.web.tsrx",
+    "export": "PagerExample",
+    "capabilities": []
+  },
+  "gif-AnimatedImage": {
+    "package": "@octane-xplat/gif",
+    "symbol": "AnimatedImage",
+    "module": "../leaves.web.tsrx",
+    "export": "AnimatedImageExample",
+    "capabilities": []
+  },
+  "RouteOutlet": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "RouteOutletExample"
+  },
+  "Table": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableHeader": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableBody": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableFooter": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableRow": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableCell": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableHeaderCell": {
+    "package": "@octane-xplat/ui",
+    "module": "../examples.web.tsrx",
+    "export": "TablePartsExample"
+  },
+  "TableSelectionToolbar": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/table/TableBulkActionsTable.tsrx",
+    "export": "TableBulkActionsTable"
+  },
+  "Theme": {
+    "package": "@octane-xplat/ui",
+    "module": "@xplat/astryx-sandbox/examples/theme/ThemeShowcase.tsrx",
+    "export": "ThemeShowcase"
+  }
+}

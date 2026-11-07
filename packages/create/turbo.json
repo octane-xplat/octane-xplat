@@ -1,6 +1,8 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"test:library": {
 			"dependsOn": [
@@ -11,7 +13,10 @@
 				"@octane-xplat/platform#typegen",
 				"@octane-xplat/lib#typegen",
 				"tsrx-typegen#build",
-				"@octane-xplat/lint#build"
+				"@octane-xplat/lint#build",
+				"@octane-xplat/workshop#build",
+				"@octane-xplat/workshop#typegen",
+				"@octane-xplat/cli#build:go"
 			],
 			"cache": false
 		}

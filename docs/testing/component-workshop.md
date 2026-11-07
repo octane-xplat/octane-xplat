@@ -13,6 +13,24 @@ does not simulate that target. The authoring contract version is **1**.
 
 ## Try it
 
+New web-capable app and library starters already include Workshop, a story, and
+its configuration. From the generated project, run this command and choose
+**Welcome / Basic** (or **Badge / Basic** in a library):
+
+```sh
+bun run workshop
+```
+
+Native-only app starters include the authoring package and portable story, but
+omit the browser script and compiler. Add the web target before following this
+browser workflow. Existing projects use the installation steps below.
+
+```sh
+bun run xplat add web
+bun run workshop
+```
+
+
 Inside an existing Octane Xplat app, install the development tooling. Keep the
 app's existing matching Octane/compiler versions; the app template already
 provides Octane's compiler peers, including `@tsrx/oxc`.
@@ -45,6 +63,87 @@ package scripts alone with `--no-scripts`.
 
 ```sh
 bun run xplat workshop init --no-scripts
+```
+
+## Browse all components on one page
+
+Choose **Gallery** in the inspector toolbar, or open the printed server URL with
+`?view=gallery`. Every component represented by a story has a section. Examples
+load as they approach the viewport. **Open story** links let you inspect other
+variants and edit controls. Try the framework's [public component workshop](https://octane-xplat.goddardai.org/workshop/).
+
+```sh
+bun run xplat workshop dev --target web
+# Open the printed URL with ?view=gallery
+```
+
+Use a literal `componentId` to group variants of the same component. Set
+`gallery.primary` on the preferred variant and `gallery.height` to reserve its
+preview space in CSS pixels. Without a component ID, each story gets its own
+section; without a primary variant, the applicable story with the first sorted
+ID is selected. Duplicate applicable primaries produce a discovery diagnostic.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { defineStory } from '@octane-xplat/workshop'
+
+export const Basic = defineStory({
+  id: 'save/basic',
+  title: 'Save button / Basic',
+  componentId: 'app/SaveButton',
+  gallery: { primary: true, height: 160 },
+  targets: ['web'],
+  component: Button,
+  args: { label: 'Save' },
+})
+```
+
+Gallery previews mount in separate browser frames, each with fresh state and
+owned fixtures. Up to two load concurrently and eight remain active. Distant
+previews may release their resources and reset when revisited; a focused preview
+stays active. **Load / Retry preview** works without viewport observation, and
+**Reset** creates fresh story state. This is lazy mounting, not server-rendered
+component hydration. Non-web stories stay visible as platform-only entries.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { defineStory } from '@octane-xplat/workshop'
+
+export const Native = defineStory({
+  id: 'native-action/basic',
+  title: 'Native action / Basic',
+  componentId: 'app/NativeAction',
+  targets: ['ios', 'android'],
+  component: Button,
+  args: { label: 'Native action' },
+})
+```
+
+## Publish a static workshop
+
+Build a separate, intentionally public component workshop with this command.
+For hosting at `/workshop/`, use that path as `--base`; use `/` when hosting at
+the domain root. Output must be below your project's `dist/`, `build/`, or
+`out/` directory. Serve the resulting HTML and assets through a static host.
+
+```sh
+bun run xplat workshop build --target web --out-dir dist/workshop --base /workshop/
+```
+
+Choose the initial browser page in `workshop.config.ts`. The inspector remains
+available with `?view=story`, and an individual story can be linked using
+`?view=story&story=save%2Fbasic`. Keep public fixtures deterministic and local;
+never publish credentials or private application data in stories or providers.
+The build includes your selected catalog and runtime intentionally, while the
+ordinary app build must continue excluding them.
+
+```ts
+import { defineWorkshopConfig } from '@octane-xplat/workshop'
+
+export default defineWorkshopConfig({
+  defaultView: 'gallery',
+  stories: { include: 'src/public/**/*.stories.{tsx,tsrx}' },
+})
 ```
 
 ## Declaring stories

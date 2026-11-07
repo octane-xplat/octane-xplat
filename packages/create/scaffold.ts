@@ -48,8 +48,8 @@ export const targets: Record<string, any> = {
       'src/app.web.test.tsx',
       'src/test-setup.web.ts',
     ],
-    scripts: ['dev', 'build', 'test', 'test:web'],
-    devDeps: ['@octanejs/vite-plugin', 'jsdom'],
+    scripts: ['dev', 'build', 'test', 'test:web', 'workshop'],
+    devDeps: ['@octanejs/vite-plugin', 'jsdom', '@octane-xplat/workshop'],
   },
   ios: {
     label: 'iOS (NativeScript)',
@@ -103,6 +103,7 @@ export const targets: Record<string, any> = {
       '@valor/nativescript-websockets',
     ],
     devDeps: [
+      '@octane-xplat/workshop',
       '@nativescript-community/vite-octane',
       '@nativescript/types',
       '@nativescript/unit-test-runner',

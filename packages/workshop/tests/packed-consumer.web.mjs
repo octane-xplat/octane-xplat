@@ -5,6 +5,7 @@ import assert from 'node:assert/strict'
 import { spawn, spawnSync } from 'node:child_process'
 import {
   cpSync,
+  existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
@@ -21,6 +22,18 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
+const compatibility = JSON.parse(
+  readFileSync(join(repo, 'packages/create/compatibility.json'), 'utf8'),
+)
+
+const platform = process.platform === 'win32' ? 'windows' : process.platform
+const architecture = process.arch === 'x64' ? 'amd64' : process.arch
+// The raw CLI tarball carries the repository launcher. Release staging supplies this native payload.
+const nativeCLI = join(
+  repo,
+  `research/go-cli/xplat-go-${platform}-${architecture}-cli${platform === 'windows' ? '.exe' : ''}`,
+)
+
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-workshop-packed-')))
 const consumer = join(work, 'consumer')
 const pack = join(work, 'pack')
@@ -31,6 +44,10 @@ let serverOutput = ''
 let browser
 let succeeded = false
 function run(command, args, cwd = consumer) {
+  if (command === 'bun' && args[0] === 'run' && args[1] === 'xplat') {
+    command = nativeCLI
+    args = args.slice(2)
+  }
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
   assert.equal(
     result.status,
@@ -47,12 +64,47 @@ function write(name, content) {
 
 try {
   const tarballs = {}
-  for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop']) {
-    const root = join(repo, 'packages', dir)
-    const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+  const packages = new Map(
+    readdirSync(join(repo, 'packages')).flatMap((directory) => {
+      const root = join(repo, 'packages', directory)
+      const file = join(root, 'package.json')
+      if (!existsSync(file)) {
+        return []
+      }
+      const manifest = JSON.parse(readFileSync(file, 'utf8'))
+      return [[manifest.name, { root, manifest }]]
+    }),
+  )
+
+  const wanted = new Set()
+  function include(name) {
+    if (wanted.has(name) || !packages.has(name)) {
+      return
+    }
+    wanted.add(name)
+    const { manifest } = packages.get(name)
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      include(dependency)
+    }
+    for (const dependency of Object.keys(manifest.peerDependencies ?? {})) {
+      if (!manifest.peerDependenciesMeta?.[dependency]?.optional) {
+        include(dependency)
+      }
+    }
+  }
+
+  for (const directory of ['create', 'cli', 'lib', 'ui', 'workshop']) {
+    include(
+      JSON.parse(readFileSync(join(repo, 'packages', directory, 'package.json'), 'utf8')).name,
+    )
+  }
+
+  include('octane-xplat')
+  for (const name of wanted) {
+    const { root, manifest } = packages.get(name)
     run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
-    tarballs[manifest.name] =
-      `file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
+    tarballs[name] =
+      `file:${join(pack, `${name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
   }
 
   write(
@@ -62,15 +114,19 @@ try {
         name: 'workshop-packed-acceptance',
         private: true,
         type: 'module',
-        dependencies: { '@octane-xplat/ui': tarballs['@octane-xplat/ui'], octane: '0.14.0' },
+        dependencies: {
+          '@octane-xplat/ui': tarballs['@octane-xplat/ui'],
+          octane: compatibility.packages.octane.version,
+        },
         devDependencies: {
+          'octane-xplat': tarballs['octane-xplat'],
           '@octane-xplat/workshop': tarballs['@octane-xplat/workshop'],
           '@octane-xplat/cli': tarballs['@octane-xplat/cli'],
-          '@octanejs/vite-plugin': '0.1.61',
+          '@octanejs/vite-plugin': compatibility.packages['@octanejs/vite-plugin'].version,
           '@tsrx/oxc': '0.20.0',
           '@tsrx/core': '0.2.4',
           typescript: '5.9.3',
-          vite: '8.3.0',
+          vite: compatibility.packages.vite.version,
         },
       },
       null,
@@ -166,11 +222,11 @@ try {
   })
 
   const url = await new Promise((accept, reject) => {
-    server = spawn(
-      'bun',
-      ['run', 'xplat', 'workshop', 'dev', '--target', 'web', '--port', String(port)],
-      { cwd: consumer, detached: true, stdio: ['ignore', 'pipe', 'pipe'] },
-    )
+    server = spawn(nativeCLI, ['workshop', 'dev', '--target', 'web', '--port', String(port)], {
+      cwd: consumer,
+      detached: true,
+      stdio: ['ignore', 'pipe', 'pipe'],
+    })
 
     let output = ''
     const timer = setTimeout(() => reject(new Error('packed server readiness timeout')), 30_000)
@@ -396,8 +452,52 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
     'PASS packed production build excludes workshop, stories, fixture data and composition tooling',
   )
 
+  run('bun', ['run', 'xplat', 'workshop', 'build', '--out-dir', 'out/static', '--base', '/nested/'])
+  const staticRoot = join(consumer, 'out/static')
+  const html = readFileSync(join(staticRoot, 'index.html'), 'utf8')
+  assert.match(html, /src="\/nested\/assets\//)
+  const shipped = files(staticRoot)
+    .map((file) => readFileSync(file, 'utf8'))
+    .join('\n')
+
+  assert.doesNotMatch(shipped, /\/@fs\/|\/@id\/|vite\/client/)
+  assert.ok(!shipped.includes(consumer), 'static output must not expose the consumer path')
+  const { createServer } = await import('node:http')
+  const staticServer = createServer((req, res) => {
+    const pathname = new URL(req.url, 'http://localhost').pathname
+    if (!pathname.startsWith('/nested/')) {
+      res.writeHead(404).end()
+      return
+    }
+    const file = join(staticRoot, pathname.slice('/nested/'.length) || 'index.html')
+    try {
+      res.setHeader(
+        'content-type',
+        file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : 'text/html',
+      )
+
+      res.end(readFileSync(file))
+    } catch {
+      res.writeHead(404).end()
+    }
+  })
+
+  await new Promise((done) => staticServer.listen(0, '127.0.0.1', done))
+  try {
+    const staticPage = await browser.newPage()
+    await staticPage.goto(`http://127.0.0.1:${staticServer.address().port}/nested/?view=gallery`)
+    await staticPage.locator('.xw-gallery section').first().waitFor()
+    await staticPage.waitForFunction(() => document.querySelectorAll('iframe').length > 0)
+    await staticPage.close()
+    console.log(
+      'PASS packed static gallery runs under a nested base without development middleware',
+    )
+  } finally {
+    await new Promise((done) => staticServer.close(done))
+  }
+
   console.log(
-    `QUALIFIED web Chromium ${browser.version()}, Node ${process.version}, consumer package 0.14.0`,
+    `QUALIFIED web Chromium ${browser.version()}, Node ${process.version}, consumer runtime ${compatibility.packages.octane.version}`,
   )
 
   succeeded = true

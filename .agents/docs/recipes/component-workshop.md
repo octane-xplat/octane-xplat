@@ -25,9 +25,14 @@ explicit inputs, recover from failures, and keep workshop data out of production
 - AC4: Release all owned roots and resources on switching/reset; stale asynchronous work cannot mount, and failed/timed-out cleanup requires target restart.
 - AC5: Save story/component source, observe a fresh successful revision, retain clearly stale content on a bad edit, and recover after correction.
 - AC6: Use search, compact panels and stage-only mode through keyboard and screen reader; preserve composition, selection and healthy state through layout changes.
+- AC8: Browse a metadata-grouped browser gallery, defer offscreen fixtures, bound active previews, preserve focused examples, and recover a failed preview independently.
+- AC9: Build an explicitly public static catalog at a nested URL base without a dev server; new web-capable starters include a working story and command.
 - AC7: Build the ordinary production entry with stories, fixture data and workshop dependencies excluded.
 
 ## Documentation
+
+- AC8: [Gallery and grouping](../../../docs/testing/component-workshop.md#browse-all-components-on-one-page).
+- AC9: [Static publishing](../../../docs/testing/component-workshop.md#publish-a-static-workshop); [starter preview](../../../docs/packages/package-create.md#preview-a-component).
 
 - AC1: Native Go service startup is bounded and reports engine evidence separately from app initialization. The macOS path installs `@octane-xplat/macos-build` for its project engine. Initialization preserves custom config/story files and package scripts, rejects aliased or stale inputs, and supports `--no-scripts`. [Install and launch](../../../docs/testing/component-workshop.md#try-it); [commands](../../../docs/testing/component-workshop.md#commands); [Linux host](../../../docs/testing/component-workshop.md#linux-host); [macOS target](../../../docs/testing/component-workshop.md#macos-target); [Windows setup status](../../../packages/workshop/WINDOWS.md). Gaps: Linux launch qualifies only through an actual GTK4/GJS host (non-Linux GJS is a dev stand-in); macOS interaction evidence is recognizer-action dispatch, not OS-synthesized input, and screen-reader/IME require separate target qualification; Windows prerequisite reporting exists, but native launch and host qualification remain incomplete.
 - AC2: [Declare stories](../../../docs/testing/component-workshop.md#declaring-stories); [owned fixture resources](../../../docs/testing/component-workshop.md#owned-fixture-resources).

@@ -1,6 +1,6 @@
 # @octane-xplat/workshop
 
-> Development-only component workshop for Octane Xplat — typed stories, metadata discovery, adaptive shell, lifecycle and warm reload
+> Component workshop for Octane Xplat — typed stories, metadata discovery, adaptive shell, lifecycle and warm reload
 
 Develop a component on its own page, edit explicit inputs and Reset to a fresh
 example. Start with the browser; macOS AppKit and Linux GTK4 have real launch
@@ -15,6 +15,20 @@ exclusion workflow.
 [Generated API reference](https://octane-xplat.goddardai.org/api-workshop).
 
 ## Try it
+
+New web-capable app and library starters include a ready-to-run example:
+
+```sh
+bun run workshop
+```
+
+Open **Gallery** to browse all story components, or [try our public workshop](https://octane-xplat.goddardai.org/workshop/).
+Publish an explicit public catalog separately from the ordinary app build:
+
+```sh
+bun run xplat workshop build --target web --out-dir dist/workshop --base /workshop/
+```
+
 
 Inside a configured Xplat app, keep its existing matching compiler/runtime:
 

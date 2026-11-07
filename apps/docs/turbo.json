@@ -1,16 +1,34 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"build": {
-			"dependsOn": ["^typegen", "^build", "api"],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/**"]
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"api"
+			],
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/docs/**"
+			],
+			"env": [
+				"GITHUB_SHA"
+			]
 		},
 		"test": {
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/docs/**"]
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/docs/**"
+			]
 		},
 		"test:responsive": {
-			"dependsOn": ["^typegen", "^build"],
+			"dependsOn": [
+				"^typegen",
+				"^build"
+			],
 			"cache": false
 		},
 		"api": {
@@ -112,8 +130,13 @@
 				"@octane-xplat/media-converter#typegen",
 				"@octane-xplat/macos-build#build"
 			],
-			"inputs": ["$TURBO_DEFAULT$", "$TURBO_ROOT$/packages/**"],
-			"outputs": ["$TURBO_ROOT$/docs/api/**"]
+			"inputs": [
+				"$TURBO_DEFAULT$",
+				"$TURBO_ROOT$/packages/**"
+			],
+			"outputs": [
+				"$TURBO_ROOT$/docs/api/**"
+			]
 		}
 	}
 }

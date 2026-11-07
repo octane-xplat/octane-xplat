@@ -149,7 +149,7 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
   assert.equal(manifest.devDependencies['@nativescript/ios'], undefined)
   assert.equal(manifest.devDependencies['octane-xplat'], 'catalog:xplat')
   assert.equal(manifest.devDependencies['@octane-xplat/cli'], undefined)
-  assert.equal(manifest.devDependencies['@octanejs/vite-plugin'], undefined)
+  assert.equal(manifest.devDependencies['@octanejs/vite-plugin'], 'catalog:xplat')
 
   // Web testing is included without the native runner, specs or scripts.
   assert.ok(!existsSync(join(dir, 'vitest.config.mts')))
@@ -863,4 +863,18 @@ test('compatibilityRoot returns the pnpm-workspace root owning the app', async (
   const bunApp = join(bun, 'apps/app')
   composeTargets(['web'], bunApp)
   assert.equal(compatibilityRoot(bunApp), bun)
+})
+
+test('starters include Workshop authoring and only advertise web preview with its compiler', () => {
+  for (const targets of [['web'], ['web', 'ios', 'android']]) {
+    const manifest = composeManifest(targets)
+    assert.equal(manifest.devDependencies['@octane-xplat/workshop'], 'catalog:xplat')
+    assert.equal(manifest.scripts.workshop, 'xplat workshop dev --target web')
+    assert.ok(manifest.devDependencies['@octanejs/vite-plugin'])
+  }
+  const native = composeManifest(['ios'])
+  assert.ok(native.devDependencies['@octane-xplat/workshop'])
+  assert.equal(native.scripts.workshop, undefined)
+  assert.equal(LIB_TPL.devDependencies['@octane-xplat/workshop'], 'catalog:xplat')
+  assert.ok(LIB_TPL.files.includes('!src/**/*.stories.*'))
 })

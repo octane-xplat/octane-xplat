@@ -94,6 +94,7 @@ func init() {
 		"patches apply": func(ctx context.Context, values map[string]any) error {
 			return patches.Command(ctx, values, true)
 		},
+		"workshop build":  workshop.BuildCommand,
 		"workshop init":   workshop.InitCommand,
 		"workshop dev":    workshop.DevCommand,
 		"workshop list":   workshop.InspectionCommand("list"),

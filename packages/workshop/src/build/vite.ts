@@ -40,7 +40,7 @@ const TARGET_RESOLUTION = {
 
 const fsUrl = (file) => `/@fs/${file.split(sep).join('/')}`
 
-function catalogCode(root, config, target) {
+function catalogCode(root, config, target, production = false) {
 	const storiesConfig = config?.stories ?? {}
 	const { entries, diagnostics } = discoverStories(root, {
 		include: storiesConfig.include,
@@ -51,8 +51,10 @@ function catalogCode(root, config, target) {
 	const include = JSON.stringify(normalizeInclude(storiesConfig.include))
 	const loaders = entries
 		.filter((entry) => entry.applicable && diagnostics.length === 0)
-		.map(
-			(entry) => `\t${JSON.stringify(entry.id)}: (stamp) => stamp === undefined
+		.map((entry) =>
+			production
+				? `\t${JSON.stringify(entry.id)}: () => import(${JSON.stringify(fsUrl(entry.file))}),`
+				: `\t${JSON.stringify(entry.id)}: (stamp) => stamp === undefined
 \t\t? import(${JSON.stringify(fsUrl(entry.file))})
 \t\t: import(/* @vite-ignore */ ${JSON.stringify(fsUrl(entry.file))} + '?t=' + encodeURIComponent(String(stamp))),`,
 		)
@@ -60,7 +62,7 @@ function catalogCode(root, config, target) {
 
 	return `import { catalogDidUpdate } from '@octane-xplat/workshop/web'
 
-export const catalogMeta = ${JSON.stringify(entries)}
+export const catalogMeta = ${JSON.stringify(entries.map((entry) => (production ? { ...entry, file: '' } : entry)))}
 export const diagnostics = ${JSON.stringify(diagnostics)}
 export const includePatterns = ${include}
 
@@ -110,15 +112,18 @@ function entryCode(config, target, story, packageDir, root) {
 		.join(', ')
 
 	// Both src/build and dist/build resolve the shipped runtime source here.
+	const galleryCss = fsUrl(join(packageDir, '../../src/web/gallery.css'))
 	const shellCss = fsUrl(join(packageDir, '../../src/web/shell.css'))
 
 	return `import { catalog, loadStory, diagnostics } from ${JSON.stringify(CATALOG_ID)}
-import { startWorkshop } from '@octane-xplat/workshop/web'
+import { bootWorkshop } from '@octane-xplat/workshop/web'
 import '@octane-xplat/ui/theme/tokens.css'
 import ${JSON.stringify(shellCss)}
+import ${JSON.stringify(galleryCss)}
 ${imports}
 
-startWorkshop({
+bootWorkshop({
+	defaultView: ${JSON.stringify(config?.defaultView ?? 'story')},
 	catalog,
 	diagnostics,
 	loadStory,
@@ -159,11 +164,13 @@ export function xplatWorkshop(options = {}) {
 	const resolution = TARGET_RESOLUTION[target] ?? TARGET_RESOLUTION.web
 	let root = options.cwd ?? process.cwd()
 	let config = options.config ?? {}
+	let production = false
 
 	const virtualModules = {
 		name: 'xplat-workshop-virtual',
 		configResolved(resolved) {
 			root = options.cwd ?? resolved.root
+			production = resolved.command === 'build'
 		},
 		resolveId(id) {
 			if (id === CATALOG_ID || id === ENTRY_ID) {
@@ -174,7 +181,7 @@ export function xplatWorkshop(options = {}) {
 		},
 		load(id) {
 			if (id === CATALOG_ID) {
-				return catalogCode(root, config, target)
+				return catalogCode(root, config, target, production)
 			}
 
 			if (id === ENTRY_ID) {

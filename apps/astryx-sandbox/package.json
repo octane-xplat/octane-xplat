@@ -3,6 +3,10 @@
 	"version": "0.0.0",
 	"private": true,
 	"type": "module",
+	"exports": {
+		"./examples/*": "./src/examples/*",
+		"./icons": "./src/icons.ts"
+	},
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
@@ -15,17 +19,17 @@
 		"sameframe": "sameframe compare --config sameframe.yaml --json"
 	},
 	"dependencies": {
+		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/ui": "workspace:*",
-		"octane": "catalog:",
-		"@octane-xplat/files": "workspace:*"
+		"octane": "catalog:"
 	},
 	"devDependencies": {
 		"@octane-xplat/cli": "workspace:*",
 		"@octane-xplat/jsx": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
 		"playwright": "1.63.0",
 		"typescript": "catalog:",
-		"vite": "catalog:",
-		"@tsrx/content-mapper": "catalog:"
+		"vite": "catalog:"
 	}
 }

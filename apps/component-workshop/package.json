@@ -1,0 +1,53 @@
+{
+  "name": "@xplat/component-workshop",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "workshop": "xplat workshop dev --target web",
+    "build": "node scripts/build.ts",
+    "typecheck": "node ../../scripts/typecheck.ts",
+    "test:coverage": "node scripts/coverage.ts",
+    "test:browser": "node scripts/browser.ts"
+  },
+  "dependencies": {
+    "@octane-xplat/ads": "workspace:*",
+    "@octane-xplat/auth": "workspace:*",
+    "@octane-xplat/barcode-scanner": "workspace:*",
+    "@octane-xplat/camera": "workspace:*",
+    "@octane-xplat/canvas": "workspace:*",
+    "@octane-xplat/charts": "workspace:*",
+    "@octane-xplat/drawer": "workspace:*",
+    "@octane-xplat/files": "workspace:*",
+    "@octane-xplat/gif": "workspace:*",
+    "@octane-xplat/icons": "workspace:*",
+    "@octane-xplat/image": "workspace:*",
+    "@octane-xplat/image-crop": "workspace:*",
+    "@octane-xplat/keyboard": "workspace:*",
+    "@octane-xplat/lexical": "workspace:*",
+    "@octane-xplat/lottie": "workspace:*",
+    "@octane-xplat/maps": "workspace:*",
+    "@octane-xplat/motion": "workspace:*",
+    "@octane-xplat/pager": "workspace:*",
+    "@octane-xplat/richtext": "workspace:*",
+    "@octane-xplat/rolling-text": "workspace:*",
+    "@octane-xplat/smooth-corners": "workspace:*",
+    "@octane-xplat/table": "workspace:*",
+    "@octane-xplat/tiptap": "workspace:*",
+    "@octane-xplat/ui": "workspace:*",
+    "@octane-xplat/video": "workspace:*",
+    "@xplat/demos": "workspace:*",
+    "octane": "catalog:"
+  },
+  "devDependencies": {
+    "@octane-xplat/cli": "workspace:*",
+    "@octane-xplat/jsx": "workspace:*",
+    "@octane-xplat/workshop": "workspace:*",
+    "@octanejs/vite-plugin": "catalog:",
+    "@tsrx/content-mapper": "catalog:",
+    "@xplat/astryx-sandbox": "workspace:*",
+    "playwright": "1.63.0",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}

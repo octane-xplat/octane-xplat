@@ -50,6 +50,20 @@ bun run xplat workshop doctor
 bun run xplat workshop dev --target web --story counter/basic
 ```
 
+New web-capable app/library starters include `bun run workshop`. The browser
+Gallery groups literal `componentId` values and lazily mounts isolated previews;
+`gallery.primary` chooses a representative. Distant previews can reset after
+eviction. Static publishing intentionally includes the public catalog; ordinary
+app production exclusion still applies. This does not qualify native hosts.
+
+```sh
+bun run xplat workshop build --target web --out-dir dist/workshop --base /workshop/
+```
+
+For a browser Pager story, keep its JSX `renderItem` callback inline in the
+owning component. The maintained demo's top-level TSRX callback currently fails
+in an isolated browser mount; see the [scoped evidence and workaround](../../../docs/upstream-limitations.md#pager-demo-isolated-browser-callback-failure-cause-unverified).
+
 ## Framework investigations
 
 Use an isolated probe for a single case. Research probes are temporary;

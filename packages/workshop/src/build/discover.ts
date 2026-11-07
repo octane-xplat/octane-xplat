@@ -29,7 +29,8 @@ const SUFFIX_TARGETS = {
 	gtk: ['linux'],
 }
 
-const SUFFIX_RE = /\.stories\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[cm]?[jt]srx?$/
+const SUFFIX_RE =
+	/\.stories\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[cm]?[jt]s(?:rx|x)?$/
 
 export function storyFileTag(file) {
 	return SUFFIX_RE.exec(file)?.[1] ?? null
@@ -300,6 +301,25 @@ function literalValue(masked, source, start, end, label, file) {
 		return items
 	}
 
+	if (text.startsWith('{')) {
+		const open = masked.indexOf('{', start)
+		const close = matchBracket(masked, open, '{', '}')
+		if (close < 0 || masked.slice(close + 1, end).trim()) {
+			fail()
+		}
+
+		const { fields, error } = objectFields(masked, source, open, close)
+		if (error) {
+			fail()
+		}
+
+		return Object.fromEntries(
+			[...fields].map(([key, field]) => [
+				key,
+				literalValue(masked, source, field.start, field.end, label, file),
+			]),
+		)
+	}
 	fail()
 }
 
@@ -414,10 +434,10 @@ export function scanStoryFile(source, file) {
 
 		const story = { file, exportName, exported: exportedStory }
 		let failed = false
-		for (const key of ['id', 'title', 'targets', 'capabilities']) {
+		for (const key of ['id', 'title', 'targets', 'capabilities', 'componentId', 'gallery']) {
 			const field = fields.get(key)
 			if (!field) {
-				if (key === 'capabilities') {
+				if (['capabilities', 'componentId', 'gallery'].includes(key)) {
 					continue
 				}
 
@@ -462,6 +482,29 @@ export function scanStoryFile(source, file) {
 			failed = true
 		}
 
+		if (
+			!failed &&
+			((story.componentId !== undefined &&
+				(typeof story.componentId !== 'string' || !story.componentId.trim())) ||
+				(story.gallery !== undefined &&
+					(story.gallery === null ||
+						Array.isArray(story.gallery) ||
+						typeof story.gallery !== 'object' ||
+						Object.keys(story.gallery).some((key) => !['primary', 'height'].includes(key)) ||
+						(story.gallery.primary !== undefined && typeof story.gallery.primary !== 'boolean') ||
+						(story.gallery.height !== undefined &&
+							(!Number.isFinite(story.gallery.height) || story.gallery.height <= 0)))))
+		) {
+			diagnostics.push({
+				file,
+				exportName,
+				message:
+					'invalid componentId or gallery metadata (expected primary: boolean, height: positive CSS pixels)',
+			})
+
+			failed = true
+		}
+
 		if (!failed) {
 			stories.push(story)
 		}
@@ -501,6 +544,7 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 				message:
 					'the Linux workshop renders with GTK — rename to .stories.gtk.* for the linux catalog, or .stories.web.* for --target web',
 			})
+
 			continue
 		}
 
@@ -551,6 +595,8 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 
 			const meta = {
 				id: story.id,
+				componentId: story.componentId,
+				gallery: story.gallery,
 				title: story.title,
 				targets: applicable,
 				capabilities: story.capabilities ?? [],
@@ -591,5 +637,18 @@ export function discoverStories(root, { include, exclude, target = 'web' } = {})
 	}
 
 	const merged = [...byRow.values()].map((group) => group.find((e) => e.applicable) ?? group[0])
+	const primaries = new Map()
+	for (const entry of merged) {
+		if (!entry.applicable || !entry.gallery?.primary) {
+			continue
+		}
+
+		const key = entry.componentId ?? entry.id
+		if (primaries.has(key)) {
+			diagnostics.push({ file: entry.file, message: `multiple primary gallery stories for ${key}` })
+		}
+
+		primaries.set(key, entry.id)
+	}
 	return { entries: merged, diagnostics }
 }

@@ -548,3 +548,19 @@ CoreText boundary model. Actual platform behavior is owned by
 `apps/mobile/src/tests/variable-font-styles.ios.spec.tsrx` and the existing
 Geist spec; run `test:ios:fonts` on the selected, prebooted simulator. Host
 checks alone do not qualify UIKit behavior or root font-family inheritance.
+
+## Pager demo: isolated browser callback failure (cause unverified)
+
+The maintained `packages/demos/src/PagerDemo.tsrx` passes a top-level TSRX
+`renderPage` arrow to `renderItem`. With Octane 0.16.3, rendering that demo in a
+browser Workshop story fails with `Cannot read properties of undefined (reading
+'parentNode')` in the compiled callback. The compiler/callback ownership cause
+is still unverified; this is evidence about that concrete path, not a general
+claim that callbacks are unsupported. Native behavior is unverified.
+
+The public component workshop uses an inline JSX callback inside its owning
+`PagerExample` in `apps/component-workshop/src/leaves.web.tsrx`. That case passes
+compiled Chromium mounting. Keep the original case visible in
+[issue #176](https://github.com/octane-xplat/octane-xplat/issues/176); remove this
+qualification only after the maintained demo itself passes. The isolated
+browser fixtures intentionally do not import the failing demo as a workaround.

@@ -206,6 +206,15 @@ export type StoryDefinition<P = Record<string, never>, S = void, F = void> = {
   targets: StoryTargets
   /** Host capabilities the story requires (e.g. 'camera', 'network-write'). */
   capabilities?: readonly string[]
+  /** Stable identity of the demonstrated component; defaults to the story id in the gallery. */
+  componentId?: string
+  /** Literal gallery presentation. Only one applicable variant may be primary. */
+  gallery?: {
+    /** Prefer this variant in the gallery. */
+    primary?: boolean
+    /** Reserved preview height in CSS pixels; must be positive and finite. */
+    height?: number
+  }
   /** The component under development. */
   component: StoryComponent<PropsWithoutReserved<P> & InjectedStoryProps<S, F>>
   /** Immutable default props for each run; cloned fresh per generation. */
@@ -316,6 +325,8 @@ function assertLiteralAuthoring(definition: StoryDefinition<any, any, any>): voi
 
 /** Consumer workshop configuration, loaded by the dev tooling. */
 export interface WorkshopConfig {
+  /** Default browser page; development opens the inspector unless configured otherwise. */
+  defaultView?: 'story' | 'gallery'
   /** Discovered story entries. */
   stories?: {
     /** Glob(s) matching story modules. Default: '**&#47;*.stories.{ts,tsx,tsrx}' plus platform-suffixed leaves. */

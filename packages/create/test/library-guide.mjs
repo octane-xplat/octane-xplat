@@ -1,7 +1,20 @@
 /** Focused app/library artifact qualification. No devices, browsers or images. */
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+  existsSync,
+  realpathSync,
+  cpSync,
+  chmodSync,
+} from 'node:fs'
+
+import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -23,6 +36,11 @@ function run(command, args, cwd) {
 }
 
 const tarballs = new Map()
+const platform = process.platform === 'win32' ? 'windows' : process.platform
+const arch = process.arch === 'x64' ? 'amd64' : process.arch
+const binaryName = `xplat-go-${platform}-${arch}-cli${platform === 'windows' ? '.exe' : ''}`
+const nativeCLI = join(repo, 'research/go-cli', binaryName)
+
 function packPackage(root) {
   const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
@@ -43,22 +61,70 @@ function prepare(root) {
   }
   writeFileSync(path, JSON.stringify(config, null, '\t') + '\n')
   run('bun', ['install'], root)
+  // Raw package packs use the repository launcher; release staging owns bin rewriting.
+  // Place the tested native companion only inside this isolated temporary install.
+  const require = createRequire(join(root, 'package.json'))
+  let manifestPath
+  try {
+    manifestPath = require.resolve('@octane-xplat/cli/package.json')
+  } catch {
+    manifestPath = createRequire(require.resolve('octane-xplat/vite')).resolve(
+      '@octane-xplat/cli/package.json',
+    )
+  }
+  const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+  const launcher = realpathSync(resolve(dirname(manifestPath), manifest.bin.xplat))
+  const payload = resolve(dirname(launcher), '../../../research/go-cli', binaryName)
+  assert.ok(
+    payload.startsWith(realpathSync(work) + '/'),
+    'fixture payload must remain inside owned temporary storage',
+  )
+  mkdirSync(dirname(payload), { recursive: true })
+  cpSync(nativeCLI, payload)
+  chmodSync(payload, 0o755)
 }
 
 try {
-  for (const dir of [
-    'create',
-    'cli',
-    'docs-search',
-    'lib',
-    'ui',
-    'jsx',
-    'platform',
-    'patches',
+  const packages = new Map(
+    readdirSync(join(repo, 'packages')).flatMap((directory) => {
+      const root = join(repo, 'packages', directory)
+      if (!existsSync(join(root, 'package.json'))) {
+        return []
+      }
+      const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+      return [[manifest.name, { root, manifest }]]
+    }),
+  )
+
+  const wanted = new Set()
+  function include(name) {
+    if (wanted.has(name) || !packages.has(name)) {
+      return
+    }
+    wanted.add(name)
+    const { manifest } = packages.get(name)
+    for (const dependency of Object.keys(manifest.dependencies ?? {})) {
+      include(dependency)
+    }
+    for (const dependency of Object.keys(manifest.peerDependencies ?? {})) {
+      if (!manifest.peerDependenciesMeta?.[dependency]?.optional) {
+        include(dependency)
+      }
+    }
+  }
+
+  for (const name of [
+    'create-octane-xplat',
+    '@octane-xplat/workshop',
     'tsrx-typegen',
-    'lint',
+    '@octane-xplat/patches',
+    'octane-xplat',
   ]) {
-    packPackage(join(repo, 'packages', dir))
+    include(name)
+  }
+
+  for (const name of wanted) {
+    packPackage(packages.get(name).root)
   }
 
   writeFileSync(
@@ -98,11 +164,16 @@ try {
   run('bun', ['run', 'tsrx-typegen', '--target', 'octane', '--check'], library)
   const artifact = packPackage(library)
   const listing = run('tar', ['-tzf', artifact], work)
+  assert.doesNotMatch(
+    listing,
+    /\.stories\./,
+    'published library must exclude Workshop stories and their declarations',
+  )
+
   for (const path of [
     'package/src/Badge.tsx',
     'package/src/Badge.web.tsx',
     'package/types/index.d.ts',
-    'package/types/index.web.d.ts',
     'package/src/assets/packing.txt',
   ]) {
     assert.ok(listing.includes(path), `missing ${path}`)

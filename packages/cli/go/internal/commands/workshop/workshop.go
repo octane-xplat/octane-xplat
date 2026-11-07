@@ -377,3 +377,53 @@ func DevCommand(ctx context.Context, values map[string]any) error {
 	_, err = runServiceWorker(ctx, projectPath, worker, "workshop-dev", target, payload, 5*time.Minute, proc.ForegroundInput(ctx), os.Stdout, os.Stderr)
 	return err
 }
+
+// BuildCommand owns the finite selected-project build worker lifetime.
+func BuildCommand(ctx context.Context, values map[string]any) error {
+	root, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	root, err = osfs.Canonical(root)
+	if err != nil {
+		return err
+	}
+	if _, err = project.Manifest(root); err != nil {
+		return err
+	}
+	worker, err := project.Worker(root)
+	if err != nil {
+		return err
+	}
+	target := cli.StringValue(values["target"])
+	if target == "" {
+		target = "web"
+	}
+	if target != "web" {
+		return errors.New("Workshop static build supports only web")
+	}
+	output := cli.StringValue(values["outDir"])
+	if output == "" {
+		output = "dist/workshop"
+	}
+	base := cli.StringValue(values["base"])
+	if base == "" {
+		base = "/"
+	}
+	result, err := project.RunWorkerEntry(ctx, root, worker, "workshop-build", map[string]any{"target": target, "outDir": output, "base": base}, nil, nil)
+	if writeErr := proc.WriteCommandText(ctx, os.Stderr, result.Process.Stdout+result.Process.Stderr); writeErr != nil {
+		return errors.Join(err, writeErr)
+	}
+	if err != nil {
+		return err
+	}
+	var receipt struct {
+		Version                    int
+		Project, Operation, OutDir string
+		Components, Stories        int
+	}
+	if json.Unmarshal(result.Data, &receipt) != nil || receipt.Version != 1 || receipt.Project != root || receipt.Operation != "workshop-build" || !filepath.IsAbs(receipt.OutDir) || receipt.Components < 0 || receipt.Stories < receipt.Components {
+		return errors.New("invalid Workshop build receipt")
+	}
+	return proc.WriteCommandText(ctx, os.Stdout, fmt.Sprintf("Workshop: %d components, %d stories → %s\n", receipt.Components, receipt.Stories, receipt.OutDir))
+}

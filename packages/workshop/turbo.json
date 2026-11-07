@@ -8,7 +8,9 @@
 				"typegen",
 				"build",
 				"build:assets",
-				"create-octane-xplat#build"
+				"create-octane-xplat#build",
+				"@octane-xplat/cli#build:go",
+				"octane-xplat#build"
 			],
 			"cache": false
 		},

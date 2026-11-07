@@ -234,3 +234,26 @@ export async function workshopService(
   })
   return data
 }
+
+/** Selected-project finite static build. No development service is started. */
+export async function workshopBuildOperation(request: Record<string, unknown>) {
+  if (
+    request.target !== 'web' ||
+    typeof request.outDir !== 'string' ||
+    typeof request.base !== 'string'
+  ) {
+    throw new Error('Invalid Workshop build request')
+  }
+  const project = realpathSync(process.cwd())
+  const api = await import(pathToFileURL(workshopEntry(project)).href)
+  if (typeof api.workshopBuild !== 'function') {
+    throw new Error('Update @octane-xplat/workshop to build static previews')
+  }
+  const result = await api.workshopBuild({
+    cwd: project,
+    target: 'web',
+    outDir: request.outDir,
+    base: request.base,
+  })
+  return { version: 1, project, operation: 'workshop-build', ...result }
+}

@@ -233,6 +233,9 @@ export function App() @{
             <View className="nav-icon ic-start" />
             <Text className="nav-label">Get Started</Text>
           </Pressable>
+          <Link className="nav-row" href="/workshop/">
+            <Text className="nav-label">Component workshop</Text>
+          </Link>
           <Link className="nav-row" href="/llms.txt" target="_blank">
             <View className="nav-icon ic-doc" />
             <Text className="nav-label">llms.txt</Text>

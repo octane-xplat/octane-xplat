@@ -55,6 +55,7 @@ export interface WorkshopInitPlan {
 	inputs: { path: string; before: string | null; mode: number | null }[]
 	report: { created: string[]; skipped: string[]; hasWorkshop: boolean }
 }
+
 /** Plan initialization without creating directories, editing files or executing configuration. */
 export declare function planWorkshopInit(options?: {
 	cwd?: string
@@ -120,3 +121,25 @@ export declare function findConfigFile(root: string): string | null
 export declare function loadWorkshopConfig(
 	root: string,
 ): Promise<{ config: object; file: string | null }>
+
+/** Result of an explicitly requested static browser Workshop publication. */
+export interface WorkshopBuildResult {
+	/** Absolute output directory. */
+	outDir: string
+	/** Number of component sections. */
+	components: number
+	/** Number of discovered stories. */
+	stories: number
+}
+
+/** Build a static browser Workshop. Does not start a server or publish remotely. */
+export declare function workshopBuild(options?: {
+	/** Consumer project directory. */
+	cwd?: string
+	/** Static publishing currently supports only web. */
+	target?: 'web'
+	/** Owned output below dist/, build/, or out/. Default dist/workshop. */
+	outDir?: string
+	/** Absolute URL path ending in /. Default /. */
+	base?: string
+}): Promise<WorkshopBuildResult>

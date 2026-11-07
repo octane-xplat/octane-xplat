@@ -105,6 +105,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
       </details>
       <span className="xw-spacer" />
       <div className="xw-toolbar-actions">
+        <a href="?view=gallery">Gallery</a>
         {s.mode !== 'wide' ? (
           <>
             <button
