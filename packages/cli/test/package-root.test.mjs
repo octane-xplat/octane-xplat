@@ -86,6 +86,8 @@ describe('installedToolPackageRoot', () => {
     assert.equal(appCliFile({ root: app }, 'macos', 'host.js'), join(cli, 'dist/host.js'))
     assert.equal(installedPackageRoot(app, 'typescript'), null)
     const direct = makePkg(join(app, 'node_modules/typescript'), { name: 'typescript' })
+    assert.equal(installedToolPackageRoot(app, 'typescript'), compiler, 'incidental hoisted tools do not shadow the umbrella')
+    makePkg(app, { name: 'app', devDependencies: { typescript: '7.1.0-beta' } })
     assert.equal(installedToolPackageRoot(app, 'typescript'), direct)
   })
 })

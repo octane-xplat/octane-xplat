@@ -68,6 +68,12 @@ Native-only installs fetch none of those peers. Native worker/declaration lookup
 native workflow prerequisite.
 See the [build-plugin guide](../../docs/packages/package-build.md) for engine setup.
 
+The CLI and its workers prefer an app-authored tool dependency; otherwise they
+use the installed `octane-xplat` umbrella's declared tool. An incidental hoisted
+dependency is not an app override: NativeScript's transitive TypeScript 5 must
+not shadow the umbrella's native TypeScript 7 compiler. This selection rule does
+not change upstream NativeScript Vite's separate compiler lookup (below).
+
 Repository installs and script dispatch use Bun 1.4.4; Node remains required
 by app and repository tooling and by the CLI's explicit JavaScript workers.
 Vite/MCP subpath exports retain per-module ESM for Node consumers.

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/cli"
 	"github.com/octane-xplat/octane-xplat/packages/cli/go/internal/osfs"
 	"os"
 	"path/filepath"
@@ -28,11 +29,15 @@ func InstalledProjectEntry(project, name, field, key string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	if root == "" {
-		root, err = umbrellaPackageRoot(project, name)
-		if err != nil {
-			return "", err
-		}
+	umbrella, err := umbrellaPackageRoot(project, name)
+	if err != nil {
+		return "", err
+	}
+	// NativeScript may hoist its own older compiler into the app. Only an
+	// authored app dependency overrides the toolchain's declared compiler.
+	_, declared := Dependencies(cli.JsonObject(filepath.Join(project, "package.json")))[name]
+	if root == "" || (umbrella != "" && !declared) {
+		root = umbrella
 	}
 	if root == "" {
 		return "", fmt.Errorf("install the selected project tool (bun add --dev %s); missing %s", name, name)
