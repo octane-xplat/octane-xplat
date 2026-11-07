@@ -26,15 +26,21 @@ function element<K extends keyof HTMLElementTagNameMap>(
   return node
 }
 
+function setPhase(card: Card, phase: Card['state']): void {
+  card.state = phase
+  card.section.dataset.phase = phase
+}
+
 /** Mount a metadata-only index; story code executes only inside activated frames. */
 export function startGallery(options: WorkshopBootOptions): () => void {
   const host = document.getElementById('workshop-root') ?? document.body
+  document.documentElement.classList.add('xw-gallery-page')
   const container = element('main')
   container.className = 'xw-gallery'
   const heading = element('h1', 'Component workshop')
   const intro = element(
     'p',
-    'Interactive browser examples. Previews load as you scroll; distant previews may reset to release resources.',
+    'Try a component in place, or open its story to explore variants and controls.',
   )
   const nav = element('a', 'Open story inspector')
   nav.href = '?view=story'
@@ -46,9 +52,58 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   count.setAttribute('role', 'status')
   const index = element('nav')
   index.setAttribute('aria-label', 'Component index')
+  const masthead = element('header')
+  masthead.className = 'xw-gallery-masthead'
+  const mastheadInner = element('div')
+  mastheadInner.className = 'xw-gallery-shell xw-gallery-heading'
+  const introduction = element('div')
+  const eyebrow = element('p', 'WORKSHOP / COMPONENT LIBRARY')
+  eyebrow.className = 'xw-gallery-eyebrow'
+  intro.className = 'xw-gallery-intro'
+  nav.className = 'xw-gallery-inspector'
+  introduction.append(eyebrow, heading, intro)
+  mastheadInner.append(introduction, nav)
+  masthead.append(mastheadInner)
+
+  const toolbar = element('div')
+  toolbar.className = 'xw-gallery-toolbar'
+  const toolbarInner = element('div')
+  toolbarInner.className = 'xw-gallery-shell xw-gallery-tools'
+  const searchLabel = element('label')
+  searchLabel.className = 'xw-gallery-search'
+  searchLabel.append(element('span', 'Find a component'), search)
+  search.placeholder = 'Search by name or package…'
+  count.className = 'xw-gallery-count'
+  toolbarInner.append(searchLabel, count)
+  toolbar.append(toolbarInner)
+
+  const body = element('div')
+  body.className = 'xw-gallery-shell xw-gallery-content'
   const contents = element('details')
+  contents.className = 'xw-gallery-index'
   contents.append(element('summary', 'Component index'), index)
-  container.append(heading, intro, nav, search, count, contents)
+  const note = element('p', 'Previews load as you scroll. Distant previews may reset.')
+  note.className = 'xw-gallery-note'
+  const list = element('div')
+  list.className = 'xw-gallery-list'
+  const empty = element('div')
+  empty.className = 'xw-gallery-empty'
+  empty.append(
+    element('h2', 'No components found'),
+    element('p', 'Try another component name or package.'),
+  )
+  const clear = element('button', 'Clear search')
+  clear.type = 'button'
+  clear.onclick = () => {
+    search.value = ''
+    filter()
+    search.focus()
+  }
+  empty.append(clear)
+  empty.hidden = true
+  list.append(empty)
+  body.append(contents, note, list)
+  container.append(masthead, toolbar, body)
   const cards: Card[] = []
   let disposed = false
   let clock = 0
@@ -60,7 +115,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     if (!card.frame || card.state === 'disposing') {
       return
     }
-    card.state = 'disposing'
+    setPhase(card, 'disposing')
     clearTimeout(card.timer)
     card.frame.contentWindow?.postMessage(
       { workshop: 1, type: 'dispose', token: card.token },
@@ -71,7 +126,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
       card.frame?.remove()
       card.frame = undefined
       card.release = undefined
-      card.state = 'idle'
+      setPhase(card, 'idle')
       card.status.textContent = 'Preview released. Load again to reset.'
       if (reload) {
         queue(card)
@@ -83,7 +138,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
       card.frame?.remove()
       card.frame = undefined
       card.release = undefined
-      card.state = 'error'
+      setPhase(card, 'error')
       card.status.textContent = 'Preview cleanup did not finish. Retry creates a fresh preview.'
       pump()
     }, 3000)
@@ -93,7 +148,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     if (disposed || card.frame || !card.entry.selected) {
       return
     }
-    card.state = 'loading'
+    setPhase(card, 'loading')
     card.touched = ++clock
     card.token = crypto.randomUUID()
     const frame = element('iframe')
@@ -111,7 +166,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     card.stage.append(frame)
     card.status.textContent = 'Loading preview…'
     card.timer = setTimeout(() => {
-      card.state = 'error'
+      setPhase(card, 'error')
       card.status.textContent = 'Preview timed out. Retry or open the story to inspect it.'
       pump()
     }, 20000)
@@ -161,7 +216,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     ) {
       return
     }
-    card.state = 'queued'
+    setPhase(card, 'queued')
     pump()
   }
 
@@ -182,9 +237,17 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   for (const entry of entries) {
     const section = element('section')
     section.id = `component=${encodeURIComponent(entry.componentId)}`
+    section.className = 'xw-gallery-card'
+    section.dataset.phase = 'idle'
     const title = element('h2', entry.title)
     const identity = element('code', entry.componentId)
-    const support = element('p', [...new Set(entry.variants.flatMap((v) => v.targets))].join(', '))
+    identity.className = 'xw-gallery-id'
+    const support = element(
+      'p',
+      'Targets: ' + [...new Set(entry.variants.flatMap((v) => v.targets))].join(' · '),
+    )
+
+    support.className = 'xw-gallery-targets'
     const stage = element('div')
     stage.className = 'xw-gallery-stage'
     stage.style.minHeight = `${entry.height}px`
@@ -199,15 +262,17 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     )
 
     status.setAttribute('role', 'status')
+    status.className = 'xw-gallery-status'
     const card: Card = { entry, section, stage, status, near: false, state: 'idle', touched: 0 }
     const load = element('button', 'Load / Retry preview')
+    load.className = 'xw-gallery-reload'
     load.type = 'button'
     load.disabled = !entry.selected
     load.onclick = () => {
       if (card.frame) {
         retire(card, true)
       } else {
-        card.state = 'idle'
+        setPhase(card, 'idle')
         queue(card)
       }
     }
@@ -221,17 +286,43 @@ export function startGallery(options: WorkshopBootOptions): () => void {
         location.origin,
       )
 
-    section.append(title, identity, support, stage, status, load, reset)
+    const cardHeader = element('header')
+    cardHeader.className = 'xw-gallery-card-head'
+    const label = element('div')
+    const titleRow = element('div')
+    titleRow.className = 'xw-gallery-title-row'
+    const number = element('span', String(cards.length + 1).padStart(3, '0'))
+    number.className = 'xw-gallery-number'
+    number.setAttribute('aria-hidden', 'true')
+    titleRow.append(number, title)
+    label.append(titleRow, identity)
+    cardHeader.append(label, support)
+    const footer = element('footer')
+    footer.className = 'xw-gallery-card-foot'
+    const actions = element('div')
+    actions.className = 'xw-gallery-actions'
+    actions.append(load, reset)
+    footer.append(status, actions)
+    const variants = element('div')
+    variants.className = 'xw-gallery-variants'
+    variants.setAttribute('role', 'group')
+    const variantsLabel = element('span', 'Stories')
+    variantsLabel.className = 'xw-gallery-variants-label'
+    variants.append(variantsLabel)
+    variants.setAttribute('aria-label', `${entry.title} stories`)
+    section.append(cardHeader, stage, footer, variants)
     for (const variant of entry.variants) {
-      const link = element('a', variant.title)
+      const link = element('a', variant.title.split('/').at(-1)?.trim() || variant.title)
+      link.setAttribute('aria-label', `Open ${variant.title} story`)
+      link.title = variant.title
       link.href = `?view=story&story=${encodeURIComponent(variant.id)}`
-      section.append(link)
+      variants.append(link)
     }
 
     const anchor = element('a', entry.title)
     anchor.href = `#${section.id}`
     index.append(anchor)
-    container.append(section)
+    list.append(section)
     cards.push(card)
   }
   if (options.diagnostics?.length) {
@@ -252,11 +343,13 @@ export function startGallery(options: WorkshopBootOptions): () => void {
         }
 
         if (card.state === 'queued') {
-          card.state = 'idle'
+          setPhase(card, 'idle')
         }
       }
     }
-    count.textContent = `${cards.filter((card) => !card.section.hidden).length} components`
+    const visible = cards.filter((card) => !card.section.hidden).length
+    count.textContent = `${visible}${query ? ` of ${cards.length}` : ''} component${(query ? cards.length : visible) === 1 ? '' : 's'}`
+    empty.hidden = visible > 0
     pump()
   }
   search.oninput = filter
@@ -275,7 +368,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
             card.touched = ++clock
             queue(card)
           } else if (card.state === 'queued') {
-            card.state = 'idle'
+            setPhase(card, 'idle')
           }
         }
         pump()
@@ -315,7 +408,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
     }
     if (event.data.type === 'ready' || event.data.type === 'error') {
       clearTimeout(card.timer)
-      card.state = event.data.type === 'ready' ? 'ready' : 'error'
+      setPhase(card, event.data.type === 'ready' ? 'ready' : 'error')
       card.status.textContent =
         card.state === 'ready' ? 'Ready' : 'Preview failed. Retry or open the story.'
 
@@ -332,6 +425,7 @@ export function startGallery(options: WorkshopBootOptions): () => void {
   jump()
   const dispose = () => {
     disposed = true
+    document.documentElement.classList.remove('xw-gallery-page')
     observer?.disconnect()
     window.removeEventListener('message', message)
     window.removeEventListener('hashchange', jump)

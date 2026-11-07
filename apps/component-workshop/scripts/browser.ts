@@ -92,7 +92,33 @@ try {
   await page.getByRole('searchbox').fill('not-a-component')
   assert.equal(await page.locator('section:visible').count(), 0)
   assert.deepEqual(errors, [], 'gallery errors')
-  await page.getByRole('searchbox').fill('')
+  await page.getByRole('button', { name: 'Clear search', exact: true }).click()
+  assert.equal(await page.getByRole('searchbox').inputValue(), '')
+  assert.equal(await page.locator('section:visible').count(), Object.keys(catalog).length)
+  assert.equal(
+    await page.getByRole('searchbox').evaluate((node) => node === document.activeElement),
+    true,
+  )
+
+  for (const width of [320, 390, 640, 800, 1280]) {
+    await page.setViewportSize({ width, height: 900 })
+    assert.ok(
+      await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth),
+      `gallery overflows a ${width}px viewport`,
+    )
+  }
+
+  await page.keyboard.press('Tab')
+  await page.keyboard.press('Shift+Tab')
+  assert.ok(
+    await page
+      .getByRole('searchbox')
+      .evaluate(
+        (node) => node.matches(':focus-visible') && getComputedStyle(node).outlineStyle !== 'none',
+      ),
+    'search must retain visible keyboard focus',
+  )
+
   await page.goto(`${base}?view=story&story=button/basic`)
   await page.getByRole('link', { name: 'Gallery', exact: true }).waitFor()
   await page.goBack()

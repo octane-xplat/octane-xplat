@@ -13,6 +13,19 @@ and [layout source](https://github.com/storybookjs/storybook/blob/next/code/core
 No Storybook manager runtime, assets or branding are introduced. The existing
 portable composition dependency is unchanged.
 
+## Browser gallery
+
+The gallery uses a cream page, deep muted green masthead and black actions,
+with local `--gallery-*` variables in `packages/workshop/src/web/gallery.web.css`.
+These colors belong to the parent gallery document; preview frames keep their
+own component theme. Do not replace shared `--color-*` tokens to brand the gallery.
+
+A sticky search row, numbered component headings and the collapsible index keep
+the large catalog navigable. Component identity and target metadata remain
+secondary to the preview. Keep loading/failure messages beside recovery actions,
+and retain the clear-search empty state. Narrow layouts wrap metadata and action
+rows while leaving each specimen's layout inside its own frame.
+
 ## Presentation boundaries
 
 - Both shells use a compact toolbar, a story tree with short leaf names, a
@@ -84,7 +97,10 @@ portable composition dependency is unchanged.
 The maintained web journey checks computed colors/contrast, hover, keyboard
 focus, selection, disabled controls, theme isolation, reduced motion and toolbar
 geometry at 320, 390, 640 and 800 pixels, alongside the existing story behavior
-checks. The packed consumer runs the same journey. No image evidence is needed.
+checks. The packed consumer runs the same journey. The gallery browser gate checks
+search recovery, keyboard focus and horizontal overflow from 320 to 1280 pixels,
+as well as lazy loading and every runnable showcase specimen. These checks use
+DOM and computed styles without image capture.
 Native source/type/build checks do not prove OS focus, hit-testing, theme changes
 or visual parity. Keep actual-host and screen-reader/IME gates explicit.
 
@@ -94,6 +110,7 @@ packed mobile check compiles consumer entries without launching a device.
 
 ```sh
 bun run turbo run typecheck --filter=...@octane-xplat/workshop
+bun run turbo run test:browser --filter=@xplat/component-workshop
 bun run turbo run test --filter=@octane-xplat/workshop
 bun run turbo run test:e2e --filter=@xplat/workshop-demo
 bun run turbo run test:e2e:macos --filter=@xplat/workshop-demo

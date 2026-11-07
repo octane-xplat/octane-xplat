@@ -112,7 +112,7 @@ function entryCode(config, target, story, packageDir, root) {
 		.join(', ')
 
 	// Both src/build and dist/build resolve the shipped runtime source here.
-	const galleryCss = fsUrl(join(packageDir, '../../src/web/gallery.css'))
+	const galleryCss = fsUrl(join(packageDir, '../../src/web/gallery.web.css'))
 	const shellCss = fsUrl(join(packageDir, '../../src/web/shell.css'))
 
 	return `import { catalog, loadStory, diagnostics } from ${JSON.stringify(CATALOG_ID)}
