@@ -113,7 +113,7 @@ export function decodeLiteralText(text: string): string {
  * passing them in (spec:AST-061 DEC-5).
  *
  * @example
- * ```
+ * ```ts
  * decodeMarkdownCharacterReferences('Fish &amp; chips &copy; 2026'); // 'Fish & chips © 2026'
  * decodeMarkdownCharacterReferences('&unknown; &copy'); // '&unknown; &copy'
  * ```

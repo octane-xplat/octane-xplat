@@ -1373,7 +1373,7 @@ function describeFailure(error: unknown): string {
  * package name.
  *
  * @example
- * ```
+ * ```ts
  * import {createMarkdownPlugin, createMarkdownRemarkTransform} from '@octane-xplat/ui/markdown'
  *
  * const shouting = createMarkdownPlugin({
