@@ -33,6 +33,7 @@ function stage(t, npmStub) {
     'scripts/sync-compatibility.ts',
     'packages/create/compatibility.ts',
     'packages/create/compatibility.json',
+    'packages/cli/go/internal/assets/catalog.json',
     ...['template', 'library-template'].flatMap((template) => [
       `packages/create/${template}/package.json`,
     ]),
