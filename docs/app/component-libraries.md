@@ -187,9 +187,9 @@ syntax parsing alone cannot establish their types.
 
 ## Keep runtime and type exports aligned
 
-The template owns two export branches: web and native. Each runtime path points
-to authored source and each `types` path to generated declarations. Keep the
-`types` condition before the branch's runtime default. Desktop nulls deliberately
+The template owns two runtime branches, web and native, and one shared declaration
+contract generated from the unsuffixed source. Keep the `types` condition before
+the runtime branches. Desktop nulls deliberately
 prevent accidentally treating a native default as desktop support:
 
 ```json
@@ -200,9 +200,9 @@ prevent accidentally treating a native default as desktop support:
       "macos": null,
       "linux": null,
       "windows": null,
-      "web": { "types": "./types/index.web.d.ts", "default": "./src/index.web.ts" },
-      "native": { "types": "./types/index.d.ts", "default": "./src/index.ts" },
       "types": "./types/index.d.ts",
+      "web": "./src/index.web.ts",
+      "native": "./src/index.ts",
       "default": "./src/index.ts"
     }
   }

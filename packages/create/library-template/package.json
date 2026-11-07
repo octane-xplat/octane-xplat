@@ -49,15 +49,9 @@
 			"macos": null,
 			"linux": null,
 			"windows": null,
-			"web": {
-				"types": "./types/index.web.d.ts",
-				"default": "./src/index.web.ts"
-			},
-			"native": {
-				"types": "./types/index.d.ts",
-				"default": "./src/index.ts"
-			},
 			"types": "./types/index.d.ts",
+			"web": "./src/index.web.ts",
+			"native": "./src/index.ts",
 			"default": "./src/index.ts"
 		}
 	},

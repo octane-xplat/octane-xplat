@@ -61,10 +61,9 @@ try {
   run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
   const packed = join(extracted, 'package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
-  assert.ok(manifest.exports['.'].web.default.startsWith('./src/'))
-  assert.ok(manifest.exports['.'].native.default.startsWith('./src/'))
-  assert.ok(manifest.exports['.'].web.types)
-  assert.ok(manifest.exports['.'].native.types)
+  assert.ok(manifest.exports['.'].web.startsWith('./src/'))
+  assert.ok(manifest.exports['.'].native.startsWith('./src/'))
+  assert.ok(manifest.exports['.'].types)
 
   for (const target of ['web', 'native']) {
     for (const mode of ['bundler', 'nodenext']) {

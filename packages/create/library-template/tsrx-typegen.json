@@ -8,7 +8,7 @@
 				".": {
 					"source": "src/index.ts",
 					"runtime": ["./src/index.ts", "./src/index.web.ts"],
-					"types": ["./types/index.d.ts", "./types/index.web.d.ts"]
+					"types": ["./types/index.d.ts"]
 				}
 			}
 		}
