@@ -25,16 +25,18 @@ canAskAgain}` — the contract is that get never prompts and request may.
 The hosted macOS webview bridge still uses an authorization request for reads;
 avoid probing through that backend until its separate bridge is corrected. `notify(title, body?)`
 fires immediately — delayed scheduling and cancellation are deliberately out
-of scope. On iOS the underlying plugin schedules a fixed ~2s trigger, so
-delivery lags the immediate macOS/web path by a couple of seconds; that is a
-plugin limitation the package cannot schedule around.
+of scope. On iOS the leaf posts an untriggered request to
+UNUserNotificationCenter directly, because the plugin only offers a fixed
+~2s scheduled trigger; delivery now matches the immediate macOS/web path.
 
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-notifications).
 
 ## Platform support
 
-- **iOS/Android** — `@nativescript/local-notifications`
+- **iOS** — `@nativescript/local-notifications` permissions plus a direct
+  UNUserNotificationCenter send
+- **Android** — `@nativescript/local-notifications`
 - **Web** — the Notification API
 - **macOS (AppKit)** — Apple UserNotifications through the leaf's compiled
   Objective-C source

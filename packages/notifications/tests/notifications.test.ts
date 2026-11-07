@@ -99,6 +99,89 @@ test('iOS preserves title for missing/empty bodies under plugin 7.0.0 normalizat
   assert.equal(notificationBody(''), '')
 })
 
+function iosFixture({ granted = true } = {}) {
+  const requests: any[] = []
+  const added: any[] = []
+  const leaf = loadLeaf('notifications.ios', {
+    notificationBody: iosBody,
+    UNMutableNotificationContent: {
+      new: () => ({}),
+    },
+    UNNotificationSound: { defaultSound: 'default-sound' },
+    UNNotificationRequest: {
+      requestWithIdentifierContentTrigger: (identifier: string, content: any, trigger: any) => {
+        const request = { identifier, content, trigger }
+        requests.push(request)
+        return request
+      },
+    },
+    UNUserNotificationCenter: {
+      currentNotificationCenter: () => ({
+        addNotificationRequestWithCompletionHandler: (request: any, done: () => void) => {
+          added.push(request)
+          done()
+        },
+      }),
+    },
+    NSMutableDictionary: {
+      new: () => {
+        const dict: Record<string, unknown> = {}
+        return {
+          setObjectForKey: (value: unknown, key: string) => {
+            dict[key] = value
+          },
+          dict,
+        }
+      },
+    },
+    LocalNotifications: {
+      hasPermission: async () => granted,
+      requestPermission: () => {
+        throw Error('notify must not prompt')
+      },
+      schedule: async () => {
+        throw Error('the iOS leaf must not schedule through the plugin')
+      },
+    },
+  })
+  return { leaf, requests, added }
+}
+
+test('iOS notify posts an untriggered request for immediate delivery', async () => {
+  const { leaf, requests, added } = iosFixture()
+  leaf.notify('title', 'body')
+  await flush()
+
+  assert.equal(requests.length, 1)
+  // A nil trigger is the only immediate-delivery path — the plugin always
+  // builds a fixed ~2s UNTimeIntervalNotificationTrigger.
+  assert.equal(requests[0].trigger, null)
+  assert.equal(added.length, 1)
+
+  const { content } = requests[0]
+  assert.equal(content.title, 'title')
+  assert.equal(content.body, 'body')
+  assert.equal(content.sound, 'default-sound')
+  assert.equal(content.userInfo.dict.__NotificationType, 'nativescript-local-notifications')
+  assert.equal(content.userInfo.dict.forceShowWhenInForeground, false)
+})
+
+test('iOS notify keeps the title slot and blank-body fallback', async () => {
+  const { leaf, requests } = iosFixture()
+  leaf.notify('title')
+  await flush()
+  assert.equal(requests[0].content.title, 'title')
+  assert.equal(requests[0].content.body, ' ')
+})
+
+test('iOS notify drops denied sends without touching the center', async () => {
+  const { leaf, requests, added } = iosFixture({ granted: false })
+  leaf.notify('title', 'body')
+  await flush()
+  assert.equal(requests.length, 0)
+  assert.equal(added.length, 0)
+})
+
 test('web absence is unsupported and notify throws UnavailabilityError', async () => {
   const leaf = loadLeaf('notifications.web', {
     desktopHost: () => null,

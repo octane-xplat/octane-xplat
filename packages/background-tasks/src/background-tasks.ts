@@ -1,8 +1,8 @@
 // Background tasks — native leaf, custom bridge (no NS plugin exists).
 // iOS: BGTaskScheduler app-refresh requests; the Info.plist registers the
 // task identifier and UIBackgroundModes fetch. Android: WorkManager periodic
-// requests through platforms/android Gradle deps; the Worker spins up the
-// runtime and calls back into __xplatBackgroundTaskRun.
+// requests through platforms/android Gradle deps; the Worker dispatches to
+// the TaskRunner registered below while a runtime is warm.
 //
 // defineTask bodies must be registered at module scope — the OS can invoke a
 // task before app code runs again, and a relaunch only re-evaluates module
@@ -11,7 +11,7 @@
 // registration of the same identifier kills the app. defineTask therefore
 // owns iOS handler registration (once per identifier); register/unregister
 // only submit or cancel refresh requests and are safe to repeat.
-import { isIOS } from '@nativescript/core'
+import { isIOS, Utils } from '@nativescript/core'
 import type { BackgroundTasks, TaskContext, TaskExecutor, TaskResult, TaskStatus } from './types'
 
 declare const BGTaskScheduler: any
@@ -179,9 +179,12 @@ export const backgroundTasks: BackgroundTasks = {
     }
     // Android: WorkManager — the Java side reads the registered map off the
     // global so a cold start rebuilds scheduled work from defineTask calls.
+    // `Utils.android` is a {} stub off Android, so the context stays absent
+    // and scheduling is skipped there.
     const worker = (globalThis as any).com?.octanexplat?.tasks?.TaskScheduler
-    if (worker?.schedule) {
-      worker.schedule(name, options?.minimumInterval ?? 0)
+    const context = (Utils.android as any)?.getApplicationContext?.()
+    if (worker?.schedule && context) {
+      worker.schedule(context, name, options?.minimumInterval ?? 0)
     }
     registered.set(name, options?.minimumInterval ?? 0)
   },
@@ -193,7 +196,10 @@ export const backgroundTasks: BackgroundTasks = {
       return
     }
     const worker = (globalThis as any).com?.octanexplat?.tasks?.TaskScheduler
-    worker?.cancel?.(name)
+    const context = (Utils.android as any)?.getApplicationContext?.()
+    if (context) {
+      worker?.cancel?.(context, name)
+    }
   },
 
   async getStatus(): Promise<TaskStatus> {
@@ -214,11 +220,21 @@ export const backgroundTasks: BackgroundTasks = {
   },
 }
 
-// Worker → JS entry. platforms/android's TaskWorker calls this after bringing
-// the runtime up; buffered invocations replay once an executor exists.
-;(globalThis as any).__xplatBackgroundTaskRun = (name: string, done: (r: string) => void) => {
-  runTask(name, { name, expired: false }).then(
-    (r) => done(r),
-    () => done('failed'),
+// Worker → JS entry. Android's TaskWorker invokes the TaskRunner registered
+// at module evaluation — calls from the worker thread dispatch onto the JS
+// thread, then the worker blocks on TaskOutcome until the executor settles.
+const taskWorker = (globalThis as any).com?.octanexplat?.tasks?.TaskWorker
+if (!isIOS && typeof taskWorker?.setTaskRunner === 'function') {
+  taskWorker.setTaskRunner(
+    new taskWorker.TaskRunner({
+      run(name: string, outcome: { onResult(r: string): void }) {
+        const report = (r: string) => {
+          try {
+            outcome.onResult(r)
+          } catch {}
+        }
+        runTask(name, { name, expired: false }).then(report, () => report('failed'))
+      },
+    }),
   )
 }

@@ -1,8 +1,9 @@
 /** Local-notification façade; push (APNs/FCM) is intentionally out of scope. */
 export interface NotificationsImpl {
   /** Post a local notification. Fire-and-forget: silently dropped when
-   *  permission is not granted. On iOS the plugin schedules a fixed ~2s
-   *  trigger, so delivery lags the immediate macOS/web path. */
+   *  permission is not granted. iOS posts an untriggered request to
+   *  UNUserNotificationCenter for immediate delivery; other targets use the
+   *  plugin's scheduled send. */
   notify(title: string, body?: string): void
 }
 

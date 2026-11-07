@@ -32,9 +32,9 @@ export const notifications: Permissioned<NotificationsImpl> = {
     nextId = (nextId + 1) % 2147483647
     void (async () => {
       if (await LocalNotifications.hasPermission()) {
-        // The plugin schedules a fixed ~2s trigger on iOS, so mobile
-        // delivery lags the immediate macOS/web path — a documented
-        // plugin limitation, not something this package can schedule away.
+        // iOS posts through its own leaf — plugin 7.0.0 only ever builds a
+        // fixed ~2s UNTimeIntervalNotificationTrigger for unscheduled sends,
+        // so this path stays for Android and other plugin targets.
         await LocalNotifications.schedule([{ id, title, body: notificationBody(body) }])
       }
     })().catch(() => {})
