@@ -131,6 +131,7 @@ jobs:
           git add -A -- \
             bun.lock \
             'packages/*/package.json' \
+            packages/cli/go/internal/assets/catalog.json \
             packages/create/compatibility.json \
             packages/create/template/package.json \
             packages/create/library-template/package.json \
