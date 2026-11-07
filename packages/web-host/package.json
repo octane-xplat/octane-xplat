@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/web-host",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Optional Fetch, HTML rendering and hydration host for Octane Xplat routes",
 	"type": "module",
 	"license": "MIT",

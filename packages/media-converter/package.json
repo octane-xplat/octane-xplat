@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/media-converter",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "GIF-to-video conversion jobs for Octane Xplat",
 	"keywords": [
 		"conversion",

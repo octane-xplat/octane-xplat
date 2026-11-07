@@ -1,6 +1,6 @@
 {
 	"name": "create-octane-xplat",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Scaffold Octane Xplat apps and cross-platform libraries",
 	"keywords": [
 		"component-library",

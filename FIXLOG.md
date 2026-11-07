@@ -6,6 +6,461 @@ in the [changelog](CHANGELOG.md).
 Earlier fixes remain in the original [combined changelog](CHANGELOG.md) and
 [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.20.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.20.0) - 2026-11-07
+
+### Lay out native fields as one unit
+
+On iOS and Android — and on the new GTK target — field chrome fixes keep labels, width, state, and editors together:
+
+- CheckboxList, RadioList, SegmentedControl, CheckboxInput, Switch, NumberInput, PinInput, SearchInput, and Rating now apply `width` and `status` to the complete field instead of the control alone.
+- Field labels focus their associated input. InputGroup forwards width, read-only, loading, and status to member controls.
+- FormLayout keeps each editor and its text when direction or label position changes. TextArea releases old row limits when `autoGrow`, `maxRows`, or an explicit height changes, and changing a SearchInput's leading icon keeps the editor's text and focus.
+
+```tsx
+import { FormLayout, TextInput, Switch } from '@octane-xplat/ui'
+
+export function Settings({ direction }) {
+  return (
+    <FormLayout direction={direction} style={{ gap: 16 }}>
+      <TextInput label="Name" width={320} />
+      <Switch label="Enabled" width={320} />
+    </FormLayout>
+  )
+}
+```
+
+### Keep native text editing predictable
+
+On iOS and Android:
+
+- Controlled TextArea and SearchInput restore the supplied value when the parent rejects an edit, matching the other controlled fields. Repeated rejected edits restore the last accepted value.
+- TextArea forwards `maxLength` to the native editor — the prop was previously ignored. Setting it to zero blocks new text and removing it lifts the limit.
+- TextArea now rejects `secure` before rendering instead of accepting and ignoring it. Use a secure TextInput for password entry.
+
+```tsx
+import { TextArea } from '@octane-xplat/ui'
+
+export function Bio({ value, onChange }) {
+  return <TextArea value={value} onChange={onChange} maxLength={280} />
+}
+```
+
+### Keep native dependencies out of web development
+
+Web development now uses the configured platform extension order when Vite prepares dependencies. Packages with browser and native siblings, including SQLite, can stay optimized without pulling native imports into the browser. Existing optimizer extension overrides remain authoritative.
+
+```ts
+import { xplatBoundary } from 'octane-xplat/vite'
+
+// In your existing Vite plugins array; the starter already includes this:
+const platformResolver = xplatBoundary('web')
+```
+
+[Web configuration](https://octane-xplat.goddardai.org/package-toolchain#configure-a-web-app)
+
+### Start iOS recordings without a brightness jump
+
+On iOS, starting a recording restarted the camera pipeline, so the first fraction of a second of each movie came out dark and then brightened as exposure and white balance readjusted. The camera now prepares its recording connection for portrait (the default) when the preview starts, so a portrait recording keeps the exposure and white balance the preview already had. A take in a different orientation from the previous one can still readjust once when it starts. Rebuild your iOS app after upgrading so it includes the updated native recorder.
+
+See [record a camera movie](https://octane-xplat.goddardai.org/movie-capture).
+
+### Fix the Android native typecheck for prepared full-screen Pages
+
+Android builds no longer fail the native TypeScript check inside
+`prepareFullScreenPage`. The measurement override that keeps full-bleed Page
+content correctly sized is iOS-only and now lives in the iOS platform leaf, so
+Android compilation no longer reports the UIKit-only `bounds` property on the
+Android Page view.
+
+### Give a synchronously-decoded Android Image its intrinsic height
+
+On Android, a width-only `Image` whose bitmap arrives inside the layout pass — a `data:` URI or a warm cache hit — stayed 0 pt high because nothing asked layout to re-measure it. The leaf now requests one deferred re-measure while an intrinsic axis is still 0, matching iOS sizing (`214` wide → `160.5` high for a 4:3 bitmap). Flex-grown and stretched heights are untouched.
+
+```tsx
+<Image src={dataUri} alt="Preview" style={{ width: 214 }} />
+```
+
+See [the Image component](https://octane-xplat.goddardai.org/package-ui#image).
+
+### Keep macOS apps stable when views and event monitors retire
+
+The AppKit renderer continues independent cleanup when a subscription, nested view, or native release throws. Retired controls ignore held callbacks, cleanup errors preserve the original construction error, and removed keyboard or pointer event monitors no longer crash the host during garbage collection.
+
+Unmounting a root clears its inherited font and debug membership even when cleanup throws. A second live root on the same native view reports an error; reuse the existing root or unmount it before creating its replacement.
+
+```ts
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
+
+const root = createMacOSRoot(host)
+root.unmount()
+const replacement = createMacOSRoot(host)
+```
+
+[Experimental macOS renderer](https://octane-xplat.goddardai.org/package-macos-appkit)
+
+### Restore native macOS date-picker attachment
+
+Native macOS date pickers no longer disappear when the AppKit host exposes native classes as object handles. Date, time and combined pickers can attach and receive selection and range updates through the renderer bridge.
+
+```tsx
+// Appointment.macos.tsx
+import { AppKitDatePicker } from '@octane-xplat/date-picker/macos'
+
+export function Appointment() {
+  return <AppKitDatePicker components="dateAndTime" accessibilityLabel="Appointment" />
+}
+```
+
+[Native macOS date pickers](https://octane-xplat.goddardai.org/date-picker#native-macos-selection-lifecycle)
+
+### Keep macOS transforms and shadows aligned during layout
+
+On the experimental AppKit host, transforms now survive initial layout and later frame updates. Percentage translations follow changes to the element's size, including animated translations. Pending frame repaints stop when the view is replaced or removed.
+
+```tsx
+<masonview style={{ width: 120, height: 80, translateX: '25%' }} />
+```
+
+Shadows now follow moving and resizing views during layout animations and return to their authored blur afterward. Previously, a shadow could stay at its original scale with an enlarged blur.
+
+See [macOS renderer setup](https://octane-xplat.goddardai.org/package-macos-appkit) and [layout animations](https://octane-xplat.goddardai.org/animation-gestures#layout-animations).
+
+### iOS background refresh honors outcomes, expiration and recurrence
+
+On iOS, a background-task run now reports the executor's real result instead of always succeeding, completes exactly once when the OS expires the run, and submits the next refresh request after each run while the task stays enabled — so registered work actually recurs. `defineTask` registers Apple's required launch handler once at module scope, which makes `register()` pure scheduling that is safe to call from an enable action or at every launch.
+
+```ts
+backgroundTasks.defineTask('sync', async (context) => {
+  const first = await fetchDelta()
+  if (context.expired) {
+    return 'failed' // OS reclaimed the run; stop promptly
+  }
+  return (await persist(first)) ? 'success' : 'failed'
+})
+
+// Idempotent scheduling — call on every launch or from an enable action.
+await backgroundTasks.register('sync', { minimumInterval: 3600 })
+```
+
+Executors that can stop early should watch `context.expired`; a run the OS reclaims is completed as failed and a late result is discarded.
+
+[Background work guide](https://octane-xplat.goddardai.org/background-work)
+
+### Ignore cancelled native refresh gestures
+
+An interrupted native pull-to-refresh gesture now returns the indicator to rest without calling onRefresh. A controlled refresh stays docked until refreshing becomes false. Refreshable Mason regions also honor their viewport dimensions and keep the indicator overlaid in the viewport's grid cell.
+
+```tsx
+import { ScrollableArea, Text } from '@octane-xplat/ui'
+
+export function Feed(props: { loading: boolean; refresh: () => void }) {
+  return (
+    <ScrollableArea width={240} height={160} refreshing={props.loading} onRefresh={props.refresh}>
+      <Text>Feed content</Text>
+    </ScrollableArea>
+  )
+}
+```
+
+[ScrollableArea reference](https://octane-xplat.goddardai.org/app/components)
+
+### Keep supplied slider values during rejected drags
+
+Shared native and web sliders now keep the supplied value when a controlled parent rejects a drag, matching their keyboard editing behavior.
+
+```tsx
+import { useState } from 'octane'
+import { Slider } from '@octane-xplat/ui'
+
+export function LimitedVolume() {
+  const [value, setValue] = useState(25)
+  return <Slider value={value} onValueChange={(next) => {
+    if (typeof next === 'number' && next <= 50) setValue(next)
+  }} />
+}
+```
+
+[Controlled sliders](https://octane-xplat.goddardai.org/linux-gtk#sliders)
+
+### Keep iOS haptics silent in Debug builds
+
+Advanced iOS haptics no longer synthesize audible thumps when using the prepared Pulsar package. Disabling simulation leaves another service's audio session active. Existing apps must replace the remote Pulsar Swift package with the prepared local package and rebuild their native binary.
+
+```sh
+bun run xplat-prepare-haptics-ios .xplat/pulsar-ios
+```
+
+Follow the [iOS haptics setup](https://octane-xplat.goddardai.org/package-haptics#set-up-ios) to update the NativeScript configuration.
+
+### Resize nested screens with their parent on iOS
+
+On iOS, a screen layered inside a Grid could keep its previous height after its parent shrank, leaving content outside the available area. Nested screens and their contents now follow the parent's new height.
+
+See [layering a screen over retained content](https://octane-xplat.goddardai.org/app/primitives#layer-a-screen-over-retained-content).
+
+### Keep iOS smooth corners through layout updates
+
+SmoothCorners now gives its exact generated curve to Mason’s clipping system. Normal iOS layout no longer treats the smooth clip as an unrelated overflow mask and removes it. Background and border shapes remain independent of whether children use visible or hidden overflow.
+
+[SmoothCorners documentation](https://octane-xplat.goddardai.org/package-smooth-corners).
+
+### Draw SVGs revealed after a collapsed parent on iOS
+
+On iOS, an SVG glyph (Icon, Image, Meter) mounted under a parent toggling `visibility: collapse` to `visible` stayed blank: the view gained valid bounds and kept its parsed paths, but its layer never received backing contents. The view now requests display when it gains positive bounds or its visibility is restored, so revealed SVGs render their artwork.
+
+[Icon component](https://octane-xplat.goddardai.org/package-ui#icon)
+
+### Paint iOS SVGs built from `<use>` icon references
+
+On iOS, SVG artwork that stamps a shared shape with `<use>` (the defs-plus-use pattern common in exported icon sets) produced correctly sized views with parsed geometry but no paint — icons came out invisible while equivalent inline paths rendered. The SVG pipeline now expands `<use>` references into their generated content before the native renderer parses the markup, so use-based icons paint with their own fill, stroke, filter, transform, and x/y positioning on iOS.
+
+[Image component](https://octane-xplat.goddardai.org/package-ui#image)
+
+### Variable font weights in iOS text and editors
+
+On iOS, variable fonts now use the requested weight in class-styled text, text inputs, and text areas. Normal text selects weight 400 even when the font file defaults to a lighter weight. Explicit variation settings keep precedence.
+
+```tsx
+<Text className="font-semibold">Semibold</Text>
+<TextInput className="font-medium" defaultValue="Medium" />
+```
+
+See [custom fonts and weights](https://octane-xplat.goddardai.org/app/styling#font-family-tokens).
+
+### Use bridged AppKit members without unexpected crashes
+
+The macOS bridge no longer mislabels members as properties borrowed from subclasses. Members such as `NSView.autoscroll` now expose their declared methods instead of crashing on property access.
+
+```js
+const view = NSView.alloc().init()
+typeof view.autoscroll // "function" — the real -[NSView autoscroll:]
+```
+
+When an object does not implement a bridged selector, the host now reports an ordinary JavaScript error that `try`/`catch` can handle instead of terminating the app with an uncaught native exception.
+
+[macOS native leaves](https://octane-xplat.goddardai.org/macos-native)
+
+### Receive macOS native callbacks reliably
+
+AppKit callbacks from background queues now reach JavaScript on the main thread. Previously, URL-session completions could never arrive, and operation or dispatch queues could remain stuck.
+
+```js
+const task = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(url, (data, response, error) => {
+  // Now fires — previously the request completed but this block never ran
+  console.log(response.statusCode)
+})
+task.resume()
+```
+
+JavaScript-implemented delegate methods invoked from other threads now run on the JavaScript thread and return their result to the caller, instead of crashing the app.
+
+```js
+const Delegate = NSObject.extend(
+  {
+    didRun: function (success) {
+      // Now runs on the main thread even when AppKit invokes it on the
+      // spawned print thread — previously the process crashed here.
+    },
+  },
+  { exposedMethods: { didRun: { returns: interop.types.void } } },
+)
+```
+
+Completion or decision-handler blocks passed into delegates now remain callable while JavaScript holds them. Saving a WebKit decision handler and calling it after the delegate returns previously did nothing or crashed.
+
+```js
+const Delegate = NSObject.extend(
+  {
+    webViewDecidePolicyForNavigationActionDecisionHandler(wv, action, handler) {
+      pending = handler // Now safe to call later — previously it dangled
+    },
+  },
+  { protocols: [WKNavigationDelegate] },
+)
+```
+
+[macOS native leaves](https://octane-xplat.goddardai.org/macos-native)
+
+### xplat-mcp runs on the Go agent commands
+
+`@octane-xplat/mcp` is a thin stdio transport again after the Go CLI cutover:
+its tools call `xplat ... --json` for sessions, targets, diagnostics,
+inspection, dev-actions and evidence — one implementation, two transports.
+The contract modules moved back into the package; workspace selection,
+permission grants and client elicitation stay server-side.
+
+**Contract boundary:** the Go agent contract has no owned launch, build job,
+session end, generic job cancel, or capture command. `xplat_launch`,
+`xplat_build`, `xplat_session_end`, `xplat_job_cancel` and `xplat_screenshot`
+keep their names and permission gates but report `unsupported_capability`/
+`unavailable` with the supported path — run `xplat dev`, connect the app, and
+use `xplat_attach`. `xplat_interact` now dispatches `handler-dispatch` only.
+
+### iOS app builds include the GIF converter again
+
+`ns build ios` no longer fails on the packaged converter engine: NativeScript app targets compile package Swift at Swift 4.2, where the engine's request decoding was rejected.
+
+[GIF conversion guide](https://octane-xplat.goddardai.org/package-media-converter)
+
+### Restore platform leaves for explicit `.tsrx` imports on native
+
+On native targets, an unsuffixed import written with its extension —
+`import { Card } from './Card.tsrx'`, the spelling the TSRX contract requires —
+resolved the literal shared file and skipped `Card.windows.tsrx`,
+`Card.ios.tsrx` and `Card.mobile.tsrx`. Windows apps lost every Pressable-based
+accessibility peer (Button, Link, ListItem rows, Tab, Selector and menu
+triggers had no focus, Invoke or accessible name for UI Automation), and
+iOS/Android bundles missed `.mobile` variants such as Tooltip and HoverCard.
+The native preset again treats the authored extension as the contract name and
+probes the platform chain on its stem, matching
+[platform files](https://octane-xplat.goddardai.org/module-resolution).
+
+```ts
+import { Card } from './Card.tsrx'
+// The Windows build selects Card.windows.tsrx; the checker reads Card.tsrx.
+```
+
+### Refresh registered fonts when their source changes
+
+Re-running font registration now refreshes an already registered font's bundled
+file, web face, and referring tokens. Previously, it could report the new family
+while keeping old font bytes. Conflicting files that were never registered are
+preserved and produce an error instead of being overwritten.
+
+```sh
+bun run xplat fonts add ./downloads/AcmeSans-Variable.ttf
+```
+
+Fontsource registration also reports the imported CSS family as the web name,
+while retaining the font's internal names for iOS.
+
+```sh
+bun run xplat fonts add @fontsource-variable/inter --install
+```
+
+See [font-family tokens](https://octane-xplat.goddardai.org/styling#font-family-tokens).
+
+### Bun starters include bunfig.toml
+
+Bun apps created with 0.19.0 are missing the hoisted-linker setting.
+
+The published 0.19.0 creator omitted `template/bunfig.toml` from its tarball,
+so Bun apps created with it have no `bunfig.toml` and do not get the flat
+dependency layout NativeScript expects. Add this file at the app root, then
+reinstall:
+
+```toml
+[install]
+linker = "hoisted"
+exact = true
+```
+
+```sh
+bun install
+```
+
+### Preserve strings in typecheck configuration
+
+`xplat typecheck` now preserves strings and object keys containing `,}` or `,]`
+in `tsconfig.envs.json`. Comments and trailing commas remain supported; missing
+values and adjacent tokens such as `[1/* gap */2]` are rejected instead of
+silently changing the configuration.
+
+See [TypeScript configuration](https://octane-xplat.goddardai.org/module-resolution#typescript)
+and [TypeScript's tsconfig reference](https://www.typescriptlang.org/tsconfig/).
+
+### Restore hook calls into HMR-wrapped universal components
+
+Native hooks that return renderable values — `useOwnedContent` and the
+imperative sheet/modal/list-cell hooks built on it — work again inside
+development and test builds. The universal HMR wrapper added for hot-reload
+remounting intercepted these calls during render and returned a keyed render
+block instead of the hook's own result, so owned outlets mounted with an
+undefined owner and every modal, sheet, and list-cell surface broke in the
+native lane. The hook-call protocol now executes the component's current
+revision directly; component invocation keeps its revision-keyed behavior.
+
+### `captureScreen` works on iOS
+
+`captureScreen` on iOS rejected every call with "View is detached": the detached check read `window` on the `UIWindow` itself, which is always nil — only a window's scene association marks it attached. Screen capture now succeeds and uses the display's native pixel scale.
+
+```ts
+import { captureScreen, releaseCapture } from '@octane-xplat/view-shot'
+
+const uri = await captureScreen({ format: 'png' })
+try {
+  // Consume the temporary image.
+} finally {
+  releaseCapture(uri)
+}
+```
+
+See [app-screen capture](https://octane-xplat.goddardai.org/package-view-shot#capture-an-existing-host).
+
+### Load Windows avatar images and expose their names
+
+Windows images using base64 data URIs now reach the native async decoder instead of remaining empty. Avatar initials fit inside their circle, and both the image and initials paths expose a named image peer.
+
+```tsx
+import { Avatar } from '@octane-xplat/ui'
+
+export function Person() {
+  return <Avatar name="Ada Lovelace" size="lg" />
+}
+```
+
+[Windows image guide](https://github.com/octane-xplat/octane-xplat/blob/main/docs/platform/windows-setup.md#avatars-and-raster-images-candidate)
+
+### Stop `Unknown at rule: @platform` warnings in minified web builds
+
+Web production builds using `xplatCss` and `xplatBamboo` logged
+`[lightningcss minify] Unknown at rule: @platform` for every platform
+condition in the generated sheet. The warnings were cosmetic — the emitted CSS
+was already correct — but they buried real diagnostics. Deferred sheets now
+carry platform conditions through minification as `@layer` wrappers, decoded
+after Bamboo's stylesheet validation, so both esbuild and Lightning CSS minify
+warning-free.
+
+See [platform styling](https://octane-xplat.goddardai.org/app/styling#style-one-platform).
+
+### Load every background image on macOS
+
+Layered backgrounds now accept each image's completion independently. Replacing a background URL releases the previous request, and removed backgrounds ignore late image completions.
+
+```tsx
+<masonview style={{ backgroundImage: 'url(one.png), url(two.png)' }} />
+```
+
+See [macOS renderer setup](https://octane-xplat.goddardai.org/package-macos-appkit).
+
+### Keep macOS layout observations tied to completed updates
+
+The AppKit renderer no longer reports a successful layout change after a render or style update fails. Later updates can still open a new batch; changes already applied before the failure remain in place.
+
+[Experimental macOS renderer](https://octane-xplat.goddardai.org/package-macos-appkit)
+
+### Protect recordings from pending camera configuration
+
+Camera configuration now rejects if recording starts or the session is disposed while camera discovery is pending. A rejected camera change leaves the existing take running. `configure` remains idle-only; choose the camera before arming automatic recording. For a supported camera switch during a take, use `switchCamera` instead.
+
+```ts
+// Before arming automatic recording:
+await session.configure({ camera: 'front' })
+```
+
+```ts
+// During a take, after preview activation and a support check:
+if ((await session.capabilities()).cameraSwitchDuringRecording) {
+  await session.switchCamera('front')
+}
+```
+
+See [camera switching during a take](https://octane-xplat.goddardai.org/movie-capture#switch-cameras-during-a-take) and [camera selection and orientation](https://octane-xplat.goddardai.org/movie-capture#camera-selection-and-orientation).
+
+### Require a request key for `xplat_interact`
+
+The Go `interact` contract mandates `--request-key` for every dispatch — it is the dedupe and receipt identity for a mutation whose outcome can outlive the caller. The MCP tool schema marked `requestKey` optional, so a schema-valid call deterministically failed downstream. The schema now requires the key and says what it buys: reuse an identical key to read the same receipt without dispatching again.
+
 ## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
 
 ### Keep Apple sign-in attached to its macOS window

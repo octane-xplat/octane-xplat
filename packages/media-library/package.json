@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/media-library",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Expo-shaped device media library queries, assets and albums for Octane Xplat",
 	"keywords": [
 		"albums",

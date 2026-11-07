@@ -1,6 +1,6 @@
 {
 	"name": "@octane-xplat/audio",
-	"version": "0.19.0",
+	"version": "0.20.0",
 	"description": "Long-form audio playback for Octane xplat",
 	"keywords": [
 		"android",

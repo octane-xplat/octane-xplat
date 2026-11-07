@@ -12,6 +12,1051 @@ in the [fixlog](FIXLOG.md).
 Earlier releases retain their original combined notes; older independent
 releases remain in the [tsrx-typegen changelog](packages/tsrx-typegen/CHANGELOG.md).
 
+## [Octane Xplat 0.20.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.20.0) - 2026-11-07
+
+### Build Linux apps with the complete UI kit
+
+The GTK target now exports the shared `@octane-xplat/ui` surface, with one public type entrypoint across platforms. Inputs and fields, popovers and menus, dialogs, sheets and toasts, navigation and app chrome, collections and data tables, typeahead and search, date and color pickers, rich text, icons, and `WebView` all render through the Linux GTK renderer with the same props and types as the native barrel. Pure utilities — theme tokens, i18n, sources, table and calendar helpers — work too.
+
+```tsx
+import { Stack, Text, DateInput, Table, proportional } from '@octane-xplat/ui'
+
+export function Roster({ people, start, setStart }) {
+  return (
+    <Stack gap={4}>
+      <DateInput label="Start" value={start} onChange={setStart} />
+      <Table
+        data={people}
+        idKey="id"
+        columns={[{ key: 'name', header: 'NAME', width: proportional(1) }]}
+      />
+    </Stack>
+  )
+}
+```
+
+[Linux GTK guide](https://octane-xplat.goddardai.org/linux-gtk)
+
+The public tooltip hook supports separate position and interaction refs, controlled visibility, and placement overrides on GTK. Embedded WebView pages can send JSON values through `postToHost` to the host's `onMessage` callback.
+
+```tsx
+import { View, Text, WebView, useTooltip } from '@octane-xplat/ui'
+
+export function Help() {
+  const tooltip = useTooltip({ placement: 'below', alignment: 'start' })
+  return (
+    <View>
+      <View ref={tooltip.ref}><Text>Help</Text></View>
+      {tooltip.renderTooltip('Open the embedded guide')}
+      <WebView src="https://example.com/help" onMessage={(event) => console.log(event.data)} />
+    </View>
+  )
+}
+```
+
+```ts
+// In the embedded page's bundle:
+import { postToHost } from '@octane-xplat/ui'
+postToHost({ type: 'ready' })
+```
+
+[WebView messaging](https://octane-xplat.goddardai.org/linux-gtk#embed-web-content)
+
+### Switch cameras while keeping one recording
+
+Web, iOS and Android can now switch cameras during a take while keeping audio active and holding the last video frame during acquisition. The take keeps its original completion promise and produces one output file. Check support after preview activation; the separate desktop camera adapters currently report this operation unavailable. Rebuild iOS apps after upgrading to include the native recorder.
+
+```ts
+if ((await session.capabilities()).cameraSwitchDuringRecording) {
+  await session.switchCamera('front') // While the take is recording.
+}
+```
+
+See [camera switching](https://octane-xplat.goddardai.org/movie-capture#switch-cameras-during-a-take) for controls, error handling and platform qualification limits.
+
+### Search installed-version docs locally
+
+Agents can prepare local vector search for guides, package READMEs, and release notes. Search combines keywords with a local embedding model, preserves version provenance, and reports lexical fallback when embeddings are unavailable.
+
+```sh
+xplat docs index --json
+xplat docs search "remember input between pages" --json
+xplat docs search "navigation" --corpus changelog --json
+```
+
+The text-only WASM runtime keeps inference local. The first preparation downloads a model; document text and questions stay on your machine. See [local documentation search](https://octane-xplat.goddardai.org/package-cli#local-documentation-search).
+
+### Render richer Markdown and add custom syntax
+
+`Markdown` now follows Astryx 0.7.4, with nested lists and blockquotes, aligned tables, reference links, citations, renderer overrides, and built-in streaming smoothing.
+
+**Breaking change:** pass raw source through `children` instead of `text`; `data` still accepts pre-parsed documents. Pass the accumulated source directly to `isStreaming` without `useStreamingText`, or the text will reveal twice.
+
+```tsx
+import { Markdown } from '@octane-xplat/ui/markdown'
+
+// Before: <Markdown text={source} isStreaming />
+// After: pass the raw accumulated string — smoothing is built in.
+<Markdown isStreaming sources={{ a: { title: 'Docs', url: 'https://example.com' } }}>
+  {source}
+</Markdown>
+```
+
+**Breaking change:** the `MdDoc` document format used by `xplat routes`, `parseMdDoc`, and `createMarkdownStreamParser` moves from the flattened v1 format to a recursive, JSON-serializable v2 tree. Update stored documents and code that reads their nodes.
+
+```ts
+import { parseMdDoc } from '@octane-xplat/ui/markdown'
+
+const document = parseMdDoc('# Hello')
+// { kind: 'octane-xplat/md', v: 2,
+//   children: [{ type: 'heading', depth: 1,
+//     children: [{ type: 'text', value: 'Hello' }] }] }
+```
+
+Setext headings (`Title` above `===` or `---`) now remain paragraphs. A bare `- ` stays text while streaming until item content arrives. Unsafe link and image destinations stay literal text.
+
+An ordered `plugins` list adds custom syntax, immutable transforms, and typed renderers to parsing and streaming. Helpers cover text transforms, semantic fences, source decorations, frontmatter, soft breaks, source lines, heading links, and synchronous Remark transforms.
+
+```tsx
+import { Markdown, markdownSoftBreaksPlugin } from '@octane-xplat/ui/markdown'
+
+<Markdown plugins={[markdownSoftBreaksPlugin]}>{source}</Markdown>
+```
+
+See [Markdown and migration notes](https://octane-xplat.goddardai.org/markdown), [document format and grammar](https://octane-xplat.goddardai.org/content-display#markdown-documents), and [plugin contracts and helpers](https://octane-xplat.goddardai.org/markdown#plugins).
+
+### Turn GIF attachments into videos and encode WebP images
+
+Use `@octane-xplat/media-converter` for GIF-to-MP4 jobs with progress, cancellation, and temporary-output cleanup. Browser hosts can also produce WebM when their encoder supports it. Native converters take local files; native Windows and GTK adapters are not available yet.
+
+```ts
+import { convertGif, releaseVideo } from '@octane-xplat/media-converter'
+
+export async function uploadAnimation(source: string, upload: (uri: string) => Promise<void>) {
+  const video = await convertGif(source, { format: 'mp4' }).result
+  try {
+    await upload(video.uri)
+  } finally {
+    releaseVideo(video)
+  }
+}
+```
+
+`@octane-xplat/image-manipulator` adds Apple WebP encoding and a bundled browser fallback when canvas cannot encode WebP. Rebuild native apps after installation.
+
+```ts
+import { ImageManipulator, SaveFormat } from '@octane-xplat/image-manipulator'
+
+export async function toWebP(source: string) {
+  const context = ImageManipulator.manipulate(source)
+  let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+  try {
+    image = await context.renderAsync()
+    return await image.saveAsync({ format: SaveFormat.WEBP })
+  } finally {
+    image?.release()
+    context.release()
+  }
+}
+// The receiving owner releases the saved result after its last use.
+```
+
+[GIF conversion guide](https://octane-xplat.goddardai.org/package-media-converter) · [WebP encoding guide](https://octane-xplat.goddardai.org/package-image-manipulator#encode-webp)
+
+### Install the shared development toolchain together
+
+The new `octane-xplat` package provides the `xplat` command and compatible Vite, TypeScript, and TSRX tooling. New app starters include it and import build configuration helpers from `octane-xplat/vite`.
+
+```sh
+bun add -D octane-xplat
+bun run xplat typecheck
+bun run xplat build --targets web
+```
+
+Runtime packages, platform tools, and app testing dependencies remain separate. Keep the framework's managed patches when upgrading an existing app. See the [toolchain package guide](https://octane-xplat.goddardai.org/package-toolchain).
+
+### Type-safe, tree-shaken icons via `icons:*` imports
+
+`@octane-xplat/icons` adds a `xplatIcons` Vite plugin that resolves `icons:<prefix>/<name>` specifiers to per-icon modules — each import is a tree-shaking edge instead of a whole `@iconify-json/*` collection in the bundle. A TypeScript content mapper plus a generated `.icon` stub tree (synced by the plugin into `.icons/`) makes every specifier compile-checked per name: a misspelled icon fails `tsc` with `TS2307`, and the import's type is that icon's normalized `IconifyIcon` literal. `<Icon>` accepts the data through `icon=`, skipping the registry lookup entirely; `name=` remains for dynamic lookups, and `addIcon`/`addIcons` register single icons into it — `xplatIcons({ register: true })` makes every imported icon self-register so `name=` resolves the same tree-shaken data.
+
+```tsx
+import xMark from 'icons:heroicons/x-mark'
+
+<Icon icon={xMark} size={16} label="Close" />
+```
+
+See [the icons package](https://octane-xplat.goddardai.org/package-icons#typed-per-icon-imports).
+
+### Check TSRX with TypeScript 7.1
+
+The toolchain now uses TypeScript 7.1 beta and the TSRX content mapper. Use an explicit `.tsrx` extension without a platform name; the build still selects the platform implementation. Each platform family needs an unsuffixed module for its shared type contract.
+
+```ts
+import { Card } from './Card.tsrx'
+```
+
+**Breaking change:** update extensionless TSRX imports and add the TSRX mapper entry to your TypeScript config. Declare `@tsrx/content-mapper` as a development dependency, including when compiler commands come from `octane-xplat`.
+
+```sh
+bun add -D @tsrx/content-mapper
+```
+
+Existing native apps also need the classic API used by NativeScript's build helpers. New native starters already declare it.
+
+```sh
+bun add -D typescript-classic@npm:typescript@5.9.3
+```
+
+`tsrx-tsc` enables the native compiler's external-code flag. See [sharing files across platforms](https://octane-xplat.goddardai.org/platform/module-resolution) and the [upstream support limits](https://github.com/tsrx-org/tsrx/issues/136).
+
+### Create apps with pnpm
+
+`pnpm create octane-xplat my-app` scaffolds a pnpm project, and `xplat add` and
+`xplat upgrade` now work inside it.
+
+The creator still defaults to Bun. Launch it through pnpm to get a pnpm project
+instead, or pass `--package-manager pnpm` to any launcher:
+
+```sh
+pnpm create octane-xplat my-app
+```
+
+A pnpm app keeps the same catalog pins, overrides, patch registrations, and
+build approvals in `pnpm-workspace.yaml` instead of `package.json`, and its
+patch files live in a local `patches/` directory just like a Bun app.
+`xplat add` writes the new platform's entries into that YAML file and installs
+with pnpm.
+
+`xplat upgrade` now writes local `patches/` files for pnpm projects too, unless
+the project already declares `@octane-xplat/patches` in `configDependencies`.
+That is a behavior change for pnpm projects that had neither local patches nor
+the config dependency: they get local patch files instead of the config package.
+
+### Pinch to zoom the camera
+
+`CameraSession` gains `zoomState()` and `setZoom(ratio)`, which read and set the active camera's zoom, including while recording. `setZoom` keeps every value inside the camera's supported range. Shared `View`, `Row`, `Stack`, `StackItem` and `Pressable` gain `onPinch`, which reports how much a pinch has scaled since it began on iOS and Android. Zoom works on iOS, Android, and web browsers whose camera track exposes zoom; macOS, Windows and Linux report `zoom: false`.
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+import { View } from '@octane-xplat/ui'
+import { useRef } from 'octane'
+
+const session = createCameraSession()
+
+export function ZoomablePreview() {
+  const baseZoom = useRef(1)
+  return (
+    <View
+      onPinch={(event) => {
+        if (event.state === 'began') {
+          baseZoom.current = session.zoomState()?.zoom ?? 1
+        }
+
+        session.setZoom(baseZoom.current * event.scale)
+      }}
+    >
+      <CameraView session={session} />
+    </View>
+  )
+}
+```
+
+**Breaking change:** `CameraSessionCapabilities` now requires a `zoom` boolean. Code that builds its own capabilities object, such as a test double, must add it:
+
+```ts
+import type { CameraSessionCapabilities } from '@octane-xplat/camera'
+
+declare const previous: Omit<CameraSessionCapabilities, 'zoom'>
+const capabilities: CameraSessionCapabilities = { ...previous, zoom: false }
+```
+
+See [pinch-to-zoom](https://octane-xplat.goddardai.org/package-camera#pinch-to-zoom).
+
+### Update more Apple integrations without rebuilding
+
+Eight packages replace their Apple Swift backends with TypeScript over the host's Objective-C bridge. Installing or updating these integrations now needs only a JavaScript refresh on the listed platforms; their public APIs and behavior are unchanged.
+
+| Package | Platforms that no longer need a plugin rebuild |
+| --- | --- |
+| [GIF](https://octane-xplat.goddardai.org/package-gif) | macOS |
+| [Print](https://octane-xplat.goddardai.org/package-print) | iOS |
+| [Recorder](https://octane-xplat.goddardai.org/package-recorder) | macOS |
+| [Richtext](https://octane-xplat.goddardai.org/package-richtext) | macOS |
+| [Splash screen](https://octane-xplat.goddardai.org/package-splash-screen) | iOS |
+| [Tracking transparency](https://octane-xplat.goddardai.org/package-tracking-transparency) | iOS |
+| [Video](https://octane-xplat.goddardai.org/package-video) | macOS |
+| [View shot](https://octane-xplat.goddardai.org/package-view-shot) | iOS and macOS |
+
+macOS printing retains its Swift backend because the TypeScript port could not reliably detect print completion. Android bridges still require a rebuild. Other platforms are unchanged.
+
+### Build store artifacts with `xplat build`
+
+`xplat build` now exposes NativeScript's artifact, signing and output options
+for phone targets. Android accepts `--aab` to produce an App Bundle instead of
+an APK, plus the keystore path and alias; iOS accepts `--for-device` for a
+device-signed `.ipa` along with `--provision` and `--team-id` for
+distribution signing. `--copy-to` copies the produced artifact to a file or
+directory, and each build prints `Artifact: <path> (<type>)`.
+
+Signing passwords are supplied as environment-variable references — never as
+option values or persisted configuration:
+
+```sh
+xplat build --targets android --release --aab \
+  --key-store-path "$ANDROID_UPLOAD_KEYSTORE" --key-store-alias upload \
+  --key-store-password-env ANDROID_KEYSTORE_PASSWORD \
+  --key-store-alias-password-env ANDROID_KEY_PASSWORD \
+  --copy-to dist/app-release.aab
+xplat build --targets ios --release --for-device --copy-to dist/app.ipa
+```
+
+The same keystore fields can live in `package.json` under
+`xplat.targets.android.signing` using `…Env` references; a raw password value
+there is refused. Route generation still runs before NativeScript.
+
+See [Release an iOS or Android app](https://octane-xplat.goddardai.org/native-release).
+
+### Know when the camera preview is on screen
+
+`CameraView` gains `onDisplayReady`, which fires when the preview shows its first live camera frame. `onReady` still means the session can start recording; it does not promise that a frame is visible yet. Use `onDisplayReady` when something should wait for a visible preview, such as starting a recording automatically. It fires on iOS 13+, Android and web. macOS, Windows and Linux never fire it, so do not block your app on it there.
+
+```tsx
+import { CameraView, createCameraSession } from '@octane-xplat/camera'
+
+const session = createCameraSession()
+
+export function InstantRecorder() {
+  return <CameraView session={session} onDisplayReady={() => session.startRecording()} />
+}
+```
+
+See [preview readiness](https://octane-xplat.goddardai.org/package-camera#preview-readiness).
+
+### Handle pinches directly on camera previews
+
+`CameraView` accepts `onPinch` on iOS and Android, with a cumulative scale, gesture phase, and normalized focus point. The focus falls back to the center when unavailable. Shared UI pinch events also expose optional `focusX` and `focusY` coordinates reported by the native recognizer.
+
+```tsx
+import { CameraView } from '@octane-xplat/camera'
+
+export function Preview() {
+  return <CameraView onPinch={({ scale, focus }) => console.log(scale, focus)} />
+}
+```
+
+Native gesture delivery and focal-coordinate units still need device qualification. See [camera pinch-to-zoom](https://octane-xplat.goddardai.org/package-camera#pinch-to-zoom) for the zoom recipe and current limits.
+
+### `xplat` installs its native executable from npm
+
+`@octane-xplat/cli` now installs the native Go `xplat` executable. A
+postinstall step copies it from the optional payload package for your
+machine: `@octane-xplat/cli-native-darwin-arm64`, `-darwin-x64`,
+`-linux-x64`, `-linux-arm64` or `-win32-x64`. The `octane-xplat` package's
+`xplat` command runs under plain Node again, without Bun.
+
+**Breaking change:** the package manager must be allowed to run
+`@octane-xplat/cli`'s install script. New starters list it already, and
+`xplat upgrade` adds it for Bun projects:
+
+```json
+{ "trustedDependencies": ["@octane-xplat/cli"] }
+```
+
+If an install skipped the script, run `xplat` once. It prints the exact
+command that finishes the installation:
+
+```sh
+node "/path/to/@octane-xplat/cli/install-native.mjs"
+```
+
+The separate `nim` CLI channel is
+removed — the CLI publishes at the lockstep version like every other package.
+
+### The TSRX content mapper ships with the toolchain
+
+Apps no longer declare `@tsrx/content-mapper`. The mapper is now a dependency
+of `@octane-xplat/cli`, and both `@octane-xplat/cli` and the `octane-xplat`
+umbrella declare TypeScript's `typescript.contentMapper` manifest, so the
+compiler finds it through packages your project already installs.
+
+**Breaking change:** the tsconfig `contentMappers` entry now names the
+toolchain package instead of `@tsrx/content-mapper`. Apps use the umbrella;
+libraries that depend on `@octane-xplat/cli` directly name it:
+
+```json
+{ "contentMappers": [{ "package": "octane-xplat", "extensions": [".tsrx"] }] }
+```
+
+```json
+{ "contentMappers": [{ "package": "@octane-xplat/cli", "extensions": [".tsrx"] }] }
+```
+
+Then remove the standalone dependency:
+
+```sh
+bun remove @tsrx/content-mapper
+```
+
+### Format styles, data and documentation with xplat fmt
+
+`xplat fmt` discovers all file types supported by Oxfmt, including CSS, JSON, Markdown, YAML, templates and special filenames. Octane lint fixes and spacing apply to JS/TS/TSRX. Check a stylesheet without writing it:
+
+```sh
+bun run xplat fmt --check src/theme.css
+```
+
+See [lint and format](https://octane-xplat.goddardai.org/package-cli#lint-and-format).
+
+### Preserve font registration data
+
+Font registration now validates its complete changes before writing. Invalid
+saved `fonts.json` data produces an error instead of being discarded; repair
+that file before retrying.
+
+**Breaking change:** each font input, converted font, or managed output is limited
+to 16 MiB, and one registration plan is limited to 32 MiB. Choose smaller font
+files or a Fontsource subset, and register large collections in separate calls.
+
+```sh
+bun run xplat fonts add @fontsource/roboto --subset latin --weights 400,700 --install
+```
+
+See the [CLI guide](https://octane-xplat.goddardai.org/package-cli).
+
+### Replace the CLI with a native Go executable
+
+`xplat` is now a native Go executable. The TypeScript and Nim implementations
+are removed; the same command surface — dev, build, doctor, typecheck, lint,
+fmt, routes, clean, docs, code, actions, diagnostics, patches, updates,
+upgrade, add, fonts, workshop — is covered by the Go implementation and its
+checked-in command catalog.
+
+**Breaking change:** the installed package resolves a platform binary
+(darwin/linux/windows on arm64/amd64) instead of running JavaScript dispatch.
+The download is much smaller: the npm tarball carries the native binary plus
+the published Vite/plugin/worker exports, while heavy engine dependencies stay
+optional peers resolved from the selected project.
+
+```sh
+bun add --dev @octane-xplat/cli
+bun run xplat doctor
+```
+
+Project toolchain operations (formatting, route baking, packaging workers)
+still run as explicit JavaScript workers from the selected project's installed
+packages; the native executable never falls back to a JavaScript CLI.
+
+### Add Drawer to the GTK4/GJS target
+
+`@octane-xplat/drawer` now renders on Linux GTK. The panel docks to the start edge and fills the window height over a modal scrim; backdrop presses and Escape dismiss it, and controlled `open`, `onOpenChange`, and `onDismiss` behave like the desktop leaves. The `gtk` export condition resolves the leaf automatically — no import changes needed.
+
+```tsx
+import { Drawer } from '@octane-xplat/drawer'
+import { Text } from '@octane-xplat/ui'
+
+export function Nav() {
+  return (
+    <Drawer
+      defaultOpen
+      main={<Text>Content</Text>}
+      drawer={<Text>Panel</Text>}
+    />
+  )
+}
+```
+
+See [Add a side drawer](https://github.com/octane-xplat/octane-xplat/tree/main/docs/app/drawer.md).
+
+### Choose iOS feedback during camera recording
+
+Camera sessions can explicitly allow haptics and system sounds while the microphone is active, including during preview. The option preserves the audio category and route and restores the previous policy after the last opted-in camera owner releases microphone capture. Other platforms keep their existing behavior.
+
+```ts
+import { createCameraSession } from '@octane-xplat/camera'
+
+const camera = createCameraSession({
+  audio: true,
+  ios: { allowHapticsAndSystemSoundsDuringRecording: true },
+})
+```
+
+See the [camera recording guide](https://octane-xplat.goddardai.org/movie-capture#allow-ios-feedback-while-the-microphone-is-active). Physical tactile output during capture still requires verification on supported iPhones.
+
+### `xplat/no-jsx-text-breakers` removed
+
+The lint rule that rejected a literal `•` in `.tsrx` JSX text is gone. It
+guarded the old Volar-based `tsrx-tsc` checker; the native TypeScript 7.1
+checker accepts the character.
+
+**Breaking change:** configurations enabling `xplat/no-jsx-text-breakers`
+should drop the entry — the plugin no longer registers the rule. Literal `•`
+text now needs no `{'…'}` wrapping; existing wrapped expressions remain valid.
+
+```tsrx
+<Text>a • b</Text>
+```
+
+### Typecheck runs native TypeScript with `--runExternalCode`
+
+`xplat typecheck` and every package typecheck script now invoke the project's
+TypeScript 7.1 compiler directly as `tsc --runExternalCode` instead of the
+`tsrx-tsc` wrapper from `@tsrx/typescript-plugin`.
+
+**Breaking change:** TypeScript 5/6 projects are no longer supported by
+`xplat typecheck`; the compiler must be the native 7.1 line the `octane-xplat`
+umbrella supplies. Projects no longer need `@tsrx/typescript-plugin` — remove
+it from your dependencies. Keep the content-mapper entry in configs that
+contain `.tsrx` sources; the compiler flag only unlocks external mapper code.
+The mapper is supplied by the toolchain package — apps name `octane-xplat`,
+libraries name `@octane-xplat/cli`.
+
+```json
+{
+  "contentMappers": [{ "package": "octane-xplat", "extensions": [".tsrx"] }]
+}
+```
+
+```sh
+bun remove @tsrx/typescript-plugin
+bun run xplat typecheck
+# Equivalent direct invocation:
+bun run tsc --runExternalCode --noEmit
+```
+
+### Build web apps with the experimental Nim CLI
+
+The experimental Nim CLI can build web apps on macOS, Linux and Windows 11 x64
+using the project’s installed build package, Vite and plugins. Windows is qualified
+with Bun 1.4.4. Run a foreground build or start a background job,
+then inspect its status and captured output. Cancellation releases the owned
+build processes and preserves previous route files. On Windows, launch from
+PowerShell or a Bun script; background owners are not qualified to survive a
+Windows Turbo task finishing. Other native platform engines remain in progress.
+
+```sh
+xplat build --targets web
+xplat runtime build --platform web --json
+# Replace JOB_ID with the returned job id:
+xplat job status JOB_ID --json
+xplat diagnostics --job JOB_ID --json
+```
+
+See the [native executable guide](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Preserve the native CLI channel during compatibility checks
+
+Compatibility checks accept an exact CLI Nim prerelease for the same framework
+release and still require its installed version to match. The reference upgrade
+planner preserves that CLI choice; conflicting shared catalogs or overrides stop
+before writes. Other framework/compiler version checks remain strict.
+
+After an experimental prerelease is published, save its exact version:
+
+```sh
+bun add --dev --exact @octane-xplat/cli@nim
+```
+
+Native doctor and upgrade command execution remain pending. See
+[native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
+for the implemented scope.
+
+### Invoke development actions with the experimental native CLI
+
+On macOS, the parallel Nim CLI now lists a running app's declared actions,
+invokes them through bounded jobs, and reports results, cancellation and partial
+effects. Invocation validates JavaScript field contracts with the selected
+project's compatible build worker and Node. Listing and status stay native.
+
+```sh
+xplat actions list --json
+# Replace the identities and input with values from the live registry.
+xplat actions invoke --action ACTION_ID --instance INSTANCE_ID --revision REVISION --input '{}' --request-key fixture-setup-1 --json
+xplat actions status JOB_ID --json
+```
+
+See [experimental native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
+and [development-action runtime coverage](https://octane-xplat.goddardai.org/development-actions).
+
+### Format source with the experimental native CLI
+
+The parallel Nim CLI can format regular source and TSRX on macOS Apple Silicon.
+Install the formatter in your project and provide Node >=22.22.2. Check mode
+leaves files untouched; configuration or parse errors prevent all source writes.
+The native download includes neither Node nor the formatter engine.
+
+```sh
+bun add --dev @octane-xplat/fmt@0.1.1
+xplat fmt src --check
+xplat fmt src
+```
+
+This applies to the experimental `nim` channel. See
+[native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Inspect native session and job state
+
+The experimental Nim CLI now retains session and job state in an authenticated
+workspace owner on macOS. Session list/status/end and job status/cancel connect
+to that owner; reads leave no background process behind when none exists.
+Other native build platforms remain in progress.
+
+```sh
+xplat session list --json
+```
+
+See the [native executable guide](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Run project lint checks with the experimental native CLI
+
+The parallel Nim CLI can run the project's regular-source and TSRX lint checks
+on macOS Apple Silicon. Install `@octane-xplat/lint` in the project and provide
+Node >=22.22.2. The engine keeps its rules, ignores and safe fixes; the native CLI
+owns its child processes. The native tarball includes neither Node nor lint tools.
+
+```sh
+bun add --dev @octane-xplat/lint
+xplat lint src
+xplat lint --fix src
+```
+
+This applies to the experimental `nim` channel. Formatting uses its separately
+installed project formatter; see the native CLI setup for that prerequisite.
+See [native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
+and [lint configuration](https://octane-xplat.goddardai.org/package-lint#project-configuration).
+
+### Search installed-version docs with the experimental native CLI
+
+The parallel Nim CLI now supports exact, lexical and local semantic docs search
+on macOS Apple Silicon, with versioned page refs, offline snapshots, conflict
+reporting and separately labeled project guidance. Explicit `docs index` prepares
+optional pinned model/runtime assets; ordinary search reports its fallback and
+never downloads them. The TypeScript CLI remains available during migration.
+
+```sh
+xplat docs index --package @octane-xplat/ui --json
+xplat docs search "remember input between pages" --json
+```
+
+See [experimental native setup and download costs](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Package macOS apps with the experimental Nim CLI
+
+The experimental Nim CLI can build configured macOS apps using a separate
+project-installed packaging worker. The standalone CLI stays small. Native jobs
+capture compiler output, serialize builds for one app, and release owned
+processes on cancellation. Cancellation before publication preserves the previous
+app and DMG.
+
+```sh
+bun add --dev @octane-xplat/macos-build @octane-xplat/build
+xplat build --targets macos
+xplat runtime build --platform macos --json
+```
+
+See the [macOS worker setup](https://octane-xplat.goddardai.org/package-macos-build).
+
+### Start macOS development sessions with the experimental native CLI
+
+The Nim CLI can start an existing macOS app through its project-installed
+development tools, capture output and stop its owned processes. JavaScript and
+native source edits use the same development engine as the TypeScript CLI.
+It can also attach to an existing compatible macOS engine, capture lifecycle
+events and leave external processes running when the attachment ends.
+
+```sh
+xplat targets --platform macos --json
+xplat session start macos --json
+# Or attach to a development engine you already run:
+xplat session attach --platform macos --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
+Replace `SESSION_ID` with the returned id. See the
+[macOS development setup](https://octane-xplat.goddardai.org/package-macos-build#start-a-development-session).
+
+### Read native macOS crash reports with the experimental CLI
+
+Nim session diagnostics can now associate local macOS crash reports with recorded
+app processes and retain complete originals after the workspace owner exits.
+Availability and confirmed/candidate association are reported separately from logs.
+
+```sh
+xplat diagnostics --session SESSION_ID --json
+xplat diagnostics --session SESSION_ID --report REPORT_ID --json
+```
+
+Use a returned session/report id. See [macOS session diagnostics](https://octane-xplat.goddardai.org/package-macos-build#start-a-development-session)
+for report limits and association details.
+
+### Keep Vite imports with the experimental native CLI
+
+The Nim CLI tarball retains its small Vite plugins and bounded Node worker.
+The executable remains native, and projects opt into the compiler engines as
+needed. Native-only installs do not download those optional engine packages.
+Large macOS host assets remain separate.
+
+```ts
+import { xplatCss } from '@octane-xplat/cli/vite'
+
+const plugin = xplatCss('web')
+```
+
+Native workers and typecheck declarations resolve from the project's compatible
+CLI package; no separate build package is required. See [native CLI setup](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable)
+for engine prerequisites and current limits.
+
+### Generate and watch routes with the native CLI
+
+The experimental Nim CLI now generates route catalogs and baked loader/Markdown
+data with `xplat routes` on macOS. Watch mode cancels obsolete work, preserves
+the last successful generated files after a failed bake, and recovers on later
+edits.
+
+```sh
+xplat routes --watch
+```
+
+See the [native executable guide](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Read native session diagnostics after the owner exits
+
+The experimental Nim CLI retains app-scoped session metadata and bounded logs
+across host shutdown. A missing owner leaves historical data with cleanup marked
+unconfirmed; ending that historical record never signals a stored process id.
+Build-job log captures still last only while their host runs.
+
+```sh
+xplat session status SESSION_ID --json
+xplat diagnostics --session SESSION_ID --json
+xplat session end SESSION_ID --json
+```
+
+Replace `SESSION_ID` with the returned development-session id. See
+[native macOS sessions and retention limits](https://octane-xplat.goddardai.org/package-macos-build#start-a-development-session).
+
+### Discover project context with the native CLI
+
+The experimental Nim CLI now reports app selection, installed framework versions,
+guidance, source coverage and missing tools on macOS. Its capability report shows
+which native operations are available, including unfinished runtime workflows.
+The report itself runs without Node or Bun.
+
+```sh
+xplat status --json
+xplat capabilities --json
+```
+
+See the [native executable guide](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Typecheck projects with the native CLI
+
+The experimental Nim CLI can now run `xplat typecheck` on macOS using the
+project's installed TSRX checker. It generates route types without executing
+baked loaders, preserves compiler diagnostics and cleans up owned processes
+when cancelled.
+
+```sh
+xplat typecheck
+```
+
+See the [native executable guide](https://octane-xplat.goddardai.org/package-cli#experimental-nim-executable).
+
+### Package guides and API reference on the docs site
+
+Package READMEs now link to the documentation website. Package setup, examples, and platform limits live alongside the app guides. Each public package also has an API reference generated from its exported declarations and TSDoc.
+
+See the [UI package guide](https://octane-xplat.goddardai.org/package-ui) and [UI API reference](https://octane-xplat.goddardai.org/api-ui).
+
+### Install build plugins separately from the CLI
+
+`@octane-xplat/build` provides the existing Vite presets through a separate
+project dependency. Apps preparing for the native CLI can move their plugin
+imports while keeping the same preset and options:
+
+```ts
+import { xplatNative } from '@octane-xplat/build/vite'
+```
+
+Existing TypeScript CLI plugin imports remain available during the parallel
+migration. See [project build plugins](https://octane-xplat.goddardai.org/package-build)
+and [Vite's guide](https://vite.dev/guide/) for setup.
+
+### Filter and control Sentry reporting
+
+`@octane-xplat/sentry` now exposes typed event and breadcrumb filtering plus
+collection lifecycle controls on every platform. Return `null` from
+`beforeSend` or `beforeBreadcrumb` to drop a report, pass `enabled: false` to
+initialize without collecting, and use `setEnabled`, `flush` and `close` for
+runtime consent changes. `close` reports whether the queue drained and also
+stops native crash capture on iOS and Android.
+
+```ts
+import { sentry } from '@octane-xplat/sentry'
+
+sentry.init({
+  dsn,
+  release: 'app@1.0.0+1',
+  beforeSend: (event) => (event.user ? { ...event, user: null } : event),
+  beforeBreadcrumb: (crumb) => (crumb.category === 'fetch' ? null : crumb),
+})
+
+await sentry.close()
+```
+
+On iOS and Android a native crash report invokes `beforeSend` but ignores its
+result — use the collection controls to stop crash capture. On Android,
+`flush` covers the JavaScript queue only.
+
+See [Diagnose production errors](https://octane-xplat.goddardai.org/production-errors).
+
+### Let content extend beyond smooth corners
+
+SmoothCorners now shapes its background and border while leaving child overflow visible by default. Set `overflow: hidden` to clip images and other children to the same curve. The component’s own shadow stays outside the content clip.
+
+**Breaking change:** panels that previously relied on automatic child clipping must now request it explicitly:
+
+```tsx
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
+
+export function ClippedPanel() {
+  return <SmoothCorners corners={24} style={{ overflow: 'hidden' }}>Clipped content</SmoothCorners>
+}
+```
+
+[Choose whether to clip content](https://octane-xplat.goddardai.org/package-smooth-corners#clip-an-image-or-other-content).
+
+### Validate and save forms with TanStack Form
+
+`@octane-xplat/form` connects TanStack Form to Octane's component lifecycle and subscriptions. Keep typed values, validate fields, submit asynchronously, and reset forms while using the existing Xplat inputs.
+
+```tsx
+import { useField, useForm } from '@octane-xplat/form'
+import { TextInput } from '@octane-xplat/ui'
+
+export function TripName() {
+  const form = useForm({ defaultValues: { name: '' } })
+  const name = useField({ form, name: 'name' })
+  return <TextInput label="Trip name" value={name.state.value} onChange={name.handleChange} onBlur={name.handleBlur} />
+}
+```
+
+See [Forms with validation](https://octane-xplat.goddardai.org/package-form) for validation, submission, cleanup, and platform verification limits.
+
+### In-app browser window on macOS, with no native rebuild
+
+On macOS, `webBrowser.openBrowser` now presents an owned in-app WebKit window with native history, reload/stop, address and close controls. The former external-browser delegation is removed; use `openUrl` from `@octane-xplat/platform` when another application should own the destination.
+
+```ts
+import { openUrl } from '@octane-xplat/platform'
+
+export function showExternalPage(address: string) {
+  return openUrl(address)
+}
+```
+
+The AppKit backend is TypeScript over the host's Objective-C bridge, so installing or updating `@octane-xplat/web-browser` needs no plugin rebuild on macOS. iOS and Android are unchanged.
+
+See [`@octane-xplat/web-browser`](https://octane-xplat.goddardai.org/package-web-browser).
+
+### Use native keyboard selection in more Windows controls
+
+Experimental Windows menus, panel tabs, and single-choice Selectors now use native input and accessibility for the supported configurations.
+
+Dropdown menus support native menu-item input and automation for flat action rows while keeping the shared button and row content:
+
+```tsx
+import { DropdownMenu } from '@octane-xplat/ui'
+
+export function Actions() {
+  return <DropdownMenu button={{ label: 'Actions' }} items={[
+    { type: 'action', key: 'open', label: 'Open', onSelect: () => console.log('Open') },
+    { type: 'action', key: 'remove', label: 'Remove', isDisabled: true },
+  ]} />
+}
+```
+
+Other row kinds, keep-open or compound menus, sheet presentation, and custom surface settings retain the shared view and its input limits. See [Windows action menus](https://octane-xplat.goddardai.org/platform/windows-setup#action-menu-candidate).
+
+Panel tabs expose native tab-selection automation, use one Tab stop, and select enabled tabs with Left/Right, Home, and End. Your component continues to own selection and panel rendering:
+
+```tsx
+import { useState } from 'octane'
+import { Tab, TabList, Text } from '@octane-xplat/ui'
+
+export function Panels() {
+  const [tab, setTab] = useState('overview')
+  return <>
+    <TabList role="tablist" layout="fill" value={tab} onChange={setTab}>
+      <Tab value="overview" label="Overview" />
+      <Tab value="details" label="Details" />
+    </TabList>
+    <Text>{tab === 'overview' ? 'Overview panel' : 'Details panel'}</Text>
+  </>
+}
+```
+
+See [Windows panel tabs](https://octane-xplat.goddardai.org/platform/windows-setup#panel-tabs-candidate) for the platform, overflow, and accessibility limits.
+
+Single-choice Selectors support F4 or click to open, arrow keys to preview, Enter to commit, and Escape to cancel, with native option selection and accessibility:
+
+```tsx
+import { useState } from 'octane'
+import { Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+  const [value, setValue] = useState<string | null>('first')
+  return <Selector selectionMode="single" value={value} onValueChange={setValue}
+    options={[{ value: 'first', label: 'First' }, { value: 'third', label: 'Third' }]} />
+}
+```
+
+Search, multiple selection, clear controls, empty lists, and groups retain the shared native view and its input limits. See [Windows Selectors](https://octane-xplat.goddardai.org/platform/windows-setup#single-selection-candidate).
+
+### Use native selection and keyboard input in Windows panel tabs
+
+Experimental Windows panel tabs now expose native tab-selection automation,
+use one Tab stop, and select enabled tabs with Left/Right, Home and End.
+Selection stays controlled by your component, which also renders the panel:
+
+```tsx
+import { useState } from 'octane'
+import { Tab, TabList, Text } from '@octane-xplat/ui'
+
+export function Panels() {
+  const [tab, setTab] = useState('overview')
+  return <>
+    <TabList role="tablist" layout="fill" value={tab} onChange={setTab}>
+      <Tab value="overview" label="Overview" />
+      <Tab value="details" label="Details" />
+    </TabList>
+    <Text>{tab === 'overview' ? 'Overview panel' : 'Details panel'}</Text>
+  </>
+}
+```
+
+The experimental host's broader platform, overflow and accessibility limits
+still apply. See [Windows panel tabs](https://octane-xplat.goddardai.org/platform/windows-setup#panel-tabs-candidate).
+
+### Choose a Windows option with the keyboard or mouse
+
+Experimental Windows single-choice Selectors now use native option selection
+and accessibility while keeping the shared trigger and option content. Open
+with F4 or a click, preview with arrow keys, commit with Enter, and cancel with
+Escape:
+
+```tsx
+import { useState } from 'octane'
+import { Selector } from '@octane-xplat/ui'
+
+export function Choice() {
+  const [value, setValue] = useState<string | null>('first')
+  return <Selector selectionMode="single" value={value} onValueChange={setValue}
+    options={[{ value: 'first', label: 'First' }, { value: 'third', label: 'Third' }]} />
+}
+```
+
+Search, multiple selection, clear controls, empty lists and groups retain the
+shared native view and its input limits. See the
+[Windows Selector guide](https://octane-xplat.goddardai.org/platform/windows-setup#single-selection-candidate)
+for the experimental support boundary.
+
+### A quieter component workshop
+
+The workshop has a compact toolbar, short story names, a breadcrumb above the framed preview, and a clearer controls inspector on web and native targets. Properties appear before preview settings. Native host diagnostics sit behind **Host details**, and iOS/Android retain larger touch targets.
+
+[Component workshop](https://octane-xplat.goddardai.org/package-workshop#shell)
+
+### Check workshop initialization before writing
+
+Workshop initialization now checks all three possible output files before writing.
+It preserves existing custom files and scripts, and stops when a saved input
+changes during planning.
+
+**Breaking change:** initialization rejects symbolic links and input files over
+1 MiB. Use ordinary project files and folders before running it.
+
+To create the workshop files without adding a package script:
+
+```sh
+bun run xplat workshop init --no-scripts
+```
+
+See [component workshop setup](https://octane-xplat.goddardai.org/component-workshop#try-it).
+
+### Install the macOS workshop engine in the app
+
+The macOS component workshop now uses the project-installed macOS development
+engine directly, keeping its host assets separate from the native CLI download.
+
+**Breaking change:** macOS workshop projects must install the matching macOS build
+package before launching. Web workshop projects do not need this optional peer.
+
+```sh
+bun add -D @octane-xplat/macos-build
+bun run xplat workshop dev --target macos
+```
+
+See [the macOS workshop](https://octane-xplat.goddardai.org/component-workshop#macos-target)
+and [the project engine](https://octane-xplat.goddardai.org/package-macos-build#call-the-development-engine-from-node).
+
+### One NativeScript type identity when linking framework source
+
+Apps that point `link:`, `file:` or `portal:` dependencies at a framework
+checkout could see two `@nativescript/core` type identities — one from the
+app, one from the checkout's own install — and fail typechecks on
+`View`/`Page`/`Color`. New native apps now pin core to the app's install in
+the generated `tsconfig.json`, and `xplat add` merges the pin without
+replacing authored mappings. `doctor` no longer counts a checkout's private
+copies as duplicate runtimes and warns when a linked app lacks the pin:
+
+```json
+{
+	"compilerOptions": {
+		"paths": {
+			"@nativescript/core": ["./node_modules/@nativescript/core"],
+			"@nativescript/core/*": ["./node_modules/@nativescript/core/*"]
+		}
+	}
+}
+```
+
+See [working against a local checkout](https://octane-xplat.goddardai.org/package-cli#working-against-a-local-checkout).
+
+### AppKit renderer renamed to `@octane-xplat/macos-appkit`
+
+The experimental macOS AppKit renderer now ships as `@octane-xplat/macos-appkit`, replacing `@octane-xplat/macos-renderer`. The API is unchanged; only the package name moved.
+
+**Breaking change**: `@octane-xplat/macos-renderer` no longer receives new releases. Point your dependency and every import at the new name.
+
+```sh
+bun add @octane-xplat/macos-appkit
+```
+
+```ts
+import { createMacOSRoot } from '@octane-xplat/macos-appkit'
+```
+
+See the [AppKit renderer package](https://github.com/octane-xplat/octane-xplat/tree/main/packages/macos-appkit).
+
+### Catch mistyped creator options
+
+**Breaking change:** `create-octane-xplat` now stops with an error when it gets
+an option it doesn't know or more than one project folder. Before, it
+ignored them and scaffolded with the defaults. For example, a typo used to
+create an app for every platform:
+
+```sh
+bun create octane-xplat my-app --target web
+# ✗ Unknown option '--target'. …
+```
+
+Use the documented spelling instead:
+
+```sh
+bun create octane-xplat my-app --targets web
+```
+
 ## [tsrx-typegen 0.6.0](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.6.0) - 2026-11-07
 
 ### `tsrx-typegen` emits with native TypeScript 7.1
