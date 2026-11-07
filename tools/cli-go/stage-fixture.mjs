@@ -4,11 +4,12 @@
 // while only the host payload is ever executed on this machine.
 import assert from 'node:assert/strict'
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { tmpdir } from 'node:os'
+import { createRequire } from 'node:module'
 import { createHash } from 'node:crypto'
-import { nativePlatforms } from './stage-release.mjs'
+import { nativePlatforms, stageRelease } from './stage-release.mjs'
 
 export const hostTarget = `${process.platform === 'win32' ? 'windows' : process.platform}-${
   process.arch === 'x64' ? 'amd64' : process.arch
@@ -72,4 +73,25 @@ export function nativeFixture(root, hostBinary) {
   }
   rmSync(notices, { recursive: true, force: true })
   return nativeDir
+}
+
+/** Stage the actual host executable and inert foreign payloads for a consumer. */
+export function stageHostCli(root, outputDir) {
+  const nativeDir = nativeFixture(root, join(root, 'research/go-cli', binaryName(hostTarget)))
+  try {
+    return stageRelease({ root, outputDir, nativeDir, ignoreScripts: true,
+      version: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version })
+  } finally {
+    rmSync(nativeDir, { recursive: true, force: true })
+  }
+}
+
+/** File-tarball installs skip transitive hooks; perform the documented repair. */
+export function repairPackedCli(app) {
+  const require = createRequire(join(app, 'package.json'))
+  const cli = dirname(require.resolve('@octane-xplat/cli/package.json'))
+  const result = spawnSync(process.execPath, [join(cli, 'install-native.mjs')], {
+    cwd: app, encoding: 'utf8',
+  })
+  assert.equal(result.status, 0, result.stdout + result.stderr)
 }

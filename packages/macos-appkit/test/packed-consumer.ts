@@ -5,6 +5,7 @@ import { cp, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { stageHostCli, repairPackedCli } from '../../../tools/cli-go/stage-fixture.mjs'
 
 const actionBarOnly = process.argv.includes('--actionbar')
 const liquidGlassOnly = process.argv.includes('--liquidglass')
@@ -48,7 +49,9 @@ assert.ok(
 const cssEngine = await pack(join(repo, 'packages/css-engine'))
 const platform = await pack(join(repo, 'packages/platform'))
 const jsx = await pack(join(repo, 'packages/jsx'))
-const cli = await pack(join(repo, 'packages/cli'))
+const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
+const cli = `file:${stagedCli.cli.archive}`
+const macosBuild = await pack(join(repo, 'packages/macos-build'))
 const docsSearch = await pack(join(repo, 'packages/docs-search'))
 const lib = await pack(join(repo, 'packages/lib'))
 const lint = await pack(join(repo, 'packages/lint'))
@@ -183,6 +186,7 @@ await writeFile(
       },
       devDependencies: {
         '@octane-xplat/cli': cli,
+        '@octane-xplat/macos-build': macosBuild,
         '@octanejs/vite-plugin': compatibility.packages['@octanejs/vite-plugin'].version,
         '@tsrx/oxc': oxcVersion,
         vite: compatibility.packages.vite.version,
@@ -219,9 +223,9 @@ await writeFile(
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
+  ...Object.fromEntries(stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`])),
   '@octane-xplat/docs-search': docsSearch,
   'create-octane-xplat': create,
-  '@octane-xplat/docs-search': docsSearch,
   '@octane-xplat/lib': lib,
   '@octane-xplat/lint': lint,
   '@octane-xplat/platform': platform,
@@ -260,6 +264,7 @@ await writeFile(
 
 console.log('[packed renderer] installing independent tarball consumer')
 run('bun', ['install', '--ignore-scripts'])
+repairPackedCli(app)
 run('bun', ['run', 'xplat', 'patches', 'apply'])
 // patches apply registers patchedDependencies, so this install must update
 // the lockfile — frozen installs (CI default) would reject the config change.

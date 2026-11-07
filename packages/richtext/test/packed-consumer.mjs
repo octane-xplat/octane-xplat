@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
+import { stageHostCli, repairPackedCli } from '../../../tools/cli-go/stage-fixture.mjs'
 
 const repo = resolve(import.meta.dirname, '../../..')
 await mkdir(join(repo, 'research'), { recursive: true })
@@ -32,7 +33,7 @@ for (const name of [
   'css-engine',
   'jsx',
   'macos-appkit',
-  'cli',
+  'macos-build',
   'docs-search',
   'lib',
   'lint',
@@ -44,6 +45,11 @@ for (const name of [
   dependencies[manifest.name] =
     `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
+
+const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
+dependencies['@octane-xplat/cli'] = `file:${stagedCli.cli.archive}`
+const nativeOverrides = Object.fromEntries(stagedCli.payloads.map((payload) =>
+  [payload.manifest.name, `file:${payload.archive}`]))
 
 const product = {
   productName: 'EditorConsumer',
@@ -63,6 +69,7 @@ await writeFile(
       private: true,
       type: 'module',
       dependencies,
+      overrides: { ...dependencies, ...nativeOverrides },
       devDependencies: { '@octanejs/vite-plugin': '0.1.61', vite: '8.3.0', typescript: '5.9.3' },
       xplat: { targets: { macos: { runtime: 'appkit-node-api', package: product } } },
     },
@@ -75,6 +82,7 @@ const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
   ...dependencies,
+  ...nativeOverrides,
   '@tiptap/core': '3.28.0',
   '@tiptap/pm': '3.28.0',
   '@tiptap/starter-kit': '3.28.0',
@@ -170,6 +178,7 @@ export default async ({mode}) => { const config = await xplatMacOS(mode, {root: 
 
 console.log('[packed editors] installing tarball consumer')
 run('bun', ['install', '--ignore-scripts'])
+repairPackedCli(app)
 run('bun', ['run', 'xplat', 'patches', 'apply'])
 // patches apply registers patchedDependencies, so this install must update
 // the lockfile — frozen installs (CI default) would reject the config change.
