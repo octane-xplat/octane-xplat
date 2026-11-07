@@ -23,7 +23,9 @@ The browser provider imports UI `chrome.css` for component defaults. Frame and
 inspector documents also load the sandbox's exported `styles.css` for body
 fonts and `sb-*` example helpers; the gallery document keeps its own palette.
 Keep those imports in the provider so static builds and development use the same
-example styles.
+example styles. Import the sandbox stylesheet as CSS text (`?inline`) and
+apply it inside preview documents: static Workshop HTML links every emitted CSS
+asset, including styles from conditional imports.
 
 Permission-, credential-, and ad-configuration-dependent entries remain visible
 with prerequisite diagnostics and never activate from scrolling.
