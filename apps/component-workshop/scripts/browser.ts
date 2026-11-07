@@ -58,6 +58,11 @@ try {
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(base)
   await page.waitForSelector('.xw-gallery section:visible')
+  assert.equal(
+    await page.locator('html').evaluate((node) => getComputedStyle(node).colorScheme),
+    'light',
+  )
+
   assert.equal(await page.locator('.xw-gallery section').count(), Object.keys(catalog).length)
   const components = page.getByRole('tab', { name: 'Components', exact: true })
   const primitives = page.getByRole('tab', { name: 'Primitives', exact: true })
@@ -194,6 +199,21 @@ try {
         0,
         'preview retained the static catalog fallback',
       )
+
+      if (name === 'Button') {
+        const primary = page.getByRole('button', { name: 'Primary', exact: true })
+        assert.equal(
+          await primary.evaluate((node) => getComputedStyle(node).backgroundColor),
+          'rgb(0, 100, 224)',
+        )
+
+        assert.equal(await primary.evaluate((node) => getComputedStyle(node).borderRadius), '8px')
+        assert.ok(
+          await page
+            .locator('body')
+            .evaluate((node) => getComputedStyle(node).fontFamily.includes('system-ui')),
+        )
+      }
 
       if (name === 'NavLink') {
         await page.getByRole('link', { name: 'Open a local route' }).click()

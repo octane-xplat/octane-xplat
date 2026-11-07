@@ -19,6 +19,12 @@ controls and supporting pieces use literal `gallery: { group: 'primitives' }`
 metadata in their stories to appear in **Primitives**. Classification belongs to
 the story, rather than a component-name heuristic in the shared gallery.
 
+The browser provider imports UI `chrome.css` for component defaults. Frame and
+inspector documents also load the sandbox's exported `styles.css` for body
+fonts and `sb-*` example helpers; the gallery document keeps its own palette.
+Keep those imports in the provider so static builds and development use the same
+example styles.
+
 Permission-, credential-, and ad-configuration-dependent entries remain visible
 with prerequisite diagnostics and never activate from scrolling.
 
