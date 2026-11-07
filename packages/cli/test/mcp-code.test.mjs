@@ -134,6 +134,23 @@ test('secrets, generated output, and node_modules stay out of results and reads'
   )
 })
 
+test('NUL-bearing source stays out of search regardless of size', async (t) => {
+  const dir = makeConsumer(t)
+  // Enumeration and direct reads agree: NUL means not source text at any
+  // size. A small binary must not leak a search excerpt that read() refuses.
+  write(dir, 'src/SmallBinary.ts', 'CameraView\0BinarySentinel\n')
+  write(dir, 'src/LargeBinary.ts', 'CameraView\0' + 'x'.repeat(9000) + '\n')
+
+  const svc = service(dir)
+  const app = appRef(dir)
+
+  const out = await svc.search({ app, query: 'CameraView', mode: 'exact' })
+  assert.deepEqual(out.results, [])
+  const page = await svc.read({ app, path: 'src/SmallBinary.ts' })
+  assert.equal(page.status, 'unavailable')
+  assert.equal(page.reason, 'file-vanished-or-binary')
+})
+
 test('direct code reads reject symlinks outside the bound app', (t) => {
   const dir = makeConsumer(t)
   const outside = mkdtempSync(join(tmpdir(), 'xplat-mcp-outside-'))

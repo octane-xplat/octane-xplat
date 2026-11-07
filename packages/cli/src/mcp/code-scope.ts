@@ -233,7 +233,7 @@ export function listCorpusFiles(root, { platform, limit = MAX_FILES_PER_CORPUS }
         continue
       }
 
-      if (stat.size > 8192 && isBinary(path)) {
+      if (isBinary(path)) {
         continue
       }
 
