@@ -33,9 +33,9 @@ if (supported) {
 Follow [Save settings and structured data](../app/local-storage.md) for
 the maintained packing list, reactive screen, migrations, rollback, close/reopen,
 intentional deletion and failure recovery, including transaction ownership.
-Browser transient storage is not a durable record of truth. Android's worker
-transaction path still needs device qualification; see the
-[SQLite evidence record](../../.agents/docs/notes/sqlite-notes.md#android-transaction-threading-gate-2026-10-22).
+Browser transient storage is not a durable record of truth. Android
+transactions are verified on-device under the pinned plugin; see the
+[SQLite evidence record](../../.agents/docs/notes/sqlite-notes.md#android-transaction-threading-gate-2026-10-22-re-qualified-2026-11-07).
 Persistence alone provides neither remote synchronization nor encryption.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-sqlite).

@@ -67,12 +67,12 @@ export async function run(ctx: ProbeContext) {
   try {
     const control: OwnedDatabase = {
       name: `sqlite-runtime-${identity}-control.db`,
-      db: await openDatabase(`sqlite-runtime-${identity}-control.db`, { threading: false }),
+      db: await openDatabase(`sqlite-runtime-${identity}-control.db`),
       pending: 0,
     }
 
     owned.push(control)
-    phase = 'threading:false commit and rollback controls'
+    phase = 'control commit and rollback'
     const controls = await observe(
       track(control, async () => {
         await control.db.execute('CREATE TABLE entries (value INTEGER NOT NULL)')
@@ -97,27 +97,26 @@ export async function run(ctx: ProbeContext) {
     )
 
     ctx.record('controls', controls)
-    ctx.assert('threading:false controls complete successfully', controls.status, 'completed')
+    ctx.assert('control commit and rollback complete successfully', controls.status, 'completed')
     if (controls.status !== 'completed') {
       return
     }
 
     ctx.assert(
-      'threading:false commit persists and rollback removes its write',
+      'control commit persists and rollback removes its write',
       JSON.stringify(controls.value),
       '[{"value":1}]',
     )
 
-    phase = 'opening default-threading database'
+    phase = 'opening transaction database'
     const threaded: OwnedDatabase = {
       name: `sqlite-runtime-${identity}-default.db`,
-      // Omit options to exercise the public default, not a test override.
       db: await openDatabase(`sqlite-runtime-${identity}-default.db`),
       pending: 0,
     }
 
     owned.push(threaded)
-    phase = 'default-threading worker warmup outside a transaction'
+    phase = 'worker warmup outside a transaction'
     const warmup = await observe(
       track(threaded, async () => {
         await threaded.db.execute('CREATE TABLE entries (value INTEGER NOT NULL)')
@@ -128,7 +127,7 @@ export async function run(ctx: ProbeContext) {
 
     ctx.record('defaultWorkerWarmup', warmup)
     ctx.assert(
-      'default-threading worker completes ordinary INSERT and SELECT',
+      'worker completes ordinary INSERT and SELECT',
       warmup.status,
       'completed',
     )
@@ -138,12 +137,12 @@ export async function run(ctx: ProbeContext) {
     }
 
     ctx.assert(
-      'default-threading worker returns its warmup row',
+      'worker returns its warmup row',
       JSON.stringify(warmup.value),
       '[{"value":10}]',
     )
 
-    phase = 'default-threading transaction'
+    phase = 'transaction'
     const progress = { callbackEntered: false, insertIssued: false, insertCompleted: false }
     const outcome = await observe(
       track(threaded, () =>
@@ -163,9 +162,9 @@ export async function run(ctx: ProbeContext) {
       watchdogFired: outcome.status === 'timeout',
     })
 
-    ctx.assert('default-threading transaction reaches its callback', progress.callbackEntered, true)
+    ctx.assert('transaction reaches its callback', progress.callbackEntered, true)
     ctx.assert(
-      'default-threading transaction completes an awaited INSERT and commits',
+      'transaction completes an awaited INSERT and commits',
       outcome.status,
       'completed',
     )
@@ -174,7 +173,7 @@ export async function run(ctx: ProbeContext) {
       return
     }
 
-    phase = 'default-threading committed rows'
+    phase = 'transaction committed rows'
     const readback = await observe(
       track(threaded, () =>
         threaded.db.select<{ value: number }>('SELECT value FROM entries ORDER BY value'),
@@ -182,10 +181,10 @@ export async function run(ctx: ProbeContext) {
     )
 
     ctx.record('defaultTransactionReadback', readback)
-    ctx.assert('default-threading committed rows can be read', readback.status, 'completed')
+    ctx.assert('transaction committed rows can be read', readback.status, 'completed')
     if (readback.status === 'completed') {
       ctx.assert(
-        'default-threading transaction persists its insert',
+        'transaction persists its insert',
         JSON.stringify(readback.value),
         '[{"value":10},{"value":20}]',
       )

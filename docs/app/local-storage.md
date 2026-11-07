@@ -337,10 +337,9 @@ try {
 On iOS/Android the adapter uses the NativeScript SQLite plugin; on experimental
 AppKit it uses system SQLite and requires the matching host metadata. Windows
 reports `supported: false`; opening rejects. Native GTK service coverage remains
-[incomplete](../platform/linux-gtk.md). Android's default worker-thread transaction
-path still needs actual-device qualification; existing historical source findings
-are not proof of a defect in the currently installed plugin. See
-[SQLite evidence and the Android gate](../../.agents/docs/notes/sqlite-notes.md#android-transaction-threading-gate-2026-10-22).
+[incomplete](../platform/linux-gtk.md). Android commit/rollback and awaited
+transactions are verified on-device under the pinned plugin; see
+[SQLite evidence and the Android gate](../../.agents/docs/notes/sqlite-notes.md#android-transaction-threading-gate-2026-10-22-re-qualified-2026-11-07).
 This guide's new checks ran on the Node host, not a native device or browser.
 
 ## Delete deliberately and recover from errors

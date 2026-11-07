@@ -7,8 +7,8 @@
 > Windows is unsupported. Historical runtime checks below are target/version
 > specific. This guide pass added real Node SQLite file/reopen and migration
 > checks, not new browser/device qualification. The installed mobile plugin is
-> now 4.1.1; the older Android source concern remains an unexecuted gate rather
-> than a confirmed defect in that version.
+> now 4.1.1; the 3.5.9-era Android threading concern does not describe that
+> backend — see the re-qualified gate below for the remaining runtime question.
 
 ## Candidates assessed
 
@@ -43,14 +43,15 @@ await db.transaction(async () => {
 await db.close()
 ```
 
-`DatabaseOptions.threading` routes calls through a real native worker
-(`src/sqlite/worker.ts` + `WorkersContext.java`) — worth defaulting on so a
-slow query never blocks the JS thread.
+In the pinned 4.1.1 line every request already runs on the plugin's own
+connection thread (`DatabaseOptions.threading` is deprecated and ignored);
+the 3.x worker toggle (`src/sqlite/worker.ts` + `WorkersContext.java`) no
+longer exists.
 
 ```ts
 import { openDatabase } from '@octane-xplat/sqlite'
 
-const db = await openDatabase('app.db', { threading: true })
+const db = await openDatabase('app.db')
 try {
   console.log(await db.select('SELECT 1 AS ready'))
 } finally {
@@ -80,8 +81,8 @@ await db.close()
 { type: 'module' })`, init's sqlite-wasm inside it, uses `OpfsDb` when
   `crossOriginIsolated`, transient + explicit `export()` otherwise. First
   Worker consumer in the codebase — vite worker bundling needs a build check.
-- unsuffixed (iOS/Android): delegates to the plugin verbatim; `threading: true`
-  by default.
+- unsuffixed (iOS/Android): delegates to the plugin verbatim; the plugin
+  thread-dispatches every request itself.
 - `.macos`: interop binding as above; `.windows`: `Unsupported`; `.linux`:
   inherits `.web`.
 
@@ -101,10 +102,10 @@ adapter — the low-level shape stays compatible with that.
 - The plugin-wrap ranking's "fake parity" flag for sqlite applies to
   **persistence semantics** (sandboxed OPFS vs real app files), not the SQL
   surface — it is the same sqlite engine on both sides.
-- Mobile bridge cost: each call crosses JS↔native synchronously (FMDB /
-  `com.akylas.sqlite`). Xplat defaults `threading` to `true`; callers can
-  explicitly disable it. Android transaction threading remains unqualified
-  as described below.
+- Mobile bridge cost: each call crosses JS↔native; the 4.x plugin dispatches
+  it on the connection's own thread, so a slow query never blocks the JS
+  thread. Android transaction threading remains unqualified as described
+  below.
 - No persistence parity for migrations: plugin exposes `getVersion`/
   `setVersion`; the wasm side has no built-in `PRAGMA user_version` helper —
   seam should expose `userVersion` get/set mapped to that pragma so upgrade
@@ -176,34 +177,36 @@ interop.Pointer` isn't re-entrant as a destructor arg (share the
   headers still reach `include/`. `tests/ios-packaging.test.mjs` asserts the
   installed plugin family carries no bare maps and the patch covers every
   published slice.
-- `threading: true` on-device behavior (workers survive HMR? cost per call?)
-  on the mobile harness.
+- ~~`threading: true` on-device behavior~~ — obsolete under 4.1.1: the
+  option is deprecated and the plugin always dispatches on the connection
+  thread. The gate below covers the remaining on-device question.
 
-## Android transaction threading gate (2026-10-22)
+## Android transaction threading gate (2026-10-22, re-qualified 2026-11-07)
 
-This remains **unverified**, not a confirmed device bug. The retained audit's
-source evidence for `@nativescript-community/sqlite` 3.5.9 places transaction
-begin/end on the JS caller thread and execute/select on its worker when
-threading is enabled. That suggests a transaction deadlock, but host mocks and
-an APK build cannot establish the runtime result. No speculative workaround or
-change to Xplat's `threading: true` default has been made.
+The retained audit's source evidence for `@nativescript-community/sqlite`
+3.5.9 placed transaction begin/end on the JS caller thread and execute/select
+on its worker when threading was enabled — a plausible deadlock mechanism. The
+pinned 4.1.1 plugin removed that architecture: requests submit to a native
+core that owns each connection's thread, `txBegin`/`txEnd` carry transaction
+IDs, and unqualified calls join the running `activeTx`. `threading` is a
+deprecated no-op there and has been removed from `OpenDatabaseOptions`. The
+3.5.9 concern does not describe 4.1.1.
 
-The maintained [Android fixture](../../../packages/sqlite/tests/fixtures/transactions.android.ts)
-warms the worker, runs `threading: false` commit/rollback controls, and watches
-the whole default-threading transaction. The [launcher](../../../packages/sqlite/tests/android-runtime.mjs)
-requires an explicitly owned, booted host. Do not await a queued close after a
-stalled transaction; the isolated process owns teardown.
-
-Runtime execution is blocked by the [standing emulator/simulator restriction](../android-lab.md#consumer-test-qualification)
-and the absence of an authorized physical host. After explicit authorization,
-reserve the host and native-build capacity, set `XPLAT_SQLITE_ANDROID_DEVICE` to
-its ID, and run the existing task (which retains the case/target locks):
+**Verified on-device 2026-11-07** (`elegant-fir-probe` AVD, Android 35,
+NativeScript 9.1.1, plugin 4.1.1): the maintained
+[fixture](../../../packages/sqlite/tests/fixtures/transactions.android.ts)
+passed 9/9 — commit persists, rollback removes its write, ordinary INSERT/SELECT
+complete, and an awaited transaction insert commits and reads back. The reported
+deadlock does not reproduce under the 4.x backend. Requalify only after a plugin
+major bump. The [launcher](../../../packages/sqlite/tests/android-runtime.mjs)
+requires an explicitly owned, booted host (`XPLAT_SQLITE_ANDROID_DEVICE`):
 
 ```sh
-pnpm exec turbo run test:android-runtime --filter=@octane-xplat/sqlite
+bun run turbo run test:android-runtime --filter=@octane-xplat/sqlite
 ```
 
-The supplied audit recorded an APK build with core 9.1.2/plugin 3.5.9. This fix
-checkout installed core 9.1.3/plugin 3.5.9 and ran host tests only; no Android
-build or runtime verification was repeated. Requalify on the chosen host before
-changing the threading policy or claiming Android transaction support.
+Also fixed in the same pass: `openDatabase` returned before the plugin's
+async open settled — `db.ready` was never awaited, so a failed open resolved
+a broken handle and an early first call submitted against an unset native
+handle. The leaf now awaits `ready`, matching the macOS leaf's fail-fast
+open; regression coverage in `tests/transactions.test.mjs`.

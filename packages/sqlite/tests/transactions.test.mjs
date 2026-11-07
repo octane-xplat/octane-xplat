@@ -64,6 +64,7 @@ function nativeBackend() {
   const params = (p) => (p == null ? [] : Array.isArray(p) ? p : [p])
   const api = {
     isOpen: true,
+    ready: Promise.resolve(),
     execute: async (sql, p) => {
       db.prepare(sql).run(...params(p))
     },
@@ -143,6 +144,47 @@ test('native adapter: execute hides plugin metadata and close propagates async f
   } finally {
     close()
   }
+})
+
+test('native adapter: openDatabase resolves only after the native open settles', async () => {
+  const backend = nativeBackend()
+  let release
+  const pending = new Promise((resolve) => {
+    release = resolve
+  })
+  backend.ready = pending
+  const api = load('db.ts', {
+    './operation-queue': ownership,
+    '@nativescript/core': {
+      knownFolders: { documents: () => ({ getFile: (name) => ({ path: name }) }) },
+    },
+    '@nativescript-community/sqlite': { openOrCreate: () => backend },
+  })
+  let resolved = false
+  const opening = api.openDatabase(':memory:').then((db) => {
+    resolved = true
+    return db
+  })
+  await Promise.resolve()
+  assert.equal(resolved, false, 'openDatabase resolved before the native open settled')
+  release()
+  const db = await opening
+  await db.close()
+})
+
+test('native adapter: openDatabase rejects when the native open fails', async () => {
+  const backend = nativeBackend()
+  const failure = Promise.reject(new Error('open failed'))
+  void failure.catch(() => {})
+  backend.ready = failure
+  const api = load('db.ts', {
+    './operation-queue': ownership,
+    '@nativescript/core': {
+      knownFolders: { documents: () => ({ getFile: (name) => ({ path: name }) }) },
+    },
+    '@nativescript-community/sqlite': { openOrCreate: () => backend },
+  })
+  await assert.rejects(api.openDatabase(':memory:'), /open failed/)
 })
 
 test('native adapter: user_version survives a successful version write', async () => {

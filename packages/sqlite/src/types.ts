@@ -17,15 +17,11 @@ export interface SqliteRow {
   [name: string]: SqliteParam
 }
 
-/** Options for openDatabase(). */
-export interface OpenDatabaseOptions {
-  /**
-   * Native only: route calls through the plugin's worker thread instead of
-   * the JS thread. Defaults to true. Ignored on other platforms (the web
-   * leaf always runs in a Worker).
-   */
-  threading?: boolean
-}
+/** Options for openDatabase(). No options currently exist — the pinned
+ *  native plugin (4.x) runs every request on its own connection thread and
+ *  dropped the `threading` toggle the 3.x worker model needed; the web leaf
+ *  always runs in a Worker. */
+export type OpenDatabaseOptions = Record<never, never>
 
 /** Open database handle. Calls are serialized per handle — see transaction()
  *  for the concurrency rules. */

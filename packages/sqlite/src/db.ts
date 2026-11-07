@@ -50,11 +50,15 @@ class NativeSqliteDb implements SqliteDb {
  *  app's documents directory on native. */
 export const openDatabase = async (
   name: string,
-  options?: OpenDatabaseOptions,
-): Promise<SqliteDb> =>
-  isolateDatabase(
-    new NativeSqliteDb(openOrCreate(resolvePath(name), { threading: options?.threading ?? true })),
-  )
+  _options?: OpenDatabaseOptions,
+): Promise<SqliteDb> => {
+  const db = openOrCreate(resolvePath(name))
+  // The plugin opens on its own thread and reports failure through `ready`;
+  // a request submitted before it settles reaches an unset native handle.
+  // Await it so a resolved handle is open and an open failure rejects here.
+  await db.ready
+  return isolateDatabase(new NativeSqliteDb(db))
+}
 
 /** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> =>

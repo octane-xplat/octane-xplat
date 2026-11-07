@@ -54,7 +54,7 @@ const dependencies = [
 const consumers = {
   web: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
-const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
+const db: Promise<SqliteDb> = openDatabase('app.db')
 const migrated = db.then((d) => d.getUserVersion())
 // @ts-expect-error openDatabase needs a name
 const bad = openDatabase()
@@ -64,7 +64,7 @@ void bad
 `,
   native: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
-const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
+const db: Promise<SqliteDb> = openDatabase('app.db')
 const migrated = db.then((d) => d.getUserVersion())
 // @ts-expect-error openDatabase needs a name
 const bad = openDatabase()
@@ -74,7 +74,7 @@ void bad
 `,
   macos: `import { openDatabase, supported, type SqliteDb } from '@octane-xplat/sqlite'
 const ok: boolean = supported
-const db: Promise<SqliteDb> = openDatabase('app.db', { threading: true })
+const db: Promise<SqliteDb> = openDatabase('app.db')
 const migrated = db.then((d) => d.getUserVersion())
 // @ts-expect-error openDatabase needs a name
 const bad = openDatabase()
