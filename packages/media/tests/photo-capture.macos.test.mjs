@@ -13,7 +13,7 @@ const requireShim = (id, context) => {
   if (id === '@octane-xplat/camera/photo-sheet.macos') {
     return { XplatPhotoCaptureSheet: context.__sheetClass }
   }
-  const leaf = /^\.(\/file-pick-filter\.macos|\/file-types\.macos|\/file-bytes)$/.exec(id)
+  const leaf = /^\.(\/file-pick-filter\.macos|\/file-types(?:\.macos)?|\/file-bytes)$/.exec(id)
   if (leaf) {
     const parentExports = context.exports
     context.exports = {}
