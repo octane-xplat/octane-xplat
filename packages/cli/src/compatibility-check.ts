@@ -201,7 +201,9 @@ export function inspectCompatibility(
       masonEngines.set(location, identity)
     }
 
-    const managed = managedPackage(identity, profile)
+    // A managed npm alias has its own pin (typescript-classic is still named
+    // typescript inside its tarball). Do not compare it with the native compiler.
+    const managed = managedPackage(name, profile) ?? managedPackage(identity, profile)
     if (managed?.singleton) {
       const copies = singletons.get(identity) ?? new Map<string, string>()
       copies.set(location, dependency.version)
@@ -217,7 +219,7 @@ export function inspectCompatibility(
       if (from === dir || managed.singleton) {
         const expected = managed.version
         row(
-          `compatibility installed ${identity}`,
+          `compatibility installed ${name}`,
           dependency.version === expected,
           `${dependency.version} at ${relative(dir, location) || '.'}; expected ${expected}`,
         )
