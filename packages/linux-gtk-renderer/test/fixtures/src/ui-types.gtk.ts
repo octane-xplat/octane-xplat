@@ -1,6 +1,10 @@
-import type * as GtkRuntime from '../../../../ui/types/generated/index.gtk'
-import type * as GtkUI from '@octane-xplat/ui'
-import type * as NativeUI from '../../../../ui/types/generated/index.mobile'
+// Declarations now come only from the unsuffixed contract. Compare the GTK
+// runtime export shape to the contract's own source: branded types like
+// ValidatedDestination keep one declaration, while package types resolve to
+// emitted declarations where brands are distinct.
+import type * as GtkRuntime from '../../../../ui/src/index.gtk'
+import type * as GtkUI from '../../../../ui/src/index.gtk'
+import type * as NativeUI from '../../../../ui/src/index'
 import type {
   StackProps as GtkStackProps,
   PressableProps as GtkPressableProps,
@@ -11,7 +15,7 @@ import type {
   FieldStatusInfo as GtkFieldStatusInfo,
   FieldStatusType as GtkFieldStatusType,
   FieldStatusVariant as GtkFieldStatusVariant,
-} from '@octane-xplat/ui'
+} from '../../../../ui/src/index.gtk'
 
 import type {
   StackProps as NativeStackProps,
@@ -23,7 +27,7 @@ import type {
   FieldStatusInfo as NativeFieldStatusInfo,
   FieldStatusType as NativeFieldStatusType,
   FieldStatusVariant as NativeFieldStatusVariant,
-} from '../../../../ui/types/generated/index.mobile'
+} from '../../../../ui/src/index'
 
 type Assert<T extends true> = T
 type Equal<A, B> =
@@ -55,6 +59,12 @@ type FieldStatusVariantContract = Assert<Equal<GtkFieldStatusVariant, NativeFiel
 const searchRequest: GtkUI.SearchRequest = {
   signal: {
     aborted: false,
+    reason: undefined,
+    onabort: null,
+    throwIfAborted() {},
+    dispatchEvent() {
+      return false
+    },
     addEventListener() {},
     removeEventListener() {},
   },
