@@ -48,7 +48,12 @@ export function buildReleaseWorker(root, destination, version) {
   rmSync(config)
   assert.equal(result.status, 0, result.stderr)
   cpSync(join(root, 'packages/create/compatibility.json'), join(destination, 'compatibility.json'))
-  cpSync(join(root, 'packages/cli/patches'), join(destination, 'patches'), { recursive: true })
+  const patches = join(root, 'packages/cli/patches')
+  const patchManifest = JSON.parse(readFileSync(join(patches, 'manifest.json'), 'utf8'))
+  mkdirSync(join(destination, 'patches'))
+  for (const file of ['manifest.json', ...patchManifest.patches.map((patch) => patch.file)]) {
+    cpSync(join(patches, file), join(destination, 'patches', file))
+  }
   let notices = 'Release upgrade worker dependencies\n'
   for (const name of ['yaml', 'jsonc-parser']) {
     const from = realpathSync(join(root, 'packages/cli/node_modules', name))
