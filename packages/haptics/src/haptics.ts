@@ -5,23 +5,32 @@ import { java } from '@octane-xplat/platform/android'
 declare const XplatPulsarBridge: any
 declare const com: any
 
+// getByName keys registered by both pinned SDKs — pulsar-android 1.3.0
+// (CompatibilityPresets.kt companion names) and pulsar-ios 1.4.0
+// (PresetsWrapper mapper). Bare 'Success'/'Warning'/'Error' never resolve; a
+// Pulsar bump must re-verify this inventory.
 const presetNames: Record<HapticPreset, string> = {
   selection: 'SystemSelection',
   'impact-light': 'SystemImpactLight',
   'impact-medium': 'SystemImpactMedium',
   'impact-heavy': 'SystemImpactHeavy',
-  success: 'Success',
-  warning: 'Warning',
-  error: 'Error',
+  success: 'SystemNotificationSuccess',
+  warning: 'SystemNotificationWarning',
+  error: 'SystemNotificationError',
 }
 
 /** Create an owned haptic engine (see Haptics). */
 export const createHaptics = (): Haptics => {
   const android = Boolean(Application.android)
+  const activity = android ? Application.android?.foregroundActivity : undefined
   const context = android
     ? // `Utils.android` is a {} stub in the pinned Windows core build.
-      (Application.android.foregroundActivity ?? (Utils.android as any).getApplicationContext())
+      (activity ?? (Utils.android as any).getApplicationContext())
     : undefined
+  // pulsar-android's getPresets() casts the engine context `as Activity` —
+  // an application-context engine still plays patterns and realtime, but
+  // every preset call throws, so the capability reports only what works.
+  const presetsUsable = !android || activity != null
 
   let disposed = false
   let realtimeActive = false
@@ -71,12 +80,12 @@ export const createHaptics = (): Haptics => {
   return {
     capabilities: (): HapticsCapabilities => ({
       supported,
-      presets: supported,
+      presets: supported && presetsUsable,
       patterns: supported,
       realtime: supported,
     }),
     play: (preset) => {
-      if (!supported || disposed) {
+      if (!supported || disposed || (android && !presetsUsable)) {
         return false
       }
 

@@ -203,6 +203,15 @@ so their native dependencies and build costs stay out of `ui` and the basic
 haptics; Android apps compile with SDK 36 while targeting 35 and supporting
 Android 24+.
 
+Upstream Pulsar constraints (source-verified, not runtime-verified): both
+pinned SDKs register the notification presets as `SystemNotificationSuccess`/
+`Warning`/`Error` — pulsar-android 1.3.0 via `CompatibilityPresets.kt`
+companion names, pulsar-ios 1.4.0 via the `PresetsWrapper` mapper — and
+pulsar-android's `getPresets()` performs `context as Activity`, so a Pulsar
+built on the application context can play patterns and realtime but throws on
+every preset lookup. The leaf maps to the `SystemNotification*` names and
+reports `capabilities().presets` only for an Activity-context engine.
+
 `@octane-xplat/sounds` uses `@nativescript/audio-context` 1.3.3 on iOS/Android,
 preloaded HTML audio on web, and independent `AVAudioPlayer` voices on macOS. The mobile implementation decodes each effect once and routes
 overlapping sources through per-voice gain nodes. Android

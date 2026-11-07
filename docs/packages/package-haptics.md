@@ -29,8 +29,12 @@ if (engine.capabilities().patterns) {
 ```
 
 `capabilities()` reports `supported` plus `presets`, `patterns`, and
-`realtime` independently — check the flag for the feature you use. With
-`realtime`, `startRealtime(intensity)` returns a session for
+`realtime` independently — check the flag for the feature you use. On
+Android, `presets` also reports `false` when the engine was created without
+a foreground Activity (the pinned Pulsar SDK builds its preset wrapper over
+the Activity) — a background-launched engine still reports `patterns` and
+`realtime` as available. With `realtime`,
+`startRealtime(intensity)` returns a session for
 gesture-driven feedback: call `update(intensity, sharpness)` as the
 gesture changes and `stop()` when it ends or is cancelled.
 
