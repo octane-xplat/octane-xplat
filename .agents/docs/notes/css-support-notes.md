@@ -125,18 +125,20 @@ import './app.css'
 stylesheet (`packages/*/src/**/*.css`, `packages/create/template/src`) and
 errors on any declaration whose property isn't in
 `scripts/ns-css-registry.json` — the `cssName` list extracted from the
-installed `@nativescript/core` (`pnpm gen:css-registry` to refresh on core
-upgrades). Dropped-but-intentional props (`display`, `grid-area`,
+installed `@nativescript/core` (`node scripts/gen-css-registry.ts` to refresh on core
+upgrades), plus the `overflow`, `overflow-x`, and `overflow-y` registrations in
+Mason Core 1.0.0-beta.7's `properties.ts`. These registrations establish declaration
+support, not device clipping parity. Dropped-but-intentional props (`display`, `grid-area`,
 `border-style`, `user-select`, `-webkit-*`) live in the script's
 `DROPPED_INTENTIONAL` map with a reason each; `xplat-web-only` blocks are
 stripped before auditing since they never reach native.
 
 ```sh
-pnpm check:css
+bun run check:css
 ```
 
 This catches the silent-drop class — a typo'd prop name or a prop NS simply
-doesn't read (`position`, `overflow`, `cursor`...) half-applies a rule with
+doesn't read half-applies a rule with
 zero diagnostics. What it can't catch: registered props with divergent
 _semantics_ (`transform` percents parse as dips, stretch clobbering width) —
 that's what the measured parity lane is for.

@@ -38,3 +38,13 @@ test('CSS audit validates native blocks with authored line positions', () => {
   assert.match(result.stdout, /card\.css:5\s+definitely-not-native/)
   assert.doesNotMatch(result.stdout, /cursor: pointer/)
 })
+
+test('CSS audit accepts Mason overflow registrations while rejecting unknown properties', () => {
+  const accepted = audit({
+    'card.css': '.card { overflow: visible; overflow-x: hidden; overflow-y: auto }',
+  })
+  assert.equal(accepted.status, 0, accepted.stdout + accepted.stderr)
+  const rejected = audit({ 'card.css': '.card { overflow-typo: hidden }' })
+  assert.equal(rejected.status, 1, rejected.stdout + rejected.stderr)
+  assert.match(rejected.stdout, /overflow-typo/)
+})

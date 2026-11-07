@@ -22,7 +22,10 @@ const registry = JSON.parse(
   readFileSync(new URL('./ns-css-registry.json', import.meta.url), 'utf8'),
 )
 
-const SUPPORTED = new Set(registry.properties)
+// Mason Core registers these on Style in addition to NativeScript Core's
+// registry (nativescript-mason-core 1.0.0-beta.7, properties.ts). Registration
+// permits declarations here; it does not establish clipping parity on devices.
+const SUPPORTED = new Set([...registry.properties, 'overflow', 'overflow-x', 'overflow-y'])
 
 // Props NS drops that we still write for web — each entry must carry the
 // reason it's intentional, matching a shared-css idiom in tokens.css.
