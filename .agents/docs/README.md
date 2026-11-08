@@ -50,6 +50,7 @@ framework; the app-building guides for downstream users live in `docs/`.
 - [Software keyboard handling](keyboard.md) — native movement and focused-input feasibility boundaries.
 - [Keyboard shortcuts](shortcuts.md) — Shared engine boundaries and desktop input evidence.
 - [Application menu](app-menu.md) — menu-bar ownership, generation-gated dispatch, and desktop host constraints.
+- [System tray](tray.md) — tray/status-bar ownership, desktop host constraints, and the file-based Windows IPC.
 - [Implementation notes](notes/README.md) — current implementation observations and evidence.
 - [Recipes](recipes/README.md) — internal workflow specifications and coverage contracts.
 - [Platform parity records](parity/README.md) — parity coverage and platform investigations.

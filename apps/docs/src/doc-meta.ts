@@ -186,6 +186,7 @@ export const GROUPS = [
       'package-table',
       'package-tiptap',
       'package-tracking-transparency',
+      'package-tray',
       'package-tsrx-typegen',
       'package-typegen-fixture',
       'package-ui',

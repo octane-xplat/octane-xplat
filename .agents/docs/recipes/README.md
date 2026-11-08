@@ -94,6 +94,7 @@ Workflows:
 - [Add configurable workspace shortcuts](keyboard-shortcuts.md)
 - [Add a system-wide hotkey for a background action](global-shortcuts.md)
 - [Install a native application menu bar on desktop](app-menu.md)
+- [Add a persistent tray icon on desktop](tray.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Validate and save a shared form](validated-forms.md)
 - [Search and enter selected values](search-and-token-entry.md)
