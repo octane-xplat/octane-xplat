@@ -16,12 +16,11 @@ const registry = createRegistry(backend)
  * exact assignment.
  */
 export const getGlobalShortcutSupport: () => Promise<GlobalShortcutSupport> =
-	registry.getGlobalShortcutSupport
+  registry.getGlobalShortcutSupport
 
 /**
  * Create a global-shortcut registry backed by Carbon event hotkeys.
  * Hotkeys fire while the app is unfocused; held keys do not repeat.
  */
-export const createGlobalShortcuts: (
-	options?: CreateGlobalShortcutsOptions,
-) => GlobalShortcuts = registry.createGlobalShortcuts
+export const createGlobalShortcuts: (options?: CreateGlobalShortcutsOptions) => GlobalShortcuts =
+  registry.createGlobalShortcuts

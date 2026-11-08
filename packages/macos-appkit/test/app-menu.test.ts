@@ -60,7 +60,9 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     const { NSApplication } = await import('@octane-xplat/platform/macos')
     const app = NSApplication.sharedApplication
     const store = createActionStore()
-    const menu = createAppMenu({ actions: { allocate: store.allocate, invokeAction: store.dispatch } })
+    const menu = createAppMenu({
+      actions: { allocate: store.allocate, invokeAction: store.dispatch },
+    })
 
     const previousBar = { foreign: true }
     app.mainMenu = previousBar
@@ -70,9 +72,25 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
         type: 'submenu',
         title: 'TestApp',
         children: [
-          { type: 'item', title: 'About TestApp', keyEquivalent: '', modifierMask: 0, enabled: true, state: 0, selector: 'orderFrontStandardAboutPanel:' },
+          {
+            type: 'item',
+            title: 'About TestApp',
+            keyEquivalent: '',
+            modifierMask: 0,
+            enabled: true,
+            state: 0,
+            selector: 'orderFrontStandardAboutPanel:',
+          },
           { type: 'separator' },
-          { type: 'item', title: 'Quit TestApp', keyEquivalent: 'q', modifierMask: 1 << 20, enabled: true, state: 0, selector: 'terminate:' },
+          {
+            type: 'item',
+            title: 'Quit TestApp',
+            keyEquivalent: 'q',
+            modifierMask: 1 << 20,
+            enabled: true,
+            state: 0,
+            selector: 'terminate:',
+          },
         ],
       },
       {
@@ -170,6 +188,7 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
         ],
       },
     ])
+
     const nextBar = app.mainMenu
     assert.notEqual(nextBar, bar)
     // The retired generation's tags and targets are inert.
@@ -188,9 +207,7 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
 
     // …but the bar restores the previous menu while still installed.
     app.mainMenu = previousBar
-    const second = menu.installApplicationMenu([
-      { type: 'submenu', title: 'Only', children: [] },
-    ])
+    const second = menu.installApplicationMenu([{ type: 'submenu', title: 'Only', children: [] }])
     const secondBar = app.mainMenu
     assert.notEqual(secondBar, previousBar)
     second!.dispose()

@@ -32,7 +32,10 @@ function mountPinchHost() {
 }
 
 afterEach(() => {
-  for (const cleanup of cleanups.splice(0)) cleanup()
+  for (const cleanup of cleanups.splice(0)) {
+    cleanup()
+  }
+
   events.length = 0
   vi.unstubAllGlobals()
 })
@@ -50,6 +53,7 @@ describe('native pinch normalization', () => {
       [1.75, 'moved'],
       [2, 'ended'],
     ])
+
     expect(events[0]!.target).toBe(host)
   })
 
@@ -66,7 +70,12 @@ describe('native pinch normalization', () => {
   it('preserves finite focal coordinates and omits unavailable values', () => {
     const { container, host } = mountPinchHost()
     container.dispatchEvent(host, 'pinch', { state: 2, getFocusX: () => 14, getFocusY: () => 44 })
-    container.dispatchEvent(host, 'pinch', { state: 2, getFocusX: () => NaN, getFocusY: () => Infinity })
+    container.dispatchEvent(host, 'pinch', {
+      state: 2,
+      getFocusX: () => NaN,
+      getFocusY: () => Infinity,
+    })
+
     expect(events[0]).toMatchObject({ focusX: 14, focusY: 44 })
     expect(events[1].focusX).toBeUndefined()
     expect(events[1].focusY).toBeUndefined()

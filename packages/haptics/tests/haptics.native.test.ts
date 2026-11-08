@@ -188,10 +188,7 @@ test('Android application-context engine reports presets unsupported', () => {
   assert.equal(capabilities.realtime, true)
   assert.equal(engine.play('success'), false)
   // Pattern and realtime paths need only a Context — they keep working.
-  assert.equal(
-    engine.playPattern({ duration: 100, points: [{ at: 0, intensity: 1 }] }),
-    true,
-  )
+  assert.equal(engine.playPattern({ duration: 100, points: [{ at: 0, intensity: 1 }] }), true)
 })
 
 test('iOS presets resolve registered pulsar names', () => {

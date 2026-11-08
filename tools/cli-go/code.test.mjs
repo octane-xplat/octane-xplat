@@ -129,9 +129,7 @@ test('native exact retrieval keeps references, installed version provenance and 
   )
   // The reported path is itself a valid read input for a nested app root —
   // feeding hit.path back is the search→read round trip consumers perform.
-  const appHit = actual.value.data.results.find(
-    (hit) => hit.path === 'apps/app/src/camera.ts',
-  )
+  const appHit = actual.value.data.results.find((hit) => hit.path === 'apps/app/src/camera.ts')
   const page = cli(['code', 'read', '--path', appHit.path])
   assert.equal(page.status, 0)
   assert.equal(page.value.data.path, appHit.path)
@@ -257,9 +255,7 @@ test('current reads revalidate edits/deletes and semantic intent search is usefu
   assert.equal(search.status, 0)
   assert.equal(search.value.data.semantic.state, 'ready')
   assert.ok(search.value.data.results.some((hit) => hit.path === 'apps/app/src/focus.ts'))
-  const ref = search.value.data.results.find(
-    (hit) => hit.path === 'apps/app/src/focus.ts',
-  ).ref
+  const ref = search.value.data.results.find((hit) => hit.path === 'apps/app/src/focus.ts').ref
   const old = cli(['code', 'read', '--ref', ref]).value.data
   put(file, 'export function focusCameraPreview() { return "updated frame" }\n')
   const current = cli(['code', 'read', '--ref', ref]).value.data
@@ -289,9 +285,7 @@ test(
     )
     assert.equal(result.status, 0, result.stderr)
     assert.ok(
-      JSON.parse(result.stdout).data.results.some(
-        (hit) => hit.path === 'apps/app/src/camera.ts',
-      ),
+      JSON.parse(result.stdout).data.results.some((hit) => hit.path === 'apps/app/src/camera.ts'),
     )
   },
 )

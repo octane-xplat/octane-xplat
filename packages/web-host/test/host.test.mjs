@@ -127,8 +127,7 @@ test('srvx serves assets and preserves the Fetch handler over real HTTP', async 
     silent: true,
     middleware: [staticMiddleware({ dir: assets })],
     fetch: fixture.handler({
-      response: (match) =>
-        match.to === '/*' ? { status: 404 } : { status: 201, headers },
+      response: (match) => (match.to === '/*' ? { status: 404 } : { status: 201, headers }),
     }),
   })
   try {
@@ -466,6 +465,7 @@ test('a failed fallback preparation keeps the server markup and payload untouche
       document.getElementById('__xplat_document'),
       'the payload stays so a reload can retry',
     )
+
     assert.equal(dom.window.location.pathname, '/forbidden')
     await assert.rejects(browser.start(), /Initial client navigation failed: forbidden/)
   } finally {

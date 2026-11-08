@@ -220,9 +220,15 @@ const loadService = async (): Promise<Permissioned<SpeechRecognitionImpl>> => {
 const listen = (session: ReturnType<SpeechRecognitionImpl['start']>) => {
   const events: string[] = []
   session.subscribe((event) => {
-    if (event.type === 'state') {events.push(`state:${event.state}`)}
-    if (event.type === 'transcript') {events.push(`transcript:${event.transcript}:${event.isFinal}`)}
-    if (event.type === 'end') {events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)}
+    if (event.type === 'state') {
+      events.push(`state:${event.state}`)
+    }
+    if (event.type === 'transcript') {
+      events.push(`transcript:${event.transcript}:${event.isFinal}`)
+    }
+    if (event.type === 'end') {
+      events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)
+    }
   })
   return events
 }

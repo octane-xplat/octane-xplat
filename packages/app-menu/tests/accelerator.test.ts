@@ -112,9 +112,7 @@ describe('toGtk', () => {
     expect(toGtk(parse('Mod+N'))).toBe('<Control>n')
     expect(toGtk(parse('Meta+ArrowLeft'))).toBe('<Super>Left')
     expect(toGtk(parse('Mod+Shift+Z'))).toBe('<Control><Shift>z')
-    expect(toGtk(parse('Ctrl+Alt+Option+Super+Shift+A'))).toBe(
-      '<Control><Shift><Alt><Super>a',
-    )
+    expect(toGtk(parse('Ctrl+Alt+Option+Super+Shift+A'))).toBe('<Control><Shift><Alt><Super>a')
   })
 
   it('maps named and punctuation keys to keyval names', () => {

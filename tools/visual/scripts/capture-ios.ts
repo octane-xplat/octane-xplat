@@ -250,6 +250,7 @@ try {
       'mobile',
       'org.nativescript.xplat.visual',
     )
+
     if (rebundled !== originalProject) {
       writeFileSync(projectPath, rebundled)
     }

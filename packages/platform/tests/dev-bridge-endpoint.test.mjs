@@ -9,6 +9,7 @@ for (const platform of ['web', 'macos', 'linux']) {
     await readFile(new URL(`../src/dev-bridge.${platform}.ts`, import.meta.url), 'utf8'),
     { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   )
+
   const endpoint = (globals) => {
     const context = { exports: {}, ...globals }
     vm.runInNewContext(source, context)
@@ -28,10 +29,7 @@ for (const platform of ['web', 'macos', 'linux']) {
       endpoint({ __XPLAT_DEV_BRIDGE__: { token: 'test-token' }, location: { origin: 'file://' } }),
       null,
     )
-    assert.equal(
-      endpoint({ __XPLAT_DEV_BRIDGE__: { token: 'test-token', socket: 42 } }),
-      null,
-    )
+    assert.equal(endpoint({ __XPLAT_DEV_BRIDGE__: { token: 'test-token', socket: 42 } }), null)
     assert.deepEqual(
       endpoint({
         __XPLAT_DEV_BRIDGE__: { token: 'test-token' },

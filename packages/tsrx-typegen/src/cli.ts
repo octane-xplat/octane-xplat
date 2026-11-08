@@ -648,6 +648,7 @@ function writeOutput(outputDir, generated, oldFiles, overrideFiles) {
       const recovery = oldFiles
         ? ''
         : ` (no ${manifestName}; output predates ownership tracking — move ${outputDir} aside to preserve it and rerun to regenerate)`
+
       throw new Error(`refusing to overwrite unmanaged declaration: ${file}${recovery}`)
     }
   }
@@ -901,6 +902,7 @@ function projectContentMappers(ts, requireModule, configPath) {
           parent = specifier.startsWith('.')
             ? resolve(dirname(canonical), candidate)
             : requireModule.resolve(candidate, { paths: [dirname(canonical)] })
+
           if (parent && statSync(parent).isFile()) {
             break
           }
@@ -993,10 +995,14 @@ function emitDeclarations(
 
   writeFileSync(generatedPath, JSON.stringify(generated, null, 2) + '\n')
 
-  const result = spawnSync(process.execPath, [tsc, '--runExternalCode', '--listFiles', '-p', generatedPath], {
-    cwd: projectRoot,
-    encoding: 'utf8',
-  })
+  const result = spawnSync(
+    process.execPath,
+    [tsc, '--runExternalCode', '--listFiles', '-p', generatedPath],
+    {
+      cwd: projectRoot,
+      encoding: 'utf8',
+    },
+  )
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
   if (result.status !== 0) {
     console.error(output)
@@ -1013,12 +1019,7 @@ function emitDeclarations(
   const programFiles = output
     .split('\n')
     .map((line) => line.trim())
-    .filter(
-      (line) =>
-        isAbsolute(line) &&
-        pathInside(rootDir, line) &&
-        existsSyncProgramFile(line),
-    )
+    .filter((line) => isAbsolute(line) && pathInside(rootDir, line) && existsSyncProgramFile(line))
 
   return { programFiles }
 }
@@ -1102,6 +1103,7 @@ function runTarget(projectRoot, args) {
         options.moduleSuffixes,
         Object.keys(sourceExtensions),
       )
+
       if (sibling) {
         throw new Error(
           `entrypoint ${subpath} source ${entry.source} is a platform variant; generate declarations from the unsuffixed contract ${relative(projectRoot, sibling)}`,
@@ -1144,6 +1146,7 @@ function runTarget(projectRoot, args) {
       sourceExtensions,
       outputDir,
     )
+
     if (!emitted) {
       return false
     }

@@ -13,7 +13,11 @@ export const defaultExtensions = {
 // behind an unsuffixed `billing.ts` contract — it never carries declarations
 // of its own. Returns the existing unsuffixed sibling when the basename's
 // stem ends with a non-empty moduleSuffixes entry, otherwise undefined.
-export function platformVariantOf(file, moduleSuffixes, extensions = Object.keys(defaultExtensions)) {
+export function platformVariantOf(
+  file,
+  moduleSuffixes,
+  extensions = Object.keys(defaultExtensions),
+) {
   const extension = extname(file)
   const stem = basename(file, extension)
   const suffix = (moduleSuffixes ?? [])

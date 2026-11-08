@@ -320,10 +320,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
   try {
     editor.update(
       () => {
-        const dom = new (globalThis as any).window.DOMParser().parseFromString(
-          HTML_IN,
-          'text/html',
-        )
+        const dom = new (globalThis as any).window.DOMParser().parseFromString(HTML_IN, 'text/html')
         lexical
           .$getRoot()
           .clear()

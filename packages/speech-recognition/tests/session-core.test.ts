@@ -12,6 +12,7 @@ const undetermined: PermissionResponse = {
   granted: false,
   canAskAgain: true,
 }
+
 const denied: PermissionResponse = { status: 'denied', granted: false, canAskAgain: false }
 
 const UNSUPPORTED_PERMISSION: PermissionResponse = {
@@ -236,6 +237,7 @@ describe('session startup', () => {
         networkUse: null,
         continuous: true,
       }
+
       const service = createSpeechService(engine)
       const result = await service.start().result
       expect(result.reason).toBe('error')
@@ -445,9 +447,11 @@ describe('session end', () => {
     await tick()
     const handle = engine.handles[0]!
     handle.listening()
-    handle.failed(new SpeechRecognitionError('network', 'service went away', {
-      nativeCode: 'network',
-    }))
+    handle.failed(
+      new SpeechRecognitionError('network', 'service went away', {
+        nativeCode: 'network',
+      }),
+    )
 
     const result = await session.result
     expect(result.reason).toBe('error')
@@ -465,9 +469,7 @@ describe('session end', () => {
     handle.listening()
     // The sink contract takes SpeechRecognitionError, but the core
     // normalizes defensively for engines that violate it.
-    handle.failed(
-      new SpeechRecognitionError('unknown', 'wrapped', { cause: new Error('raw') }),
-    )
+    handle.failed(new SpeechRecognitionError('unknown', 'wrapped', { cause: new Error('raw') }))
     const result = await session.result
     expect(result.error?.code).toBe('unknown')
   })

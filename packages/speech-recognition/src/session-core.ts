@@ -390,6 +390,7 @@ export function createSpeechService(
         const code = availability.reason
           ? (AVAILABILITY_ERROR[availability.reason] ?? 'unknown')
           : 'unknown'
+
         end(
           'error',
           new SpeechRecognitionError(
@@ -398,14 +399,11 @@ export function createSpeechService(
           ),
           false,
         )
+
         return
       }
 
-      if (
-        session.continuous &&
-        availability !== null &&
-        availability.continuous === false
-      ) {
+      if (session.continuous && availability !== null && availability.continuous === false) {
         end(
           'error',
           new SpeechRecognitionError(
@@ -414,6 +412,7 @@ export function createSpeechService(
           ),
           false,
         )
+
         return
       }
 
@@ -444,6 +443,7 @@ export function createSpeechService(
           ),
           false,
         )
+
         return
       }
 
@@ -538,6 +538,7 @@ export function createSpeechService(
           false,
         )
       })
+
       return publicSession
     }
 

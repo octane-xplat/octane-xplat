@@ -196,8 +196,7 @@ test('requires a public 404 page for the not-found output and reserves 404.html'
       prerender(
         {
           ...notFoundRenderer,
-          document: async (page) =>
-            new Response(page.html, { status: 200, headers: page.headers }),
+          document: async (page) => new Response(page.html, { status: 200, headers: page.headers }),
         },
         { ...options, notFound },
       ),

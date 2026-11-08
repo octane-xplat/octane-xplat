@@ -95,6 +95,7 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
         }),
       )
     }
+
     next.onmessage = (event) => {
       if (socket !== next || typeof event.data !== 'string') {
         return
@@ -145,11 +146,13 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
           ...(frame.channel ? { channel: frame.channel } : {}),
           detail: typeof frame.detail === 'string' ? frame.detail : '',
         }
+
         for (const listener of errorListeners) {
           listener(failure)
         }
       }
     }
+
     next.onerror = () => {}
     next.onclose = () => {
       if (socket === next) {

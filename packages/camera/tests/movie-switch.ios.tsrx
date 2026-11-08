@@ -99,6 +99,7 @@ export async function run(ctx: ProbeContext) {
     previewConn?.orientation === 1 && previewConn?.videoMirrored === false,
     true,
   )
+
   ctx.assert(
     'record start keeps connection',
     recordingConn?.orientation === previewConn?.orientation &&

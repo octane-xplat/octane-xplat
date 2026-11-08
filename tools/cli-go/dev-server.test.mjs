@@ -1208,9 +1208,7 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
       () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
       () => owned.stdout + ' ' + owned.stderr,
     )
-    const backendToken = await (
-      await fetch(new URL('/fixture/backend-token', address))
-    ).text()
+    const backendToken = await (await fetch(new URL('/fixture/backend-token', address))).text()
     assert.match(backendToken, /^[a-f0-9]{64}$/)
     assert.notEqual(backendToken, serverRecord.devtoolsToken)
 
@@ -1219,15 +1217,17 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
     )
     const panel = connectDevtools(serverRecord)
     try {
-      await until(() => panel.state === 'live' && panel.sessions().length > 0, () => 'devtools panel never went live; server output: ' + owned.stdout + owned.stderr)
+      await until(
+        () => panel.state === 'live' && panel.sessions().length > 0,
+        () => 'devtools panel never went live; server output: ' + owned.stdout + owned.stderr,
+      )
+
       const session = panel.sessions().find((entry) => entry.state === 'ready')
       assert.ok(session, 'panel ready frame carried no ready app session')
-      assert.deepEqual(
-        session.channels?.map((entry) => entry.id).sort(),
-        ['probe', 'stream'],
-      )
+      assert.deepEqual(session.channels?.map((entry) => entry.id).sort(), ['probe', 'stream'])
       await until(
-        () => panel.backends().some((entry) => entry.channel === 'probe' && entry.targetId === 'web'),
+        () =>
+          panel.backends().some((entry) => entry.channel === 'probe' && entry.targetId === 'web'),
         () => 'engine backend never joined the probe channel',
       )
 
@@ -1242,6 +1242,7 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
           }
         })
       })
+
       assert.equal(panel.sendToBackend('probe', 'web', { roundtrip: 1 }), true)
       assert.deepEqual(await roundTrip, { echo: { roundtrip: 1 } })
 
@@ -1260,20 +1261,24 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
           }
         })
       })
+
       for (let i = 0; i < 600; i++) {
         assert.equal(panel.sendToApp('stream', '*', { i }), true)
         await delay(1000 / 60)
       }
+
       await done
       assert.deepEqual(
         seen.every((value, index) => value === index),
         true,
         `stream arrived out of order (first gap ${seen.findIndex((value, index) => value !== index)})`,
       )
+
       assert.equal(
         panel.sessions().find((entry) => entry.sessionId === session.sessionId)?.state,
         'ready',
       )
+
       assert.equal(panel.panel !== null, true)
 
       // The per-target backend grant never enters served app code or HTML.

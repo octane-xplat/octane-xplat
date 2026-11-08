@@ -160,10 +160,14 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
       exports,
       (name) => {
         if (name === '@octane-xplat/camera/photo-sheet.macos') {
-          return { XplatPhotoCaptureSheet: class {
-            permissionStatus() { return 'unsupported' }
-            dispose() {}
-          } }
+          return {
+            XplatPhotoCaptureSheet: class {
+              permissionStatus() {
+                return 'unsupported'
+              }
+              dispose() {}
+            },
+          }
         }
         if (!name.startsWith('.')) {
           // The shared capability contract lives in @octane-xplat/lib.

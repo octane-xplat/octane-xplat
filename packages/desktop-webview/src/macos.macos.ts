@@ -808,7 +808,10 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         return null
       }
       const query = keychainQuery(key)
-      query.setObjectForKey(NSNumber.numberWithBool(true), NSString.stringWithString(keychainKeys.returnData))
+      query.setObjectForKey(
+        NSNumber.numberWithBool(true),
+        NSString.stringWithString(keychainKeys.returnData),
+      )
       query.setObjectForKey(
         keychainKeys.matchLimitOne,
         NSString.stringWithString(keychainKeys.matchLimit),
@@ -904,7 +907,11 @@ export function createMacOSWebView(parent: object): MacOSWebView {
       ) {
         return null
       }
-      const written = data.writeToURLOptionsError(target, NSDataWritingOptions.DataWritingAtomic, null)
+      const written = data.writeToURLOptionsError(
+        target,
+        NSDataWritingOptions.DataWritingAtomic,
+        null,
+      )
       return written ? fileRef(target) : null
     },
     writeMovieFileChunk(options) {
@@ -968,6 +975,7 @@ export function createMacOSWebView(parent: object): MacOSWebView {
         if (!NSFileManager.defaultManager.moveItemAtURLToURLError(staged, target, null)) {
           throw new Error('staged movie commit failed')
         }
+
         state.stagedMovies.delete(key)
         return fileRef(target)
       } catch {

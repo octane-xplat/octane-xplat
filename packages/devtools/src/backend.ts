@@ -94,8 +94,7 @@ export function connectDevBackend<In = unknown, Out = unknown>(
   channel: string,
   options?: { env?: Record<string, string | undefined> },
 ): DevBackend<In, Out> | null {
-  const source = (options?.env ?? (globalThis as DevGlobalEnv).process?.env ?? {})
-    .XPLAT_DEV_BACKEND
+  const source = (options?.env ?? (globalThis as DevGlobalEnv).process?.env ?? {}).XPLAT_DEV_BACKEND
   if (!source) {
     return null
   }
@@ -189,6 +188,7 @@ export function connectDevBackend<In = unknown, Out = unknown>(
           ...(frame.channel ? { channel: frame.channel } : {}),
           detail: typeof frame.detail === 'string' ? frame.detail : '',
         }
+
         for (const listener of errorListeners) {
           listener(failure)
         }

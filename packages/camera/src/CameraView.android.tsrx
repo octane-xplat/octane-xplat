@@ -134,8 +134,8 @@ export function CameraView(props: CameraViewProps): unknown @{
                     onChanged(state: any) {
                       const streaming =
                         state ===
-                        (globalThis as any).androidx.camera.view.PreviewView.StreamState
-                          .STREAMING
+                        (globalThis as any).androidx.camera.view.PreviewView.StreamState.STREAMING
+
                       if (!disposed && streaming && !displayed) {
                         props.onDisplayReady?.()
                       }

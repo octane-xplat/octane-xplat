@@ -87,16 +87,11 @@ export function CameraView(props: CameraViewProps): unknown @{
       }
 
       try {
-        stopPreview = startCameraPreview(
-          view,
-          facing,
-          props.onReady,
-          () => {
-            if (!disposed) {
-              props.onDisplayReady?.()
-            }
-          },
-        )
+        stopPreview = startCameraPreview(view, facing, props.onReady, () => {
+          if (!disposed) {
+            props.onDisplayReady?.()
+          }
+        })
       } catch (error: any) {
         fail(error?.message ?? 'camera error')
       }

@@ -28,16 +28,16 @@ const toPromise = (op) => {
 const withTimeout = (promise, ms, tag) =>
   Promise.race([
     promise,
-    new Promise((resolve) =>
-      setTimeout(() => resolve({ __timedOut: true, tag }), ms),
-    ),
+    new Promise((resolve) => setTimeout(() => resolve({ __timedOut: true, tag }), ms)),
   ])
 
 const describeError = (error) => {
   const out = { name: error?.name, message: String(error?.message ?? error) }
   for (const key of ['number', 'hresult', 'code', 'status', 'HRESULT']) {
     try {
-      if (error && error[key] !== undefined) {out[key] = error[key]}
+      if (error && error[key] !== undefined) {
+        out[key] = error[key]
+      }
     } catch {
       /* ignore */
     }
@@ -46,8 +46,14 @@ const describeError = (error) => {
     const extra = Object.getOwnPropertyNames(error ?? {}).filter(
       (k) => !(k in out) && k !== 'stack',
     )
-    if (extra.length) {out.props = extra.slice(0, 10)}
-    if (error?.stack) {out.stack = String(error.stack).split('\n').slice(0, 4)}
+
+    if (extra.length) {
+      out.props = extra.slice(0, 10)
+    }
+
+    if (error?.stack) {
+      out.stack = String(error.stack).split('\n').slice(0, 4)
+    }
   } catch {
     /* ignore */
   }
@@ -64,6 +70,7 @@ const dump = (obj, names) => {
         found[name] = null
         continue
       }
+
       const type = typeof value
       if (type === 'object') {
         try {
@@ -84,7 +91,9 @@ const dump = (obj, names) => {
 const enumName = (enumObj, value) => {
   try {
     for (const key of Object.getOwnPropertyNames(enumObj)) {
-      if (enumObj[key] === value) {return key}
+      if (enumObj[key] === value) {
+        return key
+      }
     }
   } catch {
     /* ignore */
@@ -94,20 +103,35 @@ const enumName = (enumObj, value) => {
 
 const listToArray = (list) => {
   try {
-    if (list == null) {return null}
-    if (Array.isArray(list)) {return list}
+    if (list == null) {
+      return null
+    }
+
+    if (Array.isArray(list)) {
+      return list
+    }
+
     const out = []
     const size = list.size ?? list.Size ?? list.length
     if (typeof size === 'number') {
-      for (let i = 0; i < Math.min(size, 32); i++) {out.push(list[i])}
+      for (let i = 0; i < Math.min(size, 32); i++) {
+        out.push(list[i])
+      }
     } else if (typeof list[Symbol.iterator] === 'function') {
       for (const item of list) {
         out.push(item)
-        if (out.length >= 32) {break}
+        if (out.length >= 32) {
+          break
+        }
       }
     } else {
-      return { opaque: true, type: typeof list, props: Object.getOwnPropertyNames(list).slice(0, 12) }
+      return {
+        opaque: true,
+        type: typeof list,
+        props: Object.getOwnPropertyNames(list).slice(0, 12),
+      }
     }
+
     return out.map((l) => {
       try {
         return l?.LanguageTag ?? l?.DisplayName ?? String(l)
@@ -267,7 +291,11 @@ async function probe() {
       'SPEECH TIMEOUTS ' +
         JSON.stringify(
           t
-            ? { initial: String(t.InitialSilenceTimeout), babble: String(t.BabbleTimeout), end: String(t.EndSilenceTimeout) }
+            ? {
+                initial: String(t.InitialSilenceTimeout),
+                babble: String(t.BabbleTimeout),
+                end: String(t.EndSilenceTimeout),
+              }
             : null,
         ),
     )
@@ -301,6 +329,7 @@ async function probe() {
     } catch {
       constraint = new SR.SpeechRecognitionTopicConstraint(scenario, 'dictation', 'probe')
     }
+
     const constraints = recognizer.Constraints
     if (typeof constraints.Append === 'function') {
       constraints.Append(constraint)
@@ -309,7 +338,13 @@ async function probe() {
     } else {
       constraints[0] = constraint
     }
-    const compiled = await withTimeout(toPromise(recognizer.CompileConstraintsAsync()), 15_000, 'compile')
+
+    const compiled = await withTimeout(
+      toPromise(recognizer.CompileConstraintsAsync()),
+      15_000,
+      'compile',
+    )
+
     log(
       'SPEECH COMPILED ' +
         JSON.stringify(
@@ -340,6 +375,7 @@ async function probe() {
           }
         },
       )
+
       recognizer.StateChanged = NRT.asDelegate(
         'Windows.Foundation.TypedEventHandler`2<Windows.Media.SpeechRecognition.SpeechRecognizer,Windows.Media.SpeechRecognition.SpeechRecognizerStateChangedEventArgs>',
         (_s, e) => {
@@ -350,6 +386,7 @@ async function probe() {
           }
         },
       )
+
       log('SPEECH EVENTS subscribed')
     } else {
       log('SPEECH EVENTS asDelegate missing')
@@ -368,6 +405,7 @@ async function probe() {
         log('SPEECH POLLSTATE err ' + String(err).slice(0, 60))
       }
     }, 4000)
+
     try {
       log(`SPEECH LISTENING ${attempt}`)
       const result = await withTimeout(toPromise(recognizer.RecognizeAsync()), 45_000, 'recognize')
@@ -375,14 +413,18 @@ async function probe() {
         log('SPEECH RESULT ' + JSON.stringify({ attempt, timedOut: true }))
         break
       }
+
       const alternates = []
       try {
         const list = result?.GetAlternates?.(3)
         const arr = listToArray(list)
-        if (Array.isArray(arr)) {alternates.push(...arr)}
+        if (Array.isArray(arr)) {
+          alternates.push(...arr)
+        }
       } catch {
         /* ignore */
       }
+
       log(
         'SPEECH RESULT ' +
           JSON.stringify({
@@ -398,7 +440,10 @@ async function probe() {
             duration: String(result?.PhraseDuration ?? ''),
           }),
       )
-      if (result?.Status === 0 && result?.Text) {break}
+
+      if (result?.Status === 0 && result?.Text) {
+        break
+      }
     } catch (error) {
       log('SPEECH RECOGNIZEFAIL ' + JSON.stringify({ attempt, ...describeError(error) }))
       break

@@ -25,10 +25,13 @@ export function latestEvidenceArtifact(artifacts, name) {
   const matches = artifacts.filter((artifact) => artifact.name === name)
   for (const artifact of matches) {
     assert.ok(Number.isSafeInteger(artifact.id) && artifact.id > 0, 'invalid evidence artifact ID')
-    assert.ok(Number.isFinite(Date.parse(artifact.created_at)), 'invalid evidence artifact timestamp')
+    assert.ok(
+      Number.isFinite(Date.parse(artifact.created_at)),
+      'invalid evidence artifact timestamp',
+    )
   }
-  return matches.sort((a, b) =>
-    Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id,
+  return matches.sort(
+    (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id,
   )[0]
 }
 
@@ -50,7 +53,11 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
   assert.equal(evidence.status, channel === 'none' ? 'failure' : 'success')
   assert.equal(run.id, runId, 'GitHub returned a different CI run')
   if (evidence.runAttempt !== undefined) {
-    assert.ok(Number.isSafeInteger(evidence.runAttempt) && evidence.runAttempt > 0, 'invalid evidence attempt')
+    assert.ok(
+      Number.isSafeInteger(evidence.runAttempt) && evidence.runAttempt > 0,
+      'invalid evidence attempt',
+    )
+
     assert.equal(evidence.runAttempt, run.run_attempt, 'evidence belongs to a different CI attempt')
   }
   assert.equal(run.head_sha, sha, 'CI tested a different revision')

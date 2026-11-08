@@ -19,6 +19,7 @@ const serverFile = (name) => pathToFileURL(join(viteRoot, 'hmr/server', name)).h
 const { createNsMRequestContext, resolveNsMTransformedModule } = await import(
   serverFile('websocket-ns-m-request.js')
 )
+
 const { servedDependencyFileChanged, purgeTransformCachesForHotUpdate } = await import(
   serverFile('transform-cache-invalidation.js')
 )
@@ -48,6 +49,7 @@ test('/ns/m reports resolved dependency files through notifyServedDependencyFile
       loadVirtualId: async () => null,
       notifyServedDependencyFile: (file) => seen.push(file),
     })
+
     assert.match(result.transformed.code, /transformed/)
     assert.deepEqual(seen, [depFile])
   } finally {
@@ -88,10 +90,12 @@ test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdat
         invalidateModule: () => {},
       },
     }
+
     const sharedTransformRequest = {
       invalidateMany: (urls) => cleared.push([...urls]),
       clear: () => cleared.push('clear'),
     }
+
     const notify = (file) => {
       if (!servedDependencyFileChanged(file)) {
         return
@@ -113,6 +117,7 @@ test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdat
       loadVirtualId: async () => null,
       notifyServedDependencyFile: notify,
     })
+
     assert.match(first.transformed.code, /gen0/)
     assert.deepEqual(cleared, [])
 
@@ -130,6 +135,7 @@ test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdat
       loadVirtualId: async () => null,
       notifyServedDependencyFile: notify,
     })
+
     assert.deepEqual(invalidated, [depFile])
     assert.deepEqual(cleared.at(-1), 'clear')
     assert.match(second.transformed.code, /gen1/)

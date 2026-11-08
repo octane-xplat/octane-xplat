@@ -33,6 +33,7 @@ export interface WebAssetManifestChunk {
   /** True on the build's entry chunk. */
   isEntry?: boolean
 }
+
 /** Vite build manifest (`build.manifest: true`) keyed by chunk source path. */
 export type WebAssetManifest = Readonly<Record<string, WebAssetManifestChunk>>
 /** Current build's public module-script and stylesheet URLs. */

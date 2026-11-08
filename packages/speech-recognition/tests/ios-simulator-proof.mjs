@@ -43,6 +43,7 @@ const fail = (msg, code = 1) => {
   console.error(`[ios-proof] FAIL: ${msg}`)
   process.exit(code)
 }
+
 const note = (msg) => console.log(`[ios-proof] ${msg}`)
 
 const run = (cmd, args, opts = {}) =>
@@ -54,21 +55,15 @@ const devices = JSON.parse(booted)?.devices ?? {}
 const isBooted = Object.values(devices)
   .flat()
   .some((device) => device.udid === UDID && device.state === 'Booted')
+
 if (!isBooted) {
   fail(`designated simulator ${UDID} is not booted — boot that device only`)
 }
+
 note(`using simulator ${UDID}`)
 
 // --- log stream + permission orchestration -----------------------------------
-const logStream = spawn('xcrun', [
-  'simctl',
-  'spawn',
-  UDID,
-  'log',
-  'stream',
-  '--level',
-  'info',
-])
+const logStream = spawn('xcrun', ['simctl', 'spawn', UDID, 'log', 'stream', '--level', 'info'])
 let logLines = ''
 const marker = { speakNow: false, result: false, done: false }
 const scan = (chunk) => {
@@ -77,10 +72,17 @@ const scan = (chunk) => {
   if (logLines.length > 512_000) {
     logLines = logLines.slice(-256_000)
   }
-  if (text.includes('SPEAK_NOW')) {marker.speakNow = true}
-  if (text.includes('SPEECH_RESULT')) {marker.result = true}
-  if (text.includes('SPEECH_DONE')) {marker.done = true}
+  if (text.includes('SPEAK_NOW')) {
+    marker.speakNow = true
+  }
+  if (text.includes('SPEECH_RESULT')) {
+    marker.result = true
+  }
+  if (text.includes('SPEECH_DONE')) {
+    marker.done = true
+  }
 }
+
 logStream.stdout.on('data', scan)
 logStream.stderr.on('data', scan)
 
@@ -121,6 +123,7 @@ const probeArgs = [
   '--startup-timeout',
   '900000',
 ]
+
 note(`probe: bun ${probeArgs.join(' ')}`)
 const probe = spawn('bun', probeArgs, { cwd: REPO, stdio: ['ignore', 'pipe', 'inherit'] })
 let probeOut = ''
@@ -145,9 +148,12 @@ const speakLoop = (async () => {
       note(`say exited ${res.status} — BoomAudio device missing?`)
       break
     }
+
     note(`played phrase ${said}x via BoomAudio`)
     await sleep(6000)
-    if (marker.result) {break}
+    if (marker.result) {
+      break
+    }
   }
 })()
 
@@ -163,16 +169,19 @@ const jsonLine = probeOut
   .split('\n')
   .filter((line) => line.trim().startsWith('{'))
   .pop()
+
 let report = { probeExit, said, markers: marker, granted: [...granted] }
 try {
   report.probe = JSON.parse(jsonLine ?? 'null')
 } catch {
   report.probeParseError = 'no JSON result line found'
 }
+
 writeFileSync(
   evidencePath,
   JSON.stringify({ ...report, logTail: logLines.slice(-64_000) }, null, 2),
 )
+
 note(`evidence: ${evidencePath}`)
 
 const results = report.probe?.results ?? []
@@ -183,7 +192,9 @@ note(`session1 result: ${JSON.stringify(session)}`)
 if (probeExit !== 0) {
   fail(`probe runner exited ${probeExit}`)
 }
+
 if (transcript.length === 0) {
   fail('no transcript captured — check audio path and evidence JSON', 2)
 }
+
 note('PASS')

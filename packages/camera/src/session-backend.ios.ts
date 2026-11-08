@@ -1358,11 +1358,15 @@ export function createSessionBackend(
             if (type === 'started') {
               if (writerDiagnostics) {
                 try {
-                  writerDiagnostics('recordingConnection', JSON.stringify(recordingConnectionState()))
+                  writerDiagnostics(
+                    'recordingConnection',
+                    JSON.stringify(recordingConnectionState()),
+                  )
                 } catch {
                   /* Diagnostics cannot own capture completion. */
                 }
               }
+
               try {
                 onCaptureStarted(JSON.parse(payload))
               } catch (error) {

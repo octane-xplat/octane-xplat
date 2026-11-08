@@ -15,6 +15,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
+
 import { createRequire } from 'node:module'
 import { createServer as createNetServer } from 'node:net'
 import { tmpdir } from 'node:os'
@@ -69,7 +70,10 @@ function startServer(env, label) {
         })
         servers.push(child)
         let output = ''
-        const timer = setTimeout(() => reject(new Error(`${label} readiness timeout:\n${output}`)), 30_000)
+        const timer = setTimeout(
+          () => reject(new Error(`${label} readiness timeout:\n${output}`)),
+          30_000,
+        )
         const capture = (chunk) => {
           output += chunk
           const match = /(https?:\/\/\S+)/.exec(output)
@@ -106,6 +110,7 @@ function workspaceClosure(root) {
     if (seen.has(manifest.name)) {
       continue
     }
+
     seen.set(manifest.name, dir)
     for (const field of ['dependencies', 'peerDependencies']) {
       for (const [name, range] of Object.entries(manifest[field] ?? {})) {
@@ -132,9 +137,14 @@ try {
     tarballs[name] =
       `file:${join(pack, `${name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
   }
+
   assert.ok(tarballs['@octane-xplat/web-host'], 'closure must contain web-host')
 
-  cpSync(join(repo, 'packages/create/template/patches/octane@0.16.3.patch'), join(work, 'octane.patch'))
+  cpSync(
+    join(repo, 'packages/create/template/patches/octane@0.16.3.patch'),
+    join(work, 'octane.patch'),
+  )
+
   writeFileSync(
     join(consumer, 'package.json'),
     JSON.stringify(
@@ -157,6 +167,7 @@ try {
       2,
     ),
   )
+
   run('bun', ['install', '--ignore-scripts'])
 
   const req = createRequire(join(consumer, 'package.json'))
@@ -166,16 +177,19 @@ try {
       `${name} must come from a tarball`,
     )
   }
+
   for (const specifier of ['@octane-xplat/web-host', '@octane-xplat/ui', '@octane-xplat/build']) {
     const fromPackage = createRequire(
       join(consumer, 'node_modules', specifier, 'index.js'),
     ).resolve('octane')
+
     assert.equal(
       realpathSync(fromPackage),
       realpathSync(req.resolve('octane')),
       `single octane copy visible from ${specifier}`,
     )
   }
+
   console.log('PASS packed tarballs install and resolve a single Octane runtime')
 
   // The maintained example is the consumer: copy it verbatim and build twice.
@@ -183,6 +197,7 @@ try {
     recursive: true,
     filter: (source) => !source.includes(`${join('example', 'dist')}`),
   })
+
   const first = run(process.execPath, ['build.mjs'], join(consumer, 'example'))
   assert.match(first, /rendered: 4/)
   const second = run(process.execPath, ['build.mjs'], join(consumer, 'example'))
@@ -223,6 +238,7 @@ try {
             href,
           )
         }
+
         console.log(`PASS ${name}/${label} rendered HTML links this build's hashed JS and CSS`)
 
         // b. JavaScript disabled: content and author CSS are fully readable.
@@ -230,9 +246,7 @@ try {
         const noJs = await context.newPage()
         await noJs.goto(`${base}/products/coat`, { waitUntil: 'domcontentloaded' })
         assert.equal(await noJs.locator('h1').innerText(), 'Product coat')
-        const color = await noJs
-          .locator('h1')
-          .evaluate((node) => getComputedStyle(node).color)
+        const color = await noJs.locator('h1').evaluate((node) => getComputedStyle(node).color)
         assert.equal(color, 'rgb(20, 90, 50)')
         assert.ok(await noJs.locator('button').count())
         assert.ok(await noJs.locator('a').count())
@@ -249,6 +263,7 @@ try {
             list.push(message.text())
           }
         }
+
         page.on('console', collect(errors))
         page.on('pageerror', (error) => errors.push(String(error)))
         await page.addInitScript((key) => {
@@ -260,6 +275,7 @@ try {
             }
           })
         }, marker)
+
         await page.goto(`${base}/products/coat`, { waitUntil: 'domcontentloaded' })
         await page.waitForSelector('html[data-web-app="started"]')
         const identity = await page.evaluate(
@@ -270,6 +286,7 @@ try {
           }),
           marker,
         )
+
         assert.equal(identity.button, true, 'the button node is adopted, not replaced')
         assert.equal(identity.h1, true, 'the h1 node is adopted, not replaced')
         const button = page.locator('main button')
@@ -292,6 +309,7 @@ try {
           await page.evaluate((key) => globalThis[key] !== undefined, marker),
           'client navigation never reloaded the document',
         )
+
         assert.deepEqual(errors, [])
         console.log(`PASS ${name}/${label} NavLink navigates client-side without a reload`)
         await page.close()
@@ -337,6 +355,7 @@ try {
       } catch {}
     }
   }
+
   await browser?.close().catch(() => {})
   if (succeeded) {
     rmSync(work, { recursive: true, force: true })

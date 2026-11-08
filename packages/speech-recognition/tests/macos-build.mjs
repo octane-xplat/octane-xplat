@@ -20,6 +20,7 @@ const run = async (command, args, stage, env = process.env) => {
       maxBuffer: 64 * 1024 * 1024,
       env,
     })
+
     return result.stdout.trim()
   } catch (error) {
     throw new Error(
@@ -45,6 +46,7 @@ export async function buildMacOSSpeechArm64(appRoot) {
     const includePaths = [
       ...new Set([leaf.nativeRoot, ...leaf.headers.map(dirname), ...leaf.includePaths]),
     ]
+
     const common = [
       '-target',
       target,
@@ -74,6 +76,7 @@ export async function buildMacOSSpeechArm64(appRoot) {
         ],
         `${leaf.name}: compile`,
       )
+
       objects.push(object)
     }
 
@@ -126,10 +129,7 @@ export async function buildMacOSSpeechArm64(appRoot) {
       '-target',
       target,
       ...leaves.flatMap((leaf) => leaf.defines.map((define) => `-D${define}`)),
-      ...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => [
-        '-I',
-        path,
-      ]),
+      ...[...new Set(leaves.flatMap((leaf) => leaf.includePaths))].flatMap((path) => ['-I', path]),
     ],
     'generate combined SDK and leaf metadata (arm64)',
     generatorEnv,

@@ -13,12 +13,14 @@ import type {
   SpeechEngineHandle,
   SpeechEngineSink,
 } from './session-core'
+
 import { SpeechRecognitionError } from './types'
 import type {
   SpeechRecognitionAvailability,
   SpeechRecognitionErrorCode,
   SpeechRecognitionImpl,
 } from './types'
+
 import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
 
 const projection = (): any => (globalThis as any).Windows
@@ -116,9 +118,13 @@ export function mapWindowsSpeechError(
     default:
       code = 'unknown'
   }
-  return new SpeechRecognitionError(code, message ?? `Speech recognition failed: ${statusOrHresult}`, {
-    nativeCode: statusOrHresult,
-  })
+  return new SpeechRecognitionError(
+    code,
+    message ?? `Speech recognition failed: ${statusOrHresult}`,
+    {
+      nativeCode: statusOrHresult,
+    },
+  )
 }
 
 const hresultOf = (cause: unknown): number | null => {
@@ -163,10 +169,12 @@ async function ensurePermission(): Promise<PermissionResponse> {
     if (!capability) {
       return { status: 'undetermined', granted: false, canAskAgain: true }
     }
+
     const current = accessToPermission(capability.CheckAccess())
     if (current.status !== 'undetermined') {
       return current
     }
+
     return accessToPermission(await toPromise(capability.RequestAccessAsync()))
   } catch {
     return { status: 'denied', granted: false, canAskAgain: false }
@@ -204,6 +212,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
     const recognizer = Language
       ? new api.SpeechRecognizer(new Language(resolved))
       : new api.SpeechRecognizer()
+
     recognizer?.Dispose?.()
     return Promise.resolve({
       available: true,
@@ -227,6 +236,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
 
 const HYPOTHESIS_DELEGATE =
   'Windows.Foundation.TypedEventHandler`2<Windows.Media.SpeechRecognition.SpeechRecognizer,Windows.Media.SpeechRecognition.SpeechRecognitionHypothesisGeneratedEventArgs>'
+
 const STATE_DELEGATE =
   'Windows.Foundation.TypedEventHandler`2<Windows.Media.SpeechRecognition.SpeechRecognizer,Windows.Media.SpeechRecognition.SpeechRecognizerStateChangedEventArgs>'
 
@@ -301,6 +311,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
           ),
         )
       }
+
       return
     }
 
@@ -310,27 +321,33 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
           listeningSent = true
           sink.listening()
         }
+
         const result = await toPromise(recognizer.RecognizeAsync())
         if (closed) {
           return
         }
+
         const status = result?.Status ?? 12 /* Unknown */
         if (status === STATUS_SUCCESS) {
           const text = String(result?.Text ?? '')
           if (text !== '') {
             sink.hypothesis(text, true)
           }
+
           if (finishing || !options.continuous) {
             sink.finished()
             return
           }
+
           continue
         }
+
         if (RETRYABLE_STATUS.has(status)) {
           if (finishing) {
             sink.finished()
             return
           }
+
           // A silence timeout with no committed segment is a genuine
           // 'no-speech' outcome for non-continuous sessions — continuous
           // dictation just keeps listening.
@@ -338,8 +355,10 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
             sink.failed(mapWindowsSpeechError(status, `Recognition ended with status ${status}`))
             return
           }
+
           continue
         }
+
         sink.failed(mapWindowsSpeechError(status, `Recognition ended with status ${status}`))
         return
       } catch (cause) {
@@ -351,6 +370,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
             ),
           )
         }
+
         return
       }
     }

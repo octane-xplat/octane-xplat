@@ -1396,10 +1396,21 @@ test('dev channels join the announcement, gate sends on hub capability, and rout
   })
   assert.equal(states.at(-1), 'live')
   assert.equal(channel.send('backend', { n: 2 }), true)
-  assert.deepEqual(next.frames.at(-1), { type: 'channel', channel: 'probe', to: 'backend', data: { n: 2 } })
+  assert.deepEqual(next.frames.at(-1), {
+    type: 'channel',
+    channel: 'probe',
+    to: 'backend',
+    data: { n: 2 },
+  })
   next.receive({ type: 'channel', channel: 'probe', from: 'backend', data: { n: 3 } })
   next.receive({ type: 'channel', channel: 'unknown', from: 'panel', panel: 'panel_1', data: 0 })
-  next.receive({ type: 'channel', channel: 'probe', from: 'panel', panel: 'panel_1', data: { n: 4 } })
+  next.receive({
+    type: 'channel',
+    channel: 'probe',
+    from: 'panel',
+    panel: 'panel_1',
+    data: { n: 4 },
+  })
   next.receive({ type: 'channel-error', code: 'no_backend', channel: 'probe', detail: 'none' })
   next.receive({ type: 'channel-error', code: 'no_session', channel: 'unknown', detail: 'gone' })
   assert.equal(failures.length, 1)
@@ -1410,7 +1421,10 @@ test('dev channels join the announcement, gate sends on hub capability, and rout
     JSON.stringify(messages[1]),
     JSON.stringify({ from: 'panel', panel: 'panel_1', data: { n: 4 } }),
   )
-  assert.throws(() => api.registerDevChannel('probe', 1, { message() {}, state() {} }), /already registered/)
+  assert.throws(
+    () => api.registerDevChannel('probe', 1, { message() {}, state() {} }),
+    /already registered/,
+  )
   channel.dispose()
   await new Promise((resolve) => queueMicrotask(resolve))
   assert.equal(next.frames.at(-1).type, 'registry')

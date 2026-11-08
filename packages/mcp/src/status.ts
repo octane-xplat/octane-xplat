@@ -30,67 +30,67 @@ const NOT_PROVIDED = { state: 'not_provided' }
  *  - transport/executable: XplatTransport or argv-prefix override (tests)
  */
 export function createWorkspaceContext(options: any): WorkspaceContext {
-	const context: WorkspaceContext = {
-		workspaceRoot: options.workspaceRoot,
-		configuredAppSelector: options.appSelector ?? null,
-		// Which transport hosts this context (MCP server, xplat CLI). Status
-		// reports it as `server` — each entry point supplies its own identity.
-		serverIdentity: options.serverIdentity ?? {
-			name: SERVER_NAME,
-			version: SERVER_VERSION,
-		},
-		discovery: discoverWorkspace(options.workspaceRoot),
-		boundApp: null,
-		selectionReason: null,
-		policy: createPolicyStore({
-			taskAuthorization: options.taskAuthorization ?? true,
-			grants: (options.permissionScopes ?? []).map((scope: string) => ({
-				scope,
-				state: 'granted',
-				source: 'server-config',
-			})),
-			elicit: options.elicit,
-		}),
-	} as WorkspaceContext
+  const context: WorkspaceContext = {
+    workspaceRoot: options.workspaceRoot,
+    configuredAppSelector: options.appSelector ?? null,
+    // Which transport hosts this context (MCP server, xplat CLI). Status
+    // reports it as `server` — each entry point supplies its own identity.
+    serverIdentity: options.serverIdentity ?? {
+      name: SERVER_NAME,
+      version: SERVER_VERSION,
+    },
+    discovery: discoverWorkspace(options.workspaceRoot),
+    boundApp: null,
+    selectionReason: null,
+    policy: createPolicyStore({
+      taskAuthorization: options.taskAuthorization ?? true,
+      grants: (options.permissionScopes ?? []).map((scope: string) => ({
+        scope,
+        state: 'granted',
+        source: 'server-config',
+      })),
+      elicit: options.elicit,
+    }),
+  } as WorkspaceContext
 
-	context.transport =
-		options.transport ??
-		createXplatTransport({
-			workspaceRoot: options.workspaceRoot,
-			appId: () => {
-				const selection = resolveSelection(context)
-				return selection.state === 'bound' ? selection.app.id : null
-			},
-			grants: () =>
-				context.policy
-					.list()
-					.filter((grant: any) => grant.state === 'granted' && grant.revocable)
-					.map((grant: any) => grant.scope),
-			executable: options.executable,
-			timeoutMs: options.transportTimeoutMs,
-		})
+  context.transport =
+    options.transport ??
+    createXplatTransport({
+      workspaceRoot: options.workspaceRoot,
+      appId: () => {
+        const selection = resolveSelection(context)
+        return selection.state === 'bound' ? selection.app.id : null
+      },
+      grants: () =>
+        context.policy
+          .list()
+          .filter((grant: any) => grant.state === 'granted' && grant.revocable)
+          .map((grant: any) => grant.scope),
+      executable: options.executable,
+      timeoutMs: options.transportTimeoutMs,
+    })
 
-	context.code = options.code ?? null
-	context.codeIndexStatus = context.code ? (app) => context.code!.status(app) : () => NOT_PROVIDED
+  context.code = options.code ?? null
+  context.codeIndexStatus = context.code ? (app) => context.code!.status(app) : () => NOT_PROVIDED
 
-	context.docs = createDocsProvider(context, options.docs)
-	context.docsStatus = (app) => context.docs.status(app)
+  context.docs = createDocsProvider(context, options.docs)
+  context.docsStatus = (app) => context.docs.status(app)
 
-	// Runtime, inspection and dev-action surfaces all delegate to the Go
-	// agent commands — the single service implementation.
-	context.devActions = createDevActionsService(context)
-	context.runtime = createRuntimeService(context)
-	context.inspection = createInspectionService(context)
+  // Runtime, inspection and dev-action surfaces all delegate to the Go
+  // agent commands — the single service implementation.
+  context.devActions = createDevActionsService(context)
+  context.runtime = createRuntimeService(context)
+  context.inspection = createInspectionService(context)
 
-	if (context.configuredAppSelector) {
-		const matches = selectApp(context.discovery, context.configuredAppSelector)
-		if (matches.length === 1) {
-			context.boundApp = matches[0]
-			context.selectionReason = 'configured'
-		}
-	}
+  if (context.configuredAppSelector) {
+    const matches = selectApp(context.discovery, context.configuredAppSelector)
+    if (matches.length === 1) {
+      context.boundApp = matches[0]
+      context.selectionReason = 'configured'
+    }
+  }
 
-	return context
+  return context
 }
 
 /**
@@ -99,79 +99,79 @@ export function createWorkspaceContext(options: any): WorkspaceContext {
  * never silently picks.
  */
 export function resolveSelection(context: WorkspaceContext): Selection {
-	if (context.boundApp) {
-		return { state: 'bound', app: context.boundApp, reason: context.selectionReason }
-	}
+  if (context.boundApp) {
+    return { state: 'bound', app: context.boundApp, reason: context.selectionReason }
+  }
 
-	// The discovery library is untyped JavaScript; its app records follow the
-	// AppRef contract shape — this is the one place the boundary is asserted.
-	const apps = context.discovery.apps as AppRef[]
-	if (context.configuredAppSelector) {
-		return { state: 'ambiguous', candidates: apps }
-	}
+  // The discovery library is untyped JavaScript; its app records follow the
+  // AppRef contract shape — this is the one place the boundary is asserted.
+  const apps = context.discovery.apps as AppRef[]
+  if (context.configuredAppSelector) {
+    return { state: 'ambiguous', candidates: apps }
+  }
 
-	if (apps.length === 0) {
-		return { state: 'none', reason: 'no-apps' }
-	}
+  if (apps.length === 0) {
+    return { state: 'none', reason: 'no-apps' }
+  }
 
-	if (apps.length === 1) {
-		return { state: 'bound', app: apps[0], reason: 'sole-app' }
-	}
+  if (apps.length === 1) {
+    return { state: 'bound', app: apps[0], reason: 'sole-app' }
+  }
 
-	return { state: 'ambiguous', candidates: apps }
+  return { state: 'ambiguous', candidates: apps }
 }
 
 export function bindApp(context: WorkspaceContext, selector: string) {
-	const matches = selectApp(context.discovery, selector)
-	if (matches.length === 0) {
-		return { error: 'not_found', candidates: context.discovery.apps }
-	}
+  const matches = selectApp(context.discovery, selector)
+  if (matches.length === 0) {
+    return { error: 'not_found', candidates: context.discovery.apps }
+  }
 
-	if (matches.length > 1) {
-		return { error: 'ambiguous_selection', candidates: matches }
-	}
+  if (matches.length > 1) {
+    return { error: 'ambiguous_selection', candidates: matches }
+  }
 
-	context.boundApp = matches[0]
-	context.selectionReason = 'explicit'
-	return { app: matches[0] }
+  context.boundApp = matches[0]
+  context.selectionReason = 'explicit'
+  return { app: matches[0] }
 }
 
 const appSummary = (app: any) => `${app.id} (${app.name})`
 
 function nextSteps(report: any): string[] {
-	const steps = []
-	const selection = report.identity.selection
+  const steps = []
+  const selection = report.identity.selection
 
-	if (selection.state === 'none') {
-		steps.push(
-			'No Octane Xplat app was detected in this workspace. Restart the server with --workspace pointing at a directory containing an Octane Xplat app.',
-		)
+  if (selection.state === 'none') {
+    steps.push(
+      'No Octane Xplat app was detected in this workspace. Restart the server with --workspace pointing at a directory containing an Octane Xplat app.',
+    )
 
-		return steps
-	}
+    return steps
+  }
 
-	if (selection.state === 'ambiguous') {
-		steps.push(
-			`Multiple apps detected: ${selection.candidates.map(appSummary).join(', ')}. ` +
-				'Ask the developer which one to use, then select it — xplat_select_app (MCP) or `xplat app select` (CLI). The server never picks silently.',
-		)
+  if (selection.state === 'ambiguous') {
+    steps.push(
+      `Multiple apps detected: ${selection.candidates.map(appSummary).join(', ')}. ` +
+        'Ask the developer which one to use, then select it — xplat_select_app (MCP) or `xplat app select` (CLI). The server never picks silently.',
+    )
 
-		return steps
-	}
+    return steps
+  }
 
-	const missing = report.prerequisites.filter((p: any) => p.status === 'missing')
-	if (missing.length) {
-		steps.push(
-			`Missing prerequisites: ${missing.map((p: any) => `${p.name} — ${p.remedy}`).join('; ')}.`,
-		)
-	}
+  const missing = report.prerequisites.filter((p: any) => p.status === 'missing')
+  if (missing.length) {
+    steps.push(
+      `Missing prerequisites: ${missing.map((p: any) => `${p.name} — ${p.remedy}`).join('; ')}.`,
+    )
+  }
 
-	steps.push(
-		'Call xplat_capability_matrix for per-platform support before promising a runtime check.',
-		'Bind or attach a session (xplat_sessions) before runtime work; an explicit app+target binding is required.',
-	)
+  steps.push(
+    'Call xplat_capability_matrix for per-platform support before promising a runtime check.',
+    'Bind or attach a session (xplat_sessions) before runtime work; an explicit app+target binding is required.',
+  )
 
-	return steps
+  return steps
 }
 
 /**
@@ -181,26 +181,26 @@ function nextSteps(report: any): string[] {
  * use for docs/code.
  */
 export async function buildProjectStatus(context: WorkspaceContext) {
-	const outcome = await context.transport.call({ command: ['status'] })
-	if (!outcome.ok) {
-		return { error: outcome.error }
-	}
+  const outcome = await context.transport.call({ command: ['status'] })
+  if (!outcome.ok) {
+    return { error: outcome.error }
+  }
 
-	const report = outcome.data as any
-	const selection = resolveSelection(context)
-	const boundApp = selection.state === 'bound' ? selection.app : null
+  const report = outcome.data as any
+  const selection = resolveSelection(context)
+  const boundApp = selection.state === 'bound' ? selection.app : null
 
-	// The transport's own selection must mirror this server's binding state —
-	// reconcile explicitly rather than trusting a per-invocation --app.
-	if (report.identity?.selection?.state === 'bound' && selection.state !== 'bound') {
-		report.identity.selection = { state: 'ambiguous', candidates: context.discovery.apps }
-	}
+  // The transport's own selection must mirror this server's binding state —
+  // reconcile explicitly rather than trusting a per-invocation --app.
+  if (report.identity?.selection?.state === 'bound' && selection.state !== 'bound') {
+    report.identity.selection = { state: 'ambiguous', candidates: context.discovery.apps }
+  }
 
-	report.server = context.serverIdentity
-	report.permissions = context.policy.list()
-	report.docs = await context.docsStatus(boundApp)
-	report.codeIndex = context.codeIndexStatus(boundApp)
-	report.boundaries = report.boundaries ?? PRODUCT_BOUNDARIES
-	report.nextSteps = nextSteps(report)
-	return report
+  report.server = context.serverIdentity
+  report.permissions = context.policy.list()
+  report.docs = await context.docsStatus(boundApp)
+  report.codeIndex = context.codeIndexStatus(boundApp)
+  report.boundaries = report.boundaries ?? PRODUCT_BOUNDARIES
+  report.nextSteps = nextSteps(report)
+  return report
 }

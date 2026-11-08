@@ -1,13 +1,7 @@
 import { registerGestureClass } from './gestures'
 import type { ActionRegistration } from './action-store'
 import type { Actions } from './actions'
-import {
-  NSApplication,
-  NSMenu,
-  NSMenuItem,
-  NSObject,
-  interop,
-} from '@octane-xplat/platform/macos'
+import { NSApplication, NSMenu, NSMenuItem, NSObject, interop } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
   actions: Pick<Actions, 'allocate' | 'invokeAction'>
@@ -74,7 +68,10 @@ export function createAppMenu(deps: Dependencies) {
 
     menuActionTarget = AppMenuActionTarget.new()
   } catch (error) {
-    console.error('[macos-leaf] app-menu target registration failed — application menus disabled', error)
+    console.error(
+      '[macos-leaf] app-menu target registration failed — application menus disabled',
+      error,
+    )
   }
 
   function retireItems(created: BuiltItem[]) {
@@ -99,17 +96,20 @@ export function createAppMenu(deps: Dependencies) {
         menu.addItem(NSMenuItem.separatorItem())
         continue
       }
+
       if (child.type === 'submenu') {
         const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(child.title, null, '')
         item.submenu = buildMenu(child, state, created)
         menu.addItem(item)
         continue
       }
+
       const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(
         child.title,
         child.selector ?? 'appMenuItemSelected:',
         child.keyEquivalent,
       )
+
       item.keyEquivalentModifierMask = child.modifierMask
       item.enabled = child.enabled
       item.state = child.state
@@ -139,6 +139,7 @@ export function createAppMenu(deps: Dependencies) {
         // Nil target — role selectors travel the responder chain.
         item.target = null
       }
+
       menu.addItem(item)
     }
     return menu
@@ -156,6 +157,7 @@ export function createAppMenu(deps: Dependencies) {
         // Contract: menu-bar entries are submenus.
         continue
       }
+
       const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(node.title, null, '')
       item.submenu = buildMenu(node, state, created)
       bar.addItem(item)
@@ -163,9 +165,7 @@ export function createAppMenu(deps: Dependencies) {
     return bar
   }
 
-  function installApplicationMenu(
-    nodes: readonly AppKitMenuNode[],
-  ): AppKitMenuHandle | null {
+  function installApplicationMenu(nodes: readonly AppKitMenuNode[]): AppKitMenuHandle | null {
     if (
       !menuActionTarget ||
       typeof NSMenu?.alloc !== 'function' ||
@@ -192,6 +192,7 @@ export function createAppMenu(deps: Dependencies) {
           app.mainMenu = previous
         }
       } catch {}
+
       return null
     }
 

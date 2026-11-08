@@ -25,6 +25,7 @@ const makeProject = () => {
   dirs.push(root)
   return root
 }
+
 afterEach(() => {
   while (dirs.length) {
     rmSync(dirs.pop(), { recursive: true, force: true })
@@ -37,6 +38,7 @@ const write = (root, name, code) => {
   writeFileSync(file, code)
   return file
 }
+
 const info = (root, name, code) => collectDepsModuleExportInfo(write(root, name, code), 'ios')
 const shimExports = (key, names, hasDefault) =>
   buildDepsShimCode(key, names, hasDefault)

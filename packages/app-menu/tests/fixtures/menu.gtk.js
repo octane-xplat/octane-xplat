@@ -21,6 +21,7 @@ const check = (value, message) => {
     printerr('CHECK-FAIL ' + message)
   }
 }
+
 const fire = (name) => {
   counts[name]++
   print(`FIRED ${name}=${counts[name]}`)
@@ -32,17 +33,36 @@ const menusFor = (sidebarValue) => [
     key: 'file',
     label: 'File',
     items: [
-      { type: 'action', key: 'new', label: 'New', accelerator: 'Mod+N', onSelect: () => fire('new') },
+      {
+        type: 'action',
+        key: 'new',
+        label: 'New',
+        accelerator: 'Mod+N',
+        onSelect: () => fire('new'),
+      },
       { type: 'separator', key: 's1' },
       {
         type: 'submenu',
         key: 'recent',
         label: 'Open Recent',
         items: [
-          { type: 'action', key: 'docA', label: 'Doc A', accelerator: 'Mod+Alt+K', onSelect: () => fire('docA') },
+          {
+            type: 'action',
+            key: 'docA',
+            label: 'Doc A',
+            accelerator: 'Mod+Alt+K',
+            onSelect: () => fire('docA'),
+          },
         ],
       },
-      { type: 'action', key: 'disabled', label: 'Disabled', accelerator: 'Mod+D', isDisabled: true, onSelect: () => fire('disabled') },
+      {
+        type: 'action',
+        key: 'disabled',
+        label: 'Disabled',
+        accelerator: 'Mod+D',
+        isDisabled: true,
+        onSelect: () => fire('disabled'),
+      },
       { type: 'action', key: 'saveas', label: 'Save_As', onSelect: () => {} },
       { type: 'role', key: 'close', role: 'close' },
       { type: 'role', key: 'quit', role: 'quit' },
@@ -85,7 +105,13 @@ const menusFor = (sidebarValue) => [
 const options = {
   macos: {
     applicationItems: [
-      { type: 'action', key: 'settings', label: 'Settings…', accelerator: 'Mod+,', onSelect: () => fire('settings') },
+      {
+        type: 'action',
+        key: 'settings',
+        label: 'Settings…',
+        accelerator: 'Mod+,',
+        onSelect: () => fire('settings'),
+      },
     ],
   },
 }
@@ -98,12 +124,41 @@ let oldNames = []
 app.connect('activate', () => {
   // Every key class in the accelerator grammar maps to a GTK-parsable string.
   const accelCases = [
-    'Mod+N', 'Mod+Shift+Z', 'Control+Q', 'Alt+ArrowLeft', 'Meta+A', 'Option+ArrowRight',
-    'F1', 'F24', 'Mod+Enter', 'Mod+Escape', 'Mod+Tab', 'Mod+Space',
-    'Mod+Backspace', 'Mod+Delete', 'Mod+ArrowUp', 'Mod+ArrowDown',
-    'Mod+ArrowLeft', 'Mod+ArrowRight', 'Mod+Home', 'Mod+End', 'Mod+PageUp',
-    'Mod+PageDown', 'Mod+Plus', 'Mod+,', 'Mod+.', 'Mod+/', 'Mod+;', "Mod+'",
-    'Mod+[', 'Mod+]', 'Mod+\\', 'Mod+-', 'Mod+=', 'Mod+`', 'Mod+0',
+    'Mod+N',
+    'Mod+Shift+Z',
+    'Control+Q',
+    'Alt+ArrowLeft',
+    'Meta+A',
+    'Option+ArrowRight',
+    'F1',
+    'F24',
+    'Mod+Enter',
+    'Mod+Escape',
+    'Mod+Tab',
+    'Mod+Space',
+    'Mod+Backspace',
+    'Mod+Delete',
+    'Mod+ArrowUp',
+    'Mod+ArrowDown',
+    'Mod+ArrowLeft',
+    'Mod+ArrowRight',
+    'Mod+Home',
+    'Mod+End',
+    'Mod+PageUp',
+    'Mod+PageDown',
+    'Mod+Plus',
+    'Mod+,',
+    'Mod+.',
+    'Mod+/',
+    'Mod+;',
+    "Mod+'",
+    'Mod+[',
+    'Mod+]',
+    'Mod+\\',
+    'Mod+-',
+    'Mod+=',
+    'Mod+`',
+    'Mod+0',
   ]
   let parseFailures = 0
   for (const source of accelCases) {
@@ -114,9 +169,18 @@ app.connect('activate', () => {
       printerr(`ACCEL-FAIL ${source} → ${accel}`)
     }
   }
-  check(parseFailures === 0, `accelerator grammar → Gtk.accelerator_parse (${accelCases.length} cases)`)
+  check(
+    parseFailures === 0,
+    `accelerator grammar → Gtk.accelerator_parse (${accelCases.length} cases)`,
+  )
 
-  window = new Gtk.ApplicationWindow({ application: app, title: 'XplatAppMenu', default_width: 320, default_height: 120, show_menubar: true })
+  window = new Gtk.ApplicationWindow({
+    application: app,
+    title: 'XplatAppMenu',
+    default_width: 320,
+    default_height: 120,
+    show_menubar: true,
+  })
   const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
   box.append(entry)
   window.set_child(box)
@@ -141,9 +205,11 @@ app.connect('activate', () => {
       if (label === 'Save__As') {
         saveAsFound = true
       }
+
       if (label === 'Select All' && action) {
         selectAllName = String(action).replace(/^app\./, '')
       }
+
       const sub = menu.get_item_link(i, 'submenu') ?? menu.get_item_link(i, 'section')
       if (sub) {
         walk(sub)
@@ -196,6 +262,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         check(counts.new === 1 || counts.new === 2, `ctrl+d disabled (new=${counts.new})`)
         phase = 'update'
       }
+
       return GLib.SOURCE_CONTINUE
     case 'update': {
       // Outside-dispatch update from a timer: New → 'New Window' Mod+Shift+N.
@@ -206,7 +273,13 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
             ? {
                 ...menu,
                 items: [
-                  { type: 'action', key: 'new', label: 'New Window', accelerator: 'Mod+Shift+N', onSelect: () => fire('newWindow') },
+                  {
+                    type: 'action',
+                    key: 'new',
+                    label: 'New Window',
+                    accelerator: 'Mod+Shift+N',
+                    onSelect: () => fire('newWindow'),
+                  },
                   ...menu.items.slice(1),
                 ],
               }
@@ -214,6 +287,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         ),
         options,
       )
+
       GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
         for (const name of oldNames) {
           check(app.lookup_action(name) === null, `old action ${name} removed`)
@@ -225,6 +299,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         print('APPMENU_UPDATED')
         return GLib.SOURCE_REMOVE
       })
+
       phase = 'await-newwindow'
       return GLib.SOURCE_CONTINUE
     }
@@ -233,6 +308,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
         check(true, `stale ctrl+n inert after update (new=${counts.new})`)
         phase = 'dispose'
       }
+
       return GLib.SOURCE_CONTINUE
     case 'dispose': {
       handle.dispose()
@@ -242,10 +318,13 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
       const second = appMenu.install(menusFor(true), options)
       second.dispose()
       if (failures.length === 0) {
-        print('APPMENU_GTK_OK install, accels, sections, mnemonics, controlled checkbox, update, dispose')
+        print(
+          'APPMENU_GTK_OK install, accels, sections, mnemonics, controlled checkbox, update, dispose',
+        )
       } else {
         printerr(`APPMENU_GTK_FAIL ${failures.join(' | ')}`)
       }
+
       app.quit()
       return GLib.SOURCE_REMOVE
     }

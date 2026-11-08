@@ -1,21 +1,22 @@
 import { TrayError } from './errors.js'
 import {
-	dispatchTraySelect,
-	normalizeTrayOptions,
-	normalizeTrayUpdate,
-	resolvePlatformIcon,
-	safeCall,
-	type NormalizedTrayOptions,
+  dispatchTraySelect,
+  normalizeTrayOptions,
+  normalizeTrayUpdate,
+  resolvePlatformIcon,
+  safeCall,
+  type NormalizedTrayOptions,
 } from './menu.js'
+
 import type {
-	AppResidency,
-	Tray,
-	TrayAvailability,
-	TrayIcon,
-	TrayMenuItem,
-	TrayOptions,
-	TrayRadioOption,
-	TrayUpdate,
+  AppResidency,
+  Tray,
+  TrayAvailability,
+  TrayIcon,
+  TrayMenuItem,
+  TrayOptions,
+  TrayRadioOption,
+  TrayUpdate,
 } from './types.js'
 
 export type * from './types.js'
@@ -29,25 +30,30 @@ export { TrayError } from './errors.js'
 // ---------------------------------------------------------------------------
 
 interface Win32Arg {
-	type: string
-	value: number | string
+  type: string
+  value: number | string
 }
+
 interface Win32Surface {
-	call(dll: string, fn: string, ret: string, ...args: Win32Arg[]): unknown
+  call(dll: string, fn: string, ret: string, ...args: Win32Arg[]): unknown
 }
+
 interface NsInterop {
-	pointerFromBuffer(buf: ArrayBuffer | ArrayBufferView): unknown
-	pointerKey(value: unknown): string | number
+  pointerFromBuffer(buf: ArrayBuffer | ArrayBufferView): unknown
+  pointerKey(value: unknown): string | number
 }
+
 interface NsWinRtLike {
-	win32?: Win32Surface
-	interop?: NsInterop
+  win32?: Win32Surface
+  interop?: NsInterop
 }
+
 interface WorkerLike {
-	postMessage(data: unknown): void
-	onmessage: ((event: { data: unknown }) => void) | null
-	terminate(): void
+  postMessage(data: unknown): void
+  onmessage: ((event: { data: unknown }) => void) | null
+  terminate(): void
 }
+
 type WorkerCtor = new (source: string, options: { eval: boolean }) => WorkerLike
 
 const projection = () => globalThis as { NSWinRT?: NsWinRtLike; Worker?: WorkerCtor }
@@ -55,23 +61,27 @@ const projection = () => globalThis as { NSWinRT?: NsWinRtLike; Worker?: WorkerC
 const u32 = (value: number): Win32Arg => ({ type: 'u32', value })
 const i32 = (value: number): Win32Arg => ({ type: 'i32', value })
 const ptr = (value: number | bigint): Win32Arg => ({
-	type: 'pointer',
-	value: typeof value === 'bigint' ? Number(value) : value,
+  type: 'pointer',
+  value: typeof value === 'bigint' ? Number(value) : value,
 })
+
 const call = (dll: string, fn: string, ret: string, ...args: Win32Arg[]) =>
-	projection().NSWinRT!.win32!.call(dll, fn, ret, ...args)
+  projection().NSWinRT!.win32!.call(dll, fn, ret, ...args)
 
 const pinned: object[] = []
 const bufferAddress = (buf: ArrayBuffer | ArrayBufferView): number => {
-	const interop = projection().NSWinRT!.interop!
-	const p = interop.pointerFromBuffer(buf)
-	return typeof p === 'number' ? p : Number(interop.pointerKey(p))
+  const interop = projection().NSWinRT!.interop!
+  const p = interop.pointerFromBuffer(buf)
+  return typeof p === 'number' ? p : Number(interop.pointerKey(p))
 }
+
 const utf16ptr = (text: string): number => {
-	const buf = new Uint16Array(text.length + 1)
-	for (let i = 0; i < text.length; i++) buf[i] = text.charCodeAt(i)
-	pinned.push(buf)
-	return bufferAddress(buf)
+  const buf = new Uint16Array(text.length + 1)
+  for (let i = 0; i < text.length; i++) {
+    buf[i] = text.charCodeAt(i)
+  }
+  pinned.push(buf)
+  return bufferAddress(buf)
 }
 
 // ---------------------------------------------------------------------------
@@ -79,93 +89,110 @@ const utf16ptr = (text: string): number => {
 // ---------------------------------------------------------------------------
 
 interface RenderRow {
-	cmd: number
-	kind: 'action' | 'checkbox' | 'radio' | 'submenu' | 'header' | 'separator'
-	label: string
-	disabled: boolean
-	checked: boolean
-	children?: RenderRow[]
+  cmd: number
+  kind: 'action' | 'checkbox' | 'radio' | 'submenu' | 'header' | 'separator'
+  label: string
+  disabled: boolean
+  checked: boolean
+  children?: RenderRow[]
 }
 
 interface MenuRegistry {
-	rows: RenderRow[]
-	byId: Map<number, { item: TrayMenuItem; option?: TrayRadioOption }>
+  rows: RenderRow[]
+  byId: Map<number, { item: TrayMenuItem; option?: TrayRadioOption }>
 }
 
 function buildMenuModel(menu: readonly TrayMenuItem[] | undefined): MenuRegistry {
-	const registry: MenuRegistry = { rows: [], byId: new Map() }
-	let nextCmd = 1
-	const push = (row: RenderRow, item: TrayMenuItem, option?: TrayRadioOption) => {
-		registry.byId.set(row.cmd, { item, option })
-		return row
-	}
-	const build = (items: readonly TrayMenuItem[]): RenderRow[] => {
-		const rows: RenderRow[] = []
-		for (const item of items) {
-			switch (item.type) {
-				case 'separator':
-					rows.push({ cmd: 0, kind: 'separator', label: '', disabled: false, checked: false })
-					break
-				case 'action':
-					rows.push(
-						push(
-							{ cmd: nextCmd++, kind: 'action', label: item.label, disabled: !!item.isDisabled, checked: false },
-							item,
-						),
-					)
-					break
-				case 'checkbox':
-					rows.push(
-						push(
-							{ cmd: nextCmd++, kind: 'checkbox', label: item.label, disabled: !!item.isDisabled, checked: item.value },
-							item,
-						),
-					)
-					break
-				case 'radio-group': {
-					if (item.label) {
-						rows.push({ cmd: 0, kind: 'header', label: item.label, disabled: true, checked: false })
-						rows.push({ cmd: 0, kind: 'separator', label: '', disabled: false, checked: false })
-					}
-					for (const option of item.items) {
-						const value = option.value ?? option.key
-						rows.push(
-							push(
-								{
-									cmd: nextCmd++,
-									kind: 'radio',
-									label: option.label,
-									disabled: !!item.isDisabled || !!option.isDisabled,
-									checked: value === item.value,
-								},
-								item,
-								option,
-							),
-						)
-					}
-					break
-				}
-				case 'submenu':
-					rows.push({
-						cmd: 0,
-						kind: 'submenu',
-						label: item.label,
-						disabled: !!item.isDisabled,
-						checked: false,
-						children: build(item.items),
-					})
-					break
-				case 'section': {
-					rows.push({ cmd: 0, kind: 'header', label: item.label, disabled: true, checked: false })
-					rows.push(...build(item.items))
-					break
-				}
-			}
-		}
-		return rows
-	}
-	registry.rows = build(menu ?? [])
-	return registry
+  const registry: MenuRegistry = { rows: [], byId: new Map() }
+  let nextCmd = 1
+  const push = (row: RenderRow, item: TrayMenuItem, option?: TrayRadioOption) => {
+    registry.byId.set(row.cmd, { item, option })
+    return row
+  }
+  const build = (items: readonly TrayMenuItem[]): RenderRow[] => {
+    const rows: RenderRow[] = []
+    for (const item of items) {
+      switch (item.type) {
+        case 'separator':
+          rows.push({ cmd: 0, kind: 'separator', label: '', disabled: false, checked: false })
+          break
+        case 'action':
+          rows.push(
+            push(
+              {
+                cmd: nextCmd++,
+                kind: 'action',
+                label: item.label,
+                disabled: !!item.isDisabled,
+                checked: false,
+              },
+              item,
+            ),
+          )
+
+          break
+        case 'checkbox':
+          rows.push(
+            push(
+              {
+                cmd: nextCmd++,
+                kind: 'checkbox',
+                label: item.label,
+                disabled: !!item.isDisabled,
+                checked: item.value,
+              },
+              item,
+            ),
+          )
+
+          break
+        case 'radio-group': {
+          if (item.label) {
+            rows.push({ cmd: 0, kind: 'header', label: item.label, disabled: true, checked: false })
+            rows.push({ cmd: 0, kind: 'separator', label: '', disabled: false, checked: false })
+          }
+
+          for (const option of item.items) {
+            const value = option.value ?? option.key
+            rows.push(
+              push(
+                {
+                  cmd: nextCmd++,
+                  kind: 'radio',
+                  label: option.label,
+                  disabled: !!item.isDisabled || !!option.isDisabled,
+                  checked: value === item.value,
+                },
+                item,
+                option,
+              ),
+            )
+          }
+
+          break
+        }
+        case 'submenu':
+          rows.push({
+            cmd: 0,
+            kind: 'submenu',
+            label: item.label,
+            disabled: !!item.isDisabled,
+            checked: false,
+            children: build(item.items),
+          })
+
+          break
+        case 'section': {
+          rows.push({ cmd: 0, kind: 'header', label: item.label, disabled: true, checked: false })
+          rows.push(...build(item.items))
+          break
+        }
+      }
+    }
+    return rows
+  }
+  registry.rows = build(menu ?? [])
+  return registry
 }
 
 // ---------------------------------------------------------------------------
@@ -173,38 +200,40 @@ function buildMenuModel(menu: readonly TrayMenuItem[] | undefined): MenuRegistry
 // ---------------------------------------------------------------------------
 
 const STOCK_ICONS: Record<string, number> = {
-	application: 32512,
-	error: 32513,
-	question: 32514,
-	warning: 32515,
-	info: 32516,
-	winlogo: 32517,
-	shield: 32518,
+  application: 32512,
+  error: 32513,
+  question: 32514,
+  warning: 32515,
+  info: 32516,
+  winlogo: 32517,
+  shield: 32518,
 }
 
 type IconSpec = { kind: 'file'; path: string } | { kind: 'stock'; id: number }
 
 function iconSpec(icon: TrayIcon): IconSpec {
-	if (icon.type === 'named') {
-		const numeric = Number(icon.name)
-		const id =
-			STOCK_ICONS[icon.name] ??
-			(Number.isInteger(numeric) && numeric >= 0 && numeric <= 65535 ? numeric : undefined)
-		if (id === undefined) {
-			throw new TrayError(
-				'invalid-icon',
-				`unknown Windows stock icon name ${JSON.stringify(icon.name)}; use ${Object.keys(STOCK_ICONS).join(', ')}, a numeric icon id, or a file icon`,
-			)
-		}
-		return { kind: 'stock', id }
-	}
-	if (!/\.(ico|cur|ani)$/i.test(icon.path)) {
-		throw new TrayError(
-			'invalid-icon',
-			`Windows tray icons must be .ico/.cur/.ani files (got ${icon.path}); convert the image to .ico`,
-		)
-	}
-	return { kind: 'file', path: icon.path }
+  if (icon.type === 'named') {
+    const numeric = Number(icon.name)
+    const id =
+      STOCK_ICONS[icon.name] ??
+      (Number.isInteger(numeric) && numeric >= 0 && numeric <= 65535 ? numeric : undefined)
+
+    if (id === undefined) {
+      throw new TrayError(
+        'invalid-icon',
+        `unknown Windows stock icon name ${JSON.stringify(icon.name)}; use ${Object.keys(STOCK_ICONS).join(', ')}, a numeric icon id, or a file icon`,
+      )
+    }
+
+    return { kind: 'stock', id }
+  }
+  if (!/\.(ico|cur|ani)$/i.test(icon.path)) {
+    throw new TrayError(
+      'invalid-icon',
+      `Windows tray icons must be .ico/.cur/.ani files (got ${icon.path}); convert the image to .ico`,
+    )
+  }
+  return { kind: 'file', path: icon.path }
 }
 
 // ---------------------------------------------------------------------------
@@ -463,23 +492,24 @@ const pidBuf = new ArrayBuffer(8)
 const pidView = new DataView(pidBuf)
 
 function appWindows(): number[] {
-	const pid = Number(call('kernel32.dll', 'GetCurrentProcessId', 'u32'))
-	const pidA = bufferAddress(pidBuf)
-	const hwnds: number[] = []
-	let hwnd = Number(call('user32.dll', 'GetTopWindow', 'pointer', ptr(0)))
-	let guard = 0
-	while (hwnd && guard++ < 512) {
-		call('user32.dll', 'GetWindowThreadProcessId', 'u32', ptr(hwnd), ptr(pidA))
-		if (pidView.getUint32(0, true) === pid) {
-			hwnds.push(hwnd)
-		}
-		hwnd = Number(call('user32.dll', 'GetWindow', 'pointer', ptr(hwnd), u32(2)))
-	}
-	return hwnds
+  const pid = Number(call('kernel32.dll', 'GetCurrentProcessId', 'u32'))
+  const pidA = bufferAddress(pidBuf)
+  const hwnds: number[] = []
+  let hwnd = Number(call('user32.dll', 'GetTopWindow', 'pointer', ptr(0)))
+  let guard = 0
+  while (hwnd && guard++ < 512) {
+    call('user32.dll', 'GetWindowThreadProcessId', 'u32', ptr(hwnd), ptr(pidA))
+    if (pidView.getUint32(0, true) === pid) {
+      hwnds.push(hwnd)
+    }
+
+    hwnd = Number(call('user32.dll', 'GetWindow', 'pointer', ptr(hwnd), u32(2)))
+  }
+  return hwnds
 }
 
 const anyAppWindowVisible = () =>
-	appWindows().some((hwnd) => call('user32.dll', 'IsWindowVisible', 'bool', ptr(hwnd)))
+  appWindows().some((hwnd) => call('user32.dll', 'IsWindowVisible', 'bool', ptr(hwnd)))
 
 // ---------------------------------------------------------------------------
 // Public API.
@@ -487,26 +517,26 @@ const anyAppWindowVisible = () =>
 
 /** Report whether this host can create a tray item. */
 export function getTrayAvailability(): Promise<TrayAvailability> {
-	const { NSWinRT: nsrt, Worker: WorkerGlobal } = projection()
-	if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer || !WorkerGlobal) {
-		return Promise.resolve({
-			available: false,
-			reason: 'unsupported-runtime',
-			message:
-				'the Windows host does not expose the Win32 FFI, buffer pointers, or workers needed for a notification-area icon',
-		})
-	}
-	return Promise.resolve({ available: true, platform: 'windows' })
+  const { NSWinRT: nsrt, Worker: WorkerGlobal } = projection()
+  if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer || !WorkerGlobal) {
+    return Promise.resolve({
+      available: false,
+      reason: 'unsupported-runtime',
+      message:
+        'the Windows host does not expose the Win32 FFI, buffer pointers, or workers needed for a notification-area icon',
+    })
+  }
+  return Promise.resolve({ available: true, platform: 'windows' })
 }
 
 interface WorkerEvent {
-	t: 'hello' | 'ready' | 'destroyed' | 'activate' | 'menu' | 'error' | 'rect'
-	tid?: number
-	i?: number
-	e?: string
-	tag?: string
-	hr?: number | string
-	box?: number[]
+  t: 'hello' | 'ready' | 'destroyed' | 'activate' | 'menu' | 'error' | 'rect'
+  tid?: number
+  i?: number
+  e?: string
+  tag?: string
+  hr?: number | string
+  box?: number[]
 }
 
 const CMD_MSG = 0x8002
@@ -517,369 +547,395 @@ const CMD_MSG = 0x8002
 const invalidHandle = (h: number) => !h || h > 0x80000000 || h === -1
 
 const ipcAppend = (path: string, text: string): void => {
-	// GENERIC_WRITE + FILE_SHARE_READ so the worker can keep reading while we
-	// append; retry briefly because the peer's open can briefly deny the share.
-	let h = 0
-	for (let attempt = 0; attempt < 50; attempt++) {
-		h = Number(
-			call(
-				'kernel32.dll',
-				'CreateFileW',
-				'pointer',
-				ptr(utf16ptr(path)),
-				u32(0x40000000),
-				u32(1),
-				ptr(0),
-				u32(4),
-				u32(0),
-				ptr(0),
-			),
-		)
-		if (!invalidHandle(h)) break
-		call('kernel32.dll', 'Sleep', 'void', u32(10))
-	}
-	if (invalidHandle(h)) {
-		throw new TrayError('registration-failed', `cannot open tray IPC file ${path}`)
-	}
-	call('kernel32.dll', 'SetFilePointer', 'u32', ptr(h), i32(0), ptr(0), u32(2))
-	const bytes = new TextEncoder().encode(text)
-	call(
-		'kernel32.dll',
-		'WriteFile',
-		'bool',
-		ptr(h),
-		ptr(bufferAddress(bytes)),
-		u32(bytes.length),
-		ptr(bufferAddress(new ArrayBuffer(8))),
-		ptr(0),
-	)
-	call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
+  // GENERIC_WRITE + FILE_SHARE_READ so the worker can keep reading while we
+  // append; retry briefly because the peer's open can briefly deny the share.
+  let h = 0
+  for (let attempt = 0; attempt < 50; attempt++) {
+    h = Number(
+      call(
+        'kernel32.dll',
+        'CreateFileW',
+        'pointer',
+        ptr(utf16ptr(path)),
+        u32(0x40000000),
+        u32(1),
+        ptr(0),
+        u32(4),
+        u32(0),
+        ptr(0),
+      ),
+    )
+
+    if (!invalidHandle(h)) {
+      break
+    }
+
+    call('kernel32.dll', 'Sleep', 'void', u32(10))
+  }
+  if (invalidHandle(h)) {
+    throw new TrayError('registration-failed', `cannot open tray IPC file ${path}`)
+  }
+  call('kernel32.dll', 'SetFilePointer', 'u32', ptr(h), i32(0), ptr(0), u32(2))
+  const bytes = new TextEncoder().encode(text)
+  call(
+    'kernel32.dll',
+    'WriteFile',
+    'bool',
+    ptr(h),
+    ptr(bufferAddress(bytes)),
+    u32(bytes.length),
+    ptr(bufferAddress(new ArrayBuffer(8))),
+    ptr(0),
+  )
+  call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
 }
 
 const ipcRead = (path: string): string => {
-	const h = Number(
-		call(
-			'kernel32.dll',
-			'CreateFileW',
-			'pointer',
-			ptr(utf16ptr(path)),
-			u32(0x80000000),
-			u32(3),
-			ptr(0),
-			u32(3),
-			u32(0),
-			ptr(0),
-		),
-	)
-	if (invalidHandle(h)) {
-		return ''
-	}
-	const size = Number(call('kernel32.dll', 'GetFileSize', 'u32', ptr(h), ptr(0)))
-	if (!size) {
-		call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
-		return ''
-	}
-	const buf = new ArrayBuffer(size + 1)
-	call(
-		'kernel32.dll',
-		'ReadFile',
-		'bool',
-		ptr(h),
-		ptr(bufferAddress(buf)),
-		u32(size),
-		ptr(bufferAddress(new ArrayBuffer(8))),
-		ptr(0),
-	)
-	call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
-	return new TextDecoder().decode(buf.slice(0, size))
+  const h = Number(
+    call(
+      'kernel32.dll',
+      'CreateFileW',
+      'pointer',
+      ptr(utf16ptr(path)),
+      u32(0x80000000),
+      u32(3),
+      ptr(0),
+      u32(3),
+      u32(0),
+      ptr(0),
+    ),
+  )
+  if (invalidHandle(h)) {
+    return ''
+  }
+  const size = Number(call('kernel32.dll', 'GetFileSize', 'u32', ptr(h), ptr(0)))
+  if (!size) {
+    call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
+    return ''
+  }
+  const buf = new ArrayBuffer(size + 1)
+  call(
+    'kernel32.dll',
+    'ReadFile',
+    'bool',
+    ptr(h),
+    ptr(bufferAddress(buf)),
+    u32(size),
+    ptr(bufferAddress(new ArrayBuffer(8))),
+    ptr(0),
+  )
+  call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
+  return new TextDecoder().decode(buf.slice(0, size))
 }
 
 function ipcPaths(tag: string): { cmd: string; evt: string } {
-	const buf = new ArrayBuffer(520)
-	const view = new DataView(buf)
-	call('kernel32.dll', 'GetTempPathW', 'u32', u32(260), ptr(bufferAddress(buf)))
-	let dir = ''
-	for (let i = 0; i < 260; i++) {
-		const c = view.getUint16(i * 2, true)
-		if (!c) break
-		dir += String.fromCharCode(c)
-	}
-	const pid = Number(call('kernel32.dll', 'GetCurrentProcessId', 'u32'))
-	const uniq = `${pid}-${tag}-${Math.floor(Math.random() * 0xffffffff).toString(16)}`
-	return {
-		cmd: `${dir}xplat-tray-${uniq}-cmd.jsonl`,
-		evt: `${dir}xplat-tray-${uniq}-evt.jsonl`,
-	}
+  const buf = new ArrayBuffer(520)
+  const view = new DataView(buf)
+  call('kernel32.dll', 'GetTempPathW', 'u32', u32(260), ptr(bufferAddress(buf)))
+  let dir = ''
+  for (let i = 0; i < 260; i++) {
+    const c = view.getUint16(i * 2, true)
+    if (!c) {
+      break
+    }
+
+    dir += String.fromCharCode(c)
+  }
+  const pid = Number(call('kernel32.dll', 'GetCurrentProcessId', 'u32'))
+  const uniq = `${pid}-${tag}-${Math.floor(Math.random() * 0xffffffff).toString(16)}`
+  return {
+    cmd: `${dir}xplat-tray-${uniq}-cmd.jsonl`,
+    evt: `${dir}xplat-tray-${uniq}-evt.jsonl`,
+  }
 }
 
 /** Create a tray item; rejects with `TrayError` on unsupported hosts or invalid options. */
 export function createTray(options: TrayOptions): Promise<Tray> {
-	return getTrayAvailability().then((availability) => {
-		if (!availability.available) {
-			throw new TrayError(availability.reason, availability.message)
-		}
-		const state = normalizeTrayOptions(options, 'windows')
-		const registry = buildMenuModel(state.menu)
-		return new Promise<Tray>((resolve, reject) => {
-			const Worker = projection().Worker!
-			const paths = ipcPaths(options.id)
-			const source = WORKER_SOURCE.replace('__TRAY_CMD__', JSON.stringify(paths.cmd)).replace(
-				'__TRAY_EVT__',
-				JSON.stringify(paths.evt),
-			)
-			const worker = new Worker(source, { eval: true })
-			const tray = new WindowsTray(options.id, state, registry, worker, paths)
-			tray.attach(resolve, reject)
-		})
-	})
+  return getTrayAvailability().then((availability) => {
+    if (!availability.available) {
+      throw new TrayError(availability.reason, availability.message)
+    }
+    const state = normalizeTrayOptions(options, 'windows')
+    const registry = buildMenuModel(state.menu)
+    return new Promise<Tray>((resolve, reject) => {
+      const Worker = projection().Worker!
+      const paths = ipcPaths(options.id)
+      const source = WORKER_SOURCE.replace('__TRAY_CMD__', JSON.stringify(paths.cmd)).replace(
+        '__TRAY_EVT__',
+        JSON.stringify(paths.evt),
+      )
+      const worker = new Worker(source, { eval: true })
+      const tray = new WindowsTray(options.id, state, registry, worker, paths)
+      tray.attach(resolve, reject)
+    })
+  })
 }
 
 class WindowsTray implements Tray {
-	readonly id: string
-	isReady = false
-	private state: NormalizedTrayOptions
-	private registry: MenuRegistry
-	private worker: WorkerLike
-	private paths: { cmd: string; evt: string }
-	private workerTid = 0
-	private evtOffset = 0
-	private pollTimer: ReturnType<typeof setInterval> | null = null
-	private destroyed = false
-	private rectListeners = new Map<string, (box: number[] | null) => void>()
+  readonly id: string
+  isReady = false
+  private state: NormalizedTrayOptions
+  private registry: MenuRegistry
+  private worker: WorkerLike
+  private paths: { cmd: string; evt: string }
+  private workerTid = 0
+  private evtOffset = 0
+  private pollTimer: ReturnType<typeof setInterval> | null = null
+  private destroyed = false
+  private rectListeners = new Map<string, (box: number[] | null) => void>()
 
-	constructor(
-		id: string,
-		state: NormalizedTrayOptions,
-		registry: MenuRegistry,
-		worker: WorkerLike,
-		paths: { cmd: string; evt: string },
-	) {
-		this.id = id
-		this.state = state
-		this.registry = registry
-		this.worker = worker
-		this.paths = paths
-	}
+  constructor(
+    id: string,
+    state: NormalizedTrayOptions,
+    registry: MenuRegistry,
+    worker: WorkerLike,
+    paths: { cmd: string; evt: string },
+  ) {
+    this.id = id
+    this.state = state
+    this.registry = registry
+    this.worker = worker
+    this.paths = paths
+  }
 
-	get isDestroyed(): boolean {
-		return this.destroyed
-	}
+  get isDestroyed(): boolean {
+    return this.destroyed
+  }
 
-	attach(resolve: (tray: Tray) => void, reject: (error: unknown) => void) {
-		const timeout = setTimeout(() => {
-			this.disposePoll()
-			this.worker.terminate()
-			reject(new TrayError('registration-failed', 'Windows tray worker did not become ready within 15s'))
-		}, 15_000)
-		this.pollTimer = setInterval(() => {
-			try {
-				const text = ipcRead(this.paths.evt)
-				if (text.length <= this.evtOffset) return
-				const chunk = text.slice(this.evtOffset)
-				this.evtOffset = text.length
-				for (const line of chunk.split('\n')) {
-					if (!line.trim()) continue
-					this.dispatch(JSON.parse(line) as WorkerEvent, resolve, reject, timeout)
-				}
-			} catch (error) {
-				console.error('[tray] Windows event poll failed', error)
-			}
-		}, 150)
-	}
+  attach(resolve: (tray: Tray) => void, reject: (error: unknown) => void) {
+    const timeout = setTimeout(() => {
+      this.disposePoll()
+      this.worker.terminate()
+      reject(
+        new TrayError('registration-failed', 'Windows tray worker did not become ready within 15s'),
+      )
+    }, 15_000)
+    this.pollTimer = setInterval(() => {
+      try {
+        const text = ipcRead(this.paths.evt)
+        if (text.length <= this.evtOffset) {
+          return
+        }
 
-	private dispatch(
-		msg: WorkerEvent,
-		resolve: (tray: Tray) => void,
-		reject: (error: unknown) => void,
-		timeout: ReturnType<typeof setTimeout>,
-	) {
-		switch (msg.t) {
-			case 'hello':
-				this.workerTid = msg.tid ?? 0
-				this.sendCommand({
-					t: 'init',
-					uid: 0x5459,
-					className: `XplatTray_${this.id.replace(/[^A-Za-z0-9]/g, '_')}_${Math.floor(Math.random() * 0xffff).toString(16)}`,
-					icon: iconSpec(this.state.icon),
-					tooltip: this.state.tooltip ?? '',
-					menu: this.registry.rows,
-					menuOnPrimary: !this.state.onActivate && !!this.state.menu?.length,
-				})
-				break
-			case 'ready':
-				this.isReady = true
-				clearTimeout(timeout)
-				resolve(this)
-				break
-			case 'destroyed':
-				this.disposePoll()
-				this.worker.terminate()
-				break
-			case 'activate':
-				this.handleActivate()
-				break
-			case 'menu':
-				this.handleMenuCommand(msg.i ?? 0)
-				break
-			case 'rect': {
-				const listener = this.rectListeners.get(msg.tag ?? '')
-				if (listener) {
-					this.rectListeners.delete(msg.tag ?? '')
-					listener(msg.hr === 0 ? (msg.box ?? null) : null)
-				}
-				break
-			}
-			case 'error':
-				if (!this.isReady) {
-					clearTimeout(timeout)
-					this.disposePoll()
-					this.worker.terminate()
-					reject(new TrayError('registration-failed', `Windows tray worker failed: ${msg.e}`))
-				} else {
-					console.error(`[tray] Windows worker error: ${msg.e}`)
-				}
-				break
-		}
-	}
+        const chunk = text.slice(this.evtOffset)
+        this.evtOffset = text.length
+        for (const line of chunk.split('\n')) {
+          if (!line.trim()) {
+            continue
+          }
 
-	private sendCommand(command: Record<string, unknown>): void {
-		ipcAppend(this.paths.cmd, JSON.stringify(command) + '\n')
-		if (this.workerTid) {
-			call('user32.dll', 'PostThreadMessageW', 'bool', u32(this.workerTid), u32(CMD_MSG), ptr(0), ptr(0))
-		}
-	}
+          this.dispatch(JSON.parse(line) as WorkerEvent, resolve, reject, timeout)
+        }
+      } catch (error) {
+        console.error('[tray] Windows event poll failed', error)
+      }
+    }, 150)
+  }
 
-	/** Test-only: ask the worker for its real notification-area rect. */
-	probeRect(tag: string): Promise<number[] | null> {
-		return new Promise((resolve) => {
-			this.rectListeners.set(tag, resolve)
-			this.sendCommand({ t: 'selftest', tag })
-		})
-	}
+  private dispatch(
+    msg: WorkerEvent,
+    resolve: (tray: Tray) => void,
+    reject: (error: unknown) => void,
+    timeout: ReturnType<typeof setTimeout>,
+  ) {
+    switch (msg.t) {
+      case 'hello':
+        this.workerTid = msg.tid ?? 0
+        this.sendCommand({
+          t: 'init',
+          uid: 0x5459,
+          className: `XplatTray_${this.id.replace(/[^A-Za-z0-9]/g, '_')}_${Math.floor(Math.random() * 0xffff).toString(16)}`,
+          icon: iconSpec(this.state.icon),
+          tooltip: this.state.tooltip ?? '',
+          menu: this.registry.rows,
+          menuOnPrimary: !this.state.onActivate && !!this.state.menu?.length,
+        })
 
-	/** Test-only: inject a synthetic activation/menu event through the real queue. */
-	probeInput(input: { click?: boolean; menuKey?: number }): void {
-		this.sendCommand({ t: 'selftest', ...input })
-	}
+        break
+      case 'ready':
+        this.isReady = true
+        clearTimeout(timeout)
+        resolve(this)
+        break
+      case 'destroyed':
+        this.disposePoll()
+        this.worker.terminate()
+        break
+      case 'activate':
+        this.handleActivate()
+        break
+      case 'menu':
+        this.handleMenuCommand(msg.i ?? 0)
+        break
+      case 'rect': {
+        const listener = this.rectListeners.get(msg.tag ?? '')
+        if (listener) {
+          this.rectListeners.delete(msg.tag ?? '')
+          listener(msg.hr === 0 ? (msg.box ?? null) : null)
+        }
 
-	private disposePoll() {
-		if (this.pollTimer !== null) {
-			clearInterval(this.pollTimer)
-			this.pollTimer = null
-		}
-	}
+        break
+      }
+      case 'error':
+        if (!this.isReady) {
+          clearTimeout(timeout)
+          this.disposePoll()
+          this.worker.terminate()
+          reject(new TrayError('registration-failed', `Windows tray worker failed: ${msg.e}`))
+        } else {
+          console.error(`[tray] Windows worker error: ${msg.e}`)
+        }
 
-	update(changes: TrayUpdate): void {
-		this.assertLive()
-		const normalized = normalizeTrayUpdate(changes, 'windows')
-		const msg: Record<string, unknown> = { t: 'update' }
-		if (normalized.icon !== undefined) {
-			const resolved = resolvePlatformIcon(normalized.icon, 'windows')
-			msg.icon = iconSpec(resolved)
-			this.state.icon = resolved
-		}
-		if (normalized.tooltip !== undefined) {
-			this.state.tooltip = normalized.tooltip ?? undefined
-			msg.tooltip = this.state.tooltip ?? ''
-		}
-		if (normalized.title !== undefined) {
-			this.state.title = normalized.title ?? undefined
-		}
-		if (normalized.menu !== undefined) {
-			this.registry = buildMenuModel(normalized.menu ?? undefined)
-			msg.menu = this.registry.rows
-			this.state.menu = normalized.menu ?? undefined
-		}
-		if (normalized.onActivate !== undefined) {
-			this.state.onActivate = normalized.onActivate ?? undefined
-		}
-		msg.menuOnPrimary = !this.state.onActivate && !!this.state.menu?.length
-		this.sendCommand(msg)
-	}
+        break
+    }
+  }
 
-	destroy(): void {
-		if (this.destroyed) {
-			return
-		}
-		this.destroyed = true
-		try {
-			this.sendCommand({ t: 'destroy' })
-		} catch {
-			this.worker.terminate()
-		}
-	}
+  private sendCommand(command: Record<string, unknown>): void {
+    ipcAppend(this.paths.cmd, JSON.stringify(command) + '\n')
+    if (this.workerTid) {
+      call(
+        'user32.dll',
+        'PostThreadMessageW',
+        'bool',
+        u32(this.workerTid),
+        u32(CMD_MSG),
+        ptr(0),
+        ptr(0),
+      )
+    }
+  }
 
-	handleActivate() {
-		if (this.state.onActivate) {
-			safeCall(this.state.onActivate)
-		}
-	}
+  /** Test-only: ask the worker for its real notification-area rect. */
+  probeRect(tag: string): Promise<number[] | null> {
+    return new Promise((resolve) => {
+      this.rectListeners.set(tag, resolve)
+      this.sendCommand({ t: 'selftest', tag })
+    })
+  }
 
-	handleMenuCommand(cmd: number) {
-		const entry = this.registry.byId.get(cmd)
-		if (entry) {
-			dispatchTraySelect(entry.item, entry.option)
-		}
-	}
+  /** Test-only: inject a synthetic activation/menu event through the real queue. */
+  probeInput(input: { click?: boolean; menuKey?: number }): void {
+    this.sendCommand({ t: 'selftest', ...input })
+  }
 
-	private assertLive() {
-		if (this.destroyed) {
-			throw new TrayError('destroyed', `tray ${this.id} is destroyed`)
-		}
-	}
+  private disposePoll() {
+    if (this.pollTimer !== null) {
+      clearInterval(this.pollTimer)
+      this.pollTimer = null
+    }
+  }
+
+  update(changes: TrayUpdate): void {
+    this.assertLive()
+    const normalized = normalizeTrayUpdate(changes, 'windows')
+    const msg: Record<string, unknown> = { t: 'update' }
+    if (normalized.icon !== undefined) {
+      const resolved = resolvePlatformIcon(normalized.icon, 'windows')
+      msg.icon = iconSpec(resolved)
+      this.state.icon = resolved
+    }
+    if (normalized.tooltip !== undefined) {
+      this.state.tooltip = normalized.tooltip ?? undefined
+      msg.tooltip = this.state.tooltip ?? ''
+    }
+    if (normalized.title !== undefined) {
+      this.state.title = normalized.title ?? undefined
+    }
+    if (normalized.menu !== undefined) {
+      this.registry = buildMenuModel(normalized.menu ?? undefined)
+      msg.menu = this.registry.rows
+      this.state.menu = normalized.menu ?? undefined
+    }
+    if (normalized.onActivate !== undefined) {
+      this.state.onActivate = normalized.onActivate ?? undefined
+    }
+    msg.menuOnPrimary = !this.state.onActivate && !!this.state.menu?.length
+    this.sendCommand(msg)
+  }
+
+  destroy(): void {
+    if (this.destroyed) {
+      return
+    }
+    this.destroyed = true
+    try {
+      this.sendCommand({ t: 'destroy' })
+    } catch {
+      this.worker.terminate()
+    }
+  }
+
+  handleActivate() {
+    if (this.state.onActivate) {
+      safeCall(this.state.onActivate)
+    }
+  }
+
+  handleMenuCommand(cmd: number) {
+    const entry = this.registry.byId.get(cmd)
+    if (entry) {
+      dispatchTraySelect(entry.item, entry.option)
+    }
+  }
+
+  private assertLive() {
+    if (this.destroyed) {
+      throw new TrayError('destroyed', `tray ${this.id} is destroyed`)
+    }
+  }
 }
 
 function requireWin32() {
-	const { NSWinRT: nsrt } = projection()
-	if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer) {
-		throw new TrayError(
-			'unsupported-runtime',
-			'the Windows host does not expose the Win32 FFI needed for tray and window helpers',
-		)
-	}
+  const { NSWinRT: nsrt } = projection()
+  if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer) {
+    throw new TrayError(
+      'unsupported-runtime',
+      'the Windows host does not expose the Win32 FFI needed for tray and window helpers',
+    )
+  }
 }
 
 /** Reveal and focus the app's windows; `false` when no app window exists to show. */
 export function showAppWindows(): boolean {
-	requireWin32()
-	const hwnds = appWindows()
-	for (const hwnd of hwnds) {
-		call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(5)) // SW_SHOW
-	}
-	if (hwnds.length > 0) {
-		call('user32.dll', 'SetForegroundWindow', 'bool', ptr(hwnds[0]))
-	}
-	return hwnds.length > 0
+  requireWin32()
+  const hwnds = appWindows()
+  for (const hwnd of hwnds) {
+    call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(5)) // SW_SHOW
+  }
+  if (hwnds.length > 0) {
+    call('user32.dll', 'SetForegroundWindow', 'bool', ptr(hwnds[0]))
+  }
+  return hwnds.length > 0
 }
 
 /** Hide the app's visible windows. */
 export function hideAppWindows(): void {
-	requireWin32()
-	for (const hwnd of appWindows()) {
-		call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(0)) // SW_HIDE
-	}
+  requireWin32()
+  for (const hwnd of appWindows()) {
+    call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(0)) // SW_HIDE
+  }
 }
 
 /** Toggle window visibility; returns the visibility after toggling. */
 export function toggleAppWindows(): boolean {
-	if (areAppWindowsVisible()) {
-		hideAppWindows()
-		return false
-	}
-	return showAppWindows()
+  if (areAppWindowsVisible()) {
+    hideAppWindows()
+    return false
+  }
+  return showAppWindows()
 }
 
 /** Whether any app window is currently visible. */
 export function areAppWindowsVisible(): boolean {
-	requireWin32()
-	return anyAppWindowVisible()
+  requireWin32()
+  return anyAppWindowVisible()
 }
 
 /** Keep the app running without visible windows until the returned residency releases. */
 export function keepAppResident(_options?: { hideWindowsOnClose?: boolean }): AppResidency {
-	requireWin32()
-	// The packaged Windows host keeps the process alive while JS runs; there is
-	// no last-window-close lifetime to intercept from JS. The returned handle is
-	// an inert hold so callers can keep uniform resident semantics.
-	return { release() {} }
+  requireWin32()
+  // The packaged Windows host keeps the process alive while JS runs; there is
+  // no last-window-close lifetime to intercept from JS. The returned handle is
+  // an inert hold so callers can keep uniform resident semantics.
+  return { release() {} }
 }

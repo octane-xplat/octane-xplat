@@ -48,8 +48,9 @@ for (const name of [
 
 const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
 dependencies['@octane-xplat/cli'] = `file:${stagedCli.cli.archive}`
-const nativeOverrides = Object.fromEntries(stagedCli.payloads.map((payload) =>
-  [payload.manifest.name, `file:${payload.archive}`]))
+const nativeOverrides = Object.fromEntries(
+  stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`]),
+)
 
 const product = {
   productName: 'EditorConsumer',

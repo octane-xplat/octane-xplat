@@ -46,7 +46,9 @@ export function registerInspectionTools(
           .enum(['handler-dispatch'])
           .optional()
           .default('handler-dispatch')
-          .describe('Explicit programmatic dispatch; no CDP or OS input exists in the current contract'),
+          .describe(
+            'Explicit programmatic dispatch; no CDP or OS input exists in the current contract',
+          ),
         requestKey: z
           .string()
           .min(1)

@@ -74,12 +74,11 @@ test('production layout selects only the host payload and installs a direct nati
         cwd: join(root, 'packages', dir),
       }),
     )
+
     depPackages.push({
       manifest: {
         name,
-        version: JSON.parse(
-          readFileSync(join(root, 'packages', dir, 'package.json')),
-        ).version,
+        version: JSON.parse(readFileSync(join(root, 'packages', dir, 'package.json'))).version,
       },
       archive: depTarball,
     })
@@ -89,7 +88,13 @@ test('production layout selects only the host payload and installs a direct nati
   success(
     run(
       'bun',
-      ['pm', 'pack', '--ignore-scripts', '--filename', join(scratch, `octane-xplat-fmt-${fmtVersion}.tgz`)],
+      [
+        'pm',
+        'pack',
+        '--ignore-scripts',
+        '--filename',
+        join(scratch, `octane-xplat-fmt-${fmtVersion}.tgz`),
+      ],
       { cwd: realpathSync(join(root, 'node_modules/@octane-xplat/fmt')) },
     ),
   )
@@ -270,11 +275,9 @@ test('production layout selects only the host payload and installs a direct nati
     }
   }
   success(run('bun', ['install', '--linker', 'isolated'], { cwd: app, env: appEnv }))
-  const transitive = run(
-    'find',
-    [join(app, 'node_modules/.bun'), '-name', 'xplat.exe'],
-    { encoding: 'utf8' },
-  )
+  const transitive = run('find', [join(app, 'node_modules/.bun'), '-name', 'xplat.exe'], {
+    encoding: 'utf8',
+  })
   const transitiveBin = transitive.stdout.split('\n').find(Boolean)
   if (!transitiveBin) {
     console.error('find stderr:', transitive.stderr)

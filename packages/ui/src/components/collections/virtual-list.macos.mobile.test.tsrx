@@ -25,6 +25,7 @@ it('AppKit VirtualList forwards layout-child placement to the scrollview host', 
       col: 2,
       rowSpan: 2,
     })
+
     flushUniversalSync(() => {})
 
     const host = container.children[0]

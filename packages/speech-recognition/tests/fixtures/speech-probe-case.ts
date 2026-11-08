@@ -48,7 +48,9 @@ export async function run(ctx: ProbeContext) {
   // the observed ERROR_* value is evidence, not a failure.
   const second = speechRecognition.start({ lang: 'en-US' })
   const secondResult = await second.result
-  console.log(`SPEECH_RESULT_2 ${JSON.stringify({ reason: secondResult.reason, code: secondResult.error?.code ?? null, nativeCode: secondResult.error?.nativeCode ?? null })}`)
+  console.log(
+    `SPEECH_RESULT_2 ${JSON.stringify({ reason: secondResult.reason, code: secondResult.error?.code ?? null, nativeCode: secondResult.error?.nativeCode ?? null })}`,
+  )
   ctx.record('session2.result', {
     transcript: secondResult.transcript,
     reason: secondResult.reason,

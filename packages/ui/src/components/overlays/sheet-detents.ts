@@ -164,6 +164,7 @@ export function attachSheetDetents(
         dragging = false
         animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh()))
       }
+
       return
     }
 

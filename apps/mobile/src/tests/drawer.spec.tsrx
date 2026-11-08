@@ -37,6 +37,7 @@ function hardwareBack(): boolean {
     activity: Application.android.foregroundActivity,
     cancel: false,
   }
+
   Application.android.notify(event)
   return event.cancel
 }

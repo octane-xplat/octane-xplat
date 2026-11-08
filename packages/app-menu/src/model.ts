@@ -1,4 +1,11 @@
-import { parseAccelerator, toAppKit, toGtk, toWinUI, type ParsedAccelerator } from './accelerator.js'
+import {
+  parseAccelerator,
+  toAppKit,
+  toGtk,
+  toWinUI,
+  type ParsedAccelerator,
+} from './accelerator.js'
+
 import type { AppMenuOptions, AppMenuRole, AppMenuSubmenu } from './shared.js'
 import type { AppMenuPlatform } from './host-types.js'
 
@@ -183,14 +190,17 @@ function normalizeChildren(
     if (typeof entry !== 'object' || entry === null) {
       fail(itemPath, 'expected a menu entry object')
     }
+
     const record = entry as Record<string, unknown>
     const key = record.key
     if (typeof key !== 'string' || !key) {
       fail(itemPath, 'key must be a non-empty string')
     }
+
     if (siblings.has(key)) {
       fail(itemPath, `duplicate sibling key "${key}"`)
     }
+
     siblings.add(key)
 
     switch (record.type) {
@@ -200,6 +210,7 @@ function normalizeChildren(
         if (typeof record.onSelect !== 'function') {
           fail(itemPath, 'onSelect must be a function')
         }
+
         const node: NormalizedAction = {
           kind: 'action',
           id: context.nextId++,
@@ -209,6 +220,7 @@ function normalizeChildren(
           disabled: Boolean(record.isDisabled),
           onSelect: record.onSelect as () => void,
         }
+
         context.nodes.set(node.id, node)
         items.push(node)
         break
@@ -219,9 +231,11 @@ function normalizeChildren(
         if (typeof record.value !== 'boolean') {
           fail(itemPath, 'value must be a boolean')
         }
+
         if (typeof record.onValueChange !== 'function') {
           fail(itemPath, 'onValueChange must be a function')
         }
+
         const node: NormalizedCheckbox = {
           kind: 'checkbox',
           id: context.nextId++,
@@ -232,6 +246,7 @@ function normalizeChildren(
           disabled: Boolean(record.isDisabled),
           onValueChange: record.onValueChange as (value: boolean) => void,
         }
+
         context.nodes.set(node.id, node)
         items.push(node)
         break
@@ -243,6 +258,7 @@ function normalizeChildren(
         if (items.length === 0 || items[items.length - 1]!.kind === 'separator') {
           break
         }
+
         items.push(node)
         break
       }
@@ -251,33 +267,52 @@ function normalizeChildren(
         if (!Array.isArray(record.items)) {
           fail(itemPath, 'items must be an array')
         }
+
         const node: NormalizedSubmenu = {
           kind: 'submenu',
           key,
           label,
           items: normalizeChildren(record.items, `${itemPath}.items`, context),
         }
+
         items.push(node)
         break
       }
       case 'role': {
         if (context.platform === 'windows') {
-          fail(itemPath, 'standard app menu roles are unsupported on Windows; use an action callback')
+          fail(
+            itemPath,
+            'standard app menu roles are unsupported on Windows; use an action callback',
+          )
         }
+
         const role = record.role
         if (typeof role !== 'string' || !ROLES.has(role as AppMenuRole)) {
           fail(itemPath, `unknown role ${JSON.stringify(role)}`)
         }
+
         let label = ROLE_DEFAULT_LABELS[role as AppMenuRole]
         if (record.label !== undefined) {
           if (typeof record.label !== 'string' || !record.label) {
             fail(itemPath, 'label must be a non-empty string')
           }
+
           label = record.label
         }
-        const node: NormalizedRole = { kind: 'role', id: context.nextId++, key, role: role as AppMenuRole, label }
+
+        const node: NormalizedRole = {
+          kind: 'role',
+          id: context.nextId++,
+          key,
+          role: role as AppMenuRole,
+          label,
+        }
+
         context.nodes.set(node.id, node)
-        const registered = context.platform ? ROLE_ACCELERATORS[context.platform][node.role] : undefined
+        const registered = context.platform
+          ? ROLE_ACCELERATORS[context.platform][node.role]
+          : undefined
+
         if (registered) {
           noteAccelerator(
             context,
@@ -286,6 +321,7 @@ function normalizeChildren(
             `${itemPath} (role "${node.role}")`,
           )
         }
+
         items.push(node)
         break
       }
@@ -352,21 +388,29 @@ export function normalizeAppMenu(
   const topKeys = new Set<string>()
   for (const [index, menu] of menus.entries()) {
     const path = `menus[${index}]`
-    if (typeof menu !== 'object' || menu === null || (menu as { type?: unknown }).type !== 'submenu') {
+    if (
+      typeof menu !== 'object' ||
+      menu === null ||
+      (menu as { type?: unknown }).type !== 'submenu'
+    ) {
       fail(path, 'menu bar entries must be submenus')
     }
+
     const record = menu as unknown as Record<string, unknown>
     if (typeof record.key !== 'string' || !record.key) {
       fail(path, 'key must be a non-empty string')
     }
+
     if (topKeys.has(record.key)) {
       fail(path, `duplicate sibling key "${record.key}"`)
     }
+
     topKeys.add(record.key)
     const label = requireLabel(record, path)
     if (!Array.isArray(record.items)) {
       fail(path, 'items must be an array')
     }
+
     normalized.push({
       kind: 'submenu',
       key: record.key,
@@ -382,6 +426,7 @@ export function normalizeAppMenu(
     if (!Array.isArray(applicationItems)) {
       fail('options.macos.applicationItems', 'must be an array')
     }
+
     if (platform === 'macos') {
       normalizedApplicationItems = normalizeChildren(
         applicationItems,
@@ -389,7 +434,13 @@ export function normalizeAppMenu(
         context,
       )
     } else {
-      const dormant: NormalizationContext = { platform: null, nodes: new Map(), nextId: context.nextId, accelerators: null }
+      const dormant: NormalizationContext = {
+        platform: null,
+        nodes: new Map(),
+        nextId: context.nextId,
+        accelerators: null,
+      }
+
       normalizedApplicationItems = normalizeChildren(
         applicationItems,
         'options.macos.applicationItems',

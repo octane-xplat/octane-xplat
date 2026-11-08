@@ -16,8 +16,7 @@ declare const __ANDROID__: boolean
 declare const __IOS__: boolean
 
 const isMobile =
-  (typeof __ANDROID__ !== 'undefined' && __ANDROID__) ||
-  (typeof __IOS__ !== 'undefined' && __IOS__)
+  (typeof __ANDROID__ !== 'undefined' && __ANDROID__) || (typeof __IOS__ !== 'undefined' && __IOS__)
 
 const platform: GlobalShortcutPlatform = isMobile ? 'mobile' : 'unknown'
 const reason = isMobile
@@ -31,12 +30,11 @@ const registry = createRegistry(unsupportedBackend(platform, reason))
  * On this entry point the answer is always unsupported.
  */
 export const getGlobalShortcutSupport: () => Promise<GlobalShortcutSupport> =
-	registry.getGlobalShortcutSupport
+  registry.getGlobalShortcutSupport
 
 /**
  * Create a global-shortcut registry. On this entry point every `register`
  * resolves to an `unsupported` error.
  */
-export const createGlobalShortcuts: (
-	options?: CreateGlobalShortcutsOptions,
-) => GlobalShortcuts = registry.createGlobalShortcuts
+export const createGlobalShortcuts: (options?: CreateGlobalShortcutsOptions) => GlobalShortcuts =
+  registry.createGlobalShortcuts

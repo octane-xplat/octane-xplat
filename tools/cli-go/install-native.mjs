@@ -27,6 +27,7 @@ if (manifest.version === 1 && manifest.cliVersion === pkg.version && !record) {
       manifest.targets ?? {},
     ).join(', ')}`,
   )
+
   process.exit(0)
 }
 

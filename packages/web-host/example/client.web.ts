@@ -9,5 +9,6 @@ await startWebApp({
   App,
   onRecoverableError: (error) => console.error('Page hydration failed', error),
 })
+
 // Readiness marker for browser checks: startup finished without throwing.
 document.documentElement.dataset.webApp = 'started'

@@ -177,8 +177,7 @@ if (values['build-only']) {
   assert.equal(outcome.status, 'pass')
   assert.ok(
     outcome.assertions.some(
-      (entry) =>
-        entry.name === 'transaction persists its insert' && entry.pass === true,
+      (entry) => entry.name === 'transaction persists its insert' && entry.pass === true,
     ),
     'fixture must reach the committed-row assertion; an empty probe is not a pass',
   )

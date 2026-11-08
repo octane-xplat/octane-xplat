@@ -62,6 +62,7 @@ console.log('MACOS_SPEECH_HOST_BOUNDARY_OK');
     ],
     { encoding: 'utf8' },
   )
+
   let output = ''
   let resolveDone = () => {}
   const done = new Promise((resolve) => {
@@ -77,6 +78,7 @@ console.log('MACOS_SPEECH_HOST_BOUNDARY_OK');
     })
     run.on('exit', resolveDone)
   })
+
   const timeout = setTimeout(() => resolveDone(), 30000)
   await done
   clearTimeout(timeout)
@@ -88,5 +90,7 @@ console.log('MACOS_SPEECH_HOST_BOUNDARY_OK');
   )
 } finally {
   await rm(app, { recursive: true, force: true })
-  if (artifactDir) {await rm(artifactDir, { recursive: true, force: true })}
+  if (artifactDir) {
+    await rm(artifactDir, { recursive: true, force: true })
+  }
 }

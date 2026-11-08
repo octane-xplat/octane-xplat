@@ -25,6 +25,7 @@ const boundContext = (workspaceRoot) => {
         const manifest = JSON.parse(
           readFileSync(join(app.root, 'node_modules/@octane-xplat/ui/package.json'), 'utf8'),
         )
+
         fixture.identity.framework = {
           status: 'installed',
           packages: [{ name: '@octane-xplat/ui', version: manifest.version, source: 'installed' }],

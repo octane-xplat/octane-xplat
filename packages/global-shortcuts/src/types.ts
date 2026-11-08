@@ -140,7 +140,9 @@ export interface GlobalShortcut {
   unregister(): Promise<boolean>
 }
 
-export type GlobalShortcutResult = { ok: true; shortcut: GlobalShortcut } | { ok: false; error: GlobalShortcutError }
+export type GlobalShortcutResult =
+  | { ok: true; shortcut: GlobalShortcut }
+  | { ok: false; error: GlobalShortcutError }
 
 /** A registry of global shortcuts. Create via `createGlobalShortcuts`. */
 export interface GlobalShortcuts {

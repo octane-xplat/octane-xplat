@@ -1,9 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import {
-  mapAndroidSpeechError,
-  mapAppleSpeechError,
-  mapWebSpeechError,
-} from '../src/error-map'
+import { mapAndroidSpeechError, mapAppleSpeechError, mapWebSpeechError } from '../src/error-map'
 import type { SpeechRecognitionErrorCode } from '../src/types'
 
 describe('mapWebSpeechError', () => {

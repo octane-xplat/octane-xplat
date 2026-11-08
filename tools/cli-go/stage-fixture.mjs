@@ -14,10 +14,10 @@ import { nativePlatforms, stageRelease } from './stage-release.mjs'
 export const hostTarget = `${process.platform === 'win32' ? 'windows' : process.platform}-${
   process.arch === 'x64' ? 'amd64' : process.arch
 }`
+
 export const hostOsCpu = `${process.platform}-${process.arch}`
 
-const binaryName = (target) =>
-  `xplat-go-${target}-cli${target.startsWith('windows') ? '.exe' : ''}`
+const binaryName = (target) => `xplat-go-${target}-cli${target.startsWith('windows') ? '.exe' : ''}`
 
 /**
  * Copy the real host build into nativeDir and fabricate the remaining
@@ -51,9 +51,14 @@ export function nativeFixture(root, hostBinary) {
     const bytes = Buffer.from(`inert fixture image for ${target}\n`)
     writeFileSync(binary, bytes, { mode: 0o755 })
     const archive = binary + '.tgz'
-    const packed = spawnSync('tar', ['-czf', archive, '-C', notices, 'LICENSE', 'THIRD-PARTY-NOTICES.txt'], {
-      encoding: 'utf8',
-    })
+    const packed = spawnSync(
+      'tar',
+      ['-czf', archive, '-C', notices, 'LICENSE', 'THIRD-PARTY-NOTICES.txt'],
+      {
+        encoding: 'utf8',
+      },
+    )
+
     assert.equal(packed.status, 0, packed.stderr)
     const image = createHash('sha256').update(bytes).digest('hex')
     const tgz = readFileSync(archive)
@@ -69,6 +74,7 @@ export function nativeFixture(root, hostBinary) {
         sha256: createHash('sha256').update(tgz).digest('hex'),
       },
     }
+
     writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
   }
   rmSync(notices, { recursive: true, force: true })
@@ -79,8 +85,13 @@ export function nativeFixture(root, hostBinary) {
 export function stageHostCli(root, outputDir) {
   const nativeDir = nativeFixture(root, join(root, 'research/go-cli', binaryName(hostTarget)))
   try {
-    return stageRelease({ root, outputDir, nativeDir, ignoreScripts: true,
-      version: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version })
+    return stageRelease({
+      root,
+      outputDir,
+      nativeDir,
+      ignoreScripts: true,
+      version: JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version,
+    })
   } finally {
     rmSync(nativeDir, { recursive: true, force: true })
   }
@@ -91,7 +102,8 @@ export function repairPackedCli(app) {
   const require = createRequire(join(app, 'package.json'))
   const cli = dirname(require.resolve('@octane-xplat/cli/package.json'))
   const result = spawnSync(process.execPath, [join(cli, 'install-native.mjs')], {
-    cwd: app, encoding: 'utf8',
+    cwd: app,
+    encoding: 'utf8',
   })
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }

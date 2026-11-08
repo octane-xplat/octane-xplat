@@ -40,7 +40,9 @@ function run(command, args, cwd) {
   }
 
   if (result.status !== 0) {
-    throw new Error(`${command} exited with ${result.status}\n${result.stdout.slice(-12000)}\n${result.stderr.slice(-12000)}`)
+    throw new Error(
+      `${command} exited with ${result.status}\n${result.stdout.slice(-12000)}\n${result.stderr.slice(-12000)}`,
+    )
   }
 }
 

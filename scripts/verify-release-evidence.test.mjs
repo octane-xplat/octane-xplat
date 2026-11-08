@@ -5,7 +5,12 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { parse } from 'yaml'
-import { RELEASE_TRACKS, latestEvidenceArtifact, releaseChannel, verifyEvidence } from './release-channel.ts'
+import {
+  RELEASE_TRACKS,
+  latestEvidenceArtifact,
+  releaseChannel,
+  verifyEvidence,
+} from './release-channel.ts'
 
 const repository = 'octane-xplat/octane-xplat'
 const sha = 'a'.repeat(40)
@@ -335,7 +340,9 @@ function withGithubFixture(callback) {
     const base = `repos/${repository}/actions`
     const responses = {
       [`${base}/runs/200/artifacts?per_page=100&page=1`]: {
-        artifacts: [{ id: 1, name: `ci-evidence-stable-${tree}`, created_at: '2026-11-07T12:13:19Z' }],
+        artifacts: [
+          { id: 1, name: `ci-evidence-stable-${tree}`, created_at: '2026-11-07T12:13:19Z' },
+        ],
       },
       [`${base}/runs/200`]: context.run,
       [`${base}/runs/200/jobs?filter=latest&per_page=100`]: { jobs: context.jobs },
@@ -469,7 +476,13 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 
 test('rerun artifact selection uses creation time and ID regardless of status or expiry', () => {
   const older = { id: 1, name: 'evidence', created_at: '2026-11-07T11:53:01Z', status: 'success' }
-  const newer = { id: 2, name: 'evidence', created_at: '2026-11-07T12:13:19Z', status: 'failure', expired: true }
+  const newer = {
+    id: 2,
+    name: 'evidence',
+    created_at: '2026-11-07T12:13:19Z',
+    status: 'failure',
+    expired: true,
+  }
   assert.equal(latestEvidenceArtifact([newer, older], 'evidence'), newer)
   assert.equal(latestEvidenceArtifact([older, newer], 'evidence'), newer)
   assert.equal(latestEvidenceArtifact([{ ...newer, id: 3 }, newer], 'evidence').id, 3)
@@ -481,7 +494,10 @@ test('stable CLI selects the newer report across artifact pages after a passing 
   withGithubFixture(({ execute, responses, data }) => {
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]
-    responses[path] = { total_count: 2, artifacts: [{ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }] }
+    responses[path] = {
+      total_count: 2,
+      artifacts: [{ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }],
+    }
     responses[path.replace('&page=1', '&page=2')] = { total_count: 2, artifacts: [current] }
     writeFileSync(data, JSON.stringify(responses))
     const result = execute(['--tree', tree])
@@ -494,7 +510,10 @@ test('stable CLI rejects expired newest evidence instead of falling back', () =>
   withGithubFixture(({ execute, responses, data }) => {
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]
-    responses[path].artifacts = [{ ...current, expired: true }, { ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }]
+    responses[path].artifacts = [
+      { ...current, expired: true },
+      { ...current, id: 2, created_at: '2026-11-07T11:53:01Z' },
+    ]
     writeFileSync(data, JSON.stringify(responses))
     const result = execute(['--tree', tree])
     assert.notEqual(result.status, 0)
@@ -521,13 +540,15 @@ test('attempt-bound evidence rejects a stale attempt and keeps existing records 
   assert.equal(verifyEvidence(evidence, context), 'stable')
 })
 
-
 test('invalid newest contents are rejected without trying an older artifact', () => {
   withGithubFixture(({ execute, responses, data, directory, zip }) => {
     const { evidence } = fixture()
     evidence.sha = 'wrong'
     writeFileSync(join(directory, 'ci-evidence.json'), JSON.stringify(evidence))
-    const packed = spawnSync('zip', ['-q', zip, 'ci-evidence.json'], { cwd: directory, encoding: 'utf8' })
+    const packed = spawnSync('zip', ['-q', zip, 'ci-evidence.json'], {
+      cwd: directory,
+      encoding: 'utf8',
+    })
     assert.equal(packed.status, 0, packed.stderr)
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]

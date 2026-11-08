@@ -1007,7 +1007,12 @@ export function registerDevChannel(
   return {
     send(to: 'backend' | 'panels', data: unknown): boolean {
       const rt = state.bridge
-      if (entry.closed || !rt?.endpoint.socket || rt.socket?.readyState !== 1 || !rt.channelCapable) {
+      if (
+        entry.closed ||
+        !rt?.endpoint.socket ||
+        rt.socket?.readyState !== 1 ||
+        !rt.channelCapable
+      ) {
         return false
       }
       try {
@@ -1153,11 +1158,13 @@ function connectAppSocket(rt: BridgeRuntime) {
         rt.lastError = undefined
         rt.channelCapable =
           Array.isArray(frame.capabilities) && frame.capabilities.includes('channels')
+
         notifyChannels(registry())
       } else if (frame.type === 'channel' && rt.state === 'live') {
         // Channels the app never declared are routed nowhere; unknown ids are ignored.
         const entry =
           typeof frame.channel === 'string' ? registry().channels?.get(frame.channel) : undefined
+
         if (entry && !entry.closed && (frame.from === 'backend' || frame.from === 'panel')) {
           entry.handlers.message({
             from: frame.from,
@@ -1170,12 +1177,8 @@ function connectAppSocket(rt: BridgeRuntime) {
         // naming channels the app never declared are ignored.
         const entry =
           typeof frame.channel === 'string' ? registry().channels?.get(frame.channel) : undefined
-        if (
-          entry &&
-          !entry.closed &&
-          typeof frame.code === 'string' &&
-          entry.handlers.error
-        ) {
+
+        if (entry && !entry.closed && typeof frame.code === 'string' && entry.handlers.error) {
           entry.handlers.error({
             code: frame.code as ChannelErrorCode,
             detail: typeof frame.detail === 'string' ? frame.detail : '',

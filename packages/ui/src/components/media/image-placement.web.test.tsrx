@@ -19,6 +19,7 @@ function mount(props: any = {}) {
       </Grid>,
     ),
   )
+
   return { root, img: el.querySelector('img') as HTMLImageElement }
 }
 

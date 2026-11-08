@@ -42,10 +42,7 @@ export function previewLayerDisplaying(layer: any): boolean {
  *  edge detection. Returns the detach, or `undefined` when the runtime
  *  predates the iOS 13 `previewing` property and no display signal
  *  exists. */
-export function observePreviewDisplay(
-  layer: any,
-  change: () => void,
-): (() => void) | undefined {
+export function observePreviewDisplay(layer: any, change: () => void): (() => void) | undefined {
   if (
     typeof layer?.addObserverForKeyPathOptionsContext !== 'function' ||
     typeof layer.previewing !== 'boolean'

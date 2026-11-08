@@ -50,19 +50,16 @@ test('packs all pending packages before npm publication and skips existing versi
     }
     return { status: 0, stdout: '', stderr: '' }
   }
-  assert.deepEqual(
-    publishRelease({ root, tag: 'nightly', nativeDir, stager: staged, run }),
-    [
-      '@octane-xplat/cli-native-darwin-arm64@1.0.0',
-      '@octane-xplat/cli-native-darwin-x64@1.0.0',
-      '@octane-xplat/cli-native-linux-x64@1.0.0',
-      '@octane-xplat/cli-native-linux-arm64@1.0.0',
-      '@octane-xplat/cli-native-win32-x64@1.0.0',
-      '@octane-xplat/cli@1.0.0',
-      'a@1.0.0',
-      'b@1.0.0',
-    ],
-  )
+  assert.deepEqual(publishRelease({ root, tag: 'nightly', nativeDir, stager: staged, run }), [
+    '@octane-xplat/cli-native-darwin-arm64@1.0.0',
+    '@octane-xplat/cli-native-darwin-x64@1.0.0',
+    '@octane-xplat/cli-native-linux-x64@1.0.0',
+    '@octane-xplat/cli-native-linux-arm64@1.0.0',
+    '@octane-xplat/cli-native-win32-x64@1.0.0',
+    '@octane-xplat/cli@1.0.0',
+    'a@1.0.0',
+    'b@1.0.0',
+  ])
   const published = calls.filter((c) => c[1] === 'publish').map((c) => c[2])
   assert.equal(published.length, 8)
   // Payloads first, then the CLI, then everything else.

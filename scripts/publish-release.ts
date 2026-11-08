@@ -115,12 +115,11 @@ export function publishRelease({
           throw new Error(`Bun pack failed for ${identity}: ${packed.stderr}`)
         }
 
-        const files = readdirSync(work).filter(
-          (name) => name.endsWith('.tgz') && !before.has(name),
-        )
+        const files = readdirSync(work).filter((name) => name.endsWith('.tgz') && !before.has(name))
         if (files.length !== 1) {
           throw new Error(`Expected one tarball for ${identity}, found ${files.length}`)
         }
+
         tarball = join(work, files[0])
       }
 
@@ -129,8 +128,7 @@ export function publishRelease({
 
     // Payloads publish before the CLI that installs them; the CLI precedes
     // dependents like the octane-xplat umbrella.
-    const order = (name: string) =>
-      payloadPackage(name) ? 0 : name === cliPackage ? 1 : 2
+    const order = (name: string) => (payloadPackage(name) ? 0 : name === cliPackage ? 1 : 2)
     pending.sort((a, b) => order(a.name) - order(b.name))
 
     for (const pkg of pending) {

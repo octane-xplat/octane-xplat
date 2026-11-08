@@ -22,7 +22,14 @@ let server, browser
 try {
   const checked = spawnSync(
     'bun',
-    ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'tests/fixtures/routing-auth/tsconfig.json'],
+    [
+      'run',
+      'tsc',
+      '--runExternalCode',
+      '--noEmit',
+      '-p',
+      'tests/fixtures/routing-auth/tsconfig.json',
+    ],
     { cwd: fileURLToPath(new URL('../', import.meta.url)), encoding: 'utf8', timeout: 60000 },
   )
 

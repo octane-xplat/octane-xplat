@@ -1,8 +1,5 @@
 import { afterEach, describe, expect, it } from 'vitest'
-import {
-  mapWindowsSpeechError,
-  speechRecognition,
-} from '../src/speech-recognition.windows'
+import { mapWindowsSpeechError, speechRecognition } from '../src/speech-recognition.windows'
 import type { SpeechRecognitionErrorCode } from '../src/types'
 
 describe('mapWindowsSpeechError', () => {

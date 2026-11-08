@@ -61,6 +61,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
           content,
           null,
         )
+
         UNUserNotificationCenter.currentNotificationCenter().addNotificationRequestWithCompletionHandler(
           request,
           () => {},

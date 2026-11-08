@@ -12,6 +12,7 @@ import type {
   SpeechEngineHandle,
   SpeechEngineSink,
 } from './session-core'
+
 import { SpeechRecognitionError } from './types'
 import type { SpeechRecognitionAvailability, SpeechRecognitionImpl } from './types'
 
@@ -61,9 +62,14 @@ function parseAvailability(json: string): AppleAvailabilityPayload | null {
     }
 
     const { available, reason, lang, onDevice } = value
-    if (typeof available !== 'boolean' || typeof lang !== 'string' || typeof onDevice !== 'boolean') {
+    if (
+      typeof available !== 'boolean' ||
+      typeof lang !== 'string' ||
+      typeof onDevice !== 'boolean'
+    ) {
       return null
     }
+
     if (reason === null || reason === 'language-unsupported' || reason === 'service-unavailable') {
       return { available, reason, lang, onDevice }
     }
@@ -157,7 +163,9 @@ const engine: SpeechEngine = {
   },
   defaultLang: () => XplatSpeechRecognizer.defaultLanguage(),
   readPermission: () =>
-    Promise.resolve(present() ? mapPermission(XplatSpeechRecognizer.permissionStatus()) : mapPermission('')),
+    Promise.resolve(
+      present() ? mapPermission(XplatSpeechRecognizer.permissionStatus()) : mapPermission(''),
+    ),
   ensurePermission: () =>
     present()
       ? new Promise((resolve) => {

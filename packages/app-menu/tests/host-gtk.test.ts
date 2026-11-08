@@ -64,9 +64,12 @@ describe('host.gtk', () => {
     install([
       { type: 'action', key: 'a', label: '_Open', onSelect: () => {} },
       { type: 'separator', key: 's1' },
-      { type: 'submenu', key: 'sub', label: 'More', items: [
-        { type: 'action', key: 'b', label: 'Deep', onSelect: () => {} },
-      ]},
+      {
+        type: 'submenu',
+        key: 'sub',
+        label: 'More',
+        items: [{ type: 'action', key: 'b', label: 'Deep', onSelect: () => {} }],
+      },
       { type: 'separator', key: 's2' },
       { type: 'action', key: 'c', label: 'Close_now', onSelect: () => {} },
     ])
@@ -79,14 +82,24 @@ describe('host.gtk', () => {
     expect(sections[0]!.section.children).toEqual([
       { label: '__Open', action: expect.stringMatching(/^app\.xplat-menu-\d+-3-\d+$/) },
     ])
-    const sub = sections[1]!.section.children[0] as { label: string; submenu: InstanceType<typeof Gio.Menu> }
+    const sub = sections[1]!.section.children[0] as {
+      label: string
+      submenu: InstanceType<typeof Gio.Menu>
+    }
     expect(sub.label).toBe('More')
     expect(sections[2]!.section.children[0]).toMatchObject({ label: 'Close__now' })
   })
 
   it('registers simple and stateful actions with enabled flags and accels', () => {
     install([
-      { type: 'action', key: 'a', label: 'A', accelerator: 'Mod+O', isDisabled: true, onSelect: () => {} },
+      {
+        type: 'action',
+        key: 'a',
+        label: 'A',
+        accelerator: 'Mod+O',
+        isDisabled: true,
+        onSelect: () => {},
+      },
       { type: 'checkbox', key: 'w', label: 'Wrap', value: true, onValueChange: () => {} },
     ])
     const actions = [...app().actions.values()]
@@ -137,9 +150,7 @@ describe('host.gtk', () => {
       { type: 'role', key: 'min', role: 'minimize' },
       { type: 'role', key: 'quit', role: 'quit' },
     ])
-    const byAction = new Map(
-      [...app().actions.entries()].map(([name, action]) => [name, action]),
-    )
+    const byAction = new Map([...app().actions.entries()].map(([name, action]) => [name, action]))
     const names = [...byAction.keys()]
     const [close, minimize, quit] = names
     expect(app().accels.get(`app.${close}`)).toEqual(['<Control>w'])
@@ -157,7 +168,9 @@ describe('host.gtk', () => {
     expect(oldNames).toHaveLength(1)
     // Same shape tree, next generation: ids restart at 1, names must not collide.
     const next = normalizeAppMenu(
-      menus([{ type: 'action', key: 'a', label: 'A', accelerator: 'Control+S', onSelect: () => {} }]),
+      menus([
+        { type: 'action', key: 'a', label: 'A', accelerator: 'Control+S', onSelect: () => {} },
+      ]),
       undefined,
       'linux',
       tree.generation + 1,

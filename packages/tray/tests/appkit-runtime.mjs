@@ -16,23 +16,27 @@ const directory = await mkdtemp(join(tmpdir(), 'octane-tray-runtime-'))
 
 // 4x4 red PNG fixture for file-icon checks.
 const PNG =
-	'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQI12P8z8AARQwMDAxMDEAMMIqhgYGBgQEACz8BAeM8u8oAAAAASUVORK5CYII='
+  'iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAYAAACp8Z5+AAAAHklEQVQI12P8z8AARQwMDAxMDEAMMIqhgYGBgQEACz8BAeM8u8oAAAAASUVORK5CYII='
 
 try {
-	const modules = join(directory, 'node_modules/@octane-xplat')
-	await mkdir(modules, { recursive: true })
-	for (const name of ['platform', 'tray']) {
-		await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
-	}
-	await writeFile(join(directory, 'package.json'), JSON.stringify({ name: 'tray-runtime', private: true, type: 'module' }))
+  const modules = join(directory, 'node_modules/@octane-xplat')
+  await mkdir(modules, { recursive: true })
+  for (const name of ['platform', 'tray']) {
+    await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
+  }
 
-	const iconPath = join(directory, 'icon.png')
-	await writeFile(iconPath, Buffer.from(PNG, 'base64'))
+  await writeFile(
+    join(directory, 'package.json'),
+    JSON.stringify({ name: 'tray-runtime', private: true, type: 'module' }),
+  )
 
-	const caseFile = join(directory, 'case.ts')
-	await writeFile(
-		caseFile,
-		`
+  const iconPath = join(directory, 'icon.png')
+  await writeFile(iconPath, Buffer.from(PNG, 'base64'))
+
+  const caseFile = join(directory, 'case.ts')
+  await writeFile(
+    caseFile,
+    `
 import { NSApp, NSWindow, NSMenuItem } from '@octane-xplat/platform/macos'
 import { createTray, getTrayAvailability, showAppWindows, hideAppWindows, toggleAppWindows, areAppWindowsVisible, keepAppResident, TrayError } from ${JSON.stringify(join(repo, 'packages/tray/src/index.macos.ts'))}
 
@@ -175,54 +179,54 @@ setTimeout(async () => {
 	}
 }, 0)
 `,
-	)
+  )
 
-	const artifact = await buildMacOSNative(directory)
-	assert.deepEqual(artifact.leaves, [])
-	const bootstrap = join(directory, 'bootstrap.js')
-	await writeNativeBootstrap(artifact, bootstrap)
+  const artifact = await buildMacOSNative(directory)
+  assert.deepEqual(artifact.leaves, [])
+  const bootstrap = join(directory, 'bootstrap.js')
+  await writeNativeBootstrap(artifact, bootstrap)
 
-	await build({
-		root: directory,
-		configFile: false,
-		logLevel: 'error',
-		resolve: { conditions: ['macos'], extensions: ['.macos.ts', '.ts', '.js'] },
-		build: {
-			outDir: join(directory, 'dist'),
-			target: 'es2022',
-			lib: { entry: caseFile, formats: ['cjs'], fileName: () => 'case.cjs' },
-			minify: false,
-		},
-	})
+  await build({
+    root: directory,
+    configFile: false,
+    logLevel: 'error',
+    resolve: { conditions: ['macos'], extensions: ['.macos.ts', '.ts', '.js'] },
+    build: {
+      outDir: join(directory, 'dist'),
+      target: 'es2022',
+      lib: { entry: caseFile, formats: ['cjs'], fileName: () => 'case.cjs' },
+      minify: false,
+    },
+  })
 
-	const host = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
-	const result = await new Promise((resolve) => {
-		const child = spawn(
-			join(host, 'host'),
-			[
-				join(host, 'NativeScript.framework/Versions/A/NativeScript'),
-				join(directory, 'dist/case.cjs'),
-				artifact.metadata[process.arch === 'x64' ? 'x86_64' : 'arm64'],
-				bootstrap,
-			],
-			{ timeout: 60_000 },
-		)
-		let output = ''
-		child.stdout.setEncoding('utf8').on('data', (chunk) => (output += chunk))
-		child.stderr.setEncoding('utf8').on('data', (chunk) => (output += chunk))
-		child.on('close', (status) => resolve({ status, output }))
-		child.on('error', (error) => resolve({ status: 1, output: String(error) }))
-	})
+  const host = join(repo, 'packages/cli/src/macos/jsc-host/prebuilt/macos')
+  const result = await new Promise((resolve) => {
+    const child = spawn(
+      join(host, 'host'),
+      [
+        join(host, 'NativeScript.framework/Versions/A/NativeScript'),
+        join(directory, 'dist/case.cjs'),
+        artifact.metadata[process.arch === 'x64' ? 'x86_64' : 'arm64'],
+        bootstrap,
+      ],
+      { timeout: 60_000 },
+    )
+    let output = ''
+    child.stdout.setEncoding('utf8').on('data', (chunk) => (output += chunk))
+    child.stderr.setEncoding('utf8').on('data', (chunk) => (output += chunk))
+    child.on('close', (status) => resolve({ status, output }))
+    child.on('error', (error) => resolve({ status: 1, output: String(error) }))
+  })
 
-	const output = result.output
-	assert.equal(result.status, 0, output)
-	assert.doesNotMatch(output, /TRAY_RUNTIME_FAIL/)
-	assert.match(output, /TRAY_RUNTIME_OK/)
-	console.log(output.trim())
+  const output = result.output
+  assert.equal(result.status, 0, output)
+  assert.doesNotMatch(output, /TRAY_RUNTIME_FAIL/)
+  assert.match(output, /TRAY_RUNTIME_OK/)
+  console.log(output.trim())
 } finally {
-	if (process.env.TRAY_TEST_KEEP_TMP) {
-		console.log('kept ' + directory)
-	} else {
-		await rm(directory, { recursive: true, force: true })
-	}
+  if (process.env.TRAY_TEST_KEEP_TMP) {
+    console.log('kept ' + directory)
+  } else {
+    await rm(directory, { recursive: true, force: true })
+  }
 }

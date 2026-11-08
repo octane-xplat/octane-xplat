@@ -126,21 +126,13 @@ export async function run(ctx: ProbeContext) {
     )
 
     ctx.record('defaultWorkerWarmup', warmup)
-    ctx.assert(
-      'worker completes ordinary INSERT and SELECT',
-      warmup.status,
-      'completed',
-    )
+    ctx.assert('worker completes ordinary INSERT and SELECT', warmup.status, 'completed')
 
     if (warmup.status !== 'completed') {
       return
     }
 
-    ctx.assert(
-      'worker returns its warmup row',
-      JSON.stringify(warmup.value),
-      '[{"value":10}]',
-    )
+    ctx.assert('worker returns its warmup row', JSON.stringify(warmup.value), '[{"value":10}]')
 
     phase = 'transaction'
     const progress = { callbackEntered: false, insertIssued: false, insertCompleted: false }
@@ -163,11 +155,7 @@ export async function run(ctx: ProbeContext) {
     })
 
     ctx.assert('transaction reaches its callback', progress.callbackEntered, true)
-    ctx.assert(
-      'transaction completes an awaited INSERT and commits',
-      outcome.status,
-      'completed',
-    )
+    ctx.assert('transaction completes an awaited INSERT and commits', outcome.status, 'completed')
 
     if (outcome.status !== 'completed') {
       return

@@ -43,7 +43,17 @@ void [role, row, indexedRow, forwardedAccessibility, forwardedLayout]
 `,
   )
 
-  run('bun', ['run', 'tsc', '--ignoreConfig', '--noEmit', '--module', 'NodeNext', '--target', 'ES2020', typeFixture])
+  run('bun', [
+    'run',
+    'tsc',
+    '--ignoreConfig',
+    '--noEmit',
+    '--module',
+    'NodeNext',
+    '--target',
+    'ES2020',
+    typeFixture,
+  ])
 
   const {
     cx,

@@ -31,12 +31,14 @@ const args = process.argv.slice(2)
 const result = /\.[cm]?js$/.test(binPath)
   ? spawnSync(process.execPath, [binPath, ...args], { stdio: 'inherit' })
   : spawnSync(binPath, args, { stdio: 'inherit' })
+
 if (result.signal) {
   process.kill(process.pid, result.signal)
 } else if (result.error) {
   if (result.error.code === 'ENOEXEC' || result.error.code === 'EACCES') {
     notInstalled(result.error.message)
   }
+
   console.error(`xplat: ${result.error.message}`)
   process.exit(1)
 } else {

@@ -16,7 +16,7 @@ const registry = createRegistry(backend)
  * portal with desktop-assigned triggers.
  */
 export const getGlobalShortcutSupport: () => Promise<GlobalShortcutSupport> =
-	registry.getGlobalShortcutSupport
+  registry.getGlobalShortcutSupport
 
 /**
  * Create a global-shortcut registry backed by the XDG GlobalShortcuts
@@ -24,6 +24,5 @@ export const getGlobalShortcutSupport: () => Promise<GlobalShortcutSupport> =
  * confirmation; `trigger` on a successful registration reports the keys the
  * desktop granted.
  */
-export const createGlobalShortcuts: (
-	options?: CreateGlobalShortcutsOptions,
-) => GlobalShortcuts = registry.createGlobalShortcuts
+export const createGlobalShortcuts: (options?: CreateGlobalShortcutsOptions) => GlobalShortcuts =
+  registry.createGlobalShortcuts

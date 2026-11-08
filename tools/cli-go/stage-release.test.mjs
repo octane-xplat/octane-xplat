@@ -35,10 +35,7 @@ test('staged release carries the augmented CLI manifest and payload inventory', 
   assert.equal(pkg.version, version)
   assert.equal(pkg.bin.xplat, './bin/xplat.exe')
   assert.equal(pkg.scripts.postinstall, 'node install-native.mjs')
-  assert.deepEqual(
-    Object.keys(pkg.optionalDependencies).sort(),
-    [...nativePlatformPackages].sort(),
-  )
+  assert.deepEqual(Object.keys(pkg.optionalDependencies).sort(), [...nativePlatformPackages].sort())
   for (const name of nativePlatformPackages) {
     assert.equal(pkg.optionalDependencies[name], version)
   }

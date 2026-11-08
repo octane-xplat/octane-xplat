@@ -116,11 +116,15 @@ if (mode === 'verify') {
   const findArtifact = (id) => {
     const artifacts = []
     for (let page = 1; ; page++) {
-      const result = JSON.parse(gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100&page=${page}`))
+      const result = JSON.parse(
+        gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100&page=${page}`),
+      )
+
       artifacts.push(...(result.artifacts ?? []))
       if (artifacts.length >= (result.total_count ?? artifacts.length)) {
         break
       }
+
       assert.ok(result.artifacts?.length, 'incomplete evidence artifact listing')
     }
     return latestEvidenceArtifact(artifacts, artifactName)

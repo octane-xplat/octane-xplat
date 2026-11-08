@@ -152,18 +152,26 @@ test('typecheck help/schema and no-program success do not need Node or installed
 test('the umbrella compiler wins over incidental hoists while an authored compiler wins over the umbrella', () => {
   const directory = project({ 'tsconfig.json': {} })
   put(directory, 'node_modules/octane-xplat/package.json', {
-    name: 'octane-xplat', dependencies: { typescript: '7.1.0-beta' },
+    name: 'octane-xplat',
+    dependencies: { typescript: '7.1.0-beta' },
   })
   put(directory, 'node_modules/octane-xplat/node_modules/typescript/package.json', {
-    name: 'typescript', type: 'module', bin: { tsc: './checker.js' },
+    name: 'typescript',
+    type: 'module',
+    bin: { tsc: './checker.js' },
   })
-  put(directory, 'node_modules/octane-xplat/node_modules/typescript/checker.js',
-    "console.log('toolchain compiler selected')")
+  put(
+    directory,
+    'node_modules/octane-xplat/node_modules/typescript/checker.js',
+    "console.log('toolchain compiler selected')",
+  )
   const inherited = cli(directory)
   assert.equal(inherited.status, 0, inherited.stderr)
   assert.match(inherited.stdout, /toolchain compiler selected/)
   put(directory, 'package.json', {
-    name: 'typecheck-fixture', private: true, type: 'module',
+    name: 'typecheck-fixture',
+    private: true,
+    type: 'module',
     devDependencies: { typescript: '7.1.0-beta' },
   })
   const authored = cli(directory)

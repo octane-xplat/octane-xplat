@@ -37,6 +37,7 @@ const DENIED_MESSAGES = new Set([
   'User denied location permission previously', // Android pre-prompt denial
   'User needs to enable permission from settings', // Android settings-only denial
 ])
+
 const TIMEOUT_MESSAGE = 'Timeout while searching for location!'
 const ANDROID_LOCATION_PERMISSIONS = [
   'android.permission.ACCESS_COARSE_LOCATION',
@@ -48,10 +49,12 @@ function positionErrorCode(reason: unknown): 1 | 2 | 3 {
     if (ANDROID_LOCATION_PERMISSIONS.some((permission) => permission in reason)) {
       return 1
     }
+
     if (reason instanceof Error) {
       if (DENIED_MESSAGES.has(reason.message)) {
         return 1
       }
+
       if (reason.message === TIMEOUT_MESSAGE) {
         return 3
       }

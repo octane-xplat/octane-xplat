@@ -148,6 +148,7 @@ test('a thrown onResult cannot reject the settled run', async () => {
         throw new Error('worker thread already gone')
       },
     })
+
     await tick()
   } finally {
     process.off('unhandledRejection', onRejection)
@@ -200,5 +201,8 @@ test('TaskWorker.java bridges through the registered runner and awaits TaskOutco
   assert.match(WORKER_SOURCE, /CountDownLatch/)
   assert.match(WORKER_SOURCE, /taskRunner\.run\(name, outcome\)/)
   assert.match(WORKER_SOURCE, /outcome\.await\(\)/)
-  assert.match(WORKER_SOURCE, /"success"\.equals\(outcome\.result\(\)\) \? Result\.success\(\) : Result\.retry\(\)/)
+  assert.match(
+    WORKER_SOURCE,
+    /"success"\.equals\(outcome\.result\(\)\) \? Result\.success\(\) : Result\.retry\(\)/,
+  )
 })

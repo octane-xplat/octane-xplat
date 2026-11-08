@@ -44,7 +44,10 @@ const NS_COMMAND = 1 << 20
 /** Role → nil-target selector and registered key equivalent on macOS. `quit`
  *  is absent: outside the automatic application menu it is omitted, and the
  *  app menu owns Quit ⌘Q. */
-const ROLE_ITEMS: Record<Exclude<AppMenuRole, 'quit'>, { selector: string; accelerator: string }> = {
+const ROLE_ITEMS: Record<
+  Exclude<AppMenuRole, 'quit'>,
+  { selector: string; accelerator: string }
+> = {
   undo: { selector: 'undo:', accelerator: 'Mod+Z' },
   redo: { selector: 'redo:', accelerator: 'Mod+Shift+Z' },
   cut: { selector: 'cut:', accelerator: 'Mod+X' },
@@ -111,6 +114,7 @@ function convertEntry(
       if (node.role === 'quit') {
         return null
       }
+
       const role = ROLE_ITEMS[node.role]
       const accel = ROLE_KEY_EQUIVALENTS.get(node.role)!
       return {
@@ -137,10 +141,15 @@ function convertItems(
     if (node === null) {
       continue
     }
+
     // Quit-role omission can strand separators — collapse again here.
-    if (node.type === 'separator' && (nodes.length === 0 || nodes[nodes.length - 1]!.type === 'separator')) {
+    if (
+      node.type === 'separator' &&
+      (nodes.length === 0 || nodes[nodes.length - 1]!.type === 'separator')
+    ) {
       continue
     }
+
     nodes.push(node)
   }
   if (nodes.length && nodes[nodes.length - 1]!.type === 'separator') {
@@ -161,10 +170,7 @@ function item(
 /** The standard application menu always leads the bar: About, separator,
  *  `options.macos.applicationItems` (+ separator), Hide ⌘H, Hide Others ⌥⌘H,
  *  Show All, separator, Quit ⌘Q. */
-function applicationMenu(
-  tree: NormalizedAppMenu,
-  dispatch: AppMenuDispatch,
-): AppKitMenuSubmenu {
+function applicationMenu(tree: NormalizedAppMenu, dispatch: AppMenuDispatch): AppKitMenuSubmenu {
   const name = applicationName()
   const children: AppKitMenuNode[] = [item(`About ${name}`, 'orderFrontStandardAboutPanel:')]
   const extras = convertItems(tree.applicationItems, dispatch, tree.generation)

@@ -69,7 +69,9 @@ describe('host.macos', () => {
     const [appMenu, ...rest] = captured.nodes
     expect(rest).toHaveLength(1)
     expect(appMenu).toMatchObject({ type: 'submenu', title: 'MenuTest' })
-    const titles = appMenu.children.map((child: any) => child.type === 'separator' ? '—' : child.title)
+    const titles = appMenu.children.map((child: any) =>
+      child.type === 'separator' ? '—' : child.title,
+    )
     expect(titles).toEqual([
       'About MenuTest',
       '—',
@@ -106,7 +108,13 @@ describe('host.macos', () => {
     const options = {
       macos: {
         applicationItems: [
-          { type: 'action', key: 'settings', label: 'Settings…', accelerator: 'Mod+,', onSelect: () => {} },
+          {
+            type: 'action',
+            key: 'settings',
+            label: 'Settings…',
+            accelerator: 'Mod+,',
+            onSelect: () => {},
+          },
         ],
       },
     }
@@ -132,7 +140,14 @@ describe('host.macos', () => {
   it('converts actions, checkboxes and selectors; omits quit roles', () => {
     const captured = bridge()
     const { nodes, dispatch } = install(captured, [
-      { type: 'action', key: 'new', label: 'New', accelerator: 'Mod+N', isDisabled: true, onSelect: () => {} },
+      {
+        type: 'action',
+        key: 'new',
+        label: 'New',
+        accelerator: 'Mod+N',
+        isDisabled: true,
+        onSelect: () => {},
+      },
       { type: 'checkbox', key: 'wrap', label: 'Wrap', value: true, onValueChange: () => {} },
       { type: 'separator', key: 's' },
       { type: 'role', key: 'copy', role: 'copy' },
@@ -142,7 +157,9 @@ describe('host.macos', () => {
     const file = nodes[1]
     expect(file).toMatchObject({ type: 'submenu', title: 'File' })
     // The quit role is omitted, and its stranded separator collapsed.
-    const titles = file.children.map((child: any) => child.type === 'separator' ? '—' : child.title)
+    const titles = file.children.map((child: any) =>
+      child.type === 'separator' ? '—' : child.title,
+    )
     expect(titles).toEqual(['New', 'Wrap', '—', 'Copy'])
     const [newItem, wrap, , copy] = file.children
     expect(newItem).toMatchObject({
@@ -167,7 +184,7 @@ describe('host.macos', () => {
     const captured = bridge()
     const roles = [
       ['undo', 'undo:', 'z', COMMAND],
-      ['redo', 'redo:', 'z', COMMAND | 1 << 17],
+      ['redo', 'redo:', 'z', COMMAND | (1 << 17)],
       ['cut', 'cut:', 'x', COMMAND],
       ['copy', 'copy:', 'c', COMMAND],
       ['paste', 'paste:', 'v', COMMAND],

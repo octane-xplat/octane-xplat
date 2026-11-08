@@ -66,9 +66,15 @@ const facade = new FakeFacade()
 const listen = (session: ReturnType<typeof speechRecognition.start>) => {
   const events: string[] = []
   session.subscribe((event) => {
-    if (event.type === 'state') {events.push(`state:${event.state}`)}
-    if (event.type === 'transcript') {events.push(`transcript:${event.transcript}:${event.isFinal}`)}
-    if (event.type === 'end') {events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)}
+    if (event.type === 'state') {
+      events.push(`state:${event.state}`)
+    }
+    if (event.type === 'transcript') {
+      events.push(`transcript:${event.transcript}:${event.isFinal}`)
+    }
+    if (event.type === 'end') {
+      events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)
+    }
   })
   return events
 }
@@ -228,7 +234,14 @@ describe('apple session events', () => {
     const session = speechRecognition.start({ lang: 'en-US' })
     await began()
     facade.handler?.('listening', '', false, '', 0, '')
-    facade.handler?.('interrupted', '', false, 'XplatSpeechRecognizer', 0, 'audio session interrupted')
+    facade.handler?.(
+      'interrupted',
+      '',
+      false,
+      'XplatSpeechRecognizer',
+      0,
+      'audio session interrupted',
+    )
     const result = await session.result
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('interrupted')
@@ -247,7 +260,10 @@ describe('apple session events', () => {
 describe('apple facade copies', () => {
   const packageRoot = join(__dirname, '..')
   const pairs: [string, string][] = [
-    ['platforms/ios/src/XplatSpeechRecognizer.h', 'platforms/macos/include/XplatSpeechRecognizer.h'],
+    [
+      'platforms/ios/src/XplatSpeechRecognizer.h',
+      'platforms/macos/include/XplatSpeechRecognizer.h',
+    ],
     ['platforms/ios/src/XplatSpeechRecognizer.m', 'platforms/macos/src/XplatSpeechRecognizer.m'],
   ]
 

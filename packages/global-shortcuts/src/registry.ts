@@ -70,6 +70,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
         } catch {
           // An onError hook that throws must not take down delivery.
         }
+
         return
       }
       // Rethrown asynchronously; works in hosts without timers (GJS workers).
@@ -88,7 +89,9 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
     let disposePromise: Promise<void> | null = null
     let cleanup: Promise<void> | null = null
     const doDispose = (): Promise<void> => {
-      if (instance.disposed) return cleanup ?? Promise.resolve()
+      if (instance.disposed) {
+        return cleanup ?? Promise.resolve()
+      }
       instance.disposed = true
       // Release records outside the serialized chain: a register call may be
       // parked inside a slow OS bind, and disposal must not wait on it.
@@ -101,6 +104,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           if (processAccelerators.get(record.accelerator.text) === record.token) {
             processAccelerators.delete(record.accelerator.text)
           }
+
           releases.push(record.release().catch(report))
         }
         await Promise.all(releases)
@@ -113,7 +117,9 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
     const releaseRecord = (record: Registration): Promise<boolean> => {
       const result = instance.chain.then(async () => {
-        if (records.get(record.id) !== record) return false
+        if (records.get(record.id) !== record) {
+          return false
+        }
         records.delete(record.id)
         if (processAccelerators.get(record.accelerator.text) === record.token) {
           processAccelerators.delete(record.accelerator.text)
@@ -172,7 +178,9 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
       const token = Symbol(options.id)
       const deliver = (): void => {
-        if (records.get(options.id)?.token !== token) return
+        if (records.get(options.id)?.token !== token) {
+          return
+        }
         try {
           options.onPress({ id: options.id, accelerator: accelerator.text, timestamp: Date.now() })
         } catch (error) {
@@ -247,7 +255,9 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
     const unregister = (id: string): Promise<boolean> => {
       const record = records.get(id)
-      if (!record) return Promise.resolve(false)
+      if (!record) {
+        return Promise.resolve(false)
+      }
       return releaseRecord(record)
     }
 
@@ -259,11 +269,15 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           if (processAccelerators.get(record.accelerator.text) === record.token) {
             processAccelerators.delete(record.accelerator.text)
           }
+
           releases.push(record.release().catch(report))
         }
         await Promise.all(releases)
       })
-      await instance.chain.then(() => undefined, () => undefined)
+      await instance.chain.then(
+        () => undefined,
+        () => undefined,
+      )
     }
 
     return {

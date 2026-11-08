@@ -7,6 +7,7 @@ import {
   type ContractsOf,
   type RouterInstance,
 } from '@octane-xplat/ui/routing/core'
+
 import type { WebAppProps } from '@octane-xplat/web-host/server'
 
 export const catalog = defineRoutes([
@@ -31,6 +32,7 @@ function useAppRouter(): RouterInstance<ContractsOf<typeof catalog>> {
   if (router === null) {
     throw new Error('Screens must render under the app router context')
   }
+
   return router
 }
 
@@ -52,7 +54,9 @@ function Home() {
       <ul>
         @for (const id of products; key id) {
           <li>
-            <NavLink router={router} to="/products/:id" params={{ id }}>Product {id}</NavLink>
+            <NavLink router={router} to="/products/:id" params={{ id }}>
+              Product {id}
+            </NavLink>
           </li>
         }
       </ul>
@@ -68,7 +72,9 @@ function Product(props: { data: { name: string } }) {
       <h1>{props.data.name}</h1>
       <button onClick={() => setCount(count + 1)}>Add to bag: {count}</button>
       <p>
-        <NavLink router={router} to="/">All products</NavLink>
+        <NavLink router={router} to="/">
+          All products
+        </NavLink>
       </p>
     </main>
   )
@@ -81,7 +87,9 @@ function NotFound() {
       <h1>Not found</h1>
       <p>Nothing in the store lives at this address.</p>
       <p>
-        <NavLink router={router} to="/">All products</NavLink>
+        <NavLink router={router} to="/">
+          All products
+        </NavLink>
       </p>
     </main>
   )

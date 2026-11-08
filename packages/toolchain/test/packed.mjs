@@ -1,7 +1,16 @@
 import assert from 'node:assert/strict'
 import { execFileSync, spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
-import { existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  readdirSync,
+  rmSync,
+  writeFileSync,
+} from 'node:fs'
+
 import { homedir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -22,6 +31,7 @@ function repairNativeCli(dir) {
   assert.ok(repair, unrepaired.stderr)
   run(process.execPath, [repair[1]], dir)
 }
+
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/toolchain')
 mkdirSync(scratch, { recursive: true })
 const root = mkdtempSync(join(scratch, 'consumer-'))
@@ -77,16 +87,19 @@ try {
       `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}`,
     ),
   )
+
   const staged = stageRelease({
     root: repo,
     version: json(join(repo, 'packages/cli/package.json')).version,
     nativeDir,
     outputDir: join(root, 'staged-cli'),
   })
+
   overrides['@octane-xplat/cli'] = `file:${staged.cli.archive}`
   for (const payload of staged.payloads) {
     overrides[payload.manifest.name] = `file:${payload.archive}`
   }
+
   // The umbrella now supplies lint/fmt to consumers; pack them into the
   // overrides so their workspace versions resolve.
   pack('@octane-xplat/lint')
@@ -154,6 +167,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
     app,
     `node_modules/.bun/${readdirSync(join(app, 'node_modules/.bun')).find((d) => d.startsWith('@octane-xplat+cli@'))}/node_modules/@octane-xplat/cli/bin/xplat.exe`,
   )
+
   const hostRecord = JSON.parse(
     readFileSync(
       join(
@@ -162,11 +176,13 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
       ),
     ),
   )
+
   assert.equal(
     createHash('sha256').update(readFileSync(cliBin)).digest('hex'),
     hostRecord.sha256,
     'postinstall repair must select the host payload',
   )
+
   // These tools must work without direct app declarations or top-level links.
   for (const name of [
     'typescript',

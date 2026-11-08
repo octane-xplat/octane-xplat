@@ -27,6 +27,7 @@ const NAV_CODES = [
   'ArrowLeft',
   'ArrowRight',
 ] as const
+
 const PUNCT_CODES = [
   'Minus',
   'Equal',
@@ -40,6 +41,7 @@ const PUNCT_CODES = [
   'Slash',
   'Backquote',
 ] as const
+
 const NUMPAD_CODES = [
   'Numpad0',
   'Numpad1',
@@ -179,6 +181,7 @@ export interface WindowsKeyMapping {
   readonly scan?: number
   readonly vk?: number
 }
+
 const WINDOWS_KEYS: Readonly<Record<string, WindowsKeyMapping>> = {
   KeyA: { scan: 0x1e },
   KeyB: { scan: 0x30 },
@@ -330,7 +333,9 @@ const PLATFORM_LABELS: Record<AcceleratorPlatform, string> = {
   linux: 'Linux',
 }
 
-export type ParseAcceleratorResult = { ok: true; accelerator: Accelerator } | { ok: false; error: GlobalShortcutError }
+export type ParseAcceleratorResult =
+  | { ok: true; accelerator: Accelerator }
+  | { ok: false; error: GlobalShortcutError }
 
 const err = (code: GlobalShortcutErrorCode, message: string): ParseAcceleratorResult => ({
   ok: false,
@@ -374,8 +379,12 @@ const detectPlatform = (): AcceleratorPlatform => {
 }
 
 const isMapped = (platform: AcceleratorPlatform, code: string): boolean => {
-  if (platform === 'mac') return MAC_KEYS[code] !== undefined
-  if (platform === 'windows') return WINDOWS_KEYS[code] !== undefined
+  if (platform === 'mac') {
+    return MAC_KEYS[code] !== undefined
+  }
+  if (platform === 'windows') {
+    return WINDOWS_KEYS[code] !== undefined
+  }
   return LINUX_KEYS[code] !== undefined
 }
 
@@ -385,7 +394,10 @@ const isMapped = (platform: AcceleratorPlatform, code: string): boolean => {
  * by position, not by produced character, so single letters like `'k'` are
  * rejected. Returns a structured error instead of throwing.
  */
-export function parseAccelerator(input: string, options?: { platform?: AcceleratorPlatform }): ParseAcceleratorResult {
+export function parseAccelerator(
+  input: string,
+  options?: { platform?: AcceleratorPlatform },
+): ParseAcceleratorResult {
   const platform = options?.platform ?? detectPlatform()
   if (typeof input !== 'string' || input.trim() === '') {
     return err('invalid-accelerator', 'An accelerator must be a non-empty string.')
@@ -417,22 +429,27 @@ export function parseAccelerator(input: string, options?: { platform?: Accelerat
             ? ('meta' as const)
             : ('ctrl' as const)
           : (slot as keyof ParsedModifiers)
+
       const label = MOD_CANONICAL_NAMES[canonical]
       if (modifiers[canonical]) {
         return err('invalid-accelerator', `The accelerator repeats the ${label} modifier.`)
       }
+
       modifiers[canonical] = true
       continue
     }
+
     const codeName = ALL_CODES.has(token)
       ? token
       : ([...ALL_CODES].find((candidate) => candidate.toLowerCase() === lower) ?? null)
+
     if (codeName === null) {
       return err(
         'invalid-accelerator',
         `'${token}' is not a valid global shortcut key; use a physical key code such as KeyK or Digit1.`,
       )
     }
+
     keys.push(codeName)
   }
 

@@ -55,9 +55,8 @@ export function setProductBundleIdentifier(
           ? `PRODUCT_BUNDLE_IDENTIFIER = "${bundleId}";`
           : `PRODUCT_BUNDLE_IDENTIFIER = ${bundleId};`,
     )
-    replaced += (
-      block[0].match(/PRODUCT_BUNDLE_IDENTIFIER = ("([^"]*)"|[^;\s]+);/g) ?? []
-    ).length
+
+    replaced += (block[0].match(/PRODUCT_BUNDLE_IDENTIFIER = ("([^"]*)"|[^;\s]+);/g) ?? []).length
     cursor = block.index + block[0].length
   }
 
@@ -74,10 +73,8 @@ function objectBlock(
   project: string,
   id: string,
   isa: string,
-): RegExpExecArray & { 0: string } | null {
-  const pattern = new RegExp(
-    `${id} /\\* [^*]* \\*/ = \\{\\s*isa = ${isa};[\\s\\S]*?\\};`,
-  )
+): (RegExpExecArray & { 0: string }) | null {
+  const pattern = new RegExp(`${id} /\\* [^*]* \\*/ = \\{\\s*isa = ${isa};[\\s\\S]*?\\};`)
   return pattern.exec(project) as (RegExpExecArray & { 0: string }) | null
 }
 

@@ -180,7 +180,11 @@ void value
 }
 `,
   )
-  writeFileSync(defaultedEntry, `${defaultedEntryOriginal}\nexport { defaulted } from './defaulted'\n`)
+
+  writeFileSync(
+    defaultedEntry,
+    `${defaultedEntryOriginal}\nexport { defaulted } from './defaulted'\n`,
+  )
 
   try {
     const defaulted = spawnSync(
@@ -195,10 +199,7 @@ void value
       `native emit accepts a defaulted parameter before a required one\n${defaulted.stderr}`,
     )
 
-    const declaration = readFileSync(
-      join(packageRoot, 'types/generated/defaulted.d.ts'),
-      'utf8',
-    )
+    const declaration = readFileSync(join(packageRoot, 'types/generated/defaulted.d.ts'), 'utf8')
     assert.match(declaration, /size: number \| undefined/)
   } finally {
     writeFileSync(defaultedEntry, defaultedEntryOriginal)
@@ -232,7 +233,11 @@ export type PublicSurface = typeof import('./declaration-input-index/index')
 export function readIncluded(value: Included): Included { return value }
 `,
     )
-    writeFileSync(declEntry, `${declEntryOriginal}\nexport { readIncluded } from './DeclarationReader'\n`)
+
+    writeFileSync(
+      declEntry,
+      `${declEntryOriginal}\nexport { readIncluded } from './DeclarationReader'\n`,
+    )
 
     run('bun', ['typegen'], packageRoot)
     assert.equal(
@@ -281,6 +286,7 @@ export function readIncluded(value: Included): Included { return value }
     join(packageRoot, `src/${collisionName}.ts`),
     join(packageRoot, `src/${collisionName}.tsrx`),
   ]
+
   const collisionEntry = join(packageRoot, 'src/index.ts')
   const collisionEntryOriginal = readFileSync(collisionEntry, 'utf8')
 
@@ -288,6 +294,7 @@ export function readIncluded(value: Included): Included { return value }
     for (const source of collidingSources) {
       writeFileSync(source, 'export {}\n')
     }
+
     writeFileSync(
       collisionEntry,
       `${collisionEntryOriginal}\nexport * from './${collisionName}.ts'\nexport * from './${collisionName}.tsrx'\n`,
@@ -488,6 +495,7 @@ Badge({ label: 42 })
   const wildcardFiles = ['foo.ts', 'foo.macos.ts', 'only.web.ts', 'orphan.ts'].map((name) =>
     join(packageRoot, 'src', name),
   )
+
   const wildcardConfigPath = join(packageRoot, 'tsrx-typegen.json')
   const wildcardPackagePath = join(packageRoot, 'package.json')
   const wildcardConfigOriginal = readFileSync(wildcardConfigPath, 'utf8')
@@ -503,6 +511,7 @@ Badge({ label: 42 })
       runtime: './src/*',
       types: './types/generated/*.d.ts',
     }
+
     writeFileSync(wildcardConfigPath, JSON.stringify(wildcardConfig, null, 2) + '\n')
 
     const wildcardPackage = JSON.parse(wildcardPackageOriginal)
@@ -510,6 +519,7 @@ Badge({ label: 42 })
       types: './types/generated/*.d.ts',
       default: './src/*',
     }
+
     writeFileSync(wildcardPackagePath, JSON.stringify(wildcardPackage, null, 2) + '\n')
 
     run('bun', ['typegen'], packageRoot)
@@ -519,6 +529,7 @@ Badge({ label: 42 })
         `wildcard emit produced ${emitted}`,
       )
     }
+
     assert.ok(
       !existsSync(join(packageRoot, 'types/generated/foo.macos.d.ts')),
       'platform variant of an unsuffixed contract does not emit',
@@ -558,6 +569,7 @@ Badge({ label: 42 })
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
       packageRoot,
     )
+
     assert.ok(existsSync(outputManifest), 'regeneration records a fresh manifest')
   } finally {
     cpSync(manifestAside, outputManifest, { force: true })

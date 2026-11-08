@@ -27,15 +27,23 @@ test('preview pinch normalizes phases, cumulative scale and bounded focus', () =
       getFocusY: () => 200,
     })
   }
-  assert.deepEqual(events, ['began', 'moved', 'ended', 'cancelled'].map((state) => ({
-    state, scale: 1.5, focus: { x: 0.25, y: 1 },
-  })))
+  assert.deepEqual(
+    events,
+    ['began', 'moved', 'ended', 'cancelled'].map((state) => ({
+      state,
+      scale: 1.5,
+      focus: { x: 0.25, y: 1 },
+    })),
+  )
   dispose()
   assert.equal(host.listeners.size, 0)
 })
 
 test('preview pinch uses center focus when coordinates or preview bounds are unavailable', () => {
-  for (const size of [{ width: 0, height: 0 }, { width: 200, height: 100 }]) {
+  for (const size of [
+    { width: 0, height: 0 },
+    { width: 200, height: 100 },
+  ]) {
     const host = preview(size)
     const events = []
     const dispose = observePreviewPinch(host, (event) => events.push(event))

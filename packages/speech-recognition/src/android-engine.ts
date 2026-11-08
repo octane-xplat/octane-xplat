@@ -27,6 +27,7 @@ import type {
   SpeechEngineHandle,
   SpeechEngineSink,
 } from './session-core'
+
 import { SpeechRecognitionError } from './types'
 import type { SpeechRecognitionAvailability, SpeechRecognitionImpl } from './types'
 
@@ -83,11 +84,7 @@ interface AndroidActivityResultLauncherLike {
 }
 
 interface AndroidActivityResultRegistryLike {
-  register(
-    key: string,
-    contract: unknown,
-    callback: unknown,
-  ): AndroidActivityResultLauncherLike
+  register(key: string, contract: unknown, callback: unknown): AndroidActivityResultLauncherLike
 }
 
 interface AndroidActivityLike {
@@ -185,9 +182,7 @@ interface NativeScriptApplicationClass {
 }
 
 interface AndroidxActivityResultNamespace {
-  ActivityResultCallback: new (impl: {
-    onActivityResult(result: unknown): void
-  }) => unknown
+  ActivityResultCallback: new (impl: { onActivityResult(result: unknown): void }) => unknown
   contract: {
     ActivityResultContracts: {
       RequestPermission: new () => unknown
@@ -433,6 +428,7 @@ function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
     const names = (
       Array as unknown as { create?(type: string, count: number): unknown[] }
     ).create?.('java.lang.String', 1)
+
     if (!names) {
       return Promise.resolve(readPermissionSnapshot())
     }
@@ -441,6 +437,7 @@ function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
     intent = new Intent(REQUEST_PERMISSIONS_ACTION)
       .putExtra(REQUEST_PERMISSIONS_NAMES, names)
       .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK ?? ACTIVITY_NEW_TASK)
+
     const pkg = host.context.getPackageName?.()
     if (pkg) {
       intent.putExtra(REQUEST_PERMISSIONS_PACKAGE, pkg)
@@ -713,5 +710,4 @@ const engine: SpeechEngine = {
 }
 
 /** Speech recognition service — android.speech.SpeechRecognizer engine. */
-export const speechRecognition: Permissioned<SpeechRecognitionImpl> =
-  createSpeechService(engine)
+export const speechRecognition: Permissioned<SpeechRecognitionImpl> = createSpeechService(engine)

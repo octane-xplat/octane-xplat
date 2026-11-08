@@ -53,11 +53,13 @@ assert.equal(version, sourceVersion, 'Native CLI builds pin the lockstep package
 const embedded = JSON.parse(
   readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')),
 )
+
 assert.equal(
   embedded.catalog.cli.version,
   sourceVersion,
   'bump-versions.ts must keep catalog cli.version in sync',
 )
+
 assert.equal(
   embedded.version,
   sourceVersion,

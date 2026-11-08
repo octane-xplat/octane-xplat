@@ -25,6 +25,7 @@ const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const phrase =
   process.argv.find((a) => a.startsWith('--phrase='))?.slice('--phrase='.length) ??
   'the quick brown fox jumps over the lazy dog'
+
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/speech-recognition')
 const work = await mkdtemp(join(tmpdir(), 'xplat-speech-app-'))
 let artifactDir = null
@@ -86,12 +87,15 @@ try {
     join(contents, 'Frameworks', 'NativeScript.framework'),
     'dir',
   )
+
   for (const library of artifact.libraries) {
     await cp(join(artifact.directory, library.file), join(contents, 'Frameworks', library.file))
   }
+
   for (const lib of artifact.prebuilt ?? []) {
     await cp(lib.source, join(contents, 'Frameworks', lib.file))
   }
+
   await writeFile(
     join(contents, 'Info.plist'),
     writeInfoPlist({
@@ -112,13 +116,11 @@ try {
   const script = join(work, 'main.cjs')
   await writeFile(script, main)
 
-  const framework = join(
-    contents,
-    'Frameworks/NativeScript.framework/Versions/A/NativeScript',
-  )
+  const framework = join(contents, 'Frameworks/NativeScript.framework/Versions/A/NativeScript')
   const run = spawn(exe, [framework, script, artifact.metadata.arm64, bootstrap], {
     encoding: 'utf8',
   })
+
   let output = ''
   let said = false
   const done = new Promise((resolveDone) => {
@@ -137,10 +139,12 @@ try {
     })
     run.on('exit', resolveDone)
   })
+
   const timeout = setTimeout(() => {
     run.kill('SIGTERM')
     resolveDone()
   }, 90000)
+
   await done
   clearTimeout(timeout)
 
@@ -159,8 +163,11 @@ try {
     ['quick', 'brown', 'fox'].filter((w) => transcript.includes(w)).length >= 2,
     `final transcript missing phrase words: ${JSON.stringify(transcript)}`,
   )
+
   console.log(`MACOS_SPEECH_APP_OK transcript=${JSON.stringify(transcript)}`)
 } finally {
   await rm(work, { recursive: true, force: true })
-  if (artifactDir) {await rm(artifactDir, { recursive: true, force: true })}
+  if (artifactDir) {
+    await rm(artifactDir, { recursive: true, force: true })
+  }
 }

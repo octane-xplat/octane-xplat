@@ -2,14 +2,7 @@
 // per supported host. Used by scripts/publish-release.ts and every packaging
 // gate — there is no other layout.
 import assert from 'node:assert/strict'
-import {
-  cpSync,
-  mkdirSync,
-  readFileSync,
-  readdirSync,
-  rmSync,
-  writeFileSync,
-} from 'node:fs'
+import { cpSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs'
 
 import { dirname, join } from 'node:path'
 import { spawnSync } from 'node:child_process'
@@ -29,10 +22,8 @@ export const nativePlatformPackages = nativePlatforms.map(([, os, cpu]) =>
   nativePackageName(`${os}-${cpu}`),
 )
 
-const goTarget = (os, cpu) =>
-  `${os === 'win32' ? 'windows' : os}-${cpu === 'x64' ? 'amd64' : cpu}`
-const binaryName = (target) =>
-  `xplat-go-${target}-cli${target.startsWith('windows') ? '.exe' : ''}`
+const goTarget = (os, cpu) => `${os === 'win32' ? 'windows' : os}-${cpu === 'x64' ? 'amd64' : cpu}`
+const binaryName = (target) => `xplat-go-${target}-cli${target.startsWith('windows') ? '.exe' : ''}`
 
 function pack(directory, destination, ignoreScripts = false) {
   const result = spawnSync(
@@ -168,7 +159,7 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   assert.equal(pkg.name, '@octane-xplat/cli')
   assert.equal(pkg.version, version, 'CLI manifest version must match the staged version')
   pkg.bin = { xplat: './bin/xplat.exe' }
-  pkg.scripts = { ...(pkg.scripts ?? {}), postinstall: 'node install-native.mjs' }
+  pkg.scripts = { ...pkg.scripts, postinstall: 'node install-native.mjs' }
   // The repack runs inside the staged tree, where build config is absent;
   // the tarball's contents are already final, so no build hooks belong.
   delete pkg.scripts.prepack

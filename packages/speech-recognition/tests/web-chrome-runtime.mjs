@@ -44,6 +44,7 @@ const runDir = join(
   'agent-scratch/octane-xplat/speech-recognition',
   new Date().toISOString().replaceAll(':', '-'),
 )
+
 mkdirSync(runDir, { recursive: true })
 const logLines = []
 const log = (line) => {
@@ -94,10 +95,7 @@ async function startFixtureServer() {
       extensions: ['.web.ts', '.ts', '.mjs', '.js', '.json'],
       alias: {
         '@octane-xplat/speech-recognition': join(packageRoot, 'src/index.web.ts'),
-        '@octane-xplat/lib/capability': resolve(
-          packageRoot,
-          '../lib/src/capability.ts',
-        ),
+        '@octane-xplat/lib/capability': resolve(packageRoot, '../lib/src/capability.ts'),
       },
     },
     server: { host: '127.0.0.1', port: 0 },
@@ -136,6 +134,7 @@ async function runRoute(route, serverUrl) {
     const availability = await page.evaluate(() =>
       globalThis.xplat.speechRecognition.getAvailability({ lang: 'en-US' }),
     )
+
     log(`availability=${JSON.stringify(availability)}`)
 
     // Open a continuous session and let the wav/boom phrase play through.
@@ -187,6 +186,7 @@ async function runRoute(route, serverUrl) {
       undefined,
       { timeout: 30000 },
     )
+
     log('session reached listening')
 
     if (route === 'boom') {
@@ -195,6 +195,7 @@ async function runRoute(route, serverUrl) {
         say.on('close', resolve)
         say.on('error', reject)
       })
+
       log('boom phrase spoken')
     }
 
@@ -206,6 +207,7 @@ async function runRoute(route, serverUrl) {
         undefined,
         { timeout: 30000 },
       )
+
       sawFinal = true
     } catch {
       sawFinal = false
@@ -216,6 +218,7 @@ async function runRoute(route, serverUrl) {
       const stopping = session.stop()
       return stopping.then((result) => ({ result, events }))
     })
+
     log(`result=${JSON.stringify(outcome.result)}`)
     log(`events=${JSON.stringify(outcome.events)}`)
 
@@ -238,12 +241,15 @@ async function runRoute(route, serverUrl) {
             resolve({
               transcript: result.transcript,
               reason: result.reason,
-              error: result.error ? { code: result.error.code, message: result.error.message } : null,
+              error: result.error
+                ? { code: result.error.code, message: result.error.message }
+                : null,
             }),
           )
         }, 500)
       })
     })
+
     log(`abort result=${JSON.stringify(aborted)}`)
     assert.equal(aborted.reason, 'aborted')
 
@@ -263,19 +269,19 @@ try {
     try {
       const { outcome, sawFinal, consoleErrors } = await runRoute(route, url)
       const transcript = outcome.result.transcript.toLowerCase()
-      const words = ['quick', 'brown', 'fox', 'lazy', 'dog'].filter((w) =>
-        transcript.includes(w),
-      )
+      const words = ['quick', 'brown', 'fox', 'lazy', 'dog'].filter((w) => transcript.includes(w))
       assert.ok(
         words.length >= 2,
         `expected at least 2 phrase words in transcript, got ${JSON.stringify(transcript)}`,
       )
+
       const interim = outcome.events.filter((e) => e.type === 'transcript' && !e.isFinal)
       assert.ok(interim.length > 0 || sawFinal, 'interim or final transcript events arrived')
       assert.ok(
         outcome.result.reason === 'stopped' || outcome.result.reason === 'completed',
         `session ended ${outcome.result.reason}`,
       )
+
       if (consoleErrors.length) {
         log(`page console errors: ${JSON.stringify(consoleErrors)}`)
       }

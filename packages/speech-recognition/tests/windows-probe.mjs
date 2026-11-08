@@ -61,6 +61,7 @@ try {
   remote = run(
     `$d=Join-Path $env:TEMP 'xplat-speech-${id}'; New-Item -ItemType Directory $d | Out-Null; $d`,
   ).trim()
+
   assert.ok(remote.endsWith(`\\xplat-speech-${id}`), remote)
 
   const write = (name, contents) =>
@@ -68,12 +69,23 @@ try {
       `[IO.File]::WriteAllBytes(${quote(remote + '\\' + name)}, [Convert]::FromBase64String('${Buffer.from(contents).toString('base64')}'))`,
     )
 
-  execFileSync('scp', ['-q', join(directory, 'bundle.mjs'), `${host}:./xplat-speech-${id}-bundle.mjs`], {
-    timeout: 30_000,
-  })
-  run(`Move-Item (Join-Path $env:USERPROFILE 'xplat-speech-${id}-bundle.mjs') ${quote(remote + '\\bundle.mjs')}`)
+  execFileSync(
+    'scp',
+    ['-q', join(directory, 'bundle.mjs'), `${host}:./xplat-speech-${id}-bundle.mjs`],
+    {
+      timeout: 30_000,
+    },
+  )
 
-  write('driver.ps1', readFileSync(new URL('./fixtures/speech-driver.windows.ps1', import.meta.url)))
+  run(
+    `Move-Item (Join-Path $env:USERPROFILE 'xplat-speech-${id}-bundle.mjs') ${quote(remote + '\\bundle.mjs')}`,
+  )
+
+  write(
+    'driver.ps1',
+    readFileSync(new URL('./fixtures/speech-driver.windows.ps1', import.meta.url)),
+  )
+
   const runner = `try { & ${quote(remote + '\\driver.ps1')} -Directory ${quote(remote)} -Runtime ${quote(runtime)} -Identity ${quote(identity)} *> ${quote(remote + '\\output.log')}; $code=0 } catch { $_ | Out-File -Append ${quote(remote + '\\output.log')}; $code=1 } finally { Set-Content ${quote(remote + '\\exit')} $code }`
   write('run.ps1', runner)
 
@@ -98,5 +110,6 @@ try {
       `Get-Process windows -ErrorAction SilentlyContinue | Where-Object {$_.Path -eq ${quote(remote + '\\runtime\\windows.exe')}} | Stop-Process; Get-AppxPackage -Name ${quote(identity)} | Remove-AppxPackage; Remove-Item -Recurse -Force ${quote(remote)}`,
     )
   }
+
   rmSync(directory, { recursive: true, force: true })
 }

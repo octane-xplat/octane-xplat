@@ -10,6 +10,7 @@ import {
   UnregisterEventHotKey,
   interop,
 } from '@octane-xplat/platform/macos'
+
 import { macKeyCode } from './accelerator.js'
 import type { BindOutcome, BindRequest, HotkeyBackend } from './backend.js'
 import type { Accelerator, GlobalShortcutSupport } from './types.js'
@@ -32,6 +33,7 @@ function fourcc(text: string): number {
     0
   )
 }
+
 const HOTKEY_SIGNATURE = fourcc('Oxgs')
 
 type InteropReference = InstanceType<typeof interop.Reference>
@@ -48,6 +50,7 @@ interface NSDictionaryLike {
   allKeys: NSArrayLike
   objectForKey(key: unknown): unknown
 }
+
 interface NSArrayLike {
   count: number
   objectAtIndex(index: number): unknown
@@ -56,17 +59,26 @@ interface NSArrayLike {
 let handlerRef: InteropReference | null = null
 // The Carbon UPP must stay strongly referenced for the handler's lifetime.
 let handlerFn:
-	| ((callRef: unknown, event: interop.PointerConvertible, userData: unknown) => number)
-	| null = null
+  | ((callRef: unknown, event: interop.PointerConvertible, userData: unknown) => number)
+  | null = null
+
 const dispatch = new Map<number, () => void>()
 let symbolicCache: SymbolicEntry[] | null = null
 
 const carbonMods = (accelerator: Accelerator): number => {
   let mods = 0
-  if (accelerator.meta) mods |= CMD
-  if (accelerator.shift) mods |= SHIFT
-  if (accelerator.alt) mods |= OPTION
-  if (accelerator.ctrl) mods |= CONTROL
+  if (accelerator.meta) {
+    mods |= CMD
+  }
+  if (accelerator.shift) {
+    mods |= SHIFT
+  }
+  if (accelerator.alt) {
+    mods |= OPTION
+  }
+  if (accelerator.ctrl) {
+    mods |= CONTROL
+  }
   return mods
 }
 
@@ -78,7 +90,9 @@ const SUPPORT: GlobalShortcutSupport = {
 }
 
 function ensureHandler(): void {
-  if (handlerRef !== null) return
+  if (handlerRef !== null) {
+    return
+  }
   const ref = new interop.Reference()
   const spec = new Uint32Array([fourcc('keyb'), K_EVENT_HOTKEY_PRESSED])
   const handler = (_callRef: unknown, event: interop.PointerConvertible): number => {
@@ -96,7 +110,9 @@ function ensureHandler(): void {
 }
 
 function symbolicHotKeys(): SymbolicEntry[] {
-  if (symbolicCache !== null) return symbolicCache
+  if (symbolicCache !== null) {
+    return symbolicCache
+  }
   const entries: SymbolicEntry[] = []
   try {
     const ref = new interop.Reference(interop.types.id)
@@ -111,6 +127,7 @@ function symbolicHotKeys(): SymbolicEntry[] {
           const key = dict.allKeys.objectAtIndex(j)
           record[String(key)] = String(dict.objectForKey(key))
         }
+
         const code = Number(record['kHISymbolicHotKeyCode'])
         const modifiers = Number(record['kHISymbolicHotKeyModifiers'])
         if (Number.isFinite(code) && code !== 65535 && Number.isFinite(modifiers)) {
@@ -139,7 +156,9 @@ export const backend: HotkeyBackend = {
 
   reserved(accelerator: Accelerator): string | null {
     const code = macKeyCode(accelerator.code)
-    if (code === null) return null
+    if (code === null) {
+      return null
+    }
     const mods = carbonMods(accelerator)
     for (const entry of symbolicHotKeys()) {
       if (entry.enabled && entry.code === code && (entry.modifiers & MOD_MASK) === mods) {
@@ -223,6 +242,7 @@ export const backend: HotkeyBackend = {
         null,
         () => listener(),
       )
+
       return () => center.removeObserver(token)
     } catch {
       // No AppKit notification center in this host; process exit releases

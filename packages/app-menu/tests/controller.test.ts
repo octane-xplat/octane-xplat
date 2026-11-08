@@ -73,7 +73,11 @@ const action = (key: string, onSelect = () => {}): AppMenuEntry => ({
   onSelect,
 })
 
-const checkbox = (key: string, value: boolean, onValueChange = (_v: boolean) => {}): AppMenuEntry => ({
+const checkbox = (
+  key: string,
+  value: boolean,
+  onValueChange = (_v: boolean) => {},
+): AppMenuEntry => ({
   type: 'checkbox',
   key,
   label: key.toUpperCase(),
@@ -208,11 +212,17 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
-    service.install(menus([action('boom', () => {
-      throw new Error('private handler details')
-    })]))
+    service.install(
+      menus([
+        action('boom', () => {
+          throw new Error('private handler details')
+        }),
+      ]),
+    )
     const installed = f.installed[0]!
-    expect(() => installed.dispatch(idOf(installed, 'boom'), installed.tree.generation)).not.toThrow()
+    expect(() =>
+      installed.dispatch(idOf(installed, 'boom'), installed.tree.generation),
+    ).not.toThrow()
     expect(error).toHaveBeenCalledWith('[app-menu] menu action failed', expect.any(Error))
   })
 
@@ -271,9 +281,7 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     let handle!: ReturnType<typeof service.install>
-    handle = service.install(
-      menus([action('trigger', () => handle.dispose())]),
-    )
+    handle = service.install(menus([action('trigger', () => handle.dispose())]))
     const installed = f.installed[0]!
     installed.dispatch(idOf(installed, 'trigger'), installed.tree.generation)
     expect(f.calls).toEqual(['install'])
@@ -298,9 +306,7 @@ describe('createAppMenuService', () => {
     const service = createAppMenuService(f.host)
     const handle = service.install(menus([action('a')]))
     const gen = f.installed[0]!.tree.generation
-    expect(() => handle.update(menus([action('a'), action('a')]))).toThrow(
-      /duplicate sibling key/,
-    )
+    expect(() => handle.update(menus([action('a'), action('a')]))).toThrow(/duplicate sibling key/)
     expect(f.calls).not.toContain('native.update')
     expect(f.installed[0]!.tree.generation).toBe(gen)
   })

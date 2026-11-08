@@ -29,8 +29,7 @@ class FakeRecognition {
   abortCalls = 0
   onstart: (() => void) | null = null
   onend: (() => void) | null = null
-  onresult: ((event: { resultIndex: number; results: { length: number } }) => void) | null =
-    null
+  onresult: ((event: { resultIndex: number; results: { length: number } }) => void) | null = null
   onerror: ((event: { error: string; message?: string }) => void) | null = null
 
   constructor() {
@@ -39,7 +38,9 @@ class FakeRecognition {
 
   static async available(options: { langs: string[]; processLocally: boolean }) {
     const results = FakeRecognition.availableResults
-    return options.processLocally ? (results?.local ?? 'unavailable') : (results?.remote ?? 'available')
+    return options.processLocally
+      ? (results?.local ?? 'unavailable')
+      : (results?.remote ?? 'available')
   }
 
   start(): void {
@@ -128,9 +129,7 @@ describe('capability checks', () => {
     vi.stubGlobal('document', fakeDocument)
     expect(speechRecognition.supported).toBe(false)
     expect(await speechRecognition.isAvailable()).toBe(false)
-    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).reason).toBe(
-      'unsupported',
-    )
+    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).reason).toBe('unsupported')
     expect(() => speechRecognition.start()).toThrow(UnavailabilityError)
   })
 
@@ -159,14 +158,10 @@ describe('getAvailability', () => {
     stubNavigator()
     stubCtor()
     FakeRecognition.availableResults = { remote: 'available', local: 'available' }
-    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).networkUse).toBe(
-      'possible',
-    )
+    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).networkUse).toBe('possible')
 
     FakeRecognition.availableResults = { remote: 'available', local: 'downloadable' }
-    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).networkUse).toBe(
-      'required',
-    )
+    expect((await speechRecognition.getAvailability({ lang: 'en-US' })).networkUse).toBe('required')
 
     FakeRecognition.availableResults = { remote: 'unavailable', local: 'unavailable' }
     const availability = await speechRecognition.getAvailability({ lang: 'tlh' })
@@ -191,6 +186,7 @@ describe('permissions', () => {
       stubNavigator({
         permissions: { query: async () => ({ state }) },
       })
+
       const permission = await speechRecognition.getPermissions()
       expect(permission.status).toBe(status)
       vi.unstubAllGlobals()

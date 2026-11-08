@@ -100,11 +100,7 @@ export const host: AppMenuHost = {
       if (node.kind === 'checkbox') {
         // Stateful so GMenu renders a checkmark; the 'activate' handler
         // reports the intent without touching state — `update()` owns it.
-        action = Gio.SimpleAction.new_stateful(
-          name,
-          null,
-          GLib.Variant.new_boolean(node.value),
-        )
+        action = Gio.SimpleAction.new_stateful(name, null, GLib.Variant.new_boolean(node.value))
       } else {
         action = Gio.SimpleAction.new(name, null)
       }
@@ -146,11 +142,13 @@ export const host: AppMenuHost = {
           sections.push(new Gio.Menu())
           continue
         }
+
         const section = sections[sections.length - 1]!
         if (node.kind === 'submenu') {
           section.append_submenu(escapeLabel(node.label), buildMenu(node.items, generation, names))
           continue
         }
+
         const name = registerAction(node, generation, names)
         const target = node.kind === 'role' ? EDIT_ROLE_TARGETS.get(node.role) : undefined
         if (target) {

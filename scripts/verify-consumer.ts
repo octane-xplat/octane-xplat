@@ -270,10 +270,12 @@ try {
         outputDir: join(work, 'staged-cli'),
         ignoreScripts: quick || !doBuild,
       })
+
       tarballs.set('@octane-xplat/cli', staged.cli.archive)
       for (const payload of staged.payloads) {
         tarballs.set(payload.manifest.name, payload.archive)
       }
+
       return `CLI + ${staged.payloads.length} platform payloads`
     } finally {
       rmSync(nativeDir, { recursive: true, force: true })

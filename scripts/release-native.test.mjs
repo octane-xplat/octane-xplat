@@ -54,6 +54,7 @@ if (process.env.GOOS === process.env.FAIL_OS) process.exit(7)
         'build:go',
         '--filter=@octane-xplat/cli',
       ])
+
       assert.equal(command.version, '0.0.0-nightly.g1234567')
     }
     writeFileSync(log, '')

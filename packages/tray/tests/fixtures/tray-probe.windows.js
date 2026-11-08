@@ -5,6 +5,7 @@
 for (const name of ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval']) {
   globalThis[name] ??= globalThis['__ns__' + name]
 }
+
 const api = globalThis.NSWinRT
 const win32 = api && api.win32
 const interop = api && api.interop
@@ -17,16 +18,22 @@ const bufferAddress = (buf) => {
   const p = interop.pointerFromBuffer(buf)
   return typeof p === 'number' ? p : Number(interop.pointerKey(p))
 }
+
 const pinned = []
 const utf16ptr = (s) => {
   const b = new Uint16Array(s.length + 1)
-  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i)
+  for (let i = 0; i < s.length; i++) {
+    b[i] = s.charCodeAt(i)
+  }
   pinned.push(b)
   return bufferAddress(b)
 }
+
 const asciiptr = (s) => {
   const b = new Uint8Array(s.length + 1)
-  for (let i = 0; i < s.length; i++) b[i] = s.charCodeAt(i)
+  for (let i = 0; i < s.length; i++) {
+    b[i] = s.charCodeAt(i)
+  }
   pinned.push(b)
   return bufferAddress(b)
 }
@@ -35,21 +42,47 @@ const asciiptr = (s) => {
 const LOGF = 'C:\\Users\\alecs\\xplat-tray-main.log'
 let fh = 0
 try {
-  fh = Number(call('kernel32.dll', 'CreateFileW', 'pointer', ptr(utf16ptr(LOGF)), u32(0x40000000), u32(1), ptr(0), u32(4), u32(0x80), ptr(0)))
+  fh = Number(
+    call(
+      'kernel32.dll',
+      'CreateFileW',
+      'pointer',
+      ptr(utf16ptr(LOGF)),
+      u32(0x40000000),
+      u32(1),
+      ptr(0),
+      u32(4),
+      u32(0x80),
+      ptr(0),
+    ),
+  )
 } catch (e) {}
+
 const wrB = new ArrayBuffer(8)
 const wrV = new DataView(wrB)
 const wrA = bufferAddress(wrB)
 const log = (m) => {
   console.log('TRAY ' + m)
-  if (!fh) return
+  if (!fh) {
+    return
+  }
   try {
     const bytes = new TextEncoder().encode('TRAY ' + m + '\n')
     call('kernel32.dll', 'SetFilePointer', 'u32', ptr(fh), i32(0), ptr(0), u32(2))
     wrV.setUint32(0, 0, true)
-    call('kernel32.dll', 'WriteFile', 'bool', ptr(fh), ptr(bufferAddress(bytes)), u32(bytes.length), ptr(wrA), ptr(0))
+    call(
+      'kernel32.dll',
+      'WriteFile',
+      'bool',
+      ptr(fh),
+      ptr(bufferAddress(bytes)),
+      u32(bytes.length),
+      ptr(wrA),
+      ptr(0),
+    )
   } catch (e) {}
 }
+
 const step = (name, fn) => {
   try {
     const value = fn()
@@ -60,6 +93,7 @@ const step = (name, fn) => {
     return undefined
   }
 }
+
 const hex = (v) => '0x' + Number(v).toString(16)
 
 step('GetTickCount', () => call('kernel32.dll', 'GetTickCount', 'u32'))

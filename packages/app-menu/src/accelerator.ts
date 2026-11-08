@@ -99,9 +99,11 @@ export function parseAccelerator(source: string): ParsedAccelerator {
       modifiers[modifier] = true
       continue
     }
+
     if (!token) {
       fail(`invalid accelerator "${source}" — empty key token`)
     }
+
     let candidate: string | null = null
     if (/^[a-z]$/i.test(token)) {
       candidate = token.toUpperCase()
@@ -114,12 +116,15 @@ export function parseAccelerator(source: string): ParsedAccelerator {
     } else if (token.length === 1 && PUNCTUATION.has(token)) {
       candidate = token
     }
+
     if (candidate === null) {
       fail(`invalid accelerator "${source}" — unknown key "${token}"`)
     }
+
     if (key !== null) {
       fail(`invalid accelerator "${source}" — more than one key`)
     }
+
     key = candidate
   }
   if (key === null) {
@@ -162,10 +167,18 @@ const APPKIT_KEYS: Record<string, number> = {
  *  Command here. */
 export function toAppKit(parsed: ParsedAccelerator): AppKitAccelerator {
   let modifierMask = 0
-  if (parsed.modifiers.shift) modifierMask |= NS_SHIFT
-  if (parsed.modifiers.ctrl) modifierMask |= NS_CONTROL
-  if (parsed.modifiers.alt) modifierMask |= NS_OPTION
-  if (parsed.modifiers.mod || parsed.modifiers.meta) modifierMask |= NS_COMMAND
+  if (parsed.modifiers.shift) {
+    modifierMask |= NS_SHIFT
+  }
+  if (parsed.modifiers.ctrl) {
+    modifierMask |= NS_CONTROL
+  }
+  if (parsed.modifiers.alt) {
+    modifierMask |= NS_OPTION
+  }
+  if (parsed.modifiers.mod || parsed.modifiers.meta) {
+    modifierMask |= NS_COMMAND
+  }
 
   const code = APPKIT_KEYS[parsed.key]
   const keyEquivalent =
@@ -215,10 +228,18 @@ const GTK_KEYS: Record<string, string> = {
  *  Control and `meta` is Super here. */
 export function toGtk(parsed: ParsedAccelerator): string {
   let accel = ''
-  if (parsed.modifiers.ctrl || parsed.modifiers.mod) accel += '<Control>'
-  if (parsed.modifiers.shift) accel += '<Shift>'
-  if (parsed.modifiers.alt) accel += '<Alt>'
-  if (parsed.modifiers.meta) accel += '<Super>'
+  if (parsed.modifiers.ctrl || parsed.modifiers.mod) {
+    accel += '<Control>'
+  }
+  if (parsed.modifiers.shift) {
+    accel += '<Shift>'
+  }
+  if (parsed.modifiers.alt) {
+    accel += '<Alt>'
+  }
+  if (parsed.modifiers.meta) {
+    accel += '<Super>'
+  }
   const named = GTK_KEYS[parsed.key]
   accel += named ?? (parsed.key.length === 1 ? parsed.key.toLowerCase() : parsed.key)
   return accel
@@ -262,10 +283,18 @@ const WINUI_KEYS: Record<string, number> = {
  *  `mod` is Control and `meta` is the Windows key here. */
 export function toWinUI(parsed: ParsedAccelerator): WinUIAccelerator {
   let modifiers = 0
-  if (parsed.modifiers.ctrl || parsed.modifiers.mod) modifiers |= WINUI_CONTROL
-  if (parsed.modifiers.alt) modifiers |= WINUI_MENU
-  if (parsed.modifiers.shift) modifiers |= WINUI_SHIFT
-  if (parsed.modifiers.meta) modifiers |= WINUI_WINDOWS
+  if (parsed.modifiers.ctrl || parsed.modifiers.mod) {
+    modifiers |= WINUI_CONTROL
+  }
+  if (parsed.modifiers.alt) {
+    modifiers |= WINUI_MENU
+  }
+  if (parsed.modifiers.shift) {
+    modifiers |= WINUI_SHIFT
+  }
+  if (parsed.modifiers.meta) {
+    modifiers |= WINUI_WINDOWS
+  }
 
   let key = WINUI_KEYS[parsed.key]
   if (key === undefined) {

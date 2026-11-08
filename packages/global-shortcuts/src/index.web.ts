@@ -19,12 +19,11 @@ const registry = createRegistry(
  * unsupported with `mechanism: 'none'`.
  */
 export const getGlobalShortcutSupport: () => Promise<GlobalShortcutSupport> =
-	registry.getGlobalShortcutSupport
+  registry.getGlobalShortcutSupport
 
 /**
  * Create a global-shortcut registry. In a browser every `register` resolves
  * to an `unsupported` error; `parseAccelerator` still works for validation.
  */
-export const createGlobalShortcuts: (
-	options?: CreateGlobalShortcutsOptions,
-) => GlobalShortcuts = registry.createGlobalShortcuts
+export const createGlobalShortcuts: (options?: CreateGlobalShortcutsOptions) => GlobalShortcuts =
+  registry.createGlobalShortcuts

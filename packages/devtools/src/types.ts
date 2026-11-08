@@ -75,9 +75,7 @@ export type PanelInboundFrame =
  * site on the narrowed `type` union, so untrusted input never needs a cast
  * anywhere else.
  */
-export function parseHubFrame(
-  text: string,
-): BackendInboundFrame | PanelInboundFrame | undefined {
+export function parseHubFrame(text: string): BackendInboundFrame | PanelInboundFrame | undefined {
   try {
     const frame = JSON.parse(text) as { type?: unknown }
     return typeof frame?.type === 'string'

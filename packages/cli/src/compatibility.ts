@@ -246,6 +246,7 @@ export function planUpgrade(dir: string): UpgradePlan {
       ...(rootPackage.pkg.trustedDependencies ?? []),
       '@octane-xplat/cli',
     ]
+
     plan.updates.push('.: trust the @octane-xplat/cli install script')
   }
 

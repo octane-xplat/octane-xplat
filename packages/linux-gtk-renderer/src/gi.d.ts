@@ -461,6 +461,7 @@ declare module 'gi://GLib' {
       static new_string(value: string): Variant
       [key: string]: any
     }
+
     function get_monotonic_time(): number
     function getenv(name: string): string | null
     function build_filenamev(parts: string[]): string

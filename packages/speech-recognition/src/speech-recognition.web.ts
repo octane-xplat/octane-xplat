@@ -2,7 +2,12 @@
 // (`SpeechRecognition`/`webkitSpeechRecognition`). Chrome drives a
 // network-backed recognizer; Chrome 139+ exposes the `available()` static
 // probe used for per-language availability and on-device detection.
-import type { Permissioned, PermissionResponse, PermissionStatus } from '@octane-xplat/lib/capability'
+import type {
+  Permissioned,
+  PermissionResponse,
+  PermissionStatus,
+} from '@octane-xplat/lib/capability'
+
 import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { mapWebSpeechError } from './error-map'
 import { createSpeechService } from './session-core'
@@ -12,6 +17,7 @@ import type {
   SpeechEngineHandle,
   SpeechEngineSink,
 } from './session-core'
+
 import { SpeechRecognitionError } from './types'
 import type { SpeechRecognitionAvailability, SpeechRecognitionImpl } from './types'
 
@@ -56,8 +62,7 @@ interface WebSpeechRecognitionConstructor {
 function resolveCtor(): WebSpeechRecognitionConstructor | null {
   // Vendor-prefixed/unprefixed constructors are ambient host capabilities —
   // read through real property checks, not a claimed global shape.
-  const ctor =
-    lookupGlobal(['SpeechRecognition']) ?? lookupGlobal(['webkitSpeechRecognition'])
+  const ctor = lookupGlobal(['SpeechRecognition']) ?? lookupGlobal(['webkitSpeechRecognition'])
   // A runtime check cannot prove the constructor's call shape — this is the
   // one documented assertion at the capability boundary.
   return typeof ctor === 'function' ? (ctor as WebSpeechRecognitionConstructor) : null
@@ -84,6 +89,7 @@ async function readPermission(): Promise<PermissionResponse> {
     const status = await navigator.permissions.query({
       name: 'microphone' as PermissionName,
     })
+
     return respond(status.state === 'prompt' ? 'undetermined' : status.state)
   } catch {
     // Some browsers expose Permissions but cannot query microphone.
@@ -106,6 +112,7 @@ async function ensurePermission(): Promise<PermissionResponse> {
   } catch (cause) {
     const name =
       typeof cause === 'object' && cause !== null && 'name' in cause ? cause.name : undefined
+
     if (name === 'NotAllowedError' || name === 'SecurityError') {
       return respond('denied', false)
     }
@@ -202,9 +209,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
       // Dictation is a foreground interaction — hide the page and the
       // session ends as interrupted rather than silently capturing.
       release()
-      sink.failed(
-        new SpeechRecognitionError('interrupted', 'The page was hidden during dictation'),
-      )
+      sink.failed(new SpeechRecognitionError('interrupted', 'The page was hidden during dictation'))
     }
   }
 
@@ -305,5 +310,4 @@ const engine: SpeechEngine = {
 }
 
 /** Speech recognition service — dictation sessions via the Web Speech API. */
-export const speechRecognition: Permissioned<SpeechRecognitionImpl> =
-  createSpeechService(engine)
+export const speechRecognition: Permissioned<SpeechRecognitionImpl> = createSpeechService(engine)

@@ -244,7 +244,8 @@ export function createXplatMcpServer(context: WorkspaceContext) {
           'The agent contract has no job cancellation command; dev-action invocations are bounded and complete on the dev server.',
           {
             recovery: {
-              action: 'Poll xplat_job_status; stop the app\'s `xplat dev` server to end all observed work.',
+              action:
+                "Poll xplat_job_status; stop the app's `xplat dev` server to end all observed work.",
             },
           },
         ),
@@ -391,6 +392,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         if (!permission.granted) {
           return fail(permission.error)
         }
+
         return outcome(
           await context.transport.call({
             command: ['evidence', 'retain'],

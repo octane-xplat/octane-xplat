@@ -7,6 +7,7 @@ import type {
   SpeechEngineHandle,
   SpeechEngineSink,
 } from '../src/session-core'
+
 import { SpeechRecognitionError } from '../src/types'
 import type { SpeechRecognitionAvailability } from '../src/types'
 

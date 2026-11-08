@@ -44,6 +44,7 @@ const fail = (msg, code = 1) => {
   console.error(`[android-proof] FAIL: ${msg}`)
   process.exit(code)
 }
+
 const note = (msg) => console.log(`[android-proof] ${msg}`)
 
 const run = (cmd, args, opts = {}) =>
@@ -61,9 +62,11 @@ const serials = devicesOut
   .split('\n')
   .filter((line) => /^emulator-\d+\s+device\b/.test(line.trim()))
   .map((line) => line.trim().split(/\s+/)[0])
+
 const requested = process.argv.includes('--device')
   ? process.argv[process.argv.indexOf('--device') + 1]
   : undefined
+
 const serial = requested ?? (serials.length === 1 ? serials[0] : undefined)
 if (!serial) {
   fail(
@@ -71,10 +74,12 @@ if (!serial) {
       `boot it first (emulator -avd ${AVD} -port 5556) or pass --device`,
   )
 }
+
 const booted = adb('-s', serial, 'shell', 'getprop', 'sys.boot_completed').trim()
 if (booted !== '1') {
   fail(`${serial} is not done booting (sys.boot_completed=${booted})`)
 }
+
 note(`using device ${serial}`)
 
 // --- audio passthrough check ------------------------------------------------
@@ -92,6 +97,7 @@ if (existsSync(configPath)) {
 const logcat = spawn(ADB, ['-s', serial, 'logcat', '-v', 'brief'], {
   stdio: ['ignore', 'pipe', 'pipe'],
 })
+
 let logLines = ''
 const marker = { speakNow: false, result: false, done: false }
 logcat.stdout.on('data', (chunk) => {
@@ -100,9 +106,15 @@ logcat.stdout.on('data', (chunk) => {
   if (logLines.length > 512_000) {
     logLines = logLines.slice(-256_000)
   }
-  if (text.includes('SPEAK_NOW')) {marker.speakNow = true}
-  if (text.includes('SPEECH_RESULT')) {marker.result = true}
-  if (text.includes('SPEECH_DONE')) {marker.done = true}
+  if (text.includes('SPEAK_NOW')) {
+    marker.speakNow = true
+  }
+  if (text.includes('SPEECH_RESULT')) {
+    marker.result = true
+  }
+  if (text.includes('SPEECH_DONE')) {
+    marker.done = true
+  }
 })
 
 const grantPoll = setInterval(() => {
@@ -136,6 +148,7 @@ const probeArgs = [
   '--startup-timeout',
   '900000',
 ]
+
 note(`probe: bun ${probeArgs.join(' ')}`)
 const probe = spawn('bun', probeArgs, { cwd: REPO, stdio: ['ignore', 'pipe', 'inherit'] })
 let probeOut = ''
@@ -160,10 +173,13 @@ const speakLoop = (async () => {
       note(`say exited ${res.status} — BoomAudio device missing?`)
       break
     }
+
     note(`played phrase ${said}x via BoomAudio`)
     // Pause before repeating — give the recognizer room to endpoint.
     await sleep(6000)
-    if (marker.result) {break}
+    if (marker.result) {
+      break
+    }
   }
 })()
 
@@ -179,16 +195,19 @@ const jsonLine = probeOut
   .split('\n')
   .filter((line) => line.trim().startsWith('{'))
   .pop()
+
 let report = { probeExit, said, markers: marker }
 try {
   report.probe = JSON.parse(jsonLine ?? 'null')
 } catch {
   report.probeParseError = 'no JSON result line found'
 }
+
 writeFileSync(
   evidencePath,
   JSON.stringify({ ...report, logcatTail: logLines.slice(-64_000) }, null, 2),
 )
+
 note(`evidence: ${evidencePath}`)
 
 const results = report.probe?.results ?? []
@@ -199,7 +218,9 @@ note(`session1 result: ${JSON.stringify(session)}`)
 if (probeExit !== 0) {
   fail(`probe runner exited ${probeExit}`)
 }
+
 if (transcript.length === 0) {
   fail('no transcript captured — check audio path and evidence JSON', 2)
 }
+
 note('PASS')

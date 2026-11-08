@@ -29,6 +29,7 @@ root.render(Content, {})
 const CMD = 1 << 20,
   SHIFT = 1 << 17,
   OPT = 1 << 19
+
 const counts = { new: 0, docA: 0, settings: 0, newWindow: 0, sidebar: 0 }
 let handle: any = null
 
@@ -38,7 +39,13 @@ const menuTree = (sidebarValue: boolean) => [
     key: 'file',
     label: 'File',
     items: [
-      { type: 'action', key: 'new', label: 'New', accelerator: 'Mod+N', onSelect: () => counts.new++ },
+      {
+        type: 'action',
+        key: 'new',
+        label: 'New',
+        accelerator: 'Mod+N',
+        onSelect: () => counts.new++,
+      },
       { type: 'separator', key: 's1' },
       {
         type: 'submenu',
@@ -54,7 +61,14 @@ const menuTree = (sidebarValue: boolean) => [
           },
         ],
       },
-      { type: 'action', key: 'disabled', label: 'Disabled', accelerator: 'Mod+D', isDisabled: true, onSelect: () => counts.new += 100 },
+      {
+        type: 'action',
+        key: 'disabled',
+        label: 'Disabled',
+        accelerator: 'Mod+D',
+        isDisabled: true,
+        onSelect: () => (counts.new += 100),
+      },
       { type: 'role', key: 'close', role: 'close' },
     ],
   },
@@ -136,6 +150,7 @@ const sendEvent = (code: number, chars: string, ignoring: string, flags: number)
     )
   app.postEventAtStart(event, false)
 }
+
 const send = (code: number, chars: string, flags: number) => {
   sendEvent(code, flags & SHIFT ? chars.toUpperCase() : chars, chars, flags)
 }
@@ -147,6 +162,7 @@ setTimeout(async () => {
         throw new Error(message)
       }
     }
+
     const editor = root.__macosDebug.findId('appmenu-editor')
     const previous = app.mainMenu ?? null
     check(appMenu.supported === true, 'appMenu.supported')
@@ -162,17 +178,31 @@ setTimeout(async () => {
     const name = String(NSProcessInfo.processInfo.processName || 'App')
     check(
       JSON.stringify(titles) ===
-        JSON.stringify(['About ' + name, '—', 'Settings…', '—', 'Hide ' + name, 'Hide Others', 'Show All', '—', 'Quit ' + name]),
+        JSON.stringify([
+          'About ' + name,
+          '—',
+          'Settings…',
+          '—',
+          'Hide ' + name,
+          'Hide Others',
+          'Show All',
+          '—',
+          'Quit ' + name,
+        ]),
       'application menu layout: ' + titles,
     )
+
     const settingsItem = appSub.find((item: any) => item.title === 'Settings…')
     check(
       settingsItem.keyEquivalent === ',' && Number(settingsItem.keyEquivalentModifierMask) === CMD,
       'settings key equivalent',
     )
+
     const quitItem = appSub[appSub.length - 1]
     check(
-      String(quitItem.action) === 'terminate:' && quitItem.keyEquivalent === 'q' && Number(quitItem.keyEquivalentModifierMask) === CMD,
+      String(quitItem.action) === 'terminate:' &&
+        quitItem.keyEquivalent === 'q' &&
+        Number(quitItem.keyEquivalentModifierMask) === CMD,
       'quit selector/key',
     )
 
@@ -182,17 +212,27 @@ setTimeout(async () => {
       newItem.keyEquivalent === 'n' && Number(newItem.keyEquivalentModifierMask) === CMD,
       'New key equivalent',
     )
+
     const disabledItem = file.find((item: any) => item.title === 'Disabled')
-    check(flag(disabledItem.enabled) === false || Number(flag(disabledItem.enabled)) === 0, 'disabled item')
+    check(
+      flag(disabledItem.enabled) === false || Number(flag(disabledItem.enabled)) === 0,
+      'disabled item',
+    )
+
     const recent = items(file.find((item: any) => flag(item.hasSubmenu)))
     check(recent[0].title === 'Doc A', 'nested submenu')
     const view = items(top[3])
     check(Number(flag(view[0].state)) === 1, 'checkbox state')
     const edit = items(top[2])
     const copy = edit.find((item: any) => item.title === 'Copy')
-    check(String(copy.action) === 'copy:' && (copy.target === null || copy.target === undefined), 'role selector + nil target')
     check(
-      Number(flag(edit.find((item: any) => item.title === 'Undo').keyEquivalentModifierMask)) === CMD,
+      String(copy.action) === 'copy:' && (copy.target === null || copy.target === undefined),
+      'role selector + nil target',
+    )
+
+    check(
+      Number(flag(edit.find((item: any) => item.title === 'Undo').keyEquivalentModifierMask)) ===
+        CMD,
       'undo mask',
     )
 
@@ -244,6 +284,7 @@ setTimeout(async () => {
       ),
       options,
     )
+
     const newFile = items(items(app.mainMenu)[1])
     const newWindowItem = newFile[0]
     check(
@@ -252,6 +293,7 @@ setTimeout(async () => {
         Number(newWindowItem.keyEquivalentModifierMask) === (CMD | SHIFT),
       'updated key equivalent',
     )
+
     send(45, 'n', CMD)
     await pause()
     check(counts.new === 2, 'old accel no longer fires')
@@ -287,14 +329,13 @@ setTimeout(async () => {
       } else if (textView) {
         textView.string = 'hello'
       }
+
       console.log('ROLE-DIAG textView.string=' + String(textView?.string))
       // selectAll: directly on the field editor (NSText.selectAll: is the
       // colon selector; `.copy` binds copyWithZone: and must not be called).
       textView?.selectAll?.(null)
       const range = textView?.selectedRange
-      console.log(
-        'ROLE-DIAG selected=' + (range ? `${range.location}:${range.length}` : 'none'),
-      )
+      console.log('ROLE-DIAG selected=' + (range ? `${range.location}:${range.length}` : 'none'))
       // copy: explicit target isolates chain delivery from NSTextView.copy:.
       let path = 'direct-target'
       app.sendActionToFrom('copy:', textView, editor)
@@ -303,11 +344,13 @@ setTimeout(async () => {
         app.sendActionToFrom('copy:', null, editor)
         await pause()
       }
+
       if (read() !== 'hello') {
         path = 'key event'
         send(8, 'c', CMD)
         await pause()
       }
+
       console.log('ROLE-DIAG path=' + path + ' pasteboard=' + read())
       check(read() === 'hello', `edit roles via responder chain (${path}: ${read()})`)
     } finally {
@@ -332,20 +375,26 @@ setTimeout(async () => {
     } catch (error) {
       check(String(error).includes('already installed'), 'single-owner error')
     }
+
     second.dispose()
-    console.log('APPMENU_APPKIT_OK install, app menu, roles, accels, controlled checkbox, deferred+outside update, stale items, responder chain, dispose, single-owner')
+    console.log(
+      'APPMENU_APPKIT_OK install, app menu, roles, accels, controlled checkbox, deferred+outside update, stale items, responder chain, dispose, single-owner',
+    )
   } catch (error) {
     console.error('APPMENU_APPKIT_FAIL ' + String(error && (error as Error).stack ? error : error))
   } finally {
     try {
       handle?.dispose()
     } catch {}
+
     try {
       root.unmount()
     } catch {}
+
     try {
       window.close()
     } catch {}
+
     __xplatStopHost()
   }
 }, 100)

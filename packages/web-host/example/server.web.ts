@@ -5,6 +5,7 @@ import {
   manifestAssets,
   type WebAssetManifest,
 } from '@octane-xplat/web-host/server'
+
 import { App, catalog, requestContext } from './routes.web.tsrx'
 import { Document } from './Document.web.tsrx'
 
@@ -12,6 +13,7 @@ import { Document } from './Document.web.tsrx'
 const manifest: WebAssetManifest = JSON.parse(
   readFileSync(new URL('../client/.vite/manifest.json', import.meta.url), 'utf8'),
 )
+
 const assets = manifestAssets(manifest, 'example/client.web.ts')
 
 export const handle = createWebHandler({

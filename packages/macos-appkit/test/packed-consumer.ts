@@ -223,7 +223,9 @@ await writeFile(
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
 consumerConfig.overrides = {
-  ...Object.fromEntries(stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`])),
+  ...Object.fromEntries(
+    stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`]),
+  ),
   '@octane-xplat/docs-search': docsSearch,
   'create-octane-xplat': create,
   '@octane-xplat/lib': lib,

@@ -63,7 +63,14 @@ describe('normalizeAppMenu validation', () => {
       /menus\[0\]\.items\[0\].*onSelect.*function/,
     )
     expect(() =>
-      normalizeAppMenu(menus([{ type: 'checkbox', key: 'c', label: 'C', value: 'x', onValueChange: () => {} }] as never), undefined, 'linux', 1),
+      normalizeAppMenu(
+        menus([
+          { type: 'checkbox', key: 'c', label: 'C', value: 'x', onValueChange: () => {} },
+        ] as never),
+        undefined,
+        'linux',
+        1,
+      ),
     ).toThrow(/value.*boolean/)
   })
 
@@ -71,16 +78,13 @@ describe('normalizeAppMenu validation', () => {
     expect(() => normalizeAppMenu(menus([action({ key: '' })]), undefined, 'linux', 1)).toThrow(
       /key.*non-empty/,
     )
-    expect(() =>
-      normalizeAppMenu(menus([action(), action()]), undefined, 'linux', 1),
-    ).toThrow(/menus\[0\]\.items\[1\].*duplicate.*"a"/)
+    expect(() => normalizeAppMenu(menus([action(), action()]), undefined, 'linux', 1)).toThrow(
+      /menus\[0\]\.items\[1\].*duplicate.*"a"/,
+    )
     // Same key in different siblings is fine.
     expect(() =>
       normalizeAppMenu(
-        [
-          ...menus([action()]),
-          { type: 'submenu', key: 'edit', label: 'Edit', items: [action()] },
-        ],
+        [...menus([action()]), { type: 'submenu', key: 'edit', label: 'Edit', items: [action()] }],
         undefined,
         'linux',
         1,
@@ -90,7 +94,12 @@ describe('normalizeAppMenu validation', () => {
       normalizeAppMenu(menus([{ type: 'bogus', key: 'x' } as never]), undefined, 'linux', 1),
     ).toThrow(/unknown menu entry type/)
     expect(() =>
-      normalizeAppMenu(menus([{ type: 'role', key: 'r', role: 'about' } as never]), undefined, 'linux', 1),
+      normalizeAppMenu(
+        menus([{ type: 'role', key: 'r', role: 'about' } as never]),
+        undefined,
+        'linux',
+        1,
+      ),
     ).toThrow(/unknown role/)
   })
 
@@ -120,16 +129,20 @@ describe('normalizeAppMenu validation', () => {
   it('collapses leading, trailing and repeated separators', () => {
     const sep = (key: string): AppMenuEntry => ({ type: 'separator', key })
     const tree = normalizeAppMenu(
-      menus([sep('s1'), sep('s2'), action(), sep('s3'), sep('s4'), action({ key: 'b' }), sep('s5')]),
+      menus([
+        sep('s1'),
+        sep('s2'),
+        action(),
+        sep('s3'),
+        sep('s4'),
+        action({ key: 'b' }),
+        sep('s5'),
+      ]),
       undefined,
       'linux',
       1,
     )
-    expect(tree.menus[0]!.items.map((item) => item.kind)).toEqual([
-      'action',
-      'separator',
-      'action',
-    ])
+    expect(tree.menus[0]!.items.map((item) => item.kind)).toEqual(['action', 'separator', 'action'])
   })
 
   it('rejects bad accelerators with the entry path', () => {
@@ -142,7 +155,10 @@ describe('normalizeAppMenu validation', () => {
   })
 
   it('rejects duplicate effective accelerators per platform', () => {
-    const dupe = [action({ key: 'a', accelerator: 'Mod+Y' }), action({ key: 'b', accelerator: 'Control+Y' })]
+    const dupe = [
+      action({ key: 'a', accelerator: 'Mod+Y' }),
+      action({ key: 'b', accelerator: 'Control+Y' }),
+    ]
     // Mod → Control on GTK: same effective accelerator.
     expect(() => normalizeAppMenu(menus(dupe), undefined, 'linux', 1)).toThrow(/duplicates/)
     // …but Mod → Command on macOS: distinct there.
@@ -150,7 +166,10 @@ describe('normalizeAppMenu validation', () => {
     // Mod and Meta also collide on macOS (both Command).
     expect(() =>
       normalizeAppMenu(
-        menus([action({ key: 'a', accelerator: 'Command+Q' }), action({ key: 'b', accelerator: 'Mod+Q' })]),
+        menus([
+          action({ key: 'a', accelerator: 'Command+Q' }),
+          action({ key: 'b', accelerator: 'Mod+Q' }),
+        ]),
         undefined,
         'macos',
         1,
@@ -221,7 +240,12 @@ describe('normalizeAppMenu validation', () => {
     const ignored = normalizeAppMenu(menus([action({ accelerator: 'Mod+,' })]), options, 'linux', 1)
     expect(ignored.applicationItems).toHaveLength(1)
     expect(() =>
-      normalizeAppMenu(menus([]), { macos: { applicationItems: [{ type: 'bogus', key: 'x' } as never] } }, 'linux', 1),
+      normalizeAppMenu(
+        menus([]),
+        { macos: { applicationItems: [{ type: 'bogus', key: 'x' } as never] } },
+        'linux',
+        1,
+      ),
     ).toThrow(/options\.macos\.applicationItems\[0\]/)
   })
 })
