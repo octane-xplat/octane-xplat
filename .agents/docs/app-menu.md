@@ -56,13 +56,20 @@ headless rig — the GMenu model is verified structurally instead.
 
 ## Windows
 
-`src/host.windows.ts` reports unsupported on purpose. Windows has no
-global menu bar; the honest mapping is an in-window
-`Microsoft.UI.Xaml.Controls.MenuBar` with `MenuBarItem`/`MenuFlyoutItem`/
-`MenuFlyoutSubItem`/`ToggleMenuFlyoutItem` — creation, accelerators
-(`KeyboardAccelerator`), click handlers, dynamic updates and removal are all
-plausible on the pinned NativeScript Windows host, but runtime qualification
-is blocked while the wind(y) interactive session wedges new process init in
-session 1 (scheduled-task `/it` and GUI-subsystem launches both stall).
-Probe artifacts live in `research/app-menu-windows-probe/`. Do not claim
-Windows support without a passing interactive fixture.
+`src/host.windows.ts` reports unsupported — proven, not merely unqualified.
+An interactive fixture on windy (AppX + UIA + SendInput, run under
+`goddard-agent resource run`) showed `MenuFlyoutItem`,
+`KeyboardAccelerator`, and click handlers all work on the pinned
+NativeScript Windows host, but `Microsoft.UI.Xaml.Controls.MenuBar` and
+`MenuBarItem` fail `ActivateInstance` with `Not implemented` — the pinned
+WinRT projection does not ship the in-window menu bar control, and Windows
+has no global menubar alternative. Raw Win32 does work on this host —
+the tray task proved `Shell_NotifyIconW`/`TrackPopupMenu` end-to-end — so a
+classic `SetMenu` window bar is a theoretical avenue, but bolting a Win32
+menu onto a XAML window is layout-hostile and unusual enough that it is not
+the right default. Supporting Windows therefore waits for either the
+projection to grow MenuBar/MenuBarItem or a deliberate from-scratch widget. Probe artifacts live in
+`research/app-menu-windows-probe/` (bundle.mjs exercises every control;
+run.mjs handles the interactive scheduled-task dance — session-1 process
+init needs the interactive session healthy and `< NUL` on the action's
+stdin).

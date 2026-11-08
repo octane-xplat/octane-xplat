@@ -240,7 +240,7 @@ what it needs from you.
 | --- | --- | --- |
 | macOS (AppKit host) | `NSApplication.mainMenu` built from `NSMenu`/`NSMenuItem`. | The automatic application menu (About/Hide/Quit) is always present. Roles dispatch through the responder chain, so edit roles act on the focused field. Keyboard matching is AppKit's own; a plain-Command event can also reach a Command+Shift item on this build. |
 | Linux (GTK4/GJS host) | `Gio.Menu` menubar on the default `Gtk.Application`, driven by `Gio.SimpleAction`s. | Requires a running `Gtk.Application`. Separators become GMenu sections. `_` in labels is escaped (`Save_As` shows as `Save_As`, not a mnemonic) — mnemonic labels are unsupported. Edit roles forward to the focused widget's built-in actions and only show their accelerator; close/quit register real app-level Ctrl+W/Ctrl+Q. |
-| Windows, web, iOS, Android | None. | `supported: false`; `install` throws `UnavailabilityError('appMenu')`. Windows has no global menu bar; a WinUI in-window `MenuBar` mapping is being qualified separately. |
+| Windows, web, iOS, Android | None. | `supported: false`; `install` throws `UnavailabilityError('appMenu')`. Windows has no global menu bar; the honest mapping would be an in-window `MenuBar`, but the pinned NativeScript Windows host cannot create one (`Microsoft.UI.Xaml.Controls.MenuBar` fails activation with `Not implemented`). |
 
 Submenus cannot be disabled on any host — GMenu has no concept for it.
 Checkbox state is controlled everywhere: the native check mark changes only
@@ -264,6 +264,11 @@ Verified on this release:
   input inert, and dispose restoring the prior menubar. Opening the menubar
   with F10 or a pointer is not yet proven on the headless qualification rig,
   though the installed model verifies structurally.
+- **Windows (WinUI host):** an interactive fixture on the pinned NativeScript
+  runtime confirmed the window, `MenuFlyoutItem`, `KeyboardAccelerator`, and
+  click handlers all project correctly, but `Microsoft.UI.Xaml.Controls.MenuBar`
+  and `MenuBarItem` fail `ActivateInstance` with `Not implemented` — so no
+  app-menu surface exists on this host and the package reports unsupported.
 
 Unit tests cover tree validation, separator collapse, the accelerator
 grammar and duplicate detection, dispatch generation gating, and both host

@@ -21,6 +21,6 @@ handle.update(nextMenus)
 handle.dispose()
 ```
 
-Updates swap the whole tree atomically and retire stale callbacks, `dispose` restores the previous menu bar, and one owner is allowed per process. This is separate from in-window `DropdownMenu`/`ContextMenu` surfaces and from tray/status-bar icons. Web, iOS, Android, and Windows report `supported: false` and throw `UnavailabilityError` on install; a WinUI in-window `MenuBar` mapping is still being qualified.
+Updates swap the whole tree atomically and retire stale callbacks, `dispose` restores the previous menu bar, and one owner is allowed per process. This is separate from in-window `DropdownMenu`/`ContextMenu` surfaces and from tray/status-bar icons. Web, iOS, Android, and Windows report `supported: false` and throw `UnavailabilityError` on install — the pinned WinUI host cannot instantiate `Microsoft.UI.Xaml.Controls.MenuBar`, so no Windows surface exists yet.
 
 See [Application menu](https://octane-xplat.goddardai.org/package-app-menu).
