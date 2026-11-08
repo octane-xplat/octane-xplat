@@ -22,6 +22,11 @@ type devTarget struct {
 	Name   string `json:"name"`
 	Device string `json:"device,omitempty"`
 	Booted *bool  `json:"booted,omitempty"`
+	// Physical distinguishes a devicectl hardware target from a simulator.
+	Physical bool `json:"physical,omitempty"`
+	// Unavailable marks a discovered target that cannot launch right now and
+	// records why; it stays visible for selection errors and prompts.
+	Unavailable string `json:"unavailable,omitempty"`
 }
 type devSelection struct{ Target, Device, Targets *string }
 
@@ -33,7 +38,7 @@ func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error)
 	if single && choice.Targets != nil && *choice.Targets != "" {
 		return nil, errors.New("pass either a single target/device or --targets, not both")
 	}
-	selected := []devTarget{}
+	matched := []devTarget{}
 	kinds := []string{}
 	if choice.Targets != nil {
 		for _, kind := range strings.Split(*choice.Targets, ",") {
@@ -53,9 +58,21 @@ func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error)
 				continue
 			}
 		}
-		selected = append(selected, t)
+		matched = append(matched, t)
+	}
+	selected := []devTarget{}
+	blocked := []string{}
+	for _, t := range matched {
+		if t.Unavailable != "" {
+			blocked = append(blocked, t.Name+" ("+t.ID+"): "+t.Unavailable)
+		} else {
+			selected = append(selected, t)
+		}
 	}
 	if len(selected) == 0 {
+		if len(blocked) != 0 {
+			return nil, fmt.Errorf("matched development targets are not usable: %s", strings.Join(blocked, "; "))
+		}
 		return nil, fmt.Errorf("no development targets matched; available: %s", devTargetNames(all))
 	}
 	if single && len(selected) > 1 {
@@ -75,7 +92,11 @@ func selectDevTargets(all []devTarget, choice devSelection) ([]devTarget, error)
 func devTargetNames(targets []devTarget) string {
 	names := []string{}
 	for _, t := range targets {
-		names = append(names, t.Kind+" ("+t.ID+")")
+		name := t.Kind + " (" + t.ID + ")"
+		if t.Unavailable != "" {
+			name += ": " + t.Unavailable
+		}
+		names = append(names, name)
 	}
 	return strings.Join(names, ", ")
 }
@@ -120,7 +141,7 @@ func iosDevTargets(data []byte) []devTarget {
 			if booted {
 				name += " (booted)"
 			}
-			result = append(result, devTarget{"ios", d.UDID, name, d.UDID, &booted})
+			result = append(result, devTarget{Kind: "ios", ID: d.UDID, Name: name, Device: d.UDID, Booted: &booted})
 		}
 	}
 	if _, err = decoder.Token(); err != nil {
@@ -137,6 +158,144 @@ func iosDevTargets(data []byte) []devTarget {
 	})
 	return result
 }
+
+// A devicectl `list devices --json-output` entry. devicectl still emits the
+// deprecated hardware/device/connection groups unless
+// --omit-deprecated-fields-in-json is passed; the CLI never passes it.
+type devicectlDevice struct {
+	Identifier string `json:"identifier"`
+	Hardware   struct {
+		Reality       string `json:"reality"`
+		Platform      string `json:"platform"`
+		DeviceType    string `json:"deviceType"`
+		UDID          string `json:"udid"`
+		MarketingName string `json:"marketingName"`
+	} `json:"hardwareProperties"`
+	Device struct {
+		Name                string `json:"name"`
+		BootState           string `json:"bootState"`
+		DeveloperModeStatus string `json:"developerModeStatus"`
+	} `json:"deviceProperties"`
+	Connection struct {
+		PairingState  string `json:"pairingState"`
+		TransportType string `json:"transportType"`
+	} `json:"connectionProperties"`
+}
+
+// A lock-state read answers two questions at once: devicectl only runs it
+// against a device it can reach now, and passcodeRequired reports the lock.
+type iosLockProbe func(identifier string) (reachable, locked bool, err error)
+
+// Physical iOS hardware from `devicectl list devices`. devicectl also knows
+// simulators, Macs and non-iOS devices; those are not iOS targets at all and
+// are skipped, while paired-but-unusable iOS hardware stays visible with a
+// reason so an explicit --device selection can say what is wrong. A missing
+// tool or empty list means no physical targets, but garbage output from a
+// tool that did run is reported rather than hiding a real phone.
+func iosPhysicalDevTargets(data []byte, lock iosLockProbe) ([]devTarget, error) {
+	result := []devTarget{}
+	if len(bytes.TrimSpace(data)) == 0 {
+		return result, nil
+	}
+	var root struct {
+		Result struct {
+			Devices []devicectlDevice `json:"devices"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal(data, &root); err != nil {
+		return nil, fmt.Errorf("malformed devicectl device list: %w", err)
+	}
+	// devicectl can list one phone per transport; collapse duplicate hardware
+	// ids or an exact --device pick becomes ambiguous for no reason. Prefer an
+	// entry that passes the static checks over a blocked duplicate.
+	type candidate struct {
+		target    devTarget
+		unblocked bool
+	}
+	candidates := map[string]int{}
+	ordered := []candidate{}
+	for _, d := range root.Result.Devices {
+		if d.Hardware.Reality == "simulated" || d.Connection.TransportType == "sameMachine" {
+			continue
+		}
+		if d.Hardware.Platform != "" && d.Hardware.Platform != "iOS" && d.Hardware.Platform != "iPadOS" {
+			continue
+		}
+		if d.Hardware.DeviceType != "" && d.Hardware.DeviceType != "iPhone" && d.Hardware.DeviceType != "iPad" {
+			continue
+		}
+		id := d.Hardware.UDID
+		if id == "" {
+			id = d.Identifier
+		}
+		if id == "" {
+			return nil, errors.New("malformed devicectl device list: a physical iOS device has no identifier")
+		}
+		name := d.Device.Name
+		if name == "" {
+			name = d.Hardware.MarketingName
+		}
+		if name == "" {
+			name = "iPhone"
+		}
+		entry := candidate{target: devTarget{Kind: "ios", ID: id, Name: name + " (device)", Device: id, Physical: true}}
+		switch {
+		case d.Connection.PairingState != "paired":
+			entry.target.Unavailable = "not paired; trust this computer on the device"
+		case d.Device.BootState != "" && d.Device.BootState != "booted":
+			entry.target.Unavailable = "device is " + d.Device.BootState
+		case d.Device.DeveloperModeStatus == "disabled":
+			entry.target.Unavailable = "Developer Mode is disabled"
+		default:
+			entry.unblocked = true
+		}
+		if at, seen := candidates[id]; seen {
+			if !ordered[at].unblocked && entry.unblocked {
+				ordered[at] = entry
+			}
+			continue
+		}
+		candidates[id] = len(ordered)
+		ordered = append(ordered, entry)
+	}
+	for _, entry := range ordered {
+		if entry.unblocked {
+			reachable, locked, err := lock(entry.target.ID)
+			if err != nil {
+				return nil, err
+			}
+			switch {
+			case !reachable:
+				entry.target.Unavailable = "unavailable; the device cannot be reached"
+			case locked:
+				entry.target.Unavailable = "locked; unlock the device"
+			}
+		}
+		result = append(result, entry.target)
+	}
+	return result, nil
+}
+
+// `devicectl device info lockState --json-output -` exits nonzero when the
+// device cannot be reached; that is an unavailable device, not malformed data.
+func iosDeviceLockState(data string) (reachable, locked bool, err error) {
+	if strings.TrimSpace(data) == "" {
+		return false, false, nil
+	}
+	var root struct {
+		Result struct {
+			PasscodeRequired *bool `json:"passcodeRequired"`
+		} `json:"result"`
+	}
+	if err := json.Unmarshal([]byte(data), &root); err != nil {
+		return false, false, fmt.Errorf("malformed devicectl lock state: %w", err)
+	}
+	if root.Result.PasscodeRequired == nil {
+		return false, false, errors.New("malformed devicectl lock state: missing passcodeRequired")
+	}
+	return true, *root.Result.PasscodeRequired, nil
+}
+
 func androidDevTargets(data string) []devTarget {
 	result := []devTarget{}
 	lines := strings.Split(data, "\n")
@@ -202,6 +361,21 @@ func discoverDevTargets(ctx context.Context, projectPath string) ([]devTarget, e
 				return nil, err
 			}
 			result = append(result, iosDevTargets([]byte(output))...)
+			physical, err := probe("xcrun", "devicectl", "list", "devices", "--json-output", "-")
+			if err != nil {
+				return nil, err
+			}
+			devices, err := iosPhysicalDevTargets([]byte(physical), func(id string) (bool, bool, error) {
+				state, err := probe("xcrun", "devicectl", "device", "info", "lockState", "--device", id, "--json-output", "-")
+				if err != nil {
+					return false, false, err
+				}
+				return iosDeviceLockState(state)
+			})
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, devices...)
 		case "android":
 			output, err := probe("adb", "devices")
 			if err != nil {

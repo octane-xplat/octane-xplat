@@ -70,36 +70,138 @@ export const hasWindows = (cwd) => hasNative(cwd) && nsPlatforms(cwd).includes('
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
   const out = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'])
+  const sims = []
 
-  if (!out) {
-    return []
+  if (out) {
+    try {
+      const j = JSON.parse(out)
+
+      for (const list of Object.values(j.devices ?? {})) {
+        for (const d of list) {
+          if (!d.isAvailable) {
+            continue
+          }
+
+          sims.push({
+            kind: 'ios',
+            id: d.udid,
+            name: d.name + (d.state === 'Booted' ? ' (booted)' : ''),
+            device: d.udid,
+            booted: d.state === 'Booted',
+          })
+        }
+      }
+
+      // Booted first — that's almost always the one you mean.
+      sims.sort((a, b) => (b.booted ? 1 : 0) - (a.booted ? 1 : 0))
+    } catch {
+      // A malformed simulator list never blocks physical probing.
+    }
   }
 
-  try {
-    const j = JSON.parse(out)
-    const sims = []
+  // Physical hardware from devicectl. The deprecated property groups are
+  // still emitted because --omit-deprecated-fields-in-json is never passed.
+  // Paired-but-unusable phones stay listed with an `unavailable` reason so a
+  // caller can say why a selected device cannot launch. A lock-state read is
+  // also the reachability check: devicectl only answers it for a device it
+  // can reach right now.
+  const listed = run('xcrun', ['devicectl', 'list', 'devices', '--json-output', '-'])
 
-    for (const list of Object.values(j.devices ?? {})) {
-      for (const d of list) {
-        if (!d.isAvailable) {
+  if (listed) {
+    try {
+      // devicectl can list one phone per transport; collapse duplicate
+      // hardware ids or an exact --device pick becomes ambiguous for no
+      // reason. Prefer an entry that passes the static checks.
+      const candidates = []
+      const byId = new Map()
+
+      for (const entry of JSON.parse(listed).result?.devices ?? []) {
+        const hardware = entry.hardwareProperties ?? {}
+        const deviceProps = entry.deviceProperties ?? {}
+        const connection = entry.connectionProperties ?? {}
+
+        if (hardware.reality === 'simulated' || connection.transportType === 'sameMachine') {
           continue
         }
 
-        sims.push({
-          kind: 'ios',
-          id: d.udid,
-          name: d.name + (d.state === 'Booted' ? ' (booted)' : ''),
-          device: d.udid,
-          booted: d.state === 'Booted',
-        })
-      }
-    }
+        if (hardware.platform && !['iOS', 'iPadOS'].includes(hardware.platform)) {
+          continue
+        }
 
-    // Booted first — that's almost always the one you mean.
-    return sims.sort((a, b) => (b.booted ? 1 : 0) - (a.booted ? 1 : 0))
-  } catch {
-    return []
+        if (hardware.deviceType && !['iPhone', 'iPad'].includes(hardware.deviceType)) {
+          continue
+        }
+
+        const id = hardware.udid || entry.identifier
+
+        if (!id) {
+          continue
+        }
+
+        const target = {
+          kind: 'ios',
+          id,
+          name: (deviceProps.name || hardware.marketingName || 'iPhone') + ' (device)',
+          device: id,
+          physical: true,
+        }
+        let unblocked = true
+
+        if (connection.pairingState !== 'paired') {
+          target.unavailable = 'not paired; trust this computer on the device'
+          unblocked = false
+        } else if (deviceProps.bootState && deviceProps.bootState !== 'booted') {
+          target.unavailable = `device is ${deviceProps.bootState}`
+          unblocked = false
+        } else if (deviceProps.developerModeStatus === 'disabled') {
+          target.unavailable = 'Developer Mode is disabled'
+          unblocked = false
+        }
+
+        const at = byId.get(id)
+
+        if (at === undefined) {
+          byId.set(id, candidates.length)
+          candidates.push({ target, unblocked })
+        } else if (!candidates[at].unblocked && unblocked) {
+          candidates[at] = { target, unblocked }
+        }
+      }
+
+      for (const { target, unblocked } of candidates) {
+        if (unblocked) {
+          const lockOut = run('xcrun', [
+            'devicectl',
+            'device',
+            'info',
+            'lockState',
+            '--device',
+            target.id,
+            '--json-output',
+            '-',
+          ])
+
+          if (!lockOut) {
+            target.unavailable = 'unavailable; the device cannot be reached'
+          } else {
+            try {
+              if (JSON.parse(lockOut).result?.passcodeRequired !== false) {
+                target.unavailable = 'locked; unlock the device'
+              }
+            } catch {
+              target.unavailable = 'unavailable; the device cannot be reached'
+            }
+          }
+        }
+
+        sims.push(target)
+      }
+    } catch {
+      // A malformed device list never blocks simulator probing.
+    }
   }
+
+  return sims
 }
 
 /** Android targets: emulators + physical devices from adb. */

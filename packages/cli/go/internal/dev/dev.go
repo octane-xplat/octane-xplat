@@ -193,7 +193,13 @@ func promptDevTargets(ctx context.Context, all []devTarget, input *os.File) ([]d
 		}
 		line := strings.TrimSpace(value.line)
 		if line == "" {
-			return all, nil
+			usable := []devTarget{}
+			for _, target := range all {
+				if target.Unavailable == "" {
+					usable = append(usable, target)
+				}
+			}
+			return usable, nil
 		}
 		selected := []devTarget{}
 		seen := map[string]bool{}
@@ -203,6 +209,9 @@ func promptDevTargets(ctx context.Context, all []devTarget, input *os.File) ([]d
 			for _, target := range all {
 				if target.ID == id {
 					found = true
+					if target.Unavailable != "" {
+						return nil, fmt.Errorf("development target %s (%s) is not usable: %s", target.Name, id, target.Unavailable)
+					}
 					if !seen[id] {
 						selected = append(selected, target)
 						seen[id] = true
