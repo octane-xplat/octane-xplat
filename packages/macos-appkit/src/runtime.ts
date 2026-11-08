@@ -45,6 +45,7 @@ import { createHover } from './hover'
 import { createPopover } from './popover'
 import { createCssPseudoState } from './css-pseudo-state'
 import { createContextMenu } from './context-menu'
+import { createAppMenu } from './app-menu'
 import { createPickerBridge } from './picker-bridge'
 import { createSheetBridge } from './sheet-bridge'
 import { createHostBridge } from './host-bridge'
@@ -387,6 +388,10 @@ const contextMenu = createContextMenu({
   actions,
 })
 
+const appMenu = createAppMenu({
+  actions,
+})
+
 const pickerBridge = createPickerBridge({
   actions,
   pickerElements,
@@ -593,6 +598,8 @@ function initializeRuntime() {
     })
 
   hostBridge.appKitBridge.attachContextMenu = contextMenu.attachContextMenu
+
+  hostBridge.appKitBridge.installApplicationMenu = appMenu.installApplicationMenu
 
   hostBridge.appKitBridge.attachPicker = pickerBridge.attachPicker
 

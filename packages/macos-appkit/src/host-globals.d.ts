@@ -95,6 +95,11 @@ declare global {
       options: any,
       onSelect: any,
     ) => (() => void) | null
+    /** Leaf-owned application menu bar (NSApp.mainMenu); restores the prior
+     *  bar on dispose while its own menu is still installed. */
+    installApplicationMenu?: (
+      nodes: readonly import('./app-menu.ts').AppKitMenuNode[],
+    ) => import('./app-menu.ts').AppKitMenuHandle | null
     attachPicker?: (
       view: import('@octane-xplat/platform/macos').NSView,
       options: {

@@ -1,0 +1,16 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"compilerOptions": {
+		"strict": true,
+		"module": "esnext",
+		"moduleResolution": "bundler",
+		"target": "ES2022",
+		"lib": ["ES2022", "DOM"],
+		"declaration": true,
+		"outDir": "dist",
+		"rootDir": "src",
+		"skipLibCheck": true,
+		"noEmitOnError": true
+	},
+	"include": ["../linux-gtk-renderer/src/gi.d.ts", "src/**/*.ts"]
+}

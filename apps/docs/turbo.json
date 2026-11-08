@@ -16,6 +16,7 @@
 		"api": {
 			"dependsOn": [
 				"@octane-xplat/ads#typegen",
+				"@octane-xplat/app-menu#typegen",
 				"@octane-xplat/audio#typegen",
 				"@octane-xplat/auth#typegen",
 				"@octane-xplat/background-tasks#typegen",

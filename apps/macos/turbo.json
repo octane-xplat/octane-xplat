@@ -15,6 +15,11 @@
 			"cache": false,
 			"env": ["SHORTCUTS_MACOS_HOST"]
 		},
+		"test:app-menu-runtime": {
+			"dependsOn": ["@octane-xplat/lib#typegen"],
+			"cache": false,
+			"env": ["APP_MENU_MACOS_HOST"]
+		},
 		"test:text-controls": {
 			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
 			"cache": false

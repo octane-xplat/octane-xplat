@@ -26,6 +26,7 @@
 		"test:camera-webview": "node ./scripts/camera-webview-proof.ts --verify",
 		"test:routing": "node test/verify-routing.mjs",
 		"test:shortcuts-runtime": "node test/verify-shortcuts.mjs",
+		"test:app-menu-runtime": "node test/verify-app-menu.mjs",
 		"test:webview-packaged": "node ./scripts/webview-packaged-proof.ts --verify"
 	},
 	"dependencies": {

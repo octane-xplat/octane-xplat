@@ -1,0 +1,23 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["dist/**/*.d.ts"]
+		},
+		"build": {
+			"outputs": ["dist/**/*.js"]
+		},
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test:packed": {
+			"dependsOn": ["typegen", "build", "@octane-xplat/lib#typegen"],
+			"cache": false
+		},
+		"test:gtk-runtime": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false,
+			"env": ["APP_MENU_GTK_HOST", "APP_MENU_GTK_VM"]
+		}
+	}
+}

@@ -9,6 +9,7 @@
 	},
 	"frameworkPackages": [
 		"@octane-xplat/ads",
+		"@octane-xplat/app-menu",
 		"@octane-xplat/audio",
 		"@octane-xplat/auth",
 		"@octane-xplat/background-tasks",

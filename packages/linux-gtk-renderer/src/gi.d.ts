@@ -111,6 +111,9 @@ declare module 'gi://Gtk?version=4.0' {
       queue_resize(): void
       add_controller(controller: EventController): void
       remove_controller(controller: EventController): void
+      /** Activate a named action on this widget's action group
+       *  (e.g. `clipboard.copy`, `selection.select-all`). */
+      activate_action(name: string, parameter: unknown): boolean
       add_css_class(name: string): void
       remove_css_class(name: string): void
       get_style_context(): StyleContext
@@ -397,6 +400,8 @@ declare module 'gi://Gtk?version=4.0' {
       set_child(child: Widget | null): void
       present(): void
       close(): void
+      minimize(): void
+      get_focus(): Widget | null
       title: string
     }
 
@@ -416,6 +421,13 @@ declare module 'gi://Gtk?version=4.0' {
       quit(): void
       hold(): void
       release(): void
+      // Gio.ActionMap / Gio.Application members GtkApplication inherits.
+      add_action(action: unknown): void
+      remove_action(name: string): void
+      set_accels_for_action(detailedActionName: string, accels: string[]): void
+      set_menubar(menubar: unknown): void
+      get_menubar(): unknown
+      get_active_window(): ApplicationWindow | null
     }
   }
 
@@ -444,6 +456,11 @@ declare module 'gi://GLib' {
     function timeout_add(priority: number, interval: number, fn: () => boolean): number
     function idle_add(priority: number, fn: () => boolean): number
     function source_remove(id: number): boolean
+    class Variant {
+      static new_boolean(value: boolean): Variant
+      static new_string(value: string): Variant
+      [key: string]: any
+    }
     function get_monotonic_time(): number
     function getenv(name: string): string | null
     function build_filenamev(parts: string[]): string
@@ -580,6 +597,47 @@ declare module 'gi://Gio' {
       NON_UNIQUE: number
       HANDLES_OPEN: number
       [key: string]: number
+    }
+
+    class Application {
+      static get_default(): Application | null
+      add_action(action: SimpleAction): void
+      remove_action(name: string): void
+      set_accels_for_action(detailedActionName: string, accels: string[]): void
+      set_menubar(menubar: Menu | null): void
+      get_menubar(): Menu | null
+      get_active_window(): any
+      quit(): void
+      [key: string]: any
+    }
+
+    class SimpleAction {
+      static new(name: string, parameterType: unknown): SimpleAction
+      static new_stateful(name: string, parameterType: unknown, state: unknown): SimpleAction
+      connect(signal: string, handler: (...args: any[]) => unknown): number
+      disconnect(id: number): void
+      set_enabled(enabled: boolean): void
+      set_state(state: unknown): void
+      [key: string]: any
+    }
+
+    /** GMenuModel — menu structure handed to `set_menubar`. Sections express
+     *  separators; `append_submenu` nests menus. */
+    class Menu {
+      constructor()
+      append(label: string | null, detailedActionName: string | null): void
+      append_item(item: MenuItem): void
+      append_section(label: string | null, section: Menu): void
+      append_submenu(label: string | null, submenu: Menu): void
+      [key: string]: any
+    }
+
+    class MenuItem {
+      static new(label: string | null, detailedActionName: string | null): MenuItem
+      set_attribute_value(name: string, value: unknown): void
+      set_section(section: Menu | null): void
+      set_submenu(submenu: Menu | null): void
+      [key: string]: any
     }
 
     class MemoryInputStream {
