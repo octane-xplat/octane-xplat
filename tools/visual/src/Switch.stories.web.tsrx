@@ -9,7 +9,7 @@ export function SwitchStage(props: {
 }) @{
   <div className="visual-stage" data-story-id={props.stageId}>
     <div style={{ transform: `translateX(${props.displacement ?? 0}px)` }}>
-      <Switch checked={props.checked} ariaLabel="Visual capture switch" />
+      <Switch value={props.checked} accessibilityLabel="Visual capture switch" />
     </div>
   </div>
 }

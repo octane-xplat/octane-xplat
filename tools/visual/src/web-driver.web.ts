@@ -110,10 +110,10 @@ async function waitForReady(mounted: {
     throw new Error(`devicePixelRatio ${window.devicePixelRatio} does not match ${WEB_PROFILE.id}`)
   }
 
-  const track = control!.getBoundingClientRect()
-  const thumb = control!.firstElementChild?.getBoundingClientRect()
+  const track = stage!.querySelector('.vx-switch')?.getBoundingClientRect()
+  const thumb = stage!.querySelector('.vx-switch-thumb')?.getBoundingClientRect()
 
-  if (!thumb) {
+  if (!track || !thumb) {
     throw new Error(`Switch thumb missing for ${mounted.storyId}`)
   }
 

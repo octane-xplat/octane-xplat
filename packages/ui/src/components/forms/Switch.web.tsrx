@@ -158,6 +158,7 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
           type="checkbox"
           role="switch"
           checked={checked}
+          aria-checked={checked}
           disabled={props.isDisabled || undefined}
           aria-required={showRequired || undefined}
           aria-invalid={props.status?.type === 'error' || undefined}

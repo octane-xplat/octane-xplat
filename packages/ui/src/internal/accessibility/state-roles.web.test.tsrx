@@ -86,9 +86,11 @@ describe('boolean inputs', () => {
     const host = document.querySelector('input[role="switch"]') as HTMLInputElement
 
     expect(host.checked).toBe(true)
+    expect(host.getAttribute('aria-checked')).toBe('true')
     click(host)
     expect(change).toHaveBeenLastCalledWith(false)
     expect(host.checked).toBe(false)
+    expect(host.getAttribute('aria-checked')).toBe('false')
   })
 
   it('Switch controlled checked wins and stays caller-owned', () => {
@@ -99,9 +101,11 @@ describe('boolean inputs', () => {
     const host = document.querySelector('input[role="switch"]') as HTMLInputElement
 
     expect(host.checked).toBe(true)
+    expect(host.getAttribute('aria-checked')).toBe('true')
     click(host)
     expect(change).toHaveBeenLastCalledWith(false)
     expect(host.checked).toBe(true)
+    expect(host.getAttribute('aria-checked')).toBe('true')
   })
 
   it('Checkbox seeds defaultValue and toggles internally', () => {

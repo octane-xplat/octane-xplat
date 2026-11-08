@@ -24,13 +24,10 @@ export function assertSwitchGeometry(
 
   const expected: SwitchGeometry = {
     stage: { x: 0, y: 0, width: 96, height: 64 },
-    track: { x: 24 + displacement, y: 18, width: 48, height: 28 },
-    thumb: {
-      x: (checked ? 47 : 27) + displacement,
-      y: 21,
-      width: 22,
-      height: 22,
-    },
+    track: { x: 28 + displacement, y: 20, width: 40, height: 24 },
+    thumb: checked
+      ? { x: 46 + displacement, y: 22, width: 20, height: 20 }
+      : { x: 32 + displacement, y: 24, width: 16, height: 16 },
   }
 
   for (const part of ['stage', 'track', 'thumb'] as const) {
