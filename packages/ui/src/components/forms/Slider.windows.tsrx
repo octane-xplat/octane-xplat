@@ -86,6 +86,7 @@ export function Slider(inputProps: SliderProps): unknown @{
     }
 
     const changed = moveSliderThumb(value, thumb, next, bounds)
+
     if (sameSliderValue(value, changed)) {
       return
     }
@@ -99,6 +100,7 @@ export function Slider(inputProps: SliderProps): unknown @{
 
   const onTouch = (event: unknown) => {
     const touch = sliderTouch(event)
+
     if (!touch) {
       return
     }
@@ -107,8 +109,10 @@ export function Slider(inputProps: SliderProps): unknown @{
       cancelQueuedFocus.current?.()
       cancelQueuedFocus.current = null
       contact.current = true
+
       const at = touch.x != null && width > 0 ? min + (touch.x / width) * (max - min) : upper
       const thumb = range && Math.abs(at - lower) <= Math.abs(at - upper) ? 'lower' : 'upper'
+
       drag.current = { thumb, origin: thumb === 'lower' ? lower : upper }
       pressedPeer.current = thumb === 'lower' ? lowerPeer.current : upperPeer.current
       focusSliderInput(pressedPeer.current)

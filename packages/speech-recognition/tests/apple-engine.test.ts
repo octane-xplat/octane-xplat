@@ -65,17 +65,21 @@ const facade = new FakeFacade()
 
 const listen = (session: ReturnType<typeof speechRecognition.start>) => {
   const events: string[] = []
+
   session.subscribe((event) => {
     if (event.type === 'state') {
       events.push(`state:${event.state}`)
     }
+
     if (event.type === 'transcript') {
       events.push(`transcript:${event.transcript}:${event.isFinal}`)
     }
+
     if (event.type === 'end') {
       events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)
     }
   })
+
   return events
 }
 
@@ -105,7 +109,9 @@ describe('apple engine presence', () => {
     facade.configured = false
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     expect(speechRecognition.supported).toBe(false)
+
     const availability = await speechRecognition.getAvailability()
+
     expect(availability.available).toBe(false)
     expect(availability.reason).toBe('unsupported')
   })
@@ -114,7 +120,9 @@ describe('apple engine presence', () => {
 describe('apple availability', () => {
   it('maps a remote recognizer to networkUse required', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const availability = await speechRecognition.getAvailability({ lang: 'en-US' })
+
     expect(availability).toEqual({
       available: true,
       reason: null,
@@ -127,7 +135,9 @@ describe('apple availability', () => {
   it('maps on-device recognition to networkUse possible', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     facade.availability.onDevice = true
+
     const availability = await speechRecognition.getAvailability()
+
     expect(availability.networkUse).toBe('possible')
   })
 
@@ -139,7 +149,9 @@ describe('apple availability', () => {
       lang: 'xx',
       onDevice: false,
     }
+
     const availability = await speechRecognition.getAvailability({ lang: 'xx' })
+
     expect(availability.reason).toBe('language-unsupported')
     expect(availability.networkUse).toBeNull()
   })
@@ -147,7 +159,9 @@ describe('apple availability', () => {
   it('maps malformed payloads to service-unavailable', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     facade.availability = { reason: 'unexpected' }
+
     const availability = await speechRecognition.getAvailability()
+
     expect(availability.reason).toBe('service-unavailable')
     expect(availability.available).toBe(false)
   })
@@ -157,14 +171,18 @@ describe('apple permissions', () => {
   it('maps denied to canAskAgain false', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     facade.permission = 'denied'
+
     const response = await speechRecognition.getPermissions()
+
     expect(response).toEqual({ status: 'denied', granted: false, canAskAgain: false })
   })
 
   it('prompts through the facade on request', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     facade.permission = 'granted'
+
     const response = await speechRecognition.requestPermissions()
+
     expect(facade.permissionCalls).toBe(1)
     expect(response.status).toBe('granted')
   })
@@ -173,13 +191,16 @@ describe('apple permissions', () => {
 describe('apple session events', () => {
   it('forwards options and maps the event stream', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const session = speechRecognition.start({
       lang: 'fr-FR',
       interimResults: false,
       continuous: true,
     })
+
     await began()
     expect(facade.beginArgs).toEqual(['fr-FR', false, true])
+
     const events = listen(session)
 
     facade.handler?.('listening', '', false, '', 0, '')
@@ -188,6 +209,7 @@ describe('apple session events', () => {
     facade.handler?.('finished', '', false, '', 0, '')
 
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(result.transcript).toBe('bonjour le monde')
     expect(events).toContain('state:listening')
@@ -196,34 +218,48 @@ describe('apple session events', () => {
 
   it('stop() finishes the facade and ends stopped', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const session = speechRecognition.start({ lang: 'en-US', continuous: true })
+
     await began()
     facade.handler?.('listening', '', false, '', 0, '')
+
     const stopping = session.stop()
+
     expect(facade.instance.finish).toHaveBeenCalledOnce()
     facade.handler?.('finished', '', false, '', 0, '')
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
   })
 
   it('abort() cancels the facade and ends aborted', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const session = speechRecognition.start({ lang: 'en-US', continuous: true })
+
     await began()
     facade.handler?.('listening', '', false, '', 0, '')
     session.abort()
     expect(facade.instance.cancel).toHaveBeenCalledOnce()
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
   })
 
   it('maps facade errors through the Apple error map', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const session = speechRecognition.start({ lang: 'en-US' })
+
     await began()
     facade.handler?.('listening', '', false, '', 0, '')
     facade.handler?.('error', '', false, 'XplatSpeechRecognizer', 1, 'No recognizer for lang')
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('language-unsupported')
     expect(result.error?.nativeCode).toBe('XplatSpeechRecognizer:1')
@@ -231,7 +267,9 @@ describe('apple session events', () => {
 
   it('maps interrupted events to the interrupted code', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
+
     const session = speechRecognition.start({ lang: 'en-US' })
+
     await began()
     facade.handler?.('listening', '', false, '', 0, '')
     facade.handler?.(
@@ -242,7 +280,9 @@ describe('apple session events', () => {
       0,
       'audio session interrupted',
     )
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('interrupted')
   })
@@ -250,8 +290,10 @@ describe('apple session events', () => {
   it('a null facade instance ends as service-unavailable', async () => {
     vi.stubGlobal('XplatSpeechRecognizer', facade)
     vi.spyOn(facade, 'startWithLanguageInterimResultsContinuousOnEvent').mockReturnValueOnce(null)
+
     const session = speechRecognition.start({ lang: 'en-US' })
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('service-unavailable')
   })

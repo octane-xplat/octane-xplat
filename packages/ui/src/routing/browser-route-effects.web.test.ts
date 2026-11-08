@@ -4,6 +4,7 @@ import { createBrowserRouteEffects } from './browser-route-effects.web'
 
 let effects: ReturnType<typeof createBrowserRouteEffects>
 let root: HTMLDivElement
+
 beforeEach(() => {
   root = document.createElement('div')
   document.body.append(root)
@@ -28,7 +29,9 @@ it('honors explicit autofocus and ignores disabled autofocus controls', () => {
 
 it('marks script-driven route focus so the programmatic ring stays suppressed', () => {
   root.innerHTML = '<h1>Details</h1><button>Next</button>'
+
   const heading = root.querySelector('h1')!
+
   effects.restore(undefined, { root })
   expect(document.activeElement).toBe(heading)
   expect(heading.getAttribute('data-xplat-programmatic-focus')).toBe('')
@@ -39,7 +42,9 @@ it('marks script-driven route focus so the programmatic ring stays suppressed', 
 
 it('leaves author-owned tabindex changes intact when temporary heading focus ends', () => {
   root.innerHTML = '<h1>Details</h1><button>Continue</button>'
+
   const heading = root.querySelector('h1')!
+
   effects.restore(undefined, { root })
   expect(heading.getAttribute('tabindex')).toBe('-1')
   heading.tabIndex = 0

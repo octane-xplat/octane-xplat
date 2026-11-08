@@ -7,11 +7,13 @@ import { existsSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { join } from 'node:path'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const repo = fileURLToPath(new URL('../../..', import.meta.url))
 const require = createRequire(join(repo, 'packages/platform/package.json'))
 const runtime = require.resolve('@nativescript/macos-node-api')
 const arch = process.arch === 'arm64' ? 'arm64' : 'x86_64'
+
 process.env.METADATA_PATH = join(
   repo,
   'packages/cli/src/macos/jsc-host/prebuilt/macos',
@@ -19,6 +21,7 @@ process.env.METADATA_PATH = join(
 )
 
 await import(pathToFileURL(runtime).href)
+
 const { backend } = await import(pathToFileURL(join(root, 'src/backend.macos.ts')).href)
 const { normalizeOptions } = await import(pathToFileURL(join(root, 'src/options.ts')).href)
 
@@ -31,7 +34,9 @@ assert.deepEqual(backend.capabilities(), {
 })
 
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(NSApplicationActivationPolicy.Accessory)
+
 const win = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
   NSMakeRect(0, 0, 400, 300),
   NSWindowStyleMask.Titled,
@@ -40,8 +45,11 @@ const win = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 )
 
 const view = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 120, 80))
+
 view.wantsLayer = true
+
 const text = NSTextField.alloc().initWithFrame(NSMakeRect(5, 30, 110, 40))
+
 text.stringValue = 'CAPTURE'
 text.font = NSFont.boldSystemFontOfSize(28)
 text.bezeled = false
@@ -52,8 +60,11 @@ win.contentView.addSubview(view)
 win.orderBack(null)
 
 const uri = await backend.capture(view, normalizeOptions({ format: 'png', result: 'tmpfile' }))
+
 assert.match(uri, /^file:\/\/.*\.png$/)
+
 const path = new URL(uri).pathname
+
 assert.equal(existsSync(path), true, 'tmpfile write')
 backend.release(uri)
 assert.equal(existsSync(path), false, 'owned release deletes')
@@ -68,6 +79,7 @@ const png = Buffer.from(
 )
 
 assert.equal(png.subarray(0, 4).toString('hex'), '89504e47', 'png signature')
+
 const dataURI = await backend.capture(
   view,
   normalizeOptions({ format: 'jpg', result: 'data-uri', quality: 0.9 }),
@@ -100,6 +112,7 @@ const pixels = new Uint8Array(
 )
 
 const colors = new Set()
+
 for (let i = 0; i < pixels.length; i += 4) {
   colors.add((pixels[i] << 16) | (pixels[i + 1] << 8) | pixels[i + 2])
 }
@@ -107,6 +120,7 @@ for (let i = 0; i < pixels.length; i += 4) {
 assert.ok(colors.size > 50, `nonblank capture (${colors.size} colors)`)
 
 const detached = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 50, 50))
+
 await assert.rejects(backend.capture(detached, normalizeOptions()), /^Error: View is detached$/)
 await assert.rejects(backend.capture(view, normalizeOptions({ format: 'webp' })), /unavailable/i)
 await assert.rejects(

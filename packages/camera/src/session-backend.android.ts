@@ -32,11 +32,13 @@ const preferences = () => context().getSharedPreferences('octane-camera-permissi
 
 async function checkPermission(kind: CameraPermissionKind): Promise<CameraPermissionStatus> {
   const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
   if (!activity) {
     return 'unavailable'
   }
 
   const permission = permissionName(kind)
+
   if (activity.checkSelfPermission(permission) === 0) {
     return 'granted'
   }
@@ -51,11 +53,13 @@ async function checkPermission(kind: CameraPermissionKind): Promise<CameraPermis
 function requestPermission(kind: CameraPermissionKind): Promise<CameraPermissionStatus> {
   const result = permissionChain.then(async () => {
     const status = await checkPermission(kind)
+
     if (status !== 'notDetermined') {
       return status
     }
 
     const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
     if (!activity) {
       return 'unavailable' as const
     }
@@ -89,6 +93,7 @@ function requestPermission(kind: CameraPermissionKind): Promise<CameraPermission
       }
 
       const timer = setTimeout(() => finish('unknown'), 120_000)
+
       Application.android.on(Application.android.activityRequestPermissionsEvent, onResult)
       try {
         activity.requestPermissions([permissionName(kind)], code)
@@ -108,6 +113,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     reject: (issue: Error) => void
     acquired?: CameraDeviceInfo
   }
+
   let currentConfig = { ...config }
   let observer: BackendObserver | undefined
   let bridge: any
@@ -137,6 +143,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const Bridge = nativeBridge()
+
     if (!Bridge) {
       throw error(
         'unsupportedPlatform',
@@ -151,6 +158,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         event(type: string, payload: string) {
           if (type === 'switchFinished' || type === 'switchFailed') {
             const pending = cameraSwitch
+
             if (type === 'switchFinished') {
               try {
                 if (pending && !pending.acquired) {
@@ -193,12 +201,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             sink?.started(JSON.parse(payload))
           } else if (type === 'finished' || type === 'failed') {
             const target = sink
+
             sink = undefined
             if (!host) {
               releaseLease()
             }
 
             const result = JSON.parse(payload)
+
             target?.settled(
               type === 'finished'
                 ? { ...result, warning: result.warning ?? switchWarning }
@@ -225,6 +235,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     checkPermission,
     requestPermission: async (kind) => {
       const status = await requestPermission(kind)
+
       if (
         kind === 'camera' &&
         status === 'granted' &&
@@ -254,6 +265,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     getCapabilities: async () => {
       const value = bridge ? JSON.parse(bridge.capabilities()) : { cameras: [], profiles: [] }
       const supported = !!nativeBridge()
+
       return {
         supported,
         available: !!bridge?.isReady(),
@@ -389,6 +401,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       try {
         const raw = bridge?.zoom?.()
         const value = typeof raw === 'string' ? JSON.parse(raw) : undefined
+
         if (
           typeof value?.zoom !== 'number' ||
           typeof value?.minZoom !== 'number' ||
@@ -413,6 +426,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       if (!sink || cameraSwitch || typeof bridge?.confirmCameraSwitch !== 'function') {
         throw error('invalidState', 'switchCamera', 'The native recording cannot switch now')
       }
+
       let cancelled = false
       let acquired: CameraDeviceInfo | undefined
       let pending!: PendingCameraSwitch
@@ -429,9 +443,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         if (cancelled) {
           throw error('invalidState', 'switchCamera', 'Camera switching was cancelled')
         }
+
         acquired = selected
         return selected
       })
+
       return {
         completion,
         commit: () => {
@@ -442,6 +458,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
               'Camera switching was cancelled before commit',
             )
           }
+
           try {
             bridge.confirmCameraSwitch(acquired.id)
           } catch (cause) {
@@ -458,6 +475,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             bridge.stop()
             throw switchWarning
           }
+
           currentConfig = { ...currentConfig, camera }
           cameraSwitch = undefined
         },
@@ -465,6 +483,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           if (cameraSwitch !== pending) {
             return
           }
+
           cancelled = true
           cameraSwitch = undefined
           pending.reject(error('invalidState', 'switchCamera', 'Camera switching was cancelled'))
@@ -480,6 +499,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         // canonicalize so '..' cannot escape the files root.
         const destination = canonicalizePath(request.destinationPath)
         let filesRoot = ''
+
         try {
           filesRoot = context()?.getFilesDir?.().getAbsolutePath?.() ?? ''
         } catch {
@@ -535,6 +555,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       try {
         const url = nativeBridge().openOutput(output.resourceId, output.fileUrl)
+
         return { url, fileUrl: url, release: () => {} }
       } catch (cause) {
         throw error(

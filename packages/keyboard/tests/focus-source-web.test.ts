@@ -6,8 +6,10 @@ import { focusWebFixture as fixture } from './helpers/focus-web'
 it('reports box/selection and nearest scroll owners without reading text', () => {
   const f = fixture(),
     snapshots: any[] = []
+
   const stop = observeFocusedInput(f.document, (state) => snapshots.push(state))
   const first = snapshots.at(-1)
+
   expect(first.input).toBe(f.field)
   expect(first.inputRect).toEqual(f.field.box)
   expect(first.selection).toEqual({ start: 1, end: 3 })
@@ -28,8 +30,10 @@ it('reports box/selection and nearest scroll owners without reading text', () =>
   f.field.isConnected = false
   focusRechecks.get(f.document)!()
   expect(snapshots.at(-1).input).toBeNull()
+
   const stale = [...f.queue.values()][0],
     count = snapshots.length
+
   stop()
   stop()
   stale()
@@ -41,7 +45,9 @@ it('reports box/selection and nearest scroll owners without reading text', () =>
 it('tracks identity changes even when geometry and selection are equal', () => {
   const f = fixture(),
     snapshots: any[] = []
+
   const stop = observeFocusedInput(f.document, (state) => snapshots.push(state))
+
   f.document.activeElement = { ...f.field }
   focusRechecks.get(f.document)!()
   expect(snapshots).toHaveLength(2)

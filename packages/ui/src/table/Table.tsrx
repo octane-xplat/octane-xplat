@@ -24,6 +24,7 @@ import { useContext, useMemo } from 'octane'
  *  shares become flexGrow. */
 function cellWidthStyle(col: TableColumn<any>) {
   const w = col.width
+
   if (w?.type === 'pixel') {
     return { width: w.value }
   }
@@ -155,6 +156,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
           <masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
             {plan.headerCells.map((cell) => {
               const { before, after, overlay, below, content } = cell.render
+
               return (
                 <masonview
                   key={cell.column.key}

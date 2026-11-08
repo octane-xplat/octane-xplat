@@ -7,6 +7,7 @@ import type { ProbeContext } from '../../tools/probe/context'
 export default function AppleAuthProbe() {
   const [status, setStatus] = useState('No Apple authentication requested')
   const alive = useRef(true)
+
   useEffect(() => {
     alive.current = true
     return () => {

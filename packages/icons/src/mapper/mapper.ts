@@ -68,12 +68,14 @@ function diagnostic(code: number, messageText: string): MapperDiagnostic {
 function collectionAt(state: ProjectState, jsonPath: string): IconifyJSON | undefined {
   const mtimeMs = statSync(jsonPath).mtimeMs
   const cached = state.collections.get(jsonPath)
+
   if (cached && cached.mtimeMs === mtimeMs) {
     return cached.json
   }
 
   try {
     const json = JSON.parse(readFileSync(jsonPath, 'utf8')) as IconifyJSON
+
     state.collections.set(jsonPath, { mtimeMs, json })
     return json
   } catch {
@@ -90,6 +92,7 @@ function iconModuleText(
 ): { text?: string; diagnostics: MapperDiagnostic[] } {
   const jsonPath = resolveCollectionJson(prefix, state.anchor)
   const collection = jsonPath ? collectionAt(state, jsonPath) : undefined
+
   if (!collection) {
     return {
       diagnostics: [
@@ -102,6 +105,7 @@ function iconModuleText(
   }
 
   const icon: IconifyIcon | null = getIconData(collection, name)
+
   if (!icon) {
     return {
       diagnostics: [
@@ -132,6 +136,7 @@ export function createIconContentMapper() {
   return {
     initialize(params: { positionEncodings?: string[] }) {
       const encoding = params.positionEncodings?.includes('utf-16') ? 'utf-16' : 'utf-8'
+
       return { positionEncoding: encoding, diagnosticSource: 'icons' }
     },
 
@@ -141,6 +146,7 @@ export function createIconContentMapper() {
       options?: Record<string, unknown>
     }) {
       const anchor = params.configFileName || process.cwd()
+
       projects.set(params.projectHandle, { anchor, collections: new Map() })
       return {
         configIdentity: createHash('sha256')
@@ -165,10 +171,12 @@ export function createIconContentMapper() {
         anchor: params.fileName,
         collections: new Map<string, CollectionEntry>(),
       }
+
       const diagnostics: MapperDiagnostic[] = []
       let text = FALLBACK_MODULE
 
       const parts = iconStubParts(params.fileName)
+
       if (!parts) {
         diagnostics.push(
           diagnostic(
@@ -179,6 +187,7 @@ export function createIconContentMapper() {
       } else {
         const [prefix, name] = parts
         const expected = `icons:${prefix}/${name}`
+
         if (params.content.trim() !== expected) {
           diagnostics.push(
             diagnostic(
@@ -189,6 +198,7 @@ export function createIconContentMapper() {
         }
 
         const module = iconModuleText(prefix, name, state)
+
         diagnostics.push(...module.diagnostics)
         if (module.text) {
           text = module.text

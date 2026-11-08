@@ -228,6 +228,7 @@ function appDebugInspector(): AppDebugInspector | undefined {
   const candidate = (globalThis as unknown as Record<string, AppDebugInspector | undefined>)[
     'octane-xplat.dev-inspector'
   ]
+
   return candidate?.version === 1 &&
     typeof candidate.documentId === 'string' &&
     candidate.documentId.length <= 128 &&
@@ -330,8 +331,11 @@ export interface DevActionNavigator {
 export function setDevActionNavigator(navigator: DevActionNavigator | undefined): () => void {
   const state = registry()
   const previous = state.navigator
+
   previous?.unsubscribe?.()
+
   let unsubscribe: (() => void) | undefined
+
   if (navigator) {
     try {
       unsubscribe = navigator.subscribe(() => scheduleAnnounce(state))
@@ -344,6 +348,7 @@ export function setDevActionNavigator(navigator: DevActionNavigator | undefined)
   scheduleAnnounce(state)
 
   let restored = false
+
   return () => {
     if (restored) {
       return
@@ -416,6 +421,7 @@ const uuid = () =>
 
 function registry(): RegistryState {
   const g = globalThis as unknown as Record<string, RegistryState | undefined>
+
   if (!g[GLOBAL_KEY]) {
     g[GLOBAL_KEY] = {
       instanceId: `inst_${uuid()}`,
@@ -431,6 +437,7 @@ function registry(): RegistryState {
   }
 
   const state = g[GLOBAL_KEY] as RegistryState
+
   // Realm singletons survive hot reload; a bridge started before this field
   // existed still gets a channel table.
   state.channels ??= new Map()
@@ -439,8 +446,10 @@ function registry(): RegistryState {
 
 const evaluateAvailability = (spec: DevActionDeclaration): { ready: boolean; reason?: string } => {
   const probe = spec.availability?.ready as AvailabilityProbe | boolean | undefined
+
   if (typeof probe === 'function') {
     const verdict = probe()
+
     return typeof verdict === 'boolean' ? { ready: verdict } : verdict
   }
 
@@ -459,6 +468,7 @@ const declarations = (state: RegistryState) =>
     const spec = entry.spec
     const live = liveAvailability(state, entry)
     const routed = entry.kind === 'action' && spec.route !== undefined
+
     return {
       id: spec.id,
       title: spec.title,
@@ -484,6 +494,7 @@ const declarations = (state: RegistryState) =>
 const snapshot = (state: RegistryState, appLabel?: string) => {
   const inspector = appDebugInspector()
   let location: { route: string | null; modal: boolean } | undefined
+
   try {
     location = state.navigator?.impl.location()
   } catch {
@@ -529,6 +540,7 @@ function defineDeclaration(
   kind: 'action' | 'effect',
 ): DevActionDefinition | DevEffectDefinition {
   const problems = validateActionDeclaration(declaration)
+
   if (kind === 'effect' && (declaration as DevActionDeclaration).route !== undefined) {
     problems.push('route is only supported for dev actions')
   }
@@ -538,6 +550,7 @@ function defineDeclaration(
   }
 
   const state = registry()
+
   if (state.actions.has(declaration.id)) {
     throw new Error(`Dev ${kind} "${declaration.id}" is already registered`)
   }
@@ -558,6 +571,7 @@ function defineDeclaration(
   scheduleAnnounce(state)
 
   let disposed = false
+
   return {
     id: declaration.id,
     kind,
@@ -609,6 +623,7 @@ function attachHandler(
 
   const state = registry()
   const entry = state.actions.get(id)
+
   if (entry && entry.kind !== kind) {
     throw new Error(`"${id}" is declared as a dev ${entry.kind}; cannot attach a ${kind} handler`)
   }
@@ -617,7 +632,9 @@ function attachHandler(
     run,
     ...(options?.label !== undefined ? { label: options.label } : {}),
   }
+
   const list = state.handlers.get(id)
+
   if (list) {
     list.push(handler)
   } else {
@@ -630,15 +647,19 @@ function attachHandler(
   scheduleAnnounce(state)
 
   let detached = false
+
   return () => {
     if (detached) {
       return
     }
 
     detached = true
+
     const list = state.handlers.get(id)
+
     if (list) {
       const index = list.indexOf(handler)
+
       if (index >= 0) {
         list.splice(index, 1)
       }
@@ -702,6 +723,7 @@ export function registerDevAction(spec: DevActionSpec): DevActionHandle {
 
   const definition = defineDevAction(spec)
   const detach = attachDevActionHandler(definition, spec.run)
+
   return {
     dispose() {
       detach()
@@ -721,6 +743,7 @@ const normalizeForKey = (value: unknown): unknown => {
 
   if (value && typeof value === 'object') {
     const out: Record<string, unknown> = {}
+
     for (const name of Object.keys(value).sort()) {
       out[name] = normalizeForKey((value as Record<string, unknown>)[name])
     }
@@ -745,6 +768,7 @@ export function devActionDeclarationKey(declaration: DevActionDeclaration): stri
  */
 export function retainDevAction(declaration: DevActionDeclaration, key: string): () => void {
   const problems = validateActionDeclaration(declaration)
+
   if (problems.length) {
     throw new Error(`Invalid dev action "${declaration?.id ?? '?'}": ${problems.join('; ')}`)
   }
@@ -782,13 +806,16 @@ export function retainDevAction(declaration: DevActionDeclaration, key: string):
   scheduleAnnounce(state)
 
   let released = false
+
   return () => {
     if (released) {
       return
     }
 
     released = true
+
     const current = state.actions.get(id)
+
     if (current?.origin === 'retained') {
       current.owners -= 1
       if (current.owners <= 0) {
@@ -818,8 +845,10 @@ export function devActionsRevision(): number {
  */
 export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevActionBridge {
   const state = registry()
+
   if (state.bridge) {
     const rt = state.bridge
+
     if (options.appLabel !== undefined && options.appLabel !== state.appLabel) {
       state.appLabel = options.appLabel
       scheduleAnnounce(state)
@@ -840,6 +869,7 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
   const discovered = devBridgeEndpoint()
   const origin = options.origin ?? discovered?.origin
   const token = discovered?.token
+
   if (!origin || !token) {
     return {
       instanceId: state.instanceId,
@@ -866,6 +896,7 @@ export function startDevActionBridge(options: DevActionBridgeOptions = {}): DevA
   } else {
     void announceOnce(rt)
   }
+
   rt.timer = setInterval(() => void announceOnce(rt), options.intervalMs ?? ANNOUNCE_INTERVAL_MS)
   if (!rt.endpoint.socket) {
     void pollLoop(rt)
@@ -891,15 +922,18 @@ function stopBridge(rt: BridgeRuntime) {
   if (rt.reconnect) {
     clearTimeout(rt.reconnect)
   }
+
   rt.socket?.close()
   if (rt.timer) {
     clearInterval(rt.timer)
   }
 
   const state = registry()
+
   if (state.bridge === rt) {
     state.bridge = undefined
   }
+
   notifyChannels(state)
 }
 
@@ -942,10 +976,13 @@ function devChannelState(entry: ChannelEntry, state: RegistryState): DevChannelS
   if (entry.closed) {
     return 'closed'
   }
+
   const rt = state.bridge
+
   if (!rt || !rt.endpoint.socket) {
     return 'unavailable'
   }
+
   return rt.socket?.readyState === 1 && rt.state === 'live' && rt.channelCapable
     ? 'live'
     : 'connecting'
@@ -953,6 +990,7 @@ function devChannelState(entry: ChannelEntry, state: RegistryState): DevChannelS
 
 function notifyChannel(entry: ChannelEntry, state: RegistryState) {
   const next = devChannelState(entry, state)
+
   if (next !== entry.state) {
     entry.state = next
     entry.handlers.state(next)
@@ -988,16 +1026,19 @@ export function registerDevChannel(
       `Invalid dev channel "${id}": id must match /^[a-z][a-z0-9-]{0,31}$/ and version must be an int32`,
     )
   }
+
   if (typeof handlers?.message !== 'function' || typeof handlers?.state !== 'function') {
     throw new Error(`Invalid dev channel "${id}": message and state handlers are required`)
   }
 
   const state = registry()
+
   if (state.channels?.has(id)) {
     throw new Error(`Dev channel "${id}" is already registered`)
   }
 
   const entry: ChannelEntry = { id, version, handlers, closed: false }
+
   state.channels?.set(id, entry)
   state.revision += 1
   startDevActionBridge()
@@ -1007,6 +1048,7 @@ export function registerDevChannel(
   return {
     send(to: 'backend' | 'panels', data: unknown): boolean {
       const rt = state.bridge
+
       if (
         entry.closed ||
         !rt?.endpoint.socket ||
@@ -1015,6 +1057,7 @@ export function registerDevChannel(
       ) {
         return false
       }
+
       try {
         rt.socket.send(JSON.stringify({ type: 'channel', channel: id, to, data }))
         return true
@@ -1026,12 +1069,14 @@ export function registerDevChannel(
       if (entry.closed) {
         return
       }
+
       entry.closed = true
       if (state.channels?.get(id) === entry) {
         state.channels.delete(id)
         state.revision += 1
         scheduleAnnounce(state)
       }
+
       notifyChannel(entry, state)
     },
   }
@@ -1066,6 +1111,7 @@ async function announceOnce(rt: BridgeRuntime) {
   }
 
   const fetch = fetchImpl()
+
   if (!rt.announcing || !fetch) {
     if (!fetch) {
       rt.state = 'degraded'
@@ -1076,6 +1122,7 @@ async function announceOnce(rt: BridgeRuntime) {
   }
 
   const state = registry()
+
   try {
     const res = await fetch(`${rt.endpoint.origin}/__xplat_dev__/registry`, {
       method: 'POST',
@@ -1098,9 +1145,12 @@ function connectAppSocket(rt: BridgeRuntime) {
   if (!rt.polling || !rt.endpoint.socket) {
     return
   }
+
   let socket: AppDebugSocket
+
   try {
     const connection = devBridgeSocket(rt.endpoint.socket)
+
     if (!connection) {
       rt.state = 'degraded'
       rt.lastError = 'No WebSocket implementation in this runtime'
@@ -1114,6 +1164,7 @@ function connectAppSocket(rt: BridgeRuntime) {
     rt.reconnect = setTimeout(() => connectAppSocket(rt), 1000)
     return
   }
+
   rt.socket = socket
   rt.channelCapable = false
   socket.onopen = () => {
@@ -1121,6 +1172,7 @@ function connectAppSocket(rt: BridgeRuntime) {
       socket.close()
       return
     }
+
     try {
       socket.send(
         JSON.stringify({
@@ -1138,16 +1190,19 @@ function connectAppSocket(rt: BridgeRuntime) {
       socket.close()
     }
   }
+
   socket.onmessage = (event) => {
     if (rt.socket !== socket || !rt.polling) {
       return
     }
+
     try {
       if (typeof event.data !== 'string' || event.data.length > 1 << 20) {
         throw Error('invalid app frame')
       }
 
       const frame = JSON.parse(event.data)
+
       if (
         frame.type === 'registered' &&
         frame.protocol === 'octane-app-debug' &&
@@ -1195,6 +1250,7 @@ function connectAppSocket(rt: BridgeRuntime) {
 
         const inspector = appDebugInspector()
         let result: unknown
+
         try {
           result = (frame.type === 'inspect'
             ? inspector?.inspect(frame.args)
@@ -1209,6 +1265,7 @@ function connectAppSocket(rt: BridgeRuntime) {
         }
 
         const response = JSON.stringify({ type: 'inspection', requestId: frame.requestId, result })
+
         if (response.length > 64 * 1024) {
           socket.send(
             JSON.stringify({
@@ -1243,6 +1300,7 @@ function connectAppSocket(rt: BridgeRuntime) {
       socket.close()
     }
   }
+
   socket.onerror = () => {
     if (rt.socket === socket) {
       rt.state = 'degraded'
@@ -1250,10 +1308,12 @@ function connectAppSocket(rt: BridgeRuntime) {
       notifyChannels(registry())
     }
   }
+
   socket.onclose = () => {
     if (rt.socket !== socket) {
       return
     }
+
     rt.socket = undefined
     rt.channelCapable = false
     if (rt.polling) {
@@ -1261,6 +1321,7 @@ function connectAppSocket(rt: BridgeRuntime) {
       rt.lastError = 'App debug socket disconnected'
       rt.reconnect = setTimeout(() => connectAppSocket(rt), 1000)
     }
+
     notifyChannels(registry())
   }
 }
@@ -1269,6 +1330,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function pollLoop(rt: BridgeRuntime) {
   const fetch = fetchImpl()
+
   if (!fetch) {
     rt.state = 'degraded'
     rt.lastError = 'no fetch implementation in this runtime'
@@ -1276,6 +1338,7 @@ async function pollLoop(rt: BridgeRuntime) {
   }
 
   const state = registry()
+
   while (rt.polling) {
     try {
       const res = await fetch(
@@ -1303,6 +1366,7 @@ async function pollLoop(rt: BridgeRuntime) {
 
       rt.state = 'live'
       rt.lastError = undefined
+
       const work = (await res.json()) as {
         invocations?: InvocationRequest[]
         cancel?: string[]
@@ -1325,8 +1389,11 @@ async function pollLoop(rt: BridgeRuntime) {
 
 function requestCancel(requestId: string) {
   const state = registry()
+
   state.cancelRequested.add(requestId)
+
   const running = state.running.get(requestId)
+
   if (running?.cancellable && running.started) {
     running.controller.abort()
   }
@@ -1335,6 +1402,7 @@ function requestCancel(requestId: string) {
 async function postOutcome(rt: BridgeRuntime, outcome: DevActionOutcome) {
   const fetch = fetchImpl()
   const state = registry()
+
   if (state.outcomes.size >= MAX_OUTCOMES) {
     state.outcomes.delete(state.outcomes.keys().next().value as string)
   }
@@ -1384,12 +1452,14 @@ const toFailureRecord = (
   thrown: unknown,
 ): DevActionFailure => {
   const base = { handler: index, ...(label !== undefined ? { label } : {}) }
+
   if (
     typeof thrown === 'object' &&
     thrown !== null &&
     typeof (thrown as { message?: unknown }).message === 'string'
   ) {
     const error = thrown as { name?: unknown; message: string; stack?: unknown }
+
     return {
       ...base,
       name: typeof error.name === 'string' ? error.name : 'Error',
@@ -1415,6 +1485,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
   // Stable request identity: a repeated delivery re-posts the stored outcome.
   const prior = state.outcomes.get(request.requestId)
+
   if (prior) {
     await postOutcome(rt, prior)
     return
@@ -1439,6 +1510,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
   }
 
   const entry = state.actions.get(request.actionId)
+
   if (!entry) {
     await postOutcome(
       rt,
@@ -1451,6 +1523,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
   const spec = entry.spec
   const platforms = spec.availability?.platforms
   const platform = devBridgePlatform()
+
   if (platforms && !platforms.includes(platform)) {
     await postOutcome(
       rt,
@@ -1466,6 +1539,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
 
   // Validated early: a function route derives its URL from this input.
   const input = validateActionInput(spec.input, request.input)
+
   if (!input.ok) {
     await postOutcome(
       rt,
@@ -1480,6 +1554,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
   }
 
   const handlers = [...(state.handlers.get(spec.id) ?? [])]
+
   if (entry.kind === 'action' && handlers.length === 0) {
     // A route-declared action defers to the serialized work chain, which
     // navigates to its screen and waits for a handler to attach. Without a
@@ -1513,6 +1588,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
     }
   } else {
     const availability = liveAvailability(state, entry)
+
     if (!availability.ready) {
       await postOutcome(
         rt,
@@ -1549,6 +1625,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
     }
 
     running.started = true
+
     const partialEffects: string[] = []
     const context: DevActionContext = {
       signal: running.controller.signal,
@@ -1557,13 +1634,16 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
     }
 
     let invocationFailures: DevActionFailure[] | undefined
+
     try {
       let handlers = [...(state.handlers.get(spec.id) ?? [])]
+
       if (entry.kind === 'action' && handlers.length === 0 && spec.route !== undefined) {
         // Screen not mounted: navigate to the declared route, then wait for
         // its handler to attach and report ready. The navigator was checked
         // before dispatch; it could have been uninstalled since.
         const navigator = state.navigator?.impl
+
         if (!navigator) {
           await postOutcome(
             rt,
@@ -1591,6 +1671,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
         // A throwing route function is an ordinary execution failure.
         const url = typeof spec.route === 'function' ? spec.route(input.value) : spec.route
         const navigation = await navigator.navigate(url, running.controller.signal)
+
         if (running.controller.signal.aborted) {
           throw new Error('cancelled')
         }
@@ -1614,8 +1695,10 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
         // Mounting the target screen attaches the handler — possibly under a
         // new registry revision; the in-flight call is not re-checked.
         let pendingReason = NO_HANDLER_REASON
+
         for (;;) {
           handlers = [...(state.handlers.get(spec.id) ?? [])]
+
           const availability = handlers.length
             ? evaluateAvailability(spec)
             : { ready: false, reason: NO_HANDLER_REASON }
@@ -1656,11 +1739,13 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
       }
 
       let result: Record<string, unknown> | undefined
+
       if (entry.kind === 'effect') {
         // Broadcast: every handler attached at dispatch start runs, in
         // attach order, and failures don't stop the remaining handlers.
         const failureRecords: DevActionFailure[] = []
         const failureMessages: string[] = []
+
         for (const [index, handler] of handlers.entries()) {
           running.active.add(handler)
           try {
@@ -1671,6 +1756,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
             }
 
             const record = toFailureRecord(index, handler.label, error)
+
             if (failureRecords.length < FAILURE_RECORDS_MAX) {
               failureRecords.push(record)
             }
@@ -1687,8 +1773,10 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
           )
 
           invocationFailures = failureRecords
+
           const shown = failureMessages.slice(0, FAILURE_SUMMARY_SHOWN).join('; ')
           const rest = failureMessages.length - FAILURE_SUMMARY_SHOWN
+
           throw new Error(
             `${failureMessages.length} of ${handlers.length} handlers failed: ${shown}${rest > 0 ? ` (+${rest} more)` : ''}`,
           )
@@ -1700,6 +1788,7 @@ async function dispatchInvocation(rt: BridgeRuntime, request: InvocationRequest)
         // attached and take over again when it detaches.
         const handlerIndex = handlers.length - 1
         const handler = handlers[handlerIndex]
+
         if (handlers.length > 1) {
           console.warn(
             `[octane-xplat] Dev action "${spec.id}" has ${handlers.length} attached handlers; using the most recently attached${handler.label ? ` (${handler.label})` : ''}.`,

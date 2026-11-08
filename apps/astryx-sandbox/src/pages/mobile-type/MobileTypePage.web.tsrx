@@ -135,8 +135,10 @@ function computeLeading(fontSize: number): number {
  */
 function semanticVars(sizes: Record<string, number>): any {
   const vars: Record<string, string> = {}
+
   for (const role of ROLES) {
     const px = sizes[role.name]
+
     // 16px root → rem, matching expandTypeScale's pxToRem.
     vars[`--text-${role.name}-size`] = `${px / 16}rem`
     vars[`--text-${role.name}-leading`] = `${computeLeading(px)}`
@@ -155,6 +157,7 @@ function computeSize(base: number, ratio: number, step: number): number {
 
 function computeDesktopSizes(base: number, ratio: number): Record<string, number> {
   const sizes: Record<string, number> = {}
+
   for (const role of ROLES) {
     sizes[role.name] = computeSize(base, ratio, role.step)
   }
@@ -171,6 +174,7 @@ function computePinnedSizes(base: number, ratio: number, pinStep: number): Recor
     bottom !== base && pinStep > 0 ? ratio * Math.pow(base / bottom, 1 / pinStep) : ratio
 
   const sizes: Record<string, number> = {}
+
   for (const role of ROLES) {
     sizes[role.name] = computeSize(bottom, ratioPinned, role.step)
   }
@@ -185,6 +189,7 @@ function computeLiftedSizes(base: number, ratio: number): Record<string, number>
   // of being compressed by a tamed ratio.
   const bottom = Math.max(16, base)
   const sizes: Record<string, number> = {}
+
   for (const role of ROLES) {
     sizes[role.name] = computeSize(bottom, ratio, role.step)
   }
@@ -206,6 +211,7 @@ function mobileFormula(
 ): { title: string; formula: string; floor: string; note: string } {
   const bottom = Math.max(16, base)
   const floor = bottom !== base ? `Base floored ${base} → ${bottom}px` : `Base ${base}px`
+
   if (!adapt) {
     return {
       title: 'No adaptation',
@@ -227,6 +233,7 @@ function mobileFormula(
   if (mode === 'pin') {
     const rp = bottom !== base && pinStep > 0 ? ratio * Math.pow(base / bottom, 1 / pinStep) : ratio
     const anchor = PIN_ANCHORS.find((a) => a.value === String(pinStep))?.label ?? 'anchor'
+
     return {
       title: 'Pin',
       formula: `size = round(${bottom} × ${rp.toFixed(3)}^step)`,
@@ -435,6 +442,7 @@ export function MobileTypePage() {
     }
 
     const sizes: Record<string, number> = {}
+
     for (const role of ROLES) {
       sizes[role.name] = customOverrides[role.name] ?? pinnedSizes[role.name]
     }
@@ -637,6 +645,7 @@ export function MobileTypePage() {
                         <VStack gap={0.5}>
                           {ROLES.map((role) => {
                             const px = desktopSizes[role.name]
+
                             return (
                               <div key={role.name} className={cx('ml-roleRow')}>
                                 <span className={cx('ml-roleLabel')}>
@@ -682,6 +691,7 @@ export function MobileTypePage() {
                             const dPx = desktopSizes[role.name]
                             const delta = mPx - dPx
                             const changed = delta !== 0
+
                             return (
                               <div key={role.name} className={cx('ml-roleRow')}>
                                 <span className={cx('ml-roleLabel')}>

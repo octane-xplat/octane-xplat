@@ -11,7 +11,9 @@ function Content() {
 }
 
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(0)
+
 const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
   { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
   15,
@@ -23,7 +25,9 @@ window.releasedWhenClosed = false
 window.title = 'XplatAppMenu'
 app.finishLaunching()
 window.makeKeyAndOrderFront(null)
+
 const root = createMacOSRoot(window.contentView)
+
 root.render(Content, {})
 
 const CMD = 1 << 20,
@@ -127,9 +131,11 @@ const items = (submenuItemOrMenu: any) => {
   const array = menu?.itemArray
   const count = Number(flag(array?.count) ?? 0)
   const out: any[] = []
+
   for (let index = 0; index < count; index++) {
     out.push(array.objectAtIndex(index))
   }
+
   return out
 }
 
@@ -148,6 +154,7 @@ const sendEvent = (code: number, chars: string, ignoring: string, flags: number)
       false,
       code,
     )
+
   app.postEventAtStart(event, false)
 }
 
@@ -165,17 +172,23 @@ setTimeout(async () => {
 
     const editor = root.__macosDebug.findId('appmenu-editor')
     const previous = app.mainMenu ?? null
+
     check(appMenu.supported === true, 'appMenu.supported')
 
     handle = appMenu.install(menuTree(true), options)
+
     const bar = app.mainMenu
+
     check(bar && bar !== previous, 'mainMenu installed')
+
     const top = items(bar)
+
     check(top.length === 4, `4 menu-bar items (got ${top.length})`)
 
     const appSub = items(top[0])
     const titles = appSub.map((item: any) => (flag(item.separatorItem) ? '—' : item.title))
     const name = String(NSProcessInfo.processInfo.processName || 'App')
+
     check(
       JSON.stringify(titles) ===
         JSON.stringify([
@@ -193,12 +206,14 @@ setTimeout(async () => {
     )
 
     const settingsItem = appSub.find((item: any) => item.title === 'Settings…')
+
     check(
       settingsItem.keyEquivalent === ',' && Number(settingsItem.keyEquivalentModifierMask) === CMD,
       'settings key equivalent',
     )
 
     const quitItem = appSub[appSub.length - 1]
+
     check(
       String(quitItem.action) === 'terminate:' &&
         quitItem.keyEquivalent === 'q' &&
@@ -208,23 +223,30 @@ setTimeout(async () => {
 
     const file = items(top[1])
     const newItem = file.find((item: any) => item.title === 'New')
+
     check(
       newItem.keyEquivalent === 'n' && Number(newItem.keyEquivalentModifierMask) === CMD,
       'New key equivalent',
     )
 
     const disabledItem = file.find((item: any) => item.title === 'Disabled')
+
     check(
       flag(disabledItem.enabled) === false || Number(flag(disabledItem.enabled)) === 0,
       'disabled item',
     )
 
     const recent = items(file.find((item: any) => flag(item.hasSubmenu)))
+
     check(recent[0].title === 'Doc A', 'nested submenu')
+
     const view = items(top[3])
+
     check(Number(flag(view[0].state)) === 1, 'checkbox state')
+
     const edit = items(top[2])
     const copy = edit.find((item: any) => item.title === 'Copy')
+
     check(
       String(copy.action) === 'copy:' && (copy.target === null || copy.target === undefined),
       'role selector + nil target',
@@ -249,7 +271,9 @@ setTimeout(async () => {
     await pause()
     check(counts.sidebar === 1, 'onValueChange called')
     await pause()
+
     const viewAfter = items(items(app.mainMenu)[3])
+
     check(Number(flag(viewAfter[0].state)) === 0, 'deferred update applied (state 0)')
     send(40, 'k', CMD | OPT) // Cmd+Alt+K → Doc A
     await pause()
@@ -260,6 +284,7 @@ setTimeout(async () => {
 
     // Click path — re-read the current bar: the deferred update swapped it.
     const currentFileMenu = items(app.mainMenu)[1].submenu
+
     currentFileMenu.performActionForItemAtIndex(0)
     check(counts.new === 2, 'performActionForItemAtIndex')
 
@@ -287,6 +312,7 @@ setTimeout(async () => {
 
     const newFile = items(items(app.mainMenu)[1])
     const newWindowItem = newFile[0]
+
     check(
       newWindowItem.title === 'New Window' &&
         newWindowItem.keyEquivalent === 'n' &&
@@ -306,6 +332,7 @@ setTimeout(async () => {
 
     // Stale native items are inert — top[] and fileMenu belong to retired bars.
     const fileMenu = top[1].submenu
+
     fileMenu.performActionForItemAtIndex(0)
     await pause()
     check(counts.new === 2, 'stale menu item inert')
@@ -314,13 +341,16 @@ setTimeout(async () => {
     // Edit roles through the real responder chain.
     const pasteboard = NSPasteboard.generalPasteboard
     const saved = pasteboard.stringForType('public.utf8-plain-text')
+
     try {
       pasteboard.clearContents()
       editor.stringValue = 'hello'
       check(window.makeFirstResponder(editor), 'editor focus for roles')
       await pause()
+
       const read = () => String(pasteboard.stringForType('public.utf8-plain-text') ?? '')
       const textView = window.firstResponder
+
       console.log('ROLE-DIAG stringValue=' + String(editor.stringValue))
       // Put the probe text on the field editor directly — NSTextView is
       // what actually responds to copy:/selectAll: on the responder chain.
@@ -334,10 +364,14 @@ setTimeout(async () => {
       // selectAll: directly on the field editor (NSText.selectAll: is the
       // colon selector; `.copy` binds copyWithZone: and must not be called).
       textView?.selectAll?.(null)
+
       const range = textView?.selectedRange
+
       console.log('ROLE-DIAG selected=' + (range ? `${range.location}:${range.length}` : 'none'))
+
       // copy: explicit target isolates chain delivery from NSTextView.copy:.
       let path = 'direct-target'
+
       app.sendActionToFrom('copy:', textView, editor)
       if (read() !== 'hello') {
         path = 'nil-target sendAction'
@@ -364,11 +398,15 @@ setTimeout(async () => {
     handle.dispose()
     check(handle.isDisposed === true, 'isDisposed')
     check(app.mainMenu === previous || (!app.mainMenu && !previous), 'mainMenu restored')
+
     const newWindowBefore = counts.newWindow
+
     send(45, 'n', CMD | SHIFT)
     await pause()
     check(counts.newWindow === newWindowBefore, 'no callbacks after dispose')
+
     const second = appMenu.install(menuTree(true), options)
+
     try {
       appMenu.install(menuTree(true), options)
       throw new Error('single-owner violation')

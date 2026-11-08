@@ -4,6 +4,7 @@ import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 import type { ConvertedVideo } from './types'
+
 interface NativeEngine {
   available(): boolean
   start(json: string, cache: string, callback: object): void
@@ -39,12 +40,15 @@ export const backend: ConversionBackend = {
   async convert(source, request, control) {
     const value = engine(),
       Type = engineClass()
+
     if (!value || !Type) {
       throw new UnavailabilityError(
         'MediaConverter Android bridge; rebuild the app after installation',
       )
     }
+
     const id = `conversion-${Date.now()}-${++serial}`
+
     return new Promise<ConvertedVideo>((resolve, reject) => {
       const callback = new Type.Callback({
         onEvent(json) {
@@ -67,11 +71,13 @@ export const backend: ConversionBackend = {
           }
         },
       })
+
       value.start(
         JSON.stringify({ ...request, source, id }),
         Utils.android.getApplicationContext().getCacheDir().getAbsolutePath(),
         callback,
       )
+
       control.onCancel(() => value.cancel(id))
     })
   },

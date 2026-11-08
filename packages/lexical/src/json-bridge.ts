@@ -28,8 +28,10 @@ const kebab = (k: string) => k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())
 
 function chainDesc(proto: object, key: string): PropertyDescriptor | undefined {
   let o: object | null = proto
+
   while (o && o !== Object.prototype) {
     const d = Object.getOwnPropertyDescriptor(o, key)
+
     if (d) {
       return d
     }
@@ -78,7 +80,9 @@ function writeStyleProp(el: any, key: string, value: string): void {
  *  `Node.TEXT_NODE`). */
 function installLexicalDomShim(zeed: any): void {
   const bootDoc = zeed.createHTMLDocument()
+
   bootDoc.body.innerHTML = '<p>x</p>'
+
   const elProto = Object.getPrototypeOf(bootDoc.body.childNodes[0])
   const textProto = Object.getPrototypeOf(bootDoc.body.childNodes[0].childNodes[0])
 
@@ -88,6 +92,7 @@ function installLexicalDomShim(zeed: any): void {
         configurable: true,
         get(this: any) {
           const par = this.parentNode
+
           return par && par.nodeType === 1 ? par : null
         },
       })
@@ -95,10 +100,12 @@ function installLexicalDomShim(zeed: any): void {
 
     for (const k of ['firstChild', 'lastChild', 'nextSibling', 'previousSibling']) {
       const d = chainDesc(p, k)
+
       Object.defineProperty(p, k, {
         configurable: true,
         get(this: any) {
           const v = d?.get ? d.get.call(this) : undefined
+
           return v ?? null
         },
         set: d?.set,
@@ -107,12 +114,15 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const styleCache = new WeakMap()
+
   Object.defineProperty(elProto, 'style', {
     configurable: true,
     get(this: any) {
       let proxy = styleCache.get(this)
+
       if (!proxy) {
         const el = this
+
         proxy = new Proxy(
           {},
           {
@@ -173,6 +183,7 @@ function installLexicalDomShim(zeed: any): void {
 
   for (const attr of ['href', 'target', 'rel', 'title']) {
     const d = chainDesc(elProto, attr)
+
     if (!d?.get && !d?.set) {
       Object.defineProperty(elProto, attr, {
         configurable: true,
@@ -187,11 +198,13 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const clDesc = chainDesc(elProto, 'classList')
+
   if (clDesc?.get) {
     Object.defineProperty(elProto, 'classList', {
       configurable: true,
       get(this: any) {
         const cl = clDesc.get!.call(this)
+
         if (cl && typeof cl[Symbol.iterator] !== 'function') {
           const tokens = String(this.getAttribute('class') ?? '')
             .split(/\s+/)
@@ -207,10 +220,12 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const g = globalThis as any
+
   if (!g.window?.DOMParser) {
     class ZeedDOMParser {
       parseFromString(html: string) {
         const doc = zeed.createHTMLDocument()
+
         doc.body.innerHTML = html
         return doc
       }
@@ -296,6 +311,7 @@ export function jsonBridgeReady(): boolean {
 
 function parseHTML(htmlText: string): any {
   const doc = bridge!.zeed.createHTMLDocument()
+
   doc.body.innerHTML = htmlText
   return doc
 }
@@ -312,6 +328,7 @@ export function htmlToJSON(htmlText: string): LexicalJSON | null {
     bridge.editor.update(
       () => {
         const nodes = bridge!.html.$generateNodesFromDOM(bridge!.editor, parseHTML(htmlText))
+
         // Aztec Android can emit inline HTML at the root. Lexical
         // insertion normalizes those nodes into a paragraph.
         bridge!.lexical.$getRoot().clear().select()
@@ -336,7 +353,9 @@ export function jsonToHTML(doc: LexicalJSON): string | null {
 
   try {
     bridge.editor.setEditorState(bridge.editor.parseEditorState(JSON.stringify(doc)))
+
     let out = ''
+
     bridge.editor.read(() => {
       out = bridge!.html.$generateHtmlFromNodes(bridge!.editor)
     })

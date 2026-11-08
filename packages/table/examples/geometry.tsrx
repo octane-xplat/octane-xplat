@@ -39,6 +39,7 @@ function textOf(view: any): string {
   }
 
   const own = view?.text ?? view?.stringValue ?? view?.title
+
   if (typeof own === 'string' && own) {
     return own
   }
@@ -48,6 +49,7 @@ function textOf(view: any): string {
   }
 
   let result = ''
+
   view?.eachChildView?.((child: any) => {
     result += textOf(child)
     return true
@@ -65,16 +67,21 @@ export async function run(ctx: ProbeContext) {
 
   ctx.assert('bounded grid height', ctx.inspect('grid').frame?.height, 300)
   ctx.assert('bounded header', ctx.inspect('grid-header').frame!.height < 100, true)
+
   const text = (id: string) => textOf(ctx.find(id))
+
   await ctx.press('grid-th-name')
   await ctx.press('grid-th-name')
   await ctx.waitFor(() => text('grid-row-c') === 'Charlie3')
+
   const rowY = (id: string) => {
     const view = ctx.find(id)
+
     if (view.convertRectToView) {
       const doc = ctx.find('grid-body').documentView
       const flip = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
       const y = Number(view.convertRectToView(view.bounds, doc).origin.y)
+
       return flip ? y : -y
     }
 
@@ -83,7 +90,9 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(() => rowY('grid-row-c') < rowY('grid-row-a'))
   ctx.assert('descending row geometry', rowY('grid-row-c') < rowY('grid-row-a'), true)
+
   const before = ctx.inspect('grid-th-name').frame!.width
+
   await ctx.press('grid-th-name-widen')
   await ctx.waitFor(() => Math.abs(ctx.inspect('grid-th-name').frame!.width - before - 10) < 1)
   ctx.assert(

@@ -45,6 +45,7 @@ export function PowerSearchFilterEditor(
 
     let value: FilterValue
     const kind = operator.value.type
+
     if (kind === 'empty') {
       value = { type: 'empty' }
     } else if (kind === 'integer') {

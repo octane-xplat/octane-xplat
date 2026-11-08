@@ -19,6 +19,7 @@ function AccountProvider(props: { fixture: Fixture; children?: unknown }) {
 function Overlay() {
   const fixture = useContext(Account)!
   const account = useStore(fixture.account)
+
   return <Text accessibilityLabel="Story account overlay">{account.name}</Text>
 }
 
@@ -26,6 +27,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
   const fixture = useContext(Account)!
   const account = useStore(fixture.account)
   const [local, setLocal] = useState(0)
+
   return (
     <masonview style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}>
       <Text testID="isolation-value">

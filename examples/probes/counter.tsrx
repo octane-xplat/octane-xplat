@@ -5,6 +5,7 @@ import type { ProbeContext } from '../../tools/probe/context'
 
 export default function Counter() {
   const count$ = useSignal$(0)
+
   return (
     <VStack>
       <Text id="probe-count">{String(count$.get())}</Text>

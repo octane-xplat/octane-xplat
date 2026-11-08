@@ -50,6 +50,7 @@ export function Lottie(props: LottieProps) @{
   )
 
   const latest = useRef(props)
+
   latest.current = props
 
   useImperativeHandle<LottieHandle>(props.ref, () => createHandle(adapter), [adapter])
@@ -57,6 +58,7 @@ export function Lottie(props: LottieProps) @{
   useEffect(() => {
     adapter.onLoaded = (duration) => {
       const current = latest.current
+
       if (current.speed !== undefined) {
         adapter.speed = current.speed
       }
@@ -89,6 +91,7 @@ export function Lottie(props: LottieProps) @{
     }
 
     const src = props.src
+
     if (!src) {
       adapter.clear()
     } else if (src.trimStart().startsWith('{')) {

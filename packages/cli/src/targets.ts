@@ -46,6 +46,7 @@ export const hasMacOS = (cwd) =>
  *  'gtk' (native GTK4/GJS renderer). Any other value is not a linux target. */
 export const linuxRuntime = (cwd) => {
   const runtime = readJson(`${cwd}/package.json`)?.xplat?.targets?.linux?.runtime
+
   return runtime === 'webkitgtk' || runtime === 'gtk' ? runtime : null
 }
 
@@ -57,6 +58,7 @@ export const hasLinux = (cwd) => linuxRuntime(cwd) !== null
 export function nsPlatforms(cwd) {
   const manifest = readJson(`${cwd}/package.json`) ?? {}
   const declared = { ...manifest.dependencies, ...manifest.devDependencies }
+
   return ['ios', 'android', 'windows'].filter(
     (platform) => typeof declared[`@nativescript/${platform}`] === 'string',
   )
@@ -68,6 +70,7 @@ export const hasWindows = (cwd) => hasNative(cwd) && nsPlatforms(cwd).includes('
 /** iOS targets: booted sims first, then other available sims, then physical devices. */
 export function iosTargets() {
   const out = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'])
+
   if (!out) {
     return []
   }
@@ -75,6 +78,7 @@ export function iosTargets() {
   try {
     const j = JSON.parse(out)
     const sims = []
+
     for (const list of Object.values(j.devices ?? {})) {
       for (const d of list) {
         if (!d.isAvailable) {
@@ -101,6 +105,7 @@ export function iosTargets() {
 /** Android targets: emulators + physical devices from adb. */
 export function androidTargets() {
   const out = run('adb', ['devices'])
+
   if (!out) {
     return []
   }
@@ -113,6 +118,7 @@ export function androidTargets() {
     .map((l) => {
       const serial = l.split('\t')[0]
       const emu = serial.startsWith('emulator-')
+
       return {
         kind: 'android',
         id: serial,
@@ -125,12 +131,14 @@ export function androidTargets() {
 /** Every launchable target for this project + machine. */
 export function discoverTargets(cwd) {
   const targets = []
+
   if (hasWeb(cwd)) {
     targets.push({ kind: 'web', id: 'web', name: 'Web (vite :5200)' })
   }
 
   if (hasNative(cwd)) {
     const platforms = nsPlatforms(cwd)
+
     if (platforms.includes('ios')) {
       targets.push(...iosTargets())
     }
@@ -166,12 +174,14 @@ export function discoverTargets(cwd) {
 /** Distinct platform buckets for `build` — one entry per platform, no device picks. */
 export function buildTargets(cwd) {
   const t = []
+
   if (hasWeb(cwd)) {
     t.push({ kind: 'web', id: 'web', name: 'Web (vite build)' })
   }
 
   if (hasNative(cwd)) {
     const platforms = nsPlatforms(cwd)
+
     if (platforms.includes('ios') && (iosTargets().length || run('xcrun', ['--version']))) {
       t.push({ kind: 'ios', id: 'ios', name: 'iOS (ns build ios)' })
     }

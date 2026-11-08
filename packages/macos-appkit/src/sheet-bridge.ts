@@ -56,13 +56,16 @@ export function createSheetBridge(deps: Dependencies) {
         NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size: { width: 480, height: 1 } }),
       makeWindow(content, size, cancel) {
         const controller = NSViewController.alloc().init()
+
         controller.view = content
+
         const sheet = AppKitSheetWindow.alloc().initWithContentRectStyleMaskBackingDefer(
           { origin: { x: 0, y: 0 }, size },
           NSWindowStyleMask.Titled | NSWindowStyleMask.Closable,
           NSBackingStoreType.Buffered,
           false,
         )
+
         try {
           sheet.releasedWhenClosed = false
           sheet.contentViewController = controller
@@ -84,12 +87,15 @@ export function createSheetBridge(deps: Dependencies) {
           origin: { x: 0, y: 0 },
           size: { width: 0, height: 0 },
         })
+
         observer.hidden = true
         sheetAnchorChanges.set(observer, notify)
+
         const cleanup = () => {
           sheetAnchorChanges.delete(observer)
           observer.removeFromSuperview()
         }
+
         try {
           anchor.addSubview(observer)
           return cleanup
@@ -106,11 +112,13 @@ export function createSheetBridge(deps: Dependencies) {
           null,
           notify,
         )
+
         return () => center.removeObserver(token)
       },
       fittingSize: deps.popover.popupFittingSize,
     })
   }
+
   return {
     presentSheet,
   }

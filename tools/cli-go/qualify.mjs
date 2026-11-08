@@ -26,7 +26,9 @@ import { canPrepareFixtures, prepareFixtures } from './fixtures.mjs'
 
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
+
 mkdirSync(work, { recursive: true })
+
 const binary =
   process.env.XPLAT_GO_BINARY ??
   join(
@@ -37,6 +39,7 @@ const binary =
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const bytes = readFileSync(binary)
+
 assert.equal(sha(bytes), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
@@ -48,6 +51,7 @@ if (canPrepareFixtures(root)) {
 
 const packages = JSON.parse(readFileSync(join(work, 'project-packages.json')))
 const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge')
+
 mkdirSync(base, { recursive: true })
 writeFileSync(
   join(base, 'README.md'),
@@ -60,6 +64,7 @@ const project = join(scratch, 'project with spaces π'),
 
 mkdirSync(project)
 mkdirSync(temporary)
+
 const selected = realpathSync(project)
 const environment = {
   ...process.env,
@@ -86,6 +91,7 @@ const record = {
 
 function write(file, value) {
   const path = join(project, file)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value))
   return path
@@ -96,10 +102,12 @@ async function run(command, args, options = {}) {
     const child = spawn(command, args, { cwd: project, env: environment, ...options })
     let stdout = '',
       stderr = ''
+
     const timer = setTimeout(() => {
       child.kill()
       reject(Error('Qualification subprocess timeout'))
     }, 120000)
+
     child.stdout.on('data', (bytes) => (stdout += bytes))
     child.stderr.on('data', (bytes) => (stderr += bytes))
     child.once('error', reject)
@@ -114,6 +122,7 @@ async function cli(args, { fail = false, emptyPath = false } = {}) {
   const result = await run(binary, args, {
     env: { ...environment, ...(emptyPath ? { PATH: '' } : {}) },
   })
+
   assert.equal(result.status, fail ? 1 : 0, `${args.join(' ')}\n${result.stdout}\n${result.stderr}`)
   assert.equal(result.stderr, '')
   return JSON.parse(result.stdout)
@@ -121,19 +130,23 @@ async function cli(args, { fail = false, emptyPath = false } = {}) {
 
 async function rpc(method, params = {}) {
   const request = write('rpc.json', params)
+
   return await cli(['rpc', '--directory', directory, '--method', method, '--request', request])
 }
 
 async function until(predicate, message, timeout = 20000) {
   const deadline = Date.now() + timeout
+
   while (Date.now() < deadline) {
     const value = await predicate()
+
     if (value) {
       return value
     }
 
     await delay(25)
   }
+
   assert.fail(message)
 }
 
@@ -154,7 +167,9 @@ async function stopOwner() {
   if (!directory) {
     return
   }
+
   const ping = await rpc('host.ping')
+
   await rpc('host.shutdown')
   await until(() => !alive(ping.pid), 'Owner survived shutdown')
   assert.equal(existsSync(directory), false)
@@ -170,6 +185,7 @@ async function assertWindowsPrivate(path) {
     '-EncodedCommand',
     Buffer.from(code, 'utf16le').toString('base64'),
   ])
+
   assert.equal(checked.status, 0, checked.stderr)
   assert.deepEqual(JSON.parse(checked.stdout), {
     owner: true,
@@ -187,19 +203,24 @@ async function serve(server) {
 
 try {
   assert.match((await cli(['--help'], { emptyPath: true })).experimental, /Go/)
+
   const catalog = await cli(['catalog'], { emptyPath: true })
   const canonical = JSON.parse(
     readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')),
   )
 
   assert.deepEqual(catalog, canonical.catalog)
+
   const schema = catalog.commands[0].command ?? catalog.commands[0].name
+
   assert.deepEqual(await cli(['schema', schema], { emptyPath: true }), canonical.schemas[schema])
   record.checks.push('catalog and schema equal canonical TypeScript metadata with empty PATH')
+
   const dependencies = Object.fromEntries(
     packages.packages.map((item) => {
       const archive = join(work, 'project-packages', item.file),
         data = readFileSync(archive)
+
       assert.equal(sha(data), item.sha256)
       assert.equal(data.length, item.bytes)
       return [item.name, `file:${archive.replaceAll('\\', '/')}`]
@@ -216,12 +237,16 @@ try {
   })
 
   const installed = await run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'])
+
   assert.equal(installed.status, 0, installed.stderr)
   assert.equal(existsSync(join(project, 'node_modules/@octane-xplat/build')), false)
+
   const discovery = await cli(['discover', '--project', project], { emptyPath: true })
+
   assert.equal(discovery.project, selected)
   assert.equal(discovery.workerAvailable, true)
   record.checks.push('native JSON/project/selected installed-package discovery')
+
   const processResult = await cli([
     'exec',
     '--project',
@@ -236,22 +261,26 @@ try {
   assert.equal(processResult.stdout, 'stdout π😀\n')
   assert.equal(processResult.stderr, 'stderr β\n')
   record.checks.push('separate stdout/stderr and child exit code')
+
   const server = createServer((req, res) => {
     if (req.url === '/slow') {
       req.on('close', () => res.destroy())
       return
     }
+
     if (req.url === '/redirect') {
       res.writeHead(302, { location: '/ok' })
       res.end()
       return
     }
+
     res.end('HTTP π😀')
   })
 
   const url = await serve(server)
   const request = write('http.json', { URL: url + '/redirect' })
   const nativeHTTP = await cli(['http', '--request', request])
+
   assert.equal(nativeHTTP.body, await (await fetch(url + '/redirect')).text())
   assert.equal(nativeHTTP.status, 200)
   write('http.json', { URL: url + '/ok', MaxBytes: 2 })
@@ -286,6 +315,7 @@ try {
   ])
 
   assert.equal(generated.status, 0, generated.stderr)
+
   const tlsURL = await serve(
     createTLS({ key: readFileSync(key), cert: readFileSync(cert) }, (_req, res) =>
       res.end('TLS native'),
@@ -308,8 +338,10 @@ try {
 
   let connects = 0
   const proxy = createProxy()
+
   proxy.on('connect', (req, downstream, head) => {
     connects++
+
     const [host, port] = req.url.split(':')
     const upstream = connect(Number(port), host, () => {
       downstream.write('HTTP/1.1 200 Connection Established\r\n\r\n')
@@ -317,12 +349,14 @@ try {
       downstream.pipe(upstream)
       upstream.pipe(downstream)
     })
+
     upstream.on('error', () => downstream.destroy())
     downstream.on('error', () => upstream.destroy())
     downstream.on('close', () => upstream.destroy())
   })
 
   const proxyURL = await serve(proxy)
+
   write('http.json', { URL: tlsURL, CA: cert, Proxy: proxyURL })
   assert.equal((await cli(['http', '--request', request])).body, 'TLS native')
   assert.equal(connects, 1)
@@ -336,7 +370,9 @@ try {
   )
 
   const loader = `import { writeFileSync } from 'node:fs'; export const loader=async()=>{console.log('worker stdout π😀');console.error('worker stderr β');writeFileSync('observation.json',JSON.stringify({cwd:process.cwd(),nodePath:process.env.NODE_PATH,nodeOptions:process.env.NODE_OPTIONS,sentinel:process.env.GO_CLI_SENTINEL,request:process.argv[2]}));return {answer:42};};\n`
+
   write('app/index.loader.ts', loader)
+
   const payload = write('payload.json', { bake: true })
   const planned = await cli([
     'worker',
@@ -349,12 +385,14 @@ try {
   ])
 
   const observation = JSON.parse(readFileSync(join(project, 'observation.json')))
+
   assert.equal(observation.cwd, selected)
   assert.equal(observation.nodePath, '')
   assert.equal(observation.nodeOptions, '')
   assert.equal(observation.sentinel, environment.GO_CLI_SENTINEL)
   assert.match(planned.process.stderr, /worker stdout π😀/)
   assert.match(planned.process.stderr, /worker stderr β/)
+
   const worker = discovery.worker
   const refRequest = write('reference-request.json', {
     protocol: 'octane-build-worker',
@@ -367,6 +405,7 @@ try {
 
   const refOutput = join(project, 'reference-result.json')
   const reference = await run(process.execPath, [worker, refRequest, refOutput])
+
   assert.equal(reference.status, 0, reference.stderr)
   assert.deepEqual(planned.data, JSON.parse(readFileSync(refOutput)).data)
   assert.equal(planned.data.outputs.length, 18)
@@ -375,9 +414,12 @@ try {
   )
 
   const started = await cli(['host-start', '--project', project, '--directory', scratch])
+
   directory = started.directory
+
   const first = await rpc('host.ping')
   const descriptor = JSON.parse(readFileSync(join(directory, 'host.json')))
+
   if (process.platform === 'win32') {
     await assertWindowsPrivate(directory)
     await assertWindowsPrivate(join(directory, 'host.json'))
@@ -390,6 +432,7 @@ try {
   })
 
   assert.equal(denied.status, 401)
+
   const origin = await fetch(descriptor.address, {
     method: 'POST',
     body: '{}',
@@ -424,9 +467,12 @@ try {
   }
 
   const cancelAt = Date.now()
+
   await rpc('job.cancel', { id: pending.id })
+
   const cancelled = await until(async () => {
     const job = await rpc('job.status', { id: pending.id })
+
     return job.state === 'cancelled' ? job : false
   }, 'Worker cancellation did not finish')
 
@@ -440,7 +486,9 @@ try {
   }
 
   await stopOwner()
+
   const restarted = await cli(['host-start', '--project', project, '--directory', scratch])
+
   directory = restarted.directory
   assert.notEqual((await rpc('host.ping')).generation, first.generation)
   await stopOwner()
@@ -449,6 +497,7 @@ try {
   )
 
   const samples = []
+
   for (let at = 0; at < 25; at++) {
     const start = performance.now()
     const result = spawnSync(binary, ['--help'], {

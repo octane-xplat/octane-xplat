@@ -25,6 +25,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -65,6 +66,7 @@ it('options and children share uncontrolled selection, descriptions and trailing
 
   try {
     const [alpha, beta] = env.rows()
+
     expect(alpha.props.accessibilityState.checked).toBe(true)
     expect(beta.props.accessibilityHint).toBe('Second option')
     expect(env.all().map((node) => node.props?.text)).toEqual(
@@ -101,6 +103,7 @@ it('controlled requests wait for feedback and disabled/read-only groups block bo
   }
 
   const env = mount(Fixture, { value: 'a', onValueChange: (value: string) => changes.push(value) })
+
   try {
     env.rows()[1].props.onTap()
     flushUniversalSync(() => {})
@@ -131,6 +134,7 @@ it('inherits Field ownership/state and leaves standalone items presentational', 
   }
 
   const env = mount(Parent, {})
+
   try {
     expect(
       env
@@ -157,6 +161,7 @@ it('inherits Field ownership/state and leaves standalone items presentational', 
 
   try {
     expect(standalone.rows()).toHaveLength(0)
+
     const row = standalone
       .all()
       .find((node) => String(node.props?.className).includes('vx-radiolist-item'))
@@ -182,6 +187,7 @@ it('registers native child hosts, updates value keys and releases registration o
 
   const env = mount(Fixture, { value: 'a' })
   const host = env.rows()[0]
+
   try {
     expect(views.get('a')).toBe(host)
     env.render({ value: 'b' })
@@ -197,8 +203,10 @@ it('registers native child hosts, updates value keys and releases registration o
 
 it('forwards the group keyboard bridge only while changes are allowed', () => {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   const env = mount(RadioGroup, { options: [{ value: 'a', label: 'Alpha' }] })
   const group = () => env.all().find((node) => node.props?.accessibilityRole === 'radiogroup')
+
   try {
     expect(group().props.onKeyDown).toBeTypeOf('function')
     for (const flag of ['isDisabled', 'isReadOnly']) {
@@ -220,6 +228,7 @@ it('releases native window focus observation on unmount', async () => {
   })
 
   const env = mount(RadioGroup, { options: [{ value: 'a', label: 'Alpha' }] })
+
   try {
     await vi.waitFor(() => expect(addObserver).toHaveBeenCalledTimes(1))
   } finally {

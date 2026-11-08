@@ -25,6 +25,7 @@ const TPL = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'package.json'), 'utf8'))
 const LIB_TPL = JSON.parse(readFileSync(join(LIBRARY_TEMPLATE_DIR, 'package.json'), 'utf8'))
 const CLI_PATCHES = fileURLToPath(new URL('../../cli/patches', import.meta.url))
 const creator = fileURLToPath(new URL('../dist/index.js', import.meta.url))
+
 import {
   composeTargets,
   composeLibrary,
@@ -42,8 +43,10 @@ const ALL = ['web', 'ios', 'android']
 
 test('published scaffold entry resolves to a built file', () => {
   const manifest = JSON.parse(readFileSync(new URL('../package.json', import.meta.url), 'utf8'))
+
   for (const target of Object.values(manifest.exports)) {
     const entry = typeof target === 'string' ? target : target.default
+
     assert.ok(
       existsSync(new URL(`../${entry}`, import.meta.url)),
       `missing published entry: ${entry}`,
@@ -53,12 +56,14 @@ test('published scaffold entry resolves to a built file', () => {
 
 function project(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-scaffold-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   return root
 }
 
 test('composing the full target set reproduces the template byte-for-byte', (t) => {
   const dir = project(t)
+
   composeTargets(ALL, dir)
 
   for (const rel of ['package.json', 'tsconfig.json', 'vite.config.ts', 'nativescript.config.ts']) {
@@ -72,26 +77,36 @@ test('composing the full target set reproduces the template byte-for-byte', (t) 
 
 test('web-only scaffold drops patch entries for packages it never installs', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir)
 
   const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
+
   assert.ok(yaml.includes(`octane@${managedSpecifier('octane')}`))
   assert.doesNotMatch(yaml, /@tsrx\/typescript-plugin@/)
+
   const pkg = JSON.parse(yaml)
+
   assert.equal(pkg.devDependencies['@tsrx/content-mapper'], undefined)
+
   const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+
   assert.equal(tsconfig.contentMappers[0].package, 'octane-xplat')
   assert.equal(pkg.devDependencies['typescript-classic'], undefined)
   assert.equal(pkg.packageManager, 'bun@1.4.4')
   for (const path of Object.values(pkg.patchedDependencies)) {
     assert.ok(existsSync(join(dir, path)))
   }
+
   assert.doesNotMatch(yaml, /@nativescript\/core@9\.1\.3/)
   assert.doesNotMatch(yaml, /@nativescript\/vite@8\.0\.17/)
 
   const native = project(t)
+
   composeTargets(['ios'], native)
+
   const nativeYaml = readFileSync(join(native, 'package.json'), 'utf8')
+
   assert.match(nativeYaml, /@nativescript\/core@9\.1\.3/)
   assert.equal(JSON.parse(nativeYaml).devDependencies['typescript-classic'], 'catalog:xplat')
 })
@@ -102,19 +117,26 @@ test('web-only scaffold drops patch entries for packages it never installs', (t)
 test('generated workspaces carry the managed oxlint-tsgolint override', (t) => {
   for (const ids of [['web'], ALL]) {
     const dir = project(t)
+
     composeTargets(ids, dir)
+
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
     assert.equal(pkg.overrides['oxlint-tsgolint'], '7.0.2005')
   }
 
   const dir = project(t)
+
   composeLibrary(join(dir, 'travel-controls'), '@example/travel-controls')
+
   const pkg = JSON.parse(readFileSync(join(dir, 'travel-controls/package.json'), 'utf8'))
+
   assert.equal(pkg.overrides['oxlint-tsgolint'], '7.0.2005')
 })
 
 test('every target-owned file exists in the template', async () => {
   const { targets } = await import('../dist/scaffold.js')
+
   for (const [id, target] of Object.entries(targets)) {
     for (const rel of target.files) {
       assert.ok(existsSync(join(TEMPLATE_DIR, rel)), `${id} claims missing file ${rel}`)
@@ -124,6 +146,7 @@ test('every target-owned file exists in the template', async () => {
 
 test('web-only scaffold drops native files, deps, and scripts', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir)
 
   assert.ok(existsSync(join(dir, 'index.html')))
@@ -132,11 +155,13 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
     readFileSync(join(dir, 'src/main.tsrx'), 'utf8'),
     '// Type contract only.\nexport {}\n',
   )
+
   assert.ok(!existsSync(join(dir, 'nativescript.config.ts')))
   assert.ok(!existsSync(join(dir, 'src/main.ts')))
   assert.ok(!existsSync(join(dir, 'App_Resources')))
 
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(manifest.main, undefined)
   assert.equal(manifest.scripts.dev, 'xplat dev web')
   assert.equal(manifest.scripts['dev:ios'], undefined)
@@ -166,6 +191,7 @@ test('web-only scaffold drops native files, deps, and scripts', (t) => {
 
 test('ios-only scaffold carries shared native machinery but not android', (t) => {
   const dir = project(t)
+
   composeTargets(['ios'], dir)
 
   assert.ok(existsSync(join(dir, 'nativescript.config.ts')))
@@ -174,6 +200,7 @@ test('ios-only scaffold carries shared native machinery but not android', (t) =>
   assert.ok(!existsSync(join(dir, 'index.html')))
 
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(manifest.scripts['dev:android'], undefined)
   assert.equal(manifest.scripts.typecheck, 'xplat typecheck')
 
@@ -202,26 +229,33 @@ test('resolveTargets expands requires and rejects unknown targets', () => {
 
 test('applyTarget adds a platform to a web-only app without clobbering edits', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir)
 
   // User modified an existing file and a script — both must survive.
   writeFileSync(join(dir, 'tsconfig.json'), '{ "custom": true }\n')
+
   const before = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   before.scripts.lint = 'custom-lint'
   writeFileSync(join(dir, 'package.json'), JSON.stringify(before, null, '\t') + '\n')
 
   const report = applyTarget(dir, 'ios')
+
   assert.deepEqual(report.enabled, ['native-shared', 'ios'])
   assert.ok(existsSync(join(dir, 'nativescript.config.ts')))
   assert.ok(existsSync(join(dir, 'App_Resources/iOS/Info.plist')))
   assert.ok(!existsSync(join(dir, 'App_Resources/Android')))
+
   // applyTarget patches the app tsconfig (native ambient root + entrypoint)
   // but preserves unrelated user keys.
   const tsconfig = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+
   assert.equal(tsconfig.custom, true)
   assert.ok(tsconfig.files.includes('references.d.ts'))
 
   const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(manifest.main, 'src/main.ts')
   assert.equal(manifest.scripts.lint, 'custom-lint')
   assert.equal(manifest.scripts['dev:ios'], 'ns run ios')
@@ -237,53 +271,70 @@ test('applyTarget adds a platform to a web-only app without clobbering edits', (
   // The web-only scaffold's yaml lacked native patch entries — add restores
   // them so the next `bun install` doesn't miss the framework patches.
   const yaml = readFileSync(join(dir, 'package.json'), 'utf8')
+
   assert.match(yaml, /@nativescript\/core@9\.1\.3/)
   assert.ok(
     yaml.includes(
       `@nativescript-community/octane@${managedSpecifier('@nativescript-community/octane')}`,
     ),
   )
+
   assert.ok(report.patchesAdded)
 })
 
 test('applyTarget is idempotent and detects already-enabled targets', (t) => {
   const dir = project(t)
+
   composeTargets(ALL, dir)
 
   const report = applyTarget(dir, 'ios')
+
   assert.deepEqual(report.enabled, [])
   assert.deepEqual(report.already, ['native-shared', 'ios'])
 
   const second = applyTarget(dir, 'web')
+
   assert.deepEqual(second.enabled, [])
   assert.deepEqual(second.already, ['web'])
 })
 
 test('native scaffolds pin @nativescript/core to the app install in tsconfig paths', (t) => {
   const web = project(t)
+
   composeTargets(['web'], web)
+
   const webConfig = JSON.parse(readFileSync(join(web, 'tsconfig.json'), 'utf8'))
+
   assert.equal(webConfig.compilerOptions.paths, undefined)
 
   // Linked framework checkouts carry their own core copy; the pin keeps one
   // type identity (issue #66). The template stays the source of truth.
   const dir = project(t)
+
   composeTargets(['ios'], dir)
+
   const config = JSON.parse(readFileSync(join(dir, 'tsconfig.json'), 'utf8'))
+
   assert.deepEqual(config.compilerOptions.paths, nativeCorePaths)
 
   // `xplat add` merges the pin and preserves authored mappings.
   const added = project(t)
+
   composeTargets(['web'], added)
+
   const existing = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8'))
+
   existing.compilerOptions.paths = {
     '@nativescript/core': ['./custom/core'],
     'app/*': ['./src/*'],
   }
+
   writeFileSync(join(added, 'tsconfig.json'), JSON.stringify(existing))
   applyTarget(added, 'ios')
+
   const merged = JSON.parse(readFileSync(join(added, 'tsconfig.json'), 'utf8')).compilerOptions
     .paths
+
   assert.deepEqual(merged['@nativescript/core'], ['./custom/core'])
   assert.deepEqual(merged['@nativescript/core/*'], ['./node_modules/@nativescript/core/*'])
   assert.deepEqual(merged['app/*'], ['./src/*'])
@@ -291,12 +342,14 @@ test('native scaffolds pin @nativescript/core to the app install in tsconfig pat
 
 test('targetEnabled reads sentinels', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir)
   assert.equal(targetEnabled(dir, 'web'), true)
   assert.equal(targetEnabled(dir, 'ios'), false)
   assert.equal(targetEnabled(dir, 'native-shared'), false)
 
   const native = mkdtempSync(join(tmpdir(), 'xplat-scaffold-'))
+
   t.after(() => rmSync(native, { recursive: true, force: true }))
   composeTargets(['ios'], native)
   assert.equal(targetEnabled(native, 'ios'), true)
@@ -306,9 +359,12 @@ test('targetEnabled reads sentinels', (t) => {
 test('default apps carry no unused feature plugins for any target set', (t) => {
   for (const ids of [['web'], ['ios'], ['android'], ALL]) {
     const dir = project(t)
+
     composeTargets(ids, dir)
+
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
     const deps = { ...pkg.dependencies, ...pkg.devDependencies }
+
     for (const name of [
       '@octane-xplat/effects',
       '@octane-xplat/image',
@@ -325,10 +381,13 @@ test('default apps carry no unused feature plugins for any target set', (t) => {
 test('default testing includes only enabled platforms with framework-managed versions', (t) => {
   for (const ids of [['web'], ['ios'], ['android'], ALL]) {
     const dir = project(t)
+
     composeTargets(ids, dir)
+
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
     const web = ids.includes('web')
     const native = ids.includes('ios') || ids.includes('android')
+
     assert.equal(pkg.devDependencies.vitest, 'catalog:xplat')
     assert.equal(pkg.devDependencies.jsdom, web ? 'catalog:xplat' : undefined)
     assert.equal(
@@ -348,17 +407,24 @@ test('default testing includes only enabled platforms with framework-managed ver
 
 test('adding a platform keeps user test scripts, dependency specs, and existing test files', (t) => {
   const dir = project(t)
+
   composeTargets(['ios'], dir)
+
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   pkg.scripts.test = 'custom-test'
   pkg.devDependencies.vitest = 'file:../vitest'
   writeFileSync(join(dir, 'package.json'), JSON.stringify(pkg, null, '\t') + '\n')
   writeFileSync(join(dir, 'src/app.web.test.tsx'), '// custom test\n')
+
   const report = applyTarget(dir, 'web')
+
   assert.ok(report.scriptsSkipped.includes('test'))
   assert.ok(report.skipped.includes('src/app.web.test.tsx'))
   assert.equal(readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8'), '// custom test\n')
+
   const next = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(next.scripts.test, 'custom-test')
   assert.equal(next.devDependencies.vitest, 'file:../vitest')
   assert.equal(next.scripts['test:web'], 'vitest run --config vitest.web.config.mts')
@@ -367,10 +433,15 @@ test('adding a platform keeps user test scripts, dependency specs, and existing 
 
 test('adding native or web includes its test setup and preserves existing tests', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir)
+
   const before = readFileSync(join(dir, 'src/app.web.test.tsx'), 'utf8')
+
   applyTarget(dir, 'ios')
+
   let pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(pkg.scripts['test:ios'], 'ns test ios')
   assert.equal(pkg.scripts['test:android'], undefined)
   assert.equal(pkg.devDependencies['@nativescript/unit-test-runner'], 'catalog:xplat')
@@ -378,7 +449,9 @@ test('adding native or web includes its test setup and preserves existing tests'
   applyTarget(dir, 'android')
   pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
   assert.equal(pkg.scripts['test:android'], 'ns test android')
+
   const native = project(t)
+
   composeTargets(['android'], native)
   applyTarget(native, 'web')
   pkg = JSON.parse(readFileSync(join(native, 'package.json'), 'utf8'))
@@ -400,8 +473,11 @@ test('creator includes tests for the selected platforms by default through the p
     ],
     { encoding: 'utf8' },
   )
+
   assert.equal(result.status, 0, result.stderr)
+
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(pkg.devDependencies.vitest, 'catalog:xplat')
   assert.ok(pkg.scripts['test:web'])
   assert.equal(pkg.devDependencies['@nativescript/unit-test-runner'], undefined)
@@ -410,9 +486,12 @@ test('creator includes tests for the selected platforms by default through the p
 test('target planning is read-only and carries complete raw-byte observations', async (t) => {
   const { planTarget } = await import('../dist/scaffold.js')
   const dir = project(t)
+
   composeTargets(['web'], dir)
+
   const before = readFileSync(join(dir, 'package.json'))
   const plan = planTarget(dir, 'ios')
+
   assert.equal(existsSync(join(dir, 'nativescript.config.ts')), false)
   assert.deepEqual(readFileSync(join(dir, 'package.json')), before)
   assert.equal(plan.version, 1)
@@ -421,10 +500,13 @@ test('target planning is read-only and carries complete raw-byte observations', 
       (input) => input.path === join(dir, 'package.json') && /^[a-f0-9]{64}$/.test(input.sha256),
     ),
   )
+
   assert.ok(
     plan.files.some((file) => file.path === join(dir, 'package.json') && file.before !== null),
   )
+
   const result = applyTarget(dir, 'ios')
+
   assert.deepEqual(result, plan.report)
   for (const file of plan.files) {
     assert.deepEqual(readFileSync(file.path), Buffer.from(file.content, 'base64'))
@@ -437,10 +519,13 @@ for (const pm of ['bun', 'pnpm']) {
   test(`target files, scripts, and deps are manager-independent (${pm})`, (t) => {
     for (const ids of [['web'], ['ios'], ALL]) {
       const dir = project(t)
+
       composeTargets(ids, dir, { packageManager: pm })
+
       const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
       const web = ids.includes('web')
       const native = ids.includes('ios') || ids.includes('android')
+
       assert.equal(existsSync(join(dir, 'index.html')), web)
       assert.equal(existsSync(join(dir, 'nativescript.config.ts')), native)
       assert.equal(Boolean(pkg.scripts.dev), web)
@@ -460,6 +545,7 @@ test('pnpm manifest drops Bun config homes but keeps the same deps and scripts',
   for (const ids of [['web'], ['ios'], ALL]) {
     const bun = composeManifest(ids)
     const pkg = composeManifest(ids, 'pnpm')
+
     assert.equal(pkg.workspaces, undefined)
     assert.equal(pkg.overrides, undefined)
     assert.equal(pkg.patchedDependencies, undefined)
@@ -483,9 +569,11 @@ test('pnpm-workspace.yaml mirrors the Bun manifest config homes in order', () =>
     'nodeLinker',
     'saveExact',
   ]
+
   for (const ids of [['web'], ['ios'], ALL]) {
     const bun = composeManifest(ids)
     const ws = parseYaml(composePnpmWorkspace(ids))
+
     assert.deepEqual(ws.packages, bun.workspaces.packages)
     assert.deepEqual(ws.catalogs, bun.workspaces.catalogs)
     assert.deepEqual(ws.overrides, bun.overrides)
@@ -499,6 +587,7 @@ test('pnpm-workspace.yaml mirrors the Bun manifest config homes in order', () =>
 
 test('allowBuilds approves the trusted set and follows target claims', () => {
   const web = parseYaml(composePnpmWorkspace(['web']))
+
   assert.equal(web.allowBuilds.esbuild, true)
   assert.equal(web.allowBuilds['@parcel/watcher'], true)
   assert.equal(web.allowBuilds.nativescript, undefined)
@@ -506,6 +595,7 @@ test('allowBuilds approves the trusted set and follows target claims', () => {
   assert.equal(web.allowBuilds.protobufjs, false)
 
   const native = parseYaml(composePnpmWorkspace(['ios']))
+
   assert.equal(native.allowBuilds.nativescript, true)
   assert.equal(native.allowBuilds['@nativescript/core'], false)
   assert.equal(native.allowBuilds.protobufjs, false)
@@ -513,6 +603,7 @@ test('allowBuilds approves the trusted set and follows target claims', () => {
 
 test('pnpm scaffold skips bunfig.toml and selects pnpm in nativescript.config.ts', (t) => {
   const dir = project(t)
+
   composeTargets(ALL, dir, { packageManager: 'pnpm' })
   assert.ok(!existsSync(join(dir, 'bunfig.toml')))
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
@@ -521,10 +612,14 @@ test('pnpm scaffold skips bunfig.toml and selects pnpm in nativescript.config.ts
 
 test('pnpm scaffold patch entries point at canonical patch bytes', (t) => {
   const dir = project(t)
+
   composeTargets(ALL, dir, { packageManager: 'pnpm' })
+
   const ws = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+
   for (const [specifier, path] of Object.entries(ws.patchedDependencies)) {
     const file = join(dir, path)
+
     assert.ok(existsSync(file), `${specifier} → ${path}`)
     assert.deepEqual(
       readFileSync(file),
@@ -549,9 +644,11 @@ test('template patch keys are the canonical pnpm specifiers', () => {
     .filter((patch) => {
       const at = patch.specifier.indexOf('@', 1)
       const pin = managedPackage(patch.specifier.slice(0, at))
+
       return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
     })
     .map((patch) => patch.specifier)
+
   assert.deepEqual(Object.keys(TPL.patchedDependencies), wanted)
   assert.deepEqual(Object.keys(LIB_TPL.patchedDependencies), wanted)
 })
@@ -563,6 +660,7 @@ function* walkFiles(dir, prefix = '') {
     }
 
     const rel = prefix ? `${prefix}/${name}` : name
+
     if (statSync(join(dir, name)).isDirectory()) {
       yield* walkFiles(join(dir, name), rel)
     } else {
@@ -578,6 +676,7 @@ const bunTokenExceptions = new Set(['tests/packed-consumer.mjs'])
 test('no bun command tokens survive in translated scaffold text', (t) => {
   for (const variant of ['app', 'library']) {
     const dir = project(t)
+
     if (variant === 'app') {
       composeTargets(ALL, dir, { packageManager: 'pnpm' })
     } else {
@@ -600,8 +699,11 @@ test('no bun command tokens survive in translated scaffold text', (t) => {
 
 test('library scaffold gets the same pnpm split', (t) => {
   const dir = join(project(t), 'lib')
+
   composeLibrary(dir, 'my-lib', { packageManager: 'pnpm' })
+
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(pkg.packageManager, `pnpm@${compatibility.tools.pnpm}`)
   assert.equal(pkg.workspaces, undefined)
   assert.equal(pkg.overrides, undefined)
@@ -612,6 +714,7 @@ test('library scaffold gets the same pnpm split', (t) => {
   assert.equal(pkg.scripts['pack:check'], 'pnpm run test:packed')
 
   const ws = parseYaml(readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8'))
+
   assert.deepEqual(ws.catalogs, LIB_TPL.workspaces.catalogs)
   assert.deepEqual(ws.overrides, LIB_TPL.overrides)
   assert.deepEqual(ws.patchedDependencies, LIB_TPL.patchedDependencies)
@@ -622,15 +725,18 @@ test('library scaffold gets the same pnpm split', (t) => {
 
   // The packed-consumer check packs with whichever manager the manifest pins.
   const consumer = readFileSync(join(dir, 'tests/packed-consumer.mjs'), 'utf8')
+
   assert.match(consumer, /pnpm.*pack/)
   assert.match(consumer, /packageManager/)
 })
 
 function managerStubDir(t, entries) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-bin-stub-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   for (const [name, script] of Object.entries(entries)) {
     const file = join(dir, name)
+
     writeFileSync(file, script)
     chmodSync(file, 0o755)
   }
@@ -654,9 +760,12 @@ test('bin --package-manager pnpm produces pnpm-workspace.yaml', (t) => {
     [creator, dir, '--package-manager', 'pnpm', '--no-install', '--targets', 'web'],
     { encoding: 'utf8' },
   )
+
   assert.equal(result.status, 0, result.stderr)
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
+
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(pkg.packageManager, `pnpm@${compatibility.tools.pnpm}`)
 })
 
@@ -666,6 +775,7 @@ test('bin --package-manager validates its value', () => {
     [creator, 'app', '--package-manager', 'npm', '--no-install', '--targets', 'web'],
     { encoding: 'utf8' },
   )
+
   assert.equal(bad.status, 1)
   assert.match(bad.stderr, /--package-manager must be bun or pnpm/)
 
@@ -674,6 +784,7 @@ test('bin --package-manager validates its value', () => {
     [creator, 'app', '--package-manager', '--no-install', '--targets', 'web'],
     { encoding: 'utf8' },
   )
+
   assert.equal(missing.status, 1)
   assert.match(missing.stderr, /ambiguous/)
 })
@@ -686,8 +797,10 @@ test('bin parseArgs errors carry the ✗ prefix', (t) => {
     [[join(root, 'c'), '--template', 'nope', '--no-install'], /--template must be app or library/],
     [[join(root, 'd'), '--name', '--targets', 'web', '--no-install'], /ambiguous/],
   ]
+
   for (const [args, pattern] of cases) {
     const result = spawnSync(process.execPath, [creator, ...args], { encoding: 'utf8' })
+
     assert.equal(result.status, 1, String(args))
     assert.match(result.stderr, pattern, String(args))
   }
@@ -701,6 +814,7 @@ test('bin --package-manager=pnpm equals form scaffolds a pnpm project', (t) => {
     [creator, dir, '--package-manager=pnpm', '--no-install', '--targets', 'web'],
     { encoding: 'utf8' },
   )
+
   assert.equal(result.status, 0, result.stderr)
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
 })
@@ -721,6 +835,7 @@ test('bin picks the invoking user agent when no flag is given', (t) => {
       env: stubEnv(stub, { npm_config_user_agent: 'pnpm/11.24.0 npm/? node/? darwin arm64' }),
     },
   )
+
   assert.equal(result.status, 0, result.stderr)
   assert.ok(existsSync(join(pnpmApp, 'pnpm-workspace.yaml')))
 
@@ -733,6 +848,7 @@ test('bin picks the invoking user agent when no flag is given', (t) => {
       env: stubEnv(stub, { npm_config_user_agent: 'bun/1.4.4 npm/? node/? darwin arm64' }),
     },
   )
+
   assert.equal(second.status, 0, second.stderr)
   assert.ok(existsSync(join(bunApp, 'bunfig.toml')))
   assert.ok(!existsSync(join(bunApp, 'pnpm-workspace.yaml')))
@@ -746,9 +862,12 @@ test('bin scaffolds the Bun variant with a warning when no manager is installed'
     encoding: 'utf8',
     env: stubEnv(stub, { npm_config_user_agent: 'npm/11.0.0 node/? darwin arm64' }),
   })
+
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /Neither Bun nor pnpm was found/)
+
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   assert.equal(pkg.packageManager, 'bun@1.4.4')
   assert.ok(existsSync(join(dir, 'bunfig.toml')))
   assert.ok(!existsSync(join(dir, 'pnpm-workspace.yaml')))
@@ -763,6 +882,7 @@ test('bin scaffolds a pnpm project without installing when pnpm is missing', (t)
     [creator, dir, '--package-manager', 'pnpm', '--no-install', '--targets', 'web'],
     { encoding: 'utf8', env: stubEnv(stub) },
   )
+
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stdout, /pnpm was selected but is not installed/)
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
@@ -773,27 +893,34 @@ test('pack ships the bunfig template and Bun scaffolds land it as bunfig.toml', 
     cwd: fileURLToPath(new URL('..', import.meta.url)),
     encoding: 'utf8',
   })
+
   assert.equal(dry.status, 0, dry.stderr)
   assert.match(dry.stdout, /template\/bunfig$|template\/bunfig[\r\n]/m)
   assert.match(dry.stdout, /library-template\/bunfig$|library-template\/bunfig[\r\n]/m)
 
   const dir = project(t)
+
   composeTargets(ALL, dir)
+
   const bunfig = readFileSync(join(dir, 'bunfig.toml'), 'utf8')
+
   assert.match(bunfig, /linker = "hoisted"/)
   assert.match(bunfig, /exact = true/)
 
   const lib = join(project(t), 'lib')
+
   composeLibrary(lib, 'my-lib')
   assert.match(readFileSync(join(lib, 'bunfig.toml'), 'utf8'), /linker = "hoisted"/)
 })
 
 test('applyTarget on a pnpm scaffold updates pnpm-workspace.yaml, not package.json', (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir, { packageManager: 'pnpm' })
 
   // User edits: a comment and an unrelated key plus a custom allowBuilds entry.
   const yamlPath = join(dir, 'pnpm-workspace.yaml')
+
   writeFileSync(
     yamlPath,
     readFileSync(yamlPath, 'utf8')
@@ -802,15 +929,20 @@ test('applyTarget on a pnpm scaffold updates pnpm-workspace.yaml, not package.js
   )
 
   const report = applyTarget(dir, 'ios')
+
   assert.deepEqual(report.enabled, ['native-shared', 'ios'])
+
   const ws = parseYaml(readFileSync(yamlPath, 'utf8'))
+
   for (const name of ['@nativescript/ios', '@nativescript/core', 'nativescript']) {
     assert.ok(ws.catalogs.xplat[name], `catalog missing ${name}`)
   }
 
   for (const specifier of Object.keys(TPL.patchedDependencies)) {
     assert.ok(ws.patchedDependencies[specifier], `patch entry missing ${specifier}`)
+
     const file = join(dir, ws.patchedDependencies[specifier])
+
     assert.deepEqual(
       readFileSync(file),
       readFileSync(join(TEMPLATE_DIR, ws.patchedDependencies[specifier])),
@@ -824,19 +956,24 @@ test('applyTarget on a pnpm scaffold updates pnpm-workspace.yaml, not package.js
   assert.match(readFileSync(yamlPath, 'utf8'), /# user comment/)
 
   const pkg = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
   for (const field of ['workspaces', 'overrides', 'patchedDependencies', 'trustedDependencies']) {
     assert.equal(pkg[field], undefined, `package.json gained Bun field ${field}`)
   }
+
   assert.ok(pkg.devDependencies['@nativescript/ios'])
   assert.ok(pkg.dependencies['@nativescript/core'])
 })
 
 test('planTarget on a pnpm scaffold observes the yaml with a content hash', async (t) => {
   const dir = project(t)
+
   composeTargets(['web'], dir, { packageManager: 'pnpm' })
+
   const { planTarget } = await import('../dist/scaffold.js')
   const plan = planTarget(dir, 'ios')
   const yaml = plan.inputs.find((input) => input.path === join(dir, 'pnpm-workspace.yaml'))
+
   assert.ok(yaml, 'pnpm-workspace.yaml is not a plan input')
   assert.equal(yaml.kind, 'file')
   assert.match(yaml.sha256, /^[a-f0-9]{64}$/)
@@ -845,22 +982,29 @@ test('planTarget on a pnpm scaffold observes the yaml with a content hash', asyn
 test('compatibilityRoot returns the pnpm-workspace root owning the app', async (t) => {
   const { compatibilityRoot } = await import('../dist/compatibility.js')
   const root = join(project(t), 'ws')
+
   mkdirSync(root, { recursive: true })
   writeFileSync(join(root, 'pnpm-workspace.yaml'), 'packages:\n  - apps/*\n')
   writeFileSync(join(root, 'package.json'), '{"private":true,"packageManager":"pnpm@11.24.0"}\n')
+
   const app = join(root, 'apps/app')
+
   composeTargets(['web'], app, { packageManager: 'pnpm' })
   assert.equal(compatibilityRoot(app), root)
 
   // A bun-pinned ancestor keeps its package.json workspaces semantics.
   const bun = join(project(t), 'ws2')
+
   mkdirSync(bun, { recursive: true })
   writeFileSync(
     join(bun, 'package.json'),
     '{"private":true,"packageManager":"bun@1.4.4","workspaces":["apps/*"]}\n',
   )
+
   writeFileSync(join(bun, 'pnpm-workspace.yaml'), 'packages:\n  - other/*\n')
+
   const bunApp = join(bun, 'apps/app')
+
   composeTargets(['web'], bunApp)
   assert.equal(compatibilityRoot(bunApp), bun)
 })
@@ -868,11 +1012,14 @@ test('compatibilityRoot returns the pnpm-workspace root owning the app', async (
 test('starters include Workshop authoring and only advertise web preview with its compiler', () => {
   for (const targets of [['web'], ['web', 'ios', 'android']]) {
     const manifest = composeManifest(targets)
+
     assert.equal(manifest.devDependencies['@octane-xplat/workshop'], 'catalog:xplat')
     assert.equal(manifest.scripts.workshop, 'xplat workshop dev --target web')
     assert.ok(manifest.devDependencies['@octanejs/vite-plugin'])
   }
+
   const native = composeManifest(['ios'])
+
   assert.ok(native.devDependencies['@octane-xplat/workshop'])
   assert.equal(native.scripts.workshop, undefined)
   assert.equal(LIB_TPL.devDependencies['@octane-xplat/workshop'], 'catalog:xplat')

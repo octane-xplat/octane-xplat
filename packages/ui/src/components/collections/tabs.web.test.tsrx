@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { Tabs } from './Tabs.web.tsrx'
 import { defaultRouterRuntime } from '../../routing/default-router.web'
 import type { TabSpec } from '../../props'
@@ -10,8 +12,11 @@ import type { TabSpec } from '../../props'
 const roots: ReturnType<typeof createRoot>[] = []
 function mount(Component: any, props: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() => root.render(Component, props))
   return root
@@ -30,6 +35,7 @@ afterEach(() => {
 describe('Tabs selection keys (web)', () => {
   it('renders UI-only tabs without constructing a router', () => {
     const getClient = vi.spyOn(defaultRouterRuntime, 'getClient')
+
     try {
       mount(Tabs, { tabs: TABS })
       expect(document.querySelectorAll('[role="tabpanel"]')).toHaveLength(2)
@@ -47,6 +53,7 @@ describe('Tabs selection keys (web)', () => {
 
     const panel = document.querySelector('[role="tabpanel"]:not([hidden])') as HTMLElement
     const tab = document.querySelector('[data-tab-value="beta"]') as HTMLElement
+
     expect(panel.getAttribute('aria-labelledby')).toBe(tab.id)
     expect(tab.getAttribute('aria-controls')).toBe(panel.id)
     expect(tab.getAttribute('aria-selected')).toBe('true')
@@ -74,6 +81,7 @@ describe('Tabs selection keys (web)', () => {
 
   it('defaults to the first tab and follows defaultSelectedKey uncontrolled', () => {
     const change = vi.fn()
+
     mount(Tabs, { tabs: TABS, defaultSelectedKey: 'beta', onSelectionChange: change })
     expect(document.querySelector('[role="tabpanel"]:not([hidden])')?.textContent).toContain(
       'pane-beta',
@@ -88,6 +96,7 @@ describe('Tabs selection keys (web)', () => {
 
   it('keeps index selection working through the deprecated props', () => {
     const byIndex = vi.fn()
+
     mount(Tabs, {
       tabs: [
         { title: 'A', render: () => <span>pane-a</span> },

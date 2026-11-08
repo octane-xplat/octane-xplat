@@ -39,7 +39,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -54,6 +56,7 @@ const settle = () => {
 const pump = (ms: number) =>
   new Promise<void>((resolve) => {
     settle()
+
     let done = false
     const finish = () => {
       if (!done) {
@@ -61,10 +64,12 @@ const pump = (ms: number) =>
         resolve()
       }
     }
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
       finish()
       return false
     })
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms + 800, () => {
       finish()
       return false
@@ -77,6 +82,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -92,6 +98,7 @@ const findByTypeUnder = (type: string, ancestorId: string): any => {
       }
     }
   }
+
   return null
 }
 
@@ -103,6 +110,7 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -111,6 +119,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -121,6 +130,7 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -144,12 +154,14 @@ const findDayCell = (needle: string): any => {
         !cur.props.className.includes('--outside')
       ) {
         const v = cur.view
+
         if (v && v.get_mapped?.()) {
           return v
         }
       }
     }
   }
+
   return null
 }
 
@@ -173,17 +185,20 @@ const pickDayCell = (needle: string): any => {
         !cur.props.className.includes('--outside')
       ) {
         const v = cur.view
+
         if (!v || !v.get_mapped?.()) {
           continue
         }
 
         const c = point(v)
+
         if (c.x >= 0 && c.x <= 700 && c.y >= 0 && c.y <= 720) {
           return v
         }
       }
     }
   }
+
   return findDayCell(needle)
 }
 
@@ -198,6 +213,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
     }
 
     let hit = false
+
     for (let cur = n; cur; cur = cur.parent) {
       if (ancestorId === undefined || cur?.props?.id === ancestorId) {
         hit = true
@@ -210,6 +226,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
     }
 
     let cur = n
+
     while (cur && !cur.view) {
       cur = cur.parent
     }
@@ -218,6 +235,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
       return cur.view
     }
   }
+
   return null
 }
 
@@ -233,6 +251,7 @@ const findInClass = (needle: string, classSub: string): any => {
     }
 
     let hit = false
+
     for (let cur = n; cur; cur = cur.parent) {
       if (typeof cur?.props?.className === 'string' && cur.props.className.includes(classSub)) {
         hit = true
@@ -245,6 +264,7 @@ const findInClass = (needle: string, classSub: string): any => {
     }
 
     let cur = n
+
     while (cur && !cur.view) {
       cur = cur.parent
     }
@@ -253,18 +273,22 @@ const findInClass = (needle: string, classSub: string): any => {
       return cur.view
     }
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -273,7 +297,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -283,6 +309,7 @@ const describePoint = (tag: string, widget: any) => {
     const [ok, rect] = widget.compute_bounds(native)
     const [tx, ty] = native.get_surface_transform()
     const chain: any[] = []
+
     for (
       let s = native.get_surface();
       s && typeof s.get_parent === 'function';
@@ -292,6 +319,7 @@ const describePoint = (tag: string, widget: any) => {
     }
 
     const [wx, wy] = window.get_surface_transform()
+
     diag('GEOM', {
       tag,
       native: native?.constructor?.name,
@@ -313,6 +341,7 @@ const describePoint = (tag: string, widget: any) => {
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
@@ -325,15 +354,19 @@ const onKey = (_c: any, keyval: number) => {
     readyResolve()
     readyResolve = null
   }
+
   return false
 }
 
 const armAcks = () => {
   for (const n of (container as any).nodes.values()) {
     const r = n?.view?.get_root?.()
+
     if (r && !armed.has(r)) {
       armed.add(r)
+
       const ctl = new Gtk.EventControllerKey()
+
       ctl.connect('key-pressed', onKey)
       r.add_controller(ctl)
     }
@@ -354,6 +387,7 @@ const ready = (payload: any) => {
           readyResolve = null
           resolve()
         }
+
         return false
       })
     }
@@ -361,6 +395,7 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', onKey)
 
@@ -379,17 +414,21 @@ async function run() {
   check('hook grid has days', state.hookDays >= 35)
   check('constraint disables outside date', state.hookDisabledOut === true)
   check('constraint allows in-range date', state.hookDisabledIn === false)
+
   const hookNext = findView('hook-next')
+
   if (hookNext) {
     await clickAt(hookNext)
     await pump(200)
   }
+
   check('navigateMonths advances grid', state.hookMonth === '2025-07')
 
   // Calendar — real click on a day cell writes the ISO date.
   check('day cell present', !!pickDayCell('June 15'))
   for (let attempt = 0; attempt < 4 && state.calPick !== '2025-06-15'; attempt++) {
     const day15 = pickDayCell('June 15')
+
     if (!day15) {
       await pump(200)
       continue
@@ -398,14 +437,17 @@ async function run() {
     await clickAt(day15)
     await pump(200)
   }
+
   check('day pick fires ISO date', state.calPick === '2025-06-15')
 
   // Month navigation via the chevron Pressable.
   const next = findUnder('Next month', 'cal')
+
   if (next) {
     await clickAt(next)
     await pump(200)
   }
+
   check('next month navigates', !!findUnder('July 2025', 'cal'))
 
   // Range calendar — anchored 'August 2025' — two clicks complete a range.
@@ -419,6 +461,7 @@ async function run() {
     attempt++
   ) {
     const r10 = pickDayCell('August 10')
+
     diag('r10', {
       attempt,
       found: !!r10,
@@ -432,6 +475,7 @@ async function run() {
     }
 
     const r20 = pickDayCell('August 20')
+
     diag('r20', {
       attempt,
       found: !!r20,
@@ -444,6 +488,7 @@ async function run() {
       await pump(300)
     }
   }
+
   diag('range', state.rangePick ?? null)
   check(
     'range pick fires start+end',
@@ -460,6 +505,7 @@ async function run() {
     'GTK_DATES ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   window.destroy()
   loop.quit()
 }

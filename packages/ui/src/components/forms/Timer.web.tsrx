@@ -19,6 +19,7 @@ import type { JSX } from 'octane/jsx-runtime'
 export function Timer(props: TimerProps): JSX.Element @{
   const format = resolveTimerFormat(props.format)
   const startRef = useRef<number>(0)
+
   if (startRef.current === 0) {
     startRef.current = props.startTimeMs ?? Date.now()
   }
@@ -37,6 +38,7 @@ export function Timer(props: TimerProps): JSX.Element @{
 
       const at = Date.now()
       const elapsed = elapsedMilliseconds(at, startTimeMs)
+
       timer = setTimeout(
         () => {
           setNow(Date.now())

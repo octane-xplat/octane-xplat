@@ -13,6 +13,7 @@ configureLayerKeys(() => {
     const rootView = Application.getRootView?.() as any
     const host = element(rootView)
     const preview = Microsoft?.UI?.Xaml?.UIElement?.PreviewKeyDownEvent
+
     if (!host || !preview) {
       return () => {}
     }
@@ -26,6 +27,7 @@ configureLayerKeys(() => {
           }
 
           let prevented = false
+
           dispatchLayerKey({
             key: 'Escape',
             preventDefault: () => {
@@ -59,9 +61,11 @@ function active(root: any): boolean {
   if (root?.IsHostVisible !== true) {
     return false
   }
+
   const input = Microsoft?.UI?.Input
   const id = root.ContentIslandEnvironment?.AppWindowId
   const activated = input?.InputActivationState?.Activated
+
   return (
     id != null &&
     activated != null &&
@@ -73,13 +77,16 @@ function active(root: any): boolean {
 export function captureLayerFocus(getTarget?: () => any, host?: any): () => void {
   let owner: any
   let initial: any
+
   try {
     // A supplied but unattached host must not fall back to the primary window.
     const source = host ?? getTarget?.() ?? Application.getRootView?.()
+
     owner = element(source)?.XamlRoot
   } catch {
     return () => {}
   }
+
   if (owner) {
     try {
       // WinRT names this overload GetFocusedElementWithRoot; the .NET
@@ -102,6 +109,7 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
       if (!owner) {
         return
       }
+
       afterWindowsOverlayExit(owner, () => {
         try {
           if (!owner || !active(owner)) {
@@ -109,17 +117,20 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
           }
 
           const currentOwner = element(host)?.XamlRoot
+
           if (currentOwner && currentOwner !== owner) {
             return
           }
 
           const target = getTarget?.()
+
           if (model(target)?.isLoaded === false || model(target)?.isEnabled === false) {
             return
           }
 
           const native = target ? element(target) : initial
           const programmatic = Microsoft?.UI?.Xaml?.FocusState?.Programmatic
+
           if (
             native?.XamlRoot === owner &&
             native.IsLoaded !== false &&

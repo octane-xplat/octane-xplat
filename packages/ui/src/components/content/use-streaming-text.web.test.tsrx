@@ -20,8 +20,11 @@ let cancelled: number[]
 
 function mount() {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   return {
     el,
@@ -35,6 +38,7 @@ function mount() {
  *  the queue for the following call, like the reference's fake clock. */
 function frame(now: number) {
   const cbs = rafCallbacks.splice(0)
+
   act(() => {
     for (const cb of cbs) {
       cb(now)
@@ -65,6 +69,7 @@ afterEach(() => {
 
 it('returns full text when not streaming or instant', () => {
   const { el, render } = mount()
+
   render('Hello world', false)
   expect(el.textContent).toBe('Hello world')
   render('Hello world', true, 'instant')
@@ -73,6 +78,7 @@ it('returns full text when not streaming or instant', () => {
 
 it('reveals text progressively through animation frames and drains bursts', () => {
   const { el, render } = mount()
+
   render('Hello, world! This is a test.', true)
   expect(el.textContent).toBe('')
   // No theme in scope → 50ms fallback tick, 10 chars per tick.
@@ -91,6 +97,7 @@ it('reveals text progressively through animation frames and drains bursts', () =
 
 it('uses the fast cadence (4 units per 8ms fallback tick)', () => {
   const { el, render } = mount()
+
   render('abcdefghijk', true, 'fast')
   frame(8)
   expect(el.textContent).toBe('abcd')
@@ -100,6 +107,7 @@ it('uses the fast cadence (4 units per 8ms fallback tick)', () => {
 
 it('snaps to full text when streaming ends and resets when the target clears', () => {
   const { el, render } = mount()
+
   render('Hello world', true)
   expect(el.textContent).toBe('')
   render('Hello world', false)
@@ -112,6 +120,7 @@ it('snaps to full text when streaming ends and resets when the target clears', (
 
 it('restarts the reveal when streaming restarts', () => {
   const { el, render } = mount()
+
   render('Hello', true)
   frame(50)
   expect(el.textContent).toBe('Hello')
@@ -125,6 +134,7 @@ it('restarts the reveal when streaming restarts', () => {
 
 it('cancels the frame loop on unmount', () => {
   const { el, render, root } = mount()
+
   render('pending message', true)
   expect(rafCallbacks.length).toBeGreaterThan(0)
   act(() => root.unmount())
@@ -138,6 +148,7 @@ it('never reveals a tick boundary mid-ZWJ-emoji-sequence', () => {
   // one code unit into the family — the whole cluster holds back.
   const family = '👨‍👩‍👧‍👦'
   const { el, render } = mount()
+
   render('a'.repeat(9) + family + 'end', true)
   frame(50)
   expect(el.textContent).toBe('a'.repeat(9))
@@ -146,8 +157,10 @@ it('never reveals a tick boundary mid-ZWJ-emoji-sequence', () => {
 it('snapToGraphemeBoundary leaves boundaries and never splits clusters', () => {
   expect(snapToGraphemeBoundary('a🎉b', 2)).toBe(1)
   expect(snapToGraphemeBoundary('a🎉b', 1)).toBe(1)
+
   const family = '👨‍👩‍👧‍👦'
   const text = 'x' + family + 'y'
+
   for (let offset = 2; offset < 1 + family.length; offset++) {
     expect(snapToGraphemeBoundary(text, offset)).toBe(1)
   }
@@ -166,6 +179,7 @@ it('returns the full text under prefers-reduced-motion', () => {
   }))
 
   const { el, render } = mount()
+
   render('reduced motion', true)
   expect(el.textContent).toBe('reduced motion')
   render('reduced motion grows', true)

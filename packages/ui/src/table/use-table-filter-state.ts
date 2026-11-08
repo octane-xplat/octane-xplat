@@ -22,9 +22,11 @@ export function useTableFilterState(initialState?: TableFilterState): UseTableFi
     setFilters((prev: TableFilterState) => {
       if (value == null) {
         const next = { ...prev }
+
         delete next[key]
         return next
       }
+
       return { ...prev, [key]: value }
     })
   }

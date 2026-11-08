@@ -13,9 +13,11 @@ export function resolveStyledClasses<V extends Record<string, StyledVariant>>(
 ): { classes: StyledClass[]; rest: any } {
   const classes: StyledClass[] = [def.base]
   const rest = { ...props }
+
   for (const key of Object.keys(def.variants ?? {})) {
     const variant = def.variants![key]
     const value = props[key] ?? (def.defaultVariants as Record<string, unknown> | undefined)?.[key]
+
     if (isEnumVariant(variant)) {
       if (value != null && value !== false) {
         classes.push(variant[value as string])

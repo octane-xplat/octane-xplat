@@ -88,6 +88,7 @@ export const TabListContext: Context<TabListContextValue | null> =
 /** TabList selection contract — throws outside a TabList, matching upstream. */
 export function useTabListContext(): TabListContextValue {
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error(
       'useTabListContext must be used within TabList. Wrap your Tab/TabMenu in <TabList>.',

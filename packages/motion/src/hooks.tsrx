@@ -10,11 +10,13 @@ import type { Target, Transition, TransitionInput } from './types'
 /** Create an owned numeric value that writes to bound hosts without rendering. */
 export function useMotionValue(initial: number): MotionValue {
   const ref = useRef<MotionValue | null>(null)
+
   if (!ref.current) {
     ref.current = new MotionValue(initial, clock)
   }
 
   const value = ref.current
+
   useLayoutEffect(() => () => value.destroy(), [])
   return value
 }
@@ -51,6 +53,7 @@ export function useTransform(
   options?: { clamp?: boolean },
 ): MotionValue {
   const sources = Array.isArray(source) ? source : [source]
+
   if (Array.isArray(input) && (!output || input.length !== output.length || input.length < 2)) {
     throw new Error('motion: transform ranges must have matching lengths >= 2')
   }
@@ -64,6 +67,7 @@ export function useTransform(
   const value = useMotionValue(read())
   // A source array may be freshly allocated; compare its members, not its identity.
   const previous = useRef<MotionValue[]>(sources)
+
   if (
     previous.current.length !== sources.length ||
     previous.current.some((value, i) => value !== sources[i])
@@ -74,6 +78,7 @@ export function useTransform(
   useLayoutEffect(() => {
     const update = () => value.set(read())
     const off = sources.map((source) => source.on('change', update))
+
     update()
     return () => off.forEach((unsubscribe) => unsubscribe())
   }, [previous.current, input, output, options?.clamp])
@@ -87,6 +92,7 @@ export function useSpring(
   options: Omit<Transition, 'type' | 'duration' | 'ease' | 'delay'> = {},
 ): MotionValue {
   const value = useMotionValue(source instanceof MotionValue ? source.get() : source)
+
   useLayoutEffect(() => {
     const follow = (target: number) => {
       value.animate(target, { ...options, type: 'spring' })
@@ -94,6 +100,7 @@ export function useSpring(
 
     const detach = value.attach(follow)
     const unsubscribe = source instanceof MotionValue ? source.on('change', follow) : undefined
+
     if (source instanceof MotionValue && source.get() !== value.get()) {
       follow(source.get())
     }
@@ -153,6 +160,7 @@ export function useAnimate(): [
 
       const destination = controllers.has(target) ? (transitionOrTo ?? {}) : target
       const spec = controllers.has(target) ? (transition ?? {}) : (transitionOrTo ?? {})
+
       return controller.animate(destination, spec, reducedRef.current)
     },
   ).current

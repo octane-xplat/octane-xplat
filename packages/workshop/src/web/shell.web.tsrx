@@ -43,6 +43,7 @@ function observeMode(el: HTMLElement, store: WorkshopRuntime['store']): ResizeOb
 
     const width = entries[0]?.contentRect.width ?? el.clientWidth
     const mode = modeFor(width, entries[0]?.contentRect.height ?? el.clientHeight)
+
     // Defer past the notification frame — a synchronous re-render that
     // resizes the root reports "ResizeObserver loop" noise.
     requestAnimationFrame(() => {
@@ -58,11 +59,13 @@ function observeMode(el: HTMLElement, store: WorkshopRuntime['store']): ResizeOb
 
 function selectStory(runtime: WorkshopRuntime, entry: CatalogEntry) {
   const store = runtime.store
+
   if (!entry.load) {
     return
   }
 
   const s = store.getSnapshot()
+
   store.set({
     ...s,
     selectedId: entry.id,
@@ -182,6 +185,7 @@ function StatusBar(props: { runtime: WorkshopRuntime }) {
 
 function toggleAux(runtime: WorkshopRuntime, panel: 'stories' | 'controls') {
   const s = runtime.store.getSnapshot()
+
   runtime.store.set({ ...s, auxPanel: s.auxPanel === panel ? null : panel })
 }
 
@@ -211,8 +215,10 @@ function groupEntries(entries: CatalogEntry[], query: string): Group {
       .filter(Boolean)
 
     let group = root
+
     for (const seg of segments.slice(0, -1)) {
       let next = group.children.get(seg)
+
       if (!next) {
         next = { name: seg, entries: [], children: new Map() }
         group.children.set(seg, next)
@@ -237,6 +243,7 @@ function descendants(group: Group): Group[] {
 
 function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: number }) {
   const s = useStore(props.runtime.store)
+
   return (
     <>
       {[...props.group.children.values()]
@@ -244,6 +251,7 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
         .map((child) => {
           const key = `${child.name}@${props.depth}`
           const open = s.expanded.has(key) || Boolean(s.query)
+
           return (
             <div key={key} className="xw-group">
               <button
@@ -253,6 +261,7 @@ function GroupView(props: { runtime: WorkshopRuntime; group: Group; depth: numbe
                 onClick={() =>
                   props.runtime.store.update((x) => {
                     const next = new Set(x.expanded)
+
                     if (next.has(key)) {
                       next.delete(key)
                     } else {
@@ -328,6 +337,7 @@ function catalogBody(s: ShellState, runtime: WorkshopRuntime, groups: Group) {
 function CatalogPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overlay' }) {
   const s = useStore(props.runtime.store)
   const groups = groupEntries(s.catalog, s.query)
+
   return (
     <aside
       className={`xw-panel xw-catalog ${props.mode === 'overlay' ? 'xw-overlay' : ''}`}
@@ -416,6 +426,7 @@ function ControlField(props: {
   const commit = (raw: string | boolean | number | typeof UNSET) => {
     const genProps = props.runtime.session.currentProps ?? {}
     const result = applyControlInput(props.definition, genProps, key, raw)
+
     if (result.error) {
       store.update((x) => ({
         ...x,
@@ -427,10 +438,15 @@ function ControlField(props: {
 
     store.update((x) => {
       const drafts = { ...x.drafts }
+
       delete drafts[key]
+
       const fieldErrors = { ...x.fieldErrors }
+
       delete fieldErrors[key]
+
       const unsetKeys = new Set(x.unsetKeys)
+
       if (raw === UNSET) {
         unsetKeys.add(key)
       } else {
@@ -447,6 +463,7 @@ function ControlField(props: {
     store.update((x) => ({ ...x, drafts: { ...x.drafts, [key]: text } }))
 
   let field: JSX.Element | null = null
+
   if (control.type === 'boolean') {
     field = (
       <input
@@ -466,6 +483,7 @@ function ControlField(props: {
         onChange={(e: any) => {
           const raw = e.target.value
           const option = (control.options ?? []).find((o: unknown) => String(o) === raw)
+
           commit(option as never)
         }}
       >
@@ -479,6 +497,7 @@ function ControlField(props: {
     )
   } else {
     const shown = draft ?? (isSet ? String(value ?? '') : '')
+
     field = (
       <input
         type={control.type === 'number' ? 'number' : 'text'}
@@ -519,6 +538,7 @@ function ControlField(props: {
   }
 
   const unsettable = isUnsettable(props.definition, key)
+
   return (
     <div className="xw-field">
       <div className="xw-field-row">
@@ -555,6 +575,7 @@ function ControlsPanel(props: { runtime: WorkshopRuntime; mode: 'wide' | 'overla
   const definition = currentDefinition(props.runtime)
   const controls = (definition?.controls ?? {}) as Record<string, unknown>
   const keys = Object.keys(controls)
+
   return (
     <aside
       className={`xw-panel xw-controls ${props.mode === 'overlay' ? 'xw-overlay' : ''}`}
@@ -636,6 +657,7 @@ function PreviewHeading(props: { runtime: WorkshopRuntime }) {
       .filter(Boolean) ?? []
 
   const phase = s.session.phase === 'ready' ? 'Ready' : s.session.phase.replaceAll('-', ' ')
+
   return (
     <div className="xw-preview-head">
       <div className="xw-preview-heading">
@@ -658,6 +680,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
   const s = useStore(props.runtime.store)
   const session = s.session
   const failure = session.failure
+
   return (
     <main className="xw-stage-area" data-workshop-stage>
       <PreviewHeading runtime={props.runtime} />
@@ -689,6 +712,7 @@ function StageView(props: { runtime: WorkshopRuntime }) {
               className="xw-btn"
               onClick={() => {
                 const store = props.runtime.store
+
                 store.update((x) => ({ ...x, missingId: null, auxPanel: 'stories' }))
               }}
             >
@@ -788,7 +812,9 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
     observerRef.current = null
     if (el) {
       observerRef.current = observeMode(el, props.runtime.store)
+
       const mode = modeFor(el.clientWidth, el.clientHeight)
+
       if (props.runtime.store.getSnapshot().mode !== mode) {
         props.runtime.store.update((x) => ({ ...x, mode }))
       }
@@ -806,6 +832,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
       }
 
       const state = props.runtime.store.getSnapshot()
+
       if (state.stageOnly) {
         props.runtime.store.update((x) => ({ ...x, stageOnly: false }))
         return
@@ -816,6 +843,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
       }
 
       const active = document.activeElement
+
       if (
         active instanceof Element &&
         active.closest(
@@ -834,8 +862,10 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
 
   // Restore focus to the opener when an overlay panel closes.
   const prevAux = useRef<ShellState['auxPanel']>(null)
+
   useEffect(() => {
     const prev = prevAux.current
+
     prevAux.current = s.auxPanel
     if (!prev && s.auxPanel) {
       openerRef.current = document.activeElement as HTMLElement | null
@@ -853,6 +883,7 @@ export function WorkshopApp(props: { runtime: WorkshopRuntime }): JSX.Element {
     if (prev && !s.auxPanel && openerRef.current) {
       const opener = openerRef.current
       const openerKey = openerKeyRef.current
+
       openerRef.current = null
       requestAnimationFrame(() => {
         const key = opener.dataset.workshopOpener ?? openerKey

@@ -16,24 +16,29 @@ const wstr = (v) => ({ type: 'wstr', value: v })
 const call = (dll, fn, ret, ...args) => win32.call(dll, fn, ret, ...args)
 const bufferAddress = (buf) => {
   const p = interop.pointerFromBuffer(buf)
+
   return typeof p === 'number' ? p : Number(interop.pointerKey(p))
 }
 
 const pinned = []
 const utf16ptr = (s) => {
   const b = new Uint16Array(s.length + 1)
+
   for (let i = 0; i < s.length; i++) {
     b[i] = s.charCodeAt(i)
   }
+
   pinned.push(b)
   return bufferAddress(b)
 }
 
 const asciiptr = (s) => {
   const b = new Uint8Array(s.length + 1)
+
   for (let i = 0; i < s.length; i++) {
     b[i] = s.charCodeAt(i)
   }
+
   pinned.push(b)
   return bufferAddress(b)
 }
@@ -41,6 +46,7 @@ const asciiptr = (s) => {
 // ---------- file + console log ----------
 const LOGF = 'C:\\Users\\alecs\\xplat-tray-main.log'
 let fh = 0
+
 try {
   fh = Number(
     call(
@@ -66,8 +72,10 @@ const log = (m) => {
   if (!fh) {
     return
   }
+
   try {
     const bytes = new TextEncoder().encode('TRAY ' + m + '\n')
+
     call('kernel32.dll', 'SetFilePointer', 'u32', ptr(fh), i32(0), ptr(0), u32(2))
     wrV.setUint32(0, 0, true)
     call(
@@ -86,6 +94,7 @@ const log = (m) => {
 const step = (name, fn) => {
   try {
     const value = fn()
+
     log('OK ' + name + (value === undefined ? '' : ' ' + String(value)))
     return value
   } catch (error) {
@@ -100,6 +109,7 @@ step('GetTickCount', () => call('kernel32.dll', 'GetTickCount', 'u32'))
 step('winui-window', () => {
   const ui = globalThis.Microsoft?.UI?.Xaml
   const w = new ui.Window()
+
   w.Title = 'XplatTrayProbe'
   w.Content = new ui.Controls.Grid()
   w.Activate()
@@ -195,6 +205,7 @@ log('DONE')
 
 step('worker', () => {
   const w = new Worker(workerSource, { eval: true })
+
   return typeof w
 })
 

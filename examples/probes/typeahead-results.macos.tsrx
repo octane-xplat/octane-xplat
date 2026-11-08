@@ -12,6 +12,7 @@ import {
 
 import type { SearchableItem } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const Team = createContext('missing provider'),
   TeamProvider: any = Team
 

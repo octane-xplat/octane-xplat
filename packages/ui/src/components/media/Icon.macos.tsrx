@@ -11,6 +11,7 @@ export function Icon(props: IconProps): unknown @{
   const inheritedRegistry = useIconRegistry()
   const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)
   const markup = glyph && glyphSvgMarkup(glyph, props.color ?? '#000000')
+
   if (markup)
     return (
       <Image

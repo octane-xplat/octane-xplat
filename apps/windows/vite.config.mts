@@ -37,6 +37,7 @@ export default defineConfig(({ mode }) =>
                 ) {
                   return fileURLToPath(new URL('./src/qualification/index.ts', import.meta.url))
                 }
+
                 return null
               },
             },

@@ -41,12 +41,14 @@ export interface ImageContentUpdate {
 function intrinsicDipSize(imageSource: any, android: boolean): { w: number; h: number } | null {
   const width = imageSource?.width
   const height = imageSource?.height
+
   if (!width || !height) {
     return null
   }
 
   if (android) {
     const density = imageSource.android?.getDensity?.() ?? 0
+
     if (density > 0) {
       return { w: (width * 160) / density, h: (height * 160) / density }
     }
@@ -124,8 +126,10 @@ export function createImageContentBinding(env: ImageContentEnv) {
     const needsViewSize = update.computed || update.sources != null
     let viewWidth = 0
     let viewHeight = 0
+
     if (needsViewSize) {
       const actual = sizeView.getActualSize?.()
+
       viewWidth = actual?.width ?? 0
       viewHeight = actual?.height ?? 0
       if (update.computed) {
@@ -147,6 +151,7 @@ export function createImageContentBinding(env: ImageContentEnv) {
 
     if (imageView) {
       let resolved: any = update.source
+
       if (update.sources?.length) {
         resolved = bestImageSource(update.sources, viewWidth, viewHeight, screenScale())?.uri
       }
@@ -186,10 +191,12 @@ export function createImageContentBinding(env: ImageContentEnv) {
     sizeLaidOut = true
     evaluate()
   }
+
   const onImageSource = () => evaluate()
 
   const listen = () => {
     const wantsMeasure = update.computed || update.sources != null
+
     if (wantsMeasure && !listening && typeof sizeView?.on === 'function') {
       sizeView.on('layoutChanged', onLayout)
       listening = true

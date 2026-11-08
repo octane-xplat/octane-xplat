@@ -26,8 +26,11 @@ export function useScrollableArea<TElement extends object = object>(
     directionRef = useRef(direction)
 
   directionRef.current = direction
+
   const axisRef = useRef(axis)
+
   axisRef.current = axis
+
   const viewport = useRef<NSScrollView | null>(null)
   const caller = useRef<Record<string, any>>({})
   const contentCaller = useRef<Record<string, any>>({})
@@ -115,6 +118,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
       UseScrollableAreaViewportProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       caller.current = input
       if (viewportRefs.current.caller !== input.ref) {
         viewportRefs.current = { caller: input.ref, refs: refList(bindViewport, input.ref) }
@@ -143,6 +147,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
       UseScrollableAreaContentProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       contentCaller.current = input
       if (contentRefs.current.caller !== input.ref) {
         contentRefs.current = { caller: input.ref, refs: refList(bindContent, input.ref) }

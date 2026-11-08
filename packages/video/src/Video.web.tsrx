@@ -54,6 +54,7 @@ export function Video(props: VideoProps): JSX.Element @{
   // Uncontrolled autoplay start + controlled-prop mute echo.
   useEffect(() => {
     const v = el.current
+
     if (!v) {
       return
     }
@@ -66,6 +67,7 @@ export function Video(props: VideoProps): JSX.Element @{
 
   const togglePlay = () => {
     const next = !playing
+
     setPlaying(next)
     drive(el.current, next)
     props.onPlayingChange?.(next)
@@ -85,6 +87,7 @@ export function Video(props: VideoProps): JSX.Element @{
     currentTime: () => (el.current?.currentTime ?? 0) * 1000,
     duration: () => {
       const v = el.current
+
       return v !== null && Number.isFinite(v.duration) ? v.duration * 1000 : 0
     },
     get native() {
@@ -131,6 +134,7 @@ export function Video(props: VideoProps): JSX.Element @{
       onPlaying={() => setStarted(true)}
       onLoadedMetadata={(e: any) => {
         const ms = e.currentTarget.duration * 1000
+
         setDuration(Number.isFinite(ms) ? ms : 0)
         props.onReady?.({ duration: Number.isFinite(ms) ? ms : 0 })
       }}
@@ -145,6 +149,7 @@ export function Video(props: VideoProps): JSX.Element @{
       }}
       onError={(e: any) => {
         const code = e.currentTarget?.error?.code ?? 0
+
         props.onError?.({ message: MEDIA_ERR[code] ?? 'unknown' })
       }}
     />
@@ -159,6 +164,7 @@ export function Video(props: VideoProps): JSX.Element @{
         onTogglePlay={togglePlay}
         onToggleMute={() => {
           const next = !muted
+
           setInternalMuted(next)
           if (el.current) {
             el.current.muted = next

@@ -89,8 +89,10 @@ export function createProjection(deps: Dependencies) {
   function releaseProjectedView(node: ElementNode) {
     deps.nativeStyle.deactivateSizeConstraints(node)
     deps.layout.releasePlacementPins(node)
+
     const parent = node.layoutParent
     const view = parent?.childHost ?? parent?.view
+
     if (deps.layout.layoutView(node)?.superview === view) {
       view?.removeArrangedSubview?.(deps.layout.layoutView(node))
     }
@@ -111,6 +113,7 @@ export function createProjection(deps: Dependencies) {
 
   function syncProxyProjection(parent: ElementNode) {
     const children = projectedViews(parent)
+
     if (['contentview', 'actionbar'].includes(parent.type ?? '') && children.length > 1) {
       throw new Error(
         'AppKit <contentview> cannot project multiple ProxyViewContainer layout children',
@@ -118,6 +121,7 @@ export function createProjection(deps: Dependencies) {
     }
 
     const previous = parent.projectedChildren ?? []
+
     for (const child of previous) {
       if (!children.includes(child) && child.layoutParent === parent) {
         releaseProjectedView(child)
@@ -125,6 +129,7 @@ export function createProjection(deps: Dependencies) {
     }
 
     parent.projectedChildren = children
+
     const host = parent.childHost ?? parent.view
     const manual =
       ['liquidglass', 'contentview', 'actionbar', 'rootlayout', '#root', 'portalroot'].includes(
@@ -134,13 +139,16 @@ export function createProjection(deps: Dependencies) {
     for (const child of children) {
       // Preserve authored values separately from the parent's forwarded values.
       child.authoredProps ??= { ...child.props }
+
       const chain: ElementNode[] = []
+
       for (let owner = child.parent; owner?.type === 'proxyviewcontainer'; owner = owner.parent) {
         chain.push(owner)
       }
 
       const forwarded: PropBag = {}
       const forwardedStyle: PropBag = {}
+
       for (const owner of chain.reverse()) {
         for (const name of PROXY_LAYOUT_PROPS) {
           if (owner.props[name] != null) {
@@ -150,6 +158,7 @@ export function createProjection(deps: Dependencies) {
 
         for (const name of PROXY_LAYOUT_STYLES) {
           const ownerStyle = effectiveStyle(owner)
+
           if (ownerStyle[name] != null) {
             forwardedStyle[name] = ownerStyle[name]
           }
@@ -159,8 +168,10 @@ export function createProjection(deps: Dependencies) {
       deps.cssCascade.setNodeInlineStyle(child, { ...forwardedStyle, ...child.authoredProps.style })
 
       const changes: PropBag = {}
+
       for (const name of PROXY_LAYOUT_PROPS) {
         const next = child.authoredProps[name] ?? forwarded[name]
+
         if (next !== child.props[name]) {
           changes[name] = next
           child.props[name] = next
@@ -198,6 +209,7 @@ export function createProjection(deps: Dependencies) {
 
       if (views.some((view, index) => view !== actual[index])) {
         let previous: NSView | null = null
+
         for (const view of views) {
           host.addSubviewPositionedRelativeTo(view, NSWindowOrderingMode.Above, previous)
           previous = view
@@ -258,6 +270,7 @@ export function createProjection(deps: Dependencies) {
     for (const command of commands) {
       if (command.op === 'create' || command.op === 'recreate') {
         const old = nodes.get(command.id)
+
         nodes.set(command.id, {
           type: command.type,
           props: command.props,
@@ -266,17 +279,20 @@ export function createProjection(deps: Dependencies) {
         })
       } else if (command.op === 'update') {
         const node = nodes.get(command.id)
+
         if (node) {
           node.props = command.props
         }
       } else if (command.op === 'insert' || command.op === 'move') {
         unlink(command.id)
+
         const node = nodes.get(command.id)!,
           parent = typeof command.parent === 'number' ? nodes.get(command.parent) : null
 
         node.parent = command.parent
         if (parent) {
           const index = parent.children.indexOf(command.before!)
+
           parent.children.splice(index < 0 ? parent.children.length : index, 0, command.id)
           if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
             parent.slot = command.id
@@ -298,6 +314,7 @@ export function createProjection(deps: Dependencies) {
       }
 
       const node = nodes.get(id)
+
       if (!node || isCollapsed(node)) {
         return 0
       }
@@ -324,6 +341,7 @@ export function createProjection(deps: Dependencies) {
         count(id)
         for (const child of node.children) {
           const type = nodes.get(child)?.type
+
           if (type === '#text' || type === 'span') {
             throw new Error('AppKit <proxyviewcontainer> cannot contain text-only children')
           }
@@ -331,6 +349,7 @@ export function createProjection(deps: Dependencies) {
       }
     }
   }
+
   function disposeBuiltinProxyChildren(node: ElementNode) {
     if (node.type === 'proxyviewcontainer') {
       deps.tree.detach(node.container, node)

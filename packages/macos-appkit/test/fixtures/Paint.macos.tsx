@@ -11,6 +11,7 @@ export default function Paint() {
   const phase = phase$.get()
   const active = phase < 4
   const size = { width: phase === 0 ? 120 : 200, height: phase === 0 ? 80 : 100 }
+
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column' }}>
       <masonview

@@ -74,11 +74,13 @@ export function HumanQA() @{
       </Text>
       @for (const s of SENSES; key s.key) {
         const group = checks.filter((c) => c.sense === s.key)
+
         @if (group.length > 0) {
           <View className="sink-section">
             <Text className="section-label">{s.label}</Text>
             @for (const c of group; key c.id) {
               const v = verdicts[c.id]
+
               <View className={'qa-check' + (v ? ' qa-' + v : '')}>
                 <HStack className="gap-2 items-center">
                   <Text className="flex-1 font-semibold">{c.title}</Text>
@@ -93,6 +95,7 @@ export function HumanQA() @{
                 <HStack className="gap-2 flex-wrap items-center">
                   @for (const t of c.triggers ?? []; key t) {
                     const def = QA_TRIGGERS[t]
+
                     @if (def.hold) {
                       <Pressable
                         id={'qa-t-' + t}

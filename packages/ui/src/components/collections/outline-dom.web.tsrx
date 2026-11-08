@@ -34,15 +34,18 @@ export function outlineItemsFromDOM(
   const nodes = root.querySelectorAll(selector)
   const counts = new Map<string, number>()
   const items: OutlineItem[] = []
+
   for (const node of nodes) {
     const el = node as HTMLElement
     const level = Number(el.tagName?.slice(1)) || 2
     const label = (el.innerText ?? el.textContent ?? '').trim()
+
     if (!label) {
       continue
     }
 
     const id = el.id || uniqueSlug(slugify(label), counts)
+
     items.push({ id, label, level })
   }
 
@@ -70,9 +73,12 @@ export function useOutlineFromDOM(
 
   useEffect(() => {
     const refresh = () => setItems(outlineItemsFromDOM(resolve(), options?.selector))
+
     refresh()
+
     const root = resolve()
     const observer = new MutationObserver(refresh)
+
     if (root) {
       observer.observe(root as Node, { childList: true, subtree: true, characterData: true })
     } else if (typeof document !== 'undefined') {

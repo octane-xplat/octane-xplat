@@ -37,13 +37,18 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
 ): Promise<StartWebAppResult<Catalog>> {
   const script = document.getElementById(bootstrapId)
   const container = document.getElementById(rootId)
+
   if (!script || script.tagName !== 'SCRIPT' || !container) {
     throw new Error('Missing Xplat document bootstrap or app container')
   }
+
   const payload = JSON.parse(script.textContent ?? '') as WebBootstrap
+
   serializePublic(payload)
+
   const currentUrl = location.pathname + location.search
   const urlMatches = payload.url === currentUrl
+
   if (
     payload.version !== 1 ||
     payload.buildId !== options.buildId ||
@@ -52,10 +57,13 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
   ) {
     throw new Error('Xplat document does not match this URL or client build; reload the page')
   }
+
   let match: PreparedRouteMatch | undefined
   let startup: 'hydrate' | 'replace' | 'navigate' = 'navigate'
+
   if (urlMatches && payload.mode === 'server') {
     const candidate = payload.match
+
     if (
       !candidate ||
       !candidate.context ||
@@ -74,6 +82,7 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
 
     try {
       const resolved = engine.resolveUrl(payload.url)
+
       if (
         resolved.status !== 'matched' ||
         resolved.destination.to !== candidate.to ||
@@ -86,6 +95,7 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
       }
 
       const warmed = await engine.preload(payload.url)
+
       if (warmed.status !== 'preloaded') {
         throw new Error('Could not load the prepared document route module')
       }
@@ -107,6 +117,7 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
     })
 
     let result: Awaited<ReturnType<typeof engine.prepare>>
+
     try {
       result = await engine.prepare(currentUrl, { redirects: 'return' })
     } finally {
@@ -120,6 +131,7 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
     match = result.match
     startup = 'replace'
   }
+
   const platform = createBrowserRouterHost()
   const router = createRouter({
     catalog: options.catalog,
@@ -129,6 +141,7 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
     stacks: options.stacks,
     createCancellationController: () => new AbortController(),
   } as never) as RouterInstance<ContractsOf<Catalog>, string>
+
   platform.attach(router)
   try {
     if (match) {

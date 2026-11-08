@@ -17,6 +17,7 @@ const BULLET_GLYPHS: Record<string, string> = { disc: '\u2022', circle: '\u25e6'
 
 function toAlpha(n: number): string {
   let s = ''
+
   while (n > 0) {
     n--
     s = String.fromCharCode(97 + (n % 26)) + s
@@ -44,6 +45,7 @@ function toRoman(n: number): string {
   ]
 
   let s = ''
+
   for (const [v, r] of table) {
     while (n >= v) {
       s += r

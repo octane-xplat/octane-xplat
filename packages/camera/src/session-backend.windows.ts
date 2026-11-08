@@ -72,6 +72,7 @@ const minFreeDiskBytes = 64 * 1024 * 1024
 
 const projection = (): { Windows?: any; Microsoft?: any; NSWinRT?: any } => {
   const host = globalThis as any
+
   return { Windows: host.Windows, Microsoft: host.Microsoft, NSWinRT: host.NSWinRT }
 }
 
@@ -226,6 +227,7 @@ export const chooseStandardProfile: (
 
   return [...profiles].sort((a, b) => {
     const areaDelta = a.width * a.height - b.width * b.height
+
     if (areaDelta !== 0) {
       return areaDelta
     }
@@ -245,6 +247,7 @@ export const captureFailureKind: (cause: unknown) => CaptureIssue['kind'] = (
   )
 
   const message = String((cause as any)?.message ?? cause ?? '').toLowerCase()
+
   if (code === -2147024891 || /access is denied|unauthorizedaccess|e_accessdenied/.test(message)) {
     return 'permissionDenied'
   }
@@ -279,6 +282,7 @@ const timeSpanToMs = (value: unknown): number => {
 
 const toPromise = async (op: any): Promise<any> => {
   const { NSWinRT } = projection()
+
   if (NSWinRT?.toPromise && op != null) {
     return NSWinRT.toPromise(op)
   }
@@ -300,6 +304,7 @@ const toPromise = async (op: any): Promise<any> => {
 const vectorToArray = (items: any): any[] => {
   const result: any[] = []
   const size = Number(items?.Size ?? items?.Count ?? 0)
+
   for (let index = 0; index < size; index += 1) {
     result.push(items.GetAt(index))
   }
@@ -313,6 +318,7 @@ const claimedDevices = new Map<string, object>()
 
 const normalizePath = (value: string): string => {
   let next = value.replace(/\//g, '\\')
+
   // file:///C:/dir/file.mp4 decodes to /C:/dir/file.mp4 — strip the leading
   // separator before a drive letter.
   next = next.replace(/^\\(?=[A-Za-z]:)/, '')
@@ -348,6 +354,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const projectionAvailable = () => {
     const { Windows, Microsoft } = projection()
+
     return !!(
       Windows?.Media?.Capture?.MediaCapture &&
       Windows?.Media?.Capture?.MediaCaptureInitializationSettings &&
@@ -394,9 +401,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const checkPermission = async (kind: CameraPermissionKind): Promise<CameraPermissionStatus> => {
     const capability = appCapability(kind)
+
     if (capability) {
       try {
         const mapped = accessStatusToPermission(capability.CheckAccess())
+
         // A missing manifest declaration is a setup error, not a
         // status — expose it as unknown here and as
         // `configurationMissing` on request.
@@ -407,6 +416,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const info = deviceAccessInfo(kind)
+
     if (info) {
       try {
         return deviceAccessStatusToPermission(info.CurrentStatus)
@@ -422,6 +432,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const requestPermission = (kind: CameraPermissionKind): Promise<CameraPermissionStatus> => {
     const result = permissionChain.then(async () => {
       const status = await checkPermission(kind)
+
       if (status !== 'notDetermined') {
         if (status === 'unknown') {
           try {
@@ -444,12 +455,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const capability = appCapability(kind)
+
       if (!capability?.RequestAccessAsync) {
         return 'unknown'
       }
 
       try {
         const next = accessStatusToPermission(await toPromise(capability.RequestAccessAsync()))
+
         return next === 'notDeclared' ? 'unknown' : next
       } catch (cause) {
         throw error(
@@ -468,11 +481,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const listDevices = async (): Promise<WindowsCameraDevice[]> => {
     const enumeration = projection().Windows?.Devices?.Enumeration
     const deviceClass = enumeration?.DeviceClass?.VideoCapture
+
     if (!enumeration?.DeviceInformation?.FindAllAsync || deviceClass === undefined) {
       return []
     }
 
     const found = await toPromise(enumeration.DeviceInformation.FindAllAsync(deviceClass))
+
     return vectorToArray(found).map((device: any) => ({
       id: String(device?.Id ?? device?.id ?? ''),
       label: String(device?.Name ?? device?.name ?? device?.Id ?? ''),
@@ -486,11 +501,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     try {
       const enumeration = projection().Windows?.Devices?.Enumeration
       const deviceClass = enumeration?.DeviceClass?.AudioCapture
+
       if (!enumeration?.DeviceInformation?.FindAllAsync || deviceClass === undefined) {
         return 0
       }
 
       const found = await toPromise(enumeration.DeviceInformation.FindAllAsync(deviceClass))
+
       return Number(found?.Size ?? found?.Count ?? 0)
     } catch {
       return 0
@@ -502,6 +519,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const devices = projection().Windows?.Media?.Devices
       const kind = devices?.AudioVideoCaptureDeviceKind?.Video
       const id = devices?.MediaDevice?.GetDefaultVideoCaptureId?.(kind)
+
       return typeof id === 'string' && id ? id : undefined
     } catch {
       return undefined
@@ -510,6 +528,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const streamProfiles = (target: any, streamKind: any): WindowsStreamProfile[] => {
     const controller = target?.VideoDeviceController
+
     if (!controller?.GetAvailableMediaStreamProperties || streamKind === undefined) {
       return []
     }
@@ -548,6 +567,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const onCaptureFailed = (_sender: any, args: any) => {
     const message = String(args?.Message ?? args?.message ?? 'Camera capture failed')
+
     markReady(false)
     observer?.availability(false)
     observer?.interruption(
@@ -582,6 +602,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     const subscribe = (event: string, type: string, handler: (...args: any[]) => void) => {
       try {
         const delegate = NSWinRT?.asDelegate ? NSWinRT.asDelegate(type, handler) : handler
+
         target[event] = delegate
         captureDelegates.push({ event, delegate })
       } catch {
@@ -638,6 +659,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     const enumeration = projection().Windows?.Devices?.Enumeration
     const deviceClass = enumeration?.DeviceClass?.VideoCapture
+
     if (!enumeration?.DeviceInformation?.CreateWatcher || deviceClass === undefined) {
       return
     }
@@ -647,6 +669,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const { NSWinRT } = projection()
       const subscribe = (event: string, type: string, handler: (...args: any[]) => void) => {
         const delegate = NSWinRT?.asDelegate ? NSWinRT.asDelegate(type, handler) : handler
+
         target[event] = delegate
         watcherDelegates.push({ event, delegate })
       }
@@ -656,6 +679,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         'Windows.Foundation.TypedEventHandler`2<Windows.Devices.Enumeration.DeviceWatcher,Windows.Devices.Enumeration.DeviceInformationUpdate>',
         (_sender: any, update: any) => {
           const id = String(update?.Id ?? update?.id ?? '')
+
           if (!id || id === captureDevice?.id) {
             observer?.availability(false)
           }
@@ -681,6 +705,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     const controller = target?.VideoDeviceController
     const candidates = streamProfiles(target, streamType?.VideoRecord)
     const chosen = chooseStandardProfile(candidates)
+
     if (!controller?.SetMediaStreamPropertiesAsync || !chosen || !streamType) {
       return
     }
@@ -718,7 +743,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const closeCapture = () => {
     detachCaptureDelegates()
     releaseClaim()
+
     const target = capture
+
     capture = undefined
     captureDevice = undefined
     captureAudioMode = false
@@ -739,6 +766,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const ensureCapture = async (): Promise<any> => {
     const epoch = generation
+
     if (capture) {
       return capture
     }
@@ -746,21 +774,25 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     const { Windows } = projection()
     const devices = await listDevices()
     const selected = selectCameraDevice(currentConfig.camera, devices, defaultDeviceId())
+
     if (!selected) {
       throw error('unavailable', 'startPreview', 'No camera device is available')
     }
 
     const owner = claimedDevices.get(selected.id)
+
     if (owner && owner !== lease) {
       throw error('busy', 'startPreview', 'Another camera session still owns this device')
     }
 
     const settings = new Windows.Media.Capture.MediaCaptureInitializationSettings()
+
     settings.VideoDeviceId = selected.id
     settings.StreamingCaptureMode =
       currentConfig.audio === true ? captureModeAudioAndVideo : captureModeVideo
 
     const target = new Windows.Media.Capture.MediaCapture()
+
     try {
       await toPromise(target.InitializeAsync(settings))
     } catch (cause) {
@@ -808,8 +840,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const activate = async (): Promise<void> => {
     const epoch = ++generation
+
     try {
       const target = await ensureCapture()
+
       if (!captureElement || epoch !== generation) {
         return
       }
@@ -842,7 +876,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const deactivate = async () => {
     generation += 1
     markReady(false)
+
     const target = capture
+
     if (captureElement) {
       try {
         captureElement.Source = null
@@ -863,6 +899,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const recordingsFolder = async (): Promise<any> => {
     const storage = projection().Windows?.Storage
     const folder = storage?.ApplicationData?.Current?.LocalFolder
+
     if (!folder?.CreateFolderAsync) {
       throw error('destinationUnavailable', 'startRecording', 'App-private storage is unavailable')
     }
@@ -872,9 +909,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const reserveDestination = async (destinationPath: string | undefined): Promise<any> => {
     const storage = projection().Windows?.Storage
+
     if (!destinationPath) {
       const folder = await recordingsFolder()
       const name = `clip-${Date.now()}-${Math.random().toString(36).slice(2, 8)}.mp4`
+
       return toPromise(folder.CreateFileAsync(name, collisionGenerateUniqueName))
     }
 
@@ -895,6 +934,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     const directory = filePath.slice(0, filePath.lastIndexOf('\\'))
     const name = filePath.slice(filePath.lastIndexOf('\\') + 1)
+
     if (!directory || !name) {
       throw error(
         'destinationUnavailable',
@@ -904,6 +944,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const tempPath = String(storage?.ApplicationData?.Current?.TemporaryFolder?.Path ?? '')
+
     if (tempPath && filePath.toLowerCase().startsWith(tempPath.toLowerCase())) {
       throw error(
         'destinationUnavailable',
@@ -943,6 +984,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       )
 
       const value = result?.['System.FreeSpace'] ?? result?.Lookup?.('System.FreeSpace')
+
       return Number.isFinite(Number(value)) ? Number(value) : Number.MAX_SAFE_INTEGER
     } catch {
       return Number.MAX_SAFE_INTEGER
@@ -965,6 +1007,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     const { Windows } = projection()
     const basic = await toPromise(file.GetBasicPropertiesAsync())
     const size = Number(basic?.Size ?? 0)
+
     if (!(size > 0)) {
       throw error('noMedia', 'finalize', 'The recorder produced an empty movie file')
     }
@@ -975,10 +1018,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     let durationMs = timeSpanToMs(video?.Duration)
     let hasAudio = false
     let audioKnown = true
+
     try {
       const source = Windows.Media.Core.MediaSource.CreateFromStorageFile(file)
       const item = new Windows.Media.Playback.MediaPlaybackItem(source)
       const audioTracks = item?.AudioTracks
+
       hasAudio = Number(audioTracks?.Size ?? audioTracks?.Count ?? 0) > 0
       if (!Number.isFinite(durationMs) || durationMs <= 0) {
         durationMs = timeSpanToMs(source?.Duration)
@@ -1010,18 +1055,23 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     const { Windows } = projection()
     const buffer = await toPromise(Windows.Storage.FileIO.ReadBufferAsync(file))
     const length = Number(buffer?.Length ?? 0)
+
     if (!(length > 0)) {
       throw error('noMedia', 'finalize', 'The recorder produced an empty movie file')
     }
 
     const reader = Windows.Storage.Streams.DataReader.FromBuffer(buffer)
     const bytes = new Uint8Array(length)
+
     reader.ReadBytes(bytes)
+
     const { BufferSource, BlobSource, Input, MP4 } = await import('mediabunny')
     const Source = BufferSource ?? BlobSource
     const input = new Input({ source: new Source(bytes as any), formats: [MP4] })
+
     try {
       const video = await input.getPrimaryVideoTrack()
+
       if (!video) {
         throw error('noMedia', 'finalize', 'The movie contains no video track')
       }
@@ -1031,6 +1081,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const durationMs = (await input.computeDuration()) * 1000
       const width = await video.getDisplayWidth()
       const height = await video.getDisplayHeight()
+
       return {
         durationMs,
         width,
@@ -1058,6 +1109,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     cause: CaptureIssue,
   ) => {
     const target = sink
+
     sink = undefined
     request = undefined
     finalizing = false
@@ -1068,6 +1120,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const file = recordFile
+
     recordFile = undefined
     void removeFileQuietly(file)
     target?.settled({ kind: 'failed', stage, issue: cause })
@@ -1101,6 +1154,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const settleClip = async (file: any) => {
     const target = sink
     const take = request
+
     if (!target || !take) {
       return
     }
@@ -1111,6 +1165,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     try {
       let metadata: Awaited<ReturnType<typeof nativeVideoMetadata>>
+
       try {
         metadata = await nativeVideoMetadata(file, take.audio)
       } catch (nativeCause) {
@@ -1134,6 +1189,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const filePath = String(file?.Path ?? '')
+
       sink = undefined
       request = undefined
       recordFile = undefined
@@ -1185,6 +1241,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const stopRecording = async () => {
     const target = capture
     const file = recordFile
+
     // recordStartedAt stays 0 while StartRecordToStorageFileAsync is in
     // flight — an early stop is honored by `wantStop` once it resolves.
     if (!target || !file || finalizing || recordStartedAt === 0) {
@@ -1260,6 +1317,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     checkPermission,
     requestPermission: async (kind) => {
       const status = await requestPermission(kind)
+
       if (kind === 'camera' && status === 'granted' && host && !sink && !released && !capture) {
         try {
           await activate()
@@ -1283,6 +1341,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const available = supported && cameraStatus === 'granted'
       const measured = capture ? chooseStandardProfile(recordStreamProfiles()) : undefined
       const profile = measured ?? { width: 1280, height: 720, frameRate: 30 }
+
       return {
         supported,
         reason: !projectionAvailable()
@@ -1338,7 +1397,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       host = target
       listener = callbacks
+
       const view = target as any
+
       captureElement = view?.nativeViewProtected ?? view
       bindLifecycle()
       void checkPermission('camera').then((status) => {
@@ -1386,6 +1447,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       // A camera or audio-mode change cannot mutate a live MediaCapture —
       // rebuild it and restore the attached preview.
       const hadPreview = !!captureElement
+
       void deactivate()
         .then(() => {
           closeCapture()
@@ -1410,10 +1472,12 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       sink = target
       request = take
+
       const active = capture
       const run = async () => {
         if (take.audio) {
           const micStatus = await checkPermission('microphone')
+
           if (micStatus !== 'granted') {
             throw error(
               micStatus === 'restricted'
@@ -1446,6 +1510,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
         if (take.orientation) {
           const rotation = orientationToRotation(take.orientation)
+
           if (rotation === undefined || typeof active.SetRecordRotationAsync !== 'function') {
             throw error(
               'unsupportedConfiguration',
@@ -1482,6 +1547,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         }
 
         const chosen = chooseStandardProfile(recordStreamProfiles())
+
         try {
           if (chosen && profile.Video) {
             profile.Video.Width = chosen.width
@@ -1520,6 +1586,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         }
 
         recordStartedAt = Date.now()
+
         const stream = chooseStandardProfile(recordStreamProfiles())
         const configuration: EffectiveCaptureConfig = {
           cameraId: captureDevice!.id,
@@ -1565,6 +1632,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       const filePath = normalizePath(output.fileUrl.slice('file://'.length))
       const storage = projection().Windows?.Storage
+
       try {
         await toPromise(storage.StorageFile.GetFileFromPathAsync(filePath))
       } catch (cause) {
@@ -1597,7 +1665,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       wantStop = false
       finalizing = false
       recordStartedAt = 0
+
       const file = recordFile
+
       recordFile = undefined
       void removeFileQuietly(file)
       markReady(false)

@@ -10,6 +10,7 @@ import { generateRoutes } from '../dist/route-generator.js'
 const screen = 'export default function Screen() { return null }'
 const until = async (predicate) => {
   const deadline = Date.now() + 5000
+
   while (!(await predicate())) {
     assert.ok(Date.now() < deadline, 'watch condition did not settle')
     await delay(20)
@@ -21,11 +22,13 @@ const text = (file) =>
     if (error.code === 'ENOENT') {
       return ''
     }
+
     throw error
   })
 
 const fixture = async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-watch-'))
+
   await mkdir(join(root, 'app'), { recursive: true })
   await writeFile(join(root, 'app/first.tsx'), screen)
   return root
@@ -38,6 +41,7 @@ test(
     const root = await fixture()
     let watcher
     const errors = []
+
     try {
       await rm(join(root, 'app'), { recursive: true })
       await writeFile(
@@ -81,6 +85,7 @@ test(
     let watcher
     const errors = []
     const contracts = join(root, 'routes.gen.contracts.ts')
+
     try {
       watcher = createRouteWatcher({
         cwd: root,
@@ -112,6 +117,7 @@ test(
     let watcher
     const errors = []
     const contracts = join(root, 'routes.gen.contracts.ts')
+
     try {
       watcher = createRouteWatcher({
         cwd: root,
@@ -122,7 +128,9 @@ test(
       })
 
       await watcher.ready
+
       const before = await text(contracts)
+
       await writeFile(join(root, 'xplat.routes.json'), '{"out":"other/routes.gen"}')
       await until(() => errors.length > 0)
       assert.match(String(errors[0]), /route\/watch-output-changed:.*update client\/type imports/)
@@ -147,6 +155,7 @@ test(
     const errors = []
     const counts = []
     const contracts = join(root, 'routes.gen.contracts.ts')
+
     try {
       watcher = createRouteWatcher({
         cwd: root,
@@ -165,6 +174,7 @@ test(
       await rm(join(root, 'app/first.tsx'))
       await until(async () => {
         const source = await text(contracts)
+
         return (
           source.includes('"/renamed"') &&
           !source.includes('"/first"') &&
@@ -176,7 +186,9 @@ test(
       await writeFile(join(root, 'other/second.tsx'), screen)
       await writeFile(join(root, 'xplat.routes.json.tmp'), JSON.stringify({ directory: 'other' }))
       await rename(join(root, 'xplat.routes.json.tmp'), join(root, 'xplat.routes.json'))
+
       const changedContracts = join(root, 'routes.gen.contracts.ts')
+
       await until(async () => (await text(changedContracts)).includes('"/second"'))
       await rm(join(root, 'other'), { recursive: true })
       await until(async () => !(await text(changedContracts)).includes('"/second"'))
@@ -200,6 +212,7 @@ test(
     let watcher
     const errors = []
     const contracts = join(root, 'routes.gen.contracts.ts')
+
     try {
       watcher = createRouteWatcher({
         cwd: root,
@@ -210,7 +223,9 @@ test(
       })
 
       await watcher.ready
+
       const before = await text(contracts)
+
       await writeFile(join(root, 'app/first.tsx'), 'export const dataMode = computeMode()')
       await until(() => errors.length > 0)
       assert.match(String(errors[0]), /route\/invalid-data-mode/)
@@ -233,6 +248,7 @@ test(
     let watcher
     const errors = []
     const counts = []
+
     try {
       watcher = createRouteWatcher({
         cwd: root,

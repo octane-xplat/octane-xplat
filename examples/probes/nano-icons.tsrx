@@ -10,6 +10,7 @@ const selection = createStore({ name: 'dot', color: '#123456', size: 24 })
 
 export default function NanoIconsProbe() {
   const current = useStore(selection)
+
   return (
     <VStack>
       <NanoIcon id="nano-main" {...current} label="Direction" />
@@ -24,12 +25,15 @@ export default function NanoIconsProbe() {
 export async function run(ctx: ProbeContext) {
   // The set registered its font on creation; wait for the platform loader.
   await XplatProbeIcons.ready
+
   const ready = await fontReady(glyphMap.m.f)
+
   ctx.assert('icon font registered', ready, 'ready')
 
   // Glyph layers render as text in the generated family — private-use
   // codepoints are inert to accessibility (container carries the label).
   const main = glyphSnapshot(ctx.find('nano-main'))
+
   ctx.assert('glyph container width', main.width, 24)
   ctx.assert('glyph container height', main.height, 24)
   ctx.assert('accessible label', main.label, 'Direction')
@@ -39,15 +43,18 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('layer tint', main.layers[0]?.color, 'rgb(18, 52, 86)')
 
   const duo = glyphSnapshot(ctx.find('nano-duo'))
+
   ctx.assert('multicolor layer count', duo.layers.length, 2)
   ctx.assert('duo layer 0 keeps source color', duo.layers[0]?.color, 'rgb(245, 158, 11)')
   ctx.assert('duo layer 1 keeps source color', duo.layers[1]?.color, 'rgb(29, 78, 216)')
   ctx.assert('duo width', duo.width, 48)
 
   const tint = glyphSnapshot(ctx.find('nano-tint'))
+
   ctx.assert('currentColor layer tints', tint.layers[0]?.color, 'rgb(170, 0, 0)')
 
   const palette = glyphSnapshot(ctx.find('nano-palette'))
+
   ctx.assert('palette layer 0', palette.layers[0]?.color, 'rgb(255, 0, 0)')
   ctx.assert('palette layer 1', palette.layers[1]?.color, 'rgb(0, 255, 0)')
 

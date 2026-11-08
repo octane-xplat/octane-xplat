@@ -14,10 +14,12 @@ const tmp = []
 
 function fixture(manifest, files = ['src/index.ts']) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-envs-'))
+
   tmp.push(dir)
   mkdirSync(join(dir, 'src'), { recursive: true })
   for (const rel of files) {
     const abs = join(dir, rel)
+
     mkdirSync(join(abs, '..'), { recursive: true })
     writeFileSync(abs, 'export {}\n')
   }
@@ -28,6 +30,7 @@ function fixture(manifest, files = ['src/index.ts']) {
 
 function expand(dir) {
   const manifest = loadEnvManifest(dir)
+
   return expandEnvPrograms(dir, manifest)
 }
 
@@ -49,6 +52,7 @@ test('a manifest expands to exactly one combined program', () => {
   )
 
   const programs = expand(dir)
+
   assert.equal(programs.length, 1)
   assert.equal(programs[0].env, 'all')
 })
@@ -60,6 +64,7 @@ test('the program carries the fixed module suffix precedence', () => {
 
   const [program] = expand(dir)
   const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
+
   assert.deepEqual(config.compilerOptions.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
   // The one platform condition ordering is extensionless first.
   assert.equal(PLATFORM_MODULE_SUFFIXES[0], '')
@@ -82,6 +87,7 @@ test('all environment files union into the program', () => {
   )
 
   const [program] = expand(dir)
+
   for (const rel of ['src/index.ts', 'src/index.web.ts', 'src/index.ios.ts']) {
     assert.ok(
       program.files.some((f) => f.endsWith(`/${rel}`)),
@@ -104,10 +110,13 @@ test('ambient host files precede env files (first-wins global merges)', () => {
   const [program] = expand(dir)
   const envFiles = program.files.filter((f) => f.startsWith(dir))
   const ambientFiles = program.files.filter((f) => !f.startsWith(dir))
+
   assert.ok(envFiles.length >= 2)
   assert.ok(ambientFiles.length >= 1, 'expected ambient files')
+
   // Every ambient file precedes every env file in program order.
   const firstEnv = program.files.indexOf(envFiles[0])
+
   assert.ok(ambientFiles.every((f) => program.files.indexOf(f) < firstEnv))
 })
 
@@ -142,6 +151,7 @@ test('environment types merge into the combined program', () => {
 
   const [program] = expand(dir)
   const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
+
   assert.deepEqual(config.compilerOptions.types, ['@nativescript/types'])
 })
 
@@ -188,8 +198,11 @@ test('the written config extends the manifest and expands in place', () => {
   })
 
   const [program] = expand(dir)
+
   assert.ok(existsSync(program.configPath))
+
   const config = JSON.parse(readFileSync(program.configPath, 'utf8'))
+
   assert.equal(config.extends, join(dir, 'tsconfig.envs.json'))
 })
 
@@ -198,20 +211,25 @@ test('JSONC preserves comma-like string values and object keys', () => {
     environments: { web: { files: ['src/index.ts'] } },
     compilerOptions: { paths: { ',}': [',]', 'https://example.com/*', '/* keep */'] } },
   }
+
   const dir = fixture(manifest)
+
   assert.deepEqual(loadEnvManifest(dir).manifest, manifest)
 })
 
 test('JSONC accepts comments and trailing commas without repairing missing values', () => {
   const dir = fixture({ environments: { web: { files: ['src/index.ts'] } } })
   const path = join(dir, 'tsconfig.envs.json')
+
   writeFileSync(
     path,
     '{ /* config */ "environments": { "web": { "files": ["src/index.ts",], }, }, // end\n }',
   )
+
   assert.deepEqual(loadEnvManifest(dir).manifest, {
     environments: { web: { files: ['src/index.ts'] } },
   })
+
   for (const text of [
     '{"environments":{"web":{"files":[,]}}}',
     '{"environments":{"web":{,}}}',

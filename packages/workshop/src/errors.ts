@@ -36,6 +36,7 @@ export function describeCause(cause: unknown): string {
     // `Name: message` head — keep the message visible either way.
     const head = `${cause.name}: ${cause.message}`
     const tail = cause.stack?.split('\n').slice(0, 3).join('\n')
+
     if (!tail) {
       return head
     }

@@ -14,10 +14,13 @@ export function createLayoutProjection(deps: Dependencies) {
    * Pass null to restore. Scalar radii/blur are exact only under uniform scale. */
   function setLayoutProjectionScale(view: object, scale: ProjectionScale | null): void {
     const node = deps.registry.cssNodesByView.get(view)
+
     if (!node) {
       return
     }
+
     const transaction = (globalThis as any).CATransaction
+
     transaction.begin()
     try {
       transaction.setDisableActions(true)
@@ -27,5 +30,6 @@ export function createLayoutProjection(deps: Dependencies) {
       transaction.commit()
     }
   }
+
   return { setLayoutProjectionScale }
 }

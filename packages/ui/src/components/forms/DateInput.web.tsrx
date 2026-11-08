@@ -49,6 +49,7 @@ function isCoarsePointer(): boolean {
 
 function useCoarsePointer(): boolean {
   const [coarse, setCoarse] = useState(isCoarsePointer)
+
   useEffect(() => {
     if (typeof matchMedia !== 'function') {
       return
@@ -56,6 +57,7 @@ function useCoarsePointer(): boolean {
 
     const mq = matchMedia('(pointer: coarse)')
     const onChange = (e: any) => setCoarse(e.matches)
+
     mq.addEventListener?.('change', onChange)
     return () => mq.removeEventListener?.('change', onChange)
   }, [])
@@ -172,6 +174,7 @@ function DateInputControl(inputProps: CoreProps) @{
   const commitParsed = (pd: PlainDate | null) => {
     if (pd && !isDateDisabled(pd)) {
       const iso = plainDateToISO(pd)
+
       if (iso !== shown) {
         fireChange(iso)
       }
@@ -188,6 +191,7 @@ function DateInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.target.value as string
+
     setPendingInput(text)
     setRejected(null)
     if (composing.current || isDateComposing(e)) {
@@ -195,6 +199,7 @@ function DateInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseDateInput(text, locale)
+
     if (parsed) {
       commitParsed(parsed)
     }
@@ -290,6 +295,7 @@ function DateInputControl(inputProps: CoreProps) @{
 
   const handleNativeCommit = (e: any) => {
     const raw = (e.target.value ?? '') as string
+
     if (lastCommit.current === raw) {
       return
     }
@@ -305,13 +311,16 @@ function DateInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseDateInput(raw, locale)
+
     if (!parsed || isDateDisabled(parsed)) {
       setRejected(raw)
       return
     }
 
     setRejected(null)
+
     const iso = plainDateToISO(parsed)
+
     if (iso !== value) {
       fireChange(iso)
     }

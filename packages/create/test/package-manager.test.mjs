@@ -86,18 +86,22 @@ test('decidePackageManager probes installs for other user agents', () => {
 
 function stubManagers(t, entries) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-pm-stub-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   for (const [name, script] of Object.entries(entries)) {
     const file = join(dir, name)
+
     writeFileSync(file, script)
     chmodSync(file, 0o755)
   }
 
   const before = process.env.PATH
+
   process.env.PATH = dir
   t.after(() => {
     process.env.PATH = before
   })
+
   return dir
 }
 
@@ -106,6 +110,7 @@ test('installedManagers runs <pm> --version and treats failures as absent', (t) 
     bun: '#!/bin/sh\necho 1.4.4\n',
     pnpm: '#!/bin/sh\nexit 1\n',
   })
+
   assert.deepEqual(installedManagers(), ['bun'])
   assert.equal(managerVersion('bun'), '1.4.4')
   assert.equal(managerVersion('pnpm'), undefined)

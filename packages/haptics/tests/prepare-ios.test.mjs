@@ -13,6 +13,7 @@ const upstream = readFileSync(
 
 test('the pinned upstream input is patched for silent Debug and simulator initialization', () => {
   const patched = silenceAudioSimulator(upstream)
+
   assert.match(patched, /self\._playSound = false/)
   assert.doesNotMatch(patched, /self\._playSound = true/)
   assert.match(patched, /if self\.isEngineConfigured \{ self\.deactivateAudioSession\(\) \}/)
@@ -21,11 +22,15 @@ test('the pinned upstream input is patched for silent Debug and simulator initia
 
 test('preparation reuses a validated offline cache and refuses to overwrite modified work', () => {
   const target = mkdtempSync(join(tmpdir(), 'xplat-pulsar-test-'))
+
   try {
     const directory = join(target, 'Sources/Pulsar/Audio')
+
     mkdirSync(directory, { recursive: true })
+
     const patched = silenceAudioSimulator(upstream)
     const file = join(directory, 'AudioSimulator.swift')
+
     writeFileSync(file, patched)
     writeFileSync(
       join(target, '.xplat-silent-pulsar.json'),

@@ -15,6 +15,7 @@ import type { JSX } from 'octane/jsx-runtime'
 export function StackItem(props: StackItemProps): JSX.Element @{
   const Tag: any = props.as ?? 'div'
   const el = useRef<HTMLElement | null>(null)
+
   usePan(el, props.onPan)
 
   const forwardedRef = useMemo(

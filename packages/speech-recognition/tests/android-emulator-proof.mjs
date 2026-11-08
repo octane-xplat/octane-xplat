@@ -68,6 +68,7 @@ const requested = process.argv.includes('--device')
   : undefined
 
 const serial = requested ?? (serials.length === 1 ? serials[0] : undefined)
+
 if (!serial) {
   fail(
     `expected exactly one running emulator for ${AVD}, found: ${serials.join(', ') || 'none'} — ` +
@@ -76,6 +77,7 @@ if (!serial) {
 }
 
 const booted = adb('-s', serial, 'shell', 'getprop', 'sys.boot_completed').trim()
+
 if (booted !== '1') {
   fail(`${serial} is not done booting (sys.boot_completed=${booted})`)
 }
@@ -84,9 +86,11 @@ note(`using device ${serial}`)
 
 // --- audio passthrough check ------------------------------------------------
 const configPath = join(homedir(), '.android', 'avd', `${AVD}.avd`, 'config.ini')
+
 if (existsSync(configPath)) {
   const config = readFileSync(configPath, 'utf8')
   const audioIn = /^hw\.audioInput\s*=\s*yes/m.test(config)
+
   note(`AVD config hw.audioInput=${audioIn ? 'yes' : 'missing/other'} (${configPath})`)
   if (!audioIn) {
     note('WARNING: host mic may not be captured — restart the SAME AVD with audio enabled')
@@ -100,18 +104,23 @@ const logcat = spawn(ADB, ['-s', serial, 'logcat', '-v', 'brief'], {
 
 let logLines = ''
 const marker = { speakNow: false, result: false, done: false }
+
 logcat.stdout.on('data', (chunk) => {
   const text = String(chunk)
+
   logLines += text
   if (logLines.length > 512_000) {
     logLines = logLines.slice(-256_000)
   }
+
   if (text.includes('SPEAK_NOW')) {
     marker.speakNow = true
   }
+
   if (text.includes('SPEECH_RESULT')) {
     marker.result = true
   }
+
   if (text.includes('SPEECH_DONE')) {
     marker.done = true
   }
@@ -120,8 +129,10 @@ logcat.stdout.on('data', (chunk) => {
 const grantPoll = setInterval(() => {
   try {
     const packages = adb('-s', serial, 'shell', 'pm', 'list', 'packages')
+
     for (const line of packages.split('\n')) {
       const name = line.trim().replace(/^package:/, '')
+
       if (name.startsWith('org.octanexplat.probe')) {
         adb('-s', serial, 'shell', 'pm', 'grant', name, 'android.permission.RECORD_AUDIO')
         note(`granted RECORD_AUDIO to ${name}`)
@@ -150,8 +161,10 @@ const probeArgs = [
 ]
 
 note(`probe: bun ${probeArgs.join(' ')}`)
+
 const probe = spawn('bun', probeArgs, { cwd: REPO, stdio: ['ignore', 'pipe', 'inherit'] })
 let probeOut = ''
+
 probe.stdout.on('data', (chunk) => {
   probeOut += String(chunk)
   process.stdout.write(chunk)
@@ -166,8 +179,10 @@ const speakLoop = (async () => {
   while (!marker.speakNow && probe.exitCode === null) {
     await sleep(500)
   }
+
   while (!marker.done && probe.exitCode === null && said < 8) {
     const res = spawnSync('say', ['-a', 'BoomAudio', PHRASE])
+
     said++
     if (res.status !== 0) {
       note(`say exited ${res.status} — BoomAudio device missing?`)
@@ -184,12 +199,14 @@ const speakLoop = (async () => {
 })()
 
 const probeExit = await new Promise((resolve) => probe.on('exit', resolve))
+
 clearInterval(grantPoll)
 logcat.kill()
 await speakLoop.catch(() => {})
 
 // --- evidence ---------------------------------------------------------------
 mkdirSync(SCRATCH, { recursive: true })
+
 const evidencePath = join(SCRATCH, `android-proof-${Date.now()}.json`)
 const jsonLine = probeOut
   .split('\n')
@@ -197,6 +214,7 @@ const jsonLine = probeOut
   .pop()
 
 let report = { probeExit, said, markers: marker }
+
 try {
   report.probe = JSON.parse(jsonLine ?? 'null')
 } catch {
@@ -213,6 +231,7 @@ note(`evidence: ${evidencePath}`)
 const results = report.probe?.results ?? []
 const session = results.find((r) => r.name === 'session1.result')?.value
 const transcript = session?.transcript ?? ''
+
 note(`transcript: ${JSON.stringify(transcript)}`)
 note(`session1 result: ${JSON.stringify(session)}`)
 if (probeExit !== 0) {

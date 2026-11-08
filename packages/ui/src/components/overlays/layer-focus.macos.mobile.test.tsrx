@@ -12,6 +12,7 @@ it('explicit layer return follows the current target window without activating i
 
   let current: any = { window: popup }
   const restore = captureAppKitLayerFocus(() => current, { window: popup })
+
   current = target
   restore()
   expect(main.makeFirstResponder).toHaveBeenCalledWith(target)
@@ -27,8 +28,10 @@ it('fallback captures the owning field instead of a shared editor and ignores mo
     field: any = { window: main }
 
   const editor = { window: main, delegate: field }
+
   field.currentEditor = () => editor
   main.firstResponder = editor
+
   const restore = captureAppKitLayerFocus(undefined, undefined, () => ({
     NSApplication: { sharedApplication: { keyWindow: main } },
   }))
@@ -47,6 +50,7 @@ it('hidden/disabled targets are rejected while explicitly focusable disabled car
     target: any = { window: main }
 
   const restore = captureAppKitLayerFocus(() => ({ native: target }))
+
   for (const patch of [
     { hidden: true },
     { hiddenOrHasHiddenAncestor: () => true },

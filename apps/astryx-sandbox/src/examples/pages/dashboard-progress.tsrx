@@ -301,6 +301,7 @@ const BURNDOWN = (() => {
   const total = 320
   const actualRemaining = [320, 300, 286, 262, 240, 226, 210, 182, 150, 132, 96, 54, 20]
   const idealStep = total / (actualRemaining.length - 1)
+
   return actualRemaining.map((actual, i) => ({
     week: i,
     label: `W${i + 1}`,
@@ -344,6 +345,7 @@ function TaskProgressDonut() @{
   const segs = TASK_STATUS.map((s) => {
     const frac = s.tasks / total
     const seg = { color: s.color, dash: frac * C, off: offset }
+
     offset += seg.dash
     return seg
   })

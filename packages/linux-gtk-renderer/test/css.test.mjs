@@ -30,6 +30,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
     t.skip('gjs is not installed')
     return
   }
+
   rmSync(outDir, { recursive: true, force: true })
   await build({
     logLevel: 'error',
@@ -44,7 +45,9 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
   // system GI paths are enough.
   const dyld =
     process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
+
   const env = { ...process.env }
+
   if (dyld) {
     env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
       .filter(Boolean)
@@ -60,9 +63,13 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
     env,
     encoding: 'utf8',
   })
+
   assert.equal(status, 0, `gjs failed:\n${stderr}`)
+
   const line = output.split('\n').find((l) => l.startsWith('CSS_SMOKE '))
+
   assert.ok(line, `smoke marker missing — gjs output:\n${output}\n${stderr}`)
+
   const r = JSON.parse(line.slice('CSS_SMOKE '.length))
 
   // The .css import rode the bundle's __xplatStylesheets push — a class
@@ -130,6 +137,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
     r.switchThumbColor.r > 0.9 && r.switchThumbColor.g < 0.1,
     JSON.stringify(r.switchThumbColor),
   )
+
   assert.equal(r.switchOwnColor, false)
 
   // hidden keeps space via child-invisible; collapse unmaps entirely.
@@ -196,6 +204,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
     r.rootClassesB2.includes('ns-landscape') || r.rootClassesB2.includes('ns-portrait'),
     `orientation classes: ${r.rootClassesB2}`,
   )
+
   assert.equal(r.rootClassesB2.includes('ns-landscape'), true) // 400x300
 
   // Keyframe animations: segment 0 is instant, frames advance on the GLib

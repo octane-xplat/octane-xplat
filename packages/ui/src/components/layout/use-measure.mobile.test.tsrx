@@ -14,6 +14,7 @@ vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 
 function Measured(props: { values: Array<MeasureBounds | null> }) @{
   const measurement = useMeasure()
+
   props.values.push(measurement.bounds)
 
   <masonview ref={measurement.ref} style={{ display: 'flex' }} />
@@ -23,8 +24,11 @@ function mountWithHosts(host: (instance: any) => any) {
   const container = createObjectContainer('nativescript')
   const driver = createObjectDriver('nativescript')
   const base = driver.getPublicInstance.bind(driver)
+
   driver.getPublicInstance = (c: any, id: any) => host(base(c, id))
+
   const root = createUniversalRoot(container, driver)
+
   return { container, root }
 }
 
@@ -38,6 +42,7 @@ it('reports bounds relative to the app surface origin, not the screen', () => {
   })
 
   const values: Array<MeasureBounds | null> = []
+
   flushUniversalSync(() => root.render(Measured, { values }))
   root.unmount()
   expect(values.at(-1)).toEqual({ x: 10, y: 20, width: 200, height: 100 })
@@ -46,6 +51,7 @@ it('reports bounds relative to the app surface origin, not the screen', () => {
 it('stays null until the host can report a usable layout', () => {
   const { root } = mountWithHosts((instance) => instance)
   const values: Array<MeasureBounds | null> = []
+
   flushUniversalSync(() => root.render(Measured, { values }))
   root.unmount()
   expect(values.length).toBeGreaterThan(0)

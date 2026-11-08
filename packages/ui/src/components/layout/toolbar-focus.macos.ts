@@ -12,11 +12,13 @@ export type AppKitToolbarFocus = {
 
 const read = (view: NSView, key: string) => {
   const value = Reflect.get(view, key)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
 const enabled = (view: NSView, key: string) => {
   const value = read(view, key)
+
   return value == null || Boolean(value)
 }
 
@@ -49,41 +51,52 @@ export function createAppKitToolbarFocus(
     stop?: () => void
     navigation: ReturnType<typeof createAppKitChoiceFocus>
   }
+
   let current: Scope | null = null,
     serial = 0,
     queued = false
+
   const keys = new WeakMap<NSView, string>()
   const supported = () =>
     !!bridge()?.keyboardEventsSupported && typeof bridge()?.suppressTabStop === 'function'
+
   const owns = (scope: Scope) => current === scope && scope.live
   const release = (scope: Scope) => {
     scope.live = false
+
     const stop = scope.stop
+
     scope.stop = undefined
     try {
       stop?.()
     } catch {
       console.warn('[macos-toolbar] observer removal failed')
     }
+
     try {
       scope.navigation.dispose()
     } catch {
       console.warn('[macos-toolbar] Tab release failed')
     }
+
     try {
       scope.window?.recalculateKeyViewLoop()
     } catch {
       console.warn('[macos-toolbar] key loop refresh failed')
     }
+
     scope.views.clear()
   }
+
   const refresh = (scope: Scope) => {
     if (!owns(scope) || scope.refreshing) {
       return
     }
+
     scope.refreshing = true
     try {
       const window = scope.view.window
+
       if (
         !window ||
         !scope.stop ||
@@ -118,8 +131,10 @@ export function createAppKitToolbarFocus(
         ) {
           return
         }
+
         if (view !== scope.view) {
           const role = read(view, 'accessibilityRole')
+
           if (composites.has(role)) {
             return
           }
@@ -131,6 +146,7 @@ export function createAppKitToolbarFocus(
               enabled(view, 'enabled')
             ) {
               let key = keys.get(view)
+
               if (!key) {
                 key = `toolbar-${++serial}`
                 keys.set(view, key)
@@ -142,7 +158,9 @@ export function createAppKitToolbarFocus(
             return // Nested endContent controls keep their own input.
           }
         }
+
         const children = view.subviews
+
         for (let index = 0; index < Number(children?.count ?? 0); index++) {
           visit(children.objectAtIndex(index) as NSView)
         }
@@ -159,6 +177,7 @@ export function createAppKitToolbarFocus(
       }
 
       const focused = [...found].find(([, view]) => view === window.firstResponder)?.[0]
+
       if (focused) {
         scope.last = focused
       }
@@ -180,6 +199,7 @@ export function createAppKitToolbarFocus(
       }
     }
   }
+
   const refreshSafely = (scope: Scope) => {
     try {
       refresh(scope)
@@ -187,10 +207,12 @@ export function createAppKitToolbarFocus(
       console.warn('[macos-toolbar] focus refresh failed')
     }
   }
+
   const update = (): void => {
     if (queued) {
       return
     }
+
     queued = true
     void Promise.resolve().then(() => {
       queued = false
@@ -199,11 +221,14 @@ export function createAppKitToolbarFocus(
       }
     })
   }
+
   const bind = (view: NSView | null): void => {
     if (current?.view === view) {
       return
     }
+
     const previous = current
+
     if (!view) {
       current = null
       if (previous) {
@@ -212,6 +237,7 @@ export function createAppKitToolbarFocus(
 
       return
     }
+
     const views = new Map<string, NSView>()
     const scope: Scope = {
       view,
@@ -236,6 +262,7 @@ export function createAppKitToolbarFocus(
         () => {
           const source = bridge(),
             suppress = source?.suppressTabStop
+
           return {
             keyboardEventsSupported:
               owns(scope) && !!scope.stop && !!source?.keyboardEventsSupported,
@@ -245,15 +272,20 @@ export function createAppKitToolbarFocus(
                     if (!owns(scope)) {
                       return () => {}
                     }
+
                     const off = suppress.call(source, target)
+
                     if (typeof off !== 'function') {
                       throw new Error('AppKit toolbar Tab ownership unavailable')
                     }
+
                     let active = true
+
                     return () => {
                       if (!active) {
                         return
                       }
+
                       active = false
                       try {
                         off()
@@ -267,13 +299,16 @@ export function createAppKitToolbarFocus(
         },
       ),
     }
+
     current = scope // Claim before old cleanup or observer acquisition effects.
     if (previous) {
       release(previous)
     }
+
     if (!owns(scope)) {
       return
     }
+
     try {
       const host = native(),
         center = host.NSNotificationCenter?.defaultCenter
@@ -313,16 +348,19 @@ export function createAppKitToolbarFocus(
     } catch {
       console.warn('[macos-toolbar] focus observation unavailable')
     }
+
     if (owns(scope)) {
       update()
     }
   }
+
   return {
     bind,
     update,
     dispose: (): void => bind(null),
     keyDown(event: KeyboardEvent): void {
       const scope = current
+
       if (
         !scope ||
         !owns(scope) ||
@@ -338,7 +376,9 @@ export function createAppKitToolbarFocus(
       ) {
         return
       }
+
       const vertical = options.orientation() === 'vertical'
+
       if (
         ![
           'Home',
@@ -348,6 +388,7 @@ export function createAppKitToolbarFocus(
       ) {
         return
       }
+
       scope.handling = true
       try {
         refresh(scope)

@@ -40,9 +40,13 @@ function UpdatePlugin() {
 
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   let handle: LexicalEditorHandle | null = null
   const render = (next: any) =>
     act(() =>
@@ -102,6 +106,7 @@ it('wires focus and blur callbacks from the real editable element', () => {
 it('accepts controlled HTML updates and read-only changes', () => {
   const mounted = mount({ value: '<p>First</p>', editable: false })
   const editable = mounted.el.querySelector('[contenteditable]') as HTMLElement
+
   expect(editable.getAttribute('contenteditable')).toBe('false')
 
   mounted.render({ value: '<p>Second</p>', editable: true })
@@ -118,6 +123,7 @@ it('adds custom nodes to defaults and round-trips their JSON and HTML', () => {
   })
 
   const json = handle!.getJSON()!
+
   expect(JSON.stringify(json)).toContain('"type":"badge"')
   expect(handle!.getHTML()).toContain('data-badge')
   expect(handle!.getHTML()).toContain('<h1><span')
@@ -129,6 +135,7 @@ it('adds custom nodes to defaults and round-trips their JSON and HTML', () => {
 
 it('renders custom plugins inside the composer context', () => {
   const { el } = mount({ web: { plugins: <UpdatePlugin /> } })
+
   expect(el.querySelector('[data-plugin-mounted]')).not.toBeNull()
 })
 
@@ -150,9 +157,12 @@ it('can replace the default custom-node registry', () => {
 
 it('rejects apply(link) without changing content or focus', () => {
   const { handle } = mount({ value: '<p>Unchanged</p>' })
+
   act(() => handle!.blur())
   expect(handle!.isFocused()).toBe(false)
+
   const before = handle!.getHTML()
+
   expect(() => handle!.apply('link')).toThrow(RangeError)
   expect(handle!.getHTML()).toBe(before)
   expect(handle!.isFocused()).toBe(false)
@@ -160,6 +170,7 @@ it('rejects apply(link) without changing content or focus', () => {
 
 it('inserts horizontal rules with the default plugin composition', async () => {
   const { handle } = mount({ value: '<p>Before rule</p>' })
+
   handle!.native.update(() => $getRoot().selectEnd(), { discrete: true })
   act(() => handle!.apply('horizontalRule'))
   await Promise.resolve()
@@ -169,6 +180,7 @@ it('inserts horizontal rules with the default plugin composition', async () => {
 
 it('creates check lists with the default plugin composition', async () => {
   const { handle } = mount({ value: '<p>Task</p>' })
+
   handle!.native.update(() => $getRoot().selectEnd(), { discrete: true })
   act(() => handle!.apply('taskList'))
   await Promise.resolve()

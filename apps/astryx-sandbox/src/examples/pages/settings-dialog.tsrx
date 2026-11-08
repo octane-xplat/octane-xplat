@@ -440,12 +440,15 @@ function SettingsSearchInput(props: { search: SettingsSearch }) @{
     onKeyDown={(e: KeyboardEvent) => {
       if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
         e.preventDefault()
+
         const delta = e.key === 'ArrowDown' ? 1 : -1
+
         props.search.setActiveIndex((i: number) =>
           Math.max(0, Math.min(props.search.results.length - 1, i + delta)),
         )
       } else if (e.key === 'Enter') {
         const setting = props.search.results[props.search.activeIndex]
+
         if (setting) {
           props.search.selectResult(setting)
         }

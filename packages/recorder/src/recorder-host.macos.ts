@@ -203,6 +203,7 @@ interface BridgeGlobals {
 
 const bridgeReady = (): boolean => {
   const globals = globalThis as BridgeGlobals
+
   if (
     typeof globals.objc !== 'object' ||
     typeof globals.interop !== 'object' ||
@@ -210,6 +211,7 @@ const bridgeReady = (): boolean => {
   ) {
     return false
   }
+
   objc.import('AVFAudio')
   objc.import('AVFoundation')
   objc.import('AppKit')
@@ -229,6 +231,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
   }
 
   refreshAudioDevices()
+
   let recorder: NativeRecorder | undefined
   let takeURL: NativeURL | undefined
   let takeDirectory: NativeURL | undefined
@@ -251,6 +254,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       handlers.delete(delegateKey)
       delegateKey = undefined
     }
+
     delegate = undefined
   }
 
@@ -258,24 +262,33 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     if (disposed) {
       return 'unsupported'
     }
+
     const usage = NSBundle.mainBundle.objectForInfoDictionaryKey('NSMicrophoneUsageDescription')
+
     if (usage == null || String(usage).trim() === '') {
       return 'undeclared'
     }
+
     const status = AVCaptureDevice.authorizationStatusForMediaType(AVMediaTypeAudio)
+
     if (status === authDenied) {
       return 'denied'
     }
+
     if (status === authRestricted) {
       return 'restricted'
     }
+
     const input = AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeAudio)
+
     if (status === authNotDetermined) {
       return input == null ? 'unavailable' : 'undetermined'
     }
+
     if (status === authAuthorized) {
       return input == null ? 'unavailable' : 'granted'
     }
+
     return 'unsupported'
   }
 
@@ -288,6 +301,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     if (recorder === undefined || finalizing || interrupted) {
       return
     }
+
     pause()
     interrupted = true
     send({ type: 'interrupted' })
@@ -302,17 +316,20 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     ) {
       return
     }
+
     interrupted = false
     send({ type: 'interruptionEnded' }) // App explicitly chooses resume.
   }
 
   const cancel = () => {
     const value = recorder
+
     recorder = undefined
     if (value) {
       value.delegate = null
       value.stop()
     }
+
     capturing = false
     finalizing = false
     interrupted = false
@@ -320,8 +337,11 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       clearTimeout(finalizeTimer)
       finalizeTimer = undefined
     }
+
     releaseDelegate()
+
     const manager = NSFileManager.defaultManager
+
     for (const url of [takeURL, takeDirectory]) {
       if (url) {
         try {
@@ -331,6 +351,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
         }
       }
     }
+
     takeURL = undefined
     takeDirectory = undefined
   }
@@ -359,6 +380,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
         if (isAudioDevice(event.object)) {
           interrupt()
         }
+
         refreshAudioDevices()
       },
     ),
@@ -375,6 +397,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 
   const sameRecorder = (value: NativeRecorder): boolean => {
     const current = recorder
+
     return (
       current !== undefined &&
       (current === value || (current as NativeObject).isEqual?.(value) === true)
@@ -385,6 +408,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     if (takeURL === undefined || disposed || !sameRecorder(value)) {
       return
     }
+
     recorder = undefined // Release the microphone before resolving stop.
     capturing = false
     if (!finalizing || !flag) {
@@ -392,21 +416,26 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       cancel()
       return
     }
+
     const data = NSData.dataWithContentsOfFile(String(takeURL.path))
+
     if (!data) {
       send({ type: 'error', message: 'Recording file is missing after finalization' })
       cancel()
       return
     }
+
     if (finalizeTimer !== undefined) {
       clearTimeout(finalizeTimer)
       finalizeTimer = undefined
     }
+
     send({
       type: 'finished',
       base64: data.base64EncodedStringWithOptions(0),
       path: String(takeURL.path),
     })
+
     // Validation happens synchronously in JS; on failure it calls cancel
     // while this operation still owns the file. Successful takes transfer.
     takeURL = undefined
@@ -420,14 +449,17 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     if (disposed || !sameRecorder(value)) {
       return
     }
+
     const description =
       typeof cause === 'object' && cause !== null && 'localizedDescription' in cause
         ? cause.localizedDescription
         : undefined
+
     send({
       type: 'error',
       message: description == null ? 'AVAudioRecorder encode error' : String(description),
     })
+
     cancel()
   }
 
@@ -435,10 +467,12 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
     permissionStatus,
     requestPermission(reply) {
       const current = permissionStatus()
+
       if (current !== 'undetermined') {
         reply(current)
         return
       }
+
       AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(AVMediaTypeAudio, () => {
         reply(disposed ? 'unsupported' : permissionStatus())
       })
@@ -450,19 +484,25 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       if (disposed || recorder !== undefined || takeURL !== undefined) {
         return 'AudioRecorder is busy or disposed'
       }
+
       if (permissionStatus() !== 'granted') {
         return 'Microphone authorization or input is unavailable'
       }
+
       if (!NSApplication.sharedApplication.isActive()) {
         return 'Microphone capture requires an active app'
       }
+
       let options: { id?: unknown; sampleRate?: unknown; channels?: unknown }
+
       try {
         options = JSON.parse(serialized) ?? {}
       } catch {
         return 'Invalid PCM recording options'
       }
+
       const { id, sampleRate: rate, channels } = options
+
       if (
         !Number.isInteger(id) ||
         !Number.isInteger(rate) ||
@@ -472,7 +512,9 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       ) {
         return 'Invalid PCM recording options'
       }
+
       takeID = id as number
+
       // A fresh private directory avoids collisions and limits cancellation
       // to this operation; completed results remain owned by the app.
       const manager = NSFileManager.defaultManager
@@ -480,7 +522,9 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
         `octane-recorder-${NSUUID.UUID().UUIDString}`,
         true,
       )
+
       const url = directory.URLByAppendingPathComponent('take.wav')
+
       try {
         if (
           !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
@@ -495,7 +539,9 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
 
         takeURL = url
         takeDirectory = directory
+
         const settings = NSMutableDictionary.dictionary()
+
         settings.setObjectForKey(audioFormatLinearPCM, AVFormatIDKey)
         settings.setObjectForKey(rate, AVSampleRateKey)
         settings.setObjectForKey(channels, AVNumberOfChannelsKey)
@@ -503,13 +549,17 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
         settings.setObjectForKey(false, AVLinearPCMIsBigEndianKey)
         settings.setObjectForKey(false, AVLinearPCMIsFloatKey)
         settings.setObjectForKey(false, AVLinearPCMIsNonInterleaved)
+
         const value = AVAudioRecorder.alloc().initWithURLSettingsError(url, settings, null)
+
         if (!value) {
           throw new Error('AVAudioRecorder could not open a recording file')
         }
 
         recorder = value
+
         const nextDelegate = delegateClass().new()
+
         delegate = nextDelegate
         delegateKey = interop.handleof(nextDelegate).toNumber()
         handlers.set(delegateKey, {
@@ -529,6 +579,7 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
         return ''
       } catch (cause) {
         cancel()
+
         const description =
           typeof cause === 'object' && cause !== null && 'localizedDescription' in cause
             ? cause.localizedDescription
@@ -542,12 +593,15 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       if (disposed || finalizing || interrupted || !NSApplication.sharedApplication.isActive()) {
         return 'Microphone interruption has not cleared'
       }
+
       if (permissionStatus() !== 'granted') {
         return 'Microphone authorization or input is unavailable'
       }
+
       if (!recorder || !recorder.record()) {
         return 'AVAudioRecorder refused to resume'
       }
+
       capturing = true
       return ''
     },
@@ -555,9 +609,12 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       if (recorder === undefined || finalizing) {
         return
       }
+
       finalizing = true
       capturing = false
+
       const value = recorder
+
       value.stop() // The delegate completes only after the file closes.
       finalizeTimer = setTimeout(() => {
         if (recorder === value && finalizing) {
@@ -571,8 +628,11 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       if (capturing && !(recorder && recorder.isRecording())) {
         interrupt()
       }
+
       recorder?.updateMeters()
+
       const power = recorder ? recorder.averagePowerForChannel(0) : -160
+
       return JSON.stringify({
         durationSeconds: recorder ? recorder.currentTime : 0,
         meterLevel: capturing ? Math.min(1, Math.max(0, (power + 60) / 60)) : null,
@@ -582,11 +642,13 @@ export function createNativeRecorderHost(): RecorderHost | undefined {
       if (disposed) {
         return
       }
+
       disposed = true
       cancel()
       for (const observer of observers) {
         center.removeObserver(observer)
       }
+
       observers.length = 0
       emit = undefined
     },

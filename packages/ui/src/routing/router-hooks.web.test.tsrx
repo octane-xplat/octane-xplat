@@ -5,8 +5,11 @@ import { routerScopeCases } from '../../tests/router-scope-cases.tsrx'
 
 routerScopeCases((component, props) => {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(component, props))
   return {
     async settle() {

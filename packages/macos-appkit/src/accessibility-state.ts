@@ -34,6 +34,7 @@ export function createAccessibilityState() {
     object,
     { lease: AccessibilityLease; props: Readonly<AccessibilityProps> }
   >()
+
   function acquire(view: object): AccessibilityLease {
     let active = true
     const current = () => active && views.get(view)?.lease === lease
@@ -43,27 +44,34 @@ export function createAccessibilityState() {
         if (!current()) {
           return
         }
+
         const props = { ...views.get(view)!.props, ...patch }
+
         if (props.accessibilityState) {
           props.accessibilityState = Object.freeze({ ...props.accessibilityState })
         }
+
         views.set(view, { lease, props: Object.freeze(props) })
       },
       release() {
         if (!active) {
           return
         }
+
         active = false
         if (views.get(view)?.lease === lease) {
           views.delete(view)
         }
       },
     }
+
     views.set(view, { lease, props: Object.freeze({}) })
     return lease
   }
+
   function get(view: object): Readonly<AccessibilityProps> | undefined {
     return views.get(view)?.props
   }
+
   return { acquire, get }
 }

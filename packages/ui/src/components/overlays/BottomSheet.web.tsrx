@@ -61,7 +61,9 @@ function BottomSheetLayer(props: {
   const panelEl = useRef<HTMLDivElement | null>(null)
   const backdrop = useRef<HTMLDivElement | null>(null)
   const dismiss = useRef(props.onDismiss)
+
   dismiss.current = props.onDismiss
+
   const hasScrim = sheet.hasScrim ?? true
   const purpose = sheet.purpose ?? 'info'
 
@@ -95,6 +97,7 @@ function BottomSheetLayer(props: {
   // parking transform would be retained as the imperative translate's base.
   useLayoutEffect(() => {
     const el = panelEl.current
+
     if (!el) {
       return
     }
@@ -102,11 +105,13 @@ function BottomSheetLayer(props: {
     // The parked entrance transform is temporary, not a base transform
     // for the gesture controller's composed translations.
     el.style.transform = ''
+
     const ctl = attachSheetDetents(el, snapPoints, () => dismiss.current(), {
       dismissible: purpose !== 'required',
       swipeOnly: !snapPoints.length,
       onOffset: (offset, vh) => {
         const shade = backdrop.current
+
         if (shade) {
           shade.style.opacity = String(Math.max(0, BASE_SCRIM * (1 - offset / vh)))
         }

@@ -3,6 +3,7 @@ import type { NSView } from '@octane-xplat/platform/macos'
 import { useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { createAppKitGridCellFocus } from './grid-cell-focus.macos'
 import type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
+
 export type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
 
 /** Native marked-cell navigation. Source implementation; OS input remains unqualified. */
@@ -13,6 +14,7 @@ export function useGridFocus<T extends NSView = NSView>(
     live = useRef(options)
 
   live.current = options
+
   const [focusIndex, setFocusIndex] = useState(0)
   const owner = useMemo(
     () =>

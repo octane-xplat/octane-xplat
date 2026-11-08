@@ -37,14 +37,18 @@ describe('native Image sized decode', () => {
   it('defers src until first layout, issues decode dims in device px, and re-issues per the stretch gate', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(Image, { src: 'res://feed/photo.jpg' })
+
     const host = container.children[0] as any
+
     expect(host.type).toBe('image')
     // The leaf owns src imperatively — the driver never saw it.
     expect(host.props.src).toBeUndefined()
     expect(host.src).toBeUndefined()
 
     let layoutCb: (() => void) | null = null
+
     host.on = (event: string, cb: () => void) => {
       if (event === 'layoutChanged') {
         layoutCb = cb

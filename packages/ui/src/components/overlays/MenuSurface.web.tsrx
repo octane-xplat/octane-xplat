@@ -19,11 +19,13 @@ export function MenuSurface(props: MenuSurfaceProps): JSX.Element @{
 
   useEffect(() => {
     const items = rows()
+
     for (const item of items) {
       item.tabIndex = -1
     }
 
     const enabled = items.filter((item) => item.getAttribute('aria-disabled') !== 'true')
+
     if (props.initialFocus === 'first' && enabled.length) {
       enabled[0].focus()
     } else if (props.initialFocus === 'last' && enabled.length) {
@@ -41,6 +43,7 @@ export function MenuSurface(props: MenuSurfaceProps): JSX.Element @{
     const items = rows()
     const index = items.indexOf(document.activeElement as HTMLElement)
     let next: number | undefined
+
     if (event.key === 'ArrowDown') {
       next = (index + 1) % items.length
     } else if (event.key === 'ArrowUp') {
@@ -69,10 +72,12 @@ export function MenuSurface(props: MenuSurfaceProps): JSX.Element @{
       !event.metaKey
     ) {
       const now = Date.now()
+
       search.current.text =
         (now - search.current.at < 500 ? search.current.text : '') + event.key.toLowerCase()
 
       search.current.at = now
+
       const query = search.current.text
       const match = items
         .map((_, offset) => (index + offset + 1) % items.length)

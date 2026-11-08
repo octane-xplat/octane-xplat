@@ -35,6 +35,7 @@ function Smoke() {
         id="roundtrip"
         onClick={() => {
           const json = handle.current?.getJSON()
+
           result.json = json
           result.roundTripHTML = handle.current?.getHTML()
           if (json) {

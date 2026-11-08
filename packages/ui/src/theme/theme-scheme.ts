@@ -43,7 +43,9 @@ export function getThemeScheme(): ThemeScheme {
 
 function subscribe(cb: () => void): () => void {
   listeners.add(cb)
+
   const offSystem = subscribeSystemScheme(cb)
+
   return () => {
     listeners.delete(cb)
     offSystem()

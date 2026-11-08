@@ -8,9 +8,11 @@ export const nativeBasisSource: ResizableBasisSource = {
   storagePrefix: 'astryx-resizable:',
   measure: (containerRef, direction) => {
     const view = containerRef?.current
+
     if (view) {
       const size = view.getActualSize?.()
       const v = direction === 'horizontal' ? size?.width : size?.height
+
       return v != null && v > 0 ? v : null
     }
 
@@ -18,6 +20,7 @@ export const nativeBasisSource: ResizableBasisSource = {
   },
   observe: (containerRef, _direction, cb) => {
     const view = containerRef?.current
+
     if (view) {
       view.on?.('layoutChanged', cb)
       return () => view.off?.('layoutChanged', cb)

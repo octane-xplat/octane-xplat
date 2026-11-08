@@ -27,6 +27,7 @@ export function createContentOwner(): {
   const roots = new Set<{ dispose(): void }>()
   let nextId = 0
   let disposed = false
+
   return {
     entries,
     get disposed(): boolean {
@@ -50,6 +51,7 @@ export function createContentOwner(): {
           }
 
           committed = false
+
           const entry: ContentEntry = {
             id,
             target,
@@ -61,7 +63,9 @@ export function createContentOwner(): {
               }
 
               committed = true
+
               const callbacks = [...pending]
+
               pending.clear()
               for (const callback of callbacks) {
                 callback()
@@ -114,7 +118,9 @@ export function createContentOwner(): {
       }
 
       disposed = true
+
       const errors: unknown[] = []
+
       for (const root of [...roots]) {
         try {
           root.dispose()

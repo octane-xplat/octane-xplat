@@ -7,11 +7,13 @@ export function bindNativeHostAttachment(host: any): () => void {
       host.callLoaded()
     }
   }
+
   const unloaded = () => {
     if (host.isLoaded) {
       host.callUnloaded()
     }
   }
+
   const NativeAttachListener = (globalThis as any).android.view.View.OnAttachStateChangeListener
   const listener = new NativeAttachListener({
     onViewAttachedToWindow: loaded,
@@ -21,16 +23,19 @@ export function bindNativeHostAttachment(host: any): () => void {
       }
     },
   })
+
   view.addOnAttachStateChangeListener(listener)
   if (view.isAttachedToWindow()) {
     loaded()
   } else {
     unloaded()
   }
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     view.removeOnAttachStateChangeListener(listener)
     unloaded()

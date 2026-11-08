@@ -5,6 +5,7 @@ export function keyboardNativeScope(): {
 } {
   let active = true
   const releases: (() => void)[] = []
+
   return {
     defer(release: () => void) {
       releases.push(release)
@@ -13,8 +14,11 @@ export function keyboardNativeScope(): {
       if (!active) {
         return
       }
+
       active = false
+
       const errors: unknown[] = []
+
       for (const release of releases.reverse()) {
         try {
           release()
@@ -22,6 +26,7 @@ export function keyboardNativeScope(): {
           errors.push(error)
         }
       }
+
       releases.length = 0
       if (errors.length) {
         throw new AggregateError(errors, 'Keyboard native cleanup failed')

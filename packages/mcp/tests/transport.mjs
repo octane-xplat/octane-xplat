@@ -8,17 +8,21 @@ export function fakeTransport(handlers = {}) {
     handlers,
     call: async (call) => {
       transport.calls.push(call)
+
       const key = call.command.join(' ')
       const handler = handlers[key] ?? handlers['*']
+
       if (!handler) {
         return {
           ok: false,
           error: { code: 'unavailable', message: `No stubbed xplat response for "${key}".` },
         }
       }
+
       return typeof handler === 'function' ? handler(call) : handler
     },
   }
+
   return transport
 }
 
@@ -44,6 +48,7 @@ export function statusFixture(context, overrides = {}) {
         : { state: 'ambiguous', candidates: discovery.apps }
 
   const app = selection.state === 'bound' ? selection.app : null
+
   return {
     server: { name: '@octane-xplat/cli', version: '0.0.0-test' },
     identity: {

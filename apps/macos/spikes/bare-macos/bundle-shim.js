@@ -32,6 +32,7 @@ const nodeModules = {
       }
 
       let bytes
+
       return {
         update(data) {
           bytes = new Uint8Array(interop.bufferFromData(data))
@@ -43,6 +44,7 @@ const nodeModules = {
           }
 
           const output = new Uint8Array(32)
+
           CC_SHA256(bytes, bytes.length, output)
           return Array.from(output, (value) => value.toString(16).padStart(2, '0')).join('')
         },

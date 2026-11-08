@@ -4,10 +4,14 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { Accessibility, inputRef } from './ui-accessibility.gtk.tsrx'
+
 Gtk.init()
+
 const window = new Gtk.Window({ default_width: 340, default_height: 420 })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -28,6 +32,7 @@ const check = (name: string, ok: boolean) => {
   if (!ok) {
     throw new Error(name)
   }
+
   checks++
 }
 
@@ -37,6 +42,7 @@ const render = () => root.render(Accessibility, props)
 let native: any
 const state = (view: any, key: string, expected: number | boolean) => {
   const message = native.test_accessible_state(view, Gtk.AccessibleState[key], Number(expected))
+
   check('stored state ' + key + '=' + expected + ': ' + message, message === null)
 }
 
@@ -46,6 +52,7 @@ const property = (view: any, key: string, expected: boolean) => {
     Gtk.AccessibleProperty[key],
     expected,
   )
+
   check('stored property ' + key + '=' + expected + ': ' + message, message === null)
 }
 
@@ -55,6 +62,7 @@ const textProperty = (view: any, key: string, expected: string) => {
     Gtk.AccessibleProperty[key],
     expected,
   )
+
   check('stored text ' + key + ': ' + message, message === null)
 }
 
@@ -66,10 +74,13 @@ async function run() {
   if (!native.test_accessible_state) {
     throw new Error('Rebuild XplatMason for native accessibility assertions')
   }
+
   const box = node('a11y-state').view!,
     entry = node('a11y-entry').view!,
     toggle = node('a11y-switch').view!
+
   const decorative = node('a11y-decorative').view!
+
   state(decorative, 'HIDDEN', true)
   check('decorative content remains painted', decorative.get_mapped())
   props = { decorativeAccessible: true }
@@ -88,6 +99,7 @@ async function run() {
     'decorative content remaps without replacement',
     node('a11y-decorative').view === decorative && decorative.get_mapped(),
   )
+
   state(decorative, 'HIDDEN', true)
   props = { decorativeAccessible: true, decorativeVisible: true }
   render()
@@ -106,6 +118,7 @@ async function run() {
       readOnly: true,
     },
   }
+
   render()
   await pause()
   for (const [key, value] of Object.entries({
@@ -119,6 +132,7 @@ async function run() {
   })) {
     state(box, key, value)
   }
+
   property(box, 'REQUIRED', true)
   property(box, 'READ_ONLY', true)
   check('accessibility-only disabled does not change interaction', box.get_sensitive())
@@ -135,6 +149,7 @@ async function run() {
       readOnly: false,
     },
   }
+
   render()
   await pause()
   for (const [key, value] of Object.entries({
@@ -148,6 +163,7 @@ async function run() {
   })) {
     state(box, key, value)
   }
+
   property(box, 'REQUIRED', false)
   property(box, 'READ_ONLY', false)
   props = {}
@@ -159,14 +175,17 @@ async function run() {
       !Gtk.test_accessible_has_state(box, Gtk.AccessibleState[key]),
     )
   }
+
   check(
     'removed required property resets',
     !Gtk.test_accessible_has_property(box, Gtk.AccessibleProperty.REQUIRED),
   )
+
   check(
     'removed readonly metadata resets on generic view',
     !Gtk.test_accessible_has_property(box, Gtk.AccessibleProperty.READ_ONLY),
   )
+
   for (const [value, key, expected] of [
     ['disabled', 'DISABLED', 1],
     ['selected', 'SELECTED', 1],
@@ -178,6 +197,7 @@ async function run() {
     await pause()
     state(box, key, expected)
   }
+
   props = { enabled: false, state: { disabled: false } }
   render()
   await pause()
@@ -203,6 +223,7 @@ async function run() {
     'readonly metadata follows actual GtkEditable',
     !entry.get_editable() && entry.get_sensitive(),
   )
+
   props = {}
   render()
   await pause()
@@ -229,9 +250,12 @@ async function run() {
       defaultValue: 'Stored',
     },
   }
+
   render()
   await pause()
+
   const shared = inputRef.current!.native as any
+
   check('shared TextInput still uses a real GtkEntry', shared instanceof Gtk.Entry)
   property(shared, 'REQUIRED', true)
   property(shared, 'READ_ONLY', true)
@@ -244,6 +268,7 @@ async function run() {
     'shared readonly/disabled state also changes actual editing',
     !shared.get_editable() && !shared.get_sensitive(),
   )
+
   props = {
     input: {
       label: 'Account',
@@ -255,6 +280,7 @@ async function run() {
       status: { type: 'success', message: 'Ready' },
     },
   }
+
   render()
   await pause()
   property(inputRef.current!.native, 'REQUIRED', false)
@@ -266,6 +292,7 @@ async function run() {
     'optional wins over required',
     !(node('a11y-shared').props.accessibilityState as any).required,
   )
+
   root.unmount()
   await pause()
   check('all state-bearing nodes disposed', container.nodes.size === 0 && inputRef.current === null)
@@ -279,6 +306,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

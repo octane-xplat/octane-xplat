@@ -62,12 +62,14 @@ const spansOf = (node: any): any[] => all(node).filter((n) => n.type === 'span')
 const textsOf = (node: any): string[] =>
   all(node).flatMap((n) => {
     const text = n.props?.text ?? n.props?.value ?? n.text
+
     return typeof text === 'string' && text ? [text] : []
   })
 
 function render(supply: () => unknown) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(supply, {})
   flushUniversalSync(() => {})
   return container
@@ -136,6 +138,7 @@ describe('native rich-run fold (object driver)', () => {
     const container = render(NestedMarksSurface)
 
     const spans = spansOf(container)
+
     expect(spans.map((s) => s.props?.text ?? s.text)).toEqual(['bold ', 'em', ' end'])
     expect(spans[0].props.style).toMatchObject({ fontWeight: '600' })
     expect(spans[0].props.style.fontStyle).toBeUndefined()
@@ -147,7 +150,9 @@ describe('native rich-run fold (object driver)', () => {
     const container = render(LinkMarksSurface)
 
     const spans = spansOf(container)
+
     expect(spans.map((s) => s.props?.text ?? s.text)).toEqual(['plain ', 'bold', ' end'])
+
     // Every run inside the link carries the tap (linkTap event commands in
     // the commit) and the merged link styling.
     const linkTapIds = new Set(
@@ -169,6 +174,7 @@ describe('native rich-run fold (object driver)', () => {
     const container = render(DeleteInLinkSurface)
 
     const strike = spansOf(container).find((s) => (s.props?.text ?? s.text) === 'strike')
+
     expect(strike).toBeTruthy()
     expect(String(strike.props.style.textDecoration)).toContain('line-through')
     expect(String(strike.props.style.textDecoration)).toContain('underline')
@@ -178,11 +184,14 @@ describe('native rich-run fold (object driver)', () => {
     const container = render(InlineSiblingSurface)
 
     const label = all(container).find((n) => n.type === 'label')
+
     expect(label).toBeTruthy()
+
     // The label's children keep sibling #text nodes interleaved with the
     // inline markdown's flat spans — the structure the patched driver folds
     // into one FormattedString in order.
     const types = label.children.map((c: any) => c.type)
+
     expect(types).toEqual(['#text', 'span', 'span', 'span', '#text'])
     expect(textsOf(label).join(' ')).toContain('before')
     expect(textsOf(label).join(' ')).toContain('after')

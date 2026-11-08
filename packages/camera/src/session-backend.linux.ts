@@ -180,6 +180,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const constraints = (): MediaTrackConstraints => {
     const camera = currentConfig.camera
+
     return {
       width: { ideal: 1280 },
       height: { ideal: 720 },
@@ -203,7 +204,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     owner = lease
+
     const epoch = generation
+
     try {
       const acquired = await navigator.mediaDevices.getUserMedia({
         video: constraints(),
@@ -263,6 +266,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const previous = stream
+
     stream = acquired
     previous?.getTracks().forEach((track) => track.stop())
     observeTracks(acquired)
@@ -291,6 +295,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     // No preview yet — a standalone acquisition proves the grant; the
     // combined swap happens once the camera stream exists.
     const audio = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+
     audio.getTracks().forEach((track) => track.stop())
   }
 
@@ -301,6 +306,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     const element = host
     const epoch = generation
+
     if ((await checkPermission('camera')) !== 'granted') {
       listener?.onError?.(
         error(
@@ -320,7 +326,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     element.srcObject = stream
     element.muted = true
+
     const facing = stream.getVideoTracks()[0]?.getSettings().facingMode
+
     element.style.transform = facing === 'user' ? 'scaleX(-1)' : ''
     await element.play()
     if (host !== element || released || epoch !== generation) {
@@ -344,6 +352,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const desktop = await hostProbe
+
     if (!desktop) {
       return 'unavailable'
     }
@@ -374,6 +383,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const settle = (value: Parameters<BackendCaptureSink['settled']>[0], expected = sink) => {
     const target = sink
+
     if (!target || target !== expected) {
       return
     }
@@ -397,8 +407,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     stoppedAt ||= performance.now()
     clearTimeout(watchdog)
+
     const target = sink
     const fail = captureFailure
+
     watchdog = setTimeout(() => {
       if (sink !== target) {
         return
@@ -427,11 +439,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     checkPermission,
     requestPermission: async (kind) => {
       const status = await checkPermission(kind)
+
       if (status === 'blocked' || status === 'unavailable') {
         return status
       }
 
       const desktop = await hostProbe
+
       if (!desktop) {
         return 'unavailable'
       }
@@ -492,6 +506,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const settings = stream?.getVideoTracks()[0]?.getSettings()
       const mime = mimeType()
       const storageReady = !!desktop
+
       return {
         supported: supported(),
         available: ready && storageReady,
@@ -607,6 +622,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       recordingAudio = request.audio
       startedAt = 0
       stoppedAt = 0
+
       let desktop: CameraHost | null = null
       let reservation: string | undefined
       let stage: 'preparation' | 'capture' | 'finalization' | 'storage' = 'preparation'
@@ -615,6 +631,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       let limitReached = false
       let failing = false
       let didStart = false
+
       captureFailure = fail
       void (async () => {
         try {
@@ -683,6 +700,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           }
 
           const activeRecorder = new MediaRecorder(recordingStream, { mimeType: mimeType() })
+
           recorder = activeRecorder
           activeRecorder.ondataavailable = (event) => {
             if (sink !== target || failing) {
@@ -716,6 +734,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             clearTimeout(watchdog)
             startedAt = performance.now()
             stage = 'capture'
+
             const settings = video.getSettings()
             const effective: EffectiveCaptureConfig = {
               cameraId: settings.deviceId ?? '',
@@ -737,6 +756,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
                 }
 
                 const remaining = limit - (performance.now() - startedAt)
+
                 if (remaining > 0) {
                   stopTimer = setTimeout(checkLimit, Math.min(remaining, 2_147_483_647))
                 } else {
@@ -771,16 +791,19 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
                 }
 
                 const bytes = new Blob(chunks, { type: activeRecorder.mimeType })
+
                 if ((globalThis as any).__xplatDebugMovie) {
                   ;(globalThis as any).__xplatLastMovieBlob = bytes
                 }
 
                 const metadata = await inspectMovie(bytes, request.audio)
+
                 if (sink !== target || failing) {
                   return
                 }
 
                 stage = 'storage'
+
                 const output = await commitHostMovie(desktop!, reservation!, bytes)
                 const clip: MovieClip = { ...metadata, output }
 
@@ -864,6 +887,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const desktop = await hostProbe
+
       if (!desktop) {
         throw error(
           'unavailable',

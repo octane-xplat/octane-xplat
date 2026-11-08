@@ -45,24 +45,30 @@ function translateAxis(value: unknown): TranslateAxis | undefined {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? value : undefined
   }
+
   if (typeof value === 'string') {
     const s = value.trim()
     const pct = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(s)
+
     if (pct) {
       return { value: Number(pct[1]) / 100, unit: '%' }
     }
 
     const n = parseFloat(s)
+
     return Number.isFinite(n) ? n : undefined
   }
+
   if (value && typeof value === 'object' && (value as any).unit === '%') {
     return value as TranslateAxis
   }
+
   return undefined
 }
 
 function num(value: unknown): number | undefined {
   const n = typeof value === 'number' ? value : typeof value === 'string' ? parseFloat(value) : NaN
+
   return Number.isFinite(n) ? n : undefined
 }
 
@@ -82,6 +88,7 @@ function shorthandParts(value: unknown): TransformParts {
   if (typeof value !== 'string' || !value.trim() || value.trim() === 'none') {
     return IDENTITY_PARTS
   }
+
   try {
     return transformToParts(value)
   } catch {
@@ -101,14 +108,18 @@ export function resolveTransform(
     ...shorthandParts(s.transform),
     perspective: num(s.perspective) ?? DEFAULT_PERSPECTIVE,
   }
+
   const tx = translateAxis(s.translateX)
   const ty = translateAxis(s.translateY)
+
   if (tx !== undefined) {
     parts.translateX = tx
   }
+
   if (ty !== undefined) {
     parts.translateY = ty
   }
+
   parts.scaleX = num(s.scaleX) ?? parts.scaleX
   parts.scaleY = num(s.scaleY) ?? parts.scaleY
   parts.rotate = num(s.rotate) ?? parts.rotate
@@ -121,6 +132,7 @@ export function resolveTransform(
       }
     }
   }
+
   const identity =
     resolveTranslate(parts.translateX, 1) === 0 &&
     resolveTranslate(parts.translateY, 1) === 0 &&
@@ -129,6 +141,7 @@ export function resolveTransform(
     !parts.rotate &&
     !parts.rotateX &&
     !parts.rotateY
+
   return identity ? null : parts
 }
 
@@ -148,26 +161,34 @@ export function transformSteps(
   height: number,
 ): TransformStep[] {
   const steps: TransformStep[] = []
+
   if ((parts.rotateX || parts.rotateY) && parts.perspective > 0) {
     steps.push({ kind: 'perspective', depth: parts.perspective })
   }
+
   const x = resolveTranslate(parts.translateX, width)
   const y = resolveTranslate(parts.translateY, height)
+
   if (x || y) {
     steps.push({ kind: 'translate', x, y })
   }
+
   if (parts.rotate) {
     steps.push({ kind: 'rotate', deg: parts.rotate })
   }
+
   if (parts.rotateX) {
     steps.push({ kind: 'rotateX', deg: parts.rotateX })
   }
+
   if (parts.rotateY) {
     steps.push({ kind: 'rotateY', deg: parts.rotateY })
   }
+
   if (parts.scaleX !== 1 || parts.scaleY !== 1) {
     steps.push({ kind: 'scale', x: parts.scaleX, y: parts.scaleY })
   }
+
   return steps
 }
 
@@ -198,6 +219,7 @@ export function cssTransformText(parts: ResolvedTransform, width: number, height
 /** NS z-index (integer, default 0). */
 export function zIndexOf(style: PropBag | null | undefined): number {
   const z = num(style?.zIndex)
+
   return z === undefined ? 0 : Math.trunc(z)
 }
 
@@ -207,6 +229,7 @@ export function paintOrder(zIndices: number[]): number[] | null {
   if (zIndices.every((z) => z === 0)) {
     return null
   }
+
   return zIndices
     .map((z, index) => [z, index] as const)
     .sort((a, b) => a[0] - b[0] || a[1] - b[1])

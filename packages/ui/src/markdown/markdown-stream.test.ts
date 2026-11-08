@@ -40,6 +40,7 @@ const strip = (nodes: MdNode[]) => nodes.map(({ position: _p, ...rest }) => rest
 function streamByChar(doc: string) {
   const state = createMarkdownIncrementalState()
   const outputs: MdNode[][] = []
+
   for (let i = 1; i <= doc.length; i++) {
     outputs.push(parseMarkdownIncremental(doc.slice(0, i), state).children)
   }
@@ -160,6 +161,7 @@ describe('parseMdNodes', () => {
       { type: 'paragraph', children: [{ type: 'text', value: 'foo' }] },
       { type: 'thematicBreak' },
     ])
+
     // The reference has no setext headings — `===` folds into the
     // paragraph text.
     expect(strip(parseMdNodes('foo\n==='))).toEqual([
@@ -174,6 +176,7 @@ describe('parseMarkdownIncremental', () => {
   it('converges to the full parse when the doc stops growing', () => {
     const outputs = streamByChar(DOC)
     const last = outputs[outputs.length - 1]
+
     expect(last).toEqual(parseMdNodes(DOC))
   })
 
@@ -194,6 +197,7 @@ describe('parseMarkdownIncremental', () => {
       // positions included.
       const parser = createMarkdownStreamParser()
       let last
+
       for (const chunk of doc) {
         last = parser.append(chunk)
       }
@@ -209,15 +213,19 @@ describe('parseMarkdownIncremental', () => {
     // paragraph before a trailing blank line is still mutable until the
     // next block arrives. Once settled, the same object is reused.
     const state = createMarkdownIncrementalState()
+
     parseMarkdownIncremental('# Title\n\nfirst para\n\n', state)
+
     const second = parseMarkdownIncremental(
       '# Title\n\nfirst para\n\nsecond para\n\n',
       state,
     ).children
+
     const third = parseMarkdownIncremental(
       '# Title\n\nfirst para\n\nsecond para\n\nthird',
       state,
     ).children
+
     expect(third[0]).toBe(second[0])
     expect(third[1]).toBe(second[1])
     expect(third[2]).not.toBe(second[2])
@@ -227,6 +235,7 @@ describe('parseMarkdownIncremental', () => {
     const state = createMarkdownIncrementalState()
     const a = parseMarkdownIncremental('hello **wor', state)
     const b = parseMarkdownIncremental('hello **wor', state)
+
     expect(b).toEqual(a)
     // The mutable tail is reparsed, but its block objects are reused when
     // the tail is unchanged... it returns a fresh array either way.
@@ -235,8 +244,11 @@ describe('parseMarkdownIncremental', () => {
 
   it('resets when input is replaced rather than appended', () => {
     const state = createMarkdownIncrementalState()
+
     parseMarkdownIncremental('aaa\n\nbbb\n\n', state)
+
     const out = parseMarkdownIncremental('zzz different\n\n', state).children
+
     expect(out).toEqual(parseMdNodes('zzz different\n\n'))
   })
 
@@ -244,10 +256,12 @@ describe('parseMarkdownIncremental', () => {
     // Matches the reference: `- ` alone parses as a paragraph, and becomes
     // a list once item text streams in.
     const state = createMarkdownIncrementalState()
+
     expect(parseMarkdownIncremental('intro\n\n- ', state).children.map((n) => n.type)).toEqual([
       'paragraph',
       'paragraph',
     ])
+
     expect(parseMarkdownIncremental('intro\n\n- item', state).children.map((n) => n.type)).toEqual([
       'paragraph',
       'list',
@@ -257,8 +271,11 @@ describe('parseMarkdownIncremental', () => {
   it('withholds a half-typed link instead of flashing literal brackets', () => {
     const parser = createMarkdownStreamParser()
     const mid = parser.append('see [the doc')
+
     expect(text(mid.children)).not.toContain('[')
+
     const done = parser.append('](https://x.dev)')
+
     expect(done.children[0]).toMatchObject({ type: 'paragraph' })
     expect(JSON.stringify(done)).toContain('"type":"link"')
   })
@@ -266,6 +283,7 @@ describe('parseMarkdownIncremental', () => {
   it('auto-closes mid-line emphasis so it formats while streaming', () => {
     const parser = createMarkdownStreamParser()
     const mid = parser.append('a **bo')
+
     expect(mid.children[0]).toMatchObject({
       type: 'paragraph',
       children: [{ type: 'text', value: 'a ' }, { type: 'strong' }],
@@ -274,18 +292,23 @@ describe('parseMarkdownIncremental', () => {
 
   it('shows an open code fence as a growing code block, not literal backticks', () => {
     const state = createMarkdownIncrementalState()
+
     expect(
       parseMarkdownIncremental('before\n\n```ts\ncons', state).children.map((n) => n.type),
     ).toEqual(['paragraph', 'code'])
 
     const later = parseMarkdownIncremental('before\n\n```ts\nconst x = 1\n```', state).children
+
     expect(later[1]).toMatchObject({ type: 'code', lang: 'ts', value: 'const x = 1' })
   })
 
   it('merges a loose list split across the settled boundary', () => {
     const state = createMarkdownIncrementalState()
+
     parseMarkdownIncremental('- a\n\n', state)
+
     const out = parseMarkdownIncremental('- a\n\n- b\n\n', state).children
+
     expect(out).toEqual(parseMdNodes('- a\n\n- b\n\n'))
     expect(out).toHaveLength(1)
     expect((out[0] as { children: unknown[] }).children).toHaveLength(2)
@@ -318,15 +341,18 @@ describe('trimStreamingArtifacts', () => {
 describe('MdDoc envelope', () => {
   it('round-trips through JSON unchanged', () => {
     const doc = parseMdDoc(DOC)
+
     expect(isMdDoc(doc)).toBe(true)
     expect(JSON.parse(JSON.stringify(doc))).toEqual(doc)
   })
 
   it('stream finish() agrees with a full parse', () => {
     const stream = createMarkdownStreamParser()
+
     for (const chunk of DOC.split(/(?<=\n)/)) {
       stream.append(chunk)
     }
+
     expect(stream.finish()).toEqual(parseMdDoc(DOC))
   })
 })
@@ -334,8 +360,11 @@ describe('MdDoc envelope', () => {
 describe('computeBoundaries/computeSegments', () => {
   it('pushes the previous length only when output grew', () => {
     let b = computeBoundaries([], 0, 4)
+
     expect(b).toEqual([0])
+
     const b2 = computeBoundaries(b, 10, 4)
+
     expect(b2).toEqual([0, 10])
     expect(computeBoundaries(b2, 10, 4)).toBe(b2)
     expect(computeBoundaries(b2, 40, 4)).toEqual([0, 10, 40])
@@ -343,6 +372,7 @@ describe('computeBoundaries/computeSegments', () => {
 
   it('caps the ring and settles evicted spans', () => {
     let b: number[] = []
+
     for (const len of [0, 3, 6, 9, 12]) {
       b = computeBoundaries(b, len, 3)
     }
@@ -352,6 +382,7 @@ describe('computeBoundaries/computeSegments', () => {
 
   it('splits a text run at the boundaries it crosses', () => {
     const segs = computeSegments('hello world', 5, [5, 8], 3)
+
     expect(segs).toEqual([
       { key: 'fade-3-b5', text: 'hel', fading: true },
       { key: 'fade-3-b8', text: 'lo world', fading: true },
@@ -359,8 +390,10 @@ describe('computeBoundaries/computeSegments', () => {
 
     // Fully settled text returns null.
     expect(computeSegments('old', 0, [5, 8], 0)).toBeNull()
+
     // Text straddling the oldest boundary splits settled/fading.
     const mixed = computeSegments('abcdef', 0, [3], 1)
+
     expect(mixed).toEqual([
       { key: 'settled-1', text: 'abc', fading: false },
       { key: 'fade-1-b3', text: 'def', fading: true },
@@ -375,8 +408,10 @@ it.each([
 ])('rich streamed content converges to full parse: %s', (source) => {
   const state = createMarkdownIncrementalState()
   let output: MdNode[] = []
+
   for (let i = 1; i <= source.length; i++) {
     output = parseMarkdownIncremental(source.slice(0, i), state).children
   }
+
   expect(output).toEqual(parseMdNodes(source))
 })

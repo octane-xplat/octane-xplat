@@ -41,23 +41,30 @@ function injectKeys(targetName) {
     'appshell',
     doc.querySelector(targetName === 'reference' ? '.astryx-app-shell' : '.vx-appshell'),
   )
+
   key(
     'layout',
     doc.querySelector(targetName === 'reference' ? '.astryx-layout' : '.vx-appshell-body'),
   )
+
   key(
     'midrow',
     targetName === 'reference'
       ? sideNavPanel?.parentElement
       : doc.querySelector('.vx-appshell-middle'),
   )
+
   key('sidenav', sideNavPanel)
+
   const main = doc.querySelector('[role="main"], main')
+
   key('main', main)
+
   // Page-level Layout chain inside main: both sides are
   // main > layout root > inner flex row, so firstElementChild walks align
   // despite different wrapper vocabularies upstream.
   const pageLayout = main?.firstElementChild
+
   key('page-layout', pageLayout)
   // Upstream wraps the content column in an extra visible div plus a
   // display:contents marker the port doesn't have. Pin the visible wrapper
@@ -67,18 +74,21 @@ function injectKeys(targetName) {
     'content-wrap',
     targetName === 'reference' ? sideNavPanel?.nextElementSibling : pageLayout?.firstElementChild,
   )
+
   key(
     'contents-wrap',
     targetName === 'reference'
       ? sideNavPanel?.nextElementSibling?.firstElementChild
       : doc.querySelector('.vx-appshell')?.parentElement,
   )
+
   key(
     'skiplink',
     targetName === 'reference'
       ? doc.querySelector('.astryx-app-shell > a[href^="#"]')
       : doc.querySelector('.vx-appshell-skiplink'),
   )
+
   key('title', doc.querySelector('[role="main"] h1, main h1'))
   key('search', doc.querySelector('input[placeholder="Search..."]'))
   key('filters', doc.querySelector('[aria-label="Filter by category"]'))
@@ -92,8 +102,10 @@ function injectKeys(targetName) {
   for (const el of doc.querySelectorAll('div[role="tooltip"]')) {
     el.setAttribute('data-sf-ignore', '')
   }
+
   for (const el of [...doc.querySelectorAll('nav *')]) {
     const text = el.textContent?.trim()
+
     if (text !== 'Sandbox' && text !== 'Audits') {
       continue
     }
@@ -103,6 +115,7 @@ function injectKeys(targetName) {
     }
 
     let top = el
+
     while (
       top.parentElement?.closest('nav') &&
       top.parentElement.children.length === 1 &&
@@ -112,6 +125,7 @@ function injectKeys(targetName) {
     }
 
     const rect = top.getBoundingClientRect()
+
     if (getComputedStyle(top).visibility === 'hidden' || rect.width <= 2 || rect.height === 0) {
       top.setAttribute('data-sf-ignore', '')
     }
@@ -121,16 +135,20 @@ function injectKeys(targetName) {
   // hidden semibold width reservation. Key the button and its visible span so
   // the matcher doesn't pair a visible span with the hidden twin.
   const group = doc.querySelector('[aria-label="Filter by category"]')
+
   if (group) {
     for (const btn of group.querySelectorAll('button')) {
       const name = btn.getAttribute('aria-label') ?? ''
+
       if (!name) {
         continue
       }
 
       btn.setAttribute('data-sameframe-key', `toggle-${name}`)
+
       const visible = [...btn.querySelectorAll('span')].find((span) => {
         const rect = span.getBoundingClientRect()
+
         return (
           span.textContent.trim() === name &&
           rect.height > 0 &&
@@ -148,6 +166,7 @@ async function clickByText(page, text) {
     const el = [...document.querySelectorAll('button, a')].find(
       (node) => node.textContent.trim() === wanted && node.getBoundingClientRect().height > 0,
     )
+
     el?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
   }, text)
 }
@@ -156,8 +175,10 @@ async function clickByAriaLabel(page, match) {
   await page.evaluate((wanted) => {
     const el = [...document.querySelectorAll('button')].find((node) => {
       const label = (node.getAttribute('aria-label') ?? '').toLowerCase()
+
       return label.includes(wanted) && node.getBoundingClientRect().height > 0
     })
+
     el?.dispatchEvent(new MouseEvent('click', { bubbles: true, cancelable: true }))
   }, match)
 }
@@ -179,6 +200,7 @@ export default async function setup({ page, target }) {
       timeout: 20000,
     })
     .catch(() => {})
+
   await page.waitForTimeout(400)
 
   // Pinned-baseline normalization (see header note). Runs again after the
@@ -192,10 +214,12 @@ export default async function setup({ page, target }) {
           }
         })
       : Promise.resolve()
+
   await removeDrift()
 
   // Route states.
   const state = params.get('sf-state')
+
   if (state === 'nav-collapsed') {
     await clickByAriaLabel(page, 'ollapse sidebar')
     await page.waitForTimeout(300)
@@ -218,15 +242,20 @@ export default async function setup({ page, target }) {
 
   // Home search + category filter.
   const search = params.get('sf-search')
+
   if (search != null) {
     const selector = 'input[placeholder="Search..."]'
+
     await page.waitForSelector(selector, { timeout: 15000 }).catch(() => {})
     await page.fill(selector, search).catch(() => {})
     await page.waitForTimeout(400)
   }
+
   const filter = params.get('sf-filter')
+
   if (filter) {
     const label = FILTER_LABELS[filter] ?? filter
+
     await clickByText(page, label)
     await page.waitForTimeout(400)
   }

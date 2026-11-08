@@ -9,6 +9,7 @@ const monitors: Array<(event: any) => any> = []
 let open$: any
 let selected = ''
 let closes = 0
+
 export default function PaletteProbe() {
   selected = ''
   closes = 0
@@ -46,6 +47,7 @@ export default function PaletteProbe() {
 export async function run(ctx: ProbeContext) {
   const events = native.NSEvent
   const original = events.addLocalMonitorForEventsMatchingMaskHandler
+
   events.addLocalMonitorForEventsMatchingMaskHandler = (mask: any, handler: any) => {
     monitors.push(handler)
     return original.call(events, mask, handler)
@@ -57,19 +59,24 @@ export async function run(ctx: ProbeContext) {
 
   const parent = (ctx.host as any).window
   const previous = parent.firstResponder
+
   await ctx.press('open')
   await ctx.waitFor(() => parent.attachedSheet, { timeout: 3000 })
+
   const sheet = parent.attachedSheet
   const walk = (view: any): any[] => [view, ...Array.from(view.subviews ?? []).flatMap(walk)]
   const views = () => walk(sheet.contentView)
   const field = () => views().find((v) => typeof v.currentEditor === 'function')
+
   await ctx.waitFor(() => monitors.length >= 2, { timeout: 3000 })
   ctx.record('monitorCount', monitors.length)
   await ctx.waitFor(() => field()?.currentEditor(), { timeout: 3000 })
   ctx.assert('real window modal sheet attached', !!parent.attachedSheet, true)
   ctx.assert('field editor focused', sheet.firstResponder === field().currentEditor(), true)
+
   const key = (code: number) => {
     let event: any = { keyCode: code, window: sheet }
+
     for (const monitor of monitors) {
       if (event) {
         event = monitor(event)
@@ -80,9 +87,13 @@ export async function run(ctx: ProbeContext) {
   }
 
   sheet.contentView.layoutSubtreeIfNeeded()
+
   const initialScroll = views().find((v) => v.documentView && v.contentView?.bounds)
+
   ctx.assert('PageUp consumed', key(116), null)
+
   const initialY = Number(initialScroll.contentView.bounds.origin.y)
+
   ctx.record('initialY', initialY)
   ctx.assert('PageDown consumed by actual adapter', key(121), null)
   ctx.record('afterY', Number(initialScroll.contentView.bounds.origin.y))
@@ -90,12 +101,14 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(
     () => {
       const scroll = views().find((v) => v.documentView && v.contentView?.bounds)
+
       return Number(scroll?.contentView.bounds.origin.y) !== initialY
     },
     { timeout: 3000 },
   )
 
   const scroll = views().find((v) => v.documentView && v.contentView?.bounds)
+
   ctx.record('scrollAfterPageDown', Number(scroll.contentView.bounds.origin.y))
   ctx.assert(
     'keyboard highlight scrolled',
@@ -111,8 +124,11 @@ export async function run(ctx: ProbeContext) {
   monitors.length = 0
   await ctx.press('open')
   await ctx.waitFor(() => parent.attachedSheet?.firstResponder)
+
   const reopened = parent.attachedSheet
+
   ctx.assert('new sheet on reopen', reopened !== sheet, true)
+
   const reopenedField = walk(reopened.contentView).find(
     (v) => typeof v.currentEditor === 'function',
   )
@@ -137,7 +153,9 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.assert('text observer preserves field value', String(reopenedField.stringValue), 'Command 1')
+
   let escape: any = { keyCode: 53, window: reopened }
+
   for (const monitor of monitors) {
     if (escape) {
       escape = monitor(escape)

@@ -32,6 +32,7 @@ export async function runRollingText() {
 
   const children = (view: any): any[] => {
     const result = []
+
     for (let index = 0; index < view.subviews.count; index++) {
       result.push(view.subviews.objectAtIndex(index))
     }
@@ -62,6 +63,7 @@ export async function runRollingText() {
 
   try {
     const plain = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 80, 24))
+
     clipRow(plain)
     check(plain.layer.masksToBounds, 'native one-line clip')
     check(viewHeight(plain) === 24, 'native height in points')
@@ -82,11 +84,15 @@ export async function runRollingText() {
     check(viewHeight(row()) === 48, 'mounted layout measurement updates')
     check(row().layer.masksToBounds, 'clip survives font and layout changes')
     render('9')
+
     const original = cells()[0]
+
     render('9')
     check(cells()[0] === original, 'equal value preserves cell')
     render('10')
+
     const animationDeadline = Date.now() + 1000
+
     while (
       !cells().some((cell) => Number(cell.alphaValue) > 0 && Number(cell.alphaValue) < 1) &&
       Date.now() < animationDeadline
@@ -155,6 +161,7 @@ export async function runRollingText() {
     check(cells().length === 0 && String(row().accessibilityLabel()) === '', 'empty value')
 
     const workspace = NSWorkspace.sharedWorkspace
+
     check(
       readReducedMotion() === Boolean(workspace.accessibilityDisplayShouldReduceMotion),
       'real initial OS preference read',
@@ -162,6 +169,7 @@ export async function runRollingText() {
 
     let notifications = 0
     const off = observeReducedMotion(() => notifications++)
+
     workspace.notificationCenter.postNotificationNameObject(
       NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
       workspace,
@@ -181,10 +189,14 @@ export async function runRollingText() {
       render('first')
       render('second', { transition: { duration: 1 } })
       await wait(20)
+
       const detached = cells()[0]
+
       root.unmount()
       check(host.subviews.count === 0, 'unmount removes native tree')
+
       const alpha = detached.alphaValue
+
       await wait(40)
       check(detached.alphaValue === alpha, 'no frame writes after detach')
       root = createMacOSRoot(host)

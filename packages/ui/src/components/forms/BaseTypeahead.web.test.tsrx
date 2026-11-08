@@ -13,6 +13,7 @@ const items: SearchableItem[] = [
 ]
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -48,7 +49,9 @@ function mount(props: Partial<BaseTypeaheadProps> = {}, node?: any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const baseProps = {
     searchSource: makeSource(),
@@ -59,12 +62,14 @@ function mount(props: Partial<BaseTypeaheadProps> = {}, node?: any) {
   }
 
   act(() => root.render(node ?? <BaseTypeahead {...baseProps} />))
+
   const unmount = () => {
     root.unmount()
     host.remove()
   }
 
   cleanups.push(unmount)
+
   const input = () => host.querySelector('.vx-typeahead-input') as HTMLInputElement
   const type = (value: string) =>
     act(() => {
@@ -94,6 +99,7 @@ describe('BaseTypeahead search coordination', () => {
   it('searches on edit and lists the resolved results', async () => {
     const onOpenChange = vi.fn()
     const ui = mount({ onOpenChange })
+
     ui.type('ap')
     await ui.settle()
     expect(ui.props.searchSource.search).toHaveBeenCalledWith(
@@ -109,6 +115,7 @@ describe('BaseTypeahead search coordination', () => {
 
   it('reports the empty state after a completed empty search', async () => {
     const ui = mount()
+
     ui.type('zzz')
     await ui.settle()
     expect(document.querySelector('.vx-typeahead-empty')?.textContent).toBe('No results found')
@@ -116,6 +123,7 @@ describe('BaseTypeahead search coordination', () => {
 
   it('keeps queries below minQueryLength from searching or reporting empty', async () => {
     const ui = mount({ minQueryLength: 3 })
+
     ui.type('ap')
     await ui.settle()
     expect(ui.props.searchSource.search).not.toHaveBeenCalled()
@@ -125,6 +133,7 @@ describe('BaseTypeahead search coordination', () => {
 
   it('bootstraps on focus when hasEntriesOnFocus is set', async () => {
     const ui = mount({ hasEntriesOnFocus: true })
+
     act(() => ui.input().focus())
     await ui.settle()
     expect(ui.props.searchSource.bootstrap).toHaveBeenCalledTimes(1)
@@ -136,6 +145,7 @@ describe('BaseTypeahead search coordination', () => {
     const onChange = vi.fn(() => order.push('change'))
     const onOpenChange = vi.fn((open: boolean) => order.push(open ? 'open' : 'close'))
     const ui = mount({ onChange, onOpenChange })
+
     ui.type('ap')
     await ui.settle()
     ui.click(ui.options()[0])
@@ -148,6 +158,7 @@ describe('BaseTypeahead search coordination', () => {
   it('selects the keyboard-highlighted row with Enter', async () => {
     const onChange = vi.fn()
     const ui = mount({ onChange })
+
     ui.type('ap')
     await ui.settle()
     ui.key('ArrowDown')
@@ -158,6 +169,7 @@ describe('BaseTypeahead search coordination', () => {
   it('closes on Escape and reports it through onOpenChange', async () => {
     const onOpenChange = vi.fn()
     const ui = mount({ onOpenChange })
+
     ui.type('ap')
     await ui.settle()
     ui.key('Escape')
@@ -168,9 +180,12 @@ describe('BaseTypeahead search coordination', () => {
   it('closes when focus leaves the field for outside it', async () => {
     const onOpenChange = vi.fn()
     const ui = mount({ onOpenChange })
+
     ui.type('ap')
     await ui.settle()
+
     const outside = document.createElement('button')
+
     document.body.append(outside)
     act(() => {
       ui.input().focus()
@@ -189,6 +204,7 @@ describe('BaseTypeahead search coordination', () => {
     )
 
     const ui = mount({ searchSource: makeSource({ search }) })
+
     ui.type('a')
     ui.type('ab')
     await ui.settle()
@@ -205,6 +221,7 @@ describe('BaseTypeahead search coordination', () => {
   it('clears results and highlight on a rejected search', async () => {
     const failing = deferred<SearchableItem[]>()
     const ui = mount({ searchSource: makeSource({ search: () => failing.promise }) })
+
     ui.type('ap')
     await ui.settle()
     expect(ui.host.querySelector('.vx-typeahead-loading')).not.toBeNull()
@@ -222,19 +239,25 @@ describe('BaseTypeahead search coordination', () => {
 
     ui.type('ap')
     await ui.settle()
+
     const onSelect = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
+
     ui.click(ui.options()[0])
     expect(onSelect?.aborted).toBe(true)
 
     ui.type('ap')
     await ui.settle()
+
     const onDismiss = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
+
     ui.key('Escape')
     expect(onDismiss?.aborted).toBe(true)
 
     ui.type('ap')
     await ui.settle()
+
     const onUnmount = signalOf((ui.props.searchSource.search as any).mock.calls.at(-1))
+
     ui.unmount()
     expect(onUnmount?.aborted).toBe(true)
   })
@@ -260,6 +283,7 @@ describe('BaseTypeahead search coordination', () => {
     await a.settle()
     b.type('ap')
     await b.settle()
+
     const [first, second] = signals
 
     // A's next query supersedes only its own request.
@@ -276,6 +300,7 @@ describe('BaseTypeahead search coordination', () => {
     const pending = deferred<SearchableItem[]>()
     const search = vi.fn(() => pending.promise)
     const ui = mount({ searchSource: makeSource({ search }) })
+
     ui.type('ap')
     ui.unmount()
     await act(async () => {
@@ -316,6 +341,7 @@ describe('BaseTypeahead search coordination', () => {
   it('exposes the imperative input handle through ref', async () => {
     const ref = { current: null as any }
     const ui = mount({ ref })
+
     expect(typeof ref.current.focus).toBe('function')
     expect(ref.current.native).toBe(ui.input())
     ui.input().focus()

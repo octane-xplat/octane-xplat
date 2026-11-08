@@ -56,6 +56,7 @@ export function ListDemo() @{
       ...current,
       ...Array.from({ length: 5 }, (_, offset) => {
         const number = current.length + offset + 1
+
         return {
           id: 'event-' + number,
           kind: number % 3 === 0 ? ('notice' as const) : ('event' as const),

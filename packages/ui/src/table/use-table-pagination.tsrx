@@ -51,6 +51,7 @@ function TablePaginationBar(props: {
     c.totalPages ?? (c.totalItems != null ? Math.ceil(c.totalItems / pageSize) : undefined)
 
   const isSinglePage = totalPages === 1 && c.hasMore !== true
+
   if (isSinglePage || totalPages == null || totalPages < 1) {
     return null as any
   }
@@ -102,6 +103,7 @@ export function useTablePagination<T extends Record<string, unknown>>(
   return {
     transformTableContext(children) {
       const pos = configRef.current.position ?? 'below'
+
       if (pos === 'none') {
         return children
       }

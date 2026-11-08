@@ -6,6 +6,7 @@ export function useJobBatches(count: number, resetKey: string) {
   const [limit, setLimit] = useState(15)
   const [loading, setLoading] = useState(false)
   const sentinelRef = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     setLimit(15)
     setLoading(false)
@@ -13,6 +14,7 @@ export function useJobBatches(count: number, resetKey: string) {
 
   useEffect(() => {
     const node = sentinelRef.current
+
     if (!node || limit >= count) {
       return
     }

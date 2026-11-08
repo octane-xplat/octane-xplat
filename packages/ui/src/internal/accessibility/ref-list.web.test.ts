@@ -6,6 +6,7 @@ describe('composed refs', () => {
     const inner = vi.fn()
     const outer = vi.fn()
     const objectRef = { current: null }
+
     expect(refList(outer, refList(inner, [objectRef]), undefined)).toEqual([
       outer,
       inner,
@@ -18,6 +19,7 @@ describe('composed refs', () => {
     const objectRef = { current: null as { id: string } | null }
     const ref = mergedRef<{ id: string }>([callback, objectRef])
     const element = { id: 'host' }
+
     if (typeof ref !== 'function') {
       throw new Error('Expected a callback ref')
     }

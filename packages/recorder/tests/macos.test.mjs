@@ -87,6 +87,7 @@ class Host {
 function fixture(t) {
   const host = new Host()
   const recorder = createMacOSRecorder(host)
+
   t.after(() => recorder.dispose())
   return { host, recorder }
 }
@@ -101,6 +102,7 @@ test('macOS public source import does not evaluate mobile APIs', () => {
   })
 
   const recorder = root.createAudioRecorder()
+
   assert.equal(recorder.capabilities().supported, false)
   assert.equal(recorder.snapshot().permission, 'unsupported')
   recorder.dispose()
@@ -108,8 +110,11 @@ test('macOS public source import does not evaluate mobile APIs', () => {
 
 test('authorization pending is idle; start is exclusive and cancel settles before OS reply', async (t) => {
   const { host, recorder } = fixture(t)
+
   host.permission = 'undetermined'
+
   const start = recorder.start()
+
   assert.equal(recorder.snapshot().state, 'idle')
   assert.equal(host.starts.length, 0)
   await assert.rejects(recorder.start(), /starting/)
@@ -130,6 +135,7 @@ for (const [native, expected] of [
 ]) {
   test(`permission ${native} retains ${expected} and rejects start with its cause`, async (t) => {
     const { host, recorder } = fixture(t)
+
     host.permission = native
     assert.equal(await recorder.requestPermission(), expected)
     await assert.rejects(recorder.start(), new RegExp(native))
@@ -141,9 +147,12 @@ for (const [native, expected] of [
 
 test('dispose settles authorization/start and ignores late permission replies', async (t) => {
   const { host, recorder } = fixture(t)
+
   host.permission = 'undetermined'
+
   const permission = recorder.requestPermission()
   const start = recorder.start()
+
   recorder.dispose()
   await assert.rejects(permission, /disposed/)
   await assert.rejects(start, /cancelled|disposed/)
@@ -156,6 +165,7 @@ test('dispose settles authorization/start and ignores late permission replies', 
 
 test('pause, interruptions and foreground recovery require explicit resume', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start()
   assert.equal(host.starts[0].sampleRate, 44100)
   assert.equal(host.starts[0].channels, 1)
@@ -176,6 +186,7 @@ test('pause, interruptions and foreground recovery require explicit resume', asy
 
 test('meter reports only during capture and pause retains captured duration', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start()
   await new Promise((resolve) => setTimeout(resolve, 280))
   assert.equal(recorder.snapshot().meterLevel, 0.5)
@@ -186,10 +197,15 @@ test('meter reports only during capture and pause retains captured duration', as
 
 test('stop waits for delegate, validates bytes and uses written metadata', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start({ sampleRate: 44100, channels: 2 })
+
   const stop = recorder.stop()
+
   assert.equal(recorder.stop(), stop)
+
   let settled = false
+
   void stop.then(() => {
     settled = true
   })
@@ -200,7 +216,9 @@ test('stop waits for delegate, validates bytes and uses written metadata', async
   assert.equal(recorder.snapshot().state, 'paused')
   await assert.rejects(recorder.resume(), /cannot resume/)
   host.finish()
+
   const take = await stop
+
   assert.equal(take.mimeType, 'audio/wav')
   assert.equal(take.channels, 1)
   assert.equal(take.sampleRate, 16000)
@@ -211,8 +229,11 @@ test('stop waits for delegate, validates bytes and uses written metadata', async
 
 test('invalid finalized WAV rejects stop, releases capture and deletes only current take', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start()
+
   const stop = recorder.stop()
+
   host.finish(new Uint8Array(44))
   await assert.rejects(stop, /finalized/)
   assert.equal(recorder.snapshot().state, 'error')
@@ -221,8 +242,11 @@ test('invalid finalized WAV rejects stop, releases capture and deletes only curr
 
 test('native write failure settles stop and cancel resets error', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start()
+
   const stop = recorder.stop()
+
   host.event('error', { message: 'Disk full' })
   await assert.rejects(stop, /Disk full/)
   assert.equal(recorder.snapshot().state, 'error')
@@ -233,6 +257,7 @@ test('native write failure settles stop and cancel resets error', async (t) => {
 
 test('start/resume native failures publish error and release capture', async (t) => {
   const { host, recorder } = fixture(t)
+
   host.startError = 'Device busy'
   await assert.rejects(recorder.start(), /Device busy/)
   assert.equal(recorder.snapshot().state, 'error')
@@ -248,9 +273,12 @@ test('start/resume native failures publish error and release capture', async (t)
 for (const action of ['cancel', 'dispose']) {
   test(`${action} settles finalization and stale callbacks cannot finish a later take`, async (t) => {
     const { host, recorder } = fixture(t)
+
     await recorder.start()
+
     const id = host.starts[0].id
     const stop = recorder.stop()
+
     await recorder[action]()
     await assert.rejects(stop, /cancelled/)
     host.event('finished', { id, path: 'old.wav', base64: 'broken' })
@@ -265,6 +293,7 @@ for (const action of ['cancel', 'dispose']) {
 
 test('restart replaces take and resets omitted options to public defaults', async (t) => {
   const { host, recorder } = fixture(t)
+
   await recorder.start({ sampleRate: 16000, channels: 2 })
   await recorder.restart()
   assert.equal(host.starts[1].sampleRate, 44100)

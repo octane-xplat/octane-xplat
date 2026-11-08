@@ -52,7 +52,9 @@ export class IOSMovieWriterDriver {
     if (this.released || this.active) {
       throw problem('invalidState', 'The writer is disposed or already recording')
     }
+
     const epoch = ++this.epoch
+
     this.active = true
     this.stopping = false
     try {
@@ -65,14 +67,17 @@ export class IOSMovieWriterDriver {
           if (!this.active || this.released || epoch !== this.epoch) {
             return
           }
+
           if (['finishing', 'limit', 'sourceLost', 'finished', 'failed'].includes(type)) {
             this.stopping = true
             this.cancelSwitch()
           }
+
           if (type === 'finished' || type === 'failed') {
             this.active = false
             this.cancelSwitch()
           }
+
           event(type, payload)
         },
       )
@@ -86,6 +91,7 @@ export class IOSMovieWriterDriver {
     if (!this.active || this.stopping || this.released || this.pending || this.provisional) {
       throw problem('invalidState', 'The writer cannot switch now')
     }
+
     const token = {}
     const completion = new Promise<CameraDeviceInfo>((resolve, reject) => {
       this.pending = { token, reject }
@@ -94,6 +100,7 @@ export class IOSMovieWriterDriver {
           if (this.pending?.token !== token || this.released) {
             return
           }
+
           this.pending = undefined
           if (message) {
             reject(problem('unavailable', message))
@@ -107,12 +114,14 @@ export class IOSMovieWriterDriver {
         reject(error)
       }
     })
+
     return {
       completion,
       commit: () => {
         if (this.provisional?.token !== token || this.stopping || this.released) {
           throw problem('invalidState', 'Camera switching was cancelled before commit')
         }
+
         this.native.confirmSwitch(camera.id)
         this.provisional = undefined
       },
@@ -126,11 +135,13 @@ export class IOSMovieWriterDriver {
 
   private cancelSwitch(): void {
     const pending = this.pending ?? this.provisional
+
     this.pending = undefined
     this.provisional = undefined
     if (!pending) {
       return
     }
+
     pending.reject(problem('invalidState', 'Camera switching was cancelled'))
     try {
       this.native.cancelSwitch()

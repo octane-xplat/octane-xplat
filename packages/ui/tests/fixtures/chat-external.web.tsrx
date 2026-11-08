@@ -2,10 +2,13 @@
 import { useRef, useState } from 'octane'
 import { ChatLayout, ChatMessageList } from '@octane-xplat/ui/chat'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let grow = () => {}
+
 export default function ExternalChat() @{
   const scroller = useRef<any>(null)
   const [height, setHeight] = useState(48)
+
   grow = () => setHeight(128)
 
   <div id="external-chat" ref={scroller} style={{ height: 480, overflowY: 'auto' }}>
@@ -30,7 +33,9 @@ export default function ExternalChat() @{
 export async function run(ctx: ProbeContext) {
   const root: any = await ctx.waitFor(() => ctx.find('external-chat'))
   const end = () => root.scrollHeight - root.clientHeight - root.scrollTop < 2
+
   await ctx.waitFor(() => root.scrollHeight > 1800 && end())
+
   const content = root.querySelector('.vx-chatlayout-messages'),
     dock = root.querySelector('.vx-chatlayout-dock')
 
@@ -43,6 +48,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const before = root.scrollHeight
+
   grow()
   await ctx.waitFor(() => root.scrollHeight > before + 70 && end())
   ctx.assert('external scroller follows composer growth at end', end(), true)

@@ -32,6 +32,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
 
   useEffect(() => applyEscapeProps(row.current, props), [props])
   useEffect(() => group?.restore(), [group, selected, disabled, props.value])
+
   const Ind = useIndicator('radio') ?? RadioIndicator
 
   <masonview

@@ -1,6 +1,7 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { rendererImageFixture } from './fixtures/renderer-image.ts'
+
 const tick = async (env: ReturnType<typeof rendererImageFixture>) => {
   await env.start()
   env.flush()
@@ -12,6 +13,7 @@ test('load events defer through handler installation and report actual network, 
     src = 'https://image-test/events-origin',
     views = [{ image: null }, { image: null }, { image: null }],
     loads: any[] = []
+
   try {
     env.setImageEventHandlers(views[0], { onLoad: (event: any) => loads.push({ ...event }) })
     env.updateImage(views[0], src)
@@ -42,6 +44,7 @@ test('failure reports a generic Error once, preserves placeholders and never emi
     errors: string[] = [],
     loads: any[] = [],
     src = 'https://image-test/failure?token=test-only'
+
   try {
     env.setImageEventHandlers(view, {
       onLoad: (event: any) => loads.push(event),
@@ -76,6 +79,7 @@ test('callbacks read current handlers, removal suppresses pending work and addin
     view: any = { image: null },
     completed: any = { image: null },
     calls: string[] = []
+
   try {
     env.setImageEventHandlers(view, { onLoad: () => calls.push('old') })
     env.updateImage(view, '/events/current.png')
@@ -106,6 +110,7 @@ test('source/policy changes and disposal retire terminal notifications queued fo
     sourceView: any = { image: null },
     calls: string[] = [],
     src = 'https://image-test/event-retire'
+
   try {
     env.setImageEventHandlers(view, { onLoad: () => calls.push('retired') })
     env.updateImage(view, src)
@@ -136,6 +141,7 @@ test('placeholder updates keep the pending request and cannot cover a completed 
     view: any = { image: null },
     src = 'https://image-test/event-placeholder',
     loads: string[] = []
+
   try {
     env.setImageEventHandlers(view, {
       onLoad: (event: any) => {
@@ -165,6 +171,7 @@ test('load callback source replacement owns its own subsequent completion', asyn
   const env = rendererImageFixture(),
     view: any = { image: null },
     calls: string[] = []
+
   try {
     env.setImageEventHandlers(view, {
       onLoad: (event: any) => {
@@ -190,6 +197,7 @@ test('consumer callback exceptions stay separate from load errors and cannot str
     first: any = { image: null },
     next: any = { image: null },
     calls: string[] = []
+
   try {
     env.setImageEventHandlers(first, {
       onLoad: () => {
@@ -215,12 +223,14 @@ test('failed native assignment reports error; unavailable pixel metadata remains
     broken: any = {},
     unknown: any = { image: null },
     calls: any[] = []
+
   Object.defineProperty(broken, 'image', {
     get: () => null,
     set: () => {
       throw Error('native paint failed')
     },
   })
+
   try {
     env.setImageEventHandlers(broken, {
       onLoad: () => calls.push('false load'),
@@ -247,16 +257,20 @@ test('placeholder assignment failure does not stop the actual image source or em
     src = 'https://image-test/placeholder-paint-error',
     view: any = {},
     calls: string[] = []
+
   let painted: any = null
+
   Object.defineProperty(view, 'image', {
     get: () => painted,
     set: (image) => {
       if (image?.data && typeof image.data === 'object') {
         throw Error('placeholder paint failed')
       }
+
       painted = image
     },
   })
+
   try {
     env.setImageEventHandlers(view, {
       onLoad: () => calls.push('loaded'),

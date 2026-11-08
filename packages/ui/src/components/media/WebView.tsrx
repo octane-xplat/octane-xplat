@@ -39,8 +39,10 @@ function evaluateScript(view: any, script: string, onValue: (value: any) => void
 function reportContentLayout(view: any, props: WebViewProps) {
   let width = Number(view?.getActualSize?.()?.width ?? 0)
   let height = 0
+
   if (isIOS) {
     const size = view?.ios?.scrollView?.contentSize
+
     width = Number(size?.width ?? width)
     height = Number(size?.height ?? 0)
   } else if (isAndroid) {
@@ -62,11 +64,13 @@ function reportContentLayout(view: any, props: WebViewProps) {
 function applyNativeScrollEnabled(view: any, enabled: boolean | undefined) {
   if (isIOS) {
     const scrollView = view?.ios?.scrollView
+
     if (scrollView) {
       scrollView.scrollEnabled = enabled !== false
     }
   } else if (isAndroid) {
     const nativeView = view?.android
+
     if (!nativeView?.setOnTouchListener) {
       return
     }
@@ -95,7 +99,9 @@ export function WebView(props: WebViewProps): unknown @{
   const el = useRef<any>(null)
   const loaded = useRef(false)
   const currentProps = useRef(props)
+
   currentProps.current = props
+
   // Bumped on each main-frame navigation so in-flight drains from a dead
   // document never emit into the new session.
   const generation = useRef(0)
@@ -104,6 +110,7 @@ export function WebView(props: WebViewProps): unknown @{
   const drainOutbox = () => {
     const view = el.current
     const atGeneration = generation.current
+
     if (!view || !loaded.current) {
       return
     }
@@ -116,12 +123,14 @@ export function WebView(props: WebViewProps): unknown @{
       // Android's ValueCallback carries the result JSON-encoded;
       // iOS hands the evaluated value through directly.
       const batch = parseMessageBatch(value, isAndroid)
+
       if (!batch?.length) {
         return
       }
 
       const latest = currentProps.current
       const url = latest.html === undefined ? lastUrl.current : undefined
+
       for (const data of batch) {
         latest.onMessage?.({ data, url })
       }
@@ -129,17 +138,20 @@ export function WebView(props: WebViewProps): unknown @{
   }
 
   const wantsMessages = props.onMessage !== undefined
+
   useEffect(() => {
     if (!wantsMessages) {
       return
     }
 
     const timer = setInterval(drainOutbox, MESSAGE_POLL_MS)
+
     return () => clearInterval(timer)
   }, [wantsMessages])
 
   useEffect(() => {
     const v = el.current
+
     if (!v) {
       return
     }

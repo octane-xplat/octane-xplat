@@ -65,10 +65,13 @@ const LAST = [
 /** Small deterministic PRNG so re-renders keep stable data. */
 function mulberry32(seed: number): () => number {
   let a = seed
+
   return () => {
     a |= 0
     a = (a + 0x6d2b79f5) | 0
+
     let t = Math.imul(a ^ (a >>> 15), 1 | a)
+
     t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296
   }
@@ -77,10 +80,12 @@ function mulberry32(seed: number): () => number {
 export function generateRows(count: number): LabRow[] {
   const rand = mulberry32(1337)
   const rows: LabRow[] = []
+
   for (let i = 0; i < count; i++) {
     const first = FIRST[Math.floor(rand() * FIRST.length)]
     const last = LAST[Math.floor(rand() * LAST.length)]
     const name = `${first} ${last}`
+
     rows.push({
       id: `row-${i}`,
       name,
@@ -94,6 +99,7 @@ export function generateRows(count: number): LabRow[] {
       joined: `20${String(18 + Math.floor(rand() * 7)).padStart(2, '0')}-${String(1 + Math.floor(rand() * 12)).padStart(2, '0')}`,
     })
   }
+
   return rows
 }
 

@@ -24,8 +24,10 @@ function panVelocity(
 
   const recognizer = e.ios
   const nativeView = e.view?.nativeViewProtected
+
   if (recognizer?.velocityInView && nativeView) {
     const velocity = recognizer.velocityInView(nativeView)
+
     return { vx: velocity.x, vy: velocity.y }
   }
 
@@ -34,6 +36,7 @@ function panVelocity(
   // the dip/sec units used by deltaX/deltaY.
   const motionEvent = e.android?.current
   const velocityTrackerClass = hostGlobal('android')?.view?.VelocityTracker
+
   if (!motionEvent || !velocityTrackerClass) {
     return { vx: 0, vy: 0 }
   }
@@ -44,10 +47,13 @@ function panVelocity(
   }
 
   const tracker = trackerRef.current
+
   tracker.addMovement(motionEvent)
   tracker.computeCurrentVelocity(1000)
+
   const density = Utils.layout.getDisplayDensity()
   const velocity = { vx: tracker.getXVelocity() / density, vy: tracker.getYVelocity() / density }
+
   if (state === 0 || state === 3) {
     tracker.recycle?.()
     trackerRef.current = null
@@ -58,12 +64,14 @@ function panVelocity(
 
 function nativePanState(e: any): number {
   const motionEvent = e.android?.current
+
   if (!motionEvent) {
     return e.state
   }
 
   const action = motionEvent.getActionMasked?.()
   const actionCancel = hostGlobal('android')?.view?.MotionEvent?.ACTION_CANCEL ?? 3
+
   // NativeScript Android reports ACTION_CANCEL as `ended`; the MotionEvent
   // preserves the distinction needed by the shared pan contract.
   return action === actionCancel ? 0 : e.state
@@ -78,6 +86,7 @@ export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefin
       const nativeState = nativePanState(e)
       const state = PAN_STATE[nativeState] ?? 'moved'
       const velocity = panVelocity(e, nativeState, velocityTracker)
+
       cb?.({
         x: e.deltaX,
         y: e.deltaY,

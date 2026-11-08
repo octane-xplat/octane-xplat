@@ -13,6 +13,7 @@ export function PopoverFilterPanel() @{
   })
 
   const toggle = (key: keyof typeof filters) => setFilters((f) => ({ ...f, [key]: !f[key] }))
+
   return (
     <>
       <Button ref={anchor} label="Filter" clickAction={() => setIsOpen(true)} />

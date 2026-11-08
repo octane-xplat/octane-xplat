@@ -69,11 +69,13 @@ function sizeFor(bounds: PopoverRect, viewport: PopoverRect, state: State): Type
     typeof explicit === 'number' && Number.isFinite(explicit) && explicit > 0
       ? explicit
       : bounds.width
+
   const placement = state.placement ?? 'bottom'
   const height =
     placement === 'top' || placement === 'bottom'
       ? Math.max(bounds.top - 8, viewport.height - bounds.top - bounds.height - 8)
       : viewport.height - 16
+
   return {
     width: Math.max(1, Math.min(requested, viewport.width - 16)),
     maxHeight: Math.max(1, Math.min(height, viewport.height - 16)),
@@ -96,23 +98,29 @@ export function createAppKitTypeaheadLayer(
   let session: Session | null = null,
     observed: (() => void) | undefined,
     size: TypeaheadLayerSize | null = null
+
   let disposed = false,
     wasOpen = false,
     canceled = false,
     updating = false,
     queued = false
+
   const stop = () => {
     const release = observed
+
     observed = undefined
     release?.()
   }
+
   const retire = (owned = session) => {
     if (!owned) {
       return
     }
+
     if (session === owned) {
       session = null
     }
+
     owned.live = false
     owned.waiters = []
     try {
@@ -123,18 +131,23 @@ export function createAppKitTypeaheadLayer(
       }
     }
   }
+
   const resize = (next: TypeaheadLayerSize) => {
     if (size?.width === next.width && size.maxHeight === next.maxHeight) {
       return
     }
+
     size = next
     if (session) {
       session.committed = false
     }
+
     options.resize(next)
   }
+
   const valid = (owned: Session) => {
     const current = options.state()
+
     return (
       !disposed &&
       session === owned &&
@@ -148,12 +161,15 @@ export function createAppKitTypeaheadLayer(
       owned.input.window === owned.window
     )
   }
+
   const refresh = () => {
     if (disposed) {
       return
     }
+
     const current = options.state(),
       rising = current.open && !wasOpen
+
     wasOpen = current.open
     if (!current.open) {
       canceled = false
@@ -165,12 +181,15 @@ export function createAppKitTypeaheadLayer(
 
       return
     }
+
     if (rising) {
       canceled = false
     }
+
     if (canceled) {
       return
     }
+
     if (
       session &&
       (!session.live ||
@@ -189,6 +208,7 @@ export function createAppKitTypeaheadLayer(
       options.dismiss()
       return
     }
+
     if (!observed) {
       const host = native(),
         center = host.NSNotificationCenter?.defaultCenter
@@ -200,6 +220,7 @@ export function createAppKitTypeaheadLayer(
           null,
           (note: { object: unknown }) => {
             const latest = options.state()
+
             if (note.object === latest.input?.window || note.object === session?.window) {
               update()
             }
@@ -215,18 +236,23 @@ export function createAppKitTypeaheadLayer(
         }
       }
     }
+
     const anchor = current.anchor,
       input = current.input
+
     if (!nativeAnchor(anchor) || !input?.window || anchor.window !== input.window) {
       retire()
       return
     }
+
     if (session && (session.anchor !== anchor || session.input !== input)) {
       retire()
     }
+
     const window = input.window,
       content = window.contentView,
       viewport = content?.bounds
+
     if (
       !content ||
       !viewport ||
@@ -236,6 +262,7 @@ export function createAppKitTypeaheadLayer(
     ) {
       return
     }
+
     const rect = anchor.convertRectToView(anchor.bounds, content)
     const bounds = {
       left: rect.origin.x - viewport.origin.x,
@@ -245,6 +272,7 @@ export function createAppKitTypeaheadLayer(
       width: rect.size.width,
       height: rect.size.height,
     }
+
     if (
       ![bounds.left, bounds.top, bounds.width, bounds.height].every(Number.isFinite) ||
       bounds.width <= 0 ||
@@ -252,6 +280,7 @@ export function createAppKitTypeaheadLayer(
     ) {
       return
     }
+
     resize(
       sizeFor(
         bounds,
@@ -259,6 +288,7 @@ export function createAppKitTypeaheadLayer(
         current,
       ),
     )
+
     if (session) {
       if (session.handle && !session.released) {
         session.handle.update({})
@@ -266,11 +296,14 @@ export function createAppKitTypeaheadLayer(
 
       return
     }
+
     const host = bridge(),
       show = host?.showLayer
+
     if (typeof show !== 'function') {
       throw new Error('AppKit typeahead results require the source-owned window-layer host')
     }
+
     const owned: Session = {
       token: {},
       anchor,
@@ -284,6 +317,7 @@ export function createAppKitTypeaheadLayer(
       revealed: false,
       waiters: [],
     }
+
     session = owned
     try {
       const handle: Layer | null =
@@ -298,10 +332,13 @@ export function createAppKitTypeaheadLayer(
             viewport: PopoverRect,
           ) => {
             const latest = options.state()
+
             if (valid(owned)) {
               resize(sizeFor(bounds, viewport, latest))
             }
+
             const placement = latest.placement ?? 'bottom'
+
             return positionPopover(
               bounds,
               panel,
@@ -316,12 +353,14 @@ export function createAppKitTypeaheadLayer(
             if (valid(owned)) {
               options.publish({ token: owned.token, view: target })
             }
+
             return {
               render() {},
               whenCommitted(callback: () => void) {
                 if (!valid(owned)) {
                   return
                 }
+
                 if (owned.committed) {
                   callback()
                 } else {
@@ -342,6 +381,7 @@ export function createAppKitTypeaheadLayer(
             if (disposed || session !== owned || !owned.live) {
               return
             }
+
             if (owned.released || owned.handle?.closed) {
               canceled = true
               try {
@@ -412,10 +452,12 @@ export function createAppKitTypeaheadLayer(
       throw error
     }
   }
+
   const update = (): void => {
     if (disposed) {
       return
     }
+
     if (updating) {
       if (!queued) {
         queued = true
@@ -427,6 +469,7 @@ export function createAppKitTypeaheadLayer(
 
       return
     }
+
     updating = true
     try {
       refresh()
@@ -444,16 +487,21 @@ export function createAppKitTypeaheadLayer(
       updating = false
     }
   }
+
   return {
     update,
     isPresent: (): boolean => !!session?.handle && valid(session) && session.revealed,
     committed(token: object): boolean | undefined {
       const owned = session
+
       if (!owned || owned.token !== token || !valid(owned)) {
         return
       }
+
       owned.committed = true
+
       const waiting = owned.waiters.splice(0)
+
       for (const ready of waiting) {
         if (!valid(owned)) {
           return
@@ -461,22 +509,27 @@ export function createAppKitTypeaheadLayer(
 
         ready()
       }
+
       if (!valid(owned) || !owned.committed || !owned.handle) {
         return
       }
+
       if (!waiting.length) {
         owned.handle.update({})
       }
+
       if (valid(owned) && owned.committed && !owned.revealed) {
         owned.handle.show()
         owned.revealed = true
       }
+
       return valid(owned) && owned.committed && owned.revealed
     },
     dispose(): void {
       if (disposed) {
         return
       }
+
       disposed = true
       try {
         retire()
@@ -492,16 +545,20 @@ export function createAppKitTypeaheadLayer(
 export function appKitTypeaheadOwnsFocus(roots: readonly (NSView | null)[]): boolean {
   const read = (view: object | null | undefined, key: string) => {
     const value = view && Reflect.get(view, key)
+
     return typeof value === 'function' ? value.call(view) : value
   }
+
   for (const root of roots) {
     if (!root?.window) {
       continue
     }
 
     const responder = root.window.firstResponder
+
     for (const start of [responder, read(responder, 'delegate')]) {
       const seen = new Set<object>()
+
       for (let view = start; view && !seen.has(view); view = read(view, 'superview')) {
         if (view === root) {
           return true
@@ -511,5 +568,6 @@ export function appKitTypeaheadOwnsFocus(roots: readonly (NSView | null)[]): boo
       }
     }
   }
+
   return false
 }

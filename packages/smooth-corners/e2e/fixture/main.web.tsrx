@@ -8,6 +8,7 @@ function App() @{
   const [classClip, setClassClip] = useState(false)
   const [wide, setWide] = useState(false)
   const [clicks, setClicks] = useState(0)
+
   return (
     <div>
       <button id="hide" onClick={() => setOverflow('hidden')}>

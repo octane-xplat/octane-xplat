@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 import { View, Text, Pressable } from '@octane-xplat/ui'
 
 import { dataShared$, dataSharedQuery$, dataRequests } from './data-probe-state'
+
 export { dataShared$, dataRequests } from './data-probe-state'
 
 function loadData(id: string, { signal }: QueryContext<string>) {
@@ -55,6 +56,7 @@ export function DataRetained(props: { pending: Promise<string>; fail: () => void
   <View>
     @try {
       const value = pending === null ? 'ready' : use(pending)
+
       <Pressable id="data-suspend" onPress={() => setPending(props.pending)}>
         <Text id="data-body">{value}</Text>
       </Pressable>

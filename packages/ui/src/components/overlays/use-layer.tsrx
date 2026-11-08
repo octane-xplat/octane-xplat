@@ -72,8 +72,11 @@ export function useLayer<O extends LayerOptions>(
   const renderProps = useRef<ContextRenderProps | FixedRenderProps | undefined>(undefined)
   const popup = useRef<any>(null)
   const onShow = useRef(options.onShow)
+
   onShow.current = options.onShow
+
   const onHide = useRef(options.onHide)
+
   onHide.current = options.onHide
 
   const dismissal = useLayerDismissal({
@@ -90,15 +93,19 @@ export function useLayer<O extends LayerOptions>(
   const controlled = options.isOpen !== undefined
   const visible = options.isOpen ?? isOpen
   const controlledOpen = useRef(options.isOpen)
+
   controlledOpen.current = options.isOpen
+
   const position =
     (surface: ContextRenderProps | FixedRenderProps | undefined) =>
     (anchor: any, panel: any, viewport: any) => {
       const p = (surface ?? {}) as ContextRenderProps
+
       if (fixed || p.positioning === 'custom') {
         const fx = surface as FixedRenderProps | undefined
         const x = fixed ? (fx?.x ?? 0) : (styleRecord(p.style)?.left ?? 0)
         const y = fixed ? (fx?.y ?? 0) : (styleRecord(p.style)?.top ?? 0)
+
         if (!Number.isFinite(x) || !Number.isFinite(y)) {
           throw new TypeError('macOS custom layer left/top require finite window points')
         }
@@ -108,6 +115,7 @@ export function useLayer<O extends LayerOptions>(
 
       const rtl = nativeLayerRTL(anchorEl.current)
       const side = resolveLayerSide(p.placement, rtl)
+
       return positionPopover(
         anchor,
         panel,
@@ -120,6 +128,7 @@ export function useLayer<O extends LayerOptions>(
 
   const sync = (present = controlledOpen.current ?? openRef.current) => {
     const p = renderProps.current
+
     if (!present) {
       popup.current?.close()
       popup.current = null
@@ -144,11 +153,13 @@ export function useLayer<O extends LayerOptions>(
     }
 
     const showLayer = host().showLayer
+
     if (typeof showLayer !== 'function') {
       return
     }
 
     const anchor = fixed ? markerEl.current : anchorEl.current
+
     if (!anchor) {
       return
     }

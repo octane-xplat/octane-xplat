@@ -10,8 +10,10 @@ import {
 } from '../src/geometry'
 
 import type { CropHandle, PixelCrop } from '../src/props'
+
 const size = { width: 400, height: 300 }
 const start: PixelCrop = { unit: 'px', x: 100, y: 80, width: 120, height: 80 }
+
 describe('selection geometry', () => {
   it('excludes contain letterboxing and maps natural pixels in both directions', () => {
     expect(containFrame({ width: 400, height: 400 }, { width: 800, height: 400 })).toEqual({
@@ -22,6 +24,7 @@ describe('selection geometry', () => {
     })
 
     const natural = toNaturalCrop(start, size, { width: 800, height: 600 })
+
     expect(natural).toEqual({ unit: 'px', x: 200, y: 160, width: 240, height: 160 })
     expect(fromNaturalCrop(natural, { width: 800, height: 600 }, size)).toEqual(start)
   })
@@ -118,6 +121,7 @@ describe('selection geometry', () => {
 
     for (const handle of ['move', 'nw', 'se'] as CropHandle[]) {
       const dragged = dragCrop(start, handle, 20, 20, { width: Number.NaN, height: Number.NaN })
+
       expect(Number.isFinite(dragged.x + dragged.y + dragged.width + dragged.height)).toBe(true)
     }
   })

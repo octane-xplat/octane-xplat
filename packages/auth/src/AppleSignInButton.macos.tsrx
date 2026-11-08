@@ -10,7 +10,9 @@ export function AppleSignInButton(props: AppleSignInButtonProps) @{
   const anchor = useRef<any>(null)
   const handle = useRef<ReturnType<typeof attachAppleButton> | null>(null)
   const current = useRef(props)
+
   current.current = props
+
   const action = useRef(
     createSignInButtonAction(
       () => current.current,

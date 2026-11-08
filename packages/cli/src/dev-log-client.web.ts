@@ -2,10 +2,13 @@
 // it executes in the browser, without importing any Node/CLI modules.
 function installBrowserLogs(token: string, endpoint: string) {
   const browser = globalThis as any
+
   if (browser.__XPLAT_LOGS_INSTALLED__) {
     return
   }
+
   browser.__XPLAT_LOGS_INSTALLED__ = true
+
   let queue: Array<{ level: string; line: string }> = []
   let dropped = 0
   let sending = false
@@ -27,13 +30,17 @@ function installBrowserLogs(token: string, endpoint: string) {
       return '[unprintable]'
     }
   }
+
   const flush = async () => {
     if (sending || (!queue.length && !dropped)) {
       return
     }
+
     sending = true
+
     const records = queue.splice(0, 10)
     const lost = dropped
+
     dropped = 0
     try {
       const response = await browser.fetch(endpoint, {
@@ -55,27 +62,34 @@ function installBrowserLogs(token: string, endpoint: string) {
       }
     }
   }
+
   const record = (level: string, values: unknown[]) => {
     if (queue.length === 100) {
       queue.shift()
       dropped++
     }
+
     const text = values
       .slice(0, 10)
       .map((value) => format(value).slice(0, 2049))
       .join(' ')
+
     const line =
       text.length > 2048 || values.length > 10 ? text.slice(0, 2035) + ' [truncated]' : text
+
     queue.push({ level, line })
     void flush()
   }
+
   for (const level of ['warn', 'error']) {
     const original = browser.console[level]
+
     browser.console[level] = function (...values: unknown[]) {
       original.apply(this, values)
       record(level, values)
     }
   }
+
   browser.addEventListener(
     'error',
     (event: any) => {
@@ -85,6 +99,7 @@ function installBrowserLogs(token: string, endpoint: string) {
     },
     true,
   )
+
   browser.addEventListener('unhandledrejection', (event: any) => record('error', [event.reason]))
 }
 

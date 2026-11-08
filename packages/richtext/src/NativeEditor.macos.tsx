@@ -20,10 +20,14 @@ type HostProps = RichTextEditorProps & {
 /** Internal shared AppKit/WKWebView surface, owned by the editor leaf. */
 export function NativeEditor(props: HostProps): unknown {
   const latest = useRef(props)
+
   latest.current = props
+
   const session = useRef<ReturnType<typeof createEditorSession> | null>(null)
   const [handle, setHandle] = useState<any>(null)
+
   useImperativeHandle(props.ref, () => handle, [handle])
+
   const attach = useCallback((parent: any) => {
     session.current?.dispose()
     session.current = null

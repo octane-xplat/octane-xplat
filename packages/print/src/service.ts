@@ -19,11 +19,13 @@ async function operation<T>(
   if (!available) {
     throw new UnavailabilityError(name)
   }
+
   if (busy) {
     throw Object.assign(new Error('A print operation is already active'), {
       code: 'ERR_PRINT_BUSY',
     })
   }
+
   busy = true
   try {
     return await action()
@@ -35,6 +37,7 @@ async function operation<T>(
 /** Open the system print UI. Promise semantics depend on the platform; physical printing is never guaranteed. */
 export async function printAsync(options: PrintOptions): Promise<void> {
   const snapshot = printOptions(options)
+
   return operation(backend.capabilities().print, 'Print.printAsync', () => backend.print(snapshot))
 }
 
@@ -50,8 +53,10 @@ export async function printAsync(options: PrintOptions): Promise<void> {
  */
 export async function printToFileAsync(options: FilePrintOptions = {}): Promise<FilePrintResult> {
   const snapshot = fileOptions(options)
+
   return operation(backend.capabilities().printToFile, 'Print.printToFileAsync', async () => {
     const result = await backend.file(snapshot)
+
     owned.add(result.uri)
     return result
   })
@@ -67,9 +72,11 @@ export function selectPrinterAsync(): Promise<Printer> {
 /** Delete only PDF exports owned by this package. Unknown/previously released results are harmless. */
 export function releasePrintFile(result: FilePrintResult | string): void {
   const uri = typeof result === 'string' ? result : result.uri
+
   if (!owned.has(uri)) {
     return
   }
+
   backend.remove(uri)
   owned.delete(uri)
 }
@@ -85,6 +92,7 @@ export const Print: {
 } = {
   get supported(): boolean {
     const value = backend.capabilities()
+
     return value.print || value.printToFile || value.selectPrinter
   },
   get capabilities(): PrintCapabilities {

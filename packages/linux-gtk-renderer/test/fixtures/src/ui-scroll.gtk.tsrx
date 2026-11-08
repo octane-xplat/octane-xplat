@@ -24,6 +24,7 @@ export function Scrollable(props: {
   hidden?: boolean
 }) @{
   const area = useScrollableArea<HostElement>({ axis: props.axis })
+
   scrollRefs.state = area.state
 
   <scrollview

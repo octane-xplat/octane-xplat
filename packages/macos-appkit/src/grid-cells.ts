@@ -14,26 +14,34 @@ export function readGridCells(
   const cells: object[] = [],
     seen = new Set<object>(),
     excluded = new Set(nestedRoots)
+
   const visit = (view: any) => {
     if (!view || (typeof view !== 'object' && typeof view !== 'function') || seen.has(view)) {
       return
     }
+
     seen.add(view)
+
     const node = nodeForView(view)
     const managed = node?.view === view ? node : undefined
+
     if (view !== root && (excluded.has(view) || managed?.cssClasses?.has('vx-gridlist'))) {
       return
     }
+
     if (view !== root && managed && managed.props['data-grid-cell'] != null) {
       cells.push(view)
     }
+
     const children = view.subviews
+
     if (Array.isArray(children)) {
       for (const child of children) {
         visit(child)
       }
     } else if (children && typeof children.objectAtIndex === 'function') {
       const count = Number(children.count)
+
       if (Number.isSafeInteger(count) && count >= 0) {
         for (let index = 0; index < count; index++) {
           visit(children.objectAtIndex(index))
@@ -41,6 +49,7 @@ export function readGridCells(
       }
     }
   }
+
   visit(root)
   return cells
 }

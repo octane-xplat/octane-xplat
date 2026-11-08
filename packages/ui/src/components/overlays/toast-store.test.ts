@@ -75,6 +75,7 @@ describe('toast store', () => {
     ).toBeNull()
 
     const handle = toastHandleFor(pushToast({ body: 'kept' }))!
+
     expect(handle.id).toBe(toastStore.getSnapshot()[1].id)
     handle.dismiss()
     expect(toastStore.getSnapshot()[1].exiting).toBe(true)
@@ -82,6 +83,7 @@ describe('toast store', () => {
 
   it('updates a live toast in place and leaves dismissing entries alone', () => {
     const id = pushToast({ body: 'first' })
+
     updateToast(id, { body: 'second', type: 'error' })
     expect(toastStore.getSnapshot()[0].options).toEqual({ body: 'second', type: 'error' })
 

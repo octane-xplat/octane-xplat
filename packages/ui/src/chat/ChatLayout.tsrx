@@ -59,7 +59,9 @@ export function ChatLayout(props: ChatLayoutProps): unknown @{
   const safe = useContext(ConsumedInsetsContext)
   const homeInset = Math.max(0, useSafeAreaInsets().bottom - safe.bottom)
   const ancestor = useContext(KeyboardAvoidanceContext)
+
   checkChatPanelHeight(props.bottomPanelHeight)
+
   const options = useRef({
     keyboardFollow: props.keyboardFollow,
     bottomPanelHeight: props.bottomPanelHeight,
@@ -79,12 +81,14 @@ export function ChatLayout(props: ChatLayoutProps): unknown @{
   }
 
   const binding = useRef<ChatKeyboardBinding | null>(null)
+
   useEffect(() => {
     if (!root || !viewport || !dock || !dockPad || !content) {
       return
     }
 
     const own = bindChatKeyboard(root, viewport, dock, dockPad, content, () => options.current)
+
     binding.current = own
     return () => {
       binding.current = null

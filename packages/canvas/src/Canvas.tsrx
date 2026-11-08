@@ -15,6 +15,7 @@ registerElement('nscanvas', NSCanvas)
 export function Canvas(props: CanvasProps): unknown @{
   const ready = (event: any) => {
     const canvas = event.object
+
     props.onReady?.({
       canvas,
       context: props.context ? canvas.getContext(props.context) : null,

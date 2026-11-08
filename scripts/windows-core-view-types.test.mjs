@@ -12,8 +12,10 @@ const viewDeclaration = path.join(core, 'ui/core/view/index.windows.d.ts')
 
 test('Windows layout subclasses remain assignable to View without loosening named properties', () => {
   const directory = mkdtempSync(path.join(root, 'node_modules/.windows-core-types-'))
+
   try {
     const fixture = path.join(directory, 'fixture.ts')
+
     writeFileSync(
       fixture,
       `
@@ -46,20 +48,27 @@ view[key]();
         baseUrl: root,
         paths: { '@nativescript/core': [core] },
       }
+
       const host = ts.createCompilerHost(options)
       const read = host.readFile
+
       host.readFile = (file) => {
         const source = read(file)
+
         if (path.resolve(file) !== viewDeclaration) {
           return source
         }
+
         assert.ok(
           source.includes('[key: symbol]: unknown;'),
           'Installed Windows Core declaration repair is missing',
         )
+
         return repair ? source : source.replace('    [key: symbol]: unknown;\n', '')
       }
+
       const program = ts.createProgram([fixture], options, host)
+
       return ts.getPreEmitDiagnostics(program).map((d) => ({
         code: d.code,
         file: d.file?.fileName,
@@ -68,6 +77,7 @@ view[key]();
     }
 
     const baseline = check(false)
+
     assert.ok(
       baseline.some((d) => d.code === 2345 || d.code === 2322),
       JSON.stringify(baseline),

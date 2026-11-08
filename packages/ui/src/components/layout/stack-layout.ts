@@ -104,6 +104,7 @@ export function stackWebStyle(
   props: StackSizeLike,
 ): Record<string, any> {
   const style: Record<string, any> = {}
+
   if (layout.gap !== undefined) {
     style.gap = layout.gap
   }
@@ -163,6 +164,7 @@ export interface StackSizeLike {
  *  scroll region under a flex parent. */
 export function stackItemStyle(props: StackItemProps): Record<string, any> {
   const style: Record<string, any> = {}
+
   if (props.size === 'fill') {
     style.flexGrow = 1
     style.flexShrink = 1

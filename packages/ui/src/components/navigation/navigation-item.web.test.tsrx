@@ -3,7 +3,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import { act, createRoot } from 'octane'
 import { expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import {
   NavigationChrome,
   type NavigationChromeKind,
@@ -43,10 +45,13 @@ for (const kind of kinds) {
     }
 
     const container = document.createElement('div')
+
     document.body.append(container)
+
     const root = createRoot(container)
     const props = { kind, router: fixture.router, destination: checked.destination }
     let observer: ((event: Event) => void) | undefined
+
     try {
       await act(async () => {
         root.render(NavigationChrome, props)
@@ -66,7 +71,9 @@ for (const kind of kinds) {
 
       const href = `/app/@library/from-data/${kind}?page=2`
       let link = document.querySelector<HTMLAnchorElement>(`a[href="${href}"]`)!
+
       expect(link, kind).not.toBeNull()
+
       let prevented = false
       const observe = (observer = (event: Event) => {
         prevented = event.defaultPrevented
@@ -134,9 +141,12 @@ for (const kind of kinds) {
 
 it('keeps external links and action items usable outside routing providers', () => {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   let clicks = 0
+
   try {
     act(() => root.render(SideNavItem, { label: 'External', href: 'https://example.com/help' }))
     expect(host.querySelector('a')?.href).toBe('https://example.com/help')
@@ -171,8 +181,11 @@ for (const implicit of [false, true]) {
     }
 
     const host = document.createElement('div')
+
     document.body.append(host)
+
     const root = createRoot(host)
+
     try {
       await act(async () => {
         root.render(NavigationChrome, {
@@ -231,8 +244,11 @@ it('keeps a prevented menu link open without loading its route', async () => {
   }
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   try {
     await act(async () => {
       root.render(NavigationChrome, {

@@ -11,6 +11,7 @@ describe('platform list viewability', () => {
 
   it('uses the 50 percent and 250 ms defaults, then reports sorted logical rows', () => {
     vi.useFakeTimers()
+
     const rows = ['first', 'second', 'third']
     const onChange = vi.fn()
     const tracker = createListViewabilityTracker<string>()
@@ -47,6 +48,7 @@ describe('platform list viewability', () => {
     const tracker = createListViewabilityTracker<{ id: string }>()
     const before = { id: 'A' }
     const after = { id: 'B' }
+
     tracker.update([{ index: 0, visiblePercent: 75 }], [before], { minimumViewTime: 0 }, onChange)
     expect(onChange).toHaveBeenLastCalledWith({
       viewableItems: [{ index: 0, item: before }],
@@ -73,10 +75,12 @@ describe('platform list viewability', () => {
 
   it('cancels a dwell timer when a recycled row changes item before qualifying', () => {
     vi.useFakeTimers()
+
     const onChange = vi.fn()
     const tracker = createListViewabilityTracker<{ id: string }>()
     const before = { id: 'A' }
     const after = { id: 'B' }
+
     tracker.update([{ index: 0, visiblePercent: 80 }], [before], { minimumViewTime: 250 }, onChange)
     vi.advanceTimersByTime(125)
     tracker.update([{ index: 0, visiblePercent: 80 }], [after], { minimumViewTime: 250 }, onChange)
@@ -93,8 +97,10 @@ describe('platform list viewability', () => {
 
   it('clears active rows and dwell timers when a list detaches', () => {
     vi.useFakeTimers()
+
     const onChange = vi.fn()
     const tracker = createListViewabilityTracker<string>()
+
     tracker.update(
       [{ index: 0, visiblePercent: 100 }],
       ['active'],
@@ -121,6 +127,7 @@ describe('platform list viewability', () => {
       isLoaded: false,
       on: (event: string, callback: () => void) => {
         const handlers = listeners.get(event) ?? new Set()
+
         handlers.add(callback)
         listeners.set(event, handlers)
       },
@@ -139,6 +146,7 @@ describe('platform list viewability', () => {
     const attach = vi.fn(() => ({ refresh: vi.fn(), dispose: vi.fn() }))
     const reset = vi.fn()
     const observer = observeLoadedListPeer(list, () => currentPeer, attach, reset)
+
     observer.refresh()
     expect(attach).not.toHaveBeenCalled()
 
@@ -169,6 +177,7 @@ describe('platform list viewability', () => {
   it('retries an initial index when data arrives and only applies it once per target/list', () => {
     const list = { scrollToIndex: vi.fn(), scrollToIndexAnimated: vi.fn() }
     const restore = createInitialListScrollRestorer()
+
     expect(restore.tryScroll(list, 2, 1)).toBe(false)
     expect(restore.tryScroll(list, 2, 3)).toBe(true)
     expect(restore.tryScroll(list, 2, 4)).toBe(false)
@@ -179,6 +188,7 @@ describe('platform list viewability', () => {
 
   it('treats missing lists and invalid indices as no-ops', () => {
     const list = { scrollToIndex: vi.fn(), scrollToIndexAnimated: vi.fn() }
+
     scrollListToIndex(null, 0, 2)
     scrollListToIndex(list, -1, 2)
     scrollListToIndex(list, 2, 2)

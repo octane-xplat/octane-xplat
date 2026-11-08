@@ -27,6 +27,7 @@ export default function MenuKeyboardProbe() {
     [shown, setShown] = useState(true)
 
   const [requests, setRequests] = useState<string[]>([])
+
   return (
     <VStack gap={2}>
       <label text="Focus Actions; Down/Up requests first/last-row opening. Use arrows, Home/End, label prefixes and Enter/Space. Right opens More; Left requests its close. Tab/Shift-Tab request exit to the trigger neighbor. Dynamic actions remove or disable themselves without closing; inspect focus repair without selecting a neighbor." />

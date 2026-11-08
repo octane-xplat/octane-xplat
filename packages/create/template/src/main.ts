@@ -14,6 +14,7 @@ const entry = {
     const frame = new Frame()
     // Full-screen page: SafeArea owns safe-area padding.
     const page = prepareFullScreenPage(new Page())
+
     page.actionBarHidden = true
     renderNativeScriptApp(page, App)
     frame.navigate({ create: () => page })

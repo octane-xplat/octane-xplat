@@ -6,7 +6,9 @@ import type {
 } from './props'
 
 import { createAppKitImageCache } from './cache-bridge.macos'
+
 const cache = createAppKitImageCache()
+
 /** Initialize the renderer's image-owned disk cache. Configuration extensions
  * remain unsupported and fail explicitly rather than silently doing nothing. */
 export function initializeImageCache(config?: ImageCacheConfig): void {

@@ -35,6 +35,7 @@ export const state: Record<string, any> = {
 
 function GridHookProbe() {
   const gl = useGridList()
+
   state.gridSupported = gl.isSupported
   state.gridPropsEmpty = gl.gridProps != null && Object.keys(gl.gridProps).length === 0
   return null
@@ -68,6 +69,7 @@ const vlistItems = Array.from({ length: 120 }, (_, i) => ({
 export function CollectionsProbe() @{
   const carouselRef = useRef<any>(null)
   const vlistRef = useRef<any>(null)
+
   state.carousel = carouselRef
   state.vlist = vlistRef
 

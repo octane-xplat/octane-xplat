@@ -61,6 +61,7 @@ function AppKitCalendarDay(props: AppKitCalendarDayProps) @{
     release = useRef<(() => void) | null>(null)
 
   live.current = props
+
   const bind = useCallback((next: NSView | null) => {
     release.current?.()
     release.current = null
@@ -181,6 +182,7 @@ export function Calendar(props: CalendarProps): unknown @{
   const monthYearLabel = months.map((m) => monthLabel(m.year, m.month, locale)).join(' – ')
 
   const firstLabel = useRef(true)
+
   useEffect(() => {
     if (firstLabel.current) {
       firstLabel.current = false
@@ -192,9 +194,11 @@ export function Calendar(props: CalendarProps): unknown @{
 
   const focusOwner = useRef<ReturnType<typeof createAppKitCalendarFocus> | null>(null)
   const navApi = useRef({ navigateTo: (_: ISODateString) => {} })
+
   navApi.current = {
     navigateTo: (iso: ISODateString) => {
       const pd = plainDateFromISO(iso)
+
       if (pd) {
         focusOwner.current?.cancelPending()
         setBaseMonth(monthStart(pd))
@@ -210,6 +214,7 @@ export function Calendar(props: CalendarProps): unknown @{
 
   const pick = (iso: ISODateString) => {
     const pd = plainDateFromISO(iso)
+
     if (!pd || isDateDisabled(pd)) {
       return
     }
@@ -235,6 +240,7 @@ export function Calendar(props: CalendarProps): unknown @{
     }
 
     const result = applyRangePick(rangeAnchor, iso, props.minRangeSpan)
+
     if (result.kind === 'cancel') {
       setRangeAnchor(null)
       setAnnouncement(messages.rangeCleared)
@@ -309,7 +315,9 @@ export function Calendar(props: CalendarProps): unknown @{
   )
 
   focusOwner.current = focus
+
   const bind = useCallback((view: NSView | null) => focus.bind(view), [])
+
   useLayoutEffect(() => {
     focus.update()
   }, [months, isDateDisabled, currentValue])

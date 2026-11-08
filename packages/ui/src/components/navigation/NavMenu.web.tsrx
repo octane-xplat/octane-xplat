@@ -49,6 +49,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): JSX.Element @{
   const typeBuffer = useRef({ text: '', at: 0 })
   const getItems = useCallback((): HTMLElement[] => {
     const root = listRef.current
+
     return root ? Array.from(root.querySelectorAll<HTMLElement>(ITEM_SELECTOR)) : []
   }, [])
 
@@ -56,6 +57,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): JSX.Element @{
     (e: KeyboardEvent) => {
       if (e.key === 'Enter' || e.key === ' ') {
         const focused = document.activeElement as HTMLElement | null
+
         if (focused?.getAttribute('role') === 'menuitem') {
           e.preventDefault()
           focused.click()
@@ -66,12 +68,14 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): JSX.Element @{
       // typeahead — printable single chars jump to the next matching label
       if (e.key.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) {
         const now = Date.now()
+
         if (now - typeBuffer.current.at > 500) {
           typeBuffer.current.text = ''
         }
 
         typeBuffer.current.at = now
         typeBuffer.current.text += e.key.toLowerCase()
+
         const items = getItems()
         const labels = items.map((el) => (el.textContent ?? '').trim().toLowerCase())
         const current = items.findIndex(
@@ -80,6 +84,7 @@ export function NavHeadingMenu(props: NavHeadingMenuProps): JSX.Element @{
 
         for (let i = 1; i <= items.length; i++) {
           const idx = (current + i) % items.length
+
           if (labels[idx]?.startsWith(typeBuffer.current.text)) {
             focusItem(items[idx])
             e.preventDefault()

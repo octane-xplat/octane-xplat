@@ -39,6 +39,7 @@ export default defineConfig({
         const restore = (dir: string) => {
           for (const entry of readdirSync(dir, { withFileTypes: true })) {
             const p = join(dir, entry.name)
+
             if (entry.isDirectory()) {
               restore(p)
             } else if (entry.name.endsWith('.js') && statSync(p).size === 0) {
@@ -46,6 +47,7 @@ export default defineConfig({
             }
           }
         }
+
         restore('dist')
         for (const name of ['native', 'macos']) {
           mkdirSync('dist/typecheck-globals', { recursive: true })
@@ -66,6 +68,7 @@ export default defineConfig({
         const licenses = [controller, events]
           .map((path) => readFileSync(join(dirname(path), 'LICENSE'), 'utf8'))
           .join('\n\n')
+
         await build({
           configFile: false,
           build: {
@@ -80,9 +83,11 @@ export default defineConfig({
             minify: true,
           },
         })
+
         // Preserve complete MIT notices in the embedded host payload, including
         // after Vite's minifier removes comments from the generated IIFE.
         const asset = 'dist/macos/jsc-host/abort-globals.cjs'
+
         writeFileSync(asset, `/*!\n${licenses}\n*/\n${readFileSync(asset, 'utf8')}`)
       },
     },

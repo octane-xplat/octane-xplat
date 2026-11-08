@@ -8,16 +8,22 @@ import { validateHostBundle } from '../dist/macos/jsc-host/runtime.js'
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const cliPath = process.env.XPLAT_TEST_CLI ?? join(repoRoot, 'packages/cli/dist/cli/src/cli.js')
 const scratchRoot = join(repoRoot, 'research')
+
 await mkdir(scratchRoot, { recursive: true })
+
 const appRoot = await mkdtemp(join(scratchRoot, 'macos-jsc-fixture-'))
+
 await cp(join(repoRoot, 'packages/cli/test/fixtures/macos-jsc-app'), appRoot, { recursive: true })
+
 const installed = join(repoRoot, 'apps/macos/node_modules')
+
 await mkdir(join(appRoot, 'node_modules/@nativescript'), { recursive: true })
 for (const name of ['vite', 'octane', '@nativescript/macos-node-api']) {
   await symlink(join(installed, name), join(appRoot, 'node_modules', name))
 }
 
 const unsupportedBundle = join(appRoot, 'unsupported.cjs')
+
 await writeFile(unsupportedBundle, 'require("node:child_process")\n')
 await assert.rejects(
   () => validateHostBundle(unsupportedBundle, appRoot),
@@ -55,10 +61,13 @@ const executable = join(
 )
 
 const result = spawnSync(executable, [], { cwd: appRoot, encoding: 'utf8', timeout: 10_000 })
+
 assert.equal(result.status, 0, result.stderr)
 assert.match(result.stderr, /JSC_FIXTURE_OK/)
 assert.doesNotMatch(result.stderr, /JSC_FIXTURE_FAIL|failed:/)
+
 const dependencies = execFileSync('otool', ['-L', executable], { encoding: 'utf8' })
+
 assert.doesNotMatch(dependencies, /node|@rpath/)
 assert.match(dependencies, /JavaScriptCore\.framework/)
 

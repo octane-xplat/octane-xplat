@@ -14,6 +14,7 @@ export function InputProbe() @{
   const input = useRef<any>(null)
   const dump = (label: string) => {
     const view = input.current?.native
+
     console.log(
       'INPUT_PROBE ' +
         JSON.stringify({
@@ -37,6 +38,7 @@ export function InputProbe() @{
 
   const write = () => {
     const before = changes
+
     setValue('replacement')
     setTimeout(() => dump('controlled write; previous changes=' + before), 200)
   }

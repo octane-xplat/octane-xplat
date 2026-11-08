@@ -21,6 +21,7 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
     t.skip('gjs is not installed')
     return
   }
+
   rmSync(outDir, { recursive: true, force: true })
   await build({
     logLevel: 'error',
@@ -44,7 +45,9 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
   // system GI paths are enough.
   const dyld =
     process.platform === 'darwin' ? `${execSync('brew --prefix').toString().trim()}/lib` : undefined
+
   const env = { ...process.env }
+
   if (dyld) {
     env.DYLD_FALLBACK_LIBRARY_PATH = [dyld, process.env.DYLD_FALLBACK_LIBRARY_PATH]
       .filter(Boolean)
@@ -60,10 +63,14 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
     encoding: 'utf8',
     timeout: 30_000,
   })
+
   assert.equal(status, 0, `gjs failed:\n${stderr}`)
   assert.doesNotMatch(stderr, /Gjs-CRITICAL|Gtk-CRITICAL|JS ERROR/)
+
   const line = output.split('\n').find((l) => l.startsWith('A11Y_SMOKE '))
+
   assert.ok(line, `smoke marker missing — gjs output:\n${output}\n${stderr}`)
+
   const r = JSON.parse(line.slice('A11Y_SMOKE '.length))
 
   // (a) accessibilityLabel sets LABEL and mirrors to the widget name.

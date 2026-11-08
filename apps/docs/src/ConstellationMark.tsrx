@@ -15,6 +15,7 @@ const leg = () => 1.17 + Math.random() * 1.17
 function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
   const [scope, animate] = useAnimate()
   const reduced = useReducedMotion()
+
   useEffect(() => {
     if (!props.twinkling || reduced) {
       void animate({ opacity: 1 }, { duration: 0.4, ease: 'easeOut' })
@@ -23,6 +24,7 @@ function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
 
     let cancelled = false
     let rest = Math.random() * 3
+
     void (async () => {
       while (!cancelled) {
         // Single-leg tweens delegate to the platform animator, so JS
@@ -38,6 +40,7 @@ function TwinkleLayer(props: { name: string; twinkling: boolean }) @{
         }
 
         const up = await animate({ opacity: 1 }, { duration: leg(), ease: 'easeInOut' })
+
         if (cancelled || up !== 'finished') {
           break
         }

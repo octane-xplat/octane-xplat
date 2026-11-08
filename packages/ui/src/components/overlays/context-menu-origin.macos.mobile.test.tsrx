@@ -7,11 +7,13 @@ function fixture() {
     shell: any = { window, superview: root }
 
   const view: any = { window, superview: shell }
+
   return { window, root, shell, view }
 }
 
 it('context origins must remain descendants in the current wrapper window', () => {
   const f = fixture()
+
   expect(appKitContextMenuOrigin(f.root, f.view)).toBe(f.view)
   f.view.superview = null
   expect(appKitContextMenuOrigin(f.root, f.view)).toBeNull()
@@ -22,6 +24,7 @@ it('context origins must remain descendants in the current wrapper window', () =
 
 it('missing or detached context hosts cannot claim an origin', () => {
   const f = fixture()
+
   expect(appKitContextMenuOrigin(null, f.view)).toBeNull()
   expect(appKitContextMenuOrigin(f.root, null)).toBeNull()
   f.root.window = null
@@ -30,6 +33,7 @@ it('missing or detached context hosts cannot claim an origin', () => {
 
 it('hidden/blocked origins are excluded while explicitly focusable disabled hosts remain usable', () => {
   const f = fixture()
+
   for (const patch of [
     { hidden: true },
     { hiddenOrHasHiddenAncestor: () => true },
@@ -51,6 +55,7 @@ it('hidden/blocked origins are excluded while explicitly focusable disabled host
 
 it('pointer hits choose an eligible focusable ancestor rather than decorative text, while foreign hits have no origin', () => {
   const f = fixture()
+
   f.shell.acceptsFirstResponder = () => true
   expect(appKitContextPointerOrigin(f.root, f.view)).toBe(f.shell)
   f.view.acceptsFirstResponder = true

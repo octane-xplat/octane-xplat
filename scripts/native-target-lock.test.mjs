@@ -49,9 +49,12 @@ test('native target lock survives interruption until child cleanup finishes', as
       })
 
     await line('ready')
+
     const cleaning = line('cleaning')
     const stopping = host.stop()
+
     await cleaning
+
     const busy = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
       env,
       allowFailure: true,
@@ -62,6 +65,7 @@ test('native target lock survives interruption until child cleanup finishes', as
     await writeFile(release, '')
     await stopping
     assert.equal(await readFile(marker, 'utf8'), 'done')
+
     const released = await command('python3', [wrapper, 'android', process.execPath, '-e', ''], {
       env,
     })

@@ -33,7 +33,9 @@ Gtk.init()
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const win = new Gtk.Window()
+
 win.set_child(host)
+
 const container = createGtkContainer(host)
 
 apply(container, [

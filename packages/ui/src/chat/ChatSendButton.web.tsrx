@@ -23,6 +23,7 @@ export function ChatSendButton(props: ChatSendButtonProps): JSX.Element @{
       props.onSend()
     } else {
       const sendAction = ctx?.onSend ?? ctx?.onSubmit
+
       sendAction?.(ctx?.value ?? '')
     }
 

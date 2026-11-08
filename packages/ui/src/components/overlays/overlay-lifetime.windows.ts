@@ -15,6 +15,7 @@ const backgrounds = new WeakMap<object, Background>()
 const booleanProperty = (native: any, key: string): boolean | undefined => {
   try {
     const value = native[key]
+
     return typeof value === 'boolean' ? value : undefined
   } catch {
     return undefined
@@ -24,13 +25,17 @@ const booleanProperty = (native: any, key: string): boolean | undefined => {
 /** Keep nested/out-of-order modal cleanup from enabling another modal's background. */
 function holdBackground(view: any, token: object): () => void {
   const native = view.nativeViewProtected
+
   if (!native) {
     return () => {}
   }
+
   let entry = backgrounds.get(native)
+
   if (!entry) {
     const enabled = booleanProperty(native, 'IsEnabled')
     const hitTest = booleanProperty(native, 'IsHitTestVisible')
+
     if (enabled === undefined && hitTest === undefined) {
       throw new Error('Modal background has no native input guard')
     }
@@ -45,6 +50,7 @@ function holdBackground(view: any, token: object): () => void {
       }
     } catch (error) {
       const errors = [error]
+
       try {
         if (enabled !== undefined) {
           native.IsEnabled = enabled
@@ -67,17 +73,22 @@ function holdBackground(view: any, token: object): () => void {
     entry = { view, native, enabled, hitTest, owners: new Set() }
     backgrounds.set(native, entry)
   }
+
   const held = entry
+
   held.owners.add(token)
   return () => {
     if (!held.owners.delete(token) || held.owners.size) {
       return
     }
+
     backgrounds.delete(native)
     if (view.nativeViewProtected !== native) {
       return
     }
+
     const errors: unknown[] = []
+
     try {
       if (held.enabled !== undefined) {
         native.IsEnabled = view.isEnabled === false ? false : held.enabled
@@ -85,6 +96,7 @@ function holdBackground(view: any, token: object): () => void {
     } catch (error) {
       errors.push(error)
     }
+
     try {
       if (held.hitTest !== undefined) {
         native.IsHitTestVisible =
@@ -93,6 +105,7 @@ function holdBackground(view: any, token: object): () => void {
     } catch (error) {
       errors.push(error)
     }
+
     if (errors.length) {
       throw new AggregateError(errors, 'Windows modal background cleanup failed')
     }
@@ -102,13 +115,16 @@ function holdBackground(view: any, token: object): () => void {
 /** Panels lack Control.IsEnabled: block hit tests there and guard descendant controls. */
 function holdTree(view: any, token: object, releases: (() => void)[]): void {
   const native = view.nativeViewProtected
+
   if (native) {
     const isControl = booleanProperty(native, 'IsEnabled') !== undefined
+
     releases.push(holdBackground(view, token))
     if (isControl) {
       return
     }
   }
+
   view.eachChildView?.((child: any) => {
     holdTree(child, token, releases)
     return true
@@ -120,6 +136,7 @@ export function createOverlayLifetime(
   ...args: Parameters<typeof createRootLifetime>
 ): ReturnType<typeof createRootLifetime> {
   const [owner, host, , label] = args
+
   if (label !== 'Dialog') {
     return createRootLifetime(...args)
   }
@@ -132,6 +149,7 @@ export function createOverlayLifetime(
       closingNative = true
       try {
         const result = owner.close(target).finally(releaseBackground)
+
         trackWindowsOverlayExit(root.nativeViewProtected?.XamlRoot, result)
         return result
       } catch (error) {
@@ -143,6 +161,7 @@ export function createOverlayLifetime(
     hasChild: (target: any) => root.hasChild(target),
     getPopupIndex: (target: any) => root.getPopupIndex(target),
   }
+
   const lifetime = createRootLifetime(scopedOwner, host, args[2], label, args[4])
   const view = host as any
   const token = {}
@@ -155,8 +174,10 @@ export function createOverlayLifetime(
         console.error('[Dialog] Windows modal cleanup failed', error)
       }
     }
+
     releases.length = 0
   }
+
   let retired = false
   let opened = false
   let native: any
@@ -168,10 +189,13 @@ export function createOverlayLifetime(
     if (retired || !view.isLoaded || view.nativeViewProtected !== native) {
       return
     }
+
     const key = event.nativeEvent
+
     if (Number(key?.Key) !== 27 || key.Handled === true) {
       return
     }
+
     dispatchLayerKey({
       key: 'Escape',
       acceptScope(scope) {
@@ -190,20 +214,25 @@ export function createOverlayLifetime(
       preventDefault: () => event.preventDefault(),
     })
   }
+
   lifetime.own(() => {
     retired = true
+
     const errors: unknown[] = []
+
     try {
       host.off('keyDown', onKey)
     } catch (error) {
       errors.push(error)
     }
+
     // If setup failed before owner.close, there is no native exit to wait for.
     void Promise.resolve().then(() => {
       if (!closingNative) {
         releaseBackground()
       }
     })
+
     if (hasTabMode && native && view.nativeViewProtected === native) {
       try {
         native.TabFocusNavigation = tabMode
@@ -211,6 +240,7 @@ export function createOverlayLifetime(
         errors.push(error)
       }
     }
+
     if (changedTabStop && native && view.nativeViewProtected === native) {
       try {
         native.IsTabStop = tabStop
@@ -218,6 +248,7 @@ export function createOverlayLifetime(
         errors.push(error)
       }
     }
+
     for (const error of errors) {
       console.error('[Dialog] Windows modal cleanup failed', error)
     }
@@ -229,6 +260,7 @@ export function createOverlayLifetime(
       if (opened || retired) {
         return
       }
+
       opened = true
       try {
         if (typeof root.eachChildView !== 'function') {
@@ -240,6 +272,7 @@ export function createOverlayLifetime(
           if (child !== host && child !== root._shadeCover) {
             holdTree(child, token, releases)
           }
+
           return true
         })
 
@@ -249,24 +282,30 @@ export function createOverlayLifetime(
         lifetime.close()
         return
       }
+
       lifetime.open(options, async () => {
         if (retired) {
           return
         }
+
         native = view.nativeViewProtected
         if (!native?.XamlRoot || native.XamlRoot !== root.nativeViewProtected?.XamlRoot) {
           throw new Error('Modal content is not attached to its declaring XamlRoot')
         }
+
         tabMode = native.TabFocusNavigation
         hasTabMode = true
         native.TabFocusNavigation = Microsoft.UI.Xaml.Input.KeyboardNavigationMode.Cycle
+
         let first = Microsoft.UI.Xaml.Input.FocusManager.FindFirstFocusableElement(native)
+
         if (!first) {
           tabStop = native.IsTabStop
           changedTabStop = true
           native.IsTabStop = true
           first = native
         }
+
         if (first) {
           const result = await NSWinRT.toPromise(
             Microsoft.UI.Xaml.Input.FocusManager.TryFocusAsync(
@@ -279,9 +318,11 @@ export function createOverlayLifetime(
             throw new Error('Modal initial focus was rejected')
           }
         }
+
         if (retired) {
           return
         }
+
         await afterOpen?.()
       })
     },

@@ -43,12 +43,14 @@ export function ScrollableArea(props: ScrollableAreaProps): unknown @{
     liveDirection = useRef(direction)
 
   liveDirection.current = direction
+
   const rtl = direction === 'rtl'
   const horizontal = props.axis === 'inline'
   const padding = spacingStep(props.padding)
 
   const viewport = useRef<NSScrollView | null>(null)
   const handle = useMemo(() => scrollableAreaHandle(viewport, () => liveDirection.current), [])
+
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const viewportProps = area.getViewportProps({ ref: viewport })

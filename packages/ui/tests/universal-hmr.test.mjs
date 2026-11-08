@@ -24,6 +24,7 @@ const {
 // inherit another hook's storage: an incompatible signature starts a fresh
 // owner, running old ref/effect cleanups against the old hooks.
 const directory = mkdtempSync(join(tmpdir(), 'xplat-universal-hmr-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 const compiledModule = (name, source) => {
@@ -34,7 +35,9 @@ const compiledModule = (name, source) => {
   }).code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) =>
     specifier === 'octane/universal/native' ? `from ${JSON.stringify(runtimeUrl)}` : match,
   )
+
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -95,12 +98,16 @@ const compiledOuter = (name, probeSpecifier) => {
     if (specifier === 'octane/universal/native') {
       return `from ${JSON.stringify(runtimeUrl)}`
     }
+
     if (specifier === './version-one.mjs') {
       return `from ${JSON.stringify(probeSpecifier)}`
     }
+
     return match
   })
+
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -110,29 +117,36 @@ const mount = (component, props) => {
   const root = createUniversalRoot(container, createObjectDriver('test'), {
     scheduleMicrotask: (task) => queueMicrotask(task),
   })
+
   flushUniversalAct(() => root.render(component, props))
+
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   return { container, root, nodes }
 }
 
 let sequence = 0
 const mountProbe = async () => {
   globalThis.__hmrProbe = []
+
   const id = ++sequence
   const one = compiledModule(`version-one-${id}`, version1)
   const two = compiledModule(`version-two-${id}`, version2)
   const v1 = await import(one)
   const v2 = await import(two)
   const { Outer } = await import(compiledOuter(`outer-${id}`, one))
+
   return { v1, v2, Outer }
 }
 
 test('universal HMR remounts a root component when its hook signature shifts', async () => {
   const { v1, v2 } = await mountProbe()
   const mounted = mount(v1.Probe)
+
   assert.equal(mounted.nodes()[0].type, 'feed')
   assert.equal(mounted.nodes()[1].type, 'tile')
   assert.equal(mounted.nodes()[1].props.version, 1)
@@ -142,7 +156,9 @@ test('universal HMR remounts a root component when its hook signature shifts', a
   ])
 
   globalThis.__hmrProbe.length = 0
+
   const revision = v1.Probe[UNIVERSAL_HMR]
+
   flushUniversalAct(() => flushUniversalSync(() => revision.update(v2.Probe)))
 
   // The old revision's cleanups ran against its own hooks; the new revision
@@ -154,7 +170,9 @@ test('universal HMR remounts a root component when its hook signature shifts', a
     ['effect', 'v2-mount'],
     ['effect', 'mount'],
   ])
+
   const retiled = mounted.nodes().find((node) => node.type === 'tile')
+
   assert.equal(retiled.props.version, 2)
 
   // A further commit still routes ref cleanup through the live Map.
@@ -169,6 +187,7 @@ test('universal HMR remounts a root component when its hook signature shifts', a
 test('universal HMR remounts a nested component when its hook signature shifts', async () => {
   const { v1, v2, Outer } = await mountProbe()
   const mounted = mount(Outer)
+
   assert.equal(mounted.nodes()[0].type, 'outer')
   assert.equal(mounted.nodes()[2].type, 'tile')
 
@@ -182,7 +201,9 @@ test('universal HMR remounts a nested component when its hook signature shifts',
     ['effect', 'v2-mount'],
     ['effect', 'mount'],
   ])
+
   const retiled = mounted.nodes().find((node) => node.type === 'tile')
+
   assert.equal(retiled.props.version, 2)
   assert.equal(mounted.nodes()[0].type, 'outer')
 })

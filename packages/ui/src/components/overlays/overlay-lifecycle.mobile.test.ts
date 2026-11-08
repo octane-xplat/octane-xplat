@@ -50,6 +50,7 @@ vi.mock('@nativescript/core', () => ({
     }
     on(event: string, handler: () => void) {
       const hs = this.handlers.get(event) ?? new Set()
+
       hs.add(handler)
       this.handlers.set(event, hs)
     }
@@ -68,6 +69,7 @@ vi.mock('@nativescript-community/octane', async (original) => ({
   ...(await original<Record<string, unknown>>()),
   createNativeScriptRoot: () => {
     const root = { render: vi.fn(), unmount: vi.fn() }
+
     state.roots.push(root)
     return root
   },
@@ -78,6 +80,7 @@ vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 vi.mock('../../theme/theme-host', () => ({
   applyThemeClasses: (host: any, base: string) => {
     host.className = base
+
     const listener = () => {
       host.className = base
     }
@@ -92,9 +95,11 @@ vi.mock('../../theme/theme-host', () => ({
 vi.mock('../../internal/keyboard/keyboard-inset', () => ({
   bindBottomInsetToKeyboard: (host: any) => {
     host.translateY = -300
+
     const off = vi.fn(() => {
       host.translateY = 0
     })
+
     state.cleanup.push(off)
     return off
   },
@@ -103,6 +108,7 @@ vi.mock('../../internal/keyboard/keyboard-inset', () => ({
 vi.mock('../../internal/keyboard/tap-to-blur', () => ({
   attachTapToBlur: () => {
     const off = vi.fn()
+
     state.cleanup.push(off)
     return off
   },
@@ -111,7 +117,9 @@ vi.mock('../../internal/keyboard/tap-to-blur', () => ({
 vi.mock('./sheet-detents', () => ({
   attachSheetDetents: (host: any, detents: any, _close: any, options: any) => {
     state.detentOptions.push({ detents, options })
+
     const off = vi.fn()
+
     state.cleanup.push(off)
     return {
       detach: off,
@@ -126,6 +134,7 @@ vi.mock('./sheet-detents', () => ({
 import { Overlay } from './Overlay.tsrx'
 import { BottomSheet } from './BottomSheet.tsrx'
 import { Popover } from './Popover.tsrx'
+
 const mounted: any[] = []
 const settle = async () => {
   flushUniversalSync(() => {})
@@ -140,6 +149,7 @@ function mount(Component: any, props: any = {}, mapProps: (p: any) => any = (p) 
   )
 
   mounted.push(root)
+
   const render = (extra: any = {}) => {
     root.render(
       Component,
@@ -220,6 +230,7 @@ describe.each([
   it('releases its host and portal without mounting another root', async () => {
     const dismiss = vi.fn()
     const { root } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
+
     await settle()
     expect(
       state.portals.some(
@@ -228,6 +239,7 @@ describe.each([
           (Component === BottomSheet ? state.hosts[0].getChildAt(0).getChildAt(0) : state.hosts[0]),
       ),
     ).toBe(true)
+
     root.unmount()
     await settle()
     expect(state.owner.children.size).toBe(0)
@@ -235,6 +247,7 @@ describe.each([
     expect(state.portals.at(-1)?.target).toBe(
       Component === BottomSheet ? state.hosts[0].getChildAt(0).getChildAt(0) : state.hosts[0],
     )
+
     expect(state.subscriptions.size).toBe(0)
     expect(dismiss).not.toHaveBeenCalled()
     for (const off of state.cleanup) {
@@ -245,6 +258,7 @@ describe.each([
   it('releases everything on programmatic close without reporting dismissal', async () => {
     const dismiss = vi.fn()
     const { render } = mount(Component, { onDismiss: dismiss, detents: [0.5, 1] }, mapProps)
+
     await settle()
     render({ open: false })
     await settle()
@@ -256,11 +270,13 @@ describe.each([
 
   it('ignores late open completion after unmount', async () => {
     let finish!: () => void
+
     state.open = new Promise<void>((r) => {
       finish = r
     })
 
     const { root } = mount(Component, { detents: [0.5, 1] }, mapProps)
+
     await settle()
     root.unmount()
     await settle()
@@ -273,11 +289,13 @@ describe.each([
 
   it('cleans up a rejected open', async () => {
     let fail!: (e: Error) => void
+
     state.open = new Promise((_, reject) => {
       fail = reject
     })
 
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     mount(Component, { detents: [0.5, 1] }, mapProps)
     await settle()
     fail(new Error('open failed'))
@@ -294,8 +312,11 @@ describe.each([
 
   it('does not remove a host already closing through RootLayout', async () => {
     const { root } = mount(Component, {}, mapProps)
+
     await settle()
+
     const host = state.hosts[0]
+
     state.owner.popups.delete(host)
     root.unmount()
     await settle()
@@ -309,6 +330,7 @@ describe.each([
   it('detaches a host when its close animation rejects', async () => {
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { root } = mount(Component, {}, mapProps)
+
     await settle()
     state.owner.close.mockImplementation(async (host: any) => {
       state.owner.popups.delete(host)
@@ -324,12 +346,14 @@ describe.each([
 
   it('keeps a reopened host alive when the old open rejects later', async () => {
     let fail!: (e: Error) => void
+
     state.open = new Promise((_, reject) => {
       fail = reject
     })
 
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
     const { render } = mount(Component, {}, mapProps)
+
     await settle()
     render({ open: false })
     await settle()
@@ -349,6 +373,7 @@ describe.each([
       current = vi.fn()
 
     const { render } = mount(Component, { onDismiss: old }, mapProps)
+
     await settle()
     render({ onDismiss: current, children: 'updated' })
     await settle()
@@ -363,6 +388,7 @@ describe.each([
 
 it('Overlay replaces theme subscriptions when content or classes update', async () => {
   const { render } = mount(Overlay)
+
   await settle()
   render({ className: 'new', children: 'updated' })
   await settle()
@@ -378,6 +404,7 @@ it('standalone snap points enable detents instead of silently selecting swipe-on
     ...p,
     isOpen: p.open,
   }))
+
   await settle()
   expect(state.detentOptions.at(-1)?.detents).toEqual([0.5, 0.8])
   expect(state.detentOptions.at(-1)?.options.swipeOnly).toBe(false)
@@ -388,10 +415,13 @@ it('isolates RootLayout resets, keyboard movement and detent transforms', async 
     ...p,
     isOpen: p.open,
   }))
+
   await settle()
+
   const outer = state.hosts[0],
     keyboard = outer.getChildAt(0),
     panel = keyboard.getChildAt(0)
+
   expect(outer.translateY).toBe(0)
   expect(keyboard.translateY).toBe(-300)
   expect(panel.translateY).toBe(240)

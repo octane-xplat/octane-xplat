@@ -17,7 +17,9 @@ function ContentRoot(props: AppKitSheetProps) @{
 /** Portals from the declaring tree into its anchor's document-modal window sheet. */
 export function AppKitSheet(props: AppKitSheetProps): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const [, rerender] = useState(0)
   const owner = useMemo(
     () =>
@@ -34,7 +36,9 @@ export function AppKitSheet(props: AppKitSheetProps): unknown @{
 
   useLayoutEffect(() => owner.update(), null)
   useEffect(() => () => owner.dispose(), [])
+
   const target = owner.getTarget()
+
   // The portal must commit before native fitting-size measurement/presentation.
   useEffect(() => {
     if (target) {

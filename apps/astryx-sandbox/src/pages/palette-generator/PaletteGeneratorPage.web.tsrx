@@ -259,11 +259,13 @@ function resultColor(
   fallback: string,
 ): string {
   const ramp = result.families.find((family) => family.id === familyId)?.[mode]
+
   if (!ramp) {
     return fallback
   }
 
   const stop = nearestStop(result.request.stops, targetStop)
+
   return ramp.colors[stop] ?? fallback
 }
 
@@ -470,6 +472,7 @@ function CompareResultView({
       {oklch.request.families.map((requestedFamily) => {
         const oklchFamily = familyFor(oklch, requestedFamily.id)
         const hctFamily = familyFor(hct, requestedFamily.id)
+
         if (!oklchFamily && !hctFamily) {
           return null
         }
@@ -480,6 +483,7 @@ function CompareResultView({
             {(['light', 'dark'] as const).map((mode) => {
               const oklchRamp = oklchFamily?.[mode]
               const hctRamp = hctFamily?.[mode]
+
               if (!oklchRamp && !hctRamp) {
                 return null
               }
@@ -555,6 +559,7 @@ function ThemeFamilyComparison({
       </HStack>
       {(['light', 'dark'] as const).map((mode) => {
         const existing = reference[mode]
+
         if (!existing) {
           return null
         }
@@ -563,6 +568,7 @@ function ThemeFamilyComparison({
           .map((result) => {
             const family = result.families.find((item) => item.id === reference.id)
             const ramp = family?.[mode]
+
             return ramp
               ? {
                   label:
@@ -651,6 +657,7 @@ function ThemeComparisonView({
 }) {
   const stops = FULL_21_STOPS.filter((stop) => stop !== 0 && stop !== 100)
   const hasSharedReferences = theme.families.some((family) => family.sharedAcrossModes)
+
   return (
     <VStack gap={5} className="PaletteGeneratorPage-static-20">
       <VStack gap={1}>
@@ -746,6 +753,7 @@ function ResultView({ result }: { result: PaletteGenerationResult }) {
           </HStack>
           {(['light', 'dark'] as const).map((mode) => {
             const ramp = family[mode]
+
             if (!ramp) {
               return null
             }
@@ -908,6 +916,7 @@ export function PaletteGeneratorPage() {
 
   function selectTheme(value: string): void {
     const theme = THEME_REFERENCES.find((item) => item.id === value) ?? THEME_REFERENCES[0]
+
     setSelectedThemeId(theme.id)
     setVibrancy(theme.suggestedVibrancy[algorithmView])
   }
@@ -1156,6 +1165,7 @@ export function PaletteGeneratorPage() {
                         icon={<span className="PaletteGeneratorPage-static-48">+</span>}
                         clickAction={() => {
                           const next = families.length + 1
+
                           setFamilies((current) => [
                             ...current,
                             {

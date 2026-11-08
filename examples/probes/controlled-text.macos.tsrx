@@ -12,6 +12,7 @@ export default function ControlledTextProbe() {
   const [note, setNote] = useState('Multiline note')
   const timers = useRef<Partial<Record<'field' | 'note', ReturnType<typeof setTimeout>>>>({})
   const sequence = useRef(0)
+
   useEffect(
     () => () => {
       for (const timer of Object.values(timers.current)) {
@@ -27,7 +28,9 @@ export default function ControlledTextProbe() {
     clearTimeout(timers.current[target])
     timers.current[target] = setTimeout(() => {
       delete timers.current[target]
+
       const next = `External ${++sequence.current}`
+
       if (target === 'field') {
         setField(next)
       } else {

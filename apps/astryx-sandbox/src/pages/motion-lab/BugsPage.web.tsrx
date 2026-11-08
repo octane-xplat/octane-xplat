@@ -229,10 +229,12 @@ function DrawerCutDemo() {
     timers.current.push(
       window.setTimeout(() => {
         setOpen(false)
+
         const start = performance.now()
         const span = Math.max(slideRun, timerRun)
         const step = (now: number) => {
           const elapsed = now - start
+
           if (slideFill.current != null) {
             slideFill.current.style.width = `${Math.min(100, (elapsed / slideRun) * 100)}%`
           }
@@ -487,6 +489,7 @@ export function MotionBugsPage() {
               <TableBody>
                 {DURATION_WITHOUT_CURVE.map((site) => {
                   const instant = site.decl?.includes('0.01s') === true
+
                   return (
                     <TableRow key={`${site.file}:${site.line}`}>
                       <TableCell>

@@ -10,6 +10,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const root = m('root')
       const child = m('child')
+
       return [
         dims(root, 220, 64),
         dims(child, 20, 10),

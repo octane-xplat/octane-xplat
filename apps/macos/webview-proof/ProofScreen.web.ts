@@ -5,6 +5,7 @@ import type { ProofEvents, ProofResult, ProofServices } from '../src/webview-pro
 import type { HostClient } from '@octane-xplat/platform/host'
 
 const output = document.querySelector<HTMLPreElement>('#result')!
+
 if (!output) {
   throw new Error('desktop host proof result element is missing')
 }
@@ -21,7 +22,9 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   })
 
   const desktop = desktopHost()
+
   assert(desktop, 'typed desktop host facade is unavailable')
+
   const capabilities = await client.capabilities()
   const available = [
     'app.getInfo',
@@ -56,11 +59,14 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 
   for (const method of available) {
     const [service, name] = method.split('.')
+
     assert(capabilities[service]?.includes(name), `host did not report ${method}`)
   }
 
   assert(appInfo.supported, 'webview app info did not come from the host bootstrap')
+
   const clipboardValue = `xplat-wkwebview-proof-${Date.now()}`
+
   assert(await clipboard.writeText(clipboardValue), 'framework clipboard write failed')
   assert(
     (await clipboard.readText()) === clipboardValue,
@@ -68,6 +74,7 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   )
 
   const directClipboardValue = `${clipboardValue}-protocol`
+
   assert(
     await client.call('clipboard', 'write', directClipboardValue),
     'host clipboard write failed',
@@ -79,9 +86,11 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   )
 
   const deepLink = new Promise<string>((resolve) => onDeepLink(resolve))
+
   assert(consumeInitialUrl() === null, 'unexpected initial deep link')
 
   const formatted = await client.call('application', 'format', 'shared contract')
+
   assert(
     formatted === 'application: shared contract',
     'application service returned an unexpected value',
@@ -93,6 +102,7 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   )
 
   const event = await notice
+
   assert(event === 'event from the native host', 'host event payload did not match')
   assert(
     await client.call('application', 'deepLink', 'xplat://proof/deep-link'),
@@ -102,19 +112,27 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   assert((await deepLink) === 'xplat://proof/deep-link', 'host deep-link event did not arrive')
 
   assert((await desktop.app.getState()) === 'active', 'app state was not active')
+
   const windowSize = await desktop.app.getWindowSize()
+
   assert(windowSize.width > 0, `window size was not reported: ${JSON.stringify(windowSize)}`)
   assert((await desktop.app.consumeInitialUrl()) === null, 'initial URL was consumed twice')
+
   const hostsText = await desktop.files.readText('file:///etc/hosts')
+
   assert(hostsText?.includes('localhost'), 'host file read did not return /etc/hosts')
+
   const secretKey = `xplat-proof-${Date.now()}`
+
   assert(await desktop.secureStorage.set(secretKey, 'stored'), 'secure storage write failed')
   assert((await desktop.secureStorage.get(secretKey)) === 'stored', 'secure storage read failed')
   assert(await desktop.secureStorage.remove(secretKey), 'secure storage remove failed')
   await desktop.storage.set('proof', 'stored')
   assert((await desktop.storage.get('proof')) === 'stored', 'storage read failed')
   await desktop.storage.remove('proof')
+
   const scheme = await desktop.appearance.get()
+
   assert(scheme === 'light' || scheme === 'dark', 'appearance did not report a color scheme')
 
   let resolveWindowClosed!: (id: string) => void
@@ -123,6 +141,7 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
   })
 
   desktop.on('windows.closed', resolveWindowClosed)
+
   const windowId = await desktop.windows.open({
     id: 'proof-secondary',
     url: '/?secondary=1',
@@ -152,12 +171,14 @@ async function runProof(client: HostClient<ProofServices, ProofEvents>) {
 }
 
 const transport = createWebKitTransport()
+
 if ((window as Window & { __xplatWindowId?: string }).__xplatWindowId) {
   output.textContent = 'secondary proof window'
 } else if (!transport) {
   output.textContent = 'This .web proof screen is open outside its WKWebView host.'
 } else {
   const client = createHostClient<ProofServices, ProofEvents>(transport)
+
   window.addEventListener('pagehide', () => client.dispose(), { once: true })
   void runProof(client).catch(async (error: unknown) => {
     const result: ProofResult = {

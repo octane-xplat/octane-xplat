@@ -4,6 +4,7 @@ import { registerFontFamily, resolveFont } from '../src/fonts.ts'
 import { mockGlobals } from './mock-globals.ts'
 
 let restore: () => void
+
 before(() => {
   restore = mockGlobals({
     NSFont: {

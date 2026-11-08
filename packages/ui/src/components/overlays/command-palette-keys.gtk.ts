@@ -12,6 +12,7 @@ export function bindCommandPaletteKeys(
   queryChanged: (query: string) => void,
 ): () => void {
   const entry = input
+
   if (!entry?.add_controller) {
     return () => {}
   }
@@ -21,9 +22,11 @@ export function bindCommandPaletteKeys(
       entry.grab_focus?.()
     } catch {}
   }
+
   // Focus may fail while the freshly created layer is still unmapped — grab
   // now, and again when the entry maps.
   const mapId = entry.connect?.('map', grab) ?? 0
+
   if (autoFocus) {
     grab()
   }
@@ -38,21 +41,26 @@ export function bindCommandPaletteKeys(
   }
 
   const controller = new Gtk.EventControllerKey()
+
   controller.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
   entry.add_controller(controller)
+
   const keyId = controller.connect('key-pressed', (_c: any, keyval: number) => {
     const key = keys[keyval]
+
     if (!key) {
       return false
     }
 
     let prevented = false
+
     keyDown({
       key,
       preventDefault: () => {
         prevented = true
       },
     })
+
     return prevented
   })
 

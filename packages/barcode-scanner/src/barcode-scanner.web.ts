@@ -6,14 +6,17 @@ import { fromDetectorFormat, toDetectorFormats } from './format-map.web'
 
 const detector = () => {
   const Detector = (globalThis as any).BarcodeDetector
+
   return typeof Detector === 'function' ? Detector : null
 }
 
 async function toImageSource(image: unknown): Promise<any> {
   if (typeof image === 'string') {
     const response = await fetch(image)
+
     return createImageBitmap(await response.blob())
   }
+
   return image
 }
 
@@ -27,17 +30,22 @@ export const barcodeScanner: BarcodeScannerService = {
 
   async scanImage(image: unknown, formats?: BarcodeFormat[]): Promise<ScannedCode[]> {
     const Detector = detector()
+
     if (!Detector) {
       throw new Error('unsupported: BarcodeDetector is not available')
     }
+
     let d: any
+
     try {
       d = new Detector({ formats: toDetectorFormats(formats) })
     } catch {
       d = new Detector()
     }
+
     const source = await toImageSource(image)
     const codes = await d.detect(source)
+
     return (codes ?? []).map((code: any) => ({
       type: fromDetectorFormat(code.format),
       data: String(code.rawValue ?? ''),
@@ -54,4 +62,5 @@ export const barcodeScanner: BarcodeScannerService = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.camera = () => barcodeScanner.ensure()

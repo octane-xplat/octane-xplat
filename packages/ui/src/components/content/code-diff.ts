@@ -20,8 +20,10 @@ export function splitDiffLines(lines: readonly string[]): {
   const glyphs: string[] = []
   const content: string[] = []
   const fileHeaders = fileHeaderLines(lines)
+
   lines.forEach((line, index) => {
     const kind = diffLineKind(line, { isFileHeader: fileHeaders.has(index) })
+
     kinds.push(kind)
     if (kind === 'header') {
       glyphs.push('')
@@ -37,6 +39,7 @@ export function splitDiffLines(lines: readonly string[]): {
       content.push(line.slice(1))
     }
   })
+
   return { kinds, glyphs, content }
 }
 
@@ -56,12 +59,15 @@ export function diffLineKind(
   if (line.startsWith('@@') || isFileHeader) {
     return 'header'
   }
+
   if (line.startsWith('+')) {
     return 'added'
   }
+
   if (line.startsWith('-')) {
     return 'removed'
   }
+
   return 'context'
 }
 
@@ -71,6 +77,7 @@ export function diffLineKind(
  */
 export function fileHeaderLines(lines: readonly string[]): Set<number> {
   const headers = new Set<number>()
+
   for (let i = 0; i + 2 < lines.length; i++) {
     if (
       lines[i].startsWith('--- ') &&
@@ -81,5 +88,6 @@ export function fileHeaderLines(lines: readonly string[]): Set<number> {
       headers.add(i + 1)
     }
   }
+
   return headers
 }

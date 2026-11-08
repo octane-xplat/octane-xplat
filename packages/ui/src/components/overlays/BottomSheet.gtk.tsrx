@@ -34,6 +34,7 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
   }
 
   const trimmed = String(height).trim()
+
   if (trimmed.endsWith('%')) {
     return (parseFloat(trimmed) / 100) * vh
   }
@@ -61,10 +62,12 @@ export function GtkSheetPanel(props: {
   const panel = useRef<any>(null)
   const grabber = useRef<any>(null)
   const dismiss = useRef(props.requestDismiss)
+
   dismiss.current = props.requestDismiss
 
   useEffect(() => {
     const view = panel.current
+
     if (!view) {
       return
     }
@@ -77,6 +80,7 @@ export function GtkSheetPanel(props: {
         : []
 
       const sized = detentFractions.length ? null : sheetHeightDips(props.height, vh())
+
       try {
         view.style.height = sized == null ? undefined : Math.round(sized)
       } catch {}
@@ -162,6 +166,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
   const shown = useRef<any>(null)
   const releasing = useRef(false)
   const dismiss = useRef(requestChange)
+
   dismiss.current = requestChange
 
   const dismissal = useLayerDismissal({
@@ -178,11 +183,13 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
    *  parked the panel off-screen or animations are disabled. */
   const release = () => {
     const l = shown.current
+
     if (!l) {
       return
     }
 
     shown.current = null
+
     const finish = () => {
       try {
         l.dispose()
@@ -193,8 +200,10 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 
     const panelView = l.target?.get_first_child?.()
     let animated = false
+
     try {
       const vh = sheetVh(panelView)
+
       if (vh > 0 && (Number(panelView?.translateY) || 0) < vh) {
         const sliding = panelView?.animate?.({
           translate: { x: 0, y: vh },
@@ -227,6 +236,7 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 
   useEffect(() => {
     const view = sentinel.current
+
     if (!view) {
       return
     }

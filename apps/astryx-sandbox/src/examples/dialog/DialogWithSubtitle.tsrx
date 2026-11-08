@@ -30,6 +30,7 @@ function Content(props: { onClose: () => void }) @{
 
 export function DialogWithSubtitle() @{
   const dialog = useImperativeDialog({ purpose: 'required' })
+
   return (
     <>
       <Dialog isOpen isInline onOpenChange={() => {}} purpose="required">

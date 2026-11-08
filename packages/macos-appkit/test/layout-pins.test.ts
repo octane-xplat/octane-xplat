@@ -56,6 +56,7 @@ function child(id: string) {
 test('children are pinned to the computed rect, not frame-written', () => {
   const item = child('a')
   const host = view()
+
   pinLayoutChild(item, host, 10, 20, 100, 50)
 
   assert.equal(item.view.frame, undefined)
@@ -69,7 +70,9 @@ test('children are pinned to the computed rect, not frame-written', () => {
 test('pin constants refresh in place on relayout', () => {
   const item = child('a')
   const host = view()
+
   pinLayoutChild(item, host, 0, 0, 100, 40)
+
   const created = { ...item.placementPins }
 
   pinLayoutChild(item, host, 5, 8, 200, 60)
@@ -82,10 +85,13 @@ test('pin constants refresh in place on relayout', () => {
 test('identical writes leave constants untouched', () => {
   const item = child('a')
   const host = view()
+
   pinLayoutChild(item, host, 1, 2, 3, 4)
+
   const constants = Object.fromEntries(
     Object.entries(item.placementPins).map(([k, v]: any) => [k, v.constant]),
   )
+
   pinLayoutChild(item, host, 1, 2, 3, 4)
   for (const [k, v] of Object.entries(constants)) {
     assert.equal(item.placementPins[k].constant, v)
@@ -94,8 +100,11 @@ test('identical writes leave constants untouched', () => {
 
 test('releasePlacementPins deactivates and drops stale pins', () => {
   const item = child('a')
+
   pinLayoutChild(item, view(), 0, 0, 10, 10)
+
   const pins = item.placementPins
+
   releasePlacementPins(item)
 
   assert.equal(item.placementPins, null)
@@ -110,8 +119,11 @@ test('releasePlacementPins on an unpinned node is a no-op', () => {
 test('sticky leases modify native pins without accumulating offsets and restore latest layout on release', () => {
   const item: any = child('sticky'),
     host = view()
+
   retained.set(item.view, item)
+
   const lease = stickyPlacements.retain(item.view)!
+
   pinLayoutChild(item, host, 10, 2, 100, 40)
   lease.update(80, 2)
   assert.equal(item.placementPins.leading.constant, 90)
@@ -128,11 +140,16 @@ test('sticky leases modify native pins without accumulating offsets and restore 
 test('newest lease owns placement; reparent reset and detached owners cannot write stale pins', () => {
   const item: any = child('replaced'),
     host = view()
+
   retained.set(item.view, item)
+
   const old = stickyPlacements.retain(item.view)!
+
   pinLayoutChild(item, host, 10, 0, 100, 40)
   old.update(50, 1)
+
   const current = stickyPlacements.retain(item.view)!
+
   old.release()
   old.update(500, 2)
   assert.equal(item.placementPins.leading.constant, 60)
@@ -151,28 +168,36 @@ test('sticky native sibling ordering puts shifted start/end cells above ordinary
     middle = { view: {} },
     end = { view: {} },
     children = [start, middle, end]
+
   const priorities = new Map<object, number>([
     [start, 2],
     [end, 1],
   ])
+
   const calls: object[] = [],
     host: any = {
       subviews: children.map((node) => node.view),
       addSubviewPositionedRelativeTo: (view: object) => calls.push(view),
     }
+
   for (const node of children) {
     Object.assign(node.view, { superview: host })
   }
+
   const parent = { children }
+
   Object.assign(start, { parent })
+
   const code = source.slice(
     source.indexOf('function orderStickySiblings'),
     source.indexOf('const stickyPlacements ='),
   )
+
   const { orderStickySiblings } = runSlice(code + '\n({ orderStickySiblings })', {
     layoutView: (node: any) => node.view,
     stickyPlacements: { priority: (node: object) => priorities.get(node) ?? 0 },
   })
+
   orderStickySiblings(start)
   assert.deepEqual(calls, [middle.view, end.view, start.view])
   host.subviews = [middle.view, end.view, start.view]

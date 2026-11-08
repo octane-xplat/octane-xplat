@@ -13,6 +13,7 @@ const media = [
 export default function LightboxGallery() {
   const [open, setOpen] = useState(false)
   const [index, setIndex] = useState(0)
+
   return (
     <Screen className="maestro-screen">
       <Text>Maestro lightbox</Text>

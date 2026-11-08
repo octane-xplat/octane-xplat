@@ -26,6 +26,7 @@ function fixture() {
     }
     RetrievePassword() {}
   }
+
   class PasswordVault {
     constructor() {
       state.calls++
@@ -35,9 +36,11 @@ function fixture() {
     }
     Retrieve(resource, userName) {
       const entry = entries.get(JSON.stringify([resource, userName]))
+
       if (!entry) {
         throw missing()
       }
+
       return state.malformed ? new PasswordCredential(resource, userName, '123') : entry
     }
     Add(credential) {
@@ -49,6 +52,7 @@ function fixture() {
       entries.delete(JSON.stringify([credential.Resource, credential.UserName]))
     }
   }
+
   const Windows = {
     Security: { Credentials: { PasswordVault, PasswordCredential } },
     ApplicationModel: {
@@ -57,25 +61,31 @@ function fixture() {
           if (state.family === null) {
             throw new Error('No package identity')
           }
+
           return { Id: { FamilyName: state.family } }
         },
       },
     },
   }
+
   const load = (windows = Windows) => {
     const exports = {}
+
     vm.runInNewContext(source, {
       exports,
       require(id) {
         if (id === '@octane-xplat/lib/capability') {
           return { UnavailabilityError }
         }
+
         assert.equal(id, '@octane-xplat/platform/windows', 'must not import a mobile plugin')
         return { Windows: windows }
       },
     })
+
     return exports.secureStorage
   }
+
   return { state, entries, Windows, load }
 }
 
@@ -90,12 +100,14 @@ test('Windows root condition resolves the dedicated entry without loading mobile
     ],
     { cwd: new URL('..', import.meta.url), encoding: 'utf8' },
   )
+
   assert.equal(result.status, 0, result.stderr)
   assert.ok(result.stdout.endsWith('/src/index.windows.ts'))
 })
 
 test('Windows credential storage is unavailable without package identity or projected APIs', async () => {
   const { state, load } = fixture()
+
   for (const store of [load(null), load({})]) {
     assert.equal(store.supported, false)
     assert.equal(await store.isAvailable(), false)
@@ -103,8 +115,11 @@ test('Windows credential storage is unavailable without package identity or proj
     await assert.rejects(store.set('entry', 'value'), UnavailabilityError)
     await assert.rejects(store.remove('entry'), UnavailabilityError)
   }
+
   state.family = null
+
   const store = load()
+
   assert.equal(store.supported, false)
   await assert.rejects(store.get('entry'), UnavailabilityError)
   assert.equal(state.calls, 0)
@@ -113,6 +128,7 @@ test('Windows credential storage is unavailable without package identity or proj
 test('Windows credential storage preserves strings, overwrites and distinguishes missing keys', async () => {
   const { load } = fixture()
   const store = load()
+
   assert.equal(store.supported, true)
   assert.equal(await store.isAvailable(), true)
   assert.equal(await store.get('entry'), null)
@@ -120,6 +136,7 @@ test('Windows credential storage preserves strings, overwrites and distinguishes
     assert.equal(await store.set('', value), true)
     assert.ok((await store.get('')) === value, 'private roundtrip failed')
   }
+
   assert.equal(await store.remove(''), true)
   assert.equal(await store.remove(''), true)
   assert.equal(await store.get(''), null)
@@ -128,6 +145,7 @@ test('Windows credential storage preserves strings, overwrites and distinguishes
 test('Windows package namespaces separate equal keys and remove only the selected entry', async () => {
   const { load, state, entries } = fixture()
   const store = load()
+
   await store.set('entry', 'one')
   state.family = 'app.two'
   assert.equal(await store.get('entry'), null)
@@ -141,6 +159,7 @@ test('Windows package namespaces separate equal keys and remove only the selecte
 test('Windows vault failures are sanitized and malformed values do not masquerade as missing', async () => {
   const { load, state } = fixture()
   const store = load()
+
   await store.set('entry', 'private value')
   state.malformed = true
   await assert.rejects(store.get('entry'), { message: 'Credential Locker read failed' })

@@ -54,6 +54,7 @@ const MODE_LABEL: Readonly<Record<ReducedMotionMode, string>> = {
 const WORKLIST = [
   ...NO_REDUCED_MOTION.reduce((acc, row) => {
     const files = acc.get(row.component) ?? []
+
     files.push(row.file)
     acc.set(row.component, files)
     return acc

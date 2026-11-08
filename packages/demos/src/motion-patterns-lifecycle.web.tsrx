@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'octane'
  *  stops off-screen and requires an explicit resume. */
 export function usePauseOnHidden(pause: () => void) {
   const latest = useRef(pause)
+
   latest.current = pause
   useEffect(() => {
     const onHidden = () => {

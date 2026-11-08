@@ -23,7 +23,9 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   const drag = useRef<Hsb | null>(null)
   const host = useRef<any>(null)
   const latest = useRef(props)
+
   latest.current = props
+
   // Stable ref identity: a fresh callback each render would rebind
   // useMeasure (null → el), reset bounds, and re-render forever.
   const bindHost = useCallback((el: any) => {
@@ -37,6 +39,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
 
   const focusHost = () => {
     const target = host.current
+
     if (target && !latest.current.isDisabled) {
       target.window?.makeFirstResponder(target)
     }
@@ -76,6 +79,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   // the latest props so retained handlers never replay a stale hsb.
   const move = (next: Partial<Hsb>) => {
     const current = latest.current
+
     if (current.isDisabled) {
       return
     }
@@ -89,6 +93,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   const { keyboardProps } = useKeyboard({
     onKeyDown: (event) => {
       const current = latest.current
+
       if (
         current.isDisabled ||
         event.defaultPrevented ||

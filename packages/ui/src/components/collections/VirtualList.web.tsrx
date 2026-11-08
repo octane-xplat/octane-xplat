@@ -69,15 +69,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
   const handlersRef = useRef<(meta: NodeMeta, entry: ResizeObserverEntry) => void>(() => {})
   const hasSeparator = Boolean(props.renderSeparator)
   const hasSeparatorRef = useRef(hasSeparator)
+
   hasSeparatorRef.current = hasSeparator
 
   function rebuildLayout(nextEntries: VirtualListEntry<T>[], width: number) {
     entriesRef.current = nextEntries
+
     const indexByKey = new Map<string, number>()
     const activeMeasurements = new Set<string>()
 
     for (const entry of nextEntries) {
       indexByKey.set(entry.rowKey, entry.index)
+
       const cacheKey = virtualListMeasurementKey(
         entry.rowKey,
         hasSeparatorRef.current && entry.index < nextEntries.length - 1,
@@ -100,12 +103,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
   if (entries !== entriesRef.current) {
     const anchor = captureAnchor()
+
     rebuildLayout(entries, viewportWidthRef.current)
     restoreAnchor(anchor)
   }
 
   function currentRange() {
     const listOffset = Math.max(0, scrollOffsetRef.current - headerHeightRef.current)
+
     return virtualListRange(
       sizeIndexRef.current,
       listOffset,
@@ -126,6 +131,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
     const next = currentRange()
     const previous = rangeRef.current
+
     if (
       geometryDirtyRef.current ||
       next.start !== previous.start ||
@@ -142,12 +148,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
   function captureAnchor() {
     const scrollOffset = scrollRef.current?.scrollTop ?? scrollOffsetRef.current
     const listOffset = scrollOffset - headerHeightRef.current
+
     if (listOffset < 0 || entriesRef.current.length === 0) {
       return null
     }
 
     const index = sizeIndexRef.current.indexAt(listOffset)
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return null
     }
@@ -165,6 +173,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
     }
 
     const index = indexByRowKeyRef.current.get(anchor.rowKey)
+
     if (index === undefined) {
       return
     }
@@ -200,6 +209,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
       }
 
       const anchor = captureAnchor()
+
       rebuildLayout(entriesRef.current, viewportWidthRef.current)
       restoreAnchor(anchor)
       refreshWindow()
@@ -212,20 +222,25 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
     }
 
     const index = indexByRowKeyRef.current.get(rowKey)
+
     if (index === undefined) {
       return
     }
 
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
 
     const hasRowSeparator = hasSeparatorRef.current && index < entriesRef.current.length - 1
     const cacheKey = virtualListMeasurementKey(rowKey, hasRowSeparator)
+
     sizeCacheRef.current.set(cacheKey, { width, height })
+
     const anchor = captureAnchor()
     const delta = sizeIndexRef.current.set(index, height)
+
     if (Math.abs(delta) >= 0.5) {
       geometryDirtyRef.current = true
       if (anchor && index < anchor.index) {
@@ -240,6 +255,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
   function bindObservedNode(slot: string, node: Element | null, meta: NodeMeta) {
     const previous = nodesBySlotRef.current.get(slot)
+
     if (previous && previous !== node) {
       observerRef.current?.unobserve(previous)
       metaByNodeRef.current.delete(previous)
@@ -263,9 +279,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
   function cellCallback(id: number) {
     let callback = cellCallbacksRef.current.get(id)
+
     if (!callback) {
       callback = (node: Element | null) => {
         const cell = cellsRef.current.get(id)
+
         bindObservedNode('cell:' + id, node, {
           kind: 'row',
           rowKey: cell?.entry?.rowKey ?? '',
@@ -289,9 +307,11 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
       const width = scrollRef.current?.clientWidth ?? entry.contentRect.width
       const height = scrollRef.current?.clientHeight ?? entry.contentRect.height
       const widthChanged = !sameSize(width, viewportWidthRef.current)
+
       viewportHeightRef.current = height
       if (widthChanged) {
         const anchor = captureAnchor()
+
         viewportWidthRef.current = width
         rebuildLayout(entriesRef.current, width)
         restoreAnchor(anchor)
@@ -302,6 +322,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
     }
 
     const height = entry.contentRect.height
+
     if (meta.kind === 'row') {
       if (!cellsRef.current.isCurrent(meta.cellId, meta.rowKey, meta.generation)) {
         return
@@ -310,12 +331,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
       // A reused node may have an older ResizeObserver record. Read its
       // current box after assignment rather than caching the former row.
       const bounds = entry.target.getBoundingClientRect()
+
       recordRowSize(meta.rowKey, bounds.width, bounds.height)
       return
     }
 
     if (meta.kind === 'header' && !sameSize(height, headerHeightRef.current)) {
       const anchor = captureAnchor()
+
       headerHeightRef.current = height
       restoreAnchor(anchor)
       refreshWindow()
@@ -356,6 +379,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
       try {
         for (const record of records) {
           const meta = metaByNodeRef.current.get(record.target)
+
           if (meta) {
             handlersRef.current(meta, record)
           }
@@ -393,17 +417,20 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
   function onScroll(event: any) {
     const root = event.currentTarget as HTMLElement
+
     scrollOffsetRef.current = root.scrollTop
     refreshWindow()
   }
 
   function scrollToOffset(offset: number, animated = false) {
     const node = scrollRef.current
+
     if (!node || !Number.isFinite(offset)) {
       return
     }
 
     const top = Math.max(0, offset)
+
     if (animated && typeof node.scrollTo === 'function') {
       node.scrollTo({ top, behavior: 'smooth' })
       return
@@ -418,6 +445,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
 
   function scrollToIndex(index: number, options?: VirtualListScrollOptions) {
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
@@ -425,6 +453,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
     const top = headerHeightRef.current + sizeIndexRef.current.prefix(index)
     const size = sizeIndexRef.current.get(index)
     const align = options?.align ?? 'start'
+
     scrollToOffset(
       align === 'end'
         ? top + size - viewportHeightRef.current
@@ -453,16 +482,20 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
   )
 
   const range = currentRange()
+
   rangeRef.current = range
   void windowVersion
+
   const cells = cellsRef.current.update(entries.slice(range.start, range.end)).map((cell) => ({
     ...cell,
     top: cell.entry ? sizeIndexRef.current.prefix(cell.entry.index) : 0,
   }))
 
   const contentHeight = sizeIndexRef.current.total
+
   for (const cell of cells) {
     const node = nodesBySlotRef.current.get('cell:' + cell.id)
+
     if (node) {
       metaByNodeRef.current.set(node, {
         kind: 'row',
@@ -480,11 +513,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): JSX.Element @{
       }
 
       const node = nodesBySlotRef.current.get('cell:' + cell.id)
+
       if (!node || !cellsRef.current.isCurrent(cell.id, cell.entry.rowKey, cell.generation)) {
         continue
       }
 
       const bounds = node.getBoundingClientRect()
+
       measuredAssignmentsRef.current.set(cell.id, cell.generation)
       recordRowSize(cell.entry.rowKey, bounds.width, bounds.height)
     }

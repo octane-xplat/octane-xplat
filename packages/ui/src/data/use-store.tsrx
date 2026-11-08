@@ -31,6 +31,7 @@ export function useStore<T, S>(
   const getSelection = (): StoreSnapshot<T> | S => {
     const next = select === undefined ? store.getSnapshot() : select(store.getSnapshot())
     const last = memo.current
+
     if (last !== null && last.select === select && isEqual(last.selection as S, next as S)) {
       return last.selection as S
     }

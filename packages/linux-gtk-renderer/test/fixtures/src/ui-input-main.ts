@@ -5,7 +5,9 @@ import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { Input } from './ui-input.gtk.tsrx'
 import './ui-input.css'
+
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK input test',
   default_width: 240,
@@ -14,7 +16,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -36,6 +40,7 @@ root.render(Input, {
     if (kind === 'press') {
       pressed = true
     }
+
     if (
       kind === 'pan' &&
       detail.state === 'ended' &&
@@ -56,13 +61,16 @@ root.render(Input, {
 window.present()
 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 10, () => {
   const target = [...container.nodes.values()].find((n) => n.props.id === 'input-target')?.view
+
   if (!target || target.get_width() < 100) {
     return true
   }
+
   print(
     'GTK_UI_INPUT_READY ' +
       JSON.stringify({ width: target.get_width(), height: target.get_height() }),
   )
+
   return false
 })
 

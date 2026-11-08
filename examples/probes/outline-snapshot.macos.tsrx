@@ -31,6 +31,7 @@ export default function OutlineSnapshotProbe() {
   }, [])
 
   const report = (event: string) => setEvents((previous) => [...previous.slice(-5), event])
+
   return (
     <VStack gap={2}>
       <Text>

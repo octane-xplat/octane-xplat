@@ -5,6 +5,7 @@ import { act, createRoot } from 'octane'
 import { Thumbnail } from './Thumbnail.web.tsrx'
 
 const roots: ReturnType<typeof createRoot>[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -18,8 +19,11 @@ it('keeps preview and remove actions independent for pointer and keyboard input'
     remove = vi.fn()
 
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -29,6 +33,7 @@ it('keeps preview and remove actions independent for pointer and keyboard input'
 
   const group = el.querySelector('[role="button"]')!
   const button = el.querySelector('button[aria-label="Remove"]')!
+
   expect(el.querySelector('button button')).toBeNull()
   act(() => button.dispatchEvent(new MouseEvent('click', { bubbles: true })))
   expect(remove).toHaveBeenCalledOnce()

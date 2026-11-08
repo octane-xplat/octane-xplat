@@ -23,6 +23,7 @@ import {
 
 function rejectNestedScrollView(event: any) {
   let parent = event.object?.parent
+
   while (parent) {
     if (parent instanceof ScrollView) {
       throw new Error(
@@ -82,6 +83,7 @@ function RecyclerViewInner(props: {
 
   useEffect(() => {
     const list = props.runtime.list.current
+
     if (!list) {
       return
     }
@@ -114,6 +116,7 @@ function RecyclerViewInner(props: {
 
   useEffect(() => {
     const bag = props.refresh
+
     if (!bag || !lv.current) {
       return
     }
@@ -225,6 +228,7 @@ export function RecyclerView<T>(props: RecyclerViewProps<T>): unknown @{
 
   const refreshCapable = props.onRefresh != null || props.refreshing != null
   const cfg = useRef<RefreshConfig>({})
+
   cfg.current = {
     onRefresh: props.onRefresh,
     refreshing: props.refreshing,

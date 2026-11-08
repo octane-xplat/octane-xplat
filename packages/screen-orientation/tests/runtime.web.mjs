@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const server = await createServer({
   root,
@@ -15,13 +16,17 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch()
+
   const page = await browser.newPage()
+
   await page.goto(`${server.resolvedUrls.local[0]}tests/index.html`)
   await page.evaluate(async () => {
     const api = await import('/src/index.web.ts')
+
     globalThis.orientationFixture = { api, events: [], subscription: undefined }
   })
 
@@ -39,6 +44,7 @@ try {
   assert.equal(await page.evaluate(() => orientationFixture.api.getOrientationAsync()), 1)
   await page.evaluate(() => {
     const f = orientationFixture
+
     f.subscription = f.api.addOrientationChangeListener((event) => f.events.push(event))
   })
 
@@ -59,16 +65,20 @@ try {
   await rotate('landscapePrimary', 90, 800, 400)
   await page.waitForFunction(() => screen.orientation.type === 'landscape-primary')
   assert.equal(await page.evaluate(() => orientationFixture.events.length), 2)
+
   const result = await page.evaluate(async () => {
     const { api } = orientationFixture
     const before = await api.getOrientationLockAsync()
     let rejected = false
+
     try {
       await api.lockAsync(api.OrientationLock.PORTRAIT_UP)
     } catch {
       rejected = true
     }
+
     const after = await api.getOrientationLockAsync()
+
     await api.unlockAsync()
     return {
       before,
@@ -85,6 +95,7 @@ try {
   assert.equal(result.unlocked, 0)
   await page.evaluate(() => {
     const frame = document.createElement('iframe')
+
     frame.sandbox = 'allow-scripts allow-same-origin'
     frame.src = '/tests/index.html'
     document.body.append(frame)
@@ -95,15 +106,19 @@ try {
   )
 
   const frame = page.frames().find((candidate) => candidate !== page.mainFrame())
+
   assert.ok(frame)
+
   const blocked = await frame.evaluate(async () => {
     const api = await import('/src/index.web.ts')
     let errorName
+
     try {
       await api.lockAsync(api.OrientationLock.PORTRAIT_UP)
     } catch (error) {
       errorName = error.name
     }
+
     return { errorName, policy: await api.getOrientationLockAsync() }
   })
 

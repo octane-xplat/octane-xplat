@@ -21,6 +21,7 @@ const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
 }))
 
 const offsets = new Array<number>(items.length + 1)
+
 offsets[0] = 0
 for (let index = 0; index < items.length; index += 1) {
   offsets[index + 1] = offsets[index] + items[index].height
@@ -40,8 +41,10 @@ function rowAtOffset(offset: number) {
   let low = 0
   let high = items.length
   const boundedOffset = Math.max(0, Math.min(offset, scrollProbe.totalContentHeight - 1))
+
   while (low < high) {
     const middle = Math.floor((low + high) / 2)
+
     if (rowStart(middle + 1) <= boundedOffset) {
       low = middle + 1
     } else {
@@ -54,6 +57,7 @@ function rowAtOffset(offset: number) {
 
 function BenchRow(props: { item: BenchItem }) {
   const [pressCount, setPressCount] = useState(0)
+
   return (
     <Pressable
       id={'bench-row-' + props.item.id}
@@ -76,6 +80,7 @@ export default function VirtualListVariableWindowedBench() {
     const lastVisible = rowAtOffset(verticalOffset + Math.max(1, viewportHeight) - 1)
     const start = Math.max(0, firstVisible - OVERSCAN_ROWS)
     const end = Math.min(items.length, lastVisible + 1 + OVERSCAN_ROWS)
+
     setRange((current) => {
       if (current.start === start && current.end === end) {
         return current

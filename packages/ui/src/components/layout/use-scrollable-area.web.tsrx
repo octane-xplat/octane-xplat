@@ -36,6 +36,7 @@ export function useScrollableArea<TElement extends object = object>(
 
   const measure = useCallback(() => {
     const el = viewportRef.current
+
     if (!el) {
       return
     }
@@ -86,12 +87,14 @@ export function useScrollableArea<TElement extends object = object>(
 
   useEffect(() => {
     const el = viewportRef.current
+
     if (!el) {
       return
     }
 
     measure()
     el.addEventListener('scroll', measure, { passive: true })
+
     const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
 
     observer?.observe(el)

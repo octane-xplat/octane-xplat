@@ -35,15 +35,18 @@ test('resolveOverride keeps, clears, or sets the override by input', () => {
 test('renderReleaseBody carries the marker, an optional override, and the notes', () => {
   const notes = '## Features and breaking changes\n\n### A feature\n\nDescription.\n'
   const body = renderReleaseBody({ version: '0.9.1', override: '0.9.1', notes })
+
   assert.match(
     body,
     /^<!-- xplat-release: lockstep -->\n<!-- release-version-override: 0\.9\.1 -->\n/,
   )
+
   assert.match(body, /\*\*Octane Xplat 0\.9\.1\*\*/)
   assert.match(body, /gh workflow run release-pr\.yml -f version=<x\.y\.z>/)
   assert.ok(body.endsWith(`---\n\n${notes.trim()}\n`))
 
   const inferred = renderReleaseBody({ version: '0.10.0', notes })
+
   assert.match(inferred, /^<!-- xplat-release: lockstep -->\n\nMerging/)
   assert.doesNotMatch(inferred, /release-version-override/)
 })
@@ -52,6 +55,7 @@ test('renderReleaseBody truncates oversized notes at a paragraph boundary', () =
   const entry = (n) => `### Entry ${n}\n\n${'x'.repeat(5000)}\n`
   const notes = Array.from({ length: 20 }, (_, i) => entry(i)).join('\n')
   const body = renderReleaseBody({ version: '0.9.1', notes })
+
   assert.ok(body.length <= 65536, `body length ${body.length}`)
   assert.match(body, /truncated to fit GitHub’s pull request body limit/)
   assert.match(body, /\.release-notes\.md/)
@@ -78,12 +82,17 @@ test('override subcommand reads the existing body on stdin', () => {
 
 test('body subcommand renders from a notes file', (t) => {
   const directory = mkdtempSync(join(tmpdir(), 'release-pr-test-'))
+
   t.after(() => rmSync(directory, { recursive: true, force: true }))
+
   const notesFile = join(directory, 'notes.md')
+
   writeFileSync(notesFile, '## Fixes\n\n### A fix\n\nDescription.\n')
+
   const run = spawnSync(process.execPath, [script, 'body', '0.9.1', notesFile, '0.9.1'], {
     encoding: 'utf8',
   })
+
   assert.equal(run.status, 0, run.stderr)
   assert.match(run.stdout, /<!-- release-version-override: 0\.9\.1 -->/)
   assert.match(run.stdout, /## Fixes\n\n### A fix/)
@@ -91,5 +100,6 @@ test('body subcommand renders from a notes file', (t) => {
   const invalid = spawnSync(process.execPath, [script, 'body', 'not-a-version', notesFile], {
     encoding: 'utf8',
   })
+
   assert.notEqual(invalid.status, 0)
 })

@@ -37,7 +37,9 @@ export function Popover(props: PopoverProps): unknown @{
     dark = useThemeScheme() === 'dark'
 
   const live = useRef({ props, open })
+
   live.current = { props, open }
+
   const [target, setTarget] = useState<AppKitPopoverTarget | null>(null)
   const requestDismiss = () => {
     if (!live.current.open) {
@@ -67,6 +69,7 @@ export function Popover(props: PopoverProps): unknown @{
       createAppKitPopoverOwner({
         state() {
           const current = live.current
+
           return {
             open: !!current.open,
             anchor: current.props.anchor?.current,

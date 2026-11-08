@@ -25,9 +25,11 @@ export const openSettings: Service<OpenSettingsImpl> = {
   isAvailable: async () => packageFamily() !== null,
   open() {
     const family = packageFamily()
+
     if (!family) {
       return false
     }
+
     try {
       return openUrl(`ms-settings:appsfeatures-app?PFN=${encodeURIComponent(family)}`)
     } catch {

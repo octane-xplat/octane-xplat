@@ -50,6 +50,7 @@ function textOf(view: any): string {
   }
 
   const own = view?.text ?? view?.stringValue ?? view?.title
+
   if (typeof own === 'string' && own) {
     return own
   }
@@ -59,6 +60,7 @@ function textOf(view: any): string {
   }
 
   let result = ''
+
   view?.eachChildView?.((child: any) => {
     result += textOf(child)
     return true
@@ -69,6 +71,7 @@ function textOf(view: any): string {
 
 export async function run(ctx: ProbeContext) {
   const count = () => textOf(ctx.find('selection-selected-count'))
+
   await ctx.waitFor(() => ctx.find('selection-select-0'))
   ctx.assert('caller owns absent ID', count(), '1 selected')
   ctx.assert(

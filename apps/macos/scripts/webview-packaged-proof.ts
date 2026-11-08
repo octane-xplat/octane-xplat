@@ -37,8 +37,11 @@ async function stop() {
   stopping = true
   if (child && child.exitCode === null) {
     const exited = new Promise((resolveExit) => child.once('exit', resolveExit))
+
     child.kill('SIGTERM')
+
     let forceTimer
+
     await Promise.race([
       exited,
       new Promise((resolveTimeout) => {
@@ -75,12 +78,15 @@ try {
   await build({ configFile: resolve(appRoot, 'vite.webview-packaged-proof.config.mjs') })
 
   console.log('[packaged-proof] compiling native leaves and metadata')
+
   const native = await buildMacOSNative(appRoot)
 
   stagingRoot = await mkdtemp(join(tmpdir(), 'xplat-packaged-proof-'))
+
   const stagedApp = join(stagingRoot, 'built', `${executableName}.app`)
   const contents = join(stagedApp, 'Contents')
   const resources = join(contents, 'Resources')
+
   await mkdir(join(contents, 'MacOS'), { recursive: true })
   await mkdir(join(resources, 'app'), { recursive: true })
   await cp(resolve(appRoot, 'dist/webview-packaged-host/host.cjs'), join(resources, 'app/main.cjs'))
@@ -92,7 +98,9 @@ try {
   await cp(native.metadata.x86_64, join(resources, 'metadata.macos.x86_64.nsmd'))
   await writeNativeBootstrap(native, join(resources, 'host-shim.js'), { packaged: true })
   await cp(join(hostBundle, 'host'), join(contents, 'MacOS', executableName))
+
   const frameworkPath = join(contents, 'Frameworks', 'NativeScript.framework')
+
   await mkdir(dirname(frameworkPath), { recursive: true })
   await cp(join(hostBundle, 'NativeScript.framework'), frameworkPath, {
     recursive: true,
@@ -115,20 +123,24 @@ try {
   }
 
   const nativeLibraries = []
+
   for (const library of native.prebuilt ?? []) {
     const path = join(contents, 'Frameworks', library.file)
+
     await cp(library.source, path)
     nativeLibraries.push(path)
   }
 
   for (const library of native.libraries) {
     const path = join(contents, 'Frameworks', library.file)
+
     await cp(join(native.directory, library.file), path)
     nativeLibraries.push(path)
   }
 
   for (const resource of native.resources ?? []) {
     const destination = join(resources, resource.destination)
+
     await mkdir(dirname(destination), { recursive: true })
     await cp(resource.source, destination)
   }
@@ -180,6 +192,7 @@ try {
 
   // Relocate the bundle so nothing can resolve paths against the build tree.
   const relocatedApp = join(stagingRoot, 'relocated', `${executableName}.app`)
+
   await mkdir(dirname(relocatedApp), { recursive: true })
   run('cp', ['-R', stagedApp, relocatedApp])
   console.log(`[packaged-proof] relocated bundle: ${relocatedApp}`)
@@ -206,9 +219,12 @@ try {
 
   const capture = (chunk) => {
     const text = chunk.toString()
+
     output += text
     process.stdout.write(text)
+
     const match = output.match(/XPLAT_PACKAGED_WEBVIEW_PROOF_(OK|FAILED) (\{[^\r\n]*\})/)
+
     if (!match) {
       return
     }
@@ -241,6 +257,7 @@ try {
     })
 
     let proof
+
     try {
       proof = await Promise.race([result, timeout])
     } finally {

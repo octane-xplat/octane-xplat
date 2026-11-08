@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { PrintBackend } from './backend-types'
+
 const unavailable = async (): Promise<never> => {
   throw new UnavailabilityError('Print on this host')
 }

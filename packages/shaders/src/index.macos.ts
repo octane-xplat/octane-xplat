@@ -4,6 +4,7 @@
 // no-op instance reporting the upstream-style 'unsupported' failure
 // reason so callers keep their static fallback path identical to web's.
 export * from './types'
+
 import type {
   CreateShaderOptions,
   PresetConfig,

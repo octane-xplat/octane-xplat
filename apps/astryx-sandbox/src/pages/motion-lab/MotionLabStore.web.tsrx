@@ -72,6 +72,7 @@ const MotionLabContext = createContext<MotionLabState | null>(null)
 
 export function useMotionLab(): MotionLabState {
   const value = useContext(MotionLabContext)
+
   if (value == null) {
     throw new Error('useMotionLab must be used inside <MotionLabProvider>')
   }
@@ -85,6 +86,7 @@ const DEFAULT_SPRINGS = Object.fromEntries(
 
 export function parseMs(value: string): number {
   const trimmed = value.trim()
+
   if (trimmed.endsWith('ms')) {
     return Number.parseFloat(trimmed)
   }
@@ -94,6 +96,7 @@ export function parseMs(value: string): number {
   }
 
   const n = Number.parseFloat(trimmed)
+
   return Number.isFinite(n) ? n : 0
 }
 
@@ -127,11 +130,13 @@ export function MotionLabProvider({ children }: { children: ReactNode }) {
   // inline) while every duration stayed at its tuned value.
   useEffect(() => {
     const el = scopeRef.current
+
     if (el == null) {
       return
     }
 
     const collapse = reducedMotion === 'delete'
+
     for (const [name, value] of Object.entries(tokens)) {
       el.style.setProperty(name, value)
       // The scaled alias every demo actually reads, so slow-mo stretches
@@ -146,6 +151,7 @@ export function MotionLabProvider({ children }: { children: ReactNode }) {
 
     // Degrade keeps opacity and colour and drops movement; delete drops both.
     const moves = reducedMotion === 'off'
+
     el.style.setProperty('--lab-translate', moves ? '1' : '0')
     el.style.setProperty('--lab-scale', moves ? '1' : '0')
     el.style.setProperty('--lab-speed', String(speed))

@@ -22,17 +22,21 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
   const meters = () => all().filter((node) => node.props?.accessibilityRole === 'meter')
+
   render(props)
   return { root, render, all, meters }
 }
 
 it('AppKit Meter uses one leaf through its existing barrel and retains supplied content', () => {
   expect(BarrelMeter).toBe(Meter)
+
   const env = mount(BarrelMeter, { value: 60, children: <label id="meter-content" text="60%" /> })
+
   try {
     expect(env.meters()).toHaveLength(1)
     expect(env.all().find((node) => node.props?.id === 'meter-content')?.props.text).toBe('60%')
@@ -54,6 +58,7 @@ it('AppKit Meter describes the normalized finite range and gives maxValue preced
 
   try {
     const host = env.meters()[0]
+
     expect(host.props.accessibilityValue).toBe('30')
     expect(host.props.accessibilityMinValue).toBe(10)
     expect(host.props.accessibilityMaxValue).toBe(30)
@@ -71,8 +76,10 @@ it('AppKit Meter describes the normalized finite range and gives maxValue preced
 
 it('AppKit Meter preserves style forms and overrides while keeping finite default geometry', () => {
   const env = mount(Meter, { value: 10, size: 40, strokeWidth: 5, style: 'width:80px;opacity:0.8' })
+
   try {
     const host = env.meters()[0]
+
     expect(host.props.style).toContain('width:80px;opacity:0.8')
     env.render({
       value: 10,
@@ -111,6 +118,7 @@ it('AppKit ProgressGroup uses the same meter range and style contract', () => {
 
   try {
     const [cpu, memory] = env.meters()
+
     expect(cpu.props.accessibilityLabel).toBe('CPU')
     expect(cpu.props.accessibilityValue).toBe('100')
     expect(memory.props.accessibilityMaxValue).toBe(80)

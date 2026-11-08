@@ -4,6 +4,7 @@ export function canonicalizePrimaryKey(key: string): string {
   if (key === '+') {
     return 'Plus'
   }
+
   if (key.length === 1) {
     if (key === ' ') {
       return 'Space'
@@ -13,6 +14,7 @@ export function canonicalizePrimaryKey(key: string): string {
   }
 
   const lower = key.toLowerCase()
+
   switch (lower) {
     case 'esc':
     case 'escape':
@@ -50,6 +52,7 @@ export function parseBindingToken(
   token: string,
 ): { type: 'modifier'; name: ParsedModifierName } | { type: 'key'; key: string } {
   const lower = token.toLowerCase()
+
   switch (lower) {
     case 'ctrl':
     case 'control':
@@ -103,15 +106,19 @@ export function buildModifierState(step: CompiledStep): {
   if (step.key === 'Ctrl') {
     flags.ctrl = true
   }
+
   if (step.key === 'Meta') {
     flags.meta = true
   }
+
   if (step.key === 'Alt') {
     flags.alt = true
   }
+
   if (step.key === 'Shift') {
     flags.shift = true
   }
+
   return flags
 }
 

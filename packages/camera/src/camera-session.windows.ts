@@ -8,6 +8,7 @@ const windows = () => globalThis as any
 
 const toPromise = (op: any): Promise<any> => {
   const { NSWinRT } = windows()
+
   if (NSWinRT?.toPromise && op != null) {
     return NSWinRT.toPromise(op)
   }
@@ -28,6 +29,7 @@ const toPromise = (op: any): Promise<any> => {
 const vectorToArray = (items: any): any[] => {
   const result: any[] = []
   const size = Number(items?.Size ?? items?.Count ?? 0)
+
   for (let index = 0; index < size; index += 1) {
     result.push(items.GetAt(index))
   }
@@ -46,6 +48,7 @@ export async function startCameraPreview(
   const { Windows } = windows()
   const enumeration = Windows?.Devices?.Enumeration
   const captureApi = Windows?.Media?.Capture
+
   if (!enumeration || !captureApi) {
     throw new Error('camera preview unsupported')
   }
@@ -55,6 +58,7 @@ export async function startCameraPreview(
   )
 
   const devices = vectorToArray(found)
+
   if (!devices.length) {
     throw new Error('camera unavailable')
   }
@@ -65,9 +69,12 @@ export async function startCameraPreview(
     devices[0]
 
   const settings = new captureApi.MediaCaptureInitializationSettings()
+
   settings.VideoDeviceId = String(device?.Id ?? device?.id ?? '')
   settings.StreamingCaptureMode = 0 // Video
+
   const capture = new captureApi.MediaCapture()
+
   try {
     await toPromise(capture.InitializeAsync(settings))
   } catch (cause) {
@@ -85,6 +92,7 @@ export async function startCameraPreview(
   }
 
   const element = view?.nativeViewProtected ?? view
+
   element.Source = capture
   try {
     if (

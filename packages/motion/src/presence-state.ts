@@ -57,6 +57,7 @@ export class PresenceState {
     }
 
     const token = ++this.sequence
+
     this.pending.set(member, token)
     void member.exit().then((result) => {
       if (this.disposed || this.present || this.pending.get(member) !== token) {
@@ -74,6 +75,7 @@ export class PresenceState {
   }
   private check() {
     const generation = this.generation
+
     queueMicrotask(() => {
       if (
         !this.disposed &&

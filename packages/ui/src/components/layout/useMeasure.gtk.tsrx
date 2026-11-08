@@ -24,6 +24,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
       const update = () => {
         const next = readBounds(view)
+
         // Fresh object each read — skip the setState when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
         setBounds((prev: MeasureBounds | null) => {

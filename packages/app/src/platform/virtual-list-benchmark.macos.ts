@@ -10,6 +10,7 @@ import {
 // probe doubles as the reachability check.
 function probe() {
   const debug = (globalThis as any).__xplatMacOSDebug
+
   if (typeof debug?.listSnapshot !== 'function') {
     throw new Error('VirtualList profiling on the AppKit host requires OCTANE_MACOS_AUTOMATION=1')
   }
@@ -19,6 +20,7 @@ function probe() {
 
 export async function runVirtualListBenchmark(listId: string) {
   const debug = probe()
+
   return runVirtualListBenchTrace({
     target: 'macos',
     read: (): VirtualListBenchSnapshot => debug.listSnapshot(listId),
@@ -29,6 +31,7 @@ export async function runVirtualListBenchmark(listId: string) {
 
 export async function runVirtualListInputBenchmark(listId: string, durationMs = 20_000) {
   const debug = probe()
+
   return runVirtualListInputTrace(
     {
       target: 'macos',

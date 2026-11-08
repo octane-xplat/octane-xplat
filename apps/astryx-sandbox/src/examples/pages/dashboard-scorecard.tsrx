@@ -71,6 +71,7 @@ const RAG_PROGRESS: Record<Rag, 'success' | 'warning' | 'error'> = {
 function ragFor(deltaPct: number, higherIsBetter: boolean): Rag {
   const favorable = higherIsBetter ? deltaPct >= 0 : deltaPct <= 0
   const mag = Math.abs(deltaPct)
+
   if (!favorable && mag >= 1.5) {
     return 'red'
   }
@@ -178,6 +179,7 @@ function makeTrend(base: number, growth: number, priorGap: number, wobble: numbe
     const wob = Math.sin(i * 1.3) * base * wobble
     const current = Math.round(drift + wob)
     const prior = Math.round((drift + wob) * (1 - priorGap))
+
     return { t: i, label, current, prior }
   })
 }
@@ -467,6 +469,7 @@ export function DashboardScorecardTemplate() @{
   const okrSummary = useMemo(() => {
     const pcts = OKRS.map((o) => (o.actual / o.target) * 100)
     const onTrack = pcts.filter((p) => p >= 90).length
+
     return `${onTrack} of ${OKRS.length} on track`
   }, [])
 

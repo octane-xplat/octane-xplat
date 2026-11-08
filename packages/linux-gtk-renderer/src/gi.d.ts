@@ -661,21 +661,25 @@ declare module 'gi://Gio' {
 
 declare module 'gi://Gsk?version=4.0' {
   const Gsk: any
+
   export default Gsk
 }
 
 declare module 'gi://Graphene' {
   const Graphene: any
+
   export default Graphene
 }
 
 declare module 'gi://Soup?version=3.0' {
   const Soup: any
+
   export default Soup
 }
 
 declare module 'gi://Pango' {
   const Pango: { WrapMode: { WORD_CHAR: number } }
+
   export default Pango
 }
 

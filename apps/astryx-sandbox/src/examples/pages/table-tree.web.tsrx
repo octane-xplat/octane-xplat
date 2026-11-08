@@ -97,6 +97,7 @@ export function TableTreeTemplate() @{
             const rows = treeState.visibleData
             const index = rows.indexOf(item)
             let nextIndex = index
+
             switch (event.key) {
               case 'ArrowRight':
                 if (item.children && !treeState.expandedIds.has(item.id)) {
@@ -133,10 +134,14 @@ export function TableTreeTemplate() @{
             }
 
             event.preventDefault()
+
             const next = rows[nextIndex]
+
             if (next && nextIndex !== index) {
               setFocusedId(next.id)
+
               const row = event.currentTarget as HTMLElement
+
               row.parentElement?.querySelectorAll<HTMLElement>('tr')[nextIndex]?.focus()
             }
           },

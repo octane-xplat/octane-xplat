@@ -13,6 +13,7 @@ const appearance = (name: string) => ({
   name,
   performAsCurrentDrawingAppearance(block: () => void) {
     const previous = drawingAppearance
+
     drawingAppearance = name
     try {
       block()
@@ -27,6 +28,7 @@ const catalogColor = (convert: () => any) => {
   const color: any = {
     colorUsingColorSpace: (space: string) => (space === 'srgb' ? convert() : null),
   }
+
   for (const key of ['redComponent', 'greenComponent', 'blueComponent']) {
     Object.defineProperty(color, key, {
       get() {
@@ -35,6 +37,7 @@ const catalogColor = (convert: () => any) => {
       },
     })
   }
+
   return color
 }
 
@@ -47,6 +50,7 @@ const labelColor = catalogColor(() =>
 const patternColor = catalogColor(() => null)
 let imported = ''
 let restore: () => void
+
 beforeEach(() => {
   drawingAppearance = 'aqua'
   touched.length = 0
@@ -96,6 +100,7 @@ test('parity colorValue resolves catalog colors under the view appearance', () =
     /^  /gm,
     '',
   )
+
   const { colorValue } = runSlice(
     source.slice(source.indexOf('function colorValue('), source.indexOf('function parityStyle(')) +
       '\n({ colorValue })',

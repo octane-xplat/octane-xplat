@@ -8,6 +8,7 @@ export const proxyRefs = {
 }
 
 export const proxyEvents: string[] = []
+
 const callback = (element: LogicalElement | null) => {
   if (element) {
     proxyEvents.push('attach')
@@ -43,6 +44,7 @@ export default function Proxy() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
   const ids = phase >= 3 ? ['b', 'a'] : ['a', 'b']
+
   return (
     <masonview
       style={{

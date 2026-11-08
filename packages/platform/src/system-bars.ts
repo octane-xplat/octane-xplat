@@ -10,6 +10,7 @@ export const systemBars = {
     // for dark backgrounds. NS View.statusBarStyle uses the same
     // convention on both platforms (Android → APPEARANCE_LIGHT_*).
     const root = Application.getRootView()
+
     if (root) {
       root.statusBarStyle = style
     }
@@ -27,8 +28,10 @@ export const systemBars = {
   /** Android only — paints both status and navigation bars; no-op elsewhere. */
   setColor(color: string): void {
     const c = new Color(color)
+
     if (Application.android?.startActivity) {
       const win = Application.android.startActivity.getWindow()
+
       win.setStatusBarColor(c.android)
       win.setNavigationBarColor(c.android)
     }

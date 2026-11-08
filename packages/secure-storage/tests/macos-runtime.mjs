@@ -23,8 +23,10 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-keychain-'))
 const pack = join(temporary, 'pack')
 const unpacked = join(temporary, 'unpacked')
+
 mkdirSync(pack)
 mkdirSync(unpacked)
+
 function command(command, args, cwd) {
   const result = spawnSync(command, args, {
     cwd,
@@ -54,7 +56,9 @@ let failure
 const executables = [join(hostBundle, 'host')]
 function host(code, executable = join(hostBundle, 'host'), cwd = temporary) {
   const script = join(temporary, 'probe.cjs')
+
   writeFileSync(script, `${compiled}\n${code}`)
+
   const result = command(
     executable,
     [
@@ -89,6 +93,7 @@ try {
   )
 
   const leaf = join(temporary, 'node_modules/@octane-xplat/secure-storage')
+
   mkdirSync(join(temporary, 'node_modules/@octane-xplat'), { recursive: true })
   cpSync(join(unpacked, 'package'), leaf, { recursive: true })
   // Retain the packed leaf while resolving its declared dependencies from the
@@ -102,9 +107,13 @@ try {
   native = await buildMacOSNative(temporary)
   bootstrap = join(temporary, 'bootstrap.js')
   await writeNativeBootstrap(native, bootstrap)
+
   const consumer = join(temporary, 'consumer.ts')
+
   writeFileSync(consumer, "export { secureStorage } from '@octane-xplat/secure-storage'\n")
+
   const config = join(temporary, 'vite.config.mjs')
+
   writeFileSync(
     config,
     `export default ${JSON.stringify({
@@ -170,8 +179,11 @@ setTimeout(() => __xplatStopHost(), 0);
   // the shipped executable; they do not claim distribution-signing evidence.
   for (const name of ['First', 'Second']) {
     const contents = join(temporary, `${name}.app/Contents`)
+
     mkdirSync(join(contents, 'MacOS'), { recursive: true })
+
     const executable = join(contents, 'MacOS/host')
+
     cpSync(join(hostBundle, 'host'), executable)
     writeFileSync(
       join(contents, 'Info.plist'),

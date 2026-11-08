@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { TextInput } from '../../components/forms/TextInput.web.tsrx'
 import { Switch } from '../../components/forms/Switch.web.tsrx'
 import { Checkbox } from '../../components/forms/Checkbox.web.tsrx'
@@ -17,8 +19,11 @@ const roots: ReturnType<typeof createRoot>[] = []
 
 function mount(Component: any, props: any) {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   roots.push(root)
   act(() => root.render(Component, props))
   return container
@@ -44,8 +49,11 @@ afterEach(() => {
 describe('text inputs', () => {
   it('seeds defaultValue, keeps user edits internally, and reports the new string', () => {
     const change = vi.fn()
+
     mount(TextInput, { defaultValue: 'seed', onChange: change, placeholder: 'Name' })
+
     const input = document.querySelector('input.vx-input') as HTMLInputElement
+
     expect(input.value).toBe('seed')
     type(input, 'seed-x')
     expect(change).toHaveBeenLastCalledWith('seed-x')
@@ -60,6 +68,7 @@ describe('text inputs', () => {
   it('uncontrolled clear empties the field and reports an empty string', () => {
     const change = vi.fn()
     const cleared = vi.fn()
+
     mount(TextInput, { defaultValue: 'seed', hasClear: true, onChange: change, onClear: cleared })
     click(document.querySelector('.vx-input-clear')!)
     expect(change).toHaveBeenLastCalledWith('')
@@ -71,8 +80,11 @@ describe('text inputs', () => {
 describe('boolean inputs', () => {
   it('Switch seeds defaultValue and toggles internally', () => {
     const change = vi.fn()
+
     mount(Switch, { defaultValue: true, onChange: change })
+
     const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+
     expect(host.checked).toBe(true)
     click(host)
     expect(change).toHaveBeenLastCalledWith(false)
@@ -81,8 +93,11 @@ describe('boolean inputs', () => {
 
   it('Switch controlled checked wins and stays caller-owned', () => {
     const change = vi.fn()
+
     mount(Switch, { value: true, defaultValue: false, onChange: change })
+
     const host = document.querySelector('input[role="switch"]') as HTMLInputElement
+
     expect(host.checked).toBe(true)
     click(host)
     expect(change).toHaveBeenLastCalledWith(false)
@@ -91,8 +106,11 @@ describe('boolean inputs', () => {
 
   it('Checkbox seeds defaultValue and toggles internally', () => {
     const change = vi.fn()
+
     mount(Checkbox, { defaultValue: true, onChange: change })
+
     const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+
     expect(host.checked).toBe(true)
     click(host)
     expect(change).toHaveBeenLastCalledWith(false)
@@ -101,8 +119,11 @@ describe('boolean inputs', () => {
 
   it('Checkbox indeterminate resolves to checked on toggle', () => {
     const change = vi.fn()
+
     mount(Checkbox, { value: 'indeterminate', onChange: change })
+
     const host = document.querySelector('input[type="checkbox"]') as HTMLInputElement
+
     expect(host.indeterminate).toBe(true)
     click(host)
     expect(change).toHaveBeenLastCalledWith(true)
@@ -118,7 +139,9 @@ describe('choices', () => {
     ]
 
     mount(RadioGroup, { defaultValue: 'b', options, onValueChange: change })
+
     const rows = document.querySelectorAll('.vx-radio-row')
+
     expect(rows[1].getAttribute('aria-checked')).toBe('true')
     click(rows[0])
     expect(change).toHaveBeenLastCalledWith('a')
@@ -133,7 +156,9 @@ describe('choices', () => {
     ]
 
     mount(RadioGroup, { value: 'b', defaultValue: 'a', options, onValueChange: change })
+
     const rows = document.querySelectorAll('.vx-radio-row')
+
     expect(rows[1].getAttribute('aria-checked')).toBe('true')
     click(rows[0])
     expect(change).toHaveBeenLastCalledWith('a')
@@ -144,6 +169,7 @@ describe('choices', () => {
 describe('overlays', () => {
   it('Overlay seeds defaultOpen and closes itself on shade tap', () => {
     const dismiss = vi.fn()
+
     mount(Overlay, { defaultOpen: true, shadeCover: true, onDismiss: dismiss, children: 'Panel' })
     expect(document.querySelector('.vx-overlay-content')).not.toBeNull()
     click(document.querySelector('.vx-overlay-shade')!)
@@ -153,6 +179,7 @@ describe('overlays', () => {
 
   it('Overlay controlled open wins over defaultOpen and stays open after shade tap', () => {
     const dismiss = vi.fn()
+
     mount(Overlay, {
       open: true,
       defaultOpen: false,
@@ -169,6 +196,7 @@ describe('overlays', () => {
   it('Popover seeds defaultOpen with an anchor and dismisses on outside tap', () => {
     const dismiss = vi.fn()
     const anchorEl = document.createElement('button')
+
     document.body.append(anchorEl)
     mount(Popover, {
       anchor: { current: anchorEl },
@@ -185,6 +213,7 @@ describe('overlays', () => {
 
   it('BottomSheet seeds defaultOpen; scrim tap reports onOpenChange(false) and closes', () => {
     const change = vi.fn()
+
     mount(BottomSheet, { defaultOpen: true, onOpenChange: change, children: 'Sheet' })
     expect(document.querySelector('.vx-bottom-sheet-layer')).not.toBeNull()
     click(document.querySelector('.vx-sheet-backdrop')!)
@@ -194,6 +223,7 @@ describe('overlays', () => {
 
   it('BottomSheet controlled isOpen stays open after scrim tap', () => {
     const change = vi.fn()
+
     mount(BottomSheet, { isOpen: true, onOpenChange: change, children: 'Sheet' })
     click(document.querySelector('.vx-sheet-backdrop')!)
     expect(change).toHaveBeenLastCalledWith(false)
@@ -202,6 +232,7 @@ describe('overlays', () => {
 
   it('Dialog seeds defaultOpen; Escape reports onOpenChange(false) and closes', () => {
     const change = vi.fn()
+
     mount(Dialog, {
       defaultOpen: true,
       onOpenChange: change,
@@ -222,7 +253,9 @@ describe('overlays', () => {
 
   it('AlertDialog seeds defaultOpen; Cancel reports onOpenChange(false) and closes', () => {
     const change = vi.fn()
+
     mount(AlertDialog, { defaultOpen: true, onOpenChange: change, title: 'Delete item?' })
+
     const cancel = [...document.querySelectorAll('.vx-alertdialog-actions .vx-button')].find(
       (b) => b.textContent === 'Cancel',
     )!

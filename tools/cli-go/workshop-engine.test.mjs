@@ -15,16 +15,19 @@ import { join, dirname, resolve } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { pathToFileURL } from 'node:url'
 import { scratchRun } from './scratch.mjs'
+
 const root = resolve(import.meta.dirname, '../..'),
   scratch = realpathSync(scratchRun(root, 'go-workshop-engine'))
 
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const { loadMacOSDevEngine } = await import(
   pathToFileURL(join(root, 'packages/workshop/dist/build/macos-engine.js')).href
 )
 
 function put(dir, path, value) {
   const file = join(dir, path)
+
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value))
   return file
@@ -33,6 +36,7 @@ function put(dir, path, value) {
 let serial = 0
 function app() {
   const dir = join(scratch, 'app ' + serial++ + ' π')
+
   put(dir, 'package.json', { name: 'engine-consumer', private: true, type: 'module' })
   return dir
 }
@@ -43,11 +47,13 @@ function engine(
   body = 'export async function runMacOSDev(){return "selected"}',
 ) {
   const pkg = join(dir, 'node_modules/@octane-xplat/macos-build')
+
   put(pkg, 'package.json', {
     name: '@octane-xplat/macos-build',
     type: 'module',
     exports: { './dev-engine': exports },
   })
+
   put(pkg, 'engine.js', body)
   return pkg
 }
@@ -55,15 +61,20 @@ function engine(
 test('packed engine exports load from an actual installed project without the CLI', async () => {
   const dir = app(),
     packs = join(scratch, 'packs')
+
   mkdirSync(packs)
+
   const pack = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], {
     cwd: join(root, 'packages/macos-build'),
     encoding: 'utf8',
     timeout: 30000,
   })
+
   assert.equal(pack.status, 0, pack.stderr)
+
   const manifest = JSON.parse(readFileSync(join(root, 'packages/macos-build/package.json')))
   const archive = join(packs, `octane-xplat-macos-build-${manifest.version}.tgz`)
+
   put(dir, 'package.json', {
     name: 'engine-consumer',
     private: true,
@@ -79,26 +90,33 @@ test('packed engine exports load from an actual installed project without the CL
         : {}),
     },
   })
+
   const install = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
     cwd: dir,
     encoding: 'utf8',
     timeout: 120000,
   })
+
   assert.equal(install.status, 0, install.stderr)
+
   const api = await loadMacOSDevEngine(dir)
+
   assert.equal(typeof api.runMacOSDev, 'function')
   await assert.rejects(api.runMacOSDev(dir), /Declare xplat.targets.macos.runtime/)
   assert.throws(() => readFileSync(join(dir, 'node_modules/@octane-xplat/cli/package.json')), {
     code: 'ENOENT',
   })
+
   const declaration = readFileSync(
     join(dir, 'node_modules/@octane-xplat/macos-build/dist/macos/dev.d.ts'),
     'utf8',
   )
+
   assert.match(declaration, /resourceRoot/)
   assert.match(declaration, /onReady/)
   if (process.platform === 'darwin') {
     const pkg = JSON.parse(readFileSync(join(dir, 'package.json')))
+
     pkg.xplat = {
       targets: {
         macos: {
@@ -159,7 +177,9 @@ test('packed engine exports load from an actual installed project without the CL
 
       assert.ifError(launched.error)
       assert.equal(launched.status, 0, launched.stdout + launched.stderr)
+
       const result = JSON.parse(launched.stdout)
+
       writeFileSync(
         join(root, 'research/go-cli/workshop-engine/runtime-' + mode + '.json'),
         JSON.stringify(result, null, 2),
@@ -169,7 +189,9 @@ test('packed engine exports load from an actual installed project without the CL
       assert.equal(result.exitCode, 0, result.stdout + result.stderr)
       assert.match(result.stdout, /^DIRECT_ENGINE_APP_VALUE=40$/m, mode + '\n' + result.stderr)
       assert.match(result.stdout, /DIRECT_ENGINE_STOPPED/)
+
       const pid = Number(result.stdout.match(/DIRECT_ENGINE_HOST_PID=(\d+)/)?.[1])
+
       assert.ok(pid > 0)
       assert.throws(() => process.kill(pid, 0), { code: 'ESRCH' })
       assert.equal(existsSync(join(dir, 'resources-' + mode, 'bundle')), false)
@@ -179,9 +201,12 @@ test('packed engine exports load from an actual installed project without the CL
 
 test('binding selects the project engine and rejects a nearer broken install', async () => {
   const dir = app()
+
   engine(dir)
   assert.equal(await (await loadMacOSDevEngine(dir)).runMacOSDev(), 'selected')
+
   const nested = join(dir, 'nested')
+
   put(nested, 'package.json', { name: 'nested', type: 'module' })
   engine(nested, './missing.js')
   await assert.rejects(loadMacOSDevEngine(nested), /missing\.js/)
@@ -194,10 +219,14 @@ test('missing engine has an installation instruction rather than a CLI fallback'
 test('the engine export must stay inside its selected package and provide its API', async () => {
   const dir = app(),
     pkg = engine(dir, './escape.js')
+
   const outside = put(dir, 'outside.js', "throw Error('escaped module must not execute')")
+
   symlinkSync(outside, join(pkg, 'escape.js'))
   await assert.rejects(loadMacOSDevEngine(dir), /must stay inside/)
+
   const invalid = app()
+
   engine(invalid, './engine.js', 'export const somethingElse=true')
   await assert.rejects(loadMacOSDevEngine(invalid), /engine API is missing/)
 })

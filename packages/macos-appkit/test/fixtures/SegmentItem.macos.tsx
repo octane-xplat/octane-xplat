@@ -3,6 +3,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const segmentItemRef = { current: null as any }
 export const segmentItemEvents: string[] = []
+
 const refs = [
   segmentItemRef,
   [

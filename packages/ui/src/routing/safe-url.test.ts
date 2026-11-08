@@ -28,6 +28,7 @@ describe('sanitizeUrl', () => {
     expect(sanitizeUrl('data:image/png;base64,iVBORw0KGgo=')).toBe(
       'data:image/png;base64,iVBORw0KGgo=',
     )
+
     // Accepted inputs are returned normalized, never rewritten to the
     // scheme-collapsed comparison form.
     expect(sanitizeUrl('custom-scheme: spaced value')).toBe('custom-scheme: spaced value')
@@ -39,6 +40,7 @@ describe('isSafeDestination', () => {
     expect(isSafeDestination({ protocol: 'data', host: ' text/html', pathname: ',<script>' })).toBe(
       false,
     )
+
     expect(isSafeDestination({ protocol: 'javascript: alert' })).toBe(false)
     expect(isSafeDestination({ pathname: 'data: text/html,x' })).toBe(false)
   })
@@ -48,6 +50,7 @@ describe('isSafeDestination', () => {
     expect(isSafeDestination({ protocol: 'https:', host: 'example.com', pathname: '/x' })).toBe(
       true,
     )
+
     expect(isSafeDestination(null)).toBe(true)
   })
 })

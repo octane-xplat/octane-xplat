@@ -29,6 +29,7 @@ installEditorDocument((props) => {
   current = props
   if (!editor) {
     const element = document.createElement('div')
+
     document.body.append(element)
     editor = new Editor({
       element,
@@ -51,7 +52,9 @@ installEditorDocument((props) => {
     })
 
     lastHTMLInput = JSON.stringify([props.json !== undefined, props.value])
+
     const e = editor
+
     props.ref({
       getHTML: () => e.getHTML(),
       setHTML: (html: string) => e.commands.setContent(html),
@@ -87,6 +90,7 @@ installEditorDocument((props) => {
 
   if (props.json !== undefined) {
     const stamp = JSON.stringify(props.json)
+
     if (stamp !== lastJSON && stamp !== JSON.stringify(editor.getJSON())) {
       editor.commands.setContent(props.json)
     }
@@ -94,6 +98,7 @@ installEditorDocument((props) => {
     lastJSON = stamp
   } else {
     const stamp = JSON.stringify([false, props.value])
+
     if (stamp !== lastHTMLInput && props.value !== undefined && props.value !== lastHTML) {
       editor.commands.setContent(props.value)
     }

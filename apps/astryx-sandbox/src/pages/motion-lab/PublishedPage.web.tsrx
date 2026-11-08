@@ -78,6 +78,7 @@ const SEVERITY: Record<
 /** `exit-optional` -> `Exit optional`. The data carries no title, so derive one. */
 function titleOf(id: string): string {
   const words = id.replace(/-/g, ' ')
+
   return words.charAt(0).toUpperCase() + words.slice(1)
 }
 
@@ -258,6 +259,7 @@ export function PublishedGuidancePage() {
             <TableBody>
               {PUBLISHED_SECTIONS.map((section) => {
                 const isRewrite = rewriteSections.has(section.title)
+
                 return (
                   <TableRow key={section.title}>
                     <TableCell>

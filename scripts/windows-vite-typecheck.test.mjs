@@ -18,6 +18,7 @@ for (const tsrx of [false, true]) {
   test(`native Vite selects Windows leaves and rejects type errors (${tsrx ? 'TSRX' : 'TypeScript'})`, async () => {
     const directory = mkdtempSync(path.join(root, 'node_modules/.windows-vite-check-'))
     const previousCwd = process.cwd()
+
     try {
       writeFileSync(path.join(directory, 'package.json'), '{"type":"module"}')
       writeFileSync(
@@ -60,9 +61,12 @@ const checked: '${expected}' = value
 `
 
       const main = path.join(directory, 'main.ts')
+
       process.chdir(directory)
+
       const options = { platform: 'windows', logDiagnostics: false }
       const plugin = typescriptCheckPlugin(options)
+
       if (tsrx) {
         // The preview only detects explicit .tsrx imports. Preserve the
         // failure until upstream can discover extensionless TSRX modules.

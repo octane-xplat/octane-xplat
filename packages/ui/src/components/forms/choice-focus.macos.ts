@@ -14,6 +14,7 @@ interface Options {
 
 function flag(view: NSView, name: string, fallback = false): boolean {
   const value = (view as unknown as Record<string, unknown>)[name]
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -39,7 +40,9 @@ export function createAppKitChoiceFocus(
       if (flag(view, 'hiddenOrHasHiddenAncestor') || flag(view, 'hidden')) {
         return
       }
+
       const key = byView.get(view)
+
       if (key !== undefined) {
         if (flag(view, 'isAccessibilityEnabled', true)) {
           items.push({ key, view })
@@ -47,34 +50,45 @@ export function createAppKitChoiceFocus(
 
         return
       }
+
       const children = view.subviews
+
       for (let index = 0; index < Number(children?.count ?? 0); index++) {
         visit(children.objectAtIndex(index) as NSView)
       }
     }
+
     const root = options.root()
+
     if (root) {
       visit(root)
     }
+
     return items
   }
+
   const focused = (items: ReturnType<typeof ordered>) => {
     const window = options.root()?.window
     const view = window?.firstResponder as NSView | undefined
+
     // Nested controls in endContent own their keys independently.
     return view?.window === window ? items.find((item) => item.view === view) : undefined
   }
+
   const recalculate = () => options.root()?.window?.recalculateKeyViewLoop()
   const synchronize = (): void => {
     const items = ordered()
     const current =
       focused(items) ?? items.find((item) => item.key === options.selected()) ?? items[0]
+
     const excluded = new Set(
       bridge()?.keyboardEventsSupported !== false && typeof bridge()?.suppressTabStop === 'function'
         ? items.filter((item) => item !== current).map((item) => item.view)
         : [],
     )
+
     let changed = false
+
     for (const [view, release] of leases) {
       if (!excluded.has(view)) {
         release()
@@ -82,12 +96,14 @@ export function createAppKitChoiceFocus(
         changed = true
       }
     }
+
     for (const view of excluded) {
       if (leases.has(view)) {
         continue
       }
 
       const release = bridge()!.suppressTabStop(view)
+
       if (typeof release !== 'function') {
         throw new Error('AppKit choice focus ownership unavailable')
       }
@@ -95,10 +111,12 @@ export function createAppKitChoiceFocus(
       leases.set(view, release)
       changed = true
     }
+
     if (changed) {
       recalculate()
     }
   }
+
   return {
     synchronize,
     focusedView: (): NSView | undefined => focused(ordered())?.view,
@@ -107,14 +125,17 @@ export function createAppKitChoiceFocus(
     focus(key?: string, edge: 'first' | 'last' = 'first'): boolean {
       const items = ordered(),
         window = options.root()?.window
+
       const target =
         key !== undefined
           ? items.find((item) => item.key === key)
           : (items.find((item) => item.key === options.selected()) ??
             items[edge === 'last' ? items.length - 1 : 0])
+
       if (!target || !window?.makeFirstResponder(target.view)) {
         return false
       }
+
       options.reveal?.(target.view)
       synchronize()
       return true
@@ -129,14 +150,18 @@ export function createAppKitChoiceFocus(
       ) {
         return
       }
+
       const items = ordered(),
         current = focused(items),
         window = options.root()?.window
+
       if (!current || !window) {
         return
       }
+
       const index = items.indexOf(current)
       let next: number
+
       switch (event.key) {
         case 'Home':
           next = 0
@@ -167,9 +192,11 @@ export function createAppKitChoiceFocus(
         default:
           return
       }
+
       if (!window.makeFirstResponder(items[next].view)) {
         return
       }
+
       event.preventDefault()
       options.reveal?.(items[next].view)
       options.onNavigate?.(items[next].key)
@@ -177,9 +204,11 @@ export function createAppKitChoiceFocus(
     },
     dispose(): void {
       const changed = leases.size > 0
+
       for (const release of leases.values()) {
         release()
       }
+
       leases.clear()
       if (changed) {
         recalculate()

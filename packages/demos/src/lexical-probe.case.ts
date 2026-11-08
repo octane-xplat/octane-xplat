@@ -8,6 +8,7 @@ import { runLexicalProbe } from './lexical-probe'
  *  bundle). */
 export async function run(ctx: ProbeContext) {
   const steps = await runLexicalProbe()
+
   // Record everything first — assert() throws on the first failure and the
   // step details carry the real error text.
   ctx.record('steps', steps)
@@ -18,6 +19,7 @@ export async function run(ctx: ProbeContext) {
   // The leaf's actual bridge — same modules, but through the shipping code.
   const bridge = await import('../../lexical/src/json-bridge')
   const ok = await bridge.ensureJSONBridge()
+
   ctx.assert('leaf json-bridge loads', ok, true)
   if (ok) {
     const html =
@@ -25,8 +27,11 @@ export async function run(ctx: ProbeContext) {
 
     const doc = bridge.htmlToJSON(html)
     const types = ((doc?.root as any)?.children ?? []).map((c: any) => c.type).join(',')
+
     ctx.assert('leaf bridge HTML→JSON — ' + types, types, 'heading,paragraph,paragraph')
+
     const out = bridge.jsonToHTML(doc!)
+
     ctx.assert(
       'leaf bridge JSON→HTML keeps link + align',
       Boolean(out?.includes('href="https://x.test"') && out?.includes('text-align')),

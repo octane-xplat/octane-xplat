@@ -4,7 +4,9 @@
 // always agree with what the Markdown component renders — the same contract
 // upstream's headingProjection enforces (top-level headings only).
 import type { OutlineItem } from '../../props'
+
 export type { OutlineItem } from '../../props'
+
 import type { MdDoc, MdInline, MdNode } from '../../markdown/Markdown.tsrx'
 import { mdInlineText } from '../../markdown/markdown-ast'
 import { parseMdInline, parseMdNodes } from '../../markdown/markdown-parse'
@@ -25,6 +27,7 @@ export function slugify(value: string): string {
 export function uniqueSlug(baseSlug: string, counts: Map<string, number>): string {
   const fallbackSlug = baseSlug || 'section'
   const count = counts.get(fallbackSlug) ?? 0
+
   counts.set(fallbackSlug, count + 1)
   return count === 0 ? fallbackSlug : `${fallbackSlug}-${count}`
 }
@@ -52,6 +55,7 @@ interface ParsedHeading {
  */
 export function markdownHeadings(markdown: string): ParsedHeading[] {
   const headings: ParsedHeading[] = []
+
   for (const node of parseMdNodes(markdown)) {
     if (node.type !== 'heading') {
       continue
@@ -76,6 +80,7 @@ export function projectMdHeadings(nodes: readonly MdNode[]): {
   const ids = new Map<MdNode, string>()
   const labels = new Map<MdNode, string>()
   const outline: OutlineItem[] = []
+
   for (const node of nodes) {
     if (node.type !== 'heading') {
       continue
@@ -83,6 +88,7 @@ export function projectMdHeadings(nodes: readonly MdNode[]): {
 
     const label = mdInlineText(node.children as readonly MdInline[]).trim()
     const id = uniqueSlug(slugify(label), counts)
+
     ids.set(node, id)
     labels.set(node, label)
     outline.push({ id, label, level: node.depth })

@@ -10,6 +10,7 @@ const roots = new Set<ReturnType<typeof renderNativeScriptApp>>()
 const entry = {
   create() {
     const page = new Page()
+
     page.actionBarHidden = true
     roots.add(renderNativeScriptApp(page, Qualification))
     return page
@@ -26,5 +27,6 @@ import.meta.hot?.dispose(() => {
   for (const root of roots) {
     root.unmount()
   }
+
   roots.clear()
 })

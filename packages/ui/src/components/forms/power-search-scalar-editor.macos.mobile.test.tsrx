@@ -30,6 +30,7 @@ vi.mock('../actions/controls.macos.tsrx', () => ({
 
 vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: () => <masonview /> }))
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
+
 const config: PowerSearchConfig = {
   name: 'scalar',
   fields: [
@@ -62,6 +63,7 @@ function mount() {
   const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
   const all = (): any[] => {
     const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]
+
     return container.children.flatMap(visit)
   }
 
@@ -73,12 +75,14 @@ function mount() {
     flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 
   const flush = () => flushUniversalSync(() => {})
+
   render(base)
   return { root, base, filter, all, input, button, render, flush }
 }
 
 it('keeps rapid edits, rejects invalid/bounded numbers and claims one valid submission before reentry', () => {
   const f = mount()
+
   try {
     const change = f.input().props.onTextChange,
       apply = f.button('Apply')
@@ -107,6 +111,7 @@ it('keeps rapid edits, rejects invalid/bounded numbers and claims one valid subm
 
 it('filter replacement resets same-type drafts and retires old change/save/cancel callbacks', () => {
   const f = mount()
+
   try {
     const change = f.input().props.onTextChange,
       apply = f.button('Apply'),
@@ -141,6 +146,7 @@ it('filter replacement resets same-type drafts and retires old change/save/cance
 
 it('readonly, marked text and unmount prevent direct held scalar saves; consumer errors allow retry', () => {
   const f = mount()
+
   try {
     const change = f.input().props.onTextChange,
       apply = f.button('Apply')
@@ -153,6 +159,7 @@ it('readonly, marked text and unmount prevent direct held scalar saves; consumer
     f.button('Apply')()
     expect(f.base.onSave).not.toHaveBeenCalled()
     f.render(f.base)
+
     const field = f.input(),
       save = f.button('Apply')
 
@@ -178,6 +185,7 @@ it('readonly, marked text and unmount prevent direct held scalar saves; consumer
 
 it('unknown explicit field/operator keys never fall back to a different filter', () => {
   const f = mount()
+
   try {
     for (const filter of [{ field: 'missing' }, { field: 'year', operator: 'missing' }]) {
       f.render({ ...f.base, filter })
@@ -196,8 +204,10 @@ it('unknown explicit field/operator keys never fall back to a different filter',
 
 it('Cancel closes the scalar session without saving and a replacement can open a fresh draft', () => {
   const f = mount()
+
   try {
     const apply = f.button('Apply')
+
     f.button('Cancel')()
     apply()
     expect(f.base.onCancel).toHaveBeenCalledTimes(1)
@@ -212,6 +222,7 @@ it('Cancel closes the scalar session without saving and a replacement can open a
 
 it('absolute date dispatch preserves unchanged instants and rejects invalid calendar drafts', () => {
   const f = mount()
+
   try {
     const operator = { key: 'before', label: 'Before', value: { type: 'date_absolute' } }
     const dateConfig = {
@@ -220,6 +231,7 @@ it('absolute date dispatch preserves unchanged instants and rejects invalid cale
     }
 
     const unixSeconds = 1234567890.12345
+
     f.render({
       ...f.base,
       config: dateConfig,
@@ -229,7 +241,9 @@ it('absolute date dispatch preserves unchanged instants and rejects invalid cale
     expect(f.input().props.text).toBe('2009-02-13T23:31:30.123Z')
     f.button('Apply')()
     expect(f.base.onSave.mock.calls[0][0].value.unixSeconds).toBe(unixSeconds)
+
     const change = f.input().props.onTextChange
+
     change('2023-02-29')
     f.button('Apply')()
     expect(f.base.onSave).toHaveBeenCalledTimes(1)
@@ -245,6 +259,7 @@ it('absolute date dispatch preserves unchanged instants and rejects invalid cale
 
 it('absolute date-only reconfiguration retires old callbacks and normalizes the current UTC day', () => {
   const f = mount()
+
   try {
     const dateConfig = (dateOnly: boolean) => ({
       name: 'dates',
@@ -269,6 +284,7 @@ it('absolute date-only reconfiguration retires old callbacks and normalizes the 
     }
 
     f.render({ ...f.base, config: dateConfig(false), filter })
+
     const apply = f.button('Apply'),
       change = f.input().props.onTextChange
 

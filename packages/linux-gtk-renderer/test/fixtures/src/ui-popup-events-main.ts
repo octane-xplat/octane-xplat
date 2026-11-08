@@ -9,6 +9,7 @@ import {
 } from '../../../../ui/src/components/overlays/layer-stack'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK popup events test',
   default_width: 850,
@@ -17,10 +18,13 @@ const window = new Gtk.Window({
 })
 
 const fixed = new Gtk.Fixed()
+
 window.set_child(fixed)
+
 const anchorA = new Gtk.Button({ label: 'Anchor A' })
 const anchorB = new Gtk.Button({ label: 'Anchor B' })
 const outside = new Gtk.Button({ label: 'Outside' })
+
 for (const [widget, x, y] of [
   [anchorA, 120, 80],
   [anchorB, 470, 80],
@@ -52,22 +56,27 @@ const check = (name: string, ok: boolean) => {
 }
 
 outside.connect('clicked', () => outsideClicks++)
+
 const acknowledgers: Array<[any, any]> = []
 function acknowledge(widget: any) {
   const keys = new Gtk.EventControllerKey()
+
   keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
   keys.connect('key-pressed', (_controller: any, key: number) => {
     if (key !== Gdk.KEY_F12) {
       return false
     }
+
     ack++
     return true
   })
+
   widget.add_controller(keys)
   acknowledgers.push([widget, keys])
 }
 
 acknowledge(window)
+
 const controllerCount = (widget: any) => widget.observe_controllers().get_n_items()
 const windowBaseline = controllerCount(window)
 function layer(anchor: any, depth: number) {
@@ -75,11 +84,13 @@ function layer(anchor: any, depth: number) {
   const panel = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 8 })
   const entry = new Gtk.Entry()
   const action = new Gtk.Button({ label: 'Inside popup' })
+
   panel.append(entry)
   panel.append(action)
   popup.set_child(panel)
   popup.set_parent(anchor)
   acknowledge(popup)
+
   const baseline = controllerCount(popup)
   const token = {}
   const state = {
@@ -96,13 +107,16 @@ function layer(anchor: any, depth: number) {
     disposed: false,
     dispose: () => {},
   }
+
   action.connect('clicked', () => state.clicks++)
+
   const request = () => {
     if (state.closeOnRequest) {
       popup.popdown()
       state.dispose()
     }
   }
+
   const removeLayer = registerLayer({
     token,
     depth,
@@ -115,6 +129,7 @@ function layer(anchor: any, depth: number) {
       request()
     },
   })
+
   const removeEvents = bindPopupEvents(window, popup, {
     isPresent: () => !state.disposed && popup.get_mapped(),
     onEscape(event) {
@@ -124,19 +139,23 @@ function layer(anchor: any, depth: number) {
       if (!state.outsideEnabled || !shouldCloseLayer(token)) {
         return
       }
+
       event.preventDefault()
       state.outside++
       request()
     },
   })
+
   state.dispose = () => {
     if (state.disposed) {
       return
     }
+
     state.disposed = true
     removeLayer()
     removeEvents()
   }
+
   return state
 }
 
@@ -145,16 +164,20 @@ const a = layer(anchorA, 0),
   c = layer(a.action, 1)
 
 c.popup.set_position(Gtk.PositionType.RIGHT)
+
 const layers = [a, b, c]
 const point = (widget: any) => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2,
     y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -163,14 +186,18 @@ const point = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 async function input(widget: any, action: { key?: string; type?: string } = {}) {
   const actions = action.key || action.type != null ? [action] : [{ hover: true }, {}]
+
   for (const phase of actions) {
     const next = ack + 1
+
     print('GTK_POPUP_EVENTS_READY ' + JSON.stringify({ ...point(widget), ...phase }))
     for (let i = 0; i < 200 && ack < next; i++) {
       await pause(25)
@@ -186,12 +213,15 @@ async function run() {
   for (const item of layers) {
     check('one controller pair per native popup', controllerCount(item.popup) === item.baseline + 2)
   }
+
   window.present()
   await pause()
   a.popup.popup()
   await pause(300)
   check('parent popup maps nonmodally', a.popup.get_mapped() && !a.popup.get_autohide())
+
   let osInput = false
+
   if (GLib.getenv('GTK_POPUP_EVENTS_OS') === '1') {
     await input(a.action)
     check('inside click reaches popup button', a.clicks === 1 && a.outside === 0)
@@ -208,7 +238,9 @@ async function run() {
     a.escapeEnabled = true
     await input(a.entry, { key: 'Escape' })
     check('unhandled editor Escape reaches layer once', a.escape === 1 && a.popup.get_mapped())
+
     const editorKeys = new Gtk.EventControllerKey()
+
     editorKeys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
     editorKeys.connect('key-pressed', (_controller: any, key: number) => key === Gdk.KEY_Escape)
     a.entry.add_controller(editorKeys)
@@ -300,16 +332,20 @@ async function run() {
 
     osInput = true
   }
+
   for (const item of layers) {
     item.popup.popdown()
     item.dispose()
     item.dispose()
   }
+
   check('last layer removes shared window pair', controllerCount(window) === windowBaseline)
   for (const item of layers) {
     check('all popup controller pairs are removed', controllerCount(item.popup) === item.baseline)
   }
+
   const reopened = layer(anchorA, 0)
+
   layers.push(reopened)
   reopened.popup.popup()
   await pause(300)
@@ -317,6 +353,7 @@ async function run() {
     'a new layer rebinds after complete teardown',
     reopened.popup.get_mapped() && controllerCount(window) === windowBaseline + 2,
   )
+
   if (osInput) {
     await input(reopened.entry, { key: 'Escape' })
     check(
@@ -324,6 +361,7 @@ async function run() {
       reopened.escape === 1 && a.escape === 2,
     )
   }
+
   reopened.dispose()
   reopened.popup.popdown()
   check(
@@ -340,12 +378,14 @@ async function run() {
         gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
 }
 
 let failed = false
+
 run()
   .catch((error) => {
     failed = true
@@ -358,9 +398,11 @@ run()
       item.popup.popdown()
       item.popup.unparent()
     }
+
     for (const [widget, controller] of acknowledgers) {
       widget.remove_controller(controller)
     }
+
     window.destroy()
     loop.quit()
   })

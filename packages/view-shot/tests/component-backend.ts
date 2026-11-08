@@ -1,4 +1,5 @@
 import type { CaptureBackend } from '../src/backend-types'
+
 export const trace = { captured: [] as object[], released: [] as string[] }
 export const backend: CaptureBackend = {
   capabilities: () => ({ view: true, screen: false, formats: ['png'], scrollContent: false }),

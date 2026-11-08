@@ -13,6 +13,7 @@ if (view === 'frame' || view === 'story') {
   // Static Workshop HTML links every emitted CSS asset. Keep these app-wide
   // rules as CSS text so they cannot be linked into the gallery document.
   const stylesheet = document.createElement('style')
+
   stylesheet.textContent = exampleStyles
   document.head.append(stylesheet)
 }

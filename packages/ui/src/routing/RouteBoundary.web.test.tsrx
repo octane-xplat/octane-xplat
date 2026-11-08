@@ -9,8 +9,11 @@ const roots: any[] = []
 
 function mount(children: any, boundary?: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -33,6 +36,7 @@ afterEach(() => {
 
 it('renders children untouched when no boundary is declared', () => {
   const host = mount(<p className="ok">fine</p>)
+
   expect(host.querySelector('.ok')).toBeTruthy()
 })
 
@@ -48,6 +52,7 @@ it('renders the declared boundary with error and route when the subtree throws',
   }
 
   const host = mount(<Boom />, Boundary)
+
   expect(seen.props.error).toBeInstanceOf(Error)
   expect(seen.props.error.message).toBe('screen blew up')
   expect(seen.props.route).toBe(route)
@@ -72,6 +77,7 @@ it('reset remounts the route subtree', () => {
   }
 
   const host = mount(<MaybeBoom />, Boundary)
+
   expect(host.querySelector('.eb')).toBeTruthy()
 
   fail = false

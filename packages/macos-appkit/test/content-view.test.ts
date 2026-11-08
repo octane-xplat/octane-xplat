@@ -9,6 +9,7 @@ const source = rendererSource()
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
   const rest = source.slice(start)
+
   return rest.slice(0, rest.search(/\n(?:export )?(?:function |class |const )/))
 }
 
@@ -119,6 +120,7 @@ function fixture(type = 'contentview') {
 
   const insert = (node: any, parentId = 1) => api.insert(container, parentId, node, null)
   const remove = (node: any) => api.remove(container, 1, node)
+
   return {
     parent,
     container,
@@ -139,7 +141,9 @@ test('content slot replacement detaches the old view and deactivates its constra
     b = fx.child(3)
 
   fx.insert(a)
+
   const pins = Object.values(a.placementPins) as any[]
+
   fx.insert(b)
   assert.equal(a.view.superview, null)
   assert.ok(pins.every((pin) => !pin.active))
@@ -202,7 +206,9 @@ test('default content stretches; explicit sizes center; alignment and margins up
 
   fx.insert(a)
   assert.deepEqual(rect(a), [0, 0, 200, 100])
+
   const oldPins = { ...a.placementPins }
+
   a.props = { style: { width: 40, height: 20 } }
   fx.layout()
   assert.deepEqual(rect(a), [80, 40, 40, 20])
@@ -256,7 +262,9 @@ test('destroying a retained child releases its native parent and placement pins'
     a = fx.child(2)
 
   fx.insert(a)
+
   const pins = Object.values(a.placementPins) as any[]
+
   fx.destroy(a)
   assert.equal(a.parent, null)
   assert.equal(a.view.superview, null)

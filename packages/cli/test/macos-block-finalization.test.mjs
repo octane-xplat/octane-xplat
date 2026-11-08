@@ -47,16 +47,21 @@ test(
   },
   (t) => {
     const directory = mkdtempSync(join(tmpdir(), 'xplat-block-finalization-'))
+
     t.after(() => rmSync(directory, { recursive: true, force: true }))
+
     const script = join(directory, 'fixture.cjs')
     const bootstrap = join(directory, 'bootstrap.js')
+
     writeFileSync(script, fixture)
     writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js')))
+
     const metadataName = `metadata.macos.${process.arch === 'x64' ? 'x86_64' : 'arm64'}.nsmd`
     const metadata = join(
       existsSync(join(hostBundle, metadataName)) ? hostBundle : join(hostRoot, 'prebuilt/macos'),
       metadataName,
     )
+
     for (let attempt = 0; attempt < 3; attempt++) {
       const result = spawnSync(
         join(hostBundle, 'host'),
@@ -70,6 +75,7 @@ test(
       )
 
       const output = (result.stdout ?? '') + (result.stderr ?? '')
+
       assert.equal(result.error, undefined, String(result.error))
       assert.equal(result.signal, null, output)
       assert.equal(result.status, 0, output)

@@ -12,6 +12,7 @@ import { xplatDevBridge } from '../dist/mcp/dev-bridge.js'
 
 async function makeBridge(t, serverOverrides = {}) {
   const appRoot = mkdtempSync(join(tmpdir(), 'xplat-bridge-app-'))
+
   t.after(() => rmSync(appRoot, { recursive: true, force: true }))
 
   const plugin = xplatDevBridge({ appRoot })
@@ -41,6 +42,7 @@ async function makeBridge(t, serverOverrides = {}) {
   const origin = `http://127.0.0.1:${server.address().port}`
   const call = (method, path, body, headers = {}) => {
     const init = { method, headers: { 'x-xplat-dev-token': token, ...headers } }
+
     if (body) {
       init.headers['content-type'] = 'application/json'
       init.body = JSON.stringify(body)
@@ -69,6 +71,7 @@ test('every route requires the dev-bridge token', async (t) => {
 
   for (const path of ['/registry', '/poll?instance=x', '/invoke/req_1']) {
     const res = await fetch(`${origin}/__xplat_dev__${path}`)
+
     assert.equal(res.status, 401)
   }
 
@@ -81,23 +84,32 @@ test('every route requires the dev-bridge token', async (t) => {
 
 test('browser log batches authenticate, validate atomically, and reach process stderr', async (t) => {
   const { origin, call, plugin } = await makeBridge(t)
+
   assert.equal(plugin.apply, 'serve')
   assert.equal(plugin.transformIndexHtml()[0].injectTo, 'head-prepend')
+
   const unauthorized = await fetch(`${origin}/__xplat_dev__/logs`, { method: 'POST', body: '{}' })
+
   assert.equal(unauthorized.status, 401)
+
   const invalid = await call('POST', '/logs', {
     records: [{ level: 'error', line: 'x'.repeat(3000) }],
   })
+
   assert.equal(invalid.status, 400)
+
   const output = []
   const original = process.stderr.write
+
   process.stderr.write = function (chunk, ...args) {
     if (String(chunk).startsWith('[browser:')) {
       output.push(String(chunk))
       return true
     }
+
     return original.call(this, chunk, ...args)
   }
+
   try {
     const response = await call('POST', '/logs', {
       records: [{ level: 'error', line: 'failed\nstack line' }],
@@ -109,6 +121,7 @@ test('browser log batches authenticate, validate atomically, and reach process s
   } finally {
     process.stderr.write = original
   }
+
   // Write chunk boundaries are not part of the log stream contract.
   assert.equal(
     output.join(''),
@@ -123,9 +136,11 @@ test('the session file lands under the app root with url, token and pid', async 
   const dir = join(appRoot, 'node_modules/.cache/xplat/dev-bridge')
   const { readdirSync } = await import('node:fs')
   const files = readdirSync(dir)
+
   assert.equal(files.length, 1)
 
   const session = JSON.parse(readFileSync(join(dir, files[0]), 'utf8'))
+
   assert.equal(session.url, origin)
   assert.equal(session.token, token)
   assert.equal(session.pid, process.pid)
@@ -136,6 +151,7 @@ test('announcements flow into the agent-facing registry; malformed ones are reje
   const { call } = await makeBridge(t)
 
   const bad = await call('POST', '/registry', { hello: 'world' })
+
   assert.equal(bad.status, 400)
 
   assert.equal((await announce(call)).status, 200)
@@ -146,12 +162,14 @@ test('announcements flow into the agent-facing registry; malformed ones are reje
 
   const registry = await (await call('GET', '/registry')).json()
   const ids = registry.instances.map((i) => i.appInstanceId).sort()
+
   assert.deepEqual(ids, ['inst_a', 'inst_b'])
   assert.equal(registry.instances[1].actions.length, 1)
 })
 
 test('invoke → poll → result → outcome, with request-id dedupe', async (t) => {
   const { call } = await makeBridge(t)
+
   await announce(call)
 
   const invoke = {
@@ -163,19 +181,23 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
   }
 
   const accepted = await (await call('POST', '/invoke', invoke)).json()
+
   assert.equal(accepted.accepted, true)
 
   // Repeating the same request id never queues twice.
   const dupe = await (await call('POST', '/invoke', invoke)).json()
+
   assert.equal(dupe.deduplicated, true)
 
   // The app polls and receives the pending work once.
   const work = await (await call('GET', '/poll?instance=inst_a')).json()
+
   assert.equal(work.invocations.length, 1)
   assert.equal(work.invocations[0].actionId, 'auth.login')
   assert.deepEqual(work.invocations[0].input, { role: 'admin' })
 
   const again = await (await call('GET', '/poll?instance=inst_a')).json()
+
   assert.equal(again.invocations.length, 0)
 
   // The agent's outcome wait resolves when the app posts a result.
@@ -193,6 +215,7 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
   assert.equal(posted.status, 200)
 
   const outcome = await outcomeWait
+
   assert.equal(outcome.state, 'completed')
   assert.equal(outcome.outcome.result.role, 'admin')
 
@@ -208,13 +231,17 @@ test('invoke → poll → result → outcome, with request-id dedupe', async (t)
 
 test('registry reads do not renew a lease; announcements renew it without a revision change', async (t) => {
   t.mock.timers.enable({ apis: ['Date'], now: 100_000 })
+
   const { call } = await makeBridge(t)
+
   await announce(call, { announcedAt: '2099-01-01T00:00:00.000Z' })
   t.mock.timers.setTime(114_999)
   assert.equal((await (await call('GET', '/registry')).json()).instances.length, 1)
   await announce(call)
   t.mock.timers.setTime(129_998)
+
   const renewed = await (await call('GET', '/registry')).json()
+
   assert.equal(renewed.instances[0].revision, 1)
   t.mock.timers.setTime(129_999)
   assert.deepEqual((await (await call('GET', '/registry')).json()).instances, [])
@@ -233,29 +260,41 @@ test('registry reads do not renew a lease; announcements renew it without a revi
 
 test('expiry wakes outcome waiters and never replays queued or delivered work after reannouncement', async (t) => {
   t.mock.timers.enable({ apis: ['Date'], now: 100_000 })
+
   const { call, server } = await makeBridge(t)
+
   for (const appInstanceId of ['pending', 'delivered']) {
     await announce(call, { appInstanceId })
     await call('POST', '/invoke', { requestId: appInstanceId, appInstanceId, actionId: 'a.b' })
   }
+
   assert.equal((await (await call('GET', '/poll?instance=delivered')).json()).invocations.length, 1)
+
   const waiting = new Promise((resolve) => server.once('request', resolve))
   const outcomeWait = call('GET', '/invoke/delivered?wait=5000').then((r) => r.json())
+
   await waiting
   t.mock.timers.setTime(115_000)
   assert.deepEqual((await (await call('GET', '/registry')).json()).instances, [])
+
   const delivered = await outcomeWait
+
   assert.equal(delivered.state, 'completed')
   assert.equal(delivered.outcome.status, 'unknown')
   assert.equal(delivered.outcome.error.code, 'disconnected_runtime')
   assert.equal(delivered.outcome.partialEffects.length, 1)
+
   const pending = await (await call('GET', '/invoke/pending')).json()
+
   assert.deepEqual(pending.outcome.partialEffects, [])
   for (const appInstanceId of ['pending', 'delivered']) {
     await announce(call, { appInstanceId })
+
     const work = await (await call('GET', `/poll?instance=${appInstanceId}`)).json()
+
     assert.deepEqual(work.invocations, [])
   }
+
   await call('POST', '/result', { requestId: 'delivered', outcome: { status: 'succeeded' } })
   assert.equal((await (await call('GET', '/invoke/delivered')).json()).outcome.status, 'unknown')
 })
@@ -265,14 +304,18 @@ test(
   { timeout: 25_000 },
   async (t) => {
     const { call } = await makeBridge(t)
+
     await announce(call)
     await call('POST', '/invoke', {
       requestId: 'stopped',
       appInstanceId: 'inst_a',
       actionId: 'a.b',
     })
+
     await call('GET', '/poll?instance=inst_a')
+
     const outcome = await (await call('GET', '/invoke/stopped?wait=20000')).json()
+
     assert.equal(outcome.state, 'completed')
     assert.equal(outcome.outcome.error.code, 'disconnected_runtime')
   },
@@ -280,6 +323,7 @@ test(
 
 test('cancel flags reach the app through the poll response', async (t) => {
   const { call } = await makeBridge(t)
+
   await announce(call)
   await call('POST', '/invoke', {
     requestId: 'req_c',
@@ -294,15 +338,18 @@ test('cancel flags reach the app through the poll response', async (t) => {
   assert.equal((await call('POST', '/invoke/cancel', { requestId: 'req_c' })).status, 200)
 
   const poll = await (await call('GET', '/poll?instance=inst_a')).json()
+
   assert.deepEqual(poll.cancel, ['req_c'])
 })
 
 test('the app-side long poll wakes as soon as work is queued', async (t) => {
   const { call } = await makeBridge(t)
+
   await announce(call)
 
   const started = Date.now()
   const pending = call('GET', '/poll?instance=inst_a&wait=10000').then((r) => r.json())
+
   await new Promise((resolve) => setTimeout(resolve, 50))
   await call('POST', '/invoke', {
     requestId: 'req_w',
@@ -313,6 +360,7 @@ test('the app-side long poll wakes as soon as work is queued', async (t) => {
   })
 
   const work = await pending
+
   assert.ok(Date.now() - started < 5_000)
   assert.equal(work.invocations[0].requestId, 'req_w')
 })
@@ -373,11 +421,13 @@ test('NativeScript /ns/m/ frames resolve by line text through device code', asyn
     res.statusCode = 404
     res.end()
   })
+
   await new Promise((resolve) => deviceServer.listen(0, '127.0.0.1', resolve))
   t.after(async () => {
     deviceServer.closeAllConnections?.()
     await new Promise((resolve) => deviceServer.close(resolve))
   })
+
   const deviceOrigin = `http://127.0.0.1:${deviceServer.address().port}`
 
   const bridge = await makeBridge(t, {
@@ -428,6 +478,7 @@ test('NativeScript /ns/m/ frames resolve by line text through device code', asyn
   const got = await bridge.call('GET', '/invoke/req_ns')
   const { outcome } = await got.json()
   const failure = outcome.error.failures[0]
+
   assert.equal(failure.stack, rawStack)
   assert.equal(
     failure.sourceStack,
@@ -446,9 +497,12 @@ test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace r
   // @nativescript/vite serves files outside the app root as
   // /ns/m/<workspace-relative path>; vite only transforms them as /@fs/<abs>.
   const workspace = mkdtempSync(join(tmpdir(), 'xplat-bridge-ws-'))
+
   t.after(() => rmSync(workspace, { recursive: true, force: true }))
+
   const root = join(workspace, 'apps', 'app')
   const libFile = join(workspace, 'packages', 'lib', 'src', 'x.ts')
+
   mkdirSync(root, { recursive: true })
   mkdirSync(dirname(libFile), { recursive: true })
   writeFileSync(libFile, '')
@@ -461,6 +515,7 @@ test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace r
     res.statusCode = req.url === '/ns/m/packages/lib/src/x.ts' ? 200 : 404
     res.end(res.statusCode === 200 ? device : '')
   })
+
   await new Promise((resolve) => deviceServer.listen(0, '127.0.0.1', resolve))
   t.after(async () => {
     deviceServer.closeAllConnections?.()
@@ -482,7 +537,9 @@ test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace r
     actionId: 'a.b',
     input: {},
   })
+
   const rawStack = 'TypeError: lib\n    at work (http://x.test/ns/m/packages/lib/src/x.ts:3:3)'
+
   await bridge.call('POST', '/result', {
     requestId: 'req_ws',
     outcome: {
@@ -498,6 +555,7 @@ test('NativeScript /ns/m/ paths for workspace packages anchor at the workspace r
   })
 
   const { outcome } = await (await bridge.call('GET', '/invoke/req_ws')).json()
+
   assert.equal(
     outcome.error.failures[0].sourceStack,
     'TypeError: lib\n    at work (../../packages/lib/src/x.ts:2:1)',
@@ -537,6 +595,7 @@ test('failure stacks resolve http frames to root-relative source positions', asy
       return null
     },
   })
+
   ids.moduleId = join(bridge.appRoot, 'src', 'mod.ts')
   ids.appModuleId = join(bridge.appRoot, 'src', 'App.tsx')
 
@@ -572,11 +631,13 @@ test('failure stacks resolve http frames to root-relative source positions', asy
       completedAt: new Date().toISOString(),
     },
   })
+
   assert.equal(post.status, 200)
 
   const got = await bridge.call('GET', '/invoke/req_stack')
   const { outcome } = await got.json()
   const failure = outcome.error.failures[0]
+
   assert.equal(failure.stack, rawStack)
   assert.equal(
     failure.sourceStack,
@@ -625,9 +686,11 @@ test('a failure with no resolvable frames keeps no sourceStack; a transform thro
       completedAt: new Date().toISOString(),
     },
   })
+
   assert.equal(post.status, 200)
 
   const { outcome } = await (await bridge.call('GET', '/invoke/req_nostk')).json()
+
   assert.equal(outcome.error.failures[0].stack, rawStack)
   assert.equal(outcome.error.failures[0].sourceStack, undefined)
 })

@@ -45,6 +45,7 @@ export function RichTextEditor(props: any) @{
 
   const rig = useRef<FakeHost | null>(null)
   const previousValue = useRef(props.value)
+
   if (!rig.current) {
     const makeHandle = () => ({
       getHTML: () => state.html,

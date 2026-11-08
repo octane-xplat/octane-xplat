@@ -207,6 +207,7 @@ export function MotionTokensPage() {
           {SEMANTIC_EASES.map((ease) => {
             const duration = previewDuration(ease.name)
             const value = rawToken(ease.name)
+
             return (
               <DemoCard
                 key={ease.name}
@@ -347,6 +348,7 @@ export function MotionTokensPage() {
             <TableBody>
               {PRIMITIVE_DURATIONS.map(([name, ms]) => {
                 const aliases = SEMANTIC_DURATIONS.filter((d) => d.primitive === name)
+
                 return (
                   <TableRow key={name}>
                     <TableCell>

@@ -48,6 +48,7 @@ function isCoarsePointer(): boolean {
 
 function useCoarsePointer(): boolean {
   const [coarse, setCoarse] = useState(isCoarsePointer)
+
   useEffect(() => {
     if (typeof matchMedia !== 'function') {
       return
@@ -55,6 +56,7 @@ function useCoarsePointer(): boolean {
 
     const mq = matchMedia('(pointer: coarse)')
     const onChange = (e: any) => setCoarse(e.matches)
+
     mq.addEventListener?.('change', onChange)
     return () => mq.removeEventListener?.('change', onChange)
   }, [])
@@ -142,6 +144,7 @@ function TimeInputControl(inputProps: CoreProps) @{
     }
 
     const emitted = next ?? null
+
     lastEmitted.current = emitted
     setAnnouncement(
       emitted ? messages.selected(formatDisplay(emitted, hasSeconds)) : messages.cleared,
@@ -180,6 +183,7 @@ function TimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.target.value as string
+
     setPendingInput(text)
     if (composing.current || isDateComposing(e)) {
       return
@@ -226,8 +230,10 @@ function TimeInputControl(inputProps: CoreProps) @{
 
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault()
+
       const base = shown ?? currentISOTime(hasSeconds)
       const next = adjustTime(base, e.key === 'ArrowUp' ? increment : -increment, hasSeconds)
+
       if (isTimeInRange(next, props.min, props.max)) {
         fireChange(next)
         setAnnouncement(formatDisplay(next, hasSeconds))
@@ -255,6 +261,7 @@ function TimeInputControl(inputProps: CoreProps) @{
   const lastCommit = useRef<string | null>(null)
   const handleNativeCommit = (e: any) => {
     const raw = (e.target.value ?? '') as string
+
     if (lastCommit.current === raw) {
       return
     }
@@ -269,11 +276,13 @@ function TimeInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseTimeInput(raw, true)
+
     if (!parsed || !isTimeInRange(parsed, props.min, props.max)) {
       return
     }
 
     const normalized = formatISOTime(parseISOTime(parsed)!, hasSeconds)
+
     if (normalized !== value) {
       fireChange(normalized)
     }
@@ -506,6 +515,7 @@ export function TimeInput(props: TimeInputProps): JSX.Element @{
   const isTouch = useCoarsePointer()
   const effective = effectivePresentation(props.presentation)
   let surface = resolveInputSurface(effective, isTouch)
+
   if (surface === 'popover') {
     surface = 'typed'
   }

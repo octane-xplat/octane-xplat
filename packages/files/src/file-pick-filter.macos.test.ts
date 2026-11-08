@@ -16,9 +16,11 @@ describe('AppKit picker type filters', () => {
         throw Error('unloaded lazy symbol')
       },
     })
+
     for (const accept of ['', ' , ', '*/*', '.png,*/*']) {
       expect(appKitFileTypeFilter(accept, host)).toBeNull()
     }
+
     expect(reads).toBe(0)
   })
 
@@ -40,6 +42,7 @@ describe('AppKit picker type filters', () => {
       { identifier: 'org.example.alternate' },
       { identifier: 'dyn.guess', dynamic: true },
     ]
+
     const Type = {
       typesWithTagTagClassConformingToType(mime, tag, parent) {
         expect(this).toBe(Type)
@@ -47,6 +50,7 @@ describe('AppKit picker type filters', () => {
         return { count: values.length, objectAtIndex: (index) => values[index] }
       },
     }
+
     expect(appKitTypesForMIME(Type, 'application/x-example')).toEqual(values.slice(0, 2))
     expect(appKitFileTypeFilter('application/x-example', { UTType: Type })).toEqual({
       legacy: values.slice(0, 2).map((value) => value.identifier),
@@ -58,6 +62,7 @@ describe('AppKit picker type filters', () => {
     const pdf = { identifier: 'com.adobe.pdf' }
     const Type = { typeWithFilenameExtension: () => pdf, typeWithMIMEType: () => pdf }
     const panel = { allowedContentTypes: [] as any[], allowsOtherFileTypes: true }
+
     applyAppKitFileTypeFilter(panel, '.pdf,application/pdf', { UTType: Type })
     expect(panel.allowedContentTypes).toEqual([pdf])
     expect(panel.allowsOtherFileTypes).toBe(false)
@@ -65,17 +70,23 @@ describe('AppKit picker type filters', () => {
 
   it('partial native resolution preserves the full union through existing extension/UTI filters', () => {
     const panel: any = { allowedContentTypes: [] }
+
     applyAppKitFileTypeFilter(panel, '.custom,image/*', {
       UTType: { typeWithIdentifier: (id) => ({ identifier: id }) },
     })
+
     expect(panel.allowedFileTypes).toEqual(['custom', 'public.image'])
     expect(panel.allowedContentTypes, 'a partial modern list must not drop the extension').toEqual(
       [],
     )
+
     const legacy: any = { allowedFileTypes: ['old'] }
+
     applyAppKitFileTypeFilter(legacy, '*/*', {})
     expect(legacy.allowedFileTypes).toBeNull()
+
     const modern: any = { allowedContentTypes: [{ identifier: 'old' }] }
+
     applyAppKitFileTypeFilter(modern, '', {})
     expect(modern.allowedContentTypes).toEqual([])
   })
@@ -87,12 +98,14 @@ describe('AppKit picker type filters', () => {
       'application/*',
     ]) {
       const panel: any = { allowedFileTypes: ['old'], allowsOtherFileTypes: true }
+
       expect(() => applyAppKitFileTypeFilter(panel, accept, {})).toThrowError(
         expect.objectContaining({ name: 'UnsupportedFileTypeError' }),
       )
 
       expect(panel).toEqual({ allowedFileTypes: ['old'], allowsOtherFileTypes: true })
     }
+
     expect(
       appKitFileTypeFilter('application/pdf', {
         UTType: {
@@ -131,6 +144,7 @@ describe('AppKit picker type filters', () => {
     let ready = false,
       loads = 0,
       reads = 0
+
     const Type = {},
       host: any = {
         objc: {
@@ -142,6 +156,7 @@ describe('AppKit picker type filters', () => {
           },
         },
       }
+
     Object.defineProperty(host, 'UTType', {
       get() {
         expect(ready).toBe(true)
@@ -149,6 +164,7 @@ describe('AppKit picker type filters', () => {
         return Type
       },
     })
+
     expect(appKitFileTypeClass(host)).toBe(Type)
     expect(appKitFileTypeClass(host)).toBe(Type)
     expect([loads, reads]).toEqual([1, 2])
@@ -157,6 +173,7 @@ describe('AppKit picker type filters', () => {
   it('failed loading never dereferences a lazy class, can retry, and has a narrow dlopen path', () => {
     let reads = 0,
       fail = true
+
     const Type = {},
       host: any = {
         objc: {
@@ -167,26 +184,31 @@ describe('AppKit picker type filters', () => {
           },
         },
       }
+
     Object.defineProperty(host, 'UTType', {
       get() {
         reads++
         return Type
       },
     })
+
     expect(appKitFileTypeClass(host)).toBeUndefined()
     expect(reads).toBe(0)
     fail = false
     expect(appKitFileTypeClass(host)).toBe(Type)
+
     const direct: any = {
       dlopen(path, flags) {
         expect(this).toBe(direct)
         expect(path).toBe(
           '/System/Library/Frameworks/UniformTypeIdentifiers.framework/UniformTypeIdentifiers',
         )
+
         expect(flags).toBe(2)
         return {}
       },
     }
+
     Object.defineProperty(direct, 'UTType', { get: () => Type })
     expect(appKitFileTypeClass(direct)).toBe(Type)
   })

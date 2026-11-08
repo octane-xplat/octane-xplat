@@ -5,10 +5,13 @@
 
 export function utf8Bytes(input: string): Uint8Array {
   const bytes: number[] = []
+
   for (let i = 0; i < input.length; i++) {
     let cp = input.charCodeAt(i)
+
     if (cp >= 0xd800 && cp <= 0xdbff && i + 1 < input.length) {
       const low = input.charCodeAt(i + 1)
+
       if (low >= 0xdc00 && low <= 0xdfff) {
         cp = 0x10000 + ((cp - 0xd800) << 10) + (low - 0xdc00)
         i++
@@ -52,12 +55,17 @@ export function sha256(bytes: Uint8Array): Uint8Array {
 
   const bitLen = bytes.length * 8
   const padded = new Uint8Array((bytes.length + 9 + 63) & ~63)
+
   padded.set(bytes)
   padded[bytes.length] = 0x80
+
   const dv = new DataView(padded.buffer)
+
   dv.setUint32(padded.length - 8, Math.floor(bitLen / 0x100000000))
   dv.setUint32(padded.length - 4, bitLen >>> 0)
+
   const w = new Uint32Array(64)
+
   for (let block = 0; block < padded.length; block += 64) {
     for (let t = 0; t < 16; t++) {
       w[t] = dv.getUint32(block + t * 4)
@@ -78,11 +86,13 @@ export function sha256(bytes: Uint8Array): Uint8Array {
     }
 
     let [a, b, c, d, e, f, g, h] = H
+
     for (let t = 0; t < 64; t++) {
       const S1 = ((e >>> 6) | (e << 26)) ^ ((e >>> 11) | (e << 21)) ^ ((e >>> 25) | (e << 7))
       const t1 = (h + S1 + ((e & f) ^ (~e & g)) + K[t] + w[t]) >>> 0
       const S0 = ((a >>> 2) | (a << 30)) ^ ((a >>> 13) | (a << 19)) ^ ((a >>> 22) | (a << 10))
       const t2 = (S0 + ((a & b) ^ (a & c) ^ (b & c))) >>> 0
+
       h = g
       g = f
       f = e
@@ -105,6 +115,7 @@ export function sha256(bytes: Uint8Array): Uint8Array {
 
   const digest = new Uint8Array(32)
   const out = new DataView(digest.buffer)
+
   for (let i = 0; i < 8; i++) {
     out.setUint32(i * 4, H[i])
   }

@@ -27,6 +27,7 @@ await runNativeJourney({
 
   async leafSteps({ state, check }) {
     let s = await state('select isolation/resources')
+
     check(
       'isolation story mounts with providers',
       s.phase === 'ready',
@@ -54,6 +55,7 @@ await runNativeJourney({
   // Escape through NSApp.sendEvent: AppKit dispatch evidence, not OS input.
   async overlaySteps({ state, check }) {
     let s = await state('key escape')
+
     check('escape closes an open panel', s.panel === null, s.panel)
 
     s = await state('panel stories')

@@ -26,6 +26,7 @@ import { refList } from '../internal/accessibility/ref-list'
 
 function cellWidthStyle(col: TableColumn<any>) {
   const w = col.width
+
   if (w?.type === 'pixel') {
     return { width: w.value, minWidth: w.value, flexBasis: w.value, flexGrow: 0, flexShrink: 0 }
   }
@@ -102,6 +103,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
   const measuredWidth = useRef(0)
   const measureViewport = useCallback(() => {
     const width = Number(scrollViewport.current?.contentView?.bounds?.size.width)
+
     if (Number.isFinite(width) && width > 0 && Math.abs(measuredWidth.current - width) >= 0.5) {
       measuredWidth.current = width
       setViewportWidth(width)
@@ -222,6 +224,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
           <masonview className="vx-table-head" style={{ display: 'flex', flexDirection: 'row' }}>
             {plan.headerCells.map((cell) => {
               const { before, after, below, content, overlay } = cell.render
+
               return (
                 <masonview
                   key={cell.column.key}

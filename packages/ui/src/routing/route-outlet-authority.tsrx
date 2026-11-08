@@ -15,6 +15,7 @@ export function RouteOutletResume(props: Pick<RouteOutletProps, 'resumeUrl' | 'o
   const navigation = useRouter(instance)
   const state = useNavigation(instance)
   const lifetime = useMemo(() => ({ active: true, started: false }), [])
+
   useLayoutEffect(
     () => () => {
       lifetime.active = false

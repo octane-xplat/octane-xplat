@@ -41,7 +41,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -52,6 +54,7 @@ const settings = Gtk.Settings.get_default()
 // GtkAccessible.announce without needing an AT client.
 const announced: Array<[string, any]> = []
 const origAnnounce = (host as any).announce?.bind(host)
+
 if (origAnnounce) {
   ;(host as any).announce = (message: string, priority: any) => {
     announced.push([message, priority])
@@ -73,6 +76,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -82,6 +86,7 @@ const findNode = (id: string): any => {
       return n
     }
   }
+
   return null
 }
 
@@ -89,25 +94,31 @@ const findNode = (id: string): any => {
  *  logical subtree under the id like the other fixtures do. */
 const hasText = (id: string, text: string): boolean => {
   const start = findNode(id)
+
   if (!start) {
     return false
   }
+
   const probe = (node: any): boolean => {
     if (!node) {
       return false
     }
+
     try {
       if (JSON.stringify(node.props).includes(text)) {
         return true
       }
     } catch {}
+
     for (const c of node.children ?? []) {
       if (probe(c)) {
         return true
       }
     }
+
     return false
   }
+
   return probe(start)
 }
 
@@ -119,6 +130,7 @@ const themeScopeNode = (): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -137,6 +149,7 @@ const readClipboard = (): Promise<string | null> =>
     } catch {
       resolve(null)
     }
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
       resolve(null)
       return false
@@ -154,27 +167,34 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const point = (widget: any) => {
   const native = widget?.get_native?.()
+
   if (!native) {
     return null
   }
+
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     return null
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -183,16 +203,20 @@ const point = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 const clickAt = async (widget: any, what?: string) => {
   const p = widget && point(widget)
+
   if (!p) {
     dbg.push('MISSING widget ' + String(what))
     return
   }
+
   await ready(p)
 }
 
@@ -221,25 +245,33 @@ async function run() {
   check('useThemeName resolves probe theme', hasText('theme-name', 'probe'))
   check('useTheme mode resolves light', hasText('theme-mode', 'light'))
   check('useTheme token resolves light value', hasText('theme-token', '#123456'))
+
   const scope = themeScopeNode()
+
   check('theme scope class stamps the subtree root', !!scope)
   check('generated scope rule feeds the cascade', scope?.computedStyle?.color === 'rgb(17, 34, 51)')
+
   const themedText = findNode('theme-primary')
+
   check(
     'scope color inherits into themed text',
     themedText?.computedStyle?.color === 'rgb(17, 34, 51)',
   )
+
   check(
     'themeSchemeClasses carries the scope class',
     themeSchemeClasses().includes('xds-theme-probe'),
   )
+
   const imperative: { className: string } = { className: '' }
   const unbindTheme = applyThemeClasses(imperative, 'vx-probe-host')
+
   check(
     'applyThemeClasses stamps base + scope',
     imperative.className.includes('vx-probe-host') &&
       imperative.className.includes('xds-theme-probe'),
   )
+
   check('applyThemeClasses omits dark while light', !imperative.className.includes('ns-dark'))
 
   // --- OS scheme flip: Gtk.Settings prefer-dark is the scheme source.
@@ -250,16 +282,20 @@ async function run() {
   check('scheme media query flips', hasText('mq-scheme', 'true'))
   check('onThemeSchemeChange fired on OS flip', !hasText('events', 'ev-0'))
   check('theme token resolves dark value', hasText('theme-token', '#ABCDEF'))
+
   const darkScope = themeScopeNode()
+
   check(
     'dark scope rule restamps themed widget',
     darkScope?.computedStyle?.color === 'rgb(221, 238, 255)',
   )
+
   check(
     'theme view restamps dark classes',
     (darkScope?.cssClasses?.has?.('ns-dark') ?? false) ||
       (darkScope?.cssClasses?.has?.('dark') ?? false),
   )
+
   check('applyThemeClasses re-stamps dark live', imperative.className.includes('ns-dark dark'))
 
   // --- App preference: explicit light wins over a dark system source.
@@ -308,7 +344,9 @@ async function run() {
   await pump(400)
   check('clipboard press reports copied', hasText('copied', 'true'))
   check('onCopy reports success', hasText('copy-ok', 'copy-true'))
+
   const clipText = await readClipboard()
+
   dbg.push('clip=' + JSON.stringify(clipText))
   check('clipboard round-trips payload', clipText === 'gtk-clip-payload')
   check(
@@ -318,8 +356,11 @@ async function run() {
 
   // --- copyText direct write + useAnnounce delivery.
   const direct = await copyText('direct-payload')
+
   check('copyText resolves true', direct === true)
+
   const directText = await readClipboard()
+
   check('direct write round-trips', directText === 'direct-payload')
   await clickAt(findView('ann-btn'), 'ann-btn')
   await pump(300)
@@ -327,6 +368,7 @@ async function run() {
     'useAnnounce posts to GtkAccessible.announce',
     announced.some(([m]) => m === 'gtk announcement'),
   )
+
   dbg.push('announced=' + JSON.stringify(announced))
   check(
     'announcement maps to a real priority',
@@ -335,6 +377,7 @@ async function run() {
 
   // --- Imperative unsubscribe: host stops tracking after unbind.
   const beforeUnbind = imperative.className
+
   unbindTheme()
   setPreferDark(true)
   await pump(400)
@@ -350,6 +393,7 @@ async function run() {
     'GTK_THEME ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 
@@ -364,6 +408,7 @@ run().catch((error) => {
         gtk: '4.14.5',
       }),
   )
+
   loop.quit()
 })
 

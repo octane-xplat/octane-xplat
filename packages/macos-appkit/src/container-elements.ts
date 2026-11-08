@@ -73,7 +73,9 @@ export function createContainerElements(deps: Dependencies) {
 
     layout() {
       super.layout()
+
       const node = gridLayoutNodesByView.get(this)
+
       if (node) {
         node.adapter?.layout?.(node)
       }
@@ -124,6 +126,7 @@ export function createContainerElements(deps: Dependencies) {
     get intrinsicContentSize() {
       const node = contentViewNodesByView.get(this)
       const child = node?.projectedChildren ? node.projectedChildren[0] : node?.contentChild
+
       if (!child?.view) {
         return { width: 0, height: 0 }
       }
@@ -161,6 +164,7 @@ export function createContainerElements(deps: Dependencies) {
     get intrinsicContentSize() {
       const node = placeholderNodesByView.get(this)
       const view = node?.placeholderContent
+
       if (!view) {
         return { width: 0, height: 0 }
       }
@@ -211,6 +215,7 @@ export function createContainerElements(deps: Dependencies) {
     view.translatesAutoresizingMaskIntoConstraints = false
     rootLayoutNodesByView.set(view, node)
     view.postsFrameChangedNotifications = true
+
     const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
       NSViewFrameDidChangeNotification,
       view,
@@ -231,6 +236,7 @@ export function createContainerElements(deps: Dependencies) {
     } else {
       node.rootGeometryObserver = observer
     }
+
     return view
   }
 
@@ -291,7 +297,9 @@ export function createContainerElements(deps: Dependencies) {
   function setActionBarTitleView(node: ElementNode, view: NSView | null | undefined) {
     validateActionBarTitleView(node, view)
     node.actionBarTitleViewProp = view
+
     const child = node.projectedChildren ? node.projectedChildren[0] : node.contentChild
+
     // Assigning the already active JSX title is a no-op in NativeScript.
     if (child && child.view === view) {
       node.actionBarExternal = null
@@ -317,11 +325,13 @@ export function createContainerElements(deps: Dependencies) {
     const child = node.projectedChildren ? node.projectedChildren[0] : node.contentChild
     const external = node.actionBarExternal
     const view = child?.view ?? external ?? node.actionBarTitle
+
     if (!child) {
       validateActionBarTitleView(node, view)
     }
 
     const previous = node.actionBarDisplay
+
     if (previous?.view !== view) {
       if (previous) {
         deps.layout.releasePlacementPins(previous)
@@ -344,6 +354,7 @@ export function createContainerElements(deps: Dependencies) {
       if (!node.actionBarDisplay) {
         const intrinsic = view.intrinsicContentSize
         const style: PropBag = {}
+
         for (const axis of ['width', 'height']) {
           if (Number(intrinsic?.[axis]) < 0) {
             style[axis] = Number(view.frame.size[axis]) || Number(view.fittingSize?.[axis]) || 0
@@ -389,7 +400,9 @@ export function createContainerElements(deps: Dependencies) {
     }
 
     node.placeholderCreated = true
+
     const handler = node.props.onCreatingView
+
     if (typeof handler !== 'function') {
       return
     }
@@ -400,7 +413,9 @@ export function createContainerElements(deps: Dependencies) {
     }
 
     node.container.root!.eventScope('discrete', () => handler(event))
+
     const view = event.view
+
     if (view == null) {
       return
     }
@@ -432,6 +447,7 @@ export function createContainerElements(deps: Dependencies) {
     }
 
     const owner = deps.registry.nodeContainersByView.get(view)
+
     if (owner && owner !== node.container) {
       throw new TypeError(
         '[macos-host] placeholder creatingView assigned a host owned by another Octane root',
@@ -449,7 +465,9 @@ export function createContainerElements(deps: Dependencies) {
     view.removeFromSuperview()
     view.translatesAutoresizingMaskIntoConstraints = false
     node.view.addSubview(view)
+
     const host = node.view as AppKitView
+
     for (const anchor of ['leading', 'trailing', 'top', 'bottom']) {
       ;(view as AppKitView)[anchor + 'Anchor'].constraintEqualToAnchor(
         host[anchor + 'Anchor'],
@@ -462,8 +480,10 @@ export function createContainerElements(deps: Dependencies) {
 
   function observeContentGeometry(node: ElementNode) {
     disposeBuiltinContentGeometry(node)
+
     const view = node.view!
     const lease: ContentGeometryLease = { view, active: true }
+
     contentGeometryLeases.set(node, lease)
     view.postsFrameChangedNotifications = true
     // Auto Layout can resize an NSView after its layout() callback. Observe
@@ -486,10 +506,12 @@ export function createContainerElements(deps: Dependencies) {
         }
       },
     )
+
     // Native registration can synchronously retire the node before returning
     // its token. That late token still belongs to this retired lease.
     if (!lease.active || contentGeometryLeases.get(node) !== lease) {
       const token = lease.token
+
       lease.token = undefined
       if (token) {
         NSNotificationCenter.defaultCenter.removeObserver(token)
@@ -508,6 +530,7 @@ export function createContainerElements(deps: Dependencies) {
     // Grid placement is resolved in layout() from current bounds, so a frame
     // change must queue the same reconcile the other manual hosts perform.
     view.postsFrameChangedNotifications = true
+
     const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
       NSViewFrameDidChangeNotification,
       view,
@@ -527,6 +550,7 @@ export function createContainerElements(deps: Dependencies) {
       NSNotificationCenter.defaultCenter.removeObserver(observer)
       return view
     }
+
     node.glassGeometryObserver = observer
 
     const backdrop = NSVisualEffectView.alloc().initWithFrame({
@@ -549,6 +573,7 @@ export function createContainerElements(deps: Dependencies) {
     backdrop.bottomAnchor.constraintEqualToAnchor(view.bottomAnchor).active = true
     return view
   }
+
   function applyBuiltinContentHostProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (node.type === 'actionbar' && ['title', 'titleView', 'flat'].includes(name)) {
       return
@@ -609,20 +634,25 @@ export function createContainerElements(deps: Dependencies) {
     if (node.type !== 'rootlayout') {
       return
     }
+
     const failures = new FailureCollector()
     const observer = node.rootGeometryObserver
+
     node.rootGeometryObserver = null
     if (node.view) {
       rootLayoutNodesByView.delete(node.view)
     }
+
     failures.run('root geometry', () => {
       if (observer) {
         NSNotificationCenter.defaultCenter.removeObserver(observer)
       }
     })
+
     for (const child of node.children.slice()) {
       failures.run('root child', () => deps.tree.detach(node.container, child))
     }
+
     failures.throwIfFailed()
   }
 
@@ -630,31 +660,39 @@ export function createContainerElements(deps: Dependencies) {
     if (node.type !== 'liquidglass') {
       return
     }
+
     const failures = new FailureCollector()
     const observer = node.glassGeometryObserver
     const backdrop = node.glassBackdrop
+
     node.glassGeometryObserver = null
     node.glassBackdrop = null
     if (node.view) {
       gridLayoutNodesByView.delete(node.view)
     }
+
     failures.run('glass geometry', () => {
       if (observer) {
         NSNotificationCenter.defaultCenter.removeObserver(observer)
       }
     })
+
     failures.run('glass backdrop', () => backdrop?.removeFromSuperview())
     failures.throwIfFailed()
   }
 
   function disposeBuiltinContentGeometry(node: ElementNode) {
     const lease = contentGeometryLeases.get(node)
+
     contentGeometryLeases.delete(node)
     if (!lease) {
       return
     }
+
     lease.active = false
+
     const token = lease.token
+
     lease.token = undefined
     if (token) {
       NSNotificationCenter.defaultCenter.removeObserver(token)
@@ -667,11 +705,14 @@ export function createContainerElements(deps: Dependencies) {
     if (!['contentview', 'actionbar'].includes(node.type ?? '')) {
       return
     }
+
     const failures = new FailureCollector()
     const ownedView = contentGeometryLeases.get(node)?.view ?? node.view
+
     failures.run('content geometry', () => disposeBuiltinContentGeometry(node))
     if (node.type === 'actionbar') {
       const display = node.actionBarDisplay
+
       node.actionBarExternal = null
       node.actionBarDisplay = null
       node.actionBarTitle = null
@@ -680,9 +721,11 @@ export function createContainerElements(deps: Dependencies) {
         failures.run('action bar display', () => display.view.removeFromSuperview())
       }
     }
+
     for (const child of node.children.slice()) {
       failures.run('content child', () => deps.tree.detach(node.container, child))
     }
+
     if (ownedView) {
       failures.run('content identity', () => {
         if (contentViewNodesByView.get(ownedView) === node) {
@@ -690,6 +733,7 @@ export function createContainerElements(deps: Dependencies) {
         }
       })
     }
+
     failures.throwIfFailed()
   }
 

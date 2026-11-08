@@ -33,6 +33,7 @@ export function Detail(props: RouteProps<'/detail'>) @{
   const [preloadStatus, setPreloadStatus] = useState('About screen has not been warmed')
   const state = useRouterState()
   const back = state.canGoBack
+
   console.log('[probe] Detail render from=' + props.search.from)
 
   <Screen className="vx-app detail gap-3">
@@ -48,6 +49,7 @@ export function Detail(props: RouteProps<'/detail'>) @{
       id="detail-preload"
       onPress={async () => {
         const result = await navigation.preload({ to: '/about' })
+
         setPreloadStatus(
           result.status === 'preloaded'
             ? 'About screen code is ready; no navigation occurred'

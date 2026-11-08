@@ -3,6 +3,7 @@ import type { Plugin } from 'vite'
 /** Adapt Bamboo 1.56.2's configured-environment accounting to an explicit build plan. */
 export function buildEnvironments(plugins: Plugin[], names: readonly string[]) {
   const participating = new Set(names)
+
   if (!participating.size || names.some((name) => !name)) {
     throw new Error('@octane-xplat/bamboo: buildEnvironments must contain environment names')
   }
@@ -12,6 +13,7 @@ export function buildEnvironments(plugins: Plugin[], names: readonly string[]) {
   const appHook = css?.buildApp
   const resolved = typeof resolvedHook === 'function' ? resolvedHook : resolvedHook?.handler
   const app = typeof appHook === 'function' ? appHook : appHook?.handler
+
   if (!css || !resolved || !app) {
     throw new Error(
       '@octane-xplat/bamboo: buildEnvironments requires Bamboo CSS configResolved and buildApp hooks',
@@ -24,6 +26,7 @@ export function buildEnvironments(plugins: Plugin[], names: readonly string[]) {
         throw new Error(`@octane-xplat/bamboo: unknown buildEnvironments entry "${name}"`)
       }
     }
+
     return Object.fromEntries([...participating].map((name) => [name, environments[name]]))
   }
 
@@ -39,12 +42,14 @@ export function buildEnvironments(plugins: Plugin[], names: readonly string[]) {
       )
     },
   }
+
   css.buildApp = {
     ...(typeof appHook === 'object' ? appHook : {}),
     handler(builder) {
       return app.call(this, { ...builder, environments: select(builder.environments) })
     },
   }
+
   plugins.unshift({
     name: 'xplat-bamboo:build-environments',
     apply: 'build',
@@ -53,6 +58,7 @@ export function buildEnvironments(plugins: Plugin[], names: readonly string[]) {
       sequential: true,
       handler() {
         const name = this.environment?.name
+
         if (!name || !participating.has(name)) {
           this.error(
             `@octane-xplat/bamboo: building environment "${name ?? 'unknown'}" is missing from buildEnvironments; include every environment the builder runs`,

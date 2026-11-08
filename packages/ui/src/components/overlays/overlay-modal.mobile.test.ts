@@ -52,6 +52,7 @@ vi.mock('@nativescript/core', () => ({
     }
     on(event: string, handler: () => void) {
       const hs = this.handlers.get(event) ?? new Set()
+
       hs.add(handler)
       this.handlers.set(event, hs)
     }
@@ -71,6 +72,7 @@ vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 vi.mock('../../theme/theme-host', () => ({
   applyThemeClasses: (host: any, base: string) => {
     host.className = base
+
     const listener = () => {
       host.className = base
     }
@@ -98,6 +100,7 @@ function mount(props: any = {}) {
   )
 
   mounted.push(root)
+
   const render = (extra: any = {}) => {
     root.render(Overlay, { open: true, children: 'content', ...props, ...extra })
     flushUniversalSync(() => {})
@@ -109,6 +112,7 @@ function mount(props: any = {}) {
 
 const pressBack = () => {
   const event = { cancel: false }
+
   state.backListeners.get('activityBackPressed')?.(event)
   return event
 }
@@ -154,9 +158,12 @@ afterEach(async () => {
 describe('Overlay isModal on Android', () => {
   it('dismisses on Android Back while open, without a shade', async () => {
     const dismiss = vi.fn()
+
     mount({ isModal: true, onDismiss: dismiss })
     await settle()
+
     const event = pressBack()
+
     expect(dismiss).toHaveBeenCalledTimes(1)
     expect(event.cancel).toBe(true)
   })
@@ -164,28 +171,37 @@ describe('Overlay isModal on Android', () => {
   it('unregisters the interceptor when the overlay closes', async () => {
     const dismiss = vi.fn()
     const { render } = mount({ isModal: true, onDismiss: dismiss })
+
     await settle()
     render({ open: false })
     await settle()
+
     const event = pressBack()
+
     expect(dismiss).not.toHaveBeenCalled()
     expect(event.cancel).toBe(false)
   })
 
   it('registers no interceptor without isModal or shadeCover', async () => {
     const dismiss = vi.fn()
+
     mount({ onDismiss: dismiss })
     await settle()
+
     const event = pressBack()
+
     expect(dismiss).not.toHaveBeenCalled()
     expect(event.cancel).toBe(false)
   })
 
   it('also dismisses shadeCover overlays on Android Back', async () => {
     const dismiss = vi.fn()
+
     mount({ shadeCover: true, onDismiss: dismiss })
     await settle()
+
     const event = pressBack()
+
     expect(dismiss).toHaveBeenCalledTimes(1)
     expect(event.cancel).toBe(true)
   })

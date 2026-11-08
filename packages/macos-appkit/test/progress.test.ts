@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -97,6 +98,7 @@ function controlFixture() {
 
 test('raw Progress creates a determinate regular bar with a safe default range', () => {
   const { view, calls } = controlFixture()
+
   assert.equal(view.style, 0)
   assert.equal(view.controlSize, 0)
   assert.equal(view.indeterminate, false)
@@ -111,6 +113,7 @@ test('raw Progress creates a determinate regular bar with a safe default range',
 test('Progress clamps all finite ranges and updates value and maximum independently of key order', () => {
   const { api, node, view } = controlFixture()
   const update = (props: any) => api.applyProps(node, props)
+
   update({ value: -12, maxValue: 40 })
   assert.equal(view.doubleValue, 0)
   update({ value: 55 })
@@ -135,6 +138,7 @@ test('Progress clamps all finite ranges and updates value and maximum independen
 
 test('production Progress update commands restore dropped value, maximum and styling defaults', () => {
   const { api, node, view, calls, container } = controlFixture()
+
   api.applyProps(node, { value: 30, maxValue: 60, style: { opacity: 0.5 }, className: 'working' })
   api.applyCommand(container, { op: 'update', id: 1, props: { value: 25 } })
   assert.equal(view.doubleValue, 25)
@@ -156,6 +160,7 @@ test('production Progress update commands restore dropped value, maximum and sty
 
 test('Progress rejects nonnumeric/nonfinite inputs before allocation but accepts negative and fractional values', () => {
   const { api, calls } = controlFixture()
+
   for (const name of ['value', 'maxValue']) {
     for (const value of ['12', true, {}, [], NaN, Infinity, -Infinity]) {
       assert.throws(
@@ -174,6 +179,7 @@ test('Progress rejects nonnumeric/nonfinite inputs before allocation but accepts
 
 test('Progress accepts layout parents and rejects all children before insertion', () => {
   const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'span', 'progress']) {
     assert.throws(() => api.validateTextNesting('progress', child), /cannot contain JSX children/)
   }
@@ -267,6 +273,7 @@ test('Progress production ownership moves its native host between parents and re
     progress: any = node(3, 'progress')
 
   const retained = progress.view
+
   api.insert(container, 1, progress, null)
   assert.equal(left.contentChild, progress)
   api.insert(container, 2, progress, null)

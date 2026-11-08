@@ -52,6 +52,7 @@ export interface DevtoolsConnection {
 
 export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnection {
   const endpoint = new URL(record.endpoint)
+
   if (
     endpoint.protocol !== 'http:' ||
     endpoint.hostname !== '127.0.0.1' ||
@@ -75,12 +76,14 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
         | { channel: string; from: 'backend'; targetId: string; data: unknown },
     ) => void
   >()
+
   const sessionListeners = new Set<(sessions: readonly SessionSnapshot[]) => void>()
   const backendListeners = new Set<(backends: readonly BackendRef[]) => void>()
   const errorListeners = new Set<(error: ChannelError) => void>()
 
   const ws = `ws://${endpoint.host}/devtools`
   const next = devSocket(ws)
+
   if (!next) {
     state = 'closed'
   } else {
@@ -100,10 +103,13 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
       if (socket !== next || typeof event.data !== 'string') {
         return
       }
+
       const frame = parseHubFrame(event.data)
+
       if (!frame) {
         return
       }
+
       if (frame.type === 'ready') {
         panelId = typeof frame.panel === 'string' ? frame.panel : null
         snapshot = Array.isArray(frame.sessions) ? frame.sessions : []
@@ -166,6 +172,7 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
     if (state !== 'live' || socket?.readyState !== 1) {
       return false
     }
+
     try {
       socket.send(JSON.stringify({ type: 'channel', ...frame }))
       return true
@@ -205,6 +212,7 @@ export function connectDevtools(record: DevtoolsServerRecord): DevtoolsConnectio
       if (state === 'closed') {
         return
       }
+
       state = 'closed'
       socket?.close()
       socket = undefined

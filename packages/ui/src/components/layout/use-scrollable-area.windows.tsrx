@@ -10,15 +10,18 @@ import type {
 
 import { refList, type FlatRef } from '../../internal/accessibility/ref-list'
 import { INITIAL_SCROLL_STATE, sameScrollState, scrollableAreaState } from './scrollable-area-state'
+
 // Mason's Windows view exposes these metrics in layout units, not backing pixels.
 const metric = (value: unknown): number => {
   const number = Number(value)
+
   return Number.isFinite(number) ? number : 0
 }
 
 function range(content: unknown, viewport: unknown): number {
   const size = Number(content)
   const client = Number(viewport)
+
   return Number.isFinite(size) && size >= 0 && Number.isFinite(client) && client >= 0
     ? Math.max(0, size - client)
     : 0
@@ -43,7 +46,9 @@ export function useScrollableArea<TElement extends object = object>(
 ): UseScrollableAreaResult<TElement> {
   const axis = options.axis ?? 'block'
   const axisRef = useRef(axis)
+
   axisRef.current = axis
+
   const viewport = useRef<any>(null)
   const content = useRef<any>(null)
   const caller = useRef<Record<string, any>>({})
@@ -54,9 +59,11 @@ export function useScrollableArea<TElement extends object = object>(
   const measure = useCallback((deferPublication = false) => {
     let next = INITIAL_SCROLL_STATE
     const view = viewport.current
+
     if (view && view.isLoaded !== false) {
       try {
         const { maxX, x, maxY, y } = scrollableAreaMetrics(view)
+
         next = scrollableAreaState(axisRef.current, maxX, x, maxY, y)
       } catch {
         // A retired native proxy cannot contribute usable geometry.
@@ -192,6 +199,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
       UseScrollableAreaViewportProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       caller.current = input
       if (viewportRefs.current.caller !== input.ref) {
         viewportRefs.current = { caller: input.ref, refs: refList(bindViewport, input.ref) }
@@ -216,6 +224,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
       UseScrollableAreaContentProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       contentCaller.current = input
       if (contentRefs.current.caller !== input.ref) {
         contentRefs.current = { caller: input.ref, refs: refList(bindContent, input.ref) }

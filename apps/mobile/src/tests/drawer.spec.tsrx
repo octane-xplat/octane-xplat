@@ -4,6 +4,7 @@ import { Application, isAndroid } from '@nativescript/core'
 import { Drawer } from '@octane-xplat/drawer'
 import { Text } from '@octane-xplat/ui'
 import { mountXplat, waitUntil } from '@octane-xplat/platform/testing'
+
 type NativeDrawer = {
   isOpened(side: string): boolean
   close(side: string, duration: number): Promise<void>
@@ -75,6 +76,7 @@ describe('native Drawer', () => {
   it('mounts the gesture host, lays out slots and opens after layout', async () => {
     const { view } = await mountXplat(OpenDrawer)
     const host = findHost(view, 'drawer-host')
+
     expect(host).toBeDefined()
     await waitUntil(() => host!.isOpened('left'), {
       message: 'defaultOpen never opened after layout',
@@ -91,8 +93,10 @@ describe('native Drawer', () => {
   it.skipIf(!isAndroid)('consumes one hardware Back press to dismiss the open panel', async () => {
     backChanges.length = 0
     backDismissals = 0
+
     const { view } = await mountXplat(BackDrawer)
     const host = findHost(view, 'drawer-back-host')
+
     expect(host).toBeDefined()
     await waitUntil(() => host!.isOpened('left'), {
       message: 'defaultOpen never opened after layout',

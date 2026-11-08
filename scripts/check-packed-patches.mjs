@@ -18,9 +18,11 @@ function run(command, args, cwd = work) {
     stdio: 'inherit',
     shell: process.platform === 'win32',
   })
+
   if (result.error) {
     throw result.error
   }
+
   assert.equal(result.status, 0, `${command} ${args.join(' ')} failed`)
 }
 
@@ -28,6 +30,7 @@ function checkConfig(label, pkg, base, packed) {
   assert.equal(pkg.packageManager, `bun@${compatibility.tools.bun}`, `${label}: manager`)
   for (const [specifier, path] of Object.entries(pkg.patchedDependencies)) {
     const patch = manifest.find((entry) => entry.specifier === specifier)
+
     assert.ok(patch, `${label}: unknown patch ${specifier}`)
     assert.equal(path, `patches/${patch.file}`)
     assert.deepEqual(
@@ -46,10 +49,13 @@ try {
   )
 
   const tarball = readdirSync(work).find((name) => name.endsWith('.tgz'))
+
   assert.ok(tarball)
   run('tar', ['-xzf', join(work, tarball), '-C', work])
+
   const packed = join(work, 'package')
   const pkg = JSON.parse(readFileSync(join(packed, 'package.json')))
+
   assert.equal(pkg.name, '@octane-xplat/patches')
   assert.equal(pkg.version, compatibility.frameworkVersion)
   assert.deepEqual(readdirSync(join(packed, 'patches')).sort(), manifest.map((p) => p.file).sort())
@@ -62,12 +68,16 @@ try {
 
   for (const template of ['template', 'library-template']) {
     const base = join(repo, 'packages/create', template)
+
     checkConfig(template, JSON.parse(readFileSync(join(base, 'package.json'))), base, packed)
   }
 
   const consumer = join(work, 'consumer')
+
   composeTargets(defaultTargets, consumer)
+
   const app = composeManifest(defaultTargets)
+
   checkConfig('generated default native config', app, consumer, packed)
   console.log(
     `Packed ${pkg.name}: ${manifest.length} canonical patches; starter-local bytes and registrations verified.`,
@@ -83,6 +93,7 @@ try {
 
     for (const specifier of Object.keys(app.patchedDependencies)) {
       const at = specifier.indexOf('@', 1)
+
       dependencies[specifier.slice(0, at)] = specifier.slice(at + 1)
     }
 
@@ -92,7 +103,9 @@ try {
     )
 
     run('bun', ['install', '--ignore-scripts'], consumer)
+
     const lock = readFileSync(join(consumer, 'bun.lock'), 'utf8')
+
     for (const specifier of Object.keys(app.patchedDependencies)) {
       assert.ok(lock.includes(JSON.stringify(specifier)), `${specifier}: no locked patch`)
     }

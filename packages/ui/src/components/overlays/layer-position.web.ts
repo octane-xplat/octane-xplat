@@ -10,6 +10,7 @@ export function ownAnchorName(element: HTMLElement, name: string): () => void {
   const previous = element.style.getPropertyValue('anchor-name')
   const priority = element.style.getPropertyPriority('anchor-name')
   const added = !tokens().includes(name)
+
   if (added) {
     element.style.setProperty('anchor-name', [...tokens(), name].join(', '), priority)
   }
@@ -25,6 +26,7 @@ export function ownAnchorName(element: HTMLElement, name: string): () => void {
 
     const currentPriority = element.style.getPropertyPriority('anchor-name')
     const remaining = tokens().filter((token) => token !== name)
+
     if (remaining.length) {
       element.style.setProperty('anchor-name', remaining.join(', '), currentPriority)
     } else if (previous === 'none') {
@@ -43,6 +45,7 @@ export function resolveCSSLayerOffset(offset: number | string, anchor: HTMLEleme
 
   const probe = anchor.ownerDocument.createElement('div')
   const context = getComputedStyle(anchor)
+
   probe.style.cssText =
     'position:fixed;visibility:hidden;pointer-events:none;height:0;padding:0;border:0;'
 
@@ -52,6 +55,7 @@ export function resolveCSSLayerOffset(offset: number | string, anchor: HTMLEleme
   for (const match of offset.matchAll(/var\(\s*(--[^,\s)]+)/g)) {
     const name = match[1]
     const value = context.getPropertyValue(name)
+
     if (value) {
       probe.style.setProperty(name, value)
     }

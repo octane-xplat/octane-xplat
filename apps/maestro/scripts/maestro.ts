@@ -18,6 +18,7 @@ The selected test app is installed/replaced, launched, and stopped by the flow.
 
 function run(executable, args, options = {}) {
   const result = spawnSync(executable, args, { cwd: root, stdio: 'inherit', ...options })
+
   if (result.error) {
     throw new Error(`${executable}: ${result.error.message}`)
   }
@@ -30,6 +31,7 @@ function run(executable, args, options = {}) {
 function artifacts(dir, suffix) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
     const path = join(dir, entry.name)
+
     if (entry.name.endsWith(suffix)) {
       return [path]
     }
@@ -40,6 +42,7 @@ function artifacts(dir, suffix) {
 
 try {
   const args = process.argv.slice(2)
+
   if (args.includes('--help') || args.includes('-h')) {
     console.log(help)
     process.exit(0)
@@ -47,8 +50,10 @@ try {
 
   const options = {}
   const allowed = ['target', 'device', 'artifact', 'flow', 'app-id', 'output']
+
   for (let i = 0; i < args.length; i += 2) {
     const key = args[i].replace(/^--/, '')
+
     if (
       !args[i].startsWith('--') ||
       !allowed.includes(key) ||
@@ -63,16 +68,19 @@ try {
   }
 
   const { target, device } = options
+
   if (!['ios', 'android'].includes(target) || !device) {
     throw new Error(help)
   }
 
   const flow = resolve(root, options.flow ?? '.maestro/counter.yaml')
+
   if (!existsSync(flow)) {
     throw new Error(`Flow not found: ${flow}`)
   }
 
   let artifact = options.artifact && resolve(root, options.artifact)
+
   if (
     artifact &&
     (!existsSync(artifact) || !artifact.endsWith(target === 'ios' ? '.app' : '.apk'))
@@ -108,8 +116,10 @@ try {
   if (!artifact) {
     const project = join(root, 'apps/maestro')
     const env = { ...process.env }
+
     if (target === 'android' && process.platform === 'darwin') {
       const java = spawnSync('/usr/libexec/java_home', ['-v', '21'], { encoding: 'utf8' })
+
       if (java.status !== 0) {
         throw new Error('Android builds require JDK 21; set up Temurin 21 first.')
       }
@@ -136,6 +146,7 @@ try {
         : join(project, 'platforms/android/app/build/outputs/apk/debug')
 
     const found = artifacts(dir, target === 'ios' ? '.app' : '.apk')
+
     if (found.length !== 1) {
       throw new Error(
         `Expected one build artifact, found ${found.length}; select one with --artifact.`,
@@ -152,6 +163,7 @@ try {
   }
 
   const output = resolve(root, options.output ?? `research/maestro/${target}/${Date.now()}`)
+
   mkdirSync(output, { recursive: true })
   console.log(`[maestro] target=${target} device=${device} artifact=${artifact} output=${output}`)
   run('maestro', [

@@ -11,6 +11,7 @@ import { getIconData } from '@iconify/utils/lib/icon-set/get-icon'
 /** Parse an `icons:<prefix>/<name>` specifier into its parts. */
 export function iconSpecifierParts(specifier: string): [string, string] | undefined {
   const match = /^icons:([a-z0-9]+(?:-[a-z0-9]+)*)\/([a-z0-9]+(?:-[a-z0-9]+)*)$/.exec(specifier)
+
   return match ? [match[1], match[2]] : undefined
 }
 
@@ -20,12 +21,14 @@ const identifier = /^[a-z0-9]+(?:-[a-z0-9]+)*$/
  *  into specifier parts; undefined for paths outside the managed shape. */
 export function iconStubParts(fileName: string): [string, string] | undefined {
   const name = basename(fileName)
+
   if (!name.endsWith('.icon')) {
     return undefined
   }
 
   const icon = name.slice(0, -'.icon'.length)
   const prefix = basename(dirname(fileName))
+
   return identifier.test(prefix) && identifier.test(icon) ? [prefix, icon] : undefined
 }
 
@@ -46,5 +49,6 @@ export function resolveCollectionJson(prefix: string, anchor: string): string | 
  *  in via getIconData); undefined when the name is absent or dangling. */
 export function readIconData(jsonPath: string, name: string): IconifyIcon | undefined {
   const collection = JSON.parse(readFileSync(jsonPath, 'utf8')) as IconifyJSON
+
   return getIconData(collection, name) ?? undefined
 }

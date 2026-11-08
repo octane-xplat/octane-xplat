@@ -34,6 +34,7 @@ export function createAppKitChartPointer(
   observe(view: unknown): () => void
 } {
   let panning = false
+
   return {
     pan(event: {
       deltaX?: unknown
@@ -47,6 +48,7 @@ export function createAppKitChartPointer(
       const panEvent = event as AppKitPanEvent
       const state = Number(panEvent.state)
       const point = finite(panEvent.x, panEvent.y) ? { x: panEvent.x, y: panEvent.y } : null
+
       if (state === 1) {
         if (!point) {
           return
@@ -68,22 +70,26 @@ export function createAppKitChartPointer(
       } else if (panning) {
         // `cancel` clears without coordinates, matching web's scrub('cancel', 0, 0).
         const ended = state === 3 ? point : null
+
         scrub(ended ? 'up' : 'cancel', ended?.x ?? 0, ended?.y ?? 0)
         panning = false
       }
     },
     tap(view: unknown): void {
       const point = bridge()?.locatePointer?.(view)
+
       if (point && finite(point.x, point.y)) {
         scrub('tap', point.x, point.y)
         return
       }
 
       const { width, height } = size()
+
       scrub('tap', width / 2, height / 2)
     },
     observe(view: unknown): () => void {
       const observePointerMotion = bridge()?.observePointerMotion
+
       if (!view || !observePointerMotion) {
         return () => {}
       }

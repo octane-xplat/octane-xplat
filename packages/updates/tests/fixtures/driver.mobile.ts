@@ -8,6 +8,7 @@ import { nativeEnvironment } from '../../src/native.mobile'
 export function start(port: number) {
   const env = nativeEnvironment()
   const request = env.request
+
   env.request = (url, timeout) =>
     request(url.replace('https://ota.test', `http://127.0.0.1:${port}`), timeout)
 
@@ -43,7 +44,9 @@ export function start(port: number) {
       assert(publicClient.supported, 'Release client unsupported')
       if (phase === 'baseline') {
         assert(marker === 1, 'Baseline must be embedded')
+
         const update = await client.check()
+
         assert(update.available, 'Missing first manifest')
         if (update.available) {
           await client.install(update.manifest)
@@ -58,8 +61,10 @@ export function start(port: number) {
         publicClient.markHealthy()
         assert(!publicClient.status().needsConfirmation, 'Confirmation did not persist')
         await report('healthy-v2')
+
         // The test server returns v3 only after observing healthy-v2.
         const update = await client.check()
+
         assert(update.available, 'Missing failing manifest')
         if (update.available) {
           await client.install(update.manifest)
@@ -74,7 +79,9 @@ export function start(port: number) {
         )
 
         assert(!publicClient.status().needsConfirmation, 'Recovery left an unconfirmed journal')
+
         const check = await client.check()
+
         assert(!check.available && check.reason === 'rejected', 'Bad SHA not quarantined')
         await report('recovered-v2')
         publicClient.rollback()
@@ -104,9 +111,12 @@ export function start(port: number) {
 
   const page = new Page()
   const label = new Label()
+
   label.text = `OTA test v${marker}`
   page.content = label
+
   let started = false
+
   page.on(Page.loadedEvent, () => {
     if (started) {
       return

@@ -33,6 +33,7 @@ export function setThemePreference(value: ThemePreference): void {
   // gtk-interface-color-scheme still wins inside scheme detection.
   try {
     const settings = Gtk.Settings.get_default?.()
+
     if (settings) {
       settings.gtk_application_prefer_dark_theme = value === 'dark'
     }
@@ -40,6 +41,7 @@ export function setThemePreference(value: ThemePreference): void {
     // Settings exist only after Gtk.init — before it the in-memory
     // preference still resolves getThemeScheme.
   }
+
   emit()
 }
 
@@ -53,7 +55,9 @@ export function getThemeScheme(): ThemeScheme {
 
 function subscribe(callback: () => void): () => void {
   listeners.add(callback)
+
   const unsubscribeSystem = subscribeSystemScheme(callback)
+
   return () => {
     listeners.delete(callback)
     unsubscribeSystem()

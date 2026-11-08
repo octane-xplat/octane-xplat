@@ -29,6 +29,7 @@ export type AppKitHost = {
  *  The single owning read of the `__xplatAppKit` global. */
 export const installedHost = (): AppKitHost | undefined => {
   const owner: unknown = '__xplatAppKit' in globalThis ? globalThis.__xplatAppKit : undefined
+
   return typeof owner === 'object' && owner !== null ? (owner as AppKitHost) : undefined
 }
 

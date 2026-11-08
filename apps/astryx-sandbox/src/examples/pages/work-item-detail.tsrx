@@ -552,6 +552,7 @@ export function WorkItemDetailTemplate() @{
                 <VStack gap={6}>
                   {ACTIVITY.map((entry) => {
                     const isComment = entry.kind === 'comment'
+
                     return (
                       <HStack key={entry.id} gap={3} vAlign="start">
                         <Avatar name={entry.author} size="sm" />

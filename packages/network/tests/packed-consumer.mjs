@@ -19,17 +19,20 @@ const repo = fileURLToPath(new URL('../../../', import.meta.url))
 const temp = mkdtempSync(join(tmpdir(), 'xplat-network-pack-'))
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 120000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
 try {
   run('bun', ['pm', 'pack', '--destination', temp], root)
+
   const tarball = join(
     temp,
     readdirSync(temp).find((name) => name.endsWith('.tgz')),
   )
 
   const installed = join(temp, 'node_modules/@octane-xplat/network')
+
   mkdirSync(installed, { recursive: true })
   run('tar', ['-xzf', tarball, '-C', installed, '--strip-components=1'], temp)
   assert.ok(
@@ -75,6 +78,7 @@ void consume
   for (const target of ['web', 'native', 'macos', 'linux', 'windows']) {
     for (const mode of ['bundler', 'nodenext']) {
       const config = join(temp, `${target}-${mode}.json`)
+
       writeFileSync(
         config,
         JSON.stringify({

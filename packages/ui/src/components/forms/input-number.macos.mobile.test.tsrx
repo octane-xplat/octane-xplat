@@ -19,8 +19,10 @@ function mount(component: any, props: any) {
   }
 
   render(props)
+
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -41,6 +43,7 @@ it('AppKit numeric fields format values, show units, and preserve the input whil
 
   try {
     const input = env.input()
+
     expect(input.props.value).toBe('3.0')
     expect(env.classNodes('vx-inputnumber-step')).toHaveLength(2)
     expect(env.classNodes('vx-inputnumber-units')[0].props.text).toBe('kg')
@@ -68,6 +71,7 @@ it('AppKit numeric clear reports null before onClear and retains uncontrolled st
   }
 
   const env = mount(InputNumber, props)
+
   try {
     env.classNodes('vx-inputnumber-clear')[0].props.onTap()
     flushUniversalSync(() => {})
@@ -129,6 +133,7 @@ it('an enclosing Field blocks numeric actions and owns labels/status without dup
   }
 
   const env = mount(Parent, { isDisabled: true })
+
   try {
     expect(env.classNodes('vx-field')).toHaveLength(1)
     expect(env.all().filter((node) => node.props?.id === 'count')).toHaveLength(1)
@@ -152,8 +157,10 @@ it('an enclosing Field blocks numeric actions and owns labels/status without dup
 
 it('adding numeric validation metadata retains the uncontrolled value and input identity', () => {
   const env = mount(InputNumber, { defaultValue: 2 })
+
   try {
     const input = env.input()
+
     input.props.onTextChange('7')
     flushUniversalSync(() => {})
     env.render({ label: 'Amount', status: { type: 'error', message: 'Check amount' } })
@@ -202,8 +209,10 @@ it('controlled numeric requests await parent acceptance and preserve the origina
     onValueChange = (value: number | null) => events.push(value)
 
   const env = mount(InputNumber, { value: null, defaultValue: 9, onValueChange })
+
   try {
     const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
+
     up()
     up()
     flushUniversalSync(() => {})
@@ -224,6 +233,7 @@ it('held numeric actions read current inherited blocking, bounds and callbacks',
   const events: unknown[] = []
   function Parent(props: any) {
     const { isDisabled, isReadOnly, ...inputProps } = props
+
     return (
       <FormField isDisabled={isDisabled} isReadOnly={isReadOnly}>
         <InputNumber {...inputProps} />
@@ -233,6 +243,7 @@ it('held numeric actions read current inherited blocking, bounds and callbacks',
 
   const initial = { value: 8, hasClear: true, onValueChange: () => events.push('old') }
   const env = mount(Parent, initial)
+
   try {
     const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
     const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap,
@@ -341,6 +352,7 @@ it('numeric callback errors release ownership while preserving accepted local in
     try {
       const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
       const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap
+
       expect(() => clear()).toThrow(failure)
       fail = false
       up()
@@ -358,6 +370,7 @@ it('removed numeric affordances and detached fields reject their held actions', 
     onValueChange = (value: number | null) => events.push(value)
 
   const env = mount(InputNumber, { defaultValue: 2, hasClear: true, onValueChange })
+
   try {
     const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
     const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap,
@@ -426,6 +439,7 @@ it('marked numeric editors block steps and clear while retaining draft edit noti
       }
 
       env.input().currentEditor = method ? () => editor : editor
+
       const up = env.classNodes('vx-inputnumber-step')[1].props.onTap
       const clear = env.classNodes('vx-inputnumber-clear')[0].props.onTap,
         edit = env.input().props.onTextChange

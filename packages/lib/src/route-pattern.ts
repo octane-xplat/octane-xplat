@@ -3,11 +3,15 @@ export function normalizeRouteSegment(segment: string): string {
   if (!segment.startsWith('[') || !segment.endsWith(']')) {
     return segment
   }
+
   const inner = segment.slice(1, -1)
+
   if (inner.startsWith('[') && inner.endsWith(']')) {
     const optional = inner.slice(1, -1)
+
     return optional.startsWith('...') ? '*' + optional.slice(3) : ':' + optional + '?'
   }
+
   return inner.startsWith('...') ? '*' + inner.slice(3) : ':' + inner
 }
 
@@ -16,18 +20,22 @@ export function routeParamName(segment: string): string | undefined {
   if (segment.startsWith(':')) {
     return segment.endsWith('?') ? segment.slice(1, -1) : segment.slice(1)
   }
+
   if (segment.startsWith('*')) {
     return segment.slice(1) || '*'
   }
+
   return undefined
 }
 
 /** Normalize file/spec path segments, removing a trailing index component. */
 export function routePatternSegments(path: string): string[] {
   const segments = path.split('/').filter(Boolean).map(normalizeRouteSegment)
+
   if (segments[segments.length - 1] === 'index') {
     segments.pop()
   }
+
   return segments
 }
 
@@ -52,17 +60,22 @@ export function matchRouteSegments(
       enumerable: true,
       writable: true,
     })
+
   const walk = (pi: number, si: number): boolean => {
     if (pi === pattern.length) {
       return si === segments.length
     }
+
     const segment = pattern[pi]
+
     if (segment.startsWith('*') && pi === pattern.length - 1) {
       assign(routeParamName(segment)!, segments.slice(si).map(decodeURIComponent).join('/'))
       return true
     }
+
     if (segment.startsWith(':')) {
       const name = routeParamName(segment)!
+
       if (si < segments.length) {
         assign(name, decode(segments[si]))
         if (walk(pi + 1, si + 1)) {
@@ -74,10 +87,12 @@ export function matchRouteSegments(
 
       return segment.endsWith('?') && walk(pi + 1, si)
     }
+
     return (
       si < segments.length && segment === decodeURIComponent(segments[si]) && walk(pi + 1, si + 1)
     )
   }
+
   return walk(0, 0) ? params : null
 }
 
@@ -96,12 +111,14 @@ export function parseRouteLocation(value: string, base = '/') {
   if (!value.startsWith('/') || value.startsWith('//')) {
     throw new TypeError('Expected an application-relative URL')
   }
+
   const hashAt = value.indexOf('#')
   const hash = hashAt < 0 ? undefined : decodeURIComponent(value.slice(hashAt + 1))
   const withoutHash = hashAt < 0 ? value : value.slice(0, hashAt)
   const queryAt = withoutHash.indexOf('?')
   let path = queryAt < 0 ? withoutHash : withoutHash.slice(0, queryAt)
   const prefix = '/' + base.split('/').filter(Boolean).join('/')
+
   if (prefix !== '/') {
     if (path === prefix) {
       path = '/'
@@ -111,14 +128,18 @@ export function parseRouteLocation(value: string, base = '/') {
       throw new TypeError('URL is outside the configured route base')
     }
   }
+
   const segments = path.split('/').filter(Boolean)
+
   // Validate even unmatched paths, so malformed input cannot become not-found.
   for (const segment of segments) {
     decodeURIComponent(segment)
   }
+
   const search: RouteSearchValues = {}
   const query = queryAt < 0 ? '' : withoutHash.slice(queryAt + 1)
   const decode = (part: string) => decodeURIComponent(part.replace(/\+/g, ' '))
+
   for (const pair of query.split('&')) {
     if (!pair) {
       continue
@@ -138,6 +159,7 @@ export function parseRouteLocation(value: string, base = '/') {
       writable: true,
     })
   }
+
   return { segments, search, hash }
 }
 
@@ -152,20 +174,26 @@ export function buildRouteLocation(
   base = '/',
 ): string {
   const known = new Set(pattern.flatMap((segment) => routeParamName(segment) ?? []))
+
   for (const key of Object.keys(params)) {
     if (!known.has(key)) {
       throw new TypeError(`Undeclared path parameter: ${key}`)
     }
   }
+
   const segments = pattern.flatMap((segment, index) => {
     const name = routeParamName(segment)
+
     if (name === undefined) {
       return [encodeURIComponent(segment)]
     }
+
     if (segment.startsWith('*') && index !== pattern.length - 1) {
       throw new TypeError('A catch-all must be the final segment')
     }
+
     const value = Object.prototype.hasOwnProperty.call(params, name) ? params[name] : undefined
+
     if (value === undefined || value === '') {
       if (segment.endsWith('?') || segment.startsWith('*')) {
         return []
@@ -173,16 +201,21 @@ export function buildRouteLocation(
 
       throw new TypeError(`Missing path parameter: ${name}`)
     }
+
     if (typeof value !== 'string') {
       throw new TypeError(`Path parameter must be a string: ${name}`)
     }
+
     return segment.startsWith('*')
       ? value.split('/').map(encodeURIComponent)
       : [encodeURIComponent(value)]
   })
+
   const pairs: string[] = []
+
   for (const key of Object.keys(search).sort()) {
     const value = search[key]
+
     if (value === undefined || value === null) {
       continue
     }
@@ -198,8 +231,10 @@ export function buildRouteLocation(
       pairs.push(encodeURIComponent(key) + '=' + encodeURIComponent(String(item)))
     }
   }
+
   const prefix = base.split('/').filter(Boolean).join('/')
   const path = '/' + (prefix ? [prefix, ...segments] : segments).join('/')
+
   return (
     path +
     (pairs.length ? '?' + pairs.join('&') : '') +

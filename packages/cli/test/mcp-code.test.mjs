@@ -7,6 +7,7 @@ import { createCodeService } from '../dist/mcp/code-service.js'
 
 const write = (root, rel, content) => {
   const path = join(root, rel)
+
   mkdirSync(join(path, '..'), { recursive: true })
   writeFileSync(path, content)
 }
@@ -14,6 +15,7 @@ const write = (root, rel, content) => {
 /** Consumer app fixture: app source + installed @octane-xplat packages. */
 function makeConsumer(t, { installed = { '@octane-xplat/ui': '1.0.0' } } = {}) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-mcp-code-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   write(
     dir,
@@ -64,6 +66,7 @@ test('exact search finds app and framework code with labeled corpora', async (t)
 
   const out = await svc.search({ app, query: 'capturePhoto', mode: 'exact' })
   const appHit = out.results.find((r) => r.corpus === 'app')
+
   assert.ok(appHit)
   assert.equal(appHit.matchType, 'exact')
   assert.equal(appHit.ref, 'xplat-code://app/src/App.tsrx')
@@ -73,6 +76,7 @@ test('exact search finds app and framework code with labeled corpora', async (t)
 
   const fw = await svc.search({ app, query: 'SmoothCorners', mode: 'exact' })
   const fwHit = fw.results.find((r) => r.corpus === 'framework')
+
   assert.ok(fwHit)
   assert.equal(fwHit.package, '@octane-xplat/ui')
   assert.equal(fwHit.provenance.source, 'framework-source')
@@ -82,6 +86,7 @@ test('exact search finds app and framework code with labeled corpora', async (t)
 
 test('nested app roots report workspace-relative paths that read back directly', async (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-mcp-code-nested-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   write(dir, 'apps/qual-app/package.json', JSON.stringify({ name: 'qual-app' }))
   write(dir, 'apps/qual-app/src/main.ts', 'export const nestedTokenForRead = 1\n')
@@ -91,6 +96,7 @@ test('nested app roots report workspace-relative paths that read back directly',
 
   const out = await svc.search({ app, query: 'nestedTokenForRead', mode: 'exact' })
   const hit = out.results.find((r) => r.corpus === 'app')
+
   assert.ok(hit)
   assert.equal(hit.path, 'apps/qual-app/src/main.ts')
   assert.equal(hit.ref, 'xplat-code://app/apps/qual-app/src/main.ts')
@@ -98,6 +104,7 @@ test('nested app roots report workspace-relative paths that read back directly',
   // The reported path is itself a valid read input — the search→read round
   // trip a consumer performs after getting a hit.
   const page = await svc.read({ app, corpus: 'app', path: hit.path })
+
   assert.equal(page.status, undefined)
   assert.match(page.content, /nestedTokenForRead/)
   assert.equal(page.path, 'apps/qual-app/src/main.ts')
@@ -109,6 +116,7 @@ test('nested app roots report workspace-relative paths that read back directly',
 
 test('secrets, generated output, and node_modules stay out of results and reads', async (t) => {
   const dir = makeConsumer(t)
+
   write(dir, '.env', 'API_TOKEN=hunter2\n')
   write(dir, 'secrets/keys.ts', 'export const privateKey = "..."\n')
   write(dir, 'dist/bundle.js', 'const capturePhoto = 1\n')
@@ -119,6 +127,7 @@ test('secrets, generated output, and node_modules stay out of results and reads'
 
   // Nothing excluded is reachable through search.
   const out = await svc.search({ app, query: 'capturePhoto', mode: 'exact' })
+
   for (const hit of out.results) {
     assert.doesNotMatch(hit.ref, /\.env|secrets\/|dist\//)
   }
@@ -136,6 +145,7 @@ test('secrets, generated output, and node_modules stay out of results and reads'
 
 test('NUL-bearing source stays out of search regardless of size', async (t) => {
   const dir = makeConsumer(t)
+
   // Enumeration and direct reads agree: NUL means not source text at any
   // size. A small binary must not leak a search excerpt that read() refuses.
   write(dir, 'src/SmallBinary.ts', 'CameraView\0BinarySentinel\n')
@@ -145,8 +155,11 @@ test('NUL-bearing source stays out of search regardless of size', async (t) => {
   const app = appRef(dir)
 
   const out = await svc.search({ app, query: 'CameraView', mode: 'exact' })
+
   assert.deepEqual(out.results, [])
+
   const page = await svc.read({ app, path: 'src/SmallBinary.ts' })
+
   assert.equal(page.status, 'unavailable')
   assert.equal(page.reason, 'file-vanished-or-binary')
 })
@@ -154,21 +167,25 @@ test('NUL-bearing source stays out of search regardless of size', async (t) => {
 test('direct code reads reject symlinks outside the bound app', (t) => {
   const dir = makeConsumer(t)
   const outside = mkdtempSync(join(tmpdir(), 'xplat-mcp-outside-'))
+
   t.after(() => rmSync(outside, { recursive: true, force: true }))
   write(outside, 'private.txt', 'OUTSIDE_APP_PRIVATE_SENTINEL')
   symlinkSync(join(outside, 'private.txt'), join(dir, 'src/linked.ts'))
 
   const result = service(dir).read({ app: appRef(dir), path: 'src/linked.ts' })
+
   assert.equal(result.status, 'out-of-scope')
   assert.equal(result.content, undefined)
 })
 
 test('direct code reads apply secret exclusions to symlink destinations', (t) => {
   const dir = makeConsumer(t)
+
   write(dir, 'secrets/private.ts', 'APP_PRIVATE_SENTINEL')
   symlinkSync(join(dir, 'secrets/private.ts'), join(dir, 'src/linked.ts'))
 
   const result = service(dir).read({ app: appRef(dir), path: 'src/linked.ts' })
+
   assert.equal(result.status, 'excluded')
   assert.equal(result.content, undefined)
 })
@@ -177,6 +194,7 @@ test('direct code reads preserve safe aliases and enforce directory and framewor
   const dir = makeConsumer(t)
   const svc = service(dir)
   const app = appRef(dir)
+
   write(dir, 'src/safe.ts', 'export const safe = true\n')
   symlinkSync(join(dir, 'src/safe.ts'), join(dir, 'src/alias.ts'))
   assert.equal(svc.read({ app, path: 'src/alias.ts' }).content, 'export const safe = true\n')
@@ -188,6 +206,7 @@ test('direct code reads preserve safe aliases and enforce directory and framewor
   assert.equal(svc.read({ app, path: 'src/broken.ts' }).status, 'unavailable')
 
   const framework = join(dir, 'node_modules/@octane-xplat/ui/src')
+
   symlinkSync(join(dir, 'src/safe.ts'), join(framework, 'escape.ts'))
   write(framework, 'private/hidden.ts', 'FRAMEWORK_PRIVATE_SENTINEL')
   symlinkSync(join(framework, 'private/hidden.ts'), join(framework, 'alias.ts'))
@@ -196,12 +215,14 @@ test('direct code reads preserve safe aliases and enforce directory and framewor
     ['alias.ts', 'excluded'],
   ]) {
     const result = svc.read({ app, corpus: 'framework', package: '@octane-xplat/ui', path })
+
     assert.equal(result.status, status)
     assert.equal(result.content, undefined)
   }
 
   // macOS /var -> /private/var and explicitly linked app roots are valid roots.
   const aliasRoot = `${dir}-alias`
+
   t.after(() => rmSync(aliasRoot, { force: true }))
   symlinkSync(dir, aliasRoot)
   assert.equal(
@@ -212,6 +233,7 @@ test('direct code reads preserve safe aliases and enforce directory and framewor
 
 test('platform filter includes shared and platform-marked files only', async (t) => {
   const dir = makeConsumer(t)
+
   write(dir, 'src/shared.ts', 'export const sharedToggleHelper = 1\n')
   write(dir, 'src/Toggle.ios.ts', 'export const Toggle = "ios switch"\n')
   write(dir, 'src/Toggle.android.ts', 'export const Toggle = "android switch"\n')
@@ -230,6 +252,7 @@ test('platform filter includes shared and platform-marked files only', async (t)
   })
 
   const paths = ios.results.map((r) => r.path)
+
   assert.ok(paths.includes('src/Toggle.ios.ts'))
   assert.ok(paths.includes('src/Toggle.mobile.ts'))
   assert.ok(paths.includes('src/shared.ts'))
@@ -245,6 +268,7 @@ test('platform filter includes shared and platform-marked files only', async (t)
   })
 
   const macPaths = mac.results.map((r) => r.path)
+
   assert.ok(macPaths.includes('src/Toggle.macos.ts'))
   assert.ok(!macPaths.includes('src/Toggle.mobile.ts'))
 })
@@ -252,6 +276,7 @@ test('platform filter includes shared and platform-marked files only', async (t)
 test('reads are bounded with continuation refs and freshness', async (t) => {
   const dir = makeConsumer(t)
   const body = Array.from({ length: 400 }, (_, i) => `// line ${i}\n`).join('')
+
   write(dir, 'src/Big.ts', body)
 
   const svc = service(dir)
@@ -259,6 +284,7 @@ test('reads are bounded with continuation refs and freshness', async (t) => {
 
   const found = await svc.search({ app, query: 'line 399', mode: 'exact' })
   const page = await svc.read({ app, ref: found.results[0].ref, offset: 0, limit: 200 })
+
   assert.equal(page.corpus, 'app')
   assert.equal(page.path, 'src/Big.ts')
   assert.equal(page.content.length, 200)
@@ -266,6 +292,7 @@ test('reads are bounded with continuation refs and freshness', async (t) => {
   assert.equal(page.freshness.state, 'current')
 
   const rest = await svc.read({ app, ref: page.ref, offset: page.nextOffset })
+
   assert.match(rest.content, /line 399/)
   assert.equal(rest.nextOffset, null)
 
@@ -280,6 +307,7 @@ test('uncommitted edits are reflected immediately in exact results', async (t) =
   const app = appRef(dir)
 
   const before = await svc.search({ app, query: 'capturePhoto', mode: 'exact' })
+
   assert.match(before.results[0].excerpt, /capturePhoto/)
 
   write(
@@ -289,6 +317,7 @@ test('uncommitted edits are reflected immediately in exact results', async (t) =
   )
 
   const after = await svc.search({ app, query: 'recordVideo', mode: 'exact' })
+
   assert.match(after.results[0].excerpt, /recordVideo/)
   assert.equal(after.results[0].freshness.state, 'current')
 })
@@ -296,6 +325,7 @@ test('uncommitted edits are reflected immediately in exact results', async (t) =
 test('framework corpus binds linked checkouts as development content', async (t) => {
   const dir = makeConsumer(t, { installed: {} })
   const linked = mkdtempSync(join(tmpdir(), 'xplat-mcp-linked-'))
+
   t.after(() => rmSync(linked, { recursive: true, force: true }))
   write(linked, 'packages/ui/package.json', '{"name":"@octane-xplat/ui","version":"0.0.0"}')
   write(linked, 'packages/ui/src/DevWidget.ts', 'export const devWidget = "worktree only"\n')
@@ -312,6 +342,7 @@ test('framework corpus binds linked checkouts as development content', async (t)
   const app = appRef(dir)
   const out = await svc.search({ app, query: 'devWidget', mode: 'exact' })
   const hit = out.results.find((r) => r.corpus === 'framework')
+
   assert.ok(hit)
   assert.equal(hit.provenance.source, 'framework-source')
   assert.equal(hit.provenance.servedVersion, 'development')
@@ -320,6 +351,7 @@ test('framework corpus binds linked checkouts as development content', async (t)
 
 test('semantic index builds in background, serves intent hits, never blocks exact', async (t) => {
   const dir = makeConsumer(t)
+
   // >40 files makes the build yield mid-pass, so 'preparing' is observable.
   for (let i = 0; i < 45; i++) {
     write(dir, `src/filler/File${i}.ts`, `export const filler${i} = ${i}\n`)
@@ -330,25 +362,32 @@ test('semantic index builds in background, serves intent hits, never blocks exac
 
   // First call: exact results arrive immediately; the index reports its state.
   const first = await svc.search({ app, query: 'capturePhoto', mode: 'auto' })
+
   assert.ok(first.results.length > 0)
   assert.ok(['preparing', 'ready', 'stale'].includes(first.semantic.state))
 
   await svc.prepareIndex(app)
+
   const ready = await svc.search({ app, query: 'corner radius', mode: 'semantic' })
+
   assert.equal(ready.semantic.state, 'ready')
+
   const semanticHit = ready.results.find((r) => r.matchType === 'semantic')
+
   assert.ok(semanticHit)
   assert.equal(semanticHit.corpus, 'framework')
   assert.ok(semanticHit.indexRevision >= 1)
 
   // Exact mode never touches the index state machine.
   const exactOnly = await svc.search({ app, query: 'capturePhoto', mode: 'exact' })
+
   assert.equal(exactOnly.semantic.state, 'not-requested')
   assert.ok(exactOnly.results.length > 0)
 })
 
 test('stale semantic hits are revalidated against current source, not served', async (t) => {
   const dir = makeConsumer(t)
+
   for (let i = 0; i < 45; i++) {
     write(dir, `src/filler/File${i}.ts`, `export const filler${i} = ${i}\n`)
   }
@@ -357,23 +396,29 @@ test('stale semantic hits are revalidated against current source, not served', a
 
   const svc = service(dir)
   const app = appRef(dir)
+
   await svc.prepareIndex(app)
 
   // Index ready → semantic finds the unique token's chunk.
   const first = await svc.search({ app, query: 'flibbertyGibbet', mode: 'semantic' })
+
   assert.ok(first.results.length > 0)
 
   // Drift the file, then query while the rebuild is still in flight:
   // changed chunks fail revalidation and drop rather than serve stale.
   write(dir, 'src/unique.ts', 'export function completelyRenamed() { return 0 }\n')
+
   const drifted = await svc.search({ app, query: 'flibbertyGibbet', mode: 'semantic' })
+
   assert.ok(['stale', 'ready'].includes(drifted.semantic.state))
   for (const hit of drifted.results) {
     assert.equal(hit.freshness.state, 'current')
   }
 
   await svc.prepareIndex(app)
+
   const rebuilt = await svc.search({ app, query: 'flibbertyGibbet', mode: 'semantic' })
+
   assert.equal(
     rebuilt.results.filter((r) => r.path === 'src/unique.ts').length,
     0,
@@ -387,6 +432,7 @@ test('status reports corpora coverage, freshness, and semantic index state', asy
   const app = appRef(dir)
 
   const status = svc.status(app)
+
   assert.equal(status.state, 'ready')
   assert.ok(status.files > 0)
   assert.ok(status.corpora.find((c) => c.corpus === 'app'))
@@ -402,11 +448,13 @@ test('no bound app in a consumer workspace asks for selection', async (t) => {
   const dir = makeConsumer(t)
   const svc = service(dir)
   const out = await svc.search({ app: null, query: 'capturePhoto' })
+
   assert.equal(out.status, 'selection-required')
 })
 
 test('framework-repo workspaces index packages/* without a bound app', async (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-mcp-fwrepo-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   write(dir, 'package.json', '{"name":"octane-xplat","private":true}')
   write(dir, 'packages/widgets/package.json', '{"name":"@octane-xplat/widgets","version":"0.0.0"}')
@@ -415,6 +463,7 @@ test('framework-repo workspaces index packages/* without a bound app', async (t)
   const svc = service(dir, 'framework-repo')
   const out = await svc.search({ app: null, query: 'Gauge', mode: 'exact' })
   const hit = out.results.find((r) => r.corpus === 'framework')
+
   assert.ok(hit)
   assert.equal(hit.package, '@octane-xplat/widgets')
   assert.equal(hit.provenance.servedVersion, 'development')

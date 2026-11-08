@@ -27,12 +27,14 @@ export function registerStack(name: string, frame: Frame): void {
  */
 export function getStack(name: string): Frame | undefined {
   const registered = stacks.get(name)
+
   if (registered) {
     return registered
   }
 
   if (name === 'root') {
     const rv = Application.getRootView?.()
+
     if (rv instanceof Frame) {
       return rv
     }

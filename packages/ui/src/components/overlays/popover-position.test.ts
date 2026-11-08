@@ -5,6 +5,7 @@ describe('positionPopover alignment', () => {
   const viewport = { left: 0, top: 0, width: 800, height: 600 }
   const anchor = { left: 100, top: 100, width: 200, height: 40 }
   const panel = { width: 100, height: 80 }
+
   it('aligns panel start, center, and end along the anchor edge', () => {
     expect(positionPopover(anchor, panel, viewport, 'bottom', 8, 'start').left).toBe(100)
     expect(positionPopover(anchor, panel, viewport, 'bottom', 8, 'center').left).toBe(150)
@@ -46,6 +47,7 @@ describe('layerOffset', () => {
 describe('layer logical geometry', () => {
   it('mirrors horizontal alignment without reversing vertical alignment', async () => {
     const { resolveLayerAlignment, nativeLayerRTL } = await import('./popover-position')
+
     expect(resolveLayerAlignment('start', 'bottom', true)).toBe('end')
     expect(resolveLayerAlignment('end', 'top', true)).toBe('start')
     expect(resolveLayerAlignment('start', 'right', true)).toBe('start')
@@ -57,6 +59,7 @@ describe('layer logical geometry', () => {
   it('preserves offset when flipping and clamps oversized surfaces', () => {
     const viewport = { left: 0, top: 0, width: 400, height: 300 }
     const anchor = { left: 120, top: 250, width: 80, height: 30 }
+
     expect(
       positionPopover(anchor, { width: 60, height: 80 }, viewport, 'bottom', 12, 'end'),
     ).toEqual({ left: 140, top: 158, placement: 'top' })

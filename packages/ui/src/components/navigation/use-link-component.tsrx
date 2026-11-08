@@ -10,5 +10,6 @@ import { LinkContext } from './link-context'
  *  through the canonical router, which rejects unresolvable paths. */
 export function useLinkComponent(as?: LinkComponentType): LinkComponentType {
   const ctx = useContext(LinkContext)
+
   return as ?? ctx?.component ?? 'a'
 }

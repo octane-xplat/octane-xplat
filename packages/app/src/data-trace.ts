@@ -23,6 +23,7 @@ export async function runDataTrace(adapter: DataTraceAdapter) {
 
   const until = async (condition: () => boolean) => {
     const deadline = Date.now() + 10_000
+
     while (!condition() && Date.now() < deadline) {
       await adapter.wait()
     }
@@ -33,6 +34,7 @@ export async function runDataTrace(adapter: DataTraceAdapter) {
   }
 
   const state = (root: number) => adapter.text(root, 'data-status')
+
   await until(() => dataRequests.length === 2)
   check(
     'independent initial selectors',

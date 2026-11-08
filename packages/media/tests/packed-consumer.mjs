@@ -21,6 +21,7 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-media-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
@@ -118,17 +119,20 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
   const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
   const modules = join(consumerRoot, 'node_modules')
   const packageLink = join(modules, '@octane-xplat/media')
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(packagePath, packageLink, { recursive: true })
   for (const dependency of dependencies) {
     const source = join(packageRoot, 'node_modules', dependency)
     const fallback = join(repoRoot, 'node_modules', dependency)
     const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+
     if (!resolved) {
       continue
     }
 
     const targetPath = join(modules, dependency)
+
     mkdirSync(dirname(targetPath), { recursive: true })
     symlinkSync(resolved, targetPath, 'dir')
   }
@@ -148,6 +152,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
   const config = targetConfig[target]
   const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+
   writeFileSync(
     configPath,
     JSON.stringify(
@@ -163,6 +168,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
           types: config.types.filter((name) => {
             const segments = name.split('/')
             const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
+
             return existsSync(join(modules, ...pkg, 'package.json'))
           }),
           skipLibCheck: true,
@@ -183,9 +189,12 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 try {
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
@@ -205,9 +214,12 @@ try {
 
   for (const [index, exportsMap] of uniqueExportMaps.entries()) {
     const consumerPackage = join(temporary, `package-${index}`)
+
     cpSync(packedRoot, consumerPackage, { recursive: true })
+
     const consumerManifestPath = join(consumerPackage, 'package.json')
     const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
     consumerManifest.exports = exportsMap
     writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
@@ -215,6 +227,7 @@ try {
       // Subpath exports absent from a map (e.g. ./macos only exists in the
       // workspace map) cannot resolve — skip that lane for that map.
       const targetSubpaths = targetConfig[target].subpaths ?? ['.']
+
       if (!targetSubpaths.every((subpath) => exportsMap[subpath])) {
         continue
       }
@@ -237,16 +250,20 @@ try {
   // '@octane-xplat/lib/capability') from the packed package root — put the
   // workspace dep in scope the way an installed consumer would have it.
   const driverDeps = join(extractedRoot, 'node_modules', '@octane-xplat')
+
   mkdirSync(driverDeps, { recursive: true })
   symlinkSync(join(repoRoot, 'packages/lib'), join(driverDeps, 'lib'), 'dir')
 
   // Exercise the packed public macOS entries, including the preview owner's release API.
   const filesPack = join(temporary, 'files-pack')
   const filesExtracted = join(temporary, 'files-extracted')
+
   mkdirSync(filesPack)
   mkdirSync(filesExtracted)
   run('bun', ['pm', 'pack', '--destination', filesPack], join(repoRoot, 'packages/files'))
+
   const filesTarballs = readdirSync(filesPack).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(filesTarballs.length, 1)
   run('tar', ['-xzf', join(filesPack, filesTarballs[0]), '-C', filesExtracted], temporary)
   run(process.execPath, ['--test', join(packageRoot, 'tests/macos-picker.test.mjs')], repoRoot, {

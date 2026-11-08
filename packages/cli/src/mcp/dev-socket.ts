@@ -10,19 +10,25 @@ import { formatBrowserLogBatch } from '../dev-log-server.ts'
 // enters generated code; it cannot authenticate the CLI's private HTTP API.
 export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: boolean } = {}) {
   const source = process.env.XPLAT_DEV_APP_BRIDGE
+
   if (!source) {
     return null
   }
+
   if (source.length > 8192) {
     throw new Error('Invalid native app bridge configuration')
   }
+
   let bridge
+
   try {
     bridge = JSON.parse(source)
   } catch {
     throw new Error('Invalid native app bridge JSON')
   }
+
   const endpoint = new URL(bridge.socket)
+
   if (
     bridge.protocol !== 'octane-app-debug' ||
     bridge.version !== 1 ||
@@ -43,6 +49,7 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
   ) {
     throw new Error('Invalid native app bridge identity')
   }
+
   let pending = 0
   let blocked = false
   let windowAt = 0
@@ -58,6 +65,7 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
     // Forward only this app channel; preserve Origin for Go validation.
     rewrite: () => endpoint.pathname + endpoint.search,
   }
+
   return {
     configResolved(config: ResolvedConfig) {
       if (deviceRelay) {
@@ -84,12 +92,15 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
         if (![logs, stacks].includes(req.url?.split('?')[0] ?? '')) {
           return next()
         }
+
         const reply = (status: number, value: unknown) => {
           res.statusCode = status
           res.setHeader('content-type', 'application/json')
           res.end(JSON.stringify(value))
         }
+
         const origin = `${server.config.server.https ? 'https' : 'http'}://${req.headers.host}`
+
         if (
           req.method !== 'POST' ||
           (req.url !== logs && req.url !== stacks) ||
@@ -99,18 +110,23 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
         ) {
           return reply(403, { error: 'Browser log request rejected' })
         }
+
         const now = Date.now()
+
         if (now - windowAt >= 1000) {
           windowAt = now
           batches = 0
         }
+
         if (pending >= 4 || batches >= 32 || blocked) {
           return reply(503, { error: 'Browser log sink busy' })
         }
+
         pending++
         batches++
         try {
           const body = await readBrowserLogRequest(req)
+
           if (req.url === stacks) {
             if (!isStackRequest(body, bridge)) {
               return reply(400, { error: 'Invalid source-stack request' })
@@ -118,6 +134,7 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
 
             const resolveStack = createDevStackResolver(() => server, { cachedOnly: true, origin })
             const sourceStacks: (string | null)[] = []
+
             for (const stack of body.stacks) {
               sourceStacks.push((await resolveStack(stack)) ?? null)
             }
@@ -131,6 +148,7 @@ export function nativeDevSocketPlugin({ deviceRelay = false }: { deviceRelay?: b
           }
 
           const batch = formatBrowserLogBatch(body)
+
           if (blocked) {
             return reply(503, { error: 'Browser log sink busy' })
           }
@@ -193,10 +211,12 @@ function readBrowserLogRequest(req: IncomingMessage): Promise<unknown> {
       req.off('aborted', aborted)
       req.once('error', () => {})
     }
+
     const fail = (error: Error) => {
       cleanup()
       reject(error)
     }
+
     const aborted = () => fail(new Error('Browser log request aborted'))
     const data = (chunk: Buffer) => {
       size += chunk.length
@@ -205,8 +225,10 @@ function readBrowserLogRequest(req: IncomingMessage): Promise<unknown> {
         req.destroy()
         return
       }
+
       chunks.push(chunk)
     }
+
     const end = () => {
       cleanup()
       try {
@@ -215,10 +237,12 @@ function readBrowserLogRequest(req: IncomingMessage): Promise<unknown> {
         reject(new Error('Invalid browser log JSON'))
       }
     }
+
     const timer = setTimeout(() => {
       fail(new Error('Browser log request timed out'))
       req.destroy()
     }, 2000)
+
     req.on('data', data).once('end', end).once('error', fail).once('aborted', aborted)
   })
 }

@@ -71,6 +71,7 @@ const searchRequest: GtkUI.SearchRequest = {
 }
 
 void searchRequest
+
 const noDOMGlobals: Assert<Equal<Extract<'document' | 'window', keyof typeof globalThis>, never>> =
   true
 
@@ -78,6 +79,7 @@ void noDOMGlobals
 
 // @ts-expect-error The native direction contract is retained on GTK.
 const invalidDirection: GtkStackProps['direction'] = 'sideways'
+
 void invalidDirection
 
 // The public GTK root accepts source components whose JSX is opaque until
@@ -97,14 +99,17 @@ declare const createdRoot: ReturnType<typeof createGtkRoot>['root']
 declare const mounted: GtkAppMount
 declare const universalComponent: UniversalComponent<{ message: string }>
 const mountProps = { disabled: false, version: 1, horizontal: true }
+
 sourceRoot.prepare(App, mountProps)
 sourceRoot.render(App, mountProps)
 sourceRoot.renderAsync(App, mountProps)
 createdRoot.render(App, mountProps)
 mounted.root.render(App, mountProps)
 sourceRoot.render(universalComponent, { message: 'Ready' })
+
 const coreRoot: UniversalRoot = sourceRoot
 const eventResult: number = coreRoot.eventScope('default', () => 1)
+
 void eventResult
 // @ts-expect-error Required component props remain required.
 sourceRoot.render(App, { version: 1 })
@@ -116,10 +121,13 @@ sourceRoot.renderAsync(App, { ...mountProps, version: 'one' })
 sourceRoot.render(universalComponent, { message: 42 })
 
 declare const sourceContainer: ReturnType<typeof createGtkRoot>['container']
+
 sourceContainer.root?.render(App, mountProps)
 // @ts-expect-error The public container's root checks required props too.
 sourceContainer.root?.render(App, {})
+
 declare const compilerRoot: UniversalRoot
+
 // @ts-expect-error The upstream root requires compiler-owned metadata, absent from source declarations.
 compilerRoot.render(App, mountProps)
 

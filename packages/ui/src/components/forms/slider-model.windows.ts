@@ -15,6 +15,7 @@ export function sliderBounds(props: SliderProps): SliderBounds {
   const min = Number.isFinite(requestedMin) ? requestedMin : 0
   const max = Number.isFinite(requestedMax) ? Math.max(min, requestedMax) : min
   const step = props.step != null && Number.isFinite(props.step) && props.step > 0 ? props.step : 0
+
   return { min, max, step }
 }
 
@@ -25,12 +26,14 @@ export function normalizeSliderValue(
 ): SliderValue {
   const clamp = (n: number, fallback: number) =>
     Math.min(max, Math.max(min, Number.isFinite(n) ? n : fallback))
+
   if (!Array.isArray(value)) {
     return clamp(value ?? min, min)
   }
 
   const a = clamp(value[0], min)
   const b = clamp(value[1], max)
+
   return [Math.min(a, b), Math.max(a, b)]
 }
 
@@ -48,6 +51,7 @@ export function moveSliderThumb(
   const snapped = step > 0 ? min + Math.round((requested - min) / step) * step : requested
   // Avoid ordinary decimal-step drift; preserve continuous requests without rounding.
   const next = Math.min(max, Math.max(min, step > 0 ? Number(snapped.toPrecision(15)) : snapped))
+
   if (!Array.isArray(value)) {
     return next
   }
@@ -76,5 +80,6 @@ export function sliderTouch(event: unknown): {
       : 'x' in event
         ? event.x
         : undefined
+
   return { action: event.action, x: typeof x === 'number' && Number.isFinite(x) ? x : undefined }
 }

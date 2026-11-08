@@ -196,6 +196,7 @@ const DEFAULT_BLOCKS: Block[] = [
 
 function makeBlock(type: BlockType, id: string): Block {
   const label = `${BLOCK_META[type].label} ${id}`
+
   switch (type) {
     case 'hero':
       return {
@@ -277,6 +278,7 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
   switch (props.block.type) {
     case 'hero': {
       const p = props.block.props
+
       return (
         <VStack gap={3}>
           <TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
@@ -301,6 +303,7 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
     }
     case 'text': {
       const p = props.block.props
+
       return (
         <VStack gap={3}>
           <TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
@@ -320,6 +323,7 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
     }
     case 'button': {
       const p = props.block.props
+
       return (
         <VStack gap={3}>
           <TextInput label="Label" value={p.label ?? ''} onChange={set('label')} />
@@ -349,6 +353,7 @@ function BlockProperties(props: { block: Block; onUpdate: (key: string, value: u
     case 'features':
     case 'cta': {
       const p = props.block.props
+
       return (
         <VStack gap={3}>
           <TextInput label="Heading" value={p.heading ?? ''} onChange={set('heading')} />
@@ -376,6 +381,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
   switch (props.block.type) {
     case 'hero': {
       const p = props.block.props
+
       return (
         <Card padding={6} style={cardStyle}>
           <div onClick={props.onSelect} style={clickable}>
@@ -401,6 +407,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
     }
     case 'text': {
       const p = props.block.props
+
       if (p.heading) {
         return (
           <Card padding={6} style={cardStyle}>
@@ -448,6 +455,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
       )
     case 'button': {
       const p = props.block.props
+
       return (
         <Card padding={6} style={cardStyle}>
           <div onClick={props.onSelect} style={clickable}>
@@ -464,6 +472,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
     case 'features': {
       const p = props.block.props
       const items = p.items ?? []
+
       return (
         <Card padding={6} style={cardStyle}>
           <div onClick={props.onSelect} style={clickable}>
@@ -507,6 +516,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
     }
     case 'cards': {
       const cardItems = props.block.props.cards ?? []
+
       return (
         <Card style={cardStyle}>
           <div onClick={props.onSelect} style={{ ...clickable, padding: 'var(--spacing-4)' }}>
@@ -522,6 +532,7 @@ function BlockPreview(props: { block: Block; isSelected: boolean; onSelect: () =
     }
     case 'cta': {
       const p = props.block.props
+
       return (
         <Card padding={6} style={cardStyle}>
           <div onClick={props.onSelect} style={clickable}>
@@ -564,17 +575,20 @@ export function EditorTemplate() @{
   const moveBlock = useCallback((id: string, dir: -1 | 1) => {
     setBlocks((prev) => {
       const idx = prev.findIndex((b) => b.id === id)
+
       if (idx < 0) {
         return prev
       }
 
       const target = idx + dir
+
       if (target < 0 || target >= prev.length) {
         return prev
       }
 
       const next = [...prev]
       const [moved] = next.splice(idx, 1)
+
       next.splice(target, 0, moved)
       return next
     })
@@ -588,6 +602,7 @@ export function EditorTemplate() @{
   const addBlock = useCallback((type: BlockType) => {
     const id = uid()
     const block = makeBlock(type, id)
+
     setBlocks((prev) => [...prev, block])
     setSelectedId(id)
     setSidebarTab('properties')

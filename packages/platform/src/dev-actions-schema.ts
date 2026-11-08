@@ -113,6 +113,7 @@ const validateFields = (
 /** Declaration sanity: id shape, required metadata, compilable field patterns. */
 export function validateActionDeclaration(action: unknown): string[] {
   const problems: string[] = []
+
   if (!isRecord(action)) {
     return ['action declaration must be an object']
   }
@@ -130,11 +131,13 @@ export function validateActionDeclaration(action: unknown): string[] {
   }
 
   const effects = action.effects
+
   if (!isRecord(effects) || typeof effects.summary !== 'string') {
     problems.push('effects.summary: required')
   }
 
   const route = action.route
+
   if (
     route !== undefined &&
     typeof route !== 'function' &&
@@ -181,6 +184,7 @@ const checkValue = (field: DevActionField, value: unknown, path: string, errors:
 
   if (field.type === 'string') {
     const s = value as string
+
     if (field.minLength !== undefined && s.length < field.minLength) {
       errors.push(`${path}: shorter than minLength ${field.minLength}`)
     }
@@ -196,6 +200,7 @@ const checkValue = (field: DevActionField, value: unknown, path: string, errors:
 
   if (field.type === 'number' || field.type === 'integer') {
     const n = value as number
+
     if (field.minimum !== undefined && n < field.minimum) {
       errors.push(`${path}: below minimum ${field.minimum}`)
     }
@@ -207,6 +212,7 @@ const checkValue = (field: DevActionField, value: unknown, path: string, errors:
 
   if (field.type === 'array') {
     const items = value as unknown[]
+
     if (field.minItems !== undefined && items.length < field.minItems) {
       errors.push(`${path}: fewer than minItems ${field.minItems}`)
     }
@@ -236,6 +242,7 @@ function checkFields(
 ) {
   for (const [name, field] of Object.entries(fields)) {
     const present = Object.prototype.hasOwnProperty.call(value, name) && value[name] !== undefined
+
     if (!present) {
       if (field.default === undefined) {
         errors.push(`${path}.${name}: required`)
@@ -272,6 +279,7 @@ function validateAgainst(
   const fields = contract?.fields ?? {}
   const out: Record<string, unknown> = {}
   const errors: string[] = []
+
   checkFields(fields, value, basePath, errors, out)
   return errors.length ? { ok: false, errors } : { ok: true, value: out }
 }

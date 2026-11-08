@@ -34,14 +34,17 @@ function sameSize(a: number, b: number) {
 function scheduleListFrame(callback: () => void): () => void {
   const requestFrame = hostGlobal('requestAnimationFrame')
   const cancelFrame = hostGlobal('cancelAnimationFrame')
+
   if (typeof requestFrame !== 'function' || typeof cancelFrame !== 'function') {
     const timer = setTimeout(callback, 16)
+
     return () => clearTimeout(timer)
   }
 
   let cancelled = false
   let current: number | null = null
   let next: number | null = null
+
   // NativeScript dispatches an initial rAF through a macrotask. A nested
   // request joins Choreographer/CADisplayLink rather than a free-running timer.
   current = requestFrame(() => {
@@ -137,15 +140,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   const hasSeparator = Boolean(props.renderSeparator)
   const hasSeparatorRef = useRef(hasSeparator)
   const separatorChanged = hasSeparatorRef.current !== hasSeparator
+
   hasSeparatorRef.current = hasSeparator
 
   function rebuildLayout(nextEntries: VirtualListEntry<T>[], width: number) {
     entriesRef.current = nextEntries
+
     const indexByKey = new Map<string, number>()
     const activeMeasurements = new Set<string>()
 
     for (const entry of nextEntries) {
       indexByKey.set(entry.rowKey, entry.index)
+
       const cacheKey = virtualListMeasurementKey(
         entry.rowKey,
         hasSeparatorRef.current && entry.index < nextEntries.length - 1,
@@ -161,6 +167,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const samples = new Map<string, { sum: number; count: number }>()
+
     for (const entry of nextEntries) {
       const cached = sizeCacheRef.current.get(
         virtualListMeasurementKey(
@@ -174,6 +181,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const sample = samples.get(entry.typeKey) ?? { sum: 0, count: 0 }
+
       sample.sum += cached.height
       sample.count++
       samples.set(entry.typeKey, sample)
@@ -209,7 +217,9 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     )
 
     const previousRange = rangeRef.current
+
     rebuildLayout(entries, viewportWidthRef.current)
+
     const anchorIndex = anchor ? indexByRowKeyRef.current.get(anchor.rowKey) : undefined
     const pendingRows = new Set(
       changedRows
@@ -233,6 +243,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function currentRange() {
     const listOffset = Math.max(0, scrollOffsetRef.current - headerHeightRef.current)
+
     return virtualListRange(
       sizeIndexRef.current,
       listOffset,
@@ -244,6 +255,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   function commitWindow() {
     const next = currentRange()
     const previous = rangeRef.current
+
     if (
       geometryDirtyRef.current ||
       next.start !== previous.start ||
@@ -269,6 +281,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const measurements = [...measurementsRef.current.values()]
+
       measurementsRef.current.clear()
       for (const measurement of measurements) {
         if (
@@ -282,6 +295,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
         }
 
         const index = indexByRowKeyRef.current.get(measurement.entry.rowKey)
+
         if (
           index === undefined ||
           entriesRef.current[index]?.item !== measurement.entry.item ||
@@ -301,6 +315,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
         }
 
         const size = measurement.view?.getActualSize?.() ?? measurement
+
         if (size.width > 0 && size.height >= 0) {
           recordRowSize(measurement.entry.rowKey, size.width, size.height)
         }
@@ -312,12 +327,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function captureAnchor(): VirtualListAnchor | null {
     const listOffset = scrollOffsetRef.current - headerHeightRef.current
+
     if (listOffset < 0 || entriesRef.current.length === 0) {
       return null
     }
 
     const index = sizeIndexRef.current.indexAt(listOffset)
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return null
     }
@@ -331,6 +348,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function captureCurrentAnchor() {
     const nativeOffset = Number(scrollRef.current?.scrollTop)
+
     if (Number.isFinite(nativeOffset)) {
       scrollOffsetRef.current = nativeOffset + pendingOffsetDeltaRef.current
     }
@@ -345,6 +363,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
     const index = indexByRowKeyRef.current.get(anchor.rowKey)
     const view = scrollRef.current
+
     if (index === undefined || !view) {
       return
     }
@@ -355,6 +374,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     )
 
     const delta = nextOffset - scrollOffsetRef.current
+
     if (sameSize(delta, 0)) {
       return
     }
@@ -367,6 +387,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     anchorRestoreScheduledRef.current = true
+
     const timer = setTimeout(() => {
       if (anchorRestoreTimerRef.current !== timer) {
         return
@@ -379,9 +400,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const correction = pendingOffsetDeltaRef.current
+
       pendingOffsetDeltaRef.current = 0
+
       const nativeOffset = Number(view.scrollTop)
       const target = Math.max(0, nativeOffset + correction)
+
       scrollOffsetRef.current = target
       if (sameSize(target, nativeOffset)) {
         return
@@ -405,13 +429,16 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function scrollToOffset(offset: number, animated = false) {
     const view = scrollRef.current
+
     if (!view || view.isLoaded === false || !Number.isFinite(offset)) {
       return
     }
 
     // A pending anchor correction would otherwise compose into this write.
     cancelAnchorRestore()
+
     const target = Math.max(0, offset)
+
     if (typeof view.scrollTo !== 'function') {
       return
     }
@@ -430,6 +457,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function scrollToIndex(index: number, options?: VirtualListScrollOptions) {
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
@@ -437,6 +465,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const top = headerHeightRef.current + sizeIndexRef.current.prefix(index)
     const size = sizeIndexRef.current.get(index)
     const align = options?.align ?? 'start'
+
     scrollToOffset(
       align === 'end'
         ? top + size - viewportHeightRef.current
@@ -476,6 +505,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const anchor = captureCurrentAnchor()
+
       rebuildLayout(entriesRef.current, viewportWidthRef.current)
       restoreAnchor(anchor)
       refreshWindow()
@@ -488,11 +518,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const index = indexByRowKeyRef.current.get(rowKey)
+
     if (index === undefined) {
       return
     }
 
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
@@ -501,6 +533,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const cacheKey = virtualListMeasurementKey(rowKey, hasRowSeparator)
     const pendingAnchor = pendingAnchorRowsRef.current.has(rowKey) ? pendingAnchorRef.current : null
     const previous = sizeCacheRef.current.get(cacheKey)
+
     if (
       previous &&
       sameSize(previous.width, width) &&
@@ -516,14 +549,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const anchor = pendingAnchor ?? captureCurrentAnchor()
+
     sizeCacheRef.current.set(cacheKey, { width, height })
+
     const sample = typeSamplesRef.current.get(entry.typeKey) ?? { sum: 0, count: 0 }
+
     sample.sum += height - (previous?.height ?? 0)
     if (!previous) {
       sample.count++
     }
 
     typeSamplesRef.current.set(entry.typeKey, sample)
+
     const applied =
       appliedEstimatesRef.current.get(entry.typeKey) ?? VIRTUAL_LIST_ESTIMATED_ROW_SIZE
 
@@ -532,9 +569,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       Math.abs(sample.sum / sample.count - applied) > Math.max(1, applied * 0.02)
 
     const delta = sizeIndexRef.current.set(index, height)
+
     if (Math.abs(delta) >= 0.5) {
       geometryDirtyRef.current = true
+
       const anchorIndex = anchor ? indexByRowKeyRef.current.get(anchor.rowKey) : undefined
+
       if (anchor && anchorIndex !== undefined && index < anchorIndex) {
         restoreAnchor(anchor)
       }
@@ -567,15 +607,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const size = view.getActualSize?.()
+
     if (!size) {
       return
     }
 
     const initialViewport = viewportHeightRef.current <= 0
     const widthChanged = !sameSize(size.width, viewportWidthRef.current)
+
     viewportHeightRef.current = size.height
     if (widthChanged) {
       const anchor = initialViewport ? null : captureCurrentAnchor()
+
       viewportWidthRef.current = size.width
       rebuildLayout(entriesRef.current, size.width)
       restoreAnchor(anchor)
@@ -604,6 +647,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function onScroll() {
     const nextOffset = Number(scrollRef.current?.scrollTop ?? 0)
+
     if (
       Math.abs(nextOffset + pendingOffsetDeltaRef.current - scrollOffsetRef.current) >
       viewportHeightRef.current
@@ -626,11 +670,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function onContentLayout(event: any) {
     const width = Number(event.object?.getActualSize?.().width ?? 0)
+
     if (width <= 0 || sameSize(width, contentWidthRef.current)) {
       return
     }
 
     const anchor = scrollOffsetRef.current > 0 ? captureCurrentAnchor() : null
+
     contentWidthRef.current = width
     rebuildLayout(entriesRef.current, viewportWidthRef.current)
     restoreAnchor(anchor)
@@ -639,11 +685,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function onHeaderLayout(event: any) {
     const height = Number(event.object?.getActualSize?.().height ?? 0)
+
     if (sameSize(height, headerHeightRef.current)) {
       return
     }
 
     const anchor = scrollOffsetRef.current > 0 ? captureCurrentAnchor() : null
+
     headerHeightRef.current = height
     restoreAnchor(anchor)
     refreshWindow()
@@ -664,11 +712,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function cellCallback(id: number) {
     let callback = cellCallbacksRef.current.get(id)
+
     if (!callback) {
       callback = (view: any) => {
         if (view) {
           observeLayout('cell:' + id, view, (event) => {
             const cell = cellsRef.current.get(id)
+
             if (cell) {
               onRowLayout(cell, event)
             }
@@ -694,6 +744,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   function onRowLayout(cell: VirtualListCell<T>, event: any) {
     const entry = cell.entry
     const size = event.object?.getActualSize?.()
+
     if (!entry || !size || disposedRef.current) {
       return
     }
@@ -738,14 +789,17 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   }, [])
 
   const range = currentRange()
+
   rangeRef.current = range
   void windowVersion
+
   const cells = cellsRef.current.update(entries.slice(range.start, range.end)).map((cell) => ({
     ...cell,
     top: cell.entry ? sizeIndexRef.current.prefix(cell.entry.index) : 0,
   }))
 
   const contentHeight = sizeIndexRef.current.total
+
   useEffect(() => {
     for (const cell of cells) {
       if (!cell.entry || measuredAssignmentsRef.current.get(cell.id) === cell.generation) {
@@ -753,6 +807,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const view = cellNodesRef.current.get(cell.id)
+
       if (!view) {
         continue
       }

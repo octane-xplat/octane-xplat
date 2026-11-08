@@ -56,12 +56,15 @@ const NAMED_CURVES = new Set(['ease', 'linear', 'ease-in', 'ease-out', 'ease-in-
  *  duration 0.3 is equally tiny, matching upstream). */
 function timeConverter(value: string): number {
   let result = parseFloat(value)
+
   if (isNaN(result) || !isFinite(result)) {
     return 0
   }
+
   if (!String(value).includes('ms')) {
     result = result * 1000
   }
+
   return Math.max(0.0, Math.min(10000, result))
 }
 
@@ -74,14 +77,18 @@ export function animationTimingFunctionConverter(value: string): TimingCurve {
   if (!value) {
     return { type: 'named', name: 'ease' }
   }
+
   if (NAMED_CURVES.has(value)) {
     return { type: 'named', name: value as any }
   }
+
   const coordsString = /\((.*?)\)/.exec(value)
   const coords = coordsString && coordsString[1].split(',').map((s) => clamp01(parseFloat(s)))
+
   if (value.startsWith('cubic-bezier') && coords && coords.length === 4) {
     return { type: 'bezier', x1: coords[0], y1: coords[1], x2: coords[2], y2: coords[3] }
   }
+
   throw new Error(`Invalid value for animation: ${value}`)
 }
 
@@ -110,12 +117,14 @@ function keyframeAnimationsFromCSSProperty(value: any, animations: KeyframeAnima
   if (typeof value !== 'string' || value.trim().length === 0) {
     return
   }
+
   // Whitespace/commas split except inside parens (cubic-bezier).
   const VALUE_SPLIT_RE = /\s(?![^(]*\))/
   const MULTIPLE_SPLIT_RE = /,(?![^(]*\))/
   const isTime = (v: string) => !!v.match(/\dm?s$/g)
   const isTimingFunction = (v: string) =>
     !!v.match(/ease|linear|ease-in|ease-out|ease-in-out|spring|cubic-bezier/g)
+
   const isIterationCount = (v: string) => !!v.match(/infinite|[\d.]+$/g)
   const isDirection = (v: string) => !!v.match(/normal|reverse|alternate|alternate-reverse/g)
   const isFillMode = (v: string) => !!v.match(/none|forwards|backwards|both/g)
@@ -181,14 +190,17 @@ export function keyframeAnimationsFromCSSDeclarations(
   if (!declarations) {
     return undefined
   }
+
   const animations: KeyframeAnimationInfo[] = []
   let info: KeyframeAnimationInfo | undefined
+
   for (const { property, value } of declarations) {
     if (property === 'animation') {
       keyframeAnimationsFromCSSProperty(value, animations)
       info = undefined
     } else {
       const handler = ANIMATION_PROPERTY_HANDLERS[property]
+
       if (handler) {
         if (info === undefined) {
           info = newInfo()
@@ -199,12 +211,14 @@ export function keyframeAnimationsFromCSSDeclarations(
       }
     }
   }
+
   return animations.length === 0 ? undefined : animations
 }
 
 /** Convert one keyframe declaration value into the sampler vocabulary. */
 function convertKeyframeValue(property: string, value: any): any {
   const text = String(value).trim()
+
   switch (property) {
     case 'opacity':
       return parseFloat(text)
@@ -213,6 +227,7 @@ function convertKeyframeValue(property: string, value: any): any {
     case 'translateX':
     case 'translateY': {
       const percent = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(text)
+
       if (percent) {
         return property.startsWith('translate')
           ? { value: Number(percent[1]) / 100, unit: '%' }
@@ -220,6 +235,7 @@ function convertKeyframeValue(property: string, value: any): any {
       }
 
       const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt)?$/.exec(text)
+
       return m ? Number(m[1]) : NaN
     }
     default:
@@ -234,6 +250,7 @@ export function parseKeyframeDeclarations(
   unparsed: { property: string; value: any }[],
 ): KeyframeDecl[] {
   const out: Record<string, any> = {}
+
   for (const { property, value } of unparsed) {
     switch (property) {
       case 'opacity':
@@ -242,11 +259,13 @@ export function parseKeyframeDeclarations(
       case 'width':
       case 'height': {
         const name = property === 'background-color' ? 'backgroundColor' : property
+
         out[name] = convertKeyframeValue(name, value)
         break
       }
       case 'transform': {
         const t = transformConverter(String(value))
+
         Object.assign(out, {
           translateX: t.translate.x,
           translateY: t.translate.y,
@@ -261,6 +280,7 @@ export function parseKeyframeDeclarations(
       }
     }
   }
+
   return Object.keys(out).map((property) => ({ property, value: out[property] }))
 }
 
@@ -270,10 +290,13 @@ export function keyframesArrayFromCSS(
   keyframes: { values: string[]; declarations: { property: string; value: any }[] }[],
 ): ParsedKeyframe[] {
   const parsedKeyframes: Record<number, ParsedKeyframe> = {}
+
   for (const keyframe of keyframes) {
     const declarations = parseKeyframeDeclarations(keyframe.declarations as any)
+
     for (const raw of keyframe.values) {
       let time: any = raw
+
       if (time === 'from') {
         time = 0
       } else if (time === 'to') {
@@ -290,6 +313,7 @@ export function keyframesArrayFromCSS(
       }
 
       let current = parsedKeyframes[time]
+
       if (current === undefined) {
         current = { duration: time, declarations: [] }
         parsedKeyframes[time] = current
@@ -304,6 +328,7 @@ export function keyframesArrayFromCSS(
       current.declarations = current.declarations.concat(declarations)
     }
   }
+
   return Object.values(parsedKeyframes).sort((a, b) => a.duration - b.duration)
 }
 
@@ -327,27 +352,34 @@ function cubicBezier(p1x: number, p1y: number, p2x: number, p2y: number) {
   const sampleX = (t: number) => ((ax * t + bx) * t + cx) * t
   const sampleY = (t: number) => ((ay * t + by) * t + cy) * t
   const sampleDerivX = (t: number) => (3 * ax * t + 2 * bx) * t + cx
+
   return (x: number): number => {
     let t = x
+
     for (let i = 0; i < 8; i++) {
       const err = sampleX(t) - x
+
       if (Math.abs(err) < 1e-6) {
         return sampleY(t)
       }
 
       const d = sampleDerivX(t)
+
       if (Math.abs(d) < 1e-6) {
         break
       }
 
       t -= err / d
     }
+
     if (t < 0) {
       t = 0
     }
+
     if (t > 1) {
       t = 1
     }
+
     return sampleY(t)
   }
 }
@@ -359,18 +391,21 @@ export function evaluateCurve(curve: TimingCurve | undefined, x: number): number
   if (!curve) {
     return x
   }
+
   if (curve.type === 'named') {
     if (curve.name === 'linear') {
       return x
     }
 
     const pts = NAMED_BEZIER[curve.name]
+
     if (!pts) {
       return x
     }
 
     const key = curve.name
     let f = bezierCache.get(key)
+
     if (!f) {
       f = cubicBezier(pts[0], pts[1], pts[2], pts[3])
       bezierCache.set(key, f)
@@ -378,11 +413,14 @@ export function evaluateCurve(curve: TimingCurve | undefined, x: number): number
 
     return f(x)
   }
+
   const key = `b${curve.x1},${curve.y1},${curve.x2},${curve.y2}`
   let f = bezierCache.get(key)
+
   if (!f) {
     f = cubicBezier(curve.x1, curve.y1, curve.x2, curve.y2)
     bezierCache.set(key, f)
   }
+
   return f(x)
 }

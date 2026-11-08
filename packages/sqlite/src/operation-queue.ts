@@ -2,13 +2,16 @@ import type { SqliteDb, SqliteParams, SqliteRow } from './types'
 
 function operationQueue() {
   let tail: Promise<void> = Promise.resolve()
+
   return {
     run<T>(operation: () => Promise<T>): Promise<T> {
       const result = tail.then(operation)
+
       tail = result.then(
         () => {},
         () => {},
       )
+
       return result
     },
     drain: () => tail,
@@ -28,6 +31,7 @@ function handle(
     active()
       ? schedule(operation)
       : Promise.reject(new Error('sqlite transaction handle has expired'))
+
   return {
     get isOpen() {
       return active() && db.isOpen
@@ -55,6 +59,7 @@ function handle(
 /** Internal connection boundary shared by every supported backend. */
 export function isolateDatabase(db: SqliteDb): SqliteDb {
   const queue = operationQueue()
+
   return handle(
     db,
     queue.run,
@@ -71,6 +76,7 @@ export function isolateDatabase(db: SqliteDb): SqliteDb {
             () => Promise.reject(new Error('sqlite nested transactions are not supported')),
             false,
           )
+
           try {
             return await action(scoped)
           } finally {

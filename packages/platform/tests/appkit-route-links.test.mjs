@@ -20,6 +20,7 @@ const compiled = ts.transpileModule(source, {
           ts.isMetaProperty(node) && node.keywordToken === ts.SyntaxKind.ImportKeyword
             ? context.factory.createIdentifier('__meta')
             : ts.visitEachChild(node, visit, context)
+
         return (root) => ts.visitNode(root, visit)
       },
     ],
@@ -44,8 +45,10 @@ function load({
     calls = [],
     warnings = [],
     hot = []
+
   let consumed = 0,
     removed = 0
+
   const context = {
     exports: {},
     __meta: { hot: { dispose: (callback) => hot.push(callback) } },
@@ -58,11 +61,13 @@ function load({
             for (const url of pending) {
               listener(url)
             }
+
             onSubscribe?.(context.exports.bindAppKitRouteLinks)
             if (subscribeFailure) {
               subscribeFailure = false
               throw new Error('subscribe failed')
             }
+
             return () => {
               removed++
               listener('xplat://late-cleanup')
@@ -76,11 +81,13 @@ function load({
               consumeFailure = false
               throw new Error('consume failed')
             }
+
             consumed++
             return consumed === 1 ? initial : null
           },
         }
       }
+
       if (name === '@octane-xplat/ui/routing') {
         return {
           router: {
@@ -91,9 +98,11 @@ function load({
           },
         }
       }
+
       throw new Error('Unexpected import')
     },
   }
+
   vm.runInNewContext(compiled, context)
   return {
     bind: context.exports.bindAppKitRouteLinks,
@@ -107,8 +116,11 @@ function load({
 
 test('AppKit route links wait until acquisition returns and forward initial before staged live URLs', async () => {
   const h = load({ initial: 'xplat://launch', pending: ['xplat://queued'] })
+
   assert.equal(h.listeners.length, 0)
+
   const stop = h.bind()
+
   assert.deepEqual(h.calls, [])
   await tick()
   assert.deepEqual(h.calls, ['xplat://launch', 'xplat://queued'])
@@ -124,6 +136,7 @@ test('AppKit route links wait until acquisition returns and forward initial befo
 test('AppKit route cleanup before the first microtask prevents startup navigation', async () => {
   const h = load({ pending: ['xplat://launch'] }),
     stop = h.bind()
+
   stop()
   await tick()
   assert.deepEqual(h.calls, [])
@@ -133,11 +146,14 @@ test('AppKit route cleanup before the first microtask prevents startup navigatio
 test('AppKit route setup failure retires delivered callbacks and remains retryable', async () => {
   for (const failure of [{ subscribeFailure: true }, { consumeFailure: true }]) {
     const h = load({ ...failure, pending: ['xplat://launch'] })
+
     assert.throws(h.bind, /failed/)
     h.listeners[0]('xplat://held')
     await tick()
     assert.deepEqual(h.calls, [])
+
     const stop = h.bind()
+
     await tick()
     assert.deepEqual(h.calls, ['xplat://launch'])
     stop()
@@ -150,20 +166,26 @@ test('AppKit route rejection/refusal/synchronous throw is contained without expo
       if (url.endsWith('reject')) {
         return Promise.reject(new Error('private error payload'))
       }
+
       if (url.endsWith('throw')) {
         throw new Error('private error payload')
       }
+
       if (url.endsWith('blocked')) {
         return Promise.resolve({ status: 'blocked', error: 'private error payload' })
       }
+
       return Promise.resolve({ status: 'committed' })
     },
   })
+
   const stop = h.bind()
+
   await tick()
   for (const name of ['reject', 'throw', 'blocked', 'good']) {
     h.listeners[0](`xplat://${name}`)
   }
+
   await tick()
   assert.equal(h.calls.length, 4)
   assert.deepEqual(h.warnings, [
@@ -171,6 +193,7 @@ test('AppKit route rejection/refusal/synchronous throw is contained without expo
     '[macos] Incoming link navigation failed',
     '[macos] Incoming link navigation did not commit',
   ])
+
   stop()
 })
 
@@ -183,6 +206,7 @@ test('AppKit forwards later URLs immediately and leaves overlapping admission/ca
         }),
     }),
     stop = h.bind()
+
   await tick()
   h.listeners[0]('xplat://first')
   h.listeners[0]('xplat://second')
@@ -191,6 +215,7 @@ test('AppKit forwards later URLs immediately and leaves overlapping admission/ca
   for (const finish of finishes) {
     finish({ status: 'blocked' })
   }
+
   await tick()
   assert.equal(h.warnings.length, 0)
 })
@@ -198,8 +223,11 @@ test('AppKit forwards later URLs immediately and leaves overlapping admission/ca
 test('AppKit replacement retires old bindings and cleanup failure cannot reactivate them', async () => {
   const h = load({ removeFailure: true }),
     first = h.bind()
+
   await tick()
+
   const next = h.bind()
+
   first()
   await tick()
   h.listeners[0]('xplat://old')
@@ -215,6 +243,7 @@ test('AppKit replacement retires old bindings and cleanup failure cannot reactiv
 
 test('AppKit HMR cleanup releases its producer and cancels pending startup delivery', async () => {
   const h = load({ pending: ['xplat://launch'] })
+
   h.bind()
   h.hot[0]()
   h.hot[0]()
@@ -226,6 +255,7 @@ test('AppKit HMR cleanup releases its producer and cancels pending startup deliv
 test('AppKit reentrant root replacement releases a late producer handle without touching the new owner', async () => {
   let first = true,
     latest
+
   const h = load({
     onSubscribe(bind) {
       if (first) {
@@ -234,7 +264,9 @@ test('AppKit reentrant root replacement releases a late producer handle without 
       }
     },
   })
+
   const old = h.bind()
+
   await tick()
   assert.equal(h.removed(), 1)
   old()
@@ -256,11 +288,14 @@ test('AppKit entry binds in the root effect, forwards props and returns the bind
       jsxImportSource: '@octane-xplat/jsx',
     },
   }).outputText
+
   const App = () => null,
     props = { parentWindow: {}, children: 'content' }
+
   let effect,
     bound = 0,
     removed = 0
+
   const context = {
     exports: {},
     console: { warn() {} },
@@ -272,9 +307,11 @@ test('AppKit entry binds in the root effect, forwards props and returns the bind
           },
         }
       }
+
       if (name === '@xplat/app') {
         return { App }
       }
+
       if (name === '@xplat/app/appkit-route-links.macos') {
         return {
           bindAppKitRouteLinks() {
@@ -285,23 +322,31 @@ test('AppKit entry binds in the root effect, forwards props and returns the bind
           },
         }
       }
+
       if (name.endsWith('jsx-runtime')) {
         return { jsx: (type, props) => ({ type, props }) }
       }
+
       if (name === './styles') {
         return {}
       }
+
       throw new Error('Unexpected import')
     },
   }
+
   vm.runInNewContext(compiled, context)
   assert.equal(bound, 0)
+
   const rendered = context.exports.default(props)
+
   assert.equal(rendered.type, App)
   assert.equal(rendered.props.parentWindow, props.parentWindow)
   assert.equal(rendered.props.children, 'content')
   assert.equal(bound, 0)
+
   const stop = effect()
+
   assert.equal(bound, 1)
   stop()
   assert.equal(removed, 1)

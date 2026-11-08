@@ -5,6 +5,7 @@ import { RollingText } from '../src/index'
 /** Smallest useful harness: a counter whose label rolls per grapheme. */
 export function RollingTextDemo() {
   const [count, setCount] = useState(9)
+
   return (
     <View style={{ padding: 16, gap: 8 }}>
       <HStack gap={2}>

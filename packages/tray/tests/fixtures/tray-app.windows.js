@@ -22,6 +22,7 @@ const log = (m) => console.log('TRAYW ' + m)
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const until = async (cond, label, ms = 15000) => {
   const end = Date.now() + ms
+
   while (Date.now() < end) {
     if (cond()) {
       return
@@ -29,6 +30,7 @@ const until = async (cond, label, ms = 15000) => {
 
     await sleep(100)
   }
+
   throw new Error('timeout waiting for ' + label)
 }
 
@@ -36,6 +38,7 @@ const events = []
 
 async function main() {
   const availability = await getTrayAvailability()
+
   log('availability ' + JSON.stringify(availability))
 
   const tray = await createTray({
@@ -73,10 +76,12 @@ async function main() {
       { type: 'separator', key: 'x2' },
     ],
   })
+
   log('created')
 
   // Native evidence: the icon occupies a real rect in the notification area.
   const box = await tray.probeRect('created')
+
   log('rect ' + JSON.stringify(box))
   if (!box || box[2] <= box[0] || box[3] <= box[1]) {
     throw new Error('icon rect empty: ' + JSON.stringify(box))
@@ -97,17 +102,24 @@ async function main() {
   tray.update({
     menu: [{ type: 'action', key: 'b', label: '&Bump', onSelect: () => events.push('b') }],
   })
+
   tray.probeInput({ menuKey: 0x42 })
   await until(() => events.includes('b'), 'second menu select')
   log('update-ok ' + events.join(','))
 
   // Window + residency helpers.
   keepAppResident()
+
   const hadVisible = areAppWindowsVisible()
+
   hideAppWindows()
+
   const afterHide = areAppWindowsVisible()
+
   toggleAppWindows()
+
   const afterToggle = areAppWindowsVisible()
+
   showAppWindows()
   log(`windows had=${hadVisible} hidden=${afterHide} toggled=${afterToggle}`)
 

@@ -27,6 +27,7 @@ export const createHaptics = (): Haptics => {
     ? // `Utils.android` is a {} stub in the pinned Windows core build.
       (activity ?? (Utils.android as any).getApplicationContext())
     : undefined
+
   // pulsar-android's getPresets() casts the engine context `as Activity` —
   // an application-context engine still plays patterns and realtime, but
   // every preset call throws, so the capability reports only what works.
@@ -92,6 +93,7 @@ export const createHaptics = (): Haptics => {
       try {
         if (android) {
           const named = sdk.getPresets().getByName(presetNames[preset])
+
           if (!named) {
             return false
           }
@@ -114,11 +116,13 @@ export const createHaptics = (): Haptics => {
       try {
         if (android) {
           const amplitude = new java.util.ArrayList()
+
           for (const point of pattern.points) {
             amplitude.add(new com.swmansion.pulsar.types.ValuePoint(point.at, point.intensity))
           }
 
           const frequency = new java.util.ArrayList()
+
           for (const point of pattern.points) {
             frequency.add(
               new com.swmansion.pulsar.types.ValuePoint(point.at, point.sharpness ?? 0.5),
@@ -131,6 +135,7 @@ export const createHaptics = (): Haptics => {
           )
 
           const composer = sdk.getPatternComposer()
+
           composer.parsePattern(data)
           composer.play()
         } else {

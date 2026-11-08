@@ -33,14 +33,17 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
     value.readers++
     return value
   }
+
   const drop = (value: Owned): void => {
     if (--value.readers === 0) {
       backend.release(value.frame)
     }
   }
+
   const dropTask = (task: Promise<Owned>): void => {
     void task.then(drop, () => {})
   }
+
   const observe = (task: Promise<Owned>): Promise<Owned> => {
     void task.catch(() => {})
     return task
@@ -53,6 +56,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
         throw released()
       }
     }
+
     const ref: ImageRef = {
       nativeRefType: 'image',
       get width() {
@@ -65,10 +69,13 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
       },
       async saveAsync(options?: SaveOptions) {
         assertLive()
+
         const normalized = saveOptions(options)
+
         hold(pixels)
         try {
           const result = await backend.save(pixels.frame, normalized)
+
           outputs.add(result.uri)
           return result
         } finally {
@@ -79,10 +86,12 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
         if (state.released) {
           return
         }
+
         state.released = true
         drop(pixels)
       },
     }
+
     refs.set(ref, state)
     return ref
   }
@@ -96,8 +105,10 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
       if (!backend.isAvailable()) {
         throw new UnavailabilityError('ImageManipulator')
       }
+
       const normalized = loadOptions(options)
       let source: Promise<Owned>
+
       if (typeof input === 'string') {
         if (!input.trim()) {
           throw new TypeError('Image source URI must not be empty')
@@ -110,12 +121,14 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
         )
       } else {
         const state = refs.get(input)
+
         if (!state || state.released) {
           throw released()
         }
 
         const pixels = hold(state.pixels)
         const size = initialSize(pixels.frame, normalized)
+
         if (size.width === pixels.frame.width && size.height === pixels.frame.height) {
           source = Promise.resolve(pixels)
         } else {
@@ -130,6 +143,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           )
         }
       }
+
       let current = observe(source.then(hold))
       let disposed = false
       const assertLive = () => {
@@ -137,6 +151,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           throw released()
         }
       }
+
       const enqueue = (operation: Operation) => {
         assertLive()
         current = observe(
@@ -148,8 +163,10 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
             }
           }),
         )
+
         return context
       }
+
       const context: ImageManipulatorContext = {
         resize(size: ResizeOptions) {
           assertLive()
@@ -160,6 +177,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           if (!Number.isFinite(degrees)) {
             throw new RangeError('Rotation must be finite')
           }
+
           return enqueue({ kind: 'rotate', degrees: ((degrees % 360) + 360) % 360 })
         },
         flip(axis: FlipType) {
@@ -167,6 +185,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           if (axis !== 'horizontal' && axis !== 'vertical') {
             throw new TypeError('Unknown flip axis')
           }
+
           return enqueue({ kind: 'flip', axis })
         },
         crop(rect: CropRect) {
@@ -180,6 +199,7 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           if (options.backgroundColor !== null && typeof options.backgroundColor !== 'string') {
             throw new TypeError('backgroundColor must be a color or null')
           }
+
           return enqueue({ kind: 'extent', ...options })
         },
         reset() {
@@ -196,20 +216,24 @@ export function createImageManipulator<T>(backend: ImageBackend<T>): {
           if (disposed) {
             return
           }
+
           disposed = true
           dropTask(current)
           dropTask(source)
         },
       }
+
       return context
     },
   }
+
   return {
     ImageManipulator,
     releaseImage(result: ImageResult): void {
       if (!outputs.has(result.uri)) {
         return
       }
+
       backend.releaseResult(result.uri)
       outputs.delete(result.uri)
     },

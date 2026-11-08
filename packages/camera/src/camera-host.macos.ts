@@ -101,6 +101,7 @@ const recordingDelegateClass = () => {
       },
     },
   )
+
   return RecordingDelegateClass
 }
 
@@ -122,6 +123,7 @@ const photoDelegateClass = () => {
       },
     },
   )
+
   return PhotoDelegateClass
 }
 
@@ -130,9 +132,11 @@ const photoDelegateClass = () => {
 const cameraOwners = new Map<string, object>()
 const claimCamera = (id: string, owner: object): boolean => {
   const current = cameraOwners.get(id)
+
   if (current !== undefined && current !== owner) {
     return false
   }
+
   cameraOwners.set(id, owner)
   return true
 }
@@ -218,6 +222,7 @@ export function createCameraHost(): CameraHost {
     id: number
     kind: DetachedKind
   }
+
   let opInFlight: InFlightOp | undefined
   let nextOpId = 0
   const opQueue: Array<{ kind: DetachedKind; run: () => void }> = []
@@ -225,15 +230,20 @@ export function createCameraHost(): CameraHost {
     if (opInFlight || !opQueue.length) {
       return
     }
+
     const op = opQueue.shift()!
+
     op.run()
   }
+
   const enqueueOp = (kind: DetachedKind, run: () => void) => {
     opQueue.push({ kind, run })
     drainOps()
   }
+
   const detached = (kind: DetachedKind, fn: () => void) => {
     const current: InFlightOp = { id: ++nextOpId, kind }
+
     opInFlight = current
     fn()
     // Detached native dispatch has no completion callback; the paired
@@ -247,6 +257,7 @@ export function createCameraHost(): CameraHost {
       }
     }, 2000)
   }
+
   const releaseOp = (kind?: DetachedKind) => {
     if (opInFlight && (kind === undefined || opInFlight.kind === kind)) {
       opInFlight = undefined
@@ -276,10 +287,12 @@ export function createCameraHost(): CameraHost {
         return 'unknown'
     }
   }
+
   const mediaKind = (kind: string) => (kind === 'microphone' ? AVMediaTypeAudio : AVMediaTypeVideo)
   const declared = (mediaType: string) => {
     const key =
       mediaType === AVMediaTypeAudio ? 'NSMicrophoneUsageDescription' : 'NSCameraUsageDescription'
+
     return NSBundle.mainBundle.objectForInfoDictionaryKey(key) != null
   }
 
@@ -290,24 +303,32 @@ export function createCameraHost(): CameraHost {
         AVMediaTypeVideo,
         0,
       )
+
     typed(discovery, AVCaptureDeviceDiscoverySession)
+
     const found: any[] = []
     const list = discovery.devices
+
     for (let i = 0; i < (list?.count ?? 0); i++) {
       found.push(list.objectAtIndex(i))
     }
+
     // The discovery session is authoritative; keep the legacy enumerator as
     // a merge source for devices on older system builds.
     const legacy = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
+
     for (let i = 0; i < (legacy?.count ?? 0); i++) {
       const device = legacy.objectAtIndex(i)
+
       if (!found.some((entry) => entry === device || entry.isEqual?.(device))) {
         found.push(device)
       }
     }
+
     for (const device of found) {
       typed(device, AVCaptureDevice)
     }
+
     return found
   }
 
@@ -316,12 +337,15 @@ export function createCameraHost(): CameraHost {
     let width = 0,
       height = 0,
       rotation = 0
+
     let videoCodec: string | undefined
     const videoTracks = asset.tracksWithMediaType(AVMediaTypeVideo)
+
     if (videoTracks.count > 0) {
       const track = typed(videoTracks.objectAtIndex(0), AVAssetTrack)
       const size = track.naturalSize
       const t = track.preferredTransform
+
       width = Math.abs(size.width * t.a + size.height * t.c)
       height = Math.abs(size.width * t.b + size.height * t.d)
       rotation = (Math.atan2(t.b, t.a) * 180) / Math.PI
@@ -330,6 +354,7 @@ export function createCameraHost(): CameraHost {
       }
 
       const descriptions = track.formatDescriptions
+
       if (descriptions.count > 0) {
         const subtype = fourCharCode(
           CMFormatDescriptionGetMediaSubType(descriptions.objectAtIndex(0)),
@@ -342,6 +367,7 @@ export function createCameraHost(): CameraHost {
         }
       }
     }
+
     const duration = CMTimeGetSeconds(asset.duration)
     const attrs = NSFileManager.defaultManager.attributesOfItemAtPathError(String(url.path), null)
     const size = Number(attrs?.objectForKey?.('NSFileSize') ?? 0)
@@ -356,9 +382,11 @@ export function createCameraHost(): CameraHost {
       mimeType: 'video/quicktime',
       container: 'mov',
     }
+
     if (videoCodec) {
       info.videoCodec = videoCodec
     }
+
     return info
   }
 
@@ -391,15 +419,21 @@ export function createCameraHost(): CameraHost {
     if (session) {
       return session
     }
+
     if (statusFor(AVMediaTypeVideo) !== 'granted') {
       return undefined
     }
+
     const created = typed(AVCaptureSession.alloc().init(), AVCaptureSession)
+
     if (created.canSetSessionPreset(AVCaptureSessionPreset1280x720)) {
       created.sessionPreset = AVCaptureSessionPreset1280x720
     }
+
     session = created
+
     const center = NSNotificationCenter.defaultCenter
+
     for (const name of [
       AVCaptureSessionWasInterruptedNotification,
       AVCaptureSessionInterruptionEndedNotification,
@@ -416,6 +450,7 @@ export function createCameraHost(): CameraHost {
         ),
       )
     }
+
     for (const [name, available] of [
       [AVCaptureDeviceWasDisconnectedNotification, false],
       [AVCaptureDeviceWasConnectedNotification, true],
@@ -426,6 +461,7 @@ export function createCameraHost(): CameraHost {
         ),
       )
     }
+
     return created
   }
 
@@ -433,8 +469,11 @@ export function createCameraHost(): CameraHost {
     if (connection == null || rotationAngle === undefined) {
       return
     }
+
     typed(connection, AVCaptureConnection)
+
     const orientation = orientationForAngle(rotationAngle)
+
     if (orientation !== undefined && connection.isVideoOrientationSupported()) {
       connection.videoOrientation = orientation
     }
@@ -449,10 +488,13 @@ export function createCameraHost(): CameraHost {
     if (disposed) {
       return 'unavailable'
     }
+
     const current = ensureSession()
+
     if (!current) {
       return 'permissionDenied'
     }
+
     // Synchronous on the JS thread — identical blocking semantics to the
     // Swift queue.sync. begin/commit mutations are legal while a detached
     // start/stop is in flight (AVFoundation's designed use), so a configure
@@ -470,31 +512,41 @@ export function createCameraHost(): CameraHost {
     if (disposed) {
       return 'unavailable'
     }
+
     const cameraId = options.cameraId
     const photo = options.photo === true
     const audio = !photo && options.audio === true
+
     rotationAngle = typeof options.rotationAngle === 'number' ? options.rotationAngle : undefined
+
     const devices = cameraDevices()
     const device =
       cameraId != null
         ? devices.find((entry) => String(entry.uniqueID) === cameraId)
         : (devices[0] ??
           typed(AVCaptureDevice.defaultDeviceWithMediaType(AVMediaTypeVideo), AVCaptureDevice))
+
     if (!device) {
       return 'unavailable'
     }
+
     const deviceId = String(device.uniqueID)
+
     if (!claimCamera(deviceId, host)) {
       return 'busy'
     }
+
     claimedCameraIds.add(deviceId)
+
     let failure: string | null = null
     let videoConnection: any
+
     try {
       session.beginConfiguration()
       if (videoInput == null || String(videoInput.device.uniqueID) !== deviceId) {
         const alloc = typed(AVCaptureDeviceInput.alloc(), AVCaptureDeviceInput)
         const input = typed(alloc.initWithDeviceError(device, null), AVCaptureDeviceInput)
+
         if (input == null) {
           throw new Error('input')
         }
@@ -520,6 +572,7 @@ export function createCameraHost(): CameraHost {
         if (microphone) {
           const alloc = typed(AVCaptureDeviceInput.alloc(), AVCaptureDeviceInput)
           const input = typed(alloc.initWithDeviceError(microphone, null), AVCaptureDeviceInput)
+
           if (input != null && session.canAddInput(input)) {
             audioInput = input
             session.addInput(input)
@@ -532,6 +585,7 @@ export function createCameraHost(): CameraHost {
 
       if (photo && photoOutput == null) {
         const output = AVCapturePhotoOutput.new()
+
         if (session.canAddOutput(output)) {
           session.addOutput(output)
           photoOutput = typed(output, AVCapturePhotoOutput)
@@ -542,6 +596,7 @@ export function createCameraHost(): CameraHost {
 
       if (!photo && movieOutput == null) {
         const output = AVCaptureMovieFileOutput.new()
+
         if (session.canAddOutput(output)) {
           session.addOutput(output)
           movieOutput = typed(output, AVCaptureMovieFileOutput)
@@ -573,9 +628,11 @@ export function createCameraHost(): CameraHost {
 
       return 'unavailable'
     }
+
     if (failure != null) {
       return failure
     }
+
     // Failed reconfiguration may retain either input. Hold both claims until
     // disposal rather than admitting an overlapping session.
     for (const old of claimedCameraIds) {
@@ -583,6 +640,7 @@ export function createCameraHost(): CameraHost {
         releaseCamera(old, host)
       }
     }
+
     claimedCameraIds = new Set([deviceId])
     configuredCameraId = deviceId
     applyOrientation(videoConnection)
@@ -593,21 +651,27 @@ export function createCameraHost(): CameraHost {
   const host = {
     attachPreview(view: object): string | null {
       const current = ensureSession()
+
       if (!current) {
         return 'permissionDenied'
       }
+
       previewView = new WeakRef(view as any)
       previewLayer = typed(
         AVCaptureVideoPreviewLayer.layerWithSession(current),
         AVCaptureVideoPreviewLayer,
       )
+
       previewLayer.videoGravity = 'AVLayerVideoGravityResizeAspectFill'
+
       ;(view as any).wantsLayer = true
       previewLayer.frame = {
         origin: { x: 0, y: 0 },
         size: (view as any).bounds?.size ?? { width: 0, height: 0 },
       }
+
       previewLayer.autoresizingMask = (1 << 4) | (1 << 2)
+
       ;(view as any).layer?.addSublayer(previewLayer)
       applyOrientation(previewLayer.connection)
       enqueueOp('start', () =>
@@ -619,6 +683,7 @@ export function createCameraHost(): CameraHost {
           }
         }),
       )
+
       return null
     },
     detachPreview(): void {
@@ -636,19 +701,24 @@ export function createCameraHost(): CameraHost {
     },
     permissionStatus(kind: string): string {
       const mediaType = mediaKind(kind)
+
       return declared(mediaType) ? statusFor(mediaType) : 'undeclared'
     },
     requestPermissionReply(kind: string, reply: (status: string) => void): void {
       const mediaType = mediaKind(kind)
+
       if (!declared(mediaType)) {
         reply('undeclared')
         return
       }
+
       const current = statusFor(mediaType)
+
       if (current !== 'notDetermined') {
         reply(current)
         return
       }
+
       AVCaptureDevice.requestAccessForMediaTypeCompletionHandler(mediaType, () => {
         NSOperationQueue.mainQueue.addOperationWithBlock(() => reply(statusFor(mediaType)))
       })
@@ -691,29 +761,38 @@ export function createCameraHost(): CameraHost {
       if (disposed || previewLayer == null) {
         return false
       }
+
       const bounds = previewLayer.bounds
       const layerPoint = {
         x: Math.min(Math.max(point.x, 0), 1) * bounds.size.width,
         y: Math.min(Math.max(point.y, 0), 1) * bounds.size.height,
       }
+
       const view = previewView?.deref()
+
       if (view != null && view.isFlipped?.() === false) {
         layerPoint.y = bounds.size.height - layerPoint.y
       }
+
       const devicePoint = previewLayer.captureDevicePointOfInterestForPoint(layerPoint)
       const device = videoInput?.device
+
       if (device == null) {
         return false
       }
+
       const focus =
         device.isFocusPointOfInterestSupported?.() === true &&
         device.isFocusModeSupported?.(1) === true
+
       const expose =
         device.isExposurePointOfInterestSupported?.() === true &&
         device.isExposureModeSupported?.(1) === true
+
       if (!focus && !expose) {
         return false
       }
+
       try {
         if (!device.lockForConfiguration(null)) {
           return false
@@ -744,15 +823,19 @@ export function createCameraHost(): CameraHost {
     movieDirectory(): string | null {
       const urls = NSFileManager.defaultManager.URLsForDirectoryInDomains(14, 1)
       const base = urls?.count > 0 ? urls.objectAtIndex(0) : null
+
       if (base == null) {
         return null
       }
+
       const identifier = NSBundle.mainBundle.bundleIdentifier
       const bundleId = identifier == null ? 'org.octane.xplat' : String(identifier)
       const directory = base
         .URLByAppendingPathComponent(bundleId)
         .URLByAppendingPathComponent('octane-camera')
+
       const manager = NSFileManager.defaultManager
+
       if (
         !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
           directory,
@@ -763,6 +846,7 @@ export function createCameraHost(): CameraHost {
       ) {
         return null
       }
+
       return String(directory.absoluteString)
     },
     startRecording(path: string, maximumDurationMs: number): string | null {
@@ -771,17 +855,21 @@ export function createCameraHost(): CameraHost {
       if (session == null || movieOutput == null || session.isRunning() !== true) {
         return 'unavailable'
       }
+
       const url = NSURL.fileURLWithPath(path)
+
       recordingPath = path
       movieOutput.maxRecordedDuration =
         maximumDurationMs > 0
           ? CMTimeMakeWithSeconds(maximumDurationMs / 1000, 1000)
           : ({ seconds: 0, timescale: 0, flags: 0, epoch: 0 } as any)
+
       recordingDelegate = recordingDelegateClass().new()
       recordingDelegate.onFinish = (_output: any, fileUrl: any, failure: any) => {
         const succeeded =
           failure == null ||
           failure.userInfo?.objectForKey?.(AVErrorRecordingSuccessfullyFinishedKey) === true
+
         const limitReached = failure != null && failure.code === avErrorMaximumDurationReached
         const payload: Record<string, unknown> = {
           type: 'recordingFinished',
@@ -789,7 +877,9 @@ export function createCameraHost(): CameraHost {
           succeeded,
           limitReached,
         }
+
         const filePath = String(fileUrl.path)
+
         if (succeeded && NSFileManager.defaultManager.fileExistsAtPath(filePath)) {
           payload.clip = movieClipInfo(fileUrl)
         } else {
@@ -808,15 +898,19 @@ export function createCameraHost(): CameraHost {
                 : 'Movie recording did not complete',
           }
         }
+
         send(payload)
       }
+
       movieOutput.startRecordingToOutputFileURLRecordingDelegate(url, recordingDelegate)
       // didStart cannot reach a JS delegate (host crash — see
       // recordingDelegateClass). Poll isRecording to emit the same event.
       if (startPollTimer !== undefined) {
         clearInterval(startPollTimer)
       }
+
       let polls = 0
+
       startPollTimer = setInterval(() => {
         polls += 1
         if (disposed || movieOutput == null || polls > 100) {
@@ -824,6 +918,7 @@ export function createCameraHost(): CameraHost {
           startPollTimer = undefined
           return
         }
+
         if (movieOutput.isRecording()) {
           clearInterval(startPollTimer!)
           startPollTimer = undefined
@@ -834,6 +929,7 @@ export function createCameraHost(): CameraHost {
           })
         }
       }, 50)
+
       return null
     },
     stopRecording(): void {
@@ -844,36 +940,49 @@ export function createCameraHost(): CameraHost {
     },
     recordedMs(): number {
       const duration = movieOutput?.recordedDuration
+
       if (duration == null) {
         return 0
       }
+
       const seconds = CMTimeGetSeconds(duration)
+
       return Number.isFinite(seconds) ? seconds * 1000 : 0
     },
     previewSize(): string {
       const device = videoInput?.device
+
       if (device == null) {
         return '{}'
       }
+
       const format = typed(device.activeFormat, g.AVCaptureDeviceFormat)
+
       if (format == null) {
         return '{}'
       }
+
       const dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
+
       return `{"width":${dimensions.width},"height":${dimensions.height}}`
     },
     capturePhoto(reply: (data: any) => void): string | null {
       if (disposed || photoReply != null || photoOutput == null || session?.isRunning() !== true) {
         return 'unavailable'
       }
+
       const codecs = photoOutput.availablePhotoCodecTypes
+
       if (codecs == null || !codecs.containsObject(AVVideoCodecTypeJPEG)) {
         return 'unavailable'
       }
+
       const delegate = photoDelegateClass().new()
+
       photoDelegate = delegate
       delegate.onPhoto = (photo: any, error: any) => {
         const callback = photoReply
+
         photoReply = undefined
         photoDelegate = undefined
         callback?.(
@@ -882,10 +991,15 @@ export function createCameraHost(): CameraHost {
             : null,
         )
       }
+
       photoReply = reply
+
       const format = NSMutableDictionary.dictionary()
+
       format.setObjectForKey(AVVideoCodecTypeJPEG, AVVideoCodecKey)
+
       const settings = AVCapturePhotoSettings.photoSettingsWithFormat(format)
+
       photoOutput.capturePhotoWithSettingsDelegate(settings, delegate)
       return null
     },
@@ -893,11 +1007,15 @@ export function createCameraHost(): CameraHost {
       if (disposed) {
         return
       }
+
       disposed = true
+
       const center = NSNotificationCenter.defaultCenter
+
       for (const observer of observers) {
         center.removeObserver(observer)
       }
+
       observers = []
       previewLayer?.removeFromSuperlayer()
       previewLayer = undefined
@@ -908,8 +1026,10 @@ export function createCameraHost(): CameraHost {
         clearInterval(startPollTimer)
         startPollTimer = undefined
       }
+
       const ending = session
       const claims = [...claimedCameraIds]
+
       enqueueOp('stop', () =>
         detached('stop', () => {
           ending?.performSelectorInBackgroundWithObject('stopRunning', null)
@@ -919,9 +1039,11 @@ export function createCameraHost(): CameraHost {
           for (const id of claims) {
             releaseCamera(id, host)
           }
+
           releaseOp()
         }),
       )
+
       claimedCameraIds = new Set()
       session = undefined
       videoInput = undefined
@@ -932,5 +1054,6 @@ export function createCameraHost(): CameraHost {
       emit = undefined
     },
   }
+
   return host
 }

@@ -24,7 +24,9 @@ export function Button(props: ButtonProps): unknown @{
     host = useRef<NSView | null>(null)
 
   const live = useRef({ props, group })
+
   live.current = { props, group }
+
   const updateTooltip = useCallback(() => {
     const view = host.current,
       text = live.current.props.tooltip ?? null
@@ -45,9 +47,12 @@ export function Button(props: ButtonProps): unknown @{
   )
 
   const ref = useMemo(() => refList(bind, props.ref), [bind, props.ref])
+
   useLayoutEffect(() => {
     attached.current = true
+
     const view = host.current
+
     return () => {
       attached.current = false
       actions.current.clear()
@@ -58,12 +63,14 @@ export function Button(props: ButtonProps): unknown @{
   }, [])
 
   useLayoutEffect(updateTooltip, [props.tooltip])
+
   const busy = Boolean(props.isLoading || pending)
   const isDisabled = Boolean(props.isDisabled || group?.isDisabled)
   const disabled = isDisabled || (busy && !props.isInterruptible)
   const press = () => {
     const { props, group } = live.current
     const busy = Boolean(props.isLoading || actions.current.size)
+
     if (
       !attached.current ||
       !host.current ||
@@ -76,7 +83,9 @@ export function Button(props: ButtonProps): unknown @{
 
     // URL dispatch is an external effect too; claim before it can reenter.
     const token = Symbol('button-action')
+
     actions.current.add(token)
+
     const settle = () => {
       if (!actions.current.delete(token) || !attached.current) {
         return
@@ -88,6 +97,7 @@ export function Button(props: ButtonProps): unknown @{
     try {
       if (props.href != null) {
         const url = sanitizeUrl(props.href)
+
         if (url != null) {
           openUrl(url)
         }
@@ -99,6 +109,7 @@ export function Button(props: ButtonProps): unknown @{
 
     try {
       const action = props.clickAction?.()
+
       if (action && typeof action.then === 'function') {
         if (attached.current && actions.current.has(token)) {
           setPending(true)

@@ -37,6 +37,7 @@ function StateHarness() {
 
 function ImperativeHarness() {
   const current = useLightbox({ media, onOpenChange })
+
   lightbox = current
   return <>{current.element}</>
 }

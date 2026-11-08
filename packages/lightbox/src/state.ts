@@ -37,6 +37,7 @@ export function reduce(
   action: RootAction,
 ): { state: RootState; effects: RootEffect[] } {
   const no = { state, effects: [] as RootEffect[] }
+
   switch (action.kind) {
     case 'open': {
       // Ignored unless closed or the list is empty (upstream openAt).
@@ -45,6 +46,7 @@ export function reduce(
       }
 
       const index = clamp(action.index, 0, action.count - 1)
+
       return {
         state: { ...state, index, phase: 'opening', uiHidden: false },
         // The scroller must land on the opened slide — a non-zero index
@@ -94,6 +96,7 @@ export function reduce(
       const instant = action.reducedMotion || state.phase !== 'open'
       const effects: RootEffect[] = []
       let held = state.held
+
       if (changed && !neighbor && !instant) {
         held = from
         effects.push({ kind: 'fade', from, to: target })

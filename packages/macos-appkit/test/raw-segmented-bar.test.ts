@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -113,16 +114,20 @@ function fixture() {
   }
 
   const control = api.makeSegmentedBar(node)
+
   node.view = control.view
   node.actionId = control.actionId
   container.nodes.set(1, node)
+
   const onSelectedIndexChange = (event: any) => events.push(event)
   const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })
+
   return { api, node, view, events, titles, update, onSelectedIndexChange }
 }
 
 test('SegmentedBar preserves duplicate/empty labels, renders missing titles as empty strings and clamps selection', () => {
   const { view, titles, update, events, onSelectedIndexChange } = fixture()
+
   assert.equal(view.action, 'controlChanged:')
   assert.equal(view.translatesAutoresizingMaskIntoConstraints, false)
   update({
@@ -146,6 +151,7 @@ test('SegmentedBar preserves duplicate/empty labels, renders missing titles as e
 
 test('SegmentedBar restores missing props and style, re-coerces requested indices as items grow', () => {
   const { node, view, update, titles } = fixture()
+
   update({ items: [{ title: 'a' }], selectedIndex: 4, style: { opacity: 0.5 } })
   assert.equal(view.selectedSegment, 0)
   update({ items: ['a', 'b', 'c', 'd', 'e'].map((title) => ({ title })), selectedIndex: 4 })
@@ -163,6 +169,7 @@ test('SegmentedBar restores missing props and style, re-coerces requested indice
 test('SegmentedBar native selection survives unchanged props, updates payloads and removes stale handlers', () => {
   const { view, update, events, onSelectedIndexChange } = fixture()
   const items = [{ title: 'a' }, { title: 'b' }, { title: 'c' }]
+
   update({ items, selectedIndex: 0, onSelectedIndexChange })
   events.length = 0
   view.selectedSegment = 2
@@ -184,6 +191,7 @@ test('SegmentedBar native selection survives unchanged props, updates payloads a
 
 test('SegmentedBar rejects invalid props before allocating and rejects child content', () => {
   const { api } = fixture()
+
   for (const value of ['1', 1.5, NaN, Infinity]) {
     assert.throws(() => api.validateNodeProps('segmentedbar', { selectedIndex: value }), /integer/)
   }
@@ -197,6 +205,7 @@ test('SegmentedBar rejects invalid props before allocating and rejects child con
   }
 
   const nesting = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'segmentedbar']) {
     assert.throws(
       () => nesting.validateTextNesting('segmentedbar', child),
@@ -298,7 +307,9 @@ test('SegmentedBar production ownership moves its native host between parents an
   picker.actionId = 3
   picker.view.target = {}
   picker.view.action = 'controlChanged:'
+
   const retained = picker.view
+
   api.insert(container, 1, picker, null)
   assert.equal(left.contentChild, picker)
   api.insert(container, 2, picker, null)
@@ -349,6 +360,7 @@ test('SegmentedBar selected background style updates and restores the pinned blu
   })
 
   const node: any = { type: 'segmentedbar', props: {}, view: {}, container: {} }
+
   api.applyStyle(node, { selectedBackgroundColor: '#ff0000' })
   assert.equal(node.view.selectedSegmentBezelColor, '#ff0000')
   api.applyStyle(node, { selectedBackgroundColor: '#00ff00' })

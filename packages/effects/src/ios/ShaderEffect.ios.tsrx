@@ -71,6 +71,7 @@ if (typeof NativeScriptViewFactory === 'undefined') {
   registerSwiftUIHost('xplatshader', {
     create: (id: string) => {
       const view = contentById.get(resolveViewId(id))
+
       if (!view) {
         // A miss here gets cached by the plugin and permanently
         // locks in an empty view — never fail silently.
@@ -122,13 +123,16 @@ export interface ShaderEffectProps {
  *  view, preserving its declaring Octane context. */
 export function ShaderEffect(props: ShaderEffectProps) @{
   const idRef = useRef<string | null>(null)
+
   idRef.current ??= `xplatshader-${++nextId}`
+
   const viewId = idRef.current
 
   // Register the host view before mount completes — the SwiftUI factory
   // may ask for it before the mount effect runs, and a missed lookup
   // caches an empty view permanently.
   const hostRef = useRef<GridLayout | null>(null)
+
   hostRef.current ??= new GridLayout()
   contentById.set(viewId, hostRef.current)
 

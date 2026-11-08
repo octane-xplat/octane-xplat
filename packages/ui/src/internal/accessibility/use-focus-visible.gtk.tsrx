@@ -26,6 +26,7 @@ const subscribe = (notify: () => void) => host()?.onInputModalityChange?.(notify
  */
 export function useFocusVisible(): UseFocusVisibleResult {
   const inputModality = useSyncExternalStore(subscribe, read)
+
   return { isFocusVisible: inputModality === 'keyboard', inputModality, isSupported: true }
 }
 

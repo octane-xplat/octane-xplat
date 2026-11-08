@@ -13,6 +13,7 @@ import { borderStyleSides, hiddenBorderStyle, borderStrokeStyle } from '../src/b
 import { readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
+
 // Object.assign can't touch globals installed by @nativescript/macos-node-api
 // (imported transitively via @octane-xplat/platform/macos) — they land as
 // configurable, get-only properties. defineProperty with a value descriptor
@@ -24,6 +25,7 @@ export function mockGlobals(entries: Record<string, unknown>) {
 
   for (const [key, value] of Object.entries(entries)) {
     const descriptor = originals[key]
+
     if (descriptor && !descriptor.configurable && !descriptor.writable) {
       // A few bridge globals (NativeClass, objc) are locked by the runtime —
       // mocks can't replace them; the real values are usable anyway.
@@ -92,6 +94,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
 
     context.deps.state ??= createAccessibilityState()
   }
+
   if (context && (context as any)[RAW_SLICE_CONTEXT]) {
     // A raw (spy) context is the sandbox itself. Seed the shared helpers as
     // own properties so `has`/`get` resolve them before falling to spies.
@@ -103,6 +106,7 @@ export function runSlice(code: string, context?: Record<string, any>) {
 
     return runInNewContext(CSS_SLICE_STUBS + '\n' + builtinFixtureHelpers() + '\n' + code, context)
   }
+
   return runInNewContext(CSS_SLICE_STUBS + '\n' + builtinFixtureHelpers() + '\n' + code, {
     ...SLICE_BASE,
     ...context,
@@ -119,27 +123,33 @@ export function spySliceContext(target: Record<string, any> = {}) {
       if (typeof key !== 'string') {
         return key in t
       }
+
       return key in t || key in globalThis || !SLICE_STUB_NAMES.has(key)
     },
     get(t, key) {
       if (key in t) {
         return (t as any)[key]
       }
+
       if (typeof key !== 'string') {
         return undefined
       }
+
       if (key in globalThis) {
         return (globalThis as any)[key]
       }
+
       const calls: any[][] = []
       // A `function` (not an arrow) stays a valid `instanceof` right side.
       const spy: any = function (...args: any[]) {
         calls.push(args)
       }
+
       spy.calls = calls
       return ((t as any)[key] = spy)
     },
   })
+
   Object.defineProperty(target, RAW_SLICE_CONTEXT, { value: true })
   return sandbox
 }

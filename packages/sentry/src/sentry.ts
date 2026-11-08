@@ -28,6 +28,7 @@ export const sentry: SentryService = {
     if (!collecting || closed) {
       return undefined
     }
+
     return NativeSentry.captureException(error, context ? { extra: context } : undefined)
   },
 
@@ -38,6 +39,7 @@ export const sentry: SentryService = {
     if (!collecting || closed) {
       return undefined
     }
+
     return NativeSentry.captureMessage(message, level as any)
   },
 
@@ -45,6 +47,7 @@ export const sentry: SentryService = {
     if (!collecting || closed) {
       return
     }
+
     NativeSentry.addBreadcrumb(breadcrumb as any)
   },
 
@@ -64,8 +67,11 @@ export const sentry: SentryService = {
     if (!initialized || closed) {
       return
     }
+
     collecting = enabled
+
     const client = NativeSentry.getCurrentHub().getClient()
+
     if (client) {
       client.getOptions().enabled = enabled
     }
@@ -78,13 +84,16 @@ export const sentry: SentryService = {
   async close(timeout?: number): Promise<boolean> {
     collecting = false
     closed = true
+
     const client = NativeSentry.getCurrentHub().getClient()
     const drained = client ? await client.close(timeout) : true
+
     try {
       await NATIVE.closeNativeSdk()
     } catch {
       // Native teardown is best-effort; JS collection is already stopped.
     }
+
     return drained
   },
 }

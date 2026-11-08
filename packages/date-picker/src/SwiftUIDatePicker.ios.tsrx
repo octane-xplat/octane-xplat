@@ -53,11 +53,13 @@ export function SwiftUIDatePicker(props: SwiftUIDatePickerProps): unknown @{
     }}
     onSwiftUIEvent={(event: any) => {
       const millis = event.data?.date
+
       if (typeof millis !== 'number') {
         return
       }
 
       const next = new Date(millis)
+
       if (!controlled) {
         setInternalSelection(next)
       }

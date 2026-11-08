@@ -9,6 +9,7 @@ export function LayoutGroup(props: LayoutGroupProps): unknown @{
   const parent = useContext(LayoutGroupContext)
   const namespace = useMemo(() => {
     const inherited = props.inherit === false ? [] : parent
+
     return props.id === undefined ? inherited : [...inherited, props.id]
   }, [parent, props.id, props.inherit])
 

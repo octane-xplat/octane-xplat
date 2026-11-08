@@ -1,8 +1,10 @@
 import { beforeEach, expect, it, vi } from 'vitest'
+
 const native = vi.hoisted(() => {
   const listeners = new Map<string, (args: any) => void>()
   const androidListeners = new Map<string, (args: any) => void>()
   const iosListeners = new Map<string, (args: any) => void>()
+
   return {
     listeners,
     androidListeners,
@@ -33,11 +35,15 @@ beforeEach(() => {
 })
 
 const intent = (url: string) => ({ getDataString: () => url })
+
 it('delivers a cold link once through consumeInitialUrl, not also the listener', async () => {
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
+
   const launch = intent('xplat://detail')
+
   native.app.android.foregroundActivity = { getIntent: () => launch }
   native.listeners.get('launch')!({ android: launch })
   expect(links.consumeInitialUrl()).toBe('xplat://detail')
@@ -49,9 +55,11 @@ it('delivers a cold link once through consumeInitialUrl, not also the listener',
 it('accepts repeated warm URLs from distinct intents, deduplicating resume', async () => {
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
   for (let i = 0; i < 2; i++) {
     const next = intent('xplat://detail')
+
     native.app.android.foregroundActivity = { getIntent: () => next }
     native.androidListeners.get('activityNewIntent')?.({ intent: next })
     native.listeners.get('resume')!({})
@@ -62,8 +70,10 @@ it('accepts repeated warm URLs from distinct intents, deduplicating resume', asy
 
 it('suppresses the iOS launch echo once, then dispatches repeated URLs', async () => {
   sceneHost()
+
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
   native.listeners.get('launch')!({
     ios: {
@@ -96,13 +106,16 @@ function sceneHost() {
 
 it('adopts scene connection URLs once and delivers repeated warm scene URLs', async () => {
   sceneHost()
+
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
   native.listeners.get('launch')!({ ios: {} })
   native.iosListeners.get('sceneWillConnect')!({
     connectionOptions: { URLContexts: iosSet(iosUrl('xplat://detail')) },
   })
+
   expect(links.consumeInitialUrl()).toBe('xplat://detail')
   expect(links.consumeInitialUrl()).toBeNull()
   // A host/plugin forwarding the same scene event into the legacy bus must not duplicate it.
@@ -112,35 +125,45 @@ it('adopts scene connection URLs once and delivers repeated warm scene URLs', as
       urlContexts: iosSet(iosUrl('xplat://detail')),
     })
   }
+
   expect(received.mock.calls).toEqual([['xplat://detail'], ['xplat://detail']])
 })
 
 it('receives scene universal links and later scene connections without replacing an unconsumed cold link', async () => {
   sceneHost()
+
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
   native.iosListeners.get('sceneWillConnect')!({
     connectionOptions: {
       userActivities: iosSet({ webpageURL: { absoluteString: 'https://example.test/cold' } }),
     },
   })
+
   native.iosListeners.get('sceneWillConnect')!({
     connectionOptions: { URLContexts: iosSet(iosUrl('xplat://second')) },
   })
+
   native.iosListeners.get('sceneContinueUserActivity')!({
     userActivity: { webpageURL: { absoluteString: 'https://example.test/warm' } },
   })
+
   expect(links.consumeInitialUrl()).toBe('https://example.test/cold')
   expect(received.mock.calls).toEqual([['xplat://second'], ['https://example.test/warm']])
 })
 
 it('classifies a pre-launch Android newIntent as one cold delivery', async () => {
   native.app.launched = false
+
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
+
   const cold = intent('xplat://cold')
+
   native.androidListeners.get('activityNewIntent')!({ intent: cold })
   native.app.android.foregroundActivity = { getIntent: () => cold }
   native.listeners.get('resume')!({})
@@ -155,16 +178,21 @@ it('classifies a pre-launch Android newIntent as one cold delivery', async () =>
   for (let i = 0; i < 2; i++) {
     native.androidListeners.get('activityNewIntent')!({ intent: intent('xplat://cold') })
   }
+
   expect(received.mock.calls).toEqual([['xplat://cold'], ['xplat://cold']])
 })
 
 it('preserves distinct early Intents while excluding the launch echo by identity', async () => {
   native.app.launched = false
+
   const links = await import('./deep-links.ts')
   const received = vi.fn()
+
   links.onDeepLink(received)
+
   const cold = intent('xplat://cold')
   const early = intent('xplat://other')
+
   native.androidListeners.get('activityNewIntent')!({ intent: cold })
   native.androidListeners.get('activityNewIntent')!({ intent: early })
   native.listeners.get('launch')!({ android: cold })

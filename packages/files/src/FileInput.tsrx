@@ -32,6 +32,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
   const fireChange = (next: FileInputFile[]) => {
     const emitted = emitValue(next)
+
     props.onChange?.(emitted)
     if (props.changeAction) {
       setBusy(true)
@@ -54,7 +55,9 @@ function FileInputControl(inputProps: FileInputProps) @{
     })
 
     setValidationErrors(errors)
+
     const next = !props.isMultiple && errors.length ? files : valid
+
     if (
       next.length !== files.length ||
       next.some((file, index) => file.uri !== files[index]?.uri)

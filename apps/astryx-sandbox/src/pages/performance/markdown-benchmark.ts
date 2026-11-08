@@ -11,6 +11,7 @@
 export function generateMarkdownFixture(sectionCount: number): string {
   const sections = Array.from({ length: sectionCount }, (_, index) => {
     const number = index + 1
+
     return [
       `## Section ${number}`,
       '',
@@ -45,10 +46,13 @@ export function formatBenchmarkChange(value: number | null, baseline: number | n
   if (value == null || baseline == null) {
     return '—'
   }
+
   if (baseline === 0) {
     return value === 0 ? '0.0%' : 'new'
   }
+
   const percent = ((value - baseline) / baseline) * 100
+
   return `${percent >= 0 ? '+' : ''}${percent.toFixed(1)}%`
 }
 
@@ -60,11 +64,14 @@ export function nextStreamOffset(
   if (!Number.isInteger(sourceLength) || sourceLength < 0) {
     throw new RangeError('sourceLength must be a non-negative integer')
   }
+
   if (!Number.isInteger(currentOffset) || currentOffset < 0) {
     throw new RangeError('currentOffset must be a non-negative integer')
   }
+
   if (!Number.isInteger(burstSize) || burstSize <= 0) {
     throw new RangeError('burstSize must be a positive integer')
   }
+
   return Math.min(sourceLength, currentOffset + burstSize)
 }

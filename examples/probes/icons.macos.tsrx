@@ -5,6 +5,7 @@ import { Icon, addCollection } from '@octane-xplat/icons'
 import type { ProbeContext } from '../../tools/probe/context'
 
 const selection = createStore({ name: 'appkit-svg:wide', color: '#123456', size: 24 })
+
 registerIcons({ 'appkit-glyph': { svg: 'M0 0h24v24H0z' } })
 addCollection({
   prefix: 'appkit-svg',
@@ -21,6 +22,7 @@ addCollection({
 
 export default function AppKitSvgProbe() {
   const current = useStore(selection)
+
   return (
     <Column>
       <Icon id="svg-primary" {...current} label="Direction" />
@@ -51,7 +53,9 @@ export default function AppKitSvgProbe() {
 
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('svg-primary')?.image?.valid)
+
   const first = ctx.find('svg-primary').image
+
   ctx.assert('inline UI SVG valid', ctx.find('svg-inline').image.valid, true)
   ctx.assert('base64 UI SVG width', ctx.find('svg-base64').image.size.width, 14)
   ctx.assert('unlabeled UI Image decorative', ctx.find('svg-uri').accessibilityElement, false)

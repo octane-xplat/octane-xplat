@@ -19,6 +19,7 @@ export async function checkMacOSMotionConsumer({
   const { octane } = await import(pathToFileURL(require.resolve('octane/compiler/vite')).href)
   const repoRoot = resolve(packageRoot, '../..')
   const entry = join(consumerRoot, 'safe-import.ts')
+
   writeFileSync(
     entry,
     `export * from '${packageName}'\nexport { createObjectContainer, createObjectDriver, createUniversalRoot } from 'octane/universal/native'\n`,
@@ -28,12 +29,14 @@ export async function checkMacOSMotionConsumer({
   // (registerStylesheet) on top of universal/native; anything else missing
   // still fails the build.
   const rendererShim = join(consumerRoot, 'macos-appkit-shim.ts')
+
   writeFileSync(
     rendererShim,
     `export * from 'octane/universal/native'\nexport { registerStylesheet } from '@octane-xplat/css-engine'\nexport { observeLayoutCommits } from ${JSON.stringify(join(repoRoot, 'packages/macos-appkit/src/layout-observers.ts'))}\nexport { setProjectionScale as setLayoutProjectionScale } from ${JSON.stringify(join(repoRoot, 'packages/macos-appkit/src/projection-paint.ts'))}\n`,
   )
 
   let resolvedEntry = false
+
   await build({
     configFile: false,
     root: consumerRoot,
@@ -44,6 +47,7 @@ export async function checkMacOSMotionConsumer({
         name: 'macos-package-boundary',
         generateBundle() {
           const modules = [...this.getModuleIds()]
+
           assert.equal(
             modules.some((id) => id.includes('@nativescript-community/gesturehandler')),
             false,
@@ -66,6 +70,7 @@ export async function checkMacOSMotionConsumer({
               'public UI barrel selects the macOS BottomSheet leaf',
             )
           }
+
           assert.equal(
             modules.some((id) => id.endsWith('/components/overlays/BottomSheet.tsrx')),
             false,
@@ -132,7 +137,9 @@ export async function checkMacOSMotionConsumer({
   })
 
   assert.equal(resolvedEntry, true, 'macos condition resolved the public package import')
+
   const bundle = join(consumerRoot, 'safe-import/index.ts')
+
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /@nativescript-community\/gesturehandler/)
 
   // Detect startup timers, preference polling, or eager frame scheduling.
@@ -143,6 +150,7 @@ export async function checkMacOSMotionConsumer({
   }
 
   let api
+
   try {
     globalThis.setTimeout = unexpectedTimer
     globalThis.setInterval = unexpectedTimer
@@ -155,14 +163,18 @@ export async function checkMacOSMotionConsumer({
   const container = api.createObjectContainer('macos')
   const driver = api.createObjectDriver('macos')
   const originalTransaction = globalThis.CATransaction
+
   if (packageName === '@octane-xplat/motion') {
     // Supply explicit AppKit property doubles for this import/mount check.
     // The object driver alone has no NSView/CALayer behavior.
     const publicInstance = driver.getPublicInstance.bind(driver)
+
     driver.getPublicInstance = (...args) => {
       const node = publicInstance(...args)
+
       if (!node.layer) {
         const values = new Map()
+
         node.alphaValue = 1
         node.layer = {
           valueForKeyPath: (path) => values.get(path) ?? (path.includes('scale') ? 1 : 0),
@@ -177,6 +189,7 @@ export async function checkMacOSMotionConsumer({
   }
 
   const root = api.createUniversalRoot(container, driver)
+
   try {
     if (packageName === '@octane-xplat/motion') {
       assert.deepEqual(

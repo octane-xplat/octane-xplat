@@ -14,6 +14,7 @@ function load(path, context, exports) {
     : appRequire.resolve(`@nativescript/core/${path}`)
 
   let source = readFileSync(file, 'utf8')
+
   if (sourceRoot) {
     source = ts.transpileModule(source, {
       compilerOptions: {
@@ -153,11 +154,13 @@ function setup() {
   }
 
   const helper = load('ui/gestures/pointer-events.windows.js', context, 'subscribeNativeEvent')
+
   Object.assign(context, helper)
   Object.assign(
     context,
     load('ui/core/view/key-events.windows.js', context, 'takeWindowsKeyHandled'),
   )
+
   const { EditableTextBase } = load(
     'ui/editable-text-base/index.windows.js',
     context,
@@ -166,17 +169,22 @@ function setup() {
 
   context.TextFieldBase = EditableTextBase
   context.nativeChildIndex = (children, view) => children.items.indexOf(view)
+
   const { TextField } = load('ui/text-field/index.windows.js', context, 'TextField')
   const field = new TextField()
+
   field.nativeViewProtected = new TextBox()
   field.initNativeView()
   context.TextViewBase = EditableTextBase
+
   const { TextView } = load('ui/text-view/index.windows.js', context, 'TextView')
+
   return { field, context, TextBox, PasswordBox, TextView }
 }
 
 test('public focus reaches native Focus and returns its result', () => {
   const { field } = setup()
+
   assert.equal(field.focus(), true)
   assert.equal(field.nativeViewProtected.FocusState, 1)
   field.nativeViewProtected.IsEnabled = false
@@ -186,11 +194,14 @@ test('public focus reaches native Focus and returns its result', () => {
 test('native focus transitions forward once and retired delegates are inert', () => {
   const { field } = setup()
   const old = field.nativeViewProtected
+
   assert.equal(typeof old.GotFocus, 'function')
   old.GotFocus(old, {})
   old.GotFocus(old, {})
   assert.deepEqual([...field.events], ['focus'])
+
   const late = old.GotFocus
+
   field.onUnloaded()
   assert.deepEqual([...field.events], ['focus', 'blur'])
   late(old, {})
@@ -204,6 +215,7 @@ test('native focus transitions forward once and retired delegates are inert', ()
 
 test('blur preserves disabled state', () => {
   const { field } = setup()
+
   field.nativeViewProtected.IsEnabled = false
   field.dismissSoftInput()
   assert.equal(field.nativeViewProtected.IsEnabled, false)
@@ -211,6 +223,7 @@ test('blur preserves disabled state', () => {
 
 test('secure readonly fails closed and becomes editable again', () => {
   const { field, PasswordBox } = setup()
+
   field.nativeViewProtected = new PasswordBox()
   field.editable = false
   field[props.editableProperty.setNative](false)
@@ -225,6 +238,7 @@ test('secure swap detaches old events and reapplies state', () => {
   const old = field.nativeViewProtected
   const lateText = old.TextChanged
   const lateKey = old.KeyDown
+
   field.editable = false
   field[props.secureProperty.setNative](true)
   assert.equal(old.TextChanged, null)
@@ -242,6 +256,7 @@ function loadPropertyClasses() {
     : appRequire.resolve('@nativescript/core/ui/core/properties/index.js')
 
   let source = readFileSync(file, 'utf8')
+
   if (sourceRoot) {
     source = ts.transpileModule(source, {
       compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.ESNext },
@@ -289,6 +304,7 @@ test('ordinary, coerced and inherited property keywords are literal; sentinel st
     })
 
     const owner = { hasListeners: () => false, eachChild: () => {}, parent: null }
+
     for (const word of ['initial', 'inherit', 'unset', 'revert']) {
       property.set.call(owner, word)
       assert.equal(property.get.call(owner), word)
@@ -303,6 +319,7 @@ test('ordinary, coerced and inherited property keywords are literal; sentinel st
 test('multiline preserves editing, readonly and focus lifecycle', () => {
   const { TextView, TextBox } = setup()
   const area = new TextView()
+
   area.nativeViewProtected = new TextBox()
   area.initNativeView()
   area.nativeViewProtected.TextChanged({ Text: 'line1\nline2' }, {})
@@ -317,6 +334,7 @@ test('multiline preserves editing, readonly and focus lifecycle', () => {
 
 test('input and submit are delivered only for active editable native controls', () => {
   const { field } = setup()
+
   field.nativeViewProtected.TextChanged({ Text: 'abc' }, {})
   assert.equal(field.text, 'abc')
   field.nativeViewProtected.KeyDown(field.nativeViewProtected, { Key: 13 })
@@ -343,7 +361,9 @@ function extract(path, name, context, members) {
   const source = readFileSync(file, 'utf8')
   const ast = ts.createSourceFile(file, source, ts.ScriptTarget.Latest, true)
   const node = ast.statements.find((node) => node.name?.text === name)
+
   assert.ok(node, `Missing ${name}`)
+
   const snippet = members
     ? `class Selected {${node.members
         .filter((member) => members.some((name) => member.name?.getText(ast).includes(name)))
@@ -372,12 +392,14 @@ test('owning View forwards disabled and explicit accessible names including rese
   )
 
   context.updateA11yPropertiesCallback = update
+
   const View = extract('ui/core/view/index.windows.js', 'View', context, [
     'isEnabledProperty',
     'accessibilityLabelProperty',
   ])
 
   const view = new View()
+
   view.nativeViewProtected = new TextBox()
   view[props.isEnabledProperty.setNative](false)
   assert.equal(view.nativeViewProtected.IsEnabled, false)
@@ -404,7 +426,9 @@ test('CSS-wide keywords still reset both local and cascade style values', () => 
   })
 
   property.register(Style)
+
   const style = new Style()
+
   style.viewRef = { get: () => ({}) }
   style.hasListeners = () => false
   for (const keyword of ['initial', 'inherit', 'unset', 'revert', unsetValue]) {
@@ -422,6 +446,7 @@ test('isolated blur emits once and honors a disabled change made by its callback
   const { field } = setup()
   const native = field.nativeViewProtected
   let enabled = true
+
   Object.defineProperty(native, 'IsEnabled', {
     get: () => enabled,
     set(value) {
@@ -455,6 +480,7 @@ test('native identity replacement and disposal retire text/focus/submit delegate
   const oldText = old.TextChanged
   const oldKey = old.KeyDown
   const next = new TextBox()
+
   field.setNativeView(next)
   assert.equal(old.GotFocus, null)
   assert.equal(old.TextChanged, null)
@@ -474,6 +500,7 @@ test('native identity replacement and disposal retire text/focus/submit delegate
 
 test('secure readonly and disabled are independent across every restoration order', () => {
   const { field, PasswordBox } = setup()
+
   field.setNativeView(new PasswordBox())
   for (const [enabled, editable] of [
     [true, false],

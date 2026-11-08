@@ -14,15 +14,20 @@ import {
 for (const multiDocument of [false, true]) {
   test(`patch inspection reads ${multiDocument ? 'multi-document' : 'single-document'} pnpm lockfiles`, (t) => {
     const root = mkdtempSync(join(tmpdir(), 'xplat-patches-lock-'))
+
     t.after(() => rmSync(root, { recursive: true, force: true }))
+
     const patch = loadPatchManifest()[0]
     const name = specifierPackage(patch.specifier)
     const version = patch.specifier.slice(name.length + 1)
+
     writeFileSync(
       join(root, 'package.json'),
       JSON.stringify({ packageManager: 'pnpm@11.24.0', dependencies: { [name]: version } }),
     )
+
     assert.equal(applyPatches(root).conflicts.length, 0)
+
     const sections = [
       { lockfileVersion: '9.0', importers: { '.': { dependencies: { [name]: { version } } } } },
       { packages: { [patch.specifier]: {} } },
@@ -75,7 +80,9 @@ for (const multiDocument of [false, true]) {
 
 test('catalog: specifiers resolve through the workspace catalog', (t) => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-patches-catalog-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
+
   const patch = loadPatchManifest()[0]
   const name = specifierPackage(patch.specifier)
   const version = patch.specifier.slice(name.length + 1)
@@ -84,6 +91,7 @@ test('catalog: specifiers resolve through the workspace catalog', (t) => {
     join(root, 'package.json'),
     JSON.stringify({ dependencies: { [name]: 'catalog:' } }),
   )
+
   writeFileSync(
     join(root, 'pnpm-workspace.yaml'),
     stringify({ packages: [], catalog: { [name]: version } }),
@@ -101,10 +109,12 @@ test('catalog: specifiers resolve through the workspace catalog', (t) => {
     join(root, 'package.json'),
     JSON.stringify({ dependencies: { [name]: 'catalog:toolchain' } }),
   )
+
   writeFileSync(
     join(root, 'pnpm-workspace.yaml'),
     stringify({ packages: [], catalogs: { toolchain: { [name]: version } } }),
   )
+
   assert.notEqual(
     inspectPatches(root).find((item) => item.specifier === patch.specifier).state,
     'version-mismatch',

@@ -34,6 +34,7 @@ function intersect(a: IntersectionRect, b: IntersectionRect): IntersectionRect |
   const top = Math.max(a.top, b.top)
   const right = Math.min(a.right, b.right)
   const bottom = Math.min(a.bottom, b.bottom)
+
   if (right < left || bottom < top) {
     return null
   }
@@ -44,6 +45,7 @@ function intersect(a: IntersectionRect, b: IntersectionRect): IntersectionRect |
 function screenRect(view: View): IntersectionRect | null {
   const origin = view.getLocationOnScreen?.()
   const size = view.getActualSize?.()
+
   if (!origin || !size) {
     return null
   }
@@ -64,13 +66,16 @@ function parseRootMargin(raw: string): { dips: Margin; percent: Margin } {
   const dips = zero()
   const percent = zero()
   const tokens = raw.trim().split(/\s+/).filter(Boolean)
+
   if (tokens.length > 4) {
     throw new SyntaxError(`rootMargin must be 1–4 values, got "${raw}"`)
   }
 
   const keys = ['top', 'right', 'bottom', 'left'] as const
+
   tokens.forEach((token, index) => {
     const match = /^(-?\d+(?:\.\d+)?)(px|%)$/.exec(token)
+
     if (!match) {
       throw new SyntaxError(`rootMargin values need a px or % unit, got "${token}"`)
     }
@@ -78,6 +83,7 @@ function parseRootMargin(raw: string): { dips: Margin; percent: Margin } {
     const value = Number(match[1])
     // CSS shorthand expansion: vertical/horizontal pairs repeat.
     const key = index === 0 ? 'top' : index === 1 ? 'right' : index === 2 ? 'bottom' : 'left'
+
     if (match[2] === 'px') {
       dips[key] = value
     } else {
@@ -105,11 +111,13 @@ function parseRootMargin(raw: string): { dips: Margin; percent: Margin } {
 
 function normalizeThresholds(raw: number | number[] | undefined): number[] {
   const list = raw == null ? [0] : Array.isArray(raw) ? raw : [raw]
+
   if (list.length === 0) {
     return [0]
   }
 
   const sorted = [...new Set(list)].sort((a, b) => a - b)
+
   for (const t of sorted) {
     if (typeof t !== 'number' || Number.isNaN(t) || t < 0 || t > 1) {
       throw new RangeError(`threshold values must be numbers between 0 and 1, got ${t}`)
@@ -150,7 +158,9 @@ export class IntersectionObserver implements IntersectionObserverShape {
     this.callback = callback
     this.root = options.root instanceof View ? options.root : null
     this.rootMargin = options.rootMargin ?? '0px'
+
     const { dips, percent } = parseRootMargin(this.rootMargin)
+
     this.marginDips = dips
     this.marginPercent = percent
     this.thresholds = normalizeThresholds(options.threshold)
@@ -166,6 +176,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
     // just-loaded view can still report transient mid-layout geometry.
     const reevaluate = () => {
       const targetRect = screenRect(target)
+
       if (
         !tracked.armed &&
         target.isLoaded &&
@@ -189,9 +200,11 @@ export class IntersectionObserver implements IntersectionObserverShape {
       }
 
       let events = seen.get(view)
+
       if (!events) {
         seen.set(view, (events = new Set()))
       }
+
       events.add(event)
       listeners.push([view, event])
       view.on(event, reevaluate)
@@ -200,11 +213,15 @@ export class IntersectionObserver implements IntersectionObserverShape {
     on(target, 'loaded')
     on(target, 'layoutChanged')
     on(target, 'unloaded')
+
     let ancestor = target.parent as View | undefined
+
     for (let depth = 0; ancestor && depth < 64; depth++) {
       on(ancestor, 'scroll')
       on(ancestor, 'layoutChanged')
+
       const next = ancestor.parent as View | undefined
+
       ancestor = next === ancestor ? undefined : next
     }
 
@@ -234,6 +251,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
   /** Stops observing one view. */
   unobserve(target: unknown): void {
     const tracked = this.targets.get(target as View)
+
     if (!tracked) {
       return
     }
@@ -268,11 +286,13 @@ export class IntersectionObserver implements IntersectionObserverShape {
     const right = this.marginDips.right + this.marginPercent.right * base.width
     const bottom = this.marginDips.bottom + this.marginPercent.bottom * base.width
     const left = this.marginDips.left + this.marginPercent.left * base.width
+
     return rect(base.x - left, base.y - top, base.width + left + right, base.height + top + bottom)
   }
 
   private measure(target: View): IntersectionObserverEntry | null {
     const targetRect = screenRect(target)
+
     if (!targetRect || !target.isLoaded) {
       return null
     }
@@ -282,9 +302,11 @@ export class IntersectionObserver implements IntersectionObserverShape {
     // screen-space math is hierarchy-independent).
     let clip: IntersectionRect | null = targetRect
     let ancestor = target.parent as View | undefined
+
     for (let depth = 0; ancestor && ancestor !== this.root && depth < 64; depth++) {
       if (clipsChildren(ancestor)) {
         const ancestorRect = ancestor.isLoaded ? screenRect(ancestor) : null
+
         if (!ancestorRect) {
           return null
         }
@@ -296,6 +318,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
       }
 
       const next = ancestor.parent as View | undefined
+
       ancestor = next === ancestor ? undefined : next
     }
 
@@ -332,6 +355,7 @@ export class IntersectionObserver implements IntersectionObserverShape {
       this.evaluateNow(target)
       while (this.pendingEval.size) {
         const queued = [...this.pendingEval]
+
         this.pendingEval.clear()
         for (const pending of queued) {
           this.evaluateNow(pending)
@@ -344,11 +368,13 @@ export class IntersectionObserver implements IntersectionObserverShape {
 
   private evaluateNow(target: View): void {
     const tracked = this.targets.get(target)
+
     if (!tracked) {
       return
     }
 
     const entry = this.measure(target)
+
     if (!entry) {
       // No geometry while still loaded is a transient mid-layout read —
       // keep the last state. Only a real unload reports the exit.
@@ -392,7 +418,9 @@ export class IntersectionObserver implements IntersectionObserverShape {
     this.flushScheduled = true
     setTimeout(() => {
       this.flushScheduled = false
+
       const entries = this.queue.splice(0)
+
       if (entries.length) {
         this.callback(entries, this)
       }

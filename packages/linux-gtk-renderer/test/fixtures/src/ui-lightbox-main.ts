@@ -25,7 +25,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -43,6 +45,7 @@ const findGtkText = (needle: string): any => {
     if (found || !w) {
       return
     }
+
     try {
       const text =
         typeof w.get_label === 'function'
@@ -56,10 +59,12 @@ const findGtkText = (needle: string): any => {
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -70,6 +75,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -81,14 +87,17 @@ const hasText = (id: string, text: string): boolean => {
           if (!node) {
             return false
           }
+
           if (JSON.stringify(node.props).includes(text)) {
             return true
           }
+
           for (const c of node.children ?? []) {
             if (probe(c)) {
               return true
             }
           }
+
           return false
         }
 
@@ -96,6 +105,7 @@ const hasText = (id: string, text: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -109,17 +119,21 @@ const findA11y = (name: string): any => {
     if (found || !w) {
       return
     }
+
     try {
       const nm = w.get_accessible_name?.() ?? w.get_name?.() ?? null
+
       if (nm === name) {
         found = w
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -131,16 +145,19 @@ const findPicture = (): any => {
     if (found || !w) {
       return
     }
+
     try {
       if (typeof w.get_paintable === 'function') {
         found = w
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -149,9 +166,11 @@ const findPicture = (): any => {
  *  zoom check sees the scale that compute_bounds(self) would hide. */
 const bounds = (w: any): { x: number; y: number; w: number; h: number } | null => {
   const [ok, rect] = w.compute_bounds(window)
+
   if (!ok) {
     return null
   }
+
   return { x: rect.origin.x, y: rect.origin.y, w: rect.size.width, h: rect.size.height }
 }
 
@@ -164,12 +183,14 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
@@ -180,12 +201,15 @@ const sendKey = async (key: string) => {
 const clickAt = async (widget: any) => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds for widget')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -194,7 +218,9 @@ const clickAt = async (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   await ready({ x: x + wx, y: y + wy })
 }
 
@@ -214,7 +240,9 @@ async function run() {
   check('lightbox presents on an overlay layer', !!findGtkText('1 of 3'))
   check('lightbox renders the media image', !!findPicture())
   check('lightbox renders the caption', !!findGtkText('Caption A'))
+
   const picB = bounds(findPicture()!)
+
   dbg.push('pic ' + JSON.stringify(picB))
   check('media image has visible bounds', !!picB && picB.w > 0 && picB.h > 0)
 
@@ -246,18 +274,23 @@ async function run() {
   await ready({ drag: { dx: -180, dy: 0 }, x: 320, y: 350 })
   await pump(300)
   check('swipe left advances the slide', !!findGtkText('2 of 3'))
+
   // Double-tap zoom is bound to the media image — land both presses inside
   // its actual bounds rather than the bare stage around it.
   const pic = findPicture()
   const picBox = pic && bounds(pic)
   const preZoom = picBox
+
   await ready(
     picBox
       ? { dbl: true, x: picBox.x + picBox.w / 2, y: picBox.y + picBox.h / 2 }
       : { dbl: true, x: 320, y: 350 },
   )
+
   await pump(350)
+
   const postZoom = bounds(findPicture()!)
+
   dbg.push('zoom ' + JSON.stringify(preZoom) + ' ' + JSON.stringify(postZoom))
   check('double-tap zooms the media', !!preZoom && !!postZoom && postZoom.w > preZoom.w * 1.5)
   await sendKey('Escape')
@@ -281,6 +314,7 @@ async function run() {
     'unmount returns popover chrome refcount',
     ((container as any).popoverChromeUsers?.() ?? 0) === 0,
   )
+
   check('teardown clears overlay layers', overlayChildren() === 0)
 
   GLib.file_set_contents('/tmp/gtk-lightbox-dbg.log', dbg.join('\n'))
@@ -288,6 +322,7 @@ async function run() {
     'GTK_LIGHTBOX ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 

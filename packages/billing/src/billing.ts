@@ -43,6 +43,7 @@ function getClient(): Payment {
       for (const resolve of readyWaiters) {
         resolve()
       }
+
       readyWaiters.clear()
     }
 
@@ -59,12 +60,15 @@ function getClient(): Payment {
 
         return
       }
+
       const mapped = (purchases ?? []).map(asPurchase)
+
       for (const listener of purchaseListeners) {
         listener(mapped)
       }
     }
   }
+
   return client
 }
 
@@ -74,10 +78,13 @@ export const billing: Billing = {
 
   connect(): Promise<void> {
     const c = getClient()
+
     if (ready) {
       return Promise.resolve()
     }
+
     const pending = new Promise<void>((resolve) => readyWaiters.add(resolve))
+
     c.connect()
     return pending
   },
@@ -98,6 +105,7 @@ export const billing: Billing = {
 
   async fetchProducts(productIds: string[], type: 'inapp' | 'subs' = 'inapp'): Promise<Product[]> {
     const products = await getClient().fetchProducts(productIds, type)
+
     return (products ?? []).map(asProduct)
   },
 
@@ -108,8 +116,10 @@ export const billing: Billing = {
     const c = getClient()
     const { type, ...purchaseOptions } = options ?? {}
     let native: NativeProduct | undefined
+
     if (typeof product === 'string') {
       const [fetched] = await c.fetchProducts([product], type ?? 'inapp')
+
       if (!fetched) {
         throw Object.assign(new Error(`billing.requestPurchase: product '${product}' not found`), {
           code: 'PRODUCT_UNAVAILABLE',
@@ -123,6 +133,7 @@ export const billing: Billing = {
         throw new Error('billing.requestPurchase: product lacks its native store reference')
       }
     }
+
     await c.purchaseProduct(native, purchaseOptions)
   },
 
@@ -138,14 +149,17 @@ export const billing: Billing = {
 
   async getAvailablePurchases(): Promise<Purchase[]> {
     const transactions = await getClient().fetchPurchases()
+
     return (transactions ?? []).map(asPurchase)
   },
 
   async finishTransaction(purchase: Purchase, options?: { consume?: boolean }): Promise<void> {
     const native = purchase.native as Transaction | undefined
+
     if (!native) {
       throw new Error('billing.finishTransaction: purchase lacks its native transaction')
     }
+
     await native.finish(options)
   },
 

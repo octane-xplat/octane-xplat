@@ -31,6 +31,7 @@ function fixture() {
       requests++
     }
   }
+
   const layout = {
     EXACTLY: 1,
     getMeasureSpecMode: (spec) => spec.mode,
@@ -38,6 +39,7 @@ function fixture() {
     makeMeasureSpec: (size, mode) => ({ size, mode }),
     toDevicePixels: (value) => value,
   }
+
   const context = vm.createContext({
     exports: {},
     // handleSrc uses instanceof Promise; deferred sources share this realm.
@@ -46,6 +48,7 @@ function fixture() {
       if (name === './index.common') {
         return { SVGView: View, srcProperty: { setNative } }
       }
+
       assert.equal(name, '@nativescript/core')
       return {
         File: class {},
@@ -61,11 +64,13 @@ function fixture() {
             registerExternalFileResolver() {},
             getFromString(value) {
               assert.equal(value, markup)
+
               const svg = {
                 setDocumentWidth() {},
                 setDocumentHeight() {},
                 getDocumentViewBox: () => ({ width: () => 24, height: () => 24 }),
               }
+
               return svg
             },
           },
@@ -98,8 +103,11 @@ function fixture() {
       },
     },
   })
+
   vm.runInContext(compiled, context)
+
   const view = new context.exports.SVGView()
+
   view.nativeViewProtected = view.createNativeView()
   return {
     view,
@@ -116,6 +124,7 @@ function fixture() {
         dirty = false
         measurements++
       }
+
       return view.nativeViewProtected.size
     },
   }
@@ -127,6 +136,7 @@ test('Android SVG remeasures when a delayed source completes after the first lay
   const pending = new Promise((resolve) => {
     complete = resolve
   })
+
   f.setSource(pending)
   assert.deepEqual(f.layout(), [54, 0])
   assert.equal(f.requests, 0)
@@ -145,6 +155,7 @@ test('Android SVG remeasures when a delayed source completes after the first lay
 
 test('Android SVG synchronous sources still request layout after assignment', async () => {
   const f = fixture()
+
   await f.view.handleSrc(markup)
   assert.deepEqual(f.layout(), [54, 54])
   assert.equal(f.requests, 1)
@@ -152,6 +163,7 @@ test('Android SVG synchronous sources still request layout after assignment', as
 
 test('Android SVG rejected sources clear the image and request another layout', async () => {
   const f = fixture()
+
   await f.view.handleSrc(markup)
   f.layout()
   // Clearing is represented by a null native assignment.

@@ -5,6 +5,7 @@ import type { ViewShotProps } from './props'
 
 export function ViewShot(props: ViewShotProps): unknown {
   const attach: (view: NSView | null) => void = useViewShot(props)
+
   return (
     <masonview ref={attach} id={props.id} className={props.className} style={props.style}>
       {props.children}

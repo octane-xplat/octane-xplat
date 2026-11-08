@@ -29,6 +29,7 @@ const renderedHosts = new WeakSet<HTMLElement>()
 function loadSdk(): Promise<any> {
   sdkPromise ??= new Promise((resolve, reject) => {
     const script = document.createElement('script')
+
     script.src = GIS_URL
     script.async = true
     script.onload = () => resolve((globalThis as any).google)
@@ -46,6 +47,7 @@ function loadSdk(): Promise<any> {
 function decodeJwt(token: string): Record<string, any> {
   try {
     const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+
     return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(part), (c) => c.charCodeAt(0))))
   } catch {
     return {}
@@ -54,6 +56,7 @@ function decodeJwt(token: string): Record<string, any> {
 
 function toCredential(response: any): AuthCredential {
   const claims = decodeJwt(response?.credential ?? '')
+
   return {
     provider: 'google',
     idToken: response?.credential ?? undefined,
@@ -74,6 +77,7 @@ function initialize(google: any, nonce?: string) {
     client_id: config.clientId,
     callback: (response: any) => {
       const flow = pendingFlow
+
       pendingFlow = null
       flow?.resolve({ status: 'success', credential: toCredential(response) })
     },
@@ -121,6 +125,7 @@ export async function renderGoogleButton(
 
   try {
     const google = await loadSdk()
+
     initialize(google)
     google.accounts.id.renderButton(host, {
       type: options.variant === 'icon' ? 'icon' : 'standard',
@@ -164,6 +169,7 @@ export const googleAuth: GoogleAuth = {
 
     try {
       const google = await loadSdk()
+
       return await new Promise<SignInResult>((resolve) => {
         // Park the resolver before initialize so a same-tick button
         // render sees the slot as owned.
@@ -191,6 +197,7 @@ export const googleAuth: GoogleAuth = {
     // flag is the web equivalent of the native signOut.
     try {
       const google = await loadSdk()
+
       google.accounts.id.disableAutoSelect()
     } catch {
       // Nothing to revoke — the credential is stateless.

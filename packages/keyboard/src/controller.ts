@@ -11,6 +11,7 @@ import type { KeyboardSnapshot, SoftwareKeyboardController } from './types'
 const snapshots = new WeakMap<KeyboardWindowState, KeyboardSnapshot>()
 const snapshot = (state: KeyboardWindowState): KeyboardSnapshot => {
   let value = snapshots.get(state)
+
   if (!value) {
     value = {
       inset: state.inset,
@@ -32,6 +33,7 @@ const snapshot = (state: KeyboardWindowState): KeyboardSnapshot => {
 
     snapshots.set(state, value)
   }
+
   return value
 }
 
@@ -39,6 +41,7 @@ const observeState = (host: object, listener: (state: KeyboardWindowState) => vo
   const deactivate = keyboardRuntime.activate()
   let active = true
   let off: () => void
+
   try {
     off = keyboardRuntime.subscribe(host, (state) => {
       if (active) {
@@ -50,10 +53,12 @@ const observeState = (host: object, listener: (state: KeyboardWindowState) => vo
     deactivate()
     throw error
   }
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     try {
       off()
@@ -88,36 +93,46 @@ const bindings = new WeakMap<object, Binding>()
 const apply = (host: object, binding: Binding) => {
   const measured = binding.state,
     options = binding.owners.at(-1)?.read()
+
   if (!measured || !options) {
     return
   }
+
   validateBindingOptions(options)
+
   const state = measured.bindingFrame
     ? { ...measured, currentFrame: measured.bindingFrame }
     : measured
+
   binding.viewport.update()
+
   const frame = state.currentFrame ?? state.targetFrame
   const current = keyboardBottomOverlap(state.windowRect, frame)
   const target = keyboardBottomOverlap(state.windowRect, state.targetFrame)
+
   if (target > 0) {
     binding.openExtent = target
   } else if (!binding.openExtent && current > 0) {
     binding.openExtent = current
   }
+
   const progress =
     state.source === 'native-frames'
       ? Math.min(1, Math.max(0, binding.openExtent ? current / binding.openExtent : 0))
       : state.inset > 0
         ? 1
         : 0
+
   const extra =
     (options.closedOffset ?? 0) +
     ((options.openOffset ?? 0) - (options.closedOffset ?? 0)) * progress
+
   const overlap = keyboardRuntime.overlap(host, state, binding.lease.offset)
   const budget = Math.max(
     0,
     Math.max(state.inset, current, overlap) - Math.max(0, options.consumedBottom ?? 0),
   )
+
   binding.lease.set(-Math.min(overlap, budget) - extra)
   if (current === 0 && target === 0) {
     binding.openExtent = 0
@@ -139,9 +154,11 @@ export const KeyboardController: SoftwareKeyboardController = {
   onMove: observe,
   subscribe(host, listener) {
     let previous: KeyboardSnapshot | undefined
+
     return observe(host, (state) => {
       const rect = state.targetFrame,
         before = previous?.targetFrame
+
       const changed =
         !previous ||
         state.source !== previous.source ||
@@ -157,6 +174,7 @@ export const KeyboardController: SoftwareKeyboardController = {
         state.capabilities.floating !== previous.capabilities.floating ||
         (state.phase !== 'move' &&
           (state.phase !== previous.phase || state.transitionId !== previous.transitionId))
+
       previous = state
       if (changed) {
         listener(state)
@@ -173,14 +191,19 @@ export function bindKeyboardHost(
   const read = typeof options === 'function' ? options : () => options
   const initial = read()
   const inert = () => Object.assign(() => {}, { update() {} })
+
   if (initial.enabled === false) {
     return inert()
   }
+
   validateBindingOptions(initial)
+
   let binding = bindings.get(host)
   const owned = { read }
+
   if (!binding) {
     const property = keyboardRuntime.property(host)
+
     if (!property) {
       return inert()
     }
@@ -194,7 +217,9 @@ export function bindKeyboardHost(
     }
 
     bindings.set(host, binding)
+
     const entry = binding
+
     try {
       entry.off = observeState(host, (state) => {
         entry.state = state
@@ -210,18 +235,21 @@ export function bindKeyboardHost(
     binding.owners.push(owned)
     apply(host, binding)
   }
+
   const entry = binding
   let active = true
   const release = () => {
     if (!active) {
       return
     }
+
     active = false
     entry.owners.splice(entry.owners.indexOf(owned), 1)
     if (entry.owners.length) {
       apply(host, entry)
       return
     }
+
     bindings.delete(host)
     try {
       entry.off()
@@ -233,6 +261,7 @@ export function bindKeyboardHost(
       }
     }
   }
+
   return Object.assign(release, {
     update() {
       if (active) {

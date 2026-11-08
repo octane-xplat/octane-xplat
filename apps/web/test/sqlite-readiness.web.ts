@@ -1,6 +1,7 @@
 import { deleteDatabase, openDatabase } from '@octane-xplat/sqlite'
 
 const output = document.createElement('output')
+
 output.id = 'sqlite-readiness-result'
 document.body.append(output)
 
@@ -20,6 +21,7 @@ const expectNames = (actual: { name: string }[], expected: string[], label: stri
 const run = async () => {
   const url = new URL(location.href)
   const caseId = url.searchParams.get('case')
+
   assert(caseId, 'missing readiness case id')
 
   const firstName = `xplat-sqlite-readiness-${caseId}-first.db`
@@ -54,6 +56,7 @@ const run = async () => {
     const [first, second] = await Promise.all([openDatabase(firstName), openDatabase(secondName)])
 
     const persistent = first.persistent
+
     await first.execute('CREATE TABLE records(name TEXT NOT NULL)')
     await first.execute('INSERT INTO records(name) VALUES (?)', ['first'])
 
@@ -73,6 +76,7 @@ const run = async () => {
     )
 
     let rejectedInvalidSql = false
+
     try {
       await first.execute('THIS IS NOT SQL')
     } catch {
@@ -87,6 +91,7 @@ const run = async () => {
     )
 
     let rolledBack = false
+
     try {
       await first.transaction(async (db) => {
         await db.execute('INSERT INTO records(name) VALUES (?)', ['rolled-back'])
@@ -125,7 +130,9 @@ const run = async () => {
     )
 
     await started
+
     const outside = first.execute('INSERT INTO records(name) VALUES (?)', ['outside'])
+
     finish()
     assert(await rejected, 'isolated transaction must reject')
     await outside
@@ -148,6 +155,7 @@ const run = async () => {
     assert(eachCount === 1 && visited[0] === 'first', 'each must visit selected rows')
 
     const versionBefore = await first.getUserVersion()
+
     await first.setUserVersion(7)
     assert(
       versionBefore === 0 && (await first.getUserVersion()) === 7,
@@ -166,10 +174,13 @@ const run = async () => {
 
     const deleteName = `xplat-sqlite-readiness-${caseId}-delete.db`
     const deleted = await openDatabase(deleteName)
+
     assert(deleted.isOpen, 'new database handle reports isOpen=true')
     await deleteDatabase(deleteName)
     assert(!deleted.isOpen, 'deleteDatabase invalidates matching open handles')
+
     let rejectedDeletedHandle = false
+
     try {
       await deleted.select('SELECT 1')
     } catch {
@@ -184,6 +195,7 @@ const run = async () => {
 
   const wasPersistent = sessionStorage.getItem(`${storageKey}:persistent`) === 'true'
   const reopened = await openDatabase(firstName)
+
   assert(
     reopened.persistent === wasPersistent,
     'persistence capability must remain stable across reload',

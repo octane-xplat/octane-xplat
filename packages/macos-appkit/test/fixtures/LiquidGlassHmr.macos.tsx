@@ -1,7 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useSignal$ } from 'octane/signals/client'
+
 export default function App() {
   const count$ = useSignal$(0)
+
   return (
     <masonview
       style={{

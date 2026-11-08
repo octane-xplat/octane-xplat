@@ -9,6 +9,7 @@ function check(value, message) {
 
 function pump(seconds) {
   var deadline = Date.now() + seconds * 1000
+
   while (Date.now() < deadline) {
     NSRunLoop.currentRunLoop.runUntilDate(NSDate.dateWithTimeIntervalSinceNow(0.01))
   }
@@ -16,6 +17,7 @@ function pump(seconds) {
 
 function waitFor(predicate, message, seconds) {
   var deadline = Date.now() + seconds * 1000
+
   while (Date.now() < deadline) {
     if (predicate()) {
       return
@@ -32,6 +34,7 @@ var adapter = XplatLottieAdapter.new()
 var errors = []
 var loadedDurations = []
 var ended = 0
+
 adapter.onLoaded = function (duration) {
   loadedDurations.push(duration)
 }
@@ -52,9 +55,12 @@ var hiddenWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 )
 
 var hostView = hiddenWindow.contentView
+
 adapter.mountIn(hostView)
 hostView.layoutSubtreeIfNeeded()
+
 var view = adapter.nativeView
+
 check(view instanceof NSView, 'native view was not exposed')
 check(view.superview === hostView, 'adapter did not mount its native view in the host')
 check(view.window === hiddenWindow && !hiddenWindow.visible, 'hidden window attachment failed')
@@ -138,6 +144,7 @@ waitFor(
 )
 
 var pausedProgress = adapter.progress
+
 adapter.pause()
 pump(0.1)
 check(

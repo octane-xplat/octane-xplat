@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { AppleHost } from './photos-runtime-types'
+
 export const appleHost: AppleHost = {
   runtime: () => null,
   observer() {

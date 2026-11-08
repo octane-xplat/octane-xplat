@@ -11,6 +11,7 @@ import { spawnSync } from 'node:child_process'
 
 const root = fileURLToPath(new URL('../tests/fixtures/routing-contract/', import.meta.url))
 const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
 for (const args of [
   ['--filter', '@octane-xplat/ui', 'typegen'],
   ['--filter', '@octane-xplat/cli', 'build'],
@@ -26,6 +27,7 @@ for (const args of [
 }
 
 const { generateRoutes } = await import('../../../packages/cli/dist/commands/routes.js')
+
 await generateRoutes(root, 'app', 'routes.gen', { bake: false })
 for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
   const checked = spawnSync(
@@ -51,6 +53,7 @@ for (const project of ['tsconfig.json', 'tsconfig.source.json']) {
 
 // Optional retained production artifact for a second engine/desktop host.
 const artifactBase = process.env.XPLAT_ROUTING_ARTIFACT_DIR
+
 if (artifactBase) {
   await mkdir(resolve(artifactBase), { recursive: true })
 }
@@ -81,7 +84,9 @@ try {
   await build(configuration)
   server = await preview({ ...configuration, preview: { host: '127.0.0.1', port: 0 } })
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(server.resolvedUrls.local[0])
   await page.waitForFunction(() => !!window.__routing)
@@ -153,6 +158,7 @@ try {
     'modal owns focus and makes the background inert',
     await page.evaluate(() => {
       const panel = document.querySelector('[role="dialog"]')
+
       return {
         focused: document.activeElement === panel,
         modal: panel?.getAttribute('aria-modal'),
@@ -224,7 +230,9 @@ try {
           length: history.length,
           text: button?.textContent,
         }
+
         const result = await window.__routing.fail(action)
+
         return {
           result,
           same: button === document.getElementById('item'),
@@ -248,6 +256,7 @@ try {
   }
 
   const cold = await browser.newPage()
+
   cold.on('pageerror', (error) => errors.push(error.message))
   await cold.goto(new URL('items/cold?tab=activity', server.resolvedUrls.local[0]).href)
   await cold.waitForFunction(() => document.getElementById('item')?.textContent === 'cold:cold1:0')
@@ -273,7 +282,9 @@ try {
   )
 
   await cold.close()
+
   const moved = await browser.newPage()
+
   moved.on('pageerror', (error) => errors.push(error.message))
   await moved.goto(new URL('moved', server.resolvedUrls.local[0]).href)
   await moved.waitForFunction(() => document.getElementById('item')?.textContent === 'coat:coat1:0')
@@ -297,7 +308,9 @@ try {
   )
 
   await moved.close()
+
   const tabbed = await browser.newPage()
+
   tabbed.on('pageerror', (error) => errors.push(error.message))
   await tabbed.goto(server.resolvedUrls.local[0])
   await tabbed.waitForFunction(() => !!window.__routing)
@@ -322,6 +335,7 @@ try {
       const pushed = await window.__routing.push('root')
       const retainedWhileCovered = document.getElementById('tab-count') === counter
       const rootBack = await window.__routing.back()
+
       return {
         namedBack,
         pushed,
@@ -344,7 +358,9 @@ try {
   )
 
   await tabbed.close()
+
   const canonical = await browser.newPage()
+
   canonical.on('pageerror', (error) => errors.push(error.message))
   await canonical.goto(server.resolvedUrls.local[0])
   await canonical.waitForFunction(() => !!window.__routing)
@@ -406,7 +422,9 @@ try {
   )
 
   await canonical.close()
+
   const animated = await browser.newPage()
+
   animated.on('pageerror', (error) => errors.push(error.message))
   await animated.goto(server.resolvedUrls.local[0])
   await animated.waitForFunction(() => !!window.__routing)
@@ -418,11 +436,13 @@ try {
 
   await animated.evaluate(() => {
     const start = document.startViewTransition.bind(document)
+
     window.__motionSnapshots = []
     window.__motionTypes = []
     document.startViewTransition = (update) => {
       const transition = start(async () => {
         const before = document.getElementById('item')?.textContent
+
         await update()
         window.__motionSnapshots.push({
           before,
@@ -430,10 +450,12 @@ try {
           path: location.pathname,
         })
       })
+
       void transition.ready.then(
         () => window.__motionTypes.push([...transition.types]),
         () => {},
       )
+
       return transition
     }
   })
@@ -521,17 +543,23 @@ try {
     'overlapping real effects interrupt animation without undoing either route commit',
     await animated.evaluate(async () => {
       const style = document.createElement('style')
+
       style.textContent =
         '::view-transition-old(root), ::view-transition-new(root) { animation-duration: 10s; }'
+
       document.head.append(style)
+
       const first = await window.__routing.motion('overlap-one', 'detail')
       const firstFinished = window.__routing.motionFinished()
       const second = await window.__routing.motion('overlap-two', 'detail')
       const previous = await firstFinished
+
       for (const animation of document.getAnimations()) {
         animation.finish()
       }
+
       const current = await window.__routing.motionFinished()
+
       style.remove()
       return {
         first: first.status,
@@ -551,6 +579,7 @@ try {
   )
 
   const motionStarts = await animated.evaluate(() => window.__motionSnapshots.length)
+
   await animated.emulateMedia({ reducedMotion: 'reduce' })
   await animated.evaluate(() => window.__routing.motion('reduced', 'detail'))
   check(
@@ -586,6 +615,7 @@ try {
   )
 
   const checkedLink = page.getByRole('link', { name: 'Open checked runtime', exact: true })
+
   check(
     'checked runtime links keep a real canonical href',
     await checkedLink.getAttribute('href'),
@@ -634,10 +664,14 @@ try {
 
   await page.evaluate(() => window.__routing.motion('filters', 'none'))
   await page.waitForSelector('#search-activity')
+
   const beforeSearch = await page.evaluate(() => window.__routing.searchState)
+
   await page.locator('#search-activity').click()
   await page.waitForFunction(() => location.search === '?tab=activity')
+
   const changedSearch = await page.evaluate(() => window.__routing.searchState)
+
   check('scoped search editing replaces history and reruns its loader', changedSearch, {
     ...beforeSearch,
     href: '/items/filters?tab=activity',
@@ -671,7 +705,9 @@ try {
 
   await page.evaluate(() => window.__routing.captureSearchUpdate())
   await page.evaluate(() => window.__routing.motion('another-record', 'none'))
+
   const beforeStaleSearch = await page.evaluate(() => window.__routing.searchState)
+
   check(
     'a stale search callback cannot edit another record of the same pattern',
     await page.evaluate(() => window.__routing.staleSearchUpdate()),
@@ -699,9 +735,13 @@ try {
     'overflow',
   ]) {
     await page.evaluate((kind) => window.__routing.showChrome(kind), kind)
+
     const host = page.locator('#navigation-widgets')
+
     await host.waitFor()
+
     const beforeLoads = await page.evaluate(() => window.__routing.loads)
+
     if (['dropdown', 'context', 'top-menu', 'mega-menu', 'overflow'].includes(kind)) {
       await host
         .getByRole('button', {
@@ -717,6 +757,7 @@ try {
     }
 
     const link = page.locator(`a[href="/items/chrome-${kind}?tab=activity"]`).first()
+
     await link.waitFor()
     if (kind === 'top-menu' || kind === 'mega-menu') {
       await link.focus()
@@ -802,10 +843,13 @@ try {
   )
 
   const coldFailure = await browser.newPage()
+
   coldFailure.on('pageerror', (error) => errors.push(error.message))
   await coldFailure.goto(new URL('/feedback/initial', server.resolvedUrls.local[0]).href)
   await coldFailure.locator('#feedback-status').filter({ hasText: 'failed:loader' }).waitFor()
+
   const failureHistory = await coldFailure.evaluate(() => history.length)
+
   await coldFailure.evaluate(() => window.__routing.allowFeedback())
   await coldFailure.locator('#feedback-retry').click()
   await coldFailure.waitForFunction(() => window.__routing.navigationFeedback.status === 'idle')
@@ -935,6 +979,7 @@ try {
   )
 
   const modalHistory = await browser.newPage()
+
   modalHistory.on('pageerror', (error) => errors.push(error.message))
   await modalHistory.goto(server.resolvedUrls.local[0])
   await modalHistory.waitForFunction(() => !!window.__routing)
@@ -998,7 +1043,9 @@ try {
   }
 
   await modalHistory.close()
+
   const focus = await browser.newPage()
+
   focus.on('pageerror', (error) => errors.push(error.message))
   await focus.goto(server.resolvedUrls.local[0])
   await focus.waitForFunction(() => !!window.__routing)
@@ -1045,7 +1092,9 @@ try {
   )
 
   await focus.close()
+
   const effects = await browser.newPage()
+
   effects.on('pageerror', (error) => errors.push(error.message))
   await effects.goto(server.resolvedUrls.local[0])
   await effects.waitForFunction(() => !!window.__routing)
@@ -1134,6 +1183,7 @@ try {
     'a decoded fragment receives focus and native browser scrolling',
     await effects.evaluate(() => {
       const target = document.getElementById('part one')
+
       return {
         focused: document.activeElement === target,
         aligned: Math.abs(target.getBoundingClientRect().top) < 1,
@@ -1144,6 +1194,7 @@ try {
   )
 
   const beforeModalScroll = await effects.evaluate(() => scrollY)
+
   await effects.evaluate(() => window.__routing.modal())
   check(
     'modal presentation preserves the background document position',
@@ -1193,6 +1244,7 @@ try {
   await page.evaluate(() => window.__routing.motion('new-owner', 'none'))
   await page.getByRole('button', { name: 'Increment', exact: true }).click()
   await page.evaluate(() => window.__routing.retainButton())
+
   const beforeOwnerEnd = await page.evaluate(() => ({
     loads: window.__routing.loads,
     length: history.length,
@@ -1232,6 +1284,7 @@ try {
   })
 
   await page.getByRole('button', { name: 'Increment', exact: true }).click()
+
   const beforeConfirmation = await page.evaluate(() => ({
     loads: window.__routing.loads,
     contexts: window.__routing.contextReads,
@@ -1315,6 +1368,7 @@ try {
   )
 
   await page.evaluate(() => window.__routing.setDirtyEntry('confirm-target'))
+
   const beforeBlockedBack = await page.evaluate(() => ({
     loads: window.__routing.loads,
     contexts: window.__routing.contextReads,
@@ -1402,6 +1456,7 @@ try {
   await page.locator('#confirmation-status').filter({ hasText: 'blocked' }).waitFor()
   await page.getByRole('button', { name: 'Approve and clear edits', exact: true }).click()
   await page.locator('#confirmation-status').filter({ hasText: 'proceeding' }).waitFor()
+
   const clearedConditionPhase = await page.evaluate(() => ({
     confirmation: document.getElementById('confirmation-status')?.textContent,
     navigation: window.__routing.navigationFeedback.status,
@@ -1409,6 +1464,7 @@ try {
   }))
 
   const clearedConditionResult = await page.evaluate(() => window.__routing.releaseFeedback())
+
   await page.waitForFunction(
     () =>
       location.pathname === '/feedback/recover' &&
@@ -1430,6 +1486,7 @@ try {
   )
 
   const publicPanes = await page.evaluate(() => window.__routing.qualifyPanes())
+
   check(
     'public panes preserve entry state, providers and owned independent flows',
     publicPanes.checks.length,

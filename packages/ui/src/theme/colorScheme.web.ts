@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from 'octane'
 
 export type { ColorScheme } from '../props'
+
 import type { ColorScheme } from '../props'
 
 type HostTransport = {
@@ -31,6 +32,7 @@ export function getColorScheme(): ColorScheme {
 
 export function subscribeSystemScheme(cb: () => void): () => void {
   const transport = hostTransport()
+
   if (!transport) {
     // Non-DOM/test hosts have no matchMedia — nothing to subscribe to;
     // getSystemScheme's guard already reports light there.
@@ -39,6 +41,7 @@ export function subscribeSystemScheme(cb: () => void): () => void {
     }
 
     const mq = matchMedia('(prefers-color-scheme: dark)')
+
     mq.addEventListener('change', cb)
     return () => mq.removeEventListener('change', cb)
   }
@@ -46,6 +49,7 @@ export function subscribeSystemScheme(cb: () => void): () => void {
   const onTransportMessage = (message: string) => {
     try {
       const parsed: unknown = JSON.parse(message)
+
       if (
         typeof parsed === 'object' &&
         parsed !== null &&
@@ -68,6 +72,7 @@ export function subscribeSystemScheme(cb: () => void): () => void {
   }
 
   const offTransport = transport.listen(onTransportMessage)
+
   window.addEventListener('xplat:appearance.change', onCompatEvent)
   return () => {
     offTransport()

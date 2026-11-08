@@ -38,12 +38,14 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
   const views = collect(list)
   const rows = views.flatMap((view) => {
     const match = /^(?:vlist-bench-row-|row-r)(\d+)$/.exec(String(view.id ?? ''))
+
     if (!match) {
       return []
     }
 
     // The measured row includes its separator; item-only boxes leave intentional gaps.
     let row = view
+
     for (let parent = view.parent; parent && parent !== list; parent = parent.parent) {
       if (
         String(parent.className ?? '')
@@ -57,6 +59,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 
     const top = Number(row.getLocationOnScreen?.()?.y ?? Number.NaN) - listY
     const height = Number(row.getActualSize?.()?.height ?? 0)
+
     if (!Number.isFinite(top) || height <= 0) {
       return []
     }
@@ -71,6 +74,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
 
     const top = Number(view.getLocationOnScreen?.()?.y ?? Number.NaN) - listY
     const height = Number(view.getActualSize?.()?.height ?? 0)
+
     return Number.isFinite(top) && height > 0 ? [{ top, bottom: top + height }] : []
   })
 
@@ -91,6 +95,7 @@ function readSnapshot(list: any): VirtualListBenchSnapshot {
   const mountedCellIds = hosts.map((view) => {
     const nativeHost = view.nativeViewProtected ?? view
     let id = hostIds.get(nativeHost)
+
     if (id === undefined) {
       id = nextHostId++
       hostIds.set(nativeHost, id)
@@ -134,6 +139,7 @@ export async function runVirtualListInputBenchmark(
     root?.getViewById?.(listId) ?? findInRootLayouts(listId) ?? appRoot?.getViewById?.(listId)
 
   const frames = observeAndroidFrames()
+
   try {
     const result = await runVirtualListInputTrace(
       {

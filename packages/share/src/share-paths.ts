@@ -28,6 +28,7 @@ export function normalizeFilePath(path: unknown): ShareFilePath {
   }
 
   let local = path
+
   if (local.startsWith('file://')) {
     local = local.slice('file://'.length)
     try {
@@ -81,6 +82,7 @@ const MIME_BY_EXTENSION: Record<string, string> = {
  *  fallback. */
 export function mimeTypeFromName(name: string): string | null {
   const dot = name.lastIndexOf('.')
+
   if (dot < 0 || dot === name.length - 1) {
     return null
   }

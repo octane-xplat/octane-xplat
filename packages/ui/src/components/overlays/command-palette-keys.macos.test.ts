@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { bindCommandPaletteKeys } from './command-palette-keys.macos'
 
 afterEach(() => vi.unstubAllGlobals())
+
 function host() {
   let monitor!: (event: any) => any
   let changed!: () => void
@@ -9,6 +10,7 @@ function host() {
   const editor = { hasMarkedText: false }
   const owner = { firstResponder: editor, makeFirstResponder: vi.fn() }
   const input = { window: owner, stringValue: 'new query', currentEditor: () => editor }
+
   vi.stubGlobal('NSEvent', {
     addLocalMonitorForEventsMatchingMaskHandler: (_: unknown, handler: typeof monitor) => {
       monitor = handler
@@ -41,6 +43,7 @@ function host() {
     removed,
     key: (code: number, eventOwner = owner) => {
       const event = { keyCode: code, window: eventOwner }
+
       return monitor(event)
     },
     changed: () => changed(),

@@ -7,7 +7,9 @@ import type { UseSpeechRecognitionReturn } from '../props'
 
 it('keeps a sized icon-only button while listening and respects unavailable capability', () => {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
   const toggle = vi.fn()
   const dictation: UseSpeechRecognitionReturn = {

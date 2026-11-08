@@ -30,6 +30,7 @@ const aliases: Record<string, string> = {
 function keyCaps(keys: string): string[] {
   return keys.split('+').map((k) => {
     const key = k.trim().toLowerCase()
+
     return aliases[key] ?? k.trim().toUpperCase()
   })
 }

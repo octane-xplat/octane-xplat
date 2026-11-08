@@ -8,12 +8,14 @@ import { applyEscapeProps } from './escape-props'
 import { createAppKitFocusScopeManager } from '../../internal/accessibility/focus-scope-state.macos'
 
 const scopes = createAppKitFocusScopeManager()
+
 /** @internal Current containment root; does not activate or move focus. */
 export function appKitFocusBoundary(window: NSWindow): NSView | undefined {
   return scopes.boundary(window)
 }
 
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
+
 hot?.dispose(() => scopes.dispose())
 
 /** Report native bridge capability, separately from OS input qualification. */
@@ -24,6 +26,7 @@ export function getFocusScopeCapabilities(): FocusScopeCapabilities {
 const warnedFlags = new Set<string>()
 function warnUnavailableFlags(props: FocusScopeProps) {
   const capabilities = scopes.capabilities()
+
   for (const flag of ['contain', 'autoFocus', 'restoreFocus'] as const) {
     if (props[flag] && !capabilities[flag] && !warnedFlags.has(flag)) {
       warnedFlags.add(flag)
@@ -39,16 +42,22 @@ function warnUnavailableFlags(props: FocusScopeProps) {
 export function FocusScope(props: FocusScopeProps): unknown @{
   const root = useRef<NSView | null>(null)
   const live = useRef(props)
+
   live.current = props
+
   const forwardedRef = useMemo(() => refList<object>(root, props.ref), [props.ref])
+
   useEffect(() => {
     const view = root.current
+
     if (!view) {
       return
     }
 
     applyEscapeProps(view, live.current)
+
     const release = scopes.bind(view, () => live.current)
+
     warnUnavailableFlags(live.current)
     return release
   }, [])

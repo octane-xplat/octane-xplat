@@ -24,6 +24,7 @@ const paritySweepComplete = new Promise<void>((resolve) => {
 })
 
 const g = globalThis as any
+
 g.__xplatParitySweepComplete = paritySweepComplete
 
 // Native layout settles in passes — leaf ResizeObserver-equivalents and
@@ -31,11 +32,13 @@ g.__xplatParitySweepComplete = paritySweepComplete
 // back is the settled signal; a single nonzero probe catches stale sizes.
 function stableDump() {
   const dump = (globalThis as any).__xplatParity?.()
+
   if (!dump) {
     return null
   }
 
   const json = JSON.stringify(dump)
+
   if (json === lastDump) {
     return dump
   }
@@ -69,11 +72,13 @@ export function runParity() {
     () => {
       const dump = stableDump()
       const cells = Object.keys(dump?.cells ?? {}).length
+
       if (!dump) {
         console.log('[parity] FAIL — stage never produced a dump')
       } else {
         try {
           const file = knownFolders.documents().getFile('parity-report.json')
+
           file.writeTextSync(JSON.stringify(dump))
           console.log('[parity] dump ' + cells + ' fixtures → ' + file.path)
         } catch (e) {

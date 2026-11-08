@@ -19,6 +19,7 @@ function SurfaceContent(props: {
   committed: () => void
 }) {
   const Component = props.component
+
   useLayoutEffect(() => {
     props.committed()
   })
@@ -38,10 +39,13 @@ export function usePresentation(
   const surface = useRef<any>(null)
   const latest = useRef(options)
   const dark = useThemeScheme() === 'dark'
+
   latest.current = { isOpen, component, panelProps, options, dark }
+
   const update = () => {
     const current = latest.current
     const resolved = current
+
     if (!resolved.isOpen) {
       surface.current?.close()
       surface.current = null
@@ -59,6 +63,7 @@ export function usePresentation(
       surface.current.update(next)
     } else {
       const present = appKitHost()?.presentSurface
+
       if (!present) {
         throw new Error('AppKit host has no shared surface presenter')
       }
@@ -81,6 +86,7 @@ export function usePresentation(
         onDismiss: () => {
           const current = latest.current
           const options = current.options
+
           options.onDismiss?.()
         },
       })
@@ -130,10 +136,13 @@ export function useDetachedPresentation(
   const surface = useRef<any>(null)
   const latest = useRef(options)
   const dark = useThemeScheme() === 'dark'
+
   latest.current = { isOpen, component, panelProps, options, dark, registry }
+
   const update = () => {
     const current = latest.current
     const resolved = current.registry?.resolve() ?? current
+
     if (!resolved.isOpen) {
       surface.current?.close()
       surface.current = null
@@ -151,6 +160,7 @@ export function useDetachedPresentation(
       surface.current.update(next)
     } else {
       const present = appKitHost()?.presentSurface
+
       if (!present) {
         throw new Error('AppKit host has no shared surface presenter')
       }
@@ -161,6 +171,7 @@ export function useDetachedPresentation(
         onDismiss: () => {
           const current = latest.current
           const options = current.registry?.resolve().options ?? current.options
+
           options.onDismiss?.()
         },
       })
@@ -174,6 +185,7 @@ export function useDetachedPresentation(
     }
 
     let mounted = true
+
     queueMicrotask(() => {
       if (mounted) {
         update()

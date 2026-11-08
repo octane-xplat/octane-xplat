@@ -40,14 +40,19 @@ try {
   // Pack the package so the test exercises the published layout — including
   // the platforms/macos leaf the tarball must ship.
   const extracted = join(directory, 'extracted')
+
   mkdirSync(extracted)
   run('bun', ['pm', 'pack', '--destination', directory], { cwd: root })
+
   const tarball = readdirSync(directory).find((name) => name.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(directory, tarball), '-C', extracted])
+
   const packed = join(extracted, 'package')
 
   // Bundle a consumer that imports the packed entry.
   const app = join(directory, 'app')
+
   mkdirSync(join(app, 'node_modules/@octane-xplat'), { recursive: true })
   cpSync(packed, join(app, 'node_modules/@octane-xplat/desktop-webview'), { recursive: true })
   symlinkSync(
@@ -198,6 +203,7 @@ setTimeout(finalizeRound, 0)
 
   const artifact = await buildMacOSNative(app)
   const bootstrap = join(app, 'bootstrap.js')
+
   // The bootstrap must dlopen the leaf dylibs — raw shim.js alone leaves the
   // metadata-declared leaf classes without their native methods.
   await writeNativeBootstrap(artifact, bootstrap)
@@ -213,10 +219,14 @@ setTimeout(finalizeRound, 0)
       ],
       { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
     )
+
     let text = ''
+
     child.stdout.on('data', (chunk) => (text += chunk))
     child.stderr.on('data', (chunk) => (text += chunk))
+
     const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+
     child.once('error', reject)
     child.once('close', (code, signal) => {
       clearTimeout(timeout)

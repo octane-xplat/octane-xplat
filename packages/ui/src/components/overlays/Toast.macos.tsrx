@@ -11,7 +11,9 @@ import { toastTiming } from './toast-store'
 export function Toast(props: ToastProps): unknown @{
   const timing = toastTiming(props)
   const onDismiss = useRef(props.onDismiss)
+
   onDismiss.current = props.onDismiss
+
   const view = useRef<any>(null)
   const dismissed = useRef(false)
   const dismiss = useCallback((reason: 'auto' | 'manual') => {
@@ -34,6 +36,7 @@ export function Toast(props: ToastProps): unknown @{
     let timer: ReturnType<typeof setTimeout>
     const focused = () => {
       const responder = view.current?.window?.firstResponder
+
       for (const start of [responder, responder?.delegate]) {
         for (let current = start; current; current = current.superview) {
           if (current === view.current || current.isEqual?.(view.current)) {
@@ -48,6 +51,7 @@ export function Toast(props: ToastProps): unknown @{
     let paused = false
     const tick = () => {
       const now = Date.now()
+
       if (!paused) {
         remaining -= now - last
       }

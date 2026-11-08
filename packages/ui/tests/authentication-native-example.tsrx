@@ -88,6 +88,7 @@ const Fixture = createContext<FixtureState | null>(null)
 const Provider: any = Fixture
 function useFixture(): FixtureState {
   const fixture = useContext(Fixture)
+
   if (!fixture) {
     throw new Error('Missing native auth fixture')
   }
@@ -113,7 +114,9 @@ function Login(props: RouteScreenProps<typeof login>): any {
   actions.signIn = () => {
     const attempt = ++lifetime.attempt
     const authority = fixture.authority()
+
     setMessage('pending')
+
     let index = -1
     const sdk = new Promise<SignInResult>((resolve) => {
       index = fixture.pending(resolve)
@@ -162,6 +165,7 @@ function Login(props: RouteScreenProps<typeof login>): any {
 function Private(props: RouteScreenProps<typeof privateItem>): any {
   const fixture = useFixture()
   const entry = useMemo<PrivateEntry>(() => ({ data: props.data, view: null }), [])
+
   entry.data = props.data
   useLayoutEffect(() => {
     fixture.entries.add(entry)
@@ -189,6 +193,7 @@ const catalog = defineRoutes([
 
 function Owner(props: { authority: number; returnTo?: string }): any {
   const fixture = useFixture()
+
   useLayoutEffect(() => {
     fixture.ownerReady = props.authority
   }, [props.authority])
@@ -207,6 +212,7 @@ function Owner(props: { authority: number; returnTo?: string }): any {
 
 export function NativeAuthenticationExample(props: { fixture: FixtureState }): any {
   const [state, setState] = useState<{ version: number; returnTo?: string }>({ version: 0 })
+
   props.fixture.bindOwner((version, returnTo) => setState({ version, returnTo }))
   return (
     <Provider value={props.fixture}>
@@ -230,8 +236,11 @@ function createFixture(host: ClientRouterHost): FixtureState {
       items: {
         load(account: string, id: string) {
           const data = { account, id }
+
           loaded.push(data)
+
           const gate = held
+
           if (gate) {
             held = undefined
             gate.state.started = true
@@ -275,6 +284,7 @@ function createFixture(host: ClientRouterHost): FixtureState {
       })
 
       const state = { started: false, release }
+
       held = { state, promise }
       return state
     },
@@ -321,6 +331,7 @@ export async function qualifyNativeAuthentication(options: {
 
   try {
     await wait('initial owner mounted', () => fixture.ownerReady === 0)
+
     const direct = await drive(
       fixture.navigation.navigateUrl('/auth-private/coat', {
         replace: true,
@@ -333,7 +344,9 @@ export async function qualifyNativeAuthentication(options: {
     )
 
     await wait('login rendered', () => !!currentLogin())
+
     const first = currentLogin().signIn()
+
     fixture.complete(first, { kind: 'expired' })
     await wait('expired sign-in rendered', () => currentLogin()?.status === 'expired')
     check(
@@ -342,6 +355,7 @@ export async function qualifyNativeAuthentication(options: {
     )
 
     const second = currentLogin().signIn()
+
     fixture.complete(second, { kind: 'success', account: { id: 'account-a' } })
     await wait('replacement owner completes return', () => fixture.returned.at(-1) === 'committed')
     check(
@@ -352,7 +366,9 @@ export async function qualifyNativeAuthentication(options: {
     )
 
     check('ended login scope is released', fixture.logins.size === 0)
+
     const coat = [...fixture.entries][0]
+
     check('private view rendered', !!coat?.view && coat.data.account === 'account-a')
     check(
       'warm private URL commits',
@@ -399,8 +415,10 @@ export async function qualifyNativeAuthentication(options: {
     )
 
     await wait('modal login rendered', () => options.modals() === 1 && !!currentLogin())
+
     const modalLogin = currentLogin()
     const late = modalLogin.signIn()
+
     await drive(modalLogin.cancel())
     await wait(
       'modal cancellation closes its owner',
@@ -425,9 +443,11 @@ export async function qualifyNativeAuthentication(options: {
     )
 
     await wait('next modal rendered', () => options.modals() === 1 && !!currentLogin())
+
     const accepted = currentLogin()
     const successful = accepted.signIn()
     const returned = fixture.returned.length
+
     fixture.complete(successful, { kind: 'success', account: { id: 'account-a' } })
     await wait(
       'modal return completes in replacement owner',
@@ -449,9 +469,11 @@ export async function qualifyNativeAuthentication(options: {
     await replaceOwner({ id: 'account-a' })
     await drive(fixture.navigation.push({ to: '/auth-login' }))
     await wait('root login rendered again', () => !!currentLogin())
+
     const retiring = currentLogin().navigation
     const held = fixture.holdNextLoad()
     const returning = retiring.navigateUrl('/auth-private/coat', { replace: true })
+
     await wait('retiring return starts loading', () => held.started)
     await replaceOwner({ id: 'account-b' })
     check(
@@ -473,6 +495,7 @@ export async function qualifyNativeAuthentication(options: {
 
     await replaceOwner(null)
     await drive(fixture.navigation.push({ to: '/auth-login' }))
+
     const invalid = await drive(
       fixture.navigation.navigateUrl('/auth-private/%ZZ', { replace: true }),
     )

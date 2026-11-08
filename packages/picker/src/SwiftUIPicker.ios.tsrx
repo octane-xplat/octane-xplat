@@ -65,6 +65,7 @@ export function SwiftUIPicker(props: SwiftUIPickerProps): unknown @{
     }}
     onSwiftUIEvent={(event: any) => {
       const nextSelection = event.data?.value
+
       if (typeof nextSelection === 'string') {
         update(nextSelection)
       }

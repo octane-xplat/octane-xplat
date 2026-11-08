@@ -51,8 +51,11 @@ afterEach(() => {
 
 function mount() {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(<FancyComponents />))
   return {
     container,
@@ -71,6 +74,7 @@ const advance = async (ms: number) => {
 
 const click = (container: HTMLElement, id: string) => {
   const el = container.querySelector<HTMLElement>('#' + id)
+
   if (!el) {
     throw new Error('missing #' + id)
   }
@@ -106,6 +110,7 @@ const translate = (el: HTMLElement | null | undefined) => {
   const transform = el?.style.transform ?? ''
   const x = /translateX\((-?[\d.]+)px\)/.exec(transform)
   const y = /translateY\((-?[\d.]+)px\)/.exec(transform)
+
   return x && y ? { x: Number(x[1]), y: Number(y[1]) } : null
 }
 
@@ -114,6 +119,7 @@ const at = (container: HTMLElement, selector: string, index: number) =>
 
 const pointer = (node: HTMLElement, type: string, x: number, y = 0) => {
   const event = new MouseEvent(type, { clientX: x, clientY: y, button: 0, bubbles: true })
+
   Object.defineProperty(event, 'pointerId', { value: 1 })
   act(() => node.dispatchEvent(event))
 }
@@ -121,6 +127,7 @@ const pointer = (node: HTMLElement, type: string, x: number, y = 0) => {
 describe('FancyComponents showcase', () => {
   it('renders all seven effects readable before effects finish', async () => {
     const { container, close } = mount()
+
     expect(container.textContent).toContain('Fancy components')
     expect(container.querySelectorAll('.fc-marquee-segment').length).toBe(4)
     expect(container.querySelector('#fc-marquee-state')?.textContent).toBe('Playing')
@@ -148,16 +155,21 @@ describe('FancyComponents showcase', () => {
 
   it('loops the marquee, pauses without jumping, and flips direction', async () => {
     const { container, close } = mount()
+
     // Segment width 240 at 60 px/s → 4s per leg.
     await advance(1000)
+
     const first = trackX(container)
+
     expect(first).not.toBeNull()
     expect(first!).toBeLessThan(-30)
     expect(first!).toBeGreaterThan(-100)
 
     click(container, 'fc-marquee-toggle')
     expect(text(container, 'fc-marquee-state')).toBe('Paused')
+
     const held = trackX(container)
+
     await advance(2000)
     expect(trackX(container)).toBe(held)
 
@@ -167,7 +179,9 @@ describe('FancyComponents showcase', () => {
 
     // Direction flip keeps the loop phase — travel reverses in place.
     segment(container, 'fc-marquee-dir', 'Right')
+
     const flipped = trackX(container)
+
     await advance(600)
     expect(trackX(container)).toBeGreaterThan(flipped!)
     close()
@@ -176,6 +190,7 @@ describe('FancyComponents showcase', () => {
   it('renders duplicate marquee copies hidden from assistive tech', async () => {
     const { container, close } = mount()
     const segments = [...container.querySelectorAll<HTMLElement>('.fc-marquee-segment')]
+
     expect(segments.length).toBe(4)
     expect(segments[0].getAttribute('aria-hidden')).toBeNull()
     for (const copy of segments.slice(1)) {
@@ -200,7 +215,9 @@ describe('FancyComponents showcase', () => {
 
     // Dwell (2400ms) + full delete (26 × 25ms) + dwell → next phrase types.
     await advance(2400 + first.length * 25 + 2400 + 10 * 45)
+
     const next = 'Same markup on web and phones.'
+
     expect(shown().length).toBeGreaterThan(0)
     expect(next.startsWith(shown())).toBe(true)
     close()
@@ -208,6 +225,7 @@ describe('FancyComponents showcase', () => {
 
   it('restarts the typewriter from the first phrase on replay', async () => {
     const { container, close } = mount()
+
     await advance(2400 + 30 * 45 + 2400)
     click(container, 'fc-type-replay')
     expect(container.querySelector('.fc-typewriter-text')?.textContent).toBe('')
@@ -228,8 +246,10 @@ describe('FancyComponents showcase', () => {
 
     expect(shown().length).toBeLessThanOrEqual(3)
     await advance(10 * 40)
+
     // Ten real glyphs revealed plus the trailing noise window.
     const mid = shown()
+
     expect(mid.length).toBe(13)
     expect(mid.slice(0, 10)).toBe(full.slice(0, 10))
 
@@ -241,6 +261,7 @@ describe('FancyComponents showcase', () => {
 
   it('replays the scramble and reports scrambling again', async () => {
     const { container, close } = mount()
+
     await advance((24 + 3) * 40)
     expect(text(container, 'fc-scramble-state')).toBe('Settled')
     click(container, 'fc-scramble-replay')
@@ -252,9 +273,12 @@ describe('FancyComponents showcase', () => {
 
   it('counts the ticker to the exact target and reports done', async () => {
     const { container, close } = mount()
+
     expect(text(container, 'fc-ticker')).toBe('0')
     await advance(500)
+
     const mid = Number(text(container, 'fc-ticker').replace(/,/g, ''))
+
     expect(mid).toBeGreaterThan(0)
     expect(mid).toBeLessThan(12847)
     await advance(1300)
@@ -268,20 +292,27 @@ describe('FancyComponents showcase', () => {
 
   it('drifts the float chips on offset phases and pauses without jumping', async () => {
     const { container, close } = mount()
+
     await advance(600)
+
     const a = at(container, '.fc-float', 0)!
     const b = at(container, '.fc-float', 1)!
+
     expect(a).not.toBeNull()
     // Siblings ride offset phases — poses differ at the same instant.
     expect(Math.abs(a.x - b.x) + Math.abs(a.y - b.y)).toBeGreaterThan(1)
 
     await advance(600)
+
     const moved = at(container, '.fc-float', 0)!
+
     expect(Math.abs(moved.x - a.x) + Math.abs(moved.y - a.y)).toBeGreaterThan(0.5)
 
     click(container, 'fc-float-toggle')
     expect(text(container, 'fc-float-state')).toBe('Paused')
+
     const held = at(container, '.fc-float', 0)!
+
     await advance(1200)
     expect(at(container, '.fc-float', 0)).toEqual(held)
     close()
@@ -293,25 +324,34 @@ describe('FancyComponents showcase', () => {
       [...container.querySelectorAll<HTMLElement>('.fc-orbit-item')].map((el) => translate(el)!)
 
     await advance(500)
+
     const spaced = items()
+
     // Four chips parked at quarter-ring offsets, not a stack.
     expect(new Set(spaced.map((p) => `${Math.round(p.x)},${Math.round(p.y)}`)).size).toBe(4)
 
     const before = spaced[0]
+
     await advance(500)
+
     const normal = items()[0]
     const dy = normal.y - before.y
+
     expect(Math.abs(normal.x - before.x) + Math.abs(normal.y - before.y)).toBeGreaterThan(1)
 
     // Reverse walks the shared phase back — the velocity flips sign.
     segment(container, 'fc-orbit-dir', 'Reverse')
     await advance(500)
+
     const reversed = items()[0]
+
     expect(Math.sign(reversed.y - normal.y)).toBe(-Math.sign(dy))
 
     click(container, 'fc-orbit-toggle')
     expect(text(container, 'fc-orbit-state')).toBe('Paused')
+
     const held = items()[0]
+
     await advance(1000)
     expect(items()[0]).toEqual(held)
     close()
@@ -319,18 +359,24 @@ describe('FancyComponents showcase', () => {
 
   it('drags chips inside the board, raises the grabbed chip, and resets', async () => {
     const { container, close } = mount()
+
     await advance(100)
+
     const items = () => [...container.querySelectorAll<HTMLElement>('.fc-drag-item')]
     const seedPos = at(container, '.fc-drag-item', 0)!
+
     // Seeded scatter, not a stack at the origin.
     expect(Math.abs(seedPos.x) + Math.abs(seedPos.y)).toBeGreaterThan(0)
 
     const node = items()[0]
+
     pointer(node, 'pointerdown', 0, 0)
     pointer(node, 'pointermove', 4, 0) // under the 8px activation threshold
     pointer(node, 'pointermove', 40, 30)
     expect(text(container, 'fc-drag-state')).toBe('Dragging')
+
     const held = translate(node)!
+
     expect(held.x).toBeGreaterThan(seedPos.x + 20)
     // The grabbed chip re-renders last so it rides on top.
     expect(items().at(-1)).toBe(node)
@@ -343,7 +389,9 @@ describe('FancyComponents showcase', () => {
     pointer(node, 'pointermove', 900, 700)
     pointer(node, 'pointerup', 900, 700)
     await advance(2000)
+
     const settled = translate(node)!
+
     expect(settled.x).toBeGreaterThanOrEqual(0)
     expect(settled.x).toBeLessThanOrEqual(197)
     expect(settled.y).toBeGreaterThanOrEqual(0)
@@ -356,6 +404,7 @@ describe('FancyComponents showcase', () => {
 
   it('settles everything directly under the reduced-motion preview', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'fc-reduce')
     expect(text(container, 'fc-reduce-effective')).toBe('Reduced (preview)')
@@ -375,6 +424,7 @@ describe('FancyComponents showcase', () => {
     // holds its phase-offset drift and the ring freezes evenly spaced.
     expect(text(container, 'fc-float-state')).toBe('Static (reduced motion)')
     expect(text(container, 'fc-orbit-state')).toBe('Static (reduced motion)')
+
     const floats = [...container.querySelectorAll<HTMLElement>('.fc-float')].map((el) =>
       translate(el)!,
     )
@@ -399,7 +449,9 @@ describe('FancyComponents showcase', () => {
 
   it('honors the system preference over the preview', async () => {
     systemReduced = true
+
     const { container, close } = mount()
+
     await advance(400)
     expect(text(container, 'fc-reduce-effective')).toBe('Reduced (system preference)')
     expect(text(container, 'fc-marquee-state')).toBe('Static (reduced motion)')

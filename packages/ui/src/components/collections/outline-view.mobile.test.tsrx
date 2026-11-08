@@ -68,6 +68,7 @@ describe('useOutlineFromView (universal renderer)', () => {
 
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     flushUniversalSync(() => root.render(Probe, { container: tree }))
     await settle()
 
@@ -82,6 +83,7 @@ describe('useOutlineFromView (universal renderer)', () => {
   it('returns an empty list without a container', async () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     flushUniversalSync(() => root.render(Probe, { container: null }))
     await settle()
 

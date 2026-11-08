@@ -24,6 +24,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
     }
 
     const delta = (isHorizontal ? e.dx : e.dy) * sign
+
     if (e.state === 'began') {
       started.current = true
       resizable._onResizeStart()
@@ -51,6 +52,7 @@ export function ResizeHandle(props: ResizeHandleProps): unknown @{
 
     // Double-tap toggles collapse — the touch analog of dblclick.
     const now = Date.now()
+
     if (now - lastTap.current < 400) {
       lastTap.current = 0
       resizable._onResizeStart()

@@ -19,6 +19,7 @@ function visibleViewController(): any {
   const keyWindow = app.keyWindow || (app.windows.count > 0 && app.windows[0])
   // Utils.ios is only populated on iOS — typed as an empty bag elsewhere.
   const getVisible = (Utils.ios as any)?.getVisibleViewController
+
   return keyWindow && typeof getVisible === 'function'
     ? getVisible(keyWindow.rootViewController)
     : null
@@ -26,6 +27,7 @@ function visibleViewController(): any {
 
 export async function shareFile(path: string, _options?: ShareFileOptions): Promise<ShareResult> {
   const input = normalizeFilePath(path)
+
   if (input.kind === 'content') {
     throw new Error('share.file: content:// URIs are Android-only — pass a filesystem path on iOS')
   }
@@ -35,6 +37,7 @@ export async function shareFile(path: string, _options?: ShareFileOptions): Prom
   }
 
   const presenter = visibleViewController()
+
   if (!presenter) {
     return 'unavailable'
   }
@@ -50,6 +53,7 @@ export async function shareFile(path: string, _options?: ShareFileOptions): Prom
 
     // iPad presents activity sheets as popovers and crashes without an anchor.
     const popover = sheet.popoverPresentationController
+
     if (popover) {
       popover.sourceView = presenter.view
       popover.sourceRect = CGRectMake(

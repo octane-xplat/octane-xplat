@@ -23,6 +23,7 @@ const ctl = ([group, action, ...rest], options) =>
 
 const ns = 'ns'
 const env = { ...process.env }
+
 if (target === 'android' && process.platform === 'darwin' && !env.JAVA_HOME) {
   env.JAVA_HOME = (await command('/usr/libexec/java_home', ['-v', '21'])).stdout.trim()
 }
@@ -63,16 +64,19 @@ const appsUnder = (dir) =>
 try {
   if (target === 'android') {
     const pid = await adb(['shell', 'pidof', appId], { allowFailure: true })
+
     if (pid.stdout.trim()) {
       throw new Error('Probe app is already running; refusing to replace another session')
     }
 
     const mappings = await adb(['reverse', '--list'])
+
     if (mappings.stdout.split('\n').some((line) => line.split(/\s+/).includes('tcp:' + port))) {
       throw new Error('Probe port already has an adb reverse mapping')
     }
   } else if (!physical) {
     const jobs = await sim(['spawn', device, 'launchctl', 'list'])
+
     if (jobs.stdout.split('\n').some((line) => line.includes(appId) && /^\d+\s/.test(line))) {
       throw new Error('Probe app is already running; refusing to replace another session')
     }
@@ -82,6 +86,7 @@ try {
   // so a physical run never installs a simulator binary.
   const artifactFile = join(project, physical ? '.artifact-device.json' : '.artifact.json')
   let artifact
+
   if (existsSync(artifactFile)) {
     artifact = JSON.parse(await readFile(artifactFile, 'utf8'))
   }
@@ -93,6 +98,7 @@ try {
       const xcconfig = join(project, 'App_Resources/iOS/build.xcconfig')
       const config = existsSync(xcconfig) ? await readFile(xcconfig, 'utf8') : ''
       const team = process.env.XPLAT_IOS_DEVELOPMENT_TEAM
+
       if (!/^\s*DEVELOPMENT_TEAM\s*=/m.test(config)) {
         if (!team) {
           throw new Error('Physical iOS probes need a signing team: set XPLAT_IOS_DEVELOPMENT_TEAM')
@@ -126,6 +132,7 @@ try {
         // Device builds archive into an .ipa — the .app left beside it is
         // a broken symlink into DerivedData intermediates.
         const ipas = (await readdir(dir)).filter((name) => name.endsWith('.ipa'))
+
         if (ipas.length !== 1) {
           throw new Error('Expected exactly one device .ipa artifact')
         }
@@ -133,6 +140,7 @@ try {
         artifact = join(dir, ipas[0])
       } else {
         const apps = await appsUnder(dir)
+
         if (apps.length !== 1) {
           throw new Error('Expected exactly one simulator app artifact')
         }
@@ -165,6 +173,7 @@ try {
 
   if (target === 'android') {
     const installed = await adb(['shell', 'pm', 'path', appId], { allowFailure: true })
+
     if (!installed.stdout.includes('package:')) {
       await adb(['install', artifact], { timeout: 120000 })
     }
@@ -183,6 +192,7 @@ try {
   } else if (physical) {
     await ctl(['install', 'app', artifact], { timeout: 180000 })
     ownsApp = true
+
     const launched = await ctl(
       [
         'process',
@@ -212,6 +222,7 @@ try {
     }
 
     const container = (await sim(['get_app_container', device, appId, 'data'])).stdout.trim()
+
     await mkdir(join(container, 'Documents'), { recursive: true })
     await writeFile(join(container, 'Documents/probe-session.json'), JSON.stringify({ url }))
     ownsApp = true

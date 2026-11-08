@@ -43,6 +43,7 @@ function EndLane(props: {
   laneRef?: (v: any) => void
 }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.endContent == null && props.clear == null) {
     return null
   }
@@ -123,6 +124,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
 
   const createEntries = (query: string, results: T[]): T[] => {
     const trimmed = query.trim()
+
     if (!props.hasCreate || trimmed === '') {
       return []
     }
@@ -153,11 +155,13 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
 
     if (props.hasCreate && typeof item.id === 'string' && item.id.startsWith(CREATABLE_ID_PREFIX)) {
       const createdValue = item.id.slice(CREATABLE_ID_PREFIX.length)
+
       if (selectedIds.has(createdValue)) {
         return
       }
 
       const realItem = { id: createdValue, label: createdValue } as T
+
       props.onChange([...props.value, realItem], { item: realItem, type: 'create' })
       return
     }
@@ -240,6 +244,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
   // usable width (minus the end lane and the "+N more" counter).
   const measureOverflow = () => {
     const host = wrapperRef.current
+
     if (!host) {
       return
     }
@@ -259,9 +264,11 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
       16
 
     let hidden = 0
+
     for (const v of tokenEls.current.values()) {
       const loc = v.getLocationRelativeTo?.(host)
       const w = v.getActualSize?.().width ?? 0
+
       if (loc && loc.x + w > hostWidth - reserve) {
         hidden++
       }
@@ -276,6 +283,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
     // The layout pass hasn't run yet when value/isTruncated change — wait a
     // tick so getActualSize reflects the new token set.
     const t = setTimeout(measureOverflow, 0)
+
     return () => clearTimeout(t)
   }, [isTruncated, props.value])
 
@@ -404,6 +412,7 @@ export function Tokenizer<T extends SearchableItem>(props: TokenizerProps<T>): u
   )
 
   let content: any
+
   if (isLayerMode) {
     // The collapsed row anchors the popover; the full field lives inside it.
     content = (

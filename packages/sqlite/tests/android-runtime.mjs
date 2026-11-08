@@ -16,6 +16,7 @@ const fixture = fileURLToPath(new URL('./fixtures/transactions.android.ts', impo
 if (values['build-only']) {
   // No doctor/device selection, install, launch, or AVD provisioning in this mode.
   const project = await prepare('android', fixture, ['@octane-xplat/sqlite'])
+
   await writeFile(
     join(project.root, 'src/case.ts'),
     [
@@ -28,10 +29,13 @@ if (values['build-only']) {
   )
 
   const { build } = await importFrom(project.root, 'vite')
+
   await build({ ...(await nativeCaseConfig(project.root, 'android')), configFile: false })
+
   const nativeRoot = project.deps.resolved.get('nativescript')
   const manifest = JSON.parse(await readFile(join(nativeRoot, 'package.json'), 'utf8'))
   const environment = { ...process.env }
+
   if (process.platform === 'darwin') {
     environment.JAVA_HOME = (await command('/usr/libexec/java_home', ['-v', '21'])).stdout.trim()
   }
@@ -54,6 +58,7 @@ if (values['build-only']) {
 
   built.child.stdout.on('data', (chunk) => process.stdout.write(chunk))
   built.child.stderr.on('data', (chunk) => process.stderr.write(chunk))
+
   let stopping
   let interrupted = false
   let timedOut = false
@@ -65,6 +70,7 @@ if (values['build-only']) {
 
   process.once('SIGINT', interrupt)
   process.once('SIGTERM', interrupt)
+
   const timer = setTimeout(() => {
     timedOut = true
     void stop()
@@ -107,13 +113,16 @@ if (values['build-only']) {
   )
 } else {
   const device = process.env.XPLAT_SQLITE_ANDROID_DEVICE?.trim()
+
   assert.ok(
     device && !device.startsWith('-') && !/\s/.test(device),
     'Set XPLAT_SQLITE_ANDROID_DEVICE to an explicitly owned, booted Android device; this task never boots or selects one',
   )
 
   const ready = await command('adb', ['-s', device, 'shell', 'getprop', 'sys.boot_completed'])
+
   assert.equal(ready.stdout.trim(), '1', 'the selected Android host has not finished booting')
+
   // Caller owns the full host reservation. The existing runner owns its
   // case/target locks, unique app identity, reverse mapping and force-stop.
   const args = argumentsFor([
@@ -145,6 +154,7 @@ if (values['build-only']) {
   const interrupt = () => abort.abort()
   const results = []
   const release = await acquireCaseLock('android', fixture)
+
   process.once('SIGINT', interrupt)
   process.once('SIGTERM', interrupt)
   try {
@@ -170,7 +180,9 @@ if (values['build-only']) {
   console.log(JSON.stringify({ schema: 1, results }, null, 2))
   assert.equal(abort.signal.aborted, false, 'Android runtime probe interrupted')
   assert.equal(results.length, 1, 'expected exactly one Android runtime result')
+
   const outcome = results[0]
+
   assert.equal(outcome.target, 'android')
   assert.equal(outcome.device, device)
   assert.equal(outcome.case, fixture)

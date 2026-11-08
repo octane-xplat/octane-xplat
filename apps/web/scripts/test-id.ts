@@ -9,6 +9,7 @@ import { createServer } from 'vite'
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
 const argent = process.argv.includes('--argent')
+
 if (!browserType || (argent && browserName !== 'chromium')) {
   throw new Error('Argent qualification requires Chromium')
 }
@@ -35,6 +36,7 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await browserType.launch({
@@ -44,10 +46,13 @@ try {
 
   const page = await browser.newPage()
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__test_id`)
   await page.waitForSelector('[data-testid="counter.increment"]', { timeout: 120000 })
+
   const byID = (id) => page.locator(`[data-testid="${id}"]`)
+
   assert.equal(await byID('counter.increment').getAttribute('id'), 'legacy-increment')
   assert.equal(await byID('counter.increment').getAttribute('aria-label'), 'Increment')
   assert.equal(await byID('counter.increment').getAttribute('role'), 'button')
@@ -62,7 +67,9 @@ try {
   }
 
   assert.equal(await byID('counter.group').locator('[data-testid="counter.increment"]').count(), 1)
+
   const original = await byID('item.a.open').elementHandle()
+
   await byID('items.rebind').click()
   assert.equal(await byID('item.a.open').count(), 0)
   assert.equal(await original.evaluate((el) => el.dataset.testid), 'item.b.open')
@@ -84,6 +91,7 @@ try {
   await byID('counter.increment').waitFor()
   if (argent) {
     const env = { ...process.env, DO_NOT_TRACK: '1', ARGENT_CHROMIUM_PORTS: '19329' }
+
     for (const args of [
       ['run', 'describe', '--udid', 'chromium-cdp-19329', '--json'],
       [

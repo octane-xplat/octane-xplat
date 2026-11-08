@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 export const segmentRef = { current: null as any }
 export const segmentChanges: any[] = []
 export const segmentRefEvents: string[] = []
+
 const refs = [
   segmentRef,
   [

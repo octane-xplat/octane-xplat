@@ -24,6 +24,7 @@ it('retains the same row pixel across prepend, growth above, append and manual m
       }
     }),
   }
+
   const content: any = {
     rows: [] as any[],
     getChildrenCount() {
@@ -33,6 +34,7 @@ it('retains the same row pixel across prepend, growth above, append and manual m
       return this.rows[index]
     },
   }
+
   const row = (y: number) => {
     const value = {
       parent: content,
@@ -44,13 +46,18 @@ it('retains the same row pixel across prepend, growth above, append and manual m
         return { height: 64 }
       },
     }
+
     markChatRow(value)
     return value
   }
+
   content.rows = Array.from({ length: 30 }, (_, i) => row(i * 64))
+
   const anchor = content.rows[4],
     oldY = anchor.getLocationRelativeTo().y
+
   const binding = bindChatReadingAnchor(content, viewport, () => following)
+
   content.rows.forEach((value: any) => (value.y += 192))
   content.rows.unshift(row(0), row(64), row(128))
   binding.update()
@@ -61,7 +68,9 @@ it('retains the same row pixel across prepend, growth above, append and manual m
   binding.update()
   expect(anchor.getLocationRelativeTo().y).toBe(oldY)
   content.rows.push(row(3000))
+
   const before = viewport.scrollTop
+
   binding.update()
   expect(viewport.scrollTop).toBe(before)
   viewport.scrollTo({ top: 700 })
@@ -78,13 +87,16 @@ it('retains the same row pixel across prepend, growth above, append and manual m
 
 it('uses supplied ids across object replacement and stable object identity for legacy data', () => {
   expect(chatMessageKey({ id: 'a' })).toBe(chatMessageKey({ id: 'a' }))
+
   const legacy = {}
+
   expect(chatMessageKey(legacy)).toBe(chatMessageKey(legacy))
   expect(chatMessageKey({})).not.toBe(chatMessageKey({}))
 })
 
 it('waits for descendant positions and ignores same-offset layout scroll notifications', () => {
   vi.useFakeTimers()
+
   const readers = new Set<() => void>()
   const viewport: any = {
     scrollTop: 100,
@@ -104,6 +116,7 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
       }
     }),
   }
+
   let layout = () => {}
   const content: any = {
     rows: [] as any[],
@@ -118,6 +131,7 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
     },
     off() {},
   }
+
   content.rows = Array.from({ length: 10 }, (_, i) => ({
     parent: content,
     y: i * 64,
@@ -126,9 +140,12 @@ it('waits for descendant positions and ignores same-offset layout scroll notific
       return { y: this.y - viewport.scrollTop }
     },
   }))
+
   content.rows.forEach(markChatRow)
+
   const binding = bindChatReadingAnchor(content, viewport, () => false)
   const off = chatHost.observeLayout(content, binding.update, true)
+
   try {
     layout()
     content.rows.forEach((row: any) => {
@@ -164,14 +181,18 @@ it('corrects range-driven top-offset drift without treating it as a manual scrol
       }
     }),
   }
+
   const content: any = { getChildrenCount: () => 1, getChildAt: () => row }
   const row: any = {
     parent: content,
     getActualSize: () => ({ height: 64 }),
     getLocationRelativeTo: () => ({ y: 120 - offset }),
   }
+
   markChatRow(row)
+
   const binding = bindChatReadingAnchor(content, viewport, () => false)
+
   // AppKit unflipped documents change normalized top offset when their range grows,
   // even if NSClipView's native origin did not move and no user scroll occurred.
   offset = 196

@@ -31,8 +31,10 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
   const rowViews = useRef(new Map<Key, NSView>())
   const latest = useRef(props)
   const liveKeys = useRef(keys)
+
   latest.current = props
   liveKeys.current = keys
+
   const activation = useRef<
     (row: AppKitGridRow, event: NativeKeyboardEvent<object>, toggleOnly: boolean) => void
   >(() => {})
@@ -44,6 +46,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
         rows: () =>
           liveKeys.current.flatMap((key) => {
             const view = rowViews.current.get(key)
+
             return view ? [{ key, view }] : []
           }),
         columns: () => (latest.current.layout === 'stack' ? 1 : latest.current.columns),
@@ -55,6 +58,7 @@ export function GridList<T = any>(props: GridListProps<T>): unknown @{
 
   useEffect(() => navigation.start(), [])
   useEffect(() => navigation.synchronize(), null)
+
   const isGrid = (props.layout ?? 'grid') === 'grid'
 
   const forwardedRef = useMemo(

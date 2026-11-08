@@ -21,6 +21,7 @@ function comparableUrl(normalized: string): string {
  *  Matches the reference parser's acceptance exactly. */
 export function isSafeMdParserUrl(url: string): boolean {
   const lower = comparableUrl(normalizeUrl(url))
+
   return !(
     lower.startsWith('javascript:') ||
     lower.startsWith('vbscript:') ||

@@ -20,10 +20,12 @@ export function createImageRequests<T>(
     if (request.state !== 'pending') {
       return
     }
+
     request.state = 'complete'
     if (pending.get(source) === request) {
       pending.delete(source)
     }
+
     request.cancel = undefined
     if (image !== null && request.cacheable && limit > 0) {
       cache.delete(source)
@@ -32,7 +34,9 @@ export function createImageRequests<T>(
         cache.delete(cache.keys().next().value!)
       }
     }
+
     const listeners = [...request.listeners]
+
     request.listeners.clear()
     for (const listener of listeners) {
       try {
@@ -42,14 +46,18 @@ export function createImageRequests<T>(
       }
     }
   }
+
   const invalidate = (source: string) => {
     cache.delete(source)
+
     const request = pending.get(source)
+
     if (request) {
       request.cacheable = false
       pending.delete(source)
     }
   }
+
   return {
     /** Decoded memory only; neither a disk nor an HTTP-cache probe. */
     isCached(source: string): boolean {
@@ -63,6 +71,7 @@ export function createImageRequests<T>(
       for (const request of pending.values()) {
         request.cacheable = false
       }
+
       pending.clear()
     },
     subscribe(
@@ -72,24 +81,31 @@ export function createImageRequests<T>(
     ): () => void {
       if (cache.has(source)) {
         const image = cache.get(source)!
+
         cache.delete(source)
         cache.set(source, image)
         listener(image)
         return () => {}
       }
+
       onPending?.()
+
       let request = pending.get(source)
       const fresh = !request
+
       if (!request) {
         request = { listeners: new Set(), state: 'pending', cacheable: true }
         pending.set(source, request)
       }
+
       const load = request
       const deliver = (image: T | null) => listener(image)
+
       load.listeners.add(deliver)
       if (fresh) {
         try {
           const cancel = start(source, (image) => complete(source, load, image))
+
           if (typeof cancel === 'function') {
             if (load.state === 'cancelled') {
               cancel()
@@ -101,21 +117,28 @@ export function createImageRequests<T>(
           complete(source, load, null)
         }
       }
+
       let active = true
+
       return () => {
         if (!active) {
           return
         }
+
         active = false
         load.listeners.delete(deliver)
         if (load.state !== 'pending' || load.listeners.size) {
           return
         }
+
         if (pending.get(source) === load) {
           pending.delete(source)
         }
+
         load.state = 'cancelled'
+
         const cancel = load.cancel
+
         load.cancel = undefined
         try {
           cancel?.()

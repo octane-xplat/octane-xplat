@@ -21,6 +21,7 @@ test('file and spec grammar share canonical root, optional, and catch-all identi
   ]) {
     assert.equal(routePatternPath(input), output)
   }
+
   assert.equal(routeParamName(':locale?'), 'locale')
   assert.equal(routeParamName('*'), '*')
   assert.equal(routeParamName('index'), undefined)
@@ -37,6 +38,7 @@ test('matching preserves the root, backtracks optional prefixes, and decodes spl
 
 test('special property names are ordinary own params, never prototype mutation', () => {
   const params = matchRouteSegments([':__proto__', ':constructor'], ['safe', 'value'])
+
   assert.equal(Object.getPrototypeOf(params), Object.prototype)
   assert.equal(params.__proto__, 'safe')
   assert.equal(params.constructor, 'value')
@@ -51,8 +53,11 @@ test('strict URLs round-trip scalars, repeated keys, literal json prefixes, hash
     'a#b',
     '/app/',
   )
+
   assert.equal(href, '/app/items/json%3Aa%2Fb?page=2&tags=a%2Bb&tags=c%20d#a%23b')
+
   const parsed = parseRouteLocation(href, '/app')
+
   assert.deepEqual(matchRouteSegments(pattern, parsed.segments), { id: 'json:a/b' })
   assert.deepEqual(parsed.search, { page: '2', tags: ['a+b', 'c d'] })
   assert.equal(parsed.hash, 'a#b')
@@ -80,10 +85,12 @@ test('static segments round-trip Unicode, spaces and literal URL punctuation exa
     const pattern = [name, ':id']
     const href = buildRouteLocation(pattern, { id: 'a/b' }, { q: 'c+d' }, 'section', '/app')
     const parsed = parseRouteLocation(href, '/app')
+
     assert.deepEqual(matchRouteSegments(pattern, parsed.segments), { id: 'a/b' }, name)
     assert.deepEqual(parsed.search, { q: 'c+d' })
     assert.equal(parsed.hash, 'section')
   }
+
   assert.deepEqual(matchRouteSegments([':locale?', 'café'], ['caf%C3%A9']), {})
   assert.equal(matchRouteSegments(['café'], ['caf%C3%A9', 'extra']), null)
   assert.equal(matchRouteSegments(['a', 'b'], ['a%2Fb']), null)

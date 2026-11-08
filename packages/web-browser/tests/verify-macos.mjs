@@ -28,6 +28,7 @@ const POPUP = '<!doctype html><title>Popup</title><body>popup</body>'
 
 async function consumer(packed, app, source) {
   const installed = join(app, 'node_modules/@octane-xplat/web-browser')
+
   await mkdir(installed, { recursive: true })
   await cp(packed, installed, { recursive: true })
   await writeFile(
@@ -38,6 +39,7 @@ async function consumer(packed, app, source) {
       dependencies: { '@octane-xplat/web-browser': '0.19.0' },
     }),
   )
+
   await writeFile(join(app, 'fixture.mjs'), source)
   await build({
     configFile: false,
@@ -49,13 +51,17 @@ async function consumer(packed, app, source) {
       lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
     },
   })
+
   return join(app, 'dist/fixture.cjs')
 }
 
 export async function verifyMacOS(packed, temporary) {
   assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
+
   const app = join(temporary, 'target')
+
   await mkdir(app, { recursive: true })
+
   const server = createServer((request, response) => {
     if (request.url === '/one.html') {
       response.writeHead(200, { 'Content-Type': 'text/html' })
@@ -71,8 +77,11 @@ export async function verifyMacOS(packed, temporary) {
       response.end('missing')
     }
   })
+
   await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
+
   const remote = `http://127.0.0.1:${server.address().port}`
+
   try {
     // buildMacOSNative walks the package's declared dependencies, and the
     // engine's macOS import resolves the workspace platform bindings —
@@ -83,6 +92,7 @@ export async function verifyMacOS(packed, temporary) {
     }
 
     await link('@octane-xplat/platform', fileURLToPath(new URL('../../platform', import.meta.url)))
+
     const script = await consumer(
       packed,
       app,
@@ -235,7 +245,9 @@ main().then(() => __xplatStopHost(), error => { let d = ''; try { d = ' desc=' +
 
     const artifact = await buildMacOSNative(app)
     const bootstrap = join(app, 'bootstrap.js')
+
     await writeNativeBootstrap(artifact, bootstrap)
+
     const output = await new Promise((resolveOutput, reject) => {
       const child = spawn(
         join(hostBundle, 'host'),
@@ -247,14 +259,19 @@ main().then(() => __xplatStopHost(), error => { let d = ''; try { d = ' desc=' +
         ],
         { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
       )
+
       let text = ''
+
       child.stdout.on('data', (chunk) => (text += chunk))
       child.stderr.on('data', (chunk) => (text += chunk))
+
       const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+
       child.once('error', (error) => {
         clearTimeout(timeout)
         reject(error)
       })
+
       child.once('close', (code, signal) => {
         clearTimeout(timeout)
         if (code === 0) {

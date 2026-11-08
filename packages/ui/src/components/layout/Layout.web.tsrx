@@ -36,6 +36,7 @@ function supportsInternalContentWidthAlignment(width: SizeValue | undefined): bo
   }
 
   const value = width.trim().toLowerCase()
+
   if (value.includes('%')) {
     return false
   }
@@ -69,8 +70,10 @@ export function Layout(props: LayoutProps): JSX.Element @{
   const slots = { hasHeader, hasFooter, hasStart, hasEnd }
 
   const innerStyle: Record<string, any> = {}
+
   if (props.padding != null) {
     const px = `${spacingPx(props.padding)}px`
+
     innerStyle['--layout-padding-outer-x'] = px
     innerStyle['--layout-padding-outer-y'] = px
   }
@@ -166,8 +169,10 @@ export function LayoutHeader(props: LayoutHeaderProps): JSX.Element @{
   const resolvedHasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 
   const innerStyle: Record<string, any> = {}
+
   if (props.padding != null) {
     const px = `${spacingPx(props.padding)}px`
+
     innerStyle['--vx-lh-pad-is'] = px
     innerStyle['--vx-lh-pad-ie'] = px
     innerStyle['--vx-lh-pad-bs'] = px
@@ -228,8 +233,10 @@ export function LayoutContent(props: LayoutContentProps): JSX.Element @{
   const isZero = props.padding === 0
 
   const style: Record<string, any> = {}
+
   if (explicit) {
     const px = `${spacingPx(props.padding)}px`
+
     style['--vx-lc-pad-is'] = px
     style['--vx-lc-pad-ie'] = px
     style['--vx-lc-pad-bs'] = px
@@ -295,8 +302,10 @@ export function LayoutFooter(props: LayoutFooterProps): JSX.Element @{
   const resolvedHasDivider = props.hasDivider ?? dividerCtx?.defaultHasDividers ?? false
 
   const innerStyle: Record<string, any> = {}
+
   if (props.padding != null) {
     const px = `${spacingPx(props.padding)}px`
+
     innerStyle['--vx-lf-pad-is'] = px
     innerStyle['--vx-lf-pad-ie'] = px
     innerStyle['--vx-lf-pad-bs'] = px

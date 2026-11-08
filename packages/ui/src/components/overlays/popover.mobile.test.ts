@@ -56,6 +56,7 @@ describe('native Popover host', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const anchor = { current: {} }
+
     root.render(Popover, { open: true, anchor, className: 'vx-menu' })
     flushUniversalSync(() => {})
     await vi.waitFor(() => expect(hosts.length).toBe(1))

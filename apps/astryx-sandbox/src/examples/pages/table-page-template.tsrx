@@ -365,6 +365,7 @@ function useFlushEdges(): TablePlugin<InvoiceRow> {
         cols: readonly any[],
       ) => {
         const style = edgeStyle(columnIndex, cols.length)
+
         return style == null
           ? props
           : {
@@ -380,6 +381,7 @@ function useFlushEdges(): TablePlugin<InvoiceRow> {
         cols: readonly any[],
       ) => {
         const style = edgeStyle(columnIndex, cols.length)
+
         return style == null
           ? props
           : {
@@ -432,6 +434,7 @@ export function TablePageTemplate() @{
     const matched = applyFilters(columnPredicates, ROWS)
     const scoped = basis === 'all' ? matched : matched.filter((item) => item.basis === basis)
     const term = query.trim().toLowerCase()
+
     return term === ''
       ? scoped
       : scoped.filter((item) => item.description.toLowerCase().includes(term))

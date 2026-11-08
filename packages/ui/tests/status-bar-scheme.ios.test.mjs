@@ -31,12 +31,14 @@ function loadModule({ scheme = 'dark', nativeApp = null, root = undefined } = {}
       }
     },
   }
+
   const context = vm.createContext({
     exports: {},
     require(name) {
       if (name === '@nativescript/core') {
         return { Application, Utils: {} }
       }
+
       assert.equal(name, './theme-scheme')
       return {
         getThemeScheme: () => scheme,
@@ -44,11 +46,13 @@ function loadModule({ scheme = 'dark', nativeApp = null, root = undefined } = {}
       }
     },
   })
+
   return { context, displayed, schemeListeners, ios, Application }
 }
 
 test('module evaluation with null nativeApp does not throw', () => {
   const { context, displayed, schemeListeners } = loadModule()
+
   assert.doesNotThrow(() => vm.runInContext(compiled, context))
   assert.equal(displayed.length, 1)
   assert.equal(schemeListeners.length, 1)
@@ -58,6 +62,7 @@ test('displayed applies the scheme once nativeApp exists', () => {
   const styles = []
   const root = {}
   const { context, displayed, ios } = loadModule({ root })
+
   vm.runInContext(compiled, context)
 
   // Application.run installs the UIApplication, then displayed fires.
@@ -66,6 +71,7 @@ test('displayed applies the scheme once nativeApp exists', () => {
       styles.push(style)
     },
   }
+
   for (const callback of displayed) {
     callback()
   }
@@ -76,6 +82,7 @@ test('displayed applies the scheme once nativeApp exists', () => {
 
 test('displayed with nativeApp still null stays silent', () => {
   const { context, displayed } = loadModule()
+
   vm.runInContext(compiled, context)
   assert.doesNotThrow(() => {
     for (const callback of displayed) {

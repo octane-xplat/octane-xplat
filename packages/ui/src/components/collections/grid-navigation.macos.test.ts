@@ -18,10 +18,12 @@ function fixture() {
       if (!acceptsFocus) {
         return false
       }
+
       this.firstResponder = view
       return true
     },
   }
+
   const root: any = { window, userInterfaceLayoutDirection: 0 }
   const row = (id: string, y: number) => {
     const view: any = {
@@ -33,8 +35,10 @@ function fixture() {
       scrollRectToVisible() {},
       isAccessibilityEnabled: () => true,
     }
+
     return { key: id, view }
   }
+
   let rows = [row('a', 0), row('b', 0), row('c', 20), row('d', 20)]
   const native = {
     NSNotificationCenter: {
@@ -53,6 +57,7 @@ function fixture() {
       },
     },
   }
+
   const bridge = {
     keyboardEventsSupported: true,
     suppressTabStop(view: any) {
@@ -60,6 +65,7 @@ function fixture() {
       return () => suppressed.delete(view)
     },
   }
+
   const navigation = createAppKitGridNavigation(
     {
       root: () => root,
@@ -71,9 +77,11 @@ function fixture() {
     () => native,
     () => bridge,
   )
+
   const send = (key: string, extra = {}) => {
     let prevented = false,
       stopped = false
+
     navigation.onKeyDown({
       key,
       code: '',
@@ -98,8 +106,10 @@ function fixture() {
       },
       ...extra,
     })
+
     return { prevented, stopped }
   }
+
   return {
     navigation,
     root,
@@ -133,10 +143,13 @@ function fixture() {
 it('keeps one Tab stop, moves across rows and consumes only successful navigation', () => {
   const env = fixture()
   const off = env.navigation.start()
+
   expect(env.suppressed.size).toBe(3)
   expect(env.suppressed.has(env.rows[0].view)).toBe(false)
   expect(env.window.firstResponder).toBeNull() // Binding never autofocuses.
+
   let scrolls = 0
+
   env.rows[2].view.scrollRectToVisible = () => scrolls++
   env.window.firstResponder = env.rows[0].view
   expect(env.send('Tab').prevented).toBe(false)
@@ -159,6 +172,7 @@ it('keeps one Tab stop, moves across rows and consumes only successful navigatio
 
 it('skips disabled slots without collapsing measured columns and respects RTL', () => {
   const env = fixture()
+
   env.setColumns(undefined)
   env.rows[1].view.isAccessibilityEnabled = () => false
   env.navigation.start()
@@ -177,8 +191,11 @@ it('skips disabled slots without collapsing measured columns and respects RTL', 
 
 it('preserves descendant editing, composition, shortcuts and already prevented events', () => {
   const env = fixture()
+
   env.navigation.start()
+
   const editor = { window: env.window, superview: env.rows[0].view }
+
   env.window.firstResponder = editor
   expect(env.send('ArrowRight').prevented).toBe(false)
   expect(env.send('Enter').prevented).toBe(false)
@@ -193,12 +210,14 @@ it('preserves descendant editing, composition, shortcuts and already prevented e
     expect(env.send('ArrowDown', extra).stopped).toBe(false)
     expect(env.window.firstResponder).toBe(env.rows[0].view)
   }
+
   expect(env.presses).toEqual([])
   env.navigation.dispose()
 })
 
 it('distinguishes Enter action and Space selection and preserves Shift range information', () => {
   const env = fixture()
+
   env.navigation.start()
   env.window.firstResponder = env.rows[0].view
   expect(env.send('Enter').prevented).toBe(true)
@@ -207,18 +226,22 @@ it('distinguishes Enter action and Space selection and preserves Shift range inf
     ['a', false, false],
     ['a', true, true],
   ])
+
   env.navigation.dispose()
 })
 
 it('repairs after pointer focus, row removal/disable and live tab-mode changes', () => {
   const env = fixture()
+
   env.navigation.start()
   expect(env.navigation.focusRow('c')).toBe(true)
   expect(env.suppressed.has(env.rows[2].view)).toBe(false)
   env.rows[2].view.hidden = true
   env.update()
   expect(env.suppressed.has(env.rows[0].view)).toBe(false)
+
   const removed = env.rows[1].view
+
   env.setRows(env.rows.filter((row) => row.view !== removed))
   env.update()
   expect(env.suppressed.has(removed)).toBe(false)
@@ -237,12 +260,15 @@ it('repairs after pointer focus, row removal/disable and live tab-mode changes',
 
 it('handles delayed window attachment and field-editor focus without a DOM query', () => {
   const env = fixture()
+
   env.root.window = null
   env.navigation.start()
   expect(env.suppressed.size).toBe(0)
   env.root.window = env.window
+
   const field: any = { window: env.window, superview: env.rows[2].view }
   const editor = { window: env.window, delegate: field, superview: null }
+
   field.currentEditor = () => editor
   env.window.firstResponder = editor
   env.update()
@@ -253,19 +279,24 @@ it('handles delayed window attachment and field-editor focus without a DOM query
 
 it('reports absent/failed observation and releases partially acquired Tab exclusions', () => {
   const env = fixture()
+
   env.bridge.keyboardEventsSupported = false
   expect(env.navigation.available()).toBe(false)
   env.navigation.start()
   expect(env.registrations()).toBe(0)
   env.bridge.keyboardEventsSupported = true
+
   let count = 0
   const suppress = env.bridge.suppressTabStop
+
   env.bridge.suppressTabStop = (view: any) => {
     if (++count === 2) {
       throw new Error('unavailable')
     }
+
     return suppress(view)
   }
+
   env.navigation.start()
   expect(env.navigation.available()).toBe(false)
   expect(env.suppressed.size).toBe(0)
@@ -274,10 +305,13 @@ it('reports absent/failed observation and releases partially acquired Tab exclus
 
 it('leaves focus outside an all-disabled grid and releases every exclusion on teardown', () => {
   const env = fixture()
+
   for (const row of env.rows) {
     row.view.isAccessibilityEnabled = () => false
   }
+
   const outside = { window: env.window }
+
   env.window.firstResponder = outside
   env.navigation.start()
   expect(env.suppressed.size).toBe(4)
@@ -291,8 +325,11 @@ it('leaves focus outside an all-disabled grid and releases every exclusion on te
 
 it('retires old notification closures before another observation generation starts', () => {
   const env = fixture()
+
   env.navigation.start()
+
   const stale = env.getNotify()
+
   env.navigation.dispose()
   env.navigation.start()
   env.window.firstResponder = env.rows[2].view
@@ -308,24 +345,32 @@ it('retires old notification closures before another observation generation star
 it('attempts each observation/Tab lease removal once despite native release and key-loop failure', () => {
   const env = fixture(),
     suppress = env.bridge.suppressTabStop
+
   let releases = 0
+
   env.bridge.suppressTabStop = (view: any) => {
     const release = suppress(view)
+
     return () => {
       release()
       releases++
       throw Error('private lease detail')
     }
   }
+
   env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => {
     env.removed.push(token)
     throw Error('private observer detail')
   }
+
   env.navigation.start()
+
   const stale = env.getNotify()
+
   env.window.recalculateKeyViewLoop = () => {
     throw Error('private loop detail')
   }
+
   expect(() => env.navigation.dispose()).not.toThrow()
   expect(() => env.navigation.dispose()).not.toThrow()
   expect(releases).toBe(3)

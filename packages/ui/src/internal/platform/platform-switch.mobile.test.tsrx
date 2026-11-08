@@ -8,11 +8,13 @@ import {
 } from 'octane/universal/native'
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
+
 import { UISwitch } from '../../ios/UISwitch.ios.tsrx'
 import { MaterialSwitch } from '../../android/MaterialSwitch.android.tsrx'
 
 function createRoot() {
   const container = createObjectContainer('nativescript')
+
   return { container, root: createUniversalRoot(container, createObjectDriver('nativescript')) }
 }
 
@@ -23,6 +25,7 @@ describe.each([
   it('forwards disabled, read-only, label, and testID to the host switch', () => {
     const { container, root } = createRoot()
     const change = vi.fn()
+
     flushUniversalSync(() =>
       root.render(Switch, {
         value: false,
@@ -35,6 +38,7 @@ describe.each([
     )
 
     const host = container.children[0]
+
     expect(host.props.isEnabled).toBe(false)
     expect(host.props.isUserInteractionEnabled).toBe(true)
     expect(host.props.testID).toBe('settings.airplane')
@@ -67,8 +71,11 @@ describe.each([
   it('delivers checked state and onChange unchanged when enabled', () => {
     const { container, root } = createRoot()
     const change = vi.fn()
+
     flushUniversalSync(() => root.render(Switch, { value: true, onChange: change }))
+
     const host = container.children[0]
+
     expect(host.props.checked).toBe(true)
     expect(host.props.isEnabled).toBe(true)
     expect(host.props.isUserInteractionEnabled).toBe(true)

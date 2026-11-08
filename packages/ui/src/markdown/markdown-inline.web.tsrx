@@ -78,6 +78,7 @@ export function MdLinkRun(props: {
         }
 
         const result = props.onLinkClick?.(href, event)
+
         if (result === false || prevented) {
           e.preventDefault()
         }
@@ -99,6 +100,7 @@ export function MdLinkRun(props: {
   }
 
   const Tag = LinkComponent as any
+
   return (
     <Tag
       href={href}

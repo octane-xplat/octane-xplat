@@ -10,9 +10,11 @@ function elements<T>(value: NativeElements<T>): T[] {
   if (!value) {
     return []
   }
+
   if ('objectAtIndex' in value) {
     return Array.from({ length: value.count }, (_, index) => value.objectAtIndex(index))
   }
+
   return Array.from(value)
 }
 
@@ -43,15 +45,19 @@ export function createAppKitTypeaheadAccessibility(
     listSelection: NSView['accessibilitySelectedChildren']
     active: NSView | null
   } | null = null
+
   let stopObserver: (() => void) | undefined,
     queued = false,
     disposed = false
+
   const release = () => {
     const previous = owned
+
     owned = null
     if (!previous) {
       return
     }
+
     for (const restore of [
       () => {
         previous.input.accessibilityLinkedUIElements = previous.inputLinks ?? []
@@ -73,8 +79,10 @@ export function createAppKitTypeaheadAccessibility(
       }
     }
   }
+
   const stop = () => {
     const release = stopObserver
+
     stopObserver = undefined
     try {
       release?.()
@@ -82,22 +90,28 @@ export function createAppKitTypeaheadAccessibility(
       console.warn('[macos-typeahead] AX observer cleanup failed', error)
     }
   }
+
   const hidden = (view: NSView) =>
     ['hidden', 'hiddenOrHasHiddenAncestor'].some((name) => {
       const value = Reflect.get(view, name)
+
       return !!(typeof value === 'function' ? value.call(view) : value)
     })
+
   const sync = () => {
     if (disposed) {
       return
     }
+
     const current = state(),
       { input, list } = current
+
     if (!current.open || current.blocked) {
       release()
       stop()
       return
     }
+
     if (!stopObserver) {
       const host = native(),
         center = host.NSNotificationCenter?.defaultCenter
@@ -110,6 +124,7 @@ export function createAppKitTypeaheadAccessibility(
             null,
             (note: { object: unknown }) => {
               const latest = state()
+
               if (
                 note.object === latest.input?.window ||
                 note.object === latest.list?.window ||
@@ -132,13 +147,16 @@ export function createAppKitTypeaheadAccessibility(
         }
       }
     }
+
     if (disposed) {
       return
     }
+
     if (!input?.window || !list || list.window !== input.window || hidden(input) || hidden(list)) {
       release()
       return
     }
+
     if (!owned || owned.input !== input || owned.list !== list || owned.window !== input.window) {
       release()
       owned = {
@@ -162,6 +180,7 @@ export function createAppKitTypeaheadAccessibility(
         input,
       ]
     }
+
     const row = current.active,
       active =
         row?.window === input.window &&
@@ -170,11 +189,14 @@ export function createAppKitTypeaheadAccessibility(
         !hidden(row)
           ? row
           : null
+
     if (owned.active !== active) {
       owned.active = active
       input.accessibilitySelectedChildren = active ? [active] : []
       list.accessibilitySelectedChildren = active ? [active] : []
+
       const host = native()
+
       host.NSAccessibilityPostNotification?.(
         list,
         host.NSAccessibilitySelectedChildrenChangedNotification ?? 'AXSelectedChildrenChanged',
@@ -185,10 +207,12 @@ export function createAppKitTypeaheadAccessibility(
       list.accessibilitySelectedChildren = []
     }
   }
+
   const update = (): void => {
     if (disposed || queued) {
       return
     }
+
     queued = true
     void Promise.resolve().then(() => {
       queued = false
@@ -201,12 +225,14 @@ export function createAppKitTypeaheadAccessibility(
       }
     })
   }
+
   return {
     update,
     dispose(): void {
       if (disposed) {
         return
       }
+
       disposed = true
       stop()
       release()

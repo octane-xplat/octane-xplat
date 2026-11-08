@@ -24,14 +24,18 @@ const binary = join(
 )
 
 assert.deepEqual(JSON.parse(readFileSync(binary + '.json')).inputs, nativeInputs(root))
+
 const scratch = scratchRun(root, 'go-docs')
+
 after(() => rmSync(scratch, { recursive: true, force: true }))
+
 function put(path, value) {
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(
     path,
     typeof value === 'string' || Buffer.isBuffer(value) ? value : JSON.stringify(value),
   )
+
   return path
 }
 
@@ -56,6 +60,7 @@ function cli(project, args, env = {}) {
       ...env,
     },
   })
+
   assert.equal(run.stderr, '')
   assert.equal(run.error, undefined)
   return { status: run.status, envelope: JSON.parse(run.stdout) }
@@ -63,6 +68,7 @@ function cli(project, args, env = {}) {
 
 function data(project, args, env = {}) {
   const result = cli(project, args, env)
+
   assert.equal(result.status, 0, JSON.stringify(result.envelope))
   assert.equal(result.envelope.ok, true)
   return result.envelope.data
@@ -92,12 +98,14 @@ function docsRepo(path) {
 
     put(join(path, `packages/${name}/README.md`), `# ${name}\n\nCapture package docs.\n`)
   }
+
   put(join(path, 'docs/camera.md'), camera)
   put(join(path, 'docs/notes/design.md'), '# Design\n\nCapture implementation details.\n')
   put(
     join(path, 'CHANGELOG.md'),
     '# Changelog\n\n## [v1.0.0] 2026-11-01\n\n### Capture\n\nCapture now works on web.\n',
   )
+
   return path
 }
 
@@ -122,12 +130,14 @@ function referenceShape(result) {
 test('public linked-checkout search/read preserve corpus, references, UTF-16 pages and project guidance without Node', async () => {
   const repository = docsRepo(join(scratch, 'linked-framework')),
     project = app(join(scratch, 'linked-app'), 'workspace:*')
+
   mkdirSync(join(project, 'node_modules/@octane-xplat'), { recursive: true })
   symlinkSync(
     join(repository, 'packages/ui'),
     join(project, 'node_modules/@octane-xplat/ui'),
     'dir',
   )
+
   const service = reference(project)
   const query = {
     query: 'capture',
@@ -137,6 +147,7 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
     package: '@octane-xplat/ui',
     limit: 10,
   }
+
   const found = data(project, [
     'docs',
     'search',
@@ -150,13 +161,16 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
     '--package',
     '@octane-xplat/ui',
   ])
+
   assert.deepEqual(referenceShape(found), referenceShape(await service.search(query)))
   assert.match(found.projectGuidance[0].excerpt, /capture/)
   assert.equal(found.results.length, 1)
   assert.equal(found.results[0].provenance.source, 'development-docs')
   assert.equal(found.projectGuidance[0].provenance.scope, 'project')
+
   const ref = found.results[0].ref,
     rocket = camera.indexOf('🚀')
+
   for (const [offset, limit] of [
     [0, 20000],
     [rocket, 1],
@@ -177,6 +191,7 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
       await service.read({ ref, offset, limit }),
     )
   }
+
   for (const mode of ['lexical', 'hybrid']) {
     const result = data(project, [
       'docs',
@@ -198,11 +213,13 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
       assert.equal(result.retrieval[0].reason, 'index-not-ready')
     }
   }
+
   assert.deepEqual(
     readdirSync(join(project, 'cache/go-v1')),
     [],
     'linked reads/search do not prepare assets or retain operations',
   )
+
   const changelog = data(project, [
     'docs',
     'search',
@@ -214,8 +231,10 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
     '--package',
     '@octane-xplat/ui',
   ])
+
   assert.equal(changelog.results[0].releaseVersion, '1.0.0')
   assert.equal(changelog.results[0].releaseDate, '2026-11-01')
+
   const design = data(project, [
     'docs',
     'search',
@@ -227,12 +246,14 @@ test('public linked-checkout search/read preserve corpus, references, UTF-16 pag
     '--package',
     '@octane-xplat/ui',
   ])
+
   assert.equal(design.results[0].corpus, 'design-note')
 })
 
 test('public release retrieval pins installed metadata, labels explicit comparisons, and serves a verified offline page', async () => {
   const repository = docsRepo(join(scratch, 'release-framework')),
     project = app(join(scratch, 'release-app'))
+
   git(['init', '-q'], repository)
   git(['add', '-A'], repository)
   git(['commit', '-qm', 'one'], repository)
@@ -243,6 +264,7 @@ test('public release retrieval pins installed metadata, labels explicit comparis
       version: '2.0.0',
     })
   }
+
   put(join(repository, 'docs/camera.md'), '# Camera\n\nUse captureV2() on web.\n')
   git(['add', '-A'], repository)
   git(['commit', '-qm', 'two'], repository)
@@ -251,13 +273,16 @@ test('public release retrieval pins installed metadata, labels explicit comparis
     name: '@octane-xplat/ui',
     version: '1.0.0',
   })
+
   const env = { PATH: process.env.PATH, XPLAT_DOCS_REPO: repository },
     service = reference(project, repository)
+
   const result = data(
     project,
     ['docs', 'search', 'capture', '--mode', 'exact', '--package', '@octane-xplat/ui'],
     env,
   )
+
   assert.deepEqual(
     referenceShape(result),
     referenceShape(
@@ -270,11 +295,16 @@ test('public release retrieval pins installed metadata, labels explicit comparis
       }),
     ),
   )
+
   const ref = result.results[0].ref
+
   assert.deepEqual(data(project, ['docs', 'read', '--ref', ref], env), await service.read({ ref }))
+
   const offline = data(project, ['docs', 'read', '--ref', ref], { ...env, PATH: '' })
+
   assert.equal(offline.provenance.offline, true)
   assert.equal(offline.content, camera)
+
   const comparison = data(
     project,
     [
@@ -289,8 +319,10 @@ test('public release retrieval pins installed metadata, labels explicit comparis
     ],
     env,
   )
+
   assert.equal(comparison.provenance.match, 'outside-installed-binding')
   assert.match(comparison.content, /captureV2/)
+
   const absent = data(
     project,
     [
@@ -305,8 +337,10 @@ test('public release retrieval pins installed metadata, labels explicit comparis
     ],
     env,
   )
+
   assert.equal(absent.reason, 'tag-absent')
   assert.equal(absent.fallback.kind, 'installed-source')
+
   const explicit = data(
     project,
     [
@@ -321,13 +355,17 @@ test('public release retrieval pins installed metadata, labels explicit comparis
     ],
     env,
   )
+
   assert.equal(
     explicit.provenance.match,
     'outside-installed-binding',
     'an uninstalled comparison must not claim an installed binding',
   )
+
   git(['tag', '-f', 'v1.0.0'], repository)
+
   const conflict = data(project, ['docs', 'read', '--ref', ref], env)
+
   assert.equal(conflict.status, 'tag-conflict')
   assert.equal(conflict.cached.commit, result.results[0].provenance.commit)
 })
@@ -335,6 +373,7 @@ test('public release retrieval pins installed metadata, labels explicit comparis
 test('public docs reject invalid requests and private/external aliases, and preserve multiple package bindings', () => {
   const repository = docsRepo(join(scratch, 'scoped-framework')),
     project = app(join(scratch, 'scoped-app'), 'workspace:*')
+
   mkdirSync(join(project, 'node_modules/@octane-xplat'), { recursive: true })
   for (const name of ['ui', 'media']) {
     symlinkSync(
@@ -343,27 +382,36 @@ test('public docs reject invalid requests and private/external aliases, and pres
       'dir',
     )
   }
+
   const found = data(project, ['docs', 'search', 'capture', '--mode', 'exact'])
+
   assert.equal(found.results.length, 2)
   assert.deepEqual(found.results[0].provenance.verifiedCompatibleSet, [
     '@octane-xplat/media',
     '@octane-xplat/ui',
   ])
+
   for (const path of ['docs/private/secret.md', '../outside.md', 'packages/media/README.md']) {
     put(join(repository, 'docs/private/secret.md'), 'Secret capture')
+
     const result = data(project, ['docs', 'read', '--package', '@octane-xplat/ui', '--path', path])
+
     assert.equal(result.reason, 'docs-absent')
   }
+
   const outside = put(join(scratch, 'outside.md'), 'External secret capture')
+
   symlinkSync(outside, join(repository, 'docs/link.md'))
   assert.equal(
     data(project, ['docs', 'read', '--package', '@octane-xplat/ui', '--path', 'docs/link.md'])
       .reason,
     'docs-absent',
   )
+
   assert.equal(data(project, ['docs', 'read', '--ref', 'invalid']).status, 'invalid-ref')
   assert.equal(cli(project, ['docs', 'read']).envelope.error.code, 'invalid_selection')
   put(join(repository, 'docs/many-headings.md'), '# x\n'.repeat(20002))
+
   const oversized = cli(project, [
     'docs',
     'search',
@@ -373,9 +421,12 @@ test('public docs reject invalid requests and private/external aliases, and pres
     '--package',
     '@octane-xplat/ui',
   ])
+
   assert.equal(oversized.envelope.error.code, 'execution_failure')
   assert.match(oversized.envelope.error.message, /20000 chunks/)
+
   const ambiguous = join(scratch, 'ambiguous')
+
   put(join(ambiguous, 'package.json'), { name: 'workspace', workspaces: ['apps/*'] })
   app(join(ambiguous, 'apps/one'))
   app(join(ambiguous, 'apps/two'))
@@ -383,6 +434,7 @@ test('public docs reject invalid requests and private/external aliases, and pres
     cli(ambiguous, ['docs', 'search', 'capture']).envelope.error.code,
     'ambiguous_selection',
   )
+
   assert.equal(existsSync(join(ambiguous, 'cache')), false)
 })
 
@@ -402,14 +454,17 @@ test('real framework checkout docs remain native and version-labelled', () => {
     ],
     { XPLAT_MCP_CACHE: join(scratch, 'real-cache') },
   )
+
   assert.equal(result.results.length > 0, true)
   assert.equal(
     result.results.every((hit) => hit.provenance.source === 'development-docs'),
     true,
   )
+
   const page = data(root, ['docs', 'read', '--app', 'apps/web', '--ref', result.results[0].ref], {
     XPLAT_MCP_CACHE: join(scratch, 'real-cache'),
   })
+
   assert.equal(page.provenance.servedVersion, 'development')
   assert.equal(page.content.length > 0, true)
 })

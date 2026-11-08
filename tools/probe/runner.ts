@@ -144,6 +144,7 @@ async function caseConfig(project, target, options) {
 
 export async function runTarget(target, args, onResult, signal) {
   const availability = (await doctor()).targets[target]
+
   if (!availability.available) {
     throw Object.assign(new Error(availability.issues.join('; ')), { unavailable: true })
   }
@@ -197,6 +198,7 @@ export async function runTarget(target, args, onResult, signal) {
 
   const endpoint = async (request, response, next) => {
     const pathname = new URL(request.url, 'http://localhost').pathname
+
     if (pathname === '/control') {
       response.setHeader('Content-Type', 'application/json')
       response.end(JSON.stringify(control))
@@ -206,6 +208,7 @@ export async function runTarget(target, args, onResult, signal) {
       response.end(style)
     } else if (pathname === '/result' && request.method === 'POST') {
       let data = ''
+
       for await (const chunk of request) {
         data += chunk
         if (data.length > 1024 * 1024) {
@@ -230,10 +233,14 @@ export async function runTarget(target, args, onResult, signal) {
   const stopHost = async () => {
     receiver?.()
     receiver = undefined
+
     const closing = host
+
     host = undefined
     await closing?.stop()
+
     const bundleCleanup = hostBundleCleanup
+
     hostBundleCleanup = undefined
     await bundleCleanup?.()
   }
@@ -249,6 +256,7 @@ export async function runTarget(target, args, onResult, signal) {
   }
 
   signal.addEventListener('abort', abort, { once: true })
+
   const watch = (paths) => {
     if (!args.watch) {
       return
@@ -340,6 +348,7 @@ export async function runTarget(target, args, onResult, signal) {
 
       const artifact = await buildMacOSNative(project.root)
       const bootstrap = join(project.root, 'bootstrap.js')
+
       await writeNativeBootstrap(artifact, bootstrap)
       await validateHostBundle(join(project.root, 'dist/shell.cjs'), project.root)
 
@@ -400,6 +409,7 @@ export async function runTarget(target, args, onResult, signal) {
 
       receiver = host.onLine((line) => {
         const at = line.indexOf(marker)
+
         if (at < 0) {
           return
         }
@@ -414,6 +424,7 @@ export async function runTarget(target, args, onResult, signal) {
 
     if (host) {
       const launched = host
+
       void launched.closed.then(() => {
         if (host === launched) {
           fail(launched.failure ?? new Error('Probe host closed'))
@@ -424,6 +435,7 @@ export async function runTarget(target, args, onResult, signal) {
 
   try {
     const firstOptions = { runId: '', case: args.case, target, timeout: args.timeout }
+
     config = await caseConfig(project, target, firstOptions)
     if (native) {
       server = httpServer((request, response) => {
@@ -465,6 +477,7 @@ export async function runTarget(target, args, onResult, signal) {
 
       if (target === 'web') {
         const { chromium } = await importFrom(appFor('web'), 'playwright')
+
         browser = await chromium.launch({
           // Synthetic capture device + auto-accepted permission prompts so
           // getUserMedia cases exercise the real capture path headlessly.
@@ -503,6 +516,7 @@ export async function runTarget(target, args, onResult, signal) {
     do {
       pending = false
       control = {}
+
       const options = { runId: randomUUID(), case: args.case, target, timeout: args.timeout }
       const resultPromise = new Promise((resolve, reject) => {
         resolveResult = resolve
@@ -520,6 +534,7 @@ export async function runTarget(target, args, onResult, signal) {
 
       try {
         const next = await prepare(target, args.case, args.deps, args.resources)
+
         if (next.stamp.key !== project.stamp.key) {
           if (!native && target !== 'macos') {
             restart = true
@@ -534,7 +549,9 @@ export async function runTarget(target, args, onResult, signal) {
           await stopHost()
           if (browser) {
             await browser.close()
+
             const { chromium } = await importFrom(appFor('web'), 'playwright')
+
             browser = await chromium.launch()
             page = await browser.newPage()
             page.on('pageerror', fail)
@@ -575,6 +592,7 @@ export async function runTarget(target, args, onResult, signal) {
         }
 
         const result = await resultPromise
+
         if (server?.moduleGraph) {
           watch([...server.moduleGraph.idToModuleMap.keys()].filter((path) => !path.includes('?')))
         }

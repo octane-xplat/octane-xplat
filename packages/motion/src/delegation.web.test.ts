@@ -25,7 +25,9 @@ function fakeClock() {
     clock,
     advance(ms: number) {
       time += ms
+
       const pending = [...callbacks.values()]
+
       callbacks.clear()
       pending.forEach((fn) => fn())
     },
@@ -44,6 +46,7 @@ function styleToMatrix(style: string): string {
 
   const channel = (name: string, dflt: number) => {
     const match = new RegExp(`${name}\\((-?[\\d.eE+-]+)`).exec(style)
+
     return match ? Number.parseFloat(match[1]) : dflt
   }
 
@@ -52,6 +55,7 @@ function styleToMatrix(style: string): string {
   const sx = channel('scale', 1) * channel('scaleX', 1)
   const sy = channel('scale', 1) * channel('scaleY', 1)
   const rad = (channel('rotate', 0) * Math.PI) / 180
+
   return `matrix(${sx * Math.cos(rad)}, ${sy * Math.sin(rad)}, ${-sx * Math.sin(rad)}, ${sy * Math.cos(rad)}, ${x}, ${y})`
 }
 
@@ -78,6 +82,7 @@ function fakeWebElement() {
       },
       finish() {
         const last = keyframes[keyframes.length - 1] ?? {}
+
         presented = {
           transform: last.transform,
           opacity: last.opacity === undefined ? undefined : String(last.opacity),
@@ -144,7 +149,9 @@ describe('web WAAPI delegation', () => {
 
     expect(run).not.toBeNull()
     expect(animations).toHaveLength(1)
+
     const animation = animations[0]
+
     expect(animation.options).toMatchObject({
       duration: 500,
       delay: 100,
@@ -177,6 +184,7 @@ describe('web WAAPI delegation', () => {
     const run = delegatedRun(el, request({ x: 100 }), (target) => written.push({ ...target }))
 
     const animation = animations[0]
+
     animation.present('matrix(0.5, 0, 0, 0.5, 42, 7)')
     run!.cancel()
     expect(animation.cancelled).toBe(true)
@@ -189,16 +197,21 @@ describe('web WAAPI delegation', () => {
 
   it('decomposes matrix3d without mixing transform-origin into translation', () => {
     const { el, animations } = fakeWebElement()
+
     el.style.transformOrigin = '10px 20px'
+
     const run = delegatedRun(el, request({ rotate: 90 }), () => {})
 
     const animation = animations[0]
+
     animation.present('matrix3d(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 25, 5, 0, 1)')
     expect(run!.sample()).toMatchObject({ x: 25, y: 5, scaleX: 1, scaleY: 1, rotate: 0 })
     // getComputedStyle().transform excludes transform-origin. These
     // translation channels stay (30, 10), including with a nonzero origin.
     animation.present('matrix(0, 1, -1, 0, 30, 10)')
+
     const sampled = run!.sample()
+
     expect(sampled.rotate).toBeCloseTo(90)
     expect(sampled.x).toBeCloseTo(30)
     expect(sampled.y).toBeCloseTo(10)
@@ -218,15 +231,18 @@ describe('web WAAPI delegation', () => {
     const { el, animations } = fakeWebElement()
     const time = fakeClock()
     const controller = new Controller(time.clock)
+
     controller.attach(attachHost(el))
     controller.seed({ x: 0 })
 
     const doneFirst = controller.animate({ x: 100 }, { duration: 0.5, ease: 'linear' }, false)
+
     expect(animations).toHaveLength(1)
     animations[0].present('matrix(1, 0, 0, 1, 30, 0)')
     time.advance(16)
 
     const doneSecond = controller.animate({ x: -50 }, { duration: 0.5 }, false)
+
     expect(animations[0].cancelled).toBe(true)
     // Interruption sampled into the channel value and velocity.
     expect(controller.values.get('x')?.get()).toBe(30)
@@ -256,10 +272,12 @@ describe('web WAAPI delegation', () => {
     const { el, animations } = fakeWebElement()
     const time = fakeClock()
     const controller = new Controller(time.clock)
+
     controller.attach(attachHost(el))
     controller.seed({ x: 0 })
 
     const done = controller.animate({ x: 100 }, transition as any, reduced)
+
     expect(animations).toHaveLength(0)
     for (let i = 0; i < 500; i++) {
       time.advance(16)

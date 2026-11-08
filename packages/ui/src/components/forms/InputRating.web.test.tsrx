@@ -7,6 +7,7 @@ import { FormField } from './FormField.web.tsrx'
 import type { InputRatingProps } from '../../props'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   for (const cleanup of cleanups.splice(0)) {
     cleanup()
@@ -15,9 +16,12 @@ afterEach(() => {
 
 function mount(initial: InputRatingProps) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const render = (props: InputRatingProps) => act(() => root.render(InputRating, props))
+
   render(initial)
   cleanups.push(() => {
     act(() => root.unmount())
@@ -38,6 +42,7 @@ function mount(initial: InputRatingProps) {
 
 it('owns one field and exactly one checked score while drawing a filled prefix', () => {
   const { host, cells, group } = mount({ label: 'Trip rating', width: 280, value: 3 })
+
   expect(host.querySelectorAll('.vx-field')).toHaveLength(1)
   expect(host.querySelector('.vx-field-label')?.textContent).toBe('Trip rating')
   expect(cells().filter((cell) => cell.getAttribute('aria-checked') === 'true')).toEqual([
@@ -61,6 +66,7 @@ it('retains a local score and suppresses duplicate selection', () => {
   const change = vi.fn()
   const { render, cells, key } = mount({ defaultValue: 2, onValueChange: change })
   const original = cells()
+
   act(() => cells()[3].click())
   expect(change).toHaveBeenLastCalledWith(4)
   expect(cells()[3].getAttribute('aria-checked')).toBe('true')
@@ -77,6 +83,7 @@ it('retains a local score and suppresses duplicate selection', () => {
 it('keeps controlled authority and a single focus stop after rejected arrows', () => {
   const change = vi.fn()
   const { cells, key } = mount({ value: 2, onValueChange: change })
+
   act(() => cells()[1].focus())
   key(cells()[1], 'ArrowRight')
   expect(change).toHaveBeenLastCalledWith(3)
@@ -90,6 +97,7 @@ it('keeps controlled authority and a single focus stop after rejected arrows', (
 it('keeps read-only scores focusable without changing their value', () => {
   const change = vi.fn()
   const { cells, key, group, render } = mount({ value: 2, isReadOnly: true, onValueChange: change })
+
   act(() => cells()[1].focus())
   key(cells()[1], 'ArrowRight')
   expect(document.activeElement).toBe(cells()[2])
@@ -102,6 +110,7 @@ it('keeps read-only scores focusable without changing their value', () => {
 
 it('inherits an external field without a second caption or owner', () => {
   const { root, host, group } = mount({})
+
   act(() =>
     root.render(
       <FormField label="Parent rating" isGroupLabel isReadOnly isRequired>
@@ -118,6 +127,7 @@ it('inherits an external field without a second caption or owner', () => {
 it('accepts a text character and retains score cells through glyph changes', () => {
   const { cells, render } = mount({ icon: '☆', value: 2 })
   const original = cells()
+
   expect(cells().every((cell) => cell.textContent === '☆')).toBe(true)
   render({ value: 2 })
   expect(cells().every((cell) => cell.textContent === '★')).toBe(true)
@@ -127,6 +137,7 @@ it('accepts a text character and retains score cells through glyph changes', () 
 it('uses the group direction for horizontal navigation', () => {
   const change = vi.fn()
   const { cells, key } = mount({ value: 3, style: { direction: 'rtl' }, onValueChange: change })
+
   act(() => cells()[2].focus())
   key(cells()[2], 'ArrowRight')
   expect(change).toHaveBeenLastCalledWith(2)

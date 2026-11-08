@@ -26,8 +26,10 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-web-host-packed-')))
 const consumer = join(work, 'consumer')
 const pack = join(work, 'pack')
+
 mkdirSync(consumer)
 mkdirSync(pack)
+
 const servers = []
 let browser
 let succeeded = false
@@ -39,19 +41,23 @@ function run(command, args, cwd = consumer, env = {}) {
     maxBuffer: 64 * 1024 * 1024,
     env: { ...process.env, ...env },
   })
+
   assert.equal(
     result.status,
     0,
     `${command} ${args.join(' ')} failed:\n${result.stdout}\n${result.stderr}`,
   )
+
   return result.stdout
 }
 
 function freePort() {
   return new Promise((resolve) => {
     const socket = createNetServer()
+
     socket.listen(0, '127.0.0.1', () => {
       const port = socket.address().port
+
       socket.close(() => resolve(port))
     })
   })
@@ -59,6 +65,7 @@ function freePort() {
 
 function startServer(env, label) {
   const portPromise = freePort()
+
   return portPromise.then(
     (port) =>
       new Promise((accept, reject) => {
@@ -68,20 +75,26 @@ function startServer(env, label) {
           stdio: ['ignore', 'pipe', 'pipe'],
           env: { ...process.env, ...env, PORT: String(port) },
         })
+
         servers.push(child)
+
         let output = ''
         const timer = setTimeout(
           () => reject(new Error(`${label} readiness timeout:\n${output}`)),
           30_000,
         )
+
         const capture = (chunk) => {
           output += chunk
+
           const match = /(https?:\/\/\S+)/.exec(output)
+
           if (match) {
             clearTimeout(timer)
             accept(match[1].replace(/\/+$/, ''))
           }
         }
+
         child.stdout.on('data', capture)
         child.stderr.on('data', capture)
         child.on('exit', () => {
@@ -96,17 +109,22 @@ function startServer(env, label) {
 // workspace specifier resolves to a tarball in the consumer.
 function workspaceClosure(root) {
   const workspace = new Map()
+
   for (const dir of readdirSync(join(repo, 'packages'))) {
     const manifest = join(repo, 'packages', dir, 'package.json')
+
     if (existsSync(manifest)) {
       workspace.set(JSON.parse(readFileSync(manifest, 'utf8')).name, join(repo, 'packages', dir))
     }
   }
+
   const seen = new Map()
   const queue = [root]
+
   while (queue.length) {
     const dir = queue.shift()
     const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
     if (seen.has(manifest.name)) {
       continue
     }
@@ -120,19 +138,23 @@ function workspaceClosure(root) {
       }
     }
   }
+
   return seen
 }
 
 async function fetchText(url, init) {
   const response = await fetch(url, init)
+
   return { status: response.status, headers: response.headers, text: await response.text() }
 }
 
 try {
   // Pack the web-host tarball and its full workspace dependency closure.
   const tarballs = {}
+
   for (const [name, dir] of workspaceClosure(join(repo, 'packages/web-host'))) {
     const manifest = JSON.parse(readFileSync(join(dir, 'package.json'), 'utf8'))
+
     run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], dir)
     tarballs[name] =
       `file:${join(pack, `${name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -171,6 +193,7 @@ try {
   run('bun', ['install', '--ignore-scripts'])
 
   const req = createRequire(join(consumer, 'package.json'))
+
   for (const name of Object.keys(tarballs)) {
     assert.ok(
       realpathSync(join(consumer, 'node_modules', name)).startsWith(work),
@@ -199,8 +222,11 @@ try {
   })
 
   const first = run(process.execPath, ['build.mjs'], join(consumer, 'example'))
+
   assert.match(first, /rendered: 4/)
+
   const second = run(process.execPath, ['build.mjs'], join(consumer, 'example'))
+
   assert.match(second, /rendered: 0/)
   assert.match(second, /reused: 4/)
   console.log('PASS verbatim example builds, second run reuses all four pages including not-found')
@@ -213,6 +239,7 @@ try {
 
   for (const name of names) {
     const type = playwright[name]
+
     browser = await type.launch({ headless: true })
     try {
       for (const [label, base] of [
@@ -221,16 +248,20 @@ try {
       ]) {
         // a. Raw HTTP: rendered HTML plus hashed assets that actually serve.
         const page_ = await fetchText(`${base}/products/coat`)
+
         assert.equal(page_.status, 200)
         assert.match(page_.text, /<h1>.*Product coat/s)
         assert.match(page_.text, /<title>Product coat<\/title>/)
+
         const script = /<script type="module" src="([^"]+)"/.exec(page_.text)
+
         assert.ok(script, 'module script in document')
         for (const href of [
           script[1],
           ...[...page_.text.matchAll(/<link rel="stylesheet" href="([^"]+)"/g)].map((m) => m[1]),
         ]) {
           const asset = await fetch(new URL(href, base))
+
           assert.equal(asset.status, 200, href)
           assert.match(
             asset.headers.get('Content-Type') ?? '',
@@ -244,9 +275,12 @@ try {
         // b. JavaScript disabled: content and author CSS are fully readable.
         const context = await browser.newContext({ javaScriptEnabled: false })
         const noJs = await context.newPage()
+
         await noJs.goto(`${base}/products/coat`, { waitUntil: 'domcontentloaded' })
         assert.equal(await noJs.locator('h1').innerText(), 'Product coat')
+
         const color = await noJs.locator('h1').evaluate((node) => getComputedStyle(node).color)
+
         assert.equal(color, 'rgb(20, 90, 50)')
         assert.ok(await noJs.locator('button').count())
         assert.ok(await noJs.locator('a').count())
@@ -278,6 +312,7 @@ try {
 
         await page.goto(`${base}/products/coat`, { waitUntil: 'domcontentloaded' })
         await page.waitForSelector('html[data-web-app="started"]')
+
         const identity = await page.evaluate(
           (key) => ({
             button: globalThis[key].button === document.querySelector('main button'),
@@ -289,7 +324,9 @@ try {
 
         assert.equal(identity.button, true, 'the button node is adopted, not replaced')
         assert.equal(identity.h1, true, 'the h1 node is adopted, not replaced')
+
         const button = page.locator('main button')
+
         assert.equal(await button.innerText(), 'Add to bag: 0')
         await button.click()
         assert.equal(await button.innerText(), 'Add to bag: 1')
@@ -316,15 +353,20 @@ try {
 
         // e. Not-found: rendered 404, readable without JS, activates with JS.
         const missing = await fetchText(`${base}/nope/deep`)
+
         assert.equal(missing.status, 404)
         assert.match(missing.text, /Not found/)
+
         const deadContext = await browser.newContext({ javaScriptEnabled: false })
         const deadNoJs = await deadContext.newPage()
+
         await deadNoJs.goto(`${base}/nope/deep`, { waitUntil: 'domcontentloaded' })
         assert.equal(await deadNoJs.locator('h1').innerText(), 'Not found')
         await deadContext.close()
+
         const dead = await browser.newPage()
         const deadErrors = []
+
         dead.on('console', collect(deadErrors))
         dead.on('pageerror', (error) => deadErrors.push(String(error)))
         await dead.goto(`${base}/nope/deep`, { waitUntil: 'domcontentloaded' })

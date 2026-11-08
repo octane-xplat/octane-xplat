@@ -25,6 +25,7 @@ const displayObserverClass = () => {
       },
     },
   )
+
   return DisplayObserverClass
 }
 
@@ -51,6 +52,7 @@ export function observePreviewDisplay(layer: any, change: () => void): (() => vo
   }
 
   const observer = displayObserverClass().new()
+
   observer.callback = change
   // New = 1; `bounds` is observed so a layer laid out after previewing
   // started still produces a transition worth re-evaluating.

@@ -20,12 +20,14 @@ assert.equal(
 )
 
 assert.equal(process.arch, 'arm64')
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
 const binary = process.env.XPLAT_GO_ONNX_BINARY ?? join(work, 'xplat-go-darwin-arm64-onnx')
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(build.onnx, true)
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
@@ -36,6 +38,7 @@ await prepareModelFixtures({ tokenizerOnly: false })
 // Reuse the pinned immutable runtime/model source; preparation affects ignored
 // task assets only, never the retained Nim source or executable.
 await prepareOrtFixtures()
+
 const library = join(runtimeDir, runtimeTarget.library)
 const temporary = mkdtempSync(join(work, 'model-check-'))
 const evidence = {
@@ -64,6 +67,7 @@ const tokenizer = new Tokenizer(
 
 function native(operation, texts, overrides = {}, { fail = false } = {}) {
   const request = join(temporary, 'request.json')
+
   writeFileSync(
     request,
     JSON.stringify({
@@ -74,6 +78,7 @@ function native(operation, texts, overrides = {}, { fail = false } = {}) {
       ...overrides,
     }),
   )
+
   const result = spawnSync(
     '/usr/bin/sandbox-exec',
     [
@@ -88,6 +93,7 @@ function native(operation, texts, overrides = {}, { fail = false } = {}) {
     ],
     { encoding: 'utf8', env: { ...process.env, PATH: '' }, maxBuffer: 32 << 20, timeout: 150000 },
   )
+
   assert.equal(result.status, fail ? 1 : 0, result.stderr + '\n' + result.stdout)
   assert.equal(result.stderr, '')
   return JSON.parse(result.stdout)
@@ -104,6 +110,7 @@ try {
   ]
 
   const tokens = native('tokenize', texts)
+
   for (const [at, text] of texts.entries()) {
     assert.deepEqual(
       tokens[at],
@@ -139,11 +146,15 @@ try {
       start = lines.findIndex(
         (line) => /^#{1,6} /.test(line) && line.replace(/^#+ /, '').trim() === heading,
       )
+
     assert.ok(start >= 0, heading)
+
     let end = start + 1
+
     while (end < lines.length && !/^#{1,6} /.test(lines[end])) {
       end++
     }
+
     return { path, heading, query, text: lines.slice(start, end).join('\n'), line: start + 1 }
   })
 
@@ -154,14 +165,18 @@ try {
   ]
 
   const actual = native('embed', all)
+
   assert.match(actual.engine, /onnxruntime-1\.31\.1/)
+
   const cache = join(temporary, 'cache'),
     linked = join(cache, 'models', MODEL.name, MODEL.revision)
 
   mkdirSync(dirname(linked), { recursive: true })
   symlinkSync(modelFixtureDir, linked, 'dir')
+
   const reference = localEmbedder(cache)
   let expected
+
   try {
     expected = await reference.embed(all)
   } finally {
@@ -169,11 +184,14 @@ try {
   }
 
   const dot = (a, b) => a.reduce((sum, value, at) => sum + value * b[at], 0)
+
   for (const [at, vector] of actual.vectors.entries()) {
     assert.equal(vector.length, 384)
     assert.ok(vector.every(Number.isFinite))
     assert.ok(Math.abs(Math.hypot(...vector) - 1) < 1e-10)
+
     const cosine = dot(vector, expected[at])
+
     evidence.comparisons.push({ text: all[at].slice(0, 80), cosine })
     assert.ok(cosine > 0.95)
   }
@@ -194,6 +212,7 @@ try {
   }
 
   const single = native('embed', [texts[1]])
+
   assert.deepEqual(
     single.vectors[0],
     actual.vectors[1],
@@ -207,6 +226,7 @@ try {
 
   const size = (path) => {
     const bytes = readFileSync(path)
+
     return {
       bytes: bytes.length,
       gzip6Bytes: gzipSync(bytes, { level: 6 }).length,
@@ -220,6 +240,7 @@ try {
   }
 
   const samples = []
+
   for (let at = 0; at < 25; at++) {
     const start = performance.now()
     const result = spawnSync(binary, ['--help'], {

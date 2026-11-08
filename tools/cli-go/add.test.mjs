@@ -19,6 +19,7 @@ import { createHash } from 'node:crypto'
 import { pathToFileURL } from 'node:url'
 import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
@@ -27,13 +28,16 @@ const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? 
   build = JSON.parse(readFileSync(binary + '.json'))
 
 const sha = (b) => createHash('sha256').update(b).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
 }
 
 const scratch = realpathSync(scratchRun(root, 'go-add'))
+
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const tools = projectToolFixture(root, work, scratch, {
   vite: false,
   packageManagement: true,
@@ -46,6 +50,7 @@ const creator = realpathSync(join(tools.nodeModules, 'create-octane-xplat')),
 let sequence = 0
 function put(dir, file, data) {
   const path = join(dir, file)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, typeof data === 'string' ? data : JSON.stringify(data, null, 2) + '\n')
   return path
@@ -53,6 +58,7 @@ function put(dir, file, data) {
 
 function fixture(initial = ['web'], installed = true) {
   const dir = join(scratch, 'app ' + sequence++ + ' π')
+
   mkdirSync(dir)
   oracle.composeTargets(initial, dir)
   if (installed) {
@@ -62,6 +68,7 @@ function fixture(initial = ['web'], installed = true) {
       process.platform === 'win32' ? 'junction' : 'dir',
     )
   }
+
   return dir
 }
 
@@ -74,6 +81,7 @@ function tree(dir) {
       }
 
       const file = join(path, entry.name)
+
       if (entry.isDirectory()) {
         visit(file)
       } else if (entry.isFile()) {
@@ -81,6 +89,7 @@ function tree(dir) {
       }
     }
   }
+
   visit(dir)
   return files
 }
@@ -103,8 +112,11 @@ function success(r) {
 
 test('add help and schema need neither Node nor a generator', () => {
   const dir = fixture([], false)
+
   success(run(dir, ['--help'], { PATH: '' }))
+
   const r = run(dir, ['--schema'], { PATH: '' })
+
   success(r)
   assert.ok(r.stdout.includes('no-install'))
 })
@@ -117,17 +129,22 @@ test('native add uses the actual creator for web/iOS/Android output and preserve
 
       for (const dir of [actual, reference]) {
         const pkg = JSON.parse(readFileSync(join(dir, 'package.json')))
+
         pkg.scripts.test = 'custom test'
         put(dir, 'package.json', pkg)
         put(dir, 'user-data.txt', 'preserve π😀')
       }
 
       oracle.applyTarget(reference, target)
+
       const r = run(actual, [target, '--no-install'])
+
       success(r)
       assert.deepEqual(tree(actual), tree(reference), initial + ' -> ' + target)
       assert.equal(readFileSync(join(actual, 'user-data.txt'), 'utf8'), 'preserve π😀')
+
       const before = tree(actual)
+
       success(run(actual, [target, '--no-install']))
       assert.deepEqual(tree(actual), before, 'idempotent')
     }
@@ -137,8 +154,11 @@ test('native add uses the actual creator for web/iOS/Android output and preserve
 test('workspace catalog and patch ownership match the creator', () => {
   function workspace() {
     const dir = join(scratch, 'workspace ' + sequence++)
+
     put(dir, 'package.json', { private: true, packageManager: 'bun@1.4.4', workspaces: ['apps/*'] })
+
     const app = join(dir, 'apps/app')
+
     mkdirSync(app, { recursive: true })
     oracle.composeTargets(['web'], app)
     symlinkSync(
@@ -146,10 +166,13 @@ test('workspace catalog and patch ownership match the creator', () => {
       join(app, 'node_modules'),
       process.platform === 'win32' ? 'junction' : 'dir',
     )
+
     return { dir, app }
   }
+
   const a = workspace(),
     b = workspace()
+
   oracle.applyTarget(b.app, 'android')
   success(run(a.app, ['android', '--no-install']))
   assert.deepEqual(tree(a.dir), tree(b.dir))
@@ -160,6 +183,7 @@ test('invalid targets and missing generators fail without project writes', () =>
     const dir = fixture(['web'], mode !== 'missing')
     const before = tree(dir)
     const r = run(dir, [mode === 'unknown' ? 'bogus' : 'ios', '--no-install'])
+
     assert.notEqual(r.status, 0)
     assert.deepEqual(tree(dir), before)
   }
@@ -177,6 +201,7 @@ test('managed output aliases fail before any source/manifest publication', () =>
     }
 
     const dest = path === 'tsconfig.json' ? put(outside, 'config.json', '{}\n') : outside
+
     symlinkSync(
       dest,
       join(dir, path),
@@ -199,6 +224,7 @@ function fake(dir, body) {
     type: 'module',
     exports: { './worker': './fake.mjs' },
   })
+
   put(
     dir,
     'node_modules/@octane-xplat/cli/fake.mjs',
@@ -208,6 +234,7 @@ function fake(dir, body) {
 
 test('a valid isolated worker plan reaches native publication', () => {
   const dir = fixture([], false)
+
   fake(dir, '')
   success(run(dir, ['web', '--no-install']))
   assert.equal(readFileSync(join(dir, 'new-generated.ts'), 'utf8'), 'generated\n')
@@ -226,10 +253,13 @@ test('invalid worker plans never broaden write ownership or infer missing roots'
     "const p=join(project,'user-data.txt');data.plan.files[0]={path:p,before:hash(readFileSync(p)),content:Buffer.from('overwrite').toString('base64'),mode:lstatSync(p).mode&511};data.plan.inputs[1]={path:p,kind:'file',sha256:hash(readFileSync(p)),mode:lstatSync(p).mode&511}",
   ]) {
     const dir = fixture([], false)
+
     put(dir, 'user-data.txt', 'keep')
     fake(dir, body)
+
     const before = tree(dir)
     const r = run(dir, ['web', '--no-install'])
+
     assert.notEqual(r.status, 0, body)
     assert.doesNotMatch(r.stderr, /SyntaxError|ReferenceError/, body)
     assert.deepEqual(tree(dir), before, body)
@@ -238,9 +268,12 @@ test('invalid worker plans never broaden write ownership or infer missing roots'
 
 test('stale manifest observations are rejected before native generation', () => {
   const dir = fixture([], false)
+
   fake(dir, "writeFileSync(pkg,readFileSync(pkg,'utf8')+'\\n')")
+
   const before = readFileSync(join(dir, 'package.json'), 'utf8')
   const r = run(dir, ['web', '--no-install'])
+
   assert.notEqual(r.status, 0)
   assert.match(r.stderr, /changed during planning/)
   assert.equal(existsSync(join(dir, 'new-generated.ts')), false)
@@ -251,6 +284,7 @@ test('default install rejects a shared node_modules alias before platform writes
   const dir = fixture(['web']),
     before = tree(dir),
     r = run(dir, ['ios'])
+
   assert.notEqual(r.status, 0)
   assert.match(r.stderr, /ordinary node_modules/)
   assert.deepEqual(tree(dir), before)
@@ -258,18 +292,23 @@ test('default install rejects a shared node_modules alias before platform writes
 
 function installFixture(hook) {
   const dir = join(scratch, 'install ' + sequence++)
+
   mkdirSync(dir)
+
   const devDependencies = Object.fromEntries(
     tools.packages.packages.map((p) => [
       p.name,
       'file:' + join(tools.archiveDirectory, p.file).replaceAll('\\', '/'),
     ]),
   )
+
   for (const name of ['jsdom', '@octanejs/vite-plugin']) {
     const dep = join(scratch, 'local ' + name.replaceAll('/', '-'))
+
     put(dep, 'package.json', { name, version: '1.0.0' })
     devDependencies[name] = 'file:' + dep.replaceAll('\\', '/')
   }
+
   put(dir, 'package.json', {
     name: 'real-install',
     private: true,
@@ -278,12 +317,15 @@ function installFixture(hook) {
     devDependencies,
     scripts: { postinstall: 'node hook.mjs' },
   })
+
   put(dir, 'hook.mjs', hook)
+
   const initial = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
     cwd: dir,
     encoding: 'utf8',
     timeout: 120000,
   })
+
   success(initial)
   return dir
 }
@@ -292,7 +334,9 @@ test('default addition runs the real Bun installer with project-owned packages a
   const dir = installFixture(
     "import{writeFileSync}from'node:fs';console.log('ADD_INSTALL_STDOUT');console.error('ADD_INSTALL_STDERR');writeFileSync('installed.marker','yes')",
   )
+
   const r = run(dir, ['web'])
+
   success(r)
   assert.match(r.stdout, /ADD_INSTALL_STDOUT/)
   assert.match(r.stderr, /ADD_INSTALL_STDERR/)
@@ -339,6 +383,7 @@ for (const answer of ['web', 'cancel']) {
     () => {
       const dir = fixture([], true),
         before = tree(dir)
+
       const r = spawnSync(
         'python3',
         ['-I', join(root, 'tools/cli-go/add-terminal.py'), binary, answer],
@@ -349,8 +394,11 @@ for (const answer of ['web', 'cancel']) {
           timeout: 25000,
         },
       )
+
       success(r)
+
       const result = JSON.parse(r.stdout)
+
       assert.equal(result.code, 0, result.output)
       assert.equal(result.promptObserved, true, result.output)
       if (answer === 'web') {
@@ -375,12 +423,15 @@ test('cancelling a real add install cleans descendants and releases the project 
   const dir = installFixture(
     `import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';process.on('SIGTERM',()=>{});const leaf=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>{},1000)"],{stdio:'ignore'});writeFileSync('hook-pids.json',JSON.stringify([process.pid,leaf.pid]));setInterval(()=>{},1000)`,
   )
+
   const child = spawn(binary, ['add', 'web'], {
     cwd: dir,
     env: { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
+
   let output = ''
+
   child.stdout.on('data', (b) => (output += b))
   child.stderr.on('data', (b) => (output += b))
   t.after(() => {
@@ -388,66 +439,83 @@ test('cancelling a real add install cleans descendants and releases the project 
       child.kill('SIGKILL')
     }
   })
+
   const deadline = Date.now() + 20000
+
   while (!existsSync(join(dir, 'hook-pids.json')) && Date.now() < deadline) {
     await delay(25)
   }
+
   assert.equal(existsSync(join(dir, 'hook-pids.json')), true, output)
+
   const pids = JSON.parse(readFileSync(join(dir, 'hook-pids.json'))),
     closed = once(child, 'close')
+
   child.kill('SIGTERM')
   await closed
   for (const pid of pids) {
     const until = Date.now() + 6000
+
     while (alive(pid) && Date.now() < until) {
       await delay(25)
     }
 
     assert.equal(alive(pid), false, 'hook descendant survived: ' + pid)
   }
+
   if (process.platform !== 'win32') {
     assert.match(output, /workspace files may have changed/)
   }
+
   success(run(dir, ['web', '--no-install']))
 })
 
 test('pnpm projects add targets through pnpm-workspace.yaml without Bun fields', () => {
   const pnpmApp = () => {
     const dir = join(scratch, 'pnpm-app ' + sequence++)
+
     oracle.composeTargets(['web'], dir, { packageManager: 'pnpm' })
     symlinkSync(
       tools.nodeModules,
       join(dir, 'node_modules'),
       process.platform === 'win32' ? 'junction' : 'dir',
     )
+
     return dir
   }
+
   const actual = pnpmApp(),
     reference = pnpmApp()
+
   oracle.applyTarget(reference, 'ios')
 
   const r = run(actual, ['ios', '--no-install'])
+
   success(r)
   assert.match(r.stdout, /Skipped install — run pnpm install/)
   assert.deepEqual(tree(actual), tree(reference))
 
   const pkg = JSON.parse(readFileSync(join(actual, 'package.json'), 'utf8'))
+
   assert.equal(pkg.workspaces, undefined)
   assert.equal(pkg.patchedDependencies, undefined)
   assert.ok(pkg.devDependencies['@nativescript/ios'])
 
   const yaml = readFileSync(join(actual, 'pnpm-workspace.yaml'), 'utf8')
+
   assert.match(yaml, /nativescript: true/)
   assert.match(
     yaml,
     /"@nativescript\/core": false|"@nativescript\/core': false|'@nativescript\/core': false/,
   )
+
   assert.match(yaml, /@parcel\/watcher.*: true/)
   assert.match(yaml, /@nativescript__core@9\.1\.3\.patch/)
 })
 
 test('pnpm standalone app without a yaml gets one created by add', () => {
   const dir = join(scratch, 'pnpm-solo ' + sequence++)
+
   oracle.composeTargets(['web'], dir, { packageManager: 'pnpm' })
   rmSync(join(dir, 'pnpm-workspace.yaml'))
   symlinkSync(
@@ -457,9 +525,12 @@ test('pnpm standalone app without a yaml gets one created by add', () => {
   )
 
   const r = run(dir, ['ios', '--no-install'])
+
   success(r)
   assert.ok(existsSync(join(dir, 'pnpm-workspace.yaml')))
+
   const yaml = readFileSync(join(dir, 'pnpm-workspace.yaml'), 'utf8')
+
   assert.match(yaml, /packages: \[\]/)
   assert.match(yaml, /catalogs:/)
   assert.match(yaml, /patchedDependencies:/)

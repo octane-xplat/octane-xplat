@@ -47,11 +47,14 @@ export function parseInstant(text: string): number | null {
   const match = /^(\d{4}-\d{2}-\d{2})(?:[ T](\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,3}))?)?Z?)?$/.exec(
     text.trim(),
   )
+
   if (!match) {
     return null
   }
+
   const canonical = `${match[1]}T${match[2] ?? '00'}:${match[3] ?? '00'}:${match[4] ?? '00'}.${(match[5] ?? '').padEnd(3, '0')}Z`
   const milliseconds = Date.parse(canonical)
+
   return Number.isFinite(milliseconds) && new Date(milliseconds).toISOString() === canonical
     ? milliseconds / 1000
     : null
@@ -61,8 +64,10 @@ function partValue(draft: RangePartDraft): DateTimeRangePart | null {
   if (draft.kind === 'NOW') {
     return { type: 'NOW' }
   }
+
   if (draft.kind === 'ABSOLUTE') {
     const original = draft.original
+
     // Preserve a stored instant's precision/expanded year on a no-op edit.
     if (
       original?.type === 'ABSOLUTE' &&
@@ -74,21 +79,27 @@ function partValue(draft: RangePartDraft): DateTimeRangePart | null {
     }
 
     const unixSeconds = parseInstant(draft.instant)
+
     return unixSeconds === null ? null : { type: 'ABSOLUTE', unixSeconds }
   }
+
   if (
     !/^[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(draft.amount.trim()) ||
     !rangeUnits.includes(draft.unit as (typeof rangeUnits)[number])
   ) {
     return null
   }
+
   const backValue = Number(draft.amount)
+
   if (!Number.isFinite(backValue)) {
     return null
   }
+
   const anchorKey =
     draft.anchorKey ||
     (draft.original?.type === 'RELATIVE' && draft.original.anchorKey === '' ? '' : undefined)
+
   return {
     type: 'RELATIVE',
     backValue,
@@ -103,19 +114,23 @@ export function rangeValue(
 ): { value: DateTimeRange | null; error: string | null } {
   const start = partValue(draft.start),
     end = partValue(draft.end)
+
   if (!start || !end) {
     return {
       value: null,
       error: 'Enter a valid UTC date/time or a finite relative amount and unit.',
     }
   }
+
   const from = resolveDateTimeRangePart(start, nowSeconds),
     to = resolveDateTimeRangePart(end, nowSeconds)
+
   if (![from, to].every(Number.isFinite) || from > to) {
     return {
       value: null,
       error: 'Start must be no later than end at the time you apply the range.',
     }
   }
+
   return { value: { start, end }, error: null }
 }

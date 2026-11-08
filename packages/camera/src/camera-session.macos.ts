@@ -29,6 +29,7 @@ export function cameraHardwarePresent(): boolean {
  *  explicit actions only. */
 export function ensureCameraPermission(): Promise<boolean> {
   const status = helperHost().permissionStatus('camera')
+
   if (status === 'granted') {
     return Promise.resolve(true)
   }
@@ -51,14 +52,18 @@ export function startCameraPreview(
   onReady?: () => void,
 ): () => void {
   const host = createCameraHost()
+
   host.installObserver(() => {})
+
   const configured = host.configure({ audio: false })
+
   if (configured) {
     host.dispose()
     throw new Error(`camera unavailable: ${configured}`)
   }
 
   const failure = host.attachPreview(view)
+
   if (failure) {
     host.dispose()
     throw new Error(`camera unavailable: ${failure}`)

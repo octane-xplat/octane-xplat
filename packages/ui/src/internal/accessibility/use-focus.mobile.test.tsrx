@@ -31,6 +31,7 @@ const Probe = (props: any) => @{
     const focusVisible = useFocusVisible()
     const within = useFocusWithin({ onFocusWithinChange: props.onWithin })
     const { landmarkProps } = useLandmark({ role: 'main', label: 'Content' })
+
     captured = {
       focusProps,
       ring,
@@ -51,6 +52,7 @@ describe('focus hooks (universal renderer)', () => {
     const onWithin = vi.fn()
     const onFocus = vi.fn()
     const onBlur = vi.fn()
+
     root.render(Probe, { onFocus, onBlur, onChange, onWithin })
 
     expect(captured.focusVisible).toEqual({
@@ -91,6 +93,7 @@ describe('focus hooks (universal renderer)', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(FocusScope, {
       contain: true,
       autoFocus: true,
@@ -99,6 +102,7 @@ describe('focus hooks (universal renderer)', () => {
     })
 
     const host = container.children[0]
+
     expect(host.props.accessibilityLabel).toBe('Scoped')
     expect(warn.mock.calls.flat().join(' ')).toContain('contain')
     expect(warn.mock.calls.flat().join(' ')).toContain('autoFocus')

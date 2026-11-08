@@ -26,16 +26,21 @@ export function observerFactory(
     },
     { name, protocols: [protocol] },
   )
+
   return (listener) => {
     const instance = Type.new()
+
     instance.callback = listener
     register(instance)
+
     let active = true
+
     return {
       remove() {
         if (!active) {
           return
         }
+
         active = false
         instance.callback = undefined
         unregister(instance)

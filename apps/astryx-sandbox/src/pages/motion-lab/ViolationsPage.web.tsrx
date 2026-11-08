@@ -162,6 +162,7 @@ export function ViolationsPage() {
         }
 
         const q = query.toLowerCase()
+
         return (
           site.component.toLowerCase().includes(q) ||
           site.file.toLowerCase().includes(q) ||
@@ -223,6 +224,7 @@ export function ViolationsPage() {
         <Heading level={2}>Four families, two of them blocked</Heading>
         {FAMILIES.map((family) => {
           const count = HARDCODED_SITES.filter((s) => familyOf(s)?.id === family.id).length
+
           return (
             <DemoCard
               key={family.id}

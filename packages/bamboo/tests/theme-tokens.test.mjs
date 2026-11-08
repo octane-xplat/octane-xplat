@@ -11,15 +11,18 @@ const chromePath = fileURLToPath(new URL('../../ui/src/theme/chrome.css', import
 
 function defaultThemeTokens() {
   const css = readFileSync(chromePath, 'utf8').replace(/\/\*.*?\*\//gs, '')
+
   // The theme rule nests inside @layer, so anchor on a selector list that
   // names :root rather than pairing every header with the next block.
   for (const match of css.matchAll(/([^{}]*:root[^{}]*)\{([^{}]*)\}/g)) {
     const selectors = match[1].split(',').map((selector) => selector.trim())
+
     if (!selectors.includes(':root') || !selectors.includes('.ns-root')) {
       continue
     }
 
     const tokens = { color: new Set(), radius: new Set(), space: new Set() }
+
     for (const declaration of match[2].matchAll(/--(color|radius|space)-([A-Za-z0-9-]+)\s*:/g)) {
       tokens[declaration[1]].add(declaration[2])
     }
@@ -38,11 +41,13 @@ for (const [prefix, tokens] of [
   ['space', theme.space],
 ]) {
   const group = prefix === 'color' ? 'colors' : prefix === 'radius' ? 'radii' : 'spacing'
+
   test(`preset ${group} cover every --${prefix}-* variable in the ui default theme`, () => {
     const configured = xplatBambooConfig.theme.tokens[group]
     const names = new Set(Object.keys(configured))
     const missing = [...tokens].filter((name) => !names.has(name))
     const extra = [...names].filter((name) => !tokens.has(name))
+
     assert.deepEqual(
       { missing, extra },
       { missing: [], extra: [] },

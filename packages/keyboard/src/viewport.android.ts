@@ -26,6 +26,7 @@ const supportsPadding = (native: any) =>
 const paddingOf = (native: any): number[] => {
   const edges = native.getEdgeInsets(),
     ime = native.getImeInsets()
+
   // Own base padding, not the automatically applied strip. This remains valid
   // if another owner changes the overflow policy while the lease is active.
   return [
@@ -42,6 +43,7 @@ const paddingLeases = (native: any) =>
       () => paddingOf(native)[index],
       (value) => {
         const values = paddingOf(native)
+
         values[index] = value
         native.setPadding(...values)
       },
@@ -57,6 +59,7 @@ const applyBars = (entry: Entry, inset: any) => {
     inset.cutoutRight ?? 0,
     inset.cutoutBottom ?? 0,
   ]
+
   entry.padding.forEach((lease, index) =>
     lease.set(Math.max(0, values[index] ?? 0, cutout ? cuts[index] : 0)),
   )
@@ -69,11 +72,14 @@ const seedBars = (entry: Entry) => {
   const core = (globalThis as any).androidx?.core?.view
   const insets = core?.ViewCompat?.getRootWindowInsets(entry.native)
   const type = core?.WindowInsetsCompat?.Type
+
   if (!insets || !type) {
     return
   }
+
   const bars = insets.getInsets(type.systemBars())
   const cutout = type.displayCutout ? insets.getInsets(type.displayCutout()) : undefined
+
   applyBars(entry, {
     left: bars.left,
     top: bars.top,
@@ -90,10 +96,13 @@ const update = (entry: Entry, request = true) => {
   if (entry.owner.androidOverflowEdge !== ownedPolicy) {
     return
   }
+
   const native = nativeFor(entry.owner)
+
   if (!supportsPadding(native) || entry.native === native) {
     return
   }
+
   // A detached native view no longer owns the replacement's properties.
   entry.padding.forEach((lease) => lease.release())
   entry.native = native
@@ -110,11 +119,15 @@ const update = (entry: Entry, request = true) => {
  * No listener on the Activity/decor is replaced. @internal */
 export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
   const chain: any[] = []
+
   for (let view = host; view; view = view.parent) {
     chain.push(view)
   }
+
   chain.reverse()
+
   let owner: any
+
   for (const view of chain) {
     if (entries.has(view)) {
       owner = view
@@ -122,6 +135,7 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
     }
 
     const policy = view.androidOverflowEdge
+
     if (policy === 'none' || policy === 'none,cutout') {
       owner = view
       break
@@ -131,12 +145,16 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
       return noLease(false)
     }
   }
+
   if (!owner) {
     return noLease(!!host?.page)
   }
+
   let entry = entries.get(owner)
+
   if (!entry) {
     const native = nativeFor(owner)
+
     if (
       !supportsPadding(native) ||
       typeof native.setPadding !== 'function' ||
@@ -146,6 +164,7 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
     }
 
     const previous = owner.androidOverflowEdge
+
     // Clear the old automatically applied strip before capturing base padding.
     owner.androidOverflowEdge = 'ignore'
     entry = {
@@ -158,15 +177,19 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
     }
 
     const own = entry
+
     own.listener = (event) => {
       if (own.owner.androidOverflowEdge !== ownedPolicy || !event.inset) {
         return
       }
+
       update(own, false)
       if (own.native !== nativeFor(own.owner)) {
         return
       }
+
       const inset = event.inset
+
       applyBars(own, inset)
       inset.leftConsumed = inset.topConsumed = inset.rightConsumed = inset.bottomConsumed = true
       inset.imeBottom = 0
@@ -197,9 +220,13 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
       throw error
     }
   }
+
   const own = entry
+
   own.count++
+
   let active = true
+
   return {
     get supported() {
       return (
@@ -217,18 +244,23 @@ export function leaseKeyboardViewport(host: any): KeyboardViewportLease {
       if (!active) {
         return
       }
+
       active = false
       if (--own.count) {
         return
       }
+
       entries.delete(own.owner)
       own.owner.off('androidOverflowInset', own.listener)
       if (own.native === nativeFor(own.owner)) {
         own.padding.forEach((lease) => lease.release())
       }
+
       if (own.owner.androidOverflowEdge === ownedPolicy) {
         own.owner.androidOverflowEdge = own.previous
+
         const native = nativeFor(own.owner)
+
         if (native) {
           requestInsets(native)
         }

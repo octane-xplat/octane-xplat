@@ -11,6 +11,7 @@ import { Outline } from './Outline.macos.tsrx'
 
 it('mounted AppKit Outline activates current items/callbacks, exposes selection, and retires work on unmount', () => {
   vi.useFakeTimers()
+
   const previous = Object.getOwnPropertyDescriptor(globalThis, '__xplatAppKit'),
     window = {},
     moves: any[] = [],
@@ -61,6 +62,7 @@ it('mounted AppKit Outline activates current items/callbacks, exposes selection,
 
   const rows = () => {
     const all = (node: any): any[] => [node, ...(node.children?.flatMap(all) ?? [])]
+
     return container.children
       .flatMap(all)
       .filter((node: any) => node.props?.accessibilityRole === 'button')
@@ -68,7 +70,9 @@ it('mounted AppKit Outline activates current items/callbacks, exposes selection,
 
   try {
     render((id) => events.push(`old:${id}`))
+
     const row = rows()[0]
+
     render((id) => events.push(`current:${id}`))
     row.props.onTap()
     flushUniversalSync(() => {})

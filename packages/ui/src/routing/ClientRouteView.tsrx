@@ -17,9 +17,11 @@ export function ClientRouteView(props: { entry: ClientRouteEntry }): any {
   const entry = props.entry
   const Screen = entry.content.screen
   let content = <Screen {...entry.content.props} />
+
   for (let index = entry.content.layouts.length - 1; index >= 0; index--) {
     const Layout = entry.content.layouts[index]
     const child = content
+
     content = <Layout>{child}</Layout>
   }
 
@@ -28,6 +30,7 @@ export function ClientRouteView(props: { entry: ClientRouteEntry }): any {
   }, [entry])
 
   const route = entry.route
+
   return (
     <ClientRenderBoundary key={entry.id} entry={entry}>
       <RouterRenderScopeProvider scope={entry.scope}>

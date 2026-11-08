@@ -2,10 +2,13 @@
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { createRoot, act } from 'octane'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { CommandPalette } from './CommandPalette.web.tsrx'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   document.body.replaceChildren()
@@ -13,8 +16,11 @@ afterEach(() => {
 
 async function mount(props: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   await act(() => root.render(<CommandPalette {...props} />))
   cleanups.push(() => root.unmount())
   return root
@@ -39,6 +45,7 @@ describe('CommandPalette web interaction', () => {
   it('links a named input and grouped results; navigates enabled rows and activates only the highlight', async () => {
     const selected: string[] = []
     let closes = 0
+
     await mount({
       open: true,
       onOpenChange: () => {
@@ -53,6 +60,7 @@ describe('CommandPalette web interaction', () => {
     })
 
     const input = document.querySelector('[role="combobox"]')!
+
     expect(input.getAttribute('aria-label')).toBe('Command palette')
     expect(
       document.getElementById(input.getAttribute('aria-controls')!)?.getAttribute('role'),
@@ -78,6 +86,7 @@ describe('CommandPalette web interaction', () => {
   it('renders loading, rejected search, retry and no results without executing stale commands', async () => {
     let reject!: (error: Error) => void
     let fail = true
+
     await mount({
       open: true,
       searchSource: {
@@ -92,6 +101,7 @@ describe('CommandPalette web interaction', () => {
     })
 
     const input = document.querySelector('input')!
+
     await type(input, 'remote')
     expect(document.querySelector('[role="status"]')!.textContent).toContain('Loading')
     await act(async () => {
@@ -113,6 +123,7 @@ describe('CommandPalette web interaction', () => {
   it('follows external close/reopen and replaces a pending source', async () => {
     const original = { open: true, items: [{ key: 'one', label: 'One' }] }
     const root = await mount(original)
+
     await type(document.querySelector('input')!, 'missing')
     await act(() => root.render(<CommandPalette {...original} open={false} />))
     expect(document.querySelector('input')).toBeNull()
@@ -123,6 +134,7 @@ describe('CommandPalette web interaction', () => {
 
   it('hover changes highlight without scrolling, and Escape closes once', async () => {
     let closes = 0
+
     await mount({
       open: true,
       onOpenChange: () => {
@@ -132,8 +144,11 @@ describe('CommandPalette web interaction', () => {
     })
 
     const option = document.querySelector('[role="option"]')!
+
     await act(() => option.dispatchEvent(new MouseEvent('mouseenter', { bubbles: false })))
+
     const input = document.querySelector('input')!
+
     expect(input.getAttribute('aria-activedescendant')).toBe(option.id)
     await key(input, 'Escape')
     expect(closes).toBe(1)

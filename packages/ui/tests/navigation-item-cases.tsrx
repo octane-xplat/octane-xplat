@@ -55,6 +55,7 @@ export function NavigationChrome(props: {
   }
 
   let content
+
   if (props.kind === 'link') {
     content = (
       <NavLink

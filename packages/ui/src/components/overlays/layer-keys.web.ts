@@ -3,6 +3,7 @@ import { configureLayerKeys, dispatchLayerKey, setLayerComposing } from './layer
 configureLayerKeys(() => {
   const start = () => setLayerComposing(true)
   const end = () => setLayerComposing(false)
+
   document.addEventListener('keydown', dispatchLayerKey)
   document.addEventListener('compositionstart', start, true)
   document.addEventListener('compositionend', end, true)
@@ -17,8 +18,10 @@ configureLayerKeys(() => {
 
 export function captureLayerFocus(getTarget?: () => any, _host?: any): () => void {
   const initial = document.activeElement as HTMLElement | null
+
   return () => {
     const target = getTarget?.() ?? initial
+
     if (
       target?.isConnected !== false &&
       typeof target?.focus === 'function' &&

@@ -47,6 +47,7 @@ const BLURHASH = 'blurhash:LEHV6nWB2yk8pyo0adR*.7kCMdnj'
 function mount(props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(Image, props)
   flushUniversalSync(() => {})
   return { container, root, host: container.children[0] as any }
@@ -72,6 +73,7 @@ function sized(host: any) {
 describe('native Image placeholder (study L5)', () => {
   it('paints the placeholder bitmap while the binding still holds src', () => {
     const { host } = mount({ src: 'https://x/photo.png', placeholder: BLURHASH })
+
     expect(host.type).toBe('image')
     // L1 binding: src stays unissued until first layout.
     expect(host.src).toBeUndefined()
@@ -80,6 +82,7 @@ describe('native Image placeholder (study L5)', () => {
 
   it('re-applies after each src issue and leaves the final bitmap alone on completion', () => {
     const { root, host } = mount({ src: 'https://x/a.png', placeholder: BLURHASH })
+
     expect(host.imageSource).toEqual({ mocked: 'png' })
     sized(host)
 
@@ -121,6 +124,7 @@ describe('native Image placeholder (study L5)', () => {
     expect(host.imageSource).toBeUndefined()
 
     const { host: plain } = mount({ src: 'https://x/photo.png' })
+
     expect(plain.imageSource).toBeUndefined()
   })
 })

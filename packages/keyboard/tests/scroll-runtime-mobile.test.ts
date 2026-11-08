@@ -1,4 +1,5 @@
 import { expect, it, vi } from 'vitest'
+
 vi.mock('@nativescript/core', () => ({
   Utils: {
     layout: {
@@ -17,6 +18,7 @@ it('writes a MasonKit scroller through mason_scrollTo', () => {
       this.mason_scrollTop = y
     }),
   }
+
   expect(scrollRuntime.read(owner)).toBe(0)
   scrollRuntime.write(owner, 300)
   expect(owner.mason_scrollTo).toHaveBeenCalledWith(NaN, 300, false)
@@ -31,6 +33,7 @@ it('keeps the UIScrollView path first', () => {
     adjustedContentInset: { top: 0, bottom: 0 },
     setContentOffsetAnimated: vi.fn(),
   }
+
   expect(scrollRuntime.read(owner)).toBe(40)
   scrollRuntime.write(owner, 300)
   expect(owner.setContentOffsetAnimated).toHaveBeenCalledWith({ x: 0, y: 300 }, false)

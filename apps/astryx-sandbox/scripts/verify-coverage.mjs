@@ -25,12 +25,15 @@ function readSrc(rel) {
 /** Keys of a top-level `const x = { ... }` object literal, line-based. */
 function objectKeys(src, marker) {
   const start = src.indexOf(marker)
+
   if (start < 0) {
     throw new Error(`marker not found: ${marker}`)
   }
+
   const open = src.indexOf('{', start)
   let depth = 0
   let end = -1
+
   for (let i = open; i < src.length; i++) {
     if (src[i] === '{') {
       depth++
@@ -42,18 +45,23 @@ function objectKeys(src, marker) {
       }
     }
   }
+
   const keys = []
+
   for (const line of src.slice(open + 1, end).split('\n')) {
     const t = line.trim().replace(/,$/, '')
+
     if (!t || t.startsWith('//')) {
       continue
     }
 
     const m = t.match(/^([A-Za-z_$][\w$]*|'[^']+'|"[^"]+")\s*(:|$)/)
+
     if (m) {
       keys.push(m[1].replace(/^['"]|['"]$/g, ''))
     }
   }
+
   return keys
 }
 
@@ -64,6 +72,7 @@ function buildRows() {
     ...objectKeys(readSrc('src/pages/blockers.ts'), 'authoredPageBlockers'),
     ...objectKeys(readSrc('src/examples/blockers.ts'), 'templateBlockers'),
   ])
+
   const portedExamples = new Set(exampleKeys)
   const portedPages = new Set(pageKeys)
   const portedFixed = new Set([
@@ -74,10 +83,12 @@ function buildRows() {
     '/templates/',
     '/404/',
   ])
+
   const statusOf = (row) => {
     if (blockers.has(row.route)) {
       return 'blocked'
     }
+
     if (
       (row.kind === 'template-block' || row.kind === 'template-page') &&
       row.name &&
@@ -85,20 +96,25 @@ function buildRows() {
     ) {
       return 'ported'
     }
+
     if (portedFixed.has(row.route) || portedPages.has(row.route)) {
       return 'ported'
     }
+
     return 'pending'
   }
+
   return pinnedRoutes.map((row) => ({ ...row, status: statusOf(row) }))
 }
 
 export async function verifyCoverage(page, baseUrl, check) {
   const rows = buildRows()
   const counts = { ported: 0, blocked: 0, pending: 0 }
+
   for (const row of rows) {
     counts[row.status]++
   }
+
   check(
     `coverage join reconciles ${pinnedStats.total} routes`,
     rows.length === pinnedStats.total,
@@ -107,6 +123,7 @@ export async function verifyCoverage(page, baseUrl, check) {
 
   let failures = 0
   const detail = []
+
   for (const row of rows) {
     // ?embed=1 renders the bare example/page without the shell chrome —
     // the same document the preview iframe loads — keeping the sweep
@@ -114,6 +131,7 @@ export async function verifyCoverage(page, baseUrl, check) {
     const url = baseUrl + row.route + '?embed=1'
     let ok = false
     let why = ''
+
     try {
       await page.goto(url, { waitUntil: 'domcontentloaded', timeout: 15000 })
       if (row.status === 'ported') {
@@ -123,10 +141,12 @@ export async function verifyCoverage(page, baseUrl, check) {
               if (document.querySelector('.sb-pending')) {
                 return 'pending'
               }
+
               // Icon/skeleton-only examples carry no text — any rendered
               // element inside the embed root counts. Overlay examples
               // (CommandPalette) portal to body level outside the root.
               const root = document.querySelector('.sb-embed-root')
+
               if (root) {
                 if (root.querySelector('*') || (root.textContent ?? '').trim().length > 0) {
                   return 'content'
@@ -138,7 +158,9 @@ export async function verifyCoverage(page, baseUrl, check) {
 
                 return ''
               }
+
               const els = document.body?.querySelectorAll('*:not(script):not(style)') ?? []
+
               return els.length > 0 || (document.body?.textContent ?? '').trim().length > 0
                 ? 'content'
                 : ''
@@ -184,6 +206,7 @@ export async function verifyCoverage(page, baseUrl, check) {
       }
     }
   }
+
   check(
     'every pinned route renders its recorded status',
     failures === 0,
@@ -212,12 +235,14 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
     ['/templates/VisuallyHiddenStructuralHeading/', 'Build status', 'astryx-charts'],
     ['/templates/VisuallyHiddenSupplementaryContext/', 'Revenue', '$48.2k'],
   ]
+
   for (const [route, a, b] of content) {
     await page.goto(baseUrl + route + '?embed=1', { waitUntil: 'domcontentloaded' })
     await page
       .waitForFunction(
         (needle) => {
           const root = document.querySelector('.sb-embed-root')
+
           return root && (root.textContent ?? '').includes(needle)
         },
         a,
@@ -251,6 +276,7 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
   await page.goto(baseUrl + '/templates/BlockquoteShowcase/?embed=1', {
     waitUntil: 'domcontentloaded',
   })
+
   await page.waitForSelector('.sb-embed-root cite', { timeout: 10000 }).catch(() => {})
   check(
     'Blockquote renders cite attribution',
@@ -262,6 +288,7 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
   await page.goto(baseUrl + '/templates/CitationShowcase/?embed=1', {
     waitUntil: 'domcontentloaded',
   })
+
   await page.waitForSelector('.sb-embed-root .vx-citation', { timeout: 10000 }).catch(() => {})
   check(
     'Citation renders both variants',
@@ -269,6 +296,7 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
       (await page.locator('.sb-embed-root .vx-citation--number').count()) === 3,
     `${await page.locator('.sb-embed-root .vx-citation').count()} citations`,
   )
+
   check(
     'Citation links carry their URLs',
     (await page.locator('.sb-embed-root a[href*="react.dev"]').count()) >= 1,
@@ -279,21 +307,26 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
   await page
     .waitForSelector('.sb-embed-root .vx-carousel-slide', { timeout: 10000 })
     .catch(() => {})
+
   check(
     'Carousel renders all slides',
     (await page.locator('.sb-embed-root .vx-carousel-slide').count()) === 5,
     `${await page.locator('.sb-embed-root .vx-carousel-slide').count()} slides`,
   )
+
   const before = await page
     .locator('.sb-embed-root .vx-carousel-viewport')
     .evaluate((el) => el.scrollLeft)
     .catch(() => 0)
+
   await page.locator('.sb-embed-root .vx-carousel-next').click()
   await page.waitForTimeout(500)
+
   const after = await page
     .locator('.sb-embed-root .vx-carousel-viewport')
     .evaluate((el) => el.scrollLeft)
     .catch(() => before)
+
   check('Carousel next button scrolls', after > before, `scrollLeft ${before} → ${after}`)
 
   // VisuallyHidden: hidden node exists with the announced text, and the
@@ -301,15 +334,18 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
   await page.goto(baseUrl + '/templates/VisuallyHiddenLiveRegion/?embed=1', {
     waitUntil: 'domcontentloaded',
   })
+
   // The example's region is the div leaf (as="div") — the Move-task button
   // also carries a polite status region, so pin the selector to the div.
   const region = page.locator('.sb-embed-root div.vx-visually-hidden[aria-live="polite"]')
+
   check('live region mounted hidden', (await region.count()) === 1)
   check(
     'live region announces initial state',
     ((await region.textContent()) ?? '').includes('Task moved to Backlog'),
     (await region.textContent()) ?? '',
   )
+
   await page.locator('.sb-embed-root button', { hasText: 'Move task' }).click()
   await page.waitForTimeout(300)
   check(
@@ -317,6 +353,7 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
     ((await region.textContent()) ?? '').includes('Task moved to In progress'),
     (await region.textContent()) ?? '',
   )
+
   check(
     'visible state follows the move',
     ((await page.locator('.sb-embed-root').textContent()) ?? '').includes('Task is in In progress'),
@@ -329,6 +366,7 @@ export async function verifyUnit14RouteChecks(page, baseUrl, check) {
     ['/templates/PaginationVariants/', 'variants'],
   ]) {
     await page.goto(baseUrl + route + '?embed=1', { waitUntil: 'domcontentloaded' })
+
     const pending = await page.locator('.sb-pending').count()
     const badge = (
       (await page
@@ -372,30 +410,38 @@ export async function verifyJourney(page, baseUrl, check) {
   await page.goto(baseUrl + '/templates/', { waitUntil: 'networkidle' })
   await page.fill('input[type="search"], input[placeholder*="Search"]', 'CarouselSnap')
   await page.waitForTimeout(400)
+
   const hit = page.locator('a[href="/templates/CarouselSnap/"]').first()
+
   if ((await hit.count()) > 0) {
     await hit.click()
   } else {
     await page.goto(baseUrl + '/templates/CarouselSnap/')
   }
+
   await page.waitForTimeout(500)
   check(
     'journey: search reaches template',
     page.url().includes('/templates/CarouselSnap'),
     page.url(),
   )
+
   check('journey: template renders', (await page.locator('.vx-carousel-slide').count()) === 5)
 
   // interact: scroll the carousel via its next button.
   const scroller = page.locator('.vx-carousel-viewport')
   const x0 = await scroller.evaluate((el) => el.scrollLeft).catch(() => 0)
+
   await page
     .locator('.vx-carousel-next')
     .first()
     .click()
     .catch(() => {})
+
   await page.waitForTimeout(400)
+
   const x1 = await scroller.evaluate((el) => el.scrollLeft).catch(() => x0)
+
   check('journey: carousel interaction scrolls', x1 > x0, `${x0} → ${x1}`)
 
   // overlays: open + dismiss the command palette, then a live overlay.
@@ -405,6 +451,7 @@ export async function verifyJourney(page, baseUrl, check) {
     'journey: palette opens',
     (await page.locator('.vx-cmdk-search, [role="dialog"] input').count()) > 0,
   )
+
   await page.keyboard.press('Escape')
   await page.waitForTimeout(300)
   check('journey: palette dismisses', (await page.locator('.vx-cmdk-search').count()) === 0)
@@ -424,12 +471,14 @@ export async function verifyJourney(page, baseUrl, check) {
     .filter({ hasText: 'Stone' })
     .first()
     .click()
+
   await page.waitForTimeout(300)
   check(
     'journey: theme switches',
     (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) ===
       'stone',
   )
+
   // Narrow viewport: the preview sidebar collapses (AppShell swaps to a
   // drawer toggle on framed routes; template routes hide their sidebar).
   await page.setViewportSize({ width: 480, height: 800 })
@@ -441,6 +490,7 @@ export async function verifyJourney(page, baseUrl, check) {
         .locator('button[aria-label*="navigation" i], button[aria-label*="nav" i]')
         .count()) > 0,
   )
+
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.waitForTimeout(300)
 
@@ -460,6 +510,7 @@ export async function verifyJourney(page, baseUrl, check) {
     (await page.evaluate(() => document.documentElement.getAttribute('data-xds-theme'))) ===
       'stone',
   )
+
   await page.evaluate(() => {
     window.localStorage.setItem('astryx-sandbox-theme', 'neutral')
     window.localStorage.setItem('astryx-sandbox-mode', 'light')

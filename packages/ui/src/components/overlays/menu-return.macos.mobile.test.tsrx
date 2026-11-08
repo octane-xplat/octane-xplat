@@ -9,6 +9,7 @@ function fixture() {
 
   anchor.nextValidKeyView = next
   anchor.previousValidKeyView = previous
+
   let open = true
   const close = vi.fn(),
     owner = createAppKitMenuReturn({ anchor: () => anchor, open: () => open, close })
@@ -28,6 +29,7 @@ function fixture() {
 
 it('Tab resolution uses current same-window next/previous targets and only records close intent', () => {
   const f = fixture()
+
   expect(f.owner.resolveTab(false)).toBe(f.next)
   expect(f.owner.resolveTab(true)).toBe(f.previous)
   f.owner.requestTab(f.next)
@@ -80,6 +82,7 @@ it('accepted ancestor state chooses the closest surviving return target through 
 
 it('foreign/detached key-view candidates fall back to the anchor and stale pending targets are rejected', () => {
   const f = fixture()
+
   f.anchor.nextValidKeyView = { window: {} }
   expect(f.owner.resolveTab(false)).toBe(f.anchor)
   f.anchor.previousValidKeyView = null

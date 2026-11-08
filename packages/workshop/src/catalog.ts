@@ -51,10 +51,12 @@ export function applicableTargets(
   file: string,
 ): readonly WorkshopTarget[] {
   const tag = storyFileTag(file)
+
   if (!tag) {
     return declared
   }
 
   const implied = SUFFIX_TARGETS[tag] ?? []
+
   return declared.filter((t) => implied.includes(t))
 }

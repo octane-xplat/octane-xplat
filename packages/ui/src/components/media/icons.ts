@@ -1,4 +1,5 @@
 import type { BuiltinIconName, IconGlyph, IconRegistry } from '../../props'
+
 export type { IconGlyph, IconRegistry } from '../../props'
 
 /**
@@ -100,6 +101,7 @@ const BUILTIN_ICONS: Record<BuiltinIconName, IconGlyph> = {
 /** Create an independent icon registry that includes the built-in glyphs. */
 export function createIconRegistry(): IconRegistry {
   const icons = new Map<string, IconGlyph>(Object.entries(BUILTIN_ICONS))
+
   return {
     registerIcon(name, glyph) {
       icons.set(name, glyph)

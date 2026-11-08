@@ -13,6 +13,7 @@ interface Snapshot {
 /** Convert a presented content box to another member's content coordinate space. */
 export function transferBox(box: Box, from: ProjectionNode, to?: ProjectionNode): Box {
   const result = createBox()
+
   copyBoxInto(result, box)
   for (const axis of ['x', 'y'] as const) {
     const offset =
@@ -28,6 +29,7 @@ export function transferBox(box: Box, from: ProjectionNode, to?: ProjectionNode)
     result[axis].min += offset + destination
     result[axis].max += offset + destination
   }
+
   return result
 }
 
@@ -46,7 +48,9 @@ export class SharedStack {
     if (!node.presented) {
       return undefined
     }
+
     const presented = createBox()
+
     copyBoxInto(presented, node.presented)
     transformBox(presented, node.latestValues)
     return {
@@ -70,18 +74,24 @@ export class SharedStack {
     if (this.outgoing === node) {
       this.outgoing = undefined
     }
+
     const index = this.members.indexOf(node)
+
     if (index >= 0) {
       this.members.splice(index, 1)
     }
+
     if (this.lead === node) {
       this.pending = this.snapshot(node) ?? this.pending
       this.lead = undefined
+
       const next = [...this.members].reverse().find((member) => member.isPresent)
+
       if (next) {
         this.promote(next)
       }
     }
+
     this.resolveExit(node, 'finished')
     node.shared = undefined
   }
@@ -90,10 +100,13 @@ export class SharedStack {
     if (node === this.lead) {
       return
     }
+
     const previous = this.lead
+
     this.leadFromOpacity = node.sharedOpacity ?? 0
     if (previous) {
       this.pending = this.snapshot(previous) ?? this.pending
+
       const previousOpacity = previous.sharedOpacity ?? previous.latestValues.opacity ?? 1
       const outgoing =
         previousOpacity <= 0 && this.outgoing && this.outgoing !== node ? this.outgoing : previous
@@ -106,6 +119,7 @@ export class SharedStack {
       previous.currentAnimation?.stop('replaced')
       previous.currentAnimation = undefined
     }
+
     this.lead = node
     this.transitioning = Boolean(this.pending)
     for (const member of this.members) {
@@ -122,28 +136,36 @@ export class SharedStack {
       node.root.invalidate('commit')
       return Promise.resolve('finished')
     }
+
     if (this.lead === node) {
       const next = [...this.members].reverse().find((member) => member !== node && member.isPresent)
+
       if (next) {
         this.promote(next)
       }
     }
+
     const result = new Promise<AnimationResult>((resolve) => {
       const waiting = this.exits.get(node) ?? []
+
       waiting.push(resolve)
       this.exits.set(node, waiting)
     })
+
     node.root.invalidate('commit')
     return result
   }
 
   prepare(): void {
     const lead = this.lead
+
     if (!lead?.layout) {
       return
     }
+
     if (this.pending) {
       const snapshot = this.pending
+
       this.pending = undefined
       lead.presented = createBox()
       copyBoxInto(lead.presented, snapshot.box)
@@ -169,11 +191,14 @@ export class SharedStack {
 
   mix(progress: number): void {
     const lead = this.lead
+
     if (!lead || !this.transitioning) {
       return
     }
+
     const values: Record<string, number> = {}
     const crossfade = lead.options.crossfade !== false && Boolean(this.outgoing?.hooks)
+
     mixValues(
       values,
       this.fromValues,
@@ -182,12 +207,14 @@ export class SharedStack {
       crossfade,
       this.members.length === 1,
     )
+
     lead.sharedOpacity = crossfade
       ? this.leadFromOpacity +
         ((lead.latestValues.opacity ?? 1) - this.leadFromOpacity) * values.opacity
       : typeof values.opacity === 'number'
         ? values.opacity
         : undefined
+
     for (const member of this.members) {
       if (member !== lead) {
         member.sharedOpacity = crossfade && member === this.outgoing ? values.opacityExit : 0
@@ -200,9 +227,11 @@ export class SharedStack {
 
   follow(node: ProjectionNode): void {
     const lead = this.lead
+
     if (!lead || lead === node || !node.layout || !lead.layout) {
       return
     }
+
     lead.resolveTargetDelta(true)
     node.target = transferBox(lead.target ?? lead.layout.layoutBox, lead, node)
     node.targetWithTransforms ??= createBox()
@@ -216,6 +245,7 @@ export class SharedStack {
       member.sharedOpacity = member === this.lead ? undefined : 0
       member.scheduleRender()
     }
+
     for (const node of this.exits.keys()) {
       this.resolveExit(node, 'finished')
     }
@@ -229,6 +259,7 @@ export class SharedStack {
 
   private resolveExit(node: ProjectionNode, result: AnimationResult) {
     const waiting = this.exits.get(node)
+
     this.exits.delete(node)
     for (const resolve of waiting ?? []) {
       resolve(result)

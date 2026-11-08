@@ -24,8 +24,10 @@ export function isTableSlot(value: any): value is TableSlotDescriptor {
  *  and ordinary renderables pass through untouched. */
 export function TableSlot(props: { value: any }): any @{
   const value = props.value
+
   if (isTableSlot(value)) {
     const Component = value.component
+
     return <Component {...value.props} />
   }
 

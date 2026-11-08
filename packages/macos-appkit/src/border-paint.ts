@@ -96,11 +96,14 @@ export function createBorderPaint() {
     if (typeof value === 'number') {
       return { width: value, color: undefined }
     }
+
     let width: any
     let color: any
     let none = false
+
     for (const token of splitStyleTokens(String(value ?? ''))) {
       const lower = token.toLowerCase()
+
       if (BORDER_STYLE_WORDS.has(lower)) {
         none = none || lower === 'none' || lower === 'hidden'
         continue
@@ -113,6 +116,7 @@ export function createBorderPaint() {
 
       color = color === undefined ? token : `${color} ${token}`
     }
+
     return { width: none ? 0 : width, color }
   }
 
@@ -136,6 +140,7 @@ export function createBorderPaint() {
   ) {
     const spec = (state.borderSpec ??= {})
     const bag = (spec[group] ??= {})
+
     if (slot === 'all') {
       for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
         bag[key] = value
@@ -152,6 +157,7 @@ export function createBorderPaint() {
     slot: BorderSide | BorderCorner | 'all',
   ) {
     const bag = state.borderSpec?.[group]
+
     if (bag) {
       if (slot === 'all') {
         for (const key of group === 'radii' ? BORDER_CORNERS : BORDER_SIDES) {
@@ -173,14 +179,18 @@ export function createBorderPaint() {
     const { width, color } = parseBorderEdge(value)
     const spec = (state.borderSpec ??= {})
     const sides = slot === 'all' ? BORDER_SIDES : [slot]
+
     if (width !== undefined) {
       const widths = (spec.widths ??= {})
+
       for (const side of sides) {
         widths[side] = width
       }
     }
+
     if (color !== undefined) {
       const colors = (spec.colors ??= {})
+
       for (const side of sides) {
         colors[side] = color
       }
@@ -189,6 +199,7 @@ export function createBorderPaint() {
 
   function clearBorderEdge(node: ElementNode, state: BoxPaintState, slot: BorderSide | 'all') {
     const spec = state.borderSpec
+
     for (const side of slot === 'all' ? BORDER_SIDES : [slot]) {
       delete spec?.widths?.[side]
       delete spec?.colors?.[side]
@@ -198,22 +209,27 @@ export function createBorderPaint() {
   function removeBorderLayers(node: ElementNode, state: BoxPaintState) {
     const host = state.borderLayer
     const bands = Object.values(state.borderBandShapes ?? {}).flat()
+
     state.borderLayer = null
     state.borderSides = undefined
     state.borderOutline = undefined
     state.borderStroke = undefined
     state.borderSideMasks = undefined
     state.borderBandShapes = undefined
+
     const failures = new FailureCollector()
+
     failures.run('border host', () => host?.removeFromSuperlayer())
     for (const shape of bands) {
       failures.run('border band', () => shape.removeFromSuperlayer())
     }
+
     failures.throwIfFailed()
   }
 
   function disposeBorder(node: ElementNode, state: BoxPaintState) {
     const failures = new FailureCollector()
+
     state.borderSpec = undefined
     state.cornerMask = undefined
     failures.run('border layers', () => removeBorderLayers(node, state))
@@ -227,6 +243,7 @@ export function createBorderPaint() {
   // (double/groove/ridge/inset/outset) split each side into shaded bands.
   function syncBorderBox(node: ElementNode, state: BoxPaintState) {
     const view = node.view
+
     if (!view) {
       return
     }
@@ -244,6 +261,7 @@ export function createBorderPaint() {
       radii.topLeft === radii.topRight &&
       radii.topRight === radii.bottomRight &&
       radii.bottomRight === radii.bottomLeft
+
     const scaled = scaleBorderRadii(radii, w, h)
 
     const widths: Record<BorderSide, number> = {
@@ -252,6 +270,7 @@ export function createBorderPaint() {
       bottom: borderLength(spec?.widths?.bottom),
       left: borderLength(spec?.widths?.left),
     }
+
     for (const side of BORDER_SIDES) {
       if (hiddenBorderStyle(sideStyles[side])) {
         widths[side] = 0
@@ -261,17 +280,21 @@ export function createBorderPaint() {
         )
       ) {
         const warned = (state.borderStyleWarnings ??= new Set())
+
         if (!warned.has(sideStyles[side])) {
           warned.add(sideStyles[side])
           console.warn('[macos-css] Unsupported decorative border style; drawing solid')
         }
       }
     }
+
     const maxWidth = Math.max(widths.top, widths.right, widths.bottom, widths.left)
     const uniformWidth =
       widths.top === widths.right && widths.right === widths.bottom && widths.bottom === widths.left
+
     const normColor = (c: any) =>
       c == null ? '' : typeof c === 'string' ? c.trim().toLowerCase() : c
+
     const uniformColor = BORDER_SIDES.every(
       (side) => normColor(spec?.colors?.[side]) === normColor(spec?.colors?.top),
     )
@@ -286,24 +309,30 @@ export function createBorderPaint() {
     const patterned = BORDER_SIDES.some(
       (side) => borderStrokeStyle(sideStyles[side], widths[side]) != null,
     )
+
     const uniformPattern =
       patterned &&
       uniformWidth &&
       uniformColor &&
       BORDER_SIDES.every((side) => sideStyles[side] === sideStyles.top)
+
     // Decorative styles (double/groove/ridge/inset/outset) paint as filled
     // bands per side; a single base band collapses back to the solid path.
     const singleBaseBand = (bands: { from: number; to: number; shade: string }[]) =>
       bands.length === 1 && bands[0].from === 0 && bands[0].to === 1 && bands[0].shade === 'base'
+
     const banded = BORDER_SIDES.some(
       (side) =>
         widths[side] > 0 && !singleBaseBand(borderBands(sideStyles[side], side, widths[side])),
     )
+
     const layered =
       maxWidth > 0 && (!(uniformWidth && uniformColor) || patterned || banded) && layers
+
     if (patterned && !layers) {
       console.warn('[macos-css] Patterned border layers unavailable; drawing solid')
     }
+
     if (banded && !layers) {
       console.warn('[macos-css] Decorative border layers unavailable; drawing solid')
     }
@@ -311,9 +340,11 @@ export function createBorderPaint() {
     if (maxRadius > 0 || maxWidth > 0) {
       view.wantsLayer = true
     }
+
     // NSView.layer is nil until wantsLayer — a view with only cleared or
     // shadow/transform styles may still lack one.
     const layer = view.layer
+
     if (!layer) {
       return
     }
@@ -322,6 +353,7 @@ export function createBorderPaint() {
     // through a mask path instead.
     if (perCorner) {
       const mask = (state.cornerMask ??= CAShapeLayer.alloc().init())
+
       mask.path = roundedBoxCGPath(w, h, scaled)
       layer.mask = mask
       layer.cornerRadius = 0
@@ -339,9 +371,11 @@ export function createBorderPaint() {
     }
 
     const clip = maxRadius > 0 && !outsetShadow
+
     if (clip || state.radiusApplied) {
       layer.masksToBounds = clip
     }
+
     state.radiusApplied = clip
 
     if (layered) {
@@ -356,9 +390,11 @@ export function createBorderPaint() {
       }
 
       const box = state.borderLayer
+
       box.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
       if (maxRadius > 0) {
         const outline = (state.borderOutline ??= CAShapeLayer.alloc().init())
+
         outline.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
         outline.path = roundedBoxCGPath(w, h, scaled)
         box.mask = outline
@@ -368,6 +404,7 @@ export function createBorderPaint() {
 
       const paintStroke = (shape: any, style: string, width: number, color: any) => {
         const stroke = borderStrokeStyle(style, width)!
+
         shape.fillColor = null
         shape.strokeColor = color
         shape.lineWidth = width
@@ -381,10 +418,13 @@ export function createBorderPaint() {
       // carry no sRGB components and keep the base fill.
       const darkBandColor = (base: NSColor | null, fallback: any) => {
         const components = base && srgbComponents(base, view.effectiveAppearance)
+
         if (!components) {
           return fallback
         }
+
         const dark = darkBorderComponents(components)
+
         return (
           NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha)
             ?.CGColor ?? fallback
@@ -399,6 +439,7 @@ export function createBorderPaint() {
 
       if (uniformPattern) {
         const stroke = (state.borderStroke ??= CAShapeLayer.alloc().init())
+
         if (stroke.superlayer !== box) {
           box.addSublayer(stroke)
         }
@@ -426,6 +467,7 @@ export function createBorderPaint() {
 
         for (const side of BORDER_SIDES) {
           const shape = ((state.borderSides ??= {})[side] ??= CAShapeLayer.alloc().init())
+
           if (shape.superlayer !== box) {
             box.addSublayer(shape)
           }
@@ -445,9 +487,12 @@ export function createBorderPaint() {
 
           const baseNSColor = borderNSColor(node, spec?.colors?.[side])
           const color = baseNSColor?.CGColor ?? null
+
           if (borderStrokeStyle(sideStyles[side], widths[side])) {
             paintStroke(shape, sideStyles[side], widths[side], color)
+
             const mask = ((state.borderSideMasks ??= {})[side] ??= CAShapeLayer.alloc().init())
+
             mask.frame = shape.frame
             mask.path = borderSideCGPath(side, w, h, widths)
             mask.fillColor = borderNSColor(node, '#000')?.CGColor ?? null
@@ -458,14 +503,18 @@ export function createBorderPaint() {
             // first reuses the side's shape layer, extra bands stack on
             // per-side CAShapeLayers so dark fills stay independent.
             const bands = borderBands(sideStyles[side], side, widths[side])
+
             shape.path = borderBandCGPath(
               borderBandPoints(side, w, h, widths, bands[0].from, bands[0].to),
             )
 
             shape.fillColor = bands[0].shade === 'dark' ? darkBandColor(baseNSColor, color) : color
+
             const extras = ((state.borderBandShapes ??= {})[side] ??= [] as any[])
+
             for (let i = 1; i < bands.length; i++) {
               const extra = (extras[i - 1] ??= CAShapeLayer.alloc().init())
+
               if (extra.superlayer !== box) {
                 box.addSublayer(extra)
               }
@@ -507,6 +556,7 @@ export function createBorderPaint() {
       perCorner ||
       layered
   }
+
   return {
     BORDER_WIDTH_KEYS,
     BORDER_COLOR_KEYS,

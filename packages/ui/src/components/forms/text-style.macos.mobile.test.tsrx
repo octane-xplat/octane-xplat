@@ -43,6 +43,7 @@ it('AppKit Text and Heading retain CSS strings over type-scale defaults', () => 
 it('AppKit Text and Heading fold array overrides and remove them without replacing the host', () => {
   for (const component of [Text, Heading]) {
     const env = mount(component, { children: 'Title' })
+
     try {
       const host = env.host(),
         baseline = { ...host.props.style }
@@ -64,6 +65,7 @@ it('AppKit Text and Heading fold array overrides and remove them without replaci
 
 it('AppKit Heading uses one exported leaf and preserves level/classes/truncation with authored styles', () => {
   expect(BarrelHeading).toBe(Heading)
+
   const env = mount(BarrelHeading, {
     id: 'title',
     level: 3,
@@ -75,6 +77,7 @@ it('AppKit Heading uses one exported leaf and preserves level/classes/truncation
 
   try {
     const host = env.host()
+
     expect(host.props.id).toBe('title')
     expect(host.props.className).toContain('vx-h3')
     expect(host.props.className).toContain('title compact')

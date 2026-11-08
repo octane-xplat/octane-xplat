@@ -72,12 +72,14 @@ test('photos ensure maps plugin absence to unsupported and keeps denial', async 
     ],
   ]) {
     const { exports } = await load({ imagePicker: { create: () => ({ authorize }) } })
+
     assert.equal((await exports.media.requestPermissions('photos')).status, expected)
   }
 })
 
 test('ios camera ensure reports unsupported when AVFoundation is not exposed', async () => {
   const { exports } = await load({ application: { ios: {} } })
+
   assert.equal((await exports.media.requestPermissions('camera')).status, 'unsupported')
 })
 
@@ -110,6 +112,7 @@ test('ios camera ensure maps authorization status and the prompt result', async 
 
 function androidApp(requestPermissions) {
   const listeners = new Map()
+
   return {
     listeners,
     application: {
@@ -150,6 +153,7 @@ test('android grant result resolves granted and unregisters', async () => {
 
   const { exports } = await load(app)
   const pending = exports.media.requestPermissions('camera')
+
   deliver()
   assert.equal((await pending).status, 'granted')
   assert.equal(app.listeners.size, 0)

@@ -38,6 +38,7 @@ afterEach(() => {
 describe('unsupported service', () => {
   it('reports unsupported and start() throws UnavailabilityError', async () => {
     const service = createSpeechService(null)
+
     expect(service.supported).toBe(false)
     expect(await service.isAvailable()).toBe(false)
     expect(await service.getPermissions()).toEqual(UNSUPPORTED_PERMISSION)
@@ -49,6 +50,7 @@ describe('unsupported service', () => {
       networkUse: null,
       continuous: false,
     })
+
     expect(await service.getAvailability({ lang: 'de-DE' })).toEqual({
       available: false,
       reason: 'unsupported',
@@ -56,14 +58,18 @@ describe('unsupported service', () => {
       networkUse: null,
       continuous: false,
     })
+
     expect(() => service.start()).toThrow(UnavailabilityError)
     expect(() => service.start()).toThrow('speech recognition')
   })
 
   it('throws UnavailabilityError when the engine is present but unsupported', async () => {
     const engine = new FakeEngine()
+
     engine.supported = false
+
     const service = createSpeechService(engine)
+
     expect(service.supported).toBe(false)
     expect(await service.isAvailable()).toBe(false)
     expect(await service.getPermissions()).toEqual(UNSUPPORTED_PERMISSION)
@@ -78,6 +84,7 @@ describe('session startup', () => {
     const service = createSpeechService(engine)
     const events: SpeechRecognitionEvent[] = []
     const session = service.start({ lang: 'fr-FR' })
+
     session.subscribe((event) => events.push(event))
     expect(session.state).toBe('starting')
     expect(session.lang).toBe('fr-FR')
@@ -97,14 +104,18 @@ describe('session startup', () => {
 
   it('defaults lang to the engine default', () => {
     const engine = new FakeEngine()
+
     engine.lang = 'ja-JP'
+
     const service = createSpeechService(engine)
+
     expect(service.start().lang).toBe('ja-JP')
   })
 
   it('passes availability and permission through on a supported engine', async () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
+
     expect(await service.isAvailable()).toBe(true)
     expect(await service.getAvailability({ lang: 'de-DE' })).toEqual({
       available: true,
@@ -113,6 +124,7 @@ describe('session startup', () => {
       networkUse: 'required',
       continuous: true,
     })
+
     expect(await service.getPermissions()).toEqual(granted)
     expect(engine.readCalls).toBe(1)
   })
@@ -121,12 +133,15 @@ describe('session startup', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const first = service.start()
+
     await tick()
     engine.handles[0]!.listening()
 
     const second = service.start()
     const seen: SpeechRecognitionEvent[] = []
+
     second.subscribe((event) => seen.push(event))
+
     const result = await second.result
 
     expect(result.reason).toBe('error')
@@ -141,9 +156,12 @@ describe('session startup', () => {
 
   it('ends with permission-denied when permission is refused, without beginning', async () => {
     const engine = new FakeEngine()
+
     engine.permission = denied
+
     const service = createSpeechService(engine)
     const result = await service.start().result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('permission-denied')
     expect(engine.beginCalls).toBe(0)
@@ -151,10 +169,13 @@ describe('session startup', () => {
 
   it('requests permission when undetermined and begins after a grant', async () => {
     const engine = new FakeEngine()
+
     engine.permission = undetermined
     engine.ensureResult = granted
+
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
     expect(engine.ensureCalls).toBe(1)
     expect(engine.beginCalls).toBe(1)
@@ -165,10 +186,13 @@ describe('session startup', () => {
 
   it('ends with permission-denied when the request is refused', async () => {
     const engine = new FakeEngine()
+
     engine.permission = undetermined
     engine.ensureResult = denied
+
     const service = createSpeechService(engine)
     const result = await service.start().result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('permission-denied')
     expect(engine.ensureCalls).toBe(1)
@@ -177,8 +201,11 @@ describe('session startup', () => {
 
   it('abort during a pending permission prompt ends aborted and never begins', async () => {
     const engine = new FakeEngine()
+
     engine.permission = undetermined
+
     let resolvePrompt: (response: PermissionResponse) => void = () => {}
+
     engine.ensurePermissionImpl = () =>
       new Promise<PermissionResponse>((resolve) => {
         resolvePrompt = resolve
@@ -186,11 +213,14 @@ describe('session startup', () => {
 
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
     expect(engine.ensureCalls).toBe(1)
 
     session.abort()
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
     expect(result.error).toBeNull()
 
@@ -202,6 +232,7 @@ describe('session startup', () => {
 
   it('ends with unsupported-option for continuous on an engine without it', async () => {
     const engine = new FakeEngine()
+
     engine.availabilityValue = {
       available: true,
       reason: null,
@@ -209,14 +240,17 @@ describe('session startup', () => {
       networkUse: 'possible',
       continuous: false,
     }
+
     const service = createSpeechService(engine)
     const result = await service.start({ continuous: true }).result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('unsupported-option')
     expect(engine.beginCalls).toBe(0)
 
     // The same service starts a non-continuous session fine afterwards.
     const session = service.start({ continuous: false })
+
     await tick()
     expect(engine.beginCalls).toBe(1)
     session.abort()
@@ -230,6 +264,7 @@ describe('session startup', () => {
       ['unsupported', 'service-unavailable'],
     ] as const) {
       const engine = new FakeEngine()
+
       engine.availabilityValue = {
         available: false,
         reason,
@@ -240,6 +275,7 @@ describe('session startup', () => {
 
       const service = createSpeechService(engine)
       const result = await service.start().result
+
       expect(result.reason).toBe('error')
       expect(result.error?.code).toBe(code)
       expect(engine.beginCalls).toBe(0)
@@ -248,9 +284,12 @@ describe('session startup', () => {
 
   it('proceeds when the availability probe throws', async () => {
     const engine = new FakeEngine()
+
     engine.availabilityRejects = true
+
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
     expect(engine.beginCalls).toBe(1)
     session.abort()
@@ -259,11 +298,14 @@ describe('session startup', () => {
 
   it('ends error when begin throws', async () => {
     const engine = new FakeEngine()
+
     engine.begin = () => {
       throw new Error('engine exploded')
     }
+
     const service = createSpeechService(engine)
     const result = await service.start().result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('unknown')
     expect(result.error?.message).toBe('engine exploded')
@@ -276,9 +318,12 @@ describe('transcript accumulation', () => {
     const service = createSpeechService(engine)
     const session = service.start({ continuous: true })
     const events: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
 
     handle.hypothesis('the', false)
@@ -295,10 +340,13 @@ describe('transcript accumulation', () => {
       { transcript: 'the quick brown', isFinal: false },
       { transcript: 'the quick brown fox', isFinal: true },
     ])
+
     expect(session.transcript).toBe('the quick brown fox')
 
     session.abort()
+
     const result = await session.result
+
     expect(result.transcript).toBe('the quick brown fox')
   })
 
@@ -307,9 +355,12 @@ describe('transcript accumulation', () => {
     const service = createSpeechService(engine)
     const session = service.start({ continuous: true })
     const events: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('same', false)
     handle.hypothesis('same', true)
@@ -318,6 +369,7 @@ describe('transcript accumulation', () => {
       { transcript: 'same', isFinal: false },
       { transcript: 'same', isFinal: true },
     ])
+
     session.abort()
     await session.result
   })
@@ -327,9 +379,12 @@ describe('transcript accumulation', () => {
     const service = createSpeechService(engine)
     const session = service.start({ interimResults: false, continuous: true })
     const events: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('interim', false)
     handle.hypothesis('still interim', false)
@@ -347,13 +402,17 @@ describe('session end', () => {
     const service = createSpeechService(engine)
     const session = service.start({ continuous: false })
     const events: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('done talking', true)
 
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(result.transcript).toBe('done talking')
     // The core releases the engine on a core-initiated end.
@@ -370,20 +429,26 @@ describe('session end', () => {
     const service = createSpeechService(engine)
     const events: SpeechRecognitionEvent[] = []
     const session = service.start({ continuous: true })
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('one', true)
     handle.hypothesis('two', true)
     expect(session.state).toBe('listening')
 
     const stopping = session.stop()
+
     expect(session.state).toBe('stopping')
     expect(handle.finishCalls).toBe(1)
 
     handle.finished()
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
     expect(result.transcript).toBe('one two')
     expect(states(events)).toEqual(['listening', 'stopping', 'ended'])
@@ -392,19 +457,26 @@ describe('session end', () => {
 
   it('stop() falls back after 5s, cancels the engine, and ends stopped', async () => {
     vi.useFakeTimers()
+
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start({ continuous: true })
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('kept', true)
 
     const stopping = session.stop()
+
     expect(handle.finishCalls).toBe(1)
     // The engine never calls finished — the fallback must release it.
     await vi.advanceTimersByTimeAsync(5000)
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
     expect(result.transcript).toBe('kept')
     expect(handle.cancelCalls).toBe(1)
@@ -414,13 +486,18 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('partial', false)
 
     session.abort()
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
     expect(result.transcript).toBe('partial')
     expect(result.error).toBeNull()
@@ -432,11 +509,14 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
     expect(engine.beginCalls).toBe(1)
     session.abort()
     expect(engine.handles[0]!.cancelCalls).toBe(1)
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
   })
 
@@ -444,8 +524,11 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.failed(
       new SpeechRecognitionError('network', 'service went away', {
@@ -454,6 +537,7 @@ describe('session end', () => {
     )
 
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('network')
     expect(result.error?.nativeCode).toBe('network')
@@ -464,13 +548,18 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     // The sink contract takes SpeechRecognitionError, but the core
     // normalizes defensively for engines that violate it.
     handle.failed(new SpeechRecognitionError('unknown', 'wrapped', { cause: new Error('raw') }))
+
     const result = await session.result
+
     expect(result.error?.code).toBe('unknown')
   })
 
@@ -478,20 +567,28 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.failed(new SpeechRecognitionError('interrupted', 'phone call'))
     handle.finished()
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('interrupted')
   })
 
   it('stop() during startup finishes as soon as the engine begins', async () => {
     const engine = new FakeEngine()
+
     engine.permission = undetermined
+
     let resolvePrompt: (response: PermissionResponse) => void = () => {}
+
     engine.ensurePermissionImpl = () =>
       new Promise<PermissionResponse>((resolve) => {
         resolvePrompt = resolve
@@ -499,32 +596,47 @@ describe('session end', () => {
 
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const stopping = session.stop()
+
     expect(session.state).toBe('stopping')
 
     resolvePrompt(granted)
     await tick()
     expect(engine.beginCalls).toBe(1)
+
     const handle = engine.handles[0]!
+
     expect(handle.finishCalls).toBe(1)
 
     handle.finished()
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
   })
 
   it('stop() fallback during startup ends stopped without a handle', async () => {
     vi.useFakeTimers()
+
     const engine = new FakeEngine()
+
     engine.permission = undetermined
     engine.ensurePermissionImpl = () => new Promise<PermissionResponse>(() => {})
+
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
+
     const stopping = session.stop()
+
     await vi.advanceTimersByTimeAsync(5000)
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
     expect(engine.beginCalls).toBe(0)
   })
@@ -533,11 +645,14 @@ describe('session end', () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
     const session = service.start()
+
     await tick()
     engine.handles[0]!.listening()
     session.abort()
+
     const first = await session.result
     const second = await session.stop()
+
     expect(second).toBe(first)
     session.abort()
     expect(engine.handles[0]!.cancelCalls).toBe(1)
@@ -547,14 +662,20 @@ describe('session end', () => {
 describe('silence endpoint', () => {
   it('finishes the engine after a hypothesis goes unchanged and ends completed', async () => {
     vi.useFakeTimers()
+
     const engine = new FakeEngine()
+
     engine.silenceEndpointMs = 200
+
     const service = createSpeechService(engine)
     const session = service.start({ continuous: false })
     const events: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
 
     handle.hypothesis('draft', false)
@@ -568,19 +689,27 @@ describe('silence endpoint', () => {
     expect(session.state).toBe('listening')
 
     handle.finished()
+
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(result.transcript).toBe('draft two')
   })
 
   it('does not arm for continuous sessions or empty hypotheses', async () => {
     vi.useFakeTimers()
+
     const engine = new FakeEngine()
+
     engine.silenceEndpointMs = 100
+
     const service = createSpeechService(engine)
     const session = service.start({ continuous: true })
+
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     handle.hypothesis('continuous text', false)
     await vi.advanceTimersByTimeAsync(1000)
@@ -596,15 +725,19 @@ describe('listeners', () => {
     const service = createSpeechService(engine)
     const session = service.start()
     const seen: SpeechRecognitionEvent[] = []
+
     session.subscribe(() => {
       throw new Error('listener exploded')
     })
+
     session.subscribe((event) => seen.push(event))
     await tick()
     engine.handles[0]!.listening()
     engine.handles[0]!.hypothesis('hello', true)
     expect(seen.some((event) => event.type === 'transcript')).toBe(true)
+
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(seen.at(-1)?.type).toBe('end')
   })
@@ -614,13 +747,18 @@ describe('listeners', () => {
     const service = createSpeechService(engine)
     const session = service.start()
     const seen: SpeechRecognitionEvent[] = []
+
     session.subscribe((event) => seen.push(event))
     await tick()
+
     const handle = engine.handles[0]!
+
     handle.listening()
     session.abort()
     await session.result
+
     const count = seen.length
+
     handle.hypothesis('late', false)
     handle.finished()
     handle.failed(new SpeechRecognitionError('network', 'late'))
@@ -635,14 +773,17 @@ describe('listeners', () => {
     const session = service.start()
     const seen: SpeechRecognitionEvent[] = []
     const off = session.subscribe((event) => seen.push(event))
+
     off()
     await tick()
     engine.handles[0]!.listening()
     expect(seen.length).toBe(0)
     session.abort()
     await session.result
+
     const late: SpeechRecognitionEvent[] = []
     const offLate = session.subscribe((event) => late.push(event))
+
     offLate()
     await tick()
     expect(late.length).toBe(0)
@@ -653,12 +794,17 @@ describe('deferred ends', () => {
   it('delivers the busy end asynchronously to a post-start subscriber', async () => {
     const engine = new FakeEngine()
     const service = createSpeechService(engine)
+
     service.start()
+
     const second = service.start()
+
     // Synchronously after start() the session has not ended yet — the busy
     // end is delivered on a microtask so subscribers still catch it.
     expect(second.state).toBe('starting')
+
     const result = await second.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('busy')
     expect(second.state).toBe('ended')

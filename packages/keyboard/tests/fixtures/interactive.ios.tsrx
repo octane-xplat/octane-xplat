@@ -26,12 +26,16 @@ export async function run(ctx: ProbeContext) {
   )
 
   const scroll = ctx.find('avoidance-host')
+
   field.ios.accessibilityIdentifier = 'keyboard-feasibility-field'
   field.ios.accessibilityLabel = 'Keyboard feasibility input'
   field.ios.window.makeKeyAndVisible()
+
   const nativeScroll = scroll.ios
+
   nativeScroll.keyboardDismissMode = 2
   nativeScroll.alwaysBounceVertical = true
+
   const samples: any[] = []
   const off = KeyboardController.onMove(scroll, (state) =>
     samples.push({ ...state, dragging: nativeScroll.dragging }),
@@ -51,6 +55,7 @@ export async function run(ctx: ProbeContext) {
 
     const window = field.ios.window
     const frame = samples.at(-1).currentFrame
+
     field.ios.accessibilityLabel =
       'Keyboard swipe ' +
       JSON.stringify({
@@ -60,13 +65,16 @@ export async function run(ctx: ProbeContext) {
       })
 
     field.ios.accessibilityIdentifier = 'keyboard-interactive-ready'
+
     const at = samples.length
+
     await ctx.waitFor(() => samples.slice(at).some((s) => s.dragging), { timeout: 30000 })
     await ctx.waitFor(() => samples.slice(at).some((s) => s.currentFrame.height < 1), {
       timeout: 30000,
     })
 
     const dragging = samples.slice(at).filter((s) => s.dragging)
+
     ctx.assert(
       'native adapter reports interactive tracking',
       samples.at(-1).capabilities.interactive,

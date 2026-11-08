@@ -6,10 +6,12 @@ export function focusPublisher(
   publish: (state: FocusedInputState) => void,
 ): (next: FocusedInputState) => void {
   let previous: FocusedInputState | undefined
+
   return (next: FocusedInputState) => {
     if (previous && sameFocusedInput(previous, next)) {
       return
     }
+
     previous = { ...next, timestampMs: Date.now() }
     publish(previous)
   }

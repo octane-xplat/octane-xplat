@@ -37,6 +37,7 @@ export function TiptapEditorDemo() @{
 
   const press = (item: (typeof TOOLBAR)[number]) => {
     const e = editor.current
+
     if (!e) {
       return
     }
@@ -50,6 +51,7 @@ export function TiptapEditorDemo() @{
     } else if (item.call === 'json') {
       const doc = e.getJSON()
       const types = (doc?.content ?? []).map((n: any) => n.type).join(',')
+
       setJsonTypes(types || 'null')
       console.log('[probe] facade getJSON: ' + (types || 'null'))
     } else if (item.format) {

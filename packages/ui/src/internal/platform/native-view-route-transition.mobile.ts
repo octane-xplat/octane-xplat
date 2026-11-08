@@ -17,18 +17,24 @@ const neutral: Required<NativeViewTransitionValues> = Object.freeze({
 export function createNativeViewRouteTransitions(): PaneRouteTransitions {
   let active: (() => void) | undefined
   const interrupt = () => active?.()
+
   return {
     interrupt,
     run(context, name, definition, target) {
       interrupt()
+
       const resolved = resolveNativeViewTransition(name, definition, context)
+
       if ('status' in resolved) {
         return Promise.resolve(resolved)
       }
+
       if (!(target instanceof View) || !target.nativeViewProtected) {
         return Promise.resolve({ status: 'skipped', reason: 'unsupported' })
       }
+
       const view = target
+
       return new Promise<RouteTransitionResult>((resolve) => {
         let animation: Animation | undefined
         let settled = false
@@ -36,9 +42,12 @@ export function createNativeViewRouteTransitions(): PaneRouteTransitions {
           if (settled) {
             return
           }
+
           settled = true
           active = undefined
+
           const errors: unknown[] = []
+
           if (cancel && animation?.isPlaying) {
             try {
               animation.cancel()
@@ -46,6 +55,7 @@ export function createNativeViewRouteTransitions(): PaneRouteTransitions {
               errors.push(error)
             }
           }
+
           try {
             view.opacity = neutral.opacity
             view.translateX = neutral.translateX
@@ -56,6 +66,7 @@ export function createNativeViewRouteTransitions(): PaneRouteTransitions {
           } catch (error) {
             errors.push(error)
           }
+
           resolve(
             errors.length
               ? {
@@ -65,9 +76,11 @@ export function createNativeViewRouteTransitions(): PaneRouteTransitions {
               : result,
           )
         }
+
         active = () => finish({ status: 'skipped', reason: 'interrupted' }, true)
         try {
           const { values, duration, curve } = resolved
+
           if (!Object.keys(values).length || duration === 0) {
             finish({ status: 'completed' })
             return

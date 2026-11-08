@@ -37,16 +37,20 @@ export function calendarKeyTarget(input: {
 }): ISODateString | null {
   const { event, months, isDisabled } = input
   const current = plainDateFromISO(input.iso)
+
   if (!current || event.defaultPrevented || isDateComposing(event)) {
     return null
   }
 
   const cells = months.flatMap((month) => month.weeks.flat())
   const eligible = (day: (typeof cells)[number]) => !day.isOutsideMonth && !isDisabled(day.date)
+
   if (event.key === 'Home' || event.key === 'End') {
     let candidates = cells
+
     if (!event.ctrlKey && !event.metaKey) {
       const index = cells.findIndex((day) => day.iso === input.iso && !day.isOutsideMonth)
+
       if (index < 0) {
         return null
       }
@@ -63,6 +67,7 @@ export function calendarKeyTarget(input: {
 
   let step = 0
   let target = current
+
   switch (event.key) {
     case 'ArrowLeft':
       step = input.rtl ? 1 : -1
@@ -96,14 +101,17 @@ export function calendarKeyTarget(input: {
   // its other edge when a bound/disabled run blocks that side.
   if (event.key.startsWith('Page')) {
     const page = target
+
     for (const direction of [step, -step]) {
       let candidate = page
+
       for (let attempts = 0; attempts < 31; attempts++) {
         if (candidate.month !== page.month || candidate.year !== page.year) {
           break
         }
 
         const iso = plainDateToISO(candidate)
+
         if (
           (!input.min || iso >= input.min) &&
           (!input.max || iso <= input.max) &&
@@ -121,6 +129,7 @@ export function calendarKeyTarget(input: {
 
   for (let attempts = 0; (attempts + 1) * Math.abs(step) <= 366; attempts++) {
     const iso = plainDateToISO(target)
+
     if ((input.min && iso < input.min) || (input.max && iso > input.max)) {
       return null
     }

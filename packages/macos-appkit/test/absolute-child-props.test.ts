@@ -45,6 +45,7 @@ const { applyProps } = runSlice(slice + '\n({ applyProps })', sandbox)
 
 function node(type: string, parent?: any) {
   const item = { id: Math.random(), type, view: {}, props: {}, parent, children: [] }
+
   parent?.children.push(item)
   return item
 }
@@ -54,8 +55,10 @@ const ignoredFor = (item: any) =>
 
 test('masonview children consume all four position props without warnings', () => {
   const parent = node('masonview')
+
   for (const type of ['masonview', 'label', 'scrollview']) {
     const item = node(type, parent)
+
     warnings.length = 0
     applyProps(item, { left: 0, top: 0, right: 0, bottom: 0 })
     assert.deepEqual(ignoredFor(item), [], `${type} child warned: ${ignoredFor(item)}`)
@@ -65,6 +68,7 @@ test('masonview children consume all four position props without warnings', () =
 test('position prop changes under masonview queue a layout reconcile', () => {
   const parent = node('masonview')
   const item = node('masonview', parent)
+
   reconciles.length = 0
   applyProps(item, { right: 12 })
   // A mason child queues its own subtree AND its parent's pass — the
@@ -75,6 +79,7 @@ test('position prop changes under masonview queue a layout reconcile', () => {
 test('position props under non-mason parents still warn as ignored', () => {
   const parent = node('contentview')
   const item = node('label', parent)
+
   warnings.length = 0
   applyProps(item, { left: 0, right: 0 })
   assert.equal(ignoredFor(item).length, 2)

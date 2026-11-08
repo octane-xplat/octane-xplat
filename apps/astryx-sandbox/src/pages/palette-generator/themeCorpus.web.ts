@@ -37,9 +37,11 @@ function tones(palette: RawPalette): Record<number, string> {
   return Object.fromEntries(
     FULL_21_STOPS.map((stop) => {
       const value = palette[stop]
+
       if (typeof value !== 'string') {
         throw new Error(`Theme palette is missing stop ${stop}.`)
       }
+
       return [stop, value.toLowerCase()]
     }),
   )
@@ -49,14 +51,19 @@ function legacyRamp(seed: string, mode: PaletteMode): Record<number, string> {
   const source = hexToHct(seed)
   const chroma = mode === 'dark' ? source.chroma * 0.85 : source.chroma
   const maximumChroma = chroma * 1.8
+
   return Object.fromEntries(
     FULL_21_STOPS.map((stop) => {
       let tone: number = stop
+
       if (mode === 'dark') {
         const lift = stop >= 95 ? 0 : stop <= 80 ? 5 : 5 * ((95 - stop) / 15)
+
         tone = Math.min(100, stop + lift)
       }
+
       const boost = tone < 50 ? 1 + (50 - tone) / 40 : 1
+
       return [
         stop,
         hctToHex({
@@ -94,6 +101,7 @@ function storedFamily(
   darkPalette?: RawPalette,
 ): ThemeReferenceFamily {
   const ramp = tones(palette)
+
   return {
     id,
     name,
@@ -111,6 +119,7 @@ function neutralReferenceFamily(
   kind: 'chromatic' | 'neutral' = 'chromatic',
 ): ThemeReferenceFamily {
   const palette = NEUTRAL_THEME_PALETTE_REFERENCE[id]
+
   return {
     id,
     name,

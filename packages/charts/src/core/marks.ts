@@ -114,6 +114,7 @@ function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 
   const marks: Mark[] = []
   const points: ScenePoint[] = []
+
   series.forEach((s, si) => {
     marks.push({
       kind: 'path',
@@ -128,6 +129,7 @@ function lineMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
     s.values.forEach((d, i) => {
       const cx = xCenter(xKind, x, d.x)
       const cy = y(d.y)
+
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
         return
       }
@@ -159,6 +161,7 @@ function areaMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
 
   const marks: Mark[] = []
   const points: ScenePoint[] = []
+
   series.forEach((s, si) => {
     marks.push({
       kind: 'path',
@@ -180,6 +183,7 @@ function areaMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks {
     s.values.forEach((d, i) => {
       const cx = xCenter(xKind, x, d.x)
       const cy = y(d.y)
+
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
         return
       }
@@ -195,10 +199,12 @@ function scatterMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMarks
   const { xKind, x, y } = layout
   const marks: Mark[] = []
   const points: ScenePoint[] = []
+
   series.forEach((s, si) => {
     s.values.forEach((d, i) => {
       const cx = xCenter(xKind, x, d.x)
       const cy = y(d.y)
+
       if (!Number.isFinite(cx) || !Number.isFinite(cy)) {
         return
       }
@@ -231,17 +237,21 @@ function groupedBarMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMa
 
   const marks: Mark[] = []
   const points: ScenePoint[] = []
+
   series.forEach((s, si) => {
     const offset = inner(String(si)) ?? 0
     const width = inner.bandwidth()
+
     s.values.forEach((d, i) => {
       const band = outer(String(d.x))
+
       if (band === undefined || !Number.isFinite(d.y)) {
         return
       }
 
       const top = y(Math.max(0, d.y))
       const bottom = y(Math.min(0, d.y))
+
       marks.push({
         kind: 'rect',
         x: band + offset,
@@ -278,16 +288,19 @@ function stackedBarMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMa
 
   const marks: Mark[] = []
   const points: ScenePoint[] = []
+
   series.forEach((s, si) => {
     s.values.forEach((d, i) => {
       const cat = String(d.x)
       const band = outer(cat)
+
       if (band === undefined || !Number.isFinite(d.y)) {
         return
       }
 
       const v0 = d.y >= 0 ? (posBase.get(cat) ?? 0) : (negBase.get(cat) ?? 0)
       const v1 = v0 + d.y
+
       if (d.y >= 0) {
         posBase.set(cat, v1)
       } else {
@@ -296,6 +309,7 @@ function stackedBarMarks(layout: ChartLayout, series: ResolvedSeries[]): BuiltMa
 
       const top = y(Math.max(v0, v1))
       const bottom = y(Math.min(v0, v1))
+
       marks.push({
         kind: 'rect',
         x: band,
@@ -332,6 +346,7 @@ function pieMarks(
 ): BuiltMarks {
   const { plot } = layout
   const flat: { d: ChartDatum; si: number; i: number }[] = []
+
   series.forEach((s, si) => s.values.forEach((d, i) => flat.push({ d, si, i })))
 
   // Marks are plot-space; d3 arcs generate around (0,0), so each slice path
@@ -351,11 +366,13 @@ function pieMarks(
 
   const marks: Mark[] = []
   const slices: PieSlice[] = []
+
   arcs.forEach((a, order) => {
     // Pie slices are categorical — palette by slice order; a series color on
     // pie would monochrome every slice. datum.color overrides.
     const color = a.data.d.color ?? options.palette[order % options.palette.length]
     const centroid = gen.centroid(a)
+
     marks.push({
       kind: 'path',
       d: gen(a) ?? '',

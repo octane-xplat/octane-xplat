@@ -40,7 +40,9 @@ void applicationClosed.then(() => {
   mainWindow.close()
   app.delegate = null as unknown as NSApplicationDelegate
   appKit.delegate = null
+
   const stopHost = (globalThis as HostGlobals).__xplatStopHost
+
   if (typeof stopHost === 'function') {
     stopHost()
   }

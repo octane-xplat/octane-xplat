@@ -11,6 +11,7 @@ const self = fileURLToPath(import.meta.url)
 const repo = resolve(dirname(self), '../../..')
 const caseFile = resolve(dirname(self), 'movie-switch.ios.tsrx')
 const device = process.env.XPLAT_IOS_DEVICE
+
 if (!device || !/^[A-Za-z0-9-]+$/.test(device)) {
   throw new Error('Set XPLAT_IOS_DEVICE to the paired physical iPhone UDID')
 }
@@ -21,9 +22,11 @@ if (process.platform !== 'darwin') {
 
 const call = (command, args, options = {}) => {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 30_000, ...options })
+
   if (result.error || result.status !== 0) {
     throw result.error ?? new Error(`${command} failed: ${result.stderr}`)
   }
+
   return result.stdout
 }
 
@@ -37,6 +40,7 @@ const broker = (resources, purpose, args) =>
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms))
 const bounded = async (promise, ms) => {
   let timer
+
   try {
     return await Promise.race([
       promise,
@@ -51,6 +55,7 @@ const bounded = async (promise, ms) => {
 
 if (process.argv[2] !== '--device') {
   const project = await prepare('ios', caseFile, ['@octane-xplat/camera'])
+
   broker({ native_builds: 1 }, 'Build signed isolated camera qualification app', [
     'python3',
     resolve(repo, 'scripts/with-native-target-lock.py'),
@@ -74,12 +79,16 @@ if (process.argv[2] !== '--device') {
 } else {
   const expectedApp = process.argv[3]
   const scratch = resolve(homedir(), 'agent-scratch/octane-xplat/camera-ios-device')
+
   mkdirSync(scratch, { recursive: true })
+
   const work = mkdtempSync(resolve(scratch, 'run-'))
   const token = randomUUID()
   const tokenPath = resolve(work, 'token.txt')
   const phasePath = resolve(work, 'phase.json')
+
   writeFileSync(tokenPath, token)
+
   const ctl = (...args) =>
     call('xcrun', [
       'devicectl',
@@ -131,17 +140,21 @@ if (process.argv[2] !== '--device') {
   })
 
   const stop = () => child.kill('SIGTERM')
+
   process.on('SIGINT', stop)
   process.on('SIGTERM', stop)
   try {
     const deadline = Date.now() + 180_000
+
     while (!exited && !phaseExercised) {
       if (Date.now() > deadline) {
         throw new Error('Physical camera phase timed out')
       }
 
       await delay(1000)
+
       const app = logs.match(/\[xplat-probe-ios-app\] ([A-Za-z0-9.]+)/)?.[1]
+
       if (!app) {
         continue
       }
@@ -151,6 +164,7 @@ if (process.argv[2] !== '--device') {
       }
 
       let phase
+
       try {
         ctl(
           'copy',

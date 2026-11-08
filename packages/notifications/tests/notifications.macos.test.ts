@@ -4,6 +4,7 @@ import { notifications } from '../src/notifications.macos.ts'
 import { permissions } from '../../platform/src/permissions.ts'
 
 const globals = globalThis as any
+
 afterEach(() => {
   delete globals.XplatLocalNotifications
 })
@@ -16,11 +17,13 @@ test('missing native metadata is unsupported and registers its permission owner'
     granted: false,
     canAskAgain: false,
   })
+
   assert.deepEqual(await permissions.requestPermissions('notifications'), {
     status: 'unsupported',
     granted: false,
     canAskAgain: false,
   })
+
   assert.throws(() => notifications.notify('title'), { name: 'UnavailabilityError' })
 })
 
@@ -34,18 +37,25 @@ test('read and request callbacks preserve all permission states through both ent
     }
 
     assert.equal(notifications.supported, true)
+
     const direct = await notifications.requestPermissions()
+
     assert.equal(direct.status, result)
+
     const read = await permissions.getPermissions('notifications')
+
     assert.equal(read.status, result)
     assert.equal(read.canAskAgain, result === 'granted' || result === 'undetermined')
+
     const owned = await permissions.requestPermissions('notifications')
+
     assert.equal(owned.status, result)
   }
 })
 
 test('notify forwards optional body without requesting permission or colliding in JS', () => {
   const calls: unknown[] = []
+
   globals.XplatLocalNotifications = {
     isAvailable: () => true,
     getStatus: () => {
@@ -104,6 +114,7 @@ test('an unbundled host with metadata remains unsupported without touching the O
 test('permission reads never invoke authorization, including the shared dispatcher', async () => {
   let reads = 0,
     prompts = 0
+
   globals.XplatLocalNotifications = {
     isAvailable: () => 1,
     getStatus: (done: (status: string) => void) => {
@@ -116,6 +127,7 @@ test('permission reads never invoke authorization, including the shared dispatch
     },
     notifyBody() {},
   }
+
   assert.equal((await notifications.getPermissions()).status, 'undetermined')
   assert.equal((await permissions.getPermissions('notifications')).canAskAgain, true)
   assert.equal(prompts, 0)
@@ -162,10 +174,12 @@ test('unknown callback states normalize to unsupported and duplicate callbacks s
     },
     notifyBody() {},
   }
+
   assert.deepEqual(await notifications.getPermissions(), {
     status: 'unsupported',
     granted: false,
     canAskAgain: false,
   })
+
   assert.equal((await notifications.requestPermissions()).status, 'denied')
 })

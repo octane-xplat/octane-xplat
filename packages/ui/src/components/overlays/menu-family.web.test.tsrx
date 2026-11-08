@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
 import { ContextMenu } from './ContextMenu.web.tsrx'
 import { Breadcrumb } from '../navigation/Breadcrumb.web.tsrx'
@@ -49,8 +51,11 @@ void [menuKinds, actionOverflow, invalidActionOverflow, invalidSectionAction]
 const roots: ReturnType<typeof createRoot>[] = []
 function mount(Component: any, props: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() => root.render(Component, props))
   return root
@@ -58,6 +63,7 @@ function mount(Component: any, props: any) {
 
 function key(key: string, options: KeyboardEventInit = {}) {
   const event = new KeyboardEvent('keydown', { key, bubbles: true, cancelable: true, ...options })
+
   act(() => document.activeElement!.dispatchEvent(event))
   return event
 }
@@ -133,6 +139,7 @@ function Choices(props: any) @{
 describe('menu family contracts', () => {
   it('navigates one level, keeps disabled rows discoverable and blocks activation', () => {
     const pick = vi.fn()
+
     mount(Compound, { open: true, pick })
     expect(document.activeElement?.getAttribute('role')).toBe('menu')
     key('ArrowDown')
@@ -151,6 +158,7 @@ describe('menu family contracts', () => {
 
   it('opens from the trigger with keyboard focus and returns focus after accepted root dismissal', () => {
     const pick = vi.fn()
+
     mount(DropdownMenu, {
       id: 'trigger',
       button: { label: 'Actions' },
@@ -174,6 +182,7 @@ describe('menu family contracts', () => {
 
   it('dismisses only the top submenu through its inherited outside backdrop', () => {
     const close = vi.fn()
+
     mount(Compound, { open: true, close })
     key('End')
     key('ArrowRight')
@@ -192,6 +201,7 @@ describe('menu family contracts', () => {
       radio = vi.fn()
 
     const root = mount(Compound, { open: true, checked: false, value: 'new', close, check, radio })
+
     click('check')
     expect(check).toHaveBeenCalledWith(true)
     expect(close).not.toHaveBeenCalled()
@@ -213,6 +223,7 @@ describe('menu family contracts', () => {
       radio = vi.fn()
 
     const root = mount(Choices, { close, check, radio })
+
     click('closing-check')
     expect(check).toHaveBeenCalledWith(true)
     expect(close).toHaveBeenCalledWith(false)
@@ -260,8 +271,10 @@ describe('menu family contracts', () => {
     key('ArrowRight', { keyCode: 229 })
     expect(document.querySelectorAll('[role="menu"]')).toHaveLength(1)
     act(() => roots.splice(0).forEach((root) => root.unmount()))
+
     const change = vi.fn()
     const root = mount(ControlledSub, { open: true, change })
+
     key('ArrowDown')
     expect(document.activeElement?.id).toBe('controlled-leaf')
     key('ArrowLeft')
@@ -276,6 +289,7 @@ describe('menu family contracts', () => {
 
   it('preserves legacy items and ContextMenu children and supports a visible trigger', () => {
     const pick = vi.fn()
+
     mount(ContextMenu, {
       children: 'Target',
       trigger: 'Actions',
@@ -290,6 +304,7 @@ describe('menu family contracts', () => {
 
   it('reuses the menu for hidden breadcrumb ancestors', () => {
     const select = vi.fn()
+
     mount(Breadcrumb, {
       maxVisibleItems: 2,
       items: [
@@ -316,6 +331,7 @@ describe('menu family contracts', () => {
     })
 
     const menu = document.querySelector('[role="menu"]') as HTMLElement
+
     expect(menu.getAttribute('aria-labelledby')).toBe('named-trigger')
     expect(menu.getAttribute('aria-label')).toBeNull()
   })
@@ -329,6 +345,7 @@ describe('menu family contracts', () => {
 
     const menu = document.querySelector('[role="menu"]') as HTMLElement
     const labelledBy = menu.getAttribute('aria-labelledby')
+
     expect(labelledBy).toBeTruthy()
     expect(document.getElementById(labelledBy!)?.textContent).toContain('Actions')
   })
@@ -350,6 +367,7 @@ describe('menu family contracts', () => {
 
   it('types data rows by kind and honors action close overrides', () => {
     const close = vi.fn()
+
     mount(DropdownMenu, {
       button: { label: 'Kinds' },
       isOpen: true,

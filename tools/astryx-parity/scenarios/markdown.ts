@@ -1227,12 +1227,15 @@ export const mentionsContribution = {
   }) {
     const span = input.source.slice(input.offset, input.end)
     const match = /^@[a-z][a-z0-9-]{0,15}/.exec(span)
+
     if (!input.isFinal && (span === '@' || (match != null && match[0].length === span.length))) {
       return { status: 'defer' as const }
     }
+
     if (match == null) {
       return { status: 'no-match' as const }
     }
+
     return {
       status: 'match' as const,
       end: input.offset + match[0].length,
@@ -1255,6 +1258,7 @@ export function mentionsToText(node: { data: unknown }): string {
     typeof node.data === 'object' && node.data !== null
       ? Reflect.get(node.data, 'handle')
       : undefined
+
   return `@${typeof handle === 'string' ? handle : ''}`
 }
 
@@ -1263,6 +1267,7 @@ export function mentionsToText(node: { data: unknown }): string {
  *  rotation), scaled down for differential runs rather than timing. */
 const longDocument = (() => {
   const sections: string[] = []
+
   for (let i = 0; i < 120; i++) {
     switch (i % 6) {
       case 0:
@@ -1290,6 +1295,7 @@ const longDocument = (() => {
         sections.push(`1. Step one\n2. Step two with \`code\`\n3. [link](https://example.com/${i})`)
     }
   }
+
   return sections.join('\n\n') + '\n'
 })()
 
@@ -1302,6 +1308,7 @@ const largeTable = (() => {
       i % 3 === 0 ? ':---' : i % 3 === 1 ? ':--:' : '---:',
     ).join(' | ') +
     ' |'
+
   const rows = Array.from(
     { length: 40 },
     (_, r) =>
@@ -1312,6 +1319,7 @@ const largeTable = (() => {
       ).join(' | ') +
       ' |',
   )
+
   return [head, align, ...rows].join('\n') + '\n'
 })()
 
@@ -1815,17 +1823,22 @@ export const markdownScenarios: MarkdownScenario[] = [
  *  schedule; `streamSchedules` adds seeded random multi-chunk schedules. */
 export function streamSchedules(source: string, seed = 7): string[][] {
   const schedules: string[][] = []
+
   for (let i = 1; i < source.length; i++) {
     schedules.push([source.slice(0, i), source.slice(i)])
   }
+
   // Seeded random chunks (LCG, deterministic).
   let s = seed >>> 0
   const rand = () => (s = (s * 1664525 + 1013904223) >>> 0) / 0xffffffff
+
   for (let k = 0; k < 8; k++) {
     const parts: string[] = []
     let pos = 0
+
     while (pos < source.length) {
       const n = 1 + Math.floor(rand() * Math.min(24, source.length - pos))
+
       parts.push(source.slice(pos, pos + n))
       pos += n
     }
@@ -1834,5 +1847,6 @@ export function streamSchedules(source: string, seed = 7): string[][] {
       schedules.push(parts)
     }
   }
+
   return schedules
 }

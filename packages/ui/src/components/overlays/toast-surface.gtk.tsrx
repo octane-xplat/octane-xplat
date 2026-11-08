@@ -118,6 +118,7 @@ export function GtkToastSurface(props: {
     {TOAST_POSITIONS.map((position) => {
       const list = edgeFor(position)
       const layer = props.layers[position]
+
       if (!list.length || !layer) {
         return null
       }

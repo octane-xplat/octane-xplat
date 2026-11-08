@@ -18,4 +18,5 @@ export const contacts: Contacts = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.contacts = () => contacts.ensure()

@@ -68,16 +68,19 @@ function parseAxisValue(value: ImageContentPositionValue | undefined): AxisValue
   }
 
   const text = String(value).trim()
+
   if (text === 'center') {
     return { percent: 50 }
   }
 
   if (text.endsWith('%')) {
     const parsed = Number.parseFloat(text)
+
     return Number.isNaN(parsed) ? null : { percent: parsed }
   }
 
   const parsed = Number.parseFloat(text)
+
   return Number.isNaN(parsed) ? null : { dips: parsed }
 }
 
@@ -92,11 +95,13 @@ export function contentAxisOffset(
   end: ImageContentPositionValue | undefined,
 ): number {
   const from = parseAxisValue(start)
+
   if (from) {
     return 'percent' in from ? (from.percent / 100) * (viewSize - contentSize) : from.dips
   }
 
   const to = parseAxisValue(end)
+
   if (to) {
     return 'percent' in to
       ? (1 - to.percent / 100) * (viewSize - contentSize)
@@ -111,11 +116,13 @@ function centeredAxis(
   end: ImageContentPositionValue | undefined,
 ): boolean {
   const from = parseAxisValue(start)
+
   if (from) {
     return 'percent' in from && from.percent === 50
   }
 
   const to = parseAxisValue(end)
+
   if (to) {
     return 'percent' in to && to.percent === 50
   }
@@ -141,6 +148,7 @@ export function contentRect(
 ): { x: number; y: number; width: number; height: number } {
   let width: number
   let height: number
+
   switch (fit) {
     case 'fill':
       width = viewWidth
@@ -148,12 +156,14 @@ export function contentRect(
       break
     case 'cover': {
       const scale = Math.max(viewWidth / imageWidth, viewHeight / imageHeight)
+
       width = imageWidth * scale
       height = imageHeight * scale
       break
     }
     case 'scale-down': {
       const scale = Math.min(1, Math.min(viewWidth / imageWidth, viewHeight / imageHeight))
+
       width = imageWidth * scale
       height = imageHeight * scale
       break
@@ -165,6 +175,7 @@ export function contentRect(
     default: {
       // 'contain'
       const scale = Math.min(viewWidth / imageWidth, viewHeight / imageHeight)
+
       width = imageWidth * scale
       height = imageHeight * scale
     }
@@ -235,11 +246,14 @@ export function bestImageSource(
   const hasHeight = viewHeight > 0
   let best: ImageSourceLike | null = null
   let bestFit = Infinity
+
   if (hasWidth && hasHeight) {
     const target = viewWidth * viewHeight * screenScale * screenScale
+
     for (const source of sources) {
       const pixelCount = (source.width ?? 0) * (source.height ?? 0) * (source.scale ?? 1) ** 2
       const fit = Math.abs(1 - pixelCount / target)
+
       if (fit < bestFit) {
         best = source
         bestFit = fit
@@ -252,9 +266,11 @@ export function bestImageSource(
   if (hasWidth || hasHeight) {
     const axis = hasWidth ? 'width' : 'height'
     const target = (hasWidth ? viewWidth : viewHeight) * screenScale
+
     for (const source of sources) {
       const px = (source[axis] ?? 0) * (source.scale ?? 1)
       const fit = Math.abs(1 - px / target)
+
       if (fit < bestFit) {
         best = source
         bestFit = fit
@@ -266,6 +282,7 @@ export function bestImageSource(
 
   for (const source of sources) {
     const fit = Math.abs(1 - (source.scale ?? 1) / screenScale)
+
     if (fit < bestFit) {
       best = source
       bestFit = fit
@@ -277,6 +294,7 @@ export function bestImageSource(
 
 function ensureWebUnits(value: ImageContentPositionValue): string {
   const text = String(value).trim()
+
   return text.endsWith('%') ? text : `${text}px`
 }
 
@@ -284,6 +302,7 @@ function ensureWebUnits(value: ImageContentPositionValue): string {
  *  web's `getObjectPositionFromContentPositionObject`. */
 export function objectPositionCSSValue(position: ImageContentPositionObject): string {
   const resolved: ImageContentPositionObject = { ...position }
+
   if (resolved.top == null && resolved.bottom == null) {
     resolved.top = '50%'
   }
@@ -327,8 +346,10 @@ export function imageSrcSet(sources: readonly ImageSourceLike[]): {
 
   let fallback = sources[0]
   let bestCount = -Infinity
+
   for (const source of sources) {
     const count = (source.width ?? 0) * (source.height ?? 0) * (source.scale ?? 1) ** 2
+
     if (count > bestCount) {
       bestCount = count
       fallback = source

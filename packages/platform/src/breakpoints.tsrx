@@ -29,6 +29,7 @@ function subscribe(listener: () => void): () => void {
 
 function matchesAt<T extends BreakpointMap>(width: number, breakpoints: T): BreakpointMatches<T> {
   const matches: Record<string, boolean> = {}
+
   for (const name in breakpoints) {
     matches[name] = width >= breakpoints[name]
   }
@@ -61,12 +62,14 @@ export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): Breakp
   useEffect(() => {
     const update = () => {
       const next = matchesAt(Screen.mainScreen.widthDIPs, breakpoints)
+
       if (!sameMatches(matches$.get(), next)) {
         matches$.set(next)
       }
     }
 
     const unsubscribe = subscribe(update)
+
     update()
     return unsubscribe
   }, [breakpoints])

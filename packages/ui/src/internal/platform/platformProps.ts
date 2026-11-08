@@ -16,6 +16,7 @@ export function applyNativeProps(
   }
 
   const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
+
   if (bag) {
     Object.assign(el, bag)
   }

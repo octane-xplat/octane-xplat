@@ -19,6 +19,7 @@ export function useSize<T extends string = FieldControlSize>(
   defaultSize: T = 'md' as T,
 ): T {
   const inherited = useContext(SizeContext)
+
   return sizeProp ?? (inherited as T | null) ?? defaultSize
 }
 

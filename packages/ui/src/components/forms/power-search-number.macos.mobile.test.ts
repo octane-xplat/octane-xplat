@@ -42,6 +42,7 @@ it('requires safe whole integers but permits integral decimal/scientific represe
   for (const text of ['1.5', '-.5', '9007199254740992', '-9007199254740992']) {
     expect(powerSearchNumber(text, { type: 'integer' }).value).toBeNull()
   }
+
   for (const [text, value] of [
     ['1.0', 1],
     ['1e3', 1000],
@@ -59,6 +60,7 @@ it('enforces inclusive zero/negative/fractional bounds without clamping user inp
     expect(powerSearchNumber('1', { type, maxValue: 0 }).value).toBeNull()
     expect(powerSearchNumber('-2', { type, minValue: -2, maxValue: -1 }).value?.value).toBe(-2)
   }
+
   expect(
     powerSearchNumber('1.5', { type: 'float', minValue: 1.5, maxValue: 1.5 }).value?.value,
   ).toBe(1.5)

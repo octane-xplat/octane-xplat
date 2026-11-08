@@ -60,26 +60,33 @@ export function createAppKitVideoOwner(options: {
   const schedule = options.schedule ?? setTimeout,
     cancel =
       options.cancel ?? ((timer: unknown) => clearTimeout(timer as ReturnType<typeof setTimeout>))
+
   const report =
     options.report ?? ((error: unknown) => console.error('[macos-video] callback failed', error))
+
   let view: AppKitVideoNative | null = null,
     disposed = false,
     generation = 0,
     source: string | undefined
+
   let timer: unknown,
     ready = false,
     ended = false,
     failed = false,
     internalMuted = false
+
   let appliedPlaying: boolean | undefined,
     appliedMuted: boolean | undefined,
     appliedLoop: boolean | undefined,
     appliedFit: string | undefined
+
   let observeErrors = false
   let transportRevision = 0,
     pendingSeek: number | undefined
+
   let events: Event[] = [],
     published: AppKitVideoState | undefined
+
   let state: AppKitVideoState = {
     playing: false,
     started: false,
@@ -87,18 +94,23 @@ export function createAppKitVideoOwner(options: {
     duration: 0,
     muted: false,
   }
+
   const current = (native: AppKitVideoNative | null, own: number) =>
     !disposed && view === native && generation === own && options.props().src === source
+
   const stop = () => {
     if (timer !== undefined) {
       cancel(timer)
     }
+
     timer = undefined
   }
+
   const queue = (delay = 0) => {
     if (disposed || !view) {
       return
     }
+
     if (timer !== undefined) {
       if (delay > 0) {
         return
@@ -106,14 +118,17 @@ export function createAppKitVideoOwner(options: {
 
       stop()
     }
+
     const native = view,
       own = generation
+
     timer = schedule(() => {
       if (!disposed && view === native && generation === own) {
         tick()
       }
     }, delay)
   }
+
   const callback = (event: Event) => {
     if (
       'revision' in event &&
@@ -122,7 +137,9 @@ export function createAppKitVideoOwner(options: {
     ) {
       return
     }
+
     const props = options.props()
+
     try {
       if (event.kind === 'playing') {
         props.onPlayingChange?.(event.value)
@@ -139,11 +156,14 @@ export function createAppKitVideoOwner(options: {
       report(error)
     }
   }
+
   const read = (native: AppKitVideoNative): Snapshot => {
     const value = JSON.parse(native.snapshot())
+
     if (!value || !['idle', 'loading', 'ready', 'ended', 'failed'].includes(value.status)) {
       throw Error('Invalid video snapshot')
     }
+
     return {
       ...value,
       position: milliseconds(value.position),
@@ -153,12 +173,15 @@ export function createAppKitVideoOwner(options: {
       seeking: value.seeking === true,
     }
   }
+
   const fail = () => {
     if (failed || !view) {
       return
     }
+
     const native = view,
       own = generation
+
     failed = true
     ready = false
     state = { ...state, playing: false }
@@ -171,23 +194,29 @@ export function createAppKitVideoOwner(options: {
     } catch {
       /* Keep the original failure. */
     }
+
     if (current(native, own)) {
       queue()
     }
   }
+
   const drive = (next: boolean) => {
     if (!view || failed || disposed) {
       return
     }
+
     const native = view,
       own = generation
+
     transportRevision++
     if (next) {
       ended = false
     }
+
     if (state.playing !== next) {
       events.push({ kind: 'playing', value: next })
     }
+
     state = { ...state, playing: next }
     try {
       if (next) {
@@ -200,17 +229,22 @@ export function createAppKitVideoOwner(options: {
         fail()
       }
     }
+
     if (current(native, own)) {
       queue()
     }
   }
+
   function sync() {
     if (!view || disposed) {
       return
     }
+
     const props = options.props(),
       native = view
+
     let changed = false
+
     if (source !== props.src) {
       stop()
       generation++
@@ -233,7 +267,9 @@ export function createAppKitVideoOwner(options: {
       appliedMuted = props.muted
       appliedLoop = props.loop
       appliedFit = props.fit
+
       const own = generation
+
       try {
         native.setMuted(state.muted)
         if (!current(native, own)) {
@@ -267,11 +303,14 @@ export function createAppKitVideoOwner(options: {
       queue()
       return
     }
+
     const own = generation
+
     if (observeErrors !== (typeof props.onError === 'function')) {
       observeErrors = typeof props.onError === 'function'
       changed = true
     }
+
     try {
       if (props.muted !== appliedMuted) {
         changed = true
@@ -316,22 +355,29 @@ export function createAppKitVideoOwner(options: {
         fail()
       }
     }
+
     if (changed && current(native, own)) {
       queue()
     }
   }
+
   function tick() {
     timer = undefined
+
     const native = view,
       own = generation
+
     if (!native || disposed) {
       return
     }
+
     if (!current(native, own)) {
       sync()
       return
     }
+
     let next: Snapshot | undefined
+
     if (!failed) {
       try {
         next = read(native)
@@ -360,6 +406,7 @@ export function createAppKitVideoOwner(options: {
           ready = true
           if (pendingSeek !== undefined) {
             const target = pendingSeek
+
             pendingSeek = undefined
             try {
               native.seekToMS(target)
@@ -390,9 +437,11 @@ export function createAppKitVideoOwner(options: {
         }
       }
     }
+
     if (!current(native, own)) {
       return
     }
+
     if (
       !published ||
       Object.keys(state).some(
@@ -402,10 +451,13 @@ export function createAppKitVideoOwner(options: {
       published = { ...state }
       options.publish({ ...state })
     }
+
     if (!current(native, own)) {
       return
     }
+
     const pending = events
+
     events = []
     for (const event of pending) {
       if (!current(native, own)) {
@@ -414,6 +466,7 @@ export function createAppKitVideoOwner(options: {
 
       callback(event)
     }
+
     if (current(native, own) && !failed) {
       if (next?.status === 'loading' || state.playing || next?.seeking) {
         queue(250)
@@ -422,16 +475,20 @@ export function createAppKitVideoOwner(options: {
       }
     }
   }
+
   const requestPlayback = (next: boolean) => {
     if (!view || disposed) {
       return
     }
+
     if (next && failed) {
       source = undefined
     } // An explicit play retries, a rerender does not.
+
     sync()
     drive(next)
   }
+
   const handle: VideoHandle = {
     play() {
       requestPlayback(true)
@@ -444,8 +501,10 @@ export function createAppKitVideoOwner(options: {
       if (!view || disposed || failed || !Number.isFinite(ms)) {
         return
       }
+
       const native = view,
         own = generation
+
       try {
         transportRevision++
         ended = false
@@ -467,8 +526,10 @@ export function createAppKitVideoOwner(options: {
     currentTime() {
       const native = view,
         own = generation
+
       try {
         const value = native && current(native, own) ? read(native).position : 0
+
         return current(native, own) ? value : 0
       } catch {
         return 0
@@ -477,8 +538,10 @@ export function createAppKitVideoOwner(options: {
     duration() {
       const native = view,
         own = generation
+
       try {
         const value = native && current(native, own) ? read(native).duration : 0
+
         return current(native, own) ? value : 0
       } catch {
         return 0
@@ -488,6 +551,7 @@ export function createAppKitVideoOwner(options: {
       return view
     },
   }
+
   return {
     handle,
     sync,
@@ -496,7 +560,9 @@ export function createAppKitVideoOwner(options: {
         native.dispose()
         return
       }
+
       const previous = view
+
       view = native
       generation++
       source = undefined
@@ -508,6 +574,7 @@ export function createAppKitVideoOwner(options: {
       } catch (error) {
         report(error)
       }
+
       if (view === native && !disposed) {
         sync()
       }
@@ -520,8 +587,10 @@ export function createAppKitVideoOwner(options: {
       if (!view || disposed) {
         return
       }
+
       const native = view,
         own = generation
+
       internalMuted = !state.muted
       state = { ...state, muted: internalMuted }
       try {
@@ -540,9 +609,12 @@ export function createAppKitVideoOwner(options: {
       if (disposed) {
         return
       }
+
       disposed = true
       generation++
+
       const native = view
+
       view = null
       stop()
       events = []

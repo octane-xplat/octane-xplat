@@ -22,12 +22,14 @@ let setName: (name: string) => void
 const observed: string[] = []
 function Child() {
   const name = useContext(Name)
+
   observed.push(name)
   return <label text={name} />
 }
 
 function Case() {
   const [name, update] = useState('Avery')
+
   setName = update
   content = useOwnedContent()
   return <Provider value={name}>{content.element}</Provider>
@@ -48,10 +50,12 @@ describe('owned content outlets', () => {
 
     root.render(Case, {})
     await settle()
+
     const onDispose = vi.fn()
     const first = content.owner.createRoot({}, onDispose)
     const second = content.owner.createRoot({})
     const committed = vi.fn()
+
     first.render(Child)
     first.whenCommitted(committed)
     second.render(Child)
@@ -75,9 +79,12 @@ describe('owned content outlets', () => {
     const close = vi.fn()
     const root = owner.createRoot({}, close)
     const committed = vi.fn()
+
     root.render(Child)
     root.whenCommitted(committed)
+
     const entry = owner.entries.getSnapshot()[0]
+
     owner.dispose()
     owner.dispose()
     entry.committed()

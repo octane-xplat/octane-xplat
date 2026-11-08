@@ -17,6 +17,7 @@ const owned = new Map<string, string>()
 function available(): boolean {
   try {
     const { Windows, Microsoft, NSWinRT } = projection()
+
     return Boolean(
       Microsoft?.UI?.Xaml?.Media?.Imaging?.RenderTargetBitmap &&
       Windows?.Graphics?.Imaging?.SoftwareBitmap?.CreateCopyFromBuffer &&
@@ -33,16 +34,21 @@ function nativeView(target: object): any {
   if (!available()) {
     throw new UnavailabilityError('View capture in this Windows runtime projection')
   }
+
   const view = target instanceof View ? target.nativeViewProtected : target
   const host = view as any
+
   if (!host?.XamlRoot || !(host.ActualWidth > 0 && host.ActualHeight > 0)) {
     throw new Error('Windows capture requires an attached, laid-out XAML host')
   }
+
   const helper = projection().Microsoft.UI.Xaml.Media.VisualTreeHelper
   function validate(child: any): void {
     let type = child.GetType()
+
     while (type) {
       const name: string = type.FullName
+
       if (
         [
           'WebView',
@@ -57,11 +63,14 @@ function nativeView(target: object): any {
 
       type = type.BaseType
     }
+
     const count = helper.GetChildrenCount(child)
+
     for (let index = 0; index < count; index++) {
       validate(helper.GetChild(child, index))
     }
   }
+
   validate(host)
   return host
 }
@@ -86,22 +95,29 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
       'Requested format/strategy in Windows capture; use PNG with default strategies',
     )
   }
+
   const view = nativeView(target)
   const { Windows, Microsoft, NSWinRT } = projection()
   const wait = (operation: unknown) => NSWinRT.toPromise(operation)
   const scale = Number(view.XamlRoot.RasterizationScale)
   const width = options.width ?? Math.ceil(Number(view.ActualWidth) * scale)
   const height = options.height ?? Math.ceil(Number(view.ActualHeight) * scale)
+
   checkDimensions(width, height)
+
   const image = new Microsoft.UI.Xaml.Media.Imaging.RenderTargetBitmap()
+
   await wait(image.RenderAsync(view, width, height))
   nativeView(target)
+
   const actualWidth = Number(image.PixelWidth),
     actualHeight = Number(image.PixelHeight)
+
   checkDimensions(actualWidth, actualHeight)
   if (actualWidth !== width || actualHeight !== height) {
     throw new Error('Windows changed the requested capture dimensions')
   }
+
   const pixels = await wait(image.GetPixelsAsync())
   const imaging = Windows.Graphics.Imaging
   const bitmap = imaging.SoftwareBitmap.CreateCopyFromBuffer(
@@ -111,9 +127,11 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
     height,
     imaging.BitmapAlphaMode.Premultiplied,
   )
+
   const stream = new Windows.Storage.Streams.InMemoryRandomAccessStream()
   let reader: any
   let input: any
+
   try {
     const encoder = await wait(
       imaging.BitmapEncoder.CreateAsync(imaging.BitmapEncoder.PngEncoderId, stream),
@@ -121,7 +139,9 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 
     encoder.SetSoftwareBitmap(bitmap)
     await wait(encoder.FlushAsync())
+
     const length = Number(stream.Size)
+
     if (!Number.isSafeInteger(length) || length <= 0 || length > 256000000) {
       throw new Error('Windows encoded an invalid capture size')
     }
@@ -133,6 +153,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
     }
 
     const buffer = reader.ReadBuffer(length)
+
     if (options.result !== 'tmpfile') {
       const encoded: string =
         Windows.Security.Cryptography.CryptographicBuffer.EncodeToBase64String(buffer)
@@ -149,6 +170,7 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
 
     try {
       await wait(Windows.Storage.FileIO.WriteBufferAsync(file, buffer))
+
       const path: string = file.Path
       const uri =
         'file:///' +
@@ -188,18 +210,22 @@ export const backend: CaptureBackend = {
   },
   release(uri) {
     const path = owned.get(uri)
+
     if (!path) {
       return
     }
+
     if (File.exists(path)) {
       File.fromPath(path).removeSync((error) => {
         throw error
       })
     }
+
     owned.delete(uri)
   },
   async waitForLayout(target, cancelled) {
     const start = Date.now()
+
     while (!cancelled()) {
       try {
         nativeView(target)
@@ -212,6 +238,7 @@ export const backend: CaptureBackend = {
 
       await new Promise<void>((resolve) => setTimeout(resolve, 16))
     }
+
     throw new Error('ViewShot unmounted while waiting for layout')
   },
 }

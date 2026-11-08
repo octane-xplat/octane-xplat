@@ -32,6 +32,7 @@ function RouteContent(props: { id: string }) {
   const id = props.id
   const name = useContext(Name)
   const [count, setCount] = useState(0)
+
   increments.set(id, () => setCount((value) => value + 1))
   useEffect(() => {
     mounted.add(id)
@@ -74,6 +75,7 @@ function LocalNavigator() {
 
 function LocalScope() {
   const [name, setName] = useState('Local')
+
   updateLocalName = setName
   return (
     <Provider value={name}>
@@ -86,8 +88,10 @@ function LocalScope() {
 
 export default function Case() {
   sheet = useImperativeBottomSheet()
+
   const [name, setName] = useState('Avery')
   const [scope, setScope] = useState<'outer' | 'local' | 'none'>('outer')
+
   updateName = setName
   enableLocal = () => setScope('local')
   restoreOuter = () => setScope('outer')
@@ -141,8 +145,10 @@ export async function run(ctx: any) {
 
   push('first')
   await ctx.waitFor(() => mounted.has('first') && views.get('first')?.isLoaded)
+
   const first = views.get('first')
   const hiddenSheet = sheet.open(SheetRoute, { id: 'hidden-owner-sheet' })
+
   await ctx.waitFor(() => views.get('hidden-owner-sheet')?.isLoaded)
   ctx.assert(
     'hidden owner presents on the current Page',
@@ -196,7 +202,9 @@ export async function run(ctx: any) {
   updateLocalName('Taylor')
   await ctx.waitFor(() => views.get('local')?.text === 'Taylor:0')
   ctx.assert('owner-bound route receives live local updates', views.get('local').text, 'Taylor:0')
+
   const late = navigator.navigateUrl('/portal-slow/late')
+
   await ctx.waitFor(() => typeof completeLoader === 'function')
   removeLocal()
   await ctx.waitFor(() => !mounted.has('local') && ctx.host.frame.currentPage === ctx.host.page)

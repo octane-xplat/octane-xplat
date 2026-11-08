@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
@@ -259,7 +260,9 @@ test('preflight rejects a second nested projected ContentView child before mutat
 
   f.insert(proxy, 8)
   f.insert(a, 2)
+
   const command = { op: 'insert', id: b.id, parent: proxy.id, before: null }
+
   assert.throws(() => f.api.validateProxyTree(f.container, [command]), /contentview.*multiple/)
   assert.equal(b.parent, null)
   assert.equal(content.view.subviews.length, 1)
@@ -268,6 +271,7 @@ test('preflight rejects a second nested projected ContentView child before mutat
 
 test('preflight detects children inserted after a newly created empty proxy', () => {
   const f = fixture()
+
   f.node(8, 'contentview')
   assert.throws(
     () =>

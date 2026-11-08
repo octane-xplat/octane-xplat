@@ -75,7 +75,9 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
   const isBusy = !!props.isLoading || busy
   const hasSeconds = !!props.hasSeconds
   const current = useRef({ props, shown, isDisabled, isBusy, hasSeconds })
+
   current.current = { props, shown, isDisabled, isBusy, hasSeconds }
+
   const canEdit = () =>
     !!input.current &&
     !current.current.isDisabled &&
@@ -122,6 +124,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
 
   const fireChange = (next: ISOTimeString | null | undefined): boolean => {
     const live = current.current
+
     if (
       !input.current ||
       writing.current ||
@@ -133,6 +136,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
     }
 
     const emitted = next ?? null
+
     writing.current = true // Claim before application callbacks can reenter or flush parent props.
     try {
       lastEmitted.current = emitted
@@ -162,6 +166,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
 
   const handleKeyDown = (event: NativeKeyboardEvent<NSTextField>) => {
     const live = current.current
+
     if (
       !input.current ||
       event.target !== input.current ||
@@ -183,10 +188,12 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
 
     event.preventDefault()
     event.stopPropagation()
+
     const increment = live.props.increment ?? 1
     const base = live.shown ?? currentISOTime(live.hasSeconds)
     const next = adjustTime(base, event.key === 'ArrowUp' ? increment : -increment, live.hasSeconds)
     const ownedDraft = pending.current
+
     if (
       next !== live.shown &&
       isTimeInRange(next, live.props.min, live.props.max) &&
@@ -208,6 +215,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
 
   const commitParsed = (parsed: ISOTimeString | null): boolean => {
     const live = current.current
+
     return canEdit() &&
       parsed !== null &&
       isTimeInRange(parsed, live.props.min, live.props.max) &&
@@ -307,6 +315,7 @@ export function TimeInput(inputProps: TimeInputProps): unknown @{
             }
 
             const ownedDraft = pending.current
+
             if (fireChange(undefined) && input.current && pending.current === ownedDraft) {
               setPendingInput(null)
             }

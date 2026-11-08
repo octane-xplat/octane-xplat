@@ -14,6 +14,7 @@ let setPage: (value: number) => void
 
 function ContextLabel(props: { surface: Surface }) {
   const value = useContext(NameContext)
+
   rendered[props.surface].push(value)
   useEffect(() => {
     mounted.add(props.surface)
@@ -32,6 +33,7 @@ const pages = ['first', 'second']
 export default function NativePagerPortals() {
   const [name, setName] = useState('Avery')
   const [page, setCurrentPage] = useState(0)
+
   updateName = setName
   setPage = setCurrentPage
   return (

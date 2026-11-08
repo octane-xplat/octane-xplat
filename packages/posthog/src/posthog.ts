@@ -17,6 +17,7 @@ function getClient(): PostHog {
   if (!client) {
     throw new Error('posthog.init() must run before capture/flags')
   }
+
   return client
 }
 

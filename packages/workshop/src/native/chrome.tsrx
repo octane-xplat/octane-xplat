@@ -31,6 +31,7 @@ function ChromeButton(p: {
   onPress(): void
 }) {
   const [pressed, setPressed] = useState(false)
+
   return (
     <masonview
       style={{ display: 'flex' }}
@@ -129,6 +130,7 @@ function CatalogGroup(p: {
   const s = useStore(p.controller.store)
   const groups = new Map<string, CatalogEntry[]>()
   const leaves: CatalogEntry[] = []
+
   for (const entry of p.items) {
     const depth = p.prefix ? p.prefix.split(' / ').length : 0
     const parts = entry.title
@@ -142,6 +144,7 @@ function CatalogGroup(p: {
     } else {
       const name = `${p.prefix}${p.prefix ? ' / ' : ''}${parts[0]}`
       const members = groups.get(name) ?? []
+
       members.push(entry)
       groups.set(name, members)
     }
@@ -151,6 +154,7 @@ function CatalogGroup(p: {
     <>
       {[...groups.entries()].map(([name, members]) => {
         const open = Boolean(p.query) || !s.collapsedGroups.has(name)
+
         return (
           <masonview style={{ display: 'flex' }} key={name} className="xw-catalog-group">
             <ChromeButton
@@ -160,6 +164,7 @@ function CatalogGroup(p: {
               expanded={open}
               onPress={() => {
                 const next = new Set(s.collapsedGroups)
+
                 if (next.has(name)) {
                   next.delete(name)
                 } else {
@@ -264,6 +269,7 @@ function ControlsPanel(p: {
   const controls = controlEntries(story?.controls)
   const disabled = s.session.phase !== 'ready'
   const commit = (key: string, value: unknown) => p.controller.control(key, value as any)
+
   return (
     <masonview style={{ display: 'flex' }} className="xw-panel">
       <masonview style={{ display: 'flex' }} className="xw-panel-head">
@@ -294,6 +300,7 @@ function ControlsPanel(p: {
             const spec: ControlSpec = control
 
             const options = spec.type === 'boolean' ? [true, false] : (spec.options ?? [])
+
             return (
               <masonview style={{ display: 'flex' }} key={key} className="xw-control-field">
                 <masonview style={{ display: 'flex' }} className="xw-field-head">
@@ -426,6 +433,7 @@ function ControlsPanel(p: {
                 {WORKSHOP_TARGETS.map((target) => {
                   const selected = s.catalog.find((e) => e.id === s.selectedId)
                   const text = `${target} · ${target === p.target ? 'current host' : selected && !selected.targets.includes(target) ? 'unsupported by this story' : 'separate launch; unqualified'}`
+
                   return <label key={target} className="xw-meta" text={text} textWrap />
                 })}
               </masonview>
@@ -447,6 +455,7 @@ function PreviewHeading(p: { controller: NativeWorkshopController }) {
       .filter(Boolean) ?? []
 
   const phase = s.session.phase === 'ready' ? 'Ready' : s.session.phase.replaceAll('-', ' ')
+
   return (
     <masonview style={{ display: s.stageOnly ? 'none' : 'flex' }} className="xw-preview-head">
       <masonview style={{ display: 'flex' }} className="xw-preview-heading">
@@ -470,6 +479,7 @@ export function NativeWorkshopChrome(p: NativeChromeProps): JSX.Element {
   const opener = useRef<unknown>(null)
   const search = useRef<unknown>(null)
   const panel = s.panel
+
   useEffect(() => {
     if (panel === 'stories' && search.current) {
       p.focus(search.current)

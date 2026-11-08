@@ -28,17 +28,21 @@ const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? 
 const probe = join(work, `xplat-go-${host}${process.platform === 'win32' ? '.exe' : ''}`)
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale doctor source: ${file}`)
 }
 
 const probeBuild = JSON.parse(readFileSync(probe + '.json'))
+
 assert.equal(sha(readFileSync(probe)), probeBuild.sha256)
 assert.deepEqual(probeBuild.inputs, build.inputs, 'Reference containment must use the same source')
 
 const scratch = realpathSync(scratchRun(root, 'go-doctor'))
+
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const tools = projectToolFixture(root, work, scratch, { vite: false, packageManagement: true })
 const env = {
   ...process.env,
@@ -58,6 +62,7 @@ const compatibility = JSON.parse(
 let sequence = 0
 function put(dir, path, data) {
   const file = join(dir, path)
+
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, typeof data === 'string' ? data : JSON.stringify(data))
   return file
@@ -65,11 +70,13 @@ function put(dir, path, data) {
 
 function fixture(manifest = {}, files = {}, installed = true) {
   const dir = join(scratch, 'project ' + sequence++ + ' π')
+
   put(dir, 'package.json', {
     private: true,
     packageManager: `bun@${compatibility.tools.bun}`,
     ...manifest,
   })
+
   if (installed) {
     symlinkSync(
       tools.nodeModules,
@@ -77,9 +84,11 @@ function fixture(manifest = {}, files = {}, installed = true) {
       process.platform === 'win32' ? 'junction' : 'dir',
     )
   }
+
   for (const [path, data] of Object.entries(files)) {
     put(dir, path, data)
   }
+
   return dir
 }
 
@@ -115,9 +124,12 @@ function oracle(dir, overlay = {}, macosChecks) {
       maxBuffer: 16 << 20,
     },
   )
+
   success(r)
   assert.equal(r.stderr, '')
+
   const result = JSON.parse(r.stdout)
+
   assert.equal(result.exitCode, 0, result.stderr)
   assert.equal(result.cancelled, false)
   assert.equal(result.truncated, false)
@@ -128,18 +140,23 @@ function oracle(dir, overlay = {}, macosChecks) {
 function compare(dir, overlay = {}, macosChecks) {
   const expected = oracle(dir, overlay, macosChecks),
     actual = run(dir, [], overlay)
+
   assert.equal(actual.status, expected.exitCode, actual.stdout + actual.stderr)
   for (const row of expected.rows) {
     const detail = row.detail || (row.ok ? 'ok' : 'missing')
+
     assert.ok(actual.stdout.includes(`${row.name} — ${detail}`), row.name + '\n' + actual.stdout)
   }
+
   for (const message of expected.messages) {
     assert.ok(actual.stdout.includes(message.text), actual.stdout)
   }
+
   assert.ok(actual.stdout.includes(expected.summary), actual.stdout)
   if (expected.exitCode && expected.diagnosticStderr) {
     assert.ok(actual.stderr.includes(expected.diagnosticStderr))
   }
+
   return { expected, actual }
 }
 
@@ -163,11 +180,13 @@ const macRows = macNames.map((name) => ({
 
 function fake(dir, name, operation, body) {
   const prefix = 'node_modules/' + name
+
   put(dir, prefix + '/package.json', {
     name,
     type: 'module',
     exports: { [name === '@octane-xplat/cli' ? './worker' : './doctor-worker']: './worker.mjs' },
   })
+
   put(
     dir,
     prefix + '/worker.mjs',
@@ -186,20 +205,26 @@ function ownModules(dir) {
 
 test('doctor help/schema needs no Node and does not start project workers', () => {
   const dir = fixture()
+
   success(run(dir, ['--help'], { PATH: '' }))
+
   const schema = run(dir, ['--schema'], { PATH: '' })
+
   success(schema)
   assert.equal(JSON.parse(schema.stdout).data.status, 'implemented')
   for (const args of [['--fix'], ['--project', '.'], ['unexpected']]) {
     assert.notEqual(run(dir, args, { PATH: '' }).status, 0)
   }
+
   const missing = run(dir, [], { PATH: '' })
+
   assert.notEqual(missing.status, 0)
   assert.match(missing.stderr, /Node is required/)
 })
 
 test('actual minimal worker diagnoses a plain project without creator, compiler/parser or Vite installs', () => {
   const require = createRequire(tools.worker)
+
   for (const name of [
     'create-octane-xplat/compatibility',
     'vite',
@@ -209,8 +234,10 @@ test('actual minimal worker diagnoses a plain project without creator, compiler/
   ]) {
     assert.throws(() => require.resolve(name))
   }
+
   const dir = fixture()
   const { expected } = compare(dir)
+
   assert.equal(expected.rows.find((row) => row.name === 'compatibility packageManager').ok, true)
 })
 
@@ -223,6 +250,7 @@ test('native source and platform diagnostics preserve canonical rows, warnings a
       'node_modules-marker': 'unrelated',
     },
   )
+
   // Use an independent package tree for the authored native peer fixture.
   rmSync(join(native, 'node_modules'), { recursive: true, force: true })
   ownModules(native)
@@ -231,14 +259,20 @@ test('native source and platform diagnostics preserve canonical rows, warnings a
     version: compatibility.frameworkVersion,
     peerDependencies: { '@nativescript/camera': '1.0.0' },
   })
+
   const { expected } = compare(native)
+
   assert.ok(expected.messages.some((row) => row.text.includes('native plugin declaration')))
+
   const linux = fixture({ xplat: { targets: { linux: { runtime: 'gtk', package: {} } } } })
+
   compare(linux)
+
   const windows = fixture(
     { devDependencies: { '@nativescript/windows': '0.0.1' } },
     { 'nativescript.config.ts': 'export default {}' },
   )
+
   compare(windows)
 })
 
@@ -248,24 +282,30 @@ test('repeated singleton-copy labels retain every physical-version conflict', ()
     {},
     false,
   )
+
   ownModules(dir)
   put(dir, 'node_modules/octane/package.json', {
     name: 'octane',
     version: compatibility.packages.octane.version,
   })
+
   put(dir, 'node_modules/fixture-parent/package.json', {
     name: 'fixture-parent',
     version: '1.0.0',
     dependencies: { octane: '0.0.1' },
   })
+
   put(dir, 'node_modules/fixture-parent/node_modules/octane/package.json', {
     name: 'octane',
     version: '0.0.1',
   })
+
   const { expected } = compare(dir)
+
   assert.ok(
     expected.rows.filter((row) => row.name === 'compatibility installed octane').length >= 2,
   )
+
   assert.ok(expected.rows.some((row) => row.name === 'compatibility singleton octane' && !row.ok))
 })
 
@@ -280,23 +320,28 @@ test('linked-checkout singleton copies are external installs, with a core-paths 
     { 'nativescript.config.ts': 'export default {}' },
     false,
   )
+
   ownModules(dir)
   put(dir, 'node_modules/octane/package.json', {
     name: 'octane',
     version: compatibility.packages.octane.version,
   })
+
   // A link: dep realpaths outside the install root; its own node_modules is
   // the checkout's private install, not a bundled runtime copy (issue #66).
   const fw = join(scratch, 'linked-fw')
+
   put(fw, 'package.json', {
     name: '@acme/fw',
     version: '0.0.0',
     dependencies: { octane: compatibility.packages.octane.version },
   })
+
   put(fw, 'node_modules/octane/package.json', {
     name: 'octane',
     version: compatibility.packages.octane.version,
   })
+
   mkdirSync(join(dir, 'node_modules/@acme'), { recursive: true })
   symlinkSync(
     fw,
@@ -306,6 +351,7 @@ test('linked-checkout singleton copies are external installs, with a core-paths 
 
   const { expected } = compare(dir)
   const singleton = expected.rows.find((row) => row.name === 'compatibility singleton octane')
+
   assert.equal(singleton.ok, true)
   assert.match(singleton.detail, /linked checkouts/)
   assert.ok(expected.messages.some((row) => row.text.includes('linked dependency')))
@@ -319,25 +365,35 @@ test('linked-checkout singleton copies are external installs, with a core-paths 
       },
     },
   })
+
   const pinned = compare(dir)
+
   assert.ok(!pinned.expected.messages.some((row) => row.text.includes('linked dependency')))
 })
 
 test('missing/corrupt selected tools fail explicitly and never use a parent worker fallback', () => {
   const dir = fixture({}, {}, false)
+
   assert.match(run(dir).stderr, /install @octane-xplat\/cli/)
+
   const mac = fixture({ xplat: { targets: { macos: { runtime: 'appkit-node-api' } } } })
+
   assert.match(run(mac).stderr, /@octane-xplat\/macos-build/)
+
   const broken = fixture({}, {}, false)
+
   put(broken, 'node_modules/@octane-xplat/cli/package.json', { name: 'wrong' })
   assert.match(run(broken).stderr, /reinstall|lacks worker/)
 })
 
 test('separate macOS report handoff retains lower-case states and canonical common-check output', () => {
   const dir = fixture({ xplat: { targets: { macos: { runtime: 'appkit-node-api' } } } }, {}, false)
+
   ownModules(dir)
   fake(dir, '@octane-xplat/macos-build', 'macos-doctor', `data.rows=${JSON.stringify(macRows)}`)
+
   const { actual } = compare(dir, {}, macRows)
+
   assert.ok(actual.stdout.includes('macOS native leaf toolchain — fixture platform observation'))
 })
 
@@ -350,12 +406,17 @@ test('malformed/foreign reports and silently omitted platform observations canno
     `data.messages=[{level:'unknown',text:'bad'}]`,
   ]) {
     const dir = fixture({}, {}, false)
+
     fake(dir, '@octane-xplat/cli', 'doctor', body)
+
     const r = run(dir)
+
     assert.equal(r.status, 1)
     assert.doesNotMatch(r.stdout, /fixture healthy/)
   }
+
   const mac = fixture({ xplat: { targets: { macos: { runtime: 'appkit-node-api' } } } }, {}, false)
+
   ownModules(mac)
   fake(mac, '@octane-xplat/macos-build', 'macos-doctor', 'data.rows=[]')
   assert.match(run(mac).stderr, /omitted required check/)
@@ -382,6 +443,7 @@ test('required diagnostic response roots reject omission, null and empty paths',
       )
 
       const result = run(dir)
+
       assert.equal(result.status, 1)
       assert.match(result.stderr, /identity mismatch/)
       assert.doesNotMatch(result.stdout, /fixture healthy/)
@@ -396,20 +458,27 @@ for (const phase of ['common', 'macos']) {
       {},
       false,
     )
+
     put(dir, 'dist/previous', 'preserve')
+
     const hang = `const c=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>{},1000)"],{stdio:'inherit'});writeFileSync('ready.json',JSON.stringify({pid:process.pid,child:c.pid}));process.on('SIGTERM',()=>{});await new Promise(()=>{})`
+
     fake(
       dir,
       '@octane-xplat/cli',
       'doctor',
       phase === 'common' ? hang : "writeFileSync('unexpected-common-worker','ran')",
     )
+
     if (phase === 'macos') {
       fake(dir, '@octane-xplat/macos-build', 'macos-doctor', hang)
     }
+
     const child = spawn(binary, ['doctor'], { cwd: dir, env, stdio: ['ignore', 'pipe', 'pipe'] }),
       exited = once(child, 'exit')
+
     let output = ''
+
     child.stdout.on('data', (b) => (output += b))
     child.stderr.on('data', (b) => (output += b))
     t.after(async () => {
@@ -418,20 +487,29 @@ for (const phase of ['common', 'macos']) {
         await exited
       }
     })
+
     for (let i = 0; i < 200 && !existsSync(join(dir, 'ready.json')); i++) {
       await new Promise((r) => setTimeout(r, 25))
     }
+
     assert.ok(existsSync(join(dir, 'ready.json')), output)
+
     const busy = run(dir)
+
     assert.notEqual(busy.status, 0)
     assert.match(busy.stderr, /another Go project operation owns/)
+
     const clean = spawnSync(binary, ['clean'], { cwd: dir, env, encoding: 'utf8', timeout: 10000 })
+
     assert.notEqual(clean.status, 0)
     child.kill('SIGTERM')
+
     const [code] = await exited
+
     if (process.platform !== 'win32') {
       assert.equal(code, 143, output)
     }
+
     for (const pid of Object.values(JSON.parse(readFileSync(join(dir, 'ready.json'))))) {
       for (let i = 0; i < 100; i++) {
         try {
@@ -445,6 +523,7 @@ for (const phase of ['common', 'macos']) {
 
       assert.throws(() => process.kill(pid, 0), 'diagnostic child survived')
     }
+
     if (phase === 'macos') {
       assert.equal(
         existsSync(join(dir, 'unexpected-common-worker')),
@@ -454,6 +533,7 @@ for (const phase of ['common', 'macos']) {
 
       fake(dir, '@octane-xplat/macos-build', 'macos-doctor', `data.rows=${JSON.stringify(macRows)}`)
     }
+
     fake(dir, '@octane-xplat/cli', 'doctor', '')
     success(run(dir))
   })
@@ -465,6 +545,7 @@ for (const channel of ['stdout', 'stderr']) {
     { skip: process.platform === 'win32' },
     async (t) => {
       const dir = fixture({}, {}, false)
+
       fake(
         dir,
         '@octane-xplat/cli',
@@ -473,19 +554,25 @@ for (const channel of ['stdout', 'stderr']) {
           ? `data.rows.push(...Array.from({length:8},(_,i)=>({name:'large diagnostic '+i,ok:true,detail:'X'.repeat(1<<20)})))`
           : `process.stdout.write('D'.repeat(8<<20))`,
       )
+
       const child = spawn(binary, ['doctor'], { cwd: dir, env, stdio: ['ignore', 'pipe', 'pipe'] }),
         exited = once(child, 'exit')
+
       const blocked = child[channel],
         other = child[channel === 'stdout' ? 'stderr' : 'stdout']
+
       let observed = 0,
         trace = '',
         prefix = ''
+
       other.on('data', (bytes) => (trace += bytes.toString()))
+
       const writing = new Promise((resolve) =>
         blocked.on('data', (bytes) => {
           if (prefix.length < 1024) {
             prefix += bytes.toString().slice(0, 1024 - prefix.length)
           }
+
           observed += bytes.length
           if (observed >= 128 << 10) {
             blocked.pause()
@@ -493,34 +580,42 @@ for (const channel of ['stdout', 'stderr']) {
           }
         }),
       )
+
       let timer
       const stalled = new Promise((_, reject) => {
         timer = setTimeout(() => reject(Error('large output was never observed: ' + trace)), 10000)
       })
+
       t.after(async () => {
         clearTimeout(timer)
         if (child.exitCode === null && child.signalCode === null) {
           child.kill('SIGKILL')
           await exited
         }
+
         child.stdout.destroy()
         child.stderr.destroy()
       })
+
       await Promise.race([writing, stalled])
       clearTimeout(timer)
       if (channel === 'stderr') {
         assert.match(prefix, /capture limit per stream; output is truncated/)
       }
+
       const busy = run(dir)
+
       assert.notEqual(busy.status, 0)
       assert.match(busy.stderr, /another Go project operation owns/)
       child.kill('SIGTERM')
+
       const ended = await Promise.race([
         exited,
         new Promise((resolve) => {
           timer = setTimeout(() => resolve(null), 3000)
         }),
       ])
+
       clearTimeout(timer)
       assert.ok(ended, 'doctor did not cancel while the downstream pipe was unread')
       assert.equal(ended[0], 143, trace)
@@ -539,16 +634,22 @@ test(
   },
   () => {
     const packs = join(scratch, 'sdk-pack')
+
     mkdirSync(packs)
+
     const packed = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], {
       cwd: join(root, 'packages/macos-build'),
       encoding: 'utf8',
       timeout: 30000,
     })
+
     success(packed)
+
     const pkg = JSON.parse(readFileSync(join(root, 'packages/macos-build/package.json'))),
       archive = join(packs, `octane-xplat-macos-build-${pkg.version}.tgz`)
+
     success(spawnSync('tar', ['-xzf', archive, '-C', packs], { encoding: 'utf8' }))
+
     const sdk = join(packs, 'package'),
       dir = fixture(
         {
@@ -577,6 +678,7 @@ test(
         { 'vite.config.mjs': 'export default {}' },
         false,
       )
+
     ownModules(dir)
     symlinkSync(sdk, join(dir, 'node_modules/@octane-xplat/macos-build'), 'dir')
     mkdirSync(join(dir, 'node_modules/@nativescript'), { recursive: true })
@@ -585,17 +687,21 @@ test(
       join(dir, 'node_modules/@nativescript/macos-node-api'),
       'dir',
     )
+
     cpSync(
       join(root, 'packages/cli/test/fixtures/macos-native-leaves/c'),
       join(dir, 'node_modules/xplat-native-c-fixture'),
       { recursive: true },
     )
+
     const result = run(dir)
+
     success(result)
     assert.match(
       result.stdout,
       /macOS JavaScriptCore package host — pinned universal host and addon verified/,
     )
+
     assert.match(result.stdout, /macOS native leaf toolchain — 1 leaves; SDK/)
     assert.match(result.stdout, /macOS native dev runner — missing/)
     assert.equal(
@@ -603,6 +709,7 @@ test(
       false,
       'diagnostics must not package or launch an app',
     )
+
     const record = {
       binarySha256: build.sha256,
       workerTarballSha256: sha(readFileSync(archive)),
@@ -613,6 +720,7 @@ test(
       scope:
         'Actual macOS payload/toolchain inspection and metadata generator load; no C compilation, app launch or visual analysis.',
     }
+
     writeFileSync(join(work, 'doctor-macos-real.json'), JSON.stringify(record, null, 2) + '\n')
   },
 )

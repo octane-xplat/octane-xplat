@@ -26,11 +26,14 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-workshop-packed-linux-')))
 const consumer = join(work, 'consumer')
 const pack = join(work, 'pack')
+
 mkdirSync(consumer)
 mkdirSync(pack)
+
 let succeeded = false
 function run(command, args, cwd = consumer) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   assert.equal(
     result.status,
     0,
@@ -46,6 +49,7 @@ function write(name, content) {
 
 try {
   const tarballs = {}
+
   for (const dir of [
     'create',
     'cli',
@@ -58,6 +62,7 @@ try {
   ]) {
     const root = join(repo, 'packages', dir)
     const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
     run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
     tarballs[manifest.name] =
       `file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -88,6 +93,7 @@ try {
   )
 
   const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+
   manifest.overrides = tarballs
   manifest.packageManager = 'bun@1.4.4'
   write('package.json', JSON.stringify(manifest))
@@ -108,6 +114,7 @@ try {
   const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
   const report = JSON.parse(doctor.slice(doctor.indexOf('{')))
   const linux = report.targets.linux
+
   assert.ok(linux, 'doctor reports a linux row')
   assert.match(linux.backend, /gtk/i, 'linux backend is the GTK renderer')
   assert.ok(
@@ -120,6 +127,7 @@ try {
 
   const req = createRequire(join(consumer, 'package.json'))
   const gtkShell = req.resolve('@octane-xplat/workshop/node')
+
   assert.ok(gtkShell.endsWith('.js'), 'node entry resolves to dist build')
   console.log('PASS packed node entry resolves')
   for (const entry of ['', '/host', '/compat/native-core', '/compat/escape-props']) {
@@ -200,6 +208,7 @@ void options; void invalid
   const entries = list.entries
   const linuxLeaf = entries.find((e) => e.id === 'platform/linux-gtk')
   const iosLeaf = entries.find((e) => e.id === 'platform/ios-only')
+
   assert.equal(linuxLeaf?.applicable, true, 'gtk leaf applicable on linux target')
   assert.equal(iosLeaf?.applicable, false, 'ios leaf never applicable on linux')
   assert.equal(entries.find((e) => e.id === 'counter/basic')?.applicable, true)
@@ -224,6 +233,7 @@ void options; void invalid
   )
 
   const diagList = JSON.parse(diagRun.stdout.slice(diagRun.stdout.indexOf('{')))
+
   assert.equal(
     diagList.entries.find((e) => e.id === 'platform/legacy-linux'),
     undefined,

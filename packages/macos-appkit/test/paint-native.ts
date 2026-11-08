@@ -64,6 +64,7 @@ export class CALayer {
     if (this.superlayer) {
       this.superlayer.children.splice(this.superlayer.children.indexOf(this), 1)
     }
+
     this.superlayer = null
   }
 }
@@ -115,7 +116,9 @@ export const NSNotificationCenter = {
         callback()
         throw Error('registration failed')
       }
+
       const token = { view, callback, removed: 0 }
+
       native.tokens.push(token)
       callback()
       native.onAdd?.()

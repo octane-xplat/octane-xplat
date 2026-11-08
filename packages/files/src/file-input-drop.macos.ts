@@ -8,6 +8,7 @@ export function appKitDroppedFiles(
   native: Record<string, any> = globalThis,
 ): FileInputFile[] {
   const files: FileInputFile[] = []
+
   for (const uri of new Set(uris)) {
     let url: any,
       scoped = false
@@ -23,6 +24,7 @@ export function appKitDroppedFiles(
       }
 
       scoped = url.startAccessingSecurityScopedResource?.() ?? false
+
       const attributes = native.NSFileManager?.defaultManager?.attributesOfItemAtPathError?.(
         url.path,
         null,
@@ -59,5 +61,6 @@ export function appKitDroppedFiles(
       }
     }
   }
+
   return files
 }

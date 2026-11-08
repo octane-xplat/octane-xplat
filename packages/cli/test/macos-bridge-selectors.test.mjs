@@ -78,8 +78,11 @@ test(
   { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
   (t) => {
     const dir = mkdtempSync(join(tmpdir(), 'xplat-selector-guard-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
+
     const script = join(dir, 'fixture.js')
+
     writeFileSync(script, fixture)
 
     // The rebuild output directory carries host + framework but not metadata;
@@ -109,10 +112,13 @@ test(
       0,
       `host exited ${result.status} ${result.signal ?? ''}\n${result.stderr}`,
     )
+
     assert.doesNotMatch(result.stderr, /Terminating app due to uncaught exception/)
 
     const marker = /script result: (.*)/.exec(result.stderr)?.[1]
+
     assert.ok(marker, `missing script result marker:\n${result.stderr}`)
+
     const outcomes = Object.fromEntries(marker.split(' | ').map((entry) => entry.split(/=(.*)/)))
 
     // Supported selectors, property reads and container access still dispatch.
@@ -129,9 +135,11 @@ test(
       outcomes.candidatesCall,
       /^caught:-\[NSObject candidates:\]: unrecognized selector sent to instance$/,
     )
+
     // Enumerating every declared member — the inspector getProperties path
     // that surfaced this defect — completes instead of aborting.
     const [swept] = (outcomes.getterSweep ?? '0+0').split('+').map(Number)
+
     assert.ok(swept > 100, `getter sweep only read ${swept} members`)
     // Block-closure callback dispatch back into JS still works.
     assert.equal(outcomes.callback, 'notified:xplatGuardProbe')
@@ -183,8 +191,11 @@ test(
   { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
   async (t) => {
     const dir = mkdtempSync(join(tmpdir(), 'xplat-supercall-guard-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
+
     const script = join(dir, 'fixture.js')
+
     writeFileSync(script, supercallFixture)
 
     const metadata = join(
@@ -201,15 +212,19 @@ test(
       [join(hostBundle, 'NativeScript.framework/Versions/A/NativeScript'), script, metadata, shim],
       { stdio: ['ignore', 'ignore', 'pipe'] },
     )
+
     let output = ''
+
     child.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     const status = await new Promise((resolveStatus) => {
       const timeout = setTimeout(() => {
         child.kill('SIGKILL')
         resolveStatus('timeout')
       }, 30_000)
+
       child.on('close', (code) => {
         clearTimeout(timeout)
         resolveStatus(code)
@@ -219,10 +234,13 @@ test(
     if (status === 'SIGABRT' || output.includes('Terminating app due to uncaught exception')) {
       assert.fail(`supercall guard missing: host aborted\n${output}`)
     }
+
     assert.equal(status, 0, `host exited ${status}\n${output}`)
 
     const marker = /PROBE_RESULT (.*)/.exec(output)?.[1]
+
     assert.ok(marker, `missing probe marker:\n${output}`)
+
     const outcomes = Object.fromEntries(marker.split(' | ').map((entry) => entry.split(/=(.*)/)))
 
     // Implemented selectors still dispatch through the supercall path.

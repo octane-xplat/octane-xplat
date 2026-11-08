@@ -17,8 +17,10 @@ import {
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const appRoot = fileURLToPath(new URL('../../../apps/macos', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'octane-motion-channels-'))
+
 try {
   const entry = join(directory, 'entry.ts')
+
   await writeFile(
     entry,
     `import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout, runContainers } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).then(runContainers).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
@@ -39,8 +41,11 @@ try {
   })
 
   const bundle = join(directory, 'main.cjs')
+
   await validateHostBundle(bundle, appRoot)
+
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeNativeBootstrap(
     {
       prebuilt: [
@@ -70,6 +75,7 @@ try {
   )
 
   const output = result.stdout + result.stderr
+
   assert.equal(
     result.status,
     0,

@@ -18,6 +18,7 @@ export let guards = 0
 export function Item(props: any): any {
   const id = useId()
   const [count, setCount] = useState(0)
+
   return (
     <>
       <Text>Shared Xplat UI</Text>
@@ -30,6 +31,7 @@ export function Item(props: any): any {
 
 export function Missing(props: any): any {
   const [count, setCount] = useState(0)
+
   return (
     <main>
       <p id="missing">Nothing at {props.data.path}</p>
@@ -105,6 +107,7 @@ const eagerCatalog = defineRoutes([
 
 // Exercise the same deferred module boundary used by generated catalogs.
 export let moduleLoads = 0
+
 const item = eagerCatalog.routes.find((route) => route.name === 'items/:id')!
 const lazyItems = sealGeneratedRouteCatalog(
   deriveLazyRouteManifest(
@@ -123,6 +126,7 @@ export const catalog = mergeRouteManifests(eagerCatalog, lazyItems)
 // Identical route table with a module import that always fails — exercises
 // startup paths where the prepared document's route chunk cannot load.
 export let moduleFailures = 0
+
 const failingItems = sealGeneratedRouteCatalog(
   deriveLazyRouteManifest(
     {
@@ -156,6 +160,7 @@ function Broken(): any {
 
 export function App(props: any): any {
   const navigation = useRouter(props.router)
+
   return (
     <main>
       <p>{navigation.getSnapshot().route?.to ?? 'base'}</p>

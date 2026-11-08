@@ -7,6 +7,7 @@ import { publishRelease } from './publish-release.ts'
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-release-test-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   for (const name of ['a', 'b', 'cli', 'tsrx-typegen']) {
     mkdirSync(join(root, 'packages', name), { recursive: true })
@@ -15,6 +16,7 @@ function fixture(t) {
       JSON.stringify({ name: name === 'cli' ? '@octane-xplat/cli' : name, version: '1.0.0' }),
     )
   }
+
   return root
 }
 
@@ -45,11 +47,14 @@ test('packs all pending packages before npm publication and skips existing versi
     if (args[0] === 'view') {
       return registry()
     }
+
     if (command === 'bun') {
       writeFileSync(join(args.at(-1), `${options.cwd.split('/').at(-1)}.tgz`), '')
     }
+
     return { status: 0, stdout: '', stderr: '' }
   }
+
   assert.deepEqual(publishRelease({ root, tag: 'nightly', nativeDir, stager: staged, run }), [
     '@octane-xplat/cli-native-darwin-arm64@1.0.0',
     '@octane-xplat/cli-native-darwin-x64@1.0.0',
@@ -60,7 +65,9 @@ test('packs all pending packages before npm publication and skips existing versi
     'a@1.0.0',
     'b@1.0.0',
   ])
+
   const published = calls.filter((c) => c[1] === 'publish').map((c) => c[2])
+
   assert.equal(published.length, 8)
   // Payloads first, then the CLI, then everything else.
   assert.ok(published.slice(0, 5).every((path) => /x64|arm64|win32|linux|darwin/.test(path)))
@@ -68,7 +75,9 @@ test('packs all pending packages before npm publication and skips existing versi
   for (const call of calls.filter((c) => c[1] === 'publish')) {
     assert.deepEqual(call.slice(3), ['--access', 'public', '--provenance', '--tag', 'nightly'])
   }
+
   const skipped = []
+
   assert.deepEqual(
     publishRelease({
       root,
@@ -81,13 +90,17 @@ test('packs all pending packages before npm publication and skips existing versi
     }),
     [],
   )
+
   assert.equal(skipped.length, 3)
 })
 
 test('the lockstep set requires --native-dir; independent tracks do not', (t) => {
   const root = fixture(t)
+
   assert.throws(() => publishRelease({ root, run: () => registry() }), /--native-dir/)
+
   const calls = []
+
   publishRelease({
     root,
     packageName: 'tsrx-typegen',
@@ -96,6 +109,7 @@ test('the lockstep set requires --native-dir; independent tracks do not', (t) =>
       return { status: 0, stdout: '"1.0.0"' }
     },
   })
+
   assert.deepEqual(calls, [['view', 'tsrx-typegen@1.0.0', 'version', '--json']])
 })
 
@@ -111,15 +125,19 @@ test('already-published payloads are skipped while the CLI still stages', (t) =>
       if (args[0] === 'view' && /cli-native-(darwin-arm64|win32-x64)/.test(args[1])) {
         return { status: 0, stdout: '"1.0.0"' }
       }
+
       if (args[0] === 'view') {
         return registry()
       }
+
       if (command === 'bun') {
         writeFileSync(join(args.at(-1), `${options.cwd.split('/').at(-1)}.tgz`), '')
       }
+
       return { status: 0, stdout: '', stderr: '' }
     },
   })
+
   assert.ok(!published.includes('@octane-xplat/cli-native-darwin-arm64@1.0.0'))
   assert.ok(!published.includes('@octane-xplat/cli-native-win32-x64@1.0.0'))
   assert.equal(published.filter((name) => name.startsWith('@octane-xplat/cli-native')).length, 3)
@@ -128,11 +146,14 @@ test('already-published payloads are skipped while the CLI still stages', (t) =>
 
 test('registry/auth failures and pack failures stop before publication', (t) => {
   const root = fixture(t)
+
   assert.throws(
     () => publishRelease({ root, nativeDir, run: () => registry('E401') }),
     /Registry lookup failed/,
   )
+
   const calls = []
+
   assert.throws(
     () =>
       publishRelease({
@@ -146,10 +167,12 @@ test('registry/auth failures and pack failures stop before publication', (t) => 
       }),
     /Bun pack failed|cli-native/,
   )
+
   assert.ok(calls.length >= 1)
 })
 
 test('unknown package names fail', (t) => {
   const root = fixture(t)
+
   assert.throws(() => publishRelease({ root, packageName: 'missing' }), /No publishable package/)
 })

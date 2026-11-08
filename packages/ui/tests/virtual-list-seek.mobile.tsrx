@@ -41,6 +41,7 @@ export async function run(ctx: ProbeContext) {
 
     const list = ctx.inspect('contract-list').frame
     const row = ctx.inspect(id).frame
+
     return Boolean(list && row && row.height > 0 && Math.abs(row.y - list.y) <= 2)
   }
 

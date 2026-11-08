@@ -16,6 +16,7 @@ const ThumbnailsContext = createContext<ThumbnailsApi | null>(null)
 
 function useThumbnails() {
   const api = useContext(ThumbnailsContext)
+
   if (!api) {
     throw new Error(
       'Lightbox.Thumbnail and Lightbox.ThumbnailIndicator require Lightbox.Thumbnails.',
@@ -33,12 +34,14 @@ export function Thumbnails(props: LightboxPartProps): JSX.Element {
     createThumbnailLayout<HTMLElement>({
       measure(host) {
         const strip = ref.current
+
         if (!strip) {
           return null
         }
 
         const a = host.getBoundingClientRect()
         const b = strip.getBoundingClientRect()
+
         return {
           x: a.left - b.left - strip.clientLeft + strip.scrollLeft,
           y: a.top - b.top - strip.clientTop + strip.scrollTop,
@@ -62,6 +65,7 @@ export function Thumbnails(props: LightboxPartProps): JSX.Element {
   const [api] = useState<ThumbnailsApi>(() => ({
     register(index, host) {
       const off = layout.register(index, host)
+
       observer.current?.observe(host)
       return () => {
         observer.current?.unobserve(host)
@@ -73,11 +77,13 @@ export function Thumbnails(props: LightboxPartProps): JSX.Element {
 
   useLayoutEffect(() => {
     const strip = ref.current
+
     if (!strip) {
       return
     }
 
     const resize = () => layout.remeasure()
+
     if (typeof ResizeObserver !== 'undefined') {
       observer.current = new ResizeObserver(resize)
       observer.current.observe(strip)
@@ -90,7 +96,9 @@ export function Thumbnails(props: LightboxPartProps): JSX.Element {
     window.addEventListener('resize', resize)
     layout.remeasure()
     layout.place(ctx.progress.get())
+
     const off = ctx.progress.on('change', layout.place)
+
     return () => {
       off()
       observer.current?.disconnect()
@@ -119,6 +127,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): JSX.Element {
   const ctx = useLightboxCtx()
   const api = useThumbnails()
   const ref = useRef<HTMLButtonElement | null>(null)
+
   useLayoutEffect(
     () => (ref.current ? api.register(props.index, ref.current) : undefined),
     [api, props.index],
@@ -150,6 +159,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): JSX.Element {
 export function ThumbnailIndicator(props: LightboxPartProps): JSX.Element {
   const api = useThumbnails()
   const ref = useRef<HTMLDivElement | null>(null)
+
   useLayoutEffect(() => (ref.current ? api.indicator(ref.current) : undefined), [api])
   return (
     <div

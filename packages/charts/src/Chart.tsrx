@@ -34,6 +34,7 @@ export function Chart(props: ChartProps): unknown @{
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
+
   propsRef.current = props
 
   const bounds = measure.bounds
@@ -93,6 +94,7 @@ export function Chart(props: ChartProps): unknown @{
       // Probe harness taps dispatch with a synthetic event lacking
       // getX/getY — fall back to the view center there.
       const size = e.object?.getActualSize?.()
+
       scrub(
         'tap',
         e.getX?.() ?? (size ? size.width / 2 : 0),

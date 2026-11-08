@@ -15,6 +15,7 @@ import { join, resolve, relative } from 'node:path'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { scratchRun } from './scratch.mjs'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli/workshop-service')
 
@@ -28,17 +29,23 @@ test(
         (process.arch === 'x64' ? 'amd64' : process.arch) +
         '-cli',
     )
+
     const build = JSON.parse(readFileSync(binary + '.json'))
     const sha = (b) => createHash('sha256').update(b).digest('hex')
+
     assert.equal(sha(readFileSync(binary)), build.sha256)
     for (const [file, hash] of Object.entries(build.inputs)) {
       assert.equal(sha(readFileSync(join(root, file))), hash, file)
     }
+
     const scratch = realpathSync(scratchRun(root, 'go-workshop-macos')),
       app = join(scratch, 'app π')
+
     const source = join(root, 'apps/workshop-demo')
     const inventory = {}
+
     mkdirSync(app)
+
     function copy(dir) {
       for (const entry of readdirSync(dir, { withFileTypes: true })) {
         if (['node_modules', 'dist', 'artifacts', '.git', '.cache'].includes(entry.name)) {
@@ -53,14 +60,17 @@ test(
           copy(file)
         } else if (entry.isFile()) {
           const bytes = readFileSync(file)
+
           writeFileSync(dest, bytes)
           inventory[relative(source, file)] = sha(bytes)
         }
       }
     }
+
     try {
       copy(source)
       symlinkSync(realpathSync(join(source, 'node_modules')), join(app, 'node_modules'), 'dir')
+
       const journey = spawnSync(
         process.execPath,
         [join(root, 'apps/workshop-demo/scripts/e2e-macos.ts'), app],

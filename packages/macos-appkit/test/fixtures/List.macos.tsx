@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 export const listRef = { current: null as any }
 export const listChanges: any[] = []
 export const listRefEvents: string[] = []
+
 const refs = [
   listRef,
   [

@@ -26,14 +26,18 @@ it('AppKit Pressable forwards gestures, balances cancellation and suppresses dis
   try {
     root.render(Pressable, props)
     flushUniversalSync(() => {})
+
     const host = container.children[0]
+
     container.dispatchEvent(host, 'tap', {})
     container.dispatchEvent(host, 'longPress', {})
     container.dispatchEvent(host, 'doubleTap', {})
     container.dispatchEvent(host, 'touch', { action: 'down' })
     container.dispatchEvent(host, 'touch', { action: 'move' })
     container.dispatchEvent(host, 'touch', { action: 'cancel' })
+
     const pan = { deltaX: 40, deltaY: 5, velocityX: 3, velocityY: 2, state: 3, view: host }
+
     container.dispatchEvent(host, 'pan', pan)
     container.dispatchEvent(host, 'swipe', { direction: 1 })
     for (const name of [
@@ -84,7 +88,9 @@ it('AppKit View retains pan normalization and forwards swipe without changing it
   try {
     root.render(View, { onPan, onSwipe })
     flushUniversalSync(() => {})
+
     const host = container.children[0]
+
     container.dispatchEvent(host, 'pan', { deltaX: 0, deltaY: 0, state: 0, view: host })
     container.dispatchEvent(host, 'swipe', { direction: 4 })
     expect(onPan.mock.calls[0][0].state).toBe('cancelled')

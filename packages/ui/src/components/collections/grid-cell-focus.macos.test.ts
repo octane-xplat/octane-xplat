@@ -8,13 +8,16 @@ function fixture() {
     callbacks: ((notification: any) => void)[] = [],
     removed: any[] = [],
     suppressed = new Set<any>()
+
   const changes: number[] = [],
     notices: string[] = [],
     releases: any[] = [],
     scrolls: any[] = []
+
   let accepts = true,
     readsFail = false,
     releaseFails = false
+
   const window: any = {
     firstResponder: null,
     recalculateKeyViewLoop() {},
@@ -22,10 +25,12 @@ function fixture() {
       if (!accepts || view.window !== window) {
         return false
       }
+
       window.firstResponder = view
       return true
     },
   }
+
   const root: any = { window, superview: null, subviews: [], userInterfaceLayoutDirection: 0 }
   const cell = (parent = root): any => {
     const view = {
@@ -41,25 +46,30 @@ function fixture() {
         scrolls.push(view)
       },
     }
+
     nodes.set(view, { view, props: { 'data-grid-cell': true } })
     parent.subviews.push(view)
     return view
   }
+
   for (let n = 0; n < 5; n++) {
     cell()
   }
+
   let host: any = root
   const options = {
     rows: 3,
     columns: 2,
     onFocusChange: (index: number) => notices.push(`A:${index}`),
   }
+
   const bridge: any = {
     keyboardEventsSupported: true,
     readGridCells(view: any, nested: object[]) {
       if (readsFail) {
         throw Error('private read detail')
       }
+
       return readGridCells(view, (view) => nodes.get(view), nested)
     },
     suppressTabStop(view: any) {
@@ -73,6 +83,7 @@ function fixture() {
       }
     },
   }
+
   const native = {
     NSNotificationCenter: {
       defaultCenter: {
@@ -91,12 +102,14 @@ function fixture() {
       },
     },
   }
+
   const make = (resolve = () => host) =>
     createAppKitGridCellFocus(
       { root: resolve, options: () => options, changed: (index) => changes.push(index) },
       () => native,
       () => bridge,
     )
+
   const owner = make()
   const send = (key: string, extra: any = {}) => {
     const event: any = {
@@ -108,9 +121,11 @@ function fixture() {
         this.prevented = true
       },
     }
+
     owner.onKeyDown(event)
     return event
   }
+
   return {
     root,
     window,
@@ -145,8 +160,11 @@ function fixture() {
 
 it('moves and clamps by current columns, preserves edge focus and keeps programmatic requests callback-free', () => {
   const f = fixture()
+
   f.owner.start()
+
   const cells = f.root.subviews
+
   f.window.firstResponder = cells[0]
   expect(f.send('ArrowDown').prevented).toBe(true)
   expect(f.owner.getIndex()).toBe(2)
@@ -168,6 +186,7 @@ it('moves and clamps by current columns, preserves edge focus and keeps programm
 
 it('skips disabled/hidden cells without compressing their indices or wrapping a blocked column', () => {
   const f = fixture()
+
   f.root.subviews[1].enabled = false
   f.root.subviews[3].hidden = true
   f.owner.start()
@@ -188,11 +207,13 @@ it('skips disabled/hidden cells without compressing their indices or wrapping a 
 
 it('preserves activation, editing descendants, IME, shortcuts, prevented events and foreign targets', () => {
   const f = fixture()
+
   f.owner.start()
   f.window.firstResponder = f.root.subviews[0]
   for (const key of ['Enter', ' ', 'Tab', 'Escape']) {
     expect(f.send(key).prevented).toBe(false)
   }
+
   for (const extra of [
     { isComposing: true },
     { altKey: true },
@@ -204,6 +225,7 @@ it('preserves activation, editing descendants, IME, shortcuts, prevented events 
   ]) {
     expect(f.send('ArrowRight', extra).prevented).toBe(false)
   }
+
   expect(f.changes).toEqual([])
   expect(f.notices).toEqual([])
   f.owner.dispose()
@@ -211,8 +233,11 @@ it('preserves activation, editing descendants, IME, shortcuts, prevented events 
 
 it('uses live options/callbacks and the current native child order', () => {
   const f = fixture()
+
   f.owner.start()
+
   const cells = [...f.root.subviews]
+
   f.window.firstResponder = cells[0]
   f.options.columns = 3
   f.options.onFocusChange = (index) => f.notices.push(`B:${index}`)
@@ -231,9 +256,12 @@ it('uses live options/callbacks and the current native child order', () => {
 it('keeps nested hooks independent and releases their query boundaries on teardown', () => {
   const f = fixture(),
     inner: any = { window: f.window, superview: f.root, subviews: [] }
+
   f.root.subviews.push(inner)
+
   const inside = f.cell(inner),
     innerOwner = f.make(() => inner)
+
   f.owner.start()
   innerOwner.start() // New boundaries repair outer leases immediately.
   expect(f.suppressed.has(inside)).toBe(false)
@@ -251,6 +279,7 @@ it('keeps nested hooks independent and releases their query boundaries on teardo
 
 it('handles delayed refs/windows, invalid geometry and repaired/missing bridges without stale owners', () => {
   const f = fixture()
+
   f.host(null)
   f.owner.start()
   expect(f.owner.focusCell(0)).toBe(false)
@@ -277,8 +306,11 @@ it('handles delayed refs/windows, invalid geometry and repaired/missing bridges 
 
 it('cleans native read/release failure, retires old observer callbacks and retries with a fresh owner', () => {
   const f = fixture()
+
   f.owner.start()
+
   const old = f.callbacks[0]
+
   f.releaseFails(true)
   f.readsFail(true)
   old({ object: f.window })
@@ -289,7 +321,9 @@ it('cleans native read/release failure, retires old observer callbacks and retri
   f.releaseFails(false)
   f.owner.synchronize()
   expect(f.suppressed.size).toBe(4)
+
   const before = f.releases.length
+
   old({ object: f.window })
   expect(f.releases).toHaveLength(before)
   f.owner.dispose()
@@ -300,11 +334,13 @@ it('cleans native read/release failure, retires old observer callbacks and retri
 
 it('commits successful native movement before a consumer throws or closes the owner', () => {
   const f = fixture()
+
   f.owner.start()
   f.window.firstResponder = f.root.subviews[0]
   f.options.onFocusChange = () => {
     throw Error('consumer failed')
   }
+
   expect(() => f.send('ArrowRight')).toThrow('consumer failed')
   expect(f.owner.getIndex()).toBe(1)
   f.options.onFocusChange = () => f.owner.dispose()
@@ -312,7 +348,9 @@ it('commits successful native movement before a consumer throws or closes the ow
   expect(f.owner.getIndex()).toBe(2)
   expect(f.suppressed.size).toBe(0)
   expect(f.send('ArrowRight').prevented).toBe(false)
+
   const during = fixture()
+
   during.owner.start()
   during.window.firstResponder = during.root.subviews[0]
   during.window.makeFirstResponder = (view: any) => {
@@ -320,10 +358,13 @@ it('commits successful native movement before a consumer throws or closes the ow
     during.owner.dispose()
     return true
   }
+
   expect(during.send('ArrowRight').prevented).toBe(false)
   expect(during.changes).toEqual([])
   expect(during.notices).toEqual([])
+
   const removed = fixture()
+
   removed.owner.start()
   removed.window.firstResponder = removed.root.subviews[0]
   removed.window.makeFirstResponder = (view: any) => {
@@ -331,6 +372,7 @@ it('commits successful native movement before a consumer throws or closes the ow
     removed.root.subviews = removed.root.subviews.filter((item: any) => item !== view)
     return true
   }
+
   expect(removed.send('ArrowRight').prevented).toBe(false)
   expect(removed.changes).toEqual([])
   expect(removed.notices).toEqual([])

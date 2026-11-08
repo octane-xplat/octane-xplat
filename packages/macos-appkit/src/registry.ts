@@ -65,6 +65,7 @@ export function createRegistry() {
     }
 
     const view = target as NSView
+
     return (
       typeof view.addSubview === 'function' &&
       typeof view.leadingAnchor?.constraintEqualToAnchor === 'function' &&
@@ -77,6 +78,7 @@ export function createRegistry() {
   function isManualLayoutParent(node: Pick<ElementNode, 'adapter'> | null | undefined) {
     return node?.adapter?.layout != null
   }
+
   return {
     adapters,
     typeHasView,

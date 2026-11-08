@@ -45,29 +45,37 @@ export function createPickerBridge(deps: Dependencies) {
     if (!view || typeof view.addSubview !== 'function' || !deps.actions.buttonActionTarget) {
       return null
     }
+
     let control: ReturnType<typeof deps.pickerElements.makePopUpControl>
+
     try {
       control = deps.pickerElements.makePopUpControl()
     } catch {
       return null
     }
+
     const picker = control.view,
       action = control.action
+
     let active = true,
       attached = false,
       selecting = false,
       writing = 0,
       enabled = false,
       version = 0
+
     let options: { id: string; title: string; disabled: boolean }[] = [],
       items: NSMenuItem[] = []
+
     let label: string | undefined,
       initialized = false
+
     const constraints: { active: boolean }[] = []
     const detach = () => {
       if (!active) {
         return
       }
+
       active = false
       attached = false
       version++
@@ -75,42 +83,52 @@ export function createPickerBridge(deps: Dependencies) {
       try {
         picker.menu?.cancelTracking()
       } catch {}
+
       try {
         picker.target = null
         picker.action = null as unknown as string
       } catch {}
+
       for (const constraint of constraints) {
         try {
           constraint.active = false
         } catch {}
       }
+
       try {
         picker.removeAllItems()
       } catch {}
+
       items = []
       options = []
       try {
         picker.removeFromSuperview()
       } catch {}
     }
+
     const apply = (next: PropBag) => {
       const ids = new Set<string>()
+
       if (!Array.isArray(next.options)) {
         throw Error('Invalid picker choices')
       }
+
       const nextOptions = next.options.map((item: any) => {
         if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) {
           throw Error('Invalid picker choices')
         }
+
         ids.add(item.id)
         return { id: item.id, title: item.title, disabled: !!item.disabled }
       })
+
       if (
         next.selection !== undefined &&
         (typeof next.selection !== 'string' || !ids.has(next.selection))
       ) {
         throw Error('Invalid picker selection')
       }
+
       const nextEnabled = next.enabled !== false && nextOptions.some((item: any) => !item.disabled)
       const changed =
         !initialized ||
@@ -121,6 +139,7 @@ export function createPickerBridge(deps: Dependencies) {
             item.title !== nextOptions[i].title ||
             item.disabled !== nextOptions[i].disabled,
         )
+
       enabled = nextEnabled
       picker.enabled = enabled
       if (changed) {
@@ -134,6 +153,7 @@ export function createPickerBridge(deps: Dependencies) {
         for (const option of nextOptions) {
           // Explicit items preserve duplicate/empty titles; IDs never depend on labels.
           const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(option.title, null, '')
+
           item.enabled = !option.disabled
           picker.menu.addItem(item)
           items.push(item)
@@ -145,16 +165,22 @@ export function createPickerBridge(deps: Dependencies) {
       } else if (!enabled) {
         picker.menu?.cancelTracking()
       }
+
       const nextLabel = String(next.accessibilityLabel ?? '')
+
       if (label !== nextLabel) {
         picker.accessibilityLabel = nextLabel
         label = nextLabel
       }
+
       const index = options.findIndex((item) => item.id === next.selection)
+
       if (Number(picker.indexOfSelectedItem) !== index) {
         picker.selectItemAtIndex(index)
       }
+
       const ownedVersion = version
+
       action.setHandler(() => {
         if (
           !active ||
@@ -168,32 +194,41 @@ export function createPickerBridge(deps: Dependencies) {
         ) {
           return
         }
+
         const nativeEnabled = (picker as any).isEnabled
         const nativeState =
           typeof nativeEnabled === 'function'
             ? nativeEnabled.call(picker)
             : (nativeEnabled ?? picker.enabled)
+
         if (nativeState === false || nativeState === 0) {
           return
         }
+
         const index = Number(picker.indexOfSelectedItem),
           item = items[index],
           option = options[index]
+
         if (!Number.isSafeInteger(index) || index < 0 || !item || !option || option.disabled) {
           return
         }
+
         const selected = picker.selectedItem
+
         if (!(selected === item || selected?.isEqual?.(item))) {
           return
         }
+
         const nativeItemEnabled = (item as any).isEnabled
         const itemState =
           typeof nativeItemEnabled === 'function'
             ? nativeItemEnabled.call(item)
             : (nativeItemEnabled ?? item.enabled)
+
         if (itemState === false || itemState === 0) {
           return
         }
+
         selecting = true
         try {
           onSelect(option.id)
@@ -204,6 +239,7 @@ export function createPickerBridge(deps: Dependencies) {
         }
       })
     }
+
     try {
       writing++
       try {
@@ -220,6 +256,7 @@ export function createPickerBridge(deps: Dependencies) {
         'bottomAnchor',
       ] as const) {
         const constraint = picker[edge].constraintEqualToAnchor(view[edge])
+
         constraints.push(constraint)
         constraint.active = true
       }
@@ -230,6 +267,7 @@ export function createPickerBridge(deps: Dependencies) {
           if (!active) {
             return
           }
+
           writing++
           try {
             apply(next)
@@ -266,38 +304,46 @@ export function createPickerBridge(deps: Dependencies) {
     const isTime = options?.mode === 'time'
     const isBoth = options?.mode === 'dateAndTime'
     let picker: NSDatePicker
+
     try {
       picker = NSDatePicker.alloc().init()
     } catch {
       return null
     }
+
     const action = deps.actions.allocate(picker)
     let active = true,
       writing = 0,
       enabled = false
+
     let minimum: number | undefined, maximum: number | undefined
     let rangeInitialized = false,
       accessibilityLabel: string | undefined
+
     const constraints: { active: boolean }[] = []
     const detach = () => {
       if (!active) {
         return
       }
+
       active = false
       action.release()
       try {
         picker.target = null
         picker.action = null as unknown as string
       } catch {}
+
       for (const constraint of constraints) {
         try {
           constraint.active = false
         } catch {}
       }
+
       try {
         picker.removeFromSuperview()
       } catch {}
     }
+
     try {
       picker.datePickerElements = isTime
         ? (DATE_PICKER_ELEMENTS.HourMinute ?? 0x000c)
@@ -316,10 +362,12 @@ export function createPickerBridge(deps: Dependencies) {
       const apply = (next: PropBag) => {
         const min = next?.minimumMillis ?? undefined,
           max = next?.maximumMillis ?? undefined
+
         const selected = next?.selectionMillis ?? undefined
         const valid = (value: number | undefined) =>
           value === undefined ||
           (Number.isFinite(value) && Number.isFinite(new Date(value).getTime()))
+
         const validInput =
           valid(min) &&
           valid(max) &&
@@ -329,16 +377,21 @@ export function createPickerBridge(deps: Dependencies) {
             selected !== undefined &&
             ((min !== undefined && selected < min) || (max !== undefined && selected > max))
           )
+
         enabled = next?.enabled !== false && validInput
         picker.enabled = enabled
+
         const label = String(next?.accessibilityLabel ?? '')
+
         if (label !== accessibilityLabel) {
           picker.accessibilityLabel = label
           accessibilityLabel = label
         }
+
         if (!validInput) {
           return
         }
+
         // Clear old bounds before a disjoint replacement. Range/selection writes
         // are programmatic and must never publish controlChanged echoes.
         if (!rangeInitialized || minimum !== min || maximum !== max) {
@@ -350,8 +403,10 @@ export function createPickerBridge(deps: Dependencies) {
           maximum = max
           rangeInitialized = true
         }
+
         const date = dateFromMillis(selected)
         const seconds = picker.dateValue?.timeIntervalSince1970
+
         if (date && (typeof seconds !== 'number' || Math.round(seconds * 1000) !== selected)) {
           picker.dateValue = date
         }
@@ -373,6 +428,7 @@ export function createPickerBridge(deps: Dependencies) {
         'bottomAnchor',
       ] as const) {
         const constraint = picker[edge].constraintEqualToAnchor(view[edge])
+
         constraints.push(constraint)
         constraint.active = true
       }
@@ -384,15 +440,19 @@ export function createPickerBridge(deps: Dependencies) {
         if (!active || writing || !enabled || picker.superview !== view || !view.window) {
           return
         }
+
         const nativeEnabled = (picker as any).isEnabled
         const nativeState =
           typeof nativeEnabled === 'function' ? nativeEnabled.call(picker) : nativeEnabled
+
         if (nativeState === false || nativeState === 0) {
           return
         }
+
         const date = picker.dateValue
         const rawMillis =
           typeof date?.timeIntervalSince1970 === 'number' ? date.timeIntervalSince1970 * 1000 : null
+
         const millis = rawMillis === null ? null : Math.round(rawMillis)
 
         if (
@@ -417,6 +477,7 @@ export function createPickerBridge(deps: Dependencies) {
           if (!active) {
             return
           }
+
           writing++
           try {
             apply(next)
@@ -434,6 +495,7 @@ export function createPickerBridge(deps: Dependencies) {
       return null
     }
   }
+
   return {
     attachPicker,
     attachDatePicker,

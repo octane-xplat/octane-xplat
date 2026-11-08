@@ -33,6 +33,7 @@ const ns = vi.hoisted(() => {
     }
     on(name: string, cb: any) {
       let list = this._listeners.get(name)
+
       if (!list) {
         this._listeners.set(name, (list = []))
       }
@@ -42,6 +43,7 @@ const ns = vi.hoisted(() => {
     off(name: string, cb: any) {
       const list = this._listeners.get(name)
       const index = list?.indexOf(cb) ?? -1
+
       if (index >= 0) {
         list!.splice(index, 1)
       }
@@ -51,12 +53,14 @@ const ns = vi.hoisted(() => {
     }
     _emit(name: string, data?: any) {
       const listeners = [...(this._listeners.get(name) ?? [])]
+
       for (const cb of listeners) {
         cb(data ?? { eventName: name, object: this })
       }
     }
     eachChild(cb: (child: any) => boolean | void) {
       const children = [...this._children]
+
       for (const child of children) {
         if (cb(child) === false) {
           break
@@ -128,12 +132,14 @@ const ns = vi.hoisted(() => {
   class LayoutBase extends View {
     insertChild(view: any, index: number) {
       const at = Math.max(0, Math.min(index, this._children.length))
+
       this._children.splice(at, 0, view)
       view.parent = this
       this._addViewCore(view, at)
     }
     removeChild(view: any) {
       const index = this._children.indexOf(view)
+
       if (index >= 0) {
         this._children.splice(index, 1)
       }
@@ -321,6 +327,7 @@ const fake = vi.hoisted(() => {
     }
     removeTextChangedListener(watcher: any) {
       const index = this.watchers.indexOf(watcher)
+
       if (index >= 0) {
         this.watchers.splice(index, 1)
       }
@@ -371,6 +378,7 @@ const fake = vi.hoisted(() => {
     redo() {}
     fireTextChanged() {
       const watchers = [...this.watchers]
+
       for (const watcher of watchers) {
         watcher.afterTextChanged?.()
       }
@@ -385,6 +393,7 @@ const fake = vi.hoisted(() => {
   }
 
   const formats: Record<string, string> = {}
+
   for (const name of [
     'FORMAT_BOLD',
     'FORMAT_ITALIC',
@@ -447,6 +456,7 @@ const roots: any[] = []
 
 function mount(host: any, props: any) {
   const root = createNativeScriptRoot(host)
+
   roots.push(root)
   root.render(RichTextEditor, props)
   return root
@@ -493,11 +503,13 @@ afterEach(() => {
 describe('RichTextEditor (Android leaf) native-view readiness', () => {
   it('applies props and fires onReady once when the tree is already loaded', async () => {
     const host = new ns.GridLayout()
+
     host._setupUI(CONTEXT)
     host.callLoaded()
 
     const onReady = vi.fn()
     const refs: any[] = []
+
     mount(host, {
       value: '<p>hi</p>',
       onReady,
@@ -507,6 +519,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     await settle()
 
     const editor = leafAndroid(host)
+
     expect(editor).toBeInstanceOf(fake.FakeAztecText)
     expect(onReady).toHaveBeenCalledTimes(1)
     expect(editor.htmlCalls).toContain('<p>hi</p>')
@@ -518,6 +531,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     const host = new ns.GridLayout()
     const onReady = vi.fn()
     const refs: any[] = []
+
     mount(host, {
       value: '<p>deferred</p>',
       placeholder: 'Write…',
@@ -536,6 +550,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     await attachTree(host)
 
     const editor = leafAndroid(host)
+
     expect(editor).toBeInstanceOf(fake.FakeAztecText)
     expect(onReady).toHaveBeenCalledTimes(1)
     expect(editor.htmlCalls).toContain('<p>deferred</p>')
@@ -549,15 +564,18 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
   it('fires the imperative ref only once the editor exists', async () => {
     const host = new ns.GridLayout()
     const refs: any[] = []
+
     mount(host, { ref: (h: any) => refs.push(h) })
     await settle()
 
     const latest = refs.filter((h) => h != null).at(-1)
+
     expect(latest === undefined || latest.native == null).toBe(true)
 
     await attachTree(host)
 
     const handle = refs.filter((h) => h != null).at(-1)
+
     expect(handle).toBeTruthy()
     expect(handle.native).toBe(leafAndroid(host))
     expect(() => handle.setHTML('<p>via ref</p>')).not.toThrow()
@@ -570,10 +588,12 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     const onSelectionChange = vi.fn()
     const onFocus = vi.fn()
     const onBlur = vi.fn()
+
     mount(host, { onChange, onSelectionChange, onFocus, onBlur })
     await settle()
 
     await attachTree(host)
+
     const editor = leafAndroid(host)
 
     editor.fireSelection(1, 3)
@@ -592,9 +612,11 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
   it('re-applies an externally changed value prop after ready', async () => {
     const host = new ns.GridLayout()
     const root = mount(host, { value: '<p>one</p>' })
+
     await attachTree(host)
 
     const editor = leafAndroid(host)
+
     expect(editor.htmlCalls.at(-1)).toBe('<p>one</p>')
 
     root.render(RichTextEditor, { value: '<p>two</p>' })
@@ -605,6 +627,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
   it('parks a value update that lands while the native view is pending', async () => {
     const host = new ns.GridLayout()
     const root = mount(host, { value: '<p>one</p>' })
+
     await settle()
 
     root.render(RichTextEditor, { value: '<p>two</p>' })
@@ -621,6 +644,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     const onChange = vi.fn()
     const refs: any[] = []
     const root = mount(host, { onReady, onChange, ref: (h: any) => refs.push(h) })
+
     await settle()
 
     // Unmount before the tree ever loads: the loaded subscription must
@@ -646,7 +670,9 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
 
     roots.push(root2)
     await attachTree(host2)
+
     const editor = leafAndroid(host2)
+
     editor.fireTextChanged()
     root2.unmount()
     editor.fireTextChanged()
@@ -665,6 +691,7 @@ describe('RichTextEditor (Android leaf) native-view readiness', () => {
     const host = new ns.GridLayout()
     const onReady = vi.fn()
     const root = mount(host, { onReady, placeholder: 'a' })
+
     await attachTree(host)
     expect(onReady).toHaveBeenCalledTimes(1)
 

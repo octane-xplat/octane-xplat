@@ -24,12 +24,14 @@ const packageRoot = join(workspaceRoot, 'packages/typegen-fixture')
 const packageOutput = join(temporary, 'package')
 const consumerRoot = join(temporary, 'consumer')
 const packOutput = join(temporary, 'pack')
+
 mkdirSync(packageOutput, { recursive: true })
 mkdirSync(consumerRoot, { recursive: true })
 mkdirSync(packOutput, { recursive: true })
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -67,17 +69,24 @@ try {
   symlinkSync(join(fixtureRoot, 'node_modules'), join(packageRoot, 'node_modules'), 'dir')
 
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarball = readdirSync(packOutput).find((name) => name.endsWith('.tgz'))
+
   assert.ok(tarball, 'bun pm pack produced a tarball')
   run('tar', ['-xzf', join(packOutput, tarball), '-C', packageOutput], temporary)
+
   const extracted = join(packageOutput, 'package')
   const packedManifest = JSON.parse(readFileSync(join(extracted, 'package.json'), 'utf8'))
   const typeEntry = packedManifest.exports['.'].types
+
   assert.ok(readFileSync(join(extracted, typeEntry), 'utf8'), 'the public type entry is packed')
 
   const modules = join(consumerRoot, 'node_modules')
+
   mkdirSync(modules, { recursive: true })
+
   const packageLink = join(modules, packedManifest.name)
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(extracted, packageLink, { recursive: true })
   symlinkSync(join(packageRoot, 'node_modules/octane'), join(modules, 'octane'), 'dir')
@@ -115,6 +124,7 @@ void value
     { name: 'nodenext', module: 'nodenext', moduleResolution: 'nodenext' },
   ]) {
     const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+
     writeFileSync(
       configPath,
       JSON.stringify(
@@ -144,8 +154,10 @@ void value
   const generatedEntry = join(packageRoot, 'types/generated/index.d.ts')
   const generatedOriginal = readFileSync(generatedEntry, 'utf8')
   const stale = `${generatedOriginal}\n// stale output probe\n`
+
   try {
     writeFileSync(generatedEntry, stale)
+
     const check = spawnSync(
       process.execPath,
       [
@@ -173,6 +185,7 @@ void value
   const defaultedManifest = join(packageRoot, 'types/generated/.tsrx-typegen-manifest.json')
   const defaultedManifestOriginal = readFileSync(defaultedManifest, 'utf8')
   const defaultedGenerated = readFileSync(generatedEntry, 'utf8')
+
   writeFileSync(
     defaultedSource,
     `export function defaulted(size: number = 0, label: string): string {
@@ -200,6 +213,7 @@ void value
     )
 
     const declaration = readFileSync(join(packageRoot, 'types/generated/defaulted.d.ts'), 'utf8')
+
     assert.match(declaration, /size: number \| undefined/)
   } finally {
     writeFileSync(defaultedEntry, defaultedEntryOriginal)
@@ -217,6 +231,7 @@ void value
   const declarationIndex = join(packageRoot, 'src/declaration-input-index/index.d.ts')
   const declEntry = join(packageRoot, 'src/index.ts')
   const declEntryOriginal = readFileSync(declEntry, 'utf8')
+
   try {
     mkdirSync(dirname(declarationIndex), { recursive: true })
     writeFileSync(declarationIndex, 'export interface PublicInput { value: string }\n')
@@ -324,6 +339,7 @@ export function readIncluded(value: Included): Included { return value }
   const lowerSource = join(packageRoot, `src/${lowerName}.tsrx`)
   const upperSource = join(packageRoot, `src/${upperName}.tsrx`)
   const caseEntryOriginal = readFileSync(collisionEntry, 'utf8')
+
   try {
     writeFileSync(lowerSource, "export function caseOnly() { return 'lower' }\n")
     writeFileSync(caseEntry, `${caseEntryOriginal}\nexport * from './${lowerName}.tsrx'\n`)
@@ -334,6 +350,7 @@ export function readIncluded(value: Included): Included { return value }
     )
 
     const lowerOutput = `${lowerName}.d.ts`
+
     assert.ok(JSON.parse(readFileSync(outputManifest, 'utf8')).files.includes(lowerOutput))
     rmSync(lowerSource)
     writeFileSync(upperSource, "export function caseOnly() { return 'upper' }\n")
@@ -350,7 +367,9 @@ export function readIncluded(value: Included): Included { return value }
     )
 
     assert.deepEqual(outputNames, [upperOutput], 'case-only renames replace their owned output')
+
     const updatedFiles = JSON.parse(readFileSync(outputManifest, 'utf8')).files
+
     assert.ok(updatedFiles.includes(upperOutput))
     assert.ok(!updatedFiles.includes(lowerOutput))
   } finally {
@@ -373,10 +392,13 @@ export function readIncluded(value: Included): Included { return value }
   const overrideDeclaration = 'format.d.ts'
   const overrideSource = join(packageRoot, `types/overrides/${overrideDeclaration}`)
   const overrideText = "export interface CollisionContract { kind: 'override' }\n"
+
   try {
     mkdirSync(dirname(overrideSource), { recursive: true })
     writeFileSync(overrideSource, overrideText)
+
     const config = JSON.parse(originalConfig)
+
     config.overrides = {
       ...config.overrides,
       [overrideDeclaration]: `types/overrides/${overrideDeclaration}`,
@@ -405,9 +427,11 @@ export function readIncluded(value: Included): Included { return value }
   const invalidSource = join(packageRoot, 'src/Invalid.tsrx')
   const generatedBeforeFailure = readFileSync(generatedEntry, 'utf8')
   const invalidEntryOriginal = readFileSync(collisionEntry, 'utf8')
+
   try {
     writeFileSync(invalidSource, 'export function Invalid( {\n')
     writeFileSync(collisionEntry, `${invalidEntryOriginal}\nexport * from './Invalid.tsrx'\n`)
+
     const failedTransform = spawnSync(
       process.execPath,
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],
@@ -428,6 +452,7 @@ export function readIncluded(value: Included): Included { return value }
   const factoryOriginal = readFileSync(factorySource, 'utf8')
   const factoryConsumer = join(consumerRoot, 'factory-consumer.ts')
   const factoryConfig = join(consumerRoot, 'tsconfig.factory.json')
+
   try {
     writeFileSync(
       factorySource,
@@ -500,12 +525,14 @@ Badge({ label: 42 })
   const wildcardPackagePath = join(packageRoot, 'package.json')
   const wildcardConfigOriginal = readFileSync(wildcardConfigPath, 'utf8')
   const wildcardPackageOriginal = readFileSync(wildcardPackagePath, 'utf8')
+
   try {
     for (const file of wildcardFiles) {
       writeFileSync(file, 'export const value = 1\n')
     }
 
     const wildcardConfig = JSON.parse(wildcardConfigOriginal)
+
     wildcardConfig.targets.octane.entrypoints['./*'] = {
       source: 'src/index.ts',
       runtime: './src/*',
@@ -515,6 +542,7 @@ Badge({ label: 42 })
     writeFileSync(wildcardConfigPath, JSON.stringify(wildcardConfig, null, 2) + '\n')
 
     const wildcardPackage = JSON.parse(wildcardPackageOriginal)
+
     wildcardPackage.exports['./*'] = {
       types: './types/generated/*.d.ts',
       default: './src/*',
@@ -550,9 +578,11 @@ Badge({ label: 42 })
   // refusal names the recovery, and clearing the directory lets generation
   // record a fresh manifest.
   const manifestAside = join(temporary, 'pre-manifest-manifest.json')
+
   try {
     cpSync(outputManifest, manifestAside)
     rmSync(outputManifest)
+
     const preManifest = spawnSync(
       process.execPath,
       [join(root, 'packages/tsrx-typegen/src/cli.ts'), '--project', 'tsconfig.types.json'],

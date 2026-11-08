@@ -20,6 +20,7 @@ function notInstalled(message) {
   console.error(
     `The native executable was not installed. Repair it with:\n  node "${join(cliRoot, 'install-native.mjs')}"`,
   )
+
   process.exit(1)
 }
 

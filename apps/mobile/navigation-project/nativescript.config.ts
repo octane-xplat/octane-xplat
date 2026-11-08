@@ -1,4 +1,5 @@
 import type { NativeScriptConfig } from '@nativescript/core'
+
 export default {
   id: 'org.nativescript.xplat.navigation',
   appPath: 'src',

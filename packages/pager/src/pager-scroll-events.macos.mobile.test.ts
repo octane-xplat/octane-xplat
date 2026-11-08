@@ -1,14 +1,17 @@
 import { expect, it } from 'vitest'
 import { createAppKitPagerEvents } from './pager-scroll-events.macos'
+
 function fixture(fail = false) {
   const originalWindow = {},
     view: any = { window: originalWindow, contentView: {} },
     observers = new Map<object, any>(),
     timers = new Map<object, () => void>()
+
   let current: any = view,
     interactions = 0,
     settlements = 0,
     measurements = 0
+
   const events = createAppKitPagerEvents(
     {
       view: () => current,
@@ -34,7 +37,9 @@ function fixture(fail = false) {
             if (fail && observers.size === 2) {
               throw Error('unavailable')
             }
+
             const token = {}
+
             observers.set(token, { name, object, callback })
             return token
           },
@@ -47,6 +52,7 @@ function fixture(fail = false) {
     {
       set(callback) {
         const token = {}
+
         timers.set(token, callback)
         return token
       },
@@ -55,6 +61,7 @@ function fixture(fail = false) {
       },
     },
   )
+
   const emit = (part: string, object: any = view) => {
     for (const observer of [...observers.values()]) {
       if (observer.name === part) {
@@ -62,12 +69,15 @@ function fixture(fail = false) {
       }
     }
   }
+
   const scroll = (part: string, object = view) => emit(`NSScrollView${part}Notification`, object)
   const fire = () => {
     const callbacks = [...timers.values()]
+
     timers.clear()
     callbacks.forEach((callback) => callback())
   }
+
   events.bind(view)
   return {
     view,
@@ -95,6 +105,7 @@ function fixture(fail = false) {
 
 it('waits for bracketed tracking and supports legacy unbracketed updates', () => {
   const f = fixture()
+
   f.scroll('WillStartLiveScroll')
   f.scroll('DidLiveScroll')
   f.fire()
@@ -112,6 +123,7 @@ it('waits for bracketed tracking and supports legacy unbracketed updates', () =>
 
 it('bounds and window updates measure without creating user requests; foreign objects are ignored', () => {
   const f = fixture()
+
   f.emit('NSViewBoundsDidChangeNotification', f.view.contentView)
   f.emit('NSWindowDidUpdateNotification', f.originalWindow)
   f.scroll('DidLiveScroll', {})
@@ -123,8 +135,11 @@ it('bounds and window updates measure without creating user requests; foreign ob
 it('cancel, hidden/detached/moved scope and old timer claims cannot settle', () => {
   for (const action of ['cancel', 'hidden', 'detached', 'moved', 'replacement']) {
     const f = fixture()
+
     f.scroll('DidLiveScroll')
+
     const stale = [...f.timers.values()][0]
+
     if (action === 'cancel') {
       f.events.cancel()
     }
@@ -159,12 +174,15 @@ it('same-view rebind rejects old native callbacks and partial subscriptions clea
     stale = [...f.observers.values()].find(
       (o) => o.name === 'NSScrollViewDidLiveScrollNotification',
     ).callback
+
   f.events.bind(null)
   f.events.bind(f.view)
   stale({ object: f.view })
   expect(f.interactions).toBe(0)
   f.events.dispose()
   expect(f.observers.size).toBe(0)
+
   const partial = fixture(true)
+
   expect(partial.observers.size).toBe(0)
 })

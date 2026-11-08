@@ -13,12 +13,15 @@ export function captureDragInput() {
   const create = function (this: any, ...args: any[]) {
     const handler = original.apply(this, args)
     const attach = handler.attachToView
+
     handler.attachToView = function (view: object) {
       handlers.set(view, handler)
       return attach.call(this, view)
     }
+
     return handler
   }
+
   manager.createGestureHandler = create
   return {
     restore() {
@@ -28,9 +31,11 @@ export function captureDragInput() {
     },
     send(view: object, phase: 'start' | 'move' | 'end' | 'cancel', x: number) {
       const handler = handlers.get(view)
+
       if (!handler) {
         throw new Error('Missing case drag handler')
       }
+
       handler.notify({
         eventName: phase === 'move' ? GestureHandlerTouchEvent : GestureHandlerStateEvent,
         object: handler,

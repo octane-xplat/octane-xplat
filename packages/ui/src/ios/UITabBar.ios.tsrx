@@ -38,6 +38,7 @@ function applyIcon(item: TabViewItem, name: string): void {
   }
 
   const glyph = getIcon(name)
+
   if (!glyph) {
     warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`)
     return
@@ -70,18 +71,21 @@ function warnIconOnce(name: string, msg: string): void {
 
 function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
   let items = itemsCache.get(tabs)
+
   if (items !== undefined) {
     return items
   }
 
   items = tabs.map((t) => {
     const item = new TabViewItem()
+
     item.title = t.title
     if (t.icon != null) {
       applyIcon(item, t.icon)
     }
 
     const pane = new GridLayout()
+
     panesByItem.set(item, pane)
     if (t.stack) {
       // Parallel-stack pane: the item's view IS a Frame whose default
@@ -92,10 +96,12 @@ function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
       // stuck (iOS's delegate never sees didShow) and every later push
       // queues forever.
       const frame = new Frame()
+
       frame.once('loaded', () => {
         frame.navigate({
           create: () => {
             const page = new Page()
+
             page.actionBarHidden = true
             // Page is a ContentView — single-child. Root on a
             // GridLayout child so every portaled pane child is retained.
@@ -145,6 +151,7 @@ function TabBarInner(props: {
     {loaded
       ? items.map((item, index) => {
           const target = panesByItem.get(item)
+
           return target
             ? createPortal(
                 <TabPane render={props.tabs[index].render} stack={props.tabs[index].stack} />,

@@ -14,6 +14,7 @@ export function serializeChatComposerToken(token: ChatComposerToken): ChatCompos
   }
 
   const badge = token as ChatComposerTokenBadge
+
   return {
     kind: 'badge',
     value: badge.value,

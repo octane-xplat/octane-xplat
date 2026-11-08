@@ -144,16 +144,19 @@ export function Dialog(props: DialogProps): unknown @{
   } | null>(null)
 
   const dismiss = useRef(requestChange)
+
   dismiss.current = requestChange
 
   useEffect(() => {
     const cur = shown.current
+
     if (!open) {
       cur?.lifetime.close()
       return
     }
 
     const rl = rootLayoutFor(sentinel.current)
+
     if (!rl) {
       return
     }
@@ -164,8 +167,10 @@ export function Dialog(props: DialogProps): unknown @{
 
     const { host, panel, bindKeyboard } = createKeyboardOverlayHost('stretch')
     const unbindTheme = applyThemeClasses(panel, 'vx-dialog-overlay')
+
     host.horizontalAlignment = 'stretch'
     host.verticalAlignment = 'stretch'
+
     const lifetime = createOverlayLifetime(rl, host, null, 'Dialog', (dismissed) => {
       if (shown.current?.host === host) {
         shown.current = null
@@ -186,6 +191,7 @@ export function Dialog(props: DialogProps): unknown @{
     setPortalHost(panel)
 
     const purpose = props.purpose ?? 'info'
+
     lifetime.open({
       shadeCover: {
         opacity: 0.4,

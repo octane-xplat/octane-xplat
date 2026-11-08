@@ -129,6 +129,7 @@ const REPO = 'https://github.com/octane-xplat/octane-xplat'
 // Resolve links relative to this page's directory in the Markdown corpus.
 function docFor(href: string, dir: string) {
   const slug = docSlugFor(href, dir)
+
   return slug ? DOCS.find((d) => d.slug === slug) : undefined
 }
 
@@ -139,6 +140,7 @@ function extUrl(href: string, dir: string): string {
 
   const path = repoPathFor(href, dir)
   const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
+
   return `${REPO}/${path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'}/main/${path}${hash}`
 }
 
@@ -156,8 +158,10 @@ function SpanText(props: { s: Span; dir: string }) @{
 
   if (s.href) {
     const doc = docFor(s.href, props.dir)
+
     if (doc) {
       const hash = s.href.includes('#') ? s.href.slice(s.href.indexOf('#')) : ''
+
       return (
         <NavLink {...routeForDoc(doc)} hash={hash.slice(1)} className={cls}>
           {s.text}
@@ -186,8 +190,10 @@ function SpanText(props: { s: Span; dir: string }) @{
 function Spans(props: { spans: Span[]; dir: string }) @{
   // Keep mixed formatting inside one highlight so padding only surrounds the phrase.
   const runs: Span[][] = []
+
   for (const s of props.spans) {
     const last = runs.at(-1)
+
     if (last && last[0].highlight === s.highlight) {
       last.push(s)
     } else {
@@ -221,6 +227,7 @@ function BlockView(props: {
   homeActions?: boolean
 }) @{
   const b = props.b
+
   if (b.kind === 'h') {
     return (
       <Heading level={b.level as 1 | 2 | 3 | 4} id={b.id} className={`h${b.level}`} color="inherit">
@@ -377,6 +384,7 @@ export function MdDoc(props: {
     )}
     @for (const b of blocks; index i; key i) {
       const prev = blocks[i - 1]
+
       <>
         @if (
           props.demo &&

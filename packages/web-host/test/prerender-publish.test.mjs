@@ -28,6 +28,7 @@ test('restores the previous published output when the swap rename fails', async 
   const root = await mkdtemp(join(tmpdir(), 'xplat-publish-'))
   const outDir = join(root, 'html')
   let failSwap = false
+
   try {
     t.mock.module('node:fs/promises', {
       exports: {
@@ -41,6 +42,7 @@ test('restores the previous published output when the swap rename fails', async 
           if (failSwap && String(to) === outDir && /\.stage-[^/]*$/.test(String(from))) {
             throw new Error('simulated publish failure')
           }
+
           return realRename(from, to)
         },
       },

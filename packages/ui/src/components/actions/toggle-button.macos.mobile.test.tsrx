@@ -25,6 +25,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -163,6 +164,7 @@ it('interruptible same-frame flips use current uncontrolled state and retain bus
 
   try {
     const press = env.buttons()[0].props.onTap
+
     press()
     press()
     flushUniversalSync(() => {})
@@ -196,6 +198,7 @@ it('renders node icons, icon-only names and inherited button metadata', () => {
 
   try {
     const host = env.buttons()[0]
+
     expect(host.props.accessibilityLabel).toBe('Pin')
     expect(host.props.accessibilityHint).toBe('Pins this item')
     expect(String(host.props.className)).toContain('vx-toggle-button--success')
@@ -226,6 +229,7 @@ it('group membership owns single/multiple selection and ignores member save acti
   }
 
   const env = mount(Group, { value: 'list' })
+
   try {
     expect(
       env
@@ -269,6 +273,7 @@ it('reports sync failures and ignores cached actions after unmount', () => {
   })
 
   const press = env.buttons()[0].props.onTap
+
   press()
   expect(errors).toHaveBeenCalledWith(error)
   env.root.unmount()
@@ -279,6 +284,7 @@ it('reports sync failures and ignores cached actions after unmount', () => {
 it('accepted controlled toggle callbacks retain their value across a URL-driven parent update', () => {
   const events: unknown[] = []
   let update = () => {}
+
   vi.mocked(openUrl)
     .mockReset()
     .mockImplementation(() => {
@@ -298,6 +304,7 @@ it('accepted controlled toggle callbacks retain their value across a URL-driven 
 
   try {
     const press = env.buttons()[0].props.onTap
+
     update = () =>
       env.render({
         label: 'Current',
@@ -328,6 +335,7 @@ it('accepted controlled toggle callbacks retain their value across a URL-driven 
 it('an accepted local toggle retains local intent through URL-driven controlled mode entry and exit', () => {
   const events: boolean[] = []
   let update = () => {}
+
   vi.mocked(openUrl)
     .mockReset()
     .mockImplementation(() => {
@@ -343,6 +351,7 @@ it('an accepted local toggle retains local intent through URL-driven controlled 
 
   try {
     const press = env.buttons()[0].props.onTap
+
     update = () => env.render({ label: 'Controlled', isPressed: true })
     press()
     flushUniversalSync(() => {})
@@ -375,6 +384,7 @@ it('a throwing accepted toggle notification preserves local intent and skips its
 
   try {
     const press = env.buttons()[0].props.onTap
+
     press()
     flushUniversalSync(() => {})
     expect(errors).toHaveBeenCalledWith(failure)

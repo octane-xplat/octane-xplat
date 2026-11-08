@@ -41,12 +41,14 @@ function fixture() {
       throw failures.get(phase)
     }
   }
+
   const noop = () => {}
   const observers = new Set<object>()
   const held: (() => void)[] = []
   const views: any[] = []
   const nativeView = () => {
     const view = new NSView()
+
     Object.assign(view, {
       enabled: true,
       title: '',
@@ -60,14 +62,18 @@ function fixture() {
         this.label = value
       },
     })
+
     views.push(view)
     return view
   }
+
   Object.defineProperty(NSButton, 'buttonWithTitleTargetAction', {
     configurable: true,
     value(title, target, action) {
       run('native create')
+
       const view = nativeView()
+
       Object.assign(view, { title, target, action })
       Object.defineProperty(view, 'tag', {
         configurable: true,
@@ -76,15 +82,18 @@ function fixture() {
           Object.defineProperty(this, 'tag', { value, configurable: true })
         },
       })
+
       return view
     },
   })
+
   Object.assign(NSView.prototype, {
     initWithFrame() {
       run('content create')
       return this
     },
   })
+
   Object.assign(NSPopUpButton.prototype, {
     initWithFramePullsDown() {
       this.menu = {
@@ -93,6 +102,7 @@ function fixture() {
           this.items.push(item)
         },
       }
+
       return this
     },
     removeAllItems() {
@@ -103,12 +113,14 @@ function fixture() {
     },
     invalidateIntrinsicContentSize() {},
   })
+
   Object.assign(NSMenuItem.prototype, {
     initWithTitleActionKeyEquivalent(title) {
       this.title = title
       return this
     },
   })
+
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -125,11 +137,14 @@ function fixture() {
       },
     })
   }
+
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock(_name, _view, _queue, callback) {
       run('observe')
       held.push(callback)
+
       const token = {}
+
       observers.add(token)
       return token
     },
@@ -138,8 +153,10 @@ function fixture() {
       run('unobserve')
     },
   })
+
   const registry = createRegistry(),
     store = createActionStore()
+
   const layout = {
     layoutHandlers: new WeakMap(),
     queueLayoutReconcile() {
@@ -149,6 +166,7 @@ function fixture() {
       run('content layout')
     },
   }
+
   const cssCascade = {
     cssChildren: (node) => node.children,
     setNodeId() {
@@ -163,6 +181,7 @@ function fixture() {
       run('class')
     },
   }
+
   const deps: any = {
     registry,
     store,
@@ -213,6 +232,7 @@ function fixture() {
     projection: {},
     imageElements: {},
   }
+
   const actions = createActions(deps)
   const controls = createControls({ ...deps, actions })
   const containers = createContainerElements({ ...deps, actions })
@@ -228,6 +248,7 @@ function fixture() {
       run('text fit')
     },
   }
+
   Object.assign(deps, {
     actions,
     controls,
@@ -235,6 +256,7 @@ function fixture() {
     inputElements: inputs,
     pickerElements: pickers,
   })
+
   const assembly = createElementAdapters({
     registry,
     controls,
@@ -254,20 +276,26 @@ function fixture() {
     nodes: { validateNodeProps: (...args) => deps.nodes.validateNodeProps(...args) },
     tree: deps.tree,
   })
+
   const nodes = createNodes(deps)
   const props = createElementProps({ ...deps, nodes })
+
   deps.elementProps = props
+
   const container: any = {
     nodes: new Map(),
     children: [],
     cssDirty: new Set(),
     root: { eventScope: (_kind, callback) => callback() },
   }
+
   const make = (type = 'button', values: PropBag = {}, id = 1) => {
     const node = nodes.makeNode(container, id, type, values)
+
     container.nodes.set(id, node)
     return node
   }
+
   return {
     registry,
     store,
@@ -329,8 +357,11 @@ test('adapter phases order validation, common/feature writes, merged sync and ph
       f.run('dispose')
     },
   }
+
   f.registry.adapters.register('pilot-test', adapter)
+
   const node = f.make('pilot-test', { id: 'one', custom: 2 })
+
   f.nodes.destroy(node)
   assert.deepEqual(f.trace, [
     'validate',
@@ -348,6 +379,7 @@ test('adapter phases order validation, common/feature writes, merged sync and ph
     'dispose',
     'paint',
   ])
+
   assert.equal(node.lifecycle, 'disposed')
   assert.equal(f.container.nodes.size, 0)
 })
@@ -355,6 +387,7 @@ test('adapter phases order validation, common/feature writes, merged sync and ph
 test('registration replacement and caller mutation affect future acquisitions only', () => {
   const f = fixture(),
     events: string[] = []
+
   const definition: ElementAdapter = {
     container: false,
     hasView: false,
@@ -367,8 +400,11 @@ test('registration replacement and caller mutation affect future acquisitions on
       events.push('old dispose')
     },
   }
+
   f.registry.adapters.register('custom', definition)
+
   const older = f.make('custom')
+
   definition.dispose = () => events.push('mutated')
   f.registry.adapters.register('custom', {
     ...definition,
@@ -380,8 +416,11 @@ test('registration replacement and caller mutation affect future acquisitions on
       events.push('new dispose')
     },
   })
+
   f.props.applyProps(older, { custom: true })
+
   const newer = f.make('custom', { custom: true }, 2)
+
   f.nodes.destroy(older)
   f.nodes.destroy(newer)
   assert.deepEqual(events, ['old prop', 'new prop', 'old dispose', 'new dispose'])
@@ -391,7 +430,9 @@ for (const boundary of ['validate', 'create', 'admission', 'feature', 'after', '
   test('partial construction cleans acquired resources at ' + boundary, () => {
     const f = fixture(),
       failure = Error(boundary)
+
     let acquired: ElementNode | undefined
+
     f.registry.adapters.register('failing', {
       container: false,
       hasView: true,
@@ -424,16 +465,19 @@ for (const boundary of ['validate', 'create', 'admission', 'feature', 'after', '
         f.run('dispose')
       },
     })
+
     f.failures.set(boundary, failure)
     assert.throws(
       () => f.make('failing', { value: 1 }),
       (error) => error === failure,
     )
+
     assert.equal(f.container.nodes.size, 0)
     if (boundary === 'validate') {
       assert.equal(acquired, undefined)
       return
     }
+
     assert.equal(acquired!.lifecycle, 'disposed')
     assert.deepEqual(f.trace.slice(-6), [
       'retire',
@@ -443,6 +487,7 @@ for (const boundary of ['validate', 'create', 'admission', 'feature', 'after', '
       'dispose',
       'paint',
     ])
+
     assert.equal(f.registry.cssNodesByView.has(acquired!.view!), false)
   })
 }
@@ -451,6 +496,7 @@ for (const boundary of ['retire', 'hook', 'prepare', 'detach 1', 'dispose']) {
   test('release failure at ' + boundary + ' still finishes independent phases once', () => {
     const f = fixture(),
       failure = Error(boundary)
+
     f.registry.adapters.register('release', {
       container: false,
       hasView: false,
@@ -471,13 +517,16 @@ for (const boundary of ['retire', 'hook', 'prepare', 'detach 1', 'dispose']) {
         f.run('dispose')
       },
     })
+
     const node = f.make('release')
+
     f.trace.length = 0
     f.failures.set(boundary, failure)
     assert.throws(
       () => f.nodes.destroy(node),
       (error) => error === failure,
     )
+
     assert.deepEqual(f.trace, ['retire', 'hook', 'prepare', 'detach 1', 'dispose', 'paint'])
     f.nodes.destroy(node)
     assert.equal(f.trace.length, 6)
@@ -495,7 +544,9 @@ test('button pilot owns real action leases and clears the complete next bag with
     accessibilityLabel: 'Save item',
     id: 'save',
   })
+
   const tag = node.actionId
+
   f.actions.invokeAction(tag)
   assert.equal(calls, 0)
   f.props.applyProps(node, { ...f.props.droppedPropClears(node, {}) })
@@ -519,14 +570,17 @@ for (const boundary of ['button type', 'tag', 'style', 'identity sync']) {
   test('button partial construction releases actions after ' + boundary, () => {
     const f = fixture(),
       failure = Error(boundary)
+
     f.failures.set(boundary, failure)
     assert.throws(
       () => f.make('button', { style: {} }),
       (error) => error === failure,
     )
+
     for (const view of f.views) {
       assert.equal(f.store.idForView(view), undefined)
     }
+
     assert.equal(f.container.nodes.size, 0)
   })
 }
@@ -534,9 +588,11 @@ for (const boundary of ['button type', 'tag', 'style', 'identity sync']) {
 test('contentview owns geometry and detaches every child before the host even after a child failure', () => {
   const f = fixture(),
     failure = Error('child')
+
   const node = f.make('contentview')
   const child = f.make('button', {}, 2),
     sibling = f.make('button', {}, 3)
+
   node.children.push(child, sibling)
   f.trace.length = 0
   f.held[0]()
@@ -547,11 +603,13 @@ test('contentview owns geometry and detaches every child before the host even af
       assert.equal(f.observers.size, 1)
     },
   ]
+
   f.failures.set('detach 2', failure)
   assert.throws(
     () => f.nodes.destroy(node),
     (error) => error === failure,
   )
+
   assert.deepEqual(f.trace, [
     'layout',
     'hook',
@@ -562,6 +620,7 @@ test('contentview owns geometry and detaches every child before the host even af
     'detach 1',
     'paint',
   ])
+
   assert.equal(f.observers.size, 0)
   assert.equal(f.containers.contentViewNodesByView.has(node.view!), false)
   f.trace.length = 0
@@ -573,11 +632,13 @@ for (const boundary of ['observe', 'style', 'identity sync']) {
   test('contentview construction failure retires lookup and geometry at ' + boundary, () => {
     const f = fixture(),
       failure = Error(boundary)
+
     f.failures.set(boundary, failure)
     assert.throws(
       () => f.make('contentview', { style: {} }),
       (error) => error === failure,
     )
+
     assert.equal(f.observers.size, 0)
     f.trace.length = 0
     f.held.forEach((callback) => callback())
@@ -587,17 +648,21 @@ for (const boundary of ['observe', 'style', 'identity sync']) {
 
 test('missing adapter installation rejects before native acquisition', () => {
   const registry = createRegistry()
+
   assert.throws(() => registry.assertSupportedType('button'), /does not support/)
   assert.throws(() => registry.assertSupportedType('contentview'), /does not support/)
   assert.throws(() => registry.assertSupportedType('portalroot'), /does not support/)
   assert.throws(() => registry.assertSupportedType('unknown'), /does not support/)
+
   const catalog = createElementAdapterCatalog()
+
   assert.equal(catalog.lookup('button'), undefined)
 })
 
 test('creation retains the validated definition when validation replaces its catalog entry', () => {
   const f = fixture(),
     events: string[] = []
+
   f.registry.adapters.register('reentrant-registration', {
     container: false,
     hasView: false,
@@ -614,6 +679,7 @@ test('creation retains the validated definition when validation replaces its cat
       events.push('validated')
     },
   })
+
   f.make('reentrant-registration')
   f.make('reentrant-registration', {}, 2)
   assert.deepEqual(events, ['validated', 'replacement'])
@@ -622,7 +688,9 @@ test('creation retains the validated definition when validation replaces its cat
 test('content geometry releases a late native token when registration reenters retirement', () => {
   const f = fixture(),
     token = {}
+
   let observedView: object | undefined
+
   Object.assign(NSPopUpButton.prototype, {
     initWithFramePullsDown() {
       this.menu = {
@@ -631,6 +699,7 @@ test('content geometry releases a late native token when registration reenters r
           this.items.push(item)
         },
       }
+
       return this
     },
     removeAllItems() {
@@ -641,12 +710,14 @@ test('content geometry releases a late native token when registration reenters r
     },
     invalidateIntrinsicContentSize() {},
   })
+
   Object.assign(NSMenuItem.prototype, {
     initWithTitleActionKeyEquivalent(title) {
       this.title = title
       return this
     },
   })
+
   for (const NativeControl of [NSSlider, NSProgressIndicator]) {
     Object.assign(NativeControl.prototype, {
       initWithFrame() {
@@ -663,6 +734,7 @@ test('content geometry releases a late native token when registration reenters r
       },
     })
   }
+
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock(_name, view, _queue, callback) {
       observedView = view
@@ -672,6 +744,7 @@ test('content geometry releases a late native token when registration reenters r
       return token
     },
   })
+
   assert.throws(() => f.make('contentview'), /retired during construction/)
   assert.equal(f.observers.size, 0)
   assert.equal(f.containers.contentViewNodesByView.has(observedView!), false)
@@ -683,8 +756,10 @@ test('content geometry releases a late native token when registration reenters r
 test('content observation removal failure still retires callbacks, children and identities', () => {
   const f = fixture(),
     failure = Error('unobserve')
+
   const node = f.make('contentview')
   const child = f.make('button', {}, 2)
+
   node.children.push(child)
   f.failures.set('unobserve', failure)
   f.trace.length = 0
@@ -692,6 +767,7 @@ test('content observation removal failure still retires callbacks, children and 
     () => f.nodes.destroy(node),
     (error) => error === failure,
   )
+
   assert.ok(f.trace.includes('detach 2'))
   assert.ok(f.trace.includes('detach 1'))
   assert.equal(f.registry.cssNodesByView.has(node.view!), false)
@@ -703,6 +779,7 @@ test('content observation removal failure still retires callbacks, children and 
 test('normal author registration replaces future pilot definitions without redirecting old cleanup', () => {
   const f = fixture(),
     events: string[] = []
+
   f.assembly.registerElementType('button', {
     container: false,
     hasView: true,
@@ -714,7 +791,9 @@ test('normal author registration replaces future pilot definitions without redir
       events.push('old dispose')
     },
   })
+
   const old = f.make('button', { text: 'Old' })
+
   f.assembly.registerElementType('button', {
     container: false,
     hasView: true,
@@ -726,8 +805,11 @@ test('normal author registration replaces future pilot definitions without redir
       events.push('new dispose')
     },
   })
+
   f.props.applyProps(old, { text: 'Still old' })
+
   const next = f.make('button', { text: 'New' }, 2)
+
   assert.equal(old.view!.title, 'Still old')
   assert.equal(next.view!.title, 'New')
   f.nodes.destroy(old)
@@ -740,6 +822,7 @@ test('normal author registration replaces future pilot definitions without redir
 test('registration replacement inside a live native action cannot redirect reentrant disposal', () => {
   const f = fixture(),
     events: string[] = []
+
   f.assembly.registerElementType('button', {
     container: false,
     hasView: true,
@@ -747,6 +830,7 @@ test('registration replacement inside a live native action cannot redirect reent
       events.push('acquired')
     },
   })
+
   const node = f.make('button', {
     onPress() {
       f.assembly.registerElementType('button', {
@@ -756,14 +840,18 @@ test('registration replacement inside a live native action cannot redirect reent
           events.push('replacement')
         },
       })
+
       f.nodes.destroy(node)
     },
   })
+
   f.actions.invokeAction(node.actionId)
   f.actions.invokeAction(node.actionId)
   assert.deepEqual(events, ['acquired'])
   assert.equal(f.store.idForView(node.view!), undefined)
+
   const future = f.make('button', {}, 2)
+
   f.nodes.destroy(future)
   assert.deepEqual(events, ['acquired', 'replacement'])
 })
@@ -784,6 +872,7 @@ test('canonical switch and slider clear handlers and values without replacing th
     })
 
     const id = node.view!.tag
+
     f.props.applyProps(node, f.props.droppedPropClears(node, {}))
     assert.equal(node.view!.tag, id)
     assert.equal(f.store.hasHandler(node.view!), false)
@@ -797,12 +886,15 @@ test('canonical switch and slider clear handlers and values without replacing th
 test('canonical progress reads the full bag and spinner retirement stops animation after prop removal', () => {
   const f = fixture()
   const progress = f.make('progress', { value: 30, maxValue: 40 })
+
   f.props.applyProps(progress, { maxValue: 20 })
   assert.equal(progress.view!.doubleValue, 20)
   f.props.applyProps(progress, f.props.droppedPropClears(progress, {}))
   assert.equal(progress.view!.doubleValue, 0)
   assert.equal(progress.view!.maxValue, 100)
+
   const spinner = f.make('activityindicator', { busy: true }, 2)
+
   assert.equal(spinner.view!.running, true)
   f.props.applyProps(spinner, f.props.droppedPropClears(spinner, {}))
   assert.equal(spinner.view!.running, false)
@@ -815,6 +907,7 @@ test('canonical progress reads the full bag and spinner retirement stops animati
 test('acquired textview retires sizing before hooks and releases its action after native detach', () => {
   const f = fixture()
   const node = f.make('textview')
+
   assert.equal(node.view!.delegate != null, true)
   node.textLayoutDetach = () => f.trace.push('text sizing retired')
   node.destroyHooks = [
@@ -825,6 +918,7 @@ test('acquired textview retires sizing before hooks and releases its action afte
       f.trace.push('text hook')
     },
   ]
+
   f.nodes.destroy(node)
   assert.ok(f.trace.indexOf('text sizing retired') < f.trace.indexOf('text hook'))
   assert.ok(f.trace.indexOf('text hook') < f.trace.indexOf('detach 1'))
@@ -835,12 +929,15 @@ test('acquired textview retires sizing before hooks and releases its action afte
 test('partial textview construction unwinds delegate and action ownership after a common prop failure', () => {
   const f = fixture(),
     failure = Error('failed text props')
+
   f.failures.set('common id', failure)
   assert.throws(
     () => f.make('textview', { id: 'text' }),
     (error) => error === failure,
   )
+
   const view = f.views.at(-1)
+
   assert.equal(view.delegate, null)
   assert.equal(f.store.idForView(view), undefined)
 })
@@ -848,6 +945,7 @@ test('partial textview construction unwinds delegate and action ownership after 
 test('acquired listpicker synchronizes the complete bag, preserves native selection and retires held action dispatch', () => {
   const f = fixture(),
     events: number[] = []
+
   const node = f.make('listpicker', {
     items: ['a', 'a', 'c'],
     selectedIndex: 2,
@@ -855,15 +953,19 @@ test('acquired listpicker synchronizes the complete bag, preserves native select
       events.push(event.value)
     },
   })
+
   const view = node.view!,
     id = view.tag
+
   assert.equal(view.menu.items.length, 3)
   assert.equal(view.indexOfSelectedItem, 2)
   f.props.applyProps(node, { items: ['x', 'y'], selectedIndex: 1 })
   assert.equal(view.indexOfSelectedItem, 1)
   f.props.applyProps(node, f.props.droppedPropClears(node, {}))
   assert.equal(view.menu.items.length, 0)
+
   const count = events.length
+
   f.nodes.destroy(node)
   f.store.dispatch(id)
   assert.equal(events.length, count)
@@ -876,15 +978,21 @@ test('root adapter retires geometry identity before failing observer release and
   const node = f.make('rootlayout')
   const child = f.make('button', {}, 2)
   const sibling = f.make('button', {}, 3)
+
   node.children.push(child, sibling)
+
   const held = f.held[0]
+
   f.trace.length = 0
+
   const failure = Error('root observer release')
+
   f.failures.set('unobserve', failure)
   assert.throws(
     () => f.nodes.destroy(node),
     (error) => error === failure,
   )
+
   assert.equal(f.containers.rootLayoutNodesByView.has(node.view!), false)
   assert.equal(node.rootGeometryObserver, null)
   assert.ok(f.trace.indexOf('detach 2') < f.trace.indexOf('detach 1'))
@@ -898,11 +1006,13 @@ test('root adapter retires geometry identity before failing observer release and
 test('root partial acquisition releases its host identity when geometry observation fails', () => {
   const f = fixture()
   const failure = Error('root observation')
+
   f.failures.set('observe', failure)
   assert.throws(
     () => f.make('rootlayout'),
     (error) => error === failure,
   )
+
   assert.equal(f.container.nodes.size, 0)
   assert.ok(f.trace.includes('detach 1'))
 })
@@ -910,6 +1020,7 @@ test('root partial acquisition releases its host identity when geometry observat
 test('the assembled builtin and registered-engine inventory has one canonical definition per supported type', () => {
   const f = fixture()
   const noop = () => {}
+
   installMasonElement({
     registerElementType: f.assembly.registerElementType,
     baseView: NSView,
@@ -925,6 +1036,7 @@ test('the assembled builtin and registered-engine inventory has one canonical de
     makeScrollView: f.deps.controls.makeScrollView,
     disposeActions: f.actions.disposeActions,
   })
+
   const expected = [
     'rootlayout',
     'contentview',
@@ -961,19 +1073,23 @@ test('the assembled builtin and registered-engine inventory has one canonical de
     'span',
     'formattedstring',
   ].sort()
+
   const entries = f.registry.adapters.entries()
+
   assert.deepEqual(entries.map(([type]) => type).sort(), expected)
   for (const [type, adapter] of entries) {
     assert.equal(typeof adapter.container, 'boolean', type)
     assert.equal(typeof adapter.hasView, 'boolean', type)
     assert.equal(typeof adapter.create, 'function', type)
   }
+
   assert.equal(f.registry.adapters.lookup('scrollview')!.containerStyles, true)
   assert.equal(f.registry.adapters.lookup('liquidglass')!.containerStyles, true)
 })
 
 test('batch preflight preserves an acquired live parent capability after registration replacement', () => {
   const f = fixture()
+
   f.assembly.registerElementType('extension-host', {
     container: true,
     hasView: true,
@@ -981,8 +1097,10 @@ test('batch preflight preserves an acquired live parent capability after registr
       node.view = new NSView()
     },
   })
+
   const parent = f.make('extension-host', {}, 10)
   const child = f.make('button', {}, 11)
+
   f.assembly.registerElementType('extension-host', {
     container: false,
     hasView: true,
@@ -990,6 +1108,7 @@ test('batch preflight preserves an acquired live parent capability after registr
       node.view = new NSView()
     },
   })
+
   const driver = createDriver({
     ...f.deps,
     registry: f.registry,
@@ -997,11 +1116,13 @@ test('batch preflight preserves an acquired live parent capability after registr
     tree: { ...f.deps.tree, validateTextNesting() {} },
     projection: { validateProxyTree() {} },
   })
+
   assert.doesNotThrow(() =>
     driver.macOSDriver.prepareBatch(f.container, {
       commands: [{ op: 'insert', id: child.id, parent: parent.id, before: null }],
     }),
   )
+
   assert.equal(parent.adapter!.container, true)
   assert.equal(f.registry.canContainView('extension-host'), false)
 })
@@ -1009,6 +1130,7 @@ test('batch preflight preserves an acquired live parent capability after registr
 test('registered Mason layout leaves builtin scroll handler removals to the acquired scroll definition', () => {
   const f = fixture()
   const noop = () => {}
+
   installMasonElement({
     registerElementType: f.assembly.registerElementType,
     baseView: NSView,
@@ -1024,6 +1146,7 @@ test('registered Mason layout leaves builtin scroll handler removals to the acqu
     makeScrollView: f.deps.controls.makeScrollView,
     disposeActions: f.actions.disposeActions,
   })
+
   let calls = 0
   const clip = { postsBoundsChangedNotifications: false }
   const adapter = f.registry.adapters.lookup('scrollview')!
@@ -1042,9 +1165,12 @@ test('registered Mason layout leaves builtin scroll handler removals to the acqu
     parent: null,
     container: f.container,
   }
+
   adapter.applyProp!(node, 'onScroll', node.props.onScroll)
   assert.equal(typeof f.deps.controls.scrollHandlers.get(clip), 'function')
+
   const held = f.held.at(-1)!
+
   node.props.onScroll = undefined
   adapter.applyProp!(node, 'onScroll', undefined)
   assert.equal(f.deps.controls.scrollHandlers.get(clip), undefined)
@@ -1058,6 +1184,7 @@ test('public logical records retain their instance contract while raw text stays
   const f = fixture()
   const driver = createDriver(f.deps).macOSDriver
   const raw = f.make('#text', { value: 'Text' }, 80)
+
   assert.equal(driver.getPublicInstance(f.container, raw.id), null)
   for (const [index, type] of [
     'span',
@@ -1066,6 +1193,7 @@ test('public logical records retain their instance contract while raw text stays
     'segmentedbaritem',
   ].entries()) {
     const record = f.make(type, {}, 81 + index)
+
     assert.equal(driver.getPublicInstance(f.container, record.id), record, type)
   }
 })

@@ -60,9 +60,11 @@ const cacheScope = JSON.stringify([
 const now = Date.now()
 const maxAge = 24 * 60 * 60 * 1000
 let checked = {}
+
 if (cacheFile) {
   try {
     const cache = JSON.parse(await readFile(cacheFile, 'utf8'))
+
     if (cache.version === 1 && cache.scope === cacheScope) {
       checked = Object.fromEntries(
         Object.entries(cache.checked).filter(
@@ -79,6 +81,7 @@ const pending = selected.filter(({ name }) => {
   if (!Object.hasOwn(checked, name)) {
     return true
   }
+
   console.log(`ok: ${name} has a trusted publisher (cached)`)
   return false
 })
@@ -88,7 +91,9 @@ if (!pending.length) {
 }
 
 const url = new URL(requestUrl)
+
 url.searchParams.set('audience', `npm:${new URL(registry).hostname}`)
+
 const idRes = await fetch(url, {
   headers: { Accept: 'application/json', Authorization: `Bearer ${requestToken}` },
 })
@@ -99,12 +104,14 @@ if (!idRes.ok) {
 }
 
 const { value: idToken } = await idRes.json()
+
 if (!idToken) {
   console.error('check-trusted-publishers: GitHub OIDC response had no token')
   process.exit(1)
 }
 
 const failures = []
+
 for (const { name } of pending) {
   const res = await fetch(
     `${registry}/-/npm/v1/oidc/token/exchange/package/${encodeURIComponent(name)}`,
@@ -118,6 +125,7 @@ for (const { name } of pending) {
   }
 
   let detail = `HTTP ${res.status}`
+
   try {
     detail += ` — ${(await res.json()).message ?? 'unknown error'}`
   } catch {}

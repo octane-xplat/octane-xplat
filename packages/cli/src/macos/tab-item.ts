@@ -33,6 +33,7 @@ export function tabItemContentRoots() {
         }
 
         let name = '__Xplat' + names[tag]
+
         while (source.includes(name)) {
           name += '_'
         }
@@ -48,8 +49,10 @@ export function tabItemContentRoots() {
 
         if (node.type === 'JSXElement' && node.openingElement.name.type === 'JSXIdentifier') {
           const tag = node.openingElement.name.name
+
           if (tag in names) {
             const name = binding(tag)
+
             edits.push([node.openingElement.name.start, node.openingElement.name.end, name])
             if (node.closingElement) {
               edits.push([node.closingElement.name.start, node.closingElement.name.end, name])
@@ -78,6 +81,7 @@ export function tabItemContentRoots() {
       }
 
       let code = source
+
       for (const [start, end, replacement] of edits.sort((a, b) => b[0] - a[0])) {
         code = code.slice(0, start) + replacement + code.slice(end)
       }

@@ -10,6 +10,7 @@ const { values } = parseArgs({
 })
 
 const { target, device } = values
+
 assert.ok(
   ['ios', 'android'].includes(target) && device,
   'Use --target ios|android --device DEVICE_ID; boot and reserve that device first',
@@ -17,7 +18,9 @@ assert.ok(
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const output = join(root, 'research/keyboard-os-input', `${target}-${Date.now()}.json`)
+
 mkdirSync(dirname(output), { recursive: true })
+
 const actions = [],
   children = new Set()
 
@@ -25,10 +28,14 @@ const env = { ...process.env, AI_AGENT: 'Codex/keyboard-qualification' }
 const run = (command, args, timeout = 60000) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, { env, cwd: root })
+
     children.add(child)
+
     let stdout = '',
       stderr = ''
+
     const timer = setTimeout(() => child.kill('SIGTERM'), timeout)
+
     child.stdout.on('data', (data) => (stdout += data))
     child.stderr.on('data', (data) => (stderr += data))
     child.on('error', reject)
@@ -66,6 +73,7 @@ const probe = spawn(
 )
 
 children.add(probe)
+
 let ready = false,
   ended = false
 
@@ -94,6 +102,7 @@ const completion = new Promise((resolve, reject) => {
 
 try {
   const startup = Date.now() + 600000
+
   while (!ready && !ended && Date.now() < startup) {
     await pause()
   }
@@ -115,11 +124,13 @@ try {
         ])
 
       await idb(['wait', identifier, '--match-key', 'AXUniqueId', '--timeout', '45', '--json'])
+
       const { elements: item } = JSON.parse(
         await idb(['describe', identifier, '--match-key', 'AXUniqueId', '--json']),
       )
 
       const frame = item.frame
+
       assert.ok(frame.height >= 40 && frame.width > 0)
       await idb([
         'tap',
@@ -134,8 +145,10 @@ try {
       const adb = (args) => run('adb', ['-s', device, ...args], 15000)
       const deadline = Date.now() + 90000
       let bounds
+
       while (!bounds && Date.now() < deadline && !ended) {
         await adb(['shell', 'uiautomator', 'dump', '/sdcard/window-keyboard-qualification.xml'])
+
         const xml = await adb(['shell', 'cat', '/sdcard/window-keyboard-qualification.xml'])
         const node = [...xml.matchAll(/<node\b[^>]*>/g)]
           .map((match) => match[0])
@@ -152,7 +165,9 @@ try {
       }
 
       assert.ok(bounds, `Accessible field must appear: ${identifier}`)
+
       const [x1, y1, x2, y2] = bounds
+
       assert.ok(y2 - y1 >= 40 && x2 > x1)
       await adb([
         'shell',

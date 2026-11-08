@@ -47,6 +47,7 @@ import {
 const CREATABLE_ID_PREFIX = '__xds_create__'
 const nativeValue = (view: unknown, key: string) => {
   const value = view && Reflect.get(view, key)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
@@ -60,6 +61,7 @@ type TokenizerKeyEvent = TypeaheadKeyEvent & {
 
 function EndLane(props: { lane: BusyIndicatorLane; endContent?: any; clear?: any }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.endContent == null && props.clear == null) {
     return null
   }
@@ -89,6 +91,7 @@ function TokenizerToken(props: {
   // never remove a newer row's registration for the same selected key.
   const bind = useMemo(() => {
     let release: (() => void) | undefined
+
     return (view: NSView | null) => {
       release?.()
       release = undefined
@@ -113,7 +116,9 @@ function TokenizerToken(props: {
 export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>): unknown @{
   const props = useFieldControlProps(inProps)
   const live = useRef(props)
+
   live.current = props
+
   const writing = useRef(false),
     lastQuery = useRef('')
 
@@ -228,9 +233,11 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     const responder = nativeValue(nativeValue(root, 'window'), 'firstResponder')
+
     // AppKit's shared field editor delegates to the owning text field.
     for (const start of [responder, nativeValue(responder, 'delegate')]) {
       const seen = new Set<object>()
+
       for (let view = start; view && !seen.has(view); view = nativeValue(view, 'superview')) {
         if (view === root) {
           return true
@@ -257,6 +264,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     () => ({
       focus() {
         const current = live.current
+
         if (!wrapperRef.current || (current.isDisabled && !current.disabledMessage)) {
           return
         }
@@ -308,6 +316,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
 
   const createEntries = (query: string, results: T[]): T[] => {
     const trimmed = query.trim()
+
     if (!props.hasCreate || trimmed === '') {
       return []
     }
@@ -379,6 +388,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     const current = live.current
+
     if (current.maxEntries != null && current.value.length >= current.maxEntries) {
       return
     }
@@ -389,11 +399,13 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
       }
 
       const text = item.id.slice(CREATABLE_ID_PREFIX.length)
+
       if (current.value.some((value) => value.id === text)) {
         return
       }
 
       const created = { id: text, label: text } as T
+
       emit([...current.value, created], { item: created, type: 'create' })
       return
     }
@@ -426,6 +438,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     const current = live.current
+
     if (current.value.length) {
       emit([], { item: current.value[current.value.length - 1], type: 'remove' }, true)
     }
@@ -442,6 +455,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
 
   const handleKeyDown = (event: TokenizerKeyEvent) => {
     const view = inputHandle.current?.native
+
     if (
       !view ||
       !canChange() ||
@@ -465,6 +479,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     const items = live.current.value
+
     if (!items.length) {
       return
     }
@@ -481,6 +496,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     cancelBlur()
+
     const owner = wrapperRef.current,
       version = blurVersion.current
 
@@ -532,6 +548,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
       held = reclaimedCounter.current
 
     const views = props.value.map((item) => tokenEls.current.get(item.id) ?? null)
+
     // After removing the counter, wait for its space to reach the viewport.
     // Stale native layout notifications must not reserve the counter again.
     if (
@@ -548,6 +565,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
     }
 
     reclaimedCounter.current = null
+
     const hidden =
       !collapsed || !props.value.length
         ? 0
@@ -690,6 +708,7 @@ export function Tokenizer<T extends SearchableItem>(inProps: TokenizerProps<T>):
   ) : null
 
   let content: any
+
   if (isLayerMode) {
     // The collapsed row anchors the popover; the full field lives inside it.
     content = (

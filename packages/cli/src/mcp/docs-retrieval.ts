@@ -24,6 +24,7 @@ const PLATFORMS = ['web', 'ios', 'android', 'macos', 'linux', 'windows']
 
 function* walk(dir) {
   let entries
+
   try {
     entries = readdirSync(dir)
   } catch {
@@ -37,6 +38,7 @@ function* walk(dir) {
 
     const path = join(dir, name)
     const stat = statSync(path, { throwIfNoEntry: false })
+
     if (!stat) {
       continue
     }
@@ -51,20 +53,24 @@ function* walk(dir) {
 
 function titleOf(content, path) {
   const heading = content.match(/^#\s+(.+)$/m)
+
   return heading ? heading[1].trim() : basename(path, '.md')
 }
 
 /** First `# heading`-level doc inventory of a snapshot root. */
 export function listDocs(rootDir) {
   const docs = []
+
   for (const { root, corpus } of CORPORA) {
     const dir = join(rootDir, root)
+
     if (!existsSync(dir)) {
       continue
     }
 
     for (const file of walk(dir)) {
       const rel = relative(rootDir, file).split(sep).join('/')
+
       if (corpus === 'guide' && rel.startsWith('docs/notes/')) {
         continue
       }
@@ -72,17 +78,22 @@ export function listDocs(rootDir) {
       docs.push({ path: rel, corpus, root: dir, file })
     }
   }
+
   for (const path of ['CHANGELOG.md', 'FIXLOG.md', 'packages/tsrx-typegen/CHANGELOG.md']) {
     const file = join(rootDir, path)
+
     if (existsSync(file)) {
       docs.push({ path, corpus: 'changelog', root: rootDir, file })
     }
   }
+
   const packages = join(rootDir, 'packages')
+
   if (existsSync(packages)) {
     for (const name of readdirSync(packages)) {
       const path = `packages/${name}/README.md`
       const file = join(rootDir, path)
+
       if (existsSync(file)) {
         docs.push({ path, corpus: 'readme', root: rootDir, file })
       }
@@ -94,6 +105,7 @@ export function listDocs(rootDir) {
 
 export function platformsOf(path, content) {
   const hay = `${path}\n${content.slice(0, 2000)}`.toLowerCase()
+
   return PLATFORMS.filter((p) => new RegExp(`\\b${p}\\b`).test(hay))
 }
 
@@ -103,6 +115,7 @@ function excerpt(content, needle) {
   const start = Math.max(0, content.lastIndexOf('\n\n', at))
   const end = Math.min(content.length, at + 480)
   const line = content.slice(0, at).split('\n').length
+
   return { excerpt: content.slice(start, end).trim(), line }
 }
 
@@ -114,9 +127,11 @@ export function searchDocs(rootDir, { query, corpus, platform, limit = 10, packa
   const needle = query.trim().toLowerCase()
   const tokens = needle.split(/\s+/).filter(Boolean)
   const scored = []
+
   for (const doc of listDocs(rootDir)) {
     if (doc.corpus === 'changelog' && packageDir) {
       const separateTrack = packageDir === 'packages/tsrx-typegen'
+
       if (separateTrack !== (doc.path === 'packages/tsrx-typegen/CHANGELOG.md')) {
         continue
       }
@@ -131,6 +146,7 @@ export function searchDocs(rootDir, { query, corpus, platform, limit = 10, packa
     }
 
     const content = readFileSync(doc.file, 'utf8')
+
     if (doc.corpus === 'changelog') {
       for (const chunk of chunkMarkdown({ path: doc.path, corpus: doc.corpus, content })) {
         if (platform && !platformsOf(doc.path, chunk.content).includes(platform)) {
@@ -139,6 +155,7 @@ export function searchDocs(rootDir, { query, corpus, platform, limit = 10, packa
 
         const hay = `${chunk.heading}\n${chunk.content}`.toLowerCase()
         const hits = tokens.filter((token) => hay.includes(token)).length
+
         if (hits) {
           scored.push({
             doc,
@@ -153,16 +170,19 @@ export function searchDocs(rootDir, { query, corpus, platform, limit = 10, packa
     }
 
     const hay = `${doc.path}\n${titleOf(content, doc.path)}\n${content}`.toLowerCase()
+
     if (platform && !platformsOf(doc.path, content).includes(platform)) {
       continue
     }
 
     let score = 0
+
     if (hay.includes(needle)) {
       score += 100
     }
 
     const hits = tokens.filter((t) => hay.includes(t)).length
+
     if (hits === 0) {
       continue
     }
@@ -204,6 +224,7 @@ export function readPage(rootDir, relPath, { offset = 0, limit = 24_000 } = {}) 
   }
 
   const file = join(rootDir, relPath)
+
   if (!existsSync(file)) {
     return null
   }
@@ -211,6 +232,7 @@ export function readPage(rootDir, relPath, { offset = 0, limit = 24_000 } = {}) 
   const content = readFileSync(file, 'utf8')
   const doc = listDocs(rootDir).find((d) => d.path === relPath)
   const slice = content.slice(offset, offset + limit)
+
   return {
     path: relPath,
     corpus: doc?.corpus ?? 'guide',
@@ -230,5 +252,6 @@ export function docRef(packageName, version, path) {
 
 export function parseDocRef(ref) {
   const m = /^xplat-doc:\/\/(.+)@([^/]+)\/(.+)$/.exec(ref)
+
   return m ? { package: m[1], version: m[2], path: m[3] } : null
 }

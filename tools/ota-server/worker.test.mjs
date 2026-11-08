@@ -16,6 +16,7 @@ const POINTER = {
 
 function bucketWith(objects) {
   const map = new Map(Object.entries(objects))
+
   return {
     async get(key) {
       if (!map.has(key)) {
@@ -24,6 +25,7 @@ function bucketWith(objects) {
 
       const data = map.get(key)
       const bytes = typeof data === 'string' ? new TextEncoder().encode(data) : data
+
       return {
         body: new Response(bytes).body,
         size: bytes.byteLength,
@@ -49,6 +51,7 @@ function get(path, env_ = env) {
 describe('GET /healthz', () => {
   it('returns ok', async () => {
     const res = await get('/healthz')
+
     assert.equal(res.status, 200)
     assert.equal(await res.text(), 'ok')
   })
@@ -57,30 +60,37 @@ describe('GET /healthz', () => {
 describe('GET /manifest', () => {
   it('rejects a missing platform', async () => {
     const res = await get('/manifest')
+
     assert.equal(res.status, 400)
     assert.equal((await res.json()).error, 'bad-request')
   })
 
   it('rejects an invalid channel name', async () => {
     const res = await get('/manifest?platform=ios&channel=../x')
+
     assert.equal(res.status, 400)
   })
 
   it('rejects a malformed native fingerprint', async () => {
     const res = await get('/manifest?platform=ios&nativeFingerprint=1.2')
+
     assert.equal(res.status, 400)
   })
 
   it('returns no-release when the channel pointer is absent', async () => {
     const res = await get(`/manifest?platform=android&nativeFingerprint=${SHA_B}`)
+
     assert.equal(res.status, 404)
     assert.equal((await res.json()).error, 'no-release')
   })
 
   it('returns the manifest with a computed bundle url', async () => {
     const res = await get(`/manifest?platform=ios&nativeFingerprint=${SHA_B}`)
+
     assert.equal(res.status, 200)
+
     const body = await res.json()
+
     assert.equal(body.updateAvailable, true)
     assert.equal(body.version, '1.4.2')
     assert.equal(body.sha256, SHA_A)
@@ -92,6 +102,7 @@ describe('GET /manifest', () => {
   it('reports up-to-date when currentVersion matches', async () => {
     const res = await get(`/manifest?platform=ios&currentVersion=1.4.2&nativeFingerprint=${SHA_B}`)
     const body = await res.json()
+
     assert.equal(body.updateAvailable, false)
     assert.equal(body.reason, 'up-to-date')
   })
@@ -107,17 +118,20 @@ describe('GET /manifest', () => {
         [`channels/stable/ios/${SHA_B}.json`]: JSON.stringify(POINTER),
       }),
     }
+
     assert.equal(
       (await (await get(`/manifest?platform=ios&nativeFingerprint=${SHA_A}`, cohorts)).json())
         .version,
       '1.3.0',
     )
+
     assert.equal(
       (await (await get(`/manifest?platform=ios&nativeFingerprint=${SHA_B}`, cohorts)).json())
         .version,
       '1.4.2',
     )
   })
+
   it('refuses a pointer with a different native fingerprint', async () => {
     const wrong = {
       BUNDLES: bucketWith({
@@ -127,13 +141,16 @@ describe('GET /manifest', () => {
         }),
       }),
     }
+
     const body = await (
       await get(`/manifest?platform=ios&nativeFingerprint=${SHA_B}`, wrong)
     ).json()
+
     assert.equal(body.updateAvailable, false)
     assert.equal(body.reason, 'native-incompatible')
     assert.equal(body.url, undefined)
   })
+
   it('requires generated native identity', async () => {
     assert.equal((await get('/manifest?platform=ios')).status, 400)
   })
@@ -151,6 +168,7 @@ describe('GET /manifest', () => {
       }
 
       const res = await get(`/manifest?platform=ios&nativeFingerprint=${SHA_B}`, bad)
+
       assert.equal(res.status, 502)
       assert.equal((await res.json()).error, 'bad-pointer')
     }
@@ -164,6 +182,7 @@ describe('GET /bundles/<sha256>', () => {
 
   it('streams the payload with immutable cache headers', async () => {
     const res = await get(`/bundles/${SHA_B}`, bundles)
+
     assert.equal(res.status, 200)
     assert.equal(res.headers.get('content-type'), 'application/zip')
     assert.equal(res.headers.get('etag'), `"${SHA_B}"`)

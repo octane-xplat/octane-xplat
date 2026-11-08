@@ -27,26 +27,36 @@ export const mediaExamples = [
 export async function verifyMedia(page, baseUrl, check, browser) {
   const goto = (name, query = '') =>
     page.goto(`${baseUrl}/templates/${name}/${query}`, { waitUntil: 'networkidle' })
+
   const stage = page.locator('.sb-preview-stage')
+
   for (const name of mediaExamples) {
     await goto(name)
+
     const content = await stage.locator('img, button, [role="button"], .vx-skeleton').count()
+
     check(
       `unit-8 route ${name} renders`,
       content > 0 && (await stage.locator('.sb-pending').count()) === 0,
       `${content} content nodes`,
     )
   }
+
   await goto('AspectRatioWidescreen')
+
   const ratio = page.locator('.vx-aspectratio').first()
   const before = await ratio.boundingBox()
+
   await page.setViewportSize({ width: 390, height: 844 })
+
   const after = await ratio.boundingBox()
+
   check(
     'unit-8 aspect-ratio survives viewport resize',
     before.width > 0 && after.width > 0 && Math.abs(after.width / after.height - 16 / 9) < 0.02,
     JSON.stringify({ before, after }),
   )
+
   await page.setViewportSize({ width: 1280, height: 900 })
 
   await goto('ThumbnailStates')
@@ -56,39 +66,49 @@ export async function verifyMedia(page, baseUrl, check, browser) {
       (await stage.locator('.vx-skeleton').count()) === 1 &&
       (await stage.locator('.vx-thumbnail-overlay').count()) === 1,
   )
+
   await goto('ThumbnailDisabled')
   check(
     'unit-8 disabled removal',
     (await stage.locator('button[aria-label="Remove"]:disabled').count()) === 2,
   )
+
   await goto('ThumbnailGallery')
+
   const first = stage.locator('[role="button"]').first()
+
   await first.click()
   check(
     'unit-8 thumbnail preview selection',
     (await stage.textContent()).includes('Selected: forest-night.jpg'),
   )
+
   const removes = stage.locator('button[aria-label="Remove"]')
+
   await removes.first().click()
   check(
     'unit-8 removal does not select the next thumbnail',
     (await removes.count()) === 3 &&
       !(await stage.textContent()).includes('Selected: misty-valley.jpg'),
   )
+
   await goto('ThumbnailRemovable')
   await page.waitForFunction(() =>
     [...document.querySelectorAll('.vx-thumbnail-remove')].some(
       (el) => el.getAttribute('data-xds-image-mode') === 'light',
     ),
   )
+
   check(
     'unit-8 image luminance chooses both surface modes',
     (await stage.locator('[data-xds-image-mode="light"]').count()) > 0 &&
       (await stage.locator('[data-xds-image-mode="dark"]').count()) > 0,
   )
+
   for (let i = 0; i < 4; i++) {
     await stage.locator('button[aria-label="Remove"]').first().click()
   }
+
   check('unit-8 removal reaches empty state', (await stage.textContent()).includes('All removed.'))
 
   // Verify the actual image error event. Intercept bytes rather than dispatching
@@ -96,17 +116,21 @@ export async function verifyMedia(page, baseUrl, check, browser) {
   await page.route('**/template-assets/light-scene-horizontal-1.png', (route) =>
     route.fulfill({ status: 200, contentType: 'image/png', body: 'invalid image bytes' }),
   )
+
   await goto('LightboxZoom')
   await page.waitForFunction(() => document.querySelector('.vx-thumbnail-placeholder'))
   check(
     'unit-8 browser image decode failure uses thumbnail placeholder',
     (await stage.locator('.vx-thumbnail-placeholder').count()) === 1,
   )
+
   await page.unroute('**/template-assets/light-scene-horizontal-1.png')
 
   await goto('useContainerRevealHookUsage', '?embed=1')
+
   const container = page.locator('.xds-reveal-container').first()
   const content = container.locator('.xds-reveal-content')
+
   await page.mouse.move(0, 0)
   assert.equal(await content.evaluate((el) => getComputedStyle(el).opacity), '0')
   await container.hover()
@@ -115,6 +139,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
     'unit-8 row hover reveals actions',
     (await content.evaluate((el) => getComputedStyle(el).opacity)) === '1',
   )
+
   await page.mouse.move(0, 0)
   // Focus is obtained through browser keyboard input, not element.focus().
   await page.keyboard.press('Tab')
@@ -127,6 +152,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
 
     await page.keyboard.press('Tab')
   }
+
   await page.waitForTimeout(150)
   check(
     'unit-8 keyboard focus reveals mounted actions',
@@ -137,7 +163,9 @@ export async function verifyMedia(page, baseUrl, check, browser) {
   for (const theme of ['neutral', 'matcha', 'stone', 'gothic', 'chocolate', 'y2k']) {
     for (const mode of ['light', 'dark']) {
       await goto('MediaThemeImageOverlay', `?embed=1&theme=${theme}&mode=${mode}`)
+
       const scope = page.locator('.sb-media-bottom [data-xds-theme]').first()
+
       check(
         `unit-8 dark media scope ${theme}/${mode}`,
         (await scope.evaluate((el) => getComputedStyle(el).colorScheme)) === 'dark' &&
@@ -166,11 +194,13 @@ export async function verifyMedia(page, baseUrl, check, browser) {
     .filter({ hasText: 'Matcha' })
     .first()
     .click()
+
   await page.waitForTimeout(150)
   check(
     'unit-8 live root theme change reaches media controls',
     (await stage.locator('[data-xds-theme="matcha"]').count()) === 1,
   )
+
   await page.locator('[aria-label="Light mode"], [aria-label="Dark mode"]').first().click()
   check(
     'unit-8 live root mode change preserves dark media context',
@@ -183,7 +213,9 @@ export async function verifyMedia(page, baseUrl, check, browser) {
   for (const name of ['LightboxShowcase', 'LightboxVideo', 'LightboxZoom', 'LightboxGallery']) {
     await goto(name)
     await stage.locator('button, [role="button"]').first().click()
+
     const dialog = page.locator('.vx-lightbox-layer')
+
     await dialog.waitFor()
     await page.waitForFunction(() => document.activeElement?.closest('.vx-lightbox-stage'))
     check(`unit-8 ${name} opens`, await dialog.isVisible())
@@ -198,6 +230,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
 
     if (name === 'LightboxZoom') {
       const image = dialog.locator('img')
+
       await image.click()
       check(
         'unit-8 lightbox zoom',
@@ -228,6 +261,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
 
     if (name === 'LightboxVideo') {
       const video = dialog.locator('video')
+
       await video.evaluate(
         (el) =>
           new Promise((resolve, reject) => {
@@ -235,6 +269,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
               resolve()
               return
             }
+
             el.addEventListener('loadedmetadata', resolve, { once: true })
             el.addEventListener('error', reject, { once: true })
           }),
@@ -248,6 +283,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
       await video.press('Space')
       await page.waitForFunction(() => {
         const el = document.querySelector('.vx-lightbox-media')
+
         return el instanceof HTMLVideoElement && !el.paused && el.currentTime > 0
       })
 
@@ -285,36 +321,44 @@ export async function verifyMedia(page, baseUrl, check, browser) {
     new URL('../src/examples/media/ThumbnailShowcase.tsrx', import.meta.url),
     'utf8',
   )
+
   const fixturePng = Buffer.from(fixtureSource.match(/data:image\/png;base64,([^']+)/)[1], 'base64')
+
   await page.route('https://picsum.photos/**', (route) =>
     route.fulfill({ status: 200, contentType: 'image/png', body: fixturePng }),
   )
+
   await page.goto(`${baseUrl}/pages/media-mode/`, { waitUntil: 'networkidle' })
   check(
     'unit-8 media-mode page renders',
     (await page.textContent('body')).includes('Media Mode Comparison') &&
       (await page.locator('.sb-mode-swatch').count()) === 24,
   )
+
   await page.getByRole('button', { name: 'BT.709 Gamma', exact: true }).click()
   check(
     'unit-8 algorithm selection changes explanation',
     (await page.textContent('body')).includes('gamma-encoded sRGB'),
   )
+
   await page.getByRole('button', { name: 'WCAG 2', exact: true }).click()
   check(
     'unit-8 WCAG algorithm selection',
     (await page.textContent('body')).includes('threshold 0.18'),
   )
+
   await page.getByRole('button', { name: 'APCA', exact: true }).click()
   await page.waitForFunction(() =>
     [...document.querySelectorAll('.sb-mode-image-label + .sb-mode-value')].every((el) =>
       el.textContent.includes('light'),
     ),
   )
+
   check(
     'unit-8 remote image sampling settles',
     (await page.locator('.sb-mode-image-label + .sb-mode-value').count()) === 8,
   )
+
   await page.unroute('https://picsum.photos/**')
 
   // Same public useMediaQuery consumer already delivered in unit 4. A coarse
@@ -324,10 +368,13 @@ export async function verifyMedia(page, baseUrl, check, browser) {
     isMobile: true,
     viewport: { width: 390, height: 844 },
   })
+
   const mobile = await touch.newPage()
+
   await mobile.goto(`${baseUrl}/templates/useContainerRevealHookUsage/`, {
     waitUntil: 'networkidle',
   })
+
   check(
     'unit-8 touch keeps row actions visible',
     (await mobile
@@ -335,14 +382,17 @@ export async function verifyMedia(page, baseUrl, check, browser) {
       .first()
       .evaluate((el) => getComputedStyle(el).opacity)) === '1',
   )
+
   await mobile.goto(`${baseUrl}/templates/DialogAdaptivePresentation/`, {
     waitUntil: 'networkidle',
   })
+
   await mobile.getByRole('button', { name: 'Edit profile', exact: true }).click()
   check(
     'unit-8 compact coarse media query chooses sheet',
     (await mobile.locator('.vx-bottom-sheet').count()) > 0,
   )
+
   await mobile.getByRole('button', { name: 'Cancel', exact: true }).click()
   await mobile.setViewportSize({ width: 1300, height: 900 })
   await mobile.getByRole('button', { name: 'Edit profile', exact: true }).click()
@@ -351,5 +401,6 @@ export async function verifyMedia(page, baseUrl, check, browser) {
     (await mobile.locator('.vx-bottom-sheet').count()) === 0 &&
       (await mobile.getByRole('dialog').count()) > 0,
   )
+
   await touch.close()
 }

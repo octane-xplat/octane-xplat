@@ -5,6 +5,7 @@ export async function assertMacOSPush(push) {
   assert.equal(push.supported, false)
   assert.equal(push.configured, false)
   assert.equal(await push.getToken(), null)
+
   let events = 0
   const handler = () => events++
   const subscribe = () => [
@@ -32,6 +33,7 @@ export async function assertMacOSPush(push) {
   }
 
   const after = subscribe()
+
   await Promise.resolve()
   for (const unsubscribe of [...before, ...after]) {
     assert.equal(typeof unsubscribe, 'function')

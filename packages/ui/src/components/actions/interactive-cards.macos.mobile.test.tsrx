@@ -27,6 +27,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -36,7 +37,9 @@ function mount(component: any, props: any) {
 
 it('clickable cards open sanitized href before callbacks, expose link role and block disabled activation', () => {
   vi.mocked(openUrl).mockClear()
+
   const order: string[] = []
+
   vi.mocked(openUrl).mockImplementation((url) => {
     order.push(url)
     return true
@@ -55,6 +58,7 @@ it('clickable cards open sanitized href before callbacks, expose link role and b
 
   try {
     const host = env.host()
+
     expect(host.props.accessibilityRole).toBe('link')
     expect(host.props.accessibilityLabel).toBe('Open project')
     host.props.onTap()
@@ -102,6 +106,7 @@ it('card primitive text and supplied nested controls keep native hosts and prese
 
   try {
     const host = env.host()
+
     expect(String(host.props.className)).toContain('vx-card--outlined')
     expect(String(host.props.className)).toContain('vx-card--elev-med')
     expect(host.props.style).toMatchObject({ padding: 12, width: 280 })
@@ -129,6 +134,7 @@ it('selectable cards request controlled changes, retain checked hosts and forwar
 
   try {
     const host = env.host()
+
     expect(host.props.accessibilityRole).toBe('checkbox')
     expect(String(host.props.className)).toContain('vx-card--outlined')
     expect(String(host.props.className)).toContain('vx-card--elev-low')
@@ -163,7 +169,9 @@ it('SelectableCard owns disabled-focus claims and releases them on enablement/re
     ...previous,
     retainDisabledFocus(view: object) {
       active.set(view, (active.get(view) ?? 0) + 1)
+
       let live = true
+
       return () => {
         if (!live) {
           return
@@ -171,7 +179,9 @@ it('SelectableCard owns disabled-focus claims and releases them on enablement/re
 
         live = false
         released.push(view)
+
         const count = (active.get(view) ?? 1) - 1
+
         if (count) {
           active.set(view, count)
         } else {
@@ -192,6 +202,7 @@ it('SelectableCard owns disabled-focus claims and releases them on enablement/re
 
   try {
     const host = env.host()
+
     expect(active.get(host)).toBe(1)
     expect(host.props.onTap).toBeUndefined()
     expect(host.props.accessibilityState.disabled).toBe(true)

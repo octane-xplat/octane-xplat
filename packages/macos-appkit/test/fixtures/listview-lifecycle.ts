@@ -50,6 +50,7 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   }
 
   await phase(0)
+
   const first = listViewRef.current,
     table = first.documentView
 
@@ -86,9 +87,12 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   )
 
   const stringCell = cell(debug.findId('listview-string'), 0)
+
   await settle()
   check(texts(stringCell) === 'First5', 'ListView nested string template binding failed')
+
   const factoryCell = cell(debug.findId('listview-factory'), 0)
+
   await settle()
   check(
     texts(factoryCell) === 'Factory' && factoryHosts[0].bindingContext === 'bound0',
@@ -108,6 +112,7 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
 
   // Native action/delegate bridge evidence; this does not exercise OS input.
   const tapBefore = listViewEvents.filter((event) => event.eventName === 'itemTap').length
+
   check(
     listViewEvents.some((event) => event.eventName === 'loadMoreItems' && event.object === first),
     'ListView native load-more delegate payload failed',
@@ -116,7 +121,9 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   check(tapBefore === 0, 'ListView should not emit tap during mount')
   table.selectRowIndexesByExtendingSelection(NSIndexSet.indexSetWithIndex(0), false)
   NSApplication.sharedApplication.sendActionToFrom(table.action, table.target, table)
+
   const tap = listViewEvents.find((event) => event.eventName === 'itemTap')
+
   check(
     tap?.index === 0 && tap.object === first && tap.view === row0,
     'ListView native target/action itemTap payload failed',
@@ -168,6 +175,7 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   )
 
   const eventsBefore = listViewEvents.length
+
   table.delegate['tableView:didAddRowView:forRow:'](table, NSTableRowView.alloc().init(), -1)
   check(listViewEvents.length === eventsBefore, 'ListView removed handler remained active')
   await phase(3)
@@ -178,7 +186,9 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   )
 
   await phase(4)
+
   const moved = listViewRef.current
+
   check(
     moved !== first &&
       moved.superview === debug.findId('listview-right') &&
@@ -190,7 +200,9 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   )
 
   await phase(5)
+
   const replaced = listViewRef.current
+
   check(
     replaced !== moved &&
       replaced.superview === debug.findId('listview-left') &&
@@ -205,6 +217,7 @@ export async function checkListViewLifecycle(root: any, nativeWindow: any) {
   )
 
   await phase(7)
+
   const retained = listViewRef.current,
     retainedTable = retained.documentView
 

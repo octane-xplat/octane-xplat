@@ -22,29 +22,38 @@ export const backend: StripeBackend = {
   available,
   async initialize(options: InitStripeParams) {
     stripe = null
+
     const loaded = await loadStripe(options.publishableKey, {
       ...(options.stripeAccountId && { stripeAccount: options.stripeAccountId }),
     })
+
     if (!loaded) {
       throw new Error('Stripe.js could not load')
     }
+
     stripe = loaded
   },
   async prepare(options) {
     if (!stripe) {
       throw new Error('Initialize Stripe first')
     }
+
     const returnURL = options.returnURL ? new URL(options.returnURL) : null
+
     if (!returnURL || !['https:', 'http:'].includes(returnURL.protocol)) {
       throw new Error('Web checkout requires an HTTP(S) returnURL')
     }
+
     const result = await stripe.retrievePaymentIntent(options.paymentIntentClientSecret)
+
     if (result.error || !result.paymentIntent) {
       throw new Error('The PaymentIntent is unavailable')
     }
+
     if (result.paymentIntent.payment_method_types.some((type) => type !== 'card')) {
       throw new Error('This web checkout requires a card-only PaymentIntent')
     }
+
     if (
       !['requires_payment_method', 'requires_confirmation', 'requires_action'].includes(
         result.paymentIntent.status,
@@ -52,31 +61,43 @@ export const backend: StripeBackend = {
     ) {
       throw new Error('This PaymentIntent cannot start a new checkout')
     }
+
     prepared = options
   },
   async present() {
     const sdk = stripe,
       options = prepared
+
     if (!sdk || !options || !available()) {
       return failed()
     }
+
     return new Promise<PresentPaymentSheetResult>((resolve) => {
       const previousFocus = document.activeElement
       const dialog = document.createElement('dialog')
+
       dialog.className = 'xplat-stripe-dialog'
       dialog.setAttribute('aria-label', `Pay ${options.merchantDisplayName}`)
+
       const style = document.createElement('style')
+
       style.textContent =
         '.xplat-stripe-dialog{box-sizing:border-box;width:min(480px,calc(100vw - 32px));max-height:calc(100vh - 32px);overflow:auto;padding:24px;border:1px solid #ccc;border-radius:12px;background:#fff;color:#111;font:16px system-ui}.xplat-stripe-dialog::backdrop{background:rgb(0 0 0 / .45)}.xplat-stripe-dialog h2{margin:0 0 20px}.xplat-stripe-dialog footer{display:flex;gap:12px;margin-top:20px}.xplat-stripe-dialog button{font:inherit;padding:10px 16px}.xplat-stripe-dialog [role=status]{min-height:1em}'
+
       const title = document.createElement('h2')
+
       title.textContent = options.merchantDisplayName
+
       const form = document.createElement('form'),
         mount = document.createElement('div'),
         status = document.createElement('p'),
         footer = document.createElement('footer')
+
       status.setAttribute('role', 'status')
+
       const cancel = document.createElement('button'),
         submit = document.createElement('button')
+
       cancel.type = 'button'
       cancel.textContent = 'Cancel'
       submit.type = 'submit'
@@ -85,14 +106,17 @@ export const backend: StripeBackend = {
       footer.append(cancel, submit)
       form.append(mount, status, footer)
       dialog.append(title, form)
+
       let element: StripePaymentElement | undefined, elements: StripeElements | undefined
       let finished = false,
         confirming = false
+
       const events = new AbortController()
       const finish = (result: PresentPaymentSheetResult) => {
         if (finished) {
           return
         }
+
         finished = true
         events.abort()
         try {
@@ -111,11 +135,13 @@ export const backend: StripeBackend = {
           resolve(result)
         }
       }
+
       const canceled = () =>
         finish({
           error: { code: 'Canceled', message: 'The payment flow was canceled' },
           didCancel: true,
         })
+
       cancel.addEventListener(
         'click',
         () => {
@@ -125,6 +151,7 @@ export const backend: StripeBackend = {
         },
         { signal: events.signal },
       )
+
       dialog.addEventListener(
         'cancel',
         (event) => {
@@ -135,6 +162,7 @@ export const backend: StripeBackend = {
         },
         { signal: events.signal },
       )
+
       dialog.addEventListener(
         'close',
         () => {
@@ -144,6 +172,7 @@ export const backend: StripeBackend = {
         },
         { signal: events.signal },
       )
+
       form.addEventListener(
         'submit',
         (event) => {
@@ -151,14 +180,18 @@ export const backend: StripeBackend = {
           if (confirming || finished || !elements) {
             return
           }
+
           confirming = true
           cancel.disabled = true
           submit.disabled = true
           status.textContent = 'Processing payment…'
+
           const currentElements = elements
+
           void (async () => {
             try {
               const validation = await currentElements.submit()
+
               if (validation.error) {
                 status.textContent = validation.error.message ?? 'Check the payment form'
                 return
@@ -199,6 +232,7 @@ export const backend: StripeBackend = {
         },
         { signal: events.signal },
       )
+
       try {
         document.head.append(style)
         document.body.append(dialog)

@@ -6,11 +6,15 @@ import type { ProbeContext } from '../../../tools/probe/context'
 export async function run(ctx: ProbeContext) {
   const origin = fixtureOrigin(ctx.target)
   const result = await requestStream(`${origin}/stream`)
+
   ctx.assert('status', result.status, 200)
   if (typeof TextDecoder === 'function') {
     const values = decodeNdjson<{ text: string }>(result.body)[Symbol.asyncIterator]()
+
     ctx.assert('Rouzer decodes streamed Unicode record', (await values.next()).value?.text, 'é')
+
     const marker = await requestStream(`${origin}/state`)
+
     ctx.assert(
       'server still open after first record',
       ((await marker.json()) as Record<string, unknown>).finished === true,
@@ -20,8 +24,11 @@ export async function run(ctx: ProbeContext) {
     await values.return?.()
   } else {
     const reader = result.body.getReader()
+
     ctx.assert('first bytes before completion', (await reader.read()).done, false)
+
     const marker = await requestStream(`${origin}/state`)
+
     ctx.assert(
       'server still open after first bytes',
       ((await marker.json()) as Record<string, unknown>).finished === true,
@@ -35,26 +42,35 @@ export async function run(ctx: ProbeContext) {
       'unavailable: host has no global TextDecoder; raw stream and owned text/JSON codec tested',
     )
   }
+
   const uploaded = await requestStream(`${origin}/upload`, {
     method: 'PUT',
     headers: { 'content-type': 'application/octet-stream', 'x-fixture': 'synthetic' },
     body: new Uint8Array([0, 255, 1, 127]),
   })
+
   const bytes: { bytes?: number[]; header?: string } = await uploaded.json()
+
   ctx.assert('exact binary upload', JSON.stringify(bytes.bytes), '[0,255,1,127]')
   ctx.assert('request header', bytes.header, 'synthetic')
+
   const failure = await requestStream(`${origin}/failure`)
+
   ctx.assert('non-2xx status preserved', failure.status, 503)
   ctx.assert(
     'non-2xx remains readable',
     ((await failure.json()) as Record<string, unknown>).unavailable === true,
     true,
   )
+
   const controller = new AbortController()
   const pending = await requestStream(`${origin}/stream`, { signal: controller.signal })
   const reader = pending.body.getReader()
+
   controller.abort()
+
   let aborted = false
+
   try {
     await reader.read()
   } catch (cause) {
@@ -62,5 +78,6 @@ export async function run(ctx: ProbeContext) {
   } finally {
     reader.releaseLock()
   }
+
   ctx.assert('abort rejects body consumption', aborted, true)
 }

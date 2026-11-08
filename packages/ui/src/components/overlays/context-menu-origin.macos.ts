@@ -1,6 +1,8 @@
 import type { NSView } from '@octane-xplat/platform/macos'
+
 function flag(view: NSView, name: string, fallback = false): boolean {
   const value = Reflect.get(view, name)
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -18,9 +20,11 @@ function eligible(view: NSView): boolean {
   ) {
     return false
   }
+
   if (!flag(view, 'isAccessibilityEnabled', true) && !flag(view, 'canBecomeKeyView')) {
     return false
   }
+
   return true
 }
 
@@ -32,7 +36,9 @@ export function appKitContextPointerOrigin(
   if (!root?.window || !target || target.window !== root.window) {
     return null
   }
+
   const path: NSView[] = []
+
   for (let view: NSView | null = target; view; view = view.superview) {
     path.push(view)
     if (view === root) {
@@ -45,6 +51,7 @@ export function appKitContextPointerOrigin(
       )
     }
   }
+
   return null
 }
 
@@ -52,10 +59,12 @@ export function appKitContextMenuContains(root: NSView | null, target: NSView | 
   if (!root?.window || !target || target.window !== root.window) {
     return false
   }
+
   for (let view: NSView | null = target; view; view = view.superview) {
     if (view === root) {
       return true
     }
   }
+
   return false
 }

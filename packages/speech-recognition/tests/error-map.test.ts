@@ -21,6 +21,7 @@ describe('mapWebSpeechError', () => {
   for (const [error, code] of cases) {
     it(`maps '${error}' to '${code}'`, () => {
       const mapped = mapWebSpeechError(error)
+
       expect(mapped.code).toBe(code)
       expect(mapped.nativeCode).toBe(error)
       expect(mapped.name).toBe('SpeechRecognitionError')
@@ -51,6 +52,7 @@ describe('mapAndroidSpeechError', () => {
   for (const [error, code] of cases) {
     it(`maps ${error} to '${code}'`, () => {
       const mapped = mapAndroidSpeechError(error)
+
       expect(mapped.code).toBe(code)
       expect(mapped.nativeCode).toBe(error)
     })
@@ -71,6 +73,7 @@ describe('mapAppleSpeechError', () => {
   for (const [errorCode, code] of facadeCases) {
     it(`maps facade code ${errorCode} to '${code}'`, () => {
       const mapped = mapAppleSpeechError('XplatSpeechRecognizer', errorCode)
+
       expect(mapped.code).toBe(code)
       expect(mapped.nativeCode).toBe(`XplatSpeechRecognizer:${errorCode}`)
     })
@@ -91,6 +94,7 @@ describe('mapAppleSpeechError', () => {
   for (const [errorCode, code] of assistantCases) {
     it(`maps kAFAssistantErrorDomain ${errorCode} to '${code}'`, () => {
       const mapped = mapAppleSpeechError('kAFAssistantErrorDomain', errorCode)
+
       expect(mapped.code).toBe(code)
       expect(mapped.nativeCode).toBe(`kAFAssistantErrorDomain:${errorCode}`)
     })
@@ -98,6 +102,7 @@ describe('mapAppleSpeechError', () => {
 
   it('falls through unmapped domains to unknown', () => {
     const mapped = mapAppleSpeechError('SFSpeechErrorDomain', 1)
+
     expect(mapped.code).toBe('unknown')
     expect(mapped.nativeCode).toBe('SFSpeechErrorDomain:1')
   })

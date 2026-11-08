@@ -6,6 +6,7 @@ import { join, dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
+
 export const profile = {
   id: 'switch-light-96x64@1',
   width: 96,
@@ -40,11 +41,13 @@ export function validateCapture(capture, expected) {
   }
 
   const png = PNG.sync.read(Buffer.from(capture.pngBase64, 'base64'))
+
   if (png.width !== 96 || png.height !== 64) {
     throw new Error(`Invalid ${capture.target} capture: decoded dimensions`)
   }
 
   let varied = false
+
   for (let i = 0; i < png.data.length; i += 4) {
     if (png.data[i + 3] !== 255) {
       throw new Error(`Invalid ${capture.target} capture: nonopaque stage`)
@@ -69,8 +72,10 @@ export function comparePixels(reference, actual) {
 
   const diff = new PNG({ width: actual.width, height: actual.height })
   let differentPixels = 0
+
   for (let i = 0; i < actual.data.length; i += 4) {
     const different = !actual.data.subarray(i, i + 4).equals(reference.data.subarray(i, i + 4))
+
     if (different) {
       differentPixels++
     }
@@ -93,11 +98,13 @@ export function assertParity(captures, reference, expected) {
 
   return captures.map((capture) => {
     const actual = validateCapture(capture, expected)
+
     if (capture.displacement !== 0) {
       throw new Error(`Invalid ${capture.target} ordinary capture: displacement`)
     }
 
     const comparison = comparePixels(reference, actual)
+
     return {
       target: capture.target,
       status: comparison.differentPixels ? 'divergence' : 'pass',
@@ -113,6 +120,7 @@ export function runParity(directory, commonDirectory = join(root, 'vis/common/sw
   )
 
   const commonMeta = JSON.parse(readFileSync(join(commonDirectory, 'reference.json')))
+
   if (
     commonMeta.storyId !== storyId ||
     commonMeta.provenance !== 'real' ||
@@ -125,6 +133,7 @@ export function runParity(directory, commonDirectory = join(root, 'vis/common/sw
 
   const reference = PNG.sync.read(readFileSync(join(commonDirectory, 'reference.png')))
   const results = assertParity(captures, reference, manifest)
+
   for (const result of results) {
     writeFileSync(join(directory, `${result.target}-parity-diff.png`), PNG.sync.write(result.diff))
   }
@@ -148,6 +157,7 @@ export function runParity(directory, commonDirectory = join(root, 'vis/common/sw
 export function runSensitivity(directory, kind) {
   const manifest = JSON.parse(readFileSync(join(directory, 'manifest.json')))
   const target = kind === 'opaque-pixel' ? 'web' : kind.split('-')[0]
+
   if (!['opaque-pixel', 'web-displacement', 'ios-displacement'].includes(kind)) {
     throw new Error('Unknown diagnostic')
   }
@@ -155,6 +165,7 @@ export function runSensitivity(directory, kind) {
   const unchanged = JSON.parse(readFileSync(join(directory, `${target}-0.json`)))
   const reference = validateCapture(unchanged, manifest)
   let actual
+
   if (kind === 'opaque-pixel') {
     actual = PNG.sync.read(Buffer.from(unchanged.pngBase64, 'base64'))
     actual.data[0] ^= 1
@@ -171,7 +182,9 @@ export function runSensitivity(directory, kind) {
   }
 
   const { differentPixels, diff } = comparePixels(reference, actual)
+
   writeFileSync(join(directory, `${kind}-diff.png`), PNG.sync.write(diff))
+
   const report = {
     diagnostic: kind,
     target,
@@ -201,6 +214,7 @@ export function promoteCommon(
   const manifest = JSON.parse(readFileSync(join(directory, 'manifest.json')))
   const capture = JSON.parse(readFileSync(join(directory, 'web-0.json')))
   const source = sourceIdentity()
+
   validateCapture(
     capture,
     retained
@@ -221,8 +235,10 @@ export function promoteCommon(
   }
 
   const candidate = Buffer.from(capture.pngBase64, 'base64')
+
   if (retained) {
     let existing
+
     try {
       existing = readFileSync(join(commonDirectory, 'reference.png'))
     } catch {
@@ -238,7 +254,9 @@ export function promoteCommon(
 
   mkdirSync(commonDirectory, { recursive: true })
   writeFileSync(join(commonDirectory, 'reference.png'), candidate)
+
   const { pngBase64: _pngBase64, ...metadata } = capture
+
   writeFileSync(join(commonDirectory, 'reference.json'), JSON.stringify(metadata, null, 2) + '\n')
   console.log(
     'Explicit common-reference candidate generated; review and commit separately from target regression baselines',
@@ -260,6 +278,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       })
     } else {
       const diagnostic = process.argv.find((a) => a.startsWith('--diagnostic='))?.slice(13)
+
       process.exitCode = diagnostic ? runSensitivity(directory, diagnostic) : runParity(directory)
     }
   } catch (error) {

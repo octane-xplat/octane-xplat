@@ -4,8 +4,10 @@ import { View, Text, Pressable } from '@octane-xplat/ui'
 import { createPortal } from '../../../../ui/src/internal/platform/native-portal'
 
 const Context = createContext('missing')
+
 export const refs: Record<string, any> = {}
 export const lifetime = { mounts: 0, unmounts: 0 }
+
 const capture = (id: string) => (view: any) => {
   refs[id] = view
 }
@@ -13,6 +15,7 @@ const capture = (id: string) => (view: any) => {
 function Panel(props: { name: string }) @{
   const value = useContext(Context)
   const [count, setCount] = useState(0)
+
   useEffect(() => {
     lifetime.mounts++
     return () => {

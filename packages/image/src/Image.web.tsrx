@@ -16,6 +16,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  zero-based, dock has no CSS equivalent and is ignored. */
 function layoutChildStyle(props: ImageProps) {
   const style: Record<string, any> = {}
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {
@@ -82,6 +83,7 @@ function applyEscapeProps(element: any, props: ImageProps): void {
  *  low-res source URL is a fine placeholder on web). */
 function placeholderUrl(placeholder: string): string {
   const png = hashToPngBase64(placeholder)
+
   return png ? `data:image/png;base64,${png}` : placeholder
 }
 
@@ -102,6 +104,7 @@ export function Image(props: ImageProps): JSX.Element @{
 
   useLayoutEffect(() => {
     const img = imgRef.current
+
     // complete = the current src already resolved (cache/sync data URI) —
     // showing the placeholder would flash backwards.
     if (!img || !props.placeholder || img.complete) {
@@ -113,6 +116,7 @@ export function Image(props: ImageProps): JSX.Element @{
     // (document.createElement — `Image` here is this component, not the
     // global HTMLImageElement constructor)
     const warm = document.createElement('img')
+
     warm.src = final
     if (finalSrcSet) {
       warm.srcset = finalSrcSet

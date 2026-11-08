@@ -51,6 +51,7 @@ export function checkedLinkFixture() {
         path: '/from-data/:id',
         validateSearch: (raw: { page?: unknown }) => {
           const page = Number(raw.page ?? 1)
+
           if (!Number.isSafeInteger(page) || page < 1) {
             throw new Error('Invalid page')
           }

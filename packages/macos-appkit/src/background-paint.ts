@@ -71,7 +71,9 @@ export function createBackgroundPaint() {
     const sideStyles = borderStyleSides(style)
     const edge = (side: 'top' | 'right' | 'bottom' | 'left') =>
       hiddenBorderStyle(sideStyles[side]) ? 0 : borderLength(spec?.widths?.[side])
+
     const padding = parseEdgeInsets(style.padding ?? 0)
+
     return {
       border: {
         top: edge('top'),
@@ -92,17 +94,21 @@ export function createBackgroundPaint() {
     const failures = new FailureCollector()
     const paintedLayers: BgPainted[] = state.bgPainted ?? []
     const host = state.bgHost
+
     state.bgPainted = undefined
     state.bgHost = undefined
     state.bgSpec = undefined
     for (const painted of paintedLayers) {
       painted.active = false
     }
+
     for (const painted of paintedLayers) {
       const release = painted.release
+
       painted.release = undefined
       failures.run('background image', () => release?.())
     }
+
     failures.run('background host', () => host?.removeFromSuperlayer())
     failures.throwIfFailed()
   }
@@ -118,16 +124,21 @@ export function createBackgroundPaint() {
     const iw = Number(image?.size?.width ?? 0)
     const ih = Number(image?.size?.height ?? 0)
     const drawn = resolveImageSize(spec.size, iw, ih, clip)
+
     if (!(drawn.w > 0) || !(drawn.h > 0) || !(scale > 0)) {
       return null
     }
+
     const rects = tileRects(spec, drawn, clip)
+
     if (!rects.length) {
       return null
     }
+
     const w = Math.max(1, Math.round(clip.width * scale))
     const h = Math.max(1, Math.round(clip.height * scale))
     const out = NSImage.alloc().initWithSize({ width: w, height: h })
+
     out.lockFocusFlipped(true)
     try {
       for (const rect of rects) {
@@ -139,6 +150,7 @@ export function createBackgroundPaint() {
     } finally {
       out.unlockFocus()
     }
+
     return out.CGImageForProposedRectContextHints(null, null, null)
   }
 
@@ -156,6 +168,7 @@ export function createBackgroundPaint() {
       x: clip.width ? (x - clip.x) / clip.width : 0,
       y: clip.height ? ((flipped ? y : clip.y + clip.height - y) - clip.y) / clip.height : 0,
     })
+
     if (gradient.type === 'linear') {
       const radians = (gradient.angle * Math.PI) / 180
       const dx = Math.sin(radians)
@@ -165,10 +178,13 @@ export function createBackgroundPaint() {
       const y = origin.height ? (dy * length) / origin.height / 2 : 0
       const cx = origin.x + origin.width / 2
       const cy = origin.y + origin.height / 2
+
       child.type = (globalThis as any).kCAGradientLayerAxial ?? 'axial'
       child.startPoint = unit(cx - x * origin.width, cy - y * origin.height)
       child.endPoint = unit(cx + x * origin.width, cy + y * origin.height)
+
       var resolved = resolveStops(gradient.stops, length || 1, gradient.repeating)
+
       child.locations = resolved.map((s) => NSNumber.numberWithDouble(s.at))
     } else if (gradient.type === 'radial') {
       const cx = origin.x + origin.width * gradient.center.x.fraction + gradient.center.x.offset
@@ -178,12 +194,14 @@ export function createBackgroundPaint() {
 
       let rx = size(gradient.rx, origin.width)
       let ry = size(gradient.ry, origin.height)
+
       if (rx == null && ry == null) {
         const dxs = [Math.abs(cx - origin.x), Math.abs(origin.x + origin.width - cx)]
         const dys = [Math.abs(cy - origin.y), Math.abs(origin.y + origin.height - cy)]
         const near = gradient.size.startsWith('closest')
         const dx = near ? Math.min(...dxs) : Math.max(...dxs)
         const dy = near ? Math.min(...dys) : Math.max(...dys)
+
         if (gradient.size.endsWith('side')) {
           rx = dx
           ry = dy
@@ -208,7 +226,9 @@ export function createBackgroundPaint() {
       child.type = (globalThis as any).kCAGradientLayerRadial ?? 'radial'
       child.startPoint = unit(cx, cy)
       child.endPoint = unit(cx + rx, cy + ry)
+
       var resolved = resolveStops(gradient.stops, Math.max(rx, ry), gradient.repeating)
+
       child.locations = resolved.map((s) => NSNumber.numberWithDouble(s.at))
     } else {
       const cx = origin.x + origin.width * gradient.center.x.fraction + gradient.center.x.offset
@@ -216,28 +236,36 @@ export function createBackgroundPaint() {
       const radians = (gradient.angle * Math.PI) / 180
       const dx = Math.sin(radians) * origin.width
       const dy = -Math.cos(radians) * origin.height
+
       child.type = (globalThis as any).kCAGradientLayerConic ?? 'conic'
       child.startPoint = unit(cx, cy)
       child.endPoint = unit(cx + dx, cy + dy)
+
       var resolved = resolveStops(gradient.stops, 1, gradient.repeating)
+
       child.locations = resolved.map((s) => NSNumber.numberWithDouble(s.at))
     }
+
     child.colors = resolved.map((s) => nativeColor(s.color).CGColor)
   }
 
   function paintBackgrounds(node: ElementNode, state: BoxPaintState) {
     const view = node.view
     const painted = state.bgPainted
+
     if (!view || !painted?.length || !state.bgSpec) {
       return
     }
+
     const bounds = view.bounds
     const w = Number(bounds?.size?.width ?? 0)
     const h = Number(bounds?.size?.height ?? 0)
     const host = state.bgHost
+
     if (host) {
       host.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
     }
+
     const flipped = view.flipped === true
     const { border, padding } = backgroundEdges(node, state)
     const spec = state.borderSpec
@@ -246,15 +274,18 @@ export function createBackgroundPaint() {
       w,
       h,
     )
+
     // CSS paints layers first-on-top; children keep reverse order.
     painted.forEach((entry) => {
       const clip = positioningBox(entry.spec.clip, w, h, border, padding)
       const origin = positioningBox(entry.spec.origin, w, h, border, padding)
       const layer = entry.layer
+
       layer.frame = {
         origin: { x: clip.x, y: flipped ? clip.y : h - clip.y - clip.height },
         size: { width: clip.width, height: clip.height },
       }
+
       if (entry.spec.clip !== 'border-box' && clip.width > 0 && clip.height > 0) {
         const inset = Math.max(border.top, border.left, border.right, border.bottom)
         const inner = Object.fromEntries(
@@ -262,6 +293,7 @@ export function createBackgroundPaint() {
         )
 
         const mask = (entry.mask ??= CAShapeLayer.alloc().init())
+
         mask.frame = { origin: { x: 0, y: 0 }, size: { width: clip.width, height: clip.height } }
         mask.path = roundedBoxCGPath(clip.width, clip.height, inner as any)
         layer.mask = mask
@@ -269,11 +301,14 @@ export function createBackgroundPaint() {
         // The native setter accepts nil; its generated binding omits null.
         Object.assign(layer, { mask: null })
       }
+
       const image = entry.spec.image
+
       if (image.kind === 'gradient') {
         paintGradientLayer(layer, image.gradient, clip, origin, flipped)
       } else if (entry.image != null) {
         const scale = Number(view.window?.backingScaleFactor ?? 1) || 1
+
         if (
           entry.renderedW !== clip.width ||
           entry.renderedH !== clip.height ||
@@ -291,18 +326,22 @@ export function createBackgroundPaint() {
 
   function syncBackgrounds(node: ElementNode, state: BoxPaintState) {
     const view = node.view
+
     if (!view) {
       return
     }
+
     const warnings: string[] = []
     const spec = collectBackground(effectiveStyle(node), warnings)
     const warned = (state.bgWarnings ??= new Set<string>())
+
     for (const message of warnings) {
       if (!warned.has(message)) {
         warned.add(message)
         console.warn('[macos-css] unsupported background value: ' + message)
       }
     }
+
     if (spec?.color != null) {
       node.styleBg = String(spec.color)
       node.bgApplied = true
@@ -313,25 +352,32 @@ export function createBackgroundPaint() {
         console.warn('[macos-css] unsupported background color: ' + spec.color)
       }
     }
+
     const layers = spec?.layers ?? []
+
     if (!layers.length) {
       clearBackgrounds(node, state)
       return
     }
+
     state.bgSpec = spec
     view.wantsLayer = true
     if (!state.bgHost) {
       state.bgHost = CALayer.alloc().init()
     }
+
     const host = state.bgHost
     const parentLayer = view.layer
+
     if (host.superlayer !== parentLayer) {
       parentLayer.insertSublayerAtIndex(host, 0)
     }
+
     // Reconcile children against the spec — layer kind/order changes rebuild,
     // same-kind entries repaint.
     const previous = state.bgPainted ?? []
     const next: BgPainted[] = []
+
     layers.forEach((specLayer, index) => {
       let entry =
         previous[index] &&
@@ -341,6 +387,7 @@ export function createBackgroundPaint() {
             previous[index].spec.image.url === specLayer.image.url))
           ? previous[index]
           : undefined
+
       if (!entry) {
         const layer =
           specLayer.image.kind === 'gradient'
@@ -359,37 +406,47 @@ export function createBackgroundPaint() {
             ) {
               return
             }
+
             entry!.image = image
             entry!.renderedW = undefined
             paintBackgrounds(node, state)
           })
         }
       }
+
       if (JSON.stringify(entry.spec) !== JSON.stringify(specLayer)) {
         entry.renderedW = undefined
       }
+
       entry.spec = specLayer
       next.push(entry)
     })
+
     for (const entry of previous) {
       if (!next.includes(entry)) {
         entry.active = false
+
         const release = entry.release
+
         entry.release = undefined
         release?.()
         entry.layer.removeFromSuperlayer()
       }
     }
+
     state.bgPainted = next
     // Children sit above the host in CSS first-on-top order.
     next.forEach((entry, index) => {
       if (entry.layer.superlayer !== host) {
         host.addSublayer(entry.layer)
       }
+
       entry.layer.zPosition = next.length - index
     })
+
     paintBackgrounds(node, state)
   }
+
   return {
     BACKGROUND_STYLE_KEYS,
     clearBackgrounds,

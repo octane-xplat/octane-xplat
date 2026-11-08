@@ -22,11 +22,13 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-sounds-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -109,17 +111,20 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
   const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
   const modules = join(consumerRoot, 'node_modules')
   const packageLink = join(modules, '@octane-xplat/sounds')
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(packagePath, packageLink, { recursive: true })
   for (const dependency of dependencies) {
     const source = join(packageRoot, 'node_modules', dependency)
     const fallback = join(repoRoot, 'node_modules', dependency)
     const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+
     if (!resolved) {
       continue
     }
 
     const targetPath = join(modules, dependency)
+
     mkdirSync(dirname(targetPath), { recursive: true })
     symlinkSync(resolved, targetPath, 'dir')
   }
@@ -139,6 +144,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
   const config = targetConfig[target]
   const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+
   writeFileSync(
     configPath,
     JSON.stringify(
@@ -154,6 +160,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
           types: config.types.filter((name) => {
             const segments = name.split('/')
             const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
+
             return existsSync(join(modules, ...pkg, 'package.json'))
           }),
           skipLibCheck: true,
@@ -174,9 +181,12 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 try {
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
@@ -196,9 +206,12 @@ try {
 
   for (const [index, exportsMap] of uniqueExportMaps.entries()) {
     const consumerPackage = join(temporary, `package-${index}`)
+
     cpSync(packedRoot, consumerPackage, { recursive: true })
+
     const consumerManifestPath = join(consumerPackage, 'package.json')
     const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
     consumerManifest.exports = exportsMap
     writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
@@ -206,6 +219,7 @@ try {
       // Subpath exports absent from a map (e.g. ./macos only exists in the
       // workspace map) cannot resolve — skip that lane for that map.
       const targetSubpaths = targetConfig[target].subpaths ?? ['.']
+
       if (!targetSubpaths.every((subpath) => exportsMap[subpath])) {
         continue
       }

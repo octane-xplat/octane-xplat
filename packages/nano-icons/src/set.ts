@@ -73,13 +73,16 @@ export function resolveNanoIcon(
 ): { set: NanoIconSet<any>; entry: GlyphEntry } | undefined {
   if (set) {
     const entry = set.glyphMap.i[name]
+
     return entry ? { set, entry } : undefined
   }
 
   // Full-name match wins: iconify-style names already carry `prefix:`.
   const matches: { set: NanoIconSet; entry: GlyphEntry }[] = []
+
   for (const candidate of sets.values()) {
     const entry = candidate.glyphMap.i[name]
+
     if (entry) {
       matches.push({ set: candidate, entry })
     }
@@ -99,12 +102,15 @@ export function resolveNanoIcon(
 
   // `family:icon` — try the registered set name or runtime family.
   const split = name.indexOf(':')
+
   if (split > 0) {
     const qualifier = name.slice(0, split)
     const iconName = name.slice(split + 1)
     const qualified = sets.get(qualifier) ?? familySets.get(qualifier)
+
     if (qualified) {
       const entry = qualified.glyphMap.i[iconName] ?? qualified.glyphMap.i[name]
+
       if (entry) {
         return { set: qualified, entry }
       }

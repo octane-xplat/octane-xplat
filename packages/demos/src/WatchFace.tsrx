@@ -14,8 +14,10 @@ function pad(n: number): string {
  *  date formatting without DOM globals, tight centered layout. */
 export function WatchFace() @{
   const [now, setNow] = useState(new Date())
+
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 1000)
+
     return () => clearInterval(t)
   }, [])
 

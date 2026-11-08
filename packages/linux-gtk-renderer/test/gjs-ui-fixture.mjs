@@ -17,6 +17,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
     t.skip('GJS and XplatMason artifacts required for runtime')
     return
   }
+
   const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
   const outDir = join(fixture, 'dist-' + stem)
   const preset = await xplatLinuxGtk('production', {
@@ -24,13 +25,17 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
     entry: 'src/' + stem + '-main.ts',
     outDir,
   })
+
   await build({
     logLevel: 'error',
     ...preset,
     define: { ...preset.define, ...define },
   })
+
   const bundle = join(outDir, 'app.js')
+
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+
   const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const osInput = input && gtkOsInputReady()
   const env = {
@@ -39,20 +44,25 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
     [marker + '_OS']: osInput ? '1' : '0',
     XPLAT_MASON_TYPELIB: nativeDir,
   }
+
   const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })
   let stdout = '',
     stderr = '',
     inputError
+
   child.stderr.on('data', (data) => {
     stderr += data
   })
+
   const lines = createInterface({ input: child.stdout })
   const ready = marker + '_READY '
+
   lines.on('line', (line) => {
     stdout += line + '\n'
     if (!osInput || !line.startsWith(ready)) {
       return
     }
+
     try {
       const phase = JSON.parse(line.slice(ready.length))
       const id = execFileSync('xdotool', ['search', '--onlyvisible', '--name', '^' + title + '$'], {
@@ -63,6 +73,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
         .split('\n')[0]
 
       const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
+
       send('windowfocus', id)
       if (phase.type != null) {
         send('type', '--clearmodifiers', '--delay', '35', '--', phase.type)
@@ -76,7 +87,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
       } else if (phase.scroll) {
         // Real scroll-wheel input: button 4 = up, 5 = down.
         send('mousemove', '--window', id, String(Math.round(phase.x)), String(Math.round(phase.y)))
+
         const button = phase.scroll < 0 ? '4' : '5'
+
         for (let i = 0; i < Math.abs(phase.scroll); i++) {
           send('click', button)
         }
@@ -88,6 +101,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
         // spawn overhead would drop the release velocity below
         // GtkGestureSwipe's threshold.
         const args = ['mousemove', '--window', id, String(x), String(y), 'mousedown', '1']
+
         for (let step = 1; step <= 10; step++) {
           args.push(
             'mousemove',
@@ -119,7 +133,9 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
       child.kill()
     }
   })
+
   const deadline = setTimeout(() => child.kill(), 60000)
+
   t.after(() => {
     clearTimeout(deadline)
     lines.close()
@@ -127,12 +143,15 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
       child.kill()
     }
   })
+
   const code = await new Promise((resolve, reject) => {
     child.once('error', reject)
     child.once('close', resolve)
   })
+
   assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
   assert.doesNotMatch(stderr, /Gtk-CRITICAL|Gjs-CRITICAL|\[linux-gtk\] event handler failed/)
+
   const prefix = marker + ' '
   const result = JSON.parse(
     stdout
@@ -140,8 +159,10 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
       .find((line) => line.startsWith(prefix))
       ?.slice(prefix.length) ?? '{}',
   )
+
   const minimum =
     typeof minChecks === 'number' ? minChecks : osInput ? minChecks.os : minChecks.properties
+
   assert.ok(result.checks >= minimum, stdout + '\n' + stderr + '\n' + JSON.stringify(result))
   assert.equal(result.osInput, osInput)
   assert.deepEqual(result.failures, [], stdout + '\n' + stderr)

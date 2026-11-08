@@ -52,15 +52,18 @@ function load() {
     }
     async showSubscriptionsManagement() {}
   }
+
   const globals = {
     exports: {},
     require(id) {
       if (id === '@nativescript/payments') {
         return { Payment: FakePayment }
       }
+
       throw new Error(`unexpected import: ${id}`)
     },
   }
+
   vm.runInNewContext(source, globals)
   return { billing: globals.exports.billing, instances }
 }
@@ -80,9 +83,12 @@ const shape = (value) => JSON.parse(JSON.stringify(value))
 
 test('connect resolves on store readiness; concurrent callers share the wait', async () => {
   const { billing, instances } = load()
+
   assert.equal(instances.length, 0)
+
   const first = billing.connect()
   const second = billing.connect()
+
   assert.equal(instances.length, 1)
   assert.equal(await races(first), 'pending')
   instances[0].fireReady()
@@ -93,6 +99,7 @@ test('connect resolves on store readiness; concurrent callers share the wait', a
 test('connect resolves immediately once the store is ready', async () => {
   const { billing, instances } = load()
   const first = billing.connect()
+
   instances[0].fireReady()
   await first
   assert.equal(await races(billing.connect()), 'resolved')
@@ -101,6 +108,7 @@ test('connect resolves immediately once the store is ready', async () => {
 test('canMakePayments reflects store readiness after connect resolves', async () => {
   const { billing, instances } = load()
   const pending = billing.connect()
+
   assert.equal(billing.canMakePayments(), false)
   instances[0].fireReady()
   await pending
@@ -110,11 +118,14 @@ test('canMakePayments reflects store readiness after connect resolves', async ()
 test('disconnect drops the client; reconnect awaits the new client readiness', async () => {
   const { billing, instances } = load()
   const first = billing.connect()
+
   instances[0].fireReady()
   await first
   billing.disconnect()
   assert.deepEqual(instances[0].calls, ['connect', 'disconnect'])
+
   const reconnect = billing.connect()
+
   assert.equal(instances.length, 2)
   assert.equal(await races(reconnect), 'pending')
   instances[1].fireReady()
@@ -125,12 +136,15 @@ test('requestPurchase(id) fetches as inapp and forwards the fetched product', as
   const { billing, instances } = load()
   const nativeProduct = { id: 'premium', type: 'inapp' }
   const pending = billing.connect()
+
   instances[0].fireReady()
   await pending
   instances[0].products.set('inapp:premium', nativeProduct)
   await billing.requestPurchase('premium', { accountId: 'acct' })
+
   const calls = instances[0].calls
   const purchase = calls.find(([name]) => name === 'purchaseProduct')
+
   assert.deepEqual(shape(calls[1]), ['fetchProducts', ['premium'], 'inapp'])
   assert.equal(purchase[1], nativeProduct)
   assert.deepEqual(shape(purchase[2]), { accountId: 'acct' })
@@ -140,11 +154,14 @@ test('requestPurchase(id, { type }) queries the requested product catalog', asyn
   const { billing, instances } = load()
   const nativeSub = { id: 'plan.monthly', type: 'subs' }
   const pending = billing.connect()
+
   instances[0].fireReady()
   await pending
   instances[0].products.set('subs:plan.monthly', nativeSub)
   await billing.requestPurchase('plan.monthly', { type: 'subs' })
+
   const calls = instances[0].calls
+
   assert.deepEqual(shape(calls[1]), ['fetchProducts', ['plan.monthly'], 'subs'])
   assert.equal(calls[2][1], nativeSub)
   assert.deepEqual(shape(calls[2][2]), {})
@@ -154,13 +171,18 @@ test('requestPurchase(product) forwards the native product without refetching', 
   const { billing, instances } = load()
   const nativeSub = { id: 'plan.monthly', type: 'subs' }
   const pending = billing.connect()
+
   instances[0].fireReady()
   await pending
   instances[0].products.set('subs:plan.monthly', nativeSub)
+
   const [product] = await billing.fetchProducts(['plan.monthly'], 'subs')
+
   assert.equal(product.native, nativeSub)
   await billing.requestPurchase(product)
+
   const calls = instances[0].calls
+
   assert.equal(calls.filter(([name]) => name === 'fetchProducts').length, 1)
   assert.deepEqual(calls.at(-1)[0], 'purchaseProduct')
   assert.equal(calls.at(-1)[1], nativeSub)
@@ -170,6 +192,7 @@ test('requestPurchase(product) forwards the native product without refetching', 
 test('requestPurchase rejects when the id is not found or the product is facade-only', async () => {
   const { billing, instances } = load()
   const pending = billing.connect()
+
   instances[0].fireReady()
   await pending
   await assert.rejects(() => billing.requestPurchase('missing'), { code: 'PRODUCT_UNAVAILABLE' })

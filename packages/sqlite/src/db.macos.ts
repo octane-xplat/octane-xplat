@@ -53,6 +53,7 @@ export const supported: boolean =
 const databaseDir = (): string | null => {
   try {
     const urls = host.NSFileManager.defaultManager.URLsForDirectoryInDomains(14, 1)
+
     if (!urls?.count) {
       return null
     }
@@ -69,6 +70,7 @@ const databasePath = (name: string): string | null => {
   }
 
   const dir = databaseDir()
+
   if (!dir || !fs) {
     return null
   }
@@ -102,6 +104,7 @@ const bind = (stmt: any, params: SqliteParam[]) => {
       }
     } else {
       const bytes = p instanceof ArrayBuffer ? new Uint8Array(p) : p
+
       host.sqlite3_bind_blob(stmt, index, bytes, bytes.byteLength, SQLITE_TRANSIENT())
     }
   }
@@ -111,6 +114,7 @@ const columnValue = (stmt: any, index: number): any => {
   switch (host.sqlite3_column_type(stmt, index)) {
     case SQLITE_INTEGER: {
       const v = host.sqlite3_column_int64(stmt, index)
+
       return typeof v === 'bigint' && v >= -9007199254740991n && v <= 9007199254740991n
         ? Number(v)
         : v
@@ -128,6 +132,7 @@ const columnValue = (stmt: any, index: number): any => {
       }
 
       const data = host.NSData.alloc().initWithBytesLength(ptr, len)
+
       return new Uint8Array(host.interop.bufferFromData(data))
     }
     default:
@@ -167,8 +172,10 @@ class MacosSqliteDb implements SqliteDb {
     }
 
     const stmt = ref.value
+
     try {
       bind(stmt, params)
+
       const cols = host.sqlite3_column_count(stmt)
       let rows = 0
 
@@ -195,10 +202,12 @@ class MacosSqliteDb implements SqliteDb {
   }
   select = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T[]> => {
     this.ensureOpen()
+
     const rows: T[] = []
 
     this.run(sql, toArray(params), (stmt, cols) => {
       const row: Record<string, unknown> = {}
+
       for (let i = 0; i < cols; i++) {
         row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
           stmt,
@@ -213,10 +222,12 @@ class MacosSqliteDb implements SqliteDb {
   }
   selectArray = async (sql: string, params?: SqliteParams) => {
     this.ensureOpen()
+
     const rows: any[][] = []
 
     this.run(sql, toArray(params), (stmt, cols) => {
       const row: any[] = []
+
       for (let i = 0; i < cols; i++) {
         row.push(columnValue(stmt, i))
       }
@@ -228,10 +239,12 @@ class MacosSqliteDb implements SqliteDb {
   }
   get = async <T = SqliteRow>(sql: string, params?: SqliteParams): Promise<T | null> => {
     const rows = await this.select<T>(sql, params)
+
     return rows[0] ?? null
   }
   getArray = async (sql: string, params?: SqliteParams) => {
     const rows = await this.selectArray(sql, params)
+
     return rows[0] ?? null
   }
   transaction = async <T>(action: (db: SqliteDb) => Promise<T>): Promise<T> => {
@@ -239,6 +252,7 @@ class MacosSqliteDb implements SqliteDb {
     this.run('BEGIN', [])
     try {
       const result = await action(this)
+
       this.run('COMMIT', [])
       return result
     } catch (error) {
@@ -256,11 +270,13 @@ class MacosSqliteDb implements SqliteDb {
     onDone: (error: Error | null, count: number) => void,
   ) => {
     this.ensureOpen()
+
     let count = 0
 
     try {
       this.run(sql, toArray(params), (stmt, cols) => {
         const row: SqliteRow = {}
+
         for (let i = 0; i < cols; i++) {
           row[host.interop.stringFromCString(host.sqlite3_column_name(stmt, i))] = columnValue(
             stmt,
@@ -323,6 +339,7 @@ export const openDatabase = async (
   }
 
   const db = ref.value
+
   host.sqlite3_busy_timeout(db, 5000)
   return isolateDatabase(new MacosSqliteDb(db, path != null))
 }
@@ -330,6 +347,7 @@ export const openDatabase = async (
 /** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> => {
   const path = databasePath(name)
+
   if (!path) {
     return false
   }
@@ -339,6 +357,7 @@ export const deleteDatabase = async (name: string): Promise<boolean> => {
 
   for (const suffix of ['', '-wal', '-shm', '-journal']) {
     const target = `${path}${suffix}`
+
     if (fs?.existsSync(target)) {
       removed = !!fm.removeItemAtPathError(target, null) || removed
     }

@@ -31,6 +31,7 @@ export function isMarkdownExtensionNode<Node extends MarkdownExtensionNode>(
   name: Node['name'],
 ): node is Node {
   const extension = node as MarkdownExtensionNode
+
   return node.type === 'extension' && extension.plugin === plugin && extension.name === name
 }
 
@@ -130,6 +131,7 @@ export function getMarkdownHelperOwnership(
   const pluginName = internal[markdownTransformPluginName]
   const hasRenderer = internal[markdownTransformHasRenderer]
   const sourceUnchanged = internal[markdownTransformSourceUnchanged]
+
   return pluginName === undefined || hasRenderer === undefined || sourceUnchanged === undefined
     ? undefined
     : { pluginName, hasRenderer, sourceUnchanged }
@@ -183,6 +185,7 @@ export function markMarkdownTransformTrusted(
     value: true,
     writable: false,
   })
+
   return transform
 }
 
@@ -197,6 +200,7 @@ export function markMarkdownTransformClaim<Node extends MarkdownExtensionNode = 
     value: claims,
     writable: false,
   })
+
   return transform
 }
 
@@ -288,9 +292,11 @@ export function getMarkdownPluginDefinition(
   ) {
     fail('entries must come from a compatible createMarkdownPlugin()')
   }
+
   const entry = publicEntry as Partial<InternalMarkdownPluginEntry>
   const brand = entry[markdownPluginDefinition]
   const definition = brand?.definition
+
   if (
     Reflect.ownKeys(entry).length !== 3 ||
     typeof entry.name !== 'string' ||
@@ -311,6 +317,7 @@ export function getMarkdownPluginDefinition(
   ) {
     fail('entries must come from a compatible createMarkdownPlugin()')
   }
+
   return definition
 }
 
@@ -332,6 +339,7 @@ export function getMarkdownPluginCapabilities(
   plugin: MarkdownPluginEntry,
 ): MarkdownPluginCapabilities {
   const definition = getMarkdownPluginDefinition(plugin)
+
   return Object.freeze({
     syntax: 'syntax' in definition && definition.syntax != null,
     transform: definition.transform != null,
@@ -347,6 +355,7 @@ function deepFreezeConfig<T>(value: T, seen: Set<object> = new Set()): T {
 
     Object.freeze(value)
   }
+
   return value
 }
 
@@ -356,9 +365,11 @@ function fail(message: string): never {
 
 function validateSyntax(pluginName: string, syntax: MarkdownSyntaxCapability): void {
   const contributions = [...(syntax.inline ?? []), ...(syntax.block ?? [])]
+
   if (contributions.length === 0) {
     fail(`"${pluginName}" syntax must declare an inline or block contribution`)
   }
+
   for (const contribution of contributions) {
     if (!Number.isFinite(contribution.maxSpan) || contribution.maxSpan <= 0) {
       fail(`"${pluginName}" syntax maxSpan must be positive and finite`)
@@ -394,12 +405,15 @@ export function createMarkdownPlugin(
   if (definition.name.trim() === '') {
     fail('name must be a non-empty string')
   }
+
   if (definition.apiVersion !== 1) {
     fail(`"${definition.name}" uses unsupported apiVersion`)
   }
+
   if (typeof definition.transform !== 'undefined' && typeof definition.transform !== 'function') {
     fail(`"${definition.name}" transform must be a function`)
   }
+
   if ('syntax' in definition && definition.syntax != null) {
     if (definition.parseKey.trim() === '') {
       fail(`"${definition.name}" parseKey must be non-empty`)
@@ -419,6 +433,7 @@ export function createMarkdownPlugin(
     apiVersion: 1 as const,
     definition: frozenDefinition,
   })
+
   return Object.freeze({
     name: frozenDefinition.name,
     apiVersion: 1 as const,
@@ -436,6 +451,7 @@ export function createMarkdownSourceLinesEntry(name: string): MarkdownPluginEntr
     markMarkdownTransformTrusted((document) => document),
     () => false,
   )
+
   const definition: MarkdownTransformPluginDefinition<string, never> & {
     readonly [markdownSourceLinesDefinition]: true
   } = {
@@ -444,6 +460,7 @@ export function createMarkdownSourceLinesEntry(name: string): MarkdownPluginEntr
     transform,
     [markdownSourceLinesDefinition]: true,
   }
+
   return createMarkdownPlugin(definition)
 }
 
@@ -487,6 +504,7 @@ const preparedPluginLists = new WeakMap<
 
 function appendMapValue<T>(map: Map<string, T[]>, key: string, value: T): void {
   const current = map.get(key)
+
   if (current == null) {
     map.set(key, [value])
   } else {
@@ -497,10 +515,13 @@ function appendMapValue<T>(map: Map<string, T[]>, key: string, value: T): void {
 function syntaxOnlyEntry(publicEntry: MarkdownPluginEntry): MarkdownPluginEntry {
   const entry = publicEntry as InternalMarkdownPluginEntry
   const definition = getMarkdownPluginDefinition(publicEntry)
+
   if (definition.transform == null) {
     return publicEntry
   }
+
   const syntaxDefinition = Object.freeze({ ...definition, transform: undefined })
+
   return Object.freeze({
     name: entry.name,
     apiVersion: entry.apiVersion,
@@ -518,7 +539,9 @@ export function prepareMarkdownPlugins(
   if (plugins.length === 0) {
     return undefined
   }
+
   const cached = preparedPluginLists.get(plugins)
+
   if (cached != null) {
     return cached
   }
@@ -536,6 +559,7 @@ export function prepareMarkdownPlugins(
   for (const publicEntry of plugins) {
     const definition = getMarkdownPluginDefinition(publicEntry)
     const entry = publicEntry as InternalMarkdownPluginEntry
+
     if (names.has(definition.name)) {
       fail(`duplicate name "${definition.name}"`)
     }
@@ -612,6 +636,7 @@ export function prepareMarkdownPlugins(
     renderers,
     sourceLines,
   }
+
   preparedPluginLists.set(plugins, prepared)
   return prepared
 }
@@ -623,14 +648,19 @@ export function isMarkdownPluginData(
   if (value == null || typeof value === 'boolean' || typeof value === 'string') {
     return true
   }
+
   if (typeof value === 'number') {
     return Number.isFinite(value)
   }
+
   if (typeof value !== 'object' || seen.has(value)) {
     return false
   }
+
   seen.add(value)
+
   let valid: boolean
+
   if (Array.isArray(value)) {
     valid = value.every((item) => isMarkdownPluginData(item, seen))
   } else if (Object.getPrototypeOf(value) !== Object.prototype) {
@@ -638,6 +668,7 @@ export function isMarkdownPluginData(
   } else {
     valid = Object.values(value).every((item) => isMarkdownPluginData(item, seen))
   }
+
   seen.delete(value)
   return valid
 }
@@ -650,6 +681,7 @@ export function freezeMarkdownPluginData<T extends MarkdownPluginData>(value: T)
 
     Object.freeze(value)
   }
+
   return value
 }
 
@@ -661,11 +693,14 @@ export function freezeMarkdownPluginData<T extends MarkdownPluginData>(value: T)
 function positionKey(position: MdPosition | undefined): string | null {
   const start = position?.start.offset
   const end = position?.end.offset
+
   if (start != null && end != null) {
     return `${start}:${end}`
   }
+
   const startLine = position?.start.line
   const endLine = position?.end.line
+
   return startLine == null || endLine == null ? null : `line ${startLine}:${endLine}`
 }
 
@@ -675,7 +710,9 @@ function isValidPosition(position: MdPosition): boolean {
     [position.start?.offset, position.end?.offset, 0],
     [position.start?.line, position.end?.line, 1],
   ] as const
+
   let measured = false
+
   for (const [start, end, minimum] of measures) {
     if (start === undefined && end === undefined) {
       continue
@@ -692,6 +729,7 @@ function isValidPosition(position: MdPosition): boolean {
 
     measured = true
   }
+
   return measured
 }
 
@@ -715,9 +753,11 @@ function collectCodeInternalProperties(root: MdDoc): Map<string, CodeInternalPro
 
       if (descriptors.length > 0) {
         const key = codeSourceSignature(node as unknown as Record<string, unknown>)
+
         properties.set(key, [...(properties.get(key) ?? []), { descriptors }])
       }
     }
+
     if ('children' in node && Array.isArray(node.children)) {
       for (const child of node.children) {
         if (child != null && typeof child === 'object') {
@@ -726,26 +766,31 @@ function collectCodeInternalProperties(root: MdDoc): Map<string, CodeInternalPro
       }
     }
   }
+
   for (const child of root.children) {
     visit(child as { readonly type: string })
   }
+
   return properties
 }
 
 function restoreCodeInternalProperties(previous: MdDoc, next: MdDoc): MdDoc {
   const properties = collectCodeInternalProperties(previous)
+
   if (properties.size === 0) {
     return next
   }
 
   const visit = (node: { readonly type: string }): { readonly type: string } => {
     let current = node as Record<string, unknown> & { readonly type: string }
+
     if (node.type === 'code') {
       const key = codeSourceSignature(node as unknown as Record<string, unknown>)
       const queue = properties.get(key)
       const internal = queue?.shift()
       const shouldRestore = internal?.descriptors.some(([symbol, descriptor]) => {
         const current = Object.getOwnPropertyDescriptor(node, symbol)
+
         return (
           current == null ||
           current.value !== descriptor.value ||
@@ -759,6 +804,7 @@ function restoreCodeInternalProperties(previous: MdDoc, next: MdDoc): MdDoc {
 
       if (internal != null && shouldRestore === true) {
         const clone = { ...node }
+
         for (const [symbol, descriptor] of internal.descriptors) {
           Object.defineProperty(clone, symbol, descriptor)
         }
@@ -766,13 +812,16 @@ function restoreCodeInternalProperties(previous: MdDoc, next: MdDoc): MdDoc {
         current = clone
       }
     }
+
     if ('children' in current && Array.isArray(current.children)) {
       const currentChildren = current.children as ReadonlyArray<{ readonly type: string }>
       const children = currentChildren.map((child) => visit(child))
+
       if (children.some((child, index) => child !== currentChildren[index])) {
         current = { ...current, children } as typeof current
       }
     }
+
     return current
   }
 
@@ -801,6 +850,7 @@ function collectSourceInvariants(root: MdDoc): Map<string, SourceInvariant[]> {
   const positions = new Map<string, SourceInvariant[]>()
   const visit = (node: { readonly type: string }): void => {
     const key = positionKey((node as { position?: MdPosition }).position)
+
     if (key != null) {
       const record = node as unknown as Record<string, unknown>
       const invariant = {
@@ -818,6 +868,7 @@ function collectSourceInvariants(root: MdDoc): Map<string, SourceInvariant[]> {
 
       positions.set(key, [...(positions.get(key) ?? []), invariant])
     }
+
     if ('children' in node && Array.isArray(node.children)) {
       for (const child of node.children) {
         if (child != null && typeof child === 'object') {
@@ -826,9 +877,11 @@ function collectSourceInvariants(root: MdDoc): Map<string, SourceInvariant[]> {
       }
     }
   }
+
   for (const child of root.children) {
     visit(child as { readonly type: string })
   }
+
   return positions
 }
 
@@ -854,11 +907,13 @@ function collectExtensionSignatures(root: MdDoc): Map<string, ExistingExtension>
     if (node.type === 'extension') {
       const signature = extensionSignature(node as unknown as Record<string, unknown>)
       const existing = signatures.get(signature)
+
       signatures.set(signature, {
         plugin: String((node as unknown as Record<string, unknown>).plugin),
         count: (existing?.count ?? 0) + 1,
       })
     }
+
     if ('children' in node && Array.isArray(node.children)) {
       for (const child of node.children) {
         if (child != null && typeof child === 'object') {
@@ -867,9 +922,11 @@ function collectExtensionSignatures(root: MdDoc): Map<string, ExistingExtension>
       }
     }
   }
+
   for (const child of root.children) {
     visit(child as { readonly type: string })
   }
+
   return signatures
 }
 
@@ -892,6 +949,7 @@ function markSourceHeadings(root: MdDoc): Set<SourceHeadingMarker> {
         writable: false,
       })
     }
+
     if (node.type === 'heading') {
       markers.add(
         (node as unknown as { readonly [sourceHeadingMarker]: SourceHeadingMarker })[
@@ -899,6 +957,7 @@ function markSourceHeadings(root: MdDoc): Set<SourceHeadingMarker> {
         ],
       )
     }
+
     if ('children' in node && Array.isArray(node.children)) {
       for (const child of node.children) {
         if (child != null && typeof child === 'object') {
@@ -907,9 +966,11 @@ function markSourceHeadings(root: MdDoc): Set<SourceHeadingMarker> {
       }
     }
   }
+
   for (const child of root.children) {
     visit(child as { readonly type: string })
   }
+
   return markers
 }
 
@@ -970,12 +1031,15 @@ function validateAst(
   if (doc == null || typeof doc !== 'object') {
     return false
   }
+
   if (doc.kind !== MD_DOC_KIND || doc.v !== MD_DOC_VERSION) {
     return false
   }
+
   if (doc.data !== undefined && !isMarkdownPluginData(doc.data)) {
     return false
   }
+
   const seen = new Set<object>()
   const seenHeadingMarkers = new Set<SourceHeadingMarker>()
   let count = 0
@@ -983,15 +1047,20 @@ function validateAst(
     if (value == null || typeof value !== 'object' || seen.has(value)) {
       return false
     }
+
     if (++count > 100_000) {
       return false
     }
+
     seen.add(value)
+
     const node = value as Record<string, unknown>
     const type = node.type
+
     if (typeof type !== 'string') {
       return false
     }
+
     if (node.data !== undefined && !isMarkdownPluginData(node.data)) {
       return false
     }
@@ -1000,6 +1069,7 @@ function validateAst(
       const extensionDisplay = type === 'extension' ? node.display : undefined
       const phrasing = PHRASING_TYPES.has(type) || extensionDisplay === 'inline'
       const block = BLOCK_TYPES.has(type) || extensionDisplay === 'block'
+
       if (
         (PHRASING_PARENTS.has(parent) && !phrasing) ||
         (BLOCK_PARENTS.has(parent) && !block) ||
@@ -1014,9 +1084,11 @@ function validateAst(
 
     const position = node.position as MdPosition | undefined
     const key = positionKey(position)
+
     if (position != null && !isValidPosition(position)) {
       return false
     }
+
     if (key != null) {
       const invariants = sourcePositions.get(key) ?? []
       const invariantIndex = invariants.findIndex(
@@ -1039,6 +1111,7 @@ function validateAst(
 
       invariants.splice(invariantIndex, 1)
     }
+
     if (type !== 'extension' && node.source !== undefined) {
       return false
     }
@@ -1147,6 +1220,7 @@ function validateAst(
 
         const signature = extensionSignature(node)
         const existing = existingExtensions.get(signature)
+
         if (existing != null && existing.count > 0) {
           existing.count--
         } else if (
@@ -1187,8 +1261,10 @@ function validateAst(
     } else if ('children' in node) {
       return false
     }
+
     return true
   }
+
   return (
     doc.children.every((child) => visit(child, 'root', false)) &&
     Array.from(existingExtensions.values()).every(
@@ -1218,6 +1294,7 @@ function freezeAstNode(value: unknown): void {
   if (value == null || typeof value !== 'object') {
     return
   }
+
   if (Array.isArray(value)) {
     for (let index = 0; index < value.length; index++) {
       freezeAstNode(value[index])
@@ -1229,6 +1306,7 @@ function freezeAstNode(value: unknown): void {
       freezeAstNode((value as Record<string, unknown>)[key])
     }
   }
+
   Object.freeze(value)
 }
 
@@ -1256,12 +1334,15 @@ function freezeBuiltAst<T>(previous: unknown, next: T): T {
   if (next == null || typeof next !== 'object' || next === previous) {
     return next
   }
+
   const before =
     previous != null && typeof previous === 'object'
       ? (previous as Record<string, unknown>)
       : undefined
+
   if (Array.isArray(next)) {
     const beforeArray = Array.isArray(previous) ? previous : undefined
+
     for (let index = 0; index < next.length; index++) {
       freezeBuiltAst(beforeArray?.[index], next[index])
     }
@@ -1270,6 +1351,7 @@ function freezeBuiltAst<T>(previous: unknown, next: T): T {
       freezeBuiltAst(before?.[key], (next as Record<string, unknown>)[key])
     }
   }
+
   Object.freeze(next)
   return next
 }
@@ -1316,6 +1398,7 @@ function singleNodeScratch(node: unknown): unknown[] {
   if (scratchInUse) {
     return [node]
   }
+
   reusableScratch[0] = node
   return reusableScratch
 }
@@ -1330,6 +1413,7 @@ export function adoptMarkdownHelperNodes(
   // runs once per match.
   if (nodes.length === 1) {
     const only = nodes[0]
+
     if (
       only != null &&
       typeof only === 'object' &&
@@ -1337,6 +1421,7 @@ export function adoptMarkdownHelperNodes(
       typeof (only as { value?: unknown }).value === 'string'
     ) {
       let extra = false
+
       for (const key in only) {
         if (key !== 'type' && key !== 'value') {
           extra = true
@@ -1349,6 +1434,7 @@ export function adoptMarkdownHelperNodes(
       }
     }
   }
+
   // Cycle tracking is allocated only once a node with children appears: the
   // common replacement is a flat node, and this runs once per match.
   let seen: Set<object> | undefined
@@ -1357,29 +1443,37 @@ export function adoptMarkdownHelperNodes(
     if (value == null || typeof value !== 'object' || seen?.has(value)) {
       return false
     }
+
     if (++count > 10_000) {
       return false
     }
+
     if (Array.isArray((value as { children?: unknown }).children)) {
       seen ??= new Set<object>()
       seen.add(value)
     }
+
     const node = value as Record<string, unknown>
     const type = node.type
+
     if (typeof type !== 'string' || !HELPER_PHRASING_TYPES.has(type)) {
       return false
     }
+
     // A helper's callback authors synthetic nodes only: provenance stays
     // Core's to assign, so neither field may be present.
     if (node.position !== undefined) {
       return false
     }
+
     if (type !== 'extension' && node.source !== undefined) {
       return false
     }
+
     if (node.data !== undefined && !isMarkdownPluginData(node.data)) {
       return false
     }
+
     switch (type) {
       case 'text':
       case 'inlineCode':
@@ -1430,6 +1524,7 @@ export function adoptMarkdownHelperNodes(
       case 'break':
         break
     }
+
     if (type === 'strong' || type === 'emphasis' || type === 'delete') {
       if (!Array.isArray(node.children)) {
         return false
@@ -1453,22 +1548,27 @@ export function adoptMarkdownHelperNodes(
     } else if ('children' in node) {
       return false
     }
+
     return true
   }
+
   for (const node of nodes) {
     if (!visit(node, insideLink)) {
       throw new TypeError('Markdown helper callback returned an unrepresentable node')
     }
   }
+
   // Frozen only once every node passed, so a rejected batch leaves the
   // caller's objects exactly as they were. Freezing is what makes adopting
   // a caller's object safe instead of copying it: the object is now part of
   // an immutable tree, and a later write by whoever still holds a reference
   // cannot reach into the document.
   const reentrant = nodes !== reusableScratch
+
   if (!reentrant) {
     scratchInUse = true
   }
+
   try {
     for (const node of nodes) {
       freezeAstNode(node)
@@ -1485,6 +1585,7 @@ function warnPluginOnce(key: string, message: string, error: unknown): void {
   if (reportedPluginFailures.has(key)) {
     return
   }
+
   reportedPluginFailures.add(key)
   // eslint-disable-next-line no-console
   console.warn(`Markdown: ${message}`, error)
@@ -1497,6 +1598,7 @@ export function reportMarkdownPluginFailure(
 ): void {
   const key = `markdown-plugin:${pluginName}:${phase}`
   const message = `plugin "${pluginName}" failed in ${phase}; rendered readable fallback.`
+
   if ((import.meta as { env?: { DEV?: boolean } }).env?.DEV === false) {
     if (!reportedProductionPluginFailures.has(key)) {
       reportedProductionPluginFailures.add(key)
@@ -1506,6 +1608,7 @@ export function reportMarkdownPluginFailure(
 
     return
   }
+
   warnPluginOnce(key, message, error)
 }
 
@@ -1519,6 +1622,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
   if (plugins == null || plugins.transforms.length === 0) {
     return root
   }
+
   let pluginNames: Set<string> | undefined
   let rendererKeys: Set<string> | undefined
   let document: MdDoc = root
@@ -1528,10 +1632,12 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
   const sourceHeadingMarkers = plugins.hasUntrustedTransform
     ? markSourceHeadings(document)
     : undefined
+
   let guarded = false
   let priorTransformChangedTree = false
   /** A trusted helper has produced a tree nothing has frozen yet. */
   let deferredFreeze = false
+
   for (const prepared of plugins.transforms) {
     if (!priorTransformChangedTree && prepared.claims?.(source) === false) {
       continue
@@ -1572,6 +1678,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
       }
 
       const next = prepared.transform(document, context) as unknown
+
       if (
         next != null &&
         typeof next === 'object' &&
@@ -1600,6 +1707,7 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
 
       const positions = collectSourceInvariants(document)
       const existingExtensions = collectExtensionSignatures(document)
+
       if (
         !validateAst(
           next as MdDoc,
@@ -1621,9 +1729,11 @@ export function applyMarkdownTransforms<Node extends MarkdownExtensionNode>(
       reportMarkdownPluginFailure(prepared.pluginName, 'transform', error)
     }
   }
+
   if (!deferredFreeze) {
     return document
   }
+
   // Freeze what the helpers built. With a plugin-authored transform in the
   // list the whole tree is frozen, because that plugin may observe any part
   // of it; with only Core helpers, the untouched remainder is left exactly
@@ -1643,9 +1753,11 @@ export function markdownExtensionText(
   node: MarkdownExtensionNode,
 ): string {
   const renderer = getMarkdownExtensionRenderer(plugins, node)
+
   if (renderer == null) {
     return node.source ?? ''
   }
+
   try {
     return renderer.toText(node)
   } catch (error) {

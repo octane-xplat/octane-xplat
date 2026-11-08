@@ -10,9 +10,11 @@ import {
 } from '@octane-xplat/ui'
 
 import type { FieldControlProps, FieldControlSize, TextInputHandle } from '@octane-xplat/ui'
+
 export const memberRefs: Array<TextInputHandle | null> = []
 export const changes: string[] = []
 export const readings: Record<string, ReturnType<typeof useFieldControl>> = {}
+
 function ReadControl(
   props: FieldControlProps & {
     slot: string
@@ -22,6 +24,7 @@ function ReadControl(
   },
 ) @{
   const result = useFieldControl(props)
+
   readings[props.slot] = result
 
   <label id={'probe-' + props.slot} text={result.props.accessibilityHint ?? 'No hint'} />

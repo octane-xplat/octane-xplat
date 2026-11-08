@@ -12,18 +12,21 @@ const STACK_VIEW_API =
 
 test('renderer creates no NSStackView layout hosts', async () => {
   const source = rendererSource()
+
   assert.doesNotMatch(source, /NSStackView\.alloc|extends NSStackView\b/)
 })
 
 test('packed AppKit fixtures assert Mason geometry, not NSStackView members', async () => {
   const fixtures = new URL('./fixtures/', import.meta.url)
   const offenders: string[] = []
+
   for (const file of await readdir(fixtures)) {
     if (!file.endsWith('.ts')) {
       continue
     }
 
     const lines = (await readFile(new URL(file, fixtures), 'utf8')).split('\n')
+
     lines.forEach((line, index) => {
       if (STACK_VIEW_API.test(line)) {
         offenders.push(`${file}:${index + 1}: ${line.trim()}`)

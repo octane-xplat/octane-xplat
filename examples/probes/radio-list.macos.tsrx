@@ -15,6 +15,7 @@ export default function RadioListProbe() {
     [last, setLast] = useState('none')
 
   const next = useRef<TextInputHandle | null>(null)
+
   return (
     <VStack gap={2}>
       <Text>

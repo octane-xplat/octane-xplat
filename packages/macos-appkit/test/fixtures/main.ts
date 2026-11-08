@@ -35,7 +35,9 @@ import {
 } from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
+
 const windowStyle = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
   { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
@@ -46,16 +48,20 @@ const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 
 nativeWindow.title = 'Renderer consumer'
 nativeWindow.releasedWhenClosed = false
+
 const root = createMacOSRoot(nativeWindow.contentView)
+
 root.render(App as any, {})
 nativeWindow.makeKeyAndOrderFront(app)
 app.finishLaunching()
 
 if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
   const debug = (root as any).__macosDebug
+
   setTimeout(() => {
     try {
       const font = debug.findId('count').font
+
       if (
         Number(font.pointSize) !== 22 ||
         String(font.fontName) !== String(NSFont.systemFontOfSizeWeight(22, 0.4).fontName)
@@ -87,6 +93,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
       // Exercise the real registered Objective-C selector and composed host
       // service, rather than a source slice with an injected menu target.
       const bridge: unknown = Reflect.get(globalThis, '__xplatAppKit')
+
       if (
         typeof bridge !== 'object' ||
         bridge === null ||
@@ -109,6 +116,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
       try {
         const item = a.menu.itemAtIndex(0)
+
         check(
           app.sendActionToFrom('menuItemSelected:', item.target, item),
           'Menu selector did not dispatch',
@@ -200,7 +208,9 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               check(refEvents.join(',') === 'attach,cleanup', 'Callback ref cleanup failed')
               check(!stack.superview, 'Unmount retained the native stack')
               console.log('PACKED_STACKLAYOUT_OK')
+
               const contentRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkContentLifecycle(contentRoot, nativeWindow)
               } finally {
@@ -208,6 +218,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const placeholderRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkPlaceholderLifecycle(placeholderRoot, nativeWindow)
               } finally {
@@ -215,6 +226,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const actionBarRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkActionBarLifecycle(actionBarRoot, nativeWindow)
               } finally {
@@ -222,6 +234,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const dockRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkDockLifecycle(dockRoot, nativeWindow)
               } finally {
@@ -229,6 +242,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const wrapRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkWrapLifecycle(wrapRoot, nativeWindow)
               } finally {
@@ -236,6 +250,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const proxyRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkProxyLifecycle(proxyRoot, nativeWindow)
               } finally {
@@ -243,6 +258,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const rootLayoutRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkRootLifecycle(rootLayoutRoot, nativeWindow)
               } finally {
@@ -250,6 +266,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const searchRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkSearchLifecycle(searchRoot, nativeWindow)
               } finally {
@@ -257,6 +274,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const formattedRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkFormattedLifecycle(formattedRoot, nativeWindow)
               } finally {
@@ -264,6 +282,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const htmlRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkHtmlLifecycle(htmlRoot, nativeWindow)
               } finally {
@@ -271,6 +290,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const activityRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkActivityLifecycle(activityRoot, nativeWindow)
               } finally {
@@ -278,6 +298,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const dateRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkDateLifecycle(dateRoot, nativeWindow)
               } finally {
@@ -285,6 +306,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const listRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkListLifecycle(listRoot, nativeWindow)
               } finally {
@@ -292,6 +314,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const progressRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkProgressLifecycle(progressRoot, nativeWindow)
               } finally {
@@ -299,6 +322,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const segmentRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkSegmentLifecycle(segmentRoot, nativeWindow)
               } finally {
@@ -306,6 +330,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const itemRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkSegmentItemLifecycle(itemRoot, nativeWindow)
               } finally {
@@ -313,6 +338,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const timeRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkTimeLifecycle(timeRoot, nativeWindow)
               } finally {
@@ -320,6 +346,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const liquidGlassRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkLiquidGlassLifecycle(liquidGlassRoot, nativeWindow)
               } finally {
@@ -327,6 +354,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const tabRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkTabLifecycle(tabRoot, nativeWindow)
               } finally {
@@ -334,6 +362,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const tabItemsRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkImperativeTabLifecycle(tabItemsRoot, nativeWindow)
               } finally {
@@ -341,6 +370,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const listViewRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkListViewLifecycle(listViewRoot, nativeWindow)
               } finally {
@@ -348,6 +378,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const paintRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkPaintLifecycle(paintRoot, nativeWindow)
               } finally {
@@ -355,6 +386,7 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
               }
 
               const hostedRoot = createMacOSRoot(nativeWindow.contentView)
+
               try {
                 await checkHostedLifecycle(hostedRoot, nativeWindow)
               } finally {

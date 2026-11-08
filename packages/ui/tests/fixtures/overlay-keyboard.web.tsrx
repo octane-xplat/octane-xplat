@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { BottomSheet, TextInput } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let select = (_value: string | null) => {},
   activeValue: string | null = null
 
@@ -13,6 +14,7 @@ function Editor(props: { id: string; initial: string }) @{
 
 export default function OverlayWeb() @{
   const [active, setActive] = useState<string | null>(null)
+
   select = setActive
   activeValue = active
 
@@ -48,17 +50,22 @@ export default function OverlayWeb() @{
 
 export async function run(ctx: ProbeContext) {
   const opener: any = await ctx.waitFor(() => ctx.find('open-panel'))
+
   opener.focus()
   opener.click()
   ctx.record('phase', 'first field')
+
   const input = (id: string): HTMLInputElement | null => {
     const host: any = document.getElementById(id)
+
     return host?.matches('input') ? host : host?.querySelector('input')
   }
 
   const first: any = await ctx.waitFor(() => input('web-first'))
+
   ctx.record('phase', 'first focus')
   await ctx.waitFor(() => document.activeElement === first)
+
   const host =
     first.closest('.vx-bottom-sheet-layer') ?? first.closest('[role="dialog"]')?.parentElement
 
@@ -67,7 +74,9 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => first.value === 'Edited first')
   select('second')
   ctx.record('phase', 'second field')
+
   const second: any = await ctx.waitFor(() => input('web-second'))
+
   await ctx.waitFor(() => !first.isConnected)
   ctx.assert('web panel swap retires previous editing element', !first.isConnected, true)
   ctx.assert('web panel has its own editing state', second.value, 'Second')
@@ -84,7 +93,9 @@ export async function run(ctx: ProbeContext) {
 
   select('first')
   ctx.record('phase', 'reopen')
+
   const reopened: any = await ctx.waitFor(() => input('web-first'))
+
   ctx.assert('reopened panel starts a fresh local editing lifetime', reopened.value, 'First')
   select(null)
   await ctx.waitFor(() => !reopened.isConnected)

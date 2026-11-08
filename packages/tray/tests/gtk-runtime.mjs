@@ -13,7 +13,9 @@ import { build } from 'vite'
 
 const host = process.env.TRAY_GTK_HOST
 const vm = process.env.TRAY_GTK_VM ?? 'octane-linux'
+
 assert.ok(host, 'Set TRAY_GTK_HOST to a Linux host or an OrbStack Mac host')
+
 const q = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const prefix = process.env.TRAY_GTK_DIRECT ? 'cd /tmp && ' : `orb -m ${q(vm)} -w /tmp `
 const run = (script, input) =>
@@ -30,6 +32,7 @@ const PNG =
 const fixture = (name) => fileURLToPath(new URL('./fixtures/' + name, import.meta.url))
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-tray-gtk-'))
 let remote
+
 try {
   for (const [entry, out] of [
     ['tray-dbus.gtk.js', 'tray-dbus.js'],

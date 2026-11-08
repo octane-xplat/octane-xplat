@@ -7,6 +7,7 @@ import { Application, Screen } from '@nativescript/core'
 
 function read(): WindowSize {
   const s = Screen.mainScreen
+
   return {
     width: s.widthDIPs,
     height: s.heightDIPs,
@@ -18,8 +19,10 @@ function read(): WindowSize {
  *  orientation changes. */
 export function useWindowSize(): WindowSize {
   const [size, setSize] = useState<WindowSize>(read)
+
   useEffect(() => {
     const update = () => setSize(read())
+
     Application.on(Application.orientationChangedEvent, update)
     return () => Application.off(Application.orientationChangedEvent, update)
   }, [])

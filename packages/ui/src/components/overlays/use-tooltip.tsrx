@@ -47,6 +47,7 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
     }
 
     const show = host().showAnchoredPopup
+
     if (!anchor.current || typeof show !== 'function') {
       return
     }
@@ -84,7 +85,9 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
     anchor.current = view
     detach.current?.()
     detach.current = null
+
     const observe = host().observeHover
+
     if (!view || typeof observe !== 'function') {
       return
     }

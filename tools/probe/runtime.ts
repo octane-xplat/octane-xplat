@@ -24,11 +24,13 @@ export async function executeCase(
   let timer
   const reportError = (error, fatal) => {
     const entry = describe(error)
+
     entry.fatal = fatal ?? !isNonFatalError(entry, options.target)
     errors.push(entry)
   }
 
   const originalError = console.error
+
   console.error = (...args) => {
     reportError(new Error(args.map((value) => value?.message ?? String(value)).join(' ')))
     originalError(...args)
@@ -70,6 +72,7 @@ export async function executeCase(
       }
 
       const pass = Object.is(actual, expected)
+
       assertions.push(JSON.parse(JSON.stringify({ name, pass, actual, expected })))
       if (!pass) {
         throw new Error('Assertion failed: ' + name)
@@ -92,8 +95,10 @@ export async function executeCase(
     },
     async waitFor(predicate, { timeout = options.timeout, interval = 20 } = {}) {
       const deadline = Date.now() + timeout
+
       while (active && Date.now() < deadline) {
         const value = await predicate()
+
         if (value) {
           return value
         }
@@ -137,6 +142,7 @@ export async function executeCase(
     for (const cleanup of [...cleanups.reverse(), () => adapter.dispose()]) {
       try {
         let cleanupTimer
+
         try {
           await Promise.race([
             Promise.resolve().then(cleanup),

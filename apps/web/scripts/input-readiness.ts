@@ -6,6 +6,7 @@ import { createServer } from 'vite'
 
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -33,16 +34,23 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await browserType.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(120000)
+
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}/__input_readiness`)
   await page.waitForSelector('#action')
+
   const focused = () => page.evaluate(() => document.activeElement?.id)
+
   await page.keyboard.press('Tab')
   assert.equal(await focused(), 'action')
   await page.keyboard.press('Enter')
@@ -66,7 +74,9 @@ try {
   for (const name of ['sheet', 'overlay']) {
     await page.locator(`#open-${name}`).click()
     await page.waitForFunction((id) => document.activeElement?.id === id, `${name}-first`)
+
     const dialogName = name === 'sheet' ? 'Input sheet' : 'Input overlay'
+
     assert.equal(await page.getByRole('dialog', { name: dialogName, exact: true }).count(), 1)
     assert.equal(await page.locator('#root').evaluate((root) => root.inert), true)
     await page.keyboard.press('Shift+Tab')
@@ -81,6 +91,7 @@ try {
     if (browserName === 'chromium') {
       const session = await page.context().newCDPSession(page)
       const { nodes } = await session.send('Accessibility.getFullAXTree')
+
       assert.equal(
         nodes.some((node) => !node.ignored && node.name?.value === 'Save'),
         false,
@@ -90,7 +101,9 @@ try {
     }
 
     await page.locator(`#${name}-popover-trigger`).click()
+
     const option = page.locator(`#${name}-popover-option`)
+
     await option.click()
     assert.equal(await page.locator(`#${name}-popover-clicks`).textContent(), '1')
     assert.equal(await option.evaluate((node) => node.closest('[inert]') === null), true)
@@ -117,6 +130,7 @@ try {
         await page.evaluate((modalName) => {
           const trigger = document.querySelector(`#open-${modalName}`)
           const active = document.activeElement
+
           return {
             activeElementId: active?.id,
             activeElement: active?.outerHTML,
@@ -139,6 +153,7 @@ try {
   }
 
   const sheetOpener = page.locator('#open-sheet')
+
   await sheetOpener.focus()
   await sheetOpener.press('Enter')
   try {

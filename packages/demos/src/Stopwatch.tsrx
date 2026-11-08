@@ -9,6 +9,7 @@ function fmt(ms: number): string {
   const d = t % 10
   const s = Math.floor(t / 10) % 60
   const m = Math.floor(t / 600)
+
   return m + ':' + String(s).padStart(2, '0') + '.' + d
 }
 
@@ -29,7 +30,9 @@ export function Stopwatch() @{
     }
 
     since.current = Date.now()
+
     const t = setInterval(() => setElapsed(acc.current + (Date.now() - since.current)), 100)
+
     return () => clearInterval(t)
   }, [running])
 

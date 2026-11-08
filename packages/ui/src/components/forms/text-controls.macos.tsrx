@@ -15,6 +15,7 @@ import { FormField } from './FormField.macos.tsrx'
 
 const nativeValue = (view: object, name: string) => {
   const value = Reflect.get(view, name)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
@@ -24,13 +25,17 @@ const composing = (view: NSView) => !!nativeValue(view, 'hasMarkedText') || hasD
  * remain live during composition; submit/clear wait for committed text. */
 function useAppKitTextEntry<T extends NSView>(props: TextInputProps, multiline = false) {
   const live = useRef(props)
+
   live.current = props
+
   const el = useRef<T | null>(null),
     writing = useRef(false)
 
   const [internal, setInternal] = useState(props.defaultValue ?? '')
   const local = useRef(internal)
+
   local.current = internal
+
   const isBlocked = !!props.isDisabled || !!props.isReadOnly
   const canEdit = () =>
     !!el.current && !live.current.isDisabled && !live.current.isReadOnly && !writing.current
@@ -45,6 +50,7 @@ function useAppKitTextEntry<T extends NSView>(props: TextInputProps, multiline =
   )
 
   useImperativeHandle(props.ref, () => handle, [props.ref])
+
   const write = (text: string, current: TextInputProps) => {
     if (current.value === undefined) {
       local.current = text
@@ -127,6 +133,7 @@ function useAppKitTextEntry<T extends NSView>(props: TextInputProps, multiline =
     }
 
     const editor = nativeValue(view, 'currentEditor')
+
     if (responder !== view && (!responder || responder !== editor)) {
       handle.focus()
     }

@@ -17,6 +17,7 @@ let active: RouterInstance<any>
 let observedNavigator: ReturnType<typeof useRouter<any>>
 function Item(props: { params: { id: string }; data: { title: string } }) {
   const [count, setCount] = useState(0)
+
   observedNavigator = useRouter(active)
   return (
     <button id="item" onClick={() => setCount(count + 1)}>
@@ -39,6 +40,7 @@ function App(props: { platform: ReturnType<typeof createBrowserRouterHost> }) {
 }
 
 const cleanups: (() => void)[] = []
+
 beforeEach(() => {
   history.replaceState(null, '', '/')
   vi.stubGlobal('matchMedia', (media: string) => ({
@@ -65,8 +67,10 @@ const settle = () =>
 function visibleText(container: Element): string {
   const walker = document.createTreeWalker(container, NodeFilter.SHOW_TEXT)
   let result = ''
+
   for (let node = walker.nextNode(); node; node = walker.nextNode()) {
     let hidden = false
+
     for (let parent = node.parentElement; parent; parent = parent.parentElement) {
       if (parent.hidden || getComputedStyle(parent).display === 'none') {
         hidden = true
@@ -108,10 +112,14 @@ function fixture(readTitle: (id: string, load: number) => string = (id, load) =>
   active = router
   platform.attach(router)
   cleanups.push(() => router.dispose())
+
   const mount = (component = App) => {
     const container = document.createElement('div')
+
     document.body.append(container)
+
     const root = createRoot(container)
+
     act(() => root.render(component, { platform }))
     cleanups.push(() => {
       act(() => root.unmount())
@@ -127,10 +135,13 @@ function fixture(readTitle: (id: string, load: number) => string = (id, load) =>
 it('requires a mounted host and resolves navigation after the destination DOM commits', async () => {
   const { router, mount } = fixture()
   const url = location.href
+
   expect(await router.push({ to: '/settings' })).toEqual({ status: 'blocked' })
   expect(location.href).toBe(url)
+
   const container = mount()
   const result = await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   expect(result.status).toBe('committed')
   expect(location.pathname).toBe('/items/coat')
   expect(container.querySelector('#item')?.textContent).toBe('coat:coat1:0')
@@ -148,10 +159,13 @@ it('requires a mounted host and resolves navigation after the destination DOM co
 it('refreshes without remounting, replaces history, and renders actual Back/Forward traversal', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'fade' })
   act(() => (container.querySelector('#item') as HTMLButtonElement).click())
   expect(visibleText(container)).toBe('coat:coat1:1')
+
   const refreshed = await router.refresh()
+
   expect(router.getSnapshot().route?.transition).toBe('fade')
   if (refreshed.status === 'committed') {
     expect(await refreshed.finished).toEqual({ status: 'skipped', reason: 'disabled' })
@@ -171,6 +185,7 @@ it('refreshes without remounting, replaces history, and renders actual Back/Forw
 
 function BaseCounter() {
   const [count, setCount] = useState(0)
+
   return (
     <button id="base-counter" onClick={() => setCount(count + 1)}>
       Base {count}
@@ -190,6 +205,7 @@ it('retains the browser shell DOM and local state beneath root navigation', asyn
   const { router, mount } = fixture()
   const container = mount(CounterApp)
   const counter = container.querySelector('#base-counter') as HTMLButtonElement
+
   act(() => counter.click())
   expect(visibleText(container)).toBe('Base 1')
   await router.push({ to: '/settings' })
@@ -203,9 +219,12 @@ it('retains the browser shell DOM and local state beneath root navigation', asyn
 it('gives a multistep modal its own navigator and dismisses the whole flow', async () => {
   const { router, platform, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/items/:id', params: { id: 'hat' }, presentation: 'modal' })
+
   const modalNavigator = observedNavigator
+
   expect(modalNavigator.getSnapshot().modal).toBe(true)
   expect(router.getSnapshot().modal).toBe(false)
   expect(container.querySelectorAll('#item')).toHaveLength(1)
@@ -222,6 +241,7 @@ it('gives a multistep modal its own navigator and dismisses the whole flow', asy
 it('renders runtime replacement definitions from the instance registry', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   router.addRoutes(
     defineRoutes([
       defineRoute({ path: '/items/:id', loader: () => ({ title: 'replacement' }) }).screen(Item),
@@ -239,6 +259,7 @@ function Broken() {
 
 it('settles render failures instead of hanging on a missing render receipt', async () => {
   const { router, mount } = fixture()
+
   mount()
   router.addRoutes(defineRoutes([defineRoute({ path: '/settings' }).screen(Broken)]), {
     id: 'broken',
@@ -264,7 +285,9 @@ it('cancels preparation when its mounted owner leaves', async () => {
   )
 
   mount()
+
   const pending = router.push({ to: '/settings' })
+
   await Promise.resolve()
   cleanups.pop()!()
   expect(await pending).toEqual({ status: 'cancelled', reason: 'aborted' })
@@ -289,6 +312,7 @@ it('keeps accepted root navigation committed while hiding retained named outlets
   const container = mount(NamedApp)
   const left = bindRouterFlow(router, 'left')
   const right = bindRouterFlow(router, 'right')
+
   await left.push({ to: '/items/:id', params: { id: 'coat' } })
   await right.push({ to: '/items/:id', params: { id: 'hat' } })
   expect(left.getSnapshot().canGoBack).toBe(false)
@@ -323,6 +347,7 @@ it('awaits a composition barrier before changing browser history or DOM', async 
   })
 
   const original = platform.host.commit.bind(platform.host)
+
   platform.host.commit = (command) =>
     original({
       ...command,
@@ -333,6 +358,7 @@ it('awaits a composition barrier before changing browser history or DOM', async 
     })
 
   const pending = router.push({ to: '/settings' })
+
   try {
     await settle()
     expect(waiting).toBe(true)
@@ -356,8 +382,11 @@ it('does not mutate browser history after disposal during a composition barrier'
   })
 
   const original = platform.host.commit.bind(platform.host)
+
   platform.host.commit = (command) => original({ ...command, beforeMutation: () => barrier })
+
   const pending = router.push({ to: '/settings' })
+
   await settle()
   router.dispose()
   release()
@@ -369,21 +398,30 @@ it('does not mutate browser history after disposal during a composition barrier'
 
 it('does not commit into a different outlet lifetime after a barrier completes', async () => {
   const { platform, router, mount } = fixture()
+
   mount()
+
   let release!: () => void
   const barrier = new Promise<void>((resolve) => {
     release = resolve
   })
 
   const original = platform.host.commit.bind(platform.host)
+
   platform.host.commit = (command) => original({ ...command, beforeMutation: () => barrier })
+
   const pending = router.push({ to: '/settings' })
+
   try {
     await settle()
+
     const unmount = cleanups.pop()!
+
     unmount()
     expect(platform.views.getSnapshot().staged).toBeUndefined()
+
     const next = mount()
+
     expect(next.querySelector('#settings')).toBeNull()
     release()
     expect(await pending).toMatchObject({ status: 'cancelled', reason: 'disposed' })
@@ -407,6 +445,7 @@ it('serializes accepted browser commits around an asynchronous composition barri
 
   const original = platform.host.commit.bind(platform.host)
   let calls = 0
+
   platform.host.commit = (command) =>
     original({
       ...command,
@@ -414,10 +453,13 @@ it('serializes accepted browser commits around an asynchronous composition barri
     })
 
   const first = router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   try {
     await settle()
     expect(waiting).toBe(true)
+
     const second = router.push({ to: '/settings' })
+
     await settle()
     expect(location.pathname).toBe('/')
     expect(calls).toBe(1)
@@ -435,9 +477,13 @@ it('serializes accepted browser commits around an asynchronous composition barri
 it('preserves current DOM, state, URL and history when page candidates fail rendering', async () => {
   const { router, platform, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   const button = container.querySelector('#item') as HTMLButtonElement
+
   act(() => button.click())
+
   const before = { url: location.href, state: history.state, length: history.length }
   const layer = router.addRoutes(
     defineRoutes([defineRoute({ path: '/items/:id' }).screen(Broken)]),
@@ -469,11 +515,15 @@ it('preserves current DOM, state, URL and history when page candidates fail rend
 it('keeps a modal and presenter intact when its next screen fails rendering', async () => {
   const { router, platform, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/settings', presentation: 'modal' })
+
   const modal = observedNavigator
   const settings = document.querySelector('[role="dialog"] #settings')
+
   expect(settings).not.toBeNull()
+
   const before = location.href
   const layer = router.addRoutes(
     defineRoutes([defineRoute({ path: '/items/:id' }).screen(Broken)]),
@@ -526,8 +576,10 @@ it('does not create a modal history entry when its candidate fails', async () =>
 it('does not advance internal depth when the browser rejects a history write', async () => {
   const { router, platform, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/settings' })
   await router.back()
+
   const base = container.querySelector('#base')
   const write = vi.spyOn(history, 'pushState').mockImplementation(() => {
     throw new DOMException('write rejected', 'SecurityError')
@@ -561,11 +613,16 @@ it('reveals a staged screen without remounting its DOM or local state', async ()
   })
 
   const original = platform.host.commit.bind(platform.host)
+
   platform.host.commit = (command) => original({ ...command, beforeMutation: () => barrier })
+
   const pending = router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   try {
     await settle()
+
     const button = container.querySelector('#item') as HTMLButtonElement
+
     expect(button).not.toBeNull()
     expect(button.parentElement?.style.display).toBe('none')
     act(() => button.click())
@@ -585,6 +642,7 @@ it('retires an abandoned modal scope before its navigator can escape to root', a
   const { platform, router, mount } = fixture()
   const container = mount()
   const original = platform.host.commit.bind(platform.host)
+
   platform.host.commit = (command) =>
     original({
       ...command,
@@ -598,6 +656,7 @@ it('retires an abandoned modal scope before its navigator can escape to root', a
   ).toMatchObject({ status: 'failed', phase: 'commit' })
 
   const abandoned = observedNavigator
+
   expect(await abandoned.push({ to: '/settings', stack: 'root' })).toEqual({
     status: 'cancelled',
     reason: 'disposed',
@@ -614,6 +673,7 @@ function deferredTransitions() {
   const updates: (() => Promise<void>)[] = []
   const finishes: (() => void)[] = []
   const skipped: boolean[] = []
+
   Object.defineProperty(document, 'startViewTransition', {
     configurable: true,
     value: (update: () => Promise<void>) => {
@@ -665,22 +725,28 @@ function deferredTransitions() {
 it('flushes visible DOM and URL inside the transition callback and returns before animation finishes', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   const { updates, finishes } = deferredTransitions()
   const pending = router.push({ to: '/settings', transition: 'fade' })
+
   await vi.waitFor(() => expect(updates).toHaveLength(1))
   expect(visibleText(container)).toBe('coat:coat1:0')
   expect(location.pathname).toBe('/items/coat')
   await updates[0]()
   expect(visibleText(container)).toBe('Settings')
   expect(location.pathname).toBe('/settings')
+
   const result = await pending
+
   expect(result.status).toBe('committed')
   if (result.status !== 'committed') {
     throw new Error('Expected commit')
   }
 
   let animated = false
+
   void result.finished.then(() => {
     animated = true
   })
@@ -694,11 +760,16 @@ it('flushes visible DOM and URL inside the transition callback and returns befor
 it('prevents a skipped deferred callback from replacing a newer committed route', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   const { updates } = deferredTransitions()
   const older = router.push({ to: '/settings', transition: 'fade' })
+
   await vi.waitFor(() => expect(updates).toHaveLength(1))
+
   const newer = router.push({ to: '/items/:id', params: { id: 'hat' }, transition: 'none' })
+
   expect(await older).toEqual({ status: 'cancelled', reason: 'superseded' })
   expect((await newer).status).toBe('committed')
   await updates[0]()
@@ -710,9 +781,12 @@ it('prevents a skipped deferred callback from replacing a newer committed route'
 it('settles disposal before a deferred browser update and prevents its later mutation', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   const { updates } = deferredTransitions()
   const pending = router.push({ to: '/settings', transition: 'fade' })
+
   await vi.waitFor(() => expect(updates).toHaveLength(1))
   router.dispose()
   expect(await pending).toEqual({ status: 'cancelled', reason: 'disposed' })
@@ -725,16 +799,21 @@ it('releases committed and saved data when the root outlet owner ends', async ()
   let account = 'a'
   const { platform, router, mount } = fixture((id, load) => account + ':' + id + ':' + load)
   const original = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/items/:id', params: { id: 'hat' } })
   expect(original.querySelector('#item')?.textContent).toContain(':a:hat:')
+
   const unmount = cleanups.pop()!
+
   unmount()
   expect(router.getSnapshot().route).toBeNull()
   expect(router.getSnapshot().canGoBack).toBe(false)
   expect(platform.views.getSnapshot()).toMatchObject({ main: null, modals: [] })
   account = 'b'
+
   const next = mount()
+
   expect(visibleText(next)).toBe('Base')
   await router.navigateUrl('/items/hat', { replace: true })
   expect(next.querySelector('#item')?.textContent).toContain(':b:hat:')
@@ -751,6 +830,7 @@ it('rechecks guards before restoring a previously admitted browser entry', async
   const container = mount()
   let allowed = true
   let guards = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -769,7 +849,9 @@ it('rechecks guards before restoring a previously admitted browser entry', async
 
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/settings', transition: 'none' })
+
   const sourceUrl = location.href
+
   allowed = false
   expect(await router.back()).toEqual({ status: 'forbidden' })
   expect(guards).toBe(2)
@@ -786,6 +868,7 @@ it('corrects denied browser Back and admits the same entry after authorization c
   const container = mount()
   let allowed = true
   let loads = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -827,6 +910,7 @@ it('corrects denied browser Forward and reruns its loader only after admission',
   const container = mount()
   let allowed = true
   let loads = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -860,6 +944,7 @@ it('redirects an imperative Back into the traversed entry without adding history
   const { router, mount } = fixture()
   const container = mount()
   let redirect = false
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -877,9 +962,13 @@ it('redirects an imperative Back into the traversed entry without adding history
 
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/items/:id', params: { id: 'hat' }, transition: 'none' })
+
   const length = history.length
+
   redirect = true
+
   const result = await router.back()
+
   expect(result.status).toBe('committed')
   if (result.status === 'committed') {
     expect(result.redirected).toBe(true)
@@ -988,7 +1077,9 @@ it('cancels a pending history guard when a newer navigation commits', async () =
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/settings', transition: 'none' })
   waitForGuard = true
+
   const older = router.back()
+
   await entered
   expect((await router.replace({ to: '/settings', transition: 'none' })).status).toBe('committed')
   expect(await older).toEqual({ status: 'cancelled', reason: 'superseded' })
@@ -1046,6 +1137,7 @@ it('corrects a superseded external traversal before committing the newer request
 it('reprepares old URLs after root-owner replacement and corrects denied access', async () => {
   const { router, mount } = fixture()
   let allowed = true
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1065,7 +1157,9 @@ it('reprepares old URLs after root-owner replacement and corrects denied access'
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/settings', transition: 'none' })
   cleanups.pop()!()
+
   const container = mount()
+
   await router.navigateUrl('/settings', { replace: true })
   allowed = false
   history.back()
@@ -1088,6 +1182,7 @@ it('retries a denied browser Forward in the original direction', async () => {
   const { router, mount } = fixture()
   const container = mount()
   let allowed = true
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1113,6 +1208,7 @@ it('retries a denied browser Forward in the original direction', async () => {
   )
 
   const length = history.length
+
   allowed = true
   expect((await router.retry()).status).toBe('committed')
   expect(location.pathname).toBe('/items/coat')
@@ -1127,6 +1223,7 @@ it('rebases denied foreign history to the admitted URL without trusting its stat
   const container = mount()
   let allowed = true
   let loads = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1148,7 +1245,9 @@ it('rebases denied foreign history to the admitted URL without trusting its stat
   await vi.waitFor(() => expect(location.pathname).toBe('/settings'))
   await settle()
   allowed = false
+
   const length = history.length
+
   history.forward()
   await vi.waitFor(() =>
     expect(router.getSnapshot().navigation).toMatchObject({
@@ -1213,6 +1312,7 @@ it('refuses history whose named outlet has ended instead of waiting for an impos
   let remove!: () => void
   function OptionalNamedApp() {
     const [shown, setShown] = useState(true)
+
     remove = () => setShown(false)
     return (
       <ClientRouteOutlet host={platform}>
@@ -1226,6 +1326,7 @@ it('refuses history whose named outlet has ended instead of waiting for an impos
   }
 
   const container = mount(OptionalNamedApp)
+
   await router
     .forStack('left')
     .push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
@@ -1241,6 +1342,7 @@ it('rebases the admitted URL if the browser refuses a history correction', async
   const { router, mount } = fixture()
   const container = mount()
   let allowed = true
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1259,6 +1361,7 @@ it('rebases the admitted URL if the browser refuses a history correction', async
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/settings', transition: 'none' })
   allowed = false
+
   const go = vi.spyOn(history, 'go').mockImplementation(() => {
     throw new Error('Traversal refused')
   })
@@ -1285,6 +1388,7 @@ it('presents a modal history redirect over the admitted source instead of restor
   const container = mount()
   let redirect = false
   let modalLoads = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1306,7 +1410,9 @@ it('presents a modal history redirect over the admitted source instead of restor
   await router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' })
   await router.push({ to: '/settings', transition: 'none' })
   redirect = true
+
   const result = await router.back()
+
   expect(result.status === 'committed' && result.redirected).toBe(true)
   expect(location.pathname).toBe('/login')
   expect(platform.views.getSnapshot().main?.route.to).toBe('/settings')
@@ -1318,9 +1424,12 @@ it('presents a modal history redirect over the admitted source instead of restor
 
 it('corrects external Back before presenting its prepared modal redirect', async () => {
   const { router, platform, mount } = fixture()
+
   mount()
+
   let redirect = false
   let loads = 0
+
   router.addRoutes(
     defineRoutes([
       defineRoute({
@@ -1355,11 +1464,14 @@ it('corrects external Back after a confirmation reset without loading or reveali
   })
 
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/items/:id', params: { id: 'hat' } })
   act(() => (container.querySelector('#item') as HTMLButtonElement).click())
+
   const before = loads
   const blocker = createNavigationBlocker()
+
   cleanups.push(
     registerNavigationBlocker(router.forStack('root'), { blocker, shouldBlock: () => true }),
   )
@@ -1368,7 +1480,9 @@ it('corrects external Back after a confirmation reset without loading or reveali
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
   expect(visibleText(container)).toBe('hat:hat:1')
   expect(loads).toBe(before)
+
   const refused = blocker.getSnapshot()
+
   if (refused.status !== 'blocked') {
     throw new Error('Expected confirmation')
   }
@@ -1383,7 +1497,9 @@ it('corrects external Back after a confirmation reset without loading or reveali
   expect(loads).toBe(before)
   history.back()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const admitted = blocker.getSnapshot()
+
   if (admitted.status !== 'blocked') {
     throw new Error('Expected new confirmation')
   }
@@ -1399,15 +1515,20 @@ it('corrects external Back after a confirmation reset without loading or reveali
 it('confirms browser Back to a declaring base even when there is no target route to prepare', async () => {
   const { router, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/settings' })
+
   const blocker = createNavigationBlocker()
+
   cleanups.push(
     registerNavigationBlocker(router.forStack('root'), { blocker, shouldBlock: () => true }),
   )
 
   history.back()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const refusal = blocker.getSnapshot()
+
   if (refusal.status !== 'blocked') {
     throw new Error('Expected confirmation')
   }
@@ -1417,7 +1538,9 @@ it('confirms browser Back to a declaring base even when there is no target route
   expect(visibleText(container)).toBe('Settings')
   history.back()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const allowed = blocker.getSnapshot()
+
   if (allowed.status !== 'blocked') {
     throw new Error('Expected new confirmation')
   }
@@ -1436,17 +1559,22 @@ it('supersedes a held external traversal without letting its old controls affect
   })
 
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/items/:id', params: { id: 'hat' } })
+
   let when = true
   const blocker = createNavigationBlocker()
+
   cleanups.push(
     registerNavigationBlocker(router.forStack('root'), { blocker, shouldBlock: () => when }),
   )
 
   history.back()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const obsolete = blocker.getSnapshot()
+
   if (obsolete.status !== 'blocked') {
     throw new Error('Expected confirmation')
   }
@@ -1465,17 +1593,22 @@ it('supersedes a held external traversal without letting its old controls affect
 it('corrects a held Forward refusal and can proceed in the original direction later', async () => {
   const { router, mount } = fixture((id) => id)
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/items/:id', params: { id: 'hat' } })
   await router.back()
+
   const blocker = createNavigationBlocker()
+
   cleanups.push(
     registerNavigationBlocker(router.forStack('root'), { blocker, shouldBlock: () => true }),
   )
 
   history.forward()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const refused = blocker.getSnapshot()
+
   if (refused.status !== 'blocked') {
     throw new Error('Expected confirmation')
   }
@@ -1486,7 +1619,9 @@ it('corrects a held Forward refusal and can proceed in the original direction la
   expect(visibleText(container)).toBe('coat:coat:0')
   history.forward()
   await vi.waitFor(() => expect(blocker.getSnapshot().status).toBe('blocked'))
+
   const admitted = blocker.getSnapshot()
+
   if (admitted.status !== 'blocked') {
     throw new Error('Expected new confirmation')
   }
@@ -1498,6 +1633,7 @@ it('corrects a held Forward refusal and can proceed in the original direction la
 
 it('keeps modal focus ownership across screens and restores a revalidated opener', async () => {
   const { router, mount } = fixture()
+
   router.addRoutes(
     defineRuntimeRoutes([
       defineRoute({ path: '/settings', head: () => ({ title: 'Settings dialog' }) }).screen(
@@ -1508,12 +1644,17 @@ it('keeps modal focus ownership across screens and restores a revalidated opener
   )
 
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
   const opener = container.querySelector('#item') as HTMLButtonElement
+
   opener.focus()
   await router.push({ to: '/items/:id', params: { id: 'hat' }, presentation: 'modal' })
+
   const modal = observedNavigator
   const panel = document.querySelector('[role="dialog"]') as HTMLElement
+
   expect(panel.getAttribute('aria-modal')).toBe('true')
   try {
     act(() => setThemePreference('dark'))
@@ -1546,6 +1687,7 @@ it('keeps modal focus ownership across screens and restores a revalidated opener
 it('routes modal Escape through admission and retains focus after refusal', async () => {
   const { router, platform, mount } = fixture()
   let deny = false
+
   router.addRoutes(
     defineRuntimeRoutes([
       defineRoute({
@@ -1562,11 +1704,14 @@ it('routes modal Escape through admission and retains focus after refusal', asyn
   )
 
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
 
   ;(container.querySelector('#item') as HTMLElement).focus()
   await router.push({ to: '/settings', presentation: 'modal' })
+
   const panel = document.querySelector('[role="dialog"]') as HTMLElement
+
   deny = true
   document.dispatchEvent(
     new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
@@ -1587,12 +1732,17 @@ it('routes modal Escape through admission and retains focus after refusal', asyn
 it('restores nested modal focus and leaves failed staging outside the active dialog', async () => {
   const { router, platform, mount } = fixture()
   const container = mount()
+
   await router.push({ to: '/items/:id', params: { id: 'coat' } })
   await router.push({ to: '/settings', presentation: 'modal' })
+
   const outer = observedNavigator
   const outerPanel = document.querySelector('[role="dialog"]') as HTMLElement
+
   await outer.push({ to: '/items/:id', params: { id: 'hat' }, presentation: 'modal' })
+
   const inner = observedNavigator
+
   expect(document.querySelectorAll('[role="dialog"]')).toHaveLength(2)
   expect(outerPanel.closest('[inert]')).not.toBeNull()
   expect(document.querySelectorAll('[role="dialog"]')[1].contains(document.activeElement)).toBe(
@@ -1602,6 +1752,7 @@ it('restores nested modal focus and leaves failed staging outside the active dia
   expect((await inner.dismiss()).status).toBe('committed')
   expect(document.activeElement).toBe(outerPanel)
   expect(container.hasAttribute('inert')).toBe(true)
+
   const layer = router.addRoutes(
     defineRoutes([defineRoute({ path: '/items/:id' }).screen(Broken)]),
     { id: 'focus-broken', conflict: 'replace' },
@@ -1634,6 +1785,7 @@ function FocusPage(props: { params: { id: string }; data: { title: string } }) {
 
 it('focuses committed content, preserves refresh and restores entry focus through Back', async () => {
   const { router, mount } = fixture()
+
   router.addRoutes(
     defineRuntimeRoutes([
       defineRoute({
@@ -1647,10 +1799,14 @@ it('focuses committed content, preserves refresh and restores entry focus throug
 
   mount()
   await router.push({ to: '/focus/:id', params: { id: 'first' } })
+
   const heading = document.getElementById('heading-first')!
+
   expect(document.activeElement).toBe(heading)
   expect(heading.getAttribute('tabindex')).toBe('-1')
+
   const control = document.getElementById('control-first')!
+
   control.focus()
   expect(heading.hasAttribute('tabindex')).toBe(false)
   await router.refresh()
@@ -1689,9 +1845,13 @@ it('focuses a decoded fragment and prevents cancelled loaders from changing focu
   mount()
   await router.push({ to: '/focus/:id', params: { id: 'first' }, hash: 'part one' })
   expect(document.activeElement).toBe(document.getElementById('part one'))
+
   const pending = router.push({ to: '/focus/:id', params: { id: 'slow' } })
+
   await router.push({ to: '/focus/:id', params: { id: 'latest' } })
+
   const heading = document.getElementById('heading-latest')!
+
   finish()
   expect((await pending).status).toBe('cancelled')
   await settle()
@@ -1703,6 +1863,7 @@ it('focuses a decoded fragment and prevents cancelled loaders from changing focu
 
 it('returns modal focus to a revalidated noninteractive fragment heading', async () => {
   const { router, mount } = fixture()
+
   router.addRoutes(
     defineRuntimeRoutes([
       defineRoute({ path: '/focus/:id', loader: ({ params }) => ({ title: params.id }) }).screen(
@@ -1716,7 +1877,9 @@ it('returns modal focus to a revalidated noninteractive fragment heading', async
   await router.push({ to: '/focus/:id', params: { id: 'first' }, hash: 'part one' })
   expect(document.activeElement).toBe(document.getElementById('part one'))
   await router.push({ to: '/settings', presentation: 'modal' })
+
   const modal = observedNavigator
+
   expect((await modal.dismiss()).status).toBe('committed')
   expect(document.activeElement).toBe(document.getElementById('part one'))
   expect(document.activeElement?.getAttribute('tabindex')).toBe('-1')

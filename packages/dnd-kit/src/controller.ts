@@ -28,6 +28,7 @@ class PanDraggable extends Draggable {
   activationDistance = 0
   setActivationDistance(value?: number): void {
     const distance = value ?? 0
+
     if (!Number.isFinite(distance) || distance < 0) {
       throw new RangeError('activationDistance must be a finite non-negative number')
     }
@@ -68,6 +69,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
         }
 
         const measured = measure(manager.draggableNodes.get(source.id))
+
         if (!measured) {
           return
         }
@@ -92,6 +94,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 
         const x = event.dx - base.x
         const y = event.dy - base.y
+
         if (Math.hypot(x, y) >= activationDistance) {
           if (source.disabled || !manager.dragOperation.status.idle) {
             pendingOrigin = null
@@ -99,6 +102,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
           }
 
           const measured = pendingOrigin
+
           pendingOrigin = null
           await start(measured)
         } else {
@@ -120,6 +124,7 @@ class PanSensor extends Sensor<DragDropManager<PanDraggable, Droppable>> {
 
       const x = event.dx - base.x
       const y = event.dy - base.y
+
       manager.actions.move({ to: { x: origin.center.x + x, y: origin.center.y + y } })
       // The core commits movement in a microtask. Serialize release after it.
       await Promise.resolve()
@@ -180,6 +185,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
       const over = operation.target
       const transform = operation.transform
       const isDragging = operation.status.dragging
+
       this.snapshot = {
         active: active && !operation.status.idle ? { id: active.id, data: active.data } : null,
         over: over && !operation.status.idle ? { id: over.id, data: over.data } : null,
@@ -199,6 +205,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 
     const event = (canceled = false): DragEvent => {
       const operation = this.dragOperation
+
       return {
         active: operation.source ? { id: operation.source.id, data: operation.source.data } : null,
         over: operation.target ? { id: operation.target.id, data: operation.target.data } : null,
@@ -298,12 +305,14 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 
     this.scrollTimer = setInterval(() => {
       const scroll = this.options.autoScroll
+
       if (!scroll || !this.dragOperation.status.dragging) {
         this.stopAutoScroll()
         return
       }
 
       const bounds = scroll.bounds()
+
       if (!bounds) {
         return
       }
@@ -316,6 +325,7 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
         : this.dragOperation.position.current.y
 
       const threshold = Math.min(scroll.threshold ?? 40, size / 2)
+
       if (threshold <= 0 || point < start || point > start + size) {
         return
       }
@@ -334,9 +344,12 @@ export class DndController extends DragDropManager<PanDraggable, Droppable> {
 
       if (next !== scroll.offsetRef.current) {
         const before = scroll.offsetRef.current
+
         scroll.scrollTo(next)
+
         const delta = scroll.offsetRef.current - before
         const shift = this.scrollShift$.peek()
+
         this.scrollShift$.value = {
           x: shift.x + (horizontal ? delta : 0),
           y: shift.y + (horizontal ? 0 : delta),

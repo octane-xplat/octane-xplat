@@ -6,12 +6,14 @@ import { isPrimaryClickBoundary } from '../src/primary-click.ts'
 
 const hooks = mockNativeBoundary()
 const { createActions } = await import('../src/actions.ts')
+
 hooks.deregister()
 
 function fixture() {
   const store = createActionStore(),
     recognizers: any[] = [],
     calls: string[] = []
+
   const cssNodesByView = new WeakMap()
   const actions = createActions({
     store,
@@ -19,6 +21,7 @@ function fixture() {
     textElements: {
       primaryClickBoundary: () => (view) => {
         const target = cssNodesByView.get(view)
+
         return (
           target != null &&
           isPrimaryClickBoundary(
@@ -33,17 +36,20 @@ function fixture() {
     cssPseudoState: { syncPseudoState() {} },
     inputElements: {} as any,
   })
+
   const view = { addGestureRecognizer: (recognizer: object) => recognizers.push(recognizer) }
   const node: any = {
     view,
     props: {},
     container: { root: { eventScope: (_: string, callback: () => void) => callback() } },
   }
+
   return { ...actions, store, recognizers, calls, view, node, cssNodesByView }
 }
 
 test('semantic-only checkbox needs no action and can acquire exactly one click recognizer later', () => {
   const f = fixture()
+
   f.node.props.accessibilityRole = 'checkbox'
   assert.equal(f.node.actionId, undefined)
   assert.equal(f.recognizers.length, 0)
@@ -59,10 +65,13 @@ test('semantic-only checkbox needs no action and can acquire exactly one click r
 
 test('clear/re-add and disabled callbacks retain identity without live no-op gestures', () => {
   const f = fixture()
+
   f.node.props.accessibilityRole = 'radio'
   f.node.props.disabled = true
   f.setAction(f.node, () => f.calls.push('press'))
+
   const recognizer = f.node.clickGestureRecognizer
+
   assert.equal(recognizer.enabled, false)
   f.invokeAction(f.node.actionId)
   assert.deepEqual(f.calls, [])
@@ -80,6 +89,7 @@ test('clear/re-add and disabled callbacks retain identity without live no-op ges
 
 test('clearing a noninteractive host does not manufacture an identity or recognizer', () => {
   const f = fixture()
+
   f.setAction(f.node, undefined)
   assert.equal(f.node.actionId, undefined)
   assert.equal(f.recognizers.length, 0)
@@ -88,41 +98,54 @@ test('clearing a noninteractive host does not manufacture an identity or recogni
 test('primary click wiring reads current descendant semantics and action ownership', () => {
   const f = fixture(),
     view: any = f.view
+
   const window: any = {},
     child: any = { superview: view, window }
+
   window.contentView = { hitTest: () => child }
   view.window = window
+
   const target: any = { type: 'masonview', props: {}, actionId: 99 }
+
   f.cssNodesByView.set(child, target)
   f.setAction(f.node, () => {})
+
   const recognizer = f.node.clickGestureRecognizer
   const event = { type: 1, window, locationInWindow: { x: 10, y: 10 } }
+
   assert.equal(
     recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
     true,
   )
+
   target.props = { accessibilityRole: 'button', disabled: true }
   assert.equal(
     recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
     false,
   )
+
   target.props = {}
+
   const childAction = f.store.allocate(child)
+
   childAction.setHandler(() => {})
   assert.equal(
     recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
     false,
   )
+
   childAction.setHandler(undefined)
   assert.equal(
     recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
     true,
   )
+
   target.type = 'textfield'
   assert.equal(
     recognizer.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(recognizer, event),
     false,
   )
+
   f.setAction(f.node, undefined)
   f.setAction(f.node, () => {})
   assert.equal(f.node.clickGestureRecognizer, recognizer)

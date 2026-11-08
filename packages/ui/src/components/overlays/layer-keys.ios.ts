@@ -5,7 +5,9 @@ const firstResponder = (view: any): any => {
   ) {
     return view
   }
+
   const children = view?.subviews
+
   for (let index = 0; index < (children?.count ?? children?.length ?? 0); index++) {
     const found = firstResponder(
       children.objectAtIndex ? children.objectAtIndex(index) : children[index],
@@ -15,6 +17,7 @@ const firstResponder = (view: any): any => {
       return found
     }
   }
+
   return null
 }
 
@@ -24,17 +27,23 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
     nativeView(host)?.window ??
     nativeView(getTarget?.())?.window ??
     (host ? undefined : (globalThis as any).UIApplication?.sharedApplication?.keyWindow)
+
   const initial = firstResponder(owner)
+
   return () => {
     const target = getTarget?.()
+
     if (target?.isLoaded === false) {
       return
     }
+
     if (typeof target?.focus === 'function') {
       target.focus()
       return
     }
+
     const responder = nativeView(target) ?? initial
+
     if (responder && owner && responder.window === owner && owner?.isKeyWindow !== false) {
       responder.becomeFirstResponder?.()
     }

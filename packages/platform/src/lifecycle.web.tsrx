@@ -16,14 +16,17 @@ function browserAppState(): AppState {
 export function useAppState(): AppState {
   const bootstrap = desktopHostBootstrap()
   const [state, setState] = useState<AppState>(bootstrap?.appState ?? browserAppState())
+
   useEffect(() => {
     const host = desktopHostClient()
+
     if (host) {
       return host.on('app.state.change', setState)
     }
 
     const onVis = () => setState(browserAppState())
     const onHide = () => setState('inactive')
+
     document.addEventListener('visibilitychange', onVis)
     window.addEventListener('pagehide', onHide)
     window.addEventListener('pageshow', onVis)

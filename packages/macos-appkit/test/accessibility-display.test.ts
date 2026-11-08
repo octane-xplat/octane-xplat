@@ -7,10 +7,13 @@ function fixture(add: (...args: any[]) => unknown) {
   const source = rendererSource(),
     begin = source.indexOf('let accessibilityDisplayObserver'),
     end = source.indexOf('// Appearance flips', begin)
+
   assert.ok(begin >= 0 && end > begin)
+
   const containers = new Set([{}]),
     queue = {},
     workspace = { notificationCenter: { addObserverForNameObjectQueueUsingBlock: add } }
+
   let refreshed = 0
   const install = runSlice(source.slice(begin, end) + '\n;installAccessibilityDisplayObserver', {
     NSWorkspace: { sharedWorkspace: workspace },
@@ -20,6 +23,7 @@ function fixture(add: (...args: any[]) => unknown) {
     onHostWindowResize: () => refreshed++,
     console: { warn() {} },
   })
+
   return { install, containers, queue, workspace, refreshed: () => refreshed }
 }
 
@@ -29,6 +33,7 @@ test('display-option observation uses the workspace center/main queue once and i
       calls.push(args)
       return {}
     })
+
   env.install()
   env.install()
   assert.equal(calls.length, 1)
@@ -48,8 +53,10 @@ test('failed observer registration does not claim installation and a later root 
     if (++attempts === 1) {
       throw Error('bridge unavailable')
     }
+
     return {}
   })
+
   assert.doesNotThrow(env.install)
   env.install()
   env.install()

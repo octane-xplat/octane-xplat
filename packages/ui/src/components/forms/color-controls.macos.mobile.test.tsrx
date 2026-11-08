@@ -12,8 +12,10 @@ import { ColorArea } from './ColorArea.macos.tsrx'
 import { ColorPicker } from './ColorPicker.macos.tsrx'
 
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(component: any, props: any) {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const render = (next: any) => {
@@ -22,8 +24,10 @@ function mount(component: any, props: any) {
   }
 
   render(props)
+
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -74,6 +78,7 @@ it('AppKit color slider exposes adjustable metadata and 10° assistive steps', (
 
   try {
     const slider = () => env.named('vx-color-slider')[0]
+
     expect(slider().props.accessibilityValue).toBe('0')
     expect(slider().props.accessibilityMinValue).toBe(0)
     expect(slider().props.accessibilityMaxValue).toBe(360)
@@ -95,8 +100,10 @@ it('AppKit color slider exposes adjustable metadata and 10° assistive steps', (
 
 it('AppKit color slider arrows step 1°/10° and ignore modified, composing and unrelated keys', () => {
   const env = mount(ColorSlider, { channel: 'hue', defaultValue: '#ff0000' })
+
   try {
     const slider = () => env.named('vx-color-slider')[0]
+
     expect(key(slider(), 'ArrowRight').defaultPrevented).toBe(true)
     expect(slider().props.accessibilityValue).toBe('1')
     expect(key(slider(), 'ArrowUp', { shiftKey: true }).defaultPrevented).toBe(true)
@@ -123,6 +130,7 @@ it('a disabled AppKit color slider drops adjustment actions and ignores keys', (
 
   try {
     const slider = () => env.named('vx-color-slider')[0]
+
     expect(slider().props.onAccessibilityIncrement).toBeUndefined()
     expect(slider().props.onAccessibilityDecrement).toBeUndefined()
     expect(slider().props.disabled).toBe(true)
@@ -137,8 +145,10 @@ it('a disabled AppKit color slider drops adjustment actions and ignores keys', (
 
 it('AppKit color area reports brightness and arrows move both channels with clamping', () => {
   const env = mount(ColorArea, { defaultValue: '#808080' })
+
   try {
     const area = () => env.named('vx-color-area')[0]
+
     expect(area().props.accessibilityValue).toBe('50')
     expect(area().props.accessibilityMinValue).toBe(0)
     expect(area().props.accessibilityMaxValue).toBe(100)

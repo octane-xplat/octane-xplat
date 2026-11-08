@@ -43,6 +43,7 @@ function isDateInRange(iso: ISODateString, range: DateRange): boolean {
 /** ISO week number for `iso`. */
 function getWeekNumber(iso: ISODateString): number {
   const pd = plainDateFromISO(iso)
+
   return pd ? plainDateGetWeekNumber(pd) : 0
 }
 
@@ -123,11 +124,14 @@ export function buildMonthGrid(
   const today = plainDateToday()
 
   const weeks: CalendarDay[][] = []
+
   for (let w = 0; w < weekCount; w++) {
     const week: CalendarDay[] = []
+
     for (let d = 0; d < 7; d++) {
       const date = plainDateAddDays(gridStart, w * 7 + d)
       const dow = plainDateToDate(date).getDay()
+
       week.push({
         date,
         iso: plainDateToISO(date),
@@ -199,6 +203,7 @@ export function createDateDisabledCheck(
 
     if (anchorPd) {
       const span = Math.abs(plainDateDiffDays(date, anchorPd)) + 1
+
       if (input.maxRangeSpan != null && span > input.maxRangeSpan) {
         return true
       }
@@ -224,11 +229,13 @@ export function createDateDisabledCheck(
 export function isDateRangeAllowed(range: DateRange, input: CalendarConstraintsInput): boolean {
   const start = plainDateFromISO(range.start)
   const end = plainDateFromISO(range.end)
+
   if (!start || !end || plainDateIsAfter(start, end)) {
     return false
   }
 
   const span = plainDateDiffDays(end, start) + 1
+
   if (span < (input.minRangeSpan ?? 1)) {
     return false
   }
@@ -238,6 +245,7 @@ export function isDateRangeAllowed(range: DateRange, input: CalendarConstraintsI
   }
 
   const isDisabled = createDateDisabledCheck({ ...input, rangeAnchor: null })
+
   return !isDisabled(start) && !isDisabled(end)
 }
 
@@ -260,6 +268,7 @@ export function applyRangePick(
 ): RangePickResult {
   const day = plainDateFromISO(iso)
   const anchorPd = plainDateFromISO(anchor)
+
   if (!day || !anchorPd) {
     return { kind: 'cancel' }
   }
@@ -308,6 +317,7 @@ export function getInitialFocusDate(input: {
   const maxPd = input.max ? plainDateFromISO(input.max) : null
 
   let base = explicit ?? selected ?? plainDateToday()
+
   if (minPd && plainDateIsBefore(base, minPd)) {
     base = minPd
   }
@@ -334,6 +344,7 @@ export function getInitialFocusDate(input: {
 
     if (maxPd) {
       const trailingStart = monthStart(plainDateAddMonths(monthStart(base), 1))
+
       if (plainDateIsAfter(trailingStart, maxPd)) {
         base = monthStart(plainDateAddMonths(monthStart(base), -1))
       }
@@ -366,6 +377,7 @@ export function navigationBounds(
   )!
 
   const nextStart = plainDateAddMonths(baseMonth, numberOfMonths)
+
   return {
     canNavigatePrevious: !(minPd && plainDateIsBefore(prevEnd, minPd)),
     canNavigateNext: !(maxPd && plainDateIsAfter(nextStart, maxPd)),
@@ -404,6 +416,7 @@ export function computeDayCellState(
   },
 ): DayCellState {
   const disabled = opts.isDateDisabled(day.date)
+
   if (day.isOutsideMonth) {
     return {
       isSelected: false,
@@ -416,8 +429,10 @@ export function computeDayCellState(
   }
 
   const iso = day.iso
+
   if (opts.mode === 'single') {
     const value = typeof opts.value === 'string' ? opts.value : undefined
+
     return {
       isSelected: value === iso,
       isRangeStart: false,
@@ -434,6 +449,7 @@ export function computeDayCellState(
   const isRangeEnd = range ? range.end === iso : false
   const inCommittedRange = !!range && iso > range.start && iso < range.end
   const inPendingRange = !!anchor && iso > anchor && !disabled
+
   return {
     isSelected: false,
     isRangeStart,
@@ -476,6 +492,7 @@ export function computeCellRounding(state: DayCellState, continuity: CellContinu
 
   const left = !continuity.before
   const right = !continuity.after
+
   if (left && right) {
     return 'both'
   }

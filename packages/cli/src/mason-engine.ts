@@ -16,11 +16,14 @@ export function masonEngine(declared: Record<string, unknown>, windows = false) 
 
     return masonFullPackage
   }
+
   const replaced = [masonFullPackage, masonLegacyPackage].filter((name) => declared[name])
+
   if (replaced.length) {
     throw new Error(
       `${replaced.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap. Remove the replaced engine and run xplat upgrade.`,
     )
   }
+
   return masonCorePackage
 }

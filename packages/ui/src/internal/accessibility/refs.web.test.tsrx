@@ -29,6 +29,7 @@ describe('standard component refs on web', () => {
     const cleanup = vi.fn()
     const callback = vi.fn(() => cleanup)
     const next = { current: null as TextInputHandle | null }
+
     try {
       act(() =>
         root.render(RefFixture, {
@@ -60,6 +61,7 @@ describe('standard component refs on web', () => {
     const container = document.createElement('div')
     const root = createRoot(container)
     const callback = vi.fn()
+
     act(() => root.render(RefFixture, { inputRef: callback }))
     expect(callback.mock.calls[0][0]?.focus).toBeTypeOf('function')
     act(() => root.unmount())
@@ -71,6 +73,7 @@ describe('standard component refs on web', () => {
     const root = createRoot(container)
     const view = { current: null as HTMLElement | null }
     const callback = vi.fn()
+
     try {
       act(() => root.render(RefFixture, { viewRef: [view, callback] }))
       expect(view.current).toBe(container.firstElementChild)

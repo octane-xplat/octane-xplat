@@ -7,17 +7,20 @@ class OrientationDelegate extends UIResponder implements UIApplicationDelegate {
   ): UIInterfaceOrientationMask {
     const requested = Screen.getIOSSupportedInterfaceOrientations(window)
     const mask = conflict ? 2 : requested
+
     diagnostics.push({
       forwarded: true,
       same: window === Application.primaryWindow?.ios?.uiWindow,
       mask,
     })
+
     return mask
   }
 }
 
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import * as Screen from '../src/index'
+
 const folder = knownFolders.documents().path
 const request: { mode: string; nonce: string } = JSON.parse(
   File.fromPath(path.join(folder, 'orientation-request.json')).readTextSync(),
@@ -25,6 +28,7 @@ const request: { mode: string; nonce: string } = JSON.parse(
 
 const diagnostics: unknown[] = []
 let conflict = false
+
 if (request.mode !== 'missing-delegate') {
   Application.ios.delegate = OrientationDelegate
 }
@@ -34,26 +38,34 @@ const assert = (condition: unknown, message: string) => {
   if (!condition) {
     throw new Error(message)
   }
+
   checks.push(message)
 }
 
 const wait = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms))
 const page = new Page()
 const label = new Label()
+
 label.text = 'Screen orientation lifecycle'
 page.content = label
+
 let started = false
+
 page.on(Page.loadedEvent, () => {
   if (started) {
     return
   }
+
   started = true
   void (async () => {
     let error: unknown
+
     try {
       await wait(300)
+
       const window = Application.primaryWindow!.ios!.uiWindow
       const scene = window.windowScene!
+
       assert(Screen.ScreenOrientation.capabilities.observe, 'real primary UIWindowScene available')
       assert(
         (await Screen.getOrientationAsync()) ===
@@ -72,6 +84,7 @@ page.on(Page.loadedEvent, () => {
         )
 
         let rejected = false
+
         try {
           await Screen.lockAsync(Screen.OrientationLock.LANDSCAPE)
         } catch {
@@ -84,7 +97,9 @@ page.on(Page.loadedEvent, () => {
 
       if (request.mode === 'conflicting-delegate') {
         conflict = true
+
         let refused: unknown
+
         try {
           await Screen.lockAsync(Screen.OrientationLock.LANDSCAPE_LEFT)
         } catch (error) {
@@ -145,6 +160,7 @@ page.on(Page.loadedEvent, () => {
 
       const events: Screen.OrientationChangeEvent[] = []
       const subscription = Screen.addOrientationChangeListener((event) => events.push(event))
+
       await Screen.lockAsync(Screen.OrientationLock.LANDSCAPE_LEFT)
       await wait(100)
       assert(scene.interfaceOrientation === 4, 'left landscape reaches native scene')
@@ -196,6 +212,7 @@ page.on(Page.loadedEvent, () => {
       )
 
       let rejected = false
+
       try {
         await Screen.lockAsync(Screen.OrientationLock.PORTRAIT_DOWN)
       } catch {

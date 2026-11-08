@@ -10,6 +10,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  coarse-pointer media query (same predicate as MoreMenu). */
 export function useMenuSheet(presentation: MoreMenuPresentation | undefined): boolean {
   const [adaptive, setAdaptive] = useState(false)
+
   useEffect(() => {
     if (presentation !== 'adaptive') {
       setAdaptive(false)
@@ -18,6 +19,7 @@ export function useMenuSheet(presentation: MoreMenuPresentation | undefined): bo
 
     const query = window.matchMedia('(max-width: 768px) and (pointer: coarse)')
     const update = () => setAdaptive(query.matches)
+
     update()
     query.addEventListener?.('change', update)
     return () => query.removeEventListener?.('change', update)

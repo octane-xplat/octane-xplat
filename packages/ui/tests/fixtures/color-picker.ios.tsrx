@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { ColorPicker } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 declare const CAGradientLayer: any
 declare const UIGraphicsImageRenderer: any
 declare const UIGraphicsImageRendererFormat: any
@@ -17,6 +18,7 @@ declare const interop: any
 
 export default function Fixture() {
   const [color, setColor] = useState('#ff0000')
+
   return (
     <ColorPicker
       id="cp"
@@ -36,10 +38,13 @@ function gradientsIn(view: any, out: any[] = []): any[] {
   }
 
   const subs = view.layer.sublayers
+
   if (subs) {
     const count = Number(subs.count ?? subs.length ?? 0)
+
     for (let i = 0; i < count; i++) {
       const l = subs.objectAtIndex ? subs.objectAtIndex(i) : subs[i]
+
       if (
         l &&
         (l instanceof CAGradientLayer ||
@@ -53,6 +58,7 @@ function gradientsIn(view: any, out: any[] = []): any[] {
 
   const kids = view.subviews
   const n = kids ? Number(kids.count ?? kids.length ?? 0) : 0
+
   for (let i = 0; i < n; i++) {
     gradientsIn(kids.objectAtIndex ? kids.objectAtIndex(i) : kids[i], out)
   }
@@ -66,6 +72,7 @@ export async function run(ctx: ProbeContext) {
   const grads = await ctx.waitFor(() => {
     const g = gradientsIn(root)
     const seven = g.find((e) => Number(e.layer.colors?.count ?? e.layer.colors?.length ?? 0) === 7)
+
     return g.length >= 3 && Number(seven?.layer?.frame?.size?.width ?? 0) > 0 ? g : null
   })
 
@@ -76,6 +83,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.assert('hue track: CAGradientLayer with 7 colors', !!seven, true)
+
   const f = seven.layer.frame,
     b = seven.view.layer.bounds
 
@@ -111,8 +119,10 @@ export async function run(ctx: ProbeContext) {
   const area = vert.view.superview
   const size = area.bounds.size
   const format = UIGraphicsImageRendererFormat.defaultFormat()
+
   format.scale = 1
   format.opaque = true
+
   const renderer = UIGraphicsImageRenderer.alloc().initWithSizeFormat(size, format)
   const image = renderer.imageWithActions(() => {
     area.drawViewHierarchyInRectAfterScreenUpdates(area.bounds, true)
@@ -135,9 +145,11 @@ export async function run(ctx: ProbeContext) {
   )
 
   CGContextDrawImage(bitmap, CGRectMake(0, 0, W, H), cg)
+
   const bytes = new Uint8Array(interop.bufferFromData(buf))
   const sample = (x: number, y: number) => {
     const o = Math.round(y) * bytesPerRow + Math.round(x) * 4
+
     return { r: bytes[o], g: bytes[o + 1], b: bytes[o + 2] }
   }
 
@@ -160,6 +172,7 @@ export async function run(ctx: ProbeContext) {
     : vert.layer.colors[0]
 
   const alpha = Number(CGColorGetAlpha(topColor))
+
   ctx.record('top stop alpha', alpha)
   ctx.assert('top stop alpha == 0', alpha, 0)
 }

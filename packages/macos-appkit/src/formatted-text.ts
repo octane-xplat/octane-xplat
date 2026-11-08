@@ -83,14 +83,17 @@ export function textRuns(
   link: (() => void) | null = null,
 ): Array<{ text: string; style: Record<string, any>; link: (() => void) | null }> {
   const style = { ...inherited }
+
   for (const key of TEXT_STYLE_KEYS) {
     const value = node.computedStyle?.[key] ?? node.props.style?.[key] ?? node.props[key]
+
     if (value != null) {
       style[key] = value
     }
   }
 
   const tap = node.props?.onLinkTap ?? node.props?.onPress
+
   if (typeof tap === 'function') {
     link = tap as () => void
   }
@@ -126,18 +129,23 @@ export function composeAttributedText(
   const native = globalThis as any
   const result = native.NSMutableAttributedString.alloc().initWithString('')
   const paragraph = native.NSMutableParagraphStyle.alloc().init()
+
   paragraph.alignment = view.alignment ?? 0
   paragraph.lineBreakMode = view.cell?.lineBreakMode ?? native.NSLineBreakMode.WordWrapping
+
   const lineHeight = Number(defaults.lineHeight ?? props.style?.lineHeight)
+
   if (Number.isFinite(lineHeight) && lineHeight > 0) {
     paragraph.minimumLineHeight = lineHeight
     paragraph.maximumLineHeight = lineHeight
   }
 
   let location = 0
+
   for (const run of children.flatMap((child) => textRuns(child, defaults))) {
     const style = run.style
     let face = font(style.fontSize, style.fontWeight, style.fontFamily)
+
     if (style.fontStyle === 'italic' || style.fontStyle === 'oblique') {
       face = native.NSFontManager.sharedFontManager.convertFontToHaveTrait(
         face,
@@ -154,6 +162,7 @@ export function composeAttributedText(
       // Synthetic scheme mirroring the GTK fold's octane-span:// URIs — the
       // index addresses the entry in `links`, never a navigable destination.
       const index = links?.length ?? 0
+
       links?.push({ location, length: run.text.length, handler: run.link })
       attributes[native.NSLinkAttributeName ?? 'NSLink'] = `octane-span://${index}`
     }
@@ -179,6 +188,7 @@ export function composeAttributedText(
     }
 
     const kern = Number(style.letterSpacing)
+
     // Match plain labels: zero/normal reset inherited spacing by omitting
     // an explicit kern attribute on this newly constructed run.
     if (Number.isFinite(kern) && kern !== 0) {

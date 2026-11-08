@@ -54,6 +54,7 @@ it.skipIf(!isIOS)(
   'keeps timers alive with a single collapsed Text in Screen/Grid (#45)',
   async () => {
     const { view } = await mountXplat(CollapsedText)
+
     for (let tick = 0; tick < 5; tick++) {
       await new Promise((resolve) => setTimeout(resolve, 200))
     }
@@ -69,6 +70,7 @@ it.skipIf(!isIOS)(
     const leaf = view.getViewById<NativeView>('collapsed-leaf')!
     const following = view.getViewById<NativeView>('following-leaf')!
     const left = () => following.getLocationRelativeTo(following.parent as NativeView)?.x
+
     await waitUntil(() => following.getActualSize().width > 0)
     expect(left()).toBeCloseTo(0, 0)
     leaf.visibility = 'hidden'
@@ -86,6 +88,7 @@ it.skipIf(!isIOS)(
     const { view } = await mountXplat(LayeredCollapsedText)
     const leaf = view.getViewById<NativeView>('collapsed-leaf')!
     const stage = view.getViewById<NativeView>('player-stage')!
+
     await waitUntil(() => leaf.isLoaded)
     for (const visibility of ['collapse', 'hidden', 'visible', 'collapse'] as const) {
       leaf.visibility = visibility

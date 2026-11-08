@@ -179,7 +179,9 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
     const now = Date.now()
     const previous = now - match.current.at < 500 ? match.current.text : ''
     const text = previous + event.key.toLowerCase()
+
     match.current = { text, at: now }
+
     const repeated = [...text].every((char) => char === text[0])
     const prefix = repeated ? text[0] : text
     const start = repeated ? index + 1 : 0
@@ -244,6 +246,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
         <span className="vx-select-badges">
           {props.selected.map((v) => {
             const o = props.options.find((x) => x.value === v)
+
             return (
               <span key={v} className="vx-select-badge">
                 <span>{o?.label ?? v}</span>

@@ -30,6 +30,7 @@ export function useDocsKeyboard(options: { isOpen: boolean; open(): void }) {
 
       if (e.key === '/' && !options.isOpen) {
         const t = e.target as HTMLElement | null
+
         if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) {
           return
         }
@@ -50,17 +51,20 @@ export function useTableScrollEdges(
 ) {
   useEffect(() => {
     const element = scroll.current?.native
+
     if (!(element instanceof HTMLElement)) {
       return
     }
 
     const block = element.parentElement
+
     if (!block) {
       return
     }
 
     const updateEdges = () => {
       const maxScroll = element.scrollWidth - element.clientWidth
+
       block.classList.toggle('has-overflow', maxScroll > 1)
       block.classList.toggle('clips-left', element.scrollLeft > 1)
       block.classList.toggle('clips-right', element.scrollLeft < maxScroll - 1)
@@ -68,7 +72,9 @@ export function useTableScrollEdges(
 
     updateEdges()
     element.addEventListener('scroll', updateEdges, { passive: true })
+
     const observer = typeof ResizeObserver === 'function' ? new ResizeObserver(updateEdges) : null
+
     observer?.observe(element)
     if (element.firstElementChild) {
       observer?.observe(element.firstElementChild)
@@ -84,6 +90,7 @@ export function useTableScrollEdges(
 export function usePageActions(markdown: string) {
   const viewMarkdown = () => {
     const url = URL.createObjectURL(new Blob([markdown], { type: 'text/plain;charset=utf-8' }))
+
     openUrl(url)
     setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
@@ -91,11 +98,13 @@ export function usePageActions(markdown: string) {
   const openCodex = () => {
     const prompt = `Help me apply the guidance from this documentation page: ${window.location.href}`
     const url = `codex://new?prompt=${encodeURIComponent(prompt)}`
+
     openUrl(url)
   }
 
   const askAI = () => {
     const prompt = `Explain this documentation page: ${window.location.href}`
+
     openUrl(`https://chatgpt.com/?q=${encodeURIComponent(prompt)}`)
   }
 
@@ -105,6 +114,7 @@ export function usePageActions(markdown: string) {
 export function restoreMenu() {
   const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
   const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
+
   if (panel) {
     panel.style.transition = 'transform 200ms ease-out'
     panel.style.transform = 'translateY(0px)'
@@ -118,11 +128,13 @@ export function restoreMenu() {
 
 export function animateMenuDismiss(): boolean {
   const panel = document.querySelector<HTMLElement>('.vx-sheet.docs-menu')
+
   if (!panel) {
     return false
   }
 
   const shade = document.querySelector<HTMLElement>('.vx-sheet-backdrop')
+
   panel.style.transition = 'transform 200ms ease-in'
   panel.style.transform = 'translateY(102%)'
   if (shade) {
@@ -139,17 +151,20 @@ export function useDemoPreview(demo: string) {
   const token = useRef(crypto.randomUUID())
   const launch = useRef<object | null>(null)
   const url = `/demo.html?demo=${demo}&token=${token.current}`
+
   useEffect(() => {
     if (state !== 'loading') {
       return
     }
 
     const timeout = setTimeout(() => setState('error'), 15000)
+
     return () => clearTimeout(timeout)
   }, [state, attempt])
 
   const ready = (event: WebViewMessageEvent) => {
     const data: unknown = event.data
+
     if (
       (event.origin === undefined || event.origin === location.origin) &&
       typeof data === 'object' &&

@@ -67,6 +67,7 @@ export function attachSheetDetents(
     vh: () => number,
     closeNow: () => void,
     options: SheetDetentsOptions
+
   if (typeof closeNowOrOptions === 'function') {
     grabber = grabberOrDetents
     detents = detentsOrVh
@@ -80,8 +81,10 @@ export function attachSheetDetents(
     closeNow = detentsOrVh
     options = closeNowOrOptions ?? vhOrClose ?? {}
   }
+
   const sorted = normalizeDetents(detents)
   const swipeOnly = options.swipeOnly === true || !sorted.length
+
   if (!sorted.length && !options.swipeOnly) {
     return { detach: () => {}, enter: () => {} }
   }
@@ -101,6 +104,7 @@ export function attachSheetDetents(
     if (swipeOnly) {
       return
     }
+
     try {
       panel.style.paddingBottom = basePadding + Math.max(0, Math.round(offset))
     } catch {}
@@ -124,22 +128,28 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       options.onOffset?.(value, vh())
       then?.()
     }
+
     updateContentInset(value)
     try {
       const done = panel.animate?.({ translate: { x: 0, y: value }, duration: SNAP_MS })
+
       if (done?.then) {
         void done.then(complete, () => {})
         return
       }
     } catch {}
+
     panel.translateY = value
+
     const timer = setTimeout(() => {
       timers.delete(timer)
       complete()
     }, 0)
+
     timers.add(timer)
   }
 
@@ -149,7 +159,9 @@ export function attachSheetDetents(
     }
 
     dragging = false
+
     const ty = Number(panel.translateY) || 0
+
     if (swipeOnly) {
       if (dismissible() && (vy > DETENT_FLICK_VELOCITY || ty > panelHeight() * 0.4)) {
         animateTo(vh(), closeNow)
@@ -161,6 +173,7 @@ export function attachSheetDetents(
     }
 
     const next = snapDetentIndex(ty, vy, sorted, vh())
+
     if (next < 0) {
       if (dismissible()) {
         animateTo(vh(), closeNow)
@@ -196,7 +209,9 @@ export function attachSheetDetents(
     }
 
     vy = vy * 0.7 + (Number(e.vy) || 0) * 0.3
+
     const next = Math.min(Math.max(ty0 + (Number(e.deltaY ?? e.dy) || 0), 0), vh())
+
     panel.translateY = next
     updateContentInset(next)
     options.onOffset?.(next, vh())
@@ -209,6 +224,7 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       if (swipeOnly) {
         panel.translateY = vh()
         animateTo(0)
@@ -220,6 +236,7 @@ export function attachSheetDetents(
       try {
         panel.style.height = Math.round(max * vh())
       } catch {}
+
       panel.translateY = vh()
       animateTo(detentOffset(sorted, cur, vh()))
     },
@@ -227,14 +244,17 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       active = false
       for (const timer of timers) {
         clearTimeout(timer)
       }
+
       timers.clear()
       try {
         panel.style.paddingBottom = basePadding || undefined
       } catch {}
+
       grabber?.off?.('pan', onPan)
     },
   }

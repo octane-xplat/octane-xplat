@@ -246,6 +246,7 @@ export function useTableFiltering<T extends Record<string, unknown>>(
   config: UseTableFilteringConfig,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   const variant = config.variant ?? 'popover'
@@ -263,6 +264,7 @@ export function useTableFiltering<T extends Record<string, unknown>>(
         }
 
         const needsFilterUI = col.width?.type !== 'pixel'
+
         return needsFilterUI ? { ...col, width: col.width ?? proportional(1) } : col
       })
     },
@@ -273,6 +275,7 @@ export function useTableFiltering<T extends Record<string, unknown>>(
 
       const searchConfig = configRef.current.searchConfig
       const operatorValue = resolveFilterConfig(column.filter, searchConfig)
+
       if (!operatorValue) {
         return props
       }

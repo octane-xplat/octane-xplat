@@ -22,8 +22,10 @@ const compiled = Object.fromEntries(
 function load(warn) {
   const context = vm.createContext({ console: { warn } }),
     cache = {}
+
   function require(name) {
     const file = files.find((file) => './' + file.slice(0, -3) === name)
+
     if (!file) {
       if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {
         return {}
@@ -31,23 +33,29 @@ function load(warn) {
 
       throw new Error('Unexpected system-bars import')
     }
+
     if (!cache[file]) {
       const exports = (cache[file] = {})
+
       vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(
         exports,
         require,
       )
     }
+
     return cache[file]
   }
+
   return require
 }
 
 test('AppKit root and purpose expose both shared system-bar methods as the same explicitly unsupported object', () => {
   const warnings = [],
     require = load((message) => warnings.push(message))
+
   const root = require('./index.macos'),
     leaf = require('./system-bars.macos')
+
   assert.equal(root.systemBars, leaf.systemBars)
   assert.deepEqual(Object.keys(leaf.systemBars).sort(), ['setColor', 'setStatusBarStyle'])
   assert.deepEqual(warnings, [])
@@ -64,14 +72,17 @@ test('AppKit unsupported system-bar calls remain inert when diagnostics fail', (
   const { systemBars } = load(() => {
     throw new Error('unavailable console')
   })('./system-bars.macos')
+
   assert.doesNotThrow(() => systemBars.setStatusBarStyle('light'))
   assert.doesNotThrow(() => systemBars.setColor('#123456'))
 })
 
 test('AppKit system-bar export conditions pair runtime/types and keep non-macOS paths', async () => {
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
+
   for (const suffix of ['', '.ts']) {
     const entry = manifest.exports['./system-bars' + suffix]
+
     assert.equal(entry.macos, './src/system-bars.macos.ts')
     assert.equal(entry.types, './types/generated/system-bars.d.ts')
     assert.equal(entry.default, './src/system-bars' + suffix)

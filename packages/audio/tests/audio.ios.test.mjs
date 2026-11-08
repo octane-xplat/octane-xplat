@@ -46,6 +46,7 @@ function createPlayer() {
   const notificationCenter = {
     addObserverForNameObjectQueueUsingBlock(name, _object, _queue, callback) {
       const observer = { name, callback }
+
       observers.push(observer)
       return observer
     },
@@ -125,6 +126,7 @@ function createPlayer() {
   }
 
   const module = { exports: {} }
+
   vm.runInNewContext(compiled, {
     ...globals,
     exports: module.exports,
@@ -133,9 +135,11 @@ function createPlayer() {
       if (specifier === './queue') {
         return queueHelpers
       }
+
       if (specifier === './settings') {
         return settings
       }
+
       if (specifier === '@octane-xplat/platform/ios') {
         return globals
       }
@@ -156,11 +160,13 @@ function createPlayer() {
 
 test('iOS reports system controls when the playback-duration key is available', () => {
   const { player } = createPlayer()
+
   assert.equal(player.capabilities().systemControls, true)
 })
 
 test('iOS Now Playing metadata uses the media-item playback-duration key', async () => {
   const { player, nowPlaying } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   assert.equal(nowPlaying.nowPlayingInfo.playbackDuration, 30)
   player.dispose()
@@ -168,6 +174,7 @@ test('iOS Now Playing metadata uses the media-item playback-duration key', async
 
 test("iOS lock-screen pause uses the player's pause behavior", async () => {
   const { player, commands, nativePlayer } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
   assert.equal(commands.pause.invoke(), 0)
@@ -178,8 +185,10 @@ test("iOS lock-screen pause uses the player's pause behavior", async () => {
 
 test('iOS resumes only when interruption options allow it and deactivates the session', async () => {
   const { player, observers, nativePlayer, sessionCalls } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
+
   const interruption = observers.find((observer) => observer.name === 'interruption')
   const event = (type, options) => ({
     userInfo: {
@@ -204,6 +213,7 @@ test('iOS resumes only when interruption options allow it and deactivates the se
 
 test('iOS play() after the queue ends rewinds the finished item', async () => {
   const { player, observers, nativePlayer } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
   observers.find((observer) => observer.name === 'ended').callback()
@@ -217,8 +227,11 @@ test('iOS play() after the queue ends rewinds the finished item', async () => {
 
 test('iOS surfaces an asynchronous item failure as state error', async () => {
   const { player, observers, nativePlayer } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/dead.mp3' }])
+
   const failure = observers.find((observer) => observer.name === 'failed')
+
   failure.callback({
     userInfo: {
       objectForKey: (key) =>
@@ -227,6 +240,7 @@ test('iOS surfaces an asynchronous item failure as state error', async () => {
   })
 
   const snapshot = player.snapshot()
+
   assert.equal(snapshot.state, 'error')
   assert.equal(snapshot.error.message, 'cannot decode')
   assert.equal(nativePlayer.paused, true)
@@ -235,6 +249,7 @@ test('iOS surfaces an asynchronous item failure as state error', async () => {
 
 test('iOS polls player status so a mid-playback failure reaches state error', async () => {
   const { player, nativePlayer } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
   player.subscribe(() => {})
@@ -243,6 +258,7 @@ test('iOS polls player status so a mid-playback failure reaches state error', as
   await new Promise((resolve) => setTimeout(resolve, 600))
 
   const snapshot = player.snapshot()
+
   assert.equal(snapshot.state, 'error')
   assert.equal(snapshot.error.message, 'stream dropped')
   player.dispose()
@@ -250,8 +266,10 @@ test('iOS polls player status so a mid-playback failure reaches state error', as
 
 test('iOS ignores a pending resume after an explicit pause during interruption', async () => {
   const { player, observers } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
+
   const interruption = observers.find((observer) => observer.name === 'interruption')
   const event = (type, options) => ({
     userInfo: {
@@ -268,9 +286,12 @@ test('iOS ignores a pending resume after an explicit pause during interruption',
 
 test('iOS ignores non-Ended interruption notifications for resume', async () => {
   const { player, observers } = createPlayer()
+
   await player.setQueue([{ id: 'sample', source: 'https://example.test/sample.mp3' }])
   await player.play()
+
   const interruption = observers.find((observer) => observer.name === 'interruption')
+
   interruption.callback({
     userInfo: { objectForKey: (key) => ({ unsignedIntegerValue: key === 'type' ? 1 : 0 }) },
   })
@@ -283,6 +304,7 @@ test('iOS ignores non-Ended interruption notifications for resume', async () => 
 
 test('settings survive loads and interruption recovery without unpausing', async () => {
   const { player, nativePlayer, nowPlaying } = createPlayer()
+
   await player.setPlaybackRate(1.75)
   await player.setVolume(0.4)
   await player.setMuted(true)
@@ -314,6 +336,7 @@ test('settings survive loads and interruption recovery without unpausing', async
 test('iOS preserves current item and explicit pause cancels growing-queue resume', async () => {
   const { player, nativePlayer, observers } = createPlayer()
   const a = { id: 'a', source: '/a.mp3' }
+
   await player.setQueue([a], 0, { complete: false })
   await player.play()
   await player.updateQueue([{ ...a, title: 'Updated' }])
@@ -332,14 +355,18 @@ test('iOS preserves current item and explicit pause cancels growing-queue resume
 
 test('iOS stale item notifications cannot end or fail a replacement', async () => {
   const { player, observers } = createPlayer()
+
   await player.setQueue([{ id: 'a', source: '/a.mp3' }])
+
   const end = observers.find((o) => o.name === 'ended')
   const failure = observers.find((o) => o.name === 'failed')
+
   await player.setQueue([{ id: 'b', source: '/b.mp3' }])
   end.callback()
   failure.callback({
     userInfo: { objectForKey: () => ({ localizedDescription: 'obsolete failure' }) },
   })
+
   assert.equal(player.snapshot().track.id, 'b')
   assert.equal(player.snapshot().state, 'paused')
   assert.equal(player.snapshot().error, undefined)

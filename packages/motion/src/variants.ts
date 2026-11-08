@@ -27,6 +27,7 @@ export function resolveVariant(
 } {
   const target: Target = {}
   let transition: TransitionInput | undefined
+
   if (definition === undefined || definition === false) {
     return { target, transition }
   }
@@ -39,6 +40,7 @@ export function resolveVariant(
 
   for (const entry of entries) {
     const resolved = typeof entry === 'function' ? entry(custom) : entry
+
     if (!resolved) {
       continue
     }
@@ -115,7 +117,9 @@ export class VariantNode {
 
   register(child: VariantNode): () => void {
     this.children.add(child)
+
     const active = this.active
+
     if (active && isLabels(active.definition)) {
       void active.finished.then((result) => {
         if (
@@ -127,6 +131,7 @@ export class VariantNode {
         }
 
         const { transition } = this.resolve(active.definition)
+
         void child.run(
           active.definition,
           (transition.delayChildren ?? 0) +
@@ -160,8 +165,10 @@ export class VariantNode {
   run(definition: AnimationDefinition, delay = 0): Promise<AnimationResult> {
     this.animate = isLabels(definition) ? definition : undefined
     this.stop()
+
     const generation = this.generation
     const finished = this.runTree(definition, delay, generation)
+
     this.active = { definition, finished, generation }
     return finished
   }
@@ -202,8 +209,10 @@ export class VariantNode {
       )
 
     let results: AnimationResult[]
+
     if (transition.when === 'beforeChildren') {
       const result = await own()
+
       if (generation !== this.generation || result !== 'finished') {
         return 'cancelled'
       }
@@ -219,6 +228,7 @@ export class VariantNode {
     } else {
       const parent = own()
       const descendants = children()
+
       results = [await parent, ...(await descendants)]
     }
 

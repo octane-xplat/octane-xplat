@@ -6,9 +6,11 @@ export function imagePixelSize(image: { representations?: unknown }): {
 } {
   let width = 0,
     height = 0
+
   try {
     const reps: any = image.representations
     const count = Array.isArray(reps) ? reps.length : Number(reps?.count ?? 0)
+
     if (!Number.isSafeInteger(count) || count < 0) {
       return { width, height }
     }
@@ -32,5 +34,6 @@ export function imagePixelSize(image: { representations?: unknown }): {
   } catch {
     /* Unknown metadata does not turn a valid assignment into failure. */
   }
+
   return { width, height }
 }

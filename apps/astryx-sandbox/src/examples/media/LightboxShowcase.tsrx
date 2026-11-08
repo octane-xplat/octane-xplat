@@ -7,6 +7,7 @@ import { Lightbox } from '@octane-xplat/ui'
 
 export function LightboxShowcase() {
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <Button clickAction={() => setIsOpen(true)} label="View image" />

@@ -15,17 +15,21 @@ function OwnedClientRouteOutlet(props: ClientRouteOutletProps): any {
   const owner = content.owner
   const host = props.host
   const active = useContext(RouterFlowVisibilityContext)
+
   useLayoutEffect(() => {
     host.setFlowActive?.(flow, active)
     return () => host.setFlowActive?.(flow, false)
   }, [host, flow, active])
 
   const scope = useMemo(() => ({ ...host.scope(flow), host }), [host, flow])
+
   useLayoutEffect(() => {
     const detach = host.mount(flow, owner)
+
     return () => {
       try {
         const cleanup = detach()
+
         if (cleanup) {
           void cleanup.catch(() => console.warn('[octane-xplat] Route outlet cleanup failed'))
         }
@@ -36,6 +40,7 @@ function OwnedClientRouteOutlet(props: ClientRouteOutletProps): any {
   }, [host, flow, owner])
 
   const renderHost = host.getRenderHost?.(flow)
+
   return (
     <RouterRenderScopeProvider scope={scope}>
       <RouteOutletResume resumeUrl={props.resumeUrl} onResume={props.onResume} />

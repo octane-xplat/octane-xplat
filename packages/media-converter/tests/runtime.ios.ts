@@ -41,6 +41,7 @@ const assert = (condition: unknown, message: string) => {
   if (!condition) {
     throw new Error(message)
   }
+
   checks.push(message)
 }
 
@@ -67,12 +68,15 @@ const orphanOutputs = () => {
   const temp = String(manager.temporaryDirectory.path ?? '')
   const items = manager.contentsOfDirectoryAtPathError(temp)
   const names: string[] = []
+
   for (let index = 0; index < (items?.count ?? 0); index++) {
     const name = String(items!.objectAtIndex(index))
+
     if (name.startsWith('xplat-video-')) {
       names.push(name)
     }
   }
+
   return names
 }
 
@@ -82,6 +86,7 @@ const GIF_B64 =
 const options = (() => {
   const file = path.join(folder, 'converter-options.json')
   const defaults = { frames: 300, width: 2048, height: 2048, delayMs: 10 }
+
   try {
     if (File.exists(file)) {
       return { ...defaults, ...JSON.parse(File.fromPath(file).readTextSync()) }
@@ -89,6 +94,7 @@ const options = (() => {
   } catch {
     // Fall through to defaults.
   }
+
   return defaults
 })()
 
@@ -107,9 +113,11 @@ const writeBigGif = (
     frames,
     null,
   )
+
   if (!destination) {
     throw new Error('Could not create GIF destination')
   }
+
   const context = CGBitmapContextCreate(
     null,
     width,
@@ -119,21 +127,28 @@ const writeBigGif = (
     CGColorSpaceCreateDeviceRGB(),
     5 as CGBitmapInfo /* kCGImageAlphaInfoNoneSkipLast */,
   )
+
   if (!context) {
     throw new Error('Could not create frame context')
   }
+
   CGContextSetRGBFillColor(context, 0.15, 0.45, 0.85, 1)
   CGContextFillRect(context, CGRectMake(0, 0, width, height))
+
   const image = CGBitmapContextCreateImage(context)
+
   if (!image) {
     throw new Error('Could not render frame image')
   }
+
   const properties = {
     [kCGImagePropertyGIFDictionary]: { [kCGImagePropertyGIFDelayTime]: delayMs / 1000 },
   } as unknown as NSDictionary<string, unknown>
+
   for (let index = 0; index < frames; index++) {
     CGImageDestinationAddImage(destination, image, properties)
   }
+
   if (!CGImageDestinationFinalize(destination)) {
     throw new Error('Could not finalize GIF')
   }
@@ -141,9 +156,12 @@ const writeBigGif = (
 
 const page = new Page()
 const label = new Label()
+
 label.text = 'media-converter worker checks'
 page.content = label
+
 let started = false
+
 // The callback is async itself: rolldown release bundling strips the call
 // parens off `void (async () => {…})()` inside a handler, which dropped the
 // media-converter import — a build artifact, not a runtime limitation.
@@ -151,6 +169,7 @@ page.on(Page.loadedEvent, async () => {
   if (started) {
     return
   }
+
   started = true
   try {
     stage('start')
@@ -166,6 +185,7 @@ page.on(Page.loadedEvent, async () => {
 
     const bytes = NSData.alloc().initWithBase64EncodedStringOptions(GIF_B64, 0)
     const source = path.join(folder, 'source.gif')
+
     bytes.writeToFileAtomically(source, true)
     assert(await isAvailable('mp4'), 'mp4 availability through worker backend')
     assert(!(await isAvailable('webm')), 'webm stays unavailable on iOS')
@@ -182,6 +202,7 @@ page.on(Page.loadedEvent, async () => {
     }).result
 
     const smallMs = Date.now() - startedAt
+
     clearInterval(ticker)
     assert(video.duration === 600, 'traversal duration preserved')
     assert(video.width === 16 && video.height === 16, 'output dimensions preserved')
@@ -192,7 +213,9 @@ page.on(Page.loadedEvent, async () => {
 
     const asset = AVURLAsset.alloc().initWithURLOptions(NSURL.URLWithString(video.uri), null)
     const seconds = CMTimeGetSeconds(asset.duration)
+
     assert(Math.abs(seconds - 0.6) < 0.05, `encoded duration ${seconds}s`)
+
     const reader = AVAssetReader.alloc().initWithAssetError(asset, null)
     const track = asset.tracksWithMediaType(AVMediaTypeVideo).objectAtIndex(0)
     const samples = AVAssetReaderTrackOutput.alloc().initWithTrackOutputSettings(track, {
@@ -201,15 +224,21 @@ page.on(Page.loadedEvent, async () => {
 
     reader.addOutput(samples)
     assert(reader.startReading(), 'reader started')
+
     let frames = 0
     const times: number[] = []
     let sample
+
     while ((sample = samples.copyNextSampleBuffer())) {
       const time = CMTimeGetSeconds(CMSampleBufferGetPresentationTimeStamp(sample))
+
       times.push(time)
       frames++
+
       const pixel = CMSampleBufferGetImageBuffer(sample)
+
       CVPixelBufferLockBaseAddress(pixel, 1 /* kCVPixelBufferLock_ReadOnly */)
+
       const data = new Uint8Array(
         interop.bufferFromData(
           NSData.dataWithBytesLength(
@@ -220,8 +249,10 @@ page.on(Page.loadedEvent, async () => {
       )
 
       CVPixelBufferUnlockBaseAddress(pixel, 0)
+
       const red = data[2]!
       const blue = data[0]!
+
       assert(
         time < 0.4 ? red > 180 && blue < 80 : blue > 180 && red < 80,
         `composited pixel at ${time}s (r=${red}, b=${blue})`,
@@ -241,13 +272,16 @@ page.on(Page.loadedEvent, async () => {
     // Bounded worst-case job within the documented caps (≤1000 frames,
     // ≤4.2 Mpx, ≤64 MiB, ≤60 s traversal).
     stage('big-generate')
+
     const big = path.join(folder, 'big.gif')
+
     if (File.exists(big)) {
       NSFileManager.defaultManager.removeItemAtPathError(big)
     }
 
     startedAt = Date.now()
     writeBigGif(big, options.frames, options.width, options.height, options.delayMs)
+
     const bigBytes = Number(
       NSFileManager.defaultManager.attributesOfItemAtPathError(big)?.objectForKey('NSFileSize') ??
         0,
@@ -258,13 +292,19 @@ page.on(Page.loadedEvent, async () => {
 
     stage('big-encode')
     ticks = 0
+
     const bigTicker = setInterval(() => ticks++, 5)
     let bigProgress = 0
+
     startedAt = Date.now()
+
     const bigVideo = await convertGif(big, { onProgress: (value) => (bigProgress = value) }).result
     const bigMs = Date.now() - startedAt
+
     clearInterval(bigTicker)
+
     const expectedDuration = options.frames * options.delayMs
+
     assert(bigVideo.duration === expectedDuration, `big duration ${bigVideo.duration}`)
     assert(
       bigVideo.width === options.width + (options.width % 2) &&
@@ -284,6 +324,7 @@ page.on(Page.loadedEvent, async () => {
 
     const bigAsset = AVURLAsset.alloc().initWithURLOptions(NSURL.URLWithString(bigVideo.uri), null)
     const bigSeconds = CMTimeGetSeconds(bigAsset.duration)
+
     assert(
       Math.abs(bigSeconds - expectedDuration / 1000) < 0.2,
       `big encoded duration ${bigSeconds}s`,
@@ -295,15 +336,19 @@ page.on(Page.loadedEvent, async () => {
 
     // Cancellation while the worker is backpressured/encoding.
     stage('cancel-encode')
+
     let seen = 0
     const job = convertGif(big, { onProgress: (value) => (seen = value) })
+
     while (seen === 0) {
       await wait(5)
     }
 
     startedAt = Date.now()
     job.cancel()
+
     let cancelled = ''
+
     try {
       await job.result
     } catch (error) {
@@ -323,6 +368,7 @@ page.on(Page.loadedEvent, async () => {
     // AbortError; orphan count is reported (a straggler file is a gap, not
     // a hard failure — iOS purges the temp directory).
     const early = convertGif(big)
+
     early.cancel()
     cancelled = ''
     try {
@@ -337,6 +383,7 @@ page.on(Page.loadedEvent, async () => {
 
     // Repeatability after the big job and cancels.
     const again = await convertGif(source).result
+
     assert(again.duration === 600 && again.width === 16, 'conversion works after big job')
     releaseVideo(again)
     assert(orphanOutputs().length === 0, 'no leaked outputs at end')

@@ -25,6 +25,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
     }
 
     const next = state !== 'checked'
+
     if (member) {
       group.select?.(props.value!, next)
     } else {

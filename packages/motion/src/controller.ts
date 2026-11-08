@@ -33,6 +33,7 @@ export class Controller {
   constructor(private clock: Clock) {}
   value(key: MotionKey): MotionValue {
     let value = this.values.get(key)
+
     if (!value) {
       value = new MotionValue(defaults[key], this.clock)
       this.values.set(key, value)
@@ -60,6 +61,7 @@ export class Controller {
   }
   flush(): void {
     const snapshot = Object.fromEntries([...this.values].map(([key, value]) => [key, value.get()]))
+
     this.adapter?.write(snapshot)
     this.onUpdate?.(snapshot)
   }
@@ -78,7 +80,9 @@ export class Controller {
     reduced: boolean,
   ): Promise<AnimationResult> {
     validateTarget(target)
+
     const generation = ++this.generation
+
     this.cancelDelegated()
     // A new destination owns the entire declarative animation, including removed keys.
     for (const value of this.values.values()) {
@@ -112,12 +116,14 @@ export class Controller {
       if (run) {
         const trackSample = () => {
           const eff = run.sample()
+
           for (const key of keys) {
             if (target[key] === undefined) {
               continue
             }
 
             let next: number | undefined
+
             if (key === 'scale') {
               next = (eff.scaleX ?? 1) / (dest.scaleX || 1)
             } else if (key === 'scaleX') {
@@ -148,7 +154,9 @@ export class Controller {
 
         entry.frame = this.clock.request(tick)
         this.delegated = entry
+
         const result = await run.finished
+
         // Only this run cleans up its own sampler — an interrupted run must
         // not clobber the replacement's delegated state.
         if (this.delegated === entry) {
@@ -176,6 +184,7 @@ export class Controller {
 
     const jobs = Object.entries(target).map(([key, to]) => {
       const value = this.value(key as MotionKey)
+
       return value.animate(
         to,
         reduced && key !== 'opacity'
@@ -185,6 +194,7 @@ export class Controller {
     })
 
     const results = await Promise.all(jobs)
+
     if (generation !== this.generation) {
       return 'replaced'
     }

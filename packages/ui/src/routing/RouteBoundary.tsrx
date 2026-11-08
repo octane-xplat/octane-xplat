@@ -10,6 +10,7 @@ import type { RouteBoundaryProps } from '../props'
  *  the children render bare and errors propagate as they always have. */
 export function RouteBoundary(props: RouteBoundaryProps): unknown @{
   const Boundary = props.boundary
+
   if (!Boundary) {
     return <>{props.children}</>
   }

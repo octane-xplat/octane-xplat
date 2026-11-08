@@ -87,6 +87,7 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
 
   const frozenSelectedIDs = useMemo(() => {
     const frozen = new Set<string>()
+
     for (const id of selectedKeys) {
       if (!selectableIDs.has(id)) {
         frozen.add(id)
@@ -112,10 +113,15 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
   const getIsIndeterminate = () => selectedKeys.size > 0 && !getAllSelected()
 
   const selectedKeysRef = useRef(selectedKeys)
+
   selectedKeysRef.current = selectedKeys
+
   const frozenRef = useRef(frozenSelectedIDs)
+
   frozenRef.current = frozenSelectedIDs
+
   const allRef = useRef(allSelectableIDs)
+
   allRef.current = allSelectableIDs
 
   const onSelectAll = ({ isAllSelected }: { isAllSelected: boolean }) => {
@@ -124,12 +130,14 @@ export function useTableSelectionState<T extends Record<string, unknown>>(
     } else {
       // Deselect actionable only; preserve disabled-but-selected (frozen).
       const next = new Set(frozenRef.current)
+
       setSelectedKeys(next)
     }
   }
 
   const onSelectItem = ({ item, isSelected }: { item: T; isSelected: boolean }) => {
     const next = new Set(selectedKeysRef.current)
+
     if (isSelected) {
       next.add(getId(item))
     } else {
@@ -168,6 +176,7 @@ function SelectionCell<T extends Record<string, unknown>>(props: {
   const config = props.configRef.current
   const item = props.item
   const selectable = config.getIsItemSelectable?.(item) ?? true
+
   if (!selectable) {
     return null as any
   }
@@ -212,6 +221,7 @@ export function useTableSelection<T extends Record<string, unknown>>(
   config: UseTableSelectionConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   const selectionColumn: TableColumn<T> = {
@@ -228,11 +238,13 @@ export function useTableSelection<T extends Record<string, unknown>>(
     },
     transformBodyRow(props, item) {
       const cfg = configRef.current
+
       if (!cfg.getIsItemSelected(item)) {
         return props
       }
 
       const highlight = cfg.hasRowHighlight !== false
+
       return {
         ...props,
         htmlProps: { ...props.htmlProps, 'aria-selected': 'true' },

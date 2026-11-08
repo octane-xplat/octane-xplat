@@ -4,6 +4,7 @@ import type { Point } from './types'
 export function captureViewportOffset(node: HTMLElement): () => Point {
   const ancestors: HTMLElement[] = []
   let fixed = getComputedStyle(node).position === 'fixed'
+
   for (let parent = node.parentElement; parent && !fixed; parent = parent.parentElement) {
     if (parent !== document.scrollingElement) {
       ancestors.push(parent)
@@ -11,6 +12,7 @@ export function captureViewportOffset(node: HTMLElement): () => Point {
 
     fixed = getComputedStyle(parent).position === 'fixed'
   }
+
   return () => ({
     x:
       -(fixed ? 0 : window.scrollX) - ancestors.reduce((sum, parent) => sum + parent.scrollLeft, 0),

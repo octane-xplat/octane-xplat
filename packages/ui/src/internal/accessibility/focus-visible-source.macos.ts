@@ -19,6 +19,7 @@ export function createAppKitFocusVisibleSource(
     inputModality: 'unknown',
     isSupported: false,
   }
+
   const listeners = new Set<() => void>()
   let release: (() => void) | undefined
   let pinned = false
@@ -26,6 +27,7 @@ export function createAppKitFocusVisibleSource(
   const capable = () => {
     const host = native()
     const center = host.NSNotificationCenter?.defaultCenter
+
     return Boolean(
       host.NSEvent?.addLocalMonitorForEventsMatchingMaskHandler &&
       host.NSEvent?.removeMonitor &&
@@ -33,30 +35,38 @@ export function createAppKitFocusVisibleSource(
       center?.removeObserver,
     )
   }
+
   const publish = (
     inputModality: UseFocusVisibleResult['inputModality'],
     supported = !failed && capable(),
   ) => {
     const isFocusVisible = inputModality === 'keyboard'
+
     if (state.inputModality === inputModality && state.isSupported === supported) {
       return
     }
+
     state = { isFocusVisible, inputModality, isSupported: supported }
     for (const notify of [...listeners]) {
       notify()
     }
   }
+
   const getSnapshot = (): UseFocusVisibleResult => {
     const supported = !failed && capable()
+
     if (state.isSupported !== supported) {
       state = { ...state, isSupported: supported }
     }
+
     return state
   }
+
   const attach = () => {
     if (release || !capable()) {
       return
     }
+
     const host = native()
     const events = host.NSEvent
     const center = host.NSNotificationCenter.defaultCenter
@@ -83,6 +93,7 @@ export function createAppKitFocusVisibleSource(
         }
       }
     }
+
     try {
       const keyObserved = (event: { type: number; modifierFlags: number }) => {
         if (
@@ -101,6 +112,7 @@ export function createAppKitFocusVisibleSource(
 
       releaseKeys = observeKeys?.(keyObserved)
       releasePointer = observePointer?.(pointerObserved)
+
       const mask =
         (host.NSEventMask?.KeyDown ?? 1024) |
         (releasePointer
@@ -116,6 +128,7 @@ export function createAppKitFocusVisibleSource(
         } else if (!releasePointer && [1, 3, 25].includes(Number(event.type))) {
           publish('pointer')
         }
+
         return event // Observation never consumes a native event.
       })
 
@@ -142,6 +155,7 @@ export function createAppKitFocusVisibleSource(
       }
     }
   }
+
   return {
     getSnapshot,
     subscribe(notify: () => void): () => void {
@@ -151,6 +165,7 @@ export function createAppKitFocusVisibleSource(
         listeners.delete(notify)
         if (!listeners.size && !pinned) {
           const cleanup = release
+
           release = undefined
           try {
             cleanup?.()
@@ -167,7 +182,9 @@ export function createAppKitFocusVisibleSource(
     },
     dispose(): void {
       pinned = false
+
       const cleanup = release
+
       release = undefined
       try {
         cleanup?.()

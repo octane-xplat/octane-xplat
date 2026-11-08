@@ -60,6 +60,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   const emitChange = () => {
     const e = editor()
+
     if (!e || applyingValue.current) {
       return
     }
@@ -67,11 +68,13 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     clearTimeout(emitTimer.current)
     emitTimer.current = setTimeout(() => {
       const current = editor()
+
       if (!current || applyingValue.current) {
         return
       }
 
       const html = current.getHTML()
+
       lastEmitted.current = html
       props.onChange?.(html)
     }, 150)
@@ -115,6 +118,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     redo: () => e.redo(),
     split: () => {
       const ok = Boolean(e.split())
+
       if (ok) {
         emitChange()
       }
@@ -123,6 +127,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     join: () => {
       const ok = Boolean(e.join())
+
       if (ok) {
         emitChange()
       }
@@ -131,6 +136,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     indent: () => {
       const ok = Boolean(e.indent())
+
       if (ok) {
         emitChange()
       }
@@ -139,6 +145,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     outdent: () => {
       const ok = Boolean(e.outdent())
+
       if (ok) {
         emitChange()
       }
@@ -155,6 +162,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   useEffect(() => {
     const e = editor()
+
     if (!e) {
       return
     }
@@ -163,6 +171,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     e.onSelectionChange = (start: number, end: number, active: any) => {
       const formats: RichTextFormat[] = []
       const count = active?.count ?? 0
+
       for (let i = 0; i < count; i++) {
         formats.push(active.objectAtIndex(i))
       }
@@ -212,6 +221,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
   // external reset (Aztec-iOS setHTML is non-undoable, matching Android).
   useEffect(() => {
     const e = editor()
+
     if (!e || props.value === undefined) {
       return
     }
@@ -230,6 +240,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   useEffect(() => {
     const e = editor()
+
     if (e) {
       e.editable = props.editable !== false
     }
@@ -237,6 +248,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   useEffect(() => {
     const e = editor()
+
     if (e && props.placeholder !== undefined) {
       e.placeholder = props.placeholder
     }

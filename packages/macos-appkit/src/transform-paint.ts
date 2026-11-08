@@ -50,15 +50,20 @@ export function createTransformPaint() {
     ) {
       return { value: value.value, unit: '%' }
     }
+
     if (typeof value === 'number') {
       return Number.isFinite(value) ? value : 0
     }
+
     const text = String(value ?? '').trim()
     const pct = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(text)
+
     if (pct) {
       return { value: Number(pct[1]) / 100, unit: '%' }
     }
+
     const n = parseFloat(text)
+
     return Number.isFinite(n) ? n : 0
   }
 
@@ -67,22 +72,29 @@ export function createTransformPaint() {
     if (typeof value === 'number') {
       return Number.isFinite(value) ? value : 0
     }
+
     const text = String(value ?? '')
       .trim()
       .toLowerCase()
+
     const n = parseFloat(text)
+
     if (!Number.isFinite(n)) {
       return 0
     }
+
     if (text.endsWith('turn')) {
       return n * 360
     }
+
     if (text.endsWith('grad')) {
       return n * 0.9
     }
+
     if (text.endsWith('rad')) {
       return (n * 180) / Math.PI
     }
+
     return n
   }
 
@@ -91,10 +103,13 @@ export function createTransformPaint() {
     if (typeof value === 'number') {
       return Number.isFinite(value) ? value : 0
     }
+
     const n = parseFloat(String(value ?? '').trim())
+
     if (!Number.isFinite(n)) {
       return 0
     }
+
     return String(value).trim().endsWith('%') ? n / 100 : n
   }
 
@@ -106,11 +121,14 @@ export function createTransformPaint() {
   // negating every y translate and every angle.
   function syncTransform(node: ElementNode, state: BoxPaintState) {
     const view = node.view
+
     if (!view || typeof CATransform3DTranslate !== 'function') {
       return
     }
+
     const spec = state.transformSpec
     let parts: any = {}
+
     if (spec?.transform != null) {
       try {
         parts = transformToParts(String(spec.transform))
@@ -118,24 +136,31 @@ export function createTransformPaint() {
         parts = {}
       }
     }
+
     if (spec?.translateX !== undefined) {
       parts.translateX = spec.translateX
     }
+
     if (spec?.translateY !== undefined) {
       parts.translateY = spec.translateY
     }
+
     if (spec?.scaleX !== undefined) {
       parts.scaleX = transformScaleValue(spec.scaleX)
     }
+
     if (spec?.scaleY !== undefined) {
       parts.scaleY = transformScaleValue(spec.scaleY)
     }
+
     if (spec?.rotate !== undefined) {
       parts.rotate = transformAngleValue(spec.rotate)
     }
+
     if (spec?.rotateX !== undefined) {
       parts.rotateX = transformAngleValue(spec.rotateX)
     }
+
     if (spec?.rotateY !== undefined) {
       parts.rotateY = transformAngleValue(spec.rotateY)
     }
@@ -146,6 +171,7 @@ export function createTransformPaint() {
       Math.max(0, Number(size.width) || 0),
       Math.max(0, Number(size.height) || 0),
     )
+
     if (!steps.length) {
       if (state.transformApplied && view.layer) {
         view.layer.transform = CATransform3DIdentity
@@ -156,11 +182,15 @@ export function createTransformPaint() {
     }
 
     view.wantsLayer = true
+
     const layer = view.layer
+
     if (!layer) {
       return
     }
+
     let t = CATransform3DIdentity
+
     for (const step of steps) {
       if (step.kind === 'translate') {
         t = CATransform3DTranslate(t, step.args[0] || 0, -step.args[1] || 0, 0)
@@ -168,6 +198,7 @@ export function createTransformPaint() {
         t = CATransform3DRotate(t, (-step.args[0] * Math.PI) / 180, 0, 0, 1)
       } else if (step.kind === 'rotate3d') {
         const depth = parseFloat(String(spec?.perspective)) || DEFAULT_PERSPECTIVE
+
         if (depth > 0) {
           try {
             ;(t as any).m34 = -1 / depth
@@ -182,12 +213,14 @@ export function createTransformPaint() {
         t = CATransform3DScale(t, step.args[0], step.args[1], 1)
       }
     }
+
     layer.transform = t
     state.transformApplied = true
   }
 
   function hasPercentTranslate(node: ElementNode, state: BoxPaintState): boolean {
     const spec = state.transformSpec
+
     return (
       spec != null &&
       ((typeof spec.transform === 'string' && spec.transform.includes('%')) ||

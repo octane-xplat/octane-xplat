@@ -21,10 +21,13 @@ import { keyboardNativeScope } from './native-scope'
  * MasonUIView.swift's vertical scrollability rule. */
 const masonScrollsY = (view: any) => {
   const Mason = (globalThis as any).MasonUIView
+
   if (!Mason || !(view instanceof Mason)) {
     return false
   }
+
   const range = () => view.contentSize.height > view.bounds.size.height
+
   switch (view.overflowY) {
     case 2:
       return true
@@ -38,10 +41,12 @@ const masonScrollsY = (view: any) => {
 }
 
 export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
+
 let Target: any
 const targetFor = (read: () => void) => {
   if (!Target) {
     const interop = (globalThis as any).interop
+
     Target = (NSObject as any).extend(
       {
         ['tick:'](this: any) {
@@ -51,7 +56,9 @@ const targetFor = (read: () => void) => {
       { exposedMethods: { 'tick:': { returns: interop.types.void, params: [CADisplayLink] } } },
     )
   }
+
   const target = Target.new()
+
   target.read = read
   return target
 }
@@ -63,13 +70,17 @@ const find = (view: any): any => {
   if (editing(view)) {
     return view
   }
+
   const children = view?.subviews
+
   for (let index = 0; index < (children?.count ?? 0); index++) {
     const found = find(children.objectAtIndex(index))
+
     if (found) {
       return found
     }
   }
+
   return null
 }
 
@@ -79,24 +90,31 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
   const window = key as any,
     scope = keyboardNativeScope(),
     publish = focusPublisher(notify)
+
   let active = true,
     input = find(window)
+
   scope.defer(() => {
     active = false
   })
+
   try {
     const read = () => {
       if (!active) {
         return
       }
+
       if (input && (!editing(input) || input.window !== window)) {
         input = null
       }
+
       const state = emptyFocus(focusRect(window.bounds), 'native-rect')
+
       if (!input) {
         publish(state)
         return
       }
+
       const box = input.hidden ? null : focusRect(input.convertRectToView(input.bounds, window))
       const range = input.selectedTextRange
       const selection = range
@@ -105,17 +123,22 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
             Number(input.offsetFromPositionToPosition(input.beginningOfDocument, range.end)),
           )
         : null
+
       const caret = range
         ? focusRect(input.convertRectToView(input.caretRectForPosition(range.end), window))
         : null
+
       const owners: FocusedInputScrollOwner[] = []
+
       for (let view = input; view; view = view.superview) {
         const mason = masonScrollsY(view)
+
         if (!(view instanceof UIScrollView) && !mason) {
           continue
         }
 
         const rect = focusRect(view.convertRectToView(view.bounds, window))
+
         if (!rect) {
           continue
         }
@@ -134,6 +157,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 
         const inset = view.adjustedContentInset ?? view.contentInset
         const min = -(inset?.top ?? 0)
+
         owners.push({
           id: view,
           rect,
@@ -145,6 +169,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
           ),
         })
       }
+
       publish({
         ...state,
         input,
@@ -161,6 +186,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
     }
 
     const center = NSNotificationCenter.defaultCenter
+
     for (const name of [
       UITextFieldTextDidBeginEditingNotification,
       UITextViewTextDidBeginEditingNotification,
@@ -173,6 +199,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
         NSOperationQueue.mainQueue,
         (note: any) => {
           const candidate = note.object
+
           if (candidate?.window === window && editing(candidate)) {
             input = candidate
           } else if (candidate === input) {
@@ -186,6 +213,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
 
     const target = targetFor(read)
     const link = CADisplayLink.displayLinkWithTargetSelector(target, 'tick:')
+
     scope.defer(() => {
       target.read = undefined
       link.invalidate()

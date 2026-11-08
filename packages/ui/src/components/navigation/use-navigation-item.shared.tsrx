@@ -31,6 +31,7 @@ export function useNavigationItem(
   mode: 'item' | 'link' | 'route' = 'item',
 ): NavigationItemResult {
   const scope = useContext(RouterScopeContext)
+
   if (mode === 'route' && props.to === undefined) {
     throw new TypeError('A navigation link requires a canonical to destination')
   }

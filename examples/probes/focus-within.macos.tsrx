@@ -32,6 +32,7 @@ export default function FocusWithinProbe() {
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('within-first')?.window)
   ctx.assert('bridge available', ctx.find('within-support')?.stringValue, 'true')
+
   const first = ctx.find('within-first')
   const focus = (id: string) =>
     ctx.assert(`focus ${id}`, first.window.makeFirstResponder(ctx.find(id)), true)
@@ -44,6 +45,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const baseline = String(ctx.find('within-counts')?.stringValue).split('/').map(Number)
+
   focus('within-first')
   await ctx.waitFor(
     () => ctx.find('within-counts')?.stringValue === `${baseline[0] + 1}/${baseline[1]}`,
@@ -52,6 +54,7 @@ export async function run(ctx: ProbeContext) {
   focus('within-second')
   await ctx.waitFor(() => {
     const editor = ctx.find('within-second')?.currentEditor
+
     return (
       first.window.firstResponder === ctx.find('within-second') ||
       (typeof editor === 'function' ? editor.call(ctx.find('within-second')) : editor) ===

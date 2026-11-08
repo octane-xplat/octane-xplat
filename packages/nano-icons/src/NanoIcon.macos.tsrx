@@ -33,17 +33,20 @@ function applyHostProps(el: any, props: NanoIconProps) {
   }
 
   const layer = el.layer
+
   if (!layer || typeof layer.setValueForKeyPath !== 'function') {
     return
   }
 
   const turns = props.rotate ?? 0
+
   if (turns) {
     layer.setValueForKeyPath(((turns * 90) % 360) * (Math.PI / 180), 'transform.rotation.z')
   }
 
   const sx = props.hFlip ? -1 : 1
   const sy = props.vFlip ? -1 : 1
+
   if (sx !== 1) {
     layer.setValueForKeyPath(sx, 'transform.scale.x')
   }
@@ -57,6 +60,7 @@ const charCaches = new WeakMap<NanoGlyphMap, (codepoint: number) => string>()
 
 function charCacheFor(glyphMap: NanoGlyphMap) {
   let cache = charCaches.get(glyphMap)
+
   if (!cache) {
     cache = createCharCache()
     charCaches.set(glyphMap, cache)
@@ -110,7 +114,9 @@ const warnedNames = new Set<string>()
  */
 export function NanoIcon(props: NanoIconProps): unknown @{
   useStore(nanoIconSetRegistry)
+
   const resolved = resolveNanoIcon(props.name, props.set)
+
   if (!resolved) {
     if (!warnedNames.has(props.name)) {
       warnedNames.add(props.name)

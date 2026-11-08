@@ -12,6 +12,7 @@ export default defineConfig(async ({ mode }) => {
     entry: resolve(appRoot, 'webview-proof-host.ts'),
     outDir: resolve(appRoot, 'dist/webview-host'),
   })
+
   return {
     ...config,
     define: { ...config.define, ...bundledFontDefines() },

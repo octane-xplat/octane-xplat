@@ -87,6 +87,7 @@ let track: Track
 let documentEvents: EventTarget & { visibilityState: string }
 async function ready(audio = false) {
   const session = new SharedCameraSession(createSessionBackend({ audio }), { audio })
+
   await session.capabilities()
   session.attach({ srcObject: null, style: {}, play: async () => {} })
   await flush()
@@ -135,6 +136,7 @@ afterEach(() => {
 describe('web adapter finalization ownership', () => {
   it('keeps completion and dispose pending until metadata and storage commit complete', async () => {
     let commit!: () => void
+
     storage.commit.mockImplementation(
       () =>
         new Promise<void>((resolve) => {
@@ -144,15 +146,21 @@ describe('web adapter finalization ownership', () => {
 
     const session = await ready()
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
+
     const first = take.stop()
+
     expect(take.stop()).toBe(first)
     recorder.finish()
     await flush()
     expect(session.snapshot().state).toBe('finalizing')
     expect(() => session.startRecording()).toThrowError(CameraCaptureError)
+
     let disposed = false
     const disposing = session.dispose().then(() => {
       disposed = true
@@ -169,11 +177,16 @@ describe('web adapter finalization ownership', () => {
   it('early Stop waits for capture start and finishes exactly once', async () => {
     const session = await ready()
     const events: string[] = []
+
     session.subscribe((event) => events.push(event.type))
+
     const take = session.startRecording()
     const completion = take.stop()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     expect(recorder.state).toBe('inactive')
     recorder.finish()
@@ -196,12 +209,17 @@ describe('web adapter finalization ownership', () => {
 
     const session = await ready()
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     take.stop()
     recorder.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.stage).toBe('storage')
@@ -214,6 +232,7 @@ describe('web adapter finalization ownership', () => {
   it('a re-acquired live stream clears the ended-track interruption', async () => {
     const session = await ready()
     const events: CameraSessionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     track.readyState = 'ended'
     track.dispatchEvent(new Event('ended'))
@@ -228,6 +247,7 @@ describe('web adapter finalization ownership', () => {
     await flush()
     expect(session.snapshot().interrupted).toBe(false)
     expect(session.snapshot().cameraAvailable).toBe(true)
+
     const phases = events
       .filter((event) => event.type === 'interruption')
       .map((event) => (event as { phase: string }).phase)
@@ -239,14 +259,19 @@ describe('web adapter finalization ownership', () => {
   it('track loss requests a stop and produces an interrupted partial clip', async () => {
     const session = await ready()
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     track.readyState = 'ended'
     track.dispatchEvent(new Event('ended'))
     expect(recorder.state).toBe('inactive')
     recorder.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.endReason).toBe('cameraUnavailable')
@@ -259,6 +284,7 @@ describe('web adapter finalization ownership', () => {
   it('fails requested audio without silently recording video only', async () => {
     const session = await ready(true)
     const outcome = await session.startRecording().completion
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.error.kind).toBe('permissionDenied')
@@ -270,16 +296,24 @@ describe('web adapter finalization ownership', () => {
 
   it('a lost finalization callback fails once, cleans output, and ignores late callbacks', async () => {
     vi.useFakeTimers()
+
     const session = await ready()
     const events: string[] = []
+
     session.subscribe((event) => events.push(event.type))
+
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     take.stop()
     await vi.advanceTimersByTimeAsync(30_000)
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.error.kind).toBe('finalizationFailed')
@@ -295,10 +329,14 @@ describe('web adapter finalization ownership', () => {
 
   it('does not overflow very large duration timers', async () => {
     vi.useFakeTimers()
+
     const session = await ready()
     const take = session.startRecording({ maximumDurationMs: 2_147_483_648 })
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     await vi.advanceTimersByTimeAsync(20)
     expect(take.state).toBe('recording')

@@ -34,6 +34,7 @@ const SYMBOLOGIES: Record<BarcodeFormat, readonly string[]> = {
 // Vision → our vocabulary. EAN13 resolves to ean13; UPC-A is an EAN-13 with
 // a leading 0 and is rewritten on the payload (see below).
 const FORMATS: Record<string, string> = {}
+
 for (const [format, names] of Object.entries(SYMBOLOGIES)) {
   for (const name of names) {
     FORMATS[VISION_PREFIX + name] ??= format
@@ -45,11 +46,13 @@ for (const [format, names] of Object.entries(SYMBOLOGIES)) {
 function symbologiesFor(formats?: BarcodeFormat[]): string[] {
   const wanted = formats?.length ? formats : (Object.keys(SYMBOLOGIES) as BarcodeFormat[])
   const out = new Set<string>()
+
   for (const format of wanted) {
     for (const name of SYMBOLOGIES[format] ?? []) {
       out.add(VISION_PREFIX + name)
     }
   }
+
   return [...out]
 }
 
@@ -58,13 +61,17 @@ function observations(results: any): any[] {
   if (!results) {
     return []
   }
+
   if (Array.isArray(results)) {
     return results
   }
+
   const out: any[] = []
+
   for (let i = 0, count = Number(results.count ?? 0); i < count; i++) {
     out.push(results.objectAtIndex(i))
   }
+
   return out
 }
 
@@ -74,8 +81,10 @@ export const barcodeScanner: BarcodeScannerService = {
   ensure: async (): Promise<PermissionResult> => 'unsupported',
   scanImage: async (image: unknown, formats?: BarcodeFormat[]): Promise<ScannedCode[]> => {
     let source: any
+
     if (typeof image === 'string' || (image != null && typeof (image as any).uri === 'string')) {
       const input = typeof image === 'string' ? image : (image as any).uri
+
       if (/^file:/i.test(input)) {
         source = NSImage.alloc().initWithContentsOfURL(NSURL.URLWithString(input))
       } else if (/^[a-z][a-z0-9+.-]*:/i.test(input)) {
@@ -97,13 +106,17 @@ export const barcodeScanner: BarcodeScannerService = {
     }
 
     const cg = source?.CGImageForProposedRectContextHints?.(null, null, null)
+
     if (!cg) {
       throw new Error('barcodeScanner.scanImage: could not read the image')
     }
 
     const request = VNDetectBarcodesRequest.alloc().init()
+
     request.symbologies = symbologiesFor(formats)
+
     const handler = VNImageRequestHandler.alloc().initWithCGImageOptions(cg, {})
+
     if (!handler.performRequestsError([request], null)) {
       throw new Error('barcodeScanner.scanImage: Vision could not process the image')
     }
@@ -114,6 +127,7 @@ export const barcodeScanner: BarcodeScannerService = {
     const W = Number(CGImageGetWidth(cg))
     const H = Number(CGImageGetHeight(cg))
     const codes: ScannedCode[] = []
+
     for (const observation of observations(request.results)) {
       const symbology = String(observation?.symbology ?? '')
       let type =
@@ -121,6 +135,7 @@ export const barcodeScanner: BarcodeScannerService = {
         (symbology.startsWith(VISION_PREFIX) ? symbology.slice(VISION_PREFIX.length) : symbology)
 
       let data = String(observation?.payloadStringValue ?? '')
+
       if (type === 'ean13') {
         if (data.length === 13 && data.startsWith('0') && wantsUpcA) {
           type = 'upc_a'
@@ -132,11 +147,13 @@ export const barcodeScanner: BarcodeScannerService = {
 
       const code: ScannedCode = { type, data }
       const box = observation?.boundingBox
+
       if (box) {
         const ox = Number(box.origin?.x)
         const oy = Number(box.origin?.y)
         const width = Number(box.size?.width)
         const height = Number(box.size?.height)
+
         if (
           Number.isFinite(ox) &&
           Number.isFinite(oy) &&
@@ -155,6 +172,7 @@ export const barcodeScanner: BarcodeScannerService = {
 
       codes.push(code)
     }
+
     return codes
   },
 }

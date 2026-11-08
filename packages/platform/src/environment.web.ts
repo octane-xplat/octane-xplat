@@ -1,6 +1,7 @@
 import { connectivity } from './connectivity.web'
 import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web'
 import type { RuntimeEnvironment, RuntimeEnvironmentSnapshot } from './environment-types'
+
 export type { RuntimeEnvironment, RuntimeEnvironmentSnapshot } from './environment-types'
 
 /** Browser visibility/connectivity, or desktop WebView host activity when connected. */
@@ -10,7 +11,9 @@ export const environment: RuntimeEnvironment = {
       typeof navigator === 'undefined' || typeof navigator.onLine !== 'boolean'
         ? undefined
         : connectivity.getState()
+
     const state = typeof document === 'undefined' ? undefined : desktopHostBootstrap()?.appState
+
     return {
       online: network?.online,
       active:
@@ -30,6 +33,7 @@ export const environment: RuntimeEnvironment = {
       listener(environment.getSnapshot())
       return () => {}
     }
+
     let active = environment.getSnapshot().active
     const snapshot = (): RuntimeEnvironmentSnapshot => ({ ...environment.getSnapshot(), active })
     const network = () => listener(snapshot())
@@ -37,21 +41,26 @@ export const environment: RuntimeEnvironment = {
       active = document.visibilityState === 'visible'
       listener(snapshot())
     }
+
     const hide = () => {
       active = false
       listener(snapshot())
     }
+
     const host = desktopHostClient()
     const stopHost = host?.on('app.state.change', (state) => {
       active = state === 'active'
       listener(snapshot())
     })
+
     if (!host) {
       document.addEventListener('visibilitychange', visibility)
       window.addEventListener('pageshow', visibility)
       window.addEventListener('pagehide', hide)
     }
+
     const stopNetwork = connectivity.subscribe(network)
+
     return () => {
       stopNetwork()
       stopHost?.()

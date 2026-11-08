@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-image-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -32,10 +34,13 @@ function compiled(name, source, imports = {}, template = false) {
         },
       }).code
     : source
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -128,14 +133,17 @@ function mount(component, props) {
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   root.render(component, props)
   return { root, nodes, render: (next) => root.render(component, next) }
 }
 
 test('Windows keeps data URIs on the native loader; other native targets retain sync normalization', async () => {
   const source = 'data:image/png;base64,QQ=='
+
   assert.equal((await import(raster)).resolveRasterSource(source), source)
   assert.deepEqual((await import(mobileRaster)).resolveRasterSource(source), { base64: 'QQ==' })
   for (const source of ['res://portrait', '~/portrait.png', 'https://example.test/portrait.png']) {
@@ -146,6 +154,7 @@ test('Windows keeps data URIs on the native loader; other native targets retain 
 test('Image binds the current raster name, disposes on updates/unmount and keeps SVG on its own path', () => {
   const start = bindings.length
   const f = mount(Image, { src: 'data:image/png;base64,QQ==', alt: 'Ada' })
+
   assert.equal(f.nodes()[0].src, 'data:image/png;base64,QQ==')
   assert.equal(bindings.at(-1).label, 'Ada')
   assert.equal(bindings.at(-1).view, f.nodes()[0])
@@ -180,7 +189,9 @@ test('WinUI names bind after load, restore their previous values, and ignore sta
       assert.equal(callback, loaded)
     },
   }
+
   const dispose = bindImageAccessibility(view, 'Ada')
+
   assert.equal(image.name, '')
   loaded()
   assert.equal(image.name, 'Ada')
@@ -192,7 +203,9 @@ test('WinUI names bind after load, restore their previous values, and ignore sta
   loaded()
   assert.equal(image.name, '')
   view.isLoaded = true
+
   const updated = bindImageAccessibility(view, 'Grace')
+
   assert.equal(image.name, 'Grace')
   updated()
   assert.equal(image.name, '')
@@ -201,12 +214,17 @@ test('WinUI names bind after load, restore their previous values, and ignore sta
 
 test('Windows Avatar keeps one named image through initials/image updates and bounds its fallback text', () => {
   const f = mount(Avatar, { id: 'avatar', name: 'Ada Lovelace', size: 'lg' })
+
   assert.equal(f.nodes()[0].props.style.width, 40)
+
   let images = f.nodes().filter((node) => node.type === 'image')
+
   assert.equal(images.length, 1)
   assert.equal(images[0].props.accessibilityLabel, 'Ada Lovelace')
   assert.ok(images[0].src.startsWith('data:image/png;base64,'))
+
   const fallback = f.nodes().find((node) => node.type === 'label')
+
   assert.equal(fallback.props.text, 'AL')
   assert.equal(fallback.props.style.fontSize, 16)
   assert.equal(fallback.props.style.maxWidth, 40)
@@ -218,7 +236,9 @@ test('Windows Avatar keeps one named image through initials/image updates and bo
   assert.equal(f.nodes().filter((node) => node.type === 'label').length, 0)
   f.render({ name: 'Grace Hopper', fallback: 'GH', status: 'success' })
   assert.equal(f.nodes().find((node) => node.type === 'label').props.text, 'GH')
+
   const status = f.nodes().find((node) => node.props.className?.includes('vx-avatar-status'))
+
   assert.equal(status.props.accessibilityLabel, 'Grace Hopper is success')
   assert.equal(status.props.style.position, 'absolute')
   f.root.unmount()

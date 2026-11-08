@@ -23,7 +23,9 @@ export function useTableGroupedRows<T extends Record<string, unknown>>(
   config: UseTableGroupedRowsConfig<T>,
 ): UseTableGroupedRowsResult<T> {
   const configRef = useRef(config)
+
   configRef.current = config
+
   const { data, groupBy, collapsedGroups, groupOrder } = config
 
   const flattened = useMemo(

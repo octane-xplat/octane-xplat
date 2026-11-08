@@ -30,6 +30,7 @@ import type { LinkProps, Renderable } from '@octane-xplat/ui'
 declare const __WINDOWS_QUALIFICATION_SOURCE__: { commit: string; dirty: boolean }
 
 const shrinkFixture = viewFixtures.find((fixture) => fixture.name === 'view-shrinking-row')
+
 if (!shrinkFixture) {
   throw new Error('The maintained shrinking-row fixture is missing')
 }
@@ -110,12 +111,14 @@ export function Qualification() @{
   const [activations, setActivations, getActivations] = useState(0)
   const activate = (source: string, fixtureRevision?: number) => {
     const count = getActivations() + 1
+
     setActivations(count)
     record('activation', { source, count, fixtureRevision })
   }
 
   useEffect(() => {
     record('ready', { commandPath, source: __WINDOWS_QUALIFICATION_SOURCE__ })
+
     let sequence = ''
     let reading = false
     let disposed = false
@@ -131,6 +134,7 @@ export function Qualification() @{
         }
 
         const command = JSON.parse(await File.fromPath(commandPath).readText())
+
         if (disposed || typeof command.sequence !== 'string' || command.sequence === sequence) {
           return
         }
@@ -139,6 +143,7 @@ export function Qualification() @{
         switch (command.action) {
           case 'case': {
             const next = layoutCases.find((name) => name === command.value)
+
             if (!next) {
               throw new Error('Unknown layout case')
             }

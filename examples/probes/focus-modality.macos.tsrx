@@ -6,6 +6,7 @@ import { KVK, postKey, postClick } from '../../tools/probe/appkit-input'
 export default function FocusModalityProbe() {
   const modality = useFocusVisible()
   const ring = useFocusRing()
+
   return (
     <VStack gap={2}>
       <TextInput id="modality-input" label="Search" {...ring.focusProps} />
@@ -30,7 +31,9 @@ export async function run(ctx: ProbeContext) {
 
   ctx.record('initial modality', String(ctx.find('modality-status').stringValue))
   ctx.record('initial ring state', String(ctx.find('modality-ring').stringValue))
+
   const input = ctx.find('modality-input')
+
   ctx.assert('focus input', input.window.makeFirstResponder(input), true)
 
   // Posted key → keyboard modality → focus-visible ring.

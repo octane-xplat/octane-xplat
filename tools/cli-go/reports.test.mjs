@@ -13,6 +13,7 @@ const root = resolve(import.meta.dirname, '../..'),
 const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary = join(work, `go-tests-${target}${process.platform === 'win32' ? '.exe' : ''}`)
 const record = JSON.parse(readFileSync(binary + '.json'))
+
 assert.equal(createHash('sha256').update(readFileSync(binary)).digest('hex'), record.sha256)
 for (const [file, hash] of Object.entries(record.inputs)) {
   assert.equal(
@@ -26,6 +27,7 @@ for (const [file, hash] of Object.entries(record.inputs)) {
 
 test('native Apple report parsing agrees with the actual Node engine on accepted and rejected evidence', async () => {
   const base = mkdtempSync(join(scratchRun(root, 'go-report-reference'), 'case-'))
+
   try {
     const now = new Date().toISOString(),
       run = {
@@ -41,6 +43,7 @@ test('native Apple report parsing agrees with the actual Node engine on accepted
       }
 
     const cases = []
+
     for (const [name, bodyChanges, headerChanges, rewrite] of [
       ['confirmed', {}, {}],
       ['candidate', { pid: 999 }, {}],
@@ -70,6 +73,7 @@ test('native Apple report parsing agrees with the actual Node engine on accepted
         directory = join(home, 'Library/Logs/DiagnosticReports')
 
       mkdirSync(directory, { recursive: true })
+
       let content =
         JSON.stringify({
           bug_type: '309',
@@ -93,13 +97,17 @@ test('native Apple report parsing agrees with the actual Node engine on accepted
       }
 
       writeFileSync(join(directory, 'fixture.ips'), content)
+
       const expected = await discoverNativeReports(join(base, name), run, { host: 'darwin', home })
+
       assert.ok(expected.reports.length <= 1)
       cases.push({ name, run, content, now, expected: expected.reports[0] ?? null })
     }
 
     const path = join(base, 'corpus.json')
+
     writeFileSync(path, JSON.stringify(cases))
+
     const result = spawnSync(
       binary,
       ['-test.run=^TestNativeAppleReportsReferenceCorpus$', '-test.v'],
@@ -130,6 +138,7 @@ test('native Apple report parsing agrees with the actual Node engine on accepted
 
 test('native Android exit history agrees with Node for record kinds, scope, CRLF and unavailable formats', async () => {
   const base = mkdtempSync(join(scratchRun(root, 'go-android-report-reference'), 'case-'))
+
   try {
     const now = new Date().toISOString(),
       run = {
@@ -147,6 +156,7 @@ test('native Android exit history agrees with Node for record kinds, scope, CRLF
 
     const block = `        ApplicationExitInfo #0:\n          timestamp=${timestamp} pid=42 realUid=123\n          process=org.octane.reference reason=5 (CRASH NATIVE) subreason=0 status=11\n          importance=100 trace=/data/tombstones/private\n`
     const cases = []
+
     for (const [name, output, zone] of [
       ['native-crash', prefix + block, '+0000'],
       [
@@ -195,7 +205,9 @@ test('native Android exit history agrees with Node for record kinds, scope, CRLF
     }
 
     const path = join(base, 'corpus.json')
+
     writeFileSync(path, JSON.stringify(cases))
+
     const result = spawnSync(
       binary,
       ['-test.run=^TestAndroidNativeReportReferenceCorpus$', '-test.v'],

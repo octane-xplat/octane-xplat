@@ -27,8 +27,11 @@ const { servedDependencyFileChanged, purgeTransformCachesForHotUpdate } = await 
 const makeProject = () => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-nsm-freshness-'))
   const depDir = join(root, 'node_modules', '@scope', 'dep')
+
   mkdirSync(depDir, { recursive: true })
+
   const depFile = join(depDir, 'leaf.ts')
+
   writeFileSync(depFile, 'export const value = 1\n')
   return { root, depFile }
 }
@@ -38,9 +41,12 @@ const contextFor = (root) =>
 
 test('/ns/m reports resolved dependency files through notifyServedDependencyFile', async () => {
   const { root, depFile } = makeProject()
+
   try {
     const context = contextFor(root)
+
     assert.equal(context.kind, 'context')
+
     const seen = []
     const result = await resolveNsMTransformedModule({
       context: context.value,
@@ -59,13 +65,18 @@ test('/ns/m reports resolved dependency files through notifyServedDependencyFile
 
 test('servedDependencyFileChanged only fires after the fingerprinted baseline drifts', async () => {
   const { root, depFile } = makeProject()
+
   try {
     assert.equal(servedDependencyFileChanged(depFile), false, 'first serve records the baseline')
     assert.equal(servedDependencyFileChanged(depFile), false, 'unchanged file stays cached')
+
     // A patch install rewrites content: mtime moves forward.
     const future = Date.now() / 1000 + 5
+
     writeFileSync(depFile, 'export const value = 2\n')
+
     const { utimesSync } = await import('node:fs')
+
     utimesSync(depFile, future, future)
     assert.equal(servedDependencyFileChanged(depFile), true, 'rewritten file invalidates')
     assert.equal(servedDependencyFileChanged(depFile), false, 'new baseline is recorded')
@@ -76,6 +87,7 @@ test('servedDependencyFileChanged only fires after the fingerprinted baseline dr
 
 test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdate', async () => {
   const { root, depFile } = makeProject()
+
   try {
     const context = contextFor(root)
     let generation = 0
@@ -100,6 +112,7 @@ test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdat
       if (!servedDependencyFileChanged(file)) {
         return
       }
+
       purgeTransformCachesForHotUpdate({
         file,
         server,
@@ -124,10 +137,13 @@ test('stale dependency serve re-transforms after purgeTransformCachesForHotUpdat
     // Patch install rewrites the dep; the next serve must invalidate before
     // transforming so the response carries generation 1.
     writeFileSync(depFile, 'export const value = 2 /* patched */\n')
+
     const future = Date.now() / 1000 + 5
     const { utimesSync } = await import('node:fs')
+
     utimesSync(depFile, future, future)
     generation = 1
+
     const second = await resolveNsMTransformedModule({
       context: contextFor(root).value,
       transformRequest,

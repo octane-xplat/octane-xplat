@@ -27,6 +27,7 @@ test('the optional AppKit adapter delegates disk warming, queries, eviction and 
         return true
       },
     }))
+
   cache.initialize()
   assert.equal(await cache.prefetch(['first', 'second'], { concurrency: 1 }), true)
   assert.deepEqual(await cache.query(['first', 'second']), { first: 'memory', second: 'disk' })
@@ -37,10 +38,12 @@ test('the optional AppKit adapter delegates disk warming, queries, eviction and 
 
 test('missing hosts and backend failures degrade honestly; failed clear rejects instead of claiming a purge', async () => {
   const missing = createAppKitImageCache(() => undefined)
+
   assert.equal(await missing.prefetch('one'), false)
   assert.equal(await missing.evict('one'), false)
   assert.deepEqual(await missing.query('one'), { one: 'none' })
   await missing.clear()
+
   const fail = () => {
       throw Error('backend refused')
     },
@@ -51,10 +54,12 @@ test('missing hosts and backend failures degrade honestly; failed clear rejects 
       clear: fail,
       isCached: fail,
     }))
+
   assert.equal(await failed.prefetch('one'), false)
   assert.equal(await failed.evict('one'), false)
   assert.deepEqual(await failed.query('one'), { one: 'none' })
   await assert.rejects(failed.clear(), /backend refused/)
+
   const incomplete = createAppKitImageCache(() => ({
     initialize: () => false,
     prefetch: async () => false,
@@ -62,6 +67,7 @@ test('missing hosts and backend failures degrade honestly; failed clear rejects 
     clear: () => false,
     isCached: () => 'none',
   }))
+
   await assert.rejects(incomplete.clear(), /could not be cleared/)
 })
 
@@ -77,6 +83,7 @@ test('unsupported headers/configuration and decode-transform queries never imply
     evict: () => true,
     clear: () => true,
   }))
+
   assert.throws(() => cache.initialize({ memoryCacheSize: 1024 }), /not implemented/)
   assert.equal(await cache.prefetch('one', { headers: { Authorization: 'test-only' } }), false)
   assert.equal(calls, 0)
@@ -87,6 +94,7 @@ test('unsupported headers/configuration and decode-transform queries never imply
 test('cache query keys remain own enumerable data fields even for special object-property names', async () => {
   const cache = createAppKitImageCache(() => undefined),
     result = await cache.query(['__proto__', 'constructor'])
+
   assert.equal(Object.getPrototypeOf(result), Object.prototype)
   assert.deepEqual(Object.keys(result), ['__proto__', 'constructor'])
   assert.equal(result.__proto__, 'none')
@@ -101,11 +109,14 @@ test('public prefetch caps bridge concurrency and stops dequeuing after a failed
     clear: () => true,
     prefetch: (source) => new Promise((resolve) => pending.push({ source, resolve })),
   }))
+
   const task = cache.prefetch(['one', 'two', 'three'], { concurrency: 1 })
+
   assert.deepEqual(
     pending.map((item) => item.source),
     ['one'],
   )
+
   pending[0].resolve(true)
   await Promise.resolve()
   await Promise.resolve()
@@ -113,6 +124,7 @@ test('public prefetch caps bridge concurrency and stops dequeuing after a failed
     pending.map((item) => item.source),
     ['one', 'two'],
   )
+
   pending[1].resolve(false)
   assert.equal(await task, false)
   assert.equal(pending.length, 2)
@@ -136,6 +148,7 @@ test('private policy handoff preserves source/layout props without mutating the 
     style: 'width:40px',
     alt: 'Photo',
   }
+
   const core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
   const bridge = {
     supportsCachePolicy: true,
@@ -145,13 +158,16 @@ test('private policy handoff preserves source/layout props without mutating the 
     evict: () => true,
     clear: () => true,
   }
+
   const result = withAppKitImageRequest(props, core, () => bridge)
+
   assert.deepEqual(result, {
     ...props,
     __appKitImageCachePolicy: 'none',
     __appKitImageLoad: undefined,
     __appKitImageError: undefined,
   })
+
   assert.equal('__appKitImageCachePolicy' in props, false)
   assert.equal(
     withAppKitImageRequest(
@@ -166,6 +182,7 @@ test('private policy handoff preserves source/layout props without mutating the 
 test('missing or older UI/renderer cannot silently fall back from an uncached display request', () => {
   const props = { cachePolicy: 'none' as const },
     core = Object.defineProperty(() => {}, '__xplatAppKitImagePolicy', { value: true })
+
   assert.throws(
     () =>
       withAppKitImageRequest(
@@ -175,6 +192,7 @@ test('missing or older UI/renderer cannot silently fall back from an uncached di
       ),
     /matching UI and renderer/,
   )
+
   assert.throws(
     () => withAppKitImageRequest(props, core, () => undefined),
     /matching UI and renderer/,
@@ -185,6 +203,7 @@ test('load/error callback handoff preserves functions and fails before loading o
   const onLoad = () => {},
     onError = () => {},
     props = { onLoad, onError }
+
   const core = Object.defineProperty(() => {}, '__xplatAppKitImageEvents', { value: true })
   const bridge = {
     supportsLoadEvents: true,
@@ -194,7 +213,9 @@ test('load/error callback handoff preserves functions and fails before loading o
     evict: () => true,
     clear: () => true,
   }
+
   const result = withAppKitImageRequest(props, core, () => bridge)
+
   assert.equal(result.__appKitImageLoad, onLoad)
   assert.equal(result.__appKitImageError, onError)
   assert.throws(
@@ -206,6 +227,7 @@ test('load/error callback handoff preserves functions and fails before loading o
       ),
     /callbacks require matching/,
   )
+
   assert.throws(
     () => withAppKitImageRequest(props, core, () => ({ ...bridge, supportsLoadEvents: false })),
     /callbacks require matching/,

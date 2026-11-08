@@ -16,6 +16,7 @@ export function Pagination(props: PaginationProps): unknown @{
 
   const pages: { key: string; page: number | null }[] = []
   let lastEllipsis = false
+
   for (let p = 1; p <= count; p++) {
     if (p === 1 || p === count || Math.abs(p - current) <= sibling) {
       pages.push({ key: String(p), page: p })

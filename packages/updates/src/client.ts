@@ -30,6 +30,7 @@ const digest = (bytes: Uint8Array) =>
 const decode = (bytes: Uint8Array) => JSON.parse(strFromU8(bytes))
 const limit = (value: number | undefined, fallback: number) => {
   const result = value ?? fallback
+
   if (!Number.isSafeInteger(result) || result <= 0) {
     throw new Error('Update limits must be positive integers')
   }
@@ -43,6 +44,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
   }
 
   const endpoint = options.endpoint.replace(/\/$/, '')
+
   if (!/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(endpoint)) {
     throw new Error('Updates endpoint must be an HTTPS origin')
   }
@@ -52,6 +54,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
   }
 
   const channel = options.channel ?? 'stable'
+
   if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(channel)) {
     throw new Error('Invalid updates channel')
   }
@@ -60,6 +63,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
   const expandedLimit = limit(options.maxExpandedBytes, 128 * 1024 * 1024)
   const timeout = limit(options.timeout, 30000)
   const fs = env.storage
+
   if (!fs.exists('native.txt')) {
     throw new Error('OTA boot wiring missing: run xplat updates init and rebuild the native binary')
   }
@@ -106,6 +110,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
     async check(): Promise<UpdateCheck> {
       const url = `${endpoint}/manifest?platform=${env.platform}&channel=${channel}&nativeFingerprint=${env.nativeFingerprint}&currentVersion=${client.status().currentVersion}`
       const response = await env.request(url, timeout)
+
       if (response.status === 404) {
         return { available: false, reason: 'no-release' }
       }
@@ -115,6 +120,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
       }
 
       const data = decode(response.bytes)
+
       if (
         data.updateAvailable === false &&
         ['up-to-date', 'native-incompatible'].includes(data.reason)
@@ -131,6 +137,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
       }
 
       const manifest = validate(data)
+
       return isRejected(manifest.sha256)
         ? { available: false, reason: 'rejected' }
         : { available: true, manifest }
@@ -146,6 +153,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
       }
 
       const manifest = validate(input)
+
       if (isRejected(manifest.sha256)) {
         throw new Error('This bundle failed a previous boot')
       }
@@ -154,6 +162,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
       try {
         const response = await env.request(manifest.url, timeout)
         const bytes = response.bytes
+
         if (
           response.status !== 200 ||
           bytes.length !== manifest.size ||
@@ -169,6 +178,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
         const files = unzipSync(bytes, {
           filter(entry) {
             const name = entry.name.replace(/\/$/, '')
+
             if (
               !name ||
               name.startsWith('/') ||
@@ -202,6 +212,7 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
         }
 
         const metadata = files['xplat-native.json'] ? decode(files['xplat-native.json']) : null
+
         if (
           !metadata ||
           metadata.format !== 'octane-xplat.native-fingerprint.v1' ||
@@ -213,11 +224,13 @@ export function createClient(options: UpdatesOptions, env: Environment): Updates
         }
 
         const pkg = decode(files['package.json'])
+
         if (typeof pkg.main !== 'string' || !/^[a-zA-Z0-9_-]+(?:\.mjs)?$/.test(pkg.main)) {
           throw new Error('Invalid update entry point')
         }
 
         const main = pkg.main.endsWith('.mjs') ? pkg.main : `${pkg.main}.mjs`
+
         if (!files[main]) {
           throw new Error('Update entry point missing')
         }

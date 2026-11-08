@@ -61,18 +61,23 @@ const ANGLE = /^([+-]?(?:\d+\.?\d*|\.\d+))(deg|turn|rad|grad)$/i
 
 function parseLengthToken(token: string): { frac: number } | { len: number } | null {
   const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt|%)?$/i.exec(token)
+
   if (!m || !Number.isFinite(Number(m[1])) || (!m[2] && Number(m[1]) !== 0)) {
     return null
   }
+
   return m[2] === '%' ? { frac: Number(m[1]) / 100 } : { len: Number(m[1]) }
 }
 
 function parseAngle(token: string): number | null {
   const m = ANGLE.exec(token)
+
   if (!m) {
     return null
   }
+
   const v = Number(m[1])
+
   switch (m[2].toLowerCase()) {
     case 'deg':
       return v
@@ -83,6 +88,7 @@ function parseAngle(token: string): number | null {
     case 'rad':
       return (v * 180) / Math.PI
   }
+
   return null
 }
 
@@ -92,18 +98,25 @@ const GRADIENT_RE = /^(repeating-)?(linear|radial|conic)-gradient\((.*)\)$/s
  *  null → recognized-but-empty (`none`); undefined → unparseable. */
 export function parseBgImageTerm(term: string): BgImage | null | undefined {
   const t = term.trim()
+
   if (!t) {
     return undefined
   }
+
   if (t === 'none' || t === 'initial' || t === 'unset' || t === 'auto') {
     return null
   }
+
   const url = /^url\(\s*(['"]?)(.*?)\1\s*\)$/s.exec(t)
+
   if (url) {
     const src = url[2].trim()
+
     return src ? { kind: 'url', url: src } : null
   }
+
   const g = GRADIENT_RE.exec(t)
+
   if (g) {
     const gradient = parseGradient(
       g[2] as 'linear' | 'radial' | 'conic',
@@ -113,22 +126,27 @@ export function parseBgImageTerm(term: string): BgImage | null | undefined {
 
     return gradient ? { kind: 'gradient', gradient } : undefined
   }
+
   return undefined
 }
 
 /** `<stop> = color [pos [pos]?]` — double positions become two stops. */
 function parseStops(parts: string[]): BgStop[] | null {
   const stops: BgStop[] = []
+
   for (const part of parts) {
     const tokens = splitStyleTokens(part)
+
     if (!tokens.length) {
       return null
     }
 
     const positions: ({ frac: number } | { len: number })[] = []
     let colorEnd = tokens.length
+
     for (let i = 1; i < tokens.length; i++) {
       const p = parseLengthToken(tokens[i])
+
       if (!p) {
         colorEnd = i
         break
@@ -157,6 +175,7 @@ function parseStops(parts: string[]): BgStop[] | null {
       stops.push({ color, at: positions[0] ?? null })
     }
   }
+
   return stops.length >= 2 ? stops : null
 }
 
@@ -181,9 +200,11 @@ function parseGradient(
   repeating: boolean,
 ): BgGradient | null {
   const parts = splitTopLevelCommas(args)
+
   if (parts.length < 2) {
     return null
   }
+
   const out: BgGradient = {
     type,
     repeating,
@@ -216,6 +237,7 @@ function parseGradient(
     'bottom',
     'center',
   ])
+
   const firstPart = parts[0].trim().toLowerCase()
   const isPrelude =
     type === 'linear'
@@ -223,14 +245,17 @@ function parseGradient(
       : splitStyleTokens(firstPart).every(
           (t) => RADIAL_PRELUDE.has(t) || parseLengthToken(t) != null || parseAngle(t) != null,
         )
+
   if (isPrelude) {
     stopParts = parts.slice(1)
     if (type === 'linear') {
       const clause = parts[0].trim().toLowerCase()
+
       if (clause in LINEAR_DIRECTIONS) {
         out.angle = LINEAR_DIRECTIONS[clause]
       } else {
         const angle = parseAngle(clause)
+
         if (angle == null) {
           return null
         }
@@ -241,8 +266,10 @@ function parseGradient(
       // radial/conic prelude: [shape] [size] [from angle] [at position]
       const tokens = splitStyleTokens(parts[0])
       const at = tokens.findIndex((t) => t.toLowerCase() === 'at')
+
       if (at >= 0) {
         const pos = parseImagePosition(tokens.slice(at + 1).join(' '))
+
         if (!pos) {
           return null
         }
@@ -253,6 +280,7 @@ function parseGradient(
 
       for (let i = 0; i < tokens.length; i++) {
         const t = tokens[i].toLowerCase()
+
         if (t === 'circle' || t === 'ellipse') {
           out.shape = t
           continue
@@ -260,6 +288,7 @@ function parseGradient(
 
         if (t === 'from' && type === 'conic') {
           const angle = parseAngle(tokens[++i] ?? '')
+
           if (angle == null) {
             return null
           }
@@ -280,6 +309,7 @@ function parseGradient(
 
         if (type === 'radial') {
           const len = parseLengthToken(t)
+
           if (len) {
             if (out.rx == null) {
               out.rx = len
@@ -303,10 +333,13 @@ function parseGradient(
       }
     }
   }
+
   const stops = parseStops(stopParts)
+
   if (!stops) {
     return null
   }
+
   out.stops = stops
   return out
 }
@@ -317,13 +350,18 @@ export function parseBackgroundImage(value: any, warnings: string[]): BgImage[] 
   if (value == null) {
     return null
   }
+
   const text = String(value).trim()
+
   if (!text || text === 'none' || text === 'initial' || text === 'unset') {
     return null
   }
+
   const layers: BgImage[] = []
+
   for (const term of splitTopLevelCommas(text)) {
     const image = parseBgImageTerm(term)
+
     if (image === undefined) {
       warnings.push(term)
       continue
@@ -333,6 +371,7 @@ export function parseBackgroundImage(value: any, warnings: string[]): BgImage[] 
       layers.push(image)
     }
   }
+
   return layers
 }
 
@@ -340,20 +379,27 @@ function repeatMode(value: any): { x: RepeatMode; y: RepeatMode } | null {
   const text = String(value ?? '')
     .trim()
     .toLowerCase()
+
   if (!text) {
     return null
   }
+
   if (text === 'repeat-x') {
     return { x: 'repeat', y: 'no-repeat' }
   }
+
   if (text === 'repeat-y') {
     return { x: 'no-repeat', y: 'repeat' }
   }
+
   const tokens = text.split(/\s+/)
+
   if (tokens.length > 2 || tokens.some((t) => !REPEATS.has(t))) {
     return null
   }
+
   const x = (tokens[0] === 'no-repeat' ? 'no-repeat' : tokens[0]) as RepeatMode
+
   return { x, y: (tokens[1] ?? tokens[0]) as RepeatMode }
 }
 
@@ -361,10 +407,13 @@ function sizeToken(token: string): BgSizeToken | null {
   if (token === 'auto') {
     return { kind: 'auto' }
   }
+
   const len = parseLengthToken(token)
+
   if (!len) {
     return null
   }
+
   return 'frac' in len ? { kind: 'frac', v: len.frac } : { kind: 'len', v: len.len }
 }
 
@@ -372,23 +421,31 @@ function bgSize(value: any): BgSize | null {
   const text = String(value ?? '')
     .trim()
     .toLowerCase()
+
   if (!text) {
     return null
   }
+
   if (text === 'cover' || text === 'contain') {
     return text
   }
+
   if (text === 'auto') {
     return 'auto'
   }
+
   const tokens = text.split(/\s+/).filter(Boolean)
+
   if (tokens.length > 2) {
     return null
   }
+
   const w = sizeToken(tokens[0])
+
   if (!w) {
     return null
   }
+
   return { w, h: tokens.length > 1 ? (sizeToken(tokens[1]) ?? { kind: 'auto' }) : { kind: 'auto' } }
 }
 
@@ -396,6 +453,7 @@ function boxValue(value: any): BgBox | null {
   const text = String(value ?? '')
     .trim()
     .toLowerCase()
+
   return BOXES.has(text) ? (text as BgBox) : null
 }
 
@@ -420,8 +478,10 @@ function buildLayers(
 ): BgLayerSpec[] {
   const at = <T>(list: T[], i: number): T | undefined =>
     list.length ? list[i % list.length] : undefined
+
   return images.map((image, i) => {
     const base = DEFAULT_LAYER()
+
     return {
       image,
       repeat: at(repeat, i) ?? base.repeat,
@@ -448,9 +508,11 @@ interface BgSlots {
 export function parseBackgroundShorthand(value: any): BgSlots {
   const slots: BgSlots = {}
   const text = String(value ?? '').trim()
+
   if (!text) {
     return slots
   }
+
   const layerTexts = splitTopLevelCommas(text)
   const images: string[] = []
   const repeats: string[] = []
@@ -458,6 +520,7 @@ export function parseBackgroundShorthand(value: any): BgSlots {
   const sizes: string[] = []
   const origins: string[] = []
   const clips: string[] = []
+
   layerTexts.forEach((layerText, index) => {
     const tokens = splitStyleTokens(layerText)
     const positionTokens: string[] = []
@@ -466,14 +529,17 @@ export function parseBackgroundShorthand(value: any): BgSlots {
     const repeatTokens: string[] = []
     let image: string | undefined
     let color: string | undefined
+
     for (let i = 0; i < tokens.length; i++) {
       // `position/size` — the '/' may sit inside a token (`center/cover`),
       // but never inside parentheses (url() paths).
       let token = tokens[i]
       let depth = 0
       let slash = -1
+
       for (let j = 0; j < token.length; j++) {
         const c = token[j]
+
         if (c === '(') {
           depth++
         } else if (c === ')') {
@@ -485,6 +551,7 @@ export function parseBackgroundShorthand(value: any): BgSlots {
       }
 
       const afterSlash: string[] = []
+
       if (slash >= 0) {
         afterSlash.push(
           ...token
@@ -497,6 +564,7 @@ export function parseBackgroundShorthand(value: any): BgSlots {
       }
 
       const low = token.toLowerCase()
+
       if (/^url\(/i.test(token) || GRADIENT_RE.test(token) || low === 'none') {
         image = token
       } else if (REPEATS.has(low)) {
@@ -513,6 +581,7 @@ export function parseBackgroundShorthand(value: any): BgSlots {
 
       for (const size of afterSlash) {
         const low = size.toLowerCase()
+
         if (
           sizeTokens.length < 2 &&
           (low === 'auto' || low === 'cover' || low === 'contain' || LENGTH_OR_PCT.test(low))
@@ -521,42 +590,54 @@ export function parseBackgroundShorthand(value: any): BgSlots {
         }
       }
     }
+
     images.push(image ?? 'none')
     if (positionTokens.length) {
       positions[index] = positionTokens.join(' ')
     }
+
     if (sizeTokens.length) {
       sizes[index] = sizeTokens.join(' ')
     }
+
     if (repeatTokens.length) {
       repeats[index] = repeatTokens.join(' ')
     }
+
     if (boxTokens[0]) {
       origins[index] = boxTokens[0]
     }
+
     if (boxTokens[1]) {
       clips[index] = boxTokens[1]
     }
+
     if (index === layerTexts.length - 1 && color != null) {
       slots.color = color
     }
   })
+
   slots.image = images.join(', ')
   if (positions.length) {
     slots.position = layerTexts.map((_, i) => positions[i] ?? '0% 0%').join(', ')
   }
+
   if (sizes.length) {
     slots.size = layerTexts.map((_, i) => sizes[i] ?? 'auto auto').join(', ')
   }
+
   if (repeats.length) {
     slots.repeat = layerTexts.map((_, i) => repeats[i] ?? 'repeat').join(', ')
   }
+
   if (origins.length) {
     slots.origin = layerTexts.map((_, i) => origins[i] ?? 'padding-box').join(', ')
   }
+
   if (clips.length) {
     slots.clip = layerTexts.map((_, i) => clips[i] ?? 'border-box').join(', ')
   }
+
   return slots
 }
 
@@ -571,6 +652,7 @@ export function collectBackground(
 ): BackgroundSpec | null {
   const slots: BgSlots = {}
   let touched = false
+
   for (const [name, value] of Object.entries(style)) {
     if (value == null) {
       continue
@@ -579,6 +661,7 @@ export function collectBackground(
     switch (name) {
       case 'background': {
         const parsed = parseBackgroundShorthand(value)
+
         if (parsed.color != null) {
           slots.color = parsed.color
         }
@@ -638,13 +721,17 @@ export function collectBackground(
         break
     }
   }
+
   if (!touched && slots.color == null) {
     return null
   }
+
   const imageTerms = slots.image == null ? [] : splitTopLevelCommas(String(slots.image))
   const images: BgImage[] = []
+
   for (const term of imageTerms) {
     const image = parseBgImageTerm(term)
+
     if (image === undefined) {
       warnings.push(term)
       continue
@@ -654,24 +741,31 @@ export function collectBackground(
       images.push(image)
     }
   }
+
   const perLayer = (value: any): string[] =>
     value == null ? [] : splitTopLevelCommas(String(value))
+
   const repeatList = perLayer(slots.repeat)
     .map(repeatMode)
     .filter((m): m is { x: RepeatMode; y: RepeatMode } => m != null)
+
   const positionList = perLayer(slots.position)
   const sizeList = perLayer(slots.size)
     .map(bgSize)
     .filter((s): s is BgSize => s != null)
+
   const originList = perLayer(slots.origin)
     .map(boxValue)
     .filter((b): b is BgBox => b != null)
+
   const clipList = perLayer(slots.clip)
     .map(boxValue)
     .filter((b): b is BgBox => b != null)
+
   if (slots.clip != null && String(slots.clip).includes('text')) {
     warnings.push('unsupported background-clip: text')
   }
+
   const layers = buildLayers(
     images,
     repeatList,
@@ -680,9 +774,11 @@ export function collectBackground(
     originList,
     clipList,
   )
+
   if (!layers.length && slots.color == null) {
     return null
   }
+
   return { color: slots.color, layers }
 }
 
@@ -706,16 +802,19 @@ export function positioningBox(
   if (box === 'border-box') {
     return { x: 0, y: 0, width: w, height: h }
   }
+
   const x = border.left + (box === 'content-box' ? padding.left : 0)
   const y = border.top + (box === 'content-box' ? padding.top : 0)
   const width = Math.max(
     0,
     w - border.left - border.right - (box === 'content-box' ? padding.left + padding.right : 0),
   )
+
   const height = Math.max(
     0,
     h - border.top - border.bottom - (box === 'content-box' ? padding.top + padding.bottom : 0),
   )
+
   return { x, y, width, height }
 }
 
@@ -729,6 +828,7 @@ export function resolveImageSize(
   if (!(iw > 0) || !(ih > 0)) {
     return { w: 0, h: 0 }
   }
+
   if (size === 'cover' || size === 'contain') {
     const scale =
       size === 'cover'
@@ -737,22 +837,29 @@ export function resolveImageSize(
 
     return { w: iw * scale, h: ih * scale }
   }
+
   if (size === 'auto') {
     return { w: iw, h: ih }
   }
+
   const axisLen = (token: BgSizeToken, extent: number) =>
     token.kind === 'len' ? token.v : token.kind === 'frac' ? token.v * extent : null
+
   let w = axisLen(size.w, box.width)
   let h = axisLen(size.h, box.height)
+
   if (w == null && h == null) {
     return { w: iw, h: ih }
   }
+
   if (w == null) {
     w = (iw * h!) / ih
   }
+
   if (h == null) {
     h = (ih * w) / iw
   }
+
   return { w, h }
 }
 
@@ -789,20 +896,24 @@ export function tileRects(
     if (!(tile > 0) || !(extent > 0)) {
       return { start: a0, step: tile, count: 0, size: tile }
     }
+
     switch (mode) {
       case 'no-repeat':
         return { start: a0, step: tile, count: 1, size: tile }
       case 'space': {
         const count = Math.floor(extent / tile)
+
         if (count < 1) {
           return { start: a0, step: tile, count: 1, size: tile }
         }
 
         const step = count > 1 ? tile + (extent - count * tile) / (count - 1) : tile
+
         return { start: count > 1 ? 0 : (extent - tile) / 2, step, count, size: tile }
       }
       case 'round': {
         const count = Math.max(1, Math.round(extent / tile))
+
         return { start: 0, step: extent / count, count, size: extent / count }
       }
       default: {
@@ -810,6 +921,7 @@ export function tileRects(
         // last whose start still lands inside.
         const first = Math.floor(-(a0 + tile) / tile) + 1
         const last = Math.ceil((extent - a0) / tile) - 1
+
         return {
           start: a0 + first * tile,
           step: tile,
@@ -819,9 +931,11 @@ export function tileRects(
       }
     }
   }
+
   const xs = axis(layer.repeat.x, anchor.x - box.x, drawn.w, box.width)
   const ys = axis(layer.repeat.y, anchor.y - box.y, drawn.h, box.height)
   const out: ImageRect[] = []
+
   for (let i = 0; i < xs.count; i++) {
     for (let j = 0; j < ys.count; j++) {
       out.push({
@@ -832,6 +946,7 @@ export function tileRects(
       })
     }
   }
+
   return out
 }
 
@@ -845,10 +960,14 @@ export function resolveStops(
 ): { color: string; at: number }[] {
   const at = (stop: BgStop): number | null =>
     stop.at == null ? null : 'frac' in stop.at ? stop.at.frac * extent : stop.at.len
+
   const out = stops.map((stop) => ({ color: stop.color, at: at(stop) }))
+
   out[0].at ??= 0
   out[out.length - 1].at ??= extent
+
   let previous = 0
+
   for (let i = 1; i < out.length; i++) {
     if (out[i].at == null) {
       continue
@@ -862,20 +981,27 @@ export function resolveStops(
 
     previous = i
   }
+
   for (let j = previous + 1; j < out.length; j++) {
     out[j].at = out[previous].at!
   }
+
   if (!repeating) {
     return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))
   }
+
   // Tile the [first..last] pattern until it covers [0, extent].
   const first = out[0].at!,
     last = out[out.length - 1].at!
+
   const period = last - first
+
   if (!(period > 0)) {
     return out.map((s) => ({ color: s.color, at: extent > 0 ? s.at! / extent : 0 }))
   }
+
   const tiled: { color: string; at: number }[] = []
+
   for (
     let copy = Math.floor(-first / period) - 1;
     first + copy * period <= extent + period;
@@ -883,11 +1009,13 @@ export function resolveStops(
   ) {
     for (const s of out) {
       const pos = s.at! + copy * period
+
       if (pos >= -period && pos <= extent + period) {
         tiled.push({ color: s.color, at: pos })
       }
     }
   }
+
   return tiled.map((s) => ({
     color: s.color,
     at: Math.min(1, Math.max(0, extent > 0 ? s.at / extent : 0)),

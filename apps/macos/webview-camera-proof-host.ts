@@ -13,6 +13,7 @@ const hostServices = (globalThis as typeof globalThis & { __xplatAppKit: AppKitH
   .__xplatAppKit
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
+
 appKit.window.title = 'Octane camera WKWebView proof'
 
 const webView = createMacOSWebView(appKit.contentView)
@@ -43,6 +44,7 @@ const desktopHost = createDesktopWebViewHost<CameraProofServices, CameraProofEve
 )
 
 const loaded = address ? webView.load(address) : webView.loadPackaged('index.html')
+
 if (!loaded) {
   throw new Error('macOS webview could not load its development or packaged app page')
 }

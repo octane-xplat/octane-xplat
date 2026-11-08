@@ -18,12 +18,14 @@ const makeProject = () => {
   // tmpdir() is a symlinked path on macOS (/var → /private/var); realpath the
   // root so ancestor walks and NODE_PATH reference the same location.
   const root = realpathSync(track(mkdtempSync(join(tmpdir(), 'xplat-always-include-'))))
+
   writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'app' }))
   return root
 }
 
 const makeHiddenHoistDep = (root, name) => {
   const dir = join(root, 'node_modules/.pnpm/node_modules', name)
+
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, main: './index.js' }))
   writeFileSync(join(dir, 'index.js'), '')
@@ -31,6 +33,7 @@ const makeHiddenHoistDep = (root, name) => {
 
 const makeAppDep = (root, name) => {
   const dir = join(root, 'node_modules', name)
+
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, main: './index.js' }))
   writeFileSync(join(dir, 'index.js'), '')
@@ -50,7 +53,9 @@ const { collectVendorModules } = await import(
 describe('ALWAYS_INCLUDE presence check', () => {
   it('ignores packages present only in the pnpm hidden hoist even when NODE_PATH exposes them', () => {
     const root = makeProject()
+
     makeHiddenHoistDep(root, 'stacktrace-js')
+
     // NODE_PATH is read at module-loader init, so the collection runs in a
     // child process mirroring the pnpm bin shims, which export NODE_PATH
     // containing the hidden `.pnpm/node_modules` hoist.
@@ -72,11 +77,13 @@ describe('ALWAYS_INCLUDE presence check', () => {
         },
       },
     )
+
     assert.ok(!JSON.parse(out).includes('stacktrace-js'))
   })
 
   it('collects a force-included package installed in an ancestor node_modules', () => {
     const root = makeProject()
+
     makeAppDep(root, 'stacktrace-js')
     assert.ok(collectVendorModules(root, 'ios').entries.includes('stacktrace-js'))
   })

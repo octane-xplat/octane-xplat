@@ -20,6 +20,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -40,6 +41,7 @@ it('forwards testID and accessible while retaining id, spoken metadata and the p
 
   try {
     const host = env.host()
+
     expect(host.props).toMatchObject({
       id: 'action',
       testID: 'draft.save',
@@ -71,6 +73,7 @@ it('Button forwards identifier/accessible through Pressable across busy and disa
 
   try {
     const host = env.host()
+
     expect(host.props).toMatchObject({ testID: 'draft.save', accessible: false })
     env.render({
       id: 'action',

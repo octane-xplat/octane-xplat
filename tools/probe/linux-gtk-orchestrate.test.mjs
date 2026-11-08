@@ -21,6 +21,7 @@ async function runFixture(mode, timeout = '600') {
       : `process.exit(${mode === 'error' ? '7' : '0'})\n`)
 
   await writeFile(executable, source, { mode: 0o755 })
+
   const result = await new Promise((resolve, reject) => {
     const child = spawn('bash', [script.pathname], {
       stdio: ['ignore', 'pipe', 'pipe'],
@@ -34,6 +35,7 @@ async function runFixture(mode, timeout = '600') {
 
     let stdout = ''
     let stderr = ''
+
     child.stdout.setEncoding('utf8').on('data', (chunk) => {
       stdout += chunk
     })
@@ -48,6 +50,7 @@ async function runFixture(mode, timeout = '600') {
 
   const pid = Number(await readFile(join(work, 'child.pid'), 'utf8'))
   const log = await readFile(join(work, 'orchestrator.jsonl'), 'utf8')
+
   await rm(work, { recursive: true, force: true })
   return { ...result, pid, log }
 }
@@ -67,6 +70,7 @@ function processIsGone(pid) {
 
 test('clean child completion preserves success and reaps the owned child', async () => {
   const result = await runFixture('clean')
+
   assert.equal(result.code, 0, result.stderr)
   assert.equal(processIsGone(result.pid), true)
   assert.match(result.log, /"kind":"app-exited","data":\{"code":0\}/)
@@ -74,6 +78,7 @@ test('clean child completion preserves success and reaps the owned child', async
 
 test('child error exit propagates after owned-child cleanup', async () => {
   const result = await runFixture('error')
+
   assert.equal(result.code, 7, result.stderr)
   assert.equal(processIsGone(result.pid), true)
   assert.match(result.log, /"kind":"app-exited","data":\{"code":7\}/)
@@ -82,6 +87,7 @@ test('child error exit propagates after owned-child cleanup', async () => {
 test('timeout terminates then kills a TERM-ignoring child within the fixed bound', async () => {
   const started = Date.now()
   const result = await runFixture('hang', '1')
+
   assert.equal(result.code, 124, result.stderr)
   assert.equal(processIsGone(result.pid), true)
   assert.match(result.log, /"kind":"timeout"/)

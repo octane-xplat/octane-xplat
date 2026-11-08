@@ -22,25 +22,33 @@ export function createLayout(deps: Dependencies) {
   function orderStickySiblings(node: ElementNode) {
     const parent = node.layoutParent ?? node.parent,
       host = layoutView(node)?.superview
+
     if (!parent || !host?.addSubviewPositionedRelativeTo) {
       return
     }
+
     const children = (parent.projectedChildren ?? parent.children).filter(
       (child) => child.view && layoutView(child)?.superview === host,
     )
+
     const ordered = children
       .slice()
       .sort((left, right) => stickyPlacements.priority(left) - stickyPlacements.priority(right))
       .map(layoutView)
+
     const native = host.subviews,
       count = Number(native?.count ?? native?.length ?? 0)
+
     const actual = Array.from({ length: count }, (_, i) =>
       native.objectAtIndex ? native.objectAtIndex(i) : native[i],
     ).filter((view) => ordered.includes(view))
+
     if (ordered.every((view, i) => view === actual[i])) {
       return
     }
+
     let previous: NSView | null = null
+
     for (const view of ordered) {
       host.addSubviewPositionedRelativeTo(view, 1, previous)
       previous = view
@@ -53,6 +61,7 @@ export function createLayout(deps: Dependencies) {
     convert: (node, base, document) => {
       const parent = base.parent as NSView,
         target = document as NSView
+
       if (
         layoutView(node)?.superview !== parent ||
         !parent.window ||
@@ -61,10 +70,12 @@ export function createLayout(deps: Dependencies) {
       ) {
         return
       }
+
       const rect = parent.convertRectToView(
         { origin: { x: base.x, y: base.y }, size: { width: base.width, height: base.height } },
         target,
       )
+
       const row = parent.convertRectToView(parent.bounds, target)
       const geometry = {
         x: Number(rect.origin.x),
@@ -72,6 +83,7 @@ export function createLayout(deps: Dependencies) {
         rowX: Number(row.origin.x),
         rowWidth: Number(row.size.width),
       }
+
       return Object.values(geometry).every(Number.isFinite) &&
         geometry.width >= 0 &&
         geometry.rowWidth > 0
@@ -86,6 +98,7 @@ export function createLayout(deps: Dependencies) {
     order: orderStickySiblings,
     invalidate: (node) => {
       const parent = node.layoutParent ?? node.parent
+
       if (parent) {
         queueLayoutReconcile(node.container, parent)
       }
@@ -108,6 +121,7 @@ export function createLayout(deps: Dependencies) {
 
   function setMarginStyle(node: ElementNode, name: string, value: any) {
     const points = Number(value)
+
     if (!Number.isFinite(points)) {
       console.warn(
         '[macos-style] ignored unsupported style.' + name + ' value ' + JSON.stringify(value),
@@ -130,6 +144,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const parent = node.layoutParent ?? node.parent
+
     if (deps.registry.isManualLayoutParent(parent)) {
       queueLayoutReconcile(node.container, parent)
     }
@@ -143,6 +158,7 @@ export function createLayout(deps: Dependencies) {
    *  arranged view so events keep reporting that view's bounds. */
   function syncLayoutObserver(node: ElementNode) {
     const observed = node.layoutObservedView
+
     if (!observed || observed === layoutView(node)) {
       return
     }
@@ -154,6 +170,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const detachGeometry = node.scrollGeometryDetach
+
     node.scrollGeometryDetach = null
     node.layoutObservedView = null
     detachGeometry?.()
@@ -164,6 +181,7 @@ export function createLayout(deps: Dependencies) {
    *  rows through it. */
   function setLayoutAction(node: ElementNode, handler: ((event: any) => void) | undefined) {
     const target = layoutView(node)
+
     if (!target || node.type === '#text' || node.type === 'span') {
       return
     }
@@ -171,7 +189,9 @@ export function createLayout(deps: Dependencies) {
     syncLayoutObserver(node)
     if (typeof handler !== 'function') {
       layoutHandlers.delete(target)
+
       const detachGeometry = node.scrollGeometryDetach
+
       node.scrollGeometryDetach = null
       detachGeometry?.()
       return
@@ -181,6 +201,7 @@ export function createLayout(deps: Dependencies) {
     if (node.type === 'scrollview') {
       if (!node.scrollGeometryDetach) {
         const detach = observeScrollGeometry(node, target, () => layoutHandlers.get(target)?.())
+
         if (node.scrollGeometryDetach !== detach) {
           return
         }
@@ -205,7 +226,9 @@ export function createLayout(deps: Dependencies) {
       if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
         return
       }
+
       const bounds = target.bounds
+
       try {
         node.container.root!.eventScope('discrete', () =>
           handler({
@@ -223,10 +246,12 @@ export function createLayout(deps: Dependencies) {
   function layoutLength(value: any, available: number, fallback: number) {
     if (typeof value === 'string' && value.trim().endsWith('%')) {
       const percent = Number(value.trim().slice(0, -1))
+
       return Number.isFinite(percent) ? (available * percent) / 100 : fallback
     }
 
     const length = Number(value)
+
     return Number.isFinite(length) ? length : fallback
   }
 
@@ -247,7 +272,9 @@ export function createLayout(deps: Dependencies) {
     height: number,
   ) {
     x = stickyPlacements.position(child, { parent: parentView, x, y: top, width, height })
+
     const pins = (child.placementPins ??= {})
+
     if (!pins.leading) {
       pins.leading = layoutView(child).leadingAnchor.constraintEqualToAnchorConstant(
         parentView.leadingAnchor,
@@ -267,6 +294,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const same = (a: number, b: number) => a === b || (Number.isNaN(a) && Number.isNaN(b))
+
     if (
       same(Number(pins.leading.constant), x) &&
       same(Number(pins.top.constant), top) &&
@@ -280,6 +308,7 @@ export function createLayout(deps: Dependencies) {
     pins.top.constant = top
     pins.width.constant = width
     pins.height.constant = height
+
     // Constant writes inside a layout() pass apply only on the next solve, and
     // a needsLayout mark made now is cleared when that pass ends. Defer the
     // mark so the next layoutSubtreeIfNeeded/display cycle applies the pins —
@@ -301,7 +330,9 @@ export function createLayout(deps: Dependencies) {
    *  referencing the old parent view is invalid once the child reparents. */
   function releasePlacementPins(node: ElementNode) {
     stickyPlacements.reset(node)
+
     const pins = node.placementPins
+
     if (!pins) {
       return
     }
@@ -360,6 +391,7 @@ export function createLayout(deps: Dependencies) {
       }
 
       const margins = child.marginInsets ?? {}
+
       width = Math.max(
         width,
         dockChildSize(child, 'width', Infinity, Infinity) +
@@ -376,6 +408,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const padding = parent?.dockInsets ?? {}
+
     return {
       width: width + (padding.left ?? 0) + (padding.right ?? 0),
       height: height + (padding.top ?? 0) + (padding.bottom ?? 0),
@@ -408,6 +441,7 @@ export function createLayout(deps: Dependencies) {
 
     if (views.some((view, index) => view !== actual[index])) {
       let previous: NSView | null = null
+
       for (const view of views) {
         parent.view.addSubviewPositionedRelativeTo(view, 1, previous)
         previous = view
@@ -417,6 +451,7 @@ export function createLayout(deps: Dependencies) {
 
   function layoutContentChild(parent: ElementNode | undefined) {
     const child = parent?.projectedChildren ? parent.projectedChildren[0] : parent?.contentChild
+
     if (!parent?.view || !child?.view) {
       return
     }
@@ -440,6 +475,7 @@ export function createLayout(deps: Dependencies) {
 
       return value
     }
+
     const horizontal = alignment(
       style.justifySelf,
       'left',
@@ -535,6 +571,7 @@ export function createLayout(deps: Dependencies) {
     }
 
     const pending = container?.layoutDirty
+
     if (pending) {
       pending.add(parent)
       return
@@ -555,6 +592,7 @@ export function createLayout(deps: Dependencies) {
         deps.projection.syncProxyProjection(parent)
       }
     }
+
     for (const parent of dirty) {
       reconcileLayoutParent(parent)
     }
@@ -580,6 +618,7 @@ export function createLayout(deps: Dependencies) {
 
       const host = parent.view
       const native = host?.subviews
+
       if (!host?.addSubviewPositionedRelativeTo || !native) {
         return
       }
@@ -591,6 +630,7 @@ export function createLayout(deps: Dependencies) {
 
       if (views.some((view, index) => view !== actual[index])) {
         let previous: NSView | null = null
+
         for (const view of views) {
           // NSWindowAbove = 1 (AppKit NSGraphics.h); preserve the portal's
           // logical sibling order without disturbing target-owned siblings.
@@ -602,6 +642,7 @@ export function createLayout(deps: Dependencies) {
       return
     }
   }
+
   return {
     stickyPlacements,
     MARGIN_SIDES,

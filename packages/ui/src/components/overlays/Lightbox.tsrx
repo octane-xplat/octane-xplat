@@ -39,6 +39,7 @@ function LightboxPanel(props: {
   const panAcc = useRef({ x: 0, y: 0 })
   const onStagePan = (e: any) => {
     const el = imgView.current
+
     if (!zoomed || !el) {
       return
     }
@@ -59,6 +60,7 @@ function LightboxPanel(props: {
   const toggleZoom = () => {
     const el = imgView.current
     const next = !zoomed
+
     setZoomed(next)
     if (el?.animate) {
       el.animate({
@@ -217,17 +219,22 @@ export function Lightbox(props: LightboxProps): unknown @{
   const indexRef = useRef(internal)
   const mediaRef = useRef(props.media)
   const dismiss = useRef(props.onOpenChange)
+
   dismiss.current = props.onOpenChange
+
   const onIndexChange = useRef(props.onIndexChange)
+
   onIndexChange.current = props.onIndexChange
 
   const count = props.media.length
   const index = clampIndex(props.index ?? internal, count)
+
   indexRef.current = index
   mediaRef.current = props.media
 
   const setIndex = (i: number) => {
     const clamped = clampIndex(i, count)
+
     if (props.index == null) {
       setInternal(clamped)
     }
@@ -242,6 +249,7 @@ export function Lightbox(props: LightboxProps): unknown @{
 
   useEffect(() => {
     const cur = shown.current
+
     if (!props.isOpen || count === 0) {
       cur?.lifetime.close()
       return
@@ -252,14 +260,17 @@ export function Lightbox(props: LightboxProps): unknown @{
     }
 
     const rl = rootLayoutFor(sentinel.current)
+
     if (!rl) {
       return
     }
 
     const host = new GridLayout()
     const unbindTheme = applyThemeClasses(host, 'vx-lightbox-host')
+
     host.horizontalAlignment = 'stretch'
     host.verticalAlignment = 'stretch'
+
     const lifetime = createOverlayLifetime(rl, host, null, 'Lightbox', (dismissed) => {
       if (shown.current?.host === host) {
         shown.current = null

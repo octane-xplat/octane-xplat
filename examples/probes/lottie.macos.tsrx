@@ -66,6 +66,7 @@ export default function AppKitLottieProbe() {
   const [rawSource, updateRawSource] = useState(false)
   const [loop, updateLoop] = useState(false)
   const [mounted, updateMounted] = useState(true)
+
   setBadSource = updateBadSource
   setRawSource = updateRawSource
   setLoop = updateLoop
@@ -113,6 +114,7 @@ export async function run(ctx: ProbeContext) {
 
   const player = handle.current!
   const nativeView = player.native
+
   ctx.assert('ref exposes a real AppKit view', nativeView instanceof NSView, true)
   ctx.assert(
     'engine view is mounted in AppKit hierarchy',
@@ -127,7 +129,9 @@ export async function run(ctx: ProbeContext) {
   player.setSpeed(2)
   player.play()
   await ctx.waitFor(() => player.isPlaying() && player.progress() > 0.45, { timeout: 3000 })
+
   const progressBeforePause = player.progress()
+
   player.pause()
   await new Promise((resolve) => setTimeout(resolve, 100))
   ctx.assert('pause stops playback', player.isPlaying(), false)
@@ -141,7 +145,9 @@ export async function run(ctx: ProbeContext) {
 
   player.setSpeed(4)
   player.seekTo(0)
+
   const speedStartedAt = Date.now()
+
   player.play()
   await ctx.waitFor(() => endedCount === 1 && !player.isPlaying(), { timeout: 3000 })
   ctx.assert('finite playback reports ended once', endedCount, 1)

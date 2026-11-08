@@ -32,7 +32,9 @@ describe('normalizeAppMenu validation', () => {
       'linux',
       1,
     )
+
     const ids = [...tree.nodes.keys()]
+
     expect(ids).toHaveLength(4)
     expect(new Set(ids).size).toBe(4)
     expect(tree.menus[0]!.items.map((item) => item.kind)).toEqual([
@@ -47,6 +49,7 @@ describe('normalizeAppMenu validation', () => {
     expect(() => normalizeAppMenu([action() as never], undefined, 'linux', 1)).toThrow(
       /menus\[0\].*submenu/,
     )
+
     expect(() => normalizeAppMenu(null as never, undefined, 'linux', 1)).toThrow(/menus/)
   })
 
@@ -59,9 +62,11 @@ describe('normalizeAppMenu validation', () => {
         1,
       ),
     ).toThrow(/menus\[0\]\.items\[0\]\.items\[0\].*label/)
+
     expect(() => normalizeAppMenu(menus([action({ onSelect: 1 })]), undefined, 'linux', 1)).toThrow(
       /menus\[0\]\.items\[0\].*onSelect.*function/,
     )
+
     expect(() =>
       normalizeAppMenu(
         menus([
@@ -78,9 +83,11 @@ describe('normalizeAppMenu validation', () => {
     expect(() => normalizeAppMenu(menus([action({ key: '' })]), undefined, 'linux', 1)).toThrow(
       /key.*non-empty/,
     )
+
     expect(() => normalizeAppMenu(menus([action(), action()]), undefined, 'linux', 1)).toThrow(
       /menus\[0\]\.items\[1\].*duplicate.*"a"/,
     )
+
     // Same key in different siblings is fine.
     expect(() =>
       normalizeAppMenu(
@@ -90,9 +97,11 @@ describe('normalizeAppMenu validation', () => {
         1,
       ),
     ).not.toThrow()
+
     expect(() =>
       normalizeAppMenu(menus([{ type: 'bogus', key: 'x' } as never]), undefined, 'linux', 1),
     ).toThrow(/unknown menu entry type/)
+
     expect(() =>
       normalizeAppMenu(
         menus([{ type: 'role', key: 'r', role: 'about' } as never]),
@@ -113,7 +122,9 @@ describe('normalizeAppMenu validation', () => {
       'linux',
       1,
     )
+
     const [copy, quit] = tree.menus[0]!.items
+
     expect(copy).toMatchObject({ kind: 'role', label: 'Copy' })
     expect(quit).toMatchObject({ kind: 'role', label: 'Leave' })
     expect(() =>
@@ -142,6 +153,7 @@ describe('normalizeAppMenu validation', () => {
       'linux',
       1,
     )
+
     expect(tree.menus[0]!.items.map((item) => item.kind)).toEqual(['action', 'separator', 'action'])
   })
 
@@ -149,6 +161,7 @@ describe('normalizeAppMenu validation', () => {
     expect(() =>
       normalizeAppMenu(menus([action({ accelerator: 'Nope+K' })]), undefined, 'linux', 1),
     ).toThrow(/menus\[0\]\.items\[0\]\.accelerator/)
+
     expect(() =>
       normalizeAppMenu(menus([action({ accelerator: 'Shift+A' })]), undefined, 'linux', 1),
     ).toThrow(/accelerator/)
@@ -159,6 +172,7 @@ describe('normalizeAppMenu validation', () => {
       action({ key: 'a', accelerator: 'Mod+Y' }),
       action({ key: 'b', accelerator: 'Control+Y' }),
     ]
+
     // Mod → Control on GTK: same effective accelerator.
     expect(() => normalizeAppMenu(menus(dupe), undefined, 'linux', 1)).toThrow(/duplicates/)
     // …but Mod → Command on macOS: distinct there.
@@ -190,6 +204,7 @@ describe('normalizeAppMenu validation', () => {
         1,
       ),
     ).toThrow(/duplicates/)
+
     // macOS registers ⌘V for paste.
     expect(() =>
       normalizeAppMenu(
@@ -202,6 +217,7 @@ describe('normalizeAppMenu validation', () => {
         1,
       ),
     ).toThrow(/duplicates/)
+
     // But GTK does not register edit-role accels (display only).
     expect(() =>
       normalizeAppMenu(
@@ -230,14 +246,19 @@ describe('normalizeAppMenu validation', () => {
         applicationItems: [action({ key: 'settings', accelerator: 'Mod+,' })],
       },
     }
+
     expect(() =>
       normalizeAppMenu(menus([action({ accelerator: 'Mod+,' })]), options, 'macos', 1),
     ).toThrow(/duplicates/)
+
     const tree = normalizeAppMenu(menus([]), options, 'macos', 1)
+
     expect(tree.applicationItems).toHaveLength(1)
     expect(tree.applicationItems[0]).toMatchObject({ kind: 'action', label: 'A' })
+
     // Non-macOS platforms validate shape but ignore contents and collisions.
     const ignored = normalizeAppMenu(menus([action({ accelerator: 'Mod+,' })]), options, 'linux', 1)
+
     expect(ignored.applicationItems).toHaveLength(1)
     expect(() =>
       normalizeAppMenu(

@@ -1,14 +1,17 @@
 import { expect, it, vi } from 'vitest'
 import { createAppKitTimeListFocus } from './time-list-focus.macos'
+
 function fixture(supported = true) {
   let rows = ['09:00', '09:15', '09:30', '09:45'].map((time) => ({ time, label: time })),
     seed = '09:17',
     blocked = false
+
   const chosen = vi.fn(),
     tab = vi.fn(() => true),
     highlight = vi.fn(),
     claims = new Set<object>(),
     observers = new Map<object, (note: any) => void>()
+
   const window: any = {
     firstResponder: null,
     recalculateKeyViewLoop() {},
@@ -16,12 +19,15 @@ function fixture(supported = true) {
       if (view.window !== this || !view.isAccessibilityEnabled()) {
         return false
       }
+
       this.firstResponder = view
       return true
     },
   }
+
   let children: any[] = [],
     releases: (() => void)[] = []
+
   const root: any = {
     window,
     hidden: false,
@@ -32,6 +38,7 @@ function fixture(supported = true) {
       objectAtIndex: (i: number) => children[i],
     },
   }
+
   const views = new Map<string, any>()
   const focus = createAppKitTimeListFocus(
     { rows: () => rows, seed: () => seed, blocked: () => blocked, choose: chosen, tab, highlight },
@@ -52,6 +59,7 @@ function fixture(supported = true) {
             fn: (note: any) => void,
           ) {
             const token = {}
+
             observers.set(token, fn)
             return token
           },
@@ -62,10 +70,12 @@ function fixture(supported = true) {
       },
     }),
   )
+
   const render = () => {
     for (const release of releases) {
       release()
     }
+
     releases = []
     children = []
     views.clear()
@@ -83,13 +93,17 @@ function fixture(supported = true) {
       views.set(row.time, view)
       releases.push(focus.register(row.time, view))
     }
+
     focus.update()
   }
+
   focus.bind(root)
   render()
+
   const key = (key: string, extra = {}) => {
     let prevented = false,
       stopped = false
+
     focus.keyDown({
       key,
       target: root.window?.firstResponder,
@@ -109,8 +123,10 @@ function fixture(supported = true) {
       },
       ...extra,
     } as any)
+
     return { prevented, stopped }
   }
+
   return {
     focus,
     window,
@@ -137,6 +153,7 @@ function fixture(supported = true) {
 
 it('seeds nearest available time and uses bounded arrows/Home/End without selecting or wrapping', async () => {
   const f = fixture()
+
   try {
     await Promise.resolve()
     expect(f.window.firstResponder).toBe(f.views.get('09:30'))
@@ -160,6 +177,7 @@ it('seeds nearest available time and uses bounded arrows/Home/End without select
 
 it('native Tab delegates return intent while Escape/IME/modifiers/foreign/default-prevented input remain outside selection', async () => {
   const f = fixture()
+
   try {
     await Promise.resolve()
     expect(f.key('Tab', { shiftKey: true }).prevented).toBe(true)
@@ -186,6 +204,7 @@ it('native Tab delegates return intent while Escape/IME/modifiers/foreign/defaul
 
 it('reconciles changed options and blocking, then releases observers/claims and rejects stale or removed choices', async () => {
   const f = fixture()
+
   await Promise.resolve()
   f.rows(['10:00', '10:15'])
   f.render()
@@ -210,6 +229,7 @@ it('reconciles changed options and blocking, then releases observers/claims and 
 
 it('older bridges retain pointer choices and empty or hidden lists have no retained Tab claims', async () => {
   const f = fixture(false)
+
   try {
     await Promise.resolve()
     expect(f.claims.size).toBe(0)
@@ -220,7 +240,9 @@ it('older bridges retain pointer choices and empty or hidden lists have no retai
   } finally {
     f.focus.dispose()
   }
+
   const hidden = fixture()
+
   try {
     await Promise.resolve()
     hidden.root.hidden = true

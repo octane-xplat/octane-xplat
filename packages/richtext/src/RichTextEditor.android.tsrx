@@ -76,11 +76,13 @@ const activeFormats = (editor: any): RichTextFormat[] => {
 
   const count = styles?.size?.() ?? 0
   const active = new Set<any>()
+
   for (let i = 0; i < count; i++) {
     active.add(styles.get(i))
   }
 
   const out: RichTextFormat[] = []
+
   for (const [name, get] of AZTEC_OF) {
     if (active.has(get())) {
       out.push(name)
@@ -129,9 +131,11 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     }
 
     setNativeView(null)
+
     // `.android` arrives with `loaded`; subscribe until it does.
     const onLoaded = () => {
       const e = editor()
+
       if (e) {
         setNativeView(e)
       }
@@ -145,6 +149,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   const setEditable = (next: boolean) => {
     const e = editor()
+
     if (!e) {
       return
     }
@@ -176,6 +181,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   const emitChange = () => {
     const e = editor()
+
     if (!e || applyingValue.current) {
       return
     }
@@ -183,11 +189,13 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     clearTimeout(emitTimer.current)
     emitTimer.current = setTimeout(() => {
       const current = editor()
+
       if (!current || applyingValue.current) {
         return
       }
 
       const html = current.toPlainHtml(false)
+
       lastEmitted.current = html
       props.onChange?.(html)
     }, 150)
@@ -199,6 +207,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     getHTML: () => editor()?.toPlainHtml(false) ?? '',
     setHTML: (html: string) => {
       const e = editor()
+
       if (!e) {
         return
       }
@@ -221,6 +230,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       }
 
       const e = editor()
+
       if (!e) {
         return
       }
@@ -230,6 +240,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     linkTo: (url: string, anchor?: string) => {
       const e = editor()
+
       if (!e) {
         return
       }
@@ -239,6 +250,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     removeLink: () => {
       const e = editor()
+
       if (!e) {
         return
       }
@@ -248,6 +260,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     isActive: (format: RichTextFormat) => {
       const e = editor()
+
       if (!e) {
         return false
       }
@@ -255,6 +268,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       const applied = e.getAppliedStyles(e.getSelectionStart(), e.getSelectionEnd())
       const count = applied?.size?.() ?? 0
       const target = formatOf(format)
+
       for (let i = 0; i < count; i++) {
         if (applied.get(i) === target) {
           return true
@@ -267,12 +281,14 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     redo: () => editor()?.redo(),
     split: () => {
       const e = editor()
+
       if (!e) {
         return false
       }
 
       const selStart = e.getSelectionStart()
       const selEnd = e.getSelectionEnd()
+
       if (selStart < 0 || selEnd < 0) {
         return false
       }
@@ -280,6 +296,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
       const start = Math.min(selStart, selEnd)
       const end = Math.max(selStart, selEnd)
       const text = e.getText()
+
       if (end > String(text).length) {
         return false
       }
@@ -295,17 +312,20 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     join: () => {
       const e = editor()
+
       if (!e) {
         return false
       }
 
       const start = e.getSelectionStart()
+
       if (start <= 0 || e.getSelectionEnd() !== start) {
         return false
       }
 
       const text = e.getText()
       const s = String(text)
+
       if (start > s.length || s.charAt(start - 1) !== '\n') {
         return false
       }
@@ -317,6 +337,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     indent: () => {
       const e = editor()
+
       if (!e || !e.isIndentAvailable()) {
         return false
       }
@@ -327,6 +348,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     },
     outdent: () => {
       const e = editor()
+
       if (!e || !e.isOutdentAvailable()) {
         return false
       }
@@ -339,6 +361,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
     canOutdent: () => Boolean(editor()?.isOutdentAvailable()),
     focus: () => {
       const e = editor()
+
       if (!e) {
         return
       }
@@ -361,6 +384,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
   // call back into a dead component.
   useLayoutEffect(() => {
     const e = nativeView
+
     if (!e || !aztec) {
       return
     }
@@ -443,6 +467,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
   // external reset (and resets Aztec's undo stack, like PM setContent).
   useEffect(() => {
     const e = editor()
+
     if (!e || props.value === undefined) {
       return
     }
@@ -465,6 +490,7 @@ export function RichTextEditor(props: RichTextEditorProps): unknown @{
 
   useEffect(() => {
     const e = editor()
+
     if (e && props.placeholder !== undefined) {
       e.setHint(props.placeholder)
     }

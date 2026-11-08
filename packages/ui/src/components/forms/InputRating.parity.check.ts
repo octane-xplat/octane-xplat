@@ -13,6 +13,7 @@ export const CHECKS: ParityCheck[] = [
       const expectedWidth = ({ web: 23.88, ios: 24, android: 21.33 } as Record<string, number>)[
         target
       ]
+
       const rows: CheckRow[] = [
         ...controlRows(m, 200, 32),
         ['selected rating cell has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],

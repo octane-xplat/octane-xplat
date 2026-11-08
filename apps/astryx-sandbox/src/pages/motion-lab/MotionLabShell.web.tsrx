@@ -41,6 +41,7 @@ import { MOTION_SECTIONS } from './sections'
 function isCurrent(pathname: string, href: string): boolean {
   const a = pathname.endsWith('/') ? pathname : `${pathname}/`
   const b = href.endsWith('/') ? href : `${href}/`
+
   return a === b
 }
 

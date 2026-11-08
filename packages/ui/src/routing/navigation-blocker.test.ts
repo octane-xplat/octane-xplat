@@ -12,6 +12,7 @@ function deferred<T>() {
   const promise = new Promise<T>((settle) => {
     resolve = settle
   })
+
   return { promise, resolve }
 }
 
@@ -23,6 +24,7 @@ function attempt() {
     live = false
     cancelled.resolve()
   })
+
   return {
     action: 'push' as const,
     destination: Object.freeze({ to: '/next' }),
@@ -39,10 +41,12 @@ function attempt() {
 
 function controls(blocker: ReturnType<typeof createNavigationBlocker>) {
   const state = blocker.getSnapshot()
+
   expect(state.status).toBe('blocked')
   if (state.status !== 'blocked') {
     throw new Error('Expected a held attempt')
   }
+
   return state
 }
 
@@ -54,7 +58,9 @@ it('holds an attempt until confirmation and keeps proceeding distinct from compl
     settled = true
     return value
   })
+
   const held = controls(blocker)
+
   expect(held).toMatchObject({ action: 'push', destination: { to: '/next' } })
   await Promise.resolve()
   expect(settled).toBe(false)
@@ -73,6 +79,7 @@ it('reset settles once as refusal and makes obsolete proceed/reset controls iner
   const request = attempt()
   const pending = blocker.request(request)
   const held = controls(blocker)
+
   held.reset()
   held.reset()
   held.proceed()
@@ -86,6 +93,7 @@ it('external cancellation releases a held confirmation', async () => {
   const request = attempt()
   const pending = blocker.request(request)
   const held = controls(blocker)
+
   request.cancel()
   expect(await pending).toBe(false)
   expect(blocker.getSnapshot().status).toBe('idle')
@@ -101,6 +109,7 @@ it('a stale dialog cannot approve or reset a later attempt', async () => {
   const second = attempt()
   const secondResult = blocker.request(second)
   const current = controls(blocker)
+
   expect(await firstResult).toBe(false)
   old.proceed()
   old.reset()
@@ -115,6 +124,7 @@ it('a stale dialog cannot approve or reset a later attempt', async () => {
 it('already superseded attempts do not open confirmation', async () => {
   const blocker = createNavigationBlocker()
   const request = attempt()
+
   request.cancel()
   expect(await blocker.request(request)).toBe(false)
   expect(blocker.getSnapshot().status).toBe('idle')
@@ -129,13 +139,17 @@ it('all visible blockers approve, starting with the newest registration', async 
     blocker: parent,
     shouldBlock: () => true,
   })
+
   const removeChild = registerNavigationBlocker(navigator, {
     blocker: child,
     shouldBlock: () => true,
   })
+
   const request = attempt()
+
   try {
     const pending = admitNavigationBlockers(navigator, request)
+
     expect(parent.getSnapshot().status).toBe('idle')
     controls(child).proceed()
     await vi.waitFor(() => expect(parent.getSnapshot().status).toBe('blocked'))
@@ -157,11 +171,15 @@ it('a reset cancels the attempt instead of continuing to another blocker', async
   const disconnect = connectNavigationBlockers(navigator)
   const parent = createNavigationBlocker()
   const child = createNavigationBlocker()
+
   registerNavigationBlocker(navigator, { blocker: parent, shouldBlock: () => true })
   registerNavigationBlocker(navigator, { blocker: child, shouldBlock: () => true })
+
   const request = attempt()
+
   try {
     const pending = admitNavigationBlockers(navigator, request)
+
     controls(child).reset()
     expect(await pending).toBe(false)
     expect(parent.getSnapshot().status).toBe('idle')
@@ -176,10 +194,15 @@ it('checks current visibility and skips hidden or removed registrations', async 
   const disconnect = connectNavigationBlockers(navigator)
   const hidden = createNavigationBlocker()
   const removed = createNavigationBlocker()
+
   registerNavigationBlocker(navigator, { blocker: hidden, shouldBlock: () => false })
+
   const remove = registerNavigationBlocker(navigator, { blocker: removed, shouldBlock: () => true })
+
   remove()
+
   const request = attempt()
+
   try {
     expect(await admitNavigationBlockers(navigator, request)).toBe(true)
     expect(hidden.getSnapshot().status).toBe('idle')
@@ -196,8 +219,10 @@ it('unmounting a blocked declaration cancels its held request', async () => {
   const blocker = createNavigationBlocker()
   const remove = registerNavigationBlocker(navigator, { blocker, shouldBlock: () => true })
   const request = attempt()
+
   try {
     const pending = admitNavigationBlockers(navigator, request)
+
     remove()
     remove()
     expect(await pending).toBe(false)
@@ -210,17 +235,22 @@ it('unmounting a blocked declaration cancels its held request', async () => {
 it('disconnecting a flow settles confirmations without affecting another flow', async () => {
   const first = {},
     second = {}
+
   const disconnectFirst = connectNavigationBlockers(first)
   const disconnectSecond = connectNavigationBlockers(second)
   const a = createNavigationBlocker(),
     b = createNavigationBlocker()
+
   registerNavigationBlocker(first, { blocker: a, shouldBlock: () => true })
   registerNavigationBlocker(second, { blocker: b, shouldBlock: () => true })
+
   const firstRequest = attempt(),
     secondRequest = attempt()
+
   try {
     const firstResult = admitNavigationBlockers(first, firstRequest)
     const secondResult = admitNavigationBlockers(second, secondRequest)
+
     disconnectFirst()
     expect(await firstResult).toBe(false)
     expect(b.getSnapshot().status).toBe('blocked')
@@ -243,13 +273,17 @@ it('observer errors cannot leave reset or proceed waiting forever', async () => 
   const unsubscribe = blocker.subscribe(() => {
     throw new Error('observer')
   })
+
   try {
     const first = attempt()
     const firstResult = blocker.request(first)
+
     controls(blocker).reset()
     expect(await firstResult).toBe(false)
+
     const second = attempt()
     const secondResult = blocker.request(second)
+
     controls(blocker).proceed()
     expect(await secondResult).toBe(true)
     second.finish()
@@ -263,15 +297,23 @@ it('observer errors cannot leave reset or proceed waiting forever', async () => 
 it('an old flow disposer cannot detach a reconnected owner or its confirmation', async () => {
   const navigator = {}
   const firstDisconnect = connectNavigationBlockers(navigator)
+
   expect(() => connectNavigationBlockers(navigator)).toThrow('already connected')
+
   const blocker = createNavigationBlocker()
   const oldRemove = registerNavigationBlocker(navigator, { blocker, shouldBlock: () => true })
+
   firstDisconnect()
+
   const secondDisconnect = connectNavigationBlockers(navigator)
+
   registerNavigationBlocker(navigator, { blocker, shouldBlock: () => true })
+
   const request = attempt()
+
   try {
     const pending = admitNavigationBlockers(navigator, request)
+
     firstDisconnect()
     oldRemove()
     expect(blocker.getSnapshot().status).toBe('blocked')
@@ -289,8 +331,10 @@ it('keeps approved work proceeding when its condition registration is removed', 
   const blocker = createNavigationBlocker()
   const remove = registerNavigationBlocker(navigator, { blocker, shouldBlock: () => true })
   const request = attempt()
+
   try {
     const pending = admitNavigationBlockers(navigator, request)
+
     controls(blocker).proceed()
     expect(await pending).toBe(true)
     remove()

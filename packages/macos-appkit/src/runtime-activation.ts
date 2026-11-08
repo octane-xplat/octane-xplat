@@ -7,6 +7,7 @@ export function assertRuntimeActive(operation: string): void {
   if (phase === 'failed') {
     throw failure
   }
+
   if (phase !== 'active') {
     throw new Error(`AppKit runtime is ${phase}; ${operation} requires activation`)
   }
@@ -17,12 +18,15 @@ export function activateRuntime(install: () => void): void {
   if (phase === 'active') {
     return
   }
+
   if (phase === 'failed') {
     throw failure
   }
+
   if (phase !== 'constructing') {
     throw new Error(`AppKit runtime is ${phase}; activation cannot reenter`)
   }
+
   phase = 'activating'
   try {
     install()

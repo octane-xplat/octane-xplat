@@ -14,6 +14,7 @@ import {
 } from './ui-text-area.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK text area test',
   default_width: 340,
@@ -29,6 +30,7 @@ const outer = new Gtk.ScrolledWindow({
 
 outer.set_child(host)
 window.set_child(outer)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -49,6 +51,7 @@ const waitForAllocation = async (ready: () => boolean) => {
   for (let attempt = 0; attempt < 120 && !ready(); attempt++) {
     await pause(25)
   }
+
   return ready()
 }
 
@@ -57,6 +60,7 @@ const check = (name: string, ok: boolean) => {
   if (!ok) {
     throw new Error(name)
   }
+
   checks++
 }
 
@@ -71,19 +75,23 @@ const render = async (next: Partial<typeof props> = {}) => {
 
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
   const bounds = view.getBounds()
   const ack = acknowledgments + 1
+
   print(
     'GTK_TEXT_AREA_READY ' +
       JSON.stringify({
@@ -93,15 +101,18 @@ async function input(view: any, phase: string, repeat = 6, offsetY = 0) {
         repeat,
       }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed: ' + phase, acknowledgments >= ack)
   await pause(300)
 }
 
 async function run() {
   let secureError: unknown
+
   try {
     gtkDriver
       .prepareBatch(container, {
@@ -115,41 +126,52 @@ async function run() {
   } catch (error) {
     secureError = error
   }
+
   check(
     'secure multiline input fails explicitly before attachment',
     String(secureError).includes('secure multiline input is unavailable'),
   )
+
   check(
     'GTK native multiline has no masking property',
     Gtk.TextView.find_property('visibility') == null &&
       Gtk.TextView.find_property('invisible-char') == null,
   )
+
   check(
     'rejected secure input leaves the host untouched',
     container.nodes.size === 0 && container.children.length === 0,
   )
+
   let secureComponentError: unknown
+
   try {
     root.render(TextAreaHarness, { secure: true, defaultValue: 'private' })
   } catch (error) {
     secureComponentError = error
   }
+
   check(
     'shared TextArea rejects secure input before native mount',
     String(secureComponentError).includes('secure multiline input is unavailable') &&
       container.nodes.size === 0,
   )
+
   await render()
   window.present()
   await pause(250)
+
   const view = areaRef.current!.native as any
   const buffer = view.get_buffer()
   const editorNode = [...container.nodes.values()].find((node) => node.view === view)!
   let fontEvents = 0
   const fontChanged = () => fontEvents++
+
   view.on('fontChanged', fontChanged)
+
   const hint = editorNode.textView!.placeholder
   const initialHeight = view.get_height()
+
   await render({ value: '', placeholder: 'Enter notes', placeholderTextColor: '#123456' })
   check('empty editor shows its hint', hint.get_visible() && hint.get_label() === 'Enter notes')
   check('hint is not an input target', !hint.get_can_target() && !hint.get_focusable())
@@ -157,14 +179,19 @@ async function run() {
     'hint has presentation semantics',
     hint.get_accessible_role() === Gtk.AccessibleRole.PRESENTATION,
   )
+
   check('hint does not resize the editor', close(view.get_height(), initialHeight))
+
   const color = hint.get_style_context().get_color()
+
   check(
     'hint color uses the shared style',
     [color.red, color.green, color.blue].map((x: number) => Math.round(x * 255)).join(',') ===
       '18,52,86',
   )
+
   const native = (globalThis as any).imports.gi.XplatMason
+
   check(
     'hint reaches native placeholder metadata',
     native.test_accessible_string_property(
@@ -173,7 +200,9 @@ async function run() {
       'Enter notes',
     ) === null,
   )
+
   await render({ style: { ...style, padding: 9, borderWidth: 2 } })
+
   const [positioned, hintBounds] = hint.compute_bounds(view)
   const [hintX, hintY] = hint.get_layout_offsets()
   const caret = view.get_iter_location(buffer.get_start_iter())
@@ -185,6 +214,7 @@ async function run() {
       close(hintBounds.origin.x + hintX, caretX) &&
       close(hintBounds.origin.y + hintY, caretY),
   )
+
   await render({ style })
   await render({ placeholder: 'A long hint '.repeat(100) })
   check('long hint does not change width', close(view.get_width(), 280))
@@ -197,6 +227,7 @@ async function run() {
     await input(view, 'hint-click', 1)
     check('click through hint focuses the native editor', window.get_focus() === view)
   }
+
   await render({ value: 'One' })
   check('content hides the hint', !hint.get_visible())
   await render({ value: '', placeholder: undefined })
@@ -206,21 +237,27 @@ async function run() {
     'replacement hint updates the label',
     hint.get_visible() && hint.get_label() === 'Changed hint',
   )
+
   await render({ value: 'One', placeholder: undefined, placeholderTextColor: undefined })
+
   const defaultHintColor = hint.get_style_context().get_color()
   const themedHintColor = new (globalThis as any).imports.gi.Gdk.RGBA()
+
   check(
     'theme defines a parseable hint color',
     themedHintColor.parse(editorNode.computedStyle!.placeholderColor),
   )
+
   check(
     'removing explicit hint color restores the theme hint color',
     ['red', 'green', 'blue', 'alpha'].every(
       (key) => Math.abs(defaultHintColor[key] - themedHintColor[key]) < 0.01,
     ),
   )
+
   if (GLib.getenv('GTK_TEXT_OS') === '1') {
     const edits: string[] = []
+
     await render({ value: 'abc', onChange: (value) => edits.push(value) })
     view.focus()
     view.select_region(1, 2)
@@ -255,8 +292,10 @@ async function run() {
     check('accepted edit keeps its native caret', view.get_position() === 2)
     await render({ value: 'One', onChange: undefined })
   }
+
   if (GLib.getenv('GTK_TEXT_OS') === '1') {
     const limitedEdits: string[] = []
+
     await render({
       value: '',
       maxLength: 3,
@@ -287,7 +326,9 @@ async function run() {
     )
 
     await render({ value: '', maxLength: 0 })
+
     const beforeZero = limitedEdits.length
+
     await input(view, 'type-X')
     check(
       'zero TextArea cap blocks edits and callbacks',
@@ -296,7 +337,9 @@ async function run() {
 
     await render({ value: 'One', maxLength: undefined, onChange: undefined })
   }
+
   const line = view.get_line_yrange(buffer.get_start_iter())[1]
+
   print(
     'GTK_TEXT_AREA_MEASURE ' +
       JSON.stringify({
@@ -307,19 +350,26 @@ async function run() {
         measure: view.measure(Gtk.Orientation.VERTICAL, 280),
       }),
   )
+
   check('native row height differs from the fallback for this font', line !== 24 && line > 0)
   check('three default rows use native line metrics', close(view.style.minHeight, line * 3))
   check('fixed rows constrain maximum', close(view.style.maxHeight, line * 3))
   check('fixed row allocation', close(view.get_height(), line * 3))
+
   const long = Array.from({ length: 12 }, (_, i) => 'Line ' + i).join('\n')
+
   await render({ value: long })
   check('long content keeps fixed row allocation', close(view.get_height(), line * 3))
+
   const adjustment = view.get_vadjustment()
+
   check(
     'bounded content has internal scroll range',
     adjustment.get_upper() > adjustment.get_page_size(),
   )
+
   const osInput = GLib.getenv('GTK_TEXT_OS') === '1'
+
   if (osInput) {
     view.focus()
     await input(view, 'end')
@@ -357,6 +407,7 @@ async function run() {
     outer.get_vadjustment().set_value(0)
     await pause(300)
   }
+
   await render({ autoGrow: true, rows: 2, maxRows: 4 })
   check('bounded growth minimum rows', close(view.style.minHeight, line * 2))
   check('bounded growth maximum rows', close(view.style.maxHeight, line * 4))
@@ -374,31 +425,42 @@ async function run() {
     autoGrow: true,
     value: 'Small',
   })
+
   check('authored minHeight replaces generated row floor', close(view.get_height(), 150))
   await render({ value: long })
   check('authored maxHeight replaces generated row cap', close(view.get_height(), 200))
   check('row constraints do not cause font notifications', fontEvents === 0)
   await render({ style: { ...style, fontSize: 34 }, rows: 2 })
+
   const larger = view.get_line_yrange(buffer.get_start_iter())[1]
+
   check(
     'native row metrics follow font updates',
     larger > line && close(view.style.minHeight, larger * 2),
   )
+
   check('direct font change notifies subscribers', fontEvents > 0)
   await render({ style: { ...style, fontSize: undefined }, rows: 2, value: 'Small' })
+
   const small = view.get_line_yrange(buffer.get_start_iter())[1]
   const beforeParent = fontEvents
+
   await render({ frameClass: 'area-font-large' })
+
   const inherited = view.get_line_yrange(buffer.get_start_iter())[1]
+
   check(
     'ancestor CSS font change notifies the editor',
     fontEvents > beforeParent && inherited > small,
   )
+
   check('ancestor CSS updates the row floor', close(view.style.minHeight, inherited * 2))
   await render({ frameClass: undefined })
   check('ancestor font reset restores row floor', close(view.style.minHeight, small * 2))
   await render({ style: { ...style, lineHeight: 48 }, rows: 2, autoGrow: false, value: 'One\nTwo' })
+
   const spacedLine = view.get_line_yrange(buffer.get_start_iter())[1]
+
   print(
     'GTK_TEXT_AREA_SPACING ' +
       JSON.stringify({
@@ -408,17 +470,20 @@ async function run() {
         height: view.get_height(),
       }),
   )
+
   check('custom line spacing reaches native text', close(spacedLine, 48))
   check(
     'row sizing includes custom line spacing',
     close(view.style.minHeight, spacedLine * 2) && close(view.get_height(), spacedLine * 2),
   )
+
   await render({ style, rows: 3, value: 'One' })
   await render({ style: { ...style, lineHeight: 24 }, rows: 2 })
   check(
     'compact spacing controls row height',
     close(view.get_line_yrange(buffer.get_start_iter())[1], 24) && close(view.get_height(), 48),
   )
+
   await render({ style, frameClass: 'area-line-spaced', rows: 2 })
   check(
     'ancestor line spacing controls row height',
@@ -426,6 +491,7 @@ async function run() {
       close(view.style.minHeight, 84) &&
       close(view.get_height(), 84),
   )
+
   await render({ frameClass: undefined })
   check('removing ancestor spacing restores native font rows', close(view.get_height(), line * 2))
   for (const [align, expected, x] of [
@@ -444,6 +510,7 @@ async function run() {
     check('hint alignment ' + align, hint.get_xalign() === x && hint.get_justify() === expected)
     if (align === 'center' || align === 'right') {
       const location = view.get_iter_location(buffer.get_start_iter())
+
       check(
         'native text geometry ' + align,
         location.x > view.get_width() / (align === 'center' ? 5 : 2),
@@ -453,9 +520,11 @@ async function run() {
     await render({ value: '' })
     check('aligned hint is visible ' + align, hint.get_visible())
   }
+
   for (const direction of ['ltr', 'rtl'] as const) {
     for (const align of ['start', 'end'] as const) {
       const right = (direction === 'rtl') === (align === 'start')
+
       await render({ style: { ...style, direction, textAlign: align }, value: 'Aligned' })
       check(
         direction + ' logical alignment ' + align,
@@ -463,25 +532,30 @@ async function run() {
       )
 
       check(direction + ' hint alignment ' + align, hint.get_xalign() === (right ? 1 : 0))
+
       const logicalLocation = view.get_iter_location(buffer.get_start_iter())
+
       check(
         direction + ' native geometry ' + align,
         right ? logicalLocation.x > view.get_width() / 2 : logicalLocation.x < 2,
       )
 
       await render({ value: '' })
+
       const [hintPositioned, logicalHintBounds] = hint.compute_bounds(view)
       const [logicalHintX] = hint.get_layout_offsets()
       // A justified Gtk.Label can keep a full-width Pango layout; include
       // the first glyph's offset inside it, not only the layout-box origin.
       const glyph = hint.get_layout().index_to_pos(0)
       const hintStart = logicalHintBounds.origin.x + logicalHintX + glyph.x / 1024
+
       check(
         direction + ' native hint geometry ' + align,
         hintPositioned && (right ? hintStart > view.get_width() / 2 : hintStart < 2),
       )
     }
   }
+
   await render({ style: { ...style, textAlign: 'start' }, value: 'Aligned' })
   check(
     'removing RTL restores logical start immediately',
@@ -489,11 +563,13 @@ async function run() {
       view.get_justification() === Gtk.Justification.LEFT &&
       view.get_iter_location(buffer.get_start_iter()).x < 2,
   )
+
   await render({ style, value: 'One', placeholder: undefined })
   check(
     'removing alignment restores native default',
     view.get_justification() === Gtk.Justification.LEFT && hint.get_xalign() === 0,
   )
+
   view.off('fontChanged', fontChanged)
   check('same editor survives sizing updates', areaRef.current!.native === view)
   await render({ value: '', placeholder: 'Retired hint' })
@@ -505,11 +581,13 @@ async function run() {
   buffer.insert_at_cursor('Retired buffer edit', -1)
   check('retired buffer cannot update the detached hint', hint.get_visible())
   await pause(40)
+
   const fieldHarness = createGtkRoot(host, {
     onUncaughtError(error) {
       throw error
     },
   })
+
   const fieldEvents: string[] = []
   let fieldProps: Parameters<typeof TextAreaHarness>[0] = {
     defaultValue: 'Local',
@@ -519,16 +597,21 @@ async function run() {
     rows: 2,
     style: { fontSize: 26, padding: 0, borderWidth: 0, margin: 0 },
   }
+
   const fieldRender = async (next: Partial<typeof fieldProps>) => {
     fieldProps = { ...fieldProps, ...next }
     fieldHarness.root.render(TextAreaHarness, fieldProps)
     await pause()
   }
+
   const fieldNodes = (name: string) =>
     [...fieldHarness.container.nodes.values()].filter((n) => n.cssClasses?.has(name))
+
   await fieldRender({})
+
   const localArea = areaRef.current!.native as any
   const originalLocalArea = localArea
+
   for (const [keyboardType, purpose] of [
     ['email', Gtk.InputPurpose.EMAIL],
     ['number', Gtk.InputPurpose.NUMBER],
@@ -540,6 +623,7 @@ async function run() {
     await fieldRender({ keyboardType })
     check('TextArea keyboard purpose ' + keyboardType, localArea.input_purpose === purpose)
   }
+
   await fieldRender({ keyboardType: undefined })
   check(
     'removing keyboard purpose restores free form',
@@ -551,27 +635,33 @@ async function run() {
     'leading icon renders inside the multiline shell',
     fieldNodes('vx-textarea-icon').length === 1,
   )
+
   check('adding an icon preserves the editor handle', areaRef.current!.native === originalLocalArea)
   check('adding an icon preserves uncontrolled text', localArea.text === 'Local')
   check(
     'icon has a measured native child',
     fieldNodes('vx-textarea-icon')[0].view!.get_height() >= 16,
   )
+
   await fieldRender({ startIcon: undefined, customIcon: true })
+
   const customGlyph = [...fieldHarness.container.nodes.values()].find(
     (n) => n.props.testID === 'area-custom-icon',
   )?.view
+
   check('leading renderable nodes reach the native glyph', customGlyph?.get_label() === '✦')
   check(
     'replacing a leading icon preserves the editor and value',
     areaRef.current!.native === originalLocalArea && localArea.text === 'Local',
   )
+
   await fieldRender({ startIcon: undefined, customIcon: false })
   check('removing an icon retires its wrapper', fieldNodes('vx-textarea-icon').length === 0)
   check(
     'removing an icon preserves the editor and value',
     areaRef.current!.native === originalLocalArea && localArea.text === 'Local',
   )
+
   localArea.focus()
   await pause()
   fieldEvents.length = 0
@@ -581,12 +671,14 @@ async function run() {
     'handle blur reaches the native callback',
     fieldEvents.join(',') === 'blur' && window.get_focus() !== localArea,
   )
+
   areaRef.current!.focus()
   await pause()
   check(
     'handle focus reaches the native callback',
     fieldEvents.join(',') === 'blur,focus' && window.get_focus() === localArea,
   )
+
   localArea.set_position(5)
   if (osInput) {
     await input(localArea, 'type-X')
@@ -594,6 +686,7 @@ async function run() {
     localArea.get_buffer().insert_at_cursor('X', -1)
     await pause()
   }
+
   check('uncontrolled edit is retained locally', localArea.text === 'LocalX')
   localArea.select_region(4, 1)
   await fieldRender({ label: 'Draft' })
@@ -604,6 +697,7 @@ async function run() {
     'adding a label retains backward selection',
     localArea.get_position() === 1 && localArea.get_selection_bounds().slice(1).join(',') === '1,4',
   )
+
   if (osInput) {
     window.set_focus(null)
     await input(fieldNodes('vx-field-label')[0].view, 'label-click', 1)
@@ -612,6 +706,7 @@ async function run() {
       window.get_focus() === localArea,
     )
   }
+
   await fieldRender({
     description: 'Keep this text',
     accessibilityHint: 'Extra context',
@@ -621,7 +716,9 @@ async function run() {
     isLoading: true,
     size: 'sm',
   })
+
   const chrome = fieldNodes('vx-field')[0]
+
   check('standalone TextArea owns one automatic field', fieldNodes('vx-field').length === 1)
   check('standalone width applies once to its field', close(chrome.view!.getBounds().width, 150))
   check('field width reaches the native editor once', close(localArea.get_width(), 150))
@@ -632,20 +729,24 @@ async function run() {
     'readonly keeps a sensitive, noneditable editor',
     localArea.is_sensitive() && !localArea.get_editable(),
   )
+
   check(
     'required metadata reaches the editor',
     native.test_accessible_boolean_property(localArea, Gtk.AccessibleProperty.REQUIRED, true) ===
       null,
   )
+
   check(
     'busy metadata reaches the editor',
     native.test_accessible_state(localArea, Gtk.AccessibleState.BUSY, 1) === null,
   )
+
   check(
     'visible field label names the editor',
     native.test_accessible_string_property(localArea, Gtk.AccessibleProperty.LABEL, 'Draft') ===
       null,
   )
+
   check(
     'field description and own hint are combined once',
     native.test_accessible_string_property(
@@ -654,6 +755,7 @@ async function run() {
       'Extra context. Keep this text',
     ) === null,
   )
+
   await fieldRender({ status: { type: 'error', message: 'Try again' }, statusVariant: 'tooltip' })
   check('status variant reaches field chrome', chrome.cssClasses!.has('vx-field--status-tooltip'))
   check('tooltip status has no duplicate inline status', fieldNodes('vx-field-status').length === 0)
@@ -665,6 +767,7 @@ async function run() {
       Gtk.AccessibleInvalidState.TRUE,
     ) === null,
   )
+
   check(
     'status joins the native hint without duplication',
     native.test_accessible_string_property(
@@ -673,10 +776,12 @@ async function run() {
       'Extra context. Keep this text. Try again',
     ) === null,
   )
+
   check(
     'field updates retain editor and text',
     areaRef.current!.native === localArea && localArea.text === 'LocalX',
   )
+
   await fieldRender({
     label: undefined,
     description: undefined,
@@ -688,10 +793,12 @@ async function run() {
     isLoading: false,
     size: undefined,
   })
+
   check(
     'removing chrome retains the editor and local text',
     areaRef.current!.native === localArea && localArea.text === 'LocalX',
   )
+
   check('removing field width restores available width', close(localArea.get_width(), 300))
   check('readonly reset reaches native editability', localArea.get_editable())
   check(
@@ -699,14 +806,17 @@ async function run() {
     native.test_accessible_boolean_property(localArea, Gtk.AccessibleProperty.REQUIRED, false) ===
       null,
   )
+
   check(
     'busy metadata clears with the field flag',
     native.test_accessible_state(localArea, Gtk.AccessibleState.BUSY, 0) === null,
   )
+
   check(
     'invalid metadata clears with status removal',
     native.test_accessible_state(localArea, Gtk.AccessibleState.INVALID, 0) === null,
   )
+
   check(
     'field descriptions clear while own hint stays',
     native.test_accessible_string_property(
@@ -715,11 +825,13 @@ async function run() {
       'Extra context',
     ) === null,
   )
+
   await fieldRender({ isLoading: true })
   check(
     'loading keeps a sensitive editable editor',
     localArea.is_sensitive() && localArea.get_editable(),
   )
+
   localArea.focus()
   localArea.set_position(localArea.get_buffer().get_char_count())
   if (osInput) {
@@ -728,22 +840,27 @@ async function run() {
     localArea.get_buffer().insert_at_cursor('Y', -1)
     await pause()
   }
+
   check('loading does not block native editing', localArea.text === 'LocalXY')
   await fieldRender({ isDisabled: true, isLoading: false })
   check(
     'disabled state reaches the editor and chrome',
     !localArea.is_sensitive() && chrome.cssClasses!.has('vx-field--disabled'),
   )
+
   await fieldRender({ isDisabled: false })
   areaRef.current!.focus()
   check('retained public handle still focuses the editor', window.get_focus() === localArea)
   if (osInput) {
     let submissions = 0
+
     await fieldRender({ returnKeyType: 'done', onSubmit: () => submissions++ })
     await input(localArea, 'return')
     check('done Return submits through the shared TextArea prop', submissions === 1)
     await fieldRender({ returnKeyType: undefined })
+
     const beforeNewline = localArea.text
+
     await input(localArea, 'return')
     check('ordinary Return does not submit', submissions === 1)
     check('ordinary Return inserts a native newline', localArea.text === beforeNewline + '\n')
@@ -751,37 +868,46 @@ async function run() {
     await input(localArea, 'return')
     check('send Return submits through the shared TextArea prop', submissions === 2)
   }
+
   fieldHarness.root.render(NestedAreaHarness, {})
   await pause()
+
   const nestedArea = areaRef.current!.native as any
   const nestedField = fieldNodes('vx-field')[0].view!
+
   check('native ID lookup ignores automation names', nestedField.getViewById('area') === nestedArea)
   check(
     'native ID lookup stays within its subtree',
     nestedField.getViewById('outside-area') === undefined,
   )
+
   check(
     'external field does not create an automatic duplicate',
     fieldNodes('vx-field').length === 1,
   )
+
   check(
     'external field owns its percentage width once',
     close(fieldNodes('vx-field')[0].view!.getBounds().width, 240) &&
       close(nestedArea.get_width(), 240),
   )
+
   check(
     'external field readonly state is inherited',
     !nestedArea.get_editable() && nestedArea.is_sensitive(),
   )
+
   check(
     'external field required metadata is inherited',
     native.test_accessible_boolean_property(nestedArea, Gtk.AccessibleProperty.REQUIRED, true) ===
       null,
   )
+
   check(
     'external field busy metadata is inherited',
     native.test_accessible_state(nestedArea, Gtk.AccessibleState.BUSY, 1) === null,
   )
+
   check(
     'external label owns the accessible name',
     native.test_accessible_string_property(
@@ -790,6 +916,7 @@ async function run() {
       'Outer notes',
     ) === null,
   )
+
   if (osInput) {
     const label = [...fieldHarness.container.nodes.values()].find(
       (n) => n.view instanceof Gtk.Label && n.view.get_text().startsWith('Outer notes'),
@@ -802,6 +929,7 @@ async function run() {
       window.get_focus() === nestedArea,
     )
   }
+
   fieldHarness.root.render(NestedAreaHarness, { childLabel: 'Specific editor name' })
   await pause()
   check(
@@ -812,21 +940,26 @@ async function run() {
       'Specific editor name',
     ) === null,
   )
+
   check(
     'child naming does not add visible field chrome',
     fieldNodes('vx-field').length === 1 && areaRef.current!.native === nestedArea,
   )
+
   fieldHarness.root.unmount()
   check('field-owned public handle clears on disposal', areaRef.current === null)
   check('disposed field lookup is inert', nestedField.getViewById('area') === undefined)
+
   const hosts: Array<[string, any]> = [
     ['box', new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })],
     ['fixed', new Gtk.Fixed()],
     ['grid', new Gtk.Grid()],
     ['scrolled', new Gtk.ScrolledWindow()],
   ]
+
   for (const [name, nativeHost] of hosts) {
     window.set_child(nativeHost)
+
     const nested = createGtkRoot(nativeHost, {
       onUncaughtError(error) {
         throw error
@@ -844,12 +977,14 @@ async function run() {
 
     nested.root.render(StandaloneEditor, initial)
     await pause()
+
     const editor = standaloneRef.current
     const node = [...nested.container.nodes.values()].find(
       (node) => node.props.id === 'standalone-editor',
     )!
 
     const viewport = node.layoutView!
+
     check(
       name + ': native editor identity is public',
       editor === node.view && editor instanceof Gtk.TextView,
@@ -921,6 +1056,7 @@ async function run() {
 
     if (name === 'fixed') {
       const bounds = editor.getBounds()
+
       check('fixed: initial viewport position', close(bounds.x, 10) && close(bounds.y, 12))
     }
 
@@ -940,13 +1076,16 @@ async function run() {
 
     if (name === 'fixed') {
       const bounds = editor.getBounds()
+
       check('fixed: viewport position updates', close(bounds.x, 25) && close(bounds.y, 30))
     }
 
     nested.root.render(StandaloneEditor, { ...initial, translateX: 20, opacity: 0.4 })
     await pause()
+
     const [ok, translated] = viewport.compute_bounds(nativeHost)
     const [inside, relative] = editor.compute_bounds(viewport)
+
     check(
       name + ': transform moves the physical scrolling host',
       ok && close(translated.origin.x, (initial.left ?? 0) + 20),
@@ -963,8 +1102,10 @@ async function run() {
     standaloneChanges.length = 0
     nested.root.render(StandaloneEditor, { ...initial, role: 'text' })
     await pause()
+
     const recreated = standaloneRef.current
     const recreatedViewport = node.layoutView!
+
     check(
       name + ': role recreation replaces both native widgets',
       recreated !== editor &&
@@ -1000,6 +1141,7 @@ async function run() {
     await pause()
     check(name + ': standalone ref clears', standaloneRef.current === null)
   }
+
   window.destroy()
   print(
     'GTK_TEXT_AREA ' +
@@ -1012,6 +1154,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

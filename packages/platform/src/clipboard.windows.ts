@@ -13,11 +13,13 @@ const transfer = () => Windows?.ApplicationModel?.DataTransfer
 async function writeText(text: string): Promise<boolean> {
   try {
     const api = transfer()
+
     if (!api?.Clipboard || !api.DataPackage) {
       return false
     }
 
     const content = new api.DataPackage()
+
     content.SetText(text)
     api.Clipboard.SetContent(content)
     api.Clipboard.Flush()
@@ -30,16 +32,19 @@ async function writeText(text: string): Promise<boolean> {
 async function readText(): Promise<string | null> {
   try {
     const api = transfer()
+
     if (!api?.Clipboard || !NSWinRT?.toPromise) {
       return null
     }
 
     const content = api.Clipboard.GetContent()
+
     if (!content.Contains(api.StandardDataFormats.Text)) {
       return null
     }
 
     const value = await NSWinRT.toPromise(content.GetTextAsync())
+
     return value == null || value === '' ? null : String(value)
   } catch {
     return null

@@ -138,12 +138,14 @@ function canonicalAccelerator(parsed: ParsedAccelerator, platform: AppMenuPlatfo
   switch (platform) {
     case 'macos': {
       const { keyEquivalent, modifierMask } = toAppKit(parsed)
+
       return `${modifierMask}:${keyEquivalent.codePointAt(0) ?? 0}`
     }
     case 'linux':
       return toGtk(parsed)
     case 'windows': {
       const { key, modifiers } = toWinUI(parsed)
+
       return `${modifiers}:${key}`
     }
     case null:
@@ -170,11 +172,14 @@ function noteAccelerator(
   if (!context.accelerators) {
     return
   }
+
   const canonical = canonicalAccelerator(parsed, context.platform)
   const existing = context.accelerators.get(canonical)
+
   if (existing !== undefined) {
     fail(owner, `accelerator "${source}" duplicates ${existing}`)
   }
+
   context.accelerators.set(canonical, owner)
 }
 
@@ -185,14 +190,17 @@ function normalizeChildren(
 ): NormalizedEntry[] {
   const siblings = new Set<string>()
   const items: NormalizedEntry[] = []
+
   for (const [index, entry] of entries.entries()) {
     const itemPath = `${path}[${index}]`
+
     if (typeof entry !== 'object' || entry === null) {
       fail(itemPath, 'expected a menu entry object')
     }
 
     const record = entry as Record<string, unknown>
     const key = record.key
+
     if (typeof key !== 'string' || !key) {
       fail(itemPath, 'key must be a non-empty string')
     }
@@ -207,6 +215,7 @@ function normalizeChildren(
       case 'action': {
         const label = requireLabel(record, itemPath)
         const accelerator = parseAcceleratorField(record, itemPath, context)
+
         if (typeof record.onSelect !== 'function') {
           fail(itemPath, 'onSelect must be a function')
         }
@@ -228,6 +237,7 @@ function normalizeChildren(
       case 'checkbox': {
         const label = requireLabel(record, itemPath)
         const accelerator = parseAcceleratorField(record, itemPath, context)
+
         if (typeof record.value !== 'boolean') {
           fail(itemPath, 'value must be a boolean')
         }
@@ -253,6 +263,7 @@ function normalizeChildren(
       }
       case 'separator': {
         const node: NormalizedSeparator = { kind: 'separator', key }
+
         // Leading/trailing/repeated separators collapse — GTK sections and
         // the macOS quit-role omission both depend on it.
         if (items.length === 0 || items[items.length - 1]!.kind === 'separator') {
@@ -264,6 +275,7 @@ function normalizeChildren(
       }
       case 'submenu': {
         const label = requireLabel(record, itemPath)
+
         if (!Array.isArray(record.items)) {
           fail(itemPath, 'items must be an array')
         }
@@ -287,11 +299,13 @@ function normalizeChildren(
         }
 
         const role = record.role
+
         if (typeof role !== 'string' || !ROLES.has(role as AppMenuRole)) {
           fail(itemPath, `unknown role ${JSON.stringify(role)}`)
         }
 
         let label = ROLE_DEFAULT_LABELS[role as AppMenuRole]
+
         if (record.label !== undefined) {
           if (typeof record.label !== 'string' || !record.label) {
             fail(itemPath, 'label must be a non-empty string')
@@ -309,6 +323,7 @@ function normalizeChildren(
         }
 
         context.nodes.set(node.id, node)
+
         const registered = context.platform
           ? ROLE_ACCELERATORS[context.platform][node.role]
           : undefined
@@ -329,9 +344,11 @@ function normalizeChildren(
         fail(itemPath, `unknown menu entry type ${JSON.stringify(record.type)}`)
     }
   }
+
   if (items.length && items[items.length - 1]!.kind === 'separator') {
     items.pop()
   }
+
   return items
 }
 
@@ -339,6 +356,7 @@ function requireLabel(record: Record<string, unknown>, path: string): string {
   if (typeof record.label !== 'string' || !record.label) {
     fail(path, 'label must be a non-empty string')
   }
+
   return record.label
 }
 
@@ -348,18 +366,23 @@ function parseAcceleratorField(
   context: NormalizationContext,
 ): ParsedAccelerator | null {
   const source = record.accelerator
+
   if (source === undefined) {
     return null
   }
+
   if (typeof source !== 'string') {
     fail(path, 'accelerator must be a string')
   }
+
   let parsed: ParsedAccelerator
+
   try {
     parsed = parseAccelerator(source)
   } catch (error) {
     fail(`${path}.accelerator`, error instanceof Error ? error.message : String(error))
   }
+
   noteAccelerator(context, parsed!, source, path)
   return parsed!
 }
@@ -376,8 +399,10 @@ export function normalizeAppMenu(
   if (!Array.isArray(menus)) {
     fail('menus', 'must be an array of submenus')
   }
+
   const accelerators = new Map<string, string>()
   const context: NormalizationContext = { platform, nodes: new Map(), nextId: 1, accelerators }
+
   if (platform === 'macos') {
     for (const [source, owner] of MACOS_APPLICATION_MENU_ACCELERATORS) {
       accelerators.set(canonicalAccelerator(parseAccelerator(source), platform), owner)
@@ -386,8 +411,10 @@ export function normalizeAppMenu(
 
   const normalized: NormalizedSubmenu[] = []
   const topKeys = new Set<string>()
+
   for (const [index, menu] of menus.entries()) {
     const path = `menus[${index}]`
+
     if (
       typeof menu !== 'object' ||
       menu === null ||
@@ -397,6 +424,7 @@ export function normalizeAppMenu(
     }
 
     const record = menu as unknown as Record<string, unknown>
+
     if (typeof record.key !== 'string' || !record.key) {
       fail(path, 'key must be a non-empty string')
     }
@@ -406,7 +434,9 @@ export function normalizeAppMenu(
     }
 
     topKeys.add(record.key)
+
     const label = requireLabel(record, path)
+
     if (!Array.isArray(record.items)) {
       fail(path, 'items must be an array')
     }
@@ -422,6 +452,7 @@ export function normalizeAppMenu(
   // options.macos is namespaced — always validated, only consumed on macOS.
   const applicationItems = options?.macos?.applicationItems
   let normalizedApplicationItems: NormalizedEntry[] = []
+
   if (applicationItems !== undefined) {
     if (!Array.isArray(applicationItems)) {
       fail('options.macos.applicationItems', 'must be an array')

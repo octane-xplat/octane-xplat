@@ -31,7 +31,9 @@ function appKitInput(view: unknown): view is NSView {
 export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
   const props = useFieldControlProps(inProps)
   const live = useRef(props)
+
   live.current = props
+
   const size = useSize(props.size, 'md')
   const anchor = useRef<NSView | null>(null)
   const inputHandle = useRef<TextInputHandle | null>(null)
@@ -57,18 +59,22 @@ export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
 
   const bindInput = useCallback((handle: TextInputHandle | null) => {
     inputHandle.current = handle
+
     const native = handle?.native
+
     autoFocus.bind(appKitInput(native) ? native : null)
     autoFocus.update()
   }, [])
 
   useLayoutEffect(() => {
     const native = inputHandle.current?.native
+
     autoFocus.bind(anchor.current && appKitInput(native) ? native : null)
     autoFocus.update()
   }, null)
 
   useEffect(() => () => autoFocus.dispose(), [])
+
   const handle = useMemo<PowerSearchHandle>(
     () => ({
       focusTypeahead() {
@@ -88,6 +94,7 @@ export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
   const { query, editing, results, internal } = props
   const Suggestion: any = Pressable
   const status = props.status
+
   useEffect(() => {
     props.handleRef?.(handle)
   }, [props.handleRef])
@@ -127,6 +134,7 @@ export function PowerSearchView(inProps: PowerSearchViewProps): unknown @{
         }
 
         const Token = props.components?.[filter.value.type]?.Token ?? PowerSearchToken
+
         return (
           <Token
             key={`${filter.field}-${index}`}

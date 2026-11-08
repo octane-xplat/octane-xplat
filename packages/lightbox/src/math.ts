@@ -33,12 +33,14 @@ export function fit(
   const byWidth = aspect > box.w / box.h === (mode === 'contain')
   const w = byWidth ? box.w : box.h * aspect
   const h = byWidth ? box.w / aspect : box.h
+
   return { x: box.x + (box.w - w) * posX, y: box.y + (box.h - h) * posY, w, h }
 }
 
 export function intersect(a: Rect, b: Rect): Rect {
   const x = Math.max(a.x, b.x)
   const y = Math.max(a.y, b.y)
+
   return {
     x,
     y,
@@ -54,6 +56,7 @@ export function intersect(a: Rect, b: Rect): Rect {
 export function thumbVisualFrom(trigger: Rect, slide: Rect, aspect: number, radius = 0): Visual {
   const local = { x: trigger.x - slide.x, y: trigger.y - slide.y, w: trigger.w, h: trigger.h }
   const r = Math.min(radius, local.w / 2, local.h / 2)
+
   return { img: fit(aspect, local, 'cover'), clip: local, radius: r, opacity: 1 }
 }
 
@@ -81,10 +84,13 @@ export function panRange(pos: number, size: number, s: number, view: number): [n
   const scaled = size * s
   const lo = view - scaled - pos
   const hi = -pos
+
   if (scaled <= view) {
     const c = clamp((size * (1 - s)) / 2, hi, lo)
+
     return [c, c]
   }
+
   return [lo, hi]
 }
 
@@ -120,6 +126,7 @@ export function toStyle(
   const left = i(v.clip.x - v.img.x)
   const right = i(v.img.x + v.img.w - v.clip.x - v.clip.w)
   const bottom = i(v.img.y + v.img.h - v.clip.y - v.clip.h)
+
   return {
     x: v.img.x - base.x,
     y: v.img.y - base.y,
@@ -134,5 +141,6 @@ export function toStyle(
 export function objectPosition(value: string): [number, number] {
   const [x = '50%', y = '50%'] = value.split(' ')
   const f = (s: string) => (s.endsWith('%') ? parseFloat(s) / 100 : 0.5)
+
   return [f(x), f(y)]
 }

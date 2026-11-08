@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View } from '@octane-xplat/ui'
 import { CheckboxInput as Checkbox, Switch } from '@octane-xplat/ui'
+
 export const changes: Array<[string, boolean]> = []
 export function ToggleControls(props: {
   disabled?: boolean

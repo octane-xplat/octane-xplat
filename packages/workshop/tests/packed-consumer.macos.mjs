@@ -28,8 +28,10 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-workshop-packed-macos-')))
 const consumer = join(work, 'consumer')
 const pack = join(work, 'pack')
+
 mkdirSync(consumer)
 mkdirSync(pack)
+
 let succeeded = false
 const onDarwinMac =
   process.platform === 'darwin' && (process.arch === 'arm64' || process.arch === 'x64')
@@ -57,6 +59,7 @@ function write(name, content) {
 
 try {
   const tarballs = {}
+
   for (const dir of [
     'create',
     'cli',
@@ -70,6 +73,7 @@ try {
   ]) {
     const root = join(repo, 'packages', dir)
     const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
     run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
     tarballs[manifest.name] =
       `file:${join(pack, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -110,6 +114,7 @@ try {
   )
 
   const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+
   manifest.overrides = tarballs
   manifest.packageManager = 'bun@1.4.4'
   write('package.json', JSON.stringify(manifest))
@@ -136,7 +141,9 @@ try {
   // patch (renderer-owned Children lives there).
   run('bun', ['run', 'xplat', 'patches', 'apply'])
   run('bun', ['install', '--ignore-scripts'])
+
   const req = createRequire(join(consumer, 'package.json'))
+
   assert.match(
     realpathSync(req.resolve('octane')),
     new RegExp(`octane@${compatibility.packages.octane.version.replaceAll('.', '\\.')}\\+`),
@@ -152,15 +159,21 @@ try {
   console.log('PASS xplat patches apply registers the octane patch and reinstall applies it')
 
   const initialized = run('bun', ['run', 'xplat', 'workshop', 'init'])
+
   assert.match(initialized, /created workshop.config.ts/)
+
   const config = readFileSync(join(consumer, 'workshop.config.ts'), 'utf8')
+
   run('bun', ['run', 'xplat', 'workshop', 'init'])
   assert.equal(readFileSync(join(consumer, 'workshop.config.ts'), 'utf8'), config)
 
   const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
   const report = JSON.parse(doctor.slice(doctor.indexOf('{')))
+
   assert.equal(Object.keys(report.targets).length, 6)
+
   const macos = report.targets.macos
+
   assert.ok(macos, 'doctor reports a macos row')
   if (onDarwinMac) {
     assert.equal(
@@ -184,6 +197,7 @@ try {
   const list = run('bun', ['run', 'xplat', 'workshop', 'list', '--target', 'macos', '--json'])
   const entries = JSON.parse(list.slice(list.indexOf('{'))).entries
   const byId = new Map(entries.map((e) => [e.id, e]))
+
   assert.equal(byId.get('counter/basic')?.applicable, true)
   assert.equal(
     byId.get('isolation/resources')?.applicable,
@@ -194,7 +208,9 @@ try {
   assert.equal(byId.get('inputs/editable')?.applicable, false)
   assert.equal(byId.get('platform/ios-only')?.applicable, false)
   assert.equal(byId.get('platform/linux-gtk')?.applicable, false)
+
   const ids = entries.map((e) => e.id)
+
   assert.equal(new Set(ids).size, ids.length, 'catalog emits one row per id across disjoint leaves')
   console.log(
     'PASS packed macos catalog: merged disjoint leaves apply, foreign leaves stay listed with reasons',
@@ -203,6 +219,7 @@ try {
   // Export lanes: the packed `./macos` entry resolves to shipped source; the
   // package map must not leak unlisted subpaths.
   const macosEntry = req.resolve('@octane-xplat/workshop/macos')
+
   assert.match(
     macosEntry,
     /node_modules[\\/]@octane-xplat[\\/]workshop[\\/]src[\\/]macos[\\/]index\.macos\.ts$/,
@@ -339,6 +356,7 @@ await build({ ...settings, configFile: false })
   )
 
   run('bun', ['run', 'node', 'prod-build.mjs'], consumer, { timeout: 120_000 })
+
   const files = (dir) =>
     readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
       entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)],
@@ -376,7 +394,9 @@ await build({ ...settings, configFile: false })
     )
 
     process.stdout.write(journey)
+
     const warm = /warm edit→ready latency: (\d+)ms/.exec(journey)
+
     assert.ok(warm, 'the macos journey must report a measured warm-edit latency')
     console.log(
       `PASS packed AppKit/JSC journey; measured warm edit→ready ${warm[1]}ms (proposed native goal ≤5000ms)`,

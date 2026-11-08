@@ -8,6 +8,7 @@ import { xplatCss } from '../src/css-platform.ts'
 import { xplatInlineStylesheets } from '../src/inline-stylesheets.ts'
 
 const dir = mkdtempSync(join(tmpdir(), 'xplat-inline-css-'))
+
 mkdirSync(join(dir, 'src'), { recursive: true })
 writeFileSync(
   join(dir, 'src', 'a.css'),
@@ -27,6 +28,7 @@ writeFileSync(
 
 it('collects .css assets, processes them, and prepends one push line to the entry chunk', async () => {
   const out = join(dir, 'out')
+
   await build({
     root: dir,
     logLevel: 'silent',
@@ -40,17 +42,23 @@ it('collects .css assets, processes them, and prepends one push line to the entr
   })
 
   const files = readdirSync(out)
+
   assert.ok(!files.some((f) => f.endsWith('.css')), `css assets remain: ${files}`)
+
   const js = files.find((f) => f.endsWith('.cjs') || f.endsWith('.js'))
   const code = readFileSync(join(out, js), 'utf8')
 
   const line = code.split('\n')[0]
+
   assert.ok(line.startsWith('(globalThis.__xplatStylesheets ??= []).push('), line.slice(0, 80))
+
   const ids = [...line.matchAll(/\["([^"]+)",/g)].map((m) => m[1])
+
   assert.equal(ids.length, 1, 'lib mode merges css into one asset')
 
   const payload = JSON.parse('[' + line.match(/\(\["[\s\S]+"\]\);/)[0].slice(1, -2) + ']')
   const cssA = payload.find(([, css]) => css.includes('.a'))[1]
+
   assert.ok(cssA.includes('width:4dip'), 'px→dip applied')
   assert.ok(cssA.includes('.m'), 'macos block kept')
   assert.ok(!cssA.includes('.w {'), 'web block stripped')
@@ -60,6 +68,7 @@ it('collects .css assets, processes them, and prepends one push line to the entr
 
 it('prepends the push before ESM imports for the GTK host', async () => {
   const out = join(dir, 'out-gtk')
+
   await build({
     root: dir,
     logLevel: 'silent',
@@ -76,15 +85,19 @@ it('prepends the push before ESM imports for the GTK host', async () => {
   })
 
   const files = readdirSync(out)
+
   assert.ok(!files.some((f) => f.endsWith('.css')), `css assets remain: ${files}`)
+
   const js = files.find((f) => f.endsWith('.js') || f.endsWith('.mjs'))
   const code = readFileSync(join(out, js), 'utf8')
 
   const lines = code.split('\n')
+
   assert.ok(
     lines[0].startsWith('(globalThis.__xplatStylesheets ??= []).push('),
     lines[0].slice(0, 80),
   )
+
   assert.match(
     code,
     /from\s+["']gi:\/\/Gtk\?version=4\.0["']/,
@@ -93,10 +106,13 @@ it('prepends the push before ESM imports for the GTK host', async () => {
 
   const payload = JSON.parse('[' + lines[0].match(/\(\["[\s\S]+"\]\);/)[0].slice(1, -2) + ']')
   const cssA = payload.find(([, css]) => css.includes('.a'))[1]
+
   assert.ok(cssA.includes('width:6dip'), 'px→dip applied to the gtk block')
   assert.ok(cssA.includes('.g'), 'gtk block kept')
   assert.ok(!cssA.includes('.w {'), 'web block stripped')
+
   const cssQ = payload.find(([, css]) => css.includes('.q'))[1]
+
   assert.ok(cssQ.includes('@media'), 'media rule kept')
   assert.ok(cssQ.includes('300px') && !cssQ.includes('300dip'), `media prelude keeps px: ${cssQ}`)
   assert.ok(cssQ.includes('width:10dip'), 'media body still px→dip')

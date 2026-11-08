@@ -9,6 +9,7 @@ export function installQuickEntryShortcut(actions: {
   reportError(error: unknown): void
 }): GlobalShortcuts {
   const globalShortcuts = createGlobalShortcuts({ onError: actions.reportError })
+
   void globalShortcuts
     .register({
       id: 'quick-entry',
@@ -21,5 +22,6 @@ export function installQuickEntryShortcut(actions: {
         actions.reportError(result.error)
       }
     })
+
   return globalShortcuts
 }

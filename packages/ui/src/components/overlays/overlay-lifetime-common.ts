@@ -67,6 +67,7 @@ export function createOverlayLifetime(
     }
 
     closing = true
+
     const failed = (error: unknown) => {
       report('close', error)
       if (registry.hasChild(host)) {
@@ -100,6 +101,7 @@ export function createOverlayLifetime(
           detach()
           return
         }
+
         report('open', error)
         release(false)
         detach()

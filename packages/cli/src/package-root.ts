@@ -13,6 +13,7 @@ export function installedPackageRoot(fromDir, name) {
   // The trailing slash makes builtin-named npm dependencies use node_modules lookup.
   for (const base of createRequire(join(fromDir, 'package.json')).resolve.paths(`${name}/`) ?? []) {
     const candidate = join(base, name, 'package.json')
+
     if (existsSync(candidate)) {
       return realpathSync(dirname(candidate))
     }
@@ -27,6 +28,7 @@ export function installedPackageRoot(fromDir, name) {
 export function installedPackageDir(fromDir, name) {
   for (const base of createRequire(join(fromDir, 'package.json')).resolve.paths(`${name}/`) ?? []) {
     const candidate = join(base, name)
+
     if (existsSync(candidate)) {
       return realpathSync(candidate)
     }
@@ -40,14 +42,19 @@ export function installedToolPackageRoot(fromDir, name) {
   const direct = installedPackageRoot(fromDir, name)
   const appManifest = join(fromDir, 'package.json')
   const app = existsSync(appManifest) ? JSON.parse(readFileSync(appManifest, 'utf8')) : {}
+
   if (direct && (app.dependencies?.[name] || app.devDependencies?.[name])) {
     return direct
   }
+
   const umbrella = installedPackageRoot(fromDir, 'octane-xplat')
+
   if (!umbrella) {
     return direct
   }
+
   const manifest = JSON.parse(readFileSync(join(umbrella, 'package.json'), 'utf8'))
+
   return manifest.dependencies?.[name] ? installedPackageRoot(umbrella, name) : direct
 }
 
@@ -61,6 +68,7 @@ export function appCliFile(app, exportPath, siblingFile) {
     const require = createRequire(join(cli ?? app.root, 'package.json'))
     const resolved = require.resolve(`@octane-xplat/cli/${exportPath}`)
     const file = join(dirname(resolved), siblingFile)
+
     return existsSync(file) ? file : null
   } catch {
     return null
@@ -71,11 +79,14 @@ export function appCliFile(app, exportPath, siblingFile) {
  *  installed umbrella's declared dependency. Returns null when neither has it. */
 export function resolveProjectTool(fromDir, name) {
   const root = installedToolPackageRoot(fromDir, name)
+
   if (!root) {
     return null
   }
+
   try {
     return createRequire(join(root, 'package.json')).resolve(name)
   } catch {}
+
   return null
 }

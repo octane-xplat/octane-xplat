@@ -16,6 +16,7 @@ function FontLayout() @{
 it('loads a font through the standalone plugin while Mason lays out native content', async () => {
   const face = new FontFace('Geist', 'url(~/fonts/Geist.ttf)')
   const fonts = FontFaceSet.instance
+
   try {
     await face.load()
     fonts.add(face)
@@ -25,6 +26,7 @@ it('loads a font through the standalone plugin while Mason lays out native conte
 
     const { view } = await mountXplat(FontLayout)
     const content = view.getViewById<NativeView>('font-layout')!
+
     await waitUntil(() => content.getActualSize().height > 0)
     expect(content.getActualSize().width).toBeCloseTo(107, 0)
     expect(content.getActualSize().height).toBeCloseTo(200, 0)

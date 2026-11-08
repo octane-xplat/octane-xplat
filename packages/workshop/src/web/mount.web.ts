@@ -9,6 +9,7 @@ import type { MountedStory, MountRequest, StageHost } from '../session'
 
 function storyTree(request: MountRequest): any {
   let inner: any = createElement(request.component as any, request.props)
+
   for (const provider of [...request.providers].reverse()) {
     inner = createElement(provider as any, { fixture: request.fixture } as any, inner)
   }
@@ -48,8 +49,10 @@ export function createWebStageHost(stageElement: HTMLElement): StageHost {
       )
 
       const mountPoint = globalThis.document.createElement('div')
+
       mountPoint.className = 'xw-stage-mount'
       stageElement.append(mountPoint)
+
       const root = createRoot(mountPoint)
 
       try {
@@ -61,6 +64,7 @@ export function createWebStageHost(stageElement: HTMLElement): StageHost {
       }
 
       let disposed = false
+
       return {
         update(props: Record<string, unknown>) {
           if (disposed) {

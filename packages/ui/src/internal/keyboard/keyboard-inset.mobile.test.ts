@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest'
 
 const mock = vi.hoisted(() => ({ decor: {} }))
+
 vi.mock('@nativescript/core', () => ({
   Application: {
     android: {
@@ -23,6 +24,7 @@ import { bindBottomInsetToKeyboard } from './keyboard-inset'
 
 it('follows actual Android geometry even with RESIZE set and never replaces a decor callback', () => {
   const create = (Array as any).create
+
   ;(Array as any).create = (_type: string, count: number) => Array.from({ length: count }, () => 0)
   vi.stubGlobal('android', {
     view: {
@@ -34,21 +36,26 @@ it('follows actual Android geometry even with RESIZE set and never replaces a de
       },
     },
   })
+
   const replace = vi.fn()
+
   vi.stubGlobal('androidx', {
     core: { view: { ViewCompat: { setOnApplyWindowInsetsListener: replace } } },
   })
+
   let publish: any
   const removeSource = keyboardWindows.install((_key, notify) => {
     publish = notify
     return () => {}
   })
+
   Object.assign(mock.decor, {
     getLocationOnScreen(xy: number[]) {
       xy[0] = 0
       xy[1] = 0
     },
   })
+
   const host: any = {
     translateY: 0,
     nativeViewProtected: {
@@ -61,7 +68,9 @@ it('follows actual Android geometry even with RESIZE set and never replaces a de
       getHeight: () => 1600,
     },
   }
+
   const off = bindBottomInsetToKeyboard(host)
+
   try {
     publish({
       inset: 300,

@@ -7,7 +7,9 @@ describe('native runtime', () => {
   it('round-trips a file through the native bridge', () => {
     expect(isAndroid || isIOS).toBe(true)
     expect(Device.os).toBe(isAndroid ? 'Android' : 'iOS')
+
     const file = knownFolders.temp().getFile(`xplat-native-test-${Date.now()}.txt`)
+
     try {
       file.writeTextSync('octane-xplat')
       expect(file.readTextSync()).toBe('octane-xplat')

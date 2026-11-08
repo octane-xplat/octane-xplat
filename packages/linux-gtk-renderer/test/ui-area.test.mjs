@@ -10,16 +10,20 @@ import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+
 test('ScrollableArea handles and refresh lifecycle work on real GTK with native Spinner', async (t) => {
   const outDir = join(fixture, 'dist-ui-area')
+
   if (!gjsAvailable()) {
     t.skip('gjs is not installed')
     return
   }
+
   if (!masonTypelibPresent()) {
     t.skip('XplatMason typelib required for runtime')
     return
   }
+
   await build({
     logLevel: 'error',
     ...(await xplatLinuxGtk('production', {
@@ -28,19 +32,24 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
       outDir,
     })),
   })
+
   const bundle = join(outDir, 'app.js')
+
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+
   const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const osPull =
     process.platform === 'linux' &&
     !!process.env.DISPLAY &&
     spawnSync('xdotool', ['version']).status === 0
+
   const env = {
     ...process.env,
     XPLAT_MASON_TYPELIB: nativeDir,
     GTK_A11Y: 'test',
     GTK_TEST_PULL: osPull ? '1' : '0',
   }
+
   if (process.platform === 'darwin') {
     env.DYLD_FALLBACK_LIBRARY_PATH = [
       join(execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim(), 'lib'),
@@ -49,19 +58,24 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
       .filter(Boolean)
       .join(':')
   }
+
   const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })
   let stdout = '',
     stderr = '',
     inputError
+
   child.stderr.on('data', (chunk) => {
     stderr += chunk
   })
+
   const lines = createInterface({ input: child.stdout })
+
   lines.on('line', (line) => {
     stdout += line + '\n'
     if (line !== 'GTK_UI_AREA_READY') {
       return
     }
+
     try {
       const id = execFileSync(
         'xdotool',
@@ -111,7 +125,9 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
       child.kill()
     }
   })
+
   const deadline = setTimeout(() => child.kill(), 25000)
+
   t.after(() => {
     clearTimeout(deadline)
     lines.close()
@@ -119,14 +135,20 @@ test('ScrollableArea handles and refresh lifecycle work on real GTK with native 
       child.kill()
     }
   })
+
   const code = await new Promise((resolve, reject) => {
     child.once('error', reject)
     child.once('close', resolve)
   })
+
   assert.equal(code, 0, `${stdout}\n${stderr}\n${inputError ?? ''}`)
+
   const line = stdout.split('\n').find((s) => s.startsWith('GTK_UI_AREA '))
+
   assert.ok(line, stdout)
+
   const result = JSON.parse(line.slice('GTK_UI_AREA '.length))
+
   assert.ok(result.checks >= (osPull ? 31 : 30), JSON.stringify(result))
   assert.equal(result.osPull, osPull)
   t.diagnostic(

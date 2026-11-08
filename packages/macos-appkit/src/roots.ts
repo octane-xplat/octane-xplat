@@ -22,6 +22,7 @@ export function createRoots(deps: Dependencies) {
     if (deps.directory.rootForHost(hostView)) {
       throw new Error('AppKit host already has a live root')
     }
+
     const container: RootContainer = {
       hostView,
       fontFamily,
@@ -50,20 +51,26 @@ export function createRoots(deps: Dependencies) {
     })
 
     container.root = root
+
     const unmount = root.unmount.bind(root)
     let retired = false
     let retireMembership: (() => void) | undefined
+
     root.unmount = () => {
       if (retired) {
         return
       }
+
       retired = true
+
       const failures = new FailureCollector()
+
       failures.run('root membership', () => retireMembership?.())
       failures.run('root unmount', unmount)
       container.root = null
       failures.throwIfFailed()
     }
+
     try {
       retireMembership = deps.directory.register(container)
       if (retired) {
@@ -72,6 +79,7 @@ export function createRoots(deps: Dependencies) {
       }
     } catch (error) {
       const failures = new FailureCollector()
+
       failures.run('root setup', () => {
         throw error
       })
@@ -82,6 +90,7 @@ export function createRoots(deps: Dependencies) {
 
     return root
   }
+
   return {
     createMacOSRoot,
     unmountOwnedRoot(host: NSView) {

@@ -10,8 +10,10 @@ import {
 
 function Item(props: { id: string; version: number; events: string[] }) @{
   const [count, setCount] = useState(0)
+
   useLayoutEffect(() => {
     const id = props.id
+
     props.events.push(`mount:${id}`)
     return () => {
       props.events.push(`cleanup:${id}`)
@@ -33,9 +35,12 @@ it('retains keyed component state and hosts when a compiled map reorders', () =>
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const events: string[] = []
+
   try {
     root.render(Items, { ids: ['a', 'b'], version: 0, events })
+
     const [a, b] = container.children[0].children
+
     flushUniversalSync(() => container.dispatchEvent(a, 'tap', {}))
     expect(a.props.text).toBe('a:1:0')
 

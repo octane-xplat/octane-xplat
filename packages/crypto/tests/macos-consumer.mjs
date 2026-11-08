@@ -5,12 +5,15 @@ import { join } from 'node:path'
 import { createRequire } from 'node:module'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { spawnSync } from 'node:child_process'
+
 const root = fileURLToPath(new URL('..', import.meta.url)),
   repo = process.env.XPLAT_NATIVE_TEST_REPO
 
 assert.ok(repo, 'Select the skymac.local checkout')
 await linkDependencies(root, repo)
+
 const app = join(root, 'tests/.runtime/macos-consumer')
+
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 try {
   await symlink(await realpath(root), join(app, 'node_modules/@octane-xplat/crypto'), 'dir')
@@ -36,10 +39,15 @@ const { buildMacOSNative, writeNativeBootstrap } = await import(
 )
 
 const artifact = await buildMacOSNative(app)
+
 assert.ok(artifact.leaves.includes('@octane-xplat/crypto'))
+
 const bootstrap = join(app, 'bootstrap.js')
+
 await writeNativeBootstrap(artifact, bootstrap)
+
 const entry = join(app, 'case.ts')
+
 await writeFile(
   entry,
   `
@@ -60,6 +68,7 @@ setTimeout(async () => {
 
 const require = createRequire(join(repo, 'apps/mobile/package.json'))
 const { build } = await import(pathToFileURL(require.resolve('vite')).href)
+
 await build({
   root: app,
   configFile: false,
@@ -87,7 +96,9 @@ const result = spawnSync(
 )
 
 assert.equal(result.status, 0, `${result.stdout}${result.stderr} signal=${result.signal}`)
+
 const match = /CRYPTO_MACOS_OK assertions=(\d+)/.exec(result.stdout + result.stderr)
+
 assert.ok(match, result.stdout + result.stderr)
 assert.ok(Number(match[1]) >= 61)
 console.log(

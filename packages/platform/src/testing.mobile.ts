@@ -42,6 +42,7 @@ export async function tap(view: Parameters<typeof upstreamTap>[0]): Promise<void
   if (view.hasListeners?.('tap')) {
     return
   }
+
   view.notify({
     eventName: 'click',
     object: view,
@@ -50,6 +51,7 @@ export async function tap(view: Parameters<typeof upstreamTap>[0]): Promise<void
     ios: undefined,
     android: undefined,
   })
+
   await nextRenderPass()
 }
 
@@ -109,6 +111,7 @@ export async function mountXplat<P extends object>(
   } = await mount(
     () => {
       const holder = new ContentView()
+
       root = renderNativeScriptApp(holder, component, props)
       return holder
     },
@@ -156,8 +159,10 @@ export function eachDescendant(root: ViewBase, visit: (view: ViewBase) => void):
  *  across Xplat leaves, so this is the portable assertion surface. */
 export function viewText(root: ViewBase): string[] {
   const out: string[] = []
+
   eachDescendant(root, (view) => {
     const text = typeof view === 'object' && view !== null && 'text' in view ? view.text : undefined
+
     if (typeof text === 'string') {
       out.push(text)
     }
@@ -171,6 +176,7 @@ export function viewText(root: ViewBase): string[] {
  *  to `view.getViewById` instead. */
 export function findByTestId<T = View>(root: ViewBase, testID: string): T | undefined {
   let found: T | undefined
+
   eachDescendant(root, (view) => {
     if (!found && (view as View).testID === testID) {
       found = view as T

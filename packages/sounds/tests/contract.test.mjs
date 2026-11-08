@@ -54,6 +54,7 @@ function fixture(target) {
     }
     cloneNode() {
       const audio = new Audio()
+
       audio.src = this.src
       voices.push(audio)
       return audio
@@ -101,6 +102,7 @@ for (const target of ['web', 'native']) {
   test(`${target}: load, independent overlapping voices, eviction, volume, stops and disposal`, async () => {
     const f = fixture(target)
     const bank = f.create({ maxVoices: 2 })
+
     assert.equal(bank.capabilities().supported, true)
     assert.equal(bank.capabilities().userGestureRequired, target === 'web')
     assert.equal(await bank.play('missing'), false)
@@ -108,11 +110,15 @@ for (const target of ['web', 'native']) {
     await bank.load('two', '/two.wav')
     assert.equal(await bank.play('one', { volume: 0.25 }), true)
     assert.equal(await bank.play('one', { volume: 0.75 }), true)
+
     const [first, second] = f.voices
+
     assert.equal(first.playing && second.playing, true)
     assert.deepEqual([first.volume, second.volume], [0.25, 0.75])
     await bank.play('two', { volume: 2 })
+
     const third = f.voices[2]
+
     assert.equal(first.playing, false)
     assert.equal(second.playing && third.playing, true)
     assert.equal(third.volume, 1)

@@ -3,6 +3,7 @@ import type { KeyboardWindowState } from '@octane-xplat/platform/keyboard-state'
 import type { KeyboardWindowSource } from '@octane-xplat/platform/keyboard-registry'
 
 const inactive = unknownKeyboardState()
+
 /** @internal Neutral counterpart to the native integration seam. */
 export const observeKeyboardDestination: KeyboardWindowSource<KeyboardWindowState> = (
   _window,

@@ -43,7 +43,9 @@ export function ChatLayout(props: ChatLayoutProps): JSX.Element @{
   const attachDock = useCallback((view: HTMLDivElement | null) => setDock(view), [])
   const attachDockPad = useCallback((view: HTMLDivElement | null) => setDockPad(view), [])
   const attachContent = useCallback((view: HTMLDivElement | null) => setContent(view), [])
+
   checkChatPanelHeight(props.bottomPanelHeight)
+
   const options = useRef({
     keyboardFollow: props.keyboardFollow,
     bottomPanelHeight: props.bottomPanelHeight,
@@ -58,12 +60,14 @@ export function ChatLayout(props: ChatLayoutProps): JSX.Element @{
 
   const binding = useRef<ChatKeyboardBinding | null>(null)
   const viewport = (props.scrollRef?.current as HTMLElement | null | undefined) ?? root
+
   useEffect(() => {
     if (!root || !viewport || !dock || !dockPad || !content) {
       return
     }
 
     const own = bindChatKeyboard(root, viewport, dock, dockPad, content, () => options.current)
+
     binding.current = own
     return () => {
       binding.current = null

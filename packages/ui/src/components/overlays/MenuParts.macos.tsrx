@@ -40,6 +40,7 @@ import { MenuSurface } from './MenuSurface.macos.tsrx'
 
 export function DropdownMenuItem(props: MenuItemProps): unknown @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -88,6 +89,7 @@ export function DropdownMenuItem(props: MenuItemProps): unknown @{
 
 export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): unknown @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuCheckboxItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -172,6 +174,7 @@ export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): unknown @{
 export function DropdownMenuRadioItem(props: MenuRadioItemProps): unknown @{
   const group = useContext(MenuRadioContext)
   const menu = useDropdownMenuContext()
+
   if (!group) {
     throw new Error('MenuRadioItem requires a MenuRadioGroup')
   }
@@ -253,6 +256,7 @@ export function DropdownMenuLink<
 
 export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkProps>) @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuLink requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -305,6 +309,7 @@ export function DropdownMenuSubMenu(
 ) @{
   const parentReturn = useContext(AppKitMenuReturnContext)
   const parent = useDropdownMenuContext()
+
   if (!parent) {
     throw new Error(
       'DropdownMenuSubMenu requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -334,7 +339,9 @@ export function DropdownMenuSubMenu(
   }, [props.isDisabled, requestedOpen])
 
   const liveReturn = useRef({ open, parent: parentReturn, close: () => setOpen(false) })
+
   liveReturn.current = { open, parent: parentReturn, close: () => setOpen(false) }
+
   const returnOwner = useMemo(
     () =>
       createAppKitMenuReturn({

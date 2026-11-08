@@ -11,6 +11,7 @@ async function navShare(payload: {
   title?: string
 }): Promise<ShareResult> {
   const nav = navigator as any
+
   if (nav.share) {
     try {
       await nav.share(payload)
@@ -35,6 +36,7 @@ async function navShare(payload: {
 export const share: Share = {
   async text(text: string, subject?: string): Promise<ShareResult> {
     const host = desktopHost()
+
     if (host && (await desktopHostSupports('system', 'shareContent'))) {
       return host.system.shareContent({ text, title: subject })
     }
@@ -43,6 +45,7 @@ export const share: Share = {
   },
   async url(url: string, title?: string): Promise<ShareResult> {
     const host = desktopHost()
+
     if (host && (await desktopHostSupports('system', 'shareContent'))) {
       return host.system.shareContent({ url, title })
     }
@@ -51,6 +54,7 @@ export const share: Share = {
   },
   async file(path: string): Promise<ShareResult> {
     const host = desktopHost()
+
     if (host && (await desktopHostSupports('system', 'shareContent'))) {
       return host.system.shareContent({ file: path })
     }

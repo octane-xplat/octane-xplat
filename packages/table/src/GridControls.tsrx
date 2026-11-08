@@ -33,7 +33,9 @@ export function GridControls(props: {
   search?: boolean
 }): unknown {
   const [settingsOpen, setSettingsOpen] = useState(false)
+
   void props.state
+
   const table = props.table
   const columns = table.getAllLeafColumns()
   const order = columns.map((column: any) => column.id)
@@ -114,6 +116,7 @@ export function GridPagination(props: {
   sizes?: readonly number[]
 }): unknown {
   void props.state
+
   const table = props.table
   const { pageIndex, pageSize } = props.state.pagination
   const count = table.getPageCount()

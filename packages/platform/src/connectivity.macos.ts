@@ -25,6 +25,7 @@ let monitor: Owner | undefined
 
 function decode(value: string): ConnectivityState {
   const state = JSON.parse(String(value)) as ConnectivityState
+
   if (
     typeof state.supported !== 'boolean' ||
     typeof state.online !== 'boolean' ||
@@ -32,6 +33,7 @@ function decode(value: string): ConnectivityState {
   ) {
     throw new Error('Invalid macOS connectivity sample')
   }
+
   return { supported: state.supported, online: state.online, type: state.type }
 }
 
@@ -39,10 +41,12 @@ function retire(owner: Owner | undefined): void {
   if (!owner || owner.phase === 'retired') {
     return
   }
+
   owner.phase = 'retired'
   if (monitor === owner) {
     monitor = undefined
   }
+
   try {
     owner.native.stop()
   } catch {
@@ -52,10 +56,12 @@ function retire(owner: Owner | undefined): void {
 
 function currentBridge(): Bridge | undefined {
   let native = bridge()
+
   if (monitor && monitor.bridge !== native) {
     retire(monitor)
     native = bridge()
   }
+
   return native
 }
 
@@ -67,6 +73,7 @@ function publish(
   if (owner.phase !== 'ready') {
     return
   }
+
   for (const callback of [...listeners]) {
     if (monitor !== owner || bridge() !== owner.bridge) {
       break
@@ -87,15 +94,20 @@ function publish(
 export const connectivity: ConnectivityImpl = {
   getState() {
     const native = currentBridge()
+
     if (!native) {
       return unsupported()
     }
+
     const owner = monitor
+
     if (owner?.state) {
       return { ...owner.state }
     }
+
     try {
       const state = decode(native.readState())
+
       if (owner && monitor === owner && bridge() === native) {
         // A native update delivered during the read is newer than its result.
         owner.state ??= state
@@ -105,6 +117,7 @@ export const connectivity: ConnectivityImpl = {
       return bridge() === native ? state : unsupported()
     } catch {
       const state = unsupported()
+
       if (owner && monitor === owner && bridge() === native) {
         owner.state ??= state
         return { ...owner.state }
@@ -116,28 +129,37 @@ export const connectivity: ConnectivityImpl = {
   subscribe(listener) {
     // Duplicate callbacks are separate registrations, each with its own removal.
     const notify = (state: ConnectivityState) => listener({ ...state })
+
     listeners.add(notify)
+
     const native = currentBridge()
+
     if (!monitor && native) {
       let owner: Owner | undefined
+
       try {
         owner = { bridge: native, native: native.new(), phase: 'starting' }
         monitor = owner
+
         const next = owner
         const started = next.native.start((value) => {
           if (monitor !== next) {
             return
           }
+
           if (bridge() !== native) {
             retire(next)
             return
           }
+
           let state: ConnectivityState
+
           try {
             state = decode(value)
           } catch {
             state = unsupported()
           }
+
           next.state = state
           publish(next, state)
         })
@@ -155,6 +177,7 @@ export const connectivity: ConnectivityImpl = {
         retire(owner)
       }
     }
+
     try {
       notify(monitor ? connectivity.getState() : unsupported())
     } catch (error) {
@@ -165,11 +188,14 @@ export const connectivity: ConnectivityImpl = {
 
       throw error
     }
+
     let active = true
+
     return () => {
       if (!active) {
         return
       }
+
       active = false
       listeners.delete(notify)
       if (!listeners.size) {

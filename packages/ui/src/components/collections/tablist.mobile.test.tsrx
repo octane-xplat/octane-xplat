@@ -28,6 +28,7 @@ vi.mock('../../routing/default-router', () => ({
 
 vi.mock('../media/Icon', () => ({ Icon: null }))
 vi.mock('../overlays/Popover', () => ({ Popover: null }))
+
 import { TabList, Tab } from './TabList.tsrx'
 
 function Fixture(props: { layout: 'fill' | 'hug'; onChange(value: string): void }) @{
@@ -52,10 +53,12 @@ for (const layout of ['fill', 'hug'] as const) {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const selected = vi.fn()
+
     try {
       root.render(Fixture, { layout, onChange: selected })
       expect(text(container)).toContain('First')
       expect(text(container)).toContain('Second')
+
       const tab = nodes(container).find(
         (node) =>
           ['button', 'tab'].includes(node.props?.accessibilityRole) && text(node) === 'Second',

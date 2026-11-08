@@ -48,6 +48,7 @@ const readPermission = (session: AVAudioSession): RecorderPermissionState => {
   }
 
   const status = session.recordPermission as unknown as number
+
   return status === permissionGranted
     ? 'granted'
     : status === permissionDenied
@@ -58,6 +59,7 @@ const readPermission = (session: AVAudioSession): RecorderPermissionState => {
 export async function requestMicrophonePermission(): Promise<RecorderPermissionState> {
   const session = AVAudioSession.sharedInstance()
   const status = readPermission(session)
+
   if (status !== 'undetermined') {
     return status
   }
@@ -110,6 +112,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
   const emit = () => {
     const value = snapshot()
+
     for (const listener of listeners) {
       listener(value)
     }
@@ -190,6 +193,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
     filePath = fileSystemPath.join(NSTemporaryDirectory(), `octane-recorder-${Date.now()}.wav`)
 
     const settings = NSMutableDictionary.dictionary()
+
     settings.setObjectForKey(audioFormatLinearPCM, AVFormatIDKey)
     settings.setObjectForKey(options.sampleRate, AVSampleRateKey)
     settings.setObjectForKey(options.channels, AVNumberOfChannelsKey)
@@ -205,7 +209,9 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       )
 
       session.setActiveWithOptionsError(true, 0 as AVAudioSessionSetActiveOptions, undefined)
+
       const url = NSURL.fileURLWithPath(filePath)
+
       recorder = AVAudioRecorder.alloc().initWithURLSettingsError(url, settings, undefined)
       if (!recorder) {
         throw new Error('AVAudioRecorder could not open a recording file')
@@ -273,8 +279,10 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
     const taken = recorder
     const takenPath = filePath
     const durationSeconds = taken.currentTime
+
     taken.stop()
     deactivateSession()
+
     const result: RecordingResult = {
       mimeType: 'audio/wav',
       bytes: readTake(takenPath),
@@ -353,7 +361,9 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       timer ??= setInterval(() => {
         if (recorder && state === 'recording') {
           recorder.updateMeters()
+
           const power = recorder.averagePowerForChannel(0)
+
           meterLevel = Math.max(0, Math.min(1, (power + 60) / 60))
         } else {
           meterLevel = null
@@ -412,6 +422,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
 const readTake = (filePath: string): Uint8Array => {
   const data = NSData.dataWithContentsOfFile(filePath)
+
   if (!data) {
     throw new Error(`Recording file is missing at ${filePath}`)
   }

@@ -1,5 +1,6 @@
 import { expect, it } from 'vitest'
 import { createAppKitPagerState, type AppKitPagerFrame } from './pager-state.macos'
+
 function fixture(extra: { page?: number; defaultPage?: number } = {}) {
   let source = { count: 4, direction: 'ltr' as 'ltr' | 'rtl', ...extra }
   let frame: AppKitPagerFrame | null = {
@@ -10,11 +11,14 @@ function fixture(extra: { page?: number; defaultPage?: number } = {}) {
     position: 0,
     ready: true,
   }
+
   let busy = false,
     immediate = true,
     report = (_: number) => {}
+
   const writes: { offset: number; animated: boolean }[] = [],
     changes: number[] = []
+
   const state = createAppKitPagerState({
     source: () => source,
     frame: () => frame,
@@ -31,6 +35,7 @@ function fixture(extra: { page?: number; defaultPage?: number } = {}) {
       report(page)
     },
   })
+
   return {
     state,
     writes,
@@ -61,6 +66,7 @@ function fixture(extra: { page?: number; defaultPage?: number } = {}) {
 
 it('seeds defaults once, clamps live bounds and never echoes programmatic writes', () => {
   const f = fixture({ defaultPage: 2 })
+
   f.state.synchronize()
   expect(f.writes).toEqual([{ offset: 200, animated: false }])
   f.source = { ...f.source, defaultPage: 0 }
@@ -78,6 +84,7 @@ it('seeds defaults once, clamps live bounds and never echoes programmatic writes
 
 it('reports only after the snapped native position arrives and claims before reentry', () => {
   const f = fixture()
+
   f.state.synchronize()
   f.immediate = false
   f.frame = { ...f.frame!, position: 170 }
@@ -95,6 +102,7 @@ it('reports only after the snapped native position arrives and claims before ree
 it('accepted controlled echoes do not move again; rejected changes restore the parent page', () => {
   for (const accept of [false, true]) {
     const f = fixture({ page: 0 })
+
     f.state.synchronize()
     f.frame = { ...f.frame!, position: 200 }
     f.state.interacted()
@@ -102,6 +110,7 @@ it('accepted controlled echoes do not move again; rejected changes restore the p
       if (accept) {
         f.source = { ...f.source, page }
       }
+
       f.state.synchronize()
     }
 
@@ -114,6 +123,7 @@ it('accepted controlled echoes do not move again; rejected changes restore the p
 
 it('current parent requests and moved windows cancel pending animated user reports', () => {
   const f = fixture({ page: 0 })
+
   f.state.synchronize()
   f.immediate = false
   f.frame = { ...f.frame!, position: 170 }
@@ -134,6 +144,7 @@ it('current parent requests and moved windows cancel pending animated user repor
 
 it('resize, direction and refill apply the current page without user callbacks', () => {
   const f = fixture({ defaultPage: 2 })
+
   f.state.synchronize()
   f.frame = { ...f.frame!, width: 150 }
   f.state.synchronize()
@@ -153,6 +164,7 @@ it('resize, direction and refill apply the current page without user callbacks',
 
 it('does not let deferred default placement override an active first gesture', () => {
   const f = fixture({ defaultPage: 3 })
+
   f.busy = true
   f.state.synchronize()
   expect(f.writes).toEqual([])

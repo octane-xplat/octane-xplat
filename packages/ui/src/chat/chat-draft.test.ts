@@ -11,6 +11,7 @@ import {
 describe('chat-draft serialization', () => {
   it('serializes a badge token to plain data', () => {
     const token: ChatComposerToken = { value: '@ada', label: 'Ada', variant: 'info', icon: 'user' }
+
     expect(serializeChatComposerToken(token)).toEqual({
       kind: 'badge',
       value: '@ada',
@@ -22,6 +23,7 @@ describe('chat-draft serialization', () => {
 
   it('serializes a custom token without its render function', () => {
     const token: ChatComposerToken = { value: 'custom-1', render: () => 'Custom' }
+
     expect(serializeChatComposerToken(token)).toEqual({
       kind: 'custom',
       value: 'custom-1',
@@ -30,6 +32,7 @@ describe('chat-draft serialization', () => {
 
   it('round-trips a badge token', () => {
     const token: ChatComposerToken = { value: '@ada', label: 'Ada', variant: 'info' }
+
     expect(deserializeChatComposerToken(serializeChatComposerToken(token))).toEqual(token)
   })
 
@@ -59,12 +62,14 @@ describe('chat-draft serialization', () => {
     ])
 
     const data = serializeChatComposerDraft(draft)
+
     expect(data.tokens).toEqual([
       { kind: 'badge', value: 'a', label: 'A', variant: 'neutral', icon: undefined },
       { kind: 'custom', value: 'b' },
     ])
 
     const restored = deserializeChatComposerDraft(data, { b: () => 'B' })
+
     expect(restored.text).toBe('Mixed')
     expect(restored.tokens[0]).toEqual(draft.tokens[0])
     expect(restored.tokens[1].value).toBe('b')

@@ -71,10 +71,12 @@ function relayoutBucket(bucket: ToastEntry[]) {
     .filter((x): x is { entry: ToastEntry; host: ToastHost } => x.host != null)
 
   let offset = 0
+
   for (let i = rlEntries.length - 1; i >= 0; i--) {
     const { host } = rlEntries[i]
     const top = host.position.startsWith('top')
     const margin = EDGE_GAP + offset
+
     if (top) {
       host.host.marginTop = margin
     } else {
@@ -94,6 +96,7 @@ interface ToastOwner {
 
 function detach(entry: ToastEntry) {
   const cur = hosts.get(entry.id)
+
   if (!cur) {
     return
   }
@@ -105,7 +108,9 @@ function detach(entry: ToastEntry) {
 
   cur.unbindTheme()
   cur.root.unmount?.()
+
   const owner = cur.host.parent as ToastOwner | undefined
+
   if (owner?.hasChild?.(cur.host)) {
     if (typeof owner.getPopupIndex === 'function' && owner.getPopupIndex(cur.host) === -1) {
       owner.removeChild?.(cur.host)
@@ -129,14 +134,17 @@ function detach(entry: ToastEntry) {
 function syncBuckets() {
   const list = toastStore.getSnapshot()
   const groups = new Map<string, ToastEntry[]>()
+
   for (const e of list) {
     const host = hosts.get(e.id)
+
     if (!host) {
       continue
     }
 
     const key = `${host.rl}:${positionFor(e)}`
     const bucket = groups.get(key) ?? []
+
     bucket.push(e)
     groups.set(key, bucket)
   }
@@ -148,6 +156,7 @@ function syncBuckets() {
 
 function mount(entry: ToastEntry) {
   const rl = rootLayoutFor(entry)
+
   if (!rl) {
     console.warn('[Toast] RootLayout is not mounted; toast was skipped')
     return
@@ -157,6 +166,7 @@ function mount(entry: ToastEntry) {
   const top = position.startsWith('top')
   const host = new GridLayout()
   const unbindTheme = applyThemeClasses(host, 'vx-toast-host')
+
   host.horizontalAlignment = position.endsWith('Start') ? 'left' : 'right'
   host.verticalAlignment = top ? 'top' : 'bottom'
   if (top) {
@@ -216,9 +226,11 @@ export function sync(): void {
     // `maxVisible` entries, counted per entry's own viewport limit.
     const visible = new Set<string>()
     const buckets = new Map<string, ToastEntry[]>()
+
     for (const e of list) {
       const key = `${rootLayoutFor(e) ?? ''}:${positionFor(e)}:${e.options.anchor ? 'a' : ''}`
       const bucket = buckets.get(key) ?? []
+
       bucket.push(e)
       buckets.set(key, bucket)
     }
@@ -233,6 +245,7 @@ export function sync(): void {
 
     for (const entry of list) {
       const cur = hosts.get(entry.id)
+
       if (!visible.has(entry.id)) {
         if (cur) {
           detach(entry)
@@ -252,6 +265,7 @@ export function sync(): void {
         }
 
         const timing = toastTiming(entry.options)
+
         if (
           timing.isAutoHide !== cur.timing.isAutoHide ||
           timing.autoHideDuration !== cur.timing.autoHideDuration
@@ -333,7 +347,9 @@ function ensureSubscribed() {
 
 function show(options: ToastOptions, viewportId?: string): ToastHandle | null {
   ensureSubscribed()
+
   const id = pushToast(options, viewportId)
+
   sync()
   return toastHandleFor(id)
 }
@@ -348,5 +364,6 @@ export const showToast: ShowToastFn = (options) => show(options, undefined)
  *  configured edge; outside one they land on the top RootLayout stack. */
 export function useToast(): ShowToastFn {
   const ctx = useContext(ToastViewportContext)
+
   return useCallback((options: ToastOptions) => show(options, ctx?.id), [ctx?.id])
 }

@@ -36,6 +36,7 @@ export function RichTextEditorDemo() @{
 
   const press = (item: (typeof TOOLBAR)[number]) => {
     const e = editor.current
+
     if (!e) {
       return
     }

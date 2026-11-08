@@ -5,11 +5,13 @@ import { homedir, tmpdir } from 'node:os'
 import { delimiter, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gifBytes } from './gif.mjs'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'xplat-converter-android-'))
 const sdk = process.env.ANDROID_HOME ?? join(homedir(), 'Library/Android/sdk')
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 60000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   return result.stdout
 }
@@ -20,10 +22,14 @@ try {
   )
 
   assert.ok(response.ok)
+
   const jar = join(directory, 'gifdecoder.jar')
+
   await writeFile(jar, Buffer.from(await response.arrayBuffer()))
+
   const android = join(sdk, 'platforms/android-35/android.jar')
   const classpath = [android, jar, directory].join(delimiter)
+
   await writeFile(
     join(directory, 'Timing.java'),
     `import java.lang.reflect.Method;

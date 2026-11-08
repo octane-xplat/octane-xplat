@@ -21,6 +21,7 @@ let sdkPromise: Promise<any> | null = null
 function loadSdk(): Promise<any> {
   sdkPromise ??= new Promise((resolve, reject) => {
     const script = document.createElement('script')
+
     script.src = APPLE_SDK_URL
     script.async = true
     script.onload = () => resolve((globalThis as any).AppleID)
@@ -38,6 +39,7 @@ function loadSdk(): Promise<any> {
 function decodeJwt(token: string): Record<string, any> {
   try {
     const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')
+
     return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(part), (c) => c.charCodeAt(0))))
   } catch {
     return {}
@@ -68,6 +70,7 @@ function toCredential(response: any): AuthCredential {
 
 function isCancel(error: unknown): boolean {
   const code = (error as any)?.error ?? (error as any)?.message ?? error
+
   return /popup_closed_by_user|cancel/i.test(String(code))
 }
 
@@ -88,6 +91,7 @@ export const appleAuth: AppleAuth = {
 
     try {
       const sdk = await loadSdk()
+
       requestedScopes = options?.scopes ?? ['name', 'email']
       sdk.auth.init({
         clientId: config.clientId,
@@ -98,6 +102,7 @@ export const appleAuth: AppleAuth = {
       })
 
       const response = await sdk.auth.signIn()
+
       return { status: 'success', credential: toCredential(response) }
     } catch (error) {
       return isCancel(error)

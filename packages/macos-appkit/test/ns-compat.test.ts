@@ -21,6 +21,7 @@ function fixture() {
       '\n;({ Observable, Property, CssProperty, Style, ViewBase, registerPluginElement, installCompat })',
     { console },
   )
+
   api.installCompat({
     registerElementType: (type: string, behavior: any) => registered.set(type, behavior),
     applyStyle: (_node: any, value: any) => styles.push(value),
@@ -28,6 +29,7 @@ function fixture() {
     applyAccessibility: () => {},
     queueLayoutReconcile: (_c: any, parent: any) => reconciles.push(parent),
   })
+
   return { api, registered, reconciles, classNames, styles }
 }
 
@@ -36,6 +38,7 @@ test('Observable on/notify/off round-trips events', () => {
   const obs = new api.Observable()
   const seen: any[] = []
   const cb = (args: any) => seen.push(args)
+
   obs.on('loaded', cb)
   obs.notify({ eventName: 'loaded', answer: 42 })
   assert.equal(seen.length, 1)
@@ -50,11 +53,15 @@ test('Property.register installs accessors with default + change notification', 
   const { api } = fixture()
   class MyView extends api.ViewBase {}
   const title = new api.Property<MyView, string>({ name: 'title', defaultValue: 'untitled' })
+
   title.register(MyView)
 
   const view = new MyView()
+
   assert.equal(view.title, 'untitled')
+
   const events: any[] = []
+
   view.on('titleChange', (args: any) => events.push(args))
   view.title = 'hello'
   assert.equal(view.title, 'hello')
@@ -73,15 +80,18 @@ test('affectsLayout properties request a layout reconcile', () => {
       return { kind: 'native' }
     }
   }
+
   new api.Property<MyView, number>({
     name: 'count',
     defaultValue: 0,
     affectsLayout: true,
   }).register(MyView)
+
   api.registerPluginElement('myview', { createView: () => new MyView() })
 
   const behavior = registered.get('myview')
   const node = { id: 1, type: 'myview', container: {}, children: [] }
+
   behavior.create(node, {})
   assert.deepEqual(node.view, { kind: 'native' })
   node.nsCompatView.count = 3
@@ -102,16 +112,21 @@ test('registerPluginElement bridges props, style, className and dispose', () => 
       disposals.push(1)
     }
   }
+
   new api.Property<MyView, string>({ name: 'heading' }).register(MyView)
   api.registerPluginElement('myview', { createView: () => new MyView(), container: true })
 
   const behavior = registered.get('myview')
+
   assert.equal(behavior.container, true)
   assert.equal(behavior.containerStyles, true)
 
   const node = { id: 7, type: 'myview', container: {}, children: [] }
+
   behavior.create(node, {})
+
   const view = node.nsCompatView
+
   assert.ok(view instanceof api.ViewBase)
   assert.equal(view.hostNode, node)
 
@@ -146,13 +161,16 @@ test('registrations before installCompat replay on install', () => {
   const api = runSlice(source + '\n;({ ViewBase, registerPluginElement, installCompat })', {
     console,
   })
+
   api.registerPluginElement('earlyview', {
     createView: () => {
       const v = new api.ViewBase()
+
       v.createNativeView = () => ({ early: true })
       return v
     },
   })
+
   assert.equal(registered.has('earlyview'), false)
   api.installCompat({
     registerElementType: (type: string, behavior: any) => registered.set(type, behavior),
@@ -161,8 +179,11 @@ test('registrations before installCompat replay on install', () => {
     applyAccessibility: () => {},
     queueLayoutReconcile: () => {},
   })
+
   assert.ok(registered.has('earlyview'))
+
   const node = { id: 1, type: 'earlyview', container: {}, children: [] }
+
   registered.get('earlyview').create(node, {})
   assert.deepEqual(node.view, { early: true })
 })

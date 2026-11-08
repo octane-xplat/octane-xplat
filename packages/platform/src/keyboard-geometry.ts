@@ -24,6 +24,7 @@ export function keyboardBottomOverlap(
   frame: KeyboardRect | null,
 ): number {
   const displacement = keyboardBottomDisplacement(host, frame)
+
   return displacement > 0 ? Math.min(host!.height, displacement) : 0
 }
 
@@ -44,7 +45,9 @@ export function keyboardBottomDisplacement(
   const right = window
     ? Math.min(host.x + host.width, window.x + window.width)
     : host.x + host.width
+
   const visibleBottom = window ? Math.min(bottom, window.y + window.height) : bottom
+
   if (
     right <= left ||
     frame.x > left + tolerance ||
@@ -75,6 +78,7 @@ export function keyboardAvoidancePadding(options: {
     ancestorAvoidance = 0,
     offset = 0,
   } = options
+
   if (!(windowInset > 0)) {
     return 0
   }
@@ -83,5 +87,6 @@ export function keyboardAvoidancePadding(options: {
     0,
     windowInset - Math.max(0, consumedSafeArea) - Math.max(0, ancestorAvoidance),
   )
+
   return Math.max(0, Math.min(Math.max(0, hostOverlap), budget) + offset)
 }

@@ -24,6 +24,7 @@ function Values(props: any) @{
   const x = useMotionValue(2)
   const doubled = useTransform(x, (value) => value * 2)
   const spring = useSpring(x)
+
   useEffect(() => {
     props.ready({ x, doubled, spring })
   }, [])
@@ -44,8 +45,11 @@ function Reduced() @{
 
 function mount(component: any) {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(component))
   return {
     container,
@@ -61,8 +65,11 @@ describe('motion hosts', () => {
   it('updates destinations without remounting and suppresses equal-target restarts', async () => {
     const done = vi.fn()
     const mounted = mount(<Box target={{ x: 50 }} done={done} />)
+
     await act(async () => {})
+
     const node = mounted.container.querySelector('#box') as HTMLElement
+
     expect(node.style.transform).toContain('translateX(50px)')
     expect(done).toHaveBeenCalledTimes(1)
     act(() => mounted.root.render(<Box target={{ x: 50 }} done={done} />))
@@ -87,7 +94,9 @@ describe('motion hosts', () => {
     )
 
     act(() => values.x.set(10))
+
     const node = mounted.container.querySelector('#values') as HTMLElement
+
     expect(node.style.transform).toContain('translateX(10px)')
     expect(node.style.transform).toContain('scaleX(20)')
     values.spring.jump(7)
@@ -99,6 +108,7 @@ describe('motion hosts', () => {
 
   it('reduces transforms through configuration', () => {
     const mounted = mount(<Reduced />)
+
     expect((mounted.container.querySelector('#reduced') as HTMLElement).style.transform).toContain(
       'translateX(100px)',
     )
@@ -126,6 +136,7 @@ import { clock } from './clock.web'
 describe('binding lifecycle', () => {
   it('initial=false applies the destination before playback', () => {
     const mounted = mount(<InitialFalse />)
+
     expect((mounted.container.querySelector('#instant') as HTMLElement).style.transform).toContain(
       'translateX(25px)',
     )
@@ -139,6 +150,7 @@ describe('binding lifecycle', () => {
 
     const mounted = mount(<Binding style={{ x, rotate: 30 }} />)
     const node = mounted.container.querySelector('#binding') as HTMLElement
+
     act(() => mounted.root.render(<Binding style={{ x: next, rotate: 30 }} />))
     x.set(60)
     expect(node.style.transform).toContain('translateX(20px)')
@@ -153,12 +165,14 @@ describe('binding lifecycle', () => {
 
   it('mounts the maintained demonstration', () => {
     const mounted = mount(<DemoFixture />)
+
     expect(mounted.container.textContent).toContain('Drag, then release')
     mounted.close()
   })
 })
 
 import { signal$ } from 'octane/signals'
+
 const position$ = signal$(0)
 function SignalBox() @{
   <motion.View id="signal" animate={{ x: position$.get() }} transition={{ duration: 0 }} />
@@ -166,6 +180,7 @@ function SignalBox() @{
 
 it('retargets from a render-time signal read', () => {
   const mounted = mount(<SignalBox />)
+
   act(() => position$.set(40))
   expect((mounted.container.querySelector('#signal') as HTMLElement).style.transform).toContain(
     'translateX(40px)',
@@ -184,6 +199,7 @@ function UserReduced() @{
 it('observes live system reduced-motion changes', () => {
   let reduced = false
   const callbacks = new Set<() => void>()
+
   vi.stubGlobal('matchMedia', () => ({
     get matches() {
       return reduced
@@ -197,6 +213,7 @@ it('observes live system reduced-motion changes', () => {
   }))
 
   const mounted = mount(<UserReduced />)
+
   act(() => {
     reduced = true
     callbacks.forEach((cb) => cb())
@@ -228,6 +245,7 @@ describe('upstream-shaped props', () => {
   it('animates whileTap on pointerdown and returns on release', () => {
     const mounted = mount(<TapScale />)
     const node = mounted.container.querySelector('#tap') as HTMLElement
+
     node.dispatchEvent(new Event('pointerdown', { bubbles: true }))
     expect(node.style.transform).toContain('scale(1.5)')
     node.dispatchEvent(new Event('pointerup', { bubbles: true }))
@@ -238,6 +256,7 @@ describe('upstream-shaped props', () => {
   it('animates whileFocus on focus and returns on blur', () => {
     const mounted = mount(<TapFocusCase />)
     const node = mounted.container.querySelector('#focusable') as HTMLElement
+
     node.dispatchEvent(new Event('focus'))
     expect(node.style.transform).toContain('translateX(20px)')
     node.dispatchEvent(new Event('blur'))
@@ -247,6 +266,7 @@ describe('upstream-shaped props', () => {
 
   it('fires onAnimationStart and onUpdate for declarative runs', () => {
     const mounted = mount(<CallbackCase />)
+
     expect(callbackState.started).toBe(1)
     expect(callbackState.updated).toBeGreaterThan(0)
     mounted.close()
@@ -257,6 +277,7 @@ describe('upstream-shaped props', () => {
   it('wraps an arbitrary leaf with motion.create', () => {
     const mounted = mount(<CreatedCase />)
     const node = mounted.container.querySelector('#created') as HTMLElement
+
     expect(node.style.transform).toContain('translateX(30px)')
     mounted.close()
   })
@@ -264,9 +285,12 @@ describe('upstream-shaped props', () => {
   it('animates through useAnimate scope and a MotionValue directly', async () => {
     const mounted = mount(<ScopedCase />)
     const node = mounted.container.querySelector('#scoped') as HTMLElement
+
     await scopedApi.animate({ x: 40 }, { duration: 0 })
     expect(node.style.transform).toContain('translateX(40px)')
+
     const direct = scopedApi.animate(scopedApi.value, 77, { duration: 0 })
+
     await direct.finished
     expect(scopedApi.value.get()).toBe(77)
     mounted.close()
@@ -310,6 +334,7 @@ const scopedApi: { animate: any; value: MotionValue } = {
 function ScopedCase() @{
   const [scope, animate] = useAnimate()
   const value = useMotionValue(0)
+
   useEffect(() => {
     scopedApi.animate = animate
     scopedApi.value = value
@@ -326,6 +351,7 @@ function DragBox(props: any) @{
 
 function pointer(node: HTMLElement, type: string, x: number, y = 0, pointerId = 1) {
   const event = new MouseEvent(type, { clientX: x, clientY: y, button: 0, bubbles: true })
+
   Object.defineProperty(event, 'pointerId', { value: pointerId })
   node.dispatchEvent(event)
 }
@@ -351,6 +377,7 @@ describe('declarative pointer drag', () => {
     )
 
     const node = mounted.container.querySelector('#drag') as HTMLElement
+
     node.setPointerCapture = vi.fn()
     expect(node.style.touchAction).toBe('pan-y')
     pointer(node, 'pointerdown', 0)
@@ -376,6 +403,7 @@ describe('declarative pointer drag', () => {
   it('updates drag axis and disables listeners on prop changes', () => {
     const mounted = mount(<DragBox drag="x" dragMomentum={false} />)
     const node = mounted.container.querySelector('#drag') as HTMLElement
+
     act(() => mounted.root.render(<DragBox drag="y" dragMomentum={false} />))
     expect(node.style.touchAction).toBe('pan-x')
     pointer(node, 'pointerdown', 0)
@@ -398,6 +426,7 @@ describe('declarative pointer drag', () => {
     )
 
     const node = mounted.container.querySelector('#drag') as HTMLElement
+
     pointer(node, 'pointerdown', 0)
     pointer(node, 'pointermove', 0, 30)
     expect(start).not.toHaveBeenCalled()
@@ -452,6 +481,7 @@ function VariantGesture() @{
 it('inherits labels and initial targets while explicit animate remains independent', async () => {
   const mounted = mount(<VariantTree label="show" custom={40} />)
   const child = mounted.container.querySelector('#variant-child') as HTMLElement
+
   await act(async () => {})
   expect(child.style.transform).toContain('translateX(40px)')
   expect(
@@ -468,6 +498,7 @@ it('inherits labels and initial targets while explicit animate remains independe
 it('resolves gesture labels and restores the resolved animate target', () => {
   const mounted = mount(<VariantGesture />)
   const host = mounted.container.querySelector('#variant-gesture') as HTMLElement
+
   host.dispatchEvent(new Event('pointerdown'))
   expect(host.style.transform).toContain('scale(2)')
   host.dispatchEvent(new Event('pointerup'))
@@ -481,6 +512,7 @@ it('resolves gesture labels and restores the resolved animate target', () => {
 
 it('retargets an inherited resolver when custom changes without a new parent label', async () => {
   const mounted = mount(<VariantTree label="show" custom={40} />)
+
   await act(async () => {})
   act(() => mounted.root.render(<VariantTree label="show" custom={60} />))
   await act(async () => {})
@@ -499,6 +531,7 @@ function InitialVariantTree() @{
 
 it('inherits initial=false and seeds child destinations without playback', () => {
   const mounted = mount(<InitialVariantTree />)
+
   expect(
     (mounted.container.querySelector('#initial-variant') as HTMLElement).style.transform,
   ).toContain('translateX(90px)')
@@ -525,8 +558,10 @@ function VariantExit(props: any) @{
 
 it('uses exit label arrays and their transition overrides under Presence', async () => {
   vi.useFakeTimers()
+
   const done = vi.fn()
   const mounted = mount(<VariantExit present={true} done={done} />)
+
   act(() => mounted.root.render(<VariantExit present={false} done={done} />))
   expect(mounted.container.querySelector('#variant-exit')).not.toBeNull()
   await act(async () => {

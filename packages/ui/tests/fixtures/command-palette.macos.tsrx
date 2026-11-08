@@ -13,6 +13,7 @@ export default function Fixture() {
   const [open, setOpen] = useState(false)
   const [label, setLabel] = useState('Initial command')
   const [placeholder, setPlaceholder] = useState('Find commands')
+
   changeOpen = setOpen
   changeLabel = setLabel
   changePlaceholder = setPlaceholder
@@ -41,8 +42,10 @@ export async function run(ctx: ProbeContext) {
   const host = (globalThis as any).__xplatAppKit
   const presentSheet = host.presentSheet
   const handles: any[] = []
+
   host.presentSheet = (...args: any[]) => {
     const handle = presentSheet(...args)
+
     handles.push(handle)
     return handle
   }
@@ -72,6 +75,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const query = ctx.find('palette-query')
+
   changeLabel('Updated command')
   changePlaceholder('Find updated commands')
   await ctx.waitFor(

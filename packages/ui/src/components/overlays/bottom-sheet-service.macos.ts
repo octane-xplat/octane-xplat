@@ -57,6 +57,7 @@ export function openBottomSheetWithOwner(
     closeSheet = entry.finish
     try {
       const present = appKitHost()?.presentSurface
+
       if (!present) {
         throw new Error('AppKit host has no shared sheet presenter')
       }

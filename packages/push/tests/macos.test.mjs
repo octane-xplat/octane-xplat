@@ -9,6 +9,7 @@ test('macOS import and subscriptions stay inert without SDK or host access', asy
   const exports = {}
   const globals = { exports }
   const accesses = []
+
   for (const name of [
     'require',
     'objc',

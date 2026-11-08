@@ -22,6 +22,7 @@ export async function run(ctx: ProbeContext) {
 
   const snapshots: any[] = []
   const off = FocusedInputController.subscribe(root, (state) => snapshots.push(state))
+
   ctx.onCleanup(off)
   field.focus()
   field.setSelectionRange(1, 3)
@@ -53,6 +54,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const validation: any = ctx.find('focus-validation')
+
   validation.style.height = '50px'
   await ctx.waitFor(() => snapshots.at(-1).inputRect.y === y + 50)
   ctx.assert(
@@ -73,6 +75,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const done: any = ctx.find('focus-done')
+
   done.focus()
   await ctx.waitFor(() => snapshots.at(-1).input === null)
   ctx.assert('non-editing focus clears input identity', snapshots.at(-1).input, null)

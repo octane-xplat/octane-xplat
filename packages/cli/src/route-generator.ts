@@ -24,6 +24,7 @@ import { EXT, SUFFIX, PRESENT, routeFor } from './route-path.ts'
 import { isTsrxContract } from './tsrx-leaf.ts'
 import { installedToolPackageRoot } from './package-root.ts'
 import { routeParamName as segmentParam } from '@octane-xplat/lib/route-pattern'
+
 // Mirror of packages/ui/src/routing/route-table.ts conventions — the CLI walks the
 // route dir off disk (no vite glob), so the derivation is re-implemented
 // here. Keep the two in sync: same suffix strip order, same index/_layout
@@ -39,11 +40,13 @@ function writeGeneratedFile(file, source) {
   if (existsSync(file) && readFileSync(file, 'utf8') === source) {
     return
   }
+
   // Rename complete files so a separate compiler never reads a truncated
   // declaration during watch mode. Preserve an existing output symlink.
   const target = existsSync(file) ? realpathSync(file) : file
   const temporary = `${target}.tmp-${process.pid}-${++generatedSequence}`
   const descriptor = openSync(temporary, 'wx')
+
   try {
     try {
       writeFileSync(descriptor, source)
@@ -60,6 +63,7 @@ function writeGeneratedFile(file, source) {
 function walk(dir, out = []) {
   for (const name of readdirSync(dir).sort()) {
     const full = join(dir, name)
+
     if (statSync(full).isDirectory()) {
       walk(full, out)
     } else if (EXT.test(name) || name.endsWith('.md')) {
@@ -75,6 +79,7 @@ function walk(dir, out = []) {
 function appVite(cwd) {
   const root = installedToolPackageRoot(cwd, 'vite')
   const req = createRequire(join(root ?? cwd, 'package.json'))
+
   return import(pathToFileURL(realpathSync(req.resolve('vite'))).href)
 }
 
@@ -93,10 +98,13 @@ async function bakeRouteData(cwd, loaders, onSource) {
 
   try {
     const data = Object.create(null)
+
     for (const [name, file] of loaders) {
       onSource?.(relative(cwd, file))
+
       const mod = await server.ssrLoadModule(file)
       const loader = mod?.loader ?? mod?.default
+
       if (typeof loader !== 'function') {
         throw new Error(
           `baked route '${name}' — ${relative(cwd, file)} must export a 'loader' function`,
@@ -104,6 +112,7 @@ async function bakeRouteData(cwd, loaders, onSource) {
       }
 
       const value = await loader({})
+
       assertRouteDataJson(value, name, relative(cwd, file))
       data[name] = value
       onSource?.(undefined)
@@ -126,18 +135,22 @@ async function bakeRouteData(cwd, loaders, onSource) {
  *  alone, a missing one gets an empty stub so imports resolve. */
 export async function planRoutes(cwd, dir, out, opts = {}) {
   opts.signal?.throwIfAborted()
+
   const outputs = new Map()
   const warn = opts.onWarn ?? (() => {})
   const emit = (file, source) => outputs.set(file, source)
   const config = loadRoutingConfig(cwd)
+
   dir =
     dir ??
     config?.directory ??
     ['app', 'src/app'].find((path) => existsSync(join(cwd, path))) ??
     (config ? 'src/app' : undefined)
+
   if (!dir) {
     return { count: false, outputs }
   }
+
   out = out ?? config?.out
 
   const bake = opts.bake !== false
@@ -156,10 +169,13 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
   const outputDirectory = join(cwd, base, '..')
   const moduleRef = (file) => {
     const value = relative(outputDirectory, file).split(sep).join('/')
+
     return value.startsWith('.') ? value : './' + value
   }
+
   const exportType = (ref) =>
     `typeof import(${JSON.stringify(moduleRef(join(cwd, ref.module)))})[${JSON.stringify(ref.export)}]`
+
   const contextType = config?.context
     ? `RouteRootContext<${exportType(config.context)}>`
     : 'Record<string, unknown>'
@@ -176,8 +192,10 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
         (file) => /\.(tsx|tsrx|md)$/.test(file) && !file.startsWith(join(cwd, base) + '.'),
       )
     : []
+
   for (const file of files) {
     const routePath = relative(join(cwd, dir), file).split(sep).join('/')
+
     if (file.endsWith('.tsrx') && isTsrxContract(readFileSync(file, 'utf8'), file)) {
       contractPaths.push(routePath)
       continue
@@ -188,6 +206,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     }
 
     const isMd = routePath.endsWith('.md')
+
     if (/\.(tsrx|tsx)$/.test(routePath)) {
       routePaths.push(routePath)
     }
@@ -206,6 +225,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     }
 
     const r = routeFor(routePath, isMd ? /\.md$/ : EXT)
+
     if (!r) {
       continue
     }
@@ -235,11 +255,13 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     // record. Contract checking must see every module's own exports.
     if (!r.md) {
       const leaves = variants.get(r.name) ?? []
+
       leaves.push({ ...r })
       variants.set(r.name, leaves)
     }
 
     const prev = seen.get(r.name)
+
     if (!prev) {
       seen.set(r.name, r)
     } else if (r.md && !prev.md) {
@@ -268,6 +290,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
 
   const list = [...seen.values()].sort((a, b) => a.name.localeCompare(b.name))
   const patternNames = new Map()
+
   for (const route of list) {
     const shape = route.segments
       .map((segment) =>
@@ -282,6 +305,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
       .join('/')
 
     const previous = patternNames.get(shape)
+
     if (previous && previous.name !== route.name) {
       throw new Error(
         `route/incompatible-platform-params: ${previous.file} and ${route.file} describe the same URL pattern with different parameter names; use the same bracket names across platform variants`,
@@ -298,10 +322,12 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
   const paramField = (s) => {
     if (s.startsWith('*')) {
       const name = s.slice(1) || '*'
+
       return `'${name}'?: string`
     }
 
     const name = s.slice(1)
+
     return s.endsWith('?') ? `${name.slice(0, -1)}?: string` : `${name}: string`
   }
 
@@ -323,11 +349,13 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     const parts = rel.replace(EXT, '').split('/')
     let base = parts[parts.length - 1]
     const sm = SUFFIX.exec(base)
+
     if (sm) {
       base = base.slice(0, base.length - sm[0].length)
     }
 
     const pm = PRESENT.exec(base)
+
     if (pm) {
       base = base.slice(0, base.length - pm[0].length)
     }
@@ -341,6 +369,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
   // source's imports never enter a runtime bundle.
   const loaderFiles = new Map()
   const mdRoutes = []
+
   for (const r of list) {
     if (r.dataMode !== 'baked') {
       continue
@@ -352,8 +381,10 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
     }
 
     const stem = stemFor(r.file)
+
     for (const ext of LOADER_EXTS) {
       const candidate = join(cwd, dir, `${stem}.loader.${ext}`)
+
       if (existsSync(candidate)) {
         loaderFiles.set(r.name, candidate)
         break
@@ -379,6 +410,7 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
             const suffix = /\.(web|mobile|ios|android|macos|windows|linux)\.(tsx|tsrx)$/.exec(
               leaf.file,
             )?.[1]
+
             return (
               !suffix ||
               suffix === target ||
@@ -389,23 +421,30 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
       ),
     ]),
   )
+
   const contractEntries = list.map((r) => {
     const path = '/' + r.segments.join('/')
     const module = r.md
       ? "{ dataMode: 'baked' }"
       : `typeof import(${JSON.stringify(moduleRef(join(cwd, dir, r.file)))})`
+
     const baked = r.md
       ? "import('@octane-xplat/ui/markdown').MdDoc"
       : r.dataMode === 'baked'
         ? `RouteBakedLoaderData<typeof import(${JSON.stringify(moduleRef(loaderFiles.get(r.name)))})>`
         : 'unknown'
+
     const platformOnly = platforms.get(r.name).length !== targets.length
+
     return `\t${JSON.stringify(path)}: FileRouteContract<${JSON.stringify(path)}, ${module}, RootContext${r.dataMode === 'baked' ? `, ${baked}` : ''}>${platformOnly ? ' & { readonly platformOnly: true }' : ''}`
   })
+
   const availability = list.map((r) => {
     const available = platforms.get(r.name)
+
     return `\t${JSON.stringify('/' + r.segments.join('/'))}: ${available.map((target) => JSON.stringify(target)).join(' | ')}`
   })
+
   const variantChecks = list.flatMap((r) =>
     (variants.get(r.name) ?? [])
       .filter((leaf) => leaf.file !== r.file)
@@ -416,10 +455,13 @@ export async function planRoutes(cwd, dir, out, opts = {}) {
           r.dataMode === 'baked'
             ? `, RouteBakedLoaderData<typeof import(${JSON.stringify(moduleRef(loaderFiles.get(r.name)))})>`
             : ''
+
         const contract = `FileRouteContract<${JSON.stringify(path)}, ${mod}, RootContext${baked}>`
+
         return `\t// ${JSON.stringify(path)}: ${r.file} ↔ ${leaf.file}\n\tCheckRouteVariant<FileRouteContracts[${JSON.stringify(path)}], ${contract}>,\n\tCheckRouteVariant<${contract}, FileRouteContracts[${JSON.stringify(path)}]>,`
       }),
   )
+
   const exportChecks = [...variants.values()].flatMap((leaves) =>
     leaves.flatMap((leaf) =>
       [
@@ -482,6 +524,7 @@ ${list
   .map((r) => {
     const path = '/' + r.segments.join('/')
     const mod = `typeof import(${JSON.stringify(moduleRef(join(cwd, dir, r.file)))})`
+
     return `type Guard_${list.indexOf(r)} = FileRouteGuardArgs<${JSON.stringify(path)}, ${mod}, RootContext>\ntype Loader_${list.indexOf(r)} = FileRouteLoaderArgs<${JSON.stringify(path)}, ${mod}, RootContext>`
   })
   .join('\n')}
@@ -513,6 +556,7 @@ ${presents.length ? presents.join('\n') : '\t// no declared presentation default
 `
 
   emit(join(cwd, base + '.contracts.ts'), src)
+
   const contractsRef = './' + basename(base) + '.contracts'
   const registration = `// Generated by \`xplat routes\` — do not edit.
 // Application registration. Import .contracts for isolated/local type use.
@@ -547,9 +591,12 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
 
   if (needsBake && bake) {
     const data = Object.create(null)
+
     for (const r of mdRoutes) {
       opts.onSource?.(join(dir, r.file))
+
       const value = mdToDoc(readFileSync(join(cwd, dir, r.file), 'utf8'))
+
       assertRouteDataJson(value, r.name, `${dir}/${r.file}`)
       data[r.name] = value
       opts.onSource?.(undefined)
@@ -572,8 +619,10 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
   const chainDirs = (name) => {
     const segs = name.split('/')
     const dirs = layoutDirs.has('') ? [''] : []
+
     for (let i = 1; i < segs.length; i++) {
       const d = segs.slice(0, i).join('/')
+
       if (layoutDirs.has(d)) {
         dirs.push(d)
       }
@@ -627,13 +676,17 @@ export const bakedRouteData: Record<string, unknown> = JSON.parse(${JSON.stringi
         const identity = route
           ? 'route:' + route.name
           : 'layout:' + path.split('/').slice(0, -1).join('/')
+
         return { path, rank, identity }
       })
       .filter((file) => file.rank !== -1)
+
     const best = new Map()
+
     for (const file of candidates) {
       best.set(file.identity, Math.min(best.get(file.identity) ?? Infinity, file.rank))
     }
+
     return [
       ...contractPaths.map((path) => `\t\t'!${globDir}/${globLiteral(path)}'`),
       ...candidates
@@ -654,6 +707,7 @@ ${mdRoutes.map((s) => `\t\t{ path: ${JSON.stringify(s.name)}, screen: MarkdownSc
 }))
 `
     : ''
+
   const manifestReferences = config?.manifests ?? []
   const manifestImports = manifestReferences
     .map(
@@ -661,11 +715,13 @@ ${mdRoutes.map((s) => `\t\t{ path: ${JSON.stringify(s.name)}, screen: MarkdownSc
         `import { ${ref.export} as configured${i} } from ${JSON.stringify(moduleRef(join(cwd, ref.module)))}`,
     )
     .join('\n')
+
   const catalogParts = [
     'fileRoutes',
     ...(mdRoutes.length ? ['markdownRoutes'] : []),
     ...manifestReferences.map((_, i) => `configured${i}`),
   ]
+
   const shared = (
     prelude,
     globs,
@@ -703,10 +759,14 @@ ${mdGlue}
 export const routes = mergeRouteManifests(${catalogParts.join(', ')}) as RouteCatalog<RouteContracts>
 export const screens = routes.screens
 `
+
   const writePlatform = (path, source) => {
     const catalogPath = path.replace(/\.([^.]+)\.ts$/, '.catalog.$1.ts')
+
     emit(catalogPath, source)
+
     const catalogRef = './' + catalogPath.split(sep).pop().replace(/\.ts$/, '')
+
     emit(
       path,
       `// Generated by \`xplat routes\` — do not edit.
@@ -818,10 +878,12 @@ if ((import.meta as unknown as { env: { DEV: boolean } }).env.DEV) {
 
 export async function generateRoutes(cwd, dir, out, opts = {}): Promise<number | false> {
   const plan = await planRoutes(cwd, dir, out, opts)
+
   opts.signal?.throwIfAborted()
   for (const [file, source] of plan.outputs) {
     mkdirSync(join(file, '..'), { recursive: true })
     writeGeneratedFile(file, source)
   }
+
   return plan.count
 }

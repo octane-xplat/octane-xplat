@@ -7,15 +7,20 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
   const source = rendererSource(),
     axStart = source.indexOf('function applyAccessibility('),
     axEnd = source.indexOf('/** Host updates carry', axStart)
+
   assert.ok(axStart >= 0 && axEnd > axStart)
+
   const update = runSlice(
     source.slice(axStart, axEnd) +
       '\nfunction update(node, props) { for (const [name, value] of Object.entries(props)) applyBuiltinScrollViewProp(node, name, value) }; update',
   )
+
   let element = true,
     label = ''
+
   const document = { content: 'All 24 notes' },
     clip = { bounds: { origin: { x: 20, y: 120 } } }
+
   const view = {
     documentView: document,
     contentView: clip,
@@ -30,13 +35,16 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
       element = value
     },
   }
+
   const node = { type: 'scrollview', view, props: {} }
+
   update(node, {
     accessibilityLabel: 'Trip notes',
     accessibilityHint: 'Scroll to review.',
     accessibilityValue: '24 notes',
     accessible: false,
   })
+
   assert.equal(label, 'Trip notes')
   assert.equal(view.accessibilityHelp, 'Scroll to review.')
   assert.equal(view.accessibilityValueDescription, '24 notes')
@@ -50,6 +58,7 @@ test('real scroll prop branch applies and clears native descriptions/visibility 
     accessibilityValue: undefined,
     accessible: undefined,
   })
+
   assert.equal(label, '')
   assert.equal(view.accessibilityHelp, null)
   assert.equal(view.accessibilityValueDescription, null)

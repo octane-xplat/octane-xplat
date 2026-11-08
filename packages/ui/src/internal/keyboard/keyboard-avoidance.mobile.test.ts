@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest'
 
 const mock = vi.hoisted(() => ({ readers: new Map<any, (state: any, window?: object) => void>() }))
+
 vi.mock('./keyboard-inset', () => ({
   subscribeKeyboardState(listener: any, host: any) {
     mock.readers.set(host, listener)
@@ -27,10 +28,13 @@ it('writes native padding on every frame but publishes a stable nested avoidance
   const host = { bottom: 600 },
     content = { style: { paddingBottom: 4 } },
     claims: any[] = []
+
   const off = bindKeyboardAvoidance(host, content, { safeBottom: 0, ancestorBottom: 0 }, (claim) =>
     claims.push(claim),
   )
+
   const emit = mock.readers.get(host)!
+
   emit(state(800, 500, 'start'), window)
   emit(state(650, 500), window)
   emit(state(550, 500), window)
@@ -38,14 +42,17 @@ it('writes native padding on every frame but publishes a stable nested avoidance
   emit(state(500, 500, 'end'), window)
   expect(content.style.paddingBottom).toBe(104)
   expect(claims).toEqual([{ window, bottom: 300 }])
+
   const nested = { bottom: 600 },
     child = { style: { paddingBottom: 0 } }
+
   const offNested = bindKeyboardAvoidance(
     nested,
     child,
     { safeBottom: 0, ancestorWindow: window, ancestorBottom: 300 },
     () => {},
   )
+
   mock.readers.get(nested)!(state(500, 500, 'end'), window)
   expect(child.style.paddingBottom).toBe(0)
   emit(state(500, 800, 'start'), window)
@@ -63,12 +70,14 @@ it('writes native padding on every frame but publishes a stable nested avoidance
 it('preserves foreign padding changes and separates different windows', () => {
   const host = { bottom: 800 },
     content = { style: { paddingBottom: 12 } }
+
   const off = bindKeyboardAvoidance(
     host,
     content,
     { safeBottom: 20, ancestorWindow: {}, ancestorBottom: 300, offset: 8 },
     () => {},
   )
+
   mock.readers.get(host)!(state(500, 500, 'end'), window)
   expect(content.style.paddingBottom).toBe(300)
   content.style.paddingBottom = 50
@@ -79,6 +88,7 @@ it('preserves foreign padding changes and separates different windows', () => {
 it('updates offsets without replacing the live observer or viewport ownership', () => {
   const host = { bottom: 800 },
     content = { style: { paddingBottom: 0 } }
+
   let options = { safeBottom: 0, ancestorBottom: 0, offset: 8 }
   const binding = bindKeyboardAvoidance(
     host,
@@ -86,7 +96,9 @@ it('updates offsets without replacing the live observer or viewport ownership', 
     () => options,
     () => {},
   )
+
   const observer = mock.readers.get(host)!
+
   observer(state(500, 500, 'end'), window)
   expect(content.style.paddingBottom).toBe(308)
   options = { ...options, offset: 16 }

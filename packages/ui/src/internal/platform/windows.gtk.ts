@@ -15,6 +15,7 @@ let seq = 0
  *  invalid options (bad `kind`, a closed `parent`) throw. */
 export function openWindow(options: OpenWindowOptions = {}): WindowHandle | null {
   const open = hostGlobal('__octaneGtkHost')?.openWindow
+
   if (typeof open !== 'function') {
     console.warn('[octane-xplat] Window creation is unsupported by the current GTK host.')
     return null

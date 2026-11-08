@@ -27,6 +27,7 @@ function TreeCellContent<T extends Record<string, unknown>>(props: {
   children: any
 }) @{
   const meta = props.meta
+
   if (!meta) {
     return <TableSlot value={props.children} />
   }
@@ -95,6 +96,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
   config: UseTableTreeDataConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   const treeKeyRef = useRef<string | undefined>(undefined)
@@ -120,10 +122,12 @@ export function useTableTreeData<T extends Record<string, unknown>>(
         }
 
         const originalRenderCell = col.renderCell
+
         return {
           ...col,
           renderCell: (item: T) => {
             const cfg = configRef.current
+
             return tableSlot(TreeCellContent, {
               meta: cfg.getRowMeta(item),
               indent: cfg.indent ?? 'md',
@@ -168,6 +172,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
 
     transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
       const cfg = configRef.current
+
       if (!cfg.hasExpandableRows) {
         return props
       }

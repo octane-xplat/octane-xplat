@@ -25,6 +25,7 @@ export function createKeyboardMotion(
     if (!state) {
       return
     }
+
     state = {
       ...state,
       motion: {
@@ -36,13 +37,16 @@ export function createKeyboardMotion(
         ...capabilities,
       },
     }
+
     publish(state)
   }
+
   return {
     begin(target: KeyboardRect | null, duration: number | null = null): void {
       if (moving) {
         emit('cancel')
       }
+
       transitionId++
       moving = true
       durationMs = duration !== null && Number.isFinite(duration) ? Math.max(0, duration) : null
@@ -53,6 +57,7 @@ export function createKeyboardMotion(
           inset: keyboardBottomOverlap(state.windowRect, target),
         }
       }
+
       emit('start')
     },
     measure(
@@ -72,12 +77,14 @@ export function createKeyboardMotion(
         ),
         source: 'native-frames',
       }
+
       emit(moving ? 'move' : 'idle')
     },
     end(confirmed = false): void {
       if (!moving && !confirmed) {
         return
       }
+
       moving = false
       emit('end')
     },
@@ -85,6 +92,7 @@ export function createKeyboardMotion(
       if (!moving) {
         return
       }
+
       moving = false
       emit('cancel')
     },

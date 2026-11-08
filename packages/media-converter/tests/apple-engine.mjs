@@ -5,17 +5,21 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gifBytes } from './gif.mjs'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'xplat-converter-engine-'))
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 120000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   return result.stdout
 }
 
 try {
   await copyFile(join(root, 'tests/apple-main.swift'), join(directory, 'main.swift'))
+
   const engine = join(root, 'platforms/macos/src/XplatMediaConverter.swift')
+
   assert.equal(
     await import('node:fs/promises').then(({ readFile }) => readFile(engine, 'utf8')),
     await import('node:fs/promises').then(({ readFile }) =>
@@ -37,10 +41,14 @@ try {
   ])
 
   await writeFile(join(directory, 'source.gif'), gifBytes())
+
   const result = run(join(directory, 'case'), [join(directory, 'source.gif')])
+
   assert.match(result, /APPLE_CONVERTER_OK/)
   console.log(result.trim())
+
   const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
+
   run('xcrun', [
     'swiftc',
     '-swift-version',

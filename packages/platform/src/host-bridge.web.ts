@@ -22,6 +22,7 @@ export function createWebKitTransport(): HostTransport | null {
 
   const handler = window.webkit?.messageHandlers?.xplat
   const host = window.__xplatHostTransport
+
   if (!handler || !host) {
     return null
   }

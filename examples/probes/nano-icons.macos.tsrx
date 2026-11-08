@@ -14,6 +14,7 @@ const selection = createStore({ name: 'dot', color: '#123456', size: 24 })
 
 export default function NanoIconsMacosProbe() {
   const current = useStore(selection)
+
   return (
     <VStack>
       <NanoIcon id="nano-main" {...current} label="Direction" />
@@ -26,14 +27,17 @@ export default function NanoIconsMacosProbe() {
 function glyphSnapshot(ctx: ProbeContext, id: string) {
   const view = ctx.find(id)
   const layers = []
+
   for (const child of view?.subviews ?? []) {
     const text = String(child?.stringValue ?? child?.text ?? '')
+
     if (text) {
       layers.push({ codePoint: text.codePointAt(0) })
     }
   }
 
   const frame = ctx.inspect(id).frame // inspect forces a layout pass
+
   return {
     layers,
     label: view?.accessibilityLabel,
@@ -46,6 +50,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('icon font registered', await ProbeIcons.ready, 'ready')
 
   const main = glyphSnapshot(ctx, 'nano-main')
+
   ctx.assert('glyph container width', main.width, 24)
   ctx.assert('glyph container height', main.height, 24)
   ctx.assert('accessible label', main.label, 'Direction')
@@ -53,6 +58,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('layer codepoint', main.layers[0]?.codePoint, glyphMap.i.dot[1][0][0])
 
   const duo = glyphSnapshot(ctx, 'nano-duo')
+
   ctx.assert('multicolor layer count', duo.layers.length, 2)
   ctx.assert('duo width', duo.width, 48)
 

@@ -10,6 +10,7 @@ registerElement('xplatbarcodescanner', MLKitView)
 
 function applyEscapeProps(view: any, props: BarcodeScannerProps): void {
   const bag = isAndroid ? props.android : props.ios
+
   if (bag) {
     Object.assign(view, bag)
   }
@@ -41,6 +42,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
   // Mount wiring — listeners before any prop assignment.
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
@@ -49,12 +51,14 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
     v.on(MLKitView.detectionEvent, (e: any) => {
       const data = e?.data ?? e?.data?.data ?? e
       const list = Array.isArray(data) ? data : [data]
+
       for (const item of list) {
         if (!item) {
           continue
         }
 
         const bounds = item.bounds
+
         props.onCodeScanned?.({
           type: fromNativeFormat(item.format),
           data: String(item.rawValue ?? item.displayValue ?? ''),
@@ -75,6 +79,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (v) {
       v.barcodeFormats = toNativeFormats(props.formats)
     }
@@ -82,6 +87,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (v) {
       v.cameraPosition = props.facing === 'front' ? CameraPosition.FRONT : CameraPosition.BACK
     }
@@ -89,6 +95,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (v) {
       v.pause = props.paused ?? false
     }
@@ -96,6 +103,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (v) {
       v.torchOn = props.torch ?? false
     }

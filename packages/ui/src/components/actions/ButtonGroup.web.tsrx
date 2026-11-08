@@ -10,8 +10,10 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element @{
   const size = useSize(props.size, 'md')
   const groupRef = useRef<any>(null)
   const value = { orientation, isDisabled: !!props.isDisabled, size, position: 'only' as const }
+
   useEffect(() => {
     const root = groupRef.current
+
     if (!root) {
       return
     }
@@ -25,14 +27,17 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element @{
 
     const update = (active?: HTMLElement) => {
       const enabled = members()
+
       for (const member of enabled) {
         member.tabIndex = member === active || (!active && member === enabled[0]) ? 0 : -1
       }
     }
 
     update()
+
     const focus = (event: FocusEvent) => {
       const target = event.target as HTMLElement
+
       if (members().includes(target)) {
         update(target)
       }
@@ -61,6 +66,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element @{
     }
 
     event.preventDefault()
+
     const index = enabled.indexOf(document.activeElement as HTMLElement)
     const next =
       event.key === 'Home'

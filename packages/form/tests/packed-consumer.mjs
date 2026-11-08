@@ -22,10 +22,13 @@ import { xplatTsrx } from '@octane-xplat/cli/vite'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/tanstack-form')
+
 mkdirSync(scratch, { recursive: true })
+
 const temporary = mkdtempSync(join(scratch, 'packed-'))
 function run(command, args, cwd = temporary) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
@@ -52,17 +55,23 @@ try {
   )
 
   const tarballs = readdirSync(join(temporary, 'pack'))
+
   assert.equal(tarballs.length, 1)
   run('tar', ['-xzf', join(temporary, 'pack', tarballs[0])])
+
   const packed = join(temporary, 'node_modules/@octane-xplat/form')
+
   mkdirSync(dirname(packed), { recursive: true })
   cpSync(join(temporary, 'package'), packed, { recursive: true })
+
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   assert.equal(manifest.dependencies['@tanstack/form-core'], '1.33.5')
   assert.ok(!manifest.dependencies.react)
   assert.ok(readFileSync(join(packed, 'NOTICE'), 'utf8').includes('Tanner Linsley'))
   for (const dependency of ['octane', '@tanstack/form-core', '@octane-xplat/jsx']) {
     const destination = join(temporary, 'node_modules', dependency)
+
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
   }

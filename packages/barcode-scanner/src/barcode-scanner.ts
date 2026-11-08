@@ -16,6 +16,7 @@ async function ensure(): Promise<PermissionResult> {
       const video = (globalThis as any).AVMediaTypeVideo
       // 0=notDetermined 1=restricted 2=denied 3=authorized
       const status = av?.authorizationStatusForMediaType?.(video)
+
       if (status === 3) {
         return 'granted'
       }
@@ -37,6 +38,7 @@ async function ensure(): Promise<PermissionResult> {
 
     const perm = 'android.permission.CAMERA'
     const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
     if (
       activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
     ) {
@@ -54,6 +56,7 @@ async function ensure(): Promise<PermissionResult> {
         if (args.requestCode !== requestCode) {
           return
         }
+
         Application.android.off(event, onResult)
         resolve(
           args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -61,6 +64,7 @@ async function ensure(): Promise<PermissionResult> {
             : 'denied',
         )
       }
+
       Application.android.on(event, onResult)
       try {
         activity.requestPermissions([perm], requestCode)
@@ -78,9 +82,11 @@ async function toImageSource(image: unknown): Promise<any> {
   if (image instanceof ImageSource) {
     return image
   }
+
   if (typeof image === 'string') {
     return ImageSource.fromFile(image)
   }
+
   if (
     typeof image === 'object' &&
     image !== null &&
@@ -89,6 +95,7 @@ async function toImageSource(image: unknown): Promise<any> {
   ) {
     return ImageSource.fromFile(image.uri)
   }
+
   throw new Error('barcodeScanner.scanImage: expected an ImageSource, file path, or {uri} ref')
 }
 
@@ -104,7 +111,9 @@ export const barcodeScanner: BarcodeScannerService = {
       detectorType: DetectionType.Barcode,
       barcodeScanning: { barcodeFormat: toNativeFormats(formats) as [any] },
     })
+
     const list = Array.isArray(result) ? result : Object.values(result ?? {})
+
     return list
       .flat()
       .filter((item: any) => item && (item.rawValue !== undefined || item.format !== undefined))
@@ -127,4 +136,5 @@ export const barcodeScanner: BarcodeScannerService = {
 // platform dispatcher (same 'camera' kind media registers; both leafs' owners
 // run identical ensure logic, and the leaf must work with media absent).
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.camera = () => barcodeScanner.ensure()

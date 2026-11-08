@@ -27,9 +27,11 @@ const TASK_PREFIX = 'com.octanexplat.tasks.'
 
 async function runTask(name: string, context: TaskContext): Promise<TaskResult> {
   const executor = executors.get(name)
+
   if (!executor) {
     return 'failed'
   }
+
   try {
     return (await executor(context)) ?? 'success'
   } catch {
@@ -47,24 +49,29 @@ async function runTask(name: string, context: TaskContext): Promise<TaskResult> 
 // ready check is a hard gate.
 function iosSubmit(name: string): void {
   const identifier = TASK_PREFIX + name
+
   if (!handlerReady.has(name)) {
     throw new Error(
       `backgroundTasks.register: '${name}' has no registered iOS launch handler — ` +
         `its defineTask must run at module scope so registration finishes before app launch completes`,
     )
   }
+
   BGTaskScheduler.sharedScheduler.cancelTaskRequestWithIdentifier(identifier)
 
   const request = BGAppRefreshTaskRequest.alloc().initWithIdentifier(identifier)
   const interval = registered.get(name)
+
   if (interval) {
     request.earliestBeginDate = (globalThis as any).NSDate.dateWithTimeIntervalSinceNow(interval)
   }
 
   const errorRef = typeof interop !== 'undefined' ? new interop.Reference() : null
   const submitted = BGTaskScheduler.sharedScheduler.submitTaskRequestError(request, errorRef)
+
   if (!submitted) {
     const detail = errorRef?.value?.localizedDescription ?? 'unknown scheduler error'
+
     throw new Error(
       `backgroundTasks.register: refresh request for '${name}' was rejected — ${detail}. ` +
         `Confirm ${identifier} is in BGTaskSchedulerPermittedIdentifiers and UIBackgroundModes includes fetch`,
@@ -89,10 +96,12 @@ function iosHandle(task: any): void {
     if (completed) {
       return
     }
+
     completed = true
     try {
       task.setTaskCompletedWithSuccess(success)
     } catch {}
+
     // Requests are single-shot — this run consumed it. Resubmit while the
     // task stays registered so refresh recurs; a run that ended by
     // expiration still leaves the schedule alive.
@@ -117,6 +126,7 @@ function iosHandle(task: any): void {
       return expired
     },
   }
+
   runTask(name, context).then(
     (result) => complete(result === 'success'),
     () => complete(false),
@@ -162,6 +172,7 @@ export const backgroundTasks: BackgroundTasks = {
         `backgroundTasks.register: '${name}' has no defineTask — declare it at module scope`,
       )
     }
+
     if (isIOS) {
       if (typeof BGTaskScheduler === 'undefined') {
         throw new Error('unsupported: BGTaskScheduler is not available')
@@ -177,15 +188,18 @@ export const backgroundTasks: BackgroundTasks = {
 
       return
     }
+
     // Android: WorkManager — the Java side reads the registered map off the
     // global so a cold start rebuilds scheduled work from defineTask calls.
     // `Utils.android` is a {} stub off Android, so the context stays absent
     // and scheduling is skipped there.
     const worker = (globalThis as any).com?.octanexplat?.tasks?.TaskScheduler
     const context = (Utils.android as any)?.getApplicationContext?.()
+
     if (worker?.schedule && context) {
       worker.schedule(context, name, options?.minimumInterval ?? 0)
     }
+
     registered.set(name, options?.minimumInterval ?? 0)
   },
 
@@ -195,8 +209,10 @@ export const backgroundTasks: BackgroundTasks = {
       BGTaskScheduler.sharedScheduler?.cancelTaskRequestWithIdentifier?.(TASK_PREFIX + name)
       return
     }
+
     const worker = (globalThis as any).com?.octanexplat?.tasks?.TaskScheduler
     const context = (Utils.android as any)?.getApplicationContext?.()
+
     if (context) {
       worker?.cancel?.(context, name)
     }
@@ -209,9 +225,11 @@ export const backgroundTasks: BackgroundTasks = {
       }
 
       const status = (globalThis as any).UIApplication?.sharedApplication?.backgroundRefreshStatus
+
       // UIBackgroundRefreshStatus: 0 restricted, 1 denied, 2 available
       return status === 0 || status === 1 ? 'restricted' : 'available'
     }
+
     return 'available'
   },
 
@@ -224,6 +242,7 @@ export const backgroundTasks: BackgroundTasks = {
 // at module evaluation — calls from the worker thread dispatch onto the JS
 // thread, then the worker blocks on TaskOutcome until the executor settles.
 const taskWorker = (globalThis as any).com?.octanexplat?.tasks?.TaskWorker
+
 if (!isIOS && typeof taskWorker?.setTaskRunner === 'function') {
   taskWorker.setTaskRunner(
     new taskWorker.TaskRunner({
@@ -233,6 +252,7 @@ if (!isIOS && typeof taskWorker?.setTaskRunner === 'function') {
             outcome.onResult(r)
           } catch {}
         }
+
         runTask(name, { name, expired: false }).then(report, () => report('failed'))
       },
     }),

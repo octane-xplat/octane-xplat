@@ -7,6 +7,7 @@ export function bindCommandPaletteKeys(
 ): () => void {
   const native = globalThis as Record<string, any>
   const owner = input.window
+
   if (autoFocus) {
     owner?.makeFirstResponder?.(input)
   }
@@ -47,11 +48,13 @@ export function bindCommandPaletteKeys(
       }
 
       const key = keys[Number(event.keyCode)]
+
       if (!key) {
         return event
       }
 
       let prevented = false
+
       keyDown({
         key,
         preventDefault: () => {

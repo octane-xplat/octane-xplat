@@ -55,6 +55,7 @@ class FakeRecognizer {
     }
 
     const recognizer = new FakeRecognizer()
+
     FakeRecognizer.instances.push(recognizer)
     return recognizer
   }
@@ -159,6 +160,7 @@ const makeRegistry = () => {
       }
     },
   }
+
   return registry
 }
 
@@ -219,17 +221,21 @@ const loadService = async (): Promise<Permissioned<SpeechRecognitionImpl>> => {
 
 const listen = (session: ReturnType<SpeechRecognitionImpl['start']>) => {
   const events: string[] = []
+
   session.subscribe((event) => {
     if (event.type === 'state') {
       events.push(`state:${event.state}`)
     }
+
     if (event.type === 'transcript') {
       events.push(`transcript:${event.transcript}:${event.isFinal}`)
     }
+
     if (event.type === 'end') {
       events.push(`end:${event.result.reason}:${event.result.error?.code ?? ''}`)
     }
   })
+
   return events
 }
 
@@ -266,9 +272,12 @@ afterEach(() => {
 describe('android engine presence', () => {
   it('is unsupported without the interop globals', async () => {
     const leaf = await loadService()
+
     expect(leaf.supported).toBe(false)
     expect(() => leaf.start()).toThrow()
+
     const availability = await leaf.getAvailability({ lang: 'en-US' })
+
     expect(availability).toEqual({
       available: false,
       reason: 'unsupported',
@@ -276,6 +285,7 @@ describe('android engine presence', () => {
       networkUse: null,
       continuous: false,
     })
+
     expect(await leaf.getPermissions()).toEqual({
       status: 'unsupported',
       granted: false,
@@ -286,7 +296,9 @@ describe('android engine presence', () => {
   it('is unsupported when the application instance is absent', async () => {
     stubHost()
     vi.stubGlobal('com', { tns: { NativeScriptApplication: { getInstance: () => null } } })
+
     const leaf = await loadService()
+
     expect(leaf.supported).toBe(false)
   })
 })
@@ -294,8 +306,10 @@ describe('android engine presence', () => {
 describe('android availability', () => {
   it('reports the requested language, possible network, and no continuous', async () => {
     stubHost()
+
     const leaf = await loadService()
     const availability = await leaf.getAvailability({ lang: 'de-DE' })
+
     expect(availability).toEqual({
       available: true,
       reason: null,
@@ -307,16 +321,20 @@ describe('android availability', () => {
 
   it('resolves the default language through java.util.Locale', async () => {
     stubHost()
+
     const leaf = await loadService()
     const availability = await leaf.getAvailability()
+
     expect(availability.lang).toBe('en-US')
   })
 
   it('maps an unavailable recognizer to service-unavailable', async () => {
     stubHost()
     FakeRecognizer.available = false
+
     const leaf = await loadService()
     const availability = await leaf.getAvailability()
+
     expect(availability.available).toBe(false)
     expect(availability.reason).toBe('service-unavailable')
     expect(availability.networkUse).toBeNull()
@@ -326,7 +344,9 @@ describe('android availability', () => {
     stubHost()
     // @ts-expect-error — removing the API 31+ static to model an older host
     FakeRecognizer.isRecognitionAvailable = undefined
+
     const leaf = await loadService()
+
     expect((await leaf.getAvailability()).available).toBe(true)
     context.serviceList = { isEmpty: () => true }
     expect((await leaf.getAvailability()).available).toBe(false)
@@ -336,7 +356,9 @@ describe('android availability', () => {
 describe('android permissions', () => {
   it('reads granted state from checkSelfPermission', async () => {
     stubHost()
+
     const leaf = await loadService()
+
     expect(await leaf.getPermissions()).toEqual({
       status: 'granted',
       granted: true,
@@ -347,7 +369,9 @@ describe('android permissions', () => {
   it('reads undetermined before the first request', async () => {
     stubHost()
     context.permission = -1
+
     const leaf = await loadService()
+
     expect(await leaf.getPermissions()).toEqual({
       status: 'undetermined',
       granted: false,
@@ -359,11 +383,14 @@ describe('android permissions', () => {
     stubHost()
     context.permission = -1
     activity.registry = makeRegistry()
+
     const leaf = await loadService()
+
     await leaf.getPermissions() // registers lifecycle tracking
     context.lifecycleCallbacks?.onActivityResumed?.(activity as never)
 
     const response = leaf.requestPermissions()
+
     await vi.waitFor(() => expect(activity.launchInput).toBe('android.permission.RECORD_AUDIO'))
     expect(activity.registration?.key).toBe('octane-xplat.speech.record_audio')
     context.permission = 0
@@ -376,11 +403,14 @@ describe('android permissions', () => {
     stubHost()
     context.permission = -1
     activity.registry = makeRegistry()
+
     const leaf = await loadService()
+
     await leaf.getPermissions()
     context.lifecycleCallbacks?.onActivityResumed?.(activity as never)
 
     const response = leaf.requestPermissions()
+
     await vi.waitFor(() => expect(activity.launchInput).not.toBeNull())
     activity.registration?.callback.onActivityResult(false)
     expect(await response).toEqual({ status: 'denied', granted: false, canAskAgain: true })
@@ -396,12 +426,15 @@ describe('android permissions', () => {
     context.permission = -1
     activity.registry = makeRegistry()
     activity.rationale = false
+
     const leaf = await loadService()
+
     await leaf.getPermissions()
     context.lifecycleCallbacks?.onActivityResumed?.(activity as never)
 
     // First request: denial without rationale marks the denial permanent.
     const first = leaf.requestPermissions()
+
     await vi.waitFor(() => expect(activity.launchInput).not.toBeNull())
     activity.registration?.callback.onActivityResult(false)
     expect(await first).toEqual({ status: 'denied', granted: false, canAskAgain: false })
@@ -413,24 +446,31 @@ describe('android permissions', () => {
       granted: false,
       canAskAgain: false,
     })
+
     expect(activity.launchInput).toBeNull()
   })
 
   it('falls back to the ACTION_REQUEST_PERMISSIONS intent without a tracked activity', async () => {
     stubHost()
     context.permission = -1
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ;(Array as any).create = (_type: string, count: number) => new Array(count)
+
     const leaf = await loadService()
 
     const response = leaf.requestPermissions()
+
     await vi.waitFor(() => expect(context.startedIntents.length).toBe(1))
+
     const intent = context.startedIntents[0]
+
     expect(intent.action).toBe('android.content.pm.action.REQUEST_PERMISSIONS')
     expect(intent.flags).toBe(0x10000000)
     expect(intent.extras.get('android.content.pm.extra.REQUEST_PERMISSIONS_NAMES')).toEqual([
       'android.permission.RECORD_AUDIO',
     ])
+
     expect(intent.extras.get('android.content.pm.extra.REQUEST_PERMISSIONS_PACKAGE_NAME')).toBe(
       'com.xplat.speech.test',
     )
@@ -443,11 +483,15 @@ describe('android permissions', () => {
 describe('android session events', () => {
   it('forwards options as recognizer intent extras and maps the event stream', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'fr-FR', interimResults: false })
+
     await began()
+
     const recognizer = lastRecognizer()
     const intent = recognizer.intent
+
     expect(intent?.action).toBe('android.speech.action.RECOGNIZE_SPEECH')
     expect(intent?.extras.get('android.speech.extra.LANGUAGE')).toBe('fr-FR')
     expect(intent?.extras.get('android.speech.extra.PARTIAL_RESULTS')).toBe(false)
@@ -455,9 +499,12 @@ describe('android session events', () => {
     expect(intent?.extras.get('calling_package')).toBe('com.xplat.speech.test')
 
     const events = listen(session)
+
     recognizer.listener?.onReadyForSpeech?.(null as never)
     recognizer.listener?.onResults?.(resultsBundle(['bonjour le monde']) as never)
+
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(result.transcript).toBe('bonjour le monde')
     expect(events).toContain('state:listening')
@@ -468,16 +515,22 @@ describe('android session events', () => {
 
   it('takes the first EXTRA_RESULTS entry from partial results', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
+
     await began()
+
     const recognizer = lastRecognizer()
     const events = listen(session)
+
     recognizer.listener?.onReadyForSpeech?.(null as never)
     recognizer.listener?.onPartialResults?.(resultsBundle(['hello wor', 'other']) as never)
     recognizer.listener?.onPartialResults?.(resultsBundle(['hello world']) as never)
     recognizer.listener?.onResults?.(resultsBundle(['hello world']) as never)
+
     const result = await session.result
+
     expect(result.transcript).toBe('hello world')
     expect(events).toContain('transcript:hello wor:false')
     expect(events).toContain('transcript:hello world:false')
@@ -485,13 +538,19 @@ describe('android session events', () => {
 
   it('maps recognizer errors through the Android error map', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
+
     await began()
+
     const recognizer = lastRecognizer()
+
     recognizer.listener?.onReadyForSpeech?.(null as never)
     recognizer.listener?.onError?.(7 as never) // ERROR_NO_MATCH
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('no-speech')
     expect(result.error?.nativeCode).toBe(7)
@@ -500,22 +559,32 @@ describe('android session events', () => {
 
   it('maps ERROR_INSUFFICIENT_PERMISSIONS to permission-denied', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
+
     await began()
     lastRecognizer().listener?.onError?.(9 as never)
+
     const result = await session.result
+
     expect(result.error?.code).toBe('permission-denied')
   })
 
   it('stop() calls stopListening and ends stopped on results', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
+
     await began()
+
     const recognizer = lastRecognizer()
+
     recognizer.listener?.onReadyForSpeech?.(null as never)
+
     const stopping = session.stop()
+
     expect(recognizer.stopped).toBe(true)
     recognizer.listener?.onResults?.(resultsBundle(['final text']) as never)
     expect((await stopping).reason).toBe('stopped')
@@ -524,10 +593,14 @@ describe('android session events', () => {
 
   it('abort() cancels and destroys the recognizer', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
+
     await began()
+
     const recognizer = lastRecognizer()
+
     recognizer.listener?.onReadyForSpeech?.(null as never)
     session.abort()
     expect(recognizer.cancelled).toBe(true)
@@ -537,11 +610,15 @@ describe('android session events', () => {
 
   it('ends a second concurrent start with busy', async () => {
     stubHost()
+
     const leaf = await loadService()
     const first = leaf.start({ lang: 'en-US' })
+
     await began()
+
     const second = leaf.start({ lang: 'en-US' })
     const result = await second.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('busy')
     first.abort()
@@ -550,9 +627,11 @@ describe('android session events', () => {
 
   it('ends a continuous session as unsupported-option', async () => {
     stubHost()
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US', continuous: true })
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('unsupported-option')
     expect(FakeRecognizer.instances.length).toBe(0)
@@ -561,9 +640,11 @@ describe('android session events', () => {
   it('a null recognizer instance ends as service-unavailable', async () => {
     stubHost()
     FakeRecognizer.returnNull = true
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('service-unavailable')
   })
@@ -571,9 +652,11 @@ describe('android session events', () => {
   it('a startListening SecurityException ends as permission-denied', async () => {
     stubHost()
     FakeRecognizer.failStart = new Error('Missing RECORD_AUDIO permission')
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('permission-denied')
   })
@@ -584,9 +667,11 @@ describe('android session events', () => {
     context.startActivity = () => {
       throw new Error('unreachable')
     }
+
     const leaf = await loadService()
     const session = leaf.start({ lang: 'en-US' })
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('permission-denied')
     expect(FakeRecognizer.instances.length).toBe(0)

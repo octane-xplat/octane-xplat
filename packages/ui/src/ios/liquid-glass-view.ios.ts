@@ -23,6 +23,7 @@ export class LiquidGlassView extends NSLiquidGlass {
 
   createNativeView(): globalThis.UIVisualEffectView {
     const view = super.createNativeView() as UIVisualEffectView
+
     if (!Utils.supportsGlass()) {
       view.effect = UIBlurEffect.effectWithStyle(SYSTEM_MATERIAL_BLUR_STYLE)
     }

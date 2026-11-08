@@ -13,6 +13,7 @@ declare const NSFileManager: any
 let session = createCameraSession()
 let ready = false
 let previewError = ''
+
 export default function MovieCapture(props: { active?: boolean } = {}) {
   return (
     <CameraView
@@ -35,10 +36,13 @@ const fileExists = (path: string) => Boolean(NSFileManager.defaultManager.fileEx
 
 export async function run(ctx: ProbeContext) {
   ctx.onCleanup(() => session.dispose())
+
   const saved = bridge().storageGet?.('camera-conformance-output')
+
   if (saved) {
     const previous = JSON.parse(saved)
     const access = await session.openOutput(previous)
+
     ctx.assert('reopened after process restart', access.url, previous.fileUrl)
     ctx.record('restartReopen', true)
     access.release()
@@ -47,8 +51,11 @@ export async function run(ctx: ProbeContext) {
   }
 
   const permissions = await session.permissions()
+
   ctx.record('permissionBefore', permissions)
+
   const requested = await session.requestPermission('camera')
+
   ctx.record('permissionRequested', requested)
   if (requested !== 'granted' && requested !== 'denied' && requested !== 'restricted') {
     await ctx.waitFor(async () => (await session.permissions()).camera === 'granted', {
@@ -57,9 +64,11 @@ export async function run(ctx: ProbeContext) {
   }
 
   const events: CameraSessionEvent[] = []
+
   session.subscribe((event) => events.push(event))
 
   const capabilities = await session.capabilities()
+
   ctx.record('capabilities', capabilities)
   ctx.assert('honest supported flag', capabilities.supported, capabilities.cameras.length > 0)
   ctx.assert('output storage kind', capabilities.output.storage, 'appPrivateFile')
@@ -73,7 +82,9 @@ export async function run(ctx: ProbeContext) {
     await ctx.waitFor(() => previewError !== '' || ready, { timeout: 15_000 })
     ctx.record('previewError', previewError)
     ctx.assert('preview fails without a device', ready, false)
+
     let admission: string | undefined
+
     try {
       session.startRecording()
     } catch (error) {
@@ -96,8 +107,11 @@ export async function run(ctx: ProbeContext) {
   })
 
   const first = session.startRecording({ maximumDurationMs: 1500 })
+
   ctx.assert('initial take state', first.state, 'starting')
+
   const outcome = await first.completion
+
   ctx.record('limitOutcome', outcome)
   ctx.assert('movie finalized', outcome.kind, 'clip')
   if (outcome.kind !== 'clip') {
@@ -117,25 +131,31 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('durable file exists', fileExists(outcome.clip.output.fileUrl.slice(7)), true)
 
   const normal = session.startRecording()
+
   await ctx.waitFor(() => normal.state === 'recording')
   await first.stop()
   ctx.assert('old Stop does not stop current take', normal.state, 'recording')
   await ctx.waitFor(() => normal.elapsedMs >= 500)
+
   const stopA = normal.stop()
+
   ctx.assert('repeated Stop joins completion', normal.stop(), stopA)
   ctx.assert('normal finalized', (await stopA).kind, 'clip')
 
   const early = session.startRecording()
   const earlyResult = await early.stop()
+
   ctx.assert('early Stop settles', early.state, 'settled')
   ctx.record('earlyStopOutcome', earlyResult)
 
   const mic = await session.requestPermission('microphone')
+
   ctx.record('microphonePermission', mic)
   await session.configure({ audio: true })
   if (mic === 'granted') {
     const audio = session.startRecording({ maximumDurationMs: 1000 })
     const audioResult = await audio.completion
+
     ctx.record('audioOutcome', audioResult)
     ctx.assert('audio movie finalized', audioResult.kind, 'clip')
     if (audioResult.kind === 'clip') {
@@ -143,6 +163,7 @@ export async function run(ctx: ProbeContext) {
     }
   } else {
     const denied = await session.startRecording().completion
+
     ctx.assert('requested denied audio fails', denied.kind, 'failed')
     if (denied.kind === 'failed') {
       ctx.assert('audio permission category', denied.error.kind, 'permissionDenied')
@@ -154,7 +175,9 @@ export async function run(ctx: ProbeContext) {
   const outputPath = outcome.clip.output.fileUrl.slice('file://'.length)
   const directory = outputPath.slice(0, outputPath.lastIndexOf('/'))
   const existingPath = `${directory}/camera-existing.mov`
+
   NSFileManager.defaultManager.createFileAtPathContentsAttributes(existingPath, null, null)
+
   const existsResult = await session.startRecording({
     destinationFileUrl: `file://${existingPath}`,
   }).completion
@@ -184,24 +207,32 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('outside-private destination fails', outsideResult.kind, 'failed')
 
   const released = session.startRecording()
+
   await ctx.waitFor(() => released.state === 'recording')
   await ctx.waitFor(() => released.elapsedMs >= 300)
   await ctx.mount(MovieCapture, { active: false })
+
   const releasedResult = await released.completion
+
   ctx.assert('preview release finalizes', releasedResult.kind, 'clip')
   ctx.assert('preview release reason', releasedResult.endReason, 'previewReleased')
   await ctx.mount(MovieCapture, { active: true })
   await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 20_000 })
 
   const disposed = session.startRecording()
+
   await ctx.waitFor(() => disposed.state === 'recording')
   await ctx.waitFor(() => disposed.elapsedMs >= 300)
   await session.dispose()
   ctx.assert('dispose end reason', (await disposed.completion).endReason, 'disposed')
+
   const reopened = await session.openOutput(outcome.clip.output)
+
   ctx.assert('reopened after dispose', reopened.url, outcome.clip.output.fileUrl)
+
   // A fresh owner can reopen independently of the camera lease.
   const fresh: CameraSession = createCameraSession()
+
   ctx.assert(
     'reopened by fresh owner',
     (await fresh.openOutput(outcome.clip.output)).url,

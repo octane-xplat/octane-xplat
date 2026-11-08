@@ -24,15 +24,20 @@ for (const presentation of [{ snapPoints: [0.62] }, { height: 'hug' as const }])
     }))
 
     const frames: FrameRequestCallback[] = []
+
     vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
       frames.push(callback)
       return frames.length
     })
 
     vi.stubGlobal('cancelAnimationFrame', vi.fn())
+
     const host = document.createElement('div')
+
     document.body.appendChild(host)
+
     const root = createRoot(host)
+
     roots.push(root)
     act(() =>
       root.render(
@@ -43,7 +48,9 @@ for (const presentation of [{ snapPoints: [0.62] }, { height: 'hug' as const }])
     )
 
     await vi.waitFor(() => expect(frames.length).toBeGreaterThan(0))
+
     const panel = document.querySelector<HTMLElement>('[role="dialog"]')!
+
     expect(panel.style.transform).toContain(`translateY(${window.innerHeight}px)`)
     act(() => {
       for (const frame of frames.splice(0)) {

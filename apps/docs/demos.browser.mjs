@@ -3,10 +3,12 @@ import assert from 'node:assert/strict'
 import { chromium, firefox, webkit } from 'playwright'
 
 const base = process.env.DEMOS_URL || 'http://127.0.0.1:5300'
+
 for (const engine of [chromium, firefox, webkit]) {
   const browser = await engine.launch({ headless: true })
   const page = await browser.newPage({ viewport: { width: 375, height: 812 } })
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   try {
     await page.goto(`${base}/goal-counter`)
@@ -14,7 +16,9 @@ for (const engine of [chromium, firefox, webkit]) {
     assert.equal(await page.locator('iframe').count(), 0, 'preview stays unloaded until activation')
     await page.getByRole('button', { name: 'Try in browser', exact: true }).click()
     await page.getByRole('status').filter({ hasText: 'Browser demo ready.' }).waitFor()
+
     const frame = page.frameLocator('iframe')
+
     for (let i = 0; i < 5; i++) {
       await frame.getByRole('button', { name: 'Complete one step' }).click()
     }
@@ -48,7 +52,9 @@ for (const engine of [chromium, firefox, webkit]) {
     await page.getByRole('button', { name: 'Retry', exact: true }).click()
     await page.getByRole('status').filter({ hasText: 'Browser demo ready.' }).waitFor()
     await page.goto(`${base}/demo.html?demo=packing-list`)
+
     const search = page.getByRole('searchbox')
+
     await search.fill('water')
     await page.getByRole('button', { name: 'Pack: Water bottle', exact: true }).click()
     assert.match(await page.locator('main').innerText(), /1 of 4 items packed; 1 shown/)

@@ -42,6 +42,7 @@ export function ListItem(props: ListItemProps): unknown @{
 
     if (props.delegateRef?.current != null) {
       const target = props.delegateRef.current as DelegateTarget
+
       target.notify?.({ eventName: 'tap', object: target })
       target.click?.()
       target.focus?.()

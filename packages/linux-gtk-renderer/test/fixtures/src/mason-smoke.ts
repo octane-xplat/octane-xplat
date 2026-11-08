@@ -18,6 +18,7 @@ function apply(container: GtkContainer, commands: UniversalHostCommand[]) {
 
 function rect(x: number, y: number, w: number, h: number) {
   const r = new Gdk.Rectangle()
+
   r.x = x
   r.y = y
   r.width = w
@@ -56,23 +57,28 @@ apply(container, [
 const view1 = container.nodes.get(1)?.view
 const view2 = container.nodes.get(2)?.view
 const view3 = container.nodes.get(3)?.view
+
 out.typelib = typeof (globalThis as any).imports?.gi?.XplatMason?.engine_new === 'function'
 out.masonHost = view1 != null && (GObject as any).type_name?.(view1) === 'XplatMasonView'
 out.childrenOf1 = (() => {
   const names: string[] = []
+
   for (let c = view1?.get_first_child?.(); c; c = c.get_next_sibling()) {
     names.push((GObject as any).type_name?.(c) ?? '?')
   }
+
   return names
 })()
 
 if (view1) {
   // The layout manager runs the engine during allocation.
   view1.size_allocate(rect(0, 0, 200, 60), -1)
+
   const bounds = (w: any) => {
     const [ok2, b] = w.compute_bounds(view1)
     const origin = b?.origin ?? {}
     const size = b?.size ?? {}
+
     return ok2
       ? {
           x: origin.x ?? 0,
@@ -88,6 +94,7 @@ if (view1) {
 
   // Natural measure through leaf callbacks (labels' real text size).
   const [minW, natW] = view1.measure(Gtk.Orientation.HORIZONTAL, -1)
+
   out.measure = { minW, natW }
 
   // Direction flip: style update re-syncs the dict on the next pass.
@@ -157,10 +164,13 @@ apply(container, [
 const view10 = container.nodes.get(10)?.view
 const view11 = container.nodes.get(11)?.view
 const view12 = container.nodes.get(12)?.view
+
 if (view10) {
   view10.size_allocate(rect(0, 0, 200, 100), -1)
+
   const box = (w: any) => {
     const [ok, b] = w.compute_bounds(view10)
+
     return ok
       ? {
           x: Math.round(b.origin.x),
@@ -173,6 +183,7 @@ if (view10) {
 
   out.translated = box(view11)
   out.rotated = box(view12)
+
   // gtk_widget_pick/contains need a mapped window; replay pick's
   // per-child test — map the point through the child's allocation
   // transform, then test the local box — topmost (last) child first.
@@ -182,6 +193,7 @@ if (view10) {
       [11, view11],
     ] as const) {
       const [ok, local] = view10.compute_point(child, new Graphene.Point({ x, y }))
+
       if (
         ok &&
         local.x >= 0 &&
@@ -192,6 +204,7 @@ if (view10) {
         return id
       }
     }
+
     return null
   }
 
@@ -204,6 +217,7 @@ if (view10) {
   // assertion doesn't depend on a mapped window.
   const painted: number[] = []
   const ops: string[] = []
+
   view10.snapshot_child = (child: any) => {
     painted.push(child === view11 ? 11 : child === view12 ? 12 : 0)
   }
@@ -217,6 +231,7 @@ if (view10) {
           ops.push(name)
           if (name === 'push_rounded_clip') {
             const rr = args[0]
+
             out.clipRect = {
               x: Math.round(rr.bounds.origin.x),
               y: Math.round(rr.bounds.origin.y),
@@ -272,7 +287,9 @@ apply(container, [
 const view20 = container.nodes.get(20)?.view
 const growBox = () => {
   view10?.size_allocate(rect(0, 0, 200, 100), -1)
+
   const [ok, b] = view20.compute_bounds(view10)
+
   return ok ? { x: Math.round(b.origin.x), w: Math.round(b.size.width) } : null
 }
 
@@ -336,10 +353,12 @@ const borderBox = container.nodes.get(31)!.view!
 const borderContent = container.nodes.get(32)!.view!
 const borderSample = () => {
   borderParent.size_allocate(rect(0, 0, 200, 120), -1)
+
   const [boxOk, box] = borderBox.compute_bounds(borderParent)
   const [contentOk, content] = borderContent.compute_bounds(borderParent)
   const [, natW] = borderBox.measure(Gtk.Orientation.HORIZONTAL, -1)
   const [, natH] = borderBox.measure(Gtk.Orientation.VERTICAL, -1)
+
   return {
     w: boxOk ? box.size.width : -1,
     h: boxOk ? box.size.height : -1,

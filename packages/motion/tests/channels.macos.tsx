@@ -9,6 +9,7 @@ let snapshot: any
 let complete = 0
 function App(props: any) {
   const Host = props.Host
+
   return (
     <MotionConfig reducedMotion="never">
       <Host
@@ -60,6 +61,7 @@ export async function runChannels() {
 
   const waitUntil = async (condition: () => boolean, message: string) => {
     const deadline = Date.now() + 4000
+
     while (!condition() && Date.now() < deadline) {
       await new Promise((resolve) => setTimeout(resolve, 10))
     }
@@ -70,7 +72,9 @@ export async function runChannels() {
   try {
     for (const Host of [motion.View, motion.Row, motion.Pressable]) {
       root = createMacOSRoot(nativeHost)
+
       const before = complete
+
       root.render(App, {
         Host,
         target: { opacity: 0.25, x: 100, y: 40, rotate: 30, scale: 1.2, scaleX: 1.5, scaleY: 0.75 },
@@ -106,8 +110,11 @@ export async function runChannels() {
 
     // The same adapter restores native baseline values on detach/replacement.
     const plain = NSView.alloc().initWithFrame(NSMakeRect(0, 0, 100, 100))
+
     plain.alphaValue = 0.8
+
     const adapter = attachHost(plain)
+
     adapter.write({ opacity: 0.4, x: 10, y: 20, rotate: 15, scale: 1.1 })
     adapter.restore()
     close(plain.alphaValue, 0.8, 'restore alpha')

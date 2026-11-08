@@ -80,6 +80,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const emit = () => {
     const value = snapshot()
+
     for (const listener of listeners) {
       listener(value)
     }
@@ -141,6 +142,7 @@ export const createAudioPlayer = (): AudioPlayer => {
         JSON.stringify({ tracks: queue, complete: queueComplete }),
         index,
       )
+
       emit()
     },
     play: async () => dispatch(actions.ACTION_PLAY),
@@ -156,6 +158,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     updateQueue: async (tracks, options = {}) => {
       const next = copyQueue(tracks)
       const complete = options.complete ?? queueComplete
+
       dispatch(actions.ACTION_UPDATE, JSON.stringify({ tracks: next, complete }))
       queue = next
       queueComplete = complete
@@ -163,12 +166,14 @@ export const createAudioPlayer = (): AudioPlayer => {
     },
     setPlaybackRate: async (rate) => {
       const next = bounded(rate, 0.5, 3)
+
       dispatch(actions.ACTION_RATE, '', 0, next)
       playbackRate = next
       emit()
     },
     setVolume: async (gain) => {
       const next = bounded(gain, 0, 1)
+
       dispatch(actions.ACTION_VOLUME, '', 0, next)
       volume = next
       emit()

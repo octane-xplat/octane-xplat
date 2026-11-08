@@ -16,6 +16,7 @@ export function createActionStore() {
     if (!Number.isSafeInteger(nextId)) {
       throw new Error('AppKit action IDs exhausted')
     }
+
     const id = nextId++
     let active = true
     let handler: (() => void) | undefined
@@ -31,6 +32,7 @@ export function createActionStore() {
         if (!active) {
           return
         }
+
         active = false
         handler = undefined
         slots.delete(id)
@@ -39,6 +41,7 @@ export function createActionStore() {
         }
       },
     }
+
     slots.set(id, {
       run() {
         if (current()) {
@@ -49,9 +52,11 @@ export function createActionStore() {
         return current() && typeof handler === 'function'
       },
     })
+
     if (view) {
       views.set(view, lease)
     }
+
     return lease
   }
 
@@ -64,9 +69,12 @@ export function createActionStore() {
   function idForView(view: object): number | undefined {
     return views.get(view)?.id
   }
+
   function hasHandler(view: object): boolean {
     const id = idForView(view)
+
     return id !== undefined && (slots.get(id)?.hasHandler() ?? false)
   }
+
   return { allocate, dispatch, idForView, hasHandler }
 }

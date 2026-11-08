@@ -39,9 +39,11 @@ let restyle: (() => void) | null = null
 
 function rebuild() {
   const all: RuleSet[] = []
+
   hasMediaRules = false
   for (const id of order) {
     const entry = sheets.get(id)
+
     if (!entry) {
       continue
     }
@@ -54,6 +56,7 @@ function rebuild() {
 
     all.push(...entry.selectors)
   }
+
   scope = new StyleSheetSelectorScope(all)
   // New/changed sheets invalidate the media-result and pseudo-class
   // caches so the next reads start clean.
@@ -64,9 +67,11 @@ function rebuild() {
 
 export function registerStylesheet(id: string, css: string): void {
   const { selectors, keyframes } = populateCssRules(css, id)
+
   if (!sheets.has(id)) {
     order.push(id)
   }
+
   sheets.set(id, { id, selectors, keyframes })
   rebuild()
 }
@@ -80,12 +85,15 @@ export function unregisterStylesheet(id: string): void {
 /** Every registered sheet's @keyframes records, in registration order. */
 export function stylesheetKeyframes(): Keyframes[] {
   const out: Keyframes[] = []
+
   for (const id of order) {
     const entry = sheets.get(id)
+
     if (entry) {
       out.push(...entry.keyframes)
     }
   }
+
   return out
 }
 
@@ -110,8 +118,10 @@ export function stylesheetMediaQueries(): string[] {
       }
     }
   }
+
   for (const id of order) {
     const entry = sheets.get(id)
+
     if (!entry) {
       continue
     }
@@ -124,6 +134,7 @@ export function stylesheetMediaQueries(): string[] {
       visit(k.mediaQueryString)
     }
   }
+
   return [...out]
 }
 
@@ -163,6 +174,7 @@ function matchFeature(feature: string, raw: string | null, env: CssEnvironment):
     case 'max-device-width': {
       const basis = env.width
       const target = raw === null ? basis : parseFloat(raw)
+
       if (!Number.isFinite(target)) {
         return false
       }
@@ -185,6 +197,7 @@ function matchFeature(feature: string, raw: string | null, env: CssEnvironment):
     case 'max-device-height': {
       const basis = env.height
       const target = raw === null ? basis : parseFloat(raw)
+
       if (!Number.isFinite(target)) {
         return false
       }
@@ -223,16 +236,21 @@ function matchFeature(feature: string, raw: string | null, env: CssEnvironment):
 function normalizeMediaRange(query: string): string {
   return query.replace(/\(([^()]*)\)/g, (paren, inner: string) => {
     const range = /^\s*([\w-]+)\s*(>=|<=|=|>|<)\s*([-\w.%]+)\s*$/.exec(inner)
+
     if (!range) {
       return paren
     }
+
     const [, feature, op, value] = range
+
     if (op === '>=' || op === '>') {
       return `(min-${feature}: ${value})`
     }
+
     if (op === '<=' || op === '<') {
       return `(max-${feature}: ${value})`
     }
+
     return `(${feature}: ${value})`
   })
 }
@@ -243,6 +261,7 @@ export function evalMediaQuery(query: string, env: CssEnvironment = environment(
       return true
     }
   }
+
   return false
 }
 
@@ -250,6 +269,7 @@ function matchQueryPart(part: string, env: CssEnvironment): boolean {
   let negate = false
   let s = part.replace(/^\s*only\s+/i, '')
   const not = s.match(/^not\s+/i)
+
   if (not) {
     negate = true
     s = s.slice(not[0].length)
@@ -258,17 +278,20 @@ function matchQueryPart(part: string, env: CssEnvironment): boolean {
   // `or` at top level of a query part is equivalent to a comma.
   const orTerms = s.split(/\bor\b/i)
   const result = orTerms.some((term) => matchAndTerm(term, env))
+
   return negate ? !result : result
 }
 
 function matchAndTerm(term: string, env: CssEnvironment): boolean {
   // Media type (first bare word) — screen/all pass, anything else fails.
   const typeMatch = term.trim().match(/^([a-zA-Z]+)(?=\s+and\b|\s*$)/)
+
   if (typeMatch && !/^(screen|all)$/i.test(typeMatch[1])) {
     return false
   }
 
   const features = term.match(/\(([^)]*)\)/g) ?? []
+
   for (const f of features) {
     const inner = f.slice(1, -1)
     const ci = inner.indexOf(':')
@@ -285,6 +308,7 @@ function matchAndTerm(term: string, env: CssEnvironment): boolean {
       return false
     }
   }
+
   return true
 }
 
@@ -304,21 +328,26 @@ export function refreshMediaQueries(): boolean {
     if (!raw) {
       return
     }
+
     for (const q of Array.isArray(raw) ? raw : [raw]) {
       if (!q || seen.has(q)) {
         continue
       }
 
       seen.add(q)
+
       const next = evalMediaQuery(q)
+
       if (mediaResults.get(q) !== next) {
         mediaResults.set(q, next)
         changed = true
       }
     }
   }
+
   for (const id of order) {
     const entry = sheets.get(id)
+
     if (!entry) {
       continue
     }
@@ -331,12 +360,14 @@ export function refreshMediaQueries(): boolean {
       visit(k.mediaQueryString)
     }
   }
+
   // Queries for sheets removed since the last check drop out of the cache.
   for (const q of mediaResults.keys()) {
     if (!seen.has(q)) {
       mediaResults.delete(q)
     }
   }
+
   return changed
 }
 
@@ -350,7 +381,9 @@ function collectPseudoClasses(sel: any, out: Set<string>) {
   if (typeof sel?.cssPseudoClass === 'string') {
     out.add(sel.cssPseudoClass)
   }
+
   const inner = sel?.selectors
+
   if (Array.isArray(inner)) {
     for (const s of inner) {
       collectPseudoClasses(s, out)
@@ -367,9 +400,12 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
   if (pseudoClassCache !== null) {
     return pseudoClassCache
   }
+
   const out = new Set<string>()
+
   for (const id of order) {
     const entry = sheets.get(id)
+
     if (!entry) {
       continue
     }
@@ -380,6 +416,7 @@ export function stylesheetPseudoClasses(): ReadonlySet<string> {
       }
     }
   }
+
   pseudoClassCache = out
   return out
 }

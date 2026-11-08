@@ -19,6 +19,7 @@ export const Basic = defineStory({
 describe('scanStoryFile', () => {
   it('extracts literal metadata from named exports', () => {
     const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
+
     expect(diagnostics).toEqual([])
     expect(stories[0]).toMatchObject({
       id: 'counter/basic',
@@ -69,6 +70,7 @@ const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args:
 
   it('ignores mentions of defineStory that are not calls', () => {
     const { stories, diagnostics } = scanStoryFile(STORY, 'x.stories.tsrx')
+
     expect(diagnostics).toEqual([])
     expect(stories).toHaveLength(1)
   })
@@ -90,8 +92,10 @@ describe('applicableTargets', () => {
 describe('discoverStories', () => {
   const fixture = (files) => {
     const root = mkdtempSync(join(tmpdir(), 'ws-disc-'))
+
     for (const [name, contents] of Object.entries(files)) {
       const file = join(root, name)
+
       mkdirSync(join(file, '..'), { recursive: true })
       writeFileSync(file, contents)
     }
@@ -106,10 +110,13 @@ describe('discoverStories', () => {
     })
 
     const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+
     expect(diagnostics).toEqual([])
     expect(entries).toHaveLength(2)
+
     const web = entries.find((e) => e.id === 'counter/basic')
     const ios = entries.find((e) => e.id === 'leaf/ios')
+
     expect(web.applicable).toBe(true)
     expect(ios.applicable).toBe(false)
     expect(ios.reason).toMatch(/not web/)
@@ -122,6 +129,7 @@ describe('discoverStories', () => {
     })
 
     const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+
     expect(entries).toHaveLength(1)
     expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
     expect(diagnostics[0].message).toMatch(/a\.stories\.tsrx/)
@@ -134,6 +142,7 @@ describe('discoverStories', () => {
     })
 
     const { entries, diagnostics } = discoverStories(root, { target: 'macos' })
+
     expect(diagnostics).toEqual([])
     expect(entries).toHaveLength(1)
     expect(entries[0].applicable).toBe(true)
@@ -146,6 +155,7 @@ describe('discoverStories', () => {
     })
 
     const { diagnostics } = discoverStories(root, { target: 'ios' })
+
     expect(diagnostics[0].message).toMatch(/duplicate story id "counter\/basic"/)
   })
 
@@ -156,6 +166,7 @@ const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args:
     })
 
     const { entries, diagnostics } = discoverStories(root, { target: 'web' })
+
     expect(entries).toHaveLength(0)
     expect(diagnostics[0].message).toMatch(/must be exported/)
   })
@@ -163,6 +174,7 @@ const A = defineStory({ id: 'a', title: 'A', targets: 'all', component: C, args:
   it('target filtering: web leaf inapplicable for ios target', () => {
     const root = fixture({ 'src/w.stories.web.tsrx': STORY })
     const { entries } = discoverStories(root, { target: 'ios' })
+
     expect(entries[0].applicable).toBe(false)
   })
 })
@@ -182,12 +194,14 @@ describe('metadata integrity', () => {
 
   it('does not qualify required capabilities merely from target applicability', () => {
     const root = mkdtempSync(join(tmpdir(), 'ws-caps-'))
+
     writeFileSync(
       join(root, 'caps.stories.tsrx'),
       STORY.replace("targets: 'all'", "targets: 'all', capabilities: ['camera']"),
     )
 
     const { entries, diagnostics } = discoverStories(root)
+
     expect(diagnostics).toEqual([])
     expect(entries[0].applicable).toBe(false)
     expect(entries[0].reason).toMatch(/unknown\/unqualified.*camera/)
@@ -200,13 +214,16 @@ describe('gallery metadata', () => {
       'component: Counter,',
       "componentId: 'app/Counter', gallery: { primary: true, height: 240, group: 'primitives' }, component: throwsIfEvaluated(),",
     )
+
     const { stories, diagnostics } = scanStoryFile(source, 'gallery.stories.tsx')
+
     expect(diagnostics).toEqual([])
     expect(stories[0]).toMatchObject({
       componentId: 'app/Counter',
       gallery: { primary: true, height: 240, group: 'primitives' },
     })
   })
+
   it.each([
     '{ height: 0 }',
     "{ primary: 'yes' }",

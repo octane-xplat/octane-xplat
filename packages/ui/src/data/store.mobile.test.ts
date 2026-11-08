@@ -33,6 +33,7 @@ const texts = (container: ReturnType<typeof createObjectContainer>) =>
 
 function objectRoot() {
   const container = createObjectContainer()
+
   return { container, root: createUniversalRoot(container, createObjectDriver()) }
 }
 
@@ -46,6 +47,7 @@ describe('universal renderer — store reads under parent re-render', () => {
     })
 
     const { container, root } = objectRoot()
+
     root.render(Parent, {})
     expect(texts(container)).toEqual(['child:0', 'parent'])
 
@@ -78,6 +80,7 @@ describe('universal renderer — store reads under parent re-render', () => {
     })
 
     const { container, root } = objectRoot()
+
     root.render(Parent, { tick: 0 })
     expect(texts(container)).toEqual(['bare:0', 'prop:0'])
 
@@ -117,6 +120,7 @@ describe('universal renderer — store reads under parent re-render', () => {
     ])
 
     const { container, root } = objectRoot()
+
     root.render(Parent, { theme: 'light' })
     expect(texts(container)).toEqual(['ctx:light', 'plain'])
 
@@ -137,6 +141,7 @@ describe('universal renderer — store reads under parent re-render', () => {
     })
 
     const { container, root } = objectRoot()
+
     root.render(Child, {})
     expect(texts(container)).toEqual(['a:0'])
 
@@ -155,11 +160,14 @@ describe('universal renderer — store reads under parent re-render', () => {
 
     const Child = defineUniversalComponent('object', () => {
       renders.sum++
+
       const items = useStore(store, (s) => s.items, shallowArray)
+
       return label(`sum:${items.reduce((x, y) => x + y, 0)}`)
     })
 
     const { container, root } = objectRoot()
+
     root.render(Child, {})
     expect(texts(container)).toEqual(['sum:3'])
 

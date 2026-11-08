@@ -13,17 +13,20 @@ const ts = require('typescript-classic')
 const { build } = await import('vite')
 async function fixture() {
   const root = await mkdtemp(join(tmpdir(), 'xplat-platform-contracts-'))
+
   await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(
     resolve(process.env.XPLAT_ROUTING_UI_PACKAGE ?? join(workspace, 'packages/ui')),
     join(root, 'node_modules/@octane-xplat/ui'),
     'dir',
   )
+
   await symlink(
     dirname(require.resolve('vite/package.json')),
     join(root, 'node_modules/vite'),
     'dir',
   )
+
   await put(root, 'package.json', '{"private":true,"type":"module"}')
   return root
 }
@@ -35,7 +38,9 @@ async function put(root, path, source) {
 
 function check(root, condition = 'web') {
   const host = ts.createCompilerHost({})
+
   host.getCurrentDirectory = () => root
+
   const program = ts.createProgram(
     [join(root, 'consumer.tsx')],
     {
@@ -52,6 +57,7 @@ function check(root, condition = 'web') {
     },
     host,
   )
+
   return ts.getPreEmitDiagnostics(program).map((issue) => ({
     file: issue.file?.fileName,
     text: ts.flattenDiagnosticMessageText(issue.messageText, '\n'),
@@ -62,6 +68,7 @@ const screen = 'export default function Screen() { return null }'
 
 test('generated callback checks reject malformed exports before route startup', async () => {
   const root = await fixture()
+
   try {
     await put(
       root,
@@ -110,6 +117,7 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
       await generateRoutes(root, 'app', undefined, { bake: false })
       for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
         const issues = check(root, condition)
+
         assert.ok(
           issues.some((issue) => issue.file?.endsWith('routes.gen.contracts.ts')),
           `${condition}: ${field} must be diagnosed: ${JSON.stringify(issues)}`,
@@ -127,8 +135,10 @@ defineRoute({ path: '/bad-search', validateSearch: () => 42 }).screen(() => null
 
 test('generated variants reject incompatible loader, search and guard contracts', async () => {
   const root = await fixture()
+
   try {
     await put(root, 'consumer.tsx', "import './routes.gen.types'\n")
+
     const cases = [
       [
         'data',
@@ -158,6 +168,7 @@ test('generated variants reject incompatible loader, search and guard contracts'
       await generateRoutes(root, 'app', undefined, { bake: false })
       for (const condition of ['web', 'native', 'macos', 'linux', 'windows']) {
         const issues = check(root, condition)
+
         assert.ok(
           issues.some(
             (issue) =>
@@ -174,6 +185,7 @@ test('generated variants reject incompatible loader, search and guard contracts'
 
 test('shared calls require availability proof and explicit target catalogs retain their own typed paths', async () => {
   const root = await fixture()
+
   try {
     await put(root, 'app/index.tsx', screen)
     await put(
@@ -294,6 +306,7 @@ export async function Controls() {
     }
 
     const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
+
     assert.deepEqual(metadata.routes.find((route) => route.name === 'camera').platforms, [
       'web',
       'linux',
@@ -313,6 +326,7 @@ export const prepare = createRoutePreparation({ catalog: routes }).prepare
       )
 
       const output = join(root, 'out', target)
+
       await build({
         root,
         configFile: false,
@@ -329,6 +343,7 @@ export const prepare = createRoutePreparation({ catalog: routes }).prepare
       })
 
       const runtime = await import(pathToFileURL(join(output, 'runtime.mjs')).href)
+
       assert.deepEqual(runtime.metadata.routes.find((route) => route.name === 'camera').platforms, [
         'web',
         'linux',
@@ -350,7 +365,9 @@ export const prepare = createRoutePreparation({ catalog: routes }).prepare
 
       if (target === 'web' || target === 'linux') {
         assert.equal(runtime.resolve('/camera').status, 'matched', target)
+
         const prepared = await runtime.prepare({ to: '/camera' })
+
         assert.equal(prepared.status, 'ready', target)
         assert.equal(prepared.match.data.photo, 'web', target)
       } else {
@@ -368,6 +385,7 @@ export const prepare = createRoutePreparation({ catalog: routes }).prepare
 
 test('platform variants cannot rename the parameters of one URL pattern', async () => {
   const root = await fixture()
+
   try {
     await put(root, 'app/items/[id].ios.tsx', screen)
     await put(root, 'app/items/[slug].web.tsx', screen)
@@ -382,12 +400,15 @@ test('platform variants cannot rename the parameters of one URL pattern', async 
 
 test('plain TypeScript and JavaScript helpers do not become phantom screens', async () => {
   const root = await fixture()
+
   try {
     await put(root, 'app/index.tsx', screen)
     await put(root, 'app/helper.ts', 'export function format() { return "helper" }')
     await put(root, 'app/helper.web.js', 'export default function helper() {}')
     await generateRoutes(root, 'app', undefined, { bake: false })
+
     const metadata = JSON.parse(await readFile(join(root, 'routes.gen.manifest.json'), 'utf8'))
+
     assert.deepEqual(
       metadata.routes.map((route) => route.name),
       ['index'],
@@ -412,6 +433,7 @@ router.push({ to: '/helper' })
 
 test('compatible variants infer local callback arguments without a registry cycle', async () => {
   const root = await fixture()
+
   try {
     const leaf = `import type { RouteGuardArgs, RouteLoaderArgs, RouteProps } from '../routes.gen.contracts'
 export async function validateSearch(raw: { tab?: unknown }) {
@@ -459,6 +481,7 @@ router.push({ to: '/:id', params: { id: 'coat' }, search: { tab: 'invented' } })
 
 test('callable schemas retain protocol search types through generated file contracts', async () => {
   const root = await fixture()
+
   try {
     await put(
       root,
@@ -506,6 +529,7 @@ const text: string = getRouteApi('/').useLoaderData().page
 
 test('named interfaces preserve file and programmatic search contracts on every target', async () => {
   const root = await fixture()
+
   try {
     await put(
       root,
@@ -568,6 +592,7 @@ navigation.push({ to: '/programmatic', search: { tab: 'invented' } })
 
 test('generated file routes inherit parent group data without requiring it as root context', async () => {
   const root = await fixture()
+
   try {
     await put(
       root,
@@ -628,6 +653,7 @@ createRouter({ catalog: routes, host: undefined as unknown as RouterHost })`,
 
 test('generated catalogs split route code, keep layouts eager, and preload without running callbacks', async () => {
   const root = await fixture()
+
   try {
     await put(
       root,
@@ -688,7 +714,9 @@ test('generated catalogs split route code, keep layouts eager, and preload witho
     assert.ok(entry.dynamicImports.length >= 2, 'route files have separate import chunks')
     assert.ok(!entry.code.includes('item-module'), 'route code is absent from initial entry')
     globalThis.routeEvents = []
+
     const { engine } = await import(pathToFileURL(join(root, 'out/runtime.mjs')).href)
+
     assert.deepEqual(globalThis.routeEvents, ['layout'])
     assert.equal(engine.resolveUrl('/item').status, 'matched')
     assert.deepEqual(globalThis.routeEvents, ['layout'])

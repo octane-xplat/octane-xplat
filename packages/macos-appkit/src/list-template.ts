@@ -11,6 +11,7 @@ import { getBindingOptions } from './vendor/listview/binding-options.ts'
 import { parseExpression, convertExpressionToValue } from './vendor/listview/expressions.ts'
 
 type Reader = (item: any) => unknown
+
 export interface ListTemplate {
   render(item: unknown): UniversalRenderable
   validate(
@@ -24,14 +25,17 @@ const error = (message: string) => new TypeError('[macos-host] listview itemTemp
 
 function reader(name: string, raw: string, kind: string): Reader {
   const value = raw.trim()
+
   if (value.startsWith('{{') && value.endsWith('}}')) {
     const options = getBindingOptions(name, value.slice(2, -2).trim())
+
     if (options.source) {
       throw error('explicit binding sources are outside item bindingContext')
     }
 
     if (options.expression) {
       let expression: any
+
       try {
         expression = parseExpression(options.expression)
       } catch {
@@ -44,18 +48,22 @@ function reader(name: string, raw: string, kind: string): Reader {
 
       return (item) => {
         const model = Object(item ?? {})
+
         return convertExpressionToValue(expression, model, false, { $value: item })
       }
     }
 
     const path = String(options.sourceProperty ?? '').split('.')
+
     return (item) => path.reduce((value, key) => (key === '$value' ? item : value?.[key]), item)
   }
 
   if (name === 'style') {
     const style: Record<string, unknown> = {}
+
     for (const declaration of value.split(';').filter((entry) => entry.trim())) {
       const colon = declaration.indexOf(':')
+
       if (colon < 1) {
         throw error('invalid style declaration')
       }
@@ -66,6 +74,7 @@ function reader(name: string, raw: string, kind: string): Reader {
         .replace(/-([a-z])/g, (_, letter) => letter.toUpperCase())
 
       const text = declaration.slice(colon + 1).trim()
+
       style[key] = /^-?\d+(\.\d+)?$/.test(text) ? Number(text) : text
     }
 
@@ -78,6 +87,7 @@ function reader(name: string, raw: string, kind: string): Reader {
 
   if (kind === 'number') {
     const number = Number(value)
+
     if (!Number.isFinite(number)) {
       throw error(name + ' must be numeric')
     }
@@ -93,6 +103,7 @@ function reader(name: string, raw: string, kind: string): Reader {
  * actual host creation. No DOM parser or NativeScript startup is involved. */
 export function parseListTemplate(markup: string): ListTemplate {
   const previous = cache.get(markup)
+
   if (previous) {
     return previous
   }
@@ -106,6 +117,7 @@ export function parseListTemplate(markup: string): ListTemplate {
   const stack: UniversalHostPlan[] = []
   let root: UniversalHostPlan | undefined
   const parser = new SaxesParser({ xmlns: true })
+
   parser.on('error', (failure) => {
     throw error('invalid XML (' + failure.message + ')')
   })
@@ -117,6 +129,7 @@ export function parseListTemplate(markup: string): ListTemplate {
   parser.on('opentag', (element) => {
     const tag = element.local.toLowerCase()
     const declared = templateProps[tag]
+
     if (!declared) {
       throw error('unknown intrinsic <' + element.local + '>')
     }
@@ -130,6 +143,7 @@ export function parseListTemplate(markup: string): ListTemplate {
       }
 
       const name = attr.name === 'class' ? 'className' : attr.name
+
       if (!Object.hasOwn(declared, name)) {
         throw error('undeclared prop ' + attr.name + ' on <' + tag + '>')
       }
@@ -261,6 +275,7 @@ export function validateListProps(
 
   if (typeof props.itemTemplate === 'string') {
     const template = parseListTemplate(props.itemTemplate)
+
     validateTemplate?.(template)
   }
 }

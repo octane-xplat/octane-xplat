@@ -23,6 +23,7 @@ const { values } = parseArgs({
 })
 
 const { target, device } = values
+
 assert.ok(['ios', 'android'].includes(target) && device, 'Pass --target ios|android --device ID')
 assert.ok(
   !values['refresh-js'] || (target === 'ios' && values['reuse-build']),
@@ -46,6 +47,7 @@ let serveVersion = '2.0.0'
 const server = createServer(async (request, response) => {
   try {
     const url = new URL(request.url, 'http://localhost')
+
     if (url.pathname === '/manifest') {
       response.setHeader('content-type', 'application/json')
       response.end(
@@ -58,10 +60,12 @@ const server = createServer(async (request, response) => {
       )
     } else if (url.pathname.startsWith('/bundles/')) {
       const bytes = payloads.get(url.pathname.split('/').at(-1))
+
       assert.ok(bytes)
       response.end(bytes)
     } else if (url.pathname === '/event') {
       const event = JSON.parse(url.searchParams.get('body'))
+
       events.push(event)
       if (event.name === 'healthy-v2') {
         serveVersion = '3.0.0'
@@ -81,6 +85,7 @@ const server = createServer(async (request, response) => {
 })
 
 const resources = join(repo, 'research/updates-lifecycle-resources', target)
+
 await mkdir(resources, { recursive: true })
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
 await writeFile(
@@ -127,11 +132,13 @@ const overrides = Object.fromEntries(
 // the lockfile. Resolve their workspace references from this checkout too.
 for (const entry of await readdir(join(repo, 'packages'), { withFileTypes: true })) {
   const directory = join(repo, 'packages', entry.name)
+
   if (!entry.isDirectory()) {
     continue
   }
 
   let manifest
+
   try {
     manifest = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'))
   } catch (error) {
@@ -162,6 +169,7 @@ try {
 
 const repoPackage = JSON.parse(await readFile(join(repo, 'package.json'), 'utf8'))
 const catalog = repoPackage.workspaces.catalog
+
 for (const [name, version] of Object.entries(catalog)) {
   if (!Object.hasOwn(overrides, name)) {
     overrides[name] = version
@@ -184,8 +192,11 @@ await writeFile(
 )
 
 const badSentinel = `${project.appId}:${port}:bad-boot`
+
 console.log(JSON.stringify({ target, device, project: project.root, appId: project.appId }))
+
 const env = { ...process.env }
+
 if (target === 'android') {
   env.JAVA_HOME = (await command('/usr/libexec/java_home', ['-v', '21'])).stdout.trim()
 }
@@ -196,12 +207,14 @@ const adb = (args, allowFailure = false) =>
 const sim = (args, allowFailure = false) => command('xcrun', ['simctl', ...args], { allowFailure })
 const wait = async (condition, label) => {
   const deadline = Date.now() + 30000
+
   while (Date.now() < deadline) {
     if (serverError) {
       throw serverError
     }
 
     const failed = events.find((event) => event.name === 'failed')
+
     if (failed) {
       throw new Error(JSON.stringify(failed))
     }
@@ -310,6 +323,7 @@ try {
   )
 
   const files = {}
+
   for (const file of await filesUnder(assets)) {
     files[file.slice(assets.length + 1)] = new Uint8Array(await readFile(file))
   }
@@ -327,6 +341,7 @@ try {
     const entry = new TextEncoder().encode(prefix + new TextDecoder().decode(files['bundle.mjs']))
     const bytes = zipSync({ ...files, 'bundle.mjs': entry })
     const sha256 = createHash('sha256').update(bytes).digest('hex')
+
     payloads.set(sha256, bytes)
     manifests[version] = {
       version,
@@ -354,6 +369,7 @@ try {
     await sim(['bootstatus', device, '-b'])
     try {
       const owner = JSON.parse(await readFile(ownershipFile, 'utf8'))
+
       if (owner.appId === project.appId && owner.device === device) {
         await sim(['uninstall', device, project.appId], true)
       }
@@ -377,6 +393,7 @@ try {
       // Reuse the exact native executable only after proving its baked input
       // identity still matches. Replace resources in a task-owned copy.
       const copy = join(project.root, 'ota-refreshed-release.app')
+
       await cp(artifact, copy, { recursive: true })
       await cp(assets, join(copy, 'app'), { recursive: true })
       artifact = copy
@@ -386,8 +403,10 @@ try {
   } else {
     // Never reinstall or clear an unrelated app. Each fixture uses its own hash ID.
     const existing = await adb(['shell', 'pm', 'path', project.appId], true)
+
     if (existing.stdout.trim()) {
       const owner = JSON.parse(await readFile(ownershipFile, 'utf8'))
+
       assert.ok(
         owner.appId === project.appId && owner.device === device,
         'Refuse to reset an app not owned by this test',
@@ -465,24 +484,29 @@ try {
   await waitEvent('embedded-restored')
   if (target === 'ios') {
     await stop()
+
     const changed = join(project.root, 'App_Resources/iOS/fingerprint-change.swift')
+
     await writeFile(changed, '// A native source added after the installed binary was built.\n', {
       flag: 'wx',
     })
 
     changedNativeSource = changed
+
     const incompatible = await createFingerprintAsync(project.root, {
       platforms: [target],
       toolchain: buildRecord.toolchain,
     })
 
     assert.notEqual(incompatible.hash, buildMetadata.hash)
+
     const container = (
       await sim(['get_app_container', device, project.appId, 'data'])
     ).stdout.trim()
 
     const ota = join(container, 'Library/Application Support/xplat-ota')
     const next = join(ota, 'next/app')
+
     await mkdir(next, { recursive: true })
     for (const [name, bytes] of Object.entries(files)) {
       await mkdir(dirname(join(next, name)), { recursive: true })
@@ -500,6 +524,7 @@ try {
     )
 
     const incompatibleSHA = '4'.repeat(64)
+
     await writeFile(
       join(ota, 'next/release.json'),
       JSON.stringify({
@@ -512,6 +537,7 @@ try {
     )
 
     const checkpoint = events.length
+
     await writeFile(join(container, 'Documents/ota-test-phase.txt'), 'awaiting-embedded')
     await launch()
     await wait(
@@ -527,6 +553,7 @@ try {
   }
 
   const result = { target, device, artifact, appId: project.appId, events, status: 'passed' }
+
   await writeFile(join(project.root, 'ota-lifecycle-result.json'), JSON.stringify(result, null, 2))
   console.log(
     JSON.stringify({

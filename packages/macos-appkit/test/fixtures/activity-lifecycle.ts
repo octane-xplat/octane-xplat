@@ -29,6 +29,7 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
 
   root.render(Activity, {})
   await settle()
+
   const first = activityRef.current,
     left = debug.findId('activity-left'),
     tail = debug.findId('activity-tail')
@@ -57,7 +58,9 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   )
 
   check(Number(first.alphaValue) === 0.5, 'ActivityIndicator opacity style failed')
+
   const rect = first.alignmentRectForFrame(first.frame)
+
   check(
     Math.abs(Number(rect.size.width) - 32) < 1 && Math.abs(Number(rect.size.height) - 32) < 1,
     'ActivityIndicator layout size failed',
@@ -69,6 +72,7 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   )
 
   const initialTailY = Number(tail.frame.origin.y)
+
   await advance()
   check(Number(tail.frame.origin.y) === initialTailY, 'Stopped spinner collapsed its layout slot')
   check(
@@ -98,7 +102,9 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   check(Number(first.alphaValue) === 1, 'Restart retained removed opacity style')
 
   await advance()
+
   const moved = activityRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -114,7 +120,9 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = activityRef.current
+
   check(
     returned &&
       returned !== moved &&
@@ -125,7 +133,9 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = activityRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -145,7 +155,9 @@ export async function checkActivityLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = activityRef.current
+
   check(retained && retained.superview === left, 'ActivityIndicator reinsertion failed')
   root.unmount()
   check(

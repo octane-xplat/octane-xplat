@@ -13,8 +13,11 @@ import {
 import type { InputRatingProps } from '@octane-xplat/ui'
 
 const left = createIconRegistry()
+
 left.registerIcon('rating-local', { text: '+' })
+
 const right = createIconRegistry()
+
 right.registerIcon('rating-local', { svg: 'M0 0h12v12H0z', viewBox: '0 0 12 12' })
 right.registerIcon('☆', { text: 'R' })
 

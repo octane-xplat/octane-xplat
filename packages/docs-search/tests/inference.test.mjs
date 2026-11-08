@@ -12,6 +12,7 @@ test('truncation keeps BERT boundary tokens and aligned masks and types', () => 
       }
     },
   }
+
   assert.deepEqual(encodeText(tokenizer, 'long input', 4), {
     input_ids: [101, 11, 12, 102],
     attention_mask: [1, 1, 1, 1],
@@ -21,6 +22,7 @@ test('truncation keeps BERT boundary tokens and aligned masks and types', () => 
 
 test('pooling ignores masked padding and returns a normalized vector', () => {
   const vector = poolEmbedding(new Float32Array([2, 0, 0, 2, 100, 100]), [1, 1, 0], 2)
+
   assert.ok(Math.abs(vector[0] - Math.SQRT1_2) < 1e-10)
   assert.ok(Math.abs(Math.hypot(...vector) - 1) < 1e-10)
   assert.throws(() => poolEmbedding(new Float32Array([1]), [1], 2), /shape/)

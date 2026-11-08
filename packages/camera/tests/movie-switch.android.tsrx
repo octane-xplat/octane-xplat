@@ -4,15 +4,18 @@ import { CameraView } from '@octane-xplat/camera'
 import { SharedCameraSession } from '../src/session-core'
 import { createSessionBackend } from '../src/session-backend.android'
 import type { ProbeContext } from '../../../tools/probe/context'
+
 // Maintained physical-device case: permissions prompt on this isolated app.
 // Metadata and encoded packet timing only; no screenshots or frame analysis.
 const config = { camera: 'back' as const, audio: true }
 const backend = createSessionBackend(config)
 const switchCamera = backend.switchCamera!
 let afterAcquired: (() => void) | undefined
+
 // Inject stop between native acquisition and the shared lifecycle recheck.
 backend.switchCamera = (camera) => {
   const operation = switchCamera(camera)
+
   return {
     ...operation,
     completion: operation.completion.then((selected) => {
@@ -24,6 +27,7 @@ backend.switchCamera = (camera) => {
 
 const session = new SharedCameraSession(backend, config)
 let ready = false
+
 export default function Preview(): unknown @{
   <CameraView
     session={session}
@@ -41,14 +45,22 @@ export async function run(ctx: ProbeContext) {
   await session.requestPermission('microphone')
   await ctx.waitFor(() => ready, { timeout: 15000 })
   ctx.record('capabilities', await session.capabilities())
+
   const events: string[] = []
+
   session.subscribe((e) => events.push(e.type))
+
   const take = session.startRecording({ maximumDurationMs: 15000 })
+
   await ctx.waitFor(() => take.state === 'recording')
+
   const switches = []
+
   for (const camera of ['front', 'back'] as const) {
     await new Promise((resolve) => setTimeout(resolve, 1000))
+
     const before = take.elapsedMs
+
     await session.switchCamera(camera)
     switches.push({
       camera,
@@ -59,9 +71,13 @@ export async function run(ctx: ProbeContext) {
   }
 
   await new Promise((resolve) => setTimeout(resolve, 1000))
+
   const completion = take.stop()
+
   ctx.assert('same completion', completion === take.completion, true)
+
   const result = await completion
+
   ctx.record('switches', switches)
   ctx.record('outcome', result)
   ctx.assert('one start', events.filter((e) => e === 'started').length, 1)
@@ -73,25 +89,34 @@ export async function run(ctx: ProbeContext) {
 
   ctx.assert('audio retained', result.clip.hasAudio, true)
   await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
+
   const stopping = session.startRecording()
+
   await ctx.waitFor(() => stopping.state === 'recording')
   await new Promise((resolve) => setTimeout(resolve, 700))
+
   const interruptedSwitch = session.switchCamera('front').then(
     () => 'completed',
     (issue) => issue.kind,
   )
 
   await new Promise((resolve) => setTimeout(resolve, 50))
+
   const stoppedDuringSwitch = await stopping.stop()
+
   ctx.assert('switch cancelled by stop', await interruptedSwitch, 'invalidState')
   ctx.assert('stop during flip keeps clip', stoppedDuringSwitch.kind, 'clip')
   ctx.assert('stop during flip reason', stoppedDuringSwitch.endReason, 'stopped')
   ctx.record('stopDuringSwitch', stoppedDuringSwitch)
   await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
+
   const provisional = session.startRecording()
+
   await ctx.waitFor(() => provisional.state === 'recording')
   await new Promise((resolve) => setTimeout(resolve, 700))
+
   let acquiredBeforeStop = false
+
   afterAcquired = () => {
     acquiredBeforeStop = true
     provisional.stop()
@@ -104,6 +129,7 @@ export async function run(ctx: ProbeContext) {
     )
 
     const output = await provisional.completion
+
     ctx.assert('acquisition reached before stop', acquiredBeforeStop, true)
     ctx.assert('uncommitted switch cancelled', issue, 'invalidState')
     ctx.assert('uncommitted switch keeps clip', output.kind, 'clip')
@@ -119,27 +145,36 @@ export async function run(ctx: ProbeContext) {
   }
 
   await ctx.waitFor(async () => (await session.capabilities()).available, { timeout: 15000 })
+
   const resumed = session.startRecording()
+
   await ctx.waitFor(() => resumed.state === 'recording')
   ctx.assert('cancel restores previous lens', session.snapshot().activeCamera?.facing, 'back')
   await new Promise((resolve) => setTimeout(resolve, 500))
   ctx.assert('next take survives', (await resumed.stop()).kind, 'clip')
+
   const extractor = new android.media.MediaExtractor()
+
   extractor.setDataSource(result.clip.output.fileUrl.slice('file://'.length))
   try {
     const timeline = []
+
     for (let index = 0; index < extractor.getTrackCount(); index++) {
       const format = extractor.getTrackFormat(index)
+
       extractor.selectTrack(index)
       extractor.seekTo(0, 0)
+
       let first = -1,
         last = -1,
         maxGap = 0,
         count = 0
 
       let monotonic = true
+
       while (extractor.getSampleTime() >= 0) {
         const time = Number(extractor.getSampleTime()) / 1000
+
         if (first < 0) {
           first = time
         }
@@ -157,7 +192,9 @@ export async function run(ctx: ProbeContext) {
       }
 
       extractor.unselectTrack(index)
+
       const mime = format.getString('mime')
+
       timeline.push({ mime, first, last, maxGap, count })
       if (mime.startsWith('audio/')) {
         ctx.assert('continuous audio packets', maxGap < 150, true)

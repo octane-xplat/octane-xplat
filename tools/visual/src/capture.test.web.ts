@@ -12,6 +12,7 @@ declare const __CAPTURE_CONFIG__: null | {
 it.skipIf(!__CAPTURE_CONFIG__)('exports real web captures for the common cohort', async () => {
   for (const [index, displacement] of [0, 1].entries()) {
     const mounted = await launchWeb('switch--unchecked-light', { displacement })
+
     try {
       if (mounted.args.checked !== false || mounted.args.stageId !== mounted.storyId) {
         throw new Error('Wrong shared inputs for real web export')

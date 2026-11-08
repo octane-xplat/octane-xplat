@@ -45,10 +45,13 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
     if (client) {
       return client
     }
+
     if (!configuration) {
       throw new Error('Configure routes before using the default client router')
     }
+
     const platform = createPlatform()
+
     try {
       // Generated registration supplies the contract map. The lazy facade keeps
       // that application-wide type without evaluating route modules for types.
@@ -63,6 +66,7 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
         transitions: configuration.transitions,
         context: () => {
           const context = configuration!.context
+
           return typeof context === 'function' ? context() : (context ?? {})
         },
         createCancellationController: configuration.createCancellationController,
@@ -75,6 +79,7 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
     } catch (error) {
       if (client) {
         const failed = client
+
         client = undefined
         failed.instance.dispose()
       } else {
@@ -84,6 +89,7 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
       throw error
     }
   }
+
   const router: RouterInstance<RegisteredRouteContracts> = {
     push: (destination) => getClient().instance.push(destination),
     replace: (destination) => getClient().instance.replace(destination),
@@ -108,14 +114,18 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
       client?.instance.dispose()
     },
   }
+
   bindRouterFacade(router, () => getClient().instance)
+
   const configure = (next: RouterConfiguration<RouteManifest, string>): void => {
     if (!isSealedRouteCatalog(next.catalog)) {
       throw new TypeError('Configure the default client with an original route catalog')
     }
+
     if (client && configuration) {
       const previousStacks = configuration.stacks ?? []
       const nextStacks = next.stacks ?? []
+
       if (
         configuration.base !== next.base ||
         JSON.stringify(configuration.allowedSchemes ?? []) !==
@@ -130,7 +140,9 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
         throw new Error('Router host settings changed; reload the client to apply them')
       }
     }
+
     const previous = configuration
+
     configuration = {
       ...next,
       allowedSchemes: next.allowedSchemes ? [...next.allowedSchemes] : undefined,
@@ -139,6 +151,7 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
       stacks: next.stacks ? [...next.stacks] : undefined,
       transitions: defineTransitions(next.transitions ?? {}),
     }
+
     try {
       if (client) {
         replaceRouterBaseCatalog(client.instance, configuration.catalog)
@@ -148,8 +161,10 @@ export function createDefaultRouterRuntime<Platform extends ClientRouterHost>(
       configuration = previous
       throw error
     }
+
     configured.set(true)
   }
+
   return {
     router,
     configured,

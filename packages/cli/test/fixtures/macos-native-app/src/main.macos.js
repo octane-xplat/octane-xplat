@@ -1,9 +1,12 @@
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(2)
+
 const c = xplat_c_value()
 const objc = XplatObjCProbe.value()
 const swift = XplatSwiftProbe.value()
 const zig = xplat_zig_value()
+
 if (c < 40 || objc !== c + 2 || swift !== 43 || zig !== 44) {
   throw Error('Native language values differ')
 }

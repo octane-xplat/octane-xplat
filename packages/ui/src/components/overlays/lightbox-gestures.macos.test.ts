@@ -9,6 +9,7 @@ function fixture() {
     window: any = {},
     stage: any = { window },
     outside = {}
+
   let target: any = stage
   const viewport: any = {
     window,
@@ -19,6 +20,7 @@ function fixture() {
       viewport.magnification = scale
     },
   }
+
   window.contentView = {
     superview: {
       convertPointFromView(point: any) {
@@ -30,12 +32,16 @@ function fixture() {
       return target
     },
   }
+
   let currentStage: any = stage,
     selection: (() => void) | undefined
+
   const source = {
     addLocalMonitorForEventsMatchingMaskHandler(mask: number, callback: (event: any) => any) {
       expect(mask).toBe(2 ** 31)
+
       const token = { callback, removed: false }
+
       tokens.push(token)
       return token
     },
@@ -43,6 +49,7 @@ function fixture() {
       token.removed = true
     },
   }
+
   const control = createAppKitLightboxGestures(
     {
       state: () => state,
@@ -56,6 +63,7 @@ function fixture() {
     },
     () => ({ NSEvent: source }),
   )
+
   const event = (extra: any = {}) => ({
     type: 31,
     window,
@@ -64,6 +72,7 @@ function fixture() {
     deltaY: 0,
     ...extra,
   })
+
   control.sync()
   return {
     fault(callback: () => void) {
@@ -95,6 +104,7 @@ function fixture() {
 
 it('double-click uses current clip-center coordinates, toggles 1/2x and resets source/index/zoom changes on the same view', () => {
   const f = fixture()
+
   try {
     expect(f.viewport.allowsMagnification).toBe(true)
     expect(f.viewport.minMagnification).toBe(1)
@@ -119,6 +129,7 @@ it('double-click uses current clip-center coordinates, toggles 1/2x and resets s
 
 it('pointer swipe uses current bounds, keeps edge/vertical/zoomed gestures inert and rejects closed/hidden/detached stage', () => {
   const f = fixture()
+
   try {
     expect(f.control.swipe(2)).toBe(true)
     expect(f.changes).toEqual([2])
@@ -144,13 +155,16 @@ it('pointer swipe uses current bounds, keeps edge/vertical/zoomed gestures inert
 
 it('recognized AppKit swipes use opposite delta convention and consume only completed horizontal gestures hit inside the media stage', () => {
   const f = fixture()
+
   try {
     const callback = f.tokens[0].callback,
       left = f.event()
 
     expect(callback(left)).toBeNull()
     expect(f.changes).toEqual([2])
+
     const right = f.event({ deltaX: -1, phase: 8 })
+
     expect(callback(right)).toBeNull()
     expect(f.changes).toEqual([2, 1])
     for (const extra of [
@@ -163,11 +177,14 @@ it('recognized AppKit swipes use opposite delta convention and consume only comp
       { deltaX: NaN },
     ]) {
       const event = f.event(extra)
+
       expect(callback(event)).toBe(event)
     }
 
     f.target(f.outside)
+
     const outside = f.event()
+
     expect(callback(outside)).toBe(outside)
     f.target({ isDescendantOf: (view: any) => view === f.stage })
     expect(callback(f.event())).toBeNull()
@@ -179,13 +196,18 @@ it('recognized AppKit swipes use opposite delta convention and consume only comp
 it('replacement and disposal remove owned monitors and retire queued callbacks without changing later selection', () => {
   const f = fixture(),
     old = f.tokens[0]
+
   f.replaceStage()
   expect(old.removed).toBe(true)
+
   const event = f.event()
+
   expect(old.callback(event)).toBe(event)
   expect(f.changes).toEqual([])
   f.control.dispose()
+
   const current = f.tokens.at(-1)
+
   expect(current.removed).toBe(true)
   expect(current.callback(event)).toBe(event)
   expect(f.control.toggleZoom()).toBe(false)
@@ -195,6 +217,7 @@ it('replacement and disposal remove owned monitors and retire queued callbacks w
 
 it('a single item needs no swipe monitor and video/invalid geometry never magnifies', () => {
   const f = fixture()
+
   try {
     f.update({ count: 1, index: 0 })
     expect(f.tokens[0].removed).toBe(true)
@@ -212,6 +235,7 @@ it('a single item needs no swipe monitor and video/invalid geometry never magnif
 it('consumer selection faults do not escape the native monitor or masquerade as input outside the stage', () => {
   const error = vi.spyOn(console, 'error').mockImplementation(() => {}),
     f = fixture()
+
   try {
     f.fault(() => {
       throw Error('consumer failed')

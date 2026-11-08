@@ -12,6 +12,7 @@ import { ChatLayoutProvider, useChatLayoutContext } from './chat-context.tsrx'
 function Reader(props: { seen: string[] }) @{
   const context = useChatLayoutContext()
   const value = (context?.scrollContainerRef.current as { id?: string } | null)?.id ?? 'missing'
+
   props.seen.push(value)
 
   <label text={value} />
@@ -30,6 +31,7 @@ it('compiled context readers update even when their own props retain identity', 
   )
 
   const seen: string[] = []
+
   try {
     root.render(Provider as any, {
       value: { scrollContainerRef: { current: { id: 'first' } }, contentRef() {} },

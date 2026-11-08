@@ -6,8 +6,11 @@ import { Lightbox } from './index.web'
 
 it('thumbnail selection navigates and updates the current accessible item', () => {
   const container = document.createElement('div')
+
   document.body.appendChild(container)
+
   const root = createRoot(container)
+
   try {
     act(() =>
       root.render(
@@ -27,6 +30,7 @@ it('thumbnail selection navigates and updates the current accessible item', () =
     )
 
     const buttons = container.querySelectorAll<HTMLButtonElement>('[data-lightbox-thumbnail]')
+
     expect(buttons[0]?.getAttribute('aria-current')).toBe('true')
     expect(buttons[1]?.getAttribute('aria-label')).toBe('Show image 2')
     act(() => buttons[1]!.click())

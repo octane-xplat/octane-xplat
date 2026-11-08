@@ -12,7 +12,9 @@ function Content() {
 }
 
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(0)
+
 const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
   { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
   15,
@@ -24,10 +26,13 @@ window.releasedWhenClosed = false
 window.title = 'XplatShortcuts'
 app.finishLaunching()
 window.makeKeyAndOrderFront(null)
+
 const root = createMacOSRoot(window.contentView)
+
 root.render(Content, {})
 setTimeout(async () => {
   let shortcuts
+
   try {
     const target = root.__macosDebug.findId('shortcuts-boundary')
     const editor = root.__macosDebug.findId('shortcuts-editor')
@@ -40,7 +45,9 @@ setTimeout(async () => {
     check(target && editor, 'renderer views missing')
     check(!host.isEditableTarget(NSButton.new()), 'non-text controls remain shortcut targets')
     shortcuts = createShortcuts({ target })
+
     const calls = []
+
     shortcuts.setContext('editor.ready', true)
     shortcuts.bindWithin(editor, {
       combo: 'Mod+KeyK',
@@ -57,6 +64,7 @@ setTimeout(async () => {
     })
 
     shortcuts.bind({ combo: 'x', handler: () => calls.push('plain') })
+
     const pause = () => new Promise((resolve) => setTimeout(resolve, 100))
     const send = (code, chars, flags = 0, up = false) => {
       const event =
@@ -72,6 +80,7 @@ setTimeout(async () => {
           false,
           code,
         )
+
       app.postEventAtStart(event, false)
     }
 
@@ -93,7 +102,9 @@ setTimeout(async () => {
     )
 
     check(String(editor.stringValue) === 'x', 'native editable text')
+
     const recording = shortcuts.record({ timeout: 250, consumeEvents: true })
+
     send(7, 'x', (1 << 20) | (1 << 17))
     await pause()
     send(7, 'x', (1 << 20) | (1 << 17), true)

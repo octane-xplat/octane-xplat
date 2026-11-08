@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { chromium } from 'playwright'
 import { audioResponse } from './fixture-server.mjs'
+
 const temp = await mkdtemp(join(tmpdir(), 'xplat-audio-browser-'))
 let browser
 const server = createServer(async (request, response) => {
@@ -40,8 +41,10 @@ try {
 
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
   const budgets = process.argv.includes('--foreground-budgets')
+
   await page.addInitScript((enabled) => {
     globalThis.audioForegroundBudgets = enabled
   }, budgets)
@@ -49,7 +52,9 @@ try {
   await page.goto(`http://127.0.0.1:${server.address().port}`)
   await page.getByRole('button', { name: 'Start audio check' }).click()
   await page.waitForFunction(() => globalThis.audioResult !== null, null, { timeout: 45000 })
+
   const result = await page.evaluate(() => globalThis.audioResult)
+
   assert.equal(result.error, undefined, result.error)
   assert.equal(result.assertions.length, budgets ? 6 : 9)
   console.log(JSON.stringify(result.measurements))

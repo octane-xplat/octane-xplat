@@ -20,6 +20,7 @@ const statusIcon: Record<string, string> = {
  *  strip visually via the `vx-banner--floating` class hook. */
 export function Banner(props: BannerProps): JSX.Element | null @{
   const [dismissed, setDismissed] = useState(false)
+
   if (dismissed) {
     return null
   }

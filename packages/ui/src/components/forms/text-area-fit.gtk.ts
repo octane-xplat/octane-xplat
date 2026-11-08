@@ -10,6 +10,7 @@ export function fitTextArea(
   if (!view) {
     return () => {}
   }
+
   const fit = () => {
     const style = styleRecord(props.style)
     const explicitHeight = style?.height != null
@@ -24,8 +25,10 @@ export function fitTextArea(
         : typeof spacing === 'string' && /^\d+(?:\.\d+)?(?:px|dip)?$/.test(spacing.trim())
           ? Number.parseFloat(spacing)
           : undefined
+
     const line = pixels != null && pixels > 0 ? Math.ceil(pixels) : fontLine
     const rows = props.rows ?? (props.autoGrow ? 1 : 3)
+
     view.style.minHeight = explicitHeight || style?.minHeight != null ? undefined : rows * line
     view.style.maxHeight =
       explicitHeight || style?.maxHeight != null
@@ -36,16 +39,21 @@ export function fitTextArea(
             ? undefined
             : rows * line
   }
+
   let tick: number | null = null
   const stop = () => {
     if (tick !== null) {
       view.remove_tick_callback(tick)
     }
+
     tick = null
   }
+
   const schedule = () => {
     stop()
+
     let frames = 0
+
     // GTK validates font CSS across the frame boundary. Refit after that
     // validation, then stop; leave no permanent frame-clock reader.
     tick = view.add_tick_callback(() => {
@@ -53,15 +61,19 @@ export function fitTextArea(
       if (++frames < 2) {
         return true
       }
+
       tick = null
       return false
     })
   }
+
   fit()
   schedule()
+
   const mapped = view.connect('map', schedule)
   const unmapped = view.connect('unmap', stop)
   const classes = view.connect('notify::css-classes', schedule)
+
   view.on('fontChanged', schedule)
   return () => {
     stop()

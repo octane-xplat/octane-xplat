@@ -79,8 +79,10 @@ function registerTrayClass(ctor: Function): void {
     }
 
     const descriptor = Object.getOwnPropertyDescriptor(ctor.prototype, name)!
+
     Object.defineProperty(ctor.prototype, name, { ...descriptor, enumerable: true })
   }
+
   NativeClass(ctor)
 }
 
@@ -101,6 +103,7 @@ class TrayTarget extends NSObject {
   callbacks: TrayTargetCallbacks | null = null
   static {
     const proto = TrayTarget.prototype
+
     proto['trayButtonClicked:'] = function (this: TrayTarget, _sender: NSObject) {
       try {
         this.callbacks?.buttonClicked()
@@ -129,12 +132,15 @@ interface TrayTarget {
 function trayImage(icon: TrayIcon, label: string): NSImage {
   if (icon.type === 'file') {
     const image: NSImage | null = NSImage.alloc().initWithContentsOfFile(icon.path)
+
     if (!image) {
       throw new TrayError('invalid-icon', `tray icon file is not readable: ${icon.path}`)
     }
 
     image.template = icon.isTemplate ?? false
+
     const size = image.size
+
     if (size.height > 0) {
       image.size = {
         width: size.width * (STATUS_ITEM_IMAGE_HEIGHT / size.height),
@@ -144,24 +150,30 @@ function trayImage(icon: TrayIcon, label: string): NSImage {
 
     return image
   }
+
   const image: NSImage | null = NSImage.imageWithSystemSymbolNameAccessibilityDescription(
     icon.name,
     label,
   )
+
   if (!image) {
     throw new TrayError('invalid-icon', `SF Symbol image not found: ${icon.name}`)
   }
+
   return image
 }
 
 function appWindows(): NSWindow[] {
   const windows: NSWindow[] = []
   const all: NSArray | null = NSApp.windows ?? null
+
   if (!all) {
     return windows
   }
+
   for (let i = 0; i < all.count; i++) {
     const window = all.objectAtIndex(i) as NSWindow
+
     try {
       // Status-bar windows and panels cannot become main; only real app windows qualify.
       if (window && window.canBecomeMainWindow) {
@@ -171,6 +183,7 @@ function appWindows(): NSWindow[] {
       // Skip windows that no longer answer.
     }
   }
+
   return windows
 }
 
@@ -181,6 +194,7 @@ export function getTrayAvailability(): Promise<TrayAvailability> {
   if (statusBarAvailable()) {
     return Promise.resolve({ available: true, platform: 'macos' })
   }
+
   return Promise.resolve({
     available: false,
     reason: 'unsupported-runtime',
@@ -209,7 +223,9 @@ class MacOSTray implements Tray {
         'NSStatusBar is unavailable in this host; the tray needs a macOS AppKit runtime.',
       )
     }
+
     const item = NSStatusBar.systemStatusBar.statusItemWithLength(NS_VARIABLE_STATUS_ITEM_LENGTH)
+
     this.item = item
     item.autosaveName = this.state.id
     this.button = item.button
@@ -218,6 +234,7 @@ class MacOSTray implements Tray {
       buttonClicked: () => this.onButtonClicked(),
       menuItemSelected: (menuItem) => this.onMenuItemSelected(menuItem),
     }
+
     this.applyIcon()
     this.applyTitle()
     this.applyTooltip()
@@ -234,26 +251,32 @@ class MacOSTray implements Tray {
     if (this.destroyed) {
       throw new TrayError('destroyed', `tray "${this.id}" was destroyed`)
     }
+
     const normalized = normalizeTrayUpdate(changes, 'macos')
+
     if (normalized.icon !== undefined) {
       this.state.icon = resolvePlatformIcon(normalized.icon, 'macos')
       this.applyIcon()
     }
+
     if (normalized.title !== undefined) {
       this.state.title = normalized.title ?? undefined
       this.applyTitle()
       this.applyAccessibilityLabel()
     }
+
     if (normalized.tooltip !== undefined) {
       this.state.tooltip = normalized.tooltip ?? undefined
       this.applyTooltip()
       this.applyAccessibilityLabel()
     }
+
     if (normalized.menu !== undefined) {
       this.state.menu = normalized.menu ?? undefined
       this.rebuildMenu()
       this.applyActivationMode()
     }
+
     if (normalized.onActivate !== undefined) {
       this.state.onActivate = normalized.onActivate ?? undefined
       this.applyActivationMode()
@@ -264,6 +287,7 @@ class MacOSTray implements Tray {
     if (this.destroyed) {
       return
     }
+
     this.destroyed = true
     this.target.callbacks = null
     this.handlers.clear()
@@ -273,11 +297,13 @@ class MacOSTray implements Tray {
     } catch {
       // Clearing a released target must not fail destroy.
     }
+
     try {
       this.item.menu = NO_MENU
     } catch {
       // The status item ignores menu clearing on torn-down hosts.
     }
+
     try {
       NSStatusBar.systemStatusBar.removeStatusItem(this.item)
     } catch (error) {
@@ -290,6 +316,7 @@ class MacOSTray implements Tray {
       this.state.icon,
       this.state.title ?? this.state.tooltip ?? this.state.id,
     )
+
     this.applyImagePosition()
   }
 
@@ -301,6 +328,7 @@ class MacOSTray implements Tray {
   private applyImagePosition() {
     const hasImage = Boolean(this.button.image)
     const hasTitle = Boolean(this.state.title)
+
     this.button.imagePosition = hasImage
       ? hasTitle
         ? NSCellImagePosition.ImageLeft
@@ -319,6 +347,7 @@ class MacOSTray implements Tray {
 
   private applyAccessibilityLabel() {
     const label = this.state.title ?? this.state.tooltip ?? this.state.id
+
     try {
       this.button.accessibilityLabel = label
     } catch {
@@ -343,16 +372,20 @@ class MacOSTray implements Tray {
 
   private registerSelectHandler(handler: () => void): number {
     const tag = this.nextTag++
+
     this.handlers.set(tag, handler)
     return tag
   }
 
   private headerItem(label: string): NSMenuItem {
     const makeSectionHeader = NSMenuItemStatics.sectionHeaderWithTitle
+
     if (typeof makeSectionHeader === 'function') {
       return makeSectionHeader.call(NSMenuItem, label)
     }
+
     const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(label, null, '')
+
     item.enabled = false
     return item
   }
@@ -363,6 +396,7 @@ class MacOSTray implements Tray {
       'trayMenuItemSelected:',
       '',
     )
+
     item.target = this.target
     item.tag = this.registerSelectHandler(handler)
     item.enabled = enabled
@@ -394,6 +428,7 @@ class MacOSTray implements Tray {
         }
         case 'radio-group': {
           const hasLabel = typeof item.label === 'string' && item.label.length > 0
+
           if (hasLabel && (index > 0 || !first)) {
             menu.addItem(NSMenuItem.separatorItem())
           }
@@ -421,8 +456,11 @@ class MacOSTray implements Tray {
         }
         case 'submenu': {
           const row = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(item.label, null, '')
+
           row.enabled = !item.isDisabled
+
           const submenu = NSMenu.alloc().initWithTitle(item.label)
+
           submenu.autoenablesItems = false
           this.buildItems(item.items, submenu, true)
           menu.setSubmenuForItem(submenu, row)
@@ -447,12 +485,14 @@ class MacOSTray implements Tray {
     this.nextTag = 1
     if (this.state.menu && this.state.menu.length > 0) {
       const menu = NSMenu.alloc().initWithTitle('')
+
       menu.autoenablesItems = false
       this.buildItems(this.state.menu, menu, true)
       this.nsMenu = menu
     } else {
       this.nsMenu = null
     }
+
     // Swap a live menu so rebuilds reach the visible item.
     if (!this.state.onActivate) {
       this.item.menu = this.nsMenu ?? NO_MENU
@@ -461,14 +501,17 @@ class MacOSTray implements Tray {
 
   private onMenuItemSelected(menuItem: NSMenuItem) {
     const handler = this.handlers.get(Number(menuItem.tag))
+
     handler?.()
   }
 
   private openMenu() {
     const menu = this.nsMenu
+
     if (!menu || this.openingMenu || this.destroyed) {
       return
     }
+
     this.openingMenu = true
     this.item.menu = menu
     try {
@@ -487,12 +530,16 @@ class MacOSTray implements Tray {
     if (this.destroyed || this.openingMenu) {
       return
     }
+
     let secondary = false
+
     try {
       const event = NSApp.currentEvent
+
       if (event) {
         const type = Number(event.type)
         const flags = Number(event.modifierFlags)
+
         secondary =
           type === NSEventType.RightMouseUp ||
           (type === NSEventType.LeftMouseUp && (flags & NSEventModifierFlags.Control) !== 0)
@@ -500,6 +547,7 @@ class MacOSTray implements Tray {
     } catch {
       secondary = false
     }
+
     if (secondary) {
       if (this.nsMenu) {
         this.openMenu()
@@ -507,6 +555,7 @@ class MacOSTray implements Tray {
 
       return
     }
+
     safeCall(this.state.onActivate)
   }
 }
@@ -523,15 +572,18 @@ export function createTray(options: TrayOptions): Promise<Tray> {
 /** Reveal and focus the app's windows; `false` when no app window exists to show. */
 export function showAppWindows(): boolean {
   const windows = hiddenWindows.length ? hiddenWindows : appWindows()
+
   hiddenWindows = []
   if (!windows.length) {
     return false
   }
+
   try {
     NSApp.activateIgnoringOtherApps(true)
   } catch {
     // Activation is best-effort headless.
   }
+
   for (const window of windows) {
     try {
       if (window.isMiniaturized()) {
@@ -543,6 +595,7 @@ export function showAppWindows(): boolean {
       console.error('[tray] showing an app window failed', error)
     }
   }
+
   return true
 }
 
@@ -555,6 +608,7 @@ export function hideAppWindows(): void {
       return false
     }
   })
+
   hiddenWindows = visible
   for (const window of visible) {
     try {
@@ -582,12 +636,14 @@ export function toggleAppWindows(): boolean {
     hideAppWindows()
     return false
   }
+
   return showAppWindows()
 }
 
 /** Keep the app running without visible windows until the returned residency releases. */
 export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): AppResidency {
   const delegate = NSApp.delegate
+
   if (delegate) {
     try {
       if (
@@ -607,11 +663,15 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
       // A delegate without the optional method leaves residency allowed.
     }
   }
+
   const reason = 'octane-xplat tray residency'
   const processInfo = NSProcessInfo.processInfo
+
   processInfo.disableAutomaticTermination(reason)
+
   const hideOnClose = options?.hideWindowsOnClose === true
   const restored: { window: NSWindow; releasedWhenClosed: boolean }[] = []
+
   if (hideOnClose) {
     for (const window of appWindows()) {
       try {
@@ -622,18 +682,22 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
       }
     }
   }
+
   let released = false
+
   return {
     release() {
       if (released) {
         return
       }
+
       released = true
       try {
         processInfo.enableAutomaticTermination(reason)
       } catch {
         // Balancing the hold is best-effort on teardown.
       }
+
       for (const entry of restored) {
         try {
           entry.window.releasedWhenClosed = entry.releasedWhenClosed
@@ -641,6 +705,7 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
           // A closed window may already be gone.
         }
       }
+
       restored.length = 0
     },
   }

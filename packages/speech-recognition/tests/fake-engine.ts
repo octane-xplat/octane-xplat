@@ -91,7 +91,9 @@ export class FakeEngine implements SpeechEngine {
   begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngineHandle {
     this.beginCalls++
     this.beginOptions = options
+
     const handle = new FakeHandle(sink)
+
     this.handles.push(handle)
     return handle
   }

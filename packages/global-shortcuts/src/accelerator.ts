@@ -368,13 +368,17 @@ const detectPlatform = (): AcceleratorPlatform => {
   const globalProcess: { platform?: string } | undefined = (
     globalThis as { process?: { platform?: string } }
   ).process
+
   if (globalProcess && typeof globalProcess.platform === 'string') {
     return globalProcess.platform === 'darwin' ? 'mac' : 'windows'
   }
+
   const nav: { platform?: string; userAgent?: string } | undefined = (
     globalThis as { navigator?: { platform?: string; userAgent?: string } }
   ).navigator
+
   const hint = `${nav?.platform ?? ''} ${nav?.userAgent ?? ''}`
+
   return /mac|iphone|ipad/i.test(hint) ? 'mac' : 'windows'
 }
 
@@ -382,9 +386,11 @@ const isMapped = (platform: AcceleratorPlatform, code: string): boolean => {
   if (platform === 'mac') {
     return MAC_KEYS[code] !== undefined
   }
+
   if (platform === 'windows') {
     return WINDOWS_KEYS[code] !== undefined
   }
+
   return LINUX_KEYS[code] !== undefined
 }
 
@@ -399,28 +405,34 @@ export function parseAccelerator(
   options?: { platform?: AcceleratorPlatform },
 ): ParseAcceleratorResult {
   const platform = options?.platform ?? detectPlatform()
+
   if (typeof input !== 'string' || input.trim() === '') {
     return err('invalid-accelerator', 'An accelerator must be a non-empty string.')
   }
+
   if (/^[a-z0-9]$/i.test(input.trim())) {
     return err(
       'invalid-accelerator',
       'Single letters and digits are not valid accelerators; use a physical key code such as KeyK or Digit1 because global shortcuts use physical key positions.',
     )
   }
+
   const tokens = input
     .split('+')
     .map((token) => token.trim())
     .filter((token) => token !== '')
+
   if (tokens.length === 0) {
     return err('invalid-accelerator', 'An accelerator must be a non-empty string.')
   }
 
   const modifiers: ParsedModifiers = { ctrl: false, alt: false, shift: false, meta: false }
   const keys: string[] = []
+
   for (const token of tokens) {
     const lower = token.toLowerCase()
     const alias = MOD_ALIASES.find(([names]) => names.includes(lower))
+
     if (alias) {
       const [, slot] = alias
       const canonical =
@@ -431,6 +443,7 @@ export function parseAccelerator(
           : (slot as keyof ParsedModifiers)
 
       const label = MOD_CANONICAL_NAMES[canonical]
+
       if (modifiers[canonical]) {
         return err('invalid-accelerator', `The accelerator repeats the ${label} modifier.`)
       }
@@ -456,17 +469,21 @@ export function parseAccelerator(
   if (keys.length === 0) {
     return err('invalid-accelerator', 'An accelerator must name exactly one key.')
   }
+
   if (keys.length > 1) {
     return err('invalid-accelerator', 'An accelerator must name exactly one key.')
   }
+
   const code = keys[0] as GlobalShortcutCode
   const isBareFunction = /^F(1[3-9]|2[0-4])$/.test(code)
+
   if (!modifiers.ctrl && !modifiers.alt && !modifiers.meta && !isBareFunction) {
     return err(
       'invalid-accelerator',
       'A global shortcut needs Ctrl, Alt or Meta; bare F13-F24 are the only allowed modifier-free keys.',
     )
   }
+
   if (!isMapped(platform, code)) {
     return err(
       'invalid-accelerator',
@@ -483,23 +500,27 @@ export function parseAccelerator(
   ]
     .filter((part): part is string => part !== null)
     .join('+')
+
   return { ok: true, accelerator: { ...modifiers, code, text } }
 }
 
 /** Carbon kVK code for an accelerator code, or null when unmappable. */
 export function macKeyCode(code: GlobalShortcutCode): number | null {
   const value = MAC_KEYS[code]
+
   return value === undefined ? null : value
 }
 
 /** Windows mapping (scan code or fixed VK) for an accelerator code. */
 export function windowsKeyMapping(code: GlobalShortcutCode): WindowsKeyMapping | null {
   const value = WINDOWS_KEYS[code]
+
   return value === undefined ? null : value
 }
 
 /** X11 keysym name for an accelerator code (Linux portal trigger text). */
 export function linuxKeysym(code: GlobalShortcutCode): string | null {
   const value = LINUX_KEYS[code]
+
   return value === undefined ? null : value
 }

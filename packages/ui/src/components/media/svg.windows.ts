@@ -1,5 +1,6 @@
 import { CSSType, Property, Utils, View } from '@nativescript/core'
 import { registerElement } from '@nativescript-community/octane'
+
 export { glyphSvgMarkup, isSvgSrc, svgSource } from './svg-source'
 
 const sourceProperty = new Property<SVGView, string | Promise<string>>({
@@ -43,6 +44,7 @@ class SVGView extends View {
   createNativeView() {
     const { Microsoft } = windows()
     const border = new Microsoft.UI.Xaml.Controls.Border()
+
     this.image = new Microsoft.UI.Xaml.Controls.Image()
     border.Child = this.image
     return border
@@ -67,7 +69,9 @@ class SVGView extends View {
 
   [sourceProperty.setNative](value: string | Promise<string>) {
     const generation = ++this.generation
+
     this.clearPending()
+
     const fail = (error: unknown) => {
       if (generation === this.generation) {
         this.clearPending()
@@ -83,10 +87,14 @@ class SVGView extends View {
 
         const { Windows, NSWinRT, Microsoft } = windows()
         let stream: any
+
         if (source.trimStart().startsWith('<')) {
           const writer = new Windows.Storage.Streams.DataWriter()
+
           writer.WriteString(source)
+
           const buffer = writer.DetachBuffer()
+
           stream = new Windows.Storage.Streams.InMemoryRandomAccessStream()
           await NSWinRT.toPromise(stream.WriteAsync(buffer))
           stream.Seek(0)
@@ -104,6 +112,7 @@ class SVGView extends View {
             }
 
             const svg = new Microsoft.UI.Xaml.Media.Imaging.SvgImageSource()
+
             this.pending = svg
             // The preview bridge cannot resolve this generic enum-result operation.
             // Native completion events work, including invalid-source recovery.

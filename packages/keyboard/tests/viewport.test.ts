@@ -50,8 +50,10 @@ function fixture() {
   const listeners = new Set<(event: any) => void>()
   let policy = 'none'
   const initial = native()
+
   initial.edges = { ...bars }
   initial.apply()
+
   const page: any = {
     android: initial,
     parent: null,
@@ -65,6 +67,7 @@ function fixture() {
       return listeners.size > 0
     },
   }
+
   Object.defineProperty(page, 'androidOverflowEdge', {
     get: () => policy,
     set(value: string) {
@@ -74,6 +77,7 @@ function fixture() {
       page.android.apply()
     },
   })
+
   let last: any
   const request = () => {
     if (policy === 'dont-apply') {
@@ -81,6 +85,7 @@ function fixture() {
       listeners.forEach((listener) => listener({ inset: last }))
     }
   }
+
   vi.stubGlobal('androidx', {
     core: {
       view: {
@@ -92,6 +97,7 @@ function fixture() {
       },
     },
   })
+
   return { page, host: { parent: page, page }, listeners, request, last: () => last }
 }
 
@@ -101,6 +107,7 @@ it('shares an inset policy, preserves system bars and restores only after the fi
   const f = fixture(),
     first = leaseKeyboardViewport(f.host),
     second = leaseKeyboardViewport(f.host)
+
   expect(first.supported).toBe(true)
   expect(f.page.androidOverflowEdge).toBe('dont-apply')
   expect(f.page.android.padding).toEqual([2, 28, 6, 32])
@@ -119,6 +126,7 @@ it('shares an inset policy, preserves system bars and restores only after the fi
 it('preserves a newer foreign padding baseline', () => {
   const f = fixture(),
     lease = leaseKeyboardViewport(f.host)
+
   f.page.android.setPadding(2, 50, 6, 32)
   f.request()
   expect(f.page.android.padding[1]).toBe(74)
@@ -130,6 +138,7 @@ it('preserves a newer foreign padding baseline', () => {
 it('unbakes owned bar padding without undoing a newer overflow policy', () => {
   const f = fixture(),
     lease = leaseKeyboardViewport(f.host)
+
   f.page.androidOverflowEdge = 'ignore'
   expect(lease.supported).toBe(false)
   lease.release()
@@ -140,6 +149,7 @@ it('unbakes owned bar padding without undoing a newer overflow policy', () => {
 it('does not double bar padding if a foreign owner restores automatic insets first', () => {
   const f = fixture(),
     lease = leaseKeyboardViewport(f.host)
+
   f.page.androidOverflowEdge = 'none'
   lease.release()
   expect(f.page.androidOverflowEdge).toBe('none')
@@ -149,7 +159,9 @@ it('does not double bar padding if a foreign owner restores automatic insets fir
 it('captures fresh base padding after native view replacement', () => {
   const f = fixture(),
     lease = leaseKeyboardViewport(f.host)
+
   const detached = f.page.android
+
   f.page.android = native([1, 3, 5, 7])
   expect(lease.supported).toBe(false)
   lease.update()
@@ -164,8 +176,11 @@ it('captures fresh base padding after native view replacement', () => {
 it('leaves an existing foreign inset distributor in control', () => {
   const f = fixture(),
     foreign = () => {}
+
   f.page.on('androidOverflowInset', foreign)
+
   const lease = leaseKeyboardViewport(f.host)
+
   expect(lease.supported).toBe(false)
   expect(f.page.androidOverflowEdge).toBe('none')
   lease.release()

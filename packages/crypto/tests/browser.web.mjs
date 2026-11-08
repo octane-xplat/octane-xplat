@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const server = await createServer({
   root,
@@ -15,23 +16,30 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch()
+
   const page = await browser.newPage()
+
   await page.goto(`${server.resolvedUrls.local[0]}tests/index.html`)
+
   const result = await page.evaluate(async () => {
     const { run } = await import('/tests/conformance.ts')
     const assertions = []
+
     await run({
       assert(name, actual, expected) {
         if (actual !== expected) {
           throw new Error(name)
         }
+
         assertions.push(name)
       },
       record() {},
     })
+
     return { count: assertions.length }
   })
 

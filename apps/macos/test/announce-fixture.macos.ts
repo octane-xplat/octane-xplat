@@ -14,7 +14,9 @@ const check = (value: boolean, message: string) => {
 setTimeout(() => {
   try {
     check(NSAccessibilityPriorityLevel.Medium === 50, 'Native medium priority is unavailable')
+
     const app = NSApplication.sharedApplication
+
     check(
       typeof (globalThis as any).__xplatAppKit?.announce === 'function',
       'Host did not install announce',
@@ -26,6 +28,7 @@ setTimeout(() => {
     announce(' \n\t')
     announce('Saved ✓')
     announce('Saved ✓')
+
     // Allocate an actual window without displaying it or making it key.
     const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
       { origin: { x: 0, y: 0 }, size: { width: 100, height: 100 } },
@@ -38,7 +41,9 @@ setTimeout(() => {
     announce('Window allocated')
     window.close()
     announce('After window close')
+
     const shared = (globalThis as any).__xplatMacosWindowing
+
     check(shared.windowCloseHandlers.size === 0, 'announce installed a close handler')
     check(
       shared.platformServices.appStateListeners.size === 0,

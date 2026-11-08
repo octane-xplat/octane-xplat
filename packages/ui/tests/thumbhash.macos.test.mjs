@@ -42,6 +42,7 @@ try {
         new URL(`../src/components/media/${base}.ts`, import.meta.url),
         'utf8',
       )
+
       return `registry[${JSON.stringify(`./${base}`)}] = (() => { const exports = {}; ${transpile(
         source,
       )}; return exports; })();`
@@ -49,6 +50,7 @@ try {
   )
 
   const script = join(directory, 'fixture.cjs')
+
   await writeFile(
     script,
     `const registry = (() => { const registry = {}; const require = (spec) => { const found = registry[spec]; if (!found) { throw new Error('unsupported fixture require: ' + spec); } return found; }
@@ -103,7 +105,9 @@ setTimeout(async () => {
   )
 
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+
   const result = spawnSync(
     await macOSExecutable(packageRoot, 'macos/host'),
     [
@@ -116,6 +120,7 @@ setTimeout(async () => {
   )
 
   const output = result.stdout + result.stderr
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /APPKIT_THUMBHASH_RUNTIME_FAIL/)
   assert.match(output, /APPKIT_THUMBHASH_RUNTIME_OK/)

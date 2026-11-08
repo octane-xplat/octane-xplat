@@ -6,13 +6,17 @@ test('renderer snapshots actual heading owners in NSArray document order, includ
   const nodes = new Map<object, any>(),
     heading = (text: string, props: object) => {
       const view = { stringValue: text, subviews: [] }
+
       nodes.set(view, { type: 'label', view, props: { accessibilityRole: 'heading', ...props } })
       return view
     }
+
   const first = heading('  Account  ', { id: 'account', accessibilityHeadingLevel: 1 }),
     second = heading('Rich account', { accessibilityHeadingLevel: 3 })
+
   const children = [first, { subviews: [second] }],
     root = { subviews: { count: 2, objectAtIndex: (index: number) => children[index] } }
+
   assert.deepEqual(
     readOutlineHeadings(root, (view) => nodes.get(view)),
     [
@@ -20,6 +24,7 @@ test('renderer snapshots actual heading owners in NSArray document order, includ
       { view: second, id: '', label: 'Rich account', level: 3 },
     ],
   )
+
   second.stringValue = 'Changed contents'
   assert.equal(readOutlineHeadings(root, (view) => nodes.get(view))[1].label, 'Changed contents')
 })
@@ -28,6 +33,7 @@ test('unowned/stale native roles, blank headings and repeated/cyclic views do no
   const blank = { stringValue: ' ' },
     current = { stringValue: 'Current', subviews: [] as any[] },
     stale = { stringValue: 'Stale' }
+
   const root = {
     subviews: [
       blank,
@@ -37,10 +43,14 @@ test('unowned/stale native roles, blank headings and repeated/cyclic views do no
       { accessibilityRole: 'AXHeading', stringValue: 'Native widget' },
     ],
   }
+
   current.subviews.push(root)
+
   const cycle: any = { subviews: [] }
+
   cycle.subviews.push(cycle)
   root.subviews.push(cycle)
+
   const nodes = new Map<object, any>([
     [blank, { type: 'label', view: blank, props: { accessibilityRole: 'heading' } }],
     [stale, { type: 'label', view: {}, props: { accessibilityRole: 'heading' } }],
@@ -53,10 +63,12 @@ test('unowned/stale native roles, blank headings and repeated/cyclic views do no
       },
     ],
   ])
+
   assert.deepEqual(
     readOutlineHeadings(root, (view) => nodes.get(view)),
     [{ view: current, id: '', label: 'Current', level: 2 }],
   )
+
   assert.deepEqual(
     readOutlineHeadings(null, () => undefined),
     [],

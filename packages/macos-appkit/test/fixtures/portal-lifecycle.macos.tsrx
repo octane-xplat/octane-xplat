@@ -16,6 +16,7 @@ export default function Case() {
   const [open, setOpen] = useState(true)
   const targetRef = useRef<any>(null)
   const [target, setTarget] = useState<any>(null)
+
   updateValue = setValue
   closePortal = () => setOpen(false)
 
@@ -35,9 +36,11 @@ export default function Case() {
 
 export async function run(ctx: any) {
   await ctx.waitFor(() => ctx.find('portal-content'))
+
   const target = ctx.find('portal-target')
   const content = ctx.find('portal-content')
   const targetOwned = ctx.find('target-owned')
+
   ctx.assert('portal child is attached to the NSView target', content.superview === target, true)
   ctx.assert('portal child reads the declaring provider', String(content.stringValue), 'Avery')
 

@@ -217,6 +217,7 @@ export function FormWizardVerticalTemplate() @{
 
   const errorsByStep = useMemo<Array<Record<string, string>>>(() => {
     const profile: Record<string, string> = {}
+
     if (!authorName.trim()) {
       profile.authorName = 'Enter the name readers should see.'
     }
@@ -226,6 +227,7 @@ export function FormWizardVerticalTemplate() @{
     }
 
     const details: Record<string, string> = {}
+
     if (!title.trim()) {
       details.title = 'Enter the title as it should appear in the store.'
     }
@@ -251,6 +253,7 @@ export function FormWizardVerticalTemplate() @{
     }
 
     const distribution: Record<string, string> = {}
+
     if (scope === 'selected' && territories.length === 0) {
       distribution.territories = 'Choose at least one territory.'
     }
@@ -264,16 +267,19 @@ export function FormWizardVerticalTemplate() @{
     }
 
     const payouts: Record<string, string> = {}
+
     if (!isStripeLinked) {
       payouts.stripe = 'Link a Stripe account to receive payouts.'
     }
 
     const missing = AGREEMENTS.filter((a) => !accepted.includes(a.value))
+
     if (missing.length > 0) {
       payouts.agreements = `Accept the ${missing.map((a) => a.label).join(', ')} to continue.`
     }
 
     const finalize: Record<string, string> = {}
+
     if (!isConfirmed) {
       finalize.confirm = 'Confirm the audio is final before submitting.'
     }

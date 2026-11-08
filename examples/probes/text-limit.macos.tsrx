@@ -5,6 +5,7 @@ import type { ProbeContext } from '../../tools/probe/context'
 
 export default function TextLimitProbe() {
   const [latest, setLatest] = useState('abcd')
+
   return (
     <VStack>
       <TextArea
@@ -22,7 +23,9 @@ export default function TextLimitProbe() {
 // Native API dispatch only: this does not prove physical keyboard/IME or undo.
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('limited-note'))
+
   const view = ctx.find('limited-note')
+
   view.insertTextReplacementRange('XYZ', { location: 2, length: 0 })
   await ctx.waitFor(() => String(view.string) === 'abXcd')
   ctx.assert('bounded middle insertion', String(view.string), 'abXcd')

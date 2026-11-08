@@ -18,9 +18,11 @@ export function MediaServices() @{
 
   const soundsRef = useRef<ReturnType<typeof createSoundBank> | null>(null)
   const playerRef = useRef<ReturnType<typeof createAudioPlayer> | null>(null)
+
   hapticsRef.current ??= createHaptics()
   soundsRef.current ??= createSoundBank({ maxVoices: 4 })
   playerRef.current ??= createAudioPlayer()
+
   const haptics = hapticsRef.current
   const sounds = soundsRef.current
   const player = playerRef.current

@@ -11,6 +11,7 @@ import { tokenizeChatText } from './chat-tokenize'
  *  same content, wrapped flow instead of true inline. */
 export function ChatTokenizedText(props: ChatTokenizedTextProps): unknown @{
   const text = props.children ?? ''
+
   if (!text || !props.tokens || props.tokens.length === 0) {
     return (
       <masonview

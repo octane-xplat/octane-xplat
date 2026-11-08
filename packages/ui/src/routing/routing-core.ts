@@ -86,9 +86,11 @@ const preparationBatches = new WeakMap<object, () => PreparationBatch>()
  * retained entries against a single root snapshot. */
 export function createRoutePreparationBatch(engine: object): PreparationBatch {
   const create = preparationBatches.get(engine)
+
   if (!create) {
     throw new TypeError('Unknown route preparation engine')
   }
+
   return create()
 }
 
@@ -99,12 +101,16 @@ function readContext(
     if (root === undefined) {
       return {}
     }
+
     if (!dependencyRecord(root)) {
       throw new TypeError('Route context must be a plain dependency object')
     }
+
     return { ...root }
   }
+
   const supplied = typeof source === 'function' ? source() : source
+
   return typeof source === 'function' && !dependencyRecord(supplied)
     ? Promise.resolve(supplied).then(copy)
     : copy(supplied)
@@ -138,6 +144,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
   dispose(reason?: 'superseded' | 'disposed' | 'aborted' | 'registry-changed'): void
 } {
   options = { ...options }
+
   const explicitStacks = new WeakMap<object, string>()
   const routeUrl = createRouteUrlPolicy(options)
   const routes = options.catalog.routes.map((route) => ({
@@ -145,10 +152,12 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
     segments: [...route.segments],
     preparation: route.preparation ? { ...route.preparation } : undefined,
   }))
+
   const screens = new Map(Object.entries(options.catalog.screens))
   const behaviors = new Map(
     Object.entries(options.behaviors ?? {}).map(([key, behavior]) => [key, { ...behavior }]),
   )
+
   const stacks = new Set(['root', ...(options.stacks ?? [])])
   const validations = new Set<{ cancel(reason: CancelReason): void }>()
   const pending = new Map<string, { cancel(reason: CancelReason): void }>()
@@ -161,26 +170,34 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
     path,
     error,
   })
+
   const keyFor = (stack: string) => (options.history === 'linear' ? 'history' : stack)
   const metaFor = (to: string) => routes.find((meta) => pathOf(meta) === to)
   const find = (segments: readonly string[]) => {
     for (const meta of routes) {
       const params = matchRouteSegments(meta.segments, segments)
+
       if (params) {
         return { meta, params: params as Record<string, string> }
       }
     }
+
     return undefined
   }
+
   const href = (destination: RouteDestinationInput): string => {
     const meta = metaFor(destination.to)
+
     if (!meta) {
       throw new TypeError('Unknown route pattern')
     }
+
     const stack = destination.stack ?? 'root'
+
     if (!stacks.has(stack)) {
       throw new TypeError('Unknown route stack')
     }
+
     return buildRouteLocation(
       meta.segments,
       destination.params,
@@ -189,11 +206,13 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       routeStackBase(options.base, stack),
     )
   }
+
   const resolveUrl = (url: string): RouteResolution => {
     try {
       const parsed = parseRouteLocation(routeUrl(url), options.base)
       let stack = 'root'
       let segments = parsed.segments
+
       if (segments[0]?.startsWith('@')) {
         stack = decodeURIComponent(segments[0].slice(1))
         if (stack === 'root' || !stacks.has(stack)) {
@@ -226,6 +245,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       return invalid('url', error)
     }
   }
+
   const resolveDestination = (input: unknown, fallbackStack = 'root'): RouteResolution => {
     try {
       input = resolveValidatedDestination(input, options.destinationOwner)
@@ -247,6 +267,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       ]
 
       const extra = Object.keys(fields).find((key) => !allowed.includes(key))
+
       if (extra) {
         return invalid(extra, new TypeError('Undeclared destination field'))
       }
@@ -294,6 +315,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       }
 
       const resolved = resolveUrl(href(destination))
+
       if (resolved.status !== 'matched') {
         return resolved
       }
@@ -326,10 +348,12 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       return invalid('destination', error)
     }
   }
+
   const transitionProblem = (
     destination: RouteDestinationInput,
   ): Extract<RoutePreparationResult, { status: 'invalid-input' }> | undefined => {
     const transition = destination.transition ?? metaFor(destination.to)?.transition
+
     if (transition && options.transitionNames && !options.transitionNames.includes(transition)) {
       return {
         status: 'invalid-input',
@@ -338,14 +362,17 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       }
     }
   }
+
   const validateSearch = async (
     destination: RouteDestinationInput,
   ): Promise<Record<string, unknown>> => {
     const meta = loadedRouteMeta(metaFor(destination.to)!)
     const behavior = behaviors.get(meta.name) ?? behaviors.get(destination.to) ?? meta.preparation
+
     if (!behavior?.validateSearch && Object.keys(destination.search ?? {}).length) {
       throw new TypeError('This route declares no search parameters')
     }
+
     // Validators may transform their input. Never mutate the canonical raw
     // destination snapshot or its repeated-query arrays while doing so.
     const raw = Object.fromEntries(
@@ -354,12 +381,16 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
         Array.isArray(value) ? [...value] : value,
       ]),
     )
+
     const search = behavior?.validateSearch ? await behavior.validateSearch(raw) : raw
+
     if (!dependencyRecord(search)) {
       throw new TypeError('Search validation must return a plain object')
     }
+
     return search
   }
+
   const inspectDestination = async (
     input: unknown,
     settings: { signal?: RouteCancellationSignal } = {},
@@ -368,42 +399,55 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
     if (disposed) {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (settings.signal?.aborted) {
       return { status: 'cancelled', reason: 'aborted' }
     }
+
     const resolved =
       codeOnly && typeof input === 'string' ? resolveUrl(input) : resolveDestination(input)
+
     if (resolved.status !== 'matched') {
       return resolved
     }
+
     const transition = transitionProblem(resolved.destination)
+
     if (transition) {
       return transition
     }
+
     let cancelled: CancelReason | undefined
     let finishCancellation!: (
       result: DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult,
     ) => void
+
     const cancellation = new Promise<
       DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult
     >((resolve) => {
       finishCancellation = resolve
     })
+
     const attempt = {
       cancel(reason: CancelReason) {
         if (cancelled) {
           return
         }
+
         cancelled = reason
         finishCancellation({ status: 'cancelled', reason })
       },
     }
+
     validations.add(attempt)
+
     const abort = () => attempt.cancel('aborted')
+
     settings.signal?.addEventListener('abort', abort, { once: true })
     if (settings.signal?.aborted) {
       abort()
     }
+
     const work = async (): Promise<
       DestinationValidationResult<RouteDestinationInput> | RoutePreloadResult
     > => {
@@ -414,6 +458,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
 
         try {
           const meta = metaFor(resolved.destination.to)!
+
           if (meta.loadModule) {
             await loadRouteModule(meta)
           }
@@ -439,6 +484,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
         return { status: 'invalid-input', path: 'search', error }
       }
     }
+
     try {
       return await Promise.race([work(), cancellation])
     } finally {
@@ -446,6 +492,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       validations.delete(attempt)
     }
   }
+
   const prepare = async (
     input: unknown,
     settings: PrepareSettings = {},
@@ -454,23 +501,30 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
     if (disposed) {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (settings.signal?.aborted) {
       return { status: 'cancelled', reason: 'aborted' }
     }
+
     const resolved = typeof input === 'string' ? resolveUrl(input) : resolveDestination(input)
+
     if (resolved.status !== 'matched') {
       return resolved
     }
+
     const transition = transitionProblem(resolved.destination)
+
     if (transition) {
       return transition
     }
+
     const controller = options.createCancellationController?.()
     let cancelled: CancelReason | undefined
     let finishCancellation!: (result: RoutePreparationResult) => void
     const cancellation = new Promise<RoutePreparationResult>((resolve) => {
       finishCancellation = resolve
     })
+
     const order = ++nextAttempt
     const keys = new Set<string>()
     const attempt = {
@@ -478,6 +532,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
         if (cancelled) {
           return
         }
+
         cancelled = reason
         // A broken host abort hook must not prevent stale-result suppression.
         try {
@@ -485,51 +540,66 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
         } catch {
           /* cancellation still settles */
         }
+
         finishCancellation({ status: 'cancelled', reason })
       },
     }
+
     const claim = (stack: string) => {
       const key = keyFor(stack)
+
       if ((claimedOrder.get(key) ?? 0) > order) {
         attempt.cancel('superseded')
         return false
       }
+
       claimedOrder.set(key, order)
       if (pending.get(key) !== attempt) {
         pending.get(key)?.cancel('superseded')
       }
+
       keys.add(key)
       pending.set(key, attempt)
       return true
     }
+
     claim(resolved.destination.stack ?? 'root')
+
     const abort = () => attempt.cancel('aborted')
+
     settings.signal?.addEventListener('abort', abort, { once: true })
     if (settings.signal?.aborted) {
       abort()
     }
+
     const work = async (): Promise<RoutePreparationResult> => {
       let context: RoutePreparationArgs['context']
+
       try {
         const root = readContext(contextSource)
+
         context = dependencyRecord(root) ? root : await root
       } catch (error) {
         return { status: 'failed', phase: 'context', error }
       }
+
       let current = resolved
       let redirectStack: string | undefined
+
       for (let redirects = 0; redirects <= 16; redirects++) {
         if (cancelled) {
           return { status: 'cancelled', reason: cancelled }
         }
 
         const destination = current.destination
+
         if (!claim(destination.stack ?? 'root')) {
           return { status: 'cancelled', reason: 'superseded' }
         }
 
         try {
           const definition = metaFor(destination.to)!
+
           if (definition.loadModule) {
             await loadRouteModule(definition)
           }
@@ -547,8 +617,10 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
           behaviors.get(meta.name) ?? behaviors.get(destination.to) ?? meta.preparation
 
         let search: Record<string, unknown>
+
         try {
           const transition = transitionProblem(destination)
+
           if (transition) {
             return transition
           }
@@ -571,10 +643,13 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
 
         let phase: 'guard' | 'loader' = 'guard'
         let data: unknown
+
         try {
           for (const group of behavior?.groups ?? []) {
             phase = 'guard'
+
             const additional = await group.beforeLoad?.(args)
+
             if (additional !== undefined && !dependencyRecord(additional)) {
               throw new TypeError('Guard context must be a plain dependency object')
             }
@@ -585,7 +660,9 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
             }
 
             phase = 'loader'
+
             const parentData = await group.loader?.(args)
+
             if (cancelled) {
               return { status: 'cancelled', reason: cancelled }
             }
@@ -594,7 +671,9 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
           }
 
           phase = 'guard'
+
           const additional = await behavior?.beforeLoad?.(args)
+
           if (additional !== undefined && !dependencyRecord(additional)) {
             throw new TypeError('Guard context must be a plain dependency object')
           }
@@ -620,6 +699,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
           }
 
           let next: RouteDestinationInput | ValidatedDestination | undefined
+
           if (error instanceof DestinationRedirect) {
             next = error.destination
           }
@@ -629,6 +709,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
           }
 
           const target = resolveDestination(next, destination.stack ?? 'root')
+
           if (target.status !== 'matched') {
             return target
           }
@@ -671,12 +752,14 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
           match,
         }
       }
+
       return {
         status: 'failed',
         phase: 'redirect',
         error: new Error('Route redirect limit exceeded'),
       }
     }
+
     try {
       return await Promise.race([work(), cancellation])
     } finally {
@@ -688,6 +771,7 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       }
     }
   }
+
   const engine = {
     href,
     resolveUrl,
@@ -706,22 +790,27 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
       if (disposed) {
         return
       }
+
       disposed = true
       for (const attempt of new Set(pending.values())) {
         attempt.cancel(reason)
       }
+
       for (const attempt of validations) {
         attempt.cancel(reason)
       }
+
       validations.clear()
       pending.clear()
       claimedOrder.clear()
     },
   }
+
   preparationBatches.set(engine, () => {
     let snapshot: () => Record<string, unknown> | Promise<Record<string, unknown>> = () => {
       try {
         const value = readContext(options.context)
+
         snapshot = () => value
         return value
       } catch (error) {
@@ -732,7 +821,9 @@ export function createRoutePreparation(options: RoutePreparationOptions): {
         throw error
       }
     }
+
     return { prepare: (input, settings) => prepare(input, settings, () => snapshot()) }
   })
+
   return engine
 }

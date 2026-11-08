@@ -21,6 +21,7 @@ function applySyntaxTheme(el: HTMLElement, theme: CodeBlockProps['syntaxTheme'])
 
   for (const [key, value] of Object.entries(theme.tokens)) {
     const resolved = Array.isArray(value) ? value[0] : value
+
     el.style.setProperty(`--color-syntax-${key}`, resolved)
   }
 }
@@ -32,12 +33,14 @@ function CodeLine(props: {
   tokens?: readonly { type: string; start: number; end: number }[]
 }) @{
   const tokens = props.tokens ?? []
+
   if (tokens.length === 0) {
     return <>{props.line === '' ? '\u200B' : props.line}</>
   }
 
   const parts: any[] = []
   let cursor = 0
+
   for (const token of tokens) {
     if (token.start > cursor) {
       parts.push(props.line.slice(cursor, token.start))
@@ -84,6 +87,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
   const isDiff = props.isDiff ?? false
   const lines = useMemo(() => {
     const l = props.code.split('\n')
+
     if (l.length > 1 && l[l.length - 1] === '') {
       l.pop()
     }
@@ -142,6 +146,7 @@ export function CodeBlock(props: CodeBlockProps): JSX.Element @{
     }
 
     const el = codeRef.current
+
     if (!el || tokenLines.length === 0) {
       return
     }

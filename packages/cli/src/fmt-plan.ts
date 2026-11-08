@@ -39,8 +39,10 @@ export async function planFormat(
     diagnostics: [],
     files: [],
   }
+
   const format = async (path: string, source: string) => {
     const result = await formatter.formatText({ path, source })
+
     if (!result.ok) {
       if (!result.diagnostics.length) {
         throw new Error('Formatter failed without diagnostics')
@@ -48,13 +50,17 @@ export async function planFormat(
 
       for (const d of result.diagnostics) {
         const at = d.line === undefined ? '' : `:${d.line}:${d.column ?? 1}`
+
         plan.diagnostics.push(`${d.path}${at}: ${d.stage} ${d.code} — ${d.message}`)
       }
     }
+
     return result
   }
+
   if (stdin) {
     const result = await format(stdin.path, stdin.source)
+
     if (result.ok) {
       plan.code = result.code
       plan.changed = result.changed
@@ -64,6 +70,7 @@ export async function planFormat(
       const bytes = readFileSync(file)
       const stat = statSync(file)
       const result = await format(relative(cwd, file) || file, bytes.toString('utf8'))
+
       if (result.ok) {
         plan.files.push({
           file,
@@ -75,10 +82,12 @@ export async function planFormat(
       }
     }
   }
+
   // A partial successful plan must never be published after a transform error.
   if (plan.diagnostics.length) {
     plan.files = []
   }
+
   return plan
 }
 
@@ -103,12 +112,15 @@ const IGNORED_DIRS = new Set([
 
 function collectFiles(cwd: string, inputs: string[], formatter: Formatter): string[] {
   const ignores = new Gitignores()
+
   ignores.load(cwd)
+
   const files = new Set<string>()
 
   const walkInto = function* (dir: string): Generator<string> {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const abs = join(dir, entry.name)
+
       if (entry.isSymbolicLink()) {
         continue
       }
@@ -133,6 +145,7 @@ function collectFiles(cwd: string, inputs: string[], formatter: Formatter): stri
         yield* walkInto(abs)
       } else if (entry.isFile()) {
         const ext = entry.name.split('.').pop() ?? ''
+
         if (EXTENSIONS.has(ext) && !ignores.isIgnored(abs)) {
           yield abs
         }
@@ -150,6 +163,7 @@ function collectFiles(cwd: string, inputs: string[], formatter: Formatter): stri
     for (const input of inputs) {
       const abs = resolve(cwd, input)
       let stat
+
       try {
         stat = lstatSync(abs)
       } catch {
@@ -168,6 +182,7 @@ function collectFiles(cwd: string, inputs: string[], formatter: Formatter): stri
         }
       } else {
         const ext = abs.split('.').pop() ?? ''
+
         if (!EXTENSIONS.has(ext)) {
           throw new Error(`unsupported extension .${ext}: ${input}`)
         }
@@ -178,6 +193,7 @@ function collectFiles(cwd: string, inputs: string[], formatter: Formatter): stri
       }
     }
   }
+
   return [...files].sort()
 }
 
@@ -200,12 +216,15 @@ class Gitignores {
     if (this.matchers.has(dir)) {
       return
     }
+
     let matcher: Ignore | null = null
+
     try {
       matcher = ignore().add(readFileSync(join(dir, '.gitignore'), 'utf8'))
     } catch {
       matcher = null
     }
+
     this.matchers.set(dir, matcher)
   }
   isIgnored(abs: string): boolean {
@@ -215,10 +234,12 @@ class Gitignores {
       }
 
       const rel = relative(dir, abs)
+
       if (rel && !rel.startsWith('..') && matcher.ignores(rel)) {
         return true
       }
     }
+
     return false
   }
 }

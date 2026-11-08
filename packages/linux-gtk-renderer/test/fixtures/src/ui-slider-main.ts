@@ -6,6 +6,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { SliderScene, SliderContextScene } from './ui-slider.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK slider test',
   default_width: 360,
@@ -14,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -77,16 +80,19 @@ const render = async (next: Partial<typeof props> = {}) => {
 const close = (a: number | undefined, b: number) => Math.abs((a ?? NaN) - b) <= 2
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 const osInput = GLib.getenv('GTK_SLIDER_OS') === '1'
 async function input(action: {
   key?: string
@@ -97,13 +103,16 @@ async function input(action: {
 }) {
   const b = slider().getBounds(),
     ack = acknowledgments + 1
+
   print(
     'GTK_SLIDER_READY ' +
       JSON.stringify({ ...action, x: b.x + b.width * (action.fraction ?? 0.5), y: b.y + 14 }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed', acknowledgments >= ack)
   await pause()
 }
@@ -119,11 +128,14 @@ async function run() {
   if (!native.test_accessible_double_property) {
     throw new Error('Rebuild XplatMason for typed range checks')
   }
+
   check('minimum metadata', numeric(Gtk.AccessibleProperty.VALUE_MIN, 0))
   check('maximum metadata', numeric(Gtk.AccessibleProperty.VALUE_MAX, 100))
   check('current value metadata', numeric(Gtk.AccessibleProperty.VALUE_NOW, 25))
+
   const original = slider()
   const thumb = nodes('vx-slider-thumb')[0]?.view
+
   check('one field owner', nodes('vx-field').length === 1)
   check('one visible field label', nodes('vx-field-label').length === 1)
   check('field width', close(bounds('vx-field')?.width, 280))
@@ -137,11 +149,14 @@ async function run() {
     'track spans the slider',
     close(bounds('vx-slider-track')?.width, slider().getBounds().width),
   )
+
   check(
     'quarter fill for scalar 25',
     close(bounds('vx-slider-fill')?.width, slider().getBounds().width / 4),
   )
+
   const initialThumb = bounds('vx-slider-thumb')
+
   check(
     'thumb stays inside the control',
     !!initialThumb &&
@@ -149,15 +164,18 @@ async function run() {
       initialThumb.x + initialThumb.width <=
         slider().getBounds().x + slider().getBounds().width + 1,
   )
+
   check(
     'authored id is unique',
     [...container.nodes.values()].filter((n) => n.props.id === 'slider-control').length === 1,
   )
+
   await render({ value: 75 })
   check(
     'programmatic value updates fill',
     close(bounds('vx-slider-fill')?.width, slider().getBounds().width * 0.75),
   )
+
   check('programmatic value retains host', slider() === original)
   check('programmatic value retains thumb', nodes('vx-slider-thumb')[0]?.view === thumb)
   check('programmatic value stays silent', changes.length === 0)
@@ -177,10 +195,12 @@ async function run() {
     'range fill spans low to high',
     close(bounds('vx-slider-fill')?.width, slider().getBounds().width * 0.6),
   )
+
   check(
     'range fill starts at low value',
     close(bounds('vx-slider-fill')?.x, slider().getBounds().x + slider().getBounds().width * 0.2),
   )
+
   await render({
     value: 25,
     marks: [
@@ -190,6 +210,7 @@ async function run() {
     valueDisplay: 'text',
     formatValue: (value) => value + '%',
   })
+
   check('marks render labeled stops', nodes('vx-slider-mark').length === 2)
   check('formatted value text', labels() === '25%')
   check('single-value transition removes range thumb', nodes('vx-slider-thumb').length === 1)
@@ -205,17 +226,21 @@ async function run() {
     'external size cascade',
     nodes('vx-slider')[0].cssClasses?.has('vx-slider--size-sm') === true,
   )
+
   await render({ value: undefined, defaultValue: 40 })
   check(
     'uncontrolled default value seeds fill',
     close(bounds('vx-slider-fill')?.width, slider().getBounds().width * 0.4),
   )
+
   await render({ defaultValue: 90 })
   check(
     'default changes do not replace local state',
     close(bounds('vx-slider-fill')?.width, slider().getBounds().width * 0.4),
   )
+
   let accept = false
+
   await render({
     value: 40,
     defaultValue: undefined,
@@ -230,8 +255,10 @@ async function run() {
       }
     },
   })
+
   const inputOwner = slider()
   let retiringPopup: any
+
   if (osInput) {
     await input({ click: true })
     check('pointer focuses the slider', window.get_focus() === slider())
@@ -256,12 +283,16 @@ async function run() {
     check('left decrements', props.value === 40)
     await input({ key: 'Home' })
     check('Home selects the minimum', props.value === 0)
+
     const atMin = changes.length
+
     await input({ key: 'Left' })
     check('minimum suppresses duplicate change', changes.length === atMin)
     await input({ key: 'End' })
     check('End selects the maximum', props.value === 100)
+
     const atMax = changes.length
+
     await input({ key: 'Right' })
     check('maximum suppresses duplicate change', changes.length === atMax)
     await input({ key: 'Return' })
@@ -316,8 +347,11 @@ async function run() {
     await input({ drag: { dx: 28 }, fraction: 0.45 })
     check('uncontrolled drag edits persist', numeric(Gtk.AccessibleProperty.VALUE_NOW, 55))
   }
+
   accept = true
+
   const beforeBounds = changes.length
+
   await render({ value: 3, min: 3, max: 28, step: 5, formatValue: (value) => 'Level ' + value })
   check('bounds updates stay silent', changes.length === beforeBounds)
   check('minimum metadata updates', numeric(Gtk.AccessibleProperty.VALUE_MIN, 3))
@@ -330,6 +364,7 @@ async function run() {
       'Level 3',
     ) === null,
   )
+
   if (osInput) {
     await input({ key: 'Right' })
     check(
@@ -342,6 +377,7 @@ async function run() {
     await input({ key: 'Home' })
     check('Home respects changed minimum', props.value === 3)
   }
+
   if (osInput) {
     await render({ value: 21, min: 3, max: 28, step: 6 })
     await input({ key: 'End' })
@@ -350,24 +386,29 @@ async function run() {
       props.value === 28 && numeric(Gtk.AccessibleProperty.VALUE_NOW, 28),
     )
   }
+
   await render({ value: 50, min: 50, max: 50, step: undefined, formatValue: undefined })
   check('equal bounds produce an empty finite fill', close(bounds('vx-slider-fill')?.width, 0))
   check('equal bounds keep the thumb finite', Number.isFinite(bounds('vx-slider-thumb')?.x))
   check('equal bounds metadata is valid', numeric(Gtk.AccessibleProperty.VALUE_NOW, 50))
   if (osInput) {
     const count = changes.length
+
     await input({ key: 'Right' })
     check('equal bounds do not emit changes', changes.length === count)
   }
+
   await render({ value: 150, min: 0, max: 100, step: 5 })
   check(
     'programmatic values clamp to the visual bounds',
     close(bounds('vx-slider-fill')?.width, 280),
   )
+
   check(
     'programmatic values clamp to semantic bounds',
     numeric(Gtk.AccessibleProperty.VALUE_NOW, 100),
   )
+
   check('input and metadata updates retain the native host', slider() === inputOwner)
   if (osInput) {
     await render({ value: 30, valueDisplay: 'tooltip', formatValue: (value) => value + '%' })
@@ -383,6 +424,7 @@ async function run() {
     await input({ hover: true, fraction: 0.3 })
     await pause(220)
     check('hover opens the value tooltip', nodes('vx-tooltip').length === 1)
+
     const hintText = () =>
       [...container.nodes.values()]
         .filter((n) => n.view instanceof Gtk.Label)
@@ -396,6 +438,7 @@ async function run() {
 
     const high = nodes('vx-slider-thumb')[0].view as any
     const popup = high.get_first_child()
+
     check(
       'value tooltip is anchored on the high thumb',
       popup instanceof Gtk.Popover && popup.get_parent() === high && popup.get_visible(),
@@ -407,7 +450,9 @@ async function run() {
     await input({ key: 'shift+Tab' })
     await pause(220)
     check('keyboard focus opens the value tooltip', nodes('vx-tooltip').length === 1)
+
     const keyboardPopup = high.get_first_child()
+
     await input({ key: 'Right' })
     check('open tooltip updates with the value', props.value === 35 && hintText().includes('35%'))
     check('value updates retain the tooltip surface', high.get_first_child() === keyboardPopup)
@@ -441,12 +486,14 @@ async function run() {
     check('retired tooltip remains detached', popup.get_parent() === null)
     check('reopened tooltip keeps the correct anchor', retiringPopup?.get_parent() === high)
   }
+
   root.unmount()
   await pause()
   check('unmount releases nodes', container.nodes.size === 0)
   if (osInput) {
     check('unmount while open detaches the tooltip surface', retiringPopup?.get_parent() === null)
   }
+
   print(
     'GTK_SLIDER ' +
       JSON.stringify({
@@ -457,14 +504,17 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(String(error))
@@ -472,6 +522,7 @@ run().catch((error) => {
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

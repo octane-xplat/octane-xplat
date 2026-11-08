@@ -16,6 +16,7 @@ type SignInResult = { kind: 'success'; account: Account } | { kind: 'expired' }
 export async function createAuthenticationExample(
   batch: (update: () => void | Promise<void>) => Promise<void> = async (update) => {
     let result: void | Promise<void>
+
     flushSync(() => {
       result = update()
     })
@@ -45,6 +46,7 @@ export async function createAuthenticationExample(
     const navigation = useRouter(router)
     const lifetime = useMemo(() => ({ active: true, attempt: 0 }), [])
     const [message, setMessage] = useState('ready')
+
     useLayoutEffect(
       () => () => {
         lifetime.active = false
@@ -56,8 +58,11 @@ export async function createAuthenticationExample(
     const signIn = () => {
       const attempt = ++lifetime.attempt
       const version = authority
+
       setMessage('pending')
+
       const sdk = new Promise<SignInResult>((resolve) => completions.push(resolve))
+
       void sdk.then((result) => {
         if (!lifetime.active || lifetime.attempt !== attempt || authority !== version) {
           outcomes.push('cancelled')
@@ -135,6 +140,7 @@ export async function createAuthenticationExample(
 
   function App(): Renderable {
     const [state, setState] = useState<{ version: number; returnTo?: string }>({ version: 0 })
+
     changeSession = (next, returnTo) => {
       account = next
       authority++
@@ -154,9 +160,13 @@ export async function createAuthenticationExample(
   }
 
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   await batch(() => root.render(App))
+
   let disposed = false
   const dispose = async () => {
     if (disposed) {
@@ -189,6 +199,7 @@ export async function createAuthenticationExample(
       batch(() => changeSession(next, returnTo)),
     async returnFromRetiringOwner(next: Account, returnTo: string) {
       let request!: ReturnType<typeof router.navigateUrl>
+
       await batch(() => {
         changeSession(next)
         request = router.navigateUrl(returnTo, { replace: true })
@@ -199,6 +210,7 @@ export async function createAuthenticationExample(
     click: (id: string) =>
       batch(() => {
         const button = document.getElementById(id) as HTMLButtonElement | null
+
         if (!button) {
           throw new Error('Missing authentication control: ' + id)
         }

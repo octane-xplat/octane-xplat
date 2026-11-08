@@ -14,6 +14,7 @@ export function Pagination(props: PaginationProps): JSX.Element @{
   const current = Math.min(Math.max(1, props.page), Math.max(1, count))
 
   const pages: (number | '…')[] = []
+
   for (let p = 1; p <= count; p++) {
     if (p === 1 || p === count || Math.abs(p - current) <= sibling) {
       pages.push(p)

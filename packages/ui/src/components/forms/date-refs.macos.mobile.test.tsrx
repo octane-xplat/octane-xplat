@@ -12,6 +12,7 @@ import { TimeInput } from './TimeInput.macos.tsrx'
 import { DateTimeInput } from './DateTimeInput.macos.tsrx'
 import { DateRangeInput } from './DateRangeInput.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({ Popover: () => null }))
 
 function mount(component: any, props: any) {
@@ -30,6 +31,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -77,6 +79,7 @@ it.each(controls)(
 
     const env = mount(Control, props)
     let held: any
+
     try {
       held = object.current
       expect(held).toBeTruthy()
@@ -86,10 +89,14 @@ it.each(controls)(
       expect(env.window.firstResponder).toBe(env.primary())
       held.blur()
       expect(env.window.firstResponder).toBe(null)
+
       const primary = env.primary()
+
       for (const blocked of [{ isDisabled: true }, { isReadOnly: true }, { isLoading: true }]) {
         env.render({ ...props, ...blocked })
+
         const before = env.calls.length
+
         held.focus()
         expect(env.calls).toHaveLength(before)
         expect(held.native).toBe(primary)
@@ -107,7 +114,9 @@ it.each(controls)(
 
     expect(next.current).toBe(null)
     expect(held.native).toBe(null)
+
     const before = env.calls.length
+
     held.focus()
     held.blur()
     expect(env.calls).toHaveLength(before)

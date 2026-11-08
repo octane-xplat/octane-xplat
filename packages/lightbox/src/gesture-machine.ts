@@ -84,18 +84,23 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
     const view = env.view()
     const [minX, maxX] = panRange(f.x, f.w, s, view.w)
     const [minY, maxY] = panRange(f.y, f.h, s, view.h)
+
     return { minX, maxX, minY, maxY }
   }
+
   const reset = (): Command[] => {
     const wasDismiss = g?.kind === 'dismiss'
+
     g = null
     return wasDismiss ? [{ kind: 'dragging', value: false }] : []
   }
+
   /** Pull-to-dismiss: shrink around the grab point, fade the backdrop (upstream `pull`). */
   const pull = (grab: XY, dx: number, dy: number): Command[] => {
     const f = env.fit()!
     const H = env.view().h
     const k = 1 - clamp(Math.abs(dy) / (H * 0.5), 0, 1) * 0.3
+
     return [
       {
         kind: 'set',
@@ -108,10 +113,12 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
       { kind: 'presence', value: 1 - clamp(Math.abs(dy) / (H * 0.35), 0, 1) },
     ]
   }
+
   /** Release after a pull: fly home with velocity or spring back (upstream `letGo`). */
   const letGo = (dy: number, v: XY, cancelled: boolean): Command[] => {
     const out: Command[] = [{ kind: 'dragging', value: false }]
     const projected = dy + v.y * 0.2
+
     if (
       !cancelled &&
       Math.abs(projected) > env.view().h * 0.15 &&
@@ -121,20 +128,25 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
     } else {
       out.push({ kind: 'settle', t: { x: 0, y: 0, scale: 1 } }, { kind: 'restorePresence' })
     }
+
     return out
   }
+
   /** Spring target zoomed about a point (upstream `settle` + `zoomTo`). */
   const settleTo = (s1: number, focus: XY | null): Command[] => {
     const f = env.fit()
+
     if (!f) {
       return []
     }
+
     const view = env.view()
     const t = env.transform()
     const s0 = t.scale
     const s = clamp(s1, 1, env.maxZoom())
     const p = focus ?? { x: view.w / 2, y: view.h / 2 }
     const b = bounds(s)
+
     return [
       { kind: 'stop' },
       {
@@ -161,6 +173,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const t = env.transform()
+
         g = { kind: 'pending', start: intent.at, x0: t.x, y0: t.y, pointer: intent.pointer }
         return [{ kind: 'stop' }]
       }
@@ -174,6 +187,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const p = intent.at
+
         if (g.kind === 'pending') {
           if (dist(p, g.start) < SLOP) {
             return []
@@ -182,6 +196,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
           const adx = Math.abs(p.x - g.start.x)
           const ady = Math.abs(p.y - g.start.y)
           const s = env.transform().scale
+
           if (s > ZOOMED) {
             g = { ...g, kind: 'pan' }
           } else if (g.pointer === 'wheel') {
@@ -210,10 +225,12 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
 
         const dx = p.x - g.start.x
         const dy = p.y - g.start.y
+
         if (g.kind === 'pan') {
           const t = env.transform()
           const b = bounds(t.scale)
           const view = env.view()
+
           return [
             {
               kind: 'set',
@@ -238,6 +255,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const gesture = g
+
         g = null
         if (gesture.kind === 'pending') {
           return []
@@ -261,6 +279,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const t = env.transform()
+
         return [
           {
             kind: 'inertia',
@@ -280,6 +299,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const t = env.transform()
+
         g = {
           kind: 'pinch',
           d0: dist(intent.a, intent.b) || 1,
@@ -311,8 +331,10 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         const max = env.maxZoom()
         const pinch = g
         let s = (pinch.s0 * dist(intent.a, intent.b)) / pinch.d0
+
         s = s > max ? max * (s / max) ** 0.3 : s < 1 ? s ** 0.75 : s
         pinch.m = mid(intent.a, intent.b)
+
         const out: Command[] = [
           {
             kind: 'set',
@@ -336,14 +358,18 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         }
 
         const pinch = g
+
         g = null
+
         const t = env.transform()
+
         if (!pinch.wasZoomed && t.scale < 0.85 && !intent.cancelled) {
           return [{ kind: 'close' }]
         }
 
         const s1 = clamp(t.scale, 1, env.maxZoom())
         const f = env.fit()!
+
         return [
           { kind: 'stop' },
           {
@@ -359,6 +385,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
       }
       case 'tap': {
         const f = env.fit()
+
         if (!f) {
           return []
         }
@@ -383,11 +410,13 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
       }
       case 'doubleTap': {
         const f = env.fit()
+
         if (!f) {
           return []
         }
 
         const view = env.view()
+
         if (env.transform().scale > ZOOMED) {
           return settleTo(1, null)
         }
@@ -396,6 +425,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
       }
       case 'zoomNow': {
         const f = env.fit()
+
         if (!f) {
           return []
         }
@@ -403,6 +433,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
         const t = env.transform()
         const s1 = clamp(intent.scale, 1, env.maxZoom())
         const b = bounds(s1)
+
         return [
           { kind: 'stop' },
           {
@@ -418,6 +449,7 @@ export function createGestureMachine(env: MachineEnv): { send(intent: Intent): C
       case 'panBy': {
         const t = env.transform()
         const b = bounds(t.scale)
+
         return [
           {
             kind: 'set',

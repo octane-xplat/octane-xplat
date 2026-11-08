@@ -8,9 +8,12 @@ function fixture(initial = {}) {
     available = true,
     fail = false,
     accept = true
+
   const entries = [],
     dismissed = []
+
   props.onDismissed ??= () => dismissed.push('A')
+
   const owner = createSheetOwner({
     props: () => props,
     changed() {},
@@ -20,22 +23,27 @@ function fixture(initial = {}) {
             if (fail) {
               throw Error('private native detail')
             }
+
             const entry = { view, callbacks, target: {}, presented: false, presents: 0, closes: 0 }
+
             entry.present = () => {
               entry.presents++
               entry.presented = accept
               return accept
             }
+
             entry.close = () => {
               entry.closes++
               callbacks.onDismissed()
             }
+
             entries.push(entry)
             callbacks.onDismissed() // Construction is not dismissal.
             return entry
           }
         : undefined,
   })
+
   owner.bind({})
   return {
     owner,
@@ -59,6 +67,7 @@ function fixture(initial = {}) {
 test('waits for portal commit; live callbacks/content changes retain the native session', () => {
   const f = fixture(),
     entry = f.entries[0]
+
   assert.equal(entry.presents, 0)
   f.owner.commit({})
   assert.equal(entry.presents, 0)
@@ -85,6 +94,7 @@ test('waits for portal commit; live callbacks/content changes retain the native 
 test('controlled close notifies once with the current callback, before/after native echo', () => {
   const f = fixture(),
     first = f.entries[0]
+
   f.owner.commit(first.target)
   f.set({
     open: false,
@@ -93,6 +103,7 @@ test('controlled close notifies once with the current callback, before/after nat
       f.owner.update()
     },
   })
+
   f.owner.update()
   f.owner.update()
   assert.deepEqual(f.dismissed, ['B'])
@@ -104,12 +115,15 @@ test('controlled close notifies once with the current callback, before/after nat
 
 test('closing a prepared or window-waiting session is silent', () => {
   const f = fixture()
+
   f.set({ open: false })
   f.owner.update()
   assert.deepEqual(f.dismissed, [])
   f.set({ open: true })
   f.owner.update()
+
   const waiting = f.entries[1]
+
   waiting.present = () => true // Accepted request, no native window yet.
   f.owner.commit(waiting.target)
   f.set({ open: false })
@@ -122,13 +136,18 @@ test('closing a prepared or window-waiting session is silent', () => {
 test('id/view replacement and unmount silence stale completions and clean each session once', () => {
   const f = fixture({ id: 'A' }),
     first = f.entries[0]
+
   f.owner.commit(first.target)
   f.set({ id: 'B' })
   f.owner.update()
+
   const second = f.entries[1]
+
   f.owner.commit(second.target)
   f.owner.bind({})
+
   const third = f.entries[2]
+
   f.owner.commit(third.target)
   first.callbacks.onDismissed()
   first.callbacks.onUnavailable()
@@ -144,12 +163,14 @@ test('id/view replacement and unmount silence stale completions and clean each s
     f.entries.map((e) => e.closes),
     [1, 1, 1],
   )
+
   assert.deepEqual(f.dismissed, [])
 })
 
 test('unavailable/throwing preparation and presentation can retry after close/reopen', () => {
   for (const mode of ['missing', 'prepare', 'present']) {
     const f = fixture({ open: false })
+
     if (mode === 'missing') {
       f.available(false)
     }
@@ -182,6 +203,7 @@ test('unavailable/throwing preparation and presentation can retry after close/re
 test('asynchronous native failure drops only the current portal, never reports dismissal', () => {
   const f = fixture(),
     entry = f.entries[0]
+
   f.owner.commit(entry.target)
   entry.callbacks.onUnavailable()
   entry.callbacks.onDismissed()
@@ -199,6 +221,7 @@ test('consumer failure cannot keep an ended native session or repeat dismissal',
       },
     }),
     entry = f.entries[0]
+
   f.owner.commit(entry.target)
   assert.throws(() => entry.callbacks.onDismissed(), /consumer failed/)
   assert.equal(f.owner.getTarget(), null)

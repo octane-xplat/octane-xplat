@@ -58,7 +58,9 @@ const topDrawer = (root: unknown): { root: unknown } | undefined => {
  *  suppression keeps pointer input off the covered content. */
 export function Drawer(props: DrawerProps): unknown @{
   const latest = useRef(props)
+
   latest.current = props
+
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
   const open = props.open ?? internal
   const sentinel = useRef<any>(null)
@@ -73,10 +75,12 @@ export function Drawer(props: DrawerProps): unknown @{
   }
 
   const dismiss = useRef(requestDismiss)
+
   dismiss.current = requestDismiss
 
   useEffect(() => {
     const view = sentinel.current
+
     if (!view || !open) {
       return
     }
@@ -94,6 +98,7 @@ export function Drawer(props: DrawerProps): unknown @{
     const root = view.get_root?.()
     const entry = { root }
     let keys: any = null
+
     if (typeof root?.add_controller === 'function') {
       drawerLayers.push(entry)
       keys = new Gtk.EventControllerKey()
@@ -111,6 +116,7 @@ export function Drawer(props: DrawerProps): unknown @{
 
     return () => {
       const index = drawerLayers.indexOf(entry)
+
       if (index >= 0) {
         drawerLayers.splice(index, 1)
       }

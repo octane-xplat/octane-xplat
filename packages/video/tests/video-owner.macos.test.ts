@@ -19,6 +19,7 @@ function native() {
       seeking: false,
       message: '',
     }
+
   const view: AppKitVideoNative = {
     setSource(source) {
       calls.push(['source', source])
@@ -62,21 +63,25 @@ function native() {
       calls.push(['dispose'])
     },
   }
+
   return { view, calls, value }
 }
 
 function fixture(input: Partial<VideoProps> = {}) {
   let props: VideoProps = { src: '/clip.mp4', ...input },
     nextID = 0
+
   const timers = new Map<number, { callback(): void; delay: number }>(),
     states: AppKitVideoState[] = [],
     errors: unknown[] = []
+
   const owner = createAppKitVideoOwner({
     props: () => props,
     publish: (state) => states.push(state),
     report: (error) => errors.push(error),
     schedule: (callback, delay) => {
       const id = ++nextID
+
       timers.set(id, { callback, delay })
       return id
     },
@@ -84,14 +89,19 @@ function fixture(input: Partial<VideoProps> = {}) {
       timers.delete(id)
     },
   })
+
   const n = native()
+
   owner.attach(n.view)
+
   const tick = () => {
     const first = timers.entries().next().value
+
     assert.ok(first, 'expected scheduled video work')
     timers.delete(first[0])
     first[1].callback()
   }
+
   return {
     owner,
     n,
@@ -114,6 +124,7 @@ test('source flags land before load, ready is deferred/once and unchanged paused
       fit: 'cover',
       onReady: (event) => ready.push(event.duration!),
     })
+
   try {
     assert.deepEqual(env.n.calls.slice(0, 4), [
       ['muted', true],
@@ -145,6 +156,7 @@ test('source flags land before load, ready is deferred/once and unchanged paused
 test('loading/playing poll at 250ms; a paused ready surface stops and current play/pause callbacks follow intent', () => {
   const changes: boolean[] = [],
     env = fixture({ onPlayingChange: (value) => changes.push(value) })
+
   try {
     env.tick()
     assert.equal([...env.timers.values()][0].delay, 250)
@@ -169,7 +181,9 @@ test('loading/playing poll at 250ms; a paused ready surface stops and current pl
 test('ready callback source replacement retires an old ended event and owns subsequent metadata', () => {
   let env: ReturnType<typeof fixture>,
     ends = 0
+
   const ready: number[] = []
+
   env = fixture({
     onReady: (event) => {
       ready.push(event.duration!)
@@ -179,6 +193,7 @@ test('ready callback source replacement retires an old ended event and owns subs
     },
     onEnded: () => ends++,
   })
+
   try {
     env.n.value.status = 'ended'
     env.n.value.duration = 1000
@@ -202,6 +217,7 @@ test('current callbacks replace old ones and consumer exceptions do not become p
       onReady: () => calls.push('old'),
       onError: () => calls.push('false error'),
     })
+
   try {
     env.update({
       onReady: () => {
@@ -224,6 +240,7 @@ test('current callbacks replace old ones and consumer exceptions do not become p
 test('native failure reports once; explicit play retries while rerenders do not, and source replacement can recover', () => {
   const errors: string[] = [],
     env = fixture({ onError: (event) => errors.push(event.message!) })
+
   try {
     env.n.value.status = 'failed'
     env.n.value.message = 'private source URI'
@@ -254,6 +271,7 @@ test('native failure reports once; explicit play retries while rerenders do not,
 test('pre-ready seeks keep the last finite millisecond request, mute events are deferred and props reconcile without source reload', () => {
   const muted: boolean[] = [],
     env = fixture({ onMutedChange: (value) => muted.push(value) })
+
   try {
     env.owner.handle.seekTo(500)
     env.owner.handle.seekTo(1250)
@@ -288,13 +306,18 @@ test('retired timer callbacks cannot steal a replacement surface timer; disposed
   const env = fixture(),
     replacement = native(),
     retired = [...env.timers.values()][0].callback
+
   env.owner.attach(replacement.view)
+
   const timer = [...env.timers.keys()][0]
+
   retired()
   assert.equal(env.timers.has(timer), true)
   assert.equal(env.n.calls.filter(([name]) => name === 'dispose').length, 1)
   env.owner.dispose()
+
   const count = replacement.calls.length
+
   env.owner.handle.play()
   env.owner.handle.pause()
   env.owner.handle.seekTo(1000)
@@ -308,11 +331,14 @@ test('retired timer callbacks cannot steal a replacement surface timer; disposed
 test('replaying in ready callback retires a stale terminal event and cleanup reentry cannot load a detached new surface', () => {
   let env: ReturnType<typeof fixture>,
     ends = 0
+
   env = fixture({ onReady: () => env.owner.handle.play(), onEnded: () => ends++ })
   env.n.value.status = 'ended'
   env.tick()
   assert.equal(ends, 0)
+
   const replacement = native()
+
   env.n.view.dispose = () => env.owner.dispose()
   env.owner.attach(replacement.view)
   assert.equal(replacement.calls.filter(([name]) => name === 'dispose').length, 1)
@@ -320,12 +346,14 @@ test('replaying in ready callback retires a stale terminal event and cleanup ree
     replacement.calls.some(([name]) => name === 'source'),
     false,
   )
+
   assert.equal(env.timers.size, 0)
 })
 
 test('paused error observation is opt-in at one second and installing/removing the current callback updates ownership', () => {
   const errors: string[] = [],
     env = fixture()
+
   try {
     env.n.value.status = 'ready'
     env.tick()

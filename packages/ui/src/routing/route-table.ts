@@ -88,6 +88,7 @@ export class RouteManifestError extends Error {
   readonly issues: readonly RouteDiagnostic[]
   constructor(issues: RouteDiagnostic | readonly RouteDiagnostic[]) {
     const list = Array.isArray(issues) ? issues : [issues]
+
     super(
       'invalid route definitions:\n' + list.map((i) => '  ' + formatRouteDiagnostic(i)).join('\n'),
     )
@@ -107,6 +108,7 @@ function segmentParams(segments: readonly string[]): string[] {
  *  mid-path '*' is a literal segment, not a remainder capture. */
 function warnOnStraySplat(segments: readonly string[], file: string): void {
   const at = segments.findIndex((s) => s.startsWith('*'))
+
   if (at !== -1 && at !== segments.length - 1) {
     warnDiagnostic({
       code: 'route/mid-path-catchall',
@@ -132,6 +134,7 @@ const PRESENT = /\+(modal|fade|push)$/
 function bakedLookup(manifest: () => RouteManifest | undefined, name: string) {
   return () => {
     const baked = manifest()?.baked
+
     if (baked && Object.prototype.hasOwnProperty.call(baked, name)) {
       return baked[name]
     }
@@ -213,28 +216,38 @@ export function deriveLazyRouteManifest(
   const placeholder = () => {
     throw new Error('Route module has not been loaded')
   }
+
   const definitions = Object.fromEntries(
     Object.keys(files).map((key) => [key, { default: placeholder }]),
   )
+
   const manifest = deriveRouteManifest({ ...definitions, ...layoutFiles }, prefer, dir)
+
   manifest.baked = baked
   if (Object.values(manifest.layouts).includes(placeholder)) {
     throw new TypeError('Lazy route catalogs require eager layout modules')
   }
+
   for (const meta of manifest.routes) {
     const load = files[meta.file]
+
     meta.loadModule = async () => {
       const module = await load()
       const resolved = deriveRouteManifest({ [meta.file]: module }, prefer, dir)
+
       resolved.baked = baked
+
       const route = resolved.routes.find((candidate) => candidate.name === meta.name)
       const screen = resolved.screens[meta.name]
+
       if (!route || !screen) {
         throw new TypeError(`Route ${meta.file} exports no screen`)
       }
+
       return { meta: route, screen }
     }
   }
+
   return manifest
 }
 
@@ -264,15 +277,18 @@ export function deriveRouteManifest(
     }
 
     let rel = key.replace(/^\.?\//, '')
+
     if (rel.startsWith(prefix)) {
       rel = rel.slice(prefix.length)
     }
 
     rel = rel.replace(EXT, '')
+
     const parts = rel.split('/')
     let base = parts[parts.length - 1]
     const sm = SUFFIX.exec(base)
     const suffix = sm?.[1]
+
     if (sm) {
       base = base.slice(0, base.length - sm[0].length)
     }
@@ -285,6 +301,7 @@ export function deriveRouteManifest(
     const pm = PRESENT.exec(base)
     const presentation = pm?.[1] === 'fade' ? 'push' : (pm?.[1] as RouteMeta['presentation'])
     const transition = pm?.[1] === 'fade' ? 'fade' : undefined
+
     if (pm) {
       base = base.slice(0, base.length - pm[0].length)
     }
@@ -292,6 +309,7 @@ export function deriveRouteManifest(
     if (base === '_layout') {
       const d = parts.slice(0, -1).join('/')
       const prev = layoutRank.get(d)
+
       if (prev !== undefined && prev <= rank) {
         if (prev === rank) {
           issues.push({
@@ -307,6 +325,7 @@ export function deriveRouteManifest(
       }
 
       const component = pick(files[key], key)
+
       if (component) {
         layouts[d] = component
         layoutRank.set(d, rank)
@@ -317,6 +336,7 @@ export function deriveRouteManifest(
     }
 
     const segs = parts.slice(0, -1).concat(base)
+
     if (segs[segs.length - 1] === 'index') {
       segs.pop()
     }
@@ -336,6 +356,7 @@ export function deriveRouteManifest(
 
     const mod = files[key]
     const dataMode = mod?.dataMode
+
     if (dataMode === 'baked' || dataMode === 'live') {
       meta.dataMode = dataMode
     } else if (dataMode !== undefined) {
@@ -349,6 +370,7 @@ export function deriveRouteManifest(
     }
 
     const loader = mod?.loader
+
     if (meta.dataMode === 'baked') {
       meta.loader = bakedLookup(() => self.m, name)
       if (typeof loader === 'function') {
@@ -369,6 +391,7 @@ export function deriveRouteManifest(
     }
 
     const beforeLoad = mod?.beforeLoad
+
     if (typeof beforeLoad === 'function') {
       meta.beforeLoad = beforeLoad
     } else if (beforeLoad !== undefined) {
@@ -395,6 +418,7 @@ export function deriveRouteManifest(
     }
 
     const groups = routeGroupPreparation(mod?.group)
+
     if (mod?.group !== undefined && !groups) {
       issues.push(invalidExport(key, 'group', mod.group, 'a group created by defineRouteGroup'))
     }
@@ -413,6 +437,7 @@ export function deriveRouteManifest(
     }
 
     const errorBoundary = mod?.ErrorBoundary
+
     if (typeof errorBoundary === 'function') {
       meta.errorBoundary = errorBoundary
     } else if (errorBoundary !== undefined) {
@@ -427,6 +452,7 @@ export function deriveRouteManifest(
     }
 
     const head = mod?.head
+
     if (
       head &&
       ((typeof head === 'object' && !Array.isArray(head)) || typeof head === 'function')
@@ -437,6 +463,7 @@ export function deriveRouteManifest(
     }
 
     const prev = seen.get(name)
+
     if (prev && prev.rank <= rank) {
       if (prev.rank === rank) {
         issues.push({
@@ -452,6 +479,7 @@ export function deriveRouteManifest(
     }
 
     const component = pick(files[key], key)
+
     if (component) {
       seen.set(name, { rank, meta, component })
     }
@@ -463,6 +491,7 @@ export function deriveRouteManifest(
 
   const screens: RouteManifest['screens'] = Object.create(null)
   const routes: RouteMeta[] = []
+
   for (const { meta, component } of seen.values()) {
     screens[meta.name] = component
     routes.push(meta)
@@ -476,6 +505,7 @@ export function deriveRouteManifest(
   warnOnUnmatchedLayouts(layouts, routes)
 
   const manifest = { screens, routes, layouts, loaders }
+
   self.m = manifest
   return manifest
 }
@@ -488,6 +518,7 @@ export function deriveRouteManifest(
 function bySpecificity(a: RouteMeta, b: RouteMeta): number {
   const weight = (s: string) =>
     s.startsWith('*') ? 0 : s.startsWith(':') ? (s.endsWith('?') ? 1 : 2) : 3
+
   const catchAll = (meta: RouteMeta) => (meta.segments.some((s) => s.startsWith('*')) ? 0 : 1)
 
   return (
@@ -648,6 +679,7 @@ function assembleRoutes(
 
   for (const [key, layout] of layoutEntries) {
     const dir = key.replace(/^\/+|\/+$/g, '')
+
     if (dir !== key) {
       warnDiagnostic({
         code: 'route/normalized-layout-key',
@@ -676,6 +708,7 @@ function assembleRoutes(
   for (const [i, spec] of specs.entries()) {
     const at = `routes[${i}]`
     const before = issues.length
+
     if (!spec || typeof spec !== 'object') {
       issues.push({
         code: 'route/invalid-spec',
@@ -710,6 +743,7 @@ function assembleRoutes(
     const name = segments.join('/') || 'index'
 
     const firstAt = firstSpecAt.get(name)
+
     if (firstAt !== undefined) {
       issues.push({
         code: 'route/duplicate-name',
@@ -874,6 +908,7 @@ function assembleRoutes(
 
   const routes = [...metas.values()].sort(bySpecificity)
   const loaders: NonNullable<RouteManifest['loaders']> = Object.create(null)
+
   for (const meta of routes) {
     if (meta.loader) {
       loaders[meta.name] = meta.loader
@@ -889,6 +924,7 @@ function assembleRoutes(
     loaders,
     baked: set.baked ? { ...set.baked } : undefined,
   }
+
   self.m = manifest
   return sealRouteCatalog(manifest)
 }
@@ -909,6 +945,7 @@ export function mergeRouteManifests<const Manifests extends readonly ContractRou
       )
     }
   }
+
   return composeRouteCatalogs(manifests) as RouteCatalog<
     MergeRouteContracts<{ [Key in keyof Manifests]: ContractsOf<Manifests[Key]> }>
   >
@@ -932,6 +969,7 @@ export function composeRouteCatalogs(
     Object.assign(screens, m.screens)
     for (const meta of m.routes) {
       const prev = winners.get(meta.name)
+
       if (protectContracts && prev && hasRouteContract(prev) && !hasRouteContract(meta)) {
         throw new TypeError(`Runtime route '${meta.name}' cannot replace a declared route contract`)
       }
@@ -953,6 +991,7 @@ export function composeRouteCatalogs(
 
   const routes = [...winners.values()].sort(bySpecificity)
   const loaders: NonNullable<RouteManifest['loaders']> = Object.create(null)
+
   for (const meta of routes) {
     if (meta.loader) {
       loaders[meta.name] = meta.loader
@@ -975,8 +1014,10 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
       const unloaded = !!definition.loadModule && !loadedRouteModule(definition)
       const segs = meta.name.split('/')
       const layoutDirs: string[] = manifest.layouts[''] ? [''] : []
+
       for (let i = 1; i < segs.length; i++) {
         const d = segs.slice(0, i).join('/')
+
         if (Object.hasOwn(manifest.layouts, d) && manifest.layouts[d]) {
           layoutDirs.push(d)
         }
@@ -1023,9 +1064,11 @@ export function manifestToJson(manifest: RouteManifest): RouteManifestJson {
 export function layoutChain(layouts: Record<string, any>, name: string): any[] {
   const segs = name.split('/')
   const chain: any[] = []
+
   for (let i = 1; i < segs.length; i++) {
     const prefix = segs.slice(0, i).join('/')
     const L = Object.hasOwn(layouts, prefix) ? layouts[prefix] : undefined
+
     if (L) {
       chain.push(L)
     }

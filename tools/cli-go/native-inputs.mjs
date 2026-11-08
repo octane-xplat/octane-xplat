@@ -9,6 +9,7 @@ export function nativeInputs(root) {
       .filter((file) => /\.(go|mod|sum|json|mjs|py|txt)$/.test(file))
       .map((file) => directory + '/' + file.replaceAll('\\', '/')),
   )
+
   for (const directory of ['packages/cli/src/mcp/contracts']) {
     for (const file of readdirSync(join(root, directory))) {
       if (file.endsWith('.ts')) {
@@ -28,6 +29,7 @@ export function nativeInputs(root) {
       }
     }
   }
+
   files.push(
     'packages/cli/src/dev-inspector.web.ts',
     'packages/cli/src/mcp/inspection/dom.web.ts',
@@ -103,6 +105,7 @@ export function nativeInputs(root) {
     'packages/docs-search/src/inference.ts',
     'packages/cli/src/mcp/contract.ts',
   )
+
   for (const file of readdirSync(join(root, 'packages/workshop/src/build'), { recursive: true })) {
     if (/\.(ts|js)$/.test(file)) {
       files.push(
@@ -120,6 +123,7 @@ export function nativeInputs(root) {
       )
     }
   }
+
   for (const file of readdirSync(join(root, 'packages/cli/src/macos'), { recursive: true })) {
     if (/\.(ts|js)$/.test(file)) {
       files.push(
@@ -137,6 +141,7 @@ export function nativeInputs(root) {
       )
     }
   }
+
   for (const file of readdirSync(join(root, 'packages/cli/test/fixtures/macos-native-leaves/c'), {
     recursive: true,
   })) {
@@ -156,6 +161,7 @@ export function nativeInputs(root) {
       )
     }
   }
+
   for (const file of readdirSync(join(root, 'packages/cli/patches'))) {
     if (/\.(json|patch)$/.test(file)) {
       files.push(
@@ -173,6 +179,7 @@ export function nativeInputs(root) {
       )
     }
   }
+
   for (const file of readdirSync(join(root, 'packages/cli/src'))) {
     if (/^(?:route.*|build-worker|markdown)\.ts$/.test(file)) {
       files.push(
@@ -190,6 +197,7 @@ export function nativeInputs(root) {
       )
     }
   }
+
   return Object.fromEntries(
     files.sort().map((file) => [file, sha256(readFileSync(join(root, file)))]),
   )

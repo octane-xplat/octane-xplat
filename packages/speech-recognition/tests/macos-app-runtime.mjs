@@ -71,12 +71,14 @@ try {
   )
 
   const artifact = await buildMacOSSpeechArm64(work)
+
   artifactDir = artifact.directory
   assert.equal(artifact.leaves.length, 1)
 
   const appPath = join(work, 'SpeechFixture.app')
   const contents = join(appPath, 'Contents')
   const exe = join(contents, 'MacOS', 'speechfixture')
+
   await mkdir(dirname(exe), { recursive: true })
   await mkdir(join(contents, 'Frameworks'), { recursive: true })
   await mkdir(join(contents, 'Resources'), { recursive: true })
@@ -112,8 +114,11 @@ try {
   )
 
   const bootstrap = join(work, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap, { packaged: true })
+
   const script = join(work, 'main.cjs')
+
   await writeFile(script, main)
 
   const framework = join(contents, 'Frameworks/NativeScript.framework/Versions/A/NativeScript')
@@ -130,13 +135,16 @@ try {
         said = true
         spawn('say', ['-a', 'BoomAudio', phrase])
       }
+
       if (output.includes('SPEECH_EVENT finished') || output.includes('SPEECH_EVENT error')) {
         resolveDone()
       }
     })
+
     run.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     run.on('exit', resolveDone)
   })
 
@@ -149,16 +157,22 @@ try {
   clearTimeout(timeout)
 
   await mkdir(scratch, { recursive: true })
+
   const logPath = join(scratch, `macos-app-${Date.now()}.log`)
+
   await writeFile(logPath, output)
   console.log(output)
   console.log(`log written to ${logPath}`)
 
   assert.match(output, /SPEECH_FIXTURE permission=granted/, 'permission not granted')
   assert.match(output, /SPEECH_EVENT listening/, 'engine never started listening')
+
   const final = [...output.matchAll(/SPEECH_EVENT hypothesis final=true[^\n]*text=("[^"]*")/g)]
+
   assert.ok(final.length, 'no final hypothesis received')
+
   const transcript = JSON.parse(final.at(-1)[1]).toLowerCase()
+
   assert.ok(
     ['quick', 'brown', 'fox'].filter((w) => transcript.includes(w)).length >= 2,
     `final transcript missing phrase words: ${JSON.stringify(transcript)}`,

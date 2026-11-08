@@ -35,11 +35,13 @@ export function FocusScope(props: FocusScopeProps): JSX.Element @{
 
   useEffect(() => {
     const el = scopeEl.current
+
     if (!el) {
       return
     }
 
     const doc = el.ownerDocument
+
     previouslyFocused.current = doc.activeElement as HTMLElement | null
     if (props.autoFocus) {
       ;(tabStops(el)[0] ?? el).focus({ preventScroll: true })
@@ -58,6 +60,7 @@ export function FocusScope(props: FocusScopeProps): JSX.Element @{
     const refocus = () => {
       const last = lastFocused.current
       const target = last && el.contains(last) ? last : (tabStops(el)[0] ?? el)
+
       target.focus({ preventScroll: true })
     }
 
@@ -84,12 +87,14 @@ export function FocusScope(props: FocusScopeProps): JSX.Element @{
 
   const onKeyDown = (event: KeyboardEvent) => {
     const el = scopeEl.current
+
     if (!props.contain || event.key !== 'Tab' || !el) {
       return
     }
 
     const stops = tabStops(el)
     const active = el.ownerDocument.activeElement
+
     if (!stops.length) {
       event.preventDefault()
       el.focus({ preventScroll: true })

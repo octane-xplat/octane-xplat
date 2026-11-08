@@ -20,6 +20,7 @@ export function PowerSearchView(props: PowerSearchViewProps): JSX.Element @{
   const inputHandle = useRef<any>(null)
   const { query, editing, results, internal } = props
   const Suggestion: any = Pressable
+
   useEffect(() => {
     props.handleRef?.({
       focusTypeahead: () => inputHandle.current?.focus?.(),

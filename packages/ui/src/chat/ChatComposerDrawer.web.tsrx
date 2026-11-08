@@ -18,6 +18,7 @@ export function ChatComposerDrawer(props: ChatComposerDrawerProps): JSX.Element 
 
   const toggle = () => {
     const next = !isCollapsed
+
     if (!isControlled) {
       setInternalCollapsed(next)
     }

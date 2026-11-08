@@ -33,8 +33,11 @@ export function useLayer<O extends LayerOptions>(
   const content = useRef<any>(null)
   const renderProps = useRef<ContextRenderProps | FixedRenderProps | undefined>(undefined)
   const onShow = useRef(options.onShow)
+
   onShow.current = options.onShow
+
   const onHide = useRef(options.onHide)
+
   onHide.current = options.onHide
 
   // Dismissal is owned by the mounted Popover (its own useLayerDismissal) —
@@ -44,6 +47,7 @@ export function useLayer<O extends LayerOptions>(
   const controlled = options.isOpen !== undefined
   const visible = options.isOpen ?? isOpen
   const controlledOpen = useRef(options.isOpen)
+
   controlledOpen.current = options.isOpen
 
   const show = useCallback(() => {
@@ -80,7 +84,9 @@ export function useLayer<O extends LayerOptions>(
     (children: any, props?: ContextRenderProps | FixedRenderProps) => {
       content.current = children
       renderProps.current = props
+
       const p = (props ?? {}) as ContextRenderProps
+
       return (
         <>
           {visible ? (

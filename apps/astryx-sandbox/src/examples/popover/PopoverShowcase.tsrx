@@ -6,6 +6,7 @@ import { Button, Divider, Heading, Popover, Text, VStack } from '@octane-xplat/u
 export function PopoverShowcase() @{
   const anchor = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <Button ref={anchor} label="Settings" clickAction={() => setIsOpen(true)} />

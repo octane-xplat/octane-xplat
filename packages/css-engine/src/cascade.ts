@@ -103,11 +103,14 @@ export function cssValueToStyle(value: any): any {
   if (typeof value !== 'string') {
     return value
   }
+
   const trimmed = value.trim()
   const m = LENGTH_RE.exec(trimmed)
+
   if (m) {
     return Number(m[1])
   }
+
   return trimmed
 }
 
@@ -116,10 +119,12 @@ const cssVarGetter =
   (name: string): string | null => {
     for (let current: CssHostNode | null = node; current; current = cssParent(current)) {
       const v = current.computedCustomProps?.get(name)
+
       if (v !== undefined) {
         return v
       }
     }
+
     return null
   }
 
@@ -134,14 +139,18 @@ export function evaluateCssVariables(node: CssHostNode, value: string): string {
   const getVar = cssVarGetter(node)
   let output = value.trim()
   let lastValue: string | undefined
+
   while (lastValue !== output) {
     lastValue = output
+
     const idx = output.lastIndexOf('var(')
+
     if (idx === -1) {
       continue
     }
 
     const endIdx = output.indexOf(')', idx)
+
     if (endIdx === -1) {
       continue
     }
@@ -154,6 +163,7 @@ export function evaluateCssVariables(node: CssHostNode, value: string): string {
 
     const name = matched.shift()!
     let resolved = getVar(name)
+
     if (resolved === null && matched.length) {
       // Fallback list may itself contain var() — resolve against the node.
       resolved = evaluateCssVariables(node, matched.join(', ')).split(',')[0]
@@ -165,6 +175,7 @@ export function evaluateCssVariables(node: CssHostNode, value: string): string {
 
     output = `${output.substring(0, idx)}${resolved}${output.substring(endIdx + 1)}`
   }
+
   return output
 }
 
@@ -178,13 +189,17 @@ export function evaluateCssCalc(value: any): any {
   if (typeof value !== 'string' || !value.includes('calc(')) {
     return value
   }
+
   let cssValue = value.replace(DIP_RE, '$1')
+
   if (cssValue.includes('unset')) {
     cssValue = cssValue.replace(UNSET_RE, '0')
   }
+
   if (cssValue.includes('infinity')) {
     cssValue = cssValue.replace(INFINITY_RE, `${Number.MAX_SAFE_INTEGER}`)
   }
+
   try {
     return calc(cssValue)
   } catch {
@@ -206,10 +221,12 @@ function resolveDeclaration(
   if (isCssPendingSubstitution(value)) {
     const sub = value as CssPendingSubstitution
     let resolved = evaluateCssVariables(node, sub.value)
+
     resolved =
       typeof evaluateCssCalc(resolved) === 'number' ? String(evaluateCssCalc(resolved)) : resolved
 
     const expanded = _expandCssShorthand(sub.shorthand, resolved)
+
     if (expanded) {
       for (const [longhand, v] of expanded) {
         pushStyleDecl(node, kebabToCamel(longhand), v, out, borderLonghands)
@@ -230,6 +247,7 @@ function resolveDeclaration(
 
     if (value.includes('calc(')) {
       const c = evaluateCssCalc(value)
+
       value = typeof c === 'number' ? c : value
     }
   }
@@ -274,13 +292,16 @@ function pushStyleDecl(
   if (!borderLonghands) {
     name = LONGHAND_TO_RENDERER[name] ?? name
   }
+
   // CSS wide keywords: unset → inherited-prop inherits, else initial (drop);
   // inherit → parent computed; initial/default → drop (back to default).
   if (typeof value === 'string') {
     const kw = value.trim()
+
     if (kw === CSS_INHERIT) {
       const parent = cssParent(node)
       const pv = parent?.computedStyle?.[name]
+
       if (pv !== undefined) {
         out.push([name, pv])
       }
@@ -292,6 +313,7 @@ function pushStyleDecl(
       if (INHERITED_CSS_PROPERTIES.has(camelToKebabName(name))) {
         const parent = cssParent(node)
         const pv = parent?.computedStyle?.[name]
+
         if (pv !== undefined) {
           out.push([name, pv])
         }
@@ -304,6 +326,7 @@ function pushStyleDecl(
       return
     }
   }
+
   out.push([name, cssValueToStyle(value)])
 }
 
@@ -335,6 +358,7 @@ function attachKeyframes(info: KeyframeAnimationInfo) {
   if (!info.name || info.keyframes) {
     return
   }
+
   for (const kf of stylesheetKeyframes()) {
     if (kf.name !== info.name) {
       continue
@@ -342,6 +366,7 @@ function attachKeyframes(info: KeyframeAnimationInfo) {
 
     if (kf.mediaQueryString) {
       const list = Array.isArray(kf.mediaQueryString) ? kf.mediaQueryString : [kf.mediaQueryString]
+
       if (!list.every((q) => evalMediaQuery(q))) {
         continue
       }
@@ -381,6 +406,7 @@ export function computeCascade(
   const match = s?.query(node)
   const decls: [string, any][] = []
   const matchedRulesets: any[] = []
+
   if (match) {
     for (const sel of match.selectors) {
       // Dynamic selectors collected by mayMatch are re-checked at apply
@@ -390,6 +416,7 @@ export function computeCascade(
       }
 
       const ruleset = sel.ruleset
+
       if (!ruleset) {
         continue
       }
@@ -406,15 +433,19 @@ export function computeCascade(
   // style — animation-* never lands in the bag), cached per ruleset like
   // NS animationsSymbol. Keyframes attach lazily from the registry.
   const animations: KeyframeAnimationInfo[] = []
+
   for (const ruleset of matchedRulesets) {
     let parsed = rulesetAnimations.get(ruleset)
+
     if (parsed === undefined) {
       // NativeScript-style per-ruleset accumulation needs an explicit
       // cancellation boundary for reduced-motion/disabled animations.
       const declarations = ruleset.declarations ?? []
       let resetAt = -1
+
       for (let index = 0; index < declarations.length; index++) {
         const declaration = declarations[index]
+
         if (
           (declaration.property === 'animation' || declaration.property === 'animation-name') &&
           String(declaration.value).trim().toLowerCase() === 'none'
@@ -447,6 +478,7 @@ export function computeCascade(
       customProps.set(property, typeof value === 'string' ? value : String(value))
     }
   }
+
   for (const key of Object.keys(inline)) {
     if (key.startsWith('--') && inline[key] != null) {
       customProps.set(key, String(inline[key]))
@@ -470,6 +502,7 @@ export function computeCascade(
     }
 
     const before = cssOut.length
+
     resolveDeclaration(varScope, property, value, cssOut, borderLonghands)
     for (let i = before; i < cssOut.length; i++) {
       cssKeys.add(cssOut[i][0])
@@ -478,16 +511,20 @@ export function computeCascade(
 
   const style: PropBag = {}
   const inheritedKeys = new Set<string>()
+
   for (const prop of INHERITED_CSS_PROPERTIES) {
     const camel = kebabToCamel(prop)
+
     if (parentStyle[camel] !== undefined && !cssKeys.has(camel)) {
       style[camel] = parentStyle[camel]
       inheritedKeys.add(camel)
     }
   }
+
   for (const [name, value] of cssOut) {
     style[name] = value
   }
+
   // An element prop named like a style property (a label's `fontSize`, a
   // layout host's `width`) is a Local value, as in NativeScript: it outranks
   // CSS and inheritance, so the cascade leaves that key to the prop path.

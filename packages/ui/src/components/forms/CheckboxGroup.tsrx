@@ -29,6 +29,7 @@ function CheckboxGroupControl(inputProps: CheckboxGroupProps): unknown @{
     }
 
     const next = on ? [...selected, value] : selected.filter((item) => item !== value)
+
     if (!controlled) {
       setInternal(next)
     }

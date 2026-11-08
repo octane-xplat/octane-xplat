@@ -73,6 +73,7 @@ export function navLinkDestination(
   if (typeof props.to !== 'string') {
     return props.to
   }
+
   return {
     to: props.to,
     params: props.params,
@@ -93,26 +94,33 @@ export function navLinkIsActive(
   if (!current) {
     return false
   }
+
   const route = parseRouteLocation(current)
   const link = parseRouteLocation(href)
+
   if (options.match !== 'prefix' && route.segments.length !== link.segments.length) {
     return false
   }
+
   if (!link.segments.every((part, index) => route.segments[index] === part)) {
     return false
   }
+
   if (options.matchHash && route.hash !== link.hash) {
     return false
   }
+
   const fields =
     options.matchSearch === true
       ? new Set([...Object.keys(route.search), ...Object.keys(link.search)])
       : options.matchSearch || []
+
   for (const field of fields) {
     if (JSON.stringify(route.search[field]) !== JSON.stringify(link.search[field])) {
       return false
     }
   }
+
   return true
 }
 

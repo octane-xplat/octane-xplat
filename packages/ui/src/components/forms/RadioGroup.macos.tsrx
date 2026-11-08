@@ -22,9 +22,13 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
   const root = useRef<NSView | null>(null)
   const views = useRef(new Map<string, NSView>())
   const currentProps = useRef(props)
+
   currentProps.current = props
+
   const local = useRef(internal)
+
   local.current = internal
+
   const writing = useRef(false)
   const canChange = () =>
     !!root.current &&
@@ -34,6 +38,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 
   const select = useCallback((value: string) => {
     const next = currentProps.current
+
     if (
       !canChange() ||
       !views.current.has(value) ||
@@ -58,7 +63,9 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
 
   const direction = useDirection()
   const live = useRef({ current, select, direction })
+
   live.current = { current, select, direction }
+
   const navigation = useMemo(
     () =>
       createAppKitChoiceFocus({
@@ -97,11 +104,13 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
   useEffect(() => {
     const native = globalThis as Record<string, any>
     const center = native.NSNotificationCenter?.defaultCenter
+
     if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
       return
     }
 
     let token: unknown
+
     try {
       token = center.addObserverForNameObjectQueueUsingBlock(
         native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
@@ -126,6 +135,7 @@ export function RadioGroup(inputProps: RadioGroupProps): unknown @{
   }, [])
 
   useEffect(() => () => navigation.dispose(), [])
+
   const context = {
     selected: current,
     select,

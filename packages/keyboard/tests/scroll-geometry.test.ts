@@ -18,6 +18,7 @@ const focus = () => ({
 
 it('uses the smallest offset that exposes the input with clearance', () => {
   const state = focus()
+
   expect(focusScrollPlan(state, keyboard, root, 8)).toEqual([{ id: root, from: 0, to: 248 }])
   state.inputRect = box(200, 40)
   expect(focusScrollPlan(state, keyboard, root, 8)).toEqual([])
@@ -25,11 +26,13 @@ it('uses the smallest offset that exposes the input with clearance', () => {
 
 it('prefers the insertion point when a multiline input cannot fit', () => {
   const state = { ...focus(), inputRect: box(100, 600), caretRect: box(650, 20) }
+
   expect(focusScrollPlan(state, keyboard, root, 8)[0].to).toBe(278)
 })
 
 it('allocates nested range nearest-first and clamps residual movement', () => {
   const state = focus()
+
   state.scrollOwners.unshift({
     id: nested,
     rect: box(100, 600),
@@ -37,21 +40,25 @@ it('allocates nested range nearest-first and clamps residual movement', () => {
     minOffsetY: 0,
     maxOffsetY: 100,
   })
+
   expect(focusScrollPlan(state, keyboard, root, 8)).toEqual([
     { id: nested, from: 0, to: 100 },
     { id: root, from: 0, to: 148 },
   ])
+
   expect(focusScrollPlan(state, keyboard, {}, 8)).toEqual([])
 })
 
 it('does not subtract keyboard height twice from an already resized viewport', () => {
   const state = focus()
+
   state.scrollOwners[0].rect = box(0, 400)
   expect(focusScrollPlan(state, keyboard, root, 8)[0].to).toBe(248)
 })
 
 it('ignores floating occlusion and honors box-only browser focus', () => {
   const state = focus()
+
   expect(focusScrollPlan(state, { ...keyboard, currentFrame: box(300, 100) }, root, 8)).toEqual([])
   expect(
     focusScrollPlan(

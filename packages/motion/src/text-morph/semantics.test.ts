@@ -19,6 +19,7 @@ describe('TextMorph exact text and whole-word identity', () => {
     'a'.repeat(80),
   ])('preserves every code unit: %j', (value) => {
     const result = planTextMorph(null, value)
+
     expect(result.frame.fallback).toBeUndefined()
     expect(result.frame.value).toBe(value)
     expect(result.frame.tokens.map((token) => token.text).join('')).toBe(value)
@@ -30,6 +31,7 @@ describe('TextMorph exact text and whole-word identity', () => {
   it('matches repeated/reordered words FIFO and carries IDs across updates', () => {
     const a = frame('go stop go')
     const b = planTextMorph(a, 'go go stop')
+
     expect(b.mode).toBe('animate')
     expect(words(b.frame).map((token) => token.id)).toEqual([
       words(a)[0].id,
@@ -38,6 +40,7 @@ describe('TextMorph exact text and whole-word identity', () => {
     ])
 
     const c = planTextMorph(b.frame, 'stop go new')
+
     expect(
       words(c.frame)
         .map((token) => token.id)
@@ -53,6 +56,7 @@ describe('TextMorph exact text and whole-word identity', () => {
   it('replaces changed whole words and keeps canonically equivalent strings distinct', () => {
     const a = frame('Deploy queued café')
     const b = planTextMorph(a, 'Deploy running cafe\u0301')
+
     expect(words(b.frame)[0].id).toBe(words(a)[0].id)
     expect(words(b.frame)[1].text).toBe('running')
     expect(words(b.frame)[1].id).not.toBe(words(a)[1].id)
@@ -67,7 +71,9 @@ describe('TextMorph exact text and whole-word identity', () => {
     expect(planTextMorph(null, '').mode).toBe('static')
     expect(planTextMorph(frame(''), '').mode).toBe('unchanged')
     expect(planTextMorph(frame(''), 'ready').mode).toBe('animate')
+
     const empty = planTextMorph(frame('ready'), '')
+
     expect(empty.mode).toBe('animate')
     expect(empty.frame.tokens).toEqual([])
     expect(empty.outgoing.map((token) => token.text)).toEqual(['ready'])
@@ -90,6 +96,7 @@ describe('bounded safe fallback', () => {
     '\u{1e900}',
   ])('rejects unsupported input unchanged: %j', (value) => {
     const result = planTextMorph(frame('ready'), value)
+
     expect(result.mode).toBe('static')
     expect(result.fallback).toBe('unsupported-input')
     expect(result.frame.value).toBe(value)
@@ -101,9 +108,13 @@ describe('bounded safe fallback', () => {
     expect(frame('👍🏽'.repeat(80)).fallback).toBeUndefined()
     expect(frame('👍🏽'.repeat(81)).fallback).toBe('grapheme-limit')
     expect(frame(Array(32).fill('a').join(' ')).fallback).toBeUndefined()
+
     const unsupported = frame(Array(33).fill('a').join(' '))
+
     expect(unsupported.fallback).toBe('word-limit')
+
     const next = planTextMorph(unsupported, 'ready')
+
     expect(next.mode).toBe('static')
     expect(next.fallback).toBe('word-limit')
     expect(next.frame.fallback).toBeUndefined()
@@ -120,10 +131,14 @@ describe('bounded safe fallback', () => {
     expect(result.fallback).toBe('budget-exhausted')
     expect(result.frame.value).toBe(huge)
     expect(segment).not.toHaveBeenCalled()
+
     const long = 'a' + '\u0301'.repeat(600)
     const a = frame(long)
+
     expect(a.fallback).toBeUndefined()
+
     const b = planTextMorph(a, long, { operationLimit: 3_700 })
+
     expect(b.fallback).toBe('budget-exhausted')
     expect(b.operations).toBeLessThanOrEqual(3_700)
     expect(b.frame.tokens).toEqual([])
@@ -132,6 +147,7 @@ describe('bounded safe fallback', () => {
   it('caps injectable budgets and discards partial matching atomically', () => {
     const a = frame('go stop go')
     const result = planTextMorph(a, 'go go stop', { operationLimit: 1 })
+
     expect(result.fallback).toBe('budget-exhausted')
     expect(result.frame.nextId).toBe(a.nextId)
     expect(result.outgoing).toEqual([])
@@ -148,6 +164,7 @@ describe('bounded safe fallback', () => {
     )
 
     const real = textMorphSegmenters()!
+
     for (const segment of [
       () => [],
       () => [{ segment: 'x', index: 0, isWordLike: true }],
@@ -158,6 +175,7 @@ describe('bounded safe fallback', () => {
       },
     ]) {
       const segmenters: TextMorphSegmenters = { ...real, word: { segment } }
+
       expect(planTextMorph(null, 'ready', { segmenters }).fallback).toBe('segmentation-unreliable')
     }
 

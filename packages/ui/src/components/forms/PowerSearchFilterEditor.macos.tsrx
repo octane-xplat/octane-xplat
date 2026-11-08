@@ -65,7 +65,9 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
 
   const dateOnly = operator?.value.type === 'date_absolute' && !!operator.value.isDateOnly
   const live = useRef(props)
+
   live.current = props
+
   const source = useRef({
     filter: props.filter,
     field: field?.key,
@@ -75,6 +77,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
   })
 
   const closed = useRef(false)
+
   if (
     source.current.filter !== props.filter ||
     source.current.field !== field?.key ||
@@ -103,6 +106,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
   })
 
   const draft = useRef(seed())
+
   if (draft.current.revision !== revision) {
     draft.current = seed()
   }
@@ -183,6 +187,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
     const valueText = draft.current.text
 
     let next: FilterValue = value
+
     if (
       value.type === 'string' ||
       value.type === 'custom' ||
@@ -196,6 +201,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
       }
 
       const checked = powerSearchNumber(valueText, operator.value)
+
       if (!checked.value) {
         draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid number.' }
         rerender((n) => n + 1)
@@ -219,6 +225,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
       }
 
       const checked = absoluteFilterValue(valueText, operator.value, value)
+
       if (!checked.value) {
         draft.current = { ...draft.current, error: checked.error ?? 'Enter a valid UTC date.' }
         rerender((n) => n + 1)
@@ -229,6 +236,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
     }
 
     const saved = draft.current
+
     submitted.current = saved
     try {
       live.current.onSave({ field: field.key, operator: operator.key, value: next })

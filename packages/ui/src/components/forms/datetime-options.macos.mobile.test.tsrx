@@ -8,7 +8,9 @@ import {
 } from 'octane/universal/native'
 
 import { DateTimeInput } from './DateTimeInput.macos.tsrx'
+
 const popup = vi.hoisted(() => ({ byClass: new Map<string, any>() }))
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({
   Popover: (props: any) => {
     popup.byClass.set(props.className, props)
@@ -17,6 +19,7 @@ vi.mock('../overlays/Popover.macos.tsrx', () => ({
 }))
 
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(extra: any = {}) {
   const claims = new Set<object>(),
     observers = new Set<object>()
@@ -33,6 +36,7 @@ function mount(extra: any = {}) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock() {
         const token = {}
+
         observers.add(token)
         return token
       },
@@ -62,6 +66,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -115,6 +120,7 @@ function mount(extra: any = {}) {
 
   const key = (view: any, key: string, extra = {}) => {
     let prevented = false
+
     view.props.onKeyDown({
       key,
       target: view === input() ? view : panel.firstResponder,
@@ -227,6 +233,7 @@ it('selection reentry cannot duplicate saves and cached callbacks cannot reopen 
   flushParent = () => env.render({ ...env.base, label: 'Updated during selection' })
   try {
     const clock = env.one('vx-datetimeinput-timestoggle').props.onTap
+
     env.key(env.input(), 'ArrowDown', { altKey: true })
     await vi.waitFor(() => {
       env.flush()
@@ -258,6 +265,7 @@ it('selection reentry cannot duplicate saves and cached callbacks cannot reopen 
 
 it('opening guards preserve composition, modifiers, foreign targets and detached handlers', () => {
   const env = mount()
+
   try {
     const field = env.input(),
       cached = field.props.onKeyDown
@@ -275,7 +283,9 @@ it('opening guards preserve composition, modifiers, foreign targets and detached
     }
 
     env.root.unmount()
+
     let prevented = false
+
     cached({
       key: 'ArrowDown',
       altKey: true,
@@ -307,7 +317,9 @@ it('time-only selection retains a draft until a valid date is entered', async ()
     env.flush() // 09:30, without a selected date yet.
     expect(changed).not.toHaveBeenCalled()
     expect(env.input().props.value).toContain('9:30')
+
     const date = env.all().find((node) => node.props?.id === 'appointment')
+
     date.props.onTextChange('2026-03-05')
     env.flush()
     expect(changed).toHaveBeenCalledWith('2026-03-05T09:30')
@@ -327,6 +339,7 @@ it('closed time fields step exact values independently of preset cadence and hon
 
   try {
     const handler = env.input().props.onKeyDown
+
     expect(env.key(env.input(), 'ArrowUp')).toBe(true)
     expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:20:17')
     expect(env.rows()).toHaveLength(0)
@@ -394,7 +407,9 @@ it('closed-field stepping retains date-less time drafts and preserves popup/modi
     expect(changed).not.toHaveBeenCalled()
     env.popup().onDismiss()
     env.flush()
+
     const date = env.all().find((node) => node.props?.id === 'appointment')
+
     date.props.onTextChange('2026-03-05')
     env.flush()
     expect(changed).toHaveBeenLastCalledWith('2026-03-05T09:15')
@@ -421,8 +436,10 @@ it('step callback reentry and pending saves exclude duplicate writes and release
     )
 
   const env = mount({ timeIncrement: 5, onChange: changed, changeAction: save })
+
   try {
     const handler = env.input().props.onKeyDown
+
     repeat = () => {
       env.render({ ...env.base, label: 'Reentered' })
       handler({ key: 'ArrowUp', target: env.input(), preventDefault() {}, stopPropagation() {} })
@@ -470,10 +487,13 @@ it('a step releases throwing forward callbacks and dispatches an accepted save a
 
   try {
     expect(() => env.key(env.input(), 'ArrowUp')).toThrow('forward')
+
     const changed = vi.fn()
+
     env.render({ ...env.base, onChange: changed })
     env.key(env.input(), 'ArrowUp')
     expect(changed).toHaveBeenCalledTimes(1)
+
     let settle!: () => void
     const save = vi.fn(
       () =>

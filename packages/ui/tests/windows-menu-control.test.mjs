@@ -19,8 +19,10 @@ function fixture() {
     calls = [],
     errors = [],
     menus = []
+
   let taskId = 0,
     viewId = 0
+
   const popups = [{ Child: { id: 'foreign-menu', name: 'Unrelated', minimum: 17 } }]
   const focused = { current: null }
   class View {
@@ -44,9 +46,11 @@ function fixture() {
     _removeViewFromNativeVisualTree() {}
     _addViewToNativeVisualTree(child, atIndex) {
       const entries = this.nativeViewProtected?.Children?.entries
+
       if (entries) {
         entries.splice(atIndex ?? entries.length, 0, child.nativeViewProtected)
       }
+
       return true
     }
     disposeNativeView() {}
@@ -54,12 +58,14 @@ function fixture() {
       for (const child of [...this.children]) {
         this._removeViewFromNativeVisualTree(child)
       }
+
       this.disposeNativeView()
     }
     getLocationOnScreen() {
       return { x: 22.5, y: 123 }
     }
   }
+
   class Collection {
     entries = []
     Append(child) {
@@ -79,11 +85,13 @@ function fixture() {
       return this.entries.length
     }
   }
+
   const hostChildren = new Collection()
   class TranslateTransform {
     X = 0
     Y = 0
   }
+
   class Panel {
     ActualWidth = 0
     XamlRoot = { Content: hostPanel, Size: { Width: 747, Height: 414.5 } }
@@ -104,12 +112,14 @@ function fixture() {
       }
     }
   }
+
   const hostPanel = { Children: hostChildren }
   const VisualTreeHelper = {
     GetParent: (node) => node?.treeParent,
     GetChildrenCount: () => 0,
     GetChild: () => undefined,
   }
+
   class CanvasStatics {
     static SetLeft(el, v) {
       el.left = v
@@ -118,15 +128,18 @@ function fixture() {
       el.top = v
     }
   }
+
   class Item {
     IsTabStop = true
     set Tag(value) {
       if (this.content) {
         this.content.Parent = undefined
       }
+
       if (value?.Parent) {
         throw Error('already parented')
       }
+
       this.content = value
       if (value) {
         value.Parent = this
@@ -139,6 +152,7 @@ function fixture() {
       focused.current = this
     }
   }
+
   class Menu {
     Children = new Collection()
     constructor(xaml) {
@@ -149,9 +163,11 @@ function fixture() {
         XplatDismiss: this.dismiss,
         XplatPresenter: this.presenter,
       }
+
       this.items.forEach((item, index) => {
         this.names['XplatItem' + index] = item
       })
+
       menus.push(this)
     }
     get open() {
@@ -161,6 +177,7 @@ function fixture() {
       return this.names[name]
     }
   }
+
   class Property {
     constructor(options) {
       this.options = options
@@ -168,6 +185,7 @@ function fixture() {
     register(Type) {
       const { name, valueChanged } = this.options,
         key = Symbol(name)
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[key]
@@ -179,6 +197,7 @@ function fixture() {
       })
     }
   }
+
   const target = (node) => node.target ?? node
   const Microsoft = {
     UI: {
@@ -229,6 +248,7 @@ function fixture() {
       },
     },
   }
+
   const sandbox = {
     exports: {},
     console,
@@ -236,9 +256,11 @@ function fixture() {
       if (name === '@nativescript/core') {
         return { LayoutBase: View, ContentView: View, Property }
       }
+
       if (name === '@nativescript-community/octane') {
         return { registerElement: (name, Type) => types.set(name, Type) }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return {
           Microsoft,
@@ -248,9 +270,11 @@ function fixture() {
           },
         }
       }
+
       if (name.endsWith('/action-error')) {
         return { reportActionError: (error) => errors.push(error) }
       }
+
       throw Error(name)
     },
     setTimeout(callback) {
@@ -261,17 +285,22 @@ function fixture() {
       tasks.delete(id)
     },
   }
+
   vm.runInNewContext(source, sandbox)
+
   const control = new (types.get('xplatwindowsmenu'))()
   const root = control.createNativeView()
   const midPanel = new Panel()
+
   midPanel.treeParent = hostPanel
   midPanel.Children = undefined
   root.treeParent = midPanel
   control.nativeViewProtected = root
+
   function update(props) {
     control.settings = { ...control.settings, ...props }
   }
+
   update({
     open: false,
     blocked: false,
@@ -281,8 +310,10 @@ function fixture() {
       update({ open })
     },
   })
+
   function item(label, disabled = false, at = control.children.length) {
     const child = new (types.get('xplatwindowsmenuitem'))()
+
     child.nativeViewProtected = {}
     child.style = {}
     child.settings = { label, disabled, onSelect: () => calls.push(label) }
@@ -290,24 +321,31 @@ function fixture() {
     if (!control._addViewToNativeVisualTree(child, at)) {
       root.Children.entries.splice(at, 0, child.nativeViewProtected)
     }
+
     return child
   }
+
   function flush() {
     let remaining = 20
+
     while (tasks.size) {
       assert.ok(remaining--, 'native reconciliation must settle')
+
       const batch = [...tasks.values()]
+
       tasks.clear()
       for (const callback of batch) {
         callback()
       }
     }
   }
+
   function layout(width = 300) {
     root.ActualWidth = width
     root.LayoutUpdated?.()
     flush()
   }
+
   return {
     control,
     root,
@@ -333,6 +371,7 @@ function fixture() {
 
 test('Windows menu waits for a loaded measured anchor and updates only its owned presenter', () => {
   const f = fixture()
+
   f.item('Open')
   f.update({ open: true })
   assert.equal(f.menu.open, false)
@@ -353,6 +392,7 @@ test('Windows menu waits for a loaded measured anchor and updates only its owned
 
 test('Windows menu reconciles rejected close requests outside native event callbacks', () => {
   const f = fixture()
+
   f.item('Open')
   f.control.onLoaded()
   f.layout()
@@ -368,6 +408,7 @@ test('Windows menu reconciles rejected close requests outside native event callb
       f.update({ open })
     },
   })
+
   f.menu.dismiss.Tapped()
   f.flush()
   assert.equal(f.menu.open, false)
@@ -378,9 +419,12 @@ test('Windows menu callbacks read current item state and reject disabled/blocked
   const f = fixture(),
     a = f.item('Open'),
     b = f.item('Disabled', true)
+
   f.control.onLoaded()
   f.layout()
+
   const click = a.peer.Click
+
   a.settings = { label: 'Current', disabled: false, onSelect: () => f.calls.push('current') }
   assert.equal(a.peer.name, 'Current')
   click()
@@ -396,13 +440,16 @@ test('Windows menu callbacks read current item state and reject disabled/blocked
   assert.equal(a.peer.IsEnabled, false)
   assert.deepEqual(f.calls, ['current'])
   f.update({ blocked: false, open: false })
+
   const failure = Error('action failure')
+
   a.settings = {
     ...a.settings,
     onSelect: () => {
       throw failure
     },
   }
+
   click()
   f.flush()
   assert.deepEqual(f.errors, [failure])
@@ -412,15 +459,19 @@ test('Windows menu structural rebuilds retire callbacks and preserve one native 
   const f = fixture(),
     a = f.item('First'),
     b = f.item('Last')
+
   f.control.onLoaded()
   f.layout()
   f.update({ open: true })
+
   const old = f.menu,
     lateTap = old.dismiss.Tapped,
     lateKey = old.presenter.KeyDown,
     lateClick = a.peer.Click
+
   const oldPresenter = f.presenter
   const oldMarker = oldPresenter.id
+
   f.item('Inserted', false, 1)
   assert.notEqual(f.menu, old)
   assert.notEqual(f.presenter.id, oldMarker)
@@ -428,7 +479,9 @@ test('Windows menu structural rebuilds retire callbacks and preserve one native 
   assert.ok(f.root.Children.entries.includes(a.nativeViewProtected))
   assert.ok(f.root.Children.entries.includes(b.nativeViewProtected))
   assert.equal(old.dismiss.Tapped, null)
+
   const shows = f.menu.shows
+
   lateTap()
   lateKey()
   lateClick()
@@ -437,8 +490,10 @@ test('Windows menu structural rebuilds retire callbacks and preserve one native 
   assert.equal(f.menu.shows, shows)
   assert.deepEqual(f.calls, [])
   assert.deepEqual(f.openCalls, [])
+
   const staleLayout = f.root.LayoutUpdated,
     staleClick = a.peer.Click
+
   f.control.onUnloaded()
   staleLayout()
   staleClick()
@@ -458,10 +513,13 @@ test('Windows menu structural rebuilds retire callbacks and preserve one native 
 test('Windows menu unmount inside an action does not restart retired reconciliation', () => {
   const f = fixture(),
     a = f.item('Unmount')
+
   f.control.onLoaded()
   f.layout()
   f.update({ open: true })
+
   const menu = f.menu
+
   a.settings = { ...a.settings, onSelect: () => f.control._tearDownUI() }
   a.peer.Click()
   assert.equal(menu.dismiss.Tapped, null)

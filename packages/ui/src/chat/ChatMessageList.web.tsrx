@@ -8,6 +8,7 @@ import { ChatMessage as ChatMessageView } from './ChatMessage.web.tsrx'
 import { ChatMessageBubble } from './ChatMessageBubble.web.tsrx'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 const renderable = (v: any) => v != null && v !== false && v !== true
 
 const DENSITY_GAP: Record<string, number> = { compact: 8, balanced: 16, spacious: 24 }
@@ -37,6 +38,7 @@ export function ChatMessageList(props: ChatMessageListProps): JSX.Element @{
   const [isLoadingTop, setIsLoadingTop] = useState(false)
   const density = props.density ?? 'balanced'
   const actionRef = useRef(props.scrollToTopAction)
+
   actionRef.current = props.scrollToTopAction
 
   // Register the inner content element so the layout observes its size.
@@ -49,6 +51,7 @@ export function ChatMessageList(props: ChatMessageListProps): JSX.Element @{
   useEffect(() => {
     const action = props.scrollToTopAction
     const sentinel = sentinelRef.current
+
     if (!action || !sentinel) {
       return
     }

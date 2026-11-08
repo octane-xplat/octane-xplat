@@ -20,6 +20,7 @@ import { planRoutes } from '../packages/cli/src/route-generator.ts'
 const args = process.argv.slice(2)
 const flag = (name: string): string | undefined => {
   const index = args.indexOf(name)
+
   return index >= 0 ? args[index + 1] : undefined
 }
 
@@ -42,10 +43,12 @@ for (const [file, source] of outputs as Map<string, string>) {
   }
 
   mkdirSync(dirname(file), { recursive: true })
+
   // Preserve an existing output symlink and rename complete files so a
   // concurrent compiler never reads a truncated declaration.
   const target = existsSync(file) ? realpathSync(file) : file
   const temporary = `${target}.tmp-${process.pid}`
+
   writeFileSync(temporary, source)
   renameSync(temporary, target)
 }

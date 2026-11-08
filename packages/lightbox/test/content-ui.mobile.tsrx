@@ -1,6 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import type { Renderable } from '@octane-xplat/ui'
+
 let read: (() => void) | undefined
+
 export function setRead(next: typeof read) {
   read = next
 }

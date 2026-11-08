@@ -13,9 +13,11 @@ export function createPortalObjectDriver(renderer = 'nativescript') {
         if (!context.target || typeof context.target !== 'object') {
           throw new TypeError('Expected an object portal target')
         }
+
         if (!targets.has(context.target)) {
           targets.set(context.target, ++sequence)
         }
+
         return {
           handle: context.createPortalTargetHandle(targets.get(context.target)!),
           release() {},
@@ -28,8 +30,10 @@ export function createPortalObjectDriver(renderer = 'nativescript') {
           ? { ...command, parent: null }
           : command,
       )
+
       return object.prepareBatch(container, { ...batch, commands }, context)
     },
   }
+
   return driver
 }

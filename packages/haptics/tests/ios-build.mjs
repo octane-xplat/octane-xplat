@@ -11,6 +11,7 @@ if (process.platform !== 'darwin') {
 }
 
 const self = fileURLToPath(import.meta.url)
+
 if (!process.argv.includes('--reserved')) {
   execFileSync(
     'goddard-agent',
@@ -31,7 +32,9 @@ if (!process.argv.includes('--reserved')) {
   )
 } else {
   const scratch = join(homedir(), 'agent-scratch/octane-xplat/crisp-cricket/ios-haptics')
+
   mkdirSync(scratch, { recursive: true })
+
   const work = mkdtempSync(join(scratch, 'build-'))
   const pulsar = preparePulsar(join(work, 'Pulsar'))
   const swiftFiles = (directory) =>
@@ -48,10 +51,14 @@ if (!process.argv.includes('--reserved')) {
   }).trim()
 
   const flags = ['-sdk', sdk, '-target', 'arm64-apple-ios13.0-simulator', '-swift-version', '6']
+
   for (const debug of [true, false]) {
     const output = join(work, debug ? 'Debug' : 'Release')
+
     mkdirSync(output)
+
     const mode = debug ? ['-D', 'DEBUG'] : []
+
     execFileSync(
       'xcrun',
       [

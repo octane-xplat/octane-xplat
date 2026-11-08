@@ -3,5 +3,6 @@
 // import resolvable in typecheck/typegen programs.
 declare module '*/dist/macos/browser.js' {
   const browser: string
+
   export default browser
 }

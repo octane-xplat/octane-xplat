@@ -80,6 +80,7 @@ function fixture({
 
   const allocAction = (node: any, view: any) => {
     const actionId = sandbox.nextMockActionId++
+
     actionHandlers.set(actionId, null)
     node.actionId = actionId
     return { view, actionId }
@@ -127,6 +128,7 @@ function fixture({
           block: any,
         ) => {
           const observer = { view, block }
+
           geometryObservers.push(observer)
           return observer
         },
@@ -148,6 +150,7 @@ function fixture({
     detach: (container: any, node: any) => {
       const siblings = node.parent ? node.parent.children : container.children
       const index = siblings.indexOf(node)
+
       if (index >= 0) {
         siblings.splice(index, 1)
       }
@@ -174,6 +177,7 @@ function fixture({
   )
 
   const container = { nodes: new Map(), children: [], hostView: fakeView('host') }
+
   return {
     ...api,
     container,
@@ -191,6 +195,7 @@ function fixture({
 
 test('a rejected prop fails creation before factories allocate', () => {
   const fx = fixture()
+
   assert.throws(() => fx.makeNode(fx.container, 1, 'button', { style: 'solid' }), /inline style/i)
 
   assert.deepEqual(fx.factoryCalls, [])
@@ -276,6 +281,7 @@ test('portal targets reject a native node owned by another Octane root', () => {
 test('destroy releases the native view ownership registration', () => {
   const fx = fixture()
   const node = fx.makeNode(fx.container, 7, 'label', {})
+
   assert.equal(fx.nodeContainersByView.get(node.view), fx.container)
 
   fx.destroy(node)
@@ -284,6 +290,7 @@ test('destroy releases the native view ownership registration', () => {
 
 test('batch validation rejects commands before any apply work', () => {
   const fx = fixture()
+
   fx.container.nodes.set(1, { id: 1, type: 'label', props: {}, parent: null, children: [] })
 
   // Insert into a non-container parent must fail at prepare, not mid-apply.
@@ -327,6 +334,7 @@ test('batch validation rejects commands before any apply work', () => {
 
 test('batch validation accepts references to ids created earlier in the batch', () => {
   const fx = fixture()
+
   fx.validateBatch(fx.container, [
     { op: 'create', id: 2, type: 'masonview', props: { flexDirection: 'row' } },
     { op: 'create', id: 3, type: 'label', props: { text: 'hi' } },
@@ -339,6 +347,7 @@ test('batch validation accepts references to ids created earlier in the batch', 
 test('prepareBatch rejects an invalid batch before apply runs', () => {
   const fx = fixture()
   const applyCalls: any[] = []
+
   // prepareBatch must throw; applyCommand must never run for this batch.
   assert.throws(
     () =>
@@ -372,6 +381,7 @@ test('create on an existing id releases the previous node', () => {
   fx.applyCommand(fx.container, { op: 'create', id: 7, type: 'button', props: {} })
 
   const node = fx.container.nodes.get(7)
+
   assert.notEqual(node, old)
   assert.equal(old.parent, null)
   assert.equal(fx.container.children.includes(old), false)
@@ -415,9 +425,13 @@ test('failed recreate construction preserves the live original and retires the p
       }
     },
   })
+
   const original = fx.makeNode(fx.container, 8, 'button', {})
+
   fx.container.nodes.set(8, original)
+
   const registered = fx.actionHandlers.size
+
   assert.throws(
     () =>
       fx.applyCommand(fx.container, {
@@ -428,6 +442,7 @@ test('failed recreate construction preserves the live original and retires the p
       }),
     (error) => error === failure,
   )
+
   assert.equal(fx.container.nodes.get(8), original)
   assert.equal(fx.actionHandlers.size, registered)
   assert.equal(fx.nodeContainersByView.get(original.view), fx.container)
@@ -437,6 +452,7 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
   const fx = fixture()
   const node = fx.makeNode(fx.container, 90, 'switch', {})
   const events: string[] = []
+
   fx.container.children.push(node)
   node.textLayoutDetach = () => events.push('retire-sizing')
   node.destroyHooks = [
@@ -445,11 +461,13 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
       events.push('hook-with-host')
     },
   ]
+
   node.cssHoverDispose = () => {
     assert.equal(fx.container.children.includes(node), false)
     assert.equal(fx.actionHandlers.has(node.actionId), true)
     events.push('common-after-detach')
   }
+
   // The sizing helper's type guard admits only textview nodes.
   node.type = 'textview'
   node.adapter = undefined // This legacy text fixture did not acquire a text adapter.
@@ -462,6 +480,7 @@ test('P0 teardown trace keeps sizing before hooks and native detach before commo
 test('P6 registration replacement preserves acquired cleanup for the existing node', () => {
   const fx = fixture()
   const events: string[] = []
+
   fx.elementBehaviors.set('plugin-host', {
     make(node) {
       node.view = fx.fakeView('plugin')
@@ -470,12 +489,15 @@ test('P6 registration replacement preserves acquired cleanup for the existing no
       events.push('original')
     },
   })
+
   const node = fx.makeNode(fx.container, 92, 'plugin-host', {})
+
   fx.elementBehaviors.set('plugin-host', {
     destroy() {
       events.push('replacement')
     },
   })
+
   fx.destroy(node)
   assert.deepEqual(events, ['original'])
 })
@@ -509,6 +531,7 @@ test('recreate rejects a view replacement under a non-container parent', () => {
 test('masonview creates a view and participates in validated parent batches', () => {
   const fx = fixture()
   const stack = fx.makeNode(fx.container, 1, 'masonview', { orientation: 'horizontal' })
+
   assert.ok(stack.view)
   assert.equal(stack.type, 'masonview')
   assert.doesNotThrow(() =>
@@ -522,6 +545,7 @@ test('masonview creates a view and participates in validated parent batches', ()
 
 test('invalid scrollview orientation rejects before allocating any native host', () => {
   const fx = fixture()
+
   assert.throws(
     () => fx.makeNode(fx.container, 1, 'scrollview', { orientation: 'sideways' }),
     /orientation must/,
@@ -543,6 +567,7 @@ test('invalid scrollview orientation rejects before allocating any native host',
 for (const type of ['#text', 'span']) {
   test(`masonview rejects ${type} children during batch validation`, () => {
     const fx = fixture()
+
     assert.throws(
       () =>
         fx.validateBatch(fx.container, [
@@ -559,6 +584,7 @@ test('destroying masonview detaches a retained descendant host', () => {
   const fx = fixture()
   const parent = fx.makeNode(fx.container, 1, 'masonview', {})
   const child = fx.makeNode(fx.container, 2, 'masonview', {})
+
   parent.children.push(child)
   child.parent = parent
   fx.destroy(child)
@@ -568,6 +594,7 @@ test('destroying masonview detaches a retained descendant host', () => {
 
 test('masonview validates a recreated text child using parents inserted in the same batch', () => {
   const fx = fixture()
+
   assert.throws(
     () =>
       fx.validateBatch(fx.container, [
@@ -584,6 +611,7 @@ test('masonview validates a recreated text child using parents inserted in the s
 
 test('contentview factory and single-slot parent accept the shared intrinsic', () => {
   const fx = fixture()
+
   assert.ok(fx.makeNode(fx.container, 1, 'contentview', {}).view)
   assert.doesNotThrow(() =>
     fx.validateBatch(fx.container, [
@@ -619,8 +647,11 @@ for (const type of ['#text', 'span']) {
 test('contentview observes real frame changes and ignores callbacks after disposal', () => {
   const fx = fixture()
   const host = fx.makeNode(fx.container, 1, 'contentview', {})
+
   assert.equal(host.view.postsFrameChangedNotifications, true)
+
   const observer = fx.geometryObservers[0]
+
   observer.block()
   assert.deepEqual(fx.geometryReconciles, [host])
   fx.destroy(host)
@@ -648,6 +679,7 @@ test('textview destruction retires sizing before hooks even after partial constr
   const fx = fixture(),
     node = fx.makeNode(fx.container, 99, 'label', {}),
     events: string[] = []
+
   node.type = 'textview'
   node.adapter = undefined // Acquire the text definition at this legacy fixture ingress.
   node.view = null
@@ -655,6 +687,7 @@ test('textview destruction retires sizing before hooks even after partial constr
     assert.equal(node.textLayoutRetired, true)
     events.push('observer')
   }
+
   node.destroyHooks = [
     () => {
       assert.equal(node.textLayoutRetired, true)
@@ -662,6 +695,7 @@ test('textview destruction retires sizing before hooks even after partial constr
       events.push('hook')
     },
   ]
+
   fx.destroy(node)
   assert.deepEqual(events, ['observer', 'hook'])
 })
@@ -675,7 +709,9 @@ test('a failed batch style flush releases layout ownership before the next comma
       }
     },
   })
+
   const first = fx.macOSDriver.prepareBatch(fx.container, { commands: [] })
+
   assert.throws(() => first.apply(), /style flush failed/)
   assert.equal(fx.container.layoutDirty, null)
   fail = false
@@ -698,21 +734,25 @@ for (const stage of ['css', 'tabs', 'layout'] as const) {
           throw failure
         }
       }
+
       const fx = fixture({
         flushStyleDirty: () => run('css'),
         flushTabViews: () => run('tabs'),
         drainLayoutDirty: () => run('layout'),
         notifyLayoutCommit: () => run('observe'),
       })
+
       assert.throws(
         () => fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply(),
         (error) => error === failure,
       )
+
       assert.equal(fx.container.layoutDirty, null)
       assert.deepEqual(
         calls,
         ['css', 'tabs', 'layout'].slice(0, ['css', 'tabs', 'layout'].indexOf(stage) + 1),
       )
+
       calls.length = 0
       fail = false
       fx.macOSDriver.prepareBatch(fx.container, { commands: [] }).apply()
@@ -724,6 +764,7 @@ for (const stage of ['css', 'tabs', 'layout'] as const) {
 test('command and CSS failure remain identifiable and never emit a successful commit', () => {
   const primary = Error('command'),
     css = Error('css')
+
   const fx = fixture({
     applyProps() {
       throw primary
@@ -738,7 +779,9 @@ test('command and CSS failure remain identifiable and never emit a successful co
       assert.fail('success after failed update')
     },
   })
+
   const node = { id: 1, type: 'span', props: {}, children: [] }
+
   fx.container.nodes.set(1, node)
   assert.throws(
     () =>
@@ -751,23 +794,29 @@ test('command and CSS failure remain identifiable and never emit a successful co
       return true
     },
   )
+
   assert.equal(fx.container.layoutDirty, null)
 })
 
 test('a failed old-node release retires an unexposed recreation replacement', () => {
   const fx = fixture()
   const node = fx.makeNode(fx.container, 1, 'button', {})
+
   fx.container.nodes.set(1, node)
+
   const failure = Error('old cleanup')
+
   node.destroyHooks = [
     () => {
       throw failure
     },
   ]
+
   assert.throws(
     () => fx.applyCommand(fx.container, { op: 'recreate', id: 1, type: 'button', props: {} }),
     (error) => error === failure,
   )
+
   assert.equal(node.lifecycle, 'disposed')
   assert.equal(fx.container.nodes.size, 0)
   assert.equal(fx.actionHandlers.size, 0)

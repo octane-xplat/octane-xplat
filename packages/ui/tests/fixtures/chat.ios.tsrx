@@ -7,6 +7,7 @@ import { TextInput } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
 import { chatHost } from '../../src/chat/chat-scroll-host'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let seenContext: any = null
 function ContextCheck() {
   seenContext = useChatLayoutContext()
@@ -20,6 +21,7 @@ let stream = () => {},
   panel = (_height: number) => {}
 
 const scrollRef: { current: any } = { current: null }
+
 export default function ChatProbe() @{
   const [messages, setMessages] = useState<ChatMessageData[]>(
     Array.from({ length: 30 }, (_, i) => ({
@@ -124,9 +126,11 @@ export async function run(ctx: ProbeContext) {
   }, 50)
 
   ctx.onCleanup(() => clearInterval(sample))
+
   const end = () => Math.abs(scroll.scrollableHeight - scroll.verticalOffset) < 2
   const opened = () => {
     const key = keys.at(-1)
+
     return (
       key?.inset > 100 &&
       key?.capabilities.nativeFrames &&
@@ -138,6 +142,7 @@ export async function run(ctx: ProbeContext) {
 
   const hidden = () => {
     const key = keys.at(-1)
+
     return (
       key?.inset === 0 &&
       (!key.currentFrame ||
@@ -153,7 +158,9 @@ export async function run(ctx: ProbeContext) {
   }
 
   ctx.record('phase', 'initial end')
+
   const position = (row: any) => chatHost.position(row, viewport)!
+
   await ctx.waitFor(() => scroll.scrollableHeight > 500 && end())
   ctx.assert('long chat initially follows conversation end', end(), true)
   if (field.android) {
@@ -165,10 +172,12 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(opened)
   ctx.record('phase', 'open end')
   await ctx.waitFor(end)
+
   const nativeTop = () => (keys.at(-1).currentFrame ?? keys.at(-1).targetFrame).y
   const fieldBottom = () => {
     if (field.ios) {
       const rect = field.ios.convertRectToView(field.ios.bounds, field.ios.window)
+
       return rect.origin.y + rect.size.height
     }
 
@@ -189,8 +198,10 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('keyboard opening preserves conversation end', end(), true)
   scroll.scrollToVerticalOffset(Math.max(0, scroll.scrollableHeight - 700), false)
   await ctx.waitFor(() => !end())
+
   const row = Array.from({ length: 30 }, (_, i) => ctx.find(`row-m${i}`)).find((candidate) => {
     const b = position(candidate)
+
     return b && b.y + b.height > 0 && b.y < chatHost.height(viewport)
   })
 
@@ -200,19 +211,24 @@ export async function run(ctx: ProbeContext) {
     offset = scroll.verticalOffset
 
   const beforeStream = scroll.scrollableHeight
+
   stream()
   await ctx.waitFor(() => scroll.scrollableHeight > beforeStream + 90)
   ctx.assert('streaming retains older reading row', Math.abs(position(row).y - beforeY) < 1, true)
   ctx.assert('streaming does not force end', Math.abs(scroll.verticalOffset - offset) < 1, true)
   ctx.record('phase', 'prepend')
+
   const beforePrepend = scroll.scrollableHeight
+
   prepend()
   await ctx.waitFor(() => ctx.find('row-old0') && scroll.scrollableHeight > beforePrepend + 300)
   await ctx.waitFor(() => Math.abs(position(row).y - beforeY) < 1)
   ctx.assert('prepend retains native row identity', ctx.find(oldId) === oldRow, true)
   ctx.assert('prepend retains reading anchor pixel', Math.abs(position(row).y - beforeY) < 1, true)
   ctx.record('phase', 'composer growth')
+
   const beforeGrow = scroll.scrollableHeight
+
   grow(96)
   await ctx.waitFor(() => scroll.scrollableHeight > beforeGrow + 40)
   ctx.assert(
@@ -229,6 +245,7 @@ export async function run(ctx: ProbeContext) {
   ctx.record('phase', 'second open')
   field.focus()
   await ctx.waitFor(() => opened() && end())
+
   const reserved = keys.at(-1).inset,
     beforePanel = scroll.verticalOffset,
     composerBefore = position(field).y

@@ -55,6 +55,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     keyDown(event: any) {
       const modified = Number(event.modifierFlags ?? 0) & ((1 << 18) | (1 << 19) | (1 << 20))
+
       if (
         !modified &&
         (Number(event.keyCode) === 36 || Number(event.keyCode) === 49) &&
@@ -114,6 +115,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     accessibilityPerformPress() {
       const actionId = deps.actions.idForView(this)
+
       if (
         actionId === undefined ||
         !deps.actions.hasHandler(this) ||
@@ -130,6 +132,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     accessibilityPerformIncrement() {
       const props = deps.state.get(this)
+
       if (
         this.accessibilityIsIgnored() ||
         !this.isAccessibilityEnabled() ||
@@ -138,11 +141,13 @@ export function createAccessibleHost(deps: Dependencies) {
       ) {
         return false
       }
+
       return props.onAccessibilityIncrement() !== false
     }
 
     accessibilityPerformDecrement() {
       const props = deps.state.get(this)
+
       if (
         this.accessibilityIsIgnored() ||
         !this.isAccessibilityEnabled() ||
@@ -151,54 +156,69 @@ export function createAccessibleHost(deps: Dependencies) {
       ) {
         return false
       }
+
       return props.onAccessibilityDecrement() !== false
     }
 
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     accessibilityRole() {
       const role = deps.state.get(this)?.accessibilityRole
+
       if (role === 'menu') {
         return 'AXMenu'
       }
+
       if (role === 'menuitem' || role === 'menuitemcheckbox' || role === 'menuitemradio') {
         return 'AXMenuItem'
       }
+
       if (role === 'radio' || role === 'tab') {
         return 'AXRadioButton'
       }
+
       if (role === 'tablist') {
         return 'AXTabGroup'
       }
+
       if (role === 'toolbar') {
         return 'AXToolbar'
       }
+
       if (role === 'switch') {
         return 'AXCheckBox'
       }
+
       if (role === 'adjustable') {
         return 'AXSlider'
       }
+
       if (role === 'separator') {
         return 'AXSplitter'
       }
+
       if (role === 'link') {
         return 'AXLink'
       }
+
       if (role === 'radiogroup') {
         return 'AXRadioGroup'
       }
+
       if (role === 'listbox') {
         return 'AXList'
       }
+
       if (role === 'option') {
         return 'AXRow'
       }
+
       if (
         role === 'button' &&
         typeof deps.state.get(this)?.accessibilityState?.pressed === 'boolean'
       ) {
         return 'AXCheckBox'
       }
+
       // ARIA 'meter' is AppKit's level indicator — a gauge of a scalar within
       // a range, distinct from task progress (AXProgressIndicator).
       return role === 'checkbox'
@@ -216,13 +236,17 @@ export function createAccessibleHost(deps: Dependencies) {
     accessibilityOrientation() {
       // NSAccessibilityOrientation: Unknown = 0, Vertical = 1, Horizontal = 2.
       const role = this.accessibilityRole()
+
       if (role === 'AXSplitter') {
         return 1
       }
+
       if (role === 'AXToolbar') {
         const axis = deps.state.get(this)?.accessibilityOrientation
+
         return axis === 'vertical' ? 1 : axis === 'horizontal' ? 2 : 0
       }
+
       // @ts-ignore super property read on the bridged superclass
       return super.accessibilityOrientation
     }
@@ -239,6 +263,7 @@ export function createAccessibleHost(deps: Dependencies) {
       if (this.accessibilityRole() === 'AXMenuItem') {
         return this.accessibilityLabel()
       }
+
       return Reflect.get(NSView.prototype, 'accessibilityTitle', this)
     }
 
@@ -246,6 +271,7 @@ export function createAccessibleHost(deps: Dependencies) {
     accessibilityValue() {
       const props = deps.state.get(this)
       const role = this.accessibilityRole()
+
       if (role === 'AXRadioButton') {
         return NSNumber.numberWithDouble(
           (deps.state.get(this)?.accessibilityRole === 'tab'
@@ -315,6 +341,7 @@ export function createAccessibleHost(deps: Dependencies) {
 
     accessibilityIsIgnored() {
       const props = deps.state.get(this)
+
       return (
         (!deps.state.get(this) && !deps.actions.hasHandler(this)) ||
         this.hiddenOrHasHiddenAncestor ||
@@ -323,6 +350,7 @@ export function createAccessibleHost(deps: Dependencies) {
       )
     }
   }
+
   return {
     inputTransparentViews,
     scopeFocusTargets,

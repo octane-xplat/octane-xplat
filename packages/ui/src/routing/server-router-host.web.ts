@@ -40,11 +40,13 @@ export function createServerRouterHost(): {
     canReset: false,
     getSnapshot(flow) {
       const entry = views.getSnapshot().main
+
       return { route: entry?.flow === flow ? entry.route : null, canGoBack: false, modal: false }
     },
     subscribe: () => () => {},
     commit: () => ({ status: 'unsupported', operation: 'server-navigation' }),
   }
+
   return {
     host,
     views,
@@ -52,17 +54,21 @@ export function createServerRouterHost(): {
       if (instance) {
         throw new Error('Server router host is already attached')
       }
+
       instance = router
     },
     initialize(route: PreparedRouteMatch, content: RouterHostContent): void {
       if (!instance || views.getSnapshot().main) {
         throw new Error('Server route is already initialized')
       }
+
       const entry = createClientRouteEntry(instance, route.stack, 'initial', route, content)
+
       entry.failed = (error) => {
         failed = true
         failure = error
       }
+
       views.set({ main: entry, modals: [] })
     },
     assertRendered(): void {
@@ -74,6 +80,7 @@ export function createServerRouterHost(): {
       if (!instance) {
         throw new Error('Server router host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     mount: (_flow: string) => (): void => {},

@@ -14,6 +14,7 @@ import {
 } from './ui-toggle-fields.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK toggle fields test',
   default_width: 400,
@@ -22,7 +23,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const errors: unknown[] = []
 const { root, container } = createGtkRoot(host, { onUncaughtError: (error) => errors.push(error) })
 const loop = GLib.MainLoop.new(null, false)
@@ -46,9 +49,11 @@ const check = (name: string, ok: boolean) => {
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const owner = (value: any) => {
   const form = node('toggle-fields')
+
   while (value.parent && value.parent !== form) {
     value = value.parent
   }
+
   return value
 }
 
@@ -62,19 +67,23 @@ let ack = 0,
   osInput = false
 
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: any, key: number) => {
   if (key === Gdk.KEY_F12) {
     ack++
     return true
   }
+
   return false
 })
 
 window.add_controller(keys)
+
 async function clickLabel(value: any) {
   const bounds = value.view.getBounds()
   const next = ack + 1
+
   print(
     'GTK_TOGGLE_FIELDS_READY ' +
       JSON.stringify({
@@ -83,9 +92,11 @@ async function clickLabel(value: any) {
         y: Math.floor(bounds.y + bounds.height / 2),
       }),
   )
+
   for (let i = 0; i < 250 && ack < next; i++) {
     await pause(20)
   }
+
   check('OS label input acknowledged', ack >= next)
   await pause()
 }
@@ -107,9 +118,11 @@ async function run() {
   await render()
   window.present()
   await pause()
+
   const native = (globalThis as any).imports.gi.XplatMason
   const checkbox = node('field-checkbox').view!,
     toggle = node('field-switch').view!
+
   for (const [id, view] of [
     ['field-checkbox', checkbox],
     ['field-switch', toggle],
@@ -137,6 +150,7 @@ async function run() {
       native.test_accessible_state(view, Gtk.AccessibleState.BUSY, 1) === null,
     )
   }
+
   await render({ hidden: true, loading: false, readOnly: false })
 
   check('hidden checkbox label has no visible text', !labels('Keep receipts').some(visible))
@@ -145,6 +159,7 @@ async function run() {
     'hiding labels retains both control hosts',
     node('field-checkbox').view === checkbox && node('field-switch').view === toggle,
   )
+
   await render({ hidden: false, required: false })
   if (GLib.getenv('GTK_TOGGLE_FIELDS_OS') === '1') {
     osInput = true
@@ -168,14 +183,19 @@ async function run() {
       )
     }
   }
+
   const checked = (view: any, value: number) =>
     native.test_accessible_state(view, Gtk.AccessibleState.CHECKED, value) === null
+
   const boolean = (view: any, property: number, value: boolean) =>
     native.test_accessible_boolean_property(view, property, value) === null
+
   const description = (view: any, value: string) =>
     native.test_accessible_string_property(view, Gtk.AccessibleProperty.DESCRIPTION, value) === null
+
   const busy = (view: any, value: boolean) =>
     native.test_accessible_state(view, Gtk.AccessibleState.BUSY, value ? 1 : 0) === null
+
   for (const [name, view, help, issue] of [
     ['checkbox', checkbox, 'Checkbox help', 'Checkbox issue'],
     ['switch', toggle, 'Switch help', 'Switch issue'],
@@ -198,25 +218,30 @@ async function run() {
       view.get_name() === name + '-automation',
     )
   }
+
   check(
     'checkbox label tooltip reaches native hint',
     description(labels('Keep receipts')[0].view, 'Checkbox tip'),
   )
+
   check(
     'switch label tooltip reaches native hint',
     description(labels('Notifications')[0].view, 'Switch tip'),
   )
+
   await render({ width: 280, required: true, optional: true, size: 'sm' })
   check(
     'optional controls override the form required default',
     boolean(checkbox, Gtk.AccessibleProperty.REQUIRED, false) &&
       boolean(toggle, Gtk.AccessibleProperty.REQUIRED, false),
   )
+
   check(
     'optional labels render their marker',
     labels('Keep receipts')[0].props.text.endsWith(' (Optional)') &&
       labels('Notifications')[0].props.text.endsWith(' (Optional)'),
   )
+
   check(
     'size provider reaches both controls',
     node('field-checkbox').props.className.includes('vx-checkbox--size-sm') &&
@@ -224,24 +249,29 @@ async function run() {
         String(n.props.className).includes('vx-switch--size-sm'),
       ),
   )
+
   const primaryIndicator = node('field-checkbox').children.find((n) =>
     String(n.props.className).split(' ').includes('vx-ind-checkbox'),
   )!.view!
+
   const primaryTrack = node('field-switch').children.find((n) =>
     String(n.props.className).split(' ').includes('vx-switch'),
   )!.view!
+
   check(
     'small size changes physical indicator and track geometry',
     primaryIndicator.getBounds().width === 20 &&
       primaryTrack.getBounds().width === 32 &&
       primaryTrack.getBounds().height === 20,
   )
+
   await render({ width: '50%', opacity: 0.6, hint: 'Custom hint' })
   check(
     'percentage width sizes the complete fields relative to their form',
     Math.abs(owner(node('field-checkbox')).view.getBounds().width - 180) <= 2 &&
       Math.abs(owner(node('field-switch')).view.getBounds().width - 180) <= 2,
   )
+
   check(
     'authored styles and classes reach the visual controls',
     Math.abs(checkbox.get_opacity() - 0.6) < 0.01 &&
@@ -251,11 +281,13 @@ async function run() {
         String(n.props.className).includes('fixture-toggle'),
       ),
   )
+
   check(
     'explicit hints compose with field help and validation',
     description(checkbox, 'Custom hint. Checkbox help. Checkbox issue') &&
       description(toggle, 'Switch help. Switch issue'),
   )
+
   await render({ width: 280, opacity: undefined, hint: undefined })
   check(
     'style removal restores opacity without replacing visual hosts',
@@ -263,6 +295,7 @@ async function run() {
       primaryTrack.get_opacity() === 1 &&
       node('field-switch').children.some((n) => n.view === primaryTrack),
   )
+
   checkbox.focus()
   await render({ hidden: true, status: false })
   check(
@@ -271,29 +304,37 @@ async function run() {
       window.get_focus() === checkbox &&
       node('field-switch').view === toggle,
   )
+
   check(
     'changed width applies to both field owners',
     Math.abs(owner(node('field-checkbox')).view.getBounds().width - 280) <= 2 &&
       Math.abs(owner(node('field-switch')).view.getBounds().width - 280) <= 2,
   )
+
   check(
     'status removal clears invalid state and hint',
     native.test_accessible_state(checkbox, Gtk.AccessibleState.INVALID, 0) === null &&
       description(checkbox, 'Checkbox help') &&
       description(toggle, 'Switch help'),
   )
+
   await render({ hidden: false, optional: false, required: false, size: undefined })
+
   const track = () =>
     node('field-switch').children.find((n) =>
       String(n.props.className).split(' ').includes('vx-switch'),
     )!.view!
+
   await render({ labelPosition: 'start', labelSpacing: 'hug' })
+
   let labelBounds = labels('Notifications')[0].view!.getBounds()
   let trackBounds = track().getBounds()
+
   check(
     'start hug places label before track',
     labelBounds.x + labelBounds.width <= trackBounds.x + 2,
   )
+
   check('start hug stays at the field start', Math.abs(labelBounds.x - toggle.getBounds().x) <= 2)
   await render({ labelPosition: 'end', labelSpacing: 'spread' })
   labelBounds = labels('Notifications')[0].view!.getBounds()
@@ -305,12 +346,14 @@ async function run() {
         labelBounds.x + labelBounds.width - (toggle.getBounds().x + toggle.getBounds().width),
       ) <= 2,
   )
+
   await render({ labelPosition: undefined, labelSpacing: undefined })
   check(
     'removing label layout props keeps hosts and restores order',
     node('field-switch').view === toggle &&
       labels('Notifications')[0].view!.getBounds().x > track().getBounds().x,
   )
+
   if (osInput) {
     for (const [name, view, label] of [
       ['checkbox', checkbox, 'Keep receipts'],
@@ -347,6 +390,7 @@ async function run() {
       ['switch', toggle, 'Notifications'],
     ] as const) {
       const before = changes.length
+
       await clickLabel(labels(label)[0])
       check(
         name + ' controlled request leaves owner value intact',
@@ -372,6 +416,7 @@ async function run() {
       ['switch', toggle, 'Notifications'],
     ] as const) {
       const before = changes.length
+
       await clickLabel(labels(label)[0])
       check(
         name + ' synchronous action failure rolls back without an effect error',
@@ -385,7 +430,9 @@ async function run() {
     }
 
     await render({ throws: false, readOnly: true })
+
     let before = changes.length
+
     await clickLabel(labels('Keep receipts')[0])
     await clickLabel(labels('Notifications')[0])
     check(
@@ -417,10 +464,13 @@ async function run() {
         description(toggle, 'Switch help'),
     )
   }
+
   root.render(ToggleContexts, { active: true })
   await pause()
+
   const contextCheckbox = node('context-checkbox').view!,
     contextSwitch = node('context-switch').view!
+
   for (const [id, view] of [
     ['context-checkbox', contextCheckbox],
     ['context-switch', contextSwitch],
@@ -443,11 +493,13 @@ async function run() {
         ).length === 2,
     )
   }
+
   check(
     'field default values include mixed and selected',
     checked(contextCheckbox, Gtk.AccessibleTristate.MIXED) &&
       checked(contextSwitch, Gtk.AccessibleTristate.TRUE),
   )
+
   check(
     'explicit accessible name wins over field label',
     native.test_accessible_string_property(
@@ -456,10 +508,12 @@ async function run() {
       'Custom context name',
     ) === null,
   )
+
   check(
     'external field help and disabled reason are inherited',
     description(contextCheckbox, 'Inherited checkbox help. Inherited issue. Inherited lock'),
   )
+
   check(
     'external field label supplies the switch accessible name',
     native.test_accessible_string_property(
@@ -468,6 +522,7 @@ async function run() {
       'Context switch',
     ) === null,
   )
+
   root.render(ToggleContexts, { active: false, overrideSize: true })
   await pause()
   check(
@@ -475,6 +530,7 @@ async function run() {
     node('context-checkbox').view === contextCheckbox &&
       node('context-switch').view === contextSwitch,
   )
+
   check(
     'field removal restores required default and read-only/loading states',
     contextCheckbox.get_sensitive() &&
@@ -483,6 +539,7 @@ async function run() {
       boolean(contextCheckbox, Gtk.AccessibleProperty.READ_ONLY, false) &&
       boolean(contextCheckbox, Gtk.AccessibleProperty.REQUIRED, true),
   )
+
   check(
     'explicit control size overrides provider',
     node('context-checkbox').props.className.includes('vx-checkbox--size-lg') &&
@@ -490,15 +547,19 @@ async function run() {
         String(n.props.className).includes('vx-switch--size-lg'),
       ),
   )
+
   const contextTrack = node('context-switch').children.find((n) =>
     String(n.props.className).split(' ').includes('vx-switch'),
   )!.view!
+
   check(
     'larger size restores the standard track dimensions',
     contextTrack.getBounds().width === 40 && contextTrack.getBounds().height === 24,
   )
+
   if (osInput) {
     const before = changes.length
+
     await clickLabel(labels('Context checkbox')[0])
     check(
       'external field label focuses its control',
@@ -525,6 +586,7 @@ async function run() {
     await clickLabel(node('context-switch'))
     check('context switch starts an action before disposal', hasPending('context-switch'))
   }
+
   root.unmount()
   if (osInput && hasPending('context-switch')) {
     settle('context-switch', true)
@@ -534,6 +596,7 @@ async function run() {
       host.get_first_child() == null,
     )
   }
+
   check('updates complete without effect errors', errors.length === 0)
   check('unmount clears native host', host.get_first_child() == null)
   window.destroy()
@@ -541,6 +604,7 @@ async function run() {
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   print(
     'GTK_TOGGLE_FIELDS ' +
       JSON.stringify({
@@ -549,10 +613,12 @@ async function run() {
         gtk: [Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()].join('.'),
       }),
   )
+
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   print('GTK_TOGGLE_FIELD_FAILURES ' + JSON.stringify({ checks, failures, osInput }))

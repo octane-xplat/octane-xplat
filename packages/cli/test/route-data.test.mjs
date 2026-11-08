@@ -3,12 +3,14 @@ import { test } from 'node:test'
 import { assertRouteDataJson } from '../src/route-data.ts'
 
 const check = (value) => assertRouteDataJson(value, 'help', 'app/help.loader.ts')
+
 test('baked JSON preserves dense arrays, shared records and reserved own keys', () => {
   const shared = { title: 'Packing' }
   const value = {
     list: [null, true, 'text', 3.5, shared, shared],
     reserved: JSON.parse('{"__proto__":{},"constructor":"title"}'),
   }
+
   check(value)
   check(Object.assign(Object.create(null), { title: 'Packing' }))
   assert.deepEqual(JSON.parse(JSON.stringify(value)), value)
@@ -44,6 +46,7 @@ for (const [name, value] of [
 
 test('baked JSON rejects cycles without rejecting shared references', () => {
   const value = { children: [] }
+
   value.children.push(value)
   assert.throws(() => check(value), /at \$\["children"\]\[0\]: cyclic/)
 })
@@ -57,6 +60,7 @@ test('baked JSON never invokes getters or toJSON to infer a different type', () 
       return 'Packing'
     },
   })
+
   assert.throws(() => check(getter), /accessors/)
   assert.throws(
     () =>
@@ -68,5 +72,6 @@ test('baked JSON never invokes getters or toJSON to infer a different type', () 
       }),
     /function/,
   )
+
   assert.equal(calls, 0)
 })

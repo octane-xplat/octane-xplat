@@ -65,6 +65,7 @@ export function Token(props: TokenProps): JSX.Element @{
     }
 
     const target = e.target as HTMLElement
+
     if (target.closest('button, a')) {
       return
     }
@@ -144,6 +145,7 @@ export function Token(props: TokenProps): JSX.Element @{
   if (props.onClick != null) {
     const delegateToButton = (e: any) => {
       const target = e.target as HTMLElement
+
       if (target.closest('button, a')) {
         return
       }

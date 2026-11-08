@@ -49,6 +49,7 @@ export function fileAccepts(file: FileInputFile, accept: string | undefined): bo
 
   const name = file.name.toLowerCase()
   const mime = (file.mimeType ?? '').toLowerCase()
+
   return tokens.some((token) => {
     if (token === '*/*') {
       return true
@@ -88,6 +89,7 @@ export function validateFiles(
 ): FileValidationResult {
   const errors: string[] = []
   const valid: FileInputFile[] = []
+
   for (const file of files) {
     if (!fileAccepts(file, opts.accept)) {
       errors.push(`${file.name}: file type not accepted`)
@@ -104,6 +106,7 @@ export function validateFiles(
 
   if (opts.maxFiles != null && valid.length > opts.maxFiles) {
     const extra = valid.splice(opts.maxFiles)
+
     for (const file of extra) {
       errors.push(`${file.name}: exceeds the ${opts.maxFiles}-file limit`)
     }

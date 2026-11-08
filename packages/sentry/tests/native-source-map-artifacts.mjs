@@ -28,6 +28,7 @@ const previousCwd = process.cwd()
 const previousBundlerEnv = process.env.NATIVESCRIPT_BUNDLER_ENV
 const previousDistDir = process.env.NS_VITE_DIST_DIR
 const previousVendorExclude = process.env.NS_VENDOR_EXCLUDE
+
 try {
   // Upstream @nativescript/vite resolves platform and output dir from these
   // environment variables at module evaluation — set them before xplatNative
@@ -84,6 +85,7 @@ try {
   )
 
   process.chdir(fixture)
+
   // The documented integration: the starter preset plus a release-map opt-in.
   const config = await xplatNative('production', {
     extra: { build: { sourcemap: 'hidden' }, logLevel: 'error' },
@@ -92,6 +94,7 @@ try {
   await build(config)
 
   const emitted = await readdir(output)
+
   for (const file of ['bundle.mjs', 'vendor.mjs', 'bundle.mjs.map', 'vendor.mjs.map']) {
     assert.ok(emitted.includes(file), `missing ${file} in ${emitted}`)
   }
@@ -105,6 +108,7 @@ try {
 
   const script = await readFile(join(output, 'bundle.mjs'), 'utf8')
   const map = JSON.parse(await readFile(join(output, 'bundle.mjs.map'), 'utf8'))
+
   // Hidden maps: the bundle carries no sourceMappingURL comment; inject added
   // the Debug ID to both sides and registered it for runtime stack lookup.
   assert.ok(!script.includes('sourceMappingURL'))
@@ -119,14 +123,19 @@ try {
   assert.ok(!map.sourcesContent || map.sourcesContent.every((source) => source == null))
 
   const marker = script.indexOf('Xplat native reporting check')
+
   assert.ok(marker >= 0)
+
   const before = script.slice(0, marker).split('\n')
   const original = new SourceMap(map).findEntry(before.length - 1, before.at(-1).length)
+
   // Minified mappings anchor at statement starts; a literal between anchors
   // resolves to its enclosing anchor — Sentry reports the same original file
   // and an adjacent line.
   assert.ok(original.originalSource.endsWith('reporting.mobile.ts'))
+
   const authored = (await readFile(join(fixture, 'src/reporting.mobile.ts'), 'utf8')).split('\n')
+
   assert.ok(
     authored
       .slice(Math.max(0, original.originalLine - 1), original.originalLine + 2)
@@ -136,6 +145,7 @@ try {
 
   const vendorMap = JSON.parse(await readFile(join(output, 'vendor.mjs.map'), 'utf8'))
   const vendorScript = await readFile(join(output, 'vendor.mjs'), 'utf8')
+
   assert.ok(vendorMap.debugId)
   assert.ok(vendorScript.includes(`debugId=${vendorMap.debugId}`))
 

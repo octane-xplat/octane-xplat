@@ -22,6 +22,7 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
   // Last confirmed value for the `isReadOnly` revert — `value` when
   // controlled, the widget's own state otherwise.
   const lastChecked = useRef(props.value ?? props.defaultValue ?? false)
+
   // Uncontrolled widgets own their checked state — seed it once; a bound
   // `value` write would fight the user's next toggle on re-render.
   useEffect(() => {
@@ -53,6 +54,7 @@ export function UISwitch(inputProps: UISwitchProps): unknown @{
       // revert so `isReadOnly` means the value truly cannot change.
       if (props.isReadOnly) {
         const expected = props.value ?? lastChecked.current
+
         if (e.value !== expected) {
           e.object.checked = expected
         }

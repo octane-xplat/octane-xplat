@@ -8,6 +8,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 const ids = ['first', 'second', 'sheet', 'modal']
 const hosts = ids.map((id) => document.getElementById(id)!)
 const roots = hosts.map((host) => createRoot(host))
+
 roots[0].render(<DataScreen id="first" />)
 roots[1].render(<DataScreen id="second" />)
 roots[2].render(<DataSharedReader />)
@@ -38,6 +39,7 @@ runDataTrace({
   text: (root, id) => hosts[root].querySelector(`#${id}`)?.textContent ?? undefined,
   tap: (root, id) => {
     const target = hosts[root].querySelector<HTMLElement>(`#${id}`)
+
     if (!target) {
       throw new Error('Missing data control: ' + id)
     }

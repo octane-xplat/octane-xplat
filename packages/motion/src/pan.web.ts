@@ -7,7 +7,9 @@ export function attachPan(
   callbacks: PanCallbacks,
 ): () => void {
   const touchAction = node.style.touchAction
+
   node.style.touchAction = axis === 'x' ? 'pan-y' : axis === 'y' ? 'pan-x' : 'none'
+
   let pointer: number | undefined
   let active = false
   let start = { x: 0, y: 0 }
@@ -19,6 +21,7 @@ export function attachPan(
     const point = cancelled ? last : { x: event.clientX, y: event.clientY }
     const delta = { x: point.x - last.x, y: point.y - last.y }
     const elapsed = event.timeStamp - time
+
     if (elapsed > 0 && (delta.x || delta.y)) {
       velocity = { x: (delta.x * 1000) / elapsed, y: (delta.y * 1000) / elapsed }
       velocityTime = event.timeStamp
@@ -62,9 +65,11 @@ export function attachPan(
     }
 
     const info = sample(event)
+
     if (!active) {
       const primary = axis === 'y' ? info.offset.y : info.offset.x
       const other = axis === 'y' ? info.offset.x : info.offset.y
+
       if (axis !== true && Math.abs(other) > 8 && Math.abs(primary) <= 8) {
         finish(event, true)
         return
@@ -87,6 +92,7 @@ export function attachPan(
     }
 
     const id = pointer
+
     pointer = undefined
     if (active) {
       active = false
@@ -100,6 +106,7 @@ export function attachPan(
 
   const up = (event: PointerEvent) => finish(event, false)
   const cancel = (event: PointerEvent) => finish(event, true)
+
   node.addEventListener('pointerdown', down)
   node.addEventListener('pointermove', move)
   node.addEventListener('pointerup', up)

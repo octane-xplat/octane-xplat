@@ -10,6 +10,7 @@ const catalog = (messages: Record<string, unknown>) => async () => ({ messages }
 it('matchLocale prefers exact, then base language, then fallback', async () => {
   const { matchLocale } = await load()
   const supported = ['en', 'es', 'fr-FR']
+
   expect(matchLocale('fr-FR', supported, 'en')).toBe('fr-FR')
   expect(matchLocale('es-MX', supported, 'en')).toBe('es')
   expect(matchLocale('de', supported, 'en')).toBe('en')
@@ -64,6 +65,7 @@ it('initLingui prefers a persisted locale over detection', async () => {
 
 it('setLocale activates translated messages and notifies subscribers', async () => {
   const { initLingui, setLocale, subscribeLocale, i18n } = await load()
+
   await initLingui({
     catalogs: {
       en: catalog({ hello: 'Hello' }),
@@ -73,6 +75,7 @@ it('setLocale activates translated messages and notifies subscribers', async () 
   })
 
   const seen: string[] = []
+
   subscribeLocale(() => seen.push('tick'))
   await setLocale('fr')
   expect(i18n._('hello')).toBe('Bonjour')
@@ -82,6 +85,7 @@ it('setLocale activates translated messages and notifies subscribers', async () 
 
 it('initLingui rejects an unbacked fallback', async () => {
   const { initLingui } = await load()
+
   await expect(initLingui({ catalogs: { en: catalog({}) }, fallback: 'de' })).rejects.toThrow(
     'fallback',
   )

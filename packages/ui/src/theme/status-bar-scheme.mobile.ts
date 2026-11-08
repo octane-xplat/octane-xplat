@@ -22,6 +22,7 @@ function applyStatusBarScheme(): void {
 
   const style = getThemeScheme() === 'dark' ? 'light' : 'dark'
   const root = Application.getRootView()
+
   if (root) {
     root.statusBarStyle = style
   }
@@ -32,11 +33,13 @@ function applyStatusBarScheme(): void {
     // Application.run installs the UIApplication — the displayed
     // subscription reapplies once it exists.
     const nativeApp = Application.ios.nativeApp
+
     if (!nativeApp) {
       return
     }
 
     const setter = 'setStatusBarStyle' in nativeApp ? nativeApp.setStatusBarStyle : undefined
+
     if (typeof setter === 'function') {
       setter.call(nativeApp, style === 'light' ? 1 : 0)
     }

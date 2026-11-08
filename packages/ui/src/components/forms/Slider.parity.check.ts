@@ -24,6 +24,7 @@ export const CHECKS: ParityCheck[] = [
       const track = m('track')
       const fill = m('fill')
       const thumb = m('thumb')
+
       return [
         dims(host, 220, 28, 1),
         dims(track, 220, 4, 1),
@@ -66,6 +67,7 @@ export const CHECKS: ParityCheck[] = [
       const track = m('track')
       const fill = m('fill')
       const thumb = m('thumb')
+
       return [
         dims(track, 220, 4, 1),
         ['fill is half the track', near(fill.box.w, 110, 1), fill.box.w],

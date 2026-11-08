@@ -94,13 +94,17 @@ function Detail(): any {
     dirtyEntry.getSnapshot,
     dirtyEntry.getSnapshot,
   )
+
   const blocker = useNavigationBlocker({ when: dirty === id })
+
   blockers.set(id, blocker)
   dirtyEntries.set(id, dirty === id)
+
   const title = item.useLoaderData().title
   const person = useContext(Person)
   const feedback = useNavigation()
   const [count, setCount] = useState(0)
+
   entries.set(id, {
     title,
     count,
@@ -109,6 +113,7 @@ function Detail(): any {
     updateSearch: item.useUpdateSearch(),
     increment: () => setCount((value) => value + 1),
   })
+
   return (
     <View id={'pane-' + id}>
       <Text id={'feedback-' + id}>{feedback.status}</Text>
@@ -130,17 +135,21 @@ function createFixtureRouter() {
   const platform = createPaneRouterHost()
   const validateSearch = (raw: { tab?: unknown }) => {
     const tab = raw.tab ?? 'details'
+
     if (tab !== 'details' && tab !== 'activity') {
       throw new Error('Invalid tab')
     }
+
     return { tab } as const
   }
+
   const fileModule = {
     validateSearch,
     beforeLoad: ({ params }: RouteDefinitionArgs<'/items/:id', typeof validateSearch, {}>) => {
       if (!admitted) {
         throw new RouteForbidden()
       }
+
       if (historyRedirect && params.id === 'coat') {
         throw new DestinationRedirect({
           to: '/items/:id',
@@ -148,6 +157,7 @@ function createFixtureRouter() {
           stack: 'other',
         })
       }
+
       return { checked: true }
     },
     loader({
@@ -158,20 +168,25 @@ function createFixtureRouter() {
       if (!context.checked || (search.tab !== 'details' && search.tab !== 'activity')) {
         throw new Error('File contract was not prepared')
       }
+
       routeLoads.set(params.id, (routeLoads.get(params.id) ?? 0) + 1)
       return { title: params.id + ':' + ++loads }
     },
     screen: Detail,
   }
+
   // Mirrors generated catalog branding; contracts are inferred from the module.
   const fileCatalog = sealGeneratedRouteCatalog<{
     '/items/:id': FileRouteContract<'/items/:id', typeof fileModule>
   }>(deriveRouteManifest({ './app/items/[id].macos.tsx': fileModule }, ['macos']))
+
   const catalog = mergeRouteManifests(
     fileCatalog,
     defineRoutes([defineRoute({ path: '/failed-items/:id' }).screen(Broken)]),
   )
+
   const router = createRouter({ catalog, host: platform.host, stacks: ['other'] })
+
   platform.attach(router)
   return {
     platform,
@@ -194,6 +209,7 @@ function App(props: { platform: ReturnType<typeof createPaneRouterHost> }): any 
     kind: NavigationChromeKind
     destination: ValidatedDestination
   } | null>(null)
+
   showChrome = setChrome
   changePerson = setPerson
   removeOwner = () => setOwned(false)
@@ -253,13 +269,16 @@ function DefaultDetail(props: { params: { id: string }; data: { title: string } 
     (match.to === '/client/:id' || match.to === '/client-modal/:id')
       ? match.params.id
       : undefined
+
   const back = state.canGoBack
   const dirty = useSyncExternalStore(
     dirtyEntry.subscribe,
     dirtyEntry.getSnapshot,
     dirtyEntry.getSnapshot,
   )
+
   const blocker = useNavigationBlocker({ when: dirty === props.params.id })
+
   blockers.set(props.params.id, blocker)
   dirtyEntries.set(props.params.id, dirty === props.params.id)
   defaultEntries.set(props.params.id, {
@@ -271,6 +290,7 @@ function DefaultDetail(props: { params: { id: string }; data: { title: string } 
     increment: () => setCount((value) => value + 1),
     navigator,
   })
+
   return (
     <RouteOutlet>
       <View id={'client-' + props.params.id}>
@@ -282,11 +302,14 @@ function DefaultDetail(props: { params: { id: string }; data: { title: string } 
 
 function DefaultBase(props: { name: string }): any {
   useClientRouter()
+
   const [count, setCount] = useState(0)
+
   defaultBases.set(props.name, { count, increment: () => setCount((value) => value + 1) })
   useLayoutEffect(() => {
     defaultReady = true
   }, [])
+
   return <Text id={'default-base-' + props.name}>{props.name + ':' + count}</Text>
 }
 
@@ -309,7 +332,9 @@ function DefaultShell(): any {
     defaultRouterRuntime.configured.getSnapshot,
     defaultRouterRuntime.configured.getSnapshot,
   )
+
   const [selected, setSelected] = useState('left')
+
   selectDefaultTab = setSelected
   return (
     <PersonProvider value="Default owner">
@@ -359,9 +384,11 @@ export const defaultClientCatalog = defineClientRoutes([
 ])
 
 export const defaultClientContext = { account: 'default-account' }
+
 function configureDefaultClient() {
   return import('./default-routes.gen.macos').then(async () => {
     const { routes } = await import('./default-routes.gen.catalog.macos')
+
     configureRouter({
       catalog: routes,
       context: defaultClientContext,
@@ -375,61 +402,79 @@ function configureDefaultClient() {
         }),
       },
     })
+
     return defaultClientCatalog
   })
 }
 
 export async function runRoutingFixture() {
   const app = NSApplication.sharedApplication
+
   app.setActivationPolicy(0)
+
   const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     { origin: { x: 0, y: 0 }, size: { width: 640, height: 480 } },
     15,
     2,
     false,
   )
+
   window.releasedWhenClosed = false
+
   const nativeHost = NSView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 640, height: 480 },
   })
+
   window.contentView = nativeHost
   app.finishLaunching()
   window.makeKeyAndOrderFront(null)
+
   const root = createMacOSRoot(nativeHost)
   let publicPaneRoot: ReturnType<typeof createMacOSRoot> | undefined
   const bridge = (globalThis as any).__xplatAppKit
   const present = bridge.presentSurface
   const surfaces: any[] = []
+
   bridge.presentSurface = (options: any) => {
     const responder = window.firstResponder
     const surface = present(options)
+
     surfaces.push({
       surface,
       options,
       stagedHidden: surface.layer.hidden,
       keptFocus: window.firstResponder === responder || window.firstResponder?.isEqual?.(responder),
     })
+
     return surface
   }
+
   const fixture = createFixtureRouter()
   const paneViews = fixture.platform.getRenderHost('root')!.views
+
   navigation = fixture.navigation
+
   let checks = 0
   const check = (value: unknown, message: string) => {
     if (!value) {
       throw new Error(message)
     }
+
     checks++
   }
+
   const pause = () => new Promise<void>((resolve) => setTimeout(resolve, 10))
   const until = async (condition: () => boolean, message: string) => {
     const deadline = Date.now() + 3000
+
     while (!condition() && Date.now() < deadline) {
       await pause()
     }
+
     check(condition(), message)
   }
+
   const debug = (root as typeof root & { __macosDebug: { findId(id: string): any } }).__macosDebug
   const view = (id: string): any => debug.findId(id)
 
@@ -437,11 +482,13 @@ export async function runRoutingFixture() {
     if (String(candidate.stringValue ?? '') === text) {
       return true
     }
+
     for (let index = 0; index < Number(candidate.subviews?.count ?? 0); index++) {
       if (containsText(candidate.subviews.objectAtIndex(index), text)) {
         return true
       }
     }
+
     return false
   }
 
@@ -451,8 +498,10 @@ export async function runRoutingFixture() {
         return true
       }
     }
+
     return false
   }
+
   try {
     root.render(App as unknown as UniversalComponent, { platform: fixture.platform })
     await until(() => paneViews.getSnapshot().has('root'), 'outlet mount')
@@ -462,6 +511,7 @@ export async function runRoutingFixture() {
     )
 
     const coat = view('pane-coat')
+
     check(
       !!coat && String(view('title-coat').stringValue) === 'coat:1:0:Avery',
       'rendered before result',
@@ -517,8 +567,11 @@ export async function runRoutingFixture() {
 
     const handoffView = view('pane-history-source')
     const handoffDepth = paneViews.getSnapshot().get('root')!.entries.length
+
     fixture.setHistoryRedirect(true)
+
     const redirectedBack = await navigation.back()
+
     check(
       redirectedBack.status === 'committed' && redirectedBack.redirected,
       'Back redirects into another pane',
@@ -574,6 +627,7 @@ export async function runRoutingFixture() {
     )
 
     const originalSearchUpdate = entries.get('glove')!.updateSearch
+
     check(
       (await originalSearchUpdate({ tab: 'activity' })).status === 'committed',
       'search update commits',
@@ -586,6 +640,7 @@ export async function runRoutingFixture() {
     )
 
     const activityUpdate = entries.get('glove')!.updateSearch
+
     check(
       (await activityUpdate({}, { replace: false })).status === 'committed',
       'search push commits',
@@ -606,7 +661,9 @@ export async function runRoutingFixture() {
     )
 
     await activityUpdate({})
+
     const glove = view('pane-glove')
+
     {
       for (const action of ['push', 'replace', 'reset'] as const) {
         const failed = await navigation[action]({
@@ -645,11 +702,13 @@ export async function runRoutingFixture() {
       ) {
         return true
       }
+
       for (let index = 0; index < Number(candidate.subviews?.count ?? 0); index++) {
         if (press(candidate.subviews.objectAtIndex(index))) {
           return true
         }
       }
+
       return false
     }
 
@@ -690,6 +749,7 @@ export async function runRoutingFixture() {
 
     const beforeRemount = view('pane-glove')
     const otherBeforeRemount = view('pane-other')
+
     entries.get('glove')!.increment()
     await until(() => entries.get('glove')?.count === 1, 'local state before keyed remount')
     remountOwner()
@@ -717,18 +777,24 @@ export async function runRoutingFixture() {
 
     const confirm = (id: string) => {
       const state = blockers.get(id)
+
       if (!state || state.status !== 'blocked') {
         throw new Error('Expected confirmation for ' + id)
       }
+
       return state
     }
 
     await navigation.push({ to: '/items/:id', params: { id: 'confirm-target' } })
+
     const confirmationTarget = view('pane-confirm-target')
+
     entries.get('confirm-target')!.increment()
     await until(() => entries.get('confirm-target')?.count === 1, 'confirmation target state')
     await navigation.push({ to: '/items/:id', params: { id: 'confirm-source' } })
+
     const confirmationSource = view('pane-confirm-source')
+
     dirtyEntry.set('confirm-target')
     await until(
       () => dirtyEntries.get('confirm-target') === true,
@@ -751,6 +817,7 @@ export async function runRoutingFixture() {
     )
 
     const held = navigation.push({ to: '/items/:id', params: { id: 'confirm-other' } })
+
     await until(
       () =>
         blockers.get('confirm-source')?.status === 'blocked' &&
@@ -774,15 +841,19 @@ export async function runRoutingFixture() {
     )
 
     const oldRequest = navigation.push({ to: '/items/:id', params: { id: 'confirm-obsolete' } })
+
     await until(() => {
       const state = blockers.get('confirm-source')
+
       return state?.status === 'blocked' && state.destination?.params?.id === 'confirm-obsolete'
     }, 'old AppKit confirmation')
 
     const oldControls = confirm('confirm-source')
     const newer = navigation.push({ to: '/items/:id', params: { id: 'confirm-other' } })
+
     await until(() => {
       const state = blockers.get('confirm-source')
+
       return state?.status === 'blocked' && state.destination?.params?.id === 'confirm-other'
     }, 'new AppKit confirmation')
 
@@ -794,8 +865,10 @@ export async function runRoutingFixture() {
 
     confirm('confirm-source').reset()
     await newer
+
     const beforeTargetLoads = fixture.routeLoads.get('confirm-target')!
     const back = navigation.back()
+
     await until(
       () => blockers.get('confirm-source')?.status === 'blocked',
       'AppKit Back confirmation',
@@ -820,9 +893,13 @@ export async function runRoutingFixture() {
     await navigation.back()
     dirtyEntry.set('glove')
     await until(() => dirtyEntries.get('glove') === true, 'owner dirty subscription')
+
     const ownerHeld = navigation.push({ to: '/items/:id', params: { id: 'confirm-owner' } })
+
     await until(() => blockers.get('glove')?.status === 'blocked', 'owner teardown confirmation')
+
     const disposedControls = confirm('glove')
+
     removeOwner()
     check(
       (await ownerHeld).status === 'cancelled',
@@ -839,6 +916,7 @@ export async function runRoutingFixture() {
     await until(() => defaultReady, 'default outlet mounts')
 
     const baked = await defaultRouter.validateDestination({ to: '/baked', transition: 'none' })
+
     check(baked.status === 'valid', 'platform-only baked route validates for the AppKit instance')
     if (baked.status !== 'valid') {
       throw new Error('Expected a validated AppKit baked route')
@@ -871,6 +949,7 @@ export async function runRoutingFixture() {
     )
 
     const leftBase = view('default-base-left')
+
     defaultBases.get('left')!.increment()
     await until(() => defaultBases.get('left')?.count === 1, 'tab base local state')
     check(
@@ -880,6 +959,7 @@ export async function runRoutingFixture() {
     )
 
     const tabCoat = view('client-tab-coat')
+
     check(
       !!tabCoat && !hidden(tabCoat) && defaultEntries.get('tab-coat')?.person === 'Default owner',
       'default tab visible with source provider',
@@ -918,6 +998,7 @@ export async function runRoutingFixture() {
     )
 
     const clientCoat = view('client-coat')
+
     check(
       defaultEntries.get('coat')?.title === 'default-account:coat' &&
         defaultEntries.get('coat')?.person === 'Default owner',
@@ -944,9 +1025,12 @@ export async function runRoutingFixture() {
     )
 
     const modalResult = await defaultRouter.navigateUrl('/client-modal/modal-base')
+
     check(modalResult.status === 'committed', 'AppKit routed modal commits')
+
     const modal = surfaces.at(-1)!
     const modalBase = defaultEntries.get('modal-base')!
+
     check(
       modal.stagedHidden && modal.keptFocus,
       'staging keeps the live window focus and hides the pending surface',
@@ -992,7 +1076,9 @@ export async function runRoutingFixture() {
     )
 
     defaultAdmitted = false
+
     const presenterLoads = defaultLoads.get('coat')
+
     check(modal.options.canDismiss('escape') === false, 'Escape delegates to canonical dismiss')
     await until(
       () => modalBase.navigator.getSnapshot().navigation.status !== 'pending',
@@ -1007,13 +1093,16 @@ export async function runRoutingFixture() {
     defaultAdmitted = true
     dirtyEntry.set('modal-base')
     await until(() => dirtyEntries.get('modal-base') === true, 'modal edits become dirty')
+
     const heldDismiss = modalBase.navigator.dismiss()
+
     await until(
       () => blockers.get('modal-base')?.status === 'blocked',
       'modal dismissal asks its own entry',
     )
 
     const refusal = blockers.get('modal-base')!
+
     if (refusal.status === 'blocked') {
       refusal.reset()
     }
@@ -1032,6 +1121,7 @@ export async function runRoutingFixture() {
     )
 
     const nested = surfaces.at(-1)!
+
     check(!nested.surface.closed && !modal.surface.closed, 'nested modal retains presenter')
     check(
       (await defaultEntries.get('nested-modal')!.navigator.dismiss()).status === 'committed',
@@ -1068,12 +1158,14 @@ export async function runRoutingFixture() {
     }
 
     const motionModal = await defaultRouter.push(motionDestination.destination)
+
     check(motionModal.status === 'committed', 'AppKit modal with custom motion commits')
     if (motionModal.status !== 'committed') {
       throw new Error('Expected a committed motion modal')
     }
 
     const motionSurface = surfaces.at(-1)!
+
     check(
       Number(motionSurface.surface.panel.alphaValue) < 1,
       'AppKit modal content starts at its custom values',
@@ -1106,6 +1198,7 @@ export async function runRoutingFixture() {
     }
 
     const interrupted = await defaultRouter.push(interruptedDestination.destination)
+
     check(interrupted.status === 'committed', 'AppKit modal interrupt fixture commits')
     if (interrupted.status !== 'committed') {
       throw new Error('Expected a committed interrupted modal')
@@ -1113,6 +1206,7 @@ export async function runRoutingFixture() {
 
     const interruptedSurface = surfaces.at(-1)!
     const interruptDismiss = defaultEntries.get('modal-interrupted')!.navigator.dismiss()
+
     check(
       (await interrupted.finished).status === 'skipped',
       'AppKit modal dismissal interrupts content motion',
@@ -1161,6 +1255,7 @@ export async function runRoutingFixture() {
 
     const forced = surfaces.at(-1)!
     const forcedNavigation = defaultEntries.get('forced-close')!.navigator
+
     forced.surface.close('owner')
     await until(
       () => forcedNavigation.getSnapshot().route === null,
@@ -1180,6 +1275,7 @@ export async function runRoutingFixture() {
 
     const owned = surfaces.at(-1)!
     const ownedNavigation = defaultEntries.get('owned-close')!.navigator
+
     check(
       (await ownedNavigation.push({ to: '/client-modal/:id', params: { id: 'owned-child' } }))
         .status === 'committed',
@@ -1187,6 +1283,7 @@ export async function runRoutingFixture() {
     )
 
     const ownedChild = surfaces.at(-1)!
+
     root.unmount()
     await until(
       () => owned.surface.closed && ownedChild.surface.closed,
@@ -1206,6 +1303,7 @@ export async function runRoutingFixture() {
           origin: { x: 0, y: 0 },
           size: { width: 640, height: 480 },
         })
+
         window.contentView = paneHost
         publicPaneRoot = createMacOSRoot(paneHost)
         publicPaneRoot.render(Component as unknown as UniversalComponent, props)
@@ -1226,6 +1324,7 @@ export async function runRoutingFixture() {
     await qualifyAppKitRouteTransitions(window, check, until)
 
     const authentication = createAppKitRouterHost()
+
     await qualifyNativeAuthentication({
       host: authentication,
       mount(Component, props) {
@@ -1233,6 +1332,7 @@ export async function runRoutingFixture() {
           origin: { x: 0, y: 0 },
           size: { width: 640, height: 480 },
         })
+
         window.contentView = authHost
         publicPaneRoot = createMacOSRoot(authHost)
         publicPaneRoot.render(Component as unknown as UniversalComponent, props)
@@ -1252,6 +1352,7 @@ export async function runRoutingFixture() {
     })
 
     const retention = createAppKitRouterHost()
+
     await qualifyRouteRetention({
       host: retention,
       mount(Component, props) {
@@ -1259,6 +1360,7 @@ export async function runRoutingFixture() {
           origin: { x: 0, y: 0 },
           size: { width: 640, height: 480 },
         })
+
         window.contentView = retentionHost
         publicPaneRoot = createMacOSRoot(retentionHost)
         publicPaneRoot.render(Component as unknown as UniversalComponent, props)

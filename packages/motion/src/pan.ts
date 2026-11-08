@@ -47,6 +47,7 @@ export function attachPan(node: any, axis: true | 'x' | 'y', callbacks: PanCallb
     const extra = args.data.extraData ?? {}
     const offset = { x: extra.translationX ?? last.x, y: extra.translationY ?? last.y }
     const delta = { x: offset.x - last.x, y: offset.y - last.y }
+
     last = offset
     return {
       point: { x: extra.absoluteX ?? extra.x ?? 0, y: extra.absoluteY ?? extra.y ?? 0 },
@@ -59,10 +60,13 @@ export function attachPan(node: any, axis: true | 'x' | 'y', callbacks: PanCallb
 
   const state = (args: any) => {
     const next = args.data.state
+
     if (next === GestureState.ACTIVE && !active) {
       last = { x: 0, y: 0 }
       active = true
+
       const info = sample(args)
+
       callbacks.start(args, info)
       callbacks.move(args, info)
     } else if (

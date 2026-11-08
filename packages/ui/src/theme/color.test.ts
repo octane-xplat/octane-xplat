@@ -31,6 +31,7 @@ it('round-trips hex → hsb → hex on a sample set', () => {
     '#07a1c3',
     '#c3a107',
   ]
+
   for (const hex of samples) {
     expect(hsbToHex(rgbToHsb(parseHex(hex)!))).toBe(hex)
   }
@@ -47,9 +48,12 @@ it('hsbToRgb wraps hue', () => {
 
 it('keeps the previous hue for achromatic values', () => {
   const red = rgbToHsb({ r: 255, g: 0, b: 0 })
+
   expect(hsbForValue(red, '#808080').h).toBe(0)
   expect(hsbForValue(red, '#ffffff').h).toBe(0)
+
   const blue = rgbToHsb({ r: 0, g: 0, b: 255 })
+
   expect(hsbForValue(blue, '#808080').h).toBeCloseTo(240)
   expect(hsbForValue(blue, '#ffffff').h).toBeCloseTo(240)
 })
@@ -57,6 +61,7 @@ it('keeps the previous hue for achromatic values', () => {
 it('keeps hue and saturation at black, restoring color when brightness returns', () => {
   const red = rgbToHsb({ r: 255, g: 0, b: 0 })
   const black = hsbForValue(red, '#000000')
+
   expect(black).toEqual({ h: 0, s: 1, b: 0 })
   // Dragging brightness back up from black lands on red again.
   expect(hsbToHex({ h: black.h, s: black.s, b: 1 })).toBe('#ff0000')

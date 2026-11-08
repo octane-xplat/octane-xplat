@@ -28,6 +28,7 @@ function ImperativeProbe(props: { onResult?: (value: string) => void }) @{
       label="UibOpen"
       clickAction={() => {
         const handle = sheet.open(ImpSheetContent, { tag: 'uib' })
+
         handle.then((result) => props.onResult?.(String(result)))
       }}
     />
@@ -107,6 +108,7 @@ export function SheetProbe() @{
       label="ImpOpen"
       clickAction={() => {
         const handle = openBottomSheet(ImpSheetContent, { tag: 'svc' })
+
         handle.then((result) => setMark('imp:' + String(result)))
       }}
     />
@@ -115,6 +117,7 @@ export function SheetProbe() @{
       label="ImpOpen2"
       clickAction={() => {
         const handle = openBottomSheet(ImpSheetContent, { tag: 'svc2' })
+
         handle.then((result) => setMark('imp2:' + String(result)))
       }}
     />

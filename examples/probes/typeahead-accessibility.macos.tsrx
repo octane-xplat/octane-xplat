@@ -11,12 +11,14 @@ import {
 
 import type { SearchableItem } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const source = createStaticSource([
   { id: 'ada', label: 'Ada' },
   { id: 'grace', label: 'Grace' },
 ])
 
 const replacement = createStaticSource([{ id: 'current', label: 'Current person' }])
+
 export default function TypeaheadAccessibilityProbe() {
   const [person, setPerson] = useState<SearchableItem | null>(null),
     [blocked, setBlocked] = useState(false),

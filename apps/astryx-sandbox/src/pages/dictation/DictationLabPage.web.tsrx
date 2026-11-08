@@ -71,6 +71,7 @@ function playMixedNotes(
 ) {
   const ctx = getAudioContext()
   const now = ctx.currentTime
+
   notes.forEach(({ freq, delay }) => {
     // Scale duration for low frequencies — bass needs more time to speak.
     // Below 200Hz, stretch proportionally (e.g. 65Hz gets ~3x the duration).
@@ -371,6 +372,7 @@ function SoundBarsButton({
         >
           {boostedBands.slice(0, barCount).map((level, i) => {
             const scale = barMinScale + level * (1 - barMinScale)
+
             return (
               <span
                 key={i}
@@ -502,6 +504,7 @@ export function DictationLabPage() {
                   const raw = dictation.rawBands[i] ?? 0
                   const clean = dictation.bands[i] ?? 0
                   const barH = 40
+
                   return (
                     <div key={label} className="DictationLabPage-static-7">
                       <div className="DictationLabPage-static-8">
@@ -615,6 +618,7 @@ export function DictationLabPage() {
               clickAction={() => {
                 const style = attackStyles.find((s) => s.id === selectedAttack)
                 const pattern = notePatterns.find((p) => p.id === selectedPattern)
+
                 if (style && pattern) {
                   playMixedNotes(pattern.startNotes, style, volume)
                 }
@@ -627,6 +631,7 @@ export function DictationLabPage() {
               clickAction={() => {
                 const style = attackStyles.find((s) => s.id === selectedAttack)
                 const pattern = notePatterns.find((p) => p.id === selectedPattern)
+
                 if (style && pattern) {
                   playMixedNotes(pattern.stopNotes, style, volume)
                 }

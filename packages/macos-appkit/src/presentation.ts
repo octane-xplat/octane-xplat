@@ -117,6 +117,7 @@ export function installPresentationBridge(
     hitTest(point: NSPoint): any {
       const hit = super.hitTest(point)
       const entry = layers.get(this)
+
       return (hit === (this as unknown as NSView) || hit?.isEqual?.(this)) && !entry?.options.modal
         ? null
         : hit
@@ -130,6 +131,7 @@ export function installPresentationBridge(
   const children = (view: any): NSView[] => {
     const result: NSView[] = []
     const list = view?.subviews
+
     for (let i = 0; i < Number(list?.count ?? 0); i++) {
       result.push(list.objectAtIndex(i))
     }
@@ -146,6 +148,7 @@ export function installPresentationBridge(
     }
 
     const own = truth(view, 'acceptsFirstResponder') && view.enabled !== false ? [view] : []
+
     return [...own, ...children(view).flatMap(focusables)]
   }
 
@@ -169,6 +172,7 @@ export function installPresentationBridge(
     }
 
     const match = value.trim().match(/^([\d.]+)(%|px|dip|dvh|vh)?$/)
+
     return match
       ? Number(match[1]) * (['%', 'dvh', 'vh'].includes(match[2]) ? budget / 100 : 1)
       : fallback
@@ -176,6 +180,7 @@ export function installPresentationBridge(
 
   bridge.setSurfaceAppearance = (view, dark) => {
     const entry = entries.find((entry) => inside(view, entry.panel))
+
     if (!entry) {
       return
     }
@@ -188,17 +193,22 @@ export function installPresentationBridge(
     const owner = initial.owner?.native ?? initial.owner
     const nativeWindow = owner?.window ?? NSApplication.sharedApplication.keyWindow
     const host = nativeWindow?.contentView
+
     if (!host || typeof initial.component !== 'function') {
       throw new Error('AppKit presentation requires a mounted window and component')
     }
 
     const layer = PresentationLayer.alloc().initWithFrame(host.bounds)
+
     layer.autoresizingMask = 18 // width + height
     layer.wantsLayer = true
     layer.hidden = true
+
     const panel = NSView.alloc().initWithFrame(host.bounds)
+
     panel.wantsLayer = true
     layer.addSubview(panel)
+
     const root =
       initial.createContentRoot?.(panel) ??
       createRoot(panel, { fontFamily: fontFamilyForView(owner ?? host) })
@@ -310,6 +320,7 @@ export function installPresentationBridge(
         ).CGColor
 
         const surfaceColor = options.dark ? 10 / 255 : 1
+
         panel.layer.backgroundColor = NSColor.colorWithRedGreenBlueAlpha(
           surfaceColor,
           surfaceColor,
@@ -377,6 +388,7 @@ export function installPresentationBridge(
 
         if (transition && typeof CABasicAnimation !== 'undefined') {
           const animation = CABasicAnimation.animationWithKeyPath('opacity')
+
           animation.fromValue = NSNumber.numberWithDouble(0.65)
           animation.toValue = NSNumber.numberWithDouble(1)
           animation.duration = 0.18
@@ -403,7 +415,9 @@ export function installPresentationBridge(
         if (entry.closed || entry.presented) {
           return
         }
+
         const responder = nativeWindow.firstResponder
+
         previousFocus = truth(responder, 'isFieldEditor') ? responder.delegate : responder
         entry.presented = true
         layer.hidden = false
@@ -418,6 +432,7 @@ export function installPresentationBridge(
         }
 
         entry.closed = true
+
         const owns = (candidate: SurfaceEntry) => {
           for (let current = candidate; current; current = current.parent!) {
             if (current === entry) {
@@ -458,7 +473,9 @@ export function installPresentationBridge(
         } finally {
           layer.removeFromSuperview()
           layers.delete(layer)
+
           const target = entry.options.finalFocusRef?.current
+
           if (hadFocus && reason !== 'owner' && reason !== 'ancestor') {
             if (typeof target?.focus === 'function') {
               target.focus()
@@ -481,7 +498,9 @@ export function installPresentationBridge(
         if (!entry.presented) {
           return
         }
+
         const purpose = entry.options.purpose ?? 'info'
+
         if (purpose === 'required' || (path === 'outside' && purpose !== 'info')) {
           return
         }
@@ -528,12 +547,14 @@ export function installPresentationBridge(
           }
 
           const type = Number(event.type)
+
           if (type === 10) {
             if (!entry.options.modal && !inside(nativeWindow.firstResponder, panel)) {
               return event
             }
 
             const code = Number(event.keyCode)
+
             if (code === 53) {
               entry.requestDismiss('escape')
               return null
@@ -597,7 +618,9 @@ export function installPresentationBridge(
 
           if (entry.drag && type === 2) {
             entry.drag = null
+
             const height = panel.frame.size.height
+
             if (height < (entry.stops?.[0] ?? 120) * 0.5) {
               entry.requestDismiss('drag')
             } else if (entry.stops?.length) {

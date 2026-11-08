@@ -51,6 +51,7 @@ export function ChatDictationButton(props: ChatDictationButtonProps): JSX.Elemen
         >
           {boosted.slice(0, BAR_COUNT).map((level) => {
             const scale = BAR_MIN_SCALE + level * (1 - BAR_MIN_SCALE)
+
             return (
               <span
                 className="vx-chatdict-bar"

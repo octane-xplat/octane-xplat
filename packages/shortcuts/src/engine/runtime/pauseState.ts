@@ -7,6 +7,7 @@ export class PauseState {
       this.pauseAllCount += 1
       return
     }
+
     this.pauseCounts.set(scope, (this.pauseCounts.get(scope) ?? 0) + 1)
   }
 
@@ -15,7 +16,9 @@ export class PauseState {
       this.pauseAllCount = Math.max(0, this.pauseAllCount - 1)
       return
     }
+
     const current = this.pauseCounts.get(scope) ?? 0
+
     if (current <= 1) {
       this.pauseCounts.delete(scope)
     } else {
@@ -27,6 +30,7 @@ export class PauseState {
     if (this.pauseAllCount > 0) {
       return []
     }
+
     return scopes.filter((scope) => (this.pauseCounts.get(scope) ?? 0) === 0)
   }
 

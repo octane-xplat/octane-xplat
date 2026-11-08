@@ -9,8 +9,11 @@ import { RollingText } from './RollingText.web.tsrx'
 
 function mount(extra: any = {}) {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
+
   const root = createRoot(el)
+
   act(() => root.render(<RollingText value="9" {...extra} />))
   return { el, root }
 }
@@ -54,6 +57,7 @@ describe('RollingText (web leaf)', () => {
 
   it('mounts settled: one cell per grapheme, one semantic value', () => {
     const { el, root } = mount({ value: '9 seconds' })
+
     expect(texts(el).join('')).toBe('9 seconds')
     expect(el.querySelectorAll('[aria-hidden]')).toHaveLength(1)
     expect(semantic(el)).toBe('9 seconds')
@@ -64,10 +68,13 @@ describe('RollingText (web leaf)', () => {
   it('rolls only the changed cells; survivors keep their elements', () => {
     const { el, root } = mount({ value: '9 seconds' })
     const before = cells(el)
+
     act(() => root.render(<RollingText value="10 seconds" />))
     // During the roll: ghost '9' + entering '1','0' + survivors.
     expect(texts(el).join('')).toBe('910 seconds')
+
     const after = cells(el)
+
     expect(after[3]).toBe(before[1]) // ' ' survives identity
     expect(after[4]).toBe(before[2]) // 's'
     expect(after[1].style.transform).toContain('translateY') // entering rolls
@@ -83,6 +90,7 @@ describe('RollingText (web leaf)', () => {
 
   it('settles instantly under reducedMotion="always"', () => {
     const { el, root } = mount({ value: '9', reducedMotion: 'always' })
+
     act(() => root.render(<RollingText value="10" reducedMotion="always" />))
     expect(commit(el)).toBe('10')
     expect(cells(el).every((cell) => cell.style.transform === '')).toBe(true)
@@ -94,6 +102,7 @@ describe('RollingText (web leaf)', () => {
   it('equal values do nothing', () => {
     const { el, root } = mount({ value: 'same' })
     const before = cells(el)
+
     act(() => root.render(<RollingText value="same" />))
     expect(cells(el)).toEqual(before)
     root.unmount()
@@ -102,6 +111,7 @@ describe('RollingText (web leaf)', () => {
 
   it("'interrupt' snaps the running roll to its target before the next", () => {
     const { el, root } = mount({ value: 'a', transition: { duration: 0.3 } })
+
     act(() => root.render(<RollingText value="b" transition={{ duration: 0.3 }} />))
     act(() => root.render(<RollingText value="c" transition={{ duration: 0.3 }} />))
     // The interrupted run committed 'b' — its ghost rolls out beside 'c'.
@@ -137,6 +147,7 @@ describe('RollingText (web leaf)', () => {
 
   it('settles the queued latest value when reduced motion becomes active', () => {
     const { el, root } = mount({ value: 'a', updatePolicy: 'latest' })
+
     act(() => root.render(<RollingText value="b" updatePolicy="latest" />))
     act(() => root.render(<RollingText value="c" updatePolicy="latest" />))
     act(() => root.render(<RollingText value="c" updatePolicy="latest" reducedMotion="always" />))
@@ -149,6 +160,7 @@ describe('RollingText (web leaf)', () => {
 
   it('accessibilityLabel overrides the semantic text', () => {
     const { el, root } = mount({ value: '3', accessibilityLabel: '3 items' })
+
     expect(semantic(el)).toBe('3 items')
     root.unmount()
     el.remove()
@@ -156,6 +168,7 @@ describe('RollingText (web leaf)', () => {
 
   it('unmount mid-roll cancels work and removes the tree', () => {
     const { el, root } = mount({ value: 'a' })
+
     act(() => root.render(<RollingText value="b" />))
     act(() => root.unmount())
     expect(el.querySelectorAll('span')).toHaveLength(0)

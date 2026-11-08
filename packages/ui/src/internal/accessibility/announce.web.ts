@@ -21,6 +21,7 @@ const clearTimers: Record<AnnouncePoliteness, ReturnType<typeof setTimeout> | un
 
 function createRegion(politeness: AnnouncePoliteness): HTMLElement {
   const el = document.createElement('div')
+
   el.setAttribute('data-xplat-live-region', politeness)
   el.setAttribute('aria-live', politeness)
   el.setAttribute('aria-atomic', 'true')
@@ -34,28 +35,34 @@ function getRegions(): Record<AnnouncePoliteness, HTMLElement> | undefined {
   if (typeof document === 'undefined') {
     return undefined
   }
+
   regions ??= { polite: createRegion('polite'), assertive: createRegion('assertive') }
   for (const el of Object.values(regions)) {
     if (!el.isConnected) {
       document.body.appendChild(el)
     }
   }
+
   return regions
 }
 
 export function announce(message: string, politeness: AnnouncePoliteness = 'polite'): void {
   const target = getRegions()?.[politeness]
+
   if (!target) {
     return
   }
+
   clearTimeout(clearTimers[politeness])
   if (frames[politeness] !== undefined) {
     cancelAnimationFrame(frames[politeness]!)
   }
+
   target.textContent = ''
   if (!message) {
     return
   }
+
   frames[politeness] = requestAnimationFrame(() => {
     delete frames[politeness]
     target.textContent = message

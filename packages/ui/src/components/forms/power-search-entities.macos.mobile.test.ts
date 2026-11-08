@@ -21,6 +21,7 @@ const config = (
 })
 
 const signal = () => new AbortController().signal
+
 it('deduplicates stable identities while keeping custom row data and storing only public entity fields', () => {
   const row = {
     id: '1',
@@ -29,8 +30,11 @@ it('deduplicates stable identities while keeping custom row data and storing onl
     auxiliaryData: { private: true },
     element: 'custom row',
   }
+
   expect(entitySelection([row, { id: '1', label: 'Other' }, { id: '2', label: 'A' }])[0]).toBe(row)
+
   const invalidPhoto = { id: '2', label: 'A', photo: 42 }
+
   expect(entityValue([row, row, invalidPhoto])).toEqual([
     { id: '1', label: 'A', photo: 'file:///avatar.png' },
     { id: '2', label: 'A' },
@@ -53,10 +57,13 @@ it('prefers exact ID then a unique exact case-sensitive label, retaining selecti
         ]
       : [{ id: '3', label: 'Third' }],
   )
+
   const selected = Object.freeze([{ id: '1', label: 'First' }])
+
   expect(
     (await resolveEntityEntries('First, 2, Third, 2', config(search), selected, signal())).items,
   ).toEqual([...selected, { id: '2', label: 'Second' }, { id: '3', label: 'Third' }])
+
   expect(search.mock.calls.map(([query]) => query)).toEqual(['First', '2', 'Third'])
   expect(selected).toHaveLength(1)
 })
@@ -72,6 +79,7 @@ it('never selects fuzzy matches or ambiguous labels, even when arbitrary strings
       )
     ).error,
   ).toBeTruthy()
+
   expect(
     (
       await resolveEntityEntries(
@@ -88,6 +96,7 @@ it('never selects fuzzy matches or ambiguous labels, even when arbitrary strings
       )
     ).error,
   ).toBeTruthy()
+
   expect(
     (
       await resolveEntityEntries(
@@ -114,7 +123,9 @@ it('supports source-free arbitrary entries, token sorting and empty/error batche
     { id: 'A', label: 'A' },
     { id: 'B', label: 'B' },
   ])
+
   const selected = [{ id: 'kept', label: 'Kept' }]
+
   expect(
     (
       await resolveEntityEntries(
@@ -125,6 +136,7 @@ it('supports source-free arbitrary entries, token sorting and empty/error batche
       )
     ).items,
   ).toBeUndefined()
+
   expect(selected).toEqual([{ id: 'kept', label: 'Kept' }])
   expect(
     (
@@ -142,6 +154,7 @@ it('validates separators before source calls and hides source exception text', a
   const search = vi.fn(() => {
     throw Error('private server details')
   })
+
   expect(
     (
       await resolveEntityEntries(
@@ -152,13 +165,16 @@ it('validates separators before source calls and hides source exception text', a
       )
     ).error,
   ).toBeTruthy()
+
   expect(search).not.toHaveBeenCalled()
+
   const result = await resolveEntityEntries(
     'A',
     config(search, { isArbitraryStringAllowed: true }),
     [],
     signal(),
   )
+
   expect(result.error).toBeTruthy()
   expect(JSON.stringify(result)).not.toContain('private')
   expect(result.items).toBeUndefined()
@@ -175,14 +191,17 @@ it('uses fresh per-request signals and resolves serially, cancelling a source th
         })
       : [{ id: 'b', label: 'B' }]
   })
+
   const controller = new AbortController(),
     task = resolveEntityEntries('A,B', config(search), [], controller.signal)
+
   expect(search).toHaveBeenCalledTimes(1)
   controller.abort()
   expect(requests[0].aborted).toBe(true)
   finish([{ id: 'a', label: 'A' }])
   expect(await task).toEqual({})
   expect(search).toHaveBeenCalledTimes(1)
+
   const completed = await resolveEntityEntries(
     'B,C',
     config((q, request) => {
@@ -192,6 +211,7 @@ it('uses fresh per-request signals and resolves serially, cancelling a source th
     [],
     signal(),
   )
+
   expect(completed.items).toHaveLength(2)
   expect(requests[1]).not.toBe(requests[2])
 })

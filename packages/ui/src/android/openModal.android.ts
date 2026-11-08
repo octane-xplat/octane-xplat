@@ -24,6 +24,7 @@ export function openModalWithOwner(
   let closeModal: ((result?: ModalOpenResult) => void) | undefined
   const handle = new Promise<ModalOpenResult>((resolve, reject) => {
     const presenter = modalPresenter(owner?.host?.page?.frame ?? Frame.topmost())
+
     if (!presenter) {
       reject(
         new Error(

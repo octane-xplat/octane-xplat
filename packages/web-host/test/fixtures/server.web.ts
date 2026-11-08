@@ -1,5 +1,6 @@
 import { createWebHandler, createWebRenderer } from '../../src/server.web'
 import { catalog } from './routes.web.tsrx'
+
 export { App, loads, guards, Document } from './routes.web.tsrx'
 export function handler(overrides: Record<string, unknown> = {}) {
   return createWebHandler({

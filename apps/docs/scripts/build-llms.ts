@@ -33,14 +33,17 @@ function rewriteLinks(md, dir, slugs) {
     }
 
     const slug = docSlugFor(href, dir)
+
     if (slug && slugs.has(slug)) {
       const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
+
       return `](${BASE}${docPath(slug)}${hash})`
     }
 
     const path = repoPathFor(href, dir)
     const kind = path.endsWith('/') || !path.includes('.') ? 'tree' : 'blob'
     const hash = href.includes('#') ? href.slice(href.indexOf('#')) : ''
+
     return `](${REPO}/${kind}/main/${path}${hash})`
   })
 }
@@ -48,6 +51,7 @@ function rewriteLinks(md, dir, slugs) {
 async function* walk(dir) {
   for (const entry of await readdir(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name)
+
     if (entry.isDirectory() && entry.name !== 'evidence') {
       yield* walk(path)
     } else if (entry.name.endsWith('.md')) {
@@ -57,11 +61,13 @@ async function* walk(dir) {
 }
 
 const docs = []
+
 for await (const path of walk(docsDir)) {
   const rel = relative(docsDir, path).replace(/\.md$/, '')
   const dir = dirname(rel)
   const md = await readFile(path, 'utf8')
   const slug = slugFor(dir === '.' ? '' : dir, rel.split('/').pop())
+
   docs.push({
     slug,
     title: titleOf(slug, md),
@@ -88,6 +94,7 @@ docs.push({
 
 docs.sort((a, b) => {
   const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
+
   return d || a.slug.localeCompare(b.slug)
 })
 

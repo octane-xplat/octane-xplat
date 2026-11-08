@@ -11,6 +11,7 @@ import {
 
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function AppKitCachedImageProbe() {
   const active = useRef(true),
     [source, setSource] = useState('https://example.com/photo.png')
@@ -79,6 +80,7 @@ export default function AppKitCachedImageProbe() {
         label="Prefetch bytes without displaying"
         clickAction={async () => {
           const owned = source
+
           report(`prefetch: ${await prefetch(owned)}`)
         }}
       />
@@ -86,6 +88,7 @@ export default function AppKitCachedImageProbe() {
         label="Query source"
         clickAction={async () => {
           const owned = source
+
           report(`cached: ${(await isImageCached(owned))[owned]}`)
         }}
       />
@@ -95,6 +98,7 @@ export default function AppKitCachedImageProbe() {
         label="Evict source"
         clickAction={async () => {
           const owned = source
+
           report(`evicted: ${await evictImage(owned)}`)
         }}
       />

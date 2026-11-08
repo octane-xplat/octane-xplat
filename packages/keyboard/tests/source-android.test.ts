@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
+
 vi.mock('@nativescript/core', () => ({
   Utils: { layout: { toDeviceIndependentPixels: (value: number) => value } },
 }))
@@ -29,7 +30,9 @@ vi.mock('@octane-xplat/platform/android', () => ({
 }))
 
 vi.mock('@octane-xplat/ui/nativescript/keyboard', () => ({ observeKeyboardDestination: vi.fn() }))
+
 import { observeKeyboardMotion } from '../src/source.android'
+
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
@@ -38,6 +41,7 @@ afterEach(() => {
 const fixture = (attached: boolean) => {
   const insets = { getInsets: (type: number) => ({ bottom: type === 1 ? 300 : 24 }) },
     listeners = new Set<any>()
+
   const decor: any = {
     attached,
     detaching: false,
@@ -56,6 +60,7 @@ const fixture = (attached: boolean) => {
       if (this.detaching) {
         throw Error('Native child iteration is active')
       }
+
       this.children = this.children.filter((child: any) => child !== view)
       view.parent = null
     },
@@ -65,6 +70,7 @@ const fixture = (attached: boolean) => {
       removeOnGlobalLayoutListener: (listener: any) => listeners.delete(listener),
     }),
   }
+
   vi.stubGlobal('androidx', {
     core: {
       view: {
@@ -72,6 +78,7 @@ const fixture = (attached: boolean) => {
           Callback: {
             extend(methods: any) {
               class Callback {}
+
               Object.assign(Callback.prototype, methods)
               return Callback
             },
@@ -87,9 +94,11 @@ const fixture = (attached: boolean) => {
       },
     },
   })
+
   const publish = vi.fn(),
     stop = observeKeyboardMotion(decor, publish),
     helper = decor.children[0]
+
   return { decor, publish, stop, helper, listeners, insets }
 }
 
@@ -97,9 +106,11 @@ it.each([true, false])(
   'disarms callbacks and defers removal during detach even if attached still reads %s',
   (attached) => {
     vi.useFakeTimers()
+
     const f = fixture(true),
       callback = f.helper.callback,
       count = f.publish.mock.calls.length
+
     f.decor.attached = attached
     f.decor.detaching = true
     expect(() => f.stop()).not.toThrow()
@@ -118,7 +129,9 @@ it.each([true, false])(
 
 it('does not remove a helper already released by its native parent', () => {
   vi.useFakeTimers()
+
   const f = fixture(true)
+
   f.stop()
   f.decor.children = []
   f.helper.parent = null

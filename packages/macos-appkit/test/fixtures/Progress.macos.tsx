@@ -4,6 +4,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const progressRef = { current: null as any }
 export const progressRefEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     progressRefEvents.push('attach')

@@ -84,14 +84,17 @@ function stubByteRuntime() {
 
 function streamOf(bytes: number[]) {
   let offset = 0
+
   return {
     read: vi.fn((chunk: number[]) => {
       const remaining = bytes.length - offset
+
       if (remaining <= 0) {
         return -1
       }
 
       const count = Math.min(chunk.length, remaining)
+
       for (let i = 0; i < count; i++) {
         chunk[i] = bytes[offset++]
       }
@@ -292,6 +295,7 @@ for (const platform of ['ios', 'android']) {
         name: 'note.txt',
         uri: '/docs/note.txt',
       })
+
       expect(bridge.textWrites).toEqual([{ path: '/docs/note.txt', text: 'Saved note' }])
     })
 
@@ -312,13 +316,17 @@ describe('files.writeBytes (ios bridge)', () => {
 
   it('returns a sandbox ref after a confirmed write', async () => {
     const ref = await files.writeBytes('a.bin', new Uint8Array([1, 2]))
+
     expect(ref).toEqual({ name: 'a.bin', uri: '/docs/a.bin' })
   })
 
   it('marshals only the view’s byte range for offset views', async () => {
     const backing = new Uint8Array([9, 1, 2, 3, 8])
+
     await files.writeBytes('a.bin', backing.subarray(1, 4))
+
     const call = bridge.dataCalls.at(-1)!
+
     expect(call.length).toBe(3)
     expect([...new Uint8Array(call.view)]).toEqual([1, 2, 3])
   })
@@ -341,6 +349,7 @@ describe('files.pick (android bridge)', () => {
     })
 
     const ref = await files.pick()
+
     expect(ref?.name).toBe('Quarterly Report.pdf')
     expect(bridge.resolver.query).toHaveBeenCalled()
   })
@@ -351,6 +360,7 @@ describe('files.pick (android bridge)', () => {
     } as any)
 
     const ref = await files.pick()
+
     expect(ref?.name).toBe('report final.txt')
   })
 })
@@ -360,6 +370,7 @@ describe('files.readText (android bridge)', () => {
 
   it('decodes content:// bytes without rewriting line endings', async () => {
     const bytes = [...new TextEncoder().encode('a\r\nb\n')]
+
     bridge.resolver.openInputStream.mockReturnValue(streamOf(bytes))
 
     await expect(files.readText({ name: 'doc', uri: 'content://x/doc' })).resolves.toBe('a\r\nb\n')
@@ -380,6 +391,7 @@ describe('files.export (android bridge)', () => {
 
   it('flushes bytes to the picked URI and resolves saved', async () => {
     const pending = files.export('out.bin', new Uint8Array([7, 8]))
+
     expect(bridge.activity.startActivityForResult).toHaveBeenCalledTimes(1)
     emitResult(okResult())
     expect(await pending).toBe('saved')
@@ -390,6 +402,7 @@ describe('files.export (android bridge)', () => {
 
   it('resolves cancelled on a non-OK result and drops the listener', async () => {
     const pending = files.export('out.bin', new Uint8Array([1]))
+
     emitResult({ requestCode: 1241, resultCode: 0, intent: null })
     expect(await pending).toBe('cancelled')
     expect(bridge.resolver.openOutputStream).not.toHaveBeenCalled()
@@ -398,6 +411,7 @@ describe('files.export (android bridge)', () => {
 
   it('rejects a concurrent export with ExportBusyError and recovers after settle', async () => {
     const first = files.export('a.bin', new Uint8Array([1]))
+
     await expect(files.export('b.bin', new Uint8Array([2]))).rejects.toThrowError(
       expect.objectContaining({ name: 'ExportBusyError' }),
     )
@@ -408,20 +422,25 @@ describe('files.export (android bridge)', () => {
     expect(await first).toBe('saved')
 
     const third = files.export('c.bin', new Uint8Array([3]))
+
     emitResult(okResult())
     expect(await third).toBe('saved')
   })
 
   it('rejects when the destination stream cannot open and cleans up', async () => {
     bridge.resolver.openOutputStream.mockReturnValue(null)
+
     const pending = files.export('out.bin', new Uint8Array([1]))
+
     emitResult(okResult())
     await expect(pending).rejects.toThrow(/Unable to open destination/)
     expect(bridge.listeners.get('activityResult')?.size ?? 0).toBe(0)
 
     // Guard released — a follow-up export is not stuck busy.
     bridge.resolver.openOutputStream.mockReturnValue({ close: vi.fn() })
+
     const next = files.export('next.bin', new Uint8Array([1]))
+
     emitResult(okResult())
     expect(await next).toBe('saved')
   })
@@ -439,6 +458,7 @@ describe('files.export (android bridge)', () => {
 describe('files.export (ios bridge)', () => {
   it('stages a temp copy, presents export-as-copy, and resolves saved with cleanup', async () => {
     const pending = files.export('out.bin', new Uint8Array([9]))
+
     expect(bridge.presented).toHaveLength(1)
     expect(lastPicker.asCopy).toBe(true)
     expect(lastPicker.delegate).toBeTruthy()
@@ -451,6 +471,7 @@ describe('files.export (ios bridge)', () => {
 
   it('resolves cancelled on dismissal and removes the temp copy', async () => {
     const pending = files.export('out.bin', new Uint8Array([9]))
+
     lastPicker.delegate.documentPickerWasCancelled(lastPicker)
     expect(await pending).toBe('cancelled')
     expect(bridge.removedPaths).toEqual(['/tmp/xplat-export/out.bin'])
@@ -467,6 +488,7 @@ describe('files.export (ios bridge)', () => {
 
   it('stages inside a dedicated folder so app temp files cannot be clobbered', async () => {
     const pending = files.export('settings.json', new Uint8Array([1]))
+
     expect(lastPicker.urls[0].path).toBe('/tmp/xplat-export/settings.json')
 
     lastPicker.delegate.documentPickerWasCancelled(lastPicker)
@@ -485,6 +507,7 @@ describe('files.export (ios bridge)', () => {
 
   it('rejects a concurrent export with ExportBusyError', async () => {
     const first = files.export('a.bin', new Uint8Array([1]))
+
     await expect(files.export('b.bin', new Uint8Array([2]))).rejects.toThrowError(
       expect.objectContaining({ name: 'ExportBusyError' }),
     )

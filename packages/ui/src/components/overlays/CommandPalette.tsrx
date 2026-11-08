@@ -179,6 +179,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   props: CommandPaletteProps<T>,
 ): unknown @{
   const controller = useMemo(() => createCommandPaletteController(() => props), [])
+
   useEffect(
     () => controller.configure(props),
     [
@@ -193,6 +194,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   )
 
   useEffect(() => () => controller.dispose(), [])
+
   const state = useStore(controller.store)
 
   <BottomSheet

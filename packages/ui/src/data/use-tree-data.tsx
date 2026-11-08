@@ -9,6 +9,7 @@ import { useStore } from './use-store.tsrx'
  */
 export function useTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T> {
   const ref = useRef<TreeData<T> | null>(null)
+
   if (ref.current === null) {
     ref.current = createTreeData(options)
   }

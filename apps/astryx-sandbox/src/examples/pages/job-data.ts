@@ -408,15 +408,19 @@ function statusForDate(authored: JobStatus, when: number): JobStatus {
   if (when > NOW_MS) {
     return 'scheduled'
   }
+
   // Recently missed work is still chaseable; anything older has been closed
   // out one way or another.
   const isRecent = when > NOW_MS - 45 * DAY_MS
+
   if (authored === 'scheduled') {
     return isRecent ? 'overdue' : 'completed'
   }
+
   if (authored === 'in_progress' && !isRecent) {
     return 'completed'
   }
+
   return authored
 }
 
@@ -433,6 +437,7 @@ export const allJobs: ServiceJob[] = Array.from({ length: 5 }, (_, cycle) =>
     const cycleDays = cycle === 0 ? 0 : cycle * 37 + ((index * 13) % 29)
     const when = Date.parse(job.scheduledAt) + DATE_SHIFT_MS - cycleDays * DAY_MS
     const scheduledOn = new Date(when)
+
     return {
       ...job,
       id: cycle === 0 ? job.id : `SJ-${1999 - (cycle - 1) * seedJobs.length - index}`,

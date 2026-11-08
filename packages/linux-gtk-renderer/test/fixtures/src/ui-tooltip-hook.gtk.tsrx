@@ -4,10 +4,13 @@ import { Text, View, useTooltip } from '@octane-xplat/ui'
 import type { ContextRenderProps, TooltipOptions, TooltipReturn } from '@octane-xplat/ui'
 
 const Context = createContext('missing')
+
 export const lifetime = { mounts: 0, unmounts: 0 }
 export let binding: TooltipReturn
+
 function Content() @{
   const text = useContext(Context)
+
   useEffect(() => {
     lifetime.mounts++
     return () => {
@@ -31,6 +34,7 @@ export function TooltipHookScene(props: {
   value?: string
 }) @{
   const tip = useTooltip(props.options)
+
   binding = tip
 
   <Context value={props.value ?? 'First'}>

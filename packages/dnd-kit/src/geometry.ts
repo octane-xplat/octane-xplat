@@ -8,6 +8,7 @@ export function measure(element: any): Rectangle | null {
 
   const point = element.getLocationOnScreen?.()
   const size = element.getActualSize?.()
+
   return point && size && size.width > 0 && size.height > 0
     ? new Rectangle(point.x, point.y, size.width, size.height)
     : null

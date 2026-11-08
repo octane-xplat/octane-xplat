@@ -2,10 +2,12 @@
 import { useState } from 'octane'
 import { ColorPicker } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 declare const android: any
 
 export default function Fixture() {
   const [color, setColor] = useState('#ff0000')
+
   return (
     <ColorPicker
       id="cp"
@@ -25,6 +27,7 @@ function gradientsIn(view: any, out: any[] = []): any[] {
   }
 
   const bg = view.getBackground?.()
+
   if (
     bg &&
     String(bg.getClass?.().getName?.() ?? '') === 'android.graphics.drawable.GradientDrawable' &&
@@ -34,6 +37,7 @@ function gradientsIn(view: any, out: any[] = []): any[] {
   }
 
   const n = Number(view.getChildCount?.() ?? 0)
+
   for (let i = 0; i < n; i++) {
     gradientsIn(view.getChildAt(i), out)
   }
@@ -43,6 +47,7 @@ function gradientsIn(view: any, out: any[] = []): any[] {
 
 function channels(px: number) {
   const u = px >>> 0
+
   return { a: (u >>> 24) & 0xff, r: (u >>> 16) & 0xff, g: (u >>> 8) & 0xff, b: u & 0xff }
 }
 
@@ -53,12 +58,14 @@ export async function run(ctx: ProbeContext) {
   const grads = await ctx.waitFor(() => {
     const g = gradientsIn(root)
     const seven = g.find((e) => (e.layer.getColors()?.length ?? 0) === 7)
+
     return g.length >= 3 && Number(seven?.view?.getWidth?.() ?? 0) > 0 ? g : null
   })
 
   ctx.record('gradient-count', grads.length)
 
   const seven = grads.find((g) => (g.layer.getColors()?.length ?? 0) === 7)
+
   ctx.assert('hue track: GradientDrawable with 7 colors', !!seven, true)
   ctx.record('hue view', { w: Number(seven.view.getWidth()), h: Number(seven.view.getHeight()) })
   ctx.assert(
@@ -96,7 +103,9 @@ export async function run(ctx: ProbeContext) {
   )
 
   const canvas = new android.graphics.Canvas(bitmap)
+
   area.draw(canvas)
+
   const sample = (x: number, y: number) => channels(bitmap.getPixel(Math.round(x), Math.round(y)))
   const topLeft = sample(2, 2),
     topRight = sample(W - 3, 2),
@@ -113,6 +122,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('area bottom is black', bottom.r < 25 && bottom.g < 25 && bottom.b < 25, true)
 
   const topAlpha = channels(Number(vert.layer.getColors()[0])).a
+
   ctx.record('top stop alpha', topAlpha)
   ctx.assert('top stop alpha == 0', topAlpha, 0)
 }

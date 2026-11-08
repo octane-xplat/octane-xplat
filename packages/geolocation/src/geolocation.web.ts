@@ -67,6 +67,7 @@ async function readState(): Promise<PermissionResponse> {
   if (navigator.permissions?.query) {
     try {
       const permission = await navigator.permissions.query({ name: 'geolocation' })
+
       return respond(permission.state === 'prompt' ? 'undetermined' : permission.state)
     } catch {
       // Some browsers expose Permissions but cannot query geolocation.
@@ -91,6 +92,7 @@ export const geolocation: Permissioned<GeolocationImpl> = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.location = {
   getPermissions: () => geolocation.getPermissions(),
   requestPermissions: () => geolocation.requestPermissions(),

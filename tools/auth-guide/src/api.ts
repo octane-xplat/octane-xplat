@@ -10,6 +10,7 @@ export interface ApiOptions {
 
 export function createApi({ issuer, audience, keys }: ApiOptions) {
   const authority = new URL(issuer)
+
   if (
     authority.protocol !== 'https:' ||
     authority.username ||
@@ -22,20 +23,27 @@ export function createApi({ issuer, audience, keys }: ApiOptions) {
   ) {
     throw new Error('Configure an HTTPS issuer origin with a trailing slash')
   }
+
   const jwks = keys ?? createRemoteJWKSet(new URL('.well-known/jwks.json', authority))
+
   return async (request: Request): Promise<Response> => {
     const headers = { 'Cache-Control': 'no-store' }
+
     if (new URL(request.url).pathname !== '/api/me') {
       return new Response(null, { status: 404, headers })
     }
+
     if (request.method !== 'GET') {
       return new Response(null, { status: 405, headers: { ...headers, Allow: 'GET' } })
     }
+
     const authorization = request.headers.get('Authorization')
     const match = authorization?.match(/^Bearer ([^\s]+)$/)
+
     if (!match) {
       return new Response(null, { status: 401, headers })
     }
+
     try {
       const { payload } = await jwtVerify(match[1], jwks, {
         issuer,

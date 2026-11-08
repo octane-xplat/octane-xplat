@@ -55,6 +55,7 @@ export function addCollection(collection: IconifyJSON): void {
 /** `prefix:name` split and validation shared by addIcon/addIcons/resolveIcon. */
 function iconNameParts(name: string): [string, string] | undefined {
   const parts = name.split(':')
+
   if (parts.length !== 2 || !parts.every((part) => identifier.test(part))) {
     return undefined
   }
@@ -119,17 +120,20 @@ export function resolveIcon(name: string): IconifyIcon | undefined {
   }
 
   const parts = iconNameParts(name)
+
   if (!parts) {
     return undefined
   }
 
   const single = singles.get(name)
+
   if (single) {
     return single
   }
 
   const collection = collections.get(parts[0])
   const icon = collection ? (getIconData(collection, parts[1]) ?? undefined) : undefined
+
   cache.set(name, icon)
   return icon
 }

@@ -16,6 +16,7 @@ import {
 } from '@octane-xplat/ui'
 
 import { useImageModeTest, type Algorithm } from './useImageModeTest.tsrx'
+
 // =============================================================================
 // Algorithm metadata
 // =============================================================================
@@ -50,6 +51,7 @@ const ALGO_FN: Record<
     fn: (r, g, b) => {
       const lin = (c: number) => {
         const v = c / 255
+
         return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
       }
 
@@ -60,6 +62,7 @@ const ALGO_FN: Record<
   apca: {
     fn: (r, g, b) => {
       const lin = (c: number) => Math.pow(c / 255, 2.4)
+
       return Math.pow(0.2126729 * lin(r) + 0.7151522 * lin(g) + 0.072175 * lin(b), 0.56)
     },
     threshold: 0.5,
@@ -164,6 +167,7 @@ function ImageSwatch({
   const detected = useImageMode(src, { region: BUTTON_REGION })
   const mode = algorithm === 'apca' ? detected : comparison.mode
   const value = comparison.value
+
   return (
     <View className="sb-mode-swatch">
       {mode != null ? (
@@ -235,6 +239,7 @@ export function MediaModePage() {
         {SOLID_COLORS.map((c) => {
           const value = config.fn(...c.rgb)
           const mode: 'dark' | 'light' = value > config.threshold ? 'light' : 'dark'
+
           return <Swatch key={c.name} color={c} mode={mode} value={value} />
         })}
       </View>

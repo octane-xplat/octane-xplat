@@ -1,4 +1,5 @@
 import { useRef, useState } from 'octane'
+
 export interface GridFocusOptions {
   /** Grid row count — bounds arrow navigation. */
   rows: number
@@ -39,9 +40,11 @@ export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResul
    *  — the Gtk.Widget itself. */
   const cells = (): any[] => {
     const host: any = ref.current
+
     if (typeof host?.get_first_child !== 'function') {
       return []
     }
+
     const found: any[] = []
     const walk = (widget: any) => {
       for (let w = widget; w; w = w.get_next_sibling()) {
@@ -53,6 +56,7 @@ export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResul
         walk(w.get_first_child())
       }
     }
+
     walk(host.get_first_child())
     return found
   }
@@ -60,20 +64,26 @@ export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResul
   const focusCell = (index: number) => {
     const list = cells()
     const clamped = Math.max(0, Math.min(index, list.length - 1))
+
     list[clamped]?.grab_focus?.()
   }
 
   const onKeyDown = (event: any) => {
     const host: any = ref.current
+
     if (!host) {
       return
     }
+
     const list = cells()
     const current = list.indexOf(host.get_root?.()?.get_focus?.())
+
     if (current < 0) {
       return
     }
+
     let next = current
+
     switch (event.key) {
       case 'ArrowRight':
         next = Math.min(current + 1, list.length - 1)
@@ -96,6 +106,7 @@ export function useGridFocus<T = any>(options: GridFocusOptions): GridFocusResul
       default:
         return
     }
+
     event.preventDefault?.()
     if (next !== current) {
       focusCell(next)

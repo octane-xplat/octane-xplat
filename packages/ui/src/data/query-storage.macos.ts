@@ -12,6 +12,7 @@ const host = (): XplatAppKitStorage | undefined => {
     '__xplatAppKit' in globalThis
       ? (globalThis as Record<string, unknown>).__xplatAppKit
       : undefined
+
   return typeof owner === 'object' && owner !== null ? (owner as XplatAppKitStorage) : undefined
 }
 
@@ -23,6 +24,7 @@ function memory(owner: XplatAppKitStorage | undefined): Map<string, string> {
   if (!owner) {
     return memoryStorage
   }
+
   // Never revive pre-host cache entries after the host later disappears.
   memoryStorage.clear()
   if (
@@ -32,14 +34,18 @@ function memory(owner: XplatAppKitStorage | undefined): Map<string, string> {
   ) {
     nativeStorageObserved = true
   }
+
   let values = hostMemory.get(owner)
+
   if (!values) {
     values = new Map()
     hostMemory.set(owner, values)
   }
+
   if (complete(owner)) {
     values.clear()
   }
+
   return values
 }
 
@@ -50,6 +56,7 @@ export const platformQueryStorage: QueryStorageAdapter = {
   get: (key) => {
     const owner = host()
     const values = memory(owner)
+
     try {
       // Only a complete bridge can safely persist and later purge a record.
       return complete(owner) ? (owner.storageGet(key) ?? null) : (values.get(key) ?? null)
@@ -61,6 +68,7 @@ export const platformQueryStorage: QueryStorageAdapter = {
   set: (key, value) => {
     const owner = host()
     const values = memory(owner)
+
     try {
       if (complete(owner)) {
         owner.storageSet(key, value)
@@ -75,6 +83,7 @@ export const platformQueryStorage: QueryStorageAdapter = {
   remove: (key) => {
     const owner = host()
     const values = memory(owner)
+
     // Even a partial host may have durable records from an earlier run.
     // Do not resolve a sign-out purge after deleting only a memory mirror.
     if (typeof owner?.storageRemove === 'function') {
@@ -84,9 +93,11 @@ export const platformQueryStorage: QueryStorageAdapter = {
         throw new Error('AppKit query storage removal failed')
       }
     }
+
     if (nativeStorageObserved && !complete(owner)) {
       throw new Error('AppKit query storage cannot confirm removal with an incomplete bridge')
     }
+
     values.delete(key)
   },
 }

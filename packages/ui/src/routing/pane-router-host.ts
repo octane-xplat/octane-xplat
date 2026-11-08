@@ -58,9 +58,11 @@ export function createPaneRouterHost(
   } = {},
 ): PaneRouterHost {
   const frames = options.frames
+
   if (frames && frames.host.history !== 'independent') {
     throw new TypeError('Pane composition requires independent Frame histories')
   }
+
   const frameFlows = new Set(options.frameFlows ?? ['root'])
   const declaredFrameFlows = new Map<string, boolean>()
   const panes = createRenderRouterHost()
@@ -69,17 +71,20 @@ export function createPaneRouterHost(
   let disposed = false
   const isFrame = (flow: string) =>
     !!frames && (declaredFrameFlows.get(flow) ?? frameFlows.has(flow))
+
   const declareFlow = (flow: string) => {
     if (!declaredFrameFlows.has(flow)) {
       declaredFrameFlows.set(flow, frameFlows.has(flow) || options.isFrameFlow?.(flow) === true)
     }
   }
+
   const selected = (flow: string) => (isFrame(flow) ? frames!.host : panes.host)
   const notify = (change?: RouterHostChange) => {
     for (const listener of [...listeners]) {
       listener(change)
     }
   }
+
   const detachFrames = frames?.host.subscribe(notify)
   const detachPanes = panes.host.subscribe(notify)
   const host: RouterHost = {
@@ -96,12 +101,14 @@ export function createPaneRouterHost(
       if (disposed) {
         return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
       }
+
       return selected(command.flow).commit(command)
     },
     dispose() {
       if (disposed) {
         return
       }
+
       disposed = true
       detachFrames?.()
       detachPanes()
@@ -111,12 +118,14 @@ export function createPaneRouterHost(
       instance = undefined
     },
   }
+
   return {
     host,
     attach(router) {
       if (instance || disposed) {
         throw new Error('Pane host cannot be attached')
       }
+
       frames?.attach(router)
       panes.attach(router)
       instance = router
@@ -125,6 +134,7 @@ export function createPaneRouterHost(
       if (!instance) {
         throw new Error('Pane host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     getRenderHost(flow) {
@@ -135,6 +145,7 @@ export function createPaneRouterHost(
       if (disposed) {
         throw new Error('Pane host is disposed')
       }
+
       declareFlow(flow)
       return isFrame(flow) ? frames!.mount(flow, owner) : () => {}
     },

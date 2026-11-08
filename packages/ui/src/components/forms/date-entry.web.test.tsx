@@ -23,8 +23,11 @@ vi.stubGlobal('matchMedia', (query: string) => ({
 const roots: any[] = []
 function mount(jsx: any) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(jsx))
   return { el, root, render: (next: any) => act(() => root.render(next)) }
@@ -51,6 +54,7 @@ describe('Calendar (web)', () => {
     const change = vi.fn()
     const { el } = mount(<Calendar mode="single" onChange={change} focusDate="2026-03-01" />)
     const day = el.querySelector('[data-date="2026-03-15"]')!
+
     click(day)
     expect(change).toHaveBeenCalledWith('2026-03-15', expect.any(Date))
   })
@@ -73,6 +77,7 @@ describe('Calendar (web)', () => {
   it('range mode anchors, normalizes order, and commits', () => {
     const change = vi.fn()
     const { el } = mount(<Calendar mode="range" onChange={change} focusDate="2026-03-01" />)
+
     click(el.querySelector('[data-date="2026-03-20"]')!)
     click(el.querySelector('[data-date="2026-03-10"]')!)
     expect(change).toHaveBeenCalledWith({ start: '2026-03-10', end: '2026-03-20' })
@@ -91,6 +96,7 @@ describe('Calendar (web)', () => {
     )
 
     const blocked = el.querySelector('[data-date="2026-03-05"]') as HTMLButtonElement
+
     expect(blocked.disabled).toBe(true)
     click(blocked)
     expect(change).not.toHaveBeenCalled()
@@ -108,6 +114,7 @@ describe('Calendar (web)', () => {
     )
 
     const initial = el.querySelector('.vx-calendar-title')!.textContent
+
     act(() => handle.navigateTo('2026-06-15'))
     expect(el.querySelector('.vx-calendar-title')!.textContent).toContain('June')
     expect(el.querySelector('.vx-calendar-title')!.textContent).not.toBe(initial)
@@ -120,6 +127,7 @@ describe('DateInput (web)', () => {
     const change = vi.fn()
     const { el } = mount(<DateInput onChange={change} presentation="popover" />)
     const input = el.querySelector('input.vx-dateinput-input')! as HTMLInputElement
+
     fireInput(input, '3/25/2026')
     expect(change).toHaveBeenCalledWith('2026-03-25')
   })
@@ -127,10 +135,15 @@ describe('DateInput (web)', () => {
   it('opens the calendar and commits picks', () => {
     const change = vi.fn()
     const { el } = mount(<DateInput onChange={change} presentation="popover" />)
+
     click(el.querySelector('.vx-dateinput-toggle')!)
+
     const days = Array.from(document.querySelectorAll('button[data-date]')) as HTMLButtonElement[]
+
     expect(days.length).toBeGreaterThan(0)
+
     const day = days.find((d) => !d.disabled)!
+
     click(day)
     expect(change).toHaveBeenCalledWith(day.getAttribute('data-date'))
   })
@@ -162,6 +175,7 @@ describe('TimeInput (web)', () => {
     const change = vi.fn()
     const { el } = mount(<TimeInput onChange={change} presentation="text-input" />)
     const input = el.querySelector('input.vx-timeinput-input')! as HTMLInputElement
+
     fireInput(input, '2:30 PM')
     expect(change).toHaveBeenCalledWith('14:30')
     fireInput(input, '1430')
@@ -185,6 +199,7 @@ describe('TimeInput (web)', () => {
     )
 
     const input = el.querySelector('input.vx-timeinput-input')! as HTMLInputElement
+
     act(() =>
       input.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })),
     )
@@ -214,7 +229,9 @@ describe('DateRangeInput (web)', () => {
   it('commits ranges from the popover calendar', () => {
     const change = vi.fn()
     const { el } = mount(<DateRangeInput value={null} onChange={change} />)
+
     click(el.querySelector('.vx-daterangeinput-trigger')!)
+
     const days = Array.from(document.querySelectorAll('button[data-date]')).filter(
       (d) => !(d as HTMLButtonElement).disabled,
     )
@@ -229,6 +246,7 @@ describe('DateRangeInput (web)', () => {
 
   it('commits presets', () => {
     const change = vi.fn()
+
     mount(
       <DateRangeInput
         value={null}
@@ -251,6 +269,7 @@ describe('controlled date fields', () => {
     )
 
     const input = () => el.querySelector('input')! as HTMLInputElement
+
     fireInput(input(), '3/26/2026')
     render(<DateInput value="2026-03-26" onChange={change} presentation="popover" />)
     expect(input().value).toBe('3/26/2026')
@@ -301,6 +320,7 @@ describe('controlled date fields', () => {
     )
 
     expect((time.el.querySelector('input') as HTMLInputElement).value).toBe('11:00')
+
     const combined = mount(
       <DateTimeInput
         value="2026-03-25T09:00"
@@ -420,6 +440,7 @@ describe('range commit validation', () => {
     )
 
     click(el.querySelector('.vx-daterangeinput-trigger')!)
+
     const buttons = Array.from(
       document.querySelectorAll('.vx-daterangeinput-preset'),
     ) as HTMLButtonElement[]
@@ -438,6 +459,7 @@ describe('range commit validation', () => {
     const change = vi.fn()
     const range: DateRange = { start: '2026-03-12', end: '2026-03-14' }
     const { el } = mount(<DateRangeInput value={range} onChange={change} />)
+
     click(el.querySelector('.vx-daterangeinput-trigger')!)
     click(document.querySelector('button[data-date="2026-03-12"]')!)
     expect(document.querySelector('.vx-daterangeinput-dialog')).not.toBeNull()
@@ -532,7 +554,9 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     expect(el.querySelectorAll('button[data-date][tabindex="0"]')).toHaveLength(1)
+
     const selected = el.querySelector('button[data-date="2026-04-15"]')!
+
     expect(selected.getAttribute('role')).toBeNull()
     expect(selected.parentElement?.getAttribute('aria-selected')).toBe('true')
     expect(el.querySelectorAll('[role="grid"]')).toHaveLength(2)
@@ -568,13 +592,16 @@ describe('date-family keyboard and locale parity', () => {
 
   it('ignores navigation from header buttons and IME events', () => {
     const { el } = mount(<Calendar focusDate="2026-03-01" />)
+
     focus(el.querySelector('button[data-date="2026-03-05"]')!)
     expect(key(document.activeElement!, 'ArrowDown', { isComposing: true }).defaultPrevented).toBe(
       false,
     )
 
     expect(focusedDate()).toBe('2026-03-05')
+
     const nav = el.querySelector('.vx-calendar-nav') as HTMLElement
+
     focus(nav)
     expect(key(nav, 'ArrowDown').defaultPrevented).toBe(false)
     expect(document.activeElement).toBe(nav)
@@ -597,6 +624,7 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     const day = el.querySelector('button[data-date="2026-03-05"]') as HTMLElement
+
     click(day)
     focus(day)
     expect(day.getAttribute('aria-label')).toContain('Début')
@@ -621,6 +649,7 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     const input = el.querySelector('input')!
+
     fireInput(input, '04/05/2026')
     expect(change).toHaveBeenLastCalledWith('2026-05-04')
     fireInput(input, '31/02/2026')
@@ -682,10 +711,13 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+
     focus(input)
     expect(document.querySelectorAll('[role="option"]')).toHaveLength(5)
     key(input, 'ArrowDown')
+
     const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
+
     expect(active.textContent).toBe('10:15 AM')
     expect(document.activeElement).toBe(input)
     key(input, 'End')
@@ -710,6 +742,7 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+
     focus(input)
     fireInput(input, '10:07')
     key(input, 'Enter')
@@ -736,10 +769,13 @@ describe('date-family keyboard and locale parity', () => {
     )
 
     const date = el.querySelector('.vx-datetimeinput-dateinput')!
+
     fireInput(date as HTMLElement, '2026-03-04')
     key(date, 'Enter')
     expect(change).not.toHaveBeenCalled()
+
     const time = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+
     focus(time)
     fireInput(time, '25:90')
     key(time, 'Enter')
@@ -780,6 +816,7 @@ it('repairs highlighted time options when bounds and display locale change', () 
   )
 
   const input = el.querySelector('.vx-datetimeinput-timeinput') as HTMLInputElement
+
   focus(input)
   key(input, 'End')
   render(
@@ -796,6 +833,7 @@ it('repairs highlighted time options when bounds and display locale change', () 
   )
 
   const active = document.getElementById(input.getAttribute('aria-activedescendant')!)!
+
   expect(active.textContent).toBe('10:00')
   key(input, 'End')
   key(input, 'Enter')
@@ -804,8 +842,11 @@ it('repairs highlighted time options when bounds and display locale change', () 
 
 it('has no day tab stop or focus movement when every day is disabled', () => {
   const { el } = mount(<Calendar focusDate="2026-03-01" dateConstraints={[() => false]} />)
+
   expect(el.querySelector('button[data-date][tabindex="0"]')).toBeNull()
+
   const nav = el.querySelector('.vx-calendar-nav') as HTMLElement
+
   focus(nav)
   key(nav, 'End')
   expect(document.activeElement).toBe(nav)
@@ -814,6 +855,7 @@ it('has no day tab stop or focus movement when every day is disabled', () => {
 it('waits for the parent to accept a controlled month before moving focus', () => {
   const changeMonth = vi.fn()
   const { el, render } = mount(<Calendar focusDate="2026-03-01" onFocusDateChange={changeMonth} />)
+
   focus(el.querySelector('button[data-date="2026-03-31"]')!)
   key(document.activeElement!, 'ArrowRight')
   expect(changeMonth).toHaveBeenCalledWith('2026-04-01')
@@ -836,6 +878,7 @@ it('announces a rejected date after Enter and clears the error on external corre
   )
 
   const input = el.querySelector('input') as HTMLInputElement
+
   fireInput(input, '2026-03-04')
   key(input, 'Enter')
   expect(change).not.toHaveBeenCalled()

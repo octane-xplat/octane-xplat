@@ -9,15 +9,19 @@ import { tmpdir } from 'node:os'
 
 const here = dirname(fileURLToPath(import.meta.url))
 const [cliTarball, platformTarball] = process.argv.slice(2)
+
 if (process.platform !== 'linux' || !cliTarball || !platformTarball) {
   throw new Error('Run on Linux: node verify-linux-consumer.mjs <cli.tgz> <platform.tgz>')
 }
 
 const root = mkdtempSync(join(tmpdir(), 'xplat-linux-consumer-'))
 const app = join(root, 'app')
+
 cpSync(join(here, 'fixtures/linux-app'), app, { recursive: true })
+
 const manifestPath = join(app, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
 manifest.devDependencies['@octane-xplat/cli'] = `file:${resolve(cliTarball)}`
 manifest.dependencies['@octane-xplat/platform'] = `file:${resolve(platformTarball)}`
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
@@ -31,22 +35,32 @@ const run = (cmd, args, options = {}) =>
 
 run('bun', ['install'])
 run('bun', ['run', 'xplat', 'build', '--targets', 'linux'])
+
 const relocated = join(root, 'relocated app')
+
 mkdirSync(relocated)
 run('tar', ['-xzf', join(app, 'dist/linux/linux-proof-1.0.0.tar.gz'), '-C', relocated])
+
 const first = join(relocated, 'linux-proof')
 const data = join(root, 'data with spaces $dollar %percent')
+
 run('sh', [join(first, 'install.sh')], { env: { ...process.env, XDG_DATA_HOME: data } })
 run('desktop-file-validate', [join(data, 'applications/org.octane.LinuxProof.desktop')])
+
 const installed = join(data, 'org.octane.LinuxProof/linux-proof')
+
 manifest.xplat.targets.linux.package.applicationId = 'org.octane.LinuxOther'
 manifest.xplat.targets.linux.package.executableName = 'linux-other'
 writeFileSync(manifestPath, JSON.stringify(manifest, null, 2))
 run('bun', ['run', 'xplat', 'build', '--targets', 'linux'])
+
 const other = join(app, 'dist/linux/linux-other/linux-other')
 const configHome = join(root, 'config')
+
 mkdirSync(configHome)
+
 const driver = join(root, 'runtime-driver.mjs')
+
 writeFileSync(
   driver,
   `

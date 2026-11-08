@@ -4,11 +4,14 @@ import assert from 'node:assert/strict'
 
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
+
 const source = rendererSource()
+
 test('native image creation receives the final policy before its first source load', () => {
   const start = source.indexOf('function makeImageView('),
     end = source.indexOf('function typeHasView(', start),
     calls: any[] = []
+
   const view = {},
     create = runInNewContext(
       builtinFixtureHelpers() +
@@ -20,6 +23,7 @@ test('native image creation receives the final policy before its first source lo
         updateImage: (...args: any[]) => calls.push(args),
       },
     )
+
   create({ src: 'same', imageCachePolicy: 'none' })
   assert.equal(calls.length, 1)
   assert.equal(calls[0][0], view)
@@ -34,7 +38,9 @@ test('image mutation dispatch reads the final prop bag for simultaneous changes 
       '\n(function(node, props) { node.props = { ...node.props, ...props }; for (const [name, value] of Object.entries(props)) applyBuiltinImageProp(node, name, value) })',
     { updateImage: (...args: any[]) => calls.push(args) },
   )
+
   const node = { type: 'image', view: {}, props: { src: 'old', imageCachePolicy: 'memory-disk' } }
+
   apply(node, { src: 'new', imageCachePolicy: 'none' })
   assert.equal(calls.length, 2)
   assert.ok(calls.every((args) => args[1] === 'new' && args[3] === 'none'))

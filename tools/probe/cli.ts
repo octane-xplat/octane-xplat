@@ -35,6 +35,7 @@ export function argumentsFor(argv) {
   }
 
   const command = positionals[0]
+
   if (command === 'doctor' && positionals.length === 1) {
     return { command }
   }
@@ -48,6 +49,7 @@ export function argumentsFor(argv) {
   }
 
   const targets = [...new Set((values.targets ?? values.target ?? 'web').split(','))]
+
   if (targets.some((target) => !['web', 'ios', 'android', 'macos', 'linux'].includes(target))) {
     throw new Error('Supported targets: web, ios, android, macos, linux; Windows is excluded')
   }
@@ -84,6 +86,7 @@ export function argumentsFor(argv) {
 
 export async function main(argv = process.argv.slice(2)) {
   const args = argumentsFor(argv)
+
   if (args.command === 'help') {
     process.stdout.write(
       'Usage: bun run probe doctor\n       bun run probe run <case.ts|case.tsrx> [--target web|ios|android|macos|linux]\n       bun run probe run <case> --targets web,ios,android,macos,linux\nOptions: --watch --fresh-process --device ID --ios-device ID --android-device ID\n         --deps package,package --resources DIR --timeout MS --startup-timeout MS --verbose\n',
@@ -98,10 +101,13 @@ export async function main(argv = process.argv.slice(2)) {
   }
 
   await access(args.case)
+
   const abort = new AbortController()
   const stop = () => abort.abort()
+
   process.on('SIGINT', stop)
   process.on('SIGTERM', stop)
+
   const results = []
   let failed = false
   const report = (result) => {
@@ -124,8 +130,10 @@ export async function main(argv = process.argv.slice(2)) {
       process.stderr.write(`[probe] ${target}: preparing isolated case\n`)
       try {
         const release = await acquireCaseLock(target, args.case)
+
         try {
           let outcome
+
           do {
             outcome = await runTarget(target, args, report, abort.signal)
           } while (outcome.restart && !abort.signal.aborted)

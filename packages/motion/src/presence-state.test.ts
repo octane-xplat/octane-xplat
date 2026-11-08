@@ -1,6 +1,7 @@
 import { expect, it, vi } from 'vitest'
 import { PresenceState } from './presence-state'
 import type { AnimationResult } from './engine'
+
 const deferred = () => {
   let resolve!: (result: AnimationResult) => void
   const promise = new Promise<AnimationResult>((done) => {
@@ -24,6 +25,7 @@ it('waits for every registered child and ignores replaced exit completions', asy
     replacement = deferred()
 
   const memberA = { exit: vi.fn(() => a.promise), enter: vi.fn() }
+
   state.register(memberA)
   state.register({ exit: () => b.promise, enter() {} })
   state.setPresent(false)
@@ -44,6 +46,7 @@ it('unregisters removed children and completes an empty boundary once', async ()
 
   const pending = deferred()
   const off = state.register({ exit: () => pending.promise, enter() {} })
+
   state.setPresent(false)
   off()
   await drain()

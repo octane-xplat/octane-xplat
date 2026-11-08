@@ -50,14 +50,19 @@ const result = await new Promise((resolveSample, rejectSample) => {
   const onData = (chunk) => {
     output += chunk.toString()
     lineBuffer += chunk.toString()
+
     let newline
+
     while ((newline = lineBuffer.indexOf('\n')) >= 0) {
       const line = lineBuffer.slice(0, newline)
+
       lineBuffer = lineBuffer.slice(newline + 1)
+
       const readyMarker = '[macos-vlist-ready] '
       const resultMarker = '[macos-vlist-result] '
       const readyIndex = line.indexOf(readyMarker)
       const resultIndex = line.indexOf(resultMarker)
+
       if (readyIndex >= 0 && !started) {
         started = true
         child.stdin.write('scroll-stream\n')
@@ -120,6 +125,7 @@ function assertResult(sample) {
   }
 
   const distinctHeights = new Set(sample.current.mountedRows.map((row) => Math.round(row.height)))
+
   if (distinctHeights.size !== 3 || sample.current.lastMountedRow !== rowCount - 1) {
     throw new Error(
       `Expected three row heights and the final data row in the end window: ${JSON.stringify(sample.current)}`,

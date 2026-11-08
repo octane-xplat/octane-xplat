@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { environment } from './environment.web'
+
 vi.mock('./host-runtime.web', () => ({
   desktopHostBootstrap: () => null,
   desktopHostClient: () => null,
@@ -8,8 +9,11 @@ vi.mock('./host-runtime.web', () => ({
 beforeEach(() => {
   const browser = new EventTarget()
   const page = new EventTarget()
+
   Object.defineProperty(page, 'visibilityState', { get: () => 'visible', configurable: true })
+
   const network = Object.defineProperty({}, 'onLine', { get: () => true, configurable: true })
+
   vi.stubGlobal('window', browser)
   vi.stubGlobal('document', page)
   vi.stubGlobal('navigator', network)
@@ -26,6 +30,7 @@ describe('browser service environment', () => {
     const visibility = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('visible')
     const snapshots: unknown[] = []
     const stop = environment.subscribe((snapshot) => snapshots.push(snapshot))
+
     expect(snapshots.at(-1)).toMatchObject({ online: true, active: true })
     online.mockReturnValue(false)
     window.dispatchEvent(new Event('offline'))
@@ -34,11 +39,14 @@ describe('browser service environment', () => {
     document.dispatchEvent(new Event('visibilitychange'))
     expect(snapshots.at(-1)).toMatchObject({ active: false })
     stop()
+
     const count = snapshots.length
+
     window.dispatchEvent(new Event('online'))
     document.dispatchEvent(new Event('visibilitychange'))
     expect(snapshots).toHaveLength(count)
   })
+
   it('reports absent browser capabilities without blocking a server request', () => {
     vi.stubGlobal('navigator', undefined)
     vi.stubGlobal('document', undefined)
@@ -47,7 +55,9 @@ describe('browser service environment', () => {
       active: undefined,
       capabilities: { connectivity: false, activity: false },
     })
+
     const notify = vi.fn()
+
     environment.subscribe(notify)()
     expect(notify).toHaveBeenCalledOnce()
   })

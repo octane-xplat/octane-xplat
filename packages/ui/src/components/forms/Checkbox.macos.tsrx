@@ -19,7 +19,9 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
   const isBlocked = props.isDisabled || props.isReadOnly
   const localValue = useRef(internal)
   const latest = useRef(props)
+
   latest.current = props
+
   const attached = useRef(false),
     active = useRef<symbol | null>(null)
 
@@ -32,6 +34,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
 
   const toggle = () => {
     const props = latest.current
+
     if (!attached.current || props.isDisabled || props.isReadOnly || active.current) {
       return
     }
@@ -39,6 +42,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     const previous = props.value ?? localValue.current
     const next = previous === 'indeterminate' ? true : !previous
     const token = Symbol('checkbox-change')
+
     active.current = token
     try {
       if (props.value === undefined) {

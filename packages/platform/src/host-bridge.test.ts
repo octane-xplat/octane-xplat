@@ -101,8 +101,11 @@ describe('desktop host bridge', () => {
 
     const client = createHostClient<object, { changed: string }>(transport)
     let events = 0
+
     client.on('changed', () => events++)
+
     const pending = client.call('framework', 'never-replied')
+
     client.dispose()
     receive(JSON.stringify({ type: 'event', name: 'changed', payload: 'late' }))
 

@@ -90,6 +90,7 @@ export interface QueryOptions<T = unknown> {
 }
 
 const DEFINITION: unique symbol = Symbol('query-definition')
+
 /** Reusable typed loader and family identity. Construct once with defineQuery. */
 export interface QueryDefinition<A extends QueryKeyPart, T> {
   /** Brands the object as a definition (nominal typing). */
@@ -317,9 +318,11 @@ export function defineQuery<A extends QueryKeyPart, T>(
   if (key.length === 0) {
     throw new TypeError('A query family must have a non-empty key')
   }
+
   if (typeof load !== 'function') {
     throw new TypeError('A query definition requires a loader')
   }
+
   validateDuration(options.staleTimeMs, 'staleTimeMs')
   validateDuration(options.gcTimeMs, 'gcTimeMs')
   validateDuration(options.refetchIntervalMs, 'refetchIntervalMs')
@@ -329,9 +332,11 @@ export function defineQuery<A extends QueryKeyPart, T>(
   ) {
     throw new TypeError('retryCount must be a non-negative integer')
   }
+
   if (typeof options.retryDelayMs === 'number') {
     validateDuration(options.retryDelayMs, 'retryDelayMs')
   }
+
   validateDuration(options.persist?.maxAgeMs, 'maxAgeMs')
   return Object.freeze({
     [DEFINITION]: true as const,
@@ -358,6 +363,7 @@ function freezeJson(value: unknown): unknown {
 
     Object.freeze(value)
   }
+
   return value
 }
 
@@ -370,22 +376,29 @@ export function canonicalQueryKey(
   if (value === null) {
     return 'null'
   }
+
   if (typeof value === 'string' || typeof value === 'boolean') {
     return JSON.stringify(value)
   }
+
   if (typeof value === 'number' && Number.isFinite(value)) {
     return JSON.stringify(value)
   }
+
   if (typeof value !== 'object') {
     throw new TypeError('Query identity must contain JSON values')
   }
+
   if (parents.has(value)) {
     throw new TypeError('Query identity cannot contain cycles')
   }
+
   const prototype = Object.getPrototypeOf(value)
+
   if (!Array.isArray(value) && prototype !== Object.prototype && prototype !== null) {
     throw new TypeError('Query identity must contain plain objects')
   }
+
   parents.add(value)
   try {
     if (Array.isArray(value)) {
@@ -393,6 +406,7 @@ export function canonicalQueryKey(
     }
 
     const object = value as Record<string, unknown>
+
     return `{${Object.keys(object)
       .sort()
       .filter((key) => object[key] !== undefined)
@@ -488,20 +502,24 @@ let entrySequence = 0
 const storageTails = new WeakMap<QueryStorageAdapter, Map<string, Promise<void>>>()
 function storageOperation<T>(target: StorageTarget, run: () => T | PromiseLike<T>): Promise<T> {
   let tails = storageTails.get(target.storage)
+
   if (!tails) {
     storageTails.set(target.storage, (tails = new Map()))
   }
+
   const result = (tails.get(target.key) ?? Promise.resolve()).then(run)
   const tail = result.then(
     () => {},
     () => {},
   )
+
   tails.set(target.key, tail)
   void tail.then(() => {
     if (tails.get(target.key) === tail) {
       tails.delete(target.key)
     }
   })
+
   return result
 }
 
@@ -519,9 +537,11 @@ function assertEntry(entry: { retired: boolean }): void {
 
 function writePersisted<T>(entry: Entry<T>): void {
   const target = entry.persist
+
   if (!target || entry.retired || !entry.state$.get().hasData) {
     return
   }
+
   try {
     const record = JSON.stringify({
       v: target.version,
@@ -533,10 +553,12 @@ function writePersisted<T>(entry: Entry<T>): void {
       // This confirmed snapshot was queued before retirement. Namespace ordering
       // lets ordinary disposal drain it and sign-out purge remove it afterwards.
       const keys = await persistedKeys(target.namespace)
+
       if (!keys.includes(target.key)) {
         keys.push(target.key)
         await target.storage.set(target.namespace.key, JSON.stringify(keys))
       }
+
       await storageOperation(target, () => target.storage.set(target.key, record))
     }).catch(() => {})
   } catch {
@@ -546,25 +568,31 @@ function writePersisted<T>(entry: Entry<T>): void {
 
 async function persistedKeys(target: NamespaceTarget): Promise<string[]> {
   const raw = await target.storage.get(target.key)
+
   if (raw == null) {
     return []
   }
+
   const keys: unknown = JSON.parse(raw)
+
   if (
     !Array.isArray(keys) ||
     !keys.every((key) => typeof key === 'string' && key.startsWith(target.recordPrefix))
   ) {
     throw new Error('Invalid query persistence index')
   }
+
   return keys
 }
 
 function purgeNamespace(target: NamespaceTarget): Promise<void> {
   return storageOperation(target, async () => {
     const keys = await persistedKeys(target)
+
     await Promise.all(
       keys.map((key) => storageOperation({ ...target, key }, () => target.storage.remove(key))),
     )
+
     await target.storage.remove(target.key)
   })
 }
@@ -572,7 +600,9 @@ function purgeNamespace(target: NamespaceTarget): Promise<void> {
 function purgeRecord(target: PersistenceTarget): Promise<void> {
   return storageOperation(target.namespace, async () => {
     await storageOperation(target, () => target.storage.remove(target.key))
+
     const keys = (await persistedKeys(target.namespace)).filter((key) => key !== target.key)
+
     if (keys.length) {
       await target.storage.set(target.namespace.key, JSON.stringify(keys))
     } else {
@@ -583,9 +613,12 @@ function purgeRecord(target: PersistenceTarget): Promise<void> {
 
 function publish<T>(entry: Entry<T>, value: T, time = Date.now()): boolean {
   assertEntry(entry)
+
   const compare = entry.definition.options.compareAuthority
+
   if (compare && entry.state$.get().hasData) {
     const order = compare(value, entry.value$.get()!)
+
     if (!Number.isFinite(order)) {
       throw new TypeError('compareAuthority must return a finite number')
     }
@@ -594,6 +627,7 @@ function publish<T>(entry: Entry<T>, value: T, time = Date.now()): boolean {
       return false
     }
   }
+
   entry.lastPublishedValue = value
   entry.scope.batch(() => {
     entry.value$.set(() => value)
@@ -606,26 +640,34 @@ function publish<T>(entry: Entry<T>, value: T, time = Date.now()): boolean {
       updatedAtMs: time,
     })
   })
+
   return true
 }
 
 async function restore<T>(entry: Entry<T>): Promise<void> {
   entry.restored = true
+
   const target = entry.persist
+
   if (!target) {
     return
   }
+
   const revision = entry.revision
+
   try {
     // A replacement client must not read ahead of confirmed namespace writes.
     await storageTails.get(target.storage)?.get(target.namespace.key)
+
     const raw = await storageOperation(target, () => target.storage.get(target.key))
+
     if (entry.retired || entry.revision !== revision || raw == null) {
       return
     }
 
     try {
       const record = JSON.parse(raw)
+
       if (
         !record ||
         record.v !== target.version ||
@@ -658,6 +700,7 @@ function wait<T>(entry: Entry<T>, signal: AbortSignal, delayMs?: number): Promis
   if (signal.aborted) {
     return Promise.reject(cancellation())
   }
+
   return new Promise((resolve, reject) => {
     let timer: ReturnType<typeof setTimeout> | undefined
     const cleanup = () => {
@@ -667,14 +710,17 @@ function wait<T>(entry: Entry<T>, signal: AbortSignal, delayMs?: number): Promis
         entry.wake = undefined
       }
     }
+
     const wake = () => {
       cleanup()
       resolve()
     }
+
     const abort = () => {
       cleanup()
       reject(cancellation())
     }
+
     entry.wake = wake
     signal.addEventListener('abort', abort, { once: true })
     if (delayMs !== undefined) {
@@ -692,6 +738,7 @@ async function attempt<T>(
   const policy = entry.definition.options
   let failures = 0
   let generation = entry.invalidationVersion
+
   for (;;) {
     assertEntry(entry)
     if (signal.aborted) {
@@ -720,6 +767,7 @@ async function attempt<T>(
     }
 
     const state = entry.state$.get()
+
     entry.state$.set({
       ...state,
       status: state.hasData ? 'ready' : 'pending',
@@ -770,7 +818,9 @@ async function attempt<T>(
       }
 
       entry.trace('retry')
+
       const deadline = Date.now() + delay
+
       while (
         (kind !== 'refresh' || generation === entry.invalidationVersion) &&
         Date.now() < deadline
@@ -793,8 +843,10 @@ function armPolling<T>(entry: Entry<T>): void {
   if (entry.retired || entry.readers === 0) {
     return
   }
+
   const interval = entry.definition.options.refetchIntervalMs ?? 0
   const host = entry.environment()
+
   if (
     interval === 0 ||
     interval === Infinity ||
@@ -803,6 +855,7 @@ function armPolling<T>(entry: Entry<T>): void {
   ) {
     return
   }
+
   const deadline = Date.now() + interval
   function arm(): void {
     entry.pollTimer = setTimeout(
@@ -811,9 +864,11 @@ function armPolling<T>(entry: Entry<T>): void {
           arm()
           return
         }
+
         if (entry.retired || entry.readers === 0) {
           return
         }
+
         void load(entry, true, undefined, 'refresh', 'poll').then(
           () => armPolling(entry),
           () => armPolling(entry),
@@ -821,8 +876,10 @@ function armPolling<T>(entry: Entry<T>): void {
       },
       Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
     )
+
     unrefTimer(entry.pollTimer)
   }
+
   arm()
 }
 
@@ -844,10 +901,12 @@ function load<T>(
             if (entry.queuedRefresh === queued) {
               entry.queuedRefresh = undefined
             }
+
             assertEntry(entry)
             if (entry.readers === 0) {
               throw cancellation()
             }
+
             if (entry.writeEpoch !== writeEpoch) {
               if (entry.state$.get().hasData) {
                 return entry.value$.get()!
@@ -855,6 +914,7 @@ function load<T>(
 
               throw cancellation()
             }
+
             return load(entry, true, undefined, 'refresh', trigger)
           })
 
@@ -866,19 +926,24 @@ function load<T>(
 
     return entry.inflight
   }
+
   if (!force && !stale(entry)) {
     return Promise.resolve(entry.value$.get()!)
   }
+
   const controller = new AbortController()
+
   entry.controller = controller
   entry.requestKind = kind
   entry.trace('load', trigger)
+
   const revision = ++entry.revision
   const abort = new Promise<never>((_, reject) => {
     controller.signal.addEventListener('abort', () => reject(cancellation()), {
       once: true,
     })
   })
+
   const work = async (): Promise<T> => {
     if (!force && !entry.restored) {
       entry.restoring ??= restore(entry).finally(() => {
@@ -891,16 +956,21 @@ function load<T>(
         return entry.value$.get()!
       }
     }
+
     const invalidated = entry.invalidated
     let result = await attempt(entry, controller.signal, loader, kind)
+
     while (kind === 'refresh' && result.version !== entry.invalidationVersion) {
       result = await attempt(entry, controller.signal, loader, kind)
     }
+
     const value = result.value
+
     assertEntry(entry)
     if (controller.signal.aborted) {
       throw cancellation()
     }
+
     if (entry.revision === revision) {
       if (publish(entry, value)) {
         entry.invalidated =
@@ -909,36 +979,46 @@ function load<T>(
         writePersisted(entry)
       }
     }
+
     return entry.value$.get()!
   }
+
   // Defer loader execution until inflight is installed: readers share even synchronous loaders.
   const request = Promise.race([Promise.resolve().then(work), abort])
+
   entry.inflight = request
   void request.then(
     () => finish(false),
     (error) => finish(true, error),
   )
+
   function finish(failed: boolean, error?: unknown): void {
     if (entry.retired || entry.inflight !== request) {
       return
     }
+
     entry.inflight = undefined
     entry.controller = undefined
     entry.requestKind = undefined
+
     const state = entry.state$.get()
+
     entry.state$.set({
       ...state,
       fetchStatus: 'idle',
       fetchDirection: undefined,
       ...(failed ? { status: 'error' as const, error } : {}),
     })
+
     entry.trace(failed ? (isAbortError(error) ? 'cancel' : 'error') : 'success')
   }
+
   return request
 }
 
 function matches(entry: Pick<Entry, 'elements'>, filter: QueryFilter): boolean {
   const prefix = filter.key?.map((part) => canonicalQueryKey(part)) ?? []
+
   return (
     (!filter.exact || prefix.length === entry.elements.length) &&
     prefix.length <= entry.elements.length &&
@@ -967,12 +1047,14 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     if (!listeners.size) {
       return
     }
+
     const event = Object.freeze({
       clientId,
       ...(queryId ? { queryId } : {}),
       type,
       atMs: Date.now(),
     })
+
     for (const listener of listeners) {
       try {
         listener(event)
@@ -981,6 +1063,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       }
     }
   }
+
   let disposed = false
   const hostEnvironment = options.environment ?? platformEnvironment
   let environment: QueryEnvironmentSnapshot = {}
@@ -991,17 +1074,23 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     if (unsubscribe) {
       return
     }
+
     environment = hostEnvironment.getSnapshot()
+
     const generation = ++environmentGeneration
+
     unsubscribe = hostEnvironment.subscribe((snapshot) => {
       if (disposed || generation !== environmentGeneration) {
         return
       }
+
       const previous = environment
+
       environment = snapshot
       for (const entry of entries.values()) {
         entry.wake?.()
         armPolling(entry)
+
         const policy = entry.definition.options
         const refresh =
           (previous.active === false &&
@@ -1041,12 +1130,16 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       }
     })
   }
+
   function detachWhenIdle(): void {
     if ([...entries.values()].some((entry) => entry.leases > 0)) {
       return
     }
+
     environmentGeneration++
+
     const stop = unsubscribe
+
     unsubscribe = undefined
     stop?.()
   }
@@ -1056,6 +1149,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       throw new Error('Query client is disposed')
     }
   }
+
   function entryFor$<A extends QueryKeyPart, T>(
     definition: QueryDefinition<A, T>,
     selection: A,
@@ -1064,22 +1158,29 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     if (!definition[DEFINITION]) {
       throw new TypeError('Use defineQuery to create a query definition')
     }
+
     const family = canonicalQueryKey(definition.key)
     const registered = definitions.get(family)
+
     if (registered && registered !== definition) {
       throw new TypeError('A different query definition already owns this family')
     }
+
     const selectionKey = canonicalQueryKey(selection)
     const elements = [...definition.key.map((part) => canonicalQueryKey(part)), selectionKey]
     const key = JSON.stringify(elements)
     const existing = entries.get(key)
+
     if (existing) {
       return existing as unknown as Entry<T>
     }
+
     const persist = definition.options.persist
+
     if (persist && !namespace) {
       throw new Error('Persistent queries require a non-empty client namespace')
     }
+
     const queryId = `query-${++entrySequence}`
     const scope = createScope({ scopeKey: `xplat:query:${id}:${queryId}` })
     const value$ = scope.signal$<T | undefined>('value', undefined)
@@ -1091,6 +1192,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       error: undefined,
       updatedAtMs: 0,
     })
+
     const compare = definition.options.compareAuthority
     const view$ = optimistic$(
       value$,
@@ -1100,6 +1202,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
           }
         : undefined,
     )
+
     // Resolve the native manager outside rendering; all readers reuse its view.
     runWithSignalOwner(scope, () => view$.latest())
 
@@ -1110,6 +1213,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         if (trigger) {
           entry.lastTrigger = trigger
         }
+
         emit(type, queryId)
       },
       family,
@@ -1132,18 +1236,23 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       restored: false,
       data$: scope.derived$<unknown>('data', () => {
         const state = state$.get()
+
         if (state.hasData) {
           return runWithSignalOwner(scope, () => view$.get()) as T
         }
+
         if (state.status === 'error') {
           throw state.error
         }
+
         throw entry.inflight ?? cancellation()
       }) as DerivedSignal<T>,
       stateView$: scope.derived$('state-view', () => state$.get()),
     }
+
     if (persist) {
       let boundary = persistence.get(persist.storage)
+
       if (!boundary) {
         boundary = {
           storage: persist.storage,
@@ -1161,14 +1270,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         maxAgeMs: persist.maxAgeMs ?? Infinity,
       }
     }
+
     entry.stopAuthority = value$.subscribe(() => {
       if (entry.retired) {
         return
       }
+
       const confirmed = value$.latest()
+
       if (Object.is(confirmed, entry.lastPublishedValue)) {
         return
       }
+
       entry.lastPublishedValue = confirmed
       entry.revision++
       entry.writeEpoch++
@@ -1185,6 +1298,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         error: undefined,
         updatedAtMs: Date.now(),
       })
+
       writePersisted(entry)
       entry.trace('write', 'write')
     })
@@ -1193,6 +1307,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     entries.set(key, entry as unknown as Entry)
     return entry
   }
+
   async function withLease<T, R>(
     entry: Entry<T>,
     operation: QueryOperationOptions,
@@ -1200,14 +1315,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
   ): Promise<R> {
     clearTimeout(entry.gcTimer)
     entry.leases++
+
     let removeAbort = () => {}
+
     try {
       if (operation.signal?.aborted) {
         throw cancellation()
       }
 
       attach()
+
       const request = work()
+
       if (!operation.signal) {
         return await request
       }
@@ -1215,6 +1334,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       const signal = operation.signal
       const cancelled = new Promise<never>((_, reject) => {
         const abort = () => reject(cancellation())
+
         signal.addEventListener('abort', abort, { once: true })
         removeAbort = () => signal.removeEventListener('abort', abort)
         if (signal.aborted) {
@@ -1228,6 +1348,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       release(entry)
     }
   }
+
   async function ensureData<A extends QueryKeyPart, T>(
     definition: QueryDefinition<A, T>,
     selection: A,
@@ -1236,9 +1357,12 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     if (operation.signal?.aborted) {
       throw cancellation()
     }
+
     const entry = entryFor$(definition, selection)
+
     return withLease(entry, operation, () => load(entry, false, undefined, 'refresh', 'ensure'))
   }
+
   async function fetchPage<A extends QueryKeyPart, T, C extends QueryKeyPart>(
     definition: CursorQueryDefinition<A, T, C>,
     selection: A,
@@ -1248,11 +1372,14 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     if (operation.signal?.aborted) {
       throw cancellation()
     }
+
     const entry = entryFor$(definition, selection)
+
     return withLease(entry, operation, async () => {
       if (!entry.state$.get().hasData) {
         await load(entry)
       }
+
       for (;;) {
         assertEntry(entry)
         if (operation.signal?.aborted) {
@@ -1269,14 +1396,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
         await entry.inflight
       }
+
       const data = entry.value$.get()!
+
       if ((direction === 'next' ? data.nextCursor : data.previousCursor) === undefined) {
         return data
       }
+
       const loader = cursorPageLoader(definition, direction) as unknown as QueryDefinition<
         QueryKeyPart,
         CursorQueryData<T, C>
       >['load']
+
       return load(entry, true, loader, direction, direction)
     })
   }
@@ -1286,17 +1417,22 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     selection: A,
   ): Entry<T> | undefined {
     assertClient()
+
     const family = canonicalQueryKey(definition.key)
     const registered = definitions.get(family)
+
     if (registered && registered !== definition) {
       throw new TypeError('A different query definition already owns this family')
     }
+
     const elements = [
       ...definition.key.map((part) => canonicalQueryKey(part)),
       canonicalQueryKey(selection),
     ]
+
     return entries.get(JSON.stringify(elements)) as unknown as Entry<T> | undefined
   }
+
   function write<T>(entry: Entry<T>, value: T): T {
     assertEntry(entry)
     entry.revision++
@@ -1326,11 +1462,13 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       definitions.delete(entry.family)
     }
   }
+
   function release<T>(entry: Entry<T>): void {
     entry.leases--
     if (entry.leases > 0 || entry.retired) {
       return
     }
+
     clearTimeout(entry.pollTimer)
     if (entry.inflight) {
       entry.revision++
@@ -1339,7 +1477,9 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       entry.inflight = undefined
       entry.invalidated = true
       entry.trace('cancel')
+
       const state = entry.state$.get()
+
       entry.state$.set({
         ...state,
         status: state.hasData ? 'ready' : 'pending',
@@ -1347,11 +1487,14 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         error: undefined,
       })
     }
+
     const delay = entry.definition.options.gcTimeMs ?? 300_000
+
     if (delay === Infinity) {
       detachWhenIdle()
       return
     }
+
     const deadline = Date.now() + delay
     function arm(): void {
       entry.gcTimer = setTimeout(
@@ -1359,6 +1502,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
           if (entry.retired || entry.leases > 0) {
             return
           }
+
           if (Date.now() < deadline) {
             arm()
           } else {
@@ -1367,11 +1511,14 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         },
         Math.min(Math.max(0, deadline - Date.now()), 2_147_483_647),
       )
+
       unrefTimer(entry.gcTimer)
     }
+
     arm()
     detachWhenIdle()
   }
+
   return {
     [QUERY_INSPECTION]: {
       snapshot(labelFor) {
@@ -1381,6 +1528,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
           queries: [...entries.values()].map((entry) => {
             const state = entry.state$.latest()!
             const label = labelFor(entry.definition)
+
             return {
               queryId: entry.queryId,
               ...(label ? { label } : {}),
@@ -1404,6 +1552,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
         if (disposed) {
           return () => {}
         }
+
         listeners.add(listener)
         return () => {
           listeners.delete(listener)
@@ -1412,13 +1561,16 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     },
     observe$(definition, selection) {
       const entry = entryFor$(definition, selection)
+
       attach()
       clearTimeout(entry.gcTimer)
       entry.readers++
       entry.leases++
       armPolling(entry)
       void load(entry).catch(() => {})
+
       let released = false
+
       return {
         data$: entry.data$,
         state$: entry.stateView$,
@@ -1426,17 +1578,20 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
           if (released) {
             return Promise.reject(new Error('Query reader is disposed'))
           }
+
           return load(entry, true)
         },
         dispose() {
           if (released) {
             return
           }
+
           released = true
           entry.readers--
           if (entry.readers === 0) {
             clearTimeout(entry.pollTimer)
           }
+
           release(entry)
         },
       }
@@ -1460,17 +1615,24 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
     async runOptimistic(definition, selection, run) {
       const entry = existingFor$(definition, selection)
+
       if (!entry || !entry.state$.get().hasData) {
         throw new Error('Load query data before an optimistic action')
       }
+
       clearTimeout(entry.gcTimer)
       entry.leases++
+
       const controller = new AbortController()
+
       actionControllers.add(controller)
+
       let removeAbort = () => {}
+
       try {
         const cancelled = new Promise<never>((_, reject) => {
           const abort = () => reject(cancellation())
+
           controller.signal.addEventListener('abort', abort, { once: true })
           removeAbort = () => controller.signal.removeEventListener('abort', abort)
         })
@@ -1491,15 +1653,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 
     getQueryData(definition, selection) {
       const entry = existingFor$(definition, selection)
+
       return entry?.value$.latest()
     },
     setQueryData(definition, selection, update) {
       const entry = entryFor$(definition, selection)
+
       clearTimeout(entry.gcTimer)
       entry.leases++
       try {
         const previous = entry.state$.get().hasData ? entry.value$.get() : undefined
         const value = applyUpdate(update, previous)
+
         write(entry, value)
       } finally {
         release(entry)
@@ -1507,16 +1672,20 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     },
     setQueriesData(definition, update, filter = {}) {
       assertClient()
+
       let count = 0
+
       for (const raw of [...entries.values()]) {
         if (raw.definition !== definition || !matches(raw, filter) || !raw.state$.get().hasData) {
           continue
         }
 
         const entry = raw as unknown as Entry<ReturnType<typeof update>>
+
         write(entry, update(entry.value$.get()!, entry.selection as Parameters<typeof update>[1]))
         count++
       }
+
       return count
     },
 
@@ -1536,16 +1705,20 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
     },
     evictQueries(filter = {}, eviction = {}) {
       assertClient()
+
       const removals: Promise<void>[] = []
+
       for (const entry of [...entries.values()]) {
         if (matches(entry, filter)) {
           retire(entry)
           if (eviction.purgePersisted && entry.persist) {
             const target = entry.persist
+
             removals.push(purgeRecord(target))
           }
         }
       }
+
       detachWhenIdle()
       return Promise.all(removals).then(() => {})
     },
@@ -1554,14 +1727,18 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
       for (const controller of actionControllers) {
         controller.abort()
       }
+
       actionControllers.clear()
       environmentGeneration++
+
       const failures: unknown[] = []
+
       try {
         unsubscribe?.()
       } catch (error) {
         failures.push(error)
       }
+
       unsubscribe = undefined
       for (const entry of [...entries.values()]) {
         try {
@@ -1570,21 +1747,26 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
           failures.push(error)
         }
       }
+
       definitions.clear()
       emit('dispose')
       listeners.clear()
+
       const storageCompletions = [...persistence.values()].map((target) =>
         disposal.purgePersisted ? purgeNamespace(target) : storageOperation(target, () => {}),
       )
+
       return Promise.allSettled(storageCompletions).then((results) => {
         for (const result of results) {
           if (result.status === 'rejected') {
             failures.push(result.reason)
           }
         }
+
         if (failures.length === 1) {
           throw failures[0]
         }
+
         if (failures.length) {
           throw new AggregateError(failures, 'Query client disposal failed')
         }
@@ -1597,6 +1779,7 @@ export function createQueryClient(options: QueryClientOptions = {}): QueryClient
 /** In-memory `QueryStorageAdapter` — persistence that lives only for the process. */
 export function createMemoryQueryStorage(): QueryStorageAdapter {
   const store = new Map<string, string>()
+
   return {
     get: (key) => store.get(key) ?? null,
     set: (key, value) => {

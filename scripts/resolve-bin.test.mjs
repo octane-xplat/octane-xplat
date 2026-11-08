@@ -9,12 +9,14 @@ import { resolveBin } from '../packages/lint/src/resolve-bin.ts'
 const fixture = (t) => {
   // module resolution realpaths the anchor — macOS /var -> /private/var
   const dir = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-resolve-bin-')))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   return dir
 }
 
 const installBin = (dir, name, bin) => {
   const pkgDir = join(dir, 'node_modules', ...name.split('/'))
+
   mkdirSync(pkgDir, { recursive: true })
   writeFileSync(join(pkgDir, 'package.json'), JSON.stringify({ name, bin }))
   return pkgDir
@@ -44,6 +46,7 @@ test('resolveBin walks up from nested anchors', (t) => {
   const dir = fixture(t)
   const pkgDir = installBin(dir, 'oxlint', { oxlint: 'bin/oxlint' })
   const nested = join(dir, 'packages/app/src')
+
   mkdirSync(nested, { recursive: true })
 
   assert.equal(resolveBin('oxlint', [join(nested, 'file.js')]), join(pkgDir, 'bin/oxlint'))

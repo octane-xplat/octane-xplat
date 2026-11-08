@@ -29,31 +29,42 @@ export function createCaptureController(
     async capture() {
       const current = host
       const stamp = generation
+
       if (disposed || !current) {
         throw new Error('ViewShot is not mounted')
       }
+
       const uri = await dependencies.capture(current, read().options)
+
       if (disposed || stamp !== generation) {
         dependencies.release(uri)
         throw new Error('ViewShot unmounted before capture finished')
       }
+
       // A manual result transfers to the caller and is never auto-released.
       return uri
     },
   }
+
   bindComponentTarget(handle, () => (disposed ? null : host))
+
   async function pump() {
     if (running || disposed || !host || !requested) {
       return
     }
+
     running = true
     try {
       while (requested && !disposed && host) {
         requested = false
+
         const current = host
         const stamp = generation
+
         mountAttempted = true
+
         const cancelled = () => disposed || stamp !== generation
+
         try {
           await dependencies.waitForLayout(current, cancelled)
           if (cancelled() || !read().captureMode) {
@@ -61,12 +72,14 @@ export function createCaptureController(
           }
 
           const uri = await dependencies.capture(current, read().options)
+
           if (cancelled() || !read().captureMode) {
             dependencies.release(uri)
             continue
           }
 
           const previous = automaticURI
+
           automaticURI = uri
           if (previous && previous !== uri) {
             dependencies.release(previous)
@@ -76,6 +89,7 @@ export function createCaptureController(
         } catch (error) {
           if (!cancelled()) {
             const failure = read().onCaptureFailure
+
             if (failure) {
               failure(error instanceof Error ? error : new Error(String(error)))
             } else {
@@ -88,30 +102,38 @@ export function createCaptureController(
       running = false
     }
   }
+
   function rendered(): void {
     if (disposed) {
       return
     }
+
     const mode = read().captureMode
+
     if (mode === 'continuous') {
       throw new Error(
         'Continuous ViewShot capture is outside the supported subset; use manual capture or update mode',
       )
     }
+
     if (mode === 'update' || (mode === 'mount' && !mountAttempted)) {
       requested = true
     }
+
     if (!mode) {
       requested = false
     }
+
     void pump()
   }
+
   return {
     handle,
     attach(value: object | null): void {
       if (disposed || value === host) {
         return
       }
+
       host = value
       mountAttempted = false
       generation++
@@ -121,6 +143,7 @@ export function createCaptureController(
       if (disposed) {
         return
       }
+
       disposed = true
       host = null
       generation++
@@ -128,6 +151,7 @@ export function createCaptureController(
       if (automaticURI) {
         dependencies.release(automaticURI)
       }
+
       automaticURI = undefined
     },
   }

@@ -6,6 +6,7 @@ import type { AbortSignalLike, CreateShaderOptions, ShaderInstance } from './typ
 
 export function abortError(): Error {
   const error = new Error('createShader aborted before initialization completed')
+
   error.name = 'AbortError'
   return error
 }
@@ -25,6 +26,7 @@ export interface Size {
  *  zero-size layout → wait, don't init). Aborts via `signal`. */
 export function waitForPositiveSize(measure: () => Size, signal?: AbortSignalLike): Promise<void> {
   const first = measure()
+
   if (first.width > 0 && first.height > 0) {
     return Promise.resolve()
   }
@@ -50,6 +52,7 @@ export function waitForPositiveSize(measure: () => Size, signal?: AbortSignalLik
       }
 
       const size = measure()
+
       if (size.width > 0 && size.height > 0) {
         stop()
         resolve()
@@ -72,6 +75,7 @@ export function resolveOptions(
   platformDefaults: Partial<CreateShaderOptions>,
 ): { upstream: Omit<CreateShaderOptions, 'signal'>; signal?: AbortSignalLike } {
   const { signal, ...rest } = options ?? {}
+
   return {
     signal,
     upstream: {

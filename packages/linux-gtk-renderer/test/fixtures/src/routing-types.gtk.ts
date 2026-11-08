@@ -1,5 +1,6 @@
 // Compiler-only consumer cases; never imported by the runtime fixture.
 import { navigation } from './routing.gtk'
+
 void navigation.push({ to: '/probe/:id', params: { id: 'coat' } })
 // @ts-expect-error a declared path parameter is required
 void navigation.push({ to: '/probe/:id' })

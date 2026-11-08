@@ -33,6 +33,7 @@ function CalHookProbe() @{
   const nav = useCalendarNavigation({ value: '2025-06-15' })
   const grid = useCalendarDays({ year: nav.baseMonth.year, month: nav.baseMonth.month })
   const cons = useCalendarConstraints({ min: '2025-06-01', max: '2025-06-30' })
+
   state.hookMonth = `${nav.baseMonth.year}-${String(nav.baseMonth.month).padStart(2, '0')}`
   state.hookDays = grid.weeks.reduce((n, w) => n + w.length, 0)
   state.hookDisabledOut = cons.isDateDisabled({ year: 2025, month: 7, day: 4 })

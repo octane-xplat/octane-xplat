@@ -11,7 +11,9 @@ const source = ts.transpileModule(
 
 function fixture() {
   const exports = {}
+
   vm.runInNewContext(source, { exports })
+
   const { writeText, isWritingText } = exports
   const state = {
     writes: 0,
@@ -21,6 +23,7 @@ function fixture() {
     failText: false,
     failSelect: false,
   }
+
   const native = {
     SelectionStart: 2,
     SelectionLength: 3,
@@ -28,11 +31,13 @@ function fixture() {
       if (state.failSelect) {
         throw new Error('detached')
       }
+
       state.selections.push([start, length])
       this.SelectionStart = start
       this.SelectionLength = length
     },
   }
+
   let text = 'abcdef'
   const view = {
     nativeViewProtected: native,
@@ -43,6 +48,7 @@ function fixture() {
       if (state.failText) {
         throw new Error('text rejected')
       }
+
       text = value
       state.writes++
       state.echoes.push(isWritingText(view))
@@ -51,11 +57,13 @@ function fixture() {
       state.afterWrite?.()
     },
   }
+
   return { writeText, isWritingText, view, native, state }
 }
 
 test('Windows controlled writes restore caret/range and suppress synchronous echoes', () => {
   const { writeText, isWritingText, view, state } = fixture()
+
   writeText(view, 'ABCDEF')
   assert.equal(view.text, 'ABCDEF')
   assert.deepEqual(state.selections, [[2, 3]])
@@ -69,6 +77,7 @@ test('Windows controlled writes restore caret/range and suppress synchronous ech
 
 test('Windows selection clamps on shrink and uses UTF-16 offsets without splitting range math', () => {
   const { writeText, view, native, state } = fixture()
+
   writeText(view, 'abc')
   assert.deepEqual(state.selections, [[2, 1]])
   native.SelectionStart = 3
@@ -98,6 +107,7 @@ test('Windows secure/missing/invalid selection surfaces retain plain guarded wri
     },
   ]) {
     const { writeText, isWritingText, view, state } = fixture()
+
     view.nativeViewProtected = replacement
     writeText(view, 'new')
     assert.equal(view.text, 'new')
@@ -108,6 +118,7 @@ test('Windows secure/missing/invalid selection surfaces retain plain guarded wri
 
 test('Windows text failures clear suppression and selection failures retain accepted text', () => {
   const { writeText, isWritingText, view, state } = fixture()
+
   state.failText = true
   assert.throws(() => writeText(view, 'new'), /text rejected/)
   assert.equal(isWritingText(view), false)
@@ -120,9 +131,11 @@ test('Windows text failures clear suppression and selection failures retain acce
 
 test('Windows controlled writes do not restore a retired native control', () => {
   const { writeText, view, state } = fixture()
+
   state.afterWrite = () => {
     view.nativeViewProtected = {}
   }
+
   writeText(view, 'new')
   assert.equal(view.text, 'new')
   assert.deepEqual(state.selections, [])
@@ -130,11 +143,13 @@ test('Windows controlled writes do not restore a retired native control', () => 
 
 test('Windows nested writes retain outer suppression and a newer value owns its selection', () => {
   const { writeText, isWritingText, view, state } = fixture()
+
   state.afterWrite = () => {
     state.afterWrite = null
     writeText(view, 'latest')
     assert.equal(isWritingText(view), true)
   }
+
   writeText(view, 'outer')
   assert.equal(view.text, 'latest')
   assert.deepEqual(state.echoes, [true, true])

@@ -41,8 +41,11 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
   const hideTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const isTouch = useRef(false)
   const onShowRef = useRef(onShow)
+
   onShowRef.current = onShow
+
   const onHideRef = useRef(onHide)
+
   onHideRef.current = onHide
 
   const clearTimers = useCallback(() => {
@@ -173,6 +176,7 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
   const interactionRef = useCallback(
     (el: any) => {
       const prev = interactionEl.current
+
       if (prev) {
         prev.removeEventListener('mouseenter', onMouseEnter)
         prev.removeEventListener('mouseleave', onMouseLeave)
@@ -252,6 +256,7 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
     }
 
     const onScroll = () => hideNow()
+
     window.addEventListener('scroll', onScroll, true)
     return () => {
       window.removeEventListener('scroll', onScroll, true)

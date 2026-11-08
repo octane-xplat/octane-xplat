@@ -21,6 +21,7 @@ export function StatusDot(props: StatusDotProps): unknown @{
 
   useEffect(() => {
     const view = dot.current
+
     if (!pulsing || !view) {
       return
     }
@@ -38,6 +39,7 @@ export function StatusDot(props: StatusDotProps): unknown @{
       }
 
       const result = view.animate?.({ opacity, duration: 750, curve: 'easeInOut' })
+
       if (result?.then) {
         result.then(done, done)
       } else {

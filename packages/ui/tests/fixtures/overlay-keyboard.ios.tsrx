@@ -4,6 +4,7 @@ import { Screen, BottomSheet, Dialog, TextInput, View } from '@octane-xplat/ui'
 import { KeyboardController } from '../../../keyboard/src/index'
 import { measureKeyboardHost } from '../../src/internal/keyboard/keyboard-host-bounds'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let show = (_value: boolean) => {},
   showDialog = (_value: boolean) => {},
   select = (_value: string | null) => {}
@@ -78,6 +79,7 @@ export async function run(ctx: ProbeContext) {
     baseline = root.getChildrenCount()
 
   ctx.record('initial root children', baseline)
+
   const samples: any[] = []
   const off = KeyboardController.onMove(background, (s) => {
     samples.push(s)
@@ -92,6 +94,7 @@ export async function run(ctx: ProbeContext) {
   background.focus()
   await ctx.waitFor(() => {
     const state = samples.at(-1)
+
     return (
       state?.inset > 100 &&
       state?.capabilities.nativeFrames &&
@@ -102,11 +105,13 @@ export async function run(ctx: ProbeContext) {
   })
 
   show(true)
+
   const field: any = await ctx.waitFor(
     () => ctx.find('sheet-field')?.isLoaded && ctx.find('sheet-field'),
   )
 
   let host = field.parent
+
   while (host && !String(host.className).includes('vx-sheet-host')) {
     host = host.parent
   }
@@ -126,7 +131,9 @@ export async function run(ctx: ProbeContext) {
   )
 
   await ctx.waitFor(() => measureKeyboardHost(field)?.height! >= 47)
+
   const frame = samples.at(-1).currentFrame ?? samples.at(-1).targetFrame
+
   ctx.record('geometry', {
     field: measureKeyboardHost(field),
     host: measureKeyboardHost(host),
@@ -170,6 +177,7 @@ export async function run(ctx: ProbeContext) {
   const focused = (input: any) => !!(input.ios?.isFirstResponder || input.android?.hasFocus())
   const panelOf = (input: any, name: string) => {
     let panel = input.parent
+
     while (panel && !String(panel.className).includes(name)) {
       panel = panel.parent
     }
@@ -179,6 +187,7 @@ export async function run(ctx: ProbeContext) {
 
   ctx.record('phase', 'dialog')
   showDialog(true)
+
   const dialog: any = await ctx.waitFor(
     () => ctx.find('dialog-field')?.isLoaded && ctx.find('dialog-field'),
   )
@@ -191,6 +200,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const dialogKeyboard = panelOf(dialog, 'vx-dialog-overlay').parent
+
   dialog.focus()
   await ctx.waitFor(() => focused(dialog))
   showDialog(false)
@@ -198,6 +208,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('dialog dismissal restores window-owned input focus', focused(background), true)
   ctx.record('phase', 'first sheet')
   select('first')
+
   const first: any = await ctx.waitFor(
     () => ctx.find('switch-first')?.isLoaded && ctx.find('switch-first'),
   )
@@ -211,8 +222,10 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('first sheet panel clears keyboard', visible(first), true)
   ctx.record('phase', 'second sheet')
   select('second')
+
   const sample = setInterval(() => {
     const next = ctx.find('switch-second')
+
     ctx.record('swap state', {
       firstLoaded: first.isLoaded,
       firstId: first.id,
@@ -226,6 +239,7 @@ export async function run(ctx: ProbeContext) {
   }, 50)
 
   ctx.onCleanup(() => clearInterval(sample))
+
   const second: any = await ctx.waitFor(
     () => ctx.find('switch-second')?.isLoaded && ctx.find('switch-second'),
   )
@@ -246,6 +260,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.record('phase', 'dismiss during keyboard motion')
+
   let dismissedPhase: string | null = null
   const during = KeyboardController.subscribe(background, (state) => {
     if (
@@ -273,6 +288,7 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => !second.isLoaded && focused(background))
   await ctx.waitFor(() => {
     const state = samples.at(-1)
+
     return (
       state.currentFrame &&
       state.targetFrame &&
@@ -291,6 +307,7 @@ export async function run(ctx: ProbeContext) {
   show(true)
   await ctx.waitFor(() => ctx.find('sheet-field')?.isLoaded)
   show(false)
+
   const count = setInterval(
     () =>
       ctx.record('entrance cleanup', {

@@ -55,6 +55,7 @@ it('activates an intact checked value through the native link and owning flow', 
   }
 
   const link = () => nodes(container).find((node) => node.props?.id === 'checked-link')!
+
   try {
     root.render(CheckedLinks, { ...props, disabled: true })
     await settle()

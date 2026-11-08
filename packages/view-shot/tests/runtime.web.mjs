@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url'
 import { chromium } from 'playwright'
 import { createServer } from 'vite'
 import { octane } from 'octane/compiler/vite'
+
 const root = fileURLToPath(new URL('..', import.meta.url)).replace(/\/$/, '')
 const server = await createServer({
   root,
@@ -15,6 +16,7 @@ const server = await createServer({
         if (source.includes('html2canvas')) {
           throw new Error('Real capture engines are forbidden in this fixture')
         }
+
         if (source === './backend' && importer?.startsWith(root + '/src/')) {
           return root + '/tests/component-backend.ts'
         }
@@ -40,16 +42,22 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch()
+
   const page = await browser.newPage()
+
   await page.route(/\/src\/backend(?:\.|\/)/, (route) => route.abort())
+
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(server.resolvedUrls.local[0] + 'tests/index.html')
   await page.evaluate(async () => {
     const { fixture } = await import('/tests/component-harness.web.ts')
+
     globalThis.fixture = fixture
   })
 

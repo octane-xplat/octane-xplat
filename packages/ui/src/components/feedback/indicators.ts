@@ -29,6 +29,7 @@ export const defaultIndicators: { [N in IndicatorName]: IndicatorComponent<Indic
  *  `getIndicator`/`useIndicator` call that follows, and `useIndicator`
  *  readers re-render. `use-indicator.tsrx` subscribes to this store. */
 const overrides = createStore<IndicatorRegistry>({})
+
 export const indicatorOverrides: ReadableStore<IndicatorRegistry> = overrides
 
 /**
@@ -52,6 +53,7 @@ export function registerIndicators(registry: IndicatorRegistry): void {
   overrides.update((prev) => {
     const next = { ...prev } as Record<string, IndicatorComponent>
     let changed = false
+
     for (const [name, component] of Object.entries(registry)) {
       if (component) {
         next[name] = component as IndicatorComponent

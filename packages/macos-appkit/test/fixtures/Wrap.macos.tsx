@@ -3,6 +3,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const wrapRefs = { host: { current: null as any }, child: { current: null as any } }
 export const wrapEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     wrapEvents.push('attach')
@@ -23,6 +24,7 @@ export default function Wrap() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
   const ids = phase >= 4 ? ['c', 'a', 'b'] : ['a', 'b', 'c']
+
   return (
     <masonview
       style={{

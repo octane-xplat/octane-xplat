@@ -6,6 +6,7 @@
 // - video: Video.parity.tsrx → Video.tsrx imports '@nstudio/nativescript-exoplayer',
 //   a mobile player package with no Windows build.
 import type { ParityFixture } from '@octane-xplat/ui/parity'
+
 export type { ParityFixture } from '@octane-xplat/ui/parity'
 
 type ImportGlob = (
@@ -27,6 +28,7 @@ const modules =
     : {}
 
 const fixtures: ParityFixture[] = []
+
 for (const [path, mod] of Object.entries(modules).sort(([a], [b]) =>
   // localeCompare throws "Icu error" on the Windows runtime — plain
   // code-unit ordering is deterministic enough for the registry.

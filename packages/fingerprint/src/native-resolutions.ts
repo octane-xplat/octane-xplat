@@ -3,6 +3,7 @@ import { glob, readFile, realpath } from 'node:fs/promises'
 import { join, resolve, sep } from 'node:path'
 import { parse } from 'yaml'
 import { configValue } from './native-config.ts'
+
 /** Native lock records omit cache paths and derived origin hashes, retaining resolved identities. */
 export async function nativeResolutions(
   root: string,
@@ -22,12 +23,14 @@ export async function nativeResolutions(
     root,
     typeof nativeConfig.buildPath === 'string' ? nativeConfig.buildPath : 'platforms',
   )
+
   if (platforms.includes('ios')) {
     const ios = join(nativeRoot, 'ios'),
       podfile = join(ios, 'Podfile.lock')
 
     if (existsSync(podfile)) {
       const value = parse(await readFile(podfile, 'utf8'))
+
       if (!value || typeof value !== 'object' || !Array.isArray(value.PODS)) {
         throw new Error('Invalid native Podfile.lock')
       }
@@ -38,13 +41,16 @@ export async function nativeResolutions(
         Record<string, unknown>,
       ][]) {
         const path = source[':path']
+
         if (typeof path === 'string') {
           const directory = await realpath(resolve(ios, path))
+
           await tree(directory, directory, `native-pod/${name}/`, 'local native Pod sources')
           source[':path'] = '<local-native-source>'
         }
 
         const spec = source[':podspec']
+
         if (typeof spec === 'string' && !/^https?:/.test(spec)) {
           source[':podspec'] = spec.replaceAll(root, '<project>')
         }
@@ -60,6 +66,7 @@ export async function nativeResolutions(
       })) {
         const value = JSON.parse(await readFile(join(ios, file), 'utf8'))
         const pins = value.pins ?? value.object?.pins
+
         if (
           ![1, 2, 3].includes(value.version) ||
           !Array.isArray(pins) ||
@@ -105,8 +112,10 @@ export async function nativeResolutions(
       }
     }
   }
+
   if (platforms.includes('android')) {
     const android = join(nativeRoot, 'android')
+
     if (existsSync(android)) {
       for await (const file of glob(
         ['**/gradle.lockfile', '**/dependency-locks/*.lockfile', '**/libs.versions.toml'],

@@ -30,8 +30,11 @@ async function stop() {
   stopping = true
   if (child && child.exitCode === null) {
     const exited = new Promise((resolveExit) => child.once('exit', resolveExit))
+
     child.kill('SIGTERM')
+
     let forceTimer
+
     await Promise.race([
       exited,
       new Promise((resolveTimeout) => {
@@ -61,14 +64,18 @@ try {
   await build({ configFile: resolve(appRoot, 'vite.webview-host.config.mjs') })
 
   console.log('[webview-proof] compiling WKWebView native leaf and metadata')
+
   const native = await buildMacOSNative(appRoot)
   const hostExecutable = await macOSExecutable(appRoot, 'macos/host')
   const bootstrap = resolve(appRoot, 'node_modules/.cache/xplat/webview-proof/bootstrap.js')
+
   await mkdir(dirname(bootstrap), { recursive: true })
   await writeNativeBootstrap(native, bootstrap)
 
   await webServer.listen()
+
   const address = webServer.httpServer?.address()
+
   if (!address || typeof address === 'string') {
     throw new Error('Vite did not open a TCP listener for the webview proof.')
   }
@@ -105,9 +112,12 @@ try {
 
   const capture = (chunk) => {
     const text = chunk.toString()
+
     output += text
     process.stdout.write(text)
+
     const match = output.match(/XPLAT_WEBVIEW_PROOF_(OK|FAILED) (\{[^\r\n]*\})/)
+
     if (!match) {
       return
     }
@@ -140,6 +150,7 @@ try {
     })
 
     let proof
+
     try {
       proof = await Promise.race([result, timeout])
     } finally {

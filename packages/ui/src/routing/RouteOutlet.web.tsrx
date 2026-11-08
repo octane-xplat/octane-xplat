@@ -9,6 +9,7 @@ import { defaultRouterRuntime, startDefaultBrowserRouter } from './default-route
 
 export function RouteOutlet(props: RouteOutletProps): any {
   const { host, flow, defaultClient } = useRouteOutletScope(props.stack, defaultRouterRuntime)
+
   useLayoutEffect(() => {
     if (defaultClient && flow === 'root') {
       return startDefaultBrowserRouter()

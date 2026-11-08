@@ -48,20 +48,26 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
   })
 
   const bridge: Record<string, any> = {}
+
   installAppearanceBridge(bridge)
   assert.equal(bridge.getColorScheme(), 'light')
   system = 'dark'
   assert.equal(bridge.getColorScheme(), 'dark') // before any consumer mounts
+
   const first: string[] = []
   const second: string[] = []
   const closeFirst = bridge.onAppearanceChange(() => first.push(bridge.getColorScheme()))
   const closeSecond = bridge.onAppearanceChange(() => second.push(bridge.getColorScheme()))
+
   assert.equal(registrations, 1)
+
   const subscribe = bridge.onAppearanceChange
   const setter = bridge.setAppearanceOverride
+
   installAppearanceBridge(bridge)
   assert.equal(bridge.onAppearanceChange, subscribe)
   assert.equal(bridge.setAppearanceOverride, setter)
+
   const emit = () =>
     observers.forEach((observer) =>
       observer.observeValueForKeyPathOfObjectChangeContext('effectiveAppearance'),
@@ -95,7 +101,9 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
   emit()
   assert.equal(bridge.getColorScheme(), 'light')
   closeFirst()
+
   const count = first.length
+
   system = 'dark'
   emit()
   assert.equal(first.length, count)
@@ -103,7 +111,9 @@ test('standalone effective appearance is live, app-wide, and disposed', () => {
   closeSecond()
   closeSecond()
   assert.equal(observers.size, 0)
+
   const closeReopened = bridge.onAppearanceChange(() => first.push(bridge.getColorScheme()))
+
   assert.equal(bridge.getColorScheme(), 'dark')
   assert.equal(registrations, 2)
   closeReopened()

@@ -31,6 +31,7 @@ export class BadgeNode extends TextNode {
 
   exportDOM() {
     const element = document.createElement('span')
+
     element.setAttribute('data-badge', '')
     element.textContent = this.getTextContent()
     return { element }

@@ -84,6 +84,7 @@ export class NativeWorkshopController {
       target: options.target,
       globalProviders: options.globalProviders,
     })
+
     this.store = createStore<NativeShellState>({
       /** Discovered story catalog. */
       catalog: options.catalog,
@@ -112,6 +113,7 @@ export class NativeWorkshopController {
       /** The workshop session being controlled. */
       session: this.session.state,
     })
+
     this.session.subscribe((snapshot) => this.set({ session: snapshot }))
   }
 
@@ -179,6 +181,7 @@ export class NativeWorkshopController {
   /** Recompute the display mode from window geometry — shell presentation only, never remounts the story. */
   resize(width: number, height: number): void {
     const mode = shellMode(width, height)
+
     if (mode !== this.state.mode) {
       this.set({ mode })
     }
@@ -205,6 +208,7 @@ export class NativeWorkshopController {
 
     const generation = ++this.generation
     const entry = this.state.catalog.find((item) => item.id === id)
+
     this.set({
       /** Currently selected story id. */
       selectedId: id,
@@ -217,6 +221,7 @@ export class NativeWorkshopController {
       /** Panel visibility/selection. */
       panel: null,
     })
+
     // Filtering is enforced again at the runtime boundary, before load.
     if (!entry?.applicable || !entry.load) {
       this.set({
@@ -234,11 +239,13 @@ export class NativeWorkshopController {
       }
 
       const module = (await entry.load(revision)) as Record<string, unknown>
+
       if (generation !== this.generation || this.disposed) {
         return
       }
 
       const story = module[entry.exportName] as StoryDefinition<any, any, any>
+
       if (!story || story.id !== entry.id) {
         throw new Error(`Story export ${entry.exportName} does not match ${entry.id}`)
       }
@@ -270,6 +277,7 @@ export class NativeWorkshopController {
     this.set({ catalog })
     if (diagnostics.length) {
       const message = diagnostics.map((d) => d.message).join('\n')
+
       this.set({ catalogError: message })
       this.session.markCompileError(message)
       return
@@ -278,6 +286,7 @@ export class NativeWorkshopController {
     this.set({ catalogError: '' })
     if (this.state.selectedId) {
       const entry = catalog.find((item) => item.id === this.state.selectedId)
+
       if (!entry?.applicable || !entry.load) {
         this.set({ missingId: this.state.selectedId })
         void this.session.dispose()
@@ -312,12 +321,14 @@ export class NativeWorkshopController {
   control(key: string, input: ControlValueInput): string | undefined {
     const story = this.session.currentStory
     const control = story?.controls?.[key]
+
     if (!story || !control || this.session.state.phase !== 'ready') {
       return 'Wait for the story to be ready'
     }
 
     const drafts = { ...this.state.drafts }
     const errors = { ...this.state.errors }
+
     if (input !== UNSET) {
       drafts[key] = String(input)
     } else {
@@ -325,6 +336,7 @@ export class NativeWorkshopController {
     }
 
     const result = applyControlInput(story, this.session.currentProps ?? {}, key, input as any)
+
     if (result.error) {
       errors[key] = result.error.message
     } else {
@@ -388,6 +400,7 @@ export class NativeWorkshopController {
     const generation = (this.session as unknown as ControllerSession).current
 
     let store
+
     try {
       store = generation?.store?.getSnapshot()
     } catch {

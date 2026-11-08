@@ -10,6 +10,7 @@ const artwork =
 export default function ImageFitProbe() {
   const [fit, setFit] = useState<'cover' | 'contain'>('cover')
   const [corner, setCorner] = useState<'top left' | 'bottom right'>('top left')
+
   return (
     <VStack gap={2}>
       <Image
@@ -46,7 +47,9 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('fit-state')?.stringValue === 'contain · top left')
   await ctx.press('position-toggle')
   await ctx.waitFor(() => ctx.find('fit-state')?.stringValue === 'contain · bottom right')
+
   const image = ctx.find('fit-image')
+
   ctx.record('view size', {
     width: Number(image.bounds.size.width),
     height: Number(image.bounds.size.height),

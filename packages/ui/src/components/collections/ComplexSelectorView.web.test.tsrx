@@ -7,6 +7,7 @@ import { ComplexSelectorView } from './ComplexSelectorView.web.tsrx'
 import type { ComplexSelectorHandle, ComplexSelectorRenderProps } from '../../props'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -19,8 +20,11 @@ function mount(node: any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(node))
   cleanups.push(() => {
     root.unmount()
@@ -59,6 +63,7 @@ it.each([
   )
 
   const trigger = host.querySelector('button')!
+
   expect(trigger.getAttribute('aria-expanded')).toBe(String(state.open))
   expect(trigger.disabled).toBe(state.pending)
   expect(Boolean(host.querySelector('.vx-complex-selector-spinner'))).toBe(state.pending)
@@ -161,6 +166,7 @@ it.each([
   )
 
   const trigger = host.querySelector('button')!
+
   expect(trigger.disabled).toBe(true)
   expect(trigger.textContent).toContain('Choose')
   expect(host.querySelector('.vx-complex-selector-placeholder')).not.toBeNull()

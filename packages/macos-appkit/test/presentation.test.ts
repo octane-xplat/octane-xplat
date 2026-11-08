@@ -136,6 +136,7 @@ const present = (options: SurfaceOptions) =>
 
 const dispatch = (event: any) => {
   let value: any = { window: nativeWindow, ...event }
+
   for (const fn of [...monitors]) {
     if (!value) {
       break
@@ -151,6 +152,7 @@ test('centers a detached root, updates in place and restores focus exactly once'
   const opener = nativeWindow.firstResponder
   let dismissed = 0
   const surface = present({ onDismiss: () => dismissed++ })
+
   assert.deepEqual(surface.panel.frame, {
     origin: { x: 200, y: 230 },
     size: { width: 400, height: 140 },
@@ -174,6 +176,7 @@ test('purpose gates outside and Escape dismissal; required never passively close
   for (const purpose of ['required', 'form', 'info']) {
     let calls = 0
     const surface = present({ purpose, onDismiss: () => calls++ })
+
     dispatch({ type: 1, locationInWindow: { x: 0, y: 0 } })
     assert.equal(surface.closed, purpose === 'info')
     if (!surface.closed) {
@@ -208,6 +211,7 @@ test('a staged surface renders without replacing focus or intercepting the visib
   const visible = present({})
   const focus = nativeWindow.firstResponder
   const staged = present({ deferPresentation: true, owner: nativeWindow.contentView })
+
   assert.equal(staged.layer.hidden, true)
   assert.equal(roots.length, 2)
   assert.equal(nativeWindow.firstResponder, focus)
@@ -230,6 +234,7 @@ test('cancelling a staged surface leaves focus and its presenter intact', async 
   const visible = present({})
   const focus = nativeWindow.firstResponder
   const staged = present({ deferPresentation: true })
+
   staged.close()
   await staged.closedPromise
   staged.show()
@@ -248,6 +253,7 @@ test('only the top modal receives dismissal and nested focus restores to its pre
     firstFocus = nativeWindow.firstResponder
 
   const second = present({ onDismiss: () => secondCalls++ })
+
   dispatch({ type: 10, keyCode: 53 })
   assert.equal(firstCalls, 0)
   assert.equal(secondCalls, 1)
@@ -259,6 +265,7 @@ test('only the top modal receives dismissal and nested focus restores to its pre
 
 test('bottom docking, heterogeneous snap stops, drag snapping and resize', () => {
   const sheet = present({ kind: 'sheet', snapPoints: ['25%', 300, 1] })
+
   assert.equal(sheet.panel.frame.origin.y, 0)
   assert.equal(sheet.panel.frame.size.height, 150)
   dispatch({ type: 1, locationInWindow: { x: 20, y: 140 } })
@@ -289,7 +296,9 @@ test('nonmodal toast does not steal focus or block empty-area hit testing', () =
   assert.equal(toast.layer.hitTest({ x: 0, y: 0 }), null)
   assert.equal(toast.panel.frame.origin.x, 21)
   assert.equal(toast.panel.frame.origin.y, 434)
+
   const click = dispatch({ type: 1, locationInWindow: { x: 790, y: 0 } })
+
   assert.ok(click)
   assert.equal(toast.closed, false)
   toast.close()
@@ -335,6 +344,7 @@ test('setup failure removes the root, view, observers and monitors', () => {
 test('fullscreen covers the nativeWindow and final focus ref is honored', () => {
   const final = { acceptsFirstResponder: true }
   const surface = present({ kind: 'lightbox', finalFocusRef: { current: final } })
+
   assert.deepEqual(surface.panel.frame, nativeWindow.contentView.bounds)
   surface.close()
   assert.equal(nativeWindow.firstResponder, final)
@@ -345,6 +355,7 @@ test('closing a presenter closes its nested surfaces and restores the original o
   const parent = present({})
   let dismissed = 0
   const child = present({ owner: parent.panel, onDismiss: () => dismissed++ })
+
   parent.close()
   assert.equal(await child.closedPromise, 'ancestor')
   assert.equal(nativeWindow.firstResponder, opener)
@@ -360,6 +371,7 @@ test('Tab wraps through enabled controls and lightbox arrows dispatch only to th
   const first = surface.panel.items[0]
   const second = { acceptsFirstResponder: true, enabled: true }
   const disabled = { acceptsFirstResponder: true, enabled: false }
+
   surface.panel.addSubview(second)
   surface.panel.addSubview(disabled)
   assert.equal(dispatch({ type: 10, keyCode: 48 }), null)

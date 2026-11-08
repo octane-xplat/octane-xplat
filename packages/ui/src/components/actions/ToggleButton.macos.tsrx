@@ -26,6 +26,7 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
     }
 
     const next = !(props.isPressed ?? current.current)
+
     if (props.isPressed === undefined) {
       current.current = next
       setLocal(next)
@@ -65,6 +66,7 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
 
     if (type === 'multiple') {
       const next = new Set(selected)
+
       if (next.has(key)) {
         next.delete(key)
       } else {

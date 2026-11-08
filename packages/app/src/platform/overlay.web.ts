@@ -19,9 +19,12 @@ export function openOverlay() {
   unscheme = applyThemeClasses(layer, 'vx-overlay')
 
   const shade = document.createElement('div')
+
   shade.className = 'vx-overlay-shade'
   shade.addEventListener('click', closeOverlay)
+
   const content = document.createElement('div')
+
   content.className = 'vx-overlay-content'
   layer.append(shade, content)
   document.body.appendChild(layer)

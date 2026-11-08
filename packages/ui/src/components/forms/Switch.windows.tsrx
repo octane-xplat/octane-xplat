@@ -27,6 +27,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
   )
 
   useEffect(() => applyEscapeProps(trackView.current, props), [props])
+
   const checked = props.value ?? internal
   const isBlocked = props.isDisabled || props.isReadOnly
   const needsChrome =
@@ -47,6 +48,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
     }
 
     const previous = checked
+
     setPending(true)
     Promise.resolve(props.changeAction(next)).then(
       () => setPending(false),

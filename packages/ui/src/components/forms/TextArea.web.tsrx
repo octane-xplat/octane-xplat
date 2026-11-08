@@ -65,6 +65,7 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
 
   const fit = () => {
     const t = el.current
+
     if (!t) {
       return
     }
@@ -86,8 +87,10 @@ export function TextArea(inputProps: TextAreaProps): JSX.Element @{
 
     if (props.autoGrow) {
       t.style.height = 'auto'
+
       // scrollHeight ≥ clientHeight at auto — the rows attr is the floor.
       const need = t.scrollHeight + adj
+
       t.style.height = Math.min(need, cap) + 'px'
       t.style.overflowY = need > cap ? 'auto' : 'hidden'
     }

@@ -13,6 +13,7 @@ const target = `${process.platform === 'win32' ? 'windows' : process.platform}-$
 const binary = join(work, `go-tests-${target}`)
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(build.kind, 'test-executable')
 assert.equal(typeof build.binaries, 'object')
 for (const [file, hash] of Object.entries(build.inputs)) {
@@ -20,10 +21,13 @@ for (const [file, hash] of Object.entries(build.inputs)) {
 }
 
 const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge')
+
 mkdirSync(base, { recursive: true })
+
 const scratch = mkdtempSync(join(base, 'unit-host-'))
 let output = ''
 let code = 0
+
 try {
   for (const [file, info] of Object.entries(build.binaries)) {
     assert.equal(

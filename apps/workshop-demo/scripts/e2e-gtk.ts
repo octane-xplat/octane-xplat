@@ -31,6 +31,7 @@ await runNativeJourney({
   // stdout share a stream; protocol lines need the marker stripped.
   normalize(line) {
     const i = line.indexOf('WORKSHOP_')
+
     return i < 0 ? line : line.slice(i)
   },
 
@@ -42,7 +43,9 @@ await runNativeJourney({
     const sessions = readdirSync(cacheDir)
       .map((d) => join(cacheDir, d, 'stories.cjs'))
       .filter((f) => existsSync(f))
+
     const stories = sessions.map((f) => readFileSync(f, 'utf8')).join('\n')
+
     check(
       'stories bundle externalizes octane runtime + renderer',
       sessions.length > 0 &&
@@ -55,6 +58,7 @@ await runNativeJourney({
 
   async leafSteps({ state, check }) {
     const s = await state('select platform/linux-gtk')
+
     check('gtk leaf story mounts', s.phase === 'ready', s.phase + ' ' + (s.failure ?? ''))
   },
 })

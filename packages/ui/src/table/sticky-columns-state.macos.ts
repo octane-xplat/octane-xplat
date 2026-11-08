@@ -19,6 +19,7 @@ interface Lease {
 }
 
 type Host = Record<string, any>
+
 export function appKitStickyOffset(
   cell: Geometry,
   left: number,
@@ -34,12 +35,15 @@ export function appKitStickyOffset(
   ) {
     return 0
   }
+
   const rightEdge = (edge === 'start') === (direction === 'rtl')
   const offset = rightEdge ? cell.rowX + cell.rowWidth - cell.x - cell.width : cell.x - cell.rowX
   const proposed = rightEdge
     ? Math.min(cell.x, left + width - offset - cell.width)
     : Math.max(cell.x, left + offset)
+
   const next = Math.max(cell.rowX, Math.min(cell.rowX + cell.rowWidth - cell.width, proposed))
+
   return next - cell.x
 }
 
@@ -54,14 +58,17 @@ export function createAppKitStickyColumns(
   type Cell = { view: Host; edge: 'start' | 'end'; lease?: Lease }
   let viewport: Host | null = null,
     observed: { clip: Host; document: Host; window: object | undefined } | undefined
+
   let generation = 0,
     queued = false,
     disposed = false,
     syncing = false
+
   let releases: (() => void)[] = []
   const cells = new Set<Cell>()
   const release = (cell: Cell) => {
     const lease = cell.lease
+
     cell.lease = undefined
     try {
       lease?.release()
@@ -69,6 +76,7 @@ export function createAppKitStickyColumns(
       console.warn('[macos-table] sticky placement cleanup failed')
     }
   }
+
   const clearObservers = () => {
     observed = undefined
     for (const stop of releases.splice(0)) {
@@ -79,36 +87,47 @@ export function createAppKitStickyColumns(
       }
     }
   }
+
   const hidden = (view: Host) =>
     ['hidden', 'hiddenOrHasHiddenAncestor'].some((key) =>
       Boolean(typeof view[key] === 'function' ? view[key]() : view[key]),
     )
+
   const schedule = () => {
     if (queued || disposed) {
       return
     }
+
     queued = true
+
     const own = generation
+
     void Promise.resolve().then(() => {
       if (own !== generation) {
         return
       }
+
       queued = false
       synchronize()
     })
   }
+
   const observe = (clip: Host, document: Host, window: object | undefined) => {
     if (observed?.clip === clip && observed.document === document && observed.window === window) {
       return true
     }
+
     clearObservers()
+
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter,
       owner = viewport,
       own = generation
+
     if (!center?.addObserverForNameObjectQueueUsingBlock || !center.removeObserver) {
       return false
     }
+
     try {
       clip.postsBoundsChangedNotifications = true
       document.postsFrameChangedNotifications = true
@@ -126,6 +145,7 @@ export function createAppKitStickyColumns(
             if (generation !== own || viewport !== owner || disposed) {
               return
             }
+
             if (
               object
                 ? note.object === object
@@ -150,10 +170,12 @@ export function createAppKitStickyColumns(
       return false
     }
   }
+
   const synchronize = () => {
     if (syncing || disposed) {
       return
     }
+
     syncing = true
     try {
       if (!cells.size) {
@@ -203,13 +225,16 @@ export function createAppKitStickyColumns(
         }
 
         cell.lease ??= options.retain(cell.view)
+
         const geometry = cell.lease?.read(document)
+
         if (!geometry) {
           cell.lease?.update(0, 0)
           continue
         }
 
         const offset = appKitStickyOffset(geometry, left, width, cell.edge, options.direction())
+
         cell.lease?.update(offset, Math.abs(offset) > 0.01 ? (cell.edge === 'start' ? 2 : 1) : 0)
       }
     } catch {
@@ -222,6 +247,7 @@ export function createAppKitStickyColumns(
       syncing = false
     }
   }
+
   return {
     sync: schedule,
     bind(view: Host | null): void {
@@ -229,26 +255,31 @@ export function createAppKitStickyColumns(
         schedule()
         return
       }
+
       generation++
       queued = false
       clearObservers()
       for (const cell of cells) {
         release(cell)
       }
+
       viewport = view
       schedule()
     },
     cell(edge: 'start' | 'end') {
       let current: Cell | undefined
+
       return (view: Host | null): void => {
         if (current?.view === view) {
           return
         }
+
         if (current) {
           cells.delete(current)
           release(current)
           current = undefined
         }
+
         if (view && !disposed) {
           current = { view, edge }
           cells.add(current)
@@ -260,6 +291,7 @@ export function createAppKitStickyColumns(
       if (disposed) {
         return
       }
+
       disposed = true
       generation++
       queued = false
@@ -268,6 +300,7 @@ export function createAppKitStickyColumns(
       for (const cell of cells) {
         release(cell)
       }
+
       cells.clear()
     },
   }

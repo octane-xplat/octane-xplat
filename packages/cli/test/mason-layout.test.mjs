@@ -39,6 +39,7 @@ const api = runInNewContext(
         if (!nativeStyles.has(native)) {
           nativeStyles.set(native, {})
         }
+
         return nativeStyles.get(native)
       },
     },
@@ -83,6 +84,7 @@ const api = runInNewContext(
         type: 'declaration',
         property: m[1],
       }))
+
       return { stylesheet: { rules: [{ declarations }] } }
     },
   },
@@ -92,11 +94,13 @@ const plain = (value) => JSON.parse(JSON.stringify(value))
 
 function observable() {
   const listeners = new Map()
+
   return {
     on(event, fn) {
       if (!listeners.has(event)) {
         listeners.set(event, new Set())
       }
+
       listeners.get(event).add(fn)
     },
     off(event, fn) {
@@ -132,6 +136,7 @@ function foreign() {
     gridRow: 'auto',
     gridColumn: 'auto',
   }
+
   const css = {}
   const local = {}
   const resolved = { ...defaults }
@@ -142,6 +147,7 @@ function foreign() {
       style.emit(key + 'Change')
     }
   }
+
   const view = {
     ...observable(),
     nativeViewProtected: {},
@@ -149,6 +155,7 @@ function foreign() {
     _cssState: { onChange: recascade },
     setInlineStyle() {},
   }
+
   style.removeUnscopedCssVariable = () => {}
   for (const key of Object.keys(defaults)) {
     Object.defineProperty(style, key, {
@@ -161,10 +168,12 @@ function foreign() {
           local[key] = value
           resolved[key] = value
         }
+
         style.emit(key + 'Change')
       },
     })
   }
+
   return {
     view,
     node: {
@@ -176,6 +185,7 @@ function foreign() {
       for (const key of Object.keys(css)) {
         delete css[key]
       }
+
       Object.assign(css, next)
       recascade()
     },
@@ -185,10 +195,13 @@ function foreign() {
 
 test('container defaults leave class-authored alignment in the CSS cascade', () => {
   const style = { alignItems: 'center', justifyContent: 'center' }
+
   api.applyMasonDefaults('masonview', { style })
   assert.equal(style.alignItems, 'center')
   assert.equal(style.justifyContent, 'center')
+
   const empty = {}
+
   api.applyMasonDefaults('masonview', { style: empty })
   assert.equal(Object.hasOwn(empty, 'alignItems'), false)
 })
@@ -198,6 +211,7 @@ test('container position default stays below authored stylesheet rules', () => {
   // `position` write outranks every class rule and pins authored absolute
   // children in flow (#160).
   const style = {}
+
   api.applyMasonDefaults('masonview', { style })
   assert.equal(style['css:position'], 'relative')
   assert.equal(Object.hasOwn(style, 'position'), false)
@@ -205,6 +219,7 @@ test('container position default stays below authored stylesheet rules', () => {
 
 test('class-sized foreign leaves copy resolved dimensions and track class replacement/removal', () => {
   const f = foreign()
+
   f.classStyle({ width: 31, height: 36, marginLeft: 4, alignSelf: 'center' })
   api.applyMasonChildLayout(f.node, {})
   assert.equal(f.leaf().width, 31)
@@ -222,6 +237,7 @@ test('class-sized foreign leaves copy resolved dimensions and track class replac
 
 test('inline replacement and removal reveal current class dimensions', () => {
   const f = foreign()
+
   f.classStyle({ width: 31, height: 36 })
   api.applyMasonChildLayout(f.node, {})
   api.applyStyle(f.node, f.view, { width: 54, height: 54 })
@@ -236,6 +252,7 @@ test('inline replacement and removal reveal current class dimensions', () => {
 
 test('core pixel lengths convert once; percentage lengths retain their fraction', () => {
   const f = foreign()
+
   f.classStyle({ width: { value: 93, unit: 'px' }, height: { value: 0.5, unit: '%' } })
   api.applyMasonChildLayout(f.node, {})
   assert.deepEqual(plain(f.leaf().width), { value: 31, unit: 'dip' })
@@ -244,6 +261,7 @@ test('core pixel lengths convert once; percentage lengths retain their fraction'
 
 test('removed grid placement writes an explicit auto reset to the leaf', () => {
   const f = foreign()
+
   f.classStyle({ gridRow: '1', gridColumn: '1 / span 2' })
   api.applyMasonChildLayout(f.node, {})
   assert.equal(f.leaf().gridColumn, '1 / span 2')
@@ -253,13 +271,16 @@ test('removed grid placement writes an explicit auto reset to the leaf', () => {
 
 test('late native creation and recreation replay styles; teardown removes subscriptions', () => {
   const f = foreign()
+
   f.view.nativeViewProtected = undefined
   f.classStyle({ width: 31, height: 36 })
   api.applyMasonChildLayout(f.node, {})
   f.view.nativeViewProtected = {}
   f.view.emit('loaded')
   assert.equal(f.leaf().width, 31)
+
   const previous = f.leaf()
+
   f.view.nativeViewProtected = {}
   f.view.emit('loaded')
   assert.notEqual(f.leaf(), previous)
@@ -275,6 +296,7 @@ test('late native creation and recreation replay styles; teardown removes subscr
 
 test('Mason-owned views retain their own style forwarding', () => {
   const view = { _styleHelper: {}, style: observable() }
+
   api.applyMasonChildLayout({ view }, {})
   assert.equal(view.style.listenerCount(), 0)
 })
@@ -289,7 +311,9 @@ test('foreign style commits finish before requesting the Mason parent layout', (
       calls.push('commit')
     },
   }
+
   nativeStyles.set(f.view.nativeViewProtected, style)
+
   const parent = {
     view: {
       requestLayout() {
@@ -298,6 +322,7 @@ test('foreign style commits finish before requesting the Mason parent layout', (
       },
     },
   }
+
   api.applyMasonChildLayout(f.node, parent)
   assert.equal(calls.at(-1), 'layout')
   calls.length = 0
@@ -311,8 +336,11 @@ test('foreign style commits finish before requesting the Mason parent layout', (
 
 test('collapsed foreign leaves leave Mason layout and restore the effective display', () => {
   const f = foreign()
+
   f.classStyle({ display: 'block', visibility: 'collapse' })
+
   let requests = 0
+
   api.applyMasonChildLayout(f.node, { view: { requestLayout: () => requests++ } })
   assert.equal(f.leaf().display, 'none')
   assert.equal(f.view.style.display, 'block')
@@ -339,6 +367,7 @@ test('collapsed foreign leaves leave Mason layout and restore the effective disp
 
 test('visibility never overrides authored display none and survives native recreation', () => {
   const f = foreign()
+
   f.classStyle({ display: 'none', visibility: 'hidden' })
   api.applyMasonChildLayout(f.node, {})
   assert.equal(f.leaf().display, 'none')

@@ -76,6 +76,7 @@ function MainTable() @{
   })
 
   state.selectionCount = selectionState.selectedCount
+
   const [sortKeys, setSortKeys] = useState<any[]>([])
   const { sortedData, sortConfig } = useTableSortableState<Record<string, any>>({
     data: people,
@@ -87,7 +88,9 @@ function MainTable() @{
   })
 
   const { filters, onFilterChange } = useTableFilterState()
+
   state.filterApplied = JSON.stringify(filters)
+
   const shownData = sortedData.filter(
     (row: any) =>
       filters.name == null ||
@@ -108,6 +111,7 @@ function MainTable() @{
       onToggle: (key: string) => {
         setExpandedKeys((prev: Set<string>) => {
           const next = new Set(prev)
+
           if (next.has(key)) {
             next.delete(key)
           } else {
@@ -148,6 +152,7 @@ function GroupedTable() @{
     onToggleGroup: (key: string) => {
       setCollapsed((prev: Set<string>) => {
         const next = new Set(prev)
+
         if (next.has(key)) {
           next.delete(key)
         } else {
@@ -201,7 +206,9 @@ function TreeTable() @{
 
 function PagedTable() @{
   const [page, setPage] = useState(1)
+
   state.page = page
+
   const pageSize = 2
   const totalItems = people.length
   const pageData = people.slice((page - 1) * pageSize, page * pageSize)
@@ -224,7 +231,9 @@ function PagedTable() @{
 
 function SettingsTable() @{
   const [activeColumnKeys, setActiveColumnKeys] = useState<string[]>(['name', 'age', 'team'])
+
   state.columnKeys = activeColumnKeys
+
   const settings = useTableColumnSettingsState({
     columns: [
       { key: 'name', label: 'Name', isAlwaysVisible: true },

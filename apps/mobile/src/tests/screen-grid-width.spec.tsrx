@@ -51,9 +51,12 @@ function ScreenGridWidth(props: { bounded: boolean }) @{
 async function checkWidth(bounded: boolean) {
   const { view } = await mountXplat(ScreenGridWidth, { bounded })
   const stage: any = view.getViewById('width-stage')
+
   await waitUntil(() => stage?.getActualSize().width > 0, { message: 'Grid was not laid out' })
+
   const inner = stage.parent
   const frameWidth = inner.getActualSize().width
+
   expect(frameWidth).toBeCloseTo(240, 0)
   expect(
     Utils.layout.toDeviceIndependentPixels(inner.nativeViewProtected.getNode().getComputedWidth()),

@@ -26,8 +26,10 @@ function bridge(): Captured {
     disposed: 0,
     installer: null,
   }
+
   captured.installer = (nodes: any[]) => {
     captured.nodes = nodes
+
     const handle = {
       update(next: any[]) {
         captured.updates.push(next)
@@ -36,9 +38,11 @@ function bridge(): Captured {
         captured.disposed++
       },
     }
+
     captured.handle = handle
     return handle
   }
+
   vi.stubGlobal('__xplatAppKit', { installApplicationMenu: captured.installer })
   vi.stubGlobal('NSProcessInfo', { processInfo: { processName: 'MenuTest' } })
   return captured
@@ -48,6 +52,7 @@ const install = (captured: Captured, items: readonly AppMenuEntry[], options?: a
   const dispatch = vi.fn(() => true)
   const tree = normalizeAppMenu(menus(items), options, 'macos', 7)
   const native = host.install(tree, dispatch)
+
   return { native, dispatch, nodes: captured.nodes }
 }
 
@@ -65,13 +70,18 @@ describe('host.macos', () => {
 
   it('prepends the standard application menu', () => {
     const captured = bridge()
+
     install(captured, [])
+
     const [appMenu, ...rest] = captured.nodes
+
     expect(rest).toHaveLength(1)
     expect(appMenu).toMatchObject({ type: 'submenu', title: 'MenuTest' })
+
     const titles = appMenu.children.map((child: any) =>
       child.type === 'separator' ? '—' : child.title,
     )
+
     expect(titles).toEqual([
       'About MenuTest',
       '—',
@@ -81,15 +91,21 @@ describe('host.macos', () => {
       '—',
       'Quit MenuTest',
     ])
+
     const quit = appMenu.children.at(-1)
+
     expect(quit).toMatchObject({
       selector: 'terminate:',
       keyEquivalent: 'q',
       modifierMask: COMMAND,
     })
+
     const hide = appMenu.children[2]
+
     expect(hide).toMatchObject({ selector: 'hide:', keyEquivalent: 'h', modifierMask: COMMAND })
+
     const hideOthers = appMenu.children[3]
+
     expect(hideOthers).toMatchObject({
       selector: 'hideOtherApplications:',
       modifierMask: COMMAND | OPTION,
@@ -98,6 +114,7 @@ describe('host.macos', () => {
 
   it('falls back to "App" when the process name is unavailable', () => {
     const captured = bridge()
+
     vi.stubGlobal('NSProcessInfo', undefined)
     install(captured, [])
     expect(captured.nodes[0].title).toBe('App')
@@ -118,10 +135,13 @@ describe('host.macos', () => {
         ],
       },
     }
+
     install(captured, [], options)
+
     const titles = captured.nodes[0].children.map((child: any) =>
       child.type === 'separator' ? '—' : child.title,
     )
+
     expect(titles).toEqual([
       'About MenuTest',
       '—',
@@ -133,7 +153,9 @@ describe('host.macos', () => {
       '—',
       'Quit MenuTest',
     ])
+
     const settings = captured.nodes[0].children[2]
+
     expect(settings).toMatchObject({ keyEquivalent: ',', modifierMask: COMMAND, enabled: true })
   })
 
@@ -154,20 +176,27 @@ describe('host.macos', () => {
       { type: 'separator', key: 's2' },
       { type: 'role', key: 'quit', role: 'quit' },
     ])
+
     const file = nodes[1]
+
     expect(file).toMatchObject({ type: 'submenu', title: 'File' })
+
     // The quit role is omitted, and its stranded separator collapsed.
     const titles = file.children.map((child: any) =>
       child.type === 'separator' ? '—' : child.title,
     )
+
     expect(titles).toEqual(['New', 'Wrap', '—', 'Copy'])
+
     const [newItem, wrap, , copy] = file.children
+
     expect(newItem).toMatchObject({
       keyEquivalent: 'n',
       modifierMask: COMMAND,
       enabled: false,
       state: 0,
     })
+
     expect(newItem.onSelect).toBeTypeOf('function')
     expect(wrap).toMatchObject({ state: 1, enabled: true })
     expect(copy).toMatchObject({ selector: 'copy:', keyEquivalent: 'c', modifierMask: COMMAND })
@@ -175,7 +204,9 @@ describe('host.macos', () => {
 
     newItem.onSelect()
     expect(dispatch).toHaveBeenCalled()
+
     const [id, gen] = dispatch.mock.calls[0]!
+
     expect(gen).toBe(7)
     expect(typeof id).toBe('number')
   })
@@ -192,10 +223,12 @@ describe('host.macos', () => {
       ['minimize', 'performMiniaturize:', 'm', COMMAND],
       ['close', 'performClose:', 'w', COMMAND],
     ] as const
+
     const { nodes } = install(
       captured,
       roles.map(([role], index) => ({ type: 'role', key: `r${index}`, role: role as any })),
     )
+
     for (const [index, [role, selector, key, mask]] of roles.entries()) {
       expect(nodes[1].children[index], role).toMatchObject({
         selector,
@@ -210,6 +243,7 @@ describe('host.macos', () => {
     const captured = bridge()
     const { native } = install(captured, [])
     const tree = normalizeAppMenu(menus([]), undefined, 'macos', 8)
+
     native.update(tree)
     expect(captured.updates).toHaveLength(1)
     expect(captured.updates[0]![0].title).toBe('MenuTest')

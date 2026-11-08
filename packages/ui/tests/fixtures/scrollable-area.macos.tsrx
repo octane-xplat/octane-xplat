@@ -17,6 +17,7 @@ const capture = (handle: any) => {
 export default function Fixture() {
   const [axis, setAxis] = useState<ScrollAxis>('both')
   const [size, setSize] = useState([640, 480])
+
   changeAxis = setAxis
   changeSize = setSize
   return (
@@ -40,6 +41,7 @@ export default function Fixture() {
 function metrics() {
   const clip = viewport.contentView.bounds
   const doc = viewport.documentView.frame
+
   return {
     width: Number(clip.size.width),
     height: Number(clip.size.height),
@@ -57,6 +59,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const original = viewport
+
   ctx.assert('both inline overflow', metrics().contentWidth > metrics().width, true)
   ctx.assert('both block overflow', metrics().contentHeight > metrics().height, true)
   ctx.record('both geometry', metrics())
@@ -85,6 +88,7 @@ export async function run(ctx: ProbeContext) {
   let calls = 0
   let callbackState: any
   let scrollEvent: any
+
   await ctx.mount(Headless, {
     ref: headless,
     onScroll: (event: any) => {
@@ -98,8 +102,10 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => area.state.inline.isScrollable && area.state.block.isScrollable)
   ctx.assert('headless initial inline edge', area.state.inline.atStart, true)
   ctx.assert('headless initial block edge', area.state.block.atStart, true)
+
   const before = calls
   const clip = headless.current.contentView
+
   clip.scrollToPoint({ x: 80, y: 80 })
   headless.current.reflectScrolledClipView(clip)
   await ctx.waitFor(() => calls > before)
@@ -150,6 +156,7 @@ export async function run(ctx: ProbeContext) {
 function Headless(props: { ref: any; onScroll: (event: any) => void }) {
   const [viewportSize, setViewportSize] = useState([320, 240])
   const [contentSize, setContentSize] = useState([640, 480])
+
   resizeViewport = setViewportSize
   resizeContent = setContentSize
   area = useScrollableArea({ axis: 'both' })

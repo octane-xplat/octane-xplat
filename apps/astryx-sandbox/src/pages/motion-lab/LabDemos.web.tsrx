@@ -82,12 +82,14 @@ export function LayerRig({
     const stage = stageRef.current
     const trig = triggerRef.current
     const layer = layerRef.current
+
     if (stage == null || trig == null || layer == null) {
       return
     }
 
     const s = stage.getBoundingClientRect()
     const t = trig.getBoundingClientRect()
+
     layer.style.insetInlineStart = `${t.left - s.left}px`
     layer.style.insetBlockStart = `${t.bottom - s.top + 8}px`
   }, [])
@@ -101,7 +103,9 @@ export function LayerRig({
   const cycle = useCallback(() => {
     place()
     setOpen(true)
+
     const hold = Math.max(700, scaledMs('--duration-enter') + 600)
+
     window.setTimeout(() => setOpen(false), hold)
   }, [place, scaledMs])
 
@@ -111,8 +115,10 @@ export function LayerRig({
     }
 
     cycle()
+
     const period = Math.max(2200, scaledMs('--duration-enter') * 2 + 2000)
     const id = window.setInterval(cycle, period)
+
     return () => window.clearInterval(id)
   }, [cycle, isLooping, scaledMs, replayNonce])
 
@@ -219,12 +225,14 @@ export function DialogRig({ mode }: { mode: Mode }) {
     const stage = stageRef.current
     const trig = triggerRef.current
     const ring = ringRef.current
+
     if (stage == null || trig == null || ring == null) {
       return
     }
 
     const s = stage.getBoundingClientRect()
     const t = trig.getBoundingClientRect()
+
     ring.style.insetInlineStart = `${t.left - s.left - 3}px`
     ring.style.insetBlockStart = `${t.top - s.top - 3}px`
     ring.style.width = `${t.width + 6}px`
@@ -233,9 +241,11 @@ export function DialogRig({ mode }: { mode: Mode }) {
 
   const close = useCallback(() => {
     setOpen(false)
+
     // The finding, made watchable: today focus returns the instant the dialog
     // closes, so the ring lights while the panel is still on screen.
     const wait = mode === 'before' ? 0 : scaledMs('--duration-exit')
+
     window.setTimeout(() => {
       placeRing()
       setRingOn(true)
@@ -256,8 +266,10 @@ export function DialogRig({ mode }: { mode: Mode }) {
     }
 
     cycle()
+
     const period = Math.max(3200, scaledMs('--duration-overlay') * 2 + 2600)
     const id = window.setInterval(cycle, period)
+
     return () => window.clearInterval(id)
   }, [cycle, isLooping, scaledMs, replayNonce])
 
@@ -306,6 +318,7 @@ const TAB_NAMES = ['Overview', 'Activity', 'Members', 'Settings', 'Billing']
 
 export function TabIndicatorRig({ mode }: { mode: Mode }) {
   const [value, setValue] = useState(TAB_NAMES[0])
+
   useLoop(() => setValue((v) => TAB_NAMES[(TAB_NAMES.indexOf(v) + 1) % TAB_NAMES.length]), 2000)
 
   // Both panes are TabList. `before` is core's, where every tab owns an
@@ -357,6 +370,7 @@ export function DisclosureRig({
 
     const body = bodyRef.current
     const inner = innerRef.current
+
     if (body == null || inner == null) {
       return
     }
@@ -427,6 +441,7 @@ const RAIL_ITEMS = ['Home', 'Projects', 'Components', 'Tokens', 'Settings']
 
 export function RailRig({ mode }: { mode: Mode }) {
   const [collapsed, setCollapsed] = useState(false)
+
   useLoop(() => setCollapsed((v) => !v), 2800)
 
   // Hand-built, unlike the TabList and CheckboxInput demos on this page.
@@ -482,6 +497,7 @@ export function RailRig({ mode }: { mode: Mode }) {
 
 export function SkeletonSwapRig({ mode }: { mode: Mode }) {
   const [loaded, setLoaded] = useState(false)
+
   useLoop(() => {
     setLoaded(false)
     window.setTimeout(() => setLoaded(true), 420)
@@ -556,6 +572,7 @@ export function ChipRig({ mode }: { mode: Mode }) {
       }
 
       const next = CHIP_POOL.find((c) => !cs.includes(c))
+
       return next == null ? cs : [...cs, next]
     })
   }, 1800)
@@ -602,12 +619,14 @@ export function OutlineMarkerRig({ mode }: { mode: Mode }) {
     const list = listRef.current
     const item = itemRefs.current[index]
     const marker = markerRef.current
+
     if (list == null || item == null || marker == null) {
       return
     }
 
     const r = item.getBoundingClientRect()
     const p = list.getBoundingClientRect()
+
     if (mode === 'before') {
       marker.style.top = `${r.top - p.top}px`
       marker.style.height = `${r.height}px`
@@ -658,6 +677,7 @@ export function InterruptRig({ mode }: { mode: Mode }) {
     setOut((prev) => {
       const next = !prev
       const ball = ballRef.current
+
       if (ball != null && mode === 'before') {
         // A keyframe cannot retarget: restarting it is the whole finding.
         ball.classList.remove('ml-ballGo', 'ml-ballBack')
@@ -699,6 +719,7 @@ export function InterruptRig({ mode }: { mode: Mode }) {
 
 export function OriginRig({ kind }: { kind: 'zero' | 'centre' | 'anchored' }) {
   const [open, setOpen] = useState(false)
+
   useLoop(() => {
     setOpen(false)
     window.setTimeout(() => setOpen(true), 60)
@@ -753,6 +774,7 @@ export function OriginRig({ kind }: { kind: 'zero' | 'centre' | 'anchored' }) {
 
 export function LoopRig({ policy }: { policy: 'today' | 'delete' | 'degrade' }) {
   const stopped = policy !== 'today'
+
   return (
     <VStack gap={2} className={cx('ml-full')}>
       <HStack gap={4} vAlign="center">
@@ -833,6 +855,7 @@ export function PressRig({ technique }: { technique: 'transform' | 'scale' | 'no
 
   const simulateLibraryDrag = useCallback(() => {
     const el = ref.current
+
     if (el == null) {
       return
     }
@@ -844,6 +867,7 @@ export function PressRig({ technique }: { technique: 'transform' | 'scale' | 'no
     const start = performance.now()
     const step = (now: number) => {
       const k = (now - start) / 900
+
       if (k >= 1) {
         el.style.removeProperty('transform')
         return
@@ -913,6 +937,7 @@ export function PressRig({ technique }: { technique: 'transform' | 'scale' | 'no
 
 export function CheckTickRig({ technique }: { technique: 'hard' | 'draw' | 'scale' }) {
   const [checked, setChecked] = useState(false)
+
   useLoop(() => setChecked((v) => !v), 2000)
 
   // The "today" pane is the real component. Core's CheckboxInput tints its box
@@ -982,6 +1007,7 @@ export function StatCountRig({ mode }: { mode: Mode }) {
         const k = Math.min(1, (now - start) / duration)
         // Simple ease-out sample; the curve token is shown for parity with CSS.
         const eased = 1 - Math.pow(1 - k, 3)
+
         setValue(Math.round(from + (target - from) * eased))
         if (k < 1) {
           raf.current = requestAnimationFrame(step)
@@ -1016,6 +1042,7 @@ export function ListReorderRig({ mode }: { mode: Mode }) {
   const shuffle = useCallback(() => {
     const list = listRef.current
     const before = new Map<Element, DOMRect>()
+
     if (list != null && mode === 'after') {
       for (const child of Array.from(list.children)) {
         before.set(child, child.getBoundingClientRect())
@@ -1031,12 +1058,14 @@ export function ListReorderRig({ mode }: { mode: Mode }) {
     requestAnimationFrame(() => {
       for (const child of Array.from(list.children)) {
         const first = before.get(child)
+
         if (first == null) {
           continue
         }
 
         const last = child.getBoundingClientRect()
         const dy = first.top - last.top
+
         if (dy === 0) {
           continue
         }

@@ -11,6 +11,7 @@ function summarize(result: SignInResult | null): string {
 
   if (result.status === 'success') {
     const c = result.credential
+
     return `signed in: ${c.user.name ?? c.user.email ?? c.user.id} (${c.provider}, idToken ${c.idToken ? 'yes' : 'no'})`
   }
 

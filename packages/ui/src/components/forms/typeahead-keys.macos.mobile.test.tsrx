@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
+
 // State/key fixtures use an explicit inline test host; floating ownership has separate cases.
 vi.mock('./TypeaheadResults.macos.tsrx', () => ({
   TypeaheadResults: (props: any) => (props.open ? (props.children ?? null) : null),
@@ -13,6 +14,7 @@ import {
 } from 'octane/universal/native'
 
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx'
+
 const items = [
   { id: 'a', label: 'Ada' },
   { id: 'g', label: 'Grace' },
@@ -39,6 +41,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -117,6 +120,7 @@ function mount(extra: any = {}) {
 
 it('actual AppKit view keys highlight/reveal current results and Enter commits without moving input focus', () => {
   const f = mount()
+
   try {
     f.focus()
     expect(f.highlighted()).toBe(0)
@@ -125,7 +129,9 @@ it('actual AppKit view keys highlight/reveal current results and Enter commits w
     expect(f.revealed).toContain(f.rows()[1])
     f.key('End')
     expect(f.highlighted()).toBe(2)
+
     const enter = f.key('Enter')
+
     expect(enter.defaultPrevented).toBe(true)
     expect(f.base.onChange).toHaveBeenCalledWith(items[2])
     expect(f.rows()).toHaveLength(0)
@@ -137,11 +143,14 @@ it('actual AppKit view keys highlight/reveal current results and Enter commits w
 
 it('closed ArrowDown offers bootstrap without synthesizing a consumer focus callback; native Tab/Escape ownership remains', () => {
   const f = mount()
+
   try {
     expect(f.key('ArrowDown').defaultPrevented).toBe(true)
     expect(f.rows()).toHaveLength(3)
     expect(f.base.onFocus).not.toHaveBeenCalled()
+
     const tab = f.key('Tab', { shiftKey: true })
+
     expect(tab.defaultPrevented).toBe(false)
     expect(tab.stopped).toBe(false)
     expect(f.rows()).toHaveLength(0)
@@ -177,9 +186,12 @@ it('consumer preventDefault and current readonly/foreign responder state suppres
 
 it('IME/marked field-editor ownership and modified editing stay native; unmodified current editor navigation works', () => {
   const f = mount()
+
   try {
     f.focus()
+
     const editor = { hasMarkedText: true }
+
     f.input().currentEditor = () => editor
     f.window.firstResponder = editor
     expect(f.key('Enter').defaultPrevented).toBe(false)

@@ -1,4 +1,5 @@
 import type { TrackingCapabilities } from './types'
+
 export interface TrackingBackend {
   readonly identifierFormat?: 'uuid' | 'alphanumeric'
   capabilities(): TrackingCapabilities

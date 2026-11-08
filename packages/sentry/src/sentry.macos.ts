@@ -34,6 +34,7 @@ export const sentry: SentryService = {
     if (!ready || !collecting || closed) {
       return undefined
     }
+
     return BrowserSentry.captureException(error, context ? { extra: context } : undefined)
   },
 
@@ -44,6 +45,7 @@ export const sentry: SentryService = {
     if (!ready || !collecting || closed) {
       return undefined
     }
+
     return BrowserSentry.captureMessage(message, level as any)
   },
 
@@ -51,6 +53,7 @@ export const sentry: SentryService = {
     if (!ready || !collecting || closed) {
       return
     }
+
     BrowserSentry.addBreadcrumb(breadcrumb as any)
   },
 
@@ -58,6 +61,7 @@ export const sentry: SentryService = {
     if (!ready) {
       return
     }
+
     BrowserSentry.setUser(user as any)
   },
 
@@ -65,6 +69,7 @@ export const sentry: SentryService = {
     if (!ready) {
       return
     }
+
     BrowserSentry.setTag(key, value)
   },
 
@@ -72,6 +77,7 @@ export const sentry: SentryService = {
     if (!ready) {
       return
     }
+
     BrowserSentry.setContext(key, context as any)
   },
 
@@ -79,8 +85,11 @@ export const sentry: SentryService = {
     if (!ready || closed) {
       return
     }
+
     collecting = enabled
+
     const client = BrowserSentry.getClient()
+
     if (client) {
       client.getOptions().enabled = enabled
     }

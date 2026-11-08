@@ -1,11 +1,14 @@
 import { run as runQueue } from './incremental-queue.ts'
 import { run as runBudgets } from './foreground-budgets.ts'
+
 const run = globalThis.audioForegroundBudgets ? runBudgets : runQueue
 const cleanups = []
+
 globalThis.audioResult = null
 document.querySelector('button').addEventListener('click', async () => {
   const assertions = []
   const measurements = {}
+
   try {
     await run({
       target: 'web',
@@ -14,6 +17,7 @@ document.querySelector('button').addEventListener('click', async () => {
         if (!Object.is(actual, expected)) {
           throw new Error(`${name}: ${actual} != ${expected}`)
         }
+
         assertions.push(name)
       },
       record(name, value) {
@@ -21,6 +25,7 @@ document.querySelector('button').addEventListener('click', async () => {
       },
       async waitFor(predicate, { timeout = 5000, interval = 20 } = {}) {
         const until = Date.now() + timeout
+
         while (!predicate()) {
           if (Date.now() > until) {
             throw new Error('Timed out waiting for audio state')

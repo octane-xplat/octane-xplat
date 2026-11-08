@@ -30,6 +30,7 @@ const target = `${process.platform === 'win32' ? 'windows' : process.platform}-$
 const binary = join(work, `xplat-go-${target}-cli${process.platform === 'win32' ? '.exe' : ''}`)
 const sha = (value) => createHash('sha256').update(value).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
@@ -43,6 +44,7 @@ const evidence = [],
 let sequence = 0
 function put(base, name, value) {
   const path = join(base, name)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value))
   return path
@@ -53,7 +55,9 @@ function fixture(multi = false) {
     project = join(base, 'project'),
     cache = join(base, 'cache'),
     home = join(base, 'home')
+
   mkdirSync(home, { recursive: true })
+
   const f = {
     base,
     project,
@@ -72,6 +76,7 @@ function fixture(multi = false) {
       FORCE_COLOR: '1',
     },
   }
+
   if (multi) {
     put(project, 'package.json', {
       name: 'workspace',
@@ -80,9 +85,12 @@ function fixture(multi = false) {
       workspaces: ['apps/*'],
     })
   }
+
   const apps = multi ? ['apps/one', 'apps/two'] : ['']
+
   for (const name of apps) {
     const app = join(project, name)
+
     put(app, 'package.json', {
       name: 'same-app-name',
       private: true,
@@ -105,6 +113,7 @@ function fixture(multi = false) {
       process.platform === 'win32' ? 'junction' : 'dir',
     )
   }
+
   f.app = join(project, apps[0])
   fixtures.push(f)
   return f
@@ -112,8 +121,10 @@ function fixture(multi = false) {
 
 async function until(read, message, timeout = 30000) {
   const deadline = Date.now() + timeout
+
   for (;;) {
     const value = await read()
+
     if (value) {
       return value
     }
@@ -130,23 +141,30 @@ function cli(f, args, cwd = f.app) {
     encoding: 'utf8',
     timeout: 15000,
   })
+
   assert.equal(result.stderr, '', result.stderr)
+
   const value = JSON.parse(result.stdout)
+
   evidence.push({ args, status: result.status, value })
   return { status: result.status, ...value }
 }
 
 function record(f) {
   const namespace = join(f.cache, 'dev-servers-v1')
+
   if (!existsSync(namespace)) {
     return null
   }
+
   for (const name of readdirSync(namespace)) {
     const file = join(namespace, name, 'server.json')
+
     if (existsSync(file)) {
       return JSON.parse(readFileSync(file))
     }
   }
+
   return null
 }
 
@@ -156,17 +174,21 @@ function start(f, args = []) {
     env: f.env,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
+
   const owned = { child, stdout: '', stderr: '', ended: false, completion: null }
+
   child.stdout.setEncoding('utf8')
   child.stderr.setEncoding('utf8')
   child.stdout.on('data', (data) => {
     owned.stdout += data
     assert.ok(owned.stdout.length < 2 << 20)
   })
+
   child.stderr.on('data', (data) => {
     owned.stderr += data
     assert.ok(owned.stderr.length < 2 << 20)
   })
+
   owned.completion = new Promise((resolve, reject) => {
     child.once('error', reject)
     child.once('close', (code, signal) => {
@@ -174,6 +196,7 @@ function start(f, args = []) {
       resolve({ code, signal })
     })
   })
+
   f.children.push(owned)
   return owned
 }
@@ -182,6 +205,7 @@ async function stop(owned) {
   if (!owned.ended) {
     owned.child.kill(process.platform === 'win32' ? 'SIGTERM' : 'SIGINT')
   }
+
   return await Promise.race([
     owned.completion,
     delay(15000, undefined, { ref: false }).then(() => {
@@ -192,6 +216,7 @@ async function stop(owned) {
 
 after(async () => {
   let clean = true
+
   for (const f of fixtures) {
     for (const child of f.children) {
       try {
@@ -201,6 +226,7 @@ after(async () => {
       }
     }
   }
+
   for (const f of fixtures) {
     for (const child of f.children) {
       evidence.push({
@@ -209,6 +235,7 @@ after(async () => {
       })
     }
   }
+
   writeFileSync(
     join(work, `dev-server-${target}.json`),
     JSON.stringify(
@@ -224,19 +251,24 @@ after(async () => {
       2,
     ),
   )
+
   if (clean) {
     rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 100 })
   }
+
   assert.ok(clean, 'owned dev fixture could not be joined; scratch retained')
 })
 
 test('live reads without a server never start workers or create runtime state', () => {
   const f = fixture()
+
   for (const args of [['targets'], ['session', 'list'], ['session', 'status', 'sess_absent']]) {
     const result = cli(f, args)
+
     assert.equal(result.error.code, 'disconnected_runtime')
     assert.equal(result.status, 6)
   }
+
   assert.equal(existsSync(f.cache), false)
   assert.equal(existsSync(join(f.app, 'engine-starts.log')), false)
   for (const args of [
@@ -248,6 +280,7 @@ test('live reads without a server never start workers or create runtime state', 
   ]) {
     assert.equal(cli(f, args).error.code, 'invalid_selection')
   }
+
   assert.equal(existsSync(f.cache), false)
 })
 
@@ -262,39 +295,53 @@ test(
       encoding: 'utf8',
       timeout: 10000,
     })
+
     assert.notEqual(ambiguous.status, 0)
     assert.match(ambiguous.stderr, /selected app|--app/)
     assert.equal(existsSync(f.cache), false)
+
     const owned = start(f, ['--project', f.project, '--app', 'apps/one'])
     const info = await until(
       () => record(f),
       () => 'explicit dev did not publish discovery: ' + owned.stdout + ' ' + owned.stderr,
     )
+
     const address = await until(
       () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
       () => 'actual Vite did not report its URL: ' + owned.stdout + ' ' + owned.stderr,
     )
+
     assert.match(await (await fetch(address)).text(), /Explicit foreground dev server/)
+
     const alias = join(f.base, 'app-alias')
+
     symlinkSync(realpathSync(f.app), alias, process.platform === 'win32' ? 'junction' : 'dir')
     mkdirSync(join(f.app, 'nested'), { recursive: true })
     for (const cwd of [f.app, alias, join(f.app, 'nested')]) {
       const result = cli(f, ['targets'], cwd)
+
       assert.equal(result.status, 0, JSON.stringify(result.error))
       assert.equal(result.data.targets.length, 1)
       assert.equal(result.data.targets[0].platform, 'web')
       assert.deepEqual(result.data.targets[0].apps, [])
       assert.equal(cli(f, ['session', 'list'], cwd).data.sessions.length, 0)
     }
+
     const captures = cli(f, ['diagnostics']).data.sessions
+
     assert.equal(captures.length, 1)
+
     const capture = captures[0]
+
     assert.equal(capture.historical, false)
     assert.equal(capture.ownerId, info.instanceId)
+
     const liveLogs = cli(f, ['diagnostics', '--session', capture.sessionId, '--limit', '1']).data
+
     assert.equal(liveLogs.logs.historical, false)
     assert.equal(liveLogs.logs.records.length, 1)
     assert.equal(liveLogs.coverage.nativeReports.status, 'unsupported')
+
     const unsupportedReport = cli(f, [
       'diagnostics',
       '--session',
@@ -302,6 +349,7 @@ test(
       '--report',
       'native',
     ])
+
     assert.equal(unsupportedReport.error.code, 'invalid_selection')
     assert.equal(unsupportedReport.status, 2)
     assert.equal(cli(f, ['diagnostics', '--job', 'removed']).error.code, 'invalid_selection')
@@ -309,23 +357,27 @@ test(
       cli(f, ['diagnostics', '--session', capture.sessionId, '--platform', 'ios']).error.code,
       'invalid_selection',
     )
+
     assert.equal(owned.ended, false)
     assert.match(await (await fetch(address)).text(), /Explicit foreground dev server/)
     assert.equal(
       readFileSync(join(f.app, 'engine-starts.log'), 'utf8').trim().split('\n').length,
       1,
     )
+
     const duplicate = spawnSync(binary, ['dev', '--targets', 'web'], {
       cwd: alias,
       env: f.env,
       encoding: 'utf8',
       timeout: 10000,
     })
+
     assert.notEqual(duplicate.status, 0)
     assert.equal(
       readFileSync(join(f.app, 'engine-starts.log'), 'utf8').trim().split('\n').length,
       1,
     )
+
     assert.ok(!owned.stdout.includes(info.token) && !owned.stderr.includes(info.token))
     evidence.push({
       workflow:
@@ -333,12 +385,15 @@ test(
       instanceId: info.instanceId,
       appRoot: info.appRoot,
     })
+
     const outcome = await stop(owned)
+
     evidence.push({
       shutdown: outcome,
       scope:
         process.platform === 'win32' ? 'forced process/Job cleanup' : 'SIGINT foreground cleanup',
     })
+
     await until(
       async () => {
         try {
@@ -351,14 +406,18 @@ test(
       'owned Vite endpoint remained alive after stop',
       10000,
     )
+
     assert.equal(cli(f, ['targets']).error.code, 'disconnected_runtime')
+
     const endedLogs = cli(f, ['diagnostics', '--session', capture.sessionId]).data
+
     assert.equal(endedLogs.logs.historical, true)
     // Forced Windows termination can leave the last metadata snapshot unfinished;
     // it must never infer cleanup from an absent server or recorded PID.
     if (process.platform !== 'win32') {
       assert.equal(endedLogs.session.cleanupConfirmed, true)
     }
+
     assert.ok(endedLogs.logs.records.length > 0)
     assert.equal(cli(f, ['diagnostics']).data.sessions[0].sessionId, capture.sessionId)
   },
@@ -373,12 +432,15 @@ test(
     const plugin = pathToFileURL(
       join(dirname(require.resolve('@octane-xplat/cli/vite')), 'mcp/dev-socket.js'),
     ).href
+
     put(
       f.app,
       'vite.config.mjs',
       `import{writeFileSync}from'node:fs';import{nativeDevSocketPlugin}from ${JSON.stringify(plugin)};writeFileSync('app-grant.json',process.env.XPLAT_DEV_APP_BRIDGE,{mode:0o600});export default{server:{host:'127.0.0.1',port:0},plugins:[nativeDevSocketPlugin({deviceRelay:true})]}`,
     )
+
     const owned = start(f)
+
     try {
       await until(
         () => existsSync(join(f.app, 'app-grant.json')),
@@ -393,19 +455,23 @@ test(
       )
 
       const relay = new URL('/__xplat_dev__/app' + new URL(grant.socket).search, origin)
+
       relay.protocol = 'ws:'
       for (const allowed of [false, true]) {
         const client = new WebSocket(relay)
+
         try {
           const state = await new Promise((resolve, reject) => {
             const timer = setTimeout(
               () => reject(new Error('Relayed app authentication timed out')),
               5000,
             )
+
             const finish = (value) => {
               clearTimeout(timer)
               resolve(value)
             }
+
             client.onopen = () =>
               client.send(
                 JSON.stringify({
@@ -424,11 +490,13 @@ test(
                   },
                 }),
               )
+
             client.onmessage = (event) => {
               if (JSON.parse(event.data).type === 'registered') {
                 finish('registered')
               }
             }
+
             client.onclose = () => finish('closed')
             client.onerror = () => finish('error')
           })
@@ -481,6 +549,7 @@ test(
   { timeout: 90000 },
   async () => {
     const f = fixture()
+
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
@@ -488,6 +557,7 @@ test(
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
     }
+
     cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
     put(
       f.app,
@@ -511,6 +581,7 @@ test(
  export function reconnect(){bridge=startDevActionBridge({appLabel:'Real framework registry'})}
  `,
     )
+
     put(
       f.app,
       'vite.config.mjs',
@@ -521,25 +592,33 @@ test(
  }}]}
  `,
     )
+
     put(f.app, 'mapped.ts', 'const value: number = 1;\nthrow new Error("mapped action failure");\n')
+
     const owned = start(f)
+
     await until(
       () => record(f),
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     const address = await until(
       () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     // Execute the real injected client without a browser dependency on portable
     // hosts. This proves client/HTTP/worker/native retention, not browser APIs.
     const html = await (await fetch(address)).text()
     const script = [...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)]
       .map((match) => match[1])
       .find((text) => text.includes('__XPLAT_LOGS_INSTALLED__'))
+
     assert.ok(script, 'native dev did not inject the canonical browser logger')
+
     const listeners = new Map(),
       sent = []
+
     const context = vm.createContext({
       Error,
       console: { warn() {}, error() {} },
@@ -550,15 +629,19 @@ test(
         return fetch(new URL(path, address), init)
       },
     })
+
     vm.runInContext(script, context)
     vm.runInContext(
       "console.warn('native-browser-fixture', {privateValue:'do-not-serialize'})",
       context,
     )
+
     listeners.get('error')({ message: 'native-runtime-error' })
     listeners.get('unhandledrejection')({ reason: 'native-rejected-fixture' })
+
     const capture = cli(f, ['diagnostics']).data.sessions[0]
     const readConsole = () => cli(f, ['diagnostics', '--session', capture.sessionId]).data
+
     await until(
       () =>
         ['native-browser-fixture', 'native-runtime-error', 'native-rejected-fixture'].every(
@@ -569,9 +652,12 @@ test(
         ),
       'browser client logs did not reach native capture',
     )
+
     assert.equal(readConsole().coverage.appConsole.status, 'captured')
     assert.ok(!JSON.stringify(readConsole()).includes('do-not-serialize'))
+
     const headers = sent[0].headers
+
     assert.equal(
       (
         await fetch(new URL('/__xplat_dev__/logs', address), {
@@ -582,6 +668,7 @@ test(
       ).status,
       403,
     )
+
     assert.equal(
       (
         await fetch(new URL('/__xplat_dev__/logs', address), {
@@ -592,6 +679,7 @@ test(
       ).status,
       403,
     )
+
     assert.equal(
       (
         await fetch(new URL('/__xplat_dev__/logs', address), {
@@ -602,17 +690,21 @@ test(
       ).status,
       400,
     )
+
     if (process.env.XPLAT_GO_BROWSER_LOGS === '1') {
       const requireWeb = createRequire(join(root, 'apps/web/package.json'))
       const browser = await requireWeb('playwright').chromium.launch({ headless: true })
+
       try {
         const page = await browser.newPage()
+
         await page.goto(address)
         await page.evaluate(() => {
           console.warn('chromium-native-warning')
           setTimeout(() => {
             throw new Error('chromium-native-uncaught')
           }, 0)
+
           Promise.reject('chromium-native-rejection')
         })
 
@@ -638,16 +730,20 @@ test(
         await browser.close()
       }
     }
+
     const inventory = () => cli(f, ['actions', 'list'])
     let registered
+
     await until(
       () => {
         const result = inventory()
+
         registered = result.data?.instances?.[0]
         return registered?.actions?.some((action) => action.id === 'fixture.read')
       },
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     assert.equal(registered.appLabel, 'Real framework registry')
     await delay(12000)
     assert.equal(
@@ -655,11 +751,13 @@ test(
       'ready',
       'app heartbeat did not survive HTTP timeout defaults',
     )
+
     assert.equal(
       cli(f, ['session', 'status', registered.sessionId]).data.session.connectedAt,
       registered.connectedAt,
       'the app silently reconnected during the heartbeat window',
     )
+
     const attached = cli(f, [
       'session',
       'attach',
@@ -668,10 +766,12 @@ test(
       '--instance',
       registered.appInstanceId,
     ])
+
     assert.equal(attached.status, 0, JSON.stringify(attached.error))
     assert.equal(attached.data.session.sessionId, registered.sessionId)
     assert.equal(attached.data.session.ownership, 'observed')
     assert.equal(cli(f, ['targets']).data.targets[0].apps.length, 1)
+
     const invoke = (id, key, input = '{}', extra = []) =>
       cli(f, [
         'actions',
@@ -686,9 +786,12 @@ test(
         key,
         ...extra,
       ])
+
     const finished = async (accepted) => {
       assert.equal(accepted.status, 0, JSON.stringify(accepted.error))
+
       let job
+
       await until(
         () => {
           job = cli(f, ['actions', 'status', accepted.data.job.jobId]).data?.job
@@ -697,53 +800,69 @@ test(
         'action did not finish',
         15000,
       )
+
       return job
     }
 
     const mapped = await finished(invoke('fixture.mapped', 'mapped-failure'))
+
     assert.equal(mapped.state, 'failed')
     assert.equal(mapped.error.context.stackResolution, 'vite-current', JSON.stringify(mapped.error))
     assert.match(mapped.error.context.failures[0].sourceStack, /mapped\.ts:2:\d+/)
     assert.ok(mapped.error.context.failures[0].stack.includes(address + 'mapped.ts:'))
+
     const count = async () => JSON.parse(await (await fetch(address + 'fixture/count')).text())
+
     assert.equal(
       invoke('fixture.read', 'stale', '{}', ['--revision', '0']).error.code,
       'stale_identity',
     )
+
     assert.equal(
       invoke('fixture.read', 'invalid', '{"value":"no"}').error.code,
       'invalid_selection',
     )
+
     assert.equal(
       invoke('fixture.read', 'utf16', '{"emoji":"😀😀"}').error.code,
       'invalid_selection',
     )
+
     const accepted = invoke('fixture.read', 'read-once')
     const success = await finished(accepted)
+
     assert.equal(success.state, 'succeeded')
     assert.equal(
       success.result.outcome.result.echoed,
       'ab😀',
       'JS lookbehind/default/UTF-16 semantics were not retained',
     )
+
     assert.equal(await count(), 1)
+
     const repeated = invoke('fixture.read', 'read-once')
+
     assert.equal(repeated.data.job.jobId, accepted.data.job.jobId)
     assert.equal(repeated.data.deduplicated, true)
     assert.equal(
       invoke('fixture.read', 'read-once', '{"value":"ab","emoji":"x"}').error.code,
       'stale_identity',
     )
+
     assert.equal(await count(), 1)
+
     const bad = await finished(invoke('fixture.bad', 'bad-once'))
+
     assert.equal(bad.state, 'failed')
     assert.equal(
       await count(),
       2,
       'completed invalid-result effect was silently rolled back/repeated',
     )
+
     assert.equal(invoke('fixture.external', 'external-once').error.code, 'permission_denied')
     assert.equal(await count(), 2)
+
     const allowed = cli({ ...f, env: { ...f.env, XPLAT_PERMISSIONS: 'external-effects' } }, [
       'actions',
       'invoke',
@@ -754,13 +873,18 @@ test(
       '--request-key',
       'external-once',
     ])
+
     assert.equal((await finished(allowed)).state, 'succeeded')
     assert.equal(await count(), 3)
+
     const cancelled = await finished(invoke('fixture.slow', 'cancel-once'))
+
     assert.equal(cancelled.state, 'cancelled')
     assert.equal(cancelled.result.outcome.status, 'cancelled')
+
     const dropped = invoke('fixture.drop', 'drop-once')
     const unknown = await finished(dropped)
+
     assert.equal(unknown.state, 'failed')
     assert.equal(unknown.error.context.outcome, 'unknown')
     await until(
@@ -768,26 +892,32 @@ test(
       'app did not reconnect after transport loss',
       10000,
     )
+
     const retryUnknown = invoke('fixture.drop', 'drop-once')
+
     assert.equal(retryUnknown.data.job.jobId, dropped.data.job.jobId)
     assert.equal(retryUnknown.data.deduplicated, true)
     await delay(1200)
     assert.equal(await count(), 4, 'unknown in-flight action was replayed')
 
     assert.equal(owned.ended, false)
+
     const transformed = await (await fetch(address + 'dev-bridge.ts')).text()
+
     assert.ok(!transformed.includes(record(f).token), 'private CLI credential entered app code')
     assert.equal((await fetch(address + 'fixture/clear')).status, 200)
     await until(
       () => inventory().data.instances[0]?.actions?.length === 0,
       'connected empty registry was not observed',
     )
+
     assert.equal((await fetch(address + 'fixture/stop')).status, 200)
     await until(
       () =>
         cli(f, ['session', 'status', registered.sessionId]).data?.session.state === 'disconnected',
       'app disconnection was not observed',
     )
+
     assert.equal(owned.ended, false)
     assert.equal((await fetch(address)).status, 200)
     assert.equal((await fetch(address + 'fixture/reconnect')).status, 200)
@@ -795,12 +925,14 @@ test(
       () => inventory().data.instances[0]?.sessionId === registered.sessionId,
       'framework registry did not reconnect with stable identity',
     )
+
     assert.equal(cli(f, ['session', 'attach']).status, 0)
     evidence.push({
       workflow:
         'actual framework registry, project Vite SSR, native socket attachment; empty registry, app disconnect/reconnect and short-lived clients',
       sessionId: registered.sessionId,
     })
+
     await stop(owned)
     await until(
       async () => {
@@ -822,6 +954,7 @@ test(
   { skip: process.env.XPLAT_GO_BROWSER_LOGS !== '1', timeout: 90000 },
   async () => {
     const f = fixture()
+
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
@@ -829,6 +962,7 @@ test(
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
     }
+
     cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
     put(
       f.app,
@@ -851,29 +985,36 @@ test(
  startDevActionBridge({appLabel:'Actual browser inspector'});</script>
  </body></html>`,
     )
+
     put(
       f.app,
       'vite.config.mjs',
       `import {xplatDevBridge} from '@octane-xplat/cli/vite';export default{server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge()]}`,
     )
+
     const owned = start(f)
     const address = await until(
       () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     const requireWeb = createRequire(join(root, 'apps/web/package.json'))
     const browser = await requireWeb('playwright').chromium.launch({ headless: true })
     let retainedId
 
     try {
       const page = await browser.newPage()
+
       await page.goto(address)
+
       let session
+
       await until(
         () => {
           session = cli(f, ['session', 'list']).data?.sessions.find(
             (value) => value.inspection?.version === 1 && value.state === 'ready',
           )
+
           return session
         },
         () => owned.stdout + ' ' + owned.stderr,
@@ -881,6 +1022,7 @@ test(
 
       const inspect = (...args) => cli(f, ['inspect', session.sessionId, ...args])
       const all = inspect()
+
       assert.equal(all.status, 0, JSON.stringify(all.error))
       assert.equal(all.data.total, 10)
       assert.equal(all.data.documentId, session.inspection.documentId)
@@ -893,6 +1035,7 @@ test(
       assert.ok(!JSON.stringify(all).includes('never-return-'))
       for (const id of ['password', 'private', 'hidden']) {
         const control = all.data.controls.find((control) => control.id === id)
+
         assert.equal(control.sensitive, true)
         assert.equal(control.text, '[redacted]')
         assert.equal(control.value, '[redacted]')
@@ -900,6 +1043,7 @@ test(
 
       const focused = await page.evaluate(() => document.activeElement?.id)
       const selected = inspect('--id', 'button')
+
       assert.equal(selected.status, 0)
       assert.equal(selected.data.controls.length, 1)
       assert.equal(
@@ -909,6 +1053,7 @@ test(
       )
 
       const bounded = inspect('--limit', '2')
+
       assert.equal(bounded.data.controls.length, 2)
       assert.equal(bounded.data.nextOffset, 2)
       assert.equal(inspect('--offset', '2', '--limit', '2').data.controls[0].id, 'password')
@@ -920,6 +1065,7 @@ test(
       )
 
       assert.ok(session.inspection.mechanisms.includes('handler-dispatch'))
+
       const interact = (id, key, documentId = all.data.documentId) =>
         cli(f, [
           'interact',
@@ -963,16 +1109,20 @@ test(
       )
 
       const stale = interact('button', 'stale-click', 'stale-document')
+
       assert.equal(stale.error.code, 'stale_identity')
       assert.equal(stale.error.context.outcome, 'not-run')
       for (const id of ['disabled', 'hidden-button', 'obscured', 'password', 'private', 'hidden']) {
         const blocked = interact(id, 'blocked-' + id)
+
         assert.equal(blocked.error.code, 'unavailable', JSON.stringify(blocked))
         assert.equal(blocked.error.context.outcome, 'not-run')
       }
 
       assert.equal(await page.evaluate(() => globalThis.fixtureAllClicks), 0)
+
       const click = interact('button', 'click-once')
+
       assert.equal(click.status, 0, JSON.stringify(click.error))
       assert.equal(click.data.inputSent, true)
       assert.equal(click.data.eventTrusted, false)
@@ -1024,6 +1174,7 @@ test(
 
       assert.equal(expired.outcome, 'not-run')
       assert.equal(await page.evaluate(() => globalThis.fixtureAllClicks), 1)
+
       // Qualify real browser action work separately from inspection traffic.
       const action = cli(f, [
         'actions',
@@ -1037,7 +1188,9 @@ test(
       ])
 
       assert.equal(action.status, 0, JSON.stringify(action.error))
+
       let actionResult
+
       await until(() => {
         actionResult = cli(f, ['actions', 'status', action.data.job.jobId]).data?.job
         return actionResult?.state === 'succeeded'
@@ -1059,15 +1212,20 @@ test(
       )
 
       retainedId = inspect('--id', 'value').data.evidence.id
+
       const deniedRetention = cli(f, ['evidence', 'retain', retainedId])
+
       assert.equal(deniedRetention.error.code, 'permission_denied')
+
       const granted = { ...f, env: { ...f.env, XPLAT_PERMISSIONS: 'evidence-retain' } }
+
       assert.equal(
         cli(granted, ['evidence', 'retain', retainedId, '--expires-at', 'yesterday']).error.code,
         'invalid_selection',
       )
 
       const retained = cli(granted, ['evidence', 'retain', retainedId])
+
       assert.equal(retained.status, 0, JSON.stringify(retained.error))
       assert.equal(retained.data.record.retention.scope, 'retained')
       assert.equal(retained.data.record.retention.expiresAt, null)
@@ -1075,6 +1233,7 @@ test(
 
       const evidenceId = all.data.evidence.id
       const inventory = cli(f, ['evidence', 'list'])
+
       assert.equal(inventory.status, 0, JSON.stringify(inventory.error))
       assert.ok(
         inventory.data.evidence.some(
@@ -1085,6 +1244,7 @@ test(
       assert.ok(!JSON.stringify(inventory).includes('never-return-'))
       assert.equal(cli(f, ['evidence', 'delete', evidenceId]).status, 0)
       assert.equal(cli(f, ['evidence', 'delete', evidenceId]).error.code, 'not_found')
+
       const previous = session.sessionId,
         document = all.data.documentId
 
@@ -1115,11 +1275,13 @@ test(
 
     const offline = { ...f, env: { ...f.env, PATH: '' } }
     const historical = cli(offline, ['evidence', 'list'])
+
     assert.equal(historical.status, 0, JSON.stringify(historical.error))
     assert.equal(historical.data.evidence.length, 1, 'ephemeral records survived server exit')
     assert.equal(historical.data.evidence[0].id, retainedId)
     assert.equal(historical.data.evidence[0].data.controls[0].text, 'Visible count 1')
     assert.equal(record(f), null, 'offline read started a dev server')
+
     const renewed = cli(
       { ...offline, env: { ...offline.env, XPLAT_PERMISSIONS: 'evidence-retain' } },
       [
@@ -1130,6 +1292,7 @@ test(
         new Date(Date.now() + 3600000).toISOString(),
       ],
     )
+
     assert.equal(renewed.status, 0, JSON.stringify(renewed.error))
     assert.ok(renewed.data.record.retention.expiresAt)
     assert.equal(cli(offline, ['evidence', 'delete', retainedId]).status, 0)
@@ -1147,6 +1310,7 @@ test(
   { timeout: 120000 },
   async () => {
     const f = fixture()
+
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
@@ -1154,6 +1318,7 @@ test(
     ]) {
       cpSync(join(root, 'packages/platform/src', name), join(f.app, name))
     }
+
     cpSync(join(root, 'packages/platform/src/dev-bridge.web.ts'), join(f.app, 'dev-bridge.ts'))
     // The real @octane-xplat/devtools/app module, rebound onto the copied registry.
     put(
@@ -1164,6 +1329,7 @@ test(
         "'./dev-actions-registry.ts'",
       ),
     )
+
     put(
       f.app,
       'channel-app.ts',
@@ -1178,6 +1344,7 @@ stream.subscribe((message) => {
 })
 `,
     )
+
     put(
       f.app,
       'vite.config.mjs',
@@ -1199,23 +1366,29 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
 }}]}
 `,
     )
+
     const owned = start(f)
     const serverRecord = await until(
       () => record(f),
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     const address = await until(
       () => stripVTControlCharacters(owned.stdout).match(/http:\/\/127\.0\.0\.1:[0-9]+\//)?.[0],
       () => owned.stdout + ' ' + owned.stderr,
     )
+
     const backendToken = await (await fetch(new URL('/fixture/backend-token', address))).text()
+
     assert.match(backendToken, /^[a-f0-9]{64}$/)
     assert.notEqual(backendToken, serverRecord.devtoolsToken)
 
     const { connectDevtools } = await import(
       pathToFileURL(join(root, 'packages/devtools/src/client.ts')).href
     )
+
     const panel = connectDevtools(serverRecord)
+
     try {
       await until(
         () => panel.state === 'live' && panel.sessions().length > 0,
@@ -1223,6 +1396,7 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
       )
 
       const session = panel.sessions().find((entry) => entry.state === 'ready')
+
       assert.ok(session, 'panel ready frame carried no ready app session')
       assert.deepEqual(session.channels?.map((entry) => entry.id).sort(), ['probe', 'stream'])
       await until(
@@ -1285,6 +1459,7 @@ server.middlewares.use('/fixture/backend-token',(req,res)=>{res.end(JSON.parse(p
       const html = await (await fetch(address)).text()
       const module_ = await (await fetch(new URL('/channel-app.ts', address))).text()
       const appModule = await (await fetch(new URL('/devtools-app.ts', address))).text()
+
       for (const [label, body] of [
         ['index.html', html],
         ['channel-app.ts', module_],

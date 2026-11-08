@@ -18,6 +18,7 @@ afterEach(() => {
 
 function FilterCase() {
   const [active, setActive] = useState<string | null>('All')
+
   return (
     <ToggleButtonGroup label="Filter by category" value={active} onChange={setActive}>
       <ToggleButton value="All" label="All" size="lg" />
@@ -30,14 +31,19 @@ function FilterCase() {
 describe('ToggleButtonGroup (web)', () => {
   it('mounts a single-select group with its ToggleButton children', () => {
     const el = document.createElement('div')
+
     document.body.append(el)
+
     const root = createRoot(el)
+
     roots.push(root)
     act(() => root.render(<FilterCase />))
 
     const group = el.querySelector('[role="group"]') as HTMLElement
+
     expect(group).not.toBe(null)
     expect(group.getAttribute('aria-label')).toBe('Filter by category')
+
     const buttons = [...group.querySelectorAll('button')]
     const visibleLabel = (b: Element) =>
       b.querySelector('.vx-toggle-button-labelwrap span')?.textContent
@@ -48,8 +54,11 @@ describe('ToggleButtonGroup (web)', () => {
   it('selects a member on click and deselects on a second click', () => {
     const onChange = vi.fn()
     const el = document.createElement('div')
+
     document.body.append(el)
+
     const root = createRoot(el)
+
     roots.push(root)
     act(() =>
       root.render(
@@ -61,6 +70,7 @@ describe('ToggleButtonGroup (web)', () => {
     )
 
     const buttons = [...el.querySelectorAll('button')] as HTMLElement[]
+
     expect(buttons[0].getAttribute('aria-pressed')).toBe('true')
     expect(buttons[1].getAttribute('aria-pressed')).toBe('false')
 

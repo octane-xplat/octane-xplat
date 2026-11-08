@@ -16,6 +16,7 @@ export function Stack(props: StackProps): JSX.Element @{
   const layout = resolveStackLayout(props)
   const Tag: any = props.as ?? 'div'
   const el = useRef<HTMLElement | null>(null)
+
   usePan(el, props.onPan)
 
   const forwardedRef = useMemo(

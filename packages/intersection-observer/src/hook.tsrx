@@ -18,6 +18,7 @@ export function useIntersectionObserver(
   const [boundRoot, setBoundRoot] = useState<any>(null)
   const [entry, setEntry] = useState<IntersectionObserverEntry | null>(null)
   const onChange = useRef(options.onChange)
+
   useEffect(() => {
     onChange.current = options.onChange
   })
@@ -36,6 +37,7 @@ export function useIntersectionObserver(
     const observer = new PlatformIntersectionObserver(
       (entries) => {
         const latest = entries[entries.length - 1]
+
         setEntry((prev: IntersectionObserverEntry | null) =>
           sameEntry(prev, latest) ? prev : latest,
         )

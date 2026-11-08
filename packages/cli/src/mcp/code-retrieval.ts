@@ -32,6 +32,7 @@ const looksLikeIdentifier = (query) => /^[A-Za-z_$][\w$]*$/.test(query.trim())
  */
 export function searchCodeFiles(files, { query, limit = 10 }) {
   const needle = query.trim().toLowerCase()
+
   if (!needle) {
     return []
   }
@@ -41,8 +42,10 @@ export function searchCodeFiles(files, { query, limit = 10 }) {
   const boundary = identifier ? new RegExp(`\\b${escapeRe(query.trim())}\\b`) : null
 
   const scored = []
+
   for (const file of files) {
     let content
+
     try {
       content = readFileSync(file.abs, 'utf8')
     } catch {
@@ -51,11 +54,13 @@ export function searchCodeFiles(files, { query, limit = 10 }) {
 
     const hay = `${file.rel}\n${content}`.toLowerCase()
     const hits = tokens.filter((t) => hay.includes(t)).length
+
     if (hits === 0) {
       continue
     }
 
     let score = hits
+
     if (hay.includes(needle)) {
       score += 100
     }
@@ -69,6 +74,7 @@ export function searchCodeFiles(files, { query, limit = 10 }) {
     }
 
     const { line, endLine, excerpt } = excerptAt(content, needle, tokens)
+
     scored.push({
       corpus: file.corpus,
       file,
@@ -89,6 +95,7 @@ const escapeRe = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 function excerptAt(content, needle, tokens) {
   const lower = content.toLowerCase()
   let at = lower.indexOf(needle)
+
   if (at < 0) {
     for (const token of tokens) {
       at = lower.indexOf(token)
@@ -107,6 +114,7 @@ function excerptAt(content, needle, tokens) {
   const start = Math.max(0, line - 2)
   const end = Math.min(lines.length, line + EXCERPT_RADIUS)
   let excerpt = lines.slice(start, end).join('\n')
+
   if (excerpt.length > EXCERPT_MAX) {
     excerpt = excerpt.slice(0, EXCERPT_MAX)
   }
@@ -122,6 +130,7 @@ function excerptAt(content, needle, tokens) {
  */
 export function readCodeFile(abs, { offset = 0, limit = 24_000 } = {}) {
   let content
+
   try {
     content = readFileSync(abs, 'utf8')
   } catch {
@@ -136,6 +145,7 @@ export function readCodeFile(abs, { offset = 0, limit = 24_000 } = {}) {
   const lines = content.split('\n')
   const line = content.slice(0, offset).split('\n').length
   const endLine = Math.min(lines.length, line + slice.split('\n').length - 1)
+
   return {
     content: slice,
     offset,

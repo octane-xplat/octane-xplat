@@ -10,16 +10,20 @@ export async function checkNativeBackEvents(
   wait: (name: string, condition: () => boolean) => Promise<void>,
 ): Promise<void> {
   const target = new Page()
+
   target.actionBarHidden = true
   target.content = new GridLayout()
+
   let pageFlag = false
   let frameFlag = false
   const refusePage = (event: object) => {
     pageFlag = Reflect.set(event, 'cancel', true)
   }
+
   const refuseFrame = (event: object) => {
     frameFlag = Reflect.set(event, 'cancel', true)
   }
+
   target.on('navigatingFrom', refusePage)
   try {
     frame.navigate({ create: () => target, animated: false })
@@ -44,6 +48,7 @@ export async function checkNativeBackEvents(
     target.off('navigatingFrom', refusePage)
     if (frame.currentPage !== base) {
       const entry = frame.backStack.find((value) => value.resolvedPage === base)
+
       if (entry) {
         frame.goBack(entry)
         await wait('native event probe cleanup', () => frame.currentPage === base)

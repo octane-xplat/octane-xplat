@@ -3,20 +3,24 @@ import { test } from 'node:test'
 import { createActionStore } from '../src/action-store.ts'
 import { createAccessibilityState } from '../src/accessibility-state.ts'
 import { mockNativeBoundary } from './native-boundary.ts'
+
 const hooks = mockNativeBoundary()
 const { createActions } = await import('../src/actions.ts')
 const { createAccessibleHost } = await import('../src/accessible-host.ts')
 const { createAccessibility } = await import('../src/accessibility.ts')
 const { createTextElements } = await import('../src/text-elements.ts')
+
 hooks.deregister()
 
 function fixture() {
   const store = createActionStore(),
     state = createAccessibilityState()
+
   const registry = { cssNodesByView: new WeakMap() }
   const textNodesByView = new WeakMap()
   const events: unknown[] = [],
     scopes: string[] = []
+
   const actions = createActions({
     store,
     registry,
@@ -34,11 +38,13 @@ function fixture() {
       },
     },
   })
+
   const host = createAccessibleHost({
     actions,
     state,
     subscriptions: { fileDropRegistry: {} as any },
   })
+
   const accessibility = createAccessibility({ accessibleHost: host, state })
   const node = (type = 'masonview', view: any = new host.AccessibleHostView()): any => ({
     type,
@@ -55,6 +61,7 @@ function fixture() {
       },
     },
   })
+
   return {
     actions,
     host,
@@ -77,20 +84,25 @@ test('production action owner keeps tag replacement, native disable and retireme
         return this.enabled
       },
     })
+
   f.actions.acquireAction(node, node.view)
+
   const tag = node.actionId,
     target = f.actions.buttonActionTarget
+
   f.actions.setControlAction(
     node,
     (value) => f.events.push(value),
     () => 'first',
   )
+
   target.controlChanged({ ...node.view, tag } as any)
   f.actions.setControlAction(
     node,
     (value) => f.events.push(value),
     () => 'current',
   )
+
   target.controlChanged({ tag } as any)
   for (const patch of [
     { disabled: true },
@@ -102,11 +114,14 @@ test('production action owner keeps tag replacement, native disable and retireme
     node.props = patch
     target.controlChanged({ tag } as any)
   }
+
   node.props = {}
   node.view.enabled = false
   target.controlChanged({ tag } as any)
   node.view.enabled = true
+
   const held = () => target.controlChanged({ tag } as any)
+
   node.lifecycle = 'disposing'
   held()
   f.actions.disposeActions(node)
@@ -121,7 +136,9 @@ test('production action owner keeps tag replacement, native disable and retireme
 test('production text delegate separates editing/submission and leaves IME confirmation to native input', () => {
   const f = fixture(),
     editor = { hasMarkedText: true }
+
   const node = f.node('textfield', { currentEditor: () => editor })
+
   f.textNodesByView.set(node.view, node)
   f.actions.acquireAction(node, node.view)
   f.actions.setControlAction(
@@ -129,8 +146,11 @@ test('production text delegate separates editing/submission and leaves IME confi
     () => f.events.push('edit'),
     () => '',
   )
+
   f.actions.setTextSubmitAction(node, () => f.events.push('submit'))
+
   const target = f.actions.buttonActionTarget
+
   target.controlTextDidChange({ object: node.view } as any)
   target.textFieldSubmitted(node.view)
   editor.hasMarkedText = false
@@ -138,7 +158,9 @@ test('production text delegate separates editing/submission and leaves IME confi
   node.props.editable = false
   target.textFieldSubmitted(node.view)
   target.controlTextDidChange({ object: node.view } as any)
+
   const held = node.submitHandler
+
   f.actions.setTextSubmitAction(node, () => f.events.push('new-submit'))
   node.props.editable = true
   held()
@@ -151,28 +173,35 @@ test('AX-only hosts own semantic leases without click IDs and scoped adjustments
   const f = fixture(),
     node = f.node(),
     view = node.view
+
   node.props = { onAccessibilityIncrement() {} }
   f.accessibility.applyAccessibility(node, 'accessibilityRole', 'adjustable')
   f.accessibility.applyAccessibility(node, 'accessibilityLabel', 'Volume')
   f.accessibility.applyAccessibility(node, 'onAccessibilityIncrement', () =>
     f.events.push('increment'),
   )
+
   assert.equal(f.store.idForView(view), undefined)
   assert.equal(view.accessibilityIsIgnored(), false)
   assert.equal(view.acceptsFirstResponder(), false)
   assert.equal(view.accessibilityPerformPress(), false)
   assert.equal(view.accessibilityRole(), 'AXSlider')
   assert.equal(view.accessibilityPerformIncrement(), true)
+
   const held = f.state.get(view)!.onAccessibilityIncrement!
+
   f.accessibility.applyAccessibility(node, 'onAccessibilityIncrement', () =>
     f.events.push('current-increment'),
   )
+
   held()
   f.accessibility.applyAccessibility(node, 'accessibilityState', { readonly: true })
   assert.equal(view.accessibilityPerformIncrement(), false)
   f.accessibility.applyAccessibility(node, 'accessibilityState', { disabled: true })
   assert.equal(view.accessibilityPerformIncrement(), false)
+
   const replacement = f.node('masonview', view)
+
   f.accessibility.applyAccessibility(replacement, 'accessibilityLabel', 'New owner')
   held()
   f.accessibility.disposeAccessibility(node)
@@ -186,6 +215,7 @@ test('AX press queries the current action and observes readonly, hidden and disa
   const f = fixture(),
     node = f.node(),
     view = node.view
+
   f.accessibility.applyAccessibility(node, 'accessibilityRole', 'button')
   f.actions.acquireAction(node, view)
   f.actions.setNodeHandler(node, () => f.events.push('press'))
@@ -195,6 +225,7 @@ test('AX press queries the current action and observes readonly, hidden and disa
     f.accessibility.applyAccessibility(node, 'accessibilityState', state)
     assert.equal(view.accessibilityPerformPress(), false)
   }
+
   f.accessibility.applyAccessibility(node, 'accessibilityState', {})
   view.hiddenOrHasHiddenAncestor = true
   assert.equal(view.accessibilityPerformPress(), false)
@@ -212,6 +243,7 @@ test('production pan delegate preserves local coordinates, velocity, swipe and s
       flipped: false,
       bounds: { origin: { x: 2, y: 3 }, size: { width: 100, height: 90 } },
     })
+
   node.props = { onPan: (event) => f.events.push(event), onSwipe: (event) => f.events.push(event) }
   f.actions.setPanAction(node, node.props.onPan)
   f.actions.buttonActionTarget.viewPanned(
@@ -223,6 +255,7 @@ test('production pan delegate preserves local coordinates, velocity, swipe and s
       locationInView: () => ({ x: 12, y: 13 }),
     }),
   )
+
   assert.deepEqual(f.events[0], {
     x: 10,
     y: 80,
@@ -233,6 +266,7 @@ test('production pan delegate preserves local coordinates, velocity, swipe and s
     state: 2,
     view: node.view,
   })
+
   f.actions.disposeActions(node)
   assert.equal(f.actions.dispatchPan(node.view, {} as any), false)
 })
@@ -249,15 +283,21 @@ test('replaced click/pan views and older pan cleanup cannot dispatch or retire n
       this.removed.push(value)
     },
   })
+
   const oldView = makeView(),
     currentView = makeView(),
     node = f.node('masonview', oldView)
+
   f.actions.setAction(node, () => f.events.push('old'))
+
   const oldId = node.actionId,
     oldClick = node.clickGestureRecognizer
+
   node.props.onPan = () => f.events.push('pan')
   f.actions.setPanAction(node, node.props.onPan)
+
   const oldPan = node.panGestureRecognizer
+
   node.view = currentView
   f.actions.setAction(node, () => f.events.push('current'))
   f.actions.setPanAction(node, node.props.onPan)
@@ -265,9 +305,12 @@ test('replaced click/pan views and older pan cleanup cannot dispatch or retire n
   assert.equal(f.actions.dispatchPan(oldView, {} as any), false)
   assert.deepEqual(oldView.removed, [oldClick, oldPan])
   f.actions.invokeAction(node.actionId)
+
   const heldClick = node.clickGestureRecognizer,
     heldPan = node.panGestureRecognizer
+
   const replacement = f.node('masonview', currentView)
+
   replacement.props.onPan = () => f.events.push('replacement')
   f.actions.setPanAction(replacement, replacement.props.onPan)
   f.actions.setAction(replacement, () => f.events.push('new-click'))
@@ -287,14 +330,18 @@ test('pooled native AX links keep simultaneous same-name owners separate and ret
     addGestureRecognizer() {},
     removeGestureRecognizer() {},
   })
+
   const first = f.node('label', view()),
     second = f.node('label', view())
+
   first.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('first') }]
   second.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('second') }]
   text.syncTextLinks(first)
   text.syncTextLinks(second)
+
   const a = first.view.accessibilityCustomActions[0],
     b = second.view.accessibilityCustomActions[0]
+
   assert.notEqual(a, b)
   a.handler()
   b.handler()
@@ -303,17 +350,25 @@ test('pooled native AX links keep simultaneous same-name owners separate and ret
   text.disposeTextLinks(first)
   a.handler()
   b.handler()
+
   const oldView = second.view
+
   second.view = view()
   text.syncTextLinks(second)
   b.handler()
   assert.deepEqual(oldView.accessibilityCustomActions, [])
   second.view.accessibilityCustomActions[0].handler()
+
   const replacement = f.node('label', second.view)
+
   replacement.textLinks = [{ location: 0, length: 4, handler: () => f.events.push('replacement') }]
+
   const staleAction = second.view.accessibilityCustomActions[0]
+
   text.syncTextLinks(replacement)
+
   const currentAction = replacement.view.accessibilityCustomActions[0]
+
   staleAction.handler()
   text.disposeTextLinks(second)
   assert.equal(replacement.view.accessibilityCustomActions[0], currentAction)

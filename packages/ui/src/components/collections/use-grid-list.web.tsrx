@@ -46,6 +46,7 @@ function columnCount(rows: HTMLElement[], fixed?: number): number {
 
   const top = rows[0].offsetTop
   let count = 0
+
   for (const row of rows) {
     if (row.offsetTop !== top) {
       break
@@ -60,30 +61,36 @@ function columnCount(rows: HTMLElement[], fixed?: number): number {
 export function useGridList(options: UseGridListOptions = {}): UseGridListResult {
   const ref = useRef<HTMLElement | null>(null)
   const opts = useRef(options)
+
   opts.current = options
 
   const focusAt = useCallback((index: number) => {
     const root = ref.current
+
     if (!root) {
       return
     }
 
     const rows = enabledRows(root, opts.current.rowSelector ?? '[role="row"]')
+
     if (!rows.length) {
       return
     }
 
     const clamped = ((index % rows.length) + rows.length) % rows.length
+
     rows[clamped]?.focus()
   }, [])
 
   const repairTabStop = useCallback(() => {
     const root = ref.current
+
     if (!root) {
       return
     }
 
     const rows = enabledRows(root, opts.current.rowSelector ?? '[role="row"]')
+
     if (rows.length && !rows.some((el) => el.tabIndex === 0)) {
       rows[0].tabIndex = 0
     }
@@ -92,12 +99,15 @@ export function useGridList(options: UseGridListOptions = {}): UseGridListResult
   // Repair the roving stop as rows mount/unmount or toggle disabled.
   useEffect(() => {
     const root = ref.current
+
     if (!root) {
       return
     }
 
     repairTabStop()
+
     const mo = new MutationObserver(repairTabStop)
+
     mo.observe(root, {
       childList: true,
       subtree: true,
@@ -112,6 +122,7 @@ export function useGridList(options: UseGridListOptions = {}): UseGridListResult
     (raw: unknown) => {
       const e = raw as KeyboardEvent
       const root = ref.current
+
       if (!root) {
         return
       }
@@ -124,7 +135,9 @@ export function useGridList(options: UseGridListOptions = {}): UseGridListResult
 
       const move = (delta: number) => {
         e.preventDefault()
+
         const next = index < 0 ? (delta > 0 ? 0 : rows.length - 1) : index + delta
+
         focusAt(next)
       }
 
@@ -164,12 +177,14 @@ export function useGridList(options: UseGridListOptions = {}): UseGridListResult
   const onFocus = useCallback((raw: unknown) => {
     const e = raw as FocusEvent
     const root = ref.current
+
     if (!root) {
       return
     }
 
     const selector = opts.current.rowSelector ?? '[role="row"]'
     const target = (e.target as HTMLElement | null)?.closest?.(selector) as HTMLElement | null
+
     if (!target) {
       return
     }

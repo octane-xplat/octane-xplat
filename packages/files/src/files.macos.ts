@@ -21,6 +21,7 @@ import type {
 
 function fileURL(uri: string): any {
   const host = globalThis as any
+
   if (!uri.startsWith('/') && !uri.startsWith('file:')) {
     throw new Error(`Not a local file: ${uri}`)
   }
@@ -28,6 +29,7 @@ function fileURL(uri: string): any {
   const url = uri.startsWith('file:')
     ? host.NSURL.URLWithString(uri)
     : host.NSURL.fileURLWithPath(uri)
+
   if (!url || !url.isFileURL) {
     throw new Error(`Not a local file: ${uri}`)
   }
@@ -37,6 +39,7 @@ function fileURL(uri: string): any {
 
 function writeData(url: any, data: any): void {
   const scoped = url.startAccessingSecurityScopedResource?.() ?? false
+
   try {
     if (!data || !data.writeToURLAtomically(url, true)) {
       throw new Error(`Failed to write file: ${String(url.path)}`)
@@ -50,9 +53,11 @@ function writeData(url: any, data: any): void {
 
 function documentsURL(name: string): any {
   assertSafeFileName(name)
+
   const host = globalThis as any
   const manager = host.NSFileManager.defaultManager
   const directory = manager.URLsForDirectoryInDomains(9, 1).firstObject
+
   if (
     !directory ||
     !manager.createDirectoryAtURLWithIntermediateDirectoriesAttributesError(
@@ -75,17 +80,20 @@ function byteData(bytes: Uint8Array): any {
 function openPanel(accept = '*/*', multiple = false, opts?: FilePickOptions): FileRef[] | null {
   const appKit = globalThis as any
   const Panel = appKit.NSOpenPanel
+
   if (!Panel?.openPanel) {
     throw new Error('AppKit NSOpenPanel is unavailable in this macOS host')
   }
 
   const panel = Panel.openPanel()
+
   panel.canChooseFiles = true
   panel.canChooseDirectories = false
   panel.allowsMultipleSelection = multiple
   if (opts?.startingFolder) {
     panel.directoryURL = fileURL(opts.startingFolder)
   }
+
   applyAppKitFileTypeFilter(panel, accept, appKit)
 
   if (panel.runModal() !== (appKit.NSModalResponseOK ?? 1)) {
@@ -93,8 +101,10 @@ function openPanel(accept = '*/*', multiple = false, opts?: FilePickOptions): Fi
   }
 
   const urls: any[] = []
+
   if (multiple) {
     const selected = panel.URLs
+
     for (let index = 0; index < Number(selected?.count ?? 0); index++) {
       urls.push(selected.objectAtIndex(index))
     }
@@ -122,6 +132,7 @@ export const files: Files = {
     const host = globalThis as any
     const bytes = await files.readBytes(file)
     const text = host.NSString.alloc().initWithDataEncoding(byteData(bytes), 4)
+
     if (text == null) {
       throw new Error(`File is not valid UTF-8: ${file.uri}`)
     }
@@ -130,10 +141,12 @@ export const files: Files = {
   },
   async readBytes(file: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
     throwIfAborted(opts?.signal)
+
     const host = globalThis as any
     const url = fileURL(file.uri)
     const scoped = url.startAccessingSecurityScopedResource?.() ?? false
     let handle: any
+
     try {
       handle = host.NSFileHandle.fileHandleForReadingAtPath(String(url.path))
       if (!handle) {
@@ -142,12 +155,15 @@ export const files: Files = {
 
       const chunks: Uint8Array[] = []
       let total = 0
+
       while (true) {
         throwIfAborted(opts?.signal)
+
         const length =
           opts?.maxBytes == null ? 65536 : Math.max(1, Math.min(65536, opts.maxBytes - total + 1))
 
         const data = handle.readDataOfLength(length)
+
         if (!data || Number(data.length) === 0) {
           break
         }
@@ -177,11 +193,13 @@ export const files: Files = {
   async writeText(name: string, text: string): Promise<FileRef> {
     const url = documentsURL(name)
     const data = (globalThis as any).NSString.stringWithString(text).dataUsingEncoding(4)
+
     writeData(url, data)
     return { name, uri: String(url.path) }
   },
   async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
     const url = documentsURL(name)
+
     writeData(url, byteData(bytes))
     return { name, uri: String(url.path) }
   },
@@ -194,18 +212,25 @@ export const files: Files = {
     if (exporting) {
       throw exportBusy()
     }
+
     const host = globalThis as any
+
     if (!host.NSSavePanel?.savePanel) {
       return 'unavailable'
     }
+
     exporting = true
     try {
       // Yield before runModal so concurrent callers observe the busy state.
       await Promise.resolve()
+
       const panel = host.NSSavePanel.savePanel()
+
       panel.nameFieldStringValue = name
       panel.canCreateDirectories = true
+
       const extensions = opts?.mimeType ? MIME_EXTENSIONS[opts.mimeType.toLowerCase()] : undefined
+
       if (extensions?.length) {
         panel.allowedFileTypes = extensions
       }
@@ -232,12 +257,14 @@ export const files: Files = {
     // registered for a later retry instead of throwing from a void API.
     const host = globalThis as any
     const owned: Set<string> | undefined = host.__xplatTemporaryFiles
+
     if (!owned?.has(file.uri)) {
       return
     }
 
     try {
       const manager = host.NSFileManager.defaultManager
+
       if (!manager.fileExistsAtPath(file.uri) || manager.removeItemAtPathError(file.uri, null)) {
         owned.delete(file.uri)
       }

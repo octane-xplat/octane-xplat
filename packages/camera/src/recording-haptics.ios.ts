@@ -9,18 +9,23 @@ export type RecordingHapticsLease = () => void
 
 export function acquireRecordingHaptics(): RecordingHapticsLease {
   const session = AVAudioSession.sharedInstance()
+
   if (owners === 0) {
     previous = session.allowHapticsAndSystemSoundsDuringRecording
     if (!previous && !session.setAllowHapticsAndSystemSoundsDuringRecordingError(true, undefined)) {
       throw new Error('Could not allow haptics and system sounds during recording')
     }
   }
+
   owners++
+
   let released = false
+
   return () => {
     if (released) {
       return
     }
+
     released = true
     owners--
     // Respect an external owner that has already disabled the policy. External

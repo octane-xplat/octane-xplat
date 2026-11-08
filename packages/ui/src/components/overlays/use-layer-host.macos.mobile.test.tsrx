@@ -31,7 +31,9 @@ describe('useLayer AppKit host content', () => {
   it('updates an open popup without reopening and closes it on unmount', async () => {
     const popup = { update: vi.fn(), close: vi.fn() }
     const showLayer = vi.fn((_options: any) => popup)
+
     vi.stubGlobal('__xplatAppKit', { showLayer })
+
     const root = createUniversalRoot(
       createObjectContainer('nativescript'),
       createObjectDriver('nativescript'),
@@ -72,6 +74,7 @@ describe('AppKit layer geometry contract', () => {
       showLayer = vi.fn((_options: any) => popup)
 
     vi.stubGlobal('__xplatAppKit', { showLayer })
+
     const root = createUniversalRoot(
       createObjectContainer('nativescript'),
       createObjectDriver('nativescript'),
@@ -127,6 +130,7 @@ describe('AppKit imperative layer lifecycle', () => {
       showLayer = vi.fn(() => ({ close, update: vi.fn() }))
 
     vi.stubGlobal('__xplatAppKit', { showLayer })
+
     const root = createUniversalRoot(
       createObjectContainer('nativescript'),
       createObjectDriver('nativescript'),
@@ -154,7 +158,9 @@ describe('AppKit imperative layer lifecycle', () => {
 
   it('does not report an open layer when the host cannot present', () => {
     const onShow = vi.fn()
+
     vi.stubGlobal('__xplatAppKit', { showLayer: () => null })
+
     const root = createUniversalRoot(
       createObjectContainer('nativescript'),
       createObjectDriver('nativescript'),

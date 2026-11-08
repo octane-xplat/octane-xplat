@@ -10,13 +10,16 @@ function transport(profile: any): ConnectionType {
       return 'mobile'
     }
   } catch {}
+
   try {
     if (profile.IsWlanConnectionProfile === true) {
       return 'wifi'
     }
   } catch {}
+
   try {
     const type = profile.NetworkAdapter?.IanaInterfaceType
+
     if (type === 6) {
       return 'ethernet'
     }
@@ -25,6 +28,7 @@ function transport(profile: any): ConnectionType {
       return 'wifi'
     }
   } catch {}
+
   return 'unknown'
 }
 
@@ -32,11 +36,13 @@ function transport(profile: any): ConnectionType {
 export function readWindowsConnectivity(): ConnectivityState {
   try {
     const api = Windows?.Networking?.Connectivity
+
     if (typeof api?.NetworkInformation?.GetInternetConnectionProfile !== 'function') {
       return unavailable()
     }
 
     const profile = api.NetworkInformation.GetInternetConnectionProfile()
+
     if (profile === null) {
       return offline()
     }
@@ -47,6 +53,7 @@ export function readWindowsConnectivity(): ConnectivityState {
 
     const level = profile.GetNetworkConnectivityLevel()
     const levels = api.NetworkConnectivityLevel
+
     if (
       !Number.isInteger(level) ||
       typeof levels?.None !== 'number' ||

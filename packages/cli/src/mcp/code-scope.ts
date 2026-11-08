@@ -93,6 +93,7 @@ export const MAX_FILES_PER_CORPUS = 8000
 
 const within = (dir, root) => {
   const r = resolve(root)
+
   return dir === r || dir.startsWith(r + sep)
 }
 
@@ -101,6 +102,7 @@ const posix = (path) => path.split(sep).join('/')
 /** The corpus-relative exclusion check. Returns the reason or null. */
 export function exclusionReason(relPath) {
   const parts = relPath.split('/')
+
   for (const part of parts.slice(0, -1)) {
     if (SKIP_DIRS.has(part) || SECRET_DIRS.has(part) || part.startsWith('.')) {
       return 'excluded-directory'
@@ -108,6 +110,7 @@ export function exclusionReason(relPath) {
   }
 
   const name = parts[parts.length - 1]
+
   if (name.startsWith('.')) {
     return 'dotfile'
   }
@@ -121,6 +124,7 @@ export function exclusionReason(relPath) {
   }
 
   const ext = name.includes('.') ? name.split('.').pop() : ''
+
   if (!CODE_EXTENSIONS.has(ext)) {
     return 'not-code'
   }
@@ -132,6 +136,7 @@ export function exclusionReason(relPath) {
 function isBinary(file) {
   try {
     const fd = readFileSync(file, { encoding: 'utf8', flag: 'r' })
+
     return fd.includes('\0')
   } catch {
     return true
@@ -157,6 +162,7 @@ const SUFFIX_PLATFORMS = {
 export function filePlatforms(relPath) {
   const found = new Set()
   const parts = relPath.split('/')
+
   for (const part of parts.slice(0, -1)) {
     for (const p of SUFFIX_PLATFORMS[part] ?? []) {
       found.add(p)
@@ -165,6 +171,7 @@ export function filePlatforms(relPath) {
 
   const stem = basename(relPath)
   const tier = /\.([a-z]+)\.[^.]+$/.exec(stem)?.[1]
+
   for (const p of SUFFIX_PLATFORMS[tier] ?? []) {
     found.add(p)
   }
@@ -179,6 +186,7 @@ export function appliesToPlatform(relPath, platform) {
   }
 
   const marks = filePlatforms(relPath)
+
   return marks.length === 0 || marks.includes(platform)
 }
 
@@ -193,6 +201,7 @@ export function listCorpusFiles(root, { platform, limit = MAX_FILES_PER_CORPUS }
     }
 
     let entries
+
     try {
       entries = readdirSync(dir, { withFileTypes: true })
     } catch {
@@ -207,6 +216,7 @@ export function listCorpusFiles(root, { platform, limit = MAX_FILES_PER_CORPUS }
 
       const relPath = rel ? `${rel}/${entry.name}` : entry.name
       const path = join(dir, entry.name)
+
       if (entry.isDirectory()) {
         if (
           SKIP_DIRS.has(entry.name) ||
@@ -229,6 +239,7 @@ export function listCorpusFiles(root, { platform, limit = MAX_FILES_PER_CORPUS }
       }
 
       const stat = statSync(path, { throwIfNoEntry: false })
+
       if (!stat || stat.size > MAX_FILE_BYTES || stat.size === 0) {
         continue
       }
@@ -254,6 +265,7 @@ export function listCorpusFiles(root, { platform, limit = MAX_FILES_PER_CORPUS }
 export function frameworkRoots(appRoot) {
   const install = resolveInstallations(appRoot)
   const roots = []
+
   for (const pkg of install.packages) {
     if (!pkg.installPath) {
       continue
@@ -264,11 +276,13 @@ export function frameworkRoots(appRoot) {
     // package store (a real workspace/dev checkout).
     const real = safeRealpath(pkg.installPath) ?? pkg.installPath
     const linked = pkg.kind === 'linked' && !real.includes(`${sep}.pnpm${sep}`)
+
     if (!existsSync(real)) {
       continue
     }
 
     const srcDir = join(real, 'src')
+
     roots.push({
       corpus: 'framework',
       package: pkg.name,
@@ -300,6 +314,7 @@ export function frameworkRepoRoots(workspaceRoot) {
   const dir = join(workspaceRoot, 'packages')
   const roots = []
   let entries
+
   try {
     entries = readdirSync(dir, { withFileTypes: true })
   } catch {
@@ -313,11 +328,13 @@ export function frameworkRepoRoots(workspaceRoot) {
 
     const pkgRoot = join(dir, entry.name)
     const srcDir = join(pkgRoot, 'src')
+
     if (!existsSync(srcDir)) {
       continue
     }
 
     let name = entry.name
+
     try {
       name = JSON.parse(readFileSync(join(pkgRoot, 'package.json'), 'utf8')).name ?? name
     } catch {
@@ -341,6 +358,7 @@ export function frameworkRepoRoots(workspaceRoot) {
 /** All corpora available for a bound app inside a workspace. */
 export function collectCorpora({ workspaceRoot, workspaceKind, app }) {
   const corpora = []
+
   if (app) {
     corpora.push({
       corpus: 'app',
@@ -362,8 +380,10 @@ export function collectCorpora({ workspaceRoot, workspaceKind, app }) {
   // The app corpus can itself live inside a framework repo's packages/* —
   // dedupe identical roots so hits are not doubled.
   const seen = new Set()
+
   return corpora.filter((c) => {
     const key = `${c.corpus}:${c.package ?? ''}:${c.root}`
+
     if (seen.has(key)) {
       return false
     }
@@ -383,6 +403,7 @@ export function codeRef(corpus, key) {
 
 export function parseCodeRef(ref) {
   const m = /^xplat-code:\/\/(app|framework)\/(.+)$/.exec(ref)
+
   return m ? { corpus: m[1], key: m[2] } : null
 }
 
@@ -393,6 +414,7 @@ function resolveCorpusFile(corpus, abs, key) {
 
   const exclusionRoot = corpus.packageRoot ?? corpus.root
   const excluded = exclusionReason(posix(relative(exclusionRoot, abs)))
+
   if (excluded) {
     return { error: 'excluded', detail: `${key} is excluded (${excluded})` }
   }
@@ -402,18 +424,23 @@ function resolveCorpusFile(corpus, abs, key) {
   const real = safeRealpath(abs)
   const root = safeRealpath(corpus.root)
   const realExclusionRoot = safeRealpath(exclusionRoot)
+
   if (!real || !root || !realExclusionRoot) {
     return { error: 'unavailable' }
   }
+
   if (!within(real, root)) {
     return { error: 'out-of-scope' }
   }
+
   const targetExcluded = exclusionReason(posix(relative(realExclusionRoot, real)))
+
   if (targetExcluded) {
     return { error: 'excluded', detail: `${key} is excluded (${targetExcluded})` }
   }
 
   const rel = posix(relative(corpus.root, abs))
+
   return {
     abs: real,
     rel,
@@ -439,12 +466,14 @@ export function resolveCodePath({ corpora, corpus, key }) {
 
   if (corpus === 'app') {
     const c = corpora.find((entry) => entry.corpus === 'app')
+
     if (!c) {
       return { error: 'unavailable', detail: 'no app corpus (no bound app)' }
     }
 
     // Keys are workspace-relative; the app root may be nested inside it.
     const abs = resolve(c.base ?? c.root, key)
+
     return resolveCorpusFile(c, abs, key)
   }
 
@@ -464,6 +493,7 @@ export function resolveCodePath({ corpora, corpus, key }) {
   const inner = key.slice(c.package.length + 1)
 
   const abs = resolve(c.root, inner)
+
   return resolveCorpusFile(c, abs, key)
 }
 

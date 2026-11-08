@@ -77,14 +77,17 @@ const VAR_REF = /^var\((--[\w-]+)\)$/
 
 function resolveVar(value, tokens) {
   let v = value
+
   for (let i = 0; i < 4; i++) {
     const m = VAR_REF.exec(v)
+
     if (!m) {
       return v
     }
 
     v = tokens[m[1]] ?? DEFAULT_FALLBACKS[m[1]] ?? v
   }
+
   return v
 }
 
@@ -96,10 +99,12 @@ function extractComponentVars(css, name, tokens) {
   const cardRe = /\.astryx-card\s*\{/g
   const declRe = /(--[\w-]+)\s*:\s*([^;]+);/g
   let m
+
   while ((m = scopeRe.exec(css))) {
     const start = css.indexOf('{', m.index)
     let depth = 1
     let i = start + 1
+
     for (; i < css.length; i++) {
       if (css[i] === '{') {
         depth++
@@ -113,10 +118,12 @@ function extractComponentVars(css, name, tokens) {
 
     const body = css.slice(start + 1, i)
     let cm
+
     while ((cm = cardRe.exec(body))) {
       const bs = cm.index + cm[0].length - 1
       let bd = 1
       let bi = bs + 1
+
       for (; bi < body.length; bi++) {
         if (body[bi] === '{') {
           bd++
@@ -130,6 +137,7 @@ function extractComponentVars(css, name, tokens) {
 
       const inner = body.slice(bs + 1, bi)
       let em
+
       while ((em = declRe.exec(inner))) {
         if (COMPONENT_VARS.includes(em[1])) {
           vars[em[1]] = resolveVar(em[2].trim(), tokens)
@@ -137,13 +145,16 @@ function extractComponentVars(css, name, tokens) {
       }
     }
   }
+
   return vars
 }
 
 function splitTopLevel(body) {
   let depth = 0
+
   for (let i = 0; i < body.length; i++) {
     const c = body[i]
+
     if (c === '(') {
       depth++
     } else if (c === ')') {
@@ -152,6 +163,7 @@ function splitTopLevel(body) {
       return i
     }
   }
+
   return -1
 }
 
@@ -165,10 +177,12 @@ function extractTokens(css, name) {
   const tokens = {}
   const re = /(--[\w-]+)\s*:\s*([^;]+);/g
   let m
+
   while ((m = scopeRe.exec(css))) {
     const start = css.indexOf('{', m.index)
     let depth = 1
     let i = start + 1
+
     for (; i < css.length; i++) {
       if (css[i] === '{') {
         depth++
@@ -184,10 +198,12 @@ function extractTokens(css, name) {
     // Top-level `:scope { ... }` sub-blocks only.
     const scopeBlockRe = /(?:^|\})\s*:scope\s*\{/g
     let sm
+
     while ((sm = scopeBlockRe.exec(body))) {
       const bs = body.indexOf('{', sm.index)
       let bd = 1
       let bi = bs + 1
+
       for (; bi < body.length; bi++) {
         if (body[bi] === '{') {
           bd++
@@ -201,14 +217,17 @@ function extractTokens(css, name) {
 
       const inner = body.slice(bs + 1, bi)
       let em
+
       while ((em = re.exec(inner))) {
         tokens[em[1]] = em[2].trim()
       }
     }
   }
+
   if (Object.keys(tokens).length === 0) {
     throw new Error(`no @scope tokens for ${name}`)
   }
+
   return tokens
 }
 
@@ -216,16 +235,20 @@ function toTuple(v) {
   if (!v.startsWith('light-dark(') || !v.endsWith(')')) {
     return `'${v.replace(/'/g, "\\'")}'`
   }
+
   const body = v.slice('light-dark('.length, -1)
   const idx = splitTopLevel(body)
+
   if (idx === -1) {
     return `'${v.replace(/'/g, "\\'")}'`
   }
+
   const l = body.slice(0, idx).trim().replace(/'/g, "\\'")
   const d = body
     .slice(idx + 1)
     .trim()
     .replace(/'/g, "\\'")
+
   return `['${l}', '${d}']`
 }
 
@@ -247,6 +270,7 @@ for (const name of themes) {
   const css = readFileSync(join(themesDir, name, 'dist', 'theme.css'), 'utf8')
   const tokens = extractTokens(css, name)
   const count = Object.keys(tokens).length
+
   if (count < 50) {
     console.error(`${name}: only ${count} tokens — extraction looks wrong`)
     process.exit(1)
@@ -277,6 +301,7 @@ for (const name of themes) {
   const componentVars = extractComponentVars(css, name, tokens)
 
   const lines = []
+
   for (const [k, v] of Object.entries(tokens)) {
     lines.push(`\t'${k}': ${toTuple(v)},`)
   }

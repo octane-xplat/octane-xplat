@@ -16,6 +16,7 @@ const initial = Array.from({ length: 100 }, (_, id) => ({ id, text: 'row-' + id 
 
 function Value(props: { id: string; prefix?: string }) {
   const name = useContext(Name)
+
   return (
     <label
       id={props.id}
@@ -48,6 +49,7 @@ const renderRow = (item: any) => <Value id={'owned-row-' + item.id} prefix={item
 
 function Controls() {
   const [items, setItems] = useState(initial)
+
   sheet = useImperativeBottomSheet()
   modal = useImperativeModal()
   replaceItems = () => setItems(initial.map((item) => ({ ...item, text: 'updated-' + item.id })))
@@ -63,6 +65,7 @@ function Controls() {
 export default function Case() {
   const [name, setName] = useState('Avery')
   const [open, setOpen] = useState(true)
+
   updateName = setName
   closeOwner = () => setOpen(false)
   return (
@@ -83,6 +86,7 @@ export async function run(ctx: any) {
   )
 
   const firstModal = modal.open(Content, { id: 'owned-modal' }, { animated: false })
+
   await ctx.waitFor(() => views.has('owned-modal'))
   ctx.assert('imperative modal inherits its outlet context', views.get('owned-modal').text, 'Avery')
   updateName('Jordan')
@@ -91,6 +95,7 @@ export async function run(ctx: any) {
   firstModal.close('modal-result')
   ctx.assert('modal preserves its result handle', await firstModal, 'modal-result')
   await ctx.waitFor(() => !views.has('owned-modal'))
+
   const first = sheet.open(
     Content,
     { id: 'owned-sheet-first' },
@@ -136,6 +141,7 @@ export async function run(ctx: any) {
   )
 
   const owned = sheet.open(Content, { id: 'owner-removed-sheet' }, { label: 'Owner removal' })
+
   await ctx.waitFor(() => views.has('owner-removed-sheet'))
   closeOwner()
   await owned

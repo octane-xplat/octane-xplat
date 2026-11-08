@@ -20,6 +20,7 @@ const repo = resolve(root, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-updates-consumer-'))
 const run = (cmd, args, cwd) => {
   const result = spawnSync(cmd, args, { cwd, encoding: 'utf8' })
+
   if (result.status !== 0) {
     throw new Error(result.stdout + result.stderr)
   }
@@ -29,10 +30,14 @@ try {
   mkdirSync(join(temporary, 'pack'))
   mkdirSync(join(temporary, 'unpacked'))
   run('bun', ['pm', 'pack', '--destination', join(temporary, 'pack')], root)
+
   const tarball = readdirSync(join(temporary, 'pack')).find((name) => name.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(temporary, 'pack', tarball), '-C', join(temporary, 'unpacked')], root)
+
   const packed = join(temporary, 'unpacked/package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   for (const file of [
     'native/boot.java',
     'native/boot.m',
@@ -46,12 +51,15 @@ try {
   for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
     const app = join(temporary, target)
     const modules = join(app, 'node_modules')
+
     mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
     cpSync(packed, join(modules, '@octane-xplat/updates'), { recursive: true })
     writeFileSync(join(app, 'package.json'), '{"type":"module"}')
     cpSync(join(repo, 'examples/updates/startup.mobile.ts'), join(app, 'maintained-example.ts'))
+
     const guide = readFileSync(join(repo, 'docs/app/updates.md'), 'utf8')
     const snippets = [...guide.matchAll(/```ts\n([\s\S]*?)\n```/g)].map((match) => match[1])
+
     snippets.forEach((source, index) => writeFileSync(join(app, `snippet-${index}.ts`), source))
     writeFileSync(
       join(app, 'updates.ts'),

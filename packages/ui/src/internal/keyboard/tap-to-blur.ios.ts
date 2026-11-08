@@ -22,8 +22,10 @@ import {
 } from '@octane-xplat/platform/ios'
 
 import { UIGestureRecognizerDelegate } from '@octane-xplat/platform/ios'
+
 export function attachTapToBlur(view: any): () => void {
   const marker = '__xplatTapToBlur'
+
   if (!view || view[marker]) {
     return () => {}
   }
@@ -50,6 +52,7 @@ function iosAttach() {
   }
 
   const appWin = appWindow()
+
   if (!appWin) {
     return
   }
@@ -62,9 +65,11 @@ function iosAttach() {
       {
         gestureRecognizerShouldReceiveTouch(_recognizer: any, touch: any) {
           let hit = touch.view
+
           while (hit) {
             const textField = hit.isKindOfClass(UITextField.class())
             const textView = hit.isKindOfClass(UITextView.class())
+
             if (textField || textView) {
               return false
             }
@@ -110,10 +115,12 @@ function iosDetach() {
 
 function appWindow() {
   const scenes = UIApplication.sharedApplication.connectedScenes
+
   // connectedScenes is an NSSet — `allObjects` marshals to a JS array.
   for (const scene of scenes.allObjects ?? []) {
     if (scene instanceof UIWindowScene) {
       const windows: unknown = scene.windows
+
       for (const w of typeof windows === 'object' &&
       windows !== null &&
       'allObjects' in windows &&

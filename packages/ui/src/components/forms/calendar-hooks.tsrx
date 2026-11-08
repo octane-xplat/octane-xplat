@@ -171,6 +171,7 @@ export function useCalendarNavigation(
 
   const commit = (next: PlainDate) => {
     const iso = plainDateToISO(next)
+
     if (!controlled) {
       setInternalBase(next)
     }
@@ -197,6 +198,7 @@ export function useCalendarNavigation(
     },
     navigateTo(date: ISODateString) {
       const pd = plainDateFromISO(date)
+
       if (pd) {
         commit(monthStart(pd))
       }

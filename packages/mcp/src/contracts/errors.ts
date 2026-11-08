@@ -21,6 +21,7 @@ export const CONTRACT_ERROR_CODES = [
 
 export function contractError(code, message, options = {}) {
   const error = { code, message }
+
   if (options.recovery) {
     error.recovery = options.recovery
   }

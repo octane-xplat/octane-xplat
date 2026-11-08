@@ -13,6 +13,7 @@ import { prerender } from '../src/build/prerender.ts'
 let fixture, clientBundle, serverDirectory
 const root = new URL('..', import.meta.url).pathname
 const resolve = { conditions: ['web'], extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.js'] }
+
 before(async () => {
   const bundle = await build({
     root,
@@ -22,8 +23,11 @@ before(async () => {
     ssr: { noExternal: ['@octane-xplat/ui', '@octane-xplat/lib', '@octane-xplat/platform'] },
     build: { write: false, ssr: root + '/test/fixtures/server.web.ts', minify: false },
   })
+
   serverDirectory = await mkdtemp(root + '/test/.bundle-')
+
   const path = serverDirectory + '/server.mjs'
+
   await writeFile(path, bundle.output.find((entry) => entry.type === 'chunk').code)
   fixture = await import(pathToFileURL(path).href)
 })
@@ -40,9 +44,12 @@ test('prepares HTML and metadata with explicit public transfer and response head
   const response = await fixture.handler({
     response: () => ({ status: 201, headers: { 'X-App': 'yes' } }),
   })(request('/items/coat'))
+
   assert.equal(response.status, 201)
   assert.equal(response.headers.get('X-App'), 'yes')
+
   const html = await response.text()
+
   assert.match(html, /server\/coat/)
   assert.match(html, /<title>server\/coat<\/title>/)
   assert.doesNotMatch(html, /private-secret|private-error/)
@@ -54,6 +61,7 @@ test('prepares HTML and metadata with explicit public transfer and response head
 test('preserves HTTP outcomes, hides errors, and supports HEAD', async () => {
   const errors = []
   const handler = fixture.handler({ onError: (error) => errors.push(error) })
+
   for (const [path, status] of [
     ['/absent', 404],
     ['/forbidden', 403],
@@ -65,6 +73,7 @@ test('preserves HTTP outcomes, hides errors, and supports HEAD', async () => {
     ['/redirect', 302],
   ]) {
     const response = await handler(request(path))
+
     assert.equal(response.status, status, path)
     if (status === 302) {
       assert.equal(response.headers.get('Location'), '/items/coat')
@@ -79,8 +88,11 @@ test('preserves HTTP outcomes, hides errors, and supports HEAD', async () => {
       assert.equal(await response.text(), 'Internal Server Error')
     }
   }
+
   assert.equal(errors.length, 2)
+
   const head = await handler(request('/items/coat', { method: 'HEAD' }))
+
   assert.equal(head.status, 200)
   assert.equal(await head.text(), '')
   assert.equal((await handler(request('/items/coat', { method: 'POST' }))).status, 405)
@@ -93,9 +105,11 @@ test('isolates concurrent request context and supports a component document or t
       await new Promise((resolve) =>
         setTimeout(resolve, request.headers.get('X-Viewer') === 'A' ? 20 : 1),
       )
+
       return { viewer: request.headers.get('X-Viewer') }
     },
   })
+
   const texts = await Promise.all(
     ['A', 'B'].map(async (viewer) =>
       (
@@ -103,12 +117,15 @@ test('isolates concurrent request context and supports a component document or t
       ).text(),
     ),
   )
+
   assert.match(texts[0], /A\/coat/)
   assert.doesNotMatch(texts[0], /B\/coat/)
   assert.match(texts[1], /B\/coat/)
   assert.match(texts[0], /lang="fr"/)
+
   const template =
     '<!doctype html><html><head><!--xplat:head--></head><body><nav>Template</nav><!--xplat:app--><!--xplat:scripts--></body></html>'
+
   assert.match(
     await (await fixture.handler({ template })(request('/items/coat'))).text(),
     /<nav>Template<\/nav>/,
@@ -117,10 +134,14 @@ test('isolates concurrent request context and supports a component document or t
 
 test('srvx serves assets and preserves the Fetch handler over real HTTP', async () => {
   const assets = await mkdtemp(serverDirectory + '/assets-')
+
   await writeFile(assets + '/client.js', 'globalThis.assetLoaded = true')
+
   const headers = new Headers({ 'X-App': 'srvx' })
+
   headers.append('Set-Cookie', 'first=1; Path=/; HttpOnly')
   headers.append('Set-Cookie', 'second=2; Path=/; HttpOnly')
+
   const server = serve({
     port: 0,
     hostname: '127.0.0.1',
@@ -130,26 +151,39 @@ test('srvx serves assets and preserves the Fetch handler over real HTTP', async 
       response: (match) => (match.to === '/*' ? { status: 404 } : { status: 201, headers }),
     }),
   })
+
   try {
     await server.ready()
+
     const page = await fetch(new URL('/items/coat', server.url))
+
     assert.equal(page.status, 201)
     assert.equal(page.headers.get('X-App'), 'srvx')
     assert.deepEqual(page.headers.getSetCookie(), headers.getSetCookie())
     assert.match(await page.text(), /server\/coat/)
+
     const asset = await fetch(new URL('/client.js', server.url))
+
     assert.equal(asset.status, 200)
     assert.match(asset.headers.get('Content-Type'), /javascript/)
     assert.equal(await asset.text(), 'globalThis.assetLoaded = true')
+
     const missing = await fetch(new URL('/missing.js', server.url))
+
     assert.equal(missing.status, 404)
+
     const missingHtml = await missing.text()
+
     assert.match(missingHtml, /Nothing at/)
     assert.match(missingHtml, /missing\.js/)
+
     const redirect = await fetch(new URL('/redirect', server.url), { redirect: 'manual' })
+
     assert.equal(redirect.status, 302)
     assert.equal(redirect.headers.get('Location'), '/items/coat')
+
     const head = await fetch(new URL('/items/coat', server.url), { method: 'HEAD' })
+
     assert.equal(head.status, 201)
     assert.equal(await head.text(), '')
   } finally {
@@ -165,12 +199,15 @@ test('rejects non-JSON projections and escapes script-closing data', async () =>
       500,
     )
   }
+
   const html = await (
     await fixture.handler({
       transfer: () => ({ data: { label: '</script><script>bad()</script>' }, context: {} }),
     })(request('/items/coat'))
   ).text()
+
   const dom = new JSDOM(html)
+
   assert.equal(dom.window.document.querySelectorAll('script').length, 2)
   assert.equal(dom.window.document.querySelector('script[type=module]').src, '/client.js')
   dom.window.close()
@@ -179,11 +216,13 @@ test('rejects non-JSON projections and escapes script-closing data', async () =>
 
 async function browserFor(html, url = 'http://localhost/items/coat') {
   const dom = new JSDOM(html, { url, pretendToBeVisual: true, runScripts: 'outside-only' })
+
   dom.window.matchMedia = () => ({
     matches: false,
     addEventListener() {},
     removeEventListener() {},
   })
+
   dom.window.scrollTo = () => {}
   if (!clientBundle) {
     const bundle = await build({
@@ -203,6 +242,7 @@ async function browserFor(html, url = 'http://localhost/items/coat') {
       (entry) => entry.type === 'chunk',
     ).code
   }
+
   dom.window.eval(clientBundle)
   return { dom, browser: dom.window.WebTest, document: dom.window.document }
 }
@@ -211,10 +251,12 @@ test('adopts server DOM without rerunning preparation, then uses the ordinary cl
   const html = await (await fixture.handler()(request('/items/coat'))).text()
   const { dom, browser, document } = await browserFor(html)
   let app
+
   try {
     const button = document.getElementById('item')
     const id = button.getAttribute('data-id')
     const recoveries = []
+
     app = await browser.start({ onRecoverableError: (error) => recoveries.push(error) })
     assert.deepEqual(recoveries, [])
     await new Promise((resolve) => setTimeout(resolve, 30))
@@ -226,7 +268,9 @@ test('adopts server DOM without rerunning preparation, then uses the ordinary cl
     button.click()
     await new Promise((resolve) => setTimeout(resolve, 30))
     assert.equal(button.textContent, 'server/coat:1')
+
     const result = await app.router.push({ to: '/items/:id', params: { id: 'hat' } })
+
     assert.equal(result.status, 'committed')
     assert.equal(browser.loads, 1)
     assert.equal(browser.guards, 1)
@@ -245,11 +289,15 @@ test('adopts server DOM without rerunning preparation, then uses the ordinary cl
 test('client-only documents prepare on startup and reject stale hydration before mutation', async () => {
   const before = fixture.loads
   const html = await (await fixture.handler({ mode: 'client' })(request('/items/coat'))).text()
+
   assert.equal(fixture.loads, before)
+
   const { dom, browser, document } = await browserFor(html)
   let app
+
   try {
     const content = document.body.innerHTML
+
     await assert.rejects(browser.start({ buildId: 'stale' }), /does not match/)
     assert.equal(document.body.innerHTML, content)
     app = await browser.start()
@@ -272,6 +320,7 @@ test('rejects malformed or mismatched bootstrap data before mutating DOM or hist
   const rendered = await (await fixture.handler()(request('/items/coat'))).text()
   const bootstrap = /<script id="__xplat_document"[^>]*>([\s\S]*?)<\/script>/.exec(rendered)[1]
   const staleRoute = JSON.parse(bootstrap)
+
   staleRoute.match.params = { id: 'forged' }
   for (const [document_, error] of [
     [
@@ -309,8 +358,10 @@ test('rejects malformed or mismatched bootstrap data before mutating DOM or hist
     ],
   ]) {
     const { dom, browser, document } = await browserFor(document_)
+
     try {
       const body = document.body.innerHTML
+
       await assert.rejects(browser.start(), error, document_)
       assert.equal(document.body.innerHTML, body)
       assert.equal(dom.window.location.pathname, '/items/coat')
@@ -323,8 +374,10 @@ test('rejects malformed or mismatched bootstrap data before mutating DOM or hist
 test('fails hydration before DOM or history mutation when the route module cannot load', async () => {
   const html = await (await fixture.handler()(request('/items/coat'))).text()
   const { dom, browser, document } = await browserFor(html)
+
   try {
     const node = document.getElementById('item')
+
     await assert.rejects(
       browser.start({ catalog: browser.failingCatalog }),
       /Could not load the prepared document route module/,
@@ -344,6 +397,7 @@ test('fails hydration before DOM or history mutation when the route module canno
 test('rejected initial navigation releases the root, listeners and the consumed payload', async () => {
   const html = await (await fixture.handler({ mode: 'client' })(request('/forbidden'))).text()
   const { dom, browser, document } = await browserFor(html, 'http://localhost/forbidden')
+
   try {
     await assert.rejects(browser.start(), /Initial client navigation failed/)
     assert.equal(document.getElementById('__xplat_app').innerHTML, '')
@@ -358,6 +412,7 @@ test('rejected initial navigation releases the root, listeners and the consumed 
 test('a failing initial route module releases the client root', async () => {
   const html = await (await fixture.handler({ mode: 'client' })(request('/items/coat'))).text()
   const { dom, browser, document } = await browserFor(html)
+
   try {
     await assert.rejects(
       browser.start({ catalog: browser.failingCatalog }),
@@ -374,16 +429,22 @@ test('a failing initial route module releases the client root', async () => {
 test('a splat route serves a rendered 404 document that hydrates without replaying preparation', async () => {
   const before = fixture.loads
   const response = await fixture.handler()(request('/nope/deep'))
+
   assert.equal(response.status, 404)
+
   const html = await response.text()
+
   assert.match(html, /Nothing at/)
   assert.match(html, /nope\/deep/)
   assert.match(html, /<title>Missing<\/title>/)
+
   const { dom, browser, document } = await browserFor(html, 'http://localhost/nope/deep')
   let app
+
   try {
     const node = document.getElementById('item')
     const recoveries = []
+
     app = await browser.start({ onRecoverableError: (error) => recoveries.push(error) })
     assert.deepEqual(recoveries, [])
     assert.equal(document.getElementById('item'), node, 'hydration preserves DOM identity')
@@ -402,31 +463,44 @@ async function fallbackDocument(path, overrides) {
   const renderer = fixture.renderer(overrides)
   const pageRequest = request(path)
   const page = await renderer.render(pageRequest)
+
   assert.ok(!(page instanceof Response))
+
   const response = await renderer.document(page, pageRequest, { fallback: true })
+
   return response.text()
 }
 
 test('a fallback document prepares the real URL and replaces the server markup', async () => {
   const html = await fallbackDocument('/gone/deep')
+
   assert.match(html, /"fallback":true/)
+
   const { dom, browser, document } = await browserFor(html, 'http://localhost/nope/deep')
   let app
+
   try {
     const served = document.getElementById('missing')
+
     assert.match(served.textContent, /gone\/deep/)
     await assert.rejects(browser.start({ buildId: 'stale' }), /does not match/)
     assert.equal(document.getElementById('missing'), served)
+
     const recoveries = []
+
     app = await browser.start({ onRecoverableError: (error) => recoveries.push(error) })
     assert.deepEqual(recoveries, [])
     assert.equal(browser.loads, 1, 'the browser prepares the real URL exactly once')
+
     const replaced = document.getElementById('missing')
+
     assert.notEqual(replaced, served, 'server markup is replaced, not hydrated')
     assert.match(replaced.textContent, /nope\/deep/)
     assert.equal(dom.window.location.pathname, '/nope/deep')
     assert.equal(app.router.getSnapshot().route.to, '/*')
+
     const button = document.getElementById('item')
+
     button.click()
     await new Promise((resolve) => setTimeout(resolve, 30))
     assert.equal(button.textContent, 'missing:1')
@@ -441,9 +515,11 @@ test('a fallback document served at its own URL hydrates normally', async () => 
   const html = await fallbackDocument('/gone/deep')
   const { dom, browser, document } = await browserFor(html, 'http://localhost/gone/deep')
   let app
+
   try {
     const node = document.getElementById('item')
     const recoveries = []
+
     app = await browser.start({ onRecoverableError: (error) => recoveries.push(error) })
     assert.deepEqual(recoveries, [])
     assert.equal(document.getElementById('item'), node, 'matching URLs still hydrate')
@@ -457,8 +533,10 @@ test('a fallback document served at its own URL hydrates normally', async () => 
 test('a failed fallback preparation keeps the server markup and payload untouched', async () => {
   const html = await fallbackDocument('/gone/deep')
   const { dom, browser, document } = await browserFor(html, 'http://localhost/forbidden')
+
   try {
     const body = document.body.innerHTML
+
     await assert.rejects(browser.start(), /Initial client navigation failed: forbidden/)
     assert.equal(document.body.innerHTML, body, 'the readable fallback document stays')
     assert.ok(
@@ -479,6 +557,7 @@ test('aborts preparation when the request disconnects', async () => {
   const ready = new Promise((resolve) => {
     started = resolve
   })
+
   const pending = fixture.handler({
     context: () => ({
       delay() {
@@ -487,6 +566,7 @@ test('aborts preparation when the request disconnects', async () => {
       },
     }),
   })(request('/items/coat', { signal: controller.signal }))
+
   await ready
   controller.abort(new Error('disconnected'))
   await assert.rejects(pending, /disconnected/)
@@ -511,6 +591,7 @@ test('aborts a pending transfer or pending document assets when the request disc
     controller.abort(new Error('disconnected'))
     await assert.rejects(pending, /disconnected/, option)
   }
+
   assert.equal((await fixture.handler()(request('/items/coat'))).status, 200)
 })
 
@@ -518,15 +599,20 @@ test('custom app scopes and named-stack deep links hydrate through the public ou
   const response = await fixture.handler({ App: fixture.App, stacks: ['side'] })(
     request('/@side/items/coat'),
   )
+
   assert.equal(response.status, 200)
+
   const { dom, browser, document } = await browserFor(
     await response.text(),
     'http://localhost/@side/items/coat',
   )
+
   let app
+
   try {
     const node = document.getElementById('item')
     const recoveries = []
+
     app = await browser.start({
       App: browser.App,
       stacks: ['side'],
@@ -555,29 +641,38 @@ test('incremental prerender reuses public content with fresh assets, document an
         key: 'content-v1',
       })),
   }
+
   const first = fixture.renderer()
   const before = fixture.loads
+
   assert.deepEqual(await prerender(first, options), {
     rendered: 2,
     reused: 0,
     paths: ['/items/coat', '/items/hat'],
     notFound: null,
   })
+
   assert.equal(fixture.loads, before + 2)
+
   const template =
     '<!doctype html><html><head><!--xplat:head--></head><body><nav>New document</nav><!--xplat:app--><!--xplat:scripts--></body></html>'
+
   const second = fixture.renderer({
     buildId: 'test',
     assets: { scripts: ['/current.js'], styles: ['/current.css'] },
     template,
   })
+
   assert.equal((await prerender(second, options)).reused, 2)
   assert.equal(fixture.loads, before + 2)
+
   const html = await readFile(directory + '/html/items/coat/index.html', 'utf8')
+
   assert.match(html, /New document/)
   assert.match(html, /current.js/)
   assert.match(html, /current.css/)
   assert.doesNotMatch(html, /client.js|private-secret/)
+
   const staticServer = serve({
     port: 0,
     hostname: '127.0.0.1',
@@ -585,9 +680,12 @@ test('incremental prerender reuses public content with fresh assets, document an
     middleware: [staticMiddleware({ dir: options.outDir })],
     fetch: () => new Response('Not Found', { status: 404 }),
   })
+
   try {
     await staticServer.ready()
+
     const served = await fetch(new URL('/items/coat', staticServer.url))
+
     assert.equal(served.status, 200)
     assert.equal(await served.text(), html)
   } finally {
@@ -596,9 +694,11 @@ test('incremental prerender reuses public content with fresh assets, document an
 
   const { dom, browser, document } = await browserFor(html)
   let app
+
   try {
     const node = document.getElementById('item')
     const errors = []
+
     app = await browser.start({ onRecoverableError: (error) => errors.push(error) })
     assert.equal(document.getElementById('item'), node)
     assert.deepEqual(errors, [])
@@ -607,13 +707,17 @@ test('incremental prerender reuses public content with fresh assets, document an
     app?.dispose()
     dom.window.close()
   }
+
   const nextBuild = fixture.renderer({ buildId: 'next-build' })
+
   assert.equal((await prerender(nextBuild, options)).reused, 2)
   assert.match(
     await readFile(directory + '/html/items/coat/index.html', 'utf8'),
     /"buildId":"next-build"/,
   )
+
   const changed = await options.paths()
+
   changed[0].key = 'content-v2'
   assert.deepEqual(await prerender(second, { ...options, paths: changed }), {
     rendered: 1,
@@ -621,16 +725,21 @@ test('incremental prerender reuses public content with fresh assets, document an
     paths: ['/items/coat', '/items/hat'],
     notFound: null,
   })
+
   assert.equal(
     (await prerender(second, { ...options, paths: changed, revision: 'code-v2' })).rendered,
     2,
   )
+
   assert.equal(
     (await prerender(second, { ...options, paths: [{ ...changed[0], key: null }] })).rendered,
     1,
   )
+
   await assert.rejects(readFile(directory + '/html/items/hat/index.html'), { code: 'ENOENT' })
+
   const previous = await readFile(directory + '/html/items/coat/index.html', 'utf8')
+
   for (const path of ['/redirect', '/error', '/forbidden']) {
     await assert.rejects(
       prerender(second, { ...options, paths: [{ destination: { to: path }, key: null }] }),
@@ -638,6 +747,7 @@ test('incremental prerender reuses public content with fresh assets, document an
 
     assert.equal(await readFile(directory + '/html/items/coat/index.html', 'utf8'), previous)
   }
+
   await assert.rejects(
     prerender(fixture.renderer({ response: () => ({}) }), {
       ...options,
@@ -646,6 +756,7 @@ test('incremental prerender reuses public content with fresh assets, document an
     }),
     /Cache-Control: public/,
   )
+
   await assert.rejects(
     prerender(
       fixture.renderer({
@@ -655,6 +766,7 @@ test('incremental prerender reuses public content with fresh assets, document an
     ),
     /set-cookie/,
   )
+
   assert.equal(await readFile(directory + '/html/items/coat/index.html', 'utf8'), previous)
   await writeFile(options.cacheFile, '{broken')
   assert.equal((await prerender(second, options)).rendered, 2)

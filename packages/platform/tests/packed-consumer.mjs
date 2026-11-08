@@ -43,8 +43,10 @@ try {
   // predate this tree (lib's ./capability) or are not yet published (release
   // bump) — pin the in-repo packs.
   const overrides = {}
+
   for (const dep of ['lib', 'jsx']) {
     const depPack = join(temporary, `${dep}-pack`)
+
     mkdirSync(depPack)
     execFileSync('bun', ['pm', 'pack', '--destination', depPack], {
       cwd: join(root, '..', dep),
@@ -53,6 +55,7 @@ try {
     })
 
     const depTarball = readdirSync(depPack).find((file) => file.endsWith('.tgz'))
+
     overrides[`@octane-xplat/${dep}`] = `file:${join(depPack, depTarball)}`
   }
 
@@ -74,8 +77,11 @@ try {
   })
 
   const installed = realpathSync(join(modules, 'platform'))
+
   assert.ok(installed.startsWith(temporary + '/'), 'consumer uses its installed tarball')
+
   const store = join(temporary, 'node_modules/.bun')
+
   assert.ok(!existsSync(join(temporary, 'node_modules/@nativescript/macos-node-api')))
   assert.ok(
     !readdirSync(store).some(
@@ -101,7 +107,9 @@ try {
 
     const compile = async (contents, define = {}) => {
       const entry = join(temporary, 'runtime.mjs')
+
       writeFileSync(entry, contents)
+
       const result = await build({
         root: temporary,
         configFile: false,
@@ -170,6 +178,7 @@ try {
     }
 
     const subpaths = ['', '/host', '/host/web', '/host/services', '/dev-actions']
+
     if (target === 'native') {
       subpaths.push('/testing')
     }
@@ -201,6 +210,7 @@ try {
     // Keep purpose imports separate from the root, so root re-exports cannot mask a
     // broken purpose condition. Includes canonical and existing .ts spellings.
     const purposes = await compile(purposeContents)
+
     if (target === 'macos') {
       for (const service of ['locale', 'device', 'system-bars']) {
         assert.ok(purposes.files.includes(`${installed}/src/${service}.macos.ts`))
@@ -222,6 +232,7 @@ try {
       .join('\n')
 
     const result = await compile(contents)
+
     assert.ok(
       result.files.some((file) => file.startsWith(installed + '/src/')),
       'consumer compiles installed source',
@@ -303,6 +314,7 @@ try {
 
     if (legacy.length) {
       const selected = await compile(legacyContents)
+
       if (target === 'macos') {
         for (const service of ['screen', 'safe-area', 'lifecycle', 'breakpoints']) {
           assert.ok(selected.files.includes(`${installed}/src/${service}.macos.tsrx`))

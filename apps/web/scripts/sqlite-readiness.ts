@@ -8,6 +8,7 @@ import { createServer } from 'vite'
 const webRoot = fileURLToPath(new URL('..', import.meta.url))
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -39,13 +40,16 @@ const errors = []
 try {
   await server.listen()
   browser = await browserType.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(30000)
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('console', (message) => message.type() === 'error' && errors.push(message.text()))
 
   const base = `http://127.0.0.1:${server.httpServer.address().port}/__sqlite_readiness`
   const caseId = randomUUID()
+
   await page.goto(`${base}?phase=write&case=${caseId}`)
   await page.waitForFunction(() => document.documentElement.dataset.sqliteReadiness != null)
   assert.equal(
@@ -68,6 +72,7 @@ try {
 
   const failedWorkerPage = await browser.newPage()
   let workerRequestIntercepted = false
+
   await failedWorkerPage.route(/worker\.web\.ts/, async (route) => {
     workerRequestIntercepted = true
     await route.fulfill({

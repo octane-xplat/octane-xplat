@@ -15,6 +15,7 @@ const sameView = (first: UIView, second: UIView) => first === second || first.is
 export function isNativeFrameDescendant(frame: Frame, parent: Frame): boolean {
   const childView = frame.nativeViewProtected as UIView | undefined
   const parentView = parent.nativeViewProtected as UIView | undefined
+
   return !!(
     childView &&
     parentView &&
@@ -36,18 +37,23 @@ export function attachNativeBackGesture(
     if (disposed) {
       return
     }
+
     const view = frame.nativeViewProtected as UIView | undefined
     const native = event.ios as UIPanGestureRecognizer | undefined
+
     if (!view || !native?.view || !sameView(native.view, view)) {
       return
     }
+
     const direction = view.effectiveUserInterfaceLayoutDirection === rightToLeft ? -1 : 1
     const velocity = native.velocityInView(view)
     const width = view.bounds.size.width
 
     if (event.state === GestureStateTypes.began) {
       origin = undefined
+
       const edge = direction === 1 ? event.startX : width - event.startX
+
       if (
         !pending &&
         options.canBegin() &&
@@ -60,20 +66,26 @@ export function attachNativeBackGesture(
 
       return
     }
+
     if (event.state === GestureStateTypes.cancelled) {
       origin = undefined
       return
     }
+
     if (event.state !== GestureStateTypes.ended) {
       return
     }
+
     const source = origin
+
     origin = undefined
     if (!source || pending || frame.currentPage !== source || !options.canBegin()) {
       return
     }
+
     const distance = event.deltaX * direction
     const speed = velocity.x * direction
+
     if (
       distance < 24 ||
       distance <= Math.abs(event.deltaY) ||
@@ -82,6 +94,7 @@ export function attachNativeBackGesture(
     ) {
       return
     }
+
     pending = true
     void Promise.resolve()
       .then(() => {
@@ -94,14 +107,17 @@ export function attachNativeBackGesture(
         pending = false
       })
   }
+
   // Frame's event overloads omit View gesture events. NativeScript supplies
   // PanGestureEventData for this exact event name.
   const receive = (event: EventData) => pan(event as PanGestureEventData)
+
   frame.on('pan', receive)
   return () => {
     if (disposed) {
       return
     }
+
     disposed = true
     origin = undefined
     frame.off('pan', receive)

@@ -5,6 +5,7 @@ import { transpileModule, ModuleKind, JsxEmit } from 'typescript-classic'
 import { mockNativeBoundary } from './native-boundary.ts'
 
 const scenario = process.argv[2]
+
 if (scenario === 'diagnostics') {
   process.env.OCTANE_MACOS_AUTOMATION = '1'
 } else {
@@ -26,6 +27,7 @@ const assembly: {
 } = { scenario, failure, registrations, readiness }
 
 Object.assign(globalThis, { __assembly: assembly })
+
 const boundary = mockNativeBoundary(
   undefined,
   `
@@ -62,10 +64,12 @@ const syntax = registerHooks({
   resolve(specifier, context, next) {
     if (specifier.startsWith('.') && context.parentURL) {
       const candidate = new URL(specifier + '.tsx', context.parentURL)
+
       if (existsSync(candidate)) {
         return next(candidate.href, context)
       }
     }
+
     return next(specifier, context)
   },
   load(url, context, next) {
@@ -83,22 +87,28 @@ const syntax = registerHooks({
         ).outputText,
       }
     }
+
     return next(url, context)
   },
 })
 
 const warnings: unknown[][] = []
 const priorError = console.error
+
 console.error = (...args) => warnings.push(args)
 try {
   const entry = new URL('../src/index.ts', import.meta.url).href
+
   if (scenario.startsWith('required-')) {
     await assert.rejects(import(entry), (error) => error === failure)
+
     const count = registrations.length
+
     await assert.rejects(import(entry), (error) => error === failure)
     assert.equal(registrations.length, count, 'failed native registration is never retried')
     if (scenario === 'required-activation') {
       const { activateRuntime } = await import('../src/runtime-activation.ts')
+
       assert.throws(
         () => activateRuntime(() => assert.fail('failed activation retried')),
         (error) => error === failure,
@@ -113,10 +123,13 @@ try {
   } else {
     const first = await import(entry)
     const { activateRuntime } = await import('../src/runtime-activation.ts')
+
     activateRuntime(() => assert.fail('loaded runtime must not activate twice'))
+
     const bridge = globalThis.__xplatAppKit
     const count = registrations.length
     const again = await import(entry)
+
     assert.equal(first.createMacOSRoot, again.createMacOSRoot)
     assert.equal(globalThis.__xplatAppKit, bridge)
     assert.equal(registrations.length, count)
@@ -128,9 +141,13 @@ try {
     assert.equal(bridge.keyboardEventsSupported, false)
     assert.equal(bridge.contextMenuEventsSupported, false)
     assert.throws(() => bridge.observePointerInput(() => {}), /pointer observation unavailable/)
+
     const root = first.createMacOSRoot({})
+
     assert.equal(Boolean(root.__macosDebug), scenario === 'diagnostics')
+
     const { defineUniversalComponent } = await import('octane/universal/native')
+
     root.render(
       defineUniversalComponent('macos', () => null),
       {},

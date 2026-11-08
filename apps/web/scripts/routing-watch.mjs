@@ -50,6 +50,7 @@ try {
   )
 
   await put('context.ts', "export const context = { account: 'a' }\n")
+
   const extra = (path, label) => `/** @jsxImportSource @octane-xplat/jsx/dom */
 import { defineRoute, defineRoutes } from '@octane-xplat/ui/routing/core'
 export const extra = defineRoutes([defineRoute({
@@ -113,7 +114,9 @@ createRoot(document.getElementById('app')!).render(App, {})
 
   await server.listen()
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(20000)
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('load', () => {
@@ -122,6 +125,7 @@ createRoot(document.getElementById('app')!).render(App, {})
 
   await page.goto(server.resolvedUrls.local[0])
   await page.locator('#route').filter({ hasText: 'Home' }).waitFor()
+
   async function available(path, status = 'matched') {
     await page.waitForFunction(
       ({ path, status }) => window.__routingWatch?.resolve(path) === status,
@@ -137,6 +141,7 @@ createRoot(document.getElementById('app')!).render(App, {})
 
   async function generatedContains(path, present = true) {
     const deadline = Date.now() + 20000
+
     while (
       (await readFile(join(root, 'routes.gen.contracts.ts'), 'utf8')).includes(path) !== present
     ) {

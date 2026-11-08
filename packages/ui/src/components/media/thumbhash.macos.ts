@@ -14,6 +14,7 @@ const BITMAP_INFO_RGBA_PREMULTIPLIED = 16385
 
 function imageDataSync(src: string): any {
   const match = /^data:[^,]*;base64,(.+)$/s.exec(src)
+
   if (match) {
     return host.NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
   }
@@ -64,6 +65,7 @@ async function imageData(src: string): Promise<any> {
 export async function thumbHashUri(src: string): Promise<string> {
   const data = await imageData(src)
   const rep = data && host.NSBitmapImageRep.imageRepWithData(data)
+
   if (!rep || !(rep.pixelsWide > 0 && rep.pixelsHigh > 0)) {
     throw new Error('thumbHashUri: could not decode image source')
   }
@@ -81,6 +83,7 @@ export async function thumbHashUri(src: string): Promise<string> {
     null,
     null,
   )
+
   if (!context) {
     throw new Error('thumbHashUri: could not allocate bitmap context')
   }
@@ -90,7 +93,9 @@ export async function thumbHashUri(src: string): Promise<string> {
     { origin: { x: 0, y: 0 }, size: { width: w, height: h } },
     rep.CGImage,
   )
+
   const rgba = new Uint8Array(host.interop.bufferFromData(buffer)).subarray(0, w * h * 4)
+
   unpremultiplyRGBA(rgba)
   return rgbaToThumbHashUri(w, h, rgba)
 }

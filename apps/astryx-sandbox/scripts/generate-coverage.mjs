@@ -21,6 +21,7 @@ const APP_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..'
 const args = process.argv.slice(2)
 const at = args.indexOf('--astryx')
 const astryxRoot = at >= 0 ? args[at + 1] : undefined
+
 if (!astryxRoot) {
   console.error(
     'usage: generate-coverage.mjs --astryx <path to astryx checkout at the pinned commit>',
@@ -54,8 +55,10 @@ const byRoute = new Map()
 
 // Block templates: blocks/components/<Family>/<Name>.tsx → /templates/<Name>/
 const templateSources = new Map() // route → {source, doc}
+
 for (const family of readdirSync(blocksRoot)) {
   const familyDir = path.join(blocksRoot, family)
+
   for (const file of readdirSync(familyDir)) {
     if (!file.endsWith('.tsx')) {
       continue
@@ -63,6 +66,7 @@ for (const family of readdirSync(blocksRoot)) {
 
     const name = file.slice(0, -4)
     const route = `/templates/${name}/`
+
     if (templateSources.has(route)) {
       throw new Error(`duplicate block route ${route}`)
     }
@@ -80,11 +84,13 @@ for (const family of readdirSync(blocksRoot)) {
 // Page templates: pages/<slug>/page.tsx → /templates/<slug>/
 for (const slug of readdirSync(pagesRoot)) {
   const pageFile = path.join(pagesRoot, slug, 'page.tsx')
+
   if (!existsSync(pageFile)) {
     continue
   }
 
   const route = `/templates/${slug}/`
+
   if (templateSources.has(route)) {
     throw new Error(`page slug collides with a block route ${route}`)
   }
@@ -100,8 +106,10 @@ for (const slug of readdirSync(pagesRoot)) {
 
 // Authored sandbox pages: app/(<group>)/pages/**/page.tsx → /pages/<rel>/
 const authored = new Map() // route → {source, group}
+
 for (const group of ['sandbox', 'fullscreen', 'raw']) {
   const pagesDir = path.join(sandboxSrc, `(${group})/pages`)
+
   if (!existsSync(pagesDir)) {
     continue
   }
@@ -109,10 +117,12 @@ for (const group of ['sandbox', 'fullscreen', 'raw']) {
   const walk = (dir) => {
     for (const entry of readdirSync(dir, { withFileTypes: true })) {
       const full = path.join(dir, entry.name)
+
       if (entry.isDirectory()) {
         walk(full)
       } else if (entry.name === 'page.tsx') {
         const rel = path.relative(pagesDir, path.dirname(full))
+
         authored.set(`/pages/${rel}/`, {
           source: path.relative(astryxRoot, full),
           group,
@@ -162,8 +172,10 @@ const FIXED = new Map([
 ])
 
 const rows = []
+
 for (const route of oracleRoutes) {
   const template = templateSources.get(route)
+
   if (template) {
     rows.push({ route, ...template, doc: undefined, docPath: template.doc })
     template.done = true
@@ -171,6 +183,7 @@ for (const route of oracleRoutes) {
   }
 
   const page = authored.get(route)
+
   if (page) {
     rows.push({ route, kind: 'page', ...page })
     page.done = true
@@ -178,6 +191,7 @@ for (const route of oracleRoutes) {
   }
 
   const fixed = FIXED.get(route)
+
   if (fixed) {
     rows.push({ route, ...fixed })
     continue
@@ -207,19 +221,24 @@ function sourceImports(file) {
   if (!file) {
     return {}
   }
+
   const text = readFileSync(path.join(astryxRoot, file), 'utf8')
   const result = {}
+
   for (const match of text.matchAll(importRe)) {
     const [, clause, specifier] = match
+
     if (specifier.startsWith('.') || specifier.startsWith('virtual:')) {
       continue
     }
 
     const names = new Set(result[specifier] ?? [])
+
     if (!clause) {
       names.add('*')
     } else {
       const trimmed = clause.trim()
+
       if (trimmed.startsWith('{')) {
         for (const part of trimmed.replace(/[{}]/g, '').split(',')) {
           const name = part
@@ -253,6 +272,7 @@ function sourceImports(file) {
 
     result[specifier] = [...names].sort()
   }
+
   return result
 }
 
@@ -260,8 +280,10 @@ async function docMeta(docPath) {
   if (!docPath || !existsSync(docPath)) {
     return undefined
   }
+
   const mod = await import(pathToFileURL(docPath).href)
   const doc = mod.doc ?? {}
+
   return {
     displayName: doc.displayName ?? doc.name,
     description: doc.description,
@@ -272,8 +294,10 @@ async function docMeta(docPath) {
 }
 
 const out = []
+
 for (const row of rows) {
   const meta = await docMeta(row.docPath)
+
   out.push({
     route: row.route,
     kind: row.kind,
@@ -329,6 +353,7 @@ export const pinnedRoutes: PinnedRoute[] = ${JSON.stringify(out, null, '\t')}
 `
 
 const target = path.join(APP_ROOT, 'src/coverage/pinned.ts')
+
 writeFileSync(target, emit)
 console.log(`wrote ${path.relative(process.cwd(), target)}`)
 console.log(JSON.stringify(stats))

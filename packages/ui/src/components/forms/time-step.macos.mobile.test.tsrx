@@ -10,6 +10,7 @@ import {
 import { TimeInput } from './TimeInput.macos.tsrx'
 
 afterEach(() => vi.useRealTimers())
+
 function mount(extra: any = {}) {
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -23,6 +24,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -77,6 +79,7 @@ it('uses current bounds, rejects blocked/detached handlers and preserves modifie
 
   try {
     const handler = env.input().props.onKeyDown
+
     expect(env.key('ArrowDown').prevented).toBe(true)
     expect(changed).not.toHaveBeenCalled()
     for (const extra of [
@@ -112,6 +115,7 @@ it('uses current bounds, rejects blocked/detached handlers and preserves modifie
 it('seeds an empty value from local current time and replaces a private draft only after an accepted step', () => {
   vi.useFakeTimers()
   vi.setSystemTime(new Date(2026, 2, 5, 9, 20, 11))
+
   const changed = vi.fn(),
     env = mount({ value: null, onChange: changed })
 
@@ -151,6 +155,7 @@ it('claims before reentrant onChange and holds the action guard through settleme
 
   try {
     const handler = env.input().props.onKeyDown
+
     repeat = () => {
       env.render({ ...env.base, label: 'Reentered' })
       env.key('ArrowUp', {}, handler)
@@ -210,10 +215,13 @@ it('releases a throwing forward callback and completes an accepted save after ca
 
   try {
     expect(() => env.key('ArrowUp')).toThrow('forward')
+
     const changed = vi.fn()
+
     env.render({ ...env.base, onChange: changed })
     env.key('ArrowUp')
     expect(changed).toHaveBeenCalledTimes(1)
+
     let settle!: () => void
     const save = vi.fn(
       () =>

@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-radio-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -32,10 +34,13 @@ function compiled(name, source, imports = {}, template = true) {
         },
       }).code
     : source
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -155,8 +160,10 @@ function mount(props, component = RadioGroup) {
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   root.render(component, props)
   return {
     root,
@@ -175,9 +182,12 @@ test('uncontrolled options retain a seeded default and suppress unchanged reques
   const changes = []
   const props = { options, defaultValue: 'a', onValueChange: (value) => changes.push(value) }
   const f = mount(props)
+
   try {
     await tick()
+
     const controller = f.inputs()[0].props.settings.group
+
     assert.equal(controller.selected, 'a')
     controller.requestChange('b')
     await tick()
@@ -196,11 +206,16 @@ test('controlled child parts share one controller and keep parent ownership', as
   const changes = []
   const props = { value: 'a', onValueChange: (value) => changes.push(value) }
   const f = mount(props, Children)
+
   try {
     await tick()
+
     const [a, b] = f.inputs()
+
     assert.equal(a.props.settings.group, b.props.settings.group)
+
     const controller = a.props.settings.group
+
     controller.requestChange('b')
     await tick()
     assert.equal(controller.selected, 'a')
@@ -217,10 +232,13 @@ test('real Field context inherits guards for public options and accessible group
   for (const flags of [{ disabled: true }, { readOnly: true }]) {
     const changes = []
     const f = mount({ ...flags, options, onValueChange: (value) => changes.push(value) }, InField)
+
     try {
       await tick()
+
       const input = f.inputs()[0]
       const controller = input.props.settings.group
+
       assert.equal(controller.disabled, !!flags.disabled)
       assert.equal(controller.readOnly, !!flags.readOnly)
       assert.equal(input.props.isEnabled, !flags.disabled)
@@ -235,6 +253,7 @@ test('real Field context inherits guards for public options and accessible group
 
 test('standalone item stays presentational without native activation', () => {
   const f = mount({ value: 'a', label: 'Alpha' }, RadioListItem)
+
   try {
     assert.equal(f.inputs().length, 0)
   } finally {

@@ -17,12 +17,14 @@ export function isHashPlaceholder(src: string): boolean {
 export function hashToPngBase64(src: string): string | null {
   if (src.startsWith('blurhash:')) {
     const rgba = decodeBlurHash(src.slice(9), 32, 32)
+
     return rgba ? base64Encode(rgbaToPng(32, 32, rgba)) : null
   }
 
   if (src.startsWith('thumbhash:')) {
     const hash = base64Decode(src.slice(10))
     const decoded = hash ? thumbHashToRGBA(hash) : null
+
     return decoded ? base64Encode(rgbaToPng(decoded.w, decoded.h, decoded.rgba)) : null
   }
 
@@ -35,8 +37,10 @@ const BASE83 = '0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz#$
 
 function decode83(str: string, start: number, end: number): number {
   let value = 0
+
   for (let i = start; i < end; i++) {
     const digit = BASE83.indexOf(str[i])
+
     if (digit === -1) {
       return -1
     }
@@ -49,11 +53,13 @@ function decode83(str: string, start: number, end: number): number {
 
 function srgbToLinear(value: number): number {
   const v = value / 255
+
   return v <= 0.04045 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4)
 }
 
 function linearToSrgb(value: number): number {
   const v = Math.max(0, Math.min(1, value))
+
   return v <= 0.0031308
     ? Math.round(v * 12.92 * 255 + 0.5)
     : Math.round((1.055 * Math.pow(v, 1 / 2.4) - 0.055) * 255 + 0.5)
@@ -71,18 +77,21 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
   const sizeFlag = decode83(hash, 0, 1)
   const quantisedMax = decode83(hash, 1, 2)
   const dcValue = decode83(hash, 2, 6)
+
   if (sizeFlag < 0 || quantisedMax < 0 || dcValue < 0) {
     return null
   }
 
   const numY = Math.floor(sizeFlag / 9) + 1
   const numX = (sizeFlag % 9) + 1
+
   if (hash.length !== 4 + 2 * numX * numY) {
     return null
   }
 
   const maximumValue = (quantisedMax + 1) / 166
   const colors: [number, number, number][] = new Array(numX * numY)
+
   colors[0] = [
     srgbToLinear(dcValue >> 16),
     srgbToLinear((dcValue >> 8) & 255),
@@ -91,6 +100,7 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
 
   for (let i = 1; i < numX * numY; i++) {
     const value = decode83(hash, 4 + i * 2, 6 + i * 2)
+
     if (value < 0) {
       return null
     }
@@ -98,6 +108,7 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
     const quantR = Math.floor(value / (19 * 19))
     const quantG = Math.floor(value / 19) % 19
     const quantB = value % 19
+
     colors[i] = [
       signPow((quantR - 9) / 9, 2) * maximumValue,
       signPow((quantG - 9) / 9, 2) * maximumValue,
@@ -106,16 +117,19 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
   }
 
   const pixels = new Uint8ClampedArray(width * height * 4)
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       let r = 0
       let g = 0
       let b = 0
+
       for (let j = 0; j < numY; j++) {
         for (let i = 0; i < numX; i++) {
           const basis = Math.cos((Math.PI * x * i) / width) * Math.cos((Math.PI * y * j) / height)
 
           const color = colors[i + j * numX]
+
           r += color[0] * basis
           g += color[1] * basis
           b += color[2] * basis
@@ -123,6 +137,7 @@ function decodeBlurHash(hash: string, width: number, height: number): Uint8Clamp
       }
 
       const o = (x + y * width) * 4
+
       pixels[o] = linearToSrgb(r)
       pixels[o + 1] = linearToSrgb(g)
       pixels[o + 2] = linearToSrgb(b)
@@ -147,6 +162,7 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
   if (w > 100 || h > 100) {
     throw new Error(`${w}x${h} doesn't fit in 100x100`)
   }
+
   const { PI, round, max, cos, abs } = Math
 
   // Determine the average color
@@ -154,8 +170,10 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
   let avg_g = 0
   let avg_b = 0
   let avg_a = 0
+
   for (let i = 0, j = 0; i < w * h; i++, j += 4) {
     const alpha = rgba[j + 3] / 255
+
     avg_r += (alpha / 255) * rgba[j]
     avg_g += (alpha / 255) * rgba[j + 1]
     avg_b += (alpha / 255) * rgba[j + 2]
@@ -183,6 +201,7 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
     const r = avg_r * (1 - alpha) + (alpha / 255) * rgba[j]
     const g = avg_g * (1 - alpha) + (alpha / 255) * rgba[j + 1]
     const b = avg_b * (1 - alpha) + (alpha / 255) * rgba[j + 2]
+
     l[i] = (r + g + b) / 3
     p[i] = (r + g) / 2 - b
     q[i] = r - g
@@ -195,9 +214,11 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
     const ac: number[] = []
     let scale = 0
     const fx: number[] = []
+
     for (let cy = 0; cy < ny; cy++) {
       for (let cx = 0; cx * ny < nx * (ny - cy); cx++) {
         let f = 0
+
         for (let x = 0; x < w; x++) {
           fx[x] = cos((PI / w) * cx * (x + 0.5))
         }
@@ -226,6 +247,7 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
 
     return [dc, ac, scale]
   }
+
   const [l_dc, l_ac, l_scale] = encodeChannel(l, max(3, lx), max(3, ly))
   const [p_dc, p_ac, p_scale] = encodeChannel(p, 3, 3)
   const [q_dc, q_ac, q_scale] = encodeChannel(q, 3, 3)
@@ -239,11 +261,13 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
     (round(31.5 + 31.5 * q_dc) << 12) |
     (round(31 * l_scale) << 18) |
     ((hasAlpha ? 1 : 0) << 23)
+
   const header16 =
     (isLandscape ? ly : lx) |
     (round(63 * p_scale) << 3) |
     (round(63 * q_scale) << 9) |
     ((isLandscape ? 1 : 0) << 15)
+
   const hash = [
     header24 & 255,
     (header24 >> 8) & 255,
@@ -251,8 +275,10 @@ export function rgbaToThumbHash(w: number, h: number, rgba: ArrayLike<number>): 
     header16 & 255,
     header16 >> 8,
   ]
+
   const ac_start = hasAlpha ? 6 : 5
   let ac_index = 0
+
   if (hasAlpha) {
     hash.push(round(15 * a_dc) | (round(15 * a_scale) << 4))
   }
@@ -278,6 +304,7 @@ export function rgbaToThumbHashUri(w: number, h: number, rgba: ArrayLike<number>
  *  downscale first. Returns the ≤100px target preserving aspect. */
 export function thumbHashTargetSize(w: number, h: number): [number, number] {
   const scale = Math.min(1, 100 / Math.max(w, h))
+
   return [Math.max(1, Math.round(w * scale)), Math.max(1, Math.round(h * scale))]
 }
 
@@ -287,6 +314,7 @@ export function thumbHashTargetSize(w: number, h: number): [number, number] {
 export function unpremultiplyRGBA(rgba: Uint8Array): void {
   for (let i = 3; i < rgba.length; i += 4) {
     const a = rgba[i]
+
     if (a !== 0 && a !== 255) {
       rgba[i - 3] = Math.min(255, Math.round((rgba[i - 3] * 255) / a))
       rgba[i - 2] = Math.min(255, Math.round((rgba[i - 2] * 255) / a))
@@ -301,6 +329,7 @@ function thumbHashToApproximateAspectRatio(hash: Uint8Array): number {
   const isLandscape = (hash[4] & 0x80) !== 0
   const lx = isLandscape ? (hasAlpha ? 5 : 7) : header & 7
   const ly = isLandscape ? header & 7 : hasAlpha ? 5 : 7
+
   return lx / ly
 }
 
@@ -330,9 +359,11 @@ export function thumbHashToRGBA(
   let ac_index = 0
   const decodeChannel = (nx: number, ny: number, scale: number) => {
     const ac: number[] = []
+
     for (let cy = 0; cy < ny; cy++) {
       for (let cx = cy ? 0 : 1; cx * ny < nx * (ny - cy); cx++) {
         const byte = hash[ac_start + (ac_index >> 1)]
+
         if (byte === undefined) {
           return null
         }
@@ -348,6 +379,7 @@ export function thumbHashToRGBA(
   const p_ac = decodeChannel(3, 3, p_scale * 1.25)
   const q_ac = decodeChannel(3, 3, q_scale * 1.25)
   const a_ac = hasAlpha ? decodeChannel(5, 5, a_scale) : null
+
   if (!l_ac || !p_ac || !q_ac || (hasAlpha && !a_ac)) {
     return null
   }
@@ -358,12 +390,14 @@ export function thumbHashToRGBA(
   const rgba = new Uint8Array(w * h * 4)
   const fx: number[] = []
   const fy: number[] = []
+
   for (let y = 0, i = 0; y < h; y++) {
     for (let x = 0; x < w; x++, i += 4) {
       let l = l_dc
       let p = p_dc
       let q = q_dc
       let a = a_dc
+
       for (let cx = 0, n = max(lx, hasAlpha ? 5 : 3); cx < n; cx++) {
         fx[cx] = cos((PI / w) * (x + 0.5) * cx)
       }
@@ -381,6 +415,7 @@ export function thumbHashToRGBA(
       for (let cy = 0, j = 0; cy < 3; cy++) {
         for (let cx = cy ? 0 : 1, fy2 = fy[cy] * 2; cx < 3 - cy; cx++, j++) {
           const f = fx[cx] * fy2
+
           p += p_ac[j] * f
           q += q_ac[j] * f
         }
@@ -397,6 +432,7 @@ export function thumbHashToRGBA(
       const b = l - (2 / 3) * p
       const r = (3 * l - b + q) / 2
       const g = r - q
+
       rgba[i] = max(0, 255 * min(1, r))
       rgba[i + 1] = max(0, 255 * min(1, g))
       rgba[i + 2] = max(0, 255 * min(1, b))
@@ -467,10 +503,12 @@ function rgbaToPng(w: number, h: number, rgba: Uint8ClampedArray | Uint8Array): 
 
   let a = 1
   let b = 0
+
   for (let y = 0, i = 0, end = row - 1; y < h; y++, end += row - 1) {
     bytes.push(y + 1 < h ? 0 : 1, row & 255, row >> 8, ~row & 255, (row >> 8) ^ 255, 0)
     for (b = (b + a) % 65521; i < end; i++) {
       const u = rgba[i] & 255
+
       bytes.push(u)
       a = (a + u) % 65521
       b = (b + a) % 65521
@@ -505,6 +543,7 @@ function rgbaToPng(w: number, h: number, rgba: Uint8ClampedArray | Uint8Array): 
     [37, 41 + idat],
   ]) {
     let c = ~0
+
     for (let i = start; i < end; i++) {
       c ^= bytes[i]
       c = (c >>> 4) ^ PNG_CRC_TABLE[c & 15]
@@ -525,10 +564,12 @@ const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012345
 
 function base64Encode(bytes: number[] | Uint8Array): string {
   let out = ''
+
   for (let i = 0; i < bytes.length; i += 3) {
     const b0 = bytes[i]
     const b1 = i + 1 < bytes.length ? bytes[i + 1] : 0
     const b2 = i + 2 < bytes.length ? bytes[i + 2] : 0
+
     out += BASE64_CHARS[b0 >> 2]
     out += BASE64_CHARS[((b0 & 3) << 4) | (b1 >> 4)]
     out += i + 1 < bytes.length ? BASE64_CHARS[((b1 & 15) << 2) | (b2 >> 6)] : '='
@@ -544,8 +585,10 @@ function base64Decode(text: string): Uint8Array | null {
   let out = 0
   let acc = 0
   let bits = 0
+
   for (const ch of clean) {
     const digit = BASE64_CHARS.indexOf(ch)
+
     if (digit === -1) {
       return null
     }

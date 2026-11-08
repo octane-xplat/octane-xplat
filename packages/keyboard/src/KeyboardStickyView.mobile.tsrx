@@ -18,9 +18,12 @@ export function KeyboardStickyView(props: KeyboardStickyViewProps): unknown @{
   const safe = useContext(ConsumedInsetsContext)
   const ancestor = useContext(KeyboardAvoidanceContext)
   const latest = useRef({ props, safe, ancestor })
+
   latest.current = { props, safe, ancestor }
+
   const binding = useRef<KeyboardHostBinding | null>(null)
   const enabled = props.enabled ?? true
+
   useEffect(() => {
     if (!host || !enabled) {
       return
@@ -28,6 +31,7 @@ export function KeyboardStickyView(props: KeyboardStickyViewProps): unknown @{
 
     const own = bindKeyboardHost(host, () => {
       const current = latest.current
+
       return {
         openOffset: current.props.openOffset,
         closedOffset: current.props.closedOffset,

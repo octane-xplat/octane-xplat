@@ -12,6 +12,7 @@ export const host: ShortcutHost = {
     const view = target as any
     const editor =
       typeof view?.currentEditor === 'function' ? view.currentEditor() : view?.currentEditor
+
     return Boolean(
       view &&
       (editor ||
@@ -22,15 +23,18 @@ export const host: ShortcutHost = {
   subscribe(target, callbacks) {
     const view = unwrap(target)
     const api = bridge()
+
     if (!view?.window || !api?.keyboardEventsSupported || !api.observeViewKeys) {
       throw new Error('Shortcuts require an attached AppKit renderer view and its keyboard bridge')
     }
+
     const releases: (() => void)[] = []
     let active = true
     const receive = (type: string, input: any) => {
       if (!active) {
         return
       }
+
       const path = pathFrom(input.target, (node) => node.superview ?? node.window)
       const event: ShortcutEvent = {
         type,
@@ -50,11 +54,14 @@ export const host: ShortcutHost = {
         stopPropagation: () => input.stopPropagation(),
         composedPath: () => [...path],
       }
+
       if (type === 'keydown') {
         callbacks.capture?.(event)
       }
+
       callbacks.key(event)
     }
+
     try {
       releases.push(
         api.observeViewKeys(view, {
@@ -65,6 +72,7 @@ export const host: ShortcutHost = {
 
       const native = globalThis as any
       const center = native.NSNotificationCenter?.defaultCenter
+
       if (center) {
         for (const name of ['NSWindowDidResignKeyNotification', 'NSWindowWillCloseNotification']) {
           const token = center.addObserverForNameObjectQueueUsingBlock(
@@ -86,6 +94,7 @@ export const host: ShortcutHost = {
       cleanupAll(releases)
       throw error
     }
+
     return () => {
       if (active) {
         active = false

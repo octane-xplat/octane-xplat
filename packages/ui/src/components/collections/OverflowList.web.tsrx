@@ -9,6 +9,7 @@ import { computeOverflow } from './overflow-math'
 import { toChildArray } from '../../internal/rendering/child-array'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 /** OverflowList — renders the subset of children that fits the row (or a
  *  configured count/row cap) and hands the remainder to
  *  `overflowRenderer`. Measures a hidden inert copy + the indicator
@@ -32,14 +33,17 @@ function OverflowListImpl(props: OverflowListProps): JSX.Element @{
   const calculate = useCallback(() => {
     const container = containerEl.current
     const measure = measureEl.current
+
     if (!container || !measure) {
       return
     }
 
     let availableWidth: number
     const parent = container.parentElement
+
     if (observeParent && parent) {
       const parentStyle = getComputedStyle(parent)
+
       availableWidth =
         parent.clientWidth -
         parseFloat(parentStyle.paddingLeft || '0') -
@@ -94,14 +98,18 @@ function OverflowListImpl(props: OverflowListProps): JSX.Element @{
   useEffect(() => {
     const container = containerEl.current
     const measure = measureEl.current
+
     if (!container || !measure) {
       return
     }
 
     const target = observeParent && container.parentElement ? container.parentElement : container
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(calculate) : null
+
     ro?.observe(target)
+
     const mo = new MutationObserver(calculate)
+
     mo.observe(measure, { childList: true, subtree: true, characterData: true })
     calculate()
     return () => {
@@ -129,6 +137,7 @@ function OverflowListImpl(props: OverflowListProps): JSX.Element @{
   const overflowKey = JSON.stringify(overflowItems.map(({ index }) => index))
   const reportedKeyRef = useRef<string>('[]')
   const overflowItemsRef = useRef(overflowItems)
+
   overflowItemsRef.current = overflowItems
 
   useEffect(() => {

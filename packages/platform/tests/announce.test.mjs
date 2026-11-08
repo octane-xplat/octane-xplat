@@ -23,6 +23,7 @@ function load() {
         // Evaluate the real module in this context so globalThis reads the
         // same __xplatAppKit the test mutates.
         const inner = { exports: {} }
+
         vm.runInNewContext(`(function(exports){${hostCompiled}\n})`, context)(inner.exports)
         return inner.exports
       }
@@ -39,8 +40,11 @@ function load() {
 test('macOS announce returns void, ignores blank text, and reads the current host each call', () => {
   const context = load()
   const { announce } = context.exports
+
   assert.equal(announce('before host install'), undefined)
+
   const first = []
+
   context.__xplatAppKit = { announce: (text) => first.push(text) }
   for (const text of ['', ' \n\t']) {
     assert.equal(announce(text), undefined)
@@ -49,7 +53,9 @@ test('macOS announce returns void, ignores blank text, and reads the current hos
   assert.equal(announce('  Saved ✓  '), undefined)
   announce('  Saved ✓  ')
   assert.deepEqual(first, ['  Saved ✓  ', '  Saved ✓  '])
+
   const second = []
+
   context.__xplatAppKit = { announce: (text) => second.push(text) }
   announce('Updated')
   assert.deepEqual(second, ['Updated'])
@@ -86,7 +92,9 @@ test('AppKit notification has the exact text and medium priority on every reques
     .join('\n')
 
   vm.runInNewContext(script.replace('export function', 'function'), context)
+
   const app = {}
+
   context.announceAppKit('', app)
   context.announceAppKit(' \n', app)
   context.announceAppKit('Saved ✓', app)
@@ -120,6 +128,7 @@ test('installed host stops posting when its lifecycle terminates and retains no 
   )
 
   assert.ok(install)
+
   const posts = []
   const app = {}
   const services = { appState: 'active' }

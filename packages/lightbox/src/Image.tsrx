@@ -47,8 +47,10 @@ export function Image(props: LightboxImagePartProps): unknown @{
   const currentDecode = decoded?.source === src ? decoded : null
   const failed = currentDecode?.failed ?? false
   const loaded = !!currentDecode && !failed
+
   useLayoutEffect(() => {
     const host = imgRef.current
+
     if (!host || !src) {
       return
     }
@@ -76,6 +78,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
   const scale = useMotionValue(1)
 
   const live = useRef({ F, ctx, box, index, failed, aspect })
+
   live.current = { F, ctx, box, index, failed, aspect }
 
   // Measure: re-read on layout changes via NativeScript's layoutChanged.
@@ -84,12 +87,14 @@ export function Image(props: LightboxImagePartProps): unknown @{
   useLayoutEffect(() => {
     const v = wrapRef.current
     const target = (v?.parent as any) ?? v
+
     if (!target) {
       return
     }
 
     const update = () => {
       const r = target.getActualSize?.()
+
       if (!r || !r.width || !r.height) {
         return
       }
@@ -102,7 +107,9 @@ export function Image(props: LightboxImagePartProps): unknown @{
     }
 
     update()
+
     const cb = () => update()
+
     target.on?.('layoutChanged', cb)
     return () => target.off?.('layoutChanged', cb)
   }, [])
@@ -119,6 +126,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
     }
 
     const v = wrapRef.current
+
     if (!v) {
       return
     }
@@ -140,13 +148,16 @@ export function Image(props: LightboxImagePartProps): unknown @{
     }
 
     const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
+
     sync()
     return () => offs.forEach((f) => f())
   }, [])
 
   const clip = useRef<ReturnType<typeof createClipWriter> | null>(null)
+
   useLayoutEffect(() => {
     const v = wrapRef.current
+
     if (!v) {
       return
     }
@@ -161,11 +172,14 @@ export function Image(props: LightboxImagePartProps): unknown @{
     }
 
     const s = toStyle(v, b)
+
     x.jump(s.x)
     y.jump(s.y)
     scale.jump(s.scale)
     clip.current?.setClip(s.inset, s.radius)
+
     const el = wrapRef.current
+
     if (el) {
       el.opacity = s.opacity
     }
@@ -188,17 +202,20 @@ export function Image(props: LightboxImagePartProps): unknown @{
   const morphTarget = useRef<Visual | null>(null)
   const morphPresence = useRef({ from: 0, to: 1 })
   const wrapRect = () => viewRect(wrapRef.current) ?? { x: 0, y: 0, w: 0, h: 0 }
+
   useLayoutEffect(
     () =>
       morphProgress.on('change', (p: number) => {
         const from = morph.current
         const to = morphTarget.current
         const b = live.current.F
+
         if (!from || !to || !b) {
           return
         }
 
         const bb = base()
+
         apply(lerpVisual(from, to, p), bb)
         live.current.ctx.presence.set(
           lerp(morphPresence.current.from, morphPresence.current.to, clamp(p, 0, 1)),
@@ -236,6 +253,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
       }
       case 'inertia': {
         const b = c.bounds
+
         for (const [mv, v0, min, max] of [
           [x, c.velocity.x, b.minX, b.maxX],
           [y, c.velocity.y, b.minY, b.maxY],
@@ -299,6 +317,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
       case 'track': {
         // Native paging rides the track — route the command to the Viewport.
         const v = ctx.viewport.current
+
         if (c.phase === 'end') {
           v?.track('end', c.dx, c.vx)
         } else {
@@ -325,12 +344,16 @@ export function Image(props: LightboxImagePartProps): unknown @{
   }
 
   const machineRef = useRef<ReturnType<typeof createGestureMachine> | null>(null)
+
   machineRef.current ??= createGestureMachine(env)
+
   const detectorRef = useRef<ReturnType<typeof createTapDetector> | null>(null)
+
   detectorRef.current ??= createTapDetector({
     now: () => Date.now(),
     schedule: (fn, ms) => {
       const id = setTimeout(fn, ms)
+
       return () => clearTimeout(id)
     },
   })
@@ -343,6 +366,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
 
   useLayoutEffect(() => {
     const fitted = live.current.F
+
     if (fitted && scale.get() > ctx.options.maxZoom) {
       send({ kind: 'zoomNow', scale: ctx.options.maxZoom, focal: center(fitted) })
     }
@@ -360,9 +384,11 @@ export function Image(props: LightboxImagePartProps): unknown @{
     const controller: ImageController = {
       animateIn(trigger) {
         stop()
+
         const { ctx } = live.current
         const size = wrapRef.current?.getActualSize?.()
         const fitted = live.current.F
+
         if (!fitted || !size?.width || !size?.height) {
           // Native layout may take more than one frame. Start only after
           // the fitted wrapper has bounds, so the clip uses its real size.
@@ -381,6 +407,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
           !live.current.failed && !ctx.reducedMotion && trigger ? thumbVisual(trigger) : null
 
         const from = thumb ?? { ...rest(b), opacity: 0 }
+
         morph.current = from
         morphTarget.current = rest(b)
         morphPresence.current = { from: 0, to: 1 }
@@ -408,7 +435,9 @@ export function Image(props: LightboxImagePartProps): unknown @{
       },
       async animateOut(trigger, velocity) {
         stop()
+
         const { ctx } = live.current
+
         if (!live.current.F) {
           await ctx.presence.animate(0, ctx.options.close).finished
           return
@@ -454,6 +483,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
 
   useLayoutEffect(() => {
     const off = scale.on('change', (s: number) => live.current.ctx.setZoomed(s > 1.01))
+
     return () => {
       off()
       if (live.current.ctx.index === index) {
@@ -473,6 +503,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
   const thumbVisual = (trigger: any): Visual | null => {
     const tr = viewRect(trigger)
     const sr = slideEl() ? viewRect(slideEl()) : null
+
     if (!tr || !sr) {
       return null
     }
@@ -489,6 +520,7 @@ export function Image(props: LightboxImagePartProps): unknown @{
   })
 
   const alt = props.alt ?? item?.alt ?? ''
+
   if (!item) {
     return null
   }

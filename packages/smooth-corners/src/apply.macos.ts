@@ -15,6 +15,7 @@ function colorValue(input: string | undefined): any {
   }
 
   const hex = input.trim()
+
   if (hex.startsWith('#')) {
     const h = hex.slice(1)
     const n =
@@ -31,12 +32,15 @@ function colorValue(input: string | undefined): any {
     const g = (int >> (hasAlpha ? 16 : 8)) & 0xff
     const b = (int >> (hasAlpha ? 8 : 0)) & 0xff
     const a = hasAlpha ? int & 0xff : 255
+
     return NSColor.colorWithSRGBRedGreenBlueAlpha(r / 255, g / 255, b / 255, a / 255)
   }
 
   const m = hex.match(/^rgba?\(([^)]+)\)$/)
+
   if (m) {
     const [r, g, b, a = '1'] = m[1].split(',').map((s) => s.trim())
+
     return NSColor.colorWithSRGBRedGreenBlueAlpha(
       Number(r) / 255,
       Number(g) / 255,
@@ -53,6 +57,7 @@ function colorValue(input: string | undefined): any {
 function toNSBezierPath(cmds: PathCommand[], h: number): any {
   const flipped = flipCommandsY(cmds, h)
   const bp = NSBezierPath.bezierPath()
+
   for (const c of flipped) {
     switch (c.c) {
       case 'M':
@@ -105,14 +110,17 @@ export function applySmoothClip(
 
     return
   }
+
   if (!view || w <= 0 || h <= 0) {
     return
   }
 
   view.wantsLayer = true
+
   const bp = toNSBezierPath(generateCommands(w, h, props.corners), h)
 
   let mask = view[MASK_KEY] as any
+
   if (!mask) {
     mask = CAShapeLayer.new()
     view[MASK_KEY] = mask
@@ -123,6 +131,7 @@ export function applySmoothClip(
 
   let borderLayer = view[BORDER_KEY] as any
   const border = props.border
+
   if (border && border.width > 0 && border.color) {
     if (!borderLayer) {
       borderLayer = CAShapeLayer.new()
@@ -152,8 +161,10 @@ export function applySmoothShadow(
   }
 
   view.wantsLayer = true
+
   const layer = view.layer
   const shadow = props.shadow
+
   if (!shadow || w <= 0 || h <= 0) {
     layer.shadowOpacity = 0
     layer.shadowPath = null
@@ -164,13 +175,16 @@ export function applySmoothShadow(
   const gw = spread !== 0 ? w + spread * 2 : w
   const gh = spread !== 0 ? h + spread * 2 : h
   const bp = toNSBezierPath(generateCommands(gw, gh, props.corners), gh)
+
   layer.shadowPath = bp.CGPath
   layer.shadowColor = colorValue(shadow.color).CGColor
   layer.shadowOpacity = shadow.opacity ?? 0.35
   layer.shadowRadius = shadow.blur ?? 0
+
   const ox = shadow.offsetX ?? 0
   // y-up shadow offsets invert vertically vs CSS.
   const oy = -(shadow.offsetY ?? 0)
+
   layer.shadowOffset = NSMakeSize
     ? NSMakeSize(spread !== 0 ? -spread + ox : ox, spread !== 0 ? -spread + oy : oy)
     : { width: ox, height: oy }

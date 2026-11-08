@@ -33,7 +33,9 @@ export function Overlay(props: OverlayProps): unknown @{
   }
 
   const dismiss = useRef(requestDismiss)
+
   dismiss.current = requestDismiss
+
   const modal = !!(props.shadeCover || props.isModal)
 
   const rootLayout = () => rootLayoutFor(hostView.current)
@@ -45,6 +47,7 @@ export function Overlay(props: OverlayProps): unknown @{
 
     const apply = () => {
       const v = (host as any).ios
+
       if (v) {
         v.accessibilityViewIsModal = modal
       }
@@ -70,6 +73,7 @@ export function Overlay(props: OverlayProps): unknown @{
 
   useEffect(() => {
     const current = shown.current
+
     if (!open) {
       current?.lifetime.close()
       return
@@ -91,12 +95,14 @@ export function Overlay(props: OverlayProps): unknown @{
     }
 
     const rl = rootLayout()
+
     if (!rl) {
       return
     }
 
     const host = new GridLayout()
     const unbindTheme = applyThemeClasses(host, cx('vx-overlay-host', props.className))
+
     host.testID = props.testID ?? ''
     host.accessibilityLabel = props.accessibilityLabel ?? ''
     host.horizontalAlignment = 'stretch'
@@ -108,6 +114,7 @@ export function Overlay(props: OverlayProps): unknown @{
     host.accessibilityLabel = props.accessibilityLabel ?? ''
     Object.assign(host, isIOS ? props.ios : isAndroid ? props.android : undefined)
     applyIosModal(host)
+
     const lifetime = createOverlayLifetime(rl, host, null, 'Overlay', (dismissed) => {
       if (shown.current?.host === host) {
         shown.current = null
@@ -120,6 +127,7 @@ export function Overlay(props: OverlayProps): unknown @{
     })
 
     const opened = { host, lifetime, unbindTheme }
+
     lifetime.own(() => opened.unbindTheme?.())
     shown.current = opened
     setPortalHost(host)

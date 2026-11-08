@@ -110,6 +110,7 @@ export function GridList<T = any>(props: GridListProps<T>): JSX.Element @{
       const key = keys[index]
       const selected = isGridListKeySelected(selection, key)
       const isDisabled = disabled.has(key)
+
       return (
         <div
           key={key}

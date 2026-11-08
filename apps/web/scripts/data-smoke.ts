@@ -5,9 +5,11 @@ import { chromium } from 'playwright'
 // to another task's fallback port. This smoke never captures images.
 const base = process.argv[2] ?? 'http://127.0.0.1:4327'
 const browser = await chromium.launch()
+
 try {
   const page = await browser.newPage()
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('console', (message) => {
     if (message.text().startsWith('[data]')) {

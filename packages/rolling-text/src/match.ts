@@ -29,6 +29,7 @@ export function matchUnits(prev: string[], next: string[], anchor = 0): Int32Arr
   const map = new Int32Array(lenNew).fill(-1)
 
   let start = 0
+
   while (start < lenOld && start < lenNew && prev[start] === next[start]) {
     start++
   }
@@ -39,6 +40,7 @@ export function matchUnits(prev: string[], next: string[], anchor = 0): Int32Arr
 
   let best = 0
   const maxSuffix = Math.min(lenOld - start, lenNew - start)
+
   while (best < maxSuffix && prev[lenOld - 1 - best] === next[lenNew - 1 - best]) {
     best++
   }
@@ -49,10 +51,12 @@ export function matchUnits(prev: string[], next: string[], anchor = 0): Int32Arr
   // `shift` aligns old index to new (new = old + shift), walking out from
   // the flush suffix, nearer side first, so ties travel least.
   const near = lenNew < lenOld ? 1 : -1
+
   for (let step = 0; step <= RUN_BAND * 2; step++) {
     const shift = lenNew - lenOld + ((step + 1) >> 1) * (step & 1 ? near : -near)
     const lo = shift < 0 ? start - shift : start // never reach back into the prefix
     let run = 0
+
     for (let i = Math.min(lenOld, lenNew - shift) - 1; i >= lo; i--) {
       if (prev[i] === next[i + shift]) {
         run++

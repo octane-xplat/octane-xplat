@@ -22,7 +22,9 @@ for (const mode of [
         timeout: 60000,
       },
     )
+
     const log = result.stdout + result.stderr
+
     if (mode === 'excluded' || mode === 'unknown') {
       assert.notEqual(result.status, 0, log)
       assert.match(
@@ -34,13 +36,16 @@ for (const mode of [
 
       return
     }
+
     assert.equal(result.status, 0, log)
     if (mode === 'baseline' || mode === 'incomplete') {
       assert.match(log, /incomplete run: ssr never completed/, log)
     } else {
       assert.doesNotMatch(log, /incomplete run|never completed/, log)
     }
+
     const data = JSON.parse(result.stdout.match(/^RESULT (.+)$/m)[1])
+
     assert.deepEqual(
       data,
       {

@@ -6,6 +6,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { SelectorOptionScene } from './ui-selector-option.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK selector option test',
   default_width: 360,
@@ -14,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -67,6 +70,7 @@ async function run() {
   await render()
   window.present()
   await pause(260)
+
   const native = (globalThis as any).imports.gi.XplatMason
   const original = {
     part: part().view,
@@ -75,6 +79,7 @@ async function run() {
     description: description().view,
     icon: icon().view,
   }
+
   check('one option part', nodes('vx-selectoroption').length === 1)
   check('one label', nodes('vx-selectoroption-label').length === 1)
   check('one description', nodes('vx-selectoroption-description').length === 1)
@@ -87,35 +92,42 @@ async function run() {
     'authored id appears once',
     [...container.nodes.values()].filter((n) => n.props.id === 'selector-part').length === 1,
   )
+
   check('explicit width', close(part().view?.getBounds().width, 280))
   check('explicit height', close(part().view?.getBounds().height, 80))
   check(
     'outer margin',
     close(part().view?.getBounds().x, 8) && close(part().view?.getBounds().y, 8),
   )
+
   check('icon and text are horizontal', icon().view!.getBounds().x < text().view!.getBounds().x)
   check(
     'icon lane gap',
     text().view!.getBounds().x - (icon().view!.getBounds().x + icon().view!.getBounds().width) >= 7,
   )
+
   check(
     'label precedes description',
     label().view!.getBounds().y < description().view!.getBounds().y,
   )
+
   check(
     'text remains inside option width',
     text().view!.getBounds().x + text().view!.getBounds().width <=
       part().view!.getBounds().x + part().view!.getBounds().width + 1,
   )
+
   check(
     'description uses smaller type',
     (description().view as any).get_pango_context().get_font_description().get_size() <
       (label().view as any).get_pango_context().get_font_description().get_size(),
   )
+
   check(
     'decorative icon lane is hidden to accessibility',
     native.test_accessible_state(icon().view, Gtk.AccessibleState.HIDDEN, 1) === null,
   )
+
   check('presentation part is not a focus stop', !part().view!.get_focusable())
   await render({
     label: 'Large ✓',
@@ -124,6 +136,7 @@ async function run() {
     isDisabled: true,
     className: 'selector-updated',
   })
+
   check('root retained on updates', part().view === original.part)
   check('text column retained on updates', text().view === original.text)
   check('label retained on updates', label().view === original.label)
@@ -137,10 +150,12 @@ async function run() {
     !part().cssClasses?.has('selector-authored') &&
       part().cssClasses?.has('selector-updated') === true,
   )
+
   check(
     'disabled part class matches web',
     part().cssClasses?.has('vx-selectoroption--disabled') === true,
   )
+
   await render({ label: undefined, description: undefined, showIcon: false })
   check('missing label removed', nodes('vx-selectoroption-label').length === 0)
   check('missing description removed', nodes('vx-selectoroption-description').length === 0)
@@ -150,6 +165,7 @@ async function run() {
     'empty text column remains',
     nodes('vx-selectoroption-text').length === 1 && text().view?.get_parent() === part().view,
   )
+
   check('empty part retains root', part().view === original.part)
   await render({
     label: '',
@@ -160,17 +176,20 @@ async function run() {
     id: undefined,
     style: { width: '50%', height: 64 },
   })
+
   check(
     'empty strings still render both text leaves',
     nodes('vx-selectoroption-label').length === 1 &&
       nodes('vx-selectoroption-description').length === 1,
   )
+
   check('empty label stays empty', (label().view as any).get_text() === '')
   check('icon lane can be restored', nodes('vx-selectoroption-icon').length === 1)
   check(
     'restored decorative icon stays hidden after mapping',
     native.test_accessible_state(icon().view, Gtk.AccessibleState.HIDDEN, 1) === null,
   )
+
   check('disabled class clears', !part().cssClasses?.has('vx-selectoroption--disabled'))
   check('custom class clears', !part().cssClasses?.has('selector-updated'))
   check('authored id clears', !part().props.id)
@@ -180,17 +199,20 @@ async function run() {
     'margin clears',
     close(part().view?.getBounds().x, 0) && close(part().view?.getBounds().y, 0),
   )
+
   await render({
     label: 'Right to left',
     description: 'Details',
     style: { width: 280, height: 80, direction: 'rtl' },
   })
+
   check('direction propagates to option', part().view!.get_direction() === Gtk.TextDirection.RTL)
   check(
     'direction propagates to children',
     icon().view!.get_direction() === Gtk.TextDirection.RTL &&
       text().view!.get_direction() === Gtk.TextDirection.RTL,
   )
+
   check('RTL reverses physical lanes', icon().view!.getBounds().x > text().view!.getBounds().x)
   await render({ style: { width: 280, height: 80 } })
   check('direction resets', part().view!.get_direction() === Gtk.TextDirection.LTR)
@@ -208,14 +230,17 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(String(error))
@@ -223,6 +248,7 @@ run().catch((error) => {
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

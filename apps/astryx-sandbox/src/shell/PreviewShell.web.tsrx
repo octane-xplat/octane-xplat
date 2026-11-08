@@ -84,12 +84,14 @@ function buildNavTree(currentRoute: string): TreeListNode[] {
     }))
 
   const families = new Map<string, TreeListNode[]>()
+
   for (const r of coverageRows) {
     if (r.kind !== 'template-block' || !r.family) {
       continue
     }
 
     const items = families.get(r.family) ?? []
+
     items.push({ key: r.route, label: r.doc?.displayName ?? r.name ?? r.route, href: r.route })
     families.set(r.family, items)
   }
@@ -161,6 +163,7 @@ export function PreviewShell(props: { row: CoverageRow; children?: any }) @{
   // same 'astryx-theme-sync' message so the iframe doesn't reload).
   useEffect(() => {
     const frame = iframeRef.current
+
     if (!frame?.contentWindow) {
       return
     }

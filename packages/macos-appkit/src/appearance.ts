@@ -2,6 +2,7 @@
  * explicit NSApplication.appearance override; colors remain app-owned. */
 
 import { NSAppearance, NSApplication, NSObject } from '@octane-xplat/platform/macos'
+
 export function installAppearanceBridge(bridge: Record<string, any>): void {
   // An explicit app preference pins NSApp.appearance; null restores system
   // following. The effectiveAppearance change notifies onAppearanceChange
@@ -11,6 +12,7 @@ export function installAppearanceBridge(bridge: Record<string, any>): void {
   bridge.setAppearanceOverride ??= (scheme: 'light' | 'dark' | null) => {
     const application = NSApplication.sharedApplication
     const target = application as { appearance?: unknown }
+
     target.appearance =
       scheme == null
         ? null
@@ -31,6 +33,7 @@ export function installAppearanceBridge(bridge: Record<string, any>): void {
 
   bridge.getColorScheme = () => {
     const appearance = NSApplication.sharedApplication.effectiveAppearance
+
     return appearance?.bestMatchFromAppearancesWithNames?.([
       'NSAppearanceNameAqua',
       'NSAppearanceNameDarkAqua',
@@ -56,7 +59,9 @@ export function installAppearanceBridge(bridge: Record<string, any>): void {
     }
 
     listeners.add(listener)
+
     let active = true
+
     return () => {
       if (!active) {
         return

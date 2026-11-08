@@ -14,6 +14,7 @@ let reveal: (value: boolean) => void
 
 export default function SvgCollapseReveal() {
   const [revealed, setRevealed] = useState(false)
+
   reveal = setRevealed
   return (
     <masonview style={{ flexDirection: 'column', padding: 24 }}>
@@ -33,6 +34,7 @@ export default function SvgCollapseReveal() {
 export async function run(ctx: ProbeContext) {
   const svg = ctx.find('probe-svg')
   const native = svg?.nativeViewProtected
+
   if (!native) {
     throw new Error('probe-svg has no native view')
   }

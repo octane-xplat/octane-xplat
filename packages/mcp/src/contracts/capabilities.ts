@@ -102,6 +102,7 @@ export function createCapabilityRegistry() {
 
     async matrixFor(app, platforms) {
       const matrices = []
+
       for (const platform of platforms) {
         const declared = app ? app.platforms.includes(platform) : false
         const merged = new Map(

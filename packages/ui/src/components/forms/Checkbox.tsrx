@@ -33,6 +33,7 @@ function CheckboxControl(inputProps: CheckboxProps & { standalone?: boolean }) @
     }
 
     const next = indeterminate ? true : !checked
+
     if (props.value === undefined) {
       setInternal(next)
     }
@@ -43,6 +44,7 @@ function CheckboxControl(inputProps: CheckboxProps & { standalone?: boolean }) @
     }
 
     const previous = resolved
+
     setPending(true)
     Promise.resolve()
       .then(() => props.changeAction!(next))

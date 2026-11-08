@@ -17,12 +17,14 @@ export function ColorField(props: ColorFieldProps): unknown @{
 
   const commit = () => {
     const text = draft.current
+
     draft.current = null
     if (text == null) {
       return
     }
 
     const parsed = normalizeHex(text)
+
     if (parsed) {
       color.setHex(parsed)
       color.end()

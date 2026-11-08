@@ -20,6 +20,7 @@ const PROJECT_ACTIONS = [
 
 export function PopoverBottomSheetAlternative() @{
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <Button label="Open project actions" clickAction={() => setIsOpen(true)} />

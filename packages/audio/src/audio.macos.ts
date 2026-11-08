@@ -55,9 +55,11 @@ export const createAudioPlayer = (): AudioPlayer => {
     queueComplete,
     track: queue[index] ? { ...queue[index] } : undefined,
   })
+
   const emit = () => {
     const currentGeneration = generation
     const current = snapshot()
+
     for (const listener of listeners) {
       if (disposed || currentGeneration !== generation) {
         break
@@ -77,6 +79,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const fail = (cause: unknown) => {
     const error = cause instanceof Error ? cause : new Error(String(cause))
+
     // Retain the original failure even when cleanup itself fails.
     try {
       native?.clear()
@@ -98,6 +101,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     }
 
     const next = JSON.parse(native.snapshot()) as NativeSnapshot
+
     if (next.state === 'error') {
       throw new Error(next.error ?? 'Audio playback failed')
     }
@@ -152,6 +156,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   const load = async (autoplay = false) => {
     const ownGeneration = ++generation
     const ownPlayRequest = playRequest
+
     pending?.reject(new Error('Audio load was superseded'))
     pending = undefined
     stopTimer()
@@ -230,8 +235,10 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const play = async () => {
     assertActive()
+
     const ownPlayRequest = ++playRequest
     const ownGeneration = generation
+
     await pending?.promise
     assertActive()
     if (ownGeneration !== generation) {
@@ -273,7 +280,9 @@ export const createAudioPlayer = (): AudioPlayer => {
     },
     setQueue: async (tracks, startAt = 0, options = {}) => {
       assertActive()
+
       const next = copyQueue(tracks)
+
       playRequest++
       queue = next
       queueComplete = options.complete ?? true
@@ -302,11 +311,13 @@ export const createAudioPlayer = (): AudioPlayer => {
 
     updateQueue: async (tracks, options = {}) => {
       assertActive()
+
       const next = copyQueue(tracks)
       const current = queue[index]
       const at = current
         ? next.findIndex((t) => t.id === current.id && t.source === current.source)
         : -1
+
       queue = next
       queueComplete = options.complete ?? queueComplete
       if (at < 0) {
@@ -330,14 +341,18 @@ export const createAudioPlayer = (): AudioPlayer => {
     },
     setPlaybackRate: async (rate) => {
       assertActive()
+
       const next = bounded(rate, 0.5, 3)
+
       native?.setPlaybackRate(next)
       playbackRate = next
       emit()
     },
     setVolume: async (gain) => {
       assertActive()
+
       const next = bounded(gain, 0, 1)
+
       native?.setVolume(next)
       volume = next
       emit()

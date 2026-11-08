@@ -3,11 +3,13 @@ import type { TextInputHandle } from '../../props'
 
 const read = (view: NSView, name: string) => {
   const value = Reflect.get(view, name)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
 const enabled = (view: NSView, name: string) => {
   const value = read(view, name)
+
   return value == null || Boolean(value)
 }
 
@@ -21,6 +23,7 @@ export function createAppKitDateFieldHandle(options: {
     focus() {
       const view = options.primary(),
         window = view?.window
+
       if (
         !view ||
         !window ||
@@ -33,6 +36,7 @@ export function createAppKitDateFieldHandle(options: {
       ) {
         return
       }
+
       window.makeFirstResponder(view)
     },
     blur() {

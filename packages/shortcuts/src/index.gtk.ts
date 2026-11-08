@@ -1,6 +1,7 @@
 import { createShortcuts as createRuntime } from './engine/runtime/createRuntime.js'
 import { host } from './host.gtk.js'
 import type { ShortcutOptions, ShortcutRuntime } from './engine/types/public.js'
+
 export * from './shared.js'
 
 /** Create scoped keyboard shortcuts for an explicit host boundary. Throws on unsupported hosts.

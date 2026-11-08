@@ -32,6 +32,7 @@ export function NativePickerDemo() @{
   ])
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(
     () => () => {
       if (timer.current !== null) {
@@ -53,6 +54,7 @@ export function NativePickerDemo() @{
   }
 
   let options = empty ? [] : reverse ? [...base.current].reverse() : base.current
+
   if (duplicateID) options = [...options, { id: 'carry', title: 'Duplicate ID' }]
 
   <View className="gap-4">

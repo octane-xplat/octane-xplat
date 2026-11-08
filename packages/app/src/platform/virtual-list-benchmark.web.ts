@@ -15,11 +15,13 @@ function readSnapshot(list: HTMLElement | null): VirtualListBenchSnapshot {
   const rowNodes = Array.from(list.querySelectorAll<HTMLElement>('[id^="vlist-bench-row-"]'))
   const rows = rowNodes.flatMap((node) => {
     const match = /^vlist-bench-row-(\d+)$/.exec(node.id)
+
     if (!match) {
       return []
     }
 
     const rect = node.getBoundingClientRect()
+
     return [
       { index: Number(match[1]), top: rect.top - listRect.top, bottom: rect.bottom - listRect.top },
     ]

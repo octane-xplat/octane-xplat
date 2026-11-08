@@ -25,9 +25,13 @@ interface CameraServiceClient {
 
 async function runProof(client: HostClient<CameraProofServices, CameraProofEvents>) {
   const host = client as unknown as CameraServiceClient
+
   await host.call('application', 'progress', 'proof start')
+
   const capabilities = await client.capabilities()
+
   await host.call('application', 'progress', 'capabilities listed')
+
   const required = [
     'permissionStatus',
     'requestPermission',
@@ -65,6 +69,7 @@ async function runProof(client: HostClient<CameraProofServices, CameraProofEvent
   // reject outside-root → delete → confirm gone. Works without camera
   // hardware because it exercises the storage service directly.
   const { fileUrl: directory } = await host.call('camera', 'movieDirectory')
+
   assert(
     typeof directory === 'string' && directory.startsWith('file://'),
     'movieDirectory did not return a file URL',
@@ -86,26 +91,31 @@ async function runProof(client: HostClient<CameraProofServices, CameraProofEvent
   })
 
   assert(file?.uri === reservation.fileUrl, 'committed movie URI mismatch')
+
   const { info } = await host.call('camera', 'movieFileInfo', {
     fileUrl: reservation.fileUrl,
   })
 
   assert(info?.exists === true && Number(info.size) > 0, 'committed movie is missing')
+
   const { base64 } = await host.call('camera', 'readMovieFile', {
     fileUrl: reservation.fileUrl,
   })
 
   assert(base64 === payload, 'movie bytes did not round-trip')
+
   const { reservation: outside } = await host.call('camera', 'reserveMoviePath', {
     fileUrl: 'file:///tmp/octane-camera-outside.mp4',
   })
 
   assert(!outside, 'destination outside the app-private root was accepted')
+
   const { removed } = await host.call('camera', 'deleteMovieFile', {
     fileUrl: reservation.fileUrl,
   })
 
   assert(removed === true, 'movie delete failed')
+
   const { info: gone } = await host.call('camera', 'movieFileInfo', {
     fileUrl: reservation.fileUrl,
   })
@@ -117,6 +127,7 @@ async function runProof(client: HostClient<CameraProofServices, CameraProofEvent
   const session = createCameraSession()
   const permissions = await session.permissions()
   const sessionCapabilities = await session.capabilities()
+
   assert(
     sessionCapabilities.output.storage === 'appPrivateFile',
     'session did not switch to host app-private storage',
@@ -150,10 +161,12 @@ async function runProof(client: HostClient<CameraProofServices, CameraProofEvent
 }
 
 const transport = createWebKitTransport()
+
 if (!transport) {
   output.textContent = 'This camera proof page is open outside its WKWebView host.'
 } else {
   const client = createHostClient<CameraProofServices, CameraProofEvents>(transport)
+
   window.addEventListener('pagehide', () => client.dispose(), { once: true })
   void runProof(client).catch(async (error: unknown) => {
     const result: CameraProofResult = {

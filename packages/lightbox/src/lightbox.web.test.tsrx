@@ -27,8 +27,11 @@ const media: LightboxMedia[] = [
 
 function mount(node: unknown) {
   const container = document.createElement('div')
+
   document.body.appendChild(container)
+
   const root = createRoot(container)
+
   act(() => root.render(node))
   return {
     container,
@@ -46,6 +49,7 @@ function Harness(props: {
   onIndexChange?: (i: number) => void
 }) {
   const lb = useLightbox({ media, onIndexChange: props.onIndexChange })
+
   return (
     <div>
       <button
@@ -65,6 +69,7 @@ describe('lightbox web', () => {
   it('useLightbox trigger opens the viewer', async () => {
     const onIndexChange = vi.fn()
     const m = mount(<Harness onIndexChange={onIndexChange} />)
+
     expect(q('[data-phase]')).toBeNull()
     act(() => (q('#open-trigger') as HTMLButtonElement).click())
     expect(q('#open-flag')?.textContent).toBe('true')
@@ -76,15 +81,20 @@ describe('lightbox web', () => {
   it('controlled isOpen renders the dialog with phase classes', async () => {
     const onOpenChange = vi.fn()
     const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
+
     await act(async () => {})
+
     const popup = q('.vx-lightbox-popup')
+
     expect(popup).toBeTruthy()
     expect(popup?.getAttribute('data-phase')).toBe('opening')
     expect(popup?.className).toContain('vx-lightbox-popup--opening')
     expect(q('.vx-lightbox-shade')).toBeNull()
     expect(popup?.closest('[data-vx-modal-layer]') ?? q('[data-vx-modal-layer]')).toBeTruthy()
+
     // slides: n of m labels, non-current inert
     const slides = document.body.querySelectorAll('[data-lightbox-slide]')
+
     expect(slides).toHaveLength(3)
     expect(slides[0]?.getAttribute('aria-label')).toBe('1 of 3')
     expect(slides[1]?.getAttribute('inert')).not.toBeNull()
@@ -94,15 +104,20 @@ describe('lightbox web', () => {
 
   it('nav buttons, counter and caption render; prev disabled at start', async () => {
     const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={media} />)
+
     await act(async () => {})
+
     const counter = q('.vx-lightbox-counter')
+
     expect(counter?.textContent?.trim()).toBe('1 of 3')
     expect(q('.vx-lightbox-caption')?.textContent).toContain('Caption A')
+
     const prev =
       q('.vx-lightbox-prev button, button.vx-lightbox-nav') ??
       document.body.querySelectorAll('button')
 
     const navs = [...document.body.querySelectorAll('.vx-lightbox-nav')]
+
     expect((navs[0] as HTMLButtonElement).disabled).toBe(true)
     expect((navs[1] as HTMLButtonElement).disabled).toBe(false)
     m.close()
@@ -115,10 +130,14 @@ describe('lightbox web', () => {
     )
 
     await act(async () => {})
+
     const next = [...document.body.querySelectorAll('.vx-lightbox-nav')][1] as HTMLButtonElement
+
     act(() => next.click())
     expect(onIndexChange).toHaveBeenCalledWith(1)
+
     const slides = document.body.querySelectorAll('[data-lightbox-slide]')
+
     expect(slides[1]?.getAttribute('inert')).toBeNull()
     m.close()
   })
@@ -130,7 +149,9 @@ describe('lightbox web', () => {
     )
 
     await act(async () => {})
+
     const popup = q('.vx-lightbox-popup')!
+
     act(() =>
       popup.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true })),
     )
@@ -142,6 +163,7 @@ describe('lightbox web', () => {
   it('Escape invokes onOpenChange(false) via the modal overlay', async () => {
     const onOpenChange = vi.fn()
     const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
+
     await act(async () => {})
     act(() =>
       document.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape', bubbles: true })),
@@ -158,10 +180,15 @@ describe('lightbox web', () => {
 
   it('opens exactly one modal layer and nests the backdrop inside the popup', async () => {
     const m = mount(<Lightbox isOpen media={media} />)
+
     await act(async () => {})
+
     const layers = document.body.querySelectorAll('[data-vx-modal-layer]')
+
     expect(layers).toHaveLength(1)
+
     const backdrop = document.body.querySelector('.vx-lightbox-backdrop')
+
     expect(backdrop).toBeTruthy()
     expect(backdrop?.closest('.vx-lightbox-popup')).toBeTruthy()
     m.close()
@@ -174,11 +201,14 @@ describe('lightbox web', () => {
     )
 
     await act(async () => {})
+
     const popup = q('[data-phase]')!
     // Tap the backdrop area via the image wrap's pointer path.
     const wrap = document.body.querySelector('[data-lightbox-image]') as HTMLElement
+
     if (wrap) {
       const down = new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 })
+
       wrap.dispatchEvent(down)
       wrap.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 0, clientY: 0 }))
       await act(async () => {
@@ -194,23 +224,31 @@ describe('lightbox web', () => {
   it('video item renders a real <video> with autoplay only when hasAutoPlay', async () => {
     const vids: LightboxMedia[] = [{ src: 'v.mp4', alt: 'clip', type: 'video' }]
     const m = mount(<Lightbox isOpen onOpenChange={() => {}} media={vids} hasAutoPlay />)
+
     await act(async () => {})
+
     const video = q('video')
+
     expect(video).toBeTruthy()
     expect((video as HTMLVideoElement).autoplay ?? video?.hasAttribute('autoplay')).toBeTruthy()
     m.close()
 
     const m2 = mount(<Lightbox isOpen onOpenChange={() => {}} media={vids} />)
+
     await act(async () => {})
+
     const video2 = q('video') as HTMLVideoElement
+
     expect(video2.hasAttribute('autoplay')).toBe(false)
     m2.close()
   })
 
   it('focus returns to finalFocusRef on close', async () => {
     const button = document.createElement('button')
+
     button.id = 'final-focus'
     document.body.appendChild(button)
+
     const finalFocusRef = { current: button as HTMLElement }
     const m = mount(
       <Lightbox isOpen onOpenChange={() => {}} media={media} finalFocusRef={finalFocusRef} />,
@@ -233,6 +271,7 @@ describe('lightbox web', () => {
   it('focus returns to the current trigger when finalFocusRef is absent', async () => {
     function Controlled() {
       const lb = useLightbox({ media })
+
       return (
         <div>
           <button
@@ -248,6 +287,7 @@ describe('lightbox web', () => {
     }
 
     const m = mount(<Controlled />)
+
     act(() => (q('#t1') as HTMLButtonElement).click())
     await act(async () => {})
     expect(q('[data-phase]')).toBeTruthy()
@@ -266,8 +306,11 @@ describe('lightbox web', () => {
   it('backdrop tap closes by default', async () => {
     const onOpenChange = vi.fn()
     const m = mount(<Lightbox isOpen onOpenChange={onOpenChange} media={media} />)
+
     await act(async () => {})
+
     const wrap = document.body.querySelector('[data-lightbox-image]') as HTMLElement
+
     if (wrap) {
       wrap.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true, clientX: 0, clientY: 0 }))
       wrap.dispatchEvent(new PointerEvent('pointerup', { bubbles: true, clientX: 0, clientY: 0 }))
@@ -284,6 +327,7 @@ describe('lightbox web', () => {
 
   it('reduced motion opens and completes (fade path — morph distinction is e2e-covered)', async () => {
     const callbacks = new Set<(e: { matches: boolean }) => void>()
+
     vi.stubGlobal('matchMedia', (q2: string) => ({
       get matches() {
         return q2.includes('reduce')
@@ -296,6 +340,7 @@ describe('lightbox web', () => {
 
     function Controlled() {
       const lb = useLightbox({ media })
+
       return (
         <div>
           <button
@@ -311,6 +356,7 @@ describe('lightbox web', () => {
     }
 
     const m = mount(<Controlled />)
+
     act(() => (q('#t0') as HTMLButtonElement).click())
     await act(async () => {
       await new Promise((r) => setTimeout(r, 600))

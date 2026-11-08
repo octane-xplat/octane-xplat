@@ -51,6 +51,7 @@ function SliderControl(inputProps: SliderProps) @{
 
     const increment = (event: any) => adjustRef.current(1, event?.action)
     const decrement = (event: any) => adjustRef.current(-1, event?.action)
+
     view.on?.('accessibilityIncrement', increment)
     view.on?.('accessibilityDecrement', decrement)
     detach.current = () => {
@@ -60,6 +61,7 @@ function SliderControl(inputProps: SliderProps) @{
   }, [])
 
   useEffect(() => applyEscapeProps(host.current, props))
+
   const press = useRef(0)
   const drag = useRef<{ lo: number; hi: number; which: 'lo' | 'hi' | null } | null>(null)
   const format = (value: number) =>
@@ -89,6 +91,7 @@ function SliderControl(inputProps: SliderProps) @{
       : next
 
     const changed = Array.isArray(result) ? result[0] !== lo || result[1] !== hi : result !== lo
+
     if (!changed) {
       return
     }
@@ -102,10 +105,12 @@ function SliderControl(inputProps: SliderProps) @{
 
   adjustRef.current = (direction, action) => {
     const delta = step > 0 ? step : (max - min) / 100
+
     move('hi', action === 'minimum' ? min : action === 'maximum' ? max : hi + direction * delta)
   }
 
   useEffect(() => applySliderAccessibility(host.current, { min, max, value: hi, text: readout }))
+
   const onPan = usePan((event: PanEvent) => {
     if (blocked) {
       return
@@ -122,11 +127,13 @@ function SliderControl(inputProps: SliderProps) @{
 
       if (drag.current.which === null) {
         const at = min + (press.current / width) * (max - min)
+
         drag.current.which =
           isRange && Math.abs(at - drag.current.lo) <= Math.abs(at - drag.current.hi) ? 'lo' : 'hi'
       }
 
       const base = drag.current.which === 'lo' ? drag.current.lo : drag.current.hi
+
       move(drag.current.which, base + (event.dx / width) * (max - min))
     } else {
       drag.current = null

@@ -34,6 +34,7 @@ const OTHER_CODES = new Map(
 
 export function compileCombo(source: string, platform: Platform): CompiledStep {
   const trimmed = source.trim()
+
   if (!trimmed) {
     throw new TypeError('Combo must not be empty')
   }
@@ -42,6 +43,7 @@ export function compileCombo(source: string, platform: Platform): CompiledStep {
     .split('+')
     .map((token) => token.trim())
     .filter(Boolean)
+
   if (tokens.length === 0) {
     throw new TypeError('Combo must not be empty')
   }
@@ -51,6 +53,7 @@ export function compileCombo(source: string, platform: Platform): CompiledStep {
 
   for (const token of tokens) {
     const parsed = parseBindingToken(token)
+
     if (parsed.type === 'modifier') {
       if (parsed.name === 'Mod') {
         modifiers.add(platform === 'mac' ? 'Meta' : 'Ctrl')
@@ -89,6 +92,7 @@ export function compileCombo(source: string, platform: Platform): CompiledStep {
     : physicalKey
       ? physicalKey[1]!.toLowerCase()
       : canonicalizePrimaryKey(primaryKey)
+
   const altPrintableCode =
     usesAlt && primary.length === 1
       ? /[0-9]/.test(primary)
@@ -97,6 +101,7 @@ export function compileCombo(source: string, platform: Platform): CompiledStep {
           ? `Key${primary.toUpperCase()}`
           : undefined
       : undefined
+
   const code = explicitCode ?? altPrintableCode
 
   return {

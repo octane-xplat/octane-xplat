@@ -63,7 +63,9 @@ export function FocusProbe() {
   state.fvSupported = visible.isSupported
   state.gridIndex = grid.focusIndex
   state.nowVisible = isFocusVisible()
+
   const ringKey = ring.isFocused + ':' + ring.isFocusVisible
+
   if (state.lastRing !== ringKey) {
     state.lastRing = ringKey
     events.push('ring:' + ringKey)

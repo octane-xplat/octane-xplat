@@ -52,6 +52,7 @@ export function getLocaleDirection(locale: string): 'ltr' | 'rtl' {
     }
 
     const info = value.getTextInfo?.() ?? value.textInfo
+
     if (info) {
       return info.direction === 'rtl' ? 'rtl' : 'ltr'
     }
@@ -67,24 +68,29 @@ export function resolveInternationalization(
   props: InternationalizationProviderProps,
 ): Internationalization {
   let locale = props.locale
+
   try {
     locale = new Intl.Locale(locale).baseName
   } catch {
     /* Retain invalid tags for lookup. */
   }
+
   const parts = locale.split('-')
   const chain = parts.map((_, index) => parts.slice(0, parts.length - index).join('-'))
   const translate = (key: string): string => {
     for (const catalogs of [props.overrides, props.messages]) {
       for (const tag of chain) {
         const entry = catalogs?.[tag]?.[key]
+
         if (entry !== undefined) {
           return typeof entry === 'string' ? entry : entry.defaultMessage
         }
       }
     }
+
     return english[key] ?? key
   }
+
   return { locale, direction: props.dir ?? getLocaleDirection(locale), translate }
 }
 

@@ -7,6 +7,7 @@ function fixture() {
   const bounds = { origin: { x: 100, y: 50 }, size: { width: 180, height: 30 } }
   const anchor: any = { window, bounds, convertRectToView: () => bounds },
     input: any = { window }
+
   const state = {
     open: true,
     anchor,
@@ -15,12 +16,15 @@ function fixture() {
     width: undefined as number | undefined,
     placement: 'bottom' as 'bottom' | 'top',
   }
+
   const observers = new Map<object, any>(),
     publications: any[] = [],
     sizes: any[] = [],
     layers: any[] = []
+
   const dismiss = vi.fn(),
     canDismiss = vi.fn(() => true)
+
   const native = {
     NSNotificationCenter: {
       defaultCenter: {
@@ -31,6 +35,7 @@ function fixture() {
           callback: any,
         ) {
           const token = {}
+
           observers.set(token, callback)
           return token
         },
@@ -40,10 +45,12 @@ function fixture() {
       },
     },
   }
+
   const host: any = {
     showLayer(options: any) {
       const target = { window },
         root = options.createContentRoot(target)
+
       const layer = {
         options,
         target,
@@ -55,6 +62,7 @@ function fixture() {
           if (layer.closed) {
             return
           }
+
           layer.closed = true
           root.unmount()
         }),
@@ -68,11 +76,13 @@ function fixture() {
           }),
         ),
       }
+
       layers.push(layer)
       layer.update()
       return layer
     },
   }
+
   const options = {
     state: () => state,
     publish: (target: any, retired?: object) => publications.push({ target, retired }),
@@ -80,17 +90,20 @@ function fixture() {
     dismiss,
     canDismiss,
   }
+
   const controller = createAppKitTypeaheadLayer(
     options,
     () => host,
     () => native,
   )
+
   const token = () => [...publications].reverse().find((entry) => entry.target)?.target.token
   const notify = (object = window) => {
     for (const callback of [...observers.values()]) {
       callback({ object })
     }
   }
+
   return {
     controller,
     options,
@@ -115,9 +128,12 @@ function fixture() {
 it('stages a source outlet, bounds the list and reveals only after the source commit without moving focus', () => {
   const f = fixture(),
     responder = f.window.firstResponder
+
   try {
     f.controller.update()
+
     const layer = f.layers[0]
+
     expect(layer.options).toMatchObject({
       anchor: f.anchor,
       deferPresentation: true,
@@ -142,6 +158,7 @@ it('stages a source outlet, bounds the list and reveals only after the source co
 
 it('uses current RTL/placement and waits for resized source content before completing positioning', () => {
   const f = fixture()
+
   try {
     f.controller.update()
     f.controller.committed(f.token())
@@ -162,17 +179,23 @@ it('uses current RTL/placement and waits for resized source content before compl
 
 it('replaces native owners and ignores old source commits and unmounts', () => {
   const f = fixture()
+
   try {
     f.controller.update()
+
     const token = f.token(),
       old = f.layers[0]
 
     f.state.anchor = { ...f.anchor }
     f.controller.update()
+
     const current = f.token()
+
     expect(current).not.toBe(token)
     expect(old.close).toHaveBeenCalledTimes(1)
+
     const count = f.publications.length
+
     old.root.unmount()
     f.controller.committed(token)
     expect(f.publications).toHaveLength(count)
@@ -186,6 +209,7 @@ it('replaces native owners and ignores old source commits and unmounts', () => {
 
 it('outside dismissal honors current layer ownership and remains a controlled request', () => {
   const f = fixture()
+
   try {
     f.controller.update()
     f.controller.committed(f.token())
@@ -207,6 +231,7 @@ it('outside dismissal honors current layer ownership and remains a controlled re
 
 it('window migration retires the request until an explicit close/reopen', () => {
   const f = fixture()
+
   try {
     f.controller.update()
     f.controller.committed(f.token())
@@ -230,9 +255,12 @@ it('window migration retires the request until an explicit close/reopen', () => 
 
 it('native owner closure cancels the current request without resurrection from retained callbacks', () => {
   const f = fixture()
+
   try {
     f.controller.update()
+
     const old = f.layers[0]
+
     old.close()
     old.options.onClose()
     expect(f.dismiss).toHaveBeenCalledTimes(1)
@@ -248,6 +276,7 @@ it('native owner closure cancels the current request without resurrection from r
 
 it('late attachment waits for the current window and ignores unrelated notifications', () => {
   const f = fixture()
+
   f.anchor.window = null
   try {
     f.controller.update()
@@ -266,6 +295,7 @@ it('late attachment waits for the current window and ignores unrelated notificat
 it('missing and legacy hosts fail explicitly instead of rendering a detached or inline copy', () => {
   for (const legacy of [false, true]) {
     const f = fixture()
+
     if (legacy) {
       f.host.showLayer = () => ({ closed: false, show() {}, update() {}, close() {} })
     } else {
@@ -285,14 +315,18 @@ it('missing and legacy hosts fail explicitly instead of rendering a detached or 
 it('disposal during source publication closes a late returned handle and never republishes', () => {
   const f = fixture(),
     publish = f.options.publish
+
   f.options.publish = (target, retired) => {
     publish(target, retired)
     if (target) {
       f.controller.dispose()
     }
   }
+
   f.controller.update()
+
   const count = f.publications.length
+
   expect(f.layers[0].closed).toBe(true)
   expect(f.observers.size).toBe(0)
   f.layers[0].root.unmount()
@@ -304,10 +338,12 @@ it('disposal during source publication closes a late returned handle and never r
 it('host creation errors retain the original failure after source and observer cleanup', () => {
   const f = fixture(),
     failure = Error('host creation failed')
+
   f.host.showLayer = (options: any) => {
     options.createContentRoot({})
     throw failure
   }
+
   try {
     expect(() => f.controller.update()).toThrow(failure)
     expect(f.publications.at(-1).target).toBe(null)
@@ -319,6 +355,7 @@ it('host creation errors retain the original failure after source and observer c
 
 it('zero and nonfinite geometry never creates a result host', () => {
   const f = fixture()
+
   try {
     f.bounds.size.width = 0
     f.controller.update()
@@ -338,6 +375,7 @@ it('compound focus includes input editors and descendants of the detached result
     input: any = { window },
     list: any = { window },
     child = { superview: list }
+
   window.firstResponder = { delegate: () => input }
   expect(appKitTypeaheadOwnsFocus([input, list])).toBe(true)
   window.firstResponder = child
@@ -348,10 +386,13 @@ it('compound focus includes input editors and descendants of the detached result
 
 it('foreign, detached and cyclic responder paths leave the compound field', () => {
   const cycle: any = {}
+
   cycle.superview = cycle
+
   const window = { firstResponder: cycle },
     input: any = { window },
     list: any = { window: null }
+
   expect(appKitTypeaheadOwnsFocus([input, list, null])).toBe(false)
   window.firstResponder = {}
   expect(appKitTypeaheadOwnsFocus([input, list])).toBe(false)
@@ -360,14 +401,17 @@ it('foreign, detached and cyclic responder paths leave the compound field', () =
 it('window migration during source publication retires a late handle until close/reopen', () => {
   const f = fixture(),
     publish = f.options.publish
+
   f.options.publish = (target, retired) => {
     publish(target, retired)
     if (target) {
       const window = { contentView: f.window.contentView }
+
       f.input.window = window
       f.anchor.window = window
     }
   }
+
   try {
     f.controller.update()
     expect(f.layers[0].closed).toBe(true)
@@ -382,9 +426,12 @@ it('window migration during source publication retires a late handle until close
 
 it('only a current revealed source commit reports readiness to its field', () => {
   const f = fixture()
+
   try {
     f.controller.update()
+
     const token = f.token()
+
     expect(f.controller.committed({})).toBeFalsy()
     expect(f.controller.committed(token)).toBe(true)
     f.input.window = null
@@ -397,6 +444,7 @@ it('only a current revealed source commit reports readiness to its field', () =>
 
 it('native source retirement during reveal cannot report readiness or remain present', () => {
   const f = fixture()
+
   try {
     f.controller.update()
     f.layers[0].show.mockImplementation(() => f.layers[0].close())

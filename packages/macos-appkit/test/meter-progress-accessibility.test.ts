@@ -60,8 +60,11 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 
   const stackView = new AccessibleHostView()
   const stackNode = { type: 'flexboxlayout', view: stackView, actionId: 1 }
+
   ids.set(stackView, 1)
+
   const setStack = (name, value) => applyAccessibility(stackNode, name, value)
+
   setStack('accessibilityRole', 'meter')
   setStack('accessibilityLabel', 'Storage used')
   setStack('accessibilityValue', 6)
@@ -83,8 +86,11 @@ test('AppKit meter and progressbar roles report range, value, and description', 
 
   const gridView = new AccessibleHostView()
   const gridNode = { type: 'gridlayout', view: gridView, props: {}, actionId: 2 }
+
   ids.set(gridView, 2)
+
   const setGrid = (name, value) => applyAccessibility(gridNode, name, value)
+
   setGrid('accessibilityRole', 'meter')
   setGrid('accessibilityValue', 3)
   setGrid('accessibilityValueDescription', '3 of 4 bars')

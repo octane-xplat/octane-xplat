@@ -33,6 +33,7 @@ function scrollViewOffset(scroll: any): number {
 
 function scrollViewViewport(scroll: any): { width: number; height: number } {
   const bounds = scroll?.contentView?.bounds
+
   return {
     width: Number(bounds?.size?.width ?? 0),
     height: Number(bounds?.size?.height ?? 0),
@@ -81,10 +82,12 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   const seekStateRef = useRef<{ target: number; until: number } | null>(null)
   const hasSeparator = Boolean(props.renderSeparator)
   const hasSeparatorRef = useRef(hasSeparator)
+
   hasSeparatorRef.current = hasSeparator
 
   function rebuildLayout(nextEntries: VirtualListEntry<T>[], width: number) {
     entriesRef.current = nextEntries
+
     const indexByKey = new Map<string, number>()
     const activeMeasurements = new Set<string>()
 
@@ -116,6 +119,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function currentRange() {
     const listOffset = Math.max(0, scrollOffsetRef.current - headerHeightRef.current)
+
     return virtualListRange(
       sizeIndexRef.current,
       listOffset,
@@ -127,6 +131,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
   function refreshWindow() {
     const next = currentRange()
     const previous = rangeRef.current
+
     if (
       next.start !== previous.start ||
       next.end !== previous.end ||
@@ -140,12 +145,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function captureAnchor(): { rowKey: string; within: number } | null {
     const listOffset = scrollOffsetRef.current - headerHeightRef.current
+
     if (listOffset < 0 || entriesRef.current.length === 0) {
       return null
     }
 
     const index = sizeIndexRef.current.indexAt(listOffset)
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return null
     }
@@ -155,6 +162,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function activeSeek() {
     const seek = seekStateRef.current
+
     if (seek && Date.now() > seek.until) {
       seekStateRef.current = null
     }
@@ -173,11 +181,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const scroll = scrollRef.current
+
     if (!scroll) {
       return
     }
 
     anchorRestoreScheduledRef.current = true
+
     const timer = setTimeout(() => {
       if (anchorRestoreTimerRef.current !== timer) {
         return
@@ -197,12 +207,14 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const queued = queuedAnchorRef.current
+
       queuedAnchorRef.current = null
       if (!queued) {
         return
       }
 
       const index = indexByRowKeyRef.current.get(queued.rowKey)
+
       if (index === undefined) {
         return
       }
@@ -246,6 +258,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const scheduledAnchor = estimateAnchorRef.current
+
       estimateAnchorRef.current = null
       rebuildLayout(entriesRef.current, viewportWidthRef.current)
       restoreAnchor(scheduledAnchor)
@@ -259,11 +272,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const index = indexByRowKeyRef.current.get(rowKey)
+
     if (index === undefined) {
       return
     }
 
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
@@ -271,6 +286,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const hasRowSeparator = hasSeparatorRef.current && index < entriesRef.current.length - 1
     const cacheKey = virtualListMeasurementKey(rowKey, hasRowSeparator)
     const cached = sizeCacheRef.current.get(cacheKey)
+
     // NSViewFrameDidChangeNotification fires on origin moves too, not just
     // resizes — spacer shifts move every mounted row and would otherwise
     // re-run this whole path (and reschedule estimate rebuilds) forever.
@@ -282,16 +298,20 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     // seek ends ~400 ms after the last new/changed size lands (Legend's
     // idle-settle model), not on the first quiet rebuild.
     const seek = activeSeek()
+
     if (seek) {
       seek.until = Date.now() + 400
     }
 
     const anchor = queuedAnchorRef.current ?? captureAnchor()
+
     sizeCacheRef.current.set(cacheKey, { width, height })
 
     const delta = sizeIndexRef.current.set(index, height)
+
     if (Math.abs(delta) >= 0.5) {
       const anchorIndex = anchor ? indexByRowKeyRef.current.get(anchor.rowKey) : undefined
+
       if (anchor && anchorIndex !== undefined && index < anchorIndex) {
         restoreAnchor(anchor)
       }
@@ -304,15 +324,18 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function syncViewport() {
     const scroll = scrollRef.current
+
     if (!scroll) {
       return
     }
 
     const size = scrollViewViewport(scroll)
     const widthChanged = !sameSize(size.width, viewportWidthRef.current)
+
     viewportHeightRef.current = size.height
     if (widthChanged) {
       const anchor = captureAnchor()
+
       viewportWidthRef.current = size.width
       rebuildLayout(entriesRef.current, size.width)
       restoreAnchor(anchor)
@@ -335,6 +358,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const originY = Number(clip?.bounds?.origin?.y ?? event?.verticalOffset ?? 0)
     const clipH = Number(clip?.bounds?.size?.height ?? 0)
     let nextOffset: number
+
     if (Number.isFinite(spacerBottomY)) {
       const clipTopY = flipped ? originY : originY + clipH
       const spacerBottomContent = flipped
@@ -360,6 +384,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
     let ownWrite = false
     const wrote = programmaticWriteRef.current
+
     if (wrote !== null) {
       if (sameSize(nextOffset, wrote.offset)) {
         programmaticWriteRef.current = null
@@ -370,6 +395,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     }
 
     const jumpThreshold = Math.max(200, viewportHeightRef.current * 1.5)
+
     // A jump that doesn't match a pending anchor write is an external seek —
     // including one that lands while a stale write flag is still open.
     if (!ownWrite && Math.abs(nextOffset - scrollOffsetRef.current) > jumpThreshold) {
@@ -387,6 +413,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function scrollToOffset(offset: number, animated = false) {
     const scroll = scrollRef.current
+
     if (!scroll || !Number.isFinite(offset)) {
       return
     }
@@ -394,6 +421,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const docHeight = Number(scroll.documentView?.frame?.size?.height ?? 0)
     const clipHeight = scrollViewViewport(scroll).height
     const top = Math.min(Math.max(0, offset), Math.max(0, docHeight - clipHeight))
+
     // Match onScroll's external-seek detection: a deep handle seek must
     // suppress anchor-restore writes while estimates converge.
     if (Math.abs(top - scrollOffsetRef.current) > Math.max(200, viewportHeightRef.current * 1.5)) {
@@ -412,6 +440,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function scrollToIndex(index: number, options?: VirtualListScrollOptions) {
     const entry = entriesRef.current[index]
+
     if (!entry) {
       return
     }
@@ -419,6 +448,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     const top = headerHeightRef.current + sizeIndexRef.current.prefix(index)
     const size = sizeIndexRef.current.get(index)
     const align = options?.align ?? 'start'
+
     scrollToOffset(
       align === 'end'
         ? top + size - viewportHeightRef.current
@@ -448,11 +478,13 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function onHeaderLayout(event: AppKitLayoutEvent) {
     const height = Number(event?.height ?? 0)
+
     if (sameSize(height, headerHeightRef.current)) {
       return
     }
 
     const anchor = captureAnchor()
+
     headerHeightRef.current = height
     restoreAnchor(anchor)
     refreshWindow()
@@ -460,6 +492,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
 
   function onRowLayout(entry: VirtualListEntry<T>, event: AppKitLayoutEvent) {
     const view = event?.object
+
     if (!view) {
       return
     }
@@ -469,6 +502,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     // unmounted before the second pass would keep the bogus measurement.
     // Read the frame on the next tick instead, once layout has settled.
     const coalesced = (pendingRowMeasureRef.current.get(entry.rowKey) ?? 0) + 1
+
     pendingRowMeasureRef.current.set(entry.rowKey, coalesced)
     setTimeout(() => {
       if (pendingRowMeasureRef.current.get(entry.rowKey) !== coalesced) {
@@ -481,14 +515,17 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
       }
 
       const size = view.frame?.size ?? view.bounds?.size
+
       recordRowSize(entry.rowKey, Number(size?.width ?? 0), Number(size?.height ?? 0))
     }, 0)
   }
 
   const range = currentRange()
+
   rangeRef.current = range
   topSpacerHeightRef.current = range.top
   void windowVersion
+
   const visibleEntries = entries.slice(range.start, range.end)
 
   <scrollview

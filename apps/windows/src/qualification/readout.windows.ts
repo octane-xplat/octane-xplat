@@ -12,6 +12,7 @@ export function layoutReadout() {
     const size = view.getActualSize()
     const preferred = (globalThis as Record<string, any>).NativeScript?.Widgets?.FlexboxLayout
     const native = view.nativeViewProtected as any
+
     nodes.push({
       index,
       parent,
@@ -51,14 +52,18 @@ export function layoutReadout() {
         ? { x: location.x, y: location.y, width: size.width, height: size.height }
         : null,
     })
+
     view.eachChildView((child) => {
       visit(child, index)
       return true
     })
   }
+
   const root = Application.getRootView()
+
   if (root) {
     visit(root, null)
   }
+
   return nodes
 }

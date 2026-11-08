@@ -19,6 +19,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-dnd-consumer-'))
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8' })
+
   if (result.status !== 0) {
     throw new Error(result.stderr || result.stdout || String(result.error))
   }
@@ -26,13 +27,18 @@ function run(command, args, cwd) {
 
 try {
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], root)
+
   const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(temporary, tarball), '-C', temporary], root)
+
   const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
   for (const target of ['web', 'native', 'macos']) {
     for (const mode of ['Bundler', 'NodeNext']) {
       const consumer = join(temporary, `${target}-${mode}`)
       const modules = join(consumer, 'node_modules')
+
       mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
       cpSync(join(temporary, 'package'), join(modules, '@octane-xplat/dnd-kit'), {
         recursive: true,
@@ -43,6 +49,7 @@ try {
         ...Object.keys(manifest.peerDependencies),
       ]) {
         const destination = join(modules, name)
+
         mkdirSync(dirname(destination), { recursive: true })
         symlinkSync(join(root, 'node_modules', name), destination, 'dir')
       }
@@ -105,6 +112,7 @@ void node; void list; void order; void missingOwner; void scroll
       )
 
       assert.equal(listed.status, 0, listed.stderr)
+
       const implementation = listed.stdout
         .split('\n')
         .filter(

@@ -20,6 +20,7 @@ function saveToPhotosLibrary(path: string): void {
     const status = host.PHPhotoLibrary?.authorizationStatusForAccessLevel?.(addOnly)
     const write = () => {
       const url = host.NSURL.fileURLWithPath(path)
+
       library.performChangesCompletionHandler(
         () => {
           host.PHAssetChangeRequest.creationRequestForAssetFromImageAtFileURL(url)
@@ -67,8 +68,10 @@ export async function ensureCamera(): Promise<PermissionResult> {
   }
 
   const sheet = new XplatPhotoCaptureSheet()
+
   try {
     const status = String(sheet.permissionStatus())
+
     return status === 'granted'
       ? 'granted'
       : status === 'denied' || status === 'restricted'
@@ -86,15 +89,18 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
   }
 
   const sheet = new XplatPhotoCaptureSheet()
+
   active = sheet
   return new Promise((resolve) => {
     let settled = false
     let deliveredUri: string | undefined
     const finish = (message: string | null) => {
       let image: PickedImage | null = null
+
       try {
         if (message) {
           const value = JSON.parse(message) as Partial<PickedImage> & { dataUrl?: unknown }
+
           if (typeof value.name === 'string' && typeof value.uri === 'string') {
             // The sheet's reply may still carry a dataUrl payload; the
             // public ref is only the file handle.
@@ -129,6 +135,7 @@ export async function capturePhoto(options: CapturePhotoOptions = {}): Promise<P
         const manager = (globalThis as any).NSFileManager?.defaultManager
         const tempDir = String(manager?.temporaryDirectory?.path ?? '')
         const name = image.uri.slice(image.uri.lastIndexOf('/') + 1)
+
         if (
           tempDir !== '' &&
           name.startsWith('octane-capture-') &&

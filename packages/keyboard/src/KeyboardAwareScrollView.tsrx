@@ -10,8 +10,11 @@ export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps): un
   const attach = useCallback((next: any) => setHost(next?.native ?? null), [])
   const binding = useRef<KeyboardScrollBinding | null>(null)
   const latest = useRef(props)
+
   latest.current = props
+
   const enabled = props.enabled ?? true
+
   if (!Number.isFinite(props.extraScrollSpace ?? 0) || (props.extraScrollSpace ?? 0) < 0) {
     throw new RangeError('Extra keyboard scroll space must be finite and nonnegative')
   }
@@ -22,6 +25,7 @@ export function KeyboardAwareScrollView(props: KeyboardAwareScrollViewProps): un
     }
 
     const own = KeyboardScrollController.bind(host, latest.current)
+
     binding.current = own
     return () => {
       own.release()

@@ -24,7 +24,9 @@ function TextInputControl(inputProps: TextInputProps) @{
   const [internal, setInternal] = useState(props.defaultValue ?? '')
   const [editVersion, setEditVersion] = useState(0)
   const value = props.value ?? internal
+
   useEffect(() => writeText(el.current, value), [value, editVersion])
+
   const isBlocked = props.isDisabled || props.isReadOnly
   const setValue = (next: string) => {
     if (props.value === undefined) {

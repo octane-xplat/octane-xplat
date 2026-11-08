@@ -7,6 +7,7 @@ import { appKitOutlineRoot, createAppKitOutlineSnapshot } from './outline-snapsh
 /** Renderer-backed snapshot discovery. Older/missing hosts remain explicit. */
 export function getOutlineFromViewCapabilities(): OutlineFromViewCapabilities {
   const isSupported = typeof appKitHost()?.readOutlineHeadings === 'function'
+
   return { isSupported, mode: isSupported ? 'snapshot' : 'unsupported' }
 }
 
@@ -16,6 +17,7 @@ export function getOutlineFromViewCapabilities(): OutlineFromViewCapabilities {
 export function useOutlineFromView(containerRef?: unknown): OutlineItem[] {
   const [items, setItems] = useState<OutlineItem[]>([])
   const snapshot = useMemo(() => createAppKitOutlineSnapshot(), [])
+
   useEffect(() => {
     const host = appKitHost(),
       reader = host?.readOutlineHeadings

@@ -59,10 +59,13 @@ describe('nativeRelativeResolution', () => {
 
   it('recognizes a Windows-only bundler environment flag', () => {
     const previous = process.env.NATIVESCRIPT_BUNDLER_ENV
+
     try {
       process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ windows: true })
+
       const dir = makeDir(['screen.ts', 'screen.ios.ts', 'screen.windows.ts'])
       const resolve = nativeRelativeResolution().resolveId.handler
+
       assert.equal(
         resolve('./screen', join(dir, 'main.ts'), {}),
         vitePath(join(dir, 'screen.windows.ts')),
@@ -78,6 +81,7 @@ describe('nativeRelativeResolution', () => {
 
   const withWindowsEnv = (run) => {
     const previous = process.env.NATIVESCRIPT_BUNDLER_ENV
+
     try {
       process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ windows: true })
       return run(nativeRelativeResolution().resolveId.handler)
@@ -98,6 +102,7 @@ describe('nativeRelativeResolution', () => {
   it('prefers the platform leaf for an explicit unsuffixed .tsrx specifier', () =>
     withWindowsEnv((resolve) => {
       const dir = makeDir(['Pressable.tsrx', 'Pressable.windows.tsrx'])
+
       assert.equal(
         resolve('./Pressable.tsrx', join(dir, 'index.shared.ts'), {}),
         vitePath(join(dir, 'Pressable.windows.tsrx')),
@@ -106,6 +111,7 @@ describe('nativeRelativeResolution', () => {
 
   it('prefers the .mobile leaf for an explicit unsuffixed .tsrx specifier', () => {
     const dir = makeDir(['Tooltip.tsrx', 'Tooltip.mobile.tsrx'])
+
     assert.equal(
       handler('./Tooltip.tsrx', join(dir, 'index.shared.ts'), {}),
       vitePath(join(dir, 'Tooltip.mobile.tsrx')),
@@ -114,6 +120,7 @@ describe('nativeRelativeResolution', () => {
 
   it('resolves the literal unsuffixed file when no platform leaf exists', () => {
     const dir = makeDir(['Icon.tsrx'])
+
     assert.equal(
       handler('./Icon.tsrx', join(dir, 'index.shared.ts'), {}),
       vitePath(join(dir, 'Icon.tsrx')),
@@ -123,6 +130,7 @@ describe('nativeRelativeResolution', () => {
   it('does not inherit the .mobile tier on Windows', () =>
     withWindowsEnv((resolve) => {
       const dir = makeDir(['Widget.tsrx', 'Widget.mobile.tsrx'])
+
       assert.equal(
         resolve('./Widget.tsrx', join(dir, 'index.shared.ts'), {}),
         vitePath(join(dir, 'Widget.tsrx')),
@@ -132,6 +140,7 @@ describe('nativeRelativeResolution', () => {
   it('leaves platform-tagged and non-script specifiers to literal resolution', () =>
     withWindowsEnv((resolve) => {
       const dir = makeDir(['screen.ios.tsrx', 'theme.css'])
+
       assert.equal(resolve('./screen.ios.tsrx', join(dir, 'main.ts'), {}), null)
       assert.equal(resolve('./theme.css', join(dir, 'main.ts'), {}), null)
     }))

@@ -129,6 +129,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const devices = (): CameraDeviceInfo[] => {
     try {
       const parsed: unknown = JSON.parse(host.devices())
+
       return (Array.isArray(parsed) ? (parsed as DeviceEntry[]) : []).map((entry) => ({
         id: entry.id,
         label: entry.name,
@@ -142,6 +143,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const previewSize = (): { width: number; height: number } | undefined => {
     try {
       const size = JSON.parse(host.previewSize())
+
       return size.width > 0 ? { width: size.width, height: size.height } : undefined
     } catch {
       return undefined
@@ -157,6 +159,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       const selected = selectedCameraId()
       const device = list.find((entry) => entry.id === selected) ?? list[0]
+
       return {
         focus: device?.focusPointOfInterest === true,
         exposure: device?.exposurePointOfInterest === true,
@@ -168,6 +171,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const selectedCameraId = (config: CameraSessionConfig = currentConfig): string | undefined => {
     const selection = config.camera
+
     if (selection && typeof selection === 'object' && 'deviceId' in selection) {
       return selection.deviceId
     }
@@ -179,6 +183,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   host.installObserver((message) => {
     let event: HostEvent
+
     try {
       event = JSON.parse(message)
     } catch {
@@ -213,6 +218,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
         const sink = captureSink
         const request = captureRequest
+
         captureSink = undefined
         captureRequest = undefined
 
@@ -301,6 +307,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const checkPermission = async (kind: CameraPermissionKind): Promise<CameraPermissionStatus> => {
     const status = host.permissionStatus(kind)
+
     return (status === 'undeclared' ? 'unknown' : status) as CameraPermissionStatus
   }
 
@@ -322,6 +329,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
   const recordingsDirectory = (): string => {
     const root = host.movieDirectory()
+
     if (!root) {
       throw error(
         'destinationUnavailable',
@@ -350,6 +358,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const raw = fileUrl.startsWith('file://') ? fileUrl.slice('file://'.length) : fileUrl
+
     try {
       return decodeURIComponent(raw) === filePath
     } catch {
@@ -369,6 +378,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const available = list.length > 0
       const size = previewSize()
       const pointOfInterest = pointOfInterestSupport()
+
       return {
         supported: available,
         reason: available ? undefined : 'No camera device is available on this host',
@@ -439,6 +449,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const failure = host.attachPreview(target as object)
+
       if (failure) {
         throw error(
           failure === 'permissionDenied' ? 'permissionDenied' : 'unavailable',
@@ -514,6 +525,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         }
 
         const mic = host.permissionStatus('microphone')
+
         if (mic !== 'granted') {
           sink.settled({
             kind: 'failed',
@@ -581,6 +593,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       let filePath: string
+
       if (request.destinationPath) {
         // Canonicalize before the prefix check — a '..' segment keeps
         // the root prefix on a raw string while resolving outside it.
@@ -590,6 +603,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
         const directoryExists = inside && pathExists(directory)
         const fileExists = inside && pathExists(destination)
+
         if (!inside || !directoryExists || fileExists) {
           sink.settled({
             kind: 'failed',
@@ -648,7 +662,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
       captureSink = sink
       captureRequest = request
+
       const failure = host.startRecording(filePath, request.maximumDurationMs ?? 0)
+
       if (failure) {
         captureSink = undefined
         captureRequest = undefined
@@ -678,6 +694,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const filePath = decodeURIComponent(output.fileUrl.slice('file://'.length))
+
       if (!pathExists(filePath)) {
         throw error('unavailable', 'openOutput', `Movie file is missing at ${output.fileUrl}`)
       }

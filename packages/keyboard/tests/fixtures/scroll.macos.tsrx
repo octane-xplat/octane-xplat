@@ -4,6 +4,7 @@ import { KeyboardAwareScrollView, FocusedInputController } from '../../src/index
 import type { KeyboardScrollBinding } from '../../src/scroll-types'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './scroll.css'
+
 let binding: KeyboardScrollBinding | null
 let validate = () => {}
 let prepare = (_height: number) => {}
@@ -15,6 +16,7 @@ export default function ScrollProbe() @{
   const [validation, setValidation] = useState(0)
   const [leading, setLeading] = useState(0)
   const [trailing, setTrailing] = useState(0)
+
   prepare = (height) => {
     setLeading(height + 500)
     setTrailing(200)
@@ -33,19 +35,24 @@ export default function ScrollProbe() @{
 export async function run(ctx: ProbeContext) {
   const field: any = await ctx.waitFor(() => ctx.find('scroll-field'))
   const root: any = ctx.find('scroll-form')
+
   field.stringValue = 'Long form'
   ctx.record('initial viewport', { height: root.contentView.bounds.size.height })
   prepare(root.contentView.bounds.size.height)
   await ctx.waitFor(() => binding && field.window)
+
   const samples: any[] = []
   const off = FocusedInputController.subscribe(root, (state) => samples.push(state))
+
   ctx.onCleanup(off)
   field.window.makeFirstResponder(field)
+
   const visible = () => {
     const focus = samples.at(-1),
       owner = focus?.scrollOwners.find((owner: any) => owner.id === root)
 
     const box = focus?.inputRect
+
     return (
       !!owner &&
       !!box &&
@@ -56,7 +63,9 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(visible)
   ctx.assert('AppKit field fits viewport with clearance', visible(), true)
+
   const first = samples.at(-1).scrollOwners.find((owner: any) => owner.id === root).offsetY
+
   validate()
   await ctx.waitFor(
     () => samples.at(-1).scrollOwners.find((owner: any) => owner.id === root).offsetY > first + 150,
@@ -64,7 +73,9 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(visible)
   ctx.assert('AppKit validation movement updates visibility', visible(), true)
+
   const previous = samples.at(-1).scrollOwners.find((owner: any) => owner.id === root).offsetY
+
   binding!.recheck()
   ctx.assert(
     'AppKit visible recheck preserves offset',

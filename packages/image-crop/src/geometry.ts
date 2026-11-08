@@ -36,6 +36,7 @@ export function containFrame(view: Size, natural: Size): ImageFrame {
 export function convertToPixelCrop(crop: Crop, size: Size): PixelCrop {
   const sx = crop.unit === '%' ? positive(size.width) / 100 : 1
   const sy = crop.unit === '%' ? positive(size.height) / 100 : 1
+
   return {
     unit: 'px',
     x: finite(crop.x) * sx,
@@ -48,6 +49,7 @@ export function convertToPixelCrop(crop: Crop, size: Size): PixelCrop {
 /** Resolve any Crop to percent-of-displayed-image coordinates. */
 export function convertToPercentCrop(crop: Crop, size: Size): PercentCrop {
   const p = convertToPixelCrop(crop, size)
+
   return {
     unit: '%',
     x: size.width > 0 ? (p.x / size.width) * 100 : 0,
@@ -60,6 +62,7 @@ export function convertToPercentCrop(crop: Crop, size: Size): PercentCrop {
 /** Convert displayed-image coordinates to natural pixels for a separate pixel exporter. */
 export function toNaturalCrop(crop: Crop, displayed: Size, natural: Size): PixelCrop {
   const p = convertToPercentCrop(crop, displayed)
+
   return convertToPixelCrop(p, natural)
 }
 
@@ -85,6 +88,7 @@ export function constrainCrop(crop: Crop, size: Size, limits: CropConstraints = 
   let width = clamp(p.width, positive(limits.minWidth ?? 0), maxW)
   let height = clamp(p.height, positive(limits.minHeight ?? 0), maxH)
   const aspect = positive(limits.aspect ?? 0)
+
   if (aspect) {
     width = clamp(
       width,
@@ -152,6 +156,7 @@ export function dragCrop(
   let width = p.width + (west ? -dx : east ? dx : 0)
   let height = p.height + (north ? -dy : south ? dy : 0)
   const aspect = positive(limits.aspect ?? 0)
+
   if (aspect) {
     if ((!west && !east) || ((north || south) && Math.abs(dy * aspect) > Math.abs(dx))) {
       width = height * aspect

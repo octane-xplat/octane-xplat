@@ -23,6 +23,7 @@ vi.mock('@nativescript/core', () => {
       if (value === unsetValue) {
         throw new Error('ordinary setter cannot consume unsetValue')
       }
+
       this.#ordinary = value
     }
     writes: unknown[] = []
@@ -37,6 +38,7 @@ vi.mock('@nativescript/core', () => {
           this.#width = value === unsetValue ? 'auto' : value
         },
       })
+
       this.style.removeUnscopedCssVariable = (key: string) => this.variables.delete(key)
       this.style.setUnscopedCssVariable = (key: string, value: unknown) => {
         if (value === unsetValue) {
@@ -72,6 +74,7 @@ vi.mock('@nativescript/core', () => {
     setInlineStyle(css: string) {
       for (const declaration of css.split(';')) {
         const [key, raw] = declaration.split(':').map((part) => part.trim())
+
         if (key && raw !== undefined) {
           if (key.startsWith('--')) {
             this.variables.set(key, raw)
@@ -165,9 +168,12 @@ async function mount(props: Record<string, unknown>) {
   const host: any = new LayoutBase()
   const container = createNativeScriptContainer(host)
   const root = createUniversalRoot(container, nativeScriptDriver)
+
   container.root = root
   root.render(PropRemoval, props)
+
   const label = (host.children[0] as any).children[0]
+
   return {
     host,
     label,
@@ -184,6 +190,7 @@ async function mount(props: Record<string, unknown>) {
 
 it('restores a dropped prop to the value the view held before it applied', async () => {
   const { label, rerender, release } = await mount({ text: 'packed' })
+
   expect(label.text).toBe('packed')
 
   rerender({})
@@ -194,6 +201,7 @@ it('restores a dropped prop to the value the view held before it applied', async
 
 it('treats undefined and null as removal on native drivers', async () => {
   const { label, rerender, release } = await mount({ text: 'packed' })
+
   rerender({ text: undefined })
   expect(label.text).toBe('')
 
@@ -229,6 +237,7 @@ it('clears className and diffs removed style keys', async () => {
 
 it('does not invoke setters for never-applied undefined props', async () => {
   const { label, rerender, release } = await mount({})
+
   expect(label.writes).toEqual([])
   rerender({ text: undefined, className: undefined })
   expect(label.writes).toEqual([])
@@ -240,6 +249,7 @@ it('restores matching CSS after inline object and string overrides are removed',
     className: 'accent',
     style: { width: 120 },
   })
+
   expect(label.style.width).toBe(120)
   rerender({ className: 'accent', style: {} })
   expect(label.style.width).toBe(80)
@@ -259,6 +269,7 @@ it('restores captured ordinary style defaults', async () => {
   const { label, rerender, release } = await mount({
     style: { customField: 'authored' },
   })
+
   rerender({ style: { customField: undefined } })
   expect(label.style.customField).toBe('style default')
   rerender({ style: { customField: 'again' } })
@@ -271,17 +282,21 @@ it('resets registered props without echoing a native edit event', async () => {
   const { label, container, driver, release } = await mount({
     text: 'authored',
   })
+
   const node = [...container.nodes.values()].find((entry: any) => entry.view === label) as any
   const dispatched: unknown[] = []
   const originalRoot = container.root
+
   container.root = {
     eventScope: (_priority: unknown, run: () => unknown) => run(),
     dispatchEvent: (_id: number, data: unknown) => dispatched.push(data),
   } as any
+
   const apply = (commands: any[]) =>
     driver
       .prepareBatch(container, { renderer: 'nativescript', version: 1, commands }, {} as never)
       .apply()
+
   apply([
     {
       op: 'event',
@@ -291,6 +306,7 @@ it('resets registered props without echoing a native edit event', async () => {
     },
     { op: 'update', id: node.id, props: { ordinary: 'authored' } },
   ])
+
   expect(label.text).toBe('')
   expect(dispatched).toEqual([])
   apply([{ op: 'update', id: node.id, props: {} }])
@@ -303,6 +319,7 @@ it('resets registered props without echoing a native edit event', async () => {
 
 it('removes authored CSS variables when the inline string is removed', async () => {
   const { label, rerender, release } = await mount({ style: '--accent: red; width: 120' })
+
   expect(label.variables.get('--accent')).toBe('red')
   rerender({ style: { width: 140 } })
   expect(label.variables.has('--accent')).toBe(false)

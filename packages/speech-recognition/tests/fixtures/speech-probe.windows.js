@@ -10,9 +10,11 @@ const log = (message) => console.log(message)
 
 const toPromise = (op) => {
   const { NSWinRT } = globalThis
+
   if (NSWinRT?.toPromise && op != null) {
     return NSWinRT.toPromise(op)
   }
+
   if (op?.done) {
     return new Promise((resolve, reject) => {
       try {
@@ -22,6 +24,7 @@ const toPromise = (op) => {
       }
     })
   }
+
   return Promise.resolve(op)
 }
 
@@ -33,6 +36,7 @@ const withTimeout = (promise, ms, tag) =>
 
 const describeError = (error) => {
   const out = { name: error?.name, message: String(error?.message ?? error) }
+
   for (const key of ['number', 'hresult', 'code', 'status', 'HRESULT']) {
     try {
       if (error && error[key] !== undefined) {
@@ -42,6 +46,7 @@ const describeError = (error) => {
       /* ignore */
     }
   }
+
   try {
     const extra = Object.getOwnPropertyNames(error ?? {}).filter(
       (k) => !(k in out) && k !== 'stack',
@@ -57,21 +62,25 @@ const describeError = (error) => {
   } catch {
     /* ignore */
   }
+
   return out
 }
 
 // For each name report null | {t:'function'} | {t:'object',k:[props]} | {err}
 const dump = (obj, names) => {
   const found = {}
+
   for (const name of names) {
     try {
       const value = obj?.[name]
+
       if (value == null) {
         found[name] = null
         continue
       }
 
       const type = typeof value
+
       if (type === 'object') {
         try {
           found[name] = { t: type, k: Object.getOwnPropertyNames(value).slice(0, 24) }
@@ -85,6 +94,7 @@ const dump = (obj, names) => {
       found[name] = { err: String(error).slice(0, 90) }
     }
   }
+
   return found
 }
 
@@ -98,6 +108,7 @@ const enumName = (enumObj, value) => {
   } catch {
     /* ignore */
   }
+
   return undefined
 }
 
@@ -113,6 +124,7 @@ const listToArray = (list) => {
 
     const out = []
     const size = list.size ?? list.Size ?? list.length
+
     if (typeof size === 'number') {
       for (let i = 0; i < Math.min(size, 32); i++) {
         out.push(list[i])
@@ -146,9 +158,12 @@ const listToArray = (list) => {
 
 const ui = Microsoft.UI.Xaml
 const window = new ui.Window()
+
 window.Title = 'XplatSpeech'
+
 const box = new ui.Controls.StackPanel()
 const text = new ui.Controls.TextBlock()
+
 text.Text = 'speech probe'
 box.Children.Append(text)
 window.Content = box
@@ -160,6 +175,7 @@ setTimeout(() => {
 
 async function probe() {
   const W = globalThis.Windows
+
   log(
     'SPEECH GLOBALS ' +
       JSON.stringify({
@@ -169,6 +185,7 @@ async function probe() {
         toPromise: typeof globalThis.NSWinRT?.toPromise,
       }),
   )
+
   if (!W) {
     log('SPEECH DONE')
     return
@@ -215,6 +232,7 @@ async function probe() {
   )
 
   const SR = W.Media?.SpeechRecognition
+
   log(
     'SPEECH NS ' +
       JSON.stringify(
@@ -254,6 +272,7 @@ async function probe() {
         ]),
       ),
   )
+
   log('SPEECH GLOBALIZATION ' + JSON.stringify(dump(W.Globalization, ['Language', 'Calendar'])))
 
   if (SR?.SpeechRecognizer == null) {
@@ -263,6 +282,7 @@ async function probe() {
 
   try {
     const lang = SR.SpeechRecognizer.SystemSpeechLanguage
+
     log(
       'SPEECH LANG ' +
         JSON.stringify({
@@ -276,6 +296,7 @@ async function probe() {
   }
 
   let recognizer
+
   try {
     recognizer = new SR.SpeechRecognizer()
     log('SPEECH CTOR ok')
@@ -287,6 +308,7 @@ async function probe() {
 
   try {
     const t = recognizer.Timeouts
+
     log(
       'SPEECH TIMEOUTS ' +
         JSON.stringify(
@@ -324,6 +346,7 @@ async function probe() {
   try {
     const scenario = SR.SpeechRecognitionScenario?.Dictation ?? 1
     let constraint
+
     try {
       constraint = new SR.SpeechRecognitionTopicConstraint(scenario, 'dictation')
     } catch {
@@ -331,6 +354,7 @@ async function probe() {
     }
 
     const constraints = recognizer.Constraints
+
     if (typeof constraints.Append === 'function') {
       constraints.Append(constraint)
     } else if (typeof constraints.push === 'function') {
@@ -364,6 +388,7 @@ async function probe() {
 
   try {
     const NRT = globalThis.NSWinRT
+
     if (NRT?.asDelegate) {
       recognizer.HypothesisGenerated = NRT.asDelegate(
         'Windows.Foundation.TypedEventHandler`2<Windows.Media.SpeechRecognition.SpeechRecognizer,Windows.Media.SpeechRecognition.SpeechRecognitionHypothesisGeneratedEventArgs>',
@@ -408,16 +433,20 @@ async function probe() {
 
     try {
       log(`SPEECH LISTENING ${attempt}`)
+
       const result = await withTimeout(toPromise(recognizer.RecognizeAsync()), 45_000, 'recognize')
+
       if (result?.__timedOut) {
         log('SPEECH RESULT ' + JSON.stringify({ attempt, timedOut: true }))
         break
       }
 
       const alternates = []
+
       try {
         const list = result?.GetAlternates?.(3)
         const arr = listToArray(list)
+
         if (Array.isArray(arr)) {
           alternates.push(...arr)
         }

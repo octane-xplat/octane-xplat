@@ -40,7 +40,9 @@ function fixture(initial = 0) {
     },
     tick(ms) {
       now += ms
+
       const pending = [...frames.values()]
+
       frames.clear()
       for (const cb of pending) {
         cb()
@@ -51,6 +53,7 @@ function fixture(initial = 0) {
 
 test('tween samples elapsed time, replaces playback, and settles exactly', () => {
   const f = fixture()
+
   f.value.to(100, { duration: 200 })
   assert.equal(f.value.value, 0)
   f.tick(50)
@@ -87,8 +90,10 @@ test('springs are time based for under, critical and over damping', () => {
 
 test('stop, detach and disposal reject stale callbacks and subsequent runs', () => {
   const f = fixture()
+
   f.value.spring(100)
   f.tick(32)
+
   const stopped = f.value.value,
     stale = [...f.frames.values()][0]
 
@@ -103,7 +108,9 @@ test('stop, detach and disposal reject stale callbacks and subsequent runs', () 
   f.value.ref({})
   f.value.to(70)
   f.value.dispose()
+
   const count = f.writes.length
+
   f.value.ref({})
   f.value.spring(80)
   f.value.to(90, { duration: 0 })
@@ -114,6 +121,7 @@ test('stop, detach and disposal reject stale callbacks and subsequent runs', () 
 
 test('reduced motion snaps on start and preference change during playback', () => {
   const f = fixture()
+
   f.value.to(100)
   f.tick(16)
   f.reduce()
@@ -127,6 +135,7 @@ test('reduced motion snaps on start and preference change during playback', () =
 
 test('invalid parameters fail without interrupting a valid run', () => {
   const f = fixture()
+
   f.value.to(100)
   assert.throws(() => f.value.to(1, { duration: -1 }))
   assert.throws(() => f.value.spring(1, { stiffness: 0 }))
@@ -146,7 +155,9 @@ test('AppKit maps native properties, units and reduced motion', () => {
   }
 
   globalThis.NSWorkspace = { sharedWorkspace: { accessibilityDisplayShouldReduceMotion: true } }
+
   const view = { layer: { setValueForKeyPath: (v, key) => samples.push([key, v]) } }
+
   writeAnimatedProperty(view, 'opacity', 0.4)
   assert.equal(view.alphaValue, 0.4)
   writeAnimatedProperty(view, 'translateY', 12)
@@ -164,16 +175,23 @@ test('run outcomes distinguish completion, replacement, stop, detach and disposa
   const f = fixture()
   const first = f.value.to(100)
   const second = f.value.spring(0)
+
   assert.deepEqual(await first, { status: 'cancelled' })
   assert.deepEqual(await second, { status: 'finished' })
+
   const stopped = f.value.to(80)
+
   f.value.stop()
   assert.deepEqual(await stopped, { status: 'cancelled' })
+
   const detached = f.value.to(80)
+
   f.value.ref(null)
   assert.deepEqual(await detached, { status: 'cancelled' })
   f.value.ref({})
+
   const disposed = f.value.to(80)
+
   f.value.dispose()
   assert.deepEqual(await disposed, { status: 'cancelled' })
   assert.deepEqual(await f.value.to(80, { duration: 0 }), { status: 'cancelled' })
@@ -182,10 +200,13 @@ test('run outcomes distinguish completion, replacement, stop, detach and disposa
 test('completion promises cover timed, immediate, spring and reduced-motion runs', async () => {
   const f = fixture()
   const timed = f.value.to(80)
+
   f.tick(300)
   assert.deepEqual(await timed, { status: 'finished' })
   assert.deepEqual(await f.value.to(40, { duration: 0 }), { status: 'finished' })
+
   const spring = f.value.spring(0)
+
   f.tick(10000)
   assert.deepEqual(await spring, { status: 'finished' })
   f.reduce()
@@ -208,10 +229,13 @@ test('host write and scheduling failures settle the run without unhandled reject
   })
 
   assert.throws(() => value.ref({}), /host unavailable/)
+
   const run = value.to(10)
+
   tick()
   assert.deepEqual(await run, { status: 'failed', error })
   assert.deepEqual(await value.to(10, { duration: 0 }), { status: 'failed', error })
+
   const unscheduled = createAnimatedValue(0, {
     now: () => 0,
     cancel() {},
@@ -226,6 +250,7 @@ test('host write and scheduling failures settle the run without unhandled reject
 
 test('AppKit reduced motion reads live property and receiver-bound getter forms instead of function truthiness', () => {
   const original = globalThis.NSWorkspace
+
   try {
     const workspace = {
       reduced: false,

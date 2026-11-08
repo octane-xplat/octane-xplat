@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from 'vitest'
 
 const platform = vi.hoisted(() => ({ ios: true }))
+
 vi.mock('@nativescript/core', () => ({
   get isIOS() {
     return platform.ios
@@ -25,6 +26,7 @@ function fixture() {
       measured.push({ width, height, content: this.layoutView, receiver: this })
     },
   }
+
   return { page, measured }
 }
 
@@ -33,6 +35,7 @@ const exact = (dips: number) => (dips * 3) | 0x40000000
 describe('prepared native Page measurement', () => {
   it('resolves percentages against the Page bounds', () => {
     const { page, measured } = fixture()
+
     expect(prepareFullScreenPage(page as any)).toBe(page)
     page.measure(exact(402), exact(778))
     expect(measured).toEqual([
@@ -42,6 +45,7 @@ describe('prepared native Page measurement', () => {
 
   it('uses current host bounds after resizing and replacement content', () => {
     const { page, measured } = fixture()
+
     prepareFullScreenPage(page as any)
     page.measure(1, 2)
     page.layoutView = { iosIgnoreSafeArea: false }
@@ -53,8 +57,11 @@ describe('prepared native Page measurement', () => {
 
   it('does not wrap twice, and preserves incoming specs before UIKit has bounds', () => {
     const { page, measured } = fixture()
+
     prepareFullScreenPage(page as any)
+
     const measure = page.measure
+
     prepareFullScreenPage(page as any)
     expect(page.measure).toBe(measure)
     page.nativeViewProtected.bounds.size = { width: 0, height: 0 }
@@ -68,6 +75,7 @@ describe('prepared native Page measurement', () => {
     try {
       const { page } = fixture()
       const measure = page.measure
+
       prepareFullScreenPage(page as any)
       expect(page.measure).toBe(measure)
       expect(page.layoutView.iosIgnoreSafeArea).toBe(false)

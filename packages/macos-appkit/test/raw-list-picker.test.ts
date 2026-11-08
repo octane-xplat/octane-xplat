@@ -10,6 +10,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -100,21 +101,26 @@ function fixture() {
   const container: any = { nodes: new Map() }
   const node: any = { id: 1, type: 'listpicker', props: {}, children: [], parent: null, container }
   const control = api.makeListPicker(node)
+
   node.view = control.view
   container.nodes.set(1, node)
+
   const onSelectedIndexChange = (event: any) => events.push(event)
   const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })
+
   return { api, node, view, events, titles, update, onSelectedIndexChange }
 }
 
 test('retains and clears data-grid-cell metadata without applying it as an unknown native prop', () => {
   const f = fixture(),
     root = { subviews: [f.view] }
+
   f.update({ 'data-grid-cell': true })
   assert.deepEqual(
     readGridCells(root, (view) => (view === f.view ? f.node : undefined)),
     [f.view],
   )
+
   f.update({ items: [] })
   assert.deepEqual(
     readGridCells(root, (view) => (view === f.view ? f.node : undefined)),
@@ -124,6 +130,7 @@ test('retains and clears data-grid-cell metadata without applying it as an unkno
 
 test('ListPicker preserves duplicate/empty labels, renders nulls as indices and clamps selection', () => {
   const { view, titles, update, events, onSelectedIndexChange } = fixture()
+
   assert.equal(view.action, 'controlChanged:')
   assert.equal(view.translatesAutoresizingMaskIntoConstraints, false)
   update({ items: ['Same', 'Same', null, 42, ''], selectedIndex: 9, onSelectedIndexChange })
@@ -142,6 +149,7 @@ test('ListPicker preserves duplicate/empty labels, renders nulls as indices and 
 
 test('ListPicker restores missing props and style, re-coerces requested indices as items grow', () => {
   const { node, view, update, titles } = fixture()
+
   update({ items: ['a'], selectedIndex: 4, style: { opacity: 0.5 } })
   assert.equal(view.indexOfSelectedItem, 0)
   update({ items: ['a', 'b', 'c', 'd', 'e'], selectedIndex: 4 })
@@ -159,6 +167,7 @@ test('ListPicker restores missing props and style, re-coerces requested indices 
 test('ListPicker native selection survives unchanged props, updates payloads and removes stale handlers', () => {
   const { view, update, events, onSelectedIndexChange } = fixture()
   const items = ['a', 'b', 'c']
+
   update({ items, selectedIndex: 0, onSelectedIndexChange })
   events.length = 0
   view.selectItemAtIndex(2)
@@ -180,6 +189,7 @@ test('ListPicker native selection survives unchanged props, updates payloads and
 
 test('ListPicker rejects invalid props before allocating and rejects child content', () => {
   const { api } = fixture()
+
   for (const value of ['1', 1.5, NaN, Infinity]) {
     assert.throws(() => api.validateNodeProps('listpicker', { selectedIndex: value }), /integer/)
   }
@@ -189,6 +199,7 @@ test('ListPicker rejects invalid props before allocating and rejects child conte
   }
 
   const nesting = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'listpicker']) {
     assert.throws(
       () => nesting.validateTextNesting('listpicker', child),
@@ -290,7 +301,9 @@ test('ListPicker production ownership moves its native host between parents and 
   picker.actionId = 3
   picker.view.target = {}
   picker.view.action = 'controlChanged:'
+
   const retained = picker.view
+
   api.insert(container, 1, picker, null)
   assert.equal(left.contentChild, picker)
   api.insert(container, 2, picker, null)

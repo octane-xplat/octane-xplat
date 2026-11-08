@@ -5,8 +5,10 @@ import { View, Text, TextInput, Pressable, SizeProvider, useSize, Popover } from
 import type { PopoverProps } from '../../../../ui/src/props'
 
 const Context = createContext('missing')
+
 export const refs: Record<string, any> = {}
 export const counts = { mounts: 0, unmounts: 0, dismiss: 0, nestedDismiss: 0, outside: 0 }
+
 const capture = (name: string) => (view: any) => {
   refs[name] = view
 }
@@ -60,6 +62,7 @@ function Content() @{
   const value = useContext(Context)
   const size = useSize()
   const [clicks, setClicks] = useState(0)
+
   useEffect(() => {
     counts.mounts++
     return () => {

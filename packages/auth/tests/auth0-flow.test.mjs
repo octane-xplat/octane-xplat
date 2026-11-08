@@ -10,6 +10,7 @@ async function compile(path, dependencies) {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022,
   })
+
   vm.runInNewContext(code, { exports, require: (name) => dependencies[name] ?? {} })
   return exports
 }
@@ -39,6 +40,7 @@ const valid = {
 
 function transport(body = valid, status = 200) {
   const requests = []
+
   return {
     requests,
     fetch: async (url, init) => {
@@ -58,6 +60,7 @@ test('configuration requires the HTTPS provider origin and a native callback sch
 test('authorization binds a fresh state, public client, callback and S256 challenge without exposing the verifier', async () => {
   const attempt = await createAuth0Flow(config).begin({ pkce })
   const url = new URL(attempt.url)
+
   assert.equal(url.origin, config.issuer)
   assert.equal(url.pathname, '/authorize')
   assert.equal(url.searchParams.get('client_id'), config.clientId)
@@ -82,6 +85,7 @@ test('exchange sends the same callback and verifier, then converts seconds to a 
     attempt,
     { pkce, fetch: io.fetch },
   )
+
   assert.equal(io.requests[0].url, `${config.issuer}/oauth/token`)
   assert.deepEqual(JSON.parse(io.requests[0].init.body), {
     grant_type: 'authorization_code',
@@ -90,6 +94,7 @@ test('exchange sends the same callback and verifier, then converts seconds to a 
     code_verifier: pkce.verifier,
     redirect_uri: config.redirectUri,
   })
+
   assert.equal(credentials.token, 'access')
   assert.equal(credentials.sessionToken, 'refresh')
   assert.ok(credentials.expiresAt >= before + 3600_000)
@@ -100,6 +105,7 @@ test('invalid destination, state, fragment, provider error and missing code neve
   const flow = createAuth0Flow(config)
   const attempt = await flow.begin({ pkce })
   const io = transport()
+
   for (const callback of [
     `other://auth/callback?code=c&state=${attempt.state}`,
     `packing://different/callback?code=c&state=${attempt.state}`,
@@ -111,18 +117,21 @@ test('invalid destination, state, fragment, provider error and missing code neve
   ]) {
     assert.equal(await flow.complete(callback, attempt, { pkce, fetch: io.fetch }), null)
   }
+
   assert.equal(io.requests.length, 0)
 })
 
 test('refresh uses and rotates the durable credential; providers may retain the old refresh token', async () => {
   const flow = createAuth0Flow(config)
   const previous = { token: 'old-access', sessionToken: 'old-refresh', expiresAt: 1 }
+
   for (const [response, expected] of [
     [valid, 'refresh'],
     [{ ...valid, refresh_token: undefined }, 'old-refresh'],
   ]) {
     const io = transport(response)
     const next = await flow.refresh(previous, { fetch: io.fetch })
+
     assert.equal(JSON.parse(io.requests[0].init.body).refresh_token, 'old-refresh')
     assert.equal(next.sessionToken, expected)
   }
@@ -131,10 +140,12 @@ test('refresh uses and rotates the durable credential; providers may retain the 
 test('revoked refresh clears the session while temporary errors remain retryable', async () => {
   const flow = createAuth0Flow(config)
   const previous = { token: 'old', sessionToken: 'refresh', expiresAt: 1 }
+
   assert.equal(
     await flow.refresh(previous, { fetch: transport({ error: 'invalid_grant' }, 400).fetch }),
     null,
   )
+
   await assert.rejects(
     flow.refresh(previous, { fetch: transport({ error: 'server_error' }, 503).fetch }),
     /temporarily unavailable/,
@@ -144,6 +155,7 @@ test('revoked refresh clears the session while temporary errors remain retryable
 test('malformed and incomplete token responses cannot become a session', async () => {
   const flow = createAuth0Flow(config)
   const attempt = await flow.begin({ pkce })
+
   for (const response of [
     null,
     {},
@@ -164,10 +176,12 @@ test('malformed and incomplete token responses cannot become a session', async (
 
 test('revocation uses the durable refresh credential and no client secret', async () => {
   const io = transport({}, 200)
+
   await createAuth0Flow(config).revoke(
     { token: 'access', sessionToken: 'durable', expiresAt: 1 },
     { fetch: io.fetch },
   )
+
   assert.equal(io.requests[0].url, `${config.issuer}/oauth/revoke`)
   assert.deepEqual(JSON.parse(io.requests[0].init.body), {
     client_id: config.clientId,

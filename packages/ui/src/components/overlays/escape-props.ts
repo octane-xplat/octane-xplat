@@ -12,6 +12,7 @@ import { applyNativeModifiers } from '../../internal/platform/apply-native-modif
  *  does not exist yet at ref time. */
 function unclipAndroidContainer(view: any): void {
   const native = view?.android
+
   if (!native || view instanceof ScrollView || typeof native.setClipChildren !== 'function') {
     return
   }
@@ -42,6 +43,7 @@ export function applyEscapeProps(
   }
 
   const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
+
   if (bag) {
     Object.assign(view, bag)
   }
@@ -90,6 +92,7 @@ export function nativeAccessibilityRole(role?: Role | 'radiogroup'): string | un
   if (role === 'radiogroup') {
     return 'none'
   }
+
   return role ? NATIVE_ACCESSIBILITY_ROLES[role] : undefined
 }
 
@@ -115,6 +118,7 @@ export function nativeAccessibilityState(state?: {
   // NS has no mixed state; Checkbox supplies its textual value fallback.
   // NS has no 'pressed' state — a pressed toggle reports as checked.
   const checked = state?.checked ?? state?.pressed
+
   if (checked === true) {
     return 'checked'
   }

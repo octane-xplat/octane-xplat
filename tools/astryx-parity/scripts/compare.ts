@@ -36,14 +36,17 @@ function runSameframe(): Promise<{ result: unknown; exitCode: number }> {
       ['run', 'sameframe', 'compare', '--config', 'sameframe.yaml', '--json'],
       { cwd: appDir },
     )
+
     const stdout: Buffer[] = []
     const stderr: Buffer[] = []
+
     child.stdout.on('data', (chunk: Buffer) => stdout.push(chunk))
     child.stderr.on('data', (chunk: Buffer) => stderr.push(chunk))
     child.on('error', reject)
     child.on('close', (code) => {
       const out = Buffer.concat(stdout).toString('utf8')
       const err = Buffer.concat(stderr).toString('utf8')
+
       try {
         resolvePromise({ result: JSON.parse(out), exitCode: code ?? 4 })
       } catch {
@@ -67,6 +70,7 @@ async function main() {
     mkdirSync(`${artifacts}/behavior`, { recursive: true })
 
     const sameframe = await runSameframe()
+
     if (sameframe.exitCode > 1) {
       console.error(`sameframe capture/internal failure (exit ${sameframe.exitCode})`)
       writeFileSync(

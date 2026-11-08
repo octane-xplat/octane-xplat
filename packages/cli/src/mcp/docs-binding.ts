@@ -27,15 +27,19 @@ const readJson = (path) => {
 /** Versions the selected lockfile records for this importer (empty when absent). */
 function lockfileVersions(projectRoot) {
   const bun = bunLockedVersions(projectRoot)
+
   if (bun) {
     return bun
   }
+
   const file = join(projectRoot, 'pnpm-lock.yaml')
+
   if (!existsSync(file)) {
     return {}
   }
 
   let doc
+
   try {
     doc = parseYaml(readFileSync(file, 'utf8'))
   } catch {
@@ -44,11 +48,13 @@ function lockfileVersions(projectRoot) {
 
   const out = {}
   const importer = doc?.importers?.['.']
+
   for (const section of ['dependencies', 'devDependencies']) {
     for (const [name, entry] of Object.entries(importer?.[section] ?? {})) {
       // pnpm locks { specifier, version } objects; version may carry a
       // (peer) suffix that is not part of the released version.
       const raw = typeof entry === 'string' ? entry : entry?.version
+
       if (raw) {
         out[name] = String(raw).replace(/[(@].*$/, '')
       }
@@ -62,6 +68,7 @@ function lockfileVersions(projectRoot) {
 function declaredSpecs(projectRoot) {
   const pkg = readJson(join(projectRoot, 'package.json'))
   const specs = {}
+
   for (const section of ['dependencies', 'devDependencies', 'peerDependencies']) {
     for (const [name, spec] of Object.entries(pkg?.[section] ?? {})) {
       specs[name] = spec
@@ -77,6 +84,7 @@ function isLinkedSpec(projectRoot, spec = '') {
   }
 
   const file = /^file:(.+)$/.exec(spec)?.[1]
+
   if (!file) {
     return false
   }
@@ -92,12 +100,15 @@ function isLinkedSpec(projectRoot, spec = '') {
 
 function installedEntry(projectRoot, name) {
   const dir = installedPackageRoot(projectRoot, name)
+
   if (!dir) {
     return null
   }
+
   const manifest = join(dir, 'package.json')
 
   const pkg = readJson(manifest)
+
   if (!pkg?.name || !pkg?.version) {
     return null
   }
@@ -117,18 +128,21 @@ function installedEntry(projectRoot, name) {
 function nodeModulesDirs(dir) {
   const out = []
   let current = resolve(dir)
+
   while (true) {
     if (!current.endsWith(`${sep}node_modules`) && current !== 'node_modules') {
       out.push(join(current, 'node_modules'))
     }
 
     const parent = dirname(current)
+
     if (parent === current) {
       break
     }
 
     current = parent
   }
+
   return out
 }
 
@@ -152,6 +166,7 @@ export function resolveInstallations(projectRoot) {
   // workspaces whose scope dir lives at the workspace root are covered.
   for (const base of nodeModulesDirs(projectRoot)) {
     const scopedDir = join(base, SCOPED_DIR)
+
     if (!existsSync(scopedDir)) {
       continue
     }
@@ -173,12 +188,14 @@ export function resolveInstallations(projectRoot) {
 
   const packages = []
   const discrepancies = []
+
   for (const name of [...candidates].sort()) {
     if (!releaseMapping(name, '0.0.0')) {
       continue
     }
 
     const entry = installedEntry(projectRoot, name)
+
     if (entry) {
       const kind = entry.linked || isLinkedSpec(projectRoot, specs[name]) ? 'linked' : 'registry'
 
@@ -217,6 +234,7 @@ export function resolveInstallations(projectRoot) {
 /** Real location of a linked package's repo docs dir (walk to workspace root). */
 export function developmentDocsDir(installPath) {
   let dir = resolve(realpathSync(installPath))
+
   for (let i = 0; i < 8; i++) {
     if (
       existsSync(join(dir, 'bun.lock')) ||
@@ -224,10 +242,12 @@ export function developmentDocsDir(installPath) {
       existsSync(join(dir, '.git'))
     ) {
       const docs = join(dir, 'docs')
+
       return existsSync(docs) ? docs : null
     }
 
     const parent = dirname(dir)
+
     if (parent === dir) {
       break
     }

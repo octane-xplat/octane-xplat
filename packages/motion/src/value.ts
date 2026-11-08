@@ -76,6 +76,7 @@ export class MotionValue {
   /** Subscribe without causing a component render. Returns an unsubscribe function. */
   on<K extends keyof MotionValueEvents>(event: K, callback: MotionValueEvents[K]): () => void {
     let listeners = this.listeners.get(event)
+
     if (!listeners) {
       this.listeners.set(event, (listeners = new Set()))
     }
@@ -108,6 +109,7 @@ export class MotionValue {
 
     const now = this.clock.now()
     const elapsed = now - this.updated
+
     if (elapsed > 0) {
       this.velocity = elapsed > 30 ? 0 : ((value - this.current) * 1000) / elapsed
     }
@@ -131,9 +133,13 @@ export class MotionValue {
     }
 
     const velocity = transition.velocity ?? this.getVelocity()
+
     this.stop('replaced')
+
     const generation = ++this.generation
+
     this.emit('animationStart')
+
     const controls = runAnimation(
       this.clock,
       this.current,

@@ -15,6 +15,7 @@ import { FormField } from './FormField.macos.tsrx'
 // Render the child surface inline to inspect state/host contracts only.
 // This intentionally does not exercise NSPopover roots or OS focus/input.
 const popup = vi.hoisted(() => ({ props: null as any }))
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({
   Popover: (props: any) => {
     popup.props = props
@@ -38,6 +39,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -93,6 +95,7 @@ it('passes multiple mode/preset into checkbox/select-all presentation and select
 
   try {
     const all = env.byID('choice-select-all')
+
     expect(all.props.accessibilityState.checked).toBe('mixed')
     expect(env.byID('choice-option-a').props.accessibilityRole).toBe('checkbox')
     expect(env.byID('choice-option-b').props.onTap).toBeUndefined()
@@ -183,6 +186,7 @@ it('custom row/value renderers preserve native text hosts and unknown selections
 
   const base = viewProps({ renderOption, renderValue })
   const env = mount(SelectView, base)
+
   try {
     expect(renderOption).toHaveBeenCalledWith(options[0])
     expect(renderValue).toHaveBeenCalledWith(options[0])
@@ -193,7 +197,9 @@ it('custom row/value renderers preserve native text hosts and unknown selections
     env.render({ ...base, selected: ['missing'], triggerText: 'Unlisted value' })
     expect(env.byID('custom-value')).toBeUndefined()
     expect(env.all().some((node) => node.props?.text === 'Unlisted value')).toBe(true)
+
     const withIcon = [{ ...options[0], icon: <label id="default-icon" text="Icon" /> }, options[1]]
+
     env.render(viewProps({ options: withIcon, groups: [{ options: withIcon }], shown: withIcon }))
     expect(env.byID('default-icon')).toBeDefined()
   } finally {
@@ -204,6 +210,7 @@ it('custom row/value renderers preserve native text hosts and unknown selections
 it('read-only/pending raw views block all selection hosts and report expanded/busy metadata', () => {
   const base = viewProps({ multiple: true, hasSelectAll: true, isReadOnly: true })
   const env = mount(SelectView, base)
+
   try {
     expect(env.byID('choice').props.onTap).toBeUndefined()
     expect(env.byID('choice').props.accessibilityState.expanded).toBe(true)
@@ -240,6 +247,7 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name, _owner, _queue, notify) {
         const token = {}
+
         if (
           name ===
           ((globalThis as any).NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification')
@@ -330,12 +338,16 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
 
   try {
     hydrate()
+
     const trigger = env.byID('choice')
+
     main.firstResponder = trigger
     expect(key(trigger, 'ArrowDown').defaultPrevented).toBe(true)
     expect(changes).toHaveBeenCalledWith(true)
     env.render({ ...base, open: true })
+
     const surface = hydrate()
+
     await vi.waitFor(() => {
       flushUniversalSync(() => {})
       expect(observers.size).toBe(1)
@@ -348,9 +360,11 @@ it('wires native trigger/surface keys, manual row focus, Tab return intent and o
     expect(picks).not.toHaveBeenCalled()
     key(surface, 'Enter')
     expect(picks).toHaveBeenCalledWith(options[2])
+
     const cachedPick = env.byID('choice-option-c').props.onTap
     const cachedSurface = { props: { onKeyDown: surface.props.onKeyDown } }
     const next = { window: main }
+
     trigger.nextValidKeyView = next
     key(surface, 'Tab')
     expect(changes).toHaveBeenLastCalledWith(false)
@@ -426,8 +440,10 @@ it('an enclosing Field owns text once and supplies disabled/read-only state to S
   }
 
   const env = mount(Wrapped, {})
+
   try {
     const host = env.byID('outer-region')
+
     expect(host.props.accessibilityLabel).toBe('Region')
     expect(host.props.accessibilityHint).toContain('Parent description')
     for (const text of ['Region', 'Parent description', 'Parent status']) {
@@ -456,8 +472,10 @@ it('hidden standalone metadata preserves its name and ghost class resets on reta
   }
 
   const env = mount(Select, base)
+
   try {
     const host = env.byID('choice')
+
     expect(host.props.accessibilityLabel).toBe('Region')
     expect(env.all().some((node) => ['Region', 'Hidden detail'].includes(node.props?.text))).toBe(
       false,
@@ -519,8 +537,10 @@ it('badge callbacks read current guards/options and cannot remove stale or detac
 
   const env = mount(SelectView, base)
   const button = () => env.all().find((node) => node.props?.accessibilityLabel === 'Remove Alpha')
+
   try {
     const cached = button().props.onTap
+
     for (const patch of [
       { pending: true },
       { isDisabled: true },
@@ -536,7 +556,9 @@ it('badge callbacks read current guards/options and cannot remove stale or detac
     }
 
     expect(picks).not.toHaveBeenCalled()
+
     const replacement = { ...options[0], label: 'Updated Alpha' }
+
     env.render({ ...base, options: [replacement] })
     cached()
     expect(picks).toHaveBeenCalledWith(replacement)
@@ -575,9 +597,13 @@ it('badge removal uses pending deduplication and restores the badge after failed
     expect(action).toHaveBeenCalledTimes(1)
     expect(action).toHaveBeenCalledWith(['c'])
     expect(env.all().some((node) => node.props?.accessibilityLabel === 'Remove Alpha')).toBe(false)
+
     const gamma = env.all().find((node) => node.props?.accessibilityLabel === 'Remove Gamma')
+
     expect(gamma.props.disabled).toBe(true)
+
     const failure = new Error('save failed')
+
     task.reject(failure)
     await vi.waitFor(() => {
       flushUniversalSync(() => {})

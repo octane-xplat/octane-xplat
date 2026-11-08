@@ -1,6 +1,9 @@
 import { afterEach, expect, it, vi } from 'vitest'
+
 const { writeText } = vi.hoisted(() => ({ writeText: vi.fn() }))
+
 vi.mock('@octane-xplat/platform', () => ({ clipboard: { writeText } }))
+
 import { copyText } from './clipboard-write.macos'
 
 afterEach(() => writeText.mockReset())

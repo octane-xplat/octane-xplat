@@ -43,11 +43,13 @@ export function Thumbnail(props: ThumbnailProps): unknown @{
   // no imageSource means the src failed.
   useEffect(() => {
     const view = image.current
+
     if (!hasImage || !view) {
       return
     }
 
     setFailed(false)
+
     const onLoading = () => {
       if (!view.isLoading && !view.imageSource) {
         setFailed(true)

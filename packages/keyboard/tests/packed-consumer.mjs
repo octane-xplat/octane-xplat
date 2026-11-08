@@ -19,15 +19,18 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-keyboard-consumer-'))
 const run = (command, args, cwd = root) => {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   assert.equal(result.status, 0, `${command} ${args.join(' ')}\n${result.stdout}\n${result.stderr}`)
 }
 
 try {
   const modules = join(temporary, 'node_modules')
+
   mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
   // Copy actual tarballs: workspace source links cannot conceal missing declarations.
   for (const name of ['platform', 'ui', 'keyboard']) {
     const output = join(temporary, 'pack', name)
+
     mkdirSync(output, { recursive: true })
     run(
       'bun',
@@ -36,6 +39,7 @@ try {
     )
 
     const archive = readdirSync(output).find((file) => file.endsWith('.tgz'))
+
     assert.ok(archive)
     run('tar', ['-xzf', join(output, archive), '-C', output])
     cpSync(join(output, 'package'), join(modules, '@octane-xplat', name), { recursive: true })
@@ -46,6 +50,7 @@ try {
     ['@octane-xplat/lib', 'ui'],
   ]) {
     const destination = join(modules, name)
+
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(join(root, 'packages', owner, 'node_modules', name), destination, 'dir')
   }

@@ -126,6 +126,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const emitted = next ?? null
+
     lastEmitted.current = emitted
     props.onChange?.(emitted)
     if (props.changeAction) {
@@ -139,6 +140,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 
   const commitDate = (iso: ISODateString, fromPicker: boolean) => {
     let time = valueParts.time ?? timeDraft ?? currentISOTime(hasSeconds)
+
     if (minParts.date === iso && minParts.time && !isTimeInRange(time, minParts.time, undefined)) {
       time = minParts.time
     }
@@ -190,12 +192,14 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.value as string
+
     setDatePending(text)
     if (hasDateComposition(dateInput.current, e)) {
       return
     }
 
     const parsed = parseDateInput(text, locale)
+
     if (parsed && !isDateDisabled(parsed)) {
       commitDate(plainDateToISO(parsed), false)
     }
@@ -216,6 +220,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       }
     } else {
       const parsed = parseDateInput(datePending, locale)
+
       if (parsed && !isDateDisabled(parsed)) {
         commitDate(plainDateToISO(parsed), false)
       }
@@ -245,12 +250,14 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.value as string
+
     setTimePending(text)
     if (hasDateComposition(timeInput.current, e)) {
       return
     }
 
     const parsed = parseTimeInput(text, hasSeconds)
+
     if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
       commitTime(parsed)
     }
@@ -271,6 +278,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       }
     } else {
       const parsed = parseTimeInput(timePending, hasSeconds)
+
       if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
         commitTime(parsed)
       }
@@ -286,8 +294,10 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const list: { time: ISOTimeString; label: string }[] = []
+
     for (let m = 0; m < MINUTES_PER_DAY; m += props.timeOptionInterval) {
       const t = formatISOTime({ hour: Math.floor(m / 60), minute: m % 60, second: 0 }, hasSeconds)
+
       if (!isTimeInRange(t, timeMin, timeMax)) {
         continue
       }

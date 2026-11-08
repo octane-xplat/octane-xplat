@@ -56,6 +56,7 @@ function PresenceCounter(props: {
 
 function DisposalProbe(props: { onResult: (result: string) => void }) @{
   const x = useMotionValue(0)
+
   useEffect(() => {
     void x.animate(300, { duration: 8 }).finished.then(props.onResult)
   }, [])
@@ -102,7 +103,9 @@ export function MotionProbe() @{
       panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
     } else if (event.state === 'ended' || event.state === 'cancelled') {
       panPhases.current.push(event.state)
+
       const velocity = event.state === 'ended' ? event.vx : 0
+
       setPanStatus(
         `${event.state}; release vx=${Math.round(velocity)}; phases=${panPhases.current.join('→')}`,
       )
@@ -144,6 +147,7 @@ export function MotionProbe() @{
           id="motion-tween-to"
           onPress={() => {
             const next = target === 100 ? -100 : 100
+
             setMode('tween')
             setTarget(next)
             setDestinationStatus(`tween to ${next}`)
@@ -156,6 +160,7 @@ export function MotionProbe() @{
           id="motion-interrupt-spring"
           onPress={() => {
             const next = target > 0 ? -40 : 40
+
             setMode('spring')
             setTarget(next)
             setDestinationStatus(`spring to ${next}`)
@@ -190,6 +195,7 @@ export function MotionProbe() @{
           id="motion-value-cancel"
           onPress={() => {
             const controls = panX.animate(100, { duration: 3 })
+
             setPanStatus('MotionValue animation started')
             setTimeout(() => controls.stop(), 150)
             void controls.finished.then((result) => setPanStatus(`MotionValue ${result}`))
@@ -207,6 +213,7 @@ export function MotionProbe() @{
           id="motion-presence-toggle"
           onPress={() => {
             const next = !present
+
             setPresent(next)
             setPresenceStatus(next ? 're-entry requested' : 'exit requested')
           }}

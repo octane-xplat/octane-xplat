@@ -32,6 +32,7 @@ export function mergeStyle(
     if (s == null) {
       return
     }
+
     if (typeof s === 'string') {
       strings.push(s)
     } else if (Array.isArray(s)) {
@@ -42,6 +43,7 @@ export function mergeStyle(
       obj = { ...obj, ...s }
     }
   }
+
   add(style)
 
   if (strings.length === 0) {
@@ -52,6 +54,7 @@ export function mergeStyle(
     .filter(([, v]) => v != null)
     .map(([k, v]) => `${kebab(k)}:${v}`)
     .join(';')
+
   return [prefix, ...strings].filter(Boolean).join(';')
 }
 

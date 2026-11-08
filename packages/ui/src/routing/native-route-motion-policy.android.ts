@@ -4,11 +4,13 @@ import { Application } from '@nativescript/core'
 export function readNativeReducedMotion(): boolean {
   try {
     const api = (globalThis as any).android
+
     if (api.os.Build.VERSION.SDK_INT >= 26) {
       return !api.animation.ValueAnimator.areAnimatorsEnabled()
     }
 
     const context = Application.android?.context
+
     return (
       !!context &&
       api.provider.Settings.Global.getFloat(

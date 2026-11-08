@@ -4,6 +4,7 @@ import { imagePixelSize } from '../../src/image-pixels.ts'
 import { createImageByteCache } from '../../src/image-byte-cache.ts'
 import { sourceWithoutImports } from '../mock-globals.ts'
 import { imageCacheFixture } from './image-cache.ts'
+
 /** Isolated image module state without native framework loads or disk I/O. */
 export function rendererImageFixture() {
   const env = imageCacheFixture()
@@ -13,10 +14,12 @@ export function rendererImageFixture() {
     Object.defineProperty(fields, 'representations', {
       value: [{ pixelsWide: 64, pixelsHigh: 32 }],
     })
+
   const source = sourceWithoutImports(new URL('../../src/image.ts', import.meta.url)).replace(
     /^export /gm,
     '',
   )
+
   const image = runInNewContext(
     source +
       '\n;({ updateImage, disposeImage, imageMemoryCache, imageCache, setImageEventHandlers })',
@@ -47,5 +50,6 @@ export function rendererImageFixture() {
       },
     },
   )
+
   return { ...env, ...image, errors, decodes: () => decodes }
 }

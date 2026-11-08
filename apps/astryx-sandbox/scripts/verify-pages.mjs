@@ -9,10 +9,14 @@ import { chromium } from 'playwright'
 
 const app = new URL('../', import.meta.url)
 const allocation = createServer()
+
 allocation.listen(0, '127.0.0.1')
 await once(allocation, 'listening')
+
 const port = allocation.address().port
+
 await new Promise((resolve) => allocation.close(resolve))
+
 const base = `http://127.0.0.1:${port}`
 const server = spawn(
   process.execPath,
@@ -29,6 +33,7 @@ const server = spawn(
 )
 
 let serverOutput = ''
+
 server.stdout.on('data', (data) => {
   serverOutput += data
 })
@@ -123,16 +128,22 @@ try {
   }
 
   browser = await chromium.launch()
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(8000)
+
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
+
   const go = async (name) => {
     await page.goto(`${base}/templates/${name}/?embed=1`, { waitUntil: 'networkidle' })
   }
 
   const has = async (text) => {
     const body = await page.locator('body').innerText()
+
     assert.ok(body.includes(text), `missing ${text}: ${body.slice(-1600)}`)
   }
 
@@ -146,6 +157,7 @@ try {
       for (const text of strings) {
         await has(text)
       }
+
       assert.equal(await page.locator('.sb-pending').count(), 0, 'still pending')
       if (imgCount > 0) {
         assert.equal(await page.locator('img').count(), imgCount, 'image count')
@@ -181,7 +193,9 @@ try {
 
   await want('classic-gallery: tab filter narrows and restores the grid', async () => {
     await go('classic-gallery')
+
     const imgs = page.locator('img')
+
     assert.equal(await imgs.count(), 10)
     // Tabs without href render <button> (nav pattern, no role="tablist").
     await page.getByRole('button', { name: 'Scenery', exact: true }).click()
@@ -199,7 +213,9 @@ try {
     await page.getByLabel('Email').fill('you@example.com')
     await page.getByLabel('Password').fill('hunter2')
     await page.getByRole('button', { name: 'Sign in', exact: true }).click()
+
     const body = await page.locator('body').innerText()
+
     assert.ok(!body.includes('Please enter both'), 'error banner should clear')
   })
 
@@ -243,7 +259,9 @@ try {
 
   await want('shell-side-nav: rail collapse toggle and hover MoreMenu', async () => {
     await go('shell-side-nav')
+
     const collapse = page.getByRole('button', { name: 'Collapse sidebar', exact: true })
+
     await collapse.click()
     await page.getByRole('button', { name: 'Expand sidebar', exact: true }).waitFor()
     await page.getByRole('button', { name: 'Expand sidebar', exact: true }).click()
@@ -265,7 +283,9 @@ try {
     await page.keyboard.press('Escape')
     await page.getByRole('menu').waitFor({ state: 'hidden' })
     await page.keyboard.press('Control+k')
+
     const paletteInput = page.getByRole('dialog').getByRole('combobox').first()
+
     await paletteInput.waitFor()
     await paletteInput.fill('save')
     await page.getByText('Save All', { exact: true }).waitFor()

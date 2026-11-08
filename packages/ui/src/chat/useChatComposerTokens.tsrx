@@ -30,6 +30,7 @@ export function useChatComposerTokens({
       const host = editableRef.current as ComposerTokenHost | null | undefined
       const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
       const record = { id, span: null, token }
+
       setTokenPortals((prev) => [...prev, record])
       host?.insertTokenAtCaret?.(token, id)
       return id
@@ -40,6 +41,7 @@ export function useChatComposerTokens({
   const expandToken = useCallback(
     (id: string) => {
       const portal = tokenPortals.find((p) => p.id === id)
+
       if (!portal) {
         return
       }

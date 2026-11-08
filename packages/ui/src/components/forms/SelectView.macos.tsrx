@@ -35,6 +35,7 @@ function SelectOptionRow(input: {
   const bind = useCallback(
     (view: NSView | null) => {
       const previous = own.current
+
       if (previous && input.views.get(option.value) === previous) {
         input.views.delete(option.value)
       }
@@ -136,7 +137,9 @@ export function SelectView(props: SelectViewProps): unknown @{
   const surface = useRef<NSView | null>(null)
   const views = useRef(new Map<string, NSView>())
   const live = useRef(props)
+
   live.current = props
+
   const returnFocus = useRef<NSView | null>(null)
   const focusRequest = useRef<{ edge: 'first' | 'last'; value?: string } | null>({ edge: 'first' })
   const source = useRef<'trigger' | 'surface'>('trigger')
@@ -179,6 +182,7 @@ export function SelectView(props: SelectViewProps): unknown @{
 
   const focusSearch = () => {
     const field = search.current
+
     return Boolean(field?.window?.makeFirstResponder(field))
   }
 
@@ -188,13 +192,16 @@ export function SelectView(props: SelectViewProps): unknown @{
     }
 
     navigation.synchronize()
+
     const request = focusRequest.current
+
     if (!request) {
       return
     }
 
     const editor = search.current?.currentEditor()
     const marked = editor ? Reflect.get(editor, 'hasMarkedText') : false
+
     if (searchFocused() && Boolean(typeof marked === 'function' ? marked.call(editor) : marked)) {
       focusRequest.current = null
       searchAtEnd.current = false
@@ -210,6 +217,7 @@ export function SelectView(props: SelectViewProps): unknown @{
 
     if (moved && live.current.searchable && searchAtEnd.current) {
       const current = search.current?.currentEditor()
+
       if (current) {
         current.selectedRange = { location: current.string.length, length: 0 }
       }
@@ -226,7 +234,9 @@ export function SelectView(props: SelectViewProps): unknown @{
   }
 
   const initializeLatest = useRef(initialize)
+
   initializeLatest.current = initialize
+
   const bindSurface = useCallback((view: NSView | null) => {
     surfaceLease.current?.()
     surfaceLease.current = null
@@ -237,8 +247,10 @@ export function SelectView(props: SelectViewProps): unknown @{
     surface.current = view
     if (view) {
       const retain = appKitHost()?.retainFocusTarget
+
       if (typeof retain === 'function') {
         const release = retain(view)
+
         if (typeof release !== 'function') {
           throw new Error('AppKit select surface focus ownership unavailable')
         }
@@ -271,6 +283,7 @@ export function SelectView(props: SelectViewProps): unknown @{
           }
 
           const byKey = new Map(live.current.enabled.map((option) => [option.value, option]))
+
           return navigation
             .orderedKeys()
             .flatMap((key) => (byKey.has(key) ? [byKey.get(key)!] : []))
@@ -332,6 +345,7 @@ export function SelectView(props: SelectViewProps): unknown @{
       }
 
       const responder = surface.current?.window?.firstResponder
+
       if (
         !responder ||
         (!searchFocused() &&
@@ -348,6 +362,7 @@ export function SelectView(props: SelectViewProps): unknown @{
   }).keyboardProps
 
   const wasOpen = useRef(false)
+
   useLayoutEffect(() => {
     if (props.open && !wasOpen.current) {
       returnFocus.current = anchor.current
@@ -377,6 +392,7 @@ export function SelectView(props: SelectViewProps): unknown @{
     }
 
     let token: unknown
+
     try {
       token = center.addObserverForNameObjectQueueUsingBlock(
         native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
@@ -454,6 +470,7 @@ export function SelectView(props: SelectViewProps): unknown @{
         <masonview className="vx-select-badges vx-select-badges--appkit">
           @for (const value of props.selected; key value) {
             const option = props.options.find((item) => item.value === value)
+
             <masonview className="vx-select-badge vx-select-badge--appkit">
               <label text={option?.label ?? value} />
               <Pressable
@@ -556,6 +573,7 @@ export function SelectView(props: SelectViewProps): unknown @{
                 accessibilityLabel="Clear search"
                 onPress={() => {
                   const current = live.current
+
                   if (!current.open || current.isDisabled || current.isReadOnly) {
                     return
                   }
@@ -579,6 +597,7 @@ export function SelectView(props: SelectViewProps): unknown @{
                 ? undefined
                 : () => {
                     const current = live.current
+
                     if (
                       current.open &&
                       !current.pending &&

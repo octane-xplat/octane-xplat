@@ -11,7 +11,9 @@ function load(file, dependencies = {}, globals = {}) {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022,
   })
+
   const exports = {}
+
   new Function('require', 'exports', ...Object.keys(globals), code)(
     (id) => {
       assert.ok(id in dependencies, `Unmapped dependency ${id}`)
@@ -20,6 +22,7 @@ function load(file, dependencies = {}, globals = {}) {
     exports,
     ...Object.values(globals),
   )
+
   return exports
 }
 
@@ -30,6 +33,7 @@ class WorkerHarness {
     const self = {
       postMessage: (data) => queueMicrotask(() => this.onmessage({ data: structuredClone(data) })),
     }
+
     load(
       'worker.web.ts',
       {
@@ -47,6 +51,7 @@ class WorkerHarness {
         },
       },
     )
+
     this.self = self
   }
   postMessage(data) {
@@ -84,6 +89,7 @@ function nativeBackend() {
       db.exec('BEGIN')
       try {
         const result = await action()
+
         db.exec('COMMIT')
         return result
       } catch (error) {
@@ -93,9 +99,11 @@ function nativeBackend() {
     },
     each: async (sql, p, row, done) => {
       const rows = await api.select(sql, p)
+
       for (const value of rows) {
         row(null, value)
       }
+
       done(null, rows.length)
       return rows.length
     },
@@ -106,6 +114,7 @@ function nativeBackend() {
       db.close()
     },
   }
+
   return api
 }
 
@@ -120,16 +129,21 @@ const native = load('db.ts', {
 test('native adapter: execute hides plugin metadata and close propagates async failures', async () => {
   const backend = nativeBackend()
   const execute = backend.execute
+
   backend.execute = async (...args) => {
     await execute(...args)
     return { changes: 0, lastInsertRowId: 0 }
   }
+
   const close = backend.close
+
   backend.close = () => {
     const failure = Promise.reject(new Error('close failed'))
+
     void failure.catch(() => {})
     return failure
   }
+
   const api = load('db.ts', {
     './operation-queue': ownership,
     '@nativescript/core': {
@@ -137,7 +151,9 @@ test('native adapter: execute hides plugin metadata and close propagates async f
     },
     '@nativescript-community/sqlite': { openOrCreate: () => backend },
   })
+
   const db = await api.openDatabase(':memory:')
+
   try {
     assert.equal(await db.execute('CREATE TABLE example (id INTEGER)'), undefined)
     await assert.rejects(db.close(), /close failed/)
@@ -152,7 +168,9 @@ test('native adapter: openDatabase resolves only after the native open settles',
   const pending = new Promise((resolve) => {
     release = resolve
   })
+
   backend.ready = pending
+
   const api = load('db.ts', {
     './operation-queue': ownership,
     '@nativescript/core': {
@@ -160,23 +178,29 @@ test('native adapter: openDatabase resolves only after the native open settles',
     },
     '@nativescript-community/sqlite': { openOrCreate: () => backend },
   })
+
   let resolved = false
   const opening = api.openDatabase(':memory:').then((db) => {
     resolved = true
     return db
   })
+
   await Promise.resolve()
   assert.equal(resolved, false, 'openDatabase resolved before the native open settled')
   release()
+
   const db = await opening
+
   await db.close()
 })
 
 test('native adapter: openDatabase rejects when the native open fails', async () => {
   const backend = nativeBackend()
   const failure = Promise.reject(new Error('open failed'))
+
   void failure.catch(() => {})
   backend.ready = failure
+
   const api = load('db.ts', {
     './operation-queue': ownership,
     '@nativescript/core': {
@@ -184,11 +208,13 @@ test('native adapter: openDatabase rejects when the native open fails', async ()
     },
     '@nativescript-community/sqlite': { openOrCreate: () => backend },
   })
+
   await assert.rejects(api.openDatabase(':memory:'), /open failed/)
 })
 
 test('native adapter: user_version survives a successful version write', async () => {
   const db = await native.openDatabase(':memory:')
+
   try {
     await db.setUserVersion(3)
     assert.equal(await db.getUserVersion(), 3)
@@ -199,13 +225,16 @@ test('native adapter: user_version survives a successful version write', async (
 
 test('native adapter: version-write failures reject the public operation', async () => {
   const backend = nativeBackend()
+
   backend.setVersion = () => {
     // Android's plugin method is async. Observe its rejected promise here
     // so the current adapter's lost rejection does not abort the test host.
     const write = Promise.reject(new Error('version write failed'))
+
     void write.catch(() => {})
     return write
   }
+
   const api = load('db.ts', {
     './operation-queue': ownership,
     '@nativescript/core': {
@@ -213,7 +242,9 @@ test('native adapter: version-write failures reject the public operation', async
     },
     '@nativescript-community/sqlite': { openOrCreate: () => backend },
   })
+
   const db = await api.openDatabase(':memory:')
+
   try {
     await assert.rejects(db.setUserVersion(3), /version write failed/)
     assert.equal(await db.getUserVersion(), 0, 'the queue remains usable after failure')
@@ -230,14 +261,17 @@ for (const scope of ['main', 'transaction']) {
     const waiting = new Promise((resolve) => {
       release = resolve
     })
+
     const entered = new Promise((resolve) => {
       enter = resolve
     })
+
     backend.setVersion = async (version) => {
       enter()
       await waiting
       original(version)
     }
+
     const api = load('db.ts', {
       './operation-queue': ownership,
       '@nativescript/core': {
@@ -245,6 +279,7 @@ for (const scope of ['main', 'transaction']) {
       },
       '@nativescript-community/sqlite': { openOrCreate: () => backend },
     })
+
     const db = await api.openDatabase(':memory:')
     let completed = false
     const changing =
@@ -254,10 +289,12 @@ for (const scope of ['main', 'transaction']) {
             // The queue drains issued work even if the callback does not await it.
             void tx.setUserVersion(3)
           })
+
     const reading = db.getUserVersion().then((version) => {
       completed = true
       return version
     })
+
     try {
       await entered
       await new Promise(setImmediate)
@@ -310,14 +347,18 @@ const host = {
       s.stmt.run(...s.params)
       return 101
     }
+
     s.iterator ??= s.stmt.iterate(...s.params)
+
     const next = s.iterator.next()
+
     s.row = next.value
     return next.done ? 101 : 100
   },
   sqlite3_column_name: (s, i) => s.stmt.columns()[i].name,
   sqlite3_column_type: (s, i) => {
     const v = Object.values(s.row)[i]
+
     return v == null ? 5 : typeof v === 'string' ? 3 : Number.isInteger(v) ? 1 : 2
   },
   sqlite3_column_int64: (s, i) => Object.values(s.row)[i],
@@ -334,6 +375,7 @@ const deferred = () => {
   const promise = new Promise((res) => {
     resolve = res
   })
+
   return { promise, resolve }
 }
 
@@ -345,6 +387,7 @@ for (const [name, api] of [
   let sequence = 0
   async function fixture(body) {
     const db = await api.openDatabase(`transaction-test-${++sequence}.db`)
+
     try {
       await db.execute('CREATE TABLE records(name TEXT)')
       await body(db)
@@ -357,18 +400,23 @@ for (const [name, api] of [
     fixture(async (db) => {
       const entered = deferred(),
         finish = deferred()
+
       const transaction = db.transaction(async (tx) => {
         await tx.execute('INSERT INTO records VALUES (?)', ['rolled-back'])
         entered.resolve()
         await finish.promise
         throw new Error('intended rollback')
       })
+
       const rejected = assert.rejects(transaction, /intended rollback/)
+
       await entered.promise
+
       let outsideFinished = false
       const outside = db.execute('INSERT INTO records VALUES (?)', ['outside']).then(() => {
         outsideFinished = true
       })
+
       await Promise.resolve()
       assert.equal(outsideFinished, false)
       finish.resolve()
@@ -381,18 +429,22 @@ for (const [name, api] of [
     fixture(async (db) => {
       const entered = deferred(),
         finish = deferred()
+
       const first = db.transaction(async (tx) => {
         await tx.execute('INSERT INTO records VALUES (?)', ['first'])
         entered.resolve()
         await finish.promise
         return 'committed'
       })
+
       await entered.promise
+
       let secondStarted = false
       const second = db.transaction(async (tx) => {
         secondStarted = true
         await tx.execute('INSERT INTO records VALUES (?)', ['second'])
       })
+
       await Promise.resolve()
       assert.equal(secondStarted, false)
       finish.resolve()
@@ -410,6 +462,7 @@ for (const [name, api] of [
   test(`${name}: scoped handles expose all reads and migrations, reject nesting and expire`, () =>
     fixture(async (db) => {
       let escaped
+
       await db.transaction(async (tx) => {
         escaped = tx
         assert.equal(tx.isOpen, true)
@@ -418,7 +471,9 @@ for (const [name, api] of [
         assert.equal(await tx.getUserVersion(), 7)
         assert.deepEqual(await tx.get('SELECT * FROM records'), { name: 'inside' })
         assert.deepEqual(await tx.getArray('SELECT * FROM records'), ['inside'])
+
         const seen = []
+
         assert.equal(
           await tx.each(
             'SELECT * FROM records',
@@ -428,13 +483,16 @@ for (const [name, api] of [
           ),
           1,
         )
+
         assert.deepEqual(seen, ['inside'])
         await assert.rejects(
           tx.transaction(async () => {}),
           /nested/,
         )
+
         await assert.rejects(tx.close(), /transaction handle/)
       })
+
       assert.equal(escaped.isOpen, false)
       await assert.rejects(escaped.execute('INSERT INTO records VALUES (?)', ['late']), /expired/)
       assert.deepEqual(await db.selectArray('SELECT name FROM records'), [['inside']])
@@ -444,12 +502,16 @@ for (const [name, api] of [
     const db = await api.openDatabase(':memory:')
     const entered = deferred(),
       finish = deferred()
+
     const transaction = db.transaction(async () => {
       entered.resolve()
       await finish.promise
     })
+
     await entered.promise
+
     const closing = db.close()
+
     assert.equal(db.isOpen, true)
     finish.resolve()
     await transaction

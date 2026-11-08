@@ -23,6 +23,7 @@ export function ToastViewport(props: ToastViewportProps): unknown @{
 
   useEffect(() => {
     const rl = rootLayoutFor(sentinel.current)
+
     if (!rl) {
       return
     }

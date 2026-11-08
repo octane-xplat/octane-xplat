@@ -48,8 +48,10 @@ export function observeListViewability(
 
           const rows: VisibleListRow[] = []
           const paths = Array.from(table.indexPathsForVisibleRows ?? []) as NSIndexPath[]
+
           for (const path of paths) {
             const index = Number(path.row)
+
             if (index < 0 || index >= state.items.length) {
               continue
             }
@@ -58,11 +60,13 @@ export function observeListViewability(
             const rowTop = Number(rect.origin.y)
             const rowBottom = rowTop + Number(rect.size.height)
             const height = rowBottom - rowTop
+
             if (height <= 0) {
               continue
             }
 
             const intersection = Math.max(0, Math.min(bottom, rowBottom) - Math.max(top, rowTop))
+
             if (intersection > 0) {
               rows.push({ index, visiblePercent: (intersection / height) * 100 })
             }

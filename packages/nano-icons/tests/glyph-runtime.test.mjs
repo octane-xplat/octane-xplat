@@ -39,6 +39,7 @@ test('resolveGlyphEntry returns [advance, layers] and falls back to ?', () => {
 
 test('createCharCache memoizes codepoint to string', () => {
   const cache = createCharCache()
+
   assert.equal(cache(0xe900), String.fromCodePoint(0xe900))
   assert.equal(cache(63), '?')
   assert.equal(cache(0xe900), String.fromCodePoint(0xe900))
@@ -50,24 +51,29 @@ const mixedLayers = glyphMap.i.mixed[1]
 
 test('tintMode "all" applies the palette by layer position with last-color spill', () => {
   const one = createLayerColorResolver('#123456', 'all', duoLayers)
+
   assert.equal(one(0, '#dbeafe'), '#123456')
   assert.equal(one(1, '#1d4ed8'), '#123456')
 
   const pair = createLayerColorResolver(['red', 'blue'], 'all', duoLayers)
+
   assert.equal(pair(0, '#dbeafe'), 'red')
   assert.equal(pair(1, '#1d4ed8'), 'blue')
 
   const spill = createLayerColorResolver(['red'], 'all', duoLayers)
+
   assert.equal(spill(1, '#1d4ed8'), 'red')
 })
 
 test('tintMode "currentColor" only tints currentColor source layers', () => {
   const resolve = createLayerColorResolver('#abcdef', 'currentColor', mixedLayers)
+
   assert.equal(resolve(0, '#333333'), '#333333')
   assert.equal(resolve(1, 'currentColor'), '#abcdef')
 
   // No color → source colors stand.
   const bare = createLayerColorResolver(undefined, 'currentColor', duoLayers)
+
   assert.equal(bare(0, '#dbeafe'), '#dbeafe')
   assert.equal(bare(1, '#1d4ed8'), '#1d4ed8')
 })
@@ -117,6 +123,7 @@ test('createNanoIconSetImpl registers the set and drives unbound resolution', as
 
   // Unbound name resolution finds any registered set containing the name.
   const hit = resolveNanoIcon('duo')
+
   assert.ok(hit)
   assert.equal(hit.set, set)
   assert.deepEqual(hit.entry[1].length, 2)

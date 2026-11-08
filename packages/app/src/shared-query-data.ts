@@ -15,16 +15,19 @@ export type DemoUser = { id: string; name: string; revision: number }
 const accounts = new Map<string, Map<string, DemoUser>>()
 function records(account: string) {
   let users = accounts.get(account)
+
   if (!users) {
     users = new Map(
       Array.from({ length: 9 }, (_, index) => {
         const id = String(index + 1)
+
         return [id, { id, name: `${account} user ${id}`, revision: 1 }]
       }),
     )
 
     accounts.set(account, users)
   }
+
   return users
 }
 
@@ -35,10 +38,12 @@ function delay(signal: AbortSignal, milliseconds: number): Promise<void> {
       signal.removeEventListener('abort', abort)
       reject(Object.assign(new Error('Demo request cancelled'), { name: 'AbortError' }))
     }
+
     const timer = setTimeout(() => {
       signal.removeEventListener('abort', abort)
       resolve()
     }, milliseconds)
+
     signal.addEventListener('abort', abort, { once: true })
     if (signal.aborted) {
       abort()
@@ -59,30 +64,38 @@ export function createDemoSession(
     namespace: `public-demo:${account}`,
     environment: options.environment,
   })
+
   const policy = {
     staleTimeMs: 60_000,
     retryDelayMs: 100,
     persist: { storage: options.storage ?? platformQueryStorage, version: 1, maxAgeMs: 86_400_000 },
   }
+
   const users = defineQuery(
     ['demo-users'],
     async (id: string, { signal }) => {
       await delay(signal, options.latencyMs ?? 250)
+
       const user = records(account).get(id)
+
       if (!user) {
         throw new Error('Demo user not found')
       }
+
       return { ...user }
     },
     { ...policy, compareAuthority: (incoming, current) => incoming.revision - current.revision },
   )
+
   const feed = defineCursorQuery(
     ['demo-user-feed'],
     async (search: string, { cursor, signal }) => {
       await delay(signal, options.latencyMs ?? 250)
+
       const all = [...records(account).values()].filter((user) =>
         user.name.toLowerCase().includes(search.toLowerCase()),
       )
+
       return {
         items: all.slice(cursor, cursor + 3).map((user) => ({ ...user })),
         nextCursor: cursor + 3 < all.length ? cursor + 3 : undefined,
@@ -104,8 +117,10 @@ export function createDemoSession(
         if (rejectSave) {
           throw new Error('Demo server rejected the rename')
         }
+
         const previous = records(account).get(id)!
         const receipt = { ...previous, name, revision: previous.revision + 1 }
+
         records(account).set(id, receipt)
         operation.adopt(receipt)
         // Explicit application reconciliation; no implicit list/detail normalization.
@@ -116,6 +131,7 @@ export function createDemoSession(
             items: page.items.map((user) => (user.id === id ? receipt : user)),
           })),
         }))
+
         return receipt
       })
     },
@@ -129,6 +145,7 @@ export const demoSession = createStore(createDemoSession('Ada'))
 /** Replace the whole boundary. Reopening an account can restore its own confirmed records. */
 export async function replaceDemoSession(account: string) {
   const previous = demoSession.getSnapshot()
+
   demoSession.set(createDemoSession(account))
   await previous.queries.dispose()
 }
@@ -139,21 +156,27 @@ if (import.meta.env.DEV) {
   let stop = () => {}
   const inspect = async () => {
     const revision = ++generation
+
     stop()
     stop = () => {}
+
     const session = demoSession.getSnapshot()
     const { inspectQueryClient, registerQueryInspection } =
       await import('@octane-xplat/ui/data/dev')
+
     if (revision !== generation) {
       return
     }
+
     const inspector = inspectQueryClient(session.queries, {
       labels: [
         { definition: session.users, label: 'demo.users' },
         { definition: session.feed, label: 'demo.feed' },
       ],
     })
+
     const registration = registerQueryInspection(inspector)
+
     stop = () => {
       registration.dispose()
       inspector.dispose()
@@ -167,6 +190,7 @@ if (import.meta.env.DEV) {
   }
 
   const unsubscribe = demoSession.subscribe(start)
+
   start()
   import.meta.hot?.dispose(() => {
     generation++

@@ -30,6 +30,7 @@ const clampIndex = (i: number, count: number) =>
 function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) {
   const state = useLightboxState()
   const item = state.items[props.index]
+
   if (item?.type === 'video') {
     return (
       <video
@@ -49,6 +50,7 @@ function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) {
 
 function Counter() {
   const state = useLightboxState()
+
   if (state.count <= 1) {
     return null
   }
@@ -63,6 +65,7 @@ function Counter() {
 function Caption() {
   const state = useLightboxState()
   const caption = state.item?.caption
+
   if (caption == null) {
     return null
   }
@@ -81,6 +84,7 @@ export function Lightbox(props: LightboxProps): JSX.Element {
   const [internal, setInternal] = useState(props.defaultIndex ?? 0)
   const count = props.media.length
   const index = clampIndex(props.index ?? internal, count)
+
   return (
     <Root
       media={props.media}
@@ -89,6 +93,7 @@ export function Lightbox(props: LightboxProps): JSX.Element {
       defaultIndex={props.defaultIndex}
       onIndexChange={(i: number) => {
         const clamped = clampIndex(i, count)
+
         if (props.index == null) {
           setInternal(clamped)
         }

@@ -35,6 +35,7 @@ export function refList<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<any>
  */
 export function mergedRef<T>(...refs: (Octane.Ref<T> | undefined)[]): FlatRef<any> {
   const list = refList(...refs)
+
   return (instance: T | null) => {
     for (const ref of list) {
       if (typeof ref === 'function') {

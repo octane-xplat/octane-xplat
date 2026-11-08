@@ -29,6 +29,7 @@ export function __tabItemProps(props: any) {
   }
 
   const attributes = { ...props }
+
   if (Object.prototype.hasOwnProperty.call(attributes, 'children')) {
     attributes.__tabContent = attributes.children
     delete attributes.children
@@ -51,6 +52,7 @@ class TabDelegate extends NSObject {
   }
   tabViewDidSelectTabViewItem(view: any, _item: any) {
     const node = delegates.get(this)
+
     if (!node || node.tabSyncing) {
       return
     }
@@ -77,6 +79,7 @@ class IconTabItem extends NSTabViewItem {
   }
   sizeOfLabel(minimum: boolean) {
     const size = super.sizeOfLabel(minimum)
+
     return this.image ? { width: size.width + 20, height: Math.max(16, size.height) } : size
   }
 
@@ -146,9 +149,12 @@ export function validateTabProps(type: string, props: Record<string, any>) {
 
 export function makeTabView(node: ElementNode): AppKitView {
   const view = NSTabView.alloc().init()
+
   node.view = view as AppKitView
   view.translatesAutoresizingMaskIntoConstraints = false
+
   const delegate = TabDelegate.new()
+
   delegates.set(delegate, node)
   node.tabDelegate = delegate // AppKit holds its delegate weakly.
   view.delegate = delegate
@@ -161,8 +167,10 @@ export function makeTabView(node: ElementNode): AppKitView {
 export function makeTabItem(node: ElementNode) {
   handles.add(node)
   node.tabContentRoot = null
+
   const item = IconTabItem.alloc().initWithIdentifier(String(node.id))
   const content = NSView.new()
+
   content.autoresizingMask = 18 // NSViewWidthSizable | NSViewHeightSizable
   node.tabNativeItem = item
   // Logical refs always have view:null; the host owns this content root.
@@ -186,6 +194,7 @@ function iconImage(source: any, style: Record<string, any> = {}): any {
   if (typeof source !== 'string') {
     // Shared ImageSource-like handles expose their platform image.
     const image = source.macos ?? source.nativeImage ?? source
+
     if (typeof image.drawInRectFromRectOperationFraction !== 'function') {
       throw new TypeError('AppKit tabviewitem iconSource host object must contain an NSImage')
     }
@@ -209,11 +218,13 @@ function iconImage(source: any, style: Record<string, any> = {}): any {
     })
 
     const size = text.size()
+
     if (size.width <= 0 || size.height <= 0) {
       return null
     }
 
     const image = NSImage.alloc().initWithSize(size)
+
     image.lockFocus()
     try {
       text.drawAtPoint({ x: 0, y: 0 })
@@ -243,6 +254,7 @@ function notifyContentTarget(node: ElementNode) {
   }
 
   const generation = (node.tabPortalGeneration = (node.tabPortalGeneration ?? 0) + 1)
+
   queueMicrotask(() => {
     if (node.tabPortalGeneration !== generation) {
       return
@@ -268,6 +280,7 @@ function mountContent(node: ElementNode) {
 // Injected by index.ts to avoid a runtime import cycle through the host driver.
 let createContentRoot: (host: AppKitView, fontFamily?: string) => any
 let resolveIconColor: (color: any) => any
+
 export function configureTabContentRoots(
   create: typeof createContentRoot,
   color: (value: any) => any,
@@ -282,7 +295,9 @@ export function syncTabItem(node: ElementNode) {
   }
 
   const item = node.tabNativeItem
+
   item.label = node.props.title ?? ''
+
   const style = node.computedStyle ?? node.props.style ?? {}
   const fontInputs =
     typeof node.props.iconSource === 'string' && node.props.iconSource.startsWith('font://')
@@ -295,8 +310,10 @@ export function syncTabItem(node: ElementNode) {
   ) {
     node.tabIconTask?.cancel()
     node.tabIconTask = null
+
     const generation = (node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1)
     const source = node.props.iconSource
+
     if (typeof source === 'string' && /^https?:\/\//i.test(source)) {
       item.image = null
       node.tabIconTask = NSURLSession.sharedSession.dataTaskWithURLCompletionHandler(
@@ -307,7 +324,9 @@ export function syncTabItem(node: ElementNode) {
           }
 
           item.image = data && !error ? NSImage.alloc().initWithData(data) : null
+
           const owner = owners.get(node)
+
           if (owner) {
             owner.view!.needsDisplay = true
           }
@@ -324,6 +343,7 @@ export function syncTabItem(node: ElementNode) {
   }
 
   const owner = owners.get(node)
+
   if (owner) {
     owner.view!.needsDisplay = true
     mountContent(node)
@@ -332,12 +352,14 @@ export function syncTabItem(node: ElementNode) {
 
 function notifySelection(node: ElementNode, value: number) {
   const oldIndex = node.tabIndex
+
   node.tabIndex = value
   if (oldIndex === value || node.tabDisposed) {
     return
   }
 
   const event = { object: node.view, value, oldIndex, newIndex: value }
+
   node.props.onSelectedIndexChanged?.({ ...event, eventName: 'selectedIndexChanged' })
   node.props.onSelectedIndexChange?.({ ...event, eventName: 'selectedIndexChange' })
 }
@@ -346,6 +368,7 @@ function notifySelection(node: ElementNode, value: number) {
  * an items array rather than the renderer's parent/children relation. */
 export function detachTabItem(item: ElementNode, preserveContent = false) {
   const owner = owners.get(item)
+
   if (!owner) {
     return
   }
@@ -361,8 +384,11 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
   owners.delete(item)
   if (!preserveContent) {
     const root = item.tabContentRoot
+
     item.tabContentRoot = null
+
     const failures = new FailureCollector()
+
     failures.run('tab nested root', () => root?.unmount())
     failures.run('tab content target', () => notifyContentTarget(item))
     failures.throwIfFailed()
@@ -386,26 +412,32 @@ export function detachTabItem(item: ElementNode, preserveContent = false) {
 
 export function flushTabViews(container: any) {
   const dirty = container.tabDirty
+
   container.tabDirty = undefined
   if (!dirty) {
     return
   }
+
   const failures = new FailureCollector()
   const releases = (container.tabReleases = new Set<ElementNode>())
+
   failures.run('tab synchronization', () => {
     for (const node of dirty) {
       syncTabView(node)
     }
   })
+
   container.tabReleases = undefined
   for (const item of releases) {
     if (!owners.has(item)) {
       const root = item.tabContentRoot
+
       item.tabContentRoot = null
       failures.run('tab nested root', () => root?.unmount())
       failures.run('tab content target', () => notifyContentTarget(item))
     }
   }
+
   failures.throwIfFailed()
 }
 
@@ -420,10 +452,12 @@ export function syncTabView(node: ElementNode) {
   }
 
   validateTabProps('tabview', node.props)
+
   const items: ElementNode[] =
     node.props.items != null ? [...node.props.items] : node.children.slice()
 
   const view = node.view!
+
   node.tabSyncing = true
   try {
     for (const item of node.tabItems as ElementNode[]) {
@@ -443,6 +477,7 @@ export function syncTabView(node: ElementNode) {
     for (const [index, item] of items.entries()) {
       if (owners.get(item) && owners.get(item) !== node) {
         const previous = owners.get(item)!
+
         detachTabItem(item, true)
         previous.children = previous.children.filter((child) => child !== item)
         if (previous.props.items) {
@@ -477,6 +512,7 @@ export function syncTabView(node: ElementNode) {
     }
 
     const index = items.length ? Math.min(Math.max(0, node.tabRequested), items.length - 1) : -1
+
     if (index >= 0) {
       view.selectTabViewItemAtIndex(index)
     }
@@ -491,12 +527,17 @@ export function releaseTabView(node: ElementNode) {
   if (node.tabDisposed) {
     return
   }
+
   node.tabDisposed = true
+
   const failures = new FailureCollector()
+
   for (const item of (node.tabItems ?? []).slice()) {
     failures.run('tab item detach', () => detachTabItem(item))
   }
+
   const delegate = node.tabDelegate
+
   node.tabDelegate = null
   failures.run('tab delegate identity', () => delegates.delete(delegate))
   failures.run('tab native delegate', () => {
@@ -504,6 +545,7 @@ export function releaseTabView(node: ElementNode) {
       node.view.delegate = null
     }
   })
+
   failures.throwIfFailed()
 }
 
@@ -511,14 +553,21 @@ export function releaseTabItem(node: ElementNode) {
   if (node.tabDisposed) {
     return
   }
+
   node.tabDisposed = true
   node.tabIconGeneration = (node.tabIconGeneration ?? 0) + 1
+
   const failures = new FailureCollector()
+
   failures.run('tab item detach', () => detachTabItem(node))
+
   const root = node.tabContentRoot
+
   node.tabContentRoot = null
   failures.run('tab nested root', () => root?.unmount())
+
   const task = node.tabIconTask
+
   node.tabIconTask = null
   failures.run('tab icon', () => task?.cancel())
   node.tabIconInput = undefined
@@ -531,12 +580,15 @@ export function releaseTabItem(node: ElementNode) {
       node.tabNativeItem.view = null
     }
   })
+
   failures.run('tab native image', () => {
     if (node.tabNativeItem) {
       node.tabNativeItem.image = null
     }
   })
+
   const host = node.childHost
+
   node.childHost = undefined
   failures.run('tab child host', () => host?.removeFromSuperview())
   failures.throwIfFailed()

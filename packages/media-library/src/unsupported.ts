@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { LibraryBackend } from './backend-types'
+
 const unavailable = (): never => {
   throw new UnavailabilityError('MediaLibrary')
 }

@@ -15,12 +15,14 @@ describe('styled() (native leaf)', () => {
 
   it('composes base + variant classes', () => {
     const el = Btn({ danger: true })
+
     expect(inner(el).className).toEqual(['btn', 'bg-danger'])
     expect(el.component).toBe(Base)
   })
 
   it('drops falsy variants and consumes variant props', () => {
     const el = Btn({ danger: false, flat: true, id: 'b1' })
+
     expect(inner(el).className).toEqual(['btn', 'shadow-none'])
     expect(inner(el).danger).toBeUndefined()
     expect(inner(el).flat).toBeUndefined()
@@ -29,6 +31,7 @@ describe('styled() (native leaf)', () => {
 
   it('appends caller className last', () => {
     const el = Btn({ danger: true, className: 'extra' })
+
     expect(inner(el).className).toEqual(['btn', 'bg-danger', 'extra'])
   })
 
@@ -39,6 +42,7 @@ describe('styled() (native leaf)', () => {
     })
 
     const el = Card({ tone: 'danger', id: 'c1' })
+
     expect(inner(el).className).toEqual(['card', 'bg-danger'])
     expect(inner(el).tone).toBeUndefined()
     expect(inner(el).id).toBe('c1')

@@ -9,6 +9,7 @@ import {
 export async function encryptNote(bytes: Uint8Array) {
   const key = await AESEncryptionKey.generate()
   const encrypted = await aesEncryptAsync(bytes, key)
+
   return { key, encrypted: await encrypted.combined() }
 }
 

@@ -20,7 +20,9 @@ function applyWebProps(node: any, bag?: Record<string, any>) {
 /** Composed desktop/web Drawer. Mobile uses the same props with native edge gestures. */
 export function Drawer(props: DrawerProps): JSX.Element @{
   const latest = useRef(props)
+
   latest.current = props
+
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
   const open = props.open ?? internal
   const requestDismiss = () => {
@@ -33,6 +35,7 @@ export function Drawer(props: DrawerProps): JSX.Element @{
   }
 
   const panel = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (!open) {
       return
@@ -48,6 +51,7 @@ export function Drawer(props: DrawerProps): JSX.Element @{
       )
 
     ;(focusable()[0] ?? node)?.focus()
+
     const keydown = (event: KeyboardEvent) => {
       if (event.key === 'Escape') {
         event.preventDefault()
@@ -58,6 +62,7 @@ export function Drawer(props: DrawerProps): JSX.Element @{
         const items = focusable()
         const first = items[0] ?? node
         const last = items.at(-1) ?? node
+
         if (event.shiftKey && document.activeElement === first) {
           event.preventDefault()
           last?.focus()

@@ -42,6 +42,7 @@ export function useTokenLines(
     }
 
     let cancelled = false
+
     void tokenizeAsync(code, language).then((lines) => {
       if (!cancelled) {
         setAsyncLines(lines)

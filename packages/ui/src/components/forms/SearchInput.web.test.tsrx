@@ -11,8 +11,11 @@ import { FormField } from './FormField.web.tsrx'
 describe('SearchInput (web leaf)', () => {
   it('renders the shell, default glyph, and a clear button once text is present', () => {
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<SearchInput defaultValue="abc" onChange={() => {}} />))
     expect(el.querySelector('.vx-search-icon')?.tagName).toBe('svg')
     expect((el.querySelector('.vx-search-field') as HTMLInputElement).type).toBe('search')
@@ -26,9 +29,13 @@ describe('SearchInput (web leaf)', () => {
     const onChange = vi.fn()
     const onClear = vi.fn()
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<SearchInput onChange={onChange} onClear={onClear} />))
+
     const field = el.querySelector('.vx-search-field') as HTMLInputElement
 
     act(() => {
@@ -50,11 +57,16 @@ describe('SearchInput (web leaf)', () => {
   it('Enter fires onSubmit; icon={false} hides the glyph', () => {
     const onSubmit = vi.fn()
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<SearchInput icon={false} onSubmit={onSubmit} />))
     expect(el.querySelector('.vx-search-icon')).toBeNull()
+
     const field = el.querySelector('.vx-search-field') as HTMLInputElement
+
     act(() => field.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true })))
     expect(onSubmit).toHaveBeenCalledTimes(1)
     root.unmount()
@@ -67,8 +79,11 @@ describe('TextInput field props (web leaf)', () => {
     const onChange = vi.fn()
     const onClear = vi.fn()
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<TextInput label="Name" value="Ada" onChange={onChange} />))
     expect(el.querySelector('.vx-input-clear')).toBeNull()
 
@@ -79,6 +94,7 @@ describe('TextInput field props (web leaf)', () => {
     )
 
     const clear = el.querySelector('.vx-input-clear') as HTMLButtonElement
+
     expect(clear.getAttribute('aria-label')).toBe('Clear Name')
     act(() => clear.click())
     expect(onChange).toHaveBeenCalledWith('')
@@ -98,8 +114,11 @@ describe('TextInput field props (web leaf)', () => {
   it('keeps loading separate from disabled and blocks clear while read-only', () => {
     const el = document.createElement('div')
     const root = createRoot(el)
+
     act(() => root.render(<TextInput value="Ada" hasClear isLoading isReadOnly />))
+
     const input = el.querySelector('.vx-input') as HTMLInputElement
+
     expect(input.readOnly).toBe(true)
     expect(input.disabled).toBe(false)
     expect(input.getAttribute('aria-busy')).toBe('true')
@@ -114,8 +133,11 @@ describe('Select field props (web leaf)', () => {
     const onClear = vi.fn()
     const onOpenChange = vi.fn()
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() =>
       root.render(
         <Select
@@ -142,6 +164,7 @@ describe('Select field props (web leaf)', () => {
 
   it('exposes busy state without disabling available options', () => {
     const onValueChange = vi.fn()
+
     vi.stubGlobal(
       'matchMedia',
       vi.fn(() => ({
@@ -153,8 +176,11 @@ describe('Select field props (web leaf)', () => {
     )
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() =>
       root.render(
         <Select
@@ -172,6 +198,7 @@ describe('Select field props (web leaf)', () => {
     )
 
     expect(el.querySelector('.vx-select-trigger')?.getAttribute('aria-busy')).toBe('true')
+
     const australia = Array.from(document.querySelectorAll('.vx-select-option')).find((option) =>
       option.textContent?.includes('Australia'),
     ) as HTMLElement
@@ -187,8 +214,11 @@ describe('Select field props (web leaf)', () => {
 describe('Field anatomy (web leaf)', () => {
   it('associates the label, description, status, and shared states with its control', () => {
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() =>
       root.render(
         <FormField
@@ -207,6 +237,7 @@ describe('Field anatomy (web leaf)', () => {
     const label = el.querySelector('.vx-field-label') as HTMLLabelElement
     const description = el.querySelector('.vx-field-description') as HTMLElement
     const status = el.querySelector('.vx-field-status') as HTMLElement
+
     expect(label.htmlFor).toBe(input.id)
     expect(input.getAttribute('aria-labelledby')).toBe(label.id)
     expect(input.getAttribute('aria-describedby')?.split(' ')).toEqual([description.id, status.id])
@@ -227,8 +258,11 @@ describe('Field anatomy (web leaf)', () => {
 
   it('keeps a composite PIN field labelled once without duplicate control IDs', () => {
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() =>
       root.render(
         <FormField label="Security code">
@@ -240,6 +274,7 @@ describe('Field anatomy (web leaf)', () => {
     const group = el.querySelector('.vx-pininput') as HTMLElement
     const label = el.querySelector('.vx-field-label') as HTMLLabelElement
     const cells = Array.from(el.querySelectorAll('.vx-pininput-cell')) as HTMLInputElement[]
+
     expect(group.getAttribute('aria-labelledby')).toBe(label.id)
     expect(group.id).toBeTruthy()
     expect(cells.map((cell) => cell.getAttribute('aria-label'))).toEqual([

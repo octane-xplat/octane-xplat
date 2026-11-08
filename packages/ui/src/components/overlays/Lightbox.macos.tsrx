@@ -22,6 +22,7 @@ function LightboxPanel(
     viewport = useRef<any>(null)
 
   latest.current = props
+
   const gestures = useMemo(
     () =>
       createAppKitLightboxGestures({
@@ -119,6 +120,7 @@ export function Lightbox(props: LightboxProps): unknown @{
   const index = Math.min(Math.max(props.index ?? internal, 0), Math.max(0, count - 1))
   const setIndex = (value: number) => {
     const next = Math.min(Math.max(value, 0), Math.max(0, count - 1))
+
     if (props.index == null) {
       setInternal(next)
     }

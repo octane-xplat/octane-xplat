@@ -16,6 +16,7 @@ const intercepted = createStore<string | null>(null)
  *  target so the swap is observable in the preview. */
 function RouterLink(props: any) @{
   const { href, onClick, children, ...rest } = props
+
   return (
     <a
       {...rest}
@@ -33,6 +34,7 @@ function RouterLink(props: any) @{
 
 export function LinkProviderCustomLink() @{
   const hit = useStore(intercepted)
+
   return (
     <LinkProvider component={RouterLink}>
       <VStack gap={3}>

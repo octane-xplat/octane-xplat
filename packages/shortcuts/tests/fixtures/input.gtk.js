@@ -4,16 +4,20 @@ import System from 'system'
 import { createShortcuts } from '../../src/index.gtk.ts'
 
 Gtk.init()
+
 const loop = new GLib.MainLoop(null, false)
 const window = new Gtk.Window({ title: 'XplatShortcuts', default_width: 240, default_height: 120 })
 const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const button = new Gtk.Button({ label: 'Shortcut target' })
+
 box.append(button)
 window.set_child(box)
 window.present()
 button.grab_focus()
+
 const shortcuts = createShortcuts({ target: box })
 const calls = []
+
 shortcuts.setContext('editor.ready', true)
 shortcuts.bind({
   combo: 'Mod+KeyK',
@@ -23,7 +27,9 @@ shortcuts.bind({
 })
 
 shortcuts.bind({ sequence: 'g i', handler: () => calls.push('inbox') })
+
 let recording
+
 shortcuts.bind({
   combo: 'F2',
   handler() {
@@ -35,6 +41,7 @@ shortcuts.bind({
 })
 
 let passed = false
+
 shortcuts.bind({
   combo: 'F12',
   handler() {
@@ -44,6 +51,7 @@ shortcuts.bind({
       passed = true
       print('PASS GTK native input, physical keys, when, sequence, recording')
     }
+
     shortcuts.dispose()
     window.destroy()
     loop.quit()

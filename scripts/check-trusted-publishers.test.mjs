@@ -10,10 +10,13 @@ const execute = promisify(execFile)
 
 async function fixture(t) {
   const directory = await mkdtemp(join(tmpdir(), 'trusted-publishers-'))
+
   t.after(() => rm(directory, { recursive: true, force: true }))
+
   const cache = join(directory, 'cache.json')
   const requests = join(directory, 'requests.jsonl')
   const preload = join(directory, 'fetch.mjs')
+
   await writeFile(
     preload,
     `
@@ -29,10 +32,12 @@ async function fixture(t) {
 		}
 	`,
   )
+
   return {
     cache,
     async run(packages = ['tsrx-typegen'], env = {}) {
       await writeFile(requests, '')
+
       const result = await execute(
         process.execPath,
         ['--import', preload, resolve('scripts/check-trusted-publishers.ts'), ...packages],
@@ -53,6 +58,7 @@ async function fixture(t) {
           },
         },
       )
+
       return {
         ...result,
         requests: (await readFile(requests, 'utf8')).trim().split('\n').filter(Boolean),
@@ -63,15 +69,21 @@ async function fixture(t) {
 
 test('successful checks are reused per package without storing tokens or renewing their age', async (t) => {
   const f = await fixture(t)
+
   assert.equal((await f.run()).requests.length, 2)
+
   const saved = await readFile(f.cache, 'utf8')
+
   assert.doesNotMatch(saved, /secret|token/)
+
   const hit = await f.run()
+
   assert.equal(hit.requests.length, 0)
   assert.match(hit.stdout, /cached/)
   assert.equal(await readFile(f.cache, 'utf8'), saved)
 
   const added = await f.run(['tsrx-typegen', '@octane-xplat/ui'])
+
   assert.equal(added.requests.length, 2)
   assert.match(added.requests[1], /%40octane-xplat%2Fui/)
   assert.equal(
@@ -82,14 +94,19 @@ test('successful checks are reused per package without storing tokens or renewin
 
 test('expired, future, malformed, and differently scoped cache entries require npm checks', async (t) => {
   const f = await fixture(t)
+
   await f.run()
+
   const saved = await readFile(f.cache, 'utf8')
+
   for (const at of [Date.now() - 24 * 60 * 60 * 1000, Date.now() + 60_000, 'invalid']) {
     const cache = JSON.parse(saved)
+
     cache.checked['tsrx-typegen'] = at
     await writeFile(f.cache, JSON.stringify(cache))
     assert.equal((await f.run()).requests.length, 2)
   }
+
   for (const env of [
     { GITHUB_REPOSITORY: 'other/repo' },
     { GITHUB_WORKFLOW_REF: 'other-workflow' },
@@ -99,20 +116,25 @@ test('expired, future, malformed, and differently scoped cache entries require n
     await writeFile(f.cache, saved)
     assert.equal((await f.run(['tsrx-typegen'], env)).requests.length, 2)
   }
+
   await writeFile(f.cache, '{broken')
   assert.equal((await f.run()).requests.length, 2)
 })
 
 test('failed exchanges do not save successful results, and omitting the cache forces verification', async (t) => {
   const f = await fixture(t)
+
   await assert.rejects(f.run(undefined, { TEST_FAIL: '1' }), /publisher missing/)
   await assert.rejects(readFile(f.cache), { code: 'ENOENT' })
   await f.run()
+
   const saved = await readFile(f.cache, 'utf8')
+
   await assert.rejects(
     f.run(['tsrx-typegen', '@octane-xplat/ui'], { TEST_FAIL: '1' }),
     /publisher missing/,
   )
+
   assert.equal(await readFile(f.cache, 'utf8'), saved)
   assert.equal((await f.run(undefined, { TRUSTED_PUBLISHERS_CACHE: '' })).requests.length, 2)
 })

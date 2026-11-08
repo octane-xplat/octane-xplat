@@ -37,6 +37,7 @@ describe('PowerSearch config helpers', () => {
     ] as const)
 
     const source = createPowerSearchSource(createInternalConfig(config), 10)
+
     expect(source.search('title foo')).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -60,6 +61,7 @@ describe('schema-inferred filters', () => {
     ] as const)
 
     type Filter = PowerSearchFilterFor<typeof config>
+
     expectTypeOf<Filter['field']>().toEqualTypeOf<'title' | 'year' | 'genre'>()
     expectTypeOf<Extract<Filter, { field: 'title' }>['operator']>().toEqualTypeOf<
       | 'contains'
@@ -83,6 +85,7 @@ describe('schema-inferred filters', () => {
     }>()
 
     const books = [{ title: 'Dune', year: 1965, genre: 'scifi' }]
+
     applyFilters(
       [{ field: 'genre', operator: 'is', value: { type: 'enum', value: 'travel' } }],
       books,

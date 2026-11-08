@@ -13,6 +13,7 @@ const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
 
 function BenchRow(props: { item: BenchItem }) {
   const [pressCount, setPressCount] = useState(0)
+
   return (
     <Pressable
       id={'bench-row-' + props.item.id}

@@ -22,6 +22,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  subscribing to the lane re-renders only itself per search transition. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.clear == null) {
     return null
   }
@@ -70,7 +71,9 @@ export function Typeahead<T extends SearchableItem>(
     // same search pipeline as a typed query.
     inputHandle.current?.setQuery(props.value.label)
     inputHandle.current?.focus()
+
     const el = inputHandle.current?.native as HTMLInputElement | null
+
     el?.setSelectionRange?.(0, el.value.length)
   }
 

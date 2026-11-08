@@ -28,6 +28,7 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     },
     { identifier: 'p2', givenName: 'Grace', familyName: 'Hopper' },
   ]
+
   const store = {
     enumerateContactsWithFetchRequestErrorUsingBlock: (
       request: any,
@@ -38,6 +39,7 @@ function fixture({ status = 3 }: { status?: number } = {}) {
       for (const c of people) {
         block(c)
       }
+
       return true
     },
     unifiedContactsMatchingPredicateKeysToFetchError: (predicate: any, keys: any, error: any) => {
@@ -46,7 +48,9 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     },
     unifiedContactWithIdentifierKeysToFetchError: (id: string, keys: any, error: any) => {
       record('byId', [id, keys, error])
+
       const found = people.find((p) => p.identifier === id)
+
       return found ? { ...found, mutableCopy: () => ({ ...found }) } : null
     },
     executeSaveRequestError: (request: any, error: any) => {
@@ -61,6 +65,7 @@ function fixture({ status = 3 }: { status?: number } = {}) {
       completion(true)
     },
   }
+
   const requests: any[] = []
   const context = vm.createContext({
     CNEntityType: { CNEntityTypeContacts: 0 },
@@ -78,16 +83,20 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     CNSaveRequest: {
       new: () => {
         const request: any = {}
+
         request.addContactToContainerWithIdentifier = (contact: any, id: any) => {
           request.contact = contact
           request.container = id
         }
+
         request.updateContact = (contact: any) => {
           request.updated = contact
         }
+
         request.deleteContact = (contact: any) => {
           request.deleted = contact
         }
+
         requests.push(request)
         return request
       },
@@ -111,7 +120,9 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     CNContactImageDataKey: 'imageData',
     CNContactNoteKey: 'note',
   })
+
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\ncontacts', context)
+
   return { leaf, store, calls, people, requests }
 }
 
@@ -123,10 +134,12 @@ test('ensure maps authorization states and requests access once undetermined', a
     [3, 'granted'],
   ] as const) {
     const f = fixture({ status })
+
     assert.equal(f.leaf.supported, true)
     assert.equal(await f.leaf.ensure(), result)
     assert.equal(Boolean(f.calls.requestAccess), status === 0)
   }
+
   const context = vm.createContext({
     CNContactStore: undefined,
     ...Object.fromEntries(
@@ -147,7 +160,9 @@ test('ensure maps authorization states and requests access once undetermined', a
       ].map((key) => [key, key]),
     ),
   })
+
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\ncontacts', context)
+
   assert.equal(leaf.supported, false)
   assert.equal(await leaf.ensure(), 'unsupported')
 })
@@ -155,6 +170,7 @@ test('ensure maps authorization states and requests access once undetermined', a
 test('getAll enumerates the fetch request and maps labeled values', async () => {
   const f = fixture()
   const list = await f.leaf.getAll()
+
   assert.equal(list.length, 2)
   assert.deepEqual(plain(list[0]), {
     id: 'p1',
@@ -166,15 +182,19 @@ test('getAll enumerates the fetch request and maps labeled values', async () => 
     addresses: [],
     urls: [],
   })
+
   // Fetched keys carry the base set and the default field keys.
   const keys = f.calls.enumerate[0][0].keys
+
   for (const key of ['identifier', 'givenName', 'familyName', 'emailAddresses', 'phoneNumbers']) {
     assert.ok(keys.includes(key), key)
   }
+
   // The entitlement-gated notes key is never requested.
   assert.equal(keys.includes('note'), false)
 
   const sorted = await f.leaf.getAll({ sort: 'lastName', pageSize: 1 })
+
   assert.equal(sorted.length, 1)
   assert.equal(sorted[0].lastName, 'Hopper')
 })
@@ -182,9 +202,12 @@ test('getAll enumerates the fetch request and maps labeled values', async () => 
 test('name and id lookups route through the store fetchers', async () => {
   const f = fixture()
   const named = await f.leaf.getByName('Ada')
+
   assert.equal(named.length, 1)
   assert.deepEqual(f.calls.matchingPredicate[0][0], { name: 'Ada' })
+
   const one = await f.leaf.getById('p1')
+
   assert.equal(one?.id, 'p1')
   assert.equal(await f.leaf.getById('missing'), null)
 })
@@ -197,16 +220,21 @@ test('add/update/remove compose save requests against mutable contacts', async (
     emails: [{ label: 'work', email: 'alan@example.test' }],
     phoneNumbers: [{ number: '+1444' }],
   })
+
   assert.equal(typeof id, 'string')
+
   const addRequest = f.calls.save[0][0]
   const native = addRequest.contact
+
   assert.equal(native.givenName, 'Alan')
   assert.equal(native.familyName, 'Turing')
   assert.deepEqual(native.emailAddresses, [{ label: 'work', value: 'alan@example.test' }])
   assert.deepEqual(native.phoneNumbers, [{ label: null, value: { stringValue: '+1444' } }])
 
   await f.leaf.update('p1', { firstName: 'Augusta' })
+
   const updateRequest = f.calls.save[1][0]
+
   assert.equal(updateRequest.updated.givenName, 'Augusta')
   await f.leaf.remove('p1')
   assert.equal(f.calls.save.length, 3)

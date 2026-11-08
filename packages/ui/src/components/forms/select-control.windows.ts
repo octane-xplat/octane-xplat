@@ -55,12 +55,15 @@ class WindowsSelectControl extends LayoutBase {
 
   private logicalOptions(exclude?: ChildView): WindowsSelectOption[] {
     const options: WindowsSelectOption[] = []
+
     this.eachChildView((view) => {
       if (view !== exclude && view instanceof WindowsSelectOption) {
         options.push(view)
       }
+
       return true
     })
+
     return options
   }
 
@@ -86,6 +89,7 @@ class WindowsSelectControl extends LayoutBase {
 </ComboBoxItem>`,
       )
       .join('')
+
     this.slotCount = options.length
     return Microsoft.UI.Xaml.Markup.XamlReader.Load(`
 <ComboBox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -99,6 +103,7 @@ class WindowsSelectControl extends LayoutBase {
 
   createNativeView(): any {
     const root = new Microsoft.UI.Xaml.Controls.Grid()
+
     this.accessors = {}
     for (const key of ['Name', 'Margin', 'Opacity']) {
       let owner = root,
@@ -115,6 +120,7 @@ class WindowsSelectControl extends LayoutBase {
 
       this.accessors[key] = descriptor
     }
+
     this.combo = this.createCombo(this.logicalOptions())
     root.Children.Append(this.combo)
     return root
@@ -122,9 +128,11 @@ class WindowsSelectControl extends LayoutBase {
 
   private attach(option: WindowsSelectOption, options: WindowsSelectOption[]): void {
     const peer = this.combo.FindName('XplatOption' + options.indexOf(option))
+
     if (!peer) {
       throw new Error('Windows Selector could not resolve its native option slot')
     }
+
     peer.Content = option.nativeViewProtected
     option.peer = peer
     option.owner = this
@@ -137,12 +145,16 @@ class WindowsSelectControl extends LayoutBase {
         option.peer.Content = null
       }
     }
+
     this.nativeViewProtected.Children.Clear()
+
     const options = this.logicalOptions(exclude)
+
     this.combo = this.createCombo(options)
     for (const option of this.options) {
       this.attach(option, options)
     }
+
     this.nativeViewProtected.Children.Append(this.combo)
     if (this.isLoaded) {
       this.listen()
@@ -158,6 +170,7 @@ class WindowsSelectControl extends LayoutBase {
 
   private listen(): void {
     this.stopListening()
+
     const combo = this.combo
     const generation = this.generation
     const receive = (action: () => void) => {
@@ -169,6 +182,7 @@ class WindowsSelectControl extends LayoutBase {
       ) {
         return
       }
+
       this.receiving++
       try {
         action()
@@ -181,11 +195,13 @@ class WindowsSelectControl extends LayoutBase {
         }
       }
     }
+
     this.selection = NSWinRT.asDelegate(
       'Microsoft.UI.Xaml.Controls.SelectionChangedEventHandler',
       () =>
         receive(() => {
           const option = this.options[Number(combo.SelectedIndex)]?.settings
+
           if (
             option &&
             !option.disabled &&
@@ -198,6 +214,7 @@ class WindowsSelectControl extends LayoutBase {
           }
         }),
     )
+
     const reportOpen = (open: boolean) =>
       receive(() => {
         if (
@@ -209,12 +226,15 @@ class WindowsSelectControl extends LayoutBase {
           this.settings?.onOpenChange(open)
         }
       })
+
     this.opened = NSWinRT.asDelegate('Windows.Foundation.EventHandler`1<Object>', () =>
       reportOpen(true),
     )
+
     this.closed = NSWinRT.asDelegate('Windows.Foundation.EventHandler`1<Object>', () =>
       reportOpen(false),
     )
+
     this.chromeLayoutDelegate = NSWinRT.asDelegate(
       'Windows.Foundation.EventHandler`1<Object>',
       () => {
@@ -223,6 +243,7 @@ class WindowsSelectControl extends LayoutBase {
         }
       },
     )
+
     combo.LayoutUpdated = this.chromeLayoutDelegate
     combo.SelectionChanged = this.selection
     combo.DropDownOpened = this.opened
@@ -237,6 +258,7 @@ class WindowsSelectControl extends LayoutBase {
     if (this.settleTask !== undefined) {
       clearTimeout(this.settleTask)
     }
+
     this.settleTask = undefined
     if (this.combo) {
       this.combo.SelectionChanged = null
@@ -244,6 +266,7 @@ class WindowsSelectControl extends LayoutBase {
       this.combo.DropDownClosed = null
       this.combo.LayoutUpdated = null
     }
+
     this.selection = this.opened = this.closed = this.chromeLayoutDelegate = undefined
   }
 
@@ -251,18 +274,21 @@ class WindowsSelectControl extends LayoutBase {
     if (this.combo.IsDropDownOpen) {
       return
     }
+
     // GetChild returns a base wrapper without derived properties. Borrow the
     // known Grid's typed framework accessors on these wrappers. Keep
     // WinUI's popup template and placement; the measured Mason drawing
     // replaces only the collapsed presentation.
     const visit = (node: any) => {
       const name = this.accessors.Name!.get!.call(node)
+
       if (name === 'Popup') {
         return
       }
 
       if (name === 'HighlightBackground') {
         const margin = this.accessors.Margin!.get!.call(node)
+
         if (margin.Left !== 0 || margin.Top !== 0 || margin.Right !== 0 || margin.Bottom !== 0) {
           this.accessors.Margin!.set!.call(node, { Left: 0, Top: 0, Right: 0, Bottom: 0 })
         }
@@ -283,11 +309,14 @@ class WindowsSelectControl extends LayoutBase {
           return
         }
       }
+
       const tree = Microsoft.UI.Xaml.Media.VisualTreeHelper
+
       for (let index = 0; index < Number(tree.GetChildrenCount(node)); index++) {
         visit(tree.GetChild(node, index))
       }
     }
+
     for (
       let index = 0;
       index < Number(Microsoft.UI.Xaml.Media.VisualTreeHelper.GetChildrenCount(this.combo));
@@ -301,8 +330,10 @@ class WindowsSelectControl extends LayoutBase {
     if (this.settleTask !== undefined) {
       return
     }
+
     const combo = this.combo
     const generation = this.generation
+
     this.settleTask = setTimeout(() => {
       this.settleTask = undefined
       if (this.combo === combo && this.generation === generation && this.isLoaded) {
@@ -313,16 +344,20 @@ class WindowsSelectControl extends LayoutBase {
 
   refresh(): void {
     const combo = this.combo
+
     if (!combo) {
       return
     }
+
     if (this.receiving) {
       this.settle()
       return
     }
+
     this.writing++
     try {
       const settings = this.settings
+
       Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(combo, settings?.label ?? '')
       Microsoft.UI.Xaml.Automation.AutomationProperties.SetAutomationId(combo, this.id ?? '')
       combo.IsEnabled = this.isEnabled && !settings?.blocked
@@ -342,11 +377,13 @@ class WindowsSelectControl extends LayoutBase {
       }
 
       const index = this.options.findIndex((option) => option.settings?.value === settings?.value)
+
       if (Number(combo.SelectedIndex) !== index) {
         combo.SelectedIndex = index
       }
 
       const open = Boolean(settings?.open && !settings.blocked && this.isEnabled)
+
       if (Boolean(combo.IsDropDownOpen) !== open) {
         combo.IsDropDownOpen = open
       }
@@ -359,7 +396,9 @@ class WindowsSelectControl extends LayoutBase {
     if (!this.combo || !child.nativeViewProtected || !(child instanceof WindowsSelectOption)) {
       return false
     }
+
     const options = this.logicalOptions()
+
     this.options.push(child)
     this.options.sort((a, b) => options.indexOf(a) - options.indexOf(b))
     if (options.length !== this.slotCount) {
@@ -368,13 +407,16 @@ class WindowsSelectControl extends LayoutBase {
       this.attach(child, options)
       this.refresh()
     }
+
     return true
   }
 
   _removeViewFromNativeVisualTree(child: ChildView): void {
     const index = this.options.indexOf(child as WindowsSelectOption)
+
     if (index >= 0) {
       const option = this.options.splice(index, 1)[0]!
+
       if (option.peer) {
         option.peer.Content = null
       }
@@ -384,6 +426,7 @@ class WindowsSelectControl extends LayoutBase {
         this.rebuild(child)
       }
     }
+
     super._removeViewFromNativeVisualTree(child)
   }
 
@@ -408,6 +451,7 @@ class WindowsSelectControl extends LayoutBase {
       option.peer.Content = null
       option.peer = option.owner = undefined
     }
+
     this.options = []
     this.combo = undefined
     this.accessors = {}

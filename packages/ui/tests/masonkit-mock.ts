@@ -9,6 +9,7 @@
 function makeRecordingStyle() {
   const writes: Record<string, unknown> = {}
   const target: Record<string, any> = {}
+
   return new Proxy(target, {
     set(t, key, value) {
       t[key] = value
@@ -19,12 +20,15 @@ function makeRecordingStyle() {
       if (key === '__writes') {
         return writes
       }
+
       if (key === 'style_view') {
         return {}
       }
+
       if (key === 'copyTextStyleTo') {
         return () => {}
       }
+
       return t[key]
     },
   })
@@ -40,11 +44,14 @@ function styleForView(view: unknown): MasonRecordingStyle | undefined {
   if (typeof view !== 'object' || view === null) {
     return undefined
   }
+
   let style = styleByView.get(view)
+
   if (!style) {
     style = makeRecordingStyle() as MasonRecordingStyle
     styleByView.set(view, style)
   }
+
   return style
 }
 
@@ -52,6 +59,7 @@ export function masonStyleOf(view: unknown): MasonRecordingStyle | undefined {
   if (typeof view === 'object' && view !== null) {
     return (view as any)._styleHelper ?? styleByView.get(view)
   }
+
   return undefined
 }
 

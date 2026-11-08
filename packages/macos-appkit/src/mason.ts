@@ -64,6 +64,7 @@ function invoke(op: string, args: any[] = []): any {
   if ((process as any).env?.XPLAT_MASON_DEBUG) {
     console.log('[mason]', op, String(args[0]?.description ?? args[0] ?? ''))
   }
+
   return host.performSelectorWithObjectWithObject('invoke:args:', op, args)
 }
 
@@ -85,11 +86,13 @@ function autoDim(value: any): [number, number] | undefined {
   if (typeof value === 'string') {
     const text = value.trim()
     const percent = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))%$/)
+
     if (percent) {
       return [2, Number(percent[1]) / 100]
     }
 
     const points = Number(text.replace(/px$/, ''))
+
     return Number.isFinite(points) ? [1, points] : undefined
   }
 
@@ -100,6 +103,7 @@ function autoDim(value: any): [number, number] | undefined {
  *  1 percent. */
 function lenDim(value: any): [number, number] | undefined {
   const dim = autoDim(value)
+
   if (!dim) {
     return undefined
   }
@@ -204,16 +208,19 @@ function edgeBox(value: any): { top: number; left: number; bottom: number; right
 
   if (typeof value === 'number' || !isNaN(Number(value))) {
     const n = Number(value)
+
     return { top: n, left: n, bottom: n, right: n }
   }
 
   const parts = String(value)
     .split(/\s+/)
     .map((part) => parseFloat(part) || 0)
+
   const top = parts[0] ?? 0
   const right = parts.length > 1 ? parts[1] : top
   const bottom = parts.length > 2 ? parts[2] : top
   const left = parts.length > 3 ? parts[3] : right
+
   return { top, left, bottom, right }
 }
 
@@ -229,6 +236,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 
   for (const key of ENUM_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'string') {
       out[key] = value
     }
@@ -241,6 +249,7 @@ function styleDict(node: NodeLike): Record<string, any> {
   for (const [from, to] of DIM_AUTO_KEYS) {
     // width/height/min*/max* stay legit view props; flexBasis is style-only.
     const value = from === 'flexBasis' ? style[from] : (style[from] ?? props[from])
+
     out[to] = autoDim(value) ?? specDim(node.sizeConstraintSpecs?.[to])
   }
 
@@ -249,6 +258,7 @@ function styleDict(node: NodeLike): Record<string, any> {
   // shrink floor and a flex-1 scroll view grows past its bounded parent.
   if (node.type === 'scrollview') {
     const horizontal = props.orientation === 'horizontal' || props.horizontal === true
+
     if (horizontal) {
       out.minWidth ??= [1, 0]
     } else {
@@ -258,12 +268,14 @@ function styleDict(node: NodeLike): Record<string, any> {
 
   for (const [from, to] of DIM_EDGES) {
     const dim = autoDim(style[from])
+
     if (dim) {
       ;(out.inset ??= {})[to] = dim
     }
   }
 
   const margins = node.marginInsets ?? edgeBox(style.margin)
+
   if (margins) {
     // dimension-with-auto slots: type 1 length (type 0 would be auto —
     // auto margins center children and swallow free space).
@@ -278,6 +290,7 @@ function styleDict(node: NodeLike): Record<string, any> {
   // Label cells carry padding in their measured size — passing it here too
   // would double-count. Other leaves still get box growth from the engine.
   const padding = node.type === 'label' ? null : (node.dockInsets ?? edgeBox(style.padding))
+
   if (padding) {
     out.padding = {
       left: [0, padding.left ?? 0],
@@ -286,6 +299,7 @@ function styleDict(node: NodeLike): Record<string, any> {
       bottom: [0, padding.bottom ?? 0],
     }
   }
+
   // Layer borders also consume space in the CSS box model. Per-side
   // longhands win over the collapsed borderWidth slot.
   const collapsedBorder = edgeBox(style.borderWidth)
@@ -295,12 +309,14 @@ function styleDict(node: NodeLike): Record<string, any> {
       ? [0, 0]
       : (lenDim(style[key]) ??
         (collapsedBorder?.[side] != null ? [0, collapsedBorder[side]] : undefined))
+
   const border = {
     left: borderEdge('borderLeftWidth', 'left'),
     right: borderEdge('borderRightWidth', 'right'),
     top: borderEdge('borderTopWidth', 'top'),
     bottom: borderEdge('borderBottomWidth', 'bottom'),
   }
+
   if (border.left || border.right || border.top || border.bottom) {
     out.border = {
       left: border.left ?? [0, 0],
@@ -313,6 +329,7 @@ function styleDict(node: NodeLike): Record<string, any> {
   const gap = lenDim(style.gap) ?? lenDim(props.spacing)
   const rowGap = lenDim(style.rowGap) ?? gap
   const columnGap = lenDim(style.columnGap) ?? gap
+
   if (rowGap) {
     out.gapRow = rowGap
   }
@@ -323,6 +340,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 
   for (const key of NUMBER_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'number') {
       out[key] = value
     }
@@ -334,6 +352,7 @@ function styleDict(node: NodeLike): Record<string, any> {
 
   for (const key of GRID_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'string') {
       out[key] = value
     }
@@ -359,7 +378,9 @@ function styleDict(node: NodeLike): Record<string, any> {
       break
     case 'scrollview': {
       out.display ??= 'flex'
+
       const horizontal = props.orientation === 'horizontal' || props.horizontal === true
+
       out.flexDirection ??= horizontal ? 'row' : 'column'
       break
     }
@@ -375,6 +396,7 @@ const appliedMasonStyles = new WeakMap<object, string>()
 // same path so a later ancestor pass restores authored dimensions.
 function applyMasonStyle(node: NodeLike, dict: Record<string, any>) {
   const key = JSON.stringify(dict)
+
   if (appliedMasonStyles.get(node) === key) {
     return
   }
@@ -412,6 +434,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
   }
 
   const dict = styleDict(node)
+
   if ((globalThis as any).__masonTrace) {
     // Probe/debug channel: set globalThis.__masonTrace=[] in a case to
     // collect every synced style dict + flat record stream.
@@ -419,6 +442,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
 
     ;(globalThis as any).__masonStyle.push({ type: node.type, id: node.props?.id, dict })
   }
+
   if ((process as any).env?.XPLAT_MASON_DEBUG) {
     console.log(
       '[mason] styledict',
@@ -429,6 +453,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
       'className=' + node.props?.className,
     )
   }
+
   applyMasonStyle(node, dict)
   return node.masonNode
 }
@@ -438,6 +463,7 @@ function syncMasonNode(node: NodeLike, layoutView: ViewFor) {
  *  measured leaf re-measured by the engine on each pass. */
 function syncMasonTree(parent: NodeLike, layoutView: ViewFor) {
   const root = syncMasonNode(parent, layoutView)
+
   if (!root) {
     return null
   }
@@ -445,6 +471,7 @@ function syncMasonTree(parent: NodeLike, layoutView: ViewFor) {
   const children = (parent.projectedChildren ?? parent.children).filter(
     (child: NodeLike) => child.view,
   )
+
   const nodes: any[] = []
   const nextOrder: NodeLike[] = []
 
@@ -516,8 +543,10 @@ function applyRecords(
   ) => void,
 ): number {
   let next = offset
+
   for (const child of children) {
     const [x, y, w, h, childCount] = recordAt(flat, next)
+
     // pin's `top` is a topAnchor offset — mason's y is already
     // top-origin, so it passes through unchanged.
     if ((process as any).env?.XPLAT_MASON_DEBUG) {
@@ -542,6 +571,7 @@ function applyRecords(
 function skipSubtree(flat: any, offset: number): number {
   const count = Number(flat.objectAtIndex(offset + 21)) || 0
   let next = offset + RECORD
+
   for (let i = 0; i < count; i++) {
     next = skipSubtree(flat, next)
   }
@@ -562,11 +592,13 @@ export function layoutMasonChildren(
   ) => void,
 ) {
   const target = parent?.childHost ?? parent?.view
+
   if (!parent?.view || !target || !masonHost()) {
     return
   }
 
   const root = syncMasonTree(parent, layoutView)
+
   if (!root) {
     return
   }
@@ -581,6 +613,7 @@ export function layoutMasonChildren(
     // parent — they must not cap the content compute, or flex children
     // shrink to the clip height instead of overflowing into scroll range.
     const dict = styleDict(parent)
+
     delete dict.width
     delete dict.height
     delete dict.minHeight
@@ -595,8 +628,10 @@ export function layoutMasonChildren(
     // Container roots are sized by their parent's layout; give the root
     // node explicit dims so it doesn't shrink-wrap to content.
     const style = parent.computedStyle ?? parent.props?.style ?? {}
+
     if (style.width == null || style.height == null) {
       const dict = styleDict(parent)
+
       if (style.width == null && !parent.sizeConstraintSpecs?.width) {
         dict.width = [1, width]
       }
@@ -613,14 +648,17 @@ export function layoutMasonChildren(
 
   const flat = invoke('layout', [root])
   const count = Number(flat?.count ?? 0)
+
   if (count < RECORD) {
     return
   }
 
   if ((process as any).env?.XPLAT_MASON_DEBUG || (globalThis as any).__masonTrace) {
     const recs: string[] = []
+
     for (let off = 0; off + RECORD <= count; off += RECORD) {
       const r: number[] = []
+
       for (let i = 0; i < RECORD; i++) {
         r.push(Number(flat.objectAtIndex(off + i)))
       }
@@ -676,11 +714,13 @@ export function masonNaturalSize(
   }
 
   const root = syncMasonTree(node, layoutView)
+
   if (!root) {
     return null
   }
 
   const size = invoke('natural', [root])
+
   return { width: Number(size?.objectAtIndex(0)) || 0, height: Number(size?.objectAtIndex(1)) || 0 }
 }
 
@@ -699,6 +739,7 @@ export function releaseMasonNodes(node: NodeLike) {
     invoke('free', [node.masonNode])
     node.masonNode = undefined
   }
+
   appliedMasonStyles.delete(node)
 
   node.masonChildren = undefined
@@ -756,6 +797,7 @@ function createMasonLayoutView() {
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     get intrinsicContentSize() {
       const size = masonNaturalSize(masonLayoutNodesByView.get(this), deps!.layoutView)
+
       return size ?? { width: -1, height: -1 }
     }
 
@@ -765,6 +807,7 @@ function createMasonLayoutView() {
       if (activeNativeLayouts.has(this)) {
         return
       }
+
       activeNativeLayouts.add(this)
       try {
         super.layout()
@@ -793,6 +836,7 @@ function makeMasonLayout(node: any) {
     1,
     NSUserInterfaceLayoutOrientation.Horizontal,
   )
+
   masonLayoutNodesByView.set(view, node)
   view.postsFrameChangedNotifications = true
   node.masonGeometryObserver =
@@ -910,19 +954,23 @@ export function installMasonElement(next: MasonDeps) {
         next.applyStyle(node, value)
         return true
       }
+
       if (name === 'className') {
         next.applyClassName(node, value)
         return true
       }
+
       if (name === 'accessible' || name.startsWith('accessibility')) {
         next.applyAccessibility(node, name, value)
         return true
       }
+
       // Gesture/action props dispatch like the old container cases —
       // the gesture recognizers above run before this for
       // onTouch/onLongPress/onDoubleTap/onSwipe/disabled.
       if (name === 'onTap' || name === 'onClick' || name === 'onPress') {
         const handler = node.props.onTap ?? node.props.onClick ?? node.props.onPress
+
         next.setAction(
           node,
           typeof handler === 'function'
@@ -932,16 +980,20 @@ export function installMasonElement(next: MasonDeps) {
 
         return true
       }
+
       if (name === 'onPan') {
         next.setPanAction(node, value)
         return true
       }
+
       if (MASON_LAYOUT_PROPS.has(name)) {
         next.queueLayoutReconcile(node.container, node)
         return true
       }
+
       if (MASON_STYLE_ONLY_KEYS.has(name)) {
         const key = `${node.type}:${name}`
+
         if (!warnedStyleOnlyProps.has(key)) {
           warnedStyleOnlyProps.add(key)
           console.warn(
@@ -951,6 +1003,7 @@ export function installMasonElement(next: MasonDeps) {
 
         return true
       }
+
       return name === 'id'
     },
     layout(parent) {
@@ -960,22 +1013,27 @@ export function installMasonElement(next: MasonDeps) {
     prepareDispose(node) {
       const failures = new FailureCollector()
       const observer = node.masonGeometryObserver
+
       node.masonGeometryObserver = null
       if (node.view) {
         masonLayoutNodesByView.delete(node.view)
       }
+
       if (node.childHost) {
         masonLayoutNodesByView.delete(node.childHost)
       }
+
       failures.run('Mason geometry', () => {
         if (observer) {
           NSNotificationCenter.defaultCenter.removeObserver(observer)
         }
       })
+
       failures.run('Mason nodes', () => releaseMasonNodes(node))
       for (const child of node.children.slice()) {
         failures.run('Mason child', () => next.detach(node.container, child))
       }
+
       failures.throwIfFailed()
     },
   }
@@ -987,6 +1045,7 @@ export function installMasonElement(next: MasonDeps) {
         dispose: undefined,
         create(node) {
           const scroll = next.makeScrollView(node)
+
           node.view = scroll.view
           node.childHost = scroll.childHost
         },
@@ -995,6 +1054,7 @@ export function installMasonElement(next: MasonDeps) {
       // Keep the glass host factory (backdrop + blur observers); mason
       // owns the child geometry only.
       const { create, dispose, ...rest } = behavior
+
       next.registerElementType(type, rest)
     } else {
       next.registerElementType(type, behavior)

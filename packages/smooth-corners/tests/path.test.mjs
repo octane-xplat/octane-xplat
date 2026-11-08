@@ -14,9 +14,12 @@ const H = 50
 
 test('continuous uniform emits the Rosenfeld cubic set', () => {
   const cmds = generateCommands(W, H, { radius: R, curve: 'continuous' })
+
   // Entry tangent at p = 1.528665·R on the top edge.
   assert.deepEqual(cmds[0], { c: 'M', x: 15.28665, y: 0 })
+
   const cubics = cmds.filter((c) => c.c === 'C')
+
   assert.equal(cubics.length, 12) // 3 per corner
   // TR first cubic: control1 at f(1.08849296, 0), end at f(0.63149379, 0.07491139)
   // with f(x,y) = (w - x·R, y·R).
@@ -28,6 +31,7 @@ test('continuous uniform emits the Rosenfeld cubic set', () => {
 
 test('continuous pill clamps so shoulders meet at edge midpoints', () => {
   const cmds = generateCommands(100, 50, { radius: 25, curve: 'continuous' })
+
   // R_eff = 25/1.528665 ≈ 16.35 → p = 25 on both axes.
   assert.equal(cmds[0].x, 25)
 })
@@ -35,6 +39,7 @@ test('continuous pill clamps so shoulders meet at edge midpoints', () => {
 test('squircle delegates to lisse and parses arcs to center form', () => {
   const cmds = generateCommands(W, H, { radius: R, curve: 'squircle', smoothing: 0.6 })
   const arcs = cmds.filter((c) => c.c === 'A')
+
   assert.equal(arcs.length, 4)
   for (const a of arcs) {
     // Endpoints sit on the circle.
@@ -66,12 +71,14 @@ test('degenerate inputs stay sane', () => {
   ])
 
   const zero = generateCommands(W, H, { radius: 0, curve: 'squircle' })
+
   assert.ok(!zero.some((c) => c.c === 'C' || c.c === 'A'))
 })
 
 test('commandsToD round-trips through parsePath', () => {
   const cmds = generateCommands(W, H, { radius: R, curve: 'squircle', smoothing: 0.6 })
   const reparsed = parsePath(commandsToD(cmds))
+
   assert.equal(reparsed.length, cmds.length)
   for (let i = 0; i < cmds.length; i++) {
     assert.equal(reparsed[i].c, cmds[i].c)
@@ -81,6 +88,7 @@ test('commandsToD round-trips through parsePath', () => {
 test('flipCommandsY mirrors for y-up (macOS) layer space', () => {
   const cmds = generateCommands(W, H, { radius: R, curve: 'continuous' })
   const flipped = flipCommandsY(cmds, H)
+
   assert.equal(flipped[0].y, H) // top edge → bottom in y-up
   for (const c of flipped) {
     if (c.c === 'A') {
@@ -91,6 +99,7 @@ test('flipCommandsY mirrors for y-up (macOS) layer space', () => {
 
 test('non-continuous paths use lisse output verbatim', () => {
   const d = smoothPathD(W, H, { radius: R, curve: 'squircle', smoothing: 0.6 })
+
   assert.ok(d.startsWith('M '))
   assert.ok(d.endsWith('Z'))
 })

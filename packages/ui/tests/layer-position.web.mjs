@@ -20,29 +20,39 @@ test('browser resolves layer offsets in anchor context and releases only owned a
   })
 
   await server.listen()
+
   const browser = await chromium.launch()
+
   try {
     const page = await browser.newPage()
+
     await page.goto(server.resolvedUrls.local[0] + 'layer-test')
+
     const results = await page.evaluate(async () => {
       const { resolveCSSLayerOffset, ownAnchorName } =
         await import('/packages/ui/src/components/overlays/layer-position.web.ts')
 
       document.documentElement.style.fontSize = '16px'
+
       const anchor = document.createElement('button')
+
       anchor.style.fontSize = '20px'
       anchor.style.setProperty('--gap', '14px')
       document.body.append(anchor)
+
       const offsets = ['2em', '1rem', 'var(--gap)', 'calc(var(--gap) + 6px)'].map((value) =>
         resolveCSSLayerOffset(value, anchor),
       )
 
       anchor.style.setProperty('anchor-name', '--consumer')
+
       const first = ownAnchorName(anchor, '--first'),
         second = ownAnchorName(anchor, '--second')
 
       first()
+
       const names = anchor.style.getPropertyValue('anchor-name')
+
       second()
       return {
         offsets,

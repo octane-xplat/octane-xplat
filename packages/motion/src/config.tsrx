@@ -10,9 +10,11 @@ export const ConfigContext: Context<MotionConfigProps> = createContext<MotionCon
 /** Observe the live system preference, independent of MotionConfig overrides. */
 export function useReducedMotion(): boolean {
   const [reduced, setReduced] = useState(readReducedMotion)
+
   useEffect(() => {
     const update = () => setReduced(readReducedMotion())
     const off = observeReducedMotion(update)
+
     update()
     return off
   }, [])

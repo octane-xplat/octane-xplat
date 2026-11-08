@@ -28,8 +28,10 @@ const asComponent = (component: any) =>
 function storyTree(request: MountRequest, args: Record<string, unknown>) {
   const component = asComponent(request.component)
   let tree: unknown = universalComponent(RENDERER, component, args as any)
+
   for (const provider of [...request.providers].reverse() as any[]) {
     const inner = tree
+
     tree = universalComponent(RENDERER, asComponent(provider), {
       fixture: request.fixture,
       children: universalChildren(RENDERER, () => inner as any),
@@ -114,6 +116,7 @@ export function createMacOSStageHost(options: MacOSStageOptions): StageHost {
 
       bridge.__xplatAppKitOpenWindow = open
       bridge.__xplatAppKitMountSheet = sheet
+
       const unmount = () => {
         if (disposed) {
           return
@@ -129,6 +132,7 @@ export function createMacOSStageHost(options: MacOSStageOptions): StageHost {
         }
 
         const failures: unknown[] = []
+
         for (const win of windows) {
           try {
             win.close()

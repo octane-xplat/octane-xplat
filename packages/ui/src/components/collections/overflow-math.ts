@@ -46,6 +46,7 @@ function resolveBounds(
   const floor = Math.max(0, Math.min(minVisibleItems, itemCount))
   const rawCeiling = maxVisibleItems == null ? itemCount : maxVisibleItems
   const ceiling = Math.max(0, Math.min(rawCeiling, itemCount))
+
   return { floor, ceiling }
 }
 
@@ -147,10 +148,12 @@ function countRows(orderedWidths: number[], gap: number, availableWidth: number)
 
   let rows = 1
   let rowWidth = 0
+
   for (let i = 0; i < orderedWidths.length; i++) {
     const w = orderedWidths[i]
     const isFirstInRow = rowWidth === 0
     const candidate = isFirstInRow ? w : rowWidth + gap + w
+
     if (candidate <= availableWidth || isFirstInRow) {
       rowWidth = candidate
     } else {
@@ -172,6 +175,7 @@ function computeMultiRowFit(
   maxRows: number,
 ): { count: number; rows: number } {
   const n = orderedWidths.length
+
   if (n === 0) {
     return { count: 0, rows: 0 }
   }
@@ -179,6 +183,7 @@ function computeMultiRowFit(
   // If everything fits within maxRows without reserving indicator space, no
   // overflow and no indicator is needed.
   const packAll = packRows(orderedWidths, gap, availableWidth, 0, maxRows)
+
   if (packAll.placed === n) {
     return { count: n, rows: packAll.rows }
   }
@@ -203,6 +208,7 @@ export function computeOverflow(input: ComputeOverflowInput): ComputeOverflowRes
   } = input
 
   const itemCount = widths.length
+
   if (itemCount === 0) {
     return { visibleCount: 0, rows: 0 }
   }
@@ -225,6 +231,7 @@ export function computeOverflow(input: ComputeOverflowInput): ComputeOverflowRes
     )
 
     const visibleCount = clamp(fitCount, floor, ceiling)
+
     return { visibleCount, rows: visibleCount > 0 ? 1 : 0 }
   }
 

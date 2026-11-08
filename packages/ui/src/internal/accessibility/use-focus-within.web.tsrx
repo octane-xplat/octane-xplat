@@ -2,6 +2,7 @@ import { useRef } from 'octane'
 import type { FocusEventPayload } from './use-focus.tsrx'
 import { normalizeFocusWithinEvent, type FocusWithinEvent } from './focus-within-event'
 import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
+
 export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
 
 /**
@@ -11,7 +12,9 @@ export type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within
  */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
   const latest = useRef(options)
+
   latest.current = options
+
   const within = useRef(false)
   const update = (next: boolean, event?: FocusEventPayload) => {
     if (next === within.current) {
@@ -37,6 +40,7 @@ export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWit
         const focusEvent = normalized as FocusEvent | undefined
         const target = focusEvent?.currentTarget as Element | null
         const related = focusEvent?.relatedTarget as Node | null
+
         if (
           target &&
           related &&

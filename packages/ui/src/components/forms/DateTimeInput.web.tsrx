@@ -62,6 +62,7 @@ function isCoarsePointer(): boolean {
 
 function useCoarsePointer(): boolean {
   const [coarse, setCoarse] = useState(isCoarsePointer)
+
   useEffect(() => {
     if (typeof matchMedia !== 'function') {
       return
@@ -69,6 +70,7 @@ function useCoarsePointer(): boolean {
 
     const mq = matchMedia('(pointer: coarse)')
     const onChange = (e: any) => setCoarse(e.matches)
+
     mq.addEventListener?.('change', onChange)
     return () => mq.removeEventListener?.('change', onChange)
   }, [])
@@ -165,8 +167,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const emitted = next ?? null
+
     lastEmitted.current = emitted
+
     const parts = splitDateTime(emitted)
+
     setAnnouncement(
       parts.date && parts.time
         ? messages.selected(
@@ -187,6 +192,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 
   const commitDate = (iso: ISODateString, fromCalendar: boolean) => {
     let time = valueParts.time ?? timeDraft ?? currentISOTime(hasSeconds)
+
     if (minParts.date === iso && minParts.time && !isTimeInRange(time, minParts.time, undefined)) {
       time = minParts.time
     }
@@ -238,12 +244,14 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.target.value as string
+
     setDatePending(text)
     if (composing.current || isDateComposing(e)) {
       return
     }
 
     const parsed = parseDateInput(text, locale)
+
     if (parsed && !isDateDisabled(parsed)) {
       commitDate(plainDateToISO(parsed), false)
     }
@@ -268,6 +276,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       }
     } else {
       const parsed = parseDateInput(datePending, locale)
+
       if (parsed && !isDateDisabled(parsed)) {
         commitDate(plainDateToISO(parsed), false)
       }
@@ -318,6 +327,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.target.value as string
+
     setTimePending(text)
     highlightFromTyping.current = true
     if (composing.current || isDateComposing(e)) {
@@ -325,6 +335,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseTimeInput(text, hasSeconds)
+
     if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
       commitTime(parsed)
     }
@@ -354,6 +365,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       }
     } else {
       const parsed = parseTimeInput(timePending, hasSeconds)
+
       if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
         commitTime(parsed)
       }
@@ -387,7 +399,9 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     if (open === 'times' && ['ArrowDown', 'ArrowUp', 'Home', 'End'].includes(e.key)) {
       e.preventDefault()
       highlightFromTyping.current = false
+
       const index = timeOptionIndex(e.key, activeTimeIndex, timeOptions.length)
+
       setHighlightedTime(timeOptions[index]?.time ?? null)
       return
     }
@@ -396,6 +410,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
       e.preventDefault()
       if (open === 'times' && !highlightFromTyping.current) {
         const option = timeOptions[activeTimeIndex]
+
         if (option) {
           selectTimeOption(option.time)
         }
@@ -409,9 +424,11 @@ function DateTimeInputControl(inputProps: CoreProps) @{
 
     if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
       e.preventDefault()
+
       const step = props.timeIncrement ?? 1
       const base = valueParts.time ?? currentISOTime(hasSeconds)
       const next = adjustTime(base, e.key === 'ArrowUp' ? step : -step, hasSeconds)
+
       if (isTimeInRange(next, timeMin, timeMax)) {
         commitTime(next)
         setTimePending(null)
@@ -428,8 +445,10 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const list: { time: ISOTimeString; label: string }[] = []
+
     for (let m = 0; m < MINUTES_PER_DAY; m += props.timeOptionInterval) {
       const t = formatISOTime({ hour: Math.floor(m / 60), minute: m % 60, second: 0 }, hasSeconds)
+
       if (!isTimeInRange(t, timeMin, timeMax)) {
         continue
       }
@@ -483,6 +502,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
   const lastDateCommit = useRef<string | null>(null)
   const handleNativeDate = (e: any) => {
     const raw = (e.target.value ?? '') as string
+
     if (lastDateCommit.current === raw) {
       return
     }
@@ -494,6 +514,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseDateInput(raw, locale)
+
     if (parsed && !isDateDisabled(parsed)) {
       commitDate(plainDateToISO(parsed), false)
     }
@@ -502,6 +523,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
   const lastTimeCommit = useRef<string | null>(null)
   const handleNativeTime = (e: any) => {
     const raw = (e.target.value ?? '') as string
+
     if (lastTimeCommit.current === raw) {
       return
     }
@@ -513,6 +535,7 @@ function DateTimeInputControl(inputProps: CoreProps) @{
     }
 
     const parsed = parseTimeInput(raw, true)
+
     if (parsed && isTimeInRange(parsed, timeMin, timeMax)) {
       commitTime(formatISOTime(parseISOTime(parsed)!, hasSeconds))
     }

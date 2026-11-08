@@ -17,17 +17,20 @@ export function setProductBundleIdentifier(
   const listRef = new RegExp(
     `buildConfigurationList = ([0-9A-F]+) /\\* ${escapeRegExp(targetLabel)} \\*/;`,
   ).exec(project)
+
   if (!listRef) {
     throw new Error(`No ${targetLabel} in the generated project`)
   }
 
   const listBlock = objectBlock(project, listRef[1], 'XCConfigurationList')
+
   if (!listBlock) {
     throw new Error(`Missing XCConfigurationList ${listRef[1]} for target ${targetName}`)
   }
 
   const configIds: string[] = []
   const configsMatch = /buildConfigurations = \(([^)]*)\)/.exec(listBlock[0])
+
   if (configsMatch) {
     for (const id of configsMatch[1].matchAll(/([0-9A-F]{24}) \/\*/g)) {
       configIds.push(id[1])
@@ -41,8 +44,10 @@ export function setProductBundleIdentifier(
   let replaced = 0
   let cursor = 0
   let result = ''
+
   for (const id of configIds) {
     const block = objectBlock(project, id, 'XCBuildConfiguration')
+
     if (!block) {
       throw new Error(`Missing XCBuildConfiguration ${id} for target ${targetName}`)
     }
@@ -75,6 +80,7 @@ function objectBlock(
   isa: string,
 ): (RegExpExecArray & { 0: string }) | null {
   const pattern = new RegExp(`${id} /\\* [^*]* \\*/ = \\{\\s*isa = ${isa};[\\s\\S]*?\\};`)
+
   return pattern.exec(project) as (RegExpExecArray & { 0: string }) | null
 }
 

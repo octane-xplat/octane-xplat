@@ -81,7 +81,9 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
     const filename = 'Links.mobile.tsx'
     const source =
       '<><NavLink onPress={cancel} /><NavLink onPressIn={enter} /><View onPress={press} /></>'
+
     const failures = checkNoViewOnPress(parseModule(source, filename), source, filename)
+
     assert.deepEqual(
       failures.map(({ message }) => message),
       [
@@ -94,6 +96,7 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
   test(`${label} requires the facade pragma on every native file and rejects retired pragmas`, async () => {
     const { checkNativePragmaFirstLine } = await import(module)
     const body = 'export function Card() @{ <gridlayout /> }'
+
     // Native-suffixed files accept only the facade pragma.
     for (const filename of [
       'Card.mobile.tsrx',
@@ -101,12 +104,14 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
       'Card.macos.tsrx',
     ]) {
       const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
+
       assert.deepEqual(
         checkNativePragmaFirstLine(parseModule(source, filename), source, filename),
         [],
         filename,
       )
     }
+
     // Every retired pragma is rejected wherever it appears.
     for (const retired of [
       '@nativescript-community/octane',
@@ -115,6 +120,7 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
       'octane',
     ]) {
       const source = `/** @jsxImportSource ${retired} */\n${body}`
+
       for (const filename of ['Card.mobile.tsrx', 'App.web.tsrx', 'Page.linux.tsrx']) {
         assert.equal(
           checkNativePragmaFirstLine(parseModule(source, filename), source, filename).length,
@@ -123,13 +129,16 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
         )
       }
     }
+
     // The native facade pragma on a browser file is rejected.
     for (const filename of ['App.web.tsrx', 'Panel.linux.tsrx']) {
       const source = '/** @jsxImportSource @octane-xplat/jsx */\n' + body
       const failures = checkNativePragmaFirstLine(parseModule(source, filename), source, filename)
+
       assert.equal(failures.length, 1, filename)
       assert.match(failures[0].message, /@octane-xplat\/jsx\/dom/)
     }
+
     // A native file with no pragma (or a displaced one) still fails.
     for (const prefix of [
       '',
@@ -155,7 +164,9 @@ for (const [label, module] of [['published lint', '../packages/lint/src/xplat-ru
     const source = `import { pushRoute, useRoute, registerRoutes } from '@octane-xplat/ui/routing'
 import { NavLink } from '@octane-xplat/ui'
 import { router } from '@octane-xplat/ui/routing'`
+
     const failures = checkNoRemovedRoutingApi(parseModule(source, 'app.tsrx'), source, 'app.tsrx')
+
     assert.equal(failures.length, 3)
     assert.match(failures[0].message, /router\.push/)
     assert.match(failures[1].message, /useRouteMatch|useRouterState|getRouteApi/)
@@ -165,10 +176,12 @@ import { router } from '@octane-xplat/ui/routing'`
   test(`${label} rejects route module augmentation outside generated files`, async () => {
     const { checkNoRouteAugmentation } = await import(module)
     const source = `declare module '@octane-xplat/ui/routing' { interface RegisteredRouteContracts {} }`
+
     assert.equal(
       checkNoRouteAugmentation(parseModule(source, 'app.ts'), source, 'app.ts').length,
       1,
     )
+
     assert.equal(
       checkNoRouteAugmentation(parseModule(source, 'x.gen.ts'), source, 'x.gen.ts').length,
       0,
@@ -182,10 +195,12 @@ const e = { to: \`/items/\${id}\`, params: {} }
 const f = { to: '/items/:id', params: { id } } as Destination
 push({ to: raw as '/items/:id' })
 const link = <NavLink to={dest as any} />`
+
     assert.equal(
       checkNoDestinationCast(parseModule(source, 'app.tsx'), source, 'app.tsx').length >= 2,
       true,
     )
+
     assert.equal(
       checkNoInterpolatedRoutePath(parseModule(source, 'app.tsx'), source, 'app.tsx').length,
       2,
@@ -197,6 +212,7 @@ const link = <NavLink to={dest as any} />`
     const source = `const anim = { from: 0, to: \`\${n}%\` }
 const range = { to: x as number }
 const style = { to: '100%' } as const`
+
     assert.equal(checkNoDestinationCast(parseModule(source, 'app.ts'), source, 'app.ts').length, 0)
     assert.equal(
       checkNoInterpolatedRoutePath(parseModule(source, 'app.ts'), source, 'app.ts').length,
@@ -208,12 +224,14 @@ const style = { to: '100%' } as const`
 test('native paint shadows are supported while unsupported style properties still report', () => {
   for (const filename of ['sample.mobile.tsx', 'sample.macos.tsx']) {
     const supported = 'const card = <View style={{ boxShadow: "0px 4px 12px 0px black" }} />'
+
     assert.deepEqual(
       checkNoNativeDeadStyle(parseModule(supported, filename), supported, filename),
       [],
     )
 
     const unsupported = 'const card = <View style={{ float: "left" }} />'
+
     assert.equal(
       checkNoNativeDeadStyle(parseModule(unsupported, filename), unsupported, filename).length,
       1,
@@ -223,11 +241,14 @@ test('native paint shadows are supported while unsupported style properties stil
 
 test('platform TSRX source requires a default contract, including declaration-only stubs', () => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-default-contract-'))
+
   try {
     mkdirSync(join(root, 'src'))
+
     const file = join(root, 'src/Card.web.tsrx')
     const source = 'export declare function Card(): unknown'
     const ast = parseModule(source, file)
+
     assert.equal(checkTsrxDefault(ast, source, file, {}).length, 1)
     writeFileSync(join(root, 'src/Card.tsrx'), source)
     assert.deepEqual(checkTsrxDefault(ast, source, file, {}), [])

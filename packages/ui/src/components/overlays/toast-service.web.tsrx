@@ -23,7 +23,9 @@ function ensureFallbackViewport(): void {
   }
 
   fallbackMounted = true
+
   const container = document.createElement('div')
+
   container.setAttribute('data-xplat-toast-fallback', '')
   document.body.appendChild(container)
   registerToastViewport(FALLBACK_TOAST_VIEWPORT)
@@ -48,6 +50,7 @@ export const showToast: ShowToastFn = (options) => {
  *  one it lands on the auto-mounted fallback stack, same as `showToast`. */
 export function useToast(): ShowToastFn {
   const ctx = useContext(ToastViewportContext)
+
   return useCallback(
     (options: ToastOptions) => {
       ensureFallbackViewport()

@@ -76,6 +76,7 @@ function RadioGroupControl(inputProps: RadioGroupProps) @{
       const selected = current === opt.value
       const disabled = props.isDisabled || opt.isDisabled
       const blocked = disabled || isBlocked
+
       return (
         <masonview
           key={opt.value}

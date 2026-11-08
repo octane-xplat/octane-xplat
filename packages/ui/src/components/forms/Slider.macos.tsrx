@@ -40,9 +40,13 @@ function SliderThumb(props: {
 }) @{
   const view = useRef<NSView | null>(null)
   const latest = useRef(props)
+
   latest.current = props
+
   const latestBind = useRef(props.bind)
+
   latestBind.current = props.bind
+
   const bind = useCallback((target: NSView | null) => {
     view.current = target
     latestBind.current(target)
@@ -51,6 +55,7 @@ function SliderThumb(props: {
   const { keyboardProps } = useKeyboard({
     onKeyDown: (event) => {
       const current = latest.current
+
       if (
         !view.current ||
         current.blocked ||
@@ -80,6 +85,7 @@ function SliderThumb(props: {
 
   const adjust = (direction: 1 | -1) => {
     const current = latest.current
+
     if (!view.current || current.blocked) {
       return
     }
@@ -89,6 +95,7 @@ function SliderThumb(props: {
 
   useEffect(() => {
     const target = view.current
+
     if (!target) {
       return
     }
@@ -107,6 +114,7 @@ function SliderThumb(props: {
     {...keyboardProps}
     onTap={() => {
       const target = view.current
+
       if (target && !latest.current.disabled) {
         target.window?.makeFirstResponder(target)
       }
@@ -146,7 +154,9 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
   const key = `${limits.min}:${limits.max}:${limits.step}:${range}`
   const latest = useRef({ props, limits, controlled, key, blocked })
+
   latest.current = { props, limits, controlled, key, blocked }
+
   const changing = useRef(false)
   const drag = useRef<SliderDrag | null>(null)
   const [preview, setPreview] = useState<{ owner: SliderDrag; value: SliderValue } | null>(null)
@@ -169,7 +179,9 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
   const value = preview && drag.current === preview.owner ? preview.value : base
   const live = useRef(value)
+
   live.current = value
+
   const thumbs = useRef<(NSView | null)[]>([])
   const track = useRef<NSView | null>(null)
   const lo = Array.isArray(value) ? value[0] : value,
@@ -181,11 +193,13 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
   const move = (which: 0 | 1, proposed: number, dragging = false) => {
     const current = latest.current
+
     if (!track.current || current.blocked || changing.current) {
       return
     }
 
     const owner = drag.current
+
     if (
       dragging &&
       (!owner || owner.key !== current.key || owner.controlled !== current.controlled)
@@ -194,6 +208,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
     }
 
     const next = moveSlider(live.current, which, proposed, current.limits)
+
     if (sameSliderValue(next, live.current)) {
       return
     }
@@ -236,6 +251,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
 
           if (event.state === 'began') {
             const location = event.locationX
+
             if (typeof location !== 'number' || !Number.isFinite(location)) {
               return
             }
@@ -253,6 +269,7 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
             )
 
             const origin = Number(rect?.origin?.x ?? 10) - Number(target?.bounds?.origin?.x ?? 0)
+
             if (!Number.isFinite(width) || width <= 0) {
               return
             }
@@ -270,12 +287,15 @@ function SliderControl(inputProps: SliderProps & { controlID: string }) @{
                 : 1
 
             drag.current = { key, which, start: live.current, width, controlled, source: base }
+
             const thumb = thumbs.current[which]
+
             thumb?.window?.makeFirstResponder(thumb)
             return
           }
 
           const session = drag.current
+
           if (!session || session.key !== key) {
             return
           }

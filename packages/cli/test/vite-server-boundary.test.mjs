@@ -18,6 +18,7 @@ test('native presets reject .server imports and erase named re-exports', async (
   const vendorExclude = process.env.NS_VENDOR_EXCLUDE
   const makePackage = (name, manifest, files = {}) => {
     const dir = join(root, 'node_modules', name)
+
     mkdirSync(dir, { recursive: true })
     writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, type: 'module', ...manifest }))
     for (const [file, source] of Object.entries(files)) {
@@ -25,6 +26,7 @@ test('native presets reject .server imports and erase named re-exports', async (
       writeFileSync(join(dir, file), source)
     }
   }
+
   try {
     writeFileSync(
       join(root, 'package.json'),
@@ -115,6 +117,7 @@ test('native presets reject .server imports and erase named re-exports', async (
     )
 
     const require = createRequire(import.meta.url)
+
     symlinkSync(
       dirname(require.resolve('vite/package.json')),
       join(root, 'node_modules/vite'),
@@ -122,6 +125,7 @@ test('native presets reject .server imports and erase named re-exports', async (
     )
 
     const { build } = await import('vite')
+
     process.chdir(root)
     process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'ios' })
     delete process.env.NS_VENDOR_EXCLUDE
@@ -142,6 +146,7 @@ test('native presets reject .server imports and erase named re-exports', async (
       })
 
     await assert.rejects(nativeBuild('entry-leak.ts'), /server boundary|server-only/i)
+
     const erased = await nativeBuild('entry-erased.ts')
     const chunks = [erased]
       .flat()
@@ -157,6 +162,7 @@ test('native presets reject .server imports and erase named re-exports', async (
       () => xplatLinuxGtk('production', { root, entry: join(root, 'entry-leak.ts') }),
     ]) {
       const config = await preset()
+
       await assert.rejects(
         build({
           ...config,

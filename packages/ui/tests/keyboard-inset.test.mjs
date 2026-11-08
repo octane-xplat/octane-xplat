@@ -34,6 +34,7 @@ function load(application, globals = {}) {
   if (application.ios) {
     application.ios.window ??= iosWindow()
   }
+
   const keyboardWindows = createKeyboardWindowRegistry(() => ({ inset: 0 }))
   const context = vm.createContext({
     exports: {},
@@ -52,6 +53,7 @@ function load(application, globals = {}) {
           )
 
           const adapter = vm.createContext({ ...context, exports: {} })
+
           vm.runInContext(
             ts.transpile(source, {
               module: ts.ModuleKind.CommonJS,
@@ -138,14 +140,18 @@ test('iOS shares frames, applies current inset to late consumers, hides and rele
         convertRectToView: () => cgRect(host.translateY, 800),
       },
     }
+
   // Same real window identity as the unscoped compatibility readers.
   host.ios.window = api.testWindow
 
   const off1 = api.subscribeKeyboardInset((value) => first.push(value))
   const frame = (raw) => callback({ userInfo: { objectForKey: () => raw } })
+
   frame({ CGRectValue: cgRect(500) })
+
   const off2 = api.subscribeKeyboardInset((value) => second.push(value))
   const unbind = api.bindBottomInsetToKeyboard(host)
+
   assert.equal(added, 1)
   assert.equal(host.translateY, -300)
   assert.deepEqual(second, [300])
@@ -161,8 +167,10 @@ test('iOS shares frames, applies current inset to late consumers, hides and rele
   assert.equal(removed, 0)
   unbind()
   assert.equal(removed, 1)
+
   const last = []
   const off3 = api.subscribeKeyboardInset((value) => last.push(value))
+
   assert.deepEqual(last, [0])
   off3()
   assert.equal(removed, 2)
@@ -172,6 +180,7 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
   let callback,
     added = 0,
     removed = 0
+
   const api = load(
     { ios: {} },
     {
@@ -191,8 +200,10 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
       UIScreen: { mainScreen: { bounds: { size: { height: 800 } } } },
     },
   )
+
   const host = (window) => {
     const events = new Map()
+
     return {
       ios: { window },
       isLoaded: true,
@@ -200,6 +211,7 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
         if (!events.has(name)) {
           events.set(name, new Set())
         }
+
         events.get(name).add(listener)
       },
       off: (name, listener) => events.get(name)?.delete(listener),
@@ -207,16 +219,20 @@ test('host-bound iOS readers release detached windows and rebind on load or wind
       listeners: () => [...events.values()].reduce((count, set) => count + set.size, 0),
     }
   }
+
   const aWindow = iosWindow(),
     bWindow = iosWindow(),
     cWindow = iosWindow()
+
   const a = host(aWindow),
     b = host(bWindow),
     first = [],
     second = []
+
   const offA = api.subscribeKeyboardInset((value) => first.push(value), a)
   const offB = api.subscribeKeyboardInset((value) => second.push(value), b)
   const frame = (y) => callback({ userInfo: { objectForKey: () => cgRect(y) } })
+
   frame(500)
   assert.equal(added, 1)
   assert.equal(first.at(-1), 300)
@@ -248,12 +264,14 @@ test('default iOS readers follow key-window changes instead of retaining the lau
   const first = iosWindow(),
     second = iosWindow(),
     tokens = new Set()
+
   const application = { ios: { window: first, nativeApp: { keyWindow: first } } }
   const api = load(application, {
     NSNotificationCenter: {
       defaultCenter: {
         addObserverForNameObjectQueueUsingBlock: (name, _object, _queue, listener) => {
           const token = { name, listener }
+
           tokens.add(token)
           return token
         },
@@ -266,21 +284,26 @@ test('default iOS readers follow key-window changes instead of retaining the lau
     UIWindowDidBecomeKeyNotification: 'key',
     UIScreen: { mainScreen: { bounds: { size: { height: 800 } } } },
   })
+
   const values = []
   const off = api.subscribeKeyboardInset((value) => values.push(value))
   const frame = (y) =>
     [...tokens]
       .filter((token) => token.name === 'frame')
       .forEach((token) => token.listener({ userInfo: { objectForKey: () => cgRect(y) } }))
+
   frame(500)
   assert.equal(api.registry.getSnapshot(first).inset, 300)
   application.ios.nativeApp.keyWindow = second
+
   const activeTokens = [...tokens]
+
   for (const token of activeTokens) {
     if (token.name === 'key') {
       token.listener()
     }
   }
+
   frame(600)
   assert.equal(api.registry.getSnapshot(first).inset, 0)
   assert.equal(api.registry.getSnapshot(second).inset, 200)
@@ -319,6 +342,7 @@ function androidHost(compat = true, initialIme = 620, geometry = {}) {
     getViewTreeObserver: () => tree,
     insets: () => ({ getInsets: (type) => ({ bottom: type === 'ime' ? ime : 20 }) }),
   }
+
   const window = {
     getAttributes: () => ({ softInputMode: mode }),
     setSoftInputMode: (value) => {
@@ -336,11 +360,13 @@ function androidHost(compat = true, initialIme = 620, geometry = {}) {
         if (!events.has(name)) {
           events.set(name, new Set())
         }
+
         events.get(name).add(listener)
       },
       off: (name, listener) => events.get(name)?.delete(listener),
     },
   }
+
   const api = load(application, {
     android: {
       graphics: { Rect: class {} },
@@ -401,6 +427,7 @@ test('Android shares window ownership, converts pixels to dips, updates on hide 
 
   const off1 = host.api.subscribeKeyboardInset((value) => a.push(value))
   const off2 = host.api.subscribeKeyboardInset((value) => b.push(value))
+
   assert.deepEqual(host.writes, [0x11])
   assert.deepEqual(host.counts(), [1, 0])
   assert.equal(b.at(-1), 300)
@@ -421,6 +448,7 @@ test('Android shares window ownership, converts pixels to dips, updates on hide 
 test('Android cleanup preserves a newer external softInputMode owner', () => {
   const host = androidHost()
   const off = host.api.subscribeKeyboardInset(() => {})
+
   host.setMode(0x31)
   off()
   assert.deepEqual(host.writes, [0x11])
@@ -431,7 +459,9 @@ test('Android readers rebind to a replacement Activity without remounting', () =
   const first = androidHost(),
     second = androidHost(true, 420),
     values = []
+
   const off = first.api.subscribeKeyboardInset((value) => values.push(value))
+
   first.resume(second.window)
   assert.deepEqual(values, [300, 200])
   assert.deepEqual(first.writes, [0x11, 0x21])
@@ -451,15 +481,18 @@ test('Android readers rebind to a replacement Activity without remounting', () =
 test('Android resize ownership survives observation-driver replacement', () => {
   const host = androidHost(),
     values = []
+
   const off = host.api.subscribeKeyboardInset((value) => values.push(value))
   let delayed,
     stopped = 0
+
   const remove = host.api.registry.install((window, publish) => {
     assert.equal(window, host.decor)
     delayed = publish
     publish({ inset: 400 })
     return () => stopped++
   })
+
   assert.deepEqual(host.writes, [0x11])
   assert.deepEqual(host.counts(), [1, 1])
   assert.equal(values.at(-1), 400)
@@ -481,6 +514,7 @@ test('NativeScript window sessions release detached surfaces and resume on their
   const first = androidHost(),
     next = androidHost(true, 420),
     values = []
+
   const events = new Map()
   const session = {
     state: 'attached',
@@ -489,13 +523,18 @@ test('NativeScript window sessions release detached surfaces and resume on their
       if (!events.has(name)) {
         events.set(name, new Set())
       }
+
       events.get(name).add(listener)
     },
     off: (name, listener) => events.get(name)?.delete(listener),
   }
+
   const emit = (name) => events.get(name)?.forEach((listener) => listener({ window: session }))
+
   first.application.activeWindow = session
+
   const off = first.api.subscribeKeyboardInset((value) => values.push(value))
+
   assert.equal(values.at(-1), 300)
   session.state = 'detached'
   session.android = undefined
@@ -520,6 +559,7 @@ test('NativeScript window sessions release detached surfaces and resume on their
     [...events.values()].reduce((count, set) => count + set.size, 0),
     0,
   )
+
   next.layout(0)
   assert.equal(values.at(-1), 0)
   off()
@@ -529,6 +569,7 @@ test('NativeScript window sessions release detached surfaces and resume on their
 test('unsupported host emits zero without touching native APIs', () => {
   const values = []
   const off = load({}).subscribeKeyboardInset((value) => values.push(value))
+
   off()
   assert.deepEqual(values, [0])
 })
@@ -538,6 +579,7 @@ test('Android keeps resize avoidance when numeric inset support is unavailable',
     values = []
 
   const off = host.api.subscribeKeyboardInset((value) => values.push(value))
+
   assert.deepEqual(values, [0])
   assert.deepEqual(host.writes, [0x11])
   off()
@@ -552,6 +594,7 @@ test('bottom hosts use measured native frames, preserve transforms, and share pr
     publish = notify
     return () => {}
   })
+
   const host = {
     translateY: 12,
     ios: {
@@ -560,8 +603,10 @@ test('bottom hosts use measured native frames, preserve transforms, and share pr
       convertRectToView: () => cgRect(752 + host.translateY, 36),
     },
   }
+
   const first = api.bindBottomInsetToKeyboard(host)
   const second = api.bindBottomInsetToKeyboard(host)
+
   publish({
     inset: 300,
     source: 'native-frames',
@@ -569,6 +614,7 @@ test('bottom hosts use measured native frames, preserve transforms, and share pr
     currentFrame: { x: 0, y: 650, width: 400, height: 150 },
     targetFrame: { x: 0, y: 500, width: 400, height: 300 },
   })
+
   assert.equal(host.translateY, -138)
   first()
   assert.equal(host.translateY, -138)
@@ -597,6 +643,7 @@ function iosGeometryHost(window = iosWindow()) {
       UIKeyboardFrameEndUserInfoKey: 'end',
     },
   )
+
   return {
     api,
     window,
@@ -607,10 +654,14 @@ function iosGeometryHost(window = iosWindow()) {
 test('iOS converts destination frames into each window and remeasures on rotation', () => {
   const host = iosGeometryHost(iosWindow(100, 600)),
     values = []
+
   const off = host.api.subscribeKeyboardInset((value) => values.push(value))
+
   host.frame(cgRect(500))
   assert.equal(values.at(-1), 200)
+
   let state = host.api.registry.getSnapshot(host.window)
+
   assert.equal(state.targetFrame.y, 400)
   assert.equal(state.currentFrame, null)
   assert.equal(state.source, 'destination')
@@ -627,6 +678,7 @@ test('iOS converts destination frames into each window and remeasures on rotatio
 test('iOS reads an already-open public guide without treating the hidden safe-area strip as a keyboard', () => {
   const window = iosWindow(),
     guide = { layoutFrame: cgRect(500) }
+
   window.rootViewController = {
     view: {
       keyboardLayoutGuide: guide,
@@ -634,13 +686,18 @@ test('iOS reads an already-open public guide without treating the hidden safe-ar
       convertRectToView: (rect) => rect,
     },
   }
+
   const { api } = iosGeometryHost(window),
     values = []
+
   const off = api.subscribeKeyboardInset((value) => values.push(value))
+
   assert.equal(values.at(-1), 300)
   off()
   guide.layoutFrame = cgRect(766, 34)
+
   const offHidden = api.subscribeKeyboardInset((value) => values.push(value))
+
   assert.equal(values.at(-1), 0)
   offHidden()
 })
@@ -648,17 +705,21 @@ test('iOS reads an already-open public guide without treating the hidden safe-ar
 test('iOS ignores another display and measures a presented host below the same window', () => {
   const { api, window, frame } = iosGeometryHost(),
     values = []
+
   const off = api.subscribeKeyboardInset((value) => values.push(value))
+
   frame(cgRect(500), { coordinateSpace: {} })
   assert.equal(values.at(-1), 0)
   frame(cgRect(500), window.screen)
   frame(cgRect(300), { coordinateSpace: {} })
   assert.equal(values.at(-1), 300)
+
   const native = {
     window,
     bounds: cgRect(0, 500, 0, 360),
     convertRectToView: () => cgRect(100, 500, 20, 360),
   }
+
   assert.equal(api.keyboardHostOverlap({ ios: native }, api.registry.getSnapshot(window)), 100)
   native.convertRectToView = () => cgRect(100, 400, 20, 360)
   assert.equal(api.keyboardHostOverlap({ ios: native }, api.registry.getSnapshot(window)), 0)
@@ -678,7 +739,9 @@ test('Android measures visible geometry rather than assuming an adjustResize fla
     getWidth: () => 800,
     getHeight: () => geometry.height,
   }
+
   const state = () => host.api.registry.getSnapshot(host.decor)
+
   assert.equal(state().inset, 300)
   assert.equal(host.api.keyboardHostOverlap({ android: native }, state()), 310)
   geometry.height = 980
@@ -691,7 +754,9 @@ test('Android measures visible geometry rather than assuming an adjustResize fla
 test('a failed initial native measurement releases its observer before a later attachment', () => {
   let added = 0,
     removed = 0
+
   const window = iosWindow()
+
   window.rootViewController = {
     view: {
       keyboardLayoutGuide: { layoutFrame: cgRect(500) },
@@ -701,6 +766,7 @@ test('a failed initial native measurement releases its observer before a later a
       },
     },
   }
+
   const sessions = new Map()
   const session = {
     state: 'attached',
@@ -708,6 +774,7 @@ test('a failed initial native measurement releases its observer before a later a
     on: (name, listener) => sessions.set(name, listener),
     off: (name) => sessions.delete(name),
   }
+
   const api = load(
     { ios: { window }, activeWindow: session },
     {
@@ -725,12 +792,15 @@ test('a failed initial native measurement releases its observer before a later a
       UIKeyboardFrameEndUserInfoKey: 'end',
     },
   )
+
   assert.throws(() => api.subscribeKeyboardInset(() => {}), /bridge measurement failed/)
   assert.equal(removed, 1)
   assert.equal(sessions.size, 0)
   window.rootViewController.view.convertRectToView = (rect) => rect
+
   const values = [],
     off = api.subscribeKeyboardInset((value) => values.push(value))
+
   assert.equal(values.at(-1), 300)
   off()
   assert.equal(added, 2)

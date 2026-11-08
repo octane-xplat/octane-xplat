@@ -17,14 +17,17 @@ export interface ShortcutHost {
 
 export function unwrap(target: object): any {
   const protectedView = 'nativeViewProtected' in target ? target.nativeViewProtected : undefined
+
   return typeof protectedView === 'object' && protectedView !== null ? protectedView : target
 }
 
 export function pathFrom(target: any, parent: (target: any) => any): object[] {
   const path: object[] = []
+
   for (let node = target; node && !path.includes(node); node = parent(node)) {
     path.push(node)
   }
+
   return path
 }
 
@@ -32,13 +35,16 @@ export function pathDepth(target: object | undefined, event: ShortcutEvent): num
   if (!target) {
     return Infinity
   }
+
   const path = event.composedPath?.() ?? (event.target ? [event.target] : [])
   const index = path.indexOf(unwrap(target))
+
   return index < 0 ? undefined : index
 }
 
 export function cleanupAll(releases: (() => void)[]): void {
   const errors: unknown[] = []
+
   for (const release of releases.splice(0).reverse()) {
     try {
       release()
@@ -46,6 +52,7 @@ export function cleanupAll(releases: (() => void)[]): void {
       errors.push(error)
     }
   }
+
   if (errors.length) {
     throw new AggregateError(errors, 'Shortcut cleanup failed')
   }
@@ -53,5 +60,6 @@ export function cleanupAll(releases: (() => void)[]): void {
 
 export function delay(callback: () => void, milliseconds: number): () => void {
   const timer = setTimeout(callback, milliseconds)
+
   return () => clearTimeout(timer)
 }

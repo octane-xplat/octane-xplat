@@ -14,7 +14,9 @@ describe('web app state', () => {
   it('uses the document visibility state present at mount', () => {
     const visibilityState = vi.spyOn(document, 'visibilityState', 'get').mockReturnValue('hidden')
     const container = document.createElement('div')
+
     document.body.appendChild(container)
+
     const root = createRoot(container)
 
     try {

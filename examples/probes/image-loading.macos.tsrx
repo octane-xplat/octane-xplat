@@ -8,6 +8,7 @@ const pixel =
 
 export default function ImageLoadingProbe() {
   const [second, setSecond] = useState(true)
+
   return (
     <VStack gap={2}>
       <HStack>

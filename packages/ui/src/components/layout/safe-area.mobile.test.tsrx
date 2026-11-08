@@ -89,6 +89,7 @@ function AvoidingTree(props: {
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(component, props)
   return { container, root }
 }
@@ -107,6 +108,7 @@ describe('SafeArea edge consumption', () => {
   it('pads every edge by default and leaves nothing for a nested SafeArea', () => {
     const { container, root } = mount(Nested, {})
     const outer = container.children[0]
+
     expect(pads(outer)).toEqual({ top: 24, right: 4, bottom: 34, left: 0 })
     expect(pads(outer.children[0])).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
     root.unmount()
@@ -119,6 +121,7 @@ describe('SafeArea edge consumption', () => {
     })
 
     const outer = container.children[0]
+
     expect(pads(outer)).toEqual({ top: 24, right: 0, bottom: 0, left: 0 })
     expect(pads(outer.children[0])).toEqual({ top: 0, right: 0, bottom: 34, left: 0 })
     root.unmount()
@@ -127,6 +130,7 @@ describe('SafeArea edge consumption', () => {
   it('keeps ignoreSafeArea as the deprecated no-edge alias', () => {
     const { container, root } = mount(Nested, { ignore: true })
     const outer = container.children[0]
+
     expect(pads(outer)).toEqual({ top: 0, right: 0, bottom: 0, left: 0 })
     expect(pads(outer.children[0])).toEqual({ top: 24, right: 4, bottom: 34, left: 0 })
     root.unmount()
@@ -136,10 +140,12 @@ describe('SafeArea edge consumption', () => {
 describe('KeyboardAvoiding', () => {
   it('pads by the keyboard inset plus offset, minus the bottom inset SafeArea consumed', async () => {
     const { container, root } = mount(AvoidingTree, { insideSafeArea: true, offset: 8 })
+
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
     await vi.waitFor(() => {
       const flex = container.children[0].children[0].children[0]
+
       expect(flex.style?.paddingBottom).toBe(274)
     })
 
@@ -150,10 +156,12 @@ describe('KeyboardAvoiding', () => {
 
   it('applies the raw inset without a consuming ancestor', async () => {
     const { container, root } = mount(AvoidingTree, { offset: 8 })
+
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
     await vi.waitFor(() => {
       const flex = container.children[0].children[0]
+
       expect(flex.style?.paddingBottom).toBe(308)
     })
 
@@ -162,6 +170,7 @@ describe('KeyboardAvoiding', () => {
 
   it('skips the subscription and padding while disabled', async () => {
     const { container, root } = mount(AvoidingTree, { enabled: false, offset: 8 })
+
     flushUniversalSync(() => {})
     await Promise.resolve()
     expect(keyboard.listeners.size).toBe(0)
@@ -180,12 +189,14 @@ function NestedAvoidance() @{
 
 it('nested avoidance consumes keyboard space only once in the same window', async () => {
   const { container, root } = mount(NestedAvoidance, {})
+
   try {
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(2))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
     await vi.waitFor(() => {
       const outerContent = container.children[0].children[0]
       const innerContent = outerContent.children[0].children[0]
+
       expect(outerContent.style?.paddingBottom).toBe(300)
       expect(innerContent.style?.paddingBottom ?? 0).toBe(0)
     })
@@ -204,6 +215,7 @@ function OtherWindowAvoidance() @{
 
 it('does not consume avoidance inherited from a different native window', async () => {
   const { container, root } = mount(OtherWindowAvoidance, {})
+
   try {
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
@@ -215,6 +227,7 @@ it('does not consume avoidance inherited from a different native window', async 
 
 it('releases wrapper observation and padding when disabled with the keyboard open', async () => {
   const { container, root } = mount(AvoidingTree, {})
+
   try {
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(300)))
@@ -233,7 +246,9 @@ it('releases wrapper observation and padding when disabled with the keyboard ope
 
 it('uses geometric overlap when the numeric compatibility inset excludes system bars', async () => {
   keyboard.geometricInset = 259
+
   const { container, root } = mount(AvoidingTree, {})
+
   try {
     await vi.waitFor(() => expect(keyboard.listeners.size).toBe(1))
     flushUniversalSync(() => keyboard.listeners.forEach((listener) => listener(235)))

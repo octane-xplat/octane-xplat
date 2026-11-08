@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { gzipSync } from 'node:zlib'
 import { performance } from 'node:perf_hooks'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
@@ -17,13 +18,16 @@ const build = JSON.parse(readFileSync(binary + '.json')),
 
 const cases = JSON.parse(readFileSync(join(work, 'model-cases.json')))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale source: ${file}`)
 }
 
 const library = join(work, 'runtime-assets', pins.directory, pins.library)
+
 assert.equal(sha(readFileSync(library)), pins.librarySha256)
+
 const input = join(work, 'model-request.json')
 const request = {
   directory: join(work, 'model-fixtures'),
@@ -34,12 +38,14 @@ const request = {
 
 function native(operation, overrides = {}, fail = false) {
   writeFileSync(input, JSON.stringify({ ...request, ...overrides }))
+
   const result = spawnSync(binary, [operation, '--request', input, '--timeout', '2m'], {
     encoding: 'utf8',
     env: { ...process.env, PATH: '' },
     timeout: 150000,
     maxBuffer: 32 << 20,
   })
+
   assert.equal(result.status, fail ? 1 : 0, result.stdout + '\n' + result.stderr)
   assert.equal(result.stderr, '')
   return JSON.parse(result.stdout)
@@ -55,14 +61,20 @@ const record = {
 
 try {
   assert.deepEqual(native('tokenize'), cases.expectedTokens)
+
   const output = native('embed')
+
   assert.match(output.engine, /onnxruntime-1\.31\.1/)
+
   const dot = (a, b) => a.reduce((sum, value, at) => sum + value * b[at], 0)
+
   record.cosines = output.vectors.map((vector, at) => {
     assert.equal(vector.length, 384)
     assert.ok(vector.every(Number.isFinite))
     assert.ok(Math.abs(Math.hypot(...vector) - 1) < 1e-10)
+
     const cosine = dot(vector, cases.expectedVectors[at])
+
     assert.ok(cosine > 0.95)
     return cosine
   })
@@ -75,14 +87,17 @@ try {
         score: dot(query, output.vectors[cases.prefixCount + index]),
       }))
       .sort((a, b) => b.score - a.score)
+
     assert.equal(ranked[0].path, document.path)
     return { query: document.query, ranked }
   })
 
   assert.deepEqual(native('embed', { texts: [cases.texts[1]] }).vectors[0], output.vectors[1])
   assert.match(native('embed', { librarySha256: '0'.repeat(64) }, true).error, /checksum/)
+
   const sizes = (file) => {
     const bytes = readFileSync(file)
+
     return {
       bytes: bytes.length,
       gzip6Bytes: gzipSync(bytes, { level: 6 }).length,
@@ -96,6 +111,7 @@ try {
   }
 
   const samples = []
+
   for (let at = 0; at < 25; at++) {
     const start = performance.now()
     const result = spawnSync(binary, ['--help'], {

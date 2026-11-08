@@ -60,6 +60,7 @@ let hostProbe: Promise<CameraHost | null> | undefined
 const probeHost = async (): Promise<CameraHost | null> => {
   try {
     const transport = createWebKitTransport()
+
     if (!transport) {
       return null
     }
@@ -91,7 +92,9 @@ const probeHost = async (): Promise<CameraHost | null> => {
  *  than sticking 'absent' for the page lifetime. */
 export async function cameraHost(): Promise<CameraHost | null> {
   hostProbe ??= probeHost()
+
   const host = await hostProbe
+
   if (!host) {
     hostProbe = probeHost()
     return hostProbe
@@ -106,6 +109,7 @@ const error = (kind: 'destinationUnavailable' | 'storageFailed' | 'unavailable',
 const dataToBase64 = (data: Uint8Array): string => {
   let binary = ''
   const chunk = 0x8000
+
   for (let offset = 0; offset < data.length; offset += chunk) {
     binary += String.fromCharCode(...data.subarray(offset, offset + chunk))
   }
@@ -119,6 +123,7 @@ const blobToBase64 = async (bytes: Blob): Promise<string> =>
 const base64ToBlob = (base64: string, type: string): Blob => {
   const binary = atob(base64)
   const data = new Uint8Array(binary.length)
+
   for (let index = 0; index < binary.length; index++) {
     data[index] = binary.charCodeAt(index)
   }
@@ -174,6 +179,7 @@ const chunkedSupport = new WeakMap<CameraHost, Promise<boolean>>()
  *  the capabilities probe answers that without a probe call. */
 const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
   let probe = chunkedSupport.get(host)
+
   if (!probe) {
     probe = host
       .capabilities()
@@ -185,6 +191,7 @@ const supportsChunkedMovies = (host: CameraHost): Promise<boolean> => {
           Array.isArray(capabilities.camera)
             ? capabilities.camera
             : []
+
         return methods.includes('writeMovieFileChunk') && methods.includes('readMovieFileChunk')
       })
       .catch(() => false)
@@ -219,6 +226,7 @@ export const commitHostMovie: (
 
       if (final) {
         const committed = file && 'uri' in file ? file : null
+
         if (!committed?.uri) {
           throw error('storageFailed', 'The host could not write the recorded movie')
         }
@@ -234,6 +242,7 @@ export const commitHostMovie: (
 
   const base64 = await blobToBase64(bytes)
   const { file } = await host.call('camera', 'writeMovieFile', { fileUrl, base64 })
+
   if (!file?.uri) {
     throw error('storageFailed', 'The host could not write the recorded movie')
   }
@@ -267,13 +276,16 @@ export const openHostMovie: (
   }
 
   const { info } = await host.call('camera', 'movieFileInfo', { fileUrl: output.fileUrl })
+
   if (!info?.exists) {
     throw error('unavailable', `Movie file is missing at ${output.fileUrl}`)
   }
 
   const size = Number(info.size ?? -1)
+
   if (size > 0 && (await supportsChunkedMovies(host))) {
     const data = new Uint8Array(size)
+
     for (let offset = 0; offset < size; offset += MOVIE_CHUNK_BYTES) {
       const { base64: chunk } = await host.call('camera', 'readMovieFileChunk', {
         fileUrl: output.fileUrl,
@@ -286,6 +298,7 @@ export const openHostMovie: (
       }
 
       let decoded: string
+
       try {
         decoded = atob(chunk)
       } catch {
@@ -302,6 +315,7 @@ export const openHostMovie: (
     }
 
     const url = URL.createObjectURL(new Blob([data], { type: mimeForFileUrl(output.fileUrl) }))
+
     return {
       url,
       fileUrl: output.fileUrl,
@@ -310,11 +324,13 @@ export const openHostMovie: (
   }
 
   const { base64 } = await host.call('camera', 'readMovieFile', { fileUrl: output.fileUrl })
+
   if (!base64) {
     throw error('unavailable', `Movie file could not be read at ${output.fileUrl}`)
   }
 
   const url = URL.createObjectURL(base64ToBlob(base64, mimeForFileUrl(output.fileUrl)))
+
   return {
     url,
     fileUrl: output.fileUrl,

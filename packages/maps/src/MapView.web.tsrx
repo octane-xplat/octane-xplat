@@ -18,6 +18,7 @@ let loaderPromise: Promise<any> | null = null
 function loadMaps(): Promise<any> {
   if (!loaderPromise) {
     const key = webApiKey()
+
     if (!key) {
       return Promise.reject(new Error('maps.init({apiKey}) must run before <MapView>'))
     }
@@ -37,6 +38,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
   const map = useRef<any>(null)
   const overlays = useRef(new Map<string, any>())
   const latest = useRef(props)
+
   latest.current = props
 
   const handle = (g: any): MapViewHandle => ({
@@ -48,6 +50,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
     },
     fitCoordinates: (coordinates, padding = 50) => {
       const bounds = new (globalThis as any).google.maps.LatLngBounds()
+
       for (const c of coordinates) {
         bounds.extend({ lat: c.latitude, lng: c.longitude })
       }
@@ -63,11 +66,13 @@ export function MapView(props: MapViewProps): JSX.Element @{
   function sync() {
     const g = map.current
     const G = (globalThis as any).google?.maps
+
     if (!g || !G) {
       return
     }
 
     const p = latest.current
+
     if (p.mapType) {
       g.setMapTypeId(MAP_TYPE[p.mapType])
     }
@@ -86,6 +91,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
 
     const syncSet = (kind: string, defs: any[] | undefined, apply: (def: any) => any) => {
       const want = new Map((defs ?? []).map((d, i) => [d.id ?? `anon-${i}`, d]))
+
       for (const [key, ref] of overlays.current) {
         if (key.startsWith(`${kind}:`) && !want.has(key.slice(kind.length + 1))) {
           ref.setMap(null)
@@ -162,11 +168,13 @@ export function MapView(props: MapViewProps): JSX.Element @{
 
   useEffect(() => {
     const host = el.current
+
     if (!host) {
       return
     }
 
     let cancelled = false
+
     loadMaps()
       .then((G) => {
         if (cancelled) {
@@ -174,6 +182,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
         }
 
         const camera = latest.current.cameraPosition
+
         map.current = new G.Map(host, {
           center: camera
             ? { lat: camera.coordinates.latitude, lng: camera.coordinates.longitude }
@@ -190,6 +199,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
 
         map.current.addListener('center_changed', () => {
           const c = map.current.getCenter()
+
           latest.current.onCameraMove?.({
             cameraPosition: {
               coordinates: { latitude: c.lat(), longitude: c.lng() },
@@ -201,6 +211,7 @@ export function MapView(props: MapViewProps): JSX.Element @{
 
         map.current.addListener('idle', () => {
           const c = map.current.getCenter()
+
           latest.current.onCameraMove?.({
             cameraPosition: {
               coordinates: { latitude: c.lat(), longitude: c.lng() },
@@ -222,11 +233,13 @@ export function MapView(props: MapViewProps): JSX.Element @{
 
   useEffect(() => {
     const g = map.current
+
     if (!g) {
       return
     }
 
     const c = props.cameraPosition
+
     if (c) {
       g.setCenter({ lat: c.coordinates.latitude, lng: c.coordinates.longitude })
       if (c.zoom !== undefined) {

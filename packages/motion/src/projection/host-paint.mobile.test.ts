@@ -15,10 +15,14 @@ it('corrects Mason native paint strings without replacing Core stylesheet state'
     style: authored,
     _styleHelper: paint,
   }
+
   const host = attachHost(view)
   const delta = createDelta()
+
   delta.x.scale = delta.y.scale = 0.5
+
   const write = { delta, treeScale: { x: 1, y: 1 }, latest: {} }
+
   host.project!(write)
   expect(paint.borderRadius).toBe('40')
   expect(paint.boxShadow).toContain('8px 24px')
@@ -44,10 +48,12 @@ it('preserves the intentional user scale of native paint while compensating layo
     style: {},
     _styleHelper: paint,
   }
+
   // Attach before the user channel takes ownership; existing transforms remain rejected.
   const host = attachHost(view)
   const layoutDelta = createDelta(),
     delta = createDelta()
+
   layoutDelta.x.scale = layoutDelta.y.scale = 0.5
   host.project!({ delta, layoutDelta, treeScale: { x: 1, y: 1 }, latest: { scale: 2 } })
   expect(view.scaleX).toBe(1)

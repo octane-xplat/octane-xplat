@@ -4,7 +4,9 @@ import { mockNativeBoundary } from './native-boundary.ts'
 
 const hooks = mockNativeBoundary()
 const { createTransformPaint } = await import('../src/transform-paint.ts')
+
 hooks.deregister()
+
 const transform = createTransformPaint()
 
 test('percent translations already normalized by the CSS engine survive AppKit input conversion', () => {
@@ -12,12 +14,14 @@ test('percent translations already normalized by the CSS engine survive AppKit i
     value: 0.25,
     unit: '%',
   })
+
   assert.deepEqual(transform.translateAxisValue('-50%'), { value: -0.5, unit: '%' })
   assert.equal(transform.translateAxisValue({ value: NaN, unit: '%' }), 0)
 })
 
 test('normalized percent longhands retain geometry observation even without radii or shadows', () => {
   const node: any = { transformSpec: { translateX: { value: 0.25, unit: '%' } } }
+
   assert.equal(transform.hasPercentTranslate(node, node), true)
   node.transformSpec = { translateY: { value: -0.5, unit: '%' } }
   assert.equal(transform.hasPercentTranslate(node, node), true)

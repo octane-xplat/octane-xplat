@@ -19,6 +19,7 @@ export function createNativeConnectivity(
     }
 
     const state = read(value)
+
     for (const listener of Array.from(listeners)) {
       if (listeners.has(listener)) {
         listener(state)
@@ -60,9 +61,11 @@ export function createNativeConnectivity(
     subscribe(listener) {
       // A repeated callback still owns a distinct subscription and teardown.
       const callback = (state: ConnectivityState) => listener(state)
+
       listeners.add(callback)
       try {
         const snapshot = read()
+
         callback(snapshot)
         if (snapshot.supported !== false) {
           startMonitoring()
@@ -77,10 +80,12 @@ export function createNativeConnectivity(
 
         throw error
       }
+
       return () => {
         if (!listeners.delete(callback)) {
           return
         }
+
         if (listeners.size === 0) {
           stopMonitoring()
         }

@@ -31,12 +31,14 @@ class WindowsRadioControl extends View {
     if (!settings) {
       return
     }
+
     this.group = settings.group
     this.option = settings.value
     this.group.add(this)
     if (this.peer) {
       this.peer.GroupName = this.group.name
     }
+
     this.group.restore()
   }
   model = false
@@ -51,6 +53,7 @@ class WindowsRadioControl extends View {
 
   createNativeView(): any {
     const native = new Microsoft.UI.Xaml.Controls.RadioButton()
+
     native.MinWidth = 0
     native.MinHeight = 0
     native.GroupName = this.group.name
@@ -58,12 +61,15 @@ class WindowsRadioControl extends View {
     native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
       '<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="RadioButton"><Border Background="Transparent" /></ControlTemplate>',
     )
+
     native.IsChecked = this.model
     return native
   }
   initNativeView(): void {
     super.initNativeView()
+
     const native = this.nativeViewProtected
+
     this.eventNative = native
     this.checked = () => {
       if (
@@ -76,8 +82,10 @@ class WindowsRadioControl extends View {
       ) {
         return
       }
+
       this.group.choose(this)
     }
+
     this.key = NSWinRT.asDelegate(
       'Microsoft.UI.Xaml.Input.KeyEventHandler',
       (_sender: unknown, args: any) => {
@@ -90,11 +98,15 @@ class WindowsRadioControl extends View {
         ) {
           return
         }
+
         const key = Number(args.Key)
+
         if (![13, 35, 36, 37, 38, 39, 40].includes(key) || args.KeyStatus?.IsMenuKeyDown) {
           return
         }
+
         let control = false
+
         try {
           control =
             (Number(Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(17)) & 1) !==
@@ -102,9 +114,11 @@ class WindowsRadioControl extends View {
         } catch {
           return
         }
+
         if (control && [13, 35, 36].includes(key)) {
           return
         }
+
         args.Handled = true
         if (key === 13) {
           this.group.choose(this)
@@ -113,16 +127,19 @@ class WindowsRadioControl extends View {
         }
       },
     )
+
     this.lost = NSWinRT.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', () => {
       if (this.eventNative === native && !this.group.writing) {
         this.group.queueFocusReset()
       }
     })
+
     this.press = NSWinRT.asDelegate('Microsoft.UI.Xaml.Input.PointerEventHandler', () => {
       if (this.eventNative === native && this.isLoaded && this.isEnabled && native.IsEnabled) {
         this.group.focus(this, Microsoft.UI.Xaml.FocusState.Pointer)
       }
     })
+
     native.Checked = this.checked
     native.PreviewKeyDown = this.key
     native.LostFocus = this.lost
@@ -137,7 +154,9 @@ class WindowsRadioControl extends View {
   }
   disposeNativeView(): void {
     this.group.cancelFocusReset()
+
     const native = this.eventNative
+
     this.eventNative = undefined
     if (native) {
       native.Checked = null
@@ -145,6 +164,7 @@ class WindowsRadioControl extends View {
       native.LostFocus = null
       native.PointerPressed = null
     }
+
     this.group.remove(this)
     super.disposeNativeView()
   }
@@ -179,6 +199,7 @@ export class WindowsRadioGroup {
     if (selected !== this.selected) {
       this.focusValue = selected
     }
+
     this.selected = selected
     this.disabled = disabled
     this.readOnly = readOnly
@@ -191,14 +212,17 @@ export class WindowsRadioGroup {
       if (this.controls.includes(view as WindowsRadioControl)) {
         result.push(view as WindowsRadioControl)
       }
+
       view.eachChildView((child) => {
         visit(child)
         return true
       })
     }
+
     if (this.root) {
       visit(this.root)
     }
+
     // Newly created peers may not yet be inserted into the model tree.
     return [...result, ...this.controls.filter((view) => !result.includes(view))]
   }
@@ -208,6 +232,7 @@ export class WindowsRadioGroup {
     for (const view of this.controls) {
       view.listen(false)
     }
+
     try {
       action()
     } finally {
@@ -223,10 +248,12 @@ export class WindowsRadioGroup {
     const enabled = this.ordered().filter(
       (view) => view.isEnabled && view.peer?.IsEnabled !== false,
     )
+
     const anchor =
       enabled.find((view) => view.option === this.focusValue) ??
       enabled.find((view) => view.option === this.selected) ??
       enabled[0]
+
     for (const view of this.controls) {
       if (view.peer) {
         view.peer.IsTabStop = !this.disabled && view === anchor
@@ -241,11 +268,13 @@ export class WindowsRadioGroup {
           view.peer.IsChecked = false
         }
       }
+
       for (const view of this.controls) {
         if (view.model && view.peer) {
           view.peer.IsChecked = true
         }
       }
+
       this.tabStops()
     })
   }
@@ -258,6 +287,7 @@ export class WindowsRadioGroup {
     ) {
       return
     }
+
     // Native mutual exclusion may already have cleared the caller-selected peer.
     // Restore the whole group before requesting a caller-owned value change.
     this.restore()
@@ -267,7 +297,9 @@ export class WindowsRadioGroup {
   }
   focus(view: WindowsRadioControl, state: number): boolean {
     this.cancelFocusReset()
+
     let accepted = false
+
     this.hold(() => {
       this.focusValue = view.option
       // WinUI refuses Focus on a peer whose IsTabStop is false.
@@ -282,6 +314,7 @@ export class WindowsRadioGroup {
     const enabled = this.ordered().filter(
       (view) => view.isLoaded && view.isEnabled && view.peer?.IsEnabled,
     )
+
     const index = enabled.indexOf(from)
     const rtl = Number(from.peer?.FlowDirection) === 1
     const delta = key === 38 || key === (rtl ? 39 : 37) ? -1 : 1
@@ -291,10 +324,13 @@ export class WindowsRadioGroup {
         : key === 35
           ? enabled.length - 1
           : Math.max(0, Math.min(enabled.length - 1, index + delta))
+
     const target = enabled[targetIndex]
+
     if (!target || !this.focus(target, Microsoft.UI.Xaml.FocusState.Keyboard)) {
       return
     }
+
     if (!control) {
       this.choose(target)
     }
@@ -303,6 +339,7 @@ export class WindowsRadioGroup {
     if (this.focusTask !== undefined) {
       clearTimeout(this.focusTask)
     }
+
     this.focusTask = undefined
   }
   queueFocusReset(): void {

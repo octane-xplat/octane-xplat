@@ -20,6 +20,7 @@ const server = createServer(async (req, res) => {
   try {
     const pathname = new URL(req.url, 'http://localhost').pathname
     const path = resolve(dist, '.' + pathname)
+
     if (path !== resolve(dist) && !path.startsWith(dist)) {
       res.writeHead(403).end()
       return
@@ -38,6 +39,7 @@ const server = createServer(async (req, res) => {
 })
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
 const base = 'http://127.0.0.1:' + server.address().port
 const results = []
 const errors = []
@@ -48,6 +50,7 @@ const check = (name, pass, detail = '') => {
 
 const browser = await chromium.launch()
 const page = await browser.newPage()
+
 try {
   page.on('pageerror', (error) => errors.push(error.stack ?? error.message))
   await page.goto(base)
@@ -105,7 +108,9 @@ try {
   await page.goto(base + '/changelog')
   await page.getByText('Changelog (baked)', { exact: true }).waitFor()
   await page.waitForTimeout(100)
+
   const baked = await page.locator('.changelog').innerText()
+
   check(
     'cold baked route receives data',
     /entries baked: [1-9]/.test(baked),

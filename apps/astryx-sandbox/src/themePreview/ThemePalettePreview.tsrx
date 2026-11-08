@@ -68,12 +68,14 @@ function SectionTitle(props: { children: any }) @{
 
 function CoreSection(props: { swatches: CoreSwatch[]; mode: Mode }) @{
   const isDark = props.mode === 'dark'
+
   return (
     <View className="sb-pp-section">
       <SectionTitle>Core Palette</SectionTitle>
       <HStack gap={3} wrap="wrap">
         {props.swatches.map((swatch) => {
           const s = isDark && swatch.dark ? swatch.dark : swatch
+
           return (
             <VStack gap={1} key={swatch.name}>
               <View
@@ -110,6 +112,7 @@ function TextRampSection() @{
       <VStack gap={1}>
         {RAMP_TEXT.map((label, i) => {
           const size = [42, 32, 24, 14, 12, 11][i]
+
           return (
             <Text key={label} style={{ fontSize: size, color: 'var(--color-text-primary)' }}>
               {label}
@@ -255,6 +258,7 @@ function ProgressBarSection() @{
 
 function CheckboxRadioSwitchSection() @{
   const [checked, setChecked] = useState({ a: true, b: false })
+
   return (
     <View className="sb-pp-section">
       <SectionTitle>Controls</SectionTitle>
@@ -374,10 +378,12 @@ function TonalSection(props: { colors: TonalColor[]; mode: Mode }) @{
           seed.tones ??
           (() => {
             const { hue, chroma } = hexToHct(seed.sourceHex)
+
             return tonalPaletteForMode(hue, chroma, props.mode)
           })()
 
         const { hue, chroma } = hexToHct(seed.sourceHex)
+
         return (
           <View key={color.name} style={{ marginBottom: 10 }}>
             <HStack gap={2} vAlign="center">
@@ -473,6 +479,7 @@ function ModeColumn(props: {
 export function ThemePalettePreview(props: ThemePalettePreviewProps) @{
   const modes = props.singleMode ? [props.singleMode] : (['light', 'dark'] as const)
   const chromeMode = props.singleMode ?? 'light'
+
   return (
     <Theme theme={props.theme} mode={chromeMode}>
       <View

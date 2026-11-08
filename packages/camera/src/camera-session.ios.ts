@@ -16,8 +16,10 @@ export function startCameraPreview(
 
   const devices = av.AVCaptureDevice.devicesWithMediaType(mediaType)
   let device: any = null
+
   for (let index = 0; index < devices.count; index++) {
     const candidate = devices.objectAtIndex(index)
+
     if (candidate.position === desiredPosition) {
       device = candidate
       break
@@ -30,14 +32,19 @@ export function startCameraPreview(
 
   const session = av.AVCaptureSession.new()
   const input = av.AVCaptureDeviceInput.deviceInputWithDeviceError(device)
+
   if (!input || !session.canAddInput(input)) {
     throw new Error('camera input unavailable')
   }
 
   session.addInput(input)
+
   const layer = av.AVCaptureVideoPreviewLayer.layerWithSession(session)
+
   layer.videoGravity = 'resizeAspectFill'
+
   const connection = layer.connection
+
   if (connection) {
     connection.automaticallyAdjustsVideoMirroring = false
     if (connection.isVideoMirroringSupported) {
@@ -46,11 +53,13 @@ export function startCameraPreview(
   }
 
   const nativeView = view.ios ?? view.nativeViewProtected
+
   if (!nativeView?.layer) {
     throw new Error('camera preview host unavailable')
   }
 
   nativeView.layer.addSublayer(layer)
+
   const updateFrame = () => {
     layer.frame = nativeView.bounds
   }
@@ -61,9 +70,11 @@ export function startCameraPreview(
   let displayReady = false
   const detachDisplay = observePreviewDisplay(layer, () => {
     const showing = previewLayerDisplaying(layer)
+
     if (showing === displayReady) {
       return
     }
+
     displayReady = showing
     if (showing) {
       onDisplayReady?.()

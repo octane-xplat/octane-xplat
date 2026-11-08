@@ -14,6 +14,7 @@ import { useLinkComponent } from './use-link-component.tsrx'
  */
 export function Link(props: LinkProps): unknown @{
   const Injected: any = useLinkComponent(props.as)
+
   if (typeof Injected === 'function') {
     return (
       <Injected

@@ -1,5 +1,6 @@
 import { expect, it, vi } from 'vitest'
 import { unknownFocusedInputState } from '@octane-xplat/platform/focused-input-state'
+
 const f = vi.hoisted(() => ({
   focus: null as any,
   keyboard: null as any,
@@ -47,6 +48,7 @@ vi.mock('../src/scroll-runtime', () => ({
 }))
 
 import { KeyboardScrollController } from '../src/scroll-controller'
+
 const box = (y: number, height: number) => ({ x: 0, y, width: 300, height })
 const setup = () => {
   f.cleaned = 0
@@ -63,7 +65,9 @@ const setup = () => {
 
 it('pauses after a manual gesture and resumes on explicit recheck or selection change', () => {
   setup()
+
   const own = KeyboardScrollController.bind({})
+
   expect(f.writes.at(-1)).toBe(248)
   f.writes = []
   f.manual()
@@ -85,12 +89,15 @@ it('pauses after a manual gesture and resumes on explicit recheck or selection c
 
 it('restores an owned offset on close, while preserving foreign/manual changes', () => {
   setup()
+
   const own = KeyboardScrollController.bind({}, { keyboardClose: 'restore' })
+
   f.focus = {
     ...f.focus,
     inputRect: box(352, 40),
     scrollOwners: [{ ...f.focus.scrollOwners[0], offsetY: 248 }],
   }
+
   f.onFocus(f.focus)
   f.focus = unknownFocusedInputState()
   f.onFocus(f.focus)
@@ -99,7 +106,9 @@ it('restores an owned offset on close, while preserving foreign/manual changes',
   expect(f.writes).toEqual([0])
   own.release()
   setup()
+
   const next = KeyboardScrollController.bind({}, { keyboardClose: 'restore' })
+
   f.manual()
   f.writes = []
   f.onKeyboard({ inset: 0, currentFrame: box(800, 0), windowRect: box(0, 800) })

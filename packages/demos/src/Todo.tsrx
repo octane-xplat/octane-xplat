@@ -16,6 +16,7 @@ export function Todo() @{
 
   const add = () => {
     const text = draft.trim()
+
     if (!text) {
       return
     }

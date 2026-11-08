@@ -23,6 +23,7 @@ export function Pressable(props: PressableProps): JSX.Element @{
   const spacePressed = useRef(false)
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const latest = useRef(props)
+
   latest.current = props
 
   usePan(el, props.disabled ? undefined : props.onPan)
@@ -41,6 +42,7 @@ export function Pressable(props: PressableProps): JSX.Element @{
   }, [props.disabled])
 
   const enabled = !props.disabled && Boolean(props.onLongPress)
+
   useEffect(() => {
     if (!enabled) {
       cancel()
@@ -129,6 +131,7 @@ export function Pressable(props: PressableProps): JSX.Element @{
             }
 
             const activate = spacePressed.current
+
             spacePressed.current = false
             if (activate && !props.disabled && props.onPress) {
               e.preventDefault()

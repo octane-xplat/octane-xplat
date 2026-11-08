@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 export const searchRefs = { host: { current: null as any }, secondary: { current: null as any } }
 export const searchRefEvents: string[] = []
 export const searchEvents: any[] = []
+
 const callback = (view: any) => {
   if (view) {
     searchRefEvents.push('attach')

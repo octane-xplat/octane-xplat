@@ -29,6 +29,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
     }
 
     const next = !open
+
     if (!controlled) {
       setInternal(next)
     }
@@ -63,6 +64,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
 export function CollapsibleGroup(props: CollapsibleGroupProps): unknown @{
   const [internal, setInternal] = useState<string[]>(() => {
     const dv = props.defaultValue
+
     return dv == null ? [] : Array.isArray(dv) ? [...dv] : [dv]
   })
 

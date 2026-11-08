@@ -48,11 +48,15 @@ export function runNativeJourney(options) {
   const seen = []
   let waiters = []
   let buffer = ''
+
   proc.stdout.on('data', (chunk) => {
     buffer += chunk
+
     let index
+
     while ((index = buffer.indexOf('\n')) >= 0) {
       const line = buffer.slice(0, index).trimEnd()
+
       buffer = buffer.slice(index + 1)
       if (!line) {
         continue
@@ -82,6 +86,7 @@ export function runNativeJourney(options) {
   const next = (prefix, timeoutMs = 60_000) => {
     const match = (line) => normalize(line).startsWith(prefix)
     const found = pending.findIndex(match)
+
     if (found >= 0) {
       return Promise.resolve(pending.splice(found, 1)[0])
     }
@@ -123,6 +128,7 @@ export function runNativeJourney(options) {
       const line = await next('WORKSHOP_STATE ', timeout)
       const parsed = JSON.parse(normalize(line).slice('WORKSHOP_STATE '.length))
       const fresh = parsed.d > lastDump
+
       if (!fresh) {
         continue
       }
@@ -146,6 +152,7 @@ export function runNativeJourney(options) {
       await options.afterHostStarted?.(ctx)
 
       send('catalog')
+
       const catalog = JSON.parse(
         normalize(await next('WORKSHOP_CATALOG ')).slice('WORKSHOP_CATALOG '.length),
       )
@@ -162,6 +169,7 @@ export function runNativeJourney(options) {
       )
 
       const inapplicable = catalog.filter((e) => !e.applicable)
+
       check(
         'platform leaves stay in catalog as unsupported',
         inapplicable.length === options.expectedInapplicable,
@@ -169,6 +177,7 @@ export function runNativeJourney(options) {
       )
 
       let s = await state('select counter/basic')
+
       check(
         `basic mounts through ${options.rendererName}`,
         s.phase === 'ready' &&
@@ -180,6 +189,7 @@ export function runNativeJourney(options) {
 
       // Exercise the rendered chrome's own actions, beyond controller commands.
       const mounted = s.mountedGeneration
+
       for (const [name, collapsed] of [
         ['Stories', 'catalogCollapsed'],
         ['Controls', 'controlsCollapsed'],
@@ -264,9 +274,12 @@ export function runNativeJourney(options) {
       // Dumps carry the global command seq, so the superseded select's dump can
       // surface while the new generation is still preparing — wait for ready.
       const lateMarker = seen.length
+
       send('select counter/async-fixture')
       s = await state('select counter/basic')
+
       let lateDeadline = Date.now() + 30_000
+
       while (!(s.storyId === 'counter/basic' && s.phase === 'ready')) {
         s = await state('status', Math.max(1, lateDeadline - Date.now()))
         if (Date.now() > lateDeadline) {
@@ -275,6 +288,7 @@ export function runNativeJourney(options) {
       }
 
       const readyDump = s.d
+
       lateDeadline = Date.now() + 900
       while (Date.now() < lateDeadline) {
         try {
@@ -355,8 +369,10 @@ export function runNativeJourney(options) {
       // Rebuild signaling is asynchronous, so poll status until it lands.
       const waitFor = async (predicate, timeout = 120_000) => {
         const deadline = Date.now() + timeout
+
         while (Date.now() < deadline) {
           const next = await state('status', Math.max(1_000, deadline - Date.now()))
+
           if (predicate(next)) {
             return next
           }
@@ -367,9 +383,12 @@ export function runNativeJourney(options) {
 
       const before = s.revision
       const editStart = performance.now()
+
       writeFileSync(storyFile, `${originalStory}\n// e2e reload probe\n`)
+
       const remounted = await waitFor((x) => x.phase === 'ready' && x.revision > before)
       const editLatency = Math.round(performance.now() - editStart)
+
       check(
         'successful edit remounts selected story',
         remounted !== null && remounted.storyId === 'counter/basic' && remounted.store?.count === 0,
@@ -381,7 +400,9 @@ export function runNativeJourney(options) {
       console.log(`  | warm edit→ready latency: ${editLatency}ms (goal ≤5000ms native)`)
 
       writeFileSync(storyFile, 'export const Broken = defineStory({ syntax error')
+
       const broken = await waitFor((x) => x.phase === 'failed' || x.stale === true)
+
       check(
         'bad edit fails honestly',
         broken !== null && (broken.phase === 'failed' || broken.stale === true),
@@ -391,7 +412,9 @@ export function runNativeJourney(options) {
       )
 
       writeFileSync(storyFile, originalStory)
+
       const healed = await waitFor((x) => x.phase === 'ready')
+
       check(
         'corrected edit remounts fresh',
         healed !== null,
@@ -399,6 +422,7 @@ export function runNativeJourney(options) {
       )
 
       send('close')
+
       const code = await new Promise((resolve) => {
         proc.once('exit', (code) => resolve(code))
         setTimeout(() => resolve('timeout'), 20_000)
@@ -417,7 +441,9 @@ export function runNativeJourney(options) {
       proc.stdin.destroy()
       proc.kill('SIGTERM')
       setTimeout(() => proc.kill('SIGKILL'), 10_000).unref()
+
       const failures = results.filter(([, ok]) => !ok)
+
       console.log(`${results.length - failures.length}/${results.length} checks passed`)
       process.exitCode = failures.length ? 1 : 0
     }

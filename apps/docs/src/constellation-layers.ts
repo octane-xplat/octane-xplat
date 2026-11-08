@@ -11,6 +11,7 @@ export function constellationLayers(svgSource: string, count: number): string[] 
   const polygons = inner.match(/<polygon\b[\s\S]*?<\/polygon>/g) ?? []
   const first = inner.indexOf('<polygon')
   const last = inner.lastIndexOf('</polygon>')
+
   if (count < 1 || first < 0 || last < 0) {
     return []
   }
@@ -18,6 +19,7 @@ export function constellationLayers(svgSource: string, count: number): string[] 
   const prefix = inner.slice(0, first)
   const suffix = inner.slice(last + '</polygon>'.length)
   const buckets = Array.from({ length: count }, () => [] as string[])
+
   for (const [index, polygon] of polygons.entries()) {
     buckets[index % count].push(polygon)
   }

@@ -26,6 +26,7 @@ export function startNativeReporting(config: NativeReportingConfig): void {
   if (initialized || !sentry.supported) {
     return
   }
+
   const options: SentryInitOptions = {
     ...config,
     sampleRate: 1,
@@ -38,6 +39,7 @@ export function startNativeReporting(config: NativeReportingConfig): void {
         : null,
     beforeSend: (event) => (collecting ? filterError(event) : null),
   }
+
   sentry.init(options)
   initialized = true
   collecting = true
@@ -48,6 +50,7 @@ export function reportNativeDeliveryCheck(): string | null {
   if (!collecting) {
     return null
   }
+
   sentry.addBreadcrumb({ category: 'app-action', message: 'report-delivery-check' })
   return sentry.captureException(new Error('Xplat native reporting check')) ?? null
 }

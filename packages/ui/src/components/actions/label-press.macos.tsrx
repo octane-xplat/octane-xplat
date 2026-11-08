@@ -17,11 +17,13 @@ export function AppKitLabelPress(props: {
   const available = typeof appKitHost()?.suppressTabStop === 'function'
   const bind = useCallback((view: NSView | null) => {
     const previous = label.current
+
     release.current?.()
     release.current = null
     label.current = view
     if (view && typeof appKitHost()?.suppressTabStop === 'function') {
       const dispose = appKitHost()!.suppressTabStop(view)
+
       if (typeof dispose !== 'function') {
         throw new Error('AppKit label Tab-stop ownership unavailable')
       }
@@ -44,6 +46,7 @@ export function AppKitLabelPress(props: {
         ? undefined
         : () => {
             const control = props.control()
+
             if (!control) {
               return
             }

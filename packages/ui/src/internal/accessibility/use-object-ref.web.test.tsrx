@@ -19,8 +19,11 @@ describe('useObjectRef (DOM renderer)', () => {
     }
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Reader />))
 
     expect(objectRef?.current).toBe(el.firstElementChild)

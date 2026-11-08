@@ -27,9 +27,12 @@ describe('normalized keyboard attachment', () => {
     }
 
     const result = useWebKeyboard({ onKeyDown })
+
     expect(result.isSupported).toBe(true)
     result.keyboardProps.onKeyDown?.(event)
+
     const normalized = onKeyDown.mock.calls[0][0]
+
     expect(normalized).not.toBe(event)
     expect(normalized).toMatchObject({
       key: 'Enter',

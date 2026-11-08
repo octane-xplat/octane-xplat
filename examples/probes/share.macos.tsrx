@@ -15,6 +15,7 @@ export default function ShareProbe() {
     working = useRef(false)
 
   const file = useRef<FileRef | null>(null)
+
   useEffect(() => {
     alive.current = true
     return () => {
@@ -36,10 +37,13 @@ export default function ShareProbe() {
 
     working.current = true
     setBusy(true)
+
     const own = ++generation.current
+
     try {
       if (action === 'prepare') {
         const next = await files.writeText('share-check.txt', 'AppKit local-file sharing fixture')
+
         if (file.current) {
           files.release(file.current)
         }

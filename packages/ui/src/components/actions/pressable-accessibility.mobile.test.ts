@@ -7,12 +7,14 @@ import {
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 vi.mock('../layout/pan.tsrx', () => ({ usePan: () => undefined }))
+
 import { Pressable } from './Pressable.tsrx'
 
 describe('native disabled Pressable accessibility state', () => {
   it('reports disabled ahead of selected/checked and restores state when enabled', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(Pressable, {
       disabled: true,
       accessibilityState: { selected: true, checked: true },

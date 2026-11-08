@@ -15,23 +15,29 @@ export function usePermissions(
     options.granularPermissions === undefined
       ? undefined
       : [...new Set(options.granularPermissions)].sort()
+
   const key = granular?.join(',')
   const owner = useMemo(
     () => ({ active: false, serial: 0, manual: 0, requesting: 0 }),
     [writeOnly, key],
   )
+
   const [value, setValue] = useState<{ owner: typeof owner; response: PermissionResponse } | null>(
     null,
   )
+
   const methods = useMemo(() => {
     const invoke = async (request: boolean, automatic = false) => {
       if (!automatic) {
         owner.manual++
       }
+
       const serial = ++owner.serial
+
       if (request) {
         owner.requesting++
       }
+
       try {
         const response = await (request ? requestPermissionsAsync : getPermissionsAsync)(
           writeOnly,
@@ -49,15 +55,18 @@ export function usePermissions(
         }
       }
     }
+
     return {
       request: () => invoke(true),
       get: () => invoke(false),
       automatic: (request: boolean) => invoke(request, true),
     }
   }, [owner])
+
   const get = options.get ?? true
   const request = options.request ?? false
   const manualAtRender = owner.manual
+
   useLayoutEffect(() => {
     owner.active = true
     return () => {
@@ -65,6 +74,7 @@ export function usePermissions(
       owner.serial++
     }
   }, [owner])
+
   useEffect(() => {
     if (
       MediaLibrary.supported &&
@@ -77,5 +87,6 @@ export function usePermissions(
         .catch((error) => console.error('Could not read media-library permissions', error))
     }
   }, [owner, get, request, methods])
+
   return [value?.owner === owner ? value.response : null, methods.request, methods.get]
 }

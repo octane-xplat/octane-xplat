@@ -10,6 +10,7 @@ import {
 } from './ui-segmented-control.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK segmented control test',
   default_width: 360,
@@ -18,7 +19,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -46,19 +49,23 @@ const check = (name: string, ok: boolean) => {
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const segments = () => {
   const owner = nodes('vx-segmented')[0]
+
   if (!owner) {
     return nodes('vx-segment')
   }
+
   const found: (typeof owner)[] = []
   const walk = (node: typeof owner) => {
     if (node.cssClasses?.has('vx-segment')) {
       found.push(node)
       return
     }
+
     for (const child of node.children) {
       walk(child)
     }
   }
+
   walk(owner)
   return found
 }
@@ -90,20 +97,24 @@ const render = async (next: Partial<typeof props> = {}) => {
 
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 const osInput = GLib.getenv('GTK_SEGMENTED_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
   const bounds = view.getBounds()
   const ack = acknowledgments + 1
+
   print(
     'GTK_SEGMENTED_READY ' +
       JSON.stringify({
@@ -112,9 +123,11 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
         y: bounds.y + bounds.height / 2,
       }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed', acknowledgments >= ack)
   await pause()
 }
@@ -126,7 +139,9 @@ async function run() {
   native = (globalThis as any).imports.gi.XplatMason
   for (const parts of [false, true]) {
     await render({ parts })
+
     const mode = parts ? 'parts' : 'options'
+
     check(mode + ': three segments', segments().length === 3)
     check(mode + ': one field owner', nodes('vx-field').length === 1)
     check(
@@ -163,6 +178,7 @@ async function run() {
     )
 
     const bounds = segments().map((n) => n.view!.getBounds())
+
     check(
       mode + ': fill gives equal segment widths',
       Math.max(...bounds.map((b) => b.width)) - Math.min(...bounds.map((b) => b.width)) <= 1,
@@ -188,16 +204,20 @@ async function run() {
     check(mode + ': disabled group sensitivity', !group().is_sensitive())
     await render({ isDisabled: false })
   }
+
   await render({ hidden: true })
   check('icon-only segment keeps its name', named(segments()[2].view, 'Gamma'))
   check(
     'icon-only segment has no visible label',
     !nodes('vx-segment-label').some((n) => (n.view as any).get_text() === 'Gamma'),
   )
+
   check('icon remains present', nodes('segmented-test-icon').length === 1)
   if (osInput) {
     const changes: string[] = []
+
     await render({ hidden: false, parts: false, onValueChange: (value) => changes.push(value) })
+
     const before = [...container.nodes.values()].find((n) => n.props.id === 'segment-before')!.view!
     const after = [...container.nodes.values()].find((n) => n.props.id === 'segment-after')!.view!
     const focused = (view: any) =>
@@ -229,8 +249,11 @@ async function run() {
 
     for (const parts of [false, true]) {
       const mode = parts ? 'parts' : 'options'
+
       await render({ parts, value: 'a', onValueChange: (value) => changes.push(value) })
+
       const retained = segments().map((n) => n.view)
+
       segments()[2].view!.grab_focus()
       await input(segments()[2].view, { key: 'space' })
       check(
@@ -260,6 +283,7 @@ async function run() {
       )
 
       const count = changes.length
+
       await input(segments()[0].view, { key: 'Return' })
       check(mode + ': Return does not activate a radio segment', changes.length === count)
       await render({ isReadOnly: true })
@@ -286,6 +310,7 @@ async function run() {
     check('dropping controlled value restores original local owner', checked(0, true))
     check('default updates do not reset local owner', checked(2, false))
   }
+
   await render({
     parts: true,
     hidden: false,
@@ -295,26 +320,33 @@ async function run() {
     isOptional: true,
     size: 'lg',
   })
+
   const owner = group()
   const retained = new Map(segments().map((n) => [n.props.accessibilityLabel, n.view]))
+
   check(
     'percentage field and track widths consumed once',
     Math.abs(nodes('vx-field')[0].view!.getBounds().width - 240) <= 2 &&
       Math.abs(group().getBounds().width - 240) <= 2,
   )
+
   check('optional overrides required form', bool(group(), Gtk.AccessibleProperty.REQUIRED, false))
   check(
     'explicit size reaches group class',
     nodes('vx-segmented')[0].cssClasses?.has('vx-segmented--size-lg') === true,
   )
+
   await render({ layout: 'hug' })
   check(
     'hug track shrinks to content within field',
     group().getBounds().width > 0 && group().getBounds().width < 240,
   )
+
   await render({ layout: 'fill' })
   check('fill restores complete track width', Math.abs(group().getBounds().width - 240) <= 2)
+
   const widths = segments().map((n) => n.view!.getBounds().width)
+
   check('fill restores equal segment widths', Math.max(...widths) - Math.min(...widths) <= 1)
   await render({
     label: 'Changed mode',
@@ -324,24 +356,29 @@ async function run() {
     className: 'segmented-custom',
     style: { opacity: 0.6 },
   })
+
   check('hidden heading preserves accessible group name', named(group(), 'Changed mode'))
   check(
     'size resets to inherited medium',
     nodes('vx-segmented')[0].cssClasses?.has('vx-segmented--size-md') === true,
   )
+
   check(
     'group required state resets to form default',
     bool(group(), Gtk.AccessibleProperty.REQUIRED, true),
   )
+
   check(
     'custom class and opacity apply',
     nodes('segmented-custom').length === 1 && Math.abs(group().get_opacity() - 0.6) < 0.02,
   )
+
   check(
     'field chrome changes preserve group and segments',
     group() === owner &&
       segments().every((n) => n.view === retained.get(n.props.accessibilityLabel)),
   )
+
   await render({ accessibilityLabel: 'Explicit mode', style: { width: 200 } })
   check('explicit accessible name overrides field name', named(group(), 'Explicit mode'))
   check('authored width overrides fill default', Math.abs(group().getBounds().width - 200) <= 2)
@@ -352,14 +389,17 @@ async function run() {
       nodes('segmented-custom').length === 0 &&
       group().get_opacity() === 1,
   )
+
   check(
     'dropping authored width restores fill class',
     Math.abs(group().getBounds().width - 240) <= 2,
   )
+
   check(
     'control id remains unique on group',
     [...container.nodes.values()].filter((n) => n.props.id === 'segmented-group').length === 1,
   )
+
   await render({ reverse: true })
   check(
     'keyed reorder changes logical order',
@@ -367,35 +407,43 @@ async function run() {
       .map((n) => n.props.accessibilityLabel)
       .join() === 'Gamma,Beta,Alpha',
   )
+
   check(
     'keyed reorder preserves segment widgets',
     segments().every((n) => n.view === retained.get(n.props.accessibilityLabel)),
   )
+
   check(
     'keyed reorder changes physical order',
     segments()[0].view!.getBounds().x < segments()[2].view!.getBounds().x,
   )
+
   const beta = segments()[1].view!
+
   await render({ reverse: false, hideMiddle: true })
   check(
     'option removal detaches retired segment',
     segments().length === 2 && beta.get_parent() === null,
   )
+
   await render({ hideMiddle: false })
   check(
     'restored option preserves controlled selection',
     segments().length === 3 && state(segments()[0].view, Gtk.AccessibleState.CHECKED, 1),
   )
+
   await render({ empty: true })
   check(
     'empty control retains field and track',
     segments().length === 0 && group() === owner && nodes('vx-field').length === 1,
   )
+
   await render({ empty: false })
   check(
     'repopulation restores selection',
     segments().length === 3 && state(segments()[0].view, Gtk.AccessibleState.CHECKED, 1),
   )
+
   if (osInput) {
     await render({
       rtl: true,
@@ -430,26 +478,32 @@ async function run() {
       props.value === 'a' && state(segments()[0].view, Gtk.AccessibleState.CHECKED, 1),
     )
   }
+
   root.render(SegmentedContextScene, { defaultValue: 'c' })
   await pause()
   check('external owner is not duplicated', nodes('vx-field').length === 1)
   check('external group name', named(group(), 'Parent mode'))
   check('external readOnly metadata', bool(group(), Gtk.AccessibleProperty.READ_ONLY, true))
+
   const contextOwner = group()
+
   root.render(SegmentedContextScene, { defaultValue: 'a', size: 'lg', isReadOnly: false })
   await pause()
   check(
     'external field keeps local default after prop update',
     state(segments()[2].view, Gtk.AccessibleState.CHECKED, 1),
   )
+
   check(
     'explicit child size overrides field size',
     nodes('vx-segmented')[0].cssClasses?.has('vx-segmented--size-lg') === true,
   )
+
   check(
     'parent readOnly remains authoritative',
     bool(group(), Gtk.AccessibleProperty.READ_ONLY, true),
   )
+
   check('context updates retain group', group() === contextOwner)
   root.render(SegmentedStandaloneScene, { value: 'alone', label: 'Standalone' })
   await pause()
@@ -457,6 +511,7 @@ async function run() {
     'standalone part is presentational',
     segments()[0].view!.get_accessible_role() !== Gtk.AccessibleRole.RADIO,
   )
+
   check('standalone part is not keyboard focusable', !segments()[0].view!.get_focusable())
   root.unmount()
   await pause()
@@ -471,14 +526,17 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(String(error))
@@ -486,6 +544,7 @@ run().catch((error) => {
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

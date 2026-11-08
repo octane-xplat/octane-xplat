@@ -8,9 +8,11 @@ import {
 /** Call from a visible app action, after explaining the app's tracking choice. */
 export async function requestTrackingFromButton(): Promise<string> {
   const permission = await requestTrackingPermissionsAsync()
+
   if (permission.authorizationStatus === 'unavailable') {
     return 'This platform has no ATT prompt.'
   }
+
   return `Tracking authorization: ${permission.authorizationStatus}`
 }
 
@@ -26,10 +28,13 @@ export async function withAdvertisingIdentifier(
   if (!TrackingTransparency.capabilities.advertisingIdAsync) {
     return false
   }
+
   const identifier = await getAdvertisingIdAsync()
+
   if (identifier === null) {
     return false
   }
+
   await consume(identifier)
   return true
 }

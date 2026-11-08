@@ -50,6 +50,7 @@ try {
   })
 
   const errors = []
+
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
 
   await page.goto(BASE + '/parity', { waitUntil: 'networkidle' })
@@ -75,6 +76,7 @@ try {
   }
 
   const offsets = []
+
   for (let o = 0; o <= scrollInfo.max; o += STEP) {
     offsets.push(o)
   }
@@ -84,6 +86,7 @@ try {
   }
 
   mkdirSync(outDir, { recursive: true })
+
   const manifest = {
     target: 'web',
     viewport: { ...VIEWPORT, scale: SCALE },
@@ -97,6 +100,7 @@ try {
     const cells = await page.evaluate(async (off) => {
       const app = document.querySelector('.vx-app')
       const scroller = app && app.scrollHeight > app.clientHeight ? app : document.scrollingElement
+
       if (scroller === document.scrollingElement) {
         window.scrollTo(0, off)
       } else {
@@ -104,10 +108,13 @@ try {
       }
 
       await new Promise((r) => setTimeout(r, 120))
+
       const actual = scroller === document.scrollingElement ? window.scrollY : scroller.scrollTop
       const out = { actual, cells: {} }
+
       for (const el of document.querySelectorAll('.parity-cell')) {
         const r = el.getBoundingClientRect()
+
         out.cells[el.id.replace(/^cell-/, '')] = {
           x: r.x,
           y: r.y,

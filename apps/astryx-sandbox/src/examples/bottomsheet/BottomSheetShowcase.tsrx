@@ -15,6 +15,7 @@ export function BottomSheetShowcase() @{
   const [inStock, setInStock] = useState(false)
   const [onSale, setOnSale] = useState(false)
   const [freeShipping, setFreeShipping] = useState(false)
+
   return (
     <>
       <Button label="Open sheet" clickAction={() => setIsOpen(true)} />

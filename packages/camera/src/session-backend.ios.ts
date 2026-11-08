@@ -109,6 +109,7 @@ const readPermission = (kind: CameraPermissionKind): CameraPermissionStatus => {
 
 const requestAccess = (kind: CameraPermissionKind): Promise<CameraPermissionStatus> => {
   const declaration = NSBundle.mainBundle.objectForInfoDictionaryKey(usageKeyFor(kind))
+
   if (!declaration) {
     // Requesting access without the usage-description key crashes the
     // host app — refuse before reaching AVFoundation.
@@ -123,6 +124,7 @@ const requestAccess = (kind: CameraPermissionKind): Promise<CameraPermissionStat
   }
 
   const status = readPermission(kind)
+
   if (status !== 'notDetermined') {
     // Repeated requests must not pretend to show a prompt the system
     // will not display.
@@ -164,6 +166,7 @@ const listCameras = (): AVCaptureDevice[] => {
   const devices: AVCaptureDevice[] = []
   const found = discovery?.devices
   const count = found?.count ?? 0
+
   for (let index = 0; index < count; index++) {
     devices.push(found.objectAtIndex(index))
   }
@@ -172,6 +175,7 @@ const listCameras = (): AVCaptureDevice[] => {
     // Older runtime or no discovery support — fall back to the flat
     // device list so simulator-style "no camera" stays honest.
     const legacy = AVCaptureDevice.devicesWithMediaType(AVMediaTypeVideo)
+
     for (let index = 0; index < (legacy?.count ?? 0); index++) {
       devices.push(legacy.objectAtIndex(index))
     }
@@ -190,6 +194,7 @@ const selectDevice = (
 
   if (camera === 'front' || camera === 'back') {
     const position = camera === 'front' ? captureDevicePositionFront : captureDevicePositionBack
+
     return devices.find((device) => device.position === position)
   }
 
@@ -211,6 +216,7 @@ const orientationToLegacyConstant = (orientation: CameraOrientation): number | u
  *  preferred transform; `undefined` when it cannot be told honestly. */
 const orientationFromTransform = (transform: CGAffineTransform): CameraOrientation => {
   const { a, b, c, d } = transform
+
   if (a === 0 && b === 1 && c === -1 && d === 0) {
     return 'portrait'
   }
@@ -270,6 +276,7 @@ const mapInterruptionReason = (raw: number | undefined): CameraInterruptionReaso
 
 const recordingsDirectory = (): string => {
   const directory = path.join(knownFolders.documents().path, 'octane-camera')
+
   if (!File.exists(directory)) {
     NSFileManager.defaultManager.createDirectoryAtPathWithIntermediateDirectoriesAttributesError(
       directory,
@@ -303,6 +310,7 @@ const numericValue = (value: unknown): number | undefined => {
 
     const boxed = value as NSNumber | undefined
     const raw = boxed?.longLongValue ?? boxed?.doubleValue
+
     return typeof raw === 'number' ? raw : undefined
   } catch {
     return undefined
@@ -325,6 +333,7 @@ const freeDiskBytes = (): number => {
 /** iOS adapter: one video session and an independent microphone session feed
  *  a single sample writer shared with the attached preview. */
 declare const XplatSwitchingMovieWriter: { new: () => IOSMovieWriter }
+
 export function createSessionBackend(
   config: CameraSessionConfig,
   writerDiagnostics?: (type: string, payload: string) => void,
@@ -371,8 +380,10 @@ export function createSessionBackend(
       previewMirrorSupported: !!previewLayer?.connection?.supportsVideoMirroring,
     }
   }
+
   const mirrorPreview = () => {
     const connection = previewLayer?.connection
+
     if (connection) {
       connection.automaticallyAdjustsVideoMirroring = false
       if (connection.supportsVideoMirroring) {
@@ -456,6 +467,7 @@ export function createSessionBackend(
 
   const clearObservers = () => {
     const center = NSNotificationCenter.defaultCenter
+
     for (const entry of observers) {
       center.removeObserver(entry)
     }
@@ -496,6 +508,7 @@ export function createSessionBackend(
   const ensureAudioInput = (): boolean => {
     const optedIn = currentConfig.ios?.allowHapticsAndSystemSoundsDuringRecording === true
     const acquired = optedIn && !releaseRecordingHaptics ? acquireRecordingHaptics() : undefined
+
     try {
       writerHasAudio = !!nativeWriter && !nativeWriter.configureAudio(true)
       if (writerHasAudio && optedIn) {
@@ -519,6 +532,7 @@ export function createSessionBackend(
     }
 
     const target = AVCaptureSession.new()
+
     target.beginConfiguration()
     device = selectDevice(currentConfig.camera, listCameras())
     if (!device) {
@@ -535,6 +549,7 @@ export function createSessionBackend(
     }
 
     const input = AVCaptureDeviceInput.deviceInputWithDeviceError(device, undefined)
+
     if (!input || !target.canAddInput(input)) {
       target.commitConfiguration()
       throw new CameraCaptureError({
@@ -557,7 +572,9 @@ export function createSessionBackend(
     }
 
     nativeWriter = XplatSwitchingMovieWriter.new()
+
     const problem = nativeWriter.install(target)
+
     if (problem) {
       target.commitConfiguration()
       throw new CameraCaptureError({
@@ -568,15 +585,19 @@ export function createSessionBackend(
     }
 
     writerDriver = new IOSMovieWriterDriver(nativeWriter)
+
     const sourceOwner = nativeWriter
+
     nativeWriter.observeSource((ready) => {
       if (nativeWriter !== sourceOwner) {
         return
       }
+
       writerSourceReady = ready
       observer?.previewReady(previewReadyFlag && ready && !interrupted)
       if (ready && initialWriterReady && !captureSink) {
         const callback = initialWriterReady
+
         initialWriterReady = undefined
         callback()
       }
@@ -588,6 +609,7 @@ export function createSessionBackend(
       }
     } catch (error) {
       const driver = writerDriver
+
       writerDriver = undefined
       nativeWriter = undefined
       writerRelease = Promise.all([writerRelease, driver.release()]).then(() => {})
@@ -597,6 +619,7 @@ export function createSessionBackend(
     } finally {
       target.commitConfiguration()
     }
+
     session = target
     observeSession(target)
     return target
@@ -610,12 +633,14 @@ export function createSessionBackend(
     session.stopRunning()
     if (writerDriver) {
       const releasePolicy = releaseRecordingHaptics
+
       releaseRecordingHaptics = undefined
       writerRelease = Promise.all([
         writerRelease,
         writerDriver.release().then(() => releasePolicy?.()),
       ]).then(() => {})
     }
+
     writerDriver = undefined
     nativeWriter = undefined
     writerSourceReady = false
@@ -642,6 +667,7 @@ export function createSessionBackend(
   const onCaptureStarted = (dimensions?: { width: number; height: number }) => {
     const request = captureRequest
     const sink = captureSink
+
     if (!request || !sink || !device) {
       return
     }
@@ -665,6 +691,7 @@ export function createSessionBackend(
   const onCaptureFinished = (url: NSURL) => {
     const request = captureRequest
     const sink = captureSink
+
     captureRequest = undefined
     captureSink = undefined
     if (!request || !sink) {
@@ -673,12 +700,14 @@ export function createSessionBackend(
 
     const filePath = url?.path ? String(url.path) : ''
     const limitReached = nativeLimitReached
+
     try {
       const asset = AVURLAsset.assetWithURL(url)
       const durationSeconds = asset ? CMTimeGetSeconds(asset.duration) : 0
       const videoTracks = asset?.tracksWithMediaType(AVMediaTypeVideo)
       const audioTracks = asset?.tracksWithMediaType(AVMediaTypeAudio)
       const track = videoTracks && videoTracks.count > 0 ? videoTracks.objectAtIndex(0) : null
+
       if (!track || !(durationSeconds > 0)) {
         sink.settled({
           kind: 'failed',
@@ -700,6 +729,7 @@ export function createSessionBackend(
       const rotated = Math.abs(transform.b) === 1 && Math.abs(transform.c) === 1
       const width = rotated ? naturalSize.height : naturalSize.width
       const height = rotated ? naturalSize.width : naturalSize.height
+
       if (request.audio && !(audioTracks && audioTracks.count > 0)) {
         // Requested audio missing must not masquerade as silent
         // capture — classify as failure, not a successful clip.
@@ -752,6 +782,7 @@ export function createSessionBackend(
 
   const failWriter = (cause: unknown, details?: unknown) => {
     const sink = captureSink
+
     captureSink = undefined
     captureRequest = undefined
     sink?.settled({
@@ -764,6 +795,7 @@ export function createSessionBackend(
         details ?? cause,
       ),
     })
+
     stopSessionIfIdle()
   }
 
@@ -793,8 +825,11 @@ export function createSessionBackend(
       const profile = selected
         ? (() => {
             const probe = AVCaptureSession.new()
+
             probe.beginConfiguration()
+
             const supported = supportedPreset(probe, selected)
+
             probe.commitConfiguration()
             return supported
               ? { width: 1280, height: 720, frameRate: 30 }
@@ -804,6 +839,7 @@ export function createSessionBackend(
 
       const available = cameras.length > 0
       const supported = typeof XplatSwitchingMovieWriter !== 'undefined' && available
+
       return {
         supported,
         reason: !available
@@ -836,6 +872,7 @@ export function createSessionBackend(
     previewReady: () => previewReadyFlag && !interrupted && writerSourceReady,
     attachPreview: (host, listener?: BackendPreviewListener) => {
       let target: AVCaptureSession
+
       try {
         target = ensureSession()
       } catch (error) {
@@ -851,6 +888,7 @@ export function createSessionBackend(
 
       const view = host as any
       const nativeView = view?.ios ?? view?.nativeViewProtected
+
       if (!nativeView?.layer) {
         throw new CameraCaptureError({
           kind: 'invalidArgument',
@@ -860,8 +898,11 @@ export function createSessionBackend(
       }
 
       const layer = AVCaptureVideoPreviewLayer.layerWithSession(target)
+
       layer.videoGravity = AVLayerVideoGravityResizeAspectFill
+
       const connection = layer.connection
+
       if (connection) {
         connection.automaticallyAdjustsVideoMirroring = false
         if (connection.supportsVideoMirroring) {
@@ -875,6 +916,7 @@ export function createSessionBackend(
       previewLayer = layer
       nativeWriter?.setPreviewLayer(layer)
       previewHost = view
+
       const updateFrame = () => {
         layer.frame = nativeView.bounds
         nativeWriter?.setPreviewLayer(layer)
@@ -890,9 +932,11 @@ export function createSessionBackend(
       // admission readiness — writer frames flowing, preview attached.
       const evaluateDisplay = () => {
         const showing = previewLayerDisplaying(layer)
+
         if (showing === displayReady) {
           return
         }
+
         displayReady = showing
         if (showing) {
           listener?.onDisplayReady?.()
@@ -913,8 +957,10 @@ export function createSessionBackend(
             /* Diagnostics cannot own capture completion. */
           }
         }
+
         listener?.onReady?.()
       }
+
       observer?.previewReady(writerSourceReady)
       if (writerSourceReady) {
         initialWriterReady()
@@ -939,13 +985,17 @@ export function createSessionBackend(
     },
     configure: (next) => {
       const previous = currentConfig
+
       currentConfig = { ...next }
+
       const target = session
+
       if (!target || !device) {
         return
       }
 
       target.beginConfiguration()
+
       const wanted = selectDevice(next.camera ?? previous.camera, listCameras())
       const hasSelectedInput =
         wanted &&
@@ -955,10 +1005,12 @@ export function createSessionBackend(
           (input) =>
             input instanceof AVCaptureDeviceInput && input.device.uniqueID === wanted.uniqueID,
         )
+
       if (wanted && videoInput && (wanted !== device || !hasSelectedInput)) {
         const input = AVCaptureDeviceInput.deviceInputWithDeviceError(wanted, undefined)
 
         const previousInput = videoInput
+
         writerSourceReady = false
         observer?.previewReady(false)
         for (const entry of Array.from({ length: target.inputs.count }, (_, index) =>
@@ -997,6 +1049,7 @@ export function createSessionBackend(
           ensureAudioInput()
         } else if (next.audio === false) {
           const problem = nativeWriter?.configureAudio(false)
+
           if (problem) {
             throw new CameraCaptureError({
               kind: 'unavailable',
@@ -1015,11 +1068,13 @@ export function createSessionBackend(
       } finally {
         target.commitConfiguration()
       }
+
       if (device) {
         writerSourceReady = false
         observer?.previewReady(false)
         nativeWriter?.expectCamera(device.uniqueID)
       }
+
       // Swapping the video input recreates the preview connection — the
       // stabilization preference must be restated.
       preferAutoStabilization(previewLayer?.connection)
@@ -1027,6 +1082,7 @@ export function createSessionBackend(
     focusAtPoint: (point) => {
       const captureDevice = device
       const layer = previewLayer
+
       if (!captureDevice || !layer) {
         return
       }
@@ -1083,6 +1139,7 @@ export function createSessionBackend(
     },
     zoomState: (): CameraZoomState | undefined => {
       const captureDevice = device
+
       if (!captureDevice || typeof captureDevice.videoZoomFactor !== 'number') {
         return undefined
       }
@@ -1093,14 +1150,17 @@ export function createSessionBackend(
         typeof captureDevice.minAvailableVideoZoomFactor === 'number'
           ? captureDevice.minAvailableVideoZoomFactor
           : 1
+
       const maxZoom =
         typeof captureDevice.maxAvailableVideoZoomFactor === 'number'
           ? captureDevice.maxAvailableVideoZoomFactor
           : minZoom
+
       return { zoom: captureDevice.videoZoomFactor, minZoom, maxZoom }
     },
     setZoom: (ratio) => {
       const captureDevice = device
+
       if (!captureDevice || typeof captureDevice.videoZoomFactor !== 'number') {
         return
       }
@@ -1109,6 +1169,7 @@ export function createSessionBackend(
         typeof captureDevice.minAvailableVideoZoomFactor === 'number'
           ? captureDevice.minAvailableVideoZoomFactor
           : 1
+
       const max =
         typeof captureDevice.maxAvailableVideoZoomFactor === 'number'
           ? captureDevice.maxAvailableVideoZoomFactor
@@ -1135,7 +1196,9 @@ export function createSessionBackend(
           message: 'Movie writer is not active',
         })
       }
+
       const wanted = selectDevice(selection, listCameras())
+
       if (!wanted) {
         throw new CameraCaptureError({
           kind: 'unavailable',
@@ -1143,12 +1206,15 @@ export function createSessionBackend(
           message: 'Selected camera is unavailable',
         })
       }
+
       const operation = writerDriver.switchCamera({
         id: wanted.uniqueID,
         label: wanted.localizedName,
         facing: facingForPosition(wanted.position),
       })
+
       let cancelled = false
+
       return {
         completion: operation.completion,
         commit: () => {
@@ -1159,6 +1225,7 @@ export function createSessionBackend(
               message: 'Camera switching was cancelled',
             })
           }
+
           const selectedInput =
             session?.inputs &&
             (Array.from({ length: session.inputs.count }, (_, index) =>
@@ -1167,6 +1234,7 @@ export function createSessionBackend(
               (input) =>
                 input instanceof AVCaptureDeviceInput && input.device.uniqueID === wanted.uniqueID,
             ) as AVCaptureDeviceInput | undefined)
+
           if (!selectedInput) {
             throw new CameraCaptureError({
               kind: 'unavailable',
@@ -1174,6 +1242,7 @@ export function createSessionBackend(
               message: 'The acquired camera input disappeared before commit',
             })
           }
+
           operation.commit?.()
           device = wanted
           videoInput = selectedInput
@@ -1183,6 +1252,7 @@ export function createSessionBackend(
           } catch {
             /* The source commit must survive a preview preference failure. */
           }
+
           if (writerDiagnostics) {
             try {
               writerDiagnostics(
@@ -1202,6 +1272,7 @@ export function createSessionBackend(
     },
     startCapture: (request, sink) => {
       const target = session
+
       if (!target || !writerDriver || !device) {
         sink.settled({
           kind: 'failed',
@@ -1242,6 +1313,7 @@ export function createSessionBackend(
         }
 
         const micStatus = readPermission('microphone')
+
         if (micStatus !== 'granted') {
           sink.settled({
             kind: 'failed',
@@ -1269,6 +1341,7 @@ export function createSessionBackend(
       }
 
       let filePath: string
+
       if (request.destinationPath) {
         // Durable output stays app-private — canonicalize first so a
         // '..' segment cannot keep the Documents prefix while
@@ -1277,6 +1350,7 @@ export function createSessionBackend(
         const documents = knownFolders.documents().path
         const inside = destination.startsWith(`${documents}/`)
         const directory = destination.slice(0, destination.lastIndexOf('/'))
+
         if (!inside || !File.exists(directory) || File.exists(destination)) {
           sink.settled({
             kind: 'failed',
@@ -1355,6 +1429,7 @@ export function createSessionBackend(
             } catch {
               /* Diagnostics cannot own capture completion. */
             }
+
             if (type === 'started') {
               if (writerDiagnostics) {
                 try {
@@ -1396,6 +1471,7 @@ export function createSessionBackend(
             } else if (type === 'finished') {
               try {
                 const result = JSON.parse(payload)
+
                 if (result?.warning) {
                   writerWarning = emitIssue('captureFailed', 'capture', result.warning)
                 }
@@ -1465,6 +1541,7 @@ export function createSessionBackend(
       }
 
       const filePath = output.fileUrl.slice('file://'.length)
+
       if (!File.exists(filePath)) {
         throw new CameraCaptureError({
           kind: 'unavailable',
@@ -1483,6 +1560,7 @@ export function createSessionBackend(
     },
     release: async () => {
       const driver = writerDriver
+
       writerDriver = undefined
       nativeWriter = undefined
       initialWriterReady = undefined

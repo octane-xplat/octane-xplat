@@ -27,6 +27,7 @@ export function hitTest(
   }
 
   const { plot, points } = scene
+
   if (!points.length) {
     return null
   }
@@ -45,8 +46,10 @@ export function hitTest(
     // nearest the pointer in 2D and miss when nothing is actually near.
     let best: SceneHit | null = null
     let bestDist = Infinity
+
     for (const p of points) {
       const d = Math.hypot(p.cx - x, p.cy - y)
+
       if (d < bestDist) {
         bestDist = d
         best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
@@ -57,8 +60,10 @@ export function hitTest(
   }
 
   const centers = new Map<string, { total: number; count: number }>()
+
   for (const p of points) {
     const cur = centers.get(p.key)
+
     if (cur === undefined) {
       centers.set(p.key, { total: p.cx, count: 1 })
     } else {
@@ -69,8 +74,10 @@ export function hitTest(
 
   let key: string | null = null
   let keyDist = Infinity
+
   for (const [k, sum] of centers) {
     const d = Math.abs(sum.total / sum.count - x)
+
     if (d < keyDist) {
       keyDist = d
       key = k
@@ -83,12 +90,14 @@ export function hitTest(
 
   let best: SceneHit | null = null
   let bestDist = Infinity
+
   for (const p of points) {
     if (p.key !== key) {
       continue
     }
 
     const d = Math.hypot(p.cx - x, p.cy - y)
+
     if (d < bestDist) {
       bestDist = d
       best = { series: p.series, index: p.index, x: p.x, y: p.y, px: p.cx, py: p.cy }
@@ -103,6 +112,7 @@ function pieHit(scene: ChartScene, x: number, y: number, slop: number): SceneHit
   const dx = x - pie.cx
   const dy = y - pie.cy
   const r = Math.hypot(dx, dy)
+
   if (r < pie.rInner - slop || r > pie.rOuter + slop) {
     return null
   }
@@ -111,6 +121,7 @@ function pieHit(scene: ChartScene, x: number, y: number, slop: number): SceneHit
   // θ = atan2(dx, −dy) normalized into [0, 2π).
   const angle = (Math.atan2(dx, -dy) + Math.PI * 2) % (Math.PI * 2)
   const slice = pie.slices.find((s) => angle >= s.startAngle && angle < s.endAngle)
+
   if (!slice) {
     return null
   }
@@ -148,14 +159,18 @@ export function createScrub(
   setCursor: (hit: SceneHit | null) => void,
 ): (phase: ScrubPhase, x: number, y: number) => void {
   let downAt: { x: number; y: number; t: number } | null = null
+
   return (phase, x, y) => {
     const scene = getScene()
     const props = getProps()
     const showCursor = props.tooltip === true || props.crosshair === true
+
     switch (phase) {
       case 'down': {
         downAt = { x, y, t: Date.now() }
+
         const hit = scene && showCursor ? hitTest(scene, x, y) : null
+
         setCursor(hit)
         if (hit) {
           props.onScrub?.(hit)
@@ -169,6 +184,7 @@ export function createScrub(
         }
 
         const hit = scene && showCursor ? hitTest(scene, x, y) : null
+
         setCursor(hit)
         props.onScrub?.(hit)
         break
@@ -189,7 +205,9 @@ export function createScrub(
       }
       case 'tap': {
         downAt = null
+
         const hit = scene ? hitTest(scene, x, y) : null
+
         setCursor(hit)
         if (hit) {
           props.onPress?.(hit)
@@ -213,9 +231,11 @@ export function createScrub(
 export function hitLabel(scene: ChartScene, hit: ChartHit): string {
   if (scene.pie) {
     const slice = scene.pie.slices.find((s) => s.series === hit.series && s.index === hit.index)
+
     return slice ? `${slice.label}: ${defaultFormat(slice.value)}` : defaultFormat(hit.y)
   }
 
   const name = scene.series[hit.series]?.name ?? String(hit.series)
+
   return `${name}: ${defaultFormat(hit.y)}`
 }

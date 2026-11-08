@@ -47,10 +47,12 @@ export function Home() @{
   const scheme = useColorScheme()
   const [override, setOverride] = useState<string | null>(() => {
     const saved = storage.getString('theme-preference')
+
     return saved === 'light' || saved === 'dark' ? saved : null
   })
 
   const dark = (override ?? scheme) === 'dark'
+
   // Push the app-level override into the theme store so imperative roots
   // (overlay/popover/toast/sheet/modal) render with the same scheme.
   useEffect(() => {
@@ -63,6 +65,7 @@ export function Home() @{
   const [items, setItems] = useState(INITIAL)
   const [modal, setModal] = useState(false)
   const x = useAnimation(0)
+
   console.log('[harness] Home render, items=' + items.length + ' scheme=' + scheme)
 
   // [self] timers drive the sink on a clock (shuffle → type → dark flip)
@@ -75,6 +78,7 @@ export function Home() @{
     }
 
     console.log('[harness] Home mounted')
+
     const t1 = setTimeout(() => {
       console.log('[self] shuffle')
       setItems([...items].reverse())
@@ -114,6 +118,7 @@ export function Home() @{
           id="scheme-toggle"
           onPress={() => {
             const next = dark ? 'light' : 'dark'
+
             storage.setString('theme-preference', next)
             setOverride(next)
           }}
@@ -243,6 +248,7 @@ export function Home() @{
             <Pressable
               onPress={() => {
                 const next = [...items].reverse()
+
                 console.log('[harness] shuffle -> ' + next.map((i) => i.id).join(','))
                 setItems(next)
               }}

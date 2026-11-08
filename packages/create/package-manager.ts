@@ -26,6 +26,7 @@ const managers: PackageManager[] = ['bun', 'pnpm']
 /** The tool that launched the creator (`bun create`, `pnpm dlx`, `npx`, …). */
 export function managerFromUserAgent(ua: string | undefined): PackageManager | undefined {
   const tool = ua?.split(' ')[0]?.split('/')[0]
+
   return tool === 'bun' || tool === 'pnpm' ? tool : undefined
 }
 
@@ -38,6 +39,7 @@ export function managerVersion(manager: PackageManager): string | undefined {
     cwd: tmpdir(),
     shell: process.platform === 'win32',
   })
+
   if (result.error || result.status !== 0) {
     return undefined
   }
@@ -65,6 +67,7 @@ export function decidePackageManager(input: {
   }
 
   const fromAgent = managerFromUserAgent(input.userAgent)
+
   if (fromAgent) {
     return { kind: 'use', manager: fromAgent, source: 'user-agent', installed: input.installed }
   }

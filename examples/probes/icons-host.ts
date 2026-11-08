@@ -1,6 +1,7 @@
 /** Inspect native SVGView source and accessibility properties without visual analysis. */
 export function iconSnapshot(view: any) {
   const body = String(view?.src ?? '')
+
   return {
     body,
     width: Number(body.match(/\bwidth="([^"]+)"/)?.[1]),

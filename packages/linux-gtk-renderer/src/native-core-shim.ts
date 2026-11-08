@@ -13,6 +13,7 @@ export const Utils = {
    *  on the app's main window), same path as ui's nav-href.gtk. */
   openUrl(url: string): void {
     const open = (globalThis as any).__octaneGtkHost?.openUri
+
     if (typeof open !== 'function' || open(url) !== true) {
       console.warn(`[linux-gtk] Cannot open external URI on this GTK host: ${url}`)
     }
@@ -24,6 +25,7 @@ export const Utils = {
 // NativeScript application services need explicit GTK leaves or render an
 // unsupported state.
 let addCssSeq = 0
+
 export const Application = {
   ios: null,
   android: null,
@@ -74,17 +76,21 @@ export function cancelAnimationFrame(id: number) {
 // semantics but does not persist across runs (no GLib keyfile yet — recorded
 // as an upstream-limitations stand-in).
 const settingsStore = new Map<string, unknown>()
+
 export const ApplicationSettings = {
   getString(key: string): string | undefined {
     const v = settingsStore.get(key)
+
     return v === undefined || typeof v === 'string' ? v : String(v)
   },
   getNumber(key: string): number | undefined {
     const v = settingsStore.get(key)
+
     return typeof v === 'number' ? v : v === undefined ? undefined : Number(v)
   },
   getBoolean(key: string): boolean | undefined {
     const v = settingsStore.get(key)
+
     return typeof v === 'boolean' ? v : v === undefined ? undefined : Boolean(v)
   },
   getAllKeys(): string[] {
@@ -116,6 +122,7 @@ export const ApplicationSettings = {
 // Connectivity — GTK4 has no @nativescript/core equivalent in GJS scope.
 // Report `unknown` honestly; monitoring is a no-op rather than fake events.
 const UNKNOWN = 6 // Connectivity.connectionType.unknown in @nativescript/core
+
 export const Connectivity = {
   connectionType: {
     none: 0,

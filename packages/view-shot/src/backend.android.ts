@@ -2,6 +2,7 @@ import { Application, View } from '@nativescript/core'
 import { UnavailabilityError, lookupGlobal } from '@octane-xplat/lib/capability'
 import type { CaptureBackend } from './backend-types'
 import type { NormalizedCaptureOptions } from './types'
+
 interface Engine {
   validate(view: android.view.View): string | null
   capture(view: android.view.View, json: string): string
@@ -14,23 +15,29 @@ function engine(): Engine | undefined {
 
 function required() {
   const value = engine()
+
   if (!value) {
     throw new UnavailabilityError(
       'Native Android view-capture bridge; rebuild the app after installation',
     )
   }
+
   return value
 }
 
 function nativeView(target: object): android.view.View {
   const value = target instanceof View ? target.nativeViewProtected : target
+
   if (!(value instanceof android.view.View)) {
     throw new TypeError('Capture requires a mounted NativeScript or Android View')
   }
+
   const failure = required().validate(value)
+
   if (failure) {
     throw new Error(failure)
   }
+
   return value
 }
 
@@ -42,15 +49,19 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
   ) {
     throw new UnavailabilityError('Requested Android capture strategy')
   }
+
   const reply: { error?: unknown; uri?: unknown } = JSON.parse(
     required().capture(nativeView(target), JSON.stringify(options)),
   )
+
   if (typeof reply?.error === 'string') {
     throw new Error(reply.error)
   }
+
   if (typeof reply?.uri !== 'string' || !reply.uri) {
     throw new Error('Malformed Android capture reply')
   }
+
   return reply.uri
 }
 
@@ -67,22 +78,27 @@ export const backend: CaptureBackend = {
   capture,
   async captureScreen(options) {
     const view = Application.primaryWindow?.android?.activity?.getWindow()?.getDecorView()
+
     if (!view) {
       throw new Error('A primary Android app window is required')
     }
+
     return capture(view, options)
   },
   release(uri) {
     if (!uri.startsWith('file:')) {
       return
     }
+
     if (engine() && !required().remove(uri)) {
       throw new Error('Could not release the temporary capture')
     }
   },
   async waitForLayout(target, cancelled) {
     required()
+
     const start = Date.now()
+
     while (!cancelled()) {
       try {
         nativeView(target)
@@ -95,6 +111,7 @@ export const backend: CaptureBackend = {
 
       await new Promise<void>((resolve) => setTimeout(resolve, 16))
     }
+
     throw new Error('ViewShot unmounted while waiting for layout')
   },
 }

@@ -16,6 +16,7 @@ const directory = await mkdtemp(join(tmpdir(), 'octane-global-shortcuts-runtime-
 
 try {
   const modules = join(directory, 'node_modules/@octane-xplat')
+
   await mkdir(modules, { recursive: true })
   for (const name of ['platform', 'global-shortcuts']) {
     await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
@@ -27,6 +28,7 @@ try {
   )
 
   const caseFile = join(directory, 'case.ts')
+
   await writeFile(
     caseFile,
     `
@@ -103,8 +105,11 @@ setTimeout(async () => {
   )
 
   const artifact = await buildMacOSNative(directory)
+
   assert.deepEqual(artifact.leaves, [])
+
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap)
 
   await build({
@@ -132,7 +137,9 @@ setTimeout(async () => {
       ],
       { timeout: 60_000 },
     )
+
     let output = ''
+
     child.stdout.setEncoding('utf8').on('data', (chunk) => (output += chunk))
     child.stderr.setEncoding('utf8').on('data', (chunk) => (output += chunk))
     child.on('close', (status) => resolve({ status, output }))
@@ -140,6 +147,7 @@ setTimeout(async () => {
   })
 
   const output = result.output
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /GHK_MACOS_FAIL/)
   assert.match(output, /GHK_MACOS_OK/)

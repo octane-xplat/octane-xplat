@@ -3,12 +3,14 @@ import { useState } from 'octane'
 import { Button, Text, TextInput, Tokenizer, VStack, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const people = [
   { id: 'ada', label: 'Ada' },
   { id: 'grace', label: 'Grace' },
 ]
 
 const source = createStaticSource(people)
+
 export default function TokenizerKeysProbe() {
   const [tags, setTags] = useState<SearchableItem[]>(people),
     [readOnly, setReadOnly] = useState(false),

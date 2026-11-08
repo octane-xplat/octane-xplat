@@ -14,6 +14,7 @@ export interface EmbedParams {
 export function readEmbedParams(): EmbedParams {
   const params = new URLSearchParams(window.location.search)
   const mode = params.get('mode')
+
   return {
     isEmbed: params.get('embed') === '1',
     theme: params.get('theme') ?? undefined,
@@ -27,6 +28,7 @@ export function readStoredTheme(): string | null {
 
 export function readStoredMode(): 'light' | 'dark' | null {
   const value = window.localStorage.getItem(MODE_STORAGE_KEY)
+
   return value === 'light' || value === 'dark' ? value : null
 }
 
@@ -56,7 +58,9 @@ export function listenEmbedThemeSync(
     if (event.origin !== window.location.origin) {
       return
     }
+
     const data: unknown = event.data
+
     if (
       typeof data !== 'object' ||
       data === null ||
@@ -65,6 +69,7 @@ export function listenEmbedThemeSync(
     ) {
       return
     }
+
     apply(
       'theme' in data && typeof data.theme === 'string' ? data.theme : undefined,
       'mode' in data && (data.mode === 'light' || data.mode === 'dark') ? data.mode : undefined,

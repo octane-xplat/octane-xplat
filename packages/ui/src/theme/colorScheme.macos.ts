@@ -22,6 +22,7 @@ export function subscribeSystemScheme(callback: () => void): () => void {
   }
 
   let active = true
+
   return () => {
     if (!active) {
       return

@@ -4,6 +4,7 @@ import { bindNativeHostAttachment } from '../src/native-host-lifecycle.android.t
 
 test('window attachment scopes native load and unload across repeated dialog hosts', () => {
   const previous = globalThis.android
+
   globalThis.android = {
     view: {
       View: {
@@ -15,11 +16,13 @@ test('window attachment scopes native load and unload across repeated dialog hos
       },
     },
   }
+
   let listener,
     attached = false,
     window = null,
     observed = null,
     readers = 0
+
   const view = {
     addOnAttachStateChangeListener(next) {
       listener = next
@@ -30,6 +33,7 @@ test('window attachment scopes native load and unload across repeated dialog hos
     },
     isAttachedToWindow: () => attached,
   }
+
   const host = {
     android: view,
     isLoaded: false,
@@ -44,13 +48,17 @@ test('window attachment scopes native load and unload across repeated dialog hos
       observed = null
     },
   }
+
   try {
     const stop = bindNativeHostAttachment(host)
+
     assert.equal(readers, 0)
     window = {}
     attached = true
     listener.onViewAttachedToWindow()
+
     const first = observed
+
     assert.equal(readers, 1)
     listener.onViewAttachedToWindow()
     assert.equal(readers, 1)
@@ -63,7 +71,9 @@ test('window attachment scopes native load and unload across repeated dialog hos
     listener.onViewAttachedToWindow()
     assert.equal(readers, 1)
     assert.notEqual(observed, first)
+
     const retired = listener
+
     stop()
     stop()
     retired.onViewAttachedToWindow()

@@ -20,6 +20,7 @@ async function waitForServer() {
   for (let i = 0; i < 300; i++) {
     try {
       const res = await fetch(url)
+
       if (res.ok) {
         return true
       }

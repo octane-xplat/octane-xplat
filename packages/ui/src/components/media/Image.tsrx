@@ -25,11 +25,13 @@ import { bindImageAccessibility } from './image-accessibility'
  *  ./hash-image), `data:` base64, `res://`, `~/`, and plain file paths. */
 function placeholderSource(placeholder: string): ImageSource | null {
   const png = hashToPngBase64(placeholder)
+
   if (png) {
     return ImageSource.fromBase64Sync(png)
   }
 
   const comma = placeholder.indexOf(',')
+
   if (
     placeholder.startsWith('data:') &&
     comma > 0 &&
@@ -63,6 +65,7 @@ function applyPlaceholder(view: any, placeholder: string | undefined): void {
   }
 
   const ph = placeholderSource(placeholder)
+
   if (ph) {
     view.imageSource = ph
   }
@@ -124,7 +127,9 @@ export function Image(props: ImageProps): unknown @{
   const computed = needsContentRect(fit, position)
   const imageRef = useRef<any>(null)
   const placeholderRef = useRef(props.placeholder)
+
   placeholderRef.current = props.placeholder
+
   const sizing = useMemo(
     () =>
       createSizedImageBinding({
@@ -151,6 +156,7 @@ export function Image(props: ImageProps): unknown @{
 
   const boundRef = useRef({ key: props.recyclingKey, src: props.src })
   const bound = boundRef.current
+
   boundRef.current = { key: props.recyclingKey, src: props.src }
   // expo-image `recyclingKey`: platform-list cells rebind the same view, and
   // Android's setUri keeps drawing the previous bitmap until the new fetch
@@ -182,11 +188,13 @@ export function Image(props: ImageProps): unknown @{
 
   useLayoutEffect(() => {
     const view = imageRef.current
+
     if (!view || !props.placeholder || svg != null) {
       return
     }
 
     const show = () => applyPlaceholder(view, props.placeholder)
+
     show()
     view.on?.('isLoadingChange', show)
     return () => view.off?.('isLoadingChange', show)

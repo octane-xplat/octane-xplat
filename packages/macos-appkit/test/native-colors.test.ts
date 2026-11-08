@@ -32,6 +32,7 @@ const { syncNativeColors, setTextFieldPlaceholder } = runSlice(
 
 test('native colors preserve CSS and restore semantic defaults when it is removed', () => {
   const node: any = { type: 'label', view: { layer: {} }, props: {}, styleColor: '#123456' }
+
   syncNativeColors(node)
   assert.equal(node.view.textColor.css, '#123456')
   delete node.styleColor
@@ -42,13 +43,16 @@ test('native colors preserve CSS and restore semantic defaults when it is remove
 test('placeholder CSS survives unrelated color resets and falls back to AppKit', () => {
   const field: any = {}
   const props = { placeholder: 'Search', placeholderTextColor: '#abcdef' }
+
   setTextFieldPlaceholder(field, props, '#123456')
   assert.equal(field.placeholderAttributedString.attributes.color.css, '#123456')
   setTextFieldPlaceholder(field, props)
   assert.equal(field.placeholderAttributedString.attributes.color.css, '#abcdef')
   setTextFieldPlaceholder(field, { placeholder: 'Search' })
   assert.equal(field.placeholderAttributedString.attributes.color, placeholderColor)
+
   const node = { type: 'textfield', view: field, props, stylePlaceholderColor: '#123456' }
+
   syncNativeColors(node)
   assert.equal(field.placeholderAttributedString.attributes.color.css, '#123456')
 })

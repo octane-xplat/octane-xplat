@@ -11,6 +11,7 @@ export default function ToggleSaveProbe() {
 
   const [accept, setAccept] = useState(true)
   const pending = useRef<{ resolve(): void; reject(error: unknown): void } | null>(null)
+
   return (
     <VStack gap={2}>
       <ToggleButton
@@ -36,6 +37,7 @@ export default function ToggleSaveProbe() {
         label="Complete save"
         clickAction={() => {
           const task = pending.current
+
           pending.current = null
           task?.resolve()
           setStatus('Saved')
@@ -46,6 +48,7 @@ export default function ToggleSaveProbe() {
         label="Fail save"
         clickAction={() => {
           const task = pending.current
+
           pending.current = null
           task?.reject(new Error('Save failed'))
         }}

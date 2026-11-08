@@ -7,6 +7,7 @@ import {
 } from './file-pick-filter.macos'
 
 const types = new Map<string, string>()
+
 for (const [mime, extensions] of Object.entries(MIME_EXTENSIONS)) {
   if (mime.includes('*')) {
     continue
@@ -23,6 +24,7 @@ for (const [mime, extensions] of Object.entries(MIME_EXTENSIONS)) {
 export function appKitFileInputDetails(file: FileInputFile, accept?: string): FileInputFile {
   const result = { ...file }
   const extension = file.name.includes('.') ? file.name.split('.').pop()!.toLowerCase() : ''
+
   if (result.mimeType == null && extension) {
     const accepted =
       accept
@@ -53,6 +55,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
             : undefined
 
         const preferred = type?.preferredMIMEType
+
         mime =
           alias ??
           (typeof preferred === 'string' && preferred.includes('/')
@@ -68,6 +71,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
       result.mimeType = mime
     }
   }
+
   if (result.size != null) {
     return result
   }
@@ -75,6 +79,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
   const host = globalThis as any
   let url: any,
     scoped = false
+
   try {
     url = file.uri.startsWith('/')
       ? host.NSURL?.fileURLWithPath(file.uri)
@@ -87,6 +92,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
     }
 
     scoped = url.startAccessingSecurityScopedResource?.() ?? false
+
     const attributes = host.NSFileManager?.defaultManager?.attributesOfItemAtPathError?.(
       url.path,
       null,
@@ -101,6 +107,7 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
 
     if (raw != null) {
       const size = Number(raw)
+
       if (Number.isSafeInteger(size) && size >= 0) {
         result.size = size
       }
@@ -114,5 +121,6 @@ export function appKitFileInputDetails(file: FileInputFile, accept?: string): Fi
       } catch {}
     }
   }
+
   return result
 }

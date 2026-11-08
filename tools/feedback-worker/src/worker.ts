@@ -34,15 +34,20 @@ async function readBody(request: Request): Promise<string | null> {
     await request.body?.cancel()
     return null
   }
+
   const reader = request.body?.getReader()
+
   if (!reader) {
     return ''
   }
+
   const chunks: Uint8Array[] = []
   let length = 0
+
   try {
     while (true) {
       const { done, value } = await reader.read()
+
       if (done) {
         break
       }
@@ -58,12 +63,15 @@ async function readBody(request: Request): Promise<string | null> {
   } finally {
     reader.releaseLock()
   }
+
   const bytes = new Uint8Array(length)
   let offset = 0
+
   for (const chunk of chunks) {
     bytes.set(chunk, offset)
     offset += chunk.byteLength
   }
+
   return new TextDecoder('utf-8', { fatal: true, ignoreBOM: false }).decode(bytes)
 }
 
@@ -71,12 +79,16 @@ function validate(value: unknown): string | null {
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     return 'The report must be a JSON object.'
   }
+
   const report = value as Record<string, unknown>
+
   if (Object.keys(report).some((key) => !FIELDS.has(key))) {
     return 'The report contains unsupported fields.'
   }
+
   for (const [field, limit] of Object.entries(TEXT_LIMITS)) {
     const text = report[field]
+
     if ((field === 'evidence' || field === 'workaround') && text === undefined) {
       continue
     }
@@ -85,12 +97,15 @@ function validate(value: unknown): string | null {
       return `${field} must be a non-empty string of at most ${limit} characters.`
     }
   }
+
   if (typeof report.target !== 'string' || !TARGETS.has(report.target)) {
     return 'target must be web, ios, android, macos, linux, windows, or unknown.'
   }
+
   if (typeof report.impact !== 'string' || !IMPACTS.has(report.impact)) {
     return 'impact must be blocked, rework, investigation, or surprise.'
   }
+
   return null
 }
 
@@ -99,27 +114,35 @@ export default {
     if (new URL(request.url).pathname !== '/api/feedback') {
       return json(404, { error: 'not-found' })
     }
+
     if (request.method !== 'POST') {
       return json(405, { error: 'method-not-allowed' }, { allow: 'POST' })
     }
+
     const mediaType = request.headers.get('content-type')?.split(';')[0].trim().toLowerCase()
+
     if (mediaType !== 'application/json') {
       return json(415, { error: 'unsupported-media-type', detail: 'Use application/json.' })
     }
+
     try {
       // Cloudflare supplies this header. It is used only for rate limiting,
       // never written to D1; direct local requests share one fallback bucket.
       const key = request.headers.get('cf-connecting-ip') ?? 'local'
       const { success } = await env.FEEDBACK_RATE_LIMITER.limit({ key })
+
       if (!success) {
         return json(429, { error: 'rate-limited' }, { 'retry-after': '60' })
       }
     } catch {
       return json(503, { error: 'temporarily-unavailable' })
     }
+
     let value: unknown
+
     try {
       const body = await readBody(request)
+
       if (body === null) {
         return json(413, { error: 'report-too-large', max_bytes: MAX_BODY_BYTES })
       }
@@ -128,13 +151,17 @@ export default {
     } catch {
       return json(400, { error: 'invalid-json' })
     }
+
     const detail = validate(value)
+
     if (detail) {
       return json(400, { error: 'invalid-report', detail })
     }
+
     const report = value as Record<string, string | undefined>
     const id = crypto.randomUUID()
     const createdAt = new Date().toISOString()
+
     try {
       const result = await env.FEEDBACK.prepare(
         `INSERT INTO feedback_observations
@@ -162,6 +189,7 @@ export default {
       // Never log report text or database errors containing bound values.
       return json(503, { error: 'temporarily-unavailable' })
     }
+
     return json(201, { id, created_at: createdAt })
   },
 }

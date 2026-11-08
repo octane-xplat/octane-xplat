@@ -86,6 +86,7 @@ describe('VirtualList input geometry evidence', () => {
     let clock = 0
     let moved = false
     const now = vi.spyOn(performance, 'now').mockImplementation(() => clock)
+
     try {
       const result = await runVirtualListInputTrace(
         {

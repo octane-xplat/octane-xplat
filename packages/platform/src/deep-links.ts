@@ -27,16 +27,21 @@ function dispatch(url: string | null | undefined) {
 // Foundation NSSet.allObjects is an NSArray, rather than necessarily a JS array.
 function iosValues(collection: any): any[] {
   const values = collection?.allObjects ?? collection
+
   if (!values) {
     return []
   }
+
   if (Array.isArray(values)) {
     return values
   }
+
   const result: any[] = []
+
   for (let index = 0; index < (values.count ?? 0); index++) {
     result.push(values.objectAtIndex(index))
   }
+
   return result
 }
 
@@ -50,6 +55,7 @@ function wire() {
   Application.on(Application.launchEvent, (args: any) => {
     const androidUrl = args.android?.getDataString?.()
     const iosUrl = args.ios?.objectForKey?.('UIApplicationLaunchOptionsURLKey')?.absoluteString
+
     initial = androidUrl || iosUrl || initial
     lastIntent = args.android ?? lastIntent
     androidLaunched = true
@@ -74,10 +80,12 @@ function wire() {
           (activity) => activity.webpageURL?.absoluteString,
         ),
       ].filter((url): url is string => typeof url === 'string' && url.length > 0)
+
       if (!sceneConnected) {
         sceneConnected = true
         initial = urls.shift() ?? initial
       }
+
       for (const url of urls) {
         dispatch(url)
       }
@@ -99,7 +107,9 @@ function wire() {
       if (sceneConnected) {
         return
       }
+
       const url = args.url?.absoluteString ?? String(args.url ?? '')
+
       // UIKit can also report a launch URL through openUrl once. Keep it
       // queued for consumeInitialUrl while bootstrap is still pending —
       // but only suppress that first echo; a later identical URL is a
@@ -116,6 +126,7 @@ function wire() {
       if (sceneConnected) {
         return
       }
+
       dispatch(args.activity?.webpageURL?.absoluteString)
     })
   }
@@ -125,6 +136,7 @@ function wire() {
       if (!intent) {
         return
       }
+
       if (!androidLaunched) {
         if (!earlyIntents.some((queued) => sameIntent(queued, intent))) {
           earlyIntents.push(intent)
@@ -132,11 +144,13 @@ function wire() {
 
         return
       }
+
       // New Intent and resume are one delivery. A distinct Intent with
       // the same URL is still a new user action.
       if (sameIntent(intent, lastIntent)) {
         return
       }
+
       lastIntent = intent
       dispatch(intent.getDataString?.())
     }
@@ -158,6 +172,7 @@ export function onDeepLink(cb: LinkHandler): () => void {
 /** Read and clear the URL that launched the app. */
 export function consumeInitialUrl(): string | null {
   const u = initial
+
   initial = null
   return u
 }

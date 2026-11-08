@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { CaptureBackend } from './backend-types'
+
 const unavailable = (): never => {
   throw new UnavailabilityError('App view capture on this host')
 }

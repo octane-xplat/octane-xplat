@@ -56,6 +56,7 @@ export function useFocus(options: UseFocusOptions = {}): {
       }
 } {
   const latest = useRef(options)
+
   latest.current = options
   return {
     focusProps: latest.current.isDisabled
@@ -96,6 +97,7 @@ export interface UseFocusRingResult {
 export function useFocusRing(): UseFocusRingResult {
   const [isFocused, setFocused] = useState(false)
   const { isFocusVisible, isSupported: isFocusVisibleSupported } = useFocusVisible()
+
   return {
     isFocused,
     isFocusVisible: isFocused && isFocusVisible,

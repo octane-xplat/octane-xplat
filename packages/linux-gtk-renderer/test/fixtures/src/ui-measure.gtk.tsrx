@@ -8,6 +8,7 @@ export function Measurement(props: {
   report: (bounds: any) => void
 }) @{
   const { ref, bounds } = useMeasure({ observe: props.observe })
+
   props.report(bounds)
 
   <View id="measure-root" style={{ width: props.width, height: 400, flexDirection: 'column' }}>

@@ -10,20 +10,25 @@ const fixture = vi.hoisted(() => {
     mount: vi.fn(),
     destroy: vi.fn(),
   }
+
   const elements = {
     create: vi.fn(() => element),
     submit: vi.fn(async (): Promise<{ error?: { message: string } }> => ({})),
   }
+
   const sdk = {
     retrievePaymentIntent: vi.fn(),
     elements: vi.fn(() => elements),
     confirmPayment: vi.fn(),
   }
+
   return { handlers, element, elements, sdk, loadStripe: vi.fn(async () => sdk) }
 })
 
 vi.mock('@stripe/stripe-js/pure', () => ({ loadStripe: fixture.loadStripe }))
+
 import { backend } from '../src/backend.web'
+
 const options = {
   merchantDisplayName: 'Store',
   paymentIntentClientSecret: 'pi_fixture_secret_fixture',
@@ -31,6 +36,7 @@ const options = {
 }
 
 const turn = () => new Promise((done) => setTimeout(done, 0))
+
 beforeEach(async () => {
   vi.clearAllMocks()
   document.body.replaceChildren()
@@ -38,13 +44,16 @@ beforeEach(async () => {
   HTMLDialogElement.prototype.showModal = function () {
     this.open = true
   }
+
   HTMLDialogElement.prototype.close = function () {
     this.open = false
     this.dispatchEvent(new Event('close'))
   }
+
   fixture.sdk.retrievePaymentIntent.mockResolvedValue({
     paymentIntent: { status: 'requires_payment_method', payment_method_types: ['card'] },
   })
+
   fixture.sdk.confirmPayment.mockResolvedValue({ paymentIntent: { status: 'succeeded' } })
   fixture.elements.submit.mockResolvedValue({})
   await backend.reset()
@@ -53,10 +62,13 @@ beforeEach(async () => {
 
 it('mounts SDK-owned input, cancels without confirmation and releases modal ownership', async () => {
   const focus = document.createElement('button')
+
   document.body.append(focus)
   focus.focus()
   await backend.prepare(options)
+
   const pending = backend.present()
+
   expect(document.querySelector('dialog')?.open).toBe(true)
   expect(fixture.element.mount).toHaveBeenCalledTimes(1)
   expect(document.querySelector('input')).toBeNull()
@@ -70,10 +82,14 @@ it('mounts SDK-owned input, cancels without confirmation and releases modal owne
 
 it('keeps a declined checkout open for retry and prevents concurrent confirmation or cancellation', async () => {
   await backend.prepare(options)
+
   const pending = backend.present()
+
   fixture.handlers.ready()
+
   const form = document.querySelector('form')!
   const cancel = document.querySelector<HTMLButtonElement>('button[type=button]')!
+
   fixture.sdk.confirmPayment.mockResolvedValueOnce({ error: { message: 'Your card was declined' } })
   form.dispatchEvent(new Event('submit', { cancelable: true }))
   form.dispatchEvent(new Event('submit', { cancelable: true }))
@@ -95,9 +111,12 @@ it('rejects non-card web Intents and handles failed hosted input without retaini
       payment_method_types: ['card', 'us_bank_account'],
     },
   })
+
   await expect(backend.prepare(options)).rejects.toThrow('card-only')
   await backend.prepare(options)
+
   const pending = backend.present()
+
   fixture.handlers.loaderror()
   expect((await pending).error?.code).toBe('Failed')
   expect(document.querySelector('dialog')).toBeNull()
@@ -107,11 +126,13 @@ it('rejects non-card web Intents and handles failed hosted input without retaini
 
 it('reports unsupported browser hosts without loading Stripe', () => {
   const original = HTMLDialogElement.prototype.showModal
+
   Object.defineProperty(HTMLDialogElement.prototype, 'showModal', {
     configurable: true,
     value: undefined,
     writable: true,
   })
+
   expect(backend.available()).toBe(false)
   HTMLDialogElement.prototype.showModal = original
 })

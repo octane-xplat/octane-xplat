@@ -38,43 +38,52 @@ export function resolveColumnWidths<T extends Record<string, unknown>>(
 
   for (const col of columns) {
     const w = col.width
+
     if (w?.type === 'pixel') {
       pixelTotal += w.value
     } else {
       const proportion = w?.value ?? 1
       // Only columns that explicitly used proportional() carry a minimum.
       const minW = w != null ? (w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH) : 0
+
       totalProportion += proportion
       proportionalCols.push({ key: col.key, proportion, minWidth: minW })
     }
   }
 
   let maxProportionalSpace = 0
+
   if (totalProportion > 0) {
     for (const col of proportionalCols) {
       const required = (col.minWidth * totalProportion) / col.proportion
+
       if (required > maxProportionalSpace) {
         maxProportionalSpace = required
       }
     }
   }
+
   const tableMinWidth = pixelTotal + maxProportionalSpace
 
   const result = new Map<string, ResolvedColumnWidth>()
+
   for (const col of columns) {
     const w = col.width
     const style: Record<string, string> = {}
+
     if (w?.type === 'pixel') {
       style.width = `${w.value}px`
       style.minWidth = `${w.value}px`
     } else {
       const proportion = w?.value ?? 1
+
       if (totalProportion > 0) {
         style.width = `${(proportion / totalProportion) * 100}%`
       }
 
       if (w != null) {
         const minW = w.minWidth ?? DEFAULT_MIN_COLUMN_WIDTH
+
         style.minWidth = `${minW}px`
       }
     }
@@ -110,7 +119,9 @@ export function capitalize(str: string): string {
   if (str.length === 0) {
     return str
   }
+
   const first = str[0]!
+
   return first.toUpperCase() + str.slice(first.length)
 }
 
@@ -120,12 +131,15 @@ export function defaultCellRenderer<T extends Record<string, unknown>>(
   key: string,
 ): string {
   const value = item[key]
+
   if (value == null) {
     return ''
   }
+
   if (value instanceof Date) {
     return value.toISOString()
   }
+
   if (
     typeof value === 'string' ||
     typeof value === 'number' ||
@@ -134,6 +148,7 @@ export function defaultCellRenderer<T extends Record<string, unknown>>(
   ) {
     return String(value)
   }
+
   return ''
 }
 
@@ -141,12 +156,15 @@ function estimateContentLength(value: unknown): number {
   if (value == null) {
     return 0
   }
+
   if (typeof value === 'string') {
     return value.length
   }
+
   if (typeof value === 'number' || typeof value === 'boolean') {
     return String(value).length
   }
+
   return 0
 }
 
@@ -154,9 +172,11 @@ function longestWord(value: unknown): number {
   if (typeof value !== 'string' && typeof value !== 'number' && typeof value !== 'boolean') {
     return 0
   }
+
   const str = String(value)
   let max = 0
   let current = 0
+
   for (let i = 0; i <= str.length; i++) {
     if (i === str.length || str[i] === ' ' || str[i] === '\t' || str[i] === '\n') {
       if (current > max) {
@@ -168,6 +188,7 @@ function longestWord(value: unknown): number {
       current++
     }
   }
+
   return max
 }
 
@@ -182,6 +203,7 @@ export function generateColumns<T extends Record<string, unknown>>(data: T[]): T
   if (data.length === 0) {
     return []
   }
+
   const keys = Object.keys(data[0]!)
   const sampleRows = data.slice(0, Math.min(5, data.length))
 
@@ -189,12 +211,15 @@ export function generateColumns<T extends Record<string, unknown>>(data: T[]): T
     const headerLen = capitalize(key).length
     let maxContentLen = headerLen
     let maxWordLen = headerLen
+
     for (const row of sampleRows) {
       maxContentLen = Math.max(maxContentLen, estimateContentLength(row[key]))
       maxWordLen = Math.max(maxWordLen, longestWord(row[key]))
     }
+
     const proportion = maxContentLen <= 6 ? 1 : maxContentLen <= 15 ? 2 : 3
     const minWidth = Math.max(Math.max(headerLen, maxWordLen) * PX_PER_CHAR, MIN_COLUMN_FLOOR)
+
     return { key, header: capitalize(key), width: proportional(proportion, { minWidth }) }
   })
 }

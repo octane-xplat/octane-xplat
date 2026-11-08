@@ -10,6 +10,7 @@ export function createTaggedKeepAwake(backend: {
   let pending = Promise.resolve(true)
   const enqueue = (operation: () => Promise<boolean>) => {
     const result = pending.then(operation, operation).catch(() => false)
+
     pending = result
     return result
   }

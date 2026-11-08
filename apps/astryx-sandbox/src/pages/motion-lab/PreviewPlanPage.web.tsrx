@@ -70,6 +70,7 @@ function Field({ label, children }: { label: string; children: string }) {
 
 function RowCard({ row }: { row: PreviewRow }) {
   const measurement = measure(row)
+
   return (
     <Card padding={4}>
       <VStack gap={2}>
@@ -149,6 +150,7 @@ export function PreviewPlanPage() {
 
   const filtered = useMemo(() => {
     const needle = query.trim().toLowerCase()
+
     return PREVIEW_PLAN.filter((row) => {
       if (verdict !== 'all' && row.verdict !== verdict) {
         return false
@@ -280,6 +282,7 @@ export function PreviewPlanPage() {
         ) : (
           PREVIEW_GROUPS.map((group) => {
             const rows = filtered.filter((row) => row.group === group)
+
             if (rows.length === 0) {
               return null
             }

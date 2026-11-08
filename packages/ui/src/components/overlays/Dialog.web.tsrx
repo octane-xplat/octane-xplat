@@ -30,7 +30,9 @@ function DialogModal(props: DialogProps) @{
   const isFullscreen = props.variant === 'fullscreen'
   const padding = spacingStep(props.padding ?? 5) ?? 20
   const dismiss = useRef(props.onOpenChange)
+
   dismiss.current = props.onOpenChange
+
   const pos = props.position
   const dismissal = useLayerDismissal({
     active: true,
@@ -45,11 +47,13 @@ function DialogModal(props: DialogProps) @{
   useEffect(() => {
     const dialog = dialogRef.current
     const layer = layerRef.current
+
     if (!dialog) {
       return
     }
 
     const canModal = typeof dialog.showModal === 'function'
+
     if (canModal) {
       try {
         dialog.showModal()
@@ -62,6 +66,7 @@ function DialogModal(props: DialogProps) @{
 
     // Page scroll lock for the modal's lifetime.
     const root = document.documentElement
+
     restoreScroll.current = root.style.overflow || ''
     root.style.overflow = 'hidden'
 
@@ -70,6 +75,7 @@ function DialogModal(props: DialogProps) @{
     // focuses it; make that explicit for the fallback path).
     const autofocusEl = dialog.querySelector<HTMLElement>('[data-autofocus]')
     const titleEl = dialog.querySelector<HTMLElement>('[data-vx-dialog-title]')
+
     if (autofocusEl) {
       autofocusEl.focus({ preventScroll: true })
     } else if (titleEl) {
@@ -104,6 +110,7 @@ function DialogModal(props: DialogProps) @{
     // Fallback path (no showModal): no top layer, no inert — emulate the
     // essentials on the wrapper layer.
     let detachFallback: (() => void) | undefined
+
     if (!canModal && layer) {
       const onLayerClick = (event: MouseEvent) => {
         if (event.target === layer && purpose === 'info') {
@@ -136,6 +143,7 @@ function DialogModal(props: DialogProps) @{
             applyEscapeProps(el, props)
             {
               const r = props.web?.ref
+
               if (typeof r === 'function') {
                 r(el)
               }

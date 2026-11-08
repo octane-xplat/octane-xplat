@@ -57,6 +57,7 @@ interface Corners {
 
 function resolveOne(c: CornerConfig | number | undefined): Resolved {
   const cfg: CornerConfig = typeof c === 'number' ? { radius: c } : (c ?? { radius: 0 })
+
   return {
     radius: cfg.radius,
     curve: cfg.curve ?? 'continuous',
@@ -69,15 +70,18 @@ function resolveOne(c: CornerConfig | number | undefined): Resolved {
 function resolveOptions(options: CornerOptions): Corners {
   if (typeof options === 'number') {
     const c = resolveOne(options)
+
     return { topLeft: c, topRight: c, bottomRight: c, bottomLeft: c }
   }
 
   if ('radius' in options) {
     const c = resolveOne(options)
+
     return { topLeft: c, topRight: c, bottomRight: c, bottomLeft: c }
   }
 
   const p = options as PerCornerConfig
+
   return {
     topLeft: resolveOne(p.topLeft),
     topRight: resolveOne(p.topRight),
@@ -125,6 +129,7 @@ function continuousCorner(
   // (mirrors how UIBezierPath scales when adjacent corners compete).
   const r = Math.min(radius, budget / CONT_P)
   const p = CONT_P * r
+
   if (r <= 0) {
     return { p: 0, cmds: [] }
   }
@@ -134,6 +139,7 @@ function continuousCorner(
   let fx: (x: number, y: number) => number
   let fy: (x: number, y: number) => number
   let seq = CONT_CURVE
+
   switch (orient) {
     case 'TR':
       fx = (x, _y) => w - x * r
@@ -156,8 +162,10 @@ function continuousCorner(
   }
 
   const cmds: PathCommand[] = []
+
   for (let i = 0; i < seq.length; i += 3) {
     const [c1, c2, e] = [seq[i], seq[i + 1], seq[i + 2]]
+
     cmds.push({
       c: 'C',
       x1: fx(c1[0], c1[1]),
@@ -178,6 +186,7 @@ function continuousCorner(
  *  Returns absolute commands. Lisse segments only emit `c`/`a`/`l`. */
 function segmentCommands(seg: string, pen: { x: number; y: number }): PathCommand[] {
   const cmds = parsePath(seg, pen.x, pen.y)
+
   // Drop a leading implicit M — the segment continues the pen in place.
   return cmds.filter((c) => c.c !== 'M')
 }
@@ -231,6 +240,7 @@ function arcToCenter(
   let r = rx
   // Expand r when the endpoints don't fit (spec F.6.4 step 2).
   const lambda = d2 / (r * r)
+
   if (lambda > 1) {
     r *= Math.sqrt(lambda)
   }
@@ -246,6 +256,7 @@ function arcToCenter(
   const start = deg(Math.atan2(y0 - cy, x0 - cx))
   const end = deg(Math.atan2(y1 - cy, x1 - cx))
   let sweepDeg = end - start
+
   if (sweep && sweepDeg <= 0) {
     sweepDeg += 360
   }
@@ -273,6 +284,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
   const num = (): number => {
     const t = tokens[i++]
     const n = Number(t)
+
     if (!Number.isFinite(n)) {
       throw new Error(`smooth-corners: bad path token '${t}' in '${d}'`)
     }
@@ -282,6 +294,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
 
   while (i < tokens.length) {
     const t = tokens[i]
+
     if (/[a-zA-Z]/.test(t)) {
       cmd = t
       i++
@@ -300,6 +313,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
     const rel = cmd === cmd.toLowerCase()
     const upper = cmd.toUpperCase()
     const arity = ARITY[upper]
+
     if (arity === undefined) {
       throw new Error(`smooth-corners: unsupported path command '${cmd}'`)
     }
@@ -312,6 +326,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
       case 'M': {
         const x = num() + (rel ? px : 0)
         const y = num() + (rel ? py : 0)
+
         out.push({ c: 'M', x, y })
         px = sx = x
         py = sy = y
@@ -321,6 +336,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
       case 'L': {
         const x = num() + (rel ? px : 0)
         const y = num() + (rel ? py : 0)
+
         out.push({ c: 'L', x, y })
         px = x
         py = y
@@ -328,12 +344,14 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
       }
       case 'H': {
         const x = num() + (rel ? px : 0)
+
         out.push({ c: 'L', x, y: py })
         px = x
         break
       }
       case 'V': {
         const y = num() + (rel ? py : 0)
+
         out.push({ c: 'L', x: px, y })
         py = y
         break
@@ -345,6 +363,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
         const y2 = num() + (rel ? py : 0)
         const x = num() + (rel ? px : 0)
         const y = num() + (rel ? py : 0)
+
         out.push({ c: 'C', x1, y1, x2, y2, x, y })
         px = x
         py = y
@@ -359,6 +378,7 @@ export function parsePath(d: string, penX = 0, penY = 0): PathCommand[] {
         const x = num() + (rel ? px : 0)
         const y = num() + (rel ? py : 0)
         const arc = arcToCenter(px, py, rx, ry, rot, fa, fs, x, y)
+
         if (arc) {
           out.push(arc)
         } else {
@@ -394,6 +414,7 @@ function lisseCornerSeg(
   }
 
   const out = builder(input)
+
   return { p: out.p, cmds: segmentCommands(out.pathSegment(orient as never), pen) }
 }
 
@@ -475,17 +496,26 @@ export function generateCommands(
   const pBL = previewP(corners.bottomLeft, normalized.bottomLeft, 'BL', width, height)
 
   const out: PathCommand[] = [{ c: 'M', x: pTL, y: 0 }]
+
   out.push({ c: 'L', x: width - pTR, y: 0 })
+
   const tr = emit(corners.topRight, normalized.topRight, 'TR', width - pTR, 0)
+
   out.push(...tr.cmds)
   out.push({ c: 'L', x: width, y: height - pBR })
+
   const br = emit(corners.bottomRight, normalized.bottomRight, 'BR', width, height - pBR)
+
   out.push(...br.cmds)
   out.push({ c: 'L', x: pBL, y: height })
+
   const bl = emit(corners.bottomLeft, normalized.bottomLeft, 'BL', pBL, height)
+
   out.push(...bl.cmds)
   out.push({ c: 'L', x: 0, y: pTL })
+
   const tl = emit(corners.topLeft, normalized.topLeft, 'TL', 0, pTL)
+
   out.push(...tl.cmds)
   out.push({ c: 'Z' })
   return out
@@ -553,6 +583,7 @@ const f = (n: number) => Math.round(n * 1e4) / 1e4
 /** Serialize commands back to an SVG `d` (web `clip-path`, debug/tests). */
 export function commandsToD(cmds: PathCommand[]): string {
   const parts: string[] = []
+
   for (const c of cmds) {
     switch (c.c) {
       case 'M':

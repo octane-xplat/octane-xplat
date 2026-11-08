@@ -28,6 +28,7 @@ const namedColors: Record<string, string> = {
 export function Icon(props: IconProps): unknown @{
   const inheritedRegistry = useIconRegistry()
   const glyph = getIcon(props.name, props.registry ?? inheritedRegistry)
+
   if (!glyph) {
     return null
   }

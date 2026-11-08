@@ -25,6 +25,7 @@ export function Select(props: SelectProps): JSX.Element @{
       disabled={props.disabled}
       onChange={(event: any) => {
         const nextValue = event.target.value as string
+
         if (!controlled) {
           setInternalValue(nextValue)
         }

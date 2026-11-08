@@ -18,6 +18,7 @@ export function ToolbarBulkActions() @{
   const toggle = (id: string) =>
     setSelectedKeys((prev) => {
       const n = new Set(prev)
+
       n.has(id) ? n.delete(id) : n.add(id)
       return n
     })

@@ -12,6 +12,7 @@ interface State<T> {
 
 const read = (view: object | null | undefined, key: string) => {
   const value = view && Reflect.get(view, key)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
@@ -27,12 +28,15 @@ export function createAppKitTypeaheadKeys<T>(options: {
   select(item: T): void
 }) {
   let handling = false
+
   return (event: NativeKeyboardEvent<NSView>): void => {
     if (handling) {
       return
     }
+
     const input = options.input(),
       window = input?.window
+
     const owns = () => {
       if (
         !input ||
@@ -46,14 +50,18 @@ export function createAppKitTypeaheadKeys<T>(options: {
       ) {
         return false
       }
+
       const responder = window.firstResponder
+
       return (
         responder === input || (responder != null && responder === read(input, 'currentEditor'))
       )
     }
+
     if (!owns()) {
       return
     }
+
     handling = true
     try {
       options.notify(event) // Consumer cancellation precedes built-in navigation.
@@ -71,6 +79,7 @@ export function createAppKitTypeaheadKeys<T>(options: {
       }
 
       const state = options.state()
+
       if (state.blocked || (event.shiftKey && event.key !== 'Tab')) {
         return
       }
@@ -90,6 +99,7 @@ export function createAppKitTypeaheadKeys<T>(options: {
       }
 
       const active = state.active >= 0 && state.active < state.items.length ? state.active : -1
+
       switch (event.key) {
         case 'ArrowDown':
           consume()

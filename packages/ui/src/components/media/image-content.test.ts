@@ -128,6 +128,7 @@ describe('contentRect', () => {
 
   it('absolute dip positions pin to the named edge', () => {
     const rect = contentRect('contain', { bottom: 10, right: 20 }, 400, 300, 200, 100)
+
     // content is 400x200 → bottom-edge offset = 300-200-10, right = 400-400-20
     expect(rect.y).toBe(90)
     expect(rect.x).toBe(-20)
@@ -167,6 +168,7 @@ describe('bestImageSource', () => {
   it('picks the closest pixel count to the view', () => {
     // 200x200 dips at scale 3 → 600x600 device px → closest is 400²
     const best = bestImageSource(sources, 200, 200, 3)
+
     expect(best?.uri).toBe('https://img.example/photo-400.jpg')
   })
 
@@ -189,6 +191,7 @@ describe('bestImageSource', () => {
       { uri: 'a', scale: 1 },
       { uri: 'b', scale: 3 },
     ]
+
     expect(bestImageSource(dense, 0, 0, 3)?.uri).toBe('b')
   })
 
@@ -199,6 +202,7 @@ describe('bestImageSource', () => {
 
   it('skips unsized sources when sized candidates exist', () => {
     const mixed = [{ uri: 'unsized' }, sources[1]]
+
     expect(bestImageSource(mixed, 100, 100, 3)?.uri).toBe(sources[1].uri)
   })
 })

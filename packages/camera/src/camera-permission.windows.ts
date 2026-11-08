@@ -7,6 +7,7 @@ const windows = () => globalThis as any
 
 const toPromise = (op: any): Promise<any> => {
   const { NSWinRT } = windows()
+
   if (NSWinRT?.toPromise && op != null) {
     return NSWinRT.toPromise(op)
   }
@@ -26,6 +27,7 @@ const toPromise = (op: any): Promise<any> => {
 
 export function cameraHardwarePresent(): boolean {
   const { Windows, Microsoft } = windows()
+
   return !!(
     Windows?.Media?.Capture?.MediaCapture &&
     Windows?.Devices?.Enumeration?.DeviceInformation &&
@@ -41,6 +43,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
 
     if (capability) {
       const status = capability.CheckAccess()
+
       // AppCapabilityAccessStatus: DeniedBySystem=0, NotDeclaredByApp=1,
       // DeniedByUser=2, UserPromptRequired=3, Allowed=4.
       if (status === 4) {

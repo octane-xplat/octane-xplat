@@ -15,6 +15,7 @@ function decode(value: string): ArrayBuffer {
   const base64 = value.replace(/-/g, '+').replace(/_/g, '/')
   const binary = atob(base64 + '='.repeat((4 - (base64.length % 4)) % 4))
   const bytes = new Uint8Array(binary.length)
+
   for (let i = 0; i < binary.length; i++) {
     bytes[i] = binary.charCodeAt(i)
   }
@@ -25,6 +26,7 @@ function decode(value: string): ArrayBuffer {
 function encode(buffer: ArrayBuffer): string {
   const bytes = new Uint8Array(buffer)
   let binary = ''
+
   for (let i = 0; i < bytes.length; i++) {
     binary += String.fromCharCode(bytes[i])
   }
@@ -58,6 +60,7 @@ async function create(
   }
 
   const response = credential.response as AuthenticatorAttestationResponse
+
   return {
     id: credential.id,
     rawId: encode(credential.rawId),
@@ -104,6 +107,7 @@ async function get(options: WebAuthnGetOptionsJSON): Promise<WebAuthnAssertionJS
   }
 
   const response = credential.response as AuthenticatorAssertionResponse
+
   return {
     id: credential.id,
     rawId: encode(credential.rawId),

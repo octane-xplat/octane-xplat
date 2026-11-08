@@ -21,6 +21,7 @@ export function RenderRouteOutlet(props: RenderRouteOutletProps): any {
   }
 
   const scope = useMemo(() => host.scope(flow), [host, flow])
+
   useLayoutEffect(
     () => host.mount(flow, { modal: props.modal, views: targets }),
     [host, flow, props.modal, targets],
@@ -35,6 +36,7 @@ export function RenderRouteOutlet(props: RenderRouteOutletProps): any {
   const view = views.get(flow)
   const top = view?.entries.at(-1) ?? null
   const entries = view?.entries.filter((entry) => entry !== null) ?? []
+
   if (view?.staged) {
     entries.push(view.staged)
   }

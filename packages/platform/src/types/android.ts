@@ -6,10 +6,12 @@ import type * as D from './android.decls'
 
 const lazyGlobal = (name: string): any => {
   let self: any
+
   self = new Proxy(function () {} as any, {
     get: (_t, p, receiver) => {
       const target = (globalThis as any)[name]
       const v = Reflect.get(target, p)
+
       // Bind when read through the proxy itself so calls like X.extend get
       // the real global as receiver — subclass statics keep the subclass.
       return typeof v === 'function' && receiver === self ? v.bind(target) : v

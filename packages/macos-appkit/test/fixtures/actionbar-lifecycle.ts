@@ -25,9 +25,12 @@ export async function checkActionBarLifecycle(root: any, window: any) {
   }
 
   const title = (host: any) => host.subviews.objectAtIndex(0)
+
   root.render(ActionBar, {})
   await settle()
+
   const natural = debug.findId('bar-natural')
+
   check(
     Number(natural.intrinsicContentSize.width) === 80 &&
       Number(natural.intrinsicContentSize.height) === 44,
@@ -35,6 +38,7 @@ export async function checkActionBarLifecycle(root: any, window: any) {
   )
 
   const first = barRef.current
+
   check(first instanceof NSView && debug.findId('bar') === first, 'host/ref')
   check(
     first.subviews.count === 1 && String(title(first).stringValue) === 'Initial',
@@ -55,9 +59,13 @@ export async function checkActionBarLifecycle(root: any, window: any) {
   )
 
   await advance()
+
   const child = debug.findId('bar-child')
+
   check(child.superview === first && first.subviews.count === 1, 'JSX title slot replacement')
+
   const rect = child.alignmentRectForFrame(child.frame)
+
   check(
     Math.abs(Number(rect.origin.x) - 90) < 1 && Math.abs(Number(rect.origin.y) - 12) < 1,
     'center/middle defaults',
@@ -77,7 +85,9 @@ export async function checkActionBarLifecycle(root: any, window: any) {
   )
 
   await advance()
+
   const replacement = barRef.current
+
   check(
     replacement !== first && !first.superview && first.subviews.count === 0,
     'key replacement/disposal',
@@ -90,7 +100,9 @@ export async function checkActionBarLifecycle(root: any, window: any) {
   )
 
   await advance()
+
   const reinserted = barRef.current
+
   check(
     reinserted && reinserted !== replacement && String(title(reinserted).stringValue) === 'Updated',
     'reinsertion',

@@ -18,10 +18,12 @@ export const focusRuntime: FocusRuntime = {
   activate: () => focusedInputWindows.install(observeFocusedInput),
   getSnapshot(host) {
     const key = keyboardWindowForHost(unwrap(host))
+
     return key ? focusedInputWindows.getSnapshot(key) : inactive
   },
   recheck(host) {
     const key = keyboardWindowForHost(unwrap(host))
+
     if (key) {
       focusRechecks.get(key)?.()
     }
@@ -35,6 +37,7 @@ export const focusRuntime: FocusRuntime = {
         if (initialized && key === next) {
           return
         }
+
         initialized = true
         offFocus()
         key = next
@@ -46,6 +49,7 @@ export const focusRuntime: FocusRuntime = {
       unwrap(host),
       false,
     )
+
     return () => {
       try {
         offWindow()

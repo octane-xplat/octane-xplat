@@ -33,6 +33,7 @@ function generateCode(lines: number): string {
 
   for (let i = 0; i < lines - 6; i++) {
     const mod = i % 12
+
     switch (mod) {
       case 0:
         parts.push(`interface Model${i} {`)
@@ -105,8 +106,10 @@ function usePerfMetrics() {
     // Stamp after React commits our DOM — any prior-panel unmount has
     // already happened, so this is a clean baseline.
     const commitTime = performance.now()
+
     requestAnimationFrame(() => {
       const paintTime = performance.now()
+
       setMetrics({
         mountMs: paintTime - commitTime,
         renderCount: renderCount.current,
@@ -129,6 +132,7 @@ function usePerfMetrics() {
 
   const runScrollTest = useCallback(() => {
     const el = scrollRef.current
+
     if (!el) {
       return
     }
@@ -144,7 +148,9 @@ function usePerfMetrics() {
     const container: HTMLElement = scrollContainer
 
     scrollContainer.scrollTop = 0
+
     const s = scrollState.current
+
     s.frames = 0
     s.drops = 0
     s.startTime = performance.now()
@@ -157,6 +163,7 @@ function usePerfMetrics() {
       }
 
       const now = performance.now()
+
       s.frames++
       if (now - s.lastFrameTime > 20) {
         s.drops++
@@ -176,6 +183,7 @@ function usePerfMetrics() {
       const elapsed = performance.now() - start
       const progress = Math.min(elapsed / duration, 1)
       const eased = 1 - Math.pow(1 - progress, 3)
+
       container.scrollTop = totalScroll * eased
 
       if (progress < 1) {
@@ -184,9 +192,12 @@ function usePerfMetrics() {
         requestAnimationFrame(() => {
           s.measuring = false
           cancelAnimationFrame(s.rafId)
+
           const totalElapsed = performance.now() - s.startTime
+
           if (totalElapsed > 0 && s.frames > 0) {
             const fps = Math.round((s.frames / totalElapsed) * 1000)
+
             setMetrics((m) => ({
               ...m,
               scrollFps: fps,
@@ -291,6 +302,7 @@ function DeferredMount({ children }: { children: Renderable }) {
 
   useLayoutEffect(() => {
     const id = requestAnimationFrame(() => setReady(true))
+
     return () => cancelAnimationFrame(id)
   }, [])
 

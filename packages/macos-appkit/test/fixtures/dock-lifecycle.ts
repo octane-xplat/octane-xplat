@@ -21,6 +21,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 
   const rect = (view: any) => {
     const r = view.alignmentRectForFrame(view.frame)
+
     return [
       Number(r.origin.x),
       Number(view.superview.bounds.size.height) - Number(r.origin.y) - Number(r.size.height),
@@ -31,6 +32,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 
   const expectRect = (id: string, expected: number[]) => {
     const actual = rect(debug.findId(id))
+
     check(
       actual.every((value, i) => Math.abs(value - expected[i]) < 1),
       id + ': expected ' + expected.join(',') + ' got ' + actual.join(','),
@@ -39,11 +41,13 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 
   root.render(Dock, {})
   await settle()
+
   const host = debug.findId('dock'),
     fill = debug.findId('dock-fill'),
     descendant = debug.findId('dock-descendant')
 
   const edges = ['top', 'right', 'bottom', 'left'].map((id) => debug.findId('dock-' + id))
+
   check(
     dockRefs.host.current === host && dockRefs.fill.current === fill,
     'DockLayout refs not assigned',
@@ -97,6 +101,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
   expectRect('dock-fill', [0, 0, 300, 160])
   debug.pressId('advance-dock')
   await settle()
+
   const replacement = debug.findId('dock-fill'),
     replacementDescendant = debug.findId('dock-descendant')
 
@@ -128,6 +133,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
 
   debug.pressId('advance-dock')
   await settle()
+
   const moved = debug.findId('dock-fill'),
     movedDescendant = debug.findId('dock-descendant')
 
@@ -139,6 +145,7 @@ export async function checkDockLifecycle(root: any, nativeWindow: any) {
   expectRect('dock-fill', [0, 0, 100, 80])
   debug.pressId('advance-dock')
   await settle()
+
   const returned = debug.findId('dock-fill'),
     returnedDescendant = debug.findId('dock-descendant')
 

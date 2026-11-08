@@ -28,6 +28,7 @@ const fromCGRect = (value: any): KeyboardRect | null => {
     width: value.size?.width,
     height: value.size?.height,
   }
+
   return isKeyboardRect(rect) ? rect : null
 }
 
@@ -35,8 +36,10 @@ const readIosState = (window: any): KeyboardWindowState => {
   const windowRect = fromCGRect(window.bounds)
   let targetFrame: KeyboardRect | null = null
   const frame = iosFrames.get(window.screen) ?? iosFrame
+
   if (frame) {
     const screen = window.screen
+
     // Since iOS 16.1 the notification identifies its screen. Another display's
     // keyboard must not affect this window.
     targetFrame = fromCGRect(
@@ -48,12 +51,14 @@ const readIosState = (window: any): KeyboardWindowState => {
     const root = window.rootViewController?.view
     const guide = root?.keyboardLayoutGuide
     const frame = guide?.layoutFrame
+
     // A hidden keyboard guide includes the bottom safe area. Do not report
     // that strip as an open keyboard, and do not mutate the host's guide.
     if (frame && frame.size.height > (root.safeAreaInsets?.bottom ?? 0) + 1) {
       targetFrame = fromCGRect(root.convertRectToView(frame, window))
     }
   }
+
   return {
     inset: keyboardBottomOverlap(windowRect, targetFrame),
     windowRect,
@@ -67,6 +72,7 @@ const wireIos = () => {
   if (observer) {
     return
   }
+
   observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
     UIKeyboardWillChangeFrameNotification,
     null,
@@ -75,12 +81,15 @@ const wireIos = () => {
       const raw = note.userInfo.objectForKey(UIKeyboardFrameEndUserInfoKey)
       const boxed = raw?.CGRectValue
       const frame = typeof boxed === 'function' ? raw.CGRectValue() : (boxed ?? raw)
+
       if (note.object?.coordinateSpace) {
         iosFrames.set(note.object, frame)
       } else {
         iosFrame = frame
       }
+
       const readers = [...iosReaders]
+
       for (const read of readers) {
         read()
       }
@@ -90,8 +99,10 @@ const wireIos = () => {
 
 const observeIos = (window: object, notify: (value: KeyboardWindowState) => void) => {
   const read = () => notify(readIosState(window))
+
   iosReaders.add(read)
   refreshFallback.set(window, read)
+
   const release = () => {
     refreshFallback.delete(window)
     iosReaders.delete(read)
@@ -102,6 +113,7 @@ const observeIos = (window: object, notify: (value: KeyboardWindowState) => void
       iosFrames.clear()
     }
   }
+
   try {
     wireIos()
     read()
@@ -109,6 +121,7 @@ const observeIos = (window: object, notify: (value: KeyboardWindowState) => void
     release()
     throw error
   }
+
   return release
 }
 
@@ -116,7 +129,9 @@ const nativeLocation = (view: any): { x: number; y: number } | null => {
   if (!view?.getLocationOnScreen || !(Array as any).create) {
     return null
   }
+
   const xy = (Array as any).create('int', 2)
+
   view.getLocationOnScreen(xy)
   return { x: xy[0], y: xy[1] }
 }
@@ -125,19 +140,25 @@ const readAndroidGeometry = (decor: any, ime: number) => {
   const dip = Utils.layout.toDeviceIndependentPixels
   const width = dip(decor.getWidth?.() ?? 0),
     height = dip(decor.getHeight?.() ?? 0)
+
   const windowRect = width > 0 && height > 0 ? { x: 0, y: 0, width, height } : null
   let targetFrame: KeyboardRect | null = null
   const location = nativeLocation(decor)
+
   if (windowRect && location && android.graphics?.Rect && decor.getWindowVisibleDisplayFrame) {
     const visible = new android.graphics.Rect()
+
     decor.getWindowVisibleDisplayFrame(visible)
+
     // This is the OS-visible viewport, independent of softInputMode. If the
     // host actually resized, its bottom already stops at this edge.
     const top = dip(visible.bottom - location.y)
+
     if (ime > 0 && top > 0) {
       targetFrame = { x: 0, y: top, width, height: dip(ime) }
     }
   }
+
   return { windowRect, targetFrame }
 }
 
@@ -149,6 +170,7 @@ const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void
     const ime = type ? (insets?.getInsets(type.ime()).bottom ?? 0) : 0
     const nav = type ? (insets?.getInsets(type.systemBars()).bottom ?? 0) : 0
     const geometry = readAndroidGeometry(decor, ime)
+
     notify({
       inset: Utils.layout.toDeviceIndependentPixels(Math.max(0, ime - nav)),
       ...geometry,
@@ -156,24 +178,31 @@ const observeAndroid = (decor: any, notify: (value: KeyboardWindowState) => void
       source: insets ? 'destination' : 'unknown',
     })
   }
+
   const listener = new android.view.ViewTreeObserver.OnGlobalLayoutListener({
     onGlobalLayout: read,
   })
+
   decor.getViewTreeObserver().addOnGlobalLayoutListener(listener)
   refreshFallback.set(decor, read)
+
   const release = () => {
     refreshFallback.delete(decor)
+
     const tree = decor.getViewTreeObserver()
+
     if (tree.isAlive()) {
       tree.removeOnGlobalLayoutListener(listener)
     }
   }
+
   try {
     read()
   } catch (error) {
     release()
     throw error
   }
+
   return release
 }
 
@@ -188,9 +217,11 @@ export const observeKeyboardDestination: KeyboardWindowSource<KeyboardWindowStat
   if (Application.ios) {
     return observeIos(window, publish)
   }
+
   if (Application.android) {
     return observeAndroid(window, publish)
   }
+
   publish(unknownKeyboardState())
   return () => {}
 }
@@ -201,28 +232,38 @@ const resizeLeases = new Map<any, { count: number; previous: number; adjusted: n
 
 const acquireResize = (window: any) => {
   const params = globalThis.android?.view?.WindowManager?.LayoutParams
+
   if (!window || !params) {
     return () => {}
   }
+
   let lease = resizeLeases.get(window)
+
   if (!lease) {
     const previous = window.getAttributes().softInputMode
     const adjusted = (previous & ~params.SOFT_INPUT_MASK_ADJUST) | params.SOFT_INPUT_ADJUST_RESIZE
+
     lease = { count: 0, previous, adjusted }
     resizeLeases.set(window, lease)
     window.setSoftInputMode(adjusted)
   }
+
   const owned = lease
+
   owned.count++
+
   let active = true
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     if (--owned.count) {
       return
     }
+
     resizeLeases.delete(window)
     if (window.getAttributes().softInputMode === owned.adjusted) {
       window.setSoftInputMode(owned.previous)
@@ -233,17 +274,22 @@ const acquireResize = (window: any) => {
 const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
   const native = host?.nativeViewProtected ?? host?.ios ?? host?.android ?? host
   const session = host?.getNativeWindow?.() ?? (!host ? Application.activeWindow : undefined)
+
   if (session?.state && session.state !== 'attached') {
     return {}
   }
+
   if (!host && 'activeWindow' in Application && !session) {
     return {}
   }
+
   const hostBound =
     host && ('nativeViewProtected' in host || 'window' in host || typeof host.on === 'function')
+
   if (host?.isLoaded === false) {
     return {}
   }
+
   if (Application.ios) {
     const key =
       native?.window ??
@@ -256,6 +302,7 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 
     return { key }
   }
+
   if (Application.android) {
     if (!globalThis.android?.view?.WindowManager?.LayoutParams) {
       return {}
@@ -266,8 +313,10 @@ const resolveWindow = (host?: any): { key?: object; resizeWindow?: any } => {
 
     const decor = window?.getDecorView()
     const key = native?.getRootView?.() ?? (hostBound ? undefined : decor)
+
     return { key, resizeWindow: key === decor ? window : undefined }
   }
+
   return {}
 }
 
@@ -283,6 +332,7 @@ export function keyboardWindowForHost(host: any): object | undefined {
  *  @internal */
 export function keyboardSnapshotForHost(host: any): KeyboardWindowState {
   const key = resolveWindow(host).key
+
   return key ? keyboardWindows.getSnapshot(key) : inactiveKeyboardState
 }
 
@@ -306,9 +356,11 @@ export function subscribeKeyboardState(
     session?.off?.('close', closed)
     session = undefined
   }
+
   const disconnect = () => {
     const source = releaseSource,
       lease = releaseLease
+
     releaseSource = () => {}
     releaseLease = () => {}
     try {
@@ -317,12 +369,15 @@ export function subscribeKeyboardState(
       lease()
     }
   }
+
   const rebind = () => {
     if (!active) {
       return
     }
+
     const candidate = host?.getNativeWindow?.() ?? (!host ? Application.activeWindow : undefined)
     const nextSession = candidate?.state === 'closed' ? undefined : candidate
+
     if (session !== nextSession) {
       releaseSession()
       session = nextSession
@@ -331,7 +386,9 @@ export function subscribeKeyboardState(
       session?.on?.('detached', sessionDetached)
       session?.on?.('close', closed)
     }
+
     const next = resolveWindow(host)
+
     if (initialized && next.key === key) {
       if (key) {
         refreshFallback.get(key)?.()
@@ -340,6 +397,7 @@ export function subscribeKeyboardState(
 
       return
     }
+
     disconnect()
     initialized = true
     key = next.key
@@ -347,39 +405,50 @@ export function subscribeKeyboardState(
       notify(unknownKeyboardState())
       return
     }
+
     releaseLease = resize ? acquireResize(next.resizeWindow) : () => {}
     try {
       const owner = key
+
       releaseSource = keyboardWindows.subscribe(owner, (state) => notify(state, owner))
     } catch (error) {
       disconnect()
       throw error
     }
   }
+
   const unloaded = () => {
     if (!active) {
       return
     }
+
     disconnect()
     key = undefined
     initialized = false
     notify(unknownKeyboardState())
   }
+
   const sessionDetached = (event: any) => {
     const owner = event?.window ?? event?.object
+
     if (owner && owner !== session) {
       return
     }
+
     unloaded()
   }
+
   const closed = (event: any) => {
     const owner = event?.window ?? event?.object
+
     if (owner && owner !== session) {
       return
     }
+
     releaseSession()
     unloaded()
   }
+
   try {
     rebind()
   } catch (error) {
@@ -388,6 +457,7 @@ export function subscribeKeyboardState(
     disconnect()
     throw error
   }
+
   Application.on?.(Application.resumeEvent, rebind)
   Application.on?.('primaryWindowChanged', rebind)
   Application.on?.('windowOpen', rebind)
@@ -396,7 +466,9 @@ export function subscribeKeyboardState(
   host?.on?.('loaded', rebind)
   host?.on?.('layoutChanged', rebind)
   host?.on?.('unloaded', unloaded)
+
   let keyObserver: any
+
   if (!host && Application.ios && typeof UIWindowDidBecomeKeyNotification !== 'undefined') {
     keyObserver = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
       UIWindowDidBecomeKeyNotification,
@@ -405,10 +477,12 @@ export function subscribeKeyboardState(
       rebind,
     )
   }
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     Application.off?.(Application.resumeEvent, rebind)
     Application.off?.('primaryWindowChanged', rebind)
@@ -421,6 +495,7 @@ export function subscribeKeyboardState(
     if (keyObserver) {
       NSNotificationCenter.defaultCenter.removeObserver(keyObserver)
     }
+
     releaseSession()
     disconnect()
   }
@@ -436,6 +511,7 @@ export function subscribeKeyboardInset(notify: (inset: number) => void, host?: a
  * @internal Unknown native geometry is not inferred from a window mode flag. */
 const keyboardHostBounds = (host: any, translationY = 0): KeyboardRect | null => {
   const bounds = measureKeyboardHost(host)
+
   return bounds ? { ...bounds, y: bounds.y - translationY } : null
 }
 
@@ -474,6 +550,7 @@ const bottomBindings = new WeakMap<object, BottomBinding>()
  * Observation never replaces a foreign decor inset listener. @internal */
 export function bindBottomInsetToKeyboard(host: any): () => void {
   let binding = bottomBindings.get(host)
+
   if (!binding) {
     const property = leaseKeyboardProperty(
       () => Number(host.translateY) || 0,
@@ -483,12 +560,14 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
     )
 
     let off: () => void
+
     try {
       off = subscribeKeyboardState(
         (state) => {
           const binding = state.bindingFrame
             ? { ...state, currentFrame: state.bindingFrame }
             : state
+
           property.set(-keyboardHostDisplacement(host, binding, property.offset))
         },
         host,
@@ -512,17 +591,23 @@ export function bindBottomInsetToKeyboard(host: any): () => void {
 
     bottomBindings.set(host, binding)
   }
+
   const owned = binding
+
   owned.count++
+
   let active = true
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     if (--owned.count) {
       return
     }
+
     bottomBindings.delete(host)
     owned.release()
   }

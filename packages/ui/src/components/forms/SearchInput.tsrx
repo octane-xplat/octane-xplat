@@ -24,6 +24,7 @@ function SearchInputControl(inputProps: SearchInputProps) @{
   const value = props.value ?? internal
   const isBlocked = props.isDisabled || props.isReadOnly
   const hasClear = props.hasClear !== false
+
   useEffect(() => writeText(el.current, value), [value, editVersion])
 
   const setValue = (next: string) => {

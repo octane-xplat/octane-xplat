@@ -61,10 +61,13 @@ function parseColor(value: any): Rgba | null {
   if (typeof value !== 'string') {
     return null
   }
+
   const s = value.trim()
   const hex = /^#([0-9a-f]{3,4}|[0-9a-f]{6}|[0-9a-f]{8})$/i.exec(s)
+
   if (hex) {
     let h = hex[1]
+
     if (h.length === 3 || h.length === 4) {
       h = [...h].map((c) => c + c).join('')
     }
@@ -73,13 +76,18 @@ function parseColor(value: any): Rgba | null {
     const g = parseInt(h.slice(2, 4), 16)
     const b = parseInt(h.slice(4, 6), 16)
     const a = h.length === 8 ? parseInt(h.slice(6, 8), 16) / 255 : 1
+
     return { r, g, b, a }
   }
+
   const rgb = /rgba?\(([^)]*)\)/.exec(s)
+
   if (rgb) {
     const parts = rgb[1].split(',').map((p) => parseFloat(p))
+
     return { r: parts[0] ?? 0, g: parts[1] ?? 0, b: parts[2] ?? 0, a: parts[3] ?? 1 }
   }
+
   return null
 }
 
@@ -88,6 +96,7 @@ function formatColor(c: Rgba): string {
   const g = Math.round(c.g)
   const b = Math.round(c.b)
   const a = Math.round(c.a * 1000) / 1000
+
   return a >= 1 ? `rgb(${r}, ${g}, ${b})` : `rgba(${r}, ${g}, ${b}, ${a})`
 }
 
@@ -114,16 +123,20 @@ function buildSegments(info: KeyframeAnimationInfo): Segment[] {
 
   const parseKeyframe = (keyframe: ParsedKeyframe) => {
     const values: Record<string, any> = {}
+
     for (const d of keyframe.declarations) {
       values[d.property] = d.value
     }
+
     let duration = keyframe.duration
+
     if (duration === 0) {
       duration = 0.01
     } else {
       duration = info.duration * duration - startDuration
       startDuration += duration
     }
+
     animations.push({
       // NS `animation.duration`: the reversed formula applies even to
       // the per-segment length in reverse mode.
@@ -131,6 +144,7 @@ function buildSegments(info: KeyframeAnimationInfo): Segment[] {
       values,
       curve: keyframe.curve,
     })
+
     return startDuration
   }
 
@@ -147,17 +161,20 @@ function buildSegments(info: KeyframeAnimationInfo): Segment[] {
     for (let index = animations.length - 1; index > 0; index--) {
       const a1 = animations[index]
       const a2 = animations[index - 1]
+
       if (a2.curve !== undefined) {
         a1.curve = a2.curve
         a2.curve = undefined
       }
     }
   }
+
   for (const a of animations) {
     if (!a.curve) {
       a.curve = info.curve
     }
   }
+
   return animations
 }
 
@@ -175,8 +192,10 @@ function interpolate(from: any, to: any, t: number): any {
   if (typeof from === 'number' && typeof to === 'number') {
     return lerp(from, to, t)
   }
+
   const ca = parseColor(from)
   const cb = parseColor(to)
+
   if (ca && cb) {
     return formatColor({
       r: lerp(ca.r, cb.r, t),
@@ -185,6 +204,7 @@ function interpolate(from: any, to: any, t: number): any {
       a: lerp(ca.a, cb.a, t),
     })
   }
+
   return t < 0.5 ? from : to
 }
 
@@ -208,6 +228,7 @@ export function sampleKeyframeAnimation(
   opts: SampleOptions = {},
 ): { values: Partial<SampledValues>; done: boolean } {
   const keyframes = info.keyframes
+
   if (!keyframes || keyframes.length === 0) {
     return { values: {}, done: true }
   }
@@ -219,11 +240,14 @@ export function sampleKeyframeAnimation(
   const totalMs = iterationMs * info.iterations
 
   let t = elapsedMs - info.delay
+
   if (t < 0) {
     // Inside the delay: NS plays nothing yet — first keyframe not applied.
     return { values: {}, done: false }
   }
+
   let done = t >= totalMs
+
   if (done) {
     if (!info.isForwards) {
       return { values: {}, done: true }
@@ -231,7 +255,9 @@ export function sampleKeyframeAnimation(
 
     t = totalMs
   }
+
   let local = t % iterationMs
+
   if (done) {
     local = iterationMs
   }
@@ -242,14 +268,18 @@ export function sampleKeyframeAnimation(
   // target or `base`).
   const values: Record<string, any> = {}
   const running: Record<string, any> = {}
+
   for (const p of Object.keys(segments[0].values)) {
     running[p] = segments[0].values[p]
     values[p] = segments[0].values[p]
   }
+
   let cursor = 0
+
   for (const seg of segments.slice(1)) {
     const end = cursor + seg.duration
     const props = Object.keys(seg.values)
+
     if (local >= end) {
       // Segment fully passed: commit targets.
       for (const p of props) {
@@ -259,11 +289,14 @@ export function sampleKeyframeAnimation(
     } else if (local > cursor) {
       // Inside this segment.
       const progress = evaluateCurve(seg.curve, (local - cursor) / seg.duration)
+
       for (const p of props) {
         const to = seg.values[p]
         let from = running[p] ?? (opts.base as any)?.[p] ?? to
+
         if (opts.box && isTranslateProp(p)) {
           const basis = p === 'translateX' ? opts.box.width : opts.box.height
+
           from = resolveTranslate(from, basis)
           values[p] = interpolate(from, resolveTranslate(to as TranslateAxis, basis), progress)
         } else {
@@ -279,5 +312,6 @@ export function sampleKeyframeAnimation(
 
     cursor = end
   }
+
   return { values: values as Partial<SampledValues>, done }
 }

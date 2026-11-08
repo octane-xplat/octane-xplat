@@ -70,9 +70,11 @@ export function createModalRouterHost(options: {
   getSurface(flow: string): RouterModalSurface | undefined
 } {
   const base = options.base
+
   if (base.host.history !== 'independent') {
     throw new TypeError('Modal surfaces require independent presentation histories')
   }
+
   const panes = createRenderRouterHost()
   const owners = new Map<string, ContentOwner>()
   const ownerReady = new Map<string, Promise<() => void | Promise<void>>>()
@@ -93,6 +95,7 @@ export function createModalRouterHost(options: {
       listener(change)
     }
   }
+
   const report = (error: unknown) => {
     if (options.onCleanupError) {
       try {
@@ -104,19 +107,23 @@ export function createModalRouterHost(options: {
       console.warn('[octane-xplat] Routed modal cleanup failed')
     }
   }
+
   const publish = () =>
     modals.set(
       [...records.values()]
         .filter((record) => record.phase !== 'staged')
         .map(({ flow, presenterFlow }) => ({ flow, presenterFlow })),
     )
+
   const finish = (record: Modal, external: boolean) => {
     if (records.get(record.flow) !== record) {
       return
     }
+
     if (external) {
       void closeChildren(record.flow).catch(report)
     }
+
     records.delete(record.flow)
     record.cancel()
     record.setReady('closed')
@@ -129,14 +136,17 @@ export function createModalRouterHost(options: {
       flow: record.flow,
     })
   }
+
   const isDescendant = (record: Modal, flow: string) => {
     let parent = record.presenterFlow
+
     while (true) {
       if (parent === flow) {
         return true
       }
 
       const ancestor = records.get(parent)
+
       if (!ancestor) {
         return false
       }
@@ -144,11 +154,14 @@ export function createModalRouterHost(options: {
       parent = ancestor.presenterFlow
     }
   }
+
   const close = (record: Modal): Promise<void> => {
     if (record.closing) {
       return record.closing
     }
+
     const staged = record.phase === 'staged'
+
     record.phase = 'closing'
     record.cancel()
     notify({ ownerDisposed: true, flowDisposed: true, flow: record.flow })
@@ -162,10 +175,13 @@ export function createModalRouterHost(options: {
         finish(record, false)
       }
     })()
+
     return record.closing
   }
+
   const closeChildren = async (flow: string, except?: Modal, wholeWindow = false) => {
     const errors: unknown[] = []
+
     for (const record of [...records.values()].reverse()) {
       if (record !== except && (wholeWindow || isDescendant(record, flow))) {
         try {
@@ -175,17 +191,22 @@ export function createModalRouterHost(options: {
         }
       }
     }
+
     if (errors.length) {
       throw new AggregateError(errors, 'Routed modal cleanup failed')
     }
   }
+
   const family = (flow: string) => {
     let current = flow
+
     while (records.has(current)) {
       current = records.get(current)!.presenterFlow
     }
+
     return current
   }
+
   const detachBase = base.host.subscribe((change) => {
     // This layer already reports owner disposal before asynchronous cleanup.
     // A delayed base detach belongs to that old lifetime; forwarding it as
@@ -195,20 +216,26 @@ export function createModalRouterHost(options: {
         ? { ...change, ownerDisposed: false }
         : change,
     )
+
     if (change?.external && change.flow) {
       void closeChildren(change.flow, undefined, change.flow === 'root').catch(report)
     }
   })
+
   const detachPanes = panes.host.subscribe(notify)
   const open = async (command: RouterHostCommand): Promise<RouterHostResult> => {
     const owner = owners.get(command.flow)
+
     if (!owner || owner.disposed || !instance) {
       return { status: 'blocked' }
     }
+
     const parent = records.get(command.flow)
+
     if (parent && parent.phase !== 'shown') {
       return { status: 'blocked' }
     }
+
     const flow = prefix + ++sequence
     let record: Modal | undefined
     const surface = options.createSurface({
@@ -235,17 +262,21 @@ export function createModalRouterHost(options: {
         }
       },
     })
+
     if (!surface) {
       return { status: 'blocked' }
     }
+
     let setReady!: Modal['setReady']
     const ready = new Promise<'shown' | 'closed'>((resolve) => {
       setReady = resolve
     })
+
     let cancel!: () => void
     const cancelled = new Promise<void>((resolve) => {
       cancel = resolve
     })
+
     record = {
       flow,
       presenterFlow: command.flow,
@@ -256,6 +287,7 @@ export function createModalRouterHost(options: {
       cancelled,
       cancel,
     }
+
     records.set(flow, record)
     try {
       surface.root.render(ClientRouteOutlet, { host: bindings, flow })
@@ -312,6 +344,7 @@ export function createModalRouterHost(options: {
 
       record.phase = 'showing'
       publish()
+
       const result = await Promise.race([
         surface.show(),
         record.cancelled.then(() => ({ status: 'closed' as const })),
@@ -348,14 +381,18 @@ export function createModalRouterHost(options: {
       throw error
     }
   }
+
   const commit = async (command: RouterHostCommand): Promise<RouterHostResult> => {
     if (disposed) {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (!command.isCurrent()) {
       return { status: 'cancelled', reason: 'superseded' }
     }
+
     const record = records.get(command.flow)
+
     if (!record) {
       await ownerReady.get(command.flow)
       if (disposed) {
@@ -366,18 +403,22 @@ export function createModalRouterHost(options: {
         return { status: 'cancelled', reason: 'superseded' }
       }
     }
+
     if (!record && command.flow.startsWith(prefix)) {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (record && record.phase !== 'shown') {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (command.action === 'dismiss') {
       if (!record) {
         return { status: 'unsupported', operation: 'dismiss-non-modal' }
       }
 
       const presenter = host.getSnapshot(record.presenterFlow)
+
       if (presenter.route && instance) {
         const prepared = await prepareHistoryEntry(instance, command, {
           flow: record.presenterFlow,
@@ -415,6 +456,7 @@ export function createModalRouterHost(options: {
       await close(record)
       return { status: 'committed', route: host.getSnapshot(record.presenterFlow).route }
     }
+
     if (
       !command.restore &&
       command.route?.presentation === 'modal' &&
@@ -422,6 +464,7 @@ export function createModalRouterHost(options: {
     ) {
       return open(command)
     }
+
     if (!record) {
       if (!owners.has(command.flow)) {
         return { status: 'blocked' }
@@ -444,6 +487,7 @@ export function createModalRouterHost(options: {
 
       return base.host.commit(command)
     }
+
     return panes.host.commit(
       command.action === 'refresh'
         ? command
@@ -456,11 +500,13 @@ export function createModalRouterHost(options: {
           },
     )
   }
+
   const host: RouterHost = {
     history: base.host.history,
     canReset: base.host.canReset,
     getSnapshot(flow) {
       const record = records.get(flow)
+
       if (record) {
         if (record.phase !== 'shown') {
           return {
@@ -473,6 +519,7 @@ export function createModalRouterHost(options: {
 
         return { ...panes.host.getSnapshot(flow), modal: true }
       }
+
       return flow.startsWith(prefix)
         ? { route: null, canGoBack: false, modal: false, disposed: true }
         : base.host.getSnapshot(flow)
@@ -491,9 +538,11 @@ export function createModalRouterHost(options: {
         command.action === 'dismiss' ||
         (command.route?.presentation === 'modal' && command.action !== 'refresh') ||
         [...records.values()].some((record) => isDescendant(record, command.flow))
+
       const key = surfaceOperation ? surfaceQueue : family(command.flow)
       const previous = commits.get(key) ?? Promise.resolve()
       const result = previous.catch(() => {}).then(() => commit(command))
+
       commits.set(key, result)
       return result.finally(() => {
         if (commits.get(key) === result) {
@@ -505,6 +554,7 @@ export function createModalRouterHost(options: {
       if (disposed) {
         return
       }
+
       disposed = true
       owners.clear()
       ownerReady.clear()
@@ -529,6 +579,7 @@ export function createModalRouterHost(options: {
       })()
     },
   }
+
   const bindings: ClientRouterHost & {
     modals: typeof modals
     getSurface(flow: string): RouterModalSurface | undefined
@@ -542,6 +593,7 @@ export function createModalRouterHost(options: {
       if (instance || disposed) {
         throw new Error('Modal host cannot be attached')
       }
+
       base.attach(router)
       panes.attach(router)
       instance = router
@@ -550,6 +602,7 @@ export function createModalRouterHost(options: {
       if (!instance) {
         throw new Error('Modal host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     getRenderHost(flow) {
@@ -562,37 +615,47 @@ export function createModalRouterHost(options: {
       if (disposed) {
         throw new Error('Modal host is disposed')
       }
+
       if (owners.has(flow)) {
         throw new Error('A routing flow already has a mounted outlet')
       }
+
       owners.set(flow, owner)
+
       const modal = records.has(flow)
       const pending = lifetimes.get(flow)
       const mountBase = () =>
         disposed || owners.get(flow) !== owner || owner.disposed || modal
           ? () => {}
           : base.mount(flow, owner)
+
       let ready: Promise<() => void | Promise<void>>
+
       try {
         ready = pending ? pending.then(mountBase) : Promise.resolve(mountBase())
       } catch (error) {
         owners.delete(flow)
         throw error
       }
+
       ownerReady.set(flow, ready)
       void ready.catch(report)
       return () => {
         if (owners.get(flow) !== owner) {
           return
         }
+
         owners.delete(flow)
         if (ownerReady.get(flow) === ready) {
           ownerReady.delete(flow)
         }
+
         notify({ ownerDisposed: true, flow })
+
         const cleanup = (async () => {
           try {
             const record = modal ? records.get(flow) : undefined
+
             if (record) {
               await close(record)
             } else {
@@ -604,15 +667,18 @@ export function createModalRouterHost(options: {
             )()
           }
         })()
+
         lifetimes.set(flow, cleanup)
         void cleanup.catch(report).finally(() => {
           if (lifetimes.get(flow) === cleanup) {
             lifetimes.delete(flow)
           }
         })
+
         return cleanup
       }
     },
   }
+
   return bindings
 }

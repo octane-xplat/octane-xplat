@@ -14,9 +14,11 @@ function fixture() {
         objectAtIndex: (i: number) => children[i],
       },
     }
+
     nodes.set(result, { view: result, props })
     return result
   }
+
   return {
     nodes,
     view,
@@ -30,8 +32,10 @@ test('reads marked descendants in current native order across unmanaged/NSArray 
     a = f.view({ 'data-grid-cell': true }),
     b = f.view({ 'data-grid-cell': false }),
     ignored = f.view({ 'data-grid-cell': null })
+
   const children = [a, { subviews: [b, ignored] }],
     root = f.view({ 'data-grid-cell': true }, children)
+
   assert.deepEqual(f.read(root), [a, b])
   children.reverse()
   assert.deepEqual(f.read(root), [b, a])
@@ -44,9 +48,11 @@ test('nested hook/GridList boundaries and retired node identities cannot leak ce
     a = f.view({ 'data-grid-cell': true }),
     b = f.view({ 'data-grid-cell': '' }),
     c = f.view({ 'data-grid-cell': true })
+
   const nested = f.view({}, [b]),
     list = f.view({}, [c]),
     root = f.view({}, [a, nested, list])
+
   f.nodes.get(list).cssClasses = new Set(['vx-gridlist'])
   assert.deepEqual(f.read(root, [nested]), [a])
   f.nodes.get(a).view = {}
@@ -58,6 +64,7 @@ test('tolerates cycles, duplicate views and invalid native collection counts wit
   const f = fixture(),
     a = f.view({ 'data-grid-cell': true }),
     root: any = { subviews: [a, a] }
+
   root.subviews.push(root)
   assert.deepEqual(f.read(root), [a])
   root.subviews = {
@@ -66,5 +73,6 @@ test('tolerates cycles, duplicate views and invalid native collection counts wit
       throw Error('must not access')
     },
   }
+
   assert.deepEqual(f.read(root), [])
 })

@@ -4,6 +4,7 @@ import { desktopHostClient } from '@octane-xplat/platform/host/web'
 import '@octane-xplat/platform/bridge.linux.ts'
 
 const host = desktopHostClient()
+
 if (!host) {
   throw new Error('Linux host transport is missing')
 }
@@ -16,11 +17,13 @@ console.log('LINUX_INITIAL_LINK ' + window.__xplatInitialUrl)
 void (async () => {
   const bridge = window.__xplatBridge!
   const mode = window.__xplatInitialUrl?.split('/').pop()
+
   if (mode === 'write') {
     await bridge.call('secureStorage', 'set', ['linux-proof-key', 'fixture-value'])
     console.log('LINUX_SECRET_WRITTEN')
   } else if (mode === 'read') {
     const value = await bridge.call('secureStorage', 'get', ['linux-proof-key'])
+
     if (value !== 'fixture-value') {
       throw new Error('secret did not survive application restart')
     }
@@ -29,6 +32,7 @@ void (async () => {
     await bridge.call('secureStorage', 'remove', ['linux-proof-key'])
   } else if (mode === 'isolated') {
     const value = await bridge.call('secureStorage', 'get', ['linux-proof-key'])
+
     if (value !== null) {
       throw new Error('another application can read this secret')
     }

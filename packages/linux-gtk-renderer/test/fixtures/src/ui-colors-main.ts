@@ -23,7 +23,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -49,6 +51,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -60,18 +63,22 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -80,17 +87,21 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
 const dragOn = async (widget: any, dx: number, dy: number) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y, drag: { dx, dy } })
 }
 
@@ -105,18 +116,21 @@ const ready = (payload: any) => {
         readyResolve = null
         resolve()
       }
+
       return false
     })
   })
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
@@ -134,10 +148,12 @@ async function run() {
 
   // RichText — folded text + markup path.
   const rich = findView('rich')
+
   check(
     'rich text folds all runs',
     (rich?.get_text?.() ?? rich?.label ?? '').includes('PLAIN STYLED UPPER TAPPABLE'),
   )
+
   check(
     'rich text uses markup',
     rich?.use_markup === true || String(rich?.label ?? '').includes('<span'),
@@ -149,6 +165,7 @@ async function run() {
     const layout = rich.get_layout?.()
     const text = rich.get_text?.() ?? ''
     const idx = text.indexOf('TAPPABLE')
+
     if (layout && idx >= 0) {
       // index_to_pos: single out-param → GJS returns the Pango.Rectangle.
       const res = layout.index_to_pos(idx)
@@ -158,6 +175,7 @@ async function run() {
       const lx = (pos?.x ?? 0) / 1024 + (Array.isArray(t) ? t[0] : 0)
       const ly = (pos?.y ?? 0) / 1024 + (Array.isArray(t) ? t[1] : 0)
       const [okb, bounds] = rich.compute_bounds(rich.get_native())
+
       await ready({
         x: c.x - (okb ? bounds.size.width / 2 : 0) + lx + 4,
         y: c.y - (okb ? bounds.size.height / 2 : 0) + ly + 4,
@@ -166,10 +184,12 @@ async function run() {
       await pump(200)
     }
   }
+
   check('link span tap fires onPress', state.linkTaps >= 1)
 
   // ColorArea — drag horizontally changes saturation; drag-end commits.
   const area = findView('area')
+
   print(
     'GTK_COL_AREA ' +
       JSON.stringify({
@@ -177,10 +197,12 @@ async function run() {
         mapped: area?.get_mapped?.() ?? null,
       }),
   )
+
   if (area) {
     await dragOn(area, -60, 0)
     await pump(250)
   }
+
   print(
     'GTK_COL_PAN ' +
       JSON.stringify({
@@ -189,18 +211,22 @@ async function run() {
         changes: state.areaChanges,
       }),
   )
+
   check(
     'area drag changes value',
     state.areaChanges.length >= 1 && state.areaChanges.some((h: string) => h !== '#ff0000'),
   )
+
   check('area drag end commits', typeof state.areaEnd === 'string' && state.areaEnd !== null)
 
   // ColorSlider — drag moves the hue thumb → hex changes.
   const slider = findView('hue')
+
   if (slider) {
     await dragOn(slider, 80, 0)
     await pump(250)
   }
+
   check(
     'slider drag changes hue',
     state.sliderChanges.some((h: string) => h !== '#ff0000'),
@@ -216,13 +242,16 @@ async function run() {
         }
       }
     }
+
     return null
   })()
+
   check('color field entry present', !!entry)
   if (entry) {
     await clickAt(entry)
     await pump(150)
   }
+
   await ready({ key: 'ctrl+a' })
   await ready({ type: '#00ff00' })
   await pump(150)
@@ -243,13 +272,16 @@ async function run() {
         }
       }
     }
+
     return null
   })()
+
   check('picker field present', !!pickerField)
   if (pickerField) {
     await clickAt(pickerField)
     await pump(150)
   }
+
   await ready({ key: 'ctrl+a' })
   await ready({ type: '#00ff00' })
   await ready({ key: 'Return' })
@@ -265,6 +297,7 @@ async function run() {
   print(
     'GTK_COL ' + JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   window.destroy()
   loop.quit()
 }

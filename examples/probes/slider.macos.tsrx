@@ -8,6 +8,7 @@ export default function SliderProbe() {
   const [range, setRange] = useState<number | [number, number]>([20, 80])
   const [locked, setLocked] = useState(false)
   const replacement = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
   useEffect(
     () => () => {
       if (replacement.current !== undefined) {

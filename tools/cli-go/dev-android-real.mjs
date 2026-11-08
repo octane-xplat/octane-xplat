@@ -30,6 +30,7 @@ const root = resolve(import.meta.dirname, '../..'),
 const binary = join(work, 'xplat-go-darwin-arm64-cli')
 const sha = (data) => createHash('sha256').update(data).digest('hex')
 const build = JSON.parse(readFileSync(binary + '.json'))
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
@@ -82,6 +83,7 @@ function command(tool, args, options = {}) {
     maxBuffer: 2 << 20,
     ...options,
   })
+
   assert.equal(result.status, 0, `${tool}: ${result.error?.message ?? result.stderr}`)
   return result.stdout
 }
@@ -93,8 +95,10 @@ function put(file, data) {
 
 async function until(read, message, timeout = 30000) {
   const deadline = Date.now() + timeout
+
   for (;;) {
     const value = await read()
+
     if (value) {
       return value
     }
@@ -111,12 +115,15 @@ function owned(tool, args, options = {}) {
     stdio: ['ignore', 'pipe', 'pipe'],
     ...options,
   })
+
   const state = { child, ended: false, output: '' }
+
   for (const pipe of [child.stdout, child.stderr]) {
     pipe.on('data', (data) => {
       state.output = (state.output + data).slice(-(2 << 20))
     })
   }
+
   state.completion = new Promise((resolve, reject) => {
     child.once('error', reject)
     child.once('close', (code, signal) => {
@@ -124,6 +131,7 @@ function owned(tool, args, options = {}) {
       resolve({ code, signal })
     })
   })
+
   return state
 }
 
@@ -131,6 +139,7 @@ async function stop(state) {
   if (!state || state.ended) {
     return
   }
+
   state.child.kill('SIGINT')
   await Promise.race([
     state.completion,
@@ -143,6 +152,7 @@ async function stop(state) {
 function query(args) {
   const result = command(binary, [...args, '--json'], { cwd: app })
   const response = JSON.parse(result)
+
   assert.equal(response.ok, true, result)
   return response.data
 }
@@ -151,6 +161,7 @@ function query(args) {
 // copied, exactly as in the AppKit gate. No parser/transport snapshots or mocks.
 mkdirSync(app)
 mkdirSync(join(app, 'src'))
+
 const mobile = JSON.parse(readFileSync(join(root, 'apps/mobile/package.json')))
 const dependencies = Object.fromEntries(
   [
@@ -242,6 +253,7 @@ put(
 
 // Reuse downloaded engine artifacts without changing the existing cache.
 const gradleCache = join(work, 'nativescript-gradle-cache')
+
 for (const name of ['wrapper', 'caches']) {
   if (existsSync(join(gradleCache, name))) {
     cpSync(join(gradleCache, name), join(env.GRADLE_USER_HOME, name), { recursive: true })
@@ -291,11 +303,13 @@ try {
   await until(
     () => {
       assert.equal(emulator.ended, false, emulator.output)
+
       const result = spawnSync(adb, ['-s', device, 'shell', 'getprop', 'sys.boot_completed'], {
         env,
         encoding: 'utf8',
         timeout: 3000,
       })
+
       return result.status === 0 && result.stdout.trim() === '1'
     },
     'Designated emulator boot deadline',
@@ -304,7 +318,9 @@ try {
 
   assert.equal(command(adb, ['-s', device, 'emu', 'avd', 'name']).trim().split(/\r?\n/)[0], avd)
   dev = owned(binary, ['dev', 'android', '--device', device], { cwd: app })
+
   let instances
+
   await until(
     () => {
       assert.equal(dev.ended, false, dev.output)
@@ -314,17 +330,20 @@ try {
           !dev.output.includes('An uncaught Exception occurred'),
         dev.output,
       )
+
       const result = spawnSync(binary, ['actions', 'list', '--json'], {
         cwd: app,
         env,
         encoding: 'utf8',
         timeout: 15000,
       })
+
       try {
         instances = JSON.parse(result.stdout).data?.instances
       } catch {
         return false
       }
+
       return instances?.some(
         (instance) =>
           instance.platform === 'android' &&
@@ -336,6 +355,7 @@ try {
   )
 
   const instance = instances.find((instance) => instance.platform === 'android')
+
   evidence.instance = {
     platform: instance.platform,
     targetId: instance.targetId,
@@ -354,6 +374,7 @@ try {
   ])
 
   let job
+
   await until(() => {
     job = query(['actions', 'status', accepted.job.jobId]).job
     return !['queued', 'running', 'cancelling'].includes(job.state)
@@ -373,6 +394,7 @@ try {
     await stop(dev)
     if (dev && !failure) {
       const captures = query(['diagnostics']).sessions
+
       assert.ok(
         captures.length > 0 && captures.every((capture) => capture.cleanupConfirmed),
         'Native foreground engine cleanup is unconfirmed',

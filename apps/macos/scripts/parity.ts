@@ -46,6 +46,7 @@ const closed = new Promise((resolve) =>
 function within(promise, timeout, message) {
   return new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error(message)), timeout)
+
     promise.then(
       (value) => {
         clearTimeout(timer)
@@ -82,9 +83,11 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 
   const marker = '[parity-json] '
   const at = line.indexOf(marker)
+
   if (at !== -1) {
     try {
       const dump = JSON.parse(line.slice(at + marker.length))
+
       hasReport = true
       resolveReport(dump)
     } catch (error) {
@@ -100,7 +103,9 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 try {
   await within(ready, 120000, 'Timed out waiting for the AppKit host to start')
   host.stdin.write('parity\n')
+
   const dump = await within(report, 300000, 'Timed out waiting for the AppKit geometry dump')
+
   if (dump.target !== 'macos' || !dump.cells || Object.keys(dump.cells).length === 0) {
     console.error('[parity] malformed dump: ' + JSON.stringify(dump).slice(0, 500))
     throw new Error('AppKit parity returned an empty or malformed dump')
@@ -116,6 +121,7 @@ try {
   process.exitCode = 1
 } finally {
   host.kill('SIGTERM')
+
   const result = await Promise.race([
     closed,
     new Promise((resolve) => setTimeout(() => resolve(null), 3000)),

@@ -18,12 +18,15 @@ const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
 const target = process.env.XPLAT_GO_NS_TARGET ?? 'ios'
+
 assert.ok(['ios', 'android'].includes(target), 'Choose ios or android for this SDK gate')
 assert.ok(target !== 'ios' || process.platform === 'darwin', 'iOS requires macOS')
+
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? '.exe' : ''}`)
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale SDK build source: ${file}`)
@@ -52,10 +55,13 @@ const started = new Date().toISOString(),
   outFile = join(work, `nativescript-${target}-qualification.json`)
 
 mkdirSync(work, { recursive: true })
+
 const gradleHome = join(work, 'nativescript-gradle-cache')
+
 mkdirSync(gradleHome, { recursive: true })
 // Keep this qualification run from leaving a persistent compiler service.
 writeFileSync(join(gradleHome, 'gradle.properties'), 'org.gradle.daemon=false\n')
+
 const env = {
   ...process.env,
   NODE_OPTIONS: '',
@@ -84,6 +90,7 @@ const child = spawn(binary, ['build', '--targets', target], {
 })
 
 const tail = (before, bytes) => (before + bytes.toString('utf8')).slice(-(2 << 20))
+
 child.stdout.on('data', (bytes) => {
   stdout = tail(stdout, bytes)
   process.stdout.write(bytes)
@@ -107,6 +114,7 @@ const onInterrupt = () => forward('SIGINT'),
 
 process.on('SIGINT', onInterrupt)
 process.on('SIGTERM', onTerminate)
+
 const deadline = setTimeout(
   () => {
     timedOut = true
@@ -129,8 +137,10 @@ function visit(dir, depth = 0) {
   if (depth > 12 || !existsSync(dir)) {
     return
   }
+
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name)
+
     if (entry.isSymbolicLink()) {
       continue
     }
@@ -145,9 +155,13 @@ function visit(dir, depth = 0) {
         ).trim()
 
         assert.ok(executable && !/[\\/]/.test(executable), 'Invalid app executable name')
+
         const entry = join(path, executable)
+
         assert.ok(lstatSync(entry).isFile(), 'App executable must be an ordinary file')
+
         const bytes = readFileSync(entry)
+
         assert.ok(bytes.length > 0, 'App executable must not be empty')
         artifacts.push({
           path: relative(root, path),
@@ -162,6 +176,7 @@ function visit(dir, depth = 0) {
       }
     } else if (/\.(apk|aab|appx|msix)$/.test(entry.name)) {
       const bytes = readFileSync(path)
+
       artifacts.push({
         path: relative(root, path),
         kind: entry.name.split('.').at(-1),
@@ -173,6 +188,7 @@ function visit(dir, depth = 0) {
 }
 
 let artifactError = null
+
 try {
   visit(join(app, 'platforms', target, 'build'))
   visit(join(app, 'platforms', target, 'app/build/outputs'))

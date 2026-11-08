@@ -8,9 +8,11 @@ export function createStaticSource<T extends SearchableItem>(
   options?: CreateStaticSourceOptions<T>,
 ): SearchSource<T> {
   const getKeywords = options?.keywords
+
   return {
     search(query: string): T[] {
       const lower = query.toLowerCase().trim()
+
       if (lower === '') {
         return items
       }
@@ -40,9 +42,11 @@ export function characterCount(str: string): number {
   }
 
   const Segmenter = typeof Intl === 'undefined' ? undefined : Intl.Segmenter
+
   if (typeof Segmenter === 'function') {
     const segmenter = new Segmenter(undefined, { granularity: 'grapheme' })
     let count = 0
+
     for (const _ of segmenter.segment(str)) {
       count++
     }
@@ -58,6 +62,7 @@ export function characterCount(str: string): number {
 /** An item's group heading, read from `auxiliaryData.group`. */
 export function getItemGroup(item: SearchableItem): string | undefined {
   const aux = item.auxiliaryData as Record<string, unknown> | undefined
+
   return typeof aux?.group === 'string' ? aux.group : undefined
 }
 
@@ -80,8 +85,10 @@ export function groupTypeaheadItems<T extends SearchableItem>(
   const order: string[] = []
   const groups = new Map<string, T[]>()
   const ungrouped: T[] = []
+
   for (const item of items) {
     const group = getItemGroup(item)
+
     if (group != null) {
       if (!groups.has(group)) {
         order.push(group)
@@ -96,5 +103,6 @@ export function groupTypeaheadItems<T extends SearchableItem>(
 
   const named = order.map((heading) => ({ heading, items: groups.get(heading) ?? [] }))
   const tail = ungrouped.length > 0 ? [{ heading: null, items: ungrouped }] : []
+
   return ungroupedFirst ? [...tail, ...named] : [...named, ...tail]
 }

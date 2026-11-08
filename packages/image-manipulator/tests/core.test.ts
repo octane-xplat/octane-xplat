@@ -14,6 +14,7 @@ function fixture() {
       throw new Error('Use after release')
     }
   }
+
   const backend: ImageBackend<string> = {
     isAvailable: () => true,
     load: async () => ({ width: 6, height: 4, image: 'original' }),
@@ -22,6 +23,7 @@ function fixture() {
       if (operation.kind === 'extent') {
         throw new Error('Extent unavailable')
       }
+
       return {
         ...outputSize(frame, operation),
         image: `${frame.image}/${operation.kind}-${++serial}`,
@@ -34,8 +36,11 @@ function fixture() {
           finishSave = resolve
         })
       }
+
       live(frame)
+
       const uri = `output-${++serial}`
+
       paths.add(uri)
       return { uri, width: frame.width, height: frame.height }
     },
@@ -47,6 +52,7 @@ function fixture() {
       paths.delete(uri)
     },
   }
+
   return {
     ...createImageManipulator(backend),
     freed,
@@ -67,18 +73,26 @@ describe('image operation ownership', () => {
       width: 3,
       height: 2,
     })
+
     const first = ctx.renderAsync()
+
     ctx.rotate(90)
+
     const second = await ctx.renderAsync()
     const previous = await first
+
     expect([previous.width, previous.height]).toEqual([3, 2])
     expect([second.width, second.height]).toEqual([2, 3])
     ctx.reset()
+
     const reset = await ctx.renderAsync()
+
     expect([reset.width, reset.height]).toEqual([6, 4])
     ctx.release()
     await Promise.resolve()
+
     const output = await previous.saveAsync()
+
     previous.release()
     second.release()
     reset.release()
@@ -94,15 +108,20 @@ describe('image operation ownership', () => {
     const ctx = f.ImageManipulator.manipulate('fixture')
     const ref = await ctx.renderAsync()
     const child = f.ImageManipulator.manipulate(ref).resize({ width: 3 })
+
     f.delay()
+
     const save = ref.saveAsync()
+
     ref.release()
     ctx.release()
     await Promise.resolve()
     expect(f.freed).toEqual([])
     f.finish()
     await save
+
     const derived = await child.renderAsync()
+
     expect([derived.width, derived.height]).toEqual([3, 2])
     child.release()
     derived.release()
@@ -115,9 +134,12 @@ describe('image operation ownership', () => {
     const ctx = f.ImageManipulator.manipulate('fixture')
       .resize({ width: 3 })
       .crop({ originX: 3, originY: 0, width: 1, height: 1 })
+
     await expect(ctx.renderAsync()).rejects.toThrow('bounds')
     ctx.reset()
+
     const ref = await ctx.renderAsync()
+
     expect(ref.width).toBe(6)
     ref.release()
     ctx.release()
@@ -128,10 +150,13 @@ describe('image operation ownership', () => {
   it('rejects invalid inputs without adding operations and rejects released handles', async () => {
     const f = fixture()
     const ctx = f.ImageManipulator.manipulate('fixture')
+
     expect(() => ctx.resize({})).toThrow('width or height')
     expect(() => ctx.rotate(NaN)).toThrow('finite')
     expect(() => ctx.crop({ originX: -1, originY: 0, width: 2, height: 2 })).toThrow('originX')
+
     const ref = await ctx.renderAsync()
+
     await expect(ref.saveAsync({ compress: 2 })).rejects.toThrow('compress')
     ref.release()
     ref.release()
@@ -147,6 +172,7 @@ it('computes exact quarter-turn bounds and rounds inferred dimensions', () => {
     width: 7,
     height: 13,
   })
+
   expect(outputSize({ width: 13, height: 7 }, { kind: 'resize', width: 1, height: null })).toEqual({
     width: 1,
     height: 1,

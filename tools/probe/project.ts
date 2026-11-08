@@ -32,13 +32,16 @@ export const importFrom = async (root, specifier) => {
 async function packageRoot(name, roots) {
   for (const root of roots) {
     let ancestor = root
+
     while (true) {
       const candidate = join(ancestor, 'node_modules', name)
+
       if (existsSync(join(candidate, 'package.json'))) {
         return realpath(candidate)
       }
 
       const parent = dirname(ancestor)
+
       if (parent === ancestor) {
         break
       }
@@ -49,6 +52,7 @@ async function packageRoot(name, roots) {
 
   for (const entry of await readdir(join(repo, 'packages'))) {
     const root = join(repo, 'packages', entry)
+
     if (
       existsSync(join(root, 'package.json')) &&
       (await json(join(root, 'package.json'))).name === name
@@ -68,12 +72,14 @@ export async function filesUnder(root) {
   }
 
   const files = []
+
   for (const item of await readdir(root, { withFileTypes: true })) {
     if (item.name.startsWith('.') || item.name === 'node_modules') {
       continue
     }
 
     const path = join(root, item.name)
+
     if (item.isDirectory()) {
       files.push(...(await filesUnder(path)))
     } else if (item.isFile()) {
@@ -88,6 +94,7 @@ export async function dependencies(target, caseFile, extra) {
   const app = appFor(target)
   const pkg = await json(join(app, 'package.json'))
   const names = new Set(['octane', '@octane-xplat/ui', ...extra])
+
   if (target === 'macos') {
     names.add('@nativescript/macos-node-api')
     // The shell imports the renderer; its runtime-dep edge is also what
@@ -98,6 +105,7 @@ export async function dependencies(target, caseFile, extra) {
   if (['ios', 'android'].includes(target)) {
     // Mobile probes always run core; the replaced engines collide natively.
     const conflicts = [masonFullPackage, masonLegacyPackage].filter((name) => extra.includes(name))
+
     if (conflicts.length) {
       throw new Error(
         `${conflicts.join(' and ')} was replaced by ${masonCorePackage}; their native classes and libraries overlap.`,
@@ -117,6 +125,7 @@ export async function dependencies(target, caseFile, extra) {
   }
 
   const roots = [dirname(caseFile)]
+
   while (dirname(roots.at(-1)) !== roots.at(-1)) {
     roots.push(dirname(roots.at(-1)))
   }
@@ -132,6 +141,7 @@ export async function dependencies(target, caseFile, extra) {
     (name) =>
       !names.has(masonCorePackage) || ![masonFullPackage, masonLegacyPackage].includes(name),
   )
+
   for (const name of new Set([...names, ...development])) {
     resolved.set(name, await packageRoot(name, roots))
   }
@@ -144,7 +154,9 @@ export async function dependencies(target, caseFile, extra) {
     }
 
     visited.add(root)
+
     const manifest = await json(join(root, 'package.json'))
+
     if (
       names.has(masonCorePackage) &&
       [masonFullPackage, masonLegacyPackage].includes(manifest.name)
@@ -153,6 +165,7 @@ export async function dependencies(target, caseFile, extra) {
         `Core probe also resolves ${manifest.name}; remove the conflicting runtime dependency.`,
       )
     }
+
     nativeFiles.push(join(root, 'package.json'))
     nativeFiles.push(...(await filesUnder(join(root, 'platforms'))))
     for (const name of Object.keys({
@@ -162,6 +175,7 @@ export async function dependencies(target, caseFile, extra) {
       // pnpm places transitive dependencies beside the package in its
       // virtual store, rather than inside the package's node_modules.
       let candidate
+
       try {
         candidate = await packageRoot(name, [root])
       } catch (error) {
@@ -199,6 +213,7 @@ export async function fingerprint(deps, resources) {
   }
 
   const digest = createHash('sha256')
+
   digest.update(JSON.stringify([...deps.resolved]))
   for (const path of [...new Set(files)].sort()) {
     digest.update(path)
@@ -215,6 +230,7 @@ export async function prepare(target, caseFile, extra = [], resources) {
   const stamp = await fingerprint(deps, resourceRoot)
   const identity = caseIdentity(target, caseFile)
   const root = join(repo, 'research/probes', identity, 'build-' + stamp.key)
+
   await mkdir(join(root, 'src'), { recursive: true })
   await mkdir(join(root, 'node_modules'), { recursive: true })
   try {
@@ -227,6 +243,7 @@ export async function prepare(target, caseFile, extra = [], resources) {
 
   for (const [name, path] of deps.resolved) {
     const destination = join(root, 'node_modules', name)
+
     await mkdir(dirname(destination), { recursive: true })
     try {
       await symlink(path, destination)
@@ -260,6 +277,7 @@ export async function prepare(target, caseFile, extra = [], resources) {
   }
 
   const appId = 'org.octanexplat.probe.p' + identity + '.p' + stamp.key
+
   if (target === 'macos') {
     pkg.type = 'module'
     pkg.xplat = {
@@ -340,6 +358,7 @@ export function scratchResolver(project) {
       }
 
       const resolved = await this.resolve(source, importer, { skipSelf: true })
+
       if (resolved) {
         return resolved
       }

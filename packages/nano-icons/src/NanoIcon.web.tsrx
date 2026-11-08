@@ -18,6 +18,7 @@ function transformStyle(props: {
   vFlip?: boolean
 }): string | undefined {
   const parts: string[] = []
+
   if (props.rotate) {
     parts.push(`rotate(${(props.rotate * 90) % 360}deg)`)
   }
@@ -89,6 +90,7 @@ const charCaches = new WeakMap<NanoGlyphMap, (codepoint: number) => string>()
 
 function charCacheFor(glyphMap: NanoGlyphMap) {
   let cache = charCaches.get(glyphMap)
+
   if (!cache) {
     cache = createCharCache()
     charCaches.set(glyphMap, cache)
@@ -107,7 +109,9 @@ const warnedNames = new Set<string>()
 
 export function NanoIcon(props: NanoIconProps): JSX.Element | null {
   useStore(nanoIconSetRegistry)
+
   const resolved = resolveNanoIcon(props.name, props.set)
+
   if (!resolved) {
     if (!warnedNames.has(props.name)) {
       warnedNames.add(props.name)

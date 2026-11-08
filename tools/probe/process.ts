@@ -70,15 +70,19 @@ export function ownedProcess(executable, args, options = {}) {
 
   for (const stream of [child.stdout, child.stderr]) {
     let partial = ''
+
     stream.on('data', (chunk) => {
       const value = String(chunk)
+
       tail = (tail + value).slice(-6000)
       if (options.verbose) {
         process.stderr.write(value)
       }
 
       partial += value
+
       const lines = partial.split(/\r?\n/)
+
       partial = lines.pop()
       for (const line of lines) {
         for (const listener of listeners) {
@@ -89,6 +93,7 @@ export function ownedProcess(executable, args, options = {}) {
   }
 
   child.stdin.on('error', () => {})
+
   const signal = (value) => {
     if (!child.pid) {
       return
@@ -118,7 +123,9 @@ export function ownedProcess(executable, args, options = {}) {
     },
     async stop() {
       signal('SIGINT')
+
       let timer
+
       await Promise.race([
         closed,
         new Promise((resolve) => {

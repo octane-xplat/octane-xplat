@@ -120,6 +120,7 @@ export class ProjectionNode {
     if (this.hadSharedOpacity) {
       this.hooks?.writeOpacity?.(this.latestValues.opacity ?? 1)
     }
+
     if (this.hasProjected) {
       this.hooks?.project(null)
       this.hasProjected = false
@@ -134,10 +135,12 @@ export class ProjectionNode {
   /** Hold the current presentation while channel values take over a drag. */
   beginDrag(rebase: (shift: Point) => void): void {
     const shift = { x: 0, y: 0 }
+
     if (this.layout && this.presented) {
       shift.x = this.presented.x.min - this.layout.layoutBox.x.min
       shift.y = this.presented.y.min - this.layout.layoutBox.y.min
     }
+
     this.isAnimationBlocked = true
     this.dragProjectionHeld = true
     this.onDragLayoutShift = rebase
@@ -157,6 +160,7 @@ export class ProjectionNode {
     if (!this.isAnimationBlocked || !previous || !this.layout) {
       return
     }
+
     this.onDragLayoutShift?.({
       x: previous.measuredBox.x.min - this.layout.measuredBox.x.min,
       y: previous.measuredBox.y.min - this.layout.measuredBox.y.min,
@@ -167,6 +171,7 @@ export class ProjectionNode {
     if (!this.isAnimationBlocked) {
       return
     }
+
     this.isAnimationBlocked = false
     this.onDragLayoutShift = undefined
     this.removeRelativeTarget()
@@ -187,6 +192,7 @@ export class ProjectionNode {
     if (this.isAnimationBlocked) {
       return
     }
+
     if (
       this.dragProjectionHeld &&
       this.layout &&
@@ -195,40 +201,51 @@ export class ProjectionNode {
     ) {
       return
     }
+
     if (this.shared?.lead && this.shared.lead !== this) {
       return
     }
+
     const handoff = this.sharedHandoff
+
     this.sharedHandoff = false
+
     const dep = this.options.layoutDependency
     const depChanged = !Object.is(dep, this.prevLayoutDependency)
+
     this.prevLayoutDependency = dep
     if (!handoff && dep !== undefined && !depChanged) {
       return
     }
+
     if (!this.layout || !this.presented) {
       return
     }
 
     const layout = this.layout.layoutBox
     const snapshot = createBox()
+
     copyBoxInto(snapshot, this.presented)
+
     const { animationType } = this.options
 
     if (animationType === 'size') {
       eachAxis((axis) => {
         const axisSnapshot = snapshot[axis]
         const length = calcLength(axisSnapshot)
+
         axisSnapshot.min = layout[axis].min
         axisSnapshot.max = axisSnapshot.min + length
       })
     } else if (animationType === 'x' || animationType === 'y') {
       const snapAxis = animationType === 'x' ? 'y' : 'x'
+
       copyAxisInto(snapshot[snapAxis], layout[snapAxis])
     } else if (shouldAnimatePositionOnly(animationType, snapshot, layout)) {
       eachAxis((axis) => {
         const axisSnapshot = snapshot[axis]
         const length = calcLength(layout[axis])
+
         axisSnapshot.max = axisSnapshot.min + length
 
         if (this.relativeTarget && !this.currentAnimation) {
@@ -239,8 +256,11 @@ export class ProjectionNode {
     }
 
     const layoutDelta = createDelta()
+
     calcBoxDelta(layoutDelta, layout, snapshot)
+
     const visualDelta = createDelta()
+
     calcBoxDelta(visualDelta, layout, snapshot)
 
     const hasLayoutChanged = !isDeltaZero(layoutDelta)
@@ -248,8 +268,10 @@ export class ProjectionNode {
 
     const relativeParent =
       this.options.layoutAnchor === false ? undefined : this.getClosestProjectingParent()
+
     if (relativeParent?.layout && relativeParent.presented) {
       const relativeSnapshot = createBox()
+
       calcRelativePosition(
         relativeSnapshot,
         snapshot,
@@ -258,6 +280,7 @@ export class ProjectionNode {
       )
 
       const relativeLayout = createBox()
+
       calcRelativePosition(
         relativeLayout,
         layout,
@@ -310,6 +333,7 @@ export class ProjectionNode {
     this.isSharedProjectionDirty ||= Boolean(
       this.isProjectionDirty || this.parent?.isProjectionDirty,
     )
+
     this.isTransformDirty ||= Boolean(this.parent?.isTransformDirty)
 
     if (
@@ -324,7 +348,9 @@ export class ProjectionNode {
       this.scheduleRender()
       return
     }
+
     this.dragProjectionHeld = false
+
     const canSkip = !(
       forceRecalculation ||
       this.isProjectionDirty ||
@@ -335,11 +361,13 @@ export class ProjectionNode {
     if (canSkip) {
       return
     }
+
     if (!this.layout || !this.options.animationType) {
       return
     }
 
     this.resolvedRelativeTargetAt = this.root.frameTimestamp
+
     const relativeParent =
       this.options.layoutAnchor === false ? undefined : this.getClosestProjectingParent()
 
@@ -405,6 +433,7 @@ export class ProjectionNode {
     if (!this.relativeParent) {
       return
     }
+
     if (this.relativeParent.resolvedRelativeTargetAt !== this.root.frameTimestamp) {
       this.relativeParent.resolveTargetDelta(true)
     }
@@ -446,6 +475,7 @@ export class ProjectionNode {
       parentLayout,
       this.options.layoutAnchor || undefined,
     )
+
     copyBoxInto(this.relativeTarget, this.relativeTargetOrigin)
   }
 
@@ -455,15 +485,19 @@ export class ProjectionNode {
 
   calcProjection(): void {
     let canSkip = true
+
     if (this.isProjectionDirty || this.parent?.isProjectionDirty) {
       canSkip = false
     }
+
     if (this.isSharedProjectionDirty || this.isTransformDirty) {
       canSkip = false
     }
+
     if (this.resolvedRelativeTargetAt === this.root.frameTimestamp) {
       canSkip = false
     }
+
     if (canSkip) {
       return
     }
@@ -475,6 +509,7 @@ export class ProjectionNode {
       this.currentAnimation ||
       this.shared?.transitioning,
     )
+
     if (!this.isTreeAnimating) {
       this.targetDelta = this.relativeTarget = undefined
     }
@@ -487,6 +522,7 @@ export class ProjectionNode {
 
     const prevTreeScaleX = this.treeScale.x
     const prevTreeScaleY = this.treeScale.y
+
     applyTreeDeltas(this.layoutCorrected, this.treeScale, this.path, false)
 
     if (!this.target && (this.treeScale.x !== 1 || this.treeScale.y !== 1)) {
@@ -495,6 +531,7 @@ export class ProjectionNode {
     }
 
     const { target } = this
+
     if (!target) {
       if (this.prevProjectionDelta) {
         this.createProjectionDeltas()
@@ -527,6 +564,7 @@ export class ProjectionNode {
   applyTransformsToTarget(): void {
     const { targetWithTransforms, target, layout } = this
     const latestValues = this.shared?.lead?.latestValues ?? this.latestValues
+
     if (!targetWithTransforms || !target || !layout) {
       return
     }
@@ -547,6 +585,7 @@ export class ProjectionNode {
 
   render(): void {
     const { target } = this
+
     if (!this.projectionDelta || !this.layout || !target) {
       if (this.hasProjected) {
         this.hooks?.project(null)
@@ -588,10 +627,13 @@ export class ProjectionNode {
     if (!this.layout) {
       return
     }
+
     if (!this.presented) {
       this.presented = createBox()
     }
+
     const projecting = this.isProjecting() && this.target
+
     copyBoxInto(this.presented, projecting ? this.target! : this.layout.layoutBox)
   }
 
@@ -615,15 +657,19 @@ export class ProjectionNode {
     if (!this.relativeParent?.options.layoutRoot) {
       this.relativeTarget = this.relativeTargetOrigin = undefined
     }
+
     this.attemptToResolveRelativeTarget = !hasOnlyRelativeTargetChanged
 
     const targetDelta = createDelta()
+
     this.animationProgress = 0
+
     const relativeLayout = createBox()
     let prevRelativeTarget: Box | undefined
 
     this.mixTargetDelta = (latest: number) => {
       const progress = latest / 1000
+
       mixAxisDeltaLinear(targetDelta.x, delta.x, progress)
       mixAxisDeltaLinear(targetDelta.y, delta.y, progress)
       this.setTargetDelta(targetDelta)
@@ -688,6 +734,7 @@ export class ProjectionNode {
         this.completeAnimation()
       },
     )
+
     this.currentAnimation = completed ? undefined : controls
   }
 
@@ -712,6 +759,7 @@ export function propagateDirtyNodes(node: ProjectionNode): void {
   if (!node.parent) {
     return
   }
+
   if (!node.isProjecting()) {
     node.isProjectionDirty = node.parent.isProjectionDirty
   }
@@ -738,10 +786,13 @@ export function resolveLayoutTransition(input: TransitionInput | undefined): Tra
       ? (input.layout ?? input.default)
       : input
     : undefined
+
   if (!resolved || !Object.keys(resolved).length) {
     return { ...defaultLayoutTransition }
   }
+
   const { staggerChildren, delayChildren, when, ...transition } = resolved
+
   return transition
 }
 

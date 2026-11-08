@@ -10,6 +10,7 @@ export const naturalTitle = NSView.alloc().initWithFrame({
 })
 
 export const externalTitle = NSTextField.labelWithString('External')
+
 const refs = [
   barRef,
   [
@@ -25,6 +26,7 @@ const refs = [
 export default function ActionBar() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
+
   return (
     <masonview
       style={{

@@ -6,8 +6,10 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const repository = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
+
 export function sourceIdentity() {
   const hash = createHash('sha256')
+
   for (const path of [
     'tools/visual/src/scenario.ts',
     'tools/visual/src/Switch.stories.web.tsrx',

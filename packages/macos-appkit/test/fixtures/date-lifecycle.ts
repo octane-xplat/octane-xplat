@@ -37,6 +37,7 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
 
   root.render(DatePicker, {})
   await settle()
+
   const first = dateRef.current,
     left = debug.findId('date-left'),
     tail = debug.findId('date-tail')
@@ -132,6 +133,7 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
   )
 
   const count = dateChanges.length
+
   first.dateValue = NSDate.dateWithTimeIntervalSince1970(
     new Date(2026, 4, 14, 19, 25).getTime() / 1000,
   )
@@ -148,7 +150,9 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
   first.target.controlChanged(first)
   check(dateChanges.length === count + 1, 'DatePicker unchanged action emitted duplicate event')
   await advance()
+
   const moved = dateRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -165,7 +169,9 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = dateRef.current
+
   check(
     returned &&
       returned !== moved &&
@@ -176,7 +182,9 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = dateRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -196,7 +204,9 @@ export async function checkDateLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = dateRef.current
+
   check(retained && retained.superview === left, 'DatePicker reinsertion failed')
   root.unmount()
   check(

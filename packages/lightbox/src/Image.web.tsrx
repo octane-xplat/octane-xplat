@@ -16,6 +16,7 @@ import type { ImageController } from './root.web.tsrx'
 import { fadeVisual, radiusOf, shiftVisual, thumbImg, thumbVisual, toRect } from './web-dom.web'
 
 import type { LightboxImagePartProps } from './props'
+
 export type LightboxImageProps = LightboxImagePartProps
 
 const center = (r: Rect) => ({ x: r.x + r.w / 2, y: r.y + r.h / 2 })
@@ -49,6 +50,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
   const F = box && aspect ? fit(aspect, box, 'contain') : null
   const live = useRef({ F, ctx, slide, box })
+
   live.current = { F, ctx, slide, box }
 
   const openFrame = useRef<number | null>(null)
@@ -78,23 +80,29 @@ export function Image(props: LightboxImageProps): JSX.Element {
       ].map(parseFloat)
 
       const next = { x: pl, y: pt, w: el.clientWidth - pl - pr, h: el.clientHeight - pt - pb }
+
       setBox((b) =>
         b && b.x === next.x && b.y === next.y && b.w === next.w && b.h === next.h ? b : next,
       )
     }
 
     measure()
+
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
+
     ro?.observe(el)
     el.style.touchAction = 'pan-x'
+
     const trigger = [...(ctx.triggers.get(index) ?? [])][0]
     const thumb = trigger && thumbImg(trigger)
+
     if (thumb?.currentSrc) {
       setPlaceholder(thumb.currentSrc)
     }
 
     if (!aspect && trigger) {
       const r = trigger.getBoundingClientRect()
+
       setAspect(
         thumb?.naturalWidth
           ? thumb.naturalWidth / thumb.naturalHeight
@@ -105,6 +113,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
     }
 
     const media = imgRef.current as (HTMLImageElement & { readyState?: number }) | null
+
     if (media && (media.complete ? media.naturalWidth : (media.readyState ?? 0) >= 2)) {
       onLoad()
     }
@@ -114,6 +123,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
   const onLoad = () => {
     const img = imgRef.current
+
     if (!img) {
       return
     }
@@ -129,6 +139,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
     const el = slideEl()
     const r = el.getBoundingClientRect()
     const f = live.current.F!
+
     return { x: r.left + el.clientLeft + f.x, y: r.top + el.clientTop + f.y, w: f.w, h: f.h }
   }
 
@@ -138,6 +149,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
   // MotionValues drive the transform; the clip only exists during the morph.
   const sync = () => {
     const el = wrapRef.current
+
     if (!el) {
       return
     }
@@ -147,16 +159,19 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
   useLayoutEffect(() => {
     const offs = [x.on('change', sync), y.on('change', sync), scale.on('change', sync)]
+
     return () => offs.forEach((o) => o())
   }, [])
 
   const apply = (v: Visual, b: Rect) => {
     const el = wrapRef.current
+
     if (!el) {
       return
     }
 
     const s = toStyle(v, b)
+
     x.set(s.x)
     y.set(s.y)
     scale.set(s.scale)
@@ -173,6 +188,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
     const s = scale.get()
     const img = { x: b.x + x.get(), y: b.y + y.get(), w: b.w * s, h: b.h * s }
+
     return { img, clip: img, radius: radius(), opacity: 1 }
   }
 
@@ -190,7 +206,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
       pending.current.add(done)
       // 0→1 progress needs a small restDelta so springs don't idle near the end.
       prog.jump(0)
+
       const off = prog.on('change', onUpdate)
+
       anims.current.push(
         prog.animate(1, {
           restDelta: 0.002,
@@ -209,7 +227,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
   const controller: ImageController = {
     animateIn(trigger) {
       stop()
+
       const { ctx } = live.current
+
       if (!live.current.F || !base().w) {
         // Not yet measured (mount ordering races the layout effect):
         // defer one frame before falling back to the presence fade.
@@ -227,7 +247,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
               this.animateIn?.(trigger)
             } else {
               ctx.presence.set(0)
+
               const animation = ctx.presence.animate(1, ctx.options.open)
+
               anims.current.push(animation)
               void animation.finished.then((result) => {
                 if (
@@ -249,6 +271,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
       const rest = (b: Rect): Visual => ({ img: b, clip: b, radius: r, opacity: 1 })
       const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger, aspect) : null
       const from = thumb ?? fadeVisual(rest(base()))
+
       apply(from, base())
       ctx.presence.set(0)
       if (thumb) {
@@ -258,6 +281,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
       // Endpoints are re-read every frame, so anything still settling underneath can't knock the morph off target.
       void run(ctx.options.open, (p) => {
         const b = base()
+
         if (!b.w) {
           return
         }
@@ -266,7 +290,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
         ctx.presence.set(clamp(p, 0, 1))
       }).then(() => {
         morph.current = null
+
         const el = wrapRef.current
+
         if (el) {
           el.style.clipPath = 'none'
         }
@@ -279,17 +305,22 @@ export function Image(props: LightboxImageProps): JSX.Element {
     },
     async animateOut(trigger, velocity) {
       stop()
+
       const { ctx } = live.current
+
       if (!live.current.F) {
         await ctx.presence.animate(0, ctx.options.close).finished
         return
       }
 
       const from = current(base())
+
       // The gallery may still be settling under us; don't let the slide clip the flight home.
       slideEl().style.overflow = 'visible'
+
       const thumb = !ctx.reducedMotion && trigger ? thumbVisual(trigger, aspect) : null
       const to = thumb ?? fadeVisual(from)
+
       if (thumb) {
         ctx.hideTrigger(trigger)
       }
@@ -302,17 +333,20 @@ export function Image(props: LightboxImageProps): JSX.Element {
         }
 
         const r = trigger.getBoundingClientRect()
+
         return shiftVisual(to, r.left - t0.left, r.top - t0.top)
       }
 
       // Carry release velocity into the morph so a flick flows straight home.
       const c0 = center(from.img)
       const pv = velocity ? center(to.img) : c0
+
       void velocity // velocity projection lives in the spring's `velocity` below
       await run(
         ctx.options.close,
         (p) => {
           const b = base()
+
           if (!b.w) {
             return
           }
@@ -441,6 +475,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
         now: () => performance.now(),
         schedule: (fn, ms) => {
           const id = setTimeout(fn, ms)
+
           return () => clearTimeout(id)
         },
       }),
@@ -450,6 +485,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
   // Gesture DOM adapter: pointer pan/pinch, wheel zoom/pull, taps via the detector.
   useEffect(() => {
     const el = wrapRef.current
+
     if (!el) {
       return
     }
@@ -471,6 +507,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
     const velocity = (): XY => {
       const now = performance.now()
+
       while (moves.length && now - moves[0]!.t > 100) {
         moves.shift()
       }
@@ -482,6 +519,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
       const a = moves[0]!
       const b = moves[moves.length - 1]!
       const dt = Math.max(1, b.t - a.t)
+
       return { x: ((b.p.x - a.p.x) / dt) * 1000, y: ((b.p.y - a.p.y) / dt) * 1000 }
     }
 
@@ -489,6 +527,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
     const pairOf = (id: number): [XY, XY] | null => {
       const other = [...pointers.entries()].find(([k]) => k !== id)
       const mine = pointers.get(id)
+
       return other && mine ? [mine, other[1]] : null
     }
 
@@ -521,13 +560,16 @@ export function Image(props: LightboxImageProps): JSX.Element {
         send({ kind: 'panStart', at: toSlide(e.clientX, e.clientY), pointer: downPointer as never })
       } else if (pointers.size === 2) {
         detector.cancel()
+
         const [a, b] = firstTwo()
+
         send({ kind: 'pinchStart', a: toSlide(a.x, a.y), b: toSlide(b.x, b.y) })
       }
     }
 
     const onPointerMove = (e: PointerEvent) => {
       const prev = pointers.get(e.pointerId)
+
       if (!prev) {
         return
       }
@@ -540,6 +582,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
       if (pointers.size >= 2) {
         const pair = pairOf(e.pointerId)
+
         if (pair) {
           send({
             kind: 'pinchMove',
@@ -555,8 +598,11 @@ export function Image(props: LightboxImageProps): JSX.Element {
     const onPointerUp = (e: PointerEvent) => {
       const wasPinch = pointers.size >= 2
       const at = pointers.get(e.pointerId) ?? { x: e.clientX, y: e.clientY }
+
       pointers.delete(e.pointerId)
+
       const cancelled = e.type === 'pointercancel'
+
       if (wasPinch) {
         if (pointers.size < 2) {
           send({ kind: 'pinchEnd', cancelled })
@@ -566,6 +612,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
       }
 
       const v = velocity()
+
       send({ kind: 'panEnd', at: toSlide(at.x, at.y), velocity: v, cancelled })
       if (!cancelled && down && !moved) {
         // Tap: fire through the detector — it delays for the double-tap window when zoom can apply.
@@ -575,6 +622,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
         const atSlide = toSlide(e.clientX, e.clientY)
         const pointer = (e.pointerType || 'touch') as never
+
         detector.up(atSlide, pointer, waitForDouble, (i) => send(i))
       }
 
@@ -584,12 +632,14 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
     const insideImage = (cx2: number, cy2: number) => {
       const r = el.getBoundingClientRect()
+
       return cx2 >= r.left && cx2 <= r.right && cy2 >= r.top && cy2 <= r.bottom
     }
 
     const slideOrigin = () => {
       const r = slideEl().getBoundingClientRect()
       const s = slideEl()
+
       return { x: r.left + s.clientLeft, y: r.top + s.clientTop }
     }
 
@@ -597,6 +647,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
       // The slide moves under a captured mouse pointer while paging. Keep
       // its original coordinate space so scroll displacement isn't added twice.
       const o = mouseOrigin ?? slideOrigin()
+
       return { x: cx2 - o.x, y: cy2 - o.y }
     }
 
@@ -613,14 +664,17 @@ export function Image(props: LightboxImageProps): JSX.Element {
       const sEl = slideEl()
       const r = sEl.getBoundingClientRect()
       const f = live.current.F
+
       if (!f || live.current.ctx.phase !== 'open') {
         return
       }
 
       if (e.ctrlKey || e.metaKey || live.current.ctx.options.wheelToZoom) {
         e.preventDefault()
+
         const p = { x: e.clientX - r.left, y: e.clientY - r.top }
         const factor = Math.exp(-e.deltaY * (e.ctrlKey || e.metaKey ? 0.01 : 0.002))
+
         send({ kind: 'zoomNow', scale: scale.get() * factor, focal: p })
         return
       }
@@ -639,6 +693,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
       wheelTimer = setTimeout(() => {
         const dt = Math.max(1, performance.now() - wheel.t0)
+
         send({
           kind: 'panEnd',
           at: { x: f.x + f.w / 2, y: f.y + f.h / 2 + wheel.dy },
@@ -654,7 +709,9 @@ export function Image(props: LightboxImageProps): JSX.Element {
     let g0: { a: XY; b: XY } | null = null
     const onGestureStart = (e: Event) => {
       e.preventDefault()
+
       const c = center(live.current.F ?? { x: 0, y: 0, w: 0, h: 0 })
+
       g0 = { a: { x: c.x - 50, y: c.y }, b: { x: c.x + 50, y: c.y } }
       send({ kind: 'pinchStart', a: g0.a, b: g0.b })
     }
@@ -670,6 +727,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
           : 1
 
       const c = center(live.current.F ?? { x: 0, y: 0, w: 0, h: 0 })
+
       send({ kind: 'pinchMove', a: { x: c.x - 50 * gs, y: c.y }, b: { x: c.x + 50 * gs, y: c.y } })
     }
 
@@ -722,6 +780,7 @@ export function Image(props: LightboxImageProps): JSX.Element {
 
   useLayoutEffect(() => {
     const off = scale.on('change', (s) => live.current.ctx.setZoomed(s > 1.01))
+
     return () => {
       off()
       if (live.current.ctx.index === index) {

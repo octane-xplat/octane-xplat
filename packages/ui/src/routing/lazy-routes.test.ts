@@ -14,6 +14,7 @@ function deferred<T>() {
   const promise = new Promise<T>((done) => {
     resolve = done
   })
+
   return { promise, resolve }
 }
 
@@ -30,6 +31,7 @@ it('matches without importing, preloads code only, then prepares fresh inputs on
       return 'parent-data'
     },
   })
+
   const load = vi.fn(async () => ({
     default: Screen,
     group,
@@ -47,12 +49,14 @@ it('matches without importing, preloads code only, then prepares fresh inputs on
     },
     head: ({ data }: { data: string }) => ({ title: data }),
   }))
+
   const catalog = sealGeneratedRouteCatalog(
     deriveLazyRouteManifest({ './app/items/[id].web.tsx': load }, ['web'], 'app', {
       './app/_layout.tsx': { default: Layout },
       './app/items/_layout.tsx': { default: Layout },
     }),
   )
+
   let account = 'first'
   const engine = createRoutePreparation({
     catalog,
@@ -61,6 +65,7 @@ it('matches without importing, preloads code only, then prepares fresh inputs on
       return { account }
     },
   })
+
   expect(catalog.layouts['']).toBe(Layout)
   expect(engine.resolveUrl('/items/coat?q=red').status).toBe('matched')
   expect(load).not.toHaveBeenCalled()
@@ -68,19 +73,24 @@ it('matches without importing, preloads code only, then prepares fresh inputs on
     moduleLoaded: false,
     loader: undefined,
   })
+
   expect(await engine.preload('/items/coat?q=red')).toEqual({
     status: 'preloaded',
     href: '/items/coat?q=red',
   })
+
   expect(calls).toEqual([])
   expect(manifestToJson(catalog).routes[0]).toMatchObject({
     moduleLoaded: true,
     loader: true,
     guard: true,
   })
+
   for (const expected of ['first', 'second']) {
     account = expected
+
     const ready = await engine.prepare('/items/coat?q=red')
+
     expect(ready).toMatchObject({
       status: 'ready',
       match: { data: expected, context: { access: true, parent: 'parent-data' } },
@@ -97,6 +107,7 @@ it('matches without importing, preloads code only, then prepares fresh inputs on
       head: { title: expected },
     })
   }
+
   expect(load).toHaveBeenCalledTimes(1)
   expect(calls).toEqual(
     Array(2).fill(['context', 'search', 'parent-guard', 'parent-loader', 'guard', 'loader']).flat(),
@@ -110,11 +121,13 @@ it('deduplicates imports across immutable snapshots without sharing cancellation
   const catalog = sealGeneratedRouteCatalog(
     deriveLazyRouteManifest({ './app/slow.tsx': load }, ['web']),
   )
+
   const a = createRoutePreparation({ catalog })
   const b = createRoutePreparation({ catalog: mergeRouteManifests(catalog) })
   const abort = new AbortController()
   const warming = a.preload('/slow', { signal: abort.signal })
   const navigation = b.prepare('/slow')
+
   abort.abort()
   expect(await warming).toEqual({ status: 'cancelled', reason: 'aborted' })
   code.resolve({ default: Screen, beforeLoad: guard })
@@ -129,14 +142,17 @@ it('retries failed imports and classifies module errors separately from invalid 
     .mockRejectedValueOnce(new Error('offline'))
     .mockRejectedValueOnce(new Error('still offline'))
     .mockResolvedValue({ default: Screen })
+
   const engine = createRoutePreparation({
     catalog: deriveLazyRouteManifest({ './app/item.tsx': load }, ['web']),
   })
+
   expect(await engine.preload('/item')).toMatchObject({ status: 'failed', phase: 'module' })
   expect(await engine.validateDestination({ to: '/item' })).toMatchObject({
     status: 'failed',
     phase: 'module',
   })
+
   expect((await engine.prepare('/item')).status).toBe('ready')
   expect(load).toHaveBeenCalledTimes(3)
 })
@@ -157,10 +173,13 @@ it('loads search validation before checking and preserves baked data after seali
       { baked: { title: 'built' } },
     ),
   )
+
   const engine = createRoutePreparation({ catalog })
+
   expect((await engine.validateDestination({ to: '/baked', search: { page: '1' } })).status).toBe(
     'valid',
   )
+
   expect(await engine.prepare('/baked?page=1')).toMatchObject({
     status: 'ready',
     match: { search: { page: 1 }, data: { title: 'built' } },
@@ -189,7 +208,9 @@ it('preloading never grants access, and redirects import and prepare the target 
     },
     ['web'],
   )
+
   const engine = createRoutePreparation({ catalog })
+
   expect((await engine.preload('/private')).status).toBe('preloaded')
   expect(await engine.prepare('/private')).toEqual({ status: 'forbidden' })
   expect(privateLoader).not.toHaveBeenCalled()
@@ -198,6 +219,7 @@ it('preloading never grants access, and redirects import and prepare the target 
     redirected: true,
     match: { data: 'target' },
   })
+
   expect(target).toHaveBeenCalledTimes(1)
 })
 
@@ -208,11 +230,15 @@ it('disposal and supersession settle while imports hang and prevent late callbac
     { './app/slow.tsx': () => code.promise, './app/fast.tsx': async () => ({ default: Screen }) },
     ['web'],
   )
+
   const a = createRoutePreparation({ catalog, history: 'linear' })
   const pending = a.prepare('/slow')
+
   expect((await a.prepare('/fast')).status).toBe('ready')
   expect(await pending).toEqual({ status: 'cancelled', reason: 'superseded' })
+
   const warming = a.preload('/slow')
+
   a.dispose('registry-changed')
   expect(await warming).toEqual({ status: 'cancelled', reason: 'registry-changed' })
   code.resolve({ default: Screen, beforeLoad: guard })
@@ -227,6 +253,7 @@ it('selects only the preferred platform module and isolates unrelated catalogs w
   const files = { './app/item.tsx': fallback, './app/item.web.tsx': web, './app/item.ios.tsx': ios }
   const a = createRoutePreparation({ catalog: deriveLazyRouteManifest(files, ['web']) })
   const b = createRoutePreparation({ catalog: deriveLazyRouteManifest(files, ['ios', 'mobile']) })
+
   expect(await a.prepare('/item')).toMatchObject({ status: 'ready', match: { data: 'web' } })
   expect(await b.prepare('/item')).toMatchObject({ status: 'ready', match: { data: 'ios' } })
   expect(fallback).not.toHaveBeenCalled()

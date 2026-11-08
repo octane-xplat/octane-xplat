@@ -14,7 +14,9 @@ export const supported: boolean = leafSupported
 export function TiptapEditor(props: TiptapEditorProps): unknown @{
   const inner = useRef<RichTextEditorHandle | null>(null)
   const [exposedHandle, setHandle] = useState<TiptapEditorHandle | null>(null)
+
   useImperativeHandle<TiptapEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
+
   const lastJSON = useRef<string | undefined>(undefined)
   const appliedHost = useRef<RichTextEditorHandle | null>(null)
   // Latest doc requested for the host — by `json` prop or `setJSON`. Kept
@@ -30,6 +32,7 @@ export function TiptapEditor(props: TiptapEditorProps): unknown @{
   const applyDoc = () => {
     const host = inner.current
     const doc = desiredDoc.current
+
     if (!host) {
       return
     }
@@ -48,11 +51,13 @@ export function TiptapEditor(props: TiptapEditorProps): unknown @{
     }
 
     const stamp = JSON.stringify(doc)
+
     if (stamp === lastJSON.current && appliedHost.current === host) {
       return
     }
 
     const html = jsonToHTML(doc)
+
     if (html != null) {
       lastJSON.current = stamp
       appliedHost.current = host
@@ -62,6 +67,7 @@ export function TiptapEditor(props: TiptapEditorProps): unknown @{
 
   const bindHost = useCallback((h: RichTextEditorHandle | null) => {
     const previousHost = inner.current
+
     inner.current = h
     if (h) {
       // The ref binds inside the leaf's commit, before its own `value`
@@ -113,6 +119,7 @@ export function TiptapEditor(props: TiptapEditorProps): unknown @{
     }
 
     let alive = true
+
     ensureJSONBridge().then((ok) => {
       if (!alive) {
         return
@@ -163,6 +170,7 @@ export function TiptapEditor(props: TiptapEditorProps): unknown @{
     }
 
     const doc = htmlToJSON(inner.current.getHTML())
+
     if (doc) {
       desiredDoc.current = doc
       lastJSON.current = JSON.stringify(doc)

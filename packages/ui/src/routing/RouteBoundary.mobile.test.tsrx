@@ -45,6 +45,7 @@ function Host(props: { boundary?: any; which?: 'fine' | 'boom' | 'maybe' }) @{
 function mount(which: 'fine' | 'boom' | 'maybe', boundary?: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(Host, { which, boundary })
   return container
 }
@@ -65,11 +66,13 @@ function texts(node: any, out: string[] = []): string[] {
 describe('route boundary on the universal renderer', () => {
   it('renders children untouched when no boundary is declared', () => {
     const container = mount('fine')
+
     expect(texts(container)).toContain('fine')
   })
 
   it('renders the declared boundary with error and route when the subtree throws', () => {
     const container = mount('boom', Boundary)
+
     expect(seen.props.error).toBeInstanceOf(Error)
     expect(seen.props.route).toBe(route)
     expect(seen.props.reset).toBeTypeOf('function')
@@ -78,7 +81,9 @@ describe('route boundary on the universal renderer', () => {
 
   it('reset remounts the route subtree', async () => {
     fail = true
+
     const container = mount('maybe', Boundary)
+
     expect(texts(container)).toContain('failed: boom')
 
     fail = false

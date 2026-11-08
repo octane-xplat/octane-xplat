@@ -31,6 +31,7 @@ export function createScrollAdapter(deps: ScrollAdapterDependencies): ScrollAdap
     },
     create(node) {
       const scroll = deps.controls.makeScrollView(node)
+
       node.view = scroll.view
       node.childHost = scroll.childHost
     },
@@ -46,10 +47,13 @@ export function createScrollAdapter(deps: ScrollAdapterDependencies): ScrollAdap
     },
     dispose(node) {
       const failures = new FailureCollector()
+
       failures.run('scroll actions', () => deps.actions.disposeActions(node))
       failures.run('scroll observer', () => deps.controls.disposeBuiltinScrollView(node))
+
       const detach = node.scrollGeometryDetach
       const constraints = node.scrollAxisConstraints ?? []
+
       node.scrollGeometryDetach = null
       node.scrollAxisConstraints = undefined
       failures.run('scroll geometry', () => detach?.())
@@ -58,6 +62,7 @@ export function createScrollAdapter(deps: ScrollAdapterDependencies): ScrollAdap
           constraint.active = false
         })
       }
+
       failures.throwIfFailed()
     },
   }

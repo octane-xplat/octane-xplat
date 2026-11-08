@@ -36,8 +36,11 @@ const roots = []
 
 const makeProject = (packageJson) => {
   const sandbox = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-vite-node-modules-')))
+
   roots.push(sandbox)
+
   const root = join(sandbox, 'app')
+
   mkdirSync(root)
   writeFileSync(join(root, 'package.json'), JSON.stringify(packageJson))
   return root
@@ -45,6 +48,7 @@ const makeProject = (packageJson) => {
 
 const writeResolvedFile = (root, relPath) => {
   const path = join(root, relPath)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, 'export default true\n')
   return path
@@ -64,20 +68,25 @@ const withNativeHttpServer = async (projectRoot, run) => {
     },
     optimizeDeps: { noDiscovery: true },
   })
+
   // Exercise NativeScript's request/transform helpers over HTTP with real
   // Vite loading, without starting NativeScript's device/session services.
   const http = createHttpServer(async (req, res) => {
     const parsed = createNsMRequestContext(req.url, projectRoot, '/src/', projectRoot)
+
     assert.equal(parsed.kind, 'context')
+
     const result = await resolveNsMTransformedModule({
       context: parsed.value,
       transformRequest: (url) => vite.transformRequest(url),
       resolveId: async () => null,
       loadVirtualId: async () => null,
     })
+
     res.writeHead(result.transformed ? 200 : 404, { 'Content-Type': 'text/javascript' })
     res.end(result.transformed?.code ?? 'missing')
   })
+
   try {
     await new Promise((resolve) => http.listen(0, '127.0.0.1', resolve))
     await run(vite, `http://127.0.0.1:${http.address().port}`)
@@ -99,12 +108,15 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       name: 'app',
       dependencies: { auth: 'link:./framework/packages/auth' },
     })
+
     const expected = writeResolvedFile(
       projectRoot,
       'framework/packages/auth/node_modules/@fixture/sign-in/common.js',
     )
+
     const candidate = '/node_modules/@fixture/sign-in/common.js'
     const anchored = `/@fs${expected}`
+
     assert.equal(resolveCandidateFilePath(candidate, projectRoot, projectRoot), expected)
     for (const suffix of ['', '?v=123', '?v=123&import#fragment']) {
       assert.deepEqual(
@@ -117,8 +129,10 @@ describe('patched NativeScript Vite node_modules fallback', () => {
         [anchored + suffix],
       )
     }
+
     const request = '/ns/m/node_modules/@fixture/sign-in/common?v=123'
     const context = createNsMRequestContext(request, projectRoot, '/src/', projectRoot)
+
     assert.equal(context.kind, 'context')
     assert.equal(context.value.forcedVer, '123')
     assert.deepEqual(context.value.transformCandidates, [anchored])
@@ -128,6 +142,7 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       assert.match((await vite.transformRequest(anchored + '?v=123')).code, /export default true/)
       for (const suffix of ['', '?v=123']) {
         const response = await fetch(`${origin}/ns/m/node_modules/@fixture/sign-in/common${suffix}`)
+
         assert.equal(response.status, 200)
         assert.match(await response.text(), /export default true/)
       }
@@ -142,18 +157,22 @@ describe('patched NativeScript Vite node_modules fallback', () => {
           auth: workspaceKind === 'hook-linked' ? '0.16.0' : 'link:./octane-xplat/packages/auth',
         },
       })
+
       const workspaceRoot = join(
         workspaceKind === 'hook-linked' ? dirname(projectRoot) : projectRoot,
         'octane-xplat',
       )
+
       const authRoot = join(workspaceRoot, 'packages/auth')
       const storageRoot = join(workspaceRoot, 'packages/secure-storage')
+
       mkdirSync(authRoot, { recursive: true })
       mkdirSync(storageRoot, { recursive: true })
       if (workspaceKind === 'hook-linked') {
         mkdirSync(join(projectRoot, 'node_modules'), { recursive: true })
         symlinkSync(authRoot, join(projectRoot, 'node_modules/auth'), 'dir')
       }
+
       writeFileSync(
         join(workspaceRoot, 'package.json'),
         JSON.stringify({
@@ -161,9 +180,11 @@ describe('patched NativeScript Vite node_modules fallback', () => {
           ...(workspaceKind === 'package-json' ? { workspaces: ['packages/*'] } : {}),
         }),
       )
+
       if (workspaceKind !== 'package-json') {
         writeFileSync(join(workspaceRoot, 'pnpm-workspace.yaml'), 'packages:\n  - packages/*\n')
       }
+
       writeFileSync(
         join(authRoot, 'package.json'),
         JSON.stringify({
@@ -171,6 +192,7 @@ describe('patched NativeScript Vite node_modules fallback', () => {
           dependencies: { '@octane-xplat/secure-storage': 'workspace:*' },
         }),
       )
+
       writeFileSync(
         join(storageRoot, 'package.json'),
         JSON.stringify({
@@ -178,11 +200,14 @@ describe('patched NativeScript Vite node_modules fallback', () => {
           dependencies: { '@nativescript/secure-storage': '4.0.2' },
         }),
       )
+
       const expected = writeResolvedFile(
         storageRoot,
         'node_modules/@nativescript/secure-storage/index.android.js',
       )
+
       const candidate = '/node_modules/@nativescript/secure-storage/index.android.js'
+
       assert.equal(resolveCandidateFilePath(candidate, projectRoot, projectRoot), expected)
       assert.deepEqual(
         filterExistingNodeModulesTransformCandidates(
@@ -193,12 +218,15 @@ describe('patched NativeScript Vite node_modules fallback', () => {
         ),
         [`/@fs${expected}?v=456`],
       )
+
       const request = '/ns/m/node_modules/@nativescript/secure-storage/index.android.js?v=456'
       const context = createNsMRequestContext(request, projectRoot, '/src/', projectRoot)
+
       assert.equal(context.kind, 'context')
       assert.deepEqual(context.value.transformCandidates, [`/@fs${expected}`])
       await withNativeHttpServer(projectRoot, async (_vite, origin) => {
         const response = await fetch(origin + request)
+
         assert.equal(response.status, 200)
         assert.match(await response.text(), /export default true/)
       })
@@ -209,6 +237,7 @@ describe('patched NativeScript Vite node_modules fallback', () => {
     const projectRoot = makeProject({ name: 'app' })
     const candidate = '/node_modules/@fixture/sign-in/common.android.js?v=123'
     const relativeFile = candidate.split('?')[0].slice(1)
+
     writeResolvedFile(projectRoot, relativeFile)
     assert.deepEqual(
       filterExistingNodeModulesTransformCandidates(
@@ -219,11 +248,14 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       ),
       [candidate],
     )
+
     const hoisted = writeResolvedFile(
       dirname(projectRoot),
       'node_modules/@fixture/sign-in/hoisted.js',
     )
+
     const hoistedCandidate = '/node_modules/@fixture/sign-in/hoisted.js?v=123'
+
     assert.deepEqual(
       filterExistingNodeModulesTransformCandidates(
         hoistedCandidate,
@@ -233,9 +265,13 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       ),
       [`/@fs${hoisted}?v=123`],
     )
+
     const source = writeResolvedFile(projectRoot, 'framework/source.ts')
+
     symlinkSync(source, join(projectRoot, 'node_modules/@fixture/sign-in/source.ts'))
+
     const linked = '/node_modules/@fixture/sign-in/source.ts?v=123'
+
     assert.deepEqual(
       filterExistingNodeModulesTransformCandidates(linked, [linked], projectRoot, projectRoot),
       [`/@fs${source}?v=123`],
@@ -249,8 +285,10 @@ describe('patched NativeScript Vite node_modules fallback', () => {
     })
 
     const linkedRoot = join(dirname(projectRoot), 'linked-icons')
+
     mkdirSync(linkedRoot, { recursive: true })
     writeFileSync(join(linkedRoot, 'package.json'), JSON.stringify({ name: 'icons' }))
+
     const expected = writeResolvedFile(linkedRoot, 'node_modules/@iconify/utils/lib/index.mjs')
 
     assert.equal(
@@ -286,7 +324,9 @@ describe('patched NativeScript Vite node_modules fallback', () => {
       projectRoot,
       'node_modules/.pnpm/@fixture+pkg@1.0.0/node_modules/@fixture/pkg/index.js',
     )
+
     const candidate = '/node_modules/@fixture/pkg/index.js?v=123'
+
     assert.deepEqual(
       filterExistingNodeModulesTransformCandidates(
         candidate,

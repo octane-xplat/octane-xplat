@@ -25,6 +25,7 @@ import { Thumbnails, Thumbnail, ThumbnailIndicator } from './thumbnails.tsrx'
 function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
   const state = useLightboxState()
   const item = state.items[props.index]
+
   // Keep the convenience viewer’s explicit native video fallback.
   if (item?.type === 'video') {
     return <Text>{item.alt}</Text>
@@ -35,6 +36,7 @@ function DefaultSlide(props: { index: number; hasAutoPlay: boolean }) @{
 
 function Counter() @{
   const state = useLightboxState()
+
   if (state.count <= 1) {
     return null
   }
@@ -45,6 +47,7 @@ function Counter() @{
 function Caption() @{
   const state = useLightboxState()
   const caption = state.item?.caption
+
   if (caption == null) {
     return null
   }

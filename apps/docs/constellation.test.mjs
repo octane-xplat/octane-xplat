@@ -8,9 +8,11 @@ const polygons = svg.match(/<polygon\b[\s\S]*?<\/polygon>/g)
 
 test('constellation layers partition every polygon across interleaved markups', () => {
   const layers = constellationLayers(svg, 16)
+
   assert.equal(layers.length, 16)
 
   const total = layers.reduce((sum, layer) => sum + (layer.match(/<polygon\b/g)?.length ?? 0), 0)
+
   assert.equal(total, polygons.length, 'every polygon lands in exactly one layer')
 
   // Index interleave: a layer never holds two consecutive source polygons,
@@ -23,8 +25,10 @@ test('constellation layers partition every polygon across interleaved markups', 
   // stacked layers overlay the original artwork exactly.
   for (const layer of layers) {
     assert.ok(layer.includes('fill="#f5f5f5"'))
+
     const opens = layer.match(/<g\b/g)?.length ?? 0
     const closes = layer.match(/<\/g>/g)?.length ?? 0
+
     assert.equal(opens, closes)
   }
 })

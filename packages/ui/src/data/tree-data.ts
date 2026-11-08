@@ -87,6 +87,7 @@ export interface TreeData<T> extends ReadableStore<TreeSnapshot<T>> {
 function defaultGetChildren<T>(item: T): Iterable<T> {
   const children: unknown =
     typeof item === 'object' && item !== null && 'children' in item ? item.children : undefined
+
   // Documented boundary: nothing in `T` proves the children element type —
   // the default extractor assumes `children` yields `T`; items whose
   // children differ must supply `getChildren`.
@@ -102,6 +103,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 
   const build = (value: T, parentKey: Key | null): TreeNode<T> => {
     const key = getKey(value)
+
     return {
       key,
       parentKey,
@@ -133,6 +135,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
       }
 
       const found = locate(nodes[i].children, key)
+
       if (found) {
         return found
       }
@@ -159,6 +162,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
     }
 
     const next = new Set(snapshot.selectedKeys)
+
     for (const key of removed) {
       next.delete(key)
     }
@@ -173,6 +177,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
     match: (siblings: readonly TreeNode<T>[]) => TreeNode<T>[] | null,
   ): TreeNode<T>[] | null => {
     const replaced = match(nodes)
+
     if (replaced) {
       return replaced
     }
@@ -180,6 +185,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
     let changed = false
     const next = nodes.map((node) => {
       const children = rebuild(node.children, match)
+
       if (children) {
         changed = true
         return { ...node, children }
@@ -197,6 +203,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
   ) => {
     const next = rebuild(snapshot.items, (siblings) => {
       const index = siblings.findIndex((node) => node.key === key)
+
       return index < 0 ? null : edit(siblings, index)
     })
 
@@ -216,6 +223,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
 
     editSiblingsOf(parentKey, (siblings, index) => {
       const next = [...siblings]
+
       next[index] = { ...siblings[index], children: edit(siblings[index].children) }
       return next
     })
@@ -237,6 +245,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
         .map((node) => ({ ...node, children: strip(node.children) }))
 
     const items = strip(snapshot.items)
+
     commit({ ...snapshot, items, selectedKeys: pruneSelection(detached) })
   }
 
@@ -261,44 +270,54 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
     getChildren: childrenOf,
     insert(parentKey, index, ...values) {
       const nodes = values.map((value) => build(value, parentKey))
+
       editChildrenOf(parentKey, (children) => {
         const next = [...children]
+
         next.splice(index, 0, ...nodes)
         return next
       })
     },
     insertBefore(key, ...values) {
       const found = find(key)
+
       if (!found) {
         return
       }
 
       const nodes = values.map((value) => build(value, found.node.parentKey))
+
       editSiblingsOf(key, (siblings, index) => {
         const next = [...siblings]
+
         next.splice(index, 0, ...nodes)
         return next
       })
     },
     insertAfter(key, ...values) {
       const found = find(key)
+
       if (!found) {
         return
       }
 
       const nodes = values.map((value) => build(value, found.node.parentKey))
+
       editSiblingsOf(key, (siblings, index) => {
         const next = [...siblings]
+
         next.splice(index + 1, 0, ...nodes)
         return next
       })
     },
     append(parentKey, ...values) {
       const nodes = values.map((value) => build(value, parentKey))
+
       editChildrenOf(parentKey, (children) => [...children, ...nodes])
     },
     prepend(parentKey, ...values) {
       const nodes = values.map((value) => build(value, parentKey))
+
       editChildrenOf(parentKey, (children) => [...nodes, ...children])
     },
     remove: (...keys) => remove(keys),
@@ -312,6 +331,7 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
     },
     move(key, toParentKey, toIndex) {
       const found = find(key)
+
       if (
         !found ||
         (toParentKey !== null && (!find(toParentKey) || locate([found.node], toParentKey)))
@@ -322,40 +342,52 @@ export function createTreeData<T>(options: TreeDataOptions<T> = {}): TreeData<T>
       // Validate first, then detach and insert in one published snapshot.
       const detached = rebuild(snapshot.items, (siblings) => {
         const index = siblings.findIndex((node) => node.key === key)
+
         if (index < 0) {
           return null
         }
+
         return siblings.filter((_, i) => i !== index)
       })!
+
       const moved = { ...found.node, parentKey: toParentKey }
       const insert = (children: readonly TreeNode<T>[]) => {
         const next = [...children]
+
         next.splice(toIndex, 0, moved)
         return next
       }
+
       const items =
         toParentKey === null
           ? insert(detached)
           : rebuild(detached, (siblings) => {
               const index = siblings.findIndex((node) => node.key === toParentKey)
+
               if (index < 0) {
                 return null
               }
+
               const next = [...siblings]
+
               next[index] = { ...siblings[index], children: insert(siblings[index].children) }
               return next
             })!
+
       commit({ ...snapshot, items })
     },
     update(key, value) {
       const found = find(key)
+
       if (!found) {
         return
       }
 
       const node = build(value, found.node.parentKey)
+
       editSiblingsOf(key, (siblings, index) => {
         const next = [...siblings]
+
         next[index] = node
         return next
       })

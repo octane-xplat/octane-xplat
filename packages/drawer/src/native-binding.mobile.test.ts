@@ -14,7 +14,9 @@ function setup(initial: DrawerProps = {}) {
       opened = false
     }),
   }
+
   const binding = bindDrawer(host, () => props)
+
   return {
     host,
     binding,
@@ -38,6 +40,7 @@ describe('native Drawer state ownership', () => {
       onOpenChange: change,
       onDismiss: dismiss,
     })
+
     binding.sync()
     expect(host.open).not.toHaveBeenCalled()
     binding.ready()
@@ -50,17 +53,21 @@ describe('native Drawer state ownership', () => {
     update({ defaultOpen: true, onOpenChange: change })
     expect(host.open).toHaveBeenCalledOnce()
   })
+
   it('reports edge opening and closing in uncontrolled mode', () => {
     const change = vi.fn()
     const { binding, settle } = setup({ onOpenChange: change })
+
     binding.ready()
     settle(true)
     settle(false)
     expect(change.mock.calls).toEqual([[true], [false]])
   })
+
   it('restores controlled visibility when the owner rejects a gesture', async () => {
     const change = vi.fn()
     const { host, binding, settle } = setup({ open: false, onOpenChange: change })
+
     binding.ready()
     settle(true)
     expect(change).toHaveBeenLastCalledWith(true)
@@ -69,9 +76,11 @@ describe('native Drawer state ownership', () => {
     settle(false)
     expect(change).toHaveBeenCalledOnce()
   })
+
   it('lets a controlled owner accept a gesture in its queued render', async () => {
     const change = (open: boolean) => queueMicrotask(() => update({ open, onOpenChange: change }))
     const { host, binding, settle, update } = setup({ open: false, onOpenChange: change })
+
     binding.ready()
     settle(true)
     await Promise.resolve()
@@ -80,9 +89,11 @@ describe('native Drawer state ownership', () => {
     await Promise.resolve()
     expect(host.open).not.toHaveBeenCalled()
   })
+
   it('serializes rapid prop changes behind animation completion events', () => {
     const change = vi.fn()
     const { host, binding, settle, update } = setup({ open: true, onOpenChange: change })
+
     binding.ready()
     update({ open: false, onOpenChange: change })
     expect(host.close).not.toHaveBeenCalled()
@@ -91,10 +102,12 @@ describe('native Drawer state ownership', () => {
     settle(false)
     expect(change).not.toHaveBeenCalled()
   })
+
   it('uses zero duration for reduced motion, reports errors, and stops after disposal', async () => {
     const error = new Error('interrupted')
     const onError = vi.fn()
     const { host, binding, update } = setup({ open: true, reducedMotion: true, onError })
+
     host.open.mockRejectedValueOnce(error)
     binding.ready()
     expect(host.open).toHaveBeenCalledWith('left', 0)

@@ -53,6 +53,7 @@ function Details() @{
 // cleanup flag keeps a late timer from writing into an unmounted tree.
 function FetchLabel(props: { fail?: boolean }) @{
   const [state, setState] = useState('loading')
+
   useEffect(() => {
     let live = true
     const timer = setTimeout(() => {
@@ -76,6 +77,7 @@ describe('starter app on device', () => {
 
     const increment = findByTestId(view, 'counter.increment')
     const count = findByTestId<TextInputView>(view, 'counter.value')
+
     expect(increment?.isLoaded, 'counter.increment resolves to a loaded native view').toBe(true)
 
     await tap(increment!)
@@ -91,6 +93,7 @@ describe('starter app on device', () => {
   it('round-trips a controlled TextInput', async () => {
     const { view } = await mountXplat(NameForm)
     const field = findByTestId<TextInputView>(view, 'greeting.name')
+
     expect(field?.isLoaded).toBe(true)
 
     await enterText(field!, 'Ada')
@@ -106,6 +109,7 @@ describe('starter app on device', () => {
 
   it('mounts and unmounts a conditional subtree', async () => {
     const { view } = await mountXplat(Details)
+
     expect(viewText(view).includes('detail: open')).toBe(false)
 
     await tap(findByTestId(view, 'details.toggle')!)
@@ -117,11 +121,13 @@ describe('starter app on device', () => {
 
   it('settles async loading and error states', async () => {
     const ready = await mountXplat(FetchLabel)
+
     await waitUntil(() => viewText(ready.view).includes('fetch: ready'), {
       message: 'loading state never settled',
     })
 
     const failed = await mountXplat(FetchLabel, { fail: true })
+
     await waitUntil(() => viewText(failed.view).includes('fetch: error'), {
       message: 'error state never surfaced',
     })
@@ -137,6 +143,7 @@ let ticks = 0
 function IntervalCounter() @{
   useEffect(() => {
     activeEffects += 1
+
     const timer = setInterval(() => {
       ticks += 1
     }, 15)
@@ -171,6 +178,7 @@ describe('mount/unmount cleanup', () => {
     ticks = 0
     for (let i = 0; i < 3; i++) {
       const { unmount } = await mountXplat(IntervalCounter)
+
       expect(activeEffects, 'each mount subscribes exactly once').toBe(1)
       await unmount()
       expect(activeEffects, 'unmount runs the effect cleanup').toBe(0)
@@ -178,6 +186,7 @@ describe('mount/unmount cleanup', () => {
 
     // The cleared interval must not fire after the last unmount.
     const settled = ticks
+
     await new Promise((resolve) => setTimeout(resolve, 60))
     expect(ticks, 'interval work continued after unmount').toBe(settled)
   })
@@ -185,6 +194,7 @@ describe('mount/unmount cleanup', () => {
   it('releases external-store subscriptions at unmount', async () => {
     for (let i = 0; i < 3; i++) {
       const { unmount } = await mountXplat(StoreReader)
+
       expect(listeners.size, 'each mount subscribes exactly once').toBe(1)
       await unmount()
       expect(listeners.size, 'unmount releases the subscription').toBe(0)

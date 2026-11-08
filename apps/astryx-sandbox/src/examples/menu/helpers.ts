@@ -23,6 +23,7 @@ export function menuItems(items: readonly UpstreamEntry[]): MenuOption[] {
     if ('type' in item && item.type === 'divider') {
       return { type: 'separator', key: `d${i}` }
     }
+
     if ('type' in item && item.type === 'section') {
       return {
         type: 'section',
@@ -31,7 +32,9 @@ export function menuItems(items: readonly UpstreamEntry[]): MenuOption[] {
         items: menuItems(item.items),
       }
     }
+
     const it = item as UpstreamItem
+
     return {
       type: it.items ? 'submenu' : 'action',
       key: it.label ?? `i${i}`,

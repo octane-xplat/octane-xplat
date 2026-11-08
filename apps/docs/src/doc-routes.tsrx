@@ -7,6 +7,7 @@ export const docRoutes = defineRoutes([
     path: '/:slug?',
     loader: ({ params }) => {
       const doc = DOCS.find((page) => page.slug === (params.slug ?? 'README'))
+
       if (!doc) {
         throw new RouteResourceNotFound()
       }

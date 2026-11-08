@@ -48,9 +48,11 @@ export const seedRoute = () => router.navigateUrl('/')
 // GLib main loop ticking, so the driver awaits initNav() before render.
 let homeDest: any
 let docsDest: any
+
 export async function initNav() {
   const homeCheck = await router.validateDestination({ to: '/' })
   const docsCheck = await router.validateDestination({ to: '/docs' })
+
   if (homeCheck.status !== 'valid' || docsCheck.status !== 'valid') {
     throw new Error('fixture routes did not validate')
   }
@@ -62,6 +64,7 @@ export async function initNav() {
 /** Stateful pane — switch away and back; an unmounted pane would reset. */
 function PaneA() {
   const [count, setCount] = useState(0)
+
   state.paneACount = count
   return (
     <masonview style={{ display: 'flex', flexDirection: 'column' }}>
@@ -81,14 +84,18 @@ function PaneA() {
 
 function RouteView() {
   const s = useRouterState()
+
   state.route = s.route?.href ?? null
   return <Text id="route-href">{s.route?.href ?? 'none'}</Text>
 }
 
 export function NavProbe() @{
   const [strip, setStrip] = useState('a')
+
   state.strip = strip
+
   const [tab, setTab] = useState('a')
+
   state.tab = tab
 
   <Screen id="screen">

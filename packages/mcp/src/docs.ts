@@ -14,11 +14,13 @@ export function registerDocsTools(server: McpServer, context: WorkspaceContext, 
     (method: 'index' | 'search' | 'read' | 'guidance') =>
     async (args: any): Promise<ReturnType<Respond>> => {
       const permission = context.policy.require('workspace')
+
       if (!permission.granted) {
         return respond({ ok: false, error: permission.error })
       }
 
       const selection = resolveSelection(context) as Selection
+
       if (selection.state !== 'bound') {
         return respond({
           ok: false,
@@ -31,6 +33,7 @@ export function registerDocsTools(server: McpServer, context: WorkspaceContext, 
 
       try {
         const data = await context.docs.serviceFor(selection.app)[method](args)
+
         return respond({ ok: true, data })
       } catch (error) {
         return respond({ ok: false, error: toContractError(error) })

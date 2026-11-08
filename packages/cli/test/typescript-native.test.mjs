@@ -12,6 +12,7 @@ import { xplatBoundary } from '../dist/vite.js'
 
 const require = createRequire(import.meta.url)
 const dir = mkdtempSync(join(tmpdir(), 'xplat-native-ts-'))
+
 after(() => rmSync(dir, { recursive: true, force: true }))
 symlinkSync(
   resolve(dirname(fileURLToPath(import.meta.url)), '../node_modules'),
@@ -26,6 +27,7 @@ writeFileSync(
 )
 
 const platforms = ['web', 'ios', 'android', 'macos', 'gtk', 'windows']
+
 for (const platform of platforms) {
   writeFileSync(
     join(dir, `Contract.${platform}.tsrx`),
@@ -71,13 +73,17 @@ test('native TypeScript checks explicit TSRX contracts and every implementation'
     join(dir, 'consumer.ts'),
     "import { Contract } from './Contract.tsrx'\nContract({ label: 'ok' })\n// @ts-expect-error imported props must not become any\nContract({ label: 42 })\n",
   )
+
   const valid = check()
+
   assert.equal(valid.status, 0, valid.stdout + valid.stderr)
   writeFileSync(
     join(dir, 'consumer.ts'),
     "import { Contract } from './Contract.tsrx'\nContract({ label: 42 })\n",
   )
+
   const invalid = check()
+
   assert.notEqual(invalid.status, 0)
   assert.match(invalid.stdout + invalid.stderr, /TS2322/)
 })
@@ -85,6 +91,7 @@ test('native TypeScript checks explicit TSRX contracts and every implementation'
 for (const platform of platforms) {
   test(`${platform} production bundling selects an implementation over the contract stub`, async () => {
     writeFileSync(join(dir, 'entry.ts'), "export { Contract } from './Contract.tsrx'\n")
+
     const result = await build({
       configFile: false,
       root: dir,
@@ -109,11 +116,13 @@ for (const platform of platforms) {
         lib: { entry: join(dir, 'entry.ts'), formats: ['es'] },
       },
     })
+
     const code = (Array.isArray(result) ? result : [result])
       .flatMap((r) => r.output)
       .filter((o) => o.type === 'chunk')
       .map((o) => o.code)
       .join('\n')
+
     assert.ok(code.includes(`runtime-${platform}-`), code)
   })
 }

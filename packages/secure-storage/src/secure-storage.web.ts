@@ -19,6 +19,7 @@ export const secureStorage: Service<SecureStore> = {
   },
   async isAvailable() {
     const host = desktopHost()
+
     return host !== null && (await host.supports('secureStorage', 'get'))
   },
   get: (key) => hostStore.get(key),

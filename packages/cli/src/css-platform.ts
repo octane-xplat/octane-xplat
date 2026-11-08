@@ -12,6 +12,7 @@ import loadPostcssConfig from 'postcss-load-config'
 import type { Alias, Plugin, UserConfig, ResolverFunction } from 'vite'
 
 import type { CssPlatform } from './css-platform.types.ts'
+
 export type { CssPlatform } from './css-platform.types.ts'
 
 const buildTargets = new Set([
@@ -35,9 +36,11 @@ function suffixes(platform: CssPlatform): string[] {
   if (platform === 'ios' || platform === 'android') {
     return [platform, 'mobile']
   }
+
   if (platform === 'visionos') {
     return ['ios', 'mobile']
   }
+
   return platform === 'native' ? [] : [platform]
 }
 
@@ -57,11 +60,13 @@ function platformTargetNames(rule: AtRule): string[] {
     .replace(/\/\*[\s\S]*?\*\//g, ' ')
     .split(',')
     .map((name) => name.trim())
+
   if (!rule.nodes || names.some((name) => !targets.has(name))) {
     throw rule.error(
       `Expected @platform <target>[, <target> ...] { ... }; targets: ${[...targets].join(', ')}`,
     )
   }
+
   return names
 }
 
@@ -70,19 +75,24 @@ function deferredLayerNames(rule: AtRule): string[] | undefined {
   if (rule.name !== 'layer' || !rule.nodes) {
     return undefined
   }
+
   const names = deferredLayerName.exec(rule.params.trim())?.[1].split('_')
+
   return names?.every((name) => targets.has(name)) ? names : undefined
 }
 
 function filterPlatforms(root: Root, platform: CssPlatform) {
   const conditions = new Map<AtRule, string[]>()
+
   // Validate every list, including unreachable nested blocks, before pruning.
   root.walkAtRules((rule) => {
     const names = rule.name === 'platform' ? platformTargetNames(rule) : deferredLayerNames(rule)
+
     if (names) {
       conditions.set(rule, names)
     }
   })
+
   for (const [rule, names] of conditions) {
     if (names.some((name) => matches(name, platform))) {
       rule.replaceWith(...rule.nodes!)
@@ -119,11 +129,14 @@ function platformDeferPlugin(deferred: Set<string>): PostcssPlugin {
     postcssPlugin: 'xplat-platform-defer',
     Once(root) {
       const file = root.source?.input.file
+
       if (!file || ![...deferred].some((id) => file.endsWith(id))) {
         return
       }
+
       root.walkAtRules('platform', (rule) => {
         const names = platformTargetNames(rule)
+
         rule.name = 'layer'
         rule.params = `${deferredLayerPrefix}${names.join('_')}`
       })
@@ -134,6 +147,7 @@ function platformDeferPlugin(deferred: Set<string>): PostcssPlugin {
 /** Parse platform CSS without losing authored declaration positions for audits. */
 export function parsePlatformCss(css: string, platform: CssPlatform, from?: string): Root {
   const root = postcss.parse(css, { from })
+
   filterPlatforms(root, platform)
   return root
 }
@@ -158,24 +172,31 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
   if (!buildTargets.has(platform)) {
     throw new Error(`Unknown CSS build target: ${platform}`)
   }
+
   const candidates = new Set<string>()
   const deferred = new Set<string>()
   let aliases: readonly Alias[] = []
   const select = (id: string) => {
     const file = cleanId(id)
+
     if (!file.endsWith('.css') || qualified.test(file)) {
       return id
     }
+
     const choices = [
       ...suffixes(platform).map((suffix) => file.slice(0, -4) + `.${suffix}.css`),
       file,
     ]
+
     for (const choice of choices) {
       candidates.add(choice)
     }
+
     const selected = choices.find((choice) => existsSync(choice))
+
     return selected ? selected + id.slice(file.length) : id
   }
+
   return {
     name: 'xplat-platform-css',
     api: {
@@ -189,6 +210,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
           to: from,
           map: previousMap ? { prev: previousMap, inline: false, annotation: false } : false,
         })
+
         return { css: result.css, map: result.map?.toString() }
       },
     },
@@ -199,14 +221,19 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
           'xplatCss requires the PostCSS transformer; use Lightning CSS for minification instead',
         )
       }
+
       const configuredAliases = userConfig.resolve?.alias ?? []
+
       aliases = Array.isArray(configuredAliases)
         ? [...configuredAliases]
         : Object.entries(configuredAliases).map(([find, replacement]) => ({ find, replacement }))
+
       const configured = userConfig.css?.postcss
       let settings: { options?: ProcessOptions; plugins?: AcceptedPlugin[] } = {}
+
       if (configured && typeof configured === 'object') {
         const { plugins, ...options } = configured
+
         settings = { options, plugins }
       } else {
         try {
@@ -220,6 +247,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
           }
         }
       }
+
       // Assign rather than return: Vite concatenates plugin arrays on merge.
       userConfig.css ??= {}
       userConfig.css.postcss = {
@@ -265,6 +293,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
                         : alias.customResolver.resolveId
 
                     const result = await resolver.call(this, source, importer, options)
+
                     return typeof result === 'string'
                       ? select(result)
                       : result && typeof result === 'object'
@@ -274,6 +303,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
 
                   break
                 }
+
                 const file = cleanId(source)
                 const local =
                   file.startsWith('.') && importer
@@ -281,16 +311,20 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
                     : isAbsolute(file) && existsSync(file)
                       ? file
                       : undefined
+
                 if (local) {
                   const selected = select(local + source.slice(file.length))
+
                   if (existsSync(cleanId(selected))) {
                     return selected
                   }
                 }
+
                 const resolved = await this.resolve(source, importer, {
                   ...options,
                   skipSelf: true,
                 })
+
                 return resolved ? { ...resolved, id: select(resolved.id) } : null
               } as unknown as ResolverFunction,
             },
@@ -307,10 +341,12 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
       ) {
         return
       }
+
       const result = postcss([platformCssPlugin(platform)]).process(code, {
         from: cleanId(id),
         map: { inline: false, annotation: false },
       })
+
       return { code: result.css, map: result.map?.toString() ?? null }
     },
     configureServer(server) {
@@ -318,9 +354,11 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
         if (!candidates.has(file)) {
           return
         }
+
         // Vite caches import resolutions separately from transformed modules.
         void server.restart().catch((error) => server.config.logger.error(String(error)))
       }
+
       server.watcher.on('add', changed).on('unlink', changed)
       server.httpServer?.once('close', () => {
         server.watcher.off('add', changed).off('unlink', changed)

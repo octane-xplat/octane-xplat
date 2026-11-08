@@ -79,6 +79,7 @@ function androidDisplayName(uri: string, nativeUri: any): string | undefined {
       // android.provider.OpenableColumns.DISPLAY_NAME — the literal the
       // column contract requires; 'display_name' resolves to -1.
       const index = cursor.getColumnIndex('_display_name')
+
       return index >= 0 ? cursor.getString(index) : undefined
     } finally {
       cursor.close()
@@ -90,6 +91,7 @@ function androidDisplayName(uri: string, nativeUri: any): string | undefined {
 
 function fallbackName(uri: string): string {
   const segment = uri.split('/').pop() ?? ''
+
   try {
     return decodeURIComponent(segment) || 'document'
   } catch {
@@ -130,6 +132,7 @@ async function pickFiles(
 // through FileInputStream. Returns null when the resolver cannot open the URI.
 function openAndroidInput(uri: string): any {
   const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+
   if (uri.startsWith('content://') || uri.startsWith('file://')) {
     return activity?.getContentResolver()?.openInputStream(android.net.Uri.parse(uri))
   }
@@ -139,14 +142,17 @@ function openAndroidInput(uri: string): any {
 
 function readAndroidToStream(uri: string, opts?: FileReadBytesOptions): any {
   const input = openAndroidInput(uri)
+
   if (!input) {
     throw new Error(`Unable to open picked file: ${uri}`)
   }
 
   const out = new java.io.ByteArrayOutputStream()
   const chunk = Array.create('byte', READ_CHUNK)
+
   try {
     let count: number
+
     while ((count = input.read(chunk)) !== -1) {
       throwIfAborted(opts?.signal)
       out.write(chunk, 0, count)
@@ -163,6 +169,7 @@ function readAndroidToStream(uri: string, opts?: FileReadBytesOptions): any {
 
 function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
   const out = readAndroidToStream(uri, opts)
+
   // ArrayBuffer.from is an NS Android runtime builtin that takes a
   // java.nio.ByteBuffer — wrap the byte[] rather than marshalling per byte.
   return new Uint8Array((ArrayBuffer as any).from(java.nio.ByteBuffer.wrap(out.toByteArray())))
@@ -173,12 +180,14 @@ function readAndroidBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array 
 // percent-encoding, so fall back to a decoded path when the literal misses.
 function iosFilePath(uri: string): string {
   let p = uri.startsWith('file://') ? uri.slice('file://'.length) : uri
+
   if (NSFileManager.defaultManager.fileExistsAtPath(p)) {
     return p
   }
 
   try {
     const decoded = decodeURIComponent(p)
+
     if (decoded !== p && NSFileManager.defaultManager.fileExistsAtPath(decoded)) {
       return decoded
     }
@@ -190,15 +199,19 @@ function iosFilePath(uri: string): string {
 function readIosBytes(uri: string, opts?: FileReadBytesOptions): Uint8Array {
   const p = iosFilePath(uri)
   const handle = NSFileHandle.fileHandleForReadingAtPath(p)
+
   if (!handle) {
     throw new Error(`Unable to open picked file: ${uri}`)
   }
 
   const out = NSMutableData.new()
+
   try {
     while (true) {
       throwIfAborted(opts?.signal)
+
       const data = handle.readDataOfLength(READ_CHUNK)
+
       if (!data || data.length === 0) {
         break
       }
@@ -242,12 +255,14 @@ function androidExport(
   opts?: FileExportOptions,
 ): Promise<FileExportResult> {
   const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+
   if (!activity) {
     return Promise.resolve('unavailable')
   }
 
   const Intent = android.content.Intent
   const intent = new Intent(Intent.ACTION_CREATE_DOCUMENT)
+
   intent.addCategory(Intent.CATEGORY_OPENABLE)
   intent.setType(opts?.mimeType ?? '*/*')
   intent.putExtra(Intent.EXTRA_TITLE, name)
@@ -260,7 +275,9 @@ function androidExport(
       }
 
       Application.android.off(Application.android.activityResultEvent, onEvent)
+
       const uri = event.intent?.getData?.()
+
       if (event.resultCode !== android.app.Activity.RESULT_OK || !uri) {
         resolve('cancelled')
         return
@@ -314,6 +331,7 @@ function iosExportDelegateClass(): any {
     }
     private settle(controller: any, saved: boolean): void {
       const finish = this.finish
+
       this.finish = null
       controller.delegate = null
       finish?.(saved)
@@ -328,6 +346,7 @@ function iosVisibleViewController(): any {
   const keyWindow = app.keyWindow || (app.windows.count > 0 && app.windows[0])
   // Utils.ios is only populated on iOS — typed as an empty bag elsewhere.
   const getVisible = (Utils.ios as any)?.getVisibleViewController
+
   return keyWindow && typeof getVisible === 'function'
     ? getVisible(keyWindow.rootViewController)
     : null
@@ -362,6 +381,7 @@ async function iosExport(
   }
 
   const visibleVC = iosVisibleViewController()
+
   if (!visibleVC) {
     removeTemp()
     throw new Error('No visible view controller to present the export picker')
@@ -375,6 +395,7 @@ async function iosExport(
       )
 
       const delegate = iosExportDelegateClass().new()
+
       // `saved` only after the system commits the export-as-copy to the
       // chosen destination; dismissal settles as 'cancelled'.
       delegate.finish = (saved: boolean) => {
@@ -415,14 +436,18 @@ export const files: Files = {
   },
   async writeText(name: string, text: string): Promise<FileRef> {
     assertSafeFileName(name)
+
     const p = path.join(docs().path, name)
     const f = File.fromPath(p)
+
     await f.writeText(text)
     return { name, uri: p }
   },
   async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
     assertSafeFileName(name)
+
     const p = path.join(docs().path, name)
+
     if (Application.android) {
       writeAndroidBytes(p, bytes)
     } else {
@@ -454,6 +479,7 @@ export const files: Files = {
     }
 
     const slot: { delegate?: any; controller?: any } = {}
+
     activeExport = slot
     try {
       return Application.android
@@ -467,6 +493,7 @@ export const files: Files = {
   },
   release(ref: FileRef): void {
     const cachePrefix = knownFolders.temp().path + '/'
+
     if (!ref.uri.startsWith(cachePrefix)) {
       return
     }

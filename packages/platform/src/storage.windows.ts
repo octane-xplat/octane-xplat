@@ -25,8 +25,10 @@ const storePath = (): string =>
 const load: Promise<unknown> = (async () => {
   try {
     const path = storePath()
+
     if (File.exists(path)) {
       const text = await File.fromPath(path).readText()
+
       for (const pair of JSON.parse(text) as [string, string][]) {
         entries.set(pair[0], String(pair[1]))
       }
@@ -36,12 +38,14 @@ const load: Promise<unknown> = (async () => {
 
 const persist = (): void => {
   const snapshot = JSON.stringify([...entries])
+
   writeTail = load.then(() => File.fromPath(storePath()).writeText(snapshot)).catch(() => {})
 }
 
 export const storage = {
   getString: (key: string): string | null => {
     const value = entries.get(key)
+
     return value === undefined ? null : value
   },
   setString: (key: string, value: string): void => {

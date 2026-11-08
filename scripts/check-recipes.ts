@@ -22,6 +22,7 @@ export function checkRecipes(root) {
     const source = readFileSync(path, 'utf8')
     const fail = (message) => errors.push(`${file}: ${message}`)
     const id = source.match(/^ID: ([a-z0-9]+(?:-[a-z0-9]+)*)$/m)?.[1]
+
     if (!id || ids.has(id)) {
       fail('missing, invalid, or duplicate recipe ID')
     }
@@ -52,6 +53,7 @@ export function checkRecipes(root) {
     }
 
     const sections = new Map()
+
     for (const match of source.matchAll(/^## (.+)\n([\s\S]*?)(?=^## |$(?![\s\S]))/gm)) {
       if (sections.has(match[1])) {
         fail(`duplicate section ${match[1]}`)
@@ -73,6 +75,7 @@ export function checkRecipes(root) {
 
     const entries = (heading) => {
       const result = new Map()
+
       for (const match of (sections.get(heading) ?? '').matchAll(/^- (AC[1-9]\d*): (.+)$/gm)) {
         if (result.has(match[1])) {
           fail(`duplicate ${match[1]} in ${heading}`)
@@ -86,12 +89,14 @@ export function checkRecipes(root) {
 
     const criteria = entries('Acceptance criteria')
     const mappings = entries('Documentation')
+
     if (!criteria.size) {
       fail('no acceptance criteria')
     }
 
     for (const key of criteria.keys()) {
       const mapping = mappings.get(key) ?? ''
+
       if (!/\[[^\]]+\]\([^)]+\)/.test(mapping) && !/Gap: \S/.test(mapping)) {
         fail(`${key} needs a documentation link or explicit Gap`)
       }
@@ -105,12 +110,14 @@ export function checkRecipes(root) {
 
     for (const match of source.matchAll(/\[[^\]]+\]\(([^)]+)\)/g)) {
       const href = match[1]
+
       if (/^https?:\/\//.test(href)) {
         continue
       }
 
       const [filePart, anchor] = href.split('#')
       const target = resolve(dirname(path), filePart || file)
+
       if (relative(root, target).startsWith('..')) {
         fail(`link escapes repository: ${href}`)
         continue
@@ -131,6 +138,7 @@ export function checkRecipes(root) {
               .replace(/ /g, '-')
 
             const count = counts.get(slug) ?? 0
+
             counts.set(slug, count + 1)
             return count ? `${slug}-${count}` : slug
           })
@@ -150,6 +158,7 @@ export function checkRecipes(root) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const errors = checkRecipes(fileURLToPath(new URL('../', import.meta.url)))
+
   if (errors.length) {
     console.error(errors.join('\n'))
     process.exitCode = 1

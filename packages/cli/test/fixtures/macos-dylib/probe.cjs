@@ -1,6 +1,7 @@
 // The runner checks the PASS marker: a host exit alone does not prove assertions.
 const expectDeclared = __hostEnv('XPLAT_PROBE_DECLARED') === '1'
 const library = dlopen(__hostEnv('XPLAT_PROBE_DYLIB'), 2 | 8) // RTLD_NOW | RTLD_GLOBAL
+
 if (!library) {
   throw Error('Custom dylib failed to load')
 }

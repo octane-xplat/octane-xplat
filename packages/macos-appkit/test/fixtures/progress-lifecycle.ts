@@ -34,6 +34,7 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
 
   root.render(Progress, {})
   await settle()
+
   const first = progressRef.current,
     left = debug.findId('progress-left'),
     tail = debug.findId('progress-tail')
@@ -62,6 +63,7 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
   )
 
   const rect = first.alignmentRectForFrame(first.frame)
+
   check(
     Math.abs(Number(rect.size.width) - 140) < 1 && Math.abs(Number(rect.size.height) - 16) < 1,
     'Progress explicit layout failed',
@@ -93,7 +95,9 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = progressRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -114,7 +118,9 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = progressRef.current
+
   check(
     returned &&
       returned !== moved &&
@@ -130,7 +136,9 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = progressRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -149,7 +157,9 @@ export async function checkProgressLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = progressRef.current
+
   check(
     retained && retained.superview === left && range(retained, 12.5, 25),
     'Progress fractional reinsertion failed',

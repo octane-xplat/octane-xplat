@@ -23,12 +23,14 @@ export function setThemePreference(value: ThemePreference): void {
   }
 
   preference = value
+
   // An explicit preference pins NSApp.appearance; 'system' clears the
   // override. The effectiveAppearance change notifies appearance listeners,
   // so CSS root classes, media queries and native controls all follow.
   ;(globalThis as Record<string, any>).__xplatAppKit?.setAppearanceOverride?.(
     value === 'system' ? null : value,
   )
+
   emit()
 }
 
@@ -42,7 +44,9 @@ export function getThemeScheme(): ThemeScheme {
 
 function subscribe(callback: () => void): () => void {
   listeners.add(callback)
+
   const unsubscribeSystem = subscribeSystemScheme(callback)
+
   return () => {
     listeners.delete(callback)
     unsubscribeSystem()

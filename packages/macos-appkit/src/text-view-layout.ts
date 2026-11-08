@@ -17,7 +17,9 @@ function report(message: string): void {
 /** Retire before any native removal or other renderer teardown can reenter. */
 export function retireTextViewLayout(node: LayoutNode): void {
   node.textLayoutRetired = true
+
   const detach = node.textLayoutDetach
+
   node.textLayoutDetach = undefined
   try {
     detach?.()
@@ -35,9 +37,11 @@ export function observeTextViewLayout(
   if (node.textLayoutRetired) {
     return
   }
+
   const previous = node.textLayoutDetach
   let closed = false,
     ready = false
+
   let view: any, viewport: any, clip: any, center: any, remove: any, observer: any
   const current = () => !closed && !node.textLayoutRetired && node.textLayoutDetach === detach
   const release = (token: any) => {
@@ -47,27 +51,34 @@ export function observeTextViewLayout(
       report('[macos-textarea] Layout observer cleanup failed')
     }
   }
+
   const detach = () => {
     if (closed) {
       return
     }
+
     closed = true
     ready = false
     if (node.textLayoutDetach === detach) {
       node.textLayoutDetach = undefined
     }
+
     const token = observer
+
     observer = undefined
     if (token != null) {
       release(token)
     }
   }
+
   const matches = () => {
     if (!current()) {
       return false
     }
+
     const content = viewport.contentView,
       document = viewport.documentView
+
     return (
       current() &&
       node.view === view &&
@@ -76,10 +87,12 @@ export function observeTextViewLayout(
       document === view
     )
   }
+
   const changed = () => {
     if (!ready || !current()) {
       return
     }
+
     try {
       if (!matches()) {
         detach()
@@ -114,10 +127,15 @@ export function observeTextViewLayout(
     }
 
     const host = native()
+
     center = host.NSNotificationCenter?.defaultCenter
+
     const add = center?.addObserverForNameObjectQueueUsingBlock
+
     remove = center?.removeObserver
+
     const name = host.NSViewFrameDidChangeNotification
+
     if (!current()) {
       return detach
     }
@@ -133,6 +151,7 @@ export function observeTextViewLayout(
     }
 
     const token = add.call(center, name, clip, null, changed)
+
     if (!current()) {
       if (token != null) {
         release(token)

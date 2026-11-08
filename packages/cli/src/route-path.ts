@@ -19,9 +19,11 @@ export const PRESENT = /\+(modal|fade|push)$/
 
 export function routeFor(rel: string, extRe: RegExp = EXT): RoutePath | null {
   rel = rel.split(sep).join('/').replace(extRe, '')
+
   const parts = rel.split('/')
   let base = parts[parts.length - 1]
   const sm = SUFFIX.exec(base)
+
   if (sm) {
     base = base.slice(0, base.length - sm[0].length)
   }
@@ -29,6 +31,7 @@ export function routeFor(rel: string, extRe: RegExp = EXT): RoutePath | null {
   const pm = PRESENT.exec(base)
   const presentation = pm ? (pm[1] === 'fade' ? 'push' : pm[1]) : undefined
   const transition = pm?.[1] === 'fade' ? 'fade' : undefined
+
   if (pm) {
     base = base.slice(0, base.length - pm[0].length)
   }
@@ -38,6 +41,7 @@ export function routeFor(rel: string, extRe: RegExp = EXT): RoutePath | null {
   }
 
   const segs = parts.slice(0, -1).concat(base)
+
   if (segs[segs.length - 1] === 'index') {
     segs.pop()
   }

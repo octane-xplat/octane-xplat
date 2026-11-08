@@ -67,18 +67,23 @@ let symbolicCache: SymbolicEntry[] | null = null
 
 const carbonMods = (accelerator: Accelerator): number => {
   let mods = 0
+
   if (accelerator.meta) {
     mods |= CMD
   }
+
   if (accelerator.shift) {
     mods |= SHIFT
   }
+
   if (accelerator.alt) {
     mods |= OPTION
   }
+
   if (accelerator.ctrl) {
     mods |= CONTROL
   }
+
   return mods
 }
 
@@ -93,18 +98,23 @@ function ensureHandler(): void {
   if (handlerRef !== null) {
     return
   }
+
   const ref = new interop.Reference()
   const spec = new Uint32Array([fourcc('keyb'), K_EVENT_HOTKEY_PRESSED])
   const handler = (_callRef: unknown, event: interop.PointerConvertible): number => {
     const id = new Uint32Array(2)
+
     GetEventParameter(event, fourcc('----'), fourcc('hkid'), null, 8, null, id)
     dispatch.get(id[1])?.()
     return 0
   }
+
   const status = InstallEventHandler(GetApplicationEventTarget(), handler, 1, spec, null, ref)
+
   if (status !== 0) {
     throw new Error(`InstallEventHandler failed with status ${status}`)
   }
+
   handlerRef = ref
   handlerFn = handler
 }
@@ -113,23 +123,30 @@ function symbolicHotKeys(): SymbolicEntry[] {
   if (symbolicCache !== null) {
     return symbolicCache
   }
+
   const entries: SymbolicEntry[] = []
+
   try {
     const ref = new interop.Reference(interop.types.id)
+
     if (CopySymbolicHotKeys(ref) === 0) {
       // The bridge returns `any`-typed Foundation objects; bind once to the
       // named collection shapes rather than asserting inline.
       const array = ref.value as unknown as NSArrayLike
+
       for (let i = 0; i < array.count; i++) {
         const dict = array.objectAtIndex(i) as unknown as NSDictionaryLike
         const record: Record<string, string> = {}
+
         for (let j = 0; j < dict.allKeys.count; j++) {
           const key = dict.allKeys.objectAtIndex(j)
+
           record[String(key)] = String(dict.objectForKey(key))
         }
 
         const code = Number(record['kHISymbolicHotKeyCode'])
         const modifiers = Number(record['kHISymbolicHotKeyModifiers'])
+
         if (Number.isFinite(code) && code !== 65535 && Number.isFinite(modifiers)) {
           entries.push({
             enabled: record['kHISymbolicHotKeyEnabled'] === 'true',
@@ -143,6 +160,7 @@ function symbolicHotKeys(): SymbolicEntry[] {
     // Older systems may not expose the call or the array shape may differ;
     // a failed decode means no dynamic reserved entries.
   }
+
   symbolicCache = entries
   return entries
 }
@@ -156,20 +174,25 @@ export const backend: HotkeyBackend = {
 
   reserved(accelerator: Accelerator): string | null {
     const code = macKeyCode(accelerator.code)
+
     if (code === null) {
       return null
     }
+
     const mods = carbonMods(accelerator)
+
     for (const entry of symbolicHotKeys()) {
       if (entry.enabled && entry.code === code && (entry.modifiers & MOD_MASK) === mods) {
         return `The accelerator ${accelerator.text} is already used by an enabled macOS system shortcut.`
       }
     }
+
     return null
   },
 
   bind(request: BindRequest, onPress: () => void): Promise<BindOutcome> {
     const code = macKeyCode(request.accelerator.code)
+
     if (code === null) {
       return Promise.resolve({
         ok: false,
@@ -179,6 +202,7 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     try {
       ensureHandler()
     } catch (error) {
@@ -190,6 +214,7 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     const ref = new interop.Reference()
     const status = RegisterEventHotKey(
       code,
@@ -199,6 +224,7 @@ export const backend: HotkeyBackend = {
       1,
       ref,
     )
+
     if (status === EVENT_HOTKEY_EXISTS) {
       return Promise.resolve({
         ok: false,
@@ -208,6 +234,7 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     if (status !== 0) {
       return Promise.resolve({
         ok: false,
@@ -217,6 +244,7 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     dispatch.set(request.key, onPress)
     return Promise.resolve({
       ok: true,

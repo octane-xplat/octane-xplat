@@ -36,28 +36,34 @@ class WindowsActionControl extends View {
 
   createNativeView(): any {
     const native = new Microsoft.UI.Xaml.Controls[this.kind]()
+
     native.MinWidth = 0
     native.MinHeight = 0
     native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
       `<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="${this.kind}"><Border Background="Transparent" /></ControlTemplate>`,
     )
+
     return native
   }
 
   initNativeView(): void {
     super.initNativeView()
+
     const native = this.nativeViewProtected
+
     this.eventNative = native
     this.click = NSWinRT.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', () => {
       if (this.eventNative === native && this.isLoaded && this.isEnabled && native.IsEnabled) {
         this.settings?.onPress?.()
       }
     })
+
     this.layoutDelegate = NSWinRT.asDelegate('Windows.Foundation.EventHandler`1<Object>', () => {
       if (this.eventNative === native && this.isLoaded) {
         this.syncAccessibility()
       }
     })
+
     native.Click = this.click
     native.LayoutUpdated = this.layoutDelegate
     this.syncAccessibility()
@@ -65,6 +71,7 @@ class WindowsActionControl extends View {
 
   syncAccessibility(): void {
     const native = this.eventNative
+
     if (!native) {
       return
     }
@@ -76,6 +83,7 @@ class WindowsActionControl extends View {
       if (view === this || view.accessible === false) {
         return
       }
+
       if (view.accessibilityLabel) {
         parts.push(view.accessibilityLabel)
       } else if (view instanceof TextBase) {
@@ -89,18 +97,23 @@ class WindowsActionControl extends View {
         })
       }
     }
+
     if (this.settings?.label === undefined && this.parent instanceof View) {
       this.parent.eachChildView((child) => {
         visit(child)
         return true
       })
     }
+
     const label = this.settings?.label ?? parts.join(' ').trim()
+
     if (this.accessibilityLabel !== label) {
       this.accessibilityLabel = label
     }
+
     // Gesture-only Pressables do not add a keyboard stop, matching the web leaf.
     const tabStop = Boolean(this.settings?.onPress) && this.settings?.accessible !== false
+
     if (native.IsTabStop !== tabStop) {
       native.IsTabStop = tabStop
     }
@@ -108,11 +121,13 @@ class WindowsActionControl extends View {
 
   disposeNativeView(): void {
     const native = this.eventNative
+
     this.eventNative = undefined
     if (native) {
       native.Click = null
       native.LayoutUpdated = null
     }
+
     this.click = undefined
     this.layoutDelegate = undefined
     super.disposeNativeView()

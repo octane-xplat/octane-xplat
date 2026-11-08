@@ -11,6 +11,7 @@ const shortcuts = [
 export function PopoverKeyboardShortcuts() @{
   const anchor = useRef(null)
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <Button ref={anchor} label="Shortcuts" clickAction={() => setIsOpen(true)} />

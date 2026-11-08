@@ -24,8 +24,10 @@ it('exposes the native scroll viewport through its imperative handle', () => {
   const container = createObjectContainer('nativescript')
   const driver = createObjectDriver('nativescript')
   const getPublicInstance = driver.getPublicInstance.bind(driver)
+
   driver.getPublicInstance = (container, id) => {
     const host: any = getPublicInstance(container, id)
+
     if (host.type === 'scrollview') {
       host.scrollTo = vi.fn()
     }
@@ -34,6 +36,7 @@ it('exposes the native scroll viewport through its imperative handle', () => {
   }
 
   const root = createUniversalRoot(container, driver)
+
   try {
     flushUniversalSync(() => root.render(ScrollableArea as any, { ref, height: 200 }))
     expect((ref.current?.native as any)?.type).toBe('scrollview')

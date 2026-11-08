@@ -5,6 +5,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { registerRootLayout, unregisterRootLayout } from './root-layout'
 import { attachTapToBlur } from '../../internal/keyboard/tap-to-blur'
+
 // The screen shell is a RootLayout so RootLayout.open() can layer overlays
 // over it (decision #22). Self-registers on loaded/unloaded — overlay and
 // sheet services mount on the most recently mounted shell (topRootLayout).

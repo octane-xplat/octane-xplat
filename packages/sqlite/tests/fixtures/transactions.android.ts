@@ -22,6 +22,7 @@ function track<T>(owned: OwnedDatabase, operation: () => Promise<T>): Promise<T>
 async function observe<T>(operation: Promise<T>, milliseconds = 5000) {
   const started = Date.now()
   let timer: ReturnType<typeof setTimeout> | undefined
+
   try {
     return await Promise.race([
       operation.then(
@@ -46,11 +47,13 @@ async function observe<T>(operation: Promise<T>, milliseconds = 5000) {
 
 export async function run(ctx: ProbeContext) {
   ctx.assert('SQLite runtime target is Android', ctx.target, 'android')
+
   const identity = `${Date.now()}-${Math.random().toString(36).slice(2)}`
   const owned: OwnedDatabase[] = []
   let phase = 'opening controls'
   let ticks = 0
   const heartbeat = setInterval(() => ticks++, 100)
+
   ctx.onCleanup(async () => {
     for (const connection of [...owned].reverse()) {
       // A queued close would wait on the same stalled transaction. The
@@ -73,13 +76,16 @@ export async function run(ctx: ProbeContext) {
 
     owned.push(control)
     phase = 'control commit and rollback'
+
     const controls = await observe(
       track(control, async () => {
         await control.db.execute('CREATE TABLE entries (value INTEGER NOT NULL)')
         await control.db.transaction(async (tx) => {
           await tx.execute('INSERT INTO entries (value) VALUES (?)', [1])
         })
+
         const rollback = new Error('intentional rollback control')
+
         try {
           await control.db.transaction(async (tx) => {
             await tx.execute('INSERT INTO entries (value) VALUES (?)', [2])
@@ -92,6 +98,7 @@ export async function run(ctx: ProbeContext) {
             throw error
           }
         }
+
         return control.db.select<{ value: number }>('SELECT value FROM entries ORDER BY value')
       }),
     )
@@ -109,6 +116,7 @@ export async function run(ctx: ProbeContext) {
     )
 
     phase = 'opening transaction database'
+
     const threaded: OwnedDatabase = {
       name: `sqlite-runtime-${identity}-default.db`,
       db: await openDatabase(`sqlite-runtime-${identity}-default.db`),
@@ -117,6 +125,7 @@ export async function run(ctx: ProbeContext) {
 
     owned.push(threaded)
     phase = 'worker warmup outside a transaction'
+
     const warmup = await observe(
       track(threaded, async () => {
         await threaded.db.execute('CREATE TABLE entries (value INTEGER NOT NULL)')
@@ -135,12 +144,15 @@ export async function run(ctx: ProbeContext) {
     ctx.assert('worker returns its warmup row', JSON.stringify(warmup.value), '[{"value":10}]')
 
     phase = 'transaction'
+
     const progress = { callbackEntered: false, insertIssued: false, insertCompleted: false }
     const outcome = await observe(
       track(threaded, () =>
         threaded.db.transaction(async (tx) => {
           progress.callbackEntered = true
+
           const insertion = tx.execute('INSERT INTO entries (value) VALUES (?)', [20])
+
           progress.insertIssued = true
           await insertion
           progress.insertCompleted = true
@@ -162,6 +174,7 @@ export async function run(ctx: ProbeContext) {
     }
 
     phase = 'transaction committed rows'
+
     const readback = await observe(
       track(threaded, () =>
         threaded.db.select<{ value: number }>('SELECT value FROM entries ORDER BY value'),

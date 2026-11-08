@@ -7,8 +7,11 @@ test('readable native hosts apply and clear help/value descriptions and element 
   const source = rendererSource(),
     start = source.indexOf('function applyAccessibility('),
     end = source.indexOf('/** Host updates carry', start)
+
   assert.ok(start >= 0 && end > start)
+
   const apply = runSlice(source.slice(start, end) + '\n;applyAccessibility')
+
   for (const type of ['label', 'htmlview']) {
     let element = true,
       label = ''
@@ -26,6 +29,7 @@ test('readable native hosts apply and clear help/value descriptions and element 
     }
 
     const node = { type, view, props: {} }
+
     apply(node, 'accessibilityLabel', 'Items')
     apply(node, 'accessibilityHint', 'Open the collection.')
     apply(node, 'accessibilityValue', '12 items')

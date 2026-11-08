@@ -27,6 +27,7 @@ const tick = async () => {
 function setup(extra: Partial<CommandPaletteProps> = {}) {
   const props: CommandPaletteProps = { open: true, items, ...extra }
   const controller = createCommandPaletteController(() => props)
+
   controller.configure()
   return { props, controller }
 }
@@ -37,6 +38,7 @@ function key(
   composing = false,
 ) {
   let prevented = false
+
   controller.keyDown({
     key: name,
     isComposing: composing,
@@ -70,6 +72,7 @@ describe('CommandPalette search and selection', () => {
 
   it('uses grouped display order for keyboard navigation and skips disabled commands', () => {
     const { controller } = setup()
+
     expect(controller.store.getSnapshot().results.map((item) => item.id)).toEqual([
       'off',
       'new',
@@ -89,6 +92,7 @@ describe('CommandPalette search and selection', () => {
   it('does not execute without a highlight, on a disabled item, or during composition', () => {
     const events: string[] = []
     const { controller } = setup({ onValueChange: (id) => events.push(id) })
+
     key(controller, 'Enter')
     controller.select('off')
     key(controller, 'ArrowDown')
@@ -117,6 +121,7 @@ describe('CommandPalette search and selection', () => {
 
   it('preselects by ID in grouped order rather than the source array index', () => {
     const { controller } = setup({ value: 'settings' })
+
     expect(controller.store.getSnapshot().highlighted).toBe('settings')
     key(controller, 'ArrowUp')
     expect(controller.store.getSnapshot().highlighted).toBe('new')
@@ -224,6 +229,7 @@ describe('CommandPalette search and selection', () => {
     for (const accept of [false, true]) {
       let calls = 0
       const { props, controller } = setup({ items: [{ key: 'one', label: 'One' }] })
+
       props.onOpenChange = (open) => {
         calls++
         if (accept) {

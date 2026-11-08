@@ -7,7 +7,9 @@ import ts from 'typescript-classic'
 const source = await readFile(new URL('../src/session-backend.ios.ts', import.meta.url), 'utf8')
 const start = source.indexOf('const numericValue =')
 const end = source.indexOf('/** iOS adapter:', start)
+
 assert.ok(start >= 0 && end > start)
+
 const compiled = ts.transpile(
   source.slice(start, end) +
     '\nglobalThis.readDisk = freeDiskBytes; globalThis.readNumber = numericValue',
@@ -53,6 +55,7 @@ test('disk space remains correct for unboxed and boxed id returns', () => {
 
 test('interruption reasons and recording-success flags accept both bridge shapes', () => {
   const { readNumber } = load(undefined)
+
   for (const value of [3, { longLongValue: 3 }, { doubleValue: 3 }]) {
     assert.equal(readNumber(value), 3)
   }

@@ -29,6 +29,7 @@ export function setImageDrawingStyle(
   value: unknown,
 ): void {
   const style = styles.get(view) ?? {}
+
   if (name === 'objectFit') {
     if (value == null) {
       delete style.fit
@@ -37,11 +38,13 @@ export function setImageDrawingStyle(
     }
 
     const fit = String(value)
+
     view.imageScaling = Object.hasOwn(nativeScaling, fit) ? nativeScaling[fit as ImageFit] : 0
   } else if (value == null) {
     delete style.position
   } else {
     const position = parseImagePosition(value)
+
     if (!position && !warnedPosition) {
       warnedPosition = true
       console.warn(
@@ -51,11 +54,13 @@ export function setImageDrawingStyle(
 
     style.position = position ?? parseImagePosition(undefined)!
   }
+
   if (style.fit === undefined && style.position === undefined) {
     styles.delete(view)
   } else {
     styles.set(view, style)
   }
+
   view.needsDisplay = true
 }
 
@@ -63,18 +68,23 @@ export function setImageDrawingStyle(
  * image, intrinsic measurement and accessibility; only drawing is normalized. */
 export function drawImageContent(view: NSImageView): boolean {
   const style = styles.get(view)
+
   if (!style) {
     return false
   }
+
   const image = view.image
+
   if (!image) {
     return false
   }
+
   const bounds = view.bounds
   const fit =
     style.fit && Object.hasOwn(nativeScaling, style.fit)
       ? (style.fit as ImageFit)
       : (nativeFit[Number(view.imageScaling)] ?? 'scale-down')
+
   const rect = imageContentRect(
     fit,
     style.position ?? parseImagePosition(undefined)!,
@@ -83,9 +93,11 @@ export function drawImageContent(view: NSImageView): boolean {
     Number(image.size.width),
     Number(image.size.height),
   )
+
   if (!rect) {
     return false
   }
+
   const destination = {
     origin: {
       x: bounds.origin.x + rect.x,
@@ -93,6 +105,7 @@ export function drawImageContent(view: NSImageView): boolean {
     },
     size: { width: rect.width, height: rect.height },
   }
+
   NSGraphicsContext.saveGraphicsState()
   try {
     NSBezierPath.clipRect(bounds)
@@ -107,5 +120,6 @@ export function drawImageContent(view: NSImageView): boolean {
   } finally {
     NSGraphicsContext.restoreGraphicsState()
   }
+
   return true
 }

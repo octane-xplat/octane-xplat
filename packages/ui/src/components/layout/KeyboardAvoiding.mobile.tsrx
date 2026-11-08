@@ -29,6 +29,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
   const consumed = useConsumedInsets()
   const ancestor = useContext(KeyboardAvoidanceContext)
   const platformProps = Application.ios != null ? props.ios : props.android
+
   useEffect(() => {
     if (host && platformProps) {
       Object.assign(host, platformProps)
@@ -50,6 +51,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
   }
 
   const binding = useRef<KeyboardAvoidanceBinding | null>(null)
+
   useEffect(() => {
     if (!enabled || !host || !content) {
       setProvided({ bottom: 0 })
@@ -57,6 +59,7 @@ export function KeyboardAvoiding(props: KeyboardAvoidingProps): unknown @{
     }
 
     const own = bindKeyboardAvoidance(host, content, () => options.current, setProvided)
+
     binding.current = own
     return () => {
       binding.current = null

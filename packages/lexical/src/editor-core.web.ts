@@ -95,29 +95,35 @@ function setBlock(
 ): void {
   editor.update(() => {
     const sel = $getSelection()
+
     if (!$isRangeSelection(sel)) {
       return
     }
+
     const block = $findMatchingParent(sel.anchor.getNode(), is)
     const active = block != null && (match ? match(block) : true)
+
     $setBlocksType(sel, () => (active ? $createParagraphNode() : create()))
   })
 }
 
 export function applyFormat(editor: any, format: LexicalFormat): void {
   const text = TEXT_FORMAT[format]
+
   if (text) {
     editor.dispatchCommand(FORMAT_TEXT_COMMAND, text)
     return
   }
 
   const el = ELEMENT_FORMAT[format]
+
   if (el) {
     editor.dispatchCommand(FORMAT_ELEMENT_COMMAND, el)
     return
   }
 
   const tag = HEADING_TAG[format]
+
   if (tag) {
     setBlock(
       editor,
@@ -168,28 +174,35 @@ export function applyFormat(editor: any, format: LexicalFormat): void {
 export function isActive(editor: any, format: LexicalFormat): boolean {
   return editor.read(() => {
     const sel = $getSelection()
+
     if (sel == null) {
       return false
     }
 
     const text = TEXT_FORMAT[format]
+
     if (text) {
       return $isRangeSelection(sel) && sel.hasFormat(text as any)
     }
 
     const el = ELEMENT_FORMAT[format]
+
     if (el) {
       const nodes = sel.getNodes()
+
       return nodes.some((n: any) => {
         const block = $findMatchingParent(n, (p: any) => p.getFormatType != null)
+
         return block != null && (block as any).getFormatType() === el
       })
     }
 
     const tag = HEADING_TAG[format]
+
     if (tag) {
       return sel.getNodes().some((n: any) => {
         const h = $findMatchingParent(n, $isHeadingNode)
+
         return h?.getTag() === tag
       })
     }
@@ -207,6 +220,7 @@ export function isActive(editor: any, format: LexicalFormat): boolean {
 
         return sel.getNodes().some((n: any) => {
           const l = $findMatchingParent(n, $isListNode)
+
           return l?.getListType() === want
         })
       }
@@ -259,6 +273,7 @@ export function flatOffset(root: any, key: string, offset: number): number {
 
 export function activeFormats(editor: any): LexicalFormat[] {
   const out: LexicalFormat[] = []
+
   for (const f of Object.keys(TEXT_FORMAT) as LexicalFormat[]) {
     if (isActive(editor, f)) {
       out.push(f)
@@ -297,6 +312,7 @@ export function bindEditorHandle(editor: any): LexicalEditorHandle {
       editor.update(() => {
         const dom = new DOMParser().parseFromString(html, 'text/html')
         const nodes = $generateNodesFromDOM(editor, dom)
+
         $getRoot().clear().select()
         $insertNodes(nodes)
       }),
@@ -306,6 +322,7 @@ export function bindEditorHandle(editor: any): LexicalEditorHandle {
       if (format === 'link') {
         throw new RangeError('Use linkTo(url, anchor) to apply a link')
       }
+
       editor.focus()
       applyFormat(editor, format)
     },
@@ -313,8 +330,11 @@ export function bindEditorHandle(editor: any): LexicalEditorHandle {
       if (anchor != null && anchor !== '') {
         editor.update(() => {
           const link = $createLinkNode(url)
+
           link.append($createTextNode(anchor))
+
           const sel = $getSelection()
+
           if ($isRangeSelection(sel)) {
             sel.insertNodes([link])
           }
@@ -331,6 +351,7 @@ export function bindEditorHandle(editor: any): LexicalEditorHandle {
     blur: () => editor.blur(),
     isFocused: () => {
       const root = editor.getRootElement()
+
       return root != null && root === document.activeElement
     },
     native: editor,

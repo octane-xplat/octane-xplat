@@ -7,6 +7,7 @@ afterEach(() => vi.unstubAllGlobals())
 function fixture() {
   let monitor!: (event: any) => any
   const removeMonitor = vi.fn()
+
   vi.stubGlobal('NSEvent', {
     addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, callback: typeof monitor) => {
       monitor = callback
@@ -14,20 +15,25 @@ function fixture() {
     },
     removeMonitor,
   })
+
   const selected: string[] = []
   const owner: any = { firstResponder: null }
+
   owner.makeFirstResponder = vi.fn((view) => {
     owner.firstResponder = view
     return true
   })
+
   const rows = ['a', 'b', 'c'].map((value) => ({ value, subviews: { count: 0 }, window: owner }))
   let children = rows.slice()
   const root = {
     window: owner,
     subviews: { count: 3, objectAtIndex: (index: number) => children[index] },
   }
+
   const segments = new Map<NSView, () => AppKitSegment>()
   const disabled = new Set(['b'])
+
   for (const row of rows) {
     segments.set(row as unknown as NSView, () => ({
       view: row as unknown as NSView,
@@ -36,15 +42,19 @@ function fixture() {
       select: () => selected.push(row.value),
     }))
   }
+
   owner.firstResponder = rows[0]
+
   let direction: 'ltr' | 'rtl' = 'ltr'
   const off = bindSegmentedControlKeys(
     () => root as unknown as NSView,
     segments,
     () => direction,
   )
+
   const key = (keyCode: number, window = owner, modifierFlags = 0) =>
     monitor({ keyCode, window, modifierFlags })
+
   return {
     rows,
     owner,
@@ -65,6 +75,7 @@ function fixture() {
 describe('AppKit segmented key adapter', () => {
   it('skips disabled segments, wraps and supports Home/End', () => {
     const env = fixture()
+
     expect(env.key(124)).toBeNull()
     expect(env.selected).toEqual(['c'])
     expect(env.key(124)).toBeNull()
@@ -78,6 +89,7 @@ describe('AppKit segmented key adapter', () => {
 
   it('reads changed disabled state and actual subview order', () => {
     const env = fixture()
+
     env.reorder()
     env.disabled.clear()
     env.key(123)
@@ -86,6 +98,7 @@ describe('AppKit segmented key adapter', () => {
 
   it('preserves unrelated responders, windows, shortcuts and renderer activation', () => {
     const env = fixture()
+
     expect(env.key(124, {})).not.toBeNull()
     expect(env.key(124, env.owner, 1 << 20)).not.toBeNull()
     expect(env.key(36)).not.toBeNull()
@@ -96,6 +109,7 @@ describe('AppKit segmented key adapter', () => {
 
   it('leaves the key unhandled when AppKit refuses focus', () => {
     const env = fixture()
+
     env.owner.makeFirstResponder.mockReturnValue(false)
     expect(env.key(124)).not.toBeNull()
     expect(env.selected).toEqual([])
@@ -103,6 +117,7 @@ describe('AppKit segmented key adapter', () => {
 
   it('reverses horizontal navigation in RTL without reversing vertical keys', () => {
     const env = fixture()
+
     env.disabled.clear()
     env.rtl()
     env.key(124)

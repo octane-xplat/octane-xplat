@@ -49,6 +49,7 @@ const LAYOUT_KEYS = [
 
 function layoutChildAttrs(props: ImageProps) {
   const result: Record<string, any> = {}
+
   for (const key of LAYOUT_KEYS) {
     if (props[key] !== undefined) {
       result[key] = props[key]
@@ -60,6 +61,7 @@ function layoutChildAttrs(props: ImageProps) {
 
 function applyEscapeProps(view: any, props: ImageProps): void {
   const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
+
   if (bag) {
     Object.assign(view, bag)
   }
@@ -69,6 +71,7 @@ function applyEscapeProps(view: any, props: ImageProps): void {
  *  engine has no data: scheme. */
 function resolveSrc(src: string): string | ImageSource {
   const comma = src.indexOf(',')
+
   if (src.startsWith('data:') && comma > 0 && src.slice(0, comma).endsWith(';base64')) {
     return ImageSource.fromBase64Sync(src.slice(comma + 1))
   }
@@ -84,6 +87,7 @@ function resolveSrc(src: string): string | ImageSource {
  *  first is pointless. */
 function placeholderValue(placeholder: string): string | ImageSource | null {
   const png = hashToPngBase64(placeholder)
+
   if (png) {
     return ImageSource.fromBase64Sync(png)
   }
@@ -124,6 +128,7 @@ export function Image(props: ImageProps): unknown @{
   }
 
   const latest = useRef(props)
+
   latest.current = props
 
   const fit = resolveContentFit(props.contentFit)
@@ -135,11 +140,13 @@ export function Image(props: ImageProps): unknown @{
   const binding = useMemo(() => {
     let lastSrc: unknown
     let lastSource: string | ImageSource | null
+
     return createImageBinding({
       getFit: () => resolveContentFit(latest.current.contentFit),
       getPosition: () => resolveContentPosition(latest.current.contentPosition),
       getSrc: () => {
         const src = latest.current.src
+
         if (Array.isArray(src)) {
           return { source: null, sources: src }
         }
@@ -174,6 +181,7 @@ export function Image(props: ImageProps): unknown @{
 
   const boundRef = useRef({ key: props.recyclingKey, src: props.src })
   const bound = boundRef.current
+
   boundRef.current = { key: props.recyclingKey, src: props.src }
   // expo-image `recyclingKey`: platform-list cells rebind the same view, and
   // the engine keeps drawing the previous bitmap until the new fetch
@@ -187,6 +195,7 @@ export function Image(props: ImageProps): unknown @{
     imageRef.current
   ) {
     const nativeView = imageRef.current.nativeViewProtected
+
     if (nativeView) {
       if (isIOS) {
         nativeView.image = null
@@ -203,10 +212,13 @@ export function Image(props: ImageProps): unknown @{
 
     imageRef.current = view
     applyEscapeProps(view, props)
+
     const ph = latest.current.placeholder
+
     if (ph) {
       try {
         const resolved = placeholderValue(ph)
+
         if (resolved != null) {
           // string | ImageSource — the prop is typed `string` but the
           // plugin's placeholder resolution accepts an ImageSource on
@@ -231,6 +243,7 @@ export function Image(props: ImageProps): unknown @{
         // intrinsic pixels. The binding measures in dips; onLoad's
         // documented contract is device pixels.
         const scale = Screen.mainScreen?.scale ?? 1
+
         binding.setIntrinsic(w, h, isIOS)
         latest.current.onLoad?.({
           width: isIOS ? w * scale : w,

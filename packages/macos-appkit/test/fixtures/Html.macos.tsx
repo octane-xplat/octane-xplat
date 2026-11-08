@@ -4,6 +4,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const htmlRef = { current: null as any }
 export const htmlRefEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     htmlRefEvents.push('attach')

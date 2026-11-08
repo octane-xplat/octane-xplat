@@ -33,6 +33,7 @@ function PopoverLayer(
   const update = () => {
     const anchor = props.anchorView
     const coordinateRoot = anchor?.page?.content
+
     if (!anchor || !coordinateRoot?.getActualSize) {
       return
     }
@@ -40,6 +41,7 @@ function PopoverLayer(
     const point = relativePosition(anchor, coordinateRoot)
     const anchorSize = anchor.getActualSize()
     const panelSize = panelRef.current?.getActualSize?.()
+
     if (!point || !anchorSize) {
       return
     }
@@ -93,15 +95,18 @@ function PopoverLayer(
 
   useEffect(() => {
     const anchor = props.anchorView
+
     if (!props.open || !anchor) {
       return
     }
 
     const listeners: { view: any; event: string; handler: () => void }[] = []
     let view = anchor
+
     while (view) {
       for (const event of ['layoutChanged', 'scroll']) {
         const handler = () => update()
+
         view.on?.(event, handler)
         listeners.push({ view, event, handler })
       }
@@ -130,6 +135,7 @@ function PopoverLayer(
     if (position) {
       const panel = panelRef.current
       const parent = panel?.parent
+
       parent?.requestLayout?.()
     }
   }, [position])
@@ -205,10 +211,12 @@ export function Popover(props: PopoverProps): unknown @{
   } | null>(null)
 
   const dismiss = useRef(requestDismiss)
+
   dismiss.current = requestDismiss
 
   useEffect(() => {
     const cur = shown.current
+
     if (!open) {
       cur?.lifetime.close()
       return
@@ -216,6 +224,7 @@ export function Popover(props: PopoverProps): unknown @{
 
     const anchor = props.anchor?.current
     const rl = rootLayoutFor(anchor)
+
     if (!anchor || !rl) {
       return
     }
@@ -226,8 +235,10 @@ export function Popover(props: PopoverProps): unknown @{
 
     const host = new GridLayout()
     const unbindTheme = applyThemeClasses(host, 'vx-popover-host')
+
     host.horizontalAlignment = 'stretch'
     host.verticalAlignment = 'stretch'
+
     const lifetime = createOverlayLifetime(rl, host, null, 'Popover', (dismissed) => {
       if (shown.current?.host === host) {
         shown.current = null

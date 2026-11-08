@@ -4,6 +4,7 @@ import type { ImageLoadOptions, ImageResult, SaveOptions } from './types'
 
 function canvas(width: number, height: number): HTMLCanvasElement {
   const result = document.createElement('canvas')
+
   result.width = width
   result.height = height
   return result
@@ -11,9 +12,11 @@ function canvas(width: number, height: number): HTMLCanvasElement {
 
 function context(image: HTMLCanvasElement): CanvasRenderingContext2D {
   const ctx = image.getContext('2d')
+
   if (!ctx) {
     throw new Error('A 2D image canvas is unavailable')
   }
+
   return ctx
 }
 
@@ -24,11 +27,14 @@ function dispose(image: HTMLCanvasElement): void {
 
 async function load(uri: string, options: ImageLoadOptions): Promise<Frame<HTMLCanvasElement>> {
   const source = new Image()
+
   source.crossOrigin = 'anonymous'
   source.src = uri
   await source.decode()
+
   const size = initialSize({ width: source.naturalWidth, height: source.naturalHeight }, options)
   const image = canvas(size.width, size.height)
+
   try {
     context(image).drawImage(source, 0, 0, size.width, size.height)
     return { image, ...size }
@@ -46,8 +52,10 @@ function transform(
 ): Frame<HTMLCanvasElement> {
   const size = outputSize(frame, operation)
   const image = canvas(size.width, size.height)
+
   try {
     const ctx = context(image)
+
     switch (operation.kind) {
       case 'resize':
         ctx.drawImage(frame.image, 0, 0, size.width, size.height)
@@ -102,22 +110,29 @@ async function save(
       options.compress,
     )
   })
+
   if (options.format === 'webp' && blob.type !== mimeType) {
     const { encodeWebP } = await import('./webp.web')
+
     blob = await encodeWebP(frame.image, options.compress)
   }
+
   if (blob.type !== mimeType) {
     throw new Error(`Encoding ${mimeType} is unavailable on this host`)
   }
+
   let base64: string | undefined
+
   if (options.base64) {
     base64 = await new Promise<string>((resolve, reject) => {
       const reader = new FileReader()
+
       reader.onload = () => resolve(String(reader.result).split(',')[1])
       reader.onerror = () => reject(new Error('Could not read the encoded image'))
       reader.readAsDataURL(blob)
     })
   }
+
   return {
     uri: URL.createObjectURL(blob),
     width: frame.width,

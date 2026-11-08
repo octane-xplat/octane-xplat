@@ -19,6 +19,7 @@ const languages = new Map<string, Language>([
 /** Syntax only: fragments may deliberately depend on the preceding example. */
 export function exampleErrors(fence: Fence): string[] {
   const language = languages.get(fence.language)
+
   if (language) {
     return parseSync(`example.${language}`, fence.code, {
       lang: language,
@@ -27,6 +28,7 @@ export function exampleErrors(fence: Fence): string[] {
       .errors.filter((error) => error.severity === 'Error')
       .map((error) => error.message)
   }
+
   if (fence.language === 'json') {
     try {
       JSON.parse(fence.code)
@@ -35,14 +37,17 @@ export function exampleErrors(fence: Fence): string[] {
       return [String(error)]
     }
   }
+
   if (fence.language === 'jsonc') {
     return ts.parseConfigFileTextToJson('example.json', fence.code).error
       ? ['Invalid JSON with comments']
       : []
   }
+
   if (fence.language === 'yaml' || fence.language === 'yml') {
     return parseAllDocuments(fence.code).flatMap((doc) => doc.errors.map((error) => error.message))
   }
+
   return []
 }
 
@@ -51,8 +56,10 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const { inventory } = checkDocumentation(root)
   const errors: string[] = []
   let checked = 0
+
   for (const page of inventory) {
     const { fences } = markdownParts(readFileSync(resolve(root, page.path), 'utf8'))
+
     for (const fence of fences) {
       if (
         !languages.has(fence.language) &&

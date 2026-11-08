@@ -7,10 +7,14 @@ import test from 'node:test'
 
 function fixture(t) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-maestro-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
+
   const log = join(dir, 'commands.jsonl')
+
   for (const executable of ['maestro', 'adb', 'xcrun', 'bun']) {
     const file = join(dir, executable)
+
     writeFileSync(
       file,
       `#!${process.execPath}\nimport { appendFileSync } from 'node:fs';\nappendFileSync(process.env.MAESTRO_TEST_LOG, JSON.stringify([${JSON.stringify(executable)}, ...process.argv.slice(2)]) + '\\n');\nif (process.argv.includes('build')) process.exit(9);\nif (process.argv.includes('test')) process.exit(Number(process.env.MAESTRO_TEST_EXIT ?? 0));\n`,
@@ -20,8 +24,11 @@ function fixture(t) {
   }
 
   const apk = join(dir, 'test.apk')
+
   writeFileSync(apk, '')
+
   const app = join(dir, 'test.app')
+
   mkdirSync(app)
   return {
     dir,
@@ -65,8 +72,10 @@ for (const target of ['ios', 'android']) {
     )
 
     assert.equal(result.status, 0, result.stderr)
+
     const commands = f.commands()
     const install = commands.find((args) => args.includes('install'))
+
     assert.deepEqual(
       install,
       target === 'ios'
@@ -75,6 +84,7 @@ for (const target of ['ios', 'android']) {
     )
 
     const maestro = commands.find((args) => args.includes('test'))
+
     assert.deepEqual(maestro.slice(0, 6), [
       'maestro',
       '--device',
@@ -115,6 +125,7 @@ test('test failures propagate their exit code', (t) => {
 
 test('help and invalid arguments do not require native tools', (t) => {
   const f = fixture(t)
+
   assert.equal(f.run(['--help']).status, 0)
   for (const args of [
     [],

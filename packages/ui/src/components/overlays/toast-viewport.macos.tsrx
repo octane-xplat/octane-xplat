@@ -67,8 +67,10 @@ export function ToastViewportSurface(
   const entries = useStore(toastStore)
   const mine = entries.filter((entry) => toastOnViewport(entry, props.viewportId))
   const max = Math.max(1, props.maxVisible ?? 5)
+
   useEffect(() => {
     const live = mine.filter((entry) => !entry.exiting)
+
     for (const entry of live.slice(0, Math.max(0, live.length - max))) {
       dismissToast(entry.id, 'manual')
     }
@@ -120,6 +122,7 @@ export function ToastViewport(props: ToastViewportProps): unknown @{
 
   useEffect(() => {
     const unregister = registerToastViewport(id)
+
     return () => {
       unregister()
       // Notify the fallback root after changing the routing registry.

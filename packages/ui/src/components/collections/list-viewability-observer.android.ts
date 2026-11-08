@@ -42,8 +42,10 @@ export function observeListViewability(
           const top = Number(native.getPaddingTop())
           const bottom = Number(native.getHeight()) - Number(native.getPaddingBottom())
           const rows: VisibleListRow[] = []
+
           for (let childIndex = 0; childIndex < native.getChildCount(); childIndex++) {
             const index = first + childIndex
+
             if (index < 0 || index >= state.items.length) {
               continue
             }
@@ -52,11 +54,13 @@ export function observeListViewability(
             const rowTop = Number(child.getTop())
             const rowBottom = Number(child.getBottom())
             const height = rowBottom - rowTop
+
             if (height <= 0) {
               continue
             }
 
             const intersection = Math.max(0, Math.min(bottom, rowBottom) - Math.max(top, rowTop))
+
             if (intersection > 0) {
               rows.push({ index, visiblePercent: (intersection / height) * 100 })
             }
@@ -91,6 +95,7 @@ export function observeListViewability(
         }
 
         const next = native.getViewTreeObserver()
+
         if (!next?.isAlive() || observer === next) {
           return
         }

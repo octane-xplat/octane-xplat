@@ -4,8 +4,11 @@ import { mountStory } from './adapter.web'
 
 it('unchecked light Switch mock workflow', async () => {
   const sentinel = document.createElement('div')
+
   document.body.append(sentinel)
+
   let mounted: Awaited<ReturnType<typeof launchMock>> | undefined
+
   try {
     mounted = await launchMock('switch--unchecked-light')
     expect(mounted.capture.provenance).toBe('mock')
@@ -31,6 +34,7 @@ it('unchecked light Switch mock workflow', async () => {
 
 it('rejects unknown selection without allocating a host', () => {
   const before = document.body.childElementCount
+
   expect(() => mountStory('unknown')).toThrow('Unknown story')
   expect(document.body.childElementCount).toBe(before)
 })

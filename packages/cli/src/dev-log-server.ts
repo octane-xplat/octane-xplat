@@ -1,6 +1,7 @@
 /** Shared wire validation for the retained HTTP bridge and native dev worker. */
 export function formatBrowserLogBatch(body: unknown) {
   const input = body as { records?: unknown; dropped?: unknown } | null
+
   if (
     !input ||
     !Array.isArray(input.records) ||
@@ -21,10 +22,12 @@ export function formatBrowserLogBatch(body: unknown) {
   let text = input.dropped
     ? `[browser:warn] ${input.dropped} browser log records lost before delivery.\n`
     : ''
+
   for (const record of input.records) {
     for (const line of record.line.split(/\r?\n/)) {
       text += `[browser:${record.level}] ${line}\n`
     }
   }
+
   return { text, accepted: input.records.length }
 }

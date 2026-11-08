@@ -152,6 +152,7 @@ export function MarkdownPerfPage() {
     runningRef.current = false
     setIsRunning(false)
     cancelAnimationFrame(frameRef.current.id)
+
     const nextMetrics = {
       firstPaintMs: firstPaintRef.current,
       completeMs: performance.now() - startTimeRef.current,
@@ -161,7 +162,9 @@ export function MarkdownPerfPage() {
     }
 
     setMetrics(nextMetrics)
+
     const activeRun = activeRunRef.current
+
     if (activeRun?.pipeline === 'baseline') {
       setBaselines((current) => ({
         ...current,
@@ -184,6 +187,7 @@ export function MarkdownPerfPage() {
 
   useEffect(() => {
     const surface = surfaceRef.current
+
     if (surface == null) {
       return
     }
@@ -224,6 +228,7 @@ export function MarkdownPerfPage() {
 
   const startFrameMeasurement = useCallback(() => {
     const frameState = frameRef.current
+
     frameState.frames = 0
     frameState.dropped = 0
     frameState.previous = performance.now()

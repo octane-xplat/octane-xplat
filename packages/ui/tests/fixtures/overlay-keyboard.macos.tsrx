@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { Screen, BottomSheet, TextInput } from '@octane-xplat/ui'
 import { AppKitSheet } from '@octane-xplat/sheet/macos'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let background: any,
   first: any,
   second: any,
@@ -29,6 +30,7 @@ const captureLeaf = (handle: any) => {
 
 function Editor(props: { id: string; initial: string; capture: (handle: any) => void }) @{
   const [value, setValue] = useState(props.initial)
+
   edit = setValue
 
   <TextInput
@@ -86,11 +88,14 @@ export default function DesktopSheetProbe() @{
 export async function run(ctx: ProbeContext) {
   ctx.record('phase', 'background')
   await ctx.waitFor(() => background?.window)
+
   const originalWindow = background.window
+
   originalWindow.makeFirstResponder(background)
   ctx.record('phase', 'first panel')
   select('first')
   await ctx.waitFor(() => first?.window && first.frame.size.height >= 47)
+
   const original = first,
     window = first.window
 
@@ -104,7 +109,9 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('AppKit panel replacement has its own editing state', second.stringValue, 'Second')
   ctx.assert('AppKit replacement retires the previous input', original.window == null, true)
   ctx.assert('AppKit replacement owns its presentation window', second.window !== window, true)
+
   const replaced = second
+
   select(null)
   await ctx.waitFor(() => replaced.window == null)
   ctx.assert('AppKit presentation detaches its panel', replaced.window == null, true)
@@ -117,6 +124,7 @@ export async function run(ctx: ProbeContext) {
   ctx.record('phase', 'native AppKit sheet')
   show(true)
   await ctx.waitFor(() => leaf?.window && leaf.frame.size.height >= 47)
+
   const native = leaf,
     nativeWindow = leaf.window
 

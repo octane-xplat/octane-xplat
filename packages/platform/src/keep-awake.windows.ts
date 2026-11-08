@@ -43,6 +43,7 @@ function enqueue(operation: () => boolean): Promise<boolean> {
         }
       }),
   )
+
   pending = result
   return result
 }
@@ -51,8 +52,10 @@ function acquire(): boolean {
   if (request) {
     return true
   }
+
   try {
     const next = new Windows.System.Display.DisplayRequest()
+
     if (typeof next.RequestActive !== 'function' || typeof next.RequestRelease !== 'function') {
       return false
     }
@@ -69,6 +72,7 @@ function release(): boolean {
   if (!request) {
     return true
   }
+
   try {
     request.RequestRelease()
     request = null
@@ -83,6 +87,7 @@ const suspend = () => {
   if (!listening) {
     return
   }
+
   suspended = true
   void enqueue(release)
 }
@@ -91,6 +96,7 @@ const resume = () => {
   if (!listening || exited) {
     return
   }
+
   suspended = false
   void enqueue(() => !tags.size || suspended || exited || acquire())
 }
@@ -99,12 +105,14 @@ const exit = () => {
   if (!listening) {
     return
   }
+
   exited = true
   suspended = true
   void enqueue(() => {
     if (!release()) {
       return false
     }
+
     tags.clear()
     unlisten()
     return true
@@ -115,18 +123,22 @@ function listen(): boolean {
   if (listening) {
     return true
   }
+
   suspended = Application.suspended === true
+
   let owned = true
   const guard = (callback: () => void) => () => {
     if (owned) {
       callback()
     }
   }
+
   const events: [string, () => void][] = [
     [Application.suspendEvent, guard(suspend)],
     [Application.resumeEvent, guard(resume)],
     [Application.exitEvent, guard(exit)],
   ]
+
   removeApp = () => {
     owned = false
     for (const [name, callback] of events) {
@@ -135,6 +147,7 @@ function listen(): boolean {
       } catch {}
     }
   }
+
   listening = true
   try {
     for (const [name, callback] of events) {
@@ -152,6 +165,7 @@ function unlisten() {
   if (!listening) {
     return
   }
+
   listening = false
   removeApp?.()
   removeApp = null
@@ -164,9 +178,11 @@ export const keepAwake: KeepAwakeImpl = {
       if (exited || !available()) {
         return false
       }
+
       if (!listen()) {
         return false
       }
+
       if (!suspended && !acquire()) {
         if (!tags.size) {
           unlisten()
@@ -174,6 +190,7 @@ export const keepAwake: KeepAwakeImpl = {
 
         return false
       }
+
       tags.add(tag)
       return true
     }),
@@ -182,13 +199,16 @@ export const keepAwake: KeepAwakeImpl = {
       if (!tags.has(tag)) {
         return available()
       }
+
       if (tags.size === 1 && !release()) {
         return false
       }
+
       tags.delete(tag)
       if (!tags.size) {
         unlisten()
       }
+
       return true
     }),
   isActivated: () => pending.then(() => request !== null && !suspended && !exited),

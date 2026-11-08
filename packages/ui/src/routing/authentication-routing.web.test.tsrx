@@ -43,6 +43,7 @@ async function fixture() {
 
 it('cancels a modal sign-in without letting a late SDK result open protected content', async () => {
   const test = await fixture()
+
   await test.router.push({ to: '/' })
   await test.router.push({
     to: '/login',
@@ -64,7 +65,9 @@ it('cancels a modal sign-in without letting a late SDK result open protected con
 
 it('retries an expired sign-in and completes the return from the replacement owner', async () => {
   history.replaceState(null, '', '/private/coat')
+
   const test = await fixture()
+
   expect(await test.router.navigateUrl(location.pathname, { replace: true })).toMatchObject({
     status: 'committed',
     redirected: true,
@@ -88,6 +91,7 @@ it('retries an expired sign-in and completes the return from the replacement own
 
 it('cancels a return started by the retiring account owner rather than reviving its data', async () => {
   const test = await fixture()
+
   await test.router.push({ to: '/login', search: { returnTo: '/private/coat' } })
   expect(await test.returnFromRetiringOwner({ id: 'account-a' }, '/private/coat')).toMatchObject({
     status: 'cancelled',
@@ -104,9 +108,12 @@ it('cancels a return started by the retiring account owner rather than reviving 
 
 it('drops expired account data and rechecks the current URL without a redirect loop', async () => {
   const test = await fixture()
+
   await test.changeSession({ id: 'account-a' })
   await test.router.navigateUrl('/private/coat', { replace: true })
+
   const old = document.getElementById('private-item')
+
   expect(old?.textContent).toBe('account-a:coat')
   await test.changeSession(null)
   expect(old?.isConnected).toBe(false)
@@ -164,6 +171,7 @@ it('public outlet authority retires private screens and pending work, then consu
   let update!: (version: number, resumeUrl?: string) => void
   function App() {
     const [state, setState] = useState<{ version: number; resumeUrl?: string }>({ version: 0 })
+
     update = (version, resumeUrl) => setState({ version, resumeUrl })
     return (
       <RouteOutlet
@@ -175,8 +183,11 @@ it('public outlet authority retires private screens and pending work, then consu
   }
 
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   try {
     history.replaceState(null, '', '/private/coat')
     await act(() => root.render(App))
@@ -186,6 +197,7 @@ it('public outlet authority retires private screens and pending work, then consu
 
     const old = container.querySelector('#authority-private')!
     const pending = router.navigateUrl('/slow')
+
     await vi.waitFor(() => expect(release).toBeTypeOf('function'))
     account = null
     await act(() => update(1))
@@ -204,7 +216,9 @@ it('public outlet authority retires private screens and pending work, then consu
     release = undefined!
     await act(() => update(3, '/slow'))
     await vi.waitFor(() => expect(release).toBeTypeOf('function'))
+
     const finishOldReturn = release
+
     await act(() => update(4, '/private/coat'))
     await vi.waitFor(() => expect(returned).toEqual(['committed', 'committed']))
     finishOldReturn()
@@ -217,6 +231,7 @@ it('public outlet authority retires private screens and pending work, then consu
 
 it('consumes a rejected return URL without an automatic retry', async () => {
   const test = await fixture()
+
   await test.changeSession({ id: 'account-a' }, 'https://untrusted.invalid/private/coat')
   await vi.waitFor(() => expect(test.returned).toEqual(['invalid-input']))
   await act(async () => {

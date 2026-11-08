@@ -26,6 +26,7 @@ import { Link, LinkProvider, LinkContext } from '@octane-xplat/ui'
  */
 function SimulatedNextLink(props: SandboxLinkProps) {
   const { href, children, onClick, ...rest } = props
+
   return (
     <a
       {...rest}
@@ -44,6 +45,7 @@ function SimulatedNextLink(props: SandboxLinkProps) {
 
 function GreenLink(props: SandboxLinkProps) {
   const { href, children, onClick, ...rest } = props
+
   return (
     <a
       {...rest}

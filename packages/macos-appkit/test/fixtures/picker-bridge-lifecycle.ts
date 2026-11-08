@@ -7,8 +7,11 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
       throw Error(message)
     }
   }
+
   console.log('PACKED_PICKER_BRIDGE_HANDLES', typeof NSDate, typeof NSDatePicker)
+
   const bridge: unknown = Reflect.get(globalThis, '__xplatAppKit')
+
   if (
     typeof bridge !== 'object' ||
     bridge === null ||
@@ -17,10 +20,12 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
   ) {
     throw Error('Packed date-picker bridge unavailable')
   }
+
   const anchor = NSView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 200, height: 100 },
   })
+
   host.addSubview(anchor)
   try {
     for (const mode of ['date', 'time', 'dateAndTime']) {
@@ -51,11 +56,13 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
       }
 
       const picker = anchor.subviews.lastObject
+
       if (!(picker instanceof NSDatePicker)) {
         throw Error(mode + ' missing picker')
       }
 
       const target = picker.target
+
       try {
         check(picker.superview === anchor, mode + ' missing native attachment')
         check(
@@ -106,5 +113,6 @@ export function checkPickerBridgeLifecycle(app: NSApplication, host: NSView) {
   } finally {
     anchor.removeFromSuperview()
   }
+
   console.log('PACKED_PICKER_BRIDGE_OK')
 }

@@ -9,6 +9,7 @@ import { createAppKitWindow, debugWindows, fitWindowToContent } from './appkit'
 import { createDevBench } from './dev-bench.mjs'
 
 const { hmrUniversalComponent, UNIVERSAL_HMR } = octaneNative
+
 globalThis.__xplatDevModules = {
   'octane/universal/native': octaneNative,
   'octane/signals': octaneSignals,
@@ -60,6 +61,7 @@ function reload(afterEdit = false) {
 
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
   const component = loaded.default ?? loaded
+
   if (!component) {
     throw Error('The macOS dev bundle has no default component export')
   }
@@ -96,11 +98,13 @@ globalThis.__xplatOnInput = (line) => {
     }
 
     const targets = [root.__macosDebug, ...debugWindows().map((entry) => entry.debug)]
+
     if (line.startsWith('press ')) {
       root.__macosDebug.pressButton(line.slice(6))
     } else if (line.startsWith('pressid ')) {
       const id = line.slice(8)
       let handled = false
+
       for (const target of targets) {
         try {
           target?.pressId(id)
@@ -114,6 +118,7 @@ globalThis.__xplatOnInput = (line) => {
       }
     } else if (line.startsWith('hover ')) {
       const [id, phase] = line.slice(6).split(' ')
+
       root.__macosDebug.hover(id, phase ?? 'enter')
     } else if (line === 'popups') {
       console.log(
@@ -126,11 +131,13 @@ globalThis.__xplatOnInput = (line) => {
       return
     } else if (line.startsWith('resize ')) {
       const [width, height] = line.slice(7).split('x').map(Number)
+
       window.setContentSize({ width, height })
       return
     } else if (line.startsWith('tap ')) {
       const label = line.slice(4)
       let handled = false
+
       for (const target of targets) {
         try {
           target?.pressAccessibilityLabel(label)
@@ -160,6 +167,7 @@ globalThis.__xplatOnInput = (line) => {
       return
     } else if (line.startsWith('listsnap ')) {
       const snap = root.__macosDebug.listSnapshot(line.slice(9))
+
       console.log(
         '[listsnap] ' +
           JSON.stringify({
@@ -178,6 +186,7 @@ globalThis.__xplatOnInput = (line) => {
       return
     } else if (line.startsWith('style ')) {
       const [, styleId, styleName, styleValue] = line.split(' ')
+
       console.log(
         '[style] ' +
           JSON.stringify(root.__macosDebug.setStyle(styleId, styleName, Number(styleValue))),

@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'octane'
 import { Button, SearchInput, Text, TextArea, TextInput, VStack } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function TextEntryOwnershipProbe() {
   const [name, setName] = useState('Ada'),
     [readOnly, setReadOnly] = useState(false),
@@ -32,7 +33,9 @@ export default function TextEntryOwnershipProbe() {
     return () => {
       queued.current.active = false
       queued.current.revision++
+
       const timer = queued.current.timer
+
       queued.current.timer = undefined
       clearTimeout(timer)
     }
@@ -45,6 +48,7 @@ export default function TextEntryOwnershipProbe() {
 
     const revision = ++queued.current.revision
     const previous = queued.current.timer
+
     queued.current.timer = undefined
     clearTimeout(previous)
     queued.current.timer = setTimeout(() => {

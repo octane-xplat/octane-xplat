@@ -233,33 +233,41 @@ function pixbufToArgb(source: PixbufLike): Pixmap {
   const pixels = pixbuf.get_pixels()
   // The spec wants 32-bit ARGB in network byte order: byte sequence A,R,G,B.
   const argb = new Uint8Array(width * height * 4)
+
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const src = y * stride + x * channels
       const dst = (y * width + x) * 4
+
       argb[dst] = channels === 4 ? pixels[src + 3] : 255
       argb[dst + 1] = pixels[src]
       argb[dst + 2] = pixels[src + 1]
       argb[dst + 3] = pixels[src + 2]
     }
   }
+
   return [width, height, argb]
 }
 
 function iconPixmaps(path: string): Pixmap[] {
   let loaded: PixbufLike
+
   try {
     loaded = GdkPixbuf.Pixbuf.new_from_file(path)
   } catch (error) {
     throw new TrayError('invalid-icon', `tray icon file is not readable: ${path}`)
   }
+
   if (!loaded) {
     throw new TrayError('invalid-icon', `tray icon file is not readable: ${path}`)
   }
+
   const sizes: Pixmap[] = [pixbufToArgb(loaded)]
+
   for (const edge of [24, 48]) {
     const width = loaded.get_width()
     const height = loaded.get_height()
+
     if (width === 0 || height === 0 || Math.max(width, height) === edge) {
       continue
     }
@@ -273,6 +281,7 @@ function iconPixmaps(path: string): Pixmap[] {
 
     sizes.push(pixbufToArgb(scaled))
   }
+
   return sizes
 }
 
@@ -285,6 +294,7 @@ function loadIcon(icon: TrayIcon): IconState {
   if (icon.type === 'named') {
     return { name: icon.name, pixmaps: [] }
   }
+
   return { name: '', pixmaps: iconPixmaps(icon.path) }
 }
 
@@ -332,6 +342,7 @@ function checkStatusNotifierHost(conn: TrayDBusConnection): 'ok' | 'no-host' {
     const value = registered.deepUnpack() as unknown[]
     const inner = value[0] as { deepUnpack?: () => unknown }
     const host = typeof inner?.deepUnpack === 'function' ? inner.deepUnpack() : inner
+
     return host === true ? 'ok' : 'no-host'
   } catch {
     return 'no-host'
@@ -365,9 +376,12 @@ class GtkTray implements Tray {
     this.conn = openSessionConnection()
 
     const sni = gio.DBusExportedObject.wrapJSObject(SNI_XML, this.sniImplementation())
+
     sni.export(this.conn, SNI_PATH)
     this.sniExported = sni
+
     const menu = gio.DBusExportedObject.wrapJSObject(DBUSMENU_XML, this.menuImplementation())
+
     menu.export(this.conn, DBUSMENU_PATH)
     this.menuExported = menu
 
@@ -381,6 +395,7 @@ class GtkTray implements Tray {
       this.releaseResources()
       throw error
     }
+
     // The initial appeared callback reports the current owner — re-register
     // only when a genuinely different watcher shows up (panel restart).
     this.watcherId = gio.bus_watch_name_on_connection(
@@ -418,7 +433,9 @@ class GtkTray implements Tray {
       -1,
       null,
     )
+
     const result = (reply.deepUnpack() as number[])[0]
+
     if (result !== 1 /* DBUS_REQUEST_NAME_REPLY_PRIMARY_OWNER */) {
       throw new TrayError(
         'registration-failed',
@@ -442,6 +459,7 @@ class GtkTray implements Tray {
       )
 
       const owner = (reply.deepUnpack() as unknown[])[0]
+
       return typeof owner === 'string' ? owner : ''
     } catch {
       return ''
@@ -471,6 +489,7 @@ class GtkTray implements Tray {
 
   private sniImplementation() {
     const tray = this
+
     return {
       get Category() {
         return 'ApplicationStatus'
@@ -551,11 +570,13 @@ class GtkTray implements Tray {
               this.layoutNode(child, depth < 0 ? -1 : depth - 1, propertyNames),
             ),
           )
+
     return [node.id, filterProps(node.props, propertyNames), children]
   }
 
   private menuImplementation() {
     const tray = this
+
     return {
       get Version() {
         return 3
@@ -571,34 +592,43 @@ class GtkTray implements Tray {
       },
       GetLayout(parentId: number, recursionDepth: number, propertyNames: string[]) {
         const node = tray.nodesById.get(parentId)
+
         if (!node) {
           throw new Error(`com.canonical.dbusmenu: unknown id ${parentId}`)
         }
+
         return [tray.revision, tray.layoutNode(node, recursionDepth, propertyNames)]
       },
       GetGroupProperties(ids: number[], propertyNames: string[]) {
         const entries: [number, PropertyMap][] = []
+
         for (const id of ids) {
           const node = tray.nodesById.get(id)
+
           if (node) {
             entries.push([id, filterProps(node.props, propertyNames)])
           }
         }
+
         return [entries]
       },
       GetProperty(id: number, name: string) {
         const node = tray.nodesById.get(id)
         const value = node?.props[name]
+
         if (!node || !value) {
           throw new Error(`com.canonical.dbusmenu: unknown property ${name} on id ${id}`)
         }
+
         return value
       },
       Event(id: number, eventId: string, _data: unknown, _timestamp: number) {
         if (eventId !== 'clicked') {
           return
         }
+
         const node = tray.nodesById.get(id)
+
         if (node?.item) {
           dispatchTraySelect(node.item, node.option)
         }
@@ -610,10 +640,12 @@ class GtkTray implements Tray {
           }
 
           const node = tray.nodesById.get(id)
+
           if (node?.item) {
             dispatchTraySelect(node.item, node.option)
           }
         }
+
         return [[]]
       },
       AboutToShow(_id: number) {
@@ -634,15 +666,18 @@ class GtkTray implements Tray {
       option?: TrayRadioOption,
     ): MenuNode => {
       const node: MenuNode = { id: this.nextNodeId++, props, children, item, option }
+
       this.nodesById.set(node.id, node)
       nodes.push(node)
       return node
     }
+
     const baseProps = (label: string, enabled: boolean): PropertyMap => ({
       label: variant('s', label),
       enabled: variant('b', enabled),
       visible: variant('b', true),
     })
+
     for (const [index, item] of items.entries()) {
       switch (item.type) {
         case 'separator':
@@ -671,6 +706,7 @@ class GtkTray implements Tray {
           break
         case 'radio-group': {
           const hasLabel = typeof item.label === 'string' && item.label.length > 0
+
           if (hasLabel && index > 0) {
             add({
               type: variant('s', 'separator'),
@@ -705,6 +741,7 @@ class GtkTray implements Tray {
         }
         case 'submenu': {
           const children = this.buildLevel(item.items)
+
           add(
             {
               ...baseProps(item.label, !item.isDisabled),
@@ -736,13 +773,16 @@ class GtkTray implements Tray {
         }
       }
     }
+
     return nodes
   }
 
   private rebuildMenuModel() {
     this.nodesById.clear()
     this.nextNodeId = 1
+
     const root: MenuNode = { id: 0, props: {}, children: [] }
+
     this.nodesById.set(0, root)
     root.children = this.buildLevel(this.state.menu ?? [])
   }
@@ -751,7 +791,9 @@ class GtkTray implements Tray {
     if (this.destroyed) {
       throw new TrayError('destroyed', `tray "${this.id}" was destroyed`)
     }
+
     const normalized = normalizeTrayUpdate(changes, 'linux')
+
     if (normalized.icon !== undefined) {
       this.state.icon = resolvePlatformIcon(normalized.icon, 'linux')
       this.icon = loadIcon(this.state.icon)
@@ -761,6 +803,7 @@ class GtkTray implements Tray {
         IconPixmap: variant('a(iiay)', this.icon.pixmaps),
       })
     }
+
     if (normalized.title !== undefined) {
       this.state.title = normalized.title ?? undefined
       this.sniExported?.emit_signal('NewTitle', null)
@@ -774,6 +817,7 @@ class GtkTray implements Tray {
         XAyatanaLabel: variant('s', this.state.title ?? ''),
       })
     }
+
     if (normalized.tooltip !== undefined) {
       this.state.tooltip = normalized.tooltip ?? undefined
       this.sniExported?.emit_signal('NewToolTip', null)
@@ -786,12 +830,14 @@ class GtkTray implements Tray {
         ]),
       })
     }
+
     if (normalized.menu !== undefined) {
       this.state.menu = normalized.menu ?? undefined
       this.revision += 1
       this.rebuildMenuModel()
       this.menuExported?.emit_signal('LayoutUpdated', variant('(ui)', [this.revision, 0]))
     }
+
     if (normalized.onActivate !== undefined) {
       this.state.onActivate = normalized.onActivate ?? undefined
       this.propertiesChanged(SNI_PATH, SNI_NAME, {
@@ -820,16 +866,19 @@ class GtkTray implements Tray {
       gio.bus_unwatch_name(this.watcherId)
       this.watcherId = 0
     }
+
     try {
       this.sniExported?.unexport()
     } catch {
       // A dead connection makes unexport inert.
     }
+
     try {
       this.menuExported?.unexport()
     } catch {
       // A dead connection makes unexport inert.
     }
+
     this.sniExported = null
     this.menuExported = null
     if (this.wellKnown) {
@@ -849,6 +898,7 @@ class GtkTray implements Tray {
         // A dead bus makes the release inert.
       }
     }
+
     try {
       this.conn.close_sync(null)
     } catch {
@@ -860,6 +910,7 @@ class GtkTray implements Tray {
     if (this.destroyed) {
       return
     }
+
     this.destroyed = true
     this.nodesById.clear()
     this.releaseResources()
@@ -870,17 +921,21 @@ function filterProps(props: PropertyMap, names: readonly string[]): PropertyMap 
   if (!names.length) {
     return props
   }
+
   const out: PropertyMap = {}
+
   for (const name of names) {
     if (props[name]) {
       out[name] = props[name]
     }
   }
+
   return out
 }
 
 function openSessionConnection(): TrayDBusConnection {
   const address = gio.dbus_address_get_for_bus_sync(gio.BusType.SESSION, null)
+
   return gio.DBusConnection.new_for_address_sync(
     address,
     gio.DBusConnectionFlags.AUTHENTICATION_CLIENT | gio.DBusConnectionFlags.MESSAGE_BUS_CONNECTION,
@@ -912,6 +967,7 @@ function requireNotifierHost(conn: TrayDBusConnection) {
 /** Report whether this host can create a tray item. */
 export function getTrayAvailability(): Promise<TrayAvailability> {
   let conn: TrayDBusConnection
+
   try {
     conn = gio.bus_get_sync(gio.BusType.SESSION, null)
   } catch {
@@ -921,6 +977,7 @@ export function getTrayAvailability(): Promise<TrayAvailability> {
       message: 'cannot connect to the D-Bus session bus; a tray icon needs a desktop session',
     })
   }
+
   if (checkStatusNotifierHost(conn) !== 'ok') {
     return Promise.resolve({
       available: false,
@@ -929,6 +986,7 @@ export function getTrayAvailability(): Promise<TrayAvailability> {
         'no org.kde.StatusNotifierWatcher owner or no registered status notifier host on the session bus',
     })
   }
+
   return Promise.resolve({ available: true, platform: 'linux' })
 }
 
@@ -936,6 +994,7 @@ export function getTrayAvailability(): Promise<TrayAvailability> {
 export function createTray(options: TrayOptions): Promise<Tray> {
   try {
     const conn = sessionBus()
+
     requireNotifierHost(conn)
     return Promise.resolve(new GtkTray(options))
   } catch (error) {
@@ -945,12 +1004,14 @@ export function createTray(options: TrayOptions): Promise<Tray> {
 
 function requireGtkApplication(hint: string): GtkApplicationLike {
   const app: GtkApplicationLike | null = gio.Application.get_default()
+
   if (!app || typeof app.get_windows !== 'function') {
     throw new TrayError(
       'invalid-options',
       `${hint} needs a running Gtk.Application (gio.Application.get_default() returned none)`,
     )
   }
+
   return app
 }
 
@@ -958,9 +1019,11 @@ function requireGtkApplication(hint: string): GtkApplicationLike {
 export function showAppWindows(): boolean {
   const app = requireGtkApplication('showAppWindows')
   const windows = app.get_windows()
+
   if (!windows.length) {
     return false
   }
+
   for (const window of windows) {
     try {
       window.present()
@@ -968,12 +1031,14 @@ export function showAppWindows(): boolean {
       console.error('[tray] presenting an app window failed', error)
     }
   }
+
   return true
 }
 
 /** Hide the app's visible windows. */
 export function hideAppWindows(): void {
   const app = requireGtkApplication('hideAppWindows')
+
   for (const window of app.get_windows()) {
     try {
       window.set_visible(false)
@@ -986,6 +1051,7 @@ export function hideAppWindows(): void {
 /** Whether any app window is currently visible. */
 export function areAppWindowsVisible(): boolean {
   const app = requireGtkApplication('areAppWindowsVisible')
+
   return app.get_windows().some((window) => {
     try {
       return window.get_visible()
@@ -1001,15 +1067,19 @@ export function toggleAppWindows(): boolean {
     hideAppWindows()
     return false
   }
+
   return showAppWindows()
 }
 
 /** Keep the app running without visible windows until the returned residency releases. */
 export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): AppResidency {
   const app = requireGtkApplication('keepAppResident')
+
   app.hold()
+
   const hideOnClose = options?.hideWindowsOnClose === true
   const restored: { window: GtkWindowLike; hideOnClose: boolean }[] = []
+
   if (hideOnClose) {
     for (const window of app.get_windows()) {
       try {
@@ -1020,12 +1090,15 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
       }
     }
   }
+
   let released = false
+
   return {
     release() {
       if (released) {
         return
       }
+
       released = true
       for (const entry of restored) {
         try {
@@ -1034,6 +1107,7 @@ export function keepAppResident(options?: { hideWindowsOnClose?: boolean }): App
           // A closed window may already be gone.
         }
       }
+
       restored.length = 0
       try {
         app.release()

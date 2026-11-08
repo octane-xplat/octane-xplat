@@ -15,16 +15,21 @@ import {
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
+
 await mkdir(scratch, { recursive: true })
+
 const directory = await mkdtemp(join(scratch, 'macos-announce-'))
 const bootstrap = join(directory, 'bootstrap.js')
+
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+
 const config = await createMacOSConfig({
   packaged: true,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })
 
 const entry = join(appRoot, 'test/announce-fixture.macos.ts')
+
 await build({
   ...config,
   configFile: false,
@@ -38,7 +43,9 @@ await build({
 })
 
 const bundle = join(directory, 'fixture.cjs')
+
 await validateHostBundle(bundle, appRoot)
+
 const result = spawnSync(
   await macOSExecutable(appRoot, 'macos/host'),
   [
@@ -51,6 +58,7 @@ const result = spawnSync(
 )
 
 const output = result.stdout + result.stderr
+
 assert.equal(result.status, 0, output)
 assert.doesNotMatch(output, /APPKIT_ANNOUNCE_FAIL|uncaught render error/)
 assert.match(output, /APPKIT_ANNOUNCE_OK/)

@@ -59,6 +59,7 @@ export function ThemeProbe() @{
   })
 
   const announce = useAnnounce()
+
   useEffect(() => onThemeSchemeChange(() => setEvents((n) => n + 1)), [])
 
   <View style={{ flexDirection: 'column' }}>

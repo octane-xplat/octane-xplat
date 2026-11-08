@@ -3,12 +3,17 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { TextArea } from './TextArea.web.tsrx'
+
 const roots: any[] = []
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   let measured = 20
   const render = (next: any = {}) =>
     act(() =>
@@ -28,12 +33,14 @@ function mount(props: any = {}) {
     )
 
   const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'scrollHeight')
+
   Object.defineProperty(HTMLTextAreaElement.prototype, 'scrollHeight', {
     configurable: true,
     get: () => measured,
   })
 
   render()
+
   const field = el.querySelector('textarea')!
   const input = (value: string, height: number) => {
     measured = height
@@ -61,6 +68,7 @@ function mount(props: any = {}) {
 }
 
 const restorers: (() => void)[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -77,6 +85,7 @@ afterEach(() => {
 it('grows and shrinks an uncontrolled field from actual input', () => {
   const onChange = vi.fn()
   const m = mount({ autoGrow: true, onChange })
+
   restorers.push(m.restore)
   m.input('one\ntwo\nthree', 80)
   expect(m.field.style.height).toBe('80px')
@@ -88,6 +97,7 @@ it('grows and shrinks an uncontrolled field from actual input', () => {
 
 it('caps uncontrolled growth at maxRows and scrolls past the cap', () => {
   const m = mount({ autoGrow: true, rows: 2, maxRows: 3 })
+
   restorers.push(m.restore)
   expect(m.field.rows).toBe(2)
   m.input('many lines', 80)
@@ -100,6 +110,7 @@ it('caps uncontrolled growth at maxRows and scrolls past the cap', () => {
 
 it('still fits controlled value updates', () => {
   const m = mount({ autoGrow: true, value: 'one' })
+
   restorers.push(m.restore)
   m.measure(70)
   m.render({ value: 'one\ntwo\nthree' })
@@ -109,6 +120,7 @@ it('still fits controlled value updates', () => {
 
 it('leaves fixed-row inputs at their declared rows', () => {
   const m = mount({ rows: 4 })
+
   restorers.push(m.restore)
   m.input('many lines', 80)
   expect(m.field.rows).toBe(4)

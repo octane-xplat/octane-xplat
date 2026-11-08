@@ -7,6 +7,7 @@ import { TextInput } from '@octane-xplat/ui'
 import { chatHost } from '../../src/chat/chat-scroll-host'
 import { chatScrollControl } from '../../src/chat/chat-scroll-state'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let seenContext: any = null
 function ContextCheck() {
   seenContext = useChatLayoutContext()
@@ -20,6 +21,7 @@ let stream = () => {},
   panel = (_height: number) => {}
 
 const scrollRef: { current: any } = { current: null }
+
 export default function ChatProbe() @{
   const [messages, setMessages] = useState<ChatMessageData[]>(
     Array.from({ length: 30 }, (_, i) => ({
@@ -108,10 +110,13 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.onCleanup(() => clearInterval(sample))
+
   const end = () => Math.abs(scroll.scrollableHeight - scroll.verticalOffset) < 2
+
   ctx.record('phase', 'initial end')
   await ctx.waitFor(() => scroll.scrollableHeight > 500 && end())
   ctx.assert('AppKit long chat initially follows end', end(), true)
+
   const eventLog: any[] = []
   const changed = () =>
     eventLog.push({
@@ -124,9 +129,11 @@ export async function run(ctx: ProbeContext) {
   ctx.onCleanup(() => scroll.off('scroll', changed))
   scroll.scrollToVerticalOffset(Math.max(0, scroll.scrollableHeight - 700), false)
   await ctx.waitFor(() => !end())
+
   const position = (row: any) => chatHost.position(row, viewport)!
   const row = Array.from({ length: 30 }, (_, i) => ctx.find(`row-m${i}`)).find((candidate) => {
     const b = position(candidate)
+
     return b && b.y + b.height > 0 && b.y < chatHost.height(viewport)
   })
 
@@ -142,7 +149,9 @@ export async function run(ctx: ProbeContext) {
   })
 
   ctx.record('phase', 'stream')
+
   const previous = scroll.scrollableHeight
+
   ctx.record('before stream', {
     offset,
     max: previous,
@@ -174,14 +183,18 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.record('phase', 'prepend')
+
   const beforePrepend = scroll.scrollableHeight
+
   prepend()
   await ctx.waitFor(() => ctx.find('row-old0') && scroll.scrollableHeight > beforePrepend + 300)
   await ctx.waitFor(() => Math.abs(position(row).y - before) < 1)
   ctx.assert('AppKit prepend retains row identity', ctx.find(oldId) === row, true)
   ctx.assert('AppKit prepend retains reading pixel', Math.abs(position(row).y - before) < 1, true)
   ctx.record('phase', 'grow')
+
   const beforeGrow = scroll.scrollableHeight
+
   grow(96)
   await ctx.waitFor(() => scroll.scrollableHeight > beforeGrow + 40)
   await ctx.waitFor(() => Math.abs(position(row).y - before) < 1)
@@ -193,7 +206,9 @@ export async function run(ctx: ProbeContext) {
 
   scroll.scrollToVerticalOffset(scroll.scrollableHeight, false)
   await ctx.waitFor(end)
+
   const beforeEndGrow = scroll.scrollableHeight
+
   grow(160)
   await ctx.waitFor(
     () => scroll.scrollableHeight > beforeEndGrow && chatHost.height(field) >= 160 && end(),

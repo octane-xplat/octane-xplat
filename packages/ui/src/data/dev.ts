@@ -49,10 +49,13 @@ export function inspectQueryClient(
   options: QueryInspectorOptions = {},
 ): QueryInspector {
   const limit = options.eventLimit ?? 100
+
   if (!Number.isSafeInteger(limit) || limit < 0 || limit > 1000) {
     throw new TypeError('eventLimit must be an integer from 0 to 1000')
   }
+
   const labels = new WeakMap<object, string>()
+
   for (const { definition, label } of options.labels ?? []) {
     if (!/^[a-zA-Z][a-zA-Z0-9._-]{0,63}$/.test(label)) {
       throw new TypeError('Query diagnostic labels must be static names of at most 64 characters')
@@ -60,6 +63,7 @@ export function inspectQueryClient(
 
     labels.set(definition, label)
   }
+
   const source = client[QUERY_INSPECTION]
   const events: QueryInspectionEvent[] = []
   let disposed = false
@@ -67,17 +71,21 @@ export function inspectQueryClient(
     if (limit === 0) {
       return
     }
+
     events.push(event)
     if (events.length > limit) {
       events.splice(0, events.length - limit)
     }
   })
+
   return {
     snapshot() {
       if (disposed) {
         throw new Error('Query inspector is disposed')
       }
+
       const snapshot = source.snapshot((definition) => labels.get(definition))
+
       return Object.freeze({
         ...snapshot,
         queries: Object.freeze(snapshot.queries.map((entry) => Object.freeze(entry))),
@@ -122,5 +130,6 @@ export function registerQueryInspection(inspector: QueryInspector): {
     execution: { concurrency: 'overlap', retryable: true },
     run: () => ({ snapshot: JSON.stringify(inspector.snapshot()) }),
   })
+
   return { actionId, dispose: () => handle.dispose() }
 }

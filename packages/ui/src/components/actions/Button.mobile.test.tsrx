@@ -37,6 +37,7 @@ describe('native button action failure reporting', () => {
     const error = new Error('save failed')
     const onActionError = vi.fn()
     let rejectAction: ((reason: unknown) => void) | undefined
+
     root.render(Button, {
       label: 'Save',
       clickAction: () =>
@@ -47,6 +48,7 @@ describe('native button action failure reporting', () => {
     })
 
     const host = container.children[0]
+
     container.dispatchEvent(host, 'tap', {})
 
     rejectAction!(error)
@@ -61,6 +63,7 @@ describe('native button action failure reporting', () => {
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const error = new Error('sync failure')
     const onActionError = vi.fn()
+
     root.render(Button, {
       label: 'Save',
       clickAction: () => {

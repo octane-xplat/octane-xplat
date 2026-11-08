@@ -4,6 +4,7 @@ import { mkdir, mkdtemp, readFile, readdir, rm, writeFile } from 'node:fs/promis
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const temporary = await mkdtemp(join(tmpdir(), 'xplat-fingerprint-packed-'))
 function run(command, args, cwd) {
@@ -13,12 +14,14 @@ function run(command, args, cwd) {
     timeout: 120000,
     maxBuffer: 2 * 1024 * 1024,
   })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   return result.stdout
 }
 
 try {
   const packed = join(root, 'tests/.runtime/packed')
+
   await mkdir(packed, { recursive: true })
   for (const file of await readdir(packed)) {
     if (file.endsWith('.tgz')) {
@@ -27,7 +30,9 @@ try {
   }
 
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], root)
+
   const archive = (await readdir(packed)).find((file) => file.endsWith('.tgz'))
+
   assert.ok(archive)
   run('tar', ['-xzf', join(packed, archive), '-C', packed], root)
   await writeFile(
@@ -41,7 +46,9 @@ try {
   )
 
   run('bun', ['install', '--ignore-scripts'], temporary)
+
   const project = join(temporary, 'app')
+
   await mkdir(join(project, 'App_Resources/iOS'), { recursive: true })
   await writeFile(join(project, 'package.json'), '{}')
   await writeFile(
@@ -91,7 +98,9 @@ try {
   )
 
   assert.deepEqual(JSON.parse(comparison), [])
+
   const manifest = JSON.parse(await readFile(join(packed, 'package/package.json'), 'utf8'))
+
   assert.equal(manifest.dependencies['typescript-classic'], 'npm:typescript@5.9.3')
   assert.ok(!manifest.dependencies['@nativescript/core'])
   console.log(

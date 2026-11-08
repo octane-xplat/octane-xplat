@@ -71,18 +71,22 @@ export function createCssCascade(deps: Dependencies) {
   // inside a batch, or coalesced onto one microtask outside a batch.
   function markStyleDirty(node: ElementNode, subtree = false, matchChanged = true) {
     const container = node.container
+
     if (!container || node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       return
     }
+
     ;(container.cssDirty ??= new Set()).add(node)
     if (matchChanged) {
       node.cssMatchDirty = true
     }
+
     if (subtree) {
       for (const child of cssChildren(node)) {
         markStyleDirty(child, true, false)
       }
     }
+
     if (container.layoutDirty == null && !container.cssFlushQueued) {
       // Outside a command batch (appearance change, registerStylesheet) —
       // one microtask flush per container; a batch starting first wins.
@@ -98,6 +102,7 @@ export function createCssCascade(deps: Dependencies) {
 
   function flushStyleDirty(container: RootContainer) {
     const dirty = container.cssDirty
+
     container.cssDirty = undefined
     if (!dirty?.size) {
       return
@@ -111,6 +116,7 @@ export function createCssCascade(deps: Dependencies) {
       () => {
         // Top-down: parents must compute before children that inherit from them.
         const nodes = [...dirty].sort((a, b) => cssDepth(a) - cssDepth(b))
+
         for (const node of nodes) {
           // Dead nodes (destroyed/detached before the flush) skip the restyle.
           if (
@@ -128,6 +134,7 @@ export function createCssCascade(deps: Dependencies) {
         if (outcome === 'failed') {
           return
         }
+
         deps.layout.drainLayoutDirty(layoutDirty)
         notifyLayoutCommit(container.hostView)
       },
@@ -136,9 +143,11 @@ export function createCssCascade(deps: Dependencies) {
 
   function cssDepth(node: ElementNode): number {
     let depth = 0
+
     for (let p = node.parent; p; p = p.parent) {
       depth++
     }
+
     return depth
   }
 
@@ -152,12 +161,15 @@ export function createCssCascade(deps: Dependencies) {
 
   function nodeHostWindow(node: ElementNode): any | null {
     let root: ElementNode = node
+
     while (root.parent) {
       root = root.parent
     }
+
     if (root.cssType === 'portalroot' && root.view?.window) {
       return root.view.window
     }
+
     return node.container?.hostView?.window ?? null
   }
 
@@ -171,6 +183,7 @@ export function createCssCascade(deps: Dependencies) {
 
   function windowMediaSize(win: any, fallbackRect: any): { width: number; height: number } {
     const rect: any = win?.contentLayoutRect ?? fallbackRect
+
     return {
       width: Number(rect?.size?.width ?? rect?.width ?? 0) || 0,
       height: Number(rect?.size?.height ?? rect?.height ?? 0) || 0,
@@ -180,19 +193,23 @@ export function createCssCascade(deps: Dependencies) {
   function largestWindowSize(): { width: number; height: number } {
     let width = 0
     let height = 0
+
     for (const container of deps.directory.containers()) {
       const size = windowMediaSize(container.hostView?.window, container.hostView?.frame)
+
       if (size.width > width || size.height > height) {
         width = size.width
         height = size.height
       }
     }
+
     return { width, height }
   }
 
   function envForNode(node: ElementNode) {
     const size = windowMediaSize(nodeHostWindow(node), node.container?.hostView?.frame)
     const { width, height } = size.width || size.height ? size : largestWindowSize()
+
     return { width, height, ...mediaSharedEnv() }
   }
 
@@ -200,9 +217,13 @@ export function createCssCascade(deps: Dependencies) {
    *  parent is already styled (top-down flush order). */
   function restyleNode(node: ElementNode) {
     refreshCssClasses(node)
+
     const prevMediaNode = activeMediaNode
+
     activeMediaNode = node
+
     let cascade: ReturnType<typeof computeCascade>
+
     try {
       cascade = computeCascade(node as unknown as CssHostNode, stylesheetScope(), {
         borderLonghands: true,
@@ -210,20 +231,27 @@ export function createCssCascade(deps: Dependencies) {
     } finally {
       activeMediaNode = prevMediaNode
     }
+
     const { style, customProps, cssKeys, inheritedKeys, animations } = cascade
+
     node.cssOriginKeys = cssKeys
     node.inheritedOnlyKeys = inheritedKeys
+
     const prevStyle = node.computedStyle ?? {}
     const prevCustom = node.computedCustomProps ?? new Map()
+
     node.computedStyle = style
     node.computedCustomProps = customProps
 
     const customChanged =
       prevCustom.size !== customProps.size ||
       [...customProps].some(([k, v]) => prevCustom.get(k) !== v)
+
     let inheritedChanged = false
+
     for (const prop of INHERITED_CSS_PROPERTIES) {
       const camel = prop.replace(/-([a-z])/g, (_m, c: string) => c.toUpperCase())
+
       if (prevStyle[camel] !== style[camel]) {
         inheritedChanged = true
         break
@@ -236,7 +264,9 @@ export function createCssCascade(deps: Dependencies) {
     const replay =
       node.cssMatchDirty === true ||
       !deps.cssAnimations.sameAnimations(node.cssAnimation?.infos ?? [], playable)
+
     node.cssMatchDirty = false
+
     const droppedOverlay = replay && deps.cssAnimations.cancelKeyframeAnimations(node)
 
     // Unchanged effective styles skip the native apply: most restyles (class or
@@ -263,6 +293,7 @@ export function createCssCascade(deps: Dependencies) {
     if (replay && playable.length > 0) {
       deps.cssAnimations.playKeyframeAnimations(node, playable)
     }
+
     if (customChanged || inheritedChanged) {
       for (const child of cssChildren(node)) {
         restyleNode(child)
@@ -276,14 +307,17 @@ export function createCssCascade(deps: Dependencies) {
     if (cssWarnedProps.has(name)) {
       return
     }
+
     cssWarnedProps.add(name)
     console.warn('[macos-css] ignored unsupported property ' + name + ' (on <' + node.type + '>)')
   }
 
   function setNodeInlineStyle(node: ElementNode, value: any) {
     const prev = node.cascadeInline
+
     node.props.style = value
     node.cascadeInline = value
+
     // Subtree restyle only when an inherited or custom-property input changed.
     const inheritedOrCustom = (bag: any): boolean =>
       !!bag &&
@@ -292,7 +326,9 @@ export function createCssCascade(deps: Dependencies) {
           k.startsWith('--') ||
           INHERITED_CSS_PROPERTIES.has(k.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())),
       )
+
     const subtree = Boolean(inheritedOrCustom(prev)) || Boolean(inheritedOrCustom(value))
+
     markStyleDirty(node, subtree)
   }
 
@@ -309,11 +345,13 @@ export function createCssCascade(deps: Dependencies) {
    *  via markStyleDirty → restyleNode → refreshCssClasses. */
   function refreshCssClasses(node: ElementNode) {
     const set = new Set(node.cssBaseClasses ?? [])
+
     if (isCssRootNode(node)) {
       set.add('ns-root')
       set.add('ns-macos')
       set.add(cssSchemeName(node) === 'dark' ? 'ns-dark' : 'ns-light')
     }
+
     node.cssClasses = set
   }
 
@@ -324,14 +362,17 @@ export function createCssCascade(deps: Dependencies) {
 
   function setPseudoClass(node: ElementNode, name: string, on: boolean) {
     const had = node.cssPseudoClasses.has(name)
+
     if (on === had) {
       return
     }
+
     if (on) {
       node.cssPseudoClasses.add(name)
     } else {
       node.cssPseudoClasses.delete(name)
     }
+
     // Only pseudo-classes some registered selector actually uses can
     // restyle — an unused state change must not flush a subtree.
     if (stylesheetPseudoClasses().has(name)) {
@@ -355,15 +396,19 @@ export function createCssCascade(deps: Dependencies) {
     if (node.type !== 'textfield' && node.type !== 'textview') {
       return
     }
+
     const view = node.view
+
     if (!view) {
       return
     }
+
     // CSS paints the layer; it must not change the control's native bezel or
     // background configuration. Shared controls reset those at construction.
     if (node.type === 'textview') {
       const style = effectiveStyle(node)
       const inset = parseEdgeInsets(style.padding ?? 0)
+
       view.textContainerInset = {
         width: Number(style.paddingLeft ?? inset.left) || 0,
         height: Number(style.paddingTop ?? inset.top) || 0,
@@ -386,6 +431,7 @@ export function createCssCascade(deps: Dependencies) {
       view.invalidateIntrinsicContentSize?.()
     }
   }
+
   return {
     cssChildren,
     cssSchemeName,

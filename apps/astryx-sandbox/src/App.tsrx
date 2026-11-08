@@ -13,6 +13,7 @@ import './routes'
 export function App() @{
   const theme = themeFor(useThemeName())
   const mode = useThemePreference()
+
   return (
     <Theme theme={theme} mode={mode}>
       <LayerProvider>

@@ -21,29 +21,36 @@ function pixels(frame: ImageFrame): UIImage {
   if (!frame.image) {
     throw new Error('Image pixels were released')
   }
+
   return frame.image
 }
 
 function draw(size: Size, action: (context: GraphicsContext) => void): ImageFrame {
   const format = UIGraphicsImageRendererFormat.defaultFormat()
+
   format.scale = 1
   format.opaque = false
+
   const renderer = UIGraphicsImageRenderer.alloc().initWithSizeFormat(size, format)
   const image = renderer.imageWithActions((context) => action(context.CGContext))
+
   if (!image) {
     throw new Error('Image rendering failed')
   }
+
   return { image, ...size }
 }
 
 async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame> {
   const input = await mobileSource(uri)
+
   try {
     const source = input.uri.startsWith('data:')
       ? ImageSource.fromBase64Sync(encodedSource(input.uri))
       : ImageSource.fromFileOrResourceSync(input.uri)
 
     const image: UIImage | undefined = source?.ios
+
     if (!image?.CGImage) {
       throw new Error('Could not decode the image')
     }
@@ -67,13 +74,16 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
   if (operation.kind === 'extent') {
     throw new UnavailabilityError('ImageManipulator.extent (web only)')
   }
+
   const image = pixels(frame)
   const size = outputSize(frame, operation)
+
   return draw(size, (context) => {
     let x = 0,
       y = 0,
       width = frame.width,
       height = frame.height
+
     switch (operation.kind) {
       case 'resize':
         width = size.width
@@ -102,6 +112,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
           operation.axis === 'vertical' ? -1 : 1,
         )
     }
+
     image.drawInRect({ origin: { x, y }, size: { width, height } })
   })
 }
@@ -109,22 +120,27 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
 async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<ImageResult> {
   const png = options.format === 'jpeg' ? null : UIImagePNGRepresentation(pixels(frame))
   const codec = lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
+
   if (options.format === 'webp' && !codec) {
     throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
   }
+
   const data =
     options.format === 'webp'
       ? png && codec!.encodePNGQuality(png, options.compress)
       : options.format === 'png'
         ? png
         : UIImageJPEGRepresentation(pixels(frame), options.compress)
+
   if (!data) {
     throw new Error('Image encoding failed')
   }
+
   const local = path.join(
     knownFolders.temp().path,
     `xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : options.format}`,
   )
+
   try {
     if (!data.writeToFileAtomically(local, true)) {
       throw new Error('Could not save the encoded image')

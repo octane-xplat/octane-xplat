@@ -26,6 +26,7 @@ export const CHECKS: ParityCheck[] = [
       const root = m('root')
       const base = m('base')
       const overlay = m('overlay')
+
       return [
         dims(root, 96, 48, 1),
         dims(base, 48, 32, 1),
@@ -62,6 +63,7 @@ export const CHECKS: ParityCheck[] = [
       const root = m('root')
       const base = m('base')
       const overlay = m('overlay')
+
       return [
         dims(overlay, 20, 10, 1),
         [

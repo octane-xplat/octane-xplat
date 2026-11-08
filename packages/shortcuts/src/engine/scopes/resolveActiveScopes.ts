@@ -1,6 +1,7 @@
 export function resolveActiveScopes(getActiveScopes?: () => Iterable<string>): string[] {
   const scopes = getActiveScopes ? [...getActiveScopes()] : []
   const uniqueScopes = [...new Set(scopes.filter((scope) => scope !== 'root' && scope.length > 0))]
+
   uniqueScopes.push('root')
   return uniqueScopes
 }
@@ -14,5 +15,6 @@ export function pickMatchedScope(
       return scope
     }
   }
+
   return null
 }

@@ -31,6 +31,7 @@ const BITMAP_INFO_RGBA_PREMULTIPLIED = 16385
 /** `src` grammar mirrors Image: data: base64, res://, ~/, file path, remote URL. */
 async function loadImageSource(src: string): Promise<ImageSource> {
   const comma = src.indexOf(',')
+
   if (src.startsWith('data:') && comma > 0 && src.slice(0, comma).endsWith(';base64')) {
     return ImageSource.fromBase64Sync(src.slice(comma + 1))
   }
@@ -56,9 +57,13 @@ function iosPixels(image: any): { w: number; h: number; rgba: Uint8Array } {
   // Pass 1: UIImage draw applies imageOrientation and scales to the target.
   UIGraphicsBeginImageContextWithOptions(CGSizeMake(w, h), false, 1)
   image.drawInRect(CGRectMake(0, 0, w, h))
+
   const normalized = UIGraphicsGetImageFromCurrentImageContext()
+
   UIGraphicsEndImageContext()
+
   const cg = normalized?.CGImage
+
   if (!cg) {
     throw new Error('thumbHashUri: image has no raster data')
   }
@@ -76,9 +81,11 @@ function iosPixels(image: any): { w: number; h: number; rgba: Uint8Array } {
     null,
     null,
   )
+
   CGContextDrawImage(context, CGRectMake(0, 0, w, h), cg)
 
   const rgba = new Uint8Array(interop.bufferFromData(data))
+
   unpremultiplyRGBA(rgba)
   return { w, h, rgba }
 }
@@ -89,13 +96,17 @@ function androidPixels(bitmap: any): { w: number; h: number; rgba: Uint8Array } 
     w === bitmap.getWidth() && h === bitmap.getHeight()
       ? bitmap
       : android.graphics.Bitmap.createScaledBitmap(bitmap, w, h, true)
+
   // Array.create('int', n) allocates a real java int[] (platform/random.ts).
   const pixels = (Array as any).create('int', w * h)
+
   scaled.getPixels(pixels, 0, w, 0, 0, w, h)
 
   const rgba = new Uint8Array(w * h * 4)
+
   for (let i = 0, j = 0; i < w * h; i++, j += 4) {
     const c = pixels[i] // packed ARGB_8888 int (premultiplied alpha)
+
     rgba[j] = (c >> 16) & 255
     rgba[j + 1] = (c >> 8) & 255
     rgba[j + 2] = c & 255
@@ -117,10 +128,12 @@ export async function thumbHashUri(src: string): Promise<string> {
 
   const source = await loadImageSource(src)
   const native = isIOS ? source?.ios : source?.android
+
   if (!native) {
     throw new Error('thumbHashUri: could not decode image source')
   }
 
   const pixels = isIOS ? iosPixels(native) : androidPixels(native)
+
   return rgbaToThumbHashUri(pixels.w, pixels.h, pixels.rgba)
 }

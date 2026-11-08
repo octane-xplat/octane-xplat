@@ -9,6 +9,7 @@ import type { Accelerator, GlobalShortcutSupport } from './types.js'
 // verified on the pinned runtime.
 for (const name of ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'] as const) {
   const g = globalThis as Record<string, unknown>
+
   g[name] ??= g[`__ns__${name}`]
 }
 
@@ -181,19 +182,25 @@ const rt = () => projection().NSWinRT
 
 function bufferAddress(buf: ArrayBuffer | ArrayBufferView): number {
   const interop = win32Interop
+
   if (!interop) {
     return 0
   }
+
   const p = interop.pointerFromBuffer(buf)
+
   if (typeof p === 'number') {
     return p
   }
+
   if (typeof interop.pointerKey === 'function') {
     return Number(interop.pointerKey(p))
   }
+
   if (p !== null && typeof p === 'object' && '__native_ptr' in p) {
     return Number((p as { __native_ptr: unknown }).__native_ptr)
   }
+
   return 0
 }
 
@@ -208,9 +215,11 @@ function raw(
 
 function utf16(text: string): number {
   const buf = new Uint16Array(text.length + 1)
+
   for (let i = 0; i < text.length; i++) {
     buf[i] = text.charCodeAt(i)
   }
+
   return bufferAddress(buf)
 }
 
@@ -218,10 +227,13 @@ function ensureRuntime(): boolean {
   if (win32 !== null) {
     return true
   }
+
   if (initFailed) {
     return false
   }
+
   const api = rt()
+
   if (
     api?.win32?.call &&
     api.interop?.pointerFromBuffer &&
@@ -231,6 +243,7 @@ function ensureRuntime(): boolean {
     win32Interop = api.interop
     return true
   }
+
   initFailed = true
   return false
 }
@@ -246,12 +259,15 @@ function handleRecord(kind: number, key: number, value: number): void {
     workerReady = true
     return
   }
+
   if (kind === REC_HOTKEY) {
     dispatch.get(key)?.()
     return
   }
+
   const table = kind === REC_BOUND || kind === REC_FAILED ? pendingBind : pendingUnbind
   const pending = table.get(key)
+
   if (pending) {
     table.delete(key)
     clearTimeout(pending.timer)
@@ -263,7 +279,9 @@ function pollPipe(): void {
   if (!pipe || win32 === null) {
     return
   }
+
   availView.setUint32(0, 0, true)
+
   const peeked = raw(
     'kernel32.dll',
     'PeekNamedPipe',
@@ -275,15 +293,21 @@ function pollPipe(): void {
     ptr(bufferAddress(availBuf)),
     ptr(0),
   )
+
   if (!peeked) {
     return
   }
+
   const avail = availView.getUint32(0, true)
+
   if (avail === 0) {
     return
   }
+
   const take = Math.min(avail, 4096)
+
   availView.setUint32(0, 0, true)
+
   const ok = raw(
     'kernel32.dll',
     'ReadFile',
@@ -294,15 +318,20 @@ function pollPipe(): void {
     ptr(bufferAddress(availBuf)),
     ptr(0),
   )
+
   if (!ok) {
     return
   }
+
   const count = availView.getUint32(0, true)
   const bytes = new Uint8Array(leftovers.length + count)
+
   bytes.set(leftovers, 0)
   bytes.set(new Uint8Array(readBuf, 0, count), leftovers.length)
+
   const view = new DataView(bytes.buffer)
   let offset = 0
+
   while (offset + 12 <= bytes.length) {
     handleRecord(
       view.getUint32(offset, true),
@@ -312,6 +341,7 @@ function pollPipe(): void {
 
     offset += 12
   }
+
   leftovers = bytes.slice(offset)
 }
 
@@ -319,16 +349,21 @@ function startPolling(): void {
   if (pollTimer !== null || typeof setInterval !== 'function') {
     return
   }
+
   pollTimer = setInterval(pollPipe, 40)
 }
 
 function createPipe(): boolean {
   const api = rt()
+
   if (!api?.win32) {
     return false
   }
+
   const pid = Number(raw('kernel32.dll', 'GetCurrentProcessId', 'u32'))
+
   pipePath = `\\\\.\\pipe\\xplat-ghk-${pid}`
+
   const handle = Number(
     raw(
       'kernel32.dll',
@@ -344,30 +379,38 @@ function createPipe(): boolean {
       ptr(0),
     ),
   )
+
   if (!handle || handle === 0xffffffff || handle === 0xffffffffffffffff) {
     pipe = 0
     return false
   }
+
   pipe = handle
   return true
 }
 
 function spawnWorker(): WorkerLike | null {
   const Ctor = projection().Worker
+
   if (typeof Ctor !== 'function') {
     return null
   }
+
   try {
     return new Ctor(WORKER_SOURCE, { eval: true })
   } catch {
     // Fall back to a temp file: some builds require a resolvable path.
   }
+
   try {
     const pid = Number(raw('kernel32.dll', 'GetCurrentProcessId', 'u32'))
     const pathBuf = new Uint16Array(520)
     const pathAddr = bufferAddress(pathBuf)
+
     raw('kernel32.dll', 'GetTempPathW', 'u32', u32(260), ptr(pathAddr))
+
     let dir = ''
+
     for (let i = 0; i < 260 && pathBuf[i] !== 0; i++) {
       dir += String.fromCharCode(pathBuf[i])
     }
@@ -394,6 +437,7 @@ function spawnWorker(): WorkerLike | null {
 
     const bytes = new TextEncoder().encode(WORKER_SOURCE)
     const written = new DataView(new ArrayBuffer(8))
+
     raw(
       'kernel32.dll',
       'WriteFile',
@@ -416,24 +460,30 @@ function ensureWorker(): Promise<boolean> {
   if (workerReady) {
     return Promise.resolve(true)
   }
+
   if (bootPromise !== null) {
     return bootPromise
   }
+
   bootPromise = new Promise((resolve) => {
     if (!ensureRuntime() || typeof setInterval !== 'function') {
       resolve(false)
       return
     }
+
     if (!createPipe()) {
       resolve(false)
       return
     }
+
     worker = spawnWorker()
     if (worker === null) {
       resolve(false)
       return
     }
+
     startPolling()
+
     // The runtime only starts the worker body after a main->worker message;
     // pings are content-free kicks, so delivery order does not matter.
     let pings = 0
@@ -443,12 +493,14 @@ function ensureWorker(): Promise<boolean> {
         resolve(true)
         return
       }
+
       pings += 1
       if (pings > 25) {
         clearInterval(kick)
         resolve(false)
         return
       }
+
       try {
         worker?.postMessage('ghk')
       } catch {
@@ -456,7 +508,9 @@ function ensureWorker(): Promise<boolean> {
       }
     }, 300)
   })
+
   const done = bootPromise
+
   void done.then((ok) => {
     if (!ok) {
       bootPromise = null
@@ -469,6 +523,7 @@ function ensureWorker(): Promise<boolean> {
       worker = null
     }
   })
+
   return done
 }
 
@@ -484,6 +539,7 @@ function awaitReply(
       table.delete(key)
       resolve(REPLY_TIMEOUT)
     }, timeoutMs)
+
     table.set(key, { resolve, timer })
   })
 }
@@ -492,6 +548,7 @@ function postCommand(message: number, wParam: number, lParam: number): boolean {
   if (!workerReady || workerTid === 0) {
     return false
   }
+
   try {
     return !!raw(
       'user32.dll',
@@ -509,32 +566,41 @@ function postCommand(message: number, wParam: number, lParam: number): boolean {
 
 function winModifiers(accelerator: Accelerator): number {
   let mods = MOD_NOREPEAT
+
   if (accelerator.alt) {
     mods |= MOD_ALT
   }
+
   if (accelerator.ctrl) {
     mods |= MOD_CONTROL
   }
+
   if (accelerator.shift) {
     mods |= MOD_SHIFT
   }
+
   if (accelerator.meta) {
     mods |= MOD_WIN
   }
+
   return mods
 }
 
 function virtualKey(request: BindRequest): number | null {
   const mapping = windowsKeyMapping(request.accelerator.code)
+
   if (mapping === null) {
     return null
   }
+
   if (mapping.vk !== undefined) {
     return mapping.vk
   }
+
   if (mapping.scan === undefined) {
     return null
   }
+
   try {
     const layout = Number(raw('user32.dll', 'GetKeyboardLayout', 'pointer', u32(0)))
     const vk = Number(
@@ -577,7 +643,9 @@ export const backend: HotkeyBackend = {
         error: { code: 'unsupported', message: UNSUPPORTED.reason ?? 'unsupported' },
       }
     }
+
     const vk = virtualKey(request)
+
     if (vk === null) {
       return {
         ok: false,
@@ -587,7 +655,9 @@ export const backend: HotkeyBackend = {
         },
       }
     }
+
     const ready = await ensureWorker()
+
     if (!ready) {
       return {
         ok: false,
@@ -597,8 +667,10 @@ export const backend: HotkeyBackend = {
         },
       }
     }
+
     const reply = awaitReply(pendingBind, request.key, 6000)
     const packed = (winModifiers(request.accelerator) << 16) | vk
+
     if (!postCommand(CMD_BIND, request.key, packed)) {
       pendingBind.delete(request.key)
       return {
@@ -606,13 +678,16 @@ export const backend: HotkeyBackend = {
         error: { code: 'unavailable', message: 'The global-shortcut worker is not responding.' },
       }
     }
+
     const status = await reply
+
     if (status < 0 && status !== -ERROR_HOTKEY_REGISTERED) {
       // On timeout the worker may still register late; release it.
       if (status === REPLY_TIMEOUT) {
         postCommand(CMD_UNBIND, request.key, 0)
       }
     }
+
     if (status === -ERROR_HOTKEY_REGISTERED) {
       return {
         ok: false,
@@ -622,8 +697,10 @@ export const backend: HotkeyBackend = {
         },
       }
     }
+
     if (status < 0) {
       const code = -status
+
       return {
         ok: false,
         error: {
@@ -635,6 +712,7 @@ export const backend: HotkeyBackend = {
         },
       }
     }
+
     dispatch.set(request.key, onPress)
     return {
       ok: true,
@@ -644,7 +722,9 @@ export const backend: HotkeyBackend = {
         if (!postCommand(CMD_UNBIND, request.key, 0)) {
           return
         }
+
         const waiter = awaitReply(pendingUnbind, request.key, 3000)
+
         await waiter
       },
     }

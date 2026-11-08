@@ -13,7 +13,9 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 export async function checkMacOSNative(packedRoot) {
   assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
   assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
+
   const app = await mkdtemp(join(tmpdir(), 'xplat-camera-native-'))
+
   try {
     await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
     await cp(packedRoot, join(app, 'node_modules/@octane-xplat/camera'), { recursive: true })
@@ -33,6 +35,7 @@ export async function checkMacOSNative(packedRoot) {
     )
 
     const source = join(app, 'consumer.ts')
+
     await writeFile(
       source,
       `
@@ -293,6 +296,7 @@ run().catch((error) => { console.error(String(error)); throw error })
 
     for (const variant of variants) {
       const dir = join(app, `host-${variant.name}`)
+
       await mkdir(dir, { recursive: true })
       await cp(join(hostBundle, 'host'), join(dir, 'host'))
       if (variant.plist) {
@@ -306,6 +310,7 @@ run().catch((error) => { console.error(String(error)); throw error })
       )
 
       const output = `${result.stdout}\n${result.stderr}`
+
       assert.equal(result.status, 0, `${variant.name}\n${output}`)
       assert.match(output, /MACOS_CAMERA_HOST_OK/, `${variant.name}\n${output}`)
     }

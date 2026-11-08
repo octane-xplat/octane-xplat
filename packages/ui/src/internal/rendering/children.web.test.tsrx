@@ -22,6 +22,7 @@ function Collections() @{
 it('normalizes ordinary web JSX siblings for collection limits', () => {
   const host = document.createElement('div')
   const root = createRoot(host)
+
   act(() => root.render(<Collections />))
   expect(host.querySelector('#avatars')?.textContent).toBe('AB+1')
   expect(host.querySelector('#metadata')?.textContent).toContain('First')

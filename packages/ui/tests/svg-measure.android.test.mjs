@@ -53,6 +53,7 @@ AndroidView.extend = (literal) => {
 }
 
 const exports = {}
+
 runInNewContext(compiled, {
   exports,
   require(name) {
@@ -67,6 +68,7 @@ runInNewContext(compiled, {
         Trace: { write() {}, categories: { Error: 0 } },
       }
     }
+
     if (name === './index.common') {
       class Base {
         requestLayout() {}
@@ -78,6 +80,7 @@ runInNewContext(compiled, {
         stretchProperty: { setNative: Symbol('stretch') },
       }
     }
+
     throw new Error(`Unexpected import: ${name}`)
   },
   globalAndroid: {},
@@ -106,6 +109,7 @@ const fakeSvg = ({ viewBox, docWidth, docHeight }) => ({
 
 function measure({ viewBox, docWidth, docHeight, widthSpec, heightSpec, ratio = 0 }) {
   const view = new AndroidView()
+
   Object.assign(view, viewLiteral)
   view.aspectRatio = ratio
   view.setSvg(fakeSvg({ viewBox, docWidth, docHeight }))
@@ -158,6 +162,7 @@ test('explicit dimensions stay exact; an authored ratio controls inferred height
     }),
     [93, 108],
   )
+
   assert.deepEqual(
     measure({ widthSpec: exactly(90, EXACTLY), heightSpec: UNSPECIFIED, ratio: 2 }),
     [90, 45],
@@ -170,6 +175,7 @@ test('no intrinsic size and no aspectRatio falls through to spec sizes', () => {
 
 test('setSvg(null) resets the intrinsic size', () => {
   const view = new AndroidView()
+
   Object.assign(view, viewLiteral)
   view.setSvg(fakeSvg({ docWidth: 31, docHeight: 36 }))
   assert.equal(view._intrinsicWidth, 31)

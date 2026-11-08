@@ -27,8 +27,10 @@ export function excessTextRange(
   ) {
     return null
   }
+
   let start = 0,
     end = before.length
+
   if (
     validRange(proposed, before.length) &&
     after.length >= before.length - proposed.length &&
@@ -51,6 +53,7 @@ export function excessTextRange(
       end--
     }
   }
+
   if (
     start > 0 &&
     /[\uD800-\uDBFF]/.test(before[start - 1]) &&
@@ -58,6 +61,7 @@ export function excessTextRange(
   ) {
     start--
   }
+
   if (
     end > start &&
     end < before.length &&
@@ -66,9 +70,11 @@ export function excessTextRange(
   ) {
     end++
   }
+
   const inserted = after.length - (before.length - end) - start
   let allowed = Math.min(inserted, Math.max(0, maximum - (before.length - (end - start))))
   const cut = start + allowed
+
   // Do not leave half of a surrogate pair at the cap. This is not a grapheme cap.
   if (
     allowed > 0 &&
@@ -77,6 +83,7 @@ export function excessTextRange(
   ) {
     allowed--
   }
+
   return inserted > allowed ? { location: start + allowed, length: inserted - allowed } : null
 }
 
@@ -102,8 +109,10 @@ export function rememberTextLimitValue(view: TextView, initialOnly = false): voi
   if (initialOnly && pending.has(view)) {
     return
   }
+
   if (!normalizing.has(view) && !marked(view)) {
     const text = String(view.string ?? '')
+
     pending.set(view, { before: text })
     reported.set(view, text)
   }
@@ -112,6 +121,7 @@ export function rememberTextLimitValue(view: TextView, initialOnly = false): voi
 export function recordTextLimitEdit(view: TextView, range: TextRange): void {
   if (!normalizing.has(view) && !marked(view)) {
     const before = String(view.string ?? '')
+
     pending.set(view, { before, range: { ...range } })
     if (!reported.has(view)) {
       reported.set(view, before)
@@ -124,23 +134,29 @@ export function enforceTextLimit(view: TextView, maximum: unknown): boolean {
   if (normalizing.has(view) || marked(view)) {
     return false
   }
+
   const text = String(view.string ?? '')
   const previous = pending.get(view)
   const excess = excessTextRange(previous?.before ?? text, text, maximum, previous?.range)
+
   if (!excess) {
     pending.set(view, { before: text })
     return false
   }
+
   const selection = view.selectedRange
   const remap = (position: number) =>
     position <= excess.location ? position : Math.max(excess.location, position - excess.length)
+
   let changed = false
+
   normalizing.add(view)
   try {
     if (view.shouldChangeTextInRangeReplacementString(excess, '')) {
       view.textStorage.replaceCharactersInRangeWithString(excess, '')
       if (validRange(selection, text.length)) {
         const location = remap(selection.location)
+
         view.selectedRange = {
           location,
           length: remap(selection.location + selection.length) - location,
@@ -154,6 +170,7 @@ export function enforceTextLimit(view: TextView, maximum: unknown): boolean {
     normalizing.delete(view)
     pending.set(view, { before: String(view.string ?? '') })
   }
+
   return changed
 }
 
@@ -161,9 +178,11 @@ export function enforceTextLimit(view: TextView, maximum: unknown): boolean {
  * have reported temporary text, so its restoration still needs a callback. */
 export function reportTextLimitChange(view: TextView): boolean {
   const text = String(view.string ?? '')
+
   if (reported.get(view) === text) {
     return false
   }
+
   reported.set(view, text)
   return true
 }

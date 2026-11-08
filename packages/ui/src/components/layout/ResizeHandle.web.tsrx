@@ -32,6 +32,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
 
   useEffect(() => {
     const expected = resizable?._direction
+
     if (expected && expected !== direction) {
       devWarnOnce(
         'resizable-direction:' + expected + '/' + direction,
@@ -42,6 +43,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
 
   const rtlMultiplier = useCallback(() => {
     const host = el.current
+
     if (!host || !isHorizontal) {
       return 1
     }
@@ -58,6 +60,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
   const onPointerMove = useCallback(
     (e: PointerEvent) => {
       const d = drag.current
+
       if (!d || !resizable) {
         return
       }
@@ -71,6 +74,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
     (e: PointerEvent, cancelled: boolean) => {
       const host = el.current
       const d = drag.current
+
       if (!d || !resizable) {
         return
       }
@@ -96,7 +100,9 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
       }
 
       e.preventDefault()
+
       const host = el.current
+
       drag.current = {
         pointerId: e.pointerId,
         startPos: posFrom(e),
@@ -120,6 +126,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
 
       const step = e.shiftKey ? KEYBOARD_LARGE_STEP : KEYBOARD_STEP
       const rtl = isHorizontal ? (rtlMultiplier() as number) : 1
+
       switch (e.key) {
         case 'ArrowRight':
         case 'ArrowDown':
@@ -180,6 +187,7 @@ export function ResizeHandle(props: ResizeHandleProps): JSX.Element @{
   // Lost capture / cancel releases the gesture without signalling end.
   useEffect(() => {
     const host = el.current
+
     if (!host || !resizable) {
       return
     }

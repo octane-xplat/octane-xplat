@@ -99,6 +99,7 @@ export function Button(props: ButtonProps): JSX.Element @{
     }
 
     let action: void | Promise<void> | undefined
+
     try {
       action = props.clickAction?.()
     } catch (error) {
@@ -144,6 +145,7 @@ export function Button(props: ButtonProps): JSX.Element @{
     </a>
   } @else {
     const pressableProps: PressableInternalProps = { ...props, _nativeButton: true }
+
     <Pressable
       {...pressableProps}
       disabled={useAriaDisabled ? false : disabled}

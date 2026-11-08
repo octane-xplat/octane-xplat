@@ -1,5 +1,6 @@
 export const createAudioPlayer = () => {
   const audio = new Audio()
+
   audio.src = 'https://www.w3schools.com/html/horse.mp3'
   audio.preload = 'auto'
   return {

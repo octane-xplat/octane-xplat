@@ -6,6 +6,7 @@ export function measure(element: any): Rectangle | null {
   }
 
   const rect = element.getBoundingClientRect()
+
   return rect.width > 0 && rect.height > 0 ? Rectangle.from(rect) : null
 }
 

@@ -18,6 +18,7 @@ const compiled = ts.transpile(source, {
 test('iOS tap-to-blur registers lazily without NativeClass and reuses its native class', () => {
   const context = vm.createContext({ exports: {} })
   const ios = new Proxy({}, { get: (_target, name) => context[name] })
+
   context.require = (specifier) => {
     if (specifier === '@octane-xplat/platform/ios') {
       return ios
@@ -27,6 +28,7 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
   }
 
   vm.runInContext(compiled, context)
+
   const { attachTapToBlur } = context.exports
   const registrations = []
   const added = []
@@ -61,20 +63,25 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
   const detachFirst = attachTapToBlur(first)
   const detachDuplicate = attachTapToBlur(first)
   const detachSecond = attachTapToBlur({})
+
   assert.equal(registrations.length, 1)
   assert.equal(registrations[0].name, 'XplatTapToBlurRecognizerTarget')
   assert.equal(registrations[0].protocols[0], context.UIGestureRecognizerDelegate)
   assert.equal(registrations[0].exposedMethods['tap:'].params[0], context.interop.types.id)
   assert.equal(added.length, 1)
+
   const recognizer = added[0]
+
   assert.equal(recognizer.action, 'tap:')
   assert.equal(recognizer.delegate, recognizer.target)
   assert.equal(recognizer.cancelsTouchesInView, false)
+
   const shouldReceive = (view) =>
     recognizer.delegate.gestureRecognizerShouldReceiveTouch(recognizer, { view })
 
   for (const kind of ['field', 'text']) {
     const editable = { isKindOfClass: (type) => type === kind }
+
     assert.equal(shouldReceive({ isKindOfClass: () => false, superview: editable }), false)
   }
 
@@ -93,7 +100,9 @@ test('iOS tap-to-blur registers lazily without NativeClass and reuses its native
   assert.equal(removed.length, 0)
   detachSecond()
   assert.deepEqual(removed, [recognizer])
+
   const detachAgain = attachTapToBlur({})
+
   assert.equal(registrations.length, 1)
   assert.equal(added.length, 2)
   detachAgain()

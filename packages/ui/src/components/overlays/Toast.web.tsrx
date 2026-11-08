@@ -23,7 +23,9 @@ export function Toast(props: ToastProps): JSX.Element @{
   const remaining = useRef(duration)
   const deadline = useRef(0)
   const onDismiss = useRef(props.onDismiss)
+
   onDismiss.current = props.onDismiss
+
   const dismissed = useRef(false)
 
   const dismiss = useCallback((reason: 'auto' | 'manual' = 'auto') => {
@@ -86,18 +88,21 @@ export function Toast(props: ToastProps): JSX.Element @{
     }
 
     const dx = e.clientX - drag.current.x
+
     el.current.style.transform = `translateX(${dx}px)`
     el.current.style.opacity = String(Math.max(0.3, 1 - Math.abs(dx) / 160))
   }
 
   const onPointerUp = (e: PointerEvent) => {
     const start = drag.current
+
     drag.current = null
     if (!start || !el.current) {
       return
     }
 
     const dx = e.clientX - start.x
+
     if (Math.abs(dx) >= SWIPE_DISMISS_PX) {
       dismiss('manual')
       return

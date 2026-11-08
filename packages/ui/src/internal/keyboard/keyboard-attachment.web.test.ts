@@ -13,8 +13,10 @@ it('attaches normalized down/up handlers to a focusable DOM button', () => {
   })
 
   const button = document.createElement('button')
+
   button.addEventListener('keydown', keyboardProps.onKeyDown!)
   button.addEventListener('keyup', keyboardProps.onKeyUp!)
+
   const down = new KeyboardEvent('keydown', {
     key: 'A',
     code: 'KeyA',

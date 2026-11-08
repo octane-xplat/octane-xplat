@@ -22,6 +22,7 @@ export function Link(props: LinkProps): unknown @{
   )
 
   const style = mergeStyle(props.color ? { color: props.color } : {}, props.style)
+
   // Match the safe-link boundary: rejected destinations never reach an
   // injected router component. A valid injected surface owns navigation.
   if (typeof Injected === 'function' && url != null) {

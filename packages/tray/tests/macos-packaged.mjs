@@ -22,6 +22,7 @@ const root = fileURLToPath(new URL('../../..', import.meta.url))
 const scratch = mkdtempSync(join(tmpdir(), 'xplat-tray-packaged-'))
 const appDir = join(scratch, 'app')
 const packs = join(scratch, 'packs')
+
 mkdirSync(appDir, { recursive: true })
 mkdirSync(packs, { recursive: true })
 
@@ -39,21 +40,25 @@ const run = (command, args, cwd = appDir, extra = {}) => {
       ...extra,
     },
   })
+
   if (result.status !== 0) {
     throw new Error(
       `${command} ${args.join(' ')} failed (${result.status}):\n${result.stdout}${result.stderr}`,
     )
   }
+
   return result.stdout + result.stderr
 }
 
 const pack = (pkgDir) => {
   const manifest = JSON.parse(readFileSync(join(root, pkgDir, 'package.json')))
+
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], join(root, pkgDir))
   return join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)
 }
 
 let appProcess = null
+
 try {
   const trayPack = pack('packages/tray')
   // The packager worker must come from a tarball too (it is not published).
@@ -159,9 +164,12 @@ setTimeout(() => main().catch((e) => { console.log('TRAY_PACKAGED_FAIL ' + (e &&
   assert.ok(existsSync(join(appDir, 'node_modules/@octane-xplat/tray/dist/index.macos.js')))
 
   const stage = join(appDir, 'artifacts/macos-universal/.xplat-macos-raw')
+
   mkdirSync(stage, { recursive: true })
+
   const input = join(scratch, 'request.json')
   const output = join(scratch, 'result.json')
+
   writeFileSync(
     input,
     JSON.stringify({
@@ -190,7 +198,9 @@ setTimeout(() => main().catch((e) => { console.log('TRAY_PACKAGED_FAIL ' + (e &&
   )
 
   const result = JSON.parse(readFileSync(output))
+
   assert.equal(result.ok, true, JSON.stringify(result))
+
   const stagedApp = result.data.appPath
 
   const osascript = () => {
@@ -202,6 +212,7 @@ setTimeout(() => main().catch((e) => { console.log('TRAY_PACKAGED_FAIL ' + (e &&
       ],
       { encoding: 'utf8', timeout: 20_000 },
     )
+
     return (probe.stdout || probe.stderr || String(probe.error)).trim()
   }
 
@@ -219,13 +230,16 @@ setTimeout(() => main().catch((e) => { console.log('TRAY_PACKAGED_FAIL ' + (e &&
       if (appOutput.includes('TRAY_PACKAGED_CREATED') && created === null) {
         created = osascript()
       }
+
       if (appOutput.includes('TRAY_PACKAGED_REMOVED') && removed === null) {
         removed = osascript()
       }
+
       if (appOutput.includes('TRAY_PACKAGED_REMOVED')) {
         resolve()
       }
     })
+
     appProcess.stderr.setEncoding('utf8').on('data', (chunk) => (appOutput += chunk))
   })
 

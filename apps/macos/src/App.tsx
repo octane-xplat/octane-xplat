@@ -12,5 +12,6 @@ export default function AppKitApp(props: Parameters<typeof App>[0]) {
       console.warn('[macos] Incoming link setup failed')
     }
   }, [])
+
   return <App {...props} />
 }

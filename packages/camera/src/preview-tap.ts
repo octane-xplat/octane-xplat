@@ -19,6 +19,7 @@ export function observePreviewTap(
     const height = size?.height ?? 0
     const x = typeof args?.getX === 'function' ? args.getX() : NaN
     const y = typeof args?.getY === 'function' ? args.getY() : NaN
+
     if (!(width > 0) || !(height > 0) || !Number.isFinite(x) || !Number.isFinite(y)) {
       return
     }

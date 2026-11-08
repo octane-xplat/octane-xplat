@@ -7,8 +7,10 @@ const requestFile = File.fromPath(path.join(folder, 'splash-request.json'))
 const request: { mode: string; nonce: string } = JSON.parse(requestFile.readTextSync())
 const results: string[] = []
 const windows: unknown[] = []
+
 Application.ios.addNotificationObserver(UIWindowDidBecomeVisibleNotification, (notification) => {
   const window = notification.object as UIWindow
+
   windows.push({
     name: 'UIWindowDidBecomeVisibleNotification',
     level: window.windowLevel,
@@ -35,6 +37,7 @@ const assert = (condition: unknown, message: string) => {
   if (!condition) {
     throw new Error(message)
   }
+
   results.push(message)
 }
 
@@ -42,6 +45,7 @@ const wait = (milliseconds: number) =>
   new Promise<void>((resolve) => setTimeout(resolve, milliseconds))
 
 let held: Promise<boolean> | undefined
+
 try {
   assert(
     ['unprepared', 'waiting'].includes(state().state),
@@ -68,13 +72,17 @@ try {
 
 const page = new Page()
 const label = new Label()
+
 label.text = 'Splash lifecycle fixture'
 page.content = label
+
 let started = false
+
 page.on(Page.loadedEvent, () => {
   if (started) {
     return
   }
+
   started = true
   void (async () => {
     try {
@@ -90,6 +98,7 @@ page.on(Page.loadedEvent, () => {
         )
 
         assert(await Splash.preventAutoHideAsync(), 'repeated prevention shares the same hold')
+
         const window = Application.ios.window
         const key = window.keyWindow,
           interaction = window.userInteractionEnabled
@@ -104,7 +113,9 @@ page.on(Page.loadedEvent, () => {
         ).filter((view) => view.accessibilityIdentifier === 'xplat.launch-screen')
 
         assert(overlays.length === 1, 'exactly one launch storyboard continuation')
+
         const overlay = overlays[0]
+
         assert(
           window.subviews.lastObject.isEqual(overlay),
           'launch continuation is above the app root',

@@ -15,6 +15,7 @@ export function isWritingText(view: object): boolean {
  *  echo of the user's own typing must not bounce back through setText. */
 export function writeText(view: any, value: string | undefined | null): void {
   const next = value ?? ''
+
   if (!view || view.text === next) {
     return
   }
@@ -23,11 +24,13 @@ export function writeText(view: any, value: string | undefined | null): void {
   const start = et?.getSelectionStart?.() ?? -1
   const end = et?.getSelectionEnd?.() ?? -1
   const nested = writing.has(view)
+
   writing.add(view)
   try {
     view.text = next
     if (start >= 0) {
       const len = next.length
+
       et.setSelection(Math.min(start, len), Math.min(end >= 0 ? end : start, len))
     }
   } finally {

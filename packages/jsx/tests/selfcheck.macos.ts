@@ -20,6 +20,7 @@ const tinted: MacJSX.IntrinsicElements['textfield'] = { placeholderTextColor: '#
 const objectTint: MacJSX.IntrinsicElements['textfield'] = { placeholderTextColor: {} }
 // @ts-expect-error This is an AppKit host attribute, not a shared text field prop.
 const sharedTint: SharedJSX.IntrinsicElements['textfield'] = { placeholderTextColor: '#8a8a8e' }
+
 void horizontal
 void vertical
 void invalid

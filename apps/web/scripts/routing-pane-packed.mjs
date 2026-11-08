@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build, preview } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
 import { chromium } from 'playwright'
+
 // Manual packed-runtime check; no browser engine belongs in the lightweight PR gate.
 assert.equal(
   process.argv.length,
@@ -22,24 +23,30 @@ const directory = await mkdtemp(join(tmpdir(), 'xplat-packed-pane-'))
 let browser, server
 const errors = []
 const modules = []
+
 try {
   await mkdir(join(directory, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(distribution, join(directory, 'node_modules/@octane-xplat/ui'), 'dir')
+
   let octaneRoot = dirname(require.resolve('octane'))
+
   while (
     JSON.parse(
       await readFile(join(octaneRoot, 'package.json'), 'utf8').catch(() => '{"name":null}'),
     ).name !== 'octane'
   ) {
     const parent = dirname(octaneRoot)
+
     assert.notEqual(parent, octaneRoot, 'Cannot locate the Octane package root')
     octaneRoot = parent
   }
 
   await symlink(octaneRoot, join(directory, 'node_modules/octane'), 'dir')
   await writeFile(join(directory, 'package.json'), '{"private":true,"type":"module"}')
+
   const consumer = createRequire(join(directory, 'entry.mjs'))
   const resolved = await realpath(consumer.resolve('@octane-xplat/ui/routing'))
+
   assert.ok(resolved.startsWith(distribution + sep), 'Consumer must resolve the supplied archive')
   await writeFile(
     join(directory, 'example.tsrx'),
@@ -111,11 +118,15 @@ void qualifyPaneRouterExample({
 
   server = await preview({ ...configuration, preview: { host: '127.0.0.1', port: 0 } })
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('http://127.0.0.1:' + server.httpServer.address().port)
   await page.waitForFunction(() => window.__paneReport !== undefined)
+
   const report = await page.evaluate(() => window.__paneReport)
+
   assert.equal(report.error, undefined, report.error)
   assert.equal(report.checks.length, 11)
   assert.equal(report.urlUnchanged, true)

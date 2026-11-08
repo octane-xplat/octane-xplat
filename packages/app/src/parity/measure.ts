@@ -15,6 +15,7 @@ function resolvedFontOf(view: any) {
 
   if (Application.android) {
     const typeface = nativeView?.getTypeface?.() ?? nativeView?.getPaint?.()?.getTypeface?.()
+
     if (!typeface) {
       return undefined
     }
@@ -28,6 +29,7 @@ function resolvedFontOf(view: any) {
     const layout = nativeView?.getLayout?.()
     const dip = (value: unknown) => {
       const pixels = Number(value)
+
       return Number.isFinite(pixels)
         ? round(Utils.layout.toDeviceIndependentPixels(pixels))
         : undefined
@@ -101,6 +103,7 @@ function resolvedFontOf(view: any) {
   }
 
   const font = nativeView?.font ?? nativeView?.searchTextField?.font
+
   if (!font) {
     return undefined
   }
@@ -152,8 +155,10 @@ function facetScalar(v: any, windows: boolean): string {
 function styleOf(view: any, windows: boolean): Record<string, string> {
   const out: Record<string, string> = {}
   const s = view?.style ?? {}
+
   for (const f of STYLE_FACETS) {
     let v = s[f]
+
     if (v === undefined || v === null) {
       v = view?.[f]
     }
@@ -167,6 +172,7 @@ function styleOf(view: any, windows: boolean): Record<string, string> {
     ) {
       const edge = f.slice('padding'.length)
       const eff = view?.[`effectivePadding${edge}`]
+
       if (eff !== undefined && eff !== null && eff !== 0) {
         v = eff
       }
@@ -215,6 +221,7 @@ function nodeFor(view: any, boxView: any, boxLoc: { x: number; y: number }, wind
   const placeholder = textControl && view?.hint ? String(view.hint) : undefined
   const placeholderColor = textControl ? view?.style?.placeholderColor : undefined
   const resolvedFont = resolvedFontOf(view)
+
   return {
     tag: String(view?.typeName ?? view?.constructor?.name ?? 'view').toLowerCase(),
     id: view?.id || undefined,
@@ -278,6 +285,7 @@ function hasClass(view: any, cls: string) {
 export function measureTree(stageView: any, target: string) {
   const cells: Record<string, any[]> = {}
   const rootNodes = childrenOf(rootLayoutFor(stageView))
+
   for (const v of childrenOf(stageView)) {
     if (!hasClass(v, 'parity-cell')) {
       continue
@@ -286,6 +294,7 @@ export function measureTree(stageView: any, target: string) {
     const name = String(v.id ?? '').replace(/^cell-/, '')
     const box = childrenOf(v).find((c) => hasClass(c, 'parity-box')) ?? v
     const boxLoc = box.getLocationOnScreen?.()
+
     if (!boxLoc) {
       continue
     }
@@ -293,6 +302,7 @@ export function measureTree(stageView: any, target: string) {
     const marker = `parity-portal--${name}`
     const portalRoot = rootNodes.find((c) => hasClass(c, marker))
     const portalNodes = portalRoot ? [portalRoot, ...childrenOf(portalRoot)] : []
+
     cells[name] = [box, ...childrenOf(box), ...portalNodes].map((c) =>
       nodeFor(c, box, boxLoc, target === 'windows'),
     )
@@ -309,6 +319,7 @@ export function installParityDumpFor(target: string, hostOf: () => any) {
   ;(globalThis as any).__xplatParity = () => {
     const host = hostOf()
     const stage = host?.getViewById?.('parity-stage')
+
     return stage ? measureTree(stage, target) : null
   }
 }
@@ -321,13 +332,16 @@ export function installParityDump() {
   const windows =
     ('windows' in Application && Boolean(Application.windows)) ||
     Boolean((globalThis as any).__WINDOWS__)
+
   const target = Application.android ? 'android' : windows ? 'windows' : 'ios'
+
   installParityDumpFor(target, () => {
     if (windows) {
       return (Application.getRootView?.() ?? getRootLayout()) as any
     }
 
     const page = getStack('root')?.currentPage as any
+
     return page
   })
 }

@@ -7,9 +7,13 @@ import { Select } from './Select.web.tsrx'
 const roots: any[] = []
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const render = (next: any = {}) =>
     act(() => root.render(<Select label="Pick" options={[]} {...props} {...next} />))
 
@@ -27,6 +31,7 @@ afterEach(() => {
 
 it('displays the first option once late-arriving options populate', () => {
   const { render, select } = mount()
+
   expect(select().value).toBe('')
   render({
     options: [
@@ -41,6 +46,7 @@ it('displays the first option once late-arriving options populate', () => {
 it('does not override an established selection when options repopulate', () => {
   const onChange = vi.fn()
   const { render, select } = mount({ onChange })
+
   render({
     options: [
       { value: 'a', label: 'A' },
@@ -63,6 +69,7 @@ it('does not override an established selection when options repopulate', () => {
 
 it('keeps accessibilityLabel as the accessible name with or without an id', () => {
   const { render, select } = mount({ accessibilityLabel: 'Custom name', id: 'pet-select' })
+
   expect(select().getAttribute('aria-label')).toBe('Custom name')
   expect(select().hasAttribute('aria-labelledby')).toBe(false)
   render({ id: undefined })

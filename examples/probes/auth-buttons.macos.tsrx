@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import type { ProbeContext } from '../../tools/probe/context'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import { AppleSignInButton, GoogleSignInButton } from '../../packages/auth/src/index.macos'
+
 export default function AuthButtonsProbe() {
   const [mounted, setMounted] = useState(true),
     [disabled, setDisabled] = useState(false)

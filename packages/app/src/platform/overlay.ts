@@ -12,6 +12,7 @@ let host: GridLayout | null = null
  */
 export function openOverlay() {
   const rl = getRootLayout()
+
   if (!rl) {
     console.log('[probe] overlay: no rootlayout found')
     return
@@ -41,6 +42,7 @@ export function openOverlay() {
 
 export function closeOverlay() {
   const rl = getRootLayout()
+
   if (rl && host) {
     rl.close(host)
   }

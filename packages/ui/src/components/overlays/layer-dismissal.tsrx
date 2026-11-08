@@ -26,7 +26,9 @@ export function useLayerDismissal(options: {
 }): LayerDismissal {
   const depth = Math.max(useContext(LayerDepthContext), options.minimumDepth ?? 0)
   const latest = useRef(options)
+
   latest.current = options
+
   const token = useRef<object>({})
 
   const wasActive = useRef(false)
@@ -61,6 +63,7 @@ export function useLayerDismissal(options: {
 
     return () => {
       const wasTop = isTopLayer(token.current, true)
+
       remove()
       if (wasTop && latest.current.restoreFocus !== false) {
         restore()

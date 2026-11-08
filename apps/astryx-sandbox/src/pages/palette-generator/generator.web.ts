@@ -119,6 +119,7 @@ function normalizeHue(hue: number): number {
 
 function hueDistance(a: number, b: number): number {
   const difference = Math.abs(normalizeHue(a) - normalizeHue(b))
+
   return Math.min(difference, 360 - difference)
 }
 
@@ -128,6 +129,7 @@ function signedHueDelta(from: number, to: number): number {
 
 function interpolateHue(a: number, b: number, amount: number): number {
   const delta = ((b - a + 540) % 360) - 180
+
   return normalizeHue(a + delta * amount)
 }
 
@@ -137,9 +139,11 @@ function clamp(value: number, minimum: number, maximum: number): number {
 
 function normalizedHex(input: string): string {
   const parsed = parseColorInput(input)
+
   if (!parsed) {
     throw new Error(`Invalid color: ${input}`)
   }
+
   return parsed.toLowerCase()
 }
 
@@ -149,6 +153,7 @@ export function validateStops(stops: number[]): number[] {
   }
 
   const normalized = [...stops]
+
   for (const stop of normalized) {
     if (!Number.isFinite(stop) || stop < 0 || stop > 100) {
       throw new Error(`Stop ${String(stop)} must be a finite number from 0 to 100.`)
@@ -170,10 +175,13 @@ export function validateStops(stops: number[]): number[] {
 
 export function parseStopList(input: string): number[] {
   const tokens = input.split(',').map((value) => value.trim())
+
   if (tokens.some((value) => value === '' || !Number.isFinite(Number(value)))) {
     throw new Error('Every custom stop must be a number from 0 to 100.')
   }
+
   const values = tokens.map(Number)
+
   return validateStops(values)
 }
 
@@ -181,9 +189,11 @@ function modesForStrategy(strategy: ModeStrategy): PaletteMode[] {
   if (strategy === 'light-only') {
     return ['light']
   }
+
   if (strategy === 'dark-only') {
     return ['dark']
   }
+
   return ['light', 'dark']
 }
 
@@ -194,18 +204,23 @@ function modesForStrategy(strategy: ModeStrategy): PaletteMode[] {
  */
 function hueBalanceFactor(hue: number): number {
   const h = normalizeHue(hue)
+
   if (h >= 70 && h < 115) {
     return 0.94 // yellow
   }
+
   if (h >= 115 && h < 175) {
     return 0.78 // green
   }
+
   if (h >= 175 && h < 230) {
     return 0.82 // teal/cyan
   }
+
   if (h >= 285 && h < 340) {
     return 0.9 // purple/magenta
   }
+
   return 1
 }
 
@@ -217,16 +232,19 @@ function hueBalanceFactor(hue: number): number {
  */
 function toneAdjustedHue(algorithm: PaletteAlgorithm, hue: number, tone: number): number {
   const normalized = normalizeHue(hue)
+
   if (algorithm !== 'oklch-v1-experimental' || normalized < 40 || normalized >= 70 || tone >= 50) {
     return normalized
   }
 
   const darkening = clamp((50 - tone) / 40, 0, 1)
+
   return normalizeHue(normalized - 18 * Math.sqrt(darkening))
 }
 
 function toneChromaEnvelope(tone: number): number {
   const normalized = clamp(tone / 100, 0, 1)
+
   return 0.18 + 0.82 * Math.sqrt(Math.max(0, Math.sin(Math.PI * normalized)))
 }
 
@@ -241,9 +259,11 @@ function vibrancyMultiplier(vibrancy: number): number {
   if (vibrancy <= 25) {
     return (vibrancy / 25) * 0.72
   }
+
   if (vibrancy <= 50) {
     return 0.72 + ((vibrancy - 25) / 25) * 0.28
   }
+
   return 1 + (vibrancy - 50) * 0.0096
 }
 
@@ -255,6 +275,7 @@ function vibrancyMultiplier(vibrancy: number): number {
  */
 function coordinatedChroma(algorithm: PaletteAlgorithm, sourceChroma: number): number {
   const target = algorithm === 'oklch-v1-experimental' ? 0.18 : 65
+
   return sourceChroma * 0.35 + target * 0.65
 }
 
@@ -262,10 +283,13 @@ function darkTone(tone: number): number {
   if (tone >= DARK_LIFT_TAPER_END) {
     return tone
   }
+
   if (tone <= DARK_LIFT_TAPER_START) {
     return Math.min(100, tone + DARK_TONE_LIFT)
   }
+
   const ratio = (DARK_LIFT_TAPER_END - tone) / (DARK_LIFT_TAPER_END - DARK_LIFT_TAPER_START)
+
   return Math.min(100, tone + DARK_TONE_LIFT * ratio)
 }
 
@@ -279,6 +303,7 @@ function neutralPolar(
   }
 
   const hue = profile === 'warm-v1' ? 75 : profile === 'cool-v1' ? 250 : 0
+
   if (algorithm === 'oklch-v1-experimental') {
     return {
       lightness: 0.5,
@@ -286,6 +311,7 @@ function neutralPolar(
       hue,
     }
   }
+
   return {
     lightness: 50,
     chroma: profile === 'neutral-v1' ? 0 : 4,
@@ -296,9 +322,12 @@ function neutralPolar(
 function colorToPolar(algorithm: PaletteAlgorithm, color: string): PolarColor {
   if (algorithm === 'oklch-v1-experimental') {
     const value = hexToOklch(color)
+
     return { lightness: value.L, chroma: value.C, hue: value.H }
   }
+
   const value = hexToHct(color)
+
   return { lightness: value.tone, chroma: value.chroma, hue: value.hue }
 }
 
@@ -323,6 +352,7 @@ function anchorPolarAtStop(
   const start = colorToPolar(algorithm, normalizedHex(lower.color))
   const end = colorToPolar(algorithm, normalizedHex(upper.color))
   const amount = (stop - lower.stop) / (upper.stop - lower.stop)
+
   return {
     lightness: start.lightness + (end.lightness - start.lightness) * amount,
     chroma: start.chroma + (end.chroma - start.chroma) * amount,
@@ -344,6 +374,7 @@ function generateCandidate(
   const baseChroma = coordinateWithOtherFamilies
     ? coordinatedChroma(algorithm, source.chroma)
     : source.chroma
+
   const chroma =
     baseChroma *
     vibrancyMultiplier(vibrancy) *
@@ -354,6 +385,7 @@ function generateCandidate(
   if (algorithm === 'oklch-v1-experimental') {
     const lightness = toneToOklabL(adjustedTone)
     const maximum = maxOklchChroma(adjustedHue, lightness)
+
     return {
       hex: oklchClampedHex(lightness, chroma, adjustedHue),
       gamutMapped: chroma > maximum + 0.000001,
@@ -367,7 +399,9 @@ function generateCandidate(
     chroma: requestedChroma,
     tone: adjustedTone,
   })
+
   const achieved = hexToHct(hex).chroma
+
   return {
     hex,
     gamutMapped: achieved + 0.5 < requestedChroma,
@@ -377,24 +411,28 @@ function generateCandidate(
 function oklabCoordinates(color: string): [number, number, number] {
   const value = hexToOklch(color)
   const radians = (value.H * Math.PI) / 180
+
   return [value.L, value.C * Math.cos(radians), value.C * Math.sin(radians)]
 }
 
 function oklabToHex([lightness, a, b]: [number, number, number]): string {
   const chroma = Math.sqrt(a * a + b * b)
   const hue = normalizeHue((Math.atan2(b, a) * 180) / Math.PI)
+
   return oklchClampedHex(clamp(lightness, 0, 1), chroma, hue)
 }
 
 export function perceptualDelta(colorA: string, colorB: string): number {
   const [l1, a1, b1] = oklabCoordinates(colorA)
   const [l2, a2, b2] = oklabCoordinates(colorB)
+
   return Math.sqrt((l1 - l2) ** 2 + (a1 - a2) ** 2 + (b1 - b2) ** 2) * 100
 }
 
 function interpolateColor(colorA: string, colorB: string, amount: number): string {
   const start = hexToOklch(colorA)
   const end = hexToOklch(colorB)
+
   return oklchClampedHex(
     start.L + (end.L - start.L) * amount,
     start.C + (end.C - start.C) * amount,
@@ -410,6 +448,7 @@ function applyAnchor(candidate: string, anchor: PaletteAnchor): AnchorResult {
     generatedColor = target
   } else if (anchor.policy === 'bounded') {
     const tolerance = anchor.maxDeltaE
+
     if (tolerance == null || !Number.isFinite(tolerance) || tolerance < 0) {
       throw new Error(`Bounded anchor at stop ${anchor.stop} requires a non-negative maxDeltaE.`)
     }
@@ -417,9 +456,11 @@ function applyAnchor(candidate: string, anchor: PaletteAnchor): AnchorResult {
     if (perceptualDelta(candidate, target) > tolerance) {
       let low = 0
       let high = 1
+
       for (let index = 0; index < 18; index++) {
         const amount = (low + high) / 2
         const mixed = interpolateColor(target, candidate, amount)
+
         if (perceptualDelta(mixed, target) <= tolerance) {
           low = amount
         } else {
@@ -449,6 +490,7 @@ interface AnchorCorrection {
 
 function smoothstep(amount: number): number {
   const value = clamp(amount, 0, 1)
+
   return value * value * (3 - 2 * value)
 }
 
@@ -466,13 +508,16 @@ function interpolateDelta(
 
 function correctionAtStop(corrections: AnchorCorrection[], stop: number): [number, number, number] {
   const zero: [number, number, number] = [0, 0, 0]
+
   if (corrections.length === 0) {
     return zero
   }
 
   const first = corrections[0]
+
   if (stop <= first.stop) {
     const boundary = Math.max(0, first.stop - 25)
+
     if (stop <= boundary && boundary !== first.stop) {
       return zero
     }
@@ -484,8 +529,10 @@ function correctionAtStop(corrections: AnchorCorrection[], stop: number): [numbe
   }
 
   const last = corrections[corrections.length - 1]
+
   if (stop >= last.stop) {
     const boundary = Math.min(100, last.stop + 25)
+
     if (stop >= boundary && boundary !== last.stop) {
       return zero
     }
@@ -500,6 +547,7 @@ function correctionAtStop(corrections: AnchorCorrection[], stop: number): [numbe
   const lower = corrections[upperIndex - 1]
   const upper = corrections[upperIndex]
   const amount = smoothstep((stop - lower.stop) / (upper.stop - lower.stop))
+
   return interpolateDelta(lower.delta, upper.delta, amount)
 }
 
@@ -518,6 +566,7 @@ function applyAnchorCorrections(
       const result = applyAnchor(candidate, anchor)
       const base = oklabCoordinates(candidate)
       const target = oklabCoordinates(result.generatedColor)
+
       return {
         stop: anchor.stop,
         delta: [target[0] - base[0], target[1] - base[1], target[2] - base[2]] as [
@@ -531,9 +580,11 @@ function applyAnchorCorrections(
     .sort((a, b) => a.stop - b.stop)
 
   const corrected: Record<number, string> = {}
+
   for (const stop of stops) {
     const base = oklabCoordinates(colors[stop])
     const delta = correctionAtStop(corrections, stop)
+
     corrected[stop] = oklabToHex([base[0] + delta[0], base[1] + delta[1], base[2] + delta[2]])
   }
 
@@ -550,6 +601,7 @@ function applyAnchorCorrections(
 
 function assertAnchorSet(anchors: PaletteAnchor[], stops: number[]): void {
   const seen = new Set<string>()
+
   for (const anchor of anchors) {
     normalizedHex(anchor.color)
     if (!stops.includes(anchor.stop)) {
@@ -557,6 +609,7 @@ function assertAnchorSet(anchors: PaletteAnchor[], stops: number[]): void {
     }
 
     const key = `${anchor.mode}:${anchor.stop}`
+
     if (seen.has(key)) {
       throw new Error(`Duplicate anchor for ${anchor.mode} stop ${anchor.stop}.`)
     }
@@ -582,8 +635,10 @@ function buildDiagnostics(
     const stop = stops[index]
     const color = colors[stop]
     const oklch = hexToOklch(color)
+
     if (oklch.C >= 0.015) {
       const drift = signedHueDelta(sourceHue, oklch.H)
+
       maximumHueDrift = Math.max(maximumHueDrift, hueDistance(sourceHue, oklch.H))
       if (sourceHue >= 230 && sourceHue < 285 && drift > 12) {
         hueIdentityRisk = 'blue-to-purple'
@@ -599,11 +654,13 @@ function buildDiagnostics(
     }
 
     const previous = colors[stops[index - 1]]
+
     if (luminance(color) + 0.000001 < luminance(previous)) {
       monotonic = false
     }
 
     const adjacentDelta = perceptualDelta(previous, color)
+
     minimumAdjacentDeltaE = Math.min(minimumAdjacentDeltaE, adjacentDelta)
     maximumAdjacentDeltaE = Math.max(maximumAdjacentDeltaE, adjacentDelta)
   }
@@ -628,12 +685,14 @@ function generateRamp(
   const stops = validateStops(request.stops)
   const seedHex = normalizedHex(family.seed)
   const anchors = (family.anchors ?? []).filter((anchor) => anchor.mode === mode)
+
   assertAnchorSet(family.anchors ?? [], stops)
 
   const seed =
     family.kind === 'neutral'
       ? neutralPolar(request.algorithm, request.neutralProfile, seedHex)
       : colorToPolar(request.algorithm, seedHex)
+
   const baseColors: Record<number, string> = {}
   const gamutMappedStops: number[] = []
   const diagnosticReference = generateCandidate(
@@ -657,6 +716,7 @@ function generateRamp(
     )
 
     const color = generated.hex
+
     if (generated.gamutMapped) {
       gamutMappedStops.push(stop)
     }
@@ -703,6 +763,7 @@ function buildCoordinationDiagnostics(
       .filter((family) => chromaticIds.has(family.id) && family[mode])
       .map((family) => {
         const color = family[mode]?.colors[stop] ?? '#000000'
+
         return {
           id: family.id,
           name: family.name,
@@ -713,9 +774,11 @@ function buildCoordinationDiagnostics(
 
     let closestFamilies: [string, string] | null = null
     let minimumFamilyDeltaE = Number.POSITIVE_INFINITY
+
     for (let index = 0; index < samples.length; index++) {
       for (let next = index + 1; next < samples.length; next++) {
         const delta = perceptualDelta(samples[index].color, samples[next].color)
+
         if (delta < minimumFamilyDeltaE) {
           minimumFamilyDeltaE = delta
           closestFamilies = [samples[index].name, samples[next].name]
@@ -745,6 +808,7 @@ function buildCoordinationDiagnostics(
 export function generatePaletteSet(request: PaletteGenerationRequest): PaletteGenerationResult {
   vibrancyMultiplier(request.vibrancy)
   validateStops(request.stops)
+
   const families: GeneratedFamily[] = []
   const errors: { familyId: string; message: string }[] = []
 

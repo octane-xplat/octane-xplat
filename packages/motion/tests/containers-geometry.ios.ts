@@ -1,6 +1,7 @@
 export function geometry(view: any) {
   const native = view.nativeViewProtected ?? view.nativeView
   const rect = native.convertRectToView(native.bounds, null)
+
   return {
     x: Number(rect.origin.x),
     y: Number(rect.origin.y),

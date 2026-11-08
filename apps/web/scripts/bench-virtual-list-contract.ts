@@ -11,9 +11,11 @@ const preview = spawn('bun', ['run', 'vite', 'preview', '--port', '5218', '--str
 })
 
 let browser
+
 try {
   await new Promise((resolve, reject) => {
     const timer = setTimeout(() => reject(new Error('Preview did not start')), 120000)
+
     preview.stdout.on('data', (chunk) => {
       if (String(chunk).includes('Local:')) {
         clearTimeout(timer)
@@ -28,14 +30,19 @@ try {
   })
 
   browser = await chromium.launch()
+
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto('http://localhost:5218', { waitUntil: 'networkidle' })
   await page.getByRole('tab', { name: 'Apps', exact: true }).click()
   await page.locator('#menu-vlist').click()
+
   const list = page.locator('#vlist')
+
   await list.waitFor()
+
   const read = () =>
     list.evaluate((node) => {
       const bounds = node.getBoundingClientRect()
@@ -52,9 +59,12 @@ try {
   const stable = async () => {
     let previous = await read()
     let matches = 0
+
     for (let sample = 0; sample < 100; sample++) {
       await page.waitForTimeout(25)
+
       const next = await read()
+
       matches =
         JSON.stringify(next) === JSON.stringify(previous) && next.mounted > 1 ? matches + 1 : 0
 
@@ -72,7 +82,9 @@ try {
   assert.match(await list.locator('.vx-virtual-list-header').innerText(), /Variable-height rows/)
   assert.match(await list.locator('.vx-virtual-list-footer').innerText(), /End of 500 rows/)
   assert((await list.locator('.vx-virtual-list-separator > *').count()) > 0)
+
   const seekResults = []
+
   for (const offset of [960, 10800, 20000, 5000, 10800]) {
     await list.evaluate((node, y) => {
       node.scrollTop = y
@@ -80,6 +92,7 @@ try {
 
     const snapshot = await stable()
     const visible = snapshot.rows.filter((row) => row.bottom > 0 && row.top < snapshot.height)
+
     assert(visible.length > 0 && snapshot.mounted < 40, `Seek ${offset}: empty/unbounded window`)
     seekResults.push({
       requestedOffset: offset,
@@ -90,14 +103,19 @@ try {
 
   const beforePress = await stable()
   const selectedAnchor = beforePress.rows.find((row) => row.bottom > 0)
+
   assert(selectedAnchor, 'No visible anchor')
   await page.locator('#' + selectedAnchor.id).click()
+
   const before = await stable()
   const anchor = before.rows.find((row) => row.id === selectedAnchor.id)
+
   await page.locator('#vl-prepend').click()
+
   const after = await stable()
   const retained = after.rows.find((row) => row.id === anchor.id)
   const drift = retained ? retained.top - anchor.top : null
+
   console.log(
     JSON.stringify({
       seekResults,
@@ -112,12 +130,14 @@ try {
   })
 
   await stable()
+
   const topBefore = await page
     .locator('#row-r20')
     .evaluate((node) => node.getBoundingClientRect().top)
 
   await page.locator('#vl-grow').click()
   await stable()
+
   const topAfter = await page
     .locator('#row-r20')
     .evaluate((node) => node.getBoundingClientRect().top)

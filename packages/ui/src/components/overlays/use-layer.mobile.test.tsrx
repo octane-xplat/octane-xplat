@@ -43,6 +43,7 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   createNativeScriptRoot: () => {
     const root = { render: vi.fn(), unmount: vi.fn() }
+
     state.roots.push(root)
     return root
   },
@@ -95,8 +96,10 @@ function freshOwner() {
 describe('useLayer (mobile)', () => {
   it('fixed mode mounts a positioned layer host on the RootLayout', async () => {
     freshOwner()
+
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(Probe, { fixed: true })
     flushUniversalSync(() => {})
 
@@ -108,6 +111,7 @@ describe('useLayer (mobile)', () => {
     await vi.waitFor(() => expect(state.owner.open).toHaveBeenCalled())
 
     const host = state.hosts.at(-1)
+
     expect(host.className).toContain('vx-layer-host')
     expect(state.portals.at(-1).target).toBe(host)
     expect(state.roots).toHaveLength(0)
@@ -120,8 +124,10 @@ describe('useLayer (mobile)', () => {
 
   it('context mode presents through Popover once the anchor binds', async () => {
     freshOwner()
+
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(Probe, { fixed: false })
     flushUniversalSync(() => {})
 
@@ -132,6 +138,7 @@ describe('useLayer (mobile)', () => {
     await vi.waitFor(() => expect(state.owner.open).toHaveBeenCalled())
 
     const host = state.hosts.at(-1)
+
     expect(host.className).toContain('vx-popover-host')
 
     layer.hide()

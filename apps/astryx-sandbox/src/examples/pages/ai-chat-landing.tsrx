@@ -216,6 +216,7 @@ export function AIChatLandingTemplate() @{
 
   const applySuggestion = (prompt: string) => {
     const input = composerInputRef.current
+
     if (!input) {
       return
     }
@@ -226,6 +227,7 @@ export function AIChatLandingTemplate() @{
 
   const insertMention = (item: (typeof MENTION_ITEMS)[number]) => {
     const input = composerInputRef.current
+
     if (!input) {
       return
     }
@@ -321,6 +323,7 @@ export function AIChatLandingTemplate() @{
                         icon: <Icon name={opt.icon} size={16} />,
                         onSelect: () => {
                           const tokenLabel = TOKEN_MODES[opt.key]
+
                           if (tokenLabel) {
                             insertModeToken(tokenLabel)
                           } else {

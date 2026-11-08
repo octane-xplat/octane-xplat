@@ -26,6 +26,7 @@ const NATIVE_EXTS = [
 ]
 
 const configDir = dirname(fileURLToPath(import.meta.url))
+
 export default defineConfig({
   plugins: [
     xplatTsrx('ios'),

@@ -30,6 +30,7 @@ function subscribe(listener: () => void): () => void {
 
 function matchesAt<T extends BreakpointMap>(width: number, breakpoints: T): BreakpointMatches<T> {
   const matches: Record<string, boolean> = {}
+
   for (const name in breakpoints) {
     matches[name] = width >= breakpoints[name]
   }
@@ -56,15 +57,18 @@ function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): bo
 /** Signal of matched breakpoints for the window size. */
 export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): BreakpointMatches<T> {
   const matches$ = useSignal$<BreakpointMatches<T>>(matchesAt(window.innerWidth, breakpoints))
+
   useEffect(() => {
     const update = () => {
       const next = matchesAt(window.innerWidth, breakpoints)
+
       if (!sameMatches(matches$.get(), next)) {
         matches$.set(next)
       }
     }
 
     const unsubscribe = subscribe(update)
+
     update()
     return unsubscribe
   }, [breakpoints])

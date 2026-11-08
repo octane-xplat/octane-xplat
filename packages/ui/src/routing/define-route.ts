@@ -217,6 +217,7 @@ export function withSearchDecoder<
   decode: (raw: RawRouteSearch) => NoInfer<Input>,
 ): DecodedRouteSearchSchema<Input, Output> {
   const standard = schema['~standard']
+
   return Object.freeze({
     '~standard': Object.freeze({
       ...standard,
@@ -243,21 +244,26 @@ export function routeSearchValidation(
   if (!validator) {
     return undefined
   }
+
   // Callable schemas may expose a different ordinary call contract. Match the
   // type-level schema precedence instead of treating those values as parsers.
   const standard = '~standard' in validator ? validator['~standard'] : undefined
+
   return async (raw) => {
     if (standard?.version === 1 && typeof standard.validate === 'function') {
       const result = await standard.validate(raw)
+
       if (result.issues) {
         throw new RouteSearchValidationError(result.issues)
       }
 
       return result.value as Record<string, unknown>
     }
+
     if (typeof validator === 'function') {
       return (await validator(raw)) as Record<string, unknown>
     }
+
     throw new TypeError('Expected a search parser or Standard Schema v1 validator')
   }
 }
@@ -309,10 +315,12 @@ function definitionsWithContext<Context extends object, Root = Context>(
       validateSearch: Validator
     } & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, Data>, Added>,
   ): RouteDefinitionBuilder<Path, Validator, Context, Added, Data, Root>
+
   function define<const Path extends string, Added extends RouteGuardResult = void, Data = unknown>(
     definition: RouteDefinitionWithLoader<Path, undefined, Context, Added, Data> &
       RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, Data>, Added>,
   ): RouteDefinitionBuilder<Path, undefined, Context, Added, Data, Root>
+
   function define<
     const Path extends string,
     Validator extends RouteSearchValidator,
@@ -323,18 +331,22 @@ function definitionsWithContext<Context extends object, Root = Context>(
       loader?: undefined
     } & RequiredGuard<RouteDefinitionInput<Path, Validator, Context, Added, undefined>, Added>,
   ): RouteDefinitionBuilder<Path, Validator, Context, Added, undefined, Root>
+
   function define<const Path extends string, Added extends RouteGuardResult = void>(
     definition: RouteDefinitionInput<Path, undefined, Context, Added, undefined> & {
       loader?: undefined
     } & RequiredGuard<RouteDefinitionInput<Path, undefined, Context, Added, undefined>, Added>,
   ): RouteDefinitionBuilder<Path, undefined, Context, Added, undefined, Root>
+
   function define(input: unknown): unknown {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new TypeError('Expected route preparation options')
     }
+
     if ('screen' in input) {
       throw new TypeError('Attach the screen with defineRoute(options).screen(component)')
     }
+
     const definition = input as RouteDefinitionInput<
       string,
       RouteSearchValidator | undefined,
@@ -342,12 +354,14 @@ function definitionsWithContext<Context extends object, Root = Context>(
       RouteGuardResult,
       unknown
     >
+
     const preparation: RoutePreparationBehavior = Object.freeze({
       groups,
       validateSearch: routeSearchValidation(definition.validateSearch),
       beforeLoad: definition.beforeLoad as RoutePreparationBehavior['beforeLoad'],
       loader: definition.loader as ((args: RoutePreparationArgs) => unknown) | undefined,
     })
+
     const captured = Object.freeze({
       path: definition.path,
       presentation: definition.presentation,
@@ -357,15 +371,18 @@ function definitionsWithContext<Context extends object, Root = Context>(
       source: definition.source,
       preparation,
     })
+
     return Object.freeze({
       screen(component: unknown) {
         if (typeof component !== 'function') {
           throw new TypeError('Expected a route screen component')
         }
+
         return rememberRouteDefinition({ ...captured, screen: component })
       },
     })
   }
+
   return define
 }
 
@@ -444,25 +461,31 @@ function groupsWithContext<Context extends object, Root = Context>(
       loader: NonNullable<GroupInput<Id, Context, Added, Data>['loader']>
     } & RequiredGuard<GroupInput<Id, Context, Added, Data>, Added>,
   ): RouteGroupBuilder<GroupContext<Id, Context, Added, Data>, Root>
+
   function group<const Id extends string, Added extends RouteGuardResult = void>(
     input: GroupInput<Id, Context, Added, undefined> & { loader?: undefined } & RequiredGuard<
         GroupInput<Id, Context, Added, undefined>,
         Added
       >,
   ): RouteGroupBuilder<GroupContext<Id, Context, Added, undefined>, Root>
+
   function group(input: unknown): unknown {
     if (!input || typeof input !== 'object' || Array.isArray(input)) {
       throw new TypeError('Expected route group options')
     }
+
     const options = input as GroupInput<string, Context, RouteGuardResult, unknown>
+
     if (typeof options.id !== 'string' || !options.id.trim()) {
       throw new TypeError('Expected a non-empty route group id')
     }
+
     for (const field of ['beforeLoad', 'loader'] as const) {
       if (options[field] !== undefined && typeof options[field] !== 'function') {
         throw new TypeError('Expected a route group ' + field + ' callback')
       }
     }
+
     const groups = Object.freeze([
       ...parents,
       Object.freeze({
@@ -471,13 +494,16 @@ function groupsWithContext<Context extends object, Root = Context>(
         loader: options.loader as RoutePreparationBehavior['loader'],
       }),
     ])
+
     const result = Object.freeze({
       route: definitionsWithContext<Context, Root>(groups),
       group: groupsWithContext<Context, Root>(groups),
     })
+
     routeGroups.set(result, groups)
     return result
   }
+
   return group
 }
 

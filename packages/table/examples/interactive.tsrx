@@ -28,6 +28,7 @@ const columns = [
 /** Maintained interaction fixture: only the body scrolls; controls stay reachable. */
 export default function InteractiveGrid() {
   const [rowSelection, setRowSelection] = useState<TableState<DataGridFeatures>['rowSelection']>({})
+
   return (
     <GridHost>
       <View style={{ height: 650 }}>
@@ -63,6 +64,7 @@ function textOf(view: any): string {
   }
 
   const cls = String(view.className ?? '')
+
   if (cls.includes('vx-datagrid-selection')) {
     return ''
   }
@@ -76,6 +78,7 @@ function textOf(view: any): string {
   }
 
   const nativeText = view.stringValue ?? view.title
+
   if (typeof nativeText === 'string' && nativeText) {
     return nativeText
   }
@@ -89,6 +92,7 @@ function textOf(view: any): string {
   }
 
   let result = ''
+
   view.eachChildView?.((child: any) => {
     result += textOf(child)
     return true
@@ -99,7 +103,9 @@ function textOf(view: any): string {
 
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('grid-select-a'))
+
   const text = (id: string) => textOf(ctx.find(id))
+
   ctx.assert('initial page', text('grid-page'), 'Page 1 of 2')
   await ctx.press('grid-select-a')
   await ctx.waitFor(() => text('grid-selected-count') === '1 selected')
@@ -141,6 +147,7 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => {
     const header = ctx.find('grid-th-name') as any
     const grid = ctx.find('grid') as any
+
     return (
       header &&
       grid &&
@@ -154,7 +161,9 @@ export async function run(ctx: ProbeContext) {
 
   ctx.record('before-width-header', ctx.inspect('grid-th-name'))
   ctx.record('before-width-grid', ctx.inspect('grid'))
+
   const before = ctx.inspect('grid-th-name').frame!.width
+
   await ctx.press('grid-th-name-widen')
   await ctx.waitFor(() => Math.abs(ctx.inspect('grid-th-name').frame!.width - before - 10) < 1)
   ctx.assert(

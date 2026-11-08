@@ -75,7 +75,9 @@ export function runTextControlsFixture() {
     window.contentView.layoutSubtreeIfNeeded()
     check(input.current?.native === root.__macosDebug.findId('input'), 'Input ref missing')
     check(area.current?.native === root.__macosDebug.findId('area'), 'Area ref missing')
+
     const field = input.current.native
+
     input.current.focus()
     check(events.includes('input focus'), 'Input focus callback missing')
     input.current.blur()
@@ -84,7 +86,9 @@ export function runTextControlsFixture() {
     check(events.includes('area focus'), 'Area focus callback missing')
     area.current.blur()
     check(events.includes('area blur'), 'Area blur callback missing')
+
     const initial = height()
+
     check(initial > 0, 'Initial height missing')
     input.current.focus()
     root.render(Content, {
@@ -104,7 +108,9 @@ export function runTextControlsFixture() {
     check(field.currentEditor() != null, 'Secure update lost editing focus')
     input.current.blur()
     area.current.focus()
+
     const capped = height()
+
     check(capped > initial && capped <= initial * 1.5 + 1, 'Growth did not cap at three rows')
     check(Number(area.current.native.frame.size.height) > capped, 'Capped text is not scrollable')
     check(

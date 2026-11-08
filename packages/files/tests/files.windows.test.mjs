@@ -34,6 +34,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
     beforeLoad: null,
     cancelled: 0,
   }
+
   const op = (value, kind) => ({ value, kind })
   const file = (path) => ({
     Path: path,
@@ -42,6 +43,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
       if (state.deleteError) {
         throw state.deleteError
       }
+
       return op(undefined)
     },
     GetBasicPropertiesAsync: () => op({ Size: state.size }),
@@ -53,7 +55,9 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
           assert.equal(buffer.Capacity, count)
           assert.equal(options, 0)
           state.reads.push(count)
+
           const bytes = state.bytes.slice(this.position, this.position + count)
+
           this.position += bytes.length
           return {
             ...op({ bytes, Length: bytes.length }, 'load'),
@@ -70,6 +74,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
           if (state.outputError) {
             throw state.outputError
           }
+
           return {
             WriteAsync(buffer) {
               state.writes.push(buffer)
@@ -82,6 +87,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
         Close: () => state.closed.push('write'),
       }),
   })
+
   const Windows = {
     Security: {
       Cryptography: {
@@ -100,7 +106,9 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
           TemporaryFolder: {
             CreateFileAsync(name, collision) {
               assert.equal(collision, 0)
+
               const path = `C:\\temporary\\${state.created.length}-${name}`
+
               state.created.push(path)
               return op(file(path))
             },
@@ -113,6 +121,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
           if (state.writeError) {
             throw state.writeError
           }
+
           state.text = text
           return op(undefined)
         },
@@ -127,11 +136,17 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
       },
     },
   }
+
   const helperExports = {}
+
   vm.runInNewContext(helpers, { exports: helperExports, Uint8Array })
+
   const fileTypeExports = {}
+
   vm.runInNewContext(fileTypes, { exports: fileTypeExports })
+
   const exports = {}
+
   vm.runInNewContext(source, {
     exports,
     Uint8Array,
@@ -139,12 +154,15 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
       if (id === './file-bytes') {
         return helperExports
       }
+
       if (id === './file-types') {
         return fileTypeExports
       }
+
       if (id === '@octane-xplat/lib/capability') {
         return { UnavailabilityError }
       }
+
       assert.equal(id, '@octane-xplat/platform/windows', 'mobile dependencies must not load')
       return {
         Windows,
@@ -153,12 +171,14 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
             if (operation.kind === 'load') {
               state.beforeLoad?.()
             }
+
             return Promise.resolve(operation.value)
           },
         },
       }
     },
   })
+
   return { files: exports.files, state }
 }
 
@@ -167,6 +187,7 @@ const settled = () => new Promise((resolve) => setImmediate(resolve))
 
 test('Windows file import avoids mobile plugins and reports picker/export unavailability explicitly', async () => {
   const { files } = fixture()
+
   await assert.rejects(files.pick(), UnavailabilityError)
   await assert.rejects(files.pickMultiple(), UnavailabilityError)
   assert.equal(await files.export('out.bin', new Uint8Array()), 'unavailable')
@@ -175,6 +196,7 @@ test('Windows file import avoids mobile plugins and reports picker/export unavai
 test('Windows binary reads are chunked, preserve bytes and close each owned stream', async () => {
   const bytes = Uint8Array.from({ length: 70000 }, (_, index) => index % 256)
   const { files, state } = fixture(bytes)
+
   assert.deepEqual(await files.readBytes(ref), bytes)
   assert.deepEqual(state.reads, [65536, 65536, 65536])
   assert.deepEqual(state.closed, ['input'])
@@ -183,6 +205,7 @@ test('Windows binary reads are chunked, preserve bytes and close each owned stre
 
 test('Windows binary size bounds reject before loading oversized files and catch growth', async () => {
   const { files, state } = fixture()
+
   await assert.rejects(files.readBytes(ref, { maxBytes: 2 }), /exceeds/)
   assert.deepEqual(state.reads, [])
   assert.deepEqual(state.closed, [])
@@ -191,23 +214,31 @@ test('Windows binary size bounds reject before loading oversized files and catch
   assert.deepEqual(state.reads, [3])
   await assert.rejects(files.readBytes(ref, { maxBytes: -1 }), /safe integer/)
   await assert.rejects(files.readBytes(ref, { maxBytes: NaN }), /safe integer/)
+
   const empty = fixture(new Uint8Array())
+
   assert.deepEqual(await empty.files.readBytes(ref, { maxBytes: 0 }), new Uint8Array())
 })
 
 test('Windows reads cancel an active operation and close resources on abort', async () => {
   const { files, state } = fixture()
   const controller = new AbortController()
+
   state.beforeLoad = () => controller.abort()
   await assert.rejects(files.readBytes(ref, { signal: controller.signal }), { name: 'AbortError' })
   assert.equal(state.cancelled, 1)
   assert.deepEqual(state.closed, ['input'])
+
   const already = new AbortController()
+
   already.abort()
+
   const other = fixture()
+
   await assert.rejects(other.files.readBytes(ref, { signal: already.signal }), {
     name: 'AbortError',
   })
+
   assert.deepEqual(other.state.closed, [])
 })
 
@@ -215,6 +246,7 @@ test('Windows sandbox writes preserve offset byte views, reject incomplete write
   const { files, state } = fixture()
   const input = new Uint8Array([0, 4, 5, 6, 0]).subarray(1, 4)
   const saved = await files.writeBytes('out.bin', input)
+
   assert.equal(saved.name, 'out.bin')
   assert.deepEqual(state.writes[0], new Uint8Array([4, 5, 6]))
   assert.deepEqual(state.closed, ['output', 'write'])
@@ -234,6 +266,7 @@ test('Windows sandbox writes preserve offset byte views, reject incomplete write
 
 test('Windows output acquisition failures close the parent and remove the new file', async () => {
   const { files, state } = fixture()
+
   state.outputError = new Error('output denied')
   await assert.rejects(files.writeBytes('out.bin', new Uint8Array([1])), /output denied/)
   assert.deepEqual(state.closed, ['write'])
@@ -244,6 +277,7 @@ test('Windows output acquisition failures close the parent and remove the new fi
 test('Windows release deletes only owned copies and permits retry after failed cleanup', async () => {
   const { files, state } = fixture()
   const saved = await files.writeText('draft.txt', 'new text')
+
   assert.equal(await files.readText(saved), 'new text')
   files.release(ref)
   assert.deepEqual(state.deleted, [])

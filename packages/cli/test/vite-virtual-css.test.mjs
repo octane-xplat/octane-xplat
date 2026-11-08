@@ -16,7 +16,9 @@ const { astNormalizeModuleImportsAndHelpers: normalize } = await import(
 
 const { registerNsModuleServerRoute } = await import(new URL('./hmr/server/websocket-ns-m.js', ns))
 const { setProjectFlavor } = await import(new URL('./helpers/flavor.js', ns))
+
 setProjectFlavor('javascript')
+
 const { handleCssUpdates } = await import(new URL('./hmr/client/css-handler.js', ns))
 const { createSharedTransformRequestRunner } = await import(
   new URL('./hmr/server/shared-transform-request.js', ns)
@@ -37,24 +39,31 @@ it('preserves virtual stylesheets while filtering browser-only virtual helpers a
       ),
     )
   }
+
   const code = normalize(
     'import "/@vite/client"; import "/@id/__x00__vite/browser-helper.js"; export const ready = true;',
   )
+
   assert.doesNotMatch(code, /vite\/client|browser-helper/)
 })
 
 it('serves virtual and file CSS through real native HTTP registration and HMR text responses', async (t) => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-virtual-css-'))
+
   mkdirSync(join(root, 'src'))
   writeFileSync(join(root, 'package.json'), '{"type":"module"}')
   writeFileSync(
     join(root, 'src/main.ts'),
     `import 'virtual:bamboo.css'; import sheet from 'virtual:bamboo.css'; import './file.css'; export { sheet }; export const ready = true`,
   )
+
   const file = join(root, 'src/file.css')
+
   writeFileSync(file, '.file { width: 54px; height: 54px; }')
+
   let css =
     '@layer base, utilities; @layer utilities { .fixed { width: 31px; height: 36px; letter-spacing: 0.2em; } } @platform web { .browser { width: 999px; } }'
+
   let sharedTransformRequest
   const vite = await createServer({
     root,
@@ -89,6 +98,7 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
             undefined,
             { resultCacheTtlMs: 60000 },
           )
+
           registerNsModuleServerRoute(server, {
             verbose: false,
             appVirtualWithSlash: '/src/',
@@ -105,44 +115,58 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
       },
     ],
   })
+
   try {
     await vite.listen()
+
     const origin = `http://127.0.0.1:${vite.httpServer.address().port}`
     const get = async (path) => {
       const response = await fetch(origin + path)
+
       assert.equal(response.status, 200, path)
       return { code: await response.text(), type: response.headers.get('content-type') }
     }
 
     assert.match((await get('/src/main.ts')).code, /__x00__virtual:bamboo\.css/)
+
     const main = (await get('/ns/m/src/main.ts')).code
+
     assert.match(main, /\/ns\/m\/@id\/__x00__virtual:bamboo\.css/)
     assert.match(main, /file\.css/)
     assert.match(main, /import sheet from/)
+
     const register = async (path, expected) => {
       const { code, type } = await get('/ns/m' + path)
+
       assert.match(type, /javascript/)
       assert.doesNotMatch(code, /__vite__updateStyle|@vite\/client|@layer|999/)
+
       const calls = []
       const context = { __NS_REGISTER_CSS__: (tag, text) => calls.push([tag, text]) }
+
       runInNewContext(code.replace(/export default __ns_css_text__;/, ''), context)
       assert.equal(calls.length, 1)
       assert.equal(calls[0][0], path)
       assert.match(calls[0][1], expected)
+
       // Registration can also precede HMR client installation.
       const pending = {}
+
       runInNewContext(code.replace(/export default __ns_css_text__;/, ''), pending)
       assert.equal(pending.__NS_PENDING_CSS__[path], calls[0][1])
       return calls[0][1]
     }
 
     const initial = await register(sheet, /width:\s*31dip;\s*height:\s*36dip/)
+
     assert.match(initial, /letter-spacing:\s*0\.2;/)
     await register('/src/file.css', /width:\s*54dip/)
     // Native HTTP alone must establish the canonical CSS HMR boundary.
     assert.ok(vite.moduleGraph.getModuleById('\0virtual:bamboo.css').isSelfAccepting)
+
     const messages = []
     const send = vite.ws.send.bind(vite.ws)
+
     vite.ws.send = (payload, ...args) => {
       messages.push(payload)
       return send(payload, ...args)
@@ -155,6 +179,7 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
 
     let restyles = 0
     const previousRegistry = globalThis.__nsVendorRegistry
+
     globalThis.__nsVendorRegistry = new Map([
       [
         '@nativescript/core',
@@ -176,15 +201,23 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
 
     for (const next of ['.fixed { width: 41px; height: 46px; }', '']) {
       css = next
+
       const node = vite.moduleGraph.getModuleById('\0virtual:bamboo.css')
+
       vite.moduleGraph.invalidateModule(node)
       await vite.reloadModule(node)
+
       const payload = messages.findLast((message) => message?.type === 'update')
+
       assert.ok(payload, 'Vite emits an update for the plugin virtual sheet')
+
       const [update] = virtualCssUpdates(payload)
+
       assert.equal(update.path, '/ns/m' + sheet)
       assert.equal(update.tag, sheet)
+
       const response = await get(update.path + '?direct=1&t=' + update.timestamp)
+
       assert.match(response.type, /text\/css/)
       assert.equal(response.code, await register(sheet, next ? /41dip/ : /empty stylesheet/))
       await handleCssUpdates([update], origin)
@@ -228,11 +261,16 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
 
 it('defers Bamboo build adaptation until emitted assets, after validation', () => {
   const plugin = pxToDip()
+
   plugin.configResolved({ command: 'build' })
+
   const css = '@layer utilities { .fixed { width: 31px; } }'
   const context = { warn: (message) => assert.fail(message) }
+
   assert.equal(plugin.transform.call(context, css, '\0virtual:bamboo.css'), undefined)
+
   const asset = { type: 'asset', fileName: 'bamboo.css', source: css }
+
   plugin.generateBundle.call(context, {}, { 'bamboo.css': asset })
   assert.match(asset.source, /31dip/)
   assert.doesNotMatch(asset.source, /@layer/)

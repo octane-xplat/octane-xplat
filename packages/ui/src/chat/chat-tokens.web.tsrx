@@ -15,6 +15,7 @@ export function ChatTokenChip(props: {
   className?: any
 }): unknown @{
   const token = props.token
+
   if (isCustomToken(token)) {
     return token.render()
   }

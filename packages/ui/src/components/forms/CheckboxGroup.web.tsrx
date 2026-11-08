@@ -110,6 +110,7 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): JSX.Element @{
         >
           {props.options.map((opt: any) => {
             const optId = `${controlId}-opt-${opt.value}`
+
             return (
               <ListItem
                 key={opt.value}

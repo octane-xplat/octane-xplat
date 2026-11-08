@@ -6,6 +6,7 @@ import { runSlice } from './mock-globals.ts'
 const source = rendererSource()
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -23,11 +24,13 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
     labels: string[] = [],
     constraints: any[] = [],
     errors: string[] = []
+
   let additions = 0,
     cancelled = 0,
     writes = 0,
     echo = false,
     intercept = (_id: string) => {}
+
   const menu: any = {
     items: [],
     autoenablesItems: true,
@@ -42,9 +45,11 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
       if (failure.item === additions) {
         throw Error('private item detail')
       }
+
       this.items.push(item)
     },
   }
+
   const picker: any = {
     menu,
     enabled: true,
@@ -81,6 +86,7 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
       this.superview = null
     },
   }
+
   const view: any = {
     window: {},
     addSubview(child: any) {
@@ -91,6 +97,7 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
       }
     },
   }
+
   for (const edge of ['leadingAnchor', 'trailingAnchor', 'topAnchor', 'bottomAnchor']) {
     view[edge] = {}
     picker[edge] = {
@@ -105,14 +112,17 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
             if (next && failure.constraint === index) {
               throw Error('private constraint detail')
             }
+
             active = next
           },
         }
+
         constraints.push(constraint)
         return constraint
       },
     }
   }
+
   const api = runSlice(
     ['makePopUpControl', 'attachPicker'].map(fn).join('\n') + '\n({attachPicker})',
     {
@@ -134,6 +144,7 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
       console: { error: (message: string) => errors.push(message) },
     },
   )
+
   return {
     picker,
     view,
@@ -178,6 +189,7 @@ function fixture(failure: { constraint?: number; item?: number; add?: boolean } 
 test('explicit native items preserve duplicate/empty titles, stable IDs and disabled rows', () => {
   const f = fixture(),
     handle = f.attach()!
+
   assert.equal(f.picker.action, 'controlChanged:')
   assert.equal(f.picker.autoenablesItems, false)
   assert.equal(f.menu.autoenablesItems, false)
@@ -185,6 +197,7 @@ test('explicit native items preserve duplicate/empty titles, stable IDs and disa
     f.menu.items.map((item: any) => item.title),
     ['Same', 'Same', ''],
   )
+
   assert.equal(f.menu.items[2].enabled, false)
   f.choose(1)
   f.choose(2)
@@ -201,6 +214,7 @@ test('equal choices/callback-only update keeps the native menu; selection/label 
     items = [...f.menu.items],
     writes = f.writes(),
     cancels = f.cancelled()
+
   handle.update(f.plan())
   assert.equal(f.writes(), writes)
   assert.equal(f.cancelled(), cancels)
@@ -221,6 +235,7 @@ test('choice replacement cancels tracking before mutation, suppresses echoes and
     handle = f.attach()!,
     old = f.handlers.get(1),
     cancels = f.cancelled()
+
   f.echo(true)
   handle.update(f.plan({ options: choices().reverse(), selection: '' }))
   f.picker.indexOfSelectedItem = 2
@@ -237,6 +252,7 @@ test('native action guards attached owner, BOOL property/method, item state and 
   const f = fixture(),
     handle = f.attach()!,
     action = f.handlers.get(1)
+
   f.view.window = null
   f.choose(1)
   f.view.window = {}
@@ -249,7 +265,9 @@ test('native action guards attached owner, BOOL property/method, item state and 
   f.menu.items[1].enabled = false
   f.choose(1)
   f.menu.items[1].enabled = true
+
   const owned = f.menu.items[1]
+
   f.menu.items[1] = { title: 'Foreign', enabled: true }
   f.choose(1)
   assert.deepEqual(f.selected, [])
@@ -261,12 +279,15 @@ test('native action guards attached owner, BOOL property/method, item state and 
   f.choose(1)
   assert.deepEqual(f.selected, [''])
   handle.detach()
+
   const other = fixture(),
     current = other.attach()!
+
   other.intercept(() => {
     other.choose(1)
     throw Error('private consumer detail')
   })
+
   other.choose(1)
   assert.deepEqual(other.selected, [''])
   assert.deepEqual(other.errors, ['[macos-leaf] picker change failed'])
@@ -277,6 +298,7 @@ test('detach cancels tracking, clears native actions/items/constraints and block
   const f = fixture(),
     handle = f.attach()!,
     action = f.handlers.get(1)
+
   f.echo(true)
   handle.detach()
   handle.detach()
@@ -295,6 +317,7 @@ test('detach cancels tracking, clears native actions/items/constraints and block
 test('partial item/constraint/attachment failure releases all owned resources without error details', () => {
   for (const failure of [{ item: 2 }, { constraint: 1 }, { add: true }]) {
     const f = fixture(failure)
+
     assert.equal(f.attach(), null)
     assert.equal(f.handlers.size, 0)
     assert.equal(f.picker.superview, null)
@@ -314,12 +337,15 @@ test('invalid updates retire the native control; invalid initial choices never l
     [{ id: 'a', title: null }],
   ]) {
     const f = fixture()
+
     assert.equal(f.attach(options), null)
     assert.equal(f.handlers.size, 0)
   }
+
   const f = fixture(),
     handle = f.attach()!,
     action = f.handlers.get(1)
+
   assert.throws(() => handle.update(f.plan({ selection: 'missing' })), /Invalid picker selection/)
   action()
   assert.equal(f.handlers.size, 0)

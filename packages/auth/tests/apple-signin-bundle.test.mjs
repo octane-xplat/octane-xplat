@@ -15,6 +15,7 @@ import { nativeScriptRenderer } from '@nativescript-community/octane/config'
 // implementation and the Android graph never touches the plugin class.
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dir = mkdtempSync(join(tmpdir(), 'xplat-auth-bundle-'))
+
 after(() => rmSync(dir, { recursive: true, force: true }))
 
 mkdirSync(join(dir, 'node_modules/@octane-xplat'), { recursive: true })
@@ -50,6 +51,7 @@ async function bundle(target) {
   const warnings = []
   const logger = createLogger('warn')
   const warn = logger.warn.bind(logger)
+
   logger.warn = (msg, options) => {
     warnings.push(msg)
     warn(msg, options)
@@ -116,6 +118,7 @@ test('android package-root bundle has no missing SignInButton export', async () 
     0,
     warnings.join('\n'),
   )
+
   assert.ok(code.includes('Sign in with Apple'), 'fallback button text missing from bundle')
   assert.ok(
     !code.includes('apple-sign-in/index.ios.js'),
@@ -130,6 +133,7 @@ test('ios package-root bundle selects the platform button leaf', async () => {
     code.includes('apple-sign-in/index.ios.js'),
     'ASAuthorizationAppleIDButton plugin module missing from ios bundle',
   )
+
   assert.ok(
     /registerElement\)\("applesigninbutton"/.test(code),
     'applesigninbutton element registration missing from ios bundle',

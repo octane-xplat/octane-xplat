@@ -17,6 +17,7 @@ function fixture() {
   const writers = new Map<object, TextValueWriter>()
   const jobs: (() => void)[] = [],
     cancelled = new Set<unknown>()
+
   const observers = new Map<object, () => void>()
   const api = runSlice(
     [
@@ -31,6 +32,7 @@ function fixture() {
     {
       setTextValue: (view: object, value: string | undefined, create: any) => {
         let writer = writers.get(view)
+
         if (!writer && value !== undefined) {
           writer = createTextValueWriter(create(), {
             schedule: (job) => {
@@ -44,6 +46,7 @@ function fixture() {
 
           writers.set(view, writer)
         }
+
         writer?.update(value)
       },
       isWritingTextValue: (view: object) => writers.get(view)?.isWriting ?? false,
@@ -124,7 +127,9 @@ function fixture() {
   }
 
   textNodesByView.set(view, node)
+
   const target = new api.ButtonActionTarget()
+
   return {
     ...api,
     view,
@@ -147,6 +152,7 @@ function fixture() {
 
 test('SearchBar starts empty and suppresses search/end-editing actions', () => {
   const { view } = fixture()
+
   assert.equal(view.stringValue, '')
   assert.equal(view.placeholderString, '')
   assert.equal(view.translatesAutoresizingMaskIntoConstraints, false)
@@ -200,14 +206,18 @@ test('SearchBar text/hint updates and removed props restore defaults on the same
   f.syncSearchBar(f.node, f.node.props)
   assert.equal(f.view.stringValue, 'one')
   assert.equal(f.view.placeholderString, 'Find')
+
   const next = { text: 'two', onTextChange: f.node.props.onTextChange }
   const update = { ...f.droppedPropClears(f.node, next), ...next }
+
   f.node.props = { ...f.node.props, ...update }
   f.syncSearchBar(f.node, update)
   assert.equal(f.view.stringValue, 'two')
   assert.equal(f.view.placeholderString, '')
+
   const keep = { onTextChange: f.node.props.onTextChange }
   const clear = { ...f.droppedPropClears(f.node, keep), ...keep }
+
   f.node.props = { ...f.node.props, ...clear }
   f.syncSearchBar(f.node, clear)
   assert.equal(f.view.stringValue, '')
@@ -237,6 +247,7 @@ test('SearchBar binds current handlers and removed handlers stay silent', () => 
 test('SearchBar delegate lookup does not dispatch after its ownership is released', () => {
   const f = fixture()
   let count = 0
+
   f.node.props.onTextChange = () => count++
   f.setTextSubmitAction(f.node, () => count++)
   f.textNodesByView.delete(f.view)
@@ -290,18 +301,21 @@ test('SearchBar rejects view, text and projected children in batch preflight', (
 test('SearchBar preserves marked editor text until the latest external value can commit', () => {
   const f = fixture(),
     values: string[] = []
+
   f.node.props.onTextChange = (event: any) => values.push(event.value)
   f.view.editor = {
     string: 'marked',
     hasMarkedText: () => true,
     selectedRange: { location: 6, length: 0 },
   }
+
   f.target.controlTextDidChange({ object: f.view })
   assert.equal(f.node.text, 'marked') // Read the live field editor, not the stale model.
   for (const text of ['first', 'latest']) {
     f.node.props.text = text
     f.syncSearchBar(f.node, { text })
   }
+
   assert.equal(f.view.editor.string, 'marked')
   assert.deepEqual(values, ['marked'])
   assert.equal(f.observers.size, 1)
@@ -317,6 +331,7 @@ test('SearchBar preserves marked editor text until the latest external value can
 test('SearchBar native echo supersedes deferred text and teardown cancels pending work', () => {
   const f = fixture(),
     values: string[] = []
+
   f.node.props.onTextChange = (event: any) => values.push(event.value)
   f.view.editor = { string: 'composing', hasMarkedText: () => true }
   f.node.props.text = 'external'
@@ -344,9 +359,11 @@ test('SearchBar native echo supersedes deferred text and teardown cancels pendin
 test('SearchBar deferred clear uses the current handler and emits one property change', () => {
   const f = fixture(),
     values: string[] = []
+
   f.node.props.onTextChange = () => {
     throw new Error('stale handler')
   }
+
   f.view.editor = { string: 'marked', hasMarkedText: () => true }
   f.node.text = 'marked'
   f.node.props.text = ''

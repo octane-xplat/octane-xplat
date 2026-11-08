@@ -9,11 +9,13 @@ function fixture(flipped = false) {
   const anchor = () => ({
     constraintEqualToAnchor(other: any) {
       const c = { kind: 'equal', other, active: false }
+
       constraints.push(c)
       return c
     },
     constraintGreaterThanOrEqualToAnchor(other: any) {
       const c = { kind: 'minimum', other, active: false }
+
       constraints.push(c)
       return c
     },
@@ -43,6 +45,7 @@ function fixture(flipped = false) {
   }
 
   const observers: any[] = []
+
   mockGlobals({
     NSUserInterfaceLayoutOrientation: { Horizontal: 0, Vertical: 1 },
     NSViewFrameDidChangeNotification: 'frame',
@@ -55,6 +58,7 @@ function fixture(flipped = false) {
           callback: () => void,
         ) {
           const entry = { name, object, callback, removed: false }
+
           observers.push(entry)
           return entry
         },
@@ -66,6 +70,7 @@ function fixture(flipped = false) {
   })
 
   const node: any = { view, childHost: document, props: {} }
+
   return { node, clip, document, constraints, observers }
 }
 
@@ -73,6 +78,7 @@ const tick = () => new Promise<void>((resolve) => queueMicrotask(resolve))
 
 test('default block, inline and both release old pins and constrain only disabled axes', () => {
   const { node, constraints } = fixture()
+
   configureScrollAxes(node)
   assert.equal(node.view.hasVerticalScroller, true)
   assert.equal(node.view.hasHorizontalScroller, false)
@@ -111,10 +117,13 @@ test('default block, inline and both release old pins and constrain only disable
 
 test('first layout, clip/document resize and axis changes measure once per layout turn', async () => {
   const { node, clip, document, observers } = fixture()
+
   node.props.orientation = 'both'
   configureScrollAxes(node)
+
   let calls = 0
   const detach = observeScrollGeometry(node, node.view, () => calls++)
+
   await tick()
   assert.equal(calls, 1)
   assert.equal(clip.bounds.origin.y, 300, 'unflipped document starts at its visual top')
@@ -145,7 +154,9 @@ test('first layout, clip/document resize and axis changes measure once per layou
 
   detach()
   assert.ok(observers.every((o) => o.removed))
+
   const before = calls
+
   for (const observer of observers) {
     observer.callback()
   }
@@ -156,7 +167,9 @@ test('first layout, clip/document resize and axis changes measure once per layou
 
 test('queued geometry work is cancelled on removal and flipped origin stays at zero', async () => {
   const { node, clip, observers } = fixture(true)
+
   node.props.orientation = 'vertical'
+
   const detach = observeScrollGeometry(node, node.view, () =>
     assert.fail('removed viewport notified'),
   )
@@ -164,8 +177,10 @@ test('queued geometry work is cancelled on removal and flipped origin stays at z
   detach()
   await tick()
   assert.ok(observers.every((o) => o.removed))
+
   let calls = 0
   const next = observeScrollGeometry(node, node.view, () => calls++)
+
   await tick()
   assert.equal(calls, 1)
   assert.equal(clip.bounds.origin.y, 0)
@@ -182,18 +197,22 @@ test('partial geometry setup unwinds acquired handles, retires callbacks and all
   let attempt = 0,
     held!: () => void,
     calls = 0
+
   center.addObserverForNameObjectQueueUsingBlock = (...args: any[]) => {
     if (++attempt === 2) {
       held = args[3]
       held()
       throw failure
     }
+
     return add.apply(center, args)
   }
+
   assert.throws(
     () => observeScrollGeometry(node, node.view, () => calls++),
     (error) => error === failure,
   )
+
   assert.ok(observers.every((observer) => observer.removed))
   assert.equal(node.scrollGeometryDetach, null)
   assert.equal(node.scrollGeometrySchedule, null)
@@ -201,7 +220,9 @@ test('partial geometry setup unwinds acquired handles, retires callbacks and all
   await tick()
   assert.equal(calls, 0)
   center.addObserverForNameObjectQueueUsingBlock = add
+
   const stop = observeScrollGeometry(node, node.view, () => calls++)
+
   await tick()
   assert.equal(calls, 1)
   stop()
@@ -215,15 +236,20 @@ test('reentrant replacement releases the old late handle without clobbering the 
     oldCalls = 0,
     nextCalls = 0,
     latest!: () => void
+
   center.addObserverForNameObjectQueueUsingBlock = (...args: any[]) => {
     const token = add.apply(center, args)
+
     if (replacing) {
       replacing = false
       latest = observeScrollGeometry(node, node.view, () => nextCalls++)
     }
+
     return token
   }
+
   const stale = observeScrollGeometry(node, node.view, () => oldCalls++)
+
   assert.equal(observers[0].removed, true)
   assert.equal(node.scrollGeometryDetach, latest)
   stale()
@@ -233,6 +259,7 @@ test('reentrant replacement releases the old late handle without clobbering the 
   for (const observer of observers) {
     observer.callback()
   }
+
   await tick()
   assert.equal(nextCalls, 2)
   latest()
@@ -244,18 +271,23 @@ test('cleanup attempts every native removal once and held callbacks cannot reviv
   const center = globalThis.NSNotificationCenter.defaultCenter as any
   let removals = 0,
     calls = 0
+
   center.removeObserver = (observer: any) => {
     observer.removed = true
     removals++
     throw Error('private cleanup payload')
   }
+
   const warn = console.warn,
     warnings: string[] = []
+
   console.warn = (message) => {
     warnings.push(String(message))
   }
+
   try {
     const stop = observeScrollGeometry(node, node.view, () => calls++)
+
     stop()
     stop()
     for (const observer of observers) {
@@ -276,9 +308,12 @@ test('cleanup attempts every native removal once and held callbacks cannot reviv
 test('layout teardown or view replacement prevents stale clamping and notification', async () => {
   for (const replace of [false, true]) {
     const { node, clip, observers } = fixture()
+
     node.props.orientation = 'vertical'
+
     let calls = 0
     const stop = observeScrollGeometry(node, node.view, () => calls++)
+
     node.view.layoutSubtreeIfNeeded = () => {
       if (replace) {
         node.view = { ...node.view, documentView: {} }
@@ -300,16 +335,20 @@ test('failed layout and consumer notification release the queued task for later 
   let layoutFails = true,
     notifyFails = true,
     calls = 0
+
   node.view.layoutSubtreeIfNeeded = () => {
     if (layoutFails) {
       throw Error('private layout payload')
     }
   }
+
   const warn = console.warn,
     warnings: string[] = []
+
   console.warn = (message) => {
     warnings.push(String(message))
   }
+
   try {
     const stop = observeScrollGeometry(node, node.view, () => {
       calls++
@@ -337,27 +376,35 @@ test('failed layout and consumer notification release the queued task for later 
 
 test('invalid geometry never reaches native scrolling and failed positioning remains retryable', async () => {
   const { node, clip, document, observers } = fixture()
+
   node.props.orientation = 'vertical'
   document.frame.size.height = Number.NaN
+
   const scroll = clip.scrollToPoint
   let writes = 0,
     calls = 0,
     fail = true
+
   clip.scrollToPoint = function (point: any) {
     writes++
     assert.ok(Number.isFinite(point.x) && Number.isFinite(point.y))
     if (fail) {
       throw Error('private scroll payload')
     }
+
     scroll.call(this, point)
   }
+
   const warn = console.warn,
     warnings: string[] = []
+
   console.warn = (message) => {
     warnings.push(String(message))
   }
+
   try {
     const stop = observeScrollGeometry(node, node.view, () => calls++)
+
     await tick()
     assert.equal(writes, 0)
     assert.equal(node.scrollInitialPositioned, undefined)
@@ -400,10 +447,13 @@ test('consumer-scheduled geometry keeps its own task while former cleanup leaves
       node.scrollGeometrySchedule()
     }
   })
+
   await tick()
   await tick()
   assert.equal(calls, 2)
+
   const next = observeScrollGeometry(node, node.view, () => calls++)
+
   first()
   assert.equal(node.scrollGeometryDetach, next)
   await tick()
@@ -415,16 +465,21 @@ test('geometry cleanup retains its notification center and method receiver after
   const { node, observers } = fixture()
   const center = globalThis.NSNotificationCenter.defaultCenter as any
   let removed = 0
+
   center.removeObserver = function (observer: any) {
     assert.equal(this, center)
     observer.removed = true
     removed++
   }
+
   const stop = observeScrollGeometry(node, node.view, () => {})
+
   center.removeObserver = () => assert.fail('replacement method received an old handle')
+
   ;(globalThis.NSNotificationCenter as any).defaultCenter = {
     removeObserver: () => assert.fail('replacement center received an old handle'),
   }
+
   stop()
   await tick()
   assert.equal(removed, 3)
@@ -435,9 +490,11 @@ test('geometry cleanup retains its notification center and method receiver after
 // overwrite its replacement subscription after the helper already returned.
 test('renderer layout unbinding preserves a newer subscription acquired during native cleanup', async () => {
   const { node, observers } = fixture()
+
   node.type = 'scrollview'
   node.view.bounds = { size: { width: 100, height: 100 } }
   node.container = { root: { eventScope: (_scope: string, run: () => void) => run() } }
+
   const source = rendererSource()
   const start = source.indexOf('function syncLayoutObserver(')
   const code = source.slice(start, source.indexOf('function setTextFieldPlaceholder(', start))
@@ -449,11 +506,13 @@ test('renderer layout unbinding preserves a newer subscription acquired during n
     NSViewFrameDidChangeNotification: 'frame',
     console,
   })
+
   const center = globalThis.NSNotificationCenter.defaultCenter as any
   const remove = center.removeObserver
   let reenter = true,
     oldCalls = 0,
     nextCalls = 0
+
   center.removeObserver = (observer: any) => {
     remove.call(center, observer)
     if (reenter) {
@@ -461,8 +520,11 @@ test('renderer layout unbinding preserves a newer subscription acquired during n
       setLayoutAction(node, () => nextCalls++)
     }
   }
+
   setLayoutAction(node, () => oldCalls++)
+
   const previous = node.scrollGeometryDetach
+
   setLayoutAction(node, undefined)
   assert.ok(node.scrollGeometryDetach)
   assert.notEqual(node.scrollGeometryDetach, previous)
@@ -472,6 +534,7 @@ test('renderer layout unbinding preserves a newer subscription acquired during n
   for (const observer of observers) {
     observer.callback()
   }
+
   await tick()
   assert.equal(nextCalls, 2)
   node.scrollGeometryDetach()
@@ -513,8 +576,10 @@ test('existing onScroll event shape and latest callback survive replacement and 
   })
 
   node.container = { root: { eventScope: (_scope: string, run: () => void) => run() } }
+
   let oldCalls = 0
   const events: any[] = []
+
   setScrollAction(node, () => oldCalls++)
   setScrollAction(node, (event: any) => events.push(event))
   assert.equal(observers.length, 1)

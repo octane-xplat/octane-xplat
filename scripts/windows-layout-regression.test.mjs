@@ -17,6 +17,8 @@ test('installed Windows preview preserves percentage sizing and parent lifecycle
       import.meta.url,
     ),
   )
+
   const view = appRequire.resolve('@nativescript/core/ui/core/view/index.windows.js')
+
   execFileSync(process.execPath, [helper, view], { stdio: 'pipe' })
 })

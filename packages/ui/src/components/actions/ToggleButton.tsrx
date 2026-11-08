@@ -34,6 +34,7 @@ export function ToggleButton(props: ToggleButtonProps): unknown @{
     }
 
     const next = !pressed
+
     actionValue = next
     if (!controlled) {
       setLocalPressed(next)
@@ -72,6 +73,7 @@ export function ToggleButtonGroup(props: ToggleButtonGroupProps): unknown @{
   const toggle = (key: string) => {
     if (type === 'multiple') {
       const next = new Set(selected)
+
       if (next.has(key)) {
         next.delete(key)
       } else {

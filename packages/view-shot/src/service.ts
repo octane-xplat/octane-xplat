@@ -20,6 +20,7 @@ export type ViewShotModule = Readonly<{
 let pending: Promise<unknown> = Promise.resolve()
 function enqueue<T>(operation: () => Promise<T>): Promise<T> {
   const result = pending.then(operation)
+
   pending = result.catch(() => {})
   return result
 }
@@ -28,6 +29,7 @@ function enqueue<T>(operation: () => Promise<T>): Promise<T> {
 export async function captureRef(target: CaptureTarget, options?: CaptureOptions): Promise<string> {
   const host = resolveTarget(target)
   const normalized = normalizeOptions(options)
+
   backend.validate(host)
   return enqueue(async () => {
     backend.validate(host)
@@ -38,6 +40,7 @@ export async function captureRef(target: CaptureTarget, options?: CaptureOptions
 /** Capture the primary app screen only on hosts that explicitly support it. */
 export async function captureScreen(options?: CaptureOptions): Promise<string> {
   const normalized = normalizeOptions(options)
+
   return enqueue(() => backend.captureScreen(normalized))
 }
 
@@ -46,6 +49,7 @@ export function releaseCapture(uri: string): void {
   if (typeof uri !== 'string') {
     throw new TypeError('Capture URI must be a string')
   }
+
   backend.release(uri)
 }
 
@@ -63,6 +67,7 @@ export const viewShot: ViewShotModule = Object.freeze({
     scrollContent: boolean
   }> {
     const value = backend.capabilities()
+
     return Object.freeze({ ...value, formats: Object.freeze([...value.formats]) })
   },
   captureRef,

@@ -23,6 +23,7 @@ const ICONS = {
 
 function fixtureDir(files = ICONS) {
   const dir = mkdtempSync(join(tmpdir(), 'nano-icons-src-'))
+
   for (const [name, svg] of Object.entries(files)) {
     writeFileSync(join(dir, `${name}.svg`), svg)
   }
@@ -50,16 +51,19 @@ async function buildFixture(opts = {}) {
 
 test('build compiles SVGs to a valid TTF with sequential codepoints', async () => {
   const result = await buildFixture()
+
   assert.match(result.family, /^Probe-[0-9a-f]{8}$/, 'family carries the content hash')
 
   const files = readdirSync(result.ttfPath.replace(/[^/]+$/, ''))
   const ttfFile = files.find((f) => f.endsWith('.ttf'))
+
   assert.ok(ttfFile, 'TTF emitted')
   assert.equal(ttfFile, `${result.family}.ttf`, 'hashed family filename')
 
   // fonteditor-core parses it: family carries the content hash, metrics are fixed.
   const font = Font.create(readFileSync(result.ttfPath), { type: 'ttf' })
   const data = font.get()
+
   assert.equal(data.name.fontFamily, result.family)
   assert.equal(data.head.unitsPerEm, 1024)
   assert.equal(data.hhea.ascent, 1024)
@@ -69,6 +73,7 @@ test('build compiles SVGs to a valid TTF with sequential codepoints', async () =
   // Every emitted layer has a cmap entry starting at 0xe900; non-square
   // icons carry their own advance width.
   const glyphs = Object.keys(data.cmap).map(Number)
+
   assert.deepEqual(glyphs, [0xe900, 0xe901, 0xe902, 0xe903, 0xe904, 0xe905, 0xe906])
 })
 
@@ -110,9 +115,11 @@ test('glyph map carries layer stacks, metadata and deterministic content', async
 test('web output emits a WOFF2 companion and module', async () => {
   const result = await buildFixture()
   const woff2 = readFileSync(result.woff2Path)
+
   assert.equal(woff2.subarray(0, 4).toString('latin1'), 'wOF2')
 
   const mod = readFileSync(result.modulePath, 'utf8')
+
   assert.match(mod, /export const ProbeIcons: NanoIconSet<ProbeIconName>/)
   assert.match(mod, /\| 'duo'/)
   assert.match(mod, /fileName: 'Probe-[0-9a-f]{8}\.ttf'/)

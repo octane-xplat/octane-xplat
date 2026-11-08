@@ -23,6 +23,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -52,8 +53,10 @@ it('options/children share one set and retain metadata/hosts across validation c
 
   const onValueChange = (value: string[]) => changes.push(value)
   const env = mount(Fixture, { label: 'Features', onValueChange })
+
   try {
     const [alpha, beta] = env.rows()
+
     alpha.props.onTap()
     beta.props.onTap()
     flushUniversalSync(() => {})
@@ -107,6 +110,7 @@ it('does not duplicate values from repeated membership requests in one handler',
 
   const changes: string[][] = []
   const env = mount(Fixture, { onValueChange: (value: string[]) => changes.push(value) })
+
   try {
     env
       .all()
@@ -139,6 +143,7 @@ it('controlled values wait for feedback and Field state blocks members and stand
   }
 
   const env = mount(Fixture, { value: [] })
+
   try {
     env.rows()[0].props.onTap()
     flushUniversalSync(() => {})
@@ -173,6 +178,7 @@ it('standalone mixed rows request true then follow explicit checked feedback', (
 
   try {
     const row = env.rows()[0]
+
     expect(row.props.accessibilityState.checked).toBe('mixed')
     expect(row.props.className).toContain('one two')
     row.props.onTap()

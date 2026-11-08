@@ -188,6 +188,7 @@ export const headingEqual: EqualRule[] = [
 export function headingRows(m: Resolve, size: number): CheckRow[] {
   const heading = m('heading')
   const weight = String(heading.style?.fontWeight ?? '').toLowerCase()
+
   return [
     [
       'heading starts at the fixture origin',
@@ -211,6 +212,7 @@ export function headingRows(m: Resolve, size: number): CheckRow[] {
 /** Asserts class-applied text size and line height. */
 export function textClassRows(m: Resolve, size: number, lineHeight: number): CheckRow[] {
   const text = m('text')
+
   return [
     [
       `text font size is ${size}px`,
@@ -258,6 +260,7 @@ export function textLongRows(m: Resolve, target: string): CheckRow[] {
   // as each line's full box. Keep the platform-specific expectation here.
   const fontLineHeight = Number(text.resolvedFont?.lineHeight)
   const expectedHeight = fontLineHeight * 2 + styleLineHeight
+
   rows.push([
     'native multiline height includes additive line spacing',
     Number.isFinite(expectedHeight) && near(text.box?.h, expectedHeight, 1),
@@ -313,6 +316,7 @@ export const buttonNaturalEqual: EqualRule[] = [
 export function buttonRows(m: Resolve, width: number, height: number): CheckRow[] {
   const btn = m('btn')
   const label = m('label')
+
   return [
     dims(btn, width, height, 1),
     [
@@ -335,6 +339,7 @@ export function buttonRows(m: Resolve, width: number, height: number): CheckRow[
 export function buttonNaturalRows(m: Resolve): CheckRow[] {
   const btn = m('btn')
   const label = m('label')
+
   return [
     [
       'button has positive dimensions',
@@ -382,6 +387,7 @@ export const inputNaturalEqual: EqualRule[] = inputEqual.filter(
 /** Equality rules for textarea fixtures, derived from the input set. */
 export const textAreaEqual: EqualRule[] = inputEqual.map((rule) => {
   const path = equalPath(rule)
+
   return ['field.box.h', 'field.contentBox.h'].includes(path) ? { path, tolerance: 1 } : rule
 })
 

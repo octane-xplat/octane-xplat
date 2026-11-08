@@ -5,14 +5,18 @@ import { fileURLToPath } from 'node:url'
 import { composeTargets } from '../../create/scaffold.ts'
 
 const dir = process.argv[2] && resolve(process.argv[2])
+
 if (!dir || existsSync(dir)) {
   throw new Error('Supply a new directory: node tests/prepare-consumer.mjs /tmp/new-xplat-mcp-app')
 }
 
 const frameworkRoot = fileURLToPath(new URL('../../../', import.meta.url))
+
 composeTargets(['web'], dir)
+
 const manifestPath = join(dir, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
 for (const section of ['dependencies', 'devDependencies']) {
   for (const name of Object.keys(manifest[section] ?? {})) {
     if (name.startsWith('@octane-xplat/')) {
@@ -22,7 +26,9 @@ for (const section of ['dependencies', 'devDependencies']) {
 }
 
 writeFileSync(manifestPath, JSON.stringify(manifest, null, '\t') + '\n')
+
 const entry = join(dir, 'src/main.web.tsrx')
+
 writeFileSync(
   entry,
   readFileSync(entry, 'utf8') +

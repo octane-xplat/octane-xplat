@@ -38,7 +38,9 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
     active = useRef<symbol | null>(null)
 
   const live = useRef({ props, disabled, busy: false })
+
   live.current = { props, disabled, busy: !!(button.isLoading && !button.isInterruptible) }
+
   const bindAnchor = useCallback((view: NSView | null) => {
     // Ref replacement may detach and reattach the same host during a callback.
     // Keep an accepted request claimed until its own finally releases it.
@@ -47,17 +49,20 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
 
   const setOpen = (intent: boolean | 'toggle', resetReturn = false, edge?: 'first' | 'last') => {
     const current = live.current
+
     if (!anchor.current || active.current) {
       return
     }
 
     const previous = current.props.isOpen ?? local.current
     const next = intent === 'toggle' ? !previous : intent
+
     if (next && (current.disabled || current.busy || (edge && previous))) {
       return
     }
 
     const token = Symbol('dropdown-open-change')
+
     active.current = token
     try {
       if (resetReturn) {
@@ -82,7 +87,9 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
   }
 
   const liveReturn = useRef({ open, close: () => setOpen(false) })
+
   liveReturn.current = { open, close: () => setOpen(false) }
+
   const returnOwner = useMemo(
     () =>
       createAppKitMenuReturn({
@@ -107,6 +114,7 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
   const keys = useAppKitViewKeys({
     onKeyDown: (event) => {
       const current = live.current
+
       if (
         !anchor.current ||
         active.current ||

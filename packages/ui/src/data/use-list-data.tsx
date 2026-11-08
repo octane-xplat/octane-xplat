@@ -10,6 +10,7 @@ import { useStore } from './use-store.tsrx'
  */
 export function useListData<T>(options: ListDataOptions<T> = {}): ListData<T> {
   const ref = useRef<ListData<T> | null>(null)
+
   if (ref.current === null) {
     ref.current = createListData(options)
   }

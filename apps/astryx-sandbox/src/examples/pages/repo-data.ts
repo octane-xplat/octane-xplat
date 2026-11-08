@@ -201,10 +201,12 @@ function withRollups(nodes: RepoEntry[]): RepoEntry[] {
     if (!node.children || node.children.length === 0) {
       return node
     }
+
     const children = withRollups(node.children)
     const newest = children.reduce((latest, child) =>
       child.committedAt > latest.committedAt ? child : latest,
     )
+
     return {
       ...node,
       children,
@@ -314,6 +316,7 @@ export function readmeFor(folderId: string | null): string | null {
   const hasReadme = entries.some(
     (entry) => entry.kind !== 'folder' && /^readme\.md$/i.test(entry.name),
   )
+
   return hasReadme ? (READMES[folderId ?? ''] ?? null) : null
 }
 
@@ -340,9 +343,11 @@ export function countMatches(nodes: RepoEntry[], needle: string): number {
 /** Keep any branch with a match at or beneath it; drop everything else. */
 export function pruneTree(nodes: RepoEntry[], needle: string): RepoEntry[] {
   const kept: RepoEntry[] = []
+
   for (const node of nodes) {
     const isSelfMatch = isMatch(node, needle)
     const children = node.children ? pruneTree(node.children, needle) : []
+
     if (isSelfMatch || children.length > 0) {
       kept.push(
         node.children
@@ -354,6 +359,7 @@ export function pruneTree(nodes: RepoEntry[], needle: string): RepoEntry[] {
       )
     }
   }
+
   return kept
 }
 
@@ -364,5 +370,6 @@ export function collectIds(nodes: RepoEntry[], into: Set<string>): Set<string> {
       collectIds(node.children, into)
     }
   }
+
   return into
 }

@@ -14,6 +14,7 @@ const server = await createServer({
 })
 
 await server.listen()
+
 const base = server.resolvedUrls.local[0]
 const browser = await chromium.launch({
   args: ['--use-fake-device-for-media-stream', '--use-fake-ui-for-media-stream'],
@@ -22,12 +23,15 @@ const browser = await chromium.launch({
 const context = await browser.newContext({ permissions: ['camera', 'microphone'] })
 const page = await context.newPage()
 const hostErrors = []
+
 page.on('pageerror', (error) => hostErrors.push(error.message))
 try {
   await page.goto(`${base}tests/browser/index.html`)
   await page.waitForFunction(() => window.testReady)
+
   const retention = await page.evaluate(async () => {
     const caps = await window.session.capabilities()
+
     return { persisted: await navigator.storage.persisted(), supported: caps.supported }
   })
 
@@ -71,22 +75,27 @@ try {
       const first = window.take.stop()
       const second = window.take.stop()
       const result = window.serialize(await first)
+
       return { result, same: first === second, events: window.events.map((e) => e.type) }
     })
   }
 
   const silent = await record()
+
   assert.equal(silent.result.kind, 'clip', JSON.stringify(silent.result))
   assert.equal(silent.same, true)
   assert.equal(silent.result.clip.hasAudio, false)
   assert.match(silent.result.clip.mimeType, /video\/webm.*vp8/)
   assert.ok(silent.result.clip.durationMs > 0)
   assert.ok(silent.events.indexOf('started') < silent.events.indexOf('finished'))
+
   const output = silent.result.clip.output
+
   assert.equal(output.retention, 'persistent')
   await page.evaluate(async (output) => {
     const opened = await window.session.openOutput(output)
     const bytes = await fetch(opened.url).then((response) => response.blob())
+
     if (!bytes.size) {
       throw new Error('Reopened output is empty')
     }
@@ -101,6 +110,7 @@ try {
     await page.evaluate(async (output) => {
       const opened = await window.session.openOutput(output)
       const size = (await fetch(opened.url).then((response) => response.blob())).size
+
       opened.release()
       return size
     }, output),
@@ -136,14 +146,18 @@ try {
 
   await page.waitForFunction(() => window.take.state === 'recording')
   await page.waitForTimeout(500)
+
   const audible = await page.evaluate(() => window.take.stop().then(window.serialize))
+
   assert.equal(audible.kind, 'clip', JSON.stringify(audible))
   assert.equal(audible.clip.hasAudio, true)
   assert.match(audible.clip.mimeType, /opus/)
 
   await setup()
+
   const early = await page.evaluate(() => {
     const take = window.session.startRecording()
+
     return take.stop().then((outcome) => ({
       ...outcome,
       error:
@@ -172,10 +186,12 @@ try {
   await page.waitForTimeout(350)
   await page.evaluate(() => {
     const until = performance.now() + 800
+
     while (performance.now() < until) {}
   })
 
   const limited = await page.evaluate(() => window.take.completion.then(window.serialize))
+
   assert.equal(limited.kind, 'clip', JSON.stringify(limited))
   assert.equal(limited.endReason, 'maximumDuration')
   assert.ok(
@@ -203,6 +219,7 @@ try {
 
   await page.waitForFunction(() => window.take.state === 'recording')
   await page.waitForTimeout(250)
+
   const hidden = await page.evaluate(async () => {
     Object.defineProperty(document, 'visibilityState', { configurable: true, value: 'hidden' })
     document.dispatchEvent(new Event('visibilitychange'))
@@ -218,6 +235,7 @@ try {
   })
 
   await setup({}, false)
+
   const refused = await page.evaluate(() => {
     try {
       window.session.startRecording()
@@ -247,7 +265,9 @@ try {
 
   await page.waitForFunction(() => window.take.state === 'recording')
   await page.waitForTimeout(250)
+
   const quota = await page.evaluate(() => window.take.stop().then(window.serialize))
+
   assert.equal(quota.kind, 'failed', JSON.stringify(quota))
   assert.equal(quota.stage, 'storage')
   assert.equal(quota.error.kind, 'insufficientStorage')
@@ -262,9 +282,11 @@ try {
 
   await page.waitForFunction(() => window.take.state === 'recording')
   await page.waitForTimeout(250)
+
   const disposal = await page.evaluate(async () => {
     const disposing = window.session.dispose()
     const outcome = await window.take.completion
+
     await disposing
     return { outcome, state: window.session.snapshot().state }
   })

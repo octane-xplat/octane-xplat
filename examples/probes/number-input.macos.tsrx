@@ -12,6 +12,7 @@ export default function NumberInputProbe() {
   const [tight, setTight] = useState(false)
   const [history, setHistory] = useState<string[]>([])
   const record = (entry: string) => setHistory((entries) => [...entries.slice(-11), entry])
+
   return (
     <VStack gap={2}>
       {shown ? (

@@ -20,12 +20,15 @@ function mount(component: any, props: any) {
   }
 
   render(props)
+
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
   const find = (type: string): any => all().find((node) => node.type === type)
+
   return { root, render, find, all }
 }
 
@@ -36,6 +39,7 @@ it('AppKit multiline fields submit only for enabled done/send actions', () => {
   }
 
   const env = mount(TextArea, { returnKeyType: 'send', onSubmit })
+
   try {
     env.find('textview').props.onSubmit()
     expect(submits).toBe(1)
@@ -63,6 +67,7 @@ it('AppKit text controls ignore edit callbacks after becoming disabled or read-o
     const onChange = (value: string) => changes.push(value)
     const env = mount(component, { onChange, defaultValue: 'kept' })
     const type = component === TextInput ? 'textfield' : 'textview'
+
     try {
       for (const flag of ['isDisabled', 'isReadOnly']) {
         env.render({ onChange, [flag]: true })
@@ -95,6 +100,7 @@ it('AppKit standalone text fields render labels, hints and status once in a colu
         .map((node) => node.props.text)
 
       expect(labels).toEqual(['Name *', 'Public name', 'Required'])
+
       const field = env
         .all()
         .find((node) => String(node.props?.className).split(' ').includes('vx-field'))
@@ -106,6 +112,7 @@ it('AppKit standalone text fields render labels, hints and status once in a colu
       })
 
       const control = env.find(component === TextInput ? 'textfield' : 'textview')
+
       expect(control.props.id).toBe('name')
       expect(control.props.accessibilityLabel).toBe('Name')
       expect(control.props.accessibilityHint).toBe('Public name. Required')
@@ -126,6 +133,7 @@ it('an enclosing AppKit Field owns text chrome and inherited state without nesti
   }
 
   const env = mount(Parent, {})
+
   try {
     expect(
       env.all().filter((node) => String(node.props?.className).split(' ').includes('vx-field')),
@@ -155,6 +163,7 @@ it('AppKit Field preserves authored styles and hidden labels keep the accessible
   }
 
   const env = mount(Parent, {})
+
   try {
     expect(env.find('masonview').props.style).toMatchObject({
       display: 'flex',
@@ -174,8 +183,10 @@ it('adding standalone validation metadata retains the editing host and uncontrol
   for (const component of [TextInput, TextArea]) {
     const env = mount(component, { defaultValue: 'initial' })
     const type = component === TextInput ? 'textfield' : 'textview'
+
     try {
       const control = env.find(type)
+
       control.props.onTextChange('edited')
       flushUniversalSync(() => {})
       env.render({ label: 'Name', status: { type: 'error', message: 'Check name' } })
@@ -192,8 +203,10 @@ it('adding standalone validation metadata retains the editing host and uncontrol
 
 it('AppKit search fields render the default/custom icon and support an icon-free field', () => {
   const env = mount(SearchInput, { placeholder: '', defaultValue: 'query', hasClear: false })
+
   try {
     const findIcon = () => env.all().find((node) => node.props?.className === 'vx-input-icon')
+
     expect(findIcon()).toBeDefined()
     expect(env.find('image')).toBeDefined()
     expect(env.find('textfield').props.returnKeyType).toBe('search')
@@ -226,8 +239,10 @@ it('AppKit TextInput supports a caller-owned leading node and placeholder color'
 
 it('AppKit TextArea forwards its length limit and can remove it without replacing the host', () => {
   const env = mount(TextArea, { maxLength: 5, defaultValue: 'note' })
+
   try {
     const host = env.find('textview')
+
     expect(host.props.maxLength).toBe(5)
     env.render({ maxLength: 0 })
     expect(env.find('textview')).toBe(host)
@@ -253,7 +268,9 @@ it('AppKit clear requests preserve callback order, refocus the retained input an
 
     try {
       const input = env.find('textfield')
+
       input.window = { makeFirstResponder: (view: unknown) => events.push(['focus', view]) }
+
       const clear = env
         .all()
         .find((node) => String(node.props?.className).split(' ').includes('vx-input-clear'))
@@ -271,11 +288,13 @@ it('AppKit clear requests preserve callback order, refocus the retained input an
 
 it('AppKit search clear shares focus behavior and disabled/read-only fields hide the clear action', () => {
   const env = mount(SearchInput, { defaultValue: 'find', hasClear: true })
+
   try {
     const input = env.find('textfield'),
       focused: unknown[] = []
 
     input.window = { makeFirstResponder: (view: unknown) => focused.push(view) }
+
     const clears = () =>
       env
         .all()
@@ -297,8 +316,10 @@ it('AppKit clear tolerates the callback unmounting its input before refocus', ()
   let teardown = () => {}
   const env = mount(TextInput, { defaultValue: 'query', hasClear: true, onClear: () => teardown() })
   const focused: unknown[] = []
+
   env.find('textfield').window = { makeFirstResponder: (view: unknown) => focused.push(view) }
   teardown = () => env.root.unmount()
+
   const clear = env
     .all()
     .find((node) => String(node.props?.className).split(' ').includes('vx-input-clear'))
@@ -322,8 +343,10 @@ it('AppKit editable test IDs target retained fields and update/remove without ch
     }
 
     const env = mount(component, base)
+
     try {
       const field = env.find(type)
+
       expect(field.props.testID).toBe('profile.name')
       expect(env.all().filter((node) => node.props?.testID === 'profile.name')).toEqual([field])
       field.props.onTextChange('Grace')
@@ -334,7 +357,9 @@ it('AppKit editable test IDs target retained fields and update/remove without ch
       expect(field.props.id).toBe('profile-name')
       expect(field.props.accessibilityLabel).toBe('Your name')
       expect(field.props.value).toBe('Grace')
+
       const { testID, ...withoutID } = base
+
       env.render(withoutID)
       expect(env.find(type)).toBe(field)
       expect(field.props.testID).toBeUndefined()
@@ -355,11 +380,15 @@ it('parent Field metadata does not move the AppKit identifier onto its shell or 
   }
 
   const env = mount(Named, {})
+
   try {
     const field = env.find('textfield')
+
     expect(field.props.id).toBe('parent-name')
     expect(env.all().filter((node) => node.props?.testID === 'profile.name')).toEqual([field])
+
     const clear = env.all().find((node) => node.props?.accessibilityLabel === 'Clear Name')
+
     expect(clear).toBeDefined()
     expect(clear.props.testID).toBeUndefined()
   } finally {

@@ -12,7 +12,9 @@ export function wireRouteLinks(): void {
   onDeepLink((url) => {
     void router.navigateUrl(url)
   })
+
   const initial = consumeInitialUrl()
+
   if (initial) {
     void router.navigateUrl(initial)
   }

@@ -56,10 +56,12 @@ test('parity includes Mason defaults and scroll axis without inventing them on o
     paddingBottom: '0',
     paddingLeft: '0',
   })
+
   assert.equal(style({ type: 'scrollview', masonNode: {} }).flexDirection, 'column')
   assert.equal(
     style({ type: 'scrollview', masonNode: {}, props: { horizontal: true } }).flexDirection,
     'row',
   )
+
   assert.deepEqual(style({ type: 'label' }), {})
 })

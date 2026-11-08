@@ -21,6 +21,7 @@ const statusIcon: Record<string, string> = {
  * dismissal and the optional details toggle. */
 export function Banner(props: BannerProps): unknown @{
   const [dismissed, setDismissed, getDismissed] = useState(false)
+
   if (dismissed) {
     return null
   }

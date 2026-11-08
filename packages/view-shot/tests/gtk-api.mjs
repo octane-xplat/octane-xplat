@@ -1,5 +1,6 @@
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
+
 if (process.platform !== 'linux') {
   throw new Error('Run GTK API checks on andromeda.local inside its Linux VM')
 }

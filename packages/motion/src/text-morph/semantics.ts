@@ -117,6 +117,7 @@ function segments(value: string, segmenter: TextMorphSegmenter, budget: Budget, 
   const result: TextMorphSegment[] = []
   let offset = 0
   let words = 0
+
   for (const part of segmenter.segment(value)) {
     budget.spend()
     if (
@@ -130,6 +131,7 @@ function segments(value: string, segmenter: TextMorphSegmenter, budget: Budget, 
     }
 
     const end = offset + part.segment.length
+
     budget.spend(part.segment.length) // slice/copy validation is charged too
     if (end > value.length || !equal(part.segment, value.slice(offset, end), budget)) {
       throw 'segmentation-unreliable'
@@ -162,8 +164,10 @@ function tokenize(value: string, segmenters: TextMorphSegmenters | null, budget:
 
   for (let i = 0; i < value.length; i++) {
     const unit = value.charCodeAt(i)
+
     if (unit >= 0xd800 && unit <= 0xdbff) {
       const low = value.charCodeAt(++i)
+
       if (!(low >= 0xdc00 && low <= 0xdfff)) {
         throw 'unsupported-input'
       }
@@ -178,6 +182,7 @@ function tokenize(value: string, segmenters: TextMorphSegmenters | null, budget:
 
   const graphemes = segments(value, segmenters.grapheme, budget, false)
   const boundaries = new Set([0, value.length])
+
   for (const part of graphemes) {
     boundaries.add(part.index)
   }
@@ -218,6 +223,7 @@ export function planTextMorph(
   )
 
   let nextId = previous?.nextId ?? 0
+
   try {
     const segmented = tokenize(
       value,
@@ -240,6 +246,7 @@ export function planTextMorph(
 
     const frame: TextMorphFrame = { value, tokens, nextId }
     const same = previous ? equal(previous.value, value, budget) : false
+
     return {
       mode: same ? 'unchanged' : previous && !previous.fallback ? 'animate' : 'static',
       frame,

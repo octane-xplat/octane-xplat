@@ -22,6 +22,7 @@ const { collectDepsModuleExportInfo, buildDepsShimCode } = await import(
 const dirs = []
 const makeProject = () => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-deps-esm-')))
+
   dirs.push(root)
   return root
 }
@@ -34,6 +35,7 @@ afterEach(() => {
 
 const write = (root, name, code) => {
   const file = join(root, name)
+
   mkdirSync(join(file, '..'), { recursive: true })
   writeFileSync(file, code)
   return file
@@ -49,6 +51,7 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
   it('reads named exports from a single-line minified .js chunk', () => {
     const root = makeProject()
     const result = info(root, 'chunk.js', 'const value=1;export{value as g};')
+
     assert.deepEqual(result, { names: ['g'], hasDefault: false })
     assert.deepEqual(shimExports('k', result.names, result.hasDefault), [
       'export const g = __ns_dep_ns__.g;',
@@ -63,32 +66,41 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
       'chunk.js',
       'function mt(){return 1}function xx(){return 2}export{mt as g,xx as h};',
     )
+
     assert.deepEqual(result.names, ['g', 'h'])
   })
 
   it('keeps minified .mjs and newline-separated .js working', () => {
     const root = makeProject()
+
     assert.deepEqual(info(root, 'a.mjs', 'const v=1;export{v as g};').names, ['g'])
     assert.deepEqual(info(root, 'b.js', 'const v=1;\nexport{v as g};').names, ['g'])
   })
 
   it('follows a mid-line `export * from` into the target file', () => {
     const root = makeProject()
+
     write(root, 'child.js', 'export const childName = 2;')
+
     const result = info(root, 'barrel.js', 'const a=1;export{a};export*from"./child.js";')
+
     assert.deepEqual(result.names, ['a', 'childName'])
   })
 
   it('reads a space-free `export * as ns from` namespace re-export', () => {
     const root = makeProject()
+
     write(root, 'child.js', 'export const childName = 2;')
+
     const result = info(root, 'ns.js', 'export*as ns from"./child.js";')
+
     assert.deepEqual(result.names, ['ns'])
   })
 
   it('detects a mid-line default export', () => {
     const root = makeProject()
     const result = info(root, 'd.js', 'const x=1;export default x;')
+
     assert.deepEqual(result, { names: [], hasDefault: true })
     assert.deepEqual(shimExports('k', result.names, result.hasDefault), [
       'export default __ns_dep_ns__.default;',
@@ -97,6 +109,7 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
 
   it('does not match ESM-looking text inside strings, templates, comments, or regexes', () => {
     const root = makeProject()
+
     for (const [name, code] of [
       ['str.js', 'const s = "export{fake as g}";\nexports.real = 1;'],
       ['tpl.js', 'const s = `multi\nexport{fake as g}\nline`;\nexports.real = 1;'],
@@ -106,19 +119,23 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
       ['starstr.js', 'const s = "export * from \'./x\'";\nexports.real = 1;'],
     ]) {
       const result = info(root, name, code)
+
       assert.deepEqual(result, { names: ['real'], hasDefault: false }, name)
     }
   })
 
   it('does not match `$export`-style identifiers or obj.import/obj.export members', () => {
     const root = makeProject()
+
     assert.deepEqual(info(root, 'a.js', 'var $export = function(){};\nexports.real = 1;').names, [
       'real',
     ])
+
     assert.deepEqual(
       info(root, 'b.js', 'compiler.import = function(){};\nexports.real = 1;').names,
       ['real'],
     )
+
     assert.deepEqual(info(root, 'c.js', 'obj.export = {a:1};\nexports.real = 1;').names, ['real'])
   })
 
@@ -129,16 +146,20 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
       'nested.js',
       'const x=1;const t = `a${`inner export{fake} ${x}`}b`;export{x as g};',
     )
+
     assert.deepEqual(result.names, ['g'])
   })
 
   it('keeps plain CJS assignment scanning and opaque-CJS fallback', () => {
     const root = makeProject()
+
     assert.deepEqual(info(root, 'cjs.js', 'exports.a = 1;\nexports.b = 2;'), {
       names: ['a', 'b'],
       hasDefault: false,
     })
+
     const opaque = info(root, 'umd.js', 'module.exports = (() => ({ a: 1 }))();')
+
     assert.equal(opaque.names, null)
     assert.equal(opaque.opaqueCjs, true)
   })
@@ -146,6 +167,7 @@ describe('deps-bundle ESM classification (octane-xplat#181)', () => {
   it('keeps per-module serving when a star re-export resolves nowhere', () => {
     const root = makeProject()
     const result = info(root, 'star.js', 'const a=1;export{a};export*from"./missing.js";')
+
     assert.equal(result.names, null)
   })
 })

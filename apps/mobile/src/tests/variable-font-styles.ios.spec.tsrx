@@ -17,8 +17,10 @@ declare const kCTFontVariationAxisDefaultValueKey: string
 
 function weight(font: UIFont): number | undefined {
   const axes = CTFontCopyVariationAxes(font)
+
   for (let index = 0; index < (axes?.count ?? 0); index++) {
     const axis: NSDictionary<string, unknown> = axes!.objectAtIndex(index)
+
     if (axis.objectForKey(kCTFontVariationAxisIdentifierKey) !== 0x77676874) {
       continue
     }
@@ -35,6 +37,7 @@ function weight(font: UIFont): number | undefined {
 
 function nativeFont(view: NativeView): UIFont {
   const native: UILabel | UITextField | UITextView = view.ios
+
   return native.font!
 }
 
@@ -100,12 +103,14 @@ it.skipIf(!isIOS)(
   'resolves computed/default weights for Text and editors, with explicit-axis precedence',
   async () => {
     const { view } = await mountXplat(FontStyles)
+
     await waitUntil(() =>
       expectedWeights.every(([id]) => view.getViewById<NativeView>(id)?.isLoaded),
     )
 
     for (const [id, expected] of expectedWeights) {
       const font = nativeFont(view.getViewById<NativeView>(id)!)
+
       expect(font.familyName, id + ' family').toBe('SN Pro')
       expect(weight(font), id + ' wght').toBeCloseTo(expected, 0)
       expect(font.pointSize, id + ' size').toBeCloseTo(24, 0)
@@ -141,14 +146,19 @@ it.skipIf(!isIOS)(
     const { view } = await mountXplat(ChangingFont)
     const ids = ['font-changing', 'font-changing-input', 'font-changing-area']
     const controls = ids.map((id) => view.getViewById<NativeView>(id)!)
+
     await waitUntil(() => controls.every((control) => control.isLoaded))
+
     const nativeControls = controls.map((control) => control.ios)
+
     for (const expected of [600, 500, 700, 400, undefined, 400]) {
       await waitUntil(() => controls.every((control) => weight(nativeFont(control)) === expected))
       for (let index = 0; index < controls.length; index++) {
         expect(view.getViewById(ids[index])).toBe(controls[index])
         expect(controls[index].ios).toBe(nativeControls[index])
+
         const font = nativeFont(controls[index])
+
         expect(font.familyName).toBe(expected === undefined ? 'Courier' : 'SN Pro')
         expect(font.pointSize).toBeCloseTo(24, 0)
       }

@@ -21,6 +21,7 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     { calendarIdentifier: 'cal-1', title: 'Home', allowsContentModifications: true },
     { calendarIdentifier: 'cal-2', title: 'Work', allowsContentModifications: false },
   ]
+
   const events: any[] = []
   const store = {
     defaultCalendarForNewEvents: calendars[0],
@@ -58,6 +59,7 @@ function fixture({ status = 3 }: { status?: number } = {}) {
       completion(true)
     },
   }
+
   const context = vm.createContext({
     EKEntityType: { Event: 0, Reminder: 1 },
     EKSpan: { ThisEvent: 0, FutureEvents: 1 },
@@ -71,7 +73,9 @@ function fixture({ status = 3 }: { status?: number } = {}) {
     },
     NSDate: { dateWithTimeIntervalSince1970: (seconds: number) => ({ seconds }) },
   })
+
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\ncalendar', context)
+
   return { leaf, store, calls, events, context }
 }
 
@@ -84,6 +88,7 @@ test('supported and ensure map EventKit authorization states', async () => {
     [4, 'granted'],
   ] as const) {
     const f = fixture({ status })
+
     assert.equal(f.leaf.supported, true)
     assert.equal(await f.leaf.ensure(), result)
     if (status === 0) {
@@ -95,26 +100,31 @@ test('supported and ensure map EventKit authorization states', async () => {
 test('missing store reports unsupported and ensures resolve unsupported', async () => {
   const context = vm.createContext({ EKEventStore: undefined })
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\ncalendar', context)
+
   assert.equal(leaf.supported, false)
   assert.equal(await leaf.ensure(), 'unsupported')
 })
 
 test('calendars and the default calendar map store values', async () => {
   const f = fixture()
+
   assert.deepEqual(plain(await f.leaf.getCalendars()), [
     { id: 'cal-1', title: 'Home', allowsModifications: true, isPrimary: false },
     { id: 'cal-2', title: 'Work', allowsModifications: false, isPrimary: false },
   ])
+
   assert.deepEqual(plain(await f.leaf.getDefaultCalendar()), {
     id: 'cal-1',
     title: 'Home',
     allowsModifications: true,
   })
+
   assert.deepEqual(f.calls.calendarsForEntityType, [[0]])
 })
 
 test('getEvents passes resolved calendar objects into the store predicate', async () => {
   const f = fixture()
+
   f.events.push({
     eventIdentifier: 'e1',
     title: 'Lunch',
@@ -122,16 +132,22 @@ test('getEvents passes resolved calendar objects into the store predicate', asyn
     startDate: { timeIntervalSince1970: 1700000000 },
     endDate: { timeIntervalSince1970: 1700003600 },
   })
+
   const found = await f.leaf.getEvents(new Date(1699999000 * 1000), new Date(1700009000 * 1000), [
     'cal-1',
   ])
+
   assert.equal(found.length, 1)
   assert.equal(found[0].id, 'e1')
+
   // The predicate received the resolved EKCalendar, not the raw id.
   const [, , cals] = f.calls.predicateForEvents[0]
+
   assert.equal(cals[0].calendarIdentifier, 'cal-1')
+
   // A calendar id that cannot resolve still filters matches by id.
   const none = await f.leaf.getEvents(new Date(0), new Date(0), ['missing'])
+
   assert.equal(none.length, 0)
 })
 
@@ -142,8 +158,11 @@ test('create/update/delete drive saveEvent and removeEvent with ThisEvent span',
     startDate: new Date(1700000000 * 1000),
     endDate: new Date(1700003600 * 1000),
   })
+
   assert.equal(id, 'new-id')
+
   const [created, span] = f.calls.saveEvent[0]
+
   assert.equal(created.title, 'Review')
   assert.equal(created.startDate.seconds, 1700000000)
   assert.equal(created.calendar.calendarIdentifier, 'cal-2')

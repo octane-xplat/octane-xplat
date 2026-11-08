@@ -11,27 +11,36 @@ const server = await createServer({
 
 try {
   await server.listen()
+
   const address = server.httpServer.address()
+
   assert(address && typeof address === 'object')
+
   const base = `http://127.0.0.1:${address.port}`
 
   for (const engine of [chromium, firefox, webkit]) {
     const browser = await engine.launch()
+
     try {
       const page = await browser.newPage({ reducedMotion: 'reduce' })
       const errors = []
+
       page.on('pageerror', (error) => errors.push(error.message))
+
       const coveredText = new Set()
+
       for (const width of [320, 390, 720, 768, 1024, 1100, 1101, 1440]) {
         await page.setViewportSize({ width, height: 812 })
         for (const path of ['/', '/navigation', '/goal-counter', '/styling']) {
           await page.goto(`${base}${path}`)
           await page.locator('.doc .h1').waitFor()
           await page.evaluate(() => document.fonts.ready)
+
           // Body width alone misses an oversized article clipped by its scrollport.
           const sizes = await page.evaluate(() =>
             ['.content', '.doc-page', '.doc'].map((selector) => {
               const node = document.querySelector(selector)
+
               return { selector, available: node.clientWidth, actual: node.scrollWidth }
             }),
           )
@@ -44,6 +53,7 @@ try {
           }
 
           const handheld = width <= 1100
+
           assert.equal(await page.locator('.mobile-header').isVisible(), handheld)
           assert.equal(await page.locator('.side').isVisible(), !handheld)
           if (!handheld) {
@@ -63,9 +73,11 @@ try {
               '.h1': 32,
               '.h2': 26,
             }
+
             return Object.entries(minimums).flatMap(([selector, minimum]) =>
               Array.from(document.querySelectorAll(selector), (node) => {
                 const style = getComputedStyle(node)
+
                 return {
                   selector,
                   minimum,
@@ -78,7 +90,9 @@ try {
 
           for (const run of text) {
             coveredText.add(run.selector)
+
             const label = `${engine.name()} ${path} at ${width}px: ${run.selector}`
+
             assert.ok(run.size >= run.minimum, `${label} is only ${run.size}px`)
             assert.ok(run.weight >= 400, `${label} uses thin weight ${run.weight}`)
           }
@@ -90,6 +104,7 @@ try {
               ),
               (node) => {
                 const rect = node.getBoundingClientRect()
+
                 return {
                   label: node.getAttribute('aria-label') ?? node.textContent.trim(),
                   width: rect.width,
@@ -129,26 +144,31 @@ try {
         await page.goto(base)
         await page.locator('.doc .h1').waitFor()
         await page.evaluate(() => document.fonts.ready)
+
         const step = await page.evaluate(() => {
           for (const code of document.querySelectorAll('.code')) {
             const nodes = []
             const walker = document.createTreeWalker(code, NodeFilter.SHOW_TEXT)
             let node
+
             while ((node = walker.nextNode())) {
               nodes.push(node)
             }
 
             const starts = new Map()
             let offset = 0
+
             for (const line of nodes
               .map((n) => n.data)
               .join('')
               .split('\n')) {
               const tabs = line.match(/^\t+/)?.[0].length
               const glyph = /\S/.exec(line)?.index
+
               if (tabs && glyph != null && !starts.has(tabs)) {
                 let rest = offset + glyph
                 let target
+
                 for (const n of nodes) {
                   if (rest < n.data.length) {
                     target = [n, rest]
@@ -160,6 +180,7 @@ try {
 
                 if (target) {
                   const range = document.createRange()
+
                   range.setStart(target[0], target[1])
                   range.setEnd(target[0], target[1] + 1)
                   starts.set(tabs, range.getBoundingClientRect().left)
@@ -171,9 +192,12 @@ try {
 
             if (starts.has(1) && starts.has(2)) {
               const probe = document.createElement('span')
+
               probe.textContent = '0000000000'
               code.querySelector('span').append(probe)
+
               const ch = probe.getBoundingClientRect().width / 10
+
               probe.remove()
               return { step: starts.get(2) - starts.get(1), expected: 2 * ch }
             }
@@ -194,12 +218,14 @@ try {
         await page.goto(`${base}/toolchain`)
         await page.locator('.doc .h1').waitFor()
         await page.evaluate(() => document.fonts.ready)
+
         const items = await page.evaluate(() =>
           Array.from(document.querySelectorAll('.li'), (li) => {
             const marker = li.querySelector('.li-marker').getBoundingClientRect()
             const text = li.querySelector('.li-text')
             const rect = text.getBoundingClientRect()
             const line = parseFloat(getComputedStyle(text).lineHeight)
+
             return {
               gap: rect.left - marker.right,
               row: Math.abs(rect.top - marker.top),
@@ -228,14 +254,18 @@ try {
         await page.setViewportSize({ width, height: 812 })
         await page.goto(base)
         await page.getByRole('button', { name: 'Open menu', exact: true }).click()
+
         const menu = page.getByRole('dialog', { name: 'Documentation menu' })
+
         await menu.waitFor()
         await menu.getByText('Move between screens', { exact: true }).waitFor()
+
         const navTargets = await menu
           .locator('.nav-row, .side-item, .mode-toggle')
           .evaluateAll((nodes) =>
             nodes.map((node) => {
               const rect = node.getBoundingClientRect()
+
               return {
                 label: node.getAttribute('aria-label') ?? node.textContent.trim(),
                 width: rect.width,
@@ -255,9 +285,11 @@ try {
         await page.waitForURL('**/navigation')
         await menu.waitFor({ state: 'detached' })
         await page.getByRole('button', { name: 'More page actions', exact: true }).click()
+
         const actionBounds = await page.getByRole('menu').evaluate((node) => {
           const rect = node.getBoundingClientRect()
           const content = document.querySelector('.content').getBoundingClientRect()
+
           return {
             left: rect.left,
             right: rect.right,
@@ -275,8 +307,11 @@ try {
         await page.keyboard.press('Escape')
         await page.getByRole('button', { name: 'Search docs', exact: true }).click()
         await page.locator('#palette-query').fill('styling')
+
         const result = page.getByRole('option').first()
+
         await result.waitFor()
+
         const resultSize = await result
           .locator('.hit-label')
           .evaluate((node) => getComputedStyle(node).fontSize)

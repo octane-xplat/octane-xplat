@@ -26,10 +26,13 @@ const binaryName = (target) => `xplat-go-${target}-cli${target.startsWith('windo
  */
 export function nativeFixture(root, hostBinary) {
   const host = JSON.parse(readFileSync(hostBinary + '.json'))
+
   assert.equal(host.target, hostTarget)
   assert.equal(host.cli, true)
   assert.equal(host.onnx, false, 'Production staging needs the core -cli build')
+
   const nativeDir = mkdtempSync(join(tmpdir(), 'xplat-native-'))
+
   cpSync(hostBinary, join(nativeDir, binaryName(hostTarget)))
   cpSync(hostBinary + '.json', join(nativeDir, binaryName(hostTarget) + '.json'))
   cpSync(hostBinary + '.tgz', join(nativeDir, binaryName(hostTarget) + '.tgz'))
@@ -38,18 +41,22 @@ export function nativeFixture(root, hostBinary) {
   })
 
   const notices = join(nativeDir, 'notices')
+
   mkdirSync(notices)
   writeFileSync(join(notices, 'LICENSE'), 'Test fixture license\n')
   writeFileSync(join(notices, 'THIRD-PARTY-NOTICES.txt'), 'Test fixture notices\n')
   for (const [, os, cpu] of nativePlatforms) {
     const target = `${os === 'win32' ? 'windows' : os}-${cpu === 'x64' ? 'amd64' : cpu}`
+
     if (target === hostTarget) {
       continue
     }
 
     const binary = join(nativeDir, binaryName(target))
     const bytes = Buffer.from(`inert fixture image for ${target}\n`)
+
     writeFileSync(binary, bytes, { mode: 0o755 })
+
     const archive = binary + '.tgz'
     const packed = spawnSync(
       'tar',
@@ -60,6 +67,7 @@ export function nativeFixture(root, hostBinary) {
     )
 
     assert.equal(packed.status, 0, packed.stderr)
+
     const image = createHash('sha256').update(bytes).digest('hex')
     const tgz = readFileSync(archive)
     const record = {
@@ -77,6 +85,7 @@ export function nativeFixture(root, hostBinary) {
 
     writeFileSync(binary + '.json', JSON.stringify(record, null, 2) + '\n')
   }
+
   rmSync(notices, { recursive: true, force: true })
   return nativeDir
 }
@@ -84,6 +93,7 @@ export function nativeFixture(root, hostBinary) {
 /** Stage the actual host executable and inert foreign payloads for a consumer. */
 export function stageHostCli(root, outputDir) {
   const nativeDir = nativeFixture(root, join(root, 'research/go-cli', binaryName(hostTarget)))
+
   try {
     return stageRelease({
       root,
@@ -105,5 +115,6 @@ export function repairPackedCli(app) {
     cwd: app,
     encoding: 'utf8',
   })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }

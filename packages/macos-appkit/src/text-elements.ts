@@ -81,6 +81,7 @@ export function createTextElements(deps: Dependencies) {
 
     drawingRectForBounds(bounds: any) {
       const pad = this.insets()
+
       return {
         origin: {
           x: bounds.origin.x + pad.left,
@@ -102,6 +103,7 @@ export function createTextElements(deps: Dependencies) {
           height: bounds.size.height,
         },
       })
+
       return {
         width: inner.width + pad.left + pad.right,
         height: inner.height + pad.top + pad.bottom,
@@ -125,6 +127,7 @@ export function createTextElements(deps: Dependencies) {
   function syncLabelOverflow(node: ElementNode, style = effectiveStyle(node)) {
     const { maxLines } = node.props
     let { whiteSpace, textOverflow } = node.props
+
     if (whiteSpace != null && !['normal', 'nowrap'].includes(whiteSpace)) {
       throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
     }
@@ -146,6 +149,7 @@ export function createTextElements(deps: Dependencies) {
         deps.cssCascade.warnUnsupportedCssProp(node, 'whiteSpace')
       }
     }
+
     if (textOverflow == null && style.textOverflow != null) {
       if (['clip', 'ellipsis'].includes(style.textOverflow)) {
         textOverflow = style.textOverflow
@@ -172,6 +176,7 @@ export function createTextElements(deps: Dependencies) {
     if (style.height == null) {
       if (singleLine && style.lineHeight == null) {
         const size = Number(view.font?.pointSize ?? 16)
+
         deps.nativeStyle.setSizeConstraint(
           node,
           'height',
@@ -187,6 +192,7 @@ export function createTextElements(deps: Dependencies) {
 
   function syncHtmlView(node: ElementNode) {
     const view = node.view!
+
     view.attributedStringValue = parseHtmlText(node.props.html ?? '', {
       fontSize: Number(view.font.pointSize),
       fontFamily: String(view.font.familyName),
@@ -206,6 +212,7 @@ export function createTextElements(deps: Dependencies) {
     const decoration = String(style.textDecoration ?? '')
     const kern = Number(style.letterSpacing)
     const decorate = decoration.includes('underline') || decoration.includes('line-through')
+
     if (
       (!Number.isFinite(lineHeight) || lineHeight <= 0) &&
       !decorate &&
@@ -223,9 +230,11 @@ export function createTextElements(deps: Dependencies) {
       [NSFontAttributeName]: node.view!.font,
       [NSForegroundColorAttributeName]: node.view!.textColor,
     }
+
     // AppKit ignores the control's paragraph properties for attributed values,
     // including strings attributed only for decoration or letter spacing.
     const paragraphStyle = NSMutableParagraphStyle.alloc().init()
+
     paragraphStyle.lineBreakMode = (node.view as NSTextField).cell.lineBreakMode
     paragraphStyle.alignment = node.view!.alignment
     attributes[NSParagraphStyleAttributeName] = paragraphStyle
@@ -233,23 +242,29 @@ export function createTextElements(deps: Dependencies) {
       paragraphStyle.minimumLineHeight = lineHeight
       paragraphStyle.maximumLineHeight = lineHeight
     }
+
     // macos-node-api publishes the AppKit attribute keys as globals (the same
     // lookup formatted-text.ts uses); the literals match AppKit's own values.
     const underlineKey = (globalThis as any).NSUnderlineStyleAttributeName ?? 'NSUnderline'
     const strikeKey = (globalThis as any).NSStrikethroughStyleAttributeName ?? 'NSStrikethrough'
+
     if (decoration.includes('underline')) {
       attributes[underlineKey] = 1
     }
+
     if (decoration.includes('line-through')) {
       attributes[strikeKey] = 1
     }
+
     if (Number.isFinite(kern) && kern !== 0) {
       attributes[NSKernAttributeName] = kern
     }
+
     node.view!.attributedStringValue = NSAttributedString.alloc().initWithStringAttributes(
       text,
       attributes,
     )
+
     if (node.props.accessibilityRole === 'heading') {
       syncHeadingAccessibility(node.view!, node.props)
     }
@@ -267,6 +282,7 @@ export function createTextElements(deps: Dependencies) {
     const text = view.attributedStringValue
     const cell = view.cell as NSTextFieldCell | undefined
     const bounds = view.bounds
+
     if (!text || Number(text.length ?? 0) === 0 || !cell || !bounds) {
       return null
     }
@@ -276,6 +292,7 @@ export function createTextElements(deps: Dependencies) {
       x: point.x - Number(rect.origin?.x ?? 0),
       y: point.y - Number(rect.origin?.y ?? 0),
     }
+
     if (
       !Number.isFinite(local.x) ||
       !Number.isFinite(local.y) ||
@@ -289,15 +306,21 @@ export function createTextElements(deps: Dependencies) {
 
     try {
       const container = NSTextContainer.alloc().initWithContainerSize(rect.size)
+
       container.lineFragmentPadding = 0
       container.lineBreakMode = cell.lineBreakMode
       container.maximumNumberOfLines = Number(view.maximumNumberOfLines ?? 0)
+
       const layout = NSLayoutManager.alloc().init()
+
       layout.addTextContainer(container)
+
       const storage = NSTextStorage.alloc().initWithAttributedString(text)
+
       storage.addLayoutManager(layout)
 
       const glyph = layout.glyphIndexForPointInTextContainer(local, container)
+
       if (!Number.isFinite(glyph) || glyph < 0 || glyph >= Number(layout.numberOfGlyphs)) {
         return null
       }
@@ -320,6 +343,7 @@ export function createTextElements(deps: Dependencies) {
       }
 
       const index = layout.characterIndexForGlyphAtIndex(glyph)
+
       return Number.isFinite(index) ? index : null
     } catch (error) {
       console.error('[macos-event] link hit-test failed', error)
@@ -333,6 +357,7 @@ export function createTextElements(deps: Dependencies) {
   function primaryClickBoundary(_node: ElementNode) {
     return (view: NSView) => {
       const target = deps.registry.cssNodesByView.get(view)
+
       return (
         target != null &&
         isPrimaryClickBoundary(
@@ -354,11 +379,13 @@ export function createTextElements(deps: Dependencies) {
     active: boolean
     slots: Map<string, AxLinkSlot>
   }
+
   const linkOwners = new WeakMap<ElementNode, TextLinkOwner>()
   const linkOwnersByView = new WeakMap<object, TextLinkOwner>()
 
   function retireTextLinks(node: ElementNode) {
     const owner = linkOwners.get(node)
+
     linkOwners.delete(node)
     if (owner) {
       owner.active = false
@@ -370,6 +397,7 @@ export function createTextElements(deps: Dependencies) {
         slot.dispatch = null
       }
     }
+
     return owner
   }
 
@@ -385,6 +413,7 @@ export function createTextElements(deps: Dependencies) {
       }),
       dispatch: null,
     }
+
     axLinkActionPool.add(slot)
     return slot
   }
@@ -395,14 +424,19 @@ export function createTextElements(deps: Dependencies) {
     if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       return
     }
+
     const viewOwner = node.view ? linkOwnersByView.get(node.view) : undefined
+
     if (viewOwner && viewOwner.node !== node) {
       releaseTextLinkView(viewOwner.node)
     }
+
     const previous = linkOwners.get(node)
+
     if (previous && previous.view !== node.view) {
       releaseTextLinkView(node)
     }
+
     const active =
       node.type === 'label' &&
       (node.textLinks?.length ?? 0) > 0 &&
@@ -428,14 +462,17 @@ export function createTextElements(deps: Dependencies) {
 
     const view = node.view as NSTextField | undefined
     let owner = linkOwners.get(node)
+
     if (!view) {
       return
     }
+
     if (!owner) {
       owner = { node, view, active: true, slots: new Map() }
       linkOwners.set(node, owner)
       linkOwnersByView.set(view, owner)
     }
+
     const currentOwner = owner
     const links = active ? (node.textLinks ?? []) : []
     const string = String(view.attributedStringValue?.string ?? '')
@@ -443,10 +480,12 @@ export function createTextElements(deps: Dependencies) {
       const name = `Open link ${string.substring(run.location, run.location + run.length)}`
       const key = `${index}:${name}`
       let slot = currentOwner.slots.get(key)
+
       if (!slot) {
         slot = axLinkActionSlot(name)
         currentOwner.slots.set(key, slot)
       }
+
       const currentSlot = slot
       const dispatch = () => {
         if (
@@ -464,30 +503,38 @@ export function createTextElements(deps: Dependencies) {
         ) {
           return false
         }
+
         try {
           node.container.root.eventScope('discrete', run.handler)
         } catch (error) {
           console.error('[macos-ax] link action failed', error)
           return false
         }
+
         return true
       }
+
       slot.dispatch = dispatch
       return slot
     })
+
     for (const slot of currentOwner.slots.values()) {
       if (!slots.includes(slot)) {
         slot.dispatch = null
       }
     }
+
     view.accessibilityCustomActions = slots.map((slot) => slot.action)
   }
 
   function releaseTextLinkView(node: ElementNode) {
     const owner = retireTextLinks(node)
     const recognizer = node.linkClickRecognizer
+
     node.linkClickRecognizer = undefined
+
     const failures = new FailureCollector()
+
     if (recognizer) {
       failures.run('link disable', () => {
         recognizer.enabled = false
@@ -497,6 +544,7 @@ export function createTextElements(deps: Dependencies) {
         (owner?.view ?? node.view)?.removeGestureRecognizer(recognizer),
       )
     }
+
     if (owner) {
       failures.run('AX links', () => {
         if (!linkOwnersByView.has(owner.view)) {
@@ -504,6 +552,7 @@ export function createTextElements(deps: Dependencies) {
         }
       })
     }
+
     failures.throwIfFailed()
   }
 
@@ -579,6 +628,7 @@ export function createTextElements(deps: Dependencies) {
     parent.formattedTextActive = false
     parent.textLinks = undefined
     syncTextLinks(parent)
+
     const text = parent.children.length
       ? parent.children.map(textContent).join('')
       : String(parent.props?.text ?? '')
@@ -615,6 +665,7 @@ export function createTextElements(deps: Dependencies) {
     label.textColor = NSColor.labelColor
     return label
   }
+
   function applyBuiltinHtmlViewProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (name === 'html' || name === 'id') {
       return // parse once after all font/color sources reconcile

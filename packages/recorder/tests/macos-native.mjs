@@ -16,7 +16,9 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 export async function checkMacOSNative(packedRoot) {
   assert.equal(process.platform, 'darwin', 'macOS check requires macOS')
   assert.equal(process.arch, 'arm64', 'macOS check requires Apple Silicon')
+
   const app = await mkdtemp(join(tmpdir(), 'xplat-recorder-native-'))
+
   try {
     await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
     await cp(packedRoot, join(app, 'node_modules/@octane-xplat/recorder'), { recursive: true })
@@ -48,10 +50,14 @@ export async function checkMacOSNative(packedRoot) {
     )
 
     assert.equal(compiled.status, 0, `${compiled.stdout}\n${compiled.stderr}`)
+
     const wavePath = join(app, 'fixture.wav')
     const written = spawnSync(fixture, [wavePath], { encoding: 'utf8', timeout: 10_000 })
+
     assert.equal(written.status, 0, `${written.stdout}\n${written.stderr}`)
+
     const sandbox = { exports: {}, Uint8Array }
+
     vm.runInNewContext(
       ts.transpile(readFileSync(new URL('../src/wav.ts', import.meta.url), 'utf8'), {
         module: ts.ModuleKind.CommonJS,
@@ -62,11 +68,14 @@ export async function checkMacOSNative(packedRoot) {
 
     const bytes = new Uint8Array(readFileSync(wavePath))
     const metadata = sandbox.exports.inspectPcmWav(bytes)
+
     assert.equal(metadata.sampleRate, 16000)
     assert.equal(metadata.channels, 2)
     assert.equal(metadata.durationSeconds, 0.01)
+
     const dataAt = Buffer.from(bytes).indexOf('data') + 8
     const samples = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
+
     assert.equal(samples.getInt16(dataAt, true), 8192)
     assert.equal(samples.getInt16(dataAt + 2, true), -8192)
     console.log(
@@ -76,6 +85,7 @@ export async function checkMacOSNative(packedRoot) {
     // The TypeScript host replaces the Swift leaf: bundle the packed package
     // and drive it through the real AppKit/JSC host binary ([NSApp run]).
     const source = join(app, 'consumer.ts')
+
     await writeFile(
       source,
       `
@@ -249,6 +259,7 @@ run().catch((error) => { console.error(String(error)); throw error })
 
     for (const variant of variants) {
       const dir = join(app, `host-${variant.name}`)
+
       await mkdir(dir, { recursive: true })
       await cp(join(hostBundle, 'host'), join(dir, 'host'))
       if (variant.plist) {
@@ -262,6 +273,7 @@ run().catch((error) => { console.error(String(error)); throw error })
       )
 
       const output = `${result.stdout}\n${result.stderr}`
+
       assert.equal(result.status, 0, `${variant.name}\n${output}`)
       assert.match(output, /MACOS_RECORDER_HOST_OK/, `${variant.name}\n${output}`)
     }

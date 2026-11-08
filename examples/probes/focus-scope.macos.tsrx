@@ -15,6 +15,7 @@ import { KVK, kCGEventFlagMaskShift, postKey, focusedOwner } from '../../tools/p
 export default function FocusScopeProbe() {
   const [open, setOpen] = useState(false)
   const [nested, setNested] = useState(false)
+
   return (
     <VStack gap={2}>
       <Text>
@@ -91,7 +92,9 @@ function focused(field: any): boolean {
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('scope-trigger')?.window)
   ctx.record('capabilities', getFocusScopeCapabilities())
+
   const trigger = ctx.find('scope-trigger')
+
   ctx.assert('focus trigger', trigger.window.makeFirstResponder(trigger), true)
   await ctx.press('scope-trigger')
   await ctx.waitFor(() => focused(ctx.find('scope-first')))
@@ -108,6 +111,7 @@ export async function run(ctx: ProbeContext) {
       : `${String(view.accessibilityRole ?? view.class ?? '?')} ${String(view.title ?? view.placeholderString ?? view.accessibilityLabel ?? '')}`
 
   postKey(KVK.Tab)
+
   const landed = await ctx
     .waitFor(() => focused(ctx.find('scope-nested-trigger')), { timeout: 2000 })
     .then(
@@ -119,6 +123,7 @@ export async function run(ctx: ProbeContext) {
     ctx.record('Tab after last field landed on', describe(focusedOwner(trigger.window)))
   } else {
     postKey(KVK.Tab)
+
     const wrapped = await ctx
       .waitFor(() => focused(ctx.find('scope-first')), { timeout: 2000 })
       .then(

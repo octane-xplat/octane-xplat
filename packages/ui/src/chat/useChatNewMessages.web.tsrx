@@ -17,11 +17,15 @@ export function useChatNewMessages({
   const [hasNewMessages, setHasNewMessages] = useState(false)
   const lastMessageRef = useRef<Element | null>(null)
   const isLockedRef = useRef(isLocked)
+
   isLockedRef.current = isLocked
 
   const viewportRef = useRef(scrollRef)
+
   viewportRef.current = scrollRef
+
   const onResizeRef = useRef(onResize)
+
   onResizeRef.current = onResize
 
   const elementRef = useRef<HTMLElement | null>(null)
@@ -39,6 +43,7 @@ export function useChatNewMessages({
     const changed = () => {
       anchor?.update()
       onResizeRef.current?.()
+
       const messages = el.getElementsByClassName('vx-chatmsg')
       const last =
         chatHost.children(el).filter(isChatRow).at(-1) ??
@@ -54,6 +59,7 @@ export function useChatNewMessages({
 
     const off = chatHost.observeLayout(el, changed, true)
     const offViewport = viewport ? chatHost.observeLayout(viewport, changed, true) : () => {}
+
     cleanupRef.current = () => {
       off()
       offViewport()

@@ -9,8 +9,10 @@ const START = '// xplat-updates:start'
 const END = '// xplat-updates:end'
 function replaceBlock(source, content, insert) {
   const start = source.indexOf(START)
+
   if (start >= 0) {
     const end = source.indexOf(END, start)
+
     if (end < 0) {
       throw new Error('Incomplete xplat OTA boot block')
     }
@@ -35,6 +37,7 @@ module.exports = async function prepare({
   if (!['ios', 'android'].includes(platform)) {
     throw new Error('OTA prepare supports only ios and android')
   }
+
   const {
     createFingerprintAsync,
     captureNativeToolchainAsync,
@@ -45,9 +48,12 @@ module.exports = async function prepare({
       createRequire(join(projectDir, 'package.json')).resolve('@octane-xplat/fingerprint'),
     ).href
   )
+
   nativeConfig ??= await resolveNativeConfigAsync(projectDir)
   toolchain ??= await captureNativeToolchainAsync(projectDir, platform)
+
   const nativeFlags = {}
+
   for (const name of [
     '--for-device',
     '--emulator',
@@ -58,6 +64,7 @@ module.exports = async function prepare({
     '--sdk',
   ]) {
     const index = process.argv.findIndex((value) => value === name || value.startsWith(name + '='))
+
     if (index >= 0) {
       nativeFlags[name] = process.argv[index].includes('=')
         ? process.argv[index].slice(name.length + 1)
@@ -66,11 +73,13 @@ module.exports = async function prepare({
           : (process.argv[index + 1] ?? true)
     }
   }
+
   toolchain = {
     ...toolchain,
     configuration: release ? 'release' : 'debug',
     nativeFlags: createHash('sha256').update(JSON.stringify(nativeFlags)).digest('hex'),
   }
+
   const resources = resolve(projectDir, nativeConfig.appResourcesPath ?? 'App_Resources')
   const platformRoot = join(platformsDir, platform)
   const appDirs =
@@ -82,19 +91,23 @@ module.exports = async function prepare({
             .filter((entry) => entry.isDirectory())
             .map((entry) => join(platformRoot, entry.name, 'app'))
             .filter((path) => existsSync(join(path, 'package.json')))
+
   if (appDirs.length !== 1 || !existsSync(join(appDirs[0], 'package.json'))) {
     throw new Error(
       'OTA requires exactly one prepared app output; run NativeScript prepare before this hook',
     )
   }
+
   if (platform === 'ios') {
     const name = projectName ?? basename(dirname(appDirs[0]))
     const project = join(platformRoot, name + '.xcodeproj')
     const pbx = join(project, 'project.pbxproj')
+
     if (existsSync(pbx) && /XCRemoteSwiftPackageReference/.test(readFileSync(pbx, 'utf8'))) {
       // NativeScript first resolves runtime Swift packages during build,
       // after this hook. Resolve now so its actual pins enter the baked hash.
       const workspace = join(platformRoot, name + '.xcworkspace')
+
       try {
         execFileSync(
           'xcodebuild',
@@ -116,21 +129,26 @@ module.exports = async function prepare({
       }
     }
   }
+
   const fingerprint = await createFingerprintAsync(projectDir, {
     platforms: [platform],
     nativeConfig,
     toolchain,
   })
+
   const artifact = {
     format: NATIVE_FINGERPRINT_FORMAT,
     platform,
     hash: fingerprint.hash,
     release,
   }
+
   const artifactJSON = JSON.stringify(artifact, null, 2) + '\n'
   const stamp = () => {
     writeFileSync(join(appDirs[0], 'xplat-native.json'), artifactJSON)
+
     const directory = join(projectDir, '.xplat/fingerprints')
+
     mkdirSync(directory, { recursive: true })
     writeFileSync(
       join(directory, platform + '.json'),
@@ -140,6 +158,7 @@ module.exports = async function prepare({
 
   if (platform === 'ios') {
     const xcconfig = join(resources, 'iOS/build.xcconfig')
+
     if (existsSync(xcconfig) && /NS_SWIFTUI_BOOT\s*=\s*1\b/.test(readFileSync(xcconfig, 'utf8'))) {
       throw new Error(
         'OTA requires the stock iOS main.m startup; SwiftUI boot needs an explicit integration',
@@ -147,6 +166,7 @@ module.exports = async function prepare({
     }
 
     const file = join(platformRoot, 'internal/main.m')
+
     if (!existsSync(file)) {
       throw new Error('OTA: generated iOS main.m not found')
     }
@@ -159,6 +179,7 @@ module.exports = async function prepare({
 
     source = replaceBlock(source, guard, (text, block) => {
       const offset = text.search(/int\s+main\s*\(/)
+
       if (offset < 0) {
         throw new Error('OTA: unsupported iOS main.m template')
       }
@@ -168,6 +189,7 @@ module.exports = async function prepare({
 
     if (!source.includes('baseDir = XplatOTABoot(baseDir);')) {
       const anchor = /NSString\s*\*\s*baseDir\s*=\s*\[\[NSBundle mainBundle\] resourcePath\];/
+
       if (!anchor.test(source)) {
         throw new Error('OTA: unsupported iOS baseDir initialization')
       }
@@ -181,6 +203,7 @@ module.exports = async function prepare({
     const manifest = join(platformRoot, 'app/src/main/AndroidManifest.xml')
     const xml = readFileSync(manifest, 'utf8')
     const application = xml.match(/<application\b[^>]*>/s)?.[0]
+
     if (!application?.match(/android:name\s*=\s*["']com\.tns\.NativeScriptApplication["']/)) {
       throw new Error(
         'OTA requires the stock NativeScriptApplication; custom Android Application startup needs an explicit integration',
@@ -197,6 +220,7 @@ module.exports = async function prepare({
 
     source = replaceBlock(source, guard, (text, block) => {
       const offset = text.lastIndexOf('}')
+
       if (offset < 0) {
         throw new Error('OTA: unsupported Android Application template')
       }
@@ -206,6 +230,7 @@ module.exports = async function prepare({
 
     if (!source.includes('xplatOTABoot();')) {
       const anchor = 'com.tns.Runtime runtime = RuntimeHelper.initRuntime(this);'
+
       if (!source.includes(anchor)) {
         throw new Error('OTA: unsupported Android runtime initialization')
       }

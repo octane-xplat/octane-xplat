@@ -25,6 +25,7 @@ export type Compatibility = {
 
 const dir = dirname(fileURLToPath(import.meta.url))
 const root = basename(dir) === 'dist' ? dirname(dir) : dir
+
 // Keep JSON on disk: Vite's asset URL transform produces a data URL here.
 export const compatibility: Compatibility = createRequire(import.meta.url)(
   join(root, 'compatibility.json'),
@@ -41,12 +42,14 @@ export function managedPackage(name: string, profile = 'default'): ManagedPackag
   }
 
   const base = compatibility.packages[name]
+
   return base ? { ...base, ...compatibility.profiles[profile]?.[name] } : undefined
 }
 
 /** Return the install specifier, keeping preview URLs separate from package versions. */
 export function managedSpecifier(name: string, profile = 'default') {
   const entry = managedPackage(name, profile)
+
   return entry?.specifier ?? entry?.version
 }
 
@@ -65,6 +68,7 @@ export const dependencySections = [
 export function projectProfile(pkg: Record<string, any>): string {
   const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
   const windows = deps['@nativescript/windows'] || pkg.xplat?.targets?.windows
+
   if (windows && (deps['@nativescript/ios'] || deps['@nativescript/android'])) {
     throw new Error(
       'Windows preview and mobile need separate workspace packages: their NativeScript pins differ',
@@ -82,12 +86,15 @@ function workspacePatterns(root: string): string[] {
   const yamlFile = join(root, 'pnpm-workspace.yaml')
   const pkgFile = join(root, 'package.json')
   const pkg = existsSync(pkgFile) ? JSON.parse(readFileSync(pkgFile, 'utf8')) : {}
+
   if (pkg.packageManager?.split('@')[0] !== 'bun' && existsSync(yamlFile)) {
     const packages = parse(readFileSync(yamlFile, 'utf8'))?.packages
+
     return Array.isArray(packages) ? packages : []
   }
 
   const patterns = Array.isArray(pkg.workspaces) ? pkg.workspaces : pkg.workspaces?.packages
+
   return Array.isArray(patterns) ? patterns : []
 }
 
@@ -98,12 +105,14 @@ function workspacePatterns(root: string): string[] {
  */
 export function compatibilityRoot(appRoot: string) {
   const app = resolve(appRoot)
+
   for (let at = dirname(app); dirname(at) !== at; at = dirname(at)) {
     if (!existsSync(join(at, 'package.json')) && !existsSync(join(at, 'pnpm-workspace.yaml'))) {
       continue
     }
 
     const patterns = workspacePatterns(at)
+
     if (!patterns.length) {
       continue
     }
@@ -118,6 +127,7 @@ export function compatibilityRoot(appRoot: string) {
       return at
     }
   }
+
   return app
 }
 
@@ -126,6 +136,7 @@ export function ensureCompatibilityCatalog(appRoot: string, pkg: Record<string, 
   const root = compatibilityRoot(appRoot)
   const file = join(root, 'package.json')
   const owner = root === resolve(appRoot) ? pkg : JSON.parse(readFileSync(file, 'utf8'))
+
   mergeCompatibilityCatalog(pkg, owner)
   if (owner !== pkg) {
     writeFileSync(file, JSON.stringify(owner, null, '\t') + '\n')
@@ -137,6 +148,7 @@ export function requestedCatalogPins(pkg: Record<string, any>) {
   const profile = projectProfile(pkg)
   const catalog = managedCatalog(profile)
   const pins: Record<string, string> = {}
+
   for (const section of dependencySections) {
     for (const [name, spec] of Object.entries(pkg[section] ?? {})) {
       if (spec === `catalog:${catalog}` && pins[name] === undefined) {
@@ -153,10 +165,13 @@ export function mergeCompatibilityCatalog(pkg: Record<string, any>, owner: Recor
   if (Array.isArray(owner.workspaces)) {
     owner.workspaces = { packages: owner.workspaces }
   }
+
   owner.workspaces ??= { packages: [] }
+
   const catalogs = owner.catalogs ?? (owner.workspaces.catalogs ??= {})
   const { catalog, pins } = requestedCatalogPins(pkg)
   const target = (catalogs[catalog] ??= {})
+
   for (const [name, spec] of Object.entries(pins)) {
     target[name] ??= spec
   }

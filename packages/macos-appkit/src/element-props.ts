@@ -30,6 +30,7 @@ export function createElementProps(deps: Dependencies) {
    *  A prior `undefined`/`null` applied nothing, so it needs no clear. */
   function droppedPropClears(node: ElementNode, next: PropBag): PropBag {
     const clears: PropBag = {}
+
     for (const name of Object.keys(node.props)) {
       if (node.props[name] != null && !(name in next)) {
         clears[name] = undefined
@@ -37,6 +38,7 @@ export function createElementProps(deps: Dependencies) {
     }
 
     const authored = node.authoredProps
+
     if (authored !== undefined) {
       for (const name of Object.keys(authored)) {
         if (authored[name] != null && !(name in next) && !(name in clears)) {
@@ -53,25 +55,30 @@ export function createElementProps(deps: Dependencies) {
     if (node.lifecycle !== 'constructing') {
       node.adapter?.validate?.(props, node.props)
     }
+
     node.adapter?.beforeProps?.(node, props)
 
     node.props = { ...node.props, ...props }
     if ('testID' in props && node.view) {
       node.view.accessibilityIdentifier = String(props.testID ?? '')
     }
+
     if ('disabled' in props && node.clickGestureRecognizer) {
       node.clickGestureRecognizer.enabled =
         !node.props.disabled && deps.actions.hasHandler(node.view!)
     }
+
     if (
       ('disabled' in props || 'isEnabled' in props || 'enabled' in props) &&
       node.linkClickRecognizer
     ) {
       deps.textElements.syncTextLinks(node)
     }
+
     if ('id' in props) {
       deps.cssCascade.setNodeId(node, props.id)
     }
+
     if ('disabled' in props || 'isEnabled' in props || 'enabled' in props) {
       deps.cssCascade.setPseudoClass(
         node,
@@ -83,6 +90,7 @@ export function createElementProps(deps: Dependencies) {
 
       deps.cssCascade.syncNormalState(node)
     }
+
     if (
       node.authoredProps ||
       node.parent?.type === 'proxyviewcontainer' ||
@@ -99,9 +107,11 @@ export function createElementProps(deps: Dependencies) {
       node.adapter.afterProps?.(node, props)
       return
     }
+
     if ('onKeyDown' in props || 'onKeyUp' in props) {
       deps.subscriptions.setKeyActions(node)
     }
+
     if ('onFocus' in props || 'onBlur' in props) {
       deps.subscriptions.setFocusActions(node)
     }
@@ -192,10 +202,12 @@ export function createElementProps(deps: Dependencies) {
     if (node.adapter?.layout != null) {
       deps.layout.queueLayoutReconcile(node.container, node)
     }
+
     if (node.parent?.adapter?.container === true) {
       deps.layout.queueLayoutReconcile(node.container, node.parent)
     }
   }
+
   return {
     droppedPropClears,
     applyProps,

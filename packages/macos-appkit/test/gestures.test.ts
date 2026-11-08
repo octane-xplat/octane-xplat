@@ -112,6 +112,7 @@ test('press observer delivers balanced down/move/up and reset cancellation in ev
 
 test('long and double press use configured native recognizers and ignore failed/cancelled states', () => {
   const f = fixture()
+
   assert.equal(f.node.onLongPressGestureRecognizer.minimumPressDuration, 0.5)
   assert.equal(f.node.onDoubleTapGestureRecognizer.numberOfClicksRequired, 2)
   for (const state of [0, 1, 2, 4, 5]) {
@@ -175,6 +176,7 @@ test('simultaneous recognition is confined to renderer-owned recognizers on the 
   )
 
   const other = f.configureGesture({ view: {} })
+
   assert.equal(
     f.delegate.gestureRecognizerShouldRecognizeSimultaneouslyWithGestureRecognizer(a, other),
     false,
@@ -185,6 +187,7 @@ test('simultaneous recognition is confined to renderer-owned recognizers on the 
 
 test('swipe directions preserve NativeScript values and require a completed threshold-crossing drag', () => {
   const { swipeDirection } = fixture()
+
   for (const [deltaX, deltaY, direction] of [
     [30, 0, 1],
     [-30, 0, 2],
@@ -206,6 +209,7 @@ const renderer = rendererSource()
 
 function rendererFunction(name) {
   const start = renderer.indexOf('function ' + name + '(')
+
   return renderer.slice(start, renderer.indexOf('\nfunction ', start + 1))
 }
 
@@ -262,6 +266,7 @@ function panFixture() {
   )
 
   const events = []
+
   f.node.props = {
     onPan: (e) => events.push(['pan', e.state, e.deltaX, e.deltaY]),
     onSwipe: (e) => events.push(['swipe', e.direction]),
@@ -269,6 +274,7 @@ function panFixture() {
 
   api.setPanAction(f.node)
   f.node.view.bounds = { origin: { x: 10, y: 20 }, size: { width: 100, height: 100 } }
+
   const sender = Object.assign(f.node.panGestureRecognizer, {
     view: f.node.view,
     state: 3,
@@ -379,7 +385,9 @@ test('JSC gesture registration makes native callbacks enumerable before registra
 test('pan locations use local top-down bounds independently of translation', () => {
   const f = panFixture(),
     target = new f.ButtonActionTarget()
+
   const points: unknown[] = []
+
   f.node.props.onPan = (event) => points.push([event.x, event.y, event.deltaX, event.deltaY])
   f.setPanAction(f.node)
   f.node.view.flipped = false
@@ -396,11 +404,14 @@ test('optional attempt gates apply only to configured recognizers and can be rem
   const f = fixture(),
     event = { type: 1 },
     calls: unknown[] = []
+
   const recognizer = f.configureGesture({ view: {} }, (received) => {
     calls.push(received)
     return false
   })
+
   const attempt = (r) => f.delegate.gestureRecognizerShouldAttemptToRecognizeWithEvent(r, event)
+
   assert.equal(attempt(recognizer), false)
   assert.deepEqual(calls, [event])
   assert.equal(attempt(f.node.onTouchGestureRecognizer), true)

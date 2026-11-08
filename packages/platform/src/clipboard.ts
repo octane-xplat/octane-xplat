@@ -21,6 +21,7 @@ export type Clipboard = {
 
 function toText(value: unknown): string | null {
   const text = value ? String(value) : ''
+
   return text || null
 }
 
@@ -40,6 +41,7 @@ function read(): string | null {
 
     const mime = android.content.ClipDescription
     const description = clipboard.getPrimaryClipDescription()
+
     if (
       !description?.hasMimeType(mime.MIMETYPE_TEXT_PLAIN) &&
       !description?.hasMimeType(mime.MIMETYPE_TEXT_HTML)

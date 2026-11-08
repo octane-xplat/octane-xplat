@@ -87,6 +87,7 @@ function LiveReader(props: { router: Router; read(value: LiveRead): void }) {
   const pending = useRouterState(props.router).navigation.status === 'pending'
   const navigator = useRouter(props.router)
   const updateSearch = api.useUpdateSearch()
+
   expect(api.useParams().id).toBe(title)
   expect(api.useMatch().to).toBe('/items/:id')
   expect(useRouteMatch(props.router)?.to).toBe('/items/:id')
@@ -109,6 +110,7 @@ function RetainedReader(props: {
 }) {
   const api = getRouteApi('/items/:id', props.router)
   const boundBack = useCanGoBack()
+
   expect(boundBack).toBe(useRouterState(props.router).canGoBack)
   props.read(props.id, api.useLoaderData().title, useRouter(props.router))
   return null
@@ -249,10 +251,13 @@ function RetainedBlockerCase(props: {
 }
 
 type Mounted = { settle(): Promise<void>; unmount(): void }
+
 export function routerScopeCases(mount: (component: (props: any) => any, props: any) => Mounted) {
   it('inherits an explicit provider for confirmation without claiming ambient route DTOs', async () => {
     const router = fixture()
+
     await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     let observed!: NavigationBlockerState
     const rendered = mount(BlockerCase, {
       router,
@@ -264,7 +269,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
     try {
       await rendered.settle()
+
       const refused = router.push({ to: '/settings' })
+
       await rendered.settle()
       expect(observed.status).toBe('blocked')
       if (observed.status !== 'blocked') {
@@ -272,9 +279,12 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
       }
 
       const obsolete = observed
+
       observed.reset()
       expect(await refused).toEqual({ status: 'cancelled', reason: 'aborted' })
+
       const admitted = router.push({ to: '/settings' })
+
       await rendered.settle()
       obsolete.proceed()
       expect(router.getSnapshot().route?.to).toBe('/items/:id')
@@ -299,12 +309,18 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
   it('keeps an older retained entry with the same href from blocking the current entry', async () => {
     const router = fixture()
+
     await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     const first = createStore<PreparedRouteMatch | null>(router.getSnapshot().route)
+
     await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     const second = createStore<PreparedRouteMatch | null>(router.getSnapshot().route)
+
     expect(first.getSnapshot()!.href).toBe(second.getSnapshot()!.href)
     expect(first.getSnapshot()).not.toBe(second.getSnapshot())
+
     const secondWhen = createStore(false)
     const seen = new Map<string, NavigationBlockerState>()
     const rendered = mount(RetainedBlockerCase, {
@@ -317,17 +333,23 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
     try {
       await rendered.settle()
+
       const request = router.push({ to: '/settings' })
+
       await rendered.settle()
       expect(seen.get('first')!.status).toBe('idle')
       expect((await request).status).toBe('committed')
       second.set(router.getSnapshot().route)
       secondWhen.set(true)
       await rendered.settle()
+
       const blocked = router.push({ to: '/items/:id', params: { id: 'hat' } })
+
       await rendered.settle()
       expect(seen.get('first')!.status).toBe('idle')
+
       const visible = seen.get('second')!
+
       expect(visible.status).toBe('blocked')
       if (visible.status !== 'blocked') {
         throw new Error('Expected current-entry confirmation')
@@ -355,7 +377,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
     try {
       await rendered.settle()
+
       const held = router.push({ to: '/settings' })
+
       await rendered.settle()
       expect(observed.status).toBe('blocked')
       when.set(false)
@@ -395,7 +419,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
     try {
       await rendered.settle()
+
       const pending = router.navigateUrl('/waiting-save')
+
       await rendered.settle()
       if (observed.status !== 'blocked') {
         throw new Error('Expected confirmation')
@@ -421,8 +447,11 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
   it('releases a held confirmation on unmount without disposing its router', async () => {
     const router = fixture()
     const rendered = mount(BlockerCase, { router, when: createStore(true), read: () => {} })
+
     await rendered.settle()
+
     const held = router.push({ to: '/settings' })
+
     await rendered.settle()
     rendered.unmount()
     expect(await held).toEqual({ status: 'cancelled', reason: 'aborted' })
@@ -455,7 +484,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
     try {
       await rendered.settle()
       expect(observed).toEqual({ status: 'idle' })
+
       const request = router.navigateUrl('/waiting')
+
       await rendered.settle()
       expect(observed).toMatchObject({ status: 'pending', destination: { to: '/waiting' } })
       reject(new Error('Expected feedback failure'))
@@ -478,7 +509,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
   it('binds typed search callbacks to the rendering entry across updates and stale closures', async () => {
     const router = fixture()
+
     await router.push({ to: '/items/:id', params: { id: 'coat' }, search: { page: 2 } })
+
     let observed!: LiveRead
     const rendered = mount(LiveCase, {
       router,
@@ -489,7 +522,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
     try {
       await rendered.settle()
+
       const originalUpdate = observed.updateSearch
+
       expect(await originalUpdate((previous: any) => ({ page: previous.page + 1 }))).toMatchObject({
         status: 'committed',
       })
@@ -513,7 +548,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
   it('subscribes unchanged-prop readers and exposes bound operations without instance disposal', async () => {
     const router = fixture()
+
     await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     let observed!: LiveRead
     const rendered = mount(LiveCase, {
       router,
@@ -540,7 +577,9 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
 
   it('keeps retained entry data and flow ownership independent of the latest destination', async () => {
     const router = fixture()
+
     await router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     const original = router.getSnapshot().route!
     const first = createStore<PreparedRouteMatch | null>(original)
     const second = createStore<PreparedRouteMatch | null>({
@@ -592,6 +631,7 @@ export function routerScopeCases(mount: (component: (props: any) => any, props: 
     const other = fixture()
     const errors: string[] = []
     const rendered = mount(DiagnosticCase, { router, other, errors })
+
     try {
       await rendered.settle()
       expect(errors.some((error) => error.includes('require a RouterProvider'))).toBe(true)

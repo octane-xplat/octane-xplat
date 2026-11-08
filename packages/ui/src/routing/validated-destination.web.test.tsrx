@@ -15,15 +15,22 @@ it('renders a checked runtime destination as a real anchor and preserves ownersh
   }
 
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
   const props = { router: fixture.router, destination: checked.destination }
+
   try {
     act(() => root.render(CheckedLinks, props))
+
     const link = container.querySelector('a')!
+
     expect(link.textContent).toBe('Open checked')
     expect(link.getAttribute('href')).toBe('/app/@library/from-data/coat?page=2')
+
     let prevented = false
+
     container.addEventListener('click', (event) => {
       prevented = event.defaultPrevented
       event.preventDefault()

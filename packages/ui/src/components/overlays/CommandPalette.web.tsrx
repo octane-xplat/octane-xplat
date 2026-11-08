@@ -14,6 +14,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   props: CommandPaletteProps<T>,
 ): JSX.Element @{
   const controller = useMemo(() => createCommandPaletteController(() => props), [])
+
   useEffect(
     () => controller.configure(props),
     [
@@ -28,6 +29,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   )
 
   useEffect(() => () => controller.dispose(), [])
+
   const state = useStore(controller.store)
   const generatedId = useId()
   const listId = `${generatedId}-commands`
@@ -41,6 +43,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
       ['ArrowDown', 'ArrowUp', 'PageUp', 'PageDown'].includes(event.key)
     ) {
       const highlighted = controller.store.getSnapshot().highlighted
+
       if (highlighted) {
         document.getElementById(optionId(highlighted))?.scrollIntoView?.({ block: 'nearest' })
       }

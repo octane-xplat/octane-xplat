@@ -23,6 +23,7 @@ describe('restricted native media queries', () => {
       expect(evaluateNativeMediaQuery(query, desktop)).toBe(true)
       expect(evaluateNativeMediaQuery(query, touch)).toBe(false)
     }
+
     for (const query of [
       '(pointer: coarse)',
       '(any-pointer: coarse)',

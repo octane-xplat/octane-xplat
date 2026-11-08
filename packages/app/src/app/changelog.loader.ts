@@ -13,6 +13,7 @@ export function loader() {
   )
 
   const version: string = typeof pkg.version === 'string' ? pkg.version : 'dev'
+
   return {
     version,
     entries: [

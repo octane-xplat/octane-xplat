@@ -47,13 +47,17 @@ function layout(view: ProbeView): void {
 
 function pathOf(view: ProbeView): string {
   const { width, height } = view.getActualSize()
+
   return `path("${commandsToD(generateCommands(width, height, corners))}")`
 }
 
 export async function run(ctx: ProbeContext) {
   const content: ProbeView = await ctx.waitFor(() => ctx.find('smooth-owner'))
+
   await ctx.waitFor(() => content.getActualSize().width > 0)
+
   const surface = content.getChildAt(0)
+
   await ctx.waitFor(() => Boolean(surface?.ios.layer.mask))
   ctx.assert('visible content is unmasked', Boolean(content.ios.layer.mask), false)
   ctx.assert('surface uses exact generated path', surface.style.clipPath, pathOf(surface))

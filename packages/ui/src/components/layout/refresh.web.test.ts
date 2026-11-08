@@ -13,6 +13,7 @@ function host() {
   const wrapper = document.createElement('div')
   const scroller = document.createElement('div')
   const indicator = document.createElement('div')
+
   wrapper.appendChild(indicator)
   wrapper.appendChild(scroller)
   document.body.appendChild(wrapper)
@@ -21,6 +22,7 @@ function host() {
 
 function pointer(type: string, y: number) {
   const e = new Event(type, { cancelable: true, bubbles: true })
+
   Object.assign(e, { pointerType: 'mouse', clientY: y, button: 0 })
   return e
 }
@@ -97,7 +99,9 @@ describe('createPullToRefresh (web)', () => {
 
   it('ignores drags that start below the top edge', () => {
     const { scroller } = host()
+
     Object.defineProperty(scroller, 'scrollTop', { value: 30, writable: true })
+
     const cfg = { current: { onRefresh: vi.fn() } }
     const ctl = createPullToRefresh({ scroller, indicator: document.createElement('div'), cfg })
 

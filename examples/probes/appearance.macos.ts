@@ -8,6 +8,7 @@ export async function run(ctx: ProbeContext) {
   const bridge = (globalThis as any).__xplatAppKit
   const app = NSApplication.sharedApplication
   const original = app.appearance
+
   // This case changes only its process's application appearance, never OS settings.
   ctx.onCleanup(() => {
     app.appearance = original
@@ -16,6 +17,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('framework producer installed', typeof bridge.getColorScheme, 'function')
   app.appearance = NSAppearance.appearanceNamed('NSAppearanceNameAqua')
   ctx.assert('initial light', bridge.getColorScheme(), 'light')
+
   let changes = 0
   const close = bridge.onAppearanceChange(() => {
     changes++
@@ -26,9 +28,12 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => changes > 0, { timeout: 2000 })
   ctx.assert('dark override', bridge.getColorScheme(), 'dark')
   close()
+
   const count = changes
+
   app.appearance = NSAppearance.appearanceNamed('NSAppearanceNameAqua')
   ctx.assert('closed consumer untouched', changes, count)
+
   const reopen = bridge.onAppearanceChange(() => {
     changes++
   })
@@ -36,6 +41,7 @@ export async function run(ctx: ProbeContext) {
   ctx.onCleanup(reopen)
   ctx.assert('reopened light', bridge.getColorScheme(), 'light')
   app.appearance = null
+
   const systemScheme = () =>
     app.effectiveAppearance.bestMatchFromAppearancesWithNames([
       'NSAppearanceNameAqua',
@@ -43,6 +49,7 @@ export async function run(ctx: ProbeContext) {
     ]) === 'NSAppearanceNameDarkAqua'
       ? 'dark'
       : 'light'
+
   ctx.assert('return to system snapshot', bridge.getColorScheme(), systemScheme())
 
   // The app preference drives the same override: setThemePreference pins
@@ -56,8 +63,10 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('bridge override light', bridge.getColorScheme(), 'light')
   bridge.setAppearanceOverride(null)
   ctx.assert('bridge override cleared', bridge.getColorScheme(), systemScheme())
+
   const opposite = systemScheme() === 'dark' ? 'light' : 'dark'
   const watched = changes
+
   setThemePreference(opposite)
   await ctx.waitFor(() => changes > watched, { timeout: 2000 })
   ctx.assert('preference pins AppKit', bridge.getColorScheme(), opposite)

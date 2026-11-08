@@ -33,6 +33,7 @@ const FALLBACK_LOCALE = 'en'
  */
 export function useCollator(options?: Intl.CollatorOptions): Intl.Collator {
   const locale = useLocale()
+
   return useMemo(() => new Intl.Collator(locale || FALLBACK_LOCALE, options), [locale, options])
 }
 
@@ -42,6 +43,7 @@ export function useCollator(options?: Intl.CollatorOptions): Intl.Collator {
  */
 export function useListFormatter(options?: Intl.ListFormatOptions): Intl.ListFormat {
   const locale = useLocale()
+
   return useMemo(() => new Intl.ListFormat(locale || FALLBACK_LOCALE, options), [locale, options])
 }
 
@@ -66,14 +68,17 @@ export interface FilterMatch {
  */
 export function createFilter(collator: Intl.Collator): FilterMatch {
   const norm = (value: string) => value.normalize('NFC')
+
   return {
     contains(string, substring) {
       const needle = norm(substring)
+
       if (needle === '') {
         return true
       }
 
       const haystack = norm(string)
+
       for (let i = 0; i + needle.length <= haystack.length; i++) {
         if (collator.compare(needle, haystack.slice(i, i + needle.length)) === 0) {
           return true
@@ -84,10 +89,12 @@ export function createFilter(collator: Intl.Collator): FilterMatch {
     },
     startsWith(string, substring) {
       const needle = norm(substring)
+
       return needle === '' || collator.compare(needle, norm(string).slice(0, needle.length)) === 0
     },
     endsWith(string, substring) {
       const needle = norm(substring)
+
       return needle === '' || collator.compare(needle, norm(string).slice(-needle.length)) === 0
     },
   }
@@ -100,5 +107,6 @@ export function createFilter(collator: Intl.Collator): FilterMatch {
  */
 export function useFilter(options?: Intl.CollatorOptions): FilterMatch {
   const collator = useCollator({ usage: 'search', ...options })
+
   return useMemo(() => createFilter(collator), [collator])
 }

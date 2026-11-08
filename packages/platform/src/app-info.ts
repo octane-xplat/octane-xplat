@@ -10,12 +10,14 @@ function value(value: unknown): string | null {
 function read(): AppInfo {
   if (Application.android) {
     const context = Application.android.context
+
     if (!context) {
       return { supported: true, version: null, build: null, bundleId: null }
     }
 
     const packageId = context.getPackageName()
     const packageInfo = context.getPackageManager().getPackageInfo(packageId, 0)
+
     return {
       supported: true,
       version: value(packageInfo.versionName),
@@ -26,6 +28,7 @@ function read(): AppInfo {
 
   if (Application.ios) {
     const bundle = NSBundle.mainBundle
+
     return {
       supported: true,
       version: value(bundle.objectForInfoDictionaryKey('CFBundleShortVersionString')),

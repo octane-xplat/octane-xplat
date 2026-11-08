@@ -36,6 +36,7 @@ export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>): unkn
 
   const commit = async (next: Value) => {
     const previous = optimisticValue
+
     setOptimisticValue(next)
     props.onChange?.(next)
     if (!props.changeAction) {

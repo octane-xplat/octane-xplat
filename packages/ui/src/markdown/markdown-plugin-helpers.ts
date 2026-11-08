@@ -115,12 +115,16 @@ function cloneReplacement<T>(value: T, seen?: Map<object, unknown>): T {
   if (value == null || typeof value !== 'object') {
     return value
   }
+
   const cached = seen?.get(value)
+
   if (cached != null) {
     return cached as T
   }
+
   if (Array.isArray(value)) {
     const clone: unknown[] = []
+
     seen ??= new Map<object, unknown>()
     seen.set(value, clone)
     for (const item of value) {
@@ -129,13 +133,17 @@ function cloneReplacement<T>(value: T, seen?: Map<object, unknown>): T {
 
     return clone as T
   }
+
   if (Object.getPrototypeOf(value) !== Object.prototype) {
     return value
   }
+
   const clone: Record<string, unknown> = {}
   let tracked = seen
+
   for (const key in value) {
     const nested = (value as Record<string, unknown>)[key]
+
     if (nested != null && typeof nested === 'object') {
       if (tracked === undefined) {
         tracked = new Map<object, unknown>()
@@ -147,6 +155,7 @@ function cloneReplacement<T>(value: T, seen?: Map<object, unknown>): T {
       clone[key] = nested
     }
   }
+
   return clone as T
 }
 
@@ -154,11 +163,15 @@ function advanceStringIndex(value: string, index: number, unicode: boolean): num
   if (!unicode || index >= value.length) {
     return index + 1
   }
+
   const first = value.charCodeAt(index)
+
   if (first < 0xd800 || first > 0xdbff || index + 1 >= value.length) {
     return index + 1
   }
+
   const second = value.charCodeAt(index + 1)
+
   return second >= 0xdc00 && second <= 0xdfff ? index + 2 : index + 1
 }
 
@@ -175,20 +188,26 @@ function replaceTextNode(
   // Disabled for case-insensitive patterns, exactly as the document-level
   // claim is, so JavaScript case folding stays the only authority.
   const required = options.pattern.ignoreCase ? undefined : options.requiredSubstrings
+
   if (required != null && !required.some((hint) => value.includes(hint))) {
     return null
   }
+
   // One expression per transform invocation rather than one per text node.
   // A `replace` callback that re-enters this helper gets its own, so a
   // nested scan can never disturb the outer one's `lastIndex`.
   const pattern = scanner.busy
     ? new RegExp(options.pattern.source, options.pattern.flags)
     : scanner.pattern
+
   const reentrant = pattern !== scanner.pattern
+
   if (!reentrant) {
     scanner.busy = true
   }
+
   pattern.lastIndex = 0
+
   const output: Phrasing[] = []
   let cursor = 0
   let changed = false
@@ -198,6 +217,7 @@ function replaceTextNode(
     const start = match.index
     const defaultEnd = start + match[0].length
     const resolvedEnd = options.getEndIndex?.(value, match) ?? defaultEnd
+
     if (resolvedEnd === false) {
       if (match[0].length === 0) {
         pattern.lastIndex = advanceStringIndex(
@@ -228,6 +248,7 @@ function replaceTextNode(
     }
 
     const replacement = options.replace(match, { parentType })
+
     // The callback's nodes are the only untrusted structure this helper can
     // introduce. Each one is checked here under the same rules Core applies
     // to newly-introduced nodes — representable data, no authored
@@ -237,6 +258,7 @@ function replaceTextNode(
     // adopted as it stands.
     if (Array.isArray(replacement)) {
       const adopted: Phrasing[] = []
+
       for (const replacementNode of replacement) {
         adopted.push(
           adoptedReplacements.has(replacementNode)
@@ -254,6 +276,7 @@ function replaceTextNode(
     } else {
       const single = replacement as Phrasing
       const adopted = adoptedReplacements.has(single) ? cloneReplacement(single) : single
+
       adoptMarkdownHelperNode(adopted, ownership)
       adoptedReplacements.add(adopted)
       output.push(adopted)
@@ -275,12 +298,15 @@ function replaceTextNode(
   if (!reentrant) {
     scanner.busy = false
   }
+
   if (!changed) {
     return null
   }
+
   if (cursor < value.length) {
     output.push({ type: 'text', value: value.slice(cursor) })
   }
+
   return output
 }
 
@@ -294,10 +320,13 @@ function transformPhrasing(
   // Lazy rebuild: unchanged phrasing is returned as-is, so prose with no
   // match costs one walk and no allocation. Only the first change copies.
   let next: MdInline[] | undefined
+
   for (let index = 0; index < children.length; index++) {
     const node = children[index]
+
     if (node.type === 'text') {
       const replaced = replaceTextNode(node.value, options, parentType, ownership, scanner)
+
       if (replaced == null) {
         next?.push(node)
         continue
@@ -313,6 +342,7 @@ function transformPhrasing(
 
     if (node.type === 'strong' || node.type === 'emphasis' || node.type === 'delete') {
       const nested = transformPhrasing(node.children, options, node.type, ownership, scanner)
+
       if (nested === node.children) {
         next?.push(node)
         continue
@@ -327,6 +357,7 @@ function transformPhrasing(
     // syntax are protected contexts owned by their existing semantics.
     next?.push(node)
   }
+
   return next ?? children
 }
 
@@ -336,20 +367,26 @@ function blockMayContainRequiredSource(
   options: MarkdownTextTransformOptions<MarkdownExtensionNode>,
 ): boolean {
   const required = options.requiredSubstrings
+
   if (source === undefined || required === undefined) {
     return true
   }
+
   const start = block.position?.start.offset
   const end = block.position?.end.offset
+
   if (typeof start !== 'number' || typeof end !== 'number') {
     return true
   }
+
   for (const hint of required) {
     const match = source.indexOf(hint, start)
+
     if (match >= 0 && match < end) {
       return true
     }
   }
+
   return false
 }
 
@@ -363,31 +400,38 @@ function transformBlocks(
   // Lazy rebuild, matching transformPhrasing: a block list with no match is
   // returned unchanged and allocates nothing.
   let next: MdNode[] | undefined
+
   for (let index = 0; index < blocks.length; index++) {
     const block = blocks[index]
+
     if (!blockMayContainRequiredSource(block, source, options)) {
       next?.push(block)
       continue
     }
 
     let replacement: MdNode
+
     switch (block.type) {
       case 'heading':
       case 'paragraph': {
         const children = transformPhrasing(block.children, options, block.type, ownership, scanner)
+
         replacement = children === block.children ? block : { ...block, children }
         break
       }
       case 'blockquote': {
         const children = transformBlocks(block.children, options, ownership, scanner, source)
+
         replacement = children === block.children ? block : { ...block, children }
         break
       }
       case 'list': {
         let items: MdListItem[] | undefined
+
         for (let itemIndex = 0; itemIndex < block.children.length; itemIndex++) {
           const item = block.children[itemIndex]
           const itemChildren = transformBlocks(item.children, options, ownership, scanner, source)
+
           if (itemChildren === item.children) {
             items?.push(item)
             continue
@@ -402,9 +446,11 @@ function transformBlocks(
       }
       case 'table': {
         let rows: MdTableRow[] | undefined
+
         for (let rowIndex = 0; rowIndex < block.children.length; rowIndex++) {
           const row = block.children[rowIndex]
           let cells: MdTableCell[] | undefined
+
           for (let cellIndex = 0; cellIndex < row.children.length; cellIndex++) {
             const cell = row.children[cellIndex]
             const cellChildren = transformPhrasing(
@@ -451,6 +497,7 @@ function transformBlocks(
 
     next?.push(replacement)
   }
+
   return next ?? blocks
 }
 
@@ -468,6 +515,7 @@ export function createMarkdownTextTransform(
   if (!options.pattern.global) {
     throw new TypeError('Markdown text transform patterns must use the global flag')
   }
+
   if (
     options.requiredSubstrings != null &&
     (!Array.isArray(options.requiredSubstrings) ||
@@ -476,16 +524,19 @@ export function createMarkdownTextTransform(
   ) {
     throw new TypeError('Markdown text transform requiredSubstrings must be non-empty strings')
   }
+
   const requiredSubstrings =
     options.requiredSubstrings == null
       ? undefined
       : (Object.freeze([...options.requiredSubstrings]) as readonly [string, ...string[]])
+
   const normalizedOptions: MarkdownTextTransformOptions<MarkdownExtensionNode> = Object.freeze({
     pattern: new RegExp(options.pattern.source, options.pattern.flags),
     requiredSubstrings,
     getEndIndex: options.getEndIndex,
     replace: options.replace,
   })
+
   const transform: MarkdownTransform<MarkdownExtensionNode> = (root, context) => {
     const ownership = getMarkdownHelperOwnership(context) ?? UNOWNED
     const children = transformBlocks(
@@ -502,17 +553,21 @@ export function createMarkdownTextTransform(
         ? context.source
         : undefined,
     )
+
     return children === root.children ? root : { ...root, children }
   }
+
   // Every node this helper returns is either one Core already validated or
   // one `replaceTextNode` just validated against the same rules, so Core may
   // run it on the trusted path.
   const trusted = markMarkdownTransformTrusted(
     transform as MarkdownTransform<never>,
   ) as MarkdownTransform<MarkdownExtensionNode>
+
   if (requiredSubstrings == null || options.pattern.ignoreCase) {
     return trusted
   }
+
   return markMarkdownTransformClaim(trusted, (source) =>
     requiredSubstrings.some((required) => source.includes(required)),
   )
@@ -573,7 +628,9 @@ function cloneNestedPluginData(
   if (value == null || typeof value !== 'object') {
     return clonePluginData(value, ancestors)
   }
+
   const nestedAncestors = new Set(ancestors)
+
   nestedAncestors.add(parent)
   return clonePluginData(value, nestedAncestors)
 }
@@ -582,6 +639,7 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
   if (value == null || typeof value === 'boolean' || typeof value === 'string') {
     return value as MarkdownPluginData
   }
+
   if (typeof value === 'number') {
     if (!Number.isFinite(value)) {
       throw new TypeError('invalid plugin data')
@@ -589,6 +647,7 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
 
     return value
   }
+
   if (
     typeof value !== 'object' ||
     ancestors?.has(value) === true ||
@@ -596,9 +655,12 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
   ) {
     throw new TypeError('invalid plugin data')
   }
+
   let clone: MarkdownPluginData
+
   if (Array.isArray(value)) {
     const items = new Array<MarkdownPluginData>(value.length)
+
     for (let index = 0; index < value.length; index++) {
       if (index in value) {
         items[index] = cloneNestedPluginData(value[index], value, ancestors)
@@ -608,6 +670,7 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
     clone = Object.freeze(items)
   } else {
     const record: Record<string, MarkdownPluginData> = {}
+
     for (const key in value) {
       const nested = cloneNestedPluginData(
         (value as Record<string, unknown>)[key],
@@ -629,6 +692,7 @@ function clonePluginData(value: unknown, ancestors?: ReadonlySet<object>): Markd
 
     clone = Object.freeze(record)
   }
+
   return clone
 }
 
@@ -659,6 +723,7 @@ function createProposal(
   }
 
   let data: MarkdownPluginData
+
   try {
     data = clonePluginData(node.data)
   } catch {
@@ -666,6 +731,7 @@ function createProposal(
       'Markdown fence createNode must return an owned block extension node with finite data and a registered renderer',
     )
   }
+
   return Object.freeze({
     node: Object.freeze({
       type: 'extension' as const,
@@ -723,15 +789,18 @@ function annotateCode(
       ...(node.meta == null ? {} : { meta: node.meta }),
     }),
   )
+
   if (isPromiseLike(proposalNode)) {
     consumeInvalidAsyncNode(proposalNode, report)
     throw new TypeError('Markdown fence createNode must be synchronous')
   }
+
   if (proposalNode == null) {
     return node
   }
 
   const annotated = { ...node }
+
   Object.defineProperty(annotated, markdownFenceProposal, {
     configurable: false,
     enumerable: true,
@@ -743,6 +812,7 @@ function annotateCode(
     ),
     writable: false,
   })
+
   return annotated
 }
 
@@ -760,9 +830,11 @@ function fenceTransformBlocks(
   report: (message: string) => void,
 ): ReadonlyArray<MdNode> {
   let next: MdNode[] | undefined
+
   for (let index = 0; index < blocks.length; index++) {
     const block = blocks[index]
     let replacement: MdNode
+
     switch (block.type) {
       case 'code':
         replacement = annotateCode(block, languages, pluginName, hasRenderer, createNode, report)
@@ -782,6 +854,7 @@ function fenceTransformBlocks(
       }
       case 'list': {
         let items: MdListItem[] | undefined
+
         for (let itemIndex = 0; itemIndex < block.children.length; itemIndex++) {
           const item = block.children[itemIndex]
           const itemChildren = fenceTransformBlocks(
@@ -822,6 +895,7 @@ function fenceTransformBlocks(
 
     next?.push(replacement)
   }
+
   return next ?? blocks
 }
 
@@ -836,9 +910,11 @@ export function createMarkdownFenceTransform<
   ) {
     throw new TypeError('Markdown fence languages must be non-empty strings')
   }
+
   if (new Set(options.languages).size !== options.languages.length) {
     throw new TypeError('Markdown fence languages must be unique')
   }
+
   if (typeof options.createNode !== 'function') {
     throw new TypeError('Markdown fence createNode must be a function')
   }
@@ -848,17 +924,21 @@ export function createMarkdownFenceTransform<
   const sourceNeedles = Object.freeze(
     declaredLanguages.flatMap((language) => [`\`\`\`${language}`, `~~~${language}`]),
   )
+
   const createNode = options.createNode as (
     context: MarkdownFenceContext<string>,
   ) =>
     | MarkdownFenceNode<MarkdownExtensionNode<string, string, MarkdownPluginData, 'block'>>
     | null
     | undefined
+
   const transform: MarkdownTransform<Node> = (root, context: MarkdownTransformContext) => {
     const ownership = getMarkdownHelperOwnership(context)
+
     if (ownership == null) {
       throw new TypeError('Markdown fence transforms must run through createMarkdownPlugin')
     }
+
     const children = fenceTransformBlocks(
       root.children,
       languages,
@@ -867,6 +947,7 @@ export function createMarkdownFenceTransform<
       createNode,
       context.report,
     )
+
     return children === root.children ? root : { ...root, children }
   }
 
@@ -960,13 +1041,17 @@ function cloneDecorationData<Data extends MarkdownPluginData>(value: Data): Data
   if (value == null || typeof value !== 'object') {
     return value
   }
+
   if (Array.isArray(value)) {
     return Object.freeze(value.map(cloneDecorationData)) as Data
   }
+
   const clone: Record<string, MdDataValue> = {}
+
   for (const [key, nested] of Object.entries(value)) {
     clone[key] = cloneDecorationData(nested)
   }
+
   return Object.freeze(clone) as Data
 }
 
@@ -980,6 +1065,7 @@ function normalizeRanges(
 ): ReadonlyArray<NormalizedRange> {
   const normalized: (NormalizedRange & { readonly key: string })[] = []
   const seen = new Set<string>()
+
   for (const range of ranges) {
     if (
       !Number.isInteger(range.start) ||
@@ -996,6 +1082,7 @@ function normalizeRanges(
 
     const data = range.data === undefined ? undefined : cloneDecorationData(range.data)
     const key = `${range.start}\0${range.end}\0${data === undefined ? '' : JSON.stringify(data)}`
+
     if (seen.has(key)) {
       continue
     }
@@ -1008,6 +1095,7 @@ function normalizeRanges(
       key,
     })
   }
+
   // Sorted by start, then end, then payload: the sweep below needs start
   // order, and the tail of the comparison makes overlapping and duplicate
   // ranges resolve identically on every run.
@@ -1017,6 +1105,7 @@ function normalizeRanges(
       left.end - right.end ||
       (left.key < right.key ? -1 : left.key > right.key ? 1 : 0),
   )
+
   return Object.freeze(
     normalized.map(({ start, end, entry }) => Object.freeze({ start, end, entry })),
   )
@@ -1031,8 +1120,10 @@ function spanStart(position: MdPosition | undefined): number {
   if (position === undefined) {
     return -1
   }
+
   const start = position.start.offset
   const end = position.end.offset
+
   return typeof start === 'number' && typeof end === 'number' && start >= 0 && end >= start
     ? start
     : -1
@@ -1048,13 +1139,17 @@ function existingEntries(
   if (data === undefined) {
     return undefined
   }
+
   if (!isPlainObject(data)) {
     return null
   }
+
   const envelope = data[ENVELOPE_KEY]
+
   if (envelope === undefined) {
     return undefined
   }
+
   if (
     !isPlainObject(envelope) ||
     envelope.kind !== ENVELOPE_BRAND ||
@@ -1064,6 +1159,7 @@ function existingEntries(
   ) {
     return null
   }
+
   return envelope.entries
 }
 
@@ -1083,6 +1179,7 @@ function reportSkip(state: RunState): void {
   if (state.hasReported) {
     return
   }
+
   state.hasReported = true
   state.report('skipped a node whose data is not a Core-owned source-decoration envelope')
 }
@@ -1098,11 +1195,14 @@ function mergeDecorations(
   state: RunState,
 ): MdDataValue | undefined {
   const current = existingEntries(node.data)
+
   if (current === null) {
     reportSkip(state)
     return undefined
   }
+
   const merged = envelope(current === undefined ? entries : [...current, ...entries])
+
   return node.data === undefined
     ? { [ENVELOPE_KEY]: merged }
     : { ...(node.data as object), [ENVELOPE_KEY]: merged }
@@ -1117,14 +1217,17 @@ function mergeDecorations(
  */
 function spanOrder(children: ReadonlyArray<DecoratableNode>): ReadonlyArray<number> | undefined {
   let previous = -1
+
   for (let index = 0; index < children.length; index++) {
     const start = spanStart(children[index].position)
+
     if (start < 0) {
       continue
     }
 
     if (start < previous) {
       const indices: number[] = []
+
       for (let scan = 0; scan < children.length; scan++) {
         if (spanStart(children[scan].position) >= 0) {
           indices.push(scan)
@@ -1141,6 +1244,7 @@ function spanOrder(children: ReadonlyArray<DecoratableNode>): ReadonlyArray<numb
 
     previous = start
   }
+
   return undefined
 }
 
@@ -1159,16 +1263,19 @@ function firstSlotEndingAfter(
 ): number {
   let low = 0
   let high = length
+
   while (low < high) {
     const middle = (low + high) >>> 1
     const node = children[order?.[middle] ?? middle]
     const end = node.position?.end.offset
+
     if (typeof end === 'number' && end <= offset) {
       low = middle + 1
     } else {
       high = middle
     }
   }
+
   return low
 }
 
@@ -1205,11 +1312,13 @@ function decorateChildren(
     const index = order?.[slot] ?? slot
     const child = children[index]
     const start = spanStart(child.position)
+
     if (start < 0) {
       continue
     }
 
     const end = child.position?.end.offset as number
+
     while (cursor < ranges.length && ranges[cursor].start < end) {
       active.push(ranges[cursor++])
     }
@@ -1217,6 +1326,7 @@ function decorateChildren(
     // Retire in place: spans are visited in ascending start order, so a range
     // that ended before this one starts cannot match any later span either.
     let kept = 0
+
     for (let activeSlot = 0; activeSlot < active.length; activeSlot++) {
       if (active[activeSlot].end > start) {
         active[kept++] = active[activeSlot]
@@ -1232,6 +1342,7 @@ function decorateChildren(
       // stepping to it.
       if (order === undefined && cursor < ranges.length && ranges[cursor].start > end) {
         const jump = firstSlotEndingAfter(children, order, length, ranges[cursor].start)
+
         if (jump > slot) {
           slot = jump - 1
         }
@@ -1241,6 +1352,7 @@ function decorateChildren(
     }
 
     const decorated = decorateNode(child, active, state)
+
     if (decorated === child) {
       continue
     }
@@ -1248,6 +1360,7 @@ function decorateChildren(
     next ??= children.slice()
     next[index] = decorated
   }
+
   return next ?? children
 }
 
@@ -1266,11 +1379,13 @@ function decorateNode(
   if (node.type === 'extension') {
     return node
   }
+
   const data = mergeDecorations(
     node,
     ranges.map((range) => range.entry),
     state,
   )
+
   return data === undefined ? node : { ...node, data }
 }
 
@@ -1285,9 +1400,11 @@ export function createMarkdownSourceDecoration(
   if (typeof options.name !== 'string' || options.name.trim() === '') {
     decorationFail('name must be a non-empty string')
   }
+
   if (!Array.isArray(options.ranges)) {
     decorationFail('ranges must be an array')
   }
+
   const ranges = normalizeRanges(options.name, options.ranges)
   const smallestStart = ranges.length === 0 ? -1 : ranges[0].start
 
@@ -1302,23 +1419,30 @@ export function createMarkdownSourceDecoration(
     if (!context.isFinal || ranges.length === 0) {
       return document
     }
+
     // A range starting at or past the end of the source overlaps nothing.
     const usable =
       ranges[ranges.length - 1].start < context.source.length
         ? ranges
         : ranges.filter((range) => range.start < context.source.length)
+
     if (usable.length === 0) {
       return document
     }
+
     const root = document as unknown as DecoratableNode
+
     if (root.children == null) {
       return document
     }
+
     const state: RunState = {
       report: (message) => context.report(message),
       hasReported: false,
     }
+
     const children = decorateChildren(root.children, usable, state)
+
     return children === root.children ? document : ({ ...document, children } as unknown as MdDoc)
   }
 
@@ -1343,6 +1467,7 @@ export function getMarkdownSourceDecorations(
   node: MdNodeBase,
 ): ReadonlyArray<MarkdownSourceDecoration> {
   const entries = existingEntries(node.data)
+
   return entries == null || entries.length === 0
     ? NO_DECORATIONS
     : (entries as unknown as ReadonlyArray<MarkdownSourceDecoration>)
@@ -1397,7 +1522,9 @@ function parseFrontmatterEnvelope(value: unknown): FrontmatterEnvelope | undefin
   if (value == null || typeof value !== 'object' || Array.isArray(value)) {
     return
   }
+
   const candidate = value as Partial<FrontmatterEnvelope>
+
   return candidate.brand === FRONTMATTER_ENVELOPE_BRAND &&
     candidate.version === FRONTMATTER_ENVELOPE_VERSION &&
     candidate.values != null &&
@@ -1416,15 +1543,20 @@ function readFrontmatter(source: string):
       readonly fields: FrontmatterRecord
     } {
   const openingLength = source.startsWith('---\r\n') ? 5 : source.startsWith('---\n') ? 4 : 0
+
   if (openingLength === 0) {
     return { status: 'none' }
   }
+
   const body = source.slice(openingLength)
   const close = /(?:^|\r?\n)---(?=\r?\n|$)/.exec(body)
+
   if (close == null) {
     return { status: 'defer' }
   }
+
   const entries = new Map<string, string>()
+
   for (const line of body.slice(0, close.index).split(/\r?\n/)) {
     if (line.trim() === '') {
       continue
@@ -1432,22 +1564,26 @@ function readFrontmatter(source: string):
 
     const separator = line.indexOf(':')
     const key = line.slice(0, separator).trim()
+
     if (separator <= 0 || key === '' || entries.has(key)) {
       return { status: 'none' }
     }
 
     entries.set(key, line.slice(separator + 1).trim())
   }
+
   // A plain object, so a parser that returns the record unchanged passes the
   // JSON-like metadata check. `fromEntries` defines every key as an own data
   // property, so a field named `__proto__` stays a field.
   const fields: Record<string, string> = Object.fromEntries(entries)
   let end = openingLength + close.index + close[0].length
+
   if (source.startsWith('\r\n', end)) {
     end += 2
   } else if (source[end] === '\n') {
     end += 1
   }
+
   return { status: 'match', end, fields: Object.freeze(fields) }
 }
 
@@ -1457,33 +1593,43 @@ export function createMarkdownFrontmatter<Metadata extends MarkdownPluginData>(
   if (options.name.trim() === '') {
     throw new TypeError('Markdown frontmatter name must be non-empty')
   }
+
   const name = options.name
   const parse = (source: string, isFinal = true): MarkdownFrontmatterParseResult<Metadata> => {
     const parsed = readFrontmatter(source)
+
     if (parsed.status === 'defer') {
       return isFinal ? { status: 'none' } : parsed
     }
+
     if (parsed.status === 'none') {
       return parsed
     }
+
     const metadata = options.parse(parsed.fields)
+
     if (!isMarkdownPluginData(metadata)) {
       throw new TypeError('Markdown frontmatter metadata must be finite JSON-like data')
     }
+
     return {
       status: 'match',
       contentStart: parsed.end,
       metadata: freezeMarkdownPluginData(metadata),
     }
   }
+
   const transform: MarkdownTransform<never> = (document, context) => {
     const parsed = parse(context.source, context.isFinal)
+
     if (parsed.status === 'none') {
       return document
     }
+
     if (parsed.status === 'defer') {
       return { ...document, children: [] }
     }
+
     const documentData = asDataRecord(document.data)
     const prior = parseFrontmatterEnvelope(documentData[FRONTMATTER_ENVELOPE_KEY])
     const envelope: FrontmatterEnvelope = Object.freeze({
@@ -1494,6 +1640,7 @@ export function createMarkdownFrontmatter<Metadata extends MarkdownPluginData>(
         [name]: parsed.metadata,
       }),
     })
+
     return {
       ...document,
       data: Object.freeze({ ...documentData, [FRONTMATTER_ENVELOPE_KEY]: envelope }),
@@ -1502,16 +1649,19 @@ export function createMarkdownFrontmatter<Metadata extends MarkdownPluginData>(
       ),
     }
   }
+
   const plugin = createMarkdownPlugin({
     name,
     apiVersion: 1,
     transform: markMarkdownTransformTrusted(transform),
   })
+
   return Object.freeze({
     plugin,
     parse,
     getMetadata(document: MdDoc) {
       const data = asDataRecord(document.data)
+
       return parseFrontmatterEnvelope(data[FRONTMATTER_ENVELOPE_KEY])?.values[name] as
         | Metadata
         | undefined
@@ -1526,11 +1676,14 @@ export function createMarkdownFrontmatter<Metadata extends MarkdownPluginData>(
 function replaceLineEndings(value: string): ReadonlyArray<Phrasing> | null {
   const pattern = /\r?\n|\r/g
   let match = pattern.exec(value)
+
   if (match == null) {
     return null
   }
+
   const output: Phrasing[] = []
   let cursor = 0
+
   do {
     if (match.index > cursor) {
       output.push({ type: 'text', value: value.slice(cursor, match.index) })
@@ -1540,18 +1693,23 @@ function replaceLineEndings(value: string): ReadonlyArray<Phrasing> | null {
     cursor = match.index + match[0].length
     match = pattern.exec(value)
   } while (match != null)
+
   if (cursor < value.length) {
     output.push({ type: 'text', value: value.slice(cursor) })
   }
+
   return output
 }
 
 function softTransformPhrasing(children: ReadonlyArray<MdInline>): ReadonlyArray<MdInline> {
   let next: MdInline[] | undefined
+
   for (let index = 0; index < children.length; index++) {
     const node = children[index]
+
     if (node.type === 'text') {
       const replacement = replaceLineEndings(node.value)
+
       if (replacement == null) {
         next?.push(node)
       } else {
@@ -1569,6 +1727,7 @@ function softTransformPhrasing(children: ReadonlyArray<MdInline>): ReadonlyArray
       node.type === 'link'
     ) {
       const nested = softTransformPhrasing(node.children)
+
       if (nested !== node.children) {
         next ??= children.slice(0, index)
         next.push({ ...node, children: nested })
@@ -1581,16 +1740,19 @@ function softTransformPhrasing(children: ReadonlyArray<MdInline>): ReadonlyArray
 
     next?.push(node)
   }
+
   return next ?? children
 }
 
 function softTransformTableCell(cell: MdTableCell) {
   const children = softTransformPhrasing(cell.children)
+
   return children === cell.children ? cell : { ...cell, children }
 }
 
 function softTransformTableRow(row: MdTableRow) {
   const children = row.children.map(softTransformTableCell)
+
   return children.every((child, index) => child === row.children[index])
     ? row
     : { ...row, children }
@@ -1598,18 +1760,22 @@ function softTransformTableRow(row: MdTableRow) {
 
 function softTransformListItem(item: MdListItem) {
   const children = softTransformBlocks(item.children)
+
   return children === item.children ? item : { ...item, children }
 }
 
 function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdNode> {
   let next: MdNode[] | undefined
+
   for (let index = 0; index < children.length; index++) {
     const node = children[index]
     let transformed: MdNode = node
+
     switch (node.type) {
       case 'heading':
       case 'paragraph': {
         const nested = softTransformPhrasing(node.children)
+
         if (nested !== node.children) {
           transformed = { ...node, children: nested }
         }
@@ -1618,6 +1784,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
       }
       case 'blockquote': {
         const nested = softTransformBlocks(node.children)
+
         if (nested !== node.children) {
           transformed = { ...node, children: nested }
         }
@@ -1626,6 +1793,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
       }
       case 'list': {
         const nested = node.children.map(softTransformListItem)
+
         if (nested.some((child, childIndex) => child !== node.children[childIndex])) {
           transformed = { ...node, children: nested }
         }
@@ -1634,6 +1802,7 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
       }
       case 'table': {
         const nested = node.children.map(softTransformTableRow)
+
         if (nested.some((child, childIndex) => child !== node.children[childIndex])) {
           transformed = { ...node, children: nested }
         }
@@ -1656,11 +1825,13 @@ function softTransformBlocks(children: ReadonlyArray<MdNode>): ReadonlyArray<MdN
 
     next?.push(transformed)
   }
+
   return next ?? children
 }
 
 const transformSoftBreaks: MarkdownTransform<never> = (document) => {
   const children = softTransformBlocks(document.children)
+
   return children === document.children ? document : { ...document, children }
 }
 
@@ -1745,10 +1916,12 @@ function uniqueHeadingSlug(baseSlug: string, counts: Map<string, number>): strin
   const fallbackSlug = baseSlug || 'section'
   let count = counts.get(fallbackSlug) ?? 0
   let candidate = count === 0 ? fallbackSlug : `${fallbackSlug}-${count}`
+
   while (counts.has(candidate)) {
     count++
     candidate = `${fallbackSlug}-${count}`
   }
+
   counts.set(fallbackSlug, count + 1)
   counts.set(candidate, 0)
   return candidate
@@ -1781,6 +1954,7 @@ function readPortableConfig(
   entry: MarkdownPluginEntry,
 ): PortableMarkdownHeadingLinksConfig | undefined {
   const definition = getMarkdownPluginDefinition(entry)
+
   if (definition.name !== HEADING_LINKS_PLUGIN_NAME) {
     return undefined
   }
@@ -1788,6 +1962,7 @@ function readPortableConfig(
   const config = (definition as unknown as Record<PropertyKey, unknown>)[portableConfigKey] as
     | Partial<PortableMarkdownHeadingLinksConfig>
     | undefined
+
   if (
     config == null ||
     typeof config !== 'object' ||
@@ -1805,6 +1980,7 @@ function readPortableConfig(
   ) {
     return undefined
   }
+
   return config as PortableMarkdownHeadingLinksConfig
 }
 
@@ -1819,15 +1995,18 @@ export function createMarkdownHeadingLinks(
   if (options.headingIdPrefix !== undefined && typeof options.headingIdPrefix !== 'string') {
     headingLinksFail('headingIdPrefix must be a string')
   }
+
   if (options.permalinkBaseUrl !== undefined && typeof options.permalinkBaseUrl !== 'string') {
     headingLinksFail('permalinkBaseUrl must be a string')
   }
 
   const rawBaseUrl = options.permalinkBaseUrl ?? ''
   const sanitizedBaseUrl = rawBaseUrl === '' ? '' : sanitizeUrl(rawBaseUrl)
+
   if (sanitizedBaseUrl == null || !isParsablePermalinkBaseUrl(sanitizedBaseUrl)) {
     headingLinksFail('permalinkBaseUrl must be a safe, parseable navigation URL')
   }
+
   const permalinkBaseUrl = sanitizedBaseUrl.replace(/#.*$/u, '')
 
   const definition = {
@@ -1835,12 +2014,14 @@ export function createMarkdownHeadingLinks(
     apiVersion: 1 as const,
     transform: identityTransform,
   }
+
   Object.defineProperty(definition, portableConfigKey, {
     configurable: false,
     enumerable: false,
     value: createPortableConfig(options.headingIdPrefix, permalinkBaseUrl),
     writable: false,
   })
+
   return createMarkdownPlugin(definition)
 }
 
@@ -1850,12 +2031,15 @@ function getHeadingLinksConfig(
   if (plugins == null) {
     return undefined
   }
+
   for (const entry of plugins.entries) {
     const config = readPortableConfig(entry)
+
     if (config != null) {
       return config
     }
   }
+
   return undefined
 }
 
@@ -1864,6 +2048,7 @@ function visitHeadings(root: MdDoc, visit: (heading: Heading) => void): void {
     if (node.type === 'heading') {
       visit(node)
     }
+
     switch (node.type) {
       case 'blockquote':
         for (const child of node.children) {
@@ -1883,6 +2068,7 @@ function visitHeadings(root: MdDoc, visit: (heading: Heading) => void): void {
         break
     }
   }
+
   for (const child of root.children) {
     walk(child)
   }
@@ -1894,6 +2080,7 @@ export function projectMarkdownHeadingLinks(
   preparedPlugins?: PreparedMarkdownPlugins,
 ): MarkdownHeadingLinksProjection | undefined {
   const config = getHeadingLinksConfig(preparedPlugins)
+
   if (config == null) {
     return undefined
   }
@@ -1907,11 +2094,13 @@ export function projectMarkdownHeadingLinks(
     const label = mdInlineText(heading.children, (node) =>
       markdownExtensionText(preparedPlugins, node),
     ).trim()
+
     const slug = uniqueHeadingSlug(headingSlug(label), counts)
     const id =
       config.headingIdPrefix != null && config.headingIdPrefix !== ''
         ? `${config.headingIdPrefix}--${slug}`
         : slug
+
     ids.set(heading, id)
     labels.set(heading, label)
     permalinkUrls.set(heading, `${config.permalinkBaseUrl}#${id}`)

@@ -41,6 +41,7 @@ export function consumeInitialUrl(): string | null {
   consumedInitialUrl = true
   if (bridged()) {
     const url = bootstrap()?.initialUrl ?? window.__xplatInitialUrl ?? null
+
     if (window.__xplatHostSnapshot) {
       window.__xplatHostSnapshot.initialUrl = null
     }

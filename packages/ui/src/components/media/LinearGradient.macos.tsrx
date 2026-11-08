@@ -9,6 +9,7 @@ const GRADIENT_KEY = '__vxGradient'
 
 function nsColor(hex: string): any {
   const h = hex.trim().replace(/^#/, '')
+
   if (/^[0-9a-fA-F]{6}$/.test(h) || /^[0-9a-fA-F]{8}$/.test(h)) {
     const n = parseInt(h, 16)
     const hasAlpha = h.length === 8
@@ -16,12 +17,15 @@ function nsColor(hex: string): any {
     const g = (n >> (hasAlpha ? 16 : 8)) & 0xff
     const b = (n >> (hasAlpha ? 8 : 0)) & 0xff
     const a = hasAlpha ? n & 0xff : 255
+
     return NSColor.colorWithSRGBRedGreenBlueAlpha(r / 255, g / 255, b / 255, a / 255)
   }
 
   const m = hex.match(/^rgba?\(([^)]+)\)$/)
+
   if (m) {
     const [r, g, b, a = 1] = m[1].split(',').map((v) => Number(v.trim()))
+
     return NSColor.colorWithSRGBRedGreenBlueAlpha(r / 255, g / 255, b / 255, a)
   }
 
@@ -34,17 +38,22 @@ function nsColor(hex: string): any {
  *  that orientation inside masonview hosts. */
 export function LinearGradient(props: LinearGradientProps): unknown @{
   const state = useRef(props)
+
   state.current = props
 
   const onLayoutChanged = useCallback((e: any) => {
     const view = e?.object
+
     if (!view) {
       return
     }
 
     const { colors, direction } = state.current
+
     view.wantsLayer = true
+
     let gradient = view[GRADIENT_KEY] as any
+
     if (!gradient) {
       gradient = CAGradientLayer.new()
       view[GRADIENT_KEY] = gradient

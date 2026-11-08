@@ -67,6 +67,7 @@ export function createSizedImageBinding(
     // content-rect path draws stretch='fill' under a different semantic fit
     // ('none' needs the full-resolution source to find the natural size).
     const downscale = (pendingStretch ?? view.stretch) !== 'none'
+
     view.decodeWidth = { value: downscale ? width : 0, unit: 'px' }
     view.decodeHeight = { value: downscale ? height : 0, unit: 'px' }
     view.src = next
@@ -82,6 +83,7 @@ export function createSizedImageBinding(
 
     const measuredWidth = view.getMeasuredWidth?.() ?? 0
     const measuredHeight = view.getMeasuredHeight?.() ?? 0
+
     // Hold the request until the first layout pass — before it the
     // measured size is meaningless. A 0 axis after layout is a real
     // measure (auto/intrinsic or genuinely zero), not a missing one:
@@ -120,6 +122,7 @@ export function createSizedImageBinding(
     }
 
     const stretch = pendingStretch ?? view.stretch
+
     if (stretch === 'fill' || stretch === 'none') {
       return
     }
@@ -176,6 +179,7 @@ export function createSizedImageBinding(
     view?.requestLayout?.()
     retryHeldIssue()
   }
+
   const retryHeldIssue = () => {
     if (holdRetries >= 10 || !view || applied) {
       return

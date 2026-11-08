@@ -11,9 +11,12 @@ const workflow = parse(readFileSync('.github/workflows/release.yml', 'utf8'))
 for (const job of ['lockstep', 'nightly']) {
   test(`${job} builds every native payload through Turbo and stops on failure`, (t) => {
     const directory = mkdtempSync(join(tmpdir(), 'release-native-'))
+
     t.after(() => rmSync(directory, { recursive: true, force: true }))
+
     const log = join(directory, 'commands.jsonl')
     const bun = join(directory, 'bun')
+
     writeFileSync(
       bun,
       `#!${process.execPath}
@@ -26,7 +29,9 @@ appendFileSync(process.env.COMMAND_LOG, JSON.stringify({
 if (process.env.GOOS === process.env.FAIL_OS) process.exit(7)
 `,
     )
+
     chmodSync(bun, 0o755)
+
     const step = workflow.jobs[job].steps.find((step) => step.name === 'Build native CLI payloads')
     const run = (failOS = '') =>
       spawnSync('/bin/bash', ['-c', step.run], {
@@ -39,13 +44,18 @@ if (process.env.GOOS === process.env.FAIL_OS) process.exit(7)
         },
         encoding: 'utf8',
       })
+
     const success = run()
+
     assert.equal(success.status, 0, success.stderr)
+
     const commands = readFileSync(log, 'utf8').trim().split('\n').map(JSON.parse)
+
     assert.deepEqual(
       commands.map(({ target }) => target),
       ['darwin-arm64', 'darwin-amd64', 'linux-amd64', 'linux-arm64', 'windows-amd64'],
     )
+
     for (const command of commands) {
       assert.deepEqual(command.args, [
         'run',
@@ -57,6 +67,7 @@ if (process.env.GOOS === process.env.FAIL_OS) process.exit(7)
 
       assert.equal(command.version, '0.0.0-nightly.g1234567')
     }
+
     writeFileSync(log, '')
     assert.equal(run('linux').status, 7)
     assert.equal(readFileSync(log, 'utf8').trim().split('\n').length, 3)

@@ -10,9 +10,11 @@ function fixture() {
   const registrations: any[] = [],
     tokens = new Set<any>(),
     children: any[] = []
+
   let dismissed = 0,
     completion = () => {},
     superclassCalls = 0
+
   class View {
     window: any = null
     static alloc() {
@@ -29,6 +31,7 @@ function fixture() {
       this.viewDidMoveToWindow()
     }
   }
+
   class Window {
     static alloc() {
       return new this()
@@ -39,6 +42,7 @@ function fixture() {
     orderOut() {}
     close() {}
   }
+
   const api = runSlice(
     source.slice(
       source.indexOf('const sheetWindowCancels ='),
@@ -64,6 +68,7 @@ function fixture() {
             notify: any,
           ) {
             const token = { name, window, notify }
+
             tokens.add(token)
             return token
           },
@@ -72,6 +77,7 @@ function fixture() {
       },
     },
   )
+
   const parent: any = {
     beginSheetCompletionHandler(sheet: any, callback: () => void) {
       parent.sheet = sheet
@@ -79,6 +85,7 @@ function fixture() {
     },
     endSheet: () => completion(),
   }
+
   const anchor: any = {
     window: null,
     addSubview(child: any) {
@@ -87,7 +94,9 @@ function fixture() {
       child.viewDidMoveToWindow()
     },
   }
+
   const handle = api.presentSheet(anchor, { onDismissed: () => dismissed++ })
+
   return {
     api,
     registrations,
@@ -110,13 +119,16 @@ function fixture() {
 
 test('native factory waits for its hidden anchor observer and unregisters every callback on close', () => {
   const f = fixture()
+
   assert.equal(f.children[0].hidden, true)
   f.handle.present()
   assert.equal(f.parent.sheet, undefined)
   f.move(f.parent)
   assert.ok(f.parent.sheet)
   assert.equal(f.tokens.size, 2)
+
   const sheet = f.parent.sheet
+
   f.handle.close()
   assert.equal(f.tokens.size, 0)
   sheet.cancelOperation(null)
@@ -128,6 +140,7 @@ test('native factory waits for its hidden anchor observer and unregisters every 
 test('sheet cancellation and window move expose exact selectors and use native registration', () => {
   const f = fixture(),
     { AppKitSheetWindow, AppKitSheetAnchorObserver } = f.api
+
   assert.deepEqual(f.registrations, [AppKitSheetWindow, AppKitSheetAnchorObserver])
   assert.equal(AppKitSheetWindow.ObjCExposedMethods['cancelOperation:'].params.length, 1)
   assert.equal(AppKitSheetWindow.ObjCExposedMethods.cancelOperation, undefined)

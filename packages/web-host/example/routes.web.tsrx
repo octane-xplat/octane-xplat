@@ -29,6 +29,7 @@ const AppRouter = createContext<RouterInstance<ContractsOf<typeof catalog>> | nu
 
 function useAppRouter(): RouterInstance<ContractsOf<typeof catalog>> {
   const router = useContext(AppRouter)
+
   if (router === null) {
     throw new Error('Screens must render under the app router context')
   }
@@ -48,6 +49,7 @@ const products = ['coat', 'hat']
 
 function Home() {
   const router = useAppRouter()
+
   return (
     <main>
       <h1>Products</h1>
@@ -67,6 +69,7 @@ function Home() {
 function Product(props: { data: { name: string } }) {
   const router = useAppRouter()
   const [count, setCount] = useState(0)
+
   return (
     <main>
       <h1>{props.data.name}</h1>
@@ -82,6 +85,7 @@ function Product(props: { data: { name: string } }) {
 
 function NotFound() {
   const router = useAppRouter()
+
   return (
     <main>
       <h1>Not found</h1>

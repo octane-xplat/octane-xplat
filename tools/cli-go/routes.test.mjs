@@ -35,12 +35,14 @@ const binary =
 
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale route source: ${file}`)
 }
 
 const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge')
+
 mkdirSync(base, { recursive: true })
 writeFileSync(
   join(base, 'README.md'),
@@ -48,9 +50,12 @@ writeFileSync(
 )
 
 const scratch = realpathSync(mkdtempSync(join(base, 'routes-')))
+
 after(() => rmSync(scratch, { recursive: true, force: true }))
+
 function put(project, file, value) {
   const path = join(project, file)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(path, typeof value === 'string' ? value : JSON.stringify(value))
   return path
@@ -61,6 +66,7 @@ let next = 0
 const screen = 'export default () => null;\n'
 function project(files = {}, tools = true) {
   const directory = join(scratch, `project ${next++} π`)
+
   put(directory, 'package.json', { name: 'route-fixture', private: true, type: 'module' })
   if (tools) {
     symlinkSync(
@@ -69,9 +75,11 @@ function project(files = {}, tools = true) {
       process.platform === 'win32' ? 'junction' : 'dir',
     )
   }
+
   for (const [file, value] of Object.entries(files)) {
     put(directory, file, value)
   }
+
   return directory
 }
 
@@ -82,6 +90,7 @@ function cli(directory, args = [], options = {}) {
     timeout: 30000,
     ...options,
   })
+
   assert.equal(result.error, undefined)
   assert.equal(result.signal, null, result.stderr)
   return result
@@ -90,6 +99,7 @@ function cli(directory, args = [], options = {}) {
 function launch(directory, args = []) {
   const watchFixture =
     process.platform === 'win32' && args.some((arg) => ['-w', '--watch'].includes(arg))
+
   const stop = join(scratch, `stop-${next++}`)
   const child = watchFixture
     ? spawn(join(work, `go-tests-${host}.exe`), ['-test.run=^TestRouteWatchFixture$', '-test.v'], {
@@ -97,14 +107,18 @@ function launch(directory, args = []) {
         env: { ...process.env, XPLAT_GO_ROUTE_FIXTURE: directory, XPLAT_GO_ROUTE_STOP: stop },
       })
     : spawn(binary, ['routes', ...args], { cwd: directory })
+
   let stdout = '',
     stderr = ''
+
   child.stdout.on('data', (data) => (stdout += data))
   child.stderr.on('data', (data) => (stderr += data))
+
   const exited = new Promise((resolve, reject) => {
     child.once('error', reject)
     child.once('close', (code, signal) => resolve({ code, signal }))
   })
+
   return {
     child,
     exited,
@@ -118,6 +132,7 @@ function launch(directory, args = []) {
           child.kill('SIGTERM')
         }
       }
+
       return await exited
     },
   }
@@ -125,6 +140,7 @@ function launch(directory, args = []) {
 
 async function until(check, output = () => '', timeout = 15000) {
   const start = Date.now()
+
   while (Date.now() - start < timeout) {
     if (await check()) {
       return
@@ -132,6 +148,7 @@ async function until(check, output = () => '', timeout = 15000) {
 
     await delay(50)
   }
+
   assert.fail(`Route fixture timed out: ${output()}`)
 }
 
@@ -144,6 +161,7 @@ function snapshot(directory) {
       }
 
       const file = join(path, entry.name)
+
       if (entry.isDirectory()) {
         visit(file)
       } else if (entry.name.includes('routes.gen.')) {
@@ -151,6 +169,7 @@ function snapshot(directory) {
       }
     }
   }
+
   visit(directory)
   return result
 }
@@ -158,6 +177,7 @@ function snapshot(directory) {
 function plan(directory, payload = {}) {
   const request = join(scratch, `request-${next++}.json`),
     result = request + '.result'
+
   writeFileSync(
     request,
     JSON.stringify({
@@ -170,24 +190,30 @@ function plan(directory, payload = {}) {
       ...payload,
     }),
   )
+
   const child = spawnSync(process.execPath, [worker, request, result], {
     cwd: directory,
     encoding: 'utf8',
     timeout: 30000,
     env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '' },
   })
+
   assert.equal(child.status, 0, child.stderr)
+
   const response = JSON.parse(readFileSync(result))
+
   assert.equal(response.ok, true, JSON.stringify(response))
   return response.data
 }
 
 function assertPlan(directory, payload) {
   const reference = plan(directory, payload)
+
   assert.equal(reference.outputs.length, 18)
   for (const { file, source } of reference.outputs) {
     assert.equal(readFileSync(file, 'utf8'), source, file)
   }
+
   return reference
 }
 
@@ -214,17 +240,24 @@ function alive(pid) {
 test('native help/schema/aliases and missing-source diagnostics need no Node', () => {
   const empty = project({}, false),
     env = { ...process.env, PATH: '' }
+
   assert.equal(cli(empty, ['--help'], { env }).status, 0)
+
   const schema = cli(empty, ['--schema'], { env })
+
   assert.equal(schema.status, 0, schema.stderr)
   assert.equal(JSON.parse(schema.stdout).data.status, 'implemented')
   assert.match(cli(empty, [], { env }).stderr, /No route dir found/)
   for (const args of [['--unknown'], ['unexpected'], ['-dpages'], ['--dir']]) {
     assert.equal(cli(empty, args).status, 1)
   }
+
   const missingWorker = project({ 'app/index.tsx': screen }, false)
+
   assert.match(cli(missingWorker).stderr, /[Ii]nstall|worker/)
+
   const missingNode = project({ 'app/index.tsx': screen })
+
   assert.match(cli(missingNode, [], { env }).stderr, /Node is required/)
   for (const args of [
     ['--dir', 'pages', '--out', 'nested/routes.gen.ts'],
@@ -233,6 +266,7 @@ test('native help/schema/aliases and missing-source diagnostics need no Node', (
   ]) {
     const selected = project({ 'pages/index.tsx': screen })
     const actual = cli(selected, args)
+
     assert.equal(actual.status, 0, actual.stderr)
     assertPlan(selected, { directory: 'pages', output: 'nested/routes.gen.ts' })
   }
@@ -250,12 +284,16 @@ test('all 18 route artifacts match canonical Node for loaders, Markdown, platfor
     'app/__proto__.md': '# Reserved route\n',
     'app/constructor.md': '# Constructor\n',
   })
+
   const actual = cli(directory)
+
   assert.equal(actual.status, 0, actual.stderr)
   assertPlan(directory)
   assert.match(readFileSync(join(directory, 'routes.gen.data.ts'), 'utf8'), /__proto__/)
+
   const before = snapshot(directory),
     info = statSync(join(directory, 'routes.gen.contracts.ts'))
+
   assert.equal(cli(directory).status, 0)
   assert.deepEqual(snapshot(directory), before)
   assert.equal(statSync(join(directory, 'routes.gen.contracts.ts')).mtimeMs, info.mtimeMs)
@@ -269,8 +307,11 @@ test('all 18 route artifacts match canonical Node for loaders, Markdown, platfor
 
 test('a failed bake preserves the complete previous publication and reports diagnostics', () => {
   const directory = project({ 'app/index.tsx': screen })
+
   assert.equal(cli(directory).status, 0)
+
   const before = snapshot(directory)
+
   put(directory, 'app/baked.tsx', 'export const dataMode="baked"; ' + screen)
   for (const body of [
     'throw Error("intentional bake failure")',
@@ -284,11 +325,13 @@ test('a failed bake preserves the complete previous publication and reports diag
     )
 
     const actual = cli(directory)
+
     assert.equal(actual.status, 1, actual.stderr)
     assert.match(actual.stderr, /bake stdout/)
     assert.match(actual.stderr, /bake stderr/)
     assert.deepEqual(snapshot(directory), before)
   }
+
   put(directory, 'app/baked.loader.ts', 'export const loader=()=>({fixed:true})')
   assert.equal(cli(directory).status, 0)
   assertPlan(directory)
@@ -304,7 +347,9 @@ test('complete plan validation and stale source/output checks precede any public
     'output-changed',
   ]) {
     const directory = project({ 'app/index.tsx': screen })
+
     assert.equal(cli(directory).status, 0)
+
     const before = snapshot(directory),
       data = plan(directory)
 
@@ -339,6 +384,7 @@ test('complete plan validation and stale source/output checks precede any public
     )
 
     const actual = cli(directory)
+
     assert.equal(actual.status, 1, actual.stderr)
     assert.match(actual.stderr, /destination|incomplete|count|changed during planning/i)
     if (mode === 'output-changed') {
@@ -356,13 +402,16 @@ test('complete plan validation and stale source/output checks precede any public
 
 test('authorized output directory aliases work without overwriting source references', () => {
   const directory = project({ 'app/index.tsx': screen })
+
   mkdirSync(join(directory, 'stored'))
   symlinkSync(
     join(directory, 'stored'),
     join(directory, 'generated'),
     process.platform === 'win32' ? 'junction' : 'dir',
   )
+
   const actual = cli(directory, ['--out', 'generated/routes.gen'])
+
   assert.equal(actual.status, 0, actual.stderr)
   assertPlan(directory, { output: 'generated/routes.gen' })
   assert.ok(lstatSync(join(directory, 'generated')).isSymbolicLink())
@@ -373,18 +422,25 @@ test(
   posix,
   async () => {
     const directory = project({ 'app/index.tsx': screen })
+
     assert.equal(cli(directory).status, 0)
+
     const before = snapshot(directory)
+
     put(directory, 'app/baked.tsx', 'export const dataMode="baked"; ' + screen)
     put(
       directory,
       'app/baked.loader.mjs',
       `import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';export async function loader(){process.on('SIGTERM',()=>{});const child=spawn(process.execPath,['-e','process.on("SIGTERM",()=>{});console.log("armed");setTimeout(()=>process.exit(9),30000)'],{stdio:['ignore','pipe','ignore']});await new Promise(r=>child.stdout.once('data',r));child.stdout.resume();writeFileSync('armed.json',JSON.stringify({pid:process.pid,child:child.pid,request:process.argv[2]}));setTimeout(()=>process.exit(9),30000);await new Promise(()=>{});}`,
     )
+
     const runner = launch(directory)
+
     try {
       await until(() => existsSync(join(directory, 'armed.json')), runner.output)
+
       const armed = JSON.parse(readFileSync(join(directory, 'armed.json')))
+
       assert.deepEqual(await runner.stop(), { code: 143, signal: null })
       assert.equal(alive(armed.pid), false)
       assert.equal(alive(armed.child), false)
@@ -399,8 +455,10 @@ test(
 test('watch recovers configuration, ignores outputs, pins output path, and handles remove/recreate', async () => {
   const directory = project({ 'app/index.tsx': screen })
   const runner = launch(directory, ['--watch'])
+
   try {
     const generated = () => (runner.stdout().match(/Generated route contracts/g) ?? []).length
+
     await until(() => generated() === 1, runner.output)
     put(directory, 'routes.gen.contracts.ts', 'external generated edit')
     await delay(1200)
@@ -438,10 +496,14 @@ test('watch invalidation cancels slow baking before the latest source is publish
     'app/baked.tsx': 'export const dataMode="baked"; ' + screen,
     'app/baked.loader.mjs': `import{writeFileSync}from'node:fs';export async function loader(){process.on('SIGTERM',()=>{});writeFileSync('old.pid',String(process.pid));setTimeout(()=>process.exit(9),30000);await new Promise(()=>{});return {stale:true}}`,
   })
+
   const runner = launch(directory, ['-w'])
+
   try {
     await until(() => existsSync(join(directory, 'old.pid')), runner.output)
+
     const old = Number(readFileSync(join(directory, 'old.pid')))
+
     put(directory, 'app/baked.loader.mjs', 'export const loader=()=>({current:true})')
     await until(() => runner.stdout().includes('Generated route contracts'), runner.output)
     assert.equal(alive(old), false)
@@ -461,8 +523,11 @@ test(
       cwd: root,
       encoding: 'utf8',
     })
+
     assert.equal(tracked.status, 0, tracked.stderr)
+
     let checked = 0
+
     for (const file of tracked.stdout.split('\0').filter(Boolean)) {
       const original = dirname(join(root, file)),
         config = JSON.parse(readFileSync(join(root, file)))
@@ -487,6 +552,7 @@ test(
       }
 
       put(fixture, file, config)
+
       const routes =
         config.directory ?? ['app', 'src/app'].find((path) => existsSync(join(original, path)))
 
@@ -513,10 +579,12 @@ test(
       }
 
       const result = cli(selected)
+
       assert.equal(result.status, 0, `${file}: ${result.stderr}`)
       assertPlan(selected)
       checked++
     }
+
     assert.equal(checked, 7)
     console.info(
       `${checked} copied application route trees: all18 artifact bytes equal canonical Node`,

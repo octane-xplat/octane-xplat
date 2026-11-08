@@ -1,4 +1,5 @@
 import type { AppDebugSocket } from './dev-bridge-socket'
+
 // Dev-bridge endpoint discovery — Linux. The WebKitGTK host loads dev-server
 // content in a webview, so the endpoint is same-origin like the web leaf; the
 // token arrives through the dev-only __XPLAT_DEV_BRIDGE__ define. When the
@@ -27,6 +28,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
       : ((globalThis as any).__XPLAT_DEV_BRIDGE__ as
           | { token?: string; socket?: string; instanceId?: string; targetId?: string }
           | undefined)
+
   const origin =
     (globalThis as any).location?.origin ??
     (globalThis as any).__XPLAT_DEV_ORIGIN__ ??
@@ -56,5 +58,6 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 export function devBridgeSocket(url: string): AppDebugSocket | undefined {
   const Constructor = (globalThis as unknown as { WebSocket?: new (url: string) => AppDebugSocket })
     .WebSocket
+
   return Constructor ? new Constructor(url) : undefined
 }

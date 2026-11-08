@@ -12,6 +12,7 @@ export function restoreNativeFocus(
     if (cancelled || !isCurrent() || !layer) {
       return
     }
+
     if (layer.parent) {
       if (++attempts < 100) {
         timer = setTimeout(check, 16)
@@ -19,6 +20,7 @@ export function restoreNativeFocus(
 
       return
     }
+
     for (const target of targets()) {
       if (!target?.parent || target.isLoaded === false || typeof target.focus !== 'function') {
         continue
@@ -29,6 +31,7 @@ export function restoreNativeFocus(
       }
     }
   }
+
   timer = setTimeout(check, 0)
   return (): void => {
     cancelled = true

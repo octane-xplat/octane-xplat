@@ -27,6 +27,7 @@ export function Outline(props: OutlineProps): unknown @{
 
   latest.current = props
   active.current = activeId
+
   const control = useMemo(
     () =>
       createAppKitOutlineScroll({
@@ -65,6 +66,7 @@ export function Outline(props: OutlineProps): unknown @{
   >
     {items.map((item) => {
       const isActive = item.id === activeId
+
       return (
         <masonview
           key={item.id}

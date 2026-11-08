@@ -1,9 +1,11 @@
 import assert from 'node:assert/strict'
 import { test, mock } from 'node:test'
 import { mockNativeBoundary } from './native-boundary.ts'
+
 const hooks = mockNativeBoundary()
 const { makePagerView, updatePagerView, disposePagerView } = await import('../src/pager.ts')
 const { NSScrollView, NSView, NSNotificationCenter } = await import('@octane-xplat/platform/macos')
+
 hooks.deregister()
 
 test('pager retires a token acquired after reentrant disposal and held delivery schedules nothing', () => {
@@ -11,17 +13,20 @@ test('pager retires a token acquired after reentrant disposal and held delivery 
   const released: object[] = []
   const token = {}
   let held: () => void
+
   Object.assign(NSView.prototype, {
     initWithFrame() {
       return this
     },
   })
+
   Object.assign(NSScrollView.prototype, {
     initWithFrame() {
       this.contentView = {}
       return this
     },
   })
+
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock(_name, _view, _queue, callback) {
       held = callback
@@ -33,12 +38,16 @@ test('pager retires a token acquired after reentrant disposal and held delivery 
       released.push(value)
     },
   })
+
   const view = makePagerView(node)
+
   assert.equal(view.documentView, null)
   assert.deepEqual(released, [token])
+
   const schedule = mock.method(globalThis, 'setTimeout', () => {
     throw Error('retired pager scheduled work')
   })
+
   try {
     held!()
     disposePagerView(view)
@@ -52,6 +61,7 @@ test('pager retires a token acquired after reentrant disposal and held delivery 
 test('pager attaches page hosts before activating clip constraints and removes retired hosts', () => {
   const constraints: { active: boolean }[] = []
   const root = (view: any): any => (view.superview ? root(view.superview) : view)
+
   Object.assign(NSView.prototype, {
     initWithFrame() {
       this.subviews = []
@@ -68,6 +78,7 @@ test('pager attaches page hosts before activating clip constraints and removes r
       }
     },
   })
+
   for (const name of [
     'widthAnchor',
     'topAnchor',
@@ -79,6 +90,7 @@ test('pager attaches page hosts before activating clip constraints and removes r
       configurable: true,
       get() {
         const owner = this
+
         return {
           owner,
           constraintEqualToAnchor(other) {
@@ -95,9 +107,11 @@ test('pager attaches page hosts before activating clip constraints and removes r
                     'constraint requires a common ancestor',
                   )
                 }
+
                 active = value
               },
             }
+
             constraints.push(constraint)
             return constraint
           },
@@ -105,12 +119,14 @@ test('pager attaches page hosts before activating clip constraints and removes r
       },
     })
   }
+
   Object.assign(NSScrollView.prototype, {
     initWithFrame() {
       this.contentView = NSView.alloc().initWithFrame({})
       return this
     },
   })
+
   Object.defineProperty(NSScrollView.prototype, 'documentView', {
     configurable: true,
     get() {
@@ -123,15 +139,20 @@ test('pager attaches page hosts before activating clip constraints and removes r
       }
     },
   })
+
   Object.assign(NSNotificationCenter.defaultCenter, {
     addObserverForNameObjectQueueUsingBlock() {
       return {}
     },
     removeObserver() {},
   })
+
   const view: any = makePagerView()
+
   updatePagerView(view, { items: ['first', 'second'] })
+
   const pages = view.documentView.subviews.slice()
+
   assert.equal(pages.length, 2)
   assert.ok(constraints.every((constraint) => constraint.active))
   updatePagerView(view, { items: ['retained'] })

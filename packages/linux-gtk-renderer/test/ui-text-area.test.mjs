@@ -8,16 +8,20 @@ import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
+
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+
 test(
   'GTK TextArea sizes native rows, overlays hints and scrolls capped content with actual OS input',
   { timeout: 120000 },
   async (t) => {
     const outDir = join(fixture, 'dist-ui-text-area')
+
     if (!gjsAvailable() || !masonTypelibPresent()) {
       t.skip('GJS and XplatMason required for runtime')
       return
     }
+
     await build({
       logLevel: 'error',
       ...(await xplatLinuxGtk('production', {
@@ -26,32 +30,41 @@ test(
         outDir,
       })),
     })
+
     const bundle = join(outDir, 'app.js')
+
     assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+
     const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osInput =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
       spawnSync('xdotool', ['version']).status === 0
+
     const env = {
       ...process.env,
       GTK_A11Y: 'test',
       GTK_TEXT_OS: osInput ? '1' : '0',
       XPLAT_MASON_TYPELIB: nativeDir,
     }
+
     const child = spawn('gjs', ['-m', bundle], { env, stdio: ['ignore', 'pipe', 'pipe'] })
     let stdout = '',
       stderr = '',
       inputError
+
     child.stderr.on('data', (data) => {
       stderr += data
     })
+
     const lines = createInterface({ input: child.stdout })
+
     lines.on('line', (line) => {
       stdout += line + '\n'
       if (!line.startsWith('GTK_TEXT_AREA_READY ')) {
         return
       }
+
       try {
         const phase = JSON.parse(line.slice('GTK_TEXT_AREA_READY '.length))
         const id = execFileSync(
@@ -102,7 +115,9 @@ test(
         child.kill()
       }
     })
+
     const deadline = setTimeout(() => child.kill(), 75000)
+
     t.after(() => {
       clearTimeout(deadline)
       lines.close()
@@ -110,16 +125,21 @@ test(
         child.kill()
       }
     })
+
     const code = await new Promise((resolve, reject) => {
       child.once('error', reject)
       child.once('close', resolve)
     })
+
     assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
     assert.doesNotMatch(stderr, /\[linux-gtk\] event handler failed|Gtk-CRITICAL|Gjs-CRITICAL/)
 
     const line = stdout.split('\n').find((line) => line.startsWith('GTK_TEXT_AREA '))
+
     assert.ok(line, stdout)
+
     const result = JSON.parse(line.slice('GTK_TEXT_AREA '.length))
+
     assert.ok(result.checks >= (osInput ? 260 : 209), JSON.stringify(result))
     assert.equal(result.osInput, osInput)
     t.diagnostic(

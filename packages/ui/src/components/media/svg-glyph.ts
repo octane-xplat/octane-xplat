@@ -6,8 +6,10 @@ import type { IconGlyph } from '../../props'
  *  children pick up the tint. */
 export function glyphSvgMarkup(glyph: IconGlyph, color?: string): string | undefined {
   const viewBox = glyph.viewBox ?? '0 0 24 24'
+
   if (glyph.markup) {
     const tint = color ? ` color="${color}" fill="${color}"` : ''
+
     return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="${viewBox}"${tint}>${glyph.markup}</svg>`
   }
 

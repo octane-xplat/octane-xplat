@@ -51,6 +51,7 @@ const FINISH_TIMEOUT_MS: number = 60_000
 
 function post(event: Record<string, unknown>): void {
   const postMessage = 'postMessage' in globalThis ? globalThis.postMessage : undefined
+
   if (typeof postMessage === 'function') {
     postMessage(event)
   }
@@ -66,22 +67,29 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
   const invalid = (message: string) => new Error(message)
   const uri = request.source
   const url = uri.startsWith('/') ? NSURL.fileURLWithPath(uri) : NSURL.URLWithString(uri)
+
   if (!url || String(url.scheme) !== 'file') {
     throw invalid('GIF source must be an absolute file path or file URL')
   }
+
   const attributes = NSFileManager.defaultManager.attributesOfItemAtPathError(url.path ?? '')
   const size = Number(attributes?.objectForKey('NSFileSize') ?? Number.MAX_SAFE_INTEGER)
+
   if (size > LIMIT_BYTES) {
     throw invalid('GIF exceeds 64 MiB')
   }
+
   const source = CGImageSourceCreateWithURL(url, null)
+
   if (!source || String(CGImageSourceGetType(source)) !== 'com.compuserve.gif') {
     throw invalid('Source must be a decodable GIF')
   }
+
   const count = CGImageSourceGetCount(source)
   const properties = CGImageSourceCopyPropertiesAtIndex(source, 0, null)
   const rawWidth = Number(properties?.objectForKey(kCGImagePropertyPixelWidth) ?? 0)
   const rawHeight = Number(properties?.objectForKey(kCGImagePropertyPixelHeight) ?? 0)
+
   if (
     !count ||
     count > MAX_FRAMES ||
@@ -91,7 +99,9 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
   ) {
     throw invalid(`GIF must have 1–${MAX_FRAMES} frames and at most ${MAX_PIXELS} pixels`)
   }
+
   const delays: number[] = []
+
   for (let index = 0; index < count; index++) {
     const frame = CGImageSourceCopyPropertiesAtIndex(source, index, null)
     const gif = frame?.objectForKey(kCGImagePropertyGIFDictionary)
@@ -101,39 +111,52 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
 
     delays.push(seconds > 0 ? Math.max(10, Math.round(seconds * 1000)) : 100)
   }
+
   const duration = delays.reduce((total, value) => total + value, 0)
+
   if (duration > MAX_DURATION_MS) {
     throw invalid('GIF traversal exceeds 60 seconds')
   }
+
   const width = rawWidth + (rawWidth % 2)
   const height = rawHeight + (rawHeight % 2)
   const output = NSFileManager.defaultManager.temporaryDirectory.URLByAppendingPathComponent(
     `xplat-video-${NSUUID.UUID().UUIDString}.mp4`,
   )
+
   if (!output) {
     throw invalid('Could not create an output location')
   }
+
   // The host deletes a partial output if it terminates the worker mid-encode.
   post({ output: String(output.absoluteString) })
+
   const writer = AVAssetWriter.alloc().initWithURLFileTypeError(output, AVFileTypeMPEG4, undefined)
+
   if (!writer) {
     throw invalid('Could not create the video writer')
   }
+
   writer.movieTimeScale = 1000
+
   const settings = {
     [AVVideoCodecKey]: AVVideoCodecTypeH264,
     [AVVideoWidthKey]: width,
     [AVVideoHeightKey]: height,
     [AVVideoCompressionPropertiesKey]: { [AVVideoAverageBitRateKey]: request.bitrate },
   } as unknown as NSDictionary<string, unknown>
+
   if (!writer.canApplyOutputSettingsForMediaType(settings, AVMediaTypeVideo)) {
     throw invalid('H.264 encoder does not support these dimensions')
   }
+
   const input = AVAssetWriterInput.alloc().initWithMediaTypeOutputSettings(
     AVMediaTypeVideo,
     settings,
   )
+
   input.mediaTimeScale = 1000
+
   const adapter =
     AVAssetWriterInputPixelBufferAdaptor.alloc().initWithAssetWriterInputSourcePixelBufferAttributes(
       input,
@@ -145,21 +168,28 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
         [kCVPixelBufferCGBitmapContextCompatibilityKey]: true,
       } as unknown as NSDictionary<string, unknown>,
     )
+
   if (!writer.canAddInput(input)) {
     throw invalid('Could not add video track')
   }
+
   writer.addInput(input)
+
   const rgb = Number.parseInt(request.backgroundColor.slice(1), 16) || 0
   let succeeded = false
+
   try {
     if (!writer.startWriting()) {
       throw writer.error ?? invalid('Could not start video encoding')
     }
 
     writer.startSessionAtSourceTime(kCMTimeZero)
+
     let time = 0
+
     for (let index = 0; index < count; index++) {
       const deadline = Date.now() + READY_DEADLINE_MS
+
       while (!input.readyForMoreMediaData) {
         if (writer.status === 3 /* AVAssetWriterStatusFailed */ || Date.now() > deadline) {
           throw writer.error ?? invalid('Video encoder timed out')
@@ -170,16 +200,19 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
 
       const image = CGImageSourceCreateImageAtIndex(source, index, null)
       const pool = adapter.pixelBufferPool
+
       if (!image || !pool) {
         throw invalid('Could not decode a GIF frame')
       }
 
       const ref = new interop.Reference<unknown>()
+
       if (CVPixelBufferPoolCreatePixelBuffer(null, pool, ref) !== 0 || !ref.value) {
         throw invalid('Could not allocate frame pixels')
       }
 
       const pixel = ref.value
+
       CVPixelBufferLockBaseAddress(pixel, 0)
       try {
         const context = CGBitmapContextCreate(
@@ -220,7 +253,9 @@ function convert(request: { source: string; backgroundColor: string; bitrate: nu
     writer.endSessionAtSourceTime(CMTimeMake(duration, 1000))
     input.markAsFinished()
     writer.finishWritingWithCompletionHandler(() => {})
+
     const deadline = Date.now() + FINISH_TIMEOUT_MS
+
     while (
       writer.status !== 2 &&
       writer.status !== 3 &&
@@ -263,6 +298,7 @@ interface WorkerRequest {
 if ('onmessage' in globalThis) {
   globalThis.onmessage = (event: { data: unknown }) => {
     const request = event.data as WorkerRequest
+
     try {
       post({ result: convert(request) })
     } catch (error) {

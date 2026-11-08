@@ -27,6 +27,7 @@ export { compatibility, managedPackage, managedSpecifier }
 
 export const readPackage = (path: string) => JSON.parse(readFileSync(path, 'utf8'))
 export const localSpecifier = (spec: string) => /^(workspace:|link:|file:|portal:)/.test(spec)
+
 const patchPrefix = 'node_modules/.pnpm-config/@octane-xplat/patches/patches/'
 
 export const workspaceRoot = packageManagerRoot
@@ -35,11 +36,14 @@ export function readWorkspace(root: string) {
   if (packageManagerFor(root) === 'bun') {
     return parseDocument(JSON.stringify(readProjectWorkspace(root, 'bun')))
   }
+
   const path = join(root, 'pnpm-workspace.yaml')
   const doc = parseDocument(existsSync(path) ? readFileSync(path, 'utf8') : '{}\n')
+
   if (doc.errors.length) {
     throw new Error(`${path}: ${doc.errors[0].message}`)
   }
+
   return doc
 }
 
@@ -47,7 +51,9 @@ export function resolveCatalog(spec: string, name: string, config: Record<string
   if (!spec.startsWith('catalog:')) {
     return spec
   }
+
   const catalog = spec.slice('catalog:'.length)
+
   return (
     (catalog && catalog !== 'default'
       ? config.catalogs?.[catalog]?.[name]
@@ -61,12 +67,15 @@ function workspacePackages(root: string, patterns: string[] = []) {
   const excluded = patterns
     .filter((pattern) => pattern.startsWith('!'))
     .map((pattern) => pattern.slice(1))
+
   const paths = new Set<string>([root])
+
   for (const match of included.length
     ? globSync(included, { cwd: root, exclude: ['**/node_modules/**', ...excluded] })
     : []) {
     const path = resolve(root, match)
     const rel = relative(realpathSync(root), realpathSync(path))
+
     if (isAbsolute(rel) || rel === '..' || rel.startsWith(`..${sep}`)) {
       throw new Error(
         `Workspace package ${match} points outside ${root}; align it in its own workspace`,
@@ -75,6 +84,7 @@ function workspacePackages(root: string, patterns: string[] = []) {
 
     paths.add(path)
   }
+
   return [...paths].sort().filter((path) => existsSync(join(path, 'package.json')))
 }
 
@@ -99,6 +109,7 @@ export function planUpgrade(dir: string): UpgradePlan {
   const ws = readWorkspace(root)
   const config = ws.toJS() ?? {}
   const paths = workspacePackages(root, config.packages)
+
   if (!paths.length || !existsSync(join(resolve(dir), 'package.json'))) {
     throw new Error('Run xplat upgrade inside a package with a package.json')
   }
@@ -112,16 +123,20 @@ export function planUpgrade(dir: string): UpgradePlan {
     skipped: [],
     projects: [],
   }
+
   const expected = new Map<string, Set<string>>()
   const expectedSpecs = new Map<string, Set<string>>()
   const applicable = new Set<string>()
   const packages = paths.map((path) => {
     const file = join(path, 'package.json')
     const raw = readFileSync(file, 'utf8')
+
     return { path, file, raw, pkg: JSON.parse(raw) }
   })
+
   const change = (path: string, after: string) => {
     const before = existsSync(path) ? readFileSync(path, 'utf8') : null
+
     if (after !== before) {
       plan.files.push({ path, before, after })
     }
@@ -132,6 +147,7 @@ export function planUpgrade(dir: string): UpgradePlan {
     const label = relative(root, path) || '.'
     // Octane's compiler peer must stay visible to pnpm; it is not hidden in the CLI.
     const deps = Object.assign({}, ...dependencySections.map((section) => pkg[section]))
+
     if (deps.octane && !deps['@tsrx/oxc'] && !localSpecifier(deps.octane)) {
       pkg.devDependencies ??= {}
       pkg.devDependencies['@tsrx/oxc'] = managedSpecifier('@tsrx/oxc', profile)
@@ -175,17 +191,20 @@ export function planUpgrade(dir: string): UpgradePlan {
     for (const section of dependencySections) {
       for (const [name, declared] of Object.entries(pkg[section] ?? {}) as [string, string][]) {
         const managed = managedPackage(name, profile)
+
         if (!managed) {
           continue
         }
 
         const spec = resolveCatalog(declared, name, config)
+
         if (localSpecifier(spec)) {
           plan.skipped.push(`${label}: keep ${name} ${declared}`)
           continue
         }
 
         const desired = managedSpecifier(name, profile)!
+
         if ((/^[\w+.-]+:/.test(spec) || spec.includes('/')) && spec !== desired) {
           throw new Error(
             `${label}: ${name} uses a custom source; replace it with a registry pin or a local dependency before upgrading`,
@@ -193,6 +212,7 @@ export function planUpgrade(dir: string): UpgradePlan {
         }
 
         const catalog = managedCatalog(profile)
+
         pkg[section][name] = `catalog:${catalog}`
         ws.setIn(['catalogs', catalog, name], desired)
         if (declared !== `catalog:${catalog}` || spec !== desired) {
@@ -205,9 +225,12 @@ export function planUpgrade(dir: string): UpgradePlan {
         }
 
         const versions = expected.get(name) ?? new Set<string>()
+
         versions.add(managed.version)
         expected.set(name, versions)
+
         const specs = expectedSpecs.get(name) ?? new Set<string>()
+
         specs.add(desired)
         expectedSpecs.set(name, specs)
       }
@@ -236,6 +259,7 @@ export function planUpgrade(dir: string): UpgradePlan {
       ['@octane-xplat/cli', 'octane-xplat'].some((name) => pkg[section]?.[name]),
     ),
   )
+
   if (
     manager === 'bun' &&
     rootPackage &&
@@ -255,11 +279,13 @@ export function planUpgrade(dir: string): UpgradePlan {
   for (const overrides of [config.overrides ?? {}, rootPackage?.pkg.pnpm?.overrides ?? {}]) {
     for (const [selector, value] of Object.entries(overrides)) {
       const name = specifierPackage(selector.split('>').at(-1)!)
+
       if (!applicable.has(name)) {
         continue
       }
 
       const versions = expected.get(name)!
+
       if (versions.size !== 1) {
         throw new Error(
           `Override ${selector} spans incompatible profiles; scope it to the appropriate workspace package`,
@@ -268,6 +294,7 @@ export function planUpgrade(dir: string): UpgradePlan {
 
       const desired = [...versions][0]
       const source = resolveCatalog(String(value), name, config)
+
       if (!expectedSpecs.get(name)!.has(source)) {
         throw new Error(
           `Override ${selector} conflicts with ${desired}; remove this override before upgrading`,
@@ -275,8 +302,10 @@ export function planUpgrade(dir: string): UpgradePlan {
       }
     }
   }
+
   for (const [selector, version] of Object.entries(compatibility.overrides)) {
     const existing = config.overrides?.[selector]
+
     if (existing && existing !== version) {
       throw new Error(`Override ${selector} conflicts with framework pin ${version}`)
     }
@@ -289,20 +318,26 @@ export function planUpgrade(dir: string): UpgradePlan {
     ...rootPackage?.pkg.patchedDependencies,
     ...config.patchedDependencies,
   }
+
   const wanted = loadPatchManifest().filter((patch) => {
     const name = specifierPackage(patch.specifier)
     const version = patch.specifier.slice(name.length + 1)
     const versions = expected.get(name)
+
     if (versions) {
       return versions.has(version)
     }
+
     return patch.template !== false && !managedPackage(name)
   })
+
   for (const patch of wanted) {
     const existing = oldPatches[patch.specifier]
+
     if (existing && !String(existing).startsWith(patchPrefix)) {
       const file = resolve(root, existing)
       const canonical = readFileSync(join(canonicalPatchesDir, patch.file))
+
       if (!existsSync(file) || !canonical.equals(readFileSync(file))) {
         throw new Error(
           `Custom patch for ${patch.specifier} at ${existing} differs from the framework patch; reconcile it before upgrading`,
@@ -312,6 +347,7 @@ export function planUpgrade(dir: string): UpgradePlan {
   }
 
   const wantedSpecs = new Set(wanted.map((patch) => patch.specifier))
+
   for (const [specifier, path] of Object.entries(oldPatches)) {
     // Only remove entries supplied by the framework config package. Local
     // user-owned patch files and mappings survive, including obsolete versions.
@@ -319,11 +355,13 @@ export function planUpgrade(dir: string): UpgradePlan {
       delete oldPatches[specifier]
     }
   }
+
   // pnpm keeps local patch files unless the workspace already opted into the
   // @octane-xplat/patches config dependency — new entries match Bun's local
   // mode so upgrades never split a project across both patch modes.
   const configMode =
     manager === 'pnpm' && config.configDependencies?.['@octane-xplat/patches'] !== undefined
+
   for (const patch of wanted) {
     oldPatches[patch.specifier] ??= configMode
       ? `${patchPrefix}${patch.file}`
@@ -336,13 +374,16 @@ export function planUpgrade(dir: string): UpgradePlan {
       )
     }
   }
+
   if (Object.keys(oldPatches).length) {
     ws.set('patchedDependencies', oldPatches)
     ws.set('allowUnusedPatches', true)
   }
+
   if (wanted.some((patch) => oldPatches[patch.specifier].startsWith(patchPrefix))) {
     ws.setIn(['configDependencies', '@octane-xplat/patches'], compatibility.frameworkVersion)
   }
+
   if (rootPackage?.pkg.pnpm?.patchedDependencies) {
     delete rootPackage.pkg.pnpm.patchedDependencies
   }
@@ -350,6 +391,7 @@ export function planUpgrade(dir: string): UpgradePlan {
   if (manager === 'bun' && rootPackage) {
     const result = ws.toJS()
     const owner = rootPackage.pkg
+
     if (Array.isArray(owner.workspaces)) {
       owner.workspaces = { packages: owner.workspaces }
     }
@@ -371,16 +413,20 @@ export function planUpgrade(dir: string): UpgradePlan {
       }
     }
   }
+
   for (const { file, raw, pkg } of packages) {
     const after = formatPackage(pkg, raw)
+
     // Avoid reformatting package files whose values did not change.
     if (JSON.stringify(JSON.parse(raw)) !== JSON.stringify(pkg)) {
       change(file, after)
     }
   }
+
   if (manager === 'pnpm') {
     change(join(root, 'pnpm-workspace.yaml'), String(ws))
   }
+
   return plan
 }
 
@@ -388,11 +434,14 @@ export function planUpgrade(dir: string): UpgradePlan {
 export function applyUpgrade(plan: UpgradePlan) {
   for (const file of plan.files) {
     const current = existsSync(file.path) ? readFileSync(file.path, 'utf8') : null
+
     if (current !== file.before) {
       throw new Error(`${file.path} changed during upgrade; rerun xplat upgrade`)
     }
   }
+
   const written: FileChange[] = []
+
   try {
     for (const file of plan.files) {
       written.push(file)

@@ -13,6 +13,7 @@ const auditOnly = process.argv.includes('--audit')
 const isolateUI = process.argv.includes('--isolate-ui')
 const check = (name, actual, expected) => {
   const pass = typeof expected === 'function' ? expected(actual) : Object.is(actual, expected)
+
   results.push({ name, pass, actual, expected: String(expected) })
   if (!pass) {
     console.log(`FAIL ${name}: ${JSON.stringify(actual)} vs ${expected}`)
@@ -26,6 +27,7 @@ const near =
 
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -43,26 +45,32 @@ const cdpOnly = (name) => {
     console.log(`skipped (CDP-only): ${name}`)
     return true
   }
+
   return false
 }
 
 server.stdout.on('data', (c) => process.env.DEBUG_E2E && process.stdout.write(c))
 server.stderr.on('data', (c) => process.env.DEBUG_E2E && process.stderr.write(c))
+
 const ready = new Promise((res, rej) => {
   const t = setTimeout(() => rej(new Error('vite did not start')), 20000)
+
   server.stdout.on('data', (d) => {
     if (String(d).includes('Local')) {
       clearTimeout(t)
       res()
     }
   })
+
   server.stderr.on('data', () => {})
 })
 
 try {
   await ready
   browser = await browserType.launch()
+
   const page = await browser.newPage({ viewport: { width: 800, height: 600 } })
+
   page.on('pageerror', (e) => results.push({ name: 'pageerror', pass: false, actual: String(e) }))
   page.on('console', (m) => {
     if (m.type() === 'error') {
@@ -82,8 +90,10 @@ try {
   // --- open morph lands on the fitted rect ---
   await page.locator('.vx-lightbox-trigger').nth(0).click()
   await page.waitForSelector('[data-phase="open"]', { timeout: 5000 })
+
   const cur = (pg) => pg.locator('[data-lightbox-slide][data-current] [data-lightbox-image]')
   const imgRect = await cur(page).boundingBox()
+
   // 800x600 contain in 800x600 viewport → fit = full 800x600
   check('open morph: fitted width', imgRect?.width, near(800))
   check('open morph: fitted height', imgRect?.height, near(600))
@@ -105,6 +115,7 @@ try {
 
   if (auditOnly) {
     const dialog = page.locator('[role="dialog"]')
+
     check('dialog title association', await dialog.getAttribute('aria-labelledby'), 'audit-title')
     check(
       'dialog description association',
@@ -171,6 +182,7 @@ try {
       page.locator('[data-lightbox-slide][data-current]').getAttribute('aria-label')
 
     const viewport = page.locator('.vx-lightbox-viewport')
+
     await page.mouse.move(700, 300)
     await page.mouse.down()
     for (let i = 1; i <= 12; i++) {
@@ -261,6 +273,7 @@ try {
           const r = el.getBoundingClientRect()
           const x = r.left + r.width / 2,
             y = r.top + r.height / 2
+
           el.dispatchEvent(
             new PointerEvent(type, {
               bubbles: true,
@@ -277,10 +290,12 @@ try {
       )
 
     const curSel = '[data-lightbox-slide][data-current] [data-lightbox-image]'
+
     // --- ctrl+wheel zooms; zoomed drag pans not pages ---
     await page.evaluate(
       ([sel]) => {
         const el = document.querySelector(sel)
+
         el.dispatchEvent(
           new WheelEvent('wheel', {
             bubbles: true,
@@ -296,6 +311,7 @@ try {
     )
 
     await page.waitForTimeout(400)
+
     const zoomedScale = await cur(page).evaluate(
       (el) => /scale\(([^)]+)\)/.exec(el.style.transform)?.[1],
     )
@@ -333,8 +349,11 @@ try {
 
     // --- Escape closes; close morph lands on the trigger rect ---
     const trigRect = await page.locator('.vx-lightbox-trigger').nth(2).locator('img').boundingBox()
+
     await page.keyboard.press('Escape')
+
     let lastMorphRect = null
+
     for (let i = 0; i < 30; i++) {
       const r = await cur(page)
         .boundingBox()
@@ -371,9 +390,11 @@ try {
     // --- vertical drag closes (pull-to-dismiss, synthesized pointer events) ---
     await page.locator('.vx-lightbox-trigger').nth(1).click()
     await page.waitForSelector('[data-phase="open"]', { timeout: 5000 })
+
     const box = await cur(page).boundingBox()
     const cx = box.x + box.width / 2
     const cy = box.y + box.height / 2
+
     await page.mouse.move(cx, cy)
     await page.mouse.down()
     for (let i = 1; i <= 10; i++) {
@@ -389,6 +410,7 @@ try {
       await page.evaluate(
         ([sel]) => {
           const el = document.querySelector(sel)
+
           el.dispatchEvent(
             new PointerEvent('pointerup', {
               bubbles: true,
@@ -411,8 +433,10 @@ try {
     // --- short vertical drag settles back ---
     await page.locator('.vx-lightbox-trigger').nth(1).click()
     await page.waitForSelector('[data-phase="open"]', { timeout: 5000 })
+
     const b2 = await cur(page).boundingBox()
     const c2 = { x: b2.x + b2.width / 2, y: b2.y + b2.height / 2 }
+
     await page.mouse.move(c2.x, c2.y)
     await page.mouse.down()
     for (let i = 1; i <= 4; i++) {
@@ -433,8 +457,10 @@ try {
     if (!cdpOnly('touch swipe paging')) {
       await page.locator('.vx-lightbox-trigger').nth(0).click()
       await page.waitForSelector('[data-phase="open"]')
+
       const cdp = await page.context().newCDPSession(page)
       const tp = (type, pts) => cdp.send('Input.dispatchTouchEvent', { type, touchPoints: pts })
+
       await tp('touchStart', [{ x: 600, y: 300, id: 1 }])
       for (let i = 1; i <= 10; i++) {
         await tp('touchMove', [{ x: 600 - i * 46, y: 300, id: 1 }])
@@ -480,6 +506,7 @@ try {
       // --- zoomed drag pans, does not page ---
       const zbox = await cur(page).boundingBox()
       const zc = { x: zbox.x + zbox.width / 2, y: zbox.y + zbox.height / 2 }
+
       await tp('touchStart', [{ x: zc.x, y: zc.y, id: 1 }])
       for (let i = 1; i <= 6; i++) {
         await tp('touchMove', [{ x: zc.x - i * 40, y: zc.y, id: 1 }])
@@ -532,7 +559,9 @@ try {
     })
 
     await page.waitForTimeout(100)
+
     const indicator = page.locator('.vx-lightbox-thumbnail-indicator')
+
     check(
       'thumbnail indicator interpolates position',
       await indicator.evaluate((el) =>
@@ -584,6 +613,7 @@ try {
           }
         }
       })
+
       window.__imgObs.observe(document.body, {
         attributes: true,
         attributeFilter: ['style'],
@@ -601,6 +631,7 @@ try {
     )
 
     const imageWrites = await page2.evaluate(() => window.__writes)
+
     check(
       'reduced motion: no morph clip-path writes',
       imageWrites.filter((s) => /clip-path:\s*inset\((?!0)/.exec(s)),
@@ -622,6 +653,7 @@ try {
 
   const failed = results.filter((r) => !r.pass)
   const skipped = results.filter((r) => r.skipped)
+
   if (skipped.length) {
     console.log(`${skipped.length} skipped (CDP-only)`)
   }

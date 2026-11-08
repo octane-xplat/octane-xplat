@@ -4,6 +4,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript-classic'
+
 const source = ts.transpile(
   await readFile(new URL('../src/sign-in-button-action.macos.ts', import.meta.url), 'utf8'),
   {
@@ -14,10 +15,14 @@ const source = ts.transpile(
 
 function load(signIn) {
   const exports = {}
+
   vm.runInNewContext(source, { exports, Promise })
+
   let props = {},
     presses = 0
+
   const results = []
+
   props = {
     onPress() {
       presses++
@@ -26,7 +31,9 @@ function load(signIn) {
       results.push(value)
     },
   }
+
   const action = exports.createSignInButtonAction(() => props, signIn)
+
   return {
     action,
     results,
@@ -53,6 +60,7 @@ const deferred = () => {
     resolve = yes
     reject = no
   })
+
   return { promise, resolve, reject }
 }
 
@@ -63,6 +71,7 @@ test('mounted enabled buttons notify once, suppress pending repeats and use the 
     calls++
     return pending.promise
   })
+
   h.action.press()
   assert.equal(calls, 0)
   h.action.mount()
@@ -74,13 +83,16 @@ test('mounted enabled buttons notify once, suppress pending repeats and use the 
   h.action.press()
   assert.equal(calls, 1)
   assert.equal(h.presses, 1)
+
   const latest = []
+
   h.props = {
     disabled: true,
     onResult(result) {
       latest.push(result)
     },
   }
+
   pending.resolve({ status: 'cancelled' })
   await flush()
   assert.equal(h.results.length, 0)
@@ -90,12 +102,16 @@ test('mounted enabled buttons notify once, suppress pending repeats and use the 
 test('unmount and replacement retire old results without cancelling native work or clearing a new lease', async () => {
   const first = deferred(),
     second = deferred()
+
   let calls = 0
   const h = load(() => (++calls === 1 ? first : second).promise)
   const unmount = h.action.mount()
+
   h.action.press()
   unmount()
+
   const nextUnmount = h.action.mount()
+
   h.action.press()
   unmount()
   first.resolve({ status: 'success', credential: { provider: 'apple' } })
@@ -116,6 +132,7 @@ test('onPress return values do not gate sign-in, but observed disable/unmount an
     calls++
     return { status: 'cancelled' }
   })
+
   h.action.mount()
   h.props.onPress = () => false
   h.action.press()
@@ -125,21 +142,26 @@ test('onPress return values do not gate sign-in, but observed disable/unmount an
     h.action.press()
     h.props.disabled = true
   }
+
   h.action.press()
   await flush()
   assert.equal(calls, 1)
   h.props.disabled = false
+
   const unmount = h.action.mount()
+
   h.props.onPress = () => {
     unmount()
     h.action.mount()
   }
+
   h.action.press()
   await flush()
   assert.equal(calls, 1)
   h.props.onPress = () => {
     h.action.press()
   }
+
   h.action.press()
   await flush()
   assert.equal(calls, 2)
@@ -153,6 +175,7 @@ test('provider throws/rejections become one generic owned error without leaking 
     () => Promise.reject(Error('sensitive-native-detail')),
   ]) {
     const h = load(signIn)
+
     h.action.mount()
     h.action.press()
     await flush()
@@ -171,10 +194,12 @@ test('onPress exceptions release the pending claim and propagate as consumer err
     calls++
     return { status: 'cancelled' }
   })
+
   h.action.mount()
   h.props.onPress = () => {
     throw Error('consumer hook failed')
   }
+
   assert.throws(() => h.action.press(), /consumer hook failed/)
   assert.equal(calls, 0)
   assert.equal(h.results.length, 0)
@@ -189,6 +214,7 @@ test('provider settlement after teardown is consumed and result callbacks may st
   let calls = 0
   const h = load(() => (++calls === 1 ? pending.promise : Promise.resolve({ status: 'cancelled' })))
   const unmount = h.action.mount()
+
   h.action.press()
   unmount()
   pending.reject(Error('retired'))
@@ -200,6 +226,7 @@ test('provider settlement after teardown is consumed and result callbacks may st
       h.action.press()
     }
   }
+
   h.action.press()
   await flush()
   assert.equal(calls, 3)

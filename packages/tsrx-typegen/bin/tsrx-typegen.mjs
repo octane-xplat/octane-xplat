@@ -4,4 +4,5 @@
 // ≥22.18 strips types): a stale, gitignored dist/ would otherwise run old code
 // under turbo cache keys hashed from current source.
 const entry = import.meta.url.includes('/node_modules/') ? '../dist/cli.js' : '../src/cli.ts'
+
 await import(new URL(entry, import.meta.url).href)

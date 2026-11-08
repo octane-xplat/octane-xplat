@@ -19,6 +19,7 @@ import { RadioGroup } from '../../components/forms/RadioGroup.tsrx'
 function setup() {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   return { container, root }
 }
 
@@ -48,6 +49,7 @@ function findNative(
 
   for (const child of node.children ?? []) {
     const found = findNative(child, type, label, role, className)
+
     if (found) {
       return found
     }
@@ -60,8 +62,11 @@ describe('native text input', () => {
   it('seeds defaultValue, keeps user edits internally, and reports the new string', async () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(TextInput, { defaultValue: 'seed', onChange: change })
+
     const field = findNative(container, 'textfield')
+
     await vi.waitFor(() => expect(field.text).toBe('seed'))
     container.dispatchEvent(field, 'textChange', { object: field, value: 'seed-x' })
     expect(change).toHaveBeenLastCalledWith('seed-x')
@@ -72,8 +77,11 @@ describe('native text input', () => {
   it('controlled value wins and restores repeated rejected native edits', async () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(TextInput, { value: 'owned', defaultValue: 'ignored', onChange: change })
+
     const field = findNative(container, 'textfield')
+
     await vi.waitFor(() => expect(field.text).toBe('owned'))
     for (let attempt = 0; attempt < 2; attempt++) {
       field.text = 'edited'
@@ -90,6 +98,7 @@ describe('native text input', () => {
     const { container, root } = setup()
     const change = vi.fn()
     const cleared = vi.fn()
+
     root.render(TextInput, {
       defaultValue: 'seed',
       hasClear: true,
@@ -99,6 +108,7 @@ describe('native text input', () => {
 
     const field = findNative(container, 'textfield')
     const clear = findNative(container, 'masonview', 'Clear input')
+
     expect(clear).not.toBeNull()
     // The object driver instance has no NSView surface — the clear handler
     // refocuses the field imperatively on a real device.
@@ -115,8 +125,11 @@ describe('native text input', () => {
     const change = vi.fn()
     const inputRef = { current: null as any }
     const props = { defaultValue: 'seed', onChange: change, ref: inputRef }
+
     root.render(TextInput, props)
+
     const field = findNative(container, 'textfield')
+
     await vi.waitFor(() => expect(field.text).toBe('seed'))
     container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
     await vi.waitFor(() => expect(field.text).toBe('edited'))
@@ -136,8 +149,11 @@ describe('native text input', () => {
     const { container, root } = setup()
     const inputRef = { current: null as any }
     const props = { inputRef }
+
     root.render(LeadingInput, props)
+
     const field = findNative(container, 'textfield')
+
     await vi.waitFor(() => expect(field.text).toBe('seed'))
     field.text = 'edited'
     container.dispatchEvent(field, 'textChange', { object: field, value: 'edited' })
@@ -158,8 +174,11 @@ describe('native boolean inputs', () => {
   it('Switch seeds defaultValue and toggles internally', () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(Switch, { defaultValue: true, onChange: change })
+
     const host = findNative(container, 'masonview', undefined, 'switch')
+
     expect(host).not.toBeNull()
     expect(host.props.accessibilityState).toBe('checked')
     container.dispatchEvent(host, 'tap', {})
@@ -171,8 +190,11 @@ describe('native boolean inputs', () => {
   it('Switch controlled value wins and stays caller-owned', () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(Switch, { value: true, defaultValue: false, onChange: change })
+
     const host = findNative(container, 'masonview', undefined, 'switch')
+
     expect(host.props.accessibilityState).toBe('checked')
     container.dispatchEvent(host, 'tap', {})
     expect(change).toHaveBeenLastCalledWith(false)
@@ -183,8 +205,11 @@ describe('native boolean inputs', () => {
   it('Checkbox seeds defaultValue and toggles internally', () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(Checkbox, { defaultValue: true, onChange: change })
+
     const host = findNative(container, 'masonview', undefined, 'checkbox')
+
     expect(host.props.accessibilityState).toBe('checked')
     container.dispatchEvent(host, 'tap', {})
     expect(change).toHaveBeenLastCalledWith(false)
@@ -195,8 +220,11 @@ describe('native boolean inputs', () => {
   it('Checkbox indeterminate resolves to checked on toggle', () => {
     const { container, root } = setup()
     const change = vi.fn()
+
     root.render(Checkbox, { value: 'indeterminate', onChange: change })
+
     const host = findNative(container, 'masonview', undefined, 'checkbox')
+
     container.dispatchEvent(host, 'tap', {})
     expect(change).toHaveBeenLastCalledWith(true)
     root.unmount()
@@ -213,7 +241,9 @@ describe('native choices', () => {
     ]
 
     root.render(RadioGroup, { defaultValue: 'b', options, onValueChange: change })
+
     const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
+
     expect(String(group.children[1].props.className)).toContain('vx-radio--on')
     container.dispatchEvent(group.children[0], 'tap', {})
     expect(change).toHaveBeenLastCalledWith('a')
@@ -231,7 +261,9 @@ describe('native choices', () => {
     ]
 
     root.render(RadioGroup, { value: 'b', defaultValue: 'a', options, onValueChange: change })
+
     const group = findNative(container, 'masonview', undefined, undefined, 'vx-radio-group')
+
     expect(String(group.children[1].props.className)).toContain('vx-radio--on')
     container.dispatchEvent(group.children[0], 'tap', {})
     expect(change).toHaveBeenLastCalledWith('a')

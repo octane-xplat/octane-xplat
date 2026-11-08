@@ -42,10 +42,15 @@ const roots: any[] = []
 
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   let handle: TiptapEditorHandle | null = null
+
   act(() =>
     root.render(
       <TiptapEditor
@@ -78,6 +83,7 @@ afterEach(() => {
 it('mounts StarterKit by default', () => {
   const { handle } = mount({ value: '<p>Travel notes</p>' })
   const editor = handle!.native
+
   expect(editor.schema.marks.bold).toBeTruthy()
   expect(editor.schema.nodes.heading).toBeTruthy()
   expect(handle!.getHTML()).toContain('<p>Travel notes</p>')
@@ -90,17 +96,20 @@ it('registers caller mark extensions alongside StarterKit', () => {
   })
 
   const editor = handle!.native
+
   expect(editor.schema.marks.spoiler).toBeTruthy()
   expect(editor.schema.marks.bold).toBeTruthy()
 
   const doc = handle!.getJSON()!
   const marks = JSON.stringify(doc)
+
   expect(marks).toContain('"spoiler"')
   expect(handle!.getHTML()).toContain('data-spoiler')
 })
 
 it('exposes commands added by caller extensions', () => {
   const { handle } = mount({ web: { extensions: [Shout] } })
+
   handle!.native.commands.shout()
   expect(handle!.getHTML()).toContain('SHOUT')
 })
@@ -108,6 +117,7 @@ it('exposes commands added by caller extensions', () => {
 it('passes starterKit options to the built-in kit', () => {
   const { handle } = mount({ web: { starterKit: { link: false } } })
   const editor = handle!.native
+
   expect(editor.schema.marks.link).toBeUndefined()
   expect(editor.schema.marks.bold).toBeTruthy()
 })
@@ -118,6 +128,7 @@ it('hands the schema to caller extensions when starterKit is false', () => {
   })
 
   const editor = handle!.native
+
   expect(editor.schema.marks.spoiler).toBeTruthy()
   expect(editor.schema.marks.bold).toBeUndefined()
   expect(editor.schema.nodes.heading).toBeUndefined()
@@ -142,6 +153,7 @@ it('never registers StarterKit twice', () => {
 it('rejects unsupported formatting before changing content or focus', () => {
   const { handle } = mount({ value: '<p>Unchanged</p>' })
   const before = handle!.getHTML()
+
   for (const format of [
     'taskList',
     'highlight',
@@ -161,6 +173,7 @@ it('rejects unsupported formatting before changing content or focus', () => {
 
 it('rejects a format removed from the configured StarterKit', () => {
   const { handle } = mount({ value: '<p>Unchanged</p>', web: { starterKit: { bold: false } } })
+
   expect(() => handle!.apply('bold')).toThrow(RangeError)
   expect(handle!.getHTML()).toBe('<p>Unchanged</p>')
 })

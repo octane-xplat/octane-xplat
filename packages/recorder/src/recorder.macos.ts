@@ -7,6 +7,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder =>
 
 export async function requestMicrophonePermission(): Promise<RecorderPermissionState> {
   const recorder = createAudioRecorder()
+
   try {
     return await recorder.requestPermission()
   } finally {

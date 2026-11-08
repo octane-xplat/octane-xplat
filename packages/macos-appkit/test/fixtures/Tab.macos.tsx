@@ -1,11 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useLayoutEffect } from 'octane'
 import { useSignal$ } from 'octane/signals/client'
+
 export const tabRef = { current: null as any }
 export const itemRef = { current: null as any }
 export const childRef = { current: null as any }
 export const tabEvents: any[] = []
 export const tabRefs: string[] = []
+
 const refs = [
   tabRef,
   [
@@ -89,6 +91,7 @@ export default function Tabs() {
 }
 
 export const contentEffects: string[] = []
+
 function ImperativeContent() {
   useLayoutEffect(() => {
     contentEffects.push('mount')
@@ -109,6 +112,7 @@ export const imperativeRefs = {
 export let updateTabArrays = (_left: any[], _right: any[]) => {}
 export function ImperativeTabs() {
   const arrays$ = useSignal$({ left: [] as any[], right: [] as any[] })
+
   updateTabArrays = (left, right) => arrays$.set({ left, right })
   return (
     <>

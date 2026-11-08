@@ -29,11 +29,13 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-ui-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     writeSync(1, result.stdout)
   }
@@ -53,6 +55,7 @@ function run(command, args, cwd) {
 
 async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all') {
   console.log(`checking ${target} exports from map ${exportMapIndex} in ${mode.name} mode`)
+
   const consumerRoot = join(
     temporary,
     `map-${exportMapIndex}-${target}-${mode.name}${peers === 'required' ? '-required-peers' : ''}`,
@@ -60,6 +63,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 
   const modules = join(consumerRoot, 'node_modules')
   const packageLink = join(modules, '@octane-xplat/ui')
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(packagePath, packageLink, { recursive: true })
 
@@ -77,11 +81,13 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
 
   for (const dependency of dependencies) {
     const source = join(packageRoot, 'node_modules', dependency)
+
     if (!existsSync(source)) {
       continue
     }
 
     const targetPath = join(modules, dependency)
+
     mkdirSync(dirname(targetPath), { recursive: true })
     symlinkSync(source, targetPath, 'dir')
   }
@@ -98,7 +104,9 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
     }
 
     const helper = join(packageLink, 'src/internal/rendering/child-array.ts')
+
     assert.match(readFileSync(helper, 'utf8'), /from ['"]octane['"]/)
+
     const { toChildArray, mapChildren } = await loadSource(pathToFileURL(helper), {
       resolve: { alias: [{ find: /^octane$/, replacement: 'octane/universal/native' }] },
     })
@@ -110,6 +118,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
   if (target === 'macos') {
     for (const dependency of ['@octane-xplat/macos-appkit', '@nativescript/macos-node-api']) {
       const targetPath = join(modules, dependency)
+
       mkdirSync(dirname(targetPath), { recursive: true })
       symlinkSync(join(repoRoot, 'apps/macos/node_modules', dependency), targetPath, 'dir')
     }
@@ -137,6 +146,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
       })
 
       const diagnostics = program.getSemanticDiagnostics(program.getSourceFile(declaration))
+
       assert.equal(
         diagnostics.length,
         0,
@@ -168,6 +178,7 @@ async function typecheck(packagePath, target, mode, exportMapIndex, peers = 'all
   }
 
   let source
+
   if (target === 'web') {
     source = `import { Button, KeyboardAvoiding, useKeyboardInset, View, HoverCard, Tooltip } from '@octane-xplat/ui'
 import { HoverCard as WebHoverCard, Tooltip as WebTooltip, useOutlineFromDOM } from '@octane-xplat/ui/web'
@@ -520,6 +531,7 @@ void [iosOwner.element, androidOwner.element, navigation, useNativeRouteNavigato
   writeFileSync(join(consumerRoot, 'consumer.tsx'), source)
   if (target === 'web' && mode.name === 'bundler' && peers === 'all') {
     const entry = join(consumerRoot, 'query-inspection-production.ts')
+
     writeFileSync(
       entry,
       `
@@ -559,53 +571,72 @@ if (import.meta.env.DEV) {
       )
     }
   }
+
   const keyboardGuide = readFileSync(join(repoRoot, 'docs/app/text-entry.md'), 'utf8').split(
     '## Read software keyboard space',
   )[1]
 
   assert.ok(keyboardGuide, 'keyboard inset guide exists')
+
   const keyboardExamples = [...keyboardGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
+
   assert.equal(keyboardExamples.length, 7, 'all keyboard inset examples are checked')
+
   const exampleFiles = keyboardExamples.map((match, index) => {
     const name = `keyboard-example-${index}.tsx`
+
     writeFileSync(join(consumerRoot, name), match[1])
     return name
   })
+
   const routingGuide = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
   const catalogGuide = routingGuide
     .split('## Register routes from data')[1]
     ?.split('## Own runtime registrations')[0]
+
   assert.ok(catalogGuide, 'the inferred catalog authoring section exists')
+
   const programmaticExamples = [
     ...catalogGuide.matchAll(/```tsx\n(\/\/ src\/guide-routes\.tsx[\s\S]*?)```/g),
   ]
+
   assert.equal(
     programmaticExamples.length,
     2,
     'both inferred programmatic guide screens are checked',
   )
+
   for (let index = 0; index < programmaticExamples.length; index++) {
     const name = `programmatic-guide-${index}.tsx`
+
     writeFileSync(join(consumerRoot, name), programmaticExamples[index][1])
     exampleFiles.push(name)
   }
+
   const literalExample = routingGuide
     .split('### Keep reusable route paths literal')[1]
     ?.match(/```ts\n([\s\S]*?)```/)
+
   assert.ok(literalExample, 'the literal-preserving route example exists')
   writeFileSync(join(consumerRoot, 'literal-route-spec.ts'), literalExample[1])
   exampleFiles.push('literal-route-spec.ts')
+
   const scrollGuide = readFileSync(join(repoRoot, 'docs/app/primitives.md'), 'utf8')
     .split('## Move a scroll viewport')[1]
     ?.split('## macOS scrolling and refresh')[0]
+
   assert.ok(scrollGuide, 'portable scroll command guide exists')
+
   const scrollExamples = [...scrollGuide.matchAll(/```tsx\n([\s\S]*?)```/g)]
+
   assert.equal(scrollExamples.length, 1, 'portable scroll command example is checked')
   writeFileSync(join(consumerRoot, 'scroll-command-example.tsx'), scrollExamples[0][1])
   exampleFiles.push('scroll-command-example.tsx')
+
   const nativeControls = readFileSync(join(repoRoot, 'docs/app/navigation.md'), 'utf8')
     .split('### Retained native controls')[1]
     ?.match(/```tsx\n([\s\S]*?)```/)
+
   assert.ok(nativeControls, 'native route controls example exists')
   writeFileSync(join(consumerRoot, 'native-route-controls.tsx'), nativeControls[1])
   exampleFiles.push('native-route-controls.tsx')
@@ -681,12 +712,15 @@ try {
   )
 
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
   // Node tools consume these exports without the app's source compiler.
   const nodeConsumer = join(temporary, 'node-consumer')
   const installed = join(nodeConsumer, 'node_modules/@octane-xplat/ui')
+
   mkdirSync(dirname(installed), { recursive: true })
   cpSync(packedRoot, installed, { recursive: true })
   writeFileSync(
@@ -708,8 +742,10 @@ assert.equal(dims({ box: { w: 10, h: 20 } }, 10, 20)[1], true)
   )
 
   run(process.execPath, ['check.mjs'], nodeConsumer)
+
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+
   assert.deepEqual(
     packedManifest.exports,
     workspaceManifest.exports,
@@ -731,9 +767,12 @@ assert.equal(dims({ box: { w: 10, h: 20 } }, 10, 20)[1], true)
 
   for (const [index, exportsMap] of uniqueExportMaps.entries()) {
     const consumerPackage = join(temporary, `package-${index}`)
+
     cpSync(packedRoot, consumerPackage, { recursive: true })
+
     const consumerManifestPath = join(consumerPackage, 'package.json')
     const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
     consumerManifest.exports = exportsMap
     writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 

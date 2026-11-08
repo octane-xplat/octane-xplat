@@ -23,6 +23,7 @@ export function createGtkStageHost(widget: GtkView): StageHost {
       }
 
       let disposed = false
+
       return {
         update(props) {
           if (!disposed) {

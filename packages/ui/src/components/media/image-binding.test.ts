@@ -20,13 +20,17 @@ it('assigns the source to a replacement host when content fitting changes', () =
     getDecodeBounds: () => ({}),
     screenScale: () => 1,
   })
+
   const original = imageView()
+
   binding.update(original, null)
   expect(original.src).toBe('avatar.png')
 
   // Image replaces its host when changing to the computed content-rect path.
   fit = 'none'
+
   const replacement = imageView()
+
   try {
     binding.update(replacement, imageView())
     expect(replacement.src).toBe('avatar.png')
@@ -43,19 +47,24 @@ it('deduplicates an unchanged host and waits for replacement layout', () => {
     getDecodeBounds: () => ({}),
     screenScale: () => 1,
   })
+
   const original = imageView()
   let writes = 0
+
   Object.defineProperty(original, 'src', {
     set() {
       writes++
     },
   })
+
   binding.update(original, null)
   binding.update(original, null)
   expect(writes).toBe(1)
   binding.update(null, null)
+
   let width = 0
   const replacement = { ...imageView(), getMeasuredWidth: () => width }
+
   try {
     binding.update(replacement, null)
     expect(replacement.src).toBeUndefined()

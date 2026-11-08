@@ -21,6 +21,7 @@ const temporary = mkdtempSync(join(tmpdir(), 'octane-nano-icons-consumer-'))
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -68,14 +69,19 @@ void element; void bound; void tinted; void missing; void invalid
 try {
   const pack = join(temporary, 'pack')
   const extracted = join(temporary, 'extracted')
+
   mkdirSync(pack)
   mkdirSync(extracted)
   run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
+
   const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+
   assert.ok(tarball)
   run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
+
   const packed = join(extracted, 'package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   for (const dep of ['@octane-xplat/ui']) {
     assert.equal(manifest.dependencies[dep].startsWith('workspace:'), false)
   }
@@ -89,7 +95,9 @@ try {
   }
 
   assert.ok(manifest.exports['./build'].default.startsWith('./dist/'))
+
   const macosComponent = readFileSync(join(packed, 'src/NanoIcon.macos.tsrx'), 'utf8')
+
   assert.equal(
     macosComponent,
     readFileSync(join(packageRoot, 'src/NanoIcon.macos.tsrx'), 'utf8'),
@@ -102,6 +110,7 @@ try {
     for (const mode of ['bundler', 'nodenext']) {
       const consumer = join(temporary, `${target}-${mode}`)
       const modules = join(consumer, 'node_modules')
+
       mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
       cpSync(packed, join(modules, '@octane-xplat/nano-icons'), { recursive: true })
       for (const dependency of [
@@ -117,6 +126,7 @@ try {
         ...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
       ]) {
         const destination = join(modules, dependency)
+
         mkdirSync(dirname(destination), { recursive: true })
         symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
       }

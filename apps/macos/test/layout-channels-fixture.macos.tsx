@@ -132,6 +132,7 @@ export async function runLayoutChannelsFixture() {
 
   window.releasedWhenClosed = false
   window.orderFront(null)
+
   const root = createMacOSRoot(window.contentView)
   const view = (id: string) => (root as any).__macosDebug.findId(id)
   const check = (ok: boolean, message: string) => {
@@ -156,6 +157,7 @@ export async function runLayoutChannelsFixture() {
       for (const suffix of ['-nested', '-text']) {
         const actual = view(channel + suffix).frame
         const expected = view('props' + suffix).frame
+
         for (const key of ['x', 'y']) {
           near(actual.origin[key], expected.origin[key], channel + suffix + '.' + key)
         }
@@ -167,6 +169,7 @@ export async function runLayoutChannelsFixture() {
     }
 
     const width = Number(window.contentView.bounds.size.width)
+
     for (const channel of ['props', 'style', 'class']) {
       near(Number(view(channel).frame.size.width), width, 'assigned frame ' + channel)
       near(
@@ -181,6 +184,7 @@ export async function runLayoutChannelsFixture() {
       const textView = view(channel + '-text')
       const nested = nestedView.alignmentRectForFrame(nestedView.frame)
       const text = textView.alignmentRectForFrame(textView.frame)
+
       if (phase !== 4) {
         near(
           Number(text.origin.x) - Number(nested.origin.x) - Number(nested.size.width),
@@ -258,6 +262,7 @@ export async function runLayoutChannelsFixture() {
       near(Number(view('abs-nested').frame.size.width), width / 2, 'absolute nested percent')
 
       const tail = view('abs-tail').frame
+
       near(Number(tail.origin.x) + Number(tail.size.width), width - 16, 'absolute right pin')
 
       near(Number(tail.origin.y), 12, 'absolute bottom pin')

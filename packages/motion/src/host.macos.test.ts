@@ -1,4 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('@octane-xplat/macos-appkit', () => ({ setLayoutProjectionScale: vi.fn() }))
 
 import { attachHost } from './host.macos'
@@ -14,7 +15,9 @@ function host() {
   ])
 
   const transaction = { begin: vi.fn(), setDisableActions: vi.fn(), commit: vi.fn() }
+
   vi.stubGlobal('CATransaction', transaction)
+
   const node = {
     alphaValue: 0.8,
     wantsLayer: false,
@@ -40,12 +43,16 @@ describe('AppKit Motion channels', () => {
       bounds: { size: { width: 200, height: 100 } },
       layer: { ...node.layer, anchorPoint: { x: 0, y: 0 } },
     }
+
     const samples: { scale: number | null; native: number }[] = []
+
     vi.mocked(setLayoutProjectionScale).mockImplementation((_view, scale) => {
       samples.push({ scale: scale?.x ?? null, native: values.get('transform.scale.x')! })
     })
+
     const adapter = attachHost(view)
     const axis = { translate: 0, scale: 0.5, origin: 0.5, originPoint: 0 }
+
     adapter.project!({ delta: { x: axis, y: axis }, treeScale: { x: 1, y: 1 }, latest: {} })
     adapter.project!(null)
     adapter.project!({ delta: { x: axis, y: axis }, treeScale: { x: 1, y: 1 }, latest: {} })
@@ -60,6 +67,7 @@ describe('AppKit Motion channels', () => {
 
   it('writes all native channels in one transaction, with scale composition and native units', () => {
     const { node, values, transaction } = host()
+
     attachHost(node).write({
       opacity: 0.5,
       x: 50,
@@ -87,6 +95,7 @@ describe('AppKit Motion channels', () => {
   it('retains omitted native channels, clamps opacity, and restores the native baseline', () => {
     const { node, values } = host()
     const adapter = attachHost(node)
+
     expect(adapter.read()).toEqual({
       opacity: 0.8,
       x: 0,
@@ -117,6 +126,7 @@ describe('AppKit Motion channels', () => {
     'transform.scale.y',
   ])('rejects an existing native transform: %s', (path) => {
     const { node, values } = host()
+
     values.set(path, 2)
     expect(() => attachHost(node)).toThrow('put existing transforms on an outer container')
   })
@@ -135,6 +145,7 @@ describe('AppKit Motion channels', () => {
     }
 
     const adapter = attachHost(view)
+
     adapter.write({ x: 12 })
     expect(wantsLayer).toBe(true)
     expect(node.layer.valueForKeyPath('transform.translation.x')).toBe(12)
@@ -142,6 +153,7 @@ describe('AppKit Motion channels', () => {
 
   it('commits the transaction if a native setter throws', () => {
     const { node, transaction } = host()
+
     node.layer.setValueForKeyPath.mockImplementation(() => {
       throw new Error('native write failed')
     })

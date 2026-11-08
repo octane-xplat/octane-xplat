@@ -24,6 +24,7 @@ function fixture(options = {}) {
     failDispatch: false,
     failListen: false,
   }
+
   const Application = {
     suspended: options.suspended ?? false,
     suspendEvent: 'suspend',
@@ -33,6 +34,7 @@ function fixture(options = {}) {
       if (!events.has(name)) {
         events.set(name, new Set())
       }
+
       events.get(name).add(callback)
       if (state.failListen && name === 'resume') {
         throw new Error('app listener failed')
@@ -42,6 +44,7 @@ function fixture(options = {}) {
       events.get(name)?.delete(callback)
     },
   }
+
   const onUi = (callback) => {
     assert.equal(state.ui, false)
     state.ui = true
@@ -51,11 +54,13 @@ function fixture(options = {}) {
       state.ui = false
     }
   }
+
   const Utils = {
     dispatchToMainThread(callback) {
       if (state.failDispatch) {
         throw new Error('dispatcher unavailable')
       }
+
       if (options.deferred) {
         tasks.push(() => onUi(callback))
       } else {
@@ -63,6 +68,7 @@ function fixture(options = {}) {
       }
     },
   }
+
   class DisplayRequest {
     constructor() {
       assert.equal(state.ui, true)
@@ -70,6 +76,7 @@ function fixture(options = {}) {
       if (state.failConstruct) {
         throw new Error('constructor unavailable')
       }
+
       this.held = false
     }
     RequestActive() {
@@ -78,6 +85,7 @@ function fixture(options = {}) {
       if (state.failActivate) {
         throw new Error('activation denied')
       }
+
       this.held = true
       state.active++
     }
@@ -87,25 +95,31 @@ function fixture(options = {}) {
       if (state.failRelease) {
         throw new Error('release denied')
       }
+
       this.held = false
       state.released++
     }
   }
+
   const Windows = { System: { Display: { DisplayRequest } } }
   const exports = {}
+
   vm.runInNewContext(source, {
     exports,
     require(id) {
       if (id === '@nativescript/core') {
         return { Application, Utils }
       }
+
       if (id === '@octane-xplat/platform/windows') {
         return { Windows }
       }
+
       assert.equal(id, './keep-awake.types')
       return { KeepAwakeDefaultTag: 'KeepAwakeDefaultTag' }
     },
   })
+
   return {
     api: exports.keepAwake,
     state,
@@ -117,9 +131,11 @@ function fixture(options = {}) {
       if (name === 'suspend') {
         Application.suspended = true
       }
+
       if (name === 'resume') {
         Application.suspended = false
       }
+
       for (const callback of events.get(name) ?? []) {
         callback()
       }
@@ -132,6 +148,7 @@ function fixture(options = {}) {
 
 test('Windows tags share one UI-thread request with deduplicated default tags and independent cleanup', async () => {
   const f = fixture()
+
   assert.equal(await f.api.isAvailable(), true)
   assert.equal(await f.api.isActivated(), false)
   assert.equal(await f.api.activate(), true)
@@ -152,6 +169,7 @@ test('Windows tags share one UI-thread request with deduplicated default tags an
 
 test('Windows suspension releases the held request and resume reapplies remaining owners', async () => {
   const f = fixture()
+
   await f.api.activate('a')
   await f.api.activate('b')
   f.emit('suspend')
@@ -169,6 +187,7 @@ test('Windows suspension releases the held request and resume reapplies remainin
 
 test('Windows background activation retains a requested tag without claiming a held inhibitor', async () => {
   const f = fixture({ suspended: true })
+
   assert.equal(await f.api.activate('reading'), true)
   assert.equal(await f.api.isActivated(), false)
   assert.equal(f.state.created, 0)
@@ -176,7 +195,9 @@ test('Windows background activation retains a requested tag without claiming a h
   assert.equal(await f.api.isActivated(), true)
   await f.api.deactivate('reading')
   assert.equal(f.listeners, 0)
+
   const cancelled = fixture({ suspended: true })
+
   await cancelled.api.activate('reading')
   await cancelled.api.deactivate('reading')
   cancelled.emit('resume')
@@ -187,6 +208,7 @@ test('Windows background activation retains a requested tag without claiming a h
 test('Windows absent/malformed projection and dispatcher failures return false and allow later retries', async () => {
   const f = fixture()
   const Constructor = f.Windows.System.Display.DisplayRequest
+
   f.Windows.System.Display.DisplayRequest = undefined
   assert.equal(await f.api.isAvailable(), false)
   assert.equal(await f.api.activate(), false)
@@ -207,6 +229,7 @@ test('Windows absent/malformed projection and dispatcher failures return false a
 test('Windows failed construction or activation rolls back listeners without recording a tag', async () => {
   for (const key of ['failConstruct', 'failActivate']) {
     const f = fixture()
+
     f.state[key] = true
     assert.equal(await f.api.activate('a'), false)
     assert.equal(await f.api.isActivated(), false)
@@ -221,6 +244,7 @@ test('Windows failed construction or activation rolls back listeners without rec
 
 test('Windows release failure keeps ownership for a safe retry instead of losing the held request', async () => {
   const f = fixture()
+
   await f.api.activate('a')
   f.state.failRelease = true
   assert.equal(await f.api.deactivate('a'), false)
@@ -236,6 +260,7 @@ test('Windows release failure keeps ownership for a safe retry instead of losing
 
 test('Windows failed resume can retry the existing requested tag and background release can retry', async () => {
   const f = fixture()
+
   await f.api.activate('a')
   f.state.failRelease = true
   f.emit('suspend')
@@ -255,6 +280,7 @@ test('Windows failed resume can retry the existing requested tag and background 
 
 test('Windows exit releases all owners and queued resume does not reactivate after exit', async () => {
   const f = fixture()
+
   await f.api.activate('a')
   await f.api.activate('b')
   f.emit('suspend')
@@ -269,17 +295,22 @@ test('Windows exit releases all owners and queued resume does not reactivate aft
 
 test('Windows ignores retired lifecycle callbacks after the final owner is removed', async () => {
   const f = fixture()
+
   await f.api.activate('a')
+
   const callbacks = [...f.events.values()].flatMap((set) => [...set])
+
   await f.api.deactivate('a')
   for (const callback of callbacks) {
     callback()
   }
+
   assert.equal(await f.api.isActivated(), false)
   assert.equal(await f.api.activate('new'), true)
   for (const callback of callbacks) {
     callback()
   }
+
   assert.equal(await f.api.isActivated(), true)
   await f.api.deactivate('new')
   assert.equal(f.state.active, 2)
@@ -288,6 +319,7 @@ test('Windows ignores retired lifecycle callbacks after the final owner is remov
 
 test('Windows rolls back partial app registration and can retry after failed exit release', async () => {
   const f = fixture()
+
   f.state.failListen = true
   assert.equal(await f.api.activate('a'), false)
   assert.equal(f.listeners, 0)
@@ -310,6 +342,7 @@ test('Windows serializes delayed UI work so a queued activation cannot outlive i
   const first = f.api.activate('a')
   const remove = f.api.deactivate('a')
   const second = f.api.activate('b')
+
   for (const [active, released] of [
     [1, 0],
     [1, 1],
@@ -321,9 +354,12 @@ test('Windows serializes delayed UI work so a queued activation cannot outlive i
     assert.equal(f.state.active, active)
     assert.equal(f.state.released, released)
   }
+
   assert.deepEqual(await Promise.all([first, remove, second]), [true, true, true])
   assert.equal(await f.api.isActivated(), true)
+
   const end = f.api.deactivate('b')
+
   await setImmediate()
   f.tasks.shift()()
   assert.equal(await end, true)

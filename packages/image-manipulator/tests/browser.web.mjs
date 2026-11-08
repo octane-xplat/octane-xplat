@@ -15,86 +15,130 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch()
+
   const page = await browser.newPage()
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(`${server.resolvedUrls.local[0]}tests/index.html`)
+
   const result = await page.evaluate(async () => {
     const { ImageManipulator, SaveFormat, FlipType, releaseImage } =
       await import('/src/index.web.ts')
+
     const original = document.createElement('canvas')
+
     original.width = 3
     original.height = 2
+
     const ctx = original.getContext('2d')
     const values = [20, 40, 60, 80, 100, 120]
     const bytes = new Uint8ClampedArray(values.flatMap((value) => [value, 0, 0, 255]))
+
     ctx.putImageData(new ImageData(bytes, 3, 2), 0, 0)
+
     const uri = original.toDataURL('image/png')
     const read = async (result) => {
       const img = new Image()
+
       img.src = result.uri
       await img.decode()
+
       const canvas = document.createElement('canvas')
+
       canvas.width = img.naturalWidth
       canvas.height = img.naturalHeight
+
       const draw = canvas.getContext('2d')
+
       draw.drawImage(img, 0, 0)
+
       const data = draw.getImageData(0, 0, canvas.width, canvas.height).data
+
       return {
         width: canvas.width,
         height: canvas.height,
         reds: Array.from(data).filter((_, index) => index % 4 === 0),
       }
     }
+
     const run = async (change) => {
       const context = ImageManipulator.manipulate(uri)
+
       change(context)
+
       const image = await context.renderAsync()
+
       context.release()
+
       const saved = await image.saveAsync({ format: SaveFormat.PNG, base64: true })
+
       image.release()
+
       const pixels = await read(saved)
       const mimeType = (await fetch(saved.uri).then((response) => response.blob())).type
+
       releaseImage(saved)
+
       let revoked = false
+
       try {
         await fetch(saved.uri)
       } catch {
         revoked = true
       }
+
       return { ...pixels, mimeType, base64: Boolean(saved.base64), revoked }
     }
+
     const rotated = await run((context) => context.rotate(90))
     const cropped = await run((context) =>
       context.crop({ originX: 1, originY: 0, width: 2, height: 2 }).rotate(90),
     )
+
     const flipped = await run((context) => context.flip(FlipType.Vertical))
     const enlarged = await run((context) =>
       context.extent({ width: 4, height: 3, originX: 1, originY: 1, backgroundColor: '#ff0000' }),
     )
+
     const resize = await run((context) => context.resize({ width: 6 }))
     const context = ImageManipulator.manipulate(uri)
     const pending = context.renderAsync()
+
     context.rotate(180)
+
     const turned = await context.renderAsync()
     const before = await pending
+
     context.reset()
+
     const restored = await context.renderAsync()
+
     context.release()
+
     const child = ImageManipulator.manipulate(before).flip(FlipType.Horizontal)
+
     before.release()
+
     const derived = await child.renderAsync()
+
     child.release()
+
     const saveAndRead = async (image) => {
       const saved = await image.saveAsync({ format: SaveFormat.PNG })
+
       image.release()
+
       const value = await read(saved)
+
       releaseImage(saved)
       return value
     }
+
     const frozen = await saveAndRead(turned)
     const reset = await saveAndRead(restored)
     const reuse = await saveAndRead(derived)
@@ -104,19 +148,27 @@ try {
       width: 2,
       height: 2,
     })
+
     let boundsError = false
+
     try {
       await failed.renderAsync()
     } catch {
       boundsError = true
     }
+
     failed.release()
+
     const webpContext = ImageManipulator.manipulate(uri)
     const webpPixels = await webpContext.renderAsync()
+
     webpContext.release()
+
     const webpOutputs = []
+
     for (const fallback of [false, true]) {
       const originalToBlob = HTMLCanvasElement.prototype.toBlob
+
       try {
         if (fallback) {
           HTMLCanvasElement.prototype.toBlob = function (callback, type, quality) {
@@ -138,6 +190,7 @@ try {
         try {
           const blob = await fetch(saved.uri).then((response) => response.blob())
           const bytes = new Uint8Array(await blob.arrayBuffer())
+
           webpOutputs.push({
             mime: blob.type,
             riff: String.fromCharCode(...bytes.slice(0, 4)),
@@ -152,9 +205,12 @@ try {
         HTMLCanvasElement.prototype.toBlob = originalToBlob
       }
     }
+
     webpPixels.release()
+
     const { exerciseHook } = await import('/tests/hook.web.tsx')
     const { stable, boundsChanged, sourceChanged, unmounted } = await exerciseHook(uri)
+
     return {
       webpOutputs,
       rotated,

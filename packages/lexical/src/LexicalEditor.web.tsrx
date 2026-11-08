@@ -43,6 +43,7 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
   const lastJSONInput = useRef(JSON.stringify(props.json))
   const bound = useRef<LexicalEditorHandle | undefined>(undefined)
   const [exposedHandle, setHandle] = useState<LexicalEditorHandle | null>(null)
+
   useImperativeHandle<LexicalEditorHandle | null>(props.ref, () => exposedHandle, [exposedHandle])
 
   const initialConfig = {
@@ -58,6 +59,7 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
           ? (editor: any) => {
               const dom = new DOMParser().parseFromString(props.value!, 'text/html')
               const nodes = $generateNodesFromDOM(editor, dom)
+
               $getRoot().select()
               $insertNodes(nodes)
             }
@@ -84,11 +86,13 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
   // (the update already owns the doc).
   useEffect(() => {
     const e = editorRef.current
+
     if (!e) {
       return
     }
 
     const stamp = JSON.stringify([props.json !== undefined, props.value])
+
     if (stamp === lastHTMLInput.current) {
       return
     }
@@ -107,11 +111,13 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
 
   useEffect(() => {
     const e = editorRef.current
+
     if (!e) {
       return
     }
 
     const stamp = JSON.stringify(props.json)
+
     if (stamp === lastJSONInput.current) {
       return
     }
@@ -130,15 +136,20 @@ export function LexicalEditor(props: LexicalEditorProps): JSX.Element @{
 
   const emitChange = (state: any, editor: any) => {
     const html = state.read(() => $generateHtmlFromNodes(editor))
+
     lastEmitted.current = html
     props.onChange?.(html)
+
     const doc = state.toJSON()
+
     lastJSON.current = JSON.stringify(doc)
     props.onJSONChange?.(doc)
     state.read(() => {
       const sel = $getSelection()
+
       if ($isRangeSelection(sel) && props.onSelectionChange) {
         const root = $getRoot()
+
         props.onSelectionChange({
           start: flatOffset(root, sel.anchor.key, sel.anchor.offset),
           end: flatOffset(root, sel.focus.key, sel.focus.offset),

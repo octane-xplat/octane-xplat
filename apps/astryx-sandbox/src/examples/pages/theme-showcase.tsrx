@@ -670,6 +670,7 @@ function InventoryCard(props: {
           header: 'Item',
           renderCell: (row: InventoryRow) => {
             const src = row.imageKey ? props.images[row.imageKey] : undefined
+
             return (
               <HStack gap={3} vAlign="center">
                 {src ? (

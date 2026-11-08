@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-slider-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -32,10 +34,13 @@ function compiled(name, source, imports = {}, template = true) {
         },
       }).code
     : source
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -124,11 +129,14 @@ function mount(props, component = Slider) {
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   const inputs = () => nodes().filter((node) => node.type === 'xplatwindowsslider')
   const surface = () =>
     nodes().find((node) => String(node.props.className).includes('vx-slider-track-windows'))
+
   root.render(component, props)
   return {
     root,
@@ -144,6 +152,7 @@ test('uncontrolled defaults seed once, persist and suppress unchanged requests',
   const changes = []
   const props = { defaultValue: 42, onValueChange: (value) => changes.push(value) }
   const f = mount(props)
+
   try {
     assert.equal(f.inputs()[0].props.settings.value, 42)
     f.inputs()[0].props.requestChange(65)
@@ -162,6 +171,7 @@ test('controlled requests stay caller-owned and prop updates do not echo', async
   const changes = []
   const props = { value: 42, defaultValue: 8, onValueChange: (value) => changes.push(value) }
   const f = mount(props)
+
   try {
     f.inputs()[0].props.requestChange(65)
     await tick()
@@ -181,8 +191,10 @@ test('disabled legacy/modern and readonly guards block peer and pan requests', (
   for (const guard of [{ disabled: true }, { isDisabled: true }, { isReadOnly: true }]) {
     const changes = []
     const f = mount({ defaultValue: 42, ...guard, onValueChange: (value) => changes.push(value) })
+
     try {
       const peer = f.inputs()[0]
+
       assert.equal(peer.props.isEnabled, !(guard.disabled || guard.isDisabled))
       assert.equal(peer.props.settings.readOnly, Boolean(guard.isReadOnly))
       peer.props.requestChange(65)
@@ -201,8 +213,10 @@ test('real Field context supplies accessible name and inherited guards', () => {
   for (const flags of [{ disabled: true }, { readOnly: true }]) {
     const changes = []
     const f = mount({ ...flags, onValueChange: (value) => changes.push(value) }, InField)
+
     try {
       const peer = f.inputs()[0]
+
       assert.equal(peer.props.accessibilityLabel, 'Inherited volume')
       assert.equal(peer.props.isEnabled, !flags.disabled)
       assert.equal(peer.props.settings.readOnly, Boolean(flags.readOnly))
@@ -222,8 +236,10 @@ test('range peers constrain crossing, preserve the other thumb and share the dom
     defaultValue: [20, 80],
     onValueChange: (value) => changes.push(value),
   })
+
   try {
     let [lower, upper] = f.inputs()
+
     assert.equal(lower.props.accessibilityLabel, 'Price, lower value')
     assert.equal(upper.props.accessibilityLabel, 'Price, upper value')
     assert.equal(lower.props.settings.max, 80)
@@ -249,9 +265,11 @@ test('nearest range thumb uses native local touch coordinates in either event or
   for (const touchFirst of [true, false]) {
     const changes = []
     const f = mount({ defaultValue: [20, 80], onValueChange: (value) => changes.push(value) })
+
     try {
       const touch = () => f.dispatch('touch', { action: 'down', getX: () => 60 })
       const began = () => f.dispatch('pan', { state: 'began', dx: 0, x: 0 })
+
       if (touchFirst) {
         touch()
         began()
@@ -294,6 +312,7 @@ test('steps anchor to min, fractional values persist and degenerate bounds remai
     defaultValue: 0.5,
     onValueChange: (value) => changes.push(value),
   })
+
   try {
     f.inputs()[0].props.requestChange(0.87)
     await tick()
@@ -324,6 +343,7 @@ test('marks and formatted readouts render for scalar and range without changing 
       { value: 101, label: 'Outside' },
     ],
   })
+
   try {
     const labels = f
       .nodes()
@@ -343,6 +363,7 @@ test('marks and formatted readouts render for scalar and range without changing 
 
 test('id className and dynamic style apply to the same component host', () => {
   const f = mount({ id: 'volume', className: 'custom-volume', style: { width: 220, opacity: 0.7 } })
+
   try {
     const styled = f
       .nodes()

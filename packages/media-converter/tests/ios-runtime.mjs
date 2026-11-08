@@ -18,6 +18,7 @@ const { values } = parseArgs({
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const repo = process.env.XPLAT_NATIVE_TEST_REPO ?? join(packageRoot, '../..')
 const device = process.env.XPLAT_IOS_DEVICE
+
 assert.ok(
   device && process.platform === 'darwin',
   'Select an owned simulator with XPLAT_IOS_DEVICE',
@@ -40,15 +41,18 @@ const sim = (args, allowFailure = false) => {
 }
 
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
+
 await cp(join(repo, 'packages/create/template/App_Resources'), resources, { recursive: true })
 
 const rss = (pid) => {
   const out = spawnSync('ps', ['-o', 'rss=', '-p', String(pid)], { encoding: 'utf8' })
+
   return Number(out.stdout.trim()) || 0
 }
 
 const cpu = (pid) => {
   const out = spawnSync('ps', ['-o', '%cpu=', '-p', String(pid)], { encoding: 'utf8' })
+
   return Number(out.stdout.trim()) || 0
 }
 
@@ -57,17 +61,20 @@ const appPid = async (appId) => {
     const list = await sim(['spawn', device, 'launchctl', 'list'], true)
     const line = list.stdout.split('\n').find((entry) => entry.includes(appId))
     const pid = Number(line?.trim().split(/\s+/)[0])
+
     if (pid > 0) {
       return pid
     }
 
     await new Promise((resolve) => setTimeout(resolve, 500))
   }
+
   return 0
 }
 
 let stage = 'prelaunch'
 let project
+
 try {
   project = await prepare(
     'ios',
@@ -89,8 +96,10 @@ try {
   // forever; wait for a settled state first, then boot.
   const deviceState = async () => {
     const list = await sim(['list', 'devices', '-j'], true)
+
     for (const devices of Object.values(JSON.parse(list.stdout).devices ?? {})) {
       const found = devices.find((entry) => entry.udid === device)
+
       if (found) {
         return found.state
       }
@@ -99,6 +108,7 @@ try {
 
   for (let attempt = 0; attempt < 120; attempt++) {
     const state = await deviceState()
+
     if (state === 'Booted') {
       break
     }
@@ -131,7 +141,9 @@ try {
   }
 
   const artifact = (await filesUnder(output)).find((file) => file.endsWith('.app/Info.plist'))
+
   assert.ok(artifact, 'expected an unsigned simulator release app')
+
   const app = dirname(artifact)
 
   // The built bundle must contain the real conversion engine: the compiled
@@ -166,8 +178,10 @@ try {
   }
 
   await sim(['install', device, app])
+
   const container = (await sim(['get_app_container', device, project.appId, 'data'])).stdout.trim()
   const documents = join(container, 'Documents')
+
   await mkdir(documents, { recursive: true })
   await writeFile(
     join(documents, 'converter-options.json'),
@@ -176,6 +190,7 @@ try {
 
   await rm(join(documents, 'converter-result.json'), { force: true })
   await rm(join(documents, 'converter-stage.json'), { force: true })
+
   // simctl launch stays attached while the app runs — spawn it and poll for
   // the result file instead of awaiting it.
   const launcher = spawn('xcrun', ['simctl', 'launch', device, project.appId], {
@@ -190,6 +205,7 @@ try {
   const pid = await appPid(project.appId)
   let result
   const deadline = Date.now() + 15 * 60 * 1000
+
   while (Date.now() < deadline) {
     if (pid) {
       samples.push({ t: Date.now(), stage, rss: rss(pid), cpu: cpu(pid) })
@@ -197,6 +213,7 @@ try {
 
     try {
       const marker = JSON.parse(await readFile(join(documents, 'converter-stage.json'), 'utf8'))
+
       if (marker.stage !== stage) {
         stageBounds.set(stage, samples.length)
         stage = marker.stage
@@ -224,10 +241,12 @@ try {
   // Attribute peak RSS to each stage window for the qualification report.
   const windows = [...stageBounds.entries()]
   const perStage = {}
+
   for (let index = 0; index < windows.length; index++) {
     const [name, start] = windows[index]
     const end = windows[index + 1]?.[1] ?? samples.length
     const slice = samples.slice(start, end)
+
     if (!slice.length || name === 'prelaunch') {
       continue
     }

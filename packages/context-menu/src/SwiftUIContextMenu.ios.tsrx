@@ -75,6 +75,7 @@ let seq = 0
  *  as serialized data. */
 export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
   const triggerId = useRef<string>('')
+
   if (!triggerId.current) {
     triggerId.current = `ctxmenu${++seq}`
   }
@@ -88,6 +89,7 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
   useEffect(() => {
     const trigger = new GridLayout()
     const preview = new GridLayout()
+
     registerHosts(triggerId.current, trigger, previewId, preview)
     setPortalHosts({ trigger, preview })
 
@@ -119,6 +121,7 @@ export function SwiftUIContextMenu(props: SwiftUIContextMenuProps): unknown @{
       }}
       onSwiftUIEvent={(event: any) => {
         const item = event.data?.item
+
         if (typeof item === 'string' && item) {
           props.onItemSelected?.(item)
         }

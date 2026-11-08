@@ -10,6 +10,7 @@ vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 // CheckboxIndicator registers <svgview> as an import side effect; the object
 // driver doesn't need the real vendored SVGView.
 vi.mock('../media/svg', () => ({}))
+
 import { Checkbox } from './Checkbox.tsrx'
 
 describe('native checkbox selection semantics', () => {
@@ -18,7 +19,9 @@ describe('native checkbox selection semantics', () => {
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const change = vi.fn()
     const props = { accessibilityLabel: 'Select current page', onChange: change }
+
     root.render(Checkbox, { ...props, value: 'indeterminate' })
+
     const findCheckbox = (node: any): any => {
       if (node.props?.accessibilityRole === 'checkbox') {
         return node
@@ -26,6 +29,7 @@ describe('native checkbox selection semantics', () => {
 
       for (const child of node.children ?? []) {
         const found = findCheckbox(child)
+
         if (found) {
           return found
         }
@@ -33,6 +37,7 @@ describe('native checkbox selection semantics', () => {
     }
 
     const host = findCheckbox(container.children[0])
+
     expect(host).toBeDefined()
     expect(host.props.accessibilityRole).toBe('checkbox')
     expect(host.props.accessibilityLabel).toBe('Select current page')

@@ -51,6 +51,7 @@ const require = createRequire(join(packageRoot, 'package.json'))
 const vitePackage = JSON.parse(readFileSync(require.resolve('vite/package.json'), 'utf8'))
 const viteBin = join(dirname(require.resolve('vite/package.json')), vitePackage.bin.vite)
 const bundleDir = mkdtempSync(join(tmpdir(), 'camera-webkitgtk-bundle-'))
+
 execFileSync(
   process.execPath,
   [viteBin, 'build', '--config', join(harnessDir, 'vite.config.ts'), '--outDir', bundleDir],
@@ -99,9 +100,13 @@ const runPhase = (label, extraEnv = {}, args = []) => {
   }
 
   assert.equal(result.status, 0, `${label} host exited ${result.status}`)
+
   const selftest = (result.stdout ?? '').match(/SELFTEST_RESULT (\{.*\})/)
+
   assert.ok(selftest, `${label} produced no SELFTEST_RESULT`)
+
   const parsed = JSON.parse(selftest[1])
+
   assert.deepEqual(parsed.failed, [], `${label} failures: ${parsed.failed.join(', ')}`)
   return { stdout: result.stdout ?? '', xdg }
 }
@@ -109,8 +114,11 @@ const runPhase = (label, extraEnv = {}, args = []) => {
 // Phase 1 — record + in-page reload reopen.
 const record = runPhase('record')
 const outputLine = record.stdout.match(/CAMERA_OUTPUT (\{.*\})/)
+
 assert.ok(outputLine, 'record phase produced no CAMERA_OUTPUT')
+
 const output = JSON.parse(outputLine[1])
+
 assert.equal(output.kind, 'nativeFile')
 assert.ok(output.fileUrl.startsWith('file://'))
 

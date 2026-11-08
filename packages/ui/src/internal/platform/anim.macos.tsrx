@@ -4,10 +4,12 @@ import { requestAnimationFrame, cancelAnimationFrame } from '@nativescript/core/
 import { createAnimatedValue } from './animated-value'
 import { writeAnimatedProperty, readReducedMotion } from './animation-host.macos'
 import type { AnimatedValue } from '../../props'
+
 export type { AnimatedValue } from '../../props'
 
 export function useAnimation(initial = 0, property = 'translateX'): AnimatedValue {
   const value = useRef<ReturnType<typeof createAnimatedValue> | null>(null)
+
   if (!value.current) {
     value.current = createAnimatedValue(initial, {
       now: Date.now,

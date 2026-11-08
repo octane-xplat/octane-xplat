@@ -78,6 +78,7 @@ function macOSScrollToTop(scroller: any, requestedTop: number) {
 
   const flipped = flippedValue === true || Number(flippedValue) === 1
   const y = flipped ? top : documentHeight - viewportHeight - top
+
   clip.scrollToPoint({ x: 0, y })
   scroller.reflectScrolledClipView(clip)
 }
@@ -106,9 +107,11 @@ async function scrollTargetIntoView(ctx: ProbeContext, scroller: any, target: an
   }
 
   await ctx.waitFor(() => scrollRange(scroller) > 0, { timeout: 3000 })
+
   const targetY = target.getLocationOnScreen().y
   const scrollerY = scroller.getLocationOnScreen().y
   const offset = Number(scroller.scrollTop ?? 0) + targetY - scrollerY - 20
+
   scroller.scrollTo?.({
     top: Math.max(0, Math.min(scrollRange(scroller), offset)),
     behavior: 'instant',
@@ -143,6 +146,7 @@ async function scrollTargetPartiallyVisible(
   }
 
   await ctx.waitFor(() => scrollRange(scroller) > 0, { timeout: 3000 })
+
   const targetY = target.getLocationOnScreen().y
   const scrollerY = scroller.getLocationOnScreen().y
   const viewportHeight = scroller.getActualSize().height
@@ -166,6 +170,7 @@ export async function run(ctx: ProbeContext) {
 
   const scroller = ctx.find('probe-scroll')
   const target = ctx.find('probe-target')
+
   if (ctx.target === 'web') {
     await scrollTargetIntoView(ctx, scroller, target)
   } else {
@@ -188,7 +193,9 @@ export async function run(ctx: ProbeContext) {
   }
 
   await ctx.waitFor(() => callbackRatios.some((ratio) => ratio >= 0.5))
+
   const ratio = Number(ctx.inspect('probe-ratio').text)
+
   ctx.assert('threshold crossed', ratio >= 0.5, true)
   ctx.assert(
     'observer reported threshold sides',
@@ -210,9 +217,13 @@ export async function run(ctx: ProbeContext) {
 
   manualObserver.observe(target)
   await ctx.waitFor(() => manualEntries.length > 0)
+
   const afterInitialObserve = manualEntries.length
+
   manualObserver.unobserve(target)
+
   const afterUnobserve = manualEntries.length
+
   if (ctx.target === 'macos') {
     macOSScrollToTop(scroller, 0)
   } else if (ctx.target === 'web') {
@@ -237,7 +248,9 @@ export async function run(ctx: ProbeContext) {
   manualObserver.observe(target)
   await ctx.waitFor(() => manualEntries.length > afterUnobserve)
   manualObserver.disconnect()
+
   const afterDisconnect = manualEntries.length
+
   if (ctx.target === 'macos') {
     macOSScrollToTop(scroller, Number(scroller.documentView.frame.size.height))
   } else if (ctx.target === 'web') {

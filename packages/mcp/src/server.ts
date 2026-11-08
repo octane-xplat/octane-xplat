@@ -47,6 +47,7 @@ const fail = (error: ContractError): ToolResponse => respond({ ok: false, error 
 /** The bound app for runtime tools — explicit, configured, or sole-app. */
 const boundApp = (context: WorkspaceContext): AppRef | null => {
   const selection = resolveSelection(context) as Selection
+
   return selection.state === 'bound' ? selection.app : null
 }
 
@@ -102,16 +103,20 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     async ({ refresh }) => {
       if (refresh) {
         context.discovery = discoverWorkspace(context.workspaceRoot)
+
         // A previously bound app may have moved or vanished; re-resolve.
         const bound = context.boundApp
+
         if (bound) {
           const still = context.discovery.apps.find((a) => a.id === bound.id)
+
           context.boundApp = (still ?? null) as AppRef | null
           context.selectionReason = still ? 'explicit' : null
         }
       }
 
       const report = await buildProjectStatus(context)
+
       return report.error ? fail(report.error) : ok(report)
     },
   )
@@ -127,6 +132,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ app }) => {
       const result = bindApp(context, app)
+
       if (result.error) {
         if (result.error === 'ambiguous_selection') {
           return fail(
@@ -168,6 +174,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         command: ['capabilities'],
         flags: { platform },
       })
+
       return outcome(result, respond)
     },
   )
@@ -183,12 +190,14 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ scope }) => {
       const grants = context.policy.list()
+
       if (!scope) {
         return ok({ grants })
       }
 
       const grant = grants.find((g) => g.scope === scope)
       const check = context.policy.require(scope)
+
       return ok({
         grant,
         check: check.granted ? { granted: true } : { granted: false, error: check.error },
@@ -207,6 +216,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       const result = sessionId
         ? await context.runtime.sessionStatus(sessionId)
         : await context.runtime.listSessions()
+
       return outcome(result, respond)
     },
   )
@@ -220,6 +230,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ jobId }) => {
       const described = await context.devActions.describeJob(jobId)
+
       return described
         ? ok(described)
         : fail(
@@ -271,6 +282,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async () => {
       const app = boundApp(context)
+
       return app ? outcome(await context.devActions.list(app), respond) : fail(NO_APP())
     },
   )
@@ -306,6 +318,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ appInstanceId, actionId, input, registryRevision, requestKey }) => {
       const app = boundApp(context)
+
       if (!app) {
         return fail(NO_APP())
       }
@@ -331,6 +344,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
     },
     async ({ jobId }) => {
       const described = await context.devActions.describeJob(jobId)
+
       if (!described) {
         return fail(
           contractError('not_found', `No job "${jobId}".`, {
@@ -389,6 +403,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
         // Retention persists artifacts beyond the session — it needs its own
         // explicit grant, forwarded to the service as XPLAT_PERMISSIONS.
         const permission = await context.policy.require('evidence-retain')
+
         if (!permission.granted) {
           return fail(permission.error)
         }
@@ -415,6 +430,7 @@ export function createXplatMcpServer(context: WorkspaceContext) {
   // revalidated against current source before serving.
   const boundAppForCode = (): { app: AppRef | null; error?: ContractError } => {
     const selection = resolveSelection(context) as Selection
+
     if (selection.state === 'ambiguous') {
       return {
         app: null,
@@ -494,11 +510,13 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       }
 
       const check = context.policy.require('workspace')
+
       if (!check.granted) {
         return fail(check.error)
       }
 
       const { app, error } = boundAppForCode()
+
       if (error) {
         return fail(error)
       }
@@ -545,11 +563,13 @@ export function createXplatMcpServer(context: WorkspaceContext) {
       }
 
       const check = context.policy.require('workspace')
+
       if (!check.granted) {
         return fail(check.error)
       }
 
       const { app, error } = boundAppForCode()
+
       if (error) {
         return fail(error)
       }

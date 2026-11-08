@@ -97,13 +97,17 @@ it('NativeScript driver permits retained suspense and delivers native taps and u
     await import('../../node_modules/@nativescript-community/octane/dist/driver.js')
 
   const { LayoutBase } = await import('@nativescript/core')
+
   expect(nativeScriptDriver.capabilities.visibility).toBe(true)
+
   const host = new LayoutBase()
   const container = createNativeScriptContainer(host)
   const uncaught = vi.fn()
   const warning = vi.spyOn(console, 'warn').mockImplementation(() => {})
   const root = createUniversalRoot(container, nativeScriptDriver, { onUncaughtError: uncaught })
+
   container.root = root
+
   let resolve!: (value: string) => void
   const pending = new Promise<string>((done) => {
     resolve = done
@@ -116,7 +120,9 @@ it('NativeScript driver permits retained suspense and delivers native taps and u
 
   try {
     root.render(Retained, { pending, fail })
+
     const body = (host as any).children[0]
+
     body.notify({ eventName: 'tap' })
     flushUniversalSync(() => {})
     expect((host as any).children[0]).toBe(body)
@@ -146,16 +152,21 @@ it('native leaf text slots create Label views, update text and release their hos
   const host: any = new LayoutBase()
   const container = createNativeScriptContainer(host)
   const root = createUniversalRoot(container, nativeScriptDriver)
+
   container.root = root
   root.render(NativeTextSlots, { text: 'A' })
+
   const [bare, updating, wrapped, quote] = host.children[0].children
+
   expect(bare.children[0]).toBeInstanceOf(TextBase)
   expect(bare.children[0].text).toBe('Ctrl')
   expect(updating.children).toHaveLength(1)
   expect(updating.children[0].text).toBe('Ctrl A')
   expect(wrapped.children[0].text).toBe('wrapped')
   expect(quote.children[0].text).toBe('Quote')
+
   const label = updating.children[0]
+
   root.render(NativeTextSlots, { text: 'B' })
   expect(updating.children[0]).toBe(label)
   expect(label.text).toBe('Ctrl B')

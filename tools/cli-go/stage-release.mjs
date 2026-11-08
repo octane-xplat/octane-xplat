@@ -35,16 +35,20 @@ function pack(directory, destination, ignoreScripts = false) {
       timeout: 60000,
     },
   )
+
   assert.equal(result.status, 0, `bun pm pack ${directory}: ${result.stdout}${result.stderr}`)
 }
 
 function notices(binary) {
   const files = {}
+
   for (const name of ['LICENSE', 'THIRD-PARTY-NOTICES.txt']) {
     const extracted = spawnSync('tar', ['-xOf', binary + '.tgz', name], { encoding: 'utf8' })
+
     assert.equal(extracted.status, 0, `${binary}.tgz: ${extracted.stderr}`)
     files[name] = extracted.stdout
   }
+
   return files
 }
 
@@ -52,11 +56,14 @@ function notices(binary) {
 function targetBuild(root, nativeDir, target, version, reference) {
   const binary = join(nativeDir, binaryName(target))
   const build = JSON.parse(readFileSync(binary + '.json'))
+
   assert.equal(build.target, target, `${binary}.json`)
   assert.equal(build.cli, true, `${binary}.json: stage-release needs the core -cli build`)
   assert.equal(build.onnx, false, `${binary}.json: production payloads ship without ONNX`)
   assert.equal(build.cliVersion, version, `${binary}.json cliVersion`)
+
   const bytes = readFileSync(binary)
+
   assert.equal(sha256(bytes), build.sha256, `${binary}: checksum`)
   assert.equal(sha256(readFileSync(binary + '.tgz')), build.download.sha256, `${binary}.tgz`)
   assert.equal(readFileSync(binary + '.tgz').length, build.download.bytes, `${binary}.tgz`)
@@ -68,6 +75,7 @@ function targetBuild(root, nativeDir, target, version, reference) {
       `${binary}.json: release workers differ across targets`,
     )
   }
+
   return { binary, build, bytes }
 }
 
@@ -86,8 +94,10 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   )
 
   const builds = new Map()
+
   for (const [, os, cpu] of nativePlatforms) {
     const target = goTarget(os, cpu)
+
     builds.set(
       `${os}-${cpu}`,
       targetBuild(root, nativeDir, target, version, [...builds.values()][0]?.build),
@@ -97,11 +107,13 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   // Payload packages: one native image each, selected by the installer.
   const payloads = []
   const targets = {}
+
   for (const [, os, cpu] of nativePlatforms) {
     const npmTarget = `${os}-${cpu}`
     const { binary, build, bytes } = builds.get(npmTarget)
     const name = nativePackageName(npmTarget)
     const stage = join(outputDir, 'stage-' + npmTarget)
+
     mkdirSync(stage)
     writeFileSync(join(stage, 'xplat.exe'), bytes, { mode: 0o755 })
     for (const [file, content] of Object.entries(notices(binary))) {
@@ -127,7 +139,9 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
     writeFileSync(join(stage, 'package.json'), JSON.stringify(manifest, null, 2) + '\n')
     pack(stage, outputDir)
     rmSync(stage, { recursive: true, force: true })
+
     const archive = join(outputDir, `${name.slice(1).replace('/', '-')}-${version}.tgz`)
+
     payloads.push({ manifest, archive, target: npmTarget })
     targets[npmTarget] = { package: name, bytes: bytes.length, sha256: build.sha256 }
   }
@@ -135,27 +149,36 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   // The release worker ships inside the CLI package; every target record
   // must describe the same worker (asserted above).
   const worker = [...builds.values()][0].build.releaseWorker
+
   assert.equal(worker.cliVersion, version)
 
   // Pack the workspace CLI first so prepack, files and catalog/workspace
   // resolution apply, then augment the extracted package and repack it.
   const packed = join(outputDir, 'packed')
+
   mkdirSync(packed)
   pack(join(root, 'packages/cli'), packed, ignoreScripts)
+
   const cliArchives = readdirSync(packed).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(cliArchives.length, 1, `expected one CLI tarball in ${packed}`)
+
   const stage = join(outputDir, 'stage-cli')
+
   mkdirSync(stage)
+
   const extracted = spawnSync(
     'tar',
     ['-xzf', join(packed, cliArchives[0]), '-C', stage, '--strip-components=1'],
     { encoding: 'utf8' },
   )
+
   assert.equal(extracted.status, 0, extracted.stderr)
   rmSync(packed, { recursive: true, force: true })
 
   const manifestPath = join(stage, 'package.json')
   const pkg = JSON.parse(readFileSync(manifestPath))
+
   assert.equal(pkg.name, '@octane-xplat/cli')
   assert.equal(pkg.version, version, 'CLI manifest version must match the staged version')
   pkg.bin = { xplat: './bin/xplat.exe' }
@@ -166,6 +189,7 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   pkg.optionalDependencies = Object.fromEntries(
     nativePlatformPackages.map((name) => [name, version]),
   )
+
   for (const file of ['install-native.mjs', 'native-platforms.json', 'native-worker']) {
     if (!pkg.files.includes(file)) {
       pkg.files.push(file)
@@ -185,22 +209,29 @@ export function stageRelease({ root, version, nativeDir, outputDir, ignoreScript
   )
 
   const workerDir = join(nativeDir, 'release-worker')
+
   for (const [file, record] of Object.entries(worker.files)) {
     assert.ok(!file.split('/').some((part) => part === '..' || part === ''))
     assert.ok(!file.startsWith('/') && !file.includes('\\'))
+
     const bytes = readFileSync(join(workerDir, file))
+
     assert.equal(sha256(bytes), record.sha256, `release-worker/${file}`)
     assert.equal(bytes.length, record.bytes, `release-worker/${file}`)
+
     const output = join(stage, 'native-worker', file)
+
     mkdirSync(dirname(output), { recursive: true })
     writeFileSync(output, bytes)
   }
+
   writeFileSync(join(stage, 'native-worker/manifest.json'), JSON.stringify(worker))
   writeFileSync(manifestPath, JSON.stringify(pkg, null, 2) + '\n')
   pack(stage, outputDir)
   rmSync(stage, { recursive: true, force: true })
 
   const cliArchive = join(outputDir, `octane-xplat-cli-${version}.tgz`)
+
   return {
     version,
     cli: { manifest: pkg, archive: cliArchive },

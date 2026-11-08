@@ -23,6 +23,7 @@ const track = (path) => {
 // the same path string we write.
 const makeWorkspace = () => {
   const root = realpathSync(track(mkdtempSync(join(tmpdir(), 'xplat-hoisted-fold-'))))
+
   return root
 }
 
@@ -31,6 +32,7 @@ const makeWorkspace = () => {
 // dist file — the same shape as @nativescript-community/octane.
 const makePlugin = (nodeModulesDir, name, pkgJson) => {
   const dir = join(nodeModulesDir, ...name.split('/'))
+
   mkdirSync(dir, { recursive: true })
   writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '1.0.0', ...pkgJson }))
   mkdirSync(join(dir, 'dist'), { recursive: true })
@@ -40,6 +42,7 @@ const makePlugin = (nodeModulesDir, name, pkgJson) => {
 
 const makeApp = (workspaceRoot) => {
   const app = join(workspaceRoot, 'apps/mobile')
+
   mkdirSync(join(app, 'node_modules'), { recursive: true })
   writeFileSync(join(app, 'package.json'), JSON.stringify({ name: 'mobile' }))
   return app
@@ -57,11 +60,14 @@ describe('resolveInternalRuntimePluginBareSpecifier', () => {
     // live at the workspace root. The exports reverse map must still find
     // the package.json through the ancestor node_modules chain.
     const ws = makeWorkspace()
+
     makePlugin(join(ws, 'node_modules'), '@nativescript-community/hoisted-fold', {
       main: './dist/index.js',
       exports: { '.': './dist/index.js', './package.json': './package.json' },
     })
+
     const app = makeApp(ws)
+
     assert.equal(
       resolveInternalRuntimePluginBareSpecifier(
         '@nativescript-community/hoisted-fold/dist/index.js',
@@ -74,10 +80,12 @@ describe('resolveInternalRuntimePluginBareSpecifier', () => {
   it('keeps folding deep specifiers when the package sits in the app-local node_modules', () => {
     const ws = makeWorkspace()
     const app = makeApp(ws)
+
     makePlugin(join(app, 'node_modules'), '@nativescript-community/app-local-fold', {
       main: './dist/index.js',
       exports: { '.': './dist/index.js', './package.json': './package.json' },
     })
+
     assert.equal(
       resolveInternalRuntimePluginBareSpecifier(
         '@nativescript-community/app-local-fold/dist/index.js',
@@ -89,10 +97,13 @@ describe('resolveInternalRuntimePluginBareSpecifier', () => {
 
   it('folds through the main/module field when exports is absent in a hoisted workspace', () => {
     const ws = makeWorkspace()
+
     makePlugin(join(ws, 'node_modules'), '@nativescript-community/hoisted-main', {
       main: './dist/index.js',
     })
+
     const app = makeApp(ws)
+
     assert.equal(
       resolveInternalRuntimePluginBareSpecifier(
         '@nativescript-community/hoisted-main/dist/index.js',
@@ -107,11 +118,14 @@ describe('resolveInternalRuntimePluginBareSpecifier', () => {
     // reverse-map hit, no main-field match) keeps its concrete file — the
     // device require path needs it for non-vendored runtime plugins.
     const ws = makeWorkspace()
+
     makePlugin(join(ws, 'node_modules'), '@nativescript-community/hoisted-subpath', {
       main: './dist/index.js',
       exports: { '.': './dist/index.js', './feature': './dist/feature.js' },
     })
+
     const app = makeApp(ws)
+
     assert.equal(
       resolveInternalRuntimePluginBareSpecifier(
         '@nativescript-community/hoisted-subpath/dist/internal/deep.js',

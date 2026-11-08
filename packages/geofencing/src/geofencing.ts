@@ -27,6 +27,7 @@ function emit(event: RegionEvent): void {
     buffer.push(event)
     return
   }
+
   for (const listener of listeners) {
     listener(event)
   }
@@ -41,10 +42,12 @@ function iosManager(): any {
   if (typeof CLLocationManager === 'undefined') {
     return null
   }
+
   if (!locationManager) {
     locationManager = CLLocationManager.new()
     if (!DelegateClass) {
       const NSObject = (globalThis as any).NSObject
+
       DelegateClass = NSObject.extend(
         {
           locationManagerDidEnterRegion(_m: any, region: any): void {
@@ -61,28 +64,35 @@ function iosManager(): any {
     delegate = DelegateClass.new()
     locationManager.delegate = delegate
   }
+
   return locationManager
 }
 
 function iosEnsure(): Promise<PermissionResult> {
   const m = iosManager()
+
   if (!m) {
     return Promise.resolve('unsupported')
   }
+
   const status = CLLocationManager.authorizationStatus?.() ?? m.authorizationStatus?.() ?? 0
+
   // CLAuthorizationStatus: 3 authorizedAlways, 4 authorizedWhenInUse
   if (status === 3 || status === 4) {
     return Promise.resolve('granted')
   }
+
   if (status === 1 || status === 2) {
     return Promise.resolve('denied')
   }
+
   m.requestWhenInUseAuthorization()
   return new Promise((resolve) => {
     // iOS delivers the decision to the delegate — poll lightweightly rather
     // than build a second delegate surface for auth callbacks.
     const check = () => {
       const s = CLLocationManager.authorizationStatus?.() ?? 0
+
       if (s === 3 || s === 4) {
         resolve('granted')
       } else if (s === 1 || s === 2) {
@@ -91,12 +101,14 @@ function iosEnsure(): Promise<PermissionResult> {
         setTimeout(check, 250)
       }
     }
+
     setTimeout(check, 250)
   })
 }
 
 function androidEnsure(): Promise<PermissionResult> {
   const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
   try {
     return activity?.checkSelfPermission?.('android.permission.ACCESS_FINE_LOCATION') ===
       android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -110,6 +122,7 @@ function androidEnsure(): Promise<PermissionResult> {
 function androidGeofencingClient(): any {
   const gms = (globalThis as any).com?.google?.android?.gms?.location
   const context = (Utils.android as any)?.getApplicationContext?.()
+
   return context && gms?.LocationServices ? gms.LocationServices.getGeofencingClient(context) : null
 }
 
@@ -119,8 +132,10 @@ function androidPendingIntent(): any {
     context,
     (globalThis as any).com.octanexplat.geofencing.GeofenceReceiver.class,
   )
+
   const flags =
     android.app.PendingIntent.FLAG_UPDATE_CURRENT | android.app.PendingIntent.FLAG_MUTABLE
+
   return android.app.PendingIntent.getBroadcast(context, 0, intent, flags)
 }
 
@@ -134,15 +149,20 @@ const prefs = () =>
 
 function drainQueue(): void {
   const p = prefs()
+
   if (!p) {
     return
   }
+
   const raw = p.getString('queue', '[]')
+
   if (!raw || raw === '[]') {
     return
   }
+
   try {
     const queue = JSON.parse(raw)
+
     p.edit().putString('queue', '[]').apply()
     for (const item of queue) {
       emit({
@@ -169,11 +189,13 @@ export const geofencing: Geofencing = {
   ensureBackground(): Promise<PermissionResult> {
     if (isIOS) {
       const m = iosManager()
+
       if (!m) {
         return Promise.resolve('unsupported')
       }
 
       const status = CLLocationManager.authorizationStatus?.() ?? 0
+
       if (status === 3) {
         return Promise.resolve('granted')
       }
@@ -181,7 +203,9 @@ export const geofencing: Geofencing = {
       m.requestAlwaysAuthorization()
       return Promise.resolve(status === 3 ? 'granted' : 'denied')
     }
+
     const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
     try {
       return activity?.checkSelfPermission?.('android.permission.ACCESS_BACKGROUND_LOCATION') ===
         android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -195,6 +219,7 @@ export const geofencing: Geofencing = {
   async startMonitoring(regions: GeofenceRegion[]): Promise<void> {
     if (isIOS) {
       const m = iosManager()
+
       if (!m) {
         throw new Error('unsupported: CLLocationManager is not available')
       }
@@ -214,15 +239,20 @@ export const geofencing: Geofencing = {
 
       return
     }
+
     const client = androidGeofencingClient()
+
     if (!client) {
       throw new Error('unsupported: GeofencingClient is not on the classpath')
     }
+
     const gms = (globalThis as any).com.google.android.gms.location
     const builder = new gms.GeofencingRequest.Builder()
+
     builder.setInitialTrigger(gms.GeofencingRequest.INITIAL_TRIGGER_ENTER)
     for (const r of regions) {
       let transitions = 0
+
       if (r.notifyOnEnter ?? true) {
         transitions |= gms.Geofence.GEOFENCE_TRANSITION_ENTER
       }
@@ -240,6 +270,7 @@ export const geofencing: Geofencing = {
           .build(),
       )
     }
+
     client.addGeofences(builder.build(), androidPendingIntent())
   },
 
@@ -248,8 +279,10 @@ export const geofencing: Geofencing = {
       const m = iosManager()
       const monitored = m?.monitoredRegions
       const all = monitored?.allObjects
+
       for (let i = 0; i < (all?.count ?? 0); i++) {
         const region = all.objectAtIndex(i)
+
         if (!identifiers?.length || identifiers.includes(String(region.identifier))) {
           m.stopMonitoringForRegion(region)
         }
@@ -257,10 +290,13 @@ export const geofencing: Geofencing = {
 
       return
     }
+
     const client = androidGeofencingClient()
+
     if (!client) {
       return
     }
+
     if (identifiers?.length) {
       client.removeGeofences(java.util.Arrays.asList(identifiers))
     } else {
@@ -272,11 +308,14 @@ export const geofencing: Geofencing = {
     if (!isIOS) {
       return []
     }
+
     const m = iosManager()
     const all = m?.monitoredRegions?.allObjects
     const out: GeofenceRegion[] = []
+
     for (let i = 0; i < (all?.count ?? 0); i++) {
       const r = all.objectAtIndex(i)
+
       out.push({
         identifier: String(r.identifier),
         latitude: r.center?.latitude ?? 0,
@@ -286,6 +325,7 @@ export const geofencing: Geofencing = {
         notifyOnExit: !!r.notifyOnExit,
       })
     }
+
     return out
   },
 
@@ -294,14 +334,18 @@ export const geofencing: Geofencing = {
     if (!isIOS) {
       drainQueue()
     }
+
     const pending = buffer
+
     buffer = []
     for (const event of pending) {
       listener(event)
     }
+
     return () => listeners.delete(listener)
   },
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners['location-always'] = () => geofencing.ensureBackground()

@@ -1,11 +1,13 @@
 import { expect, it, vi } from 'vitest'
 import { createAppKitCalendarFocus } from './calendar-focus.macos'
 import { buildMonthGrid } from './calendar-core'
+
 function fixture(two = false, supported = true) {
   const claims = new Map<object, number>(),
     observers = new Map<object, (note: any) => void>(),
     picked = vi.fn(),
     navigate = vi.fn()
+
   const state: any = {
     months: [buildMonthGrid(2026, 3, 1), ...(two ? [buildMonthGrid(2026, 4, 1)] : [])],
     value: '2026-03-05',
@@ -14,6 +16,7 @@ function fixture(two = false, supported = true) {
     direction: 'ltr',
     isDisabled: () => false,
   }
+
   const window: any = {
     firstResponder: null,
     recalculateKeyViewLoop: vi.fn(),
@@ -21,12 +24,15 @@ function fixture(two = false, supported = true) {
       if (view.window !== this || view.hidden || !view.isAccessibilityEnabled()) {
         return false
       }
+
       this.firstResponder = view
       return true
     },
   }
+
   let children: any[] = [],
     releases: (() => void)[] = []
+
   const root: any = {
     window,
     hidden: false,
@@ -37,12 +43,14 @@ function fixture(two = false, supported = true) {
       objectAtIndex: (i: number) => children[i],
     },
   }
+
   const bridge = {
     keyboardEventsSupported: supported,
     suppressTabStop(view: object) {
       claims.set(view, (claims.get(view) ?? 0) + 1)
       return () => {
         const n = (claims.get(view) ?? 1) - 1
+
         if (n) {
           claims.set(view, n)
         } else {
@@ -51,6 +59,7 @@ function fixture(two = false, supported = true) {
       }
     },
   }
+
   const native = {
     NSNotificationCenter: {
       defaultCenter: {
@@ -61,6 +70,7 @@ function fixture(two = false, supported = true) {
           fn: (note: any) => void,
         ) {
           const token = {}
+
           observers.set(token, fn)
           return token
         },
@@ -70,19 +80,23 @@ function fixture(two = false, supported = true) {
       },
     },
   }
+
   const cancel = vi.fn(() => {
     state.rangeAnchor = null
   })
+
   const focus = createAppKitCalendarFocus(
     { current: () => state, navigate, pick: picked, cancelRange: cancel },
     () => bridge,
     () => native,
   )
+
   const views = new Map<string, any>()
   const render = () => {
     for (const off of releases) {
       off()
     }
+
     releases = []
     children = []
     views.clear()
@@ -102,13 +116,17 @@ function fixture(two = false, supported = true) {
       views.set(day.iso, view)
       releases.push(focus.register(day.iso, view))
     }
+
     focus.update()
   }
+
   focus.bind(root)
   render()
+
   const key = (key: string, extra = {}) => {
     let prevented = false,
       stopped = false
+
     focus.keyDown({
       key,
       target: root.window.firstResponder,
@@ -128,8 +146,10 @@ function fixture(two = false, supported = true) {
       },
       ...extra,
     } as any)
+
     return { prevented, stopped }
   }
+
   return {
     focus,
     state,
@@ -150,6 +170,7 @@ const flush = () => Promise.resolve()
 
 it('uses one day Tab stop across panes and moves through shared bounded/RTL/row/grid navigation without selecting', async () => {
   const f = fixture(true)
+
   try {
     await flush()
     expect(f.claims.size).toBe(60)
@@ -173,6 +194,7 @@ it('uses one day Tab stop across panes and moves through shared bounded/RTL/row/
 
 it('keeps page focus pending through controlled rejection and applies it only after the requested cells attach', async () => {
   const f = fixture()
+
   try {
     await flush()
     f.window.firstResponder = f.views.get('2026-03-31')
@@ -192,9 +214,12 @@ it('keeps page focus pending through controlled rejection and applies it only af
 
 it('manual activation follows parent state and range Escape stays local while header/IME/modified/foreign keys retain ownership', async () => {
   const f = fixture()
+
   try {
     await flush()
+
     const day = f.views.get('2026-03-05')
+
     f.window.firstResponder = day
     for (const extra of [
       { isComposing: true },
@@ -229,6 +254,7 @@ it('manual activation follows parent state and range Escape stays local while he
 
 it('repairs newly disabled focus and releases all day claims/observers while stale activation becomes inert', async () => {
   const f = fixture()
+
   await flush()
   f.window.firstResponder = f.views.get('2026-03-05')
   f.state.isDisabled = (date: any) => date.day === 5
@@ -249,6 +275,7 @@ it('repairs newly disabled focus and releases all day claims/observers while sta
 
 it('unsupported bridges retain pointer selection and drop pending focus if the destination window changes', async () => {
   const old = fixture(false, false)
+
   try {
     await flush()
     expect(old.claims.size).toBe(0)
@@ -260,11 +287,14 @@ it('unsupported bridges retain pointer selection and drop pending focus if the d
   } finally {
     old.focus.dispose()
   }
+
   const f = fixture()
+
   try {
     await flush()
     f.window.firstResponder = f.views.get('2026-03-31')
     f.key('ArrowRight')
+
     const next: any = {
       firstResponder: null,
       recalculateKeyViewLoop() {},
@@ -283,9 +313,12 @@ it('unsupported bridges retain pointer selection and drop pending focus if the d
 
 it('hidden or detached calendars release day claims and cancel queued page focus before a later reveal', async () => {
   const f = fixture()
+
   try {
     await flush()
+
     const old = f.views.get('2026-03-31')
+
     f.window.firstResponder = old
     f.key('ArrowRight')
     f.root.hidden = true

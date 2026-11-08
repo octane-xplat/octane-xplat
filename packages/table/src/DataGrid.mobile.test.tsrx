@@ -25,6 +25,7 @@ vi.mock('../../ui/src/components/layout/pan.tsrx', () => ({ usePan: () => undefi
 // Exercise control state without loading the native SVG plugin in the object driver.
 vi.mock('../../ui/src/components/media/svg', () => ({}))
 vi.mock('@octane-xplat/ui', () => import('../tests/native-controls.mobile.tsrx'))
+
 import { DataGrid } from './DataGrid.tsrx'
 
 const data = [
@@ -42,6 +43,7 @@ function find(nodes: any[], id: string): any {
     }
 
     const child = find(node.children ?? [], id)
+
     if (child) {
       return child
     }
@@ -50,6 +52,7 @@ function find(nodes: any[], id: string): any {
 
 function Controlled() {
   const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({})
+
   return (
     <DataGrid
       id="grid"
@@ -70,12 +73,15 @@ describe('native DataGrid selection integration', () => {
   it('updates retained controls for caller state, mixed selection and off-page ordinals', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(Controlled as any, {})
+
     const get = (id: string) => find(container.children, id)
     const press = (id: string) =>
       flushUniversalSync(() => container.dispatchEvent(get(id), 'tap', {}))
 
     const page = get('grid-select-page')
+
     expect(get('grid-select-a').props.accessibilityLabel).toBe('Select Alice')
     expect(get('grid-select-a').props.accessibilityHint).toBe('Row 1 of 3')
     press('grid-select-a')

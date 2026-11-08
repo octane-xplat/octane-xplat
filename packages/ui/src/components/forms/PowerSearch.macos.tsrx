@@ -31,6 +31,7 @@ export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(
   const results = (source.search(query) as PowerSearchItem[]).slice(0, props.maxSearchResults ?? 10)
   const chooseField = (item: any) => {
     const field = internal.getField(item.auxiliaryData?.fieldKey ?? item.id)
+
     if (!field) {
       return
     }
@@ -56,6 +57,7 @@ export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(
       const next = [...props.filters]
       const changeType = editing.index < 0 ? 'add' : 'edit'
       const index = editing.index < 0 ? next.length : editing.index
+
       if (changeType === 'add') {
         next.push(filter as PowerSearchFilterFor<C>)
       } else {

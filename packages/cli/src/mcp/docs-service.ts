@@ -46,17 +46,21 @@ export function createDocsService({
   const searchCacheDir = join(ctx.cacheDir, 'search')
   function documents(bound, pkg, { corpus, platform } = {}) {
     const packageDir = releaseMapping(pkg.name, pkg.version, repo)?.dir
+
     return listDocs(bound.dir)
       .filter((doc) => {
         if (corpus && doc.corpus !== corpus) {
           return false
         }
+
         if (doc.corpus === 'readme' && doc.path !== `${packageDir}/README.md`) {
           return false
         }
+
         if (doc.path === 'packages/tsrx-typegen/CHANGELOG.md' && pkg.name !== 'tsrx-typegen') {
           return false
         }
+
         if (
           pkg.name === 'tsrx-typegen' &&
           doc.corpus === 'changelog' &&
@@ -64,6 +68,7 @@ export function createDocsService({
         ) {
           return false
         }
+
         return true
       })
       .map((doc) => ({
@@ -73,10 +78,12 @@ export function createDocsService({
       }))
       .filter((doc) => !platform || platformsOf(doc.path, doc.content).includes(platform))
   }
+
   const searchBinding = (bound) => `${bound.prov.repo ?? ''}:${bound.commit ?? bound.dir}`
 
   async function refresh() {
     const install = resolveInstallations(workspaceRoot)
+
     if (install.fingerprint !== state.fingerprint) {
       state.install = install
       state.fingerprint = install.fingerprint
@@ -91,9 +98,11 @@ export function createDocsService({
     // 'development' is the servedVersion label for a linked checkout — it is
     // the installed binding, not a version outside it.
     const outside = version !== pkg.version && !(pkg.kind === 'linked' && version === 'development')
+
     if (!outside && pkg.kind === 'linked') {
       // Development binding: current checkout, never an invented version.
       const docs = pkg.installPath ? developmentDocsDir(pkg.installPath) : null
+
       if (!docs) {
         return unavailable('docs-absent', {
           source: SOURCES.DEVELOPMENT_DOCS,
@@ -117,6 +126,7 @@ export function createDocsService({
     }
 
     const mapping = releaseMapping(pkg.name, version, repo ?? undefined)
+
     if (!mapping) {
       return unavailable('no-release-mapping', { package: pkg.name, requestedVersion: version })
     }
@@ -181,6 +191,7 @@ export function createDocsService({
     const files = []
     const collect = (dir, deep) => {
       let entries
+
       try {
         entries = readdirSync(dir)
       } catch {
@@ -194,6 +205,7 @@ export function createDocsService({
 
         const path = join(dir, name)
         const stat = statSync(path, { throwIfNoEntry: false })
+
         if (!stat) {
           continue
         }
@@ -211,17 +223,20 @@ export function createDocsService({
     collect(workspaceRoot, false)
     for (const sub of ['docs', join('.agents', 'docs')]) {
       const dir = join(workspaceRoot, sub)
+
       if (existsSync(dir)) {
         collect(dir, true)
       }
     }
 
     const scored = []
+
     for (const file of files) {
       const content = readFileSync(file, 'utf8')
       const rel = relative(workspaceRoot, file).split(sep).join('/')
       const hay = `${rel}\n${content}`.toLowerCase()
       const hits = tokens.filter((t) => hay.includes(t)).length
+
       if (needle && hits === 0) {
         continue
       }
@@ -233,6 +248,7 @@ export function createDocsService({
     return scored.slice(0, limit).map(({ rel, content }) => {
       const heading = content.match(/^#\s+(.+)$/m)
       const at = needle ? hay_indexOf(content, needle) : 0
+
       return {
         title: heading ? heading[1].trim() : rel,
         path: rel,
@@ -248,6 +264,7 @@ export function createDocsService({
 
   function hay_indexOf(content, needle) {
     const i = content.toLowerCase().indexOf(needle.toLowerCase())
+
     return i < 0 ? 0 : i
   }
 
@@ -256,14 +273,18 @@ export function createDocsService({
     async index({ package: packageName, version } = {}) {
       const install = await refresh()
       const targets = install.packages.filter((p) => !packageName || p.name === packageName)
+
       if (packageName && version && !targets.length) {
         targets.push({ name: packageName, version, kind: 'registry' })
       }
+
       const results = []
       const unavailable = []
       const { prepareIndex } = await import('@octane-xplat/docs-search')
+
       for (const pkg of targets) {
         const bound = await bind(pkg, { version: version ?? pkg.version })
+
         if (bound.status !== 'bound') {
           unavailable.push(bound)
           continue
@@ -288,11 +309,13 @@ export function createDocsService({
           })
         }
       }
+
       return { results, unavailable }
     },
     /** Project identity + binding/doc status — A's status surface reads this. */
     async status() {
       const install = state.install ?? (await refresh())
+
       return {
         identity: {
           workspaceRoot,
@@ -310,6 +333,7 @@ export function createDocsService({
     async refresh() {
       const before = state.revision
       const install = await refresh()
+
       return {
         bindingRevision: state.revision,
         changed: state.revision !== before,
@@ -335,6 +359,7 @@ export function createDocsService({
       const install = await refresh()
       const started = state.revision
       const targets = install.packages.filter((p) => !packageName || p.name === packageName)
+
       // Explicit version request for a package that is not installed still
       // binds its release tag — labeled outside the installed binding.
       if (packageName && version && targets.length === 0) {
@@ -352,8 +377,10 @@ export function createDocsService({
       const failures = []
       const boundCommits = {}
       const boundByName = {}
+
       for (const pkg of targets) {
         const bound = await bind(pkg, { version: version ?? pkg.version })
+
         boundByName[pkg.name] = bound
         if (bound.status !== 'bound') {
           failures.push(bound)
@@ -361,7 +388,9 @@ export function createDocsService({
         }
 
         boundCommits[pkg.name] = bound.commit ?? bound.dir
+
         let hits
+
         if (mode === 'exact') {
           hits = searchDocs(bound.dir, {
             query,
@@ -465,11 +494,14 @@ export function createDocsService({
      */
     async read({ ref, package: packageName, path, version, offset, limit }) {
       await refresh()
+
       let target = packageName
       let relPath = path
       let requested = version
+
       if (ref) {
         const parsed = parseDocRef(ref)
+
         if (!parsed) {
           return { status: 'invalid-ref', ref }
         }
@@ -493,11 +525,13 @@ export function createDocsService({
       }
 
       const bound = await bind(effective, { version: requested ?? effective.version })
+
       if (bound.status !== 'bound') {
         return attachFallback(bound, effective)
       }
 
       const page = readPage(bound.dir, relPath, { offset, limit })
+
       if (!page) {
         return attachFallback(
           unavailable('docs-absent', {
@@ -534,6 +568,7 @@ export function createDocsService({
 
       if (resolution === 'remote') {
         const bound = await bind(pkg, { version, acceptMovedTag: true })
+
         return bound.status === 'bound'
           ? { status: 'rebound', commit: bound.commit, package: packageName, version }
           : bound
@@ -545,6 +580,7 @@ export function createDocsService({
     /** Tailored guidance — scoped, provenance-labeled entries. */
     async guidance() {
       const install = state.install ?? (await refresh())
+
       return { bindingRevision: state.revision, entries: tailoredGuidance(install) }
     },
 

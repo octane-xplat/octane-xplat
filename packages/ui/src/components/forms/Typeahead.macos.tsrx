@@ -21,6 +21,7 @@ import {
 /** The field's inline-end lane: busy Spinner, then the clear button. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.clear == null) {
     return null
   }

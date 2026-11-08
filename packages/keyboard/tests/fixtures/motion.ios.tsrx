@@ -61,14 +61,18 @@ export async function run(ctx: ProbeContext) {
     root = ownWindow.rootViewController.view
 
   const reference = UIView.new()
+
   reference.translatesAutoresizingMaskIntoConstraints = false
   reference.userInteractionEnabled = false
+
   const carrier = UIView.new()
+
   carrier.translatesAutoresizingMaskIntoConstraints = false
   carrier.userInteractionEnabled = false
   root.addSubview(carrier)
   carrier.keyboardLayoutGuide.usesBottomSafeArea = false
   carrier.addSubview(reference)
+
   const referenceConstraints = [
     carrier.leadingAnchor.constraintEqualToAnchor(root.leadingAnchor),
     carrier.trailingAnchor.constraintEqualToAnchor(root.trailingAnchor),
@@ -82,7 +86,9 @@ export async function run(ctx: ProbeContext) {
 
   NSLayoutConstraint.activateConstraints(referenceConstraints)
   root.layoutIfNeeded()
+
   const referenceY = () => (reference.layer.presentationLayer()?.frame ?? reference.frame).origin.y
+
   ctx.onCleanup(() => {
     NSLayoutConstraint.deactivateConstraints(referenceConstraints)
     carrier.removeFromSuperview()
@@ -122,6 +128,7 @@ export async function run(ctx: ProbeContext) {
       field.ios.window.endEditing(true)
     } else {
       const android = (globalThis as any).android
+
       field.android
         .getContext()
         .getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
@@ -159,6 +166,7 @@ export async function run(ctx: ProbeContext) {
     field.focus()
     if (field.android) {
       const android = (globalThis as any).android
+
       ctx.record(
         'show soft input result',
         field.android
@@ -176,6 +184,7 @@ export async function run(ctx: ProbeContext) {
     ctx.assert('source supplies measured native frames', samples.at(-1).source, 'native-frames')
     if (field.ios) {
       const open = samples.at(-1)
+
       ctx.assert(
         'native presentation reaches the open keyboard edge',
         Math.abs(open.presentationBottom - open.expectedBottom) < 2,
@@ -206,7 +215,9 @@ export async function run(ctx: ProbeContext) {
 
     area.focus()
     await ctx.waitFor(() => (area.ios ? area.ios.isFirstResponder : area.android.hasFocus()))
+
     const closingAt = samples.length
+
     hide()
     await ctx.waitFor(
       () => samples.slice(closingAt).some((s) => s.phase === 'end' && s.currentFrame?.height < 1),
@@ -214,6 +225,7 @@ export async function run(ctx: ProbeContext) {
     )
 
     const closing = samples.slice(closingAt)
+
     ctx.assert(
       'closing includes intermediate measured frames',
       new Set(closing.filter((s) => s.phase === 'move').map((s) => Math.round(s.currentFrame.y)))
@@ -224,6 +236,7 @@ export async function run(ctx: ProbeContext) {
     ctx.assert('binding restores hidden offset', Number(host.translateY), 0)
     if (field.ios) {
       const closed = samples.at(-1)
+
       ctx.assert(
         'native presentation reaches the hidden endpoint',
         Math.abs(closed.presentationBottom - closed.expectedBottom) < 2,
@@ -233,9 +246,11 @@ export async function run(ctx: ProbeContext) {
 
     // Exercise reversal while the replacement has not reached its destination.
     const reversalAt = samples.length
+
     field.focus()
     if (field.android) {
       const android = (globalThis as any).android
+
       field.android
         .getContext()
         .getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
@@ -269,6 +284,7 @@ export async function run(ctx: ProbeContext) {
     area.focus()
     if (field.android) {
       const android = (globalThis as any).android
+
       area.android
         .getContext()
         .getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
@@ -316,6 +332,7 @@ export async function run(ctx: ProbeContext) {
     field.focus()
     if (field.android) {
       const android = (globalThis as any).android
+
       field.android
         .getContext()
         .getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
@@ -325,6 +342,7 @@ export async function run(ctx: ProbeContext) {
     // No controller source is retained; UI consumers may still use their discrete fallback.
     const late: any[] = []
     const lateOff = KeyboardController.onMove(host, (value) => late.push(value))
+
     try {
       await ctx.waitFor(() => late.at(-1)?.currentFrame?.height > 100, { timeout: 15000 })
       ctx.assert('fresh source attaches to visible keyboard', late.at(-1).source, 'native-frames')
@@ -361,7 +379,9 @@ export async function run(ctx: ProbeContext) {
 
     try {
       await ctx.waitFor(() => joining.length > 0)
+
       const initial = joining[0]
+
       ctx.record('mid-transition attachment', joining)
       ctx.assert(
         'fresh mid-transition source reports destination-only geometry',

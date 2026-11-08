@@ -4,6 +4,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const activityRef = { current: null as any }
 export const activityRefEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     activityRefEvents.push('attach')

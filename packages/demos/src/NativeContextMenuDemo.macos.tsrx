@@ -35,6 +35,7 @@ export function NativeContextMenuDemo() @{
     [count, setCount] = useState(0)
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(
     () => () => {
       if (timer.current !== null) {

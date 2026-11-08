@@ -25,7 +25,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -43,6 +45,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -54,11 +57,13 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
 const countText = (needle: string): number => {
   let count = 0
+
   for (const n of (container as any).nodes.values()) {
     try {
       if (JSON.stringify(n.props).includes(needle)) {
@@ -66,6 +71,7 @@ const countText = (needle: string): number => {
       }
     } catch {}
   }
+
   return count
 }
 
@@ -74,6 +80,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -84,6 +91,7 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -95,18 +103,22 @@ const findClass = (cls: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -115,7 +127,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -128,20 +142,24 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const clickAt = async (widget: any, tag = '?') => {
   const c = point(widget)
+
   if (c.x === 0 && c.y === 0) {
     failures.push('degenerate-bounds:' + tag)
   }
+
   // Race the F12 handshake — a swallowed ack (open popover, missed hit)
   // must not deadlock the run.
   await Promise.race([ready({ x: c.x, y: c.y }), pump(2500)])
@@ -172,6 +190,7 @@ async function run() {
 
   // Collapsible — real trigger click toggles the body.
   const collTrig = findLabel('COLL TRIGGER')
+
   if (collTrig) {
     await clickAt(collTrig, 'coll-trig')
     await pump(150)
@@ -190,6 +209,7 @@ async function run() {
 
   // CollapsibleGroup — single mode opens one at a time.
   const gaTrig = findLabel('GA TRIG')
+
   if (gaTrig) {
     await clickAt(gaTrig, 'ga-trig')
     await pump(150)
@@ -204,6 +224,7 @@ async function run() {
 
   // Accordion single — exclusive open.
   const sectTwo = findLabel('SECT TWO')
+
   if (sectTwo) {
     await clickAt(sectTwo, 'sect-two')
     await pump(150)
@@ -218,6 +239,7 @@ async function run() {
 
   // Accordion multiple — both open.
   const multiOne = findLabel('MULTI ONE')
+
   if (multiOne) {
     await clickAt(multiOne, 'multi-one')
     await pump(150)
@@ -235,6 +257,7 @@ async function run() {
 
   // GridList — tap selects + fires onAction.
   const gcell2 = findLabel('GCELL 2')
+
   if (gcell2) {
     await clickAt(gcell2, 'gcell-2')
     await pump(150)
@@ -245,7 +268,9 @@ async function run() {
         state.gridSelection.includes('g2'),
     )
   }
+
   const gcell1 = findLabel('GCELL 1')
+
   if (gcell1) {
     await clickAt(gcell1, 'gcell-1')
     await pump(150)
@@ -257,7 +282,9 @@ async function run() {
         !state.gridSelection.includes('g2'),
     )
   }
+
   const gcell3 = findLabel('GCELL 3')
+
   if (gcell3) {
     await clickAt(gcell3, 'gcell-3')
     await pump(150)
@@ -278,17 +305,21 @@ async function run() {
       Array.isArray(state.overflowIndexes) &&
       state.overflowIndexes.length === state.overflowCount,
   )
+
   check('OverflowList keeps earlier items visible', hasText('OVF ITEM0'))
 
   // Carousel — prev/next buttons scroll the viewport.
   const carouselView = findClass('vx-carousel-viewport')
   const carNext = findClass('vx-carousel-next')
+
   check('Carousel next button mounts', !!carNext)
   if (carNext && carouselView) {
     await clickAt(carNext, 'car-next')
     await pump(500)
     check('Carousel next scrolls viewport forward', (carouselView.scrollLeft ?? 0) > 20)
+
     const carPrev = findClass('vx-carousel-prev')
+
     if (carPrev) {
       await clickAt(carPrev, 'car-prev')
       await pump(500)
@@ -317,6 +348,7 @@ async function run() {
 
   // TreeList — parent row toggles expansion; leaf rows select + action.
   const treeParent = findLabel('PARENT NODE')
+
   if (treeParent) {
     await clickAt(treeParent, 'tree-parent')
     await pump(200)
@@ -328,7 +360,9 @@ async function run() {
         state.treeExpanded.includes('parent'),
     )
   }
+
   const treeChild = findLabel('CHILD ONE')
+
   if (treeChild) {
     await clickAt(treeChild, 'tree-child')
     await pump(200)
@@ -339,7 +373,9 @@ async function run() {
         state.treeSelection.includes('child1'),
     )
   }
+
   const treeParentAgain = findLabel('PARENT NODE')
+
   if (treeParentAgain) {
     await clickAt(treeParentAgain, 'tree-parent-2')
     await pump(200)
@@ -354,7 +390,9 @@ async function run() {
     state.vlist.current.scrollToIndex(100)
     await pump(800)
     check('VirtualList scrollToIndex mounts destination rows', hasText('VROW 100'))
+
     const vlistView = findClass('vx-virtual-list')
+
     check('VirtualList viewport offset follows the seek', (vlistView?.scrollTop ?? 0) > 0)
   }
 
@@ -365,6 +403,7 @@ async function run() {
     gtk: Gtk.get_major_version() + '.' + Gtk.get_minor_version(),
     events: events.slice(0, 40),
   }
+
   print('GTK_COLL ' + JSON.stringify(result))
   loop.quit()
 }

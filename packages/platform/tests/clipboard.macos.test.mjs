@@ -21,17 +21,22 @@ function load() {
   const cache = new Map()
   function require(name) {
     const key = name.replace(/^\.\//, '')
+
     if (!compiled[key]) {
       return {}
     }
+
     if (cache.has(key)) {
       return cache.get(key)
     }
+
     const exports = {}
+
     cache.set(key, exports)
     vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)(exports, require)
     return exports
   }
+
   return {
     context,
     clipboard: require('./clipboard.macos').clipboard,
@@ -42,6 +47,7 @@ function load() {
 test('AppKit copy capability depends on write access independently of read access', async () => {
   const env = load()
   const writes = []
+
   assert.equal(env.root.clipboard, env.clipboard)
   assert.equal(env.clipboard.canCopy, false)
   assert.equal(await env.clipboard.writeText('missing'), false)
@@ -52,6 +58,7 @@ test('AppKit copy capability depends on write access independently of read acces
       return true
     },
   }
+
   assert.equal(env.clipboard.canCopy, true)
   assert.equal(await env.clipboard.writeText('copy'), true)
   assert.equal(await env.clipboard.readText(), null)
@@ -64,6 +71,7 @@ test('AppKit copy capability depends on write access independently of read acces
 
 test('native failures resolve false/null for both names without rejecting callers', async () => {
   const env = load()
+
   assert.equal(env.clipboard.write, env.clipboard.writeText)
   assert.equal(env.clipboard.read, env.clipboard.readText)
   for (const failure of [
@@ -83,6 +91,7 @@ test('native failures resolve false/null for both names without rejecting caller
 
 test('live host replacement/removal, rejected writes and empty text retain their result shapes', async () => {
   const env = load()
+
   env.context.__xplatAppKit = { writeClipboard: () => false, readClipboard: () => '' }
   assert.equal(env.clipboard.canCopy, true)
   assert.equal(await env.clipboard.write('text'), false)

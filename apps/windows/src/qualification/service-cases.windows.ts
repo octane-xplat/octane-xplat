@@ -27,6 +27,7 @@ async function clipboardSpec(): Promise<Record<string, unknown>> {
   const readBack = wrote ? await clipboard.readText() : null
   const wroteEmpty = await clipboard.writeText('')
   const readEmpty = await clipboard.readText()
+
   return {
     canCopy: clipboard.canCopy,
     wrote,
@@ -46,30 +47,39 @@ async function randomSpec(): Promise<Record<string, unknown>> {
   const a = supported ? Array.from(random.bytes(16)) : []
   const b = supported ? Array.from(random.bytes(16)) : []
   const filled = new Uint8Array(70000)
+
   if (supported) {
     random.fill(filled)
   }
+
   let filledDistinct = 0
+
   if (supported) {
     const seen = new Set<number>()
+
     for (const byte of filled.subarray(0, 4096)) {
       seen.add(byte)
     }
 
     filledDistinct = seen.size
   }
+
   let nonViewError = ''
+
   try {
     random.fill({} as never)
   } catch (error) {
     nonViewError = error instanceof TypeError ? 'TypeError' : String(error)
   }
+
   let negativeError = ''
+
   try {
     random.bytes(-1)
   } catch (error) {
     negativeError = error instanceof RangeError ? 'RangeError' : String(error)
   }
+
   return {
     supported,
     smallLength: small.length,
@@ -85,6 +95,7 @@ async function randomSpec(): Promise<Record<string, unknown>> {
 function storageProbe(): Record<string, unknown> {
   try {
     const values = Windows?.Storage?.ApplicationData?.Current?.LocalSettings?.Values
+
     if (!values) {
       return { valuesPresent: false }
     }
@@ -110,23 +121,35 @@ function storageProbe(): Record<string, unknown> {
 async function storageSpec(persistValue?: string): Promise<Record<string, unknown>> {
   const key = 'core20-service-rt'
   const hadBefore = storage.getString(key)
+
   storage.setString(key, 'roundtrip')
+
   const read = storage.getString(key)
+
   storage.setString(key, '')
+
   const emptyRead = storage.getString(key)
+
   storage.setString(key, 'ctrl')
+
   const ctrlRead = storage.getString(key)
+
   storage.remove(key)
+
   const removedRead = storage.getString(key)
+
   // Preferences load asynchronously at leaf init; give the snapshot a
   // bounded moment before reading the cross-launch value.
   if (persistValue === undefined) {
     await new Promise((resolve) => setTimeout(resolve, 400))
   }
+
   const persistRead = persistValue === undefined ? storage.getString(PERSIST_KEY) : null
+
   if (persistValue !== undefined) {
     storage.setString(PERSIST_KEY, persistValue)
   }
+
   return {
     hadBefore,
     read,
@@ -147,8 +170,10 @@ async function keepAwakeSpec(): Promise<Record<string, unknown>> {
     keepAwake.activate('spec-a'),
     keepAwake.activate('spec-b'),
   ])
+
   const releaseA = await keepAwake.deactivate('spec-a')
   const releaseB = await keepAwake.deactivate('spec-b')
+
   return { activated, deactivated, activatedTwo, releaseA, releaseB }
 }
 
@@ -157,6 +182,7 @@ async function connectivitySpec(): Promise<Record<string, unknown>> {
   const events: unknown[] = []
   const unsubscribe = connectivity.subscribe((next) => events.push(next))
   const resample = connectivity.getState()
+
   unsubscribe()
   return { current, resample, eventCount: events.length }
 }
@@ -179,15 +205,19 @@ async function filesSpec(): Promise<Record<string, unknown>> {
   const pickFn = typeof files.pick
   const exportFn = typeof files.export
   let released = false
+
   try {
     files.release(draft)
     released = true
   } catch {}
+
   let releasedAgain = false
+
   try {
     files.release(draft)
     releasedAgain = true
   } catch {}
+
   return {
     draftUri: draft.uri,
     matchedText: text === 'Passport ✓',
@@ -210,6 +240,7 @@ async function filesSpec(): Promise<Record<string, unknown>> {
 async function deleteItemByPath(path: string): Promise<void> {
   try {
     const file = await NSWinRT.toPromise(Windows.Storage.StorageFile.GetFileFromPathAsync(path))
+
     await NSWinRT.toPromise(file.DeleteAsync())
   } catch {
     const folder = await NSWinRT.toPromise(
@@ -227,7 +258,9 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
   const filePath = nsPath.join(dir, 'core20-fs.txt')
   const target = File.fromPath(filePath)
   const existsBefore = File.exists(filePath)
+
   await target.writeText('chunk αβγ')
+
   const existsAfter = File.exists(filePath)
   const text = await target.readText()
   // Evidence for the upstream fake-sync gap: PathIO ops return before completing.
@@ -239,11 +272,13 @@ async function coreFsSpec(): Promise<Record<string, unknown>> {
   const tempFile = temp.getFile('core20-temp-unique.txt')
   const tempPath = tempFile.path
   const tempExists = File.exists(tempPath)
+
   for (const entity of [target, tempFile, nested, folder]) {
     try {
       await deleteItemByPath(entity.path)
     } catch {}
   }
+
   return {
     documentsPresent: typeof documents === 'string' && documents.length > 0,
     existsBefore,
@@ -267,9 +302,11 @@ async function secureStorageSpec(persistValue?: string): Promise<Record<string, 
   const supported = secureStorage.supported
   const available = supported ? await secureStorage.isAvailable() : false
   const result: Record<string, unknown> = { supported, available }
+
   if (!available) {
     return result
   }
+
   const missing = await secureStorage.get(SECURE_KEY)
   const wrote = await secureStorage.set(SECURE_KEY, 'vault-roundtrip')
   const read = wrote ? await secureStorage.get(SECURE_KEY) : null
@@ -284,11 +321,13 @@ async function secureStorageSpec(persistValue?: string): Promise<Record<string, 
   const removedOther = await secureStorage.remove('core20-secure-other')
   const removedMissing = await secureStorage.remove(SECURE_KEY)
   let persistRead: string | null = null
+
   if (persistValue === undefined) {
     persistRead = await secureStorage.get(SECURE_PERSIST_KEY)
   } else {
     await secureStorage.set(SECURE_PERSIST_KEY, persistValue)
   }
+
   return {
     ...result,
     missing,
@@ -313,11 +352,13 @@ async function secureStorageSpec(persistValue?: string): Promise<Record<string, 
 async function filesChunkSpec(): Promise<Record<string, unknown>> {
   const ref = await files.writeBytes('core20-chunk.dat', new Uint8Array([9, 8, 7, 6, 5, 4]))
   let maxError = ''
+
   try {
     await files.readBytes(ref, { maxBytes: 3 })
   } catch (error) {
     maxError = String(error)
   }
+
   // The packaged runtime has no global AbortController — the signal contract
   // is duck-typed (aborted flag, listeners, throwIfAborted).
   const listeners = new Set<() => void>()
@@ -337,25 +378,32 @@ async function filesChunkSpec(): Promise<Record<string, unknown>> {
     throwIfAborted() {
       if (signal.aborted) {
         const error = new Error('The operation was aborted')
+
         error.name = 'AbortError'
         throw error
       }
     },
   }
+
   signal.aborted = true
   for (const listener of listeners) {
     listener()
   }
+
   let abortError = ''
+
   try {
     await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
   } catch (error) {
     abortError = error instanceof Error ? error.name : String(error)
   }
+
   const full = await files.readBytes(ref, { maxBytes: 64 })
+
   try {
     files.release(ref)
   } catch {}
+
   return {
     uri: ref.uri,
     maxError,
@@ -368,6 +416,7 @@ async function filesChunkSpec(): Promise<Record<string, unknown>> {
 /** The driver presets a non-text clipboard payload; the app must read null. */
 async function clipboardNontextSpec(): Promise<Record<string, unknown>> {
   const read = clipboard.canCopy ? await clipboard.readText() : null
+
   return { canCopy: clipboard.canCopy, read }
 }
 
@@ -376,19 +425,23 @@ async function authSpec(): Promise<Record<string, unknown>> {
   const sessionSupported = authSession.supported
   const sessionAvailable = await authSession.isAvailable()
   let sessionError = ''
+
   try {
     await authSession.open('https://example.invalid/', { callbackScheme: 'core20' })
   } catch (error) {
     sessionError = error instanceof Error ? error.name : String(error)
   }
+
   const passkeySupported = webAuthn.supported
   const passkeyAvailable = await webAuthn.isAvailable()
   let passkeyError = ''
+
   try {
     await webAuthn.get({} as never)
   } catch (error) {
     passkeyError = error instanceof Error ? error.name : String(error)
   }
+
   return {
     sessionSupported,
     sessionAvailable,
@@ -403,6 +456,7 @@ async function authSpec(): Promise<Record<string, unknown>> {
 async function windowMetricsSpec(): Promise<Record<string, unknown>> {
   try {
     const main = Screen.mainScreen
+
     return {
       widthDIPs: main.widthDIPs,
       heightDIPs: main.heightDIPs,
@@ -428,15 +482,18 @@ async function pickerSelectSpec(): Promise<Record<string, unknown>> {
         if (ref === null) {
           return { pickSelected: 'cancelled' }
         }
+
         const entry: Record<string, unknown> = {
           pickSelected: `ok:${ref.name}`,
           selectedUri: ref.uri,
         }
+
         try {
           entry.readBack = await files.readText(ref)
         } catch (error) {
           entry.readError = error instanceof Error ? error.message : String(error)
         }
+
         return entry
       })
       .catch((error: unknown) => ({
@@ -446,6 +503,7 @@ async function pickerSelectSpec(): Promise<Record<string, unknown>> {
       setTimeout(() => resolve({ pickSelected: 'pending-dialog' }), 12000),
     ),
   ])
+
   Object.assign(out, raced)
   return out
 }
@@ -461,11 +519,13 @@ async function pickerMultiSpec(): Promise<Record<string, unknown>> {
           multiSelected: refs.length === 0 ? 'cancelled' : `ok:${refs.length}`,
           multiNames: refs.map((ref) => ref.name),
         }
+
         try {
           entry.firstReadBack = refs.length ? await files.readText(refs[0]) : null
         } catch (error) {
           entry.readError = error instanceof Error ? error.message : String(error)
         }
+
         return entry
       })
       .catch((error: unknown) => ({
@@ -475,6 +535,7 @@ async function pickerMultiSpec(): Promise<Record<string, unknown>> {
       setTimeout(() => resolve({ multiSelected: 'pending-dialog' }), 12000),
     ),
   ])
+
   return { ...raced }
 }
 
@@ -484,6 +545,7 @@ async function pickerSaveSpec(): Promise<Record<string, unknown>> {
   const payload = new Uint8Array([
     99, 111, 114, 101, 50, 48, 45, 101, 120, 112, 111, 114, 116, 101, 100,
   ])
+
   const raced = await Promise.race([
     files
       .export('core20-exported.txt', payload)
@@ -495,6 +557,7 @@ async function pickerSaveSpec(): Promise<Record<string, unknown>> {
       setTimeout(() => resolve({ exportResult: 'pending-dialog' }), 12000),
     ),
   ])
+
   return { ...raced }
 }
 
@@ -514,9 +577,11 @@ async function secureDepthSpec(): Promise<Record<string, unknown>> {
   const supported = secureStorage.supported
   const available = supported ? await secureStorage.isAvailable() : false
   const result: Record<string, unknown> = { supported, available }
+
   if (!available) {
     return result
   }
+
   const key = 'core20-secure-depth'
   const ctrl = 'ctrl-'
   const wroteEmpty = await secureStorage.set(key, '')
@@ -527,6 +592,7 @@ async function secureDepthSpec(): Promise<Record<string, unknown>> {
   const readOver = wroteOver ? await secureStorage.get(key) : null
   const removed = await secureStorage.remove(key)
   const readAfterRemove = await secureStorage.get(key)
+
   return {
     ...result,
     wroteEmpty,
@@ -553,37 +619,53 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
       return false
     }
   }
+
   async function releaseOwned(): Promise<void> {
     for (const ref of owned) {
       files.release(ref)
     }
+
     const deadline = Date.now() + 5000
+
     while (owned.some((ref) => exists(ref.uri)) && Date.now() < deadline) {
       await new Promise<void>((resolve) => setTimeout(resolve, 50))
     }
   }
+
   try {
     foreign = File.fromPath(foreignPath)
     step = 'foreign-writeText'
     await foreign.writeText('foreign-sentinel')
     step = 'write-a'
+
     const a = await files.writeBytes('core20-id-a.dat', new Uint8Array([7]))
+
     owned.push(a)
     step = 'write-b'
+
     const b = await files.writeBytes('core20-id-a.dat', new Uint8Array([8]))
+
     owned.push(b)
     step = 'read-a'
+
     const readA = await files.readBytes(a)
+
     step = 'read-b'
+
     const readB = await files.readBytes(b)
+
     step = 'exists-before-release'
+
     const existedBeforeRelease = exists(a.uri) && exists(b.uri)
+
     step = 'release-foreign'
     files.release({ name: foreign.name, uri: foreign.path })
     step = 'release-owned'
     await releaseOwned()
     step = 'foreign-readText'
+
     const foreignSurvived = (await foreign.readText()) === 'foreign-sentinel'
+
     step = 'exists-after-release'
     Object.assign(result, {
       sameNameDistinct: a.uri !== b.uri,
@@ -618,6 +700,7 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
       }
     }
   }
+
   return result
 }
 
@@ -625,13 +708,17 @@ async function filesIdentitySpec(): Promise<Record<string, unknown>> {
 async function filesStreamSpec(): Promise<Record<string, unknown>> {
   const size = 512 * 1024
   const source = new Uint8Array(size)
+
   for (let index = 0; index < size; index++) {
     source[index] = (index * 31 + 7) & 0xff
   }
+
   const ref = await files.writeBytes('core20-stream.bin', source)
+
   try {
     const back = await files.readBytes(ref)
     let fullMatch = back.length === size
+
     for (let index = 0; fullMatch && index < size; index++) {
       if (back[index] !== source[index]) {
         fullMatch = false
@@ -640,6 +727,7 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
 
     const exact = await files.readBytes(ref, { maxBytes: size })
     let underError = ''
+
     try {
       await files.readBytes(ref, { maxBytes: size - 1 })
     } catch (error) {
@@ -671,6 +759,7 @@ async function filesStreamSpec(): Promise<Record<string, unknown>> {
     }
 
     let midAbort = ''
+
     try {
       await files.readBytes(ref, { signal: signal as unknown as AbortSignal })
     } catch (error) {
@@ -717,13 +806,16 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
       result[name] = `error: ${error instanceof Error ? error.message : String(error)}`
     }
   }
+
   const dir = nsPath.join(knownFolders.temp().path, `core20-depth-${Date.now()}`)
   const folder = Folder.fromPath(dir)
   const filePath = nsPath.join(dir, 'alpha.txt')
   const otherPath = nsPath.join(dir, 'beta.txt')
   const renamedPath = nsPath.join(dir, 'gamma.txt')
+
   try {
     const file = File.fromPath(filePath)
+
     await file.writeText('depth-payload')
     await probe(
       'lastModified',
@@ -731,19 +823,24 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
     )
 
     await probe('size', () => file.size)
+
     const other = File.fromPath(otherPath)
+
     await other.writeText('second')
     await probe('entities', async () => {
       const entities = await folder.getEntities()
+
       return Array.isArray(entities) ? entities.map((entity) => entity.name).sort() : 'not-an-array'
     })
 
     await probe('eachEntity', async () => {
       const names: string[] = []
+
       await folder.eachEntity((entity) => {
         names.push(entity.name)
         return true
       })
+
       return names.sort()
     })
 
@@ -751,11 +848,13 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
     // IAsyncOperation. Record both the call result and whether it moved.
     await probe('rename', async () => {
       const outcome = await file.rename('gamma.txt')
+
       return { outcome, moved: File.exists(renamedPath), original: File.exists(filePath) }
     })
 
     await probe('removeFile', async () => {
       const outcome = await other.remove()
+
       return { outcome, gone: !File.exists(otherPath) }
     })
   } finally {
@@ -765,6 +864,7 @@ async function coreFsDepthSpec(): Promise<Record<string, unknown>> {
       } catch {}
     }
   }
+
   return result
 }
 
@@ -776,11 +876,16 @@ async function connectivityDepthSpec(): Promise<Record<string, unknown>> {
   const unsubscribeA = connectivity.subscribe((next) => eventsA.push(next))
   const unsubscribeB = connectivity.subscribe((next) => eventsB.push(next))
   const during = connectivity.getState()
+
   unsubscribeA()
+
   const afterUnsubA = connectivity.getState()
+
   unsubscribeB()
+
   const eventsC: unknown[] = []
   const resub = connectivity.subscribe((next) => eventsC.push(next))
+
   resub()
   return {
     stateShape: typeof before === 'object' && before !== null && typeof before.online === 'boolean',
@@ -801,14 +906,21 @@ async function storageDepthSpec(): Promise<Record<string, unknown>> {
     a: 'core20-depth-a',
     b: 'core20-depth-b',
   }
+
   const result: Record<string, unknown> = {}
+
   try {
     const unicode = 'depth--\u{1F600}-\u0301-\u0000-end'
+
     storage.setString(keys.uni, unicode)
     result.uniRead = storage.getString(keys.uni) === unicode
+
     const long = 'x'.repeat(8192) + 'Ω'
+
     storage.setString(keys.long, long)
+
     const longBack = storage.getString(keys.long)
+
     result.longLength = longBack === null ? -1 : longBack.length
     result.longTail = longBack === null ? false : longBack.endsWith('Ω')
     storage.setString(keys.a, 'first')
@@ -816,7 +928,9 @@ async function storageDepthSpec(): Promise<Record<string, unknown>> {
     storage.setString(keys.a, 'overwritten')
     result.isolation = storage.getString(keys.b) === 'second'
     result.overwrite = storage.getString(keys.a) === 'overwritten'
+
     let removedMissing = 'no-throw'
+
     try {
       storage.remove('core20-depth-never-set')
     } catch (error) {
@@ -833,40 +947,54 @@ async function storageDepthSpec(): Promise<Record<string, unknown>> {
       } catch {}
     }
   }
+
   return result
 }
 
 /** Text breadth: supplementary-plane unicode, empty write, overwrite. */
 async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
   const result: Record<string, unknown> = { canCopy: clipboard.canCopy }
+
   if (!clipboard.canCopy) {
     return result
   }
+
   // SetContent+Flush commits asynchronously — an immediate read can see a
   // stale or empty payload (verified racy across 1.0.0.211 launches). Settle
   // before reading to model the real contract.
   const settle = () => new Promise((resolve) => setTimeout(resolve, 350))
   const unicode = 'clip--\u{1F600}-\u{1F1EF}\u{1F1F5}-e\u0301-\u0000-end'
+
   result.wroteUni = await clipboard.writeText(unicode)
   await settle()
+
   const uniBack = await clipboard.readText()
+
   result.uniRead = uniBack === unicode
   result.uniReadBack = uniBack
+
   const empty = await clipboard.writeText('')
+
   result.wroteEmpty = empty
   await settle()
   result.emptyRead = await clipboard.readText()
+
   // Probe where reads diverge: truncation at the first U+0000, or emoji loss.
   const nulPayload = 'before' + '\u0000' + 'after'
+
   await clipboard.writeText(nulPayload)
   await settle()
   result.nulReadBack = await clipboard.readText()
+
   const emojiOnly = '\u{1F600}'
+
   await clipboard.writeText(emojiOnly)
   await settle()
   result.emojiReadBack = await clipboard.readText()
+
   const first = await clipboard.writeText('clip-first')
   const overwrite = await clipboard.writeText('clip-second')
+
   await settle()
   result.overwrite = overwrite && (await clipboard.readText()) === 'clip-second'
   result.first = first
@@ -874,6 +1002,7 @@ async function clipboardDepthSpec(): Promise<Record<string, unknown>> {
   try {
     await clipboard.writeText('')
   } catch {}
+
   return result
 }
 
@@ -889,8 +1018,10 @@ const mediaLiveOffs: (() => void)[] = []
 async function mediaLiveStartSpec(): Promise<Record<string, unknown>> {
   mediaLiveEvents.length = 0
   mediaLiveOffs.length = 0
+
   const sample = (source: string) => {
     const screen = Screen.mainScreen
+
     mediaLiveEvents.push({
       source,
       widthDIPs: screen.widthDIPs,
@@ -898,19 +1029,23 @@ async function mediaLiveStartSpec(): Promise<Record<string, unknown>> {
       scale: screen.scale,
     })
   }
+
   const root = Application.getRootView()
   const onOrientation = () => sample('orientation')
   const onLayout = () => sample('layout')
+
   try {
     Application.on(Application.orientationChangedEvent, onOrientation)
     mediaLiveOffs.push(() => Application.off(Application.orientationChangedEvent, onOrientation))
   } catch {}
+
   if (root) {
     try {
       root.on('layoutChanged', onLayout)
       mediaLiveOffs.push(() => root.off('layoutChanged', onLayout))
     } catch {}
   }
+
   sample('baseline')
   return { subscribed: mediaLiveOffs.length > 0, rootBound: root !== null && root !== undefined }
 }
@@ -918,6 +1053,7 @@ async function mediaLiveStartSpec(): Promise<Record<string, unknown>> {
 async function mediaLiveReadSpec(): Promise<Record<string, unknown>> {
   const events = mediaLiveEvents.map((event) => ({ ...event }))
   let released = true
+
   for (const off of mediaLiveOffs) {
     try {
       off()
@@ -925,8 +1061,11 @@ async function mediaLiveReadSpec(): Promise<Record<string, unknown>> {
       released = false
     }
   }
+
   mediaLiveOffs.length = 0
+
   const widths = new Set(events.map((event) => event.widthDIPs))
+
   return {
     eventCount: events.length,
     widthChanged: widths.size > 1,
@@ -948,8 +1087,10 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     fileSavePicker: typeof pickers?.FileSavePicker,
     folderPicker: typeof pickers?.FolderPicker,
   }
+
   try {
     const picker = pickers?.FileOpenPicker ? new pickers.FileOpenPicker() : null
+
     out.ctorOk = picker !== null
     if (picker) {
       out.pickSingleFileAsync = typeof picker.PickSingleFileAsync
@@ -964,21 +1105,29 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
       out.initWithWindowLower = typeof picker.initializeWithWindow
       out.as = typeof picker.as
       out.pickerOwn = Object.getOwnPropertyNames(picker)
+
       const proto = Object.getPrototypeOf(picker)
+
       out.pickerProto = proto ? Object.getOwnPropertyNames(proto) : []
+
       const proto2 = proto ? Object.getPrototypeOf(proto) : null
+
       out.pickerProto2 = proto2 ? Object.getOwnPropertyNames(proto2) : []
     }
   } catch (error) {
     out.ctorError = error instanceof Error ? error.message : String(error)
   }
+
   // Full NSWinRT helper surface — an unreferenced cast/QI helper may exist.
   try {
     out.nswinrtKeys = Object.getOwnPropertyNames(NSWinRT).sort()
+
     const interop = NSWinRT?.interop
+
     out.nswinrtInteropKeys = interop ? Object.getOwnPropertyNames(interop).sort() : []
     for (const name of ['win32', 'dotnet', 'proxy', 'import', 'getStatus', 'getResults']) {
       const member = NSWinRT?.[name]
+
       out['nswinrt_' + name] = typeof member
       if (typeof member === 'object' && member !== null) {
         try {
@@ -990,11 +1139,13 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     // The projected picker carries a native `handle` own-property — check its
     // type and whether interop.handleOf can read the IInspectable pointer.
     const picker2 = pickers?.FileOpenPicker ? new pickers.FileOpenPicker() : null
+
     if (picker2) {
       out.handleType = typeof picker2.handle
       if (typeof interop?.handleOf === 'function') {
         try {
           const h = interop.handleOf(picker2)
+
           out.handleOf = typeof h
           out.handleOfValue = String(h)
         } catch (error) {
@@ -1005,10 +1156,12 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
   } catch (error) {
     out.nswinrtError = error instanceof Error ? error.message : String(error)
   }
+
   // Owner-window reachability: Microsoft.UI.Win32Interop +
   // root XamlRoot.ContentIslandEnvironment.AppWindowId -> GetHwndFromWindowId.
   const runtime = globalThis as Record<string, any>
   const ms = runtime.Microsoft
+
   out.microsoftNs = typeof ms === 'object' && ms !== null
   out.win32Interop = typeof ms?.UI?.Win32Interop
   out.getHwndFromWindowId = typeof ms?.UI?.Win32Interop?.GetHwndFromWindowId
@@ -1018,33 +1171,41 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
     const root = Application.getRootView()
     const nv = root?.nativeViewProtected ?? root?.nativeView
     const xr = nv?.XamlRoot
+
     out.rootView = nv !== null && nv !== undefined
     out.xamlRoot = typeof xr === 'object' && xr !== null
     out.contentIslandEnv = typeof xr?.ContentIslandEnvironment === 'object'
+
     const appWindowId = xr?.ContentIslandEnvironment?.AppWindowId
+
     out._appWindowId = appWindowId
     out.appWindowId = typeof appWindowId === 'object' && appWindowId !== null
     if (appWindowId && typeof ms?.UI?.Windowing?.AppWindow?.GetFromWindowId === 'function') {
       const appWindow = ms.UI.Windowing.AppWindow.GetFromWindowId(appWindowId)
+
       out.appWindow = appWindow !== null && appWindow !== undefined
     }
 
     if (appWindowId && typeof ms?.UI?.Win32Interop?.GetHwndFromWindowId === 'function') {
       const hwnd = ms.UI.Win32Interop.GetHwndFromWindowId(appWindowId)
+
       out.hwndType = typeof hwnd
       out.hwndPresent = hwnd !== null && hwnd !== undefined && String(hwnd) !== '0'
     }
   } catch (error) {
     out.hwndError = error instanceof Error ? error.message : String(error)
   }
+
   // WASDK 1.8 pickers take a WindowId/AppWindow directly — no HWND needed.
   const msPickers = ms?.Windows?.Storage?.Pickers
+
   out.msPickersNs = typeof msPickers === 'object' && msPickers !== null
   out.msFileOpenPicker = typeof msPickers?.FileOpenPicker
   out.msFileSavePicker = typeof msPickers?.FileSavePicker
   out.msFolderPicker = typeof msPickers?.FolderPicker
   if (typeof msPickers?.FileOpenPicker === 'function') {
     const ctorAttempts: string[] = []
+
     for (const arg of [undefined, out._appWindowId ?? undefined] as const) {
       try {
         const mp =
@@ -1061,6 +1222,7 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
 
     out.msCtorAttempts = ctorAttempts
   }
+
   delete out._appWindowId
   return out
 }
@@ -1074,14 +1236,20 @@ async function pickerProbeSpec(): Promise<Record<string, unknown>> {
 async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = { available: false }
   const pickers = Windows?.Storage?.Pickers
+
   if (!pickers?.FileOpenPicker) {
     return out
   }
+
   out.available = true
+
   const picker = new pickers.FileOpenPicker()
   const filter = picker.FileTypeFilter
+
   out.filterMembers = filter ? Object.getOwnPropertyNames(Object.getPrototypeOf(filter)) : []
+
   const filterAttempts: string[] = []
+
   for (const [name, arg] of [
     ['Append', '*.*'],
     ['Append', '*'],
@@ -1105,9 +1273,11 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       }
     }
   }
+
   out.filterAttempts = filterAttempts
   try {
     const loc = pickers.PickerLocationId
+
     out.locationIdType = typeof loc
     if (loc && typeof picker.SuggestedStartLocation !== 'undefined') {
       try {
@@ -1118,6 +1288,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       }
     }
   } catch {}
+
   // Owner-window acquisition: HWND via win32 FFI + IInitializeWithWindow via
   // the dotnet bridge (CsWinRT's WinRT.Interop helper). Each step is emitted.
   const win32 = NSWinRT?.win32
@@ -1125,10 +1296,12 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   const interop = NSWinRT?.interop
   let hwnd: number | null = null
   const hwndAttempts: string[] = []
+
   if (typeof win32?.call === 'function') {
     for (const fn of ['GetActiveWindow', 'GetForegroundWindow']) {
       try {
         const v = win32.call('user32.dll', fn, 'pointer')
+
         hwndAttempts.push(`${fn}=${String(v)}`)
         if (typeof v === 'number' && v !== 0 && hwnd === null) {
           hwnd = v
@@ -1144,9 +1317,13 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       if (typeof interop?.pointerFromBuffer === 'function') {
         const buf = new ArrayBuffer(72)
         const view = new DataView(buf)
+
         view.setUint32(0, 72, true)
+
         const ptr = interop.pointerFromBuffer(buf)
+
         out.ptrFromBufferType = typeof ptr
+
         const tid = win32.call('kernel32.dll', 'GetCurrentThreadId', 'u32')
         const ok = win32.call(
           'user32.dll',
@@ -1162,6 +1339,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
         out.guiThreadOk = ok
         if (ok) {
           const active = Number(view.getBigInt64(8, true))
+
           hwndAttempts.push(`GetGUIThreadInfo.hwndActive=${active}`)
           if (active !== 0 && hwnd === null) {
             hwnd = active
@@ -1174,6 +1352,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       )
     }
   }
+
   out.hwndAttempts = hwndAttempts
   out.hwnd = hwnd
   // The picker's native pointer identity — the bridge marshals __native_ptr
@@ -1182,9 +1361,11 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   out.handleMembers = picker.handle ? Object.getOwnPropertyNames(picker.handle) : []
   try {
     const h = interop?.handleOf?.(picker)
+
     out.handleOfMembers = h ? Object.getOwnPropertyNames(h) : []
     out.handleOfNativePtr = typeof h?.__native_ptr
   } catch {}
+
   // Managed interop: OctaneXplat.Interop.ServiceInterop.InitializeWithWindow
   // (compiled into the app assembly via App_Resources\Windows\Interop)
   // takes (object picker, long hwnd) — both marshal cleanly.
@@ -1217,9 +1398,12 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
       out.pickLeafError = error instanceof Error ? error.message : String(error)
     }
   }
+
   try {
     const op = picker.PickSingleFileAsync()
+
     out.opType = typeof op
+
     const result = await Promise.race([
       NSWinRT.toPromise(op)
         .then((file: { Name?: string } | null) => ({
@@ -1240,6 +1424,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
   } catch (error) {
     out.invokeError = error instanceof Error ? error.message : String(error)
   }
+
   return out
 }
 
@@ -1247,6 +1432,7 @@ async function pickerInvokeSpec(): Promise<Record<string, unknown>> {
 async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   const runtime = globalThis as Record<string, any>
   const view = runtime.NativeScript ?? null
+
   return {
     screen: typeof Screen.mainScreen === 'object' && Screen.mainScreen !== null,
     pointerDevice:
@@ -1260,6 +1446,7 @@ async function mediaDepthSpec(): Promise<Record<string, unknown>> {
 export async function runServiceSpec(spec: string, record: Emit): Promise<void> {
   try {
     let result: Record<string, unknown>
+
     switch (spec) {
       case 'clipboard':
         result = await clipboardSpec()

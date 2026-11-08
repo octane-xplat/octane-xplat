@@ -28,6 +28,7 @@ const pause = () => new Promise((resolve) => setImmediate(resolve))
  */
 export function codeTokens(text) {
   const out = []
+
   for (const word of text.split(/[^\p{L}\p{N}_$]+/u)) {
     if (!word) {
       continue
@@ -39,6 +40,7 @@ export function codeTokens(text) {
 
     for (const part of parts) {
       const lower = part.toLowerCase()
+
       if (lower.length >= 2) {
         out.push(lower)
       }
@@ -55,9 +57,11 @@ export function codeTokens(text) {
 function chunkFile(rel, abs, corpus, content) {
   const lines = content.split('\n')
   const chunks = []
+
   for (let start = 0; start < lines.length; start += CHUNK_STRIDE) {
     const end = Math.min(lines.length, start + CHUNK_LINES)
     const text = lines.slice(start, end).join('\n')
+
     if (text.trim().length < 40 && chunks.length) {
       continue
     }
@@ -106,6 +110,7 @@ export function createCodeIndex() {
 
     for (const file of files) {
       const prev = manifest.get(fileKey(file))
+
       if (!prev || prev.mtimeMs !== file.mtimeMs || prev.size !== file.size) {
         return true
       }
@@ -127,6 +132,7 @@ export function createCodeIndex() {
 
     for (let i = 0; i < files.length; i++) {
       const file = files[i]
+
       if (
         counted >= MAX_INDEX_FILES ||
         bytes > MAX_INDEX_BYTES ||
@@ -137,6 +143,7 @@ export function createCodeIndex() {
       }
 
       let content
+
       try {
         content = readFileSync(file.abs, 'utf8')
       } catch {
@@ -163,20 +170,24 @@ export function createCodeIndex() {
     }
 
     const nextIdf = new Map()
+
     for (const [token, n] of df) {
       nextIdf.set(token, Math.log(1 + nextChunks.length / n))
     }
 
     for (const chunk of nextChunks) {
       const tf = new Map()
+
       for (const token of chunk.tokens) {
         tf.set(token, (tf.get(token) ?? 0) + 1)
       }
 
       let norm = 0
       const vector = new Map()
+
       for (const [token, n] of tf) {
         const w = n * (nextIdf.get(token) ?? 0)
+
         vector.set(token, w)
         norm += w * w
       }
@@ -200,6 +211,7 @@ export function createCodeIndex() {
   /** chunk still matches the file's current bytes at the same lines. */
   function revalidate(chunk) {
     let content
+
     try {
       content = readFileSync(chunk.file.abs, 'utf8')
     } catch {
@@ -208,6 +220,7 @@ export function createCodeIndex() {
 
     const lines = content.split('\n')
     const region = lines.slice(chunk.startLine - 1, chunk.endLine).join('\n')
+
     return hashText(region) === chunk.hash ? 'current' : 'stale'
   }
 
@@ -218,6 +231,7 @@ export function createCodeIndex() {
      */
     ensure(collectFiles) {
       let files
+
       try {
         files = collectFiles()
       } catch (error) {
@@ -227,6 +241,7 @@ export function createCodeIndex() {
       }
 
       const drift = state === 'not-built' || manifestDrift(files)
+
       if (drift && !building) {
         state = state === 'not-built' ? 'preparing' : 'stale'
         building = build(files)
@@ -281,14 +296,17 @@ export function createCodeIndex() {
       }
 
       const qtf = new Map()
+
       for (const token of codeTokens(query)) {
         qtf.set(token, (qtf.get(token) ?? 0) + 1)
       }
 
       const qvec = new Map()
       let qnorm = 0
+
       for (const [token, n] of qtf) {
         const w = n * (idf.get(token) ?? Math.log(1 + Math.max(1, chunks.length)))
+
         qvec.set(token, w)
         qnorm += w * w
       }
@@ -296,14 +314,17 @@ export function createCodeIndex() {
       qnorm = Math.sqrt(qnorm) || 1
 
       const scored = []
+
       for (const chunk of chunks) {
         if (accept && !accept(chunk.file)) {
           continue
         }
 
         let dot = 0
+
         for (const [token, w] of qvec) {
           const cw = chunk.vector.get(token)
+
           if (cw) {
             dot += w * cw
           }
@@ -318,6 +339,7 @@ export function createCodeIndex() {
 
       const hits = []
       let droppedStale = 0
+
       for (const { chunk, score } of scored) {
         if (hits.length >= limit) {
           break
@@ -326,6 +348,7 @@ export function createCodeIndex() {
         // Stale index → revalidate before serving; drifted chunks drop
         // out rather than masquerade as current source.
         const validity = state === 'stale' ? revalidate(chunk) : 'current'
+
         if (validity !== 'current') {
           droppedStale++
           continue

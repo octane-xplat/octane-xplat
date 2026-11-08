@@ -12,6 +12,7 @@ import { build } from 'vite'
 import { hostBundle, macOSHostArch } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 assert.equal(process.platform, 'darwin', 'verify-wk requires macOS')
+
 const here = dirname(fileURLToPath(import.meta.url))
 const repo = resolve(here, '../../..')
 const engines = ['richtext', 'tiptap', 'lexical']
@@ -29,6 +30,7 @@ for (const name of engines) {
 }
 
 const app = await mkdtemp(join(tmpdir(), 'xplat-richtext-wk-'))
+
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 await symlink(
   fileURLToPath(new URL('../../platform', import.meta.url)),
@@ -208,14 +210,19 @@ const output = await new Promise((resolveOutput, reject) => {
     ],
     { cwd: app },
   )
+
   let text = ''
+
   child.stdout.on('data', (chunk) => (text += chunk))
   child.stderr.on('data', (chunk) => (text += chunk))
+
   const timeout = setTimeout(() => child.kill('SIGKILL'), 120_000)
+
   child.once('error', (error) => {
     clearTimeout(timeout)
     reject(error)
   })
+
   child.once('close', (code, signal) => {
     clearTimeout(timeout)
     if (code === 0) {

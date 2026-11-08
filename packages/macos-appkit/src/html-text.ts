@@ -63,6 +63,7 @@ export function parseHtmlText(
   },
 ) {
   const native = globalThis as any
+
   if (!html) {
     return native.NSAttributedString.alloc().initWithString('')
   }
@@ -74,6 +75,7 @@ export function parseHtmlText(
   const color = rgb
     ? `rgb(${[rgb.red, rgb.green, rgb.blue].map((value) => Math.round(value * 255)).join(',')})`
     : null
+
   const data = native.NSString.stringWithString(
     htmlDocument(html, { ...defaults, color }),
   ).dataUsingEncoding(native.NSUTF8StringEncoding)

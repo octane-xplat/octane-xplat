@@ -56,9 +56,11 @@ function syntaxPlugin(overrides: Partial<Parameters<typeof createMarkdownPlugin>
           maxSpan: 64,
           tokenize: (input: MarkdownTokenizerInput) => {
             const end = input.source.indexOf('>>', input.offset + 2)
+
             if (end === -1) {
               return { status: 'no-match' }
             }
+
             return {
               status: 'match',
               end: end + 2,
@@ -94,6 +96,7 @@ function blockPlugin(tokenize?: (input: MarkdownTokenizerInput) => unknown, name
             ((input: MarkdownTokenizerInput) => {
               const end = input.source.indexOf('\n', input.offset)
               const stop = end === -1 ? input.end : end
+
               return {
                 status: 'match' as const,
                 end: stop,
@@ -122,6 +125,7 @@ describe('createMarkdownPlugin + prepare', () => {
     expect(() =>
       createMarkdownPlugin({ name: '', apiVersion: 1, transform: () => null as never }),
     ).toThrow('non-empty')
+
     expect(() =>
       createMarkdownPlugin({
         name: 'x',
@@ -129,6 +133,7 @@ describe('createMarkdownPlugin + prepare', () => {
         transform: () => null as never,
       }),
     ).toThrow('apiVersion')
+
     expect(() =>
       createMarkdownPlugin({
         name: 'x',
@@ -136,17 +141,20 @@ describe('createMarkdownPlugin + prepare', () => {
         transform: 'not-a-function' as never,
       }),
     ).toThrow('must be a function')
+
     expect(() =>
       createMarkdownPlugin({
         name: 'no-surface',
         apiVersion: 1,
       } as never),
     ).toThrow('syntax or transform')
+
     expect(() =>
       syntaxPlugin({
         renderers: {},
       } as never),
     ).toThrow('renderers')
+
     expect(() =>
       syntaxPlugin({
         syntax: {
@@ -160,6 +168,7 @@ describe('createMarkdownPlugin + prepare', () => {
         },
       } as never),
     ).toThrow('non-empty')
+
     expect(() =>
       syntaxPlugin({
         syntax: {
@@ -177,17 +186,20 @@ describe('createMarkdownPlugin + prepare', () => {
 
   it('freezes entry, brand, and definition; exposes opaque capabilities', () => {
     const entry = syntaxPlugin()
+
     expect(Object.isFrozen(entry)).toBe(true)
     expect(entry.name).toBe('test-syntax')
     expect(getMarkdownPluginCapabilities(entry)).toEqual({
       syntax: true,
       transform: false,
     })
+
     const transformOnly = createMarkdownPlugin({
       name: 'xform',
       apiVersion: 1,
       transform: (doc) => doc,
     })
+
     expect(getMarkdownPluginCapabilities(transformOnly)).toEqual({
       syntax: false,
       transform: true,
@@ -207,6 +219,7 @@ describe('createMarkdownPlugin + prepare', () => {
 
   it('indexes syntax by first character and preserves list ordering', () => {
     const prepared = prepareMarkdownPlugins([syntaxPlugin(), blockPlugin()])!
+
     expect(prepared.syntaxIdentity).toContain('test-syntax')
     expect(prepared.syntaxIdentity).toContain('test-block')
     expect(prepared.inlineByFirstCharacter.get('<')).toHaveLength(1)
@@ -215,6 +228,7 @@ describe('createMarkdownPlugin + prepare', () => {
       // different array identity → different prepared object, same identity
       prepareMarkdownPlugins([blockPlugin(), syntaxPlugin()]),
     )
+
     expect(prepareMarkdownPlugins([syntaxPlugin()])!.syntaxIdentity).not.toBe(
       prepared.syntaxIdentity,
     )
@@ -226,8 +240,11 @@ describe('plugin syntax parsing', () => {
     const nodes = parseMdInline('before <<payload>> after', {
       plugins: [syntaxPlugin()],
     })
+
     expect(nodes.map((n) => n.type)).toEqual(['text', 'extension', 'text'])
+
     const ext = nodes[1] as MarkdownExtensionNode
+
     expect(ext.plugin).toBe('test-syntax')
     expect(ext.name).toBe('angle')
     expect(ext.data).toBe('payload')
@@ -239,8 +256,11 @@ describe('plugin syntax parsing', () => {
 
   it('parses a block extension node and preserves source text', () => {
     const nodes = parseMdNodes('!!! hello\n\nrest', { plugins: [blockPlugin()] })
+
     expect(nodes.map((n) => n.type)).toEqual(['extension', 'paragraph'])
+
     const ext = nodes[0] as MarkdownExtensionNode
+
     expect(ext.display).toBe('block')
     expect(ext.source).toBe('!!! hello')
     expect(ext.position?.start.offset).toBe(0)
@@ -260,7 +280,9 @@ describe('plugin syntax parsing', () => {
         source: 'hand-authored',
       },
     }))
+
     const nodes = parseMdNodes('!!!', { plugins: [bad] })
+
     expect((nodes[0] as MarkdownExtensionNode).source).toBe('!!!')
   })
 
@@ -338,11 +360,14 @@ describe('plugin syntax parsing', () => {
         },
       ],
     ]
+
     for (const [label, result] of cases) {
       const plugin = blockPlugin(() => result)
       const nodes = parseMdNodes('!!! x', { plugins: [plugin] })
+
       expect(nodes[0].type, label).toBe('paragraph')
     }
+
     expect(warn).toHaveBeenCalled()
   })
 
@@ -351,6 +376,7 @@ describe('plugin syntax parsing', () => {
     const plugin = blockPlugin(() => {
       throw new Error('boom')
     }, 'test-throw')
+
     expect(parseMdNodes('!!! x', { plugins: [plugin] })[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -381,6 +407,7 @@ describe('plugin syntax parsing', () => {
       },
       renderers: { x: PASS },
     })
+
     expect(parseMdNodes('> quote', { plugins: [greedy] })[0].type).toBe('blockquote')
   })
 
@@ -400,6 +427,7 @@ describe('plugin syntax parsing', () => {
       }),
       'test-midline',
     )
+
     expect(parseMdNodes('!!! hello\n\nrest', { plugins: [partial] })[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -416,6 +444,7 @@ describe('streaming + deferral', () => {
             maxSpan: 64,
             tokenize: (input: MarkdownTokenizerInput) => {
               const end = input.source.indexOf('>>', input.offset + 2)
+
               return end === -1 && !input.isFinal
                 ? { status: 'defer' }
                 : end === -1
@@ -436,18 +465,22 @@ describe('streaming + deferral', () => {
         ],
       },
     } as never)
+
     const state = createMarkdownIncrementalState()
     const plugins = [deferring]
     const early = parseMarkdownIncremental('start <<incom', state, {
       plugins,
       isFinal: false,
     })
+
     // The deferred tail is withheld rather than parsed as literal text.
     expect(JSON.stringify(early)).not.toContain('<<incom')
+
     const late = parseMarkdownIncremental('start <<incom>> done', state, {
       plugins,
       isFinal: false,
     })
+
     expect(
       late.children.some(
         (b) =>
@@ -462,9 +495,12 @@ describe('streaming + deferral', () => {
     const first = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
       plugins: [blockPlugin()],
     }).children
+
     expect(first[0].type).toBe('extension')
+
     // Removing the plugin flips the identity → settled nodes re-parse.
     const second = parseMarkdownIncremental('!!! a\n\ntail\n', state, {}).children
+
     expect(second[0].type).toBe('paragraph')
   })
 
@@ -482,6 +518,7 @@ describe('streaming + deferral', () => {
               tokenize(input: MarkdownTokenizerInput) {
                 const end = input.source.indexOf('\n', input.offset)
                 const stop = end === -1 ? input.end : end
+
                 return {
                   status: 'match' as const,
                   end: stop,
@@ -499,16 +536,20 @@ describe('streaming + deferral', () => {
         },
         renderers: { callout: PASS },
       })
+
     const state = createMarkdownIncrementalState()
     const settled = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
       plugins: [keyed('v1')],
     }).children
+
     expect(settled[0].type).toBe('extension')
+
     // A new parseKey reinterprets the same source — the settled extension
     // must not survive the configuration change.
     const reparsed = parseMarkdownIncremental('!!! a\n\ntail\n', state, {
       plugins: [keyed('v2')],
     }).children
+
     expect(reparsed[0].type).toBe('extension')
     expect(reparsed[0]).not.toBe(settled[0])
   })
@@ -524,23 +565,29 @@ describe('streaming + deferral', () => {
           return document
         },
       })
+
     const state = createMarkdownIncrementalState()
     const first = parseMarkdownIncremental('alpha\n\ntail', state, {
       plugins: [counting()],
     }).children
+
     // Same syntax identity, different transform instance → settled block
     // objects stay shared while transforms re-observe the document.
     const second = parseMarkdownIncremental('alpha\n\ntail', state, {
       plugins: [counting()],
     }).children
+
     expect(second[0]).toBe(first[0])
     expect(seen.length).toBeGreaterThanOrEqual(2)
   })
 
   it('stream parser applies transforms only on append/finish semantics', () => {
     const parser = createMarkdownStreamParser({ plugins: [blockPlugin()] })
+
     parser.append('!!! one\n\n')
+
     const doc = parser.append('text')
+
     expect(doc.children[0].type).toBe('extension')
     expect(parser.finish().children).toEqual(doc.children)
   })
@@ -558,6 +605,7 @@ describe('transforms', () => {
           return doc
         },
       })
+
     parseMdNodes('x', { plugins: [mk('a'), mk('b')] })
     expect(seen).toEqual(['a:true:block:1', 'b:true:block:1'])
   })
@@ -571,7 +619,9 @@ describe('transforms', () => {
         throw new Error('kaboom')
       },
     })
+
     const nodes = parseMdNodes('hi', { plugins: [throws] })
+
     expect(nodes[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -583,6 +633,7 @@ describe('transforms', () => {
       apiVersion: 1,
       transform: (async () => null) as never,
     })
+
     parseMdNodes('hi', { plugins: [asyncPlugin] })
     expect(warn).toHaveBeenCalled()
   })
@@ -606,7 +657,9 @@ describe('transforms', () => {
         ],
       }),
     })
+
     const nodes = parseMdNodes('hi', { plugins: [evil] })
+
     expect(nodes[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -621,7 +674,9 @@ describe('transforms', () => {
         return doc
       },
     })
+
     const nodes = parseMdNodes('hi', { plugins: [mutator] })
+
     expect(nodes[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -636,6 +691,7 @@ describe('transforms', () => {
         return doc
       },
     })
+
     parseMdNodes('hi', { plugins: [reporter] })
     expect(warn).toHaveBeenCalledWith(expect.stringContaining('reporter'), expect.anything())
   })
@@ -651,6 +707,7 @@ describe('transforms', () => {
       data: null,
       source: '<<x>>',
     }
+
     expect(getMarkdownExtensionRenderer(prepared, node)?.toText(node)).toBe('ext')
     expect(markdownExtensionText(prepared, node)).toBe('ext')
     expect(markdownExtensionText(undefined, node)).toBe('<<x>>')
@@ -663,7 +720,9 @@ describe('plugin data', () => {
     expect(isMarkdownPluginData({ a: [1, 'x', { b: true }] })).toBe(true)
     expect(isMarkdownPluginData(Number.NaN)).toBe(false)
     expect(isMarkdownPluginData({ f: () => {} })).toBe(false)
+
     const cyclic: { self?: unknown } = {}
+
     cyclic.self = cyclic
     expect(isMarkdownPluginData(cyclic)).toBe(false)
   })
@@ -679,20 +738,26 @@ describe('createMarkdownTextTransform', () => {
         children: [{ type: 'text', value: match[0].toUpperCase() }],
       }),
     })
+
     const plugin = createMarkdownPlugin({
       name: 'txt',
       apiVersion: 1,
       transform,
     })
+
     const nodes = parseMdNodes('alpha bravo\n\n```\nbravo\n```', {
       plugins: [plugin],
     })
+
     const para = nodes[0] as { children: { type: string; value?: string }[] }
+
     expect(para.children[1].type).toBe('strong')
     // Code block untouched.
     expect((nodes[1] as { type: string }).type).toBe('code')
+
     // Claim skip: source without the literal costs no transform run.
     const skipped = parseMdNodes('nothing here', { plugins: [plugin] })
+
     expect(skipped[0].type).toBe('paragraph')
   })
 
@@ -710,8 +775,10 @@ describe('createMarkdownTextTransform', () => {
         }),
       }),
     })
+
     // Invalid replacement → transform error path reports and keeps document.
     const nodes = parseMdNodes('x', { plugins: [plugin] })
+
     expect(nodes[0].type).toBe('paragraph')
     expect(warn).toHaveBeenCalled()
   })
@@ -737,8 +804,11 @@ describe('createMarkdownFenceTransform', () => {
   it('annotates eligible fences with a validated proposal', () => {
     const nodes = parseMdNodes('```chart\nabc\n```', { plugins: [fence] })
     const code = nodes[0] as MdNode
+
     expect(code.type).toBe('code')
+
     const proposal = getMarkdownFenceProposal(code as never)
+
     expect(proposal?.node.plugin).toBe('fences')
     expect(proposal?.node.data).toEqual({ code: 'abc' })
     expect(Object.isFrozen(proposal?.node.data)).toBe(true)
@@ -754,7 +824,9 @@ describe('createMarkdownFenceTransform', () => {
       }),
       renderers: { chart: PASS },
     })
+
     const nodes = parseMdNodes('```chart\nabc\n```', { plugins: [declining] })
+
     expect(getMarkdownFenceProposal(nodes[0] as never)).toBeUndefined()
   })
 
@@ -774,8 +846,10 @@ describe('createMarkdownFenceTransform', () => {
       }),
       renderers: { chart: PASS },
     })
+
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
     const nodes = parseMdNodes('```chart\nabc\n```', { plugins: [bad] })
+
     expect(getMarkdownFenceProposal(nodes[0] as never)).toBeUndefined()
     expect(warn).toHaveBeenCalled()
   })
@@ -791,8 +865,10 @@ describe('createMarkdownSourceDecoration', () => {
         ranges: [{ start: 0, end: 3, data: { tone: 'info' } }],
       }),
     })
+
     const nodes = parseMdNodes('hi there', { plugins: [plugin] })
     const decorations = getMarkdownSourceDecorations(nodes[0])
+
     expect(decorations).toEqual([{ name: 'highlight', data: { tone: 'info' } }])
   })
 
@@ -805,7 +881,9 @@ describe('createMarkdownSourceDecoration', () => {
         ranges: [{ start: 0, end: 4 }],
       }),
     })
+
     const parser = createMarkdownStreamParser({ plugins: [plugin] })
+
     parser.append('mark')
     expect(getMarkdownSourceDecorations(parser.append(' here').children[0])).toEqual([])
     expect(getMarkdownSourceDecorations(parser.finish().children[0])).toEqual([{ name: 'mark' }])
@@ -824,6 +902,7 @@ describe('createMarkdownSourceDecoration', () => {
         })),
       }),
     })
+
     const deco = createMarkdownPlugin({
       name: 'deco3',
       apiVersion: 1,
@@ -832,7 +911,9 @@ describe('createMarkdownSourceDecoration', () => {
         ranges: [{ start: 0, end: 2 }],
       }),
     })
+
     const nodes = parseMdNodes('hi', { plugins: [inject, deco] })
+
     expect(getMarkdownSourceDecorations(nodes[0])).toEqual([])
     expect(warn).toHaveBeenCalled()
   })
@@ -844,7 +925,9 @@ describe('createMarkdownFrontmatter', () => {
       name: 'meta',
       parse: (fields) => ({ title: fields.title ?? 'untitled' }),
     })
+
     const doc = parseMdDoc('---\ntitle: Hello\n---\nbody', { plugins: [fm.plugin] })
+
     expect(fm.getMetadata(doc)).toEqual({ title: 'Hello' })
     expect(doc.children).toHaveLength(1)
     expect((doc.children[0] as { children: { value?: string }[] }).children[0].value).toBe('body')
@@ -859,6 +942,7 @@ describe('createMarkdownFrontmatter', () => {
       name: 'meta',
       parse: (fields) => fields,
     })
+
     expect(fm.parse('---\ntitle: H', false).status).toBe('defer')
     expect(fm.parse('---\ntitle: H', true).status).toBe('none')
     expect(fm.parse('plain', true).status).toBe('none')
@@ -869,6 +953,7 @@ describe('markdownSoftBreaksPlugin', () => {
   it('converts soft line endings into hard break nodes', () => {
     const nodes = parseMdNodes('one\ntwo', { plugins: [markdownSoftBreaksPlugin] })
     const children = (nodes[0] as { children: { type: string }[] }).children
+
     expect(children.map((c) => c.type)).toEqual(['text', 'break', 'text'])
   })
 })
@@ -878,6 +963,7 @@ describe('markdownSourceLinesPlugin', () => {
     const nodes = parseMdNodes('one\n\nthree\n\nfive', {
       plugins: [markdownSourceLinesPlugin],
     })
+
     expect(nodes[0].position?.start.line).toBe(1)
     expect(nodes[0].position?.end.line).toBe(1)
     expect(nodes[1].position?.start.line).toBe(3)
@@ -889,9 +975,12 @@ describe('markdownSourceLinesPlugin', () => {
   it('stamps absolute lines inside containers and incremental slices', () => {
     const state = createMarkdownIncrementalState()
     const plugins = [markdownSourceLinesPlugin]
+
     parseMarkdownIncremental('- a\n- b\n\n', state, { plugins })
+
     const nodes = parseMarkdownIncremental('- a\n- b\n\ntail', state, { plugins }).children
     const list = nodes[0] as MdNode & { children: { children: MdNode[] }[] }
+
     expect(list.type).toBe('list')
     expect(list.position?.start.line).toBe(1)
   })
@@ -903,15 +992,21 @@ describe('createMarkdownHeadingLinks', () => {
     const prepared = prepareMarkdownPlugins(plugins)
     const doc = parseMdDoc('# Title\n\n> ## Nested\n\n## Title', { plugins })
     const projection = projectMarkdownHeadingLinks(doc, prepared)!
+
     expect(projection).toBeDefined()
+
     const headings: string[] = []
+
     for (const [node, id] of projection.ids) {
       headings.push(`${id}=${node.position?.start.line}`)
     }
+
     // All three headings (incl. the nested quote heading) get stable slugs.
     expect(projection.ids.size).toBe(3)
     expect(projection.permalinkUrls.size).toBe(3)
+
     const ids = [...projection.ids.values()]
+
     expect(new Set(ids).size).toBe(3)
     expect([...projection.permalinkUrls.values()][0]).toBe('https://docs.example/a#title')
   })
@@ -920,8 +1015,10 @@ describe('createMarkdownHeadingLinks', () => {
     const plugins = [
       createMarkdownHeadingLinks({ headingIdPrefix: 'doc', permalinkBaseUrl: 'https://x.dev' }),
     ]
+
     const doc = parseMdDoc('# A', { plugins })
     const projection = projectMarkdownHeadingLinks(doc, prepareMarkdownPlugins(plugins))!
+
     expect([...projection.ids.values()][0]).toBe('doc--a')
     expect(() => createMarkdownHeadingLinks({ permalinkBaseUrl: 'javascript:x' })).toThrow()
   })
@@ -930,6 +1027,7 @@ describe('createMarkdownHeadingLinks', () => {
 describe('applyMarkdownTransforms pipeline', () => {
   it('returns the input unchanged with no plugins', () => {
     const doc = parseMdDoc('x')
+
     expect(applyMarkdownTransforms(doc, undefined, 'x', true, 'block')).toBe(doc)
   })
 })

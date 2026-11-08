@@ -62,18 +62,25 @@ function canShowPlaceholder(): boolean {
     if (editor!.isComposing()) {
       return false
     }
+
     const root = $getRoot()
+
     if (root.getTextContent().trim() !== '') {
       return false
     }
+
     const children = root.getChildren()
+
     if (children.length > 1) {
       return false
     }
+
     const top = children[0] as any
+
     if (top == null) {
       return true
     }
+
     return (
       top.getType() === 'paragraph' &&
       top.__indent === 0 &&
@@ -90,8 +97,10 @@ function syncHorizontalRuleSelection() {
     const selected = $isNodeSelection(sel)
       ? new Set(sel.getNodes().map((n) => n.getKey()))
       : undefined
+
     for (const hr of contentEl.querySelectorAll('hr')) {
       const node = $getNodeFromDOMNode(hr)
+
       if ($isHorizontalRuleNode(node)) {
         hr.classList.toggle('selected', selected != null && selected.has(node.getKey()))
       }
@@ -103,6 +112,7 @@ function syncPlaceholder() {
   placeholderEl.textContent = current.placeholder ?? ''
   placeholderEl.parentElement!.style.display =
     canShowPlaceholder() && current.placeholder ? '' : 'none'
+
   contentEl.setAttribute('aria-placeholder', current.placeholder ?? '')
 }
 
@@ -111,6 +121,7 @@ installEditorDocument((props) => {
   if (!editor) {
     const root = document.getElementById('root')!
     const wrapper = document.createElement('div')
+
     wrapper.style.position = 'relative'
     contentEl = document.createElement('div')
     contentEl.className = 'vx-lexical-input'
@@ -123,7 +134,9 @@ installEditorDocument((props) => {
     placeholderEl.style.inset = '8px auto auto 10px'
     placeholderEl.style.pointerEvents = 'none'
     placeholderEl.style.opacity = '0.5'
+
     const placeholderWrap = document.createElement('div')
+
     placeholderWrap.setAttribute('aria-hidden', 'true')
     placeholderWrap.append(placeholderEl)
     wrapper.append(contentEl, placeholderWrap)
@@ -149,6 +162,7 @@ installEditorDocument((props) => {
       editor.update(() => {
         const dom = new DOMParser().parseFromString(current.value!, 'text/html')
         const nodes = $generateNodesFromDOM(editor!, dom)
+
         $getRoot().append(...nodes)
       })
     }
@@ -163,9 +177,11 @@ installEditorDocument((props) => {
         INSERT_HORIZONTAL_RULE_COMMAND,
         () => {
           const selection = $getSelection()
+
           if (!$isRangeSelection(selection)) {
             return false
           }
+
           if (selection.focus.getNode() !== null) {
             $insertNodeToNearestRoot($createHorizontalRuleNode())
           }
@@ -180,13 +196,17 @@ installEditorDocument((props) => {
           if (!isDOMNode(event.target)) {
             return false
           }
+
           const node = $getNodeFromDOMNode(event.target)
+
           if (!$isHorizontalRuleNode(node)) {
             return false
           }
+
           const sel = $getSelection()
           const nodeSelection =
             event.shiftKey && $isNodeSelection(sel) ? sel : $createNodeSelection()
+
           $setSelection(nodeSelection)
           if (node.isSelected()) {
             nodeSelection.delete(node.getKey())
@@ -218,17 +238,23 @@ installEditorDocument((props) => {
         if (tags.has(HISTORY_MERGE_TAG) || prevEditorState.isEmpty()) {
           return
         }
+
         const e = editor!
         const html = editorState.read(() => $generateHtmlFromNodes(e))
+
         lastEmitted = html
         current.onChange?.(html)
+
         const doc = editorState.toJSON()
+
         lastJSON = JSON.stringify(doc)
         current.onJSONChange?.(doc)
         editorState.read(() => {
           const sel = $getSelection()
+
           if ($isRangeSelection(sel) && current.onSelectionChange) {
             const root = $getRoot()
+
             current.onSelectionChange({
               start: flatOffset(root, sel.anchor.key, sel.anchor.offset),
               end: flatOffset(root, sel.focus.key, sel.focus.offset),
@@ -244,6 +270,7 @@ installEditorDocument((props) => {
       editor.focus(() => {
         const rootElement = editor!.getRootElement()
         const activeElement = rootElement !== null ? getActiveElement(rootElement) : null
+
         if (
           rootElement !== null &&
           (activeElement === null || !rootElement.contains(activeElement))
@@ -264,6 +291,7 @@ installEditorDocument((props) => {
   // (the update already owns the doc). Stamps track the web leaf's two
   // effects exactly — both advance every props packet.
   const htmlStamp = JSON.stringify([current.json !== undefined, current.value])
+
   if (htmlStamp !== lastHTMLInput) {
     lastHTMLInput = htmlStamp
     if (
@@ -276,6 +304,7 @@ installEditorDocument((props) => {
   }
 
   const jsonStamp = JSON.stringify(current.json)
+
   if (jsonStamp !== lastJSONInput) {
     lastJSONInput = jsonStamp
     if (current.json !== undefined && jsonStamp !== lastJSON) {

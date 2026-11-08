@@ -9,6 +9,7 @@ import { Console } from 'node:console'
 import { createIconContentMapper } from './mapper'
 
 const stderr = new Console(process.stderr)
+
 for (const name of ['log', 'info', 'warn', 'error', 'debug', 'trace'] as const) {
   console[name] = stderr[name].bind(stderr)
 }
@@ -20,6 +21,7 @@ process.stdin.on('data', (chunk: Buffer) => {
   buffered = Buffer.concat([buffered, chunk])
   for (;;) {
     const headerEnd = buffered.indexOf('\r\n\r\n')
+
     if (headerEnd < 0) {
       return
     }
@@ -35,13 +37,17 @@ process.stdin.on('data', (chunk: Buffer) => {
 
     const contentLength = Number(lengthMatch[1])
     const messageStart = headerEnd + 4
+
     if (buffered.length < messageStart + contentLength) {
       return
     }
 
     const body = buffered.subarray(messageStart, messageStart + contentLength).toString('utf8')
+
     buffered = buffered.subarray(messageStart + contentLength)
+
     let message: { jsonrpc: string; id?: number | string | null; method: string; params?: unknown }
+
     try {
       message = JSON.parse(body)
     } catch (error) {
@@ -55,6 +61,7 @@ process.stdin.on('data', (chunk: Buffer) => {
 
     try {
       let result: unknown
+
       switch (message.method) {
         case 'initialize':
           result = mapper.initialize(message.params as { positionEncodings?: string[] })
@@ -102,5 +109,6 @@ function respond(
   error?: { code: number; message: string },
 ): void {
   const out = JSON.stringify(error ? { jsonrpc: '2.0', id, error } : { jsonrpc: '2.0', id, result })
+
   process.stdout.write(`Content-Length: ${Buffer.byteLength(out)}\r\n\r\n${out}`)
 }

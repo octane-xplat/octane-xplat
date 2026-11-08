@@ -40,7 +40,9 @@ function RangeControl(inputProps: DateRangeInputProps) @{
   const anchor = useRef<NSView | null>(null)
   const [open, setOpenState] = useState(false)
   const openRef = useRef(open)
+
   openRef.current = open
+
   const writing = useRef(false),
     actionPending = useRef(false)
 
@@ -65,9 +67,11 @@ function RangeControl(inputProps: DateRangeInputProps) @{
   const isDisabled = !!props.isDisabled || !!props.isReadOnly
   const isBusy = !!props.isLoading || busy
   const blocked = useRef(isDisabled || isBusy)
+
   blocked.current = isDisabled || isBusy
 
   const current = useRef(props)
+
   current.current = props
   useEffect(() => {
     if (blocked.current && openRef.current) {
@@ -77,6 +81,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
   const fireChange = (next: DateRange | null): boolean => {
     const live = current.current
+
     if (!anchor.current || blocked.current || writing.current || actionPending.current) {
       return false
     }
@@ -126,6 +131,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
   const isSelectedPreset = (p: { getRange: () => DateRange }) => {
     const r = p.getRange()
+
     return shown?.start === r.start && shown?.end === r.end
   }
 

@@ -42,6 +42,7 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
 ): ListFocusResult<T> {
   const ref = useRef<T | null>(null)
   const opts = useRef(options)
+
   opts.current = options
 
   const focusItem = useCallback((item: HTMLElement | null) => {
@@ -50,16 +51,19 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
 
   const focusAt = useCallback((index: number) => {
     const root = ref.current
+
     if (!root) {
       return
     }
 
     const stops = enabledStops(root, opts.current.itemSelector)
+
     if (!stops.length) {
       return
     }
 
     const clamped = ((index % stops.length) + stops.length) % stops.length
+
     stops[clamped]?.focus()
   }, [])
 
@@ -68,11 +72,13 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
 
   const repairTabStop = useCallback(() => {
     const root = ref.current
+
     if (!root || !opts.current.hasRovingTabIndex) {
       return
     }
 
     const stops = enabledStops(root, opts.current.itemSelector)
+
     if (!stops.length) {
       return
     }
@@ -85,12 +91,15 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
   // Repair the roving stop as stops mount/unmount or toggle disabled.
   useEffect(() => {
     const root = ref.current
+
     if (!root || !opts.current.hasRovingTabIndex) {
       return
     }
 
     repairTabStop()
+
     const mo = new MutationObserver(repairTabStop)
+
     mo.observe(root, {
       childList: true,
       subtree: true,
@@ -104,6 +113,7 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
       const root = ref.current
+
       if (!root) {
         return
       }
@@ -117,7 +127,9 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
 
       const move = (delta: number) => {
         e.preventDefault()
+
         const next = index < 0 ? (delta > 0 ? 0 : stops.length - 1) : index + delta
+
         focusAt(next)
       }
 
@@ -177,6 +189,7 @@ export function useListFocus<T extends HTMLElement = HTMLElement>(
   // focused stop becomes the tabbable one.
   const handleFocus = useCallback((e: FocusEvent) => {
     const root = ref.current
+
     if (!root || !opts.current.hasRovingTabIndex) {
       return
     }

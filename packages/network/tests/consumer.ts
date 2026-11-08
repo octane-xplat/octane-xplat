@@ -1,5 +1,6 @@
 import { decodeNdjson } from 'rouzer/ndjson'
 import { requestStream } from '../src/index.web'
+
 export async function messages(url: string) {
   const response = await requestStream(url)
   // Rouzer declares the DOM stream type; our transport uses a portable ponyfill.
@@ -8,6 +9,7 @@ export async function messages(url: string) {
     async pull(controller) {
       try {
         const next = await reader.read()
+
         if (next.done) {
           controller.close()
           reader.releaseLock()
@@ -27,5 +29,6 @@ export async function messages(url: string) {
       }
     },
   })
+
   return decodeNdjson<{ text: string }>(stream)
 }

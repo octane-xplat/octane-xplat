@@ -14,8 +14,10 @@ function rgb(color: any): string | undefined {
 export function glyphSnapshot(view: any) {
   const layers = []
   const count = view?.getChildrenCount?.() ?? 0
+
   for (let i = 0; i < count; i++) {
     const child = view.getChildAt(i)
+
     if (child?.text !== undefined) {
       layers.push({
         codePoint: String(child.text).codePointAt(0),
@@ -48,6 +50,7 @@ export async function fontReady(family: string) {
 
   if (isAndroid) {
     const exists = File.exists(path.join(knownFolders.currentApp().path, 'fonts', `${family}.ttf`))
+
     return exists ? 'ready' : 'missing'
   }
 

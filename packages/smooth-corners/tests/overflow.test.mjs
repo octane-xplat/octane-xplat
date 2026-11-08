@@ -11,6 +11,7 @@ function load(platform, globals) {
   const js = stripTypeScriptTypes(source)
     .replace(/^import .*$/gm, '')
     .replace(/^export /gm, '')
+
   const context = {
     generateCommands,
     commandsToD,
@@ -24,6 +25,7 @@ function load(platform, globals) {
     Utils: { layout: { toDevicePixels: (value) => value } },
     ...globals,
   }
+
   runInNewContext(js, context)
   return context
 }
@@ -50,6 +52,7 @@ function iosView() {
 test('iOS: visible content has no mask while its painted surface stays shaped', () => {
   const content = iosView()
   const surface = iosView()
+
   ios.applySmoothClip(content, props, false)
   ios.applySmoothClip(surface, props)
   assert.equal(content.ios.layer.mask, null)
@@ -58,6 +61,7 @@ test('iOS: visible content has no mask while its painted surface stays shaped', 
     surface.style.clipPath,
     `path("${commandsToD(generateCommands(200, 120, props.corners))}")`,
   )
+
   assert.equal(surface.ios.layer.mask, null)
   assert.equal(surface.ios.__smoothMask, undefined)
   assert.equal(surface.ios.__smoothBorder.lineWidth, 6)
@@ -65,9 +69,12 @@ test('iOS: visible content has no mask while its painted surface stays shaped', 
 
 test('iOS: disabling clears only the owned CSS path, not an unrelated native mask', () => {
   const view = iosView()
+
   ios.applySmoothClip(view, { corners: 24 })
+
   const path = view.style.clipPath
   const foreign = {}
+
   view.ios.layer.mask = foreign
   ios.applySmoothClip(view, { corners: 24 }, false)
   assert.equal(view.style.clipPath, 'none')
@@ -82,9 +89,12 @@ test('iOS: disabling clears only the owned CSS path, not an unrelated native mas
 test('iOS: resizing refreshes the exact Mason path and leaves redraw untouched', () => {
   const view = iosView()
   const redraw = () => {}
+
   view._redrawNativeBackground = redraw
   ios.applySmoothClip(view, props)
+
   const previous = view.style.clipPath
+
   view.getActualSize = () => ({ width: 240, height: 160 })
   ios.applySmoothClip(view, props)
   assert.notEqual(view.style.clipPath, previous)
@@ -92,6 +102,7 @@ test('iOS: resizing refreshes the exact Mason path and leaves redraw untouched',
     view.style.clipPath,
     `path("${commandsToD(generateCommands(240, 160, props.corners))}")`,
   )
+
   assert.equal(view._redrawNativeBackground, redraw)
 })
 
@@ -165,6 +176,7 @@ function androidView() {
 
 test('Android: visible overflow disables child clipping and hidden restores it', () => {
   const view = androidView()
+
   android.applySmoothClip(view, props, false)
   assert.equal(view.android.clip, false)
   assert.equal(view.android.clipChildren, false)
@@ -177,8 +189,11 @@ test('Android: visible overflow disables child clipping and hidden restores it',
 
 test('Android: inside border clips its own paint operation', () => {
   const view = androidView()
+
   android.applySmoothClip(view, props, false)
+
   const calls = []
+
   view.android.background.draw({
     drawPath() {
       calls.push('draw')
@@ -194,6 +209,7 @@ test('Android: inside border clips its own paint operation', () => {
       calls.push(['restore', value])
     },
   })
+
   assert.deepEqual(calls, ['draw', 'save', 'clip', 'draw', ['restore', 7]])
 })
 
@@ -206,6 +222,7 @@ test('overflow defaults to visible and only hidden on both axes requests a curve
 
 test('Android: the outer shadow remains unclipped and clears when removed', () => {
   const view = androidView()
+
   view.style = {}
   android.applySmoothShadow(view, { corners: 24, shadow: { blur: 8 } })
   assert.equal(view.android.elevation, 8)
@@ -232,15 +249,21 @@ const macos = load('macos', {
 
 test('macOS: default content is unmasked and hidden clipping can be removed', () => {
   macos.applySmoothClip({ layer: null }, 200, 120, { corners: 24 }, false)
+
   const view = { layer: { mask: null } }
+
   macos.applySmoothClip(view, 200, 120, { corners: 24 }, false)
   assert.equal(view.layer.mask, null)
   macos.applySmoothClip(view, 200, 120, { corners: 24 }, true)
+
   const mask = view.layer.mask
+
   assert.ok(mask.path)
   macos.applySmoothClip(view, 200, 120, { corners: 24 }, false)
   assert.equal(view.layer.mask, null)
+
   const foreign = {}
+
   view.layer.mask = foreign
   macos.applySmoothClip(view, 200, 120, { corners: 24 }, false)
   assert.equal(view.layer.mask, foreign)

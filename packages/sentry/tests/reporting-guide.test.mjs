@@ -24,6 +24,7 @@ function fixture() {
   let options,
     captured = 0,
     closed = 0
+
   const sdk = {
     init: (value) => {
       options = value
@@ -39,17 +40,24 @@ function fixture() {
       return true
     },
   }
+
   const modules = { '@sentry/browser': sdk }
   const leafExports = {}
+
   vm.runInNewContext(compiledLeaf, {
     exports: leafExports,
     require: (id) => modules[id],
   })
+
   modules['@octane-xplat/sentry'] = leafExports
+
   const filterExports = {}
+
   vm.runInNewContext(compiledFilter, { exports: filterExports, require: (id) => modules[id] })
   modules['./reporting-filter'] = filterExports
+
   const exports = {}
+
   vm.runInNewContext(compiledExample, { exports, require: (id) => modules[id] })
   return { helper: exports, options: () => options, captured: () => captured, closed: () => closed }
 }
@@ -63,6 +71,7 @@ const config = {
 
 test('no reports are captured before explicit enablement; initialization is owned once', () => {
   const f = fixture()
+
   assert.equal(f.helper.reportDeliveryCheck(), null)
   f.helper.startReporting(config)
   f.helper.startReporting(config)
@@ -104,6 +113,7 @@ test('filter removes free-form data while retaining build identity and readable 
     ],
     debug_meta: { images: [{ type: 'sourcemap', debug_id: 'debug-1' }] },
   })
+
   assert.equal(event.user, undefined)
   assert.equal(event.request, undefined)
   assert.equal(event.extra, undefined)
@@ -112,6 +122,7 @@ test('filter removes free-form data while retaining build identity and readable 
     event.exception.values[0].stacktrace.frames[0].filename,
     'https://example.test/assets/app.js',
   )
+
   assert.equal(event.exception.values[0].stacktrace.frames[0].lineno, 4)
   assert.equal(event.exception.values[0].stacktrace.frames[0].vars, undefined)
   assert.equal(event.debug_meta.images[0].debug_id, 'debug-1')
@@ -122,13 +133,17 @@ test('filter removes free-form data while retaining build identity and readable 
 
 test('collection withdrawal immediately drops new events and breadcrumbs, then closes the client', async () => {
   const f = fixture()
+
   f.helper.startReporting(config)
+
   const stopping = f.helper.stopReporting()
+
   assert.equal(f.options().beforeSend({ message: 'private' }), null)
   assert.equal(
     f.options().beforeBreadcrumb({ category: 'app-action', message: 'report-delivery-check' }),
     null,
   )
+
   assert.equal(f.helper.reportDeliveryCheck(), null)
   assert.equal(await stopping, true)
   assert.equal(f.closed(), 1)

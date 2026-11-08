@@ -15,6 +15,7 @@ const bot = '41898282+github-actions[bot]@users.noreply.github.com'
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-release-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   return root
 }
@@ -46,12 +47,14 @@ function commit(root, message, path = 'packages/ui/src/example.ts') {
   if (path) {
     write(root, path, message + '\n')
   }
+
   git(root, 'add', '-A')
   git(root, 'commit', '-qm', message)
 }
 
 function note(release, title, description = 'A concise explanation.') {
   const header = release ? `---\nrelease: ${release}\n---\n\n` : ''
+
   return `${header}### ${title}\n\n${description}\n`
 }
 
@@ -81,6 +84,7 @@ test('version policy includes supported commits and breaking changes, independen
 
 test('automatic versions filter paths and keep the two streams independent', (t) => {
   const root = fixture(t)
+
   init(root)
   commit(root, 'chore: initial state')
   git(root, 'tag', 'v0.4.2')
@@ -88,6 +92,7 @@ test('automatic versions filter paths and keep the two streams independent', (t)
   for (const directory of ['app', 'demos', 'media-probe', 'typegen-fixture']) {
     commit(root, 'feat: harness change', `packages/${directory}/example.ts`)
   }
+
   commit(root, 'feat: tooling change', 'scripts/example.ts')
   commit(root, 'docs: document the API', 'packages/ui/README.md')
   commit(root, 'feat(ci)!: CI-only change')
@@ -109,6 +114,7 @@ test('automatic versions filter paths and keep the two streams independent', (t)
 
 test('version resolution ignores prerelease and unreachable tags, and skips a released revision', (t) => {
   const root = fixture(t)
+
   init(root)
   commit(root, 'fix: initial implementation')
   assert.equal(resolveRelease(root, 'lockstep').version, '0.1.0')
@@ -126,12 +132,15 @@ test('version resolution ignores prerelease and unreachable tags, and skips a re
     version: '0.1.0',
     tag: 'v0.1.0',
   })
+
   assert.equal(resolveRelease(root, 'tsrx-typegen', '0.8.0-rc.1').tag, 'tsrx-typegen-v0.8.0-rc.1')
+
   const run = spawnSync(process.execPath, [versionScript, 'lockstep'], {
     cwd: root,
     encoding: 'utf8',
     env: { ...process.env, VERSION_OVERRIDE: '' },
   })
+
   assert.equal(run.status, 0, run.stderr)
   assert.equal(run.stdout, 'should_release=true\nversion=0.1.1\ntag=v0.1.1\n')
 })
@@ -150,6 +159,7 @@ test('invalid version overrides cannot enter tags or workflow outputs', () => {
   ]) {
     assert.throws(() => releaseVersion(value), undefined, value)
   }
+
   assert.equal(releaseVersion('v1.2.3-alpha-beta.1'), '1.2.3-alpha-beta.1')
 })
 
@@ -157,17 +167,24 @@ test('preview preserves Markdown and prepare consumes only the selected release'
   const root = fixture(t)
   const prior =
     '# Changelog\n\nExisting introduction.\n\n## [0.1.0] - 2026-01-01\n\nOriginal history.\n'
+
   write(root, 'CHANGELOG.md', prior)
   write(root, 'FIXLOG.md', '# Fixlog\n\nBug fixes.\n')
   write(root, '.changelog/.gitkeep', '')
+
   const example =
     'Show the change.\n\n```sh\n# A comment inside an example\nbun run xplat doctor\n```\n\n[Documentation](https://octane-xplat.goddardai.org/toolchain)'
+
   write(root, '.changelog/b-feature.md', note('lockstep', 'Second feature'))
   write(root, '.changelog/a-feature.md', note(undefined, 'First feature', example))
   write(root, '.changelog/fixes/repair.md', note(undefined, 'A repair'))
+
   const independent = note('tsrx-typegen', 'Better declarations')
+
   write(root, '.changelog/typegen.md', independent)
+
   const preview = renderNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+
   assert.equal(readFileSync(join(root, 'CHANGELOG.md'), 'utf8'), prior)
   assert.equal(readNotes(root).length, 4)
   assert.equal(existsSync(join(root, '.release-notes.md')), false)
@@ -176,7 +193,9 @@ test('preview preserves Markdown and prepare consumes only the selected release'
   assert.match(preview.github, /## Fixes\n\n### A repair/)
   assert.doesNotMatch(preview.github, /release:|Better declarations/)
   prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+
   const changelog = readFileSync(join(root, 'CHANGELOG.md'), 'utf8')
+
   assert.match(changelog, /## \[Octane Xplat 0\.2\.0\].* - 2026-10-23/)
   assert.ok(changelog.endsWith('## [0.1.0] - 2026-01-01\n\nOriginal history.\n'))
   assert.doesNotMatch(changelog, /A repair/)
@@ -191,11 +210,13 @@ test('preview preserves Markdown and prepare consumes only the selected release'
     readFileSync(join(root, 'CHANGELOG.md'), 'utf8'),
     /## \[tsrx-typegen 0\.3\.0\].*tsrx-typegen-v0.3.0/,
   )
+
   assert.equal(readNotes(root).length, 0)
 })
 
 test('hype orders each release and log, defaults to 50, and never appears in published notes', (t) => {
   const root = fixture(t)
+
   for (const release of ['lockstep', 'tsrx-typegen']) {
     for (const directory of ['.changelog', '.changelog/fixes']) {
       for (const [filename, hype] of [
@@ -223,11 +244,14 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
       }
     }
   }
+
   for (const release of ['lockstep', 'tsrx-typegen']) {
     const preview = renderNotes(root, release, '0.2.0', '2026-10-23')
+
     assert.equal(preview.notes.length, 8)
     for (const log of preview.logs) {
       const directory = log.path.endsWith('FIXLOG.md') ? '.changelog/fixes' : '.changelog'
+
       assert.deepEqual(
         [...log.content.split('\n## ')[1].matchAll(/^### (.+)$/gm)].map((match) => match[1]),
         ['z-banger', 'b-default', 'c-normal', 'a-low'].map(
@@ -239,7 +263,9 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
     }
 
     assert.doesNotMatch(preview.github, /hype:|release:/)
+
     const prepared = prepareNotes(root, release, '0.2.0', '2026-10-23')
+
     assert.equal(prepared.github, preview.github)
     assert.equal(extractNotes(root, release, '0.2.0'), preview.github)
     for (const log of prepared.logs) {
@@ -252,6 +278,7 @@ test('hype orders each release and log, defaults to 50, and never appears in pub
 
 test('invalid hype fails before logs change or notes are consumed', (t) => {
   const root = fixture(t)
+
   write(root, 'CHANGELOG.md', '# Changelog\n')
   write(root, 'FIXLOG.md', '# Fixlog\n')
   write(root, '.changelog/good.md', note(undefined, 'Valid feature'))
@@ -269,6 +296,7 @@ test('invalid hype fails before logs change or notes are consumed', (t) => {
     '{}',
   ]) {
     const invalid = `---\nhype: ${hype}\n---\n\n${note(undefined, 'Invalid hype')}`
+
     write(root, '.changelog/fixes/invalid.md', invalid)
     assert.throws(
       () => prepareNotes(root, 'lockstep', '0.3.0'),
@@ -285,6 +313,7 @@ test('invalid hype fails before logs change or notes are consumed', (t) => {
 
 test('an unlisted release leaves both histories unchanged and produces usable GitHub notes', (t) => {
   const root = fixture(t)
+
   write(root, 'CHANGELOG.md', '# Changelog\n')
   write(root, 'FIXLOG.md', '# Fixlog\n')
   write(root, '.changelog/typegen.md', note('tsrx-typegen', 'Pending independent feature'))
@@ -295,11 +324,14 @@ test('an unlisted release leaves both histories unchanged and produces usable Gi
     readFileSync(join(root, '.release-notes.md'), 'utf8'),
     'No user-facing release notes for this release.\n',
   )
+
   assert.equal(readNotes(root).length, 1)
+
   const preview = spawnSync(process.execPath, [notesScript, 'preview', 'tsrx-typegen', '0.1.0'], {
     cwd: root,
     encoding: 'utf8',
   })
+
   assert.equal(preview.status, 0, preview.stderr)
   assert.match(preview.stdout, /Pending independent feature/)
   assert.equal(readNotes(root).length, 1)
@@ -308,6 +340,7 @@ test('an unlisted release leaves both histories unchanged and produces usable Gi
 test('invalid fragments fail before logs change or any file is consumed', (t) => {
   const root = fixture(t)
   const path = '.changelog/fixes/invalid.md'
+
   write(root, 'CHANGELOG.md', '# Changelog\n')
   write(root, 'FIXLOG.md', '# Fixlog\n')
   write(root, '.changelog/good.md', note('lockstep', 'A valid feature'))
@@ -346,25 +379,32 @@ test('the tsrx-typegen job syncs shared histories before edits; lockstep only ta
   const sync = steps.findIndex((step) => step.name === 'Sync preceding release commits')
   const version = steps.findIndex((step) => step.name === 'Resolve release version')
   const notes = steps.findIndex((step) => step.name === 'Prepare release notes')
+
   assert.ok(sync >= 0 && sync < version && version < notes)
   assert.equal(steps[version].if, "steps.sync.outputs.skip != 'true'")
   assert.equal(steps[notes].if, "steps.version.outputs.should_release == 'true'")
+
   const commitStep = steps.find((step) => step.name === 'Commit and tag release')
+
   assert.match(commitStep.run, /CHANGELOG\.md FIXLOG\.md \.changelog/)
   assert.match(commitStep.run, /git push origin HEAD:main/)
   assert.doesNotMatch(
     steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
     /git-cliff|--rebase/,
   )
+
   // The lockstep release commit arrives through the release PR — the publish
   // job tags the tested revision and never commits to main.
   const lockstep = workflow.jobs.lockstep
+
   assert.deepEqual([lockstep.needs ?? []].flat(), ['gate', 'qualify'])
   assert.doesNotMatch(
     lockstep.steps.map((step) => step.run ?? step.uses ?? '').join('\n'),
     /git (commit|push origin HEAD)/,
   )
+
   const tagStep = lockstep.steps.find((step) => step.name === 'Tag the release')
+
   assert.match(tagStep.run, /git push origin "\$TAG"/)
 })
 
@@ -373,6 +413,7 @@ test('actual workflow sync preserves the first stream and skips on untested main
   const first = join(root, 'first')
   const second = join(root, 'second')
   const remote = join(root, 'origin.git')
+
   mkdirSync(first)
   init(first)
   write(first, 'CHANGELOG.md', '# Changelog\n')
@@ -382,7 +423,9 @@ test('actual workflow sync preserves the first stream and skips on untested main
   write(first, '.changelog/fixes/repair.md', note('lockstep', 'Main fix'))
   write(first, '.changelog/fixes/typegen.md', note('tsrx-typegen', 'Independent fix'))
   commit(first, 'feat: tested changes')
+
   const tested = git(first, 'rev-parse', 'HEAD')
+
   git(root, 'init', '--bare', '-q', remote)
   git(first, 'remote', 'add', 'origin', remote)
   git(first, 'push', '-q', 'origin', 'HEAD:main')
@@ -392,30 +435,40 @@ test('actual workflow sync preserves the first stream and skips on untested main
   git(first, 'add', '-A')
   git(first, '-c', `user.email=${bot}`, 'commit', '-qm', 'chore(release): tsrx-typegen 0.3.0')
   git(first, 'push', '-q', 'origin', 'HEAD:main')
+
   const sync = workflow.jobs['tsrx-typegen'].steps.find(
     (step) => step.name === 'Sync preceding release commits',
   )
+
   const output = join(root, 'github-output')
+
   writeFileSync(output, '')
+
   const runSync = () =>
     spawnSync('bash', ['-c', sync.run], {
       cwd: second,
       env: { ...process.env, TESTED_SHA: tested, GITHUB_OUTPUT: output },
       encoding: 'utf8',
     })
+
   const result = runSync()
+
   assert.equal(result.status, 0, result.stderr)
   assert.equal(readFileSync(output, 'utf8'), '')
   prepareNotes(second, 'lockstep', '0.4.0')
   for (const file of ['CHANGELOG.md', 'FIXLOG.md']) {
     const history = readFileSync(join(second, file), 'utf8')
+
     assert.match(history, /Octane Xplat 0\.4\.0/)
     assert.match(history, /tsrx-typegen 0\.3\.0/)
   }
+
   assert.equal(readNotes(second).length, 0)
   commit(first, 'fix: untested change')
   git(first, 'push', '-q', 'origin', 'HEAD:main')
+
   const skipped = runSync()
+
   assert.equal(skipped.status, 0, skipped.stderr)
   assert.match(skipped.stdout, /::notice::.*non-release commits/)
   assert.match(readFileSync(output, 'utf8'), /skip=true/)
@@ -423,18 +476,25 @@ test('actual workflow sync preserves the first stream and skips on untested main
 
 test('extract rebuilds the prepared GitHub notes from the committed logs', (t) => {
   const root = fixture(t)
+
   write(root, 'CHANGELOG.md', '# Changelog\n\n## [0.1.0] - 2026-01-01\n\nOriginal history.\n')
   write(root, 'FIXLOG.md', '# Fixlog\n')
+
   const fenced = 'Description.\n\n```md\n## A heading inside a fence\n\nText.\n```\n\nMore.'
+
   write(root, '.changelog/fenced.md', note('lockstep', 'Fenced feature', fenced))
   write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
+
   const prepared = prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+
   assert.equal(extractNotes(root, 'lockstep', '0.2.0'), prepared.github)
   assert.match(extractNotes(root, 'lockstep', '0.2.0'), /## A heading inside a fence/)
+
   const cli = spawnSync(process.execPath, [notesScript, 'extract', 'lockstep', '0.2.0'], {
     cwd: root,
     encoding: 'utf8',
   })
+
   assert.equal(cli.status, 0, cli.stderr)
   assert.equal(cli.stdout, prepared.github)
 })
@@ -443,12 +503,15 @@ test('pendingRelease reports untagged, unpublished, and released states', (t) =>
   const root = fixture(t)
   const remote = join(root, 'origin.git')
   const work = join(root, 'work')
+
   mkdirSync(work)
   init(work)
   write(work, 'packages/create/compatibility.json', JSON.stringify({ frameworkVersion: '0.5.0' }))
   write(work, 'packages/tsrx-typegen/package.json', JSON.stringify({ version: '0.6.0' }))
   commit(work, 'chore: version manifests', null)
+
   const head = git(work, 'rev-parse', 'HEAD')
+
   git(root, 'init', '--bare', '-q', remote)
   git(work, 'remote', 'add', 'origin', remote)
   git(work, 'push', '-q', 'origin', 'HEAD:main')
@@ -456,6 +519,7 @@ test('pendingRelease reports untagged, unpublished, and released states', (t) =>
   const never = () => {
     throw new Error('release check should not run without a tag')
   }
+
   assert.deepEqual(pendingRelease(work, 'lockstep', { releaseExists: never }), {
     pending: true,
     state: 'untagged',
@@ -476,6 +540,7 @@ test('pendingRelease reports untagged, unpublished, and released states', (t) =>
     tag: 'v0.5.0',
     tagSha: head,
   })
+
   assert.deepEqual(pendingRelease(work, 'lockstep', { releaseExists: () => true }), {
     pending: false,
     state: 'released',
@@ -504,10 +569,13 @@ test('pendingRelease reports untagged, unpublished, and released states', (t) =>
 
 test('extract handles a fixes-only release and a missing heading', (t) => {
   const root = fixture(t)
+
   write(root, 'CHANGELOG.md', '# Changelog\n')
   write(root, 'FIXLOG.md', '# Fixlog\n')
   write(root, '.changelog/fixes/repair.md', note('lockstep', 'A repair'))
+
   const prepared = prepareNotes(root, 'lockstep', '0.2.0', '2026-10-23')
+
   assert.equal(prepared.github, '## Fixes\n\n### A repair\n\nA concise explanation.\n')
   assert.equal(extractNotes(root, 'lockstep', '0.2.0'), prepared.github)
   assert.equal(

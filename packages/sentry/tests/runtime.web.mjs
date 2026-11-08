@@ -5,6 +5,7 @@ import { createServer } from 'vite'
 
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -38,27 +39,34 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await browserType.launch()
+
   const page = await browser.newPage()
   const events = []
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.route('https://sentry.invalid/**', async (route) => {
     const lines = route.request().postData().split('\n')
+
     for (let i = 1; i < lines.length - 1; i += 2) {
       if (JSON.parse(lines[i]).type === 'event') {
         events.push(JSON.parse(lines[i + 1]))
       }
     }
+
     await route.fulfill({ status: 200, contentType: 'application/json', body: '{}' })
   })
 
   await page.goto(server.resolvedUrls.local[0] + 'fixture')
+
   const state = await page.evaluate(async () => {
     const { sentry } = await import('/src/index.web.ts')
     const sdk = await import('/fixture-sdk.js')
+
     sentry.captureMessage('before init')
     sentry.init({
       dsn: 'https://synthetic@sentry.invalid/1',
@@ -68,17 +76,22 @@ try {
       sampleRate: 1,
       enableAutoSessionTracking: false,
     })
+
     sentry.setUser({ id: 'synthetic-user' })
     sentry.setTag('cohort', 'production')
     sentry.setContext('fixture', { phase: 'capture' })
     sentry.addBreadcrumb({ message: 'fixture ready', category: 'qualification' })
     sentry.captureException(new Error('synthetic exception'), { operation: 'probe' })
+
     const exceptionFlushed = await sdk.flush(5000)
+
     sentry.setUser(null)
     sentry.setContext('fixture', null)
     sentry.captureMessage('after clear', 'warning')
+
     const messageFlushed = await sdk.flush(5000)
     const closed = await sdk.close(5000)
+
     sentry.captureMessage('after close')
     await sdk.flush(5000)
     return { supported: sentry.supported, exceptionFlushed, messageFlushed, closed }
@@ -92,7 +105,9 @@ try {
   })
 
   assert.equal(events.length, 2)
+
   const [exception, message] = events
+
   assert.equal(exception.exception.values[0].value, 'synthetic exception')
   assert.equal(exception.extra.operation, 'probe')
   assert.equal(exception.user.id, 'synthetic-user')

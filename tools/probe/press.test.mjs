@@ -19,9 +19,11 @@ test('press dispatch preserves core gesture context and Mason click listeners', 
       assert.fail('core gesture must dispatch only once')
     },
   }
+
   dispatchPress(core)
   assert.equal(received.context, context)
   assert.deepEqual(received.event, { eventName: 'tap', object: core })
+
   const mason = {
     isLoaded: true,
     hasListeners: (name) => name === 'click',
@@ -29,6 +31,7 @@ test('press dispatch preserves core gesture context and Mason click listeners', 
       received = event
     },
   }
+
   dispatchPress(mason)
   assert.deepEqual(received, { eventName: 'click', object: mason })
 })

@@ -80,6 +80,7 @@ export function DialogAdaptivePresentation() @{
   const [name, setName] = useState('Ruby Cheung')
   const [email, setEmail] = useState('ruby@example.com')
   const [notes, setNotes] = useState('')
+
   return (
     <>
       <Button label="Edit profile" clickAction={() => setIsOpen(true)} />

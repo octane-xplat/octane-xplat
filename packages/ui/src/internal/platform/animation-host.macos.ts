@@ -10,6 +10,7 @@ const transformPaths: Record<string, string> = {
 export function readReducedMotion(): boolean {
   const workspace = (globalThis as Record<string, any>).NSWorkspace?.sharedWorkspace
   const value = workspace?.accessibilityDisplayShouldReduceMotion
+
   return Boolean(typeof value === 'function' ? value.call(workspace) : value)
 }
 
@@ -21,10 +22,13 @@ export function writeAnimatedProperty(view: any, property: string, value: number
   }
 
   const path = transformPaths[property]
+
   if (path) {
     view.wantsLayer = true
+
     // Explicit per-frame samples must not acquire implicit CA interpolation.
     const transaction = (globalThis as Record<string, any>).CATransaction
+
     transaction.begin()
     try {
       transaction.setDisableActions(true)

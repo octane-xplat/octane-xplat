@@ -63,17 +63,23 @@ export function createBoxPaint() {
 
   function clearBoxFrameObserver(state: BoxPaintState) {
     const owner = state.frame
+
     state.frame = undefined
     if (!owner?.active) {
       return
     }
+
     owner.active = false
+
     const timer = owner.timer
+
     owner.timer = undefined
     if (timer !== undefined) {
       clearTimeout(timer)
     }
+
     const token = owner.token
+
     owner.token = null
     if (token != null) {
       removeBoxFrameToken(owner, token)
@@ -83,13 +89,18 @@ export function createBoxPaint() {
   function observeBoxFrame(node: ElementNode, state: BoxPaintState) {
     const view = state.view
     const owner: BoxFrameLease = { view, active: true, ready: false }
+
     clearBoxFrameObserver(state)
     state.frame = owner
+
     const current = () => state.current() && owner.active && state.frame === owner
+
     try {
       owner.center = NSNotificationCenter.defaultCenter
       owner.remove = owner.center.removeObserver
+
       const add = owner.center.addObserverForNameObjectQueueUsingBlock
+
       if (typeof add !== 'function' || typeof owner.remove !== 'function') {
         throw new Error('Box frame observation unavailable')
       }
@@ -115,10 +126,12 @@ export function createBoxPaint() {
         ) {
           return
         }
+
         if (!current()) {
           clearBoxFrameObserver(state)
           return
         }
+
         try {
           syncGeometry(node)
         } catch {
@@ -126,6 +139,7 @@ export function createBoxPaint() {
             console.warn('[macos-css] Box geometry update failed')
           } catch {}
         }
+
         // AppKit can finish synchronizing a backing layer after its frame
         // notification returns, overwriting the synchronous transform. Repaint
         // once on the next event turn under the same lease. Microtasks can
@@ -136,6 +150,7 @@ export function createBoxPaint() {
             if (!current() || !owner.ready) {
               return
             }
+
             try {
               syncGeometry(node)
             } catch {
@@ -174,6 +189,7 @@ export function createBoxPaint() {
     if (!state.current()) {
       return
     }
+
     const needed =
       state.borderNeedsFrame ||
       (state.boxShadowSpec?.length ?? 0) > 0 ||
@@ -181,6 +197,7 @@ export function createBoxPaint() {
       state.transformApplied ||
       transform.hasPercentTranslate(node, state) ||
       state.outlineLayer != null
+
     if (needed && !state.frame) {
       observeBoxFrame(node, state)
     } else if (!needed) {
@@ -192,17 +209,23 @@ export function createBoxPaint() {
     if (!node.view || !livePaintNode(node)) {
       return
     }
+
     const previous = boxPaintStates.get(node)
+
     if (previous?.view === node.view && previous.active) {
       return previous
     }
+
     if (previous) {
       dispose(node)
     }
+
     const view = node.view
+
     if (!view || !livePaintNode(node)) {
       return
     }
+
     const state: BoxPaintState = {
       view,
       active: true,
@@ -212,13 +235,16 @@ export function createBoxPaint() {
         boxPaintStates.get(node) === state &&
         node.view === view,
     }
+
     boxPaintStates.set(node, state)
     view.wantsLayer = true
     if (!state.current()) {
       disposePaintState(node, state)
       return
     }
+
     const layer = view.layer
+
     if (layer) {
       state.baseline = {
         layer,
@@ -235,11 +261,13 @@ export function createBoxPaint() {
         shadowRadius: layer.shadowRadius,
       }
     }
+
     return state
   }
 
   function syncGeometry(node: ElementNode) {
     const state = boxPaintStates.get(node)
+
     if (state && state.view !== node.view && livePaintNode(node)) {
       applyBoxStyle(
         node,
@@ -249,9 +277,11 @@ export function createBoxPaint() {
 
       return
     }
+
     if (!state || !state.current() || state.syncing) {
       return
     }
+
     state.syncing = true
     try {
       border.syncBorderBox(node, state)
@@ -294,13 +324,17 @@ export function createBoxPaint() {
     if (!livePaintNode(node) || !node.view) {
       return
     }
+
     if (!boxPaintStates.has(node) && !Object.keys(next).some(isPaintStyle)) {
       return
     }
+
     const state = acquirePaint(node)
+
     if (!state?.current()) {
       return
     }
+
     for (const name of Object.keys(previous)) {
       if (previous[name] == null || next[name] != null) {
         continue
@@ -320,6 +354,7 @@ export function createBoxPaint() {
         delete state.transformSpec?.[transform.TRANSFORM_SLOT[name] ?? name]
       }
     }
+
     for (const [name, value] of Object.entries(next)) {
       if (value == null) {
         continue
@@ -337,12 +372,14 @@ export function createBoxPaint() {
         state.boxShadowSpec = shadow.parseBoxShadow(value)
       } else if (transform.TRANSFORM_KEYS.has(name)) {
         const spec = (state.transformSpec ??= {})
+
         spec[transform.TRANSFORM_SLOT[name] ?? name] =
           name === 'translateX' || name === 'translateY'
             ? transform.translateAxisValue(value)
             : value
       }
     }
+
     // Reconcile image resources before geometry so border/shadow insertion
     // sees the background host. All frame consumers then share one lease.
     if (
@@ -353,22 +390,27 @@ export function createBoxPaint() {
     ) {
       background.syncBackgrounds(node, state)
     }
+
     if (!state.current()) {
       return
     }
+
     syncGeometry(node)
     if (!state.current()) {
       return
     }
+
     outlines.syncOutline(node, state)
     syncFrameLease(node, state)
   }
 
   function syncProjection(node: ElementNode) {
     const state = boxPaintStates.get(node)
+
     if (!state?.current() || state.syncing) {
       return
     }
+
     state.syncing = true
     try {
       // Compensation deliberately does not reapply authored transforms.
@@ -393,22 +435,29 @@ export function createBoxPaint() {
     if (!state.active) {
       return
     }
+
     state.active = false
     if (boxPaintStates.get(node) === state) {
       boxPaintStates.delete(node)
     }
+
     retiringPaint.add(node)
+
     const failures = new FailureCollector()
+
     try {
       failures.run('box frame', () => clearBoxFrameObserver(state))
       failures.run('background paint', () => background.clearBackgrounds(node, state))
       failures.run('outline paint', () => outlines.clearOutline(node, state))
       failures.run('border paint', () => border.disposeBorder(node, state))
       failures.run('shadow paint', () => shadow.disposeShadow(node, state))
+
       const baseline = state.baseline
+
       state.baseline = undefined
       if (baseline) {
         const { layer, ...values } = baseline
+
         for (const key of Object.keys(values) as (keyof typeof values)[]) {
           failures.run('box baseline ' + key, () => {
             Object.assign(layer, { [key]: values[key] })
@@ -418,11 +467,13 @@ export function createBoxPaint() {
     } finally {
       retiringPaint.delete(node)
     }
+
     failures.throwIfFailed()
   }
 
   function dispose(node: ElementNode) {
     const state = boxPaintStates.get(node)
+
     if (state) {
       disposePaintState(node, state)
     }

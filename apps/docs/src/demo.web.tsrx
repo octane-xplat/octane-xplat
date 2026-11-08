@@ -8,6 +8,7 @@ import '@octane-xplat/ui/theme/chrome.css'
 import './demo.css'
 
 const packing = new URLSearchParams(location.search).get('demo') === 'packing-list'
+
 createRoot(document.getElementById('root')!).render(
   <View className="demo-standalone">
     <Link href={packing ? '/packing-list' : '/goal-counter'} target="_top">

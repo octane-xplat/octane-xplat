@@ -30,16 +30,21 @@ export function loadRoutingConfig(
   options: { allowMissingSources?: boolean } = {},
 ): RoutingConfig | undefined {
   const path = resolve(cwd, 'xplat.routes.json')
+
   if (!existsSync(path)) {
     return undefined
   }
+
   const fail = (field: string, expected: string): never => {
     throw new Error(`xplat.routes.json ${field}: expected ${expected}`)
   }
+
   const input: unknown = JSON.parse(readFileSync(path, 'utf8'))
+
   if (!object(input)) {
     return fail('config', 'an object')
   }
+
   const fields = [
     'directory',
     'out',
@@ -51,27 +56,34 @@ export function loadRoutingConfig(
     'allowedOrigins',
     'allowedSchemes',
   ]
+
   for (const field of Object.keys(input)) {
     if (!fields.includes(field)) {
       fail(field, `one of ${fields.join(', ')}`)
     }
   }
+
   for (const field of ['directory', 'out']) {
     if (input[field] !== undefined && (typeof input[field] !== 'string' || !input[field])) {
       fail(field, 'a nonempty path')
     }
   }
+
   const reference = (value: unknown, field: string) => {
     if (!object(value) || Object.keys(value).some((key) => !['module', 'export'].includes(key))) {
       return fail(field, '{ module: "./source", export: "exportName" }')
     }
+
     if (typeof value.module !== 'string' || !value.module.startsWith('./')) {
       fail(`${field}.module`, 'a source path starting with ./')
     }
+
     if (typeof value.export !== 'string' || !/^[$A-Z_a-z][$\w]*$/.test(value.export)) {
       fail(`${field}.export`, 'an exported identifier')
     }
+
     const source = resolve(cwd, value.module as string)
+
     if (
       !options.allowMissingSources &&
       !['', '.ts', '.tsx', '.tsrx', '.mts', '.js', '.mjs'].some((ext) => existsSync(source + ext))
@@ -79,6 +91,7 @@ export function loadRoutingConfig(
       fail(`${field}.module`, `an existing source module (${value.module})`)
     }
   }
+
   if (input.manifests !== undefined) {
     if (!Array.isArray(input.manifests)) {
       fail('manifests', 'an array of source references')
@@ -86,11 +99,13 @@ export function loadRoutingConfig(
 
     ;(input.manifests as unknown[]).forEach((value, i) => reference(value, `manifests[${i}]`))
   }
+
   for (const field of ['context', 'transitions']) {
     if (input[field] !== undefined) {
       reference(input[field], field)
     }
   }
+
   if (
     input.stacks !== undefined &&
     (!Array.isArray(input.stacks) ||
@@ -98,6 +113,7 @@ export function loadRoutingConfig(
   ) {
     fail('stacks', 'an array of URL-safe flow names')
   }
+
   if (
     input.base !== undefined &&
     (typeof input.base !== 'string' ||
@@ -107,6 +123,7 @@ export function loadRoutingConfig(
   ) {
     fail('base', 'an application path beginning with /')
   }
+
   for (const field of ['allowedOrigins', 'allowedSchemes']) {
     if (
       input[field] !== undefined &&
@@ -116,5 +133,6 @@ export function loadRoutingConfig(
       fail(field, 'an array of nonempty strings')
     }
   }
+
   return input as RoutingConfig
 }

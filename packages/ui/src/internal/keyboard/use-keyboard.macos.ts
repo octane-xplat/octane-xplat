@@ -27,6 +27,7 @@ function portable(event: KeyboardEvent): KeyboardEvent {
  * handles keyDown/keyUp, not modifier-only flagsChanged notifications. */
 export function useKeyboard(options: UseKeyboardOptions = {}): UseKeyboardResult {
   const isSupported = Boolean(appKitHost()?.keyboardEventsSupported)
+
   return {
     isSupported,
     keyboardProps: isSupported

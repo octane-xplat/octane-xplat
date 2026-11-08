@@ -9,6 +9,7 @@ import { build } from 'vite'
 
 const host = process.env.SHORTCUTS_WINDOWS_HOST
 const runtime = process.env.SHORTCUTS_WINDOWS_RUNTIME
+
 assert.ok(
   host && runtime,
   'Set SHORTCUTS_WINDOWS_HOST and SHORTCUTS_WINDOWS_RUNTIME (remote compiled WinUI runtime directory)',
@@ -42,6 +43,7 @@ const id = randomUUID().replaceAll('-', '')
 const identity = `org.xplat.keys.${id}`
 const directory = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-windows-'))
 let remote
+
 try {
   await build({
     configFile: false,
@@ -63,6 +65,7 @@ try {
   ).trim()
 
   assert.ok(remote.endsWith(`\\xplat-shortcuts-${id}`), remote)
+
   const write = (name, contents) =>
     run(
       `[IO.File]::WriteAllBytes(${quote(remote + '\\' + name)}, [Convert]::FromBase64String('${Buffer.from(contents).toString('base64')}'))`,
@@ -79,8 +82,11 @@ try {
   )
 
   write('driver.ps1', readFileSync(new URL('./fixtures/input-driver.windows.ps1', import.meta.url)))
+
   const runner = `try { & ${quote(remote + '\\driver.ps1')} -Directory ${quote(remote)} -Runtime ${quote(runtime)} -Identity ${quote(identity)} *> ${quote(remote + '\\output.log')}; $code=0 } catch { $_ | Out-File -Append ${quote(remote + '\\output.log')}; $code=1 } finally { Set-Content ${quote(remote + '\\exit')} $code }`
+
   write('run.ps1', runner)
+
   const output = run(`
 $name='OctaneShortcuts${id}'
 try {

@@ -33,6 +33,7 @@ import type { JSX } from 'octane/jsx-runtime'
 
 export function DropdownMenuItem(props: MenuItemProps): JSX.Element @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -74,6 +75,7 @@ export function DropdownMenuItem(props: MenuItemProps): JSX.Element @{
 
 export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): JSX.Element @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuCheckboxItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -151,6 +153,7 @@ export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): JSX.Element 
 export function DropdownMenuRadioItem(props: MenuRadioItemProps): JSX.Element @{
   const group = useContext(MenuRadioContext)
   const menu = useDropdownMenuContext()
+
   if (!group) {
     throw new Error('MenuRadioItem requires a MenuRadioGroup')
   }
@@ -225,6 +228,7 @@ export function DropdownMenuLink<
 
 export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkProps>) @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuLink requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -269,6 +273,7 @@ export function DropdownMenuSubMenu(
   props: NavigationMenuImplementation<MenuSubMenuProps>,
 ) @{
   const parent = useDropdownMenuContext()
+
   if (!parent) {
     throw new Error(
       'DropdownMenuSubMenu requires a menu — render it inside DropdownMenu or ContextMenu',

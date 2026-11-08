@@ -119,38 +119,50 @@ export const host: AppMenuHost = {
   install(tree, dispatch) {
     const owner = window()
     const { Microsoft, NSWinRT } = projection()
+
     if (!owner?.Content || !Microsoft || !NSWinRT) {
       throw new UnavailabilityError('appMenu')
     }
+
     validate(tree)
+
     const ui = Microsoft.UI.Xaml
     const C = ui.Controls
     const previous = owner.Content
     const wrapper = new C.Grid()
     const top = new C.RowDefinition()
+
     top.Height = ui.GridLengthHelper.Auto
+
     const rest = new C.RowDefinition()
+
     rest.Height = ui.GridLengthHelper.FromValueAndType(1, ui.GridUnitType.Star)
     wrapper.RowDefinitions.Append(top)
     wrapper.RowDefinitions.Append(rest)
+
     let disposed = false
 
     function build(next: NormalizedAppMenu) {
       validate(next)
+
       let active = true
       const cleanups: (() => void)[] = []
       const bar = new C.StackPanel()
+
       bar.Orientation = C.Orientation.Horizontal
+
       const accelerators: Accelerator[] = []
       const alive = () => active && !disposed && owner!.Content === wrapper && window() === owner
       const click = (callback: () => void) =>
         NSWinRT!.asDelegate('Microsoft.UI.Xaml.RoutedEventHandler', callback)
+
       const append = (items: Vector<object>, entries: readonly NormalizedEntry[]) => {
         for (const node of entries) {
           if (node.kind === 'separator') {
             items.Append(new C.MenuFlyoutSeparator())
           } else if (node.kind === 'submenu') {
             const sub = new C.MenuFlyoutSubItem()
+
             sub.Text = node.label
             append(sub.Items, node.items)
             items.Append(sub)
@@ -168,6 +180,7 @@ export const host: AppMenuHost = {
               if (node.kind === 'checkbox') {
                 item.IsChecked = node.value
               }
+
               return alive() && !node.disabled && dispatch(node.id, next.generation)
             }
 
@@ -184,6 +197,7 @@ export const host: AppMenuHost = {
               // Display on the item; register separately on the content root so
               // the shortcut works without opening the flyout first.
               const display = new ui.Input.KeyboardAccelerator()
+
               display.Key = keys.key
               display.Modifiers = keys.modifiers
               display.Invoked = NSWinRT!.asDelegate(
@@ -196,7 +210,9 @@ export const host: AppMenuHost = {
               )
 
               item.KeyboardAccelerators.Append(display)
+
               const root = new ui.Input.KeyboardAccelerator()
+
               root.Key = keys.key
               root.Modifiers = keys.modifiers
               root.Invoked = NSWinRT!.asDelegate(
@@ -220,17 +236,22 @@ export const host: AppMenuHost = {
           }
         }
       }
+
       const retire = () => {
         active = false
         for (const cleanup of cleanups.reverse()) {
           cleanup()
         }
       }
+
       try {
         for (const menu of next.menus) {
           const button = new C.Button()
+
           button.Content = menu.label
+
           const flyout = new C.MenuFlyout()
+
           cleanups.push(() => {
             flyout.Hide()
             button.Click = null
@@ -261,6 +282,7 @@ export const host: AppMenuHost = {
     // restore if installation fails. The content keeps its original Grid.Row.
     // We wrap it in its own grid rather than changing its attached properties.
     const content = new C.Grid()
+
     C.Grid.SetRow(content, 1)
     try {
       owner.Content = null
@@ -278,15 +300,19 @@ export const host: AppMenuHost = {
       owner.Content = previous
       throw error
     }
+
     return {
       update(next) {
         const replacement = build(next)
+
         wrapper.KeyboardAccelerators.Clear()
         wrapper.Children.SetAt(0, replacement.bar)
         for (const accelerator of replacement.accelerators) {
           wrapper.KeyboardAccelerators.Append(accelerator)
         }
+
         const old = current
+
         current = replacement
         old.retire()
       },
@@ -294,6 +320,7 @@ export const host: AppMenuHost = {
         if (disposed) {
           return
         }
+
         disposed = true
         current.retire()
         wrapper.KeyboardAccelerators.Clear()

@@ -10,6 +10,7 @@ export function observeReducedMotion(notify: () => void): () => void {
   // AppKit posts accessibility display changes on the workspace's center,
   // not NSNotificationCenter.defaultCenter. Retain it for matching cleanup.
   const center = workspace?.notificationCenter
+
   if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
     return () => {}
   }

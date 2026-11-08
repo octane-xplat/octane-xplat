@@ -25,8 +25,11 @@ function Reader(props: { options?: UseClipboardOptions }) @{
 
 const mount = (options?: UseClipboardOptions) => {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
+
   const root = createRoot(el)
+
   act(() => root.render(<Reader options={options} />))
   return { el, root }
 }
@@ -111,6 +114,7 @@ describe('useClipboard (DOM renderer)', () => {
 
   it('suppresses late feedback and held triggers after unmount without cancelling the started write', async () => {
     let finish!: (success: boolean) => void
+
     vi.mocked(copyText).mockImplementationOnce(
       () =>
         new Promise((resolve) => {

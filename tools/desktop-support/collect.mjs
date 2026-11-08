@@ -50,13 +50,16 @@ const ext = (t) =>
       ]
 
 const pkgs = new Map()
+
 for (const dir of readdirSync('packages')) {
   const path = `packages/${dir}/package.json`
+
   if (!existsSync(path)) {
     continue
   }
 
   const p = JSON.parse(readFileSync(path, 'utf8'))
+
   if (p.private && p.name !== '@octane-xplat/linux-gtk') {
     continue
   }
@@ -80,12 +83,14 @@ const file = (p) => existsSync(p) && statSync(p).isFile()
 function sourcePath(path) {
   if (path.includes('/dist/')) {
     const base = path.replace('/dist/', '/src/').replace(/\.[cm]?js$/, '')
+
     for (const suffix of ['.ts', '.tsx', '.tsrx', '.mts', '.mjs', '.js']) {
       if (file(base + suffix)) {
         return base + suffix
       }
     }
   }
+
   return path
 }
 
@@ -93,12 +98,15 @@ function choose(value, t) {
   if (typeof value === 'string' || value === null) {
     return value
   }
+
   if (Array.isArray(value)) {
     return value.map((x) => choose(x, t)).find((x) => x)
   }
+
   for (const [k, v] of Object.entries(value ?? {})) {
     if (conditions[t].includes(k)) {
       const r = choose(v, t)
+
       if (r !== undefined) {
         return r
       }
@@ -108,6 +116,7 @@ function choose(value, t) {
 
 function packageEntry(p, sub, t) {
   let value = p.exports
+
   if (value && typeof value === 'object' && Object.keys(value).some((k) => k.startsWith('.'))) {
     value = value[sub]
     if (value === undefined) {
@@ -117,15 +126,19 @@ function packageEntry(p, sub, t) {
 
       for (const pattern of patterns) {
         const [pre, post] = pattern.split('*')
+
         if (sub.startsWith(pre) && sub.endsWith(post)) {
           const match = sub.slice(pre.length, post ? -post.length : undefined)
           const selected = choose(p.exports[pattern], t)
+
           return selected ? sourcePath(join(p.dir, selected.replaceAll('*', match))) : null
         }
       }
     }
   }
+
   const selected = choose(value, t)
+
   return selected ? sourcePath(join(p.dir, selected)) : null
 }
 
@@ -133,13 +146,16 @@ function resolveModule(spec, from, t) {
   if (!spec.startsWith('.')) {
     const name = spec.startsWith('@') ? spec.split('/').slice(0, 2).join('/') : spec.split('/')[0]
     const p = pkgs.get(name)
+
     if (!p) {
       return { external: spec }
     }
 
     const path = packageEntry(p, spec === name ? '.' : '.' + spec.slice(name.length), t)
+
     return path ? resolveLocal(path, t) : { missing: spec }
   }
+
   return resolveLocal(join(dirname(from), spec), t)
 }
 
@@ -148,24 +164,29 @@ function resolveLocal(base, t) {
   if (file(base)) {
     return { file: base }
   }
+
   if (/\.[cm]?js$/.test(base)) {
     for (const suffix of ['.ts', '.tsx', '.mts']) {
       const candidate = base.replace(/\.[cm]?js$/, suffix)
+
       if (file(candidate)) {
         return { file: candidate }
       }
     }
   }
+
   for (const suffix of ext(t)) {
     if (file(base + suffix)) {
       return { file: base + suffix }
     }
   }
+
   for (const suffix of ext(t)) {
     if (file(join(base, 'index' + suffix))) {
       return { file: join(base, 'index' + suffix) }
     }
   }
+
   return { missing: base }
 }
 
@@ -173,15 +194,19 @@ function names(n) {
   if (!n) {
     return []
   }
+
   if (n.type === 'Identifier') {
     return [n.name]
   }
+
   if (n.type === 'ObjectPattern') {
     return n.properties.flatMap((p) => names(p.value ?? p.argument))
   }
+
   if (n.type === 'ArrayPattern') {
     return n.elements.flatMap(names)
   }
+
   return names(n.left ?? n.argument)
 }
 
@@ -189,13 +214,17 @@ function read(path) {
   if (cache.has(path)) {
     return cache.get(path)
   }
+
   const text = readFileSync(path, 'utf8').replace(/^#![^\n]*/, (m) => ' '.repeat(m.length))
   const info = { path, text, exports: [], locals: new Map(), imports: [], types: [], signals: [] }
+
   cache.set(path, info)
   if (!/\.(?:[cm]?[jt]s|[jt]sx|tsrx)$/.test(path)) {
     return info
   }
+
   let ast
+
   try {
     ast = parseModule(text, path)
   } catch (e) {
@@ -208,6 +237,7 @@ function read(path) {
 
       const ts = createRequire(join(root, 'package.json'))('typescript')
       const tree = ts.createSourceFile(path, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.TS)
+
       if (tree.parseDiagnostics.length) {
         throw e
       }
@@ -217,11 +247,14 @@ function read(path) {
         if (n.kind === ts.SyntaxKind.RegularExpressionLiteral) {
           spans.push([n.getStart(tree), n.end])
         }
+
         ts.forEachChild(n, visit)
       }
 
       visit(tree)
+
       let masked = text
+
       for (const [start, end] of spans.sort((a, b) => b[0] - a[0])) {
         masked =
           masked.slice(0, start) +
@@ -240,13 +273,16 @@ function read(path) {
       return info
     }
   }
+
   const declare = (n) => {
     if (!n) {
       return
     }
+
     const typeOnly = n.declare || /^TS(?:Interface|TypeAlias|DeclareFunction)/.test(n.type)
     const ns =
       n.type === 'VariableDeclaration' ? n.declarations.flatMap((d) => names(d.id)) : names(n.id)
+
     for (const name of ns) {
       info.locals.set(name, {
         name,
@@ -259,6 +295,7 @@ function read(path) {
       })
     }
   }
+
   for (const n of ast.body) {
     if (n.type === 'ImportDeclaration') {
       if (n.importKind === 'type') {
@@ -266,6 +303,7 @@ function read(path) {
       }
 
       const specs = n.specifiers.filter((s) => s.importKind !== 'type')
+
       if (n.specifiers.length && !specs.length) {
         continue
       }
@@ -289,6 +327,7 @@ function read(path) {
     } else if (n.type === 'ExportNamedDeclaration') {
       if (n.declaration) {
         declare(n.declaration)
+
         const ns =
           n.declaration.type === 'VariableDeclaration'
             ? n.declaration.declarations.flatMap((d) => names(d.id))
@@ -328,6 +367,7 @@ function read(path) {
       declare(n)
     }
   }
+
   // Evidence candidates, not automatic claims that an entire module is unsupported.
   for (const [i, line] of text.split('\n').entries()) {
     if (
@@ -338,33 +378,43 @@ function read(path) {
       info.signals.push({ line: i + 1, text: line.trim() })
     }
   }
+
   return info
 }
 
 function exportsOf(path, t, stack = new Set()) {
   const key = t + ':' + path
+
   if (exportsCache.has(key)) {
     return exportsCache.get(key)
   }
+
   if (stack.has(key)) {
     return new Map()
   }
+
   const next = new Set([...stack, key]),
     info = read(path),
     result = new Map()
+
   const follow = (spec, local) => {
     const r = resolveModule(spec, path, t)
+
     if (!r.file) {
       return { name: local, ...r, via: [path] }
     }
+
     if (local === '*') {
       return { name: '*', file: r.file, line: 1, kind: 'namespace', via: [path] }
     }
+
     const v = exportsOf(r.file, t, next).get(local)
+
     return v
       ? { ...v, via: [path, ...(v.via ?? [])] }
       : { name: local, missingExport: local, file: r.file, via: [path] }
   }
+
   for (const e of info.exports) {
     if (e.typeOnly) {
       info.types.push(e.name ?? `*:${e.spec}`)
@@ -373,6 +423,7 @@ function exportsOf(path, t, stack = new Set()) {
 
     if (e.star) {
       const r = resolveModule(e.spec, path, t)
+
       if (r.file) {
         for (const [name, v] of exportsOf(r.file, t, next)) {
           if (name !== 'default' && !result.has(name)) {
@@ -387,6 +438,7 @@ function exportsOf(path, t, stack = new Set()) {
     }
 
     let v = e.spec ? follow(e.spec, e.local) : info.locals.get(e.local)
+
     if (v?.import) {
       v = follow(v.import, v.local)
     }
@@ -402,6 +454,7 @@ function exportsOf(path, t, stack = new Set()) {
       via: v?.via ?? [path],
     })
   }
+
   exportsCache.set(key, result)
   return result
 }
@@ -429,7 +482,9 @@ for (const p of pkgs.values()) {
   }
 
   const patterns = entries.filter((k) => k.includes('*'))
+
   entries = entries.filter((k) => !k.includes('*'))
+
   // Wildcard modules are normalized by basename. Explicit platform aliases remain in the file list.
   const wildFiles = patterns.length
     ? walk(p.dir + '/src').filter(
@@ -468,9 +523,11 @@ for (const p of pkgs.values()) {
 
   for (const sub of entries) {
     const byTarget = {}
+
     for (const t of targets) {
       const entry = packageEntry(p, sub, t)
       const resolved = entry ? resolveLocal(entry, t) : {}
+
       byTarget[t] = {
         entry: resolved.file ?? null,
         unresolved: entry && !resolved.file ? entry : null,
@@ -489,6 +546,7 @@ for (const p of pkgs.values()) {
     }
 
     const symbols = new Set(targets.flatMap((t) => [...byTarget[t].exports.keys()]))
+
     if (!symbols.size) {
       rows.push({
         package: p.name,
@@ -513,6 +571,7 @@ for (const p of pkgs.values()) {
 
     for (const symbol of [...symbols].sort()) {
       const out = { package: p.name, subpath: sub, symbol, targets: {} }
+
       for (const t of targets.filter((t) => t !== 'web')) {
         const b = byTarget[t],
           e = b.exports.get(symbol)
@@ -523,6 +582,7 @@ for (const p of pkgs.values()) {
         }
 
         const { code, typeOnly, exportName, name, via, ...rest } = e
+
         out.targets[t] = {
           entry: b.entry,
           ...rest,
@@ -552,12 +612,14 @@ for (const p of pkgs.values()) {
 
 // Static dependency inventory. Never import application code or execute a backend.
 const dependencyGraphs = {}
+
 for (const t of targets.filter((t) => t !== 'web')) {
   const graph = {}
   function visit(path) {
     if (graph[path]) {
       return
     }
+
     const info = read(path)
     const edges = [
       ...info.imports,
@@ -565,12 +627,15 @@ for (const t of targets.filter((t) => t !== 'web')) {
         .filter((e) => e.spec && !e.typeOnly)
         .map((e) => ({ spec: e.spec, names: e.star ? ['*'] : [e.local] })),
     ]
+
     graph[path] = []
     if (path.includes('/types/')) {
       return
     }
+
     for (const edge of edges) {
       let r
+
       if (edge.spec === '@nativescript/core' && t !== 'windows') {
         r = {
           file:
@@ -591,8 +656,10 @@ for (const t of targets.filter((t) => t !== 'web')) {
       }
 
       const record = { ...edge, ...r }
+
       if (r.file) {
         const tag = r.file.match(/\.(web|mobile|ios|android|macos|windows|linux|gtk)\.[^./]+$/)?.[1]
+
         if (tag && tag !== t) {
           record.foreign = tag
         }
@@ -600,6 +667,7 @@ for (const t of targets.filter((t) => t !== 'web')) {
         if (edge.spec === '@nativescript/core' && t !== 'windows') {
           const available = exportsOf(r.file, t)
           const missing = (edge.names ?? []).filter((n) => n !== '*' && !available.has(n))
+
           if (missing.length) {
             record.missingShimExports = missing
           }
@@ -616,6 +684,7 @@ for (const t of targets.filter((t) => t !== 'web')) {
 
   for (const r of rows) {
     const v = r.targets[t]
+
     for (const f of [v.entry, v.file, ...(v.via ?? [])]) {
       if (f && file(f)) {
         visit(f)
@@ -627,6 +696,7 @@ for (const t of targets.filter((t) => t !== 'web')) {
 }
 
 const files = {}
+
 for (const [path, info] of cache) {
   files[path] = {
     exports: [

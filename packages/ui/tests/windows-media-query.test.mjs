@@ -18,12 +18,14 @@ const source = ts.transpile(
 
 function emitter() {
   const handlers = new Map()
+
   return {
     handlers,
     on(name, callback) {
       if (!handlers.has(name)) {
         handlers.set(name, new Set())
       }
+
       handlers.get(name).add(callback)
     },
     off(name, callback) {
@@ -52,6 +54,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
     height: 600,
     root: emitter(),
   }
+
   const Application = {
     ...emitter(),
     orientationChangedEvent: 'orientationChanged',
@@ -59,7 +62,9 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
     resumeEvent: 'resume',
     getRootView: () => state.root,
   }
+
   const exports = {}
+
   vm.runInNewContext(source, {
     exports,
     require(id) {
@@ -78,6 +83,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
           },
         }
       }
+
       assert.equal(id, '@octane-xplat/platform/windows')
       return {
         Windows: {
@@ -88,6 +94,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
                   if (state.unavailable) {
                     throw Error('missing')
                   }
+
                   this.AnimationsEnabled = state.animations
                 }
               },
@@ -100,6 +107,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
                   if (state.unavailable) {
                     throw Error('missing')
                   }
+
                   this.MousePresent = state.mouse
                 }
               },
@@ -108,6 +116,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
                   if (state.unavailable) {
                     throw Error('missing')
                   }
+
                   this.TouchPresent = state.touch
                 }
               },
@@ -117,6 +126,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
                   if (state.unavailable) {
                     throw Error('missing')
                   }
+
                   return {
                     ...(state.useCount
                       ? { Count: state.devices.length }
@@ -131,6 +141,7 @@ function fixture(devices = [], { mouse = 0, touch = 0, unavailable = false } = {
       }
     },
   })
+
   return { state, Application, ...exports }
 }
 
@@ -139,6 +150,7 @@ const matches = (host, query) => host.matchesWindowsMediaQuery(query, host.readW
 
 test('Windows hybrid input can match both any-pointer kinds while preferring the mouse', () => {
   const host = fixture([device(0), device(2)], { mouse: 1, touch: 1 })
+
   assert.equal(matches(host, '(pointer: fine)'), true)
   assert.equal(matches(host, '(pointer: coarse)'), false)
   assert.equal(matches(host, '(any-pointer: fine) and (any-pointer: coarse)'), true)
@@ -150,9 +162,12 @@ test('Windows hybrid input can match both any-pointer kinds while preferring the
 
 test('Windows touch-only, pen hover and confirmed no-pointer states stay distinct', () => {
   const touch = fixture([device(0)], { touch: 1 })
+
   assert.equal(matches(touch, '(pointer: coarse) and (hover: none)'), true)
   assert.equal(matches(touch, '(any-pointer: fine)'), false)
+
   const pen = fixture([device(1, 1)])
+
   assert.equal(matches(pen, '(pointer: fine) and (hover: hover)'), true)
   pen.state.devices[0].MaxPointersWithZDistance = 0
   assert.equal(matches(pen, '(hover: none)'), true)
@@ -160,12 +175,15 @@ test('Windows touch-only, pen hover and confirmed no-pointer states stay distinc
   assert.equal(matches(pen, '(hover: hover)'), false)
   assert.equal(matches(pen, '(hover: none)'), false)
   assert.equal(matches(pen, 'not (hover: hover)'), false)
+
   const none = fixture()
+
   assert.equal(matches(none, '(pointer: none) and (any-pointer: none) and (hover: none)'), true)
 })
 
 test('Missing or partial Windows projections do not invent absence or invert unknown capabilities', () => {
   const missing = fixture([], { unavailable: true })
+
   for (const query of [
     '(pointer: fine)',
     '(pointer: none)',
@@ -174,14 +192,18 @@ test('Missing or partial Windows projections do not invent absence or invert unk
   ]) {
     assert.equal(matches(missing, query), false, query)
   }
+
   assert.equal(matches(missing, '(min-width: 500px)'), true)
+
   const unknown = fixture([device(99)])
+
   assert.equal(matches(unknown, '(pointer: none)'), false)
   assert.equal(matches(unknown, 'not (any-pointer: fine)'), false)
 })
 
 test('Windows query grammar compares DIP dimensions, preserves boolean precedence and rejects invalid terms', () => {
   const host = fixture([device(2)], { mouse: 1 })
+
   assert.equal(matches(host, '(width: 800px) and (max-height: 600px)'), true)
   assert.equal(matches(host, '(min-width: 801px)'), false)
   assert.equal(matches(host, '(max-width: 100px) and (hover: hover) or (min-width: 400px)'), true)
@@ -195,6 +217,7 @@ test('Windows query grammar compares DIP dimensions, preserves boolean precedenc
   ]) {
     assert.equal(matches(host, query), false, query)
   }
+
   host.state.height = 800
   assert.equal(matches(host, '(orientation: portrait)'), true)
   assert.equal(matches(host, '(orientation: landscape)'), false)
@@ -207,6 +230,7 @@ test('Windows media observation follows root layout, rebinds on lifecycle and re
   let calls = 0
   const original = host.state.root
   const release = host.observeWindowsMediaTraits(() => calls++)
+
   assert.equal(host.Application.count(), 3)
   assert.equal(original.count(), 2)
   original.emit('loaded')
@@ -218,7 +242,9 @@ test('Windows media observation follows root layout, rebinds on lifecycle and re
   assert.equal(original.count(), 0)
   assert.equal(host.state.root.count(), 2)
   assert.equal(calls, 3)
+
   const stale = [...host.state.root.handlers.get('layoutChanged')][0]
+
   release()
   release()
   assert.equal(host.Application.count(), 0)
@@ -230,6 +256,7 @@ test('Windows media observation follows root layout, rebinds on lifecycle and re
 
 test('Windows reduced-motion queries follow animation preference and retain unknown state', () => {
   const host = fixture()
+
   assert.equal(matches(host, '(prefers-reduced-motion: no-preference)'), true)
   host.state.animations = false
   assert.equal(matches(host, '(prefers-reduced-motion: reduce)'), true)

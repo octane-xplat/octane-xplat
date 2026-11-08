@@ -19,18 +19,21 @@ import { audioResponse } from '../../packages/audio/tests/fixture-server.mjs'
 const repo = fileURLToPath(new URL('../../', import.meta.url))
 const args = process.argv.slice(2)
 const option = (name) => args[args.indexOf(name) + 1]
+
 assert.ok(
   args.includes('--target') && args.includes('--device'),
   'Pass --target ios|android and --device for an owned booted device',
 )
 
 const target = option('--target')
+
 assert.ok(
   ['ios', 'android'].includes(target),
   'This packed mobile consumer requires ios or android',
 )
 
 const device = option('--device')
+
 assert.ok(device && !device.startsWith('--'), 'Pass an explicit device ID')
 // The local fixture server is reached through simulator/emulator loopback.
 if (target === 'android') {
@@ -41,7 +44,9 @@ if (target === 'android') {
   })
 
   assert.equal(result.status, 0, 'Cannot inspect booted iOS simulators')
+
   const devices = Object.values(JSON.parse(result.stdout).devices).flat()
+
   assert.ok(
     devices.some((entry) => entry.udid === device),
     'This fixture requires an owned booted iOS simulator',
@@ -49,9 +54,12 @@ if (target === 'android') {
 }
 
 const work = mkdtempSync(join(tmpdir(), 'xplat-listening-consumer-'))
+
 console.log(`Consumer artifacts: ${work}`)
+
 const run = (command, argv, cwd = repo) => {
   const result = spawnSync(command, argv, { cwd, stdio: 'inherit', timeout: 900000 })
+
   assert.equal(result.status, 0, `${command} ${argv.join(' ')} failed`)
 }
 
@@ -60,6 +68,7 @@ const packages = new Map(
     try {
       const directory = join(repo, 'packages', name)
       const manifest = JSON.parse(readFileSync(join(directory, 'package.json'), 'utf8'))
+
       return [[manifest.name, { directory, manifest }]]
     } catch {
       return []
@@ -72,8 +81,11 @@ function include(name) {
   if (selected.has(name) || !packages.has(name)) {
     return
   }
+
   selected.add(name)
+
   const { manifest } = packages.get(name)
+
   for (const dependency of Object.keys({
     ...manifest.dependencies,
     ...manifest.optionalDependencies,
@@ -105,10 +117,14 @@ run('bun', [
 ])
 
 const pack = join(work, 'pack')
+
 mkdirSync(pack)
+
 const tarballs = new Map()
+
 for (const name of selected) {
   const { directory, manifest } = packages.get(name)
+
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], directory)
   tarballs.set(
     name,
@@ -117,6 +133,7 @@ for (const name of selected) {
 }
 
 const bootstrap = join(work, 'bootstrap')
+
 mkdirSync(bootstrap)
 writeFileSync(
   join(bootstrap, 'package.json'),
@@ -129,9 +146,11 @@ writeFileSync(
 writeFileSync(join(bootstrap, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
 
 run('bun', ['install', '--ignore-scripts'], bootstrap)
+
 const creator = join(bootstrap, 'node_modules/create-octane-xplat')
 const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
 const app = join(work, 'listening-app')
+
 run(
   'node',
   [
@@ -146,6 +165,7 @@ run(
 
 const manifestPath = join(app, 'package.json')
 const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
+
 for (const section of ['dependencies', 'devDependencies']) {
   for (const name of Object.keys(manifest[section] ?? {})) {
     if (tarballs.has(name)) {
@@ -185,6 +205,7 @@ const server = createServer((request, response) => {
     finished = false
     response.writeHead(200, { 'content-type': 'application/x-ndjson' })
     response.write('{"rea')
+
     const first = setTimeout(() => response.write('dy":true}\n'), 50)
     const end = setTimeout(() => {
       finished = true
@@ -203,9 +224,11 @@ const server = createServer((request, response) => {
 })
 
 await new Promise((resolve) => server.listen(0, '0.0.0.0', resolve))
+
 const origin = `http://${target === 'android' ? '10.0.2.2' : '127.0.0.1'}:${server.address().port}`
 const fixture = join(app, 'src/readiness-fixture.tsrx')
 let source = readFileSync(new URL('listening-settings.tsrx', import.meta.url), 'utf8')
+
 source = source
   .replace('http://fixture.invalid', origin)
   .replace('../../tools/probe/context', join(repo, 'tools/probe/context'))
@@ -213,6 +236,7 @@ source = source
 writeFileSync(fixture, source)
 try {
   run('bun', ['run', 'xplat', 'typecheck'], app)
+
   const child = spawn(
     'bun',
     [
@@ -234,6 +258,7 @@ try {
   )
 
   const [code] = await once(child, 'close')
+
   assert.equal(code, 0, 'Packed listening/settings runtime failed')
   console.log(`Packed ${target} listening/settings consumer passed; artifacts retained at ${work}`)
 } finally {

@@ -9,9 +9,11 @@ export function normalizeInlineStyle(value: unknown): Record<string, any> | null
   if (value == null) {
     return value
   }
+
   if (typeof value === 'object' && !Array.isArray(value)) {
     return value as Record<string, any>
   }
+
   const out: Record<string, any> = {}
   const put = (name: string, value: any) =>
     Object.defineProperty(out, name, {
@@ -20,9 +22,11 @@ export function normalizeInlineStyle(value: unknown): Record<string, any> | null
       configurable: true,
       writable: true,
     })
+
   if (Array.isArray(value)) {
     for (const part of value) {
       const style = normalizeInlineStyle(part)
+
       if (style) {
         for (const [name, entry] of Object.entries(style)) {
           put(name, entry)
@@ -32,10 +36,13 @@ export function normalizeInlineStyle(value: unknown): Record<string, any> | null
 
     return out
   }
+
   if (typeof value !== 'string') {
     throw new TypeError('Inline style must be an object, declaration string or array')
   }
+
   let ast: any
+
   try {
     ast = cssTree.parse(value, {
       context: 'declarationList',
@@ -47,15 +54,18 @@ export function normalizeInlineStyle(value: unknown): Record<string, any> | null
   } catch {
     throw new TypeError('Invalid inline style declaration list')
   }
+
   ast.children.forEach((declaration: any) => {
     if (declaration.type !== 'Declaration' || typeof declaration.value?.value !== 'string') {
       throw new TypeError('Inline style accepts declarations only')
     }
+
     const name = declaration.property.startsWith('--')
       ? declaration.property
       : declaration.property
           .toLowerCase()
           .replace(/-([a-z])/g, (_: string, letter: string) => letter.toUpperCase())
+
     put(
       name,
       name.startsWith('--')
@@ -63,5 +73,6 @@ export function normalizeInlineStyle(value: unknown): Record<string, any> | null
         : cssValueToStyle(declaration.value.value),
     )
   })
+
   return out
 }

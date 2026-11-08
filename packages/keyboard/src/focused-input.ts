@@ -17,6 +17,7 @@ export const FocusedInputController: FocusedInputService = {
     const deactivate = focusRuntime.activate()
     let active = true
     let off: () => void
+
     try {
       off = focusRuntime.subscribe(host, (state) => {
         if (active) {
@@ -28,10 +29,12 @@ export const FocusedInputController: FocusedInputService = {
       deactivate()
       throw error
     }
+
     return () => {
       if (!active) {
         return
       }
+
       active = false
       try {
         off()

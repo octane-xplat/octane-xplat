@@ -11,6 +11,7 @@ const ascii = (view: DataView, at: number, text: string) => {
 export function wavHeader(dataLength: number, sampleRate: number, channels: number): Uint8Array {
   const bytes = new Uint8Array(44)
   const view = new DataView(bytes.buffer)
+
   ascii(view, 0, 'RIFF')
   view.setUint32(4, 36 + dataLength, true)
   ascii(view, 8, 'WAVE')
@@ -34,11 +35,15 @@ export function encodeWavFloat32(channelData: Float32Array[], sampleRate: number
   const frames = channelData.reduce((max, data) => Math.max(max, data.length), 0)
   const dataLength = frames * channels * 2
   const out = new Uint8Array(44 + dataLength)
+
   out.set(wavHeader(dataLength, sampleRate, channels))
+
   const view = new DataView(out.buffer)
+
   for (let frame = 0; frame < frames; frame++) {
     for (let channel = 0; channel < channels; channel++) {
       const sample = Math.max(-1, Math.min(1, channelData[channel]?.[frame] ?? 0))
+
       view.setInt16(
         44 + (frame * channels + channel) * 2,
         sample < 0 ? sample * 0x8000 : sample * 0x7fff,
@@ -58,8 +63,10 @@ export function decodeBase64(value: string): Uint8Array {
   let buffer = 0
   let bits = 0
   let at = 0
+
   for (const char of value) {
     const index = alphabet.indexOf(char)
+
     if (index < 0) {
       continue
     }
@@ -85,6 +92,7 @@ export function inspectPcmWav(bytes: Uint8Array): {
   const view = new DataView(bytes.buffer, bytes.byteOffset, bytes.byteLength)
   const text = (at: number) => String.fromCharCode(...bytes.subarray(at, at + 4))
   const invalid = () => new Error('Recording is not a finalized 16-bit PCM WAV')
+
   if (
     bytes.length < 44 ||
     text(0) !== 'RIFF' ||
@@ -98,10 +106,12 @@ export function inspectPcmWav(bytes: Uint8Array): {
   let channels = 0
   let dataLength: number | undefined
   let at = 12
+
   while (at + 8 <= bytes.length) {
     const kind = text(at)
     const length = view.getUint32(at + 4, true)
     const end = at + 8 + length
+
     if (end > bytes.length) {
       throw invalid()
     }

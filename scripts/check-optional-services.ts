@@ -5,8 +5,10 @@ import { execFileSync } from 'node:child_process'
 import { mkdtemp, rm, writeFile } from 'node:fs/promises'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const args = process.argv.slice(2)
+
 for (const arg of args) {
   if (arg !== '--types-only' && arg !== '--browser') {
     throw new Error(`check-optional-services: unknown option ${arg}`)
@@ -18,6 +20,7 @@ if (args.includes('--types-only') && args.includes('--browser')) {
 }
 
 const scratch = await mkdtemp(join(root, 'node_modules/.optional-services-check-'))
+
 try {
   for (const target of ['web', 'mobile']) {
     const files =
@@ -40,6 +43,7 @@ try {
           ]
 
     const config = join(scratch, `${target}.json`)
+
     await writeFile(
       config,
       JSON.stringify({

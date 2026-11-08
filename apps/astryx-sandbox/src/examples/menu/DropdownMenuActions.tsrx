@@ -5,6 +5,7 @@ import { menuItems } from './helpers'
 
 export function DropdownMenuActions() @{
   const [lastAction, setLastAction] = useState<string | null>(null)
+
   return (
     <VStack gap={3} align="start">
       <DropdownMenu

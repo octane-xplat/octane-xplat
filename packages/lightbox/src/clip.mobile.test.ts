@@ -6,6 +6,7 @@ afterEach(() => vi.unstubAllGlobals())
 
 it('attaches after native layout and clips in untransformed local coordinates', () => {
   const mask = { frame: null as any, cornerRadius: 0, backgroundColor: null }
+
   vi.stubGlobal('CALayer', { layer: () => mask })
   vi.stubGlobal('UIColor', { whiteColor: { CGColor: 'white' } })
   vi.stubGlobal('CGRectMake', (x: number, y: number, width: number, height: number) => ({
@@ -14,12 +15,15 @@ it('attaches after native layout and clips in untransformed local coordinates', 
     width,
     height,
   }))
+
   const transaction = { begin: vi.fn(), setDisableActions: vi.fn(), commit: vi.fn() }
+
   vi.stubGlobal('CATransaction', transaction)
 
   const view: any = { getActualSize: vi.fn(() => ({ width: 120, height: 90 })) }
   const writer = createClipWriter(view)
   const host = { bounds: { size: { width: 400, height: 300 } }, mask: null as any }
+
   view.nativeViewProtected = { layer: host }
   writer.setClip({ top: 50, bottom: 50, left: 0, right: 0 }, 12)
   expect(host.mask).toBe(mask)
@@ -35,7 +39,9 @@ it('attaches after native layout and clips in untransformed local coordinates', 
   expect(host.mask).toBe(mask)
   writer.clear()
   expect(host.mask).toBeNull()
+
   const replacement = {}
+
   host.mask = replacement
   writer.clear()
   expect(host.mask).toBe(replacement)
@@ -52,6 +58,7 @@ it('converts Android insets to pixels and restores the previous outline on close
       },
     },
   })
+
   const previous = {}
   let provider: any = previous
   let clipped = false
@@ -68,13 +75,17 @@ it('converts Android insets to pixels and restores the previous outline on close
     },
     invalidateOutline: vi.fn(),
   }
+
   const view: any = {}
   const writer = createAndroidClipWriter(view)
+
   writer.setClip({ top: 50, right: 10, bottom: 50, left: 10 }, 12)
   expect(native.invalidateOutline).not.toHaveBeenCalled()
   view.nativeViewProtected = native
   writer.setClip({ top: 50, right: 10, bottom: 50, left: 10 }, 12)
+
   const outline = { setRoundRect: vi.fn() }
+
   provider.getOutline(native, outline)
   expect(outline.setRoundRect).toHaveBeenCalledWith(20, 100, 780, 500, 24)
   expect(clipped).toBe(true)
@@ -83,7 +94,9 @@ it('converts Android insets to pixels and restores the previous outline on close
   expect(clipped).toBe(false)
 
   writer.setClip({ top: 0, right: 0, bottom: 0, left: 0 }, 0)
+
   const replacement = {}
+
   provider = replacement
   writer.clear()
   expect(provider).toBe(replacement)

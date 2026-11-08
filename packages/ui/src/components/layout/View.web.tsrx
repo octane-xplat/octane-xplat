@@ -14,6 +14,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  to the shared shape {x,y,dx,dy,vx,vy,state,target}. */
 export function View(props: ViewProps): JSX.Element @{
   const el = useRef<HTMLElement | null>(null)
+
   usePan(el, props.onPan)
 
   const forwardedRef = useMemo(

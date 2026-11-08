@@ -52,6 +52,7 @@ export function createPolicyStore(options = {}) {
 
   const lookup = (scope) => {
     const grant = grants.get(scope)
+
     if (!grant || grant.state !== 'granted' || expired(grant)) {
       return null
     }
@@ -70,11 +71,13 @@ export function createPolicyStore(options = {}) {
   return {
     require(scope) {
       const grant = lookup(scope)
+
       return grant ? { granted: true, grant } : denied(scope)
     },
 
     async requestGrant(scope, reason) {
       const existing = lookup(scope)
+
       if (existing) {
         return { granted: true, grant: existing }
       }
@@ -85,6 +88,7 @@ export function createPolicyStore(options = {}) {
 
       if (elicit) {
         const answer = await elicit(scope, reason)
+
         if (answer === 'granted') {
           const grant = this.grant(scope, {
             source: 'developer',
@@ -126,6 +130,7 @@ export function createPolicyStore(options = {}) {
 
     revoke(scope) {
       const grant = grants.get(scope)
+
       if (!grant || grant.state !== 'granted' || !grant.revocable) {
         return false
       }

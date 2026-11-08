@@ -32,11 +32,13 @@ interface TokenRecord {
 
 function caretOffset(view: any, text: string): number {
   const android = view?.android?.getSelectionStart?.()
+
   if (typeof android === 'number' && android >= 0) {
     return Math.min(android, text.length)
   }
 
   const ios = view?.ios?.selectedRange?.location
+
   if (typeof ios === 'number') {
     return Math.min(ios, text.length)
   }
@@ -46,6 +48,7 @@ function caretOffset(view: any, text: string): number {
 
 function setCaret(view: any, offset: number, textLength: number): void {
   const at = Math.min(Math.max(0, offset), textLength)
+
   try {
     view?.setSelection?.(at)
   } catch {
@@ -61,8 +64,10 @@ function serializeWithTokens(text: string, tokens: TokenRecord[]): string {
   const sorted = [...tokens].sort((a, b) => a.index - b.index)
   let out = ''
   let pos = 0
+
   for (const t of sorted) {
     const at = Math.min(Math.max(0, t.index), text.length)
+
     if (at < pos) {
       out += t.token.value
       continue
@@ -126,6 +131,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
   const emitDraftChange = useCallback(
     (nextText: string, nextTokens: TokenRecord[]) => {
       const nextDraft = draftFromRecords(nextText, nextTokens)
+
       composerOnDraftChange?.(nextDraft)
       if (props.onDraftChange !== composerOnDraftChange) {
         props.onDraftChange?.(nextDraft)
@@ -148,6 +154,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
   )
 
   const tokensRef = useRef<TokenRecord[]>([])
+
   tokensRef.current = tokens
 
   const serializeNow = useCallback(
@@ -157,12 +164,14 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 
   const emitChange = useCallback(() => {
     const serialized = serializeNow()
+
     onChange?.(serialized)
     emitDraftChange(textRef.current, tokensRef.current)
   }, [onChange, serializeNow, emitDraftChange])
 
   const focusField = useCallback(() => {
     const view = viewRef.current
+
     if (!view) {
       return
     }
@@ -174,17 +183,21 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
   const spliceText = useCallback((start: number, end: number, insert: string) => {
     const text = textRef.current
     const next = text.slice(0, Math.max(0, start)) + insert + text.slice(Math.max(0, end))
+
     textRef.current = next
     writeText(viewRef.current, next)
     setCaret(viewRef.current, start + insert.length, next.length)
+
     // Token offsets at/after the splice point shift by the delta.
     const delta = insert.length - (end - start)
+
     setTokens((prev) => prev.map((t) => (t.index >= end ? { ...t, index: t.index + delta } : t)))
   }, [])
 
   const insertTextAt = useCallback(
     (text: string) => {
       const caret = caretOffset(viewRef.current, textRef.current)
+
       spliceText(caret, caret, text)
       emitChange()
     },
@@ -193,6 +206,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 
   const insertTokenAtCaret = useCallback((token: ChatComposerToken, id: string) => {
     const caret = caretOffset(viewRef.current, textRef.current)
+
     setTokens((prev) => [...prev, { id, token, index: caret }])
   }, [])
 
@@ -200,6 +214,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
     (token: ChatComposerToken) => {
       const rec = tokensRef.current.find((t) => t.token === token || t.token.value === token.value)
       const at = rec ? Math.min(rec.index, textRef.current.length) : textRef.current.length
+
       spliceText(at, at, token.value)
     },
     [spliceText],
@@ -236,6 +251,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const inputControlRef = composerCtx?.inputControlRef
+
   useEffect(() => {
     if (!inputControlRef) {
       return
@@ -302,11 +318,13 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
 
   const lineDip = (v: any): number => {
     const ios = v?.ios?.font?.lineHeight
+
     if (ios > 0) {
       return ios
     }
 
     const px = v?.android?.getLineHeight?.()
+
     if (px > 0) {
       return Utils.layout.toDeviceIndependentPixels(px)
     }
@@ -390,6 +408,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): unknown @{
         // The newline is still inserted (NS can't veto it) — the deferred
         // clear wins the race.
         const text = serializeNow().trim()
+
         if (!text) {
           return
         }

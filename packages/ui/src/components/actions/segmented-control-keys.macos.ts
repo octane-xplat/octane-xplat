@@ -1,4 +1,5 @@
 import type { NSView } from '@octane-xplat/platform/macos'
+
 /** A registered self-drawn segment. Read live state when a key arrives. */
 export interface AppKitSegment {
   view: NSView
@@ -15,6 +16,7 @@ function orderedSegments(
   const result: AppKitSegment[] = []
   const visit = (view: NSView) => {
     const segment = segments.get(view)?.()
+
     if (segment) {
       if (!segment.disabled) {
         result.push(segment)
@@ -24,10 +26,12 @@ function orderedSegments(
     }
 
     const children = view.subviews
+
     for (let index = 0; index < Number(children.count); index++) {
       visit(children.objectAtIndex(index) as NSView)
     }
   }
+
   visit(root)
   return result
 }
@@ -45,26 +49,33 @@ export function bindSegmentedControlKeys(
     (event: any) => {
       const view = root()
       const owner = view?.window
+
       if (!view || !owner || event.window !== owner) {
         return event
       }
+
       if (!segments.has(owner.firstResponder as NSView)) {
         return event
       }
+
       // Preserve application shortcuts and modified navigation.
       if (Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20))) {
         return event
       }
+
       const items = orderedSegments(view, segments)
       const current = items.findIndex((item) => item.view === owner.firstResponder)
+
       if (current < 0) {
         return event
       }
+
       let next: number
       const code = Number(event.keyCode)
       const horizontal = code === 123 || code === 124
       const backwards =
         horizontal && direction() === 'rtl' ? code === 124 : code === 123 || code === 126
+
       switch (code) {
         case 123: // Left
         case 126: // Up
@@ -85,10 +96,12 @@ export function bindSegmentedControlKeys(
       if (!owner.makeFirstResponder(items[next].view)) {
         return event
       }
+
       items[next].select()
       return null
     },
   )
+
   return () => {
     if (token) {
       host.NSEvent.removeMonitor(token)

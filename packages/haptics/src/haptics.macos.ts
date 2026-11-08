@@ -12,6 +12,7 @@ import type { Haptics } from './types'
 export const createHaptics = (): Haptics => {
   let disposed = false
   const performer = NSHapticFeedbackManager.defaultPerformer
+
   return {
     capabilities: () => ({
       supported: !disposed && Boolean(performer),
@@ -25,6 +26,7 @@ export const createHaptics = (): Haptics => {
       if (disposed || !performer) {
         return false
       }
+
       try {
         const pattern =
           preset === 'selection'

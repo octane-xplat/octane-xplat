@@ -94,8 +94,10 @@ const ensureSwListener = () => {
   swListenerAttached = true
   navigator.serviceWorker.addEventListener('message', (event) => {
     const data = event.data
+
     if (data?.isFirebaseMessaging && data.messageType === 'notification-clicked') {
       const message = toClickedMessage(data)
+
       openHandlers.forEach((h) => h(message))
     }
   })
@@ -127,6 +129,7 @@ export const push: Push = {
       }
 
       let app: FirebaseApp | undefined = options.app
+
       if (!app && options.firebaseConfig) {
         app = initializeApp(options.firebaseConfig)
       }
@@ -139,6 +142,7 @@ export const push: Push = {
       // registering with it keeps credentials out of the copied file.
       const config = encodeURIComponent(JSON.stringify(app.options))
       const url = options.serviceWorkerUrl ?? DEFAULT_SW_URL
+
       swRegistration = await navigator.serviceWorker.register(`${url}?config=${config}`)
 
       vapidKey = options.vapidKey
@@ -154,10 +158,12 @@ export const push: Push = {
     }
 
     const result = await Notification.requestPermission()
+
     return result === 'granted' ? 'granted' : result === 'denied' ? 'denied' : 'not-determined'
   },
   async getToken() {
     const m = await requireMessaging()
+
     if (!vapidKey) {
       throw new Error('push.getToken: vapidKey is required on web')
     }
@@ -175,6 +181,7 @@ export const push: Push = {
   },
   async deleteToken() {
     const m = await requireMessaging()
+
     await fcmDeleteToken(m)
     lastToken = undefined
   },

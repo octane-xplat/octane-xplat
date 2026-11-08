@@ -4,12 +4,15 @@ import type { ChatHostAdapter } from './chat-scroll-host-types'
 // MasonKit elements expose browser scrolling (scrollTop/scrollHeight/
 // clientHeight, scrollTo, on/off('scroll')); adapt it to the shared chat port.
 const scrollers = new WeakMap<object, any>()
+
 export const chatHost: ChatHostAdapter = {
   scroll(host) {
     if (!host) {
       return null
     }
+
     let port = scrollers.get(host)
+
     if (!port) {
       port = {
         get verticalOffset() {
@@ -31,6 +34,7 @@ export const chatHost: ChatHostAdapter = {
 
       scrollers.set(host, port)
     }
+
     return port
   },
   height: (host) =>
@@ -43,13 +47,17 @@ export const chatHost: ChatHostAdapter = {
   position(host, viewport) {
     const box = measureKeyboardHost(host),
       root = measureKeyboardHost(viewport)
+
     if (box && root) {
       return { y: box.y - root.y, height: box.height }
     }
+
     if (host?.nativeViewProtected || viewport?.nativeViewProtected) {
       return null
     }
+
     const point = host?.getLocationRelativeTo?.(viewport)
+
     return point ? { y: point.y, height: host.getActualSize?.().height ?? 0 } : null
   },
   contains(parent, child) {
@@ -58,19 +66,23 @@ export const chatHost: ChatHostAdapter = {
         return true
       }
     }
+
     return false
   },
   observeLayout(host, changed, afterChildren = false) {
     let active = true,
       timer: ReturnType<typeof setTimeout> | undefined
+
     const notify = () => {
       if (!active) {
         return
       }
+
       if (!afterChildren) {
         changed()
         return
       }
+
       if (timer === undefined) {
         timer = setTimeout(() => {
           timer = undefined
@@ -80,12 +92,14 @@ export const chatHost: ChatHostAdapter = {
         }, 0)
       }
     }
+
     host?.on?.('layoutChanged', notify)
     return () => {
       active = false
       if (timer !== undefined) {
         clearTimeout(timer)
       }
+
       host?.off?.('layoutChanged', notify)
     }
   },

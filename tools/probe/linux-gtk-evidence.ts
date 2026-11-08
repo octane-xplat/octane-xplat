@@ -5,12 +5,14 @@ import { pathToFileURL } from 'node:url'
 
 export function parseJsonLines(text) {
   const lines = text.trimEnd().split('\n')
+
   if (lines.length === 1 && lines[0] === '') {
     throw new Error('Empty evidence')
   }
 
   return lines.map((line, index) => {
     let record
+
     try {
       record = JSON.parse(line)
     } catch {
@@ -40,6 +42,7 @@ export function distribution(samples, boundMs, minimum = 100) {
 
   const sorted = valid ? [...samples].sort((a, b) => a - b) : []
   const p95 = sorted.length ? sorted[Math.floor(sorted.length * 0.95)] : null
+
   return {
     samples: sorted.length,
     p95Ms: p95,
@@ -53,6 +56,7 @@ export function auditRetainedRun(proof, orchestrator) {
   const gaps = []
   const one = (phase) => {
     const records = phaseData(proof, phase)
+
     if (records.length !== 1 || records[0] === null || typeof records[0] !== 'object') {
       gaps.push(`Expected exactly one ${phase} record`)
       return {}
@@ -109,6 +113,7 @@ export function auditRetainedRun(proof, orchestrator) {
   const lifecycle = one('lifecycle')
   const drain = one('drain')
   const exit = orchestrator.filter((record) => record.kind === 'app-exited')
+
   if (exit.length !== 1 || exit[0].data?.code !== 0) {
     gaps.push('Missing single successful normal-process exit')
   }
@@ -219,6 +224,7 @@ export function declaredPolicySatisfies(declared) {
 
   const bounds = declared.boundsMs
   const timer = declared.resizeTimerMs
+
   if (
     bounds === null ||
     typeof bounds !== 'object' ||
@@ -281,9 +287,11 @@ export function pairDurations(pairs, startKey, endKey) {
   const durations = []
   let ordered = true
   let previous = -Infinity
+
   for (const pair of pairs) {
     const start = pair?.[startKey]
     const end = pair?.[endKey]
+
     if (
       typeof start !== 'number' ||
       typeof end !== 'number' ||
@@ -307,6 +315,7 @@ export function pairDurations(pairs, startKey, endKey) {
 
 function summarize(durations) {
   const sorted = [...durations].sort((a, b) => a - b)
+
   return {
     samples: sorted.length,
     minMs: sorted[0] ?? null,
@@ -321,6 +330,7 @@ function summarize(durations) {
 function aggregateGaps(name, payload, durations) {
   const gaps = []
   const actual = summarize(durations)
+
   for (const [reported, expected] of [
     ['samples', actual.samples],
     ['p95', actual.p95Ms],
@@ -335,6 +345,7 @@ function aggregateGaps(name, payload, durations) {
   if (payload.raw !== undefined) {
     const rawSorted = Array.isArray(payload.raw) ? [...payload.raw].sort((a, b) => a - b) : []
     const measuredSorted = [...durations].sort((a, b) => a - b)
+
     if (
       rawSorted.length !== measuredSorted.length ||
       rawSorted.some((value, index) => value !== measuredSorted[index])
@@ -357,6 +368,7 @@ export function assessContractRun(proof, orchestrator) {
   const checks = {}
   const one = (phase) => {
     const records = phaseData(proof, phase)
+
     if (
       records.length !== 1 ||
       records[0] === null ||
@@ -382,8 +394,10 @@ export function assessContractRun(proof, orchestrator) {
     require(name, one(name) !== null, `Expected exactly one ${name} object record`)
 
   const status = one('run-status')
+
   if (status?.status === 'blocked') {
     const reason = typeof status.reason === 'string' ? status.reason : null
+
     return {
       schema: 2,
       status: BLOCKED_REASONS.has(reason) ? 'blocked' : 'fail',
@@ -417,6 +431,7 @@ export function assessContractRun(proof, orchestrator) {
 
   const header = one('contract-header')
   let policy = null
+
   if (requirePhase('contract-header')) {
     require('contract-header.schema', header.schema === 2, 'contract-header must declare schema 2')
 
@@ -466,6 +481,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const environment = one('environment')
+
   if (requirePhase('environment')) {
     for (const field of [
       'os',
@@ -493,6 +509,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const globals = one('globals')
+
   if (requirePhase('globals')) {
     require('globals.inventory', globals.inventory === 'complete' &&
       Array.isArray(
@@ -508,8 +525,10 @@ export function assessContractRun(proof, orchestrator) {
     'bundle-loaded', 'Bundle must load under gjs -m (bundle-loaded)')
 
   const mount = one('mount')
+
   if (requirePhase('mount')) {
     const surfaces = mount.surfaces
+
     require('mount.surfaces', surfaces !== null &&
       typeof surfaces === 'object' &&
       surfaces.label === true &&
@@ -526,6 +545,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const ordering = one('ordering')
+
   if (requirePhase('ordering')) {
     require('ordering.invariants', ordering.microtaskBeforeSameTurnCallbacks === true &&
       ordering.promiseBeforePendingTimer === true &&
@@ -540,6 +560,7 @@ export function assessContractRun(proof, orchestrator) {
   const latency = (phase, pairStart, pairEnd, boundMs, name) => {
     const payload = one(phase)
     const result = { samples: 0, p95Ms: null, boundMs, sufficient: false }
+
     measured[name] = result
     if (!requirePhase(phase)) {
       return
@@ -547,6 +568,7 @@ export function assessContractRun(proof, orchestrator) {
 
     const pairs = pairDurations(payload.pairs, pairStart, pairEnd)
     const stats = summarize(pairs.durations)
+
     result.samples = stats.samples
     result.p95Ms = stats.p95Ms
     result.sufficient =
@@ -573,6 +595,7 @@ export function assessContractRun(proof, orchestrator) {
   latency('reorder', 'commitMs', 'pickMs', policy.reorderPickMs, 'reorder')
 
   const inputLatency = one('input-latency')
+
   if (inputLatency !== null) {
     require('input-latency.class', inputLatency.inputClass === 'os' &&
       inputTier(inputLatency.mechanism) !==
@@ -580,6 +603,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const reorder = one('reorder')
+
   if (reorder !== null) {
     require('reorder.stacking', reorder.stackingChanged === true &&
       reorder.overlapped ===
@@ -591,6 +615,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const resize = one('resize')
+
   measured.resizeSignal = {
     samples: 0,
     p95Ms: null,
@@ -608,6 +633,7 @@ export function assessContractRun(proof, orchestrator) {
   if (requirePhase('resize')) {
     const pairs = pairDurations(resize.signalPairs, 'startMs', 'endMs')
     const stats = summarize(pairs.durations)
+
     measured.resizeSignal.samples = stats.samples
     measured.resizeSignal.p95Ms = stats.p95Ms
     measured.resizeSignal.sufficient =
@@ -654,6 +680,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const identity = one('stable-identity')
+
   if (requirePhase('stable-identity')) {
     require('stable-identity.assertion', identity.preserved === true &&
       Number.isFinite(identity.updates) &&
@@ -662,6 +689,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const activation = one('activation')
+
   if (requirePhase('activation')) {
     require('activation.once', activation.callbackCount === 1 &&
       activation.sharedStateChanged ===
@@ -673,6 +701,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const replacement = one('callback-replacement')
+
   if (requirePhase('callback-replacement')) {
     require('callback-replacement.latest', replacement.latestOnly === true &&
       replacement.staleCalls ===
@@ -680,6 +709,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const editingUser = one('editing-user')
+
   if (requirePhase('editing-user')) {
     require('editing-user.osInput', editingUser.inputClass === 'os' &&
       inputTier(editingUser.mechanism) !==
@@ -692,6 +722,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const editingControlled = one('editing-controlled')
+
   if (requirePhase('editing-controlled')) {
     require('editing-controlled.synthetic', typeof editingControlled.text === 'string' &&
       editingControlled.text !== '' &&
@@ -705,6 +736,7 @@ export function assessContractRun(proof, orchestrator) {
       ), 'Programmatic updates must leave a recorded caret/selection intact')
 
     const interrupt = editingControlled.caretInterruption
+
     require('editing-controlled.interruption', interrupt !== null &&
       typeof interrupt === 'object' &&
       interrupt.covered === true &&
@@ -713,6 +745,7 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const lifecycle = one('lifecycle')
+
   measured.lifecycle = { cycles: 0, required: policy.minMountCycles, baselineReturned: false }
   if (requirePhase('lifecycle')) {
     const baseline = lifecycle.baseline
@@ -723,7 +756,9 @@ export function assessContractRun(proof, orchestrator) {
       counters.every((counter) => Number.isFinite(baseline[counter]))
 
     const perCycle = lifecycle.perCycle
+
     measured.lifecycle.cycles = Number.isFinite(lifecycle.cycles) ? lifecycle.cycles : 0
+
     const perCycleOk =
       baselineOk &&
       Array.isArray(perCycle) &&
@@ -744,9 +779,11 @@ export function assessContractRun(proof, orchestrator) {
   }
 
   const drain = one('drain')
+
   measured.drain = { drainMs: 0, required: policy.minDrainMs, clean: false }
   if (requirePhase('drain')) {
     measured.drain.drainMs = Number.isFinite(drain.drainMs) ? drain.drainMs : 0
+
     const clean =
       drain.drainMs >= policy.minDrainMs &&
       drain.lateCallbacks === 0 &&
@@ -760,6 +797,7 @@ export function assessContractRun(proof, orchestrator) {
 
   const failurePhase = (phase, extra) => {
     const payload = one(phase)
+
     if (!requirePhase(phase)) {
       return
     }
@@ -795,17 +833,20 @@ export function assessContractRun(proof, orchestrator) {
   // Orchestrator corroboration: every injection uses an accepted mechanism,
   // click and keyboard actions both occur, and a complete run exits cleanly.
   const injects = orchestrator.filter((record) => record.kind === 'inject')
+
   require('orchestrator.injects', injects.length >= 2 &&
     injects.every(
       (record) => inputTier(record.data?.mechanism) !== null,
     ), 'Every orchestrator injection must record an accepted tier A/B mechanism')
 
   const actions = new Set(injects.map((record) => record.data?.action))
+
   require('orchestrator.actions', actions.has('click') &&
     (actions.has('type') ||
       actions.has('key')), 'OS-input coverage requires at least one click and one keyboard action')
 
   const exits = orchestrator.filter((record) => record.kind === 'app-exited')
+
   require('orchestrator.exit', exits.length === 1 &&
     exits[0].data?.code === 0, 'Missing single successful normal-process exit')
 
@@ -835,6 +876,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
     const flags = args.filter((arg) => arg.startsWith('--'))
     const paths = args.filter((arg) => !arg.startsWith('--'))
     const contract = flags.includes('--contract')
+
     if (
       paths.length !== 2 ||
       flags.length > 1 ||
@@ -849,6 +891,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
 
     if (contract) {
       const result = assessContractRun(proof, orchestrator)
+
       console.log(JSON.stringify(result, null, 2))
       process.exitCode = result.status === 'pass' ? 0 : result.status === 'blocked' ? 3 : 1
     } else {

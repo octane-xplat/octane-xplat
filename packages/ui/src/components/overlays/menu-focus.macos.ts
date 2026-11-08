@@ -19,6 +19,7 @@ interface OwnedRow {
 function hidden(view: NSView): boolean {
   return ['hidden', 'hiddenOrHasHiddenAncestor'].some((name) => {
     const value = Reflect.get(view, name)
+
     return Boolean(typeof value === 'function' ? value.call(view) : value)
   })
 }
@@ -38,9 +39,11 @@ export function createAppKitMenuFocus(options: {
     refreshing = false,
     resetting = false,
     epoch = 0
+
   let order: { key: string; view: NSView }[] = [],
     last: OwnedRow | null = null,
     repair: OwnedRow | null = null
+
   const reset = (): void => {
     epoch++
     owner = null
@@ -48,7 +51,9 @@ export function createAppKitMenuFocus(options: {
     order = []
     last = null
     repair = null
+
     const previous = resetting
+
     resetting = true
     try {
       options.navigation.dispose()
@@ -61,21 +66,27 @@ export function createAppKitMenuFocus(options: {
   const snapshot = (keys: readonly string[]) => {
     order = keys.flatMap((key) => {
       const view = options.views.get(key)
+
       return view ? [{ key, view }] : []
     })
   }
+
   const remember = (key: string, view: NSView, window: NSWindow, keys: readonly string[]) => {
     last = { key, view, window, index: Math.max(0, keys.indexOf(key)) }
     repair = null
   }
+
   const fallback = (responder: unknown, root: NSView, window: NSWindow) =>
     responder == null || responder === root || responder === window
+
   const focus = (key: string): boolean => {
     const root = options.root(),
       window = root?.window,
       view = options.views.get(key),
       keys = options.eligible()
+
     const version = epoch
+
     if (
       resetting ||
       !root ||
@@ -89,13 +100,16 @@ export function createAppKitMenuFocus(options: {
     ) {
       return false
     }
+
     if (version !== epoch || options.root() !== root || root.window !== window) {
       return false
     }
+
     remember(key, view, window, keys)
     snapshot(keys)
     return true
   }
+
   return {
     focus,
     reset,
@@ -106,6 +120,7 @@ export function createAppKitMenuFocus(options: {
       const root = options.root(),
         window = root?.window,
         responder = window?.firstResponder
+
       if (
         resetting ||
         !root ||
@@ -116,13 +131,16 @@ export function createAppKitMenuFocus(options: {
       ) {
         return
       }
+
       if (
         responder === view ||
         (last && last.view === view && last.window === window && fallback(responder, root, window))
       ) {
         const index = order.findIndex((row) => row.view === view)
+
         repair = { key, view, window, index: index < 0 ? (last?.index ?? 0) : index }
       }
+
       if (last?.view === view) {
         last = null
       }
@@ -131,6 +149,7 @@ export function createAppKitMenuFocus(options: {
       if (refreshing || resetting) {
         return
       }
+
       refreshing = true
       try {
         const root = options.root(),
@@ -168,6 +187,7 @@ export function createAppKitMenuFocus(options: {
           responder = window.firstResponder
 
         const current = [...options.views].find(([, view]) => view === responder)
+
         if (initial) {
           const edge = options.initial(),
             key = keys[edge === 'last' ? keys.length - 1 : 0]
@@ -190,6 +210,7 @@ export function createAppKitMenuFocus(options: {
             remember(current[0], current[1], window, keys)
           } else if (current && !repair) {
             const index = order.findIndex((row) => row.view === current[1])
+
             repair = { key: current[0], view: current[1], window, index: Math.max(0, index) }
           }
 
@@ -201,6 +222,7 @@ export function createAppKitMenuFocus(options: {
               repair = null
             } else {
               const key = keys[Math.min(repair.index, keys.length - 1)]
+
               if ((key ? focus(key) : window.makeFirstResponder(root)) && currentScope()) {
                 if (!key) {
                   last = null

@@ -38,17 +38,21 @@ function fixture({
           if (handlers.has(identifier)) {
             throw new Error('second registration of the same identifier kills the app')
           }
+
           if (registrationResult === 'throw') {
             throw new Error('launch handlers must be registered before app launch finishes')
           }
+
           if (registrationResult === 'again') {
             throw new Error(
               `launch handler for task with identifier ${identifier} has already been registered`,
             )
           }
+
           if (registrationResult === 'false') {
             return false
           }
+
           handlers.set(identifier, handler)
           return true
         },
@@ -63,6 +67,7 @@ function fixture({
 
             return false
           }
+
           submitted.push(request)
           return true
         },
@@ -78,11 +83,14 @@ function fixture({
     },
     UIApplication: { sharedApplication: { backgroundRefreshStatus: 2 } },
   })
+
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\nbackgroundTasks', context)
 
   const dispatch = (identifier = IDENTIFIER) => {
     const handler = handlers.get(identifier)
+
     assert.ok(handler, `no launch handler registered for ${identifier}`)
+
     const task = {
       identifier,
       expirationHandler: undefined as undefined | (() => void),
@@ -90,6 +98,7 @@ function fixture({
         completions.push(success)
       },
     }
+
     handler(task)
     return task
   }
@@ -101,6 +110,7 @@ const tick = () => new Promise((resolve) => setImmediate(resolve))
 
 test('defineTask registers the iOS launch handler once per identifier', async () => {
   const f = fixture()
+
   f.leaf.defineTask('refresh', async () => 'success')
   f.leaf.defineTask('refresh', async () => 'success')
   assert.equal(f.handlers.size, 1)
@@ -112,6 +122,7 @@ test('defineTask registers the iOS launch handler once per identifier', async ()
 
 test('register submits a request and repeated enable stays idempotent', async () => {
   const f = fixture()
+
   f.leaf.defineTask('refresh', async () => 'success')
   await f.leaf.register('refresh', { minimumInterval: 3600 })
   await f.leaf.register('refresh', { minimumInterval: 900 })
@@ -128,10 +139,12 @@ test('register submits a request and repeated enable stays idempotent', async ()
 test('a successful run reports success and resubmits the next request', async () => {
   const f = fixture()
   let expiredSeen: boolean | null = null
+
   f.leaf.defineTask('refresh', async (context: { name: string; expired: boolean }) => {
     expiredSeen = context.expired
     return 'success'
   })
+
   await f.leaf.register('refresh', { minimumInterval: 3600 })
   assert.equal(f.submitted.length, 1)
 
@@ -146,10 +159,12 @@ test('a successful run reports success and resubmits the next request', async ()
 
 test('a failed executor reports failure and still resubmits', async () => {
   const f = fixture()
+
   f.leaf.defineTask('refresh', async () => 'failed')
   f.leaf.defineTask('thrown', async () => {
     throw new Error('network down')
   })
+
   await f.leaf.register('refresh', {})
   await f.leaf.register('thrown', {})
 
@@ -165,6 +180,7 @@ test('expiration during async work completes exactly once and expires the contex
   const f = fixture()
   let release: () => void = () => {}
   const observed: boolean[] = []
+
   f.leaf.defineTask(
     'refresh',
     (context: { name: string; expired: boolean }) =>
@@ -176,9 +192,11 @@ test('expiration during async work completes exactly once and expires the contex
         }
       }),
   )
+
   await f.leaf.register('refresh', {})
 
   const task = f.dispatch()
+
   assert.equal(typeof task.expirationHandler, 'function')
   task.expirationHandler()
   assert.deepEqual(f.completions, [false])
@@ -193,6 +211,7 @@ test('expiration during async work completes exactly once and expires the contex
 
 test('unregister cancels the pending request and stops resubmission', async () => {
   const f = fixture()
+
   f.leaf.defineTask('refresh', async () => 'success')
   await f.leaf.register('refresh', {})
   await f.leaf.unregister('refresh')
@@ -208,9 +227,11 @@ test('unregister cancels the pending request and stops resubmission', async () =
 
 test('registering an undefined task rejects; a rejected submit reports the plist contract', async () => {
   const f = fixture()
+
   await assert.rejects(f.leaf.register('ghost'), /no defineTask/)
 
   const denied = fixture({ submitError: true })
+
   denied.leaf.defineTask('refresh', async () => 'success')
   await assert.rejects(denied.leaf.register('refresh'), /not permitted|PermittedIdentifiers/)
   assert.equal(await denied.leaf.isRegistered('refresh'), false)
@@ -222,6 +243,7 @@ test('register refuses to submit without a ready launch handler — the OS crash
   // reject before reaching it.
   for (const mode of ['false', 'throw'] as const) {
     const f = fixture({ registrationResult: mode })
+
     f.leaf.defineTask('refresh', async () => 'success')
     await assert.rejects(f.leaf.register('refresh'), /no registered iOS launch handler/)
     assert.equal(f.submitted.length, 0)
@@ -233,6 +255,7 @@ test('an already-registered handler still counts as ready', async () => {
   // A module re-eval re-runs defineTask while the first evaluation's handler
   // remains registered at the OS level — scheduling must keep working.
   const f = fixture({ registrationResult: 'again' })
+
   f.leaf.defineTask('refresh', async () => 'success')
   await f.leaf.register('refresh', {})
   assert.equal(f.submitted.length, 1)
@@ -240,9 +263,12 @@ test('an already-registered handler still counts as ready', async () => {
 
 test('getStatus maps the background-refresh posture', async () => {
   const f = fixture()
+
   assert.equal(await f.leaf.getStatus(), 'available')
+
   const bare = vm.createContext({ isIOS: true })
   const leaf = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\nbackgroundTasks', bare)
+
   assert.equal(leaf.supported, false)
   assert.equal(await leaf.getStatus(), 'unavailable')
 })

@@ -23,6 +23,7 @@ export async function inspectMacOSDoctor(
   const runtimeInspection = inspectMacOSRuntimePackage(cwd)
 
   let runtimeHint
+
   if (typeof runtimeVersion !== 'string') {
     runtimeHint = `declare ${macOSRuntimePackageName} in dependencies`
   } else if (!runtimeInspection.packageManifest) {
@@ -37,6 +38,7 @@ export async function inspectMacOSDoctor(
   const notaryProfile = process.env.MACOS_NOTARY_PROFILE
   const packageInspection = inspectMacOSPackageConfig(cwd, target.package, target.renderer)
   const packageIssues = [...packageInspection.issues]
+
   if (signingIdentity && !packageInspection.entitlementsPath) {
     packageIssues.push('set xplat.targets.macos.package.entitlements when signing')
   }
@@ -88,6 +90,7 @@ export async function inspectMacOSDoctor(
   )
 
   const jscHost = inspectJscHost()
+
   row(
     'macOS JavaScriptCore package host',
     jscHost.issues.length === 0,
@@ -97,6 +100,7 @@ export async function inspectMacOSDoctor(
 
   try {
     const native = await inspectMacOSNative(cwd)
+
     row(
       'macOS native leaf toolchain',
       true,
@@ -125,6 +129,7 @@ export async function inspectMacOSDoctor(
   if (macHost) {
     const codesign = check('codesign', ['--verify', '/usr/bin/codesign'])
     const hdiutil = check('hdiutil', ['help'])
+
     row(
       'codesign',
       codesign.ok,
@@ -137,6 +142,7 @@ export async function inspectMacOSDoctor(
 
   if (notaryProfile) {
     const notarytool = check('xcrun', ['notarytool', '--version'])
+
     row(
       'macOS notarization signing',
       !!signingIdentity,
@@ -151,5 +157,6 @@ export async function inspectMacOSDoctor(
       'install Xcode Command Line Tools',
     )
   }
+
   return rows
 }

@@ -3,6 +3,7 @@ import type Gtk from 'gi://Gtk?version=4.0'
 import type { UniversalHostDriver, UniversalRootOptions } from 'octane/universal/native'
 
 import type { GtkRoot } from './root-types.js'
+
 export type { GtkComponent, GtkRoot } from './root-types.js'
 
 export * from 'octane/universal/native'

@@ -19,6 +19,7 @@ interface Subscription {
 const subscriptions = new WeakMap<object, Subscription>()
 const positive = (value: unknown, fallback: number) => {
   const n = Number(value)
+
   return Number.isFinite(n) && n > 0 ? n : fallback
 }
 
@@ -27,6 +28,7 @@ export function setImageGeometryHandler(
   handler?: (geometry: ImageGeometry) => void,
 ): void {
   const previous = subscriptions.get(view)
+
   if (typeof handler !== 'function') {
     if (previous?.timer !== undefined) {
       clearTimeout(previous.timer)
@@ -35,25 +37,30 @@ export function setImageGeometryHandler(
     subscriptions.delete(view)
     return
   }
+
   if (previous) {
     previous.handler = handler
   } else {
     subscriptions.set(view, { handler })
   }
+
   notifyImageGeometry(view)
 }
 
 /** Called after frame, window or backing-store changes. Never reenter native layout. */
 export function notifyImageGeometry(view: GeometryView): void {
   const subscription = subscriptions.get(view)
+
   if (!subscription || subscription.timer !== undefined) {
     return
   }
+
   subscription.timer = setTimeout(() => {
     subscription.timer = undefined
     if (subscriptions.get(view) !== subscription) {
       return
     }
+
     try {
       if (!view.window) {
         return
@@ -66,6 +73,7 @@ export function notifyImageGeometry(view: GeometryView): void {
       }
 
       const last = subscription.last
+
       if (
         last &&
         last.width === geometry.width &&

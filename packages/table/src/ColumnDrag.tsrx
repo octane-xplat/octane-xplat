@@ -13,6 +13,7 @@ export function ColumnDrag(props: {
   state: any
 }): unknown {
   void props.state
+
   const drag = useRef<{
     size: number
     sizing: Record<string, number>
@@ -27,6 +28,7 @@ export function ColumnDrag(props: {
       order: props.table.getAllLeafColumns().map((column: any) => column.id),
       columns: props.table.getVisibleLeafColumns().map((column: any) => {
         const size = column.getSize()
+
         return { id: column.id, getSize: () => size }
       }),
     }
@@ -39,6 +41,7 @@ export function ColumnDrag(props: {
     }
 
     const start = drag.current
+
     if (!start) {
       return
     }
@@ -47,6 +50,7 @@ export function ColumnDrag(props: {
       if (resize) {
         props.table.setColumnSizing((old: Record<string, number>) => {
           const next = { ...old }
+
           if (start.sizing[props.column.id] == null) {
             delete next[props.column.id]
           } else {
@@ -62,6 +66,7 @@ export function ColumnDrag(props: {
     }
 
     const dx = event.dx * (props.direction === 'rtl' ? -1 : 1)
+
     if (resize && Number.isFinite(dx)) {
       props.table.setColumnSizing((old: any) => ({
         ...old,
@@ -72,6 +77,7 @@ export function ColumnDrag(props: {
     if (event.state === 'ended') {
       if (!resize) {
         const target = dragTarget(start.columns, props.column.id, dx)
+
         props.table.setColumnOrder(moveColumn(start.order, props.column.id, target))
       }
 

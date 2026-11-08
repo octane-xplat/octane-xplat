@@ -22,17 +22,20 @@ export function leaseKeyboardProperty(
   let active = true
   const reconcile = () => {
     const current = read()
+
     if (last === undefined || current !== last) {
       baseline = current
       last = undefined
       offset = 0
     }
   }
+
   return {
     get offset() {
       if (!active) {
         return 0
       }
+
       reconcile()
       return offset
     },
@@ -40,17 +43,23 @@ export function leaseKeyboardProperty(
       if (!active) {
         return
       }
+
       if (!Number.isFinite(value)) {
         throw new RangeError('Keyboard displacement must be finite')
       }
+
       reconcile()
+
       const next = baseline + value
+
       if (!Number.isFinite(next)) {
         throw new RangeError('Keyboard property baseline must be finite')
       }
+
       if (next !== read()) {
         write(next)
       }
+
       last = next
       offset = value
     },
@@ -58,10 +67,12 @@ export function leaseKeyboardProperty(
       if (!active) {
         return
       }
+
       active = false
       if (last !== undefined && read() === last) {
         write(baseline)
       }
+
       last = undefined
       offset = 0
     },

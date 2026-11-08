@@ -63,6 +63,7 @@ export function TableRowExpansionTable() @{
     onToggle: (key) =>
       setExpandedKeys((prev: Set<string>) => {
         const next = new Set(prev)
+
         if (next.has(key)) {
           next.delete(key)
         } else {

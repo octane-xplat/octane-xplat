@@ -6,6 +6,7 @@ import { axAttr } from '../../tools/probe/appkit-input'
 
 export default function SegmentedControlProbe() {
   const [mode, setMode] = useState('inbox')
+
   return (
     <VStack gap={3}>
       <SegmentedControl

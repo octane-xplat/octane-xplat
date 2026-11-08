@@ -28,12 +28,14 @@ function resolveContextActions(actions: TableContextActions | undefined) {
   }
 
   const list = typeof actions === 'function' ? actions() : actions
+
   if (!list || list.length === 0) {
     return undefined
   }
 
   const items: any[] = []
   let lastGroup: string | undefined
+
   for (const action of list) {
     if (items.length > 0 && action.group !== lastGroup) {
       items.push({ type: 'divider' })
@@ -199,6 +201,7 @@ export function Table<T extends Record<string, unknown> = Record<string, unknown
               {plan.headerCells.map((cell) => {
                 const { before, after, overlay, below, content } = cell.render
                 const hasSlots = before != null || after != null || overlay != null || below != null
+
                 return (
                   <th
                     key={cell.column.key}

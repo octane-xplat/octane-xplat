@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-segmented-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -32,10 +34,13 @@ function compiled(name, source, imports = {}, template = true) {
         },
       }).code
     : source
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -150,8 +155,10 @@ function mount(props, component = SegmentedControl) {
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   root.render(component, props)
   return {
     root,
@@ -171,9 +178,12 @@ test('uncontrolled options share one peer group, seed the default and suppress u
   const changes = []
   const props = { options, defaultValue: 'a', onValueChange: (value) => changes.push(value) }
   const f = mount(props)
+
   try {
     await tick()
+
     const inputs = f.inputs()
+
     assert.deepEqual(
       inputs.map((input) => [
         input.props.settings.value,
@@ -188,6 +198,7 @@ test('uncontrolled options share one peer group, seed the default and suppress u
     )
 
     const controller = inputs[0].props.settings.group
+
     assert.ok(inputs.every((input) => input.props.settings.group === controller))
     assert.equal(controller.selected, 'a')
     controller.requestChange('b')
@@ -198,10 +209,12 @@ test('uncontrolled options share one peer group, seed the default and suppress u
     await tick()
     assert.equal(controller.selected, 'b')
     assert.deepEqual(changes, ['b'])
+
     const classes = (node) =>
       [node.props.className].flat(Infinity).filter(Boolean).join(' ').split(' ')
 
     const on = f.nodes().filter((node) => classes(node).includes('vx-segment--on'))
+
     assert.equal(on.length, 1)
     assert.ok(on[0].children.some((child) => child.props?.text === 'Week'))
   } finally {
@@ -213,10 +226,13 @@ test('controlled child segments keep parent ownership and name icon-only peers',
   const changes = []
   const props = { value: 'a', onValueChange: (value) => changes.push(value) }
   const f = mount(props, Children)
+
   try {
     await tick()
+
     const [a, b, c] = f.inputs()
     const controller = a.props.settings.group
+
     assert.equal(b.props.settings.group, controller)
     assert.equal(b.props.accessibilityLabel, 'Grid')
     assert.ok(!f.nodes().some((node) => node.type === 'label' && node.props.text === 'Grid'))
@@ -240,10 +256,13 @@ test('real Field context inherits guards and names the segmented group', async (
   for (const flags of [{ disabled: true }, { readOnly: true }]) {
     const changes = []
     const f = mount({ ...flags, options, onValueChange: (value) => changes.push(value) }, InField)
+
     try {
       await tick()
+
       const input = f.inputs()[0]
       const controller = input.props.settings.group
+
       assert.equal(controller.disabled, !!flags.disabled)
       assert.equal(controller.readOnly, !!flags.readOnly)
       assert.equal(input.props.isEnabled, !flags.disabled)
@@ -258,6 +277,7 @@ test('real Field context inherits guards and names the segmented group', async (
 
 test('standalone segment stays presentational without native activation', () => {
   const f = mount({ value: 'a', label: 'List' }, SegmentedControlItem)
+
   try {
     assert.equal(f.inputs().length, 0)
     assert.ok(f.nodes().some((node) => node.type === 'label' && node.props.text === 'List'))

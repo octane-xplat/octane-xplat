@@ -7,6 +7,7 @@ import { evaluateNativeMediaQuery } from './media-query-native'
  *  animator-duration scale). Same mechanism @octane-xplat/motion uses. */
 function readReducedMotion(): boolean {
   const platform = globalThis as Record<string, any>
+
   if (Application.ios) {
     return Boolean(platform.UIAccessibilityIsReduceMotionEnabled?.())
   }
@@ -24,6 +25,7 @@ function readReducedMotion(): boolean {
 
   // `Utils.android` is a {} stub outside a real Android runtime.
   const context = (Utils.android as any).getApplicationContext()
+
   return (
     platform.android.provider.Settings.Global.getFloat(
       context.getContentResolver(),
@@ -41,6 +43,7 @@ function observeReducedMotion(notify: () => void): () => void {
       .UIAccessibilityReduceMotionStatusDidChangeNotification
 
     const observer = Application.ios.addNotificationObserver(name, notify)
+
     return () => Application.ios.removeNotificationObserver(observer, name)
   }
 
@@ -67,11 +70,15 @@ function evaluate(query: string): boolean {
  *  to `false` — record gaps, don't guess. */
 export function useMediaQuery(query: string): boolean {
   const [matches, setMatches] = useState(() => evaluate(query))
+
   useEffect(() => {
     const update = () => setMatches(evaluate(query))
+
     update()
     Application.on('orientationChanged', update)
+
     const releaseMotion = observeReducedMotion(update)
+
     return () => {
       Application.off('orientationChanged', update)
       releaseMotion()

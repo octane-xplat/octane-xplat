@@ -19,18 +19,22 @@ import { createMacOSDevBundle } from './dev-bundle.ts'
 /** Run the configured DOM frontend in WKWebView with a CLI-managed JSC host. */
 export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) {
   appRoot = resolve(appRoot)
+
   const readManifest = () => JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
   const target = readManifest().xplat?.targets?.macos
+
   if (target?.runtime !== 'appkit-node-api') {
     throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api"')
   }
 
   const config = inspectMacOSDevConfig(appRoot, target.dev, 'webview')
+
   if (config.issues.length) {
     throw new Error(config.issues.join('; '))
   }
 
   const inspection = inspectJscHost()
+
   if (inspection.issues.length) {
     throw new Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
   }
@@ -49,9 +53,12 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
   const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
     directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
   })
+
   const hostExecutable = devBundle.executable
   const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+
   await mkdir(devRoot, { recursive: true })
+
   const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
   let webServer
   let webAddress
@@ -84,6 +91,7 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
 
     await new Promise((resolve) => {
       const timer = setTimeout(() => host.kill('SIGKILL'), 3000)
+
       host.once('close', () => {
         clearTimeout(timer)
         resolve()
@@ -135,10 +143,12 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
         resolveDone()
       }
     })
+
     await new Promise((resolve, reject) => {
       host.once('spawn', resolve)
       host.once('error', reject)
     })
+
     options.onReady?.({
       pid: host.pid,
       renderer: 'webview',
@@ -163,6 +173,7 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
   }
 
   const signalStop = () => stop()
+
   try {
     process.on('SIGINT', signalStop)
     process.on('SIGTERM', signalStop)
@@ -174,7 +185,9 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
     })
 
     await webServer.listen()
+
     const address = webServer.httpServer.address()
+
     if (!address || typeof address === 'string') {
       throw new Error('Vite did not provide a local webview development address')
     }
@@ -190,6 +203,7 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
 
     await new Promise((resolve, reject) => {
       let first = true
+
       watcher.on('event', (event) => {
         if (event.code === 'BUNDLE_END') {
           if (first) {
@@ -225,12 +239,15 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
       rebuilding = (async () => {
         try {
           const fingerprint = discoverMacOSNative(appRoot).fingerprint
+
           if (fingerprint === observed) {
             return
           }
 
           observed = fingerprint
+
           const next = await prepare()
+
           if (
             next.key !== artifact.key ||
             next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
@@ -244,6 +261,7 @@ export async function runMacOSWebViewDev(appRoot = process.cwd(), options = {}) 
           lastError = undefined
         } catch (error) {
           const message = String(error)
+
           if (message !== lastError) {
             console.error(
               '[macos-webview] native rebuild failed; preserving the running app',

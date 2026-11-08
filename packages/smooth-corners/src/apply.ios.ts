@@ -18,6 +18,7 @@ const rad = (deg: number) => (deg * Math.PI) / 180
 
 function toCGPath(cmds: PathCommand[]): any {
   const p = CGPathCreateMutable()
+
   for (const c of cmds) {
     switch (c.c) {
       case 'M':
@@ -60,6 +61,7 @@ const BORDER_KEY = '__smoothBorder'
 
 function sizeOf(view: any): { w: number; h: number } | null {
   const size = view?.getActualSize?.()
+
   return size && size.width > 0 && size.height > 0 ? { w: size.width, h: size.height } : null
 }
 
@@ -68,11 +70,14 @@ function sizeOf(view: any): { w: number; h: number } | null {
 export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
   const v = view?.ios
   const style = view?.style
+
   if (!v || !style) {
     return
   }
+
   if (!clip) {
     const owned = ownedClips.get(view)
+
     if (owned !== undefined && style.clipPath === owned) {
       style.clipPath = 'none'
     }
@@ -80,20 +85,25 @@ export function applySmoothClip(view: any, props: SmoothCornersProps, clip = tru
     ownedClips.delete(view)
     return
   }
+
   const size = sizeOf(view)
+
   if (!size) {
     return
   }
 
   const commands = generateCommands(size.w, size.h, props.corners)
   const clipPath = `path("${commandsToD(commands)}")`
+
   if (style.clipPath !== clipPath) {
     style.clipPath = clipPath
   }
+
   ownedClips.set(view, clipPath)
 
   let borderLayer = v[BORDER_KEY] as any
   const border = props.border
+
   if (border && border.width > 0 && border.color) {
     if (!borderLayer) {
       borderLayer = CAShapeLayer.new()
@@ -116,11 +126,13 @@ export function applySmoothClip(view: any, props: SmoothCornersProps, clip = tru
 /** Drop shadow on the outer view (a masked layer can't show its own). */
 export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
   const layer = view?.ios?.layer
+
   if (!layer) {
     return
   }
 
   const shadow = props.shadow
+
   if (!shadow) {
     layer.shadowPath = null
     layer.shadowOpacity = 0
@@ -128,6 +140,7 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
   }
 
   const size = sizeOf(view)
+
   if (!size) {
     return
   }
@@ -136,6 +149,7 @@ export function applySmoothShadow(view: any, props: SmoothCornersProps): void {
   const spread = shadow.spread ?? 0
   const w = size.w + spread * 2
   const h = size.h + spread * 2
+
   layer.shadowPath = toCGPath(generateCommands(w, h, props.corners))
   layer.shadowOffset = {
     width: (shadow.offsetX ?? 0) - spread,

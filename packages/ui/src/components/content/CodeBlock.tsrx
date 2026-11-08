@@ -18,6 +18,7 @@ import { splitDiffLines, type DiffLineKind } from './code-diff'
  *  active scheme + per-block `syntaxTheme` resolve to hex strings here. */
 function tokenColor(type: string, scheme: 'light' | 'dark', theme?: CodeBlockProps['syntaxTheme']) {
   const color = syntaxColor(type, scheme, theme)
+
   return color == null ? undefined : nativeColor(color)
 }
 
@@ -32,10 +33,12 @@ function NativeCodeLine(props: {
 }) @{
   const tokens = props.tokens ?? []
   const spans: any[] = []
+
   if (tokens.length === 0) {
     spans.push(<span text={props.line === '' ? ' ' : props.line} />)
   } else {
     let cursor = 0
+
     for (const token of tokens) {
       if (token.start > cursor) {
         spans.push(<span text={props.line.slice(cursor, token.start)} />)
@@ -87,6 +90,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
   const isDiff = props.isDiff ?? false
   const lines = useMemo(() => {
     const l = props.code.split('\n')
+
     if (l.length > 1 && l[l.length - 1] === '') {
       l.pop()
     }

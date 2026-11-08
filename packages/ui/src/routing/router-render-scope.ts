@@ -30,14 +30,17 @@ export function requireRouterRenderScope(
   if (!scope) {
     throw new Error('Routing hooks require a RouterProvider or a router-owned screen')
   }
+
   if (instance && instance !== scope.instance) {
     throw new Error('Routing hook belongs to a different router instance')
   }
+
   if (declared && !instance && !isDefaultRouter(scope.instance)) {
     throw new Error(
       'Pass the explicit router instance to typed routing hooks in a custom RouterProvider',
     )
   }
+
   return scope
 }
 
@@ -51,6 +54,7 @@ export function createRouterRenderScope<
   match?: RouterRenderScope['match'],
 ): RouterRenderScope {
   const navigator = bindRouterFlow(instance, flow)
+
   return {
     instance,
     flow,

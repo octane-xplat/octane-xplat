@@ -52,6 +52,7 @@ export function Timestamp(props: TimestampProps): unknown @{
       }
 
       const interval = getLiveInterval((Date.now() - date.getTime()) / 1000)
+
       timer = setTimeout(() => {
         setNow(new Date())
         tick()

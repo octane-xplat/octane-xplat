@@ -18,19 +18,23 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
   if (!/^https:\/\/[a-z\d.-]+\/?$/i.test(options.issuer)) {
     throw new Error('Use the HTTPS Auth0 origin without a path')
   }
+
   if (
     !/^[a-z][a-z\d+.-]*:\/\/[^?#\s]+$/i.test(options.redirectUri) ||
     /^https?:/i.test(options.redirectUri)
   ) {
     throw new Error('Use a custom-scheme callback without a query or fragment')
   }
+
   const issuer = options.issuer.replace(/\/$/, '')
   const callbackScheme = options.redirectUri.split(':')[0]
+
   return {
     async begin({ pkce }) {
       if (!pkce) {
         throw new Error('PKCE parameters are required')
       }
+
       const state = Array.from(random.bytes(16), (b) => b.toString(16).padStart(2, '0')).join('')
       const parameters = {
         response_type: 'code',
@@ -42,9 +46,11 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
         code_challenge_method: 'S256',
         state,
       }
+
       const query = Object.entries(parameters)
         .map(([key, value]) => `${key}=${encodeURIComponent(value)}`)
         .join('&')
+
       return { url: `${issuer}/authorize?${query}`, callbackScheme, state }
     },
     async complete(callback, attempt, { fetch, pkce }) {
@@ -57,10 +63,13 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
       ) {
         return null
       }
+
       const code = queryParam(callback, 'code')
+
       if (!code) {
         return null
       }
+
       const response = await postJson(fetch, `${issuer}/oauth/token`, {
         grant_type: 'authorization_code',
         client_id: options.clientId,
@@ -68,9 +77,11 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
         code_verifier: pkce.verifier,
         redirect_uri: options.redirectUri,
       })
+
       if (!response.ok) {
         throw new Error('Sign-in exchange failed')
       }
+
       return credentials(await response.json())
     },
     async refresh(previous, { fetch }) {
@@ -79,7 +90,9 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
         client_id: options.clientId,
         refresh_token: previous.sessionToken,
       })
+
       const data = await response.json()
+
       if (!response.ok) {
         if (record(data)?.error === 'invalid_grant') {
           return null
@@ -87,6 +100,7 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
 
         throw new Error('Session refresh is temporarily unavailable')
       }
+
       return credentials(data, previous.sessionToken)
     },
     async revoke(previous, { fetch }) {
@@ -94,6 +108,7 @@ export function createAuth0Flow(options: Auth0Options): HostedAuthFlow {
         client_id: options.clientId,
         token: previous.sessionToken,
       })
+
       if (!response.ok) {
         throw new Error('Session revocation failed')
       }
@@ -111,6 +126,7 @@ function credentials(value: unknown, previousRefresh?: string): HostedAuthCreden
   const lifetime = data?.expires_in
   const refresh = data?.refresh_token ?? previousRefresh
   const expiresAt = typeof lifetime === 'number' ? Date.now() + lifetime * 1000 : NaN
+
   if (
     typeof token !== 'string' ||
     !token ||
@@ -124,5 +140,6 @@ function credentials(value: unknown, previousRefresh?: string): HostedAuthCreden
   ) {
     throw new Error('Provider did not return a usable session')
   }
+
   return { token, sessionToken: refresh, expiresAt }
 }

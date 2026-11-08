@@ -16,9 +16,11 @@ import { fakeTransport, statusFixture, ok } from './transport.mjs'
 const boundContext = (workspaceRoot) => {
   const transport = fakeTransport()
   const context = createWorkspaceContext({ workspaceRoot, transport })
+
   transport.handlers.status = () => {
     const fixture = statusFixture(context)
     const app = fixture.identity.selection.state === 'bound' ? fixture.identity.selection.app : null
+
     if (app) {
       // Emulate the Go framework binding against the fixture's installed tree.
       try {
@@ -32,22 +34,27 @@ const boundContext = (workspaceRoot) => {
         }
       } catch {}
     }
+
     return ok(fixture)
   }
+
   return context
 }
 
 test('single consumer app binds as sole-app with detected identity', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, '.', { name: 'my-app', installed: { '@octane-xplat/ui': '0.14.0' } })
 
   const discovery = discoverWorkspace(root)
+
   assert.equal(discovery.workspace.kind, 'consumer')
   assert.equal(discovery.apps.length, 1)
   assert.deepEqual(discovery.apps[0].platforms, ['web'])
 
   const context = boundContext(root)
   const report = await buildProjectStatus(context)
+
   assert.equal(report.identity.selection.state, 'bound')
   assert.equal(report.identity.selection.reason, 'sole-app')
   assert.equal(report.identity.framework.status, 'installed')
@@ -59,16 +66,19 @@ test('single consumer app binds as sole-app with detected identity', async () =>
 
 test('multiple apps stay ambiguous until explicit selection', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, 'apps/a', { name: 'app-a' })
   makeConsumerApp(root, 'apps/b', { name: 'app-b' })
 
   const context = boundContext(root)
   const report = await buildProjectStatus(context)
+
   assert.equal(report.identity.selection.state, 'ambiguous')
   assert.equal(report.identity.selection.candidates.length, 2)
   assert.match(report.nextSteps[0], /never picks silently/)
 
   const bound = bindApp(context, 'apps/b')
+
   assert.equal(bound.app.name, 'app-b')
   assert.equal((await buildProjectStatus(context)).identity.selection.state, 'bound')
 })
@@ -77,6 +87,7 @@ test('an empty workspace reports no-apps without inventing identity', async () =
   const root = makeWorkspace()
   const context = boundContext(root)
   const report = await buildProjectStatus(context)
+
   assert.equal(report.identity.selection.state, 'none')
   assert.equal(report.identity.selection.reason, 'no-apps')
   assert.match(report.nextSteps[0], /No Octane Xplat app/)
@@ -84,11 +95,13 @@ test('an empty workspace reports no-apps without inventing identity', async () =
 
 test('the framework repository is identified as a framework workspace', () => {
   const root = makeWorkspace()
+
   writeJson(root, 'package.json', { name: 'octane-xplat', private: true })
   writeJson(root, 'packages/ui/package.json', { name: '@octane-xplat/ui', version: '0.14.0' })
   makeConsumerApp(root, 'apps/web', { name: 'harness-web' })
 
   const discovery = discoverWorkspace(root)
+
   assert.equal(discovery.workspace.kind, 'framework-repo')
   assert.equal(discovery.apps.length, 1)
   assert.equal(discovery.apps[0].kind, 'consumer-app')
@@ -96,6 +109,7 @@ test('the framework repository is identified as a framework workspace', () => {
 
 test('native platform detection follows declared nativescript platforms', () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, '.', {
     name: 'native-app',
     web: false,
@@ -110,6 +124,7 @@ test('native platform detection follows declared nativescript platforms', () => 
 
 test('macos and linux platforms come from xplat.targets', () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, '.', {
     name: 'desktop-app',
     web: false,
@@ -128,6 +143,7 @@ test('macos and linux platforms come from xplat.targets', () => {
 
 test('installed versions bind docs; lockfile disagreement is reported', () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, 'app', {
     name: 'locked-app',
     uiVersion: '^0.14.0',
@@ -141,6 +157,7 @@ test('installed versions bind docs; lockfile disagreement is reported', () => {
   )
 
   const binding = resolveFrameworkBinding(root, join(root, 'app'))
+
   assert.equal(binding.status, 'installed')
   assert.equal(binding.packages[0].version, '0.14.0')
   assert.match(binding.discrepancy, /0\.13\.0.*0\.14\.0/)
@@ -148,6 +165,7 @@ test('installed versions bind docs; lockfile disagreement is reported', () => {
 
 test('without installation the binding is provisional, never latest-inferred', () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, 'app', { name: 'no-install' })
   writeFile(
     root,
@@ -156,6 +174,7 @@ test('without installation the binding is provisional, never latest-inferred', (
   )
 
   const binding = resolveFrameworkBinding(root, join(root, 'app'))
+
   assert.equal(binding.status, 'provisional')
   assert.equal(binding.packages[0].source, 'lockfile')
 })
@@ -163,6 +182,7 @@ test('without installation the binding is provisional, never latest-inferred', (
 test('prerequisite probes report status and remedy, never silent readiness', () => {
   const prereqs = checkPrerequisites(['web', 'ios', 'android'])
   const byId = Object.fromEntries(prereqs.map((p) => [p.id, p]))
+
   assert.equal(byId.node.status, 'satisfied')
   assert.ok(['satisfied', 'missing'].includes(byId.git.status))
   assert.equal(byId.chromium.status, 'unknown')

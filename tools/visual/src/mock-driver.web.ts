@@ -7,8 +7,10 @@ declare const __MOCK_ALTERED__: boolean
 /** Returns fixture bytes, never a screenshot of the mounted story. */
 export async function launchMock(storyId: string) {
   const mounted = mountStory(storyId)
+
   try {
     const control = await waitForSwitch(mounted.host)
+
     if (mounted.storyId !== storyId || control.getAttribute('aria-checked') !== 'false') {
       throw new Error(
         `Wrong story or args before mock capture: ${mounted.storyId}, ${control.getAttribute('aria-checked')}`,
@@ -16,11 +18,13 @@ export async function launchMock(storyId: string) {
     }
 
     const response = await fetch(__MOCK_ALTERED__ ? alteredPng : fixedPng)
+
     if (!response.ok) {
       throw new Error(`Mock fixture load failed: ${response.status}`)
     }
 
     const bytes = new Uint8Array(await response.arrayBuffer())
+
     return {
       ...mounted,
       capture: {
@@ -41,8 +45,10 @@ export async function launchMock(storyId: string) {
 
 async function waitForSwitch(host: HTMLElement) {
   const deadline = performance.now() + 2000
+
   while (performance.now() < deadline) {
     const control = host.querySelector('[role="switch"]')
+
     if (control) {
       return control
     }

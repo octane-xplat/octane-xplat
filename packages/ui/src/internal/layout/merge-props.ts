@@ -37,6 +37,7 @@ export function mergeProps(
         typeof result[key] === 'function'
       ) {
         const prev = result[key]
+
         result[key] = (...args: any[]) => {
           prev(...args)
           value(...args)

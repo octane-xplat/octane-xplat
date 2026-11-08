@@ -60,13 +60,16 @@ export function createAppKitRouterHost(): {
         '__xplatAppKit' in globalThis
           ? (globalThis as Record<string, unknown>).__xplatAppKit
           : undefined
+
       const bridge =
         typeof installed === 'object' && installed !== null
           ? (installed as AppKitPresentation)
           : undefined
+
       if (!owner?.window || !bridge?.presentSurface) {
         return undefined
       }
+
       let root: ContentRoot | undefined
       let content: unknown
       let disposed = false
@@ -92,14 +95,18 @@ export function createAppKitRouterHost(): {
                 console.warn('[octane-xplat] AppKit routed dismissal failed')
               })
           }
+
           return false
         },
       })
+
       if (!root || typeof surface.show !== 'function') {
         surface.close()
         throw new Error('AppKit routed modals require an owned, deferred presentation surface')
       }
+
       const ownedRoot = root
+
       void surface.closedPromise.then(request.onClosed)
       return {
         native: surface.panel,
@@ -108,13 +115,16 @@ export function createAppKitRouterHost(): {
           if (disposed || surface.closed) {
             return { status: 'closed' as const }
           }
+
           surface.show()
+
           const finished = effects.run(
             request.context,
             request.route.transition,
             request.transition,
             content,
           )
+
           return { status: 'shown' as const, finished }
         },
         async close() {
@@ -126,6 +136,7 @@ export function createAppKitRouterHost(): {
           if (disposed) {
             return
           }
+
           disposed = true
           effects.interrupt()
           surface.close()
@@ -134,11 +145,14 @@ export function createAppKitRouterHost(): {
       }
     },
   })
+
   const dispose = platform.host.dispose
+
   platform.host.dispose = () => {
     instance = undefined
     dispose?.()
   }
+
   return {
     ...platform,
     attach(router: RouterInstance<any, any, any>): void {

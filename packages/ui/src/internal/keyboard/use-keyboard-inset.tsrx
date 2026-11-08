@@ -25,6 +25,7 @@ import type { UseKeyboardInsetOptions } from '../../props'
 export function useKeyboardInset(options: UseKeyboardInsetOptions = {}): number {
   const enabled = options.enabled ?? true
   const [inset, setInset] = useState(0)
+
   useEffect(() => {
     if (!enabled) {
       setInset(0)

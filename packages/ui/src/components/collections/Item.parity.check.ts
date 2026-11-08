@@ -53,6 +53,7 @@ export const CHECKS: ParityCheck[] = [
       const title = m('title')
       const supporting = m('supporting')
       const trailing = m('trailing')
+
       return [
         dims(row, 220, 64, 1),
         [

@@ -490,9 +490,11 @@ function initializeRuntime() {
   // largest-window default.
   setStyleEnvironment(() => {
     const node = cssCascade.activeMediaNode
+
     if (node) {
       return cssCascade.envForNode(node)
     }
+
     return { ...cssCascade.largestWindowSize(), ...cssCascade.mediaSharedEnv() }
   })
 
@@ -555,10 +557,12 @@ function initializeRuntime() {
     notify: (event: { type: number; modifierFlags: number }) => void,
   ) => {
     const off = subscriptions.contextPointerDispatcher.observe(notify)
+
     if (!subscriptions.contextPointerDispatcher.available()) {
       off()
       throw new Error('AppKit pointer observation unavailable')
     }
+
     return off
   }
 
@@ -573,13 +577,18 @@ function initializeRuntime() {
       view,
       (accessibleHost.scopeFocusTargets.get(view) ?? 0) + 1,
     )
+
     let active = true
+
     return () => {
       if (!active) {
         return
       }
+
       active = false
+
       const count = (accessibleHost.scopeFocusTargets.get(view) ?? 1) - 1
+
       if (count > 0) {
         accessibleHost.scopeFocusTargets.set(view, count)
       } else {
@@ -612,6 +621,7 @@ function initializeRuntime() {
     roots.createMacOSRoot,
     directory.fontFamilyForView,
   )
+
   styleEnvironment.activate()
   try {
     automation.activate()

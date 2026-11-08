@@ -41,14 +41,17 @@ async function until<T>(
   timeoutMs = 30_000,
 ): Promise<NonNullable<T>> {
   const deadline = Date.now() + timeoutMs
+
   while (Date.now() < deadline) {
     const value = await predicate()
+
     if (value) {
       return value as NonNullable<T>
     }
 
     await new Promise((resolve) => setTimeout(resolve, 50))
   }
+
   throw new Error('Query workflow condition timed out')
 }
 
@@ -62,7 +65,9 @@ async function command<T>(args: string[]): Promise<T> {
       timeout: 30_000,
     },
   )
+
   const result = JSON.parse(stdout)
+
   assert.equal(result.ok, true, 'CLI command succeeds')
   return result.data as T
 }
@@ -76,11 +81,15 @@ type Job = {
 
 try {
   await server.listen()
+
   const base = server.resolvedUrls?.local[0]
+
   assert.ok(base)
   browser = await chromium.launch({ headless: true })
+
   const context = await browser.newContext()
   const page = await context.newPage()
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(new URL('/cached-users', base).href)
   await page.locator('#cached-user-1').waitFor()
@@ -115,12 +124,14 @@ try {
   async function snapshot(): Promise<QueryInspectionSnapshot> {
     const instance = await until(async () => {
       const view = await command<{ instances: Instance[] }>(['actions', 'list'])
+
       return view.instances.find(
         (instance) =>
           instance.appInstanceId === instanceId &&
           instance.actions.some((action) => action.id.startsWith('queries.inspect.')),
       )
     })
+
     const action = instance.actions.find((action) => action.id.startsWith('queries.inspect.'))!
     const accepted = await command<{ job: Job }>([
       'actions',
@@ -134,19 +145,24 @@ try {
       '--input',
       '{}',
     ])
+
     const job = await until(async () => {
       const status = await command<{ job: Job }>(['actions', 'status', accepted.job.jobId])
+
       if (['failed', 'cancelled'].includes(status.job.state)) {
         throw new Error('Inspection action failed')
       }
+
       return status.job.result?.outcome ? status.job : undefined
     })
+
     assert.equal(job.result?.outcome?.status, 'succeeded')
     return JSON.parse(job.result?.outcome?.result?.snapshot ?? '')
   }
 
   const before = await snapshot()
   const feed = before.queries.find((query) => query.label === 'demo.feed')!
+
   check(feed.observers === 1, 'CLI inspects the mounted feed')
   check(
     !JSON.stringify(before).includes('Ada user') &&
@@ -172,7 +188,9 @@ try {
 
   await context.setOffline(false)
   await until(async () => (await page.locator('#cached-network').textContent()) === 'Request: idle')
+
   const recovered = await snapshot()
+
   check(
     recovered.events.filter((event) => event.queryId === feed.queryId && event.type === 'load')
       .length ===

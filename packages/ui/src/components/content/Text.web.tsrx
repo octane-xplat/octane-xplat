@@ -7,6 +7,7 @@ import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
 import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
+
 export function Text(props: TextProps): JSX.Element @{
   const theme = useTheme()
   const scale = textScaleStyle(theme.tokens, props)

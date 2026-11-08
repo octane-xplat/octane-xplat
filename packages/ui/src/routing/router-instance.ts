@@ -128,9 +128,11 @@ export function runRouterHostNavigation(
   action: 'back' | 'forward' = 'back',
 ): Promise<void> {
   const run = hostNavigations.get(instance)
+
   if (!run) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   return run(flow, commit, action)
 }
 
@@ -147,9 +149,11 @@ const catalogViews = new WeakMap<
 /** @internal Hot-reload definitions without changing instance or hook identity. */
 export function replaceRouterTransitions(instance: object, transitions: TransitionRegistry): void {
   const view = catalogViews.get(instance)
+
   if (!view) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   view.replaceTransitions(transitions)
 }
 
@@ -157,9 +161,11 @@ export function replaceRouterTransitions(instance: object, transitions: Transiti
  * application/request state through a public catalog API. */
 export function readRouterCatalog(instance: object): RouteManifest {
   const read = catalogViews.get(instance)
+
   if (!read) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   return read.read()
 }
 
@@ -170,18 +176,22 @@ export function readRouterMatch<Contracts>(
   route: PreparedRouteMatch,
 ): RouterMatch<Contracts> {
   const view = catalogViews.get(instance)
+
   if (!view) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   return view.match(route) as RouterMatch<Contracts>
 }
 
 /** Internal default-client/HMR replacement, separate from public plugin IDs. */
 export function replaceRouterBaseCatalog(instance: object, catalog: RouteManifest): void {
   const view = catalogViews.get(instance)
+
   if (!view) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   view.replaceBase(catalog)
 }
 
@@ -191,11 +201,13 @@ export function bindRouterFacade(facade: object, instance: () => RouterInstance<
   if (bindings.has(facade)) {
     throw new Error('Router facade is already bound')
   }
+
   defaultFacades.add(facade)
   bindings.set(facade, (flow) => bindRouterFlow(instance(), flow))
   hostNavigations.set(facade, (flow, commit, action) =>
     runRouterHostNavigation(instance(), flow, commit, action),
   )
+
   catalogViews.set(facade, {
     read: () => readRouterCatalog(instance()),
     replaceBase: (catalog) => replaceRouterBaseCatalog(instance(), catalog),
@@ -215,9 +227,11 @@ export function bindRouterFlow<
   flow: string,
 ): RouterNavigator<Contracts, Stacks, Transitions> {
   const bind = bindings.get(instance)
+
   if (!bind) {
     throw new Error('Router instance is not owned by this runtime')
   }
+
   return bind(flow) as RouterNavigator<Contracts, Stacks, Transitions>
 }
 
@@ -243,9 +257,11 @@ export function createRouter<
   if (ownedHosts.has(configuration.host)) {
     throw new Error('A router host can belong to only one instance')
   }
+
   ownedHosts.add(configuration.host)
   try {
     const instance = constructRouter<Catalog, Stack, Effects>(configuration)
+
     routerHosts.set(instance, configuration.host)
     return instance
   } catch (error) {
@@ -270,9 +286,11 @@ function constructRouter<
       'Router instances require an original catalog from defineRoutes, defineRuntimeRoutes or generated startup',
     )
   }
+
   if ('behaviors' in configuration) {
     throw new TypeError('Client behavior belongs in route definitions, not router options')
   }
+
   const destinationOwner = {}
   const options: RoutePreparationOptions & {
     host: RouterHost
@@ -285,15 +303,19 @@ function constructRouter<
     stacks: configuration.stacks ? [...configuration.stacks] : undefined,
     catalog: snapshotRouteCatalog(configuration.catalog),
   }
+
   const matches = new WeakMap<object, RouterMatch<ContractsOf<Catalog>>>()
   const declaredPaths = new Set(
     options.catalog.routes.filter(hasRouteContract).map((route) => '/' + route.segments.join('/')),
   )
+
   const project = (route: PreparedRouteMatch | null): RouterMatch<ContractsOf<Catalog>> | null => {
     if (!route) {
       return null
     }
+
     let match = matches.get(route)
+
     if (!match) {
       match = {
         ...route,
@@ -305,8 +327,10 @@ function constructRouter<
       // its identity stable so retained-entry operations can check ownership.
       matches.set(match, match)
     }
+
     return match
   }
+
   let transitions: TransitionRegistry = defineTransitions(configuration.transitions ?? {})
   type Contracts = ContractsOf<Catalog>
   type Stacks = 'root' | Stack
@@ -326,6 +350,7 @@ function constructRouter<
     cancel(reason: Cancelled['reason']): void
     cancelForOwner(): void
   }
+
   const pending = new Map<string, Attempt>()
   const active = new Set<Attempt>()
   let disposed = false
@@ -352,6 +377,7 @@ function constructRouter<
       }
     }
   }
+
   const unsubscribe = options.host.subscribe((change) => {
     if (change?.external || change?.ownerDisposed || change?.flowDisposed) {
       for (const [flow, scope] of scopes) {
@@ -360,8 +386,10 @@ function constructRouter<
         }
       }
     }
+
     if (change?.flowDisposed && change.flow) {
       const scope = scopes.get(change.flow)
+
       scope?.dispose()
       scopes.delete(change.flow)
       snapshots.delete(change.flow)
@@ -369,6 +397,7 @@ function constructRouter<
         claimedOrder.delete(change.flow)
       }
     }
+
     if (change?.ownerDisposed || change?.flowDisposed) {
       for (const attempt of active) {
         if (!change.flow || attempt.flow === change.flow) {
@@ -382,8 +411,10 @@ function constructRouter<
         }
       }
     }
+
     notify()
   })
+
   const registry = createRouteRegistry(options.catalog, (catalog) => {
     registryChanging = true
     try {
@@ -400,22 +431,28 @@ function constructRouter<
     } finally {
       registryChanging = false
     }
+
     notify()
   })
+
   const scopeFor = (flow: string): Scope<Contracts, Stacks, Transitions> => {
     if (disposed) {
       throw new Error('Router instance is disposed')
     }
+
     const found = scopes.get(flow)
+
     if (found) {
       return found
     }
+
     const makePreparation = () =>
       createRoutePreparation({
         ...options,
         history: 'independent',
         transitionNames: ['default', 'none', 'fade', ...Object.keys(transitions)],
       })
+
     let preparation = makePreparation()
     let disconnectBlockers = () => {}
     const scope = {
@@ -433,27 +470,35 @@ function constructRouter<
         scope.preparation = preparation
       },
     } as Scope<Contracts, Stacks, Transitions>
+
     const ended: RouterState<Contracts> = {
       route: null,
       navigation: idleNavigation,
       canGoBack: false,
       modal: false,
     }
+
     const snapshot = (): RouterState<Contracts> => {
       if (disposed || scope.disposed) {
         return ended
       }
+
       const previous = snapshots.get(flow)
+
       if (previous) {
         return previous
       }
+
       const host = disposed
         ? { route: null, canGoBack: false, modal: false }
         : options.host.getSnapshot(flow)
+
       const attempt = pending.get(keyFor(flow))
+
       if (host.disposed) {
         return ended
       }
+
       const state = {
         canGoBack: host.canGoBack,
         modal: host.modal,
@@ -463,12 +508,15 @@ function constructRouter<
             ? attempt.navigation
             : (scope.lastFailure?.state ?? idleNavigation),
       }
+
       snapshots.set(flow, state)
       return state
     }
+
     const stackForFlow = () =>
       options.host.getSnapshot(flow).route?.stack ??
       (options.stacks?.includes(flow) ? flow : 'root')
+
     const run = async (
       action: Action,
       input?: unknown,
@@ -477,11 +525,14 @@ function constructRouter<
       if (disposed || scope.disposed) {
         return { status: 'cancelled', reason: 'disposed' }
       }
+
       if (registryChanging) {
         return { status: 'cancelled', reason: 'registry-changed' }
       }
+
       let preflight: NavigationFailure | undefined
       let resolved: RouteResolution | undefined
+
       try {
         input = resolveValidatedDestination(input, destinationOwner)
         if (
@@ -502,11 +553,15 @@ function constructRouter<
       } catch (error) {
         preflight = { status: 'invalid-input', path: 'destination', error }
       }
+
       if (action === 'reset' && !options.host.canReset) {
         preflight = { status: 'unsupported', operation: 'reset' }
       }
+
       const key = keyFor(flow)
+
       pending.get(key)?.cancel('superseded')
+
       let cancelled: Cancelled | undefined
       let committing = false
       let refused = false
@@ -519,14 +574,17 @@ function constructRouter<
         action !== 'refresh' && hasNavigationBlockers(scope.navigator)
           ? undefined
           : createRoutePreparationBatch(preparation)
+
       const preparationBatch = () => (batch ??= createRoutePreparationBatch(preparation))
       const preparedValues = new WeakSet<object>()
       let cancel!: (result: Cancelled) => void
       const cancellation = new Promise<Cancelled>((resolve) => {
         cancel = resolve
       })
+
       const destination =
         resolved?.status === 'matched' ? snapshotDestination(resolved.destination) : null
+
       const navigation = Object.freeze({ status: 'pending' as const, action, destination })
       const attempt = {
         order: ++nextAttempt,
@@ -544,37 +602,48 @@ function constructRouter<
           if (cancelled || (committing && reason === 'superseded')) {
             return
           }
+
           cancelled = { status: 'cancelled', reason }
           if (preparing) {
             preparation.cancel(preparingStack)
           }
+
           cancel(cancelled)
         },
       }
+
       claimedOrder.set(key, attempt.order)
+
       const claims = attempt.claims
+
       active.add(attempt)
       pending.set(key, attempt)
       notify()
+
       const isCurrent = () =>
         !disposed && !cancelled && !refused && (committing || pending.get(key) === attempt)
+
       let finishBlockers!: () => void
       const blockerFinished = new Promise<void>((resolve) => {
         finishBlockers = resolve
       })
+
       let admission: Promise<boolean> | undefined
       let admitted = false
       const admit = (): true | Promise<boolean> => {
         if (admitted || action === 'refresh') {
           return true
         }
+
         if (admission) {
           return admission
         }
+
         if (!hasNavigationBlockers(scope.navigator)) {
           admitted = true
           return true
         }
+
         admission = admitNavigationBlockers(scope.navigator, {
           action,
           destination,
@@ -590,15 +659,19 @@ function constructRouter<
           admitted = allowed
           return allowed
         })
+
         return admission
       }
+
       const beginCommit = () => {
         if (!isCurrent()) {
           return false
         }
+
         committing = true
         return true
       }
+
       const prepareRetained: NonNullable<RouterHostCommand['prepare']> = async (
         value,
         requestedFlow = flow,
@@ -606,27 +679,36 @@ function constructRouter<
         if (!isCurrent()) {
           return cancelled ?? { status: 'cancelled', reason: 'superseded' }
         }
+
         if (committing || preparing) {
           return {
             status: 'unsupported',
             operation: committing ? 'prepare-after-commit' : 'concurrent-host-preparation',
           }
         }
+
         const allowed = admit()
+
         if (allowed !== true && !(await allowed)) {
           return cancelled ?? { status: 'cancelled', reason: 'aborted' }
         }
+
         if (!isCurrent()) {
           return cancelled ?? { status: 'cancelled', reason: 'superseded' }
         }
+
         const expectedStack =
           options.host.getSnapshot(requestedFlow).route?.stack ??
           (options.stacks?.includes(requestedFlow) ? requestedFlow : 'root')
+
         let candidate: RouteResolution
+
         try {
           const destination = resolveValidatedDestination(value, destinationOwner)
+
           if (typeof destination === 'string') {
             const url = preparation.resolveUrl(destination)
+
             if (url.status !== 'matched') {
               return url
             }
@@ -645,13 +727,16 @@ function constructRouter<
         } catch (error) {
           return { status: 'invalid-input', path: 'destination', error }
         }
+
         if (candidate.status !== 'matched') {
           return candidate
         }
+
         preparingStack = candidate.destination.stack
         preparing = true
         try {
           const result = await preparationBatch().prepare(candidate.destination)
+
           if (!isCurrent()) {
             return cancelled ?? { status: 'cancelled', reason: 'superseded' }
           }
@@ -661,12 +746,14 @@ function constructRouter<
           }
 
           redirected ||= result.redirected
+
           const route = result.match
           const targetFlow =
             preparedRedirectStack(route) ??
             (route.stack !== expectedStack ? route.stack : requestedFlow)
 
           const content = routeRenderContent(options.catalog, route)
+
           if (!isCurrent()) {
             return cancelled ?? { status: 'cancelled', reason: 'superseded' }
           }
@@ -688,6 +775,7 @@ function constructRouter<
           preparing = false
         }
       }
+
       const work = async (): Promise<Result> => {
         try {
           if (!isCurrent()) {
@@ -703,6 +791,7 @@ function constructRouter<
           }
 
           const allowed = admit()
+
           if (allowed !== true && !(await allowed)) {
             if (action === 'back' || action === 'forward') {
               // An external browser traversal already moved its URL. The host
@@ -727,9 +816,12 @@ function constructRouter<
           let route: PreparedRouteMatch | undefined
           let redirectFlow: string | undefined
           const refreshing = action === 'refresh' ? snapshot().route : null
+
           if (input !== undefined) {
             preparing = true
+
             const result = await preparationBatch().prepare(input)
+
             preparing = false
             if (!isCurrent()) {
               return cancelled ?? { status: 'cancelled', reason: 'superseded' }
@@ -760,8 +852,10 @@ function constructRouter<
             : flow
 
           const targetKey = keyFor(targetFlow)
+
           if (targetKey !== key) {
             const previous = pending.get(targetKey)
+
             if ((claimedOrder.get(targetKey) ?? 0) > attempt.order) {
               attempt.cancel('superseded')
               return cancelled!
@@ -787,9 +881,11 @@ function constructRouter<
 
           const handed = new WeakSet<object>()
           let handoffs = 0
+
           while (committed.status === 'handoff') {
             const handoff = committed
             const ready = handoff.prepared
+
             if (!isCurrent()) {
               return cancelled ?? { status: 'cancelled', reason: 'superseded' }
             }
@@ -812,13 +908,16 @@ function constructRouter<
             }
 
             handed.add(ready)
+
             const targetKey = keyFor(ready.flow)
+
             if ((claimedOrder.get(targetKey) ?? 0) > attempt.order) {
               attempt.cancel('superseded')
               return cancelled!
             }
 
             const previous = pending.get(targetKey)
+
             if (previous !== attempt) {
               previous?.cancel('superseded')
             }
@@ -869,8 +968,10 @@ function constructRouter<
           return { status: 'failed', phase: 'commit', error }
         }
       }
+
       try {
         const result = await Promise.race([work(), cancellation])
+
         if (claimedOrder.get(key) === attempt.order) {
           if (isNavigationFailure(result)) {
             scope.lastFailure = {
@@ -901,13 +1002,17 @@ function constructRouter<
         notify()
       }
     }
+
     scope.runHost = (action, commit) => run(action, undefined, commit)
+
     const scopedDestination = (value: unknown): unknown => {
       const input = resolveValidatedDestination(value, destinationOwner)
+
       return input !== null && typeof input === 'object' && !Array.isArray(input)
         ? { ...input, stack: (input as RouteDestinationInput).stack ?? stackForFlow() }
         : input
     }
+
     const request = (
       action: 'push' | 'replace' | 'reset',
       destination: NavigationDestination<Contracts, Stacks, Transitions>,
@@ -915,6 +1020,7 @@ function constructRouter<
       if (disposed || scope.disposed) {
         return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
       }
+
       try {
         const input = resolveValidatedDestination(
           destination,
@@ -922,6 +1028,7 @@ function constructRouter<
         ) as RouteDestinationInput
 
         const resolved = preparation.resolveDestination(scopedDestination(destination))
+
         if (resolved.status !== 'matched') {
           return run(action, destination)
         }
@@ -935,6 +1042,7 @@ function constructRouter<
         return run(action, destination)
       }
     }
+
     scope.navigator = {
       push: (destination) => request('push', destination),
       replace: (destination) => request('replace', destination),
@@ -954,8 +1062,10 @@ function constructRouter<
         if (disposed || scope.disposed) {
           return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
         }
+
         if (!disposed) {
           const resolved = preparation.resolveUrl(url)
+
           if (
             resolved.status === 'matched' &&
             resolved.destination.stack &&
@@ -964,6 +1074,7 @@ function constructRouter<
             return scopeFor(resolved.destination.stack).navigator.navigateUrl(url, settings)
           }
         }
+
         return run(settings?.replace ? 'replace' : 'push', url)
       },
       reset: (destination) => request('reset', destination),
@@ -971,9 +1082,11 @@ function constructRouter<
         if (disposed || scope.disposed) {
           return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
         }
+
         if (snapshot().canGoBack) {
           return run('back')
         }
+
         pending.get(keyFor(flow))?.cancel('aborted')
         return settings?.fallback
           ? request('replace', settings.fallback)
@@ -989,7 +1102,9 @@ function constructRouter<
         if (disposed || scope.disposed) {
           return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
         }
+
         const current = snapshot().route
+
         return current ? run('refresh', current.href) : Promise.resolve({ status: 'unmatched' })
       },
       retry: () =>
@@ -1011,20 +1126,25 @@ function constructRouter<
           stack: stackForFlow(),
           base: options.base,
         })
+
         if (checked !== undefined) {
           return checked
         }
+
         const input = resolveValidatedDestination(
           destination,
           destinationOwner,
         ) as RouteDestinationInput
+
         const resolved = preparation.resolveDestination({
           ...input,
           stack: input.stack ?? stackForFlow(),
         })
+
         if (resolved.status !== 'matched') {
           throw new TypeError('Invalid route destination')
         }
+
         return resolved.href
       },
       resolveUrl: (url) => preparation.resolveUrl(url),
@@ -1032,39 +1152,51 @@ function constructRouter<
         if (disposed || scope.disposed) {
           return { status: 'cancelled', reason: 'disposed' }
         }
+
         if (registryChanging) {
           return { status: 'cancelled', reason: 'registry-changed' }
         }
+
         let input: unknown
+
         try {
           input = scopedDestination(value)
         } catch (error) {
           return { status: 'invalid-input', path: 'destination', error }
         }
+
         const source = preparation
         const result = await source.preload(input, settings)
+
         if (disposed || scope.disposed) {
           return { status: 'cancelled', reason: 'disposed' }
         }
+
         if (source !== preparation) {
           return { status: 'cancelled', reason: 'registry-changed' }
         }
+
         if (settings?.signal?.aborted) {
           return { status: 'cancelled', reason: 'aborted' }
         }
+
         return result
       },
       validateDestination: async (value, settings) => {
         if (disposed || scope.disposed) {
           return { status: 'cancelled', reason: 'disposed' }
         }
+
         if (registryChanging) {
           return { status: 'cancelled', reason: 'registry-changed' }
         }
+
         let input: unknown
         let implicitStack: boolean
+
         try {
           const raw = resolveValidatedDestination(value, destinationOwner)
+
           implicitStack =
             raw !== null &&
             typeof raw === 'object' &&
@@ -1078,18 +1210,23 @@ function constructRouter<
 
         const source = preparation
         const result = await source.validateDestination(input, settings)
+
         if (disposed || scope.disposed) {
           return { status: 'cancelled', reason: 'disposed' }
         }
+
         if (source !== preparation) {
           return { status: 'cancelled', reason: 'registry-changed' }
         }
+
         if (settings?.signal?.aborted) {
           return { status: 'cancelled', reason: 'aborted' }
         }
+
         if (result.status !== 'valid') {
           return result
         }
+
         return {
           ...result,
           destination: createValidatedDestination(
@@ -1103,22 +1240,27 @@ function constructRouter<
         if (disposed || scope.disposed) {
           return () => {}
         }
+
         listeners.add(listener)
         return () => {
           listeners.delete(listener)
         }
       },
     }
+
     if (!scope.disposed) {
       disconnectBlockers = connectNavigationBlockers(scope.navigator)
     }
+
     if (scope.disposed) {
       preparation.dispose()
     } else {
       scopes.set(flow, scope)
     }
+
     return scope
   }
+
   const instance: RouterInstance<Contracts, Stacks, Transitions> = {
     ...scopeFor('root').navigator,
     addRoutes: (catalog, settings) => {
@@ -1127,43 +1269,53 @@ function constructRouter<
           'Register original route catalogs; author changes through route builders',
         )
       }
+
       if (registryChanging) {
         throw new Error('Route registry is updating')
       }
+
       return registry.add(catalog, settings)
     },
     forStack: (stack) => {
       if (stack !== 'root' && !options.stacks?.includes(stack)) {
         throw new TypeError('Unknown route stack')
       }
+
       return scopeFor(stack).navigator
     },
     dispose() {
       if (disposed) {
         return
       }
+
       disposed = true
       registry.dispose()
       for (const attempt of active) {
         attempt.cancel('disposed')
       }
+
       for (const scope of scopes.values()) {
         scope.dispose()
       }
+
       pending.clear()
       active.clear()
       claimedOrder.clear()
+
       const errors: unknown[] = []
+
       try {
         unsubscribe()
       } catch (error) {
         errors.push(error)
       }
+
       try {
         options.host.dispose?.()
       } catch (error) {
         errors.push(error)
       }
+
       notify()
       listeners.clear()
       scopes.clear()
@@ -1174,10 +1326,12 @@ function constructRouter<
       }
     },
   }
+
   bindings.set(instance, (flow) => scopeFor(flow).navigator)
   hostNavigations.set(instance, async (flow, commit, action) => {
     await scopeFor(flow).runHost(action, commit)
   })
+
   catalogViews.set(instance, {
     match: (route) => project(route)!,
     read: () => options.catalog,
@@ -1191,8 +1345,10 @@ function constructRouter<
       if (registryChanging) {
         throw new Error('Route registry is updating')
       }
+
       registry.replaceBase(catalog)
     },
   })
+
   return instance
 }

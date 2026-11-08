@@ -12,9 +12,11 @@ export function createDevActionsService(context: WorkspaceContext): DevActionsSe
 
     invoke: async (_app, args) => {
       const permission = await context.policy.require('runtime-actions')
+
       if (!permission.granted) {
         return { ok: false, error: permission.error }
       }
+
       return call({
         command: ['actions', 'invoke'],
         flags: {
@@ -29,9 +31,11 @@ export function createDevActionsService(context: WorkspaceContext): DevActionsSe
 
     async describeJob(jobId) {
       const result = await call({ command: ['actions', 'status'], positionals: [jobId] })
+
       if (!result.ok) {
         return null
       }
+
       return result.data as { job: Job; [key: string]: unknown }
     },
   }

@@ -42,6 +42,7 @@ export function desktopHostClient(): HostClient<FrameworkHostServices, Framework
   }
 
   const transport = createWebKitTransport()
+
   client = transport
     ? createHostClient<FrameworkHostServices, FrameworkHostEvents>(transport)
     : null
@@ -64,6 +65,7 @@ export function desktopHostSupports<Service extends keyof FrameworkHostServices 
   method: keyof FrameworkHostServices[Service] & string,
 ): Promise<boolean> {
   const host = desktopHostClient()
+
   if (!host) {
     return Promise.resolve(false)
   }
@@ -78,6 +80,7 @@ export function desktopHostSupports<Service extends keyof FrameworkHostServices 
 /** Typed desktop service facade; null outside a supported native webview. */
 export function desktopHost(): DesktopHost | null {
   const host = desktopHostClient()
+
   if (!host) {
     return null
   }

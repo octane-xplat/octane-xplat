@@ -32,6 +32,7 @@ describe('controlled text input', () => {
   it('round-trips typed text through onChange', async () => {
     const { view } = await mountXplat(EchoForm)
     const field = findByTestId<TextInputView>(view, 'echo.field')
+
     expect(field?.isLoaded, 'TextInput resolves to a loaded native field').toBe(true)
 
     await enterText(field!, 'hello xplat')
@@ -43,6 +44,7 @@ describe('controlled text input', () => {
   it('applies the parent-owned value to the native field', async () => {
     const { view } = await mountXplat(SeededInput, { initial: 'preset' })
     const field = findByTestId<TextInputView>(view, 'seeded.field')
+
     expect(field?.text, 'imperative controlled write reaches the native field').toBe('preset')
   })
 })

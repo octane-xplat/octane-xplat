@@ -34,16 +34,20 @@ function ambientFiles(packageName) {
   const queue = [entry]
   const files = []
   const requireFor = createRequire(entry)
+
   while (queue.length) {
     const file = queue.shift()
+
     if (seen.has(file) || !existsSync(file)) {
       continue
     }
 
     seen.add(file)
     files.push(file)
+
     const source = readFileSync(file, 'utf8')
     const info = ts.preProcessFile(source, false, true)
+
     for (const ref of info.referencedFiles) {
       queue.push(resolve(dirname(file), ref.fileName))
     }
@@ -71,6 +75,7 @@ function ambientFiles(packageName) {
 function mergeInto(target, source) {
   for (const [k, v] of source) {
     const existing = target.get(k)
+
     if (existing?.kind === 'namespace' && v.kind === 'namespace') {
       existing.members = existing.members ?? new Map()
       mergeInto(existing.members, v.members ?? new Map())
@@ -87,6 +92,7 @@ function collect(files) {
   const namespaces = new Map() // name -> Map<memberName, member>
   const addGlobal = (name, type, value) => {
     const e = globals.get(name) ?? { type: false, value: false }
+
     e.type ||= type
     e.value ||= value
     globals.set(name, e)
@@ -110,6 +116,7 @@ function collect(files) {
         for (const el of stmt.exportClause.elements) {
           const alias = el.name.text
           const target = el.propertyName?.text ?? alias
+
           members.set(alias, { name: alias, kind: 'alias', target, members: null })
         }
 
@@ -117,8 +124,10 @@ function collect(files) {
       }
 
       const name = stmt.name?.text
+
       if (ts.isModuleDeclaration(stmt)) {
         const body = stmt.body
+
         if (body && ts.isModuleBlock(body)) {
           const nested = members.get(name) ?? {
             name,
@@ -167,18 +176,22 @@ function collect(files) {
 
   for (const file of files) {
     const sf = ts.createSourceFile(file, readFileSync(file, 'utf8'), ts.ScriptTarget.Latest, true)
+
     for (const stmt of sf.statements) {
       if (ts.isModuleDeclaration(stmt) && stmt.body && ts.isModuleBlock(stmt.body)) {
         const name = stmt.name.text
+
         if (name === 'global') {
           // `declare global {}` inside a module file (objc-node-api)
           for (const g of stmt.body.statements) {
             if (ts.isModuleDeclaration(g) && g.body && ts.isModuleBlock(g.body)) {
               const ns = namespaces.get(g.name.text) ?? new Map()
+
               mergeInto(ns, membersOf(g.body))
               namespaces.set(g.name.text, ns)
             } else {
               const gname = g.name?.text
+
               if (gname) {
                 if (ts.isClassDeclaration(g)) {
                   addGlobal(gname, true, true)
@@ -206,12 +219,14 @@ function collect(files) {
         }
 
         const ns = namespaces.get(name) ?? new Map()
+
         mergeInto(ns, membersOf(stmt.body))
         namespaces.set(name, ns)
         continue
       }
 
       const name = stmt.name?.text
+
       if (name) {
         const kind = ts.isClassDeclaration(stmt)
           ? 'class'
@@ -311,8 +326,10 @@ function generate(platform, packageName) {
   // .decls.d.ts: type intermediates aliasing the ambient globals. Names are
   // suffixed so an export here never self-shadows its ambient target.
   const decls = [HEADER]
+
   for (const [name, f] of [...globals.entries()].sort()) {
     const p = params.get(name)
+
     if (f.type) {
       decls.push(`export type ${name}_t${p?.decl ?? ''} = ${name}${p?.args ?? ''}`)
     }
@@ -343,6 +360,7 @@ function generate(platform, packageName) {
 
   for (const [name, f] of [...globals.entries()].sort()) {
     const p = params.get(name)
+
     if (f.type) {
       impl.push(`export type ${name}${p?.decl ?? ''} = D.${name}_t${p?.args ?? ''}`)
     }

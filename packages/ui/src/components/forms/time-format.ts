@@ -184,16 +184,19 @@ export function formatInstant(
 
     case 'system_date': {
       const w = getWallClock(date, timeZone)
+
       return `${w.year}-${pad(w.month)}-${pad(w.day)}`
     }
 
     case 'system_date_time': {
       const w = getWallClock(date, timeZone)
+
       return `${w.year}-${pad(w.month)}-${pad(w.day)} ${pad(w.hour)}:${pad(w.minute)}:${pad(w.second)}`
     }
 
     case 'system_time': {
       const w = getWallClock(date, timeZone)
+
       return `${pad(w.hour)}:${pad(w.minute)}:${pad(w.second)}`
     }
 
@@ -228,6 +231,7 @@ function getFormatter(
 ): Intl.RelativeTimeFormat {
   const key = JSON.stringify([locale, style, numeric])
   let formatter = formatters.get(key)
+
   if (formatter == null) {
     formatter = new Intl.RelativeTimeFormat(locale, { numeric, style })
     formatters.set(key, formatter)
@@ -255,6 +259,7 @@ export function formatRelativeTime(
 
   let count: number
   let unit: RelativeTimeUnit
+
   if (absDiff < MINUTE) {
     count = absDiff
     unit = 'second'
@@ -279,6 +284,7 @@ export function formatRelativeTime(
   // The long form keeps the "yesterday" idiom; the narrow form stays numeric
   // ("1d ago", not "yesterday").
   const numeric = style === 'long' && unit === 'day' && value === -1 ? 'auto' : 'always'
+
   return getFormatter(locale, style, numeric).format(value, unit)
 }
 
@@ -397,6 +403,7 @@ export function parseTimestampValue(
 /** Interval (ms) for a live relative timestamp's next update. */
 export function getLiveInterval(diffSeconds: number): number {
   const absDiff = Math.abs(diffSeconds)
+
   if (absDiff < MINUTE) {
     return 1000
   }

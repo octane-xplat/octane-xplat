@@ -28,6 +28,7 @@ export function subscribeAppKitEvent<Args extends unknown[]>(
       listener(...args)
     }
   }
+
   listeners.add(dispatch)
   return {
     dispatch,
@@ -35,6 +36,7 @@ export function subscribeAppKitEvent<Args extends unknown[]>(
       if (!active) {
         return
       }
+
       active = false
       listeners.delete(dispatch)
     },

@@ -26,8 +26,11 @@ describe('native compiled hosts', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const done = vi.fn()
+
     root.render(NativeBox, { x: 50, done })
+
     const node: any = container.children[0]
+
     expect(node.translateX).toBe(50)
     await new Promise((resolve) => setTimeout(resolve, 0))
     expect(done).toHaveBeenCalledTimes(1)
@@ -46,6 +49,7 @@ describe('native compiled hosts', () => {
 
 import { useEffect } from 'octane'
 import { Presence } from './index'
+
 let nativeCleanups = 0
 function NativeChild() @{
   useEffect(
@@ -68,12 +72,16 @@ describe('native presence lifecycle', () => {
   it('retains and reverses a live subtree, then removes exactly once', async () => {
     vi.useFakeTimers()
     nativeCleanups = 0
+
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const done = vi.fn()
+
     root.render(NativePresence, { present: true, done })
+
     const boundary: any = container.children[0]
     const child = boundary.children[0]
+
     root.render(NativePresence, { present: false, done })
     expect(boundary.isUserInteractionEnabled).toBe(false)
     expect(nativeCleanups).toBe(0)
@@ -97,6 +105,7 @@ describe('native presence lifecycle', () => {
 })
 
 import { signal$ } from 'octane/signals'
+
 const destination$ = signal$(0)
 function NativeSignal() @{
   <motion.Pressable
@@ -109,8 +118,11 @@ function NativeSignal() @{
 it('retargets a retained native host on a signal write', () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(NativeSignal, {})
+
   const node: any = container.children[0]
+
   flushUniversalSync(() => container.dispatchEvent(node, 'tap', {}))
   expect(container.children[0]).toBe(node)
   expect(node.translateX).toBe(75)
@@ -138,9 +150,12 @@ function NativeDrag() @{
 it('drives the retained native host from its handler and snaps reduced settlement', () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(NativeDrag, {})
+
   const node: any = container.children[0]
   const handler = handlers.findLast((h) => h.node === node)
+
   expect(handler).toBeDefined()
   handler.emit(GestureHandlerStateEvent, {
     state: GestureState.ACTIVE,
@@ -184,9 +199,12 @@ function NativeVariants(props: any) @{
 it('propagates variant labels to retained native children', async () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(NativeVariants, { label: 'show' })
   await new Promise((resolve) => setTimeout(resolve, 0))
+
   const child: any = container.children[0].children[0]
+
   expect(child.translateX).toBe(70)
   flushUniversalSync(() => root.render(NativeVariants, { label: 'hide' }))
   await new Promise((resolve) => setTimeout(resolve, 0))
@@ -198,9 +216,12 @@ it('propagates variant labels to retained native children', async () => {
 it('retargets native inherited custom resolvers with an unchanged parent label', async () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(NativeVariants, { label: 'show', custom: 30 })
   await new Promise((resolve) => setTimeout(resolve, 0))
+
   const child: any = container.children[0].children[0]
+
   expect(child.translateX).toBe(30)
   flushUniversalSync(() => root.render(NativeVariants, { label: 'show', custom: 50 }))
   await new Promise((resolve) => setTimeout(resolve, 0))

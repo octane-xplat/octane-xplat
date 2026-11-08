@@ -34,7 +34,9 @@ describe('Image recyclingKey', () => {
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
 
     root.render(Image, { src: 'https://img/1.png', recyclingKey: 'a' })
+
     const host = container.children[0] as any
+
     // The sized binding holds src until the view reports a real layout.
     host.getMeasuredWidth = () => 800
     host.getMeasuredHeight = () => 600

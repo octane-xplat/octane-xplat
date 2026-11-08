@@ -109,6 +109,7 @@ function stringArrayValue(node: ts.Node): string[] | undefined {
   }
 
   const values = node.elements.map(stringValue)
+
   return values.every((value) => value !== undefined) ? (values as string[]) : undefined
 }
 
@@ -135,6 +136,7 @@ function property(object: ts.Expression, key: string) {
 
 function arrayDeclaration(path: string, name: string, kind: ts.ScriptKind) {
   const source = parse(path, kind)
+
   for (const statement of source.statements) {
     if (!ts.isVariableStatement(statement)) {
       continue
@@ -157,6 +159,7 @@ function arrayDeclaration(path: string, name: string, kind: ts.ScriptKind) {
 function exportNames(path: string) {
   const source = parse(path)
   const names = new Set<string>()
+
   for (const statement of source.statements) {
     if (ts.isExportAssignment(statement)) {
       throw new Error(`${path}: parity coverage needs named exports`)
@@ -225,6 +228,7 @@ function packageEntry(packageRoot: string, condition: string) {
   const manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   const entry = manifest.exports?.['.']?.[condition]
   const runtime = typeof entry === 'string' ? entry : entry?.default
+
   if (typeof runtime !== 'string') {
     throw new Error(`${manifestPath}: expected a string "${condition}" export for "."`)
   }
@@ -238,6 +242,7 @@ for (const pkg of ['pager', 'video', 'drawer']) {
   const packageRoot = join(root, `packages/${pkg}`)
   const web = exportNames(packageEntry(packageRoot, 'web'))
   const native = exportNames(packageEntry(packageRoot, 'native'))
+
   for (const name of web) {
     if (native.has(name)) {
       sharedRendererExports.add(name)
@@ -268,11 +273,14 @@ interface FixtureEntry {
 }
 
 const fixtures: FixtureEntry[] = []
+
 for (const file of globSync('packages/*/src/**/*.parity.tsrx', { cwd: root })) {
   const expectedComponent = basename(file).replace(/\.parity\.tsrx$/, '')
+
   for (const element of arrayDeclaration(join(root, file), 'PARITY', ts.ScriptKind.TSX)) {
     const name = stringValue(property(element, 'name'))
     const component = stringValue(property(element, 'component'))
+
     if (!name || !component) {
       errors.push(`${file}: each fixture needs literal name and component fields`)
       continue
@@ -293,9 +301,11 @@ for (const file of globSync('packages/*/src/**/*.parity.tsrx', { cwd: root })) {
 const checkFixtures = new Set<string>()
 const checkTargetsByFixture = new Map<string, Set<string>>()
 const checkFileByFixture = new Map<string, string>()
+
 for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root })) {
   for (const element of arrayDeclaration(join(root, file), 'CHECKS', ts.ScriptKind.TS)) {
     const fixture = stringValue(property(element, 'fixture'))
+
     if (!fixture) {
       continue
     }
@@ -306,8 +316,10 @@ for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root }
 
     checkFixtures.add(fixture)
     checkFileByFixture.set(fixture, file)
+
     const targetsNode = property(element, 'targets')
     const targets = targetsNode === undefined ? ALL_TARGETS : stringArrayValue(targetsNode)
+
     if (
       !targets ||
       targets.length === 0 ||
@@ -325,6 +337,7 @@ const fixtureNames = new Set<string>()
 const fixtureFileByName = new Map<string, string>()
 const coveredComponents = new Set<string>()
 const requiredTargetComponents = new Set<string>()
+
 for (const fixture of fixtures) {
   if (fixtureNames.has(fixture.name)) {
     errors.push(`duplicate fixture name: ${fixture.name}`)
@@ -348,6 +361,7 @@ for (const fixture of fixtures) {
   // The fixture/check pair must share a component file — a check that lives
   // under another component's file breaks the co-location contract.
   const checkFile = checkFileByFixture.get(fixture.name)
+
   if (checkFile && basename(checkFile).replace(/\.parity\.check\.ts$/, '') !== fixture.component) {
     errors.push(
       `${fixture.name}: assertion lives in ${checkFile} — keep it in ${fixture.component}.parity.check.ts`,
@@ -356,6 +370,7 @@ for (const fixture of fixtures) {
 
   const checkTargets = checkTargetsByFixture.get(fixture.name)
   const missingTargets = REQUIRED_TARGETS.filter((target) => !checkTargets?.has(target))
+
   if (missingTargets.length) {
     errors.push(
       `${fixture.name}: measured assertion must include required targets ${missingTargets.join(', ')}`,
@@ -374,6 +389,7 @@ for (const fixture of checkFixtures) {
 }
 
 const deferredComponents = new Set<string>()
+
 for (const group of DEFERRED_GROUPS) {
   if (!group.reason.trim()) {
     errors.push('deferred coverage groups need a reason')
@@ -389,6 +405,7 @@ for (const group of DEFERRED_GROUPS) {
 }
 
 const deferredFacetComponents = new Set<string>()
+
 for (const group of DEFERRED_FACETS) {
   if (!group.reason.trim()) {
     errors.push('deferred parity facets need a reason')

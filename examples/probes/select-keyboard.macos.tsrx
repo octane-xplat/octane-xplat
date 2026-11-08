@@ -14,6 +14,7 @@ const options = [
 export default function SelectKeyboardProbe() {
   const [fruit, setFruit] = useState<string | null>('apple')
   const [many, setMany] = useState<string[]>(['apple'])
+
   return (
     <VStack gap={2}>
       <label text="Use arrows, Home/End, Enter/Space, Escape and Tab. Search preserves text-editing keys." />

@@ -14,9 +14,11 @@ export function SegmentedControlItem(props: SegmentedControlItemProps): unknown 
   const blocked = disabled || ctx?.isReadOnly
   const view = useRef<NSView | null>(null)
   const live = useRef({ props, ctx, blocked })
+
   live.current = { props, ctx, blocked }
   useEffect(() => {
     const segment = view.current
+
     if (!segment || !ctx) {
       return
     }

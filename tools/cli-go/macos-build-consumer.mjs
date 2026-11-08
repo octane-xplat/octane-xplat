@@ -32,6 +32,7 @@ const scratch = scratchRun(root, 'macos-build'),
 
 mkdirSync(app)
 mkdirSync(packs)
+
 const evidence = { platform: process.platform, arch: process.arch, checks: [] }
 function checked(message) {
   evidence.checks.push(message)
@@ -55,6 +56,7 @@ function run(command, args, cwd = app, extra = {}) {
       ...extra,
     },
   })
+
   assert.equal(result.status, 0, result.stdout + result.stderr + (result.error?.message ?? ''))
   return result.stdout + result.stderr
 }
@@ -66,6 +68,7 @@ function write(path, value) {
 
 function pack(path) {
   const manifest = JSON.parse(readFileSync(join(root, path, 'package.json')))
+
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], join(root, path))
   return join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)
 }
@@ -87,6 +90,7 @@ function snapshot(path) {
       }
     }
   }
+
   visit(path)
   return files
 }
@@ -96,6 +100,7 @@ try {
     cPack = pack('packages/cli/test/fixtures/macos-native-leaves/c')
 
   evidence.workerTarballBytes = lstatSync(workerPack).size
+
   const manifest = {
     name: 'macos-build-consumer',
     private: true,
@@ -132,18 +137,22 @@ try {
   )
 
   const config = `export default {build:{outDir:'dist',lib:{entry:'src/main.macos.js',formats:['cjs'],fileName:'main'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}};\n`
+
   write(join(app, 'vite.config.mjs'), config)
   run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'])
+
   const installed = JSON.parse(
     readFileSync(join(app, 'node_modules/@octane-xplat/macos-build/package.json')),
   )
 
   assert.equal(installed.dependencies, undefined)
   assert.equal(existsSync(join(app, 'node_modules/@octane-xplat/cli')), false)
+
   const release = join(app, 'artifacts/macos-universal'),
     stage = join(release, '.xplat-macos-raw')
 
   mkdirSync(stage, { recursive: true })
+
   const input = join(scratch, 'request.json'),
     output = join(scratch, 'result.json')
 
@@ -163,7 +172,9 @@ try {
   ])
 
   const result = JSON.parse(readFileSync(output))
+
   assert.equal(result.ok, true, JSON.stringify(result))
+
   const staged = result.data.appPath,
     stagedDmg = result.data.dmgPath
 
@@ -177,7 +188,9 @@ try {
   run('codesign', ['--verify', '--deep', '--strict', staged])
   run('hdiutil', ['verify', stagedDmg])
   assert.match(run(join(staged, 'Contents/MacOS/XplatWorker'), []), /XPLAT_MACOS_VALUE=40/)
+
   const expected = snapshot(staged)
+
   evidence.appPayloadHashes = expected
   evidence.builtArchitectures = run('lipo', ['-archs', join(staged, 'Contents/MacOS/XplatWorker')])
     .trim()
@@ -231,7 +244,9 @@ try {
     )
 
     assert.equal(missing.status, 1, missing.stdout + missing.stderr)
+
     const rejected = JSON.parse(readFileSync(output))
+
     assert.equal(rejected.error.code, 'prerequisite_missing')
     assert.match(rejected.error.message, /Install octane in the selected project/)
   } finally {
@@ -240,6 +255,7 @@ try {
   }
 
   checked('global Node module paths cannot supply a missing selected-project dependency')
+
   // Test-only oracle uses the canonical TypeScript operation, never a runtime CLI fallback.
   const saved = {
     MACOS_SIGNING_IDENTITY: process.env.MACOS_SIGNING_IDENTITY,
@@ -263,6 +279,7 @@ try {
   }
 
   const final = join(release, 'XplatWorker.app')
+
   assert.deepEqual(
     snapshot(final),
     expected,

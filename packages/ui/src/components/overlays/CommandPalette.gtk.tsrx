@@ -38,6 +38,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
   const input = useRef<any>(null)
   const rows = useRef(new Map<string, any>())
   const groups = useMemo(() => groupTypeaheadItems(state.results), [state.results])
+
   useEffect(() => {
     if (!state.open) {
       return
@@ -74,6 +75,7 @@ function PaletteBody<T extends CommandPaletteItem>(props: {
   useEffect(() => {
     const timer = setTimeout(() => {
       const id = state.highlighted ?? state.results[0]?.id
+
       scrollCommandPaletteHighlight(rows.current.get(id ?? ''))
     }, 0)
 
@@ -231,6 +233,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   options: CommandPaletteProps<T>,
 ): unknown @{
   const controller = useMemo(() => createCommandPaletteController(() => options), [])
+
   useEffect(
     () => controller.configure(options),
     [
@@ -245,6 +248,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
   )
 
   useEffect(() => () => controller.dispose(), [])
+
   // Results belong to the portal body; only visibility updates this owner.
   const open = useStore(controller.store, (state) => state.open)
   const sentinel = useRef<any>(null)
@@ -264,6 +268,7 @@ export function CommandPalette<T extends CommandPaletteItem>(
     }
 
     const view = sentinel.current
+
     if (!view) {
       return
     }

@@ -10,6 +10,7 @@ export function response(
   const normalized = new Map(
     Object.entries(headers).map(([key, value]) => [key.toLowerCase(), value]),
   )
+
   return {
     status,
     ok: status >= 200 && status < 300,
@@ -19,14 +20,18 @@ export function response(
       if (consumed) {
         throw new Error('Response body was already consumed')
       }
+
       consumed = true
+
       let bytes = 0
       const reader = body.getReader()
       const decoder = new Decoder('utf-8', { fatal: true })
       let text = ''
+
       try {
         while (true) {
           const next = await reader.read()
+
           if (next.done) {
             break
           }

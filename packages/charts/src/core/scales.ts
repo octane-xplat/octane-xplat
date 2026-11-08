@@ -31,9 +31,11 @@ export interface ResolvedSeries {
 export function categoryDomain(data: SeriesSpec[]): string[] {
   const seen = new Set<string>()
   const out: string[] = []
+
   for (const series of data) {
     for (const d of series.values) {
       const key = String(d.x)
+
       if (!seen.has(key)) {
         seen.add(key)
         out.push(key)
@@ -57,6 +59,7 @@ export function inferXKind(type: ChartType, data: SeriesSpec[]): XScaleKind {
   }
 
   const first = data[0]?.values[0]?.x
+
   if (first instanceof Date) {
     return 'time'
   }
@@ -78,6 +81,7 @@ export function buildXScale(kind: XScaleKind, data: SeriesSpec[], width: number)
         .paddingOuter(0.15)
     case 'point': {
       const domain = categoryDomain(data)
+
       return scalePoint<string>()
         .domain(domain)
         .range([0, width])
@@ -86,8 +90,10 @@ export function buildXScale(kind: XScaleKind, data: SeriesSpec[], width: number)
     case 'time': {
       const values = data.flatMap((s) => s.values.map((d) => d.x as Date))
       const [lo, hi] = extent(values)
+
       if (lo === undefined || hi === undefined) {
         const now = new Date()
+
         return scaleTime().domain([now, now]).range([0, width])
       }
 
@@ -99,6 +105,7 @@ export function buildXScale(kind: XScaleKind, data: SeriesSpec[], width: number)
     case 'linear': {
       const values = data.flatMap((s) => s.values.map((d) => Number(d.x)))
       const [lo, hi] = extent(values)
+
       return scaleLinear()
         .domain(padDomain(lo ?? 0, hi ?? 1))
         .range([0, width])
@@ -120,6 +127,7 @@ export function yDomain(data: SeriesSpec[], type: ChartType, stacked: boolean): 
   if (stacked && type === 'bar') {
     const pos = new Map<string, number>()
     const neg = new Map<string, number>()
+
     for (const series of data) {
       for (const d of series.values) {
         if (!Number.isFinite(d.y)) {
@@ -127,6 +135,7 @@ export function yDomain(data: SeriesSpec[], type: ChartType, stacked: boolean): 
         }
 
         const key = String(d.x)
+
         if (d.y >= 0) {
           pos.set(key, (pos.get(key) ?? 0) + d.y)
         } else {
@@ -137,6 +146,7 @@ export function yDomain(data: SeriesSpec[], type: ChartType, stacked: boolean): 
 
     const hi = Math.max(0, ...pos.values())
     const lo = Math.min(0, ...neg.values())
+
     return lo === hi ? [0, 1] : [lo, hi]
   }
 
@@ -144,8 +154,10 @@ export function yDomain(data: SeriesSpec[], type: ChartType, stacked: boolean): 
   const [lo, hi] = extent(values)
   const min = lo ?? 0
   const max = hi ?? 1
+
   if (type === 'bar' || type === 'area') {
     const domain: [number, number] = [Math.min(0, min), Math.max(0, max)]
+
     return domain[0] === domain[1] ? [0, 1] : domain
   }
 
@@ -161,6 +173,7 @@ export function buildYScale(domain: [number, number], height: number): YScale {
 export function xCenter(kind: XScaleKind, scale: XScale, value: number | string | Date): number {
   if (kind === 'band') {
     const band = scale as ScaleBand<string>
+
     return (band(String(value)) ?? NaN) + band.bandwidth() / 2
   }
 

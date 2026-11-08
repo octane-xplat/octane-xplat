@@ -16,6 +16,7 @@ test('native leaf registers firebase().crashlytics() before first use', async ()
     log: (message) => calls.push(['log', message]),
     recordError: (error) => calls.push(['recordError', error]),
   }
+
   const globals = {
     exports: {},
     require(id) {
@@ -45,6 +46,7 @@ test('native leaf registers firebase().crashlytics() before first use', async ()
   vm.runInNewContext(source, globals)
 
   const { crashlytics } = globals.exports
+
   assert.deepEqual(imports, ['@nativescript/firebase-core', '@nativescript/firebase-crashlytics'])
   assert.equal(crashlytics.supported, true)
   assert.equal(
@@ -52,6 +54,7 @@ test('native leaf registers firebase().crashlytics() before first use', async ()
     'function',
     'accessor installed at module evaluation, before first use',
   )
+
   crashlytics.log('breadcrumb')
   crashlytics.recordError(new Error('handled'))
   assert.deepEqual(calls[0], ['log', 'breadcrumb'])

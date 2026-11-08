@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 
 const host = process.env.GLOBAL_SHORTCUTS_LINUX_HOST
+
 assert.ok(host, 'Set GLOBAL_SHORTCUTS_LINUX_HOST to an SSH host with Docker (e.g. andromeda)')
 
 const quote = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
@@ -27,6 +28,7 @@ const run = (script, input) =>
 const id = randomUUID().replaceAll('-', '').slice(0, 12)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-global-shortcuts-gtk-'))
 let remote
+
 try {
   await build({
     configFile: false,

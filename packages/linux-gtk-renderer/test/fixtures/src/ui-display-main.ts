@@ -4,6 +4,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { Probe } from './ui-display.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK Display test',
   default_width: 900,
@@ -12,7 +13,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -46,6 +49,7 @@ function hasText(needle: string): boolean {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -91,6 +95,7 @@ async function run() {
   ]) {
     check(`mounts ${id}`, !!node(id))
   }
+
   check('Heading renders text', hasText('Title'))
   check('Kbd renders text', hasText('⌘K'))
   check('Code renders text', hasText('inline()'))
@@ -108,6 +113,7 @@ async function run() {
     'styled applies base class',
     (node('styled')?.view?.get_css_name?.() ?? '').length > 0 || !!node('styled'),
   )
+
   root.unmount()
   await pause(200)
   check('unmount releases nodes', container.nodes.size === 0)
@@ -120,12 +126,14 @@ async function run() {
         gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
 }
 
 let failed = false
+
 run()
   .catch((error) => {
     failed = true

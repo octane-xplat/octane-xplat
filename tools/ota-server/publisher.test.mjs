@@ -9,8 +9,11 @@ import { createFingerprintAsync, NATIVE_FINGERPRINT_FORMAT } from '@octane-xplat
 
 test('publisher dry run gates production payloads by their actual recorded native inputs', async (t) => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-publisher-'))
+
   t.after(() => rm(root, { recursive: true, force: true }))
+
   const app = join(root, 'output')
+
   await mkdir(app)
   await mkdir(join(root, 'App_Resources/iOS'), { recursive: true })
   await mkdir(join(root, '.xplat/fingerprints'), { recursive: true })
@@ -19,9 +22,11 @@ test('publisher dry run gates production payloads by their actual recorded nativ
     join(root, 'pnpm-lock.yaml'),
     'lockfileVersion: 9.0\nimporters: {.: {}}\npackages: {}\n',
   )
+
   await writeFile(join(root, 'App_Resources/iOS/Bridge.swift'), 'func bridge() {}')
   await writeFile(join(app, 'package.json'), '{"main":"bundle"}')
   await writeFile(join(app, 'bundle.mjs'), 'export const version = 2')
+
   const toolchain = { configuration: 'release', fixtureCompiler: '1' }
   const fingerprint = await createFingerprintAsync(root, { platforms: ['ios'], toolchain })
   const metadata = {
@@ -30,11 +35,13 @@ test('publisher dry run gates production payloads by their actual recorded nativ
     platform: 'ios',
     release: true,
   }
+
   await writeFile(join(app, 'xplat-native.json'), JSON.stringify(metadata))
   await writeFile(
     join(root, '.xplat/fingerprints/ios.json'),
     JSON.stringify({ ...metadata, toolchain, sources: fingerprint.sources }),
   )
+
   const publish = () =>
     spawnSync(
       process.execPath,
@@ -52,7 +59,9 @@ test('publisher dry run gates production payloads by their actual recorded nativ
       ],
       { encoding: 'utf8', timeout: 30000 },
     )
+
   let result = publish()
+
   assert.equal(result.status, 0, result.stderr)
   assert.ok(result.stdout.includes('channels/stable/ios/' + fingerprint.hash + '.json'))
   await writeFile(join(app, 'bundle.mjs'), 'export const version = 3')

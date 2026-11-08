@@ -8,11 +8,13 @@ export async function imageAttachment(asset: Asset): Promise<ImageResult> {
   if ((await asset.getMediaType()) !== MediaType.IMAGE) {
     throw new Error('Select a still image for this attachment')
   }
+
   const uri = await asset.getUri()
   let context: ReturnType<typeof ImageManipulator.manipulate> | undefined
   let image:
     | Awaited<ReturnType<ReturnType<typeof ImageManipulator.manipulate>['renderAsync']>>
     | undefined
+
   try {
     context = ImageManipulator.manipulate(uri, { maxWidth: 1200, maxHeight: 1200 })
     image = await context.renderAsync()

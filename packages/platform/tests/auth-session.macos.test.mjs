@@ -61,7 +61,9 @@ function load({
           if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) {
             throw Error('observer failed')
           }
+
           const token = { name, object, callback }
+
           observers.add(token)
           onObserve?.(token)
           return token
@@ -70,6 +72,7 @@ function load({
           if (failure === 'remove') {
             throw Error('remove failed')
           }
+
           observers.delete(token)
         },
       },
@@ -86,6 +89,7 @@ function load({
 
           let provider = null,
             ephemeral = false
+
           const session = {
             completion,
             url,
@@ -172,6 +176,7 @@ test('macOS success, cancellation, errors and empty completion release the sessi
   ]) {
     const h = load()
     const first = open(h)
+
     assert.equal(h.sessions[0].prefersEphemeralWebBrowserSession, true)
     assert.ok(h.sessions[0].presentationContextProvider)
     assert.equal((await open(h)).type, 'error')
@@ -179,7 +184,9 @@ test('macOS success, cancellation, errors and empty completion release the sessi
     assert.equal((await first).type, type)
     assert.equal(h.observers.size, 0)
     assert.equal(h.sessions[0].presentationContextProvider, null)
+
     const second = open(h)
+
     // Late completion from a previous attempt must not release the new one.
     h.sessions[0].completion(null, null)
     assert.equal((await open(h)).type, 'error')
@@ -197,6 +204,7 @@ test('macOS setup exceptions, failed start and absent windows resolve errors wit
     { presentationWindow: null },
   ]) {
     const h = load(options)
+
     assert.equal((await open(h)).type, 'error')
     assert.doesNotMatch((await open(h)).message, /already active/)
   }
@@ -204,6 +212,7 @@ test('macOS setup exceptions, failed start and absent windows resolve errors wit
 
 test('macOS validates launch URL/scheme and reports unavailable capability honestly', async () => {
   const h = load()
+
   for (const [url, scheme] of [
     ['file:///login', 'sample'],
     ['https://invalid', 'sample'],
@@ -215,6 +224,7 @@ test('macOS validates launch URL/scheme and reports unavailable capability hones
   }
 
   const absent = load({ available: false }).auth
+
   assert.equal(absent.supported, false)
   assert.equal(await absent.isAvailable(), false)
   await assert.rejects(absent.open('https://example.test/login', { callbackScheme: 'sample' }), {
@@ -231,8 +241,10 @@ test('macOS snapshots callback scheme and ephemeral options for the whole attemp
     },
     prefersEphemeralSession: true,
   }
+
   const h = load()
   const pending = h.auth.open('https://example.test/login', options)
+
   Object.defineProperty(options, 'callbackScheme', { value: 'other' })
   options.prefersEphemeralSession = false
   assert.equal(reads, 1)
@@ -240,8 +252,10 @@ test('macOS snapshots callback scheme and ephemeral options for the whole attemp
   assert.equal(h.sessions[0].prefersEphemeralWebBrowserSession, true)
   h.sessions[0].completion({ absoluteString: 'sample://callback' }, null)
   assert.equal((await pending).type, 'success')
+
   const mutated = { callbackScheme: 'sample' }
   const second = h.auth.open('https://example.test/login', mutated)
+
   mutated.callbackScheme = 'other'
   h.sessions[1].completion({ absoluteString: 'other://callback' }, null)
   assert.equal((await second).type, 'error')
@@ -250,9 +264,11 @@ test('macOS snapshots callback scheme and ephemeral options for the whole attemp
 test('macOS pins the initiating window and rejects foreign/stale anchor requests', async () => {
   const h = load(),
     firstWindow = h.app.keyWindow
+
   const pending = open(h),
     session = h.sessions[0],
     provider = session.presentationContextProvider
+
   h.app.keyWindow = { visible: true }
   assert.equal(provider.presentationAnchorForWebAuthenticationSession(session), firstWindow)
   assert.equal(provider.presentationAnchorForWebAuthenticationSession({}), null)
@@ -261,11 +277,14 @@ test('macOS pins the initiating window and rejects foreign/stale anchor requests
     provider.presentationAnchorForWebAuthenticationSession({ sameSession: true }),
     firstWindow,
   )
+
   firstWindow.visible = false
   assert.equal(provider.presentationAnchorForWebAuthenticationSession(session), null)
   session.completion(null, null)
   await pending
+
   const second = open(h)
+
   assert.equal(provider.presentationAnchorForWebAuthenticationSession(session), null)
   h.sessions[1].completion(null, null)
   await second
@@ -274,9 +293,11 @@ test('macOS pins the initiating window and rejects foreign/stale anchor requests
 test('macOS uses an eligible main window but never an arbitrary hidden/orphan window', async () => {
   for (const window of [{ visible: false }, { visible: true, attachedSheet: {} }, null]) {
     const h = load({ presentationWindow: window })
+
     h.app.windows = { firstObject: { visible: true } }
     assert.equal((await open(h)).type, 'error')
     h.app.mainWindow = { visible: 1 }
+
     const pending = open(h),
       session = h.sessions[0]
 
@@ -294,7 +315,9 @@ test('macOS window close retires the native attempt once, then permits retry', a
   const h = load(),
     pending = open(h),
     old = h.sessions[0]
+
   const staleObserver = [...h.observers][0]
+
   h.post('close', {})
   assert.equal(old.cancels, 0)
   h.post('close', h.app.keyWindow)
@@ -302,7 +325,9 @@ test('macOS window close retires the native attempt once, then permits retry', a
   assert.equal(old.cancels, 1)
   assert.equal(h.observers.size, 0)
   assert.equal(old.presentationContextProvider, null)
+
   const second = open(h)
+
   staleObserver.callback()
   old.completion(
     {
@@ -312,6 +337,7 @@ test('macOS window close retires the native attempt once, then permits retry', a
     },
     null,
   )
+
   assert.equal(h.sessions[1].cancels, 0)
   assert.match((await open(h)).message, /already active/)
   h.sessions[1].completion(null, null)
@@ -324,7 +350,9 @@ test('macOS application termination settles cancellation even if native cancel t
       throw Error('cancel failed')
     },
   })
+
   const pending = open(h)
+
   h.post('terminate', h.app)
   assert.equal((await pending).type, 'cancel')
   assert.equal(h.observers.size, 0)
@@ -333,14 +361,17 @@ test('macOS application termination settles cancellation even if native cancel t
 
 test('macOS partial or synchronous observer setup retires every acquired token', async () => {
   const failed = load({ failure: 'observe-second' })
+
   assert.equal((await open(failed)).type, 'error')
   assert.equal(failed.observers.size, 0)
   assert.equal(failed.sessions.length, 0)
+
   const synchronous = load({
     onObserve(token) {
       token.callback()
     },
   })
+
   assert.equal((await open(synchronous)).type, 'cancel')
   assert.equal(synchronous.observers.size, 0)
   assert.equal(synchronous.sessions.length, 0)
@@ -350,6 +381,7 @@ test('macOS constructor/setup reentry cannot start or retain a retired native se
   for (const stage of ['extend', 'anchor', 'construct', 'ephemeral', 'provider']) {
     let h
     const close = () => h.post('close', h.app.keyWindow)
+
     h = load({
       onExtend: stage === 'extend' ? close : undefined,
       onAnchor: stage === 'anchor' ? close : undefined,
@@ -387,12 +419,16 @@ test('macOS synchronous completion wins over a failed start and cleanup failures
       session.completion({ absoluteString: 'sample://callback' }, null)
     },
   })
+
   assert.equal((await open(h)).type, 'success')
   assert.equal(h.sessions[0].cancels, 0)
+
   const oldTokens = [...h.observers]
+
   assert.equal((await open(h)).type, 'success')
   for (const token of oldTokens) {
     token.callback()
   }
+
   assert.equal(h.sessions[1].cancels, 0)
 })

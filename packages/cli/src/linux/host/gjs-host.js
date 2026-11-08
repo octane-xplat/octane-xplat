@@ -12,6 +12,7 @@ imports.gi.versions.Gtk = '4.0'
 imports.gi.versions.WebKit = '6.0'
 imports.gi.versions.Adw = '1'
 imports.gi.versions.Secret = '1'
+
 const { Adw, Gtk, WebKit, Gio, GLib, Gdk, Secret } = imports.gi
 
 const selfTest = ARGV.includes('--self-test')
@@ -23,8 +24,10 @@ let appSettings = {
 }
 
 const settingsFile = GLib.build_filenamev([hostDir, '..', 'app.json'])
+
 if (GLib.file_test(settingsFile, GLib.FileTest.EXISTS)) {
   const [, bytes] = GLib.file_get_contents(settingsFile)
+
   appSettings = JSON.parse(imports.byteArray.toString(bytes))
 }
 
@@ -107,6 +110,7 @@ function serveBundle(webContext) {
         const f = Gio.File.new_for_path(file)
         const info = f.query_info('standard::size', Gio.FileQueryInfoFlags.NONE, null)
         const ext = file.slice(file.lastIndexOf('.')).toLowerCase()
+
         request.finish(f.read(null), info.get_size(), MIMES[ext] ?? 'video/mp4')
       } catch (e) {
         request.finish_error(
@@ -129,6 +133,7 @@ function serveBundle(webContext) {
       const f = Gio.File.new_for_path(file)
       const info = f.query_info('standard::size', Gio.FileQueryInfoFlags.NONE, null)
       const ext = file.slice(file.lastIndexOf('.')).toLowerCase()
+
       request.finish(f.read(null), info.get_size(), MIMES[ext] ?? 'application/octet-stream')
     } catch (e) {
       print(`[host] scheme serve failed for ${path}: ${e.message}`)
@@ -141,6 +146,7 @@ function serveBundle(webContext) {
   // Secure + CORS so secure-context APIs (navigator.clipboard, crypto.subtle)
   // and module/font fetches behave on the custom scheme.
   const sm = webContext.get_security_manager()
+
   sm.register_uri_scheme_as_secure(appSettings.scheme)
   sm.register_uri_scheme_as_cors_enabled(appSettings.scheme)
   print(`[host] serving bundle ${bundleDir} at ${contentPrefix}/`)
@@ -204,6 +210,7 @@ function emitTo(wv, service, event, payload) {
       : `${service}.${event}`
 
   const packet = JSON.stringify({ type: 'event', name, payload: payload ?? null })
+
   wv.evaluate_javascript(
     `window.__xplatHostTransport?.receive(${JSON.stringify(packet)});` +
       `window.__xplatBridge?.emit('${service}', '${event}', ${JSON.stringify(payload ?? null)})`,
@@ -295,6 +302,7 @@ const appInfo = () => ({
 const windowSizeFor = (targetWindow) => {
   let width = 0
   let height = 0
+
   try {
     width = targetWindow?.get_width?.() ?? 0
     height = targetWindow?.get_height?.() ?? 0
@@ -303,6 +311,7 @@ const windowSizeFor = (targetWindow) => {
   if (!width || !height) {
     try {
       const [defaultWidth, defaultHeight] = targetWindow?.get_default_size?.() ?? [0, 0]
+
       width ||= defaultWidth
       height ||= defaultHeight
     } catch {}
@@ -342,6 +351,7 @@ const mediaPermissionsPath = () =>
 const readMediaGrants = () => {
   try {
     const [ok, bytes] = GLib.file_get_contents(mediaPermissionsPath())
+
     return ok ? JSON.parse(imports.byteArray.toString(bytes)) : {}
   } catch {
     return {}
@@ -350,12 +360,14 @@ const readMediaGrants = () => {
 
 const writeMediaGrants = (grants) => {
   const file = mediaPermissionsPath()
+
   GLib.mkdir_with_parents(GLib.path_get_dirname(file), 0o700)
   GLib.file_set_contents(file, JSON.stringify(grants))
 }
 
 const mediaPolicy = () => {
   const value = GLib.getenv('XPLAT_MEDIA_POLICY')
+
   return value === 'allow' || value === 'deny' ? value : 'prompt'
 }
 
@@ -363,6 +375,7 @@ const mediaPolicy = () => {
 // a policy refusal the user cannot override in this process (XPLAT_MEDIA_POLICY=deny).
 const mediaPermissionStatus = (kind) => {
   const policy = mediaPolicy()
+
   if (policy === 'deny') {
     return 'restricted'
   }
@@ -372,6 +385,7 @@ const mediaPermissionStatus = (kind) => {
   }
 
   const value = readMediaGrants()[kind]
+
   return value === 'granted' || value === 'denied' ? value : 'notDetermined'
 }
 
@@ -381,12 +395,14 @@ const mediaPermissionStatus = (kind) => {
 // reply.
 const mediaRequestPermission = (kind, wv, done) => {
   const status = mediaPermissionStatus(kind)
+
   if (status !== 'notDetermined') {
     done(status)
     return
   }
 
   const policy = mediaPolicy()
+
   if (policy === 'deny') {
     done('restricted')
     return
@@ -407,11 +423,13 @@ const mediaRequestPermission = (kind, wv, done) => {
 
   dialog.choose(winFor(wv) ?? win, null, (d, res) => {
     let allowed = false
+
     try {
       allowed = d.choose_finish(res) === 1
     } catch {}
 
     const next = readMediaGrants()
+
     next[kind] = allowed ? 'granted' : 'denied'
     writeMediaGrants(next)
     done(next[kind])
@@ -424,26 +442,31 @@ const appPrivateRoot = () =>
 
 const uriToPath = (uri) => {
   const value = String(uri)
+
   if (value.startsWith('/')) {
     return value
   }
 
   const path = Gio.File.new_for_uri(value).get_path()
+
   return path || null
 }
 
 const pathInsidePrivateRoot = (uri) => {
   const path = uriToPath(uri)
+
   if (!path) {
     return null
   }
 
   const root = `${appPrivateRoot()}/`
+
   return path === appPrivateRoot() || path.startsWith(root) ? path : null
 }
 
 const movieDirectory = () => {
   const dir = mediaDir()
+
   GLib.mkdir_with_parents(dir, 0o700)
   return Gio.File.new_for_path(dir).get_uri()
 }
@@ -455,12 +478,14 @@ const reserveMoviePath = (options) => {
 
   if (options.fileUrl) {
     const target = pathInsidePrivateRoot(String(options.fileUrl))
+
     if (!target) {
       return null
     }
 
     const file = Gio.File.new_for_path(target)
     const parent = file.get_parent()
+
     if (file.query_exists(null) || !parent || !parent.query_exists(null)) {
       return null
     }
@@ -471,13 +496,17 @@ const reserveMoviePath = (options) => {
   const suffix = String(options.container ?? '').toLowerCase()
   const ext = ['mp4', 'mov', 'webm'].includes(suffix) ? suffix : 'mp4'
   const name = `clip-${Date.now()}-${GLib.uuid_string_random().slice(0, 8)}.${ext}`
+
   movieDirectory()
+
   const file = Gio.File.new_for_path(mediaDir())
+
   return { fileUrl: file.get_child(name).get_uri() }
 }
 
 const writeMovieFile = (options) => {
   const target = pathInsidePrivateRoot(String(options.fileUrl ?? ''))
+
   if (!target) {
     return null
   }
@@ -485,6 +514,7 @@ const writeMovieFile = (options) => {
   const bytes = GLib.base64_decode(String(options.base64 ?? ''))
   const file = Gio.File.new_for_path(target)
   const parent = file.get_parent()
+
   if (!parent || file.query_exists(null)) {
     return null
   }
@@ -504,6 +534,7 @@ const writeMovieFile = (options) => {
   // Write-then-move keeps partial files out of the output name;
   // FileCopyFlags.NONE makes the move refuse an existing target.
   const tmpPath = `${target}.tmp-${GLib.uuid_string_random().slice(0, 8)}`
+
   GLib.file_set_contents(tmpPath, bytes)
   try {
     Gio.File.new_for_path(tmpPath).move(file, Gio.FileCopyFlags.NONE, null, null)
@@ -517,36 +548,43 @@ const writeMovieFile = (options) => {
 
 const movieFileInfo = (uri) => {
   const target = pathInsidePrivateRoot(uri)
+
   if (!target) {
     return null
   }
 
   const file = Gio.File.new_for_path(target)
+
   if (!file.query_exists(null)) {
     return { exists: false }
   }
 
   const info = file.query_info('standard::size', Gio.FileQueryInfoFlags.NONE, null)
+
   return { exists: true, fileUrl: file.get_uri(), size: info.get_size() }
 }
 
 const readMovieFile = (uri) => {
   const target = pathInsidePrivateRoot(uri)
+
   if (!target) {
     return null
   }
 
   const [ok, bytes] = GLib.file_get_contents(target)
+
   return ok ? GLib.base64_encode(bytes) : null
 }
 
 const deleteMovieFile = (uri) => {
   const target = pathInsidePrivateRoot(uri)
+
   if (!target) {
     return false
   }
 
   const file = Gio.File.new_for_path(target)
+
   if (!file.query_exists(null)) {
     return true
   }
@@ -560,6 +598,7 @@ const deleteMovieFile = (uri) => {
 
 function decideUserMedia(wv, request) {
   const required = []
+
   if (WebKit.user_media_permission_is_for_video_device(request)) {
     required.push('camera')
   }
@@ -569,6 +608,7 @@ function decideUserMedia(wv, request) {
   }
 
   const grants = readMediaGrants()
+
   // An explicit denial is a durable user decision — deny without reprompting.
   if (required.some((kind) => grants[kind] === 'denied')) {
     request.deny()
@@ -576,12 +616,14 @@ function decideUserMedia(wv, request) {
   }
 
   const missing = required.filter((kind) => grants[kind] !== 'granted')
+
   if (!missing.length) {
     request.allow()
     return true
   }
 
   const policy = mediaPolicy()
+
   if (policy === 'deny') {
     request.deny()
     return true
@@ -605,11 +647,13 @@ function decideUserMedia(wv, request) {
 
   dialog.choose(winFor(wv) ?? win, null, (d, res) => {
     let allowed = false
+
     try {
       allowed = d.choose_finish(res) === 1
     } catch {}
 
     const next = readMediaGrants()
+
     for (const kind of missing) {
       next[kind] = allowed ? 'granted' : 'denied'
     }
@@ -628,6 +672,7 @@ function decideUserMedia(wv, request) {
 const readStorage = () => {
   try {
     const [ok, bytes] = GLib.file_get_contents(storagePath())
+
     return ok ? JSON.parse(imports.byteArray.toString(bytes)) : {}
   } catch {
     return {}
@@ -636,12 +681,14 @@ const readStorage = () => {
 
 const writeStorage = (values) => {
   const file = storagePath()
+
   GLib.mkdir_with_parents(GLib.path_get_dirname(file), 0o700)
   GLib.file_set_contents(file, JSON.stringify(values))
 }
 
 function receiveProtocol(wv, packet) {
   const message = JSON.stringify(packet)
+
   wv.evaluate_javascript(
     `window.__xplatHostTransport?.receive(${JSON.stringify(message)})`,
     -1,
@@ -673,6 +720,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
     if (service === 'keepAwake') {
       const tag = String(args[0])
       let cookies = keepAwakeCookies.get(wv)
+
       if (!cookies) {
         cookies = new Map()
         keepAwakeCookies.set(wv, cookies)
@@ -681,6 +729,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
       if (method === 'activate') {
         if (!cookies.has(tag)) {
           const cookie = app.inhibit(wv.get_root(), Gtk.ApplicationInhibitFlags.IDLE, tag)
+
           if (!cookie) {
             reply(false)
             return
@@ -690,6 +739,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
         }
       } else {
         const cookie = cookies.get(tag)
+
         if (cookie) {
           app.uninhibit(cookie)
         }
@@ -793,7 +843,9 @@ function dispatch(wv, id, service, method, args, protocol = false) {
     if (service === 'storage') {
       if (selfTest) {
         globalThis.__xplatSelftestStorage ??= new Map()
+
         const values = globalThis.__xplatSelftestStorage
+
         if (method === 'get') {
           reply(values.get(String(args[0])) ?? null)
         } else if (method === 'set') {
@@ -809,6 +861,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 
       const key = String(args[0])
       const values = readStorage()
+
       if (method === 'get') {
         reply(Object.prototype.hasOwnProperty.call(values, key) ? String(values[key]) : null)
       } else if (method === 'set') {
@@ -917,6 +970,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
     if (service === 'files') {
       if (method === 'readText') {
         const [ok, bytes] = Gio.File.new_for_uri(String(args[0])).load_contents(null)
+
         reply(ok ? imports.byteArray.toString(bytes) : null)
         return
       }
@@ -953,6 +1007,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 
       if (method === 'pick') {
         const options = args[1] && typeof args[1] === 'object' ? args[1] : {}
+
         if (options.startingFolder) {
           dialog.set_initial_folder(Gio.File.new_for_path(String(options.startingFolder)))
         }
@@ -970,14 +1025,17 @@ function dispatch(wv, id, service, method, args, protocol = false) {
       if (method === 'open') {
         const opts = args[0] ?? {}
         const wid = String(opts.id ?? `w${windows.size + 1}`)
+
         openSecondaryWindow(wv, wid, opts)
         reply(wid)
       } else if (method === 'close') {
         const entry = windows.get(String(args[0]))
+
         entry?.win.close()
         reply(!!entry)
       } else if (method === 'setTitle') {
         const entry = windows.get(String(args[0]))
+
         entry?.win.set_title(String(args[1] ?? ''))
         reply(!!entry)
       }
@@ -992,6 +1050,7 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 
     if (service === 'system' && method === 'openPath') {
       const target = Gio.File.new_for_path(String(args[0]))
+
       reply(Gio.AppInfo.launch_default_for_uri(target.get_uri(), null))
       return
     }
@@ -1004,9 +1063,11 @@ function dispatch(wv, id, service, method, args, protocol = false) {
 
 function readSelftest() {
   const custom = GLib.getenv('XPLAT_SELFTEST_SCRIPT')
+
   if (custom) {
     try {
       const [, bytes] = GLib.file_get_contents(custom)
+
       return imports.byteArray.toString(bytes)
     } catch {
       return null
@@ -1032,6 +1093,7 @@ function readSelftest() {
 // document-start injection (initial url / color scheme / window data).
 function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = true) {
   const ucm = wv.get_user_content_manager()
+
   ucm.register_script_message_handler('xplat', null)
   ucm.register_script_message_handler('xplatLog', null)
   // Detailed signals separate the two handlers — WebKitGTK 6.0 delivers a
@@ -1039,6 +1101,7 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
   // string, so to_string() → JSON.parse.
   ucm.connect('script-message-received::xplat', (_ucm, value) => {
     const req = JSON.parse(value.to_string())
+
     if (req.type === 'capabilities') {
       receiveProtocol(wv, {
         type: 'reply',
@@ -1055,9 +1118,11 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
 
   ucm.connect('script-message-received::xplatLog', (_ucm, value) => {
     const message = value.to_string()
+
     print(`[webview] ${message}`)
     if (selfTest && message.startsWith('SELFTEST_RESULT ')) {
       const result = JSON.parse(message.slice('SELFTEST_RESULT '.length))
+
       selfTestExit = result.failed.length === 0 ? 0 : 1
       app.quit()
     }
@@ -1067,6 +1132,7 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
   // deterministic device source for camera-less hosts and harnesses — real
   // devices remain the default for packaged apps.
   const wvSettings = wv.get_settings()
+
   wvSettings.set_enable_media_stream(true)
   if (GLib.getenv('XPLAT_CAMERA_MOCK') === '1') {
     wvSettings.set_enable_mock_capture_devices(true)
@@ -1079,6 +1145,7 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
 
     if (request instanceof WebKit.DeviceInfoPermissionRequest) {
       const grants = readMediaGrants()
+
       if (grants.camera === 'granted' || grants.microphone === 'granted') {
         request.allow()
       } else {
@@ -1092,6 +1159,7 @@ function wireWebView(wv, extraInjected = '', hostWindow = win, consumeInitial = 
   })
 
   const initialUrl = consumeInitial ? (linkQueue.shift() ?? pendingInitialUrl) : null
+
   if (consumeInitial) {
     pendingInitialUrl = null
   }
@@ -1163,9 +1231,11 @@ function openSecondaryWindow(opener, wid, opts) {
   })
 
   const size = opts.size ?? { width: 640, height: 480 }
+
   w.set_default_size(Number(size.width) || 640, Number(size.height) || 480)
 
   const wv = new WebKit.WebView()
+
   wireWebView(
     wv,
     `window.__xplatWindowId = ${JSON.stringify(wid)};` +
@@ -1176,6 +1246,7 @@ function openSecondaryWindow(opener, wid, opts) {
 
   if (opts.kind === 'dialog') {
     const parent = winFor(opener) ?? win
+
     w.set_transient_for(parent)
     w.set_modal(true)
   }
@@ -1227,6 +1298,7 @@ function ensureWindow() {
 
   if (selfTest) {
     const js = readSelftest()
+
     if (!js) {
       printerr('[host] missing bridge-selftest.linux.js')
       imports.system.exit(1)
@@ -1317,6 +1389,7 @@ app.connect('activate', ensureWindow)
 app.connect('open', (_a, files) => {
   for (const f of files) {
     const u = f.get_uri()
+
     print(`[host] open ${u}`)
 
     if (u.startsWith(contentPrefix)) {
@@ -1335,4 +1408,5 @@ app.connect('open', (_a, files) => {
 })
 
 const exitCode = app.run(['gjs-host', ...positionals])
+
 imports.system.exit(selfTest ? selfTestExit : exitCode)

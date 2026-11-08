@@ -21,6 +21,7 @@ const CSSNAME = /cssName:\s*['"]([^'"]+)['"]/g
 function scan(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const p = join(dir, entry.name)
+
     if (entry.isDirectory()) {
       scan(p)
     } else if (entry.name.endsWith('.js')) {

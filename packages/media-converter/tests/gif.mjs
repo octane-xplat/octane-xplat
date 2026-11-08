@@ -30,6 +30,7 @@ export function gifBytes({
     255,
     0,
   ]
+
   for (const [color, delay, disposal, transparent] of frames) {
     bytes.push(
       0x21,
@@ -79,11 +80,13 @@ export function gifBytes({
 
     for (let offset = 0; offset < compressed.length; offset += 255) {
       const block = compressed.slice(offset, offset + 255)
+
       bytes.push(block.length, ...block)
     }
 
     bytes.push(0)
   }
+
   bytes.push(0x3b)
   return new Uint8Array(bytes)
 }

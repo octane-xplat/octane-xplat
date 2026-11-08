@@ -6,6 +6,7 @@ function fakeClock() {
   let time = 0
   const timers = new Map<number, { at: number; fn: () => void }>()
   let id = 0
+
   return {
     now: () => time,
     advance: (ms: number) => {
@@ -19,6 +20,7 @@ function fakeClock() {
     },
     schedule: (fn: () => void, ms: number) => {
       const key = ++id
+
       timers.set(key, { at: time + ms, fn })
       return () => void timers.delete(key)
     },
@@ -31,6 +33,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
     expect(out).toEqual([])
     clock.advance(260)
@@ -41,6 +44,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
     clock.advance(100)
     det.up({ x: 15, y: 12 }, 'touch', true, (i) => out.push(i))
@@ -51,6 +55,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
     clock.advance(350)
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
@@ -63,6 +68,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
     clock.advance(50)
     det.up({ x: 60, y: 10 }, 'touch', true, (i) => out.push(i))
@@ -74,6 +80,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'mouse', false, (i) => out.push(i))
     expect(out).toEqual([{ kind: 'tap', at: { x: 10, y: 10 }, pointer: 'mouse' }])
   })
@@ -82,6 +89,7 @@ describe('tap detector', () => {
     const clock = fakeClock()
     const det = createTapDetector(clock)
     const out: Intent[] = []
+
     det.up({ x: 10, y: 10 }, 'touch', true, (i) => out.push(i))
     det.cancel()
     clock.advance(1000)

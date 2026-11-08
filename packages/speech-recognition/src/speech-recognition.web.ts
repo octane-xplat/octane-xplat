@@ -63,6 +63,7 @@ function resolveCtor(): WebSpeechRecognitionConstructor | null {
   // Vendor-prefixed/unprefixed constructors are ambient host capabilities —
   // read through real property checks, not a claimed global shape.
   const ctor = lookupGlobal(['SpeechRecognition']) ?? lookupGlobal(['webkitSpeechRecognition'])
+
   // A runtime check cannot prove the constructor's call shape — this is the
   // one documented assertion at the capability boundary.
   return typeof ctor === 'function' ? (ctor as WebSpeechRecognitionConstructor) : null
@@ -104,6 +105,7 @@ async function ensurePermission(): Promise<PermissionResponse> {
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
     for (const track of stream.getTracks()) {
       track.stop()
     }
@@ -132,6 +134,7 @@ function defaultLang(): string {
 async function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
   const Ctor = resolveCtor()
   const resolved = lang ?? defaultLang()
+
   if (Ctor === null) {
     return {
       available: false,
@@ -156,6 +159,7 @@ async function availability(lang?: string): Promise<SpeechRecognitionAvailabilit
 
   try {
     const remote = await Ctor.available({ langs: [resolved], processLocally: false })
+
     if (remote === 'unavailable') {
       return {
         available: false,
@@ -167,6 +171,7 @@ async function availability(lang?: string): Promise<SpeechRecognitionAvailabilit
     }
 
     const local = await Ctor.available({ langs: [resolved], processLocally: true })
+
     return {
       available: true,
       reason: null,
@@ -188,11 +193,13 @@ async function availability(lang?: string): Promise<SpeechRecognitionAvailabilit
 
 function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngineHandle {
   const Ctor = resolveCtor()
+
   if (Ctor === null) {
     throw new SpeechRecognitionError('service-unavailable', 'Web Speech API is not available')
   }
 
   const recognition = new Ctor()
+
   if (options.lang !== '') {
     recognition.lang = options.lang
   }
@@ -246,13 +253,16 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     // delivered. Finals never change, so each commits exactly once; the
     // trailing non-final entries form the current hypothesis.
     let interim = ''
+
     for (let i = event.resultIndex; i < event.results.length; i++) {
       const item = event.results[i]
+
       if (item === undefined) {
         continue
       }
 
       const transcript = item[0]?.transcript ?? ''
+
       if (item.isFinal) {
         sink.hypothesis(transcript, true)
       } else {

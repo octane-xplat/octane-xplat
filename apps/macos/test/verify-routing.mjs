@@ -22,8 +22,11 @@ const cliBuild = spawnSync('bun', ['--filter', '@octane-xplat/cli', 'build'], {
 })
 
 assert.equal(cliBuild.status, 0, cliBuild.stdout + cliBuild.stderr)
+
 const { generateRoutes } = await import('../../../packages/cli/dist/commands/routes.js')
+
 await generateRoutes(join(appRoot, 'test/default-client'), undefined, undefined, { bake: true })
+
 const checked = spawnSync(
   'bun',
   ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', 'test/tsconfig.routing.json'],
@@ -31,18 +34,24 @@ const checked = spawnSync(
 )
 
 assert.equal(checked.status, 0, checked.stdout + checked.stderr)
+
 const scratch = resolve(appRoot, '../../research')
+
 await mkdir(scratch, { recursive: true })
+
 const directory = await mkdtemp(join(scratch, 'macos-routing-'))
 const artifact = await buildMacOSNative(appRoot)
 const bootstrap = join(directory, 'bootstrap.js')
+
 await writeNativeBootstrap(artifact, bootstrap)
+
 const config = await createMacOSConfig({
   packaged: true,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
 })({ mode: 'production' })
 
 const entry = join(directory, 'main.mjs')
+
 await writeFile(
   entry,
   `import { runRoutingFixture } from ${JSON.stringify(join(appRoot, 'test/routing-fixture.macos.tsx'))}
@@ -63,8 +72,10 @@ await build({
 })
 
 const bundle = join(directory, 'fixture.cjs')
+
 await validateHostBundle(bundle, appRoot)
 assert.doesNotMatch(await readFile(bundle, 'utf8'), /XPLAT_BAKED_ROUTE_BUILD_ONLY/)
+
 const result = spawnSync(
   await macOSExecutable(appRoot, 'macos/host'),
   [
@@ -82,6 +93,7 @@ const result = spawnSync(
 )
 
 const output = result.stdout + result.stderr
+
 assert.equal(result.status, 0, output)
 assert.doesNotMatch(output, /ROUTING_FIXTURE_FAIL|uncaught render error/)
 assert.match(output, /ROUTING_FIXTURE_OK/)

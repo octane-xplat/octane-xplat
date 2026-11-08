@@ -5,6 +5,7 @@ import type { ImageResult } from '@octane-xplat/image-manipulator'
 export async function toWebP(sourceUri: string): Promise<ImageResult> {
   const context = ImageManipulator.manipulate(sourceUri)
   let image: Awaited<ReturnType<typeof context.renderAsync>> | undefined
+
   try {
     image = await context.renderAsync()
     return await image.saveAsync({ format: SaveFormat.WEBP, compress: 0.8 })

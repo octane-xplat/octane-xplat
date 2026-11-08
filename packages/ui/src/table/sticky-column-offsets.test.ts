@@ -26,6 +26,7 @@ describe('sticky column offsets', () => {
 
   it('start run: contiguous from column 0 through the last start key', () => {
     const offsets = computeStickyStartOffsets(cols, ['b'])!
+
     expect(offsets.get('a')).toBe(0)
     expect(offsets.get('b')).toBe(100)
     expect(offsets.has('c')).toBe(false)
@@ -33,6 +34,7 @@ describe('sticky column offsets', () => {
 
   it('start run includes every column before the last start key', () => {
     const offsets = computeStickyStartOffsets(cols, ['c'])!
+
     expect(offsets.get('a')).toBe(0)
     expect(offsets.get('b')).toBe(100)
     expect(offsets.get('c')).toBe(100 + 140)
@@ -40,6 +42,7 @@ describe('sticky column offsets', () => {
 
   it('end run: contiguous from the first end key through the last column', () => {
     const offsets = computeStickyEndOffsets(cols, ['c'])!
+
     expect(offsets.get('d')).toBe(0)
     expect(offsets.get('c')).toBe(DEFAULT_MIN_COLUMN_WIDTH)
     expect(offsets.has('b')).toBe(false)
@@ -54,6 +57,7 @@ describe('sticky column offsets', () => {
 
   it('a key on both edges resolves to start', () => {
     const side = resolveStickySide(cols, 'c', ['a', 'c'], ['c'])
+
     expect(side).toEqual({ edge: 'start', offset: 100 + 140 })
   })
 })

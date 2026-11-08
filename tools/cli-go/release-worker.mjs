@@ -17,12 +17,16 @@ import { createHash } from 'node:crypto'
 export function buildReleaseWorker(root, destination, version) {
   rmSync(destination, { recursive: true, force: true })
   mkdirSync(join(destination, 'dist'), { recursive: true })
+
   // The package's Node main is UMD with factory-local requires that Bun cannot
   // statically bundle. Select its declared ESM module entry for this bundle.
   const jsonc = realpathSync(join(root, 'packages/cli/node_modules/jsonc-parser'))
   const jsoncPackage = JSON.parse(readFileSync(join(jsonc, 'package.json')))
+
   assert.equal(jsoncPackage.module, './lib/esm/main.js')
+
   const config = join(destination, 'bundle.tsconfig.json')
+
   writeFileSync(
     config,
     JSON.stringify({
@@ -30,6 +34,7 @@ export function buildReleaseWorker(root, destination, version) {
       compilerOptions: { paths: { 'jsonc-parser': [join(jsonc, jsoncPackage.module)] } },
     }),
   )
+
   const result = spawnSync(
     'bun',
     [
@@ -45,19 +50,25 @@ export function buildReleaseWorker(root, destination, version) {
     ],
     { cwd: root, encoding: 'utf8' },
   )
+
   rmSync(config)
   assert.equal(result.status, 0, result.stderr)
   cpSync(join(root, 'packages/create/compatibility.json'), join(destination, 'compatibility.json'))
+
   const patches = join(root, 'packages/cli/patches')
   const patchManifest = JSON.parse(readFileSync(join(patches, 'manifest.json'), 'utf8'))
+
   mkdirSync(join(destination, 'patches'))
   for (const file of ['manifest.json', ...patchManifest.patches.map((patch) => patch.file)]) {
     cpSync(join(patches, file), join(destination, 'patches', file))
   }
+
   let notices = 'Release upgrade worker dependencies\n'
+
   for (const name of ['yaml', 'jsonc-parser']) {
     const from = realpathSync(join(root, 'packages/cli/node_modules', name))
     const pkg = JSON.parse(readFileSync(join(from, 'package.json')))
+
     assert.equal(
       Object.keys(pkg.dependencies ?? {}).length,
       0,
@@ -69,13 +80,16 @@ export function buildReleaseWorker(root, destination, version) {
       notices += readFileSync(join(from, file), 'utf8') + '\n'
     }
   }
+
   writeFileSync(join(destination, 'THIRD-PARTY-NOTICES.txt'), notices)
+
   const files = Object.fromEntries(
     readdirSync(destination, { recursive: true, withFileTypes: true })
       .filter((file) => file.isFile())
       .map((file) => {
         const path = join(file.parentPath, file.name),
           bytes = readFileSync(path)
+
         return [
           relative(destination, path).replaceAll('\\', '/'),
           { bytes: bytes.length, sha256: createHash('sha256').update(bytes).digest('hex') },
@@ -83,6 +97,7 @@ export function buildReleaseWorker(root, destination, version) {
       })
       .sort(([a], [b]) => a.localeCompare(b)),
   )
+
   const manifest = {
     version: 1,
     cliVersion: version,
@@ -91,6 +106,7 @@ export function buildReleaseWorker(root, destination, version) {
     entry: 'dist/upgrade-worker.mjs',
     files,
   }
+
   writeFileSync(join(destination, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n')
   return manifest
 }

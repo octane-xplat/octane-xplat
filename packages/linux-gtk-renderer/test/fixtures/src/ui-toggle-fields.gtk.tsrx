@@ -3,8 +3,10 @@ import { FormLayout, Field, SizeProvider } from '@octane-xplat/ui'
 import type { FieldControlSize } from '@octane-xplat/ui'
 import type { SwitchProps } from '@octane-xplat/ui'
 import { CheckboxInput as Checkbox, Switch } from '@octane-xplat/ui'
+
 export const changes: Array<[string, boolean]> = []
 export const actions: Array<[string, boolean]> = []
+
 const pending = new Map<string, { resolve: () => void; reject: (error: Error) => void }>()
 const changeAction = (name: string, value: boolean, throws = false) => {
   if (throws) {
@@ -19,6 +21,7 @@ const changeAction = (name: string, value: boolean, throws = false) => {
 export const hasPending = (name: string) => pending.has(name)
 export function settle(name: string, okay: boolean) {
   const action = pending.get(name)
+
   if (!action) {
     throw new Error('No pending action: ' + name)
   }

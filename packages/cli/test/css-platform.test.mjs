@@ -9,11 +9,13 @@ import { xplatCss } from '../dist/css-platform.js'
 const temporary = []
 function fixture(files) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-css-'))
+
   temporary.push(root)
   for (const [file, contents] of Object.entries(files)) {
     mkdirSync(join(root, file, '..'), { recursive: true })
     writeFileSync(join(root, file), contents)
   }
+
   return root
 }
 
@@ -33,6 +35,7 @@ async function bundle(root, platform) {
       lib: { entry: join(root, 'main.js'), formats: ['es'], cssFileName: 'styles' },
     },
   })
+
   return (Array.isArray(result) ? result.flatMap((output) => output.output) : result.output)
     .filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
     .map((file) => file.source)
@@ -56,7 +59,9 @@ for (const [target, expected] of [
       'card.mobile.css': '.mobile { color: green }',
       'card.ios.css': '.ios { color: red }',
     })
+
     const css = await bundle(root, target)
+
     assert.match(css, new RegExp(`\\.${expected}\\s*\\{`))
     for (const name of ['web', 'ios', 'mobile', 'default'].filter((name) => name !== expected)) {
       assert.ok(!css.includes(`.${name} {`), css)
@@ -71,7 +76,9 @@ test('explicit platform imports stay exact and composition stays explicit', asyn
     'card.web.css': '.web { color: blue }',
     'card.web.ios.css': '.wrong { color: red }',
   })
+
   const css = await bundle(root, 'ios')
+
   assert.match(css, /\.shared/)
   assert.match(css, /\.web/)
   assert.doesNotMatch(css, /\.wrong/)
@@ -83,6 +90,7 @@ test('CSS @import selects siblings, including suffix-only files', async () => {
     'entry.css': '@import "./card.css";',
     'card.web.css': '.web { color: blue }',
   })
+
   assert.match(await bundle(root, 'web'), /\.web/)
 })
 
@@ -91,6 +99,7 @@ test('dev serving selects siblings and preserves inline query imports', async ()
     'card.css': '.base { color: black }',
     'card.web.css': '.web { color: blue }',
   })
+
   const server = await createServer({
     configFile: false,
     root,
@@ -98,8 +107,10 @@ test('dev serving selects siblings and preserves inline query imports', async ()
     plugins: [xplatCss('web')],
     server: { middlewareMode: true },
   })
+
   try {
     const result = await server.transformRequest('/card.css?inline')
+
     assert.match(result.code, /\.web/)
     assert.doesNotMatch(result.code, /\.base/)
   } finally {
@@ -124,7 +135,9 @@ for (const platform of ['web', 'ios', 'android', 'macos', 'windows', 'gtk']) {
       'imported.css':
         '@platform web { .imported { user-select: none } } @platform android { .android { color: red } }',
     })
+
     const css = await bundle(root, platform)
+
     assert.doesNotMatch(css, /@platform|\.never/)
     assert.match(css, /@layer app/)
     assert.ok(css.indexOf('black') < css.indexOf('white'))
@@ -143,11 +156,13 @@ test('rejects unknown platform names even inside excluded blocks', async () => {
     'main.js': "import './entry.css'",
     'entry.css': '@platform ios { @platform typo { .bad { color: red } } }',
   })
+
   await assert.rejects(bundle(root, 'web'), /Expected @platform/)
 })
 
 test('rejects platform statements without a block', async () => {
   const root = fixture({ 'main.js': "import './entry.css'", 'entry.css': '@platform web;' })
+
   await assert.rejects(bundle(root, 'web'), /Expected @platform/)
 })
 
@@ -158,7 +173,9 @@ test('preserves existing PostCSS config and filters inlined imports', async () =
     'imported.css': '@platform web { .card { color: red } }',
     'postcss.config.cjs': `module.exports = { plugins: [{ postcssPlugin: 'test-color', Declaration(d) { if (d.value === 'red') d.value = 'blue' } }] }`,
   })
+
   const css = await bundle(root, 'web')
+
   assert.match(css, /blue/)
   assert.doesNotMatch(css, /@platform|red/)
 })
@@ -169,6 +186,7 @@ test('honors user aliases before CSS sibling selection', async () => {
     'styles/card.css': '.base { color: black }',
     'styles/card.web.css': '.web { color: blue }',
   })
+
   const outputs = await build({
     configFile: false,
     root,
@@ -180,11 +198,13 @@ test('honors user aliases before CSS sibling selection', async () => {
       lib: { entry: join(root, 'main.js'), formats: ['es'], cssFileName: 'styles' },
     },
   })
+
   const css = (Array.isArray(outputs) ? outputs : [outputs])
     .flatMap((output) => output.output)
     .filter((file) => file.type === 'asset')
     .map((file) => file.source)
     .join('\n')
+
   assert.match(css, /\.web/)
   assert.doesNotMatch(css, /\.base/)
 })
@@ -198,6 +218,7 @@ test('adding and removing a sibling reselects the dev import', async () => {
     plugins: [xplatCss('web')],
     server: { middlewareMode: true },
   })
+
   try {
     assert.match((await server.transformRequest('/main.js')).code, /card\.css/)
     writeFileSync(join(root, 'card.web.css'), '.web { color: blue }')
@@ -222,8 +243,10 @@ test('raw CSS imports keep raw text while selecting a platform sibling', async (
     plugins: [xplatCss('web')],
     server: { middlewareMode: true },
   })
+
   try {
     const result = await server.transformRequest('/card.web.css?raw')
+
     assert.match(result.code, /@platform web/)
   } finally {
     await server.close()
@@ -246,7 +269,9 @@ for (const platform of ['web', 'ios', 'android', 'macos']) {
 }`,
       'imported.css': '@platform web, ios { .imported { color: blue } }',
     })
+
     const css = await bundle(root, platform)
+
     assert.doesNotMatch(css, /@platform/)
     assert.match(css, /@layer app/)
     assert.equal(css.includes('.either'), platform === 'web' || platform === 'ios')
@@ -276,6 +301,7 @@ for (const condition of [
       'main.js': "import './entry.css'",
       'entry.css': `@platform android { @platform ${condition} { .bad { color: red } } }`,
     })
+
     await assert.rejects(bundle(root, 'web'), /Expected @platform/)
   })
 }
@@ -292,10 +318,13 @@ for (const mode of ['inline', 'discovered', 'directory']) {
         })
       },
     }
+
     const options = { map: { inline: false, annotation: false }, from: join(root, 'input.css') }
     let configured = { ...options, plugins: [plugin] }
+
     if (mode !== 'inline') {
       const configRoot = mode === 'directory' ? join(root, 'config') : root
+
       mkdirSync(configRoot, { recursive: true })
       writeFileSync(
         join(configRoot, 'postcss.config.cjs'),
@@ -310,25 +339,32 @@ for (const mode of ['inline', 'discovered', 'directory']) {
 
       configured = mode === 'directory' ? configRoot : undefined
     }
+
     const config = { root, css: { postcss: configured } }
+
     await xplatCss('web').config(config)
+
     const { plugins, ...actualOptions } = config.css.postcss
+
     assert.equal(actualOptions.from, options.from)
     assert.deepEqual(actualOptions.map, options.map)
     assert.deepEqual(
       plugins.map((entry) => entry.postcssPlugin),
       ['xplat-platform', 'xplat-platform-defer', 'consumer'],
     )
+
     if (mode === 'inline') {
       assert.equal(plugins[2], plugin)
       assert.equal(actualOptions.map, options.map)
       assert.deepEqual(configured.plugins, [plugin])
     }
+
     const { default: postcss } = await import('postcss')
     const result = await postcss(plugins).process(
       '@platform web { .card { color: red } } @platform ios { .excluded { color: red } }',
       actualOptions,
     )
+
     assert.match(result.css, /blue/)
     assert.doesNotMatch(result.css, /@platform|excluded|red/)
     assert.ok(result.map)
@@ -338,7 +374,9 @@ for (const mode of ['inline', 'discovered', 'directory']) {
 for (const cssMinify of ['esbuild', 'lightningcss']) {
   test(`deferred sheets encode platform blocks as layers for ${cssMinify} minify`, async () => {
     const plugin = xplatCss('web')
+
     plugin.api.defer('deferred.css')
+
     const root = fixture({
       'main.js': "import './deferred.css'",
       'deferred.css': `@layer utilities {
@@ -346,9 +384,12 @@ for (const cssMinify of ['esbuild', 'lightningcss']) {
 @platform ios, mobile { .dropped { color: red } }
 }`,
     })
+
     const warnings = []
     const logger = createLogger()
+
     logger.warn = (msg) => warnings.push(String(msg))
+
     const outputs = await build({
       configFile: false,
       root,
@@ -360,15 +401,20 @@ for (const cssMinify of ['esbuild', 'lightningcss']) {
         lib: { entry: join(root, 'main.js'), formats: ['es'], cssFileName: 'styles' },
       },
     })
+
     assert.equal(warnings.filter((msg) => msg.includes('@platform')).length, 0, warnings.join('\n'))
+
     const css = (Array.isArray(outputs) ? outputs : [outputs])
       .flatMap((output) => output.output)
       .filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
       .map((file) => file.source)
       .join('\n')
+
     assert.doesNotMatch(css, /@platform/)
     assert.match(css, /@layer xplat-platform-web/)
+
     const { css: projected } = plugin.api.project(css, 'styles.css')
+
     assert.doesNotMatch(projected, /@platform|xplat-platform|\.dropped|\.nested/)
     assert.match(projected, /@layer utilities/)
     assert.match(projected, /\.kept/)

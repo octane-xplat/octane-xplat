@@ -19,19 +19,25 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 }
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../..')
+
 await mkdir(join(repo, 'research'), { recursive: true })
+
 const app = await mkdtemp(join(repo, 'research/macos-websocket-'))
 
 // Minimal RFC 6455 server: echoes text/binary, echoes close frames, and sends
 // a 1000/'bye' close when a text frame says "server-close".
 const serverEvents = []
 const server = createServer()
+
 server.on('upgrade', (req, socket) => {
   serverEvents.push(['upgrade', req.url])
+
   const accept = createHash('sha1')
     .update(req.headers['sec-websocket-key'] + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11')
     .digest('base64')
+
   const protocol = req.headers['sec-websocket-protocol']
+
   socket.write(
     'HTTP/1.1 101 Switching Protocols\r\n' +
       'Upgrade: websocket\r\nConnection: Upgrade\r\n' +
@@ -39,8 +45,10 @@ server.on('upgrade', (req, socket) => {
       (protocol ? `Sec-WebSocket-Protocol: ${protocol.split(',')[0].trim()}\r\n` : '') +
       '\r\n',
   )
+
   let buffer = Buffer.alloc(0)
   let waitingForClose = false
+
   socket.on('data', (chunk) => {
     buffer = Buffer.concat([buffer, chunk])
     for (;;) {
@@ -52,6 +60,7 @@ server.on('upgrade', (req, socket) => {
       const masked = buffer[1] & 0x80
       let length = buffer[1] & 0x7f
       let offset = 2
+
       if (length === 126) {
         if (buffer.length < 4) {
           return
@@ -69,6 +78,7 @@ server.on('upgrade', (req, socket) => {
       }
 
       const maskOffset = offset
+
       if (masked) {
         offset += 4
       }
@@ -78,8 +88,10 @@ server.on('upgrade', (req, socket) => {
       }
 
       let payload = buffer.subarray(offset, offset + length)
+
       if (masked) {
         const mask = buffer.subarray(maskOffset, maskOffset + 4)
+
         payload = Buffer.from(payload.map((b, i) => b ^ mask[i % 4]))
       }
 
@@ -87,8 +99,11 @@ server.on('upgrade', (req, socket) => {
 
       const frame = (op, data) => {
         const head = Buffer.alloc(10)
+
         head[0] = 0x80 | op
+
         let headLength
+
         if (data.length < 126) {
           head[1] = data.length
           headLength = 2
@@ -101,6 +116,7 @@ server.on('upgrade', (req, socket) => {
           head.writeBigUInt64BE(BigInt(data.length), 2)
           headLength = 10
         }
+
         socket.write(Buffer.concat([head.subarray(0, headLength), data]))
       }
 
@@ -128,6 +144,7 @@ server.on('upgrade', (req, socket) => {
       serverEvents.push([opcode === 0x1 ? 'text' : 'binary', payload.toString('utf8')])
       if (opcode === 0x1 && payload.toString('utf8') === 'server-close') {
         const body = Buffer.alloc(2 + 3)
+
         body.writeUInt16BE(1000, 0)
         body.write('bye', 2)
         frame(0x8, body)
@@ -138,13 +155,16 @@ server.on('upgrade', (req, socket) => {
       frame(opcode, payload)
     }
   })
+
   socket.on('error', () => {})
 })
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
 const port = server.address().port
 
 const fixture = join(app, 'fixture.cjs')
+
 await writeFile(
   fixture,
   `var app = NSApplication.sharedApplication;
@@ -213,15 +233,19 @@ const child = spawn(
 )
 
 let output = ''
+
 child.stderr.on('data', (chunk) => {
   output += chunk
 })
 
 const status = await new Promise((resolve) => child.on('close', resolve))
+
 server.close()
 
 assert.equal(status, 0, output)
+
 const result = /RESULT (.+)/.exec(output)?.[1]
+
 assert.ok(result, `fixture did not report:\n${output}`)
 assert.deepEqual(JSON.parse(result), [
   'ready 0',

@@ -8,6 +8,7 @@ import {
 } from 'octane/universal/native'
 
 import { TimeInput } from './TimeInput.macos.tsrx'
+
 function mount(extra: any = {}) {
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -23,6 +24,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -78,8 +80,10 @@ it('the existing AppKit composition leaf retains marked drafts and submits only 
 it('current disabled/readonly/loading state prevents held text/submit/clear callbacks from changing an owned draft', () => {
   for (const blocked of [{ isDisabled: true }, { isReadOnly: true }, { isLoading: true }]) {
     const f = mount()
+
     try {
       f.edit('unfinished')
+
       const edit = f.input().props.onTextChange,
         submit = f.input().props.onSubmit,
         clear = f.clear()
@@ -137,6 +141,7 @@ it('an in-flight save blocks draft replacement/commit/clear before and after the
 
 it('held submit/edit callbacks parse the latest pending text, seconds and bounds rather than their old render', () => {
   const f = mount({ min: '14:00', max: '16:00' })
+
   try {
     const submit = f.input().props.onSubmit,
       edit = f.input().props.onTextChange,
@@ -165,10 +170,12 @@ it('held submit/edit callbacks parse the latest pending text, seconds and bounds
 it('application callback reentry cannot replace or clear the accepted draft', () => {
   const f = mount()
   let edit: (text: string) => void, submit: () => void, clear: () => void
+
   try {
     edit = f.input().props.onTextChange
     submit = f.input().props.onSubmit
     clear = f.clear()
+
     const change = vi.fn(() => {
       edit('16:00')
       submit()
@@ -191,10 +198,12 @@ it('submit callback teardown leaves held draft handlers inert and parent correct
 
   f.input().currentEditor = () => editor
   f.edit('15:45')
+
   const submit = f.input().props.onSubmit,
     edit = f.input().props.onTextChange
 
   const change = vi.fn(() => f.root.unmount())
+
   f.render({ ...f.base, onChange: change })
   editor.hasMarkedText = false
   submit()
@@ -204,6 +213,7 @@ it('submit callback teardown leaves held draft handlers inert and parent correct
   submit()
   f.flush()
   expect(change).toHaveBeenCalledTimes(1)
+
   const g = mount(),
     correction = vi.fn(() => g.render({ ...g.base, value: '10:00', onChange: correction }))
 

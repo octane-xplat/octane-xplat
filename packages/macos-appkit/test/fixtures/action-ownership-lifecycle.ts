@@ -14,13 +14,17 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
       throw Error(message)
     }
   }
+
   const host = NSView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 240, height: 220 },
   })
+
   nativeWindow.contentView.addSubview(host)
+
   const root = createMacOSRoot(host),
     debug = (root as any).__macosDebug
+
   const app = NSApplication.sharedApplication
   const calls: string[] = []
   let props = {
@@ -36,13 +40,16 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     firstLink: () => calls.push('link-a'),
     secondLink: () => calls.push('link-b'),
   }
+
   const render = async () => {
     root.render(Actions as any, props)
     await new Promise((resolve) => setTimeout(resolve, 60))
     nativeWindow.contentView.layoutSubtreeIfNeeded()
   }
+
   try {
     await render()
+
     const button = debug.findId('lease-native'),
       tag = button.tag,
       target = button.target
@@ -65,13 +72,17 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     await render()
     app.sendActionToFrom('buttonPressed:', target, button)
     check(calls.join(',') === 'first,current', 'Disabled/replaced native action dispatch failed')
+
     const press = debug.findId('lease-press'),
       ax = debug.findId('lease-ax-only')
 
     check(press.accessibilityPerformPress(), 'AX press missing')
+
     let click: any
+
     for (let index = 0; index < Number(press.gestureRecognizers.count); index++) {
       const recognizer = press.gestureRecognizers.objectAtIndex(index)
+
       if (recognizer instanceof NSClickGestureRecognizer) {
         click = recognizer
         break
@@ -79,9 +90,12 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     }
 
     check(click, 'Native click recognizer missing')
+
     const beforeClick = calls.length
+
     check(app.sendActionToFrom('viewPressed:', target, click), 'Native click selector unavailable')
     check(calls.length === beforeClick + 1, 'Native recognizer identity did not dispatch')
+
     const role =
       typeof ax.accessibilityRole === 'function' ? ax.accessibilityRole() : ax.accessibilityRole
 
@@ -135,9 +149,12 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
 
     props = { ...props, editable: false }
     await render()
+
     const beforeReadonly = calls.length
+
     app.sendActionToFrom('textFieldSubmitted:', fieldTarget, field)
     check(calls.length === beforeReadonly, 'Readonly native text submitted')
+
     const a = debug.findId('lease-link-a'),
       b = debug.findId('lease-link-b')
 
@@ -157,12 +174,14 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
 
     firstAction.handler()
     secondAction.handler()
+
     const clearing = debug.findId('lease-clears'),
       clearingTag = clearing.tag
 
     check(String(clearing.title) === 'Clear me' && !clearing.enabled, 'Pilot button setup missing')
     props = { ...props, clearButton: true }
     await render()
+
     const clearLabel =
       typeof clearing.accessibilityLabel === 'function'
         ? clearing.accessibilityLabel()
@@ -179,6 +198,7 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     )
 
     const before = calls.length
+
     app.sendActionToFrom('buttonPressed:', clearing.target, clearing)
     check(calls.length === before, 'Removed pilot button handler dispatched')
     console.log('PACKED_ADAPTER_BUTTON_CLEAR_OK')
@@ -199,5 +219,6 @@ export async function checkActionOwnershipLifecycle(nativeWindow: any) {
     root.unmount()
     host.removeFromSuperview()
   }
+
   console.log('PACKED_ACTION_OWNERSHIP_OK')
 }

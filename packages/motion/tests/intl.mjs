@@ -15,6 +15,7 @@ test('native segmentation owns its prerequisites without formatting polyfills', 
   assert.equal(typeof Intl.Collator, 'undefined')
  `,
   })
+
   assert.ok(result.modules.some((id) => id.includes('intl-segmenter')))
   assert.equal(
     result.modules.some((id) => /intl-numberformat|intl-datetimeformat|intl-collator/.test(id)),
@@ -29,6 +30,7 @@ test('web segmentation keeps built-ins and includes no FormatJS', async () => {
     before: 'const original = Intl.Segmenter',
     check: `assert.equal(leaf.planTextMorph(null, 'café 👨‍👩‍👧').frame.value, 'café 👨‍👩‍👧'); assert.equal(leaf.planTextMorph(null, 'hello world').fallback, undefined); assert.equal(Intl.Segmenter, original)`,
   })
+
   assert.equal(
     result.modules.some((id) => id.includes('@formatjs')),
     false,

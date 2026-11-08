@@ -60,6 +60,7 @@ export function sameFocusedInput(a: FocusedInputState, b: FocusedInputState): bo
     a.scrollOwners.length === b.scrollOwners.length &&
     a.scrollOwners.every((owner, index) => {
       const next = b.scrollOwners[index]
+
       return (
         owner.id === next.id &&
         sameRect(owner.rect, next.rect) &&

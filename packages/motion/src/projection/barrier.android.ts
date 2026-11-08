@@ -9,12 +9,14 @@ const pendingContainers = new Set<unknown>()
 function rootViewOf(container: any): any {
   const host = container?.host
   const nv = host?.nativeView ?? host ?? null
+
   return nv?.getRootView?.() ?? null
 }
 
 function decorView(): any {
   const activity =
     (Application as any).android?.foregroundActivity ?? (Application as any).foregroundActivity
+
   return activity?.getWindow?.()?.getDecorView?.() ?? null
 }
 
@@ -24,14 +26,19 @@ export const barrier: LayoutBarrier = {
     const observers = new Map<any, { global: any; pre: any }>()
 
     const views = new Map<any, any>()
+
     for (const container of pendingContainers) {
       const view = rootViewOf(container)
+
       if (view) {
         views.set(view.getViewTreeObserver(), view)
       }
     }
+
     pendingContainers.clear()
+
     const decor = decorView()
+
     if (decor) {
       views.set(decor.getViewTreeObserver(), decor)
     }
@@ -57,12 +64,15 @@ export const barrier: LayoutBarrier = {
           vto.removeOnPreDrawListener?.(pair.pre)
         }
       }
+
       observers.clear()
     }
+
     const run = () => {
       if (ran) {
         return
       }
+
       ran = true
       cleanupAll()
       pass()
@@ -74,6 +84,7 @@ export const barrier: LayoutBarrier = {
       }
 
       const pair: { global: any; pre: any } = { global: null, pre: null }
+
       pair.global = new VTO.OnGlobalLayoutListener({
         onGlobalLayout: () => run(),
       })
@@ -94,6 +105,7 @@ export const barrier: LayoutBarrier = {
     // the commit caused no layout change; the pass always lands before the
     // traversal's draw.
     const anchor = decor ?? views.values().next().value
+
     if (anchor?.postInvalidateOnAnimation) {
       anchor.postInvalidateOnAnimation()
     } else {
@@ -106,10 +118,13 @@ export const barrier: LayoutBarrier = {
         if (container) {
           pendingContainers.add(container)
         }
+
         root.invalidate('mutation')
       },
     })
+
     const onOrientation = () => root.invalidate('resize')
+
     Application.on?.('orientationChanged', onOrientation)
     return () => {
       stop()

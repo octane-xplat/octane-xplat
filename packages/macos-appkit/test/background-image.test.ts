@@ -33,9 +33,11 @@ function harness() {
         this.superlayer = null
       },
     }
+
     created.push(layer)
     return layer
   }
+
   const releases: string[] = []
   const ctx = {
     collectBackground,
@@ -74,7 +76,9 @@ function harness() {
     console,
     delivered: undefined as any,
   }
+
   const api = runSlice(SLICE, ctx)
+
   return { api, ctx, created, releases }
 }
 
@@ -105,18 +109,24 @@ function makeLayer(): any {
       this.superlayer = null
     },
   }
+
   return l
 }
 
 test('a gradient layer paints stops, resizes with the host, and clears', () => {
   const { api } = harness()
   const n = node({ backgroundImage: 'linear-gradient(to right, red, blue)' }) as any
+
   api.syncBackgrounds(n)
+
   const host = n.bgHost
+
   assert.ok(host)
   assert.equal(n.view.layer.children[0], host)
   assert.equal(host.children.length, 1)
+
   const g = host.children[0]
+
   assert.deepEqual(Array.from(g.colors), ['red', 'blue'])
   assert.deepEqual(Array.from(g.locations), [0, 1])
   assert.equal(g.startPoint.x, 0)
@@ -137,8 +147,11 @@ test('multiple layers keep CSS first-on-top order under the border layer', () =>
       'linear-gradient(red, blue), url(~/tile.png), radial-gradient(circle, white, black)',
     borderStyle: 'solid',
   }) as any
+
   api.syncBackgrounds(n)
+
   const host = n.bgHost
+
   assert.equal(host.children.length, 3)
   assert.equal(host.children[0].type, 'axial')
   assert.equal(host.children[2].type, 'radial')
@@ -152,13 +165,17 @@ test('url() layers subscribe to image loads and release on rebuild/teardown', ()
   const { api, ctx, releases } = harness()
   const n = node({ backgroundImage: 'url(~/tile.png)' }) as any
   let deliver: any
+
   ctx.delivered = (_url: string, d: any) => {
     deliver = d
   }
+
   api.syncBackgrounds(n)
   assert.ok(deliver)
+
   const entry = n.bgPainted[0]
   const image = { size: { width: 10, height: 10 }, drawInRect() {} }
+
   deliver(image)
   assert.equal(entry.image, image)
   n.computedStyle = { backgroundImage: 'linear-gradient(red, blue)' }
@@ -170,6 +187,7 @@ test('the shorthand routes its color to backgroundColor and warns on junk', () =
   const { api } = harness()
   const warnings: string[] = []
   const orig = console.warn
+
   console.warn = (m: string) => warnings.push(m)
   try {
     const n = node({
@@ -189,11 +207,16 @@ test('the shorthand routes its color to backgroundColor and warns on junk', () =
 test('each url layer accepts its own completion and retires independently', () => {
   const { api, ctx } = harness()
   const deliveries = new Map<string, (image: unknown) => void>()
+
   ctx.delivered = (url: string, deliver: (image: unknown) => void) => deliveries.set(url, deliver)
+
   const n = node({ backgroundImage: 'url(one.png), url(two.png)' }) as any
+
   api.syncBackgrounds(n)
+
   const [one, two] = n.bgPainted
   const image = { size: { width: 10, height: 10 }, drawInRect() {} }
+
   deliveries.get('two.png')!(image)
   deliveries.get('one.png')!(image)
   assert.equal(one.image, image)
@@ -206,17 +229,24 @@ test('each url layer accepts its own completion and retires independently', () =
 test('changing a url replaces its request and rejects the old completion', () => {
   const { api, ctx, releases } = harness()
   const deliveries = new Map<string, (image: unknown) => void>()
+
   ctx.delivered = (url: string, deliver: (image: unknown) => void) => deliveries.set(url, deliver)
+
   const n = node({ backgroundImage: 'url(one.png)' }) as any
+
   api.syncBackgrounds(n)
+
   const old = n.bgPainted[0]
+
   n.computedStyle = { backgroundImage: 'url(two.png)' }
   api.syncBackgrounds(n)
   assert.ok(deliveries.has('two.png'))
   assert.deepEqual(releases, ['one.png'])
   deliveries.get('one.png')!({})
   assert.equal(old.image, undefined)
+
   const image = { size: { width: 10, height: 10 }, drawInRect() {} }
+
   deliveries.get('two.png')!(image)
   assert.equal(n.bgPainted[0].image, image)
 })

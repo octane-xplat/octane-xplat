@@ -79,6 +79,7 @@ export interface WorkshopBootOptions {
 /** Mount the web workshop into a host element. */
 export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
   const mountHost = document.createElement('div')
+
   mountHost.className = 'xw-stage-host'
 
   const session = new WorkshopSession({
@@ -124,13 +125,16 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
       }
 
       const generation = ++runtime!.loadGeneration
+
       try {
         const loaded = await entry.load()
+
         if (generation !== runtime!.loadGeneration) {
           return
         }
 
         const definition = resolveDefinition(loaded, entry)
+
         await session.select(definition)
       } catch (error) {
         if (generation === runtime!.loadGeneration) {
@@ -141,6 +145,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
     updateCatalog(entries, diagnostics = []) {
       const generation = ++runtime!.loadGeneration
       const stamp = String(Date.now())
+
       store.update((s) => ({
         ...s,
         catalog: entries,
@@ -154,11 +159,13 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
       }
 
       const current = store.getSnapshot().selectedId
+
       if (!current) {
         return
       }
 
       const entry = pickEntry(entries, current)
+
       if (!entry?.load) {
         store.update((s) => ({ ...s, missingId: current }))
         void session.dispose()
@@ -168,6 +175,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
       void (async () => {
         try {
           const loaded = await entry.load!(stamp)
+
           if (generation !== runtime!.loadGeneration) {
             return
           }
@@ -188,6 +196,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
   // Dev-server lifecycle: rebuilds mark the stage rebuilding; a failed
   // transform keeps the last good stage and marks it stale.
   let updateLoadGeneration = 0
+
   options.hot?.on?.('vite:beforeUpdate', () => {
     updateLoadGeneration = runtime!.loadGeneration
     session.markRebuilding()
@@ -205,10 +214,12 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
   options.hot?.on?.('vite:error', (payload) => {
     const err =
       typeof payload === 'object' && payload !== null && 'err' in payload ? payload.err : undefined
+
     const message =
       typeof err === 'object' && err !== null && 'message' in err && typeof err.message === 'string'
         ? err.message
         : 'source update failed'
+
     session.markCompileError(message)
   })
 
@@ -216,12 +227,14 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
   options.hot?.on?.('vite:ws:connect', () => session.markConnected())
 
   const hostElement = document.getElementById('workshop-root') ?? document.body
+
   hostElement.replaceChildren()
   createRoot(hostElement).render(createElement(WorkshopApp as never, { runtime } as never))
 
   // Hash selection: #/story/<id> survives reloads and deep-links a story.
   const idFromHash = () => {
     const raw = location.hash.replace(/^#\/?story\//, '')
+
     try {
       return decodeURIComponent(raw) || null
     } catch {
@@ -233,8 +246,10 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
     entries.find((e) => e.id === id && e.load) ?? entries.find((e) => e.id === id)
 
   const initialId = options.initialStoryId ?? idFromHash()
+
   if (initialId) {
     const entry = pickEntry(options.catalog, initialId)
+
     if (entry?.load) {
       store.update((s) => ({ ...s, selectedId: initialId }))
       void runtime.selectEntry(entry)
@@ -245,8 +260,10 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 
   globalThis.addEventListener?.('hashchange', () => {
     const id = idFromHash()
+
     if (id && id !== store.getSnapshot().selectedId) {
       const entry = pickEntry(store.getSnapshot().catalog, id)
+
       if (entry?.load) {
         store.update((s) => ({ ...s, selectedId: id, missingId: null }))
         void runtime!.selectEntry(entry)
@@ -264,6 +281,7 @@ export function startWorkshop(options: WorkshopBootOptions): WorkshopRuntime {
 /** Group keys (`name@depth`) for every title segment group in the catalog. */
 function groupKeys(entries: CatalogEntry[]): string[] {
   const keys = new Set<string>()
+
   for (const entry of entries) {
     const segments = entry.title
       .split('/')
@@ -285,6 +303,7 @@ export function resolveDefinition(
   const mod = loaded as Record<string, unknown>
   const candidate: unknown = mod?.[entry.exportName]
   const definition = candidate as StoryDefinition<any, any, any> | undefined
+
   if (!definition || typeof definition !== 'object' || definition.id !== entry.id) {
     throw new Error(
       `story module ${entry.file} did not provide a story definition at export "${entry.exportName}"`,

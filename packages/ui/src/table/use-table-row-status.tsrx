@@ -126,6 +126,7 @@ function StatusCell<T extends Record<string, unknown>>(props: {
   configRef: { current: UseTableRowStatusConfig<T> }
 }) @{
   const status = props.configRef.current.getStatus(props.item)
+
   if (!status) {
     return null as any
   }
@@ -161,6 +162,7 @@ export function useTableRowStatus<T extends Record<string, unknown>>(
   config: UseTableRowStatusConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   const statusColumn: TableColumn<T> = {

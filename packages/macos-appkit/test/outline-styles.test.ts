@@ -29,9 +29,11 @@ function harness(style: any) {
         this.superlayer = null
       },
     }
+
     shapes.push(s)
     return s
   }
+
   const ctx = {
     borderStyleSides,
     hiddenBorderStyle,
@@ -72,6 +74,7 @@ function harness(style: any) {
     effectiveStyle: () => style,
     console,
   }
+
   const api = runSlice(SLICE, ctx)
   const node: any = {
     view: {
@@ -86,17 +89,20 @@ function harness(style: any) {
       },
     },
   }
+
   return { api, node, shapes, fireResize: () => api.syncOutlineGeometry(node) }
 }
 
 test('outlineSpec parses shorthand and longhands, none clears', () => {
   const { api } = harness({})
+
   assert.equal(api.outlineSpec({ outline: '2px dashed red' })?.style, 'dashed')
   assert.equal(api.outlineSpec({ outline: '2px dashed red' })?.width, 2)
   assert.equal(
     api.outlineSpec({ outlineStyle: 'dotted', outlineWidth: 3, outlineOffset: 2 })?.offset,
     2,
   )
+
   assert.equal(api.outlineSpec({ outline: 'none' }), null)
   assert.equal(api.outlineSpec({ outlineWidth: 0 }), null)
   assert.equal(api.outlineSpec({ outlineStyle: 'auto' })?.style ?? null, null)
@@ -105,11 +111,16 @@ test('outlineSpec parses shorthand and longhands, none clears', () => {
 
 test('dashed outline strokes the centered expanded path; resize repaints', () => {
   const { api, node, fireResize } = harness({ outline: '2px dashed red', outlineOffset: 1 })
+
   api.syncOutline(node)
+
   const host = node.outlineLayer
+
   assert.ok(host)
   assert.equal(host.borderWidth ?? 0, 0)
+
   const shape = node.outlineShapes.stroke
+
   assert.ok(shape)
   assert.equal(shape.strokeColor, 'cg:red')
   assert.equal(shape.lineWidth, 2)
@@ -122,14 +133,21 @@ test('dashed outline strokes the centered expanded path; resize repaints', () =>
 
 test('double outline paints per-side bands; groove shades dark', () => {
   const { api, node } = harness({ outline: '6px double #888' })
+
   api.syncOutline(node)
   assert.ok(node.outlineMask)
+
   const sides = node.outlineShapes
+
   assert.equal(sides.top.length, 2, 'double = two bands per side')
   assert.ok(sides.top.every((s: any) => s.fillColor === 'cg:#888'))
+
   const { api: api2, node: node2 } = harness({ outline: '4px groove #888' })
+
   api2.syncOutline(node2)
+
   const tops = node2.outlineShapes.top
+
   assert.equal(tops.length, 2)
   assert.equal(tops[0].fillColor, 'dark', 'groove outer top band shades dark')
   assert.equal(tops[1].fillColor, 'cg:#888')
@@ -137,16 +155,21 @@ test('double outline paints per-side bands; groove shades dark', () => {
 
 test('solid keeps the CALayer border fast path; removal tears down', () => {
   const { api, node } = harness({ outline: '2px solid blue' })
+
   api.syncOutline(node)
+
   const host = node.outlineLayer
+
   assert.equal(host.borderWidth, 2)
   assert.equal(host.borderColor, 'cg:blue')
   assert.equal(host.cornerRadius, 4 + 2)
   node.view.layer = null
   api.syncOutline(node)
   assert.equal(host.superlayer, null)
+
   // A missing spec also leaves no host.
   const { api: api3, node: node3 } = harness({})
+
   api3.syncOutline(node3)
   assert.equal(node3.outlineLayer, null)
 })

@@ -23,9 +23,11 @@ export function applyPlugins<T extends Record<string, unknown>, TProps, TArgs ex
 ): TProps {
   return plugins.reduce<TProps>((acc, plugin, index) => {
     const transform = getter(plugin)
+
     if (!transform) {
       return acc
     }
+
     try {
       return transform.call(plugin, acc, ...args)
     } catch (error) {
@@ -68,6 +70,7 @@ export function resolveTablePlugins<T extends Record<string, unknown>>(
         )
         .map(([, plugin]) => plugin)
     : []
+
   return [...basePlugins, ...sorted]
 }
 
@@ -154,9 +157,11 @@ export function planTableRender<T extends Record<string, unknown>>(
       'data-column-key': col.key,
       scope: 'col',
     }
+
     if (col.align) {
       htmlProps.style = { textAlign: col.align }
     }
+
     const render = applyPlugins(
       plugins,
       (p) => p.transformHeaderCell,
@@ -171,6 +176,7 @@ export function planTableRender<T extends Record<string, unknown>>(
       columnIndex,
       resolvedColumns,
     )
+
     return { column: col, render, widthStyle: widths.columns.get(col.key)?.style ?? {} }
   })
 
@@ -183,9 +189,11 @@ export function planTableRender<T extends Record<string, unknown>>(
   const rows: PlannedRow<T>[] = (data ?? []).map((item, rowIndex) => {
     const cells = resolvedColumns.map((col, columnIndex): PlannedBodyCell<T> => {
       const htmlProps: Record<string, unknown> = {}
+
       if (col.align) {
         htmlProps.style = { textAlign: col.align }
       }
+
       const render = applyPlugins(
         plugins,
         (p) => p.transformBodyCell,
@@ -200,12 +208,14 @@ export function planTableRender<T extends Record<string, unknown>>(
         columnIndex,
         resolvedColumns,
       )
+
       const isDefaultRenderer = !col.renderCell
       const content = render.isContentSuppressed
         ? undefined
         : isDefaultRenderer
           ? defaultCellRenderer(item, col.key)
           : col.renderCell!(item)
+
       return { column: col, render, content, isDefaultRenderer }
     })
 
@@ -227,6 +237,7 @@ export function planTableRender<T extends Record<string, unknown>>(
       item,
       rowIndex,
     )
+
     return {
       item,
       index: rowIndex,
@@ -263,6 +274,7 @@ export function wrapTableContext<T extends Record<string, unknown>>(
   node: unknown,
 ): unknown {
   let out = node
+
   for (const plugin of plugins) {
     if (plugin.transformTableContext) {
       try {
@@ -274,5 +286,6 @@ export function wrapTableContext<T extends Record<string, unknown>>(
       }
     }
   }
+
   return out
 }

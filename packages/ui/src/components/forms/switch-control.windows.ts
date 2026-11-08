@@ -33,9 +33,11 @@ class WindowsToggleControl extends View {
 
   createNativeView() {
     const native = new Microsoft.UI.Xaml.Controls.Primitives.ToggleButton()
+
     native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
       '<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="ToggleButton"><Border Background="Transparent" /></ControlTemplate>',
     )
+
     native.IsThreeState = false
     native.IsChecked = this.checked
     return native
@@ -43,8 +45,11 @@ class WindowsToggleControl extends View {
 
   initNativeView() {
     super.initNativeView()
+
     const native = this.nativeViewProtected
+
     this.eventNative = native
+
     const changed = (next: boolean) => {
       if (this.eventNative !== native || this.writing || next === this.checked) {
         return
@@ -65,6 +70,7 @@ class WindowsToggleControl extends View {
 
   disposeNativeView() {
     const native = this.eventNative
+
     this.eventNative = undefined
     this.eventHandlers = undefined
     if (native) {
@@ -78,6 +84,7 @@ class WindowsToggleControl extends View {
   private writeChecked(value: boolean) {
     const native = this.nativeViewProtected
     const handlers = this.eventNative === native ? this.eventHandlers : undefined
+
     this.writing++
     try {
       // Avoid entering JS through synchronous native events during a host prop write.

@@ -38,11 +38,13 @@ export function TabList(props: {
   useLayoutEffect(() => {
     const strip = stripRef.current
     const indicator = indicatorRef.current
+
     if (strip == null || indicator == null) {
       return
     }
 
     const selected = strip.querySelector<HTMLElement>('[data-selected="true"]')
+
     if (selected == null) {
       indicator.style.width = '0'
       return
@@ -50,6 +52,7 @@ export function TabList(props: {
 
     const stripRect = strip.getBoundingClientRect()
     const rect = selected.getBoundingClientRect()
+
     indicator.style.transform = `translateX(${rect.left - stripRect.left}px)`
     indicator.style.width = `${rect.width}px`
   })
@@ -67,6 +70,7 @@ export function TabList(props: {
 export function Tab(props: { value: string; label: string }) {
   const ctx = useContext(ProposedContext)
   const selected = ctx?.value === props.value
+
   return (
     <button
       type="button"

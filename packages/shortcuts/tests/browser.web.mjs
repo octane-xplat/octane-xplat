@@ -11,11 +11,14 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(`http://127.0.0.1:${server.httpServer.address().port}`)
   await page.waitForFunction(() => window.fixture)
@@ -44,7 +47,9 @@ try {
   })
 
   await page.keyboard.press('Control+Shift+x')
+
   const recording = await page.evaluate(() => window.recorded)
+
   assert.equal(recording.expression, 'Ctrl+Shift+x')
   await page.evaluate(() => window.fixture.shortcuts.dispose())
   await page.keyboard.type('gi')

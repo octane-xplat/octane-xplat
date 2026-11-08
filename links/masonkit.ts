@@ -7,6 +7,7 @@ import { spawnSync } from 'node:child_process'
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const dist = join(root, 'links/nativescript-mason/dist/packages/nativescript-masonkit')
 const name = '@octane-xplat/nativescript-masonkit'
+
 if (!existsSync(join(dist, 'package.json'))) {
   throw new Error(`Build the local fork first: ${dist}/package.json is missing`)
 }
@@ -18,7 +19,9 @@ if (JSON.parse(readFileSync(join(dist, 'package.json'), 'utf8')).name !== name) 
 const file = join(root, 'package.json')
 const before = readFileSync(file, 'utf8')
 const pkg = JSON.parse(before)
+
 pkg.overrides = { ...pkg.overrides, [name]: `link:${dist}` }
+
 const temporary = JSON.stringify(pkg, null, '\t') + '\n'
 let signalCode = 0
 const interrupt = () => {
@@ -33,6 +36,7 @@ process.on('SIGINT', interrupt)
 process.on('SIGTERM', terminate)
 try {
   writeFileSync(file, temporary)
+
   const result = spawnSync('bun', ['install', '--ignore-scripts', '--no-save', '--force'], {
     cwd: root,
     stdio: 'inherit',

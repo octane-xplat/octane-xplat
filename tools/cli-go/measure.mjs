@@ -11,7 +11,9 @@ const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
 const flags = process.argv.slice(2)
+
 assert.ok(flags.length === 0 || (flags.length === 1 && flags[0] === '--onnx'))
+
 const onnx = flags.includes('--onnx')
 
 const target = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
@@ -23,7 +25,9 @@ const binary =
   )
 
 const build = JSON.parse(readFileSync(binary + '.json'))
+
 assert.equal(build.onnx, onnx, 'Measure the requested inference variant')
+
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const bytes = readFileSync(binary),
   archive = readFileSync(binary + '.tgz')
@@ -36,6 +40,7 @@ for (const [file, hash] of Object.entries(build.inputs)) {
 }
 
 const samples = []
+
 for (let at = 0; at < 25; at++) {
   const started = performance.now()
   const result = spawnSync(binary, ['--help'], {
@@ -45,6 +50,7 @@ for (let at = 0; at < 25; at++) {
   })
 
   const milliseconds = performance.now() - started
+
   assert.equal(result.status, 0, result.stderr)
   assert.equal(result.stderr, '')
   if (at >= 5) {
@@ -53,6 +59,7 @@ for (let at = 0; at < 25; at++) {
 }
 
 samples.sort((a, b) => a - b)
+
 const record = {
   target,
   variant: onnx ? 'native-inference' : 'core',

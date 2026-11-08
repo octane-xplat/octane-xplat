@@ -44,10 +44,13 @@ it('AppKit discovery hook snapshots once per native root and clears/recollects o
 
   try {
     const view = {}
+
     await render({ current: { native: view } })
     expect(captured).toEqual([{ id: 'intro', label: 'Intro', level: 2 }])
     expect(calls).toBe(1)
+
     const first = captured
+
     label = 'Changed'
     await render({ current: view })
     expect(captured).toBe(first)

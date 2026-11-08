@@ -11,6 +11,7 @@ import { keyboardNativeScope } from './native-scope'
 import { startFocusClock } from './focus-clock'
 
 export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
+
 const flipped = (view: any): boolean =>
   typeof view?.isFlipped === 'function' ? view.isFlipped() : !!view?.isFlipped
 
@@ -19,50 +20,64 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
   const window = key as any,
     scope = keyboardNativeScope(),
     publish = focusPublisher(notify)
+
   let active = true
+
   scope.defer(() => {
     active = false
   })
+
   try {
     const read = () => {
       if (!active) {
         return
       }
+
       const root = window.contentView
       const box = focusRect(root?.bounds)
       const state = emptyFocus(box && { ...box, x: 0, y: 0 }, 'native-rect')
       const editor = window.firstResponder
+
       if (!root || !editor || typeof editor.firstRectForCharacterRangeActualRange !== 'function') {
         publish(state)
         return
       }
+
       const candidate = editor.delegate
       const input =
         candidate?.window === window && typeof candidate.convertRectToView === 'function'
           ? candidate
           : editor
+
       if (input.window !== window) {
         publish(state)
         return
       }
+
       const normalize = (value: any) => {
         const rect = focusRect(value)
+
         return (
           rect &&
           (flipped(root) ? rect : { ...rect, y: root.bounds.size.height - rect.y - rect.height })
         )
       }
+
       const range = editor.selectedRange
       const selection = range
         ? focusSelection(Number(range.location), Number(range.location) + Number(range.length))
         : null
+
       const caretScreen = selection
         ? editor.firstRectForCharacterRangeActualRange({ location: selection.end, length: 0 }, null)
         : null
+
       const caret = caretScreen
         ? normalize(root.convertRectFromView(window.convertRectFromScreen(caretScreen), null))
         : null
+
       const owners: FocusedInputScrollOwner[] = []
+
       for (let parent = input; parent; parent = parent.superview) {
         if (!(parent instanceof NSScrollView) || !parent.documentView) {
           continue
@@ -72,11 +87,13 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
           content = parent.documentView
 
         const rect = normalize(clip.convertRectToView(clip.bounds, root))
+
         if (!rect) {
           continue
         }
 
         const max = Math.max(0, content.bounds.size.height - clip.bounds.size.height)
+
         owners.push({
           id: parent,
           rect,
@@ -85,7 +102,9 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
           maxOffsetY: max,
         })
       }
+
       const inputRect = normalize(input.convertRectToView(input.bounds, root))
+
       publish({
         ...state,
         input,

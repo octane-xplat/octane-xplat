@@ -29,6 +29,7 @@ export function registerRuntimeTools(
     },
     async ({ platform }) => {
       const result = await runtime.listTargets({ platform })
+
       return respond(result)
     },
   )
@@ -45,6 +46,7 @@ export function registerRuntimeTools(
     },
     async ({ platform, requestKey }) => {
       const result = await runtime.build({ platform, requestKey })
+
       return respond(result)
     },
   )
@@ -72,6 +74,7 @@ export function registerRuntimeTools(
     },
     async ({ target, requestKey, browserMode }) => {
       const result = await runtime.launch({ target, requestKey, browserMode })
+
       return respond(result)
     },
   )
@@ -91,6 +94,7 @@ export function registerRuntimeTools(
     },
     async ({ platform, targetId }) => {
       const result = await runtime.attach({ platform, targetId })
+
       return respond(result)
     },
   )
@@ -112,6 +116,7 @@ export function registerRuntimeTools(
     },
     async (args) => {
       const result = await runtime.readDiagnostics(args)
+
       return respond(result)
     },
   )

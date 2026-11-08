@@ -5,6 +5,7 @@ export function mergeStyle(base: Record<string, unknown>, style?: StyleProp): St
   if (typeof style !== 'string') {
     return { ...base, ...style }
   }
+
   const prefix = Object.entries(base)
     .filter(([, value]) => value != null)
     .map(([key, value]) => {
@@ -14,8 +15,10 @@ export function mergeStyle(base: Record<string, unknown>, style?: StyleProp): St
         typeof value === 'number' && /^(top|right|bottom|left|width|height)$/.test(key)
           ? `${value}px`
           : value
+
       return `${key.replace(/[A-Z]/g, (c) => '-' + c.toLowerCase())}:${rendered}`
     })
     .join(';')
+
   return `${prefix};${style}`
 }

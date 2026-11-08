@@ -37,6 +37,7 @@ function graphemeUnits(value: string): string[] {
 
   if (graphemeSegmenter) {
     const units: string[] = []
+
     for (const part of graphemeSegmenter.segment(value)) {
       units.push(part.segment)
     }
@@ -68,6 +69,7 @@ function wordUnits(value: string): string[] {
   // it" grouping.
   const units: string[] = []
   let current: string | undefined
+
   for (const part of wordSegmenter.segment(value)) {
     if (part.isWordLike) {
       if (current !== undefined) {

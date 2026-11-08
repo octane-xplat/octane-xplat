@@ -53,11 +53,13 @@ function ensureGpu(): any {
   }
 
   const gpu = gpuShim
+
   if (!gpu) {
     return null
   }
 
   const g = globalThis as any
+
   try {
     if (!g.navigator) {
       g.navigator = {}
@@ -82,6 +84,7 @@ function measure(view: any): Size {
   const actual = view?.getActualSize?.()
   const width = Number(rect?.width) || Number(actual?.width) || Number(view?.width) || 0
   const height = Number(rect?.height) || Number(actual?.height) || Number(view?.height) || 0
+
   return { width, height }
 }
 
@@ -90,10 +93,12 @@ function measure(view: any): Size {
  *  plugin view's layout size is never mutated by buffer pixel counts. */
 function hostCanvas(view: any): any {
   const bag = { style: {} as Record<string, string>, width: 0, height: 0 }
+
   return {
     getContext: (kind: string, options?: any) => view.getContext(kind, options),
     getBoundingClientRect: () => {
       const { width, height } = measure(view)
+
       return { x: 0, y: 0, top: 0, left: 0, right: width, bottom: height, width, height }
     },
     get clientWidth() {
@@ -123,17 +128,20 @@ function hostCanvas(view: any): any {
 
 async function acquireInjectedGpu(): Promise<SharedGpu | null> {
   const gpu = ensureGpu()
+
   if (!gpu?.requestAdapter) {
     return null
   }
 
   try {
     const adapter = await gpu.requestAdapter()
+
     if (!adapter) {
       return null
     }
 
     const device = await adapter.requestDevice()
+
     return device ? { device, adapter } : null
   } catch {
     return null
@@ -146,21 +154,27 @@ export async function createShader(
   options?: CreateShaderOptions,
 ): Promise<ShaderInstance> {
   const { upstream, signal } = resolveOptions(options, { observeElement: false })
+
   throwIfAborted(signal)
+
   const host = hostCanvas(canvas)
+
   await waitForPositiveSize(() => measure(canvas), signal)
   // Adapter-acquired device (shared default when the caller supplies no
   // `gpu`) — never destroyed by the adapter, so one instance's destroy
   // cannot kill another's shared device.
   if (!upstream.gpu) {
     const gpu = await acquireInjectedGpu()
+
     if (gpu) {
       upstream.gpu = gpu
     }
   }
 
   throwIfAborted(signal)
+
   const inner = await upstreamCreateShader(host, preset, upstream as any)
+
   if (signal?.aborted) {
     inner.destroy()
     throwIfAborted(signal)
@@ -169,6 +183,7 @@ export async function createShader(
   const view = canvas as any
   const attach = (hide: () => void, show: () => void) => {
     const onLayout = () => inner.resize()
+
     Application.on(Application.suspendEvent, hide)
     Application.on(Application.resumeEvent, show)
     view?.on?.(View.unloadedEvent, hide)
@@ -207,12 +222,14 @@ export function prefersReducedMotion(): boolean {
   try {
     if (isIOS) {
       const check = (globalThis as any).UIAccessibilityIsReduceMotionEnabled
+
       return typeof check === 'function' ? !!check() : false
     }
 
     if (isAndroid) {
       const context = Application.android?.context
       const settings = (globalThis as any).android?.provider?.Settings
+
       if (!context || !settings?.Global) {
         return false
       }

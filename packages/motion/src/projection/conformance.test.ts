@@ -18,24 +18,29 @@ function makeClock() {
     now: () => time,
     request: (cb) => {
       const id = ++seq
+
       queue.push({ id, cb })
       return id
     },
     cancel: (id) => {
       const index = queue.findIndex((entry) => entry.id === id)
+
       if (index !== -1) {
         queue.splice(index, 1)
       }
     },
     advance(ms) {
       time += ms
+
       const queued = [...queue]
+
       queue.length = 0
       for (const entry of queued) {
         entry.cb()
       }
     },
   }
+
   return clock
 }
 
@@ -46,12 +51,14 @@ function makeBarrier() {
     observe: () => () => {},
     flush() {
       const pending = [...scheduled]
+
       scheduled.length = 0
       for (const pass of pending) {
         pass()
       }
     },
   }
+
   return barrier
 }
 
@@ -65,9 +72,11 @@ function fakeHooks() {
     resets: 0,
     writes: [] as (ProjectionWrite | null)[],
   }
+
   const hooks = {
     measureLayout: (): Measurement => {
       const b = state.box
+
       return {
         layoutBox: { x: { ...b.x }, y: { ...b.y } },
         measuredBox: { x: { ...b.x }, y: { ...b.y } },
@@ -80,6 +89,7 @@ function fakeHooks() {
       state.writes.push(write)
     },
   }
+
   return { state, hooks }
 }
 
@@ -91,6 +101,7 @@ function setup() {
     root.invalidate('commit')
     barrier.flush()
   }
+
   return { clock, root, commit }
 }
 
@@ -100,6 +111,7 @@ function makeNode(
   parent?: ProjectionNode,
 ) {
   const node = new ProjectionNode(parent)
+
   node.attach(hooks)
   node.options.animationType = 'both'
   node.options.transition = { duration: 1, ease: 'linear' }
@@ -119,7 +131,9 @@ describe('projection node conformance', () => {
     const parent = makeNode(root, parentHost.hooks)
 
     const childHost = fakeHooks()
+
     childHost.state.box = box(0, 0, 50, 50)
+
     const child = makeNode(root, childHost.hooks, parent)
 
     commit()
@@ -145,7 +159,9 @@ describe('projection node conformance', () => {
     const parent = makeNode(root, parentHost.hooks)
 
     const childHost = fakeHooks()
+
     childHost.state.box = box(0, 0, 50, 50)
+
     const child = makeNode(root, childHost.hooks, parent)
 
     commit()
@@ -169,13 +185,19 @@ describe('projection node conformance', () => {
     const aHost = fakeHooks()
     const a = makeNode(root, aHost.hooks)
     const bHost = fakeHooks()
+
     bHost.state.box = box(0, 0, 50, 50)
+
     const b = makeNode(root, bHost.hooks, a)
     const cHost = fakeHooks()
+
     cHost.state.box = box(0, 0, 50, 50)
+
     const c = makeNode(root, cHost.hooks, b)
     const dHost = fakeHooks()
+
     dHost.state.box = box(0, 0, 50, 50)
+
     const d = makeNode(root, dHost.hooks, c)
 
     commit()
@@ -184,6 +206,7 @@ describe('projection node conformance', () => {
       x: { translate: 200, scale: 2, origin: 0.5, originPoint: 100 },
       y: { translate: 200, scale: 2, origin: 0.5, originPoint: 100 },
     })
+
     c.relativeTarget = box(0, 0, 100, 100)
 
     propagateDirtyNodes(a)

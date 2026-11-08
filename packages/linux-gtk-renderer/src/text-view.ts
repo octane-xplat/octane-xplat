@@ -18,7 +18,9 @@ export function takeTextViewControl(view: GtkView | null): TextViewControl | und
   if (!view) {
     return undefined
   }
+
   const control = controls.get(view)
+
   controls.delete(view)
   return control
 }
@@ -31,12 +33,17 @@ export function makeTextView(): GtkView {
     wrap_mode: Gtk.WrapMode.WORD_CHAR,
     accepts_tab: false,
   }) as GtkView
+
   const buffer = view.get_buffer()
+
   view.get_text = () => buffer.get_text(...buffer.get_bounds(), true)
+
   let writing = false
   let maximum = Infinity
+
   view.set_text = (text: string) => {
     const previous = writing
+
     writing = true
     try {
       buffer.set_text(text, -1)
@@ -44,14 +51,18 @@ export function makeTextView(): GtkView {
       writing = previous
     }
   }
+
   const insertion = buffer.connect('insert-text', (_: unknown, location: any, text: string) => {
     if (writing || maximum === Infinity) {
       return
     }
+
     let end = Math.max(0, maximum - view.get_text().length)
+
     if (text.length <= end) {
       return
     }
+
     // Count UTF-16 units like String.length, without splitting an emoji pair.
     if (
       end > 0 &&
@@ -62,34 +73,47 @@ export function makeTextView(): GtkView {
     ) {
       end--
     }
+
     const prefix = text.slice(0, end)
+
     GObject.signal_stop_emission_by_name(buffer, 'insert-text')
     if (!prefix) {
       return
     }
+
     const offset = location.get_offset()
+
     buffer.insert(location, prefix, -1)
     // The outer GTK insertion caller still owns this iterator.
     location.assign(buffer.get_iter_at_offset(offset + Array.from(prefix).length))
   })
+
   view.get_position = () => buffer.get_iter_at_mark(buffer.get_insert()).get_offset()
   view.set_position = (position: number) => buffer.place_cursor(buffer.get_iter_at_offset(position))
   view.get_selection_bounds = () => {
     const [selected, start, end] = buffer.get_selection_bounds()
+
     return [selected, start.get_offset(), end.get_offset()]
   }
+
   view.select_region = (anchor: number, cursor: number) =>
     buffer.select_range(buffer.get_iter_at_offset(cursor), buffer.get_iter_at_offset(anchor))
+
   const viewport = new Gtk.ScrolledWindow({
     hscrollbar_policy: Gtk.PolicyType.NEVER,
     vscrollbar_policy: Gtk.PolicyType.AUTOMATIC,
   }) as GtkView
+
   viewport.propagate_natural_height = true
   viewport.propagate_natural_width = true
   viewport.set_child(view)
+
   const overlay = new Gtk.Overlay() as GtkView
+
   overlay.set_child(viewport)
+
   const placeholder = new Gtk.Label({ label: '', xalign: 0 }) as GtkView
+
   placeholder.set_yalign(0)
   placeholder.set_wrap(true)
   placeholder.wrap_mode = Pango.WrapMode.WORD_CHAR
@@ -100,6 +124,7 @@ export function makeTextView(): GtkView {
   overlay.add_overlay(placeholder)
   overlay.set_measure_overlay(placeholder, false)
   overlay.set_clip_overlay(placeholder, true)
+
   let hint = ''
   let disposed = false
   const update = () => placeholder.set_visible(hint !== '' && buffer.get_char_count() === 0)
@@ -110,12 +135,16 @@ export function makeTextView(): GtkView {
       if (child !== placeholder) {
         return false
       }
+
       const [ok, bounds] = view.compute_bounds(overlay)
+
       if (!ok) {
         return false
       }
+
       const visible = view.get_visible_rect()
       const [x, y] = view.buffer_to_window_coords(Gtk.TextWindowType.WIDGET, visible.x, visible.y)
+
       allocation.x = Math.round(bounds.origin.x + x)
       allocation.y = Math.round(bounds.origin.y + y)
       allocation.width = Math.max(0, visible.width)
@@ -123,6 +152,7 @@ export function makeTextView(): GtkView {
       return true
     },
   )
+
   update()
   controls.set(view, {
     layoutView: overlay,
@@ -132,6 +162,7 @@ export function makeTextView(): GtkView {
       if (disposed) {
         return
       }
+
       hint = String(value ?? '')
       placeholder.set_label(hint)
       if (hint) {
@@ -139,12 +170,14 @@ export function makeTextView(): GtkView {
       } else {
         view.reset_property(Gtk.AccessibleProperty.PLACEHOLDER)
       }
+
       update()
     },
     setMaxLength(value) {
       if (disposed) {
         return
       }
+
       maximum =
         typeof value === 'number' && Number.isFinite(value) && value >= 0
           ? Math.trunc(value)
@@ -154,11 +187,13 @@ export function makeTextView(): GtkView {
       if (disposed) {
         return
       }
+
       disposed = true
       buffer.disconnect(changed)
       buffer.disconnect(insertion)
       overlay.disconnect(position)
     },
   })
+
   return view
 }

@@ -1,4 +1,5 @@
 let finished = false
+
 export const networkResponse = async (request, response) => {
   response.setHeader('access-control-allow-origin', '*')
   response.setHeader('access-control-allow-methods', 'GET, PUT, POST, OPTIONS')
@@ -8,8 +9,10 @@ export const networkResponse = async (request, response) => {
     response.end()
     return
   }
+
   if (request.url === '/upload') {
     const chunks = []
+
     for await (const chunk of request) {
       chunks.push(chunk)
     }
@@ -28,9 +31,12 @@ export const networkResponse = async (request, response) => {
   } else {
     finished = false
     response.writeHead(200, { 'content-type': 'application/x-ndjson' })
+
     const record = Buffer.from('{"text":"é"}\n')
     const split = record.indexOf(0xc3) + 1
+
     response.write(record.subarray(0, split))
+
     const nextChunk = setTimeout(() => response.write(record.subarray(split)), 100)
     const timer = setTimeout(() => {
       finished = true

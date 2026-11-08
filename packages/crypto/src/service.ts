@@ -15,9 +15,11 @@ export function getRandomBytes(byteCount: number): Uint8Array<ArrayBuffer> {
   if (!Number.isInteger(byteCount) || byteCount < 0 || byteCount > 1024) {
     throw new TypeError('byteCount must be an integer from 0 to 1024')
   }
+
   if (!random.supported) {
     throw new UnavailabilityError('Crypto secure randomness')
   }
+
   return random.bytes(byteCount).slice()
 }
 
@@ -35,20 +37,26 @@ export function getRandomValues<T extends IntegerTypedArray>(typedArray: T): T {
   ) {
     throw new TypeError('Expected an integer typed array')
   }
+
   if (typedArray.byteLength > 65536) {
     throw new RangeError('getRandomValues accepts at most 65536 bytes')
   }
+
   if (!random.supported) {
     throw new UnavailabilityError('Crypto secure randomness')
   }
+
   return random.fill(typedArray)
 }
 
 export function randomUUID(): string {
   const bytes = getRandomBytes(16)
+
   bytes[6] = (bytes[6]! & 15) | 64
   bytes[8] = (bytes[8]! & 63) | 128
+
   const text = hex(bytes)
+
   return `${text.slice(0, 8)}-${text.slice(8, 12)}-${text.slice(12, 16)}-${text.slice(16, 20)}-${text.slice(20)}`
 }
 
@@ -60,6 +68,7 @@ export async function digest(
   if (!backend.capabilities().digestAlgorithms.includes(algorithm)) {
     throw new UnavailabilityError(`Crypto digest ${algorithm}`)
   }
+
   return (await backend.digest(algorithm, bufferBytes(data))).buffer
 }
 
@@ -72,11 +81,14 @@ export async function digestStringAsync(
   if (typeof data !== 'string') {
     throw new TypeError('Expected a string to hash')
   }
+
   options(value, ['encoding'])
   if (value.encoding !== 'hex' && value.encoding !== 'base64') {
     throw new TypeError('Digest encoding must be hex or base64')
   }
+
   const result = new Uint8Array(await digest(algorithm, utf8(data)))
+
   return value.encoding === 'hex' ? hex(result) : base64(result)
 }
 
@@ -86,6 +98,7 @@ export const Crypto = {
   },
   get supported(): boolean {
     const value = backend.capabilities()
+
     return random.supported || value.digestAlgorithms.length > 0 || value.aesKeySizes.length > 0
   },
 }

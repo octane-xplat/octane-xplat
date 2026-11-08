@@ -44,8 +44,10 @@ function createRoot() {
   const scrollToIndex = vi.fn()
   const scrollToIndexAnimated = vi.fn()
   const getPublicInstance = driver.getPublicInstance.bind(driver)
+
   driver.getPublicInstance = (host, id) => {
     const view: any = getPublicInstance(host, id)
+
     if (view?.type === 'listview') {
       view.scrollToIndex = scrollToIndex
       view.scrollToIndexAnimated = scrollToIndexAnimated
@@ -73,6 +75,7 @@ describe('platform list handle', () => {
     const first = { current: null as any }
     const next = { current: null as any }
     const props = { items: ['a', 'b'], renderItem: (_item: string) => null }
+
     try {
       flushUniversalSync(() => root.render(List, { ...props, initialScrollIndex: 1, ref: first }))
       expect(first.current).toEqual({ scrollToIndex: expect.any(Function) })
@@ -101,6 +104,7 @@ describe('platform list handle', () => {
     async (_name, List) => {
       const { root, listViews } = createRoot()
       const props = { renderItem: (_item: string) => null }
+
       try {
         flushUniversalSync(() => root.render(List, { ...props, items: [], initialScrollIndex: 2 }))
         expect(listViews).toHaveLength(0)
@@ -137,6 +141,7 @@ const cellSeen: string[] = []
 let cellUnmounts = 0
 function ContextRow(props: { item: string }) {
   const name = useContext(CellName)
+
   cellSeen.push(props.item + ':' + name)
   useEffect(
     () => () => {
@@ -152,6 +157,7 @@ const contextItems = ['first', 'second']
 const renderContextItem = (item: string) => <ContextRow item={item} />
 function ListContextWrapper(props: { value: string; List: any }) {
   const List = props.List
+
   return (
     <CellNameProvider value={props.value}>
       <List items={contextItems} renderItem={renderContextItem} />
@@ -167,12 +173,18 @@ it.each([
   async (_name, List) => {
     cellSeen.length = 0
     cellUnmounts = 0
+
     const { root, listViews, container } = createRoot()
+
     try {
       flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Avery', List }))
+
       const view: any = listViews[0]
+
       expect(view.props.renderItem).toBeUndefined()
+
       const binding: any = { index: 0 }
+
       flushUniversalSync(() => container.dispatchEvent(view, 'itemLoading', binding))
       await vi.waitFor(() => expect(cellSeen.at(-1)).toBe('first:Avery'))
       flushUniversalSync(() => root.render(ListContextWrapper, { value: 'Jordan', List }))

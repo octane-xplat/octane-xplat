@@ -22,11 +22,13 @@ import {
 } from '@octane-xplat/platform/macos'
 
 const avfoundation = dlopen('/System/Library/Frameworks/AVFoundation.framework/AVFoundation', 2)
+
 if (!avfoundation) {
   throw new Error('Unable to load the system AVFoundation framework')
 }
 
 const avkit = dlopen('/System/Library/Frameworks/AVKit.framework/AVKit', 2)
+
 if (!avkit) {
   throw new Error('Unable to load the system AVKit framework')
 }
@@ -59,14 +61,17 @@ const StatusObserver = NSObject.extend(
       _context: any,
     ) {
       const state = states.get(object?.xplatOwner ?? object)
+
       if (!state) {
         return
       }
 
       if (keyPath === 'status' && object === state.item) {
         const status = Number(object.status)
+
         if (status === 1) {
           const duration = itemDurationMs(state.item)
+
           state.emit('onPlaybackReady', { duration })
           if (state.props.autoplay) {
             state.player.play()
@@ -97,6 +102,7 @@ const StatusObserver = NSObject.extend(
 
 function itemDurationMs(item: any): number {
   const seconds = Number(item?.duration?.seconds ?? 0)
+
   return Number.isFinite(seconds) && seconds > 0 ? Math.round(seconds * 1000) : 0
 }
 
@@ -123,6 +129,7 @@ function sourceUrl(src: string): any {
 function attachItem(state: VideoState, view: any) {
   const src = String(state.props.src ?? '')
   const generation = ++state.generation
+
   state.started = false
   if (state.item) {
     states.delete(state.item)
@@ -138,6 +145,7 @@ function attachItem(state: VideoState, view: any) {
   }
 
   const url = sourceUrl(src)
+
   if (!url) {
     state.emit('onError', { error: 'Unsupported video source' })
     return
@@ -160,7 +168,9 @@ function attachItem(state: VideoState, view: any) {
   state.item = item
   states.set(item, state)
   item.addObserverForKeyPathOptionsContext(state.observer, 'status', 0, null)
+
   const center = NSNotificationCenter.defaultCenter
+
   state.endObserver = center.addObserverForNameObjectQueueUsingBlock(
     END_NOTIFICATION,
     item,
@@ -183,6 +193,7 @@ function attachItem(state: VideoState, view: any) {
       state.emit('onFinished', {})
     },
   )
+
   state.failObserver = center.addObserverForNameObjectQueueUsingBlock(
     FAIL_NOTIFICATION,
     item,
@@ -205,7 +216,9 @@ export function makeVideoView(): AVPlayerView {
 
   view.translatesAutoresizingMaskIntoConstraints = false
   view.controlsStyle = 0 // AVPlayerViewControlsStyleNone — chrome stays self-drawn.
+
   const player = AVPlayer.alloc().init()
+
   view.player = player
   return view
 }
@@ -213,6 +226,7 @@ export function makeVideoView(): AVPlayerView {
 export function updateVideoView(node: import('./model').ElementNode, props: Record<string, any>) {
   const view = node.view as any
   let state = states.get(view)
+
   if (!state) {
     const created: VideoState = {
       props: {},
@@ -232,7 +246,9 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
         ) {
           return
         }
+
         const handler = created.props[name]
+
         if (handler) {
           try {
             node.container.root!.eventScope('discrete', () => handler(payload))
@@ -264,6 +280,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
   const previousSrc = state.props.src
   const previousObserve = state.props.observeCurrentTime
   const previousControls = state.props.controls
+
   state.props = props
   view.controlsStyle = props.controls === true ? 1 : 0
   view.videoGravity =
@@ -272,6 +289,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
       : props.fill === 'fill'
         ? 'AVLayerVideoGravityResize'
         : 'AVLayerVideoGravityResizeAspect'
+
   state.player.muted = props.muted === true
 
   if (props.src !== previousSrc) {
@@ -285,6 +303,7 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
         null,
         (time: any) => {
           const seconds = Number(time?.seconds ?? 0)
+
           if (Number.isFinite(seconds)) {
             state.emit('onCurrentTimeUpdated', { position: Math.round(seconds * 1000) })
           }
@@ -303,53 +322,66 @@ export function updateVideoView(node: import('./model').ElementNode, props: Reco
 
 export function disposeVideoView(view: AVPlayerView) {
   const state = states.get(view)
+
   if (!state) {
     return
   }
+
   // Retire dispatch/identities before native removals can deliver callbacks.
   states.delete(view)
   if (states.get(state.player) === state) {
     states.delete(state.player)
   }
+
   const item = state.item
+
   if (item && states.get(item) === state) {
     states.delete(item)
   }
+
   const timeObserver = state.timeObserver
   const endObserver = state.endObserver
   const failObserver = state.failObserver
+
   state.item = null
   state.timeObserver = null
   state.endObserver = null
   state.failObserver = null
   state.generation++
   state.props = {}
+
   const failures = new FailureCollector()
+
   failures.run('video time observer', () => {
     if (timeObserver) {
       state.player.removeTimeObserver(timeObserver)
     }
   })
+
   failures.run('video item observer', () => {
     if (item) {
       item.removeObserverForKeyPath(state.observer, 'status')
     }
   })
+
   failures.run('video end observer', () => {
     if (endObserver) {
       NSNotificationCenter.defaultCenter.removeObserver(endObserver)
     }
   })
+
   failures.run('video fail observer', () => {
     if (failObserver) {
       NSNotificationCenter.defaultCenter.removeObserver(failObserver)
     }
   })
+
   failures.run('video player observer', () => {
     if (state.playerObserved) {
       state.player.removeObserverForKeyPath(state.observer, 'timeControlStatus')
     }
   })
+
   failures.run('video pause', () => state.player.pause())
   failures.run('video native player', () => {
     // The generated AVKit declaration omits native nil for this property.
@@ -357,5 +389,6 @@ export function disposeVideoView(view: AVPlayerView) {
       throw new Error('Unable to detach video player')
     }
   })
+
   failures.throwIfFailed()
 }

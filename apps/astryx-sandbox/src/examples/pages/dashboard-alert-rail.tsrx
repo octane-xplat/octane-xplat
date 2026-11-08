@@ -471,6 +471,7 @@ const UPTIME_TODAY: Record<HealthStatus, UptimeStatus> = {
 
 function hashNoise(i: number, seed: number): number {
   const s = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453
+
   return s - Math.floor(s)
 }
 
@@ -485,6 +486,7 @@ interface ServiceUptime {
 
 function seedForService(service: string): number {
   let h = 7
+
   for (let i = 0; i < service.length; i++) {
     h = (h * 31 + service.charCodeAt(i)) % 9973
   }
@@ -508,6 +510,7 @@ function buildUptime(
   )
 
   const days: UptimeStatus[] = new Array(UPTIME_DAYS).fill('operational')
+
   for (let k = 0; k < downCount; k++) {
     days[ranked[k]] = 'down'
   }
@@ -517,12 +520,15 @@ function buildUptime(
   }
 
   days[UPTIME_DAYS - 1] = UPTIME_TODAY[status]
+
   const cleanDay = DAY_UPTIME.operational - 0.02 - hashNoise(seed, 11.3) * 0.06
   let served = 0
   let degradedDays = 0
   let downDays = 0
+
   for (let i = 0; i < UPTIME_DAYS; i++) {
     const day = days[i]
+
     if (day === 'operational') {
       served += cleanDay - hashNoise(i, seed + 1) * 0.02
     } else {
@@ -540,6 +546,7 @@ function buildUptime(
 
 function dayLabel(i: number): string {
   const ago = UPTIME_DAYS - 1 - i
+
   if (ago === 0) {
     return 'Today'
   }
@@ -852,8 +859,10 @@ export function DashboardAlertRailTemplate() @{
 
   const uptimeEntries = useMemo(() => {
     const worst = new Map<string, HealthStatus>()
+
     for (const row of rows) {
       const prev = worst.get(row.service)
+
       if (prev === undefined || SEVERITY_RANK[row.status] < SEVERITY_RANK[prev]) {
         worst.set(row.service, row.status)
       }

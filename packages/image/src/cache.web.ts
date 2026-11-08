@@ -21,6 +21,7 @@ export function prefetch(srcs: string | string[], options?: PrefetchOptions): Pr
     (url) =>
       new Promise<boolean>((resolve) => {
         const image = new globalThis.Image()
+
         image.onload = () => resolve(true)
         image.onerror = () => resolve(false)
         image.src = url
@@ -46,6 +47,7 @@ export function isImageCached(
 ): Promise<Record<string, ImageCacheState>> {
   const list = typeof srcs === 'string' ? [srcs] : srcs
   const states: Record<string, ImageCacheState> = {}
+
   for (const src of list) {
     states[src] = 'none'
   }

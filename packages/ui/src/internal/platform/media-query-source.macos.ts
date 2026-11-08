@@ -13,9 +13,11 @@ function observeReducedMotion(notify: () => void): () => void {
   const platform = globalThis as Record<string, any>
   const workspace = platform.NSWorkspace?.sharedWorkspace
   const center = workspace?.notificationCenter
+
   if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
     return () => {}
   }
+
   const observer = center.addObserverForNameObjectQueueUsingBlock(
     platform.NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification ??
       'NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification',
@@ -23,6 +25,7 @@ function observeReducedMotion(notify: () => void): () => void {
     platform.NSOperationQueue?.mainQueue ?? null,
     notify,
   )
+
   return () => center.removeObserver(observer)
 }
 
@@ -33,6 +36,7 @@ export function createAppKitMediaQuerySource(query: string, host?: AppKitMediaQu
     subscribe: (notify: () => void): (() => void) => {
       const releaseResize = host?.onWindowResize?.(notify) ?? (() => {})
       const releaseMotion = observeReducedMotion(notify)
+
       return () => {
         releaseResize()
         releaseMotion()
@@ -40,9 +44,11 @@ export function createAppKitMediaQuerySource(query: string, host?: AppKitMediaQu
     },
     getSnapshot: (): boolean => {
       const size = host?.windowSize
+
       if (!size) {
         return false
       }
+
       return evaluateNativeMediaQuery(query, {
         width: size.width,
         height: size.height,

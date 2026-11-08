@@ -15,6 +15,7 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const work = process.argv[2] && resolve(process.argv[2])
+
 if (!work || existsSync(work)) {
   throw new Error(
     'Supply a new directory: node tests/prepare-packed-consumer.mjs /tmp/xplat-packed-mcp',
@@ -26,11 +27,13 @@ const packDir = join(work, 'pack')
 const extractDir = join(work, 'create')
 const appDir = join(work, 'app')
 const fixtureDir = join(work, 'release-fixture.git')
+
 mkdirSync(packDir, { recursive: true })
 mkdirSync(extractDir, { recursive: true })
 
 const run = (command, argv, cwd = work) => {
   const result = spawnSync(command, argv, { cwd, encoding: 'utf8' })
+
   if (result.error) {
     throw result.error
   }
@@ -54,9 +57,12 @@ const packageDirFor = (name) =>
 
 // ---- scaffold via the packed create bin ------------------------------------
 const createPkg = readJson(join(frameworkRoot, 'packages/create/package.json'))
+
 run('bun', ['pm', 'pack', '--destination', packDir], join(frameworkRoot, 'packages/create'))
+
 const tarballName = (pkg) => `${pkg.name.replace(/^@/, '').replace('/', '-')}-${pkg.version}.tgz`
 const createTarball = join(packDir, tarballName(createPkg))
+
 run('tar', ['-xzf', createTarball, '-C', extractDir])
 run('node', [
   join(extractDir, 'package', 'dist', 'index.js'),
@@ -72,6 +78,7 @@ const manifest = readJson(appManifestPath)
 const SEED_EXTRAS = ['@octane-xplat/mcp', '@octane-xplat/patches']
 const needed = new Set()
 const queue = []
+
 for (const section of ['dependencies', 'devDependencies']) {
   for (const name of Object.keys(manifest[section] ?? {})) {
     if (name.startsWith('@octane-xplat/')) {
@@ -85,17 +92,21 @@ queue.push(...SEED_EXTRAS)
 // sections consumers resolve (dependencies/peers/optional, not devDeps).
 while (queue.length) {
   const name = queue.shift()
+
   if (needed.has(name)) {
     continue
   }
 
   const dir = join(frameworkRoot, 'packages', packageDirFor(name))
+
   if (!existsSync(join(dir, 'package.json'))) {
     continue
   }
 
   needed.add(name)
+
   const pkg = readJson(join(dir, 'package.json'))
+
   for (const section of ['dependencies', 'peerDependencies', 'optionalDependencies']) {
     for (const dep of Object.keys(pkg[section] ?? {})) {
       if (
@@ -111,11 +122,15 @@ while (queue.length) {
 
 // ---- pack the closure --------------------------------------------------------
 const tarballs = new Map()
+
 for (const name of [...needed].sort()) {
   const dir = join(frameworkRoot, 'packages', packageDirFor(name))
   const pkg = readJson(join(dir, 'package.json'))
+
   run('bun', ['pm', 'pack', '--destination', packDir], dir)
+
   const tarball = join(packDir, tarballName(pkg))
+
   if (!existsSync(tarball)) {
     throw new Error(`expected tarball ${tarball}`)
   }
@@ -127,6 +142,7 @@ console.log(`[prepare] packed ${tarballs.size} tarballs`)
 
 // ---- repoint the consumer at file: tarballs ----------------------------------
 let rewritten = 0
+
 for (const section of ['dependencies', 'devDependencies']) {
   for (const dep of Object.keys(manifest[section] ?? {})) {
     if (tarballs.has(dep)) {
@@ -153,6 +169,7 @@ writeFileSync(appManifestPath, JSON.stringify(manifest, null, '\t') + '\n')
 run('bun', ['install'], appDir)
 
 const entry = join(appDir, 'src/main.web.tsrx')
+
 writeFileSync(
   entry,
   readFileSync(entry, 'utf8') +
@@ -215,8 +232,10 @@ const frameworkHead = execFileSync('git', ['-C', frameworkRoot, 'rev-parse', 'HE
 
 const uiVersion = readJson(join(frameworkRoot, 'packages/ui/package.json')).version
 const releaseTag = `v${uiVersion}`
+
 run('git', ['init', '--bare', '-q', fixtureDir])
 run('git', ['-C', frameworkRoot, 'push', '--no-verify', fixtureDir, `HEAD:refs/tags/${releaseTag}`])
+
 const fixtureCommit = execFileSync(
   'git',
   ['-C', fixtureDir, 'rev-parse', `refs/tags/${releaseTag}`],

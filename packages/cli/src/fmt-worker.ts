@@ -7,6 +7,7 @@ import { resolveProjectTool } from './package-root.ts'
 const [input, output] = process.argv.slice(2)
 const request = JSON.parse(readFileSync(input, 'utf8'))
 const response = { protocol: 'octane-build-worker', version: 1, id: request.id }
+
 try {
   if (
     request.protocol !== response.protocol ||
@@ -21,12 +22,15 @@ try {
 
   const data = await planFormat(request.project, request.inputs, request.stdin, async () => {
     const entry = resolveProjectTool(request.project, '@octane-xplat/fmt')
+
     if (!entry) {
       throw new Error(
         'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
       )
     }
+
     const { createFormatter } = await import(pathToFileURL(entry).href)
+
     return createFormatter({ cwd: request.project })
   })
 

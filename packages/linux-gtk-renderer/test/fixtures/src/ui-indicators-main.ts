@@ -18,6 +18,7 @@ import {
 } from './ui-indicators.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK indicator test',
   default_width: 440,
@@ -25,7 +26,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const errors: unknown[] = []
 const { root, container } = createGtkRoot(host, { onUncaughtError: (error) => errors.push(error) })
 const loop = GLib.MainLoop.new(null, false)
@@ -42,15 +45,18 @@ const check = (name: string, ok: boolean) => {
   if (!ok) {
     throw new Error(name)
   }
+
   checks++
 }
 
 const find = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)
 const node = (id: string) => {
   const value = find(id)
+
   if (!value) {
     throw new Error('missing ' + id)
   }
+
   return value
 }
 
@@ -75,79 +81,98 @@ async function run() {
         defaultIndicators[name as keyof typeof defaultIndicators],
     ),
   )
+
   check(
     'scope class reaches GTK',
     [...container.nodes.values()].some((n) => n.cssClasses.has(indicatorScope)),
   )
+
   const box = refs[0] as any,
     radio = refs[1] as any
+
   check('unchecked checkbox retains its box without a mark', node('box').children.length === 0)
   check('unchecked radio retains its circle without a dot', node('radio').children.length === 0)
   check(
     'unchecked standalone check has no host/ref',
     find('check') === undefined && refs[2] == null,
   )
+
   check(
     'small checkbox is 20 square',
     near(box.getBounds().width, 20) && near(box.getBounds().height, 20),
   )
+
   check(
     'small radio is 20 square',
     near(radio.getBounds().width, 20) && near(radio.getBounds().height, 20),
   )
+
   check('custom indicator class is retained', node('box').cssClasses.has('custom-box'))
   check(
     'decorative boxes are not keyboard focus stops',
     !box.get_focusable() && !radio.get_focusable(),
   )
+
   await render({ state: 'checked', size: 'md' })
   check('state changes keep checkbox and radio hosts', refs[0] === box && refs[1] === radio)
   check(
     'medium checkbox is 24 square',
     near(box.getBounds().width, 24) && near(box.getBounds().height, 24),
   )
+
   check(
     'medium radio is 24 square',
     near(radio.getBounds().width, 24) && near(radio.getBounds().height, 24),
   )
+
   const picture = child('box').view as any
+
   check(
     'checked checkbox decodes SVG through GTK',
     child('box').type === 'svgview' && !picture.isLoading && !!picture.get_paintable(),
   )
+
   check(
     'checkbox checkmark uses medium geometry',
     near(picture.getBounds().width, 14) && near(picture.getBounds().height, 14),
   )
+
   check('radio dot uses medium geometry', near((child('radio').view as any).getBounds().width, 12))
   check(
     'checked standalone check is a native label',
     node('check').type === 'label' && (refs[2] as any).label === '✓',
   )
+
   const firstCheck = node('check')
+
   await render({ disabled: true, size: 'sm' })
   check(
     'disabled indicator opacity reaches GTK',
     near(box.get_opacity(), 0.5) && near(radio.get_opacity(), 0.5),
   )
+
   check(
     'standalone disabled check has its state class',
     node('check').cssClasses.has('vx-ind-check--disabled'),
   )
+
   check(
     'size update changes checkbox mark geometry',
     near((child('box').view as any).getBounds().width, 12),
   )
+
   check(
     'size update changes radio dot geometry',
     near((child('radio').view as any).getBounds().width, 10),
   )
+
   await render({ state: 'indeterminate', disabled: false })
   check(
     'indeterminate checkbox uses a Mason dash',
     child('box').cssClasses.has('vx-ind-dash') &&
       near((child('box').view as any).getBounds().width, 10),
   )
+
   check('retired SVG clears its native paintable', picture.get_paintable() == null)
   check(
     'single-selection indicators clear on unchecked state',
@@ -156,10 +181,12 @@ async function run() {
       refs[2] == null &&
       firstCheck.destroyed,
   )
+
   check(
     'removing disabled restores full opacity',
     near(box.get_opacity(), 1) && near(radio.get_opacity(), 1),
   )
+
   await render({ custom: true })
   check(
     'custom children replace every state mark',
@@ -167,12 +194,15 @@ async function run() {
       node(id).children.some((n) => n.props.id === id + '-busy'),
     ),
   )
+
   check(
     'custom check slot forwards its own ref',
     refs[2] === node('check').view && node('check').type === 'masonview',
   )
+
   const beforeRadio = node('registered-radio').view
   const beforeReads = reads.checkbox
+
   registerIndicator('checkbox', CustomBox)
   await pause()
   check('single registration changes the snapshot', getIndicator('checkbox') === CustomBox)
@@ -182,22 +212,27 @@ async function run() {
       (node('registered-checkbox').view as any).label === 'box:checked' &&
       reads.checkbox > beforeReads,
   )
+
   check(
     'single registration preserves unrelated indicator',
     node('registered-radio').view === beforeRadio,
   )
+
   registerIndicators({ radio: CustomRadio, check: CustomCheck })
   await pause()
   check(
     'batch registration updates both snapshots',
     getIndicator('radio') === CustomRadio && getIndicator('check') === CustomCheck,
   )
+
   check(
     'batch registration updates both live readers',
     (node('registered-radio').view as any).label === 'radio:checked' &&
       (node('registered-check').view as any).label === 'check:checked',
   )
+
   const beforeEmpty = JSON.stringify(reads)
+
   registerIndicators({})
   await pause()
   check('empty registration does not rerender readers', JSON.stringify(reads) === beforeEmpty)
@@ -209,6 +244,7 @@ async function run() {
       node('registered-radio').type === 'masonview' &&
       node('registered-check').type === 'label',
   )
+
   await render({ state: 'checked', custom: false })
   check(
     'removing custom children restores all marks',
@@ -216,25 +252,32 @@ async function run() {
       child('radio').cssClasses.has('vx-ind-radio-dot') &&
       (refs[2] as any).label === '✓',
   )
+
   check('all updates complete without effect errors', errors.length === 0)
+
   const retired = node('box'),
     retiredRadio = node('radio')
+
   root.unmount()
   check(
     'unmount clears every forwarded ref',
     refs.every((ref) => ref == null),
   )
+
   check(
     'unmount retires native nodes and host children',
     retired.destroyed && retiredRadio.destroyed && host.get_first_child() == null,
   )
+
   const afterUnmount = JSON.stringify(reads)
+
   registerIndicator('checkbox', CustomBox)
   await pause()
   check(
     'unmounted readers unsubscribe from registry updates',
     JSON.stringify(reads) === afterUnmount,
   )
+
   registerIndicators(defaultIndicators)
   window.destroy()
   print(
@@ -244,10 +287,12 @@ async function run() {
         gtk: [Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()].join('.'),
       }),
   )
+
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   console.error(error)

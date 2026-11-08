@@ -14,4 +14,5 @@ globalThis.matchMedia ??= (query: string) => ({
 
 // Node 26 also exposes a host localStorage getter. Use jsdom's window storage.
 declare const jsdom: { window: Window }
+
 vi.stubGlobal('localStorage', jsdom.window.localStorage)

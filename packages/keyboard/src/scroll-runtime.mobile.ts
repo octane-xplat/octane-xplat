@@ -1,6 +1,8 @@
 import { Utils } from '@nativescript/core'
 import type { FocusScrollRuntime } from './scroll-runtime-types'
+
 const native = (host: any) => host.nativeViewProtected ?? host.ios ?? host.android
+
 export const scrollRuntime: FocusScrollRuntime = {
   owner: (host) => native((host as any).native ?? host) ?? null,
   read: (owner: any) =>
@@ -40,6 +42,7 @@ export const scrollRuntime: FocusScrollRuntime = {
         listener()
       }
     }
+
     view.on('touch', touch)
     return () => view.off('touch', touch)
   },

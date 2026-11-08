@@ -7,6 +7,7 @@ import { layoutChildProps } from '../layout/layout-child'
 export function WebView(props: WebViewProps): unknown @{
   const view = useRef<any>(null)
   const currentProps = useRef(props)
+
   currentProps.current = props
   useImperativeHandle(
     props.ref,

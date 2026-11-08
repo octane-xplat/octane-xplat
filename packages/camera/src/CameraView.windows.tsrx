@@ -19,6 +19,7 @@ import { observePreviewTap } from './preview-tap'
 class CameraPreview extends View {
   createNativeView() {
     const { Microsoft } = globalThis as any
+
     return new Microsoft.UI.Xaml.Controls.CaptureElement()
   }
 }
@@ -38,6 +39,7 @@ export function CameraView(props: CameraViewProps): unknown @{
   const host = useRef<any>(null)
   const active = props.active !== false
   const facing = props.facing ?? 'back'
+
   useImperativeHandle(props.ref, () => ({ native: host.current?.nativeViewProtected }), [])
 
   const bindHost = useCallback((view: any) => {
@@ -46,6 +48,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view || !active) {
       return
     }
@@ -125,6 +128,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view) {
       return
     }

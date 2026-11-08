@@ -9,9 +9,11 @@ const policies: readonly number[] = [-1, 10, 7, 1, 9, 6, 8, 0] as const
 const activity = () => Application.primaryWindow?.android?.activity
 const required = () => {
   const value = activity()
+
   if (!value || value.isFinishing() || value.isDestroyed()) {
     throw new UnavailabilityError('A primary Android Activity')
   }
+
   return value
 }
 
@@ -21,15 +23,20 @@ function orientation(): Orientation {
     android.os.Build.VERSION.SDK_INT >= 30
       ? value.getDisplay()
       : value.getWindowManager().getDefaultDisplay()
+
   if (!display) {
     return Orientation.UNKNOWN
   }
+
   const rotation = display.getRotation()
   const configuration = value.getResources().getConfiguration().orientation
+
   if (configuration !== 1 && configuration !== 2) {
     return Orientation.UNKNOWN
   }
+
   const portraitNatural = (configuration === 1) === (rotation === 0 || rotation === 2)
+
   return (
     (portraitNatural
       ? [
@@ -49,15 +56,19 @@ function orientation(): Orientation {
 
 function canLock(): boolean {
   const value = activity()
+
   if (!value || value.isFinishing() || value.isDestroyed()) {
     return false
   }
+
   if (android.os.Build.VERSION.SDK_INT >= 24 && value.isInMultiWindowMode()) {
     return false
   }
+
   if (android.os.Build.VERSION.SDK_INT >= 26 && value.isInPictureInPictureMode()) {
     return false
   }
+
   // Android 16's large-screen policy can ignore requestedOrientation.
   return !(
     android.os.Build.VERSION.SDK_INT >= 36 &&
@@ -74,6 +85,7 @@ function allowed(constant: number, actual: Orientation): boolean {
         ? actual === Orientation.PORTRAIT_DOWN
         : actual === 1 || actual === 2
   }
+
   if ([0, 6, 8, 11].includes(constant)) {
     return constant === 0
       ? actual === Orientation.LANDSCAPE_RIGHT
@@ -81,15 +93,19 @@ function allowed(constant: number, actual: Orientation): boolean {
         ? actual === Orientation.LANDSCAPE_LEFT
         : actual === 3 || actual === 4
   }
+
   return actual !== Orientation.UNKNOWN
 }
 
 async function apply(constant: number): Promise<void> {
   const value = required()
+
   if (constant !== -1 && !canLock()) {
     throw new UnavailabilityError('Android orientation policy in this window mode')
   }
+
   const previous = value.getRequestedOrientation()
+
   try {
     value.setRequestedOrientation(constant)
     await new Promise<void>((resolve, reject) => {
@@ -117,6 +133,7 @@ async function apply(constant: number): Promise<void> {
           reject(error)
         }
       }
+
       poll()
     })
   } catch (error) {
@@ -134,6 +151,7 @@ export const backend: OrientationBackend = {
   policy() {
     const value = required().getRequestedOrientation()
     const index = policies.indexOf(value as (typeof policies)[number])
+
     return index < 0 ? OrientationLock.OTHER : (index as OrientationLock)
   },
   platformPolicy: () => ({
@@ -146,22 +164,26 @@ export const backend: OrientationBackend = {
     if (options.screenOrientationConstantAndroid === undefined) {
       return Promise.reject(new TypeError('Android requires screenOrientationConstantAndroid'))
     }
+
     return apply(options.screenOrientationConstantAndroid)
   },
   subscribe(callback) {
     required()
+
     let bound: NativeWindow | undefined
     const refresh = () => {
       if (activity()) {
         callback()
       }
     }
+
     const bind = () => {
       bound?.off(NativeWindowEvents.orientationChanged, refresh)
       bound = Application.primaryWindow
       bound?.on(NativeWindowEvents.orientationChanged, refresh)
       refresh()
     }
+
     bind()
     Application.on(WindowEvents.primaryWindowChanged, bind)
     return {

@@ -5,15 +5,18 @@ import { join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 import { setTimeout as delay } from 'node:timers/promises'
 import { createDialogDriver } from './ios-dialogs.mjs'
+
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const repo = process.env.XPLAT_NATIVE_TEST_REPO
 const device = process.env.XPLAT_IOS_DEVICE
+
 assert.ok(repo && device, 'Select skymac.local checkout and a task-owned simulator')
 for (const [name, source] of [
   ['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
   ['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')],
 ]) {
   const destination = join(packageRoot, 'node_modules', name)
+
   await mkdir(resolve(destination, '..'), { recursive: true })
   try {
     await symlink(await realpath(source), destination, 'dir')
@@ -25,6 +28,7 @@ for (const [name, source] of [
 }
 
 const resources = join(packageRoot, 'tests/.runtime/App_Resources')
+
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
@@ -97,6 +101,7 @@ const exited = new Promise((resolve, reject) => {
 })
 
 const timer = setTimeout(() => child.kill('SIGTERM'), 240000)
+
 try {
   while (!done) {
     await delay(400)
@@ -138,12 +143,14 @@ try {
 
       const hierarchy = await driver.hierarchy(project.appId)
       const nodes = flatten(hierarchy.axElement)
+
       labels = nodes.map((node) => String(node.label ?? '')).filter(Boolean)
       if (!labels.some((label) => /print|printer/i.test(label))) {
         continue
       }
 
       const cancel = nodes.find((node) => /^(Cancel|Close)$/.test(String(node.label ?? '')))
+
       if (!cancel) {
         continue
       }
@@ -165,8 +172,11 @@ try {
   }
 
   const code = await exited
+
   assert.equal(code, 0, stdout + stderr + '\nLast accessibility labels: ' + JSON.stringify(labels))
+
   const report = JSON.parse(stdout.slice(stdout.indexOf('{')))
+
   assert.equal(report.results.length, 1)
   assert.equal(report.results[0].status, 'pass', JSON.stringify(report.results[0]))
   assert.ok(report.results[0].measurements.nativePDFValidated)

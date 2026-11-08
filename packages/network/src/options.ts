@@ -1,4 +1,5 @@
 import type { StreamRequestOptions } from './types'
+
 export function validate(
   url: string,
   options: StreamRequestOptions,
@@ -6,6 +7,7 @@ export function validate(
   if (!/^https?:\/\/[^\s/@]+(?::\d+)?(?:[/?#]|$)/i.test(url)) {
     throw new Error('An absolute HTTP(S) URL without credentials is required')
   }
+
   if (
     options.body !== undefined &&
     typeof options.body !== 'string' &&
@@ -13,13 +15,17 @@ export function validate(
   ) {
     throw new Error('Request body must be text or Uint8Array')
   }
+
   const method = (options.method ?? 'GET').toUpperCase()
+
   if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'HEAD', 'OPTIONS'].includes(method)) {
     throw new Error('Unsupported HTTP method')
   }
+
   if ((method === 'GET' || method === 'HEAD') && options.body !== undefined) {
     throw new Error('GET and HEAD cannot have a body')
   }
+
   for (const [name, value] of Object.entries(options.headers ?? {})) {
     if (!/^[!#$%&'*+.^_`|~0-9a-z-]+$/i.test(name) || /[\r\n]/.test(value)) {
       throw new Error('Invalid request header')
@@ -31,9 +37,12 @@ export function validate(
       throw new Error('Unsupported request header')
     }
   }
+
   const limit = options.maxBufferedBytes ?? 1048576
+
   if (!Number.isSafeInteger(limit) || limit < 1) {
     throw new RangeError('maxBufferedBytes must be a positive safe integer')
   }
+
   return { method, limit }
 }

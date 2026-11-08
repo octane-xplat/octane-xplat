@@ -190,15 +190,18 @@ export function Services() @{
               }
 
               const db = await openDatabase('probe.db')
+
               await db.execute(
                 'CREATE TABLE IF NOT EXISTS items(id INTEGER PRIMARY KEY, name TEXT)',
               )
 
               await db.execute('DELETE FROM items')
               await db.execute('INSERT INTO items(name) VALUES (?), (?)', ['alpha', 'beta'])
+
               const rows = await db.select<{ name: string }>('SELECT name FROM items ORDER BY id')
               // A throwing transaction must roll its writes back.
               let rolledBack = false
+
               try {
                 await db.transaction(async (d) => {
                   await d.execute("INSERT INTO items(name) VALUES ('gamma')")
@@ -210,9 +213,12 @@ export function Services() @{
 
               const count = await db.getArray('SELECT COUNT(*) FROM items')
               const before = await db.getUserVersion()
+
               await db.setUserVersion(7)
+
               const after = await db.getUserVersion()
               const persistent = db.persistent
+
               await db.close()
               return `rows=${rows.map((r) => r.name).join(',')} count=${count?.[0]} rb=${rolledBack} v=${before}→${after} persistent=${persistent}`
             })
@@ -312,6 +318,7 @@ export function Services() @{
               }
 
               const p = await geolocation.getCurrentPosition()
+
               return p.latitude.toFixed(4) + ', ' + p.longitude.toFixed(4)
             })
           }
@@ -337,11 +344,13 @@ export function Services() @{
           onPress={() =>
             run('img', async () => {
               const img = await media.pickImage()
+
               if (!img) {
                 return 'cancelled'
               }
 
               const prev = picked
+
               setPicked({ name: img.name, uri: img.uri })
               if (prev) {
                 files.release({ name: prev.name, uri: prev.uri })
@@ -358,16 +367,19 @@ export function Services() @{
           onPress={() =>
             run('capture', async () => {
               const permission = (await media.requestPermissions('camera')).status
+
               if (permission !== 'granted') {
                 return 'camera permission: ' + permission
               }
 
               const img = await media.capturePhoto({ saveToGallery: false })
+
               if (!img) {
                 return 'capture returned null (camera permission granted)'
               }
 
               const prevCap = picked
+
               setPicked({ name: img.name, uri: img.uri })
               if (prevCap) {
                 files.release({ name: prevCap.name, uri: prevCap.uri })
@@ -407,11 +419,13 @@ export function Services() @{
           onPress={() =>
             run('file', async () => {
               const f = await files.pick()
+
               if (!f) {
                 return 'cancelled'
               }
 
               const text = await files.readText(f)
+
               return 'picked ' + f.name + ' read=' + JSON.stringify(text.slice(0, 40))
             })
           }
@@ -423,6 +437,7 @@ export function Services() @{
           onPress={() =>
             run('file', async () => {
               const f = await files.writeText('harness.txt', 'octane-xplat file service')
+
               return 'wrote ' + f.name
             })
           }

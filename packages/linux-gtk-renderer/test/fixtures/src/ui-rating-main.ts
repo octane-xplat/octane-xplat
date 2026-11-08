@@ -6,6 +6,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { RatingScene, RatingContextScene } from './ui-rating.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK rating test',
   default_width: 360,
@@ -14,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -71,27 +74,33 @@ const render = async (next: Partial<typeof props> = {}) => {
 const close = (a: number | undefined, b: number) => Math.abs((a ?? NaN) - b) <= 2
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 const osInput = GLib.getenv('GTK_RATING_OS') === '1'
 async function input(view: any, action: { key?: string; click?: boolean }) {
   const b = view.getBounds(),
     ack = acknowledgments + 1
+
   print(
     'GTK_RATING_READY ' +
       JSON.stringify({ ...action, x: b.x + b.width / 2, y: b.y + b.height / 2 }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed', acknowledgments >= ack)
   await pause()
 }
@@ -104,7 +113,9 @@ async function run() {
   window.present()
   await pause(260)
   native = (globalThis as any).imports.gi.XplatMason
+
   const original = cells().map((n) => n.view)
+
   check('five native score cells', cells().length === 5)
   check('one field owner', nodes('vx-field').length === 1)
   check('one visible group label', nodes('vx-field-label').length === 1)
@@ -117,21 +128,27 @@ async function run() {
     'score radio roles',
     cells().every((n) => n.view!.get_accessible_role() === Gtk.AccessibleRole.RADIO),
   )
+
   check(
     'score cells are focusable',
     cells().every((n) => n.view!.get_focusable()),
   )
+
   check(
     'numbered score names',
     cells().every((n, i) => named(n.view, String(i + 1) + ' of 5')),
   )
+
   check(
     'only the chosen score is checked',
     cells().every((n, i) => state(n.view, Gtk.AccessibleState.CHECKED, i === 2 ? 1 : 0)),
   )
+
   check('filled prefix follows the controlled score', nodes('vx-rating-cell--on').length === 3)
   check('one star glyph per score', nodes('vx-rating-glyph').length === 5)
+
   const b = cells().map((n) => n.view!.getBounds())
+
   check('cells form one row', b.every((v) => Math.abs(v.y - b[0].y) <= 2) && b[0].x < b[4].x)
   check(
     'cells fit inside the group',
@@ -141,20 +158,24 @@ async function run() {
         v.x + v.width <= group().getBounds().x + group().getBounds().width + 1,
     ),
   )
+
   check(
     'authored id is unique',
     [...container.nodes.values()].filter((n) => n.props.id === 'rating-control').length === 1,
   )
+
   await render({ value: 4 })
   check('programmatic score updates fill', nodes('vx-rating-cell--on').length === 4)
   check(
     'programmatic score updates checked state',
     cells().every((n, i) => state(n.view, Gtk.AccessibleState.CHECKED, i === 3 ? 1 : 0)),
   )
+
   check(
     'programmatic score changes retain cells',
     cells().every((n, i) => n.view === original[i]),
   )
+
   check('programmatic score changes stay silent', changes.length === 0)
   await render({ isLoading: true, status: { type: 'error', message: 'Rate the trip' } })
   check('busy group metadata', state(group(), Gtk.AccessibleState.BUSY, 1))
@@ -165,12 +186,14 @@ async function run() {
     'readOnly cell metadata',
     cells().every((n) => bool(n.view, Gtk.AccessibleProperty.READ_ONLY, true)),
   )
+
   await render({ isReadOnly: false, isDisabled: true })
   check('disabled group sensitivity', !group().is_sensitive())
   check(
     'disabled cell sensitivity',
     cells().every((n) => !n.view!.is_sensitive()),
   )
+
   root.render(RatingContextScene, { value: 2, max: 5 })
   await pause()
   check('external field owner is not duplicated', nodes('vx-field').length === 1)
@@ -180,6 +203,7 @@ async function run() {
     'external size cascade',
     nodes('vx-rating')[0].cssClasses?.has('vx-rating--size-sm') === true,
   )
+
   await render({
     value: undefined,
     defaultValue: 2,
@@ -187,6 +211,7 @@ async function run() {
     isLoading: false,
     status: undefined,
   })
+
   check('uncontrolled default seeds the score', nodes('vx-rating-cell--on').length === 2)
   await render({ defaultValue: 4 })
   check('changing default does not replace local state', nodes('vx-rating-cell--on').length === 2)
@@ -194,7 +219,9 @@ async function run() {
   check('growing max adds cells', cells().length === 7)
   await render({ max: 0 })
   check('empty max removes cells', cells().length === 0)
+
   let accept = true
+
   await render({
     max: 5,
     value: 2,
@@ -208,7 +235,9 @@ async function run() {
       }
     },
   })
+
   const inputCells = cells().map((n) => n.view)
+
   if (osInput) {
     nodes('rating-after')[0].view!.grab_focus()
     await input(group(), { key: 'shift+Tab' })
@@ -228,7 +257,9 @@ async function run() {
 
     await input(group(), { key: 'Left' })
     check('arrows wrap between endpoint scores', props.value === 5 && checked(5))
+
     const count = changes.length
+
     await input(group(), { key: 'space' })
     await input(group(), { key: 'Return' })
     await input(group(), { key: 'ctrl+Right' })
@@ -240,6 +271,7 @@ async function run() {
     )
 
     const selectedCount = changes.length
+
     await input(cells()[3].view, { click: true })
     check('duplicate pointer selection is suppressed', changes.length === selectedCount)
     await render({ isReadOnly: true })
@@ -267,6 +299,7 @@ async function run() {
     )
 
     const rejectCount = changes.length
+
     await input(cells()[4].view, { click: true })
     check(
       'repeated rejected pointer edits still report',
@@ -302,17 +335,20 @@ async function run() {
     await render({ defaultValue: 5 })
     check('changed defaults do not replace user edits', checked(3))
   }
+
   await render({ icon: '☆' })
   check(
     'custom text character renders in every score',
     nodes('vx-rating-glyph').length === 5 &&
       nodes('vx-rating-glyph').every((n) => (n.view as any).get_text?.() === '☆'),
   )
+
   await render({ icon: 'rating-local', iconVersion: 1 })
   check(
     'scoped text icons render',
     nodes('vx-rating-glyph').every((n) => (n.view as any).get_text?.() === '+'),
   )
+
   await render({ iconVersion: 2 })
   await pause(220)
   check(
@@ -322,24 +358,29 @@ async function run() {
         (n) => n.view instanceof Gtk.Picture && (n.view as any).get_paintable() !== null,
       ),
   )
+
   check(
     'registered icon size matches the rating glyph',
     nodes('vx-rating-glyph').every((n) => close(n.view?.getBounds().width, 20)),
   )
+
   await render({ icon: '☆' })
   check(
     'registered names take priority over text fallback',
     nodes('vx-rating-glyph').every((n) => (n.view as any).get_text?.() === 'R'),
   )
+
   await render({ icon: undefined })
   check(
     'dropping icon restores default stars',
     nodes('vx-rating-glyph').every((n) => (n.view as any).get_text?.() === '★'),
   )
+
   check(
     'glyph changes retain score identities',
     cells().every((n, i) => n.view === inputCells[i]),
   )
+
   await render({
     label: 'Score',
     accessibilityLabel: 'Trip score',
@@ -348,6 +389,7 @@ async function run() {
     className: 'rating-custom',
     style: { height: 40 },
   })
+
   check('hidden label does not duplicate visible chrome', nodes('vx-field-label').length === 0)
   check('accessible name override reaches the group', named(group(), 'Trip score'))
   check('custom class reaches the group', nodes('rating-custom').length === 1)
@@ -356,6 +398,7 @@ async function run() {
     'size update reaches the group',
     nodes('vx-rating')[0].cssClasses?.has('vx-rating--size-sm') === true,
   )
+
   await render({
     label: 'Trip rating',
     accessibilityLabel: undefined,
@@ -367,12 +410,15 @@ async function run() {
     isRequired: true,
     width: '50%',
   })
+
   check('custom class resets', nodes('rating-custom').length === 0)
   check('authored height resets', group().getBounds().height < 40)
   check('name override resets', named(group(), 'Trip rating'))
   check('optional wins over required', bool(group(), Gtk.AccessibleProperty.REQUIRED, false))
   check('percentage field width applies', close(group().getBounds().width, 160))
+
   const current = cells().map((n) => n.view)
+
   await render({ max: 7, width: 280 })
   check(
     'growing the score range retains prefix cells',
@@ -380,10 +426,12 @@ async function run() {
       .slice(0, 5)
       .every((n, i) => n.view === current[i]),
   )
+
   check(
     'score names track the maximum',
     cells().every((n, i) => named(n.view, String(i + 1) + ' of 7')),
   )
+
   check('score ids remain unique', new Set(cells().map((n) => n.props.id)).size === 7)
   await render({ max: 0 })
   check('empty range can be restored after input', cells().length === 0)
@@ -402,14 +450,17 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(String(error))
@@ -417,6 +468,7 @@ run().catch((error) => {
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

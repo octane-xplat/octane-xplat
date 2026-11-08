@@ -53,6 +53,7 @@ const LAYOUT_KEYS = [
 function renderRoot(component: any, props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   try {
     root.render(component, props)
     return container.children[0]
@@ -65,9 +66,11 @@ function flatStyle(style: any): Record<string, any> {
   if (!style) {
     return {}
   }
+
   if (Array.isArray(style)) {
     return Object.assign({}, ...style.map(flatStyle))
   }
+
   return style
 }
 
@@ -75,12 +78,15 @@ function flatClasses(className: any): string[] {
   if (!className) {
     return []
   }
+
   if (Array.isArray(className)) {
     return className.flatMap(flatClasses)
   }
+
   if (typeof className === 'string') {
     return className.split(/\s+/)
   }
+
   return [className].filter(Boolean)
 }
 
@@ -104,16 +110,20 @@ describe('layout defaults are class-based (#39)', () => {
     ],
     ['ChatMessage', ChatMessage, { message: { role: 'assistant', content: 'hi' } }, 'vx-chatmsg'],
   ]
+
   for (const [name, component, props, vxClass] of cases) {
     it(`${name} emits no inline layout defaults on its className root`, () => {
       const view = renderRoot(component, { ...props, className: 'user-cls' })
       const classes = flatClasses(view.props.className)
+
       expect(classes).toContain(vxClass)
       expect(classes).toContain('user-cls')
+
       const style = flatStyle(view.props.style)
       // ChatMessage keeps its sender-conditional justifyContent and the
       // row that native's manual avatar order depends on (see RETAINED).
       const allowed = name === 'ChatMessage' ? ['justifyContent', 'flexDirection'] : []
+
       for (const key of LAYOUT_KEYS) {
         if (allowed.includes(key)) {
           continue
@@ -128,7 +138,9 @@ describe('layout defaults are class-based (#39)', () => {
     const view = renderRoot(Banner, {
       style: { flexDirection: 'column', gap: 2 },
     })
+
     const style = flatStyle(view.props.style)
+
     expect(style.flexDirection).toBe('column')
     expect(style.gap).toBe(2)
   })
@@ -158,8 +170,10 @@ const RETAINED: Record<string, string> = {
 function* jsxTags(src: string): Generator<string> {
   let i = 0
   const n = src.length
+
   while (i < n) {
     const m = /<[a-zA-Z][\w.]*/.exec(src.slice(i))
+
     if (!m) {
       return
     }
@@ -168,8 +182,10 @@ function* jsxTags(src: string): Generator<string> {
     let j = i + m.index + m[0].length
     let depth = 0
     let q: string | null = null
+
     while (j < n) {
       const c = src[j]
+
       if (q) {
         if (c === q) {
           q = null
@@ -200,17 +216,21 @@ describe('native className roots carry no literal layout values', () => {
     (f) =>
       f.endsWith('.tsrx') && !/\.(web|macos|gtk|linux|windows|test|parity|check)\.tsrx$/.test(f),
   )
+
   const offenders: string[] = []
+
   for (const file of files) {
     const src = readFileSync(join(dir, file), 'utf8')
     // class locals built from props.className (e.g. Citation's cls)
     const locals = new Set<string>()
+
     for (const m of src.matchAll(/const\s+(\w+)\s*=\s*cx\(([^)]*props\.className[^)]*)\)/gs)) {
       locals.add(m[1])
     }
 
     for (const tag of jsxTags(src)) {
       const cn = /className\s*=\s*\{([^{}]*(?:\{[^{}]*\}[^{}]*)*)\}/s.exec(tag)
+
       if (!cn) {
         continue
       }
@@ -226,8 +246,10 @@ describe('native className roots carry no literal layout values', () => {
 
       for (const k of LAYOUT_KEYS) {
         const lit = new RegExp(`${k}\\s*:\\s*("[^"]*"|'[^']*'|\\d+(?:\\.\\d+)?)`)
+
         if (lit.test(tag)) {
           const key = RETAINED[`${file}:${k}`] ?? RETAINED[file]
+
           if (!key) {
             offenders.push(`${file}: ${k} literal on className root`)
           }
@@ -235,6 +257,7 @@ describe('native className roots carry no literal layout values', () => {
       }
     }
   }
+
   it('has no offenders outside the retained list', () => {
     expect(offenders).toEqual([])
   })
@@ -247,6 +270,7 @@ describe('web-only CSS markers', () => {
     it(`${name} markers strictly alternate start/end`, () => {
       const css = readFileSync(join(__dirname, '../../theme', name), 'utf8')
       const kinds = [...css.matchAll(/xplat-web-only:(start|end)/g)].map((m) => m[1])
+
       expect(kinds.length % 2).toBe(0)
       kinds.forEach((kind, i) => expect(kind).toBe(i % 2 === 0 ? 'start' : 'end'))
     })

@@ -15,6 +15,7 @@ export function safeCall(callback: (() => void) | undefined): void {
   if (typeof callback !== 'function') {
     return
   }
+
   try {
     callback()
   } catch (error) {
@@ -34,6 +35,7 @@ function requireString(
   if (typeof value !== 'string' || value.length === 0) {
     throw new TrayError(code, `tray ${field} must be a non-empty string`)
   }
+
   return value
 }
 
@@ -52,10 +54,12 @@ function validateRadioOption(option: unknown, path: string): asserts option is T
   if (!isRecord(option)) {
     throw new TrayError('invalid-menu', `tray menu ${path} must be an object`)
   }
+
   requireString(option.key, `${path}.key`, 'invalid-menu')
   if (typeof option.label !== 'string') {
     throw new TrayError('invalid-menu', `tray menu ${path}.label must be a string`)
   }
+
   requireOptional(option.value, `${path}.value`, (v) => typeof v === 'string', 'a string')
   requireOptional(
     option.isDisabled,
@@ -69,14 +73,18 @@ function validateMenuLevel(items: unknown, path: string): asserts items is reado
   if (!Array.isArray(items)) {
     throw new TrayError('invalid-menu', `tray menu ${path} must be an array`)
   }
+
   const keys = new Set<string>()
+
   for (const [index, item] of items.entries()) {
     const at = path === 'menu' ? `menu[${index}]` : `${path}.items[${index}]`
+
     if (!isRecord(item) || typeof item.type !== 'string') {
       throw new TrayError('invalid-menu', `tray ${at} must have a string type`)
     }
 
     const key = requireString(item.key, `${at}.key`, 'invalid-menu')
+
     if (keys.has(key)) {
       throw new TrayError('invalid-menu', `tray ${at}.key "${key}" duplicates a sibling key`)
     }
@@ -136,9 +144,12 @@ function validateMenuLevel(items: unknown, path: string): asserts items is reado
 
         {
           const optionKeys = new Set<string>()
+
           for (const [optionIndex, option] of item.items.entries()) {
             validateRadioOption(option, `${at}.items[${optionIndex}]`)
+
             const optionKey = option.key
+
             if (optionKeys.has(optionKey)) {
               throw new TrayError(
                 'invalid-menu',
@@ -183,9 +194,11 @@ export function resolvePlatformIcon(
   platform: TrayPlatform,
 ): TrayIcon {
   const resolved = isTrayIcon(icon) ? icon : icon[platform]
+
   if (!resolved || !isRecord(resolved)) {
     throw new TrayError('invalid-icon', `tray icon is missing for platform "${platform}"`)
   }
+
   if (resolved.type === 'file') {
     if (typeof resolved.path !== 'string' || resolved.path.length === 0) {
       throw new TrayError('invalid-icon', 'tray file icon needs a non-empty path')
@@ -197,6 +210,7 @@ export function resolvePlatformIcon(
 
     return { type: 'file', path: resolved.path, isTemplate: resolved.isTemplate }
   }
+
   if (resolved.type === 'named') {
     if (typeof resolved.name !== 'string' || resolved.name.length === 0) {
       throw new TrayError('invalid-icon', 'tray named icon needs a non-empty name')
@@ -204,6 +218,7 @@ export function resolvePlatformIcon(
 
     return { type: 'named', name: resolved.name }
   }
+
   throw new TrayError(
     'invalid-icon',
     `tray icon type "${(resolved as TrayIcon).type}" is not supported`,
@@ -227,20 +242,27 @@ export function normalizeTrayOptions(
   if (typeof options !== 'object' || options === null || Array.isArray(options)) {
     throw new TrayError('invalid-options', 'createTray options must be an object')
   }
+
   requireString(options.id, 'id', 'invalid-options')
+
   const icon = resolvePlatformIcon(options.icon, platform)
+
   if (options.tooltip !== undefined && typeof options.tooltip !== 'string') {
     throw new TrayError('invalid-options', 'tray tooltip must be a string')
   }
+
   if (options.title !== undefined && typeof options.title !== 'string') {
     throw new TrayError('invalid-options', 'tray title must be a string')
   }
+
   if (options.menu !== undefined) {
     validateTrayMenu(options.menu)
   }
+
   if (options.onActivate !== undefined && typeof options.onActivate !== 'function') {
     throw new TrayError('invalid-options', 'tray onActivate must be a function')
   }
+
   return {
     id: options.id,
     icon,
@@ -256,9 +278,11 @@ export function normalizeTrayUpdate(changes: TrayUpdate, platform: TrayPlatform)
   if (typeof changes !== 'object' || changes === null || Array.isArray(changes)) {
     throw new TrayError('invalid-options', 'tray update must be an object')
   }
+
   if (changes.icon !== undefined) {
     resolvePlatformIcon(changes.icon, platform)
   }
+
   if (
     changes.tooltip !== undefined &&
     changes.tooltip !== null &&
@@ -266,12 +290,15 @@ export function normalizeTrayUpdate(changes: TrayUpdate, platform: TrayPlatform)
   ) {
     throw new TrayError('invalid-options', 'tray tooltip must be a string or null')
   }
+
   if (changes.title !== undefined && changes.title !== null && typeof changes.title !== 'string') {
     throw new TrayError('invalid-options', 'tray title must be a string or null')
   }
+
   if (changes.menu !== undefined && changes.menu !== null) {
     validateTrayMenu(changes.menu)
   }
+
   if (
     changes.onActivate !== undefined &&
     changes.onActivate !== null &&
@@ -279,6 +306,7 @@ export function normalizeTrayUpdate(changes: TrayUpdate, platform: TrayPlatform)
   ) {
     throw new TrayError('invalid-options', 'tray onActivate must be a function or null')
   }
+
   return changes
 }
 
@@ -304,6 +332,7 @@ export function dispatchTraySelect(item: TrayMenuItem, option?: TrayRadioOption)
       }
 
       const value = option.value ?? option.key
+
       if (value !== item.value) {
         safeCall(() => item.onValueChange?.(value))
       }

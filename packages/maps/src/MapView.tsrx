@@ -41,6 +41,7 @@ export function MapView(props: MapViewProps): unknown @{
   const map = useRef<any>(null)
   const overlays = useRef(new Map<string, any>())
   const latest = useRef(props)
+
   latest.current = props
 
   const bindHost = useCallback((v: NativeMapView | null) => {
@@ -52,6 +53,7 @@ export function MapView(props: MapViewProps): unknown @{
   const handle = (v: any): MapViewHandle => ({
     animateCamera: (camera, options) => {
       const update = CameraUpdate.fromCoordinate(toCoord(camera.coordinates), camera.zoom ?? 0)
+
       if (options?.duration !== undefined) {
         mapOf()?.animateCamera(update, options.duration)
       } else {
@@ -69,6 +71,7 @@ export function MapView(props: MapViewProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
@@ -93,6 +96,7 @@ export function MapView(props: MapViewProps): unknown @{
 
     v.on('cameraPosition', (e: any) => {
       const p = e?.cameraPosition
+
       if (!p) {
         return
       }
@@ -113,10 +117,12 @@ export function MapView(props: MapViewProps): unknown @{
 
     v.on('markerTap', (e: any) => {
       const def = e?.marker?.userData?.def as MarkerDef | undefined
+
       def?.onTap?.()
     })
 
     const bag = isAndroid ? props.android : props.ios
+
     if (bag) {
       Object.assign(v, bag)
     }
@@ -128,11 +134,13 @@ export function MapView(props: MapViewProps): unknown @{
     apply: (def: T, key: string) => any,
   ) {
     const g = mapOf()
+
     if (!g) {
       return
     }
 
     const want = keyed(defs)
+
     for (const [key, ref] of overlays.current) {
       if (key.startsWith(`${kind}:`) && !want.has(key.slice(kind.length + 1))) {
         g[`remove${kind[0].toUpperCase()}${kind.slice(1)}`]?.(ref)
@@ -142,8 +150,10 @@ export function MapView(props: MapViewProps): unknown @{
 
     for (const [key, def] of want) {
       const fullKey = `${kind}:${key}`
+
       if (!overlays.current.has(fullKey)) {
         const created = apply(def, key)
+
         if (created) {
           overlays.current.set(fullKey, created)
         }
@@ -153,11 +163,13 @@ export function MapView(props: MapViewProps): unknown @{
 
   function syncAll() {
     const g = mapOf()
+
     if (!g) {
       return
     }
 
     const p = latest.current
+
     if (p.cameraPosition) {
       g.cameraPosition = new NativeCameraPosition(
         toCoord(p.cameraPosition.coordinates),

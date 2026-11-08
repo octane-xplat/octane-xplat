@@ -50,6 +50,7 @@ function InheritedFamily() @{
 
 function familyOf(view: NativeView): string | undefined {
   const native: UILabel | UITextField = view.ios
+
   return native.font?.familyName
 }
 
@@ -72,8 +73,10 @@ it.skipIf(!isIOS)(
   'inherited font-family survives late mounts, branch replacement, and reset through a Mason container',
   async () => {
     const { view } = await mountXplat(InheritedFamily)
+
     for (let stage = 0; stage < stages.length; stage++) {
       const expectations = stages[stage]
+
       await waitUntil(() =>
         expectations.every(([id]) => view.getViewById<NativeView>(id)?.isLoaded),
       )
@@ -81,6 +84,7 @@ it.skipIf(!isIOS)(
       for (const [id, family] of expectations) {
         const target = view.getViewById<NativeView>(id)!
         const resolved = familyOf(target)
+
         if (family === 'not-sn-pro') {
           expect(resolved, `${id} after reset`).not.toBe('SN Pro')
         } else {

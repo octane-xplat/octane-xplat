@@ -32,13 +32,16 @@ export function createVirtualListEntries<T>(
   getItemType?: (item: T, index: number) => VirtualListKey,
 ): VirtualListEntry<T>[] {
   const seen = new Set<string>()
+
   return items.map((item, index) => {
     const key = keyExtractor(item, index)
     const type = getItemType?.(item, index) ?? 'default'
+
     assertKey(key, 'keyExtractor')
     assertKey(type, 'getItemType')
 
     const keyToken = JSON.stringify([typeof key, key])
+
     if (seen.has(keyToken)) {
       throw new Error(
         `VirtualList keyExtractor returned a duplicate key at index ${index}: ${String(key)}`,
@@ -69,6 +72,7 @@ export function estimateVirtualListSizes<T>(
   measurements: ReadonlyMap<string, VirtualListSizeRecord>,
 ): number[] {
   const totals = new Map<string, { height: number; count: number }>()
+
   for (const entry of entries) {
     const cacheKey = virtualListMeasurementKey(
       entry.rowKey,
@@ -76,11 +80,13 @@ export function estimateVirtualListSizes<T>(
     )
 
     const cached = measurements.get(cacheKey)
+
     if (!cached) {
       continue
     }
 
     const total = totals.get(entry.typeKey) ?? { height: 0, count: 0 }
+
     total.height += cached.height
     total.count++
     totals.set(entry.typeKey, total)
@@ -93,11 +99,13 @@ export function estimateVirtualListSizes<T>(
     )
 
     const cached = measurements.get(cacheKey)
+
     if (cached && width > 0 && cached.width > 0 && Math.abs(cached.width - width) < 0.5) {
       return cached.height
     }
 
     const total = totals.get(entry.typeKey)
+
     return total && total.count >= VIRTUAL_LIST_MIN_TYPE_SAMPLES
       ? total.height / total.count
       : VIRTUAL_LIST_ESTIMATED_ROW_SIZE
@@ -124,7 +132,9 @@ export class VirtualListSizeIndex {
 
     for (let index = 1; index <= this.sizes.length; index++) {
       this.tree[index] += this.sizes[index - 1]
+
       const parent = index + (index & -index)
+
       if (parent <= this.sizes.length) {
         this.tree[parent] += this.tree[index]
       }
@@ -142,6 +152,7 @@ export class VirtualListSizeIndex {
 
     const next = normalizeSize(size)
     const delta = next - this.sizes[index]
+
     if (delta === 0) {
       return 0
     }
@@ -158,6 +169,7 @@ export class VirtualListSizeIndex {
   prefix(count: number): number {
     let node = Math.max(0, Math.min(this.sizes.length, Math.floor(count)))
     let sum = 0
+
     while (node > 0) {
       sum += this.tree[node]
       node -= node & -node
@@ -177,12 +189,14 @@ export class VirtualListSizeIndex {
     let index = 0
     let sum = 0
     let bit = 1
+
     while (bit * 2 <= this.sizes.length) {
       bit *= 2
     }
 
     for (; bit > 0; bit = Math.floor(bit / 2)) {
       const next = index + bit
+
       if (next <= this.sizes.length && sum + this.tree[next] <= target) {
         index = next
         sum += this.tree[next]

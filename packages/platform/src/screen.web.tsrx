@@ -19,13 +19,16 @@ function read(): WindowSize {
 export function useWindowSize(): WindowSize {
   const bootstrap = desktopHostBootstrap()
   const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read)
+
   useEffect(() => {
     const host = desktopHostClient()
+
     if (host) {
       return host.on('window.resize', setSize)
     }
 
     const update = () => setSize(read())
+
     window.addEventListener('resize', update)
     window.addEventListener('orientationchange', update)
     return () => {

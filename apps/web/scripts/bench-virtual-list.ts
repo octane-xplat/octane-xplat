@@ -13,6 +13,7 @@ let previewOutput = ''
 let baseUrl
 
 let browser
+
 try {
   await new Promise((resolve, reject) => {
     const timeout = setTimeout(
@@ -42,6 +43,7 @@ try {
   })
 
   browser = await chromium.launch()
+
   const page = await browser.newPage({ viewport: { width: 390, height: 844 } })
   const pageErrors = []
   let resolveResult
@@ -61,6 +63,7 @@ try {
     const line = message.text()
     const marker = '[vlist-benchmark] result '
     const at = line.indexOf(marker)
+
     if (at === -1) {
       return
     }
@@ -77,7 +80,9 @@ try {
   await page.locator('#menu-vlist-perf').click()
   await page.locator('#vlist-bench-run').waitFor({ state: 'visible', timeout: 10_000 })
   await page.locator('#vlist-bench-run').click()
+
   const result = await resultPromise
+
   clearTimeout(resultTimeout)
   if (pageErrors.length) {
     throw new Error(`Web app errors: ${pageErrors.join('; ')}`)

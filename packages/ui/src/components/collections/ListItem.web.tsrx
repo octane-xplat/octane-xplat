@@ -52,6 +52,7 @@ export function ListItem(props: ListItemProps): JSX.Element @{
 
     if (props.delegateRef?.current) {
       const delegate = props.delegateRef.current as DelegateTarget
+
       delegate.click?.()
       delegate.focus?.()
     } else if (props.href == null) {

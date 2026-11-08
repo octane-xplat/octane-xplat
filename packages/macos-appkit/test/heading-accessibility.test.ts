@@ -16,6 +16,7 @@ function view(text = 'Account') {
 
 test('heading exposes levels 1–6 and current title without changing visible text', () => {
   const field = view()
+
   for (let level = 1; level <= 6; level++) {
     syncHeadingAccessibility(field, {
       accessibilityRole: 'heading',
@@ -27,6 +28,7 @@ test('heading exposes levels 1–6 and current title without changing visible te
     assert.equal(field.accessibilityTitle, 'Account')
     assert.equal(field.stringValue, 'Account')
   }
+
   field.stringValue = 'Updated account'
   syncHeadingAccessibility(field, { accessibilityRole: 'heading' })
   assert.equal(field.accessibilityTitle, 'Updated account')
@@ -43,6 +45,7 @@ test('heading exposes levels 1–6 and current title without changing visible te
 
 test('removing heading restores original role/title and a text-following value to current content', () => {
   const field = view()
+
   syncHeadingAccessibility(field, { accessibilityRole: 'heading', accessibilityHeadingLevel: 1 })
   field.stringValue = 'Renamed'
   syncHeadingAccessibility(field, {})
@@ -56,7 +59,9 @@ test('removing heading restores original role/title and a text-following value t
   syncHeadingAccessibility(field, { accessibilityRole: 'text' })
   assert.equal(field.accessibilityValue, 'native custom value')
   assert.equal(field.accessibilityTitle, 'native title')
+
   const untouched = view('Sibling')
+
   syncHeadingAccessibility(untouched, {})
   assert.equal(untouched.accessibilityRole, 'AXStaticText')
   assert.equal(untouched.accessibilityValue, 'Sibling')
@@ -66,16 +71,20 @@ test('real readable-host accessibility dispatch updates level and releases headi
   const source = rendererSource(),
     start = source.indexOf('function applyAccessibility('),
     end = source.indexOf('/** Host updates carry', start)
+
   assert.ok(start >= 0 && end > start)
+
   const apply = runSlice(source.slice(start, end) + '\n;applyAccessibility', {
     syncHeadingAccessibility,
   })
+
   const field = view(),
     node = {
       type: 'label',
       view: field,
       props: { accessibilityRole: 'heading', accessibilityHeadingLevel: 1 },
     }
+
   apply(node, 'accessibilityRole', 'heading')
   assert.equal(field.accessibilityValue, 1)
   apply(node, 'accessibilityHeadingLevel', 3)
@@ -89,7 +98,9 @@ test('real plain and formatted text writers refresh heading titles on the existi
   const source = rendererSource(),
     start = source.indexOf('function setLabelText('),
     end = source.indexOf('const keyboardSubscriptionsByNode', start)
+
   assert.ok(start >= 0 && end > start)
+
   const { setLabelText, syncText } = runSlice(
     source.slice(start, end) + '\n;({setLabelText,syncText})',
     {
@@ -109,6 +120,7 @@ test('real plain and formatted text writers refresh heading titles on the existi
       queueLayoutReconcile() {},
     },
   )
+
   const field = view(),
     node = {
       type: 'label',
@@ -118,12 +130,14 @@ test('real plain and formatted text writers refresh heading titles on the existi
       container: {},
       parent: null,
     }
+
   ;(field as any).cell = { lineBreakMode: 0 }
   Object.defineProperty(field, 'attributedStringValue', {
     set(value) {
       field.stringValue = value.string
     },
   })
+
   setLabelText(node, 'Plain account')
   assert.equal(field.accessibilityTitle, 'Plain account')
   assert.equal(field.accessibilityValue, 3)

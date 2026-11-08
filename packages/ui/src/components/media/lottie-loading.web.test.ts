@@ -7,8 +7,10 @@ import { act, createRoot } from 'octane'
 
 // Resolve from the engine-owning package; UI itself does not depend on Lottie.
 let workspaceRoot = process.cwd()
+
 while (!existsSync(join(workspaceRoot, 'packages/lottie/package.json'))) {
   const parent = dirname(workspaceRoot)
+
   if (parent === workspaceRoot) {
     throw new Error('Cannot locate the Lottie package in the framework workspace')
   }
@@ -22,6 +24,7 @@ let Lottie: (typeof import('../../../../lottie/src/Lottie.web.tsrx'))['Lottie']
 
 beforeAll(async () => {
   vi.doMock(requireLottie.resolve('lottie-web'), () => ({ default: { loadAnimation } }))
+
   ;({ Lottie } = await import('../../../../lottie/src/Lottie.web.tsrx'))
 })
 
@@ -36,10 +39,15 @@ it('keeps controlled playback paused when loading finishes after playing becomes
     pause: vi.fn(),
     getDuration: () => 1,
   }
+
   loadAnimation.mockReturnValue(animation)
+
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   try {
     act(() => root.render(Lottie, { src: 'animation.json', playing: true }))
     expect(loadAnimation).toHaveBeenCalledTimes(1)
@@ -60,6 +68,7 @@ it('uses the latest playback intent at readiness and ignores a replaced animatio
     play: ReturnType<typeof vi.fn>
     destroy: ReturnType<typeof vi.fn>
   }> = []
+
   loadAnimation.mockImplementation(() => {
     const events = new Map<string, () => void>()
     const animation = {
@@ -70,13 +79,18 @@ it('uses the latest playback intent at readiness and ignores a replaced animatio
       pause: vi.fn(),
       getDuration: () => 2,
     }
+
     instances.push(animation)
     return animation
   })
+
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const loaded = vi.fn()
+
   try {
     act(() => root.render(Lottie, { src: 'first.json', playing: false, onLoaded: loaded }))
     act(() => root.render(Lottie, { src: 'first.json', playing: true, onLoaded: loaded }))

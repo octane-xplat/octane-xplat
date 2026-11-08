@@ -1,5 +1,6 @@
 function flag(view: any, name: string, fallback = false): boolean {
   const value = view?.[name]
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -10,10 +11,12 @@ function nativeView(target: any): any {
 function focusedView(window: any): any {
   const raw = window?.firstResponder,
     delegate = raw?.delegate
+
   const editor =
     typeof delegate?.currentEditor === 'function'
       ? delegate.currentEditor()
       : delegate?.currentEditor
+
   return delegate?.window === window && editor === raw ? delegate : raw
 }
 
@@ -27,10 +30,13 @@ export function captureAppKitLayerFocus(
     nativeView(host)?.window ??
     nativeView(getTarget?.())?.window ??
     native().NSApplication?.sharedApplication?.keyWindow
+
   const initial = focusedView(owner)
+
   return (): void => {
     try {
       const requested = getTarget?.()
+
       // Explicit custom focus delegates retain caller-owned behavior; unlike a
       // native-backed handle, their attachment cannot be inspected here.
       if (

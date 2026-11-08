@@ -23,6 +23,7 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element @{
 
   const choose = (index: number) => {
     const item = items[index]
+
     if (!item || item.disabled) {
       return
     }
@@ -35,12 +36,14 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element @{
   // stays reachable, then focus it so the keyboard contract works.
   useLayoutEffect(() => {
     const el = listRef.current
+
     if (!menu || !el) {
       return
     }
 
     const x = Math.max(0, Math.min(menu.x, window.innerWidth - el.offsetWidth - 8))
     const y = Math.max(0, Math.min(menu.y, window.innerHeight - el.offsetHeight - 8))
+
     if (x !== menu.x || y !== menu.y) {
       setMenu({ x, y })
       return
@@ -62,9 +65,12 @@ export function ContextMenu(props: ContextMenuProps): JSX.Element @{
     }
 
     const at = Math.max(0, enabled.indexOf(active))
+
     if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
       e.preventDefault?.()
+
       const step = e.key === 'ArrowDown' ? 1 : -1
+
       setActive(enabled[(at + step + enabled.length) % enabled.length])
     } else if (e.key === 'Home') {
       e.preventDefault?.()

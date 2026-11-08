@@ -9,6 +9,7 @@ test('viewport ownership follows adapter activation and final release', () => {
   let acquisitions = 0,
     releases = 0,
     updates = 0
+
   const adapter = () => {
     acquisitions++
     return {
@@ -21,10 +22,14 @@ test('viewport ownership follows adapter activation and final release', () => {
       },
     }
   }
+
   const lease = observeKeyboardViewport({})
+
   assert.equal(lease.supported, false)
+
   const first = installKeyboardViewportAdapter(adapter)
   const second = installKeyboardViewportAdapter(adapter)
+
   assert.equal(acquisitions, 1)
   lease.update()
   assert.equal(updates, 1)
@@ -35,7 +40,9 @@ test('viewport ownership follows adapter activation and final release', () => {
   assert.equal(lease.supported, false)
   lease.release()
   lease.release()
+
   const unused = installKeyboardViewportAdapter(adapter)
+
   assert.equal(acquisitions, 1)
   unused()
 })
@@ -43,6 +50,7 @@ test('viewport ownership follows adapter activation and final release', () => {
 test('adapter attachment failure rolls existing consumers back to their prior policy', () => {
   let acquired = 0,
     released = 0
+
   const good = installKeyboardViewportAdapter(() => {
     acquired++
     return {
@@ -53,7 +61,9 @@ test('adapter attachment failure rolls existing consumers back to their prior po
       },
     }
   })
+
   const lease = observeKeyboardViewport({})
+
   assert.throws(
     () =>
       installKeyboardViewportAdapter(() => {
@@ -61,6 +71,7 @@ test('adapter attachment failure rolls existing consumers back to their prior po
       }),
     AggregateError,
   )
+
   assert.equal(lease.supported, true)
   assert.equal(acquired, 2)
   assert.equal(released, 1)
@@ -77,10 +88,13 @@ test('detachment releases native policy and reattachment acquires the current ho
     on: (name, read) => events.set(name, read),
     off: (name) => events.delete(name),
   }
+
   const acquisitions = [],
     releases = []
+
   const stop = installKeyboardViewportAdapter((view) => {
     const owner = view.owner
+
     acquisitions.push(owner)
     return {
       supported: true,
@@ -90,7 +104,9 @@ test('detachment releases native policy and reattachment acquires the current ho
       },
     }
   })
+
   const lease = observeKeyboardViewport(host)
+
   assert.deepEqual(acquisitions, [])
   host.isLoaded = true
   events.get('loaded')()
@@ -115,12 +131,15 @@ test('out-of-order release retains the newest repeated adapter activation', () =
     current = name
     return { supported: true, update() {}, release() {} }
   }
+
   const a = adapter('a'),
     b = adapter('b')
+
   const first = installKeyboardViewportAdapter(a)
   const lease = observeKeyboardViewport({})
   const middle = installKeyboardViewportAdapter(b)
   const last = installKeyboardViewportAdapter(a)
+
   first()
   assert.equal(current, 'a')
   last()

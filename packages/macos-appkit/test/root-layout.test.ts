@@ -11,6 +11,7 @@ const source = stripTypeScriptTypes(rendererSource())
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
   const rest = source.slice(start)
+
   return rest.slice(0, rest.search(/\n(?:function |const |class |export )/))
 }
 
@@ -71,6 +72,7 @@ function fixture() {
   const container = { nodes: new Map([[1, parent]]), children: [] }
 
   ;(parent as any).container = container
+
   const api = runSlice(
     [
       'layoutLength',
@@ -156,6 +158,7 @@ function fixture() {
 
   const remove = (node: any) => api.remove(container, 1, node)
   const fxRegister = (node: any) => container.nodes.set(node.id, node)
+
   return {
     parent,
     container,
@@ -195,7 +198,9 @@ test('padding, margins, percentages, fixed and natural alignment update without 
   a.marginInsets = { left: 5, right: 15, top: 3, bottom: 7 }
   fx.insert(a)
   assert.deepEqual(rect(a), [75, 38, 40, 20])
+
   const pins = a.placementPins
+
   fx.update(a, {
     horizontalAlignment: 'right',
     verticalAlignment: 'bottom',
@@ -249,8 +254,10 @@ test('reparenting and teardown release old constraints, retained children and ho
     a = fx.child(2)
 
   fx.insert(a)
+
   const oldPins = Object.values(a.placementPins) as any[]
   const other = { ...fx.parent, id: 9, children: [], view: fx.child(10).view }
+
   fx.container.nodes.set(9, other)
   fx.insert(a, 9)
   assert.ok(oldPins.every((pin) => !pin.active))

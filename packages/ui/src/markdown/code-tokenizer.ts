@@ -4,6 +4,7 @@
 // on every target.
 import type { CodeToken, SyntaxToken, TokenLine } from '../props'
 import { appKitHost, hostGlobal } from '../internal/platform/host-bridge'
+
 export type { SyntaxToken, TokenLine } from '../props'
 
 type LangDef = {
@@ -33,17 +34,20 @@ const HACK_KEYWORDS =
 
 function buildLanguage(lang: string): LangDef | null {
   const cached = langCache.get(lang)
+
   if (cached !== undefined) {
     return cached
   }
 
   const def = buildLanguageUncached(lang)
+
   langCache.set(lang, def)
   return def
 }
 
 function buildLanguageUncached(lang: string): LangDef | null {
   const raw = buildLanguagePatterns(lang)
+
   if (!raw) {
     return null
   }
@@ -52,6 +56,7 @@ function buildLanguageUncached(lang: string): LangDef | null {
     defaultType: raw.defaultType,
     patterns: raw.patterns.map((p) => {
       const flags = p.regex.flags.replace(/[gy]/g, '') + 'y'
+
       return { ...p, anchored: new RegExp(p.regex.source, flags) }
     }),
   }
@@ -293,6 +298,7 @@ const ASYNC_CHUNK_SIZE = 800
 
 async function yieldToMain(): Promise<void> {
   const scheduler = hostGlobal('scheduler')
+
   if (typeof scheduler?.yield === 'function') {
     return scheduler.yield()
   }
@@ -320,6 +326,7 @@ function tokenizeLine(
 
     for (const pattern of langDef.patterns) {
       pattern.anchored.lastIndex = pos
+
       const match = pattern.anchored.exec(code)
 
       if (match && match.index === pos && match[0].length > 0) {
@@ -353,6 +360,7 @@ function tokenizeLine(
  */
 export function tokenize(code: string, language: string): TokenLine[] {
   const langDef = buildLanguage(language)
+
   if (!langDef) {
     return []
   }
@@ -380,6 +388,7 @@ export async function tokenizeAsync(
   signal?: { readonly aborted: boolean },
 ): Promise<TokenLine[]> {
   const langDef = buildLanguage(language)
+
   if (!langDef) {
     return []
   }
@@ -420,6 +429,7 @@ export async function tokenizeStreaming(
   signal?: { readonly aborted: boolean },
 ): Promise<void> {
   const langDef = buildLanguage(language)
+
   if (!langDef) {
     return
   }
@@ -463,6 +473,7 @@ export async function tokenizeStreaming(
  */
 export function flatTokensToLines(tokens: CodeToken[], code: string): TokenLine[] {
   const lineStarts: number[] = [0]
+
   for (let i = 0; i < code.length; i++) {
     if (code[i] === '\n') {
       lineStarts.push(i + 1)
@@ -479,6 +490,7 @@ export function flatTokensToLines(tokens: CodeToken[], code: string): TokenLine[
 
     for (let index = lineIdx; index < lineStarts.length; index++) {
       const lineStart = lineStarts[index]
+
       if (lineStart >= token.end) {
         break
       }
@@ -486,6 +498,7 @@ export function flatTokensToLines(tokens: CodeToken[], code: string): TokenLine[
       const lineEnd = index + 1 < lineStarts.length ? lineStarts[index + 1] - 1 : code.length
       const start = Math.max(token.start, lineStart)
       const end = Math.min(token.end, lineEnd)
+
       if (start < end) {
         result[index].push({ type: token.type, start: start - lineStart, end: end - lineStart })
       }
@@ -577,11 +590,13 @@ export function syntaxColor(
   theme?: { tokens?: Record<string, string | [string, string]> } | null,
 ): string | undefined {
   const override = theme?.tokens?.[type]
+
   if (override !== undefined) {
     return Array.isArray(override) ? (scheme === 'dark' ? override[1] : override[0]) : override
   }
 
   const table = scheme === 'dark' ? DARK_SYNTAX : LIGHT_SYNTAX
+
   return table[type as SyntaxTokenType]
 }
 

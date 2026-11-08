@@ -5,6 +5,7 @@ const REV = new Map([...TABLE].map((c, i) => [c, i]))
 export function decodeBase64(src: string): Uint8Array {
   const out = new Uint8Array(Math.ceil(src.length / 4) * 3)
   let o = 0
+
   for (let i = 0; i < src.length; i += 4) {
     const a = REV.get(src[i]) ?? 0
     const b = REV.get(src[i + 1]) ?? 0
@@ -27,8 +28,10 @@ export function decodeBase64(src: string): Uint8Array {
 
 export function encodeBase64(data: Uint8Array): string {
   let out = ''
+
   for (let i = 0; i < data.length; i += 3) {
     const n = (data[i] << 16) | ((data[i + 1] ?? 0) << 8) | (data[i + 2] ?? 0)
+
     out += TABLE[(n >> 18) & 63] + TABLE[(n >> 12) & 63]
     out += i + 1 < data.length ? TABLE[(n >> 6) & 63] : '='
     out += i + 2 < data.length ? TABLE[n & 63] : '='

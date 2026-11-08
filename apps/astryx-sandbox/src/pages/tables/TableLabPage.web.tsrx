@@ -46,6 +46,7 @@ type PluginId = keyof typeof pluginLabels
 
 function toggled(values: Set<string>, key: string): Set<string> {
   const next = new Set(values)
+
   if (next.has(key)) {
     next.delete(key)
   } else {
@@ -111,6 +112,7 @@ export function TableLabPage() @{
   })
 
   const plugins: Record<string, TablePlugin<LabRow>> = {}
+
   if (enabled.groupedRows) {
     plugins.grouped = grouped.plugin
   }

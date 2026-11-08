@@ -37,6 +37,7 @@ function MetadataListImpl(props: MetadataListProps): JSX.Element @{
     isExceedMax && !isShowAll ? childrenArray.slice(0, effectiveMax) : childrenArray
 
   let gridTemplateColumns: string | undefined
+
   if (!isHorizontal) {
     if (typeof columns === 'number' && columns > 1) {
       gridTemplateColumns = isStacked

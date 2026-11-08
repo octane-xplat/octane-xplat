@@ -23,6 +23,7 @@ export function Chart(props: ChartProps): unknown @{
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
+
   propsRef.current = props
 
   const bounds = measure.bounds
@@ -73,6 +74,7 @@ export function Chart(props: ChartProps): unknown @{
 
   const [tapView, setTapView] = useState<any>(null)
   const bindTapView = useCallback((view: any) => setTapView(view), [])
+
   useEffect(() => {
     if (!interactive || !tapView) {
       return

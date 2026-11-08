@@ -5,6 +5,7 @@ import { menuItems } from './helpers'
 
 export function DropdownMenuWithDisabledItems() @{
   const [lastAction, setLastAction] = useState<string | null>(null)
+
   return (
     <VStack gap={3} align="start">
       <DropdownMenu

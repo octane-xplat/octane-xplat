@@ -15,6 +15,7 @@ const ACTIONS = [
 export function DropdownMenuBottomSheet() @{
   const [lastAction, setLastAction] = useState<string | null>(null)
   const isCompactTouch = useMediaQuery(COMPACT_TOUCH_QUERY)
+
   return (
     <VStack gap={3} align="start">
       <DropdownMenu

@@ -8,8 +8,10 @@ const require = createRequire(import.meta.url)
 const output = new URL('../dist/', import.meta.url)
 const packages = ['intl-pluralrules', 'intl-numberformat', 'intl-datetimeformat', 'intl-listformat']
 const locales = new Map()
+
 for (const pkg of packages) {
   const files = await readdir(join(dirname(require.resolve(`@formatjs/${pkg}`)), 'locale-data'))
+
   locales.set(
     pkg,
     new Set(files.filter((file) => file.endsWith('.js')).map((file) => file.slice(0, -3))),
@@ -26,16 +28,20 @@ async function emit(path, imports) {
   // the empty initializer; FormatJS data modules leave built-in constructors alone.
   const code =
     ["import '../../src/intl'", ...imports.map((path) => `import '${path}'`)].join('\n') + '\n'
+
   await writeFile(new URL(`${path}.js`, output), code)
   await writeFile(new URL(`${path}.d.ts`, output), 'export {}\n')
 }
 
 // Number/date/list data is regional; plural rules may only have the parent tag.
 let count = 0
+
 for (const locale of locales.get('intl-numberformat')) {
   const imports = []
+
   for (const pkg of packages) {
     let tag = locale
+
     while (tag && !locales.get(pkg).has(tag)) {
       tag = tag.includes('-') ? tag.slice(0, tag.lastIndexOf('-')) : ''
     }

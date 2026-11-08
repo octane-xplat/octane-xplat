@@ -18,6 +18,7 @@ export function createAccountSession(auth: HostedAuth) {
     message: 'Checking sign-in…',
     needsSignOutRetry: false,
   })
+
   let generation = 0
   let clearingCredentials = false
   const signedOut = (message: string, status: AccountState['status'] = 'anonymous') => {
@@ -29,22 +30,29 @@ export function createAccountSession(auth: HostedAuth) {
       needsSignOutRetry: false,
     }))
   }
+
   async function loadAccount(owner: number) {
     const response = await auth.fetch('/api/me')
+
     if (owner !== generation) {
       return
     }
+
     if (response.status === 401) {
       await signOut()
       return
     }
+
     if (!response.ok) {
       throw new Error('Account service unavailable')
     }
+
     const account: unknown = await response.json()
+
     if (owner !== generation) {
       return
     }
+
     if (
       typeof account !== 'object' ||
       account === null ||
@@ -54,7 +62,9 @@ export function createAccountSession(auth: HostedAuth) {
     ) {
       throw new Error('Invalid account response')
     }
+
     const subject = account.subject
+
     state.update((previous) => ({
       status: 'authenticated',
       subject,
@@ -63,10 +73,12 @@ export function createAccountSession(auth: HostedAuth) {
       needsSignOutRetry: false,
     }))
   }
+
   function failed(owner: number) {
     if (owner !== generation) {
       return
     }
+
     state.update((previous) => ({
       ...previous,
       status: 'error',
@@ -75,15 +87,19 @@ export function createAccountSession(auth: HostedAuth) {
       message: 'Could not check your account. Check the connection and try again.',
     }))
   }
+
   async function restore() {
     if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {
       return
     }
+
     const owner = ++generation
+
     if (!auth.supported) {
       signedOut('This sign-in method is unavailable on this target.', 'unsupported')
       return
     }
+
     state.update((previous) => ({ ...previous, status: 'checking', message: 'Checking sign-in…' }))
     try {
       if ((await auth.restore()) === 'unauthenticated') {
@@ -99,14 +115,18 @@ export function createAccountSession(auth: HostedAuth) {
       failed(owner)
     }
   }
+
   async function signIn() {
     if (clearingCredentials || state.getSnapshot().needsSignOutRetry) {
       return
     }
+
     const owner = ++generation
+
     state.update((previous) => ({ ...previous, status: 'checking', message: 'Opening sign-in…' }))
     try {
       const result = await auth.signIn()
+
       if (owner !== generation) {
         return
       }
@@ -122,12 +142,16 @@ export function createAccountSession(auth: HostedAuth) {
       failed(owner)
     }
   }
+
   async function signOut() {
     if (clearingCredentials) {
       return
     }
+
     clearingCredentials = true
+
     const owner = ++generation
+
     signedOut('Signing out…', 'checking')
     try {
       await auth.signOut()
@@ -149,5 +173,6 @@ export function createAccountSession(auth: HostedAuth) {
       clearingCredentials = false
     }
   }
+
   return { state, restore, signIn, signOut }
 }

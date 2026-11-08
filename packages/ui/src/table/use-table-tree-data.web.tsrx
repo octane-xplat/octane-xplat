@@ -95,6 +95,7 @@ function TreeCellContent<T extends Record<string, unknown>>(props: {
   children: any
 }) @{
   const meta = props.meta
+
   if (!meta) {
     return <>{props.children}</>
   }
@@ -119,6 +120,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
   config: UseTableTreeDataConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   // The resolved tree column key, written by transformColumns (step 1) and
@@ -152,10 +154,12 @@ export function useTableTreeData<T extends Record<string, unknown>>(
         }
 
         const originalRenderCell = col.renderCell
+
         return {
           ...col,
           renderCell: (item: T) => {
             const cfg = configRef.current
+
             return (
               <TreeCellContent
                 item={item}
@@ -210,6 +214,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
 
     transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
       const cfg = configRef.current
+
       if (!cfg.hasExpandableRows) {
         return props
       }
@@ -227,6 +232,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
       // Whole-row-click expansion (opt-in). Only expandable rows are
       // clickable; leaves stay inert.
       const rowClickExpandable = cfg.hasRowClickExpansion === true && meta?.hasChildren === true
+
       if (!rowClickExpandable) {
         return { ...props, htmlProps }
       }
@@ -240,6 +246,7 @@ export function useTableTreeData<T extends Record<string, unknown>>(
             // selection (the chevron already stops propagation; a composed
             // checkbox/link/button does not).
             const target = event?.target as HTMLElement | undefined
+
             if (target?.closest?.(INTERACTIVE_CLICK_SELECTOR)) {
               return
             }

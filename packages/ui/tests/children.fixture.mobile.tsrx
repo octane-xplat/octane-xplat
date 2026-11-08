@@ -68,8 +68,10 @@ export function CollectionLeaves(props: any) @{
 }
 
 export const ChildContext = createContext('default')
+
 function OwnedChild(props: any) @{
   const context = useContext(ChildContext)
+
   useLayoutEffect(() => {
     props.events.push(`mount:${props.name}`)
     return () => props.events.push(`cleanup:${props.name}`)
@@ -116,6 +118,7 @@ export function LimitedChildren(props: any) @{
 
 export function ReactiveChildren(props: any) @{
   const [names, setNames] = useState(['a', 'b'])
+
   useLayoutEffect(() => {
     props.capture(setNames)
   }, [])

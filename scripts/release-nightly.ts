@@ -30,13 +30,17 @@ export function nightlyDecision({
 }) {
   const version = `0.0.0-nightly.g${candidate.slice(0, 7)}`
   const decide = (publish: boolean, reason: string) => ({ publish, version, reason })
+
   if (!published) {
     return decide(true, 'no nightly is published yet')
   }
+
   const match = NIGHTLY_PATTERN.exec(published)
+
   if (!match) {
     return decide(true, `published nightly ${published} is not a commit-stamped prerelease`)
   }
+
   const publishedSha = match[1]
   // --verify --quiet fails for unknown and ambiguous revisions alike.
   const resolved = spawnSync(
@@ -44,32 +48,42 @@ export function nightlyDecision({
     ['rev-parse', '--verify', '--quiet', `${publishedSha}^{commit}`],
     { cwd: root, encoding: 'utf8' },
   )
+
   const publishedCommit = resolved.status === 0 ? resolved.stdout.trim() : ''
+
   if (!publishedCommit) {
     return decide(true, `published commit g${publishedSha} is not in this repository`)
   }
+
   const ancestor = spawnSync('git', ['merge-base', '--is-ancestor', candidate, publishedCommit], {
     cwd: root,
   })
+
   if (ancestor.status === 0) {
     return decide(false, `${version} is already published`)
   }
+
   const diff = spawnSync(
     'git',
     ['diff', '--quiet', publishedCommit, candidate, '--', ...NIGHTLY_PATHS],
     { cwd: root },
   )
+
   if (diff.status === 0) {
     return decide(false, `no publishable changes since g${publishedSha.slice(0, 7)}`)
   }
+
   return decide(true, `publishable changes since g${publishedSha.slice(0, 7)}`)
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const candidate = process.argv[2]
+
     assert.ok(candidate, 'usage: node scripts/release-nightly.ts <sha>')
+
     let published: string | undefined
+
     try {
       published =
         execFileSync('npm', ['view', '@octane-xplat/ui', 'dist-tags.nightly'], {

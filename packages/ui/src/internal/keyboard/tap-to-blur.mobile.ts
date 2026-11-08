@@ -4,6 +4,7 @@ import { android } from '@octane-xplat/platform/android'
 /** Hide the Android soft keyboard when the user taps the attached view. */
 export function attachTapToBlur(view: any): () => void {
   const marker = '__xplatTapToBlur'
+
   if (!view || view[marker]) {
     return () => {}
   }
@@ -19,11 +20,13 @@ export function attachTapToBlur(view: any): () => void {
   const handler = (_args: any) => {
     const activity = Application.android.foregroundActivity
     const focused = activity?.getCurrentFocus()
+
     if (!focused) {
       return
     }
 
     const imm = activity.getSystemService(android.content.Context.INPUT_METHOD_SERVICE)
+
     imm?.hideSoftInputFromWindow(focused.getWindowToken(), 0)
   }
 

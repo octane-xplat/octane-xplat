@@ -17,6 +17,7 @@ const binary = join(
 )
 
 assert.deepEqual(JSON.parse(readFileSync(binary + '.json')).inputs, nativeInputs(root))
+
 const scratch = scratchRun(root, 'go-code')
 const project = join(scratch, 'project'),
   app = join(project, 'apps/app')
@@ -27,6 +28,7 @@ function put(path, content) {
     path,
     typeof content === 'string' || Buffer.isBuffer(content) ? content : JSON.stringify(content),
   )
+
   return path
 }
 
@@ -55,6 +57,7 @@ put(join(app, 'node_modules/@octane-xplat/ui/package.json'), {
 })
 
 put(join(app, 'node_modules/@octane-xplat/ui/src/button.ts'), 'export const FrameworkButton = 1\n')
+
 const discovery = discoverWorkspace(project),
   identity = discovery.apps[0]
 
@@ -72,6 +75,7 @@ function cli(args) {
     timeout: 10000,
     env: { ...process.env, PATH: '', XPLAT_PERMISSIONS: '', XPLAT_AGENT_CLIENT: '' },
   })
+
   assert.equal(result.stderr, '')
   return { status: result.status, value: JSON.parse(result.stdout) }
 }
@@ -80,6 +84,7 @@ function normalize(value) {
   if (Array.isArray(value)) {
     return value.map(normalize)
   }
+
   if (value && typeof value === 'object') {
     return Object.fromEntries(
       Object.entries(value)
@@ -87,6 +92,7 @@ function normalize(value) {
         .map(([key, value]) => [key, normalize(value)]),
     )
   }
+
   return value
 }
 
@@ -106,7 +112,9 @@ test('native exact retrieval keeps references, installed version provenance and 
     '--platform',
     'web',
   ])
+
   assert.equal(actual.status, 0)
+
   const expected = reference.search({
     app: identity,
     query: 'CameraView',
@@ -114,23 +122,28 @@ test('native exact retrieval keeps references, installed version provenance and 
     corpus: 'app',
     platform: 'web',
   })
+
   // Binary source is excluded for every size, closing the small-file loophole in
   // the reference enumerator. The generated/private/large exclusions are shared.
   const expectedHits = expected.results.filter((hit) => !hit.path.endsWith('binary.ts'))
+
   assert.deepEqual(
     normalize(actual.value.data.results),
     normalize(JSON.parse(JSON.stringify(expectedHits))),
   )
+
   assert.ok(actual.value.data.results.some((hit) => hit.path === 'apps/app/src/camera.ts'))
   assert.ok(
     !actual.value.data.results.some((hit) =>
       /private|generated|binary|oversized|\.ios\./.test(hit.path),
     ),
   )
+
   // The reported path is itself a valid read input for a nested app root —
   // feeding hit.path back is the search→read round trip consumers perform.
   const appHit = actual.value.data.results.find((hit) => hit.path === 'apps/app/src/camera.ts')
   const page = cli(['code', 'read', '--path', appHit.path])
+
   assert.equal(page.status, 0)
   assert.equal(page.value.data.path, appHit.path)
   assert.equal(page.value.data.ref, appHit.ref)
@@ -139,6 +152,7 @@ test('native exact retrieval keeps references, installed version provenance and 
     cli(['code', 'read', '--path', 'src/camera.ts']).value.error.code,
     'invalid_selection',
   )
+
   const framework = cli([
     'code',
     'search',
@@ -148,6 +162,7 @@ test('native exact retrieval keeps references, installed version provenance and 
     '--corpus',
     'framework',
   ]).value.data.results[0]
+
   assert.equal(framework.package, '@octane-xplat/ui')
   assert.equal(framework.provenance.servedVersion, '0.19.0')
   assert.equal(framework.provenance.scope, 'release')
@@ -157,6 +172,7 @@ test('native exact retrieval keeps references, installed version provenance and 
     cli(['code', 'read', '--ref', framework.ref]).value.data.content,
     'export const FrameworkButton = 1\n',
   )
+
   assert.equal(
     cli([
       'code',
@@ -174,6 +190,7 @@ test('native exact retrieval keeps references, installed version provenance and 
 
 test('continuation preserves UTF-16 boundaries, exact hash, zero and large offsets', () => {
   const rocket = content.indexOf('🚀')
+
   for (const [offset, limit] of [
     [0, 24000],
     [rocket, 1],
@@ -195,9 +212,12 @@ test('continuation preserves UTF-16 boundaries, exact hash, zero and large offse
     ])
 
     assert.equal(actual.status, 0)
+
     const expected = nodeRead({ corpus: 'app', path: 'apps/app/src/camera.ts', offset, limit })
+
     assert.deepEqual(normalize(actual.value.data), normalize(JSON.parse(JSON.stringify(expected))))
   }
+
   assert.equal(
     cli(['code', 'read', '--path', 'apps/app/src/camera.ts']).value.data.contentHash,
     createHash('sha1').update(content).digest('hex').slice(0, 12),
@@ -207,6 +227,7 @@ test('continuation preserves UTF-16 boundaries, exact hash, zero and large offse
 test('excluded names and canonical targets cannot be read through aliases', () => {
   const outside = put(join(scratch, 'outside.ts'), 'OutsideData')
   const directory = join(app, 'src')
+
   for (const [name, target] of [
     ['outside.ts', outside],
     ['private-alias.ts', join(app, 'private/secret.ts')],
@@ -214,6 +235,7 @@ test('excluded names and canonical targets cannot be read through aliases', () =
   ]) {
     symlinkSync(target, join(directory, name))
   }
+
   for (const path of [
     '../outside.ts',
     '/outside.ts',
@@ -226,14 +248,17 @@ test('excluded names and canonical targets cannot be read through aliases', () =
     'apps/app/src/private-alias.ts',
   ]) {
     const result = cli(['code', 'read', '--path', path])
+
     assert.equal(result.value.ok, false, path)
     assert.ok(!JSON.stringify(result.value).includes('PrivateValue'))
     assert.ok(!JSON.stringify(result.value).includes('OutsideData'))
   }
+
   assert.equal(
     cli(['code', 'read', '--path', 'apps/app/src/safe-alias.ts']).value.data.content,
     content,
   )
+
   assert.equal(
     cli(['code', 'read', '--ref', 'https://outside']).value.error.code,
     'invalid_selection',
@@ -242,7 +267,9 @@ test('excluded names and canonical targets cannot be read through aliases', () =
 
 test('current reads revalidate edits/deletes and semantic intent search is useful without Node', () => {
   const file = join(app, 'src/focus.ts')
+
   put(file, 'export function focusCameraPreview() { return "visible preview frame" }\n')
+
   const search = cli([
     'code',
     'search',
@@ -252,13 +279,18 @@ test('current reads revalidate edits/deletes and semantic intent search is usefu
     '--corpus',
     'app',
   ])
+
   assert.equal(search.status, 0)
   assert.equal(search.value.data.semantic.state, 'ready')
   assert.ok(search.value.data.results.some((hit) => hit.path === 'apps/app/src/focus.ts'))
+
   const ref = search.value.data.results.find((hit) => hit.path === 'apps/app/src/focus.ts').ref
   const old = cli(['code', 'read', '--ref', ref]).value.data
+
   put(file, 'export function focusCameraPreview() { return "updated frame" }\n')
+
   const current = cli(['code', 'read', '--ref', ref]).value.data
+
   assert.notEqual(current.contentHash, old.contentHash)
   assert.match(current.content, /updated frame/)
   rmSync(file)
@@ -271,18 +303,23 @@ test(
   () => {
     const fifo = join(app, 'src/pipe.ts')
     const created = spawnSync('mkfifo', [fifo], { encoding: 'utf8' })
+
     assert.equal(created.status, 0, created.stderr)
     assert.equal(
       cli(['code', 'read', '--path', 'apps/app/src/pipe.ts']).value.error.code,
       'unavailable',
     )
+
     const alias = join(scratch, 'workspace-alias')
+
     symlinkSync(project, alias, 'dir')
+
     const result = spawnSync(
       binary,
       ['code', 'search', 'CameraView', '--mode', 'exact', '--project', alias, '--json'],
       { encoding: 'utf8', timeout: 10000, env: { ...process.env, PATH: '' } },
     )
+
     assert.equal(result.status, 0, result.stderr)
     assert.ok(
       JSON.parse(result.stdout).data.results.some((hit) => hit.path === 'apps/app/src/camera.ts'),
@@ -311,17 +348,24 @@ test('real installed framework source is searchable and readable without Node', 
     ],
     { encoding: 'utf8', timeout: 20000, env: { ...process.env, PATH: '' } },
   )
+
   assert.equal(result.status, 0, result.stderr)
+
   const data = JSON.parse(result.stdout).data
+
   assert.ok(data.results.length > 0)
+
   const hit = data.results[0]
+
   assert.equal(hit.package, '@octane-xplat/ui')
   assert.equal(hit.provenance.servedVersion, 'development')
+
   const read = spawnSync(
     binary,
     ['code', 'read', '--ref', hit.ref, '--project', root, '--app', 'apps/web', '--json'],
     { encoding: 'utf8', timeout: 10000, env: { ...process.env, PATH: '' } },
   )
+
   assert.equal(read.status, 0, read.stderr)
   assert.equal(JSON.parse(read.stdout).data.contentHash, hit.freshness.contentHash)
 })
@@ -329,17 +373,23 @@ test('real installed framework source is searchable and readable without Node', 
 test('ambiguous selection fails and framework-maintainer mode works without an app', () => {
   put(join(project, 'apps/second/package.json'), { name: 'second', xplat: { targets: {} } })
   assert.equal(cli(['code', 'search', 'CameraView']).value.error.code, 'ambiguous_selection')
+
   const framework = join(scratch, 'framework')
+
   put(join(framework, 'package.json'), { name: 'octane-xplat' })
   put(join(framework, 'packages/ui/package.json'), { name: '@octane-xplat/ui' })
   put(join(framework, 'packages/ui/src/public.ts'), 'export const MaintainerMarker = true\n')
+
   const result = spawnSync(
     binary,
     ['code', 'search', 'MaintainerMarker', '--mode', 'exact', '--project', framework, '--json'],
     { encoding: 'utf8', env: { ...process.env, PATH: '' } },
   )
+
   assert.equal(result.status, 0)
+
   const hit = JSON.parse(result.stdout).data.results[0]
+
   assert.equal(hit.provenance.servedVersion, 'development')
   assert.equal(hit.provenance.scope, 'project')
 })

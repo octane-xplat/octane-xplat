@@ -7,6 +7,7 @@ import { Text } from '@octane-xplat/ui'
 
 export function ChatComposerInputControlledInput() {
   const [value, setValue] = useState('')
+
   return (
     <Stack direction="vertical" gap={3} width={450} maxWidth="100%">
       <ChatComposer

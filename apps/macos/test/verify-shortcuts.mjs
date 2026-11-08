@@ -9,7 +9,9 @@ import { createMacOSConfig } from '../vite.shared.mjs'
 import { hostBundle, hostRoot } from '../../../packages/cli/src/macos/jsc-host/runtime.ts'
 
 const host = process.env.SHORTCUTS_MACOS_HOST
+
 assert.ok(host, 'Set SHORTCUTS_MACOS_HOST to the AppKit SSH host')
+
 const quote = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const ssh = (command) =>
   execFileSync('ssh', ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5', host, command + ' 2>&1'], {
@@ -20,6 +22,7 @@ const ssh = (command) =>
 
 const directory = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-macos-'))
 let remote
+
 try {
   const config = await createMacOSConfig({
     packaged: true,
@@ -58,7 +61,9 @@ try {
   )
 
   const arch = ssh('uname -m').trim()
+
   assert.ok(['arm64', 'x86_64'].includes(arch), arch)
+
   const output = ssh(
     `cd ${quote(remote)} && chmod u+x macos/host && OCTANE_MACOS_AUTOMATION=1 /usr/bin/perl -e 'alarm 15; exec @ARGV' macos/host macos/NativeScript.framework/Versions/A/NativeScript fixture.cjs macos/metadata.macos.${arch}.nsmd shim.js`,
   )

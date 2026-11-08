@@ -5,20 +5,25 @@ function fixture() {
   const observers = new Map<object, (note: any) => void>(),
     layers: any[] = [],
     targets: any[] = []
+
   const window: any = {},
     anchor: any = { window, convertRectToView() {} }
+
   const state: any = { open: true, anchor, lightDismiss: true }
   const dismiss = vi.fn(),
     canDismiss = vi.fn(() => true),
     remove = vi.fn((token: object) => observers.delete(token))
+
   const center: any = {
     removeObserver: remove,
     addObserverForNameObjectQueueUsingBlock(_: unknown, __: unknown, ___: unknown, callback: any) {
       const token = {}
+
       observers.set(token, callback)
       return token
     },
   }
+
   const native: any = { NSNotificationCenter: { defaultCenter: center } }
   let duringAcquire: (() => void) | undefined
   const bridge: any = {
@@ -37,17 +42,20 @@ function fixture() {
             if (layer.closed) {
               return
             }
+
             layer.closed = true
             source.unmount()
             options.onClose()
           }),
         }
+
       layers.push(layer)
       layer.update()
       duringAcquire?.()
       return layer
     },
   }
+
   const owner = createAppKitPopoverOwner(
     {
       state: () => state,
@@ -58,7 +66,9 @@ function fixture() {
     () => bridge,
     () => native,
   )
+
   const token = () => targets.findLast((entry) => entry.target)?.target.token
+
   return {
     state,
     anchor,
@@ -87,9 +97,12 @@ function fixture() {
 
 it('keeps content hidden until its current source commit and reads current physical position, alignment and offset', () => {
   const f = fixture()
+
   try {
     f.owner.update()
+
     const layer = f.layers[0]
+
     expect(layer.options.deferPresentation).toBe(true)
     expect(layer.options.component).toBeUndefined()
     expect(layer.show).not.toHaveBeenCalled()
@@ -98,6 +111,7 @@ it('keeps content hidden until its current source commit and reads current physi
     f.owner.committed(f.token())
     expect(layer.show).toHaveBeenCalledTimes(1)
     expect(f.owner.isPresent()).toBe(true)
+
     const bounds = { left: 30, top: 20, width: 80, height: 30 },
       panel = { width: 40, height: 20 },
       viewport = { left: 0, top: 0, width: 400, height: 300 }
@@ -118,10 +132,13 @@ it('keeps content hidden until its current source commit and reads current physi
 
 it('gates outside requests without closing a rejected controlled popover and ignores stale requests', () => {
   const f = fixture()
+
   try {
     f.owner.update()
     f.owner.committed(f.token())
+
     const first = f.layers[0]
+
     f.canDismiss.mockReturnValue(false)
     first.options.onClose()
     expect(f.dismiss).not.toHaveBeenCalled()
@@ -154,6 +171,7 @@ it('gates outside requests without closing a rejected controlled popover and ign
 
 it('waits for attachment and replaces anchors while old commit/outlet/close callbacks stay inert', () => {
   const f = fixture()
+
   f.anchor.window = null
   try {
     f.owner.update()
@@ -161,6 +179,7 @@ it('waits for attachment and replaces anchors while old commit/outlet/close call
     f.anchor.window = f.window
     f.notify()
     expect(f.layers).toHaveLength(1)
+
     const first = f.layers[0],
       oldToken = f.token()
 
@@ -182,6 +201,7 @@ it('waits for attachment and replaces anchors while old commit/outlet/close call
 
 it('retires a moved/closed native window once and waits for a close/open cycle to rearm', () => {
   const f = fixture()
+
   try {
     f.owner.update()
     f.anchor.window = {}
@@ -207,17 +227,21 @@ it('retires a moved/closed native window once and waits for a close/open cycle t
 
 it('releases late layer and observer acquisitions only once after teardown', () => {
   const f = fixture()
+
   f.duringAcquire(() => f.owner.dispose())
   f.owner.update()
   expect(f.layers[0].closed).toBe(true)
   expect(f.layers[0].close).toHaveBeenCalledTimes(1)
   expect(f.dismiss).not.toHaveBeenCalled()
   expect(f.observers.size).toBe(0)
+
   const g = fixture()
+
   g.center.addObserverForNameObjectQueueUsingBlock = () => {
     g.owner.dispose()
     return {}
   }
+
   g.owner.update()
   expect(g.remove).toHaveBeenCalledTimes(1)
   expect(g.layers).toHaveLength(0)
@@ -225,13 +249,17 @@ it('releases late layer and observer acquisitions only once after teardown', () 
 
 it('captures observer receiver and makes retained notifications inert after disposal', () => {
   const f = fixture()
+
   f.owner.update()
+
   const notify = [...f.observers.values()][0],
     remove = f.remove
+
   f.native.NSNotificationCenter.defaultCenter = {}
   f.center.removeObserver = () => {
     throw Error('replacement')
   }
+
   f.owner.dispose()
   f.owner.dispose()
   notify({ object: f.window })
@@ -245,11 +273,14 @@ it('captures observer receiver and makes retained notifications inert after disp
 
 it('fails explicitly without a source host and cancels a declined native presentation', () => {
   const f = fixture()
+
   f.bridge.showLayer = undefined
   expect(() => f.owner.update()).toThrow('source-owned window-layer')
   expect(f.observers.size).toBe(0)
   f.owner.dispose()
+
   const g = fixture()
+
   g.bridge.showLayer = () => null
   g.owner.update()
   expect(g.dismiss).toHaveBeenCalledTimes(1)
@@ -260,6 +291,7 @@ it('fails explicitly without a source host and cancels a declined native present
 
 it('waits for an initially hidden anchor and retires a presented anchor hidden by its owner', () => {
   const f = fixture()
+
   f.anchor.hiddenOrHasHiddenAncestor = () => 1
   try {
     f.owner.update()

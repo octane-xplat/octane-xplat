@@ -16,6 +16,7 @@ export const CHECKS: ParityCheck[] = [
       const content = m('content')
       const reference = m('reference')
       const expected = m('expected')
+
       return [
         dims(root, 96, 160),
         dims(reference, 96, 160),

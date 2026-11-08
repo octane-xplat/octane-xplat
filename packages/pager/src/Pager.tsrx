@@ -50,6 +50,7 @@ const cellsByPager = new WeakMap<object, Set<PagerCell>>()
 
 function cellFor(host: any): PagerCell {
   let cell = cellsByHost.get(host)
+
   if (!cell) {
     cell = { host, pager: null, renderItem: null, item: undefined, index: -1 }
     cellsByHost.set(host, cell)
@@ -63,6 +64,7 @@ function cellFor(host: any): PagerCell {
  *  `args.object` is the owner). */
 function createPageHost() {
   const host = new GridLayout()
+
   cellFor(host)
   return host
 }
@@ -75,6 +77,7 @@ const selectPageTemplate = () => 'xplat-page'
 
 function releasePagerCells(pager: any) {
   const cells = cellsByPager.get(pager)
+
   if (!cells) {
     return
   }
@@ -104,15 +107,20 @@ function PagerInner(props: PagerProps) @{
 
   const bindCell = (args: any) => {
     const cell = cellFor(args.view)
+
     cell.pager = args.object
+
     let owned = cellsByPager.get(cell.pager)
+
     if (!owned) {
       owned = new Set()
       cellsByPager.set(cell.pager, owned)
     }
 
     owned.add(cell)
+
     const item = args.bindingContext ?? props.items?.[args.index]
+
     if (
       cell.renderItem === props.renderItem &&
       cell.index === args.index &&
@@ -126,12 +134,14 @@ function PagerInner(props: PagerProps) @{
     cell.index = args.index
     setPortalCells((current) => {
       const existing = current.some((entry) => entry === cell)
+
       return existing ? [...current] : [...current, cell]
     })
   }
 
   const disposeCell = (args: any) => {
     const cell = args.view && cellsByHost.get(args.view)
+
     if (cell) {
       cellsByHost.delete(args.view)
       if (cell.pager) {
@@ -147,6 +157,7 @@ function PagerInner(props: PagerProps) @{
   // captures the pager so cell roots release after the ref detaches.
   useEffect(() => {
     const pager = host.current
+
     if (!pager) {
       return
     }
@@ -162,6 +173,7 @@ function PagerInner(props: PagerProps) @{
   // after an items change repairs the plugin's own re-coercion.
   useEffect(() => {
     const pager = host.current
+
     if (!pager) {
       return
     }
@@ -172,6 +184,7 @@ function PagerInner(props: PagerProps) @{
     }
 
     const target = props.page ?? (pageSeeded.current ? undefined : props.defaultPage)
+
     if (target !== undefined && pager.selectedIndex !== target) {
       // Track the coerced target before writing: Android may echo later.
       current.current = Math.max(0, Math.min(props.items.length - 1, target))

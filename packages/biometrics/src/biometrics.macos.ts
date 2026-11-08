@@ -38,6 +38,7 @@ function frameworkAvailable(): boolean {
 
 function availability(context: AuthenticationContext): 'granted' | 'denied' | 'unsupported' {
   const error = new interop.Reference()
+
   if (context.canEvaluatePolicyError(biometricPolicy, error)) {
     return 'granted'
   }
@@ -123,9 +124,12 @@ const ensure = async (): Promise<PermissionResponse> => {
   }
 
   let context: AuthenticationContext | null = null
+
   try {
     context = LAContext.new()
+
     const status = availability(context)
+
     return {
       status,
       granted: status === 'granted',

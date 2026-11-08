@@ -4,8 +4,10 @@ import { Button, Tab, TabList, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
 
 const sections = ['overview', 'details', 'history', 'activity', 'settings', 'archive']
+
 export default function TabListProbe() {
   const [value, setValue] = useState('overview')
+
   return (
     <VStack gap={2}>
       <TabList

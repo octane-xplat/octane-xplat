@@ -32,6 +32,7 @@ export function timerPresentation(elapsedMs: number, format: TimerFormat): Timer
     const hours = Math.floor(elapsedSeconds / ONE_HOUR_SECONDS)
     const minutes = Math.floor((elapsedSeconds % ONE_HOUR_SECONDS) / 60)
     const seconds = elapsedSeconds % 60
+
     return {
       dateTime: `PT${elapsedSeconds}S`,
       text:
@@ -49,6 +50,7 @@ export function timerPresentation(elapsedMs: number, format: TimerFormat): Timer
   }
 
   const totalMinutes = Math.floor(elapsedSeconds / 60)
+
   if (totalMinutes < 60) {
     return {
       dateTime: `PT${elapsedSeconds}S`,
@@ -57,6 +59,7 @@ export function timerPresentation(elapsedMs: number, format: TimerFormat): Timer
   }
 
   const representedSeconds = totalMinutes * 60
+
   return {
     dateTime: `PT${representedSeconds}S`,
     text: `${String(Math.floor(totalMinutes / 60))}h ${pad(totalMinutes % 60)}m`,

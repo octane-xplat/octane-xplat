@@ -50,6 +50,7 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('keyboard-field')?.window)
   ctx.record('key attachment capability', String(ctx.find('keyboard-support')?.stringValue))
   ctx.record('initial key state', String(ctx.find('keyboard-state')?.stringValue))
+
   const field = ctx.find('keyboard-field')
   const next = ctx.find('keyboard-next')
 

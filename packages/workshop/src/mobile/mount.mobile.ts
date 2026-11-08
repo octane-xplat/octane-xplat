@@ -26,6 +26,7 @@ export function createMobileStageHost(stage: ContentView): StageHost {
       })
 
       const root = createNativeScriptRoot(stage)
+
       try {
         root.render(StoryTree as unknown as UniversalComponent, { request: prepare(request.props) })
       } catch (error) {
@@ -34,6 +35,7 @@ export function createMobileStageHost(stage: ContentView): StageHost {
       }
 
       let disposed = false
+
       return {
         update(props: Record<string, unknown>) {
           if (disposed) {

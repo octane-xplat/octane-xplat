@@ -14,6 +14,7 @@ import type {
 } from '../props'
 
 type Committed = Extract<RouterHostResult, { status: 'committed' }>
+
 /** A snapshot owns a fresh visibility receipt, including Back to the base view. */
 export interface RenderRouteFlow {
   readonly entries: readonly (ClientRouteEntry | null)[]
@@ -52,6 +53,7 @@ export function createRenderRouterHost(): {
       listener(change)
     }
   }
+
   const snapshot = (
     entries: readonly (ClientRouteEntry | null)[],
     staged?: ClientRouteEntry,
@@ -61,13 +63,16 @@ export function createRenderRouterHost(): {
     const committed = new Promise<RouterHostResult>((resolve) => {
       settle = resolve
     })
+
     const finish = (result: RouterHostResult) => {
       if (settled) {
         return
       }
+
       settled = true
       settle(result)
     }
+
     return {
       entries,
       ...(staged ? { staged } : {}),
@@ -76,48 +81,65 @@ export function createRenderRouterHost(): {
       cancel: () => finish({ status: 'cancelled', reason: 'disposed' }),
     }
   }
+
   const publish = (flow: string, next: RenderRouteFlow) => {
     const previous = views.getSnapshot().get(flow)
+
     previous?.cancel()
+
     const retained = new Set([...next.entries, next.staged])
+
     for (const entry of [...(previous?.entries ?? []), previous?.staged]) {
       if (entry && !retained.has(entry)) {
         entry.cancel()
       }
     }
+
     views.update((current) => new Map([...current, [flow, next]]))
     notify({ flow })
   }
+
   const remove = (flow: string) => {
     effects.get(flow)?.interrupt()
     effects.delete(flow)
     surfaces.delete(flow)
+
     const previous = views.getSnapshot().get(flow)
+
     previous?.cancel()
     for (const entry of previous?.entries ?? []) {
       entry?.cancel()
     }
+
     previous?.staged?.cancel()
     views.update((current) => {
       const next = new Map(current)
+
       next.delete(flow)
       return next
     })
+
     notify({ ownerDisposed: true, flow })
   }
+
   const commits = new Map<string, Promise<unknown>>()
   const commit = async (command: RouterHostCommand): Promise<RouterHostResult> => {
     if (disposed) {
       return { status: 'cancelled', reason: 'disposed' }
     }
+
     if (!command.isCurrent()) {
       return { status: 'cancelled', reason: 'superseded' }
     }
+
     const owner = mounted.get(command.flow)
+
     if (!owner || !instance) {
       return { status: 'blocked' }
     }
+
     const effect = effects.get(command.flow)!
+
     effect.interrupt()
     if (
       command.action === 'dismiss' ||
@@ -125,19 +147,24 @@ export function createRenderRouterHost(): {
     ) {
       return { status: 'unsupported', operation: 'modal' }
     }
+
     const previous = views.getSnapshot().get(command.flow)!
     let entries = [...previous.entries]
     let entry: ClientRouteEntry | null
+
     if (command.action === 'back') {
       if (entries.length < 2) {
         return { status: 'blocked' }
       }
 
       entries.pop()
+
       const retained = entries.at(-1)!
+
       entry = null
       if (retained) {
         const prepared = await prepareHistoryEntry(instance, command, retained)
+
         if (prepared.status !== 'ready') {
           return prepared
         }
@@ -180,6 +207,7 @@ export function createRenderRouterHost(): {
       }
 
       const current = entries.at(-1)
+
       if (command.action === 'refresh' && !current) {
         return { status: 'unsupported', operation: 'refresh-unowned-pane' }
       }
@@ -200,10 +228,13 @@ export function createRenderRouterHost(): {
         entries.push(entry)
       }
     }
+
     let staged: RenderRouteFlow | undefined
+
     if (entry && command.transition && command.action !== 'back') {
       motions.set(entry.route, command.transition)
     }
+
     const motionSource = command.action === 'back' ? previous.entries.at(-1) : entry
     const restore = () => {
       if (
@@ -217,6 +248,7 @@ export function createRenderRouterHost(): {
         entry?.cancel()
       }
     }
+
     try {
       if (
         entry &&
@@ -226,7 +258,9 @@ export function createRenderRouterHost(): {
       ) {
         staged = snapshot(previous.entries, entry)
         publish(command.flow, staged)
+
         const rendered = await entry.committed
+
         if (rendered.status !== 'committed') {
           restore()
           return rendered
@@ -246,7 +280,9 @@ export function createRenderRouterHost(): {
       if (command.action === 'refresh' && entry && command.beforeMutation) {
         staged = snapshot(entries)
         publish(command.flow, staged)
+
         const [visible, rendered] = await Promise.all([staged.committed, entry.committed])
+
         if (visible.status !== 'committed' || rendered.status !== 'committed') {
           restore()
           return visible.status !== 'committed' ? visible : rendered
@@ -271,7 +307,9 @@ export function createRenderRouterHost(): {
       }
 
       const next = snapshot(entries)
+
       publish(command.flow, next)
+
       const [visible, rendered] = await Promise.all([
         next.committed,
         entry?.committed ?? next.committed,
@@ -320,11 +358,13 @@ export function createRenderRouterHost(): {
       throw error
     }
   }
+
   const host: RouterHost = {
     history: 'independent',
     canReset: true,
     getSnapshot(flow) {
       const entries = views.getSnapshot().get(flow)?.entries
+
       return {
         route: entries?.at(-1)?.route ?? null,
         canGoBack: (entries?.length ?? 0) > 1,
@@ -342,6 +382,7 @@ export function createRenderRouterHost(): {
       // in that pane can replace it. Other panes remain independent.
       const previous = commits.get(command.flow) ?? Promise.resolve()
       const result = previous.catch(() => {}).then(() => commit(command))
+
       commits.set(command.flow, result)
       return result.finally(() => {
         if (commits.get(command.flow) === result) {
@@ -353,17 +394,20 @@ export function createRenderRouterHost(): {
       if (disposed) {
         return
       }
+
       disposed = true
       // Removing a flow can synchronously unmount another outlet.
       // oxlint-disable-next-line unicorn/no-useless-spread
       for (const flow of [...mounted.keys()]) {
         remove(flow)
       }
+
       mounted.clear()
       listeners.clear()
       instance = undefined
     },
   }
+
   return {
     host,
     views,
@@ -371,30 +415,37 @@ export function createRenderRouterHost(): {
       if (instance || disposed) {
         throw new Error('Render host cannot be attached')
       }
+
       instance = router
     },
     scope(flow: string): RouterRenderScope {
       if (!instance) {
         throw new Error('Render host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     mount(flow: string, options: { modal?: boolean; views?: ReadonlyMap<string, unknown> } = {}) {
       if (disposed) {
         throw new Error('Render host is disposed')
       }
+
       if (mounted.has(flow)) {
         throw new Error('A render flow already has a mounted outlet')
       }
+
       mounted.set(flow, { modal: options.modal ?? false })
       effects.set(flow, createPaneRouteTransitions())
       surfaces.set(flow, options.views ?? new Map())
       publish(flow, snapshot(options.modal ? [] : [null]))
+
       let closed = false
+
       return (): void => {
         if (closed) {
           return
         }
+
         closed = true
         mounted.delete(flow)
         remove(flow)

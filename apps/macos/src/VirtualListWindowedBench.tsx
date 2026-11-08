@@ -20,6 +20,7 @@ const items: BenchItem[] = Array.from({ length: count }, (_, index) => ({
 
 function BenchRow(props: { item: BenchItem }) {
   const [pressCount, setPressCount] = useState(0)
+
   return (
     <Pressable
       id={'bench-row-' + props.item.id}
@@ -42,6 +43,7 @@ export default function VirtualListWindowedBench() {
     const visibleCount = Math.max(1, Math.ceil(viewportHeight / ROW_STEP) + 2)
     const start = Math.max(0, firstVisible - OVERSCAN_ROWS)
     const end = Math.min(items.length, firstVisible + visibleCount + OVERSCAN_ROWS)
+
     setRange((current) =>
       current.start === start && current.end === end ? current : { start, end },
     )
@@ -50,6 +52,7 @@ export default function VirtualListWindowedBench() {
   const renderHeader = () => <View style={{ height: range.start * ROW_STEP - STACK_GAP }} />
   const renderFooter = () => {
     const remaining = items.length - range.end
+
     return (
       <View style={{ height: remaining * ROW_HEIGHT + Math.max(0, remaining - 1) * STACK_GAP }} />
     )

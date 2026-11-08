@@ -43,6 +43,7 @@ function Content(props: {
   activeSheet?: string | null
 }) {
   const dialog = useImperativeDialog()
+
   hooks = {
     dialog,
     alert: useImperativeAlertDialog(),
@@ -84,7 +85,9 @@ function SheetContent() {
 
 export async function runOverlayFixture() {
   const app = NSApplication.sharedApplication
+
   app.setActivationPolicy(0)
+
   const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     { origin: { x: 0, y: 0 }, size: { width: 800, height: 600 } },
     15,
@@ -101,12 +104,15 @@ export async function runOverlayFixture() {
   app.finishLaunching()
   app.activateIgnoringOtherApps(true)
   window.makeKeyAndOrderFront(null)
+
   const root = createMacOSRoot(window.contentView)
   const bridge = (globalThis as any).__xplatAppKit
   const original = bridge.presentSurface
   const surfaces: any[] = []
+
   bridge.presentSurface = (options: any) => {
     const surface = original(options)
+
     surface.fixtureOnKey = options.onKey
     surfaces.push(surface)
     return surface
@@ -122,6 +128,7 @@ export async function runOverlayFixture() {
   const live = () => surfaces.filter((surface) => !surface.closed)
   const waitFor = async (condition: () => boolean, message: string) => {
     const deadline = Date.now() + 2000
+
     while (!condition() && Date.now() < deadline) {
       await tick()
     }
@@ -148,12 +155,16 @@ export async function runOverlayFixture() {
 
     root.render(Content, {})
     await tick()
+
     const opener = root.__macosDebug.findId('opener')
+
     window.makeFirstResponder(opener)
     root.render(Content, { open: true })
     await tick()
     check(live().length === 1, 'dialog did not present')
+
     const dialog = live()[0]
+
     check(
       dialog.panel.window != null && dialog.panel.frame.size.width === 320,
       'dialog not hosted at requested width',
@@ -188,6 +199,7 @@ export async function runOverlayFixture() {
     )
 
     const switcher = live()[0]
+
     root.render(Content, { activeSheet: 'second' })
     await tick()
     check(
@@ -196,6 +208,7 @@ export async function runOverlayFixture() {
     )
 
     const switcherFocus = window.firstResponder?.delegate ?? window.firstResponder
+
     check(
       switcherFocus.stringValue === 'Second panel',
       'switcher did not focus its replacement content',
@@ -236,6 +249,7 @@ export async function runOverlayFixture() {
     )
 
     const lightbox = live()[0]
+
     lightbox.fixtureOnKey(124)
     await tick()
     check(
@@ -254,6 +268,7 @@ export async function runOverlayFixture() {
     hooks.alert.show({ title: 'Decision', actionLabel: 'Confirm', onAction: () => {} })
     await tick()
     check(live().length === 1, 'imperative alert did not present')
+
     const decisionControl = window.firstResponder
     const role =
       typeof decisionControl.accessibilityRole === 'function'
@@ -289,6 +304,7 @@ export async function runOverlayFixture() {
     check(live().length === 1, 'imperative sheet did not present; live=' + live().length)
     closeBottomSheet('result')
     check((await pending) === 'result', 'imperative result lost')
+
     let scopedReason: string | undefined
     const dismissScoped = scopedToast({
       body: 'Scoped toast',
@@ -330,6 +346,7 @@ export async function runOverlayFixture() {
     )
 
     let hidden: string | undefined
+
     showToast({
       body: 'Timed toast',
       autoHideDuration: 100,

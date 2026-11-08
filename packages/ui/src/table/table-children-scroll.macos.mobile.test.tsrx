@@ -31,6 +31,7 @@ function mount(props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -57,8 +58,10 @@ function childrenTable(label: string) {
 
 it('children-path tables mount inside a horizontal scroll region', () => {
   const env = mount({ children: childrenTable('head cell') })
+
   try {
     const scroll = env.all().find((node) => node.type === 'scrollview')
+
     expect(scroll, 'no scrollview wraps the children-path table').toBeDefined()
     expect(scroll.props.orientation).toBe('horizontal')
     expect(scroll.props.className).toContain('vx-table-scroll')
@@ -76,6 +79,7 @@ it('children-path tables mount inside a horizontal scroll region', () => {
 
 it('scroll region and table element stay mounted across children updates', () => {
   const env = mount({ children: childrenTable('first') })
+
   try {
     const scroll = env.all().find((node) => node.type === 'scrollview')
     const table = scroll.children.find((node: any) => node.props?.className?.includes('vx-table'))
@@ -83,6 +87,7 @@ it('scroll region and table element stay mounted across children updates', () =>
     env.render({ children: childrenTable('second') })
 
     const after = env.all().find((node) => node.type === 'scrollview')
+
     expect(after).toBe(scroll)
     expect(after.children.find((node: any) => node.props?.className?.includes('vx-table'))).toBe(
       table,

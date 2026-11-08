@@ -45,6 +45,7 @@ function ResizeHandle(props: {
     const st = props.configRef.current
     const th = el?.closest('th') ?? el?.parentElement
     const startWidth = th?.offsetWidth ?? 0
+
     st.drag = { key: props.columnKey, startX, startWidth, currentWidth: startWidth }
     setIsResizing(true)
   }
@@ -52,6 +53,7 @@ function ResizeHandle(props: {
   const move = (clientX: number) => {
     const st = props.configRef.current
     const drag = st.drag
+
     if (!drag || drag.key !== props.columnKey) {
       return
     }
@@ -60,6 +62,7 @@ function ResizeHandle(props: {
     const min = st.cfg.minWidth ?? 50
     const max = st.cfg.maxWidth
     let next = Math.max(min, drag.startWidth + delta)
+
     if (max != null) {
       next = Math.min(max, next)
     }
@@ -70,6 +73,7 @@ function ResizeHandle(props: {
 
   const end = () => {
     const st = props.configRef.current
+
     if (!st.drag) {
       return
     }
@@ -82,8 +86,11 @@ function ResizeHandle(props: {
   const onPointerDown = (e: PointerEvent) => {
     e.preventDefault()
     e.stopPropagation()
+
     const handle = e.currentTarget as HTMLElement
+
     begin(e.clientX, handle)
+
     const onMove = (ev: PointerEvent) => move(ev.clientX)
     const onUp = () => {
       globalThis.removeEventListener('pointermove', onMove)
@@ -102,6 +109,7 @@ function ResizeHandle(props: {
     const min = st.cfg.minWidth ?? 50
     const max = st.cfg.maxWidth ?? Infinity
     let next: number | null = null
+
     if (e.key === 'ArrowLeft') {
       next = Math.max(min, current - 10)
     } else if (e.key === 'ArrowRight') {
@@ -156,9 +164,13 @@ export function useTableColumnResize<T extends Record<string, unknown>>(
   }
 
   const configRef = useRef(config)
+
   configRef.current = config
+
   const widthsRef = useRef<Record<string, number>>({})
+
   widthsRef.current = { ...config.columnWidths, ...localWidths }
+
   const widths = widthsRef.current
 
   return {
@@ -167,6 +179,7 @@ export function useTableColumnResize<T extends Record<string, unknown>>(
       const htmlProps = { ...props.htmlProps }
       const isLocked = column.resizable === false
       const showHandle = !isLocked || override != null
+
       if (showHandle) {
         htmlProps.style = { ...htmlProps.style, position: 'relative' }
       }
@@ -176,6 +189,7 @@ export function useTableColumnResize<T extends Record<string, unknown>>(
       }
 
       const activeHandle = state.current.drag?.key === column.key
+
       return {
         ...props,
         htmlProps,

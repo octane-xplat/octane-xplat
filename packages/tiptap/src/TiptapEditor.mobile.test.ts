@@ -48,8 +48,11 @@ const roots: ReturnType<typeof createUniversalRoot>[] = []
 function mount(props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   roots.push(root)
+
   let handle: any = null
+
   root.render(TiptapEditor, {
     ...props,
     ref: (next: any) => {
@@ -98,6 +101,7 @@ afterEach(() => {
 describe('TiptapEditor native JSON readiness', () => {
   it('applies an initial props.json once when the bridge settles after mount', async () => {
     const onJSONReady = vi.fn()
+
     mount({ json: docA, onJSONReady })
     await settle()
     expect(hosts[0].setCalls).toEqual([])
@@ -146,6 +150,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('applies later props.json updates and skips identical docs', async () => {
     const view = mount({ json: docA })
+
     settleBridge(true)
     await settle()
     expect(hosts[0].setCalls).toEqual(['<p>alpha</p>'])
@@ -162,15 +167,19 @@ describe('TiptapEditor native JSON readiness', () => {
   it('does not push a doc the editor itself emitted back at it', async () => {
     const onJSONChange = vi.fn()
     const view = mount({ onJSONChange })
+
     settleBridge(true)
     await settle()
 
     const rig = hosts[0]
+
     rig.html = '<p>typed</p>'
     // The leaf calls props.onChange(html); the facade wraps it to emit JSON.
     rig.props.onChange('<p>typed</p>')
     await settle()
+
     const emitted = onJSONChange.mock.calls[0][0]
+
     expect(emitted).toEqual({ type: 'doc', html: '<p>typed</p>' })
 
     view.root.render(TiptapEditor, { json: emitted, onJSONChange } as any)
@@ -180,6 +189,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('defers an imperative setJSON issued before the bridge settles', async () => {
     const view = mount({})
+
     await settle()
     expect(view.handle).not.toBeNull()
 
@@ -205,6 +215,7 @@ describe('TiptapEditor native JSON readiness', () => {
   it('ignores a bridge that settles after unmount', async () => {
     const onJSONReady = vi.fn()
     const view = mount({ json: docA, onJSONReady })
+
     await settle()
     view.root.unmount()
 
@@ -217,6 +228,7 @@ describe('TiptapEditor native JSON readiness', () => {
   it('reports bridge failure through onJSONReady without touching the host', async () => {
     const onJSONReady = vi.fn()
     const view = mount({ json: docA, onJSONReady })
+
     await settle()
     settleBridge(false)
     await settle()
@@ -234,6 +246,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('keeps JSON precedence when only the HTML prop changes', async () => {
     const view = mount({ value: '<p>value</p>', json: docA })
+
     settleBridge(true)
     await settle()
     view.root.render(TiptapEditor, { value: '<p>changed</p>', json: docA } as any)
@@ -244,6 +257,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('cancels pending JSON when setHTML replaces it before bridge readiness', async () => {
     const view = mount({ json: docA })
+
     await settle()
     view.handle.setHTML('<p>replacement</p>')
     settleBridge(true)
@@ -253,6 +267,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('cancels pending JSON when the prop is removed in favor of HTML', async () => {
     const view = mount({ json: docA })
+
     await settle()
     view.root.render(TiptapEditor, { value: '<p>replacement</p>' } as any)
     await settle()
@@ -265,7 +280,9 @@ describe('TiptapEditor native JSON readiness', () => {
     mount({ json: docA })
     settleBridge(true)
     await settle()
+
     const rig = hosts[0]
+
     rig.html = '<p>edited</p>'
     rig.props.onChange(rig.html)
     rig.rebind()
@@ -275,8 +292,11 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('rebinds the facade even when the replacement handle shares the native view', async () => {
     const view = mount({})
+
     await settle()
+
     const oldHandle = view.handle
+
     hosts[0].rebind()
     await settle()
     expect(view.handle).not.toBe(oldHandle)
@@ -284,6 +304,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('preserves imperative HTML when the host is recreated', async () => {
     const view = mount({ json: docA })
+
     settleBridge(true)
     await settle()
     view.handle.setHTML('<p>replacement</p>')
@@ -304,6 +325,7 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('preserves a newer controlled HTML replacement after earlier edits and host recreation', async () => {
     const view = mount({ value: '<p>initial</p>' })
+
     settleBridge(true)
     await settle()
     hosts[0].html = '<p>typed</p>'
@@ -317,8 +339,10 @@ describe('TiptapEditor native JSON readiness', () => {
 
   it('reports JSON unavailable without loading a bridge on an unsupported editing surface', async () => {
     setSupported(false)
+
     const onJSONReady = vi.fn()
     const view = mount({ onJSONReady })
+
     await settle()
     expect(onJSONReady).toHaveBeenCalledExactlyOnceWith(false)
     expect(bridge.waiters).toEqual([])

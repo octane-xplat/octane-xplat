@@ -24,11 +24,13 @@ export const notifications: Permissioned<NotificationsImpl> = {
   },
   async requestPermissions() {
     const granted = await LocalNotifications.requestPermission()
+
     // A request denial is permanent on iOS and cannot be re-prompted.
     return respond(granted, granted)
   },
   notify(title, body) {
     const id = nextId
+
     nextId = (nextId + 1) % 2147483647
     void (async () => {
       if (await LocalNotifications.hasPermission()) {
@@ -42,6 +44,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.notifications = {
   getPermissions: () => notifications.getPermissions(),
   requestPermissions: () => notifications.requestPermissions(),

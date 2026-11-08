@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { Pager } from '../../packages/pager/src/index.macos'
 import { Button, InternationalizationProvider, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function PagerProbe() {
   const [page, setPage] = useState(1),
     [rtl, setRTL] = useState(false),
@@ -11,6 +12,7 @@ export default function PagerProbe() {
     [last, setLast] = useState('none')
 
   const items = empty ? [] : ['Pack', 'Travel', 'Arrive']
+
   return (
     <InternationalizationProvider locale="en" dir={rtl ? 'rtl' : 'ltr'}>
       <VStack gap={2}>

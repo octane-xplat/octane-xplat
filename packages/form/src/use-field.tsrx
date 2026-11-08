@@ -143,6 +143,7 @@ export function useField<
   TParentSubmitMeta
 > {
   const field = useMemo(() => new FieldApi(opts), [opts.form, opts.name])
+
   useLayoutEffect(() => {
     field.update(opts)
   }, null)

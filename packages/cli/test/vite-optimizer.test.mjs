@@ -34,6 +34,7 @@ for (const plugin of [xplatTsrx, xplatBoundary]) {
       },
       'serve',
     )
+
     assert.deepEqual(config.optimizeDeps.rolldownOptions.resolve.extensions, ['.web.ts', '.ts'])
     assert.deepEqual(
       config.environments.ssr.optimizeDeps.rolldownOptions.resolve.extensions,
@@ -55,6 +56,7 @@ for (const extensions of [[], ['.custom.ts', '.ts']]) {
       },
       'serve',
     )
+
     assert.deepEqual(config.optimizeDeps.rolldownOptions.resolve.extensions, extensions)
     assert.deepEqual(config.optimizeDeps.exclude, ['untouched'])
     assert.deepEqual(config.optimizeDeps.rolldownOptions.resolve.mainFields, ['module'])
@@ -76,10 +78,12 @@ test('environment-specific optimizer overrides stay independent', async () => {
     },
     'serve',
   )
+
   assert.deepEqual(config.environments.client.optimizeDeps.rolldownOptions.resolve.extensions, [
     '.web.ts',
     '.ts',
   ])
+
   assert.deepEqual(config.environments.ssr.optimizeDeps.rolldownOptions.resolve.extensions, [
     '.custom.ts',
   ])
@@ -92,8 +96,10 @@ test(
     // Canonicalize /var on macOS so Vite's filesystem allow list matches real paths.
     const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-optimizer-')))
     let server
+
     try {
       const dep = join(root, 'node_modules/platform-dep')
+
       mkdirSync(dep, { recursive: true })
       writeFileSync(join(root, 'package.json'), '{"private":true,"type":"module"}')
       writeFileSync(
@@ -122,6 +128,7 @@ test(
 
       writeFileSync(join(dep, 'worker.ts'), 'self.postMessage("web-worker-sentinel")')
       writeFileSync(join(root, 'entry.ts'), 'export { platform, startWorker } from "platform-dep"')
+
       const template = fileURLToPath(
         new URL('../../create/template/vite.config.ts', import.meta.url),
       )
@@ -133,8 +140,11 @@ test(
       )
 
       const configPath = join(root, 'vite.config.ts')
+
       writeFileSync(configPath, readFileSync(template))
+
       const loaded = await loadConfigFromFile({ command: 'serve', mode: 'development' }, configPath)
+
       assert.ok(loaded)
       server = await createServer({
         ...loaded.config,
@@ -147,22 +157,33 @@ test(
       })
 
       await server.listen()
+
       const origin = server.resolvedUrls.local[0]
       const entry = await fetch(new URL('entry.ts', origin))
+
       assert.equal(entry.status, 200)
+
       const path = /from\s*["']([^"']+)["']/.exec(await entry.text())?.[1]
+
       assert.ok(path?.includes('/cache/'), 'entry must use a prebundled dependency')
+
       const dependency = await fetch(new URL(path, origin))
+
       assert.equal(dependency.status, 200)
+
       const source = await dependency.text()
+
       assert.match(source, /web-platform-sentinel/)
       assert.doesNotMatch(source, /@nativescript/)
+
       const workerPath = /new Worker\(new URL\(\s*(?:\/\*[\s\S]*?\*\/\s*)?["']([^"']+)["']/.exec(
         source,
       )?.[1]
 
       assert.ok(workerPath, source)
+
       const worker = await fetch(new URL(workerPath, dependency.url))
+
       assert.equal(worker.status, 200)
       assert.match(await worker.text(), /web-worker-sentinel/)
     } finally {

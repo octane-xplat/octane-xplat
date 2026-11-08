@@ -5,6 +5,7 @@ import { groupTypeaheadItems } from '../forms/typeahead-source'
 /** Exact/prefix/substring matches outrank subsequences; ties keep input order. */
 function score(query: string, text: string): number {
   const lower = text.toLowerCase()
+
   if (lower === query) {
     return 10000
   }
@@ -14,14 +15,17 @@ function score(query: string, text: string): number {
   }
 
   const at = lower.indexOf(query)
+
   if (at >= 0) {
     return 6000 - at - lower.length
   }
 
   let previous = -1
   let gaps = 0
+
   for (const character of query) {
     const next = lower.indexOf(character, previous + 1)
+
     if (next < 0) {
       return -Infinity
     }
@@ -46,6 +50,7 @@ export function staticCommands(
   }))
 
   const lower = query.toLowerCase().trim()
+
   if (!lower) {
     return items
   }
@@ -134,8 +139,11 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
     }
 
     invalidate()
+
     const version = generation
+
     patch({ query, results: [], highlighted: null, status: 'loading' })
+
     const commit = (items: T[]) => {
       if (disposed || version !== generation || !store.getSnapshot().open) {
         return
@@ -143,6 +151,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 
       const results = groupTypeaheadItems(items).flatMap((group) => group.items)
       const selected = store.getSnapshot().selected
+
       patch({
         results,
         status: 'ready',
@@ -158,6 +167,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 
     try {
       request = new AbortController()
+
       const result = source
         ? query.trim() === ''
           ? source.bootstrap({ signal: request.signal })
@@ -187,6 +197,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
   const select = (id: string): void => {
     const state = store.getSnapshot()
     const item = state.results.find((entry) => entry.id === id)
+
     if (!state.open || state.status !== 'ready' || !item || item.disabled) {
       return
     }
@@ -230,6 +241,7 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
 
     const state = store.getSnapshot()
     const enabled = state.results.filter((item) => !item.disabled)
+
     if (event.key === 'Enter') {
       event.preventDefault()
       if (state.highlighted) {
@@ -273,10 +285,12 @@ export function createCommandPaletteController<T extends CommandPaletteItem>(
     keyDown,
     configure(props: CommandPaletteProps<T> = read()): void {
       currentProps = props
+
       const changed =
         source !== props.searchSource || staticItems !== props.items || mode !== props.searchMode
 
       const opened = !externalOpen && Boolean(props.open)
+
       if (changed) {
         invalidate()
       }

@@ -26,6 +26,7 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
     }
 
     const next = !checked
+
     if (props.value === undefined) {
       setInternal(next)
     }
@@ -36,6 +37,7 @@ export function Switch(inputProps: SwitchProps): JSX.Element @{
     }
 
     const previous = checked
+
     setPending(true)
     Promise.resolve(props.changeAction(next)).then(
       () => setPending(false),

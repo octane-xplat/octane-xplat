@@ -13,11 +13,13 @@ export function browserAdapter(target: 'web' | 'linux') {
 
   window.addEventListener('error', onError)
   window.addEventListener('unhandledrejection', onRejection)
+
   const find = (id: string) =>
     [...host.querySelectorAll<HTMLElement>('[id]')].find((node) => node.id === id) ?? null
 
   const required = (id: string) => {
     const node = find(id)
+
     if (!node) {
       throw new Error('Missing probe view: ' + id)
     }
@@ -45,6 +47,7 @@ export function browserAdapter(target: 'web' | 'linux') {
     },
     setText(id: string, value: string) {
       const input = required(id) as HTMLInputElement
+
       input.value = value
       input.dispatchEvent(new Event('input', { bubbles: true }))
       input.dispatchEvent(new Event('change', { bubbles: true }))
@@ -52,6 +55,7 @@ export function browserAdapter(target: 'web' | 'linux') {
     inspect(id: string) {
       const node = required(id)
       const { x, y, width, height } = node.getBoundingClientRect()
+
       return {
         text: node.textContent ?? '',
         value: (node as HTMLInputElement).value ?? '',

@@ -76,6 +76,7 @@ export function setThemeName(id: SandboxThemeId): void {
   if (!isSandboxTheme(id)) {
     return
   }
+
   themeNameStore.set(id)
   if (!embed.isEmbed) {
     persistThemeMode(id, getThemePreference())
@@ -97,6 +98,7 @@ if (embed.isEmbed) {
     if (isSandboxTheme(theme)) {
       themeNameStore.set(theme)
     }
+
     if (mode) {
       setThemePreference(mode)
     }

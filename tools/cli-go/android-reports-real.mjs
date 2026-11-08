@@ -14,6 +14,7 @@ import { homedir } from 'node:os'
 import { resolve, join } from 'node:path'
 import { createHash } from 'node:crypto'
 import { setTimeout as delay } from 'node:timers/promises'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
@@ -44,11 +45,13 @@ function command(tool, args, options = {}) {
     maxBuffer: 8 * 1024 * 1024,
     ...options,
   })
+
   assert.equal(result.status, 0, `${tool}: ${result.error?.message ?? result.stderr}`)
   return result.stdout
 }
 
 const adb = join(sdk, 'platform-tools/adb')
+
 if (process.argv.includes('--prepare')) {
   assert.equal(process.platform, 'darwin', 'This owned emulator recipe is qualified on macOS only')
   assert.ok(existsSync(join(sdk, 'platforms/android-35/android.jar')))
@@ -64,12 +67,14 @@ if (process.argv.includes('--prepare')) {
   )
 
   const list = command(join(sdk, 'emulator/emulator'), ['-list-avds']).trim().split(/\r?\n/)
+
   assert.ok(
     list.includes(avd),
     'Required existing AVD elegant-fir-probe is missing; no device will be created',
   )
 
   const config = readFileSync(join(avdPath, 'config.ini'), 'utf8')
+
   assert.match(config, /^abi\.type\s*=\s*arm64-v8a\s*$/m)
   assert.match(
     config,
@@ -91,6 +96,7 @@ if (process.argv.includes('--prepare')) {
   )
 
   const manifest = join(run, 'AndroidManifest.xml')
+
   writeFileSync(
     manifest,
     `<manifest xmlns:android="http://schemas.android.com/apk/res/android" package="${appId}"><uses-sdk android:minSdkVersion="30" android:targetSdkVersion="35"/><application android:label="Owned CLI report fixture" android:theme="@android:style/Theme.Material.Light.NoActionBar"><activity android:name=".MainActivity" android:exported="true"><intent-filter><action android:name="android.intent.action.MAIN"/><category android:name="android.intent.category.LAUNCHER"/></intent-filter></activity></application></manifest>`,
@@ -169,9 +175,11 @@ if (process.argv.includes('--prepare')) {
   console.log('Prepared owned Android diagnostic APK; emulator not started')
 } else if (process.argv.includes('--run')) {
   const prepared = JSON.parse(readFileSync(statePath))
+
   assert.equal(prepared.avd, avd, 'Re-prepare the fixture for the designated existing AVD')
   assert.equal(prepared.avdPath, avdPath)
   assert.equal(sha(readFileSync(prepared.apk)), prepared.apkSha256)
+
   const binary = join(work, 'go-tests-darwin-arm64'),
     record = JSON.parse(readFileSync(binary + '.json'))
 
@@ -182,7 +190,9 @@ if (process.argv.includes('--prepare')) {
 
   const publicBinary = join(work, 'xplat-go-darwin-arm64-cli')
   const publicRecord = JSON.parse(readFileSync(publicBinary + '.json'))
+
   assert.equal(sha(readFileSync(publicBinary)), publicRecord.sha256)
+
   const port = Number(process.env.XPLAT_GO_ANDROID_PORT ?? 5588),
     device = 'emulator-' + port
 
@@ -219,6 +229,7 @@ if (process.argv.includes('--prepare')) {
 
   child.stdout.on('data', (chunk) => (output = (output + chunk).slice(-65536)))
   child.stderr.on('data', (chunk) => (output = (output + chunk).slice(-65536)))
+
   const ended = new Promise((resolve) =>
     child.once('close', () => {
       closed = true
@@ -228,8 +239,10 @@ if (process.argv.includes('--prepare')) {
 
   try {
     const deadline = Date.now() + 120000
+
     for (;;) {
       assert.ok(!closed, output)
+
       const result = spawnSync(adb, ['-s', device, 'shell', 'getprop', 'sys.boot_completed'], {
         env,
         encoding: 'utf8',
@@ -245,13 +258,16 @@ if (process.argv.includes('--prepare')) {
     }
 
     const clock = Number(command(adb, ['-s', device, 'shell', 'date', '+%s']).trim())
+
     assert.ok(
       Math.abs(Date.now() / 1000 - clock) < 5,
       'Device clock differs from host; no clock mutation performed',
     )
 
     command(adb, ['-s', device, 'install', prepared.apk])
+
     const startedAt = new Date().toISOString()
+
     command(adb, [
       '-s',
       device,
@@ -300,6 +316,7 @@ if (process.argv.includes('--prepare')) {
     })
 
     const result = JSON.parse(readFileSync(evidence))
+
     assert.equal(result.passed, true)
     writeFileSync(
       evidence,
@@ -320,6 +337,7 @@ if (process.argv.includes('--prepare')) {
         encoding: 'utf8',
         timeout: 3000,
       })
+
       return result.status === 0 && result.stdout.trim().split(/\r?\n/)[0] === avd
     }
 

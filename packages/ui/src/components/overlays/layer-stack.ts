@@ -37,6 +37,7 @@ export function setLayerComposing(value: boolean): void {
 
 function topLayer(retiringToken?: object, acceptScope?: (scope: unknown) => boolean) {
   let top: (typeof entries)[number] | undefined
+
   for (const entry of entries) {
     if (entry.token !== retiringToken && entry.isPresent?.() === false) {
       continue
@@ -44,6 +45,7 @@ function topLayer(retiringToken?: object, acceptScope?: (scope: unknown) => bool
 
     if (acceptScope) {
       let accepted = false
+
       try {
         accepted = acceptScope(entry.keyScope?.())
       } catch {
@@ -85,7 +87,9 @@ export function dispatchLayerKey(event: LayerKeyEvent): void {
   if (event.key !== 'Escape' || event.defaultPrevented) {
     return
   }
+
   const top = topLayer(undefined, event.acceptScope)
+
   if (!top) {
     return
   }
@@ -102,6 +106,7 @@ export function dispatchLayerKey(event: LayerKeyEvent): void {
 
 export function registerLayer(entry: LayerEntry): () => void {
   let sequence = sequences.get(entry.token)
+
   if (sequence === undefined) {
     sequence = nextSequence++
     sequences.set(entry.token, sequence)
@@ -122,6 +127,7 @@ export function registerLayer(entry: LayerEntry): () => void {
 
   return () => {
     const index = entries.indexOf(registered)
+
     if (index < 0) {
       return
     }

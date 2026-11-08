@@ -29,10 +29,12 @@ function snapshot(props: AppKitPickerProps): AppKitPickerOption[] | null {
     }
 
     const ids = new Set<string>()
+
     return props.options.map((item) => {
       if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) {
         throw Error('invalid options')
       }
+
       ids.add(item.id)
       return { id: item.id, title: item.title, disabled: !!item.disabled }
     })
@@ -60,29 +62,37 @@ export function createPickerOwner(deps: {
     selecting: boolean
     handle: ReturnType<PickerAttach>
   }
+
   let view: object | null = null,
     session: Session | null = null,
     disposed = false
+
   let scope = deps.props().id,
     retained = deps.props().defaultSelection,
     status: PickerStatus = 'empty'
+
   const report = (next: PickerStatus) => {
     if (!disposed && status !== next) {
       status = next
       deps.status?.(next)
     }
   }
+
   const detach = () => {
     const old = session
+
     session = null
     try {
       old?.handle?.detach()
     } catch {}
   }
+
   const plan = (): PickerPlan | null => {
     const props = deps.props(),
       options = snapshot(props)
+
     const controlled = props.selection !== undefined
+
     if (
       !options ||
       (controlled && typeof props.selection !== 'string') ||
@@ -90,7 +100,9 @@ export function createPickerOwner(deps: {
     ) {
       return null
     }
+
     let selection = controlled ? props.selection : retained
+
     if (
       options.length &&
       selection !== undefined &&
@@ -102,9 +114,11 @@ export function createPickerOwner(deps: {
 
       selection = undefined
     }
+
     if (!controlled && selection === undefined) {
       selection = options.find((item) => !item.disabled)?.id
     }
+
     return {
       options,
       selection: options.length ? selection : undefined,
@@ -112,31 +126,40 @@ export function createPickerOwner(deps: {
       accessibilityLabel: props.accessibilityLabel ?? props.label,
     }
   }
+
   const update = () => {
     if (disposed || !view) {
       return
     }
+
     const props = deps.props()
+
     if (scope !== props.id) {
       detach()
       scope = props.id
       retained = props.defaultSelection
     }
+
     const options = plan()
+
     if (!options) {
       detach()
       report('invalid')
       return
     }
+
     if (props.selection !== undefined) {
       retained = props.selection
     } else if (options.options.length) {
       retained = options.selection
     }
+
     const nextStatus = options.options.length ? 'ready' : 'empty'
     const handle = session?.handle
+
     if (session && handle) {
       const owner = session
+
       owner.writing++
       try {
         handle.update(options)
@@ -155,11 +178,14 @@ export function createPickerOwner(deps: {
 
       return
     }
+
     const attach = deps.attach()
+
     if (!attach) {
       report('unavailable')
       return
     }
+
     const owner: Session = {
       view,
       scope,
@@ -168,13 +194,16 @@ export function createPickerOwner(deps: {
       selecting: false,
       handle: null,
     }
+
     session = owner
     try {
       const handle = attach(view, options, (id) => {
         if (disposed || session !== owner || owner.writing || owner.selecting || !owner.handle) {
           return
         }
+
         const current = plan()
+
         if (
           !current ||
           deps.props().id !== owner.scope ||
@@ -185,18 +214,23 @@ export function createPickerOwner(deps: {
           update()
           return
         }
+
         const item = current.options.find((item) => item.id === id)
+
         if (!item || item.disabled) {
           update()
           return
         }
+
         if (id === current.selection) {
           return
         }
+
         owner.selecting = true
         if (deps.props().selection === undefined) {
           retained = id
         }
+
         try {
           deps.props().onSelectionChange?.(id)
         } finally {
@@ -229,6 +263,7 @@ export function createPickerOwner(deps: {
       owner.writing--
     }
   }
+
   return {
     update,
     bind(next: object | null) {

@@ -10,6 +10,7 @@ export function AnimationDemo() @{
     <Pressable
       onPress={async () => {
         const result = await x.to(80, { duration: 300 })
+
         status$.set(result.status)
       }}
     >

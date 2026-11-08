@@ -10,17 +10,20 @@
 import { useSyncExternalStore } from 'octane'
 
 export type { ColorScheme } from '../props'
+
 import type { ColorScheme } from '../props'
 
 const bridged = () => {
   if (typeof window === 'undefined') {
     return false
   }
+
   const webkit = 'webkit' in window ? window.webkit : undefined
   const handlers =
     typeof webkit === 'object' && webkit !== null && 'messageHandlers' in webkit
       ? webkit.messageHandlers
       : undefined
+
   return typeof handlers === 'object' && handlers !== null && 'xplat' in handlers
 }
 
@@ -40,12 +43,14 @@ export function getColorScheme(): ColorScheme {
 export function subscribeSystemScheme(cb: () => void): () => void {
   if (!bridged()) {
     const mq = matchMedia('(prefers-color-scheme: dark)')
+
     mq.addEventListener('change', cb)
     return () => mq.removeEventListener('change', cb)
   }
 
   const onChange = (e: Event) => {
     const detail = (e as CustomEvent).detail
+
     lastScheme = detail === 'dark' ? 'dark' : 'light'
     cb()
   }

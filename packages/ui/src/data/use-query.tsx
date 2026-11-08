@@ -33,11 +33,14 @@ export function useQuery$<A extends QueryKeyPart, T>(
       }
     | undefined
   >(undefined)
+
   useEffect(() => {
     const reader = client.observe$(definition, selection)
+
     setObservation({ client, definition, identity, reader })
     return () => reader.dispose()
   }, [client, definition, identity])
+
   return observation?.client === client &&
     observation.definition === definition &&
     observation.identity === identity

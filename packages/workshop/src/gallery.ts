@@ -14,25 +14,34 @@ export interface GalleryEntry {
 /** Group metadata without loading or evaluating any story module. */
 export function galleryEntries(entries: readonly StoryMeta[]): GalleryEntry[] {
   const groups = new Map<string, StoryMeta[]>()
+
   for (const entry of entries) {
     const id = entry.componentId ?? entry.id
     const group = groups.get(id) ?? []
+
     group.push(entry)
     groups.set(id, group)
   }
+
   return [...groups]
     .map(([componentId, variants]) => {
       variants.sort((a, b) => (a.id < b.id ? -1 : a.id > b.id ? 1 : 0))
+
       const applicable = variants.filter((entry) => entry.applicable)
       const primary = applicable.filter((entry) => entry.gallery?.primary)
+
       if (primary.length > 1) {
         throw new Error(`multiple primary gallery stories for ${componentId}`)
       }
+
       const explicitGroups = new Set(variants.flatMap((entry) => entry.gallery?.group ?? []))
+
       if (explicitGroups.size > 1) {
         throw new Error(`conflicting gallery groups for ${componentId}`)
       }
+
       const selected = primary[0] ?? applicable[0]
+
       return {
         componentId,
         group: explicitGroups.values().next().value ?? 'components',

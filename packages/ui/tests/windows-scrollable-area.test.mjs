@@ -9,6 +9,7 @@ function evaluate(file, dependencies = {}, context = {}) {
   const code = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText
+
   vm.runInNewContext(code, {
     exports,
     ...context,
@@ -17,6 +18,7 @@ function evaluate(file, dependencies = {}, context = {}) {
       return dependencies[id]
     },
   })
+
   return exports
 }
 
@@ -38,6 +40,7 @@ function fixture() {
     },
     useState(value) {
       const cell = (slots[cursor++] ??= { value })
+
       return [
         cell.value,
         (next) => {
@@ -48,16 +51,20 @@ function fixture() {
     },
     useCallback(callback, deps) {
       const index = cursor++
+
       if (!same(slots[index]?.deps, deps)) {
         slots[index] = { deps, callback }
       }
+
       return slots[index].callback
     },
     useLayoutEffect(effect, deps) {
       const index = cursor++
+
       if (!same(slots[index]?.deps, deps)) {
         const old = slots[index]
         const cell = (slots[index] = { deps })
+
         pending.push(() => {
           old?.cleanup?.()
           cell.cleanup = effect()
@@ -65,6 +72,7 @@ function fixture() {
       }
     },
   }
+
   const { useScrollableArea } = evaluate(
     '../src/components/layout/use-scrollable-area.windows.tsrx',
     {
@@ -74,13 +82,17 @@ function fixture() {
     },
     { queueMicrotask: (callback) => microtasks.push(callback) },
   )
+
   return {
     render(options = {}) {
       cursor = 0
+
       const result = useScrollableArea(options)
+
       for (const effect of pending) {
         effect()
       }
+
       pending = []
       return result
     },
@@ -127,10 +139,13 @@ test('Windows scroll state follows content growth and shrink without viewport re
   const f = fixture()
   const area = f.render()
   const view = viewport()
+
   view.scrollHeight = view.clientHeight
+
   const content = {}
   const vp = area.getViewportProps()
   const cp = area.getContentProps()
+
   bind(vp.ref, view)
   bind(cp.ref, content)
   assert.deepEqual(snapshot(area).block, axis(false, true, true))
@@ -158,19 +173,27 @@ test('Windows scroll callbacks observe fresh state and layout does not synthesiz
       seen.push(['viewport', event])
     },
   })
+
   const cp = area.getContentProps({
     onLayoutChanged(event) {
       seen.push(['content', event])
     },
   })
+
   bind(vp.ref, view)
   bind(cp.ref, content)
   view.scrollTop = 400
+
   const scroll = { object: view }
+
   vp.onScroll(scroll)
+
   const layout = { object: view }
+
   vp.onLayoutChanged(layout)
+
   const growth = { object: content }
+
   cp.onLayoutChanged(growth)
   assert.deepEqual(seen, [
     ['scroll', scroll, true],
@@ -186,9 +209,12 @@ test('Windows scroll updates axis and caller handlers without retaining old clos
   const current = []
   const view = viewport()
   const props = first.getViewportProps({ onScroll: () => old.push('old') })
+
   bind(props.ref, view)
+
   const second = f.render({ axis: 'inline' })
   const next = second.getViewportProps({ onScroll: () => current.push('new') })
+
   assert.equal(next.onScroll, props.onScroll)
   assert.equal(next.ref, props.ref)
   props.onScroll({ object: view })
@@ -213,6 +239,7 @@ test('Windows scroll props preserve caller data and compose nested callback/obje
     orientation: 'horizontal',
     testID: 'notes',
   })
+
   assert.equal(props.style, style)
   assert.equal(props.orientation, 'horizontal')
   assert.equal(props.testID, 'notes')
@@ -229,6 +256,7 @@ test('Windows scroll normalizes invalid ranges and clamps overscroll in layout u
   const area = fixture().render({ axis: 'both' })
   const view = viewport()
   const props = area.getViewportProps()
+
   bind(props.ref, view)
   view.scrollLeft = -50
   view.scrollTop = 900
@@ -237,6 +265,7 @@ test('Windows scroll normalizes invalid ranges and clamps overscroll in layout u
     inline: axis(true, true, false),
     block: axis(true, false, true),
   })
+
   view.scrollWidth = Infinity
   view.scrollHeight = NaN
   props.onLayoutChanged({ object: view })
@@ -244,6 +273,7 @@ test('Windows scroll normalizes invalid ranges and clamps overscroll in layout u
     inline: axis(false, true, true),
     block: axis(false, true, true),
   })
+
   view.scrollWidth = 101
   view.scrollHeight = 201
   props.onLayoutChanged({ object: view })
@@ -263,6 +293,7 @@ test('Windows scroll ignores retired hosts and clears state on detach or failed 
   const second = viewport()
   const calls = []
   const props = area.getViewportProps({ onScroll: () => calls.push('scroll') })
+
   bind(props.ref, first)
   bind(props.ref, second)
   first.scrollTop = 400
@@ -278,6 +309,7 @@ test('Windows scroll ignores retired hosts and clears state on detach or failed 
       throw new Error('retired proxy')
     },
   })
+
   assert.doesNotThrow(() => props.onLayoutChanged({ object: second }))
   assert.deepEqual(snapshot(area).block, axis(false, true, true))
   bind(props.ref, null)
@@ -293,9 +325,12 @@ test('Windows scroll coalesces unchanged measurements and stops callbacks after 
   const calls = []
   const vp = area.getViewportProps({ onScroll: () => calls.push('scroll') })
   const cp = area.getContentProps({ onLayoutChanged: () => calls.push('content') })
+
   bind(vp.ref, view)
   bind(cp.ref, content)
+
   const writes = f.writes
+
   vp.onLayoutChanged({ object: view })
   cp.onLayoutChanged({ object: content })
   assert.equal(f.writes, writes)
@@ -312,20 +347,27 @@ test('Windows scroll coalesces unchanged measurements and stops callbacks after 
 test('Windows scroll measures late load and reload while preserving caller lifecycle handlers', () => {
   const area = fixture().render()
   const view = viewport()
+
   view.isLoaded = false
+
   const events = []
   const props = area.getViewportProps({
     onLoaded: (event) => events.push(['loaded', event, area.state.block.isScrollable]),
     onUnloaded: (event) => events.push(['unloaded', event, area.state.block.isScrollable]),
   })
+
   bind(props.ref, view)
   assert.deepEqual(snapshot(area).block, axis(false, true, true))
   view.isLoaded = true
+
   const loaded = { object: view }
+
   props.onLoaded(loaded)
   assert.deepEqual(snapshot(area).block, axis(true, true, false))
   view.isLoaded = false
+
   const unloaded = { object: view }
+
   props.onUnloaded(unloaded)
   assert.deepEqual(snapshot(area).block, axis(false, true, true))
   view.isLoaded = true
@@ -341,11 +383,16 @@ test('Windows loaded measurement keeps fresh callback state without publishing i
   const f = fixture()
   const area = f.render()
   const view = viewport()
+
   view.isLoaded = false
+
   const seen = []
   const props = area.getViewportProps({ onLoaded: () => seen.push(area.state.block.isScrollable) })
+
   bind(props.ref, view)
+
   const writes = f.writes
+
   view.isLoaded = true
   props.onLoaded({ object: view })
   assert.deepEqual(seen, [true])
@@ -359,8 +406,11 @@ test('Windows pending loaded publication ignores detached and unmounted viewport
     const f = fixture()
     const area = f.render()
     const view = viewport()
+
     view.isLoaded = false
+
     const props = area.getViewportProps()
+
     bind(props.ref, view)
     view.isLoaded = true
     props.onLoaded({ object: view })
@@ -373,6 +423,7 @@ test('Windows pending loaded publication ignores detached and unmounted viewport
     }
 
     const writes = f.writes
+
     f.flushMicrotasks()
     assert.equal(f.writes, writes, retired)
   }

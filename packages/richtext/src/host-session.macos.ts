@@ -39,6 +39,7 @@ export function createEditorSession(
     }
 
     const packet = JSON.stringify({ method, args })
+
     if (ready) {
       send(packet)
     } else {
@@ -84,6 +85,7 @@ export function createEditorSession(
 
       const packet: EditorPacket = JSON.parse(serialized)
       const props = readProps()
+
       if (packet.html !== undefined) {
         html = packet.html
       }

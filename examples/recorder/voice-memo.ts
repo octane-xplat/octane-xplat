@@ -9,6 +9,7 @@ export async function captureVoiceMemo(
 ): Promise<RecordingResult> {
   const recorder = createAudioRecorder()
   const off = recorder.subscribe(onSnapshot)
+
   try {
     await recorder.start()
     await waitForStop(recorder)

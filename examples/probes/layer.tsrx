@@ -9,6 +9,7 @@ let fixedLayer: ReturnType<typeof useLayer> | null = null
 export default function LayerProbe() {
   const anchored = useLayer({ mode: 'context', lightDismiss: true })
   const fixed = useLayer({ mode: 'fixed' })
+
   anchoredLayer = anchored
   fixedLayer = fixed
 
@@ -68,13 +69,17 @@ export async function run(ctx: ProbeContext) {
   // The anchor sits far below the viewport fold, so 'below' cannot fit —
   // the layer must flip above the anchor (or clamp to the top edge).
   const anchorFrame = ctx.inspect('probe-anchor').frame
+
   ctx.record('anchor-frame', anchorFrame)
 
   const doc = (globalThis as any).document
   let anchoredPanelFrame = null
+
   if (ctx.target === 'web') {
     await ctx.waitFor(() => doc?.getElementById('probe-anchored-panel'))
+
     const rect = doc.getElementById('probe-anchored-panel').getBoundingClientRect()
+
     anchoredPanelFrame = { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
   } else if (ctx.target === 'ios' || ctx.target === 'android') {
     await ctx.waitFor(() => ctx.find('probe-anchored-panel'))
@@ -98,7 +103,9 @@ export async function run(ctx: ProbeContext) {
 
   if (ctx.target === 'web') {
     await ctx.waitFor(() => doc?.getElementById('probe-fixed-panel'))
+
     const rect = doc.getElementById('probe-fixed-panel').getBoundingClientRect()
+
     ctx.record('fixed-panel-frame', { x: rect.left, y: rect.top })
     ctx.assert('fixed layer at x', Math.abs(rect.left - 24) < 2, true)
     ctx.assert('fixed layer at y', Math.abs(rect.top - 24) < 2, true)

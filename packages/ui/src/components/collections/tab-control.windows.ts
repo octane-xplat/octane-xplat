@@ -52,12 +52,15 @@ class WindowsTabStrip extends LayoutBase {
 
   private logicalHeaders(exclude?: ChildView): WindowsTabHeader[] {
     const headers: WindowsTabHeader[] = []
+
     this.eachChildView((view) => {
       if (view !== exclude && view instanceof WindowsTabHeader) {
         headers.push(view)
       }
+
       return true
     })
+
     return headers
   }
 
@@ -77,6 +80,7 @@ class WindowsTabStrip extends LayoutBase {
 </TabViewItem>`,
       )
       .join('')
+
     this.slotCount = headers.length
     return Microsoft.UI.Xaml.Markup.XamlReader.Load(`
 <TabView xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -93,6 +97,7 @@ class WindowsTabStrip extends LayoutBase {
 
   createNativeView(): any {
     const root = new Microsoft.UI.Xaml.Controls.Grid()
+
     this.tabs = this.createTabs(this.logicalHeaders())
     this.footer = new Microsoft.UI.Xaml.Controls.StackPanel()
     this.footer.Orientation = Microsoft.UI.Xaml.Controls.Orientation.Horizontal
@@ -104,9 +109,11 @@ class WindowsTabStrip extends LayoutBase {
   private attachHeader(header: WindowsTabHeader, headers: WindowsTabHeader[]): void {
     const index = headers.indexOf(header)
     const peer = this.tabs.FindName('XplatTab' + index)
+
     if (!peer) {
       throw new Error('Windows TabList could not resolve its native tab slot')
     }
+
     peer.Header = header.nativeViewProtected
     header.peer = peer
     header.owner = this
@@ -121,6 +128,7 @@ class WindowsTabStrip extends LayoutBase {
           header.peer &&
           Number(header.peer.FocusState) !== Number(Microsoft.UI.Xaml.FocusState.Unfocused),
       )
+
     this.cancelFocusTask()
     this.stopListening()
     for (const header of this.headers) {
@@ -128,21 +136,25 @@ class WindowsTabStrip extends LayoutBase {
         header.peer.Header = null
       }
     }
+
     this.tabs.TabStripFooter = null
     this.nativeViewProtected.Children.Clear()
     this.tabs = this.createTabs(headers)
     if (this.extra.length) {
       this.tabs.TabStripFooter = this.footer
     }
+
     for (const header of this.headers) {
       this.attachHeader(header, headers)
     }
+
     this.nativeViewProtected.Children.Append(this.tabs)
     if (this.isLoaded) {
       this.listen()
     } else {
       this.refresh()
     }
+
     if (focused && this.isLoaded) {
       const target =
         this.headers.includes(focused) && !focused.settings?.disabled
@@ -154,6 +166,7 @@ class WindowsTabStrip extends LayoutBase {
 
       const tabs = this.tabs
       const generation = this.generation
+
       this.focusTask = setTimeout(() => {
         this.focusTask = undefined
         if (
@@ -164,6 +177,7 @@ class WindowsTabStrip extends LayoutBase {
         ) {
           return
         }
+
         target.peer.IsTabStop = true
         target.peer.Focus(Microsoft.UI.Xaml.FocusState.Keyboard)
         this.restore()
@@ -175,6 +189,7 @@ class WindowsTabStrip extends LayoutBase {
     if (this.focusTask !== undefined) {
       clearTimeout(this.focusTask)
     }
+
     this.focusTask = undefined
   }
 
@@ -185,8 +200,10 @@ class WindowsTabStrip extends LayoutBase {
 
   private listen(): void {
     this.stopListening()
+
     const tabs = this.tabs
     const generation = this.generation
+
     this.selection = NSWinRT.asDelegate(
       'Microsoft.UI.Xaml.Controls.SelectionChangedEventHandler',
       () => {
@@ -198,7 +215,9 @@ class WindowsTabStrip extends LayoutBase {
         ) {
           return
         }
+
         const header = this.headers[Number(tabs.SelectedIndex)]
+
         try {
           if (header) {
             this.request(header)
@@ -211,6 +230,7 @@ class WindowsTabStrip extends LayoutBase {
         }
       },
     )
+
     this.key = NSWinRT.asDelegate(
       'Microsoft.UI.Xaml.Input.KeyEventHandler',
       (_sender: unknown, args: any) => {
@@ -222,23 +242,30 @@ class WindowsTabStrip extends LayoutBase {
         ) {
           return
         }
+
         const key = Number(args.Key)
+
         if (![35, 36, 37, 39].includes(key) || args.KeyStatus?.IsMenuKeyDown) {
           return
         }
+
         const control =
           (Number(Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread(17)) & 1) !== 0
+
         if (control) {
           return
         }
+
         const enabled = this.headers.filter((header) => !header.settings?.disabled)
         const focused = enabled.findIndex(
           (header) =>
             Number(header.peer.FocusState) !== Number(Microsoft.UI.Xaml.FocusState.Unfocused),
         )
+
         if (!enabled.length || focused < 0) {
           return
         }
+
         const backward = key === (Number(tabs.FlowDirection) === 1 ? 39 : 37)
         const index =
           key === 36
@@ -246,8 +273,11 @@ class WindowsTabStrip extends LayoutBase {
             : key === 35
               ? enabled.length - 1
               : (focused + (backward ? -1 : 1) + enabled.length) % enabled.length
+
         args.Handled = true
+
         const target = enabled[index]!
+
         // WinUI rejects Focus when IsTabStop is false. Restore the controlled
         // stop after requesting selection, even when the caller rejects it.
         target.peer.IsTabStop = true
@@ -259,6 +289,7 @@ class WindowsTabStrip extends LayoutBase {
         }
       },
     )
+
     tabs.SelectionChanged = this.selection
     tabs.PreviewKeyDown = this.key
     this.refresh()
@@ -276,10 +307,12 @@ class WindowsTabStrip extends LayoutBase {
       clearTimeout(this.selectionTask)
       this.selectionTask = undefined
     }
+
     if (this.tabs) {
       this.tabs.SelectionChanged = null
       this.tabs.PreviewKeyDown = null
     }
+
     this.selection = undefined
     this.key = undefined
   }
@@ -288,8 +321,10 @@ class WindowsTabStrip extends LayoutBase {
     if (this.selectionTask !== undefined) {
       clearTimeout(this.selectionTask)
     }
+
     const tabs = this.tabs
     const generation = this.generation
+
     this.selectionTask = setTimeout(() => {
       this.selectionTask = undefined
       if (this.tabs === tabs && this.generation === generation && this.isLoaded) {
@@ -303,6 +338,7 @@ class WindowsTabStrip extends LayoutBase {
     if (this.tabs) {
       this.tabs.SelectionChanged = null
     }
+
     try {
       action()
     } finally {
@@ -315,9 +351,11 @@ class WindowsTabStrip extends LayoutBase {
 
   private request(header: WindowsTabHeader): void {
     const settings = header.settings
+
     if (!settings || settings.disabled || !this.isEnabled) {
       return
     }
+
     if (settings.value !== this.settings?.value) {
       settings.request()
     }
@@ -327,15 +365,19 @@ class WindowsTabStrip extends LayoutBase {
     if (!this.tabs) {
       return
     }
+
     this.hold(() => {
       const selected = this.headers.findIndex(
         (header) => header.settings?.value === this.settings?.value,
       )
+
       this.tabs.SelectedIndex = selected
+
       const stop =
         selected >= 0 && !this.headers[selected]!.settings?.disabled
           ? selected
           : this.headers.findIndex((header) => !header.settings?.disabled)
+
       this.headers.forEach((header, index) => {
         header.peer.IsTabStop = index === stop
       })
@@ -346,15 +388,18 @@ class WindowsTabStrip extends LayoutBase {
     if (!this.tabs) {
       return
     }
+
     this.hold(() => {
       Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
         this.tabs,
         this.settings?.label ?? 'Tabs',
       )
+
       this.tabs.TabWidthMode =
         this.settings?.layout === 'fill'
           ? Microsoft.UI.Xaml.Controls.TabViewWidthMode.Equal
           : Microsoft.UI.Xaml.Controls.TabViewWidthMode.SizeToContent
+
       for (const header of this.headers) {
         header.peer.IsEnabled = !header.settings?.disabled
         Microsoft.UI.Xaml.Automation.AutomationProperties.SetName(
@@ -367,21 +412,26 @@ class WindowsTabStrip extends LayoutBase {
           header.id ?? '',
         )
       }
+
       this.restore()
     })
   }
 
   private insertionSlot(child: ChildView, attached: ChildView[]): number {
     let index = 0
+
     this.eachChildView((view) => {
       if (view === child) {
         return false
       }
+
       if (attached.includes(view)) {
         index++
       }
+
       return true
     })
+
     return index
   }
 
@@ -389,9 +439,12 @@ class WindowsTabStrip extends LayoutBase {
     if (!this.tabs || !child.nativeViewProtected) {
       return false
     }
+
     if (child instanceof WindowsTabHeader) {
       this.headers.splice(this.insertionSlot(child, this.headers), 0, child)
+
       const headers = this.logicalHeaders()
+
       if (this.slotCount !== headers.length) {
         this.rebuild()
       } else {
@@ -400,17 +453,20 @@ class WindowsTabStrip extends LayoutBase {
       }
     } else {
       const slot = this.insertionSlot(child, this.extra)
+
       this.footer.Children.InsertAt(slot, child.nativeViewProtected)
       this.extra.splice(slot, 0, child)
       if (this.extra.length === 1) {
         this.tabs.TabStripFooter = this.footer
       }
     }
+
     return true
   }
 
   _removeViewFromNativeVisualTree(child: ChildView): void {
     const index = this.headers.indexOf(child as WindowsTabHeader)
+
     if (index >= 0) {
       const header = this.headers.splice(index, 1)[0]!
       const focused =
@@ -430,6 +486,7 @@ class WindowsTabStrip extends LayoutBase {
       }
     } else {
       const slot = this.extra.indexOf(child)
+
       if (slot >= 0) {
         this.extra.splice(slot, 1)
         this.footer.Children.RemoveAt(slot)
@@ -438,6 +495,7 @@ class WindowsTabStrip extends LayoutBase {
         }
       }
     }
+
     super._removeViewFromNativeVisualTree(child)
   }
 
@@ -461,6 +519,7 @@ class WindowsTabStrip extends LayoutBase {
       header.peer = undefined
       header.owner = undefined
     }
+
     this.headers = []
     this.extra = []
     this.tabs = undefined

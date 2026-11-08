@@ -22,11 +22,13 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-audio-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -47,28 +49,39 @@ function run(command, args, cwd) {
 // Inspect the shipped AAR/JAR without requiring an Android SDK or Java tools.
 function zipEntry(archive, name) {
   const end = archive.lastIndexOf(Buffer.from([0x50, 0x4b, 0x05, 0x06]))
+
   assert.ok(end >= 0, 'ZIP central directory exists')
+
   const count = archive.readUInt16LE(end + 10)
   let offset = archive.readUInt32LE(end + 16)
+
   for (let index = 0; index < count; index++) {
     assert.equal(archive.readUInt32LE(offset), 0x02014b50, 'valid ZIP directory entry')
+
     const nameLength = archive.readUInt16LE(offset + 28)
     const extraLength = archive.readUInt16LE(offset + 30)
     const commentLength = archive.readUInt16LE(offset + 32)
+
     if (archive.toString('utf8', offset + 46, offset + 46 + nameLength) === name) {
       const method = archive.readUInt16LE(offset + 10)
       const size = archive.readUInt32LE(offset + 20)
       const local = archive.readUInt32LE(offset + 42)
+
       assert.equal(archive.readUInt32LE(local), 0x04034b50, 'valid ZIP local entry')
+
       const start = local + 30 + archive.readUInt16LE(local + 26) + archive.readUInt16LE(local + 28)
+
       assert.ok(start + size <= archive.length, 'ZIP entry is complete')
       assert.ok(method === 0 || method === 8, 'ZIP entry uses stored or deflate compression')
+
       const data = archive.subarray(start, start + size)
+
       return method === 8 ? inflateRawSync(data) : data
     }
 
     offset += 46 + nameLength + extraLength + commentLength
   }
+
   assert.fail(`ZIP entry ${name} is present`)
 }
 
@@ -152,17 +165,20 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
   const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
   const modules = join(consumerRoot, 'node_modules')
   const packageLink = join(modules, '@octane-xplat/audio')
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(packagePath, packageLink, { recursive: true })
   for (const dependency of target === 'macos' ? [] : dependencies) {
     const source = join(packageRoot, 'node_modules', dependency)
     const fallback = join(repoRoot, 'node_modules', dependency)
     const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+
     if (!resolved) {
       continue
     }
 
     const targetPath = join(modules, dependency)
+
     mkdirSync(dirname(targetPath), { recursive: true })
     symlinkSync(resolved, targetPath, 'dir')
   }
@@ -182,6 +198,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
   const config = targetConfig[target]
   const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+
   writeFileSync(
     configPath,
     JSON.stringify(
@@ -197,6 +214,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
           types: config.types.filter((name) => {
             const segments = name.split('/')
             const pkg = name.startsWith('@') ? segments.slice(0, 2) : segments.slice(0, 1)
+
             return existsSync(join(modules, ...pkg, 'package.json'))
           }),
           skipLibCheck: true,
@@ -217,9 +235,12 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
 
 try {
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
@@ -230,6 +251,7 @@ try {
 
   const bridge = zipEntry(androidClasses, 'com/xplat/audio/AudioBridge.class')
   const service = zipEntry(androidClasses, 'com/xplat/audio/AudioPlaybackService.class')
+
   for (const method of ['isCommandIntent', 'takeQueue']) {
     assert.ok(
       bridge.includes(Buffer.from(method)),
@@ -257,19 +279,24 @@ try {
 
   for (const [index, exportsMap] of uniqueExportMaps.entries()) {
     const consumerPackage = join(temporary, `package-${index}`)
+
     cpSync(packedRoot, consumerPackage, { recursive: true })
+
     const consumerManifestPath = join(consumerPackage, 'package.json')
     const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
     consumerManifest.exports = exportsMap
     writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
 
     const { checkPublicImport } = await import('./verify-macos.mjs')
+
     await checkPublicImport(consumerPackage, join(temporary, `public-${index}`))
 
     for (const target of Object.keys(consumers)) {
       // Subpath exports absent from a map (e.g. ./macos only exists in the
       // workspace map) cannot resolve — skip that lane for that map.
       const targetSubpaths = targetConfig[target].subpaths ?? ['.']
+
       if (!targetSubpaths.every((subpath) => exportsMap[subpath])) {
         continue
       }
@@ -293,6 +320,7 @@ try {
 
   if (process.argv.includes('--macos-runtime')) {
     const { verifyMacOS } = await import('./verify-macos.mjs')
+
     await verifyMacOS(packedRoot, temporary)
   }
 

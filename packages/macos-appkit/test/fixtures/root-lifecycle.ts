@@ -22,6 +22,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   const rect = (view: any) => {
     const r = view.alignmentRectForFrame(view.frame)
+
     return [
       Number(r.origin.x),
       Number(view.superview.bounds.size.height) - Number(r.origin.y) - Number(r.size.height),
@@ -32,6 +33,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   const expectRect = (id: string, values: number[]) => {
     const actual = rect(debug.findId(id))
+
     check(
       actual.every((value, i) => Math.abs(value - values[i]) < 1),
       id + ': expected ' + values + ' got ' + actual,
@@ -45,6 +47,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   root.render(Root, {})
   await settle()
+
   const host = debug.findId('root'),
     a = debug.findId('root-a'),
     b = debug.findId('root-b')
@@ -114,6 +117,7 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = debug.findId('root-moving'),
     replacementChild = debug.findId('root-replacement')
 
@@ -133,11 +137,13 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const other = debug.findId('root-moving'),
     otherChild = debug.findId('root-descendant')
 
   check(other.superview === debug.findId('root-other'), 'Alternate parent mount failed')
   await advance()
+
   const returned = debug.findId('root-moving'),
     returnedChild = debug.findId('root-descendant')
 
@@ -180,11 +186,15 @@ export async function checkRootLifecycle(root: any, nativeWindow: any) {
 
   root.unmount()
   check(rootEvents.length === 8, 'Root cleanup repeated')
+
   const windowTree = createMacOSRoot(nativeWindow.contentView)
+
   try {
     const windowDebug = (windowTree as any).__macosDebug
+
     windowTree.render(RootWindow as any, {})
     await settle()
+
     const windowRoot = windowDebug.findId('root-window'),
       windowChild = windowDebug.findId('root-window-child')
 

@@ -13,20 +13,24 @@ function iosRequestReview(): void {
   if (typeof SKStoreReviewController === 'undefined') {
     throw new Error('unsupported: SKStoreReviewController is not available')
   }
+
   // iOS 14+: scene-scoped prompt. UISceneActivationStateForegroundActive === 0.
   if (
     typeof SKStoreReviewController.requestReviewInScene === 'function' &&
     typeof UIApplication !== 'undefined'
   ) {
     const all = UIApplication.sharedApplication?.connectedScenes?.allObjects
+
     for (let i = 0; i < (all?.count ?? 0); i++) {
       const scene = all.objectAtIndex(i)
+
       if (scene.activationState === 0) {
         SKStoreReviewController.requestReviewInScene(scene)
         return
       }
     }
   }
+
   SKStoreReviewController.requestReview()
 }
 
@@ -64,16 +68,21 @@ function androidRequestReview(): Promise<void> {
     const play = (globalThis as any).com?.google?.android?.play
     const tasks = (globalThis as any).com?.google?.android?.gms?.tasks
     const ReviewManagerFactory = play?.core?.review?.ReviewManagerFactory
+
     if (!ReviewManagerFactory || !tasks?.OnCompleteListener) {
       reject(new Error('unsupported: com.google.android.play:review is not on the classpath'))
       return
     }
+
     const activity = androidActivity()
+
     if (!activity) {
       reject(new Error('unsupported: no foreground activity to present the review flow'))
       return
     }
+
     const manager = ReviewManagerFactory.create(androidContext())
+
     manager.requestReviewFlow().addOnCompleteListener(
       new tasks.OnCompleteListener({
         onComplete: (task: any) => {
@@ -104,6 +113,7 @@ export const storeReview: StoreReview = {
     if (isIOS) {
       return typeof SKStoreReviewController !== 'undefined'
     }
+
     return androidHasAction()
   },
 
@@ -112,6 +122,7 @@ export const storeReview: StoreReview = {
       iosRequestReview()
       return
     }
+
     return androidRequestReview()
   },
 
@@ -119,6 +130,7 @@ export const storeReview: StoreReview = {
     if (isIOS) {
       return typeof SKStoreReviewController !== 'undefined'
     }
+
     return androidHasAction()
   },
 
@@ -126,7 +138,9 @@ export const storeReview: StoreReview = {
     if (isIOS) {
       return config.iosAppStoreId ? `https://apps.apple.com/app/id${config.iosAppStoreId}` : ''
     }
+
     const pkg = androidPackageName()
+
     return pkg ? `https://play.google.com/store/apps/details?id=${pkg}` : ''
   },
 

@@ -15,6 +15,7 @@ export function prefetchBatch(
   warm: (url: string) => Promise<boolean>,
 ): Promise<boolean> {
   const urls = Array.isArray(srcs) ? srcs : [srcs]
+
   if (urls.length === 0) {
     return Promise.resolve(true)
   }
@@ -29,10 +30,12 @@ export function prefetchBatch(
     // Surviving workers stop dequeuing once a failure decides the result —
     // only already-running warm() calls settle on their own.
     let failed = false
+
     for (let i = 0; i < active; i++) {
       void (async () => {
         while (!failed && next < urls.length) {
           const url = urls[next++]
+
           try {
             if (!(await warm(url))) {
               failed = true

@@ -3,6 +3,7 @@ import { backgroundTasks, type TaskResult } from '@octane-xplat/background-tasks
 import { storage } from '@octane-xplat/platform'
 
 export const taskName = 'record-refresh'
+
 const enabledKey = 'refresh.enabled'
 const foregroundKey = 'refresh.foreground-at'
 const backgroundKey = 'refresh.background-at'
@@ -33,6 +34,7 @@ export function requestAtNativeStartup(): void {
   ) {
     return
   }
+
   requestedInThisModule = true
   // register is pure scheduling — cancel-then-submit — so every fresh launch
   // may safely re-request while the flag stays enabled.
@@ -54,6 +56,7 @@ export async function enableRefresh(): Promise<boolean> {
   if (!backgroundTasks.supported) {
     return false
   }
+
   // Scheduling no longer registers the launch handler, so it is safe to
   // enable from a screen action — no fresh launch required.
   await backgroundTasks.register(taskName, { minimumInterval: 3600 })
@@ -63,13 +66,16 @@ export async function enableRefresh(): Promise<boolean> {
 
 export async function disableRefresh(): Promise<void> {
   let saved = false
+
   try {
     storage.remove(enabledKey)
     saved = storage.flush()
   } catch {}
+
   if (backgroundTasks.supported) {
     await backgroundTasks.unregister(taskName)
   }
+
   if (!saved) {
     throw new Error('Could not save disabled preference')
   }

@@ -30,11 +30,15 @@ function fontSizePxOf(value: string | undefined): number | undefined {
   if (!value) {
     return undefined
   }
+
   const m = /^([\d.]+)(rem|em|px)?$/.exec(value.trim())
+
   if (!m) {
     return undefined
   }
+
   const n = parseFloat(m[1])
+
   return m[2] === 'rem' || m[2] === 'em' ? n * ROOT_FONT_PX : n
 }
 
@@ -47,11 +51,15 @@ function lineHeightPxOf(
   if (!leading || sizePx == null) {
     return undefined
   }
+
   const m = /^([\d.]+)(px)?$/.exec(leading.trim())
+
   if (!m) {
     return undefined
   }
+
   const n = parseFloat(m[1])
+
   return m[2] === 'px' ? n : n * sizePx
 }
 
@@ -91,10 +99,13 @@ function finish(
   if (weight) {
     style.fontWeight = tokens[`--font-weight-${weight}`] || undefined
   }
+
   const colorToken = COLOR_TOKEN[color ?? defaultColor]
+
   if (colorToken) {
     style.color = tokens[colorToken] || undefined
   }
+
   return style
 }
 
@@ -113,6 +124,7 @@ export function textScaleStyle(
 ): TextScaleStyle {
   const type = opts.type ?? 'inherit'
   const style: TextScaleStyle = {}
+
   if (type !== 'inherit') {
     style.fontSize = tokens[`--text-${type}-size`]
     style.lineHeight = tokens[`--text-${type}-leading`]
@@ -121,9 +133,11 @@ export function textScaleStyle(
       style.fontFamily = tokens['--font-family-code']
     }
   }
+
   if (opts.size) {
     style.fontSize = tokens[`--font-size-${opts.size === 'xsm' ? 'xs' : opts.size}`]
   }
+
   return finish(style, tokens, opts.color, DEFAULT_COLOR[type], opts.weight)
 }
 
@@ -144,5 +158,6 @@ export function headingScaleStyle(
     lineHeight: tokens[`${prefix}-leading`],
     fontWeight: tokens[`${prefix}-weight`],
   }
+
   return finish(style, tokens, opts.color, 'primary', opts.weight)
 }

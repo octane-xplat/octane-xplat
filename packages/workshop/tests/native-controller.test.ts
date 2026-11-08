@@ -54,6 +54,7 @@ function setup(target: 'ios' | 'android', entries: CatalogEntry[]) {
   }
 
   const controller = new NativeWorkshopController({ host, target, catalog: entries })
+
   return { session: controller.session, controller, mounts, updates, unmounts: () => unmounts }
 }
 
@@ -80,6 +81,7 @@ for (const target of ['ios', 'android'] as const) {
 
     it('keeps missing identity rather than choosing another story', async () => {
       const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+
       await x.controller.select('removed')
       expect(x.controller.missingId).toBe('removed')
       expect(x.mounts).toHaveLength(0)
@@ -87,7 +89,9 @@ for (const target of ['ios', 'android'] as const) {
 
     it('retains state/fixture on controls and removes optional props, then resets nested defaults', async () => {
       const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+
       await x.controller.select('mobile/shared')
+
       const first = x.mounts[0]
       const state = first.props.state as {
         getSnapshot(): { nested: { value: number } }
@@ -113,6 +117,7 @@ for (const target of ['ios', 'android'] as const) {
 
     it('opening panels and adapting geometry never mounts or retires the stage', async () => {
       const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+
       await x.controller.select('mobile/shared')
       x.controller.query = 'shared'
       for (const [width, height] of [
@@ -145,11 +150,14 @@ for (const target of ['ios', 'android'] as const) {
       ])
 
       const selecting = x.controller.select('mobile/shared')
+
       await x.controller.select('removed')
       finish({ Basic: story() })
       await selecting
       expect(x.mounts).toHaveLength(0)
+
       const pending = x.controller.select('mobile/shared')
+
       await x.controller.dispose()
       finish({ Basic: story() })
       await pending
@@ -183,6 +191,7 @@ for (const target of ['ios', 'android'] as const) {
       ])
 
       const pending = x.controller.select('mobile/shared')
+
       await started
       expect(context.target).toBe(target)
       await x.controller.select('second')
@@ -200,6 +209,7 @@ for (const target of ['ios', 'android'] as const) {
 
     it('dismisses the panel before stage-only and keeps the mounted story untouched', async () => {
       const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+
       await x.controller.select('mobile/shared')
       x.controller.panel = 'stories'
       expect(x.controller.dismissOverlay()).toBe('panel')
@@ -224,6 +234,7 @@ for (const target of ['ios', 'android'] as const) {
 
     it('keeps last revision stale on compile failure, then reloads the same ID fresh', async () => {
       const x = setup(target, [meta('mobile/shared', async () => ({ Basic: story() }))])
+
       await x.controller.select('mobile/shared')
       x.controller.updateCatalog(x.controller.catalog, [{ message: 'syntax error' }])
       expect(x.session.state.stale).toBe(true)

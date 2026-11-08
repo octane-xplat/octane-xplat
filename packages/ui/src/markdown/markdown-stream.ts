@@ -49,6 +49,7 @@ export function computeBoundaries(
 ): number[] {
   if (prevBoundaries.length === 0 || prevRenderedLen > prevBoundaries[prevBoundaries.length - 1]) {
     const next = [...prevBoundaries, prevRenderedLen]
+
     while (next.length > maxSpans) {
       next.shift()
     }
@@ -73,6 +74,7 @@ export function computeSegments(
   nodeKey: string | number,
 ): MdTextSegment[] | null {
   const endOffset = startOffset + content.length
+
   if (boundaries.length === 0 || endOffset <= boundaries[0]) {
     return null
   }
@@ -93,12 +95,14 @@ export function computeSegments(
   for (let i = 0; i < boundaries.length; i++) {
     const bStart = boundaries[i]
     const bEnd = i + 1 < boundaries.length ? boundaries[i + 1] : endOffset
+
     if (bStart >= endOffset || bEnd <= pos) {
       continue
     }
 
     const lo = Math.max(bStart, pos)
     const hi = Math.min(bEnd, endOffset)
+
     if (lo >= hi) {
       continue
     }
@@ -119,6 +123,7 @@ export function computeSegments(
  *  boundaries are computed against. */
 export function markdownTextLength(nodes: readonly MdNode[]): number {
   let n = 0
+
   for (const node of nodes) {
     switch (node.type) {
       case 'heading':
@@ -178,6 +183,7 @@ export function createMarkdownStreamParser(options?: MdParseOptions): MarkdownSt
   let source = ''
   let finished = false
   let document: MdDoc = mdDoc([])
+
   return {
     append(chunk) {
       if (finished) {
@@ -189,9 +195,11 @@ export function createMarkdownStreamParser(options?: MdParseOptions): MarkdownSt
       }
 
       source += chunk
+
       // Incomplete trailing constructs are withheld before the incremental
       // parse so intermediate snapshots show no raw markup.
       const trimmed = trimStreamingArtifacts(source, { math: options?.math === true })
+
       document = parseMarkdownIncremental(trimmed, state, options)
 
       return document

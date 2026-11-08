@@ -74,8 +74,10 @@ describe('standard component refs on the universal renderer', () => {
     const container = createObjectContainer('nativescript')
     const driver = createObjectDriver('nativescript')
     const instance = driver.getPublicInstance.bind(driver)
+
     driver.getPublicInstance = (container, id) => {
       const host: any = instance(container, id)
+
       host.isLoaded = true
       host.getLocationOnScreen = () => ({ x: 0, y: 0 })
       host.getActualSize = () => ({ width: 100, height: 50 })
@@ -84,6 +86,7 @@ describe('standard component refs on the universal renderer', () => {
 
     const root = createUniversalRoot(container, driver)
     const ref = { current: null as any }
+
     try {
       flushUniversalSync(() => root.render(AspectRatio, { ratio: 2, ref }))
       expect(ref.current?.type).toBe('masonview')
@@ -103,6 +106,7 @@ describe('standard component refs on the universal renderer', () => {
     const next = { current: null as TextInputHandle | null }
     const cleanup = vi.fn()
     const callback = vi.fn(() => cleanup)
+
     try {
       flushUniversalSync(() =>
         root.render(RefFixture, { viewRef: view, inputRef: [input, [callback, undefined]] }),
@@ -129,6 +133,7 @@ describe('standard component refs on the universal renderer', () => {
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const previous = { current: null as { ready: boolean } | null }
     const next = vi.fn()
+
     flushUniversalSync(() => root.render(ImperativeFixture, { ref: previous }))
     expect(previous.current).toEqual({ ready: true })
     flushUniversalSync(() => root.render(ImperativeFixture, { ref: next }))

@@ -62,6 +62,7 @@ function fixture({ missing = false, loading = false } = {}) {
   }
 
   const module = { exports: {} }
+
   vm.runInNewContext(compiled, {
     exports: module.exports,
     module,
@@ -92,6 +93,7 @@ function fixture({ missing = false, loading = false } = {}) {
 
 test('macOS constructs without mobile globals; absent bridge is explicit and safe', async () => {
   const { player } = fixture({ missing: true })
+
   assert.equal(player.capabilities().supported, false)
   assert.equal(player.capabilities().systemControls, false)
   assert.equal(player.capabilities().interruptions, false)
@@ -104,8 +106,11 @@ test('local/remote sources, queue index, seconds, snapshots and unsubscribe', as
   const { player, calls, native, tick } = fixture()
   const seen = []
   const unsubscribe = player.subscribe((value) => seen.push(value))
+
   assert.equal(seen[0].state, 'idle')
+
   const input = tracks.map((track) => ({ ...track }))
+
   await player.setQueue(input, 100)
   input[1].id = 'mutated'
   assert.equal(player.snapshot().track.id, 'remote')
@@ -129,7 +134,9 @@ test('local/remote sources, queue index, seconds, snapshots and unsubscribe', as
   tick()
   assert.equal(seen.at(-1).currentTime, 7.25)
   unsubscribe()
+
   const count = seen.length
+
   tick()
   assert.equal(seen.length, count)
   await player.setQueue(tracks, NaN)
@@ -146,12 +153,14 @@ test('play waits for readiness; queue replacement rejects obsolete load and play
   const firstResult = assert.rejects(first, /superseded/)
   const playing = player.play()
   const playingResult = assert.rejects(playing, /superseded/)
+
   assert.equal(
     calls.some(([name]) => name === 'play'),
     false,
   )
 
   const second = player.setQueue([tracks[1]])
+
   native.value.state = 'paused'
   tick()
   await Promise.all([firstResult, playingResult, second])
@@ -163,6 +172,7 @@ test('play waits for readiness; queue replacement rejects obsolete load and play
 
 test('ended advances once, autoplays next, then settles at the final track', async () => {
   const { player, native, calls, tick, timers } = fixture()
+
   await player.setQueue(tracks)
   await player.play()
   native.value.state = 'ended'
@@ -183,6 +193,7 @@ test('pause while loading cancels an earlier play request', async () => {
   const { player, native, calls, tick } = fixture({ loading: true })
   const ready = player.setQueue(tracks)
   const play = player.play()
+
   await player.pause()
   native.value.state = 'paused'
   tick()
@@ -206,6 +217,7 @@ for (const message of [
     const { player, native, tick, timers } = fixture({ loading: true })
     const ready = player.setQueue(tracks)
     const rejected = assert.rejects(ready, new RegExp(message))
+
     native.value = { state: 'error', error: message }
     tick()
     await rejected
@@ -214,7 +226,9 @@ for (const message of [
     assert.equal(timers.size, 0)
     await assert.rejects(player.play(), new RegExp(message))
     await assert.rejects(player.pause(), new RegExp(message))
+
     const replacement = player.setQueue([tracks[1]])
+
     native.value.state = 'paused'
     tick()
     await replacement
@@ -225,6 +239,7 @@ for (const message of [
 
 test('command failure and failure while advancing cannot escape the notification loop', async () => {
   const { player, native, tick } = fixture()
+
   await player.setQueue(tracks)
   native.play = () => {
     throw new Error('Output failure')
@@ -255,14 +270,19 @@ test('command failure and failure while advancing cannot escape the notification
 test('dispose cancels pending readiness, stops playback/timers/notifications and is idempotent', async () => {
   const { player, timers, calls, tick } = fixture({ loading: true })
   let count = 0
+
   player.subscribe(() => count++)
+
   const ready = player.setQueue(tracks)
   const rejected = assert.rejects(ready, /disposed/)
   const staleTick = [...timers][0]
+
   player.dispose()
   player.dispose()
   await rejected
+
   const after = count
+
   tick()
   staleTick()
   assert.equal(count, after)
@@ -284,6 +304,7 @@ test('dispose cancels pending readiness, stops playback/timers/notifications and
 
 test('disposal inside subscription prevents later listeners from receiving stale state', async () => {
   const { player } = fixture()
+
   player.subscribe((value) => {
     if (value.state === 'loading') {
       player.dispose()
@@ -291,6 +312,7 @@ test('disposal inside subscription prevents later listeners from receiving stale
   })
 
   const seen = []
+
   player.subscribe((value) => seen.push(value.state))
   await player.setQueue(tracks)
   assert.deepEqual(seen, ['idle'])
@@ -298,6 +320,7 @@ test('disposal inside subscription prevents later listeners from receiving stale
 
 test('macOS applies settings before loading and retains muted volume', async () => {
   const { player, native } = fixture()
+
   await player.setPlaybackRate(1.5)
   await player.setVolume(0.3)
   await player.setMuted(true)
@@ -316,6 +339,7 @@ test('macOS applies settings before loading and retains muted volume', async () 
 test('macOS queue metadata and append preserve current source and pending load', async () => {
   const { player, native, calls, tick } = fixture({ loading: true })
   const ready = player.setQueue([tracks[0]], 0, { complete: false })
+
   await player.updateQueue(tracks)
   assert.equal(calls.filter(([name]) => name === 'source').length, 1)
   native.value.state = 'paused'

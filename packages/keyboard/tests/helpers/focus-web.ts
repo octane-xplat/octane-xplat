@@ -17,6 +17,7 @@ export function focusWebFixture() {
       this.disconnected = true
     }
   }
+
   const events = new Map<string, Set<() => void>>()
   const window: any = {
     document,
@@ -24,6 +25,7 @@ export function focusWebFixture() {
       if (!events.has(name)) {
         events.set(name, new Set())
       }
+
       events.get(name)!.add(callback)
     },
     removeEventListener(name: string, callback: () => void) {
@@ -41,6 +43,7 @@ export function focusWebFixture() {
     },
     getComputedStyle: (node: any) => ({ overflowY: node.overflow ?? 'visible' }),
   }
+
   const root: any = {
     isConnected: true,
     parentElement: null,
@@ -55,6 +58,7 @@ export function focusWebFixture() {
     scrollHeight: 1600,
     getBoundingClientRect: () => ({ x: 0, y: -100, width: 400, height: 1600 }),
   }
+
   const scroll: any = {
     ...root,
     tagName: 'DIV',
@@ -68,6 +72,7 @@ export function focusWebFixture() {
     scrollHeight: 600,
     getBoundingClientRect: () => ({ x: 20, y: 100, width: 302, height: 202 }),
   }
+
   const field: any = {
     ownerDocument: document,
     parentElement: scroll,
@@ -81,16 +86,19 @@ export function focusWebFixture() {
       return this.box
     },
   }
+
   Object.defineProperty(field, 'value', {
     get() {
       throw new Error('Text must never be read')
     },
   })
+
   Object.defineProperty(field, 'textContent', {
     get() {
       throw new Error('Text must never be read')
     },
   })
+
   document.activeElement = field
   document.scrollingElement = root
   document.defaultView = window

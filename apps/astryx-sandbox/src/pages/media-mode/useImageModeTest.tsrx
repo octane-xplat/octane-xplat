@@ -1,6 +1,8 @@
 // The upstream lab's multi-algorithm pixel test requires a browser canvas.
 export type Algorithm = 'gamma' | 'wcag' | 'apca'
+
 import type { ImageSampleRegion } from '@octane-xplat/ui'
+
 export function useImageModeTest(
   _src: string | null | undefined,
   options: {

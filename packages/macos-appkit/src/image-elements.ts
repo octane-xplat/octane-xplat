@@ -33,6 +33,7 @@ export function createImageElements(deps: Dependencies) {
     setFrameSize(size: { width: number; height: number }): void {
       const previousWidth = this.frame.size.width,
         previousHeight = this.frame.size.height
+
       super.setFrameSize(size)
       if (size.width !== previousWidth || size.height !== previousHeight) {
         this.needsDisplay = true
@@ -61,6 +62,7 @@ export function createImageElements(deps: Dependencies) {
     if (node) {
       node.view = image
     }
+
     image.translatesAutoresizingMaskIntoConstraints = false
     updateImage(image, props.src, props.placeholder, props.imageCachePolicy)
 
@@ -73,9 +75,11 @@ export function createImageElements(deps: Dependencies) {
    *  but still drives GIF playback — AppKit has no replacement animation view. */
   function makeAnimatedImageView(props: PropBag, node?: ElementNode) {
     const image = makeImageView(props, node)
+
     image.animates = true
     return image
   }
+
   function applyBuiltinImageProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (node.type === 'image' && (name === 'onImageLoad' || name === 'onImageError')) {
       deps.subscriptions.setImageActions(node)

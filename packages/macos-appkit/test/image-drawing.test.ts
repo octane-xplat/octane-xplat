@@ -14,6 +14,7 @@ function fixture() {
     NSBezierPath: { clipRect: (bounds: any) => events.push(['clip', bounds]) },
     NSCompositingOperation: { SourceOver: 2 },
   })
+
   const view: any = {
     imageScaling: 0,
     needsDisplay: false,
@@ -25,11 +26,13 @@ function fixture() {
         events.push(['draw', ...args]),
     },
   }
+
   return { view, events, restore }
 }
 
 test('cover drawing clips to the box and converts top-based position for native flipped/unflipped contexts', () => {
   const env = fixture()
+
   try {
     assert.equal(drawImageContent(env.view), false)
     setImageDrawingStyle(env.view, 'objectFit', 'cover')
@@ -63,6 +66,7 @@ test('cover drawing clips to the box and converts top-based position for native 
 
 test('drawing restores graphics state after native failure and ignores pending or empty image geometry', () => {
   const env = fixture()
+
   try {
     setImageDrawingStyle(env.view, 'objectFit', 'contain')
     env.view.image.drawInRectFromRectOperationFractionRespectFlippedHints = () => {
@@ -89,10 +93,12 @@ test('native image subclass retains hit testing and redraws after a real frame-s
     source.indexOf('class InputImageView'),
     source.indexOf('function makeImageView'),
   )
+
   let fallback = 0,
     handled = false,
     metrics = 0,
     lifecycle = 0
+
   const transparent = new WeakSet()
   const { InputImageView } = runSlice(slice + '\n({ InputImageView })', {
     NSImageView: class {
@@ -121,7 +127,9 @@ test('native image subclass retains hit testing and redraws after a real frame-s
     inputTransparentViews: transparent,
     drawImageContent: () => handled,
   })
+
   const view = new InputImageView()
+
   assert.equal(view.wantsUpdateLayer, false)
   view.drawRect({})
   assert.equal(fallback, 1)
@@ -146,9 +154,11 @@ test('unsupported CSS positions center with one warning; invalid fit values neve
   const env = fixture()
   const warnings: unknown[] = []
   const warn = console.warn
+
   console.warn = (message) => {
     warnings.push(message)
   }
+
   try {
     setImageDrawingStyle(env.view, 'objectFit', 'none')
     setImageDrawingStyle(env.view, 'objectPosition', 'calc(50% + 1px) 0')

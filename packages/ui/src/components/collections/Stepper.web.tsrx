@@ -32,6 +32,7 @@ export function Stepper(props: StepperProps): JSX.Element @{
     {(props.steps ?? []).map((step: any, i: number) => {
       const done = i < current
       const active = i === current
+
       return (
         <div
           key={step.key}

@@ -3,17 +3,25 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { PinInput } from './PinInput.web.tsrx'
+
 const roots: any[] = []
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const render = (next: any = {}) => act(() => root.render(<PinInput {...props} {...next} />))
+
   render()
+
   const inputs = () => Array.from(el.querySelectorAll('input'))
   const enter = (i: number, value: string) => {
     const field = inputs()[i]
+
     field.value = value
     act(() => field.dispatchEvent(new Event('input', { bubbles: true })))
   }
@@ -34,6 +42,7 @@ it('clears the edited cell and suffix of a controlled PIN', () => {
     complete = vi.fn()
 
   const { enter } = mount({ value: '1234', onValueChange: change, onComplete: complete })
+
   enter(1, '')
   expect(change).toHaveBeenCalledWith('1')
   expect(complete).not.toHaveBeenCalled()
@@ -44,6 +53,7 @@ it('keeps editing contiguous and advances focus through an uncontrolled PIN', ()
     complete = vi.fn()
 
   const { inputs, enter } = mount({ onValueChange: change, onComplete: complete })
+
   expect(inputs().map((i) => i.readOnly)).toEqual([false, true, true, true])
   for (let i = 0; i < 4; i++) {
     enter(i, String(i + 1))
@@ -69,6 +79,7 @@ it('replaces a filled cell without shifting later cells', () => {
     complete = vi.fn()
 
   const { enter } = mount({ value: '1234', onValueChange: change, onComplete: complete })
+
   enter(1, '29')
   expect(change).toHaveBeenCalledWith('1934')
   expect(complete).toHaveBeenCalledWith('1934')
@@ -77,12 +88,14 @@ it('replaces a filled cell without shifting later cells', () => {
 it('does not relocate input from a later empty cell to the beginning', () => {
   const change = vi.fn()
   const { enter } = mount({ onValueChange: change })
+
   enter(3, '9')
   expect(change).not.toHaveBeenCalled()
 })
 
 it('respects disabled cells and controlled updates', () => {
   const { render, inputs } = mount({ value: '1234', isDisabled: true })
+
   expect(inputs().every((i) => i.disabled)).toBe(true)
   render({ value: '12', isDisabled: false })
   expect(inputs().map((i) => i.value)).toEqual(['1', '2', '', ''])

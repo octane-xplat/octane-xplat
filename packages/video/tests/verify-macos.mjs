@@ -18,6 +18,7 @@ const here = dirname(fileURLToPath(import.meta.url))
 
 async function consumer(packed, app, source) {
   const installed = join(app, 'node_modules/@octane-xplat/video')
+
   await mkdir(installed, { recursive: true })
   await cp(packed, installed, { recursive: true })
   await writeFile(
@@ -28,6 +29,7 @@ async function consumer(packed, app, source) {
       dependencies: { '@octane-xplat/video': '0.19.0' },
     }),
   )
+
   await writeFile(join(app, 'fixture.mjs'), source)
   await build({
     configFile: false,
@@ -39,6 +41,7 @@ async function consumer(packed, app, source) {
       lib: { entry: join(app, 'fixture.mjs'), formats: ['cjs'], fileName: () => 'fixture.cjs' },
     },
   })
+
   return join(app, 'dist/fixture.cjs')
 }
 
@@ -46,26 +49,31 @@ function sendRange(request, response, bytes, drip) {
   const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range ?? '')
   const start = range ? Number(range[1]) : 0
   const end = range?.[2] ? Math.min(Number(range[2]), bytes.length - 1) : bytes.length - 1
+
   if (start > end || start >= bytes.length) {
     response.writeHead(416, { 'Content-Range': `bytes */${bytes.length}` })
     response.end()
     return
   }
+
   response.writeHead(range ? 206 : 200, {
     'Content-Type': 'video/mp4',
     'Accept-Ranges': 'bytes',
     'Content-Length': end - start + 1,
     ...(range ? { 'Content-Range': `bytes ${start}-${end}/${bytes.length}` } : {}),
   })
+
   if (!drip) {
     response.end(bytes.subarray(start, end + 1))
     return
   }
+
   // Keep the transfer in flight across the fixture's measurement window:
   // the whole clip trickles at roughly one kilobyte a second.
   let offset = start
   const tick = () => {
     const next = Math.min(offset + 256, end + 1)
+
     response.write(bytes.subarray(offset, next))
     offset = next
     if (offset <= end) {
@@ -74,13 +82,17 @@ function sendRange(request, response, bytes, drip) {
       response.end()
     }
   }
+
   tick()
 }
 
 export async function verifyMacOS(packed, temporary) {
   assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
+
   const app = join(temporary, 'target')
+
   await mkdir(app, { recursive: true })
+
   const local = join(here, 'fixtures/clip.mp4')
   const clip = await readFile(local)
   const server = createServer((request, response) => {
@@ -96,8 +108,11 @@ export async function verifyMacOS(packed, temporary) {
       response.end('missing')
     }
   })
+
   await new Promise((resolveListen) => server.listen(0, '127.0.0.1', resolveListen))
+
   const remote = `http://127.0.0.1:${server.address().port}`
+
   try {
     // buildMacOSNative walks the package's declared dependencies, and the
     // engine's macOS import resolves the workspace platform bindings —
@@ -198,7 +213,9 @@ main().then(() => __xplatStopHost(), error => { console.error(error); __xplatSto
 
     const artifact = await buildMacOSNative(app)
     const bootstrap = join(app, 'bootstrap.js')
+
     await writeNativeBootstrap(artifact, bootstrap)
+
     const output = await new Promise((resolveOutput, reject) => {
       const child = spawn(
         join(hostBundle, 'host'),
@@ -210,14 +227,19 @@ main().then(() => __xplatStopHost(), error => { console.error(error); __xplatSto
         ],
         { cwd: app, env: { ...process.env, OCTANE_MACOS_EXTERNAL_RUNLOOP: '1' } },
       )
+
       let text = ''
+
       child.stdout.on('data', (chunk) => (text += chunk))
       child.stderr.on('data', (chunk) => (text += chunk))
+
       const timeout = setTimeout(() => child.kill('SIGKILL'), 90_000)
+
       child.once('error', (error) => {
         clearTimeout(timeout)
         reject(error)
       })
+
       child.once('close', (code, signal) => {
         clearTimeout(timeout)
         if (code === 0) {

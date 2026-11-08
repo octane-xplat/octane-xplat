@@ -18,6 +18,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  URL is a fine placeholder on web). */
 function placeholderUrl(placeholder: string): string {
   const png = hashToPngBase64(placeholder)
+
   return png ? `data:image/png;base64,${png}` : placeholder
 }
 
@@ -40,6 +41,7 @@ export function Image(props: ImageProps): JSX.Element @{
 
   useLayoutEffect(() => {
     const img = imgRef.current
+
     // complete = the current src already resolved (cache/sync data URI) —
     // showing the placeholder would flash backwards.
     if (!img || !props.placeholder || img.complete) {
@@ -51,6 +53,7 @@ export function Image(props: ImageProps): JSX.Element @{
     // (document.createElement — `Image` here is this component, not the
     // global HTMLImageElement constructor)
     const warm = document.createElement('img')
+
     warm.src = final
     if (finalSrcSet) {
       warm.srcset = finalSrcSet

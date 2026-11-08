@@ -24,6 +24,7 @@ it('rejects percent shapes with absent, doubled, or malformed bounds', () => {
   expect(isPercentSize({ type: 'percent', value: 50, min: { type: 'other', value: 1 } })).toBe(
     false,
   )
+
   expect(isPercentSize({ type: 'percent', value: 50, max: null })).toBe(false)
 })
 

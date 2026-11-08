@@ -16,9 +16,11 @@ const compile = async (name) =>
 const native = await compile('auth-session')
 function emitter() {
   const listeners = new Map()
+
   return {
     on(name, fn) {
       const group = listeners.get(name) ?? new Set()
+
       group.add(fn)
       listeners.set(name, group)
     },
@@ -32,6 +34,7 @@ function emitter() {
     },
     count() {
       let count = 0
+
       for (const group of listeners.values()) {
         count += group.size
       }
@@ -53,7 +56,9 @@ function load({
   let completion
   const session = { start, prefersEphemeralWebBrowserSession: false }
   const activity = { getIntent: () => ({ getDataString: () => intentUrl }) }
+
   app.android.foregroundActivity = activity
+
   const exports = {}
   const platformAndroid = { net: { Uri: { parse: (s) => s } } }
   const platformIOS = {
@@ -123,13 +128,16 @@ const open = (h) =>
 test('Android callback completes once, ignores unrelated links, removes listeners, and permits retry', async () => {
   const h = load()
   const first = open(h)
+
   assert.equal((await open(h)).type, 'error')
   h.redirect('other://callback')
   assert.ok(h.app.android.count() > 0)
   h.redirect('sample://callback?code=one')
   assert.equal((await first).url, 'sample://callback?code=one')
   assert.equal(h.app.android.count() + h.app.count(), 0)
+
   const retry = open(h)
+
   h.redirect('sample://callback?code=two')
   assert.equal((await retry).type, 'success')
 })
@@ -137,6 +145,7 @@ test('Android callback completes once, ignores unrelated links, removes listener
 test('Android resume without a fresh callback cancels instead of replaying a stale activity intent', async () => {
   const h = load({ initialUrl: 'sample://callback?code=old' })
   const pending = open(h)
+
   h.app.emit('resume')
   assert.equal((await pending).type, 'cancel')
   assert.equal(h.app.android.count() + h.app.count(), 0)
@@ -173,6 +182,7 @@ test('iOS success, cancel, native error, invalid URL, and failed start have docu
   ]) {
     const h = load({ ios: true })
     const pending = open(h)
+
     assert.equal(h.session.prefersEphemeralWebBrowserSession, true)
     h.callback(url, error)
     assert.equal((await pending).type, expected)
@@ -187,15 +197,18 @@ test('iOS success, cancel, native error, invalid URL, and failed start have docu
 
 test('iOS construction exception resolves as an error result', async () => {
   const h = load({ ios: true, constructError: true })
+
   assert.equal((await open(h)).type, 'error')
 })
 
 test('web hosted sessions are explicitly unsupported', async () => {
   const exports = {}
+
   vm.runInNewContext(await compile('auth-session.web'), {
     exports,
     require: (id) => requireLib(id),
   })
+
   assert.equal(exports.authSession.supported, false)
   assert.equal(await exports.authSession.isAvailable(), false)
   await assert.rejects(exports.authSession.open('https://example.test', {}), {

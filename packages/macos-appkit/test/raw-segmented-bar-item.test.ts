@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }

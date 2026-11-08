@@ -104,11 +104,13 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
 test('HtmlView rejects all JSX children before mutation, but is a valid layout child', () => {
   const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', 'span', 'formattedstring', '#text', 'htmlview']) {
     assert.throws(() => api.validateTextNesting('htmlview', child), /takes html content/)
   }
@@ -253,6 +255,7 @@ test('HtmlView production ownership moves its native host between parents and re
     html: any = node(3, 'htmlview')
 
   const retained = html.view
+
   api.insert(container, 1, html, null)
   assert.equal(left.contentChild, html)
   api.insert(container, 2, html, null)

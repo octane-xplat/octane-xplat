@@ -22,6 +22,7 @@ vi.mock('../src/host-movie.web', () => ({
 }))
 
 const inspect = vi.hoisted(() => vi.fn())
+
 vi.mock('../src/movie-metadata.web', () => ({ inspectMovie: inspect }))
 
 class Track extends EventTarget {
@@ -101,6 +102,7 @@ const hostCall = async (_service: string, method: string) => {
 
 async function ready(audio = false) {
   const session = new SharedCameraSession(createSessionBackend({ audio }), { audio })
+
   await session.capabilities()
   session.attach({ srcObject: null, style: {}, play: async () => {} })
   await flush()
@@ -159,16 +161,21 @@ afterEach(() => {
 describe('linux WebKitGTK adapter', () => {
   it('reports unavailable without the packaged host camera service', async () => {
     hostMovie.host = null
+
     const backend = createSessionBackend({})
+
     expect(await backend.checkPermission('camera')).toBe('unavailable')
+
     const session = new SharedCameraSession(backend, {})
     const caps = await session.capabilities()
+
     expect(caps.supported).toBe(false)
     expect(caps.available).toBe(false)
   })
 
   it('maps host permission states without prompting', async () => {
     const backend = createSessionBackend({})
+
     for (const [hostStatus, expected] of [
       ['granted', 'granted'],
       ['notDetermined', 'notDetermined'],
@@ -185,12 +192,17 @@ describe('linux WebKitGTK adapter', () => {
   it('finalizes through host file commit and reports the durable file output', async () => {
     const session = await ready()
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     take.stop()
     recorder.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind !== 'clip') {
       return
@@ -216,11 +228,14 @@ describe('linux WebKitGTK adapter', () => {
     const session = await ready()
     const dest = 'file:///data/org.octane.xplat/exports/movie.mp4'
     const take = session.startRecording({ destinationFileUrl: dest })
+
     await flush()
     Recorder.instances.at(-1)!.begin()
     take.stop()
     Recorder.instances.at(-1)!.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     expect(hostMovie.reserve).toHaveBeenCalledWith(
       hostMovie.host,
@@ -261,12 +276,17 @@ describe('linux WebKitGTK adapter', () => {
 
     const session = await ready()
     const take = session.startRecording()
+
     await flush()
+
     const recorder = Recorder.instances.at(-1)!
+
     recorder.begin()
     take.stop()
     recorder.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.stage).toBe('storage')
@@ -300,6 +320,7 @@ describe('linux WebKitGTK adapter', () => {
   it('fails requested audio without silently recording video only', async () => {
     const session = await ready(true)
     const outcome = await session.startRecording().completion
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.error.kind).toBe('permissionDenied')
@@ -311,6 +332,7 @@ describe('linux WebKitGTK adapter', () => {
 
   it('records audio from the combined acquisition when microphone is granted', async () => {
     const audioTrack = new Track()
+
     audioTrack.kind = 'audio'
     vi.stubGlobal('navigator', {
       mediaDevices: {
@@ -334,13 +356,18 @@ describe('linux WebKitGTK adapter', () => {
     })
 
     const session = await ready(true)
+
     expect(await session.requestPermission('microphone')).toBe('granted')
+
     const take = session.startRecording()
+
     await flush()
     Recorder.instances.at(-1)!.begin()
     take.stop()
     Recorder.instances.at(-1)!.finish()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.clip.hasAudio).toBe(true)
@@ -352,6 +379,7 @@ describe('linux WebKitGTK adapter', () => {
   it('a re-acquired live stream clears the ended-track interruption', async () => {
     const session = await ready()
     const events: CameraSessionEvent[] = []
+
     session.subscribe((event) => events.push(event))
     track.readyState = 'ended'
     track.dispatchEvent(new Event('ended'))
@@ -366,6 +394,7 @@ describe('linux WebKitGTK adapter', () => {
     await flush()
     expect(session.snapshot().interrupted).toBe(false)
     expect(session.snapshot().cameraAvailable).toBe(true)
+
     const phases = events
       .filter((event) => event.type === 'interruption')
       .map((event) => (event as { phase: string }).phase)
@@ -376,6 +405,7 @@ describe('linux WebKitGTK adapter', () => {
 
   it('rejects fixed-orientation requests before admission', async () => {
     const session = await ready()
+
     expect(() => session.startRecording({ orientation: 'landscapeLeft' })).toThrowError(
       CameraCaptureError,
     )

@@ -11,7 +11,9 @@ function load(name, imports = {}) {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022,
   })
+
   const exports = {}
+
   vm.runInNewContext(compiled, {
     exports,
     ArrayBuffer,
@@ -21,6 +23,7 @@ function load(name, imports = {}) {
       return imports[id]
     },
   })
+
   return exports
 }
 
@@ -54,7 +57,9 @@ test('Windows clipboard preserves text, checks format, bridges async results and
       },
     },
   }
+
   const { clipboard } = load('clipboard', win({ ApplicationModel: { DataTransfer: api } }))
+
   assert.equal(clipboard.canCopy, true)
   assert.equal(await clipboard.writeText('  copied Ω  '), true)
   assert.equal(flushes, 1)
@@ -67,12 +72,16 @@ test('Windows clipboard preserves text, checks format, bridges async results and
   api.Clipboard.GetContent = () => {
     throw new Error('denied')
   }
+
   api.Clipboard.SetContent = () => {
     throw new Error('busy')
   }
+
   assert.equal(await clipboard.readText(), null)
   assert.equal(await clipboard.write('retry'), false)
+
   const { clipboard: absent } = load('clipboard', win())
+
   assert.equal(absent.canCopy, false)
   assert.equal(await absent.writeText('x'), false)
   assert.equal(await absent.readText(), null)
@@ -89,13 +98,17 @@ test('Windows random fills only the requested byte range, chunks large buffers a
       return 'a7'.repeat(length)
     },
   }
+
   const { random } = load(
     'random',
     win({ Security: { Cryptography: { CryptographicBuffer: api } } }),
   )
+
   assert.equal(random.supported, true)
+
   const bytes = new Uint8Array(70004)
   const view = new DataView(bytes.buffer, 2, 70000)
+
   assert.equal(random.fill(view), view)
   assert.deepEqual(calls, [65536, 4464])
   assert.equal(bytes[0], 0)
@@ -108,7 +121,9 @@ test('Windows random fills only the requested byte range, chunks large buffers a
   assert.throws(() => random.fill({}), /ArrayBufferView/)
   api.EncodeToHexString = () => 'xx'
   assert.throws(() => random.bytes(1), /invalid CryptographicBuffer/)
+
   const { random: absent } = load('random', win())
+
   assert.equal(absent.supported, false)
   assert.throws(() => absent.bytes(1), /no OS CSPRNG/)
   assert.equal(absent.bytes(0).length, 0)
@@ -120,6 +135,7 @@ test('Windows app settings require package identity and preserve the launcher ou
   const Windows = {
     ApplicationModel: { Package: { Current: { Id: { FamilyName: 'sample_123' } } } },
   }
+
   const { openSettings, openUrl } = load('open-url', {
     ...win(Windows),
     '@nativescript/core': {
@@ -131,6 +147,7 @@ test('Windows app settings require package identity and preserve the launcher ou
       },
     },
   })
+
   assert.equal(await openSettings.isAvailable(), true)
   assert.equal(openSettings.open(), true)
   assert.equal(urls[0], 'ms-settings:appsfeatures-app?PFN=sample_123')
@@ -142,6 +159,7 @@ test('Windows app settings require package identity and preserve the launcher ou
       throw new Error('unpackaged')
     },
   })
+
   assert.equal(openSettings.supported, false)
   assert.equal(await openSettings.isAvailable(), false)
   assert.equal(openSettings.open(), false)
@@ -152,6 +170,7 @@ test('Windows auth does not load Android and rejects with the capability error',
   const { authSession } = load('auth-session', {
     '@octane-xplat/lib/capability': { UnavailabilityError },
   })
+
   assert.equal(authSession.supported, false)
   assert.equal(await authSession.isAvailable(), false)
   await assert.rejects(
@@ -173,6 +192,7 @@ test('Windows device identity stays Windows regardless of the core OS label', ()
       },
     },
   })
+
   assert.equal(device.os, 'windows')
   assert.equal(device.osVersion, '11')
   assert.equal(device.language, 'en')
@@ -187,6 +207,7 @@ test('Windows preferences retain string semantics without claiming a blocking du
       files.set(path, String(text))
     },
   })
+
   const { storage } = load('storage', {
     '@nativescript/core': {
       File: {
@@ -197,6 +218,7 @@ test('Windows preferences retain string semantics without claiming a blocking du
       path: { join: (...parts) => parts.join('/') },
     },
   })
+
   await new Promise((resolve) => setImmediate(resolve))
   assert.equal(storage.getString('missing'), null)
   storage.setString('draft', '')

@@ -13,6 +13,7 @@ import {
 } from './typeahead-layer.macos'
 
 import { cx } from '@octane-xplat/lib'
+
 interface Props {
   anchor: PopoverAnchorRef
   input(): NSView | null
@@ -65,7 +66,9 @@ export function TypeaheadResults(props: Props): unknown @{
     dark = useThemeScheme() === 'dark'
 
   const live = useRef({ props, direction })
+
   live.current = { props, direction }
+
   const [target, setTarget] = useState<TypeaheadLayerTarget | null>(null)
   const [size, setSize] = useState<TypeaheadLayerSize>({ width: 240, maxHeight: 320 })
   const dismissal = useLayerDismissal({
@@ -81,6 +84,7 @@ export function TypeaheadResults(props: Props): unknown @{
       createAppKitTypeaheadLayer({
         state: () => {
           const { props, direction } = live.current
+
           return {
             open: props.open,
             anchor: props.anchor.current,

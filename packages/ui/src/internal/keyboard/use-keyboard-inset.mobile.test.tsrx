@@ -10,6 +10,7 @@ import {
 import { useKeyboardInset } from './use-keyboard-inset.tsrx'
 
 const subscriptions = vi.hoisted(() => new Set<(value: number) => void>())
+
 vi.mock('./keyboard-inset', () => ({
   subscribeKeyboardInset: (listener: (value: number) => void) => {
     subscriptions.add(listener)
@@ -20,6 +21,7 @@ vi.mock('./keyboard-inset', () => ({
 
 function Reader(props: { values: number[]; enabled?: boolean }) @{
   const inset = useKeyboardInset({ enabled: props.enabled })
+
   props.values.push(inset)
 
   <label text={String(inset)} />
@@ -72,6 +74,7 @@ it('disabled readers remain unsubscribed and release an enabled subscription whe
   )
 
   const values: number[] = []
+
   try {
     root.render(Reader as any, { values, enabled: false })
     flushUniversalSync(() => {})

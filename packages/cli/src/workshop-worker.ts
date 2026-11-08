@@ -8,9 +8,11 @@ import { pathToFileURL } from 'node:url'
 
 function workshopEntry(project: string): string {
   const require = createRequire(join(project, 'package.json'))
+
   for (let at = project; ; at = dirname(at)) {
     const candidate = join(at, 'node_modules/@octane-xplat/workshop')
     let found = false
+
     try {
       lstatSync(candidate)
       found = true
@@ -23,6 +25,7 @@ function workshopEntry(project: string): string {
     if (found) {
       const root = realpathSync(candidate)
       const entry = realpathSync(require.resolve('@octane-xplat/workshop/node'))
+
       if (!entry.startsWith(root + sep) || !statSync(entry).isFile()) {
         throw new Error(
           'Reinstall @octane-xplat/workshop: its Node entry must remain inside the selected package',
@@ -36,6 +39,7 @@ function workshopEntry(project: string): string {
       break
     }
   }
+
   throw new Error(
     'Install @octane-xplat/workshop in the selected project: bun add -D @octane-xplat/workshop',
   )
@@ -48,12 +52,14 @@ export async function workshopInspection(request: Record<string, any>) {
   ) {
     throw new Error('Invalid workshop inspection request')
   }
+
   if (
     request.operation === 'workshop-list' &&
     (typeof request.target !== 'string' || request.target.length > 128)
   ) {
     throw new Error('Expected workshop target string')
   }
+
   const project = realpathSync(process.cwd())
   const api = await import(pathToFileURL(workshopEntry(project)).href)
   const previous = globalThis.console
@@ -65,9 +71,11 @@ export async function workshopInspection(request: Record<string, any>) {
       if (size <= 8 * 1024 * 1024) {
         chunks.push(Buffer.from(chunk))
       }
+
       callback()
     },
   })
+
   globalThis.console = new Console({ stdout: output, stderr: process.stderr })
   try {
     const result =
@@ -87,6 +95,7 @@ export async function workshopInspection(request: Record<string, any>) {
       // diagnostics on stderr without replaying the machine result there.
       const text = Buffer.concat(chunks).toString('utf8')
       const printed = JSON.stringify(resultJSON, null, 2) + '\n'
+
       process.stderr.write(text.endsWith(printed) ? text.slice(0, -printed.length) : text)
     }
 
@@ -129,13 +138,16 @@ export async function workshopInitPlan(request: Record<string, any>) {
   if (typeof request.scripts !== 'boolean') {
     throw new Error('Expected scripts boolean')
   }
+
   const project = realpathSync(process.cwd())
   const api = await import(pathToFileURL(workshopEntry(project)).href)
+
   if (typeof api.planWorkshopInit !== 'function') {
     throw new Error(
       'Update @octane-xplat/workshop in the selected project to provide initialization plan v1',
     )
   }
+
   return api.planWorkshopInit({ cwd: project, scripts: request.scripts })
 }
 
@@ -146,9 +158,11 @@ export async function workshopService(
   resultFile: string,
 ) {
   const project = realpathSync(process.cwd())
+
   if (!['web', 'macos', 'linux', 'ios', 'android', 'windows'].includes(request.target)) {
     throw new Error('Unsupported workshop target')
   }
+
   for (const key of ['story', 'device']) {
     if (
       request[key] !== undefined &&
@@ -157,13 +171,16 @@ export async function workshopService(
       throw new Error(`Invalid workshop ${key}`)
     }
   }
+
   if (
     request.port !== undefined &&
     (!Number.isInteger(request.port) || request.port < 0 || request.port > 65535)
   ) {
     throw new Error('Workshop port must be an integer from 0 to 65535')
   }
+
   const directory = realpathSync(dirname(requestFile))
+
   if (
     dirname(request.serviceStateFile) !== directory ||
     basename(request.serviceStateFile) !== 'service.json' ||
@@ -171,6 +188,7 @@ export async function workshopService(
   ) {
     throw new Error('Invalid native-owned service paths')
   }
+
   if (
     request.profileRoot !== '' &&
     (!request.profileRoot.startsWith(project + sep) ||
@@ -179,8 +197,11 @@ export async function workshopService(
   ) {
     throw new Error('Invalid native-owned compiler profile')
   }
+
   globalThis.console = new Console({ stdout: process.stdout, stderr: process.stderr })
+
   const api = await import(pathToFileURL(workshopEntry(project)).href)
+
   if (api.WORKSHOP_DEV_LIFECYCLE_VERSION !== 1) {
     throw new Error(
       'Update @octane-xplat/workshop in the selected project to provide development lifecycle v1',
@@ -194,6 +215,7 @@ export async function workshopService(
     target: request.target,
     state: 'accepted',
   }
+
   writeFileSync(
     resultFile,
     JSON.stringify({
@@ -205,6 +227,7 @@ export async function workshopService(
       warnings: [],
     }),
   )
+
   await api.workshopDev({
     cwd: project,
     target: request.target,
@@ -225,13 +248,16 @@ export async function workshopService(
         pid,
         url,
       })
+
       if (Buffer.byteLength(value) > 65536) {
         throw new Error('Service startup evidence exceeds 64 KiB')
       }
+
       writeFileSync(request.serviceStateFile + '.next', value, { mode: 0o600 })
       renameSync(request.serviceStateFile + '.next', request.serviceStateFile)
     },
   })
+
   return data
 }
 
@@ -244,16 +270,20 @@ export async function workshopBuildOperation(request: Record<string, unknown>) {
   ) {
     throw new Error('Invalid Workshop build request')
   }
+
   const project = realpathSync(process.cwd())
   const api = await import(pathToFileURL(workshopEntry(project)).href)
+
   if (typeof api.workshopBuild !== 'function') {
     throw new Error('Update @octane-xplat/workshop to build static previews')
   }
+
   const result = await api.workshopBuild({
     cwd: project,
     target: 'web',
     outDir: request.outDir,
     base: request.base,
   })
+
   return { version: 1, project, operation: 'workshop-build', ...result }
 }

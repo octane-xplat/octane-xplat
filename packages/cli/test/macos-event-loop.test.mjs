@@ -85,6 +85,7 @@ test(
   { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
   async (t) => {
     const dir = mkdtempSync(join(tmpdir(), 'xplat-event-loop-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
 
     const requests = []
@@ -93,14 +94,19 @@ test(
       res.writeHead(200, { 'content-type': 'text/plain' })
       res.end('ok')
     })
+
     await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
     t.after(() => server.close())
+
     const port = server.address().port
 
     const script = join(dir, 'fixture.cjs')
+
     writeFileSync(script, fixture.replace('__PORT__', String(port)))
+
     // The shipped shim is the bootstrap the packaged/dev host runs.
     const bootstrap = join(dir, 'bootstrap.js')
+
     writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
     // The rebuild output directory carries host + framework but not metadata;
@@ -122,24 +128,31 @@ test(
       ],
       { stdio: ['ignore', 'ignore', 'pipe'] },
     )
+
     let output = ''
+
     child.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     const status = await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         child.kill('SIGKILL')
         resolve('timeout')
       }, 30_000)
+
       child.on('close', (code) => {
         clearTimeout(timeout)
         resolve(code)
       })
     })
+
     assert.equal(status, 0, `host exited ${status}\n${output}`)
 
     const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
+
     assert.ok(marker, `missing probe result marker:\n${output}`)
+
     const delivered = JSON.parse(marker.slice(0, marker.indexOf(' sessionStatus=')))
     const sessionStatus = / sessionStatus=(\S+)/.exec(marker)?.[1]
     const bgQueuePending = Number(/ bgQueuePending=(\S+)/.exec(marker)?.[1])
@@ -163,6 +176,7 @@ test(
       },
       { timer: 1, mainq: 1, bgq: 1, bgq2: 1, session: 1, gasync: 1 },
     )
+
     // The serial queue unwedged: both ops completed instead of op2 parking
     // behind op1's undelivered TSFN call.
     assert.equal(bgQueuePending, 0)

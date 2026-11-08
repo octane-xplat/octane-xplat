@@ -1,7 +1,9 @@
 import { backend } from './backend'
 import { createConverter } from './core'
 import type { ConversionJob, ConvertedVideo, GifConversionOptions, VideoFormat } from './types'
+
 const converter = createConverter(backend)
+
 /** Check the requested output encoder. Actual dimensions and input validity are checked by conversion.
  * @example
  * import { isAvailable } from '@octane-xplat/media-converter'

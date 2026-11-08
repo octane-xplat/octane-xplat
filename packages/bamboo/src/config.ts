@@ -88,6 +88,7 @@ const radii = Object.fromEntries(
 const portableUtilities = Object.fromEntries(
   portableProperties.map((property) => {
     const config = presetBase.utilities[property]
+
     if (!config) {
       throw new Error(
         `@octane-xplat/bamboo: missing portable utility "${property}" in @bamboocss/preset-base`,

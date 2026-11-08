@@ -5,6 +5,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const target = process.argv[2]
+
 if (target !== 'ios' && target !== 'android') {
   throw new Error('Usage: node scripts/bench-virtual-list.ts <ios|android>')
 }
@@ -56,6 +57,7 @@ const restoreMode = () => {
 process.once('exit', restoreMode)
 
 const deviceId = process.env.XPLAT_VLIST_DEVICE
+
 if (!deviceId) {
   throw new Error('Set XPLAT_VLIST_DEVICE')
 }
@@ -102,6 +104,7 @@ const signalRun = (signal) => {
 const stopRun = () => {
   if (result || benchmarkError) {
     const appId = process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat.vlistbench'
+
     try {
       if (target === 'ios') {
         execFileSync('xcrun', ['simctl', 'terminate', deviceId, appId], {
@@ -138,13 +141,17 @@ const timeout = setTimeout(() => {
 
 const consume = (chunk) => {
   const text = String(chunk)
+
   process.stderr.write(text)
   outputTail = (outputTail + text).slice(-12_000)
   partialLine += text
+
   const lines = partialLine.split(/\r?\n/)
+
   partialLine = lines.pop() ?? ''
   for (const line of lines) {
     const errorAt = line.indexOf(errorMarker)
+
     if (errorAt !== -1) {
       benchmarkError = line.slice(errorAt + errorMarker.length)
       clearTimeout(timeout)
@@ -153,6 +160,7 @@ const consume = (chunk) => {
     }
 
     const at = line.indexOf(marker)
+
     if (at === -1) {
       continue
     }

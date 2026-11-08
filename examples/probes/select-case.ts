@@ -18,12 +18,14 @@ function readText(view: any): string {
   }
 
   let text = ''
+
   view.eachChildView?.((child: any) => {
     text += readText(child)
     return true
   })
 
   const children = view.subviews
+
   if (children) {
     for (let index = 0; index < children.count; index++) {
       text += readText(children.objectAtIndex(index))
@@ -36,10 +38,13 @@ function readText(view: any): string {
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('select-single'))
   ctx.assert('initial single value', readText(ctx.find('select-value')), 'apple')
+
   let popup: any
+
   if (ctx.target === 'macos') {
     const bridge = (globalThis as any).__xplatAppKit
     const show = bridge.showAnchoredPopup
+
     bridge.showAnchoredPopup = (options: any) => {
       popup = show(options)
       return popup
@@ -51,6 +56,7 @@ export async function run(ctx: ProbeContext) {
   }
 
   await ctx.press('select-single')
+
   const findOption = () =>
     ctx.target === 'web'
       ? (ctx.host as any).ownerDocument.querySelector('[role="option"]')
@@ -81,6 +87,7 @@ export async function run(ctx: ProbeContext) {
     if (ctx.target === 'web') {
       const rows = (ctx.host as any).ownerDocument.querySelectorAll('[role="option"]')
       const banana = Array.from(rows).find((row: any) => row.textContent.includes('Banana')) as any
+
       banana?.click()
     } else {
       await ctx.press('select-single-option-banana')
@@ -91,6 +98,7 @@ export async function run(ctx: ProbeContext) {
     await ctx.waitFor(() => !findOption())
     await ctx.press('select-multiple')
     ctx.record('multiPressed', true)
+
     const find = (id: string) =>
       ctx.target === 'web' ? (ctx.host as any).ownerDocument.getElementById(id) : ctx.find(id)
 
@@ -98,6 +106,7 @@ export async function run(ctx: ProbeContext) {
     ctx.record('multiSearchMounted', true)
     if (ctx.target === 'web') {
       const input = find('select-multiple-search')
+
       input.value = 'apple'
       input.dispatchEvent(new input.ownerDocument.defaultView.Event('input', { bubbles: true }))
     } else {

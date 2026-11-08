@@ -8,5 +8,6 @@ export const nativeMotion = {
 /** iOS Core Animation exposes the presented values on the target's layer. */
 export function sampleViewMotion(view: any) {
   const layer = view.nativeViewProtected.layer
+
   return { opacity: Number(layer.opacity), translateX: Number(layer.transform.m41) }
 }

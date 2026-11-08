@@ -53,6 +53,7 @@ export const openDatabase = async (
   _options?: OpenDatabaseOptions,
 ): Promise<SqliteDb> => {
   const db = openOrCreate(resolvePath(name))
+
   // The plugin opens on its own thread and reports failure through `ready`;
   // a request submitted before it settles reaches an unset native handle.
   // Await it so a resolved handle is open and an open failure rejects here.

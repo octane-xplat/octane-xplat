@@ -14,6 +14,7 @@ const outputs = (d) => [...d.disk.keys()].filter((path) => path.startsWith('/tem
 
 test('macOS cancellation returns null/[] and allocates no output or source access', async () => {
   const d = driver()
+
   d.selections.push({ cancel: true }, { cancel: true })
   assert.equal(await d.media.pickImage(), null)
   assert.deepEqual(copy(await d.media.pickImages()), [])
@@ -24,6 +25,7 @@ test('macOS cancellation returns null/[] and allocates no output or source acces
 
 test('macOS empty successful panels return null/[]', async () => {
   const d = driver()
+
   d.selections.push({ urls: [] }, { urls: [] })
   assert.equal(await d.media.pickImage(), null)
   assert.deepEqual(copy(await d.media.pickImages()), [])
@@ -33,8 +35,11 @@ test('macOS empty successful panels return null/[]', async () => {
 test('single selection returns a readable app-owned JPEG before source release', async () => {
   const d = driver()
   const selected = d.source('my holiday.heic')
+
   d.selections.push({ urls: [selected] })
+
   const result = await d.media.pickImage()
+
   assert.deepEqual(copy(result), {
     name: 'my holiday.heic',
     uri: '/temp/octane-image-1.jpg',
@@ -67,7 +72,9 @@ test('multiple selection preserves order, dimensions and each original name', as
   ]
 
   d.selections.push({ urls: selected })
+
   const results = await d.media.pickImages()
+
   assert.deepEqual(copy(results.map((r) => r.name)), ['portrait.png', 'wide.jpg'])
   assert.deepEqual(copy(results.map((r) => [d.disk.get(r.uri).width, d.disk.get(r.uri).height])), [
     [640, 960],
@@ -86,6 +93,7 @@ test('multiple selection preserves order, dimensions and each original name', as
 test('repeated selections use distinct outputs; cancellation and failed later batches preserve prior picks', async () => {
   const d = driver()
   const selected = d.source()
+
   d.selections.push(
     { urls: [selected] },
     { urls: [selected] },
@@ -95,6 +103,7 @@ test('repeated selections use distinct outputs; cancellation and failed later ba
 
   const first = await d.media.pickImage()
   const second = await d.media.pickImage()
+
   assert.notEqual(first.uri, second.uri)
   assert.equal(await d.media.pickImage(), null)
   await assert.rejects(d.media.pickImages(), /Could not decode/)
@@ -115,6 +124,7 @@ for (const [name, properties, error] of [
   test(`macOS ${name} rejects, releases source access and leaves originals intact`, async () => {
     const d = driver()
     const selected = d.source('bad.png', properties)
+
     d.selections.push({ urls: [selected] })
     await assert.rejects(d.media.pickImage(), error)
     assert.deepEqual(outputs(d), [])
@@ -132,6 +142,7 @@ for (const [name, options, error] of [
   test(`macOS ${name} cleans every output in the failed batch`, async () => {
     const d = driver(options)
     const selected = [d.source('first.png'), d.source('second.png')]
+
     d.selections.push({ urls: selected })
     await assert.rejects(d.media.pickImages(), error)
     assert.deepEqual(outputs(d), [])
@@ -142,8 +153,11 @@ for (const [name, options, error] of [
 
 test('macOS unscoped file URLs are readable without an unmatched stop call', async () => {
   const d = driver()
+
   d.selections.push({ urls: [d.source('direct.png', { scoped: false })] })
+
   const result = await d.media.pickImage()
+
   assert.ok(result)
   assert.equal(
     d.events.some(([event]) => event === 'stop'),
@@ -156,6 +170,7 @@ test('macOS unscoped file URLs are readable without an unmatched stop call', asy
 test('macOS path collision never overwrites or deletes existing output', async () => {
   const d = driver()
   const existing = { marker: 'unrelated' }
+
   d.disk.set('/temp/octane-image-1.jpg', existing)
   d.selections.push({ urls: [d.source()] })
   await assert.rejects(d.media.pickImage(), /already exists/)
@@ -168,6 +183,7 @@ test('macOS path collision never overwrites or deletes existing output', async (
 
 test('macOS cleanup failures are reported and all batch outputs are attempted', async () => {
   const d = driver({ writeFailure: 2, cleanupFailure: true })
+
   d.selections.push({ urls: [d.source('first.png'), d.source('second.png')] })
   await assert.rejects(d.media.pickImages(), (error) => {
     assert.match(error.message, /temporary cleanup failed/)
@@ -182,10 +198,13 @@ test('macOS cleanup failures are reported and all batch outputs are attempted', 
 test('files.release never removes an unregistered original and retains ownership on deletion failure', async () => {
   const d = driver({ cleanupFailure: true })
   const original = d.source()
+
   d.files.release({ name: original.lastPathComponent, uri: original.path })
   assert.ok(d.disk.has(original.path))
   d.selections.push({ urls: [original] })
+
   const result = await d.media.pickImage()
+
   // Best-effort cleanup: a failed delete stays registered for a later retry
   // instead of throwing from a void cleanup API.
   assert.doesNotThrow(() => d.files.release(result))
@@ -195,6 +214,7 @@ test('files.release never removes an unregistered original and retains ownership
 
 test('macOS public import remains safe without AppKit; picker reports unavailable', async () => {
   const d = driver()
+
   delete d.host.NSOpenPanel
   await assert.rejects(d.media.pickImage(), /NSOpenPanel is unavailable/)
   assert.equal(await d.media.capturePhoto(), null)

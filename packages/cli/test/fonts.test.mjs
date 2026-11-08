@@ -28,6 +28,7 @@ const INTER_WOFF2 = new URL('./fixtures/inter-latin-wght-normal.woff2', import.m
 
 function makeApp() {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-fonts-'))
+
   writeFileSync(join(dir, 'package.json'), '{}')
   mkdirSync(join(dir, 'src'))
   writeFileSync(
@@ -48,9 +49,11 @@ function makeStatic(ttf) {
   const numTables = ttf.readUInt16BE(4)
   const drop = new Set(['fvar', 'gvar', 'HVAR', 'MVAR', 'STAT', 'avar'])
   const tables = []
+
   for (let i = 0; i < numTables; i++) {
     const rec = 12 + i * 16
     const tag = ttf.toString('latin1', rec, rec + 4)
+
     if (!drop.has(tag)) {
       tables.push({
         tag,
@@ -73,9 +76,12 @@ function makeStatic(ttf) {
   out.writeUInt16BE(maxPow2 * 16, 6)
   out.writeUInt16BE(Math.log2(maxPow2), 8)
   out.writeUInt16BE(n * 16 - maxPow2 * 16, 10)
+
   let cursor = 12 + n * 16
+
   tables.forEach((t, i) => {
     const rec = 12 + i * 16
+
     out.write(t.tag, rec, 'latin1')
     out.writeUInt32BE(cursor, rec + 8)
     out.writeUInt32BE(t.data.length, rec + 12)
@@ -91,6 +97,7 @@ function ttfToWoff(ttf) {
   const flavor = ttf.readUInt32BE(0)
   const numTables = ttf.readUInt16BE(4)
   const entries = []
+
   for (let i = 0; i < numTables; i++) {
     const rec = 12 + i * 16
     const data = ttf.subarray(
@@ -99,6 +106,7 @@ function ttfToWoff(ttf) {
     )
 
     const packed = deflateSync(Buffer.from(data))
+
     entries.push({
       tag: ttf.toString('latin1', rec, rec + 4),
       checkSum: ttf.readUInt32BE(rec + 4),
@@ -121,6 +129,7 @@ function ttfToWoff(ttf) {
   out.writeUInt32BE(0, 40)
   entries.forEach((e, i) => {
     const rec = 44 + i * 20
+
     out.write(e.tag, rec, 'latin1')
     out.writeUInt32BE(cursor, rec + 4)
     out.writeUInt32BE(e.packed.length, rec + 8)
@@ -135,6 +144,7 @@ function ttfToWoff(ttf) {
 
 function makeFontsourcePackage(appDir, spec, files, cssFamily, { variable = false } = {}) {
   const pkgDir = join(appDir, 'node_modules', spec)
+
   mkdirSync(join(pkgDir, 'files'), { recursive: true })
   writeFileSync(
     join(pkgDir, 'package.json'),
@@ -142,15 +152,18 @@ function makeFontsourcePackage(appDir, spec, files, cssFamily, { variable = fals
   )
 
   const source = variable ? readFileSync(GEIST) : makeStatic(readFileSync(GEIST))
+
   for (const f of files) {
     writeFileSync(join(pkgDir, 'files', f), ttfToWoff(source))
   }
 
   // Stand-in for the package's per-weight css so the family name is read.
   const css = `@font-face {\n\tfont-family: '${cssFamily}';\n\tsrc: url(./files/x.woff2) format('woff2');\n}\n`
+
   for (const f of files) {
     const stem = f.replace(/\.(woff2?|ttf)$/, '')
     const weight = stem.match(/-(\d+)-normal$/)?.[1]
+
     writeFileSync(join(pkgDir, `${weight ? `latin-${weight}` : 'wght'}.css`), css)
   }
 }
@@ -158,6 +171,7 @@ function makeFontsourcePackage(appDir, spec, files, cssFamily, { variable = fals
 describe('readFontInfo', () => {
   it('reads family, PostScript name, and wght range from a variable font', () => {
     const info = readFontInfo(GEIST)
+
     assert.equal(info.family, 'Geist')
     assert.equal(info.postscript, 'Geist-Regular')
     assert.deepEqual(info.wght, { min: 100, max: 900 })
@@ -167,6 +181,7 @@ describe('readFontInfo', () => {
   it('does not mutate the parsed buffer', () => {
     const buf = readFileSync(GEIST)
     const pristine = Buffer.from(buf)
+
     parseFontBuffer(buf)
     assert.ok(buf.equals(pristine))
   })
@@ -176,6 +191,7 @@ describe('woffToSfnt', () => {
   it('round-trips a woff back to a parseable sfnt', () => {
     const woff = ttfToWoff(readFileSync(GEIST))
     const info = parseFontBuffer(woffToSfnt(woff))
+
     assert.equal(info.family, 'Geist')
     assert.deepEqual(info.wght, { min: 100, max: 900 })
   })
@@ -184,6 +200,7 @@ describe('woffToSfnt', () => {
 describe('woff2ToSfnt', () => {
   it('converts a real variable woff2 with names and wght axis intact', async () => {
     const info = parseFontBuffer(await woff2ToSfnt(readFileSync(INTER_WOFF2)))
+
     assert.equal(info.family, 'Inter')
     assert.equal(info.postscript, 'Inter-Regular')
     assert.deepEqual(info.wght, { min: 100, max: 900 })
@@ -193,22 +210,27 @@ describe('woff2ToSfnt', () => {
 describe('addFontInputs', () => {
   it('copies the file and wires web + native registration', async () => {
     const dir = makeApp()
+
     try {
       const report = await addFontInputs(dir, [GEIST], {})
+
       assert.equal(report.error, undefined)
 
       assert.ok(existsSync(join(dir, 'src/fonts/Geist-Variable.ttf')))
 
       const fontsCss = readFileSync(join(dir, 'src/fonts.css'), 'utf8')
+
       assert.match(fontsCss, /font-family: 'Geist'/)
       assert.match(fontsCss, /src: url\('\.\/fonts\/Geist-Variable\.ttf'\)/)
       assert.match(fontsCss, /font-weight: 100 900/)
       assert.match(fontsCss, /font-display: swap/)
 
       const entry = readFileSync(join(dir, 'src/main.web.tsrx'), 'utf8')
+
       assert.match(entry, /import '\.\/fonts\.css';/)
 
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.match(
         style,
         /--font-sans: 'Geist', 'Geist-Regular', 'Geist-Variable', system-ui, sans-serif/,
@@ -227,14 +249,20 @@ describe('addFontInputs', () => {
 
   it('is idempotent on rerun', async () => {
     const dir = makeApp()
+
     try {
       await addFontInputs(dir, [GEIST], {})
+
       const report = await addFontInputs(dir, [GEIST], {})
+
       assert.equal(report.error, undefined)
 
       const fontsCss = readFileSync(join(dir, 'src/fonts.css'), 'utf8')
+
       assert.equal(fontsCss.match(/^@font-face/gm).length, 1)
+
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.equal(style.match(/xplat-fonts:sans:start/g).length, 1)
       assert.match(style, /'Geist-Variable'/)
     } finally {
@@ -244,14 +272,20 @@ describe('addFontInputs', () => {
 
   it('merges a second add into the existing token block', async () => {
     const dir = makeApp()
+
     try {
       const alt = join(dir, 'GeistAlt.ttf')
+
       copyFileSync(GEIST, alt)
       await addFontInputs(dir, [GEIST], {})
       await addFontInputs(dir, [alt], {})
+
       const fontsCss = readFileSync(join(dir, 'src/fonts.css'), 'utf8')
+
       assert.equal(fontsCss.match(/^@font-face/gm).length, 2)
+
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.equal(style.match(/xplat-fonts:sans:start/g).length, 1)
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -260,10 +294,14 @@ describe('addFontInputs', () => {
 
   it('--token mono wires --font-mono without touching body', async () => {
     const dir = makeApp()
+
     try {
       const report = await addFontInputs(dir, [GEIST], { token: 'mono' })
+
       assert.equal(report.error, undefined)
+
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.match(style, /--font-mono: 'Geist'/)
       assert.ok(!/body \{\n\tfont-family: var\(--font-mono/.test(style))
     } finally {
@@ -273,8 +311,10 @@ describe('addFontInputs', () => {
 
   it('--token none skips style.css', async () => {
     const dir = makeApp()
+
     try {
       const report = await addFontInputs(dir, [GEIST], { token: 'none' })
+
       assert.equal(report.error, undefined)
       assert.ok(!readFileSync(join(dir, 'src/style.css'), 'utf8').includes('xplat-fonts'))
     } finally {
@@ -284,10 +324,14 @@ describe('addFontInputs', () => {
 
   it('rejects unconvertible formats', async () => {
     const dir = makeApp()
+
     try {
       const eot = join(dir, 'fake.eot')
+
       writeFileSync(eot, 'LP')
+
       const report = await addFontInputs(dir, [eot], {})
+
       assert.match(report.error, /ttf, \.otf, \.woff, or \.woff2/)
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -296,10 +340,14 @@ describe('addFontInputs', () => {
 
   it('converts a .woff file to ttf', async () => {
     const dir = makeApp()
+
     try {
       const woff = join(dir, 'geist.woff')
+
       writeFileSync(woff, ttfToWoff(readFileSync(GEIST)))
+
       const report = await addFontInputs(dir, [woff], {})
+
       assert.equal(report.error, undefined)
       assert.ok(existsSync(join(dir, 'src/fonts/geist.ttf')))
     } finally {
@@ -309,15 +357,22 @@ describe('addFontInputs', () => {
 
   it('converts a .woff2 file to ttf and registers usable names', async () => {
     const dir = makeApp()
+
     try {
       const woff2 = join(dir, 'inter.woff2')
+
       copyFileSync(INTER_WOFF2, woff2)
+
       const report = await addFontInputs(dir, [woff2], {})
+
       assert.equal(report.error, undefined)
 
       const staged = join(dir, 'src/fonts/inter.ttf')
+
       assert.ok(existsSync(staged))
+
       const info = parseFontBuffer(readFileSync(staged))
+
       assert.equal(info.family, 'Inter')
       assert.equal(info.postscript, 'Inter-Regular')
       assert.deepEqual(info.wght, { min: 100, max: 900 })
@@ -328,8 +383,10 @@ describe('addFontInputs', () => {
 
   it('fails without a package.json', async () => {
     const dir = mkdtempSync(join(tmpdir(), 'xplat-fonts-empty-'))
+
     try {
       const report = await addFontInputs(dir, [GEIST], {})
+
       assert.match(report.error, /no package\.json/)
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -338,6 +395,7 @@ describe('addFontInputs', () => {
 
   it('registers a static Fontsource package: files, imports, and weight rules', async () => {
     const dir = makeApp()
+
     try {
       makeFontsourcePackage(
         dir,
@@ -347,16 +405,19 @@ describe('addFontInputs', () => {
       )
 
       const report = await addFontInputs(dir, ['@fontsource/testfont'], {})
+
       assert.equal(report.error, undefined)
 
       assert.ok(existsSync(join(dir, 'src/fonts/Geist-Regular.ttf')))
 
       const fontsCss = readFileSync(join(dir, 'src/fonts.css'), 'utf8')
+
       assert.match(fontsCss, /@import '@fontsource\/testfont\/latin-400\.css';/)
       assert.match(fontsCss, /@import '@fontsource\/testfont\/latin-700\.css';/)
       assert.ok(!/^@font-face/m.test(fontsCss))
 
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.match(style, /--font-sans: 'Testfont'/)
       // Both files carry Geist internals → one staged file name; the manifest
       // still records both weight entries for Android's per-weight rules.
@@ -368,6 +429,7 @@ describe('addFontInputs', () => {
 
   it('registers a variable Fontsource package via the wght face', async () => {
     const dir = makeApp()
+
     try {
       makeFontsourcePackage(
         dir,
@@ -378,11 +440,15 @@ describe('addFontInputs', () => {
       )
 
       const report = await addFontInputs(dir, ['@fontsource-variable/testvar'], {})
+
       assert.equal(report.error, undefined)
 
       const fontsCss = readFileSync(join(dir, 'src/fonts.css'), 'utf8')
+
       assert.match(fontsCss, /@import '@fontsource-variable\/testvar\/wght\.css';/)
+
       const style = readFileSync(join(dir, 'src/style.css'), 'utf8')
+
       assert.match(style, /--font-sans: 'Testvar Variable', 'Geist', 'Geist-Regular'/)
     } finally {
       rmSync(dir, { recursive: true, force: true })
@@ -391,8 +457,10 @@ describe('addFontInputs', () => {
 
   it('rejects non-Fontsource package specs', async () => {
     const dir = makeApp()
+
     try {
       const report = await addFontInputs(dir, ['@scope/nota-font'], {})
+
       assert.match(report.error, /no such file|unsupported package/)
     } finally {
       rmSync(dir, { recursive: true, force: true })

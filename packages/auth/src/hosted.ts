@@ -42,6 +42,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     ((url, init) => {
       const impl =
         'fetch' in globalThis ? (globalThis.fetch as HostedAuthFetch | undefined) : undefined
+
       if (!impl) {
         return Promise.reject(new Error('hostedAuth: fetch is unavailable on this target'))
       }
@@ -63,19 +64,24 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
   function storageOperation<T>(run: () => T | PromiseLike<T>): Promise<T> {
     const result = storageTail.then(run)
+
     storageTail = result.then(
       () => {},
       () => {},
     )
+
     return result
   }
 
   async function persist(creds: HostedAuthCredentials | null) {
     credentials = creds
+
     const storage = store()
+
     if (!storage) {
       return
     }
+
     try {
       const saved = await storageOperation(() =>
         creds ? storage.set(storageKey, JSON.stringify(creds)) : storage.remove(storageKey),
@@ -95,12 +101,15 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
 
   async function readStoredCredentials(): Promise<HostedAuthCredentials | null> {
     const storage = store()
+
     if (!storage) {
       return null
     }
+
     try {
       const raw = await storageOperation(() => storage.get(storageKey))
       const parsed = raw ? parseCredentials(raw) : null
+
       if (!parsed && raw && credentials === undefined) {
         await storageOperation(() => storage.remove(storageKey))
       }
@@ -114,22 +123,26 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
   async function load(): Promise<HostedAuthCredentials | null> {
     if (credentials === undefined) {
       const restored = await readStoredCredentials()
+
       // A sign-in or sign-out landing mid-read owns the credential slot.
       if (credentials === undefined) {
         credentials = restored
       }
     }
+
     return credentials
   }
 
   async function refresh(): Promise<string | null> {
     const owner = generation
     const creds = await load()
+
     if (owner !== generation || !creds || !config.flow.refresh) {
       return null
     }
 
     const next = await config.flow.refresh(creds, { fetch: transport })
+
     // A signOut or fresh signIn landing mid-refresh owns the credential
     // slot — reconciling `creds` would resurrect or clobber that session.
     if (owner !== generation || credentials !== creds) {
@@ -163,6 +176,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
   async function getAccessToken(): Promise<string | null> {
     const owner = generation
     const creds = await load()
+
     if (owner !== generation || !creds) {
       return null
     }
@@ -183,8 +197,10 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     }
 
     const owner = ++generation
+
     requestGeneration++
     refreshPromise = null
+
     const request = runSignIn(owner)
       .catch((error): HostedAuthSignInResult =>
         owner !== generation
@@ -196,6 +212,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
           signingIn = null
         }
       })
+
     signingIn = request
     return request
   }
@@ -223,6 +240,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     const pkce = { challenge: bytesToBase64Url(sha256(utf8Bytes(verifier))), verifier }
 
     let attempt: HostedAuthAttempt
+
     try {
       attempt = await config.flow.begin({ fetch: transport, pkce })
     } catch (error) {
@@ -234,7 +252,9 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     if (owner !== generation) {
       return { status: 'cancelled' }
     }
+
     const result = await session.open(attempt.url, { callbackScheme: attempt.callbackScheme })
+
     if (owner !== generation || result.type === 'cancel') {
       return { status: 'cancelled' }
     }
@@ -287,9 +307,11 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     const target = url.startsWith('/') ? `${apiOrigin}${url}` : url
     const owner = requestGeneration
     const token = await getAccessToken()
+
     if (owner !== requestGeneration) {
       throw new Error('hostedAuth: request session changed')
     }
+
     const response = await transport(target, token === null ? init : withBearer(init, token))
 
     if (
@@ -300,6 +322,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     }
 
     const refreshed = await refreshedAccessToken()
+
     if (owner !== requestGeneration || refreshed === null) {
       return response
     }
@@ -318,16 +341,21 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
     requestGeneration++
     signingIn = null
     refreshPromise = null
+
     const previous =
       credentials === undefined ? readStoredCredentials() : Promise.resolve(credentials)
+
     // Retire memory synchronously, then remove after earlier durable saves.
     let removalError: unknown
+
     try {
       await persist(null)
     } catch (cause) {
       removalError = cause
     }
+
     const creds = await previous
+
     if (creds && config.flow.revoke) {
       try {
         await config.flow.revoke(creds, { fetch: transport })
@@ -335,6 +363,7 @@ export function createHostedAuth(config: HostedAuthConfig): HostedAuth {
         // Server revocation is best-effort, even if local deletion failed.
       }
     }
+
     if (removalError) {
       throw removalError
     }
@@ -359,6 +388,7 @@ function normalizeOrigin(value: string): string {
   // local development backends. Userinfo never belongs in an apiOrigin.
   const secure = /^https:\/\/[^@\s/?#]+$/u.test(trimmed)
   const loopback = /^http:\/\/(localhost|127\.0\.0\.1|\[::1\])(:\d+)?$/u.test(trimmed)
+
   if (!secure && !loopback) {
     throw new TypeError(
       `hostedAuth: apiOrigin must be an HTTPS origin without path or parameters (loopback HTTP is allowed for local development), got ${JSON.stringify(value)}`,
@@ -384,14 +414,17 @@ export function postJson(
 /** `?name=value` extraction without URLSearchParams (not in the native program). */
 export function queryParam(url: string, name: string): string | null {
   const start = url.indexOf('?')
+
   if (start === -1) {
     return null
   }
 
   const query = url.slice(start + 1).split('#', 1)[0]
+
   for (const pair of query.split('&')) {
     const eq = pair.indexOf('=')
     const key = eq === -1 ? pair : pair.slice(0, eq)
+
     if (key === name) {
       if (eq === -1) {
         return ''
@@ -412,6 +445,7 @@ export function queryParam(url: string, name: string): string | null {
 
 function isCredentials(value: unknown): value is HostedAuthCredentials {
   const creds = value as HostedAuthCredentials | null
+
   return (
     !!creds &&
     typeof creds.token === 'string' &&
@@ -423,6 +457,7 @@ function isCredentials(value: unknown): value is HostedAuthCredentials {
 function parseCredentials(raw: string): HostedAuthCredentials | null {
   try {
     const parsed = JSON.parse(raw) as Partial<HostedAuthCredentials>
+
     if (isCredentials(parsed)) {
       return { expiresAt: parsed.expiresAt, sessionToken: parsed.sessionToken, token: parsed.token }
     }
@@ -443,6 +478,7 @@ function apiPath(url: string, apiOrigin: string): string | null {
   }
 
   let path: string
+
   if (url.startsWith('/')) {
     path = url
   } else if (url.startsWith(apiOrigin + '/') || url === apiOrigin) {
@@ -452,6 +488,7 @@ function apiPath(url: string, apiOrigin: string): string | null {
   }
 
   const end = path.search(/[?#]/u)
+
   return end === -1 ? path : path.slice(0, end)
 }
 
@@ -468,6 +505,7 @@ function defaultAuthorizePath(pathname: string): boolean {
 function withBearer(init: HostedAuthRequestInit | undefined, token: string): HostedAuthRequestInit {
   const headers: Record<string, string> = {}
   const incoming = init?.headers
+
   if (incoming) {
     if (Symbol.iterator in incoming) {
       for (const [name, value] of incoming) {
@@ -498,6 +536,7 @@ function isInvalidAccessTokenChallenge(
   }
 
   const challenge = headers.get('www-authenticate')
+
   return !!challenge && /error\s*=\s*"invalid_token"/iu.test(challenge)
 }
 

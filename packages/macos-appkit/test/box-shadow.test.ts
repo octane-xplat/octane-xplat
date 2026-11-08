@@ -26,9 +26,11 @@ function harness() {
         c.superlayer = this
       },
     }
+
     created.push(l)
     return l
   }
+
   const ctx = {
     BorderCorner: undefined,
     ZERO_RADII: R,
@@ -40,6 +42,7 @@ function harness() {
         existing.inner = { w, h, dx, dy }
         return existing
       }
+
       return { w, h }
     },
     correctProjectionShadows: (_v: any, s: any) => s,
@@ -49,6 +52,7 @@ function harness() {
     borderNSColor: (_n: any, c: any) => ({ CGColor: 'cg:' + c }),
     console,
   }
+
   return { api: runSlice(SLICE, ctx), created }
 }
 
@@ -61,6 +65,7 @@ const makeView = (withSuperlayer = true) => {
       l.superlayer = this
     },
   }
+
   if (withSuperlayer) {
     layer.superlayer = {
       sublayers: [layer] as any[],
@@ -74,6 +79,7 @@ const makeView = (withSuperlayer = true) => {
       },
     }
   }
+
   return {
     frame: { size: { width: 100, height: 40 } },
     bounds: { size: { width: 100, height: 40 } },
@@ -93,16 +99,22 @@ test('multiple outset shadows paint one sibling host each below the view layer',
       { inset: false, dx: 2, dy: 0, blur: 3, spread: 1, color: 'blue' },
     ],
   }
+
   api.syncBoxShadow(node)
+
   const hosts = node.outsetShadowHosts
+
   assert.equal(hosts.length, 2)
+
   const order = view.layer.superlayer.sublayers
+
   assert.equal(
     order.indexOf(hosts[1]) < order.indexOf(hosts[0]) &&
       order.indexOf(hosts[0]) < order.indexOf(view.layer),
     true,
     'first shadow closest to the view',
   )
+
   assert.equal(hosts[0].shadowRadius, 8)
   assert.equal(hosts[0].shadowColor, 'cg:red')
   assert.equal(hosts[1].shadowColor, 'cg:blue')
@@ -122,12 +134,15 @@ test('a superview without a layer is upgraded to host sibling shadows', () => {
       },
     },
   }
+
   view.superview = superview
+
   const node: any = {
     view,
     borderSpec: null,
     boxShadowSpec: [{ inset: false, dx: 0, dy: 1, blur: 2, spread: 0, color: 'red' }],
   }
+
   assert.equal(api.outsetShadowOnSelf(node.boxShadowSpec, view), false)
   api.syncBoxShadow(node)
   assert.equal(superview.wantsLayer, true)
@@ -145,6 +160,7 @@ test('root view fallback paints the shadow on its own layer and keeps clip off',
       { inset: false, dx: 1, dy: 0, blur: 2, spread: 0, color: 'blue' },
     ],
   }
+
   assert.equal(api.outsetShadowOnSelf(node.boxShadowSpec, view), true)
   api.syncBoxShadow(node)
   assert.equal(view.layer.shadowColor, 'cg:red')
@@ -166,11 +182,16 @@ test('inset shadows paint wall-hole shapes carrying their own shadow params', ()
       { inset: true, dx: 0, dy: -2, blur: 4, spread: 0, color: 'blue' },
     ],
   }
+
   api.syncBoxShadow(node)
+
   const host = node.insetShadowHost
+
   assert.ok(host)
   assert.equal(host.superlayer, view.layer)
+
   const shapes = node.insetShadowShapes
+
   assert.equal(shapes.length, 2)
   assert.ok(Number(shapes[0].zPosition) > Number(shapes[1].zPosition), 'first inset on top')
   assert.equal(shapes[0].fillRule, 'even-odd')

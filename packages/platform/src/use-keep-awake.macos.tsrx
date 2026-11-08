@@ -7,6 +7,7 @@ export function useKeepAwake(tag?: string, options?: KeepAwakeOptions): void {
   const id = useId()
   const key = tag ?? id
   const latest = useRef(options)
+
   latest.current = options
   useEffect(() => {
     let active = true
@@ -23,6 +24,7 @@ export function useKeepAwake(tag?: string, options?: KeepAwakeOptions): void {
       }
 
       active = false
+
       const suppressWarnings = latest.current?.suppressDeactivateWarnings
       const report = (ok: boolean) => {
         if (!ok && !suppressWarnings) {

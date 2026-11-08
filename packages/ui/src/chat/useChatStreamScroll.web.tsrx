@@ -21,6 +21,7 @@ function ensureFollowingStyle(): void {
   }
 
   const style = document.createElement('style')
+
   style.setAttribute(FOLLOWING_STYLE_ATTR, '')
   style.textContent = `[${FOLLOWING_ATTR}]{overflow-anchor:none !important}`
   document.head.appendChild(style)
@@ -73,6 +74,7 @@ export function useChatStreamScroll({
 
   const animate = useCallback(() => {
     const el = scrollRef.current as HTMLElement
+
     if (!el || !lockedRef.current) {
       animatingRef.current = false
       lastTickRef.current = undefined
@@ -90,6 +92,7 @@ export function useChatStreamScroll({
     const target = el.scrollHeight - el.clientHeight
     const position = positionRef.current ?? el.scrollTop
     const diff = target - position
+
     if (Math.abs(diff) < 0.5 && Math.abs(velocityRef.current) < 0.1) {
       el.scrollTop = target
       animatingRef.current = false
@@ -100,6 +103,7 @@ export function useChatStreamScroll({
 
     const now = performance.now()
     const tickDelta = lastTickRef.current ? (now - lastTickRef.current) / SIXTY_FPS_MS : 1
+
     lastTickRef.current = now
 
     velocityRef.current = (damping * velocityRef.current + stiffness * diff) / mass
@@ -111,6 +115,7 @@ export function useChatStreamScroll({
 
   const jumpToBottom = useCallback(() => {
     const el = scrollRef.current as HTMLElement
+
     if (!el) {
       return
     }
@@ -160,6 +165,7 @@ export function useChatStreamScroll({
   const scrollToMessage = useCallback(
     (el: any) => {
       const container = scrollRef.current as HTMLElement | null | undefined
+
       if (!container) {
         return
       }
@@ -167,6 +173,7 @@ export function useChatStreamScroll({
       const containerRect = container.getBoundingClientRect()
       const elRect = el.getBoundingClientRect()
       const offset = elRect.top - containerRect.top + container.scrollTop
+
       container.scrollTo({ top: offset, behavior: 'instant' as ScrollBehavior })
       lastScrollTopRef.current = container.scrollTop
     },
@@ -175,12 +182,14 @@ export function useChatStreamScroll({
 
   const scrollToLastMessage = useCallback(() => {
     const container = scrollRef.current as HTMLElement | null | undefined
+
     if (!container) {
       return
     }
 
     const messages = container.getElementsByClassName('vx-chatmsg')
     const last = messages[messages.length - 1]
+
     if (last) {
       scrollToMessage(last)
     }
@@ -203,6 +212,7 @@ export function useChatStreamScroll({
     }
 
     const el = scrollRef.current as HTMLElement
+
     // First fill jumps — later growth springs.
     if (initialFillPendingRef.current && el && el.scrollHeight > el.clientHeight) {
       initialFillPendingRef.current = false
@@ -215,6 +225,7 @@ export function useChatStreamScroll({
 
   useEffect(() => {
     const el = scrollRef.current as HTMLElement
+
     if (!el || !enabled) {
       return
     }
@@ -226,10 +237,15 @@ export function useChatStreamScroll({
     const onScroll = () => {
       const { scrollTop, scrollHeight, offsetHeight } = el
       const dist = scrollHeight - scrollTop - offsetHeight
+
       setIsScrolledUp(dist > buttonThreshold)
+
       const isScrollingUp = scrollTop < lastScrollTopRef.current
+
       lastScrollTopRef.current = scrollTop
+
       const landedAtBottom = scrollHeight - scrollTop - el.clientHeight < 1
+
       if (isScrollingUp && !landedAtBottom && lockedRef.current) {
         setLocked(false)
         animatingRef.current = false
@@ -238,6 +254,7 @@ export function useChatStreamScroll({
 
     const onScrollEnd = () => {
       const dist = el.scrollHeight - el.scrollTop - el.offsetHeight
+
       if (chatAtEnd(el.scrollTop, Math.max(0, el.scrollHeight - el.clientHeight), lockThreshold)) {
         setLocked(true)
       }

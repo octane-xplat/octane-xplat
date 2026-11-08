@@ -19,6 +19,7 @@ export function controlEntries<T>(controls: Record<string, T | undefined> = {}):
 
 export function isUnsettable(definition: StoryDefinition<any, any, any>, key: string): boolean {
   const control: { allowUnset?: boolean } | undefined = definition.controls?.[key]
+
   if (!control) {
     return false
   }
@@ -35,11 +36,13 @@ export function freshArgs(args: Record<string, unknown>): Record<string, unknown
 
     if (value !== null && typeof value === 'object') {
       const proto = Object.getPrototypeOf(value)
+
       if (proto !== Object.prototype && proto !== null) {
         return value // class instances / stores: pass through, do not clone
       }
 
       const out: Record<string, unknown> = {}
+
       for (const [k, v] of Object.entries(value)) {
         out[k] = clone(v)
       }
@@ -78,6 +81,7 @@ export function applyControlInput(
   }
 
   const next = { ...currentProps }
+
   if (raw === UNSET) {
     if (!isUnsettable(definition, key)) {
       return { error: { message: `"${key}" is a required prop and cannot be unset` } }
@@ -154,6 +158,7 @@ export function reconcileProps(
   next: Record<string, unknown>,
 ): Record<string, unknown> {
   const merged: Record<string, unknown> = { ...next }
+
   for (const key of Object.keys(previous)) {
     if (!(key in next)) {
       merged[key] = undefined

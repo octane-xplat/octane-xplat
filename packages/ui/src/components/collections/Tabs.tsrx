@@ -13,6 +13,7 @@ export type { TabSpec } from '../../props'
 export function Tabs(props: TabsProps): any {
   const selection = useRouteTabsSelection(props)
   const idPrefix = props.id ?? selection.panelId
+
   // Reflow exposes synthetic @for key type errors; see .agents/docs/toolchain.md.
   // prettier-ignore
   return <>

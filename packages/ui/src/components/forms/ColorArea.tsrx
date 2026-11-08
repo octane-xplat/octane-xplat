@@ -35,6 +35,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   })
 
   adjustRef.current = adjust
+
   const bindHost = useCallback((el: any) => {
     host.current = el
     measure.ref(el)
@@ -49,6 +50,7 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   // the first layoutChanged arrives.
   const targetSize = () => {
     const size = lastTarget.current?.getActualSize?.()
+
     return size && size.width > 0 ? size : measure.bounds
   }
 

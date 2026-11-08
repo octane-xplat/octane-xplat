@@ -7,6 +7,7 @@ import ts from 'typescript-classic'
 async function load(name, globals) {
   const source = await readFile(new URL(`../src/${name}.ts`, import.meta.url), 'utf8')
   const exports = {}
+
   vm.runInNewContext(
     ts.transpile(source, { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }),
     { exports, ...globals },
@@ -38,6 +39,7 @@ test('web failed batch and capture ref creation revoke the allocated object URLs
   })
 
   let pending = media.pickImages()
+
   input.files = [{ name: 'one.jpg' }, { name: 'two.jpg', bad: true }]
   input.onchange()
   await assert.rejects(pending)

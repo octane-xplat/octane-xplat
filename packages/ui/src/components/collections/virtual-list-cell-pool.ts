@@ -50,6 +50,7 @@ export class VirtualListCellPool<T> {
       }
 
       const cell = cells[index]
+
       if (cell.entry !== entry) {
         // Immutable snapshots let renderer caches see assignment/index changes.
         cells[index] = { ...cell, entry, rows: [entry], generation: cell.generation + 1 }
@@ -57,6 +58,7 @@ export class VirtualListCellPool<T> {
     }
 
     let spare = 0
+
     cells = cells.filter((cell) => cell.entry || spare++ < 8)
     cells.sort((a, b) => (a.entry?.index ?? Infinity) - (b.entry?.index ?? Infinity) || a.id - b.id)
     this.cells = cells
@@ -70,6 +72,7 @@ export class VirtualListCellPool<T> {
 
   isCurrent(id: number, rowKey: string, generation: number): boolean {
     const cell = this.byId.get(id)
+
     return cell?.entry?.rowKey === rowKey && cell.generation === generation
   }
 

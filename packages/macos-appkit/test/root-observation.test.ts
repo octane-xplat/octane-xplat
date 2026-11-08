@@ -24,12 +24,15 @@ const hooks = registerHooks({
     if (specifier === '@octane-xplat/platform/macos') {
       return { url, shortCircuit: true }
     }
+
     if (specifier.startsWith('.') && context.parentURL) {
       const candidate = new URL(specifier + '.ts', context.parentURL)
+
       if (existsSync(candidate)) {
         return next(candidate.href, context)
       }
     }
+
     return next(specifier, context)
   },
 })
@@ -39,6 +42,7 @@ const { createRoots } = await import('../src/roots.ts')
 const { createStyleEnvironment } = await import('../src/style-environment.ts')
 const { createAutomation } = await import('../src/automation.ts')
 const { registrations } = await import(url)
+
 hooks.deregister()
 
 function fixture() {
@@ -55,6 +59,7 @@ function fixture() {
       },
     },
   })
+
   return { directory: directory.reader, roots }
 }
 
@@ -71,8 +76,11 @@ test('environment activation installs process observers once across repeated roo
       },
     },
   })
+
   assert.equal(registrations.length, 0)
+
   const first = roots.createMacOSRoot({ window: {} })
+
   environment.activate()
   environment.activate()
   assert.equal(registrations.length, 2)
@@ -81,33 +89,45 @@ test('environment activation installs process observers once across repeated roo
   for (let i = 0; i < 5; i++) {
     roots.createMacOSRoot({ window: {} }).unmount()
   }
+
   assert.equal(registrations.length, 2)
   assert.equal(seeds.length, 6)
 })
 
 test('diagnostics observes existing and new roots, falls back by identity and unwinds failed setup', () => {
   const previous = process.env.OCTANE_MACOS_AUTOMATION
+
   process.env.OCTANE_MACOS_AUTOMATION = '1'
+
   const saved = Object.getOwnPropertyDescriptor(globalThis, '__xplatMacOSDebug')
+
   try {
     const { roots, directory } = fixture()
     const first = roots.createMacOSRoot({})
     const automation = createAutomation({ directory })
+
     automation.activate()
+
     const firstDebug = first.__macosDebug
+
     assert.ok(firstDebug)
     automation.activate()
     assert.equal(first.__macosDebug, firstDebug)
+
     const host = {}
     const second = roots.createMacOSRoot(host)
     const secondDebug = second.__macosDebug
+
     assert.equal(globalThis.__xplatMacOSDebug, secondDebug)
     second.unmount()
     assert.equal(globalThis.__xplatMacOSDebug, firstDebug)
     assert.equal(second.__macosDebug, undefined)
+
     const replacement = roots.createMacOSRoot(host)
+
     second.unmount()
     assert.equal(globalThis.__xplatMacOSDebug, replacement.__macosDebug)
+
     const failure = Error('later setup')
     const stop = directory.observe((container) => {
       if (container.hostView.fail) {

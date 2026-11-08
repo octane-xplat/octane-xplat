@@ -101,6 +101,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
       />
       {marks.map((mark) => {
         const markPct = clamp(mark.value, 0, max) / max
+
         return (
           <masonview
             key={mark.value}

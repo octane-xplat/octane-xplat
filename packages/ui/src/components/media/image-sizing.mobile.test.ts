@@ -17,6 +17,7 @@ function mockView(width = 0, height = 0, isLayoutValid?: boolean) {
     srcWrites,
     on: (event: string, callback: () => void) => {
       const set = handlers.get(event) ?? new Set()
+
       set.add(callback)
       handlers.set(event, set)
     },
@@ -42,6 +43,7 @@ function mockView(width = 0, height = 0, isLayoutValid?: boolean) {
   }
 
   let src: any
+
   Object.defineProperty(view, 'src', {
     get: () => src,
     set: (value) => {
@@ -187,7 +189,9 @@ describe('sized image decode binding', () => {
   it('does not reload on resize for fill or none — the expo-image gate', () => {
     for (const stretch of ['fill', 'none']) {
       const view = mockView(300, 200)
+
       view.stretch = stretch
+
       const binding = createSizedImageBinding()
 
       binding.update(view, 'res://a.jpg')
@@ -203,7 +207,9 @@ describe('sized image decode binding', () => {
 
   it('never downsamples for stretch none — source pixels are the contract', () => {
     const view = mockView(300, 200)
+
     view.stretch = 'none'
+
     const binding = createSizedImageBinding()
 
     binding.update(view, 'res://a.jpg')
@@ -234,6 +240,7 @@ describe('sized image decode binding', () => {
 
   it('defers one re-measure when a sync-decoded bitmap leaves an axis at 0', () => {
     vi.useFakeTimers()
+
     // Android: a `data:`/warm-cache decode lands inside the layout pass,
     // so no pending request exists for Mason's foreign-leaf re-measure.
     const view = mockView(214, 0)
@@ -250,6 +257,7 @@ describe('sized image decode binding', () => {
 
   it('skips the deferred request when the engine re-measured first', () => {
     vi.useFakeTimers()
+
     const view = mockView(214, 0)
     const binding = createSizedImageBinding({ relayoutOnImageSource: false })
 
@@ -264,6 +272,7 @@ describe('sized image decode binding', () => {
 
   it('never requests for a stretched/flex-sized image — both axes are known', () => {
     vi.useFakeTimers()
+
     const view = mockView(107, 200)
     const binding = createSizedImageBinding({ relayoutOnImageSource: false })
 
@@ -276,6 +285,7 @@ describe('sized image decode binding', () => {
 
   it('does not request while imageSource is absent (src cleared)', () => {
     vi.useFakeTimers()
+
     const view = mockView(214, 0)
     const binding = createSizedImageBinding({ relayoutOnImageSource: false })
 
@@ -303,10 +313,13 @@ describe('sized image decode binding', () => {
 
   it('re-checks a held issue on deferred ticks once the view is attached', () => {
     vi.useFakeTimers()
+
     // Android flips isLayoutValid without layoutChanged when bounds stay
     // 0x0 — the deferred retry is what observes it.
     const view = mockView(0, 0)
+
     view.isLoaded = true
+
     const binding = createSizedImageBinding()
 
     binding.update(view, 'res://a.jpg')

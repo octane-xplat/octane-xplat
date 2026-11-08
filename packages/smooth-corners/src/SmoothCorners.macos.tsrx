@@ -45,6 +45,7 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
 
   const apply = useCallback(() => {
     const { inner, surface, outer, props: current } = state.current
+
     if (inner) {
       applySmoothClip(
         inner.view,

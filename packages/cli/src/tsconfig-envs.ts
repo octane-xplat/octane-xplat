@@ -137,8 +137,10 @@ const SUFFIX_ENV = {
 function parseJsonc(text, path) {
   const errors = []
   const value = parse(text, errors, { allowTrailingComma: true })
+
   if (errors.length) {
     const error = errors[0]
+
     throw new Error(
       `${path}: invalid JSON — ${printParseErrorCode(error.error)} at offset ${error.offset}`,
     )
@@ -149,16 +151,19 @@ function parseJsonc(text, path) {
 
 export function loadEnvManifest(dir) {
   const path = join(dir, ENV_MANIFEST)
+
   if (!existsSync(path)) {
     return null
   }
 
   const manifest = parseJsonc(readFileSync(path, 'utf8'), path)
+
   if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
     throw new Error(`${path}: expected a JSON object`)
   }
 
   const envs = manifest.environments
+
   if (!envs || typeof envs !== 'object' || Array.isArray(envs) || !Object.keys(envs).length) {
     throw new Error(`${path}: expected a non-empty "environments" object`)
   }
@@ -173,8 +178,10 @@ const SOURCE_EXT = /\.(?:ts|tsx|mts|cts|tsrx|js|jsx|mjs|cjs)$/
 
 function expandGlobs(dir, patterns, label, { required = true, sourcesOnly = true } = {}) {
   const files = new Set()
+
   for (const pattern of patterns ?? []) {
     let matched
+
     try {
       matched = globSync(pattern, { cwd: dir })
     } catch (e) {
@@ -182,6 +189,7 @@ function expandGlobs(dir, patterns, label, { required = true, sourcesOnly = true
     }
 
     const keep = sourcesOnly ? matched.filter((rel) => SOURCE_EXT.test(rel)) : matched
+
     if (required && !keep.length) {
       throw new Error(`${label}: pattern "${pattern}" matched no source files`)
     }
@@ -201,8 +209,10 @@ function expandGlobs(dir, patterns, label, { required = true, sourcesOnly = true
  */
 function resolveEnvFiles(dir, entry, label) {
   const files = expandGlobs(dir, entry.include, label)
+
   for (const file of entry.files ?? []) {
     const abs = resolve(dir, file)
+
     if (!existsSync(abs)) {
       throw new Error(`${label}: file "${file}" does not exist`)
     }
@@ -234,11 +244,13 @@ function resolveEnvFiles(dir, entry, label) {
 /** Map a `src/index[.<suffix>].*` barrel to the environment that must claim it. */
 function barrelEnv(rel) {
   const match = /^src\/index(?:\.([A-Za-z]+))?\.(?:ts|tsx|mts|cts)$/.exec(rel)
+
   if (!match) {
     return null
   }
 
   const suffix = match[1]
+
   if (!suffix) {
     return 'any' // unsuffixed default barrel — any environment may carry it
   }
@@ -287,6 +299,7 @@ export function expandEnvPrograms(
 
   for (const [env, entry] of Object.entries(manifest.environments)) {
     const preset = TYPECHECK_ENVIRONMENTS[env]
+
     if (!preset) {
       errors.push(
         `${ENV_MANIFEST}: unknown environment "${env}" — expected one of: ${Object.keys(TYPECHECK_ENVIRONMENTS).join(', ')}`,
@@ -312,6 +325,7 @@ export function expandEnvPrograms(
 
     const label = `${ENV_MANIFEST} environment "${env}"`
     const envFiles = resolveEnvFiles(dir, entry, label)
+
     resolved[env] = envFiles
     for (const file of envFiles) {
       files.add(file)
@@ -319,6 +333,7 @@ export function expandEnvPrograms(
 
     for (const rel of preset.ambient ?? []) {
       const abs = resolve(ambientRoot, rel)
+
       // Consumer installs won't have the repo-relative renderer source —
       // they get these globals through the package's types instead.
       if (existsSync(abs)) {
@@ -338,13 +353,16 @@ export function expandEnvPrograms(
   // Every platform barrel must be claimed by a declared environment so a
   // new index.<platform>.* can never ship without coverage.
   const barrels = globSync('src/index*.ts', { cwd: dir })
+
   for (const rel of barrels) {
     const env = barrelEnv(rel)
+
     if (!env) {
       continue
     }
 
     const abs = `/${rel}`
+
     if (env === 'any') {
       const claimed = Object.values(resolved).some((files) => files.some((f) => f.endsWith(abs)))
 
@@ -356,12 +374,14 @@ export function expandEnvPrograms(
     }
 
     const claimed = resolved[env]?.some((f) => f.endsWith(abs))
+
     if (!claimed) {
       errors.push(`${ENV_MANIFEST}: ${rel} exists but is not claimed by the "${env}" environment`)
     }
   }
 
   const top = manifest.compilerOptions ?? {}
+
   if (
     top.moduleSuffixes !== undefined &&
     !arraysEqual(top.moduleSuffixes, PLATFORM_MODULE_SUFFIXES)
@@ -409,6 +429,7 @@ export function expandEnvPrograms(
   }
 
   const outDir = join(dir, 'node_modules', '.cache', 'xplat-typecheck')
+
   mkdirSync(outDir, { recursive: true })
   program.configPath = join(outDir, 'all.json')
   writeFileSync(program.configPath, JSON.stringify(program.config, null, '\t') + '\n')

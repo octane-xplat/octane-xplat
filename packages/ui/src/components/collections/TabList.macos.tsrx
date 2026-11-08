@@ -54,18 +54,23 @@ export function TabList(props: TabListProps): unknown @{
   const tabViews = useRef(new Map<string, NSView>())
   const views = tabViews.current
   const selected = useRef(props.value)
+
   selected.current = props.value
+
   const attachScroller = useCallback((view: NSScrollView | null) => {
     scroller.current = view
   }, [])
 
   const root = useRef<NSView | null>(null)
   const pattern = useRef(props.role === 'tablist' ? ('tabs' as const) : ('nav' as const))
+
   pattern.current = props.role === 'tablist' ? 'tabs' : 'nav'
+
   const direction = useDirection(),
     liveDirection = useRef(direction)
 
   liveDirection.current = direction
+
   const navigation = useMemo(
     () =>
       createAppKitChoiceFocus({
@@ -117,11 +122,13 @@ export function TabList(props: TabListProps): unknown @{
   useEffect(() => {
     const native = globalThis as Record<string, any>
     const center = native.NSNotificationCenter?.defaultCenter
+
     if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
       return
     }
 
     let token: unknown
+
     try {
       token = center.addObserverForNameObjectQueueUsingBlock(
         native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
@@ -133,7 +140,9 @@ export function TabList(props: TabListProps): unknown @{
           }
 
           navigation.synchronize()
+
           const scroll = scroller.current
+
           if (hasScroll && scroll) {
             revealAppKitTab(scroll, navigation.focusedView() ?? views.get(selected.current))
           }
@@ -213,11 +222,13 @@ export function Tab<
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('Tab must be used within a TabList.')
   }
 
   const isTabs = ctx.pattern === 'tabs'
+
   if (isTabs && props.to !== undefined) {
     throw new TypeError(
       'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',
@@ -289,6 +300,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
  *  shared anchored Popover with menuitemradio-style rows. */
 export function TabMenu(props: TabMenuProps): unknown @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('TabMenu must be used within a TabList.')
   }
@@ -298,12 +310,16 @@ export function TabMenu(props: TabMenuProps): unknown @{
 
   const [open, setOpenState] = useState(false)
   const openRef = useRef(open)
+
   openRef.current = open
+
   const choosing = useRef(false),
     initialFocus = useRef<'first' | 'last'>('first')
 
   const live = useRef({ props, ctx })
+
   live.current = { props, ctx }
+
   const setOpen = (next: boolean) => {
     openRef.current = next
     if (anchor.current) {
@@ -322,6 +338,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
 
   const synchronizeRegistration = () => {
     const previous = registration.current
+
     if (previous && previous.views.get(previous.key) === previous.view) {
       previous.views.delete(previous.key)
     }
@@ -334,7 +351,9 @@ export function TabMenu(props: TabMenuProps): unknown @{
   }
 
   const registerLatest = useRef(synchronizeRegistration)
+
   registerLatest.current = synchronizeRegistration
+
   const bind = useCallback((view: NSView | null) => {
     anchor.current = view
     registerLatest.current()
@@ -402,6 +421,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
   })
 
   const triggerRef = useMemo(() => [bind, keys.ref], [bind, keys.ref])
+
   useLayoutEffect(() => {
     if (!props.options.length && openRef.current) {
       closeMenu()

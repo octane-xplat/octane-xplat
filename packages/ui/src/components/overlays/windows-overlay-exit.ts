@@ -5,17 +5,22 @@ export function trackWindowsOverlayExit(owner: object | undefined, result: Promi
   if (!owner) {
     return
   }
+
   let pending = exits.get(owner)
+
   if (!pending) {
     pending = new Set()
     exits.set(owner, pending)
   }
+
   // The caller retains the original rejection and owns error reporting/host removal.
   const settled = Promise.resolve(result).then(
     () => {},
     () => {},
   )
+
   const held = pending
+
   held.add(settled)
   void settled.then(() => {
     held.delete(settled)
@@ -27,9 +32,11 @@ export function trackWindowsOverlayExit(owner: object | undefined, result: Promi
 
 export function afterWindowsOverlayExit(owner: object, restore: () => void): void {
   const pending = exits.get(owner)
+
   if (!pending?.size) {
     restore()
     return
   }
+
   void Promise.all(pending).then(() => afterWindowsOverlayExit(owner, restore))
 }

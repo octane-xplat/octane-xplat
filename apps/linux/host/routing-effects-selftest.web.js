@@ -5,10 +5,13 @@
   const failed = []
   const errors = []
   let checks = 0
+
   addEventListener('error', (event) => errors.push(event.message))
   addEventListener('unhandledrejection', (event) => errors.push(String(event.reason)))
+
   const wait = async (predicate) => {
     const deadline = Date.now() + 10000
+
     while (!predicate()) {
       if (Date.now() >= deadline) {
         throw new Error('Browser condition did not settle')
@@ -17,11 +20,13 @@
       await new Promise((resolve) => setTimeout(resolve, 20))
     }
   }
+
   const equal = (actual, expected) => {
     if (JSON.stringify(actual) !== JSON.stringify(expected)) {
       throw new Error(`Expected ${JSON.stringify(expected)}, got ${JSON.stringify(actual)}`)
     }
   }
+
   const check = async (name, action) => {
     checks++
     try {
@@ -33,7 +38,9 @@
       throw error
     }
   }
+
   const focused = (id) => document.activeElement === document.getElementById(id)
+
   try {
     await check('ready', () => wait(() => !!window.__routing))
     await check('page-focus-and-head', async () => {
@@ -75,7 +82,9 @@
 
     await check('decoded-fragment', async () => {
       await window.__routing.focusPage('fragment', 'part one')
+
       const target = document.getElementById('part one')
+
       equal(
         [focused('part one'), Math.abs(target.getBoundingClientRect().top) < 1, location.hash],
         [true, true, '#part%20one'],
@@ -83,9 +92,12 @@
     })
 
     const beforeModal = scrollY
+
     await check('modal-isolation', async () => {
       await window.__routing.modal()
+
       const panel = document.querySelector('[role="dialog"]')
+
       equal(
         [
           document.activeElement === panel,
@@ -98,7 +110,9 @@
 
     await check('modal-screen-focus', async () => {
       await window.__routing.modalPush()
+
       const panel = document.querySelector('[role="dialog"]')
+
       equal(panel.contains(document.activeElement), true)
       document.getElementById('focus-control').focus()
       equal(panel.contains(document.activeElement), true)
@@ -126,6 +140,7 @@
 
     await check('public-independent-panes', async () => {
       const report = await window.__routing.qualifyPanes()
+
       equal(report.checks.length, 11)
       equal([report.urlUnchanged, report.historyUnchanged], [true, true])
     })

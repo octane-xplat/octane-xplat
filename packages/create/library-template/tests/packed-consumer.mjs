@@ -21,6 +21,7 @@ const temporary = mkdtempSync(join(tmpdir(), 'octane-library-consumer-'))
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -39,6 +40,7 @@ function run(command, args, cwd) {
 function installDirectory(root, name, destination) {
   const segments = name.split('/')
   const path = join(destination, 'node_modules', ...segments)
+
   mkdirSync(dirname(path), { recursive: true })
   cpSync(root, path, { recursive: true })
 }
@@ -46,10 +48,13 @@ function installDirectory(root, name, destination) {
 try {
   const pack = join(temporary, 'pack')
   const extracted = join(temporary, 'extracted')
+
   mkdirSync(pack)
   mkdirSync(extracted)
+
   // Pack with the manager the scaffolded package.json declares.
   const packer = (sourceManifest.packageManager ?? 'bun').split('@')[0]
+
   if (packer === 'pnpm') {
     run('pnpm', ['pack', '--pack-destination', pack], packageRoot)
   } else {
@@ -57,10 +62,13 @@ try {
   }
 
   const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+
   assert.ok(tarball)
   run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
+
   const packed = join(extracted, 'package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   assert.ok(manifest.exports['.'].web.startsWith('./src/'))
   assert.ok(manifest.exports['.'].native.startsWith('./src/'))
   assert.ok(manifest.exports['.'].types)
@@ -68,6 +76,7 @@ try {
   for (const target of ['web', 'native']) {
     for (const mode of ['bundler', 'nodenext']) {
       const consumer = join(temporary, `${target}-${mode}`)
+
       mkdirSync(consumer)
       mkdirSync(join(consumer, 'node_modules'), { recursive: true })
       installDirectory(packed, sourceManifest.name, consumer)
@@ -81,6 +90,7 @@ try {
       ]) {
         const source = join(packageRoot, 'node_modules', ...dependency.split('/'))
         const destination = join(consumer, 'node_modules', ...dependency.split('/'))
+
         mkdirSync(dirname(destination), { recursive: true })
         symlinkSync(source, destination, 'dir')
       }
@@ -141,6 +151,7 @@ void element; void missing; void invalid
       )
 
       assert.equal(listed.status, 0, listed.stderr)
+
       const implementation = listed.stdout
         .split('\n')
         .filter(

@@ -24,6 +24,7 @@ const codegen = fileURLToPath(new URL('../node_modules/@bamboocss/dev/bin.js', i
 
 test('generated Bamboo platform conditions compile through the shared CSS pipeline', async () => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-bamboo-platform-')))
+
   try {
     mkdirSync(join(root, 'src'))
     writeFileSync(
@@ -105,11 +106,16 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
     }
 
     writeFileSync(join(root, 'index.html'), '<script type="module" src="/src/main.ts"></script>')
+
     const main = join(root, 'src/main.ts')
+
     writeFileSync(main, readFileSync(main, 'utf8') + '\nglobalThis.card = card;')
+
     const warnings = []
     const logger = createLogger()
+
     logger.warn = (msg) => warnings.push(String(msg))
+
     const written = await build({
       configFile: false,
       root,
@@ -131,6 +137,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
 
     const files = written.output
     const sheets = files.filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
+
     assert.equal(sheets.length, 1)
     assert.match(sheets[0].fileName, /platform-[a-f0-9]+\.css$/)
     assert.doesNotMatch(
@@ -139,8 +146,11 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
     )
 
     const html = readFileSync(join(root, 'dist/index.html'), 'utf8')
+
     assert.ok(html.includes(sheets[0].fileName), html)
+
     const manifest = readFileSync(join(root, 'dist/.vite/manifest.json'), 'utf8')
+
     assert.ok(manifest.includes(sheets[0].fileName), manifest)
     for (const file of files.filter((file) => file.fileName.endsWith('.map'))) {
       assert.ok(existsSync(join(root, 'dist', file.fileName)))
@@ -204,10 +214,12 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
           watcher.off('event', onEvent)
           reject(new Error('Bamboo watch build timed out'))
         }, 10000)
+
         function onEvent(event) {
           if (event.code !== 'END' && event.code !== 'ERROR') {
             return
           }
+
           clearTimeout(timeout)
           watcher.off('event', onEvent)
           if (event.code === 'ERROR') {
@@ -216,12 +228,15 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
             resolve(latestCss)
           }
         }
+
         watcher.on('event', onEvent)
       })
 
     try {
       assert.match(await nextBuild(), /color: var\(--colors-primary\)/)
+
       const rebuilt = nextBuild()
+
       writeFileSync(
         main,
         readFileSync(main, 'utf8').replace(
@@ -231,6 +246,7 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
       )
 
       const css = await rebuilt
+
       assert.match(css, /color: var\(--colors-danger\)/)
       assert.doesNotMatch(css, /@platform|color: var\(--colors-primary\)/)
     } finally {

@@ -14,6 +14,7 @@ let showStackTab: (value: boolean) => void
 
 function ContextLabel(props: { surface: Surface }) {
   const value = useContext(NameContext)
+
   rendered[props.surface].push(value)
   useEffect(() => {
     mounted.add(props.surface)
@@ -40,9 +41,12 @@ const stackTabs: any[] = [
 export default function NativeTabPortals() {
   const [name, setName] = useState('Avery')
   const [includeStackTab, setIncludeStackTab] = useState(false)
+
   updateName = setName
   showStackTab = setIncludeStackTab
+
   const tabs = includeStackTab ? stackTabs : plainTabs
+
   return (
     <NameProvider value={name}>
       <UITabBar tabs={tabs} selectedIndex={0} />

@@ -22,7 +22,9 @@ function allowsCopy(value: unknown): boolean {
   if (typeof value === 'bigint') {
     return value === -1n || (value >= 0n && (value & 1n) !== 0n)
   }
+
   const mask = Number(value)
+
   return (
     mask === -1 || mask === 2 ** 64 || (Number.isSafeInteger(mask) && mask >= 0 && mask % 2 === 1)
   )
@@ -39,8 +41,10 @@ export function createAppKitFileDropRegistry(native: () => Record<string, any> =
     ) {
       return []
     }
+
     const host = native(),
       board = sender.draggingPasteboard
+
     if (
       !host.NSURL ||
       !host.NSPasteboardURLReadingFileURLsOnlyKey ||
@@ -50,6 +54,7 @@ export function createAppKitFileDropRegistry(native: () => Record<string, any> =
     ) {
       return []
     }
+
     return [...(owners.get(view)?.entries ?? [])].filter(
       (entry) =>
         owners.get(view)?.entries.has(entry) &&
@@ -57,11 +62,14 @@ export function createAppKitFileDropRegistry(native: () => Record<string, any> =
         owners.get(view)?.entries.has(entry),
     )
   }
+
   return {
     subscribe(view: DropView, handlers: DropHandlers): () => void {
       let owner = owners.get(view)
+
       if (!owner) {
         const types = array(view.registeredDraggedTypes).map(String)
+
         owner = { entries: new Set(), addedType: !types.includes(fileType) }
         if (owner.addedType) {
           view.registerForDraggedTypes([...types, fileType])
@@ -69,23 +77,29 @@ export function createAppKitFileDropRegistry(native: () => Record<string, any> =
 
         owners.set(view, owner)
       }
+
       // Every lease owns an independent entry, even for reused handler objects.
       const bucket = owner,
         entry = {
           enabled: () => handlers.enabled(),
           receive: (uris: string[]) => handlers.receive(uris),
         }
+
       bucket.entries.add(entry)
+
       let active = true
+
       return () => {
         if (!active) {
           return
         }
+
         active = false
         bucket.entries.delete(entry)
         if (bucket.entries.size || owners.get(view) !== bucket) {
           return
         }
+
         owners.delete(view)
         if (bucket.addedType) {
           // Preserve other types registered while this lease was alive.
@@ -115,6 +129,7 @@ export function createAppKitFileDropRegistry(native: () => Record<string, any> =
     perform(view: DropView, sender: any): boolean {
       try {
         const entries = candidates(view, sender)
+
         if (!entries.length) {
           return false
         }

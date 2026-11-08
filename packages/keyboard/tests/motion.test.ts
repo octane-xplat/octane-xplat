@@ -10,6 +10,7 @@ it('retains measured position through reversal and cancels before replacement', 
     interactive: false,
     floating: false,
   })
+
   motion.measure(windowRect, frame(800))
   motion.begin(frame(500), 300)
   expect(values.at(-1).currentFrame.y).toBe(800)
@@ -32,6 +33,7 @@ it('supports already-open attachment without inventing an opening animation', ()
     interactive: false,
     floating: false,
   })
+
   motion.measure(windowRect, frame(500))
   expect(values[0].motion.phase).toBe('idle')
   expect(values[0].inset).toBe(300)

@@ -24,6 +24,7 @@ export interface ConversionBackend {
 
 export function aborted(): Error {
   const error = new Error('Media conversion was cancelled')
+
   error.name = 'AbortError'
   return error
 }

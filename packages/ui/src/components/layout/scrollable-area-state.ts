@@ -2,6 +2,7 @@ import type { ScrollAxis, ScrollAxisState, ScrollableAreaState } from '../../pro
 
 // One layout unit (CSS px, dip, or AppKit point), never a backing pixel.
 const EPS = 1
+
 export const SCROLL_AT_EDGES: ScrollAxisState = { isScrollable: false, atStart: true, atEnd: true }
 export const INITIAL_SCROLL_STATE: ScrollableAreaState = {
   inline: SCROLL_AT_EDGES,
@@ -14,11 +15,13 @@ export function scrollAxisState(
   offset: number,
 ): ScrollAxisState {
   const max = Number.isFinite(maximum) ? Math.max(0, maximum) : 0
+
   if (!allowed || max <= EPS) {
     return SCROLL_AT_EDGES
   }
 
   const position = Number.isFinite(offset) ? Math.min(max, Math.max(0, offset)) : 0
+
   return { isScrollable: true, atStart: position <= EPS, atEnd: position >= max - EPS }
 }
 

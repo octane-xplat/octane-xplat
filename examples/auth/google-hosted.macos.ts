@@ -15,16 +15,20 @@ export interface GoogleHostedBackend {
 /** Wire your authenticated backend transport into googleAuth.configure. */
 export function createGoogleHostedFlow(backend: GoogleHostedBackend): GoogleHostedAuthFlow {
   let attemptId: string | undefined
+
   return {
     async createRequest(options) {
       // Cancellation does not call complete; expire unused attempts server-side.
       attemptId = undefined
+
       const attempt = await backend.begin(options)
+
       attemptId = attempt.attemptId
       return { url: attempt.url, callbackScheme: attempt.callbackScheme }
     },
     async complete(callbackURL) {
       const id = attemptId
+
       attemptId = undefined
       if (!id) {
         throw new Error('No Google sign-in attempt is active')

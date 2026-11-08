@@ -49,9 +49,11 @@ function channelClass(): { alloc(): { init(): Channel } } {
         },
       ): void {
         const state = states.get(message.webView)
+
         if (!state || !message.frameInfo.isMainFrame() || typeof message.body !== 'string') {
           return
         }
+
         state.dispatch?.(message.body)
       },
 
@@ -66,7 +68,9 @@ function channelClass(): { alloc(): { init(): Channel } } {
           decisionHandler(WKNavigationActionPolicy.Cancel)
           return
         }
+
         const allow = String(action?.request?.URL?.absoluteString ?? '') === 'about:blank'
+
         decisionHandler(allow ? WKNavigationActionPolicy.Allow : WKNavigationActionPolicy.Cancel)
       },
     },
@@ -75,6 +79,7 @@ function channelClass(): { alloc(): { init(): Channel } } {
       protocols: [WKScriptMessageHandler, WKNavigationDelegate],
     },
   )
+
   // NativeChannel.extend() returns a class handle whose declared type does not
   // expose alloc/init — bound it once to the channel constructor shape.
   return EditorChannel as unknown as EditorChannelClass
@@ -96,20 +101,25 @@ export interface EditorNativeHost {
 export function createEditorHost(): EditorNativeHost {
   const channel = channelClass().alloc().init()
   const config = WKWebViewConfiguration.new()
+
   config.websiteDataStore = WKWebsiteDataStore.nonPersistentDataStore()
+
   const webView = WKWebView.alloc().initWithFrameConfiguration(
     { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
     config,
   )
+
   config.userContentController.addScriptMessageHandlerName(channel, 'editor')
   webView.navigationDelegate = channel
   webView.autoresizingMask =
     NSAutoresizingMaskOptions.WidthSizable | NSAutoresizingMaskOptions.HeightSizable
 
   const state: ChannelState = {}
+
   states.set(webView, state)
 
   let disposed = false
+
   return {
     attachTo(parent) {
       webView.frame = parent.bounds
@@ -127,12 +137,14 @@ export function createEditorHost(): EditorNativeHost {
       if (disposed) {
         return
       }
+
       webView.evaluateJavaScriptCompletionHandler(
         `window.__xplatEditorReceive?.(${JSON.stringify(String(packet))})`,
         (_result: unknown, error: { localizedDescription?: unknown } | null) => {
           if (!error) {
             return
           }
+
           state.dispatch?.(
             JSON.stringify({
               event: 'error',
@@ -146,6 +158,7 @@ export function createEditorHost(): EditorNativeHost {
       if (disposed) {
         return
       }
+
       disposed = true
       state.dispatch = undefined
       webView.stopLoading()

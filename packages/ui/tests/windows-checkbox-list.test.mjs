@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-checkbox-list-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -30,10 +32,13 @@ function compiled(name, source, imports = {}) {
       text: 'host',
     },
   }).code
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -143,18 +148,24 @@ const tick = () => new Promise((resolve) => setImmediate(resolve))
 function mount(component, props) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(component, props)
+
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   const input = (name) => {
     const found = nodes().find(
       (node) => node.type === 'xplatwindowscheckbox' && node.props.accessibilityLabel === name,
     )
+
     assert.ok(found, 'Missing input: ' + name)
     return found
   }
+
   return { root, nodes, input, render: (props) => root.render(component, props) }
 }
 
@@ -167,6 +178,7 @@ test('uncontrolled options seed once and update membership without duplicate req
   const changes = []
   const props = { options, defaultValue: ['bravo'], onValueChange: (value) => changes.push(value) }
   const f = mount(CheckboxGroup, props)
+
   try {
     assert.equal(f.input('Alpha').props.checked, false)
     assert.equal(f.input('Bravo').props.checked, true)
@@ -192,6 +204,7 @@ test('controlled values override defaults and rejected requests stay caller-owne
   const value = ['bravo']
   const props = { options, value, defaultValue: ['alpha'], onValueChange: (v) => changes.push(v) }
   const f = mount(CheckboxGroup, props)
+
   try {
     assert.equal(f.input('Alpha').props.checked, false)
     f.input('Alpha').props.requestChange(true)
@@ -212,6 +225,7 @@ test('compact option controls receive small size, disabled state and a key-only 
     density: 'compact',
     size: 'lg',
   })
+
   try {
     assert.equal(f.input('Key only').props.size, 'sm')
     assert.equal(f.input('Blocked').props.isEnabled, false)
@@ -225,6 +239,7 @@ for (const guard of ['isDisabled', 'isReadOnly']) {
     const changes = []
     const props = { options, [guard]: true, onValueChange: (v) => changes.push(v) }
     const f = mount(CheckboxGroup, props)
+
     try {
       f.input('Alpha').props.requestChange(true)
       await tick()
@@ -243,6 +258,7 @@ test('provider updates reach unchanged child items, indicator state and string c
   const changes = []
   const props = { value: ['alpha'], density: 'compact', onValueChange: (v) => changes.push(v) }
   const f = mount(Items, props)
+
   try {
     assert.equal(f.input('Child Alpha').props.checked, true)
     assert.equal(f.input('Child Bravo').props.checked, false)
@@ -253,7 +269,9 @@ test('provider updates reach unchanged child items, indicator state and string c
     assert.equal(f.input('Child Alpha').props.checked, false)
     assert.equal(f.input('Child Bravo').props.checked, true)
     assert.ok(f.nodes().some((n) => n.type === 'indicator' && n.props.size === 'sm'))
+
     const rows = f.nodes().filter((n) => n.props.className?.includes('vx-checkboxlist-item'))
+
     assert.equal(rows.length, 3)
     assert.ok(rows.every((row) => typeof row.props.className === 'string'))
     assert.ok(f.nodes().some((n) => n.type === 'label' && n.props.text === 'End'))
@@ -271,7 +289,9 @@ test('standalone select-all items keep their callback separate and inherit group
     onValueChange: (v) => changes.push(v),
     onCheck: (v) => checks.push(v),
   }
+
   const f = mount(Items, props)
+
   try {
     assert.equal(f.input('All').props.checked, 'indeterminate')
     f.input('All').props.requestChange(true)
@@ -297,6 +317,7 @@ test('select-all changes update context consumers and return the standalone item
     onValueChange: (v) => changes.push(v),
     onCheck: (v) => checks.push(v),
   })
+
   try {
     assert.equal(f.input('All').props.checked, 'indeterminate')
     f.input('All').props.requestChange(true)
@@ -321,7 +342,9 @@ test('options and child items share the current controlled array and updated cal
     value: ['option'],
     onValueChange: (v) => first.push(v),
   }
+
   const f = mount(Items, props)
+
   try {
     f.input('Child Bravo').props.requestChange(true)
     await tick()
@@ -339,6 +362,7 @@ test('options and child items share the current controlled array and updated cal
 test('keyed option reorder preserves membership and remount restores defaults', async () => {
   const props = { options, defaultValue: ['alpha'] }
   const f = mount(CheckboxGroup, props)
+
   try {
     f.input('Bravo').props.requestChange(true)
     await tick()
@@ -348,13 +372,17 @@ test('keyed option reorder preserves membership and remount restores defaults', 
   } finally {
     f.root.unmount()
   }
+
   const replacement = mount(CheckboxGroup, props)
+
   try {
     assert.equal(replacement.input('Bravo').props.checked, false)
   } finally {
     replacement.root.unmount()
   }
+
   const standalone = mount(CheckboxListItem, { label: 'Outside', isChecked: 'indeterminate' })
+
   try {
     assert.equal(standalone.input('Outside').props.checked, 'indeterminate')
     assert.equal(standalone.input('Outside').props.readOnly, false)

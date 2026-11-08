@@ -80,6 +80,7 @@ function MoonIcon() {
 function ThemeControls() {
   const themeName = useThemeName()
   const mode = useThemePreference()
+
   return (
     <div
       style={{
@@ -156,6 +157,7 @@ function Gallery({ onSelect }: { onSelect: (id: string) => void }) {
 
         {CATEGORIES.map((cat) => {
           const items = PROTOTYPES.filter((p) => p.category === cat)
+
           return (
             <section
               key={cat}
@@ -248,6 +250,7 @@ function NavRail({
   onHome: () => void
 }) {
   const isHome = currentId === ''
+
   return (
     <SideNav
       className={'ml-nav'}
@@ -281,6 +284,7 @@ function Detail({ prototype }: { prototype: Prototype }) {
   const AltTabletDemo = prototype.AltTabletDemo ?? AltDemo
   const altCaption = prototype.altCaption ?? 'Phone · 390px'
   const altTabletCaption = prototype.altTabletCaption ?? 'Tablet'
+
   return (
     <div style={{ flex: 1, minWidth: 0, overflow: 'hidden', display: 'flex' }}>
       {/* Info panel */}
@@ -486,6 +490,7 @@ export function MobilePrototypesPage() {
   // Read deep link on mount (client only, avoids useSearchParams Suspense need).
   useEffect(() => {
     const p = new URLSearchParams(window.location.search).get('p')
+
     if (p && PROTOTYPES.some((x) => x.id === p)) {
       setSelectedId(p)
     }
@@ -493,7 +498,9 @@ export function MobilePrototypesPage() {
 
   const select = (id: string | null) => {
     setSelectedId(id)
+
     const url = new URL(window.location.href)
+
     if (id) {
       url.searchParams.set('p', id)
     } else {
@@ -514,6 +521,7 @@ export function MobilePrototypesPage() {
 
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement | null)?.tagName
+
       if (tag === 'INPUT' || tag === 'TEXTAREA') {
         return
       }

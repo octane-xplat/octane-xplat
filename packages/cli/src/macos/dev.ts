@@ -22,8 +22,10 @@ export { runMacOSWebViewDev } from './webview-dev.ts'
 /** Run the configured Vite watcher and native host, restarting after native edits. */
 export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   appRoot = resolve(appRoot)
+
   const readManifest = () => {
     const manifest = JSON.parse(readFileSync(join(appRoot, 'package.json'), 'utf8'))
+
     if (options.target) {
       manifest.xplat = {
         ...manifest.xplat,
@@ -38,8 +40,10 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   }
 
   const target = readManifest().xplat?.targets?.macos
+
   if (target?.renderer === 'webview') {
     const { runMacOSWebViewDev } = await import('./webview-dev.ts')
+
     return runMacOSWebViewDev(appRoot, options)
   }
 
@@ -48,11 +52,13 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   }
 
   const config = inspectMacOSDevConfig(appRoot, target.dev, target.renderer)
+
   if (config.issues.length) {
     throw new Error(config.issues.join('; '))
   }
 
   const inspection = inspectJscHost()
+
   if (inspection.issues.length) {
     throw new Error(`JavaScriptCore host is unavailable: ${inspection.issues.join('; ')}`)
   }
@@ -70,9 +76,12 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
   const devBundle = await createMacOSDevBundle(appRoot, readManifest(), {
     directory: options.resourceRoot ? join(options.resourceRoot, 'bundle') : undefined,
   })
+
   const hostExecutable = devBundle.executable
   const devRoot = options.resourceRoot ?? join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+
   await mkdir(devRoot, { recursive: true })
+
   const bootstrap = join(devRoot, `bootstrap-${process.pid}.js`)
   let watcher
   let host
@@ -92,6 +101,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 
   // Attach a rejection handler before any async startup can fail.
   done.catch(() => {})
+
   const stop = () => {
     stopping = true
     resolveDone()
@@ -99,7 +109,9 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 
   const launch = async () => {
     await writeNativeBootstrap(artifact, bootstrap)
+
     const observedAt = new Date().toISOString()
+
     host = spawn(
       hostExecutable,
       [
@@ -138,10 +150,12 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
         }
       }
     })
+
     await new Promise((resolve, reject) => {
       host.once('spawn', resolve)
       host.once('error', reject)
     })
+
     options.onReady?.({ pid: host.pid, renderer: 'appkit', executable: hostExecutable, observedAt })
 
     console.log(
@@ -156,6 +170,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
 
     await new Promise((resolve) => {
       const timer = setTimeout(() => host.kill('SIGKILL'), 3000)
+
       host.once('close', () => {
         clearTimeout(timer)
         resolve()
@@ -192,6 +207,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
     })
 
     let first = true
+
     await new Promise((resolve, reject) => {
       watcher.on('event', (event) => {
         if (event.code === 'START' && options.workshop && host?.stdin.writable) {
@@ -245,12 +261,15 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
       rebuilding = (async () => {
         try {
           const fingerprint = discoverMacOSNative(appRoot).fingerprint
+
           if (fingerprint === observed) {
             return
           }
 
           observed = fingerprint
+
           const next = await prepare()
+
           if (
             next.key !== artifact.key ||
             next.metadata[macOSHostArch()] !== artifact.metadata[macOSHostArch()]
@@ -264,6 +283,7 @@ export async function runMacOSDev(appRoot = process.cwd(), options = {}) {
           lastError = undefined
         } catch (error) {
           const message = String(error)
+
           if (message !== lastError) {
             console.error('[macos-native] rebuild failed; preserving the running app', message)
           }

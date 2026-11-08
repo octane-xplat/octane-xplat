@@ -23,8 +23,10 @@ export function markdownParts(source: string) {
   const prose: string[] = []
   const fences: Fence[] = []
   let open: { marker: string; line: number; language: string; lines: string[] } | undefined
+
   for (const [index, line] of source.split('\n').entries()) {
     const marker = line.match(/^\s*(`{3,}|~{3,})(.*)$/)
+
     if (open) {
       if (
         marker &&
@@ -55,6 +57,7 @@ export function markdownParts(source: string) {
       prose.push(line)
     }
   }
+
   return {
     prose: prose.join('\n').replace(/<!--[\s\S]*?-->/g, (s) => s.replace(/[^\n]/g, ' ')),
     fences,
@@ -66,9 +69,11 @@ function markdownFiles(directory: string): string[] {
   if (!existsSync(directory)) {
     return []
   }
+
   return readdirSync(directory, { withFileTypes: true })
     .flatMap((entry) => {
       const path = resolve(directory, entry.name)
+
       return entry.isDirectory() ? markdownFiles(path) : entry.name.endsWith('.md') ? [path] : []
     })
     .sort()
@@ -78,8 +83,10 @@ function anchors(source: string, site: boolean): Set<string> {
   if (site) {
     return new Set(parseMd(source).flatMap((b) => (b.kind === 'h' ? [b.id] : [])))
   }
+
   const { prose } = markdownParts(source)
   const ids = new Set<string>()
+
   for (const match of prose.matchAll(/^#{1,6}\s+(.+?)\s*#*$/gm)) {
     const base = match[1]
       .toLowerCase()
@@ -88,15 +95,18 @@ function anchors(source: string, site: boolean): Set<string> {
 
     let id = base
     let suffix = 0
+
     while (ids.has(id)) {
       id = `${base}-${++suffix}`
     }
 
     ids.add(id)
   }
+
   for (const match of prose.matchAll(/\b(?:id|name)=["']([^"']+)["']/g)) {
     ids.add(match[1])
   }
+
   return ids
 }
 
@@ -107,29 +117,36 @@ export function checkDocumentation(root: string) {
   const packages = resolve(root, 'packages')
   const readmes: string[] = []
   const generated = new Set<string>()
+
   for (const entry of existsSync(packages) ? readdirSync(packages, { withFileTypes: true }) : []) {
     const manifest = resolve(packages, entry.name, 'package.json')
+
     if (!entry.isDirectory() || !existsSync(manifest)) {
       continue
     }
 
     const metadata = JSON.parse(readFileSync(manifest, 'utf8'))
+
     if (!metadata.private) {
       const api = resolve(root, 'docs/api', `api-${entry.name}.md`)
+
       slugs.set(`api-${entry.name}`, api)
       generated.add(api)
     }
 
     const readme = resolve(packages, entry.name, 'README.md')
+
     if (existsSync(readme)) {
       readmes.push(readme)
     } else if (!JSON.parse(readFileSync(manifest, 'utf8')).private) {
       errors.push(`${relative(root, manifest)}: published package needs README.md`)
     }
   }
+
   for (const path of docs) {
     const dir = relative(resolve(root, 'docs'), dirname(path))
     const slug = slugFor(dir, basename(path, '.md'))
+
     if (slugs.has(slug) && !generated.has(path)) {
       errors.push(`${relative(root, path)}: duplicate public slug ${slug}`)
     }
@@ -147,10 +164,12 @@ export function checkDocumentation(root: string) {
       )
     }
   }
+
   // The changelog page is generated from the root logs at build time — it
   // has no docs/ source file, and its per-version anchors derive from git
   // tags rather than markdown headings, so no fragment check applies.
   slugs.set('changelog', resolve(root, 'apps/docs/src/changelog.ts'))
+
   const supporting = [
     'README.md',
     'CONTRIBUTING.md',
@@ -161,7 +180,9 @@ export function checkDocumentation(root: string) {
   ]
     .map((path) => resolve(root, path))
     .filter(existsSync)
+
   const inventory: DocumentationPage[] = []
+
   for (const path of [...docs, ...readmes.sort(), ...supporting]) {
     const name = relative(root, path)
     const source = readFileSync(path, 'utf8')
@@ -170,6 +191,7 @@ export function checkDocumentation(root: string) {
     const site = docs.includes(path)
     const titles = [...prose.matchAll(/^# (.+)$/gm)]
     const titleCount = titles.length + (name === 'README.md' && /<h1>/.test(prose) ? 1 : 0)
+
     if (titleCount !== 1) {
       fail(1, 'expected one H1 title')
     }
@@ -201,15 +223,18 @@ export function checkDocumentation(root: string) {
       const line = linkText.slice(0, match.index).split('\n').length
       let target: string
       let hash: string
+
       try {
         if (/^https:\/\/octane-xplat\.goddardai\.org(?:\/|$)/.test(href)) {
           const url = new URL(href)
+
           if (/^\/(?:llms(?:-full)?\.txt|demos\/|workshop\/$)/.test(url.pathname)) {
             continue
           }
 
           const slug = decodeURIComponent(url.pathname.replace(/^\/|\/$/g, '')) || 'README'
           const found = slugs.get(slug)
+
           if (!found) {
             fail(line, `unknown public guide: ${href}`)
             continue
@@ -221,6 +246,7 @@ export function checkDocumentation(root: string) {
           /^https:\/\/github\.com\/octane-xplat\/octane-xplat\/(?:blob|tree)\/main\//.test(href)
         ) {
           const url = new URL(href)
+
           target = resolve(
             root,
             decodeURIComponent(
@@ -233,11 +259,13 @@ export function checkDocumentation(root: string) {
           continue // No network requests: external availability is reviewed separately.
         } else {
           const [file, fragment = ''] = href.split('#')
+
           target = file ? resolve(dirname(path), decodeURIComponent(file.split('?')[0])) : path
           hash = decodeURIComponent(fragment)
         }
 
         const rel = relative(root, target)
+
         if (rel === '..' || rel.startsWith(`..${sep}`)) {
           fail(line, `link escapes repository: ${href}`)
           continue
@@ -271,16 +299,19 @@ export function checkDocumentation(root: string) {
       examples: fences.length,
     })
   }
+
   return { errors, inventory }
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const args = process.argv.slice(2)
+
   if (args.some((arg) => arg !== '--inventory')) {
     throw new Error('Usage: node scripts/check-docs.ts [--inventory]')
   }
 
   const result = checkDocumentation(fileURLToPath(new URL('../', import.meta.url)))
+
   if (args.includes('--inventory')) {
     console.log(JSON.stringify(result, null, 2))
   } else if (result.errors.length) {

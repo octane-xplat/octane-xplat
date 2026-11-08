@@ -34,6 +34,7 @@ export function startReporting(config: ReportingConfig): void {
   if (initialized) {
     return
   }
+
   const options: BrowserReportingOptions = {
     ...config,
     dataCollection: {
@@ -53,6 +54,7 @@ export function startReporting(config: ReportingConfig): void {
         : null,
     beforeSend: (event) => (collecting ? filterError(event) : null),
   }
+
   sentry.init(options)
   initialized = true
   collecting = true
@@ -63,6 +65,7 @@ export function reportDeliveryCheck(): string | null {
   if (!collecting) {
     return null
   }
+
   sentry.addBreadcrumb({ category: 'app-action', message: 'report-delivery-check' })
   return sentry.captureException(new Error('Xplat reporting check')) ?? null
 }

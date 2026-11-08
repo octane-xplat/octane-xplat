@@ -34,6 +34,7 @@ function leaf(origin, bridge, Constructor = WebSocket) {
       return { Device: { os: 'Android' } }
     },
   }
+
   sandbox.globalThis = sandbox
   vm.runInNewContext(bridgeSource, sandbox)
   return sandbox.exports
@@ -50,16 +51,19 @@ function upgraded(url, origin) {
         Origin: origin,
       },
     })
+
     request.setTimeout(3000, () => request.destroy(new Error('Upgrade timed out')))
     request.on('error', reject)
     request.on('response', (response) => {
       response.resume()
       reject(new Error('Upgrade refused: ' + response.statusCode))
     })
+
     request.on('upgrade', (response, socket) => {
       socket.destroy()
       resolve(response.statusCode)
     })
+
     request.end()
   })
 }
@@ -71,11 +75,13 @@ test(
     const scratch = scratchRun(root, 'device-relay')
     const ready = join(scratch, 'ready.json'),
       requests = join(scratch, 'requests.json')
+
     const upstream = spawn(
       'bun',
       [join(root, 'tools/cli-go/device-relay-fixture.mjs'), ready, requests],
       { stdio: 'ignore' },
     )
+
     const exited = once(upstream, 'close')
     let vite
     const trapRequests = []
@@ -83,23 +89,28 @@ test(
       trapRequests.push(request.url)
       response.writeHead(404).end()
     })
+
     await new Promise((resolve) => trap.listen(0, '127.0.0.1', resolve))
     t.after(async () => {
       if (upstream.exitCode === null && upstream.signalCode === null) {
         upstream.kill('SIGTERM')
       }
+
       await exited
       await vite?.close()
       trap.closeAllConnections?.()
       await new Promise((resolve) => trap.close(resolve))
       rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 })
     })
+
     const deadline = Date.now() + 5000
+
     while (!existsSync(ready)) {
       assert.equal(upstream.exitCode, null, 'Upstream fixture exited')
       assert.ok(Date.now() < deadline, 'Upstream fixture readiness timed out')
       await delay(20)
     }
+
     const port = JSON.parse(readFileSync(ready)).port
     const socket = `ws://127.0.0.1:${port}/app?target=android%3Adevice%2Bid&instance=${'a'.repeat(32)}`
     const bridge = {
@@ -110,9 +121,13 @@ test(
       instanceId: 'a'.repeat(32),
       token: 'b'.repeat(64),
     }
+
     const previous = process.env.XPLAT_DEV_APP_BRIDGE
+
     process.env.XPLAT_DEV_APP_BRIDGE = JSON.stringify(bridge)
+
     let plugin, direct
+
     try {
       plugin = nativeDevSocketPlugin({ deviceRelay: true })
       direct = nativeDevSocketPlugin()
@@ -123,9 +138,12 @@ test(
         process.env.XPLAT_DEV_APP_BRIDGE = previous
       }
     }
+
     assert.equal(JSON.parse(direct.config().define.__XPLAT_DEV_BRIDGE__).socket, socket)
     assert.equal(direct.config().server, undefined)
+
     const define = JSON.parse(plugin.config().define.__XPLAT_DEV_BRIDGE__)
+
     assert.ok(define.socket.startsWith('/__xplat_dev__/app?'))
     assert.equal(define.socket.includes(bridge.token), false)
     vite = await createServer({
@@ -140,10 +158,14 @@ test(
         proxy: { '/': { target: `http://127.0.0.1:${trap.address().port}`, ws: true } },
       },
     })
+
     await vite.listen()
+
     const origin = `http://127.0.0.1:${vite.httpServer.address().port}`
     const client = leaf(origin, define).devBridgeSocket(define.socket)
+
     assert.equal(new URL(client.url).host, new URL(origin).host)
+
     const echoed = new Promise((resolve, reject) => {
       client.onopen = () => client.send('native-app-frame')
       client.onmessage = (event) => resolve(event.data)
@@ -152,6 +174,7 @@ test(
           new Error(`Relayed WebSocket failed; project proxy requests: ${trapRequests.length}`),
         )
     })
+
     try {
       assert.equal(await echoed, 'native-app-frame')
     } finally {
@@ -164,6 +187,7 @@ test(
         await closed
       }
     }
+
     assert.equal(await upgraded(origin + define.socket, 'http://caller.example'), 101)
     assert.deepEqual(
       JSON.parse(readFileSync(requests)).map((item) => item.path),
@@ -172,11 +196,13 @@ test(
         new URL(socket).pathname + new URL(socket).search,
       ],
     )
+
     assert.equal(
       JSON.parse(readFileSync(requests))[1].origin,
       'http://caller.example',
       'Do not forge Origin to bypass Go validation',
     )
+
     for (const path of [
       '/rpc',
       define.socket + '&extra=1',
@@ -185,22 +211,26 @@ test(
     ]) {
       await fetch(origin + path)
     }
+
     assert.equal(
       JSON.parse(readFileSync(requests)).length,
       2,
       'Other paths and identities must not reach the upstream',
     )
+
     assert.equal(
       trapRequests.length,
       4,
       'Preserve ordinary project proxies while reserving the exact app channel',
     )
+
     let resolved
     class RecordingSocket {
       constructor(url) {
         resolved = url
       }
     }
+
     leaf('https://device-host.example:8443', define, RecordingSocket).devBridgeSocket(define.socket)
     assert.equal(new URL(resolved).protocol, 'wss:')
     assert.equal(new URL(resolved).host, 'device-host.example:8443')
@@ -208,6 +238,7 @@ test(
       () => leaf(origin, define, RecordingSocket).devBridgeSocket('//other.example/app'),
       /Invalid app debug relay/,
     )
+
     mkdirSync(join(root, 'research/go-cli'), { recursive: true })
     writeFileSync(
       join(root, 'research/go-cli/device-relay-node.json'),

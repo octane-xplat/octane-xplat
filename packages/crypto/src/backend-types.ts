@@ -1,4 +1,5 @@
 import type { AESKeySize, CryptoDigestAlgorithm } from './types'
+
 export interface CryptoBackend {
   capabilities(): {
     digestAlgorithms: readonly CryptoDigestAlgorithm[]

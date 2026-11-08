@@ -30,8 +30,10 @@ export function applyThemeClasses(view: ThemeClassHost, base = ''): () => void {
   }
 
   apply()
+
   const offScheme = onThemeSchemeChange(apply)
   const offScope = onThemeScopeChange(apply)
+
   return () => {
     offScheme()
     offScope()

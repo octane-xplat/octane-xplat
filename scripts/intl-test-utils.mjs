@@ -24,6 +24,7 @@ export async function checkIntlBundle(
           if (id === entry) {
             return id
           }
+
           if (id === './detect-locale') {
             return '\0locale-host'
           }
@@ -32,6 +33,7 @@ export async function checkIntlBundle(
           if (id === entry) {
             return source
           }
+
           if (id === '\0locale-host') {
             return 'export const detectSystemLocale = () => "en"'
           }
@@ -45,15 +47,21 @@ export async function checkIntlBundle(
     },
     build: { write: false, minify: true, lib: { entry, formats: ['es'] } },
   })
+
   const chunks = [result]
     .flat()
     .flatMap((result) => result.output)
     .filter((item) => item.type === 'chunk')
+
   assert.equal(chunks.length, 1)
+
   const directory = await mkdtemp(join(tmpdir(), 'xplat-intl-'))
+
   try {
     const file = join(directory, 'consumer.mjs')
+
     await writeFile(file, chunks[0].code)
+
     const child = spawnSync(
       process.execPath,
       [
@@ -73,5 +81,6 @@ export async function checkIntlBundle(
   } finally {
     await rm(directory, { recursive: true, force: true })
   }
+
   return { modules: Object.keys(chunks[0].modules), bytes: Buffer.byteLength(chunks[0].code) }
 }

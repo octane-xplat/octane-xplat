@@ -30,7 +30,9 @@ function LightboxLayer(props: {
   const { media, index } = props
   const count = media.length
   const navigation = useRef({ index, count })
+
   navigation.current = { index, count }
+
   const item = media[index]
   const layer = useRef<HTMLDivElement | null>(null)
   const stage = useRef<HTMLDivElement | null>(null)
@@ -40,8 +42,11 @@ function LightboxLayer(props: {
   const drag = useRef<{ x: number; y: number } | null>(null)
   const suppressClick = useRef(false)
   const onClose = useRef(props.onClose)
+
   onClose.current = props.onClose
+
   const setIndex = useRef(props.setIndex)
+
   setIndex.current = props.setIndex
 
   const isVideo = item?.type === 'video'
@@ -62,14 +67,18 @@ function LightboxLayer(props: {
   useEffect(() => {
     const el = layer.current
     const panel = stage.current
+
     if (!el || !panel) {
       return
     }
 
     const restoreScroll = document.documentElement.style.overflow || ''
+
     document.documentElement.style.overflow = 'hidden'
+
     const releaseFocus = isolateModalFocus(el, panel, () => {
       const target = props.finalFocusRef?.current
+
       onClose.current()
     })
 
@@ -82,6 +91,7 @@ function LightboxLayer(props: {
       const { index, count } = navigation.current
       const fwd = rtl ? 'ArrowLeft' : 'ArrowRight'
       const back = rtl ? 'ArrowRight' : 'ArrowLeft'
+
       if (event.key === fwd) {
         setIndex.current(Math.min(index + 1, count - 1))
       } else if (event.key === back) {
@@ -94,7 +104,9 @@ function LightboxLayer(props: {
       document.removeEventListener('keydown', onKey)
       releaseFocus()
       document.documentElement.style.overflow = restoreScroll
+
       const target = props.finalFocusRef?.current
+
       if (target && typeof target.focus === 'function' && target.isConnected !== false) {
         target.focus({ preventScroll: true })
       }
@@ -104,6 +116,7 @@ function LightboxLayer(props: {
   // Zoom: click toggles 1↔2.5, drag pans while zoomed.
   const applyZoom = (on: boolean, keepPan = false) => {
     const el = imgEl.current
+
     if (!el) {
       return
     }
@@ -145,6 +158,7 @@ function LightboxLayer(props: {
   const onPointerMove = (event: PointerEvent) => {
     const start = drag.current
     const el = imgEl.current
+
     if (!start || !el) {
       return
     }
@@ -261,6 +275,7 @@ export function Lightbox(props: LightboxProps): JSX.Element | null @{
   const index = clampIndex(props.index ?? internal, count)
   const setIndex = (i: number) => {
     const clamped = clampIndex(i, count)
+
     if (props.index == null) {
       setInternal(clamped)
     }

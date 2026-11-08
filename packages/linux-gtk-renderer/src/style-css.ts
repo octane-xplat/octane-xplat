@@ -111,6 +111,7 @@ function cssValue(name: string, value: unknown): string | null {
       ? String(value)
       : `${value}px`
   }
+
   if (typeof value === 'string') {
     if (name === 'fontWeight') {
       return value
@@ -132,6 +133,7 @@ function cssValue(name: string, value: unknown): string | null {
 
     return value.replace(DIP_RE, '$1px')
   }
+
   return null
 }
 
@@ -140,13 +142,17 @@ function cssValue(name: string, value: unknown): string | null {
 function resolveBackgroundImage(value: string, options: GtkStyleOptions | undefined): string {
   return value.replace(URL_RE, (match, quote: string, raw: string) => {
     const url = raw.trim()
+
     if (url.startsWith('~/')) {
       const resolved = options?.resolveUrl?.(url.slice(2))
+
       return resolved ? `url("${resolved}")` : match
     }
+
     if (url.startsWith('file://') || url.startsWith('data:')) {
       return match
     }
+
     options?.onWarn?.(`[linux-gtk-css] ignored unsupported background-image url "${url}"`)
     return 'none'
   })
@@ -156,18 +162,24 @@ function resolveBackgroundImage(value: string, options: GtkStyleOptions | undefi
  *  width — GTK has no text-stroke; this is the documented approximation. */
 function textStrokeShadows(value: unknown): string | null {
   const s = String(value ?? '').trim()
+
   if (!s) {
     return null
   }
+
   const space = s.indexOf(' ')
+
   if (space === -1) {
     return null
   }
+
   const width = parseFloat(s.slice(0, space))
   const color = s.slice(space + 1).trim()
+
   if (!(width > 0) || !color) {
     return null
   }
+
   const dirs = [
     [width, 0],
     [-width, 0],
@@ -178,6 +190,7 @@ function textStrokeShadows(value: unknown): string | null {
     [-width, width],
     [-width, -width],
   ]
+
   return dirs.map(([x, y]) => `${x}px ${y}px 0 ${color}`).join(', ')
 }
 
@@ -185,9 +198,11 @@ function numericPositive(value: unknown): boolean {
   if (typeof value === 'number') {
     return value > 0
   }
+
   if (typeof value === 'string') {
     return parseFloat(value) > 0
   }
+
   return false
 }
 
@@ -209,6 +224,7 @@ export function gtkStyleCss(
   if (style && typeof style === 'object') {
     for (const name of Object.keys(CSS_PROPS)) {
       const value = style[name]
+
       if (value == null) {
         continue
       }
@@ -217,11 +233,13 @@ export function gtkStyleCss(
       // the widget node.
       if (subnodes && (name === 'color' || name === 'backgroundColor') && subnodes[name]) {
         const [subSel, cssName] = subnodes[name]!
+
         extra.push(`${subSel.replace('%S', selector)} { ${cssName}: ${value}; }`)
         continue
       }
 
       let decl = cssValue(name, value)
+
       if (decl === null) {
         continue
       }
@@ -244,6 +262,7 @@ export function gtkStyleCss(
       numericPositive(style.borderRightWidth) ||
       numericPositive(style.borderBottomWidth) ||
       numericPositive(style.borderLeftWidth))
+
   if (hasBorderWidth && style!.borderStyle == null) {
     next.push(['border-style', 'solid'])
   }
@@ -251,8 +270,10 @@ export function gtkStyleCss(
   // text-stroke approximation rides the same text-shadow declaration,
   // appended after any authored shadows.
   const stroke = textStrokeShadows(style?.textStroke)
+
   if (stroke) {
     const idx = next.findIndex(([k]) => k === 'text-shadow')
+
     if (idx === -1) {
       next.push(['text-shadow', stroke])
     } else {
@@ -262,21 +283,26 @@ export function gtkStyleCss(
 
   const box = options?.transformBox
   const transform = box ? resolveTransform(style) : null
+
   if (transform && box) {
     next.push(['transform', cssTransformText(transform, box.width, box.height)])
     next.push(['transform-origin', 'center'])
   }
 
   const rules: string[] = []
+
   if (next.length) {
     rules.push(`${selector} { ${next.map(([k, v]) => `${k}: ${v};`).join(' ')} }`)
   }
+
   rules.push(...extra)
   if (nodeType === 'textfield' && style?.placeholderColor != null) {
     rules.push(`${selector} placeholder { color: ${style.placeholderColor}; }`)
   }
+
   if (nodeType === 'textview') {
     const font: Record<string, unknown> = {}
+
     for (const key of [
       'fontSize',
       'fontFamily',
@@ -294,6 +320,7 @@ export function gtkStyleCss(
 
     const layout = selector + '-layout'
     const inherited = gtkStyleCss(layout, font, 'textview-hint-host')
+
     if (inherited) {
       rules.push(inherited)
     }
@@ -302,6 +329,7 @@ export function gtkStyleCss(
       `${layout} .xplat-text-placeholder { color: ${style?.placeholderColor ?? 'alpha(currentColor, 0.5)'}; }`,
     )
   }
+
   return rules.join('\n')
 }
 
@@ -333,6 +361,7 @@ export function normalizeStyleBag(style: unknown): PropBag {
       Object.assign(out, v)
     }
   }
+
   walk(style)
   return out
 }
@@ -341,6 +370,7 @@ function pangoColor(value: unknown): string | null {
   if (typeof value === 'string' && value.trim() !== '') {
     return value.trim()
   }
+
   return null
 }
 
@@ -350,15 +380,18 @@ function pangoSize(value: unknown): string | null {
   if (typeof value === 'number' && Number.isFinite(value)) {
     return String(Math.round(value * 1024))
   }
+
   if (typeof value === 'string') {
     const s = value.trim()
     const n = parseFloat(s)
+
     if (s.endsWith('px') || s.endsWith('pt')) {
       return Number.isFinite(n) ? String(Math.round(n * 1024)) : null
     }
 
     return s === '' ? null : s
   }
+
   return null
 }
 
@@ -382,11 +415,13 @@ export function spanPangoAttrs(style: PropBag): Record<string, string> {
   put('stretch', style.fontStretch)
 
   const letterSpacing = Number(style.letterSpacing)
+
   if (Number.isFinite(letterSpacing) && letterSpacing !== 0) {
     put('letter_spacing', Math.round(letterSpacing * 1024))
   }
 
   const opacity = Number(style.opacity)
+
   if (Number.isFinite(opacity)) {
     put('alpha', `${Math.round(Math.min(1, Math.max(0, opacity)) * 100)}%`)
   }
@@ -398,13 +433,17 @@ export function spanPangoAttrs(style: PropBag): Record<string, string> {
   }
 
   const deco = `${style.textDecoration ?? ''} ${style.textDecorationLine ?? ''}`.toLowerCase()
+
   if (deco.includes('underline')) {
     put('underline', style.textDecorationStyle === 'double' ? 'double' : 'single')
   }
+
   if (deco.includes('line-through') || deco.includes('linethrough')) {
     put('strikethrough', 'true')
   }
+
   const decoColor = pangoColor(style.textDecorationColor)
+
   if (decoColor !== null) {
     put('underline_color', decoColor)
     put('strikethrough_color', decoColor)

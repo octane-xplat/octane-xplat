@@ -15,6 +15,7 @@ export const resolveBin = (name, anchors = [join(process.cwd(), 'noop.js'), impo
       const manifestPath = require.resolve(`${name}/package.json`)
       const { bin } = JSON.parse(readFileSync(manifestPath, 'utf8'))
       const entry = typeof bin === 'string' ? bin : bin?.[name]
+
       if (entry) {
         return join(dirname(manifestPath), entry)
       }

@@ -24,7 +24,9 @@ function fakeClock() {
     clock,
     advance(ms: number) {
       time += ms
+
       const pending = [...callbacks.values()]
+
       callbacks.clear()
       pending.forEach((fn) => fn())
     },
@@ -89,6 +91,7 @@ describe('delegated runs', () => {
     controller.seed({ x: 0 })
 
     const done = controller.animate({ x: 100 }, { duration: 0.5 }, false)
+
     expect(request?.eff.x).toBe(100)
     expect(request?.target.x).toBe(100)
 
@@ -114,6 +117,7 @@ describe('delegated runs', () => {
     controller.seed({ scaleX: 0.5 })
 
     const done = controller.animate({ scale: 2 }, { duration: 0.4 }, false)
+
     // Retained scaleX=0.5 folds into the effective destination.
     expect(request?.eff.scaleX).toBe(1)
     expect(request?.eff.scaleY).toBe(2)
@@ -134,13 +138,17 @@ describe('delegated runs', () => {
     const runs = [first, second]
     let calls = 0
     const { adapter } = stubHost(() => runs[calls++ % runs.length])
+
     controller.attach(adapter)
     controller.seed({ x: 0 })
 
     const doneFirst = controller.animate({ x: 100 }, { duration: 0.5 }, false)
+
     first.setEff({ x: 30 })
     time.advance(16)
+
     const doneSecond = controller.animate({ x: -50 }, { duration: 0.5 }, false)
+
     expect(first.cancelCalls).toBe(1)
     // The interruption sample is written into the channel value.
     expect(controller.values.get('x')?.get()).toBe(30)
@@ -193,6 +201,7 @@ describe('delegated runs', () => {
     controller.seed({ x: 0 })
 
     const done = controller.animate({ x: 50 }, { duration: 0.5 }, true)
+
     expect(delegated).toBe(false)
     expect(await done).toBe('finished')
     expect(controller.values.get('x')?.get()).toBe(50)
@@ -204,10 +213,12 @@ describe('delegated runs', () => {
     const controller = new Controller(time.clock)
     const run = fakeRun({ x: 0 })
     const { adapter } = stubHost(() => run)
+
     controller.attach(adapter)
     controller.seed({ x: 0 })
 
     const done = controller.animate({ x: 100 }, { duration: 0.5 }, false)
+
     controller.stop()
     expect(run.cancelCalls).toBe(1)
     expect(await done).toBe('replaced')
@@ -230,6 +241,7 @@ describe('delegated runs', () => {
     controller.seed({ x: 0 })
 
     const done = controller.animate({ x: 100 }, transition as any, false)
+
     expect(delegated).toBe(false)
     for (let i = 0; i < 500; i++) {
       time.advance(16)
@@ -243,6 +255,7 @@ describe('delegated runs', () => {
     const time = fakeClock()
     const controller = new Controller(time.clock)
     const { adapter } = stubHost()
+
     controller.attach(adapter)
     controller.seed({ x: 0, y: 0 })
 

@@ -24,15 +24,19 @@ export interface ThemeCssOptions {
 function resolveEmbeddedLightDark(value: string, mode: 'light' | 'dark'): string {
   let out = ''
   let i = 0
+
   while (i < value.length) {
     const start = value.indexOf('light-dark(', i)
+
     if (start === -1) {
       return out + value.slice(i)
     }
 
     out += value.slice(i, start)
+
     const open = value.indexOf('(', start)
     const close = findMatchingParen(value, open)
+
     if (close === -1) {
       return out + value.slice(start)
     }
@@ -40,8 +44,10 @@ function resolveEmbeddedLightDark(value: string, mode: 'light' | 'dark'): string
     const body = value.slice(open + 1, close)
     let depth = 0
     let comma = -1
+
     for (let j = 0; j < body.length; j++) {
       const c = body[j]
+
       if (c === '(') {
         depth++
       } else if (c === ')') {
@@ -59,6 +65,7 @@ function resolveEmbeddedLightDark(value: string, mode: 'light' | 'dark'): string
 
     i = close + 1
   }
+
   return out
 }
 
@@ -70,10 +77,13 @@ function tokenCss(
 ): string {
   if (target === 'web') {
     const v = Array.isArray(value) ? `light-dark(${value[0]}, ${value[1]})` : value
+
     return `\t${name}: ${v};`
   }
+
   const arm = mode ?? 'light'
   const raw = Array.isArray(value) ? (arm === 'dark' ? value[1] : value[0]) : value
+
   return `\t${name}: ${resolveEmbeddedLightDark(raw, arm)};`
 }
 
@@ -98,6 +108,7 @@ const scopeTextCss = '\tcolor: var(--color-text-primary);\n\tfont-family: var(--
  *  are concrete literals resolved (defaults under theme) per mode block. */
 function scopeTextCssNative(theme: DefinedTheme, mode: 'light' | 'dark'): string {
   const resolved = resolveThemeTokens(theme, { mode })
+
   return `\tcolor: ${resolved['--color-text-primary']};\n\tfont-family: ${resolved['--font-family-body']};`
 }
 

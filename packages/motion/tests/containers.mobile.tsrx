@@ -32,6 +32,7 @@ export default function ContainerProbe() @{
   const [shifted, setShifted] = useState(false)
   const [enabled, setEnabled] = useState(true)
   const [shared, setShared] = useState(false)
+
   handoff = setShared
   expand = setWide
   moveRoot = setRootMoved
@@ -126,6 +127,7 @@ const scalar = (value: any) =>
 
 export async function run(ctx: ProbeContext) {
   ctx.onCleanup(() => input.restore())
+
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
   const close = (name: string, actual: number, expected: number, tolerance = 1.5) => {
     ctx.record(name, { actual, expected })
@@ -138,6 +140,7 @@ export async function run(ctx: ProbeContext) {
   })
 
   await sleep(100)
+
   const paint = () => {
     const box = geometry(views.paint)
     const view = views.paint as any
@@ -152,6 +155,7 @@ export async function run(ctx: ProbeContext) {
         : style.boxShadow?.[0]
 
     const scale = box.width / box.modelWidth
+
     return {
       ...box,
       radius: scalar(style.borderRadius ?? style.borderTopLeftRadius) * scale,
@@ -161,6 +165,7 @@ export async function run(ctx: ProbeContext) {
 
   const baseline = paint()
   const view = views.paint as any
+
   ctx.record('native paint readback', {
     styleRadius: view.style.borderRadius,
     styleCorner: view.style.borderTopLeftRadius,
@@ -196,8 +201,10 @@ export async function run(ctx: ProbeContext) {
 
   scroller!.scrollToOffset({ block: 40 }, { animated: false })
   await sleep(50)
+
   const childBefore = geometry(views.anchored)
   const rootBefore = geometry(views.root)
+
   moveRoot(true)
   await ctx.waitFor(() => geometry(views.root).layoutX >= 59, { timeout: 3000, interval: 5 })
   close('root snaps', geometry(views.root).x - rootBefore.x, 60)
@@ -205,18 +212,24 @@ export async function run(ctx: ProbeContext) {
   close('scroll does not start paint projection', Number(views.paint.scaleX), 1, 0.001)
   await sleep(950)
   close('anchored child settles', geometry(views.anchored).x - childBefore.x, 80)
+
   const parentRest = geometry(views.parent).layoutX
   const previousStarts = starts
+
   shift(true)
   await ctx.waitFor(() => starts > previousStarts, { timeout: 3000, interval: 5 })
   await sleep(100)
+
   const moving = geometry(views.drag).x
+
   input.send(views.drag, 'start', 0)
   await sleep(40)
   close('grabbing active layout preserves position', geometry(views.drag).x, moving)
   input.send(views.drag, 'move', 20)
   await sleep(40)
+
   const beforeDrag = geometry(views.drag).x
+
   close('grabbed layout continues pointer movement', beforeDrag, moving + 20)
   shift(false)
   await ctx.waitFor(() => Math.abs(geometry(views.parent).layoutX - parentRest) <= 1, {
@@ -240,11 +253,15 @@ export async function run(ctx: ProbeContext) {
   input.send(views.drag, 'move', 10)
   enable(false)
   await sleep(60)
+
   const beforeStarts = starts
+
   shift(true)
   await ctx.waitFor(() => starts > beforeStarts, { timeout: 3000, interval: 10 })
   ctx.assert('disabled drag restores layout animation', starts > beforeStarts, true)
+
   const sourceBeforeScroll = geometry(views.source)
+
   sourceScroller!.scrollToOffset({ block: 80 }, { animated: false })
   await ctx.waitFor(() => sourceBeforeScroll.y - geometry(views.source).y >= 79, {
     timeout: 3000,
@@ -252,6 +269,7 @@ export async function run(ctx: ProbeContext) {
   })
 
   const sourceAfterScroll = geometry(views.source)
+
   close('native source scrolls', sourceBeforeScroll.y - sourceAfterScroll.y, 80)
   handoff(true)
   await ctx.waitFor(
@@ -260,6 +278,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const incoming = geometry(views.destination)
+
   close('shared handoff uses current scroll x', incoming.x, sourceAfterScroll.x, 3)
   close('shared handoff uses current scroll y', incoming.y, sourceAfterScroll.y, 3)
 }

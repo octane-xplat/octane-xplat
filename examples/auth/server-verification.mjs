@@ -8,6 +8,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
 
     try {
       const { attemptId, provider, idToken } = await request.json()
+
       if (
         typeof attemptId !== 'string' ||
         typeof idToken !== 'string' ||
@@ -19,6 +20,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
       // Bind attemptId to this browser/app session in the store. Consumption must
       // be atomic, expire attempts, and prevent reuse even on verification failure.
       const attempt = await consumeAttempt(request, attemptId)
+
       if (!attempt || attempt.provider !== provider) {
         return new Response(null, { status: 401 })
       }
@@ -49,6 +51,7 @@ export function providerVerification({ consumeAttempt, verifyIdToken, createSess
  * to this endpoint. Store redeemCode as a server-only operation on the RP. */
 export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, createSession }) {
   const base = new URL(callbackBase)
+
   return async (request) => {
     if (request.method !== 'POST') {
       return new Response(null, { status: 405 })
@@ -56,11 +59,13 @@ export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, c
 
     try {
       const { attemptId, callbackURL } = await request.json()
+
       if (typeof attemptId !== 'string' || typeof callbackURL !== 'string') {
         return new Response(null, { status: 400 })
       }
 
       const url = new URL(callbackURL)
+
       if (
         url.protocol !== base.protocol ||
         url.host !== base.host ||
@@ -74,11 +79,13 @@ export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, c
 
       const codes = url.searchParams.getAll('code')
       const states = url.searchParams.getAll('state')
+
       if (codes.length !== 1 || !codes[0] || states.length !== 1 || !states[0]) {
         return new Response(null, { status: 400 })
       }
 
       const attempt = await consumeAttempt(request, attemptId)
+
       if (!attempt || states[0] !== attempt.state) {
         return new Response(null, { status: 401 })
       }
@@ -86,6 +93,7 @@ export function hostedVerification({ callbackBase, consumeAttempt, redeemCode, c
       // Redeem once on the RP, bound to this attempt and its PKCE verifier. A URL
       // received on the right scheme alone never proves authentication.
       const identity = await redeemCode({ code: codes[0], attempt })
+
       if (!identity?.subject) {
         return new Response(null, { status: 401 })
       }

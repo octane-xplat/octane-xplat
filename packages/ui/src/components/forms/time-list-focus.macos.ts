@@ -36,14 +36,17 @@ export function createAppKitTimeListFocus(
     pending = true,
     queued = false,
     refreshing = false
+
   let lastFocused: NSView | null = null
   let highlighted: string | undefined, stopObserver: (() => void) | undefined
   const seed = () => {
     const rows = options.rows(),
       value = options.seed(),
       index = value ? rows.findIndex((row) => row.time >= value) : 0
+
     return rows[index < 0 ? rows.length - 1 : index]?.time
   }
+
   const navigation = createAppKitChoiceFocus(
     {
       root: () => root,
@@ -57,30 +60,37 @@ export function createAppKitTimeListFocus(
     },
     bridge,
   )
+
   const keys = () =>
     navigation
       .orderedKeys()
       .filter((key): key is ISOTimeString => options.rows().some((row) => row.time === key))
+
   const publish = (time: ISOTimeString) => {
     if (root && highlighted !== time) {
       highlighted = time
       options.highlight(time)
     }
   }
+
   const focus = (time: ISOTimeString) => {
     if (keys().includes(time) && navigation.focus(time)) {
       lastFocused = views.get(time) ?? null
       publish(time)
       return true
     }
+
     return false
   }
+
   const refresh = () => {
     const window = root?.window
     const flag = (name: string) => {
       const value = root ? Reflect.get(root, name) : false
+
       return Boolean(typeof value === 'function' ? value.call(root) : value)
     }
+
     if (
       !window ||
       flag('hidden') ||
@@ -93,13 +103,17 @@ export function createAppKitTimeListFocus(
       pending = true
       return
     }
+
     if (owner !== window) {
       navigation.dispose()
       owner = window
       pending = true
     }
+
     navigation.synchronize()
+
     const active = [...views].find(([, view]) => view === window.firstResponder)?.[0]
+
     if (pending || (active && !keys().includes(active))) {
       const preferred = seed(),
         available = keys()
@@ -117,10 +131,12 @@ export function createAppKitTimeListFocus(
       publish(active)
     }
   }
+
   const refreshSafely = () => {
     if (refreshing) {
       return
     }
+
     refreshing = true
     try {
       refresh()
@@ -130,10 +146,12 @@ export function createAppKitTimeListFocus(
       refreshing = false
     }
   }
+
   const update = (): void => {
     if (queued) {
       return
     }
+
     queued = true
     void Promise.resolve().then(() => {
       queued = false
@@ -142,10 +160,12 @@ export function createAppKitTimeListFocus(
       }
     })
   }
+
   const bind = (view: NSView | null): void => {
     if (root === view) {
       return
     }
+
     navigation.dispose()
     stopObserver?.()
     stopObserver = undefined
@@ -158,8 +178,10 @@ export function createAppKitTimeListFocus(
       views.clear()
       return
     }
+
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter
+
     if (
       bridge()?.keyboardEventsSupported &&
       center?.addObserverForNameObjectQueueUsingBlock &&
@@ -182,10 +204,13 @@ export function createAppKitTimeListFocus(
         console.warn('[macos-times] focus observation unavailable', error)
       }
     }
+
     update()
   }
+
   const activate = (time: ISOTimeString): void => {
     const view = views.get(time)
+
     if (
       !root?.window ||
       view?.window !== root.window ||
@@ -194,8 +219,10 @@ export function createAppKitTimeListFocus(
     ) {
       return
     }
+
     options.choose(time)
   }
+
   return {
     bind,
     update,
@@ -208,16 +235,19 @@ export function createAppKitTimeListFocus(
         if (views.get(time) === view) {
           views.delete(time)
         }
+
         if (lastFocused === view) {
           lastFocused = null
           pending = true
         }
+
         update()
       }
     },
     keyDown(event: NativeKeyboardEvent<NSView>): void {
       const window = root?.window,
         target = event.target
+
       if (
         !window ||
         !bridge()?.keyboardEventsSupported ||
@@ -232,15 +262,19 @@ export function createAppKitTimeListFocus(
       ) {
         return
       }
+
       const rows = keys(),
         key = [...views].find(([, view]) => view === target)?.[0]
+
       if ((!key || !rows.includes(key)) && target !== root) {
         return
       }
+
       const stop = () => {
         event.preventDefault()
         event.stopPropagation()
       }
+
       if (event.key === 'Tab') {
         if (options.tab(event.shiftKey)) {
           stop()
@@ -248,9 +282,11 @@ export function createAppKitTimeListFocus(
 
         return
       }
+
       if (event.key === 'Escape') {
         return
       } // Existing layer dismissal owns ordinary Escape.
+
       if (event.key === 'Enter' || event.key === ' ') {
         if (key && rows.includes(key)) {
           stop()
@@ -259,11 +295,15 @@ export function createAppKitTimeListFocus(
 
         return
       }
+
       if (!['ArrowUp', 'ArrowDown', 'Home', 'End'].includes(event.key)) {
         return
       }
+
       stop()
+
       const next = rows[timeOptionIndex(event.key, key ? rows.indexOf(key) : -1, rows.length)]
+
       if (next) {
         focus(next)
       }

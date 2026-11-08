@@ -8,6 +8,7 @@ const target = process.argv[2]
 const heightMode = process.argv[3] ?? 'variable'
 const device = process.env.XPLAT_VLIST_DEVICE
 const durationMs = Number(process.env.XPLAT_VLIST_INPUT_MS ?? 20_000)
+
 if (target !== 'ios' && target !== 'android') {
   throw new Error(
     'Usage: XPLAT_VLIST_DEVICE=<id> node scripts/bench-virtual-list-input.ts <ios|android> [variable|fixed48|demo500]',
@@ -74,6 +75,7 @@ const restoreMode = () => {
 process.once('exit', restoreMode)
 
 const deviceId = process.env.XPLAT_VLIST_DEVICE
+
 if (!deviceId) {
   throw new Error('Set XPLAT_VLIST_DEVICE')
 }
@@ -164,7 +166,9 @@ const stopRun = () => {
 
   if (ownsApp) {
     ownsApp = false
+
     const appId = process.env.XPLAT_VLIST_APP_ID ?? 'org.nativescript.xplat.vlistbench'
+
     try {
       if (target === 'ios') {
         execFileSync('xcrun', ['simctl', 'terminate', device, appId], {
@@ -225,11 +229,13 @@ function sampleMemory() {
       )
 
       const match = output.match(/TOTAL PSS:\s+([\d,]+)/)
+
       if (match) {
         const summary = Object.fromEntries(
           ['Java Heap', 'Native Heap', 'Code', 'Stack', 'Graphics', 'Private Other', 'System'].map(
             (name) => {
               const category = output.match(new RegExp(name + ':\\s+([\\d,]+)'))?.[1]
+
               return [name, category === undefined ? null : Number(category.replaceAll(',', ''))]
             },
           ),
@@ -259,6 +265,7 @@ function sampleMemory() {
       )
 
     const pid = appLine?.match(/pid=(\d+)/)?.[1]
+
     if (!pid) {
       return
     }
@@ -284,9 +291,11 @@ async function sendInputGestures() {
   let width
   let height
   let duration
+
   if (target === 'android') {
     const output = execFileSync('adb', ['-s', device, 'shell', 'wm', 'size'], { encoding: 'utf8' })
     const size = output.match(/(?:Physical|Override) size:\s*(\d+)x(\d+)/)
+
     if (!size) {
       throw new Error(`Could not read Android screen size: ${output}`)
     }
@@ -300,6 +309,7 @@ async function sendInputGestures() {
     })
 
     const description = JSON.parse(output)
+
     width = description.screen_dimensions?.width_points
     height = description.screen_dimensions?.height_points
     if (!width || !height) {
@@ -316,8 +326,10 @@ async function sendInputGestures() {
   let swipeCount = 0
   let rounds = 0
   const startedAt = Date.now()
+
   while (!stopping && Date.now() - startedAt < durationMs - 1000) {
     let roundSwipes = 0
+
     for (const direction of directions) {
       if (stopping || Date.now() - startedAt >= durationMs - 1000) {
         break
@@ -325,6 +337,7 @@ async function sendInputGestures() {
 
       const fromY = direction === 'down' ? lower : upper
       const toY = direction === 'down' ? upper : lower
+
       if (target === 'android') {
         execFileSync(
           'adb',
@@ -387,16 +400,22 @@ async function sendInputGestures() {
 
 const consume = (chunk) => {
   const text = String(chunk)
+
   process.stderr.write(text)
   outputTail = (outputTail + text).slice(-12_000)
   partialLine += text
+
   const lines = partialLine.split(/\r?\n/)
+
   partialLine = lines.pop() ?? ''
   for (const line of lines) {
     const readyAt = line.indexOf(readyMarker)
+
     if (readyAt !== -1 && !gesturePromise) {
       ownsApp = true
+
       const memoryIntervalMs = durationMs >= 60_000 ? 30_000 : 5000
+
       memoryTimer = setInterval(sampleMemory, memoryIntervalMs)
       sampleMemory()
       gesturePromise = sendInputGestures()
@@ -412,6 +431,7 @@ const consume = (chunk) => {
     }
 
     const errorAt = line.indexOf(errorMarker)
+
     if (errorAt !== -1) {
       gestureError = line.slice(errorAt + errorMarker.length)
       clearTimeout(timeout)
@@ -420,19 +440,23 @@ const consume = (chunk) => {
     }
 
     const partAt = line.indexOf(resultPartMarker)
+
     if (partAt !== -1) {
       const part = JSON.parse(line.slice(partAt + resultPartMarker.length))
+
       resultParts[part.index] = part.text
       continue
     }
 
     const resultAt = line.indexOf(resultMarker)
+
     if (resultAt === -1) {
       continue
     }
 
     try {
       const payload = line.slice(resultAt + resultMarker.length).trim()
+
       result = JSON.parse(payload === 'complete' ? resultParts.join('') : payload)
       clearTimeout(timeout)
       void Promise.resolve(gesturePromise).then(() => {

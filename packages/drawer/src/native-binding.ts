@@ -28,6 +28,7 @@ export function bindDrawer(
     if (disposed) {
       return
     }
+
     pending = null
     if (read().onError) {
       read().onError!(error)
@@ -35,23 +36,29 @@ export function bindDrawer(
       console.error('[octane-xplat/drawer] animation failed', error)
     }
   }
+
   const sync = (): void => {
     if (disposed || !ready || pending !== null) {
       return
     }
+
     const next = desired()
+
     if (host.isOpened('left') === next) {
       return
     }
+
     pending = next
     try {
       const duration = read().reducedMotion ? 0 : undefined
       const operation = next ? host.open('left', duration) : host.close('left', duration)
+
       operation.catch(reportError)
     } catch (error) {
       reportError(error)
     }
   }
+
   return {
     sync,
     reportError,
@@ -63,11 +70,13 @@ export function bindDrawer(
       if (disposed) {
         return
       }
+
       if (pending !== null) {
         pending = null
         sync()
         return
       }
+
       if (open !== desired()) {
         if (read().open === undefined) {
           internal = open
@@ -78,6 +87,7 @@ export function bindDrawer(
           read().onDismiss?.()
         }
       }
+
       // Give a controlled owner time to render the requested state before
       // restoring a rejected gesture.
       queueMicrotask(sync)
@@ -86,9 +96,11 @@ export function bindDrawer(
       if (disposed || !desired()) {
         return
       }
+
       if (read().open === undefined) {
         internal = false
       }
+
       read().onOpenChange?.(false)
       read().onDismiss?.()
       queueMicrotask(sync)

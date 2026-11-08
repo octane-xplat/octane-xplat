@@ -3,11 +3,13 @@ import { Rectangle } from '@dnd-kit/geometry'
 /** AppKit points in top-left window-content coordinates, independent of parent and scroll offsets. */
 export function measure(view: any): Rectangle | null {
   const content = view?.window?.contentView
+
   if (!content || !view?.convertRectToView) {
     return null
   }
 
   const frame = view.convertRectToView(view.bounds, content)
+
   if (frame.size.width <= 0 || frame.size.height <= 0) {
     return null
   }

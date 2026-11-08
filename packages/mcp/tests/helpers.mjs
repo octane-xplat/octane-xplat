@@ -10,12 +10,14 @@ export function makeWorkspace(name = 'xplat-mcp-test-') {
 
 export function writeJson(root, rel, value) {
   const path = join(root, rel)
+
   mkdirSync(join(path, '..'), { recursive: true })
   writeFileSync(path, JSON.stringify(value, null, 2))
 }
 
 export function writeFile(root, rel, content) {
   const path = join(root, rel)
+
   mkdirSync(join(path, '..'), { recursive: true })
   writeFileSync(path, content)
 }

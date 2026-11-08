@@ -12,9 +12,11 @@ import { focusPublisher } from './focus-publish'
 import { keyboardNativeScope } from './native-scope'
 
 export const focusRechecks: Map<object, () => void> = new Map<object, () => void>()
+
 const dip = (value: number) => Utils.layout.toDeviceIndependentPixels(value)
 const location = (view: any) => {
   const xy = (Array as any).create('int', 2)
+
   view.getLocationOnScreen(xy)
   return { x: xy[0], y: xy[1] }
 }
@@ -25,10 +27,14 @@ const bounds = (
   box = { x: 0, y: 0, width: view.getWidth(), height: view.getHeight() },
 ): KeyboardRect | null => {
   const origin = location(decor)
+
   if (typeof view.transformMatrixToGlobal === 'function') {
     const matrix = new android.graphics.Matrix()
+
     view.transformMatrixToGlobal(matrix)
+
     const rect = new android.graphics.RectF(box.x, box.y, box.x + box.width, box.y + box.height)
+
     matrix.mapRect(rect)
     return {
       x: dip(rect.left - origin.x),
@@ -37,12 +43,15 @@ const bounds = (
       height: dip(rect.height()),
     }
   }
+
   for (let parent = view; parent?.getMatrix; parent = parent.getParent?.()) {
     if (!parent.getMatrix().isIdentity()) {
       return null
     }
   }
+
   const at = location(view)
+
   return {
     x: dip(at.x - origin.x + box.x),
     y: dip(at.y - origin.y + box.y),
@@ -56,20 +65,26 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
   const decor = key as any,
     scope = keyboardNativeScope(),
     publish = focusPublisher(notify)
+
   let active = true
+
   scope.defer(() => {
     active = false
   })
+
   try {
     const read = () => {
       if (!active) {
         return
       }
+
       const state = emptyFocus(
         { x: 0, y: 0, width: dip(decor.getWidth()), height: dip(decor.getHeight()) },
         'insertion-line',
       )
+
       const input = decor.findFocus?.()
+
       if (
         !input ||
         !(input instanceof android.widget.EditText) ||
@@ -80,12 +95,15 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
         publish(state)
         return
       }
+
       const selection = focusSelection(input.getSelectionStart(), input.getSelectionEnd())
       const layout = input.getLayout?.()
       let caret: KeyboardRect | null = null
+
       if (selection && layout?.getLineCount() > 0) {
         const end = Math.min(selection.end, layout.getLineEnd(layout.getLineCount() - 1))
         const line = layout.getLineForOffset(end)
+
         caret = bounds(input, decor, {
           x: layout.getPrimaryHorizontal(end) + input.getTotalPaddingLeft() - input.getScrollX(),
           y: layout.getLineTop(line) + input.getTotalPaddingTop() - input.getScrollY(),
@@ -93,11 +111,15 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
           height: layout.getLineBottom(line) - layout.getLineTop(line),
         })
       }
+
       const nested = (globalThis as any).androidx?.core?.widget?.NestedScrollView,
         mason = (globalThis as any).org?.nativescript?.mason?.masonkit?.TwoDScrollView
+
       const owners: FocusedInputScrollOwner[] = []
+
       for (let parent: any = input.getParent(); parent?.getParent; parent = parent.getParent()) {
         const masonScroll = !!mason && parent instanceof mason
+
         if (
           !(parent instanceof android.widget.ScrollView) &&
           !(nested && parent instanceof nested) &&
@@ -131,7 +153,9 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
           ),
         })
       }
+
       const box = bounds(input, decor)
+
       publish({
         ...state,
         input,
@@ -157,6 +181,7 @@ export const observeFocusedInput: KeyboardWindowSource<FocusedInputState> = (key
     decor.getViewTreeObserver().addOnPreDrawListener(listener)
     scope.defer(() => {
       const tree = decor.getViewTreeObserver()
+
       if (tree.isAlive()) {
         tree.removeOnPreDrawListener(listener)
       }

@@ -20,17 +20,22 @@ const { nativeScriptRenderer } = await import('@nativescript-community/octane/co
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
+
 mkdirSync(join(repoRoot, 'node_modules/.cache'), { recursive: true })
+
 const temporary = mkdtempSync(join(repoRoot, 'node_modules/.cache/drawer-consumer-'))
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   assert.equal(result.status, 0, `${command} ${args.join(' ')}\n${result.stdout}\n${result.stderr}`)
 }
 
 function pack(source, destination) {
   mkdirSync(destination, { recursive: true })
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', destination], source)
+
   const tarball = readdirSync(destination).find((file) => file.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(destination, tarball), '-C', destination], destination)
   return join(destination, 'package')
 }
@@ -38,9 +43,12 @@ function pack(source, destination) {
 try {
   const packed = pack(packageRoot, join(temporary, 'drawer'))
   const installed = join(temporary, 'node_modules/@octane-xplat/drawer')
+
   mkdirSync(dirname(installed), { recursive: true })
   cpSync(packed, installed, { recursive: true })
+
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   assert.equal(manifest.dependencies['@nativescript-community/ui-drawer'], '0.1.32')
   assert.equal(manifest.dependencies['@nativescript-community/gesturehandler'], '2.1.0')
   // Install only declared dependencies/peers. No UI workspace dev plugins leak
@@ -51,6 +59,7 @@ try {
     '@nativescript/types',
   ])) {
     const target = join(temporary, 'node_modules', dependency)
+
     mkdirSync(dirname(target), { recursive: true })
     symlinkSync(join(packageRoot, 'node_modules', dependency), target, 'dir')
   }
@@ -90,7 +99,9 @@ void view
   }
 
   const webEntry = join(temporary, 'web-entry.ts')
+
   writeFileSync(webEntry, "export { Drawer } from '@octane-xplat/drawer'\n")
+
   const bundle = await build({
     configFile: false,
     root: temporary,

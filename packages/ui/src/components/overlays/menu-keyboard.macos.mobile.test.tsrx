@@ -92,6 +92,7 @@ function fixture() {
 
 it('menu arrows wrap, edges move focus and activation remains manual', () => {
   const f = fixture()
+
   expect(f.key('ArrowDown').defaultPrevented).toBe(true)
   expect(f.state.focused).toBe('a')
   f.key('ArrowUp')
@@ -110,6 +111,7 @@ it('menu arrows wrap, edges move focus and activation remains manual', () => {
 
 it('directional submenu opening and parent closing follow RTL without activating ordinary rows', () => {
   const f = fixture()
+
   f.state.focused = 'a'
   expect(f.key('ArrowRight').defaultPrevented).toBe(false)
   f.state.focused = 'b'
@@ -127,6 +129,7 @@ it('directional submenu opening and parent closing follow RTL without activating
 
 it('prefix search and repeated characters cycle labels and expire without choosing rows', () => {
   const f = fixture()
+
   f.state.focused = 'a'
   f.key('a')
   expect(f.state.focused).toBe('b')
@@ -145,6 +148,7 @@ it('prefix search and repeated characters cycle labels and expire without choosi
 
 it('Tab requests close without trapping native movement; Escape stays with layer dismissal', () => {
   const f = fixture()
+
   expect(f.key('Tab').defaultPrevented).toBe(false)
   expect(f.key('Tab', { shiftKey: true }).stopped).toBe(false)
   expect(f.closed).toBe(2)
@@ -154,10 +158,12 @@ it('Tab requests close without trapping native movement; Escape stays with layer
 
 it('composition/prevented/modified events and unsuccessful or empty focus moves stay unconsumed', () => {
   const f = fixture()
+
   f.state.focused = 'b'
   for (const flag of ['isComposing', 'altKey', 'ctrlKey', 'metaKey', 'defaultPrevented']) {
     for (const name of ['ArrowDown', 'Enter', 'ArrowRight', 'ArrowLeft', 'a', 'Tab']) {
       const event = f.key(name, { [flag]: true })
+
       expect(event.stopped).toBe(false)
     }
   }

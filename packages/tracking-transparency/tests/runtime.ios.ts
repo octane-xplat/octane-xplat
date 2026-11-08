@@ -1,14 +1,19 @@
 const applicationActive = 0 // UIApplicationStateActive from UIKit.
+
 import { Application, File, Label, Page, knownFolders, path } from '@nativescript/core'
 import * as Tracking from '../src/index'
+
 const nativeStatus = () => {
   NSBundle.bundleWithPath('/System/Library/Frameworks/AppTrackingTransparency.framework')?.load()
+
   // The AppTrackingTransparency surface is a native runtime global with no
   // ambient declaration; this named shape is the bounded contract.
   interface TrackingGlobals {
     ATTrackingManager?: { trackingAuthorizationStatus?: unknown }
   }
+
   const manager = (globalThis as TrackingGlobals).ATTrackingManager
+
   return Number(manager?.trackingAuthorizationStatus ?? -1)
 }
 
@@ -22,6 +27,7 @@ const assert = (condition: unknown, message: string) => {
   if (!condition) {
     throw new Error(message)
   }
+
   checks.push(message)
 }
 
@@ -43,12 +49,14 @@ const page = new Page(),
 
 label.text = 'Tracking permission guard checks'
 page.content = label
+
 let started = false
 let backgroundArmed = false
 const suspended = () => {
   if (!backgroundArmed) {
     return
   }
+
   backgroundArmed = false
   void (async () => {
     try {
@@ -58,6 +66,7 @@ const suspended = () => {
       )
 
       let failure = ''
+
       try {
         await Tracking.requestTrackingPermissionsAsync()
       } catch (error) {
@@ -81,6 +90,7 @@ page.on(Page.loadedEvent, () => {
   if (started) {
     return
   }
+
   started = true
   void (async () => {
     try {
@@ -99,6 +109,7 @@ page.on(Page.loadedEvent, () => {
       const before = nativeStatus()
       const permission = await Tracking.getTrackingPermissionsAsync()
       const names = ['not-determined', 'restricted', 'denied', 'authorized']
+
       assert(
         permission.authorizationStatus === names[before],
         'facade preserves the actual ATTrackingManager authorization state',
@@ -137,7 +148,9 @@ page.on(Page.loadedEvent, () => {
           second = Tracking.requestTrackingPermissionsAsync()
 
         assert(first === second, 'concurrent facade callers share one pending request')
+
         let failure = ''
+
         try {
           await first
         } catch (error) {
@@ -150,6 +163,7 @@ page.on(Page.loadedEvent, () => {
         )
 
         let retry = ''
+
         try {
           await Tracking.requestTrackingPermissionsAsync()
         } catch (error) {

@@ -33,11 +33,13 @@ function tagFor(label: string, url?: string): string | undefined {
   }
 
   const version = label.match(/\d+\.\d+\.\d+/)?.[0]
+
   if (!version) {
     return undefined // 'Unreleased' and other unversioned sections
   }
 
   const prefix = label.slice(0, label.indexOf(version)).trim().toLowerCase().replace(/\s+/g, '-')
+
   return prefix && !prefix.startsWith('octane') ? `${prefix}-v${version}` : `v${version}`
 }
 
@@ -58,9 +60,11 @@ export function parseLog(md: string): LogSection[] {
       /^(?:\[([^\]]+)\]\(([^)\s]+)\)|\[([^\]]+)\]|(\S.*?))(?:\s+-\s+(\d{4}-\d{2}-\d{2}))?\s*$/.exec(
         body[0].slice(3),
       )
+
     const title = (m?.[1] ?? m?.[3] ?? m?.[4] ?? body[0].slice(3)).trim()
     const url = m?.[2]
     const date = m?.[5]
+
     sections.push({
       title,
       tag: tagFor(title, url),
@@ -68,11 +72,13 @@ export function parseLog(md: string): LogSection[] {
       url,
       body: body.slice(1).join('\n').trim(),
     })
+
     body = []
   }
 
   for (const line of md.split('\n')) {
     const delimiter = /^ {0,3}(`{3,}|~{3,})/.exec(line)?.[1]
+
     if (fence) {
       if (
         delimiter &&
@@ -118,10 +124,13 @@ export function buildChangelogMd(changelog: string, fixlog: string): string {
 
   const emit = (section: LogSection, fix?: LogSection) => {
     const anchor = anchorFor(section.tag ?? section.title.toLowerCase().replace(/\s+/g, '-'))
+
     out.push('', `## ${section.title} {#${anchor}}`, '')
+
     const meta = [section.date, section.url ? `[GitHub release](${section.url})` : '']
       .filter(Boolean)
       .join(' · ')
+
     if (meta) {
       out.push(`*${meta}*`, '')
     }
@@ -141,6 +150,7 @@ export function buildChangelogMd(changelog: string, fixlog: string): string {
   // releases still nest under '### Fixes' — spread keeps the heading/meta
   // while routing the body through the fix slot.
   const extras = fixes.filter((fix) => !features.some((f) => f.tag && f.tag === fix.tag))
+
   for (const section of features) {
     for (const extra of extras) {
       if (!claimed.has(extra) && extra.date && section.date && extra.date > section.date) {

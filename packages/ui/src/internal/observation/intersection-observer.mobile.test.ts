@@ -11,9 +11,11 @@ const { TestView, TestScrollView } = vi.hoisted(() => {
     private listeners = new Map<string, Set<() => void>>()
     on(event: string, listener: () => void) {
       let listeners = this.listeners.get(event)
+
       if (!listeners) {
         this.listeners.set(event, (listeners = new Set()))
       }
+
       listeners.add(listener)
     }
     off(event: string, listener: () => void) {
@@ -34,6 +36,7 @@ const { TestView, TestScrollView } = vi.hoisted(() => {
       return { width: this.width, height: this.height }
     }
   }
+
   return { TestView, TestScrollView: class extends TestView {} }
 })
 
@@ -54,10 +57,13 @@ afterEach(() => vi.useRealTimers())
 it('reports an exit after its scroll ancestor moves a target outside the viewport', async () => {
   const target = new TestView()
   const scroller = new TestScrollView()
+
   scroller.width = scroller.height = 100
   target.parent = scroller
+
   const callback = vi.fn()
   const observer = new IntersectionObserver(callback)
+
   try {
     observer.observe(target)
     await vi.runAllTimersAsync()
@@ -76,6 +82,7 @@ it('reports an exit when a target layout change moves it outside the viewport', 
   const target = new TestView()
   const callback = vi.fn()
   const observer = new IntersectionObserver(callback)
+
   try {
     observer.observe(target)
     await vi.runAllTimersAsync()
@@ -94,6 +101,7 @@ it('reports an exit when a visible target unloads', async () => {
   const target = new TestView()
   const callback = vi.fn()
   const observer = new IntersectionObserver(callback)
+
   try {
     observer.observe(target)
     await vi.runAllTimersAsync()
@@ -112,18 +120,23 @@ for (const cleanup of ['unobserve', 'disconnect'] as const) {
   it(`deduplicates each view/event pair and cleans up with ${cleanup}`, async () => {
     const target = new TestView()
     const root = new TestScrollView()
+
     root.width = root.height = 100
     target.parent = root
+
     const callback = vi.fn()
     const observer = new IntersectionObserver(callback, { root })
+
     observer.observe(target)
     observer.observe(target)
     for (const event of ['loaded', 'layoutChanged', 'unloaded']) {
       expect(target.listenerCount(event)).toBe(1)
     }
+
     for (const event of ['scroll', 'layoutChanged']) {
       expect(root.listenerCount(event)).toBe(1)
     }
+
     await vi.runAllTimersAsync()
     target.x = 200
     root.emit('layoutChanged')
@@ -135,12 +148,15 @@ for (const cleanup of ['unobserve', 'disconnect'] as const) {
     } else {
       observer.disconnect()
     }
+
     for (const event of ['loaded', 'layoutChanged', 'unloaded']) {
       expect(target.listenerCount(event)).toBe(0)
     }
+
     for (const event of ['scroll', 'layoutChanged']) {
       expect(root.listenerCount(event)).toBe(0)
     }
+
     target.x = 0
     target.emit('layoutChanged')
     root.emit('scroll')

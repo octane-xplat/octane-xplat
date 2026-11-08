@@ -22,6 +22,7 @@ export interface LineSeries {
 
 function linePoints(data: readonly number[], min: number, range: number, w: number, h: number) {
   const step = data.length > 1 ? w / (data.length - 1) : 0
+
   return data
     .map((v, i) => `${(i * step).toFixed(1)},${(h - ((v - min) / range) * h).toFixed(1)}`)
     .join(' ')
@@ -38,6 +39,7 @@ export function ChartLines(props: {
   const { min, max } = useMemo(() => {
     let lo = Infinity
     let hi = -Infinity
+
     for (const s of props.series) {
       for (const v of s.data) {
         if (v < lo) {
@@ -69,6 +71,7 @@ export function ChartLines(props: {
           .split(' ')
           .map((p) => {
             const [x, y] = p.split(',')
+
             return `${(Number(x) + pad).toFixed(1)},${(Number(y) + pad).toFixed(1)}`
           })
           .join(' ')

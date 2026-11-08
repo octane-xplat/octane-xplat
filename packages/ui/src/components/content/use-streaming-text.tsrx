@@ -19,11 +19,13 @@ const FALLBACK_TICK_MS_FAST = 8
  *  Returns null if unparseable. */
 export function parseCssDuration(value: string): number | null {
   const ms = value.match(/^([\d.]+)ms$/)
+
   if (ms) {
     return parseFloat(ms[1])
   }
 
   const s = value.match(/^([\d.]+)s$/)
+
   if (s) {
     return parseFloat(s[1]) * 1000
   }
@@ -45,6 +47,7 @@ let cachedSegmenter: Intl.Segmenter | null = null
 
 function graphemeSegmenter(): Intl.Segmenter | null {
   const Segmenter = typeof Intl === 'undefined' ? undefined : Intl.Segmenter
+
   if (typeof Segmenter !== 'function') {
     return null
   }
@@ -71,6 +74,7 @@ export function snapToGraphemeBoundary(text: string, offset: number): number {
   }
 
   const segmenter = graphemeSegmenter()
+
   if (segmenter) {
     return segmenter.segment(text).containing(offset)?.index ?? offset
   }
@@ -88,6 +92,7 @@ interface FrameHost {
 function frameHost(): FrameHost {
   const request = hostGlobal<(cb: (time: number) => void) => number>('requestAnimationFrame')
   const cancel = hostGlobal<(id: number) => void>('cancelAnimationFrame')
+
   if (typeof request === 'function' && typeof cancel === 'function') {
     // Web rAF/cancel must run with the window receiver — calling the
     // detached globals as FrameHost methods throws "Illegal invocation"
@@ -134,11 +139,13 @@ export function useStreamingText(
     }
 
     const base = parseCssDuration(token('--duration-fast-min'))
+
     if (base == null) {
       return speed === 'fast' ? FALLBACK_TICK_MS_FAST : FALLBACK_TICK_MS
     }
 
     const tick = speed === 'fast' ? base / 20 : base / 10
+
     return Math.max(4, Math.round(tick))
   }, [token, speed])
 
@@ -149,12 +156,14 @@ export function useStreamingText(
   const targetRef = useRef(targetText)
   const displayedLenRef = useRef(0)
   const lastTickRef = useRef(0)
+
   targetRef.current = targetText
 
   // Reset when the target clears (new message), snap when the stream ends.
   // Both are render-phase ref writes like the reference: the returned slice
   // already reflects them through displayedLenRef.
   const prevTargetLenRef = useRef(targetText.length)
+
   if (targetText.length !== prevTargetLenRef.current) {
     prevTargetLenRef.current = targetText.length
     if (targetText.length === 0) {
@@ -163,6 +172,7 @@ export function useStreamingText(
   }
 
   const prevIsStreamingRef = useRef(isStreaming)
+
   if (isStreaming !== prevIsStreamingRef.current) {
     prevIsStreamingRef.current = isStreaming
     if (!isStreaming && targetText.length > 0) {
@@ -181,10 +191,13 @@ export function useStreamingText(
 
     function tick(now: number) {
       const elapsed = now - lastTickRef.current
+
       if (elapsed >= tickMs) {
         lastTickRef.current = now
+
         const target = targetRef.current
         const currentLen = displayedLenRef.current
+
         if (currentLen < target.length) {
           displayedLenRef.current = Math.min(currentLen + charsPerTick, target.length)
           bump((n) => n + 1)
@@ -195,6 +208,7 @@ export function useStreamingText(
     }
 
     let frame = host.request(tick)
+
     return () => host.cancel(frame)
   }, [isStreaming, charsPerTick, tickMs, speed, prefersReducedMotion])
 

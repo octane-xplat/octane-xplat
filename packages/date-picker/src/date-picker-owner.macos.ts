@@ -50,6 +50,7 @@ export function createDatePickerOwner(deps: {
   let view: object | null = null,
     disposed = false,
     retained: number | undefined
+
   let status: DatePickerStatus = 'unavailable'
   type Session = {
     view: object
@@ -58,6 +59,7 @@ export function createDatePickerOwner(deps: {
     writing: number
     handle: DatePickerHandle | null
   }
+
   let session: Session | null = null
   const report = (next: DatePickerStatus) => {
     if (!disposed && next !== status) {
@@ -65,17 +67,21 @@ export function createDatePickerOwner(deps: {
       deps.status?.(next)
     }
   }
+
   const detach = () => {
     const old = session
+
     session = null
     try {
       old?.handle?.detach()
     } catch {}
   }
+
   const plan = (): DatePickerOptions | null => {
     const props = deps.props(),
       min = milliseconds(props.minimumDate),
       max = milliseconds(props.maximumDate)
+
     if (
       (min !== undefined && !valid(min)) ||
       (max !== undefined && !valid(max)) ||
@@ -83,23 +89,29 @@ export function createDatePickerOwner(deps: {
     ) {
       return null
     }
+
     const controlled = props.selection !== undefined
     let selected = controlled
       ? milliseconds(props.selection)!
       : (retained ?? milliseconds(props.defaultSelection) ?? (deps.now ?? Date.now)())
+
     if (!valid(selected)) {
       return null
     }
+
     if (
       controlled &&
       ((min !== undefined && selected < min) || (max !== undefined && selected > max))
     ) {
       return null
     }
+
     if (!controlled) {
       selected = Math.min(max ?? Infinity, Math.max(min ?? -Infinity, selected))
     }
+
     const mode = props.components ?? 'date'
+
     return {
       mode,
       style: mode === 'date' ? (props.pickerStyle ?? 'textField') : 'textField',
@@ -110,16 +122,20 @@ export function createDatePickerOwner(deps: {
       accessibilityLabel: props.accessibilityLabel,
     }
   }
+
   const update = () => {
     if (disposed || !view) {
       return
     }
+
     const options = plan()
+
     if (!options) {
       detach()
       report('invalid')
       return
     }
+
     retained = options.selectionMillis
     if (
       session &&
@@ -127,8 +143,10 @@ export function createDatePickerOwner(deps: {
     ) {
       detach()
     }
+
     if (session?.handle) {
       const owner = session
+
       owner.writing++
       try {
         owner.handle!.update(options)
@@ -146,11 +164,14 @@ export function createDatePickerOwner(deps: {
 
       return
     }
+
     const attach = deps.attach()
+
     if (!attach) {
       report('unavailable')
       return
     }
+
     const owner: Session = {
       view,
       mode: options.mode,
@@ -158,18 +179,23 @@ export function createDatePickerOwner(deps: {
       writing: 1,
       handle: null,
     }
+
     session = owner
     try {
       const handle = attach(view, options, (millis) => {
         if (disposed || session !== owner || owner.writing || !owner.handle) {
           return
         }
+
         const current = plan()
+
         if (!current || !current.enabled || !valid(millis)) {
           update()
           return
         }
+
         const picked = new Date(millis).getTime()
+
         if (
           (current.minimumMillis !== undefined && picked < current.minimumMillis) ||
           (current.maximumMillis !== undefined && picked > current.maximumMillis)
@@ -177,12 +203,15 @@ export function createDatePickerOwner(deps: {
           update()
           return
         }
+
         if (picked === current.selectionMillis) {
           return
         }
+
         if (deps.props().selection === undefined) {
           retained = picked
         }
+
         try {
           deps.props().onSelectionChange?.(new Date(picked))
         } finally {
@@ -211,6 +240,7 @@ export function createDatePickerOwner(deps: {
       owner.writing--
     }
   }
+
   return {
     update,
     bind(next: object | null) {

@@ -21,6 +21,7 @@ const EPS = 1
 function hidden(view: NSView) {
   return ['hidden', 'hiddenOrHasHiddenAncestor'].some((name) => {
     const value = Reflect.get(view, name)
+
     return Boolean(typeof value === 'function' ? value.call(view) : value)
   })
 }
@@ -40,12 +41,16 @@ export function createAppKitCarouselScroll(options: {
     const view = options.view(),
       clip = view?.contentView,
       document = view?.documentView
+
     if (!view?.window || !clip || !document || hidden(view)) {
       return null
     }
+
     const width = Number(clip.bounds.size.width),
       content = Number(document.frame.size.width)
+
     const metrics = scrollableAreaMetrics(view)
+
     if (
       ![width, content, metrics.x, metrics.maxX, Number(clip.bounds.origin.y)].every(
         Number.isFinite,
@@ -55,24 +60,31 @@ export function createAppKitCarouselScroll(options: {
     ) {
       return null
     }
+
     const direction = options.direction(),
       position = convertAppKitInlineOffset(metrics.x, metrics.maxX, direction)
+
     return { view, document, width, content, maximum: metrics.maxX, position, direction }
   }
+
   const state = (): {
     canPrev: boolean
     canNext: boolean
   } => {
     const geometry = read()
+
     if (!geometry || options.count() <= 0 || geometry.maximum <= EPS) {
       return { canPrev: false, canNext: false }
     }
+
     const loop = options.loop() && options.count() > 1
+
     return {
       canPrev: loop || geometry.position > EPS,
       canNext: loop || geometry.position < geometry.maximum - EPS,
     }
   }
+
   const move = (
     geometry: NonNullable<ReturnType<typeof read>>,
     logical: number,
@@ -85,8 +97,10 @@ export function createAppKitCarouselScroll(options: {
       animated && !options.reducedMotion(),
     )
   }
+
   const slideOffset = (geometry: NonNullable<ReturnType<typeof read>>, index: number) => {
     const slide = options.slides()[index]
+
     if (
       !slide ||
       slide.window !== geometry.view.window ||
@@ -95,24 +109,31 @@ export function createAppKitCarouselScroll(options: {
     ) {
       return null
     }
+
     const rect = slide.convertRectToView(slide.bounds, geometry.document),
       start = Number(rect.origin.x),
       width = Number(rect.size.width)
+
     if (![start, width].every(Number.isFinite) || width <= 0) {
       return null
     }
+
     const physical = geometry.direction === 'rtl' ? start + width - geometry.width : start
+
     return {
       logical: convertAppKitInlineOffset(physical, geometry.maximum, geometry.direction),
       start,
       width,
     }
   }
+
   const page = (forward: boolean) => {
     const geometry = read()
+
     if (!geometry || options.count() <= 0 || !(forward ? state().canNext : state().canPrev)) {
       return
     }
+
     const loop = options.loop() && options.count() > 1
     const target = forward
       ? loop && geometry.position >= geometry.maximum - EPS
@@ -121,19 +142,24 @@ export function createAppKitCarouselScroll(options: {
       : loop && geometry.position <= EPS
         ? geometry.maximum
         : geometry.position - geometry.width
+
     initialized = { view: geometry.view, direction: geometry.direction }
     move(geometry, target)
   }
+
   const handle: CarouselHandle = {
     scrollNext: () => page(true),
     scrollPrev: () => page(false),
     scrollTo(index) {
       const geometry = read(),
         count = options.count()
+
       if (!geometry || !count || !Number.isFinite(index)) {
         return
       }
+
       const offset = slideOffset(geometry, Math.max(0, Math.min(count - 1, Math.trunc(index))))
+
       if (offset) {
         initialized = { view: geometry.view, direction: geometry.direction }
         move(geometry, offset.logical)
@@ -142,6 +168,7 @@ export function createAppKitCarouselScroll(options: {
     canScrollNext: () => state().canNext,
     canScrollPrev: () => state().canPrev,
   }
+
   return {
     handle,
     state,
@@ -151,33 +178,41 @@ export function createAppKitCarouselScroll(options: {
     },
     interacted(): void {
       const view = options.view()
+
       if (view) {
         initialized = { view, direction: options.direction() }
       }
     },
     snap(): void {
       const geometry = read()
+
       if (!geometry || !options.count()) {
         return
       }
+
       let nearest: { logical: number; distance: number } | null = null
+
       for (let index = 0; index < options.count(); index++) {
         const offset = slideOffset(geometry, index)
+
         if (!offset) {
           continue
         }
 
         const distance = Math.abs(offset.logical - geometry.position)
+
         if (!nearest || distance < nearest.distance) {
           nearest = { logical: offset.logical, distance }
         }
       }
+
       if (nearest && nearest.distance > EPS) {
         move(geometry, nearest.logical)
       }
     },
     initialize(): void {
       const geometry = read()
+
       if (
         !geometry ||
         !options.count() ||
@@ -187,6 +222,7 @@ export function createAppKitCarouselScroll(options: {
       ) {
         return
       }
+
       // Preserve a pre-existing/programmatic or unbracketed user offset.
       if (
         convertAppKitInlineOffset(geometry.position, geometry.maximum, geometry.direction) > EPS
@@ -194,17 +230,23 @@ export function createAppKitCarouselScroll(options: {
         initialized = { view: geometry.view, direction: geometry.direction }
         return
       }
+
       const offset = slideOffset(geometry, 0)
+
       if (!offset || offset.start + offset.width > geometry.content + EPS) {
         return
       }
+
       if (geometry.direction === 'rtl' && options.count() > 1) {
         const last = slideOffset(geometry, options.count() - 1)
+
         if (geometry.maximum <= EPS || !last || offset.start <= last.start) {
           return
         }
       }
+
       const token = { view: geometry.view, direction: geometry.direction }
+
       initialized = token
       try {
         move(geometry, offset.logical, false)

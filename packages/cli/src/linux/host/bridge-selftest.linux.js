@@ -36,6 +36,7 @@
   const out = []
   const failed = []
   let deepLink = null
+
   window.__xplatBridge.on('deep-links', 'open', (url) => {
     deepLink = url
   })
@@ -43,6 +44,7 @@
   const run = async (name, fn, expected) => {
     try {
       const value = await fn()
+
       if (
         (expected !== undefined && value !== expected) ||
         value === false ||
@@ -53,11 +55,14 @@
       }
 
       const result = name + '=' + JSON.stringify(value)
+
       out.push(result)
       log('SELFTEST_STEP ' + result)
     } catch (e) {
       failed.push(name)
+
       const result = name + '!=>' + e.message
+
       out.push(result)
       log('SELFTEST_STEP ' + result)
     }
@@ -111,6 +116,7 @@
 
   await run('app.getWindowSize', async () => {
     const size = await call('app', 'getWindowSize', [])
+
     return size.width > 0 && size.height > 0
   })
 
@@ -143,13 +149,16 @@
   // shared desktop contract also served by the macOS WKWebView host.
   // Only runs on hosts that advertise the service (Linux today).
   const capsForCamera = await window.__xplatBridge.capabilities()
+
   if (capsForCamera.camera?.includes('writeMovieFile')) {
     await run('camera.permissionStatus', async () => {
       const { status } = await call('camera', 'permissionStatus', [{ kind: 'camera' }])
+
       return ['notDetermined', 'granted', 'denied', 'restricted', 'unknown'].includes(status)
     })
 
     let movieFileUrl = null
+
     await run('camera.writeMovieFile', async () => {
       const { reservation } = await call('camera', 'reserveMoviePath', [{ container: 'mp4' }])
 
@@ -167,11 +176,13 @@
 
     await run('camera.movieFileInfo', async () => {
       const { info } = await call('camera', 'movieFileInfo', [{ fileUrl: movieFileUrl }])
+
       return info?.exists && info.size === 11
     })
 
     await run('camera.readMovieFile', async () => {
       const { base64 } = await call('camera', 'readMovieFile', [{ fileUrl: movieFileUrl }])
+
       return atob(base64) === 'movie-bytes'
     })
 
@@ -185,6 +196,7 @@
 
     await run('camera.privateRoot', async () => {
       const { info } = await call('camera', 'movieFileInfo', [{ fileUrl: 'file:///etc/passwd' }])
+
       return info === null
     })
 
@@ -198,6 +210,7 @@
   // windows.closed back to the opener.
   const wid = 'selftest-win'
   let gotClosed = false
+
   window.__xplatBridge.on('windows', 'closed', (w) => {
     if (w === wid) {
       gotClosed = true
@@ -232,7 +245,9 @@
   })
 
   log('SELFTEST ' + out.join(' | '))
+
   const d = document.createElement('pre')
+
   d.id = 'bridge-selftest'
   d.textContent = out.join('\n')
   document.body.prepend(d)

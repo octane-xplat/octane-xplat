@@ -10,10 +10,14 @@ export function useObjectRef<T>(ref?: Octane.Ref<T>): {
   current: T | null
 } {
   const latest = useRef(ref)
+
   latest.current = ref
+
   const object = useRef<{ current: T | null } | undefined>(undefined)
+
   if (!object.current) {
     let value: T | null = null
+
     object.current = {
       get current() {
         return value

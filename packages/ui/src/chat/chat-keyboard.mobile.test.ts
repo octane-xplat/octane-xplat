@@ -1,4 +1,5 @@
 import { afterEach, expect, it, vi } from 'vitest'
+
 const mock = vi.hoisted(() => ({
   reader: null as any,
   state: null as any,
@@ -36,6 +37,7 @@ vi.mock('@octane-xplat/platform/keyboard-viewport', () => ({
 
 import { bindChatKeyboard } from './chat-keyboard'
 import { registerChatScrollControl, chatViewportMoving } from './chat-scroll-state'
+
 const rect = (y: number) => ({ x: 0, y, width: 400, height: 800 - y })
 const frame = (y: number, phase = 'end', target = y) => ({
   windowRect: rect(0),
@@ -49,6 +51,7 @@ const frame = (y: number, phase = 'end', target = y) => ({
 const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => {
   vi.useFakeTimers()
   mock.state = frame(800)
+
   const dock: any = {
     bottom: 800,
     translateY: 0,
@@ -63,9 +66,11 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
       this.changed = null
     },
   }
+
   const dockPad: any = {
     style: { paddingBottom: 0 },
   }
+
   const content: any = {
     style: { paddingBottom: 10 },
     on(name: string, cb: any) {
@@ -75,6 +80,7 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
       this.changed = null
     },
   }
+
   const readers = new Set<() => void>()
   const viewport: any = {
     scrollTop: 0,
@@ -103,13 +109,16 @@ const fixture = (policy: 'never' | 'always' | 'when-at-end' = 'when-at-end') => 
       }
     }),
   }
+
   let following = true
   const unregister = registerChatScrollControl(viewport, {
     isFollowing: () => following,
     jumpToEnd: () => viewport.scrollTo({ top: viewport.scrollableHeight, behavior: 'instant' }),
   })
+
   const options: any = { keyboardFollow: policy, bottomPanelHeight: 0 }
   const binding = bindChatKeyboard({}, viewport, dock, dockPad, content, () => options)
+
   vi.runAllTimers()
   return {
     dock,
@@ -143,6 +152,7 @@ afterEach(() => {
 
 it('follows only an existing end position and counts dock/keyboard range once', () => {
   const f = fixture()
+
   f.emit(frame(500))
   expect(f.dock.translateY).toBe(-300)
   expect(f.content.style.paddingBottom).toBe(390)
@@ -159,10 +169,13 @@ it('follows only an existing end position and counts dock/keyboard range once', 
 it('never preserves history while always explicitly follows from history', () => {
   const never = fixture('never')
   const old = never.viewport.scrollTop
+
   never.emit(frame(500))
   expect(never.viewport.scrollTop).toBe(old)
   never.close()
+
   const always = fixture('always')
+
   always.manual(400)
   always.emit(frame(500))
   expect(always.viewport.scrollTop).toBe(always.viewport.scrollableHeight)
@@ -170,13 +183,17 @@ it('never preserves history while always explicitly follows from history', () =>
     top: always.viewport.scrollableHeight,
     behavior: 'instant',
   })
+
   always.close()
 })
 
 it('matching custom panel replaces keyboard range without shifting the end', () => {
   const f = fixture()
+
   f.emit(frame(500))
+
   const before = f.viewport.scrollTop
+
   f.options.bottomPanelHeight = 300
   f.dock.height = 380
   f.binding.update()
@@ -192,6 +209,7 @@ it('matching custom panel replaces keyboard range without shifting the end', () 
 
 it('manual movement cancels queued keyboard follow and motion suppresses another animation', () => {
   const f = fixture()
+
   mock.reader(frame(750, 'move', 500), mock.key)
   expect(chatViewportMoving(f.viewport)).toBe(true)
   f.manual(400)
@@ -205,6 +223,7 @@ it('manual movement cancels queued keyboard follow and motion suppresses another
 it('composer growth follows the existing stream lock independently of keyboard policy', () => {
   const f = fixture('never')
   const before = f.viewport.scrollTop
+
   f.dock.height = 140
   f.dock.changed()
   vi.runAllTimers()
@@ -220,6 +239,7 @@ it('composer growth follows the existing stream lock independently of keyboard p
 it('measures composer growth after NativeScript completes the child layout pass', () => {
   const f = fixture('never')
   const before = f.viewport.scrollTop
+
   f.dock.isLayoutValid = false
   f.dock.height = 140
   f.dock.changed()
@@ -233,6 +253,7 @@ it('measures composer growth after NativeScript completes the child layout pass'
 
 it('pads the dock over the home indicator only while neither keyboard nor panel covers it', () => {
   const f = fixture()
+
   f.options.homeInset = 34
   f.binding.update()
   vi.runAllTimers()
@@ -257,6 +278,7 @@ it('pads the dock over the home indicator only while neither keyboard nor panel 
 
 it('leaves the dock un-padded when an ancestor already consumed the home inset', () => {
   const f = fixture()
+
   f.options.homeInset = 0
   f.binding.update()
   vi.runAllTimers()

@@ -30,6 +30,7 @@ class Base {
 }
 
 const exports = {}
+
 runInNewContext(compiled, {
   exports,
   require(name) {
@@ -44,6 +45,7 @@ runInNewContext(compiled, {
         path: { join: (...parts) => parts.join('/') },
       }
     }
+
     if (name === './index.common') {
       return {
         SVGView: Base,
@@ -51,15 +53,18 @@ runInNewContext(compiled, {
         stretchProperty: { setNative: Symbol('stretch') },
       }
     }
+
     if (name === './svg-use') {
       return { resolveSvgUse: (markup) => markup }
     }
+
     throw new Error(`Unexpected import: ${name}`)
   },
 })
 
 function measure(width, height, ratio = 0) {
   const view = new exports.SVGView()
+
   view.nativeViewProtected = { image: { size: { width: 31, height: 36 } } }
   view.aspectRatio = ratio
   view.onMeasure(width, height)
@@ -79,5 +84,6 @@ test('explicit dimensions stay exact; an authored ratio controls inferred height
     measure(layout.makeMeasureSpec(93, EXACTLY), layout.makeMeasureSpec(108, EXACTLY)),
     [93, 108],
   )
+
   assert.deepEqual(measure(layout.makeMeasureSpec(90, EXACTLY), UNSPECIFIED, 2), [90, 45])
 })

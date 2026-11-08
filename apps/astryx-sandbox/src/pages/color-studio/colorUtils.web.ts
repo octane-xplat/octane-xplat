@@ -10,11 +10,13 @@
 // === sRGB ↔ Linear ===
 function srgbToLinear(c: number): number {
   const s = c / 255
+
   return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
 }
 
 function linearToSrgb(c: number): number {
   const s = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055
+
   return Math.round(Math.min(255, Math.max(0, s * 255)))
 }
 
@@ -39,11 +41,13 @@ function xyzToLinearRgb(x: number, y: number, z: number): [number, number, numbe
 const D65: [number, number, number] = [0.95047, 1.0, 1.08883]
 function labF(t: number): number {
   const d = 6 / 29
+
   return t > d * d * d ? Math.cbrt(t) : t / (3 * d * d) + 4 / 29
 }
 
 function labFInv(t: number): number {
   const d = 6 / 29
+
   return t > d ? t * t * t : 3 * d * d * (t - 4 / 29)
 }
 
@@ -51,6 +55,7 @@ function xyzToLab(x: number, y: number, z: number): [number, number, number] {
   const fx = labF(x / D65[0]),
     fy = labF(y / D65[1]),
     fz = labF(z / D65[2])
+
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]
 }
 
@@ -58,6 +63,7 @@ function labToXyz(L: number, a: number, b: number): [number, number, number] {
   const fy = (L + 16) / 116,
     fx = a / 500 + fy,
     fz = fy - b / 200
+
   return [labFInv(fx) * D65[0], labFInv(fy) * D65[1], labFInv(fz) * D65[2]]
 }
 
@@ -72,6 +78,7 @@ export function hexToRgb(hex: string): [number, number, number] {
   const h = hex.replace('#', '')
   const full = h.length === 3 ? h[0] + h[0] + h[1] + h[1] + h[2] + h[2] : h.slice(0, 6)
   const n = parseInt(full, 16)
+
   return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]
 }
 
@@ -93,9 +100,11 @@ export function hexToHct(hex: string): HCT {
   const [x, y, z] = linearRgbToXyz(srgbToLinear(r), srgbToLinear(g), srgbToLinear(b))
   const [L, a, bLab] = xyzToLab(x, y, z)
   let hue = (Math.atan2(bLab, a) * 180) / Math.PI
+
   if (hue < 0) {
     hue += 360
   }
+
   return {
     hue,
     chroma: Math.sqrt(a * a + bLab * bLab),
@@ -105,20 +114,26 @@ export function hexToHct(hex: string): HCT {
 
 export function hctToHex(hct: HCT): string {
   const { hue, chroma, tone } = hct
+
   if (tone <= 0) {
     return '#000000'
   }
+
   if (tone >= 100) {
     return '#ffffff'
   }
+
   if (chroma < 0.5) {
     const y = labFInv((tone + 16) / 116)
     const g = linearToSrgb(y)
+
     return rgbToHex(g, g, g)
   }
+
   let lo = 0,
     hi = chroma,
     best = '#000000'
+
   for (let i = 0; i < 16; i++) {
     const mid = (lo + hi) / 2
     const hRad = (hue * Math.PI) / 180
@@ -149,6 +164,7 @@ export function hctToHex(hct: HCT): string {
       hi = mid
     }
   }
+
   return best
 }
 
@@ -163,6 +179,7 @@ function linearRgbToOklab(r: number, g: number, b: number): [number, number, num
   const l = Math.cbrt(l_)
   const m = Math.cbrt(m_)
   const s = Math.cbrt(s_)
+
   return [
     0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s,
     1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s,
@@ -177,6 +194,7 @@ function oklabToLinearRgb(L: number, a: number, b: number): [number, number, num
   const l = l_ * l_ * l_
   const m = m_ * m_ * m_
   const s = s_ * s_ * s_
+
   return [
     4.0767416621 * l - 3.3077115913 * m + 0.2309699292 * s,
     -1.2684380046 * l + 2.6097574011 * m - 0.3413193965 * s,
@@ -194,9 +212,11 @@ export function hexToOklch(hex: string): OKLCH {
   const [r, g, b] = hexToRgb(hex)
   const [labL, labA, labB] = linearRgbToOklab(srgbToLinear(r), srgbToLinear(g), srgbToLinear(b))
   let H = (Math.atan2(labB, labA) * 180) / Math.PI
+
   if (H < 0) {
     H += 360
   }
+
   return {
     L: labL,
     C: Math.sqrt(labA * labA + labB * labB),
@@ -206,12 +226,15 @@ export function hexToOklch(hex: string): OKLCH {
 
 export function oklchToHex(oklch: OKLCH): string {
   const { L, C, H } = oklch
+
   if (L <= 0) {
     return '#000000'
   }
+
   if (L >= 1) {
     return '#ffffff'
   }
+
   const hRad = (H * Math.PI) / 180
   const a = C * Math.cos(hRad)
   const b = C * Math.sin(hRad)
@@ -219,6 +242,7 @@ export function oklchToHex(oklch: OKLCH): string {
   const r = linearToSrgb(Math.max(0, lr))
   const g = linearToSrgb(Math.max(0, lg))
   const bv = linearToSrgb(Math.max(0, lb))
+
   return rgbToHex(r, g, bv)
 }
 
@@ -227,6 +251,7 @@ function oklchInGamut(L: number, C: number, H: number): boolean {
   const a = C * Math.cos(hRad)
   const b = C * Math.sin(hRad)
   const [lr, lg, lb] = oklabToLinearRgb(L, a, b)
+
   return lr >= -0.001 && lr <= 1.001 && lg >= -0.001 && lg <= 1.001 && lb >= -0.001 && lb <= 1.001
 }
 
@@ -234,16 +259,20 @@ export function oklchClampedHex(L: number, C: number, H: number): string {
   if (oklchInGamut(L, C, H)) {
     return oklchToHex({ L, C, H })
   }
+
   let lo = 0,
     hi = C
+
   for (let i = 0; i < 16; i++) {
     const mid = (lo + hi) / 2
+
     if (oklchInGamut(L, mid, H)) {
       lo = mid
     } else {
       hi = mid
     }
   }
+
   return oklchToHex({ L, C: lo, H })
 }
 
@@ -256,10 +285,13 @@ export function toneToOklabL(tone: number): number {
   if (tone <= 0) {
     return 0
   }
+
   if (tone >= 100) {
     return 1
   }
+
   const Y = tone > 8 ? Math.pow((tone + 16) / 116, 3) : tone / 903.3
+
   return Math.cbrt(Y)
 }
 
@@ -269,44 +301,55 @@ export function tonalPalette(
   vibrancy: number = 1.0,
 ): Record<number, string> {
   const result: Record<number, string> = {}
+
   for (const t of TONE_STEPS) {
     result[t] = hctToHex({ hue, chroma: chroma * vibrancy, tone: t })
   }
+
   return result
 }
 
 export function maxOklchChroma(hue: number, L: number): number {
   let lo = 0,
     hi = 0.4
+
   for (let i = 0; i < 20; i++) {
     const mid = (lo + hi) / 2
+
     if (oklchInGamut(L, mid, hue)) {
       lo = mid
     } else {
       hi = mid
     }
   }
+
   return lo
 }
 
 // Per-step chroma limits: for a set of hues, the max chroma they can ALL
 // achieve in sRGB at each tone step. Cached per unique hue set.
 const _eqCache = new Map<string, Record<number, number>>()
+
 export function equalizedChromaSteps(hues: number[]): Record<number, number> {
   const key = hues.map((h) => h.toFixed(1)).join(',')
   const cached = _eqCache.get(key)
+
   if (cached) {
     return cached
   }
+
   const result: Record<number, number> = {}
+
   for (const t of TONE_STEPS) {
     const L = toneToOklabL(t)
+
     if (L <= 0.001 || L >= 0.999) {
       result[t] = 0
     } else {
       result[t] = Math.min(...hues.map((h) => maxOklchChroma(h, L)))
     }
   }
+
   _eqCache.set(key, result)
   return result
 }
@@ -318,10 +361,13 @@ export function oklchTonalPalette(
 ): Record<number, string> {
   const result: Record<number, string> = {}
   const c = chroma * vibrancy
+
   for (const t of TONE_STEPS) {
     const L = toneToOklabL(t)
+
     result[t] = oklchClampedHex(L, c, hue)
   }
+
   return result
 }
 
@@ -330,11 +376,14 @@ export function oklchMaxVibrantPalette(
   vibrancy: number = 1.0,
 ): Record<number, string> {
   const result: Record<number, string> = {}
+
   for (const t of TONE_STEPS) {
     const L = toneToOklabL(t)
     const max = maxOklchChroma(hue, L)
+
     result[t] = oklchClampedHex(L, max * vibrancy, hue)
   }
+
   return result
 }
 
@@ -362,6 +411,7 @@ export function generateHarmony(seed: HCT, type: HarmonyType): HarmonyColor[] {
     chroma: chr ?? c,
     hex: hctToHex({ hue: ((hue % 360) + 360) % 360, chroma: chr ?? c, tone: 50 }),
   })
+
   switch (type) {
     case 'complementary':
       return [mk('Primary', h), mk('Complement', h + 180)]
@@ -722,9 +772,11 @@ export function generateCategorical(_seedHue: number, seedChroma: number): Categ
     { label: 'Red', hue: 30, baseChroma: 80, baseTone: 50 },
     { label: 'Cyan', hue: 220, baseChroma: 45, baseTone: 65 },
   ]
+
   return defs.map(({ label, hue, baseChroma, baseTone }) => {
     const chroma = Math.round(baseChroma * chromaScale)
     const tone = baseTone
+
     return {
       label,
       hue,
@@ -750,9 +802,11 @@ export function generateExpressive(seedHue: number, seedChroma: number): Express
     { label: 'Pastel', dH: 15, cM: 0.5, t: 85 },
     { label: 'Electric', dH: -30, cM: 1.6, t: 50 },
   ]
+
   return configs.map(({ label, dH, cM, t }) => {
     const hue = (((seedHue + dH) % 360) + 360) % 360
     const chroma = Math.min(seedChroma * cM, 120)
+
     return { label, hue, chroma, hex: hctToHex({ hue, chroma, tone: t }) }
   })
 }
@@ -762,16 +816,20 @@ export function luminance(hex: string): number {
   if (hex.length > 7) {
     hex = hex.substring(0, 7)
   }
+
   const [r, g, b] = hexToRgb(hex).map((c) => {
     const s = c / 255
+
     return s <= 0.03928 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
   })
+
   return 0.2126 * r + 0.7152 * g + 0.0722 * b
 }
 
 export function contrastRatio(fg: string, bg: string): number {
   const l1 = luminance(fg),
     l2 = luminance(bg)
+
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05)
 }
 
@@ -779,12 +837,15 @@ export function wcagGrade(ratio: number): 'AAA' | 'AA' | 'AA18' | 'FAIL' {
   if (ratio >= 7) {
     return 'AAA'
   }
+
   if (ratio >= 4.5) {
     return 'AA'
   }
+
   if (ratio >= 3) {
     return 'AA18'
   }
+
   return 'FAIL'
 }
 
@@ -792,59 +853,79 @@ export function wcagGrade(ratio: number): 'AAA' | 'AA' | 'AA18' | 'FAIL' {
 export function extractColorsFromImage(img: HTMLImageElement, count = 8): string[] {
   const canvas = document.createElement('canvas')
   const ctx = canvas.getContext('2d')
+
   if (!ctx) {
     return []
   }
+
   const w = 200,
     h = Math.round((img.naturalHeight * 200) / img.naturalWidth)
+
   canvas.width = w
   canvas.height = h
   ctx.drawImage(img, 0, 0, w, h)
+
   const data = ctx.getImageData(0, 0, w, h).data
   const pixels: [number, number, number][] = []
+
   for (let i = 0; i < data.length; i += 4) {
     if (data[i + 3] < 128) {
       continue
     }
 
     const lum = 0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2]
+
     if (lum < 15 || lum > 245) {
       continue
     }
 
     pixels.push([data[i], data[i + 1], data[i + 2]])
   }
+
   if (!pixels.length) {
     return ['#0064e0']
   }
+
   function medianCut(px: [number, number, number][], depth: number): string[] {
     if (depth === 0 || px.length < 2) {
       const avg = px.reduce((a, p) => [a[0] + p[0], a[1] + p[1], a[2] + p[2]], [0, 0, 0])
       const n = px.length || 1
+
       return [rgbToHex(avg[0] / n, avg[1] / n, avg[2] / n)]
     }
+
     const ranges = [0, 1, 2].map((ch) => {
       const v = px.map((p) => p[ch])
+
       return Math.max(...v) - Math.min(...v)
     })
+
     const ch = ranges.indexOf(Math.max(...ranges))
+
     px.sort((a, b) => a[ch] - b[ch])
+
     const mid = Math.floor(px.length / 2)
+
     return [...medianCut(px.slice(0, mid), depth - 1), ...medianCut(px.slice(mid), depth - 1)]
   }
+
   const colors = medianCut(pixels, Math.ceil(Math.log2(count)))
   const unique = [colors[0]]
+
   for (const c of colors.slice(1)) {
     const h1 = hexToHct(c)
+
     if (
       !unique.some((u) => {
         const h2 = hexToHct(u)
+
         return Math.abs(h1.tone - h2.tone) < 8 && Math.abs(h1.chroma - h2.chroma) < 10
       })
     ) {
       unique.push(c)
     }
   }
+
   unique.sort((a, b) => hexToHct(b).chroma - hexToHct(a).chroma)
   return unique.slice(0, count)
 }
@@ -913,6 +994,7 @@ const STATUS_ROLES: ThemeRole[] = ['success', 'error', 'warning']
 // Per-hue OKLCH chroma defaults. Green/teal/cyan are pulled back since
 // they appear hotter at light tones in sRGB.
 const BASE = 0.13
+
 export const DEFAULT_OKLCH_CHROMA: Record<string, number> = {
   red: BASE,
   orange: BASE,
@@ -981,6 +1063,7 @@ export function buildThemeTokens(
   if (options.exactAccent) {
     const aOklch = hexToOklch(accentHex)
     const accentDark = oklchClampedHex(Math.min(aOklch.L + 0.2, 0.82), aOklch.C * 0.9, aOklch.H)
+
     tokens['--color-accent'] = [accentHex, accentDark]
     tokens['--color-accent-muted'] = [hexWithAlpha(accentHex, 0.2), hexWithAlpha(accentDark, 0.25)]
   }
@@ -1003,6 +1086,7 @@ export function buildThemeTokens(
 
     if (CATEGORICAL_ROLES.includes(pc.role)) {
       const name = pc.role
+
       // bg: T90 light / T30 dark, border: T80/T40, icon+text: T30/T80
       tokens[`--color-background-${name}`] = [pal[90], pal[30]]
       tokens[`--color-border-${name}`] = [pal[80], pal[40]]
@@ -1012,6 +1096,7 @@ export function buildThemeTokens(
 
     if (STATUS_ROLES.includes(pc.role)) {
       const name = pc.role
+
       tokens[`--color-${name}`] = [pal[40], pal[60]]
       tokens[`--color-${name}-muted`] = [hexWithAlpha(pal[40], 0.2), hexWithAlpha(pal[60], 0.25)]
       tokens[`--color-on-${name}`] = [pal[99], pal[10]]
@@ -1024,6 +1109,7 @@ export function buildThemeTokens(
 export function generateExportCode(palette: PaletteColor[], options: ThemeOptions): string {
   const { accentHex, tokens } = buildThemeTokens(palette, options)
   const lines: string[] = []
+
   lines.push(`defineTheme({`)
   lines.push(`  name: 'my-theme',`)
   lines.push(`  color: {`)
@@ -1033,10 +1119,12 @@ export function generateExportCode(palette: PaletteColor[], options: ThemeOption
   lines.push(`  radius: { base: 4, multiplier: ${options.radiusMultiplier} },`)
 
   const tokenKeys = Object.keys(tokens)
+
   if (tokenKeys.length > 0) {
     lines.push(`  tokens: {`)
     for (const key of tokenKeys) {
       const val = tokens[key]
+
       if (Array.isArray(val)) {
         lines.push(`    '${key}': ['${val[0]}', '${val[1]}'],`)
       } else {
@@ -1046,6 +1134,7 @@ export function generateExportCode(palette: PaletteColor[], options: ThemeOption
 
     lines.push(`  },`)
   }
+
   lines.push(`})`)
   return lines.join('\n')
 }
@@ -1061,9 +1150,11 @@ export interface ContrastPair {
 
 export function buildContrastMatrix(colors: { name: string; hex: string }[]): ContrastPair[] {
   const results: ContrastPair[] = []
+
   for (let i = 0; i < colors.length; i++) {
     for (let j = i + 1; j < colors.length; j++) {
       const ratio = contrastRatio(colors[i].hex, colors[j].hex)
+
       results.push({
         name1: colors[i].name,
         name2: colors[j].name,
@@ -1074,24 +1165,32 @@ export function buildContrastMatrix(colors: { name: string; hex: string }[]): Co
       })
     }
   }
+
   return results
 }
 
 // === Parse color string ===
 export function parseColorInput(input: string): string | null {
   const s = input.trim()
+
   if (/^#?[0-9a-f]{3}$/i.test(s)) {
     const h = s.replace('#', '')
+
     return '#' + h[0] + h[0] + h[1] + h[1] + h[2] + h[2]
   }
+
   if (/^#?[0-9a-f]{6}$/i.test(s)) {
     return '#' + s.replace('#', '')
   }
+
   const rgbM = s.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)/)
+
   if (rgbM) {
     return rgbToHex(+rgbM[1], +rgbM[2], +rgbM[3])
   }
+
   const hslM = s.match(/^hsla?\(\s*([\d.]+)\s*,\s*([\d.]+)%\s*,\s*([\d.]+)%/)
+
   if (hslM) {
     const hh = +hslM[1] / 360,
       ss = +hslM[2] / 100,
@@ -1104,18 +1203,23 @@ export function parseColorInput(input: string): string | null {
       if (t < 0) {
         t += 1
       }
+
       if (t > 1) {
         t -= 1
       }
+
       if (t < 1 / 6) {
         return pp + (qq - pp) * 6 * t
       }
+
       if (t < 1 / 2) {
         return qq
       }
+
       if (t < 2 / 3) {
         return pp + (qq - pp) * (2 / 3 - t) * 6
       }
+
       return pp
     }
 
@@ -1125,5 +1229,6 @@ export function parseColorInput(input: string): string | null {
       Math.round(h2r(p, q, hh - 1 / 3) * 255),
     )
   }
+
   return null
 }

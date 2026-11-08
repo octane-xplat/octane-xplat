@@ -48,6 +48,7 @@ function EndLane(props: {
   laneRef?: (el: HTMLElement | null) => void
 }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.endContent == null && props.clear == null) {
     return null
   }
@@ -125,6 +126,7 @@ export function Tokenizer<T extends SearchableItem>(
   // queries too short to search.
   const createEntries = (query: string, results: T[]): T[] => {
     const trimmed = query.trim()
+
     if (!props.hasCreate || trimmed === '') {
       return []
     }
@@ -155,11 +157,13 @@ export function Tokenizer<T extends SearchableItem>(
 
     if (props.hasCreate && typeof item.id === 'string' && item.id.startsWith(CREATABLE_ID_PREFIX)) {
       const createdValue = item.id.slice(CREATABLE_ID_PREFIX.length)
+
       if (selectedIds.has(createdValue)) {
         return
       }
 
       const realItem = { id: createdValue, label: createdValue } as T
+
       props.onChange([...props.value, realItem], { item: realItem, type: 'create' })
       setAnnouncement(`${createdValue} added`)
       return
@@ -229,6 +233,7 @@ export function Tokenizer<T extends SearchableItem>(
 
   const collapse = (e: any) => {
     const related = (e as FocusEvent).relatedTarget as Node | null
+
     if (isFocusInTokenizer(related)) {
       return
     }
@@ -247,6 +252,7 @@ export function Tokenizer<T extends SearchableItem>(
     applyEscapeProps(el, props)
     el.addEventListener('focusin', (e) => {
       const comingFromOutside = !isFocusInTokenizer(e.relatedTarget as Node | null)
+
       setIsFocusedWithin(true)
       if (isLayerMode) {
         setLayerOpen(true)
@@ -283,6 +289,7 @@ export function Tokenizer<T extends SearchableItem>(
   // Measure how many tokens are clipped by the single-line truncation.
   const measureOverflow = () => {
     const host = wrapperRef.current
+
     if (!host) {
       return
     }
@@ -297,6 +304,7 @@ export function Tokenizer<T extends SearchableItem>(
 
     const limit = host.clientWidth - (overflowRef.current?.offsetWidth ?? 0) - 8
     let hidden = 0
+
     for (const el of tokenEls.current.values()) {
       if (el.offsetLeft + el.offsetWidth > limit) {
         hidden++
@@ -309,11 +317,13 @@ export function Tokenizer<T extends SearchableItem>(
   useEffect(measureOverflow, [isTruncated, props.value])
   useEffect(() => {
     const host = wrapperRef.current
+
     if (!isTruncated || !host || typeof ResizeObserver === 'undefined') {
       return
     }
 
     const ro = new ResizeObserver(measureOverflow)
+
     ro.observe(host)
     return () => ro.disconnect()
   }, [isTruncated])
@@ -464,6 +474,7 @@ export function Tokenizer<T extends SearchableItem>(
   )
 
   let content = wrapperContent
+
   if (isLayerMode) {
     // The truncated row is the anchor; the live field (with the input) is
     // always mounted inside the popover so opening can focus it directly.

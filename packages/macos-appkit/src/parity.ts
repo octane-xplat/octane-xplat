@@ -42,6 +42,7 @@ export function createParityMeasurements({
   function colorValue(color: any, appearance?: any) {
     try {
       const rgb = srgbComponents(color, appearance)
+
       return rgb
         ? '#' +
             [rgb.red, rgb.green, rgb.blue]
@@ -66,8 +67,10 @@ export function createParityMeasurements({
     const mason = node.masonNode != null
     const padding = node.dockInsets ?? view?.edgeInsets ?? labelPaddings.get(view!)
     const out: Record<string, any> = {}
+
     for (const facet of facets) {
       let value = supplied[facet]
+
       if (facet === 'paddingTop' && (padding?.top != null || mason)) {
         value = padding?.top ?? 0
       }
@@ -127,6 +130,7 @@ export function createParityMeasurements({
 
       if (facet === 'borderTopWidth') {
         const declared = borderSpecForNode(node)?.widths?.top
+
         if (declared != null) {
           value = borderLength(declared)
         } else if (view?.layer) {
@@ -150,8 +154,10 @@ export function createParityMeasurements({
 
       if (facet === 'borderTopLeftRadius') {
         const declared = borderSpecForNode(node)?.radii?.topLeft
+
         if (declared != null && view) {
           const size = view.frame?.size ?? { width: 0, height: 0 }
+
           value = borderRadiusPoints(declared, Number(size.width) || 0, Number(size.height) || 0)
         } else if (view?.layer) {
           value = view.layer.cornerRadius
@@ -223,6 +229,7 @@ export function createParityMeasurements({
 
     const view = node.view
     const cell = view?.cell
+
     if (typeof cell?.cellSizeForBounds !== 'function') {
       return undefined
     }
@@ -241,6 +248,7 @@ export function createParityMeasurements({
     const font = view!.font
     const fontLineHeight = Number(font?.ascender) - Number(font?.descender) + Number(font?.leading)
     const lineHeight = styleLineHeight > 0 ? styleLineHeight : fontLineHeight
+
     if (
       !Number.isFinite(height) ||
       height <= 0 ||
@@ -281,11 +289,13 @@ export function createParityMeasurements({
         h: round(Number(screenRect.size.height)),
       }
     }
+
     const converted = view.superview
       ? view.superview.convertRectToView(rect, boxView)
       : view.convertRectToView(view.bounds, boxView)
 
     const boxHeight = Number(boxView.bounds.size.height)
+
     return {
       x: round(Number(converted.origin.x)),
       y: round(boxHeight - Number(converted.origin.y) - Number(converted.size.height)),
@@ -296,6 +306,7 @@ export function createParityMeasurements({
 
   function parityLocalBoxInHost(view: any, rect: any, boxView: any) {
     const frameOrigin = view.frame.origin
+
     return parityBoxInHost(
       view,
       {
@@ -311,6 +322,7 @@ export function createParityMeasurements({
 
   function textContentBox(node: ElementNode, boxNode: ElementNode) {
     const view = node.view
+
     if (!view || !boxNode.view) {
       return null
     }
@@ -324,6 +336,7 @@ export function createParityMeasurements({
       const padding = Number(view.textContainer?.lineFragmentPadding ?? 0)
       const width = Number(view.bounds.size.width) - 2 * Number(inset.width) - 2 * padding
       const height = Number(view.bounds.size.height) - 2 * Number(inset.height)
+
       return parityLocalBoxInHost(
         view,
         {
@@ -341,21 +354,28 @@ export function createParityMeasurements({
     const view = node.view
     let box = null
     let frameBox = null
+
     if (view && boxNode.view) {
       try {
         frameBox = parityBoxInHost(view, view.frame, boxNode.view)
+
         const alignedRect = view.alignmentRectForFrame?.(view.frame)
+
         box = alignedRect ? parityBoxInHost(view, alignedRect, boxNode.view) : frameBox
       } catch {}
     }
 
     let placeholderBox = null
     let placeholderFrameBox = null
+
     if (node.placeholderView && boxNode.view) {
       try {
         const placeholderView = node.placeholderView
+
         placeholderFrameBox = parityBoxInHost(placeholderView, placeholderView.frame, boxNode.view)
+
         const alignedRect = placeholderView.alignmentRectForFrame?.(placeholderView.frame)
+
         placeholderBox = alignedRect
           ? parityBoxInHost(placeholderView, alignedRect, boxNode.view)
           : placeholderFrameBox
@@ -364,20 +384,25 @@ export function createParityMeasurements({
 
     let text
     let textLineAdvances
+
     if (node.type === 'label') {
       const value = String(view?.stringValue ?? '')
+
       text = value.trim()
       textLineAdvances = measureTextLineAdvances(value, view?.font)
     } else if (node.type === 'button') {
       const value = String(view?.title ?? '')
+
       text = value.trim()
       textLineAdvances = measureTextLineAdvances(value, view?.font)
     } else if (node.type === 'textfield') {
       const value = String(view?.stringValue ?? '')
+
       text = value.trim()
       textLineAdvances = measureTextLineAdvances(value, view?.font)
     } else if (node.type === 'textview') {
       const value = String(view?.string ?? '')
+
       text = value.trim()
       textLineAdvances = measureTextLineAdvances(value, view?.font)
     }
@@ -437,19 +462,23 @@ export function createParityMeasurements({
   function measureParity(container: RootContainer, facets: readonly string[]) {
     const mountedNodes = [...containers()].flatMap((entry) => [...entry.nodes.values()])
     const stage = mountedNodes.find((node) => node.props?.id === 'parity-stage')
+
     if (!stage?.view) {
       return null
     }
 
     // The stage can live in a sibling container (tab pane, popup, route host).
     const stageContainer: RootContainer = stage.container ?? container
+
     stageContainer.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
     stage.view.layoutSubtreeIfNeeded?.()
 
     const cells: Record<string, any> = {}
+
     for (const cell of stage.children.filter((node) => nodeClasses(node).includes('parity-cell'))) {
       const name = String(cell.props?.id ?? '').replace(/^cell-/, '')
       const box = descendants(cell).find((node) => nodeClasses(node).includes('parity-box'))
+
       if (!box?.view) {
         continue
       }

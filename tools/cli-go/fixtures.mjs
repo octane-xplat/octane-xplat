@@ -24,11 +24,16 @@ export function prepareFixtures(
     : packageManagement
       ? 'management-packages'
       : 'project-packages'
+
   const output = join(work, flavor)
+
   mkdirSync(output, { recursive: true })
+
   const temporary = mkdtempSync(join(work, 'fixture-'))
+
   try {
     const manifest = JSON.parse(readFileSync(join(root, 'packages/build/package.json')))
+
     manifest.name = '@octane-xplat/cli'
     manifest.private = true
     delete manifest.scripts
@@ -65,6 +70,7 @@ export function prepareFixtures(
     cpSync(join(root, 'packages/build/dist'), join(temporary, 'dist'), { recursive: true })
     cpSync(join(root, 'packages/cli/patches'), join(temporary, 'patches'), { recursive: true })
     cpSync(join(root, 'LICENSE'), join(temporary, 'LICENSE'))
+
     const packages = [
       temporary,
       ...(packageManagement ? [] : [join(root, 'packages/lib')]),
@@ -76,9 +82,12 @@ export function prepareFixtures(
         cwd: directory,
         encoding: 'utf8',
       })
+
       assert.equal(result.status, 0, result.stderr)
+
       const file = `${pkg.name.replace('@', '').replace('/', '-')}-${pkg.version}.tgz`
       const bytes = readFileSync(join(output, file))
+
       return {
         name: pkg.name,
         optional: pkg.name === '@octane-xplat/lint',

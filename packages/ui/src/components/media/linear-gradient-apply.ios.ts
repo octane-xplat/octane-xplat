@@ -13,15 +13,19 @@ export function applyLinearGradient(
   direction: 'horizontal' | 'vertical',
 ): void {
   const v = view?.ios
+
   if (!v?.layer) {
     return
   }
+
   let gradient = v[GRADIENT_KEY] as any
+
   if (!gradient) {
     gradient = CAGradientLayer.new()
     v[GRADIENT_KEY] = gradient
     v.layer.insertSublayerAtIndex(gradient, 0)
   }
+
   gradient.colors = colors.map((c) => new Color(c).ios.CGColor)
   if (direction === 'horizontal') {
     gradient.startPoint = { x: 0, y: 0.5 }
@@ -30,5 +34,6 @@ export function applyLinearGradient(
     gradient.startPoint = { x: 0.5, y: 0 }
     gradient.endPoint = { x: 0.5, y: 1 }
   }
+
   gradient.frame = v.layer.bounds
 }

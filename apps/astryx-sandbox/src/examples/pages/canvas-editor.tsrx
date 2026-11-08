@@ -411,8 +411,10 @@ export function CanvasEditorTemplate() @{
     setTabs((current) => {
       const index = current.findIndex((tab) => tab.id === id)
       const next = current.filter((tab) => tab.id !== id)
+
       if (id === activeTab) {
         const neighbour = next[index] ?? next[index - 1]
+
         setActiveTab(neighbour ? neighbour.id : '')
       }
 
@@ -422,6 +424,7 @@ export function CanvasEditorTemplate() @{
 
   const addTab = () => {
     untitledCount.current += 1
+
     const tab = {
       id: `untitled-${untitledCount.current}`,
       name: `Untitled ${untitledCount.current}`,
@@ -470,6 +473,7 @@ export function CanvasEditorTemplate() @{
         >
           {orderedLayers.map((layer) => {
             const isPhoto = layer.kind === 'image'
+
             return (
               <div
                 key={layer.id}

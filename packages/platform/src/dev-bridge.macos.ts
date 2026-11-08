@@ -1,4 +1,5 @@
 import type { AppDebugSocket } from './dev-bridge-socket'
+
 // Dev-bridge endpoint discovery — macOS. WKWebView can use location.origin.
 // Bundled AppKit code derives the endpoint from its explicit app grant; the
 // JavaScriptCore host's Foundation WebSocket shim supplies the transport.
@@ -27,6 +28,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
       : ((globalThis as any).__XPLAT_DEV_BRIDGE__ as
           | { token?: string; socket?: string; instanceId?: string; targetId?: string }
           | undefined)
+
   const origin =
     (globalThis as any).location?.origin ??
     (globalThis as any).__XPLAT_DEV_ORIGIN__ ??
@@ -56,5 +58,6 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 export function devBridgeSocket(url: string): AppDebugSocket | undefined {
   const Constructor = (globalThis as unknown as { WebSocket?: new (url: string) => AppDebugSocket })
     .WebSocket
+
   return Constructor ? new Constructor(url) : undefined
 }

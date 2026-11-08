@@ -52,13 +52,17 @@ function parseBackendGrant(source: string, channel: string): BackendGrant {
   if (source.length > 8192) {
     throw new Error('Invalid devtools backend configuration')
   }
+
   let grant: BackendGrant
+
   try {
     grant = JSON.parse(source) as BackendGrant
   } catch {
     throw new Error('Invalid devtools backend JSON')
   }
+
   const endpoint = new URL(grant.socket)
+
   if (
     grant.protocol !== 'octane-devtools-backend' ||
     grant.version !== 1 ||
@@ -78,6 +82,7 @@ function parseBackendGrant(source: string, channel: string): BackendGrant {
   ) {
     throw new Error('Invalid devtools backend identity')
   }
+
   return grant
 }
 
@@ -95,9 +100,11 @@ export function connectDevBackend<In = unknown, Out = unknown>(
   options?: { env?: Record<string, string | undefined> },
 ): DevBackend<In, Out> | null {
   const source = (options?.env ?? (globalThis as DevGlobalEnv).process?.env ?? {}).XPLAT_DEV_BACKEND
+
   if (!source) {
     return null
   }
+
   const grant = parseBackendGrant(source, channel)
 
   let state: 'connecting' | 'live' | 'closed' = 'connecting'
@@ -112,6 +119,7 @@ export function connectDevBackend<In = unknown, Out = unknown>(
         | { from: 'panel'; panel: string; data: In },
     ) => void
   >()
+
   const sessionListeners = new Set<(sessions: readonly SessionSnapshot[]) => void>()
   const errorListeners = new Set<(error: ChannelError) => void>()
 
@@ -126,18 +134,23 @@ export function connectDevBackend<In = unknown, Out = unknown>(
     if (state === 'closed') {
       return
     }
+
     state = 'connecting'
+
     const next = devSocket(grant.socket)
+
     if (!next) {
       state = 'closed'
       return
     }
+
     socket = next
     next.onopen = () => {
       if (socket !== next || state === 'closed') {
         next.close()
         return
       }
+
       next.send(
         JSON.stringify({
           protocol: 'octane-devtools-backend',
@@ -149,14 +162,18 @@ export function connectDevBackend<In = unknown, Out = unknown>(
         }),
       )
     }
+
     next.onmessage = (event) => {
       if (socket !== next || typeof event.data !== 'string') {
         return
       }
+
       const frame = parseHubFrame(event.data)
+
       if (!frame) {
         return
       }
+
       if (frame.type === 'ready' || frame.type === 'sessions') {
         emitSessions(Array.isArray(frame.sessions) ? frame.sessions : [])
         if (frame.type === 'ready') {
@@ -194,16 +211,19 @@ export function connectDevBackend<In = unknown, Out = unknown>(
         }
       }
     }
+
     next.onerror = () => {}
     next.onclose = (event) => {
       if (socket !== next) {
         return
       }
+
       socket = undefined
       if (state === 'closed' || event.code === REPLACED_CLOSE) {
         state = 'closed'
         return
       }
+
       reconnect = setTimeout(connect, RECONNECT_MS[Math.min(attempts++, RECONNECT_MS.length - 1)])
     }
   }
@@ -214,6 +234,7 @@ export function connectDevBackend<In = unknown, Out = unknown>(
     if (state !== 'live' || socket?.readyState !== 1) {
       return false
     }
+
     try {
       socket.send(JSON.stringify({ type: 'channel', ...frame }))
       return true
@@ -249,10 +270,12 @@ export function connectDevBackend<In = unknown, Out = unknown>(
       if (state === 'closed') {
         return
       }
+
       state = 'closed'
       if (reconnect) {
         clearTimeout(reconnect)
       }
+
       socket?.close()
       socket = undefined
     },

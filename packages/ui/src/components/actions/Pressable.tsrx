@@ -13,6 +13,7 @@ import {
 import { layoutChildProps } from '../layout/layout-child'
 import { usePan } from '../layout/pan.tsrx'
 import { usePinch } from '../layout/pinch.tsrx'
+
 /** masonview, not contentview — ContentView is single-child: the driver
  *  assigns each child to `.content`, so every sibling but the last was
  *  silently dropped. Column flex matches View's shape (and the web div);

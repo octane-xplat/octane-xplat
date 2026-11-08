@@ -38,6 +38,7 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
 
   root.render(Placeholder, {})
   await settle()
+
   const first = placeholderRef.current,
     left = debug.findId('ph-left'),
     tail = debug.findId('ph-tail')
@@ -55,6 +56,7 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   const assigned = assignedViews[0]
+
   check(assigned instanceof NSTextField, 'Assigned view is not an NSTextField')
   check(
     assigned.superview === first && Number(first.subviews.count) === 1,
@@ -81,6 +83,7 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   const empty = debug.findId('ph-empty')
+
   check(
     empty instanceof NSView && Number(empty.subviews.count) === 0,
     'Empty placeholder without a handler failed',
@@ -104,7 +107,9 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = placeholderRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -117,7 +122,9 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = placeholderRef.current
+
   check(
     returned &&
       returned !== moved &&
@@ -129,7 +136,9 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = placeholderRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -151,7 +160,9 @@ export async function checkPlaceholderLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const reinserted = placeholderRef.current
+
   check(
     reinserted &&
       reinserted !== replacement &&

@@ -27,6 +27,7 @@ const pdfKit = (): typeof PDFDocument => {
   } catch {
     // A missing framework resolves to an unavailable engine below.
   }
+
   return typeof PDFDocument === 'undefined' ? undefined : PDFDocument
 }
 
@@ -38,6 +39,7 @@ const webKit = (): boolean => {
   } catch {
     // Unavailable frameworks resolve below.
   }
+
   return typeof WKWebView !== 'undefined'
 }
 
@@ -71,7 +73,9 @@ function respond(value: Payload, reply: Reply) {
   picker = undefined
   network = undefined
   busy = false
+
   const controller = UIPrintInteractionController.sharedPrintController
+
   controller.printFormatter = null
   controller.printingItem = null
   controller.printPageRenderer = null
@@ -83,10 +87,12 @@ function begin(reply: Reply): boolean {
     respond(failure(), reply)
     return false
   }
+
   if (busy) {
     respond(failure('ERR_PRINT_BUSY'), reply)
     return false
   }
+
   busy = true
   return true
 }
@@ -115,11 +121,13 @@ function paperLayout(width: number, height: number, margins: Payload): PaperLayo
   const bottom = Number(margins?.bottom ?? 0)
   const paper = CGRectMake(0, 0, width, height)
   const renderer = UIPrintPageRenderer.new()
+
   renderer.setValueForKey(NSValue.valueWithCGRect(paper), 'paperRect')
   renderer.setValueForKey(
     NSValue.valueWithCGRect(CGRectMake(left, top, width - left - right, height - top - bottom)),
     'printableRect',
   )
+
   return { renderer, paper }
 }
 
@@ -132,6 +140,7 @@ function navigationOwner(self: object): HtmlTask {
   if (!('owner' in self)) {
     throw new Error('navigation delegate missing owner')
   }
+
   return self.owner as HtmlTask
 }
 
@@ -142,6 +151,7 @@ function navigationDelegate(task: HtmlTask): WKNavigationDelegate & NSObject {
         owner: task,
         webViewDidFinishNavigation(webView: WKWebView, _navigation: WKNavigation) {
           const owner = navigationOwner(this)
+
           // A native DOM read flushes WebKit's pending layout before its print formatter is used.
           webView.evaluateJavaScriptCompletionHandler(
             'document.body ? document.body.scrollHeight : 0',
@@ -170,11 +180,13 @@ class HtmlTask {
   private timer?: ReturnType<typeof setTimeout>
   constructor(width: number, height: number) {
     const configuration = WKWebViewConfiguration.new()
+
     configuration.defaultWebpagePreferences.allowsContentJavaScript = false
     this.web = WKWebView.alloc().initWithFrameConfiguration(
       CGRectMake(0, 0, width, height),
       configuration,
     )
+
     this.delegate = navigationDelegate(this)
     this.web.navigationDelegate = this.delegate
   }
@@ -188,7 +200,9 @@ class HtmlTask {
       clearTimeout(this.timer)
       this.timer = undefined
     }
+
     const callback = this.completion
+
     this.completion = undefined
     callback?.(success)
   }
@@ -198,6 +212,7 @@ class HtmlTask {
       clearTimeout(this.timer)
       this.timer = undefined
     }
+
     this.web.stopLoading()
     this.web.navigationDelegate = null
     this.web.removeFromSuperview()
@@ -206,14 +221,17 @@ class HtmlTask {
 
 function loadFormatter(options: Payload, completion: (formatter: UIPrintFormatter | null) => void) {
   const html = typeof options.html === 'string' ? options.html : ''
+
   if (options.useMarkupFormatter === true) {
     completion(UIMarkupTextPrintFormatter.alloc().initWithMarkupText(html))
     return
   }
+
   const task = new HtmlTask(
     typeof options.width === 'number' ? options.width : 612,
     typeof options.height === 'number' ? options.height : 792,
   )
+
   htmlTask = task
   task.load(html, (success) => completion(success ? task.web.viewPrintFormatter() : null))
 }
@@ -222,39 +240,51 @@ function render(json: string, reply: Reply): void {
   if (!begin(reply)) {
     return
   }
+
   let options: Payload
+
   try {
     options = JSON.parse(json) ?? {}
   } catch {
     respond(failure(), reply)
     return
   }
+
   if ((options.textZoom ?? 100) !== 100) {
     respond(failure(), reply)
     return
   }
+
   loadFormatter(options, (formatter) => {
     if (!formatter) {
       respond(failure(), reply)
       return
     }
+
     const pdf = pdfKit()
+
     if (!pdf) {
       respond(failure(), reply)
       return
     }
+
     const width = typeof options.width === 'number' ? options.width : 612
     const height = typeof options.height === 'number' ? options.height : 792
     const layout = paperLayout(width, height, (options.margins as Payload) ?? {})
     const renderer = layout.renderer
+
     renderer.addPrintFormatterStartingAtPageAtIndex(formatter, 0)
     renderer.prepareForDrawingPages(NSMakeRange(0, renderer.numberOfPages))
+
     const pages = Math.max(1, renderer.numberOfPages)
+
     if (pages > 1000) {
       respond(failure(), reply)
       return
     }
+
     const bytes = NSMutableData.new()
+
     UIGraphicsBeginPDFContextToData(bytes, layout.paper, null)
     for (let index = 0; index < pages; index++) {
       UIGraphicsBeginPDFPageWithInfo(layout.paper, null)
@@ -262,15 +292,20 @@ function render(json: string, reply: Reply): void {
         renderer.drawPageAtIndexInRect(index, layout.paper)
       }
     }
+
     UIGraphicsEndPDFContext()
+
     const document = pdf.alloc().initWithData(bytes)
+
     if (!document || document.pageCount !== pages) {
       respond(failure(), reply)
       return
     }
+
     const url = NSFileManager.defaultManager.temporaryDirectory.URLByAppendingPathComponent(
       `xplat-print-${NSUUID.UUID().UUIDString}.pdf`,
     )
+
     if (!url || !bytes.writeToURLOptionsError(url, 1, undefined)) {
       try {
         if (url) {
@@ -283,6 +318,7 @@ function render(json: string, reply: Reply): void {
       respond(failure(), reply)
       return
     }
+
     owned.add(String(url.absoluteString))
     respond(
       {
@@ -300,12 +336,15 @@ function render(json: string, reply: Reply): void {
 
 function fetchPDF(value: string, completion: (data: NSData | null) => void): void {
   const pdf = pdfKit()
+
   if (!pdf) {
     completion(null)
     return
   }
+
   if (value.startsWith('data:application/pdf;base64,')) {
     const encoded = value.slice('data:application/pdf;base64,'.length)
+
     if (encoded.length > (LIMIT * 4) / 3 + 4) {
       completion(null)
       return
@@ -319,21 +358,28 @@ function fetchPDF(value: string, completion: (data: NSData | null) => void): voi
     completion(data && data.length <= LIMIT && pdf.alloc().initWithData(data) ? data : null)
     return
   }
+
   const url = value.startsWith('/') ? NSURL.fileURLWithPath(value) : NSURL.URLWithString(value)
+
   if (!url) {
     completion(null)
     return
   }
+
   if (url.fileURL) {
     const data = NSData.dataWithContentsOfURL(url)
+
     completion(data && data.length <= LIMIT && pdf.alloc().initWithData(data) ? data : null)
     return
   }
+
   if (String(url.scheme).toLowerCase() !== 'https') {
     completion(null)
     return
   }
+
   const request = NSMutableURLRequest.requestWithURL(url)
+
   request.timeoutInterval = 30
   network = NSURLSession.sharedSession.dataTaskWithRequestCompletionHandler(
     request,
@@ -341,9 +387,11 @@ function fetchPDF(value: string, completion: (data: NSData | null) => void): voi
       const status = (response as NSHTTPURLResponse | null)?.statusCode ?? 0
       const valid = error == null && status === 200 && (data?.length ?? LIMIT + 1) <= LIMIT
       const finished = valid && data != null && pdf.alloc().initWithData(data) ? data : null
+
       NSOperationQueue.mainQueue.addOperationWithBlock(() => completion(finished))
     },
   )
+
   network.resume()
 }
 
@@ -351,13 +399,16 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
   if (!begin(reply)) {
     return
   }
+
   let options: Payload
+
   try {
     options = JSON.parse(json) ?? {}
   } catch {
     respond(failure(), reply)
     return
   }
+
   if (
     UIApplication.sharedApplication.applicationState !== applicationStateActive ||
     presenter.viewIfLoaded?.window == null
@@ -365,15 +416,19 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
     respond(failure(), reply)
     return
   }
+
   const controller = UIPrintInteractionController.sharedPrintController
   const info = UIPrintInfo.printInfoWithDictionary(null)
+
   info.outputType = 0 as UIPrintInfoOutputType
   info.orientation =
     options.orientation === 'landscape'
       ? (1 as UIPrintInfoOrientation)
       : (0 as UIPrintInfoOrientation)
+
   info.jobName = 'Document'
   controller.printInfo = info
+
   const show = () => {
     const done = (
       _controller: UIPrintInteractionController,
@@ -386,10 +441,13 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
           : failure(error != null ? 'ERR_PRINT_FAILED' : 'ERR_PRINT_CANCELLED'),
         reply,
       )
+
     let accepted: boolean
     const target = options.printerUrl
+
     if (typeof target === 'string') {
       const url = NSURL.URLWithString(target)
+
       accepted = url
         ? controller.printToPrinterCompletionHandler(UIPrinter.printerWithURL(url), done)
         : false
@@ -406,16 +464,19 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
         done,
       )
     }
+
     if (!accepted && busy) {
       respond(failure(), reply)
     }
   }
+
   if (typeof options.uri === 'string') {
     fetchPDF(options.uri, (data) => {
       if (!data) {
         respond(failure(), reply)
         return
       }
+
       controller.printingItem = data
       show()
     })
@@ -425,12 +486,15 @@ function present(json: string, presenter: UIViewController, reply: Reply): void 
         respond(failure(), reply)
         return
       }
+
       const layout = paperLayout(
         typeof options.width === 'number' ? options.width : 612,
         typeof options.height === 'number' ? options.height : 792,
         (options.margins as Payload) ?? {},
       )
+
       const renderer = layout.renderer
+
       renderer.addPrintFormatterStartingAtPageAtIndex(formatter, 0)
       controller.printPageRenderer = renderer
       show()
@@ -444,6 +508,7 @@ function select(presenter: UIViewController, reply: Reply): void {
   if (!begin(reply)) {
     return
   }
+
   if (
     UIApplication.sharedApplication.applicationState !== applicationStateActive ||
     presenter.viewIfLoaded?.window == null
@@ -451,9 +516,12 @@ function select(presenter: UIViewController, reply: Reply): void {
     respond(failure(), reply)
     return
   }
+
   const controller =
     UIPrinterPickerController.printerPickerControllerWithInitiallySelectedPrinter(null)
+
   picker = controller
+
   const accepted = controller.presentFromRectInViewAnimatedCompletionHandler(
     CGRectMake(
       presenter.view.bounds.origin.x + presenter.view.bounds.size.width / 2 - 0.5,
@@ -468,21 +536,26 @@ function select(presenter: UIViewController, reply: Reply): void {
         respond(failure(), reply)
         return
       }
+
       if (!selected) {
         respond(failure('ERR_PRINT_CANCELLED'), reply)
         return
       }
+
       const printer = pickerController.selectedPrinter
+
       if (!printer) {
         respond(failure(), reply)
         return
       }
+
       respond(
         { ok: true, name: String(printer.displayName), url: String(printer.URL.absoluteString) },
         reply,
       )
     },
   )
+
   if (!accepted && busy) {
     respond(failure(), reply)
   }
@@ -492,10 +565,13 @@ function remove(value: string): boolean {
   if (!owned.has(value)) {
     return true
   }
+
   const url = NSURL.URLWithString(value)
+
   if (!url) {
     return true
   }
+
   try {
     if (NSFileManager.defaultManager.fileExistsAtPath(String(url.path))) {
       NSFileManager.defaultManager.removeItemAtURLError(url, undefined)
@@ -510,22 +586,27 @@ function remove(value: string): boolean {
 
 function presenter(): UIViewController {
   let value = Application.ios.rootController
+
   while (value?.presentedViewController) {
     value = value.presentedViewController
   }
+
   if (!value) {
     throw new Error('A foreground iOS presenter is required')
   }
+
   return value
 }
 
 export const backend: PrintBackend = {
   capabilities() {
     const ready = bridge() && UIPrintInteractionController.printingAvailable
+
     return { print: ready, printToFile: Boolean(pdfKit()), selectPrinter: ready }
   },
   async print(options) {
     const view = presenter()
+
     await invoke(
       (callback) => present(JSON.stringify(options), view, callback),
       () => undefined,
@@ -535,10 +616,12 @@ export const backend: PrintBackend = {
     if (options.textZoom !== 100) {
       throw new UnavailabilityError('Print textZoom outside Android')
     }
+
     return invoke((callback) => render(JSON.stringify(options), callback), fileResult)
   },
   async select() {
     const view = presenter()
+
     return invoke((callback) => select(view, callback), printerResult)
   },
   remove(uri) {

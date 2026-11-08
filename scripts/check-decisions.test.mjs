@@ -19,6 +19,7 @@ const docRow = (statement, status) => ({ statement, status })
 
 function docFixture(t, content = ledger) {
   const root = mkdtempSync(join(tmpdir(), 'decisions-check-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   mkdirSync(join(root, '.agents/design'), { recursive: true })
   writeFileSync(join(root, '.agents/design/decisions.md'), content)
@@ -27,6 +28,7 @@ function docFixture(t, content = ledger) {
 
 test('parses doc rows with escaped pipes and free-text statuses', (t) => {
   const decisions = readDocDecisions(docFixture(t))
+
   assert.equal(decisions.size, 3)
   assert.equal(decisions.get(2).statement, "Suffix resolution (`'a' | 'b'`)")
   assert.equal(decisions.get(3).status, '~~forced~~ → lifted _(2026-09-24)_')
@@ -35,6 +37,7 @@ test('parses doc rows with escaped pipes and free-text statuses', (t) => {
 test('clean mirror produces no errors or warnings', () => {
   const doc = new Map([[1, docRow('One source tree', 'forced')]])
   const silo = new Map([[1, siloRow('One source tree', 'forced')]])
+
   assert.deepEqual(checkDecisions(doc, silo), { errors: [], warnings: [] })
 })
 

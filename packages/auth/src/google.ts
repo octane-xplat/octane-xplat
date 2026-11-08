@@ -45,6 +45,7 @@ export const googleAuth: GoogleAuth = {
   async signIn(): Promise<SignInResult> {
     try {
       const user = await GoogleSignin.signIn()
+
       return { status: 'success', credential: toCredential(user) }
     } catch (error) {
       return isCancel(error)

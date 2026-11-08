@@ -24,6 +24,7 @@ function deferred<T>() {
   const promise = new Promise<T>((done) => {
     resolve = done
   })
+
   return { promise, resolve }
 }
 
@@ -42,34 +43,45 @@ describe('host-independent routing preparation', () => {
       let account = 'account-a'
       const context = () => {
         reads++
+
         const value = { account }
+
         return asyncSource ? Promise.resolve(value) : value
       }
+
       const engine = create({
         context,
         behaviors: {
           '/items/:id': { beforeLoad: () => ({ entryOnly: true }) },
         },
       })
+
       const batch = createRoutePreparationBatch(engine)
+
       expect(await batch.prepare('/items/coat')).toMatchObject({
         status: 'ready',
         match: { context: { account: 'account-a', entryOnly: true } },
       })
+
       account = 'account-b'
+
       const second = await batch.prepare('/login')
+
       expect(second).toMatchObject({
         status: 'ready',
         match: { context: { account: 'account-a' } },
       })
+
       if (second.status === 'ready') {
         expect(second.match.context).not.toHaveProperty('entryOnly')
       }
+
       expect(reads).toBe(1)
       expect(await createRoutePreparationBatch(engine).prepare('/login')).toMatchObject({
         status: 'ready',
         match: { context: { account: 'account-b' } },
       })
+
       expect(reads).toBe(2)
     },
   )
@@ -83,10 +95,13 @@ describe('host-independent routing preparation', () => {
         throw error
       },
     })
+
     const batch = createRoutePreparationBatch(engine)
+
     for (const url of ['/items/coat', '/login']) {
       expect(await batch.prepare(url)).toEqual({ status: 'failed', phase: 'context', error })
     }
+
     expect(reads).toBe(1)
   })
 
@@ -106,16 +121,20 @@ describe('host-independent routing preparation', () => {
           },
         },
       })
+
       const first = router.prepare('/items/coat')
+
       root.account = 'account-b'
       expect(await first).toMatchObject({
         status: 'ready',
         match: { context: { account: 'account-a' }, data: { account: 'account-a' } },
       })
+
       expect(await router.prepare('/items/hat')).toMatchObject({
         status: 'ready',
         match: { context: { account: 'account-b' }, data: { account: 'account-b' } },
       })
+
       expect(root.account).toBe('account-b')
     },
   )
@@ -126,6 +145,7 @@ describe('host-independent routing preparation', () => {
       allowedSchemes: ['pack'],
       allowedOrigins: ['https://app.test'],
     })
+
     for (const url of [
       'pack://app/items/coat',
       'pack:///app/items/coat',
@@ -136,6 +156,7 @@ describe('host-independent routing preparation', () => {
         match: { to: '/items/:id', params: { id: 'coat' }, href: '/app/items/coat' },
       })
     }
+
     for (const url of [
       'other://app/items/coat',
       'https://other.test/app/items/coat',
@@ -147,14 +168,17 @@ describe('host-independent routing preparation', () => {
     ]) {
       expect((await router.prepare(url)).status, url).toBe('invalid-input')
     }
+
     expect(create().resolveUrl('pack://items/coat').status).toBe('invalid-input')
     expect(() => create({ allowedSchemes: ['javascript'] })).toThrow(
       'Invalid application URL scheme',
     )
+
     expect(() => create({ allowedOrigins: ['https://app.test/path'] })).toThrow(
       'Expected an HTTP(S) origin',
     )
   })
+
   it('returns explicit forbidden and missing-resource outcomes before private loading', async () => {
     let loads = 0
     const denied = create({
@@ -169,8 +193,10 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await denied.prepare('/login')).toEqual({ status: 'forbidden' })
     expect(loads).toBe(0)
+
     const missing = create({
       behaviors: {
         '/items/:id': {
@@ -180,14 +206,18 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await missing.prepare('/items/coat')).toEqual({
       status: 'not-found',
       reason: 'resource',
     })
+
     expect((await missing.prepare('/items/coat?undeclared=true')).status).toBe('invalid-input')
   })
+
   it('matches the root, rejects unknown patterns, and classifies malformed external values', () => {
     const router = create({ base: '/app' })
+
     expect(router.resolveUrl('/app').status).toBe('matched')
     expect(router.resolveUrl('/app/missing')).toEqual({ status: 'not-found', reason: 'pattern' })
     expect(router.resolveUrl('/app/items/%ZZ').status).toBe('invalid-input')
@@ -197,6 +227,7 @@ describe('host-independent routing preparation', () => {
 
   it('validates runtime destination structure without accepting prepared-state injection', () => {
     const router = create()
+
     for (const destination of [
       { to: '/items/:id' },
       { to: '/items/:id', params: { id: {} } },
@@ -207,6 +238,7 @@ describe('host-independent routing preparation', () => {
     ]) {
       expect(router.resolveDestination(destination).status).toBe('invalid-input')
     }
+
     expect(router.resolveDestination({ to: '/login' }).status).toBe('matched')
     expect(router.resolveDestination({ to: '/missing' }).status).toBe('not-found')
   })
@@ -216,13 +248,18 @@ describe('host-independent routing preparation', () => {
       { path: '/items/new', screen: Screen },
       { path: '/items/:id', screen: Screen },
     ])
+
     const mutable = { ...manifest, screens: { ...manifest.screens } }
     const router = create({ catalog: mutable })
+
     expect(router.resolveDestination({ to: '/items/:id', params: { id: 'new' } }).status).toBe(
       'invalid-input',
     )
+
     delete mutable.screens['items/new']
+
     const second = create({ catalog: mutable })
+
     expect(second.resolveUrl('/items/new')).toEqual({ status: 'not-found', reason: 'unavailable' })
     // The first instance's registry view is independent of later definition mutation.
     expect(router.resolveUrl('/items/new').status).toBe('matched')
@@ -234,12 +271,15 @@ describe('host-independent routing preparation', () => {
       loads++
       return null
     }
+
     const catalog = defineRoutes([
       { path: '/retention/:id', loader, screen: Screen },
       { path: '/retention-late', loader, screen: Screen },
       { path: '/*rest', loader, screen: Screen },
     ])
+
     const engine = createRoutePreparation({ catalog, stacks: ['retention', 'retention-controls'] })
+
     try {
       expect(
         engine.resolveDestination({ to: '/retention-late', stack: 'retention' }),
@@ -280,10 +320,12 @@ describe('host-independent routing preparation', () => {
       stacks: ['café/one'],
       base: '/app',
     })
+
     try {
       for (const stack of ['root', 'café/one']) {
         const destination = { to: '/*rest', params: { rest: '@café/one' }, stack }
         const href = engine.href(destination)
+
         expect(href).toBe(
           stack === 'root' ? '/app/%40caf%C3%A9/one' : '/app/@caf%C3%A9%2Fone/%40caf%C3%A9/one',
         )
@@ -303,10 +345,13 @@ describe('host-independent routing preparation', () => {
         '/items/:id': {
           validateSearch(raw) {
             events.push('search')
+
             const page = Number(raw.page ?? 1)
+
             if (!Number.isInteger(page) || page < 1) {
               throw new Error('Invalid page')
             }
+
             return { page }
           },
           beforeLoad({ context, search }) {
@@ -320,7 +365,9 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     const result = await router.prepare('/items/coat?page=2')
+
     expect(result).toMatchObject({
       status: 'ready',
       match: {
@@ -329,6 +376,7 @@ describe('host-independent routing preparation', () => {
         data: { id: 'coat', label: 'A:2' },
       },
     })
+
     expect(events).toEqual(['search', 'guard', 'loader'])
     events.length = 0
     expect((await router.prepare('/items/coat?page=invalid')).status).toBe('invalid-input')
@@ -350,14 +398,17 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await router.prepare('/items/coat', { redirects: 'return' })).toMatchObject({
       status: 'redirect',
       destination: { to: '/login' },
     })
+
     expect(await router.prepare('/items/coat')).toMatchObject({
       status: 'ready',
       match: { to: '/login' },
     })
+
     expect(loads).toBe(0)
   })
 
@@ -378,6 +429,7 @@ describe('host-independent routing preparation', () => {
               if (phase === 'beforeLoad') {
                 throw new DestinationRedirect({ to: '/login' })
               }
+
               return { privateSourceContext: true }
             },
             loader() {
@@ -398,14 +450,17 @@ describe('host-independent routing preparation', () => {
           },
         },
       })
+
       expect(await router.prepare('/items/coat', { redirects: 'return' })).toMatchObject({
         status: 'redirect',
         destination: { to: '/login' },
       })
+
       expect(contextReads).toBe(1)
       expect(events).toEqual(
         phase === 'loader' ? ['source guard', 'source loader'] : ['source guard'],
       )
+
       events.length = 0
       expect(await router.prepare('/items/coat')).toMatchObject({
         status: 'ready',
@@ -416,6 +471,7 @@ describe('host-independent routing preparation', () => {
           data: { account: 'a', target: true },
         },
       })
+
       expect(contextReads).toBe(2)
       expect(events).toEqual(
         phase === 'loader'
@@ -467,6 +523,7 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await router.prepare('/login')).toMatchObject({ status: 'failed', phase: 'redirect' })
     expect(calls).toBe(17)
   })
@@ -481,7 +538,9 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await loop.prepare('/login')).toMatchObject({ status: 'failed', phase: 'redirect' })
+
     const broken = create({
       behaviors: {
         '/login': {
@@ -491,6 +550,7 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     expect(await broken.prepare('/login')).toMatchObject({ status: 'failed', phase: 'loader' })
   })
 
@@ -508,10 +568,12 @@ describe('host-independent routing preparation', () => {
           },
         },
       })
+
     const first = make('A', a.promise)
     const second = make('B', b.promise)
     const resultA = first.prepare('/items/coat')
     const resultB = second.prepare('/items/coat')
+
     b.resolve('B-value')
     expect(await resultB).toMatchObject({ status: 'ready', match: { data: 'B:B-value' } })
     a.resolve('A-value')
@@ -527,6 +589,7 @@ describe('host-independent routing preparation', () => {
     type RoutePreparationArgsSignal = Parameters<
       NonNullable<NonNullable<RoutePreparationOptions['behaviors']>[string]['loader']>
     >[0]['signal']
+
     const router = create({
       history: 'linear',
       behaviors: {
@@ -539,7 +602,9 @@ describe('host-independent routing preparation', () => {
         },
       },
     })
+
     const pending = router.prepare('/items/coat')
+
     await started.promise
     expect((await router.prepare('/login')).status).toBe('ready')
     expect(await pending).toEqual({ status: 'cancelled', reason: 'superseded' })
@@ -553,7 +618,9 @@ describe('host-independent routing preparation', () => {
       stacks: ['catalog'],
       behaviors: { '/items/:id': { loader: () => wait.promise } },
     })
+
     const pending = router.prepare('/@catalog/items/coat')
+
     expect((await router.prepare('/login')).status).toBe('ready')
     router.dispose()
     expect(await pending).toEqual({ status: 'cancelled', reason: 'disposed' })
@@ -565,6 +632,7 @@ describe('host-independent routing preparation', () => {
     const controller = new AbortController()
     const router = create({ behaviors: { '/items/:id': { loader: () => new Promise(() => {}) } } })
     const pending = router.prepare('/items/coat', { signal: controller.signal })
+
     controller.abort()
     expect(await pending).toEqual({ status: 'cancelled', reason: 'aborted' })
   })
@@ -582,10 +650,13 @@ it('validates runtime search without reading context, guarding, loading or claim
       '/items/:id': {
         validateSearch: async (raw) => {
           events.push('search')
+
           const page = Number(raw.page ?? 1)
+
           if (!Number.isSafeInteger(page) || page < 1) {
             throw new Error('Invalid page')
           }
+
           raw.page = 'validator mutation'
           return { page }
         },
@@ -599,16 +670,19 @@ it('validates runtime search without reading context, guarding, loading or claim
       },
     },
   })
+
   const valid = await router.validateDestination({
     to: '/items/:id',
     params: { id: 'coat' },
     search: { page: 2 },
   })
+
   expect(valid).toMatchObject({
     status: 'valid',
     href: '/items/coat?page=2',
     destination: { params: { id: 'coat' }, search: { page: '2' } },
   })
+
   expect(events).toEqual(['search'])
   expect(
     await router.validateDestination({
@@ -617,15 +691,18 @@ it('validates runtime search without reading context, guarding, loading or claim
       search: { page: 'bad' },
     }),
   ).toMatchObject({ status: 'invalid-input', path: 'search' })
+
   expect(events).toEqual(['search', 'search'])
   expect(valid.status).toBe('valid')
   if (valid.status !== 'valid') {
     throw new Error('Expected a valid destination')
   }
+
   expect(await router.prepare(valid.destination)).toMatchObject({
     status: 'ready',
     match: { search: { page: 2 }, data: 2 },
   })
+
   expect(events).toEqual(['search', 'search', 'context', 'search', 'guard', 'loader'])
   router.dispose()
 })
@@ -636,9 +713,11 @@ it('cancels independent validation without superseding an in-flight navigation',
   const loading = new Promise<string>((resolve) => {
     finishLoad = resolve
   })
+
   const checking = new Promise<Record<string, unknown>>((resolve) => {
     finishValidation = resolve
   })
+
   const router = createRoutePreparation({
     catalog: defineRoutes([
       { path: '/item', screen: Screen },
@@ -646,14 +725,18 @@ it('cancels independent validation without superseding an in-flight navigation',
     ]),
     behaviors: { '/item': { loader: () => loading }, '/check': { validateSearch: () => checking } },
   })
+
   const pending = router.prepare('/item')
   const controller = new AbortController()
   const validation = router.validateDestination({ to: '/check' }, { signal: controller.signal })
+
   controller.abort()
   expect(await validation).toEqual({ status: 'cancelled', reason: 'aborted' })
   finishLoad('loaded')
   expect(await pending).toMatchObject({ status: 'ready', match: { data: 'loaded' } })
+
   const another = router.validateDestination({ to: '/check' })
+
   router.dispose()
   expect(await another).toEqual({ status: 'cancelled', reason: 'disposed' })
   finishValidation({ accepted: true })
@@ -681,17 +764,21 @@ it('keeps relative redirects in the selected stack and validates current motion 
       '/target': { loader: () => ++loads },
     },
   })
+
   expect(await router.prepare({ to: '/source', stack: 'library' })).toMatchObject({
     status: 'ready',
     match: { to: '/target', stack: 'library', href: '/@library/target' },
   })
+
   expect(await router.validateDestination({ to: '/target', transition: 'invented' })).toMatchObject(
     { status: 'invalid-input', path: 'transition' },
   )
+
   expect(await router.prepare({ to: '/target', transition: 'invented' })).toMatchObject({
     status: 'invalid-input',
     path: 'transition',
   })
+
   expect(loads).toBe(1)
   router.dispose()
 })
@@ -757,18 +844,22 @@ it('resolves its own generated href for a Unicode static route', async () => {
     catalog: defineRoutes([{ path: '/café/:id', screen: Screen }]),
     behaviors: { '/café/:id': { validateSearch: (search) => search } },
   })
+
   const destination = {
     to: '/café/:id',
     params: { id: 'a/b' },
     search: { q: 'x+y' },
     hash: 'section',
   }
+
   const href = engine.href(destination)
+
   expect(href).toBe('/app/caf%C3%A9/a%2Fb?q=x%2By#section')
   expect(engine.resolveUrl(href)).toMatchObject({
     status: 'matched',
     destination: { params: { id: 'a/b' } },
   })
+
   expect(await engine.prepare(href)).toMatchObject({
     status: 'ready',
     match: { params: { id: 'a/b' } },

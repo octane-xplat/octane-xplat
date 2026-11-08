@@ -16,6 +16,7 @@ const source = ts.transpileModule(
 class View {}
 function nativeView() {
   let handler = null
+
   return {
     subscriptions: 0,
     releases: 0,
@@ -28,6 +29,7 @@ function nativeView() {
       } else {
         this.releases++
       }
+
       handler = next
     },
     layout() {
@@ -43,6 +45,7 @@ function fixture(options) {
   let nextTimer = 0
   let writes = 0
   const exports = {}
+
   vm.runInNewContext(source, {
     exports,
     require: (name) =>
@@ -62,9 +65,11 @@ function fixture(options) {
                 bounds,
                 (next) => {
                   const value = typeof next === 'function' ? next(bounds) : next
+
                   if (value !== bounds) {
                     writes++
                   }
+
                   bounds = value
                 },
                 () => bounds,
@@ -75,12 +80,15 @@ function fixture(options) {
             },
     setTimeout: (callback, delay) => {
       assert.equal(delay, 0)
+
       const token = ++nextTimer
+
       timers.set(token, callback)
       return token
     },
     clearTimeout: (token) => timers.delete(token),
   })
+
   return {
     ...exports.useMeasure(options),
     additionalHook: (options) => exports.useMeasure(options),
@@ -95,6 +103,7 @@ function fixture(options) {
     },
     flush() {
       const callbacks = [...timers.values()]
+
       timers.clear()
       for (const callback of callbacks) {
         callback()
@@ -110,6 +119,7 @@ function fixture(options) {
 
 function view(parent = null) {
   const listeners = new Map()
+
   return Object.defineProperties(
     new View(),
     Object.getOwnPropertyDescriptors({
@@ -127,6 +137,7 @@ function view(parent = null) {
         if (!listeners.has(name)) {
           listeners.set(name, new Set())
         }
+
         listeners.get(name).add(callback)
       },
       off(name, callback) {
@@ -152,6 +163,7 @@ function assertSize(measurement, width, height) {
 test('refreshes a transient zero-size attachment without a SizeChanged event', () => {
   const host = view()
   const measurement = fixture()
+
   measurement.ref(host)
   assertSize(measurement, 0, 0)
   host.size = { width: 400, height: 24 }
@@ -164,12 +176,15 @@ test('refreshes a transient zero-size attachment without a SizeChanged event', (
 test('loaded coalesces one post-attach read and unchanged bounds do not rerender', () => {
   const host = view()
   const measurement = fixture()
+
   measurement.ref(host)
   host.emit('loaded')
   host.nativeViewProtected.layout()
   host.nativeViewProtected.layout()
   assert.equal(measurement.pending, 1)
+
   const writes = measurement.writes
+
   measurement.flush()
   assert.equal(measurement.writes, writes)
   host.size = { width: 320, height: 20 }
@@ -184,8 +199,11 @@ test('rebind cancels the previous host read and releases all ancestor listeners'
   const parent = view()
   const previous = view(parent)
   const current = view()
+
   current.size = { width: 200, height: 30 }
+
   const measurement = fixture()
+
   measurement.ref(previous)
   measurement.ref(current)
   assert.equal(previous.listeners, 0)
@@ -203,10 +221,15 @@ test('synchronous callback-ref replacement preserves unchanged bounds without sc
   for (const observe of [true, false]) {
     for (const width of [0, 240]) {
       const host = view()
+
       host.size = { width, height: width ? 32 : 0 }
+
       const measurement = fixture({ observe })
+
       measurement.ref(host)
+
       const writes = measurement.writes
+
       for (let index = 0; index < 8; index++) {
         measurement.ref(null)
         assert.equal(host.listeners, 0)
@@ -225,6 +248,7 @@ test('null refs and unmount cancel pending reads and subscriptions', () => {
   for (const detach of ['ref', 'unmount']) {
     const host = view(view())
     const measurement = fixture()
+
     measurement.ref(host)
     host.nativeViewProtected.layout()
     assert.equal(measurement.pending, 1)
@@ -246,8 +270,11 @@ test('null refs and unmount cancel pending reads and subscriptions', () => {
 
 test('unmount cancels a deferred clear and late null refs cannot restart it', () => {
   const measurement = fixture()
+
   measurement.ref(view())
+
   const writes = measurement.writes
+
   measurement.ref(null)
   assert.equal(measurement.pending, 1)
   measurement.unmount()
@@ -259,10 +286,15 @@ test('unmount cancels a deferred clear and late null refs cannot restart it', ()
 
 test('layout and ancestor scrolling retain app-surface DIP coordinates', () => {
   const surface = view()
+
   surface.point = { x: 40, y: 60 }
+
   const host = view(surface)
+
   host.size = { width: 400, height: 24 }
+
   const measurement = fixture()
+
   measurement.ref(host)
   measurement.flush()
   assert.deepEqual(measurement.bounds, { x: 10, y: 20, width: 400, height: 24 })
@@ -279,6 +311,7 @@ test('observe false still measures after attachment without subscribing to layou
   const parent = view()
   const host = view(parent)
   const measurement = fixture({ observe: false })
+
   measurement.ref(host)
   assert.equal(parent.listeners, 0)
   assert.equal(host.listeners, 2)
@@ -296,6 +329,7 @@ test('multiple readers share one native delegate and release only the last subsc
   const host = view()
   const first = fixture()
   const second = first.additionalHook()
+
   first.ref(host)
   second.ref(host)
   assert.equal(host.nativeViewProtected.subscriptions, 1)
@@ -311,8 +345,11 @@ test('multiple readers share one native delegate and release only the last subsc
 test('native replacement on load releases the old delegate and observes the new native view', () => {
   const host = view()
   const measurement = fixture()
+
   measurement.ref(host)
+
   const previous = host.nativeViewProtected
+
   host.nativeViewProtected = nativeView()
   host.emit('loaded')
   assert.equal(previous.LayoutUpdated, null)
@@ -328,6 +365,7 @@ test('native replacement on load releases the old delegate and observes the new 
 test('native layout notifications defer state writes and one-shot observation detaches', () => {
   const host = view()
   const measurement = fixture({ observe: false })
+
   measurement.ref(host)
   host.size = { width: 400, height: 24 }
   host.nativeViewProtected.layout()
@@ -344,8 +382,11 @@ test('native layout notifications defer state writes and one-shot observation de
 test('an unmanaged native handler is preserved and failed subscription releases listeners', () => {
   const host = view()
   const foreign = { callback: () => {} }
+
   host.nativeViewProtected.LayoutUpdated = foreign
+
   const measurement = fixture()
+
   assert.throws(() => measurement.ref(host), /requires ownership/)
   assert.equal(host.nativeViewProtected.LayoutUpdated, foreign)
   assert.equal(host.listeners, 0)
@@ -355,8 +396,11 @@ test('an unmanaged native handler is preserved and failed subscription releases 
 test('cleanup preserves a native handler installed later by another owner', () => {
   const host = view()
   const measurement = fixture()
+
   measurement.ref(host)
+
   const foreign = { callback: () => {} }
+
   host.nativeViewProtected.LayoutUpdated = foreign
   measurement.unmount()
   assert.equal(host.nativeViewProtected.LayoutUpdated, foreign)
@@ -365,8 +409,11 @@ test('cleanup preserves a native handler installed later by another owner', () =
 
 test('same-size reattachment keeps prior bounds until native layout finishes', () => {
   const host = view()
+
   host.size = { width: 400, height: 24 }
+
   const measurement = fixture()
+
   measurement.ref(host)
   host.nativeViewProtected.layout()
   measurement.flush()

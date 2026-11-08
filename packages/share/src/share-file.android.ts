@@ -20,15 +20,18 @@ export async function shareFile(path: string, options?: ShareFileOptions): Promi
   const input = normalizeFilePath(path)
   const context = Utils.android.getApplicationContext()
   const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+
   if (!context || !activity) {
     return 'unavailable'
   }
 
   let uri: any
+
   if (input.kind === 'content') {
     uri = android.net.Uri.parse(input.uri)
   } else {
     const file = new java.io.File(input.path)
+
     if (!file.exists()) {
       return 'unavailable'
     }
@@ -58,6 +61,7 @@ export async function shareFile(path: string, options?: ShareFileOptions): Promi
     'application/octet-stream'
 
   const intent = new android.content.Intent(android.content.Intent.ACTION_SEND)
+
   intent.setType(mimeType)
   intent.putExtra(android.content.Intent.EXTRA_STREAM, uri)
   intent.addFlags(android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION)
@@ -65,6 +69,7 @@ export async function shareFile(path: string, options?: ShareFileOptions): Promi
   // The flag on the chooser alone doesn't propagate the grant on all OEM
   // builds — grant read explicitly to every resolved target.
   const resolved = context.getPackageManager().queryIntentActivities(intent, 0)
+
   for (let i = 0; i < resolved.size(); i++) {
     context.grantUriPermission(
       resolved.get(i).activityInfo.packageName,

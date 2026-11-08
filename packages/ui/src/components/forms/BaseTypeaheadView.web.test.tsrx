@@ -14,6 +14,7 @@ const items: SearchableItem[] = [
 ]
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -66,16 +67,21 @@ function mount(props: BaseTypeaheadViewProps, wrap?: (node: any) => any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const view = <BaseTypeaheadView {...props} />
+
   act(() => root.render(wrap ? wrap(view) : view))
+
   const unmount = () => {
     root.unmount()
     host.remove()
   }
 
   cleanups.push(unmount)
+
   const input = () => host.querySelector('.vx-typeahead-input') as HTMLInputElement
   const key = (key: string, init: KeyboardEventInit = {}) =>
     act(() => {
@@ -85,12 +91,14 @@ function mount(props: BaseTypeaheadViewProps, wrap?: (node: any) => any) {
     })
 
   const click = (target: Element) => act(() => (target as HTMLElement).click())
+
   return { host, props, input, key, click, unmount }
 }
 
 describe('BaseTypeaheadView resolved-state fixtures', () => {
   it('renders a closed empty input without a listbox', () => {
     const ui = mount(fixture())
+
     expect(ui.input().getAttribute('aria-expanded')).toBe('false')
     expect(ui.input().getAttribute('role')).toBe('combobox')
     expect(ui.input().placeholder).toBe('Search…')
@@ -100,9 +108,12 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
   it('renders the open listbox with groups and the resolved highlight', () => {
     const ui = mount(fixture({ open: true, results: items, highlightedIndex: 1 }))
     const options = document.querySelectorAll('[role="option"]')
+
     expect(options).toHaveLength(3)
     expect(document.querySelectorAll('[role="group"]')).toHaveLength(2)
+
     const highlighted = document.querySelector('.vx-typeahead-option--highlighted')!
+
     expect(highlighted.textContent).toContain('Banana')
     expect(ui.input().getAttribute('aria-activedescendant')).toBe(highlighted.id)
     expect(highlighted.id).toContain('typeahead-listbox')
@@ -110,7 +121,9 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 
   it('marks the controlled selection on its row', () => {
     mount(fixture({ open: true, results: items, value: items[0] }))
+
     const selected = document.querySelector('.vx-typeahead-option--selected')!
+
     expect(selected.textContent).toContain('Apple')
     expect(selected.getAttribute('aria-selected')).toBe('true')
     expect(selected.querySelector('.vx-typeahead-option-check')).not.toBeNull()
@@ -135,6 +148,7 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 
   it('paints its own busy indicator while searching without a lane', () => {
     const ui = mount(fixture({ open: true, isSearching: true }))
+
     expect(ui.input().getAttribute('aria-busy')).toBe('true')
     expect(ui.host.querySelector('.vx-typeahead-loading')).not.toBeNull()
   })
@@ -150,11 +164,13 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 
   it('renders disabled and focusable-disabled controls without editing', () => {
     const disabled = mount(fixture({ isDisabled: true }))
+
     expect(disabled.input().disabled).toBe(true)
     expect(disabled.input().className).toContain('vx-typeahead-input--disabled')
     disabled.unmount()
 
     const focusable = mount(fixture({ isDisabled: true, isFocusableDisabled: true }))
+
     expect(focusable.input().disabled).toBe(false)
     expect(focusable.input().readOnly).toBe(true)
     expect(focusable.input().getAttribute('aria-disabled')).toBe('true')
@@ -167,6 +183,7 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 
   it('normalizes an out-of-range highlight instead of painting one', () => {
     const ui = mount(fixture({ open: true, results: items, highlightedIndex: 9 }))
+
     expect(document.querySelector('.vx-typeahead-option--highlighted')).toBeNull()
     expect(ui.input().getAttribute('aria-activedescendant')).toBeNull()
   })
@@ -175,6 +192,7 @@ describe('BaseTypeaheadView resolved-state fixtures', () => {
 describe('BaseTypeaheadView intent wiring', () => {
   it('reports edits as query intents without deciding them', () => {
     const ui = mount(fixture())
+
     act(() => {
       ui.input().value = 'ap'
       ui.input().dispatchEvent(new Event('input', { bubbles: true }))
@@ -185,6 +203,7 @@ describe('BaseTypeaheadView intent wiring', () => {
 
   it('reports focus and blur events', () => {
     const ui = mount(fixture())
+
     act(() => ui.input().focus())
     expect(ui.props.onInputFocus).toHaveBeenCalledTimes(1)
     act(() => ui.input().blur())
@@ -193,22 +212,26 @@ describe('BaseTypeaheadView intent wiring', () => {
 
   it('requests the layer on closed ArrowDown only when it can open', () => {
     const empty = mount(fixture())
+
     empty.key('ArrowDown')
     expect(empty.props.onOpenChange).not.toHaveBeenCalled()
     empty.unmount()
 
     const queried = mount(fixture({ query: 'ap' }))
+
     queried.key('ArrowDown')
     expect(queried.props.onOpenChange).toHaveBeenCalledWith(true)
     queried.unmount()
 
     const entries = mount(fixture({ hasEntriesOnFocus: true }))
+
     entries.key('ArrowDown')
     expect(entries.props.onOpenChange).toHaveBeenCalledWith(true)
   })
 
   it('reports highlight navigation and selection intents', () => {
     const ui = mount(fixture({ open: true, results: items, highlightedIndex: 1 }))
+
     ui.key('ArrowDown')
     expect(ui.props.onHighlight).toHaveBeenLastCalledWith(2)
     ui.key('ArrowUp')
@@ -224,6 +247,7 @@ describe('BaseTypeaheadView intent wiring', () => {
   it('reports pointer highlight and row selection', () => {
     const ui = mount(fixture({ open: true, results: items }))
     const option = document.querySelectorAll('[role="option"]')[2]
+
     act(() => option.dispatchEvent(new MouseEvent('mouseenter', { bubbles: true })))
     expect(ui.props.onHighlight).toHaveBeenCalledWith(2)
     ui.click(option)
@@ -232,6 +256,7 @@ describe('BaseTypeaheadView intent wiring', () => {
 
   it('requests close on Escape and Tab', () => {
     const ui = mount(fixture({ open: true, results: items }))
+
     ui.key('Escape')
     expect(ui.props.onOpenChange).toHaveBeenLastCalledWith(false)
     ui.key('Tab')
@@ -241,6 +266,7 @@ describe('BaseTypeaheadView intent wiring', () => {
   it('lets the consumer keydown run first and suppress navigation', () => {
     const onKeyDown = vi.fn((event: KeyboardEvent) => event.preventDefault())
     const ui = mount(fixture({ open: true, results: items, onKeyDown }))
+
     ui.key('ArrowDown')
     expect(onKeyDown).toHaveBeenCalledTimes(1)
     expect(ui.props.onHighlight).not.toHaveBeenCalled()
@@ -248,6 +274,7 @@ describe('BaseTypeaheadView intent wiring', () => {
 
   it('leaves IME composition keys untouched', () => {
     const ui = mount(fixture({ open: true, results: items }))
+
     act(() => {
       ui.input().dispatchEvent(
         new KeyboardEvent('keydown', {

@@ -25,10 +25,12 @@ export function createNativeSheet(
   let content: any,
     sheet: any = null,
     parent: any = null
+
   let closed = false,
     requested = false,
     began = false,
     preparing = false
+
   const cleanups: (() => void)[] = []
   const sameWindow = (a: any, b: any) => a === b || !!(a && b && a.isEqual?.(b))
   const own = (cleanup: () => void) => {
@@ -38,6 +40,7 @@ export function createNativeSheet(
       cleanups.push(cleanup)
     }
   }
+
   const finish = (
     reason: 'dismissed' | 'unavailable' | 'owner',
     endSession = true,
@@ -46,13 +49,16 @@ export function createNativeSheet(
     if (closed) {
       return
     }
+
     closed = true
     for (const cleanup of cleanups.splice(0).reverse()) {
       try {
         cleanup()
       } catch {}
     }
+
     const oldSheet = sheet
+
     sheet = null
     if (oldSheet) {
       // Retire callbacks before endSheet/close, both of which may synchronously notify.
@@ -80,6 +86,7 @@ export function createNativeSheet(
         oldSheet.contentViewController = null
       } catch {}
     }
+
     parent = null
     if (reason === 'unavailable') {
       options.onUnavailable?.()
@@ -87,12 +94,15 @@ export function createNativeSheet(
       options.onDismissed?.()
     }
   }
+
   const sync = () => {
     if (closed || !requested || preparing) {
       return
     }
+
     try {
       const next = view.window
+
       if (parent && !sameWindow(next, parent)) {
         finish('dismissed')
         return
@@ -153,6 +163,7 @@ export function createNativeSheet(
       preparing = false
     }
   }
+
   try {
     content = deps.makeContent()
     if (!content) {
@@ -164,6 +175,7 @@ export function createNativeSheet(
     finish('owner')
     return null
   }
+
   return {
     target: content,
     get presented() {
@@ -174,6 +186,7 @@ export function createNativeSheet(
         requested = true
         sync()
       }
+
       return !closed
     },
     close() {

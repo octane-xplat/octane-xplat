@@ -15,23 +15,29 @@ import { tmpdir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
+
 const repo = resolve(new URL('../../..', import.meta.url).pathname)
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-mobile-packed-')))
 const consumer = join(work, 'consumer')
 const packs = join(work, 'packs')
+
 mkdirSync(consumer)
 mkdirSync(packs)
+
 function run(command, args, cwd = consumer) {
   const r = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   assert.equal(r.status, 0, `${command} ${args.join(' ')}: ${r.stdout}\n${r.stderr}`)
   return r.stdout
 }
 
 const write = (file, body) => writeFileSync(join(consumer, file), body)
 const tarballs = {}
+
 for (const dir of ['cli', 'docs-search', 'lib', 'ui', 'workshop']) {
   const root = join(repo, 'packages', dir)
   const p = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], root)
   tarballs[p.name] =
     `file:${join(packs, `${p.name.replace('@', '').replace('/', '-')}-${p.version}.tgz`)}`
@@ -64,12 +70,15 @@ write(
 )
 
 const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+
 manifest.overrides = tarballs
 manifest.packageManager = 'bun@1.4.4'
 write('package.json', JSON.stringify(manifest))
 
 run('bun', ['install', '--ignore-scripts'])
+
 const req = createRequire(join(consumer, 'package.json'))
+
 for (const name of ['ui', 'workshop', 'cli']) {
   assert.ok(realpathSync(join(consumer, 'node_modules/@octane-xplat', name)).startsWith(work))
 }
@@ -159,7 +168,9 @@ const allJs = (dir) =>
 
 for (const target of ['ios', 'android']) {
   await build(withWorkshopMobile(base(target), { cwd: consumer, target, story: 'shared/basic' }))
+
   const code = allJs(join(consumer, `out-${target}`))
+
   assert.match(code, /SHARED_NATIVE_STORY/)
   assert.match(code, /defineUniversalComponent/)
   assert.match(code, new RegExp(target === 'ios' ? 'IOS_LEAF_ONLY' : 'ANDROID_LEAF_ONLY'))
@@ -178,7 +189,9 @@ for (const target of ['ios', 'android']) {
 }
 
 await build(withWorkshopMobile(base('production')))
+
 const production = allJs(join(consumer, 'out-production'))
+
 assert.match(production, /PRODUCTION_APP_ONLY/)
 assert.doesNotMatch(production, /SHARED_NATIVE_STORY|IOS_LEAF_ONLY|ANDROID_LEAF_ONLY|workshop/)
 write(

@@ -1,5 +1,6 @@
 export function selectionState(view: any): string {
   const value = Number(view.accessibilityValue())
+
   if (view.accessibilityRole() !== 'AXCheckBox') {
     throw new Error('Expected AXCheckBox')
   }

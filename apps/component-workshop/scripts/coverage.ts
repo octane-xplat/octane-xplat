@@ -8,12 +8,14 @@ const catalog: Record<string, { package: string; symbol?: string; file?: string 
 )
 
 const expected = new Set<string>()
+
 for (const [file, pkg] of [
   ['index.shared.ts', '@octane-xplat/ui'],
   ['chat/index.ts', '@octane-xplat/ui/chat'],
   ['markdown/index.ts', '@octane-xplat/ui/markdown'],
 ]) {
   const source = readFileSync(resolve(root, '../../packages/ui/src', file), 'utf8')
+
   for (const match of source.matchAll(/export\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)/g)) {
     if (
       pkg === '@octane-xplat/ui' &&
@@ -25,6 +27,7 @@ for (const [file, pkg] of [
 
     for (const binding of match[1].split(',')) {
       const name = binding.trim()
+
       // Context objects are dependencies, not visual component exports.
       if (!/^[A-Z][A-Za-z0-9]*$/.test(name) || name.endsWith('Context')) {
         continue
@@ -41,16 +44,19 @@ for (const directory of readdirSync(resolve(root, '../../packages'))) {
   }
 
   const owner = resolve(root, '../../packages', directory)
+
   if (!existsSync(resolve(owner, 'src/index.ts'))) {
     continue
   }
 
   const manifest = JSON.parse(readFileSync(resolve(owner, 'package.json'), 'utf8'))
+
   if (manifest.private) {
     continue
   }
 
   const source = readFileSync(resolve(owner, 'src/index.ts'), 'utf8')
+
   for (const match of source.matchAll(/export\s*\{([^}]+)\}\s*from\s*['"]([^'"]+)/g)) {
     if (!/\.(tsrx|tsx)$/.test(match[2])) {
       continue
@@ -58,6 +64,7 @@ for (const directory of readdirSync(resolve(root, '../../packages'))) {
 
     for (const binding of match[1].split(',')) {
       const name = binding.trim()
+
       if (/^[A-Z][A-Za-z0-9]*$/.test(name)) {
         expected.add(`${manifest.name}#${name}`)
       }
@@ -72,8 +79,10 @@ const actual = new Set(
 const missing = [...expected].filter((id) => !actual.has(id))
 const unknown = [...actual].filter((id) => !expected.has(id))
 const files = readdirSync(resolve(root, 'src/stories'))
+
 for (const file of files) {
   const key = file.replace(/\.stories(?:\.web)?\.ts$/, '')
+
   if (!(key in catalog)) {
     unknown.push(file)
   }
@@ -81,6 +90,7 @@ for (const file of files) {
 
 for (const [name, entry] of Object.entries(catalog)) {
   const file = entry.file ?? `${name}.stories.web.ts`
+
   if (!files.includes(file)) {
     missing.push(file)
   } else if (

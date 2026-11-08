@@ -179,6 +179,7 @@ function BottomSheetDemo() {
   // sheet on top of a sheet (which is possible once the peek is non-modal).
   const [active, setActive] = useState<SheetKind | null>(null)
   const close = () => setActive(null)
+
   return (
     <>
       <AppScreen title="Bottom Sheet">
@@ -313,6 +314,7 @@ function DrawerDemo() {
   // Single active drawer — opening one closes the other (never stack).
   const [active, setActive] = useState<'start' | 'end' | null>(null)
   const close = () => setActive(null)
+
   return (
     <>
       <AppScreen title="Drawer">
@@ -392,6 +394,7 @@ function DrawerDemo() {
 function DrawerTabletDemo() {
   const [nav, setNav] = useState(true)
   const [filters, setFilters] = useState(false)
+
   return (
     <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
       {/* Standard (permanent) start drawer — always visible, no scrim. On a
@@ -536,6 +539,7 @@ function DialogDemo() {
   const [sheet, setSheet] = useState(false)
   const [alert, setAlert] = useState(false)
   const [name, setName] = useState('Ada Lovelace')
+
   return (
     <>
       <AppScreen title="Dialog">
@@ -616,6 +620,7 @@ const LAYOUT_ITEMS = [
 function LayoutPanelDemo() {
   const [selected, setSelected] = useState<string | null>(null)
   const item = LAYOUT_ITEMS.find((i) => i.id === selected)
+
   return (
     <>
       <AppScreen title="Layout / Panel">
@@ -707,6 +712,7 @@ function LayoutPanelDemo() {
 function LayoutPanelTabletDemo() {
   const [selected, setSelected] = useState('1')
   const item = LAYOUT_ITEMS.find((i) => i.id === selected)
+
   return (
     <div style={{ flex: 1, minHeight: 0, display: 'flex' }}>
       <div
@@ -793,6 +799,7 @@ function SelectorDemo() {
   const [openTz, setOpenTz] = useState(false)
   const [country, setCountry] = useState<string>()
   const [tz, setTz] = useState<string>()
+
   return (
     <>
       <AppScreen title="Selector">
@@ -897,6 +904,7 @@ function MultiSelectorDemo() {
   const [open, setOpen] = useState(false)
   const [sel, setSel] = useState<string[]>(['Bug', 'Urgent'])
   const [draft, setDraft] = useState<string[]>(sel)
+
   return (
     <>
       <AppScreen title="MultiSelector">
@@ -981,6 +989,7 @@ function TypeaheadDemo() {
     }
 
     const id = window.setTimeout(() => searchRef.current?.focus({ preventScroll: true }), 60)
+
     return () => window.clearTimeout(id)
   }, [open])
 
@@ -990,8 +999,10 @@ function TypeaheadDemo() {
     }
 
     setLoading(true)
+
     const id = setTimeout(() => {
       const list = q ? PEOPLE.filter((p) => p.toLowerCase().includes(q.toLowerCase())) : PEOPLE
+
       setResults(list)
       setLoading(false)
     }, 320)
@@ -1096,6 +1107,7 @@ function PowerSearchDemo() {
   const [open, setOpen] = useState(false)
   const [tokens, setTokens] = useState<string[]>(['status:Open'])
   const [active, setActive] = useState<string | null>(null)
+
   return (
     <>
       <AppScreen title="PowerSearch">
@@ -1177,6 +1189,7 @@ function PowerSearchDemo() {
 function DateInputDemo() {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState<ISODateString>()
+
   return (
     <>
       <AppScreen title="DateInput">
@@ -1222,6 +1235,7 @@ function DateInputDemo() {
 function DateInputTabletDemo() {
   const [open, setOpen] = useState(false)
   const [value, setValue] = useState<ISODateString>()
+
   return (
     <>
       <AppScreen title="DateInput">
@@ -1447,6 +1461,7 @@ function ScrollCalendar(props: ScrollCalendarProps) {
     } else {
       const start = d < anchor ? d : anchor
       const end = d < anchor ? anchor : d
+
       props.onChange({ start, end })
       setAnchor(null)
     }
@@ -1454,6 +1469,7 @@ function ScrollCalendar(props: ScrollCalendarProps) {
 
   const months = Array.from({ length: monthCount }, (_, i) => {
     const m = startMonth + i
+
     return { year: startYear + Math.floor(m / 12), month: ((m % 12) + 12) % 12 }
   })
 
@@ -1528,6 +1544,7 @@ function ScrollCalendar(props: ScrollCalendarProps) {
             const isEnd = isoD === selEnd
             const inRange = !!(selStart && selEnd && isoD > selStart && isoD < selEnd)
             const isEndpoint = isStart || isEnd
+
             return (
               <div
                 key={i}
@@ -1622,6 +1639,7 @@ function DateRangeInputDemo() {
   const [open, setOpen] = useState(false)
   const [range, setRange] = useState<DateRange>()
   const label = range?.start && range?.end ? `${range.start} → ${range.end}` : undefined
+
   return (
     <>
       <AppScreen title="DateRangeInput">
@@ -1676,6 +1694,7 @@ function DateRangeInputTabletDemo() {
   const [open, setOpen] = useState(false)
   const [range, setRange] = useState<DateRange>()
   const label = range?.start && range?.end ? `${range.start} → ${range.end}` : undefined
+
   return (
     <>
       <AppScreen title="DateRangeInput">
@@ -1727,6 +1746,7 @@ function FormLayoutDemo() {
   const [email, setEmail] = useState('')
   const [plan, setPlan] = useState('pro')
   const [notify, setNotify] = useState(true)
+
   return (
     <AppScreen title="FormLayout">
       <Note>
@@ -1773,6 +1793,7 @@ function FormLayoutTabletDemo() {
   const [email, setEmail] = useState('')
   const [plan, setPlan] = useState('pro')
   const [notify, setNotify] = useState(true)
+
   return (
     <AppScreen title="FormLayout">
       <Note>
@@ -1931,6 +1952,7 @@ function PopoverDemo() {
   const openSmall = () => {
     const el = smallRef.current
     const parent = el?.offsetParent as HTMLElement | null
+
     if (el && parent) {
       setRect({
         top: el.offsetTop,
@@ -2012,6 +2034,7 @@ function PopoverDemo() {
 // 15. DropdownMenu — anchored popover → bottom sheet --------------------------
 function DropdownMenuDemo() {
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <AppScreen title="DropdownMenu">
@@ -2043,6 +2066,7 @@ function DropdownMenuDemo() {
 // 17. MoreMenu — bottom sheet -------------------------------------------------
 function MoreMenuDemo() {
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <AppScreen title="MoreMenu">
@@ -2157,6 +2181,7 @@ function HoverCardDemo() {
 
   const openCard = () => {
     const el = ref.current
+
     if (el) {
       setRect({
         top: el.offsetTop,
@@ -2229,6 +2254,7 @@ function InfoTipDemo() {
 
   const openTip = () => {
     const el = ref.current
+
     if (el) {
       setRect({
         top: el.offsetTop,
@@ -2285,6 +2311,7 @@ function PaginationDemo() {
   const [page, setPage] = useState(3)
   const [slide, setSlide] = useState(1)
   const current = CAROUSEL_SLIDES[slide - 1]
+
   return (
     <AppScreen title="Pagination">
       <Note>
@@ -2345,6 +2372,7 @@ function TooltipDemo() {
 
   const toggle = () => {
     const el = ref.current
+
     if (el) {
       setRect({
         top: el.offsetTop,
@@ -2537,6 +2565,7 @@ const TABLE_FILTER_COLUMNS: TableColumn<ServiceRow>[] = [
 function TableFilterDemo() {
   const [open, setOpen] = useState(false)
   const [sel, setSel] = useState<string[]>(['Degraded', 'Down'])
+
   return (
     <>
       <div
@@ -2634,6 +2663,7 @@ function TableFilterTabletDemo() {
   const [open, setOpen] = useState(false)
   const [sel, setSel] = useState<string[]>(['Degraded', 'Down'])
   const filtered = ROWS.filter((r) => sel.includes(r.status))
+
   return (
     <>
       <AppScreen title="Table filter">
@@ -2700,6 +2730,7 @@ function TableFilterDrawerDemo({ beside = false }: { beside?: boolean } = {}) {
   const [open, setOpen] = useState(false)
   const [sel, setSel] = useState<string[]>(['Degraded', 'Down'])
   const filtered = ROWS.filter((r) => sel.includes(r.status))
+
   return (
     <>
       <AppScreen title="Table filter">

@@ -3,7 +3,9 @@
 import { act, createRoot } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Drawer } from './Drawer.web.tsrx'
+
 const roots: ReturnType<typeof createRoot>[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -14,8 +16,11 @@ afterEach(() => {
 
 function mount(props: Parameters<typeof Drawer>[0]) {
   const element = document.createElement('div')
+
   document.body.append(element)
+
   const root = createRoot(element)
+
   roots.push(root)
   act(() => root.render(Drawer, props))
   return root
@@ -54,6 +59,7 @@ describe('web Drawer', () => {
   it('leaves controlled state to its owner and does not echo prop changes', () => {
     const onOpenChange = vi.fn()
     const root = mount({ open: true, onOpenChange })
+
     dismiss()
     expect(document.querySelector('.vx-drawer-panel')).not.toBeNull()
     expect(onOpenChange).toHaveBeenCalledOnce()
@@ -64,13 +70,16 @@ describe('web Drawer', () => {
 
   it('moves focus into the panel, handles Escape with current callbacks and restores focus', () => {
     const trigger = document.createElement('button')
+
     document.body.append(trigger)
     trigger.focus()
+
     const oldCallback = vi.fn(),
       currentCallback = vi.fn()
 
     const root = mount({ open: true, onOpenChange: oldCallback, drawer: <button>Close</button> })
     const panel = document.querySelector('.vx-drawer-panel')!
+
     expect(panel.contains(document.activeElement)).toBe(true)
     act(() =>
       root.render(Drawer, {
@@ -99,6 +108,7 @@ describe('web Drawer', () => {
     })
 
     const [first, last] = document.querySelectorAll<HTMLButtonElement>('.vx-drawer-panel button')
+
     expect(document.querySelector('.vx-drawer-main')?.hasAttribute('inert')).toBe(true)
     act(() =>
       first.dispatchEvent(

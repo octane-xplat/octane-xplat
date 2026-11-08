@@ -13,6 +13,7 @@ const DOCK_INSETS: Record<string, Record<string, number>> = {
 
 export const dockRefs = { host: { current: null as any }, fill: { current: null as any } }
 export const dockEvents: string[] = []
+
 const fillCallback = (view: any) => {
   if (view) {
     dockEvents.push('attach')
@@ -38,6 +39,7 @@ export default function Dock() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
   const edges = phase >= 3 ? ['left', 'top', 'right', 'bottom'] : ['top', 'right', 'bottom', 'left']
+
   return (
     <masonview
       style={{

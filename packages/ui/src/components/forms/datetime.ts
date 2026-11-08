@@ -68,6 +68,7 @@ export function daysInMonth(year: number, month: number): number {
 
 function toUTCEpoch(pd: PlainDate): number {
   const d = new Date(Date.UTC(pd.year, pd.month - 1, pd.day))
+
   // Date.UTC maps years 0–99 onto 1900–1999; pin the real year back.
   d.setUTCFullYear(pd.year)
   return d.getTime()
@@ -75,6 +76,7 @@ function toUTCEpoch(pd: PlainDate): number {
 
 function fromUTCEpoch(ms: number): PlainDate {
   const d = new Date(ms)
+
   return { year: d.getUTCFullYear(), month: d.getUTCMonth() + 1, day: d.getUTCDate() }
 }
 
@@ -108,6 +110,7 @@ const ISO_DATE_RE = /^(\d{4,})-(\d{1,2})-(\d{1,2})$/
 
 export function plainDateFromISO(iso: string): PlainDate | null {
   const m = iso.match(ISO_DATE_RE)
+
   if (!m) {
     return null
   }
@@ -131,6 +134,7 @@ export function plainDateAddMonths(pd: PlainDate, months: number): PlainDate {
   const total = pd.year * 12 + (pd.month - 1) + months
   const year = Math.floor(total / 12)
   const month = (total % 12) + 1
+
   return { year, month, day: Math.min(pd.day, daysInMonth(year, month)) }
 }
 
@@ -161,6 +165,7 @@ export function plainDateIsEqual(a: PlainDate, b: PlainDate): boolean {
 
 export function plainDateSetStartOfWeek(pd: PlainDate, weekStartsOn: number): PlainDate {
   const dow = plainDateToDate(pd).getDay()
+
   return plainDateAddDays(pd, -((dow - weekStartsOn + 7) % 7))
 }
 
@@ -168,8 +173,11 @@ export function plainDateSetStartOfWeek(pd: PlainDate, weekStartsOn: number): Pl
 export function plainDateGetWeekNumber(pd: PlainDate): number {
   const d = plainDateToDate(pd)
   const dayNum = d.getDay() || 7
+
   d.setDate(d.getDate() + 4 - dayNum)
+
   const yearStart = new Date(d.getFullYear(), 0, 1)
+
   return Math.ceil(((d.getTime() - yearStart.getTime()) / DAY_MS + 1) / 7)
 }
 
@@ -187,6 +195,7 @@ export function normalizeDayOfWeek(value: DayOfWeek | DayOfWeekName | undefined)
   }
 
   const idx = DAY_NAME_INDEX[value.toLowerCase() as DayOfWeekName]
+
   return (idx ?? 0) as DayOfWeek
 }
 
@@ -249,6 +258,7 @@ export type ShortWeekdayNames = readonly [string, string, string, string, string
 export function getStandaloneShortWeekdayNames(locale: string): ShortWeekdayNames {
   try {
     const parsed = new Intl.Locale(locale)
+
     return SHORT_WEEKDAYS[parsed.baseName] ?? SHORT_WEEKDAYS[parsed.language] ?? SHORT_WEEKDAYS.en
   } catch {
     return SHORT_WEEKDAYS.en
@@ -333,6 +343,7 @@ function fallbackFormat(pd: PlainDate, options: DateFormatOptions): string {
   const wd = EN_WEEKDAYS[weekdayOf(pd)]
   const wds = wd.slice(0, 3)
   const parts: string[] = []
+
   if (options.weekday === 'long') {
     parts.push(`${wd},`)
   } else if (options.weekday) {
@@ -360,6 +371,7 @@ export function plainDateFormat(
   locale?: string,
 ): string {
   const loc = locale ?? resolveLocale()
+
   return tryIntl(pd, options, loc) ?? fallbackFormat(pd, options)
 }
 
@@ -394,6 +406,7 @@ export function formatDateValue(
   locale?: string,
 ): string {
   const pd = plainDateFromISO(iso)
+
   if (!pd) {
     return iso
   }
@@ -413,12 +426,14 @@ export function formatRangeDisplay(range: DateRange | null | undefined, locale?:
 
   const start = plainDateFromISO(range.start)
   const end = plainDateFromISO(range.end)
+
   if (!start || !end) {
     return ''
   }
 
   const sameYear = start.year === end.year && start.year === plainDateToday().year
   const fmt = sameYear ? DATE_FORMAT_SHORT : DATE_FORMAT_SHORT_WITH_YEAR
+
   return `${plainDateFormat(start, fmt, locale)} – ${plainDateFormat(end, fmt, locale)}`
 }
 
@@ -478,6 +493,7 @@ function parseNumericPair(
 ): PlainDate | null {
   let day: number
   let month: number
+
   if (first > 12 && second <= 12) {
     day = first
     month = second
@@ -503,6 +519,7 @@ function parseNumericPair(
  *  unparseable or out-of-range input. */
 export function parseDateInput(input: string, locale?: string): PlainDate | null {
   const trimmed = input.trim()
+
   if (!trimmed) {
     return null
   }
@@ -510,14 +527,17 @@ export function parseDateInput(input: string, locale?: string): PlainDate | null
   const currentYear = new Date().getFullYear()
 
   const iso = trimmed.match(/^(\d{4})-(\d{1,2})-(\d{1,2})$/)
+
   if (iso) {
     return plainDateCreate(Number(iso[1]), Number(iso[2]), Number(iso[3]))
   }
 
   // "March 5, 2026" / "March 5 2026" / "March 5"
   let m = trimmed.match(/^([a-zA-Z]+)\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?$/)
+
   if (m) {
     const month = parseMonthName(m[1])
+
     if (month != null) {
       return plainDateCreate(Number(m[3] ?? currentYear), month, Number(m[2]))
     }
@@ -527,6 +547,7 @@ export function parseDateInput(input: string, locale?: string): PlainDate | null
   m = trimmed.match(/^(\d{1,2})(?:st|nd|rd|th)?\s+([a-zA-Z]+)(?:,?\s*(\d{4}))?$/)
   if (m) {
     const month = parseMonthName(m[2])
+
     if (month != null) {
       return plainDateCreate(Number(m[3] ?? currentYear), month, Number(m[1]))
     }
@@ -547,6 +568,7 @@ export function parseDateInput(input: string, locale?: string): PlainDate | null
   m = trimmed.match(/^(\d{1,2})[/.\-\s](\d{1,2})[/.\-\s](\d{2})$/)
   if (m) {
     const y = Number(m[3])
+
     return parseNumericPair(Number(m[1]), Number(m[2]), y <= 68 ? 2000 + y : 1900 + y, locale)
   }
 
@@ -572,6 +594,7 @@ export interface ParsedTime {
 /** Validate + normalize an `HH:MM[:SS]` string. Returns null when invalid. */
 export function parseISOTime(time: string): ParsedTime | null {
   const m = time.match(/^(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?$/)
+
   if (!m) {
     return null
   }
@@ -579,6 +602,7 @@ export function parseISOTime(time: string): ParsedTime | null {
   const hour = Number(m[1])
   const minute = Number(m[2])
   const second = m[3] != null ? Number(m[3]) : 0
+
   if (hour > 23 || minute > 59 || second > 59) {
     return null
   }
@@ -588,11 +612,13 @@ export function parseISOTime(time: string): ParsedTime | null {
 
 export function formatISOTime(time: ParsedTime, includeSeconds = false): ISOTimeString {
   const base = `${pad2(time.hour)}:${pad2(time.minute)}`
+
   return (includeSeconds ? `${base}:${pad2(time.second)}` : base) as ISOTimeString
 }
 
 export function formatDisplayTime12h(time: ISOTimeString, includeSeconds = false): string {
   const p = parseISOTime(time)
+
   if (!p) {
     return time
   }
@@ -600,16 +626,19 @@ export function formatDisplayTime12h(time: ISOTimeString, includeSeconds = false
   const h12 = p.hour % 12 || 12
   const ampm = p.hour < 12 ? 'AM' : 'PM'
   const min = pad2(p.minute)
+
   return includeSeconds ? `${h12}:${min}:${pad2(p.second)} ${ampm}` : `${h12}:${min} ${ampm}`
 }
 
 export function formatDisplayTime24h(time: ISOTimeString, includeSeconds = false): string {
   const p = parseISOTime(time)
+
   if (!p) {
     return time
   }
 
   const base = `${pad2(p.hour)}:${pad2(p.minute)}`
+
   return includeSeconds ? `${base}:${pad2(p.second)}` : base
 }
 
@@ -617,6 +646,7 @@ export function formatDisplayTime24h(time: ISOTimeString, includeSeconds = false
  *  and ISO `HH:MM[:SS]`; returns a normalized ISOTimeString or null. */
 export function parseTimeInput(input: string, includeSeconds = false): ISOTimeString | null {
   const trimmed = input.trim().toLowerCase()
+
   if (!trimmed) {
     return null
   }
@@ -649,6 +679,7 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
   if (/^\d{1,2}$/.test(timeStr)) {
     const hour = Number(timeStr)
     const hour24 = to24(hour)
+
     if (hour24 != null && hour24 >= 0 && hour24 <= 23 && (hasMeridiem || hour <= 23)) {
       return formatISOTime({ hour: hour24, minute: 0, second: 0 }, includeSeconds)
     }
@@ -659,6 +690,7 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
   if (/^\d{4}$/.test(timeStr)) {
     const hour24 = to24(Number(timeStr.slice(0, 2)))
     const minute = Number(timeStr.slice(2, 4))
+
     if (hour24 != null && hour24 <= 23 && minute <= 59) {
       return formatISOTime({ hour: hour24, minute, second: 0 }, includeSeconds)
     }
@@ -670,6 +702,7 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
     const hour24 = to24(Number(timeStr.slice(0, 2)))
     const minute = Number(timeStr.slice(2, 4))
     const second = Number(timeStr.slice(4, 6))
+
     if (hour24 != null && hour24 <= 23 && minute <= 59 && second <= 59) {
       return formatISOTime({ hour: hour24, minute, second }, includeSeconds)
     }
@@ -678,10 +711,12 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
   }
 
   const parts = timeStr.split(':')
+
   if (parts.length >= 2 && parts.length <= 3) {
     const hour = Number(parts[0])
     const minute = Number(parts[1])
     const second = parts.length === 3 ? Number(parts[2]) : 0
+
     if (!Number.isFinite(hour) || !Number.isFinite(minute) || !Number.isFinite(second)) {
       return null
     }
@@ -691,6 +726,7 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
     }
 
     const hour24 = hasMeridiem ? to24(hour) : hour <= 23 ? hour : null
+
     if (hour24 == null) {
       return null
     }
@@ -704,6 +740,7 @@ export function parseTimeInput(input: string, includeSeconds = false): ISOTimeSt
 export function compareTime(a: ISOTimeString, b: ISOTimeString): number {
   const pa = parseISOTime(a)
   const pb = parseISOTime(b)
+
   if (!pa || !pb) {
     return 0
   }
@@ -750,11 +787,13 @@ export function adjustTime(
   includeSeconds = false,
 ): ISOTimeString {
   const p = parseISOTime(time)
+
   if (!p || !Number.isFinite(deltaMinutes)) {
     return time
   }
 
   const total = (((p.hour * 60 + p.minute + deltaMinutes) % (24 * 60)) + 24 * 60) % (24 * 60)
+
   return formatISOTime(
     { hour: Math.floor(total / 60), minute: total % 60, second: p.second },
     includeSeconds,
@@ -774,6 +813,7 @@ export function splitDateTime(dt: ISODateTimeString | null | undefined): {
   }
 
   const i = dt.indexOf('T')
+
   if (i === -1) {
     return { date: dt as unknown as ISODateString }
   }
@@ -794,6 +834,7 @@ export function combineDateTime(
 
 export function currentISOTime(includeSeconds = false): ISOTimeString {
   const now = new Date()
+
   return formatISOTime(
     { hour: now.getHours(), minute: now.getMinutes(), second: now.getSeconds() },
     includeSeconds,
@@ -849,6 +890,7 @@ export function formatLocalizedTime(
   locale: string,
 ): string {
   const parsed = parseISOTime(time)
+
   if (!parsed) {
     return time
   }

@@ -33,10 +33,12 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
       }
 
       const old = clips.get(name)
+
       old?.pause()
       old?.removeAttribute('src')
 
       const audio = new Audio()
+
       audio.preload = 'auto'
       audio.src = typeof source === 'string' ? source : source.uri
       audio.load()
@@ -73,6 +75,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
     },
     play: async (name, { volume = 1 } = {}) => {
       const source = clips.get(name)
+
       if (!source || disposed) {
         return false
       }
@@ -86,6 +89,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
       }
 
       const voice = source.cloneNode() as HTMLAudioElement
+
       voice.volume = Math.max(0, Math.min(1, volume))
       active.set(voice, name)
       voice.addEventListener('ended', () => active.delete(voice), {

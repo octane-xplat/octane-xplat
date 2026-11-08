@@ -32,9 +32,12 @@ export function TiptapEditor(props: TiptapEditorProps): JSX.Element @{
     onCreate: () => props.onReady?.(),
     onUpdate: ({ editor: e }: any) => {
       const html = e.getHTML()
+
       lastEmitted.current = html
       props.onChange?.(html)
+
       const doc = e.getJSON()
+
       lastJSON.current = JSON.stringify(doc)
       props.onJSONChange?.(doc)
     },
@@ -56,6 +59,7 @@ export function TiptapEditor(props: TiptapEditorProps): JSX.Element @{
     }
 
     const stamp = JSON.stringify([props.json !== undefined, props.value])
+
     if (stamp === lastHTMLInput.current) {
       return
     }
@@ -78,6 +82,7 @@ export function TiptapEditor(props: TiptapEditorProps): JSX.Element @{
     }
 
     const stamp = JSON.stringify(props.json)
+
     if (stamp === lastJSONInput.current) {
       return
     }

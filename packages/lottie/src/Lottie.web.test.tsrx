@@ -4,6 +4,7 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 
 const { loadAnimation } = vi.hoisted(() => ({ loadAnimation: vi.fn() }))
+
 vi.mock('lottie-web', () => ({ default: { loadAnimation } }))
 
 import { Lottie } from './Lottie.web.tsrx'
@@ -12,8 +13,11 @@ const roots: any[] = []
 
 function mount(props: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push({ root, host })
   act(() => root.render(<Lottie {...props} />))
   return host
@@ -40,6 +44,7 @@ it('reports malformed inline JSON through onError without throwing', () => {
 
 it('reports synchronous lottie-web construction failures through onError', () => {
   const onError = vi.fn()
+
   loadAnimation.mockImplementation(() => {
     throw new Error('invalid animation data')
   })
@@ -56,6 +61,7 @@ it('exposes the created animation handle through a ref on initial mount', () => 
   } as any
 
   loadAnimation.mockReturnValue(animation)
+
   const ref = { current: null as any }
 
   mount({ data: { v: '5.0', layers: [] }, ref })

@@ -20,6 +20,7 @@ function object(
   if (!value || typeof value !== 'object' || Array.isArray(value)) {
     throw new TypeError(`${name} must be an object`)
   }
+
   if (Object.keys(value).some((key) => !keys.includes(key))) {
     throw new TypeError(`Unsupported ${name} option`)
   }
@@ -37,20 +38,24 @@ function stripeOptions(options: InitStripeParams): InitStripeParams {
     ['publishableKey', 'stripeAccountId', 'merchantIdentifier', 'urlScheme'],
     'initStripe',
   )
+
   if (
     typeof options.publishableKey !== 'string' ||
     !/^pk_(test|live)_[A-Za-z0-9]+$/.test(options.publishableKey)
   ) {
     throw new TypeError('Use a Stripe publishable key; never pass a secret key')
   }
+
   for (const key of ['stripeAccountId', 'merchantIdentifier', 'urlScheme'] as const) {
     if (options[key] !== undefined) {
       text(options[key], key)
     }
   }
+
   if (options.urlScheme !== undefined && !/^[a-z][a-z0-9+.-]*$/i.test(options.urlScheme)) {
     throw new TypeError('urlScheme must contain a scheme without ://')
   }
+
   return { ...options }
 }
 
@@ -70,6 +75,7 @@ function sheetOptions(
     ],
     'PaymentSheet',
   )
+
   text(options.merchantDisplayName, 'merchantDisplayName')
   if (
     typeof options.paymentIntentClientSecret !== 'string' ||
@@ -77,12 +83,16 @@ function sheetOptions(
   ) {
     throw new TypeError('Use a PaymentIntent client secret from your backend')
   }
+
   if (options.primaryButtonLabel !== undefined) {
     text(options.primaryButtonLabel, 'primaryButtonLabel')
   }
+
   if (options.returnURL !== undefined) {
     text(options.returnURL, 'returnURL')
+
     const protocol = options.returnURL.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase()
+
     if (!protocol || !['https', 'http', config.urlScheme?.toLowerCase()].includes(protocol)) {
       throw new TypeError('returnURL must use HTTP(S) or the configured app scheme')
     }
@@ -96,12 +106,14 @@ function sheetOptions(
       )
     }
   }
+
   if (options.applePay !== undefined) {
     object(options.applePay, ['merchantCountryCode'], 'applePay')
     if (!/^[A-Z]{2}$/.test(String(options.applePay.merchantCountryCode))) {
       throw new TypeError('Apple Pay needs a two-letter uppercase country code')
     }
   }
+
   if (options.googlePay !== undefined) {
     object(options.googlePay, ['merchantCountryCode', 'currencyCode', 'testEnv'], 'googlePay')
     if (!/^[A-Z]{2}$/.test(String(options.googlePay.merchantCountryCode))) {
@@ -119,6 +131,7 @@ function sheetOptions(
       throw new TypeError('testEnv must be boolean')
     }
   }
+
   return {
     ...options,
     ...(options.applePay && { applePay: { ...options.applePay } }),
@@ -136,6 +149,7 @@ export function createStripeClient(backend: StripeBackend) {
       throw new UnavailabilityError('Stripe PaymentSheet')
     }
   }
+
   return {
     get supported(): boolean {
       return backend.available()
@@ -144,7 +158,9 @@ export function createStripeClient(backend: StripeBackend) {
       if (busy) {
         throw new Error('Stripe is busy; wait for the current operation to finish')
       }
+
       const snapshot = stripeOptions(options)
+
       assertAvailable()
       busy = true
       configuration = undefined
@@ -161,13 +177,17 @@ export function createStripeClient(backend: StripeBackend) {
       if (busy) {
         return fail('Stripe is busy; wait for the current operation to finish')
       }
+
       if (!configuration) {
         return fail('Call initStripe before initializing PaymentSheet')
       }
+
       busy = true
       prepared = false
+
       let snapshot: PaymentSheetSetupParams | undefined
       let validationError: string | undefined
+
       try {
         snapshot = sheetOptions(options, configuration)
         assertAvailable()
@@ -175,6 +195,7 @@ export function createStripeClient(backend: StripeBackend) {
         validationError =
           error instanceof Error ? error.message : 'Invalid PaymentSheet configuration'
       }
+
       try {
         await backend.reset()
         if (!snapshot || validationError) {
@@ -197,12 +218,15 @@ export function createStripeClient(backend: StripeBackend) {
       if (busy) {
         return fail('Stripe is busy; wait for the current operation to finish')
       }
+
       if (!prepared) {
         return fail('Call initPaymentSheet before presenting checkout')
       }
+
       busy = true
       try {
         const result = await backend.present()
+
         if (!result.error) {
           prepared = false
           try {
@@ -225,6 +249,7 @@ export function createStripeClient(backend: StripeBackend) {
       if (busy) {
         return fail('Stripe is busy; finish or cancel checkout first')
       }
+
       busy = true
       prepared = false
       try {
@@ -240,11 +265,15 @@ export function createStripeClient(backend: StripeBackend) {
       if (!configuration) {
         return false
       }
+
       text(url, 'url')
+
       const protocol = url.match(/^([a-z][a-z0-9+.-]*):/i)?.[1]?.toLowerCase()
+
       if (!protocol || protocol !== configuration.urlScheme?.toLowerCase()) {
         return false
       }
+
       return backend.handleURL(url)
     },
   }

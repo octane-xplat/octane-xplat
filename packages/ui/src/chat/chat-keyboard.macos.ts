@@ -15,17 +15,21 @@ export function bindChatKeyboard(
   const scroll = chatHost.scroll(viewport)
   let active = true,
     timer: ReturnType<typeof setTimeout> | undefined
+
   const apply = () => {
     if (!active) {
       return
     }
+
     checkChatPanelHeight(options().bottomPanelHeight)
     if (timer !== undefined) {
       clearTimeout(timer)
     }
+
     const follow =
       chatScrollControl(viewport)?.isFollowing() ??
       chatAtEnd(scroll.verticalOffset, scroll.scrollableHeight)
+
     timer = setTimeout(() => {
       timer = undefined
       if (active && follow && (chatScrollControl(viewport)?.isFollowing() ?? follow)) {
@@ -33,14 +37,17 @@ export function bindChatKeyboard(
       }
     }, 0)
   }
+
   const a = chatHost.observeLayout(dock, apply, true),
     b = chatHost.observeLayout(content, apply)
+
   apply()
   return Object.assign(
     () => {
       if (!active) {
         return
       }
+
       active = false
       a()
       b()

@@ -212,16 +212,19 @@ export const INDEX_SLUG = 'README'
 // group alphabetically, so new docs never vanish.
 export function rankOf(slug: string, dir: string): number {
   const gi = GROUPS.findIndex((g) => g.dir === (dir || 'start'))
+
   if (gi === -1) {
     return 1000
   }
 
   const si = GROUPS[gi].slugs.indexOf(slug)
+
   return gi * 100 + (si === -1 ? 99 : si)
 }
 
 export function titleOf(slug: string, md: string): string {
   const h = md.match(/^#\s+(.+)$/m)
+
   if (h) {
     return h[1].replace(/[`*_]/g, '').trim()
   }
@@ -235,8 +238,10 @@ export function purposeOf(md: string): string {
   const lines = md.split('\n')
   const h1 = lines.findIndex((l) => /^#\s+/.test(l))
   const quote: string[] = []
+
   for (let i = h1 + 1; i < lines.length; i++) {
     const l = lines[i]
+
     if (l.startsWith('>')) {
       quote.push(l.replace(/^>\s?/, ''))
     } else if (l.trim() === '') {
@@ -267,11 +272,13 @@ export function slugFor(dir: string, base: string): string {
 // target resolves to its directory's slug. Returns null for non-doc hrefs.
 export function docSlugFor(href: string, dir: string): string | null {
   const clean = href.split('#', 1)[0].split('?', 1)[0]
+
   if (!clean.endsWith('.md')) {
     return null
   }
 
   const segs: string[] = []
+
   for (const s of [...(dir ? dir.split('/') : []), ...clean.split('/')]) {
     if (!s || s === '.') {
       continue
@@ -289,6 +296,7 @@ export function docSlugFor(href: string, dir: string): string | null {
   }
 
   const base = segs.pop()?.replace(/\.md$/, '')
+
   return base === undefined ? null : slugFor(segs.join('/'), base)
 }
 
@@ -300,6 +308,7 @@ export function repoPathFor(href: string, dir: string): string {
   const clean = href.split('#', 1)[0].split('?', 1)[0]
   const segs: string[] = []
   let escapes = 0
+
   for (const s of [...(dir ? dir.split('/') : []), ...clean.split('/')]) {
     if (!s || s === '.') {
       continue
@@ -317,6 +326,7 @@ export function repoPathFor(href: string, dir: string): string {
   }
 
   const path = escapes ? segs.join('/') : 'docs/' + segs.join('/')
+
   return path + (clean.endsWith('/') ? '/' : '')
 }
 

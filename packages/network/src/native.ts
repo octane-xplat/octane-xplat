@@ -16,14 +16,17 @@ export function requestNative(
   options: StreamRequestOptions = {},
 ): Promise<StreamResponse> {
   let method: string, limit: number
+
   try {
     ;({ method, limit } = validate(url, options))
   } catch (cause) {
     return Promise.reject(cause)
   }
+
   if (options.signal?.aborted) {
     return Promise.reject(aborted())
   }
+
   return new Promise((resolve, reject) => {
     const native = create()
     let ended = false
@@ -35,6 +38,7 @@ export function requestNative(
       if (ended) {
         return
       }
+
       ended = true
       cleanup()
       if (error) {
@@ -50,6 +54,7 @@ export function requestNative(
         controller.close()
       }
     }
+
     const abort = () => finish(aborted())
     const stream = new ReadableStream<Uint8Array>(
       {
@@ -64,11 +69,13 @@ export function requestNative(
       },
       { highWaterMark: limit, size: (value) => value.byteLength },
     )
+
     options.signal?.addEventListener('abort', abort)
     if (options.signal?.aborted) {
       abort()
       return
     }
+
     try {
       native.start(
         JSON.stringify({
@@ -88,8 +95,10 @@ export function requestNative(
           if (ended) {
             return
           }
+
           try {
             const event = JSON.parse(json)
+
             if (event.type === 'headers') {
               if (
                 receivedHeaders ||
@@ -113,6 +122,7 @@ export function requestNative(
               }
 
               const bytes = decode(event.data)
+
               // A push backend cancels instead of retaining an unbounded unread body.
               size = limit - (controller.desiredSize ?? 0) + bytes.byteLength
               if (size > limit) {
@@ -141,6 +151,7 @@ export function requestNative(
 
 function aborted(): Error {
   const error = new Error('Request aborted')
+
   error.name = 'AbortError'
   return error
 }

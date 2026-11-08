@@ -4,6 +4,7 @@ let seq = 0
 
 function featuresFor(options: OpenWindowOptions): string | undefined {
   const features: string[] = []
+
   if (options.size) {
     features.push(
       `width=${Math.round(options.size.width)}`,
@@ -25,6 +26,7 @@ function featuresFor(options: OpenWindowOptions): string | undefined {
  *  browser window settles the handle the same way `close()` does. */
 export function openWebWindow(options: OpenWindowOptions): WindowHandle | null {
   const win = window.open(options.url ?? window.location.href, '_blank', featuresFor(options))
+
   if (!win) {
     return null
   }

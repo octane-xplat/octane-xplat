@@ -27,10 +27,12 @@ for (const [target, moduleSuffixes] of [
         moduleSuffixes,
       },
     })
+
     const errors = ts
       .getPreEmitDiagnostics(program)
       .filter((diagnostic) => diagnostic.category === ts.DiagnosticCategory.Error)
       .map((diagnostic) => ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n'))
+
     assert.deepEqual(errors, [])
   })
 }

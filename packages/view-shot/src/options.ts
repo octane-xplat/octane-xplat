@@ -39,24 +39,33 @@ export function normalizeOptions(options: CaptureOptions = {}): NormalizedCaptur
   ) {
     throw new TypeError('Invalid view capture options')
   }
+
   if ((options.width === undefined) !== (options.height === undefined)) {
     throw new RangeError('Supply both final width and height, or omit both')
   }
+
   if (options.width !== undefined) {
     checkDimensions(options.width, options.height!)
   }
+
   const format = options.format ?? 'png'
+
   if (format !== 'png' && format !== 'jpg' && format !== 'webp') {
     throw new RangeError('This capture subset supports png, jpg and platform-supported webp')
   }
+
   const result = options.result ?? 'tmpfile'
+
   if (result !== 'tmpfile' && result !== 'base64' && result !== 'data-uri') {
     throw new RangeError('This capture subset supports tmpfile, base64 and data-uri')
   }
+
   const quality = options.quality ?? 1
+
   if (typeof quality !== 'number' || !Number.isFinite(quality) || quality < 0 || quality > 1) {
     throw new RangeError('Capture quality must be between 0 and 1')
   }
+
   if (
     options.fileName !== undefined &&
     (typeof options.fileName !== 'string' ||
@@ -68,6 +77,7 @@ export function normalizeOptions(options: CaptureOptions = {}): NormalizedCaptur
       'Capture fileName must be 3–80 ASCII letters, digits, underscores or hyphens',
     )
   }
+
   for (const key of [
     'snapshotContentContainer',
     'handleGLSurfaceViewOnAndroid',
@@ -77,6 +87,7 @@ export function normalizeOptions(options: CaptureOptions = {}): NormalizedCaptur
       throw new TypeError(`${key} must be a Boolean`)
     }
   }
+
   return Object.freeze({
     fileName: options.fileName,
     width: options.width,

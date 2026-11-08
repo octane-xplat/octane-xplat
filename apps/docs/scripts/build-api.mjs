@@ -25,11 +25,13 @@ const output = join(root, 'docs/api')
 const worker = fileURLToPath(import.meta.url)
 const pages = []
 const controller = new AbortController()
+
 try {
   const entries = readdirSync(join(root, 'packages')).sort()
   async function generate(entry) {
     const manifestPath = join(root, 'packages', entry, 'package.json')
     let manifest
+
     try {
       manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
     } catch (error) {
@@ -39,12 +41,15 @@ try {
 
       throw error
     }
+
     if (manifest.private) {
       return
     }
+
     const header = `# ${manifest.name} API\n\n> Generated from the package's exported declarations and TSDoc. Platform setup and usage belong in the [package guide](../packages/package-${entry}.md).\n\n`
     let markdown =
       'This package has no exported TypeScript declarations. See the package guide for its command or asset interface.\n'
+
     if (manifest.exports || manifest.types || manifest.typings) {
       const result = await execute(process.execPath, [worker, manifestPath], {
         cwd: root,
@@ -54,10 +59,12 @@ try {
       })
 
       let fence
+
       markdown = result.stdout
         .split('\n')
         .map((line) => {
           const marker = line.match(/^\s*(`{3,}|~{3,})/)
+
           if (marker) {
             if (!fence) {
               fence = marker[1]
@@ -67,10 +74,12 @@ try {
 
             return line
           }
+
           return fence ? line : line.replace(/^(#{1,5}) /, '$1# ')
         })
         .join('\n')
     }
+
     pages.push([`api-${entry}.md`, header + markdown])
     console.log(`API: ${manifest.name}`)
   }

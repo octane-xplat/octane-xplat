@@ -55,9 +55,13 @@ describe('useFocus (DOM renderer)', () => {
     }
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Reader />))
+
     const button = el.querySelector<HTMLElement>('.target')!
 
     act(() => button.focus())
@@ -85,17 +89,24 @@ describe('useFocusRing + useFocusVisible (DOM renderer)', () => {
 
     function Reader() @{
       const ring = useFocusRing()
+
       visibility = useFocusVisible()
+
       const { isFocused, isFocusVisible: visible, focusProps } = ring
+
       ringSupportsVisibility = ring.isFocusVisibleSupported
 
       <button {...focusProps} class="ring">{`f:${isFocused},v:${visible}`}</button>
     }
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Reader />))
+
     const button = el.querySelector<HTMLElement>('.ring')!
     const text = () => button.textContent
 
@@ -146,11 +157,17 @@ describe('useFocusWithin (DOM renderer)', () => {
     }
 
     const outside = document.createElement('button')
+
     document.body.appendChild(outside)
+
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Reader />))
+
     const a = el.querySelector<HTMLElement>('.a')!
     const b = el.querySelector<HTMLElement>('.b')!
 
@@ -193,8 +210,11 @@ describe('useLandmark (DOM renderer)', () => {
     }
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() =>
       root.render(
         <div>
@@ -231,10 +251,14 @@ describe('FocusScope (DOM renderer)', () => {
 
   it('auto-focuses inside, wraps Tab, contains focus, and restores on unmount', () => {
     const before = document.createElement('button')
+
     document.body.appendChild(before)
     before.focus()
+
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
 
     act(() =>
@@ -248,6 +272,7 @@ describe('FocusScope (DOM renderer)', () => {
 
     const a = el.querySelector<HTMLElement>('.a')!
     const b = el.querySelector<HTMLElement>('.b')!
+
     expect(document.activeElement).toBe(a)
 
     // Tab on the last stop wraps to the first; Shift+Tab wraps backward.

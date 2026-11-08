@@ -46,6 +46,7 @@ describe('math', () => {
 
   it('zoomAt keeps the focus point fixed', () => {
     const t1 = zoomAt(10, 0, 1, 3, 40)
+
     expect((40 - 10) / 1).toBeCloseTo((40 - (10 + t1)) / 3)
   })
 
@@ -58,15 +59,19 @@ describe('math', () => {
       radius: 10,
       opacity: 1,
     }
+
     const s = toStyle(thumb, base)
+
     expect(s.scale).toBe(0.5)
     expect(s.x).toBe(75)
     expect(s.inset).toEqual({ top: 0, right: 50, bottom: 0, left: 50 })
     expect(s.radius).toBe(20)
+
     const end = toStyle(
       lerpVisual(thumb, { img: base, clip: base, radius: 0, opacity: 1 }, 1),
       base,
     )
+
     expect(end).toEqual({
       x: 0,
       y: 0,
@@ -91,7 +96,9 @@ describe('zero-box safety', () => {
       radius: 0,
       opacity: 1,
     }
+
     const s = toStyle(v, { x: 0, y: 0, w: 0, h: 0 })
+
     for (const n of [
       s.x,
       s.y,
@@ -106,8 +113,10 @@ describe('zero-box safety', () => {
       expect(Number.isFinite(n)).toBe(true)
     }
   })
+
   it('fit returns finite values with a zero-size box', () => {
     const f = fit(1.333, { x: 0, y: 0, w: 0, h: 0 })
+
     for (const n of [f.x, f.y, f.w, f.h]) {
       expect(Number.isFinite(n)).toBe(true)
     }
@@ -121,21 +130,26 @@ describe('thumbVisualFrom', () => {
       { x: 0, y: 0, w: 402, h: 874 },
       4 / 3,
     )
+
     expect(v.img).toEqual({ x: 10, y: 15, w: 120, h: 90 })
     expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
     expect(v.opacity).toBe(1)
   })
+
   it('subtracts the slide offset', () => {
     const v = thumbVisualFrom(
       { x: 110, y: 120, w: 120, h: 80 },
       { x: 100, y: 100, w: 402, h: 874 },
       4 / 3,
     )
+
     expect(v.clip).toEqual({ x: 10, y: 20, w: 120, h: 80 })
     expect(v.img.x).toBe(10)
   })
+
   it('clamps radius to half the clip shorter side', () => {
     const v = thumbVisualFrom({ x: 0, y: 0, w: 120, h: 80 }, { x: 0, y: 0, w: 402, h: 874 }, 1, 60)
+
     expect(v.radius).toBe(40)
   })
 })

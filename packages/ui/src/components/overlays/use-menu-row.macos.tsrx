@@ -15,6 +15,7 @@ export function useAppKitMenuRow(row: AppKitMenuRow): {
     latest = useRef(row)
 
   latest.current = row
+
   const press = useCallback(() => {
     if (own.current && !latest.current.disabled) {
       latest.current.press()

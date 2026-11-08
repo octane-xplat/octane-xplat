@@ -26,6 +26,7 @@ import { RollingText } from './RollingText.tsrx'
 function mount(props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(RollingText as any, props)
   return { container, root }
 }
@@ -50,6 +51,7 @@ describe('RollingText (native leaf, object driver)', () => {
   it('mounts settled cells and carries the whole value as the row label', () => {
     const { container, root } = mount({ value: '9 seconds' })
     const host = row(container)
+
     expect(host.props.accessibilityLabel).toBe('9 seconds')
     expect(host.props.accessibilityRole).toBe('text')
     expect(cellTexts(container).join('')).toBe('9 seconds')
@@ -59,6 +61,7 @@ describe('RollingText (native leaf, object driver)', () => {
   it('rolls changed units and keeps survivors', async () => {
     const { container, root } = mount({ value: '9 seconds' })
     const before = [...row(container).children]
+
     flushUniversalSync(() => root.render(RollingText as any, { value: '10 seconds' }))
     // Ghost '9' stays in place while '1','0' enter ahead of the survivors.
     expect(cellTexts(container).join('')).toBe('910 seconds')
@@ -72,6 +75,7 @@ describe('RollingText (native leaf, object driver)', () => {
 
   it('updates the semantic label immediately under a queued update', () => {
     const { container, root } = mount({ value: 'a', updatePolicy: 'latest' })
+
     flushUniversalSync(() =>
       root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }),
     )
@@ -91,6 +95,7 @@ describe('RollingText (native leaf, object driver)', () => {
 
   it('reducedMotion="always" commits instantly', () => {
     const { container, root } = mount({ value: 'a', reducedMotion: 'always' })
+
     flushUniversalSync(() =>
       root.render(RollingText as any, { value: 'b', reducedMotion: 'always' }),
     )
@@ -101,6 +106,7 @@ describe('RollingText (native leaf, object driver)', () => {
 
   it('settles the queued latest value when reduced motion becomes active', () => {
     const { container, root } = mount({ value: 'a', updatePolicy: 'latest' })
+
     flushUniversalSync(() =>
       root.render(RollingText as any, { value: 'b', updatePolicy: 'latest' }),
     )
@@ -126,6 +132,7 @@ describe('RollingText (native leaf, object driver)', () => {
 
   it('unmount clears pending timers and tweens', () => {
     const { container, root } = mount({ value: 'a' })
+
     flushUniversalSync(() => root.render(RollingText as any, { value: 'b' }))
     root.unmount()
     expect(container.children.length).toBe(0)

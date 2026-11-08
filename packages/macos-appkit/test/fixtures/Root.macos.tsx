@@ -4,6 +4,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const rootRefs = { host: { current: null as any }, child: { current: null as any } }
 export const rootEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     rootEvents.push('attach')
@@ -24,6 +25,7 @@ function Moving() {
 export default function Root() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
+
   return (
     <masonview
       style={{

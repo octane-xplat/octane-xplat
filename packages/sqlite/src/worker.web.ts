@@ -38,6 +38,7 @@ const getSahPool = (sqlite3: Sqlite3) => {
 
 const database = (id: number) => {
   const entry = databases.get(id)
+
   if (!entry) {
     throw new Error(`sqlite db handle ${id} is not open`)
   }
@@ -55,6 +56,7 @@ const open = async (name: string) => {
 
   let db: any
   let persistent = false
+
   if (sahPool) {
     db = new sqlite3.oo1.DB(file, 'c', sahPool.vfsName)
     persistent = true
@@ -67,6 +69,7 @@ const open = async (name: string) => {
   }
 
   const databaseId = ++nextDatabaseId
+
   databases.set(databaseId, { db, name: file, persistent })
   return { databaseId, persistent, version: sqlite3.version.libVersion }
 }
@@ -84,6 +87,7 @@ const deleteDb = async (name: string) => {
   }
 
   const sahPool = sahPoolPromise ? await sahPoolPromise : null
+
   if (sahPool) {
     return { deleted: Boolean(sahPool.unlink(file)), databaseIds }
   }
@@ -91,6 +95,7 @@ const deleteDb = async (name: string) => {
   // OpfsDb path: best-effort removal of the OPFS entry.
   try {
     const root = await navigator.storage.getDirectory()
+
     await root.removeEntry(file.slice(1))
     return { deleted: true, databaseIds }
   } catch {
@@ -119,6 +124,7 @@ const handlers: Record<string, (...args: any[]) => unknown> = {
     database(id).db.exec(`PRAGMA user_version = ${version | 0}`),
   close: (id: number) => {
     const entry = databases.get(id)
+
     if (!entry) {
       return
     }

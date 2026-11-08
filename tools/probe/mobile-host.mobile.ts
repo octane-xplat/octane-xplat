@@ -66,28 +66,34 @@ gesturehandler.install()
 
 const frame = new Frame()
 const page = new Page()
+
 page.actionBarHidden = true
 // Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript (not importable here).
 page.iosIgnoreSafeArea = true
 page.androidOverflowEdge = 'ignore'
 if (isIOS) {
   const measure = page.measure
+
   page.measure = function (widthMeasureSpec, heightMeasureSpec) {
     // Same as prepareFullScreenPage() in @octane-xplat/ui/nativescript:
     // core measures a Page against safeAreaLayoutGuide even when it
     // ignores safe areas, then lays children out in the full frame.
     const size = this.nativeViewProtected?.bounds?.size
+
     if (size?.width > 0 && size?.height > 0) {
       const { layout } = Utils
+
       widthMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.width), layout.EXACTLY)
       heightMeasureSpec = layout.makeMeasureSpec(layout.toDevicePixels(size.height), layout.EXACTLY)
     }
+
     measure.call(this, widthMeasureSpec, heightMeasureSpec)
   }
 }
 
 frame.navigate({ create: () => page })
 Application.run({ create: () => frame })
+
 let lastRun
 let busy = false
 const sessionPath = path.join(knownFolders.documents().path, 'probe-session.json')
@@ -104,8 +110,10 @@ setInterval(async () => {
   }
 
   busy = true
+
   let control
   let session
+
   try {
     session = JSON.parse(launchSession ?? (await File.fromPath(sessionPath).readText()))
     control = await (await fetch(session.url + '/control')).json()
@@ -114,10 +122,12 @@ setInterval(async () => {
     }
 
     lastRun = control.runId
+
     const source = await (await fetch(session.url + '/bundle')).text()
     const css = await (await fetch(session.url + '/style')).text()
     // Android's CSS loader requires a path inside the extracted app root.
     const cssPath = path.join(knownFolders.currentApp().path, 'probe.css')
+
     try {
       await File.fromPath(cssPath).writeText(css)
       Application.setCssFileName('~/probe.css')

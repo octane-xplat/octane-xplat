@@ -11,7 +11,9 @@ const compile = (file) =>
   })
 
 const wav = {}
+
 vm.runInNewContext(compile('wav'), { exports: wav })
+
 const recorderSource = compile('recorder.web')
 
 // This exercises the web adapter's asynchronous ownership and cleanup. It
@@ -27,6 +29,7 @@ function fixture(getUserMedia, options = {}) {
     addEventListener() {},
     removeEventListener() {},
   }
+
   const stream = { active: true, getTracks: () => [track], getAudioTracks: () => [track] }
   const node = () => ({ connect() {}, disconnect() {} })
   class AudioContext {
@@ -55,7 +58,9 @@ function fixture(getUserMedia, options = {}) {
       this.state = 'closed'
     }
   }
+
   const exports = {}
+
   vm.runInNewContext(recorderSource, {
     exports,
     require: (id) => {
@@ -78,7 +83,9 @@ function fixture(getUserMedia, options = {}) {
     setInterval,
     clearInterval,
   })
+
   const recorder = exports.createAudioRecorder()
+
   return {
     recorder,
     track,
@@ -95,6 +102,7 @@ function fixture(getUserMedia, options = {}) {
 
 test('disposing a recording releases its stream and audio context', async () => {
   const { recorder, track, contexts, cleanup } = fixture()
+
   try {
     await recorder.start()
     assert.equal(recorder.snapshot().state, 'recording')
@@ -111,12 +119,15 @@ test('disposing while permission is pending prevents later microphone capture', 
   const permission = new Promise((resolve) => {
     grant = resolve
   })
+
   const { recorder, track, contexts, cleanup } = fixture(async (stream) => {
     await permission
     return stream
   })
+
   try {
     const starting = recorder.start()
+
     recorder.dispose()
     grant()
     await assert.rejects(starting, /disposed/)
@@ -135,17 +146,21 @@ for (const stage of ['addModule', 'resume']) {
     const waiting = new Promise((resolve) => {
       release = resolve
     })
+
     const entered = new Promise((resolve) => {
       enter = resolve
     })
+
     const { recorder, track, contexts, cleanup } = fixture(undefined, {
       [stage]: async () => {
         enter()
         await waiting
       },
     })
+
     try {
       const starting = recorder.start()
+
       await entered
       recorder.dispose()
       release()

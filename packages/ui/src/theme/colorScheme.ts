@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'octane'
 import { Application } from '@nativescript/core'
 
 export type { ColorScheme } from '../props'
+
 import type { ColorScheme } from '../props'
 
 /**
@@ -19,6 +20,7 @@ export function getColorScheme(): ColorScheme {
 
 export function subscribeSystemScheme(cb: () => void): () => void {
   const h = () => cb()
+
   Application.on('systemAppearanceChanged', h)
   return () => Application.off('systemAppearanceChanged', h)
 }

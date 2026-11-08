@@ -11,6 +11,7 @@ const MESSAGES = [
 export function ToastStacking() @{
   const toast = useToast()
   const countRef = useRef(0)
+
   return (
     <VStack gap={3}>
       {MESSAGES.map((msg) => (

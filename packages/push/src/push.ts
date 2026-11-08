@@ -66,6 +66,7 @@ export const push: Push = {
       .initializeApp()
       .then(() => {
         const m = firebase().messaging()
+
         if (options.showNotificationsInForeground != null) {
           m.showNotificationsWhenInForeground = options.showNotificationsInForeground
         }
@@ -79,6 +80,7 @@ export const push: Push = {
   },
   async requestPermission() {
     const m = await requireMessaging()
+
     try {
       const status = await m.requestPermission({
         ios: configureOptions?.iosPermissions ?? {},
@@ -93,6 +95,7 @@ export const push: Push = {
   },
   async getToken() {
     const m = await requireMessaging()
+
     // iOS getToken rejects until APNs registration has been requested.
     if (!m.isDeviceRegisteredForRemoteMessages) {
       await m.registerDeviceForRemoteMessages()
@@ -102,6 +105,7 @@ export const push: Push = {
   },
   async deleteToken() {
     const m = await requireMessaging()
+
     await m.deleteToken()
   },
   onMessage(handler) {

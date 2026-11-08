@@ -20,6 +20,7 @@ import { java } from '@octane-xplat/platform/android'
 class CameraPreview extends View {
   createNativeView() {
     const nativeClass = (globalThis as any).com.octanexplat.camera.CameraPreviewView
+
     return new nativeClass(this._context)
   }
 }
@@ -37,6 +38,7 @@ export function CameraView(props: CameraViewProps): unknown @{
   const host = useRef<any>(null)
   const active = props.active !== false
   const facing = props.facing ?? 'back'
+
   useImperativeHandle(props.ref, () => ({ native: host.current.android }), [])
 
   const bindHost = useCallback((view: any) => {
@@ -45,6 +47,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const nativeView = host.current?.android
+
     if (!nativeView) {
       return
     }
@@ -52,12 +55,14 @@ export function CameraView(props: CameraViewProps): unknown @{
     let disposed = false
     let provider: any
     let preview: any
+
     nativeView.setCameraActive(active)
     if (!active) {
       return () => nativeView.setCameraActive(false)
     }
 
     const fail = (message: string) => props.onError?.({ message })
+
     if (props.session) {
       if (props.facing !== undefined) {
         fail('camera session conflicts with facing')
@@ -113,6 +118,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
               try {
                 provider = future.get()
+
                 const selectorClass = cameraX.core.CameraSelector
                 const lens =
                   facing === 'front'
@@ -120,14 +126,17 @@ export function CameraView(props: CameraViewProps): unknown @{
                     : selectorClass.LENS_FACING_BACK
 
                 const selector = new selectorClass.Builder().requireLensFacing(lens).build()
+
                 preview = new cameraX.core.Preview.Builder().build()
                 preview.setSurfaceProvider(nativeView.getSurfaceProvider())
                 provider.bindToLifecycle(nativeView, selector, preview)
                 props.onReady?.()
+
                 // CameraX STREAMING is the displayed-frame edge; the
                 // PreviewView is its own LifecycleOwner here. LiveData can
                 // re-emit a value, so dedupe into displayed transitions.
                 let displayed = false
+
                 nativeView.getStreamState?.().observe(
                   nativeView,
                   new (globalThis as any).androidx.lifecycle.Observer({
@@ -169,6 +178,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view) {
       return
     }

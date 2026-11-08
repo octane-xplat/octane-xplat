@@ -153,6 +153,7 @@ function emitMirror(
   const seconds = (name: string) => Number((parseMs(rawToken(name)) / 1000).toFixed(3))
   const curve = (name: string) => {
     const value = rawToken(name)
+
     return isNamedCurve(value) ? JSON.stringify(value) : `[${parseBezier(value).join(', ')}]`
   }
 
@@ -306,6 +307,7 @@ export function MotionExportPage() {
   const springDiff = SPRINGS.flatMap((spec) => {
     const tuned = springs[spec.name]
     const rows: Array<{ name: string; proposed: string; tuned: string }> = []
+
     if (tuned.duration !== spec.duration) {
       rows.push({
         name: `spring.${spec.name}.duration`,

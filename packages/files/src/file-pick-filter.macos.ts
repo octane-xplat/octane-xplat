@@ -17,6 +17,7 @@ const mimeToken = /^[!#$%&'*+.^_`|~0-9a-z-]+$/
 export function appKitFileTypeClass(host: Record<string, any> = globalThis): any | undefined {
   try {
     const descriptor = Object.getOwnPropertyDescriptor(host, 'UTType')
+
     // Explicit host/test bindings are safe without invoking a lazy getter.
     if (descriptor && 'value' in descriptor && descriptor.value != null) {
       return descriptor.value
@@ -25,10 +26,12 @@ export function appKitFileTypeClass(host: Record<string, any> = globalThis): any
     if (!loaded.has(host)) {
       const bridge = host.objc
       const load = bridge?.import
+
       if (typeof load === 'function') {
         load.call(bridge, 'UniformTypeIdentifiers')
       } else {
         const dlopen = host.dlopen
+
         if (typeof dlopen !== 'function' || !dlopen.call(host, framework, 2)) {
           return undefined
         }
@@ -47,6 +50,7 @@ function filterError(): Error {
   const error = new Error(
     'AppKit could not resolve the requested file types; use explicit filename extensions or check the native type bridge',
   )
+
   error.name = 'UnsupportedFileTypeError'
   return error
 }
@@ -54,6 +58,7 @@ function filterError(): Error {
 function identifier(type: any): string | undefined {
   try {
     const value = type?.identifier
+
     return typeof value === 'string' && value.length ? value : undefined
   } catch {
     return undefined
@@ -63,6 +68,7 @@ function identifier(type: any): string | undefined {
 function lookup(Type: any, method: string, ...args: any[]): any {
   try {
     const invoke = Type?.[method]
+
     return typeof invoke === 'function' ? invoke.call(Type, ...args) : undefined
   } catch {
     return undefined
@@ -84,6 +90,7 @@ export function appKitTypesForMIME(Type: any, mime: string): any[] {
     )
 
     let values: any[] = []
+
     if (Array.isArray(result)) {
       values = result
     } else if (
@@ -117,6 +124,7 @@ export function appKitFileTypeFilter(
   if (typeof accept !== 'string') {
     throw filterError()
   }
+
   const tokens = [
     ...new Set(
       accept
@@ -125,13 +133,16 @@ export function appKitFileTypeFilter(
         .filter(Boolean),
     ),
   ]
+
   if (!tokens.length || tokens.includes('*/*')) {
     return null
   }
+
   const Type = appKitFileTypeClass(host)
   const entries: { legacy: string; type?: any }[] = []
   const extension = (value: string) =>
     entries.push({ legacy: value, type: appKitTypeForExtension(Type, value) })
+
   for (const token of tokens) {
     if (token.startsWith('.')) {
       if (
@@ -151,11 +162,13 @@ export function appKitFileTypeFilter(
       }
     } else {
       const parts = token.split('/')
+
       if (parts.length !== 2 || parts.some((part) => !mimeToken.test(part) || part.includes('*'))) {
         throw filterError()
       }
 
       const types = appKitTypesForMIME(Type, token)
+
       if (types.length) {
         for (const type of types) {
           entries.push({ legacy: identifier(type)!, type })
@@ -169,10 +182,13 @@ export function appKitFileTypeFilter(
       }
     }
   }
+
   const unique = [...new Map(entries.map((entry) => [entry.legacy, entry])).values()]
+
   if (!unique.length) {
     throw filterError()
   }
+
   return {
     legacy: unique.map((entry) => entry.legacy),
     ...(unique.every((entry) => identifier(entry.type))
@@ -191,6 +207,7 @@ export function applyAppKitFileTypeFilter(
   host: Record<string, any> = globalThis,
 ): void {
   const filter = appKitFileTypeFilter(accept, host)
+
   panel.allowsOtherFileTypes = false
   if ('allowedContentTypes' in panel && (!filter || filter.contentTypes)) {
     panel.allowedContentTypes = filter?.contentTypes ?? []

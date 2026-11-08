@@ -32,6 +32,7 @@ const { config } = createPowerSearchConfig(defs, 'ProbeConfig')
 
 function HookProbe() @{
   const hooked = usePowerSearchConfig(defs, 'HookConfig')
+
   state.hookFields = hooked.config.fields.length
   return null
 }

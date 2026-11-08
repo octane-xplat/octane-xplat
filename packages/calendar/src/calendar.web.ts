@@ -18,4 +18,5 @@ export const calendar: Calendar = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.calendar = () => calendar.ensure()

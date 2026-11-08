@@ -19,6 +19,7 @@ const SHA256_RE = /^[0-9a-f]{64}$/
 
 function json(body: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers)
+
   headers.set('content-type', 'application/json')
   headers.set('cache-control', 'no-store')
   return new Response(JSON.stringify(body), { ...init, headers })
@@ -26,6 +27,7 @@ function json(body: unknown, init: ResponseInit = {}): Response {
 
 function readPointer(raw: string): ChannelPointer | null {
   let pointer: ChannelPointer
+
   try {
     pointer = JSON.parse(raw)
   } catch {
@@ -83,11 +85,13 @@ async function manifest(request: Request, env: Env): Promise<Response> {
 
   const key = `channels/${channel}/${platform}/${nativeFingerprint}.json`
   const object = await env.BUNDLES.get(key)
+
   if (object === null) {
     return json({ error: 'no-release', channel, platform }, { status: 404 })
   }
 
   const pointer = readPointer(await object.text())
+
   if (pointer === null) {
     return json(
       { error: 'bad-pointer', detail: `${key} is not a valid channel pointer` },
@@ -103,6 +107,7 @@ async function manifest(request: Request, env: Env): Promise<Response> {
       nativeFingerprint: pointer.nativeFingerprint,
     })
   }
+
   if (currentVersion === pointer.version) {
     return json({ updateAvailable: false, reason: 'up-to-date', version: pointer.version })
   }
@@ -126,8 +131,10 @@ async function bundle(request: Request, env: Env, sha256: string): Promise<Respo
   }
 
   const key = `bundles/${sha256}`
+
   if (request.method === 'HEAD') {
     const head = await env.BUNDLES.head(key)
+
     return head === null
       ? new Response(null, { status: 404 })
       : new Response(null, {
@@ -140,6 +147,7 @@ async function bundle(request: Request, env: Env, sha256: string): Promise<Respo
   }
 
   const object = await env.BUNDLES.get(key)
+
   if (object === null) {
     return json({ error: 'no-bundle', sha256 }, { status: 404 })
   }
@@ -157,6 +165,7 @@ async function bundle(request: Request, env: Env, sha256: string): Promise<Respo
 export default {
   async fetch(request: Request, env: Env): Promise<Response> {
     const url = new URL(request.url)
+
     if (request.method === 'GET' && url.pathname === '/healthz') {
       return new Response('ok')
     }
@@ -166,6 +175,7 @@ export default {
     }
 
     const bundleMatch = /^\/bundles\/([0-9a-zA-Z]+)$/.exec(url.pathname)
+
     if ((request.method === 'GET' || request.method === 'HEAD') && bundleMatch) {
       return bundle(request, env, bundleMatch[1].toLowerCase())
     }

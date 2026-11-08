@@ -32,6 +32,7 @@ import { ColorPicker } from '../components/forms/ColorPicker.tsrx'
 function mount(component: any, props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(component, props)
   return { container, root, host: container.children[0] }
 }
@@ -85,6 +86,7 @@ describe('native color suite', () => {
 
   it('picker mounts area + hue slider + swatch + field', () => {
     const { container, root } = mount(ColorPicker, { defaultValue: '#00ff00' })
+
     expect(container.children.length).toBeGreaterThan(0)
     root.unmount()
   })

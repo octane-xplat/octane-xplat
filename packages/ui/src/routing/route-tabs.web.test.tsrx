@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createContext, createRoot, useContext, useState } from 'octane'
 import { expect, it, vi } from 'vitest'
+
 vi.mock('../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { createBrowserRouterHost } from './browser-router-host.web'
 import { ClientRouteOutlet } from './ClientRouteOutlet.web.tsrx'
 import { createRouter } from './router-instance'
@@ -23,6 +25,7 @@ function Base(props: { name: string }) {
   const [count, setCount] = useState(0)
   const person = useContext(Person)
   const navigation = useRouter()
+
   bases.set(props.name, { count, person, increment: () => setCount(count + 1) })
   return (
     <button id={'base-' + props.name} onClick={() => setCount(count + 1)}>
@@ -95,8 +98,11 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
   })
 
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   try {
     act(() => root.render(App, { tabs, person: 'Avery' }))
     await act(async () => {
@@ -106,6 +112,7 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
 
     const left = container.querySelector('#base-left') as HTMLButtonElement
     const right = container.querySelector('#base-right') as HTMLButtonElement
+
     expect(visible(left)).toBe(true)
     expect(visible(right)).toBe(false)
     act(() => left.click())
@@ -113,8 +120,10 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
     expect(visible(left)).toBe(false)
     expect(visible(right)).toBe(true)
     expect(bases.get('left')?.count).toBe(1)
+
     const rightTab = container.querySelector('[data-tab-value="right"]')!
     const panel = document.getElementById(rightTab.getAttribute('aria-controls')!)!
+
     expect(panel.getAttribute('aria-labelledby')).toBe(rightTab.id)
     expect(rightTab.getAttribute('aria-selected')).toBe('true')
     expect((await router.navigateUrl('/@left/items/coat')).status).toBe('committed')
@@ -141,7 +150,9 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
     expect((await router.back()).status).toBe('committed')
     expect(visible(left)).toBe(true)
     expect(container.querySelector('#base-left')).toBe(left)
+
     const change = vi.fn()
+
     act(() =>
       root.render(App, { tabs, person: 'Jordan', selectedKey: 'left', onSelectionChange: change }),
     )
@@ -159,6 +170,7 @@ it('binds configured tab panes to owned flows while retaining shell state and ac
 
 it('selects incoming panes through the explicitly owning browser host', async () => {
   history.replaceState(null, '', '/')
+
   const platform = createBrowserRouterHost()
   const navigation = createRouter({
     catalog: defineRoutes([
@@ -169,8 +181,11 @@ it('selects incoming panes through the explicitly owning browser host', async ()
   })
 
   platform.attach(navigation)
+
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
   function Owned() {
     return (

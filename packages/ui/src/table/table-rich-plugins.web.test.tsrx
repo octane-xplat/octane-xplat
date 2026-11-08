@@ -15,8 +15,11 @@ import type { TableColumn } from '../props'
 const roots: any[] = []
 function mount(node: any) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(node))
   return el
@@ -75,8 +78,11 @@ describe('useTableGroupedRows', () => {
   it('flattens data into header + member rows in first-seen order', () => {
     const el = mount(<GroupedTable />)
     const rows = el.querySelectorAll('tbody tr')
+
     expect(rows.length).toBe(5) // header + 2 + header + 1
+
     const headers = el.querySelectorAll('.vx-table-row--group-header')
+
     expect(headers.length).toBe(2)
     expect(headers[0]!.textContent).toContain('Design')
     expect(headers[0]!.textContent).toContain('(2)')
@@ -87,16 +93,20 @@ describe('useTableGroupedRows', () => {
     const el = mount(<GroupedTable />)
     const header = el.querySelector('.vx-table-row--group-header')!
     const cells = header.querySelectorAll('td')
+
     expect(cells.length).toBe(1)
     expect(cells[0]!.getAttribute('colspan')).toBe('999')
     expect(header.getAttribute('aria-expanded')).toBe('true')
+
     const chevron = header.querySelector('button.vx-table-chevron')!
+
     expect(chevron.getAttribute('aria-label')).toBe('Collapse group Design')
   })
 
   it('chevron click toggles the group via onToggleGroup', () => {
     const onToggle = vi.fn()
     const el = mount(<GroupedTable onToggle={onToggle} />)
+
     click(el.querySelector('.vx-table-row--group-header button.vx-table-chevron')!)
     expect(onToggle).toHaveBeenCalledWith('Design')
   })
@@ -104,8 +114,11 @@ describe('useTableGroupedRows', () => {
   it('collapsed groups keep the header and hide member rows', () => {
     const el = mount(<GroupedTable collapsedGroups={new Set(['Design'])} />)
     const rows = el.querySelectorAll('tbody tr')
+
     expect(rows.length).toBe(3) // Design header + Infra header + Max
+
     const header = el.querySelector('.vx-table-row--group-header')!
+
     expect(header.getAttribute('aria-expanded')).toBe('false')
     expect(header.querySelector('button')!.getAttribute('aria-label')).toBe('Expand group Design')
     expect(el.textContent).not.toContain('Ava')
@@ -114,6 +127,7 @@ describe('useTableGroupedRows', () => {
   it('row click toggles via htmlProps.onClick', () => {
     const onToggle = vi.fn()
     const el = mount(<GroupedTable onToggle={onToggle} />)
+
     click(el.querySelectorAll('.vx-table-row--group-header')[1]!)
     expect(onToggle).toHaveBeenCalledWith('Infra')
   })
@@ -134,6 +148,7 @@ describe('useTableRowIndex', () => {
     const data = [...people].reverse()
     const el = mount(<RowIndexTable data={data} />)
     const indexCells = el.querySelectorAll('tbody .vx-table-rowindex')
+
     expect(indexCells.length).toBe(3)
     expect([...indexCells].map((c) => c.textContent)).toEqual(['1', '2', '3'])
     expect(el.querySelector('thead th')!.textContent).toContain('#')
@@ -184,6 +199,7 @@ describe('useTableRowStatus', () => {
   it('renders labelled markers for semantic, icon+color, and dot statuses', () => {
     const el = mount(<RowStatusTable />)
     const markers = el.querySelectorAll('[role="image"][aria-label]')
+
     expect(markers.length).toBe(4)
     expect(markers[0]!.getAttribute('aria-label')).toBe('Failed')
     expect(markers[1]!.getAttribute('aria-label')).toBe('Running')
@@ -222,6 +238,7 @@ function ExpansionTable() @{
     onToggle: (key) =>
       setExpandedKeys((prev: Set<string>) => {
         const next = new Set(prev)
+
         if (next.has(key)) {
           next.delete(key)
         } else {
@@ -241,10 +258,13 @@ describe('useTableRowExpansion', () => {
   it('renders the detail panel after an expanded row and toggles', () => {
     const el = mount(<ExpansionTable />)
     const panel = el.querySelector('tr.vx-table-expanded-row')
+
     expect(panel).not.toBeNull()
     expect(panel!.textContent).toContain('keyboard')
+
     // panel sits directly after its row in the body
     const rows = [...el.querySelectorAll('tbody tr')]
+
     expect(rows.indexOf(panel as Element)).toBe(1)
     expect(rows[0]!.textContent).toContain('Ada')
 
@@ -305,6 +325,7 @@ describe('useTableTreeState + useTableTreeData', () => {
   it('flattens visible rows with aria-level and parent aria-expanded', () => {
     const el = mount(<TreeTable />)
     const rows = [...el.querySelectorAll('tbody tr')]
+
     // src expanded initially: src, components, index.ts, package.json
     expect(rows.map((r) => r.textContent)).toEqual([
       expect.stringContaining('src'),
@@ -320,10 +341,14 @@ describe('useTableTreeState + useTableTreeData', () => {
     expect(levelOf('components')).toBe('2')
     expect(levelOf('index.ts')).toBe('2')
     expect(levelOf('package.json')).toBe('1')
+
     const srcRow = rows.find((r) => r.textContent!.includes('src'))!
+
     expect(srcRow.getAttribute('aria-expanded')).toBe('true')
+
     // leaf rows carry no aria-expanded
     const pkgRow = rows.find((r) => r.textContent!.includes('package.json'))!
+
     expect(pkgRow.getAttribute('aria-expanded')).toBeNull()
   })
 
@@ -335,11 +360,14 @@ describe('useTableTreeState + useTableTreeData', () => {
     )!
 
     click(componentsRow.querySelector('button.vx-table-expander')!)
+
     let names = [...el.querySelectorAll('tbody tr')].map((r) => r.textContent)
+
     expect(names.some((n) => n!.includes('Button.tsx'))).toBe(true)
 
     // header expand-all toggle
     const toggle = el.querySelector('thead button.vx-table-expander')!
+
     expect(toggle.getAttribute('aria-label')).toBe('Collapse all rows')
     click(toggle) // collapse all
     expect([...el.querySelectorAll('tbody tr')].map((r) => r.textContent)).toEqual([
@@ -356,8 +384,10 @@ describe('useTableTreeState + useTableTreeData', () => {
     const cyclic: FileNode[] = []
     const a: FileNode = { id: 'a', name: 'a' }
     const b: FileNode = { id: 'b', name: 'b', children: [a] }
+
     a.children = [b]
     cyclic.push(a)
+
     function CyclicTree() @{
       const { visibleData, treeConfig } = useTableTreeState<FileNode>({
         data: cyclic,
@@ -371,6 +401,7 @@ describe('useTableTreeState + useTableTreeData', () => {
     }
 
     const el = mount(<CyclicTree />)
+
     expect(el.querySelectorAll('tbody tr').length).toBe(2)
   })
 })

@@ -10,6 +10,7 @@ import type { LexicalJSON } from './types'
 it('keeps both native bridges working when Tiptap installs its parser first', async () => {
   expect(await ensureTiptap()).toBe(true)
   expect(await ensureJSONBridge()).toBe(true)
+
   const doc = {
     root: {
       type: 'root',
@@ -43,8 +44,11 @@ it('keeps both native bridges working when Tiptap installs its parser first', as
   } as LexicalJSON
 
   const html = jsonToHTML(doc)
+
   expect(typeof html === 'string' && html.includes('JSON seed')).toBe(true)
+
   const reopened = htmlToJSON(html!)
+
   expect(JSON.stringify(reopened)?.includes('JSON seed')).toBe(true)
   expect(JSON.stringify(tiptapHTMLToJSON('<p>Tiptap still parses</p>'))).toContain(
     'Tiptap still parses',
@@ -53,7 +57,9 @@ it('keeps both native bridges working when Tiptap installs its parser first', as
 
 it('imports inline HTML emitted by Aztec Android', async () => {
   expect(await ensureJSONBridge()).toBe(true)
+
   const doc = htmlToJSON('JSON seed<strong> bold</strong><br>next line')
+
   expect(JSON.stringify(doc)).toContain('JSON seed')
   expect(JSON.stringify(doc)).toContain('next line')
   expect(jsonToHTML(doc!)).toContain('JSON seed')

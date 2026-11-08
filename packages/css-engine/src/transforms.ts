@@ -43,10 +43,13 @@ const IDENTITY = {
 function parsePercentLength(text: string): TranslateAxis {
   const trimmed = String(text).trim()
   const percent = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(trimmed)
+
   if (percent) {
     return { value: Number(percent[1]) / 100, unit: '%' }
   }
+
   const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt)?$/.exec(trimmed)
+
   return m ? Number(m[1]) : 0
 }
 
@@ -55,9 +58,11 @@ export function resolveTranslate(value: TranslateAxis, basis: number): number {
   if (typeof value === 'number') {
     return value
   }
+
   if (typeof value !== 'object' || value === null) {
     return 0
   }
+
   return value.unit === '%' ? basis * value.value : value.value
 }
 
@@ -104,31 +109,39 @@ const STYLE_TRANSFORMATION_MAP: Record<
 function convertTransformValue(property: string, rawValue: string) {
   if (property === 'rotate' || property === 'rotateX' || property === 'rotateY') {
     const x = parseFloat(rawValue)
+
     return rawValue.slice(-3) === 'rad' ? (x * 180) / Math.PI : x
   }
+
   if (TRANSLATE_FNS.has(property)) {
     const values = rawValue.split(',').map(parsePercentLength)
     const x = values[0]
     const y = property === 'translate' ? (values[1] ?? 0) : (values[1] ?? x)
+
     return { x, y }
   }
+
   const values = rawValue.split(',').map(parseFloat)
   const x = values[0]
   const y = values[1] ?? x
   const z = values[2] ?? y
+
   return { x, y, z }
 }
 
 function parseTransformString(text: string) {
   const matches: { property: 'translate' | 'rotate' | 'scale'; value: any }[] = []
   let match
+
   TRANSFORM_SPLITTER.lastIndex = 0
   while ((match = TRANSFORM_SPLITTER.exec(text)) !== null) {
     const property = match[1]
+
     if (TRANSFORMATIONS.has(property)) {
       matches.push(STYLE_TRANSFORMATION_MAP[property](convertTransformValue(property, match[2])))
     }
   }
+
   return matches
 }
 
@@ -136,6 +149,7 @@ function isZeroTranslate(value: TranslateAxis): boolean {
   if (typeof value === 'number') {
     return value === 0
   }
+
   return value.value === 0
 }
 
@@ -143,6 +157,7 @@ function translateToNumber(value: TranslateAxis): number {
   if (typeof value === 'number') {
     return value
   }
+
   // % stores a fraction; matrix composition keeps the raw number, matching
   // NS translateValueToNumber.
   return value.unit === '%' ? value.value * 100 : value.value
@@ -150,22 +165,27 @@ function translateToNumber(value: TranslateAxis): number {
 
 function mergeTranslateAxis(values: TranslateAxis[]): TranslateAxis {
   const nonZero = values.filter((v) => !isZeroTranslate(v))
+
   if (nonZero.length === 0) {
     return 0
   }
+
   if (nonZero.length === 1) {
     return nonZero[0]
   }
+
   const unit = typeof nonZero[0] === 'object' ? nonZero[0].unit : null
   const objectAxes = nonZero.filter(
     (v): v is { value: number; unit: '%' } => typeof v === 'object' && v.unit === unit,
   )
+
   if (unit !== null && objectAxes.length === nonZero.length) {
     return {
       unit: '%',
       value: objectAxes.reduce((s, v) => s + v.value, 0),
     }
   }
+
   return nonZero.reduce((s: number, v) => s + translateToNumber(v), 0)
 }
 
@@ -184,9 +204,11 @@ function matrixOf(t: { property: string; value: any }): Affine {
       const r = (t.value.z * Math.PI) / 180
       const c = Math.cos(r)
       const s = Math.sin(r)
+
       return [c, s, -s, c, 0, 0]
     }
   }
+
   return [1, 0, 0, 1, 0, 0]
 }
 
@@ -207,6 +229,7 @@ function decompose(m: Affine): Converted {
   const det = a * d - b * c
   const scaleY = det !== 0 ? det / scaleX : d
   const rotate = (Math.atan2(b, a) * 180) / Math.PI
+
   return {
     translate: { x: tx, y: ty },
     rotate: { x: 0, y: 0, z: rotate },
@@ -226,16 +249,21 @@ export function transformConverter(text: string): Converted {
       scale: { x: 1, y: 1 },
     }
   }
+
   const transformations = parseTransformString(text)
+
   if (!transformations.length) {
     return JSON.parse(JSON.stringify(IDENTITY))
   }
+
   const props = transformations.map((t) => t.property)
   const dup = props.filter((p, i) => props.indexOf(p) !== i)
+
   if (dup.length && dup.every((p) => p === 'translate')) {
     // Merge translate axes keeping percent units intact.
     const xs: TranslateAxis[] = []
     const ys: TranslateAxis[] = []
+
     for (let i = transformations.length - 1; i >= 0; i--) {
       if (transformations[i].property === 'translate') {
         xs.unshift(transformations[i].value.x)
@@ -249,7 +277,9 @@ export function transformConverter(text: string): Converted {
       value: { x: mergeTranslateAxis(xs), y: mergeTranslateAxis(ys) },
     })
   }
+
   const props2 = transformations.map((t) => t.property)
+
   if (!props2.some((p, i) => props2.indexOf(p) !== i)) {
     const full: Converted = {
       translate: { x: 0, y: 0 },
@@ -263,13 +293,16 @@ export function transformConverter(text: string): Converted {
 
     return full
   }
+
   const m = transformations.map(matrixOf).reduce(multiply)
+
   return decompose(m)
 }
 
 /** Flat parts for the cascade/animator vocabulary. */
 export function transformToParts(text: string): TransformParts {
   const t = transformConverter(text)
+
   return {
     translateX: t.translate.x,
     translateY: t.translate.y,
@@ -293,19 +326,25 @@ export function composeTransform(
   const steps: { kind: string; args: number[] }[] = []
   const tx = parts.translateX !== undefined ? resolveTranslate(parts.translateX, width) : 0
   const ty = parts.translateY !== undefined ? resolveTranslate(parts.translateY, height) : 0
+
   if (tx || ty) {
     steps.push({ kind: 'translate', args: [tx, ty] })
   }
+
   if (parts.rotate) {
     steps.push({ kind: 'rotate', args: [parts.rotate] })
   }
+
   if (parts.rotateX || parts.rotateY) {
     steps.push({ kind: 'rotate3d', args: [parts.rotateX ?? 0, parts.rotateY ?? 0] })
   }
+
   const sx = parts.scaleX ?? 1
   const sy = parts.scaleY ?? 1
+
   if (sx !== 1 || sy !== 1) {
     steps.push({ kind: 'scale', args: [sx, sy] })
   }
+
   return steps as any
 }

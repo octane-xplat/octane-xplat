@@ -33,6 +33,7 @@ export function createInputDispatch(currentIndex: () => number): InputDispatch {
     }
 
     const target = latched ?? currentIndex()
+
     inputs.get(target)?.(i)
     if (i.kind === 'panEnd' || i.kind === 'pinchEnd') {
       latched = null
@@ -105,12 +106,14 @@ export function Track(
   const layoutSlides = () => {
     const clip = clipRef.current
     const row = rowRef.current
+
     if (!clip || !row) {
       return
     }
 
     const parent = clip.parent as any
     const s = parent?.getActualSize?.() ?? clip.getActualSize?.()
+
     if (!s?.width || !s?.height) {
       return
     }
@@ -135,6 +138,7 @@ export function Track(
 
   useLayoutEffect(() => {
     layoutSlides()
+
     let inLayout = false
     const cb = () => {
       if (inLayout) {
@@ -144,6 +148,7 @@ export function Track(
       inLayout = true
       try {
         const before = l.stride
+
         layoutSlides()
         // Only re-snap when the viewport actually resized — re-layouts
         // from translate/row writes must not clobber an in-flight drag.
@@ -177,13 +182,16 @@ export function Track(
   // current at its start (l.index, not ctx.index — that lags mid-snap).
   const dispatch = useRef(createInputDispatch(() => l.index))
   const inputs = dispatch.current.inputs
+
   useLayoutEffect(() => {
     const clip = clipRef.current
+
     if (!clip) {
       return
     }
 
     const off = attachInput(clip, { maxZoom: props.maxZoom ?? 1 }, dispatch.current)
+
     return () => {
       off()
       l.anim?.stop()
@@ -204,11 +212,15 @@ export function Track(
       goTo(index, behavior) {
         l.fade?.stop()
         l.index = clamp(index, 0, count() - 1)
+
         const target = -l.index * (l.stride = stride())
+
         l.anim?.stop()
         if (behavior === 'smooth') {
           const mv = props.progress
+
           mv.set(-l.x / l.stride)
+
           // Progress drives this update. Publishing it again from setX
           // would cancel the animation and can recurse on rounding error.
           const off = mv.on('change', (v: number) => setX(-v * l.stride, false))
@@ -253,9 +265,11 @@ export function Track(
       },
       fade(from, to) {
         this.freeze(to)
+
         const row = rowRef.current
         const a = row?.getChildAt?.(from)
         const b = row?.getChildAt?.(to)
+
         if (!a || !b || from === to) {
           return Promise.resolve()
         }
@@ -316,8 +330,10 @@ export function Track(
           // command's total dx, not l.x, in case a re-render reset it.
           live.current.tracking = false
           setX(-l.index * l.stride + dx)
+
           const projected = l.x + 0.2 * vx
           const next = clamp(Math.round(-projected / l.stride), 0, count() - 1)
+
           this.goTo(next, 'smooth')
         }
       },

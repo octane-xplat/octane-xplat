@@ -7,6 +7,7 @@ import { desktopHost } from './host-runtime.web'
 
 export function openUrl(url: string): boolean {
   const host = desktopHost()
+
   if (host) {
     // This synchronous API can report that the host request was dispatched,
     // not the eventual result returned by the asynchronous bridge call.

@@ -11,8 +11,10 @@ afterEach(() => {
 function nextFileInput(): HTMLInputElement[] {
   const inputs: HTMLInputElement[] = []
   const original = document.createElement.bind(document)
+
   vi.spyOn(document, 'createElement').mockImplementation((tag: string, options?: any) => {
     const el = original(tag, options)
+
     if (tag === 'input') {
       inputs.push(el as HTMLInputElement)
     }
@@ -28,6 +30,7 @@ describe('media (web)', () => {
     await expect(media.requestPermissions('camera')).resolves.toMatchObject({
       status: 'granted',
     })
+
     await expect(media.getPermissions('photos')).resolves.toMatchObject({
       status: 'granted',
     })
@@ -35,7 +38,9 @@ describe('media (web)', () => {
 
   it('a dismissed picker settles empty through the focus fallback', async () => {
     vi.useFakeTimers()
+
     const pending = media.pickImage()
+
     window.dispatchEvent(new Event('focus'))
     await vi.advanceTimersByTimeAsync(400)
     await expect(pending).resolves.toBeNull()
@@ -43,6 +48,7 @@ describe('media (web)', () => {
 
   it('capture preview failures resolve null like the native leaves', async () => {
     const inputs = nextFileInput()
+
     vi.stubGlobal(
       'URL',
       Object.assign(function URL() {}, {
@@ -54,6 +60,7 @@ describe('media (web)', () => {
 
     const pending = media.capturePhoto()
     const input = inputs[0]!
+
     Object.defineProperty(input, 'files', {
       configurable: true,
       value: [{ name: 'shot.jpg' }],

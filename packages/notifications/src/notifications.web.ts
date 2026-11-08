@@ -17,6 +17,7 @@ const fromStatus = (status: string): PermissionResponse => ({
 // The host wire carries only ensure() — probing there may prompt.
 async function hostPermissions() {
   const host = desktopHost()
+
   if (host && (await host.supports('notifications', 'ensure'))) {
     return fromStatus(await host.notifications.ensure())
   }
@@ -30,10 +31,12 @@ export const notifications: Permissioned<NotificationsImpl> = {
   },
   async isAvailable() {
     const host = desktopHost()
+
     return host !== null ? await host.supports('notifications', 'notify') : dom()
   },
   async getPermissions() {
     const hosted = await hostPermissions()
+
     if (hosted) {
       return hosted
     }
@@ -46,6 +49,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
   },
   async requestPermissions() {
     const hosted = await hostPermissions()
+
     if (hosted) {
       return hosted
     }
@@ -58,6 +62,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
   },
   notify(title, body) {
     const host = desktopHost()
+
     if (host) {
       void host.notifications.notify(title, body).catch(() => {})
       return
@@ -74,6 +79,7 @@ export const notifications: Permissioned<NotificationsImpl> = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.notifications = {
   getPermissions: () => notifications.getPermissions(),
   requestPermissions: () => notifications.requestPermissions(),

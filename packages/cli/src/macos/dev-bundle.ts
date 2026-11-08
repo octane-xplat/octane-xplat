@@ -20,11 +20,13 @@ const execFileAsync = promisify(execFile)
  */
 async function resolveDevSigningIdentity() {
   const configured = process.env.XPLAT_MACOS_DEV_SIGNING_IDENTITY
+
   if (configured) {
     return { identity: configured, explicit: true }
   }
 
   let listing
+
   try {
     listing = (await execFileAsync('security', ['find-identity', '-v', '-p', 'codesigning'])).stdout
   } catch {
@@ -32,12 +34,14 @@ async function resolveDevSigningIdentity() {
   }
 
   let development, developerId, other
+
   for (const line of listing.split('\n')) {
     if (line.includes('CSSMERR')) {
       continue
     }
 
     const sha = /\b[0-9a-f]{40}\b/i.exec(line)?.[0]
+
     if (!sha) {
       continue
     }
@@ -70,6 +74,7 @@ async function signDevBundle(appPath) {
   }
 
   const { identity, explicit } = await resolveDevSigningIdentity()
+
   try {
     await execFileAsync('codesign', ['--force', '--sign', identity, appPath])
   } catch (error) {
@@ -113,24 +118,31 @@ export async function createMacOSDevBundle(
   }
 
   const { iconPath, issues } = inspectMacOSPackageConfig(appRoot, settings)
+
   if (issues.length) {
     throw new Error(issues.join('; '))
   }
 
   const source = await macOSExecutable(appRoot, 'macos/host')
   const cache = join(appRoot, 'node_modules/.cache/xplat/macos-dev')
+
   if (!suppliedDirectory) {
     await mkdir(cache, { recursive: true })
   }
+
   const directory = suppliedDirectory ?? (await mkdtemp(join(cache, 'session-')))
+
   if (suppliedDirectory) {
     // Claim a fresh directory before cleanup gains permission to remove it.
     await mkdir(directory)
   }
+
   const cleanup = () => rm(directory, { recursive: true, force: true })
+
   try {
     const contents = join(directory, `${executableName}.app`, 'Contents')
     const executable = join(contents, 'MacOS', executableName)
+
     await mkdir(join(contents, 'MacOS'), { recursive: true })
     await mkdir(join(contents, 'Resources'), { recursive: true })
     await cp(source, executable)

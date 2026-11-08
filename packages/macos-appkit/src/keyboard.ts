@@ -160,6 +160,7 @@ function targetFor(window: any): KeyView | undefined {
     typeof delegate?.currentEditor === 'function'
       ? delegate.currentEditor()
       : delegate?.currentEditor
+
   return delegate?.window === window && editor === responder ? delegate : responder
 }
 
@@ -185,30 +186,40 @@ export function createAppKitKeyboardDispatcher(
     !failed &&
     typeof native().NSEvent?.addLocalMonitorForEventsMatchingMaskHandler === 'function' &&
     typeof native().NSEvent?.removeMonitor === 'function'
+
   const dispatch = (event: any): AppKitKeyDispatchResult => {
     const previous = dispatched.get(event)
+
     if (previous) {
       return previous
     }
+
     const result = { defaultPrevented: false, propagationStopped: false }
+
     dispatched.set(event, result)
     if (![10, 11].includes(Number(event.type))) {
       return result
     }
+
     for (const observe of [...observers]) {
       observe({ type: Number(event.type), modifierFlags: Number(event.modifierFlags ?? 0) })
     }
+
     if ((!bindings.size && !subscriptions.size) || !event.window) {
       return result
     }
+
     const target = targetFor(event.window)
+
     if (!target) {
       return result
     }
+
     const flags = Number(event.modifierFlags ?? 0)
     const altKey = Boolean(flags & (1 << 19)),
       ctrlKey = Boolean(flags & (1 << 18)),
       metaKey = Boolean(flags & (1 << 20))
+
     const shiftKey = Boolean(flags & (1 << 17))
     const keyCode = Number(event.keyCode)
     const code = CODES[keyCode] ?? ''
@@ -217,6 +228,7 @@ export function createAppKitKeyboardDispatcher(
     const functionCode = /^F\d+$/.test(code)
     const nonText =
       KEYS[keyCode] !== undefined || functionCode || /^[\uf700-\uf8ff]$/.test(unmodified)
+
     const dead = !nonText && !characters && altKey && !ctrlKey && !metaKey && unmodified.length > 0
     const logical = ctrlKey || metaKey ? unmodified || characters : characters || unmodified
     const key =
@@ -228,11 +240,14 @@ export function createAppKitKeyboardDispatcher(
           : logical === '\uf735'
             ? 'ContextMenu'
             : logical || 'Unidentified')
+
     const raw = event.window.firstResponder
     const editor =
       typeof target.currentEditor === 'function' ? target.currentEditor() : target.currentEditor
+
     const isComposing = dead || marked(raw) || marked(editor)
     const path: KeyView[] = []
+
     for (
       let view: KeyView | null | undefined = target;
       view && view.window === event.window;
@@ -240,7 +255,9 @@ export function createAppKitKeyboardDispatcher(
     ) {
       path.push(view)
     }
+
     const name = Number(event.type) === 10 ? 'onKeyDown' : 'onKeyUp'
+
     for (const view of path) {
       const payload: NativeKeyboardEvent<KeyView> = {
         eventName: name === 'onKeyDown' ? 'keyDown' : 'keyUp',
@@ -269,7 +286,9 @@ export function createAppKitKeyboardDispatcher(
       }
 
       bindings.get(view)?.[name]?.(payload)
+
       const owned = subscriptions.get(view)
+
       for (const handlers of [...(owned ?? [])]) {
         if (subscriptions.get(view) === owned && owned?.has(handlers)) {
           handlers[name]?.(payload)
@@ -280,27 +299,36 @@ export function createAppKitKeyboardDispatcher(
         break
       }
     }
+
     return result
   }
+
   const release = () => {
     if (token != null) {
       const previous = token
+
       token = undefined
       events.removeMonitor(previous)
     }
   }
+
   const ensureMonitor = () => {
     if (!bindings.size && !subscriptions.size && !observers.size) {
       release()
       return
     }
+
     if (token != null || !available()) {
       return
     }
+
     try {
       const host = native()
+
       events = host.NSEvent
+
       const mask = (host.NSEventMask?.KeyDown ?? 1024) | (host.NSEventMask?.KeyUp ?? 2048)
+
       token = events.addLocalMonitorForEventsMatchingMaskHandler(mask, (event: any) =>
         dispatch(event).defaultPrevented ? null : event,
       )
@@ -312,6 +340,7 @@ export function createAppKitKeyboardDispatcher(
       failed = true
     }
   }
+
   return {
     available,
     dispatch,
@@ -321,6 +350,7 @@ export function createAppKitKeyboardDispatcher(
       } else {
         bindings.set(view, handlers)
       }
+
       ensureMonitor()
     },
     /** Compose owned view listeners without replacing reconciled prop handlers. */
@@ -328,26 +358,34 @@ export function createAppKitKeyboardDispatcher(
       if (!handlers.onKeyDown && !handlers.onKeyUp) {
         return () => {}
       }
+
       let owned = subscriptions.get(view)
+
       if (!owned) {
         owned = new Set()
         subscriptions.set(view, owned)
       }
+
       // Each lease owns its own entry, even when a caller reuses one handler object.
       const entry = { ...handlers }
       const bucket = owned
+
       bucket.add(entry)
       ensureMonitor()
+
       let active = true
+
       return () => {
         if (!active) {
           return
         }
+
         active = false
         bucket.delete(entry)
         if (!bucket.size && subscriptions.get(view) === bucket) {
           subscriptions.delete(view)
         }
+
         ensureMonitor()
       }
     },

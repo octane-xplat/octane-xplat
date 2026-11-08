@@ -12,6 +12,7 @@ import {
 function OwnedEntry(props: { key?: number; entry: ContentEntry }) {
   const entry = props.entry
   const Component = entry.component
+
   useLayoutEffect(() => {
     entry.committed()
   }, [entry])
@@ -47,6 +48,7 @@ function ContentOutlet(props: { owner: ContentOwner }) {
 
 export function useOwnedContent(): OwnedContentResult {
   const owner = useMemo(() => createContentOwner(), [])
+
   useEffect(() => () => owner.dispose(), [owner])
   return { owner, element: <ContentOutlet owner={owner} /> }
 }

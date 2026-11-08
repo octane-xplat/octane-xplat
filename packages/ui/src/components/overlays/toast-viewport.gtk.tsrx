@@ -23,6 +23,7 @@ export function ToastViewport(props: ToastViewportProps): unknown @{
 
   useEffect(() => {
     const unregister = registerToastViewport(id)
+
     return () => {
       unregister()
       // Orphaned entries drain to the fallback stack — wake it.
@@ -32,11 +33,13 @@ export function ToastViewport(props: ToastViewportProps): unknown @{
 
   useEffect(() => {
     const view = sentinel.current
+
     if (!view) {
       return
     }
 
     const map: Partial<Record<ToastPosition, any>> = {}
+
     for (const position of TOAST_POSITIONS) {
       const layer = view.createOverlayLayer({
         modal: false,

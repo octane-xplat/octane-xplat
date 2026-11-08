@@ -1,6 +1,7 @@
 import { strict as assert } from 'node:assert'
 import { test } from 'vitest'
 import { createAppKitCarouselScroll } from './carousel-scroll.macos.ts'
+
 function fixture(rtl = false) {
   const state = {
     loop: false,
@@ -8,9 +9,11 @@ function fixture(rtl = false) {
     reduced: false,
     direction: rtl ? ('rtl' as const) : ('ltr' as 'ltr' | 'rtl'),
   }
+
   const writes: any[] = [],
     animated: any[] = [],
     window = {}
+
   const clip: any = {
     bounds: { origin: { x: rtl ? 240 : 0, y: 37 }, size: { width: 100, height: 60 } },
     scrollToPoint(point: any) {
@@ -26,6 +29,7 @@ function fixture(rtl = false) {
       }
     },
   }
+
   const document: any = { frame: { size: { width: 340, height: 97 } }, flipped: false }
   const view: any = {
     window,
@@ -33,6 +37,7 @@ function fixture(rtl = false) {
     documentView: document,
     reflectScrolledClipView() {},
   }
+
   const slides: any[] = Array.from({ length: 3 }, (_, index) => ({
     window,
     bounds: {},
@@ -42,6 +47,7 @@ function fixture(rtl = false) {
       size: { width: 100 },
     }),
   }))
+
   let current: any = view
   const control = createAppKitCarouselScroll({
     view: () => current,
@@ -51,6 +57,7 @@ function fixture(rtl = false) {
     direction: () => state.direction,
     reducedMotion: () => state.reduced,
   })
+
   return {
     state,
     writes,
@@ -69,6 +76,7 @@ function fixture(rtl = false) {
 test('viewport paging, boundaries and looping use live metadata and preserve the vertical clip origin', () => {
   const f = fixture(),
     h = f.control.handle
+
   assert.equal(h.canScrollPrev(), false)
   assert.equal(h.canScrollNext(), true)
   h.scrollNext()
@@ -97,16 +105,20 @@ test('viewport paging, boundaries and looping use live metadata and preserve the
 test('index navigation uses current document coordinates, clamps finite indices and rejects foreign or uninspectable slides', () => {
   const f = fixture(),
     h = f.control.handle
+
   h.scrollTo(50)
   assert.equal(f.clip.bounds.origin.x, 240)
   h.scrollTo(-4)
   assert.equal(f.clip.bounds.origin.x, 0)
   h.scrollTo(1.9)
   assert.equal(f.clip.bounds.origin.x, 120)
+
   const before = f.writes.length
+
   for (const index of [NaN, Infinity, -Infinity]) {
     h.scrollTo(index)
   }
+
   f.slides[1].window = {}
   h.scrollTo(1)
   f.slides[0].isDescendantOf = () => false
@@ -119,6 +131,7 @@ test('index navigation uses current document coordinates, clamps finite indices 
 test('RTL page direction and indexed leading-edge alignment use logical offsets and reverse loop boundaries', () => {
   const f = fixture(true),
     h = f.control.handle
+
   f.clip.bounds.origin.x = 0
   f.control.initialize()
   assert.equal(f.clip.bounds.origin.x, 240)
@@ -138,7 +151,9 @@ test('RTL page direction and indexed leading-edge alignment use logical offsets 
 test('initial alignment waits for usable geometry, runs once per viewport/direction and honors reduced motion/fallback animation', () => {
   const f = fixture(),
     h = f.control.handle
+
   const geometry = f.slides[0].convertRectToView
+
   f.slides[0].convertRectToView = () => ({ origin: { x: 0 }, size: { width: 0 } })
   f.control.initialize()
   assert.equal(f.writes.length, 0)
@@ -146,18 +161,24 @@ test('initial alignment waits for usable geometry, runs once per viewport/direct
   f.control.initialize()
   assert.equal(f.animated.length, 0)
   h.scrollNext()
+
   const at = f.clip.bounds.origin.x
+
   f.control.initialize()
   assert.equal(f.clip.bounds.origin.x, at)
   f.state.reduced = true
+
   const animated = f.animated.length
+
   h.scrollNext()
   assert.equal(f.animated.length, animated)
   f.state.reduced = false
   f.clip.animator = () => ({})
   h.scrollPrev()
   assert.equal(f.animated.length, animated)
+
   const retained = f.clip.bounds.origin.x
+
   f.control.reset()
   f.control.initialize()
   assert.equal(f.clip.bounds.origin.x, retained)
@@ -166,6 +187,7 @@ test('initial alignment waits for usable geometry, runs once per viewport/direct
 test('invalid, hidden and detached geometry has no capability or writes and retained handles cannot act after teardown', () => {
   const f = fixture(),
     h = f.control.handle
+
   for (const mutate of [
     () => {
       f.view.hidden = true
@@ -184,6 +206,7 @@ test('invalid, hidden and detached geometry has no capability or writes and reta
     },
   ]) {
     const before = f.writes.length
+
     mutate()
     h.scrollNext()
     h.scrollPrev()
@@ -200,6 +223,7 @@ test('invalid, hidden and detached geometry has no capability or writes and reta
     f.document.frame.size.width = 340
     f.clip.bounds.origin.x = 0
   }
+
   f.detach()
   h.scrollNext()
   h.scrollTo(0)
@@ -208,17 +232,22 @@ test('invalid, hidden and detached geometry has no capability or writes and reta
 
 test('nearest-edge snap uses current clamped slide geometry in both directions and skips aligned or unavailable targets', () => {
   const f = fixture()
+
   f.clip.bounds.origin.x = 178
   f.control.snap()
   assert.deepEqual(f.writes.at(-1), { x: 120, y: 37 })
+
   const before = f.writes.length
+
   f.control.snap()
   assert.equal(f.writes.length, before)
   f.state.count = 0
   f.clip.bounds.origin.x = 70
   f.control.snap()
   assert.equal(f.writes.length, before)
+
   const rtl = fixture(true)
+
   rtl.state.reduced = true
   rtl.clip.bounds.origin.x = 70
   rtl.control.snap()
@@ -228,12 +257,17 @@ test('nearest-edge snap uses current clamped slide geometry in both directions a
 
 test('accepted handle requests and existing native user offsets survive late initial alignment', () => {
   const f = fixture()
+
   f.control.handle.scrollTo(2)
+
   const before = f.writes.length
+
   f.control.initialize()
   assert.equal(f.clip.bounds.origin.x, 240)
   assert.equal(f.writes.length, before)
+
   const native = fixture()
+
   native.clip.bounds.origin.x = 75
   native.control.initialize()
   assert.equal(native.writes.length, 0)

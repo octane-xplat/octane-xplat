@@ -14,19 +14,23 @@ function load() {
   const exports = {}
   // Use the real Lingui engine with a fresh instance for each scenario.
   const i18n = setupI18n()
+
   vm.runInNewContext(source, {
     exports,
     require(id) {
       if (id === './intl') {
         return {}
       }
+
       if (id === '@lingui/core') {
         return { i18n }
       }
+
       assert.equal(id, './detect-locale')
       return { detectSystemLocale: () => 'en' }
     },
   })
+
   return exports
 }
 
@@ -34,6 +38,7 @@ const catalog = (hello) => async () => ({ messages: { hello } })
 
 test('sequential locale changes activate the requested real-engine catalog', async () => {
   const api = load()
+
   await api.initLingui({ catalogs: { en: catalog('Hello'), de: catalog('Hallo') }, locale: 'en' })
   await api.setLocale('de')
   assert.equal(api.getLocale(), 'de')
@@ -45,11 +50,14 @@ test('the latest locale choice wins when an older catalog finishes later', async
   const api = load()
   const saved = []
   const notifications = []
+
   api.subscribeLocale(() => notifications.push(api.getLocale()))
+
   let finishFrench
   const french = new Promise((resolve) => {
     finishFrench = resolve
   })
+
   await api.initLingui({
     catalogs: { en: catalog('Hello'), fr: () => french, de: catalog('Hallo') },
     locale: 'en',
@@ -60,7 +68,9 @@ test('the latest locale choice wins when an older catalog finishes later', async
       },
     },
   })
+
   const older = api.setLocale('fr')
+
   await api.setLocale('de')
   finishFrench({ messages: { hello: 'Bonjour' } })
   await older
@@ -77,8 +87,11 @@ test('an unregistered choice does not supersede a pending registered locale', as
   const french = new Promise((resolve) => {
     finishFrench = resolve
   })
+
   await api.initLingui({ catalogs: { en: catalog('Hello'), fr: () => french }, locale: 'en' })
+
   const pending = api.setLocale('fr')
+
   await assert.rejects(api.setLocale('missing'), /no catalog registered/)
   finishFrench({ messages: { hello: 'Bonjour' } })
   await pending
@@ -92,6 +105,7 @@ test('a failed newer catalog does not allow an older choice to activate', async 
   const french = new Promise((resolve) => {
     finishFrench = resolve
   })
+
   await api.initLingui({
     catalogs: {
       en: catalog('Hello'),
@@ -102,7 +116,9 @@ test('a failed newer catalog does not allow an older choice to activate', async 
     },
     locale: 'en',
   })
+
   const older = api.setLocale('fr')
+
   await assert.rejects(api.setLocale('de'), /catalog unavailable/)
   finishFrench({ messages: { hello: 'Bonjour' } })
   await older

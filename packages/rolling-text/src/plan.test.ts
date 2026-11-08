@@ -10,6 +10,7 @@ import {
 
 const alloc = () => {
   let next = 0
+
   return () => ++next
 }
 
@@ -23,8 +24,10 @@ describe('planCells', () => {
     const planned = planCells(cells, '10 seconds'.split(''), next)
 
     expect(committedUnits(planned).join('')).toBe('10 seconds')
+
     // ' seconds' survivors keep their ids.
     const survivors = byPhase(planned, 'stable')
+
     expect(survivors.map((c) => c.id)).toEqual(cells.slice(1).map((c) => c.id))
     expect(byPhase(planned, 'exit').map((c) => c.unit)).toEqual(['9'])
     expect(byPhase(planned, 'enter').map((c) => c.unit)).toEqual(['1', '0'])
@@ -40,6 +43,7 @@ describe('planCells', () => {
     const cells = initialCells('ab'.split(''), next)
     const once = planCells(cells, 'cd'.split(''), next)
     const twice = planCells(once, 'ef'.split(''), next)
+
     expect(committedUnits(twice).join('')).toBe('ef')
     // Both generations of ghosts linger until their own exits finish.
     expect(byPhase(twice, 'exit').length).toBe(4)
@@ -49,6 +53,7 @@ describe('planCells', () => {
     const next = alloc()
     const cells = planCells(initialCells('ab'.split(''), next), 'cd'.split(''), next)
     const snapped = snapCells(cells)
+
     expect(snapped.every((c) => c.phase === 'stable')).toBe(true)
     expect(snapped.map((c) => c.unit).join('')).toBe('cd')
   })
@@ -57,6 +62,7 @@ describe('planCells', () => {
     const next = alloc()
     const cells = initialCells('a1b'.split(''), next)
     const settled = settleCells(cells, 'a2b'.split(''), next)
+
     expect(settled.map((c) => c.unit).join('')).toBe('a2b')
     expect(settled.every((c) => c.phase === 'stable')).toBe(true)
     expect(settled[0].id).toBe(cells[0].id)

@@ -15,24 +15,29 @@ import { join } from 'node:path'
 // ---------- file scope ----------
 
 const norm = (f) => f.split('\\').join('/')
+
 // `.web.`/`.linux.` anywhere in the name — `foo.web.test.tsrx` and
 // `foo.linux.test.tsrx` are target-specific files too. Linux's system
 // webview renders DOM, so its leaves may use DOM globals and `ui/web` imports.
 export const isWebFile = (f) => /\.(web|linux)\./.test(norm(f))
+
 const PLATFORM_SUFFIX = /\.(web|mobile|ios|android|macos|windows|linux|gtk)\./
 const SOURCE_EXTENSIONS = ['.tsrx', '.tsx', '.mts', '.cts', '.ts', '.cjs', '.jsx', '.ts', '.js']
 const isNativeDefaultFile = (f) => {
   const file = norm(f)
+
   if (PLATFORM_SUFFIX.test(file) || isWebFile(file)) {
     return false
   }
 
   const extension = SOURCE_EXTENSIONS.find((candidate) => file.endsWith(candidate))
+
   if (!extension) {
     return false
   }
 
   const stem = file.slice(0, -extension.length)
+
   return SOURCE_EXTENSIONS.some((candidate) => existsSync(`${stem}.web${candidate}`))
 }
 
@@ -44,9 +49,11 @@ export const isNativeFile = (f) =>
     isNativeDefaultFile(f))
 
 export const isSharedFile = (f) => !isWebFile(f) && !isNativeFile(f)
+
 // Device-lane code: *.test.*/*.spec.* spec files plus the upstream test
 // bundle entry (test.ts/test.js) — these run inside the native runtime.
 const isTestFile = (f) => /(^|[./])(test|spec)\.[cm]?[jt]sr?x?$/.test(norm(f))
+
 export const fileExcluded = (f, options) =>
   (options?.exclude ?? []).some((s) => norm(f).includes(s))
 
@@ -258,10 +265,12 @@ function locallyBoundIdentifiers(program) {
   // leaks a suppression into real code.
   const TS_TYPE_SCOPE =
     /^(TSFunctionType|TSConstructorType|TSMethodSignature|TSConstructSignatureDeclaration|TSCallSignatureDeclaration|TSIndexSignature|TSDeclareFunction)$/
+
   // TypeScript declarations that bind their id in the enclosing scope, like
   // FunctionDeclaration and ClassDeclaration already do.
   const TS_DECLARATION =
     /^(TSInterfaceDeclaration|TSTypeAliasDeclaration|TSEnumDeclaration|TSModuleDeclaration|TSDeclareFunction)$/
+
   const patternNames = (pattern, out: any[] = []) => {
     if (!pattern) {
       return out
@@ -296,6 +305,7 @@ function locallyBoundIdentifiers(program) {
     }
 
     let current = scope
+
     if (
       node !== program &&
       (node.type === 'BlockStatement' ||
@@ -371,6 +381,7 @@ function locallyBoundIdentifiers(program) {
 
     if (node.type === 'VariableDeclarator') {
       let target = current
+
       if (parent?.kind === 'var') {
         while (target.parent && !target.functionScope) {
           target = target.parent
@@ -412,6 +423,7 @@ export function checkNoDomGlobals(program, _src, filename, options) {
 
   const out: any[] = []
   const isLocallyBound = locallyBoundIdentifiers(program)
+
   for (const [node, parent] of walk(program)) {
     if (
       node.type === 'Identifier' &&
@@ -447,6 +459,7 @@ const WEB_ONLY_OCTANE = new Set([
 // implementations — only the DOM entry is web-only.
 const isDomOctaneSource = (value) => {
   const source = String(value ?? '')
+
   return /^octane(\/|$)/.test(source) && !/^octane\/universal(\/|$)/.test(source)
 }
 
@@ -456,10 +469,12 @@ export function checkNoWebOnlyApi(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node, parent] of walk(program)) {
     if (node.type === 'ImportDeclaration' && isDomOctaneSource(node.source.value)) {
       for (const spec of node.specifiers) {
         const imported = spec.imported?.name ?? spec.local?.name
+
         if (imported && WEB_ONLY_OCTANE.has(imported)) {
           out.push({
             node: spec,
@@ -636,12 +651,14 @@ export function checkElementVocabulary(program, _src, filename, options) {
   const web = isWebFile(filename)
   const native = isNativeFile(filename)
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'JSXOpeningElement') {
       continue
     }
 
     const name = jsxName(node.name)
+
     if (!name || name[0] !== name[0].toLowerCase() || name.includes('.')) {
       continue
     }
@@ -684,6 +701,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 
   const isMacOSRuntimeFile = /(^|\/)(apps\/macos|packages\/macos-appkit)\//.test(norm(filename))
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (
       node.type !== 'ImportDeclaration' &&
@@ -695,6 +713,7 @@ export function checkNoNativescriptImport(program, _src, filename, options) {
 
     const source = node.source?.value
     const isMacOSRuntimeImport = isMacOSRuntimeFile && source === '@nativescript/macos-node-api'
+
     if (
       typeof source === 'string' &&
       /^@(nativescript|nativescript-community)\//.test(source) &&
@@ -718,6 +737,7 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'ImportDeclaration') {
       continue
@@ -727,6 +747,7 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
     // specifier-level `type` markers can never reach the consumer's
     // runtime graph, so they cannot create a second bundled instance.
     const specifiers = node.specifiers ?? []
+
     if (
       node.importKind === 'type' ||
       (specifiers.length > 0 && specifiers.every((s) => s.importKind === 'type'))
@@ -735,6 +756,7 @@ export function checkNoNsDeepImport(program, _src, filename, options) {
     }
 
     const source = node.source?.value
+
     if (typeof source === 'string' && source.startsWith('@nativescript/core/ui/')) {
       out.push({
         node: node.source,
@@ -799,6 +821,7 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 
   const f = norm(filename)
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (
       node.type !== 'ImportDeclaration' &&
@@ -809,11 +832,13 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
     }
 
     const source = node.source?.value
+
     if (typeof source !== 'string') {
       continue
     }
 
     const base = source.split('?')[0].replace(/\/+$/, '')
+
     for (const rule of PLATFORM_SUBPATHS) {
       if (base === rule.spec && !rule.ok(f)) {
         out.push({
@@ -831,6 +856,7 @@ export function checkPlatformSubpathImport(program, _src, filename, options) {
 // importing .tsrx is the normal leaf pattern — the bundler owns both.
 export function checkNoTsImportsTsrx(program, _src, filename, options) {
   const f = norm(filename)
+
   if (
     !/\.(m|c)?ts$/.test(f) ||
     f.endsWith('.d.ts') ||
@@ -842,6 +868,7 @@ export function checkNoTsImportsTsrx(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'ImportDeclaration') {
       continue
@@ -879,6 +906,7 @@ function* styleObjects(program) {
     }
 
     const expr = attr.value?.type === 'JSXExpressionContainer' ? attr.value.expression : attr.value
+
     if (expr?.type === 'ObjectExpression') {
       yield expr
     }
@@ -899,6 +927,7 @@ export function checkNoNativeDeadStyle(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const obj of styleObjects(program)) {
     for (const prop of obj.properties ?? []) {
       if (prop.type !== 'Property') {
@@ -955,6 +984,7 @@ export function checkNoLineHeightUnitless(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const obj of styleObjects(program)) {
     for (const prop of obj.properties ?? []) {
       if (prop.type !== 'Property' || propName(prop.key) !== 'lineHeight') {
@@ -987,6 +1017,7 @@ export function checkNoStyleString(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [attr] of jsxAttributeNodes(program)) {
     if (
       propName(attr.name) === 'style' &&
@@ -1025,6 +1056,7 @@ function knownClasses(cwd) {
   const names = new Set()
   const scan = (dir) => {
     let entries
+
     try {
       entries = readdirSync(dir, { withFileTypes: true })
     } catch {
@@ -1033,6 +1065,7 @@ function knownClasses(cwd) {
 
     for (const e of entries) {
       const p = join(dir, e.name)
+
       if (e.isDirectory()) {
         if (
           ![
@@ -1057,6 +1090,7 @@ function knownClasses(cwd) {
 
   for (const root of ['packages', 'apps', 'tools']) {
     const dir = join(cwd, root)
+
     if (existsSync(dir)) {
       scan(dir)
     }
@@ -1074,9 +1108,11 @@ const distance = (a, b, max = 2) => {
   }
 
   let prev = Array.from({ length: b.length + 1 }, (_, i) => i)
+
   for (let i = 1; i <= a.length; i++) {
     const cur = [i]
     let rowMin = i
+
     for (let j = 1; j <= b.length; j++) {
       cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1))
       if (cur[j] < rowMin) {
@@ -1111,6 +1147,7 @@ export function checkNoUnknownClass(program, _src, filename, options) {
       }
 
       let best
+
       for (const k of known) {
         // Require a shared 3-char prefix so unrelated tokens don't
         // report junk suggestions.
@@ -1119,6 +1156,7 @@ export function checkNoUnknownClass(program, _src, filename, options) {
         }
 
         const d = distance(token, k)
+
         if (d < (best?.d ?? 3)) {
           best = { k, d }
         }
@@ -1135,11 +1173,13 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 
   for (const [attr] of jsxAttributeNodes(program)) {
     const name = propName(attr.name)
+
     if (name !== 'className' && name !== 'activeClassName' && name !== 'class') {
       continue
     }
 
     const expr = attr.value?.type === 'JSXExpressionContainer' ? attr.value.expression : attr.value
+
     for (const lit of literalStrings(expr)) {
       checkValue(lit)
     }
@@ -1151,6 +1191,7 @@ export function checkNoUnknownClass(program, _src, filename, options) {
     }
 
     const callee = node.callee?.type === 'Identifier' ? node.callee.name : undefined
+
     if (callee === 'cx') {
       for (const arg of node.arguments) {
         for (const lit of literalStrings(arg)) {
@@ -1161,11 +1202,13 @@ export function checkNoUnknownClass(program, _src, filename, options) {
 
     if (callee === 'styled') {
       const def = node.arguments[1]
+
       if (def?.type === 'ObjectExpression') {
         // base: 'cls', variants: { name: 'cls' } — classes are the
         // values; keys are variant prop names.
         for (const p of def.properties ?? []) {
           const v = p.value
+
           if (v?.type === 'ObjectExpression') {
             for (const q of v.properties ?? []) {
               for (const lit of literalStrings(q.value)) {
@@ -1195,12 +1238,14 @@ export function checkSignalDollarSuffix(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'VariableDeclarator') {
       continue
     }
 
     const init = node.init
+
     if (
       init?.type === 'CallExpression' &&
       init.callee?.type === 'Identifier' &&
@@ -1227,9 +1272,11 @@ export function checkRequireSignalsRuntime(program, _src, filename, options) {
 
   let hasSignalsImport = false
   const reads: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type === 'ImportDeclaration') {
       const src = node.source?.value
+
       if (
         (src === 'octane/signals' || src === 'octane/signals/client') &&
         node.importKind !== 'type'
@@ -1313,13 +1360,16 @@ export function checkNoViewOnPress(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [attr, rawTag] of jsxAttributeNodes(program)) {
     const tag = rawTag?.replace(/^motion\./, '')
+
     if (!tag || tag === 'Pressable') {
       continue
     }
 
     const name = propName(attr.name) ?? ''
+
     // NavLink exposes cancellable activation, but no Pressable gesture API.
     if (tag === 'NavLink' && name === 'onPress') {
       continue
@@ -1347,6 +1397,7 @@ export function checkNoConsoleDebug(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (
       node.type === 'CallExpression' &&
@@ -1369,6 +1420,7 @@ export function checkNoConsoleDebug(program, _src, filename, options) {
 // file falls outside the renderer include glob it binds a dead dispatcher.
 export function checkHooksInPlainTs(program, _src, filename, options) {
   const f = norm(filename)
+
   if (!/\.(m|c)?ts$/.test(f) || f.endsWith('.d.ts') || isTestFile(f) || fileExcluded(f, options)) {
     return []
   }
@@ -1393,6 +1445,7 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
     }
 
     let now = inHook
+
     if (
       (node.type === 'FunctionDeclaration' || node.type === 'FunctionExpression') &&
       /^use[A-Z$]/.test(node.id?.name ?? '')
@@ -1433,6 +1486,7 @@ export function checkHooksInPlainTs(program, _src, filename, options) {
 
 export const NATIVE_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx */'
 export const DOM_PRAGMA = '/** @jsxImportSource @octane-xplat/jsx/dom */'
+
 const RETIRED_PRAGMAS = [
   '@nativescript-community/octane',
   '@octane-xplat/macos-appkit',
@@ -1453,8 +1507,10 @@ export function checkNativePragmaFirstLine(program, source, filename, options) {
   const file = norm(filename)
   const first = source.split('\n')[0] ?? ''
   const pragmaMatch = /@jsxImportSource\s+([^\s*]+)/.exec(first)
+
   if (pragmaMatch) {
     const value = pragmaMatch[1]
+
     if (RETIRED_PRAGMAS.includes(value)) {
       return [
         {
@@ -1520,12 +1576,14 @@ export function checkNoRootLogicalRender(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'JSXCodeBlock') {
       continue
     }
 
     const render = node.render
+
     if (render?.type === 'LogicalExpression' || render?.type === 'ConditionalExpression') {
       out.push({
         node: render,
@@ -1536,6 +1594,7 @@ export function checkNoRootLogicalRender(program, _src, filename, options) {
     }
 
     const last = node.body?.[node.body.length - 1]
+
     if (!render && last?.type === 'ExpressionStatement' && containsJsx(last.expression)) {
       out.push({
         node: last,
@@ -1612,18 +1671,21 @@ export function checkNoRemovedRoutingApi(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'ImportDeclaration') {
       continue
     }
 
     const source = node.source?.value
+
     if (typeof source !== 'string' || !ROUTING_SOURCES.has(source)) {
       continue
     }
 
     for (const spec of node.specifiers ?? []) {
       const imported = spec.imported?.name
+
       if (imported && REMOVED_ROUTING_API[imported]) {
         out.push({
           node: spec,
@@ -1652,6 +1714,7 @@ export function checkNoRouteAugmentation(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const [node] of walk(program)) {
     if (node.type !== 'TSModuleDeclaration') {
       continue
@@ -1684,9 +1747,11 @@ const startsWithSlash = (expr) =>
 
 const leftmostOperand = (expr) => {
   let node = expr
+
   while (node?.type === 'BinaryExpression' && node.operator === '+') {
     node = node.left
   }
+
   return node
 }
 
@@ -1711,6 +1776,7 @@ function* toValueNodes(program) {
 
     if (node.type === 'JSXAttribute' && propName(node.name) === 'to') {
       const value = node.value
+
       if (value?.type === 'JSXExpressionContainer') {
         yield value.expression
       } else if (value && value.type !== 'Literal') {
@@ -1726,6 +1792,7 @@ export function checkNoInterpolatedRoutePath(program, _src, filename, options) {
   }
 
   const out: any[] = []
+
   for (const value of toValueNodes(program)) {
     if (isInterpolatedRoutePath(value)) {
       out.push({
@@ -1748,12 +1815,15 @@ const objectProp = (expr, name) =>
 // animations, ranges and gradients are left alone.
 const isDestinationLike = (expr) => {
   const to = objectProp(expr, 'to')
+
   if (!to || (to.value?.type !== 'Literal' && to.value?.type !== 'TemplateLiteral')) {
     return !!objectProp(expr, 'params') || !!objectProp(expr, 'search')
   }
+
   if (startsWithSlash(to.value)) {
     return true
   }
+
   return !!objectProp(expr, 'params') || !!objectProp(expr, 'search')
 }
 
@@ -1830,6 +1900,7 @@ export function checkNoDestinationCast(program, _src, filename, options) {
 export function checkTsrxDefault(program, _source, filename, options) {
   const file = norm(filename)
   const match = /^(.*)\.(web|mobile|ios|android|macos|windows|linux|gtk)\.tsrx$/.exec(file)
+
   if (
     !match ||
     !file.includes('/src/') ||
@@ -1838,9 +1909,11 @@ export function checkTsrxDefault(program, _source, filename, options) {
   ) {
     return []
   }
+
   if (['.tsrx', '.tsx', '.ts'].some((extension) => existsSync(match[1] + extension))) {
     return []
   }
+
   return [
     {
       node: program,

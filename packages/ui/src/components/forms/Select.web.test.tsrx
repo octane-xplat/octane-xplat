@@ -13,6 +13,7 @@ const options = [
 ]
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -25,7 +26,9 @@ function mount(props: Partial<SelectProps> = {}) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const render = (next: Partial<SelectProps>) =>
     act(() => root.render(<Select label="Choice" options={options} {...next} />))
@@ -43,6 +46,7 @@ function mount(props: Partial<SelectProps> = {}) {
     )
 
   const click = (target: Element) => act(() => (target as HTMLElement).click())
+
   return { host, root, render, trigger, key, click }
 }
 
@@ -50,11 +54,14 @@ describe('Select finite-list interaction', () => {
   it('navigates enabled options with one focus owner, commits, and restores focus', () => {
     const onValueChange = vi.fn()
     const ui = mount({ onValueChange })
+
     ui.trigger().focus()
     ui.key('ArrowDown')
     expect(ui.trigger().getAttribute('aria-expanded')).toBe('true')
     ui.key('ArrowDown')
+
     const active = document.getElementById(ui.trigger().getAttribute('aria-activedescendant')!)!
+
     expect(active.textContent).toContain('Banana')
     expect(document.querySelector('[role="option"][tabindex="0"]')).toBeNull()
     ui.key('Enter')
@@ -66,8 +73,11 @@ describe('Select finite-list interaction', () => {
 
   it('filters groups, announces empty outcomes, and routes search keys with IME guards', () => {
     const ui = mount({ searchable: true })
+
     ui.click(ui.trigger())
+
     const search = document.querySelector('.vx-select-search') as HTMLInputElement
+
     expect(document.activeElement).toBe(search)
     act(() => {
       search.value = 'ber'
@@ -91,6 +101,7 @@ describe('Select finite-list interaction', () => {
 
   it('cycles closed-trigger initials and preserves multi-selection during filtered select-all', () => {
     const ui = mount()
+
     ui.key('b')
     expect(ui.trigger().textContent).toContain('Banana')
     ui.key('b')
@@ -106,7 +117,9 @@ describe('Select finite-list interaction', () => {
     })
 
     ui.click(ui.trigger())
+
     const search = document.querySelector('.vx-select-search') as HTMLInputElement
+
     act(() => {
       search.value = 'app'
       search.dispatchEvent(new Event('input', { bubbles: true }))
@@ -127,6 +140,7 @@ describe('Select finite-list interaction', () => {
       onOpenChange = vi.fn()
 
     const ui = mount({ open: true, hasClear: true, value: 'apple', onValueChange, onOpenChange })
+
     ui.render({
       open: true,
       hasClear: true,
@@ -201,6 +215,7 @@ describe('Select finite-list interaction', () => {
 
     const onValueChange = vi.fn()
     const ui = mount({ value: 'apple', changeAction: () => action, onValueChange })
+
     ui.key('b')
     ui.render({ value: 'apricot', changeAction: () => action, onValueChange })
     await act(async () => {
@@ -217,8 +232,11 @@ describe('Select finite-list interaction', () => {
       onOpenChange = vi.fn()
 
     const ui = mount({ searchable: true, onChangeQuery, onOpenChange })
+
     ui.click(ui.trigger())
+
     const search = document.querySelector('.vx-select-search') as HTMLInputElement
+
     act(() => {
       search.value = 'ber'
       search.dispatchEvent(new Event('input', { bubbles: true }))
@@ -263,6 +281,7 @@ describe('Select finite-list interaction', () => {
 
   it('closes on Tab and leaves composition keys untouched', () => {
     const ui = mount()
+
     ui.key('ArrowDown')
     ui.key('Enter', ui.trigger(), { isComposing: true })
     expect(document.querySelector('[role="listbox"]')).not.toBeNull()

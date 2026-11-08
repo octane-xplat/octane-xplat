@@ -15,6 +15,7 @@ import {
 } from './ui-text-entry.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK text entry test',
   default_width: 300,
@@ -23,7 +24,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -44,6 +47,7 @@ const check = (name: string, ok: boolean) => {
   if (!ok) {
     throw new Error(name)
   }
+
   checks++
 }
 
@@ -51,6 +55,7 @@ const node = (id: string) => [...container.nodes.values()].find((n) => n.props.i
 const entry = () => inputRef.current!.native as any
 const focusedWithin = (view: any) => {
   const focused = window.get_focus()
+
   return focused === view || !!focused?.is_ancestor(view)
 }
 
@@ -58,17 +63,21 @@ const placeholder = (view: any): any => {
   if (view.get_css_name() === 'placeholder') {
     return view
   }
+
   for (let child = view.get_first_child(); child; child = child.get_next_sibling()) {
     const found = placeholder(child)
+
     if (found) {
       return found
     }
   }
+
   return null
 }
 
 const rgb = (widget: any) => {
   const color = widget.get_style_context().get_color()
+
   return [color.red, color.green, color.blue]
     .map((channel: number) => Math.round(channel * 255))
     .join(',')
@@ -88,31 +97,38 @@ let osAck = 0
 let writeOnLeft = false
 let keyWrites = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_controller: any, key: number) => {
   if (key === 65361 && writeOnLeft) {
     entry().text = 'ABCDE!'
     keyWrites++
   }
+
   if (key === 65481) {
     osAck++
     return true
   }
+
   return false
 })
 
 window.add_controller(keys)
+
 let osKeyboard = false
 async function inputPhase(phase: string, target = entry()) {
   const bounds = target.getBounds()
   const next = osAck + 1
+
   print(
     'GTK_TEXT_ENTRY_READY ' +
       JSON.stringify({ phase, x: bounds.x + bounds.width / 2, y: bounds.y + bounds.height / 2 }),
   )
+
   for (let i = 0; i < 240 && osAck < next; i++) {
     await pause(30)
   }
+
   check('OS phase completed: ' + phase, osAck >= next)
 }
 
@@ -120,7 +136,9 @@ async function run() {
   render()
   window.present()
   await pause(200)
+
   const view = entry()
+
   check('handle retains a real Gtk.Entry', view instanceof Gtk.Entry)
   check('initial controlled Unicode text', view.text === 'A😀BC')
   check('initial programmatic write has no onChange echo', changes.length === 0)
@@ -131,10 +149,12 @@ async function run() {
     'stored accessible name exists',
     Gtk.test_accessible_has_property(view, Gtk.AccessibleProperty.LABEL),
   )
+
   check(
     'registered leading icon has a native picture',
     [...container.nodes.values()].some((n) => n.picture && n.view?.get_paintable()),
   )
+
   props = { ...props, leading: 'node' }
   render()
   await pause()
@@ -144,6 +164,7 @@ async function run() {
       node('entry').view === view &&
       entry() === view,
   )
+
   props = { ...props, leading: 'none' }
   render()
   await pause()
@@ -153,19 +174,25 @@ async function run() {
       node('entry').view === view &&
       entry() === view,
   )
+
   check(
     'leading content changes retain the actual mounted editor',
     node('entry').view === view && inputRef.current!.native === node('entry').view,
   )
+
   const hint = placeholder(view)
+
   check('placeholder uses a real native label node', hint instanceof Gtk.Label)
+
   const defaultColor = rgb(hint)
+
   props = {
     ...props,
     placeholderColor: '#12ab34',
     testID: 'account-entry',
     className: 'account-custom',
   }
+
   render()
   await pause()
   check('placeholder color reaches native computed style: ' + rgb(hint), rgb(hint) === '18,171,52')
@@ -178,6 +205,7 @@ async function run() {
     'placeholder updates retain its native node',
     placeholder(view) === hint && hint.get_text() === 'Updated hint',
   )
+
   check('placeholder color updates native computed style', rgb(hint) === '171,18,52')
   props = { ...props, placeholderColor: undefined, testID: undefined, className: undefined }
   render()
@@ -187,6 +215,7 @@ async function run() {
     'removing custom class restores input classes',
     !node('entry').cssClasses.has('account-custom') && node('entry').cssClasses.has('vx-input'),
   )
+
   check('removing testID restores native id name', view.get_name() === 'entry')
   for (const [keyboard, purpose] of [
     ['default', Gtk.InputPurpose.FREE_FORM],
@@ -204,6 +233,7 @@ async function run() {
       view.input_purpose === purpose && node('entry').view === view && entry() === view,
     )
   }
+
   props = { ...props, keyboard: undefined }
   render()
   await pause()
@@ -211,6 +241,7 @@ async function run() {
     'removing input purpose restores free form',
     view.input_purpose === Gtk.InputPurpose.FREE_FORM,
   )
+
   inputRef.current!.focus()
   await pause()
   check('shared handle focus reaches internal GtkText', focusedWithin(view))
@@ -218,7 +249,9 @@ async function run() {
     props = { ...props, returnKey }
     render()
     await pause(35)
+
     const count = submits.length
+
     view.emit('activate')
     check(
       'caption hint preserves one submission: ' + returnKey,
@@ -230,6 +263,7 @@ async function run() {
       focusedWithin(view) && node('entry').view === view && entry() === view,
     )
   }
+
   props = { ...props, returnKey: undefined }
   render()
   await pause()
@@ -237,22 +271,28 @@ async function run() {
     'removing caption hint retains the editor',
     node('entry').view === view && entry() === view && focusedWithin(view),
   )
+
   view.select_region(1, 4)
   props = { ...props, value: 'A😀BC!' }
   render()
   await pause(130)
+
   const [selected, start, end] = view.get_selection_bounds()
+
   check('imperative controlled writes preserve selection', selected && start === 1 && end === 4)
   check('controlled writes suppress callback echo', changes.length === 0)
   check('native widget identity is retained', node('entry').view === view && entry() === view)
   props = { ...props, value: 'A😀' }
   render()
   await pause(130)
+
   const [shortSelected, shortStart, shortEnd] = view.get_selection_bounds()
+
   check(
     'shrinking Unicode value clamps a partial selection by code point',
     shortSelected && shortStart === 1 && shortEnd === 2 && view.get_position() === 2,
   )
+
   props = { ...props, value: 'A😀BC' }
   render()
   await pause()
@@ -260,20 +300,25 @@ async function run() {
   props = { ...props, value: 'A😀BC!' }
   render()
   await pause(130)
+
   const [backward, backStart, backEnd] = view.get_selection_bounds()
+
   check(
     'backward selection keeps its active edge',
     backward && backStart === 1 && backEnd === 4 && view.get_delegate().cursor_position === 1,
   )
+
   view.set_position(3)
   props = { ...props, value: '😀' }
   render()
   await pause(130)
   check('collapsed cursor clamps to GTK character count', view.get_position() === 1)
+
   let nativeWrites = 0
   const changed = view.connect('changed', () => {
     nativeWrites++
   })
+
   view.text = view.text
   check('identical imperative writes do not touch GtkEditable', nativeWrites === 0)
   view.disconnect(changed)
@@ -293,22 +338,26 @@ async function run() {
     name: undefined,
     readOnly: true,
   }
+
   render()
   await pause()
   check(
     'read-only editing is separate from sensitivity',
     !view.get_editable() && view.get_sensitive(),
   )
+
   check('secure removal restores visible text', view.get_visibility() === true)
   check(
     'default keyboard purpose resets prior email purpose',
     view.input_purpose === Gtk.InputPurpose.FREE_FORM,
   )
+
   check('undefined placeholder clears prior text', view.placeholder_text === '')
   check(
     'undefined accessible name clears prior state',
     !Gtk.test_accessible_has_property(view, Gtk.AccessibleProperty.LABEL),
   )
+
   inputRef.current!.focus()
   await pause()
   check('read-only entry can retain focus', focusedWithin(view))
@@ -316,8 +365,10 @@ async function run() {
   render()
   await pause()
   check('disabled state prevents interaction', !view.get_sensitive())
+
   // disabled/enabled aliases are renderer transport props, not shared JSX props.
   const aliases = node('entry-aliases')
+
   gtkDriver
     .prepareBatch(container, {
       renderer: 'gtk',
@@ -330,6 +381,7 @@ async function run() {
       ],
     } as any)
     .apply()
+
   check('enabled aliases cannot override disabled', !aliases.view!.get_sensitive())
   props = { ...props, disabled: false, aliasDisabled: undefined }
   render()
@@ -338,7 +390,9 @@ async function run() {
     'disabled removal restores sensitivity',
     view.get_sensitive() && node('entry-aliases').view!.get_sensitive(),
   )
+
   const peer = node('entry-peer').view!
+
   peer.focus()
   await pause()
   view.blur()
@@ -353,6 +407,7 @@ async function run() {
     'native focus and blur callbacks ran',
     focusEvents.includes('focus') && focusEvents.includes('blur'),
   )
+
   props = { version: 2, value: 'Field', label: 'Email', description: 'Work address' }
   render()
   await pause()
@@ -360,42 +415,52 @@ async function run() {
     'field chrome renders the visible label',
     [...container.nodes.values()].some((n) => n.type === 'label' && n.props.text === 'Email'),
   )
+
   check(
     'field chrome renders the description',
     [...container.nodes.values()].some(
       (n) => n.type === 'label' && n.props.text === 'Work address',
     ),
   )
+
   check(
     'field hint reaches GTK description storage',
     Gtk.test_accessible_has_property(entry(), Gtk.AccessibleProperty.DESCRIPTION),
   )
+
   // Clear is an actual public UI action, dispatched here through GTK's controller.
   props = { version: 3, generation: 1, defaultValue: 'Seed', clear: true }
   render()
   await pause(180)
   node('entry-peer').view!.focus()
   await pause()
+
   const clear = [...container.nodes.values()].find(
     (n) => n.props.accessibilityLabel === 'Clear input',
   )!.view!
+
   const controllers = clear.observe_controllers()
+
   for (let i = 0; i < controllers.get_n_items(); i++) {
     const controller = controllers.get_item(i)
+
     if (controller instanceof Gtk.GestureClick) {
       controller.emit('released', 1, 1, 1)
     }
   }
+
   await pause()
   check(
     'clear action reports the empty value',
     changes.at(-1) === '' && focusEvents.includes('clear'),
   )
+
   check('clear action updates uncontrolled text', entry().text === '')
   check(
     'clear action returns focus to input and dispatches nested current onFocus',
     focusedWithin(entry()) && focusEvents.includes('focus:3'),
   )
+
   if (GLib.getenv('GTK_TEXT_OS') === '1') {
     await inputPhase('edit')
     check(
@@ -404,7 +469,9 @@ async function run() {
     )
 
     check('real Return dispatches the current callback', submits.at(-1) === 3)
+
     const changeCount = changes.length
+
     props = { ...props, readOnly: true }
     render()
     await pause()
@@ -415,7 +482,9 @@ async function run() {
     )
 
     check('read-only input keeps OS focus', focusedWithin(entry()))
+
     const submitCount = submits.length
+
     props = { ...props, disabled: true }
     render()
     await pause()
@@ -446,10 +515,13 @@ async function run() {
 
     osKeyboard = true
   }
+
   props = { ...props, controlledMode: 'reject' }
   render()
   await pause(180)
+
   const controlled = controlledRef.current!.native as any
+
   controlled.focus()
   await pause()
   controlled.insert_text('x', -1, 2)
@@ -460,12 +532,14 @@ async function run() {
       controlledValue.current === '12' &&
       controlledChanges.at(-1) === '12x',
   )
+
   controlled.insert_text('x', -1, 2)
   await pause()
   check(
     'controlled field rejects the same native edit again',
     controlled.get_text() === '12' && controlledChanges.at(-1) === '12x',
   )
+
   if (osKeyboard) {
     await inputPhase('controlled-reject', controlled)
     check(
@@ -476,6 +550,7 @@ async function run() {
         controlled.get_delegate().cursor_position === 2,
     )
   }
+
   props = { ...props, controlledMode: 'accept' }
   render()
   await pause()
@@ -485,6 +560,7 @@ async function run() {
     controlled.set_text('Accepted')
     await pause()
   }
+
   check(
     'controlled parent can accept native edits',
     controlled.get_text() === 'Accepted' &&
@@ -492,9 +568,12 @@ async function run() {
       (!osKeyboard ||
         (focusedWithin(controlled) && controlled.get_delegate().cursor_position === 8)),
   )
+
   if (osKeyboard) {
     controlled.select_region(2, 5)
+
     const count = controlledChanges.length
+
     await inputPhase('controlled-middle', controlled)
     check(
       'actual middle selection replacement keeps controlled text and cursor',
@@ -509,15 +588,20 @@ async function run() {
       controlledChanges.length === count + 1 && controlledChanges.at(-1) === 'AcXted',
     )
   }
+
   check(
     'acceptance and rejection retain native editor identity',
     controlledRef.current!.native === controlled && node('entry-controlled').view === controlled,
   )
+
   const stale = entry()
   const staleNode = node('entry')
+
   root.unmount()
   await pause()
+
   const lastText = stale.text
+
   stale.text = 'Late write'
   check('disposed text ref setter is inert', stale.text === lastText)
   check('disposed focus and blur are inert', stale.focus() === false && (stale.blur(), true))
@@ -535,6 +619,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

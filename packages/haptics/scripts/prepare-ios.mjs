@@ -26,6 +26,7 @@ export function silenceAudioSimulator(source) {
   if (hash(source) !== upstreamHash) {
     throw new Error('Unexpected Pulsar AudioSimulator source; refusing to patch')
   }
+
   return (
     source
       .replace(/    #if DEBUG\n[\s\S]*?    #endif\n/, '    self._playSound = false\n')
@@ -53,6 +54,7 @@ export function preparePulsar(destination) {
   const marker = join(target, '.xplat-silent-pulsar.json')
   const validate = () => {
     const stamp = JSON.parse(readFileSync(marker, 'utf8'))
+
     if (
       stamp.revision !== revision ||
       stamp.patch !== 1 ||
@@ -63,14 +65,19 @@ export function preparePulsar(destination) {
         `Pulsar cache differs from the prepared source: ${target}. Choose a fresh destination.`,
       )
     }
+
     return target
   }
+
   if (existsSync(target)) {
     return validate()
   }
+
   mkdirSync(dirname(target), { recursive: true })
+
   const temporary = mkdtempSync(join(dirname(target), '.pulsar-'))
   const checkout = join(temporary, 'package')
+
   try {
     execFileSync(
       'git',
@@ -97,6 +104,7 @@ export function preparePulsar(destination) {
 
     const audio = join(checkout, audioPath)
     const patched = silenceAudioSimulator(readFileSync(audio, 'utf8'))
+
     writeFileSync(audio, patched)
     rmSync(join(checkout, '.git'), { recursive: true })
     writeFileSync(

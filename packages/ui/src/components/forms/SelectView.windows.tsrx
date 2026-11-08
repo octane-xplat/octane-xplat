@@ -69,6 +69,7 @@ export function SelectView(props: SelectViewProps): unknown @{
           onOpenChange: props.onOpenChange,
           onPick: (value: string) => {
             const option = props.options.find((option) => option.value === value)
+
             if (option) {
               props.onPick(option)
             }

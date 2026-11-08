@@ -5,6 +5,7 @@ import type { TransitionInput } from './types'
 
 function node(timing: TransitionInput = {}) {
   const value = new VariantNode()
+
   value.resolve = () => ({ target: { x: 10 }, transition: timing })
   value.play = vi.fn(async () => 'finished' as AnimationResult)
   value.stopOwn = vi.fn()
@@ -65,9 +66,13 @@ describe('variant orchestration', () => {
 
     parent.register(a)
     parent.register(b)
+
     const job = pending()
+
     parent.play = vi.fn(() => job.promise)
+
     const result = parent.run('show')
+
     expect(a.play).toHaveBeenCalledWith('show', { x: 10 }, { delay: 0.1 })
     expect(b.play).toHaveBeenCalledWith('show', { x: 10 }, { delay: 0.30000000000000004 })
     job.resolve('finished')
@@ -79,9 +84,13 @@ describe('variant orchestration', () => {
       child = node()
 
     parent.register(child)
+
     const job = pending()
+
     parent.play = vi.fn(() => job.promise)
+
     const result = parent.run('show')
+
     expect(child.play).not.toHaveBeenCalled()
     job.resolve('finished')
     expect(await result).toBe('finished')
@@ -93,9 +102,13 @@ describe('variant orchestration', () => {
       child = node()
 
     parent.register(child)
+
     const job = pending()
+
     child.play = vi.fn(() => job.promise)
+
     const result = parent.run('show')
+
     expect(parent.play).not.toHaveBeenCalled()
     parent.stop()
     job.resolve('finished')
@@ -109,7 +122,9 @@ describe('variant orchestration', () => {
       grandchild = node()
 
     child.register(grandchild)
+
     const off = parent.register(child)
+
     await parent.run('show')
     expect(grandchild.play).toHaveBeenCalledOnce()
     off()
@@ -126,12 +141,15 @@ it('starts the parent only after every child finishes successfully', async () =>
 
   parent.register(a)
   parent.register(b)
+
   const first = pending(),
     second = pending()
 
   a.play = vi.fn(() => first.promise)
   b.play = vi.fn(() => second.promise)
+
   const result = parent.run('show')
+
   first.resolve('finished')
   await Promise.resolve()
   expect(parent.play).not.toHaveBeenCalled()
@@ -145,9 +163,13 @@ it('does not launch an obsolete child phase after replacement', async () => {
     child = node()
 
   parent.register(child)
+
   const old = pending()
+
   parent.play = vi.fn(() => old.promise)
+
   const obsolete = parent.run('show')
+
   parent.play = vi.fn(async () => 'finished')
   await parent.run('hide')
   old.resolve('finished')
@@ -171,10 +193,14 @@ it('keeps independently started exits alive while invalidating queued tree work'
     child = node()
 
   parent.register(child)
+
   const job = pending()
+
   parent.play = vi.fn(() => job.promise)
+
   const run = parent.run('show')
   const stops = (child.stopOwn as ReturnType<typeof vi.fn>).mock.calls.length
+
   parent.cancelPending()
   job.resolve('finished')
   expect(await run).toBe('cancelled')
@@ -187,8 +213,11 @@ it('does not count a late child twice while waiting for the parent phase', async
     child = node()
 
   const job = pending()
+
   parent.play = vi.fn(() => job.promise)
+
   const run = parent.run('show')
+
   parent.register(child)
   job.resolve('finished')
   await run

@@ -12,6 +12,7 @@ export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>): JSX.
   const [isOpen, setIsOpen] = useState(false)
   const [isBusy, setIsBusy] = useState(false)
   const [optimisticValue, setOptimisticValue] = useState(props.value)
+
   useEffect(() => {
     setOptimisticValue(props.value)
   }, [props.value])
@@ -35,6 +36,7 @@ export function ComplexSelector<Value>(props: ComplexSelectorProps<Value>): JSX.
 
   const commit = async (next: Value) => {
     const previous = optimisticValue
+
     setOptimisticValue(next)
     props.onChange?.(next)
     if (!props.changeAction) {

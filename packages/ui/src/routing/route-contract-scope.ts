@@ -33,6 +33,7 @@ export function copyRouteContract(source: RouteMeta, target: RouteMeta): RouteMe
   if (declared.has(source)) {
     declared.add(target)
   }
+
   return target
 }
 
@@ -44,11 +45,13 @@ export function sealGeneratedRouteCatalog<Contracts>(
   const remaining = new Map(metadata?.map((route) => [route.name, route]))
   const routes = catalog.routes.map((route) => {
     const source = remaining.get(route.name)
+
     remaining.delete(route.name)
     return source?.platforms
       ? copyRouteContract(route, { ...route, platforms: [...source.platforms] })
       : route
   })
+
   for (const source of remaining.values()) {
     // Retain the pattern without importing or inventing its missing screen.
     routes.push({
@@ -58,10 +61,13 @@ export function sealGeneratedRouteCatalog<Contracts>(
       ...(source.platforms ? { platforms: [...source.platforms] } : {}),
     })
   }
+
   const complete = metadata ? { ...catalog, routes } : catalog
+
   for (const route of complete.routes) {
     declareRouteContract(route)
   }
+
   return sealRouteCatalog(complete) as RouteCatalog<Contracts>
 }
 
@@ -79,15 +85,18 @@ export function sealRouteCatalog<Catalog extends RouteManifest>(catalog: Catalog
 
     Object.freeze(route)
   }
+
   Object.freeze(catalog.routes)
   Object.freeze(catalog.screens)
   Object.freeze(catalog.layouts)
   if (catalog.loaders) {
     Object.freeze(catalog.loaders)
   }
+
   if (catalog.baked) {
     Object.freeze(catalog.baked)
   }
+
   catalogs.add(catalog)
   return Object.freeze(catalog)
 }

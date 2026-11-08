@@ -10,6 +10,7 @@ test('movement composes with the original translation and never accumulates fram
       host.translateY = value
     },
   )
+
   lease.set(-100)
   assert.equal(host.translateY, -88)
   assert.equal(lease.offset, -100)
@@ -33,6 +34,7 @@ test('a foreign write becomes the baseline before the next measured movement', (
       value = next
     },
   )
+
   lease.set(-100)
   value = 20
   assert.equal(lease.offset, 0)
@@ -45,6 +47,7 @@ test('a foreign write becomes the baseline before the next measured movement', (
 test('cleanup preserves a newer foreign write and an unused lease writes nothing', () => {
   let value = 7,
     writes = 0
+
   const own = () =>
     leaseKeyboardProperty(
       () => value,
@@ -53,10 +56,14 @@ test('cleanup preserves a newer foreign write and an unused lease writes nothing
         writes++
       },
     )
+
   const unused = own()
+
   unused.release()
   assert.equal(writes, 0)
+
   const lease = own()
+
   lease.set(-80)
   value = 99
   lease.release()
@@ -72,6 +79,7 @@ test('invalid displacement does not overwrite the current host property', () => 
       value = next
     },
   )
+
   lease.set(-20)
   assert.throws(() => lease.set(NaN), RangeError)
   assert.throws(() => lease.set(Infinity), RangeError)

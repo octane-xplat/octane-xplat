@@ -35,17 +35,22 @@ function Content(props: { params: { id: string } }) {
 
 function Caption() {
   const name = useContext(Name)
+
   captions.set('lightbox', name)
   return name
 }
 
 function Controls() {
   sheet = useImperativeBottomSheet()
+
   const [dialogOpen, updateDialog] = useState(false)
   const [sheetOpen, updateSheet] = useState(false)
+
   setDialog = updateDialog
   setSheet = updateSheet
+
   const [lightboxOpen, updateLightbox] = useState(false)
+
   setLightbox = updateLightbox
   return (
     <>
@@ -69,6 +74,7 @@ function Controls() {
 export default function Case() {
   const [name, setName] = useState('Avery')
   const [open, setOpen] = useState(true)
+
   updateName = setName
   closeOwner = () => setOpen(false)
   return (
@@ -84,6 +90,7 @@ export async function run(ctx: any) {
   const value = (id: string) => String(views.get(id)?.stringValue)
   const first = sheet.open(Content, { id: 'owned-first' })
   const second = sheet.open(Content, { id: 'owned-second' })
+
   await ctx.waitFor(() => views.has('owned-first') && views.has('owned-second'))
   ctx.assert('AppKit sheet inherits nearest provider', value('owned-first'), 'Avery')
   first.close('first-result')
@@ -121,12 +128,15 @@ export async function run(ctx: any) {
   )
 
   const final = sheet.open(Content, { id: 'owned-final' })
+
   await ctx.waitFor(() => views.has('owned-final'))
   closeOwner()
   await final
   await ctx.waitFor(() => views.size === 0)
   ctx.assert('owner removal releases every AppKit surface', views.size, 0)
+
   let rejected = false
+
   try {
     await sheet.open(Content, { id: 'late' })
   } catch {

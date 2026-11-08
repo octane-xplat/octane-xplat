@@ -22,6 +22,7 @@ export function unsupportedTray(reason: TrayUnavailableReason, message: string):
   const fail = (): never => {
     throw new TrayError(reason, message)
   }
+
   return {
     getTrayAvailability: () => Promise.resolve({ available: false, reason, message }),
     createTray: () => Promise.reject(new TrayError(reason, message)),

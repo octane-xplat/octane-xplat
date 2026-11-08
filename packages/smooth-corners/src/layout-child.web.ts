@@ -43,6 +43,7 @@ export function paintedStyle(style: any): any {
   }
 
   const next = { ...style }
+
   for (const key of MARGIN_KEYS) {
     delete next[key]
   }
@@ -58,6 +59,7 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
   style: Record<string, any>
 } {
   const style: Record<string, any> = {}
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {

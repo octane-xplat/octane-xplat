@@ -9,15 +9,20 @@ import { pathToFileURL } from 'node:url'
 // Some project plugins install uncaught-exception handlers. Only an explicitly
 // completed probe may succeed, even when such a handler swallows an assertion.
 process.exitCode = 1
+
 const root = resolve(import.meta.dirname, '../..')
 const app = realpathSync(process.env.XPLAT_GO_ANDROID_HTTP_APP)
 const manifest = JSON.parse(readFileSync(join(app, 'package.json')))
+
 assert.ok(manifest.private, 'Use an explicit disposable private project')
+
 const require = createRequire(join(app, 'package.json'))
+
 process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ android: true })
 process.env.NS_HMR_NO_ADB_REVERSE = '1'
 process.argv.push('--', '--env.android', '--env.hmr')
 process.chdir(app)
+
 const { createServer } = await import(pathToFileURL(require.resolve('vite')).href)
 const server = await createServer({
   root: app,
@@ -26,15 +31,19 @@ const server = await createServer({
 })
 
 const results = []
+
 try {
   await server.listen()
+
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`
+
   for (const path of [
     '/ns/m/node_modules/source-map-js/lib/source-map-generator.js',
     '/ns/m/src/index.ts',
   ]) {
     const response = await fetch(origin + path, { signal: AbortSignal.timeout(20000) })
     const body = await response.text()
+
     results.push({
       path,
       status: response.status,
@@ -52,6 +61,7 @@ writeFileSync(
 )
 
 const failed = results.filter((result) => result.status !== 200)
+
 if (failed.length) {
   console.error(JSON.stringify(failed))
 } else {

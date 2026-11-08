@@ -72,6 +72,7 @@ export function PowerSearchFilterEditor(props: PowerSearchFilterEditorProps): un
     }
 
     let next: FilterValue = value
+
     if (
       value.type === 'string' ||
       value.type === 'custom' ||

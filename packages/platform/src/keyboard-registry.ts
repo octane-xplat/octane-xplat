@@ -38,6 +38,7 @@ export function createKeyboardWindowRegistry<State>(
     source?: KeyboardWindowSource<State>
     stop?: () => void
   }
+
   type Activation = { source: KeyboardWindowSource<State>; priority: KeyboardSourcePriority }
   const windows = new Map<object, Entry>()
   const emptyStates = new WeakMap<object, State>()
@@ -49,6 +50,7 @@ export function createKeyboardWindowRegistry<State>(
 
     return emptyStates.get(key) as State
   }
+
   const selected = () =>
     activations.findLast((entry) => entry.priority === 'controller')?.source ??
     activations.findLast((entry) => entry.priority === 'fallback')?.source
@@ -57,6 +59,7 @@ export function createKeyboardWindowRegistry<State>(
     const errors: unknown[] = []
     // Callbacks may attach or release readers during this notification.
     const readers = [...entry.readers]
+
     for (const reader of readers) {
       if (!entry.readers.has(reader) || reader.revision === entry.revision) {
         continue
@@ -78,13 +81,16 @@ export function createKeyboardWindowRegistry<State>(
   const stop = (entry: Entry) => {
     entry.generation++
     entry.source = undefined
+
     const release = entry.stop
+
     entry.stop = undefined
     release?.()
   }
 
   const start = (entry: Entry) => {
     const source = selected()
+
     if (entry.source === source) {
       return
     }
@@ -99,8 +105,11 @@ export function createKeyboardWindowRegistry<State>(
 
     const generation = entry.generation
     const previous = { state: entry.state, revision: entry.revision }
+
     entry.source = source
+
     let attaching = true
+
     try {
       const release = source(entry.window, (state) => {
         if (
@@ -143,6 +152,7 @@ export function createKeyboardWindowRegistry<State>(
     const errors: unknown[] = []
     // A subscriber can unmount or open another root during replacement.
     const entries = [...windows.values()]
+
     for (const entry of entries) {
       if (windows.get(entry.window) !== entry) {
         continue
@@ -163,10 +173,12 @@ export function createKeyboardWindowRegistry<State>(
   return {
     getSnapshot: (window) => {
       const entry = windows.get(window)
+
       return entry ? entry.state : emptyState(window)
     },
     subscribe(window, listener) {
       let entry = windows.get(window)
+
       if (!entry) {
         entry = {
           window,
@@ -181,7 +193,9 @@ export function createKeyboardWindowRegistry<State>(
 
       const owned = entry
       const reader = { notify: listener, revision: -1 }
+
       owned.readers.add(reader)
+
       let active = true
       const release = () => {
         if (!active) {
@@ -208,6 +222,7 @@ export function createKeyboardWindowRegistry<State>(
     },
     install(source, priority = 'controller') {
       const activation = { source, priority }
+
       activations.push(activation)
       try {
         refresh()
@@ -223,6 +238,7 @@ export function createKeyboardWindowRegistry<State>(
       }
 
       let active = true
+
       return () => {
         if (!active) {
           return

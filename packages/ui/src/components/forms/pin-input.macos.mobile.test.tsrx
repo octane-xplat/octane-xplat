@@ -20,6 +20,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -81,6 +82,7 @@ it('inherits parent Field state/identity and blocks PIN changes', () => {
   }
 
   const env = mount(Parent, { disabled: true })
+
   try {
     for (const state of [{ disabled: true }, { readonly: true }]) {
       env.render(state)
@@ -98,6 +100,7 @@ it('inherits parent Field state/identity and blocks PIN changes', () => {
 it('cancels controlled pending focus if blocked before accepting input', async () => {
   const env = mount(PinInput, { value: '', length: 4 })
   const focus = vi.fn()
+
   try {
     for (const field of env.fields()) {
       field.window = { makeFirstResponder: focus }
@@ -116,8 +119,10 @@ it('cancels controlled pending focus if blocked before accepting input', async (
 
 it('retains entered values/hosts when standalone validation metadata changes', () => {
   const env = mount(PinInput, { length: 4 })
+
   try {
     const first = env.fields()[0]
+
     first.props.onTextChange('1')
     flushUniversalSync(() => {})
     env.render({ length: 4, label: 'Code', status: { type: 'error', message: 'Try again' } })
@@ -184,6 +189,7 @@ it('empty-cell Backspace requests previous-cell focus without editing controlled
         fields = env.fields()
 
       const event = key(fields[2])
+
       group.props.onKeyDown(event)
       expect(event.defaultPrevented).toBe(true)
       expect(event.stopped).toBe(true)
@@ -220,6 +226,7 @@ it('PIN Backspace preserves native filled-cell editing, IME, shortcuts and unrel
       key(fields[2], { key: 'Delete' }),
     ]) {
       const wasPrevented = event.defaultPrevented
+
       group.props.onKeyDown(event)
       expect(event.defaultPrevented).toBe(wasPrevented)
       expect(event.stopped).toBe(false)
@@ -228,7 +235,9 @@ it('PIN Backspace preserves native filled-cell editing, IME, shortcuts and unrel
     expect(focus).not.toHaveBeenCalled()
     for (const patch of [{ isDisabled: true }, { isReadOnly: true }]) {
       env.render({ id: 'pin', value: '12', ...patch })
+
       const event = key(fields[2])
+
       group.props.onKeyDown(event)
       expect(event.defaultPrevented).toBe(false)
     }

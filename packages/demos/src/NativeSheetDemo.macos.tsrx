@@ -51,6 +51,7 @@ export function NativeSheetDemo() @{
     [lastCallback, setLastCallback] = useState('none')
 
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+
   useEffect(
     () => () => {
       if (timer.current !== null) {

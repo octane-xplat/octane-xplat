@@ -21,6 +21,7 @@ export function ImperativeSheetPanel(props: {
   })
 
   const view = useRef<any>(null)
+
   useEffect(() => {
     appKitHost()?.setSurfaceAppearance?.(view.current, dark)
   }, [dark])

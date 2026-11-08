@@ -7,6 +7,7 @@ import { createMacOSDevBundle } from '../dist/macos/dev-bundle.js'
 
 function project(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-dev-identity-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   writeFileSync(join(root, 'vite.config.mjs'), '')
   return root
@@ -32,8 +33,11 @@ function manifest(extra = {}) {
 test('dev host runs from a bundle with consumer identity and cleans up its session', async (t) => {
   const root = project(t)
   const bundle = await createMacOSDevBundle(root, manifest())
+
   assert.match(bundle.executable, /App\.app\/Contents\/MacOS\/App$/)
+
   const plist = readFileSync(join(dirname(bundle.executable), '../Info.plist'), 'utf8')
+
   assert.match(plist, /CFBundleDisplayName<\/key><string>brim-browser<\/string>/)
   assert.doesNotMatch(plist, /CFBundleIconFile/)
   await bundle.cleanup()
@@ -42,7 +46,9 @@ test('dev host runs from a bundle with consumer identity and cleans up its sessi
 
 test('dev overrides package name and icon, escapes XML, and copies icon bytes', async (t) => {
   const root = project(t)
+
   writeFileSync(join(root, 'AppIcon.icns'), 'test icon bytes')
+
   const input = manifest({
     productName: 'Brim & Friends',
     icon: 'AppIcon.icns',
@@ -54,8 +60,11 @@ test('dev overrides package name and icon, escapes XML, and copies icon bytes', 
   }
 
   const bundle = await createMacOSDevBundle(root, input)
+
   t.after(bundle.cleanup)
+
   const contents = dirname(dirname(bundle.executable))
+
   assert.match(readFileSync(join(contents, 'Info.plist'), 'utf8'), /Brim &amp; Friends/)
   assert.match(
     readFileSync(join(contents, 'Info.plist'), 'utf8'),
@@ -67,6 +76,7 @@ test('dev overrides package name and icon, escapes XML, and copies icon bytes', 
 
 test('dev rejects escaping and missing icon paths before launching a host', async (t) => {
   const root = project(t)
+
   await assert.rejects(
     createMacOSDevBundle(root, manifest({ icon: '../icon.icns' })),
     /inside the app root/,
@@ -82,6 +92,7 @@ test('a supplied development directory must be fresh before cleanup owns it', as
   const root = project(t)
   const directory = join(root, 'owned-session')
   const bundle = await createMacOSDevBundle(root, manifest(), { directory })
+
   assert.ok(bundle.executable.startsWith(directory + '/'))
   await bundle.cleanup()
   assert.equal(existsSync(directory), false)

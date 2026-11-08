@@ -15,6 +15,7 @@ export const CHECKS: ParityCheck[] = [
     ],
     check: (m) => {
       const active = m('active')
+
       return [
         dims(m('pages'), 220, 36),
         ['active page has a visible frame', active.box.w > 0 && active.box.h > 0],

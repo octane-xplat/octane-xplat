@@ -66,6 +66,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
   const isSelectedPreset = (p: { getRange: () => DateRange }) => {
     const r = p.getRange()
+
     return shown?.start === r.start && shown?.end === r.end
   }
 

@@ -31,6 +31,7 @@ const findGtkBundle = (appDir) => {
   }
 
   const entries = readdirSync(appDir).filter((entry) => /\.(js|mjs)$/.test(entry))
+
   if (entries.length !== 1) {
     throw new Error(
       'Linux GTK packaging expected exactly one ESM bundle (app.js by default); ' +
@@ -55,6 +56,7 @@ function buildGtkApp(config, vite, appRoot, appDir) {
   )
 
   const bundle = findGtkBundle(appDir)
+
   writeFileSync(
     join(appDir, config.executableName),
     `#!/bin/sh
@@ -95,25 +97,31 @@ export async function packageLinux(
   }: { stagingRoot?: string; publish?: boolean; hostRoot?: string } = {},
 ) {
   const config = inspectLinuxPackageConfig(appRoot)
+
   if (config.issues.length) {
     throw new Error(config.issues.join('\n'))
   }
 
   const require = createRequire(join(resolve(appRoot), 'package.json'))
   let vite
+
   try {
     const manifest = require.resolve('vite/package.json')
+
     vite = join(dirname(manifest), JSON.parse(readFileSync(manifest, 'utf8')).bin.vite)
   } catch {
     throw new Error('Declare vite in this app and run bun install before building Linux.')
   }
 
   const output = join(appRoot, 'dist', 'linux')
+
   mkdirSync(output, { recursive: true })
+
   const staging = stagingRoot ?? mkdtempSync(join(output, '.package-'))
   let preserveStaging = false
   const appDir = join(staging, config.executableName)
   const archiveName = `${config.executableName}-${config.version}.tar.gz`
+
   try {
     mkdirSync(appDir)
     if (config.runtime === 'gtk') {
@@ -233,6 +241,7 @@ printf 'Installed to %s\\n' "$DEST"
 
     const destination = join(output, config.executableName)
     const backup = join(staging, 'previous')
+
     if (existsSync(destination)) {
       renameSync(destination, backup)
     }

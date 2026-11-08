@@ -116,6 +116,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 
     try {
       const native = JSON.parse(host.status())
+
       durationSeconds = native.durationSeconds
       meterLevel = state === 'recording' ? native.meterLevel : null
       emit()
@@ -131,6 +132,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 
     try {
       const event: HostEvent = JSON.parse(message)
+
       if (event.id !== generation) {
         return
       }
@@ -157,6 +159,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
         }
 
         const pending = completion
+
         completion = undefined
         finalizing = false
         ++generation // Ignore late callbacks from the completed take.
@@ -191,6 +194,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 
     const task = new Promise<RecorderPermissionState>((resolve, reject) => {
       abortPermission = () => reject(new Error('AudioRecorder is disposed'))
+
       const reply = (status: string) => {
         if (disposed) {
           return
@@ -231,6 +235,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 
     const sampleRate = options?.sampleRate ?? 44100
     const channels = options?.channels ?? 1
+
     if (
       !Number.isInteger(sampleRate) ||
       sampleRate < 1 ||
@@ -241,7 +246,9 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
     }
 
     opening = true
+
     const id = ++generation
+
     error = undefined
     try {
       const cancelled = new Promise<never>((_, reject) => {
@@ -249,6 +256,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
       })
 
       const authorization = await Promise.race([requestPermission(), cancelled])
+
       if (disposed || id !== generation) {
         throw new Error('AudioRecorder start was cancelled')
       }
@@ -258,6 +266,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
       }
 
       const cause = host!.startTake(JSON.stringify({ id, sampleRate, channels }))
+
       if (cause) {
         throw new Error(cause)
       }
@@ -341,6 +350,7 @@ export function createMacOSRecorder(host?: RecorderHost): AudioRecorder {
 
       try {
         const cause = host!.resume()
+
         if (cause) {
           throw new Error(cause)
         }

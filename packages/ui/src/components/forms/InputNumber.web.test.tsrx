@@ -7,8 +7,11 @@ import { InputNumber } from './InputNumber.web.tsrx'
 const roots: ReturnType<typeof createRoot>[] = []
 function mount(node: any) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() => root.render(node))
   return host
@@ -24,6 +27,7 @@ describe('InputNumber empty value', () => {
     const onValueChange = vi.fn()
     const host = mount(<InputNumber value={4} onValueChange={onValueChange} />)
     const input = host.querySelector('input')!
+
     input.value = ''
     act(() => input.dispatchEvent(new Event('input', { bubbles: true })))
     expect(onValueChange).toHaveBeenCalledWith(null)
@@ -32,6 +36,7 @@ describe('InputNumber empty value', () => {
   it('treats null as a controlled empty value and steps from zero', () => {
     const onValueChange = vi.fn()
     const host = mount(<InputNumber value={null} onValueChange={onValueChange} />)
+
     expect((host.querySelector('input') as HTMLInputElement).value).toBe('')
     act(() =>
       host

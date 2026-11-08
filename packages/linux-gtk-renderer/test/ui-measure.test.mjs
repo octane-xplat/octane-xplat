@@ -9,16 +9,20 @@ import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+
 test('measurement and aspect ratio follow real GTK allocation and scrolling', async (t) => {
   const outDir = join(fixture, 'dist-ui-measure')
+
   if (!gjsAvailable()) {
     t.skip('gjs is not installed')
     return
   }
+
   if (!masonTypelibPresent()) {
     t.skip('XplatMason typelib required for runtime')
     return
   }
+
   await build({
     logLevel: 'error',
     ...(await xplatLinuxGtk('production', {
@@ -27,11 +31,15 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
       outDir,
     })),
   })
+
   const bundle = join(outDir, 'app.js')
+
   assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+
   const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
   const hasMason = existsSync(join(nativeDir, 'XplatMason-1.0.typelib'))
   const env = { ...process.env, ...(hasMason ? { XPLAT_MASON_TYPELIB: nativeDir } : {}) }
+
   if (process.platform === 'darwin') {
     env.DYLD_FALLBACK_LIBRARY_PATH = [
       join(execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim(), 'lib'),
@@ -40,11 +48,17 @@ test('measurement and aspect ratio follow real GTK allocation and scrolling', as
       .filter(Boolean)
       .join(':')
   }
+
   const result = spawnSync('gjs', ['-m', bundle], { env, encoding: 'utf8', timeout: 20000 })
+
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
+
   const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_UI_MEASURE '))
+
   assert.ok(line, `Missing primitive result: ${result.stdout}\n${result.stderr}`)
+
   const { checks, gtk } = JSON.parse(line.slice('GTK_UI_MEASURE '.length))
+
   assert.ok(checks >= 19, `Expected measurement checks, got ${checks}`)
 
   t.diagnostic(

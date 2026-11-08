@@ -6,6 +6,7 @@ import type { ProbeContext } from '../../tools/probe/context'
 
 const title = 'A complete artificial title that needs several lines in a narrow frame.'
 const alignments = ['start', 'end', 'left', 'right', 'center', 'justify', undefined] as const
+
 export default function TextOverflowCssProbe() {
   const [single, setSingle] = useState(true),
     [ellipsis, setEllipsis] = useState(true)

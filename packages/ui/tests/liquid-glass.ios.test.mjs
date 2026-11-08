@@ -41,6 +41,7 @@ function recordingMeasure(calls) {
   return function (width, _height) {
     const left = (this.effectivePaddingLeft ?? 0) + (this.effectiveBorderLeftWidth ?? 0)
     const right = (this.effectivePaddingRight ?? 0) + (this.effectiveBorderRightWidth ?? 0)
+
     calls.push(['measure', { left, right, content: width - left - right }])
   }
 }
@@ -50,10 +51,12 @@ function recordingMeasure(calls) {
 // the real layout's onMeasure, and restore.
 function zeroPadBorder(self, fn) {
   const saved = {}
+
   for (const field of PAD_BORDER_FIELDS) {
     saved[field] = self[field] ?? 0
     self[field] = 0
   }
+
   try {
     return fn()
   } finally {
@@ -67,7 +70,9 @@ function fixture(glassSupported) {
   const setter = 'setGlassEffect'
   const calls = []
   class GridLayout {}
+
   GridLayout.prototype.onMeasure = recordingMeasure(calls)
+
   class CoreLiquidGlass extends GridLayout {
     onMeasure(width, height) {
       return zeroPadBorder(this, () => super.onMeasure(width, height))
@@ -129,7 +134,9 @@ function fixture(glassSupported) {
 function containerFixture() {
   const calls = []
   class AbsoluteLayout {}
+
   AbsoluteLayout.prototype.onMeasure = recordingMeasure(calls)
+
   class CoreLiquidGlassContainer extends AbsoluteLayout {
     onMeasure(width, height) {
       return zeroPadBorder(this, () => super.onMeasure(width, height))
@@ -163,6 +170,7 @@ function containerFixture() {
 test('older iOS installs material on the same core root without replacing the child host', () => {
   const { view, calls } = fixture(false)
   const root = view.createNativeView()
+
   assert.equal(root, calls[0][1])
   assert.ok(root.contentView.host)
   assert.deepEqual(root.effect, { kind: 'blur', style: 8 })
@@ -170,6 +178,7 @@ test('older iOS installs material on the same core root without replacing the ch
 
 test('older iOS property replay and updates preserve blur instead of an empty core effect', () => {
   const { view, calls, setter } = fixture(false)
+
   view.nativeViewProtected = view.createNativeView()
   for (const value of [
     { variant: 'regular' },
@@ -184,10 +193,12 @@ test('older iOS property replay and updates preserve blur instead of an empty co
 
 test('iOS 26+ forwards the exact config including explicit interaction and tint to core', () => {
   const { view, calls, setter } = fixture(true)
+
   view.nativeViewProtected = view.createNativeView()
   assert.equal(view.nativeViewProtected.effect.kind, 'glass')
   for (const interactive of [false, true]) {
     const config = { variant: 'clear', interactive, tint: '#123456', animateChangeDuration: 0 }
+
     view[setter](config)
     assert.equal(calls.at(-1)[1], config)
     assert.equal(calls.at(-1)[2].targetView, view.nativeViewProtected)
@@ -199,11 +210,14 @@ test('iOS 26+ forwards the exact config including explicit interaction and tint 
 test('native disposal stays inherited and a recreated root gets its own fallback', () => {
   const { view, calls } = fixture(false)
   const first = view.createNativeView()
+
   view.nativeViewProtected = first
   view.disposeNativeView()
   assert.equal(view.nativeViewProtected, undefined)
   assert.equal(calls.at(-1)[0], 'dispose')
+
   const second = view.createNativeView()
+
   assert.notEqual(first, second)
   assert.notEqual(first.contentView.host, second.contentView.host)
   assert.deepEqual(second.effect, { kind: 'blur', style: 8 })
@@ -211,6 +225,7 @@ test('native disposal stays inherited and a recreated root gets its own fallback
 
 test('component registers the adapter and defaults interaction off while keeping layout and escapes', async () => {
   const leaf = await readFile(new URL('../src/ios/LiquidGlass.ios.tsrx', import.meta.url), 'utf8')
+
   assert.match(leaf, /registerElement\('liquidglass', LiquidGlassView\)/)
   assert.match(leaf, /interactive: props\.interactive \?\? false/)
   assert.match(leaf, /applyEscapeProps\(v, props\)/)
@@ -220,6 +235,7 @@ test('component registers the adapter and defaults interaction off while keeping
 
 test('LiquidGlass measures its content inside effective padding (issue #37)', () => {
   const { view, calls, CoreLiquidGlass } = fixture(true)
+
   view.effectivePaddingLeft = 19
   view.effectivePaddingRight = 19
   view.onMeasure(353, 82)
@@ -236,6 +252,7 @@ test('LiquidGlass measures its content inside effective padding (issue #37)', ()
 
 test('LiquidGlassContainer measures its content inside effective padding (issue #37)', () => {
   const { view, calls, CoreLiquidGlassContainer } = containerFixture()
+
   view.effectivePaddingLeft = 19
   view.effectivePaddingRight = 19
   view.onMeasure(353, 82)
@@ -254,5 +271,6 @@ test('container registers the padding-aware core view', async () => {
     new URL('../src/ios/LiquidGlassContainer.ios.tsrx', import.meta.url),
     'utf8',
   )
+
   assert.match(leaf, /registerElement\('liquidglasscontainer', LiquidGlassContainerView\)/)
 })

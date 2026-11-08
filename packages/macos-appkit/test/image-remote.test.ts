@@ -1,9 +1,11 @@
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { rendererImageFixture as fixture } from './fixtures/renderer-image.ts'
+
 test('remote processing waits for the main queue and rejects HTTP error payloads', async () => {
   const env = fixture(),
     view: any = { image: null }
+
   try {
     env.updateImage(view, 'https://image-test/main-queue')
     await env.start()
@@ -28,6 +30,7 @@ test('shared remote work stays alive for another view and cancels queued deliver
     first: any = { image: null },
     second: any = { image: null },
     retry: any = { image: null }
+
   try {
     env.updateImage(first, 'https://image-test/shared')
     env.updateImage(second, 'https://image-test/shared')
@@ -58,6 +61,7 @@ test('invalid URLs, setup failures and resume failures settle without poisoning 
   const env = fixture(),
     view: any = { image: null },
     retry: any = { image: null }
+
   try {
     env.updateImage(view, 'https://image-test/invalid')
     await env.start()
@@ -89,6 +93,7 @@ test('a missing main-queue bridge fails before network setup and permits a later
     first: any = { image: null },
     retry: any = { image: null },
     queue = env.native.NSOperationQueue.mainQueue
+
   try {
     env.native.NSOperationQueue.mainQueue = null
     env.updateImage(first, 'https://image-test/queue-unavailable')
@@ -114,6 +119,7 @@ test('combined eviction preserves live delivery while an older response cannot r
     first: any = { image: null },
     next: any = { image: null },
     hit: any = { image: null }
+
   try {
     env.updateImage(first, src)
     await env.start()
@@ -148,6 +154,7 @@ test('combined clear between HTTP completion and main-queue decode cannot rewarm
     src = 'https://image-test/clear',
     first: any = { image: null },
     next: any = { image: null }
+
   try {
     env.updateImage(first, src)
     await env.start()
@@ -175,8 +182,10 @@ test('prefetched encoded bytes serve a later mounted image and memory-only inval
     src = 'https://image-test/prefetched',
     first: any = { image: null },
     next: any = { image: null }
+
   try {
     const warm = env.imageCache.prefetch(src)
+
     await env.start()
     env.tasks[0].handler('prefetched', { statusCode: 200 }, null)
     env.flush()
@@ -207,6 +216,7 @@ test('a bypass view ignores warm decoded/disk entries and cannot replace the def
     cached: any = { image: null },
     bypass: any = { image: null },
     hit: any = { image: null }
+
   try {
     env.updateImage(cached, src)
     await env.start()
@@ -222,7 +232,9 @@ test('a bypass view ignores warm decoded/disk entries and cannot replace the def
     assert.equal(env.disk.get(src).data, 'older')
     env.updateImage(hit, src)
     assert.deepEqual(hit.image, { data: 'older' })
+
     const calls = env.tasks.length
+
     env.updateImage(bypass, src, undefined, 'none')
     await env.start()
     assert.equal(env.tasks.length, calls)
@@ -238,6 +250,7 @@ test('same-source policy changes retire queued old delivery and restoring the de
     src = 'https://image-test/policy-change',
     first: any = { image: null },
     retained: any = { image: null }
+
   try {
     env.updateImage(first, src)
     env.updateImage(retained, src)
@@ -267,6 +280,7 @@ test('a bypass-only view does not warm memory/disk and teardown retires queued c
     src = 'https://image-test/bypass-only',
     first: any = { image: null },
     next: any = { image: null }
+
   try {
     env.updateImage(first, src, undefined, 'none')
     await env.start()
@@ -297,6 +311,7 @@ test('local bypass loads avoid the framework decode cache and leave a default lo
     next: any = { image: null },
     cached: any = { image: null },
     hit: any = { image: null }
+
   try {
     env.updateImage(first, src, undefined, 'none')
     await env.start()
@@ -322,7 +337,9 @@ test('placeholder paint teardown retires a late bypass subscription before nativ
     src = 'https://image-test/placeholder-retire',
     view: any = {},
     retry: any = { image: null }
+
   let painted: any = null
+
   Object.defineProperty(view, 'image', {
     get: () => painted,
     set: (image) => {
@@ -330,6 +347,7 @@ test('placeholder paint teardown retires a late bypass subscription before nativ
       env.disposeImage(view)
     },
   })
+
   try {
     env.updateImage(view, src, 'data:image/png;base64,YQ==', 'none')
     await env.start()
@@ -351,8 +369,10 @@ test('cached paint reentry cannot replace a newer source subscription with the o
     src = 'https://image-test/paint-reentry',
     seed: any = { image: null },
     view: any = {}
+
   let painted: any = null,
     replaced = false
+
   Object.defineProperty(view, 'image', {
     get: () => painted,
     set: (image) => {
@@ -363,6 +383,7 @@ test('cached paint reentry cannot replace a newer source subscription with the o
       }
     },
   })
+
   try {
     env.updateImage(seed, src)
     await env.start()
@@ -381,6 +402,7 @@ test('cached paint reentry cannot replace a newer source subscription with the o
 test('native cancellation reentry owns the latest source instead of losing its release or starting the outer replacement', async () => {
   const env = fixture(),
     view: any = { image: null }
+
   try {
     env.updateImage(view, 'https://image-test/cancel-first', undefined, 'none')
     await env.start()

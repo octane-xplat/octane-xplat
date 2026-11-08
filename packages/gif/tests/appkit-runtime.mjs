@@ -25,9 +25,11 @@ const GIF_B =
 
 const server = createServer((req, res) => {
   const url = req.url ?? '/'
+
   process.stderr.write(`[gif-serve] ${req.method} ${url}\n`)
   if (url === '/a.gif' || url === '/b.gif') {
     const body = Buffer.from(url === '/a.gif' ? GIF_A : GIF_B, 'base64')
+
     res.writeHead(200, { 'Content-Type': 'image/gif', 'Content-Length': body.length })
     res.end(body)
   } else {
@@ -37,10 +39,12 @@ const server = createServer((req, res) => {
 })
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
 const port = server.address().port
 
 try {
   const modules = join(directory, 'node_modules/@octane-xplat')
+
   await mkdir(modules, { recursive: true })
   for (const name of ['platform', 'gif']) {
     await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
@@ -59,6 +63,7 @@ try {
   )
 
   const caseFile = join(directory, 'case.ts')
+
   await writeFile(
     caseFile,
     `
@@ -159,16 +164,22 @@ setTimeout(async () => {
   )
 
   const fileFixture = join(directory, 'fixture-b.gif')
+
   await writeFile(fileFixture, Buffer.from(GIF_B, 'base64'))
+
   let source = await import('node:fs/promises').then((fs) => fs.readFile(caseFile, 'utf8'))
+
   await writeFile(
     caseFile,
     source.replace(JSON.stringify('FILE_PATH_PLACEHOLDER'), JSON.stringify(fileFixture)),
   )
 
   const artifact = await buildMacOSNative(directory)
+
   assert.deepEqual(artifact.leaves, [])
+
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap)
 
   await build({
@@ -198,7 +209,9 @@ setTimeout(async () => {
       ],
       { timeout: 60_000 },
     )
+
     let output = ''
+
     child.stdout.setEncoding('utf8').on('data', (chunk) => (output += chunk))
     child.stderr.setEncoding('utf8').on('data', (chunk) => (output += chunk))
     child.on('close', (status) => resolve({ status, output }))
@@ -206,6 +219,7 @@ setTimeout(async () => {
   })
 
   const output = result.output
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /GIF_APPIMAGE_RUNTIME_FAIL/)
   assert.match(output, /GIF_APPIMAGE_RUNTIME_OK/)

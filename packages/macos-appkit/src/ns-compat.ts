@@ -1,4 +1,5 @@
 import type { ElementAdapterRegistration } from './element-adapter'
+
 /** Minimal @nativescript/core-compatible surface for the AppKit renderer.
  *
  *  Goal: pure-JS NativeScript plugins (custom views, behaviors, utilities)
@@ -31,14 +32,17 @@ export class Observable {
       this.off(event, wrapped)
       callback(args)
     }
+
     this.on(event, wrapped)
   }
 
   off(event: string, callback?: (args: ObservableEvent) => void) {
     const set = this._listeners?.get(event)
+
     if (!set) {
       return
     }
+
     if (callback) {
       set.delete(callback)
     } else {
@@ -52,6 +56,7 @@ export class Observable {
 
   notify(event: { eventName: string; object?: Observable; [key: string]: any }) {
     const args = { ...event, object: event.object ?? this }
+
     for (const cb of this._listeners?.get(event.eventName) ?? []) {
       cb(args)
     }
@@ -97,9 +102,11 @@ export class Property<Owner, T> {
     const proto: any = cls.prototype
     const key = this.name
     const self = this
+
     ;(proto.__propertyTable ??= Object.create(
       Object.getPrototypeOf(proto).__propertyTable ?? null,
     ))[key] = { descriptor: self } satisfies PropertyRecord
+
     Object.defineProperty(proto, key, {
       configurable: true,
       enumerable: true,
@@ -110,14 +117,17 @@ export class Property<Owner, T> {
         const store = (this.__propValues ??= Object.create(null))
         const old = store[key] ?? self.defaultValue
         const equal = self.options.equalityComparer?.(old, value) ?? Object.is(old, value)
+
         if (equal) {
           return
         }
+
         store[key] = value
         self.options.valueChanged?.(this, old as T, value)
         if (self.affectsLayout) {
           this.requestLayout?.()
         }
+
         this.notify?.({
           eventName: key + 'Change',
           object: this,
@@ -142,9 +152,11 @@ export class CssProperty<Owner extends Style<any>, T> extends Property<Owner, T>
 
   register(cls: new (...args: any[]) => Owner) {
     const proto: any = cls.prototype
+
     ;(proto.__cssPropertyTable ??= Object.create(
       Object.getPrototypeOf(proto).__cssPropertyTable ?? null,
     ))[this.cssName] = { descriptor: this }
+
     super.register(cls)
   }
 }
@@ -167,17 +179,20 @@ export class Style<Owner extends ViewBase = ViewBase> extends Observable {
   setProp(cssName: string, value: any) {
     const table = (Object.getPrototypeOf(this) as any).__cssPropertyTable ?? {}
     const record = table[cssName]
+
     if (record) {
       ;(this as any)[record.descriptor.name] = value
     } else {
       this._values[cssName] = value
     }
+
     this.owner.styleChanged(cssName, value)
   }
 
   getProp(cssName: string) {
     const table = (Object.getPrototypeOf(this) as any).__cssPropertyTable ?? {}
     const record = table[cssName]
+
     return record ? (this as any)[record.descriptor.name] : this._values[cssName]
   }
 }
@@ -269,6 +284,7 @@ export function registerPluginElement<T extends ViewBase>(
       pendingRegistrations.push(register)
       return
     }
+
     compatDeps.registerElementType(name, {
       container: options.container ?? false,
       hasView: true,
@@ -277,15 +293,18 @@ export function registerPluginElement<T extends ViewBase>(
       styleKeys: options.styleKeys,
       create(node: any, _props: any) {
         const view = options.createView()
+
         view.__attachNode(node)
         node.nsCompatView = view
         node.view = view.createNativeView() ?? view.nativeView
       },
       applyProp(node: any, prop: string, value: any) {
         const view = node.nsCompatView as ViewBase | undefined
+
         if (!view) {
           return false
         }
+
         if (prop === 'style' && value && typeof value === 'object') {
           for (const key of Object.keys(value)) {
             view.style.setProp(key, value[key])
@@ -293,31 +312,39 @@ export function registerPluginElement<T extends ViewBase>(
 
           return true
         }
+
         if (prop === 'className') {
           view.className = String(value ?? '')
           compatDeps!.applyClassName(node, value)
           return true
         }
+
         if (prop === 'accessible' || prop.startsWith('accessibility')) {
           compatDeps!.applyAccessibility(node, prop, value)
           return true
         }
+
         const table = (Object.getPrototypeOf(view) as any).__propertyTable ?? {}
+
         if (table[prop]) {
           ;(view as any)[prop] = value
           return true
         }
+
         return prop === 'id'
       },
       prepareDispose(node: any) {
         const view = node.nsCompatView
+
         node.nsCompatView = undefined
         if (view) {
           view.hostNode = null
         }
+
         view?.dispose?.()
       },
     })
   }
+
   register()
 }

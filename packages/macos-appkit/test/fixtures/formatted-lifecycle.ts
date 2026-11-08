@@ -35,6 +35,7 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 
   root.render(Formatted, {})
   await settle()
+
   const parent = debug.findId('formatted-parent'),
     logical = formattedRef.current,
     span = spanRef.current
@@ -46,7 +47,9 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
 
   check(span && span.view === null && span.type === 'span', 'Span logical ref missing')
   check(String(parent.stringValue) === 'AnB', 'Nested span composition failed')
+
   const frame = parent.alignmentRectForFrame(parent.frame)
+
   check(
     Math.abs(Number(frame.size.width) - 240) < 1 && Math.abs(Number(frame.size.height) - 28) < 1,
     'Formatted parent layout failed: ' + JSON.stringify(parent.frame),
@@ -188,6 +191,7 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
   for (const id of ['button', 'field', 'view', 'search']) {
     const host = debug.findId('formatted-' + id)
     const value = id === 'button' ? host.title : id === 'view' ? host.string : host.stringValue
+
     check(String(value).startsWith('Plain '), id + ' removal fallback failed')
   }
 
@@ -200,7 +204,9 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const recreated = formattedRef.current
+
   check(recreated !== logical && String(parent.stringValue) === 'BAn', 'Reinsertion failed')
   await advance()
   check(
@@ -211,6 +217,7 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
   )
 
   const replacement = formattedRef.current
+
   await advance()
   check(
     String(parent.stringValue) === 'fallback' &&
@@ -234,6 +241,7 @@ export async function checkFormattedLifecycle(root: any, nativeWindow: any) {
   )
 
   const count = formattedRefEvents.length
+
   root.unmount()
   check(formattedRefEvents.length === count, 'Repeated teardown repeated cleanup')
   console.log('PACKED_FORMATTEDSTRING_OK')

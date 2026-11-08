@@ -39,7 +39,9 @@ const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 // A real window makes host.get_root() a Gtk.Window so the resize watch
 // wires up — present() is not needed for default-width/height signals.
 const win = new Gtk.Window()
+
 win.set_child(host)
+
 const container = createGtkContainer(host)
 
 apply(container, [
@@ -103,7 +105,9 @@ const colorOf = (id: number) => node(id)?.computedStyle?.color
 
 // Class selector: computed bag AND real GTK evidence.
 out.classColor = colorOf(2)
+
 const rgba = node(2)?.view?.get_color?.()
+
 out.widgetColor = rgba ? { r: rgba.red, g: rgba.green, b: rgba.blue } : null
 
 // Inheritance: color/font-size declared on the masonview reach the child
@@ -115,6 +119,7 @@ out.varColor = colorOf(3)
 
 // Root ambient classes.
 const rootClasses = [...(node(1)?.cssClasses ?? [])].sort()
+
 out.rootClasses = rootClasses
 
 // Inline style beats the class rule.
@@ -157,8 +162,11 @@ out.rtReplaced = colorOf(10)
 
 // Theme-sheet parse timing — reported, not asserted.
 const t0 = GLib.get_monotonic_time()
+
 registerStylesheet('theme', `${tokensCss}\n${chromeCss}`)
+
 const themeMs = (GLib.get_monotonic_time() - t0) / 1000
+
 out.themeMs = Math.round(themeMs * 100) / 100
 out.themeSelectors = `${tokensCss}\n${chromeCss}`.split('{').length - 1
 
@@ -168,9 +176,11 @@ out.themeSelectors = `${tokensCss}\n${chromeCss}`.split('{').length - 1
 out.borderTopWidth = node(11)?.computedStyle?.borderTopWidth
 out.borderBottomWidth = node(11)?.computedStyle?.borderBottomWidth
 out.borderRightColor = node(11)?.computedStyle?.borderRightColor
+
 // Real GTK evidence: the provider lands a border on the style context.
 const borderCtx = node(11)?.view?.get_style_context?.()
 const gtkBorder = borderCtx?.get_border?.()
+
 out.gtkBorderTop = gtkBorder ? gtkBorder.top : null
 out.gtkBorderBottom = gtkBorder ? gtkBorder.bottom : null
 
@@ -186,15 +196,18 @@ const cssNameWalk = (w, name) => {
     }
 
     const nested = cssNameWalk(c, name)
+
     if (nested) {
       return nested
     }
   }
+
   return null
 }
 
 const swView = node(13)?.view
 const swSlider = swView ? cssNameWalk(swView, 'slider') : null
+
 out.switchThumbColor = swSlider?.get_color?.()
   ? {
       r: swSlider.get_color().red,
@@ -217,12 +230,14 @@ out.directionRtl = node(16)?.view?.get_direction?.()
 
 // whiteSpace/textOverflow/maxLines land on the Gtk.Label.
 const ellView = node(17)?.view
+
 out.ellipsize = ellView?.ellipsize
 out.wrapNowrap = ellView?.wrap
 out.maxLines = ellView?.lines
 
 // horizontalAlign/verticalAlign outside a Mason subtree → halign/valign.
 const halView = node(18)?.view
+
 out.halign = halView?.halign ?? halView?.get_halign?.()
 out.valign = halView?.valign ?? halView?.get_valign?.()
 
@@ -282,7 +297,9 @@ await idleStyles()
 
 // :checked via switch notify::active.
 out.checkedBefore = node(25)?.computedStyle?.opacity
+
 const swNode = node(25)
+
 if (swNode?.view) {
   swNode.view.active = true
 }
@@ -293,6 +310,7 @@ out.checkedOpacity = node(25)?.computedStyle?.opacity
 // An untracked pseudo-class change must not restyle: SELECTED is not in any
 // registered selector — the provider signature stays identical.
 const sigBefore = node(27)?.cssSignature
+
 setFlags(27, Gtk.StateFlags.SELECTED)
 await idleStyles()
 out.untrackedSignatureSame = sigBefore === node(27)?.cssSignature

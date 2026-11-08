@@ -23,12 +23,15 @@ let touched = false
 let updated = false
 // A cold build prepares both the shell and application before starting AppKit.
 const deadline = setTimeout(() => host.kill('SIGTERM'), 120000)
+
 for (const stream of [host.stdout, host.stderr]) {
   stream.on('data', (chunk) => {
     output += chunk.toString()
     if (!touched && output.includes('[macos] AppKit window ready')) {
       touched = true
+
       const now = new Date()
+
       utimesSync(appSource, now, now)
     }
 
@@ -45,7 +48,9 @@ const { code, signal } = await new Promise((resolve, reject) => {
 })
 
 clearTimeout(deadline)
+
 const count = (text) => output.split(text).length - 1
+
 if (
   !updated ||
   count('NativeScript init completed') !== 1 ||

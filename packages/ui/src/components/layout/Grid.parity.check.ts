@@ -56,6 +56,7 @@ export const CHECKS: ParityCheck[] = [
       const automatic = m('automatic')
       const colSpan = m('colSpan')
       const rowSpan = m('rowSpan')
+
       return [
         dims(root, 96, 48, 1),
         dims(fixed, 30, 12, 1),

@@ -9,10 +9,12 @@ import type { AppState } from './types'
 /** Current app lifecycle state; re-renders on suspend ('background'), resume ('active'), and exit ('inactive'). */
 export function useAppState(): AppState {
   const [state, setState] = useState<AppState>('active')
+
   useEffect(() => {
     const onSuspend = () => setState('background')
     const onResume = () => setState('active')
     const onExit = () => setState('inactive')
+
     Application.on(Application.suspendEvent, onSuspend)
     Application.on(Application.resumeEvent, onResume)
     Application.on(Application.exitEvent, onExit)

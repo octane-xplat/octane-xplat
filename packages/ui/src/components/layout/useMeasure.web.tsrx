@@ -4,6 +4,7 @@ import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../prop
 
 function readBounds(element: HTMLElement): MeasureBounds {
   const rect = element.getBoundingClientRect()
+
   return { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
 }
 
@@ -24,12 +25,14 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     }
 
     const update = () => setBounds(readBounds(element))
+
     update()
     if (!observe) {
       return
     }
 
     const resizeObserver = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(update)
+
     resizeObserver?.observe(element)
     window.addEventListener('resize', update)
     window.addEventListener('scroll', update, true)

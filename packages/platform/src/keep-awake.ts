@@ -45,6 +45,7 @@ function apply(enabled: boolean, activity?: any): Promise<boolean> {
       try {
         if (enabled && tags.size > 0) {
           const window = current.getWindow()
+
           window.addFlags(android.view.WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
           windows.add(window)
         } else {
@@ -115,6 +116,7 @@ const service = createTaggedKeepAwake({
   async activate(tag) {
     listen()
     tags.add(tag)
+
     // Retain requests made before Android creates its first activity.
     const applied = await apply(isAndroid || !suspended)
     const awaitingActivity =

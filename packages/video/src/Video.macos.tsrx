@@ -12,7 +12,9 @@ import { createVideoView } from './video-view.macos.ts'
  *  runtime-verified on the AppKit host; visible frame/audio output is not. */
 export function Video(props: VideoProps): unknown @{
   const latest = useRef(props)
+
   latest.current = props
+
   const [state, setState] = useState<AppKitVideoState>({
     playing: false,
     started: false,
@@ -28,6 +30,7 @@ export function Video(props: VideoProps): unknown @{
 
   const create = useCallback((event: any) => {
     const native = createVideoView()
+
     event.view = native
     owner.attach(native)
   }, [])
@@ -38,6 +41,7 @@ export function Video(props: VideoProps): unknown @{
   })
 
   useEffect(() => () => owner.dispose(), [])
+
   const style = mergeStyle(
     { display: 'grid', gridTemplateRows: '1fr', gridTemplateColumns: '1fr' },
     props.style,

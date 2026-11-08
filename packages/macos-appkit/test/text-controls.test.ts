@@ -47,6 +47,7 @@ class FakeTextView extends FakeTextField {
 
 function makeFieldView() {
   const calls = []
+
   return {
     calls,
     setAccessibilityLabel(value) {
@@ -90,15 +91,18 @@ test('text fields retain a secure-capable host and their initial values', () => 
   })
 
   const plain = make({ value: 'name' })
+
   assert.ok(plain instanceof FakeTextField)
   assert.ok(plain instanceof FakeSecureTextField)
   assert.equal(plain.stringValue, 'name')
 
   const secure = make({ secure: true, value: 's3cret' })
+
   assert.ok(secure instanceof FakeSecureTextField)
   assert.equal(secure.stringValue, 's3cret')
 
   const view = make({ secure: true }, true)
+
   assert.ok(view instanceof FakeTextView)
 })
 
@@ -197,6 +201,7 @@ test('isEnabled and editable map to native enabled/editable/selectable state', (
 
   // NSTextView has no enabled flag: disabled maps to non-editable/non-selectable.
   const area = textNode('textview')
+
   applyProps(area, { isEnabled: false })
   assert.equal(area.view.editable, false)
   assert.equal(area.view.selectable, false)
@@ -205,6 +210,7 @@ test('isEnabled and editable map to native enabled/editable/selectable state', (
 test('secure changes reach the synchronizer while secure multiline entry warns', () => {
   const { applyProps, warnings } = propsHarness()
   const node = textNode('textfield')
+
   applyProps(node, { secure: true })
   assert.equal(node.secureMode, true)
   applyProps(node, { secure: false })
@@ -218,19 +224,23 @@ test('secure changes reach the synchronizer while secure multiline entry warns',
 test('onTextChange reads the field value and onSubmit binds a separate submit handler', () => {
   const { applyProps, warnings, actionHandlers } = propsHarness()
   const node = textNode('textfield')
+
   node.view.stringValue = 'draft'
 
   const seen = []
+
   applyProps(node, { onTextChange: (value) => seen.push(['change', value]) })
   actionHandlers.get(7)()
   assert.deepEqual(seen, [['change', 'draft']])
 
   let submitted = 0
+
   applyProps(node, { onSubmit: () => submitted++ })
   node.submitHandler()
   assert.equal(submitted, 1)
 
   const area = textNode('textview')
+
   applyProps(area, { onSubmit: () => {} })
   assert.equal(warnings.length, 0)
 })
@@ -238,10 +248,12 @@ test('onTextChange reads the field value and onSubmit binds a separate submit ha
 test('text-control accessibility props reach the native element', () => {
   const { applyProps } = propsHarness()
   const node = textNode('textfield')
+
   applyProps(node, { accessibilityLabel: 'Email' })
   assert.deepEqual(node.view.calls, [['setAccessibilityLabel', 'Email']])
 
   const area = textNode('textview')
+
   applyProps(area, { accessibilityHint: 'Tell us more' })
   applyProps(area, { accessibilityState: { disabled: true } })
   assert.deepEqual(area.view.calls, [
@@ -304,6 +316,7 @@ test('per-edit delegate events fire the change handler while the action fires su
   const target = new ButtonActionTarget()
   const field = {}
   const events = []
+
   actionHandlers.set(7, () => events.push('change'))
   textNodesByView.set(field, { actionId: 7, submitHandler: () => events.push('submit') })
 
@@ -315,6 +328,7 @@ test('per-edit delegate events fire the change handler while the action fires su
 
   // The textview delegate path is unchanged.
   const area = {}
+
   actionHandlers.set(8, () => events.push('area-change'))
   actionIdsByView.set(area, 8)
   textNodesByView.set(area, { actionId: 8 })
@@ -338,9 +352,11 @@ test('multiline submit delegate preserves ordinary Return and marked-text confir
     textNodesByView,
     dispatchTextEvent: (_node: unknown, event: string) => seen.push(event),
   })
+
   const target = new ButtonActionTarget()
   const view: any = { hasMarkedText: () => false }
   const node = { props: { returnKeyType: 'send', editable: true, isEnabled: true } }
+
   textNodesByView.set(view, node)
   assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), true)
   assert.deepEqual(seen, ['onSubmit'])

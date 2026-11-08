@@ -30,6 +30,7 @@ function hasHostElements(source, file) {
     if (!node || typeof node !== 'object') {
       return false
     }
+
     if (
       node.type === 'JSXOpeningElement' &&
       node.name?.type === 'JSXIdentifier' &&
@@ -37,10 +38,12 @@ function hasHostElements(source, file) {
     ) {
       return true
     }
+
     return Object.values(node).some((value) =>
       Array.isArray(value) ? value.some(visit) : visit(value),
     )
   }
+
   return visit(parseModule(source, file))
 }
 
@@ -48,6 +51,7 @@ const webSpecifier = (dir, specifier) => {
   const extension = specifier.endsWith('.tsrx') ? '.tsrx' : ''
   const base = extension ? specifier.slice(0, -extension.length) : specifier
   const candidate = `${base}.web${extension}`
+
   if (existsSync(join(dir, `${candidate}${extension ? '' : '.ts'}`))) {
     return candidate
   }
@@ -66,6 +70,7 @@ const webSpecifier = (dir, specifier) => {
 // entry to the platform declaration twin (index.web.d.ts), so the twin must
 // carry the same type surface as the shared barrel it mirrors.
 let stale = 0
+
 for (const barrel of barrels) {
   const sourcePath = join(sourceDir, barrel)
   const dir = dirname(sourcePath)

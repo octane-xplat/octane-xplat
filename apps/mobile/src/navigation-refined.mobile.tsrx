@@ -68,6 +68,7 @@ const NameProvider: any = Name
 let paneNavigation: ReturnType<typeof createRefinedNavigation>['panes']
 let navigation: ReturnType<typeof createRefinedNavigation>['navigation']
 const dirtyEntry = createStore<string | null>(null)
+
 export const refinedObservations = {
   setDirtyEntry: (id: string | null) => dirtyEntry.set(id),
   blockers: new Map<string, NavigationBlockerState>(),
@@ -102,8 +103,10 @@ function ChromeItem(props: { params: { id: string } }): any {
   const owner = useRouter(navigation)
   const kind = navigationChromeKinds.find((kind) => kind === props.params.id)
   const [destination, setDestination] = useState<ValidatedDestination | null>(null)
+
   useLayoutEffect(() => {
     let active = true
+
     void owner
       .validateDestination({
         to: '/refined/:id',
@@ -138,6 +141,7 @@ function SearchItem(): any {
   const api = getRouteApi('/search/:id', navigation)
   const id = api.useParams().id
   const search = api.useSearch()
+
   refinedObservations.searchUpdates.set(id, api.useUpdateSearch())
   return (
     <masonview>
@@ -152,6 +156,7 @@ const searchCatalog = defineRoutes([
     path: '/search/:id',
     validateSearch: (raw: { tab?: unknown }) => {
       const tab = raw.tab ?? 'details'
+
       if (tab !== 'details' && tab !== 'activity') {
         throw new Error('Invalid search')
       }
@@ -170,9 +175,12 @@ function RefinedItem(props: { params: { id: string }; data: { title: string } })
   )
 
   const blocker = useNavigationBlocker({ when: dirty === props.params.id })
+
   refinedObservations.blockers.set(props.params.id, blocker)
   refinedObservations.dirtyEntries.set(props.params.id, dirty === props.params.id)
+
   const [count, setCount] = useState(0)
+
   useLayoutEffect(() => {
     refinedObservations.mounts.set(
       props.params.id,
@@ -185,6 +193,7 @@ function RefinedItem(props: { params: { id: string }; data: { title: string } })
   const data = item.useLoaderData()
   const context = item.useContext()
   const provider = useContext(Name)
+
   useRouterState(navigation)
   refinedObservations.navigators.set(props.params.id, useRouter(navigation))
   refinedObservations.increments.set(props.params.id, () => setCount((value) => value + 1))
@@ -213,6 +222,7 @@ function PaneItem(): any {
   const title = item.useLoaderData().title
   const provider = useContext(Name)
   const [count, setCount] = useState(0)
+
   refinedObservations.paneEntries.set(id, {
     title,
     count,
@@ -245,6 +255,7 @@ const failedRenderCatalog = defineRoutes([
 
 const validateFileSearch = (raw: { tab?: unknown }) => {
   const tab = raw.tab ?? 'details'
+
   if (tab !== 'details') {
     throw new Error('Invalid tab')
   }
@@ -365,6 +376,7 @@ export function createRefinedNavigation(frame: Frame) {
   })
 
   platform.attach(router)
+
   const panePlatform = createRenderRouterHost()
   let paneLoads = 0
   let paneAdmitted = true
@@ -414,6 +426,7 @@ export function createRefinedNavigation(frame: Frame) {
 
 function RemountedOwnerEntry(props: { version: number }): any {
   const owner = useRouter(navigation)
+
   useLayoutEffect(() => {
     if (props.version > 0) {
       void owner
@@ -438,6 +451,7 @@ export function RefinedNavigationShell(props: {
   const [ownerVersion, setOwnerVersion] = useState(0)
   const [name, setName] = useState('Avery')
   const [paneMode, setPaneMode] = useState(false)
+
   refinedObservations.showPanes = setPaneMode
   refinedObservations.changeProvider = setName
   refinedObservations.ownerPresent = owned
@@ -512,6 +526,7 @@ function DefaultClientItem(props: {
   const modal = state.modal
   const back = state.canGoBack
   const [count, setCount] = useState(0)
+
   defaultClientObservations.entries.set(props.params.id, {
     title: props.data.title,
     provider,
@@ -537,7 +552,9 @@ function DefaultClientItem(props: {
 
 function DefaultClientBase(props: { name: string }): any {
   useClientRouter()
+
   const [count, setCount] = useState(0)
+
   defaultClientObservations.bases.set(props.name, {
     count,
     increment: () => setCount((value) => value + 1),
@@ -576,6 +593,7 @@ export function DefaultClientShell(): any {
   )
 
   const [selected, setSelected] = useState('left')
+
   defaultClientObservations.selectedTab = selected
   defaultClientObservations.selectTab = setSelected
   return (

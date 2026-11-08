@@ -42,12 +42,14 @@ const gap = (value: number | string | undefined) => {
     typeof value === 'string' && /^-?(?:\d+(?:\.\d*)?|\.\d+)px$/.test(value.trim())
       ? Number.parseFloat(value)
       : value
+
   return typeof number === 'number' && Number.isFinite(number) ? number : 8
 }
 
 const visible = (view: NSView) =>
   !['hidden', 'hiddenOrHasHiddenAncestor'].some((key) => {
     const value = Reflect.get(view, key)
+
     return Boolean(typeof value === 'function' ? value.call(view) : value)
   })
 
@@ -73,6 +75,7 @@ export function createAppKitPopoverOwner(
     canceled = false,
     updating = false,
     queued = false
+
   let observer: { live: boolean; stop?: () => void } | null = null
   const owns = (scope: Scope) => !disposed && current === scope && scope.live
   const valid = (scope: Scope) =>
@@ -83,12 +86,15 @@ export function createAppKitPopoverOwner(
     options.state().anchor === scope.anchor &&
     scope.anchor.window === scope.window &&
     visible(scope.anchor)
+
   const stop = () => {
     const previous = observer
+
     observer = null
     if (!previous) {
       return
     }
+
     previous.live = false
     try {
       previous.stop?.()
@@ -96,13 +102,16 @@ export function createAppKitPopoverOwner(
       console.warn('[macos-popover] observer removal failed')
     }
   }
+
   const retire = (scope = current) => {
     if (!scope) {
       return
     }
+
     if (current === scope) {
       current = null
     }
+
     scope.live = false
     scope.waiters = []
     try {
@@ -113,18 +122,24 @@ export function createAppKitPopoverOwner(
       }
     }
   }
+
   const observe = () => {
     if (observer || disposed) {
       return
     }
+
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter
+
     const add = center?.addObserverForNameObjectQueueUsingBlock,
       remove = center?.removeObserver
+
     if (typeof add !== 'function' || typeof remove !== 'function') {
       return
     }
+
     const owned = { live: true, stop: undefined as (() => void) | undefined }
+
     observer = owned
     try {
       const token = add.call(
@@ -136,7 +151,9 @@ export function createAppKitPopoverOwner(
           if (disposed || observer !== owned || !owned.live) {
             return
           }
+
           const anchor = options.state().anchor as NSView | null | undefined
+
           if (note.object === anchor?.window || note.object === current?.window) {
             update()
           }
@@ -174,8 +191,10 @@ export function createAppKitPopoverOwner(
       throw error
     }
   }
+
   const refresh = () => {
     const state = options.state()
+
     if (!state.open) {
       canceled = false
       try {
@@ -186,13 +205,16 @@ export function createAppKitPopoverOwner(
 
       return
     }
+
     if (canceled) {
       return
     }
+
     observe()
     if (disposed) {
       return
     }
+
     if (
       current &&
       (current.released ||
@@ -210,7 +232,9 @@ export function createAppKitPopoverOwner(
       options.dismiss()
       return
     }
+
     const anchor = state.anchor
+
     if (
       !anchor ||
       typeof anchor !== 'object' ||
@@ -220,26 +244,34 @@ export function createAppKitPopoverOwner(
       retire()
       return
     }
+
     const view = anchor as NSView
+
     if (!view.window || !visible(view)) {
       retire()
       return
     }
+
     if (current && current.anchor !== view) {
       retire()
     }
+
     if (disposed || !options.state().open || options.state().anchor !== view) {
       return
     }
+
     if (current) {
       current.handle?.update({}, { lightDismiss: state.lightDismiss })
       return
     }
+
     const host = bridge(),
       show = host?.showLayer
+
     if (typeof show !== 'function') {
       throw new Error('AppKit Popover requires the source-owned window-layer host')
     }
+
     const scope: Scope = {
       token: {},
       anchor: view,
@@ -252,6 +284,7 @@ export function createAppKitPopoverOwner(
       released: false,
       waiters: [],
     }
+
     current = scope // Claim before native acquisition or source publication.
     try {
       const handle: Layer | null =
@@ -268,8 +301,10 @@ export function createAppKitPopoverOwner(
             if (!valid(scope)) {
               return { left: 0, top: 0 }
             }
+
             const latest = options.state(),
               placement = latest.placement ?? 'bottom'
+
             return positionPopover(
               bounds,
               panel,
@@ -284,12 +319,14 @@ export function createAppKitPopoverOwner(
             if (valid(scope)) {
               options.publish({ token: scope.token, view: target })
             }
+
             return {
               render() {},
               whenCommitted(ready: () => void) {
                 if (!valid(scope)) {
                   return
                 }
+
                 if (scope.committed) {
                   ready()
                 } else {
@@ -300,6 +337,7 @@ export function createAppKitPopoverOwner(
                 if (scope.released) {
                   return
                 }
+
                 scope.released = true
                 scope.waiters = []
                 if (owns(scope)) {
@@ -312,6 +350,7 @@ export function createAppKitPopoverOwner(
             if (!owns(scope)) {
               return
             }
+
             if (scope.released || scope.handle?.closed) {
               canceled = true
               try {
@@ -380,10 +419,12 @@ export function createAppKitPopoverOwner(
       throw error
     }
   }
+
   const update = (): void => {
     if (disposed) {
       return
     }
+
     if (updating) {
       if (!queued) {
         queued = true
@@ -395,6 +436,7 @@ export function createAppKitPopoverOwner(
 
       return
     }
+
     updating = true
     try {
       refresh()
@@ -410,16 +452,21 @@ export function createAppKitPopoverOwner(
       updating = false
     }
   }
+
   return {
     update,
     isPresent: (): boolean => !!current?.handle && valid(current) && current.shown,
     committed(token: object): void {
       const scope = current
+
       if (!scope || scope.token !== token || !valid(scope)) {
         return
       }
+
       scope.committed = true
+
       const waiting = scope.waiters.splice(0)
+
       for (const ready of waiting) {
         if (!valid(scope)) {
           return
@@ -427,12 +474,15 @@ export function createAppKitPopoverOwner(
 
         ready()
       }
+
       if (!valid(scope) || !scope.handle) {
         return
       }
+
       if (!waiting.length) {
         scope.handle.update({})
       }
+
       if (valid(scope) && !scope.shown) {
         scope.handle.show()
         scope.shown = true
@@ -442,6 +492,7 @@ export function createAppKitPopoverOwner(
       if (disposed) {
         return
       }
+
       disposed = true
       try {
         retire()

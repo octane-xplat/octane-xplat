@@ -6,5 +6,6 @@ export function chatMessageRows(host: object): object[] {
   if (isChatRow(host)) {
     return [host]
   }
+
   return chatHost.children(host).flatMap(chatMessageRows)
 }

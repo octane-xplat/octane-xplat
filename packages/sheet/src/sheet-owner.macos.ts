@@ -33,40 +33,54 @@ export function createSheetOwner(deps: {
     handle?: SheetHandle
     committed: boolean
   }
+
   let view: object | null = null,
     session: Session | null = null,
     disposed = false
+
   let completed = false,
     scope = deps.props().id,
     status: SheetStatus = 'idle'
+
   const report = (next: SheetStatus) => {
     status = next
     if (!disposed) {
       deps.changed()
     }
   }
+
   const retire = () => {
     const old = session
+
     session = null
+
     const didPresent = old?.handle?.presented ?? false
+
     try {
       old?.handle?.close()
     } catch {}
+
     return didPresent
   }
+
   const update = () => {
     if (disposed) {
       return
     }
+
     const props = deps.props()
+
     if (scope !== props.id) {
       scope = props.id
       completed = false
       retire()
     }
+
     if (!props.open) {
       completed = false
+
       const didPresent = retire()
+
       if (status !== 'idle') {
         report('idle')
       }
@@ -77,15 +91,20 @@ export function createSheetOwner(deps: {
 
       return
     }
+
     if (!view || completed || session) {
       return
     }
+
     const current: Session = { view, scope, committed: false }
+
     session = current
+
     const terminal = (failed: boolean) => {
       if (disposed || session !== current || !current.handle) {
         return
       }
+
       completed = true
       retire()
       report(failed ? 'unavailable' : 'idle')
@@ -93,6 +112,7 @@ export function createSheetOwner(deps: {
         deps.props().onDismissed?.()
       }
     }
+
     try {
       const handle = deps.prepare()?.(view, {
         onDismissed: () => terminal(false),
@@ -122,12 +142,14 @@ export function createSheetOwner(deps: {
       }
     }
   }
+
   return {
     update,
     bind(next: object | null): void {
       if (disposed || view === next) {
         return
       }
+
       retire()
       view = next
       completed = false
@@ -138,19 +160,23 @@ export function createSheetOwner(deps: {
     commit(target: unknown): void {
       const current = session,
         props = deps.props()
+
       if (!current?.handle || current.committed || current.handle.target !== target) {
         return
       }
+
       if (!props.open || props.id !== current.scope) {
         update()
         return
       }
+
       current.committed = true
       try {
         if (current.handle.present()) {
           return
         }
       } catch {}
+
       if (session === current) {
         completed = true
         retire()

@@ -9,11 +9,16 @@ for (const name of ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'
 
 const ui = Microsoft.UI.Xaml
 const window = new ui.Window()
+
 window.Title = 'XplatShortcuts'
+
 const box = new ui.Controls.StackPanel()
 const button = new ui.Controls.Button()
+
 button.Content = 'Shortcut target'
+
 const editor = new ui.Controls.TextBox()
+
 box.Children.Append(button)
 box.Children.Append(editor)
 window.Content = box
@@ -32,6 +37,7 @@ setTimeout(() => {
     const shortcuts = createShortcuts({ target: box })
     const calls = []
     let recording
+
     shortcuts.setContext('editor.ready', true)
     shortcuts.bind({
       combo: 'Mod+KeyK',
@@ -73,9 +79,11 @@ setTimeout(() => {
           editor.Text === 'x' &&
           recording === 'Ctrl+Shift+x' &&
           observed > 0
+
         console.log(
           (passed ? 'SHORTCUTS_WINDOWS_OK ' : 'SHORTCUTS_WINDOWS_FAIL ') + JSON.stringify(result),
         )
+
         shortcuts.dispose()
         releaseObserver()
         button.Focus(ui.FocusState.Programmatic)

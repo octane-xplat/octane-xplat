@@ -40,6 +40,7 @@ export function createCssPseudoState(deps: Dependencies) {
    *  unsubscribe for destroy. */
   function observePseudoHover(node: ElementNode) {
     const view = node.view!
+
     if (
       typeof view.addTrackingArea !== 'function' ||
       typeof NSTrackingArea === 'undefined' ||
@@ -54,6 +55,7 @@ export function createCssPseudoState(deps: Dependencies) {
       deps.hover.hoverTrackingTarget,
       null,
     )
+
     if (!area) {
       return () => {}
     }
@@ -67,6 +69,7 @@ export function createCssPseudoState(deps: Dependencies) {
         deps.cssCascade.setPseudoClass(node, 'hover', false)
       },
     })
+
     return () => {
       deps.hover.hoverRecordsByArea.delete(area)
       try {
@@ -91,12 +94,15 @@ export function createCssPseudoState(deps: Dependencies) {
    *  pseudo change, matching NS updateDynamicState. */
   function syncPseudoState(node: ElementNode) {
     const view = node.view
+
     if (!view) {
       return
     }
+
     if (node.type === 'switch') {
       deps.cssCascade.setPseudoClass(node, 'checked', Number(view.state) === 1)
     }
+
     deps.cssCascade.syncNormalState(node)
   }
 
@@ -105,19 +111,24 @@ export function createCssPseudoState(deps: Dependencies) {
    *  registration. */
   function syncPseudoTracking(node: ElementNode) {
     const view = node.view
+
     if (!view) {
       return
     }
+
     const used = stylesheetPseudoClasses()
+
     if (used.has('hover') && !node.cssHoverDispose) {
       node.cssHoverDispose = observePseudoHover(node)
     }
+
     if (
       (used.has('active') || used.has('pressed') || used.has('highlighted')) &&
       !node.cssStateRecognizer
     ) {
       setVisualStateTracking(node, (pressed) => syncPressedState(node, pressed))
     }
+
     syncPseudoState(node)
   }
 
@@ -126,21 +137,27 @@ export function createCssPseudoState(deps: Dependencies) {
    *  other responder resolves up the superview chain to an owned view. */
   function focusedCssNode(container: RootContainer): ElementNode | null {
     const responder: any = container.hostView?.window?.firstResponder
+
     if (!responder) {
       return null
     }
+
     for (let view = responder; view; view = view.superview) {
       const node = deps.registry.cssNodesByView.get(view)
+
       if (node) {
         return node
       }
     }
+
     for (let view = responder.delegate; view; view = view?.superview) {
       const node = deps.registry.cssNodesByView.get(view)
+
       if (node) {
         return node
       }
     }
+
     return null
   }
 
@@ -161,14 +178,17 @@ export function createCssPseudoState(deps: Dependencies) {
         focused.type === 'searchbar' ||
         Number(window?.keyViewSelectionDirection) !== 0 ||
         cssInputModality === 'keyboard')
+
     const prev = container.cssFocusChain ?? []
     const next: ElementNode[] = []
+
     if (focused) {
       next.push(focused)
       for (let p = focused.parent; p; p = p.parent) {
         next.push(p)
       }
     }
+
     if (
       container.cssFocusVisible === keyboard &&
       prev.length === next.length &&
@@ -176,19 +196,23 @@ export function createCssPseudoState(deps: Dependencies) {
     ) {
       return
     }
+
     for (const old of prev) {
       deps.cssCascade.setPseudoClass(old, 'focus', false)
       deps.cssCascade.setPseudoClass(old, 'focus-visible', false)
       deps.cssCascade.setPseudoClass(old, 'focus-within', false)
     }
+
     if (focused) {
       deps.cssCascade.setPseudoClass(focused, 'focus', true)
       deps.cssCascade.setPseudoClass(focused, 'focus-visible', keyboard)
       deps.cssCascade.setPseudoClass(focused, 'focus-within', true)
     }
+
     for (const ancestor of next.slice(1)) {
       deps.cssCascade.setPseudoClass(ancestor, 'focus-within', true)
     }
+
     container.cssFocusChain = next
     container.cssFocusVisible = keyboard
   }
@@ -209,6 +233,7 @@ export function createCssPseudoState(deps: Dependencies) {
     if (cssModalityObserved) {
       return
     }
+
     cssModalityObserved = true
     deps.subscriptions.keyboardDispatcher.observe((event) => {
       if (
@@ -218,6 +243,7 @@ export function createCssPseudoState(deps: Dependencies) {
         cssInputModality = 'keyboard'
       }
     })
+
     deps.subscriptions.contextPointerDispatcher.observe((event) => {
       if (event.type === 1 || event.type === 3 || event.type === 25) {
         cssInputModality = 'pointer'
@@ -233,10 +259,13 @@ export function createCssPseudoState(deps: Dependencies) {
     if (focusObserverInstalled || typeof NSNotificationCenter === 'undefined') {
       return
     }
+
     const center = NSNotificationCenter.defaultCenter
+
     if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
       return
     }
+
     try {
       const token = center.addObserverForNameObjectQueueUsingBlock(
         NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
@@ -262,22 +291,28 @@ export function createCssPseudoState(deps: Dependencies) {
    *  before registration pick tracking up late. */
   function syncContainerPseudoState(container: RootContainer) {
     const used = stylesheetPseudoClasses()
+
     if (used.has('focus') || used.has('focus-visible') || used.has('focus-within')) {
       installFocusObserver()
     }
+
     if (used.has('focus-visible')) {
       installCssModalityObserver()
     }
+
     for (const node of container.nodes.values()) {
       syncPseudoTracking(node)
     }
+
     for (const entry of container.portalTargets.values()) {
       syncPseudoTracking(entry.root)
     }
+
     if (focusObserverInstalled) {
       syncContainerFocus(container)
     }
   }
+
   return {
     syncPseudoState,
     syncPseudoTracking,

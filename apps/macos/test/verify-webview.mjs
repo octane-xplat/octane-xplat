@@ -15,10 +15,14 @@ import {
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
+
 await mkdir(scratch, { recursive: true })
+
 const directory = await mkdtemp(join(scratch, 'macos-webview-'))
 const bootstrap = join(directory, 'bootstrap.js')
+
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+
 const config = await createMacOSConfig({
   packaged: true,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
@@ -26,13 +30,16 @@ const config = await createMacOSConfig({
 
 const first = join(directory, 'first.html')
 const second = join(directory, 'second.html')
+
 await writeFile(first, '<html><body style="height:800px">first</body></html>')
 await writeFile(second, '<html><body style="height:1000px">second</body></html>')
+
 const urls = [first, second, join(directory, 'missing.html')].map(
   (file) => pathToFileURL(file).href,
 )
 
 const entry = join(directory, 'main.mjs')
+
 await writeFile(
   entry,
   [
@@ -55,10 +62,15 @@ await build({
 })
 
 const bundle = join(directory, 'fixture.cjs')
+
 await validateHostBundle(bundle, appRoot)
+
 const appBundle = join(directory, 'WebViewFixture.app/Contents')
+
 await mkdir(join(appBundle, 'MacOS'), { recursive: true })
+
 const executable = join(appBundle, 'MacOS/Fixture')
+
 await copyFile(await macOSExecutable(appRoot, 'macos/host'), executable)
 await writeFile(
   join(appBundle, 'Info.plist'),
@@ -82,6 +94,7 @@ const result = spawnSync(
 )
 
 const output = result.stdout + result.stderr
+
 assert.equal(result.status, 0, output)
 assert.doesNotMatch(output, /WEBVIEW_FIXTURE_FAIL|uncaught render error/)
 assert.match(output, /WEBVIEW_RUNTIME_OK/)

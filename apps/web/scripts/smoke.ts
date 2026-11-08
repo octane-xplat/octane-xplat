@@ -12,6 +12,7 @@ const PORT = 4319
 const BASE = `http://localhost:${PORT}`
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -55,6 +56,7 @@ const previewReady = new Promise((resolve, reject) => {
 
   const collect = (chunk) => {
     const output = String(chunk)
+
     previewOutput += output
     if (output.includes('Local')) {
       settlePreview()
@@ -86,7 +88,9 @@ try {
   await previewReady
   await new Promise((resolve) => setTimeout(resolve, 500))
   browser = await browserType.launch()
+
   const page = await browser.newPage()
+
   page.on('pageerror', (e) => errors.push(`pageerror @${page.url()}: ${e.stack ?? e.message}`))
   page.on('console', (m) => m.type() === 'error' && errors.push('console.error: ' + m.text()))
 
@@ -100,6 +104,7 @@ try {
   // consumes it alongside a framework class with a conflicting direction.
   const bambooCardStyle = await page.locator('#bamboo-card').evaluate((el) => {
     const style = getComputedStyle(el)
+
     return {
       backgroundColor: style.backgroundColor,
       borderRadius: style.borderTopLeftRadius,
@@ -126,6 +131,7 @@ try {
 
   // Pressable has an accessible button name and responds to pointer + keys.
   const increment = page.getByRole('button', { name: 'Increment' })
+
   ok('increment exposes button role and name', (await increment.count()) === 1)
   await increment.click()
   await page.waitForSelector('text=Count: 1', { timeout: 3000 })
@@ -141,19 +147,27 @@ try {
 
   // TextArea leaf: real <textarea>, controlled round-trip, autoGrow re-fit.
   await page.waitForSelector('#probe-textarea', { timeout: 5000 })
+
   const taH0 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight)
+
   await page.fill('#probe-textarea', 'line one\nline two\nline three')
+
   const taVal = await page.evaluate(() => document.getElementById('probe-textarea').value)
+
   ok('textarea controlled input', taVal === 'line one\nline two\nline three')
   await page.waitForTimeout(100)
+
   const taH1 = await page.evaluate(() => document.getElementById('probe-textarea').offsetHeight)
+
   ok('textarea autoGrow expands', taH1 > taH0, taH0 + '→' + taH1)
 
   // Multi-child Pressable (native regression parity) — lives on the
   // Probes tab: label + sibling views inside the pressable element.
   await page.getByRole('tab', { name: 'Test' }).click()
   await page.waitForSelector('#multi-pressable', { timeout: 3000 })
+
   const mp = page.locator('#multi-pressable')
+
   ok('pressable multi-child label', (await mp.locator('text=Multi').count()) === 1)
   ok('pressable multi-child sibling', (await mp.locator('#multi-sibling').count()) === 1)
 
@@ -162,9 +176,11 @@ try {
   await page.click('#menu-motion-probe')
   await page.waitForSelector('#motion-destination', { timeout: 3000 })
   ok('motion probe mounts', true)
+
   const destinationX = () =>
     page.locator('#motion-destination').evaluate((el) => {
       const transform = getComputedStyle(el).transform
+
       return transform === 'none' ? 0 : new DOMMatrixReadOnly(transform).m41
     })
 
@@ -179,11 +195,14 @@ try {
   )
 
   let x = await destinationX()
+
   ok('motion tween reaches destination', Math.abs(x - 100) <= 1, `x=${x.toFixed(1)}`)
 
   await page.click('#motion-tween-to')
   await page.waitForTimeout(120)
+
   const interruptedAt = await destinationX()
+
   ok(
     'motion tween is in flight before retarget',
     interruptedAt > -100 && interruptedAt < 100,
@@ -214,17 +233,22 @@ try {
   ok('MotionValue cancellation resolves as cancelled', true)
 
   const panRow = page.locator('#motion-pan-row')
+
   await panRow.scrollIntoViewIfNeeded()
+
   const panBox = await panRow.boundingBox()
+
   if (!panBox) {
     throw new Error('motion pan row has no browser bounds')
   }
 
   const panStart = { x: panBox.x + panBox.width / 2, y: panBox.y + panBox.height / 2 }
+
   await page.mouse.move(panStart.x, panStart.y)
   await page.mouse.down()
   await page.mouse.move(panStart.x + 72, panStart.y, { steps: 4 })
   await page.mouse.up()
+
   const panEnded = await page
     .waitForFunction(
       () =>
@@ -241,6 +265,7 @@ try {
 
   const panEndStatus = await page.locator('#motion-pan-status').innerText()
   const releaseVelocity = Number(panEndStatus.match(/vx=(-?\d+)/)?.[1] ?? 0)
+
   ok(
     'pan begin/move/end settles with release velocity',
     panEnded && releaseVelocity > 0,
@@ -266,6 +291,7 @@ try {
   await page.evaluate(
     ({ x, y }) => {
       const row = document.querySelector('#motion-pan-row')
+
       row.dispatchEvent(
         new PointerEvent('pointercancel', {
           bubbles: true,
@@ -281,6 +307,7 @@ try {
   )
 
   await page.mouse.up()
+
   const panCancelled = await page
     .waitForFunction(
       () =>
@@ -296,9 +323,11 @@ try {
     )
 
   const panCancelStatus = await page.locator('#motion-pan-status').innerText()
+
   ok('pan cancellation settles back to origin', panCancelled, panCancelStatus)
 
   const presenceCard = page.locator('#motion-presence-card')
+
   await presenceCard.evaluate((el) => {
     el.dataset.browserIdentity = 'motion-presence-original'
   })
@@ -313,8 +342,10 @@ try {
 
   await page.click('#motion-presence-toggle')
   await page.waitForTimeout(120)
+
   const exitingPresence = await page.evaluate(() => {
     const card = document.querySelector('#motion-presence-card')
+
     return {
       identity: card?.dataset.browserIdentity,
       count: document.querySelector('#motion-presence-count')?.textContent,
@@ -360,18 +391,24 @@ try {
   await page.getByRole('tab', { name: 'Apps' }).click()
   await page.waitForSelector('text=Last opened:', { timeout: 3000 })
   ok('tab switch → demos catalog mounts', true)
+
   const chipCount = await page.getByRole('button', { name: 'Counter', exact: true }).count()
+
   ok('gallery chips render', chipCount >= 1, 'chips=' + chipCount)
 
   // Chip click → navigate('demo/:id',{id},{into:'demos'}) → real path +
   // the pushed screen renders inside the Demos pane (tab bar stays).
   await page.getByRole('button', { name: 'Counter', exact: true }).click()
   await page.waitForFunction(() => location.pathname.includes('demo'), null, { timeout: 3000 })
+
   const path = await page.evaluate(() => location.pathname + location.search)
+
   ok('chip → router.push writes real path', path === '/@demos/demo/counter', path)
   await page.waitForSelector('text=Demo count: 0', { timeout: 3000 })
   ok('pushed screen renders inside pane', true)
+
   const tabbarVisible = await page.locator('.vx-tabbar').isVisible()
+
   ok('tab bar stays visible (nested-route semantics)', tabbarVisible)
   // goBack → history.back → URL + pane revert to gallery.
   await page.click('text=← Back')
@@ -393,6 +430,7 @@ try {
   )
 
   const lottieStatus = await page.locator('.lottie-demo-status').innerText()
+
   ok(
     'Lottie Web loads the shared animation into SVG',
     (await page.locator('.lottie-demo-anim svg').count()) === 1 &&
@@ -428,9 +466,12 @@ try {
 
   const virtualList = page.locator('#vlist')
   let mountedRows = await virtualList.locator('.vx-virtual-list-row').count()
+
   ok('VirtualList bounds mounted rows', mountedRows > 1 && mountedRows < 40, mountedRows + '/500')
+
   const slots = await virtualList.evaluate((list) => {
     const separators = Array.from(list.querySelectorAll('.vx-virtual-list-separator'))
+
     return {
       header: list
         .querySelector('.vx-virtual-list-header')
@@ -468,6 +509,7 @@ try {
       const list = document.getElementById('vlist')
       const row15 = document.getElementById('row-r15')
       const anchor = document.getElementById('row-r20')
+
       return (
         list &&
         row15 &&
@@ -483,6 +525,7 @@ try {
   const before = await page.evaluate(() => {
     const list = document.getElementById('vlist')
     const row = document.getElementById('row-r20')
+
     return {
       anchorTop: row.getBoundingClientRect().top - list.getBoundingClientRect().top,
       rowHeight: document.getElementById('row-r15').getBoundingClientRect().height,
@@ -500,6 +543,7 @@ try {
     (anchorTop) => {
       const list = document.getElementById('vlist')
       const row = document.getElementById('row-r20')
+
       return (
         Math.abs(row.getBoundingClientRect().top - list.getBoundingClientRect().top - anchorTop) <=
         2
@@ -511,6 +555,7 @@ try {
 
   const after = await page.evaluate(() => {
     const list = document.getElementById('vlist')
+
     return {
       anchorTop:
         document.getElementById('row-r20').getBoundingClientRect().top -
@@ -580,9 +625,11 @@ try {
 
   // Root push (Detail →) covers the whole shell.
   await page.getByRole('tab', { name: 'Home' }).click()
+
   const detailLink = page.getByRole('link', { name: 'Detail →' })
   const detailHref = await detailLink.getAttribute('href')
   const timeOrigin = await page.evaluate(() => performance.timeOrigin)
+
   ok('NavLink renders a real href', detailHref === '/detail?from=home', detailHref)
   await page.click('text=Detail →')
   await page.waitForFunction(() => location.pathname === '/detail', null, { timeout: 3000 })
@@ -602,6 +649,7 @@ try {
   ok('useCanGoBack renders the back affordance', (await page.locator('#detail-back').count()) === 1)
 
   const tabsCovered = !(await page.locator('.vx-tabbar').isVisible())
+
   ok('root route covers tab shell', tabsCovered)
   await page.goBack({ waitUntil: 'commit' })
   await page.waitForSelector('.vx-tabbar', { timeout: 3000 })
@@ -617,6 +665,7 @@ try {
 
   // Settings tab: sheet seam mounts a real portal layer; backdrop dismisses.
   const logs = []
+
   page.on('console', (m) => logs.push(m.text()))
   await page.getByRole('tab', { name: 'Test' }).click()
   await page.click('text=Open sheet')
@@ -644,6 +693,7 @@ try {
   )
 
   const sqliteResult = await page.locator('#sqlite-probe').innerText()
+
   ok('built SQLite worker and WASM complete the Services round-trip', true, sqliteResult)
 
   // Seam-proof chips push into the Test pane's own stack (/@test/...).
@@ -684,15 +734,19 @@ try {
   // positional + anchored toasts.
   await page.goto(BASE + '/@test/demo/overlay', { waitUntil: 'networkidle' })
   await page.waitForSelector('text=Overlay primitives', { timeout: 5000 })
+
   const echo = await page.locator('#measure-echo').innerText()
+
   ok('useMeasure reports bounds', /^Bounds \d+×\d+ @ \d+,\d+$/.test(echo), echo)
   await page.hover('text=HoverCard trigger')
   await page.waitForSelector('text=Hint card text', { timeout: 3000 })
   ok('HoverCard opens on hover intent', true)
   await page.getByText('Tooltip trigger', { exact: true }).filter({ visible: true }).hover()
   await page.waitForSelector('[role="tooltip"]:has-text("Saved automatically")', { timeout: 3000 })
+
   const described = page.locator('[aria-describedby]')
   const tipId = await page.locator('[role="tooltip"]').getAttribute('id')
+
   ok(
     'tooltip opens on hover intent + aria-describedby wiring',
     (await described.count()) === 1 && (await described.getAttribute('aria-describedby')) === tipId,
@@ -718,6 +772,7 @@ try {
   // A backgrounded page can mount Services after its initial document state
   // is already hidden. useAppState must report that state on first render.
   const hiddenPage = await browser.newPage()
+
   hiddenPage.on('pageerror', (e) =>
     errors.push(`pageerror @${hiddenPage.url()}: ${e.stack ?? e.message}`),
   )
@@ -758,5 +813,6 @@ try {
 }
 
 const fails = results.filter(([c]) => !c).length
+
 console.log(`[smoke] ${results.length - fails}/${results.length} passed`)
 process.exit(fails ? 1 : 0)

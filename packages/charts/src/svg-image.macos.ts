@@ -10,6 +10,7 @@ declare const NSString: {
 
 export function svgDataUri(markup: string): string {
   const data = NSString.stringWithString(markup).dataUsingEncoding(4) // NSUTF8StringEncoding
+
   if (!data) {
     throw new Error('Unable to encode SVG as UTF-8')
   }

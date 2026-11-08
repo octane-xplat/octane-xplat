@@ -1,7 +1,9 @@
 // Keep public declarations separate from PostCSS implementation imports: consumers
 // can resolve a different compatible PostCSS patch through Vite.
 import type { CssPlatform } from './css-platform.types.ts'
+
 export type { CssPlatform } from './css-platform.types.ts'
+
 import type { Plugin, UserConfig } from 'vite'
 
 /** Select platform CSS siblings and compile build-time `@platform` blocks.

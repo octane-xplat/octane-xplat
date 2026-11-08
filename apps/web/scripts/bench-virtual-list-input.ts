@@ -5,6 +5,7 @@ import { chromium } from 'playwright'
 const mode = process.argv[2] ?? 'variable'
 const durationMs = Number(process.env.XPLAT_VLIST_INPUT_MS ?? 15_000)
 const disposalCycles = Number(process.env.XPLAT_VLIST_DISPOSAL_CYCLES ?? 3)
+
 if (!Number.isSafeInteger(disposalCycles) || disposalCycles < 0 || disposalCycles > 100) {
   throw new Error('XPLAT_VLIST_DISPOSAL_CYCLES must be an integer from 0 to 100')
 }
@@ -28,6 +29,7 @@ let previewOutput = ''
 let baseUrl
 let browser
 let memoryTimer
+
 try {
   await new Promise((resolve, reject) => {
     const timeout = setTimeout(
@@ -56,19 +58,24 @@ try {
   })
 
   browser = await chromium.launch()
+
   const page = await browser.newPage({ viewport: { width: 1100, height: 800 } })
   const pageErrors = []
+
   page.on('pageerror', (error) => pageErrors.push(error.message))
   await page.goto(baseUrl, { waitUntil: 'networkidle' })
   await page.locator('button:text("Test")').click()
   await page.locator('#menu-vlist-perf').click()
+
   const list = page.locator('#vlist-bench-list')
+
   await list.waitFor({ state: 'visible', timeout: 10_000 })
   if (mode === 'fixed48') {
     await page.locator('#vlist-bench-height-mode').click()
     await page.waitForFunction(
       () => {
         const rows = [...document.querySelectorAll('#vlist-bench-list [id^="vlist-bench-row-"]')]
+
         return (
           rows.length > 0 &&
           rows.every((row) => Math.abs(row.getBoundingClientRect().height - 48) < 0.5)
@@ -82,9 +89,11 @@ try {
   await page.waitForTimeout(500)
 
   const cdp = await page.context().newCDPSession(page)
+
   await cdp.send('Runtime.enable')
   await cdp.send('HeapProfiler.enable')
   await cdp.send('HeapProfiler.collectGarbage')
+
   const heapBefore = await cdp.send('Runtime.getHeapUsage')
   const domBefore = await cdp.send('Memory.getDOMCounters').catch(() => null)
   const memoryStartedAt = Date.now()
@@ -102,6 +111,7 @@ try {
     try {
       const heap = await cdp.send('Runtime.getHeapUsage')
       const dom = await cdp.send('Memory.getDOMCounters').catch(() => null)
+
       memorySamples.push({
         atMs: Date.now() - memoryStartedAt,
         phase,
@@ -118,6 +128,7 @@ try {
   }, 30_000)
 
   const box = await list.boundingBox()
+
   if (!box) {
     throw new Error('VirtualList benchmark did not have a visible bounds box')
   }
@@ -126,6 +137,7 @@ try {
   const y = box.y + Math.min(box.height - 40, 300)
   const initial = await page.evaluate(() => {
     const list = document.querySelector('#vlist-bench-list')
+
     return {
       viewportHeight: list?.clientHeight ?? 0,
       contentHeight: list?.scrollHeight ?? 0,
@@ -175,6 +187,7 @@ try {
 
         let coveredUntil = rect.top
         let gap = 0
+
         for (const row of rows) {
           if (row.top > coveredUntil + 1) {
             gap += row.top - coveredUntil
@@ -209,6 +222,7 @@ try {
 
   const startedAt = Date.now()
   let inputRound = 0
+
   while (Date.now() - startedAt < durationMs) {
     inputRound += 1
     for (const direction of [1, -1]) {
@@ -234,12 +248,16 @@ try {
   await page.waitForTimeout(500)
   clearInterval(memoryTimer)
   await sampleMemory('pre-gc')
+
   const trace = await page.evaluate((inputRounds) => {
     const trace = window.__vlistInputTrace
+
     trace.stop = true
+
     const phases = [...new Set(trace.samples.map((sample) => sample.phase))]
     const percentile = (values, p) => {
       const sorted = [...values].sort((a, b) => a - b)
+
       return sorted.length
         ? Number(
             sorted[Math.min(sorted.length - 1, Math.floor((sorted.length - 1) * p))].toFixed(2),
@@ -256,8 +274,10 @@ try {
 
       let directionChanges = 0
       let previousDirection = 0
+
       for (const delta of deltas) {
         const direction = Math.sign(delta)
+
         if (previousDirection && previousDirection !== direction) {
           directionChanges += 1
         }
@@ -279,6 +299,7 @@ try {
     }
 
     const frames = trace.frames.map((sample) => sample.ms)
+
     return {
       durationMs: Number((performance.now() - trace.start).toFixed(1)),
       sampleCount: trace.samples.length,
@@ -305,8 +326,10 @@ try {
   }, inputRound)
 
   await cdp.send('HeapProfiler.collectGarbage')
+
   const heapAfter = await cdp.send('Runtime.getHeapUsage')
   const domAfter = await cdp.send('Memory.getDOMCounters').catch(() => null)
+
   memorySamples.push({
     atMs: Date.now() - memoryStartedAt,
     phase: 'after-gc',

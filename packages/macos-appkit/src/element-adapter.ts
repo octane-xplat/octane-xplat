@@ -38,12 +38,15 @@ export function createElementAdapterCatalog() {
       }),
     )
   }
+
   function lookup(type: string): ElementAdapter | undefined {
     return definitions.get(type)
   }
+
   function entries(): ReadonlyArray<readonly [string, ElementAdapter]> {
     return [...definitions.entries()]
   }
+
   return { register, lookup, entries }
 }
 

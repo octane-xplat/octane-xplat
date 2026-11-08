@@ -1,4 +1,5 @@
 import type { AppDebugSocket } from './dev-bridge-socket'
+
 // Dev-bridge endpoint discovery — web. The app is served by the vite dev
 // server that hosts the bridge middleware, so the endpoint is same-origin.
 // The token arrives through the dev-only __XPLAT_DEV_BRIDGE__ define injected
@@ -26,6 +27,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
       : ((globalThis as any).__XPLAT_DEV_BRIDGE__ as
           | { token?: string; socket?: string; instanceId?: string; targetId?: string }
           | undefined)
+
   const origin =
     (globalThis as any).location?.origin ??
     (typeof token?.socket === 'string'
@@ -54,5 +56,6 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 export function devBridgeSocket(url: string): AppDebugSocket | undefined {
   const Constructor = (globalThis as unknown as { WebSocket?: new (url: string) => AppDebugSocket })
     .WebSocket
+
   return Constructor ? new Constructor(url) : undefined
 }

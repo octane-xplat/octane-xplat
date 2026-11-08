@@ -9,6 +9,7 @@ import {
 
 import { InternationalizationProvider } from '../../ui/src/components/forms/InternationalizationProvider.tsrx'
 import { Pager } from './Pager.macos.tsrx'
+
 // Exercise the real AppKit viewport without selecting the mobile UI barrel in
 // this package's existing native test configuration. Production resolution is a
 // separate deferred gate; this mock does not establish it.
@@ -35,6 +36,7 @@ function mount(extra: any = {}) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name: string, object: any, _: any, callback: any) {
         const token = {}
+
         observers.set(token, { name, object, callback })
         return token
       },
@@ -71,6 +73,7 @@ function mount(extra: any = {}) {
 
   driver.getPublicInstance = (container, id) => {
     const host: any = instance(container, id)
+
     if (host.type === 'scrollview') {
       Object.assign(host, {
         window,
@@ -103,6 +106,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -180,6 +184,7 @@ it('composes real AppKit scrolling, full-host pages, metadata and default placem
 
 it('reports settled user changes once, restores rejected controlled pages, and does not echo programmatic writes', async () => {
   const f = mount({ page: 0 })
+
   try {
     await vi.waitFor(() => {
       f.notify()
@@ -206,6 +211,7 @@ it('reports settled user changes once, restores rejected controlled pages, and d
 
 it('current direction, resize and reduced motion update logical placement and empty content releases observers', async () => {
   const f = mount({ page: 0 })
+
   try {
     await vi.waitFor(() => {
       f.notify()
@@ -220,6 +226,7 @@ it('current direction, resize and reduced motion update logical placement and em
     })
 
     const animated = f.animations.length
+
     f.render({ ...f.base, page: 2, dir: 'rtl' })
     f.notify()
     expect(f.clip.bounds.origin.x).toBe(0)
@@ -242,6 +249,7 @@ it('current direction, resize and reduced motion update logical placement and em
 
 it('unmount cancels queued user work and old viewport callbacks', async () => {
   const f = mount()
+
   await vi.waitFor(() => {
     f.notify()
     expect(f.pages()[0].props.style.width).toBe(100)
@@ -250,9 +258,13 @@ it('unmount cancels queued user work and old viewport callbacks', async () => {
   vi.useFakeTimers()
   f.clip.bounds.origin.x = 170
   f.user()
+
   const callbacks = [...f.observers.values()]
+
   f.root.unmount()
+
   const writes = f.writes.length
+
   await vi.advanceTimersByTimeAsync(200)
   callbacks.forEach((o) => o.callback({ object: o.object }))
   expect(f.writes.length).toBe(writes)

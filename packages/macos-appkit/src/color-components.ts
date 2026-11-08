@@ -26,6 +26,7 @@ export function srgbComponents(color: any, appearance?: any): SRGBComponents | n
 
   return withDrawingAppearance(appearance, () => {
     const rgb = color.colorUsingColorSpace((globalThis as any).NSColorSpace.sRGBColorSpace)
+
     // Pattern colors and other colors without an sRGB equivalent convert to
     // nil; never fall back to reading components on the unconverted color.
     if (!rgb) {

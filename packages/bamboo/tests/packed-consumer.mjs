@@ -20,6 +20,7 @@ const repo = resolve(root, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-bamboo-consumer-'))
 const run = (cmd, args, cwd) => {
   const result = spawnSync(cmd, args, { cwd, encoding: 'utf8' })
+
   if (result.status !== 0) {
     throw new Error(result.stdout + result.stderr)
   }
@@ -29,8 +30,11 @@ try {
   mkdirSync(join(temporary, 'pack'))
   mkdirSync(join(temporary, 'unpacked'))
   run('bun', ['pm', 'pack', '--destination', join(temporary, 'pack')], root)
+
   const tarball = readdirSync(join(temporary, 'pack')).find((name) => name.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(temporary, 'pack', tarball), '-C', join(temporary, 'unpacked')], root)
+
   const packed = join(temporary, 'unpacked/package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
 
@@ -50,6 +54,7 @@ try {
   for (const resolution of ['bundler', 'nodenext']) {
     const app = join(temporary, resolution)
     const modules = join(app, 'node_modules')
+
     mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
     cpSync(packed, join(modules, '@octane-xplat/bamboo'), { recursive: true })
     for (const dep of ['preset-base', 'types', 'vite']) {
@@ -103,7 +108,9 @@ void plugins; void layers
   // Install tarballs outside the workspace. A symlink back to src/ would
   // bypass Node's refusal to strip TypeScript below node_modules.
   const app = join(temporary, 'runtime')
+
   mkdirSync(app)
+
   const dependencies = {
     '@octane-xplat/bamboo': `file:${join(temporary, 'pack', tarball)}`,
     vite: '8.3.0',
@@ -111,14 +118,18 @@ void plugins; void layers
   }
 
   const overrides = {}
+
   // Pack lib too: cli's dist imports ./server-boundary, a subpath the last
   // published @octane-xplat/lib does not export.
   for (const directory of ['cli', 'create', 'docs-search', 'lint', 'lib']) {
     const pack = join(temporary, directory)
+
     mkdirSync(pack)
     run('bun', ['pm', 'pack', '--destination', pack], join(repo, 'packages', directory))
+
     const archive = readdirSync(pack).find((name) => name.endsWith('.tgz'))
     const name = JSON.parse(readFileSync(join(repo, 'packages', directory, 'package.json'))).name
+
     overrides[name] = `file:${join(pack, archive)}`
   }
 

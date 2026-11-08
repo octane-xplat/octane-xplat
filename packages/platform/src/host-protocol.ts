@@ -144,6 +144,7 @@ export function createHostClient<Services extends object, Events extends object 
 
   const removeListener = transport.listen((message) => {
     let packet: HostMessage
+
     try {
       packet = JSON.parse(message) as HostMessage
     } catch {
@@ -154,6 +155,7 @@ export function createHostClient<Services extends object, Events extends object 
 
     if (packet.type === 'reply') {
       const task = pending.get(packet.id)
+
       if (!task) {
         return
       }
@@ -180,10 +182,12 @@ export function createHostClient<Services extends object, Events extends object 
 
     const id = ++nextId
     const promise = new Promise<unknown>((resolve, reject) => pending.set(id, { resolve, reject }))
+
     try {
       transport.postMessage(JSON.stringify({ ...value, id }))
     } catch (error) {
       const task = pending.get(id)
+
       pending.delete(id)
       task?.reject(error instanceof Error ? error : new Error(String(error)))
     }
@@ -203,6 +207,7 @@ export function createHostClient<Services extends object, Events extends object 
     on(name, listener) {
       const eventListeners = listeners.get(name) ?? new Set()
       const receive = listener as (payload: unknown) => void
+
       eventListeners.add(receive)
       listeners.set(name, eventListeners)
       return () => {
@@ -241,6 +246,7 @@ export function createHostDispatcher<Services extends object, Events extends obj
     /** Route one serialized request to a service method and reply on the port. */
     async dispatch(message: string): Promise<void> {
       const request = JSON.parse(message) as HostRequest
+
       if (request.type === 'capabilities') {
         const capabilities = Object.fromEntries(
           Object.entries(services).map(([name, methods]) => [name, Object.keys(methods)]),
@@ -252,14 +258,17 @@ export function createHostDispatcher<Services extends object, Events extends obj
 
       try {
         const method = (services as HostServiceMap)[request.service]?.[request.method]
+
         if (typeof method !== 'function') {
           throw new Error(`desktop host has no ${request.service}.${request.method} service`)
         }
 
         const value = await method(...request.args)
+
         port.reply(JSON.stringify({ type: 'reply', id: request.id, ok: true, value }))
       } catch (error) {
         const message = error instanceof Error ? error.message : String(error)
+
         port.reply(JSON.stringify({ type: 'reply', id: request.id, ok: false, error: message }))
       }
     },

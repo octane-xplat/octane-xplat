@@ -5,10 +5,13 @@
   const failed = []
   let checks = 0
   const errors = []
+
   addEventListener('error', (event) => errors.push(event.message))
   addEventListener('unhandledrejection', (event) => errors.push(String(event.reason)))
+
   const wait = async (predicate, description = 'condition') => {
     const deadline = Date.now() + 5000
+
     while (Date.now() < deadline) {
       if (predicate()) {
         return
@@ -35,6 +38,7 @@
 
   const click = (selector) => {
     const element = document.querySelector(selector)
+
     if (!element) {
       throw new Error(`missing element: ${selector}`)
     }
@@ -63,11 +67,13 @@
 
     await check('textarea', async () => {
       const field = document.querySelector('#probe-textarea')
+
       if (!field) {
         throw new Error('missing textarea')
       }
 
       const before = field.offsetHeight
+
       field.value = 'line one\nline two\nline three'
       field.dispatchEvent(new Event('input', { bubbles: true }))
       await wait(() => field.offsetHeight > before && field.value.includes('line three'))
@@ -133,6 +139,7 @@
     })
 
     let editor
+
     await check('navigation-confirmation-holds', async () => {
       click('[role="tab"][data-tab-value="test"]')
       await wait(() => document.querySelector('#menu-navigation-blocking'), 'confirmation menu')
@@ -143,17 +150,20 @@
           document.querySelector('#navigation-blocking'),
         'confirmation editor',
       )
+
       editor = document.querySelector('#navigation-blocking')
       click('#navigation-blocking-edit')
       await wait(
         () => document.querySelector('#navigation-blocking-dirty')?.textContent === 'Unsaved draft',
         'dirty draft',
       )
+
       click('#navigation-blocking-back')
       await wait(
         () => document.querySelector('#navigation-blocking-status')?.textContent === 'blocked',
         'blocked confirmation',
       )
+
       if (
         location.pathname !== '/test/navigation-blocking' ||
         document.querySelector('#navigation-blocking') !== editor
@@ -167,6 +177,7 @@
       await wait(
         () => document.querySelector('#navigation-blocking-status')?.textContent === 'idle',
       )
+
       if (
         location.pathname !== '/test/navigation-blocking' ||
         document.querySelector('#navigation-blocking') !== editor ||
@@ -182,6 +193,7 @@
         () => document.querySelector('#navigation-blocking-status')?.textContent === 'blocked',
         'blocked confirmation',
       )
+
       click('#navigation-blocking-leave')
       await wait(
         () => location.pathname === '/' && document.querySelector('#menu-navigation-blocking'),

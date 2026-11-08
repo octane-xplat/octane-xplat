@@ -8,6 +8,7 @@ const renderCounts = new Map<string, number>()
 
 function ProbeChild(props: { name: string; n: number }) @{
   const renders = (renderCounts.get(props.name) ?? 0) + 1
+
   renderCounts.set(props.name, renders)
   console.log('[probe] child ' + props.name + ' render n=' + props.n + ' renders=' + renders)
 
@@ -32,6 +33,7 @@ const MemoChild = memo(ProbeChild, (a, b) => a.n === b.n && a.name === b.name)
 export function ReactiveProbe() @{
   const [a, setA] = useState(0)
   const [b, setB] = useState(0)
+
   console.log('[probe] ReactiveProbe render a=' + a + ' b=' + b)
 
   <View className="vx-app flex-1 gap-4">

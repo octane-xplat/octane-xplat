@@ -15,6 +15,7 @@ describe('grid track grammar', () => {
 
   it('degrades out-of-grammar tokens to auto with a warn-once diagnostic', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     try {
       expect(parseGridTrackList('min-content,50%,-4,0*,[names]', 'columns')).toEqual([
         'auto',
@@ -25,6 +26,7 @@ describe('grid track grammar', () => {
       ])
 
       const calls = warn.mock.calls.length
+
       parseGridTrackList('min-content', 'columns')
       expect(warn.mock.calls.length).toBe(calls)
       expect(warn.mock.calls[0][0]).toContain('[Grid]')

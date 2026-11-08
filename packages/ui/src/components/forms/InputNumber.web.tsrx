@@ -89,6 +89,7 @@ export function InputNumber(props: InputNumberProps): JSX.Element @{
       value={display}
       onChange={(text: string) => {
         const n = parseFloat(text)
+
         if (text === '') {
           setValue(null)
         } else if (!isNaN(n)) {

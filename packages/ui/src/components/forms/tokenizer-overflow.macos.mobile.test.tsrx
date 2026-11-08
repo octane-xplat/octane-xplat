@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { expect, it, vi } from 'vitest'
+
 // State/key fixtures use an explicit inline test host; floating ownership has separate cases.
 // This geometry fixture isolates the outer editor host too; actual popover portals have separate coverage.
 vi.mock('../overlays/Popover.macos.tsrx', () => ({
@@ -18,7 +19,9 @@ import {
 } from 'octane/universal/native'
 
 import { Tokenizer } from './Tokenizer.macos.tsrx'
+
 vi.mock('../overlays/Tooltip.tsrx', () => ({ Tooltip: (props: any) => props.children ?? null }))
+
 const items = ['a', 'g', 'l'].map((id) => ({ id, label: id }))
 const rect = (x: number, width: number) => ({ origin: { x, y: 0 }, size: { width, height: 24 } })
 function mount(mode = 'unfocusedInline') {
@@ -39,6 +42,7 @@ function mount(mode = 'unfocusedInline') {
   const has = (node: any, name: string) => String(node.props?.className).split(' ').includes(name)
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -83,6 +87,7 @@ function mount(mode = 'unfocusedInline') {
     }
 
     let x = 0
+
     for (const token of viewport.children ?? []) {
       const label = token.children?.find((node: any) => node.type === 'label'),
         tokenWidth = metrics.widths[label?.props.text] ?? 70,
@@ -139,6 +144,7 @@ function mount(mode = 'unfocusedInline') {
 
 it('collapsed tokens occupy a native clip viewport, with the counter outside and current resize counts', async () => {
   const f = mount()
+
   try {
     await f.settle()
     expect(f.clip().props.style.overflow).toBe('hidden')
@@ -160,9 +166,12 @@ it('collapsed tokens occupy a native clip viewport, with the counter outside and
 
 it('focus expands inline tokens and controlled replacement remeasures the current selection', async () => {
   const f = mount()
+
   try {
     await f.settle()
+
     const input = f.input()
+
     f.window.firstResponder = input
     input.props.onFocus()
     f.flush()
@@ -180,6 +189,7 @@ it('focus expands inline tokens and controlled replacement remeasures the curren
 
 it('expanded layer token copies never replace the collapsed row measurement refs', async () => {
   const f = mount('unfocusedLayer')
+
   try {
     await f.settle()
     f.wrapper().props.onTap()
@@ -200,9 +210,12 @@ it('expanded layer token copies never replace the collapsed row measurement refs
 
 it('incomplete geometry preserves the last measured count and held layout callbacks are inert after teardown', async () => {
   const f = mount()
+
   try {
     await f.settle()
+
     const layout = f.clip().props.onLayoutChanged
+
     f.metrics.freezeClip = 0
     f.flush()
     await f.settle()
@@ -223,6 +236,7 @@ it('incomplete geometry preserves the last measured count and held layout callba
 
 it('reclaiming a counter waits through stale geometry notifications until native layout publishes its space', async () => {
   const f = mount()
+
   try {
     await f.settle()
     f.metrics.available = 230

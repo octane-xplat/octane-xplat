@@ -39,6 +39,7 @@ export interface MobileWorkshopRuntime {
 }
 
 let runtime: MobileWorkshopRuntime | undefined
+
 /** Notifies the runtime that the story catalog changed. */
 export function catalogDidUpdate(
   catalog: readonly CatalogEntry[],
@@ -50,6 +51,7 @@ export function catalogDidUpdate(
 /** A host-native shell. Its stage MasonView is attached once for its lifetime. */
 export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRuntime {
   const actual: WorkshopTarget = Application.android ? 'android' : 'ios'
+
   if (actual !== options.target) {
     throw new Error(`Workshop target ${options.target} does not match host ${actual}`)
   }
@@ -59,6 +61,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   }
 
   const page = new Page()
+
   page.actionBarHidden = true
   page.iosOverflowSafeArea = false
 
@@ -71,6 +74,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
         if (!stage) {
           throw new Error('Workshop stage slot has not been attached')
         }
+
         return createMobileStageHost(stage as any).mount(request)
       },
     },
@@ -80,8 +84,11 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   })
 
   const host = new ContentView()
+
   page.content = host
+
   const root = createNativeScriptRoot(host)
+
   root.render(NativeWorkshopChrome as unknown as UniversalComponent, {
     controller,
     target: actual,
@@ -92,6 +99,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
       ;(view as View | null)?.focus?.()
     },
   })
+
   let disposed = false
   let syncEscapeCommand: (() => void) | undefined
 
@@ -103,6 +111,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   /** One Back/Escape step; false leaves the key to the host/story. */
   function tryDismiss(): boolean {
     const dismissed = controller.dismissOverlay()
+
     if (!dismissed) {
       return false
     }
@@ -113,6 +122,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
   function layout(): void {
     const size = page.getActualSize()
+
     controller.resize(size.width, size.height)
     syncEscapeCommand?.()
   }
@@ -122,6 +132,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   const unsubscribe = controller.store.subscribe(() => syncEscapeCommand?.())
 
   page.on(View.layoutChangedEvent, layout)
+
   const back = (event: any) => {
     // A story-owned modal keeps OS Back. Shell dismissal takes precedence
     // only on this page, never in an unrelated navigation root.
@@ -139,6 +150,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   // shell dismissed. The listener lives on this page's root view only.
   function installAndroidDismissal(): () => void {
     const ViewCompat = androidx?.core?.view?.ViewCompat
+
     if (typeof ViewCompat?.addOnUnhandledKeyEventListener !== 'function') {
       return () => {}
     }
@@ -152,6 +164,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
         }
 
         const action = event.getAction()
+
         if (action === android.view.KeyEvent.ACTION_DOWN) {
           // Repeats only dispatch while we hold the press.
           if (event.getRepeatCount() > 0) {
@@ -164,6 +177,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
         if (action === android.view.KeyEvent.ACTION_UP) {
           const handled = escapeDown
+
           escapeDown = false
           return handled
         }
@@ -174,6 +188,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
 
     const attach = () => {
       const native = page.android as android.view.View | undefined
+
       if (!native || attached === native) {
         return
       }
@@ -205,6 +220,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
   // and accessibility-escape paths only.
   function installIosDismissal(): () => void {
     const vc = (page as any).ios as UIViewController | undefined
+
     if (!vc?.respondsToSelector?.('addKeyCommand:')) {
       return () => {}
     }
@@ -216,6 +232,7 @@ export function startWorkshop(options: MobileWorkshopOptions): MobileWorkshopRun
     )
 
     const previous = page.onAccessibilityPerformEscape
+
     // The VoiceOver escape gesture and the key command reach the same
     // hook; both apply shell dismissal before any earlier handler.
     page.onAccessibilityPerformEscape = () => {

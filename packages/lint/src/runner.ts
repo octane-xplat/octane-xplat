@@ -26,8 +26,10 @@ Exit codes: 0 no errors · 1 lint errors · 2 command/setup failure
 export async function runLint(argv: string[]) {
   let fix = false
   const inputs: string[] = []
+
   for (let index = 0; index < argv.length; index++) {
     const arg = argv[index]
+
     if (arg === '--') {
       inputs.push(...argv.slice(index + 1))
       break
@@ -47,6 +49,7 @@ export async function runLint(argv: string[]) {
   }
 
   let temporary: string | undefined
+
   try {
     const cwd = process.cwd()
     const config = readConfig(cwd)
@@ -56,8 +59,10 @@ export async function runLint(argv: string[]) {
     // Resolve all companion rules before allowing --fix to write anything.
     const tsrxResult = await lintTsrxFiles(tsrx, config.rulesFor, cwd)
     let oxlintStatus = 0
+
     if (regular.length) {
       let configPath = config.path
+
       if (!configPath) {
         temporary = mkdtempSync(join(tmpdir(), 'xplat-lint-'))
         configPath = join(temporary, '.oxlintrc.json')
@@ -67,6 +72,7 @@ export async function runLint(argv: string[]) {
       // Resolve the owned binary first. Consumers need neither an Oxlint
       // dependency nor a populated node_modules/.bin on PATH.
       const bin = resolveBin('oxlint', [import.meta.url])
+
       if (!bin) {
         throw new Error('could not resolve the bundled oxlint binary; reinstall @octane-xplat/cli')
       }

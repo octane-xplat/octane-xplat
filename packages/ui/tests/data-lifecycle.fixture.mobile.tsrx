@@ -52,6 +52,7 @@ export function Retained(props: { pending: Promise<string>; fail: () => void }) 
   <>
     @try {
       const value = pending === null ? 'ready' : use(pending)
+
       <button text={value} onTap={() => setPending(props.pending)} />
     } @pending {
       <label text="pending" />

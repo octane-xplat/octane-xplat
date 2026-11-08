@@ -12,6 +12,7 @@ import {
 describe('VirtualList size index', () => {
   it('updates variable row heights and locates exact boundaries', () => {
     const sizes = new VirtualListSizeIndex()
+
     sizes.reset([36, 48, 60, 72])
 
     expect(sizes.prefix(3)).toBe(144)
@@ -25,6 +26,7 @@ describe('VirtualList size index', () => {
 
   it('keeps the mounted range bounded at both ends of a long list', () => {
     const sizes = new VirtualListSizeIndex()
+
     sizes.reset(Array.from({ length: 500 }, (_, index) => 36 + (index % 4) * 12))
 
     const top = virtualListRange(sizes, 0, 240)
@@ -74,6 +76,7 @@ describe('VirtualList size index', () => {
     )
 
     const fourth = entries[3]
+
     measurements.set(virtualListMeasurementKey(fourth.rowKey, false), {
       width: 100,
       height: 72,

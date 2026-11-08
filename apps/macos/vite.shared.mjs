@@ -35,6 +35,7 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo
 
   return defineConfig(async ({ mode }) => {
     const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
+
     return {
       ...config,
       define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },

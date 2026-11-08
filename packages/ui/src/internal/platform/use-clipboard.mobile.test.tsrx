@@ -33,6 +33,7 @@ const Probe = (props: { options?: UseClipboardOptions }) => @{
 const renderClipboard = (options?: UseClipboardOptions) => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   flushUniversalAct(() => root.render(Probe, { options }))
   return root
 }
@@ -76,6 +77,7 @@ describe('useClipboard (universal renderer)', () => {
 
   it('falls back to getItems and reports failure outcomes', async () => {
     vi.mocked(copyText).mockResolvedValueOnce(true).mockResolvedValueOnce(false)
+
     const onCopy = vi.fn()
     const getItems = vi.fn(() => 'hello')
     const root = renderClipboard({ getItems, onCopy })
@@ -106,6 +108,7 @@ describe('useClipboard (universal renderer)', () => {
     root.unmount()
 
     const bare = renderClipboard()
+
     expect(await captured.copy()).toBe(false)
     expect(copyText).not.toHaveBeenCalled()
     expect(onCopy.mock.calls).toEqual([[false]])
@@ -161,6 +164,7 @@ describe('useClipboard (universal renderer)', () => {
 
   it('onPress does not forward host activation events as copy text', async () => {
     const root = renderClipboard({ getItems: () => 'hello' })
+
     await (captured.clipboardProps.onPress as any)({ type: 'click' })
     expect(copyText).toHaveBeenCalledWith('hello')
     root.unmount()
@@ -172,6 +176,7 @@ describe('useClipboard (universal renderer)', () => {
         onCopy = vi.fn()
 
       let finish!: (success: boolean) => void
+
       vi.mocked(copyText).mockImplementationOnce(
         () =>
           new Promise((resolve) => {
@@ -229,9 +234,12 @@ describe('useClipboard (universal renderer)', () => {
   it('a cleared but held reset callback cannot shorten a newer success', async () => {
     const root = renderClipboard({ getItems: () => 'hello', resetAfterMs: 100 })
     const schedule = vi.spyOn(globalThis, 'setTimeout')
+
     try {
       await captured.copy()
+
       const stale = schedule.mock.calls.at(-1)![0] as () => void
+
       await captured.copy()
       stale()
       flush()
@@ -281,6 +289,7 @@ describe('useClipboard (universal renderer)', () => {
 
   it('keeps overlapping attempts independent and failed completion preserves successful feedback', async () => {
     const finishes: Array<(success: boolean) => void> = []
+
     vi.mocked(copyText).mockImplementation(
       () =>
         new Promise((resolve) => {

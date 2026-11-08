@@ -34,6 +34,7 @@ const SQLITE_PACKAGES = [
 
 test('plugin family carries no pre-step cursor row access', () => {
   const offenders = []
+
   for (const name of SQLITE_PACKAGES) {
     const root = packageRoot(name)
     const files = readdirSync(root, { recursive: true }).filter(
@@ -46,6 +47,7 @@ test('plugin family carries no pre-step cursor row access', () => {
       }
     }
   }
+
   assert.deepEqual(
     offenders,
     [],
@@ -58,6 +60,7 @@ test('sqlite-core get/getArray share the select request path', () => {
     join(packageRoot('@nativescript-community/sqlite-core'), 'database.js'),
     'utf8',
   )
+
   for (const method of ['select', 'selectArray', 'get', 'getArray']) {
     const body = source.match(
       new RegExp(`(?:async )?${method}\\(query, params, options\\) \\{([\\s\\S]*?)\\n\\s*\\}`),

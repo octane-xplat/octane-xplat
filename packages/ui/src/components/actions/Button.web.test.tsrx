@@ -7,8 +7,11 @@ import { Button } from './Button.web.tsrx'
 const roots: any[] = []
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(<Button {...props} />))
   return el.firstElementChild as HTMLElement
@@ -69,6 +72,7 @@ describe('Button clickAction failure reporting', () => {
 
   it('surfaces an unhandled failure as an uncaught error when no handler is set', async () => {
     vi.useFakeTimers()
+
     const error = new Error('unhandled failure')
     let rejectAction: ((reason: unknown) => void) | undefined
     const host = mount({
@@ -92,17 +96,23 @@ describe('Button clickAction failure reporting', () => {
 describe('Button tooltip title attribute', () => {
   it('does not stringify an absent tooltip into a title attribute', () => {
     const host = mount({ label: 'Save' })
+
     expect(host.hasAttribute('title')).toBe(false)
     expect(host.getAttribute('title')).toBe(null)
   })
 
   it('sets title from tooltip and clears it when the tooltip is removed', () => {
     const el = document.createElement('div')
+
     document.body.append(el)
+
     const root = createRoot(el)
+
     roots.push(root)
     act(() => root.render(<Button label="Save" tooltip="Save the document" />))
+
     const host = el.firstElementChild as HTMLElement
+
     expect(host.getAttribute('title')).toBe('Save the document')
 
     act(() => root.render(<Button label="Save" />))
@@ -113,15 +123,20 @@ describe('Button tooltip title attribute', () => {
 describe('Button loading/pending semantics', () => {
   it('exposes aria-busy, disabled, preserved name, and a live Loading status while isLoading', () => {
     const host = mount({ label: 'Save', isLoading: true }) as HTMLButtonElement
+
     expect(host.getAttribute('aria-busy')).toBe('true')
     expect(host.disabled).toBe(true)
     expect(host.getAttribute('aria-label')).toBe('Save')
+
     const content = host.querySelector('.vx-button-content')!
+
     expect(content.classList.contains('vx-button-content--hidden')).toBe(true)
     expect(content.getAttribute('aria-hidden')).toBe('true')
     expect(content.textContent).toContain('Save')
     expect(host.querySelector('.vx-button-spinner')).not.toBe(null)
+
     const status = host.querySelector('[role="status"][aria-live="polite"]')!
+
     expect(status.getAttribute('aria-live')).toBe('polite')
     expect(status.textContent).toBe('Loading')
   })
@@ -165,6 +180,7 @@ describe('Button loading/pending semantics', () => {
   it('renders an empty status region when idle', () => {
     const host = mount({ label: 'Save' })
     const status = host.querySelector('[role="status"][aria-live="polite"]')!
+
     expect(status.textContent).toBe('')
   })
 })
@@ -172,6 +188,7 @@ describe('Button loading/pending semantics', () => {
 describe('Button renders a native button element', () => {
   it('renders <button type="button">, not a role-button div', () => {
     const host = mount({ label: 'Save' })
+
     expect(host.tagName).toBe('BUTTON')
     expect(host.getAttribute('type')).toBe('button')
     expect(host.getAttribute('role')).toBe(null)
@@ -182,6 +199,7 @@ describe('Button renders a native button element', () => {
     const action = vi.fn()
     const host = mount({ label: 'Save', clickAction: action })
     const type = key === 'Enter' ? 'keydown' : 'keyup'
+
     // Native buttons fire click for Enter (keydown) and Space (keyup);
     // jsdom does not synthesize it, so dispatch click as the browser would.
     act(() => {
@@ -195,6 +213,7 @@ describe('Button renders a native button element', () => {
   it('activates once on pointer click', () => {
     const action = vi.fn()
     const host = mount({ label: 'Save', clickAction: action })
+
     click(host)
     expect(action).toHaveBeenCalledTimes(1)
   })

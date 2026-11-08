@@ -18,6 +18,7 @@ import { once } from 'node:events'
 import { setTimeout as delay } from 'node:timers/promises'
 import { scratchRun } from './scratch.mjs'
 import { projectToolFixture } from './project-fixtures.mjs'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
@@ -25,17 +26,21 @@ const target = `${process.platform === 'win32' ? 'windows' : process.platform}-$
 const binary = join(work, `xplat-go-${target}-cli${process.platform === 'win32' ? '.exe' : ''}`)
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (b) => createHash('sha256').update(b).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
 }
 
 const scratch = realpathSync(scratchRun(root, 'go-dev'))
+
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const tools = projectToolFixture(root, work, scratch)
 let sequence = 0
 function put(dir, name, value) {
   const file = join(dir, name)
+
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, typeof value === 'string' ? value : JSON.stringify(value))
   return file
@@ -44,6 +49,7 @@ function put(dir, name, value) {
 function fixture({ close = false, installed = true, multi = false } = {}) {
   const app = join(scratch, `app ${sequence++} π`),
     home = join(scratch, `home ${sequence}`)
+
   mkdirSync(home)
   put(app, 'package.json', {
     name: 'dev-test',
@@ -55,14 +61,17 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
       ? { scripts: { dev: 'node fail.mjs' }, xplat: { targets: { linux: { runtime: 'gtk' } } } }
       : {}),
   })
+
   put(app, 'index.html', '<h1>Native dev HTTP fixture</h1>')
   put(
     app,
     'vite.config.mjs',
     `export default {server:{port:0,host:'127.0.0.1'},plugins:[{name:'native-dev-receipt',configureServer(server){server.httpServer.once('listening',()=>{console.log('DEV_TEST_LISTENING http://127.0.0.1:'+server.httpServer.address().port);${close ? 'setTimeout(()=>server.close(),700)' : ''}})}}]}`,
   )
+
   if (installed) {
     const destination = join(app, 'node_modules/vite')
+
     mkdirSync(dirname(destination), { recursive: true })
     symlinkSync(
       realpathSync(join(tools.nodeModules, 'vite')),
@@ -72,10 +81,13 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
   } else {
     put(app, 'node_modules/vite/package.json', { name: 'broken-vite' })
   }
+
   if (multi) {
     put(app, 'fail.mjs', "console.log('SCRIPT_FAILED_SEVEN');process.exit(7)")
   }
+
   const cache = process.platform === 'darwin' ? join(home, 'Library/Caches') : join(home, 'cache')
+
   return {
     app,
     home,
@@ -94,7 +106,9 @@ function fixture({ close = false, installed = true, multi = false } = {}) {
 function sessions(f) {
   const project = realpathSync(f.app),
     key = sha(Buffer.from(process.platform === 'win32' ? project.toLowerCase() : project))
+
   const directory = join(f.cache, 'octane-xplat/cli-go/history-go-v1', key)
+
   return readdirSync(directory)
     .filter((n) => n.startsWith('sess_'))
     .map((id) => ({ id, ...JSON.parse(readFileSync(join(directory, id, 'session.json'))) }))
@@ -107,11 +121,15 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
       env: f.env,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
+
   let output = ''
+
   child.stdout.on('data', (b) => (output += b))
   child.stderr.on('data', (b) => (output += b))
+
   const exited = once(child, 'exit')
   let address
+
   try {
     for (let n = 0; n < 1200; n++) {
       address = output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
@@ -128,11 +146,15 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
 
     assert.ok(address, output)
     assert.match(output, /\[web\] session sess_/)
+
     const response = await fetch(address)
+
     assert.equal(response.status, 200)
     assert.match(await response.text(), /Native dev HTTP fixture/)
     child.kill('SIGTERM')
+
     const [code, signal] = await exited
+
     if (process.platform === 'win32') {
       assert.equal(signal, 'SIGTERM')
     } else {
@@ -150,7 +172,9 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
     }
 
     await assert.rejects(fetch(address))
+
     const records = sessions(f)
+
     assert.equal(records.length, 1)
     if (process.platform !== 'win32') {
       assert.equal(records[0].cleanupConfirmed, true)
@@ -170,13 +194,16 @@ test('Go main dev serves actual project Vite and stops its owned listener', asyn
 
 test('all engines preflight before route generation or session creation', () => {
   const f = fixture({ installed: false })
+
   put(f.app, 'app/index.ts', 'export default function Page() {}')
+
   const result = spawnSync(binary, ['dev', 'web'], {
     cwd: f.app,
     env: f.env,
     encoding: 'utf8',
     timeout: 15000,
   })
+
   assert.equal(result.status, 1, result.stdout + result.stderr)
   assert.match(result.stderr, /vite/)
   assert.ok(!readdirSync(f.app).some((n) => n.startsWith('routes.gen')))
@@ -194,10 +221,13 @@ test(
       encoding: 'utf8',
       timeout: 20000,
     })
+
     assert.equal(result.status, 7, result.stdout + result.stderr)
     assert.match(result.stdout, /SCRIPT_FAILED_SEVEN/)
     assert.match(result.stdout, /DEV_TEST_LISTENING/)
+
     const records = sessions(f)
+
     assert.equal(records.length, 2)
     assert.ok(records.every((r) => r.cleanupConfirmed && r.endedAt))
     assert.deepEqual(records.map((r) => r.state).sort(), ['failed', 'stopped'])
@@ -206,6 +236,7 @@ test(
 
 async function until(check, evidence, timeout = 30000) {
   const end = Date.now() + timeout
+
   while (!check()) {
     assert.ok(Date.now() < end, evidence())
     await delay(25)
@@ -215,27 +246,34 @@ async function until(check, evidence, timeout = 30000) {
 test('main dev publishes initial routes before Vite and recovers later invalid configuration', async () => {
   const f = fixture()
   const cliPackage = join(f.app, 'node_modules/@octane-xplat/cli')
+
   mkdirSync(dirname(cliPackage), { recursive: true })
   symlinkSync(
     realpathSync(join(tools.nodeModules, '@octane-xplat/cli')),
     cliPackage,
     process.platform === 'win32' ? 'junction' : 'dir',
   )
+
   put(f.app, 'app/index.tsx', 'export default () => null')
+
   const config = readFileSync(join(f.app, 'vite.config.mjs'), 'utf8')
+
   put(
     f.app,
     'vite.config.mjs',
     "import {existsSync} from 'node:fs';if(!existsSync('routes.gen.manifest.json'))throw Error('routes missing before engine');" +
       config,
   )
+
   const child = spawn(binary, ['dev', 'web'], {
     cwd: f.app,
     env: f.env,
     stdio: ['ignore', 'pipe', 'pipe'],
   })
+
   const exited = once(child, 'exit')
   let output = ''
+
   child.stdout.on('data', (b) => (output += b))
   child.stderr.on('data', (b) => (output += b))
   try {
@@ -246,6 +284,7 @@ test('main dev publishes initial routes before Vite and recovers later invalid c
 
     const manifest = () => readFileSync(join(f.app, 'routes.gen.manifest.json'), 'utf8')
     const initial = manifest()
+
     put(f.app, 'xplat.routes.json', '{bad')
     await until(
       () => /routing config|invalid character|JSON/i.test(output),
@@ -273,18 +312,24 @@ test(
   async () => {
     const f = fixture(),
       packs = join(scratch, 'macos-pack')
+
     mkdirSync(packs)
+
     const packed = spawnSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], {
       cwd: join(root, 'packages/macos-build'),
       encoding: 'utf8',
       timeout: 30000,
     })
+
     assert.equal(packed.status, 0, packed.stderr)
+
     const archive = join(
       packs,
       readdirSync(packs).find((p) => p.endsWith('.tgz')),
     )
+
     const pkg = JSON.parse(readFileSync(join(f.app, 'package.json')))
+
     pkg.dependencies = {
       '@octane-xplat/macos-build': 'file:' + archive,
       '@octane-xplat/cli':
@@ -297,6 +342,7 @@ test(
       octane: '0.16.3',
       '@nativescript/macos-node-api': '0.4.4-next.2026-08-09-31292056208',
     }
+
     pkg.overrides = {
       '@octane-xplat/lib':
         'file:' +
@@ -305,6 +351,7 @@ test(
           tools.packages.packages.find((item) => item.name === '@octane-xplat/lib').file,
         ),
     }
+
     pkg.xplat = {
       targets: {
         macos: {
@@ -320,18 +367,22 @@ test(
         },
       },
     }
+
     put(f.app, 'package.json', pkg)
+
     const installed = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
       cwd: f.app,
       encoding: 'utf8',
       timeout: 120000,
     })
+
     assert.equal(installed.status, 0, installed.stderr)
     put(
       f.app,
       'vite.config.mjs',
       `import {xplatDevBridge} from '@octane-xplat/cli/vite';export default {plugins:[xplatDevBridge()],build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
     )
+
     for (const name of [
       'dev-actions-registry.ts',
       'dev-actions-schema.ts',
@@ -339,11 +390,13 @@ test(
     ]) {
       put(f.app, name, readFileSync(join(root, 'packages/platform/src', name), 'utf8'))
     }
+
     put(
       f.app,
       'dev-bridge.ts',
       readFileSync(join(root, 'packages/platform/src/dev-bridge.macos.ts'), 'utf8'),
     )
+
     for (const mode of [
       'exit',
       'cancel',
@@ -386,6 +439,7 @@ test(
 
       const exited = once(child, 'exit')
       let output = ''
+
       child.stdout.on('data', (b) => (output += b))
       child.stderr.on('data', (b) => (output += b))
       try {
@@ -394,6 +448,7 @@ test(
             if (child.exitCode !== null) {
               assert.fail(output)
             }
+
             return output.includes('GO_DEV_APP_INITIALIZED')
           },
           () => output,
@@ -409,6 +464,7 @@ test(
               encoding: 'utf8',
               timeout: 10000,
             })
+
             return JSON.parse(result.stdout)
           }
 
@@ -424,10 +480,14 @@ test(
           )
 
           const appInstance = live.data.instances[0]
+
           assert.equal(appInstance.platform, 'macos')
+
           const observed = query(['session', 'attach', '--instance', appInstance.appInstanceId])
+
           assert.equal(observed.ok, true, JSON.stringify(observed))
           assert.equal(observed.data.session.ownership, 'observed')
+
           const accepted = query([
             'actions',
             'invoke',
@@ -440,7 +500,9 @@ test(
           ])
 
           assert.equal(accepted.ok, true, JSON.stringify(accepted))
+
           let job
+
           await until(
             () => {
               job = query(['actions', 'status', accepted.data.job.jobId]).data?.job
@@ -458,6 +520,7 @@ test(
         }
 
         const [code, signal] = await exited
+
         assert.equal(signal, null, output)
         assert.equal(code, mode === 'exit' ? 0 : mode === 'abort' ? 1 : 143, output)
         if (mode === 'abort') {
@@ -485,11 +548,13 @@ test(
                 maxBuffer: 32 * 1024 * 1024,
               },
             )
+
             assert.equal(response.status, 0, response.stderr)
             return JSON.parse(response.stdout)
           }
 
           let diagnostics
+
           await until(
             () => {
               diagnostics = query([])
@@ -504,6 +569,7 @@ test(
           )
 
           const original = query(['--report', report.id])
+
           assert.match(original.data.report.content, /SIGABRT/)
           assert.equal('report_' + sha(Buffer.from(original.data.report.content)), report.id)
           writeFileSync(join(work, 'apple-native-original.json'), JSON.stringify(original), {
@@ -554,6 +620,7 @@ test(
     for (const mode of ['interrupt', 'broken-pipe']) {
       const f = fixture()
       const base = readFileSync(join(f.app, 'vite.config.mjs'), 'utf8')
+
       put(
         f.app,
         'vite.config.mjs',
@@ -569,6 +636,7 @@ test(
 
       const exited = once(child, 'exit')
       let output = ''
+
       child.stdout.on('data', (b) => (output += b))
       child.stderr.on('data', (b) => (output += b))
       try {
@@ -584,6 +652,7 @@ test(
         }
 
         const [code, signal] = await exited
+
         assert.equal(signal, null, output)
         assert.equal(code, mode === 'interrupt' ? 130 : 141, output)
         if (mode === 'interrupt') {
@@ -591,6 +660,7 @@ test(
         }
 
         const address = output.match(/DEV_TEST_LISTENING (http:\/\/127\.0\.0\.1:\d+)/)?.[1]
+
         assert.ok(address, output)
         await assert.rejects(fetch(address))
         assert.ok(sessions(f).every((r) => r.cleanupConfirmed))

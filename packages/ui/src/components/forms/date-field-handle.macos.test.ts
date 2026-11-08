@@ -12,10 +12,13 @@ function fixture() {
       return true
     },
   }
+
   const view: any = { window, hidden: false, enabled: true, isAccessibilityEnabled: () => true }
   let primary: any = view,
     blocked = false
+
   const handle = createAppKitDateFieldHandle({ primary: () => primary, blocked: () => blocked })
+
   return {
     window,
     view,
@@ -33,6 +36,7 @@ function fixture() {
 test('date-field handles resolve live primary hosts and reject blocked, hidden, disabled and detached focus', () => {
   const env = fixture(),
     { handle, view, window } = env
+
   assert.equal(handle.native, view)
   handle.focus()
   assert.deepEqual(env.requests, [view])
@@ -49,14 +53,18 @@ test('date-field handles resolve live primary hosts and reject blocked, hidden, 
     ['isAccessibilityEnabled', () => false],
   ] as const) {
     const previous = view[key]
+
     view[key] = value
     handle.focus()
     view[key] = previous
   }
+
   view.window = null
   handle.focus()
   assert.equal(env.requests.length, 0)
+
   const replacement: any = { window }
+
   env.target(replacement)
   handle.focus()
   assert.equal(handle.native, replacement)
@@ -72,6 +80,7 @@ test('blur releases only a current owned view or its field editor, accepting edi
   const env = fixture(),
     editor = {},
     other = {}
+
   env.window.firstResponder = other
   env.view.currentEditor = () => editor
   env.handle.blur()
@@ -97,11 +106,13 @@ test('composite handles focus the primary field and blur only a live owned secon
   const first = fixture(),
     second = fixture(),
     editor = {}
+
   const handle = createAppKitDateFieldHandle({
     primary: () => first.view,
     fields: () => [first.view, second.view],
     blocked: () => false,
   })
+
   handle.focus()
   assert.deepEqual(first.requests, [first.view])
   assert.equal(second.requests.length, 0)

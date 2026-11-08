@@ -10,8 +10,10 @@ import {
 
 const events: any[] = []
 let disable: (value: boolean) => void
+
 export default function Case() {
   const [disabled, setDisabled] = useState(false)
+
   disable = setDisabled
   return (
     <View id="swipe-view" onSwipe={(e) => events.push(['view-swipe', e.direction])}>
@@ -33,6 +35,7 @@ export default function Case() {
 
 function recognizers(view: any) {
   const list = view.gestureRecognizers
+
   return Array.from({ length: Number(list.count) }, (_, i) => list.objectAtIndex(i)) as any[]
 }
 
@@ -46,10 +49,12 @@ function invoke(r: any, state = 3) {
 
 export async function run(ctx: any) {
   await ctx.waitFor(() => ctx.find('press'))
+
   const view = ctx.find('press'),
     list = recognizers(view)
 
   ctx.assert('five native recognizers', list.length, 5)
+
   const click = list.find(
     (r) => r instanceof NSClickGestureRecognizer && Number(r.numberOfClicksRequired) === 1,
   )
@@ -120,7 +125,9 @@ export async function run(ctx: any) {
   ctx.assert('View swipe', JSON.stringify(events.at(-1)), JSON.stringify(['view-swipe', 2]))
   disable(true)
   await ctx.waitFor(() => !pan.enabled)
+
   const before = events.length
+
   invoke(click)
   invoke(double)
   invoke(long)

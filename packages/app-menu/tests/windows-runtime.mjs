@@ -20,7 +20,9 @@ import { build } from 'vite'
 
 const host = process.env.APP_MENU_WINDOWS_HOST
 const runtime = process.env.APP_MENU_WINDOWS_RUNTIME
+
 assert.ok(host && runtime, 'Set APP_MENU_WINDOWS_HOST and APP_MENU_WINDOWS_RUNTIME')
+
 const q = (value) => "'" + value.replaceAll("'", "''") + "'"
 const run = (script, timeout = 250_000) =>
   execFileSync(
@@ -47,6 +49,7 @@ const task = `OctaneAppMenu${id}`
 const root = fileURLToPath(new URL('..', import.meta.url))
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-app-menu-windows-'))
 let remote
+
 try {
   execFileSync('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], {
     cwd: root,
@@ -64,6 +67,7 @@ try {
   ])
 
   const scope = join(temporary, 'node_modules/@octane-xplat')
+
   mkdirSync(scope, { recursive: true })
   symlinkSync(join(temporary, 'package'), join(scope, 'app-menu'))
   symlinkSync(join(root, '../lib'), join(scope, 'lib'))
@@ -97,6 +101,7 @@ try {
 
   const write = (name, data) => {
     const local = join(temporary, 'upload-' + name)
+
     writeFileSync(local, data)
     execFileSync('scp', ['-q', local, host + ':' + remote.replaceAll('\\', '/') + '/' + name], {
       timeout: 60_000,

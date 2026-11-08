@@ -34,10 +34,14 @@ export function runAnimationFixture() {
   ;(async () => {
     try {
       await wait(50)
+
       const view = root.__macosDebug.findId('animated')
       const fade = root.__macosDebug.findId('fade')
+
       previous = x
+
       const reduced = Boolean(NSWorkspace.sharedWorkspace.accessibilityDisplayShouldReduceMotion)
+
       x.to(100, { duration: 300 })
       opacity.to(1, { duration: 300 })
       check(opacity.value === 0, 'Tween committed immediately')
@@ -56,7 +60,9 @@ export function runAnimationFixture() {
       await wait(40)
       check(x === previous, 'Controller changed across renders')
       x.stop()
+
       const stopped = x.value
+
       await wait(100)
       check(x.value === stopped, 'stop did not freeze')
       x.spring(-40)
@@ -76,7 +82,9 @@ export function runAnimationFixture() {
       x.to(400, { duration: 2000 })
       await wait(50)
       root.unmount()
+
       const disposed = x.value
+
       await wait(100)
       x.to(900, { duration: 0 })
       x.spring(900)

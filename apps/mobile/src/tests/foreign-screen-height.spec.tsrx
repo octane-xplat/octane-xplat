@@ -50,6 +50,7 @@ it.skipIf(!isAndroid)(
     const foreign = view.getViewById<NativeView>('foreign')!
     const stage = view.getViewById<NativeView>('stage')!
     const leaf = view.getViewById<NativeView>('leaf')!
+
     await waitUntil(() => leaf.isLoaded)
     // Screen.style targets its inner column. Constrain the foreign RootLayout
     // itself so the test exercises Mason's foreign grow/stretch frame.
@@ -77,6 +78,7 @@ it('fills a same-cell layer with intrinsic content without a native height pin (
   const layer = view.getViewById<NativeView>('layer')!
   const screen = view.getViewById<NativeView>('layered-screen')!
   const stage = view.getViewById<NativeView>('layered-stage')!
+
   await waitUntil(() => screen.isLoaded)
   for (const [width, height] of [
     [107, 400],
@@ -92,6 +94,7 @@ it('fills a same-cell layer with intrinsic content without a native height pin (
       await waitUntil(() =>
         [layer, screen, stage].every((item) => {
           const size = item.getActualSize()
+
           return (
             Math.abs(size.height - height) <= 1 && (!isAndroid || Math.abs(size.width - width) <= 1)
           )

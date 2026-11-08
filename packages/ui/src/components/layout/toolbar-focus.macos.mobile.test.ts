@@ -5,6 +5,7 @@ function fixture() {
   const leases = new Map<any, number>(),
     observers = new Map<object, (note: any) => void>(),
     removed: object[] = []
+
   const state = {
     orientation: 'horizontal' as 'horizontal' | 'vertical',
     supported: true,
@@ -15,6 +16,7 @@ function fixture() {
     failRelease: false,
     releases: 0,
   }
+
   const window = (): any => ({
     firstResponder: null,
     recalculateKeyViewLoop() {},
@@ -22,11 +24,13 @@ function fixture() {
       if (!state.allow || view.window !== this) {
         return false
       }
+
       this.firstResponder = view
       state.onFocus()
       return true
     },
   })
+
   const firstWindow = window()
   const view = (id: string, role = 'AXButton'): any => ({
     id,
@@ -53,11 +57,14 @@ function fixture() {
     bounds: {},
     scrollRectToVisible() {},
   })
+
   const root = view('root', 'AXToolbar'),
     a = view('a'),
     b = view('b'),
     c = view('c')
+
   root.children = [a, b, c]
+
   const bridge = {
     get keyboardEventsSupported() {
       return state.supported
@@ -67,18 +74,22 @@ function fixture() {
       state.onAcquire()
       return () => {
         state.releases++
+
         const count = leases.get(target) ?? 0
+
         if (count <= 1) {
           leases.delete(target)
         } else {
           leases.set(target, count - 1)
         }
+
         if (state.failRelease) {
           throw new Error('bridge removal')
         }
       }
     },
   }
+
   const center = {
     addObserverForNameObjectQueueUsingBlock(
       _name: string,
@@ -87,6 +98,7 @@ function fixture() {
       notify: (note: any) => void,
     ) {
       const token = {}
+
       observers.set(token, notify)
       state.onObserve()
       return token
@@ -96,6 +108,7 @@ function fixture() {
       observers.delete(token)
     },
   }
+
   let nativeCenter: any = center
   const focus = createAppKitToolbarFocus(
     { orientation: () => state.orientation },
@@ -105,11 +118,13 @@ function fixture() {
       NSWindowDidUpdateNotification: 'update',
     }),
   )
+
   const notify = (owner = root.window) => {
     for (const callback of [...observers.values()]) {
       callback({ object: owner })
     }
   }
+
   const key = (name: string, extra = {}) => {
     const event = {
       key: name,
@@ -130,9 +145,11 @@ function fixture() {
       },
       ...extra,
     }
+
     focus.keyDown(event)
     return event
   }
+
   return {
     state,
     root,
@@ -155,6 +172,7 @@ function fixture() {
 
 it('toolbar actions have one roving entry and arrows/edges move focus without activation', async () => {
   const f = fixture()
+
   f.focus.bind(f.root)
   await Promise.resolve()
   try {
@@ -180,6 +198,7 @@ it('toolbar actions have one roving entry and arrows/edges move focus without ac
 
 it('toolbar uses current axis and preserves modified, composing, prevented and refused focus events', async () => {
   const f = fixture()
+
   f.focus.bind(f.root)
   await Promise.resolve()
   try {
@@ -213,7 +232,9 @@ it('editors, adjustable controls, nested composites and foreign responders keep 
     editor = f.view('editor', 'AXTextField'),
     slider = f.view('slider', 'AXSlider'),
     nested = f.view('nested', 'AXToolbar')
+
   const nestedButton = f.view('nested-button')
+
   nested.children = [nestedButton]
   f.a.children = [editor]
   f.root.children = [f.a, slider, nested, f.b]
@@ -236,6 +257,7 @@ it('editors, adjustable controls, nested composites and foreign responders keep 
 
 it('window updates rebuild native order and skip changed disabled, hidden and removed actions', async () => {
   const f = fixture()
+
   f.focus.bind(f.root)
   await Promise.resolve()
   try {
@@ -263,6 +285,7 @@ it('window updates rebuild native order and skip changed disabled, hidden and re
 
 it('toolbar window migration releases old entries and leaves unrelated windows alone', async () => {
   const f = fixture()
+
   f.focus.bind(f.root)
   await Promise.resolve()
   try {
@@ -279,7 +302,9 @@ it('toolbar window migration releases old entries and leaves unrelated windows a
     next.firstResponder = f.b
     f.key('ArrowRight')
     expect(next.firstResponder).toBe(f.c)
+
     const releases = f.state.releases
+
     f.notify(f.window())
     expect(f.state.releases).toBe(releases)
   } finally {
@@ -289,14 +314,18 @@ it('toolbar window migration releases old entries and leaves unrelated windows a
 
 it('teardown uses the captured observer remover and leaves held delivery/keys inert', async () => {
   const f = fixture()
+
   f.focus.bind(f.root)
   await Promise.resolve()
+
   const notify = [...f.observers.values()][0]
+
   f.setCenter({
     removeObserver() {
       throw new Error('wrong center')
     },
   })
+
   f.focus.dispose()
   expect(f.observers.size).toBe(0)
   expect(f.removed).toHaveLength(1)
@@ -310,6 +339,7 @@ it('teardown uses the captured observer remover and leaves held delivery/keys in
 it('missing observation or keyboard capability preserves natural stops and unconsumed keys', async () => {
   for (const missingObserver of [true, false]) {
     const f = fixture()
+
     if (missingObserver) {
       f.setCenter(undefined)
     } else {
@@ -331,6 +361,7 @@ it('missing observation or keyboard capability preserves natural stops and uncon
 it('late observer and Tab acquisitions after reentrant teardown release their own handles', async () => {
   for (const stage of ['observer', 'tab']) {
     const f = fixture()
+
     if (stage === 'observer') {
       f.state.onObserve = () => f.focus.dispose()
     } else {
@@ -348,6 +379,7 @@ it('late observer and Tab acquisitions after reentrant teardown release their ow
 it('Tab cleanup failures attempt every captured lease and nested focus reentry is ignored', async () => {
   const f = fixture(),
     warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
   f.focus.bind(f.root)
   await Promise.resolve()
   try {

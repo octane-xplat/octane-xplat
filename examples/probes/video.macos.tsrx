@@ -18,6 +18,7 @@ export default function VideoProbe() {
     [playing, setPlaying] = useState<boolean | undefined>(undefined)
 
   const report = (event: string) => setEvents((previous) => [...previous.slice(-5), event])
+
   return (
     <VStack gap={2}>
       <TextInput

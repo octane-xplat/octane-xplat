@@ -43,6 +43,7 @@ export const AsyncFixture = defineStory<Props, CounterState, Fixture>({
   fixture: async ({ signal }) => {
     await new Promise((resolve, reject) => {
       const timer = setTimeout(resolve, 600)
+
       signal.addEventListener('abort', () => {
         clearTimeout(timer)
         reject(new Error('fixture cancelled'))

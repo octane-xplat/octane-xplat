@@ -107,6 +107,7 @@ const decision = decidePackageManager({
 
 let packageManager: PackageManager = decision.kind === 'use' ? decision.manager : 'bun'
 let managerNotice: string | undefined
+
 if (decision.kind === 'missing') {
   managerNotice = `! Neither Bun nor pnpm was found. Installing dependencies, applying framework
   patches (xplat patches apply) and running the app all need one of them.
@@ -140,10 +141,13 @@ async function promptForManager(p: typeof import('@clack/prompts')) {
 }
 
 let ids: string[] = []
+
 if (templateArg === 'library') {
   const packageName = values.name ?? basename(dir)
+
   if (decision.kind === 'prompt') {
     const p = await import('@clack/prompts')
+
     p.intro('create-octane-xplat')
     await promptForManager(p)
   }
@@ -169,7 +173,9 @@ if (templateArg === 'library') {
   } else if (process.stdout.isTTY) {
     // Non-interactive creation does not need the prompt module.
     const p = await import('@clack/prompts')
+
     p.intro('create-octane-xplat')
+
     const picked = await p.multiselect({
       message: 'Target platforms',
       options: selectableTargets.map((id) => ({
@@ -197,6 +203,7 @@ if (templateArg === 'library') {
   // Targets from the flag skip the multiselect; the manager choice still asks.
   if (decision.kind === 'prompt' && values.targets !== undefined) {
     const p = await import('@clack/prompts')
+
     p.intro('create-octane-xplat')
     await promptForManager(p)
   }
@@ -224,6 +231,7 @@ if (noInstall) {
 
 const managerFloor = compatibility.tools[packageManager]
 const managerInstalled = managerVersion(packageManager)
+
 if (managerInstalled !== undefined && versionBelow(managerInstalled, managerFloor)) {
   console.log(
     `! ${managerLabel(packageManager)} ${managerInstalled} is below the supported ${managerFloor}+ — install may fail`,
@@ -265,9 +273,11 @@ function versionBelow(version: string, floor: string) {
   const parts = (value: string) => value.split('.').map((n) => Number.parseInt(n, 10) || 0)
   const got = parts(version)
   const min = parts(floor)
+
   for (let i = 0; i < Math.max(got.length, min.length); i++) {
     const a = got[i] ?? 0
     const b = min[i] ?? 0
+
     if (a !== b) {
       return a < b
     }

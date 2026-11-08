@@ -75,6 +75,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     source: MotionProps = props,
   ) => {
     const resolved = resolveVariant(definition, source.variants, source.custom)
+
     for (const key of keys) {
       if (resolved.target[key] !== undefined && source.style?.[key] instanceof MotionValue) {
         throw new Error(`motion: ${key} has both an animate target and a MotionValue writer`)
@@ -88,6 +89,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   const resolvedInitial = resolve(initialDefinition)
   const resolvedExit = resolve(props.exit)
   const presence = useContext(PresenceContext)
+
   if (props.exit && !presence) {
     throw new Error('motion: exit requires a mounted Presence boundary')
   }
@@ -98,6 +100,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     config.reducedMotion === 'always' || (config.reducedMotion === 'user' && systemReduced)
 
   const transition = props.transition ?? config.transition ?? {}
+
   validateTransitionInput(transition)
 
   const parentProjection = useContext(ProjectionContext)
@@ -115,12 +118,14 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
   const projRef = useRef<ProjectionNode | null>(null)
   let projection = parentProjection
+
   if (layoutMode) {
     if (!projRef.current || projRef.current.parent !== (parentProjection ?? undefined)) {
       projRef.current = new ProjectionNode(parentProjection ?? undefined)
     }
 
     const node = projRef.current
+
     node.options.animationType = layoutMode
     node.options.layoutId = layoutKey
     node.options.layoutRoot = props.layoutRoot
@@ -147,7 +152,9 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   }
 
   const latest = useRef(props)
+
   latest.current = props
+
   const state = useRef<{
     controller: Controller
     host?: any
@@ -170,6 +177,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   const current = state.current
   const style: Record<string, unknown> = {}
   const bindings: [MotionKey, number | MotionValue][] = []
+
   for (const [key, value] of Object.entries(props.style ?? {})) {
     if (keys.includes(key as MotionKey)) {
       if (
@@ -206,6 +214,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   const firstBinding = useRef(true)
   const firstAnimation = useRef(true)
   const inheritedRun = useRef<{ label: string; resolved: string } | null>(null)
+
   if (
     previous.current.length !== bindings.length ||
     previous.current.some(([key, value], i) => key !== bindings[i][0] || value !== bindings[i][1])
@@ -218,6 +227,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   const gesture = (kind: GestureKind, phase: 'start' | 'end') => {
     const shape = GESTURE_PROPS[kind]
     const definition = latest.current[shape.target]
+
     if (!definition) {
       return
     }
@@ -231,6 +241,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       // Snapshot the gesture's keys so release returns to where they were.
       const snapshot = current.controller.snapshot()
       const rest: Target = {}
+
       for (const key of Object.keys(target) as MotionKey[]) {
         rest[key] = snapshot[key]
       }
@@ -239,9 +250,12 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       void current.controller.animate(target, gestureTransition, playback.current.reduced)
     } else {
       const snap = current.preGesture![kind] ?? {}
+
       current.preGesture![kind] = undefined
+
       // The declarative animate prop wins over the pre-gesture snapshot.
       const rest: Target = {}
+
       for (const key of Object.keys(target) as MotionKey[]) {
         rest[key] =
           resolve(latest.current.animate ?? parentVariant?.animate, latest.current).target[key] ??
@@ -254,6 +268,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   }
 
   const ref = useRef<(host: any) => void>(() => {})
+
   ref.current = (host) => {
     if (!host) {
       return
@@ -272,6 +287,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
       if (!current.initialized) {
         const baseline = current.adapter.read()
+
         for (const [key, value] of previous.current) {
           baseline[key] = value instanceof MotionValue ? value.get() : value
         }
@@ -305,19 +321,24 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   }
 
   const playback = useRef({ transition, reduced })
+
   playback.current = { transition, reduced }
+
   const nodeRef = useRef<VariantNode | null>(null)
+
   if (!nodeRef.current) {
     nodeRef.current = new VariantNode()
   }
 
   const node = nodeRef.current
+
   node.initial =
     initialDefinition === false || isLabels(initialDefinition) ? initialDefinition : undefined
 
   node.animate = isLabels(animateDefinition) ? animateDefinition : undefined
   node.resolve = (definition) => {
     const resolved = resolve(definition, latest.current)
+
     return {
       target: resolved.target,
       transition: resolved.transition ?? playback.current.transition,
@@ -327,7 +348,9 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   node.stopOwn = () => current.controller.stop()
   node.play = async (definition, target, timing) => {
     latest.current.onAnimationStart?.(definition)
+
     const result = await current.controller.animate(target, timing, playback.current.reduced)
+
     if (result === 'finished' && current.host) {
       latest.current.onAnimationComplete?.()
     }
@@ -342,13 +365,18 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
   const returning = useRef<Target | null>(null)
   const member = useRef<PresenceMember | null>(null)
+
   if (!member.current) {
     member.current = {
       exit() {
         node.cancelPending()
+
         const snapshot = current.controller.snapshot()
+
         returning.current ??= {}
+
         const resolved = resolve(latest.current.exit, latest.current)
+
         for (const key of Object.keys(resolved.target) as MotionKey[]) {
           if (!(key in returning.current)) {
             returning.current[key] = snapshot[key]
@@ -363,6 +391,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
         const shared = Promise.resolve().then(() => {
           const projection = projRef.current
+
           return projection?.shared?.setPresent(projection, false) ?? 'finished'
         })
 
@@ -372,12 +401,14 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       },
       enter() {
         const projection = projRef.current
+
         if (projection?.shared) {
           void projection.shared.setPresent(projection, true)
         }
 
         const resolved = resolve(latest.current.animate ?? parentVariant?.animate, latest.current)
         const target = { ...returning.current, ...resolved.target }
+
         returning.current = null
         void current.controller
           .animate(
@@ -397,11 +428,13 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   useLayoutEffect(() => presence?.register(member.current!), [presence])
   useLayoutEffect(() => {
     const node = projRef.current
+
     if (!node) {
       return
     }
 
     const root = projectionRoot()
+
     if (current.rawAdapter && current.adapter === current.rawAdapter) {
       current.adapter = attachProjection(node, current.rawAdapter)
       current.controller.attach(current.adapter)
@@ -433,6 +466,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   )
 
   const hostRef = useRef((host: any) => ref.current(host)).current
+
   useLayoutEffect(
     () => () => {
       node.stop()
@@ -447,6 +481,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
   useLayoutEffect(() => {
     const off: (() => void)[] = []
+
     for (const key of boundKeys.current) {
       if (!previous.current.some(([next]) => key === next)) {
         current.controller.set(key, defaults[key])
@@ -481,6 +516,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
       latest.current,
       (axis) => {
         const binding = previous.current.find(([key]) => key === axis)?.[1]
+
         return binding instanceof MotionValue ? binding : current.controller.value(axis)
       },
       () => playback.current.reduced,
@@ -501,6 +537,7 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
   useLayoutEffect(() => {
     const skip = firstAnimation.current && initialDefinition === false
+
     firstAnimation.current = false
     if (presence && !presence.present) {
       presence.restart(member.current!)
@@ -511,8 +548,10 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
         const label = JSON.stringify(animateDefinition)
         const resolved = JSON.stringify({ resolvedAnimate, transition, reduced })
         const previousRun = inheritedRun.current
+
         if (previousRun?.label === label && previousRun.resolved !== resolved) {
           const parentTiming = parentVariant!.resolve(animateDefinition).transition
+
           void node.run(
             animateDefinition,
             (parentTiming.delayChildren ?? 0) +

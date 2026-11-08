@@ -17,6 +17,7 @@ function gridColumns(columns: 'multi' | 'single' | number, isStacked: boolean): 
   }
 
   const n = columns === 'multi' ? 2 : Math.max(1, columns)
+
   return isStacked
     ? Array.from({ length: n }, () => '*').join(',')
     : Array.from({ length: n }, () => 'auto,*').join(',')

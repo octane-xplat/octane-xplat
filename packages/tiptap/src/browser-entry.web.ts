@@ -20,6 +20,7 @@ installEditorDocument((props) => {
   current = props
   if (!editor) {
     const element = document.createElement('div')
+
     element.className = 'vx-richtext'
     document.getElementById('root')!.append(element)
     editor = new Editor({
@@ -31,9 +32,12 @@ installEditorDocument((props) => {
       onCreate: () => current.onReady?.(),
       onUpdate: ({ editor: e }) => {
         const html = e.getHTML()
+
         lastEmitted = html
         current.onChange?.(html)
+
         const doc = e.getJSON()
+
         lastJSON = JSON.stringify(doc)
         current.onJSONChange?.(doc)
       },
@@ -57,6 +61,7 @@ installEditorDocument((props) => {
   // skipped (the transaction already owns the doc). Stamps track the web
   // leaf's two effects exactly — both advance every props packet.
   const htmlStamp = JSON.stringify([current.json !== undefined, current.value])
+
   if (htmlStamp !== lastHTMLInput) {
     lastHTMLInput = htmlStamp
     if (
@@ -69,6 +74,7 @@ installEditorDocument((props) => {
   }
 
   const jsonStamp = JSON.stringify(current.json)
+
   if (jsonStamp !== lastJSONInput) {
     lastJSONInput = jsonStamp
     if (current.json !== undefined && jsonStamp !== lastJSON) {

@@ -7,6 +7,7 @@ import { parseAccelerator, toGtk } from '../../src/accelerator.ts'
 // the universal renderer into this probe is impractical; the adapter only
 // needs a GtkApplication, a menubar window and a focused entry.
 Gtk.init()
+
 const app = new Gtk.Application({ application_id: 'dev.xplat.AppMenuProbe' })
 const entry = new Gtk.Entry({ text: 'hello' })
 let window = null
@@ -160,15 +161,19 @@ app.connect('activate', () => {
     'Mod+`',
     'Mod+0',
   ]
+
   let parseFailures = 0
+
   for (const source of accelCases) {
     const accel = toGtk(parseAccelerator(source))
     const [keyval] = Gtk.accelerator_parse(accel)
+
     if (!keyval) {
       parseFailures++
       printerr(`ACCEL-FAIL ${source} → ${accel}`)
     }
   }
+
   check(
     parseFailures === 0,
     `accelerator grammar → Gtk.accelerator_parse (${accelCases.length} cases)`,
@@ -181,7 +186,9 @@ app.connect('activate', () => {
     default_height: 120,
     show_menubar: true,
   })
+
   const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
   box.append(entry)
   window.set_child(box)
   window.present()
@@ -190,7 +197,9 @@ app.connect('activate', () => {
   check(appMenu.supported === true, 'appMenu.supported')
   previous = app.get_menubar()
   handle = appMenu.install(menusFor(true), options)
+
   const installNames = xplatActionNames()
+
   check(installNames.length === 13, `13 registered actions (got ${installNames.length})`)
 
   // Mnemonic escaping in the installed menubar model; also capture the
@@ -199,9 +208,11 @@ app.connect('activate', () => {
   let selectAllName = null
   const walk = (menu) => {
     const n = menu.get_n_items()
+
     for (let i = 0; i < n; i++) {
       const label = menu.get_item_attribute_value(i, 'label', null)?.deep_unpack()
       const action = menu.get_item_attribute_value(i, 'action', null)?.deep_unpack()
+
       if (label === 'Save__As') {
         saveAsFound = true
       }
@@ -211,11 +222,13 @@ app.connect('activate', () => {
       }
 
       const sub = menu.get_item_link(i, 'submenu') ?? menu.get_item_link(i, 'section')
+
       if (sub) {
         walk(sub)
       }
     }
   }
+
   walk(app.get_menubar())
   check(saveAsFound, 'menubar label escaped to Save__As')
 
@@ -223,6 +236,7 @@ app.connect('activate', () => {
   const quitAccels = installNames.filter(
     (name) => JSON.stringify(app.get_accels_for_action(`app.${name}`)) === '["<Control>q"]',
   )
+
   check(quitAccels.length === 1, 'quit role accel <Control>q registered')
 
   // selectAll via app-level action activation — handler-level, not OS input.
@@ -231,7 +245,9 @@ app.connect('activate', () => {
     entry.set_position(0)
     if (selectAllName) {
       app.activate_action(selectAllName, null)
+
       const bounds = entry.get_selection_bounds()
+
       check(
         Boolean(bounds) && bounds[bounds.length - 1] === 5,
         'selectAll role covers entry text (action-level)',
@@ -239,6 +255,7 @@ app.connect('activate', () => {
     } else {
       check(false, 'selectAll action name not found')
     }
+
     return GLib.SOURCE_REMOVE
   })
 
@@ -249,6 +266,7 @@ app.connect('activate', () => {
 // observed counters catch up with the driver's real key input.
 let phase = 'await-batch1'
 let waited = 0
+
 GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
   waited += 100
   if (waited > 30000) {
@@ -256,6 +274,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
     app.quit()
     return GLib.SOURCE_REMOVE
   }
+
   switch (phase) {
     case 'await-batch1':
       if (counts.new >= 1 && counts.sidebar === 1 && counts.docA === 1) {
@@ -296,6 +315,7 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
             `old accels cleared for ${name}`,
           )
         }
+
         print('APPMENU_UPDATED')
         return GLib.SOURCE_REMOVE
       })
@@ -315,7 +335,9 @@ GLib.timeout_add(GLib.PRIORITY_DEFAULT, 100, () => {
       check(handle.isDisposed === true, 'isDisposed')
       check(app.get_menubar() === previous, 'menubar restored to previous')
       check(xplatActionNames().length === 0, 'all xplat actions removed')
+
       const second = appMenu.install(menusFor(true), options)
+
       second.dispose()
       if (failures.length === 0) {
         print(

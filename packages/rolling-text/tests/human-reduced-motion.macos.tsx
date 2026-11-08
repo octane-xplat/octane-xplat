@@ -27,6 +27,7 @@ export async function runHumanReducedMotion() {
   const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
   const children = (view: any): any[] => {
     const result = []
+
     for (let index = 0; index < view.subviews.count; index++) {
       result.push(view.subviews.objectAtIndex(index))
     }
@@ -69,6 +70,7 @@ export async function runHumanReducedMotion() {
 
   const until = async (condition: () => boolean, message: string, timeout = 120000) => {
     const deadline = Date.now() + timeout
+
     while (!condition() && Date.now() < deadline) {
       await wait(20)
     }
@@ -78,6 +80,7 @@ export async function runHumanReducedMotion() {
 
   const transition = async (value: boolean) => {
     const start = events.length
+
     console.log('ROLLING_TEXT_HUMAN_TOGGLE ' + JSON.stringify({ reduceMotion: value, baseline }))
     await until(
       () => readReducedMotion() === value && events.slice(start).includes(value),
@@ -136,7 +139,9 @@ export async function runHumanReducedMotion() {
     check(readReducedMotion() === baseline, 'restore the original setting before passing')
     root.unmount()
     off()
+
     const afterOff = events.length
+
     await wait(150)
     check(host.subviews.count === 0 && events.length === afterOff, 'unmount and observer cleanup')
     check(readReducedMotion() === baseline, 'setting must remain restored through cleanup')

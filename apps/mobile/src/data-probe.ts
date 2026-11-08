@@ -17,19 +17,24 @@ const frame = new Frame()
 const pages = [new Page(), new Page()]
 const layouts = pages.map((page) => {
   page.actionBarHidden = true
+
   const layout = new RootLayout()
+
   page.content = layout
   return layout
 })
 
 const hosts = [new GridLayout(), new GridLayout(), new GridLayout(), new GridLayout()]
+
 layouts[0].addChild(hosts[0])
 layouts[1].addChild(hosts[1])
+
 let uncaught = 0
 const roots = hosts.map((host) => createNativeScriptRoot(host))
 const wait = () => new Promise<void>((done) => setTimeout(done, 25))
 async function until(condition: () => boolean) {
   const deadline = Date.now() + 10_000
+
   while (!condition() && Date.now() < deadline) {
     await wait()
   }
@@ -45,11 +50,13 @@ function find(root: number, id: string): any {
 
 function tap(root: number, id: string) {
   const view = find(root, id)
+
   if (!view || !view.isLoaded) {
     throw new Error('data control not loaded: ' + id)
   }
 
   const observers = view.getGestureObservers(1) ?? []
+
   if (!observers.length) {
     throw new Error('data control has no tap observers: ' + id)
   }
@@ -89,11 +96,13 @@ async function run() {
   // A popped NativeScript Page has retired native backing views. Give the
   // separate suspense phase a fresh host instead of navigating that Page again.
   const retainedPage = new Page()
+
   retainedPage.actionBarHidden = true
   hosts[1] = new GridLayout()
   retainedPage.content = hosts[1]
   frame.navigate({ create: () => retainedPage, animated: false })
   await until(() => retainedPage.isLoaded)
+
   // Root 1 retired in the trace; exercise suspense in a new renderer root.
   // Compose the public driver/container ABI to configure the universal root's
   // error callback. This dedicated, non-HMR probe never replaces elements.
@@ -112,6 +121,7 @@ async function run() {
   })
 
   retainedContainer.root = retainedRoot
+
   let resolve!: (value: string) => void
   const pending = new Promise<string>((done) => {
     resolve = done
@@ -125,7 +135,9 @@ async function run() {
   })
 
   await until(() => find(1, 'data-suspend')?.isLoaded === true)
+
   const body = find(1, 'data-suspend')
+
   tap(1, 'data-suspend')
   await until(() => find(1, 'data-pending')?.isLoaded === true)
   if (body.visibility !== 'collapse') {

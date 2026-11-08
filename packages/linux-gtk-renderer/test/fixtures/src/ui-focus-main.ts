@@ -38,7 +38,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -61,11 +63,13 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
 const focusName = () => {
   const f = window.get_focus()
+
   return f ? GObject.type_name(f) : 'null'
 }
 
@@ -78,6 +82,7 @@ const hasFocus = (view: any) => {
       return true
     }
   }
+
   return false
 }
 
@@ -94,6 +99,7 @@ const subtree = (view: any): string[] => {
       walk(c.get_first_child?.(), depth + 1)
     }
   }
+
   walk(view?.get_first_child?.(), 0)
   return names
 }
@@ -114,27 +120,34 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c: any, keyval: number) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const point = (widget: any) => {
   const root2 = widget?.get_native?.()
+
   if (!root2) {
     return null
   }
+
   const [ok, rect] = widget.compute_bounds(root2)
+
   if (!ok) {
     return null
   }
+
   const [tx, ty] = root2.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = root2.get_surface();
     typeof surface.get_parent === 'function';
@@ -143,16 +156,20 @@ const point = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 const clickAt = async (widget: any, mark: string) => {
   const p = widget && point(widget)
+
   if (!p) {
     dbg.push('MISSING widget ' + mark)
     return
   }
+
   events.push('mark:' + mark)
   await ready(p)
   dump(mark)
@@ -167,15 +184,19 @@ const keyPhase = async (mark: string, key: string) => {
 const keyControllers = (view: any): any[] => {
   const found: any[] = []
   const all = view.observe_controllers()
+
   for (let i = 0; i < all.get_n_items(); i++) {
     const item = all.get_item(i)
+
     if (item instanceof Gtk.EventControllerKey) {
       found.push(item)
     }
   }
+
   if (!found.length) {
     throw new Error('no keyboard controller')
   }
+
   return found
 }
 
@@ -189,6 +210,7 @@ const emitKey = (view: any, signal: 'key-pressed' | 'key-released', key: number,
 // Bridge-side modality log — records every transition in order so pointer
 // evidence survives the keyboard F12 that ends each phase.
 const gtkHost = (globalThis as any).__octaneGtkHost
+
 gtkHost?.onInputModalityChange?.(() => events.push('modality:' + gtkHost.getInputModality()))
 
 async function run() {
@@ -196,6 +218,7 @@ async function run() {
   await pump(50)
   window.present()
   await pump(400)
+
   // createGtkRoot prepends XPLAT_MASON_TYPELIB to the repository search
   // path — the namespace is only loadable after that, not at module top.
   const native = (globalThis as any).imports.gi.XplatMason
@@ -212,19 +235,23 @@ async function run() {
   // --- useLandmark: shared leaf forwards role + label onto real widgets.
   const lmMain = findView('lm-main')
   const lmNav = findView('lm-nav')
+
   check(
     'landmark main role reaches widget',
     lmMain?.get_accessible_role() === Gtk.AccessibleRole.MAIN,
   )
+
   check(
     'landmark navigation role reaches widget',
     lmNav?.get_accessible_role() === Gtk.AccessibleRole.NAVIGATION,
   )
+
   check(
     'landmark main label reaches widget',
     native.test_accessible_string_property(lmMain, Gtk.AccessibleProperty.LABEL, 'Main region') ===
       null,
   )
+
   check(
     'landmark nav label reaches widget',
     native.test_accessible_string_property(lmNav, Gtk.AccessibleProperty.LABEL, 'Side nav') ===
@@ -262,6 +289,7 @@ async function run() {
     'useFocus fires onFocus with event',
     events.some((e) => e.startsWith('focus:on:')),
   )
+
   check('useFocus reports focus change', events.includes('focus:change:true'))
   fwA.grab_focus()
   await pump(60)
@@ -274,6 +302,7 @@ async function run() {
     'within ignores moves between descendants',
     !events.slice(events.lastIndexOf('within:on')).includes('within:off'),
   )
+
   kbField.grab_focus()
   await pump(60)
   check('within blur on subtree exit', events.includes('within:off'))
@@ -410,6 +439,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

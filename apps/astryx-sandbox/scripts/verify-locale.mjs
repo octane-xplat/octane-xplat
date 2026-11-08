@@ -4,6 +4,7 @@ import { expect } from 'playwright/test'
 export async function verifyLocale(page, baseUrl, check) {
   const go = (name) =>
     page.goto(`${baseUrl}/templates/${name}/?embed=1`, { waitUntil: 'networkidle' })
+
   await go('InternationalizationProvider01ShippedLocale')
   await expect(page.locator('.vx-select-placeholder')).toHaveText('Select…')
   await page.getByRole('radio', { name: 'FR', exact: true }).click()
@@ -31,12 +32,16 @@ export async function verifyLocale(page, baseUrl, check) {
   await page.getByRole('button', { name: 'Clear selection', exact: true }).click()
   await expect(page.locator('.vx-select-placeholder')).toHaveText('Choose...')
   check('sparse override survives selection and clear; English fallback label', true)
+
   const savedButton = page.getByRole('button', { name: 'Announce saved', exact: true })
+
   await savedButton.focus()
   await page.keyboard.press('Enter')
   await expect(savedButton).toBeFocused()
+
   const polite = page.locator('[data-xplat-live-region="polite"]')
   const assertive = page.locator('[data-xplat-live-region="assertive"]')
+
   await expect(polite).toHaveText('Billing region saved')
   await expect(polite).toHaveAttribute('aria-live', 'polite')
   await page.getByRole('button', { name: 'Announce error', exact: true }).click()
@@ -51,9 +56,11 @@ export async function verifyLocale(page, baseUrl, check) {
   check('announcement channels, explicit clear, repeat and timeout (DOM only)', true)
 
   await go('InternationalizationProvider03RtlDirection')
+
   const rootDirection = await page.locator('html').getAttribute('dir')
   const scope = page.locator('[data-direction-scope]')
   const pager = scope.locator('.vx-pagination').first()
+
   await expect(scope).toHaveAttribute('dir', 'ltr')
   await expect(pager.getByRole('button', { name: 'Previous page' })).toHaveText('‹')
   await page.getByRole('radio', { name: 'RTL', exact: true }).click()
@@ -79,7 +86,9 @@ export async function verifyLocale(page, baseUrl, check) {
 
   await go('ComplexSelectorShowcase')
   await page.getByText('Select department', { exact: true }).click()
+
   const cells = page.locator('[data-grid-cell]')
+
   await expect(cells).toHaveCount(9)
   await cells.first().focus()
   for (const [key, index] of [
@@ -93,6 +102,7 @@ export async function verifyLocale(page, baseUrl, check) {
     await page.keyboard.press(key)
     await expect(cells.nth(index)).toBeFocused()
   }
+
   await page.keyboard.press('Enter')
   await expect(page.locator('[data-grid-cell]')).toHaveCount(0)
   await expect(page.locator('body')).toContainText('Engineering')

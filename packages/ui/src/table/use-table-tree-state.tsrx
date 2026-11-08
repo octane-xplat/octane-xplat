@@ -87,6 +87,7 @@ export function useTableTreeState<T extends Record<string, unknown>>(
   const getChildren = useCallback(
     (item: T): T[] => {
       const children = item[childrenKey]
+
       return Array.isArray(children) ? (children as T[]) : []
     },
     [childrenKey],
@@ -108,8 +109,11 @@ export function useTableTreeState<T extends Record<string, unknown>>(
 
   // Stable refs so callbacks don't churn on inline-prop identity changes
   const expandedIdsRef = useRef(expandedIds)
+
   expandedIdsRef.current = expandedIds
+
   const onExpandedIdsChangeRef = useRef(onExpandedIdsChange)
+
   onExpandedIdsChangeRef.current = onExpandedIdsChange
 
   const commitExpandedIds = useCallback(
@@ -138,14 +142,17 @@ export function useTableTreeState<T extends Record<string, unknown>>(
     const path = new Set<string>()
     const walk = (items: T[], level: number) => {
       const siblings = sortSiblings ? sortSiblings([...items]) : items
+
       for (const item of siblings) {
         const id = getId(item)
+
         if (path.has(id)) {
           continue // cyclic edge — this row is its own ancestor
         }
 
         const hasChildren = getIsExpandable(item)
         const isExpanded = hasChildren && expandedIds.has(id)
+
         rows.push(item)
         meta.set(id, { id, level, hasChildren, isExpanded })
         if (isExpanded) {
@@ -169,6 +176,7 @@ export function useTableTreeState<T extends Record<string, unknown>>(
     const walk = (items: T[]) => {
       for (const item of items) {
         const id = getId(item)
+
         if (path.has(id)) {
           continue
         }
@@ -197,6 +205,7 @@ export function useTableTreeState<T extends Record<string, unknown>>(
     }
 
     const expandedCount = allExpandableIds.filter((id) => expandedIds.has(id)).length
+
     if (expandedCount === 0) {
       return false
     }
@@ -212,6 +221,7 @@ export function useTableTreeState<T extends Record<string, unknown>>(
     (item: T) => {
       const id = getId(item)
       const next = new Set(expandedIdsRef.current)
+
       if (next.has(id)) {
         next.delete(id)
       } else {

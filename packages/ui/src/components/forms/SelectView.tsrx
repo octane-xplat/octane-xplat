@@ -24,6 +24,7 @@ export function SelectView(props: SelectViewProps): unknown @{
   const MultiInd = useIndicator('checkbox') ?? CheckboxIndicator
   const busy = Boolean(props.isLoading || props.pending)
   const blocked = Boolean(props.isDisabled || props.isReadOnly)
+
   useEffect(() => {
     if (!props.open) {
       didFocus.current = false

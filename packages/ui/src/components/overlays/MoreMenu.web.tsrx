@@ -32,6 +32,7 @@ export function MoreMenu(props: MoreMenuProps): JSX.Element @{
   const [localOpen, setLocalOpen] = useState(false)
   const MenuItemView: any = Pressable
   const [adaptiveSheet, setAdaptiveSheet] = useState(false)
+
   useEffect(() => {
     if (props.presentation !== 'adaptive') {
       setAdaptiveSheet(false)
@@ -40,6 +41,7 @@ export function MoreMenu(props: MoreMenuProps): JSX.Element @{
 
     const query = window.matchMedia('(max-width: 768px) and (pointer: coarse)')
     const update = () => setAdaptiveSheet(query.matches)
+
     update()
     query.addEventListener?.('change', update)
     return () => query.removeEventListener?.('change', update)

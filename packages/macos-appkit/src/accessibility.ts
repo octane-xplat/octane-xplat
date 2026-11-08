@@ -20,25 +20,33 @@ export function createAccessibility(deps: Dependencies) {
   const leases = new WeakMap<ElementNode, { view: object; lease: AccessibilityLease }>()
   function accessibilityLease(node: ElementNode) {
     const prior = leases.get(node)
+
     if (prior?.view === node.view && prior.lease.current()) {
       return prior.lease
     }
+
     prior?.lease.release()
+
     const lease = deps.state.acquire(node.view!)
+
     leases.set(node, { view: node.view!, lease })
     return lease
   }
+
   function disposeAccessibility(node: ElementNode) {
     const prior = leases.get(node)
+
     leases.delete(node)
     prior?.lease.release()
   }
+
   function applyAccessibility(node: ElementNode, name: string, value: any) {
     // Every mason-backed container hosts AccessibleHostView, so AX props apply
     // to any interactive container — not just the old stack/flex hosts.
     if (node.view instanceof deps.accessibleHost.AccessibleHostView) {
       const lease = accessibilityLease(node)
       const props = deps.state.get(node.view!) ?? {}
+
       if (name === 'onAccessibilityIncrement' || name === 'onAccessibilityDecrement') {
         const handler = value
         const adjustment = name
@@ -59,6 +67,7 @@ export function createAccessibility(deps: Dependencies) {
                 ) {
                   return false
                 }
+
                 try {
                   node.container.root.eventScope('discrete', handler)
                   return true
@@ -75,6 +84,7 @@ export function createAccessibility(deps: Dependencies) {
       // Native props are normalized by the owning prop handlers; only semantic
       // fields enter this typed view record, never action IDs or handlers.
       const patch: Partial<AccessibilityProps> = {}
+
       switch (name) {
         case 'accessible':
           patch.accessible = value
@@ -115,6 +125,7 @@ export function createAccessibility(deps: Dependencies) {
       }
 
       lease.update(patch)
+
       const changed =
         name === 'accessibilityValue'
           ? !Object.is(props.accessibilityValue, value)
@@ -158,6 +169,7 @@ export function createAccessibility(deps: Dependencies) {
         node.view!.setAccessibilityLabel?.(String(value ?? ''))
       } else if (name === 'accessibilityRole') {
         const view = node.view!
+
         if (node.nativeTextRole && node.nativeTextRole.view !== view) {
           node.nativeTextRole.view.accessibilityRole = node.nativeTextRole.original
           node.nativeTextRole = undefined
@@ -172,6 +184,7 @@ export function createAccessibility(deps: Dependencies) {
         }
       } else if (name === 'accessibilityState') {
         const view = node.view!
+
         if (node.type === 'textview') {
           view.setAccessibilityEnabled?.(value?.disabled !== true)
         }
@@ -195,6 +208,7 @@ export function createAccessibility(deps: Dependencies) {
       }
     }
   }
+
   return {
     applyAccessibility,
     disposeAccessibility,

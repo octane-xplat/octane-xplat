@@ -17,6 +17,7 @@ const canCopy =
 
 async function writeText(text: string): Promise<boolean> {
   const host = desktopHost()
+
   if (host && (await desktopHostSupports('clipboard', 'write'))) {
     try {
       return await host.clipboard.write(text)
@@ -35,6 +36,7 @@ async function writeText(text: string): Promise<boolean> {
 
 async function readText(): Promise<string | null> {
   const host = desktopHost()
+
   if (host && (await desktopHostSupports('clipboard', 'read'))) {
     try {
       return await host.clipboard.read()

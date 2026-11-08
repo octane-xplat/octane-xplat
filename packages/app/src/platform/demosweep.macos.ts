@@ -15,6 +15,7 @@ const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 async function waitFor(predicate: () => boolean, timeout = 6000): Promise<boolean> {
   const deadline = Date.now() + timeout
+
   while (Date.now() < deadline) {
     if (predicate()) {
       return true
@@ -40,6 +41,7 @@ function assert(name: string, result: boolean): void {
 
 async function run(): Promise<void> {
   const debug = globalThis.__xplatMacOSDebug
+
   if (!debug) {
     throw new Error('AppKit debug interface is unavailable')
   }
@@ -75,6 +77,7 @@ async function run(): Promise<void> {
   const demoMounted = (demo: (typeof demoCases)[number]) =>
     waitFor(() => {
       const labels = debug.snapshot().labels
+
       return (
         labels.some((label) => label.includes(demo.title)) &&
         labels.includes('demo layout') &&
@@ -88,6 +91,7 @@ async function run(): Promise<void> {
   }
 
   const homeMounted = await waitFor(() => has('Kitchen sink') && has('Count: 0'))
+
   assert('harness Home mounted', homeMounted)
   if (!homeMounted) {
     return
@@ -97,11 +101,15 @@ async function run(): Promise<void> {
   assert('Home counter updates', await waitFor(() => has('Count: 1')))
 
   debug.pressId('app-tabs-tab-1')
+
   const appsMounted = await waitFor(() => has('Apps') && has('Counter'))
+
   assert('Apps tab mounted shared gallery', appsMounted)
   if (appsMounted) {
     debug.pressId('menu-counter')
+
     const counterMounted = await waitFor(() => has('Demo count: 0') && has('demo layout'))
+
     assert('shared Counter demo mounted through route', counterMounted)
     if (!counterMounted) {
       console.log(
@@ -123,7 +131,9 @@ async function run(): Promise<void> {
 
     for (const demo of demoCases) {
       debug.pressId('menu-' + demo.id)
+
       const mounted = await demoMounted(demo)
+
       assert('shared ' + demo.title + ' demo mounts with its nested layout', mounted)
       if (mounted && demo.id === 'stopwatch') {
         debug.pressId('sw-toggle')
@@ -149,6 +159,7 @@ async function run(): Promise<void> {
 
       if (mounted && demo.id === 'vlist') {
         const mountedRows = debug.metrics().mountedRowCount
+
         assert(
           'AppKit VirtualList windows 500 rows (' + mountedRows + ' mounted)',
           mountedRows > 0 && mountedRows < 500,
@@ -166,7 +177,9 @@ async function run(): Promise<void> {
   }
 
   debug.pressId('app-tabs-tab-2')
+
   const testMounted = await waitFor(() => has('Test') && has('Platform services'))
+
   assert('Test tab mounted probes and services', testMounted)
   if (testMounted) {
     debug.pressId('multi-pressable')

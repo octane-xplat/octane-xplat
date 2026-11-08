@@ -1,6 +1,7 @@
 /** Return a new order. Invalid indices leave the order unchanged. */
 export function arrayMove<T>(items: readonly T[], from: number, to: number): T[] {
   const result = [...items]
+
   if (
     !Number.isInteger(from) ||
     !Number.isInteger(to) ||
@@ -14,6 +15,7 @@ export function arrayMove<T>(items: readonly T[], from: number, to: number): T[]
   }
 
   const [item] = result.splice(from, 1)
+
   result.splice(to, 0, item!)
   return result
 }

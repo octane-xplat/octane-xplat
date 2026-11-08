@@ -26,6 +26,7 @@ describe('layout platform gate', () => {
   it('renders a layout host on the native build', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     expect(() => root.render(LayoutBox, {})).not.toThrow()
     root.unmount()
   })

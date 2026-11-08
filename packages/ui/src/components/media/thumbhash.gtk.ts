@@ -12,6 +12,7 @@ import { rgbaToThumbHashUri, thumbHashTargetSize, unpremultiplyRGBA } from './ha
 function dataBytes(body: string): Uint8Array {
   const raw = new TextEncoder().encode(body)
   const bytes: number[] = []
+
   for (let i = 0; i < raw.length; i++) {
     if (raw[i] !== 37) {
       bytes.push(raw[i])
@@ -19,6 +20,7 @@ function dataBytes(body: string): Uint8Array {
     }
 
     const pair = String.fromCharCode(raw[i + 1] ?? 0, raw[i + 2] ?? 0)
+
     if (!/^[0-9a-f]{2}$/i.test(pair)) {
       throw new Error('Invalid image data URI escape')
     }
@@ -26,6 +28,7 @@ function dataBytes(body: string): Uint8Array {
     bytes.push(Number.parseInt(pair, 16))
     i += 2
   }
+
   return new Uint8Array(bytes)
 }
 
@@ -38,29 +41,36 @@ async function sourceBytes(src: string): Promise<any> {
   if (/^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i.test(src)) {
     return new GLib.Bytes(new TextEncoder().encode(src))
   }
+
   if (src.startsWith('data:')) {
     const comma = src.indexOf(',')
+
     if (comma < 0) {
       throw new Error('Invalid image data URI')
     }
 
     const header = src.slice(0, comma)
     const body = src.slice(comma + 1)
+
     return new GLib.Bytes(/;base64$/i.test(header) ? GLib.base64_decode(body) : dataBytes(body))
   }
 
   if (/^https?:\/\//i.test(src)) {
     const session = new Soup.Session({ timeout: 30 })
+
     return await new Promise((resolve, reject) => {
       const message = Soup.Message.new('GET', src)
+
       if (!message) {
         reject(new Error('thumbHashUri: invalid image URI'))
         return
       }
+
       session.send_and_read_async(message, GLib.PRIORITY_DEFAULT, null, (_s: any, result: any) => {
         try {
           const bytes = session.send_and_read_finish(result)
           const status = message.get_status()
+
           if (status < 200 || status >= 300) {
             reject(new Error('thumbHashUri: HTTP ' + status))
             return
@@ -75,6 +85,7 @@ async function sourceBytes(src: string): Promise<any> {
   }
 
   let file: any
+
   if (src.startsWith('~/')) {
     file = Gio.File.new_for_uri(import.meta.url)
       .get_parent()
@@ -86,6 +97,7 @@ async function sourceBytes(src: string): Promise<any> {
   } else {
     file = Gio.File.new_for_path(src)
   }
+
   return await new Promise((resolve, reject) => {
     file.load_bytes_async(null, (f: any, result: any) => {
       try {
@@ -104,11 +116,13 @@ export async function thumbHashUri(src: string): Promise<string> {
   const bytes = await sourceBytes(src)
   const stream = Gio.MemoryInputStream.new_from_bytes(bytes)
   let pixbuf: any
+
   try {
     pixbuf = GdkPixbuf.Pixbuf.new_from_stream(stream, null)
   } catch (error) {
     throw new Error('thumbHashUri: could not decode image source')
   }
+
   if (!pixbuf || !(pixbuf.get_width() > 0 && pixbuf.get_height() > 0)) {
     throw new Error('thumbHashUri: could not decode image source')
   }
@@ -122,16 +136,19 @@ export async function thumbHashUri(src: string): Promise<string> {
   // Normalize to straight-alpha RGBA8 rows — Pixbuf rows are unpremultiplied
   // already, but rowstride may pad and non-alpha pixbufs carry 3 channels.
   const rgba = new Uint8Array(w * h * 4)
+
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w; x++) {
       const si = y * stride + x * channels
       const di = (y * w + x) * 4
+
       rgba[di] = raw[si]
       rgba[di + 1] = raw[si + 1]
       rgba[di + 2] = raw[si + 2]
       rgba[di + 3] = channels === 4 ? raw[si + 3] : 255
     }
   }
+
   unpremultiplyRGBA(rgba)
   return rgbaToThumbHashUri(w, h, rgba)
 }

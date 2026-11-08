@@ -1,5 +1,6 @@
 import { useRef, useState } from 'octane'
 import type { GridFocusOptions, GridFocusResult } from './use-grid-focus'
+
 export type { GridFocusOptions, GridFocusResult }
 
 /** Web `useGridFocus` — roving-tabindex arrow-key grid navigation. The host
@@ -15,26 +16,34 @@ export function useGridFocus<T extends HTMLElement = HTMLElement>(
 
   const focusCell = (index: number) => {
     const host = ref.current
+
     if (!host) {
       return
     }
+
     const cells = host.querySelectorAll('[data-grid-cell]')
     const clamped = Math.max(0, Math.min(index, cells.length - 1))
     const el = cells[clamped] as HTMLElement | undefined
+
     el?.focus()
   }
 
   const onKeyDown = (event: KeyboardEvent) => {
     const host = ref.current
+
     if (!host) {
       return
     }
+
     const cells = [...host.querySelectorAll('[data-grid-cell]')] as HTMLElement[]
     const current = cells.indexOf(document.activeElement as HTMLElement)
+
     if (current < 0) {
       return
     }
+
     let next = current
+
     switch (event.key) {
       case 'ArrowRight':
         next = Math.min(current + 1, cells.length - 1)
@@ -57,6 +66,7 @@ export function useGridFocus<T extends HTMLElement = HTMLElement>(
       default:
         return
     }
+
     event.preventDefault()
     if (next !== current) {
       focusCell(next)

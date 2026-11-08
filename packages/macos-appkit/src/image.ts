@@ -34,8 +34,10 @@ const imageBytes = createImageByteCache(() => ({
 export function loadImage(source: unknown): NSImage | null {
   const src = String(source ?? '')
   const match = /^data:[^,]*;base64,(.+)$/s.exec(src)
+
   if (match) {
     const data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
+
     return data ? NSImage.alloc().initWithData(data) : null
   }
 
@@ -82,6 +84,7 @@ interface ImageRequest {
 }
 
 const requests = new WeakMap<object, ImageRequest>()
+
 export interface AppKitImageLoadEvent {
   width: number
   height: number
@@ -94,6 +97,7 @@ interface ImageEventHandlers {
 }
 
 const eventHandlers = new WeakMap<object, ImageEventHandlers>()
+
 export function setImageEventHandlers(view: NSImageView, handlers?: ImageEventHandlers): void {
   if (handlers?.onLoad || handlers?.onError) {
     eventHandlers.set(view, handlers)
@@ -106,6 +110,7 @@ function clearImageNotification(request: ImageRequest) {
   if (request.notification !== undefined) {
     clearTimeout(request.notification)
   }
+
   request.notification = undefined
 }
 
@@ -118,12 +123,14 @@ function notifyImageResult(
   if (!current() || request.notified) {
     return
   }
+
   clearImageNotification(request)
   request.notification = setTimeout(() => {
     request.notification = undefined
     if (!current() || request.notified) {
       return
     }
+
     request.notified = true // Claim before metadata or consumer reentry, even without a handler.
     try {
       if ('load' in result) {
@@ -132,6 +139,7 @@ function notifyImageResult(
         }
 
         const event = result.load()
+
         if (current()) {
           eventHandlers.get(view)?.onLoad?.(event, current)
         }
@@ -141,6 +149,7 @@ function notifyImageResult(
         }
 
         const event = result.error()
+
         if (current()) {
           eventHandlers.get(view)?.onError?.(event, current)
         }
@@ -166,11 +175,13 @@ function startImage(
   if (!/^https?:\/\//i.test(source)) {
     const timer = setTimeout(() => {
       let image: NSImage | null = null
+
       try {
         image = loadImage(source)
       } catch (error) {
         console.error('[macos-image] decode failed', error)
       }
+
       complete(image ? { image, source: 'local' } : null)
     }, 0)
 
@@ -181,6 +192,7 @@ function startImage(
     source,
     (result) => {
       let image: NSImage | null = null
+
       if (result) {
         try {
           image = NSImage.alloc().initWithData(result.data)
@@ -188,6 +200,7 @@ function startImage(
           console.error('[macos-image] remote decode failed', error)
         }
       }
+
       complete(image && result ? { image, source: result.source } : null)
     },
     policy,
@@ -251,12 +264,16 @@ export function updateImage(
   policy: 'memory-disk' | 'none' | null = 'memory-disk',
 ) {
   const effectivePolicy = policy ?? 'memory-disk'
+
   if (effectivePolicy !== 'memory-disk' && effectivePolicy !== 'none') {
     throw new TypeError('Invalid AppKit image cache policy')
   }
+
   const src = String(source ?? ''),
     ph = String(placeholder ?? '')
+
   let request = requests.get(view)
+
   if (!request) {
     request = {
       source: '',
@@ -270,14 +287,19 @@ export function updateImage(
 
     requests.set(view, request)
   }
+
   const sourceChanged = request.source !== src || request.policy !== effectivePolicy
+
   if (!sourceChanged && request.placeholder === ph) {
     return
   }
+
   const previousPlaceholder = request.placeholderImage
+
   if (request.placeholder !== ph) {
     request.placeholderImage = null
   }
+
   request.placeholder = ph
   if (sourceChanged) {
     request.source = src
@@ -287,24 +309,31 @@ export function updateImage(
     request.notified = false
     clearImageNotification(request)
   }
+
   const generation = request.generation
   const current = () => requests.get(view) === request && request.generation === generation
+
   if (sourceChanged) {
     const previousRelease = request.release
+
     request.release = undefined
     previousRelease?.()
     if (!current()) {
       return
     }
   }
+
   const showPlaceholder = () => {
     const ownsPlaceholder = () => current() && request.placeholder === ph
+
     if (!ownsPlaceholder()) {
       return
     }
+
     if (ph && !request.placeholderImage) {
       try {
         const image = loadImage(ph)
+
         if (!ownsPlaceholder()) {
           return
         }
@@ -314,9 +343,11 @@ export function updateImage(
         console.error('[macos-image] placeholder decode failed', error)
       }
     }
+
     if (!ownsPlaceholder()) {
       return
     }
+
     if (
       request.placeholderImage ||
       request.phase === 'empty' ||
@@ -332,6 +363,7 @@ export function updateImage(
       }
     }
   }
+
   // A placeholder update paints current loading/failure chrome, not another
   // source request or terminal notification. It must not cover a loaded image.
   if (!sourceChanged) {
@@ -341,15 +373,18 @@ export function updateImage(
 
     return
   }
+
   if (!src) {
     showPlaceholder()
     return
   }
+
   let memoryHit = true
   const deliver = (loaded: LoadedImage | null) => {
     if (!current()) {
       return
     }
+
     request.phase = loaded ? 'success' : 'failure'
     try {
       view.image = (loaded?.image ?? request.placeholderImage) as NSImage
@@ -363,9 +398,11 @@ export function updateImage(
 
       return
     }
+
     if (!current()) {
       return
     }
+
     if (loaded) {
       notifyImageResult(view, request, current, {
         load: () => ({
@@ -379,6 +416,7 @@ export function updateImage(
       })
     }
   }
+
   const release = (effectivePolicy === 'none' ? bypassImageRequests : imageRequests).subscribe(
     src,
     deliver,
@@ -387,6 +425,7 @@ export function updateImage(
       showPlaceholder()
     },
   )
+
   if (current()) {
     request.release = release
   } else {
@@ -403,10 +442,12 @@ export function requestImage(source: string, deliver: (image: NSImage | null) =>
 /** Invalidates any in-flight decode for `view`; call when its node is destroyed. */
 export function disposeImage(view: NSImageView) {
   const request = requests.get(view)
+
   requests.delete(view)
   eventHandlers.delete(view)
   if (request) {
     clearImageNotification(request)
   }
+
   request?.release?.()
 }

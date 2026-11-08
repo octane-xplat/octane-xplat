@@ -3,6 +3,7 @@ import { Button, Center, useTooltip } from '@octane-xplat/ui'
 
 export function TooltipHookUsage() @{
   const tooltip = useTooltip({ placement: 'above', delay: 100 })
+
   return (
     <Center>
       <Button

@@ -39,10 +39,13 @@ export function Switch(inputProps: SwitchProps): unknown @{
   const loading = Boolean(props.isLoading || pending)
   const isBlocked = props.isDisabled || props.isReadOnly || pending
   const latest = useRef(props)
+
   latest.current = props
+
   const colors = controlColors(useThemeScheme() === 'dark')
   const toggle = () => {
     const props = latest.current
+
     if (!attached.current || props.isDisabled || props.isReadOnly || active.current) {
       return
     }
@@ -52,6 +55,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
 
     const uncontrolled = props.value === undefined
     const token = Symbol('switch-action')
+
     active.current = token // Claim before application callbacks can reenter.
     try {
       if (uncontrolled) {

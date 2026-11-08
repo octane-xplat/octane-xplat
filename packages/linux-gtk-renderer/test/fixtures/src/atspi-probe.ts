@@ -5,9 +5,12 @@ import { createGtkContainer, gtkDriver } from '@octane-xplat/linux-gtk'
 import type { UniversalHostCommand } from 'octane/universal/native'
 
 Gtk.init()
+
 const window = new Gtk.Window({ title: 'Xplat AT-SPI regression' })
 const box = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(box)
+
 const container = createGtkContainer(box)
 const apply = (commands: UniversalHostCommand[]) =>
   gtkDriver
@@ -39,7 +42,9 @@ apply([
 ])
 
 window.present()
+
 const loop = new GLib.MainLoop(null, false)
+
 GLib.timeout_add(0, 4000, () => {
   apply([
     cmd('update', 1, {
@@ -47,6 +52,7 @@ GLib.timeout_add(0, 4000, () => {
     }),
     cmd('update', 2, { props: { accessibilityLabel: 'Build status: passing', text: 'Still OK' } }),
   ])
+
   return false
 })
 
@@ -55,6 +61,7 @@ GLib.timeout_add(0, 8000, () => {
     cmd('update', 1, { props: { text: 'Changed', testID: 'save-id' } }),
     cmd('update', 2, { props: { text: 'Still OK' } }),
   ])
+
   return false
 })
 

@@ -19,9 +19,11 @@ function fixture() {
     },
     removeObserver: (token: unknown) => removed.push(token),
   }
+
   const dispatcher = createAppKitFocusWithinDispatcher(() => ({
     NSNotificationCenter: { defaultCenter: center },
   }))
+
   const window: any = { firstResponder: null }
   const root: any = { window, superview: null }
   const first: any = { window, superview: root }
@@ -31,6 +33,7 @@ function fixture() {
     window.firstResponder = view
     notify({ object: window })
   }
+
   return {
     dispatcher,
     window,
@@ -47,11 +50,13 @@ function fixture() {
 test('container callbacks report boundary crossings, not movement among descendants', () => {
   const env = fixture()
   const events: any[] = []
+
   env.window.firstResponder = env.outside
   env.dispatcher.set(env.root, {
     onFocus: (event) => events.push(event),
     onBlur: (event) => events.push(event),
   })
+
   env.focus(env.outside)
   env.focus(env.first)
   env.focus(env.second)
@@ -71,8 +76,11 @@ test('container callbacks report boundary crossings, not movement among descenda
 test('shared field editor resolves to its owning control before native ancestry', () => {
   const env = fixture()
   const editor = { window: env.window, delegate: env.first, superview: null }
+
   env.first.currentEditor = () => editor
+
   const events: any[] = []
+
   env.dispatcher.set(env.root, { onFocus: (event) => events.push(event) })
   env.focus(editor)
   assert.equal(events[0].target, env.first)
@@ -86,12 +94,14 @@ test('shared field editor resolves to its owning control before native ancestry'
 test('replacements retain state; removals release the observer and pending initial sync', async () => {
   const env = fixture()
   const calls: string[] = []
+
   env.window.firstResponder = env.first
   env.dispatcher.set(env.root, { onFocus: () => calls.push('old') })
   env.dispatcher.set(env.root, {
     onFocus: () => calls.push('new'),
     onBlur: () => calls.push('blur'),
   })
+
   assert.deepEqual(calls, [])
   await Promise.resolve()
   assert.deepEqual(calls, ['new'])
@@ -111,13 +121,17 @@ test('windows and nested boundaries keep independent containment state', () => {
   const env = fixture()
   const secondWindow: any = { firstResponder: null }
   const other: any = { window: secondWindow, superview: null }
+
   secondWindow.firstResponder = other
+
   const calls: string[] = []
+
   env.dispatcher.set(env.root, { onFocus: () => calls.push('root') })
   env.dispatcher.set(env.first, {
     onFocus: () => calls.push('child'),
     onBlur: () => calls.push('child-blur'),
   })
+
   env.dispatcher.set(other, { onFocus: () => calls.push('other') })
   env.focus(env.first)
   env.dispatcher.synchronize(secondWindow)
@@ -129,6 +143,7 @@ test('windows and nested boundaries keep independent containment state', () => {
 test('detachment emits an exit and reparenting permits a later entry', () => {
   const env = fixture()
   const calls: string[] = []
+
   env.dispatcher.set(env.root, { onFocus: () => calls.push('in'), onBlur: () => calls.push('out') })
   env.focus(env.first)
   env.root.window = null
@@ -142,6 +157,7 @@ test('detachment emits an exit and reparenting permits a later entry', () => {
 
 test('unavailable or failed native observation is reported without throwing', () => {
   const missing = createAppKitFocusWithinDispatcher(() => ({}))
+
   assert.equal(missing.available(), false)
   missing.set(
     {},
@@ -151,7 +167,9 @@ test('unavailable or failed native observation is reported without throwing', ()
       },
     },
   )
+
   missing.dispose()
+
   const failed = createAppKitFocusWithinDispatcher(() => ({
     NSNotificationCenter: {
       defaultCenter: {
@@ -162,6 +180,7 @@ test('unavailable or failed native observation is reported without throwing', ()
       },
     },
   }))
+
   failed.set({}, { onFocus() {} })
   assert.equal(failed.available(), false)
   failed.dispose()

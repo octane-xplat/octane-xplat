@@ -15,6 +15,7 @@ import { installedPackageRoot } from '../package-root.ts'
 import { macOSDevBundleId } from '../native-identity.ts'
 
 const [, , input, output] = process.argv
+
 if (!input || !output) {
   throw new Error('Usage: node dev-worker.js REQUEST.json READY.json')
 }
@@ -23,6 +24,7 @@ const protocol = 'octane-dev-worker',
   version = 2
 
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr })
+
 let id: unknown = null
 const processes: Array<Record<string, unknown>> = []
 let droppedProcesses = 0
@@ -38,14 +40,18 @@ function reply(value: Record<string, unknown>): void {
       ...value,
       ...(latest ? { data: { ...latest, appId, processes, droppedProcesses } } : {}),
     })
+
   while (processes.length > 1 && Buffer.byteLength(envelope()) > 65536) {
     processes.shift()
     droppedProcesses++
   }
+
   const bytes = envelope()
+
   if (Buffer.byteLength(bytes) > 65536) {
     throw new Error('Development readiness exceeds 64 KiB')
   }
+
   writeFileSync(temporary, bytes, { mode: 0o600 })
   renameSync(temporary, output)
 }
@@ -56,6 +62,7 @@ try {
   }
 
   const request = JSON.parse(readFileSync(input, 'utf8'))
+
   id = request.id
   if (
     request.protocol !== protocol ||
@@ -78,6 +85,7 @@ try {
   }
 
   const resource = request.resourceRoot
+
   if (
     typeof resource !== 'string' ||
     !lstatSync(resource).isDirectory() ||
@@ -102,15 +110,18 @@ try {
         executable: meta.executable,
         observedAt: meta.observedAt ?? new Date().toISOString(),
       })
+
       if (processes.length > 64) {
         processes.shift()
         droppedProcesses++
       }
+
       reply({ ok: true })
     },
   })
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error)
+
   console.error(message)
   reply({ ok: false, error: { code: 'execution_failure', message: message.slice(0, 8192) } })
   process.exitCode = 1

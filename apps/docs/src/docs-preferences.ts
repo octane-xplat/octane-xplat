@@ -5,6 +5,7 @@ const THEME_PREFERENCE_KEY = 'xplat-docs-theme'
 export function readThemePreference(): boolean | null {
   try {
     const saved = storage.getString(THEME_PREFERENCE_KEY)
+
     return saved === 'dark' ? true : saved === 'light' ? false : null
   } catch {
     return null

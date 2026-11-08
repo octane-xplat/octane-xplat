@@ -25,6 +25,7 @@ describe('mapWindowsSpeechError', () => {
   for (const [status, code] of cases) {
     it(`maps status ${status} to '${code}'`, () => {
       const error = mapWindowsSpeechError(status)
+
       expect(error.code).toBe(code)
       expect(error.nativeCode).toBe(status)
     })
@@ -47,6 +48,7 @@ describe('windows leaf', () => {
 
   it('reports unsupported from getAvailability without a projection', async () => {
     const availability = await speechRecognition.getAvailability({ lang: 'en-US' })
+
     expect(availability.available).toBe(false)
     expect(availability.reason).toBe('unsupported')
     expect(availability.networkUse).toBeNull()
@@ -54,7 +56,9 @@ describe('windows leaf', () => {
 
   it('reports required network use when the projection is present', async () => {
     installProjection({ results: [] })
+
     const availability = await speechRecognition.getAvailability({ lang: 'en-US' })
+
     expect(availability).toMatchObject({
       available: true,
       reason: null,
@@ -66,12 +70,15 @@ describe('windows leaf', () => {
 
   it('maps NotDeclaredByApp to an unsupported permission', async () => {
     installProjection({ results: [], micStatus: 1 })
+
     const permission = await speechRecognition.getPermissions()
+
     expect(permission).toEqual({ status: 'unsupported', granted: false, canAskAgain: false })
   })
 
   it('requests access only while undetermined', async () => {
     let requests = 0
+
     installProjection({
       results: [],
       micStatus: 3,
@@ -80,7 +87,9 @@ describe('windows leaf', () => {
         return 4
       },
     })
+
     const first = await speechRecognition.requestPermissions()
+
     expect(first.status).toBe('granted')
     expect(requests).toBe(1)
   })
@@ -95,14 +104,18 @@ describe('windows leaf', () => {
         { Status: 10, Text: '' },
       ],
     })
+
     const transcripts: string[] = []
     const session = speechRecognition.start({ continuous: true })
+
     session.subscribe((event) => {
       if (event.type === 'transcript' && event.isFinal) {
         transcripts.push(event.transcript)
       }
     })
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('network')
     expect(transcripts).toEqual(['hello world', 'hello world second take'])
@@ -111,7 +124,9 @@ describe('windows leaf', () => {
 
   it('ends a non-continuous session with no-speech on utterance timeout', async () => {
     installProjection({ results: [{ Status: 9, Text: '' }] })
+
     const result = await speechRecognition.start().result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('no-speech')
   })
@@ -121,15 +136,19 @@ describe('windows leaf', () => {
       results: [{ Status: 0, Text: 'final text' }],
       interimText: 'partial words',
     })
+
     const transcripts: string[] = []
     const session = speechRecognition.start({ interimResults: true })
+
     session.subscribe((event) => {
       if (event.type === 'transcript') {
         transcripts.push(`${event.transcript}|${event.isFinal}`)
       }
     })
+
     // The fake emits a mid-utterance hypothesis inside RecognizeAsync.
     const result = await session.result
+
     expect(result.reason).toBe('completed')
     expect(transcripts).toEqual(['partial words|false', 'final text|true'])
   })
@@ -137,9 +156,12 @@ describe('windows leaf', () => {
   it('abort releases the recognizer and ends with aborted', async () => {
     const projection = installProjection({ results: [{ Status: 0, Text: 'late' }], block: true })
     const session = speechRecognition.start()
+
     await new Promise((resolve) => setTimeout(resolve, 10))
     session.abort()
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
     expect(projection.disposed).toBe(true)
   })
@@ -157,6 +179,7 @@ function installProjection(options: {
     disposed: false,
     hypothesisHandler: null as null | ((sender: unknown, args: unknown) => void),
   }
+
   let index = 0
 
   class FakeRecognizer {
@@ -176,11 +199,14 @@ function installProjection(options: {
       if (options.block) {
         await new Promise(() => undefined) // blocked utterance — abort path
       }
+
       // A mid-utterance hypothesis before the final result.
       if (options.interimText != null && index === 0) {
         state.hypothesisHandler?.(null, { Hypothesis: { Text: options.interimText } })
       }
+
       const result = options.results[Math.min(index++, options.results.length - 1)]
+
       return result
     }
   }
@@ -203,6 +229,7 @@ function installProjection(options: {
       Authorization: { AppCapabilityAccess: { AppCapability: { Create: () => capability } } },
     },
   }
+
   ;(globalThis as any).NSWinRT = { toPromise: (op: any) => op }
   return state
 }

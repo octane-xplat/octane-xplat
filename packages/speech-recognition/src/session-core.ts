@@ -172,6 +172,7 @@ export function createSpeechService(
 
     const transcriptText = (): string => {
       const committed = session.committed.join(' ')
+
       return committed !== '' && session.hypothesis !== ''
         ? `${committed} ${session.hypothesis}`
         : committed || session.hypothesis
@@ -237,11 +238,13 @@ export function createSpeechService(
       clearTimers()
       session.state = 'ended'
       emit({ type: 'state', state: 'ended' })
+
       const value: SpeechRecognitionResult = {
         transcript: transcriptText(),
         reason,
         error,
       }
+
       emit({ type: 'end', result: value })
       session.listeners.clear()
       if (active === session) {
@@ -291,6 +294,7 @@ export function createSpeechService(
 
       const transcript = transcriptText()
       const last = session.lastEmitted
+
       if (last !== null && last.transcript === transcript && last.isFinal === isFinal) {
         return
       }
@@ -301,6 +305,7 @@ export function createSpeechService(
 
     const armSilenceEndpoint = (): void => {
       const ms = engine.silenceEndpointMs
+
       if (
         session.continuous ||
         ms === undefined ||
@@ -338,6 +343,7 @@ export function createSpeechService(
 
         if (segmentFinal) {
           const segment = text.trim()
+
           if (segment !== '') {
             session.committed.push(segment)
           }
@@ -375,6 +381,7 @@ export function createSpeechService(
       // Cheap gates run before the permission prompt so a session that
       // cannot run never asks for the microphone.
       let availability: SpeechRecognitionAvailability | null = null
+
       try {
         availability = await engine.availability(session.lang)
       } catch {
@@ -417,6 +424,7 @@ export function createSpeechService(
       }
 
       let permission: PermissionResponse
+
       try {
         permission = await engine.readPermission()
       } catch {
@@ -471,6 +479,7 @@ export function createSpeechService(
       // stop() may have landed while the engine spun up — finish at once.
       if (session.finishRequested !== null && session.handle !== null) {
         const requested = session.finishRequested
+
         session.finishRequested = null
         requestFinish(requested)
       }
@@ -546,6 +555,7 @@ export function createSpeechService(
     void beginCapture().catch((cause) => {
       end('error', asSpeechError(cause), true)
     })
+
     return publicSession
   }
 

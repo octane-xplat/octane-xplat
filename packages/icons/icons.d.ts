@@ -14,6 +14,8 @@
 // — add it to tsconfig "include", or copy the declaration into an app d.ts.
 declare module 'icons:*' {
   import type { IconifyIcon } from '@octane-xplat/icons'
+
   const icon: IconifyIcon
+
   export default icon
 }

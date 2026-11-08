@@ -16,10 +16,13 @@ export function ensureThemeCss(theme: DefinedTheme): void {
   if (injected.has(theme.name)) {
     return
   }
+
   const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+
   if (typeof host?.registerStylesheet !== 'function') {
     return
   }
+
   if (
     host.registerStylesheet(
       `xplat-theme:${theme.name}`,
@@ -28,6 +31,7 @@ export function ensureThemeCss(theme: DefinedTheme): void {
   ) {
     return
   }
+
   injected.add(theme.name)
 }
 

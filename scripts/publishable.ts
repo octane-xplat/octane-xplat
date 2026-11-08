@@ -6,9 +6,11 @@ import { readdirSync, readFileSync } from 'node:fs'
 // lockstep set.
 export function publishablePackages(root = '.') {
   const out = []
+
   for (const dir of readdirSync(`${root}/packages`)) {
     const file = `${root}/packages/${dir}/package.json`
     let pkg
+
     try {
       pkg = JSON.parse(readFileSync(file, 'utf8'))
     } catch {

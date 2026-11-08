@@ -12,7 +12,9 @@ import { Text } from '@octane-xplat/ui'
 
 export function ChatComposerFullFeatured() {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
+
   useEffect(() => () => clearTimeout(timer.current), [])
+
   const [isStreaming, setIsStreaming] = useState(false)
 
   return (

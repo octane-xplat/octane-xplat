@@ -8,6 +8,7 @@ import { applyLinearGradient } from './linear-gradient-apply'
  *  carry alpha ('#rrggbbaa'/'rgba(…)') — both platform color classes parse it. */
 export function LinearGradient(props: LinearGradientProps): unknown @{
   const state = useRef({ props, view: null as any })
+
   state.current.props = props
 
   const ref = useCallback((view: any) => {
@@ -19,6 +20,7 @@ export function LinearGradient(props: LinearGradientProps): unknown @{
       applyLinearGradient(view, state.current.props.colors, state.current.props.direction)
 
     const prev = state.current.view as any
+
     if (prev && prev !== view) {
       prev.off?.('loaded', apply)
       prev.off?.('layoutChanged', apply)

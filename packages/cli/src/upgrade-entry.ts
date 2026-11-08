@@ -4,18 +4,22 @@ import { Console } from 'node:console'
 import { upgradeOperation } from './upgrade-worker.ts'
 
 const [, , input, output] = process.argv
+
 if (!input || !output) {
   throw new Error('Usage: node upgrade-worker.mjs REQUEST.json RESULT.json')
 }
 
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr })
+
 let id: unknown = null
+
 try {
   if (statSync(input).size > 64 * 1024 * 1024) {
     throw new Error('Worker request exceeds 64 MiB')
   }
 
   const request = JSON.parse(readFileSync(input, 'utf8'))
+
   id = request.id
   if (
     request.protocol !== 'octane-build-worker' ||
@@ -36,12 +40,14 @@ try {
   }
 
   const data = upgradeOperation(request)
+
   writeFileSync(
     output,
     JSON.stringify({ protocol: request.protocol, version: 1, id, ok: true, data }),
   )
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error)
+
   console.error(message)
   writeFileSync(
     output,

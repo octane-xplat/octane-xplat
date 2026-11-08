@@ -62,6 +62,7 @@ if (!/^[a-z0-9][a-z0-9-]{0,31}$/.test(args.channel)) {
 }
 
 const appDir = resolve(args.dir)
+
 if (!statSync(appDir, { throwIfNoEntry: false })?.isDirectory()) {
   fail(`${appDir} is not a directory`)
 }
@@ -71,6 +72,7 @@ if (!statSync(join(appDir, 'package.json'), { throwIfNoEntry: false })?.isFile()
 }
 
 const metadata = JSON.parse(readFileSync(join(appDir, 'xplat-native.json'), 'utf8'))
+
 if (
   metadata.format !== NATIVE_FINGERPRINT_FORMAT ||
   metadata.platform !== args.platform ||
@@ -112,7 +114,9 @@ if (current.hash !== metadata.hash) {
 }
 
 const scratch = mkdtempSync(join(tmpdir(), 'xplat-ota-'))
+
 process.on('exit', () => rmSync(scratch, { recursive: true, force: true }))
+
 const zipPath = join(scratch, 'payload.zip')
 
 run('zip', ['-qr', zipPath, '.'], { cwd: appDir })
@@ -128,6 +132,7 @@ const pointer = {
 }
 
 const pointerPath = join(scratch, 'pointer.json')
+
 writeFileSync(pointerPath, JSON.stringify(pointer, null, '\t') + '\n')
 
 const bundleKey = `bundles/${sha256}`
@@ -172,6 +177,7 @@ console.log(
 
 function wrangler(argv) {
   const result = spawnSync('wrangler', argv, { stdio: 'inherit' })
+
   if (result.error) {
     fail(`wrangler not found: ${result.error.message}`)
   }
@@ -183,6 +189,7 @@ function wrangler(argv) {
 
 function run(cmd, argv, options = {}) {
   const result = spawnSync(cmd, argv, { stdio: 'inherit', ...options })
+
   if (result.error) {
     fail(`${cmd} not found: ${result.error.message}`)
   }

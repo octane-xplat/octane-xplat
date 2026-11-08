@@ -67,6 +67,7 @@ let seq = 0
  *  ported size-reader → `.presentationDetents([.height(size)])`. */
 export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown @{
   const contentId = useRef<string>('')
+
   if (!contentId.current) {
     contentId.current = `xplatsheet${++seq}`
   }
@@ -75,6 +76,7 @@ export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown @{
 
   useEffect(() => {
     const host = new GridLayout()
+
     registerHost(contentId.current, host)
     setPortalHost(host)
 
@@ -106,6 +108,7 @@ export function SwiftUIBottomSheet(props: SwiftUIBottomSheetProps): unknown @{
         }
 
         const presented = event.data?.isPresented
+
         if (typeof presented === 'boolean') {
           props.onPresentedChange?.(presented)
         }

@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { OrientationBackend } from './backend-types'
+
 const unavailable = (): never => {
   throw new UnavailabilityError('Screen orientation on this host')
 }

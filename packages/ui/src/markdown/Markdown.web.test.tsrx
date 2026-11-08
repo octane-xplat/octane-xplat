@@ -34,7 +34,9 @@ function driveFrames() {
  *  identifier calls arrive with `undefined`/`globalThis` here. */
 function driveBrowserFrames() {
   rafCallbacks = []
+
   const ok = (r: unknown) => r === undefined || r === globalThis || r === window
+
   vi.stubGlobal('requestAnimationFrame', function (this: unknown, cb: (t: number) => void) {
     if (!ok(this)) {
       throw new TypeError('Illegal invocation')
@@ -62,6 +64,7 @@ function driveBrowserFrames() {
 
 function frame(now: number) {
   const cbs = rafCallbacks.splice(0)
+
   act(() => {
     for (const cb of cbs) {
       cb(now)
@@ -71,10 +74,15 @@ function frame(now: number) {
 
 function mount() {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const render = (props: any) => act(() => root.render(<Markdown {...props} />))
+
   return { el, render }
 }
 
@@ -89,6 +97,7 @@ afterEach(() => {
 
 it('renders a baked data doc', () => {
   const { el, render } = mount()
+
   render({
     data: {
       kind: 'octane-xplat/md',
@@ -102,6 +111,7 @@ it('renders a baked data doc', () => {
 
 it('parses and renders a text prop', () => {
   const { el, render } = mount()
+
   render({ children: 'body **bold** and `code`' })
   expect(el.textContent).toContain('body bold and code')
   expect(el.querySelector('strong')?.textContent).toBe('bold')
@@ -110,10 +120,14 @@ it('parses and renders a text prop', () => {
 
 it('streams growing text without remounting settled blocks', () => {
   reduceMotion()
+
   const { el, render } = mount()
+
   render({ children: '# Title\n\nfirst para', isStreaming: true })
+
   const heading = el.querySelector('h1')
   const para = el.querySelectorAll('label, span, p')
+
   render({ children: '# Title\n\nfirst para\n\nsecond para', isStreaming: true })
   expect(el.textContent).toContain('second para')
   // Settled blocks keep their DOM nodes across chunk renders.
@@ -122,7 +136,9 @@ it('streams growing text without remounting settled blocks', () => {
 
 it('withholds a half-typed link while streaming', () => {
   reduceMotion()
+
   const { el, render } = mount()
+
   render({ children: 'see [the doc', isStreaming: true })
   expect(el.textContent).not.toContain('[')
   render({ children: 'see [the doc](https://x.dev)', isStreaming: true })
@@ -131,7 +147,9 @@ it('withholds a half-typed link while streaming', () => {
 
 it('mounts an empty stream, reveals appended chunks, finishes, and resets', () => {
   driveBrowserFrames()
+
   const { el, render } = mount()
+
   render({ children: '', isStreaming: true })
   expect(el.textContent).toBe('')
   render({ children: '# Title\n\npara text', isStreaming: true })
@@ -147,10 +165,14 @@ it('mounts an empty stream, reveals appended chunks, finishes, and resets', () =
 
 it('unmounts mid-reveal without leaking frame callbacks', () => {
   driveBrowserFrames()
+
   const { el, render } = mount()
+
   render({ children: 'partial reveal text', isStreaming: true })
   frame(50)
+
   const roots0 = roots.splice(0)
+
   expect(roots0.length).toBe(1)
   act(() => roots0[0].unmount())
   expect(el.textContent).toBe('')
@@ -161,7 +183,9 @@ it('unmounts mid-reveal without leaking frame callbacks', () => {
 
 it('smooths isStreaming internally — bursts drain through the reveal, not the parser', () => {
   driveFrames()
+
   const { el, render } = mount()
+
   // The whole chunk arrives at once but renders one reveal tick at a time.
   render({ children: 'Hello, streamed world.', isStreaming: true })
   expect(el.textContent).toBe('')
@@ -173,15 +197,20 @@ it('smooths isStreaming internally — bursts drain through the reveal, not the 
 
 it('wraps newly arrived text in vx-md-fade spans', () => {
   reduceMotion()
+
   const { el, render } = mount()
+
   render({ children: 'alpha', isStreaming: true })
   render({ children: 'alpha beta', isStreaming: true })
+
   const fades = [...el.querySelectorAll('.vx-md-fade')].map((n) => n.textContent)
+
   expect(fades.at(-1)).toBe(' beta')
 })
 
 it('renders rich content through shared table, code, task and strike primitives', () => {
   const { el, render } = mount()
+
   render({
     children:
       '# Title\n\n~~old~~ **new**\n\n- [x] Done\n- [ ] Next\n\n| Name | Count |\n| :--- | ---: |\n| **Ready** | 3 |\n\n```ts\nconst ready = true\n```',
@@ -190,6 +219,7 @@ it('renders rich content through shared table, code, task and strike primitives'
   })
 
   const boxes = [...el.querySelectorAll('input[type=checkbox],[role=checkbox]')]
+
   expect(boxes.length).toBe(2)
   expect(boxes[0].getAttribute('aria-checked')).toBe('true')
   expect(boxes[1].getAttribute('aria-checked')).toBe('false')
@@ -202,6 +232,7 @@ it('renders rich content through shared table, code, task and strike primitives'
 
 it('resolves known citations, preserves unknown ids and blocks unsafe links', () => {
   const { el, render } = mount()
+
   render({
     children: 'Tokyo[abc1] [unknown] [bad](javascript:alert)',
     sources: { abc1: { title: 'Tokyo facts', url: 'https://example.com/tokyo' } },
@@ -214,6 +245,7 @@ it('resolves known citations, preserves unknown ids and blocks unsafe links', ()
 
 it('updates rendered output when input props change (no stale children)', () => {
   const { el, render } = mount()
+
   render({ children: '# First\n\none' })
   expect(el.querySelector('h1')?.textContent).toBe('First')
   render({ children: '## Second\n\ntwo' })
@@ -243,10 +275,14 @@ it('custom renderers keep hooks, providers and identity across chunk updates', (
   }
 
   render({ children: '```ts\nconst a = 1\n```', components: { code: SpyCode } })
+
   const first = el.querySelector('.spy-code')
+
   expect(first?.textContent).toContain('const a = 1')
   render({ children: '```ts\nconst a = 1\nconst b = 2\n```', components: { code: SpyCode } })
+
   const second = el.querySelector('.spy-code')
+
   expect(second?.textContent).toContain('const b = 2')
   expect(renders.length).toBeGreaterThanOrEqual(2)
   void mounts
@@ -255,6 +291,7 @@ it('custom renderers keep hooks, providers and identity across chunk updates', (
 it('onLinkClick returning false cancels navigation; default path still anchors', () => {
   const { el, render } = mount()
   const seen: string[] = []
+
   render({
     children: '[stop](/stop) [go](https://ok.example/x)',
     onLinkClick: (href: string) => {
@@ -264,10 +301,13 @@ it('onLinkClick returning false cancels navigation; default path still anchors',
   })
 
   const a = el.querySelector('a[href="/stop"]') as HTMLAnchorElement
+
   expect(a).not.toBeNull()
   a.click()
   expect(seen).toEqual(['/stop'])
+
   const ext = el.querySelector('a[href="https://ok.example/x"]')
+
   expect(ext?.getAttribute('target')).toBe('_blank')
 })
 

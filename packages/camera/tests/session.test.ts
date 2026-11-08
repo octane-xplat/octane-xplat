@@ -8,6 +8,7 @@ import type { CameraSessionBackend } from '../src/session-core'
 
 const ready = async (session: ReturnType<typeof createSyntheticCameraSession>) => {
   const detach = attachSessionPreview(session, {})
+
   await new Promise((resolve) => setTimeout(resolve, 5))
   return detach
 }
@@ -21,6 +22,7 @@ const record = async (
   }
 
   const take = session.startRecording()
+
   return take
 }
 
@@ -29,6 +31,7 @@ const settle = async (ms = 120) => new Promise((resolve) => setTimeout(resolve, 
 describe('camera session contract', () => {
   it('rejects start without an attached ready preview', async () => {
     const session = createSyntheticCameraSession()
+
     expect(() => session.startRecording()).toThrowError(CameraCaptureError)
     try {
       session.startRecording()
@@ -39,6 +42,7 @@ describe('camera session contract', () => {
 
   it('rejects unsupported adapters before admission', async () => {
     const session = createCameraSession()
+
     try {
       session.startRecording()
       expect.unreachable()
@@ -47,11 +51,13 @@ describe('camera session contract', () => {
     }
 
     const caps = await session.capabilities()
+
     expect(caps.supported).toBe(false)
   })
 
   it('rejects invalid arguments before admission', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
     for (const options of [
       { maximumDurationMs: 0 },
@@ -74,11 +80,14 @@ describe('camera session contract', () => {
     const detach = await ready(session)
     const events: CameraSessionEvent[] = []
     const take = await record(session, events)
+
     expect(take.state).toBe('starting')
     await settle()
     expect(take.state).toBe('recording')
     expect(take.elapsedMs).toBeGreaterThan(0)
+
     const outcome = await take.stop()
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind !== 'clip') {
       return
@@ -91,10 +100,14 @@ describe('camera session contract', () => {
     expect(outcome.clip.height).toBe(720)
     expect(outcome.clip.output.synthetic).toBe(true)
     expect(outcome.clip.hasAudio).toBe(false)
+
     const opened = await session.openOutput(outcome.clip.output)
+
     expect(opened.fileUrl).toBe(outcome.clip.output.fileUrl)
     opened.release()
+
     const types = events.map((event) => event.type)
+
     expect(types.indexOf('started')).toBeGreaterThanOrEqual(0)
     expect(types.indexOf('started')).toBeLessThan(types.indexOf('finished'))
     expect(types.filter((type) => type === 'finished')).toHaveLength(1)
@@ -103,8 +116,11 @@ describe('camera session contract', () => {
 
   it('double start fails busy; double stop joins the same completion', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
+
     const take = session.startRecording()
+
     try {
       session.startRecording()
       expect.unreachable()
@@ -113,16 +129,23 @@ describe('camera session contract', () => {
     }
 
     await settle()
+
     const [a, b] = await Promise.all([take.stop(), take.stop()])
+
     expect(a).toBe(b)
   })
 
   it('stopping an old settled take cannot stop a newer attempt', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
+
     const first = session.startRecording()
+
     await first.stop()
+
     const next = session.startRecording()
+
     await settle()
     await first.stop()
     expect(next.state).toBe('recording')
@@ -132,9 +155,12 @@ describe('camera session contract', () => {
 
   it('stop during starting settles once after capture begins', async () => {
     const session = createSyntheticCameraSession({}, { startDelayMs: 60 })
+
     await ready(session)
+
     const take = session.startRecording()
     const outcome = await take.stop()
+
     expect(take.state).toBe('settled')
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
@@ -144,9 +170,12 @@ describe('camera session contract', () => {
 
   it('enforces the native duration limit as maximumDuration', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
+
     const take = session.startRecording({ maximumDurationMs: 80 })
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.endReason).toBe('maximumDuration')
@@ -161,9 +190,11 @@ describe('camera session contract', () => {
     )
 
     await ready(session)
+
     const events: CameraSessionEvent[] = []
     const take = await record(session, events)
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.partial).toBe(true)
@@ -175,10 +206,15 @@ describe('camera session contract', () => {
 
   it('no-media capture settles failed, not a clip', async () => {
     const session = createSyntheticCameraSession({}, { produceMedia: false })
+
     await ready(session)
+
     const take = session.startRecording()
+
     await settle()
+
     const outcome = await take.stop()
+
     expect(outcome.kind).toBe('failed')
     if (outcome.kind === 'failed') {
       expect(outcome.error.kind).toBe('noMedia')
@@ -192,7 +228,9 @@ describe('camera session contract', () => {
     ['storage', 'storage'],
   ] as const)('failAt=%s settles failed at stage %s', async (failAt, stage) => {
     const session = createSyntheticCameraSession({}, { failAt })
+
     await ready(session)
+
     const take = session.startRecording()
     // 'start' and 'capture' failures arrive on their own; the others
     // surface when the app stops the take.
@@ -208,16 +246,23 @@ describe('camera session contract', () => {
   it('dispose settles an in-flight attempt and keeps output reopenable', async () => {
     const storage = createMemoryCameraStorage()
     const session = createSyntheticCameraSession({}, {}, storage)
+
     await ready(session)
+
     const take = session.startRecording()
+
     await settle()
+
     const disposing = session.dispose()
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.endReason).toBe('disposed')
       await disposing
+
       const reopened = await session.openOutput(outcome.clip.output)
+
       expect(reopened.fileUrl).toBe(outcome.clip.output.fileUrl)
     }
 
@@ -234,9 +279,12 @@ describe('camera session contract', () => {
     const session = createSyntheticCameraSession()
     const detach = await ready(session)
     const take = session.startRecording()
+
     await settle()
     detach()
+
     const outcome = await take.completion
+
     expect(outcome.kind).toBe('clip')
     if (outcome.kind === 'clip') {
       expect(outcome.endReason).toBe('previewReleased')
@@ -246,6 +294,7 @@ describe('camera session contract', () => {
 
   it('listener exceptions do not change capture', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
     session.subscribe(() => {
       throw new Error('listener exploded')
@@ -253,15 +302,19 @@ describe('camera session contract', () => {
 
     const take = session.startRecording()
     const outcome = await take.stop()
+
     expect(outcome.kind).toBe('clip')
   })
 
   it('completion resolves even without a subscriber', async () => {
     const session = createSyntheticCameraSession()
+
     await ready(session)
+
     // No subscriber and no explicit stop — the app cannot lose its
     // result; the duration limit settles the attempt on its own.
     const outcome = await session.startRecording({ maximumDurationMs: 60 }).completion
+
     expect(outcome.kind).toBe('clip')
   })
 
@@ -287,6 +340,7 @@ describe('camera session contract', () => {
     } as unknown as CameraSessionBackend
 
     const session = new SharedCameraSession(backend, {})
+
     await expect(session.requestPermission('camera')).rejects.toThrow('transport lost')
     // The next request must retry the backend, not replay the rejection.
     await expect(session.requestPermission('camera')).resolves.toBe('granted')
@@ -297,6 +351,7 @@ describe('camera session contract', () => {
     const focusRequests: { x: number; y: number }[] = []
     const session = createSyntheticCameraSession({}, { focusRequests })
     const detach = await ready(session)
+
     session.focusAtPoint({ x: 1.4, y: -0.2 })
     session.focusAtPoint({ x: 0.25, y: 0.75 })
     expect(focusRequests).toEqual([
@@ -309,6 +364,7 @@ describe('camera session contract', () => {
 
   it('focusAtPoint rejects non-finite coordinates', () => {
     const session = createSyntheticCameraSession()
+
     for (const point of [
       { x: Number.NaN, y: 0.5 },
       { x: 0.5, y: Number.POSITIVE_INFINITY },
@@ -324,12 +380,14 @@ describe('camera session contract', () => {
 
   it('focusAtPoint no-ops when the adapter cannot meter', () => {
     const session = createCameraSession()
+
     expect(() => session.focusAtPoint({ x: 0.5, y: 0.5 })).not.toThrow()
   })
 
   it('focusAtPoint no-ops after dispose', async () => {
     const focusRequests: { x: number; y: number }[] = []
     const session = createSyntheticCameraSession({}, { focusRequests })
+
     await session.dispose()
     session.focusAtPoint({ x: 0.5, y: 0.5 })
     expect(focusRequests).toEqual([])
@@ -350,6 +408,7 @@ describe('camera session contract', () => {
     expect(zoom.zoom).toBe(0.5)
 
     const plain = createSyntheticCameraSession()
+
     expect(plain.zoomState()).toBeUndefined()
     expect((await plain.capabilities()).zoom).toBe(false)
     plain.setZoom(2) // no-op on hosts without zoom control
@@ -358,6 +417,7 @@ describe('camera session contract', () => {
   it('setZoom rejects non-finite ratios and no-ops after dispose', async () => {
     const zoom = { zoom: 1, minZoom: 1, maxZoom: 4 }
     const session = createSyntheticCameraSession({}, { zoom })
+
     expect(() => session.setZoom(Number.NaN)).toThrow('finite')
     expect(() => session.setZoom(Number.POSITIVE_INFINITY)).toThrow('finite')
 
@@ -370,10 +430,12 @@ describe('camera session contract', () => {
   it('capabilities report point-of-interest metering support', async () => {
     const synthetic = createSyntheticCameraSession()
     const supported = await synthetic.capabilities()
+
     expect(supported.focusPointOfInterest).toBe(true)
     expect(supported.exposurePointOfInterest).toBe(true)
 
     const unsupported = await createCameraSession().capabilities()
+
     expect(unsupported.focusPointOfInterest).toBe(false)
     expect(unsupported.exposurePointOfInterest).toBe(false)
   })

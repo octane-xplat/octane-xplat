@@ -128,6 +128,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): JSX.Element | null @{
 
   const toggle = () => {
     const next = !isExpanded
+
     if (!isControlled) {
       setInternalExpanded(next)
     }

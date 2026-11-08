@@ -61,6 +61,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
       }}
       onReturnPress={() => {
         const item = activeIndex >= 0 ? props.results[activeIndex] : props.results[0]
+
         if (item) {
           props.onSelect(item)
         }
@@ -104,6 +105,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
             @for (const item of group.items; index gi; key item.id + '-' + gi) {
               const index = props.results.indexOf(item)
               const isSelected = item.id === selectedId && selectedId != null
+
               <masonview
                 className={cx(
                   'vx-typeahead-option',

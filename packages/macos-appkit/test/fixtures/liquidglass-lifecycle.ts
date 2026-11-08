@@ -21,6 +21,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
 
   const rect = (view: any) => {
     const r = view.alignmentRectForFrame(view.frame)
+
     return [
       Number(r.origin.x),
       Number(view.superview.bounds.size.height) - Number(r.origin.y) - Number(r.size.height),
@@ -31,6 +32,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
 
   const expectRect = (id: string, values: number[]) => {
     const actual = rect(debug.findId(id))
+
     check(
       actual.every((value, i) => Math.abs(value - values[i]) < 1),
       id + ': expected ' + values + ' got ' + actual,
@@ -44,6 +46,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
 
   root.render(Glass, {})
   await settle()
+
   const host = debug.findId('glass'),
     a = debug.findId('glass-a'),
     b = debug.findId('glass-b')
@@ -56,6 +59,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
 
   // The glass material is a backdrop subview pinned behind grid children.
   const backdrop = host.subviews.objectAtIndex(0)
+
   check(
     Number(backdrop.material) === 21 && Number(backdrop.blendingMode) === 0,
     'Glass backdrop is not the under-window material',
@@ -115,6 +119,7 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
   check(!b.superview && a.superview === host, 'Glass removal/retained children failed')
 
   await advance()
+
   const replacement = debug.findId('glass-moving'),
     replacementChild = debug.findId('glass-replacement')
 
@@ -135,12 +140,14 @@ export async function checkLiquidGlassLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const other = debug.findId('glass-moving'),
     otherChild = debug.findId('glass-descendant')
 
   check(other.superview === debug.findId('glass-other'), 'Glass alternate parent mount failed')
 
   await advance()
+
   const returned = debug.findId('glass-moving'),
     returnedChild = debug.findId('glass-descendant')
 

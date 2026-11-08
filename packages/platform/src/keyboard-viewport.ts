@@ -6,6 +6,7 @@ export interface KeyboardViewportLease {
 }
 
 export type KeyboardViewportAdapter = (host: object) => KeyboardViewportLease
+
 const adapters: { adapter: KeyboardViewportAdapter }[] = []
 const readers = new Set<() => void>()
 const selected = () => adapters.at(-1)?.adapter
@@ -13,6 +14,7 @@ const notify = () => {
   const errors: unknown[] = []
   // Snapshot: a callback may attach/release another viewport reader.
   const pending = Array.from(readers)
+
   for (const read of pending) {
     try {
       if (readers.has(read)) {
@@ -22,6 +24,7 @@ const notify = () => {
       errors.push(error)
     }
   }
+
   if (errors.length) {
     throw new AggregateError(errors, 'Keyboard viewport adapter failed')
   }
@@ -30,6 +33,7 @@ const notify = () => {
 export function installKeyboardViewportAdapter(adapter: KeyboardViewportAdapter): () => void {
   const before = selected()
   const activation = { adapter }
+
   adapters.push(activation)
   try {
     if (before !== selected()) {
@@ -45,13 +49,18 @@ export function installKeyboardViewportAdapter(adapter: KeyboardViewportAdapter)
 
     throw error
   }
+
   let active = true
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
+
     const before = selected()
+
     adapters.splice(adapters.indexOf(activation), 1)
     if (before !== selected()) {
       notify()
@@ -77,22 +86,28 @@ export function observeKeyboardViewport(host: object): KeyboardViewportLease {
     if (!active || !attached || (!force && adapter === selected())) {
       return
     }
+
     lease?.release()
     lease = undefined
     adapter = selected()
     lease = adapter?.(host)
   }
+
   const loaded = () => {
     attached = true
     refresh(true)
   }
+
   const unloaded = () => {
     attached = false
+
     const release = lease
+
     lease = undefined
     adapter = undefined
     release?.release()
   }
+
   readers.add(refresh)
   try {
     refresh()
@@ -105,6 +120,7 @@ export function observeKeyboardViewport(host: object): KeyboardViewportLease {
     lease?.release()
     throw error
   }
+
   return {
     get supported() {
       return lease?.supported ?? false
@@ -118,6 +134,7 @@ export function observeKeyboardViewport(host: object): KeyboardViewportLease {
       if (!active) {
         return
       }
+
       active = false
       readers.delete(refresh)
       view.off?.('loaded', loaded)

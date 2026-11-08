@@ -22,6 +22,7 @@ function wire() {
   })
 
   const host = desktopHostClient()
+
   host?.on('app.deep-link', (url) => {
     for (const handler of handlers) {
       handler(url)
@@ -45,7 +46,9 @@ export function consumeInitialUrl(): string | null {
   consumedInitialUrl = true
   if (hasInitialHostUrl) {
     hasInitialHostUrl = false
+
     const url = initialHostUrl
+
     initialHostUrl = null
     return url
   }

@@ -13,9 +13,11 @@ function fixture(initial = 'marked') {
   let text = initial,
     marked = true,
     releases = 0
+
   const listeners = new Set<() => void>(),
     jobs: (() => void)[] = [],
     cancelled = new Set<unknown>()
+
   const writes: string[] = []
   const writer = createTextValueWriter(
     {
@@ -44,6 +46,7 @@ function fixture(initial = 'marked') {
       },
     },
   )
+
   return {
     writer,
     writes,
@@ -65,6 +68,7 @@ function fixture(initial = 'marked') {
     notify: () => listeners.forEach((notify) => notify()),
     run: () => {
       const pending = jobs.splice(0)
+
       for (const job of pending) {
         if (!cancelled.has(job)) {
           job()
@@ -76,6 +80,7 @@ function fixture(initial = 'marked') {
 
 test('marked text remains intact and the latest pending external value applies after commit', () => {
   const f = fixture()
+
   f.writer.update('first')
   f.writer.update('latest')
   assert.equal(f.text, 'marked')
@@ -97,9 +102,12 @@ test('marked text remains intact and the latest pending external value applies a
 test('a matching native echo or unset value cancels stale external work', () => {
   for (const echo of ['marked', undefined]) {
     const f = fixture()
+
     f.writer.update('stale')
     f.writer.flushLater()
+
     const stale = f.jobs[0]
+
     f.writer.update(echo)
     f.marked(false)
     stale() // A late scheduler callback cannot bypass cancellation.
@@ -111,6 +119,7 @@ test('a matching native echo or unset value cancels stale external work', () => 
 
 test('a committed onChange echo supersedes an external value before the scheduled flush', () => {
   const f = fixture()
+
   f.writer.update('external')
   f.marked(false)
   f.nativeText('committed')
@@ -124,6 +133,7 @@ test('a committed onChange echo supersedes an external value before the schedule
 
 test('new composition delays an old scheduled flush and teardown cancels observer and work', () => {
   const f = fixture()
+
   f.writer.update('external')
   f.marked(false)
   f.notify()
@@ -133,7 +143,9 @@ test('new composition delays an old scheduled flush and teardown cancels observe
   assert.equal(f.listeners.size, 1)
   f.marked(false)
   f.notify()
+
   const stale = f.jobs[0]
+
   f.writer.dispose()
   f.writer.dispose()
   stale()
@@ -145,12 +157,14 @@ test('new composition delays an old scheduled flush and teardown cancels observe
 
 test('ordinary external writes are immediate, equal values skip setters, and failures clear write state', () => {
   const f = fixture('initial')
+
   f.marked(false)
   f.writer.update('initial')
   f.writer.update('changed')
   assert.deepEqual(f.writes, ['changed'])
   assert.equal(f.writer.isWriting, false)
   f.writer.dispose()
+
   const writer = createTextValueWriter({
     read: () => '',
     marked: () => false,
@@ -158,6 +172,7 @@ test('ordinary external writes are immediate, equal values skip setters, and fai
       throw new Error('native failure')
     },
   })
+
   assert.throws(() => writer.update('next'), /native failure/)
   assert.equal(writer.isWriting, false)
   writer.dispose()
@@ -169,6 +184,7 @@ test('native adapters read the field editor, clamp selection and scope commit ob
     source.indexOf('function updateNativeTextValue('),
     source.indexOf('function syncTextControlState('),
   )
+
   for (const type of ['textfield', 'textview']) {
     let adapter: any,
       observed: any[] = [],
@@ -212,12 +228,14 @@ test('native adapters read the field editor, clamp selection and scope commit ob
     updateNativeTextValue({ type, view }, 'next')
     assert.equal(adapter.read(), 'marked native')
     assert.equal(adapter.marked(), true)
+
     let notifications = 0
     const notify = () => {
       notifications++
     }
 
     const detach = adapter.observeCommit(notify)
+
     assert.equal(observed[0], 'window-update')
     assert.equal(observed[1], view.window)
     observed[3]()
@@ -254,9 +272,11 @@ test('nested controlled writes keep notification suppression active until the ou
       if (value === 'outer') {
         writer.update('inner')
       }
+
       assert.equal(writer.isWriting, true)
     },
   })
+
   writer.update('outer')
   assert.equal(text, 'inner')
   assert.equal(writer.isWriting, false)
@@ -269,6 +289,7 @@ test('programmatic native change notifications do not call public onChange durin
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),
   )
+
   let changes = 0
   const { ButtonActionTarget } = runSlice(body + '\n({ ButtonActionTarget })', {
     NSObject: class {},
@@ -284,10 +305,13 @@ test('programmatic native change notifications do not call public onChange durin
       changes++
     },
   })
+
   const target = new ButtonActionTarget()
+
   for (const event of ['controlTextDidChange', 'textDidChange']) {
     const view = {}
     let text = 'initial'
+
     try {
       setTextValue(view, 'next', () => ({
         read: () => text,
@@ -312,6 +336,7 @@ test('single-line and native search submit leave marked confirmation to the inpu
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),
   )
+
   const nodes = new WeakMap()
   let submits = 0
   const { ButtonActionTarget } = runSlice(body + '\n({ ButtonActionTarget })', {
@@ -326,27 +351,32 @@ test('single-line and native search submit leave marked confirmation to the inpu
     textNodesByView: nodes,
     notifyTextValueCommit() {},
   })
+
   const target = new ButtonActionTarget()
   const editor: any = { hasMarkedText: () => true }
   const field = { currentEditor: () => editor }
   const search = {}
+
   nodes.set(field, {
     submitHandler: () => {
       submits++
     },
   })
+
   nodes.set(search, {
     type: 'searchbar',
     submitHandler: () => {
       submits++
     },
   })
+
   for (const marked of [() => true, true]) {
     editor.hasMarkedText = marked
     target.textFieldSubmitted(field)
     assert.equal(target.controlTextViewDoCommandBySelector(search, editor, 'insertNewline:'), false)
     assert.equal(submits, 0)
   }
+
   editor.hasMarkedText = () => false
   target.textFieldSubmitted(field)
   assert.equal(target.controlTextViewDoCommandBySelector(search, editor, 'insertNewline:'), true)

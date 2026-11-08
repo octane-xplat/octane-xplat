@@ -31,9 +31,11 @@ export function useColorState(props: ColorValueProps, defaultValue?: string): Co
   // Live copy for end(): the state read inside a host-bound pan callback can
   // be one render stale; the ref always carries the latest.
   const live = useRef(hsb)
+
   live.current = hsb
 
   const normalized = normalizeHex(props.value)
+
   useEffect(() => {
     if (normalized && normalized !== hsbToHex(live.current)) {
       setHsb(hsbForValue(live.current, normalized))

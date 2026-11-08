@@ -26,7 +26,9 @@ if (!target || target.startsWith('--') || !command?.length) {
 }
 
 const lockRoot = join(tmpdir(), 'octane-xplat-target-locks')
+
 mkdirSync(lockRoot, { recursive: true })
+
 const lockDir = join(lockRoot, `${target}.lock`)
 const ownerFile = join(lockDir, 'owner.json')
 const deadline = Date.now() + timeoutSeconds * 1000
@@ -35,6 +37,7 @@ let ownerLogged = false
 function ownerAlive() {
   try {
     const owner = JSON.parse(readFileSync(ownerFile, 'utf8'))
+
     if (owner.hostname && owner.hostname !== hostname()) {
       return { alive: true, owner } // another host — cannot probe; treat as live
     }
@@ -74,6 +77,7 @@ for (;;) {
     }
 
     const { alive, owner } = ownerAlive()
+
     if (!alive) {
       console.log(
         `[lock] reclaiming stale ${target} lock (owner pid ${owner?.pid ?? 'unknown'} is gone)`,
@@ -100,6 +104,7 @@ for (;;) {
 console.log(`[lock] ${target} acquired (pid ${process.pid})`)
 try {
   const result = spawnSync(command[0], command.slice(1), { stdio: 'inherit' })
+
   process.exitCode = result.status ?? (result.error ? 1 : 0)
   if (result.error) {
     console.error(result.error.message)

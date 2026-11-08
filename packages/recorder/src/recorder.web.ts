@@ -30,6 +30,7 @@ const mapMediaError = (cause: unknown): RecorderPermissionState => {
   // Rejections are not guaranteed Error instances; read `name` structurally.
   const name =
     typeof cause === 'object' && cause !== null && 'name' in cause ? cause.name : undefined
+
   if (name === 'NotAllowedError' || name === 'SecurityError' || name === 'PermissionDeniedError') {
     return 'denied'
   }
@@ -52,6 +53,7 @@ export async function requestMicrophonePermission(): Promise<RecorderPermissionS
 
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+
     for (const track of stream.getTracks()) {
       track.stop()
     }
@@ -113,6 +115,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
   const emit = () => {
     const value = snapshot()
+
     for (const listener of listeners) {
       listener(value)
     }
@@ -124,8 +127,10 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
     }
 
     const frameCount = input[0].length
+
     if (options.channels === 1) {
       const mono = new Float32Array(frameCount)
+
       for (const channel of input) {
         for (let i = 0; i < frameCount; i++) {
           mono[i] += channel[i] / input.length
@@ -143,10 +148,13 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
     }
 
     frames += frameCount
+
     let chunkPeak = 0
+
     for (const channel of input) {
       for (let i = 0; i < channel.length; i++) {
         const value = Math.abs(channel[i])
+
         if (value > chunkPeak) {
           chunkPeak = value
         }
@@ -209,11 +217,14 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
       assertActive()
     }
+
     stream = nextStream
     context ??= createContext(options.sampleRate)
     source = context.createMediaStreamSource(stream)
+
     const channels = stream.getAudioTracks()[0]?.getSettings?.().channelCount ?? options.channels
     let tapNode: AudioNode
+
     if (context.audioWorklet) {
       const url = URL.createObjectURL(
         new Blob([WORKLET_SOURCE], { type: 'application/javascript' }),
@@ -226,14 +237,18 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       }
 
       assertActive()
+
       const node = new AudioWorkletNode(context, 'xplat-recorder-tap')
+
       node.port.onmessage = (event) => appendInput(event.data)
       tapNode = node
     } else if (typeof (context as any).createScriptProcessor === 'function') {
       const node = (context as any).createScriptProcessor(4096, channels, channels)
+
       node.onaudioprocess = (event: any) => {
         const input = event.inputBuffer
         const data: Float32Array[] = []
+
         for (let channel = 0; channel < input.numberOfChannels; channel++) {
           data.push(input.getChannelData(channel).slice())
         }
@@ -398,6 +413,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       const total = chunks.reduce((sum, chunk) => sum + chunk.length, 0)
       const merged = new Float32Array(total)
       let at = 0
+
       for (const chunk of chunks) {
         merged.set(chunk, at)
         at += chunk.length
@@ -493,7 +509,9 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 // for the platform permissions dispatcher. 'unavailable' maps onto 'denied'
 // because the shared PermissionResponse union has no device-absence value.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.microphone = async () => {
   const state = await requestMicrophonePermission()
+
   return state === 'granted' ? 'granted' : state === 'unsupported' ? 'unsupported' : 'denied'
 }

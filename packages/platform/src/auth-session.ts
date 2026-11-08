@@ -27,6 +27,7 @@ function isCallback(url: string | null | undefined, scheme: string): url is stri
 function iosOpen(url: string, options: AuthSessionOptions): Promise<AuthSessionResult> {
   return new Promise((resolve) => {
     const nsUrl = NSURL.URLWithString(url)
+
     if (!nsUrl) {
       resolve({ type: 'error', message: 'authSession.open: invalid URL' })
       return
@@ -82,10 +83,13 @@ function presentationAnchorClass(): any {
         presentationAnchorForWebAuthenticationSession(): UIWindow {
           const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
           const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
+
           for (let i = 0; i < scenes.count; i++) {
             const scene = scenes.objectAtIndex(i) as UIWindowScene
+
             if (scene.activationState === foregroundActive) {
               const anchor = scene.windows.objectAtIndex(0)
+
               if (anchor) {
                 return anchor
               }
@@ -130,6 +134,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
 
     const onNewIntent = (args: any) => {
       const callback = intentUrl(args.intent)
+
       if (isCallback(callback, scheme)) {
         finish({ type: 'success', url: callback })
       }
@@ -141,6 +146,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
       // the Custom Tab was open is already the activity's intent here; a
       // resume without a matching URL is a user dismiss.
       const callback = intentUrl(activity?.getIntent?.())
+
       if (callback !== initialUrl && isCallback(callback, scheme)) {
         finish({ type: 'success', url: callback })
       } else {
@@ -154,6 +160,7 @@ function androidOpen(url: string, options: AuthSessionOptions): Promise<AuthSess
     try {
       const activity = androidUtils.getCurrentActivity()
       const tabs = (globalThis as any).androidx?.browser?.customtabs?.CustomTabsIntent
+
       if (activity && tabs) {
         new tabs.Builder().build().launchUrl(activity, android.net.Uri.parse(url))
       } else {
@@ -182,7 +189,9 @@ export const authSession: Service<AuthSessionImpl> = {
     }
 
     active = true
+
     const run = Application.ios ? iosOpen : androidOpen
+
     try {
       return await run(url, options)
     } catch {

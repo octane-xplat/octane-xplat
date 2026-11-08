@@ -32,6 +32,7 @@ app.connect('activate', () => {
     default_width: 120,
     default_height: 80,
   })
+
   window.present()
 
   GLib.timeout_add(GLib.PRIORITY_DEFAULT, 300, () => {
@@ -45,6 +46,7 @@ app.connect('activate', () => {
       check(toggleAppWindows() === true, 'toggle shows')
 
       const residency = keepAppResident({ hideWindowsOnClose: true })
+
       check(window.get_hide_on_close() === true, 'hide_on_close set')
       window.close()
       // With the hold taken, the app must still be running; prove it by
@@ -62,6 +64,7 @@ app.connect('activate', () => {
           app.quit()
           System.exit(1)
         }
+
         return GLib.SOURCE_REMOVE
       })
     } catch (error) {
@@ -69,6 +72,7 @@ app.connect('activate', () => {
       app.quit()
       System.exit(1)
     }
+
     return GLib.SOURCE_REMOVE
   })
 })

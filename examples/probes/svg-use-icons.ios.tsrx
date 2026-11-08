@@ -90,6 +90,7 @@ function shapeStats(root: unknown): ShapeStats {
     }
 
     const subs = layer.sublayers
+
     if (subs) {
       for (let i = 0; i < subs.count; i++) {
         walk(subs.objectAtIndex(i))
@@ -133,6 +134,7 @@ export async function run(ctx: ProbeContext) {
   const statsFor = async (id: string) => {
     const svg = ctx.find(id)
     const native = svg?.nativeViewProtected
+
     if (!native) {
       throw new Error(`${id} has no native view`)
     }
@@ -143,18 +145,21 @@ export async function run(ctx: ProbeContext) {
 
   // Baseline first: the inlined control must paint on every run.
   const inlined = await statsFor('use-inlined')
+
   ctx.record('inlined layer stats', inlined.stats)
   console.log(`[svg-use] inlined ${JSON.stringify(inlined.stats)}`)
   ctx.assert('inlined control paints at least one shape', inlined.stats.filled >= 1)
 
   for (const id of ['use-minimal', 'use-filter', 'use-flip']) {
     const { stats } = await statsFor(id)
+
     ctx.record(`${id} layer stats`, stats)
     console.log(`[svg-use] ${id} ${JSON.stringify(stats)}`)
     ctx.assert(`${id} paints at least one shape`, stats.filled + stats.stroked >= 1)
   }
 
   const flip = ctx.find('use-flip')?.nativeViewProtected
+
   ctx.assert(
     'use-flip painted shape count matches inlined control',
     (await statsFor('use-flip')).stats.filled,
@@ -165,6 +170,7 @@ export async function run(ctx: ProbeContext) {
 
   // Last: bare href variant. Unexpanded it trips SVGKit's xlink:href assert.
   const href = await statsFor('use-href')
+
   ctx.record('use-href layer stats', href.stats)
   console.log(`[svg-use] use-href ${JSON.stringify(href.stats)}`)
   ctx.assert('use-href paints at least one shape', href.stats.filled + href.stats.stroked >= 1)

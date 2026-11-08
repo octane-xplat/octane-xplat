@@ -31,8 +31,10 @@ export function HomeScreen() @{
   const [search, setSearch] = useState('')
 
   let filtered = activeTab === 'All' ? allPages : allPages.filter((p) => p.category === activeTab)
+
   if (search.trim()) {
     const q = search.toLowerCase()
+
     filtered = filtered.filter(
       (p) => p.name.toLowerCase().includes(q) || p.description.toLowerCase().includes(q),
     )

@@ -32,6 +32,7 @@ function fixture() {
       }
     }
   }
+
   class Property {
     constructor(options) {
       this.options = options
@@ -39,18 +40,21 @@ function fixture() {
     register(Type) {
       const { name, valueChanged } = this.options
       const key = Symbol(name)
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[key]
         },
         set(value) {
           const previous = this[key]
+
           this[key] = value
           valueChanged(this, previous, value)
         },
       })
     }
   }
+
   class NativeRadio {
     IsEnabled = true
     IsTabStop = true
@@ -61,6 +65,7 @@ function fixture() {
     }
     set IsChecked(value) {
       const changed = value !== this.checked
+
       this.checked = value
       if (changed && value) {
         this.Checked?.()
@@ -70,15 +75,18 @@ function fixture() {
       if (!this.IsTabStop || !this.IsEnabled) {
         return false
       }
+
       if (focused) {
         focused.FocusState = 0
         focused.LostFocus?.()
       }
+
       focused = this
       this.FocusState = state
       return true
     }
   }
+
   vm.runInNewContext(source, {
     exports,
     setTimeout(callback) {
@@ -92,6 +100,7 @@ function fixture() {
       if (name === '@nativescript/core') {
         return { Property, View }
       }
+
       if (name === '@nativescript-community/octane') {
         return {
           registerElement(name, Type) {
@@ -100,6 +109,7 @@ function fixture() {
           },
         }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return {
           Microsoft: {
@@ -115,23 +125,33 @@ function fixture() {
           NSWinRT: { asDelegate: (_name, callback) => callback },
         }
       }
+
       throw new Error(name)
     },
   })
+
   const group = new exports.WindowsRadioGroup()
   const requests = []
+
   group.update('a', false, false, (value) => requests.push(value))
+
   const root = new View()
+
   group.root = root
+
   const controls = ['a', 'b', 'c'].map((value) => {
     const view = new Control()
+
     view.settings = { group, value }
     view.nativeViewProtected = view.createNativeView()
     view.initNativeView()
     return view
   })
+
   root.children = controls
+
   const [a, b, c] = controls
+
   c.isEnabled = false
   c.peer.IsEnabled = false
   group.restore()
@@ -146,12 +166,15 @@ function fixture() {
     queued,
     key(view, key, control = false) {
       ctrl = control
+
       const args = { Key: key, Handled: false }
+
       view.peer.PreviewKeyDown(null, args)
       return args
     },
     flush() {
       const callbacks = [...queued.values()]
+
       queued.clear()
       callbacks.forEach((callback) => callback())
     },
@@ -160,6 +183,7 @@ function fixture() {
 
 test('controlled native selection restores the entire group before requesting', () => {
   const { a, b, group, requests } = fixture()
+
   b.peer.IsChecked = true
   assert.equal(a.peer.IsChecked, true)
   assert.equal(b.peer.IsChecked, false)
@@ -174,6 +198,7 @@ test('controlled native selection restores the entire group before requesting', 
 
 test('selected activation, readonly and disabled requests do not echo', () => {
   const f = fixture()
+
   f.a.peer.Checked()
   f.group.update('a', false, true, (value) => f.requests.push(value))
   f.b.peer.IsChecked = true
@@ -188,6 +213,7 @@ test('selected activation, readonly and disabled requests do not echo', () => {
 
 test('preview arrows follow live model-tree order and skip disabled options', () => {
   const f = fixture()
+
   f.root.children = [f.b, f.c, f.a]
   f.group.update('b', false, false, (value) => f.requests.push(value))
   f.key(f.b, 40)
@@ -201,6 +227,7 @@ test('preview arrows follow live model-tree order and skip disabled options', ()
 
 test('Ctrl-arrow focuses without selection; exiting resets the selected Tab anchor', () => {
   const f = fixture()
+
   f.key(f.a, 40, true)
   assert.deepEqual(f.requests, [])
   assert.equal(f.b.peer.FocusState, 2)
@@ -214,6 +241,7 @@ test('Ctrl-arrow focuses without selection; exiting resets the selected Tab anch
 
 test('Home/End clamp and RTL reverses horizontal arrows', () => {
   const f = fixture()
+
   f.key(f.a, 35)
   assert.deepEqual(f.requests, ['b'])
   f.key(f.b, 36)
@@ -226,6 +254,7 @@ test('Home/End clamp and RTL reverses horizontal arrows', () => {
 
 test('missing or disabled selected value keeps a live first-enabled Tab stop', () => {
   const f = fixture()
+
   f.group.update('missing', false, false, () => {})
   assert.equal(f.a.peer.IsTabStop, true)
   f.group.update('c', false, false, () => {})
@@ -239,6 +268,7 @@ test('disposed peers cancel queued focus and reject retired native callbacks', (
   const oldNative = f.b.peer
   const checked = oldNative.Checked
   const key = oldNative.PreviewKeyDown
+
   f.group.queueFocusReset()
   f.b.disposeNativeView()
   assert.equal(f.queued.size, 0)

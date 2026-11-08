@@ -24,6 +24,7 @@ const supported = () => ((globalThis as any).android?.os?.Build?.VERSION?.SDK_IN
 const setUniforms = (shader: any, uniforms: Record<string, number | number[]>) => {
   for (const [name, value] of Object.entries(uniforms)) {
     const floats = Array.isArray(value) ? value : [value]
+
     shader.setFloatUniform(name, ...floats)
   }
 }
@@ -39,9 +40,11 @@ export function ShaderEffect(props: ShaderEffectProps) @{
   // object is a new reference every render and would otherwise rebuild
   // the shader pipeline on every parent render.
   const uniformsKey = JSON.stringify(props.uniforms ?? null)
+
   useEffect(() => {
     const view = ref.current
     const native = view?.android
+
     if (!native) {
       return
     }
@@ -57,6 +60,7 @@ export function ShaderEffect(props: ShaderEffectProps) @{
     const android = (globalThis as any).android
     let shader: any
     let effect: any
+
     try {
       shader = new android.graphics.RuntimeShader(props.source)
       effect = android.graphics.RenderEffect.createRuntimeShaderEffect(shader, 'content')

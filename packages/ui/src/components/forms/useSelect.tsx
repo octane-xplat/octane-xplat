@@ -36,7 +36,9 @@ export type UseSelectResult = {
 export function useSelect(props: SelectProps): UseSelectResult {
   const translate = useTranslator()
   const latest = useRef(props)
+
   latest.current = props
+
   const [internalOpen, setInternalOpen] = useState(props.defaultOpen ?? false)
   const [internalValue, setInternalValue] = useState(selectValues(props.defaultValue))
   const [query, setQueryState] = useState('')
@@ -108,12 +110,14 @@ export function useSelect(props: SelectProps): UseSelectResult {
 
   const report = async (keys: string[]) => {
     const current = latest.current
+
     if (current.isDisabled || current.isReadOnly || pendingRef.current) {
       return
     }
 
     const previous = selected
     const hasAction = current.changeAction !== undefined
+
     if (hasAction) {
       pendingRef.current = true
       setPending(keys)
@@ -126,11 +130,13 @@ export function useSelect(props: SelectProps): UseSelectResult {
     try {
       if (current.selectionMode === 'multiple') {
         const multipleProps = current as SelectMultipleProps
+
         multipleProps.onValueChange?.(keys)
         await multipleProps.changeAction?.(keys)
       } else {
         const singleProps = current as SelectSingleProps
         const value = keys[0] ?? null
+
         singleProps.onValueChange?.(value)
         await singleProps.changeAction?.(value)
       }
@@ -140,6 +146,7 @@ export function useSelect(props: SelectProps): UseSelectResult {
       }
 
       const nextProps = latest.current
+
       if (nextProps.value === undefined || sameSelection(selectValues(nextProps.value), keys)) {
         if (nextProps.value === undefined) {
           setInternalValue(previous)

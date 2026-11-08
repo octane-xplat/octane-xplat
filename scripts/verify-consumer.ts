@@ -69,12 +69,14 @@ const args = process.argv.slice(2)
 const flag = (name) => args.includes(`--${name}`)
 const flagValue = (name) => {
   const index = args.indexOf(`--${name}`)
+
   return index >= 0 ? args[index + 1] : undefined
 }
 
 const doBuild = !flag('no-build')
 const quick = flag('quick')
 const packageManager = flagValue('package-manager') ?? 'bun'
+
 assert.ok(
   packageManager === 'bun' || packageManager === 'pnpm',
   '--package-manager must be bun or pnpm',
@@ -85,6 +87,7 @@ const nativeTargets = (flagValue('native') ?? '').split(',').filter(Boolean)
 const smokeIos = flag('smoke-ios')
 const testIos = flag('test-ios')
 const testAndroid = flag('test-android')
+
 assert.ok(
   !quick || (!nativeTargets.length && !smokeIos && !testIos && !testAndroid),
   '--quick cannot qualify native builds or device tests; use the full consumer workflow',
@@ -107,6 +110,7 @@ const packDir = join(work, 'pack')
 const appDir = join(work, 'consumer-app')
 const libraryDir = join(work, 'consumer-library')
 const extractDir = join(work, 'create')
+
 // A reused VERIFY_CONSUMER_DIR may hold a previous attempt's app/scaffold —
 // reset those (the pack dir is rewritten in place anyway).
 for (const dir of [appDir, libraryDir, extractDir]) {
@@ -160,17 +164,23 @@ function run(command, argv, cwd, env = {}) {
 // install-native command to run.
 function repairNativeCli(dir, pm = packageManager) {
   const unrepaired = run(pm, ['run', 'xplat', '--version'], dir)
+
   if (unrepaired.status === 0) {
     return
   }
+
   const repair = unrepaired.stderr.match(/^\s*node "(.+install-native\.mjs)"$/m)
+
   assert.ok(repair, `xplat printed no repair command: ${unrepaired.stderr}`)
+
   const fixed = run('node', [repair[1]], dir)
+
   assert.equal(fixed.status, 0, 'install-native.mjs failed')
 }
 
 async function gate(name, timeoutMs, fn) {
   let timeout
+
   try {
     const detail = await Promise.race([
       fn(),
@@ -203,6 +213,7 @@ async function gate(name, timeoutMs, fn) {
 
 function report() {
   const failed = results.filter((r) => !r.ok)
+
   console.log(
     `\n[verify] ${results.length - failed.length}/${results.length} gates passed` +
       (failed.length ? ` — FAILED: ${failed.map((f) => f.name).join(', ')}` : ''),
@@ -223,6 +234,7 @@ try {
 
   // ---- pack -------------------------------------------------------------
   const tarballs = new Map()
+
   await gate('bun pm pack — publishable packages produce tarballs', 20 * 60 * 1000, () => {
     for (const pkg of publishablePackages(repoRoot)) {
       // Quick mode and --no-build consume prepared artifacts. The caller
@@ -241,7 +253,9 @@ try {
       )
 
       assert.equal(r.status, 0, `bun pm pack failed for ${pkg.name}`)
+
       const expected = join(packDir, tarballName(pkg))
+
       assert.ok(existsSync(expected), `expected tarball ${tarballName(pkg)} for ${pkg.name}`)
       tarballs.set(pkg.name, expected)
     }
@@ -261,6 +275,7 @@ try {
         `research/go-cli/xplat-go-${hostTarget}-cli${process.platform === 'win32' ? '.exe' : ''}`,
       ),
     )
+
     try {
       const staged = stageRelease({
         root: repoRoot,
@@ -290,6 +305,7 @@ try {
     60 * 1000,
     () => {
       const createTarball = tarballs.get('create-octane-xplat')
+
       assert.ok(createTarball, 'create-octane-xplat tarball missing')
       // Install the creator as bun create does: its published JavaScript
       // entry and declared runtime dependencies must work outside the repo.
@@ -300,13 +316,19 @@ try {
           dependencies: { 'create-octane-xplat': `file:${createTarball}` },
         }),
       )
+
       writeFileSync(join(extractDir, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
+
       const install = run('bun', ['install', '--ignore-scripts'], extractDir)
+
       assert.equal(install.status, 0, 'packed creator install failed')
+
       const creator = join(extractDir, 'node_modules/create-octane-xplat')
       const creatorManifest = JSON.parse(readFileSync(join(creator, 'package.json'), 'utf8'))
       const binPath = join(creator, creatorManifest.bin['create-octane-xplat'])
+
       assert.ok(existsSync(binPath), 'packed create bin missing')
+
       const runResult = run(
         'node',
         [binPath, appDir, '--no-install', '--package-manager', packageManager, '--targets', 'web'],
@@ -324,10 +346,12 @@ try {
           'pnpm scaffold produced no pnpm-workspace.yaml',
         )
       }
+
       assert.ok(
         !existsSync(join(appDir, 'nativescript.config.ts')),
         'subset scaffold leaked native files',
       )
+
       if (quick) {
         return
       }
@@ -350,7 +374,9 @@ try {
       )
 
       assert.equal(libraryResult.status, 0, 'library create bin exited nonzero')
+
       const libraryManifest = JSON.parse(readFileSync(join(libraryDir, 'package.json'), 'utf8'))
+
       assert.equal(libraryManifest.name, libraryName)
       assert.ok(libraryManifest.exports['.'].web, 'library starter missed web conditional export')
       assert.ok(
@@ -382,6 +408,7 @@ try {
         !existsSync(join(libraryDir, 'index.html')),
         'library starter leaked app entry files',
       )
+
       assert.ok(
         !existsSync(join(libraryDir, 'nativescript.config.ts')),
         'library starter leaked app NativeScript configuration',
@@ -391,9 +418,11 @@ try {
 
   // ---- repoint lockstep workspace packages at the tarballs --------------
   const consumerManifestPath = join(appDir, 'package.json')
+
   await gate('consumer manifest rewritten to file: tarballs', 60 * 1000, () => {
     const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
     let rewritten = 0
+
     for (const section of ['dependencies', 'devDependencies']) {
       for (const dep of Object.keys(manifest[section] ?? {})) {
         if (!tarballs.has(dep)) {
@@ -401,6 +430,7 @@ try {
         }
 
         const tarball = tarballs.get(dep)
+
         manifest[section][dep] = `file:${tarball}`
         rewritten++
       }
@@ -412,6 +442,7 @@ try {
     if (packageManager === 'pnpm') {
       const yamlPath = join(appDir, 'pnpm-workspace.yaml')
       const doc = parseDocument(readFileSync(yamlPath, 'utf8'))
+
       for (const [name, tarball] of tarballs) {
         doc.setIn(['overrides', name], `file:${tarball}`)
       }
@@ -425,6 +456,7 @@ try {
 
       writeFileSync(consumerManifestPath, JSON.stringify(manifest, null, 2) + '\n')
     }
+
     return `${rewritten} deps + packed dependency overrides`
   })
 
@@ -434,6 +466,7 @@ try {
     15 * 60 * 1000,
     () => {
       const r = run(packageManager, ['install'], appDir)
+
       assert.equal(r.status, 0, `${packageManager} install failed`)
       repairNativeCli(appDir)
     },
@@ -444,11 +477,13 @@ try {
     60 * 1000,
     () => {
       const installed = new Set<string>()
+
       if (packageManager === 'pnpm') {
         // pnpm-lock.yaml keys are name@version, optionally (peer-suffixed);
         // the name ends at the first '@' after the leading character.
         // pnpm 11 may split lockfile sections across multiple YAML documents.
         const docs = parseAllDocuments(readFileSync(join(appDir, 'pnpm-lock.yaml'), 'utf8'))
+
         for (const lock of Array.isArray(docs) ? docs.map((doc) => doc.toJS()) : [docs.toJS()]) {
           for (const section of [lock?.packages, lock?.snapshots]) {
             for (const key of Object.keys(section ?? {})) {
@@ -458,6 +493,7 @@ try {
         }
       } else {
         const graph = readBunLock(appDir)
+
         assert.ok(graph?.packages, 'Bun lockfile must describe the installed packages')
         for (const entry of Object.values(graph.packages) as any[]) {
           if (Array.isArray(entry)) {
@@ -474,6 +510,7 @@ try {
       ]) {
         assert.ok(!installed.has(name), `default app unexpectedly installed ${name}`)
       }
+
       for (const name of ['vitest', 'jsdom']) {
         assert.ok(installed.has(name), `default app missed ${name}`)
       }
@@ -485,18 +522,23 @@ try {
     60 * 1000,
     () => {
       const installed = join(appDir, 'node_modules', '@octane-xplat', 'ui')
+
       assert.ok(existsSync(installed), '@octane-xplat/ui not installed')
+
       const resolved = realpathSync(installed)
+
       assert.ok(
         !resolved.startsWith(join(repoRoot, 'packages')),
         `ui resolves into the workspace: ${resolved}`,
       )
 
       const manifest = JSON.parse(readFileSync(join(installed, 'package.json'), 'utf8'))
+
       for (const target of ['web', 'native', 'macos', 'linux']) {
         const entry = manifest.exports['.'][target]
         const runtime = typeof entry === 'string' ? entry : entry.default
         const types = typeof entry === 'string' ? manifest.exports['.'].types : entry.types
+
         assert.ok(runtime.startsWith('./src/'), `${target} runtime must use source`)
         assert.ok(types.endsWith('.d.ts'), `${target} types must use declarations`)
         assert.ok(existsSync(join(installed, runtime)), `${target} source missing`)
@@ -508,6 +550,7 @@ try {
   await gate('plain TypeScript consumes installed web declarations', 60 * 1000, () => {
     const source = join(appDir, 'verify-declarations.ts')
     const config = join(appDir, 'verify-declarations.json')
+
     writeFileSync(
       source,
       `import { Text, type TextProps } from '@octane-xplat/ui'
@@ -516,6 +559,7 @@ void Text
 void props
 `,
     )
+
     writeFileSync(
       config,
       JSON.stringify({
@@ -534,8 +578,10 @@ void props
         files: ['verify-declarations.ts'],
       }),
     )
+
     try {
       const result = run('bun', ['run', 'tsc', '--project', config], appDir)
+
       assert.equal(result.status, 0, 'plain TypeScript could not consume packed declarations')
     } finally {
       rmSync(source, { force: true })
@@ -554,8 +600,11 @@ void props
           ['run', 'xplat', 'add', 'ios', 'android', '--no-install'],
           appDir,
         )
+
         assert.equal(r.status, 0, `xplat add exited ${r.status}`)
+
         const install = run(packageManager, ['install', '--no-frozen-lockfile'], appDir)
+
         assert.equal(install.status, 0, 'platform dependencies failed to install')
         assert.ok(
           existsSync(join(appDir, 'nativescript.config.ts')),
@@ -566,12 +615,14 @@ void props
           existsSync(join(appDir, 'App_Resources/iOS')),
           'add produced no App_Resources/iOS',
         )
+
         assert.ok(
           existsSync(join(appDir, 'App_Resources/Android')),
           'add produced no App_Resources/Android',
         )
 
         const manifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
         assert.ok(manifest.devDependencies['@nativescript/ios'], 'add missed @nativescript/ios')
         assert.ok(
           manifest.devDependencies['@nativescript/android'],
@@ -584,6 +635,7 @@ void props
   // ---- consumer gates ------------------------------------------------------
   await gate('installed UI source compiles in the development server', 60 * 1000, () => {
     const check = join(appDir, 'verify-source-dev.ts')
+
     writeFileSync(
       check,
       `import assert from 'node:assert/strict'
@@ -605,6 +657,7 @@ try {
 
     try {
       const r = run('node', [check], appDir)
+
       assert.equal(r.status, 0, 'development transform of installed TSRX failed')
     } finally {
       rmSync(check, { force: true })
@@ -624,6 +677,7 @@ try {
   ]) {
     await gate(name, 10 * 60 * 1000, () => {
       const r = run(packageManager, ['run', ...argv], appDir)
+
       assert.equal(r.status, 0, `${name} exited ${r.status}`)
     })
   }
@@ -637,31 +691,39 @@ try {
         repoRoot,
         'packages/create/template/.agents/skills/xplat/references/navigation.md',
       )
+
       const markdown = readFileSync(skillPath, 'utf8')
       const files = new Map<string, string[]>()
+
       for (const match of markdown.matchAll(/```(?:tsx?|tsrx)\n([\s\S]*?)```/g)) {
         const block = match[1].replace(/\n$/, '')
         const first = block.split('\n', 1)[0].trim()
         const target = /^\/\/ (src\/\S+)/.exec(first)?.[1]
+
         if (!target) {
           continue
         }
 
         const list = files.get(target) ?? []
+
         list.push(block)
         files.set(target, list)
       }
 
       assert.ok(files.size >= 3, `expected at least 3 snippet files, found ${files.size}`)
+
       // Later users of this scaffold (such as the routing evaluation)
       // need the untouched starter source, so restore it afterwards.
       const source = join(appDir, 'src')
       const saved = join(mkdtempSync(join(tmpdir(), 'xplat-starter-src-')), 'src')
+
       cpSync(source, saved, { recursive: true, verbatimSymlinks: true })
       try {
         const written: string[] = []
+
         for (const [rel, blocks] of files) {
           const path = join(appDir, rel)
+
           mkdirSync(dirname(path), { recursive: true })
           writeFileSync(path, blocks.join('\n\n') + '\n')
           written.push(rel)
@@ -669,20 +731,27 @@ try {
 
         // Missing params must fail typecheck before the positive run.
         const negative = join(appDir, 'src/negative-destination.ts')
+
         writeFileSync(
           negative,
           `import { router } from '@octane-xplat/ui/routing'\nvoid router.push({ to: '/items/:id' })\n`,
         )
 
         const denied = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+
         assert.notEqual(denied.status, 0, 'router.push without params must fail typecheck')
         rmSync(negative, { force: true })
 
         const routes = run('bun', ['run', 'xplat', 'routes'], appDir)
+
         assert.equal(routes.status, 0, `xplat routes failed for snippets: ${written.join(', ')}`)
+
         const typecheck = run('bun', ['run', 'xplat', 'typecheck'], appDir)
+
         assert.equal(typecheck.status, 0, 'skill snippets failed typecheck')
+
         const lint = run('bun', ['run', 'xplat', 'lint', 'src'], appDir)
+
         assert.equal(lint.status, 0, 'skill snippets failed lint')
       } finally {
         rmSync(source, { recursive: true, force: true })
@@ -699,10 +768,12 @@ try {
       () => {
         const file = join(libraryDir, 'package.json')
         const manifest = JSON.parse(readFileSync(file, 'utf8'))
+
         manifest.overrides ??= {}
         for (const [name, tarball] of tarballs) {
           manifest.overrides[name] = `file:${tarball}`
         }
+
         writeFileSync(file, JSON.stringify(manifest, null, '\t') + '\n')
 
         for (const argv of [
@@ -714,6 +785,7 @@ try {
           ['test:packed'],
         ]) {
           const r = run('bun', argv[0] === 'install' ? argv : ['run', ...argv], libraryDir)
+
           assert.equal(r.status, 0, `library bun run ${argv.join(' ')} exited ${r.status}`)
           if (argv[0] === 'install') {
             repairNativeCli(libraryDir, 'bun')
@@ -730,8 +802,10 @@ try {
       const { createServer } = await import('node:net')
       const port = await new Promise((resolve) => {
         const server = createServer()
+
         server.listen(0, () => {
           const p = server.address().port
+
           server.close(() => resolve(p))
         })
       })
@@ -749,6 +823,7 @@ try {
 
       let browser
       let browsers
+
       try {
         await new Promise((resolve, reject) => {
           const timer = setTimeout(
@@ -772,6 +847,7 @@ try {
         const { createRequire } = await import('node:module')
         const require = createRequire(join(repoRoot, 'apps/web/package.json'))
         const playwright = require('playwright')
+
         browsers = (process.env.XPLAT_WEB_BROWSERS ?? 'chromium')
           .split(',')
           .map((name) => name.trim())
@@ -780,12 +856,15 @@ try {
         assert.ok(browsers.length, 'XPLAT_WEB_BROWSERS selected no browser engines')
         for (const browserName of browsers) {
           console.log(`[verify] browser smoke (${browserName})`)
+
           const browserType = playwright[browserName]
+
           assert.ok(browserType, `Unsupported Playwright browser: ${browserName}`)
           browser = await browserType.launch()
           try {
             const page = await browser.newPage()
             const errors = []
+
             page.on('pageerror', (e) => errors.push(`pageerror: ${e.message}`))
             page.on(
               'console',
@@ -847,9 +926,12 @@ try {
       5 * 60 * 1000,
       async () => {
         const buildDir = join(appDir, 'platforms', 'ios', 'build')
+
         assert.ok(existsSync(buildDir), 'no ios build output')
+
         const find = run('find', [buildDir, '-name', '*.app', '-type', 'd'], work)
         const appPath = find.stdout.trim().split('\n').find(Boolean)
+
         assert.ok(appPath, 'no .app under platforms/ios/build')
 
         const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
@@ -864,7 +946,9 @@ try {
         assert.ok(sim, 'no available iPhone simulator matching VERIFY_IOS_DEVICE')
 
         run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work) // waits; ok if already booted
+
         const install = run('xcrun', ['simctl', 'install', sim.udid, appPath], work)
+
         assert.equal(install.status, 0, `simctl install failed: ${install.stderr}`)
 
         const idMatch = readFileSync(join(appDir, 'nativescript.config.ts'), 'utf8').match(
@@ -872,15 +956,20 @@ try {
         )
 
         assert.ok(idMatch, 'could not read app id from nativescript.config.ts')
+
         const bundleId = idMatch[1]
 
         const launch = run('xcrun', ['simctl', 'launch', sim.udid, bundleId], work)
+
         assert.equal(launch.status, 0, `simctl launch failed: ${launch.stderr}`)
+
         const pid = Number(launch.stdout.match(/:\s*(\d+)/)?.[1] ?? 0)
+
         assert.ok(pid > 0, `no pid in launch output: ${launch.stdout}`)
 
         // Let the app run, then read its log — fatal/JS-error signatures fail.
         await new Promise((resolve) => setTimeout(resolve, 12000))
+
         const log = run(
           'xcrun',
           [
@@ -900,6 +989,7 @@ try {
         )
 
         const services = run('xcrun', ['simctl', 'spawn', sim.udid, 'launchctl', 'list'], work)
+
         assert.ok(
           services.stdout.includes(bundleId),
           'app is not in launchctl list after 12s — it crashed or was killed',
@@ -923,7 +1013,9 @@ try {
       30 * 60 * 1000,
       () => {
         const list = run('xcrun', ['simctl', 'list', 'devices', 'available', '-j'], work)
+
         assert.equal(list.status, 0, 'simctl list failed')
+
         const sims = Object.values(JSON.parse(list.stdout).devices)
           .flat()
           .filter((d) => d.isAvailable && /iPhone/.test(d.name))
@@ -941,10 +1033,13 @@ try {
         // an already-booted device, so boot here and wait (both are
         // no-ops when the simulator is already up).
         run('xcrun', ['simctl', 'boot', sim.udid], work)
+
         const boot = run('xcrun', ['simctl', 'bootstatus', sim.udid, '-b'], work)
+
         assert.equal(boot.status, 0, `simctl bootstatus failed: ${boot.stderr}`)
 
         const r = run('bun', ['test:ios'], appDir, { NS_DEVICE: sim.udid })
+
         assert.equal(r.status, 0, `ns test ios exited ${r.status}`)
 
         const summary = r.stdout

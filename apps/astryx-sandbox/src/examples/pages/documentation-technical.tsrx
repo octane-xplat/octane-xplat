@@ -57,7 +57,9 @@ export function DocumentationTechnicalTemplate() @{
 
   const scrollToId = useCallback((id: string) => {
     setActiveId(id)
+
     const target = document.getElementById(id)
+
     if (target != null) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
       window.history.pushState(null, '', `#${id}`)

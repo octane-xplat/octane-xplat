@@ -42,10 +42,12 @@ export async function webPlayer({ systemControls = false } = {}) {
       this.source = undefined
     }
   }
+
   const commands = new Map()
   const session = { metadata: null, setActionHandler: (name, action) => commands.set(name, action) }
   let audio
   const exports = {}
+
   vm.runInNewContext(
     ts.transpile(await readFile(new URL('../src/audio.web.ts', import.meta.url), 'utf8'), {
       module: ts.ModuleKind.CommonJS,
@@ -71,11 +73,13 @@ export async function webPlayer({ systemControls = false } = {}) {
       },
     },
   )
+
   return { player: exports.createAudioPlayer(), audio: () => audio, commands, session }
 }
 
 test('web settings survive queue changes and mute retains independent gain', async () => {
   const { player, audio } = await webPlayer()
+
   await player.setPlaybackRate(1.75)
   await player.setVolume(0.25)
   await player.setMuted(true)
@@ -109,7 +113,9 @@ test('Android settings dispatch ordered commands and retain gain while muted', a
     },
     snapshot: () => JSON.stringify({ state: 'paused', currentTime: 0, duration: 20 }),
   }
+
   const exports = {}
+
   vm.runInNewContext(
     ts.transpile(await readFile(new URL('../src/audio.android.ts', import.meta.url), 'utf8'), {
       module: ts.ModuleKind.CommonJS,
@@ -127,7 +133,9 @@ test('Android settings dispatch ordered commands and retain gain while muted', a
       clearInterval,
     },
   )
+
   const player = exports.createAudioPlayer()
+
   await player.setVolume(0.2)
   await player.setMuted(true)
   await player.setPlaybackRate(1.5)
@@ -141,6 +149,7 @@ test('Android settings dispatch ordered commands and retain gain while muted', a
       ['muted', 0],
     ],
   )
+
   assert.equal(player.snapshot().volume, 0.2)
   await assert.rejects(player.setPlaybackRate(Infinity), /finite/)
   assert.equal(commands.length, 4)
@@ -152,6 +161,7 @@ test('web growing queue preserves the source and waits until more items arrive',
   const { player, audio } = await webPlayer()
   const a = { id: 'a', source: '/a.mp3' }
   const b = { id: 'b', source: '/b.mp3' }
+
   await player.setQueue([a], 0, { complete: false })
   await player.play()
   audio().currentTime = 7
@@ -178,6 +188,7 @@ test('web growing queue preserves the source and waits until more items arrive',
 test('web pause cancels waiting auto-resume; invalid updates are atomic', async () => {
   const { player, audio } = await webPlayer()
   const a = { id: 'a', source: '/a.mp3' }
+
   await player.setQueue([a], 0, { complete: false })
   await player.play()
   audio().fire('ended')
@@ -195,6 +206,7 @@ test('web pause cancels waiting auto-resume; invalid updates are atomic', async 
 test('web system pause cancels append auto-resume and metadata updates keep the source', async () => {
   const { player, audio, commands, session } = await webPlayer({ systemControls: true })
   const a = { id: 'a', source: '/a.mp3', title: 'Old' }
+
   await player.setQueue([a], 0, { complete: false })
   await player.play()
   await player.updateQueue([{ ...a, title: 'New' }])

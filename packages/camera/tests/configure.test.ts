@@ -41,8 +41,10 @@ async function setup() {
       observer = target
     },
   }
+
   const session = new SharedCameraSession(backend, { camera: 'back', audio: true })
   const events: CameraSessionEvent[] = []
+
   session.subscribe((event) => events.push(event))
   session.attach({})
   return {
@@ -78,16 +80,21 @@ describe('configuration admission across capability discovery', () => {
       const h = await setup()
       const flip = h.session.configure({ camera: 'front' })
       const take = h.session.startRecording()
+
       if (phase !== 'starting') {
         h.started()
       }
+
       if (phase === 'finalizing') {
         take.stop()
       }
+
       if (phase === 'interrupted') {
         h.interrupt()
       }
+
       const stops = vi.mocked(h.backend.stopCapture).mock.calls.length
+
       h.resolve()
       await expect(flip).rejects.toMatchObject({ kind: 'invalidState', operation: 'configure' })
       expect(h.backend.configure).not.toHaveBeenCalled()
@@ -96,6 +103,7 @@ describe('configuration admission across capability discovery', () => {
       if (phase === 'starting') {
         h.started()
       }
+
       expect(take.elapsedMs).toBe(1200)
       expect(take.stop()).toBe(take.completion)
       h.finish()
@@ -105,6 +113,7 @@ describe('configuration admission across capability discovery', () => {
         clip: { durationMs: 1200, hasAudio: true },
         endReason: phase === 'interrupted' ? 'cameraUnavailable' : 'stopped',
       })
+
       expect(h.events.filter((e) => e.type === 'finished')).toHaveLength(1)
       await h.session.dispose()
     },
@@ -116,11 +125,13 @@ describe('configuration admission across capability discovery', () => {
       h.session.configure({ camera: 'front' }),
       h.session.configure({ camera: 'back' }),
     ]
+
     await h.session.dispose()
     h.resolve()
     for (const flip of flips) {
       await expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
     }
+
     expect(h.backend.configure).not.toHaveBeenCalled()
     expect(h.backend.release).toHaveBeenCalledTimes(1)
   })
@@ -130,6 +141,7 @@ describe('configuration admission across capability discovery', () => {
     const flip = h.session.configure({ camera: 'front' })
     const take = h.session.startRecording()
     const disposed = h.session.dispose()
+
     h.resolve()
     await expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
     expect(h.backend.configure).not.toHaveBeenCalled()
@@ -143,12 +155,14 @@ describe('configuration admission across capability discovery', () => {
 
   it('still applies an available idle selection and rejects an unavailable one', async () => {
     const h = await setup()
+
     h.resolve()
     await h.session.configure({ camera: 'front' })
     expect(h.backend.configure).toHaveBeenCalledWith({ camera: 'front', audio: true })
     await expect(h.session.configure({ camera: { deviceId: 'missing' } })).rejects.toMatchObject({
       kind: 'unsupportedConfiguration',
     })
+
     expect(h.backend.configure).toHaveBeenCalledTimes(1)
     await h.session.dispose()
   })

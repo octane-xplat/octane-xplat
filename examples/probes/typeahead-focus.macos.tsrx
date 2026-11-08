@@ -12,6 +12,7 @@ import {
 
 import type { SearchableItem, TypeaheadInputHandle } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const source = createStaticSource([
   { id: 'ada', label: 'Ada' },
   { id: 'grace', label: 'Grace' },

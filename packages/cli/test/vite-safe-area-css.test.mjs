@@ -14,6 +14,7 @@ for (const edge of ['top', 'right', 'bottom', 'left']) {
     const id = '\0virtual:bamboo.css'
     const css = `.chrome { padding: max(10px, env(safe-area-inset-${edge}, 0px)); }`
     const result = plugin.transform.call(context, css, id)
+
     assert.match(result, /env\(safe-area-inset-/)
     assert.match(result, /10dip/)
     assert.equal(warnings.length, 1)
@@ -28,13 +29,18 @@ for (const edge of ['top', 'right', 'bottom', 'left']) {
 
 test('warns on emitted Bamboo assets after deferred build conversion', () => {
   const plugin = pxToDip()
+
   plugin.configResolved({ command: 'build' })
+
   const warnings = []
   const context = { warn: (message) => warnings.push(message) }
   const css = '@layer utilities { .chrome { padding-top: env(safe-area-inset-top); } }'
+
   assert.equal(plugin.transform.call(context, css, '\0virtual:bamboo.css'), undefined)
   assert.equal(warnings.length, 0)
+
   const asset = { type: 'asset', fileName: 'bamboo.css', source: new TextEncoder().encode(css) }
+
   plugin.generateBundle.call(context, {}, { 'bamboo.css': asset })
   assert.equal(warnings.length, 1)
   assert.match(warnings[0], /^bamboo\.css: env/)
@@ -50,24 +56,29 @@ test('ignores safe-area text in comments, strings, unrelated functions and remov
 	/* xplat-web-only:start */
 	.browser { padding: env(safe-area-inset-bottom); }
 	/* xplat-web-only:end */`
+
   plugin.transform.call({ warn: assert.fail }, css, '/style.css')
 })
 
 test('diagnoses the framework safe-area class too', () => {
   const css = readFileSync(new URL('../../ui/src/theme/tokens.css', import.meta.url), 'utf8')
   const warnings = []
+
   pxToDip().transform.call({ warn: (message) => warnings.push(message) }, css, '/tokens.css')
   assert.equal(warnings.filter((message) => message.includes('env(safe-area-inset-*)')).length, 1)
 })
 
 test('native Vite builds warn for shared CSS while web-only rules and web builds stay quiet', async () => {
   const root = mkdtempSync(join(tmpdir(), 'xplat-safe-area-css-'))
+
   try {
     writeFileSync(join(root, 'main.js'), "import './style.css'")
     for (const platform of ['web', 'ios', 'android']) {
       for (const webOnly of [false, true]) {
         const rule = '.chrome { padding-top: env(safe-area-inset-top); }'
+
         writeFileSync(join(root, 'style.css'), webOnly ? `@platform web { ${rule} }` : rule)
+
         const warnings = []
         const result = await build({
           root,
@@ -113,11 +124,13 @@ test('native Vite builds warn for shared CSS while web-only rules and web builds
 
 test('new core keeps a qualification warning without claiming its resolver is absent', () => {
   const warnings = []
+
   pxToDip({ masonSafeAreaEnvironment: true }).transform.call(
     { warn: (message) => warnings.push(message) },
     '.chrome { padding-top: env(safe-area-inset-top, 0px); }',
     '/style.css',
   )
+
   assert.equal(warnings.length, 1)
   assert.match(warnings[0], /owning window.*Mason containers.*not yet device-qualified/)
   assert.doesNotMatch(warnings[0], /unsupported on native/)
@@ -125,11 +138,13 @@ test('new core keeps a qualification warning without claiming its resolver is ab
 
 test('engines without the resolver keep the unresolved-value warning', () => {
   const warnings = []
+
   pxToDip({ masonSafeAreaEnvironment: false }).transform.call(
     { warn: (message) => warnings.push(message) },
     '.chrome { padding-top: env(safe-area-inset-top, 0px); }',
     '/style.css',
   )
+
   assert.equal(warnings.length, 1)
   assert.match(warnings[0], /unsupported on native/)
 })

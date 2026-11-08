@@ -20,6 +20,7 @@ function contentPadding(props: ScrollableAreaProps) {
   const inline = spacingStep(props.paddingInline ?? props.padding)
   const block = spacingStep(props.paddingBlock ?? props.padding)
   const style: Record<string, any> = {}
+
   if (inline != null) {
     style.paddingInlineStart = `${spacingStep(props.paddingInlineStart) ?? inline}px`
     style.paddingInlineEnd = `${spacingStep(props.paddingInlineEnd) ?? inline}px`
@@ -57,6 +58,7 @@ function scrollableAreaHandle(viewport: { current: HTMLElement | null }): Scroll
   return {
     scrollToOffset: (offset, options) => {
       const el = viewport.current
+
       if (!el || typeof el.scrollTo !== 'function') {
         return
       }
@@ -67,12 +69,14 @@ function scrollableAreaHandle(viewport: { current: HTMLElement | null }): Scroll
 
       if (offset.block != null && Number.isFinite(offset.block)) {
         const maxY = Math.max(0, el.scrollHeight - el.clientHeight)
+
         target.top = Math.max(0, Math.min(offset.block, maxY))
       }
 
       if (offset.inline != null && Number.isFinite(offset.inline)) {
         const maxX = Math.max(0, el.scrollWidth - el.clientWidth)
         const clamped = Math.max(0, Math.min(offset.inline, maxX))
+
         target.left = getComputedStyle(el).direction === 'rtl' ? -clamped : clamped
       }
 
@@ -96,6 +100,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
   })
 
   const cfg = useRef<RefreshConfig>({})
+
   cfg.current = {
     onRefresh: props.onRefresh,
     refreshing: props.refreshing,
@@ -131,6 +136,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
   const { ref: contentRef, ...content } = area.getContentProps()
 
   const handle = useMemo(() => scrollableAreaHandle(scroller), [])
+
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const forwardedRef = useMemo(
@@ -218,6 +224,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
 
   const viewportEl = useRef<HTMLElement | null>(null)
   const handle = useMemo(() => scrollableAreaHandle(viewportEl), [])
+
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const forwardedRef = useMemo(

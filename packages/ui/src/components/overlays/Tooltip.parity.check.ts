@@ -19,6 +19,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const anchor = m('anchor')
       const trigger = m('trigger')
+
       return [
         dims(anchor, 180, 48, 1),
         dims(trigger, 72, 24, 1),

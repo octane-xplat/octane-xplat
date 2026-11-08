@@ -8,6 +8,7 @@ import { AppKitColumnResizeHandle } from './column-resize-handle.macos.tsrx'
 import { useDirection } from '../internal/platform/internationalization'
 import { mergeStyle } from '../internal/layout/style-merge'
 import { TableSlot } from './table-slot.tsrx'
+
 export type { UseTableColumnResizeConfig } from './use-table-column-resize.tsrx'
 
 /** Native preview/commit ownership plus shared column-plan sizing. */
@@ -18,6 +19,7 @@ export function useTableColumnResize<T extends Record<string, unknown>>(
     current = useRef({ config, direction })
 
   current.current = { config, direction }
+
   const [, render] = useState(0)
   const state = useMemo(
     () =>

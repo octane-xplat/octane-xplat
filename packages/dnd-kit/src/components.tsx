@@ -34,11 +34,13 @@ const SortContextProvider: any = SortContext
 /** Scope registrations to one renderer root. Nested roots need their own DndContext. */
 export function DndContext(props: DndContextProps): unknown {
   const ref = useRef<DndController | null>(null)
+
   if (!ref.current) {
     ref.current = new DndController()
   }
 
   const controller = ref.current
+
   controller.options = props
   useEffect(() => () => controller.disposeController(), [controller])
   return <ContextProvider value={controller}>{props.children}</ContextProvider>
@@ -46,6 +48,7 @@ export function DndContext(props: DndContextProps): unknown {
 
 function useController(): DndController {
   const controller = useContext(Context)
+
   if (!controller) {
     throw new Error('Drag and drop hooks require DndContext')
   }
@@ -56,6 +59,7 @@ function useController(): DndController {
 /** Subscribes independently so retained native children observe drag state. */
 export function useDndContext(): DndSnapshot {
   const controller = useController()
+
   return useSyncExternalStore(controller.subscribe, controller.getSnapshot, controller.getSnapshot)
 }
 
@@ -66,10 +70,14 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
   const entity = useRef<ReturnType<DndController['registerDraggable']> | null>(null)
   const node = useRef<any>(null)
   const latest = useRef(options)
+
   latest.current = options
+
   const measurement = useMeasure()
+
   useEffect(() => {
     const registered = controller.registerDraggable(latest.current)
+
     entity.current = registered
     if (node.current) {
       controller.draggableNodes.set(options.id, node.current)
@@ -119,6 +127,7 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 
   const isDragging = snapshot.isDragging && snapshot.active?.id === options.id
   const transform = isDragging ? snapshot.transform : { x: 0, y: 0 }
+
   return {
     ref,
     onPan,
@@ -135,10 +144,14 @@ export function useDroppable(options: DroppableOptions): DroppableResult {
   const entity = useRef<ReturnType<DndController['registerDroppable']> | null>(null)
   const node = useRef<any>(null)
   const latest = useRef(options)
+
   latest.current = options
+
   const measurement = useMeasure()
+
   useEffect(() => {
     const registered = controller.registerDroppable(latest.current)
+
     entity.current = registered
     if (node.current) {
       controller.droppableNodes.set(options.id, node.current)
@@ -202,6 +215,7 @@ export function SortableContext(props: SortableContextProps): unknown {
 /** Bind and spread onPan/style onto one View. Order changes only when the owner commits a drop. */
 export function useSortable(options: DraggableOptions): SortableResult {
   const items = useContext(SortContext)
+
   if (!items?.includes(options.id)) {
     throw new Error('useSortable requires membership in SortableContext')
   }
@@ -263,6 +277,7 @@ export function SortableList<T extends DndId>(props: SortableListProps<T>): unkn
         if (event.active && event.over) {
           const from = items.findIndex((id) => id === event.active!.id)
           const to = items.findIndex((id) => id === event.over!.id)
+
           if (from >= 0 && to >= 0 && from !== to) {
             onReorder(arrayMove(items, from, to), event)
           }

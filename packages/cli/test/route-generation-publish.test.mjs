@@ -15,12 +15,14 @@ const exists = (file) =>
       if (error.code === 'ENOENT') {
         return false
       }
+
       throw error
     },
   )
 
 const until = async (predicate) => {
   const deadline = Date.now() + 10000
+
   while (!(await predicate())) {
     assert.ok(Date.now() < deadline, 'bake condition did not settle')
     await delay(20)
@@ -32,6 +34,7 @@ test(
   { timeout: 20000 },
   async () => {
     const root = await mkdtemp(join(tmpdir(), 'xplat-route-publish-'))
+
     try {
       await mkdir(join(root, 'app'))
       await mkdir(join(root, 'node_modules'))
@@ -48,6 +51,7 @@ test(
       )
 
       await generateRoutes(root)
+
       const generated = (await readdir(root)).filter((file) => file.startsWith('routes.gen.'))
       const before = new Map(
         await Promise.all(
@@ -59,6 +63,7 @@ test(
         for (const [file, source] of before) {
           assert.equal(await readFile(join(root, file), 'utf8'), source, file)
         }
+
         assert.deepEqual(
           (await readdir(root)).filter((file) => file.startsWith('routes.gen.')).sort(),
           [...before.keys()].sort(),

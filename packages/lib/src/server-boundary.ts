@@ -14,6 +14,7 @@ type Context = {
 type Options = { ssr?: boolean; custom?: Record<string, unknown> }
 const bypass = 'xplat:server-boundary-resolution'
 const clean = (id: string) => id.split(/[?#]/, 1)[0].replace(/\\/g, '/')
+
 export const isServerModule = (id: string) =>
   /(?:^|\/)\.server\//.test(clean(id)) || /\.server(?:\.[\w-]+)*$/.test(clean(id))
 
@@ -37,28 +38,34 @@ export function serverBoundary() {
       if (server(this, options) || options.custom?.[bypass]) {
         return null
       }
+
       const resolved = await this.resolve(source, importer, {
         ...options,
         skipSelf: true,
         custom: { ...options.custom, [bypass]: true },
       })
+
       if (isServerModule(source) || (resolved && isServerModule(resolved.id))) {
         this.error(
           `Server-only module ${source} is reachable from client code${importer ? ` in ${importer}` : ''}. Move its use into a .server module and expose an explicit named re-export to server consumers only.`,
         )
       }
+
       return null
     },
     async transform(this: Context, code: string, id: string, options?: Options) {
       if (server(this, options)) {
         return null
       }
+
       if (isServerModule(id)) {
         this.error(`Server-only module ${id} entered a client graph`)
       }
+
       if (!/\.[cm]?[jt]sx?$|\.tsrx$/.test(clean(id)) || !/\b(?:import|export)\b/.test(code)) {
         return null
       }
+
       const ast = this.parse(code)
       const removed: [number, number][] = []
       const statements = [...ast.body]
@@ -66,9 +73,11 @@ export function serverBoundary() {
         if (!node || typeof node !== 'object') {
           return
         }
+
         if (node.type === 'ImportExpression') {
           statements.push(node)
         }
+
         for (const value of Object.values(node)) {
           if (Array.isArray(value)) {
             value.forEach(visit)
@@ -77,6 +86,7 @@ export function serverBoundary() {
           }
         }
       }
+
       visit(ast)
       for (const statement of statements) {
         if (!statement.source?.value) {
@@ -101,13 +111,16 @@ export function serverBoundary() {
 
         removed.push([statement.start, statement.end])
       }
+
       if (!removed.length) {
         return null
       }
+
       for (const [start, end] of removed.reverse()) {
         code =
           code.slice(0, start) + code.slice(start, end).replace(/[^\r\n]/g, ' ') + code.slice(end)
       }
+
       // Break the authored source-map chain for server-containing modules.
       // An empty mapping cannot expose text removed by this transform.
       return { code, map: { version: 3, sources: [], names: [], mappings: '', sourcesContent: [] } }

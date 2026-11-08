@@ -32,6 +32,7 @@ export interface UseThemeReturn {
 export function useThemeDefinition(): DefinedTheme | undefined {
   const ctx = useContext(ThemeContext)
   const root = getRootThemeScope()
+
   return ctx?.theme ?? root ?? undefined
 }
 
@@ -39,6 +40,7 @@ export function useThemeDefinition(): DefinedTheme | undefined {
 export function useThemeName(): string | null {
   const ctx = useContext(ThemeContext)
   const root = getRootThemeScope()
+
   return ctx?.theme.name ?? root?.name ?? null
 }
 

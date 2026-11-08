@@ -20,6 +20,7 @@ export function resolveSortKey<T extends Record<string, unknown>>(
   column: TableColumn<T>,
 ): string | null {
   const { sortable } = column
+
   if (!sortable) {
     return null
   }
@@ -82,16 +83,21 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
     const cfg = props.configRef.current
     const isShift = e?.shiftKey && cfg.isMultiSortEnabled
     const allowUnsorted = cfg.allowUnsortedState ?? true
+
     if (isShift) {
       const idx = cfg.sort.findIndex((s) => s.sortKey === sortKey)
+
       if (idx >= 0) {
         const nextDir = getNextDirection(cfg.sort[idx]!.direction, allowUnsorted)
+
         if (nextDir == null) {
           const next = [...cfg.sort]
+
           next.splice(idx, 1)
           cfg.onSortChange(next)
         } else {
           const next = [...cfg.sort]
+
           next[idx] = { ...next[idx]!, direction: nextDir }
           cfg.onSortChange(next)
         }
@@ -101,6 +107,7 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
     } else {
       const currentEntry = cfg.sort.find((s) => s.sortKey === sortKey)
       const nextDir = getNextDirection(currentEntry?.direction ?? null, allowUnsorted)
+
       if (nextDir == null) {
         cfg.onSortChange([])
       } else {
@@ -149,6 +156,7 @@ export function useTableSortable<
   TSortKey extends string = string,
 >(config: UseTableSortableConfig<TSortKey>): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   return {
@@ -157,6 +165,7 @@ export function useTableSortable<
       column: TableColumn<T>,
     ): HeaderCellRenderProps {
       const sortKey = resolveSortKey(column)
+
       if (sortKey == null) {
         return props
       }
@@ -198,6 +207,7 @@ export function useTableSortable<
       }
 
       const prior = props.contextMenuActions
+
       return {
         ...props,
         htmlProps: {

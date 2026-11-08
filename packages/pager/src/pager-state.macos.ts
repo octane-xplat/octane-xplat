@@ -46,24 +46,29 @@ export function createAppKitPagerState(options: {
     current = Number.isFinite(source.page ?? source.defaultPage)
       ? Math.max(0, Math.trunc((source.page ?? source.defaultPage)!))
       : 0
+
   let applied: Placement | null = null,
     pending: Placement | null = null,
     version = 0
+
   const cancel = () => {
     version++
     pending = null
   }
+
   const placement = (frame: AppKitPagerFrame, page: number): Placement => ({
     frame,
     count: source.count,
     direction: source.direction,
     page,
   })
+
   const write = (target: Placement, animated: boolean) => {
     applied = target
     if (Math.abs(target.frame.position - target.page * target.frame.width) <= 1) {
       return
     }
+
     options.beforeWrite()
     try {
       options.write(target.page * target.frame.width, animated)
@@ -75,9 +80,11 @@ export function createAppKitPagerState(options: {
       throw error
     }
   }
+
   const complete = () => {
     const target = pending,
       frame = options.frame()
+
     if (
       !target ||
       !frame?.ready ||
@@ -86,14 +93,18 @@ export function createAppKitPagerState(options: {
     ) {
       return
     }
+
     pending = null // Claim before application callbacks can render or reenter.
+
     const changed = current !== target.page
+
     current = target.page
     applied = placement(frame, current)
     if (changed) {
       options.report(current)
     }
   }
+
   return {
     selected: () => index(current, options.source().count),
     detach() {
@@ -102,7 +113,9 @@ export function createAppKitPagerState(options: {
     },
     interacted(): void {
       cancel()
+
       const frame = options.frame()
+
       if (frame?.ready) {
         applied = placement(frame, index(current, source.count))
       }
@@ -113,17 +126,21 @@ export function createAppKitPagerState(options: {
         next.count !== source.count ||
         next.direction !== source.direction ||
         !Object.is(next.page, source.page)
+
       if (changed) {
         cancel()
         options.beforeWrite()
       }
+
       source = next
       if (!source.count) {
         cancel()
         applied = null
         return
       }
+
       const frame = options.frame()
+
       if (!frame?.ready) {
         if (pending && (!frame || !sameFrame(pending.frame, frame))) {
           cancel()
@@ -131,6 +148,7 @@ export function createAppKitPagerState(options: {
 
         return
       }
+
       if (pending) {
         if (!changed && sameFrame(pending.frame, frame)) {
           complete()
@@ -140,12 +158,16 @@ export function createAppKitPagerState(options: {
         cancel()
         options.beforeWrite()
       }
+
       const desired =
         source.page === undefined ? index(current, source.count) : index(source.page, source.count)
+
       const previous = applied
+
       if (!previous && options.busy() && !changed) {
         return
       }
+
       current = desired
       if (
         previous &&
@@ -156,11 +178,13 @@ export function createAppKitPagerState(options: {
       ) {
         return
       }
+
       write(placement(frame, desired), Boolean(previous && sameFrame(previous.frame, frame)))
     },
     settle(): void {
       const frame = options.frame(),
         latest = options.source()
+
       if (
         !frame?.ready ||
         !latest.count ||
@@ -170,12 +194,15 @@ export function createAppKitPagerState(options: {
       ) {
         return
       }
+
       cancel()
+
       const target = placement(
           frame,
           index(Math.round(frame.position / frame.width), latest.count),
         ),
         request = version
+
       pending = target
       try {
         write(target, true)
@@ -186,6 +213,7 @@ export function createAppKitPagerState(options: {
 
         throw error
       }
+
       if (version === request && pending === target) {
         complete()
       }

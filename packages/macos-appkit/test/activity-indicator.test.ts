@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -97,6 +98,7 @@ function controlFixture() {
 
 test('raw ActivityIndicator creates an indeterminate regular spinner with native sizing', () => {
   const { view, calls } = controlFixture()
+
   assert.equal(view.style, 1)
   assert.equal(view.controlSize, 0)
   assert.equal(view.indeterminate, true)
@@ -107,6 +109,7 @@ test('raw ActivityIndicator creates an indeterminate regular spinner with native
 
 test('production ActivityIndicator updates start/stop animation and dropped props restore defaults', () => {
   const { api, node, view, calls, container } = controlFixture()
+
   api.applyProps(node, {})
   assert.equal(view.alphaValue, 0)
   api.applyProps(node, { busy: true, style: { opacity: 0.5 }, className: 'loading' })
@@ -134,6 +137,7 @@ test('production ActivityIndicator updates start/stop animation and dropped prop
 
 test('ActivityIndicator primitive validation rejects invalid busy values before native mutation', () => {
   const { api, calls } = controlFixture()
+
   for (const busy of ['false', 1, {}, []]) {
     assert.throws(
       () => api.validateNodeProps('activityindicator', { busy }),
@@ -150,6 +154,7 @@ test('ActivityIndicator primitive validation rejects invalid busy values before 
 
 test('ActivityIndicator accepts layout parents and rejects all children before insertion', () => {
   const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'span', 'activityindicator']) {
     assert.throws(
       () => api.validateTextNesting('activityindicator', child),
@@ -246,6 +251,7 @@ test('ActivityIndicator production ownership moves its native host between paren
     html: any = node(3, 'activityindicator')
 
   const retained = html.view
+
   api.insert(container, 1, html, null)
   assert.equal(left.contentChild, html)
   api.insert(container, 2, html, null)

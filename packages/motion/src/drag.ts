@@ -10,6 +10,7 @@ export function validateDrag(props: MotionProps): void {
   }
 
   const bounds = props.dragConstraints ?? {}
+
   for (const [key, value] of Object.entries(bounds)) {
     if (!['left', 'right', 'top', 'bottom'].includes(key) || !Number.isFinite(value)) {
       throw new Error('motion: dragConstraints requires finite numeric edges; refs are deferred')
@@ -95,6 +96,7 @@ export function attachDrag(
       const [min, max] = limits(axis)
       const next = origin[axis] + info.offset[axis]
       const bounded = clamp(next, min, max)
+
       value(axis).jump(bounded + (next - bounded) * elastic)
     }
   }
@@ -105,6 +107,7 @@ export function attachDrag(
       active = true
       for (const axis of axes) {
         const channel = value(axis)
+
         channel.stop()
         origin[axis] = channel.get()
       }
@@ -116,6 +119,7 @@ export function attachDrag(
           value(axis).jump(value(axis).get() + shift[axis])
         }
       })
+
       callbacks().onDragStart?.(event, info)
     },
     move(event, info) {
@@ -140,6 +144,7 @@ export function attachDrag(
         const velocity = info.cancelled || props.dragMomentum === false ? 0 : info.velocity[axis]
         const [min, max] = limits(axis)
         const target = clamp(channel.get() + velocity * 0.2, min, max)
+
         if (elastic === 0) {
           channel.jump(clamp(channel.get(), min, max))
         }

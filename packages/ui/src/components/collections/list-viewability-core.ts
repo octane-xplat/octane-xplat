@@ -40,6 +40,7 @@ export function createListViewabilityTracker<T>(): {
     }
 
     changed.sort((a, b) => a.index - b.index || Number(a.isViewable) - Number(b.isViewable))
+
     const viewableItems: ListVisibleItem<T>[] = [...active]
       .sort(([a], [b]) => a - b)
       .map(([index, item]) => ({ index, item }))
@@ -59,9 +60,11 @@ export function createListViewabilityTracker<T>(): {
 
     latestItems = items
     latestCallback = callback
+
     const threshold = Math.max(0, Math.min(100, config?.itemVisiblePercentThreshold ?? 50))
     const minimumViewTime = Math.max(0, config?.minimumViewTime ?? 250)
     const candidates = new Map<number, T>()
+
     for (const row of rows) {
       if (
         Number.isInteger(row.index) &&
@@ -77,6 +80,7 @@ export function createListViewabilityTracker<T>(): {
     latestCandidates = candidates
 
     const changed: ListViewabilityChange<T>[] = []
+
     for (const [index, item] of active) {
       if (!candidates.has(index) || !Object.is(candidates.get(index), item)) {
         active.delete(index)

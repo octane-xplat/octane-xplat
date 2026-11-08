@@ -22,6 +22,7 @@ function ToggleSubtree() @{
 describe('conditional mounting', () => {
   it('mounts and removes the conditional subtree with its state', async () => {
     const { view } = await mountXplat(ToggleSubtree)
+
     expect(findByTestId(view, 'cond.branch')).toBeUndefined()
     expect(viewText(view).includes('branch: shown')).toBe(false)
 

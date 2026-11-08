@@ -16,9 +16,12 @@ import { xplatBamboo } from '../src/vite.ts'
 
 const mode = process.argv[2]
 const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-bamboo-environments-')))
+
 try {
   mkdirSync(join(root, 'src'))
+
   const configSource = fileURLToPath(new URL('../src/config.ts', import.meta.url))
+
   writeFileSync(
     join(root, 'bamboo.config.ts'),
     `import { xplatBambooConfig } from ${JSON.stringify(configSource)};
@@ -74,6 +77,7 @@ globalThis.${name} = css({ color: 'red', padding: '${padding}' });`,
         if (!builder.environments.ssr) {
           throw new Error('SSR registry was mutated')
         }
+
         for (const name of schedule) {
           await builder.build(builder.environments[name])
         }
@@ -88,11 +92,13 @@ globalThis.${name} = css({ color: 'red', padding: '${padding}' });`,
   })
 
   await builder.buildApp()
+
   const assets = join(root, 'dist/client/assets')
   const sheets = readdirSync(assets).filter((name) => name.endsWith('.css'))
   const css = sheets.map((name) => readFileSync(join(assets, name), 'utf8')).join('\n')
   const html = readFileSync(join(root, 'dist/client/index.html'), 'utf8')
   const manifest = readFileSync(join(root, 'dist/client/.vite/manifest.json'), 'utf8')
+
   console.log(
     'RESULT ' +
       JSON.stringify({

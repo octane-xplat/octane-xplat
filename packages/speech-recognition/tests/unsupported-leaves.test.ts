@@ -34,11 +34,13 @@ for (const [name, leaf] of leaves) {
         granted: false,
         canAskAgain: false,
       })
+
       expect(await leaf.requestPermissions()).toEqual({
         status: 'unsupported',
         granted: false,
         canAskAgain: false,
       })
+
       expect(await leaf.getAvailability({ lang: 'en-US' })).toEqual({
         available: false,
         reason: 'unsupported',
@@ -46,6 +48,7 @@ for (const [name, leaf] of leaves) {
         networkUse: null,
         continuous: false,
       })
+
       expect(await leaf.getAvailability()).toEqual({
         available: false,
         reason: 'unsupported',
@@ -53,6 +56,7 @@ for (const [name, leaf] of leaves) {
         networkUse: null,
         continuous: false,
       })
+
       expect(() => leaf.start()).toThrow(UnavailabilityError)
     })
   })

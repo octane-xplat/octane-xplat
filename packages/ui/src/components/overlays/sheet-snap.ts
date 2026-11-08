@@ -31,11 +31,13 @@ export function snapPointFraction(point: number | string, vh: number): number | 
 
   const trimmed = point.trim()
   const percent = trimmed.match(/^([\d.]+)%$/)
+
   if (percent) {
     return parseFloat(percent[1]) / 100
   }
 
   const px = trimmed.match(/^([\d.]+)(?:px)?$/)
+
   if (px) {
     return parseFloat(px[1]) / vh
   }
@@ -84,6 +86,7 @@ export function snapDetentIndex(
   if (vy > DETENT_FLICK_VELOCITY) {
     // Fling down — the nearest detent strictly below the finger.
     let i = -1
+
     while (i + 1 < detents.length && detents[i + 1] < frac - 1e-6) {
       i++
     }
@@ -94,6 +97,7 @@ export function snapDetentIndex(
   if (vy < -DETENT_FLICK_VELOCITY) {
     // Fling up — the nearest detent strictly above the finger.
     let i = detents.length - 1
+
     while (i - 1 >= 0 && detents[i - 1] > frac + 1e-6) {
       i--
     }
@@ -106,6 +110,7 @@ export function snapDetentIndex(
   }
 
   let best = 0
+
   for (let i = 1; i < detents.length; i++) {
     if (Math.abs(detents[i] - frac) < Math.abs(detents[best] - frac)) {
       best = i

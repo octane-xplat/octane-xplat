@@ -16,6 +16,7 @@ export { AppShellMobileContext, useAppShellMobile }
 function closeDelay(dialog: HTMLDialogElement | null): number {
   const raw = dialog ? getComputedStyle(dialog).getPropertyValue('--_mobilenav-close-ms') : ''
   const ms = parseFloat(raw)
+
   return Number.isFinite(ms) ? ms : 220
 }
 
@@ -59,11 +60,14 @@ export function MobileNav(props: MobileNavProps): JSX.Element @{
     }
 
     const side = props.side ?? 'auto'
+
     if (side === 'auto') {
       const trigger = document.activeElement as HTMLElement | null
+
       if (trigger && trigger !== document.body) {
         const rect = trigger.getBoundingClientRect()
         const center = rect.left + rect.width / 2
+
         setResolvedSide(center < window.innerWidth / 2 ? 'start' : 'end')
       }
     } else {
@@ -73,6 +77,7 @@ export function MobileNav(props: MobileNavProps): JSX.Element @{
 
   useEffect(() => {
     const dialog = dialogRef.current
+
     if (!dialog) {
       return
     }
@@ -114,6 +119,7 @@ export function MobileNav(props: MobileNavProps): JSX.Element @{
   // Unmount safety — close a still-open dialog so a remount can re-open.
   useEffect(() => {
     const dialog = dialogRef.current
+
     return () => {
       try {
         if (dialog?.open) {

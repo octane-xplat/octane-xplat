@@ -13,14 +13,18 @@ const catalog = {
 /** Storybook composes args/decorators; Octane owns component execution and disposal. */
 export function mountStory(storyId: string, args?: Record<string, unknown>) {
   const entry = catalog[storyId as keyof typeof catalog]
+
   if (!entry) {
     throw new Error(`Unknown story: ${storyId}`)
   }
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   let disposed = false
+
   try {
     const composed = composeStory(
       entry.story,
@@ -33,6 +37,7 @@ export function mountStory(storyId: string, args?: Record<string, unknown>) {
     )
 
     let currentArgs = { ...composed.args, ...args }
+
     root.render(composed(currentArgs))
     return {
       host,

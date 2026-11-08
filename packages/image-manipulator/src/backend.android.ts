@@ -12,6 +12,7 @@ function pixels(frame: ImageFrame): Bitmap {
   if (!frame.image || frame.image.isRecycled()) {
     throw new Error('Image pixels were released')
   }
+
   return frame.image
 }
 
@@ -19,7 +20,9 @@ function orient(image: Bitmap, orientation: number): Bitmap {
   if (orientation === 1) {
     return image
   }
+
   const matrix = new android.graphics.Matrix()
+
   switch (orientation) {
     case 2:
       matrix.setScale(-1, 1)
@@ -47,6 +50,7 @@ function orient(image: Bitmap, orientation: number): Bitmap {
     default:
       return image
   }
+
   const normalized = android.graphics.Bitmap.createBitmap(
     image,
     0,
@@ -56,17 +60,21 @@ function orient(image: Bitmap, orientation: number): Bitmap {
     matrix,
     true,
   )
+
   if (normalized !== image) {
     image.recycle()
   }
+
   return normalized
 }
 
 async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame> {
   const input = await mobileSource(uri)
   let image: Bitmap | null = null
+
   try {
     let orientation = 1
+
     if (input.uri.startsWith('data:')) {
       const bytes = android.util.Base64.decode(
         encodedSource(input.uri),
@@ -74,7 +82,9 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
       )
 
       image = android.graphics.BitmapFactory.decodeByteArray(bytes, 0, bytes.length)
+
       const stream = new java.io.ByteArrayInputStream(bytes)
+
       try {
         orientation = new android.media.ExifInterface(stream).getAttributeInt('Orientation', 1)
       } finally {
@@ -84,6 +94,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
       const resolver = Application.android.context.getContentResolver()
       const location = android.net.Uri.parse(input.uri)
       const stream = resolver.openInputStream(location)
+
       if (!stream) {
         throw new Error('Could not open the image')
       }
@@ -95,6 +106,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
       }
 
       const metadata = resolver.openInputStream(location)
+
       if (metadata) {
         try {
           orientation = new android.media.ExifInterface(metadata).getAttributeInt('Orientation', 1)
@@ -104,6 +116,7 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
       }
     } else if (input.uri.startsWith('res://')) {
       const resource: Bitmap | undefined = ImageSource.fromResourceSync(input.uri.slice(6))?.android
+
       image = resource?.copy(android.graphics.Bitmap.Config.ARGB_8888, false) ?? null
     } else {
       image = android.graphics.BitmapFactory.decodeFile(input.uri)
@@ -117,8 +130,10 @@ async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame>
     }
 
     image = orient(image, orientation)
+
     const frame = { image, width: image.getWidth(), height: image.getHeight() }
     const size = initialSize(frame, options)
+
     if (size.width === frame.width && size.height === frame.height) {
       image = null
       return frame
@@ -135,6 +150,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
   if (operation.kind === 'extent') {
     throw new UnavailabilityError('ImageManipulator.extent (web only)')
   }
+
   const source = pixels(frame)
   const size = outputSize(frame, operation)
   const image = android.graphics.Bitmap.createBitmap(
@@ -142,6 +158,7 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
     size.height,
     android.graphics.Bitmap.Config.ARGB_8888,
   )
+
   try {
     const canvas = new android.graphics.Canvas(image)
     const paint = new android.graphics.Paint(
@@ -194,6 +211,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
     knownFolders.temp().path,
     `xplat-image-${java.util.UUID.randomUUID().toString()}.${options.format === 'jpeg' ? 'jpg' : options.format}`,
   )
+
   try {
     const format =
       options.format === 'png'
@@ -209,6 +227,7 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
     }
 
     const bytes = stream.toByteArray()
+
     output = new java.io.FileOutputStream(local)
     output.write(bytes)
     output.close()

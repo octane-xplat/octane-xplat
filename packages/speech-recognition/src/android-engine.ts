@@ -218,11 +218,13 @@ function readHost(): AndroidHost | null {
   const appClass = lookupGlobal(['com', 'tns', 'NativeScriptApplication']) as
     | NativeScriptApplicationClass
     | undefined
+
   if (ns === undefined || appClass === undefined) {
     return null
   }
 
   let context: AndroidContextLike | null = null
+
   try {
     context = appClass.getInstance?.() ?? null
   } catch {
@@ -259,7 +261,9 @@ function ensureActivityTracking(host: AndroidHost): void {
   }
 
   trackingAttempted = true
+
   const Callbacks = host.ns.app?.Application?.ActivityLifecycleCallbacks
+
   if (!Callbacks || !host.context.registerActivityLifecycleCallbacks) {
     return
   }
@@ -311,8 +315,10 @@ function ensureActivityTracking(host: AndroidHost): void {
 
 function defaultLang(): string {
   const javaNs = lookupGlobal(['java']) as JavaRuntime | undefined
+
   try {
     const tag = javaNs?.util?.Locale?.getDefault?.().toLanguageTag?.()
+
     return typeof tag === 'string' ? tag : String(tag ?? '')
   } catch {
     return ''
@@ -328,6 +334,7 @@ let askedOnce = false
 
 function readPermission(): Promise<PermissionResponse> {
   const host = readHost()
+
   if (host !== null) {
     ensureActivityTracking(host)
   }
@@ -337,6 +344,7 @@ function readPermission(): Promise<PermissionResponse> {
 
 function readPermissionSnapshot(): PermissionResponse {
   const host = readHost()
+
   if (host === null || !host.context.checkSelfPermission) {
     return UNSUPPORTED_PERMISSION
   }
@@ -350,6 +358,7 @@ function readPermissionSnapshot(): PermissionResponse {
   }
 
   const rationale = foregroundActivity?.shouldShowRequestPermissionRationale?.(PERMISSION)
+
   return {
     status: 'denied',
     granted: false,
@@ -368,13 +377,16 @@ function requestViaResultRegistry(
   const resultNs = lookupGlobal(['androidx', 'activity', 'result']) as
     | AndroidxActivityResultNamespace
     | undefined
+
   const Contract = resultNs?.contract?.ActivityResultContracts?.RequestPermission
   const Callback = resultNs?.ActivityResultCallback
+
   if (!registry || !Contract || !Callback) {
     return null
   }
 
   let launcher: AndroidActivityResultLauncherLike | null = null
+
   return new Promise<PermissionResponse>((resolve) => {
     let settled = false
     const finish = (): void => {
@@ -419,11 +431,13 @@ function requestViaResultRegistry(
 // checkSelfPermission; a tracked resume ends the wait on dismissal.
 function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
   const Intent = host.ns.content?.Intent
+
   if (!Intent || !host.context.startActivity) {
     return Promise.resolve(readPermissionSnapshot())
   }
 
   let intent: AndroidIntentLike
+
   try {
     const names = (
       Array as unknown as { create?(type: string, count: number): unknown[] }
@@ -439,6 +453,7 @@ function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
       .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK ?? ACTIVITY_NEW_TASK)
 
     const pkg = host.context.getPackageName?.()
+
     if (pkg) {
       intent.putExtra(REQUEST_PERMISSIONS_PACKAGE, pkg)
     }
@@ -449,10 +464,12 @@ function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
   }
 
   const resumeMark = resumeGeneration
+
   return new Promise<PermissionResponse>((resolve) => {
     const started = Date.now()
     const timer = setInterval(() => {
       const host2 = readHost()
+
       if (host2 !== null && permissionGranted(host2)) {
         clearInterval(timer)
         resolve(readPermissionSnapshot())
@@ -472,6 +489,7 @@ function requestViaIntent(host: AndroidHost): Promise<PermissionResponse> {
 
 function ensurePermission(): Promise<PermissionResponse> {
   const host = readHost()
+
   if (host === null || !host.context.checkSelfPermission) {
     return Promise.resolve(UNSUPPORTED_PERMISSION)
   }
@@ -483,7 +501,9 @@ function ensurePermission(): Promise<PermissionResponse> {
   }
 
   const wasAsked = askedOnce
+
   askedOnce = true
+
   const activity = foregroundActivity
 
   // A denial with the "don't ask again" flag is terminal — the OS ignores
@@ -496,6 +516,7 @@ function ensurePermission(): Promise<PermissionResponse> {
 
   if (activity !== null) {
     const viaRegistry = requestViaResultRegistry(host, activity)
+
     if (viaRegistry !== null) {
       return viaRegistry
     }
@@ -506,6 +527,7 @@ function ensurePermission(): Promise<PermissionResponse> {
 
 function probeService(host: AndroidHost): boolean {
   const statics = host.ns.speech?.SpeechRecognizer
+
   try {
     if (typeof statics?.isRecognitionAvailable === 'function') {
       return Boolean(statics.isRecognitionAvailable(host.context))
@@ -518,8 +540,10 @@ function probeService(host: AndroidHost): boolean {
     const Intent = host.ns.content?.Intent
     const serviceInterface = host.ns.speech?.RecognitionService?.SERVICE_INTERFACE
     const pm = host.context.getPackageManager?.()
+
     if (Intent && serviceInterface && pm?.queryIntentServices) {
       const services = pm.queryIntentServices(new Intent(serviceInterface), 0)
+
       return services !== null && !services.isEmpty()
     }
   } catch {
@@ -532,6 +556,7 @@ function probeService(host: AndroidHost): boolean {
 function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
   const host = readHost()
   const resolved = lang ?? defaultLang()
+
   if (host === null) {
     return Promise.resolve({
       available: false,
@@ -547,6 +572,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
   // ERROR_LANGUAGE_NOT_SUPPORTED/UNAVAILABLE during a session. The probe
   // therefore reports the requested tag verbatim.
   const available = probeService(host)
+
   return Promise.resolve({
     available,
     reason: available ? null : 'service-unavailable',
@@ -562,6 +588,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
 
 const firstResult = (bundle: AndroidResultsBundleLike | null, key: string): string => {
   const list = bundle?.getStringArrayList?.(key)
+
   if (!list || list.isEmpty()) {
     return ''
   }
@@ -575,6 +602,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
   const Listener = host?.ns.speech?.RecognitionListener
   const Intent = host?.ns.content?.Intent
   const R = host?.ns.speech?.RecognizerIntent
+
   if (!host || !statics || !Listener || !Intent || !R) {
     throw new SpeechRecognitionError(
       'service-unavailable',
@@ -586,6 +614,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
   // NativeScript app the JS thread is the main thread, so direct calls are
   // correct here.
   let recognizer: AndroidSpeechRecognizerLike | null = null
+
   try {
     recognizer = statics.createSpeechRecognizer(host.context)
   } catch (cause) {
@@ -634,6 +663,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
         },
         onResults: (results) => {
           const text = firstResult(results, R.EXTRA_RESULTS)
+
           if (text !== '') {
             sink.hypothesis(text, true)
           }
@@ -642,6 +672,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
         },
         onPartialResults: (partialResults) => {
           const text = firstResult(partialResults, R.EXTRA_RESULTS)
+
           if (text !== '') {
             sink.hypothesis(text, false)
           }
@@ -650,6 +681,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     )
 
     const intent = new Intent(R.ACTION_RECOGNIZE_SPEECH)
+
     intent.putExtra(R.EXTRA_LANGUAGE_MODEL, R.LANGUAGE_MODEL_FREE_FORM)
     intent.putExtra(R.EXTRA_PARTIAL_RESULTS, options.interimResults)
     if (options.lang !== '') {
@@ -657,6 +689,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     }
 
     const pkg = host.context.getPackageName?.()
+
     if (pkg) {
       intent.putExtra(R.EXTRA_CALLING_PACKAGE, pkg)
     }
@@ -664,7 +697,9 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     recognizer.startListening(intent)
   } catch (cause) {
     release()
+
     const message = cause instanceof Error ? cause.message : String(cause)
+
     throw new SpeechRecognitionError(
       /permission/i.test(message) ? 'permission-denied' : 'service-unavailable',
       `SpeechRecognizer failed to start: ${message}`,
@@ -695,6 +730,7 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
 const engine: SpeechEngine = {
   get supported() {
     const host = readHost()
+
     return (
       host !== null &&
       typeof host.ns.speech?.SpeechRecognizer?.createSpeechRecognizer === 'function'

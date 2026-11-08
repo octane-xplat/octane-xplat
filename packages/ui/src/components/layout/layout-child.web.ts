@@ -34,6 +34,7 @@ export function layoutChildProps(
   style: any
 } {
   const style = { ...normStyle(baseStyle) }
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {

@@ -8,6 +8,7 @@ const source = rendererSource()
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
@@ -30,6 +31,7 @@ class NSView {
     return {
       constraintEqualToAnchor: (other: any) => {
         const constraint = { other, active: false }
+
         this.constraints.push(constraint)
         return constraint
       },
@@ -83,6 +85,7 @@ function makeContext() {
 
 test('liquidglass declares native-view and containment capabilities', () => {
   const { adapter } = runSlice('({ adapter: adapters.lookup("liquidglass") })')
+
   assert.equal(adapter.hasView, true)
   assert.equal(adapter.container, true)
 })
@@ -96,12 +99,14 @@ test('makeLiquidGlass pins a glass material behind grid children', () => {
 
   const node = { id: 1, type: 'liquidglass', container: {} }
   const host = makeLiquidGlass(node)
+
   assert.equal(host.translatesAutoresizingMaskIntoConstraints, false)
   assert.equal(host.postsFrameChangedNotifications, true)
   assert.ok(node.glassGeometryObserver)
   assert.equal(host.subviews.length, 1)
 
   const backdrop = host.subviews[0]
+
   assert.ok(backdrop instanceof NSVisualEffectView)
   assert.equal(node.glassBackdrop, backdrop)
   assert.equal(backdrop.material, 21)
@@ -114,7 +119,9 @@ test('makeLiquidGlass pins a glass material behind grid children', () => {
 test('a frame change queues the host layout reconcile', () => {
   const context = makeContext()
   const calls: any[] = []
+
   context.queueLayoutReconcile = (container: any, node: any) => calls.push([container, node])
+
   const { makeLiquidGlass } = runSlice(
     liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
     context,
@@ -122,6 +129,7 @@ test('a frame change queues the host layout reconcile', () => {
 
   const node = { id: 2, type: 'liquidglass', container: { id: 'c' } }
   const host = makeLiquidGlass(node)
+
   context.gridLayoutNodesByView.set(host, node)
   node.glassGeometryObserver.handler()
   assert.deepEqual(calls, [[node.container, node]])
@@ -130,8 +138,10 @@ test('a frame change queues the host layout reconcile', () => {
 test('the host layout dispatches to the registered behavior for the node', () => {
   const context = makeContext()
   const calls: any[] = []
+
   context.behaviorOf = (type: string) =>
     type === 'liquidglass' ? { layout: (node: any) => calls.push(node) } : undefined
+
   const { makeLiquidGlass } = runSlice(
     liquidGlassClass + '\n' + fn('makeLiquidGlass') + '\n;({ makeLiquidGlass })',
     context,
@@ -143,7 +153,9 @@ test('the host layout dispatches to the registered behavior for the node', () =>
     container: {},
     adapter: { layout: (node: any) => calls.push(node) },
   }
+
   const host = makeLiquidGlass(node)
+
   context.gridLayoutNodesByView.set(host, node)
   host.layout()
   assert.deepEqual(calls, [node])

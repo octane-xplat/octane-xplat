@@ -4,9 +4,12 @@ import { createRequire } from 'node:module'
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const platform = process.argv[2]
+
 assert.equal(platform, 'ios')
 assert.equal(process.platform, 'darwin', 'Apple API checks require the designated Apple host')
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 
 // The iOS backend is TypeScript-only: it must not ship a compiled Swift/ObjC
@@ -40,11 +43,14 @@ const umbrella = require_.resolve('@nativescript/types/index.d.ts')
 const typesEntry = createRequire(umbrella).resolve('@nativescript/types-ios/index.d.ts')
 const objcDir = join(dirname(typesEntry), 'lib', 'ios')
 const arch = readdirSync(objcDir).find((entry) => entry.startsWith('objc-'))
+
 assert.ok(arch, 'no objc-* declaration directory under @nativescript/types-ios')
+
 const declarations = (framework) =>
   readFileSync(join(objcDir, arch, `objc!${framework}.d.ts`), 'utf8')
 
 const att = declarations('AppTrackingTransparency')
+
 for (const member of [
   'declare class ATTrackingManager',
   'requestTrackingAuthorizationWithCompletionHandler',
@@ -55,6 +61,7 @@ for (const member of [
 }
 
 const ads = declarations('AdSupport')
+
 for (const member of [
   'declare class ASIdentifierManager',
   'sharedManager()',

@@ -148,7 +148,9 @@ function useSheetPresence(open: boolean) {
   useEffect(() => {
     if (open) {
       setMounted(true)
+
       const id = requestAnimationFrame(() => requestAnimationFrame(() => setShown(true)))
+
       return () => cancelAnimationFrame(id)
     }
 
@@ -176,6 +178,7 @@ function useSheetPresence(open: boolean) {
 
 function useBackToDismiss(open: boolean, onClose: () => void) {
   const cb = useRef(onClose)
+
   cb.current = onClose
   useEffect(() => {
     if (!open) {
@@ -183,11 +186,15 @@ function useBackToDismiss(open: boolean, onClose: () => void) {
     }
 
     window.history.pushState({ __xdsSheet: true }, '')
+
     const onPop = () => cb.current()
+
     window.addEventListener('popstate', onPop)
     return () => {
       window.removeEventListener('popstate', onPop)
+
       const st: unknown = window.history.state
+
       if (typeof st === 'object' && st !== null && '__xdsSheet' in st && st.__xdsSheet) {
         window.history.back()
       }
@@ -268,6 +275,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
     d.current.v = 0
     if (detent) {
       const containerH = sheetRef.current?.parentElement?.clientHeight ?? 0
+
       d.current.containerH = containerH
       d.current.baseH = resolveSnap(detent.snaps[detent.index], containerH)
       d.current.dragH = d.current.baseH
@@ -276,6 +284,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
 
   const move = (e: ReactPointerEvent) => {
     const s = d.current
+
     if (!s.pending && !s.active) {
       return
     }
@@ -303,6 +312,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
 
     const now = performance.now()
     const dt = now - s.lastT
+
     if (dt > 0) {
       s.v = (e.clientY - s.lastY) / dt
     } // px/ms, + = downward
@@ -316,6 +326,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
       // smallest detent is a hard min-height floor (a persistent peek).
       const maxH = resolveSnap(detent.snaps[detent.snaps.length - 1], s.containerH)
       const minH = dismissible ? 0 : resolveSnap(detent.snaps[0], s.containerH)
+
       s.dragH = Math.max(minH, Math.min(maxH, s.baseH - dy))
       setDragHeight(s.dragH)
     } else {
@@ -327,6 +338,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
 
   const end = () => {
     const s = d.current
+
     if (!s.active) {
       s.pending = false
       return
@@ -342,8 +354,10 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
       const projected = s.dragH - s.v * PROJECT_MS
       let bestI = 0
       let bestDist = Infinity
+
       detent.snaps.forEach((f, i) => {
         const dist = Math.abs(projected - resolveSnap(f, s.containerH))
+
         if (dist < bestDist) {
           bestDist = dist
           bestI = i
@@ -360,6 +374,7 @@ function useSheetDrag(onClose: () => void, detent?: DetentConfig, dismissible = 
     } else {
       const height = sheetRef.current?.offsetHeight ?? 480
       const projected = Math.max(0, s.y) + Math.max(0, s.v) * PROJECT_MS
+
       if (dismissible && projected > Math.max(72, height * 0.25)) {
         onClose()
       }
@@ -534,6 +549,7 @@ export function BottomSheet({
     }
 
     const el = sheetRef.current?.parentElement
+
     if (el) {
       setContainerH(el.clientHeight)
     }
@@ -819,6 +835,7 @@ function useDrawerDrag(onClose: () => void, side: 'start' | 'end') {
 
   const onPointerMove = (e: ReactPointerEvent) => {
     const s = d.current
+
     if (!s.pending && !s.active) {
       return
     }
@@ -845,6 +862,7 @@ function useDrawerDrag(onClose: () => void, side: 'start' | 'end') {
 
     const now = performance.now()
     const dt = now - s.lastT
+
     if (dt > 0) {
       s.v = (e.clientX - s.lastX) / dt
     } // px/ms, signed
@@ -858,6 +876,7 @@ function useDrawerDrag(onClose: () => void, side: 'start' | 'end') {
 
   const end = () => {
     const s = d.current
+
     if (!s.active) {
       s.pending = false
       return
@@ -866,8 +885,10 @@ function useDrawerDrag(onClose: () => void, side: 'start' | 'end') {
     s.active = false
     s.pending = false
     setDragging(false)
+
     const width = panelRef.current?.offsetWidth ?? 300
     const projected = s.x + s.v * PROJECT_MS
+
     // Dismiss when the projected offset passes the threshold in the outward dir.
     if (
       outward < 0 ? projected < -Math.max(60, width * 0.4) : projected > Math.max(60, width * 0.4)
@@ -901,6 +922,7 @@ export function DrawerEdgeGrip({
 }) {
   const isStart = side === 'start'
   const st = useRef({ x: 0, active: false })
+
   return (
     <div
       onPointerDown={(e) => {
@@ -913,6 +935,7 @@ export function DrawerEdgeGrip({
         }
 
         const dx = e.clientX - st.current.x
+
         if ((isStart && dx > 12) || (!isStart && dx < -12)) {
           st.current.active = false
           onOpen()
@@ -979,6 +1002,7 @@ export function SideDrawer({
 }) {
   const { mounted, shown, onExited } = useSheetPresence(open)
   const { dragX, dragging, panelRef, handlers } = useDrawerDrag(onClose, side)
+
   useBackToDismiss(open, onClose)
   if (!mounted) {
     return null
@@ -1085,6 +1109,7 @@ export function TapField({
 }) {
   const id = useId()
   const hasValue = value != null && value !== ''
+
   // Real XDS Field (label / spacing / a11y) wrapping a trigger that reuses the
   // shared input wrapper chrome — same border, hover shadow, and focus ring as
   // TextInput / Selector / DateInput — so the field is a real XDS surface.
@@ -1342,18 +1367,22 @@ export function AnchoredPopover({
   // contextual-popover behavior), so a mention near the bottom edge isn't
   // clipped. Measured after mount from the card's own height.
   const [placement, setPlacement] = useState<'below' | 'above'>('below')
+
   useLayoutEffect(() => {
     if (!mounted || !anchorRect) {
       return
     }
 
     const host = overlayRef.current
+
     setContainerW(host?.offsetWidth ?? 390)
+
     const containerH = host?.offsetHeight ?? 0
     const cardH = cardRef.current?.offsetHeight ?? 0
     const belowTop = anchorRect.top + anchorRect.height + 8
     const roomBelow = containerH - belowTop
     const roomAbove = anchorRect.top - 8
+
     // Prefer below; flip only if it would overflow and above has more room.
     setPlacement(roomBelow < cardH && roomAbove > roomBelow ? 'above' : 'below')
   }, [mounted, anchorRect])

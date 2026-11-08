@@ -10,6 +10,7 @@ import {
 const textWrapCheck: ParityCheck['check'] = (m) => {
   const root = m('root').box
   const text = m('text').box
+
   return [
     ['text wraps into multiple lines', text.h > 30, text.h],
     ['text uses the constrained width', Math.abs(text.w - root.w) <= 1, { root, text }],

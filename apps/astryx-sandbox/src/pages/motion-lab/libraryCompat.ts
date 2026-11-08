@@ -139,14 +139,17 @@ export function transformSitesByComponent(): ReadonlyArray<
   readonly [string, ReadonlyArray<SiteRef>]
 > {
   const byComponent = new Map<string, SiteRef[]>()
+
   for (const site of TRANSFORM_TRANSITIONS) {
     const existing = byComponent.get(site.component)
+
     if (existing == null) {
       byComponent.set(site.component, [site])
     } else {
       existing.push(site)
     }
   }
+
   return [...byComponent.entries()].sort((a, b) => b[1].length - a[1].length)
 }
 

@@ -22,6 +22,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
 
   const rect = (view: any) => {
     const r = view.alignmentRectForFrame(view.frame)
+
     return [
       Number(r.origin.x),
       Number(view.superview.bounds.size.height) - Number(r.origin.y) - Number(r.size.height),
@@ -32,6 +33,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
 
   const expectRect = (id: string, values: number[]) => {
     const actual = rect(debug.findId(id))
+
     check(
       actual.every((value, i) => Math.abs(value - values[i]) < 1),
       id + ': expected ' + values + ' got ' + actual,
@@ -45,6 +47,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
 
   root.render(Proxy, {})
   await settle()
+
   const proxy = proxyRefs.host.current!,
     empty = proxyRefs.empty.current!,
     host = debug.findId('proxy-wrap')
@@ -119,6 +122,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
   expectRect('proxy-a', [40, 0, 40, 20])
   check(proxyEvents.join(',') === 'attach', 'Updates reassigned logical ref')
   await advance()
+
   const replacement = proxyRefs.host.current!,
     replacementView = debug.findId('proxy-replacement')
 
@@ -139,6 +143,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const movedProxy = proxyRefs.host.current!,
     movedView = debug.findId('proxy-returned'),
     movedChild = debug.findId('proxy-returned-child')
@@ -149,6 +154,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returnedProxy = proxyRefs.host.current!,
     returnedView = debug.findId('proxy-returned'),
     returnedChild = debug.findId('proxy-returned-child')
@@ -173,6 +179,7 @@ export async function checkProxyLifecycle(root: any, nativeWindow: any) {
 
   root.unmount()
   check(proxyEvents.length === 8, 'Proxy cleanup repeated')
+
   const rejectedRoot = createMacOSRoot(nativeWindow.contentView)
   const errors: string[] = [],
     originalError = console.error

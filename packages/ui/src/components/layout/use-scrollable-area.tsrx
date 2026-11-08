@@ -35,6 +35,7 @@ export function useScrollableArea<TElement extends object = object>(
 
   const measure = useCallback(() => {
     const el = viewportRef.current
+
     if (!el) {
       return
     }
@@ -102,6 +103,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaViewportProps<TElement>> &
       UseScrollableAreaViewportProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       return {
         ...input,
         ref: [bindViewport, input.ref],
@@ -117,6 +119,7 @@ export function useScrollableArea<TElement extends object = object>(
     ): Omit<P, keyof UseScrollableAreaContentProps<TElement>> &
       UseScrollableAreaContentProps<TElement> {
       const input = (props ?? {}) as Record<string, any>
+
       return {
         ...input,
         ref: [bindContent, input.ref],

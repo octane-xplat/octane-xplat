@@ -31,7 +31,9 @@ export function useNativeListCells(
 } {
   const content = useOwnedContent()
   const latest = useRef({ renderItem, items })
+
   latest.current = { renderItem, items }
+
   const pool = useMemo(() => {
     const cells = new Map<
       CellHost,
@@ -46,6 +48,7 @@ export function useNativeListCells(
 
       const current = latest.current
       const item = current.items[cell.index]
+
       if (cell.item === item && cell.renderItem === current.renderItem) {
         return
       }
@@ -63,11 +66,13 @@ export function useNativeListCells(
         }
 
         let host = args.view as CellHost
+
         if (!(host instanceof CellHost)) {
           args.view = host = new CellHost()
         }
 
         let cell = cells.get(host)
+
         if (!cell) {
           cell = {
             root: content.owner.createRoot(host),

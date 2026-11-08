@@ -11,6 +11,7 @@ export function installWorkspaceShortcuts(
   },
 ): ShortcutRuntime {
   const shortcuts = createShortcuts({ target, getActiveScopes: actions.getActiveScopes })
+
   shortcuts.setContext('editor.readOnly', false)
   shortcuts.bind({
     combo: 'Mod+KeyK',
@@ -18,6 +19,7 @@ export function installWorkspaceShortcuts(
     preventDefault: true,
     handler: actions.openCommands,
   })
+
   shortcuts.bind({
     combo: 'Mod+KeyS',
     scope: 'editor',
@@ -26,6 +28,7 @@ export function installWorkspaceShortcuts(
     preventDefault: true,
     handler: actions.save,
   })
+
   shortcuts.bind({ sequence: 'g i', handler: actions.openInbox })
   return shortcuts
 }

@@ -24,8 +24,10 @@ const SPY_EDGE = 8
  *  values. */
 function findScroller(view: any): any {
   let node = view?.parent
+
   while (node) {
     const overflowY = node.style?.overflowY
+
     if (overflowY === 'scroll' || overflowY === 'auto') {
       return node
     }
@@ -53,6 +55,7 @@ export function Outline(props: OutlineProps): unknown @{
   const [internalActive, setInternalActive] = useState<string | undefined>(items[0]?.id)
   const activeId = controlled ? props.activeId : internalActive
   const activeIdRef = useRef<string | undefined>(activeId)
+
   activeIdRef.current = activeId
 
   const navRef = useRef<any>(null)
@@ -77,6 +80,7 @@ export function Outline(props: OutlineProps): unknown @{
     }
 
     const scroller = containerView()
+
     if (!scroller?.on) {
       return
     }
@@ -85,9 +89,11 @@ export function Outline(props: OutlineProps): unknown @{
       const scrollY = Number(scroller.scrollTop ?? 0)
       const edge = scrollY + offset + SPY_EDGE
       let current = items[0]?.id
+
       for (const item of items) {
         const heading = findViewById(scroller, item.id)
         const top = heading ? (heading.getLocationRelativeTo?.(scroller)?.y ?? 0) + scrollY : null
+
         if (top != null && top <= edge) {
           current = item.id
         }
@@ -121,12 +127,15 @@ export function Outline(props: OutlineProps): unknown @{
     setActive(id)
     navigating.current = id
     props.onNavigateStart?.(id)
+
     const scroller = containerView()
     const heading = scroller ? findViewById(scroller, id) : null
+
     if (hasScrollOnClick && scroller && heading) {
       const scrollY = Number(scroller.scrollTop ?? 0)
       const rel = heading.getLocationRelativeTo?.(scroller)
       const top = rel ? rel.y + scrollY - offset : scrollY
+
       scroller.scrollTo?.({ top: Math.max(0, top), behavior: 'smooth' })
     }
 
@@ -147,6 +156,7 @@ export function Outline(props: OutlineProps): unknown @{
   >
     {items.map((item) => {
       const isActive = item.id === activeId
+
       return (
         <masonview
           key={item.id}

@@ -7,6 +7,7 @@ export function writeText(view: any, value: string | undefined | null): void {
   }
 
   const next = value ?? ''
+
   if (view.text !== next) {
     view.text = next
   }

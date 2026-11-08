@@ -26,6 +26,7 @@ export function App() @{
   // null = follow the system until the user chooses a mode.
   const [override, setOverride] = useState<boolean | null>(() => {
     const saved = storage.getString('theme-preference')
+
     return saved === 'light' ? false : saved === 'dark' ? true : null
   })
 
@@ -70,6 +71,7 @@ export function App() @{
         className="link"
         onPress={() => {
           const next = !dark
+
           storage.setString('theme-preference', next ? 'dark' : 'light')
           setOverride(next)
         }}

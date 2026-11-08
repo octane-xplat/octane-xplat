@@ -13,7 +13,9 @@ const compile = async (file) =>
 
 const apple = await compile('apple.macos')
 const sha256Module = {}
+
 vm.runInNewContext(await compile('sha256'), { exports: sha256Module })
+
 const domain = 'com.apple.AuthenticationServices.AuthorizationError'
 function loadApple({
   failure,
@@ -41,8 +43,10 @@ function loadApple({
 
   const exports = {},
     observers = new Set()
+
   const app = { keyWindow: presentationWindow }
   let classCount = 0
+
   vm.runInNewContext(apple, {
     exports,
     require: (id) => (id === './sha256' ? sha256Module : {}),
@@ -57,7 +61,9 @@ function loadApple({
           if (failure === 'observe' || (failure === 'observe-second' && observers.size === 1)) {
             throw Error('observe failed')
           }
+
           const token = { name, object, callback }
+
           observers.add(token)
           onObserve?.(token)
           return token
@@ -66,6 +72,7 @@ function loadApple({
           if (failure === 'remove') {
             throw Error('remove failed')
           }
+
           observers.delete(token)
         },
       },
@@ -76,15 +83,18 @@ function loadApple({
         if (failure === 'extend-anchor-once' && classCount === 2) {
           throw Error('anchor registration failed')
         }
+
         if (failure === 'extend') {
           throw new Error('extend failed')
         }
 
         const anchor = 'presentationAnchorForAuthorizationController' in methods
+
         onExtend?.(anchor ? 'anchor' : 'delegate')
         return {
           new: () => {
             const instance = { ...methods }
+
             ;(anchor ? onAnchorNew : onDelegateNew)?.(instance)
             return instance
           },
@@ -126,6 +136,7 @@ function loadApple({
                 nonce = value
               },
             }
+
             requests.push(request)
             onRequest?.(request)
             return request
@@ -148,8 +159,10 @@ function loadApple({
             if (failure === 'construct') {
               throw new Error('construction failed')
             }
+
             let delegate = null,
               anchor = null
+
             const controller = {
               performs: 0,
               cancels: 0,
@@ -175,12 +188,14 @@ function loadApple({
                 }
               },
             }
+
             if (!missingCancel) {
               controller.cancel = () => {
                 controller.cancels++
                 onCancel?.(controller)
               }
             }
+
             controllers.push(controller)
             onConstruct?.(controller)
             return controller
@@ -224,15 +239,22 @@ const succeed = (c, value = credential()) =>
 test('Apple maps credentials, hashes UTF-8 nonce, rejects overlap, and ignores old delegates after retry', async () => {
   const h = loadApple()
   const first = h.auth.signIn({ scopes: ['email', 'name'], nonce: 'nönce 🍎' })
+
   assert.equal(h.requests[0].nonce, createHash('sha256').update('nönce 🍎').digest('hex'))
   assert.equal((await h.auth.signIn()).status, 'error')
+
   const oldDelegate = h.controllers[0].delegate
+
   succeed(h.controllers[0])
+
   const result = await first
+
   assert.equal(result.status, 'success')
   assert.equal(result.credential.user.name, 'First Last')
   assert.equal(result.credential.authorizationCode, 'auth-code')
+
   const second = h.auth.signIn()
+
   assert.equal(h.controllers[0].delegate, null)
   assert.equal(h.controllers[0].presentationContextProvider, null)
   assert.equal(h.observers.size, 2) // only the replacement owns observers
@@ -258,12 +280,14 @@ test('Apple distinguishes cancellation from same-code foreign errors and convers
   ]) {
     const h = loadApple()
     const p = h.auth.signIn()
+
     fail(h.controllers[0], error)
     assert.equal((await p).status, status)
   }
 
   const h = loadApple()
   const p = h.auth.signIn()
+
   succeed(h.controllers[0], {
     valueForKey() {
       throw new Error('decode failed')
@@ -271,7 +295,9 @@ test('Apple distinguishes cancellation from same-code foreign errors and convers
   })
 
   assert.equal((await p).status, 'error')
+
   const retry = h.auth.signIn()
+
   succeed(h.controllers[1], { ...credential(), user: '' })
   assert.equal((await retry).status, 'error')
 })
@@ -285,6 +311,7 @@ test('Apple setup and credential-state failures have stable results and allow re
     { presentationWindow: null },
   ]) {
     const h = loadApple(options)
+
     assert.equal((await h.auth.signIn()).status, 'error')
     assert.doesNotMatch((await h.auth.signIn()).message, /already active/)
   }
@@ -306,18 +333,22 @@ test('Apple setup and credential-state failures have stable results and allow re
 test('Apple pins eligible initiating windows and rejects stale/foreign controller and delegate callbacks', async () => {
   const h = loadApple(),
     firstWindow = h.app.keyWindow
+
   const pending = h.auth.signIn(),
     c = h.controllers[0],
     delegate = c.delegate,
     anchor = c.presentationContextProvider
+
   h.app.keyWindow = { visible: true }
   assert.equal(anchor.presentationAnchorForAuthorizationController(c), firstWindow)
   assert.equal(anchor.presentationAnchorForAuthorizationController({}), null)
+
   const unreadable = {
     get credential() {
       throw Error('foreign credential must not be read')
     },
   }
+
   delegate.authorizationControllerDidCompleteWithAuthorization({}, unreadable)
   delegate.authorizationControllerDidCompleteWithError({}, { domain, code: 1001 })
   c.isEqual = (other) => other?.sameController === true
@@ -325,12 +356,15 @@ test('Apple pins eligible initiating windows and rejects stale/foreign controlle
     anchor.presentationAnchorForAuthorizationController({ sameController: true }),
     firstWindow,
   )
+
   firstWindow.visible = false
   assert.equal(anchor.presentationAnchorForAuthorizationController(c), null)
   fail(c, { domain, code: 1001 })
   await pending
+
   const retry = h.auth.signIn(),
     next = h.controllers[1]
+
   assert.equal(anchor.presentationAnchorForAuthorizationController(next), null)
   delegate.authorizationControllerDidCompleteWithAuthorization(next, unreadable)
   assert.match((await h.auth.signIn()).message, /already active/)
@@ -338,9 +372,11 @@ test('Apple pins eligible initiating windows and rejects stale/foreign controlle
   await retry
   for (const window of [null, { visible: false }, { visible: true, attachedSheet: {} }]) {
     const other = loadApple({ presentationWindow: window })
+
     other.app.windows = { firstObject: { visible: true } }
     assert.equal((await other.auth.signIn()).status, 'error')
     other.app.mainWindow = { visible: 1 }
+
     const pending = other.auth.signIn(),
       c = other.controllers[0]
 
@@ -362,6 +398,7 @@ test('Apple close/termination retires delegates, observers and controller once, 
       delegate = c.delegate
 
     const staleObserver = [...h.observers][0]
+
     h.post('close', {})
     assert.equal(c.cancels, 0)
     h.post(event, event === 'close' ? h.app.keyWindow : h.app)
@@ -370,6 +407,7 @@ test('Apple close/termination retires delegates, observers and controller once, 
     assert.equal(c.delegate, null)
     assert.equal(c.presentationContextProvider, null)
     assert.equal(h.observers.size, 0)
+
     const retry = h.auth.signIn(),
       next = h.controllers[1]
 
@@ -401,7 +439,9 @@ test('Apple cancellation throws or missing pre-macOS-13 cancel do not lock JS ow
     h.post('close', h.app.keyWindow)
     assert.equal((await pending).status, 'cancelled')
     assert.equal(h.observers.size, 0)
+
     const retry = h.auth.signIn()
+
     fail(h.controllers[1], { domain, code: 1001 })
     await retry
   }
@@ -415,7 +455,9 @@ test('Apple captures scopes and nonce before native provider reentry', async () 
       options.nonce = 'replacement'
     },
   })
+
   const pending = h.auth.signIn(options)
+
   assert.equal(Array.from(h.requests[0].requestedScopes).join(','), 'email')
   assert.equal(h.requests[0].nonce, createHash('sha256').update('original').digest('hex'))
   fail(h.controllers[0], { domain, code: 1001 })
@@ -424,9 +466,12 @@ test('Apple captures scopes and nonce before native provider reentry', async () 
 
 test('Apple can retry a failed anchor class registration without discarding the cached delegate class', async () => {
   const h = loadApple({ failure: 'extend-anchor-once' })
+
   assert.equal((await h.auth.signIn()).status, 'error')
   assert.equal(h.observers.size, 0)
+
   const retry = h.auth.signIn()
+
   assert.equal(h.classCount, 3)
   assert.equal(h.controllers.length, 1)
   fail(h.controllers[0], { domain, code: 1001 })
@@ -445,6 +490,7 @@ test('Apple observer setup failures and synchronous registration teardown acquir
   ]) {
     const h = loadApple(options)
     const result = await h.auth.signIn()
+
     assert.equal(result.status, options.onObserve ? 'cancelled' : 'error')
     assert.equal(h.observers.size, 0)
     assert.equal(h.controllers.length, 0)
@@ -467,6 +513,7 @@ test('Apple setup reentry never performs a retired authorization request', async
   ]) {
     let h
     const close = () => h.post('close', h.app.keyWindow)
+
     h = loadApple({
       onExtend: stage === 'extend' ? close : undefined,
       onDelegateNew: stage === 'delegateNew' ? close : undefined,
@@ -513,21 +560,29 @@ test('Apple ignores results from conversion reentry and preserves synchronous te
     },
     failure: 'remove',
   })
+
   assert.equal((await h.auth.signIn()).status, 'success')
+
   const staleTokens = [...h.observers]
+
   assert.equal((await h.auth.signIn()).status, 'success')
   for (const token of staleTokens) {
     token.callback()
   }
+
   assert.equal(h.controllers[1].cancels, 0)
+
   const reentry = loadApple(),
     pending = reentry.auth.signIn(),
     c = reentry.controllers[0]
+
   const value = credential()
+
   value.valueForKey = () => {
     reentry.post('close', reentry.app.keyWindow)
     return 'retired-token'
   }
+
   succeed(c, value)
   assert.equal((await pending).status, 'cancelled')
   assert.equal(c.cancels, 1)
@@ -536,6 +591,7 @@ test('Apple ignores results from conversion reentry and preserves synchronous te
 const google = await compile('google.macos')
 function loadGoogle(session) {
   const exports = {}
+
   vm.runInNewContext(google, {
     exports,
     require: () => ({
@@ -609,6 +665,7 @@ test('Google hosted cancellation, errors, malformed credentials and concurrent/r
     [{ type: 'error', message: 'failed' }, 'error'],
   ]) {
     const auth = loadGoogle({ open: async () => sessionResult })
+
     await auth.configure({
       hostedFlow: flow({
         complete: () => {
@@ -635,6 +692,7 @@ test('Google hosted cancellation, errors, malformed credentials and concurrent/r
     { complete: async () => ({ ...googleCredential, provider: 'apple' }) },
   ]) {
     const auth = loadGoogle({ open: async () => ({ type: 'success', url: 'sample://callback' }) })
+
     await auth.configure({ hostedFlow: flow(override) })
     assert.equal((await auth.signIn()).status, 'error')
     assert.doesNotMatch((await auth.signIn()).message, /already active/)
@@ -649,7 +707,9 @@ test('Google hosted cancellation, errors, malformed credentials and concurrent/r
   })
 
   await auth.configure({ hostedFlow: flow() })
+
   const first = auth.signIn()
+
   await Promise.resolve()
   assert.equal((await auth.signIn()).status, 'error')
   await auth.configure()
@@ -661,6 +721,7 @@ test('Google hosted cancellation, errors, malformed credentials and concurrent/r
 
 test('Google signOut resolves even when the hosted backend logout fails', async () => {
   const auth = loadGoogle(null)
+
   await auth.configure({
     hostedFlow: flow({
       signOut: async () => {

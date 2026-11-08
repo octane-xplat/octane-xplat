@@ -56,6 +56,7 @@ function flush() {
 
 function record(name: string, data: any) {
   const entry = { name, ...data }
+
   records.push(entry)
   console.log(`[lottie-probe] ${name}: ${JSON.stringify(data)}`)
   flush()
@@ -63,9 +64,12 @@ function record(name: string, data: any) {
 
 function mount(page: Page): any {
   const v = new LottieView()
+
   v.width = 120
   v.height = 120
+
   const content = page.content as any
+
   if (content instanceof LayoutBase) {
     content.addChild(v)
   } else if (content && typeof content.addChild === 'function') {
@@ -78,6 +82,7 @@ function mount(page: Page): any {
 function loaded(v: any): boolean {
   try {
     const nv: any = v.nativeViewProtected ?? (v as any).nativeView
+
     if (isAndroid) {
       return !!nv?.getComposition?.() || (v.duration ?? 0) > 0
     }
@@ -91,6 +96,7 @@ function loaded(v: any): boolean {
 async function waitForPage(): Promise<Page> {
   for (let i = 0; i < 120; i++) {
     const p = Frame.topmost()?.currentPage
+
     if (p) {
       return p
     }
@@ -103,6 +109,7 @@ async function waitForPage(): Promise<Page> {
 
 async function run() {
   const page = await waitForPage()
+
   record('meta', {
     platform: isAndroid ? 'android' : 'ios',
     hasPauseResume: typeof (LottieView.prototype as any).pauseAnimation === 'function',
@@ -111,15 +118,20 @@ async function run() {
 
   // Read the bundled probe json once — source for inline/file/src variants.
   ensureDir()
+
   const appJsonPath = path.join(knownFolders.currentApp().path, 'assets', 'lottie-probe.json')
   const jsonText = File.exists(appJsonPath) ? File.fromPath(appJsonPath).readTextSync() : ''
+
   record('asset-read', { bytes: jsonText.length, exists: File.exists(appJsonPath) })
+
   const tmpJson = path.join(DOCS_DIR, 'probe-inline.json')
+
   File.fromPath(tmpJson).writeTextSync(jsonText)
 
   // 1. sync src (async=false default) — broken factory guard on Android.
   {
     const v = mount(page)
+
     v.src = jsonText // inline JSON hits fromJsonStringSync on Android
     await sleep(400)
     record('sync-inline-json', { loaded: loaded(v), duration: v.duration })
@@ -127,6 +139,7 @@ async function run() {
 
   {
     const v = mount(page)
+
     v.src = tmpJson // file path, still sync
     await sleep(400)
     record('sync-file-json', { loaded: loaded(v), duration: v.duration })
@@ -134,6 +147,7 @@ async function run() {
 
   {
     const v = mount(page)
+
     v.src = '~/assets/lottie-probe.json' // app bundle path, sync
     await sleep(400)
     record('sync-bundle-json', { loaded: loaded(v), duration: v.duration })
@@ -143,6 +157,7 @@ async function run() {
   {
     const v = mount(page)
     const calls: boolean[] = []
+
     v.completionBlock = (finished: boolean) => calls.push(finished)
     v.src = tmpJson
     await sleep(300)
@@ -156,10 +171,12 @@ async function run() {
   // 3. pause/resume plumbing.
   {
     const v = mount(page)
+
     v.src = tmpJson
     await sleep(300)
     v.playAnimation()
     await sleep(250)
+
     const apiPresent = typeof (v as any).pauseAnimation === 'function'
     const nativePausePresent = isAndroid
       ? typeof (v.nativeViewProtected as any)?.pauseAnimation === 'function'
@@ -167,14 +184,17 @@ async function run() {
 
     let midProgress = -1
     let afterResume = -1
+
     if (apiPresent) {
       ;(v as any).pauseAnimation()
       await sleep(200)
+
       const p = isAndroid
         ? (v.nativeViewProtected as any).getProgress()
         : (v.nativeViewProtected as any).currentProgress
 
       midProgress = p
+
       const stillPaused = !v.isAnimating()
 
       ;(v as any).resumeAnimation()
@@ -199,6 +219,7 @@ async function run() {
   {
     const v = mount(page)
     let fired = false
+
     v.on('compositionLoaded', () => {
       fired = true
     })
@@ -212,6 +233,7 @@ async function run() {
   {
     const v = mount(page)
     let failed = false
+
     v.on('loadFailed', () => {
       failed = true
     })
@@ -225,6 +247,7 @@ async function run() {
   {
     const v = mount(page)
     let loadedEv = false
+
     v.on('compositionLoaded', () => {
       loadedEv = true
     })
@@ -241,8 +264,11 @@ async function run() {
     const zipPath = path.join(DOCS_DIR, 'probe.lottie')
     const fos = new java.io.FileOutputStream(zipPath)
     const zos = new java.util.zip.ZipOutputStream(fos)
+
     zos.putNextEntry(new java.util.zip.ZipEntry('animation.json'))
+
     const bytes = new java.lang.String(jsonText).getBytes()
+
     zos.write(bytes, 0, bytes.length)
     zos.closeEntry()
     zos.close()
@@ -254,6 +280,7 @@ async function run() {
   // 8. async + autoPlay (Android: never fired before fix).
   if (isAndroid) {
     const v = mount(page)
+
     v.async = true
     v.autoPlay = true
     v.src = tmpJson
@@ -264,6 +291,7 @@ async function run() {
   // 9. duration units (documented divergence — leaf normalizes).
   {
     const v = mount(page)
+
     v.src = tmpJson
     await sleep(400)
     record('duration-units', { duration: v.duration, note: 'android=ms ios=s' })
@@ -273,6 +301,7 @@ async function run() {
   // verify no throw + value-callback acceptance.
   {
     const v = mount(page)
+
     v.src = tmpJson
     await sleep(300)
     try {
@@ -290,6 +319,7 @@ async function run() {
     try {
       router.push({ to: '/demo/:id', params: { id: 'lottie' } })
       await sleep(3500)
+
       const page = getStack('root')?.currentPage as any
       const texts: string[] = []
       let leafViews = 0

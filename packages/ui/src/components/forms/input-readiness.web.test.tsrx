@@ -14,6 +14,7 @@ describe('keyboard access', () => {
       const host = document.createElement('div')
       const root = createRoot(host)
       const hold = vi.fn()
+
       act(() => root.render(<Pressable onLongPress={hold}>Hold</Pressable>))
       act(() => host.firstElementChild!.dispatchEvent(new Event('pointerdown', { bubbles: true })))
       act(() =>
@@ -34,11 +35,16 @@ describe('keyboard access', () => {
 
   it('makes actionable Pressables keyboard reachable and activates once per key', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
+
     const root = createRoot(host)
     const press = vi.fn()
+
     act(() => root.render(<Pressable onPress={press}>Save</Pressable>))
+
     const button = host.firstElementChild as HTMLElement
+
     expect(button.tabIndex).toBe(0)
     act(() => {
       button.dispatchEvent(new KeyboardEvent('keydown', { key: 'Enter', bubbles: true }))
@@ -76,8 +82,11 @@ describe('keyboard access', () => {
       const host = document.createElement('div')
       const root = createRoot(host)
       const submit = vi.fn()
+
       act(() => root.render(<Component onSubmit={submit} />))
+
       const input = host.querySelector('input,textarea')!
+
       act(() =>
         input.dispatchEvent(
           new KeyboardEvent('keydown', {

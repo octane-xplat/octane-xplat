@@ -11,6 +11,7 @@ import { ProgressBar } from './ProgressBar.macos.tsrx'
 import { setThemePreference } from '../../theme/theme-scheme.macos'
 
 afterEach(() => setThemePreference('system'))
+
 function mount(props: any) {
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -22,6 +23,7 @@ function mount(props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -44,6 +46,7 @@ it('AppKit progress preserves style forms, authored overrides and removal on the
 
   try {
     const host = env.named('vx-progressbar')
+
     expect(ref.current).toBe(host)
     expect(host.props.style).toContain('width:240px;opacity:0.8')
     expect(host.props.className).toContain('upload active')
@@ -82,6 +85,7 @@ it('AppKit indeterminate progress skips formatter, value readout and marks, then
 
   try {
     const host = env.named('vx-progressbar')
+
     expect(formatted).toBe(0)
     expect(host.props.accessibilityValue).toBeUndefined()
     expect(host.props.accessibilityMinValue).toBeUndefined()
@@ -123,6 +127,7 @@ it('AppKit progress forwards accessibility overrides and releases removed values
 
   try {
     const host = env.named('vx-progressbar')
+
     expect(host.props.accessible).toBe(false)
     expect(host.props.accessibilityLabel).toBe('Photo upload')
     expect(host.props.accessibilityHint).toBe('Keep the app open')
@@ -141,7 +146,9 @@ it('AppKit progress forwards accessibility overrides and releases removed values
 
 it('AppKit progress follows theme preference changes without parent prop replacement', () => {
   setThemePreference('light')
+
   const env = mount({ label: 'Upload', value: 50 })
+
   try {
     const fill = env.named('vx-progressbar-fill'),
       track = env.named('vx-progressbar-track'),
@@ -163,6 +170,7 @@ it('AppKit progress follows theme preference changes without parent prop replace
 
 it('AppKit progress binds unknown-mode animation classes and clips the moving fill', () => {
   const env = mount({ label: 'Upload', isIndeterminate: true })
+
   try {
     const fill = env.named('vx-progressbar-fill'),
       track = env.named('vx-progressbar-track')

@@ -22,6 +22,7 @@ it.each([
     })
 
     const { geolocation } = await import('./geolocation.web')
+
     expect((await geolocation.requestPermissions()).status).toBe(expected)
     await expect(geolocation.getCurrentPosition()).rejects.toEqual({ code })
   },
@@ -34,5 +35,6 @@ it('keeps unsupported permission queries from throwing', async () => {
   })
 
   const { geolocation } = await import('./geolocation.web')
+
   expect((await geolocation.requestPermissions()).status).toBe('undetermined')
 })

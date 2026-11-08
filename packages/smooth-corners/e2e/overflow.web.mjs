@@ -18,12 +18,17 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(15000)
+
   const errors = []
+
   page.on('pageerror', (error) => {
     errors.push(error.message)
     console.error(error.message)
@@ -41,6 +46,7 @@ try {
       const paint = panel.querySelector('[aria-hidden] div')
       const bounds = panel.getBoundingClientRect()
       const badge = document.getElementById('badge').getBoundingClientRect()
+
       return {
         overflow: getComputedStyle(panel).overflow,
         clip: getComputedStyle(panel).clipPath,
@@ -54,6 +60,7 @@ try {
     })
 
   const initial = await read()
+
   assert.equal(initial.overflow, 'visible')
   assert.equal(initial.clip, 'none')
   assert.equal(initial.background, 'rgba(0, 0, 0, 0)')
@@ -70,6 +77,7 @@ try {
   )
 
   const hidden = await read()
+
   assert.equal(hidden.badgeReachable, false)
   assert.equal(hidden.clip, hidden.surfaceClip)
   assert.equal(hidden.width, initial.width)
@@ -78,7 +86,9 @@ try {
   await page.locator('#resize').click()
   await page.waitForFunction(() => document.getElementById('panel').offsetWidth === 260)
   await page.waitForFunction(() => document.getElementById('panel').style.clipPath.includes('260'))
+
   const resized = await read()
+
   assert.notEqual(resized.surfaceClip, initial.surfaceClip)
   assert.equal(resized.clip, resized.surfaceClip)
 

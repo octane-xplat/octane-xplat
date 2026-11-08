@@ -10,6 +10,7 @@ import {
 import { TextInput, TextArea } from './text-controls.macos.tsrx'
 import { SearchInput } from '../actions/controls.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+
 const controls = [TextInput, TextArea]
 function mount(Control: any = TextInput, extra: any = {}, inherited = false) {
   const container = createObjectContainer('nativescript'),
@@ -48,6 +49,7 @@ function mount(Control: any = TextInput, extra: any = {}, inherited = false) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -198,7 +200,9 @@ it('live public handles follow ref replacement, current disabled state and nativ
       expect(held.native).toBe(f.field())
       held.focus()
       expect(f.window.firstResponder).toBe(f.field())
+
       const other = {}
+
       f.window.firstResponder = other
       held.blur()
       expect(f.window.firstResponder).toBe(other)
@@ -216,13 +220,17 @@ it('live public handles follow ref replacement, current disabled state and nativ
       delete f.field().isEnabled
       held.focus()
       expect(f.window.firstResponder).toBe(f.field())
+
       const editor = {}
+
       f.field().currentEditor = () => editor
       f.window.firstResponder = editor
       held.blur()
       expect(f.window.firstResponder).toBe(null)
       f.root.unmount()
+
       const count = f.window.makeFirstResponder.mock.calls.length
+
       held.focus()
       held.blur()
       expect(held.native).toBe(null)
@@ -246,7 +254,9 @@ it('held clear rejects current blocking, removed affordances, marked editors and
     expect(f.base.onChange).not.toHaveBeenCalled()
     expect(f.base.onClear).not.toHaveBeenCalled()
     f.render(f.base)
+
     const editor: any = { hasMarkedText: () => true }
+
     f.field().currentEditor = editor
     clear()
     expect(f.base.onChange).not.toHaveBeenCalled()

@@ -46,6 +46,7 @@ function GeometryReader() {
 
   useEffect(() => {
     const view = scroller.current
+
     if (!view) {
       return
     }
@@ -155,7 +156,9 @@ function GeometryReader() {
     try {
       center = NSNotificationCenter.defaultCenter
       remove = center.removeObserver
+
       const add = center.addObserverForNameObjectQueueUsingBlock
+
       if (typeof add !== 'function' || typeof remove !== 'function') {
         throw Error('observation unavailable')
       }
@@ -174,6 +177,7 @@ function GeometryReader() {
 
       const originalAuto = view.automaticallyAdjustsContentInsets
       const originalElasticity = view.verticalScrollElasticity
+
       restore.push(
         () => {
           view.contentInsets = originalInsets
@@ -296,6 +300,7 @@ function GeometryReader() {
 
 export default function PullRefreshGeometryProbe() {
   const [mounted, setMounted] = useState(true)
+
   return (
     <VStack gap={2}>
       <Text>

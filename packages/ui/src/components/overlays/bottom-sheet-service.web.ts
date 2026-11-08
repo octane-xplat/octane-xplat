@@ -42,8 +42,10 @@ export function openBottomSheetWithOwner(
     const layer = document.createElement('div')
     const unbindTheme = applyThemeClasses(layer, 'vx-sheet-layer vx-bottom-sheet-layer')
     const panel = document.createElement('div')
+
     panel.className = 'vx-sheet vx-bottom-sheet'
     panel.setAttribute('aria-label', options.label ?? 'Sheet')
+
     const hasScrim = options.hasScrim ?? true
     const snapPoints = options.snapPoints?.length
       ? normalizeSnapPoints(options.snapPoints, window.innerHeight)
@@ -70,6 +72,7 @@ export function openBottomSheetWithOwner(
 
     const entry: ActiveSheet = { layer, finish }
     let backdrop: HTMLDivElement | null = null
+
     if (hasScrim) {
       layer.setAttribute('data-vx-modal-layer', '')
       backdrop = document.createElement('div')
@@ -81,6 +84,7 @@ export function openBottomSheetWithOwner(
 
     layer.appendChild(panel)
     document.body.appendChild(layer)
+
     // Attached after the layer is in the document — the panel sizes
     // against the viewport and slides in to the smallest stop.
     const detents = attachSheetDetents(panel, snapPoints, () => finish(), {
@@ -93,6 +97,7 @@ export function openBottomSheetWithOwner(
     })
 
     const root = owner?.createRoot(panel, () => closeSheet?.()) ?? createRoot(panel)
+
     active.add(entry)
     root.render(Component, { params, close: finish })
     afterContentCommit(root, () => {

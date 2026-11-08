@@ -21,6 +21,7 @@ export function CameraView(props: CameraViewProps): unknown @{
   const host = useRef<any>(null)
   const active = props.active !== false
   const facing = props.facing ?? 'back'
+
   useImperativeHandle(
     props.ref,
     () => ({ native: host.current.ios ?? host.current.nativeViewProtected }),
@@ -33,6 +34,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view || !active) {
       return
     }
@@ -105,6 +107,7 @@ export function CameraView(props: CameraViewProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view) {
       return
     }

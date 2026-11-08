@@ -8,16 +8,21 @@ export interface ChatScrollControl {
 }
 
 const controls = new WeakMap<object, ChatScrollControl[]>()
+
 /** @internal Register the live hook state without requiring a render each frame. */
 export function registerChatScrollControl(host: object, control: ChatScrollControl): () => void {
   const readers = controls.get(host) ?? []
+
   readers.push(control)
   controls.set(host, readers)
+
   let active = true
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     readers.splice(readers.indexOf(control), 1)
     if (!readers.length) {
@@ -31,20 +36,25 @@ export const chatScrollControl = (host: object): ChatScrollControl | undefined =
 
 const objectKeys = new WeakMap<object, string>()
 let nextObjectKey = 0
+
 /** @internal Preserve existing id-optional data APIs while using stable keyed rows. */
 export function chatMessageKey(message: { id?: string }): string {
   if (message.id !== undefined) {
     return `id:${message.id}`
   }
+
   let key = objectKeys.get(message)
+
   if (!key) {
     key = `object:${++nextObjectKey}`
     objectKeys.set(message, key)
   }
+
   return key
 }
 
 const rows = new WeakSet<object>()
+
 export const markChatRow = (host: object | null): void => {
   if (host) {
     rows.add(host)
@@ -54,16 +64,20 @@ export const markChatRow = (host: object | null): void => {
 export const isChatRow = (host: object): boolean => rows.has(host)
 
 const moving = new WeakMap<object, Set<object>>()
+
 /** @internal Suppress a second scroll animation while a keyboard transition owns range. */
 export function leaseChatViewportMotion(host: object) {
   const token = {}
   let active = true
+
   return {
     set(value: boolean): void {
       if (!active) {
         return
       }
+
       const owners = moving.get(host) ?? new Set<object>()
+
       if (value) {
         owners.add(token)
         moving.set(host, owners)
@@ -78,6 +92,7 @@ export function leaseChatViewportMotion(host: object) {
       if (!active) {
         return
       }
+
       this.set(false)
       active = false
     },

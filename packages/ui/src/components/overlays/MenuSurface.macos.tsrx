@@ -23,6 +23,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
     liveReturnOwner = useRef(returnOwner)
 
   liveReturnOwner.current = returnOwner
+
   const context = { closeMenu: () => props.closeMenu(), menuSize: 'md' as const }
   const panel = useRef<NSView | null>(null),
     lease = useRef<(() => void) | null>(null)
@@ -34,6 +35,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
 
   live.current = props
   liveDirection.current = direction
+
   const navigation = useMemo(
     () =>
       createAppKitChoiceFocus({
@@ -52,6 +54,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
   const rows = () =>
     navigation.orderedKeys().flatMap((key) => {
       const row = registry.current.rows.get(key)?.()
+
       return row && !row.disabled
         ? [{ key, label: row.label, submenu: Boolean(row.openSubmenu) }]
         : []
@@ -78,6 +81,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
         rows,
         focused: () => {
           const focused = navigation.focusedView()
+
           return [...registry.current.views].find(([, view]) => view === focused)?.[0]
         },
         focus: focusState.focus,
@@ -144,8 +148,10 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
     panel.current = view
     if (view) {
       const retain = appKitHost()?.retainFocusTarget
+
       if (typeof retain === 'function') {
         const release = retain(view)
+
         if (typeof release !== 'function') {
           throw new Error('AppKit menu focus ownership unavailable')
         }
@@ -167,6 +173,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
       }
 
       const rowFocused = [...registry.current.views.values()].some((row) => row === responder)
+
       // Nested endContent editors/buttons own their keys. Tab still requests dismissal.
       if (!rowFocused && responder !== view && event.key !== 'Tab' && event.key !== 'Escape') {
         return
@@ -189,6 +196,7 @@ export function MenuSurface(props: MenuSurfaceProps): unknown @{
     }
 
     let token: unknown
+
     try {
       token = center.addObserverForNameObjectQueueUsingBlock(
         native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',

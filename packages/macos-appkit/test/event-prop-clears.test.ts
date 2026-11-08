@@ -54,6 +54,7 @@ function fixture() {
   const api = runSlice(prefix + slices + '\n;({ applyCommand })', sandbox)
 
   const container = { nodes: new Map<number, any>(), children: [] }
+
   return { ...api, container, applied }
 }
 
@@ -65,6 +66,7 @@ function existingNode(
   parent: any = null,
 ) {
   const node = { id, type, props: { ...props }, parent, children: [], container, view: {} }
+
   container.nodes.set(id, node)
   return node
 }
@@ -73,6 +75,7 @@ test('a dropped on* prop clears to undefined on update', () => {
   const fx = fixture()
   const onTap = () => {}
   const onPan = () => {}
+
   existingNode(fx.container, 1, 'masonview', { onTap, onPan, disabled: true })
 
   fx.applyCommand(fx.container, { op: 'update', id: 1, props: { disabled: false } })
@@ -86,6 +89,7 @@ test('a retained on* prop is not cleared', () => {
   const fx = fixture()
   const onTap = () => {}
   const next = () => {}
+
   existingNode(fx.container, 2, 'masonview', { onTap })
 
   fx.applyCommand(fx.container, { op: 'update', id: 2, props: { onTap: next } })
@@ -95,6 +99,7 @@ test('a retained on* prop is not cleared', () => {
 
 test('non-function stale values do not inject clears', () => {
   const fx = fixture()
+
   existingNode(fx.container, 3, 'masonview', { onTap: undefined, onLongPress: null, id: 'x' })
 
   fx.applyCommand(fx.container, { op: 'update', id: 3, props: { id: 'x' } })
@@ -132,6 +137,7 @@ test('control and text event props clear on every element type', () => {
 
 test('a dropped non-event prop clears to undefined on update', () => {
   const fx = fixture()
+
   existingNode(fx.container, 20, 'searchbar', { text: 'query', hint: 'search' })
   existingNode(fx.container, 21, 'label', { maxLines: 2, text: 'hi' })
 
@@ -144,6 +150,7 @@ test('a dropped non-event prop clears to undefined on update', () => {
 
 test('keys that applied nothing get no clear', () => {
   const fx = fixture()
+
   existingNode(fx.container, 22, 'label', { maxLines: undefined, whiteSpace: null, text: 'hi' })
 
   fx.applyCommand(fx.container, { op: 'update', id: 22, props: { text: 'hi' } })
@@ -154,6 +161,7 @@ test('keys that applied nothing get no clear', () => {
 
 test('onLayoutChanged clears on any element type', () => {
   const fx = fixture()
+
   existingNode(fx.container, 30, 'contentview', { onLayoutChanged: () => {} })
 
   fx.applyCommand(fx.container, { op: 'update', id: 30, props: {} })
@@ -164,6 +172,7 @@ test('onLayoutChanged clears on any element type', () => {
 test('contentview children keep their alignment clears alongside event clears', () => {
   const fx = fixture()
   const parent = existingNode(fx.container, 40, 'contentview', {})
+
   existingNode(fx.container, 41, 'label', { onCustom: () => {}, text: 'hi' }, parent)
 
   fx.applyCommand(fx.container, { op: 'update', id: 41, props: { text: 'hi' } })
@@ -184,6 +193,7 @@ const applyPropsSandbox: Record<string, any> = {
 // and pan route to their action setters, style/class/a11y consume silently.
 const masonCalls = (key: string) => {
   const spy: any = (...args: any[]) => spy.calls.push(args)
+
   spy.calls = [] as any[][]
   return (applyPropsSandbox[key] ??= spy)
 }
@@ -193,10 +203,12 @@ const masonPropStub = (node: any, name: string, value: any) => {
     masonCalls('setAction')(node, value)
     return true
   }
+
   if (name === 'onPan') {
     masonCalls('setPanAction')(node, value)
     return true
   }
+
   return true
 }
 
@@ -224,12 +236,14 @@ function applyPropsFixture(type: string) {
   }
 
   const applyProps = (applyPropsApi as any).applyProps
+
   return { node, applyProps }
 }
 
 test('applyProps routes a cleared on* prop to the unbind setters', () => {
   const { node, applyProps } = applyPropsFixture('masonview')
   const ctx = applyPropsSandbox
+
   // masonview onTap -> setAction; onPan/onSwipe -> setPanAction;
   // onTouch/onLongPress/onDoubleTap -> setPressGesture; onLayoutChanged ->
   // setLayoutAction.
@@ -256,10 +270,12 @@ test('applyProps routes a cleared on* prop to the unbind setters', () => {
 test('applyProps routes cleared control events to their unbind setters', () => {
   const { node, applyProps } = applyPropsFixture('scrollview')
   const ctx = applyPropsSandbox
+
   applyProps(node, { onScroll: undefined })
   assert.deepEqual(ctx.setScrollAction.calls, [[node, undefined]])
 
   const field = applyPropsFixture('textfield')
+
   applyProps(field.node, { onTextChange: undefined, onSubmit: undefined })
   assert.equal(ctx.setControlAction.calls.at(-1)[0], field.node)
   assert.equal(ctx.setControlAction.calls.at(-1)[1], undefined)
@@ -270,6 +286,7 @@ test('applyProps routes cleared control events to their unbind setters', () => {
 test('applyProps commits native key handler updates and clears without ignored-prop warnings', () => {
   const { node, applyProps } = applyPropsFixture('textfield')
   const warnings: any[][] = []
+
   applyPropsSandbox.console = { warn: (...args: any[]) => warnings.push(args) }
   try {
     applyProps(node, { onKeyDown: () => {}, onKeyUp: () => {} })
@@ -277,6 +294,7 @@ test('applyProps commits native key handler updates and clears without ignored-p
   } finally {
     applyPropsSandbox.console = console
   }
+
   assert.equal(applyPropsSandbox.setKeyActions.calls.length, 2)
   assert.equal(Reflect.get(node.props, 'onKeyDown'), undefined)
   assert.equal(Reflect.get(node.props, 'onKeyUp'), undefined)
@@ -288,6 +306,7 @@ test('applyProps commits native key handler updates and clears without ignored-p
 test('applyProps warns on an unknown value but not on its clear', () => {
   const { node, applyProps } = applyPropsFixture('contentview')
   const warnings: any[][] = []
+
   applyPropsSandbox.console = { warn: (...args: any[]) => warnings.push(args) }
   try {
     applyProps(node, { bogusProp: 5 })
@@ -301,6 +320,7 @@ test('applyProps warns on an unknown value but not on its clear', () => {
 
 test('applyProps commits native focus handler updates and clears', () => {
   const { node, applyProps } = applyPropsFixture('masonview')
+
   applyProps(node, { onFocus: () => {}, onBlur: () => {} })
   applyProps(node, { onFocus: undefined, onBlur: undefined })
   assert.equal(applyPropsSandbox.setFocusActions.calls.length, 2)
@@ -311,8 +331,11 @@ test('applyProps commits native focus handler updates and clears', () => {
 test('testID maps to the native accessibility identifier independently of CSS id and labels', () => {
   for (const type of ['masonview', 'textfield']) {
     const { node, applyProps } = applyPropsFixture(type)
+
     node.props = { id: 'css-name', accessibilityLabel: 'Save changes' }
+
     const host = node.view
+
     applyProps(node, { testID: 'draft.save' })
     assert.equal(Reflect.get(host, 'accessibilityIdentifier'), 'draft.save')
     assert.equal(Reflect.get(node.props, 'id'), 'css-name')
@@ -327,6 +350,7 @@ test('testID maps to the native accessibility identifier independently of CSS id
 
 test('testID on a viewless host does not create a view or overwrite authored CSS identity', () => {
   const { node, applyProps } = applyPropsFixture('proxyviewcontainer')
+
   node.view = null as any
   node.props = { id: 'logical-owner' }
   applyProps(node, { testID: 'logical-only' })

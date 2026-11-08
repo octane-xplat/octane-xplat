@@ -33,6 +33,7 @@ export function Services() @{
   const latestPicked = useRef<typeof picked>(null)
   const alive = useRef(true)
   const pickGeneration = useRef(0)
+
   useEffect(() => {
     alive.current = true
     return () => {
@@ -53,6 +54,7 @@ export function Services() @{
   // replaced or when the screen owner leaves.
   useEffect(() => {
     const preview = picked
+
     return () => {
       if (preview) {
         files.release(preview)
@@ -67,10 +69,12 @@ export function Services() @{
   })
 
   useEffect(() => connectivity.subscribe(setConn), [])
+
   const appState = useAppState()
   const size = useWindowSize()
   async function shareAction(kind: 'text' | 'url') {
     const generation = ++shareGeneration.current
+
     try {
       const result = await (kind === 'text'
         ? share.text('Kitchen sink share check', 'AppKit sharing')
@@ -88,6 +92,7 @@ export function Services() @{
 
   async function notificationAction(action: 'status' | 'request' | 'send') {
     const generation = ++notificationGeneration.current
+
     try {
       const result =
         action === 'request'
@@ -113,9 +118,11 @@ export function Services() @{
 
   async function chooseImages(multiple: boolean) {
     const generation = ++pickGeneration.current
+
     try {
       const single = multiple ? null : await media.pickImage()
       const images = multiple ? await media.pickImages() : single ? [single] : []
+
       if (!alive.current || generation !== pickGeneration.current) {
         for (const image of images) {
           files.release(image)
@@ -130,6 +137,7 @@ export function Services() @{
       }
 
       const next = { name: images[0].name, uri: images[0].uri }
+
       latestPicked.current = next
       setPicked(next)
       setImageResult(images.map((image) => image.name).join(', '))
@@ -206,6 +214,7 @@ export function Services() @{
           className="btn btn-secondary"
           onPress={async () => {
             const text = await clipboard.readText()
+
             if (alive.current) {
               setClipboardResult(text ?? 'No text available')
             }
@@ -223,6 +232,7 @@ export function Services() @{
         onPress={async () => {
           try {
             const available = openSettings.supported && (await openSettings.isAvailable())
+
             if (!alive.current) {
               return
             }
@@ -233,6 +243,7 @@ export function Services() @{
             }
 
             const accepted = openSettings.open()
+
             if (alive.current) {
               setSettingsResult(accepted ? 'Launch request accepted' : 'Could not open settings')
             }
@@ -282,8 +293,10 @@ export function Services() @{
           const store = secureStorage
           const key = 'octane-xplat-demo-' + String(Date.now()) + String(Math.random())
           const payload = String(Date.now()) + String(Math.random())
+
           try {
             const saved = await store.set(key, payload)
+
             setKeychainResult(
               saved && (await store.get(key)) === payload ? 'roundtrip passed' : 'roundtrip failed',
             )

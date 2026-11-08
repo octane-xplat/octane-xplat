@@ -6,8 +6,10 @@ import { fileURLToPath } from 'node:url'
 // Prepares an isolated app; builds and device use still require the target lock.
 const mobile = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const output = resolve(process.argv[2] ?? 'research/data-mobile-probe')
+
 await mkdir(output) // Refuse to overwrite another probe or persistent data.
 await mkdir(resolve(output, 'src'))
+
 const pkg = JSON.parse(await readFile(resolve(mobile, 'package.json'), 'utf8'))
 const dependencies = Object.fromEntries(
   [

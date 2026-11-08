@@ -57,11 +57,13 @@ interface AppleAvailabilityPayload {
 function parseAvailability(json: string): AppleAvailabilityPayload | null {
   try {
     const value = JSON.parse(json) as Record<string, unknown> | null
+
     if (typeof value !== 'object' || value === null) {
       return null
     }
 
     const { available, reason, lang, onDevice } = value
+
     if (
       typeof available !== 'boolean' ||
       typeof lang !== 'string' ||
@@ -102,6 +104,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
 
   const resolved = lang ?? XplatSpeechRecognizer.defaultLanguage()
   const payload = parseAvailability(XplatSpeechRecognizer.availabilityJSON(resolved))
+
   if (payload === null) {
     return Promise.resolve({
       available: false,

@@ -5,6 +5,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { Portals, refs, lifetime } from './ui-portal.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK popup portal test',
   default_width: 800,
@@ -14,9 +15,11 @@ const window = new Gtk.Window({
 
 const fixed = new Gtk.Fixed()
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 host.set_size_request(500, 400)
 fixed.put(host, 35, 25)
 window.set_child(fixed)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -26,13 +29,17 @@ const { root, container } = createGtkRoot(host, {
 const target = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const nestedTarget = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const nestedAnchor = new Gtk.Button({ label: 'Nested anchor' })
+
 target.append(nestedAnchor)
+
 const popover = new Gtk.Popover({ autohide: false, has_arrow: false })
 const nested = new Gtk.Popover({ autohide: false, has_arrow: false })
+
 popover.set_child(target)
 nested.set_child(nestedTarget)
 popover.set_position(Gtk.PositionType.BOTTOM)
 nested.set_position(Gtk.PositionType.RIGHT)
+
 const loop = GLib.MainLoop.new(null, false)
 const pause = (ms = 180) =>
   new Promise<void>((resolve) =>
@@ -61,13 +68,16 @@ const render = async () => {
 const text = () => refs['label-a'].get_text()
 let ack = 0
 const controllers: Array<[any, any]> = []
+
 for (const widget of [window, popover, nested]) {
   const keys = new Gtk.EventControllerKey()
+
   keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
   keys.connect('key-pressed', (_controller: any, key: number) => {
     if (key !== 65481) {
       return false
     }
+
     ack++
     return true
   })
@@ -81,12 +91,15 @@ for (const widget of [window, popover, nested]) {
 const expected = (widget: any) => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No bounds within native')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx,
     y = rect.origin.y - ty
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -95,11 +108,15 @@ const expected = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [hostOk, origin] = host.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
+
   if (!hostOk) {
     throw new Error('No root host origin')
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return {
     x: x + wx - origin.x,
     y: y + wy - origin.y,
@@ -111,29 +128,36 @@ const expected = (widget: any) => {
 const measure = (name: string, widget: any) => {
   const actual = widget.getBounds(),
     wanted = expected(widget)
+
   check(name + ' has public bounds', actual !== null)
   check(
     name + ' origin matches popup surface chain',
     !!actual && near(actual.x, wanted.x) && near(actual.y, wanted.y),
   )
+
   check(
     name + ' size matches native border box',
     !!actual && near(actual.width, wanted.width) && near(actual.height, wanted.height),
   )
+
   return wanted
 }
 
 async function input(widget: any, key?: string) {
   const r = expected(widget)
   const [ok, origin] = host.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
+
   if (!ok) {
     throw new Error('No input origin')
   }
+
   // Round-trip pointer entry before pressing on a different native surface.
   // A single immediate move/click was intermittent after nested retargeting.
   const point = { x: r.x + origin.x + r.width / 2, y: r.y + origin.y + r.height / 2 }
+
   for (const action of key ? [{ key }] : [{ hover: true }, {}]) {
     const next = ack + 1
+
     print('GTK_POPUP_PORTAL_READY ' + JSON.stringify({ ...point, ...action }))
     for (let i = 0; i < 200 && ack < next; i++) {
       await pause(25)
@@ -156,9 +180,12 @@ async function run() {
     'portal action is parented to external popup target',
     refs['action-a'].get_parent() === target,
   )
+
   measure('popup label', refs['label-a'])
   measure('popup action', refs['action-a'])
+
   const action = refs['action-a']
+
   for (const style of [
     { translateX: 13, translateY: 7 },
     { scaleX: 1.3, scaleY: 0.8 },
@@ -176,35 +203,46 @@ async function run() {
 
     await pause()
   }
+
   fixed.move(host, 60, 45)
   await pause()
   measure('moved original root host', action)
   fixed.move(host, 35, 25)
   await pause()
+
   let layouts = 0
   const changed = () => layouts++
+
   action.on('layoutChanged', changed)
   await pause()
+
   const before = expected(action)
+
   popover.set_offset(45, 12)
   popover.present()
   await pause(250)
+
   const moved = measure('moved popup action', action)
+
   check(
     'popup offset actually changes surface position',
     !near(before.x, moved.x) || !near(before.y, moved.y),
   )
+
   check('layout subscription observes surface movement', layouts >= 2)
   props = { ...props, value: 'updated' }
   await render()
   check('popup update preserves native action', refs['action-a'] === action)
   check('popup receives updated original context', text() === 'updated:a:0')
+
   let osInput = false
+
   if (GLib.getenv('GTK_POPUP_PORTAL_OS') === '1') {
     await input(action)
     check('real popup press updates original component state', text() === 'updated:a:1')
     osInput = true
   }
+
   nested.set_parent(nestedAnchor)
   props = { ...props, target: nestedTarget }
   await render()
@@ -220,6 +258,7 @@ async function run() {
       text() === 'updated:a:2',
     )
   }
+
   nested.popdown()
   await pause()
   props = { ...props, target }
@@ -240,8 +279,10 @@ async function run() {
       text() === 'updated:a:3',
     )
   }
+
   const otherWindow = new Gtk.Window({ title: 'Unrelated native surface' })
   const otherTarget = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
   otherWindow.set_child(otherTarget)
   otherWindow.present()
   props = { ...props, target: otherTarget }
@@ -263,6 +304,7 @@ async function run() {
     'portal effects balance after cross-surface retargets',
     lifetime.mounts === lifetime.unmounts,
   )
+
   check('explicit cleanup detaches popup', popover.get_parent() === null)
   print(
     'GTK_POPUP_PORTAL ' +
@@ -273,12 +315,14 @@ async function run() {
         gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
 }
 
 let failed = false
+
 run()
   .catch((error) => {
     failed = true
@@ -290,14 +334,17 @@ run()
     if (nested.get_parent()) {
       nested.unparent()
     }
+
     popover.popdown()
     if (popover.get_parent()) {
       popover.unparent()
     }
+
     root.unmount()
     for (const [widget, controller] of controllers) {
       widget.remove_controller(controller)
     }
+
     window.destroy()
     loop.quit()
   })

@@ -53,6 +53,7 @@ function TriggerMenuItems(props: TriggerMenuItemsProps) @{
       {group.heading ? <label className="vx-chattrig-heading" text={group.heading} /> : null}
       @for (const item of group.items; key item.id) {
         const idx = flatIndex++
+
         <Pressable
           className={
             idx === props.state.highlightedIndex
@@ -111,6 +112,7 @@ function findActiveTrigger(
 ): { trigger: ChatComposerTrigger; query: string; triggerStart: number } | null {
   for (let i = textBeforeCursor.length - 1; i >= 0; i--) {
     const char = textBeforeCursor[i]
+
     if (char === ' ' || char === '\n') {
       return null
     }
@@ -118,6 +120,7 @@ function findActiveTrigger(
     for (const trigger of triggers) {
       if (char === trigger.character) {
         const prevChar = i > 0 ? textBeforeCursor[i - 1] : null
+
         if (prevChar === null || prevChar === ' ' || prevChar === '\n') {
           return { trigger, query: textBeforeCursor.slice(i + 1), triggerStart: i }
         }
@@ -200,6 +203,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuRe
 
       const testResult = trigger.searchSource.search('')
       const isAsync = testResult instanceof Promise
+
       if (isAsync && debounceMs > 0) {
         setState((prev) => ({ ...prev, isLoading: true }))
         searchTimeoutRef.current = setTimeout(doSearch, debounceMs)
@@ -214,6 +218,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuRe
     (item: ChatComposerTriggerItem) => {
       const trigger = state.activeTrigger
       const host = hostRef.current
+
       if (!trigger || !host) {
         return
       }
@@ -222,6 +227,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuRe
       host.spliceText(triggerStartRef.current, host.getCaretOffset(), '')
 
       const result = trigger.onSelect(item)
+
       if (typeof result === 'string') {
         onInsertText(result)
       } else {
@@ -237,6 +243,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuRe
   /** Call from the input's text-change handler. */
   const handleInput = useCallback(() => {
     const host = hostRef.current
+
     if (!triggers || triggers.length === 0 || !host) {
       return
     }
@@ -253,6 +260,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuRe
     }
 
     const { trigger, query, triggerStart } = found
+
     anchorRef.current.current = host.anchorView
     if (!state.isActive || state.activeTrigger !== trigger) {
       triggerStartRef.current = triggerStart

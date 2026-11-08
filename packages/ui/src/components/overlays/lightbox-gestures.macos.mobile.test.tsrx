@@ -38,6 +38,7 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
 
   driver.getPublicInstance = (container, id) => {
     const view: any = instance(container, id)
+
     view.window = window
     if (view.type === 'scrollview') {
       Object.assign(view, {
@@ -72,15 +73,18 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
   try {
     render()
+
     const stage = all().find((node) => node.props?.className === 'vx-lightbox-stage'),
       scroll = all().find((node) => node.type === 'scrollview')
 
     const retainedToggle = stage.props.onDoubleTap
+
     retainedToggle()
     expect(zooms).toEqual([2])
     stage.props.onSwipe({ direction: 2 })
@@ -103,6 +107,7 @@ it('AppKit panel wires current zoom/swipe policy and media replacement while lat
     })
 
     const video = all().find((node) => node.type === 'xplatvideo')
+
     expect(video.props.src).toBe('clip.mp4')
     expect(video.props.autoplay).toBe(true)
     expect(all().some((node) => node.type === 'scrollview')).toBe(false)

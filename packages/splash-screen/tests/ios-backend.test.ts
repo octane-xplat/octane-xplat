@@ -1,6 +1,7 @@
 import { afterEach, expect, it, vi } from 'vitest'
 
 const nativescript = vi.hoisted(() => ({ Application: { started: false } }))
+
 vi.mock('@nativescript/core', () => nativescript)
 
 interface HostOptions {
@@ -50,6 +51,7 @@ function stubHost(options: HostOptions = {}) {
     initialController = true,
     started = false,
   } = options
+
   stubs.observers.length = 0
   stubs.delayed.length = 0
   stubs.queued.length = 0
@@ -60,6 +62,7 @@ function stubHost(options: HostOptions = {}) {
     UILaunchStoryboardName:
       storyboard === null ? undefined : storyboardSuffix ? `${storyboard}.storyboard` : storyboard,
   }
+
   if ('maxHold' in options) {
     info.XplatSplashScreenMaxHoldMilliseconds = options.maxHold
   }
@@ -83,13 +86,16 @@ function stubHost(options: HostOptions = {}) {
       }
     }
   }
+
   vi.stubGlobal('interop', { types: { void: {} } })
   vi.stubGlobal('NSObject', NSObjectStub)
   vi.stubGlobal('NSString', class NSStringStub {})
   vi.stubGlobal('NSDictionary', class NSDictionaryStub {})
+
   class NSNumberStub {
     constructor(public doubleValue: number) {}
   }
+
   vi.stubGlobal('NSNumber', NSNumberStub)
   vi.stubGlobal('NSThread', { isMainThread: mainThread })
   vi.stubGlobal('NSBundle', {
@@ -99,6 +105,7 @@ function stubHost(options: HostOptions = {}) {
         type === 'storyboardc' && compiled && name ? `/app/${name}.storyboardc` : null,
     },
   })
+
   vi.stubGlobal('NSNotificationCenter', {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(
@@ -108,17 +115,20 @@ function stubHost(options: HostOptions = {}) {
         run: (notification: unknown) => void,
       ) {
         const observer = { name, object, run }
+
         stubs.observers.push(observer)
         return observer
       },
       removeObserver(observer: unknown) {
         const index = stubs.observers.indexOf(observer as never)
+
         if (index >= 0) {
           stubs.observers.splice(index, 1)
         }
       },
     },
   })
+
   vi.stubGlobal('UIWindowDidBecomeVisibleNotification', 'UIWindowDidBecomeVisibleNotification')
   vi.stubGlobal('UIWindowDidBecomeHiddenNotification', 'UIWindowDidBecomeHiddenNotification')
   vi.stubGlobal('UIWindowLevelNormal', 0)
@@ -131,10 +141,12 @@ function stubHost(options: HostOptions = {}) {
       stubs.animations.push({ duration, animate, done })
     },
   })
+
   vi.stubGlobal('dispatch_time', (when: number, delta: number) => when + delta)
   vi.stubGlobal('dispatch_after', (when: number, _queue: unknown, run: () => void) => {
     stubs.delayed.push({ when, run })
   })
+
   vi.stubGlobal('NSOperationQueue', {
     mainQueue: {
       underlyingQueue: {},
@@ -143,12 +155,15 @@ function stubHost(options: HostOptions = {}) {
       },
     },
   })
+
   const controllerView = makeView()
+
   vi.stubGlobal('UIStoryboard', {
     storyboardWithNameBundle: () => ({
       instantiateInitialViewController: () => (initialController ? { view: controllerView } : null),
     }),
   })
+
   class UIWindowStub {
     windowLevel = 0
     hidden = false
@@ -175,6 +190,7 @@ function stubHost(options: HostOptions = {}) {
       this.kvo = null
     }
   }
+
   vi.stubGlobal('UIWindow', UIWindowStub)
   return { UIWindowStub, NSNumberStub, controllerView, info }
 }
@@ -204,34 +220,46 @@ function fireHidden(window: unknown) {
 
 it('reports capabilities from the configured launch storyboard only', async () => {
   stubHost({ storyboard: null })
+
   const { backend } = await importBackend()
+
   expect(backend.capabilities()).toEqual({
     hold: false,
     fade: false,
     animationDuration: false,
   })
+
   expect(() => backend.preventAutoHide()).toThrow('launch storyboard')
 
   stubHost({ storyboardSuffix: true })
   vi.resetModules()
+
   const suffixed = await importBackend()
+
   expect(suffixed.backend.capabilities().hold).toBe(true)
 
   stubHost({ compiled: false })
   vi.resetModules()
+
   const uncompiled = await importBackend()
+
   expect(uncompiled.backend.capabilities().hold).toBe(false)
 })
 
 it('registers the window observer during preparation without touching app or window objects', async () => {
   stubHost()
+
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
   expect(stubs.observers.map((entry) => entry.name)).toEqual([
     'UIWindowDidBecomeVisibleNotification',
   ])
+
   expect(stubs.queued).toHaveLength(0)
+
   const state = JSON.parse(diagnostics())
+
   expect(state.state).toBe('waiting')
   expect(state.held).toBe(true)
   expect(stubs.delayed).toHaveLength(1)
@@ -240,12 +268,17 @@ it('registers the window observer during preparation without touching app or win
 it('rejects malformed hold bounds before arming', async () => {
   for (const maxHold of [true, '15000', 50, 120001, 1000.5, Number.NaN]) {
     stubHost({ maxHold })
+
     const { backend } = await importBackend()
+
     expect(() => backend.preventAutoHide()).toThrow('Invalid native splash screen configuration')
     vi.resetModules()
   }
+
   stubHost({ maxHold: 15000 })
+
   const valid = await importBackend()
+
   expect(valid.backend.preventAutoHide()).toBe(true)
   expect(stubs.delayed).toHaveLength(1)
   expect(stubs.delayed[0].when).toBe(15_000_000_000)
@@ -253,8 +286,11 @@ it('rejects malformed hold bounds before arming', async () => {
 
 it('accepts an NSNumber-wrapped hold bound', async () => {
   const { NSNumberStub, info } = stubHost({ maxHold: 1000 })
+
   info.XplatSplashScreenMaxHoldMilliseconds = new NSNumberStub(2000)
+
   const { backend } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
   expect(stubs.delayed[0].when).toBe(2_000_000_000)
 })
@@ -262,20 +298,28 @@ it('accepts an NSNumber-wrapped hold bound', async () => {
 it('attaches the storyboard continuation to the first normal visible window', async () => {
   const { UIWindowStub, controllerView } = stubHost()
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
 
   fireVisible({})
+
   const hiddenWindow = new UIWindowStub()
+
   hiddenWindow.hidden = true
   fireVisible(hiddenWindow)
+
   const alertWindow = new UIWindowStub()
+
   alertWindow.windowLevel = 2000
   fireVisible(alertWindow)
   expect(JSON.parse(diagnostics()).state).toBe('waiting')
 
   const window = new UIWindowStub()
+
   fireVisible(window)
+
   const state = JSON.parse(diagnostics())
+
   expect(state.state).toBe('visible')
   expect(state.visible).toBe(true)
   expect(controllerView.superview).toBe(window)
@@ -290,6 +334,7 @@ it('attaches the storyboard continuation to the first normal visible window', as
   expect(stubs.observers[0].object).toBe(window)
 
   const second = new UIWindowStub()
+
   fireVisible(second)
   expect(controllerView.superview).toBe(window)
 })
@@ -297,8 +342,11 @@ it('attaches the storyboard continuation to the first normal visible window', as
 it('reattaches the continuation above a replacement scene root', async () => {
   const { UIWindowStub, controllerView } = stubHost()
   const { backend } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   window.subviews.length = 0
   controllerView.superview = null
@@ -308,6 +356,7 @@ it('reattaches the continuation above a replacement scene root', async () => {
     null,
     null,
   )
+
   expect(window.subviews[window.subviews.length - 1]).toBe(controllerView)
   expect(controllerView.superview).toBe(window)
 })
@@ -315,8 +364,11 @@ it('reattaches the continuation above a replacement scene root', async () => {
 it('auto-hides an unheld continuation on the next main-queue turn', async () => {
   const { UIWindowStub, controllerView } = stubHost()
   const { backend, diagnostics } = await importBackend()
+
   backend.configure({ fade: false })
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   expect(stubs.queued).toHaveLength(1)
   stubs.queued[0]()
@@ -327,11 +379,14 @@ it('auto-hides an unheld continuation on the next main-queue turn', async () => 
 it('holds through repeated prevention and releases on hide with a fade', async () => {
   const { UIWindowStub, controllerView } = stubHost()
   const { backend, diagnostics } = await importBackend()
+
   backend.configure({ duration: 250, fade: true })
   expect(backend.preventAutoHide()).toBe(true)
   expect(backend.preventAutoHide()).toBe(true)
   expect(stubs.delayed).toHaveLength(1)
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   expect(stubs.queued).toHaveLength(0)
   backend.hide()
@@ -342,7 +397,9 @@ it('holds through repeated prevention and releases on hide with a fade', async (
   expect(controllerView.alpha).toBe(0)
   stubs.animations[0].done()
   expect(controllerView.removed).toBe(true)
+
   const state = JSON.parse(diagnostics())
+
   expect(state.state).toBe('hidden')
   expect(state.observers).toBe(false)
   expect(state.timeout).toBe(false)
@@ -352,8 +409,11 @@ it('holds through repeated prevention and releases on hide with a fade', async (
 it('cancels a pending auto-hide when the hold arrives after attachment', async () => {
   const { UIWindowStub } = stubHost()
   const { backend } = await importBackend()
+
   backend.configure({})
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   expect(stubs.queued).toHaveLength(1)
   expect(backend.preventAutoHide()).toBe(true)
@@ -364,8 +424,11 @@ it('cancels a pending auto-hide when the hold arrives after attachment', async (
 it('releases an abandoned hold at the native deadline', async () => {
   const { UIWindowStub, controllerView } = stubHost({ maxHold: 1000 })
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   expect(JSON.parse(diagnostics()).state).toBe('visible')
   stubs.delayed[0].run()
@@ -377,6 +440,7 @@ it('releases an abandoned hold at the native deadline', async () => {
 it('an early hide prevents later attachment', async () => {
   const { UIWindowStub } = stubHost()
   const { backend, diagnostics } = await importBackend()
+
   backend.hide()
   expect(JSON.parse(diagnostics()).state).toBe('hidden')
   fireVisible(new UIWindowStub())
@@ -386,7 +450,9 @@ it('an early hide prevents later attachment', async () => {
 
 it('treats a request after Application.started as a dismissed startup', async () => {
   stubHost({ started: true })
+
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(false)
   expect(JSON.parse(diagnostics()).state).toBe('hidden')
   expect(stubs.observers).toHaveLength(0)
@@ -395,8 +461,11 @@ it('treats a request after Application.started as a dismissed startup', async ()
 it('dismisses when the owning window hides and ignores repeated calls', async () => {
   const { UIWindowStub, controllerView } = stubHost()
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
+
   const window = new UIWindowStub()
+
   fireVisible(window)
   fireHidden(window)
   expect(controllerView.removed).toBe(true)
@@ -409,6 +478,7 @@ it('dismisses when the owning window hides and ignores repeated calls', async ()
 it('fails closed when the storyboard has no initial controller', async () => {
   const { UIWindowStub } = stubHost({ initialController: false })
   const { backend, diagnostics } = await importBackend()
+
   expect(backend.preventAutoHide()).toBe(true)
   fireVisible(new UIWindowStub())
   expect(JSON.parse(diagnostics()).state).toBe('failed')
@@ -417,22 +487,29 @@ it('fails closed when the storyboard has no initial controller', async () => {
 
 it('rejects invalid native options through configure', async () => {
   stubHost()
+
   const { backend } = await importBackend()
+
   expect(() => backend.configure({ duration: -1 } as never)).toThrow(
     'Invalid native splash screen options',
   )
+
   expect(() => backend.configure({ duration: 60001 } as never)).toThrow(
     'Invalid native splash screen options',
   )
+
   expect(() => backend.configure({ fade: 1 } as never)).toThrow(
     'Invalid native splash screen options',
   )
+
   backend.configure({})
 })
 
 it('refuses preparation off the main thread', async () => {
   stubHost({ mainThread: false })
+
   const { backend } = await importBackend()
+
   expect(() => backend.preventAutoHide()).toThrow('Invalid native splash screen configuration')
   expect(stubs.observers).toHaveLength(0)
 })

@@ -3,6 +3,7 @@ import { Button, Card, Center, Text, usePopover, VStack } from '@octane-xplat/ui
 
 export function PopoverHookUsage() @{
   const popover = usePopover({ dialogLabel: 'Quick actions' })
+
   return (
     <Center style={{ height: 240 }}>
       <VStack gap={2}>

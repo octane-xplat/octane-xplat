@@ -67,24 +67,28 @@ test('web consumeInitialUrl reports the host launch URL exactly once', () => {
 
 test('web consumeInitialUrl reports a non-root browser path exactly once', () => {
   const links = loadWeb({ location: locationOf('/index.html') })
+
   assert.equal(links.consumeInitialUrl(), '/index.html')
   assert.equal(links.consumeInitialUrl(), null)
 })
 
 test('web consumeInitialUrl at the root always resolves null', () => {
   const links = loadWeb()
+
   assert.equal(links.consumeInitialUrl(), null)
   assert.equal(links.consumeInitialUrl(), null)
 })
 
 test('linux consumeInitialUrl reports the bridged launch URL exactly once', () => {
   const links = loadLinux({ bridged: true, initialUrl: 'xplat://detail' })
+
   assert.equal(links.consumeInitialUrl(), 'xplat://detail')
   assert.equal(links.consumeInitialUrl(), null)
 })
 
 test('linux consumeInitialUrl reports a non-root browser path exactly once', () => {
   const links = loadLinux({ location: locationOf('/index.html') })
+
   assert.equal(links.consumeInitialUrl(), '/index.html')
   assert.equal(links.consumeInitialUrl(), null)
 })

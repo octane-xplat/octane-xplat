@@ -39,28 +39,38 @@ function keyboard(api: any) {
   const output = new Uint16Array(16)
   const pointer = (buffer: ArrayBufferView) => {
     const address = Number(api.interop.pointerKey(api.interop.pointerFromBuffer(buffer)))
+
     if (!Number.isSafeInteger(address) || address <= 0) {
       throw new Error('Invalid Win32 keyboard buffer')
     }
+
     return { type: 'pointer', value: address }
   }
+
   const statePointer = pointer(state),
     outputPointer = pointer(output)
+
   const uint = (value: number) => ({ type: 'u32', value })
   const call = (name: string, result: string, ...args: object[]) =>
     win32.call('user32.dll', name, result, ...args)
+
   return (args: any) => {
     if (!call('GetKeyboardState', 'bool', statePointer)) {
       throw new Error('GetKeyboardState failed')
     }
+
     const altKey = Boolean(state[18] & 128),
       ctrlKey = Boolean(state[17] & 128)
+
     const metaKey = Boolean((state[91] | state[92]) & 128),
       shiftKey = Boolean(state[16] & 128)
+
     const vk = Number(args.Key),
       scan = Number(args.KeyStatus?.ScanCode ?? 0)
+
     let key = named[vk] ?? (vk >= 112 && vk <= 135 ? `F${vk - 111}` : '')
     let composing = vk === 229 || Number(args.OriginalKey) === 229
+
     if (!key && !composing) {
       // Ctrl transforms letters into control characters. Translate the text-layout
       // key without it, while retaining Ctrl+Alt (AltGr) and Shift layout behavior.
@@ -91,6 +101,7 @@ function keyboard(api: any) {
             ? String.fromCharCode(...output.subarray(0, Math.min(count, output.length)))
             : 'Unidentified'
     }
+
     return {
       key: key || 'Unidentified',
       code: windowsCode(scan, Boolean(args.KeyStatus?.IsExtendedKey)),
@@ -109,9 +120,11 @@ export const host: ShortcutHost = {
   boundaryDepth: pathDepth,
   isEditableTarget(target) {
     const ui = projection().Microsoft?.UI?.Xaml
+
     return pathFrom(target, (node) => ui?.Media?.VisualTreeHelper.GetParent(node)).some((node) =>
       ['TextBox', 'RichEditBox', 'PasswordBox', 'ComboBox'].some((name) => {
         const Type = ui?.Controls?.[name]
+
         return typeof Type === 'function' && node instanceof Type
       }),
     )
@@ -122,6 +135,7 @@ export const host: ShortcutHost = {
     const ui = Microsoft?.UI?.Xaml
     const subscribeNativeEvent: ((...args: any[]) => () => void) | undefined =
       projection().__xplatWindowsEvents?.subscribe
+
     if (
       typeof subscribeNativeEvent !== 'function' ||
       !element?.XamlRoot ||
@@ -137,6 +151,7 @@ export const host: ShortcutHost = {
         'Shortcuts require an attached WinUI element and the patched NativeScript event bridge and Win32 keyboard projection',
       )
     }
+
     const read = keyboard(NSWinRT)
     const releases: (() => void)[] = []
     let active = true
@@ -144,6 +159,7 @@ export const host: ShortcutHost = {
       if (!active || args.Handled) {
         return
       }
+
       const focus = args.OriginalSource ?? element
       const path = pathFrom(focus, (node) => ui.Media.VisualTreeHelper.GetParent(node))
       let prevented = false
@@ -164,11 +180,14 @@ export const host: ShortcutHost = {
         },
         composedPath: () => [...path],
       }
+
       if (type === 'keydown') {
         callbacks.capture?.(event)
       }
+
       callbacks.key(event)
     }
+
     try {
       for (const [type, routed] of [
         ['keydown', ui.UIElement.PreviewKeyDownEvent],
@@ -214,6 +233,7 @@ export const host: ShortcutHost = {
       cleanupAll(releases)
       throw error
     }
+
     return () => {
       if (active) {
         active = false

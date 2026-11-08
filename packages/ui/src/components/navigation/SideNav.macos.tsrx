@@ -69,6 +69,7 @@ export function SideNav(props: SideNavProps): unknown @{
 
   const toggle = useCallback(() => {
     const next = !collapsed
+
     if (!controlled) {
       setUncontrolled(next)
     }
@@ -471,6 +472,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
   const toggleChildren = () => {
     const next = !childrenCollapsed
+
     if (!itemControlled) {
       setUncontrolledCollapsed(next)
     }

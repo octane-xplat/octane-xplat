@@ -10,14 +10,19 @@ export function countClippedAppKitTokens(
   if (!viewport?.window) {
     return null
   }
+
   const start = Number(viewport.bounds?.origin.x),
     width = Number(viewport.bounds?.size.width)
+
   const end = start + width
+
   if (![start, width, end].every(Number.isFinite) || width <= 0) {
     return null
   }
+
   let hidden = 0
   const spans: { start: number; end: number }[] = []
+
   for (const token of tokens) {
     if (
       !token ||
@@ -43,6 +48,7 @@ export function countClippedAppKitTokens(
       hidden++
     }
   }
+
   // Reclaim the counter only when every token would fit without it. This
   // prevents a stale count from reserving its own space after a resize.
   if (
@@ -65,5 +71,6 @@ export function countClippedAppKitTokens(
       }
     }
   }
+
   return hidden
 }

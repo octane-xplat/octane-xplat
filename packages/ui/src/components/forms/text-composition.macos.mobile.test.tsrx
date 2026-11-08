@@ -26,6 +26,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -36,6 +37,7 @@ function mount(component: any, props: any) {
 it('AppKit rich purpose entry shares the root leaf and explicit span text wins without duplication', () => {
   expect(PurposeRichText).toBe(RichText)
   expect(PurposeRichTextSpan).toBe(RichTextSpan)
+
   function Parent(props: any) {
     return (
       <PurposeRichText>
@@ -47,8 +49,10 @@ it('AppKit rich purpose entry shares the root leaf and explicit span text wins w
   }
 
   const env = mount(Parent, { text: 'Read ' })
+
   try {
     const span = env.all().find((node) => node.type === 'span')
+
     expect(span.props.text).toBe('Read ')
     expect(span.children).toHaveLength(0)
     env.render({ text: '' })
@@ -78,8 +82,10 @@ it('nested AppKit Text and RichText create logical runs under one native text ow
   }
 
   const env = mount(Parent, { weight: 600 })
+
   try {
     expect(env.all().filter((node) => node.type === 'label')).toHaveLength(1)
+
     const owner = env.all().find((node) => node.props?.id === 'owner'),
       strong = env.all().find((node) => node.props?.className === 'strong')
 
@@ -107,6 +113,7 @@ it('AppKit Heading provides a text scope without leaking it to a sibling Text', 
   }
 
   const env = mount(Parent, {})
+
   try {
     expect(env.all().filter((node) => node.type === 'label')).toHaveLength(2)
     expect(env.all().find((node) => node.props?.id === 'sibling').type).toBe('label')
@@ -130,6 +137,7 @@ it('AppKit top-level Text and RichText preserve declared parent layout and outer
 
     try {
       const host = env.all().find((node) => node.type === 'label')
+
       expect(host.props.style).toMatchObject({
         gridRow: '2 / span 1',
         gridColumn: '3 / span 2',
@@ -164,6 +172,7 @@ it('AppKit outer Text forwards declared identity/description/visibility metadata
 
   try {
     const host = env.all().find((node) => node.type === 'label')
+
     expect(host.props.testID).toBe('count-test')
     expect(host.props.accessible).toBe(false)
     expect(host.props.accessibilityLabel).toBe('Items')

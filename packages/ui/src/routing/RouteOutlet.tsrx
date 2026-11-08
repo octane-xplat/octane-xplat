@@ -7,6 +7,7 @@ import type { RouteOutletProps } from '../props'
 /** Renders the current route entry for the enclosing scope's stack. */
 export function RouteOutlet(props: RouteOutletProps): any {
   const { host, flow } = useRouteOutletScope(props.stack, defaultRouterRuntime)
+
   return (
     <ClientRouteOutlet
       host={host}

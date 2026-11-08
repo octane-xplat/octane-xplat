@@ -2,6 +2,7 @@
 import type { ScreenProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import type { JSX } from 'octane/jsx-runtime'
+
 export function Screen(props: ScreenProps): JSX.Element @{
   <div
     id={props.id}

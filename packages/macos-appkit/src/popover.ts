@@ -50,11 +50,13 @@ export function createPopover(deps: Dependencies) {
   function popupFittingSize(contentView: NSView) {
     try {
       const direct = contentView.fittingSize
+
       if (direct && direct.width > 0 && direct.height > 0) {
         return { width: direct.width, height: direct.height }
       }
 
       const child = contentView.subviews?.objectAtIndex?.(0)?.fittingSize
+
       if (child && child.width > 0 && child.height > 0) {
         return { width: child.width, height: child.height }
       }
@@ -67,6 +69,7 @@ export function createPopover(deps: Dependencies) {
 
   function showAnchoredPopup(options: PopupOptions) {
     let anchor = options?.anchor
+
     if (
       !anchor ||
       !anchor.window ||
@@ -80,11 +83,15 @@ export function createPopover(deps: Dependencies) {
     // of the view's bounds — the fixed-position path for useLayer.
     const at = options?.at
     let relativeRect = anchor.bounds
+
     if (at && Number.isFinite(at.x) && Number.isFinite(at.y)) {
       const container = anchor.window?.contentView ?? anchor
+
       anchor = container
+
       // NSView coordinates are y-up; flip the top-left point.
       const height = Number(container.frame?.size?.height ?? 0)
+
       relativeRect = {
         origin: { x: Number(at.x), y: height - Number(at.y) },
         size: { width: 0, height: 0 },
@@ -99,6 +106,7 @@ export function createPopover(deps: Dependencies) {
     const root = deps.roots.createMacOSRoot(contentView, {
       fontFamily: deps.directory.fontFamilyForView(anchor),
     })
+
     const popup = {
       popover: null as any,
       contentView,
@@ -110,7 +118,9 @@ export function createPopover(deps: Dependencies) {
         }
 
         root.render(options.component, props)
+
         const size = popupFittingSize(contentView)
+
         if (size) {
           popup.popover!.contentSize = size
         }
@@ -164,14 +174,19 @@ export function createPopover(deps: Dependencies) {
     }
 
     const controller = NSViewController.alloc().init()
+
     controller.view = contentView
+
     const fit = popupFittingSize(contentView)
+
     if (fit) {
       controller.preferredContentSize = fit
     }
 
     const popover = NSPopover.alloc().init()
+
     popover.contentViewController = controller
+
     const behaviors = (typeof NSPopoverBehavior === 'undefined' ? {} : NSPopoverBehavior) as {
       [key: string]: number
     }
@@ -212,6 +227,7 @@ export function createPopover(deps: Dependencies) {
 
     return popup
   }
+
   return {
     openPopups,
     popupFittingSize,

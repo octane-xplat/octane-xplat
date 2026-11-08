@@ -8,6 +8,7 @@ import { DataGrid } from './DataGrid.tsrx'
 // independent of jsdom's absent layout and ResizeObserver implementation.
 vi.mock('@octane-xplat/ui', async (original) => {
   const ui = await original<any>()
+
   return {
     ...ui,
     VirtualList: (props: any) => (
@@ -51,8 +52,11 @@ const columns = [
 
 function mount(extra: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -69,6 +73,7 @@ const click = (id: string) =>
 const input = (id: string, text: string) =>
   act(() => {
     const el = document.getElementById(id) as HTMLInputElement
+
     el.value = text
     el.dispatchEvent(new Event('input', { bubbles: true }))
   })
@@ -76,6 +81,7 @@ const input = (id: string, text: string) =>
 const pan = (id: string, type: string, x: number) =>
   act(() => {
     const event = new Event(type, { bubbles: true })
+
     Object.assign(event, { clientX: x, clientY: 0, pointerId: 1 })
     document.getElementById(id)!.dispatchEvent(event)
   })
@@ -117,6 +123,7 @@ describe('DataGrid controls', () => {
 
   it('selects only selectable page rows, preserves off-page IDs, and does not activate a row', () => {
     const press = vi.fn()
+
     mount({
       showRowSelection: true,
       showPagination: true,
@@ -151,6 +158,7 @@ describe('DataGrid controls', () => {
 
   it('resizes within bounds with matching row widths and rolls back cancelled pans', () => {
     mount({ resizableColumns: true })
+
     const width = () =>
       (document.getElementById('grid-th-name')!.parentElement as HTMLElement).style.width
 
@@ -180,6 +188,7 @@ describe('DataGrid controls', () => {
 
   it('forwards controlled callbacks without changing the owner snapshot', () => {
     const changed = vi.fn()
+
     mount({ state: { sorting: [] }, options: { onSortingChange: changed } })
     click('grid-th-name')
     expect(changed).toHaveBeenCalledOnce()
@@ -198,6 +207,7 @@ describe('DataGrid selection and row accessibility', () => {
 
     const page = () => document.getElementById('grid-select-page')!
     const alice = document.getElementById('grid-select-a')!
+
     expect(alice.getAttribute('aria-label')).toBe('Select Alice')
     expect(alice.getAttribute('aria-description')).toBe('Row 1 of 3')
     act(() => alice.dispatchEvent(new KeyboardEvent('keydown', { key: ' ', bubbles: true })))
@@ -224,6 +234,7 @@ describe('DataGrid selection and row accessibility', () => {
     })
 
     const table = document.getElementById('grid-table')!
+
     expect(table.getAttribute('role')).toBe('table')
     expect(table.getAttribute('aria-rowcount')).toBe('4')
     expect(table.getAttribute('aria-colcount')).toBe('3')
@@ -239,12 +250,17 @@ describe('DataGrid selection and row accessibility', () => {
   it('preserves caller-owned IDs through filtering, paging and data replacement, then clears them', () => {
     const changes = vi.fn()
     const el = document.createElement('div')
+
     document.body.append(el)
+
     const root = createRoot(el)
+
     roots.push(root)
+
     function Owner() {
       const [rowSelection, setRowSelection] = useState<Record<string, boolean>>({ absent: true })
       const [rows, setRows] = useState(data)
+
       return (
         <>
           <button id="replace" onClick={() => setRows([...data].reverse())}>
@@ -292,6 +308,7 @@ describe('DataGrid selection and row accessibility', () => {
 
   it('keeps a controlled snapshot read-only until its owner publishes the updater', () => {
     const changed = vi.fn()
+
     mount({
       showRowSelection: true,
       state: { rowSelection: {} },
@@ -339,6 +356,7 @@ describe('DataGrid selection and row accessibility', () => {
     })
 
     const cells = [...document.querySelectorAll('[role="cell"]')].map((cell) => cell.textContent)
+
     expect(cells[0]).toBe('[object Object]')
     expect(cells[1]).toBe('true')
     expect(cells[2]).toBe(new Date(0).toString())

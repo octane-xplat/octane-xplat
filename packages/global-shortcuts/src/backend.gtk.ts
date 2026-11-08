@@ -146,11 +146,14 @@ function ensureConnection(): PortalConnection | null {
   if (conn !== null) {
     return conn
   }
+
   if (connFailed) {
     return null
   }
+
   try {
     const address = gio.dbus_address_get_for_bus_sync(gio.BusType.SESSION, null)
+
     conn = gio.DBusConnection.new_for_address_sync(
       address,
       gio.DBusConnectionFlags.AUTHENTICATION_CLIENT |
@@ -169,6 +172,7 @@ function ensureConnection(): PortalConnection | null {
         gio.DBusSignalFlags.NONE,
         (_c, _s, path, _i, _n, params) => {
           const waiter = pendingResponses.get(path)
+
           if (waiter) {
             pendingResponses.delete(path)
             waiter(params.get_child_value(0).unpack() as number, params.get_child_value(1))
@@ -185,10 +189,13 @@ function ensureConnection(): PortalConnection | null {
         (_c, _s, _p, _i, _n, params) => {
           const unpacked = params.deepUnpack() as unknown[]
           const shortcutId = unpacked?.[1]
+
           if (typeof shortcutId !== 'string') {
             return
           }
+
           const key = livePortalIds.get(shortcutId)
+
           if (key !== undefined) {
             live.get(key)?.onPress()
           }
@@ -230,9 +237,11 @@ function callMethod(
   replySignature: string | null,
 ): Promise<PortalVariant> {
   const bus = ensureConnection()
+
   if (bus === null) {
     return Promise.reject(new Error('no D-Bus session connection'))
   }
+
   return new Promise((resolve, reject) => {
     bus.call(
       PORTAL_NAME,
@@ -267,8 +276,10 @@ function awaitResponse(
         pendingResponses.delete(path)
         resolve({ code: -1, results: null })
       }
+
       return false
     })
+
     pendingResponses.set(path, (code, results) => {
       if (!settled) {
         settled = true
@@ -287,6 +298,7 @@ async function requestWithResponse(
 ): Promise<{ code: number; results: PortalVariant | null }> {
   const reply = await callMethod(interfaceName, methodName, parameters, '(o)')
   const path = reply.get_child_value(0).unpack() as string
+
   return awaitResponse(path, options.timeoutMs)
 }
 
@@ -294,18 +306,23 @@ function resolveAppId(request?: BindRequest): string {
   if (appId !== null) {
     return appId
   }
+
   const hinted = request?.appId?.trim()
+
   if (hinted) {
     appId = hinted
     return appId
   }
+
   try {
     const app = gio.Application.get_default()
     const fromApp = app?.get_application_id?.() ?? app?.application_id ?? null
+
     appId = typeof fromApp === 'string' && fromApp !== '' ? fromApp : ''
   } catch {
     appId = ''
   }
+
   return appId
 }
 
@@ -313,15 +330,20 @@ async function ensureSession(request?: BindRequest): Promise<string | null> {
   if (session !== null) {
     return session
   }
+
   if (sessionPromise !== null) {
     return sessionPromise
   }
+
   sessionPromise = (async () => {
     const bus = ensureConnection()
+
     if (bus === null) {
       return null
     }
+
     const id = resolveAppId(request)
+
     if (id !== '') {
       // Host registry names the app for portal persistence; older portals
       // (<1.19) lack the interface — every failure here is tolerated.
@@ -338,6 +360,7 @@ async function ensureSession(request?: BindRequest): Promise<string | null> {
         // Unknown method / older portal: continue without registry naming.
       }
     }
+
     try {
       const sessionToken = nextToken('sess')
       const response = await requestWithResponse(
@@ -358,6 +381,7 @@ async function ensureSession(request?: BindRequest): Promise<string | null> {
 
       const results = response.results.deepUnpack() as Record<string, unknown>
       const handle = results['session_handle']
+
       session =
         typeof handle === 'string' && handle !== ''
           ? handle
@@ -368,21 +392,26 @@ async function ensureSession(request?: BindRequest): Promise<string | null> {
       return null
     }
   })()
+
   const result = await sessionPromise
+
   if (result === null) {
     sessionPromise = null
   }
+
   return result
 }
 
 function closeSession(): void {
   const bus = conn
   const handle = session
+
   session = null
   sessionPromise = null
   if (bus === null || handle === null) {
     return
   }
+
   try {
     bus.call(
       PORTAL_NAME,
@@ -404,40 +433,50 @@ function closeSession(): void {
 
 function preferredTrigger(request: BindRequest): string | null {
   const keysym = linuxKeysym(request.accelerator.code)
+
   if (keysym === null) {
     return null
   }
+
   const parts: string[] = []
+
   if (request.accelerator.ctrl) {
     parts.push('CTRL')
   }
+
   if (request.accelerator.alt) {
     parts.push('ALT')
   }
+
   if (request.accelerator.shift) {
     parts.push('SHIFT')
   }
+
   if (request.accelerator.meta) {
     parts.push('LOGO')
   }
+
   parts.push(keysym)
   return parts.join('+')
 }
 
 function shortcutEntries(): [string, Record<string, PortalVariant>][] {
   const entries: [string, Record<string, PortalVariant>][] = []
+
   for (const binding of live.values()) {
     const props: Record<string, PortalVariant> = {
       description: variant('s', binding.request.description),
     }
 
     const trigger = preferredTrigger(binding.request)
+
     if (trigger !== null) {
       props['preferred_trigger'] = variant('s', trigger)
     }
 
     entries.push([binding.portalId, props])
   }
+
   return entries
 }
 
@@ -448,9 +487,11 @@ function settlePending(
 ): void {
   // results['shortcuts'] is a(sa{sv}): [shortcutId, {trigger_description, ...}]
   const granted = new Map<string, string>()
+
   if (results !== null && code === 0) {
     const unpacked = results.deepUnpack() as Record<string, unknown>
     const list = unpacked['shortcuts']
+
     if (Array.isArray(list)) {
       for (const row of list) {
         if (!Array.isArray(row)) {
@@ -458,6 +499,7 @@ function settlePending(
         }
 
         const [id, props] = row as [unknown, unknown]
+
         if (typeof id !== 'string') {
           continue
         }
@@ -471,14 +513,18 @@ function settlePending(
       }
     }
   }
+
   for (const key of keys) {
     const pending = pendingBinds.get(key)
+
     if (pending === undefined) {
       continue
     }
 
     pendingBinds.delete(key)
+
     const trigger = granted.get(pending.portalId)
+
     if (code !== 0) {
       removeBinding(key)
       pending.resolve({
@@ -518,9 +564,11 @@ function settlePending(
 
 function removeBinding(key: number): void {
   const binding = live.get(key)
+
   if (binding === undefined) {
     return
   }
+
   live.delete(key)
   livePortalIds.delete(binding.portalId)
   if (live.size === 0) {
@@ -533,7 +581,9 @@ function rebind(): Promise<void> {
     if (live.size === 0) {
       return
     }
+
     const handle = await ensureSession()
+
     if (handle === null) {
       for (const [key, pending] of pendingBinds) {
         pendingBinds.delete(key)
@@ -548,9 +598,11 @@ function rebind(): Promise<void> {
 
       return
     }
+
     // Settle only the binds included in this request; binds that arrive
     // while the D-Bus roundtrip is in flight wait for the next rebind.
     const settledKeys = new Set(pendingBinds.keys())
+
     try {
       const response = await requestWithResponse(
         SHORTCUTS_IFACE,
@@ -571,6 +623,7 @@ function rebind(): Promise<void> {
       settlePending(settledKeys, null, -1)
     }
   })
+
   rebindChain = work.catch(() => undefined)
   return work
 }
@@ -595,12 +648,14 @@ export const backend: HotkeyBackend = {
 
   support() {
     const bus = ensureConnection()
+
     if (bus === null) {
       return Promise.resolve({
         ...UNSUPPORTED,
         reason: 'No D-Bus session bus is available.',
       })
     }
+
     try {
       const reply = bus.call_sync(
         PORTAL_NAME,
@@ -623,6 +678,7 @@ export const backend: HotkeyBackend = {
 
   bind(request: BindRequest, onPress: () => void): Promise<BindOutcome> {
     const bus = ensureConnection()
+
     if (bus === null) {
       return Promise.resolve({
         ok: false,
@@ -632,6 +688,7 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     if (preferredTrigger(request) === null) {
       return Promise.resolve({
         ok: false,
@@ -641,8 +698,11 @@ export const backend: HotkeyBackend = {
         },
       })
     }
+
     resolveAppId(request)
+
     const portalId = livePortalIds.has(request.id) ? `${request.id}~${request.key}` : request.id
+
     live.set(request.key, { request, portalId, onPress })
     livePortalIds.set(portalId, request.key)
     return new Promise((resolve) => {

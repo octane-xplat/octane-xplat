@@ -6,6 +6,7 @@ import { localOutputFile } from './local-output.mjs'
 
 const inventory = process.argv[2] ?? 'research/desktop-audit/inventory.json'
 const findingsPath = process.argv[3]
+
 if (!findingsPath) {
   throw new Error(
     'Usage: node tools/desktop-support/render.mjs INVENTORY FINDINGS [OUTPUT_DIRECTORY]',
@@ -17,6 +18,7 @@ const output = (name) => localOutputFile(join(directory, name))
 const data = JSON.parse(readFileSync(inventory, 'utf8'))
 
 const findings = JSON.parse(readFileSync(findingsPath, 'utf8'))
+
 for (const f of findings) {
   for (const path of f.evidence) {
     if (!existsSync(path)) {
@@ -45,18 +47,23 @@ const toolPackages = new Set([
 
 const scope = (row) => {
   const name = row.package.replace('@octane-xplat/', '')
+
   if (toolPackages.has(name)) {
     return 'tooling/types/other-host; not native app parity'
   }
+
   if (['./ios', './android', './web', './linux', './windows', './macos'].includes(row.subpath)) {
     return 'platform-authentic entry; applicable only to its documented host'
   }
+
   if (row.symbol === '* (OS SDK bindings)') {
     return 'upstream OS SDK aggregate; individual SDK members excluded'
   }
+
   if (!row.symbol) {
     return 'type/asset entry; no runtime value identified'
   }
+
   return 'runtime export'
 }
 
@@ -154,6 +161,7 @@ for (const target of ['windows', 'macos', 'gtk']) {
 }
 
 const candidates = {}
+
 for (const [target, graph] of Object.entries(data.dependencyGraphs)) {
   candidates[target] = Object.fromEntries(
     Object.entries(graph)

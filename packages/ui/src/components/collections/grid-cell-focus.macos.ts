@@ -15,6 +15,7 @@ function refreshRoots() {
     rootsPending = true
     return
   }
+
   refreshingRoots = true
   try {
     do {
@@ -32,6 +33,7 @@ function refreshRoots() {
 
 function flag(view: any, name: string, fallback = false): boolean {
   const value = view?.[name]
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -65,15 +67,21 @@ export function createAppKitGridCellFocus(
     registered: NSView | null = null,
     off: (() => void) | undefined,
     index = 0
+
   const replaceRoot = (next: NSView | null) => {
     if (next === registered) {
       return
     }
+
     const previous = registered
+
     registered = next
+
     let changed = false
+
     if (previous) {
       const count = (roots.get(previous) ?? 1) - 1
+
       if (count) {
         roots.set(previous, count)
       } else {
@@ -81,6 +89,7 @@ export function createAppKitGridCellFocus(
         changed = true
       }
     }
+
     if (next) {
       if (!roots.has(next)) {
         changed = true
@@ -88,31 +97,40 @@ export function createAppKitGridCellFocus(
 
       roots.set(next, (roots.get(next) ?? 0) + 1)
     }
+
     if (changed) {
       refreshRoots()
     }
   }
+
   const root = () => {
     const next = deps.root()
+
     if (active) {
       replaceRoot(next)
     }
+
     return next
   }
+
   const cells = (): NSView[] => {
     const view = root(),
       read = bridge()?.readGridCells
+
     if (!view || typeof read !== 'function') {
       return []
     }
+
     const found = read(
       view,
       [...roots.keys()].filter((other) => other !== view),
     )
+
     return Array.isArray(found)
       ? found.filter((view) => view && (typeof view === 'object' || typeof view === 'function'))
       : []
   }
+
   const makeNavigation = () =>
     createAppKitGridNavigation(
       {
@@ -125,17 +143,22 @@ export function createAppKitGridCellFocus(
       native,
       bridge,
     )
+
   let navigation = makeNavigation()
   const valid = () =>
     [deps.options().rows, deps.options().columns].every(
       (value) => Number.isSafeInteger(value) && value > 0,
     )
+
   const available = (): boolean =>
     !disposed && valid() && typeof bridge()?.readGridCells === 'function' && navigation.available()
+
   const stop = () => {
     active = false
     rootReaders.delete(refreshBoundary)
+
     const cleanup = off
+
     off = undefined
     try {
       cleanup?.()
@@ -143,6 +166,7 @@ export function createAppKitGridCellFocus(
       replaceRoot(null)
     }
   }
+
   const refreshBoundary = () => {
     if (active && off) {
       if (!available()) {
@@ -157,17 +181,21 @@ export function createAppKitGridCellFocus(
       }
     }
   }
+
   const start = () => {
     if (disposed || active) {
       return
     }
+
     // A later render may retry a missing/failed bridge using a fresh native owner.
     if (!navigation.available()) {
       navigation = makeNavigation()
     }
+
     if (!available()) {
       return
     }
+
     active = true
     rootReaders.add(refreshBoundary)
     root()
@@ -176,18 +204,22 @@ export function createAppKitGridCellFocus(
       stop()
     }
   }
+
   const synchronize = (): void => {
     if (disposed) {
       return
     }
+
     if (!available()) {
       stop()
       start()
       return
     }
+
     if (!active) {
       start()
     }
+
     if (active) {
       try {
         navigation.synchronize()
@@ -196,10 +228,12 @@ export function createAppKitGridCellFocus(
       }
     }
   }
+
   const focusCell = (next: number): boolean => {
     if (!active || !available() || !Number.isSafeInteger(next)) {
       return false
     }
+
     try {
       const ownerRoot = root()
       const list = cells(),
@@ -218,6 +252,7 @@ export function createAppKitGridCellFocus(
       }
 
       const accepted = cells().indexOf(list[clamped])
+
       if (accepted < 0) {
         return false
       }
@@ -227,15 +262,18 @@ export function createAppKitGridCellFocus(
       stop()
       return false
     }
+
     deps.changed(index)
     return true
   }
+
   const dispose = (): void => {
     if (!disposed) {
       disposed = true
       stop()
     }
   }
+
   return {
     available,
     synchronize,
@@ -256,21 +294,27 @@ export function createAppKitGridCellFocus(
       ) {
         return
       }
+
       synchronize()
       if (!active || !available()) {
         return
       }
+
       let list: NSView[]
+
       try {
         list = cells()
       } catch {
         stop()
         return
       }
+
       const current = list.indexOf(event.target as NSView)
+
       if (current < 0 || !enabled(list[current])) {
         return
       } // Descendant text controls keep their editing keys.
+
       const columns = deps.options().columns
       const delta =
         event.key === 'ArrowRight'
@@ -282,26 +326,33 @@ export function createAppKitGridCellFocus(
               : event.key === 'ArrowUp'
                 ? -columns
                 : 0
+
       let next =
         event.key === 'Home'
           ? 0
           : event.key === 'End'
             ? list.length - 1
             : Math.max(0, Math.min(current + delta, list.length - 1))
+
       if (!delta && event.key !== 'Home' && event.key !== 'End') {
         return
       } // Activation stays with each cell.
+
       const step = event.key === 'Home' ? 1 : event.key === 'End' ? -1 : delta
+
       while (next >= 0 && next < list.length && !enabled(list[next])) {
         next += step
       }
+
       if (next < 0 || next >= list.length) {
         return
       }
+
       if (next === current) {
         event.preventDefault()
         return
       }
+
       if (focusCell(next)) {
         event.preventDefault()
         deps.options().onFocusChange?.(index)

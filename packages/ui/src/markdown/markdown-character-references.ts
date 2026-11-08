@@ -28,6 +28,7 @@ function namedReference(name: string): string | undefined {
       namedReferences.set(entry.slice(0, separator), String.fromCodePoint(...codePoints))
     }
   }
+
   return namedReferences.get(name)
 }
 
@@ -46,19 +47,25 @@ export function matchCharacterReference(
   start: number,
 ): { value: string; end: number } | null {
   const match = CHARACTER_REFERENCE.exec(text.slice(start, start + 40))
+
   if (match == null) {
     return null
   }
+
   const [reference, hex, decimal, name] = match
   const end = start + reference.length
+
   if (name != null) {
     const value = namedReference(name)
+
     return value === undefined ? null : { value, end }
   }
+
   const codePoint = hex != null ? parseInt(hex, 16) : parseInt(decimal ?? '0', 10)
   // NUL, surrogates, and values past Unicode become the replacement character.
   const isValid =
     codePoint !== 0 && codePoint <= 0x10ffff && (codePoint < 0xd800 || codePoint > 0xdfff)
+
   return { value: isValid ? String.fromCodePoint(codePoint) : '\uFFFD', end }
 }
 
@@ -76,10 +83,13 @@ export function decodeLiteralText(text: string): string {
   if (!text.includes('\\') && !text.includes('&')) {
     return text
   }
+
   let output = ''
   let index = 0
+
   while (index < text.length) {
     const character = text[index]
+
     if (character === '\\' && index + 1 < text.length && isAsciiPunctuation(text[index + 1])) {
       output += text[index + 1]
       index += 2
@@ -88,6 +98,7 @@ export function decodeLiteralText(text: string): string {
 
     if (character === '&') {
       const reference = matchCharacterReference(text, index)
+
       if (reference != null) {
         output += reference.value
         index = reference.end
@@ -98,6 +109,7 @@ export function decodeLiteralText(text: string): string {
     output += character
     index++
   }
+
   return output
 }
 
@@ -122,8 +134,10 @@ export function decodeMarkdownCharacterReferences(text: string): string {
   let output = ''
   let index = 0
   let ampersand = text.indexOf('&')
+
   while (ampersand !== -1) {
     const reference = matchCharacterReference(text, ampersand)
+
     if (reference == null) {
       ampersand = text.indexOf('&', ampersand + 1)
       continue
@@ -133,5 +147,6 @@ export function decodeMarkdownCharacterReferences(text: string): string {
     index = reference.end
     ampersand = text.indexOf('&', index)
   }
+
   return index === 0 ? text : output + text.slice(index)
 }

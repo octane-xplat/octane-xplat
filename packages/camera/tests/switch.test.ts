@@ -26,6 +26,7 @@ async function setup() {
     cancel: ReturnType<typeof vi.fn>
     commit: ReturnType<typeof vi.fn>
   }[] = []
+
   const backend: CameraSessionBackend = {
     platform: 'test',
     supported: true,
@@ -44,6 +45,7 @@ async function setup() {
       const result = Promise.withResolvers<CameraDeviceInfo>()
       const cancel = vi.fn()
       const commit = vi.fn()
+
       swaps.push({ result, cancel, commit })
       return { completion: result.promise, cancel, commit }
     }),
@@ -66,12 +68,17 @@ async function setup() {
     openOutput: async () => ({ url: 'file:///take.mov', release: () => {} }),
     release: vi.fn(async () => {}),
   }
+
   const session = new SharedCameraSession(backend, { audio: true })
   const events: CameraSessionEvent[] = []
+
   session.subscribe((e) => events.push(e))
+
   const onReady = vi.fn()
   const detach = session.attach({}, { onReady })
+
   preview?.onReady?.()
+
   const finish = () =>
     sink.settled({
       kind: 'clip',
@@ -88,6 +95,7 @@ async function setup() {
       orientation: 'portrait',
       hasAudio: true,
     })
+
   return {
     session,
     backend,
@@ -112,6 +120,7 @@ describe('switching cameras within one take', () => {
     const take = h.session.startRecording()
     const before = h.session.snapshot().attempt
     const flip = h.session.switchCamera('front')
+
     expect(h.session.snapshot().switchingCamera).toBe(true)
     await expect(h.session.switchCamera('back')).rejects.toMatchObject({ kind: 'busy' })
     await flush()
@@ -125,6 +134,7 @@ describe('switching cameras within one take', () => {
       activeCamera: { id: 'synthetic-front' },
       attempt: { id: take.id, configuration: before!.configuration },
     })
+
     expect(h.backend.stopCapture).not.toHaveBeenCalled()
     expect(take.stop()).toBe(take.completion)
     h.finish()
@@ -133,6 +143,7 @@ describe('switching cameras within one take', () => {
       clip: { hasAudio: true },
       partial: false,
     })
+
     expect(h.events.filter((e) => e.type === 'started')).toHaveLength(1)
     expect(h.events.filter((e) => e.type === 'finished')).toHaveLength(1)
     await h.session.dispose()
@@ -140,16 +151,19 @@ describe('switching cameras within one take', () => {
 
   it('rejects unavailable devices and unsupported hosts before a native swap; same camera is a no-op', async () => {
     const h = await setup()
+
     h.session.startRecording()
     await h.session.switchCamera('back')
     await expect(h.session.switchCamera({ deviceId: 'missing' })).rejects.toMatchObject({
       kind: 'unsupportedConfiguration',
       operation: 'switchCamera',
     })
+
     h.capabilities.cameraSwitchDuringRecording = false
     await expect(h.session.switchCamera('front')).rejects.toMatchObject({
       kind: 'unsupportedConfiguration',
     })
+
     expect(h.backend.switchCamera).not.toHaveBeenCalled()
     h.finish()
     await h.session.dispose()
@@ -157,8 +171,11 @@ describe('switching cameras within one take', () => {
 
   it('keeps recording after a restored swap rejects and permits another request', async () => {
     const h = await setup()
+
     h.session.startRecording()
+
     const flip = h.session.switchCamera('front')
+
     await flush()
     h.swaps[0]!.result.reject(new Error('restored previous source'))
     await expect(flip).rejects.toThrow('restored previous source')
@@ -167,6 +184,7 @@ describe('switching cameras within one take', () => {
       switchingCamera: false,
       activeCamera: { facing: 'back' },
     })
+
     await h.session.switchCamera('back')
     expect(h.backend.stopCapture).not.toHaveBeenCalled()
     h.finish()
@@ -175,14 +193,18 @@ describe('switching cameras within one take', () => {
 
   it('rejects a known missing facing but delegates unlabeled directions to the backend', async () => {
     const h = await setup()
+
     h.session.startRecording()
     h.capabilities.cameras = h.capabilities.cameras.filter((camera) => camera.facing === 'back')
     await expect(h.session.switchCamera('front')).rejects.toMatchObject({
       kind: 'unsupportedConfiguration',
     })
+
     expect(h.backend.switchCamera).not.toHaveBeenCalled()
     h.capabilities.cameras = h.capabilities.cameras.map(({ facing: _facing, ...camera }) => camera)
+
     const flip = h.session.switchCamera('front')
+
     await flush()
     h.swaps[0]!.result.resolve({ id: 'browser-front', label: 'Camera' })
     await flip
@@ -196,10 +218,12 @@ describe('switching cameras within one take', () => {
     const take = h.session.startRecording()
     const flip = h.session.switchCamera('front')
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     await flush()
     h.swaps[0]!.cancel.mockImplementation(() => {
       throw new Error('native cancellation failure')
     })
+
     expect(take.stop()).toBe(take.completion)
     await rejected
     expect(h.backend.stopCapture).toHaveBeenCalledTimes(1)
@@ -215,24 +239,32 @@ describe('switching cameras within one take', () => {
       const take = h.session.startRecording()
       const flip = h.session.switchCamera('front')
       const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
       await flush()
+
       let disposal: Promise<void> | undefined
+
       if (ending === 'stop') {
         take.stop()
         take.stop()
       }
+
       if (ending === 'dispose') {
         disposal = h.session.dispose()
       }
+
       if (ending === 'limit') {
         h.limit()
       }
+
       if (ending === 'interruption') {
         h.interrupt()
       }
+
       if (ending === 'detach') {
         h.detach()
       }
+
       await rejected
       expect(h.swaps[0]!.cancel).toHaveBeenCalledTimes(1)
       h.finish()
@@ -249,6 +281,7 @@ describe('switching cameras within one take', () => {
           detach: 'previewReleased',
         }[ending],
       })
+
       await (disposal ?? h.session.dispose())
     },
   )
@@ -256,10 +289,13 @@ describe('switching cameras within one take', () => {
   it('does not begin a native swap when stop overtakes capability discovery', async () => {
     const h = await setup()
     const pending = Promise.withResolvers<typeof h.capabilities>()
+
     vi.mocked(h.backend.getCapabilities).mockReturnValueOnce(pending.promise)
+
     const take = h.session.startRecording()
     const flip = h.session.switchCamera('front')
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     take.stop()
     await rejected
     pending.resolve(h.capabilities)
@@ -271,15 +307,22 @@ describe('switching cameras within one take', () => {
 
   it('rejects idle, starting, finalizing and disposed states', async () => {
     const session = createSyntheticCameraSession({}, { startDelayMs: 100 })
+
     await expect(session.switchCamera('front')).rejects.toMatchObject({ kind: 'invalidState' })
+
     // Use the deterministic seam for starting before any native callback.
     const { attachSessionPreview } = await import('../src/session')
+
     attachSessionPreview(session, {})
     await flush()
+
     const take = session.startRecording()
+
     await expect(session.switchCamera('front')).rejects.toMatchObject({ kind: 'invalidState' })
     await take.stop()
+
     const h = await setup()
+
     h.session.startRecording().stop()
     await expect(h.session.switchCamera('front')).rejects.toMatchObject({ kind: 'invalidState' })
     h.finish()
@@ -293,10 +336,12 @@ it('commits a provisional source only after checking the still-active take', asy
   const h = await setup()
   const take = h.session.startRecording()
   const flip = h.session.switchCamera('front')
+
   await flush()
   h.swaps[0]!.commit.mockImplementation(() =>
     expect(h.session.snapshot().activeCamera?.facing).toBe('back'),
   )
+
   h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
   await flip
   expect(h.swaps[0]!.commit).toHaveBeenCalledOnce()
@@ -311,6 +356,7 @@ it('does not commit when stop wins after acquisition but before the continuation
   const take = h.session.startRecording()
   const flip = h.session.switchCamera('front')
   const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
   await flush()
   h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
   take.stop()
@@ -327,10 +373,12 @@ it('cancels a failed commit without changing the selected camera or ending the t
   const flip = h.session.switchCamera('front')
   const error = new Error('Native acknowledgement failed')
   const rejected = expect(flip).rejects.toBe(error)
+
   await flush()
   h.swaps[0]!.commit.mockImplementation(() => {
     throw error
   })
+
   h.swaps[0]!.result.resolve({ id: 'synthetic-front', label: 'Front', facing: 'front' })
   await rejected
   expect(h.swaps[0]!.cancel).toHaveBeenCalledOnce()

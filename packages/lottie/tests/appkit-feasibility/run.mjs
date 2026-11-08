@@ -58,7 +58,9 @@ const animation = {
 }
 
 await mkdir(join(repo, 'research'), { recursive: true })
+
 const app = await mkdtemp(join(repo, 'research/lottie-appkit-'))
+
 await mkdir(join(app, 'node_modules'))
 await mkdir(join(app, 'node_modules/@octane-xplat'))
 await symlink(leaf, join(app, 'node_modules/@octane-xplat/lottie'))
@@ -72,17 +74,22 @@ await writeFile(
 
 const fixturePath = join(app, 'animation.json')
 const fixtureJSON = JSON.stringify(animation)
+
 await writeFile(fixturePath, fixtureJSON)
 
 console.log('Building the pinned Airbnb source through the production macOS native builder')
 process.chdir(app) // Swift auxiliary outputs stay in the ignored scratch app.
+
 const artifact = await buildMacOSNative(app)
+
 assert.ok(artifact.leaves.includes('@octane-xplat/lottie'))
 assert.ok(artifact.resources.some((resource) => resource.destination === 'PrivacyInfo.xcprivacy'))
 assert.ok(artifact.notices.some((notice) => notice.leaf === '@octane-xplat/lottie'))
 
 const bootstrap = join(app, 'bootstrap.js')
+
 await writeNativeBootstrap(artifact, bootstrap)
+
 const host = await macOSExecutable(app, 'macos/host')
 const result = await new Promise((resolveRun) => {
   const child = spawn(
@@ -105,6 +112,7 @@ const result = await new Promise((resolveRun) => {
   let stdout = ''
   let stderr = ''
   const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
+
   child.stdout.setEncoding('utf8').on('data', (chunk) => {
     stdout += chunk
   })

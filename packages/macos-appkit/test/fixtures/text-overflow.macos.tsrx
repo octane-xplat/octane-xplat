@@ -33,11 +33,14 @@ export default function Case() {
 
 export async function run(ctx: any) {
   await ctx.waitFor(() => ctx.find('title'))
+
   const view = ctx.find('title')
+
   ctx.assert('full source', String(view.stringValue), full)
   ctx.assert('full accessibility value', String(view.accessibilityValue), full)
   ctx.assert('single line', Number(view.maximumNumberOfLines), 1)
   ctx.assert('tail mode', Number(view.cell.lineBreakMode), 4)
+
   const small = view.cell.cellSizeForBounds({
     origin: { x: 0, y: 0 },
     size: { width: 120, height: 1000 },
@@ -62,6 +65,7 @@ export async function run(ctx: any) {
   ctx.host.window.setContentSize({ width: 120, height: 420 })
   change({ text: 'Short', maxLines: 1, textOverflow: 'clip', lineHeight: 24 })
   await ctx.waitFor(() => String(view.stringValue) === 'Short')
+
   const paragraph = view.attributedStringValue.attributeAtIndexEffectiveRange(
     NSParagraphStyleAttributeName,
     0,

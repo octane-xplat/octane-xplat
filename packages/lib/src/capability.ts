@@ -49,14 +49,17 @@ export class UnavailabilityError extends Error {
  */
 export function lookupGlobal(path: readonly [string, ...string[]]): unknown {
   let value: unknown = globalThis
+
   for (const key of path) {
     if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
       return undefined
     }
 
     const record = value as Record<string, unknown>
+
     value = key in record ? record[key] : undefined
   }
+
   return value
 }
 

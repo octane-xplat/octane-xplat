@@ -12,10 +12,12 @@ const runtimeUrl = pathToFileURL(require.resolve('octane/universal/native')).hre
 const { compile } = await import(pathToFileURL(require.resolve('octane/compiler')))
 const { createObjectContainer, createObjectDriver, createUniversalRoot } = await import(runtimeUrl)
 const directory = mkdtempSync(join(tmpdir(), 'xplat-windows-pressable-'))
+
 after(() => rmSync(directory, { recursive: true, force: true }))
 
 function moduleFile(name, code) {
   const path = join(directory, name + '.mjs')
+
   writeFileSync(path, code)
   return pathToFileURL(path).href
 }
@@ -32,10 +34,13 @@ function compiled(name, source, imports = {}, template = true) {
         },
       }).code
     : source
+
   code = code.replace(/from\s*(['"])([^'"]+)\1/g, (match, quote, specifier) => {
     const target = specifier === 'octane' ? runtimeUrl : imports[specifier]
+
     return target ? 'from ' + JSON.stringify(target) : match
   })
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -458,8 +463,10 @@ function mount(component, props) {
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const nodes = () => {
     const visit = (children) => children.flatMap((node) => [node, ...visit(node.children ?? [])])
+
     return visit(container.children)
   }
+
   root.render(component, props)
   return { root, nodes, render: (props) => root.render(component, props) }
 }
@@ -470,8 +477,10 @@ test('Windows TabList mounts and refreshes controlled tabs without adding peers'
   const first = []
   const current = []
   const f = mount(TabFixture, { value: 'first', label: 'First', onChange: (v) => first.push(v) })
+
   try {
     const peers = () => f.nodes().filter((n) => n.type === 'xplatwindowsbutton')
+
     assert.equal(peers().length, 3)
     assert.equal(peers()[1].props.isEnabled, false)
     peers()[2].props.settings.onPress()
@@ -486,6 +495,7 @@ test('Windows TabList mounts and refreshes controlled tabs without adding peers'
   } finally {
     f.root.unmount()
   }
+
   assert.equal(f.nodes().length, 0)
 })
 
@@ -498,8 +508,10 @@ test('Windows panel tabs keep header slots and current callbacks without button 
     label: 'First',
     onChange: (value) => old.push(value),
   })
+
   try {
     const headers = () => f.nodes().filter((node) => node.type === 'xplatwindowstabheader')
+
     assert.equal(headers().length, 3)
     assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowstabstrip').length, 1)
     assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowsbutton').length, 0)
@@ -524,11 +536,13 @@ test('Windows panel tabs keep header slots and current callbacks without button 
   } finally {
     f.root.unmount()
   }
+
   assert.equal(f.nodes().length, 0)
 })
 
 test('Windows navigation tabs retain the shared button and href path', () => {
   const f = mount(WindowsTabFixture, { value: 'first', label: 'First', onChange: () => {} })
+
   try {
     assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowsbutton').length, 3)
     assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowstabstrip').length, 0)
@@ -541,6 +555,7 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
   const first = () => {}
   const next = () => {}
   const f = mount(Pressable, { accessibilityLabel: 'First', onPress: first })
+
   try {
     const inputs = () =>
       f.nodes().filter((n) => n.type === 'xplatwindowsbutton' || n.type === 'xplatwindowslink')
@@ -571,6 +586,7 @@ test('Windows Pressable mounts a native host and updates its peer kind and callb
 
 test('Windows Link gives primitive children a text host inside its hyperlink peer', () => {
   const f = mount(Link, { href: 'https://example.com', children: 'Details' })
+
   try {
     assert.equal(f.nodes().filter((n) => n.type === 'xplatwindowslink').length, 1)
     assert.equal(f.nodes().filter((n) => n.type === 'label').length, 1)
@@ -606,12 +622,15 @@ test('Windows Banner renders and updates its public header, body and presentatio
     elevation: 'low',
     style: { width: 240 },
   })
+
   try {
     assert.ok(text(f).includes('Saved'))
     assert.ok(text(f).includes('Your changes are ready'))
     assert.ok(text(f).includes('More information'))
     assert.ok(text(f).includes('0'))
+
     const host = () => f.nodes().find((node) => node.props.id === 'notice')
+
     assert.equal(host().props.accessibilityLabel, 'Saved')
     assert.equal(host().props.accessibilityLiveRegion, 'polite')
     assert.equal(host().props.style.width, 240)
@@ -647,6 +666,7 @@ test('Windows Banner dismisses once through its current native action and resets
   let first = 0
   let latest = 0
   const f = mount(Banner, { title: 'Saved', onDismiss: () => first++ })
+
   try {
     assert.equal(buttons(f).length, 1)
     assert.equal(buttons(f)[0].props.settings.label, 'Dismiss Saved')
@@ -654,7 +674,9 @@ test('Windows Banner dismisses once through its current native action and resets
     f.render({ title: 'Updated', onDismiss: () => latest++ })
     assert.equal(buttons(f).length, 1)
     assert.equal(buttons(f)[0].props.settings.label, 'Dismiss Updated')
+
     const activate = buttons(f)[0].props.settings.onPress
+
     activate()
     activate()
     await settle()
@@ -664,7 +686,9 @@ test('Windows Banner dismisses once through its current native action and resets
   } finally {
     f.root.unmount()
   }
+
   const remounted = mount(Banner, { title: 'Saved', isDismissable: true })
+
   try {
     assert.ok(text(remounted).includes('Saved'))
     assert.equal(buttons(remounted).length, 1)
@@ -678,6 +702,7 @@ test('Windows Banner dismisses once through its current native action and resets
 
 test('Windows Banner details use the real Collapsible and Windows action leaf', async () => {
   const f = mount(Banner, { title: 'Saved', children: 'Details body' })
+
   try {
     assert.ok(!text(f).includes('Details body'))
     assert.ok(text(f).includes('Details'))
@@ -692,7 +717,9 @@ test('Windows Banner details use the real Collapsible and Windows action leaf', 
   } finally {
     f.root.unmount()
   }
+
   const open = mount(Banner, { title: 'Saved', children: 42, collapsible: { defaultIsOpen: true } })
+
   try {
     assert.ok(text(open).includes('42'))
   } finally {
@@ -711,8 +738,10 @@ export function WithSlots(props) @{
   </Banner>
 }`,
   )
+
   const { WithSlots } = await import(fixture)
   const f = mount(WithSlots, { title: 'Composed title', children: 'Composed body' })
+
   try {
     for (const value of [
       'Composed icon',
@@ -735,6 +764,7 @@ export function WithSlots(props) @{
 
 test('Windows Badge preserves zero, primitive runs and children precedence through updates', () => {
   const f = mount(Badge, { id: 'badge', children: 'Ready', label: 'Ignored' })
+
   try {
     assert.deepEqual(text(f), ['Ready'])
     f.render({ id: 'badge', children: 0, label: 'Ignored' })
@@ -759,8 +789,10 @@ export function BadgeWithSlots(props) @{
   <Badge>{'Count '}{props.count}<label text="Composed" />{props.suffix}</Badge>
 }`,
   )
+
   const { BadgeWithSlots } = await import(fixture)
   const f = mount(BadgeWithSlots, { count: 0, suffix: ' total' })
+
   try {
     assert.deepEqual(text(f), ['Count 0', 'Composed', ' total'])
     f.render({ count: 2, suffix: ' ready' })
@@ -772,6 +804,7 @@ export function BadgeWithSlots(props) @{
 
 test('Windows Card gives primitive slots text hosts and updates explicit padding without losing theme defaults', () => {
   const f = mount(Card, { id: 'card', header: 'Header', children: 0, footer: 'Footer', padding: 2 })
+
   try {
     const host = () => f.nodes().find((node) => node.props.id === 'card')
     const edges = () =>
@@ -802,9 +835,12 @@ test('Windows ClickableCard preserves text, current callbacks and disabled seman
     padding: 2,
     onPress: () => first++,
   })
+
   try {
     assert.deepEqual(text(f), ['0'])
+
     const host = () => f.nodes().find((node) => node.props.id === 'clickable')
+
     assert.equal(host().props.style.paddingLeft, 8)
     assert.equal(buttons(f).length, 1)
     buttons(f)[0].props.settings.onPress()
@@ -841,12 +877,16 @@ test('Windows ListItem renders primitive slots without creating an action peer',
     children: 'Body',
     endContent: 0,
   }
+
   const f = mount(ListRowWithContext, props)
+
   try {
     assert.deepEqual(text(f), ['Leading', '0', 'Details', 'Body', '0'])
     assert.equal(buttons(f).length, 0)
     assert.equal(f.nodes().filter((node) => node.type === 'xplatwindowslink').length, 0)
+
     const host = f.nodes().find((node) => node.props.id === 'row')
+
     assert.ok(host.props.className.includes('vx-listitem--density-compact'))
     assert.equal(host.props.onTap, undefined)
     f.render({ ...props, density: 'balanced' })
@@ -865,6 +905,7 @@ test('Windows ListItem uses one native action with current names, callbacks and 
   let first = 0
   let current = 0
   const f = mount(ListItem, { id: 'row', label: 'Open', onPress: () => first++ })
+
   try {
     assert.equal(buttons(f).length, 1)
     assert.equal(buttons(f)[0].props.settings.label, 'Open')
@@ -901,9 +942,12 @@ test('Windows ListItem uses one native action with current names, callbacks and 
 
 test('Windows ListItem routes a hyperlink peer through its current href and rejects disabled navigation', async () => {
   const { followed } = await import(support)
+
   followed.length = 0
+
   const f = mount(ListItem, { label: 'Details', accessibilityLabel: 'Destination', href: '/first' })
   const links = () => f.nodes().filter((node) => node.type === 'xplatwindowslink')
+
   try {
     assert.equal(links().length, 1)
     assert.equal(links()[0].props.settings.label, 'Destination')
@@ -926,6 +970,7 @@ test('Windows sortable header uses one native peer and retains controlled sort c
   const onSortChange = (next) => requests.push(next)
   const column = { key: 'name', header: 'Name', sortable: true }
   const f = mount(SortableHeader, { column, content: 'Name', config: { sort: [], onSortChange } })
+
   try {
     assert.equal(buttons(f).length, 1)
     assert.equal(buttons(f)[0].props.settings.label, 'Sort by Name')
@@ -968,6 +1013,7 @@ test('Windows sortable header reads current config and preserves zero and compon
     content: 'Name',
     config: { sort: [], onSortChange: () => stale++ },
   })
+
   try {
     const oldHandler = buttons(f)[0].props.settings.onPress
     const config = {
@@ -1004,6 +1050,7 @@ test('Windows Selector compiled container keeps finite state ownership and curre
     { value: 'disabled', label: 'Unavailable', isDisabled: true },
     { value: 'third', label: 'Third' },
   ]
+
   const f = mount(WindowsSelect, {
     id: 'choice',
     options,
@@ -1012,7 +1059,9 @@ test('Windows Selector compiled container keeps finite state ownership and curre
     accessibilityLabel: 'Pick',
     onValueChange: (value) => calls.push(value),
   })
+
   const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsselect')
+
   try {
     assert.equal(peer().props.settings.value, 'first')
     assert.equal(peer().props.settings.label, 'Pick')
@@ -1050,17 +1099,20 @@ test('Windows Selector compiled container keeps finite state ownership and curre
   } finally {
     f.root.unmount()
   }
+
   assert.equal(f.nodes().length, 0)
 })
 
 test('Windows Selector compiled uncontrolled choice closes once and async failure restores its previous value', async () => {
   const calls = [],
     opens = []
+
   let reject
   const options = [
     { value: 'a', label: 'A' },
     { value: 'b', label: 'B' },
   ]
+
   const props = {
     options,
     defaultValue: 'a',
@@ -1072,8 +1124,10 @@ test('Windows Selector compiled uncontrolled choice closes once and async failur
         reject = fail
       }),
   }
+
   const f = mount(WindowsSelect, props),
     peer = () => f.nodes().find((n) => n.type === 'xplatwindowsselect')
+
   try {
     peer().props.settings.onPick('b')
     await new Promise((resolve) => setTimeout(resolve, 0))
@@ -1106,8 +1160,10 @@ test('Windows DropdownMenu compiled leaf keeps controlled ownership and current 
     items: [{ type: 'action', key: 'first', label: 'First', onSelect: () => calls.push('old') }],
     onOpenChange: (open) => calls.push(open),
   }
+
   const f = mount(WindowsDropdownMenu, props)
   const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsmenu')
+
   try {
     buttons(f)[0].props.settings.onPress()
     assert.deepEqual(calls, [true])
@@ -1140,7 +1196,9 @@ test('Windows DropdownMenu compiled leaf keeps controlled ownership and current 
     assert.equal(peer().props.settings.open, true)
     f.render({ ...props, isDisabled: true })
     assert.equal(peer().props.settings.blocked, true)
+
     const count = calls.length
+
     buttons(f)[0].props.settings.onPress()
     assert.equal(calls.length, count)
   } finally {
@@ -1156,9 +1214,11 @@ test('Windows DropdownMenu compiled leaf shares uncontrolled state across suppor
     items: [{ type: 'action', key: 'first', label: 'First' }],
     onOpenChange: (open) => opens.push(open),
   }
+
   const f = mount(WindowsDropdownMenu, props)
   const peer = () => f.nodes().find((n) => n.type === 'xplatwindowsmenu')
   const tick = () => new Promise((resolve) => setTimeout(resolve, 0))
+
   try {
     assert.equal(peer().props.settings.open, true)
     peer().props.settings.onOpenChange(false)
@@ -1171,7 +1231,9 @@ test('Windows DropdownMenu compiled leaf shares uncontrolled state across suppor
     assert.equal(peer().props.settings.open, true)
     f.render({ ...props, menuWidth: 200 })
     assert.equal(peer(), undefined)
+
     let fallback = f.nodes().find((n) => n.props.id === 'shared-menu-fallback')
+
     assert.equal(fallback.props.accessibilityValue, 'open')
     fallback.props.settings.toggle()
     await tick()

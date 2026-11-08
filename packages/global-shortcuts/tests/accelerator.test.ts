@@ -4,23 +4,28 @@ import { linuxKeysym, macKeyCode, parseAccelerator, windowsKeyMapping } from '..
 
 const ok = (input: string, platform?: 'mac' | 'windows' | 'linux') => {
   const result = parseAccelerator(input, platform ? { platform } : undefined)
+
   if (!result.ok) {
     throw new Error(result.error.message)
   }
+
   return result.accelerator
 }
 
 const bad = (input: string, platform?: 'mac' | 'windows' | 'linux') => {
   const result = parseAccelerator(input, platform ? { platform } : undefined)
+
   if (result.ok) {
     throw new Error(`expected ${input} to be rejected`)
   }
+
   return result.error
 }
 
 describe('parseAccelerator', () => {
   it('normalizes modifiers to canonical order and case', () => {
     const accelerator = ok('shift+ctrl+keyk', 'windows')
+
     expect(accelerator).toMatchObject({ ctrl: true, shift: true, alt: false, meta: false })
     expect(accelerator.code).toBe('KeyK')
     expect(accelerator.text).toBe('Ctrl+Shift+KeyK')
@@ -49,6 +54,7 @@ describe('parseAccelerator', () => {
 
   it('rejects single letters and digits with a physical-code hint', () => {
     const error = bad('k', 'mac')
+
     expect(error.code).toBe('invalid-accelerator')
     expect(error.message).toContain('KeyK')
     expect(bad('5', 'mac').code).toBe('invalid-accelerator')

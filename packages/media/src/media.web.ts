@@ -7,6 +7,7 @@ import type { CapturePhotoOptions, MediaImpl, MediaPermissionKind, PickedImage }
 function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promise<File[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
+
     input.type = 'file'
     input.accept = 'image/*'
     input.multiple = multiple
@@ -48,6 +49,7 @@ function selectFiles(multiple: boolean, capture?: 'user' | 'environment'): Promi
 
 async function imageRefs(selected: File[]): Promise<PickedImage[]> {
   const refs: PickedImage[] = []
+
   try {
     for (const file of selected) {
       refs.push({ name: file.name, uri: URL.createObjectURL(file) })
@@ -79,6 +81,7 @@ export const media: Service<MediaImpl> = {
   /** Opens the browser image picker; returns null when selection is canceled. */
   async pickImage(): Promise<PickedImage | null> {
     const [image] = await pickFiles(false)
+
     return image ?? null
   },
   /** Opens the browser image picker with multiple selection enabled. */
@@ -95,6 +98,7 @@ export const media: Service<MediaImpl> = {
   async capturePhoto(options?: CapturePhotoOptions): Promise<PickedImage | null> {
     const facing = options?.cameraFacing === 'front' ? 'user' : 'environment'
     const [file] = await selectFiles(false, facing)
+
     if (!file) {
       return null
     }
@@ -103,6 +107,7 @@ export const media: Service<MediaImpl> = {
     // never has to catch a read or persistence failure here.
     try {
       const [image] = await imageRefs([file])
+
       return image ?? null
     } catch {
       return null
@@ -121,6 +126,7 @@ export const media: Service<MediaImpl> = {
 // See media.ts — registers the kinds this leaf owns for the platform
 // permissions dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.camera = {
   getPermissions: () => media.getPermissions('camera'),
   requestPermissions: () => media.requestPermissions('camera'),

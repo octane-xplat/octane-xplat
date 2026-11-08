@@ -85,6 +85,7 @@ export function defineNativeTransition(
   ) {
     throw new TypeError('Expected a native page factory or view transition')
   }
+
   const view = options.view
     ? Object.freeze({
         ...options.view,
@@ -94,6 +95,7 @@ export function defineNativeTransition(
             : checkedNativeViewValues(options.view.from),
       })
     : undefined
+
   if (
     view &&
     (!Number.isFinite(view.duration ?? 240) ||
@@ -103,7 +105,9 @@ export function defineNativeTransition(
   ) {
     throw new TypeError('Expected a nonnegative view duration and a supported SDK curve')
   }
+
   const definition = Object.freeze({ kind: 'native' }) as NativeTransitionDefinition
+
   definitions.set(definition, Object.freeze({ ...options, view }))
   return definition
 }
@@ -119,23 +123,31 @@ export function resolveNativePageTransition(
     animated: false,
     result: { status: 'skipped', reason } as RouteTransitionResult,
   })
+
   if (name === 'none' || definition?.kind === 'skip') {
     return skipped('disabled')
   }
+
   const options = definition?.kind === 'native' ? definitions.get(definition) : undefined
+
   if (options && !options.page) {
     return skipped('unsupported')
   }
+
   if (!options && (definition || (name && !['default', 'fade'].includes(name)))) {
     return skipped('unsupported')
   }
+
   if (options?.reducedMotion !== 'allow' && readNativeReducedMotion()) {
     return skipped('reduced-motion')
   }
+
   const page = options?.page
+
   if (options && page) {
     try {
       const transition = page(context)
+
       if (!transition || typeof transition !== 'object') {
         throw new TypeError('A native transition factory must return NavigationTransition')
       }
@@ -151,6 +163,7 @@ export function resolveNativePageTransition(
       return { animated: false, result: { status: 'failed', error } }
     }
   }
+
   return { animated: true, transition: name === 'fade' ? { name: 'fade' } : undefined }
 }
 
@@ -170,12 +183,15 @@ export function checkedNativeViewValues(
   if (!values || typeof values !== 'object' || Array.isArray(values)) {
     throw new TypeError('Expected native view starting values')
   }
+
   if (isThenable(values)) {
     // Drain so an unhandled rejection does not surface after the throw.
     void Promise.resolve(values).catch(() => {})
     throw new TypeError('Native view starting values must be synchronous')
   }
+
   const captured: NativeViewTransitionValues = {}
+
   for (const [key, value] of Object.entries(values)) {
     if (
       !Object.hasOwn(neutralViewValues, key) ||
@@ -189,6 +205,7 @@ export function checkedNativeViewValues(
       captured[key as keyof NativeViewTransitionValues] = value
     }
   }
+
   return Object.freeze(captured)
 }
 
@@ -207,13 +224,16 @@ export function resolveNativeViewTransition(
   if (!name || name === 'none' || definition?.kind === 'skip' || context.action === 'refresh') {
     return { status: 'skipped', reason: 'disabled' }
   }
+
   const options = definition?.kind === 'native' ? definitions.get(definition) : undefined
   const view =
     options?.view ??
     (!definition && name === 'fade' ? { from: { opacity: 0 }, duration: 240 } : undefined)
+
   if (!view) {
     return { status: 'skipped', reason: 'unsupported' }
   }
+
   try {
     if (options?.reducedMotion !== 'allow' && readNativeReducedMotion()) {
       return { status: 'skipped', reason: 'reduced-motion' }

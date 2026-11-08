@@ -20,6 +20,7 @@ function escapeAttribute(value: string): string {
  */
 export function iconToSvg(icon: IconifyIcon, options: IconOptions = {}): IconSvg {
   const size = options.size ?? 24
+
   if (!Number.isFinite(size) || size <= 0) {
     throw new RangeError('Icon size must be finite and positive')
   }
@@ -36,6 +37,7 @@ export function iconToSvg(icon: IconifyIcon, options: IconOptions = {}): IconSvg
   const viewBox = result.attributes.viewBox
   const width = Number(result.attributes.width)
   const height = Number(result.attributes.height)
+
   return {
     body,
     viewBox,

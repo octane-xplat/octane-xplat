@@ -28,33 +28,42 @@ const server = createServer((req, res) => {
     'dist',
     pathname.replace(/^\/workshop\//, '').replace(/^\/template-assets\//, 'template-assets/'),
   )
+
   if (file !== resolve(root, 'dist') && !file.startsWith(resolve(root, 'dist') + '/')) {
     res.writeHead(404).end()
     return
   }
+
   if (existsSync(file) && statSync(file).isDirectory()) {
     file = resolve(file, 'index.html')
   }
+
   if (!existsSync(file)) {
     res.writeHead(404).end()
     return
   }
+
   res.setHeader('content-type', mime[extname(file)] ?? 'application/octet-stream')
   res.end(readFileSync(file))
 })
 
 await new Promise<void>((done) => server.listen(0, '127.0.0.1', done))
+
 const address = server.address()
+
 if (!address || typeof address === 'string') {
   throw new Error('Missing test address')
 }
 
 const base = `http://127.0.0.1:${address.port}/workshop/`
 let browser
+
 try {
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
   const errors: string[] = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(base)
   await page.waitForSelector('.xw-gallery section:visible')
@@ -64,11 +73,15 @@ try {
   )
 
   assert.equal(await page.locator('.xw-gallery section').count(), Object.keys(catalog).length)
+
   const components = page.getByRole('tab', { name: 'Components', exact: true })
   const primitives = page.getByRole('tab', { name: 'Primitives', exact: true })
+
   assert.equal(await components.getAttribute('aria-selected'), 'true')
+
   const componentCount = await page.locator('section[data-group="components"]').count()
   const primitiveCount = await page.locator('section[data-group="primitives"]').count()
+
   assert.ok(componentCount > 0 && primitiveCount > 0)
   assert.equal(componentCount + primitiveCount, Object.keys(catalog).length)
   assert.equal(await page.locator('section:visible').count(), componentCount)
@@ -114,6 +127,7 @@ try {
     )
 
     const group = await card.getAttribute('data-group')
+
     await (group === 'primitives' ? primitives : components).click()
     await card.scrollIntoViewIfNeeded()
 
@@ -170,6 +184,7 @@ try {
   // Exercise every representative in its actual compiled frame, without image capture.
   const failures: string[] = []
   const runnable = Object.keys(catalog).filter((key) => !catalog[key].capabilities?.length)
+
   for (const name of runnable) {
     await page.addInitScript(() => {
       window.addEventListener('message', (event) => {
@@ -202,6 +217,7 @@ try {
 
       if (name === 'Button') {
         const primary = page.getByRole('button', { name: 'Primary', exact: true })
+
         assert.equal(
           await primary.evaluate((node) => getComputedStyle(node).backgroundColor),
           'rgb(0, 100, 224)',

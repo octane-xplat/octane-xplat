@@ -7,11 +7,13 @@ import { useCallback, useLayoutEffect, useRef } from 'octane'
 import { appKitHost } from '../../internal/platform/host-bridge'
 import { cx } from '@octane-xplat/lib'
 import { TextSlot } from '../forms/text-slot.tsrx'
+
 export function SelectableCard(props: SelectableCardProps): unknown @{
   const view = useRef<NSView | null>(null)
   const release = useRef<(() => void) | null>(null)
   const bind = useCallback((target: NSView | null) => {
     const previous = view.current
+
     release.current?.()
     release.current = null
     view.current = target
@@ -20,16 +22,19 @@ export function SelectableCard(props: SelectableCardProps): unknown @{
 
   useLayoutEffect(() => {
     const target = view.current
+
     if (!target || !props.isDisabled) {
       return
     }
 
     const retain = appKitHost()?.retainDisabledFocus
+
     if (typeof retain !== 'function') {
       return
     }
 
     const dispose = retain(target)
+
     if (typeof dispose !== 'function') {
       throw new Error('AppKit disabled focus ownership unavailable')
     }

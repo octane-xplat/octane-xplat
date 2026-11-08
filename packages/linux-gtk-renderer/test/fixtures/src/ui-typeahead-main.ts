@@ -23,7 +23,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -50,6 +52,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -59,6 +62,7 @@ const findByType = (type: string, pred?: (n: any) => boolean): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -74,6 +78,7 @@ const findByTypeUnder = (type: string, ancestorId: string): any => {
       }
     }
   }
+
   return null
 }
 
@@ -85,6 +90,7 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -93,6 +99,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -103,18 +110,22 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -123,12 +134,15 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
@@ -137,10 +151,12 @@ const pickAt = (abs: { x: number; y: number }): string => {
   const [wx, wy] = window.get_surface_transform()
   let w: any = window.pick(abs.x - wx, abs.y - wy, Gtk.PickFlags.DEFAULT)
   const chain: string[] = []
+
   while (w) {
     chain.push(`${w.constructor?.name ?? 'W'}#${w.get_name?.() ?? ''}`)
     w = w.get_parent?.() ?? null
   }
+
   return chain.join('<')
 }
 
@@ -150,15 +166,19 @@ const describePoint = (widget: any) => {
   const [ok, rect] = widget.compute_bounds(native)
   const [tx, ty] = native.get_surface_transform()
   const chain: any[] = []
+
   for (let s = native.get_surface(); s && typeof s.get_parent === 'function'; s = s.get_parent()) {
     const p = s.get_parent()
+
     chain.push({
       name: s.constructor?.name,
       pos: [s.get_position_x?.(), s.get_position_y?.()],
       hasParent: p != null,
     })
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   print(
     'GTK_TA_GEOM ' +
       JSON.stringify({
@@ -188,18 +208,21 @@ const ready = (payload: any) => {
         readyResolve = null
         resolve()
       }
+
       return false
     })
   })
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
@@ -222,21 +245,27 @@ async function run() {
 
   // Typeahead: click the input, type a filter, pick the row with a real click.
   const taInput = findByTypeUnder('textfield', 'ta')
+
   check('typeahead textfield present', !!taInput)
   if (taInput) {
     await clickAt(taInput)
     await pump(150)
   }
+
   await ready({ type: 'ap' })
   await pump(400)
+
   const apple = findLabel('Apple')
   const apricot = findLabel('Apricot')
+
   check('typing filters to Apple/Apricot', !!apple && !!apricot)
   check('non-matching Banana hidden', !findLabel('Banana'))
   if (apple) {
     describePoint(apple)
+
     // Walk to the option row (view-bearing ancestor with the option class).
     let rowNode: any = null
+
     for (const n of (container as any).nodes.values()) {
       try {
         if (!JSON.stringify(n.props).includes('Apple')) {
@@ -248,6 +277,7 @@ async function run() {
 
       for (let cur = n; cur; cur = cur.parent) {
         const cn = cur?.props?.className
+
         if (
           typeof cn === 'string' &&
           cn.includes('vx-typeahead-option') &&
@@ -264,21 +294,26 @@ async function run() {
     }
 
     print('GTK_TA_ROW ' + (rowNode ? String(rowNode.props.className) : 'none'))
+
     const target = rowNode?.view ?? apple
+
     describePoint(target)
     await clickAt(target)
     await pump(250)
   }
+
   check('option pick records value', state.typeaheadPick === 'apple')
   check('popover closes after pick', !findLabel('Apricot'))
   check('picked token renders', hasText('Apple'))
 
   // BaseTypeahead: no-match text, then query + Return picks the first row.
   const btaInput = findView('bta-input')
+
   if (btaInput) {
     await clickAt(btaInput)
     await pump(150)
   }
+
   await ready({ type: 'zzz' })
   await pump(400)
   check('empty result text shows', !!findLabel('No results found'))
@@ -286,6 +321,7 @@ async function run() {
     await clickAt(btaInput)
     await pump(100)
   }
+
   // Clear the field: select all then retype.
   await ready({ key: 'ctrl+a' })
   await ready({ type: 'ban' })
@@ -298,26 +334,33 @@ async function run() {
   // Token remove — the × affordance is a Pressable inside the token with
   // accessibilityLabel 'Remove <label>'.
   const tokRemove = findLabel('Remove REMOVABLE')
+
   check('token remove pressable present', !!tokRemove)
   if (tokRemove) {
     print('GTK_TA_PICK2 ' + pickAt(point(tokRemove)))
     await clickAt(tokRemove)
     await pump(150)
   }
+
   check('token remove fires', state.tokenRemove >= 1)
+
   const tokClick = findView('tok-click')
+
   if (tokClick) {
     await clickAt(tokClick)
     await pump(150)
   }
+
   check('token click fires', state.tokenClick >= 1)
 
   // Tokenizer: type a query, Return picks the highlighted row → add.
   const tkzInput = findByTypeUnder('textfield', 'tkz')
+
   if (tkzInput) {
     await clickAt(tkzInput)
     await pump(150)
   }
+
   await ready({ type: 'ban' })
   await pump(450)
   check('tokenizer menu shows Banana', !!findLabel('Banana'))
@@ -336,10 +379,12 @@ async function run() {
 
   // Remove a token via its × Pressable — 'Remove <label>' accessibility label.
   const removeBtn = findLabel('Remove Banana')
+
   if (removeBtn) {
     await clickAt(removeBtn)
     await pump(250)
   }
+
   check(
     'token remove via × fires',
     state.tokenizerChanges.some((c) => c.startsWith('remove:')),
@@ -348,28 +393,36 @@ async function run() {
   // ComplexSelector — trigger opens the popover; row commit writes value.
   await ready({ key: 'Escape' })
   await pump(200)
+
   const csTrigger = findLabel('Select option')
+
   check('complex trigger present', !!csTrigger)
   if (csTrigger) {
     await clickAt(csTrigger)
     await pump(350)
   }
+
   check('complex selector popover opens', !!findLabel('CS-OPTION-B'))
   check('complex open reported', state.complexOpened >= 1)
+
   const row = findLabel('CS-OPTION-B')
+
   if (row) {
     await clickAt(row)
     await pump(250)
   }
+
   check('complex select commits value', state.complexValue === 'CS-OPTION-B')
   check('complex popover closes after commit', !findLabel('CS-OPTION-C'))
 
   // SelectableCard — click toggles through onChange.
   const card = findView('card')
+
   if (card) {
     await clickAt(card)
     await pump(150)
   }
+
   check('card select toggles', state.cardSelects.includes(true))
 
   // Teardown.
@@ -381,6 +434,7 @@ async function run() {
   print(
     'GTK_TA ' + JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   window.destroy()
   loop.quit()
 }

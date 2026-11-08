@@ -61,7 +61,9 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
   }
 
   const live = useRef({ props, open, setOpen })
+
   live.current = { props, open, setOpen }
+
   const returnOwner = useMemo(
     () =>
       createAppKitMenuReturn({
@@ -118,6 +120,7 @@ export function ContextMenu(props: NavigationMenuImplementation<ContextMenuProps
     }
 
     const target = appKitContextMenuOrigin(anchor.current, event.target)
+
     if (!target) {
       return
     }

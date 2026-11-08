@@ -11,6 +11,7 @@ import { createPortalObjectDriver } from '../../../tests/portal-object-driver'
 import { Popover } from './Popover.macos.tsrx'
 import { LayerDepthContext } from './layer-dismissal.tsrx'
 import { dispatchLayerKey } from './layer-stack'
+
 vi.mock('./layer-keys', () => import('./layer-keys.ts'))
 
 const Project = createContext('missing'),
@@ -26,6 +27,7 @@ function ProjectLabel() {
 }
 
 afterEach(() => vi.unstubAllGlobals())
+
 function fixture(initial: any = {}) {
   const observers = new Map<object, any>(),
     layers: any[] = [],
@@ -40,6 +42,7 @@ function fixture(initial: any = {}) {
         callback: any,
       ) {
         const token = {}
+
         observers.set(token, callback)
         return token
       },
@@ -95,6 +98,7 @@ function fixture(initial: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -115,6 +119,7 @@ function fixture(initial: any = {}) {
 
 it('portals current provider content and layer depth without a standalone render or extra show', async () => {
   const f = fixture()
+
   try {
     await f.settle()
     expect(f.layers).toHaveLength(1)
@@ -168,9 +173,12 @@ it('uses current controlled dismissal and Escape policy while a rejected close r
 
 it('honors defaultOpen, closes itself on dismissal and retires held native callbacks', async () => {
   const f = fixture({ open: undefined, defaultOpen: true })
+
   try {
     await f.settle()
+
     const old = f.layers[0]
+
     old.options.onClose()
     await f.settle()
     expect(old.closed).toBe(true)

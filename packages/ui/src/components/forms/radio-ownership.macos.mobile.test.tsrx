@@ -10,9 +10,12 @@ import {
 import { RadioGroup } from './RadioGroup.macos.tsrx'
 import { RadioListItem } from './RadioListItem.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(extra: any = {}, inherited = false) {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
 
@@ -53,6 +56,7 @@ function mount(extra: any = {}, inherited = false) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -63,7 +67,9 @@ function mount(extra: any = {}, inherited = false) {
     flushUniversalSync(() => {})
     for (const node of all()) {
       node.window = window
+
       const children = node.children ?? []
+
       node.subviews = { count: children.length, objectAtIndex: (index: number) => children[index] }
       node.isAccessibilityEnabled = () => !node.props?.accessibilityState?.disabled
       node.scrollRectToVisible = vi.fn()
@@ -211,7 +217,9 @@ it('keyboard selection uses the current callback and native owner, then held key
     expect(notify).toHaveBeenCalledExactlyOnceWith('b')
     expect(f.window.firstResponder).toBe(f.rows()[1])
     f.root.unmount()
+
     const count = f.window.makeFirstResponder.mock.calls.length
+
     expect(f.key(key, 'ArrowUp').defaultPrevented).toBe(false)
     expect(f.window.makeFirstResponder).toHaveBeenCalledTimes(count)
   } finally {

@@ -17,6 +17,7 @@ const embedder = () => ({
 
 function fixture(t) {
   const cacheDir = mkdtempSync(join(tmpdir(), 'xplat-docs-search-'))
+
   t.after(() => rmSync(cacheDir, { recursive: true, force: true }))
   return { cacheDir, binding: 'release-a', embedder: embedder() }
 }
@@ -24,8 +25,10 @@ function fixture(t) {
 test('chunks preserve fenced headings, examples, source lines and historical release identity', () => {
   const content =
     '# Changelog\n\n## [Octane Xplat 2.0.0](tag) - 2026-10-31\n\n### Retain screens\n\nUse retention.\n\n```ts\n// example\n# not a heading\n```\n\n## [Octane Xplat 1.0.0](tag) - 2026-09-01\n\n### Earlier feature\n\nOld behavior.\n'
+
   const chunks = chunkMarkdown(document('CHANGELOG.md', content, 'changelog'))
   const hit = chunks.find((c) => c.heading === 'Retain screens')
+
   assert.equal(hit.releaseVersion, '2.0.0')
   assert.equal(hit.releaseDate, '2026-10-31')
   assert.match(hit.content, /```ts\n\/\/ example\n# not a heading\n```/)
@@ -37,6 +40,7 @@ test('chunks preserve fenced headings, examples, source lines and historical rel
       .join('\n')
       .trim(),
   )
+
   assert.equal(chunks.at(-1).releaseVersion, '1.0.0')
 })
 
@@ -46,25 +50,35 @@ test('hybrid retrieves paraphrases, reuses embeddings and isolates version snaps
     document('routes.md', '# Navigation\n\nRetain inactive screens.'),
     document('camera.md', '# Photography\n\nTake pictures.'),
   ]
+
   const cold = await searchIndex({ ...ctx, documents, query: 'remember' })
+
   assert.equal(cold.retrieval.reason, 'index-not-ready')
   assert.equal(ctx.embedder.calls, 0)
+
   const first = await prepareIndex({ ...ctx, documents })
+
   assert.equal(first.embedded, 2)
+
   let prepared = 0
+
   ctx.embedder.prepare = async () => {
     prepared++
   }
+
   assert.equal((await prepareIndex({ ...ctx, documents })).embedded, 0)
   assert.equal(
     prepared,
     1,
     'Preparation must repair/check model files even when embeddings are cached',
   )
+
   const found = await searchIndex({ ...ctx, documents, query: 'remember' })
+
   assert.equal(found.retrieval.used, 'hybrid')
   assert.equal(found.results[0].path, 'routes.md')
   assert.equal(found.results.length, 1)
+
   const changed = [document('camera.md', '# Photography\n\nTake pictures.')]
   const newer = await searchIndex({
     ...ctx,
@@ -72,6 +86,7 @@ test('hybrid retrieves paraphrases, reuses embeddings and isolates version snaps
     documents: changed,
     query: 'remember',
   })
+
   assert.equal(newer.results.length, 0)
   assert.notEqual(found.retrieval.snapshot, newer.retrieval.snapshot)
 })
@@ -79,9 +94,12 @@ test('hybrid retrieves paraphrases, reuses embeddings and isolates version snaps
 test('content changes invalidate linked checkout embeddings; unchanged files remain reusable', async (t) => {
   const ctx = fixture(t)
   const documents = [document('routes.md', '# Navigation\n\nRetain screens.')]
+
   await prepareIndex({ ...ctx, documents })
+
   const edited = [document('routes.md', '# Navigation\n\nDestroy screens.')]
   const cold = await searchIndex({ ...ctx, documents: edited, query: 'screens' })
+
   assert.equal(cold.retrieval.reason, 'index-not-ready')
   assert.match(cold.results[0].content, /Destroy/)
   assert.equal((await prepareIndex({ ...ctx, documents: edited })).embedded, 1)
@@ -90,14 +108,19 @@ test('content changes invalidate linked checkout embeddings; unchanged files rem
 test('a new backend identity requires fresh embeddings and preserves lexical fallback until prepared', async (t) => {
   const ctx = fixture(t)
   const documents = [document('routes.md', '# Navigation\n\nRetain inactive screens.')]
+
   await prepareIndex({ ...ctx, documents })
+
   const replacement = { ...embedder(), id: 'fixture-wasm-v1' }
   const options = { ...ctx, documents, embedder: replacement }
   const before = await searchIndex({ ...options, query: 'screens' })
+
   assert.equal(before.retrieval.reason, 'index-not-ready')
   assert.equal(replacement.calls, 0)
   assert.equal((await prepareIndex(options)).embedded, 1)
+
   const after = await searchIndex({ ...options, query: 'remember' })
+
   assert.equal(after.retrieval.used, 'hybrid')
   assert.equal(after.results[0].path, 'routes.md')
 })
@@ -105,21 +128,26 @@ test('a new backend identity requires fresh embeddings and preserves lexical fal
 test('keyword identifiers survive punctuation; unavailable model falls back explicitly', async (t) => {
   const ctx = fixture(t)
   const documents = [document('api.md', '# API\n\nUse RouteOutlet and captureV2().')]
+
   await prepareIndex({ ...ctx, documents })
+
   const broken = {
     id: ctx.embedder.id,
     async embed() {
       throw new Error('offline')
     },
   }
+
   const found = await searchIndex({
     ...ctx,
     embedder: broken,
     documents,
     query: 'captureV2() " OR *',
   })
+
   assert.equal(found.retrieval.reason, 'model-unavailable')
   assert.equal(found.results[0].path, 'api.md')
+
   const exact = await searchIndex({
     ...ctx,
     embedder: broken,
@@ -127,6 +155,7 @@ test('keyword identifiers survive punctuation; unavailable model falls back expl
     mode: 'lexical',
     query: 'RouteOutlet',
   })
+
   assert.equal(exact.retrieval.used, 'lexical')
   assert.equal(exact.retrieval.reason, undefined)
 })

@@ -4,6 +4,7 @@ import type { WebViewHandle, WebViewLoadEvent, WebViewContentSize } from '@octan
 import type { WebViewMessageEvent } from '@octane-xplat/ui'
 
 declare const __GTK_WEBVIEW_POST_SOURCE__: string
+
 export const MESSAGE_DOC =
   '<html><body><script type="module">' +
   __GTK_WEBVIEW_POST_SOURCE__ +

@@ -8,7 +8,9 @@ import { build } from 'vite'
 
 const host = process.env.SHORTCUTS_GTK_HOST
 const vm = process.env.SHORTCUTS_GTK_VM ?? 'octane-linux'
+
 assert.ok(host, 'Set SHORTCUTS_GTK_HOST to a Linux host or an OrbStack Mac host')
+
 const q = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const prefix = process.env.SHORTCUTS_GTK_VM ? `orb -m ${q(vm)} -w /tmp ` : ''
 const run = (script, input) =>
@@ -20,6 +22,7 @@ const run = (script, input) =>
 
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-shortcuts-gtk-'))
 let remote
+
 try {
   await build({
     configFile: false,
@@ -40,6 +43,7 @@ try {
   remote = run('mktemp -d /tmp/xplat-shortcuts-XXXXXX').trim()
   assert.match(remote, /^\/tmp\/xplat-shortcuts-[A-Za-z0-9]+$/)
   run(`cat > ${q(remote + '/input.js')}`, readFileSync(join(temporary, 'input.js')))
+
   const driver = `
 set -eu
 cd ${q(remote)}

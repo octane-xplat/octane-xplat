@@ -61,8 +61,10 @@ const selectorsByTarget = {
 // rather than passed inline; resolve the nearest `.target = <expr>` around it.
 function nearbyTarget(index) {
   let best = null
+
   for (const match of source.matchAll(/\.target\s*=\s*([\w$]+)/g)) {
     const distance = Math.abs(match.index - index)
+
     if (distance < 500 && (best === null || distance < best.distance)) {
       best = { target: match[1], distance }
     }
@@ -117,6 +119,7 @@ test('every assigned action string has an exact metadata selector, without infer
     }
 
     const registered = selectorsByTarget[target]
+
     assert.ok(
       registered,
       `action '${selector}' is attached to '${target}', which has no ObjCExposedMethods entry`,
@@ -140,6 +143,7 @@ test('text edit/focus delegates declare the exact one-argument selectors and kee
     'textDidEndEditing',
   ]) {
     const selector = name + ':'
+
     assert.equal(ButtonActionTarget.ObjCExposedMethods[selector]?.params.length, 1, selector)
     assert.equal(ButtonActionTarget.ObjCExposedMethods[name], undefined, name)
     assert.equal(typeof ButtonActionTarget.prototype[name], 'function', name)
@@ -156,9 +160,11 @@ test('control/menu action metadata uses full selectors and native registration e
     assert.equal(target.ObjCExposedMethods[name], undefined)
     assert.equal(typeof target.prototype[name], 'function')
   }
+
   const menuSource = source.slice(
     source.indexOf('class MenuActionTarget'),
     source.indexOf('menuActionTarget = MenuActionTarget.new()'),
   )
+
   assert.match(menuSource, /registerGestureClass\(this\)/)
 })

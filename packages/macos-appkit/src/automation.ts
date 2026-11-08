@@ -34,6 +34,7 @@ export function createAutomation(deps: Dependencies) {
       const debug = {
         findId(id: string) {
           const node = allNodes().find((node) => node.props.id === id)
+
           return node &&
             [
               'proxyviewcontainer',
@@ -61,6 +62,7 @@ export function createAutomation(deps: Dependencies) {
           let lastMappedRow = -1
           const mountedRows: { index: number; height: number }[] = []
           const scrollViews: PropBag[] = []
+
           for (const node of container.nodes.values()) {
             nodeTypes[node.type] = (nodeTypes[node.type] ?? 0) + 1
             if (node.view) {
@@ -69,6 +71,7 @@ export function createAutomation(deps: Dependencies) {
 
             if (node.type === 'scrollview' && node.view) {
               const bounds = node.view.contentView.bounds
+
               scrollViews.push({
                 id: node.props.id ?? null,
                 verticalOffset: Number(bounds.origin.y ?? 0),
@@ -78,12 +81,15 @@ export function createAutomation(deps: Dependencies) {
             }
 
             const match = /^(?:row-r|bench-row-)(\d+)$/.exec(String(node.props.id ?? ''))
+
             if (!match) {
               continue
             }
 
             mappedRowCount += 1
+
             const index = Number(match[1])
+
             firstMappedRow = Math.min(firstMappedRow, index)
             lastMappedRow = Math.max(lastMappedRow, index)
             if (node.parent !== null) {
@@ -131,6 +137,7 @@ export function createAutomation(deps: Dependencies) {
           }
 
           const clipView = (node.view! as NSScrollView).contentView
+
           clipView.scrollToPoint({ x: 0, y: Math.max(0, Number(offset) || 0) })
           node.view!.reflectScrolledClipView(clipView)
           return Number(clipView.bounds.origin.y ?? 0)
@@ -155,6 +162,7 @@ export function createAutomation(deps: Dependencies) {
           const flipped = Boolean(doc.flipped)
           const t = Math.min(Math.max(Number(top) || 0, 0), Math.max(0, docH - clipH))
           const y = flipped ? t : docH - clipH - t
+
           clipView.scrollToPoint({ x: 0, y })
           node.view!.reflectScrolledClipView(clipView)
           return flipped
@@ -189,6 +197,7 @@ export function createAutomation(deps: Dependencies) {
 
           const rows = deps.measurements.descendants(node).flatMap((child) => {
             const match = /^vlist-bench-row-(\d+)$/.exec(String(child.props?.id ?? ''))
+
             if (!match || !child.view) {
               return []
             }
@@ -200,6 +209,7 @@ export function createAutomation(deps: Dependencies) {
               const h = Number(inDoc.size.height)
               const y = Number(inDoc.origin.y)
               const top = flipped ? y - originY : originY + clipH - y - h
+
               return [{ index: Number(match[1]), top, bottom: top + h }]
             } catch {
               return []
@@ -218,6 +228,7 @@ export function createAutomation(deps: Dependencies) {
         frameInWindow(id: string) {
           if (id === ':host') {
             const winFrame = container.hostView.window?.frame
+
             return {
               x: 0,
               y: 0,
@@ -243,6 +254,7 @@ export function createAutomation(deps: Dependencies) {
           }
 
           const rect = node.view!.convertRectToView(node.view!.bounds, null)
+
           return {
             x: Number(rect.origin.x),
             y: Number(rect.origin.y),
@@ -261,6 +273,7 @@ export function createAutomation(deps: Dependencies) {
           // Single-key writes merge into the node's inline style bag; the
           // cascade re-derives the effective style from it.
           const style = { ...node.props?.style }
+
           if (value == null) {
             delete style[name]
           } else {
@@ -281,6 +294,7 @@ export function createAutomation(deps: Dependencies) {
           }
 
           const chain: PropBag[] = []
+
           for (let cur: ElementNode | null = node; cur; cur = cur.parent) {
             chain.push({
               id: cur.props.id ?? null,
@@ -320,12 +334,14 @@ export function createAutomation(deps: Dependencies) {
 
           container.hostView.window?.contentView?.layoutSubtreeIfNeeded?.()
           scroll.view!.layoutSubtreeIfNeeded?.()
+
           const doc = scroll.view!.documentView
           const clip = scroll.view!.contentView
           const docH = Number(doc.frame.size.height)
           const clipH = Number(clip.bounds.size.height)
           const flipped = Boolean(doc.flipped)
           const cells = []
+
           for (const cell of stage.children) {
             if (!cell.view || !nodeClasses(cell).includes('parity-cell')) {
               continue
@@ -333,6 +349,7 @@ export function createAutomation(deps: Dependencies) {
 
             const inDoc = cell.view.convertRectToView(cell.view.bounds, doc)
             const inWindow = cell.view.convertRectToView(cell.view.bounds, null)
+
             cells.push({
               name: String(cell.props.id ?? '').replace(/^cell-/, ''),
               top: flipped
@@ -351,6 +368,7 @@ export function createAutomation(deps: Dependencies) {
           }
 
           const scrollInWindow = scroll.view!.convertRectToView(scroll.view!.bounds, null)
+
           return {
             docHeight: docH,
             viewportHeight: clipH,
@@ -390,6 +408,7 @@ export function createAutomation(deps: Dependencies) {
           const view = node.view
           const appearance = view.effectiveAppearance ?? view.window?.effectiveAppearance
           const nativeWindow = view.window
+
           return {
             type: node.type,
             classes: nodeClasses(node),
@@ -471,6 +490,7 @@ export function createAutomation(deps: Dependencies) {
         },
         pressId(id: string) {
           const node = allNodes().find((candidate) => candidate.props.id === id)
+
           if (!node || node.actionId === undefined) {
             throw new Error('No AppKit pressable with id ' + id)
           }
@@ -534,11 +554,13 @@ export function createAutomation(deps: Dependencies) {
           }
 
           const record = deps.hover.hoverRecordByView.get(node.view!)
+
           if (!record) {
             throw new Error('No hover observer on ' + id)
           }
 
           const handler = phase === 'exit' ? record.exit : record.enter
+
           if (typeof handler !== 'function') {
             throw new Error('No ' + phase + ' handler on ' + id)
           }
@@ -567,8 +589,10 @@ export function createAutomation(deps: Dependencies) {
         if (Reflect.get(root, '__macosDebug') === debug) {
           Reflect.deleteProperty(root, '__macosDebug')
         }
+
         if (Reflect.get(globalThis, '__xplatMacOSDebug') === debug) {
           const latest = [...debugRoots.values()].at(-1)
+
           if (latest) {
             Object.defineProperty(globalThis, '__xplatMacOSDebug', {
               value: latest,
@@ -581,13 +605,16 @@ export function createAutomation(deps: Dependencies) {
       }
     }
   }
+
   let activated = false
   function activate() {
     if (activated) {
       return
     }
+
     deps.directory.observe((container) => installAutomation(container.root!, container))
     activated = true
   }
+
   return { activate }
 }

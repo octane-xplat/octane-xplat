@@ -8,10 +8,14 @@ import { chromium } from 'playwright'
 
 const app = new URL('../', import.meta.url)
 const allocation = createServer()
+
 allocation.listen(0, '127.0.0.1')
 await once(allocation, 'listening')
+
 const port = allocation.address().port
+
 await new Promise((resolve) => allocation.close(resolve))
+
 const base = `http://127.0.0.1:${port}`
 const server = spawn(
   process.execPath,
@@ -28,6 +32,7 @@ const server = spawn(
 )
 
 let serverOutput = ''
+
 server.stdout.on('data', (data) => {
   serverOutput += data
 })
@@ -67,16 +72,22 @@ try {
   }
 
   browser = await chromium.launch()
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(5000)
+
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
+
   const go = async (route) => {
     await page.goto(`${base}/pages/${route}/?embed=1`, { waitUntil: 'networkidle' })
   }
 
   const has = async (text) => {
     const body = await page.locator('body').innerText()
+
     assert.ok(body.includes(text), `missing ${text}: ${body.slice(-1600)}`)
   }
 
@@ -136,10 +147,12 @@ try {
       await page.getByRole('checkbox', { name: 'Enable notifications' }).isChecked(),
       true,
     )
+
     assert.equal(
       await page.getByRole('checkbox', { name: 'Subscribe to updates' }).isChecked(),
       false,
     )
+
     assert.equal(
       await page.getByRole('textbox', { name: 'Name', exact: true }).inputValue(),
       'Porter',
@@ -153,6 +166,7 @@ try {
       await page.getByRole('navigation', { name: 'center-aligned navigation' }).count(),
       2,
     )
+
     await page.getByRole('button', { name: 'Right', exact: true }).click()
     assert.equal(await page.getByRole('navigation', { name: 'end-aligned navigation' }).count(), 2)
   })
@@ -169,7 +183,9 @@ try {
 
   await test('docs home filters and restores the gallery', async () => {
     await go('doc-home')
+
     const input = page.getByRole('textbox', { name: 'Search', exact: true })
+
     await input.fill('no-match-217a2e51')
     assert.equal(await page.locator('a:has(.vx-card)').count(), 0)
     await input.fill('')
@@ -180,7 +196,9 @@ try {
     await go('doc-discover')
     await page.getByRole('radio', { name: 'Tools', exact: true }).click()
     await has('Theme Editor')
+
     const input = page.getByRole('textbox').first()
+
     await input.fill('no-match-217a2e51')
     await has('No results')
     await input.fill('theme')
@@ -197,18 +215,24 @@ try {
 
   await test('custom link provider and per-link override intercept real clicks', async () => {
     await go('polymorphic-link')
+
     const logs = []
     const onConsole = (message) => logs.push(message.text())
+
     page.on('console', onConsole)
+
     const before = page.url()
+
     await page
       .getByRole('navigation', { name: 'Provider demo navigation' })
       .getByRole('link', { name: 'Products', exact: true })
       .click()
+
     await page
       .getByRole('navigation', { name: 'Override demo navigation' })
       .getByRole('link', { name: 'Products', exact: true })
       .click()
+
     assert.equal(page.url(), before)
     assert.ok(logs.some((line) => line.includes('[SimulatedNextLink]')))
     assert.ok(logs.some((line) => line.includes('[GreenLink]')))
@@ -217,12 +241,14 @@ try {
 
   await test('motion lab rail swaps reduced-motion policy and compare panes', async () => {
     await go('motion-lab/tokens')
+
     const scope = page.locator('.ml-scope')
     const pick = async (name, expected) => {
       await page.getByRole('radio', { name, exact: true }).focus()
       await page.keyboard.press('Space')
       assert.equal(await scope.getAttribute('data-reduced-motion'), expected)
     }
+
     await pick('Degrade', 'degrade')
     await pick('Delete', 'delete')
     await pick('Off', 'off')
@@ -235,7 +261,9 @@ try {
 
   await test('motion lab token slider tunes a token and marks the rail dirty', async () => {
     await go('motion-lab/tokens')
+
     const slider = page.getByRole('slider').first()
+
     await slider.focus()
     await page.keyboard.press('ArrowRight')
     await page.keyboard.press('ArrowRight')
@@ -248,17 +276,22 @@ try {
     await page
       .getByRole('switch', { name: 'Derive the timer from the transition', exact: true })
       .click()
+
     await has('100% of the slide runs')
   })
 
   await test('motion examples toggles reduced motion and opens a dialog', async () => {
     await go('motion-examples')
+
     const sw = page.getByRole('switch', { name: 'Simulate reduced motion', exact: true })
+
     await sw.focus()
     await page.keyboard.press('Space')
     assert.equal(await sw.isChecked(), true)
     await page.getByRole('button', { name: 'Open modal', exact: true }).click()
+
     const dialog = page.locator('dialog[open]')
+
     await dialog.waitFor({ state: 'attached' })
     await page.waitForSelector('dialog[open]')
     await dialog.press('Escape')
@@ -268,7 +301,9 @@ try {
 
   await test('mobile type toggles the adaptation switch', async () => {
     await go('mobile-type')
+
     const sw = page.getByRole('switch', { name: 'Mobile adaptation', exact: true })
+
     await sw.focus()
     await page.keyboard.press('Space')
     assert.equal(await sw.isChecked(), false)
@@ -279,9 +314,11 @@ try {
 
   await test('mobile prototypes opens a prototype from the nav', async () => {
     await go('mobile-prototypes')
+
     const nav = page.locator('nav').first()
     const item = nav.getByRole('button').nth(2)
     const name = await item.innerText()
+
     await item.click()
     await has(name)
   })
@@ -314,8 +351,10 @@ try {
 
   await test('color studio adds/removes ramps and uses shared clipboard feedback', async () => {
     await go('color-studio')
+
     const hex = page.getByRole('textbox', { name: 'Hex', exact: true })
     const count = await hex.count()
+
     await page.getByRole('button', { name: 'Add color', exact: true }).click()
     assert.equal(await hex.count(), count + 1)
     await page.getByRole('button', { name: 'Remove', exact: true }).last().click()
@@ -339,7 +378,9 @@ try {
 
   await test('example collage edits controlled email and preserves other fields', async () => {
     await go('example-cards')
+
     const email = page.getByRole('textbox', { name: 'Email Address', exact: true })
+
     await email.fill('collage@example.test')
     assert.equal(await email.inputValue(), 'collage@example.test')
     await page.getByRole('textbox', { name: 'Notes', exact: true }).fill('Keep this note')
@@ -354,6 +395,7 @@ try {
         await page.getByRole('button', { name: 'Kalimba', exact: true }).getAttribute('class')
       ).includes('primary'),
     )
+
     await has('Sound Mixer')
   })
 
@@ -366,6 +408,7 @@ try {
       await page.getByRole('spinbutton', { name: 'Quantity', exact: true }).inputValue(),
       '2',
     )
+
     await page.getByRole('button', { name: 'Delivery & Returns', exact: true }).click()
     await has('Delivery')
     await page.getByRole('combobox', { name: 'View', exact: true }).click()
@@ -386,6 +429,7 @@ try {
       await page.getByRole('heading', { name: 'Shell Configuration', exact: true }).count(),
       0,
     )
+
     await page.getByRole('button', { name: /Config/ }).click()
     await page.getByRole('heading', { name: 'Shell Configuration', exact: true }).waitFor()
   })

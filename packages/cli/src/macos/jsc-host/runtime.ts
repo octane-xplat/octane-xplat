@@ -51,6 +51,7 @@ const machOArchNames = new Map([
 /** Slice `bytes` into thin Mach-O images: itself, or each fat-arch member. */
 function machOSlices(bytes) {
   const magic = bytes.readUInt32BE(0)
+
   if (magic !== 0xcafebabe && magic !== 0xcafebabf) {
     return [bytes]
   }
@@ -59,14 +60,17 @@ function machOSlices(bytes) {
   const count = bytes.readUInt32BE(4)
   const entrySize = wide ? 32 : 20
   const slices = []
+
   for (let index = 0; index < count; index++) {
     const entry = 8 + index * entrySize
+
     if (entry + entrySize > bytes.length) {
       break
     }
 
     const offset = wide ? Number(bytes.readBigUInt64BE(entry + 8)) : bytes.readUInt32BE(entry + 8)
     const size = wide ? Number(bytes.readBigUInt64BE(entry + 16)) : bytes.readUInt32BE(entry + 12)
+
     slices.push(bytes.subarray(offset, offset + size))
   }
 
@@ -87,13 +91,16 @@ export function inspectMachO(
 
   const found = new Set()
   let images = 0
+
   for (const slice of machOSlices(bytes)) {
     if (slice.length < 32 || slice.readUInt32LE(0) !== 0xfeedfacf) {
       continue
     }
 
     images++
+
     const arch = machOArchNames.get(slice.readUInt32LE(4))
+
     if (arch) {
       found.add(arch)
     }
@@ -117,6 +124,7 @@ function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
   const commands = slice.readUInt32LE(16)
   let offset = 32
   let minimumVersion
+
   for (let index = 0; index < commands; index++) {
     if (offset + 8 > slice.length) {
       issues.push(`${label} has truncated load commands`)
@@ -125,6 +133,7 @@ function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
 
     const command = slice.readUInt32LE(offset)
     const size = slice.readUInt32LE(offset + 4)
+
     if (size < 8 || offset + size > slice.length) {
       issues.push(`${label} has invalid load commands`)
       return
@@ -132,13 +141,16 @@ function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
 
     if (command === 0x32 && size >= 24) {
       const version = slice.readUInt32LE(offset + 12)
+
       minimumVersion = `${version >>> 16}.${(version >>> 8) & 255}`
     }
 
     if (command === 0xc && size >= 24) {
       const nameOffset = slice.readUInt32LE(offset + 8)
+
       if (nameOffset < size) {
         const name = slice.toString('utf8', offset + nameOffset, offset + size).split('\0')[0]
+
         if (name.startsWith('@rpath/')) {
           issues.push(`${label} requires an unpackaged library: ${name}`)
         }
@@ -153,6 +165,7 @@ function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
   } else {
     const [major, minor] = minimumVersion.split('.').map(Number)
     const [allowedMajor, allowedMinor] = minimumSystemVersion.split('.').map(Number)
+
     if (major > allowedMajor || (major === allowedMajor && minor > allowedMinor)) {
       issues.push(
         `${label} requires macOS ${minimumVersion}, above the declared ${minimumSystemVersion}`,
@@ -164,6 +177,7 @@ function inspectThinMachO(slice, label, issues, minimumSystemVersion) {
 export function inspectJscHost() {
   const issues = []
   let manifest
+
   try {
     manifest = JSON.parse(readFileSync(join(prebuiltRoot, 'manifest.json'), 'utf8'))
   } catch {
@@ -172,6 +186,7 @@ export function inspectJscHost() {
 
   for (const [relativePath, expectedHash] of Object.entries(manifest.sha256 ?? {})) {
     const path = join(prebuiltRoot, relativePath)
+
     if (!isFile(path)) {
       issues.push(`JavaScriptCore host file is missing: ${relativePath}`)
       continue
@@ -179,6 +194,7 @@ export function inspectJscHost() {
 
     const bytes = readFileSync(path)
     const actualHash = createHash('sha256').update(bytes).digest('hex')
+
     if (actualHash !== expectedHash) {
       issues.push(`JavaScriptCore host checksum mismatch: ${relativePath}`)
     }
@@ -190,6 +206,7 @@ export function inspectJscHost() {
       // is expected (it resolves Xcode/CLT libclang at run time), unlike
       // the packaged host/framework which must stay self-contained.
       const generatorIssues = []
+
       inspectMachO(bytes, relativePath, generatorIssues, minimumJscHostSystemVersion)
       issues.push(...generatorIssues.filter((issue) => !issue.includes('unpackaged library')))
     }
@@ -242,8 +259,10 @@ function memberName(member) {
 
 function visitAst(root, callback) {
   const pending = [root]
+
   while (pending.length) {
     const node = pending.pop()
+
     if (!node || typeof node !== 'object' || typeof node.type !== 'string') {
       continue
     }
@@ -332,6 +351,7 @@ function walkHostMembers(ast, moduleOf, issues) {
   function declareVariable(node, current) {
     for (const item of node.declarations) {
       const module = moduleOf(item.init)
+
       declarationName(item.id, (name) =>
         current.bindings.set(name, item.id.type === 'Identifier' ? module : null),
       )
@@ -355,6 +375,7 @@ function walkHostMembers(ast, moduleOf, issues) {
   function visit(node, current) {
     if (node.type === 'Program' || isFunction(node)) {
       const nested = scope(current)
+
       if (node.type === 'Program') {
         for (const statement of node.body) {
           if (statement.type === 'VariableDeclaration' && statement.kind !== 'var') {
@@ -380,6 +401,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 
     if (node.type === 'BlockStatement') {
       const nested = scope(current)
+
       for (const statement of node.body) {
         if (statement.type === 'VariableDeclaration' && statement.kind !== 'var') {
           declareVariable(statement, nested)
@@ -402,6 +424,7 @@ function walkHostMembers(ast, moduleOf, issues) {
 
     if (node.type === 'CatchClause') {
       const nested = scope(current)
+
       declarationName(node.param, (name) => nested.bindings.set(name, null))
       visit(node.body, nested)
       return
@@ -414,6 +437,7 @@ function walkHostMembers(ast, moduleOf, issues) {
     ) {
       const nested = scope(current)
       const declaration = node.init ?? node.left
+
       if (declaration?.type === 'VariableDeclaration' && declaration.kind !== 'var') {
         declareVariable(declaration, nested)
       }
@@ -429,8 +453,10 @@ function walkHostMembers(ast, moduleOf, issues) {
           : moduleOf(node.object)
 
       const allowed = supportedMembers.get(owner)
+
       if (allowed) {
         const member = memberName(node)
+
         if (!member || !allowed.has(member)) {
           issues.add(`${owner}.${member ?? '[dynamic]'}`)
         }
@@ -460,6 +486,7 @@ export async function validateHostBundle(bundle, appRoot) {
     }
 
     const name = call.arguments?.[0]?.value
+
     return typeof name === 'string' ? name : null
   }
 
@@ -470,6 +497,7 @@ export async function validateHostBundle(bundle, appRoot) {
       node.callee.name === 'require'
     ) {
       const name = moduleOf(node)
+
       if (!name) {
         issues.add('dynamic require')
       } else if (!supportedImports.has(name)) {
@@ -486,9 +514,11 @@ export async function validateHostBundle(bundle, appRoot) {
     }
 
     const name = moduleOf(node.init)
+
     if (name && node.id.type === 'ObjectPattern') {
       for (const property of node.id.properties) {
         const member = property.key?.name ?? property.key?.value
+
         if (!supportedMembers.get(name)?.has(member)) {
           issues.add(`${name}.${String(member)}`)
         }

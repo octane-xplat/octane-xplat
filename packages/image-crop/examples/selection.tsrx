@@ -34,6 +34,7 @@ export async function run(ctx: ProbeContext) {
 
   const selection = ctx.inspect('crop-demo-move').frame!
   const viewport = ctx.inspect('crop-demo').frame!
+
   ctx.assert('selection width', selection.width, 120)
   ctx.assert('selection height', selection.height, 120)
   ctx.assert('letterbox x', selection.x - viewport.x, 100)

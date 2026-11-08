@@ -1,6 +1,7 @@
 import { loadSource } from '../../../scripts/load-source.ts'
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+
 const { addCollection, addIcon, addIcons, resolveIcon, registry } = await loadSource(
   new URL('../src/registry.ts', import.meta.url),
 )
@@ -42,6 +43,7 @@ test('bundled resolution handles multiple sets, collection defaults, aliases, cy
   }
 
   const svg = iconToSvg(resolveIcon('test:turned'))
+
   assert.equal(svg.viewBox, '0 0 16 32')
   assert.equal(svg.width, 12)
   assert.equal(svg.height, 24)
@@ -50,9 +52,11 @@ test('bundled resolution handles multiple sets, collection defaults, aliases, cy
 
 test('collection replacement invalidates misses and cached icons and notifies subscribed readers', () => {
   assert.equal(resolveIcon('late:new'), undefined)
+
   let notifications = 0
   const unsubscribe = registry.subscribe(() => notifications++)
   const before = registry.getSnapshot()
+
   addCollection({ prefix: 'late', icons: { new: { body } } })
   assert.equal(resolveIcon('late:new').body, body)
   addCollection({ prefix: 'late', icons: { replacement: { body } } })
@@ -69,6 +73,7 @@ test('collection replacement invalidates misses and cached icons and notifies su
 
 test('addIcon/addIcons register single icons that shadow collections, invalidate misses, and notify', () => {
   assert.equal(resolveIcon('single:arrow'), undefined)
+
   let notifications = 0
   const unsubscribe = registry.subscribe(() => notifications++)
 
@@ -86,6 +91,7 @@ test('addIcon/addIcons register single icons that shadow collections, invalidate
     'bulk:plus': { body: '<path d="M1 1h2"/>' },
     'bulk:minus': { body: '<path d="M3 3h2"/>' },
   })
+
   assert.equal(resolveIcon('bulk:plus').body, '<path d="M1 1h2"/>')
   assert.equal(resolveIcon('bulk:minus').body, '<path d="M3 3h2"/>')
   unsubscribe()
@@ -108,12 +114,15 @@ test('SVG conversion preserves bodies and multicolor fills, escapes tint, and re
 
   const first = iconToSvg(icon, { color: '#123456', size: 30 })
   const second = iconToSvg(icon, { color: '#123456', size: 30 })
+
   assert.equal(first.width, 60)
   assert.equal(first.height, 30)
   assert.match(first.markup, /^<svg .*viewBox="0 0 20 10"/)
   assert.match(first.body, /fill="#123456" stroke="blue"/)
   assert.match(first.body, /stop-color="red"/)
+
   const id = first.body.match(/id="([^"]+)"/)[1]
+
   assert.ok(first.body.includes(`url(#${id})`))
   assert.notEqual(first.body, second.body)
   assert.equal(icon.body.includes('id="paint"'), true)

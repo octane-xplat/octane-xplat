@@ -18,6 +18,7 @@ const source: SearchSource = {
 }
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -30,8 +31,11 @@ function mount(node: any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(node))
   cleanups.push(() => {
     root.unmount()
@@ -71,6 +75,7 @@ describe('Typeahead family package-root boundary', () => {
 
     const host = mount(<Fixture />)
     const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
+
     act(() => input.focus())
     act(() => {
       input.value = 'ban'
@@ -97,6 +102,7 @@ describe('Typeahead family package-root boundary', () => {
 
     const host = mount(<Fixture />)
     const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
+
     // Focusing first mirrors real interaction: the wrapper's focusin
     // listener re-renders and refreshes the dropdown anchor ref.
     act(() => input.focus())
@@ -133,6 +139,7 @@ it('enters edit mode and restores the selected token on Escape and outside blur'
 
   const wrapper = host.querySelector('.vx-typeahead') as HTMLElement
   const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
+
   expect(host.querySelector('.vx-typeahead-token')?.textContent).toContain('Apple')
   act(() => wrapper.click())
   await settle()
@@ -157,6 +164,7 @@ it('enters edit mode and restores the selected token on Escape and outside blur'
 it('measures collapsed overflow, expands on focus, remeasures on resize and cleans up', async () => {
   let resize!: () => void
   const disconnect = vi.fn()
+
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -181,6 +189,7 @@ it('measures collapsed overflow, expands on focus, remeasures on resize and clea
 
   const wrapper = host.querySelector('.vx-tokenizer') as HTMLElement
   const tokens = host.querySelectorAll('.vx-tokenizer-token')
+
   Object.defineProperty(wrapper, 'clientWidth', { configurable: true, value: 100 })
   tokens.forEach((token, index) => {
     Object.defineProperty(token, 'offsetLeft', { configurable: true, value: index * 60 })
@@ -189,7 +198,9 @@ it('measures collapsed overflow, expands on focus, remeasures on resize and clea
 
   act(() => resize())
   expect(host.querySelector('.vx-tokenizer-overflow')?.textContent).toBe('+1 more')
+
   const input = host.querySelector('.vx-typeahead-input') as HTMLInputElement
+
   act(() => input.focus())
   await settle()
   expect(wrapper.classList.contains('vx-tokenizer--truncated')).toBe(false)

@@ -9,6 +9,7 @@ import {
 
 import { useState } from 'octane'
 import './internationalization.css'
+
 const options = [
   { value: 'americas', label: 'Americas' },
   { value: 'emea', label: 'EMEA' },

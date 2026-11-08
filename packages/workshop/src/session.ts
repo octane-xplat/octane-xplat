@@ -209,9 +209,12 @@ export class WorkshopSession {
     }
 
     const previous = this.current
+
     if (previous !== undefined) {
       this.emit({ phase: 'disposing', storyId: story.id })
+
       const disposal = await this.retire(previous)
+
       if (id !== this.generation) {
         return // a newer selection superseded this one mid-disposal
       }
@@ -244,6 +247,7 @@ export class WorkshopSession {
         )
 
         let produced: Promise<unknown>
+
         try {
           produced = Promise.resolve(story.fixture(context))
         } catch (error) {
@@ -262,6 +266,7 @@ export class WorkshopSession {
     } catch (error) {
       // Preparation failure: unwind everything registered so far.
       const disposal = await this.retire(gen)
+
       if (!disposal.ok) {
         return
       }
@@ -321,6 +326,7 @@ export class WorkshopSession {
       gen.mounted = await gen.mounting
     } catch (error) {
       const disposal = await this.retire(gen)
+
       if (!disposal.ok) {
         return
       }
@@ -361,6 +367,7 @@ export class WorkshopSession {
 
   private injectedProps(gen: Generation, props: Record<string, unknown>): Record<string, unknown> {
     const merged = { ...props }
+
     if (gen.store !== undefined) {
       merged.state = gen.store
     }
@@ -379,11 +386,13 @@ export class WorkshopSession {
    */
   applyProps(next: Record<string, unknown>): void {
     const gen = this.current
+
     if (!gen?.mounted || this.snapshot.phase !== 'ready') {
       return
     }
 
     const reconciled = reconcileProps(gen.props, next)
+
     gen.props = next
     gen.mounted.update(this.injectedProps(gen, reconciled))
   }
@@ -391,6 +400,7 @@ export class WorkshopSession {
   /** A full fresh run: fresh args, fresh store, fresh fixture, fresh root. */
   async reset(): Promise<void> {
     const story = this.current?.story
+
     if (!story) {
       return
     }
@@ -447,10 +457,12 @@ export class WorkshopSession {
 
   private async disposeGeneration(gen: Generation): Promise<DisposalResult> {
     gen.cancellation.cancel()
+
     const unmount = (async (): Promise<unknown[]> => {
       // An asynchronous host may acquire its root after cancellation.
       // Keep that acquisition inside the disposal budget and own its root.
       let mounted = gen.mounted
+
       if (!mounted && gen.mounting) {
         try {
           mounted = await gen.mounting
@@ -510,6 +522,7 @@ export class WorkshopSession {
   async dispose(): Promise<void> {
     const id = ++this.generation
     const previous = this.current
+
     if (previous) {
       await this.retire(previous)
       if (this.current === previous) {

@@ -17,19 +17,23 @@ interface RouteWatcherOptions {
 
 const within = (root: string, file: string) => {
   const path = relative(root, file)
+
   return path === '' || (!isAbsolute(path) && path !== '..' && !path.startsWith('..' + sep))
 }
 
 function existingParent(file: string): string {
   let parent = dirname(file)
+
   while (!existsSync(parent) || !statSync(parent).isDirectory()) {
     const next = dirname(parent)
+
     if (parent === next) {
       throw new Error('No existing parent for route watcher')
     }
 
     parent = next
   }
+
   return parent
 }
 
@@ -53,25 +57,32 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
     settleReady = resolve
     rejectReady = reject
   })
+
   void ready.catch(() => {})
+
   const report = (error: unknown) => {
     if (!closed) {
       options.onError(error)
     }
   }
+
   const changed = (root: string, filename: string | null) => {
     if (closed) {
       return
     }
+
     const file = filename === null ? null : resolve(root, filename)
+
     if (file && output && file.startsWith(output + '.')) {
       return
     }
+
     const configuredSource =
       file &&
       sources.some(
         (source) => within(source, file) || within(file, source) || file.startsWith(source + '.'),
       )
+
     if (
       file &&
       file !== configPath &&
@@ -80,8 +91,10 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
     ) {
       return
     }
+
     schedule()
   }
+
   const refresh = () => {
     // Discover missing reference paths so creating the file repairs a failed
     // watch build. generateRoutes still performs strict existence validation.
@@ -94,6 +107,7 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
         ? directory
         : undefined) ??
       (config ? 'src/app' : undefined)
+
     const nextDirectory = route ? resolve(cwd, route) : undefined
     const nextOutput = nextDirectory
       ? resolve(cwd, options.out ?? config?.out ?? resolve(nextDirectory, '../routes.gen')).replace(
@@ -101,43 +115,52 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
           '',
         )
       : undefined
+
     if (directory && !nextDirectory) {
       throw new Error(
         'route/watch-no-source: restore the routing configuration or stop watching before changing its source ownership',
       )
     }
+
     if (output && nextOutput && output !== nextOutput) {
       throw new Error(
         'route/watch-output-changed: keep the existing out path while watching; to move generated files, stop watching, regenerate, update client/type imports and remove obsolete generated entries',
       )
     }
+
     directory = nextDirectory
     output = nextOutput
     sources = [...(config?.manifests ?? []), config?.context, config?.transitions]
       .filter((reference): reference is NonNullable<typeof reference> => !!reference)
       .map((reference) => resolve(cwd, reference.module))
+
     const roots = new Map<string, boolean>([[cwd, false]])
+
     for (const source of sources) {
       roots.set(existingParent(source), false)
       if (existsSync(source) && statSync(source).isDirectory()) {
         roots.set(source, true)
       }
     }
+
     if (directory) {
       // Watch its parent as well: removing a watched directory invalidates
       // native inode watches on some hosts. Filter callbacks to the route tree.
       const parent = existingParent(directory)
+
       roots.set(parent, roots.get(parent) ?? false)
       if (existsSync(directory) && statSync(directory).isDirectory()) {
         roots.set(directory, true)
       }
     }
+
     for (const [root, entry] of watchers) {
       if (!roots.has(root) || roots.get(root) !== entry.recursive) {
         entry.watcher.close()
         watchers.delete(root)
       }
     }
+
     for (const [root, recursive] of roots) {
       // Reuse a shared directory handle instead of registering duplicates.
       if (watchers.has(root)) {
@@ -152,6 +175,7 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
         if (watchers.get(root)?.watcher !== watcher) {
           return
         }
+
         watchers.delete(root)
         watcher.close()
         report(error)
@@ -160,12 +184,14 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
       watchers.set(root, { watcher, recursive })
     }
   }
+
   const drain = async () => {
     while (queued && !closed) {
       queued = false
       attempt = new AbortController()
       try {
         refresh()
+
         const count = await options.generate(attempt.signal, {
           directory: directory ? relative(cwd, directory).split(sep).join('/') || '.' : undefined,
           out: output ? relative(cwd, output).split(sep).join('/') : undefined,
@@ -182,6 +208,7 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
       }
     }
   }
+
   function schedule() {
     attempt?.abort()
     queued = true
@@ -195,17 +222,21 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
       }
     }, options.debounceMs ?? 50)
   }
+
   // Install the config watch before reading configuration, so a broken config
   // can be repaired without restarting this process.
   const configWatcher = watch(cwd, (_event, name) => changed(cwd, name))
+
   configWatcher.on('error', (error) => {
     if (watchers.get(cwd)?.watcher !== configWatcher) {
       return
     }
+
     watchers.delete(cwd)
     configWatcher.close()
     report(error)
   })
+
   watchers.set(cwd, { watcher: configWatcher, recursive: false })
   schedule()
   return {
@@ -215,6 +246,7 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
         await running
         return
       }
+
       closed = true
       queued = false
       attempt?.abort()
@@ -223,6 +255,7 @@ export function createRouteWatcher(options: RouteWatcherOptions) {
       for (const { watcher } of watchers.values()) {
         watcher.close()
       }
+
       watchers.clear()
       await running
     },

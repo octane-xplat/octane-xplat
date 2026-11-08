@@ -38,6 +38,7 @@ function genSpark(seed: number, start: number, end: number, volatility: number, 
 
   const points: number[] = []
   let drift = 0
+
   for (let i = 0; i < N; i++) {
     const t = i / (N - 1)
     const trend = start + (end - start) * t
@@ -47,7 +48,9 @@ function genSpark(seed: number, start: number, end: number, volatility: number, 
       Math.sin(t * Math.PI * 13.1 + seed * 0.07) * volatility * 0.5
 
     drift = drift * 0.55 + (rand() - 0.5) * volatility * 2.2
+
     const spike = rand() < 0.04 ? (rand() - 0.5) * volatility * 4 : 0
+
     points.push(trend + wave + drift + spike)
   }
 
@@ -69,9 +72,11 @@ const portfolioData = (() => {
   const points: number[] = []
   const totalDays = PORTFOLIO_ANCHORS[PORTFOLIO_ANCHORS.length - 1][0]
   const N = 49
+
   for (let i = 0; i < N; i++) {
     const day = (i / (N - 1)) * totalDays
     let j = 0
+
     while (j < PORTFOLIO_ANCHORS.length - 2 && PORTFOLIO_ANCHORS[j + 1][0] < day) {
       j++
     }
@@ -82,6 +87,7 @@ const portfolioData = (() => {
     const base = v0 + (v1 - v0) * t
     const seed = Math.sin(day * 12.9898 + 78.233) * 43758.5453
     const noise = (seed - Math.floor(seed) - 0.5) * 3.6
+
     points.push(Number((base + noise).toFixed(1)))
   }
 

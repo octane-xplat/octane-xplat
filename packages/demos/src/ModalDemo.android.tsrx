@@ -41,6 +41,7 @@ export function ModalDemo() @{
 
   const pick = async () => {
     const result = await modal.open(Picker, { choices: ['Red', 'Green', 'Blue'] }, { presentation })
+
     setPicked(result as string | undefined)
   }
 

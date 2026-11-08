@@ -17,6 +17,7 @@ import {
 
 function CounterButton(props: { seen: number[]; capture?: (bump: () => void) => void }) @{
   const [count, setCount] = useState(0)
+
   props.capture?.(() => setCount(count + 1))
 
   <button testID="counter" onTap={() => props.seen.push(count)} />
@@ -39,12 +40,14 @@ describe('event-prop freshness on the universal renderer', () => {
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const seen: number[] = []
     let bump: (() => void) | undefined
+
     try {
       flushUniversalSync(() =>
         root.render(CounterButton, { seen, capture: (b: () => void) => (bump = b) }),
       )
 
       const host = container.children[0]
+
       flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
       flushUniversalSync(() => bump!())
       flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
@@ -58,10 +61,12 @@ describe('event-prop freshness on the universal renderer', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const seen: string[] = []
+
     try {
       flushUniversalSync(() => root.render(SwapButton, { label: 'a', onTap: () => seen.push('a') }))
 
       const host = container.children[0]
+
       flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
       container.commits.length = 0
       flushUniversalSync(() => root.render(SwapButton, { label: 'b', onTap: () => seen.push('b') }))
@@ -82,9 +87,12 @@ describe('event-prop freshness on the universal renderer', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const seen: string[] = []
+
     try {
       flushUniversalSync(() => root.render(MaybeButton, { onTap: () => seen.push('x') }))
+
       const host = container.children[0]
+
       flushUniversalSync(() => container.dispatchEvent(host, 'tap', {}))
       container.commits.length = 0
       flushUniversalSync(() => root.render(MaybeButton, {}))
@@ -105,8 +113,11 @@ describe('event-prop freshness on the universal renderer', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const seen: string[] = []
+
     flushUniversalSync(() => root.render(MaybeButton, { onTap: () => seen.push('x') }))
+
     const host = container.children[0]
+
     root.unmount()
     expect(container.children).toEqual([])
     expect(() => container.dispatchEvent(host, 'tap', {})).toThrow('unknown event target')

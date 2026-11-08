@@ -8,6 +8,7 @@ import type { jsxs } from '@octane-xplat/jsx/jsx-dev-runtime'
 
 declare const host: Parameters<typeof createMacOSRoot>[0]
 declare const descriptor: Parameters<typeof registerFontFamily>[1][number]['descriptor']
+
 // The declaration entry must preserve the source barrel's open extension types.
 export function ownedView(node: ElementNode): AppKitView | null {
   node.pluginState = { active: true }
@@ -15,8 +16,10 @@ export function ownedView(node: ElementNode): AppKitView | null {
 }
 
 const options: MacOSRootOptions = { fontFamily: 'system-ui' }
+
 createMacOSRoot(host, options).unmount()
 registerFontFamily('Test', [{ weight: 400, descriptor }])
+
 const preset: XplatMacOSOptions = { root: '.', packaged: true }
 const label: JSX.IntrinsicElements['label'] = {
   id: 'label',
@@ -43,10 +46,12 @@ const masonChild: SharedJSX.IntrinsicElements['label'] = {
 
 void mason
 void masonChild
+
 // @ts-expect-error removed layout containers are not in the contract
 const invalidLayout: SharedJSX.IntrinsicElements['docklayout'] = { stretchLastChild: 'false' }
 // @ts-expect-error dock is not a prop — positioning lives in the style bag
 const invalidDockChild: SharedJSX.IntrinsicElements['label'] = { dock: 'center' }
+
 void invalidLayout
 void invalidDockChild
 
@@ -59,8 +64,10 @@ const rootLayout: SharedJSX.IntrinsicElements['rootlayout'] = {
 }
 
 void rootLayout
+
 // @ts-expect-error RootLayout has no invented popup JSX props
 const invalidRoot: SharedJSX.IntrinsicElements['rootlayout'] = { open: true }
+
 void invalidRoot
 
 const searchBar: SharedJSX.IntrinsicElements['searchbar'] = {
@@ -68,6 +75,7 @@ const searchBar: SharedJSX.IntrinsicElements['searchbar'] = {
   hint: 'Find',
   onTextChange: (event) => {
     const value: string = event.value
+
     void value
     void event.object
   },
@@ -82,8 +90,10 @@ const searchBar: SharedJSX.IntrinsicElements['searchbar'] = {
 }
 
 void searchBar
+
 // @ts-expect-error SearchBar text must stay a string
 const invalidSearchBar: SharedJSX.IntrinsicElements['searchbar'] = { text: 123 }
+
 void invalidSearchBar
 
 const datePicker: SharedJSX.IntrinsicElements['datepicker'] = {
@@ -96,6 +106,7 @@ const datePicker: SharedJSX.IntrinsicElements['datepicker'] = {
   onDateChange: (event) => {
     const date: Date = event.value
     const old: Date | undefined = event.oldValue
+
     void date
     void old
     void event.object
@@ -107,11 +118,15 @@ const datePicker: SharedJSX.IntrinsicElements['datepicker'] = {
 }
 
 void datePicker
+
 // @ts-expect-error DatePicker does not accept numeric dates
 const invalidDatePicker: SharedJSX.IntrinsicElements['datepicker'] = { date: 123 }
+
 void invalidDatePicker
+
 // @ts-expect-error AppKit-only picker style is outside the shared contract
 const invalidDateStyle: SharedJSX.IntrinsicElements['datepicker'] = { datePickerStyle: 0 }
+
 void invalidDateStyle
 
 const listPicker: SharedJSX.IntrinsicElements['listpicker'] = {
@@ -119,6 +134,7 @@ const listPicker: SharedJSX.IntrinsicElements['listpicker'] = {
   selectedIndex: 1,
   onSelectedIndexChange: (event) => {
     const index: number = event.value
+
     void index
     void event.object
   },
@@ -129,11 +145,15 @@ const listPicker: SharedJSX.IntrinsicElements['listpicker'] = {
 }
 
 void listPicker
+
 // @ts-expect-error ListPicker index must be numeric
 const invalidListIndex: SharedJSX.IntrinsicElements['listpicker'] = { selectedIndex: '1' }
+
 void invalidListIndex
+
 // @ts-expect-error AppKit-specific picker mode is outside the shared contract
 const invalidListMode: SharedJSX.IntrinsicElements['listpicker'] = { pullsDown: true }
+
 void invalidListMode
 
 const progress: SharedJSX.IntrinsicElements['progress'] = {
@@ -149,6 +169,7 @@ const progress: SharedJSX.IntrinsicElements['progress'] = {
 const invalidProgress: SharedJSX.IntrinsicElements['progress'] = { value: '12' }
 // @ts-expect-error AppKit-specific modes do not enter the shared contract
 const invalidProgressMode: SharedJSX.IntrinsicElements['progress'] = { indeterminate: true }
+
 void progress
 void invalidProgress
 void invalidProgressMode
@@ -160,6 +181,7 @@ const segmentedBar: SharedJSX.IntrinsicElements['segmentedbar'] = {
   onSelectedIndexChange: (event) => {
     const value: number = event.value
     const old: number | undefined = event.oldIndex
+
     void value
     void old
     void event.object
@@ -178,6 +200,7 @@ const badSegmentIndex: SharedJSX.IntrinsicElements['segmentedbar'] = { selectedI
 const badSegmentItems: SharedJSX.IntrinsicElements['segmentedbar'] = { items: ['First'] }
 // @ts-expect-error AppKit props do not enter the shared API
 const badSegmentMode: SharedJSX.IntrinsicElements['segmentedbar'] = { trackingMode: 0 }
+
 void segmentedBar
 void badSegmentIndex
 void badSegmentItems
@@ -188,6 +211,7 @@ const segmentItem: SharedJSX.IntrinsicElements['segmentedbaritem'] = {
   ref: (element) => {
     if (element) {
       const absent: null = element.view
+
       void absent
     }
 
@@ -199,6 +223,7 @@ const segmentItem: SharedJSX.IntrinsicElements['segmentedbaritem'] = {
 const badItemTitle: SharedJSX.IntrinsicElements['segmentedbaritem'] = { title: 1 }
 // @ts-expect-error Per-item enabled is not in the canonical shared contract
 const badItemEnabled: SharedJSX.IntrinsicElements['segmentedbaritem'] = { enabled: false }
+
 void segmentItem
 void badItemTitle
 void badItemEnabled
@@ -214,6 +239,7 @@ const actionbar: SharedJSX.IntrinsicElements['actionbar'] = {
 const badBarFlat: SharedJSX.IntrinsicElements['actionbar'] = { flat: 'yes' }
 // @ts-expect-error titleView requires a host object
 const badBarView: SharedJSX.IntrinsicElements['actionbar'] = { titleView: 'text' }
+
 void actionbar
 void badBarFlat
 void badBarView

@@ -4,6 +4,7 @@ import type { KeyboardRect } from '@octane-xplat/platform/keyboard-geometry'
 
 const location = (view: any) => {
   const point = (Array as any).create('int', 2)
+
   view.getLocationOnScreen(point)
   return { x: point[0], y: point[1] }
 }
@@ -11,15 +12,21 @@ const location = (view: any) => {
 /** @internal Public View matrices include scale/rotation and ancestor transforms. */
 export function measureKeyboardHost(host: any): KeyboardRect | null {
   const native = host?.nativeViewProtected ?? host?.android
+
   if (!native?.getRootView) {
     return null
   }
+
   const origin = location(native.getRootView())
   const dip = Utils.layout.toDeviceIndependentPixels
+
   if (typeof native.transformMatrixToGlobal === 'function') {
     const matrix = new android.graphics.Matrix()
+
     native.transformMatrixToGlobal(matrix)
+
     const rect = new android.graphics.RectF(0, 0, native.getWidth(), native.getHeight())
+
     matrix.mapRect(rect)
     return {
       x: dip(rect.left - origin.x),
@@ -28,12 +35,15 @@ export function measureKeyboardHost(host: any): KeyboardRect | null {
       height: dip(rect.height()),
     }
   }
+
   for (let view = native; view?.getMatrix; view = view.getParent?.()) {
     if (!view.getMatrix().isIdentity()) {
       return null
     }
   }
+
   const at = location(native)
+
   return {
     x: dip(at.x - origin.x),
     y: dip(at.y - origin.y),

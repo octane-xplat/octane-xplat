@@ -5,28 +5,36 @@ import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
+
 const root = fileURLToPath(new URL('..', import.meta.url)),
   repo = fileURLToPath(new URL('../../..', import.meta.url))
 
 const temp = await mkdtemp(join(tmpdir(), 'xplat-crypto-consumer-'))
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
 try {
   const packed = join(temp, 'packed')
+
   await mkdir(packed)
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], root)
+
   const archives = (await readdir(packed)).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(archives.length, 1)
   run('tar', ['-xzf', join(packed, archives[0]), '-C', packed], temp)
+
   const unpacked = join(packed, 'package'),
     modules = join(temp, 'node_modules')
 
   await mkdir(join(modules, '@octane-xplat'), { recursive: true })
   await symlink(unpacked, join(modules, '@octane-xplat/crypto'), 'dir')
+
   const manifest = JSON.parse(await readFile(join(unpacked, 'package.json'), 'utf8'))
+
   for (const name of Object.keys({ ...manifest.dependencies, ...manifest.peerDependencies })) {
     await mkdir(dirname(join(modules, name)), { recursive: true })
     await symlink(join(root, 'node_modules', name), join(modules, name), 'dir')
@@ -37,6 +45,7 @@ try {
   }
 
   const ios = await readFile(join(unpacked, 'platforms/ios/src/XplatCryptoEngine.swift'), 'utf8')
+
   assert.equal(
     ios,
     await readFile(join(unpacked, 'platforms/macos/src/XplatCryptoEngine.swift'), 'utf8'),
@@ -70,6 +79,7 @@ getRandomValues(new Float32Array(2))
     ['native', ['native'], ['ESNext']],
   ]) {
     const config = join(temp, target + '.json')
+
     await writeFile(
       config,
       JSON.stringify({

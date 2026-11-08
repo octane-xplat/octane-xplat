@@ -122,6 +122,7 @@ function virtualListBenchmarkReport(metrics: Awaited<ReturnType<typeof runVirtua
 function createWindowContent(): Frame {
   const frame = new Frame()
   const page = prepareFullScreenPage(new Page())
+
   page.actionBarHidden = true
   console.log('[harness] createWindowContent')
   try {
@@ -154,6 +155,7 @@ function createWindowContent(): Frame {
 // (iOS core handles the placeholder handoff internally); resetRootView is
 // the documented way to swap the root of a running app.
 const entry = { create: () => createWindowContent() }
+
 if (Application.started) {
   Application.resetRootView(entry)
 } else {
@@ -164,6 +166,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
   const startWhenMounted = (tries = 100) => {
     const listId = VIRTUAL_LIST_BENCH_DEMO_MODE ? 'vlist' : 'vlist-bench-list'
     const list = thePage?.getViewById?.(listId) ?? findInRootLayouts(listId)
+
     if (list) {
       if (VIRTUAL_LIST_INPUT_MODE) {
         const target = Application.android != null ? 'android' : 'ios'
@@ -182,6 +185,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
           .then((metrics) => {
             // NativeScript truncates long console records on Android.
             const report = JSON.stringify({ heightMode, ...metrics })
+
             for (let index = 0; index * 500 < report.length; index++) {
               console.log(
                 '[vlist-input] result-part ' +
@@ -193,6 +197,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
           })
           .catch((error) => {
             const message = error instanceof Error ? error.message : String(error)
+
             console.log('[vlist-input] error ' + message)
           })
 
@@ -207,6 +212,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
         )
         .catch((error) => {
           const message = error instanceof Error ? error.message : String(error)
+
           console.log('[vlist-benchmark] error ' + message)
         })
 
@@ -231,6 +237,7 @@ if (VIRTUAL_LIST_BENCH_MODE) {
 // swipe=16 longPress=64.
 function fireGesture(view: any, type: number, name: string, args: any) {
   const observers = view?.getGestureObservers?.(type) ?? []
+
   console.log('[probe] gesture ' + name + ' observers=' + observers.length)
   for (const o of observers) {
     o.callback.call(o.context, { eventName: name, object: view, ...args })
@@ -240,6 +247,7 @@ function fireGesture(view: any, type: number, name: string, args: any) {
 // --- content assertions (the empty-Cell lesson: lifecycle ≠ content) ---
 function assertEq(name: string, actual: any, expected: any) {
   const ok = actual === expected
+
   console.log(
     '[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (got ' + JSON.stringify(actual) + ')',
   )
@@ -288,6 +296,7 @@ const find = (id: string) => (thePage?.getViewById?.(id) ?? findInRootLayouts(id
 function tapTab(label: string) {
   const hit = collect(thePage).find((v: any) => v?.text === label)
   let cur = hit
+
   while (cur && !(cur.getGestureObservers?.(1)?.length ?? 0)) {
     cur = cur.parent
   }
@@ -308,9 +317,12 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // without real keyboard input.
   setTimeout(() => {
     const v = find('probe-input')
+
     console.log('[probe] textfield=' + (v ? v.constructor.name : 'none'))
     v?.notify({ eventName: 'textChange', object: v, value: 'typed!' } as any)
+
     const ta = find('probe-textarea')
+
     console.log('[probe] textview=' + (ta ? ta.constructor.name : 'none'))
     ta?.notify({ eventName: 'textChange', object: ta, value: 'line one\nline two' } as any)
   }, 1500)
@@ -318,6 +330,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // A11y + content readback.
   setTimeout(() => {
     const b = find('a11y-btn')
+
     console.log(
       '[probe] a11y accessible=' +
         b?.accessible +
@@ -328,9 +341,12 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     )
 
     assertEq('textfield.text', find('probe-input')?.text, 'typed!')
+
     // TextArea leaf: multiline round-trip + rows/maxRows → dip heights.
     const ta = find('probe-textarea')
+
     assertEq('textview.text', ta?.text, 'line one\nline two')
+
     const dip = (x: any) => (x && typeof x === 'object' ? x.value : x) ?? 0
     const taMin = dip(ta?.style?.minHeight),
       taMax = dip(ta?.style?.maxHeight)
@@ -356,6 +372,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
     const lp = find('layer-probe')
     const up = find('layer-unlayered-probe')
+
     console.log(
       '[probe] layer-probe=' + (lp ? lp.constructor.name : 'none') + ' opacity=' + lp?.opacity,
     )
@@ -372,6 +389,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // CALayer.cornerCurve path; non-uniform (sheet-style) radii go through the
   // patched superellipse mask path. Numeric checks only — no screenshots.
   let cornersProbe: GridLayout | null = null
+
   setTimeout(() => {
     const chip = collect(thePage).find(
       (v: any) => typeof v?.className === 'string' && v.className.split(' ').includes('chip'),
@@ -415,6 +433,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     const oy = layer?.bounds?.origin?.y ?? 0
     const insideSquircle = bpath?.containsPoint?.(CGPointMake(ox + 96, oy + 4))
     const nearVertex = bpath?.containsPoint?.(CGPointMake(ox + 96, oy + 2))
+
     console.log(
       '[assert] non-uniform squircle mask: ' +
         (insideSquircle === true && nearVertex === false ? 'OK' : 'FAIL') +
@@ -439,6 +458,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // draft-persistence assert.
   setTimeout(() => {
     const v = find('probe-input')
+
     for (const value of ['a', 'ab', 'abc']) {
       v?.notify({ eventName: 'textChange', object: v, value } as any)
     }
@@ -446,9 +466,11 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // The write lands through the leaf's controlled-write effect — reads
     // must wait a turn for the state flush instead of racing it.
     setTimeout(() => assertEq('textfield rapid typing', v?.text, 'abc'), 120)
+
     // Cursor: a programmatic text= write on a focused UITextField — read the
     // selection to see whether it survives (needs focus, so probe not assert).
     const tf = (v as any)?.ios
+
     try {
       if (tf?.selectedTextRange) {
         const end = tf.offsetFromPositionToPosition(
@@ -478,10 +500,12 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     const candidates = collect(thePage).filter((w: any) => w?.id === 'menu-counter')
 
     const nativeOf = (w: any) => w.ios ?? w.android
+
     for (const w of candidates) {
       const nv = nativeOf(w)
       const loc = w.getLocationOnScreen?.()
       const size = w.getActualSize?.()
+
       console.log(
         '[probe] menu-counter candidate loaded=' +
           w.isLoaded +
@@ -503,6 +527,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // stay attached but every real touch is dropped.
     const appIos = (Application as any).ios
     const nativeApp = appIos?.nativeApp ?? (globalThis as any).UIApplication?.sharedApplication
+
     console.log(
       '[probe] ignoringInteractions=' +
         (nativeApp?.isIgnoringInteractionEvents ?? nativeApp?.ignoringInteractionEvents ?? 'n/a') +
@@ -515,9 +540,11 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // iOS hit-test at the chip's center — is the touch landing on the chip's
     // own UIView (recognizers attached) or an interloper?
     const chip = candidates[0]
+
     if (chip?.ios) {
       const loc = chip.getLocationOnScreen?.()
       const size = chip.getActualSize?.()
+
       if (loc && size?.width) {
         const win = chip.ios.window
         const hit = win?.hitTestWithEvent?.(
@@ -527,6 +554,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
         let chain = ''
         let cur = hit
+
         for (let i = 0; cur && i < 6; i++) {
           const desc = String(cur.description ?? cur)
             .replace(/<|>/g, '')
@@ -558,6 +586,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
       const kids = Array.from({ length: count }, (_: any, i: number) => (rl as any).getChildAt(i))
       const pv = (rl as any)._popupViews?.length ?? 0
       const shade = (rl as any)._shadeCover
+
       console.log(
         '[rlaudit] rootlayout children=' +
           kids.length +
@@ -570,6 +599,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
             .map((k: any) => {
               const l = k.getLocationOnScreen?.()
               const s = k.getActualSize?.()
+
               return (
                 k.constructor.name +
                 (k.id ? '#' + k.id : '') +
@@ -594,6 +624,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
       const loc = (w as any).getLocationOnScreen?.()
       const size = (w as any).getActualSize?.()
+
       if (!loc || !size || !size.width) {
         continue
       }
@@ -638,6 +669,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   setTimeout(() => {
     const inp = find('probe-input') as any
     const tf = inp?.ios
+
     console.log(
       '[probe] input focus: ios=' +
         (tf ? tf.constructor?.name : 'none') +
@@ -660,6 +692,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // Gesture probe (Exp 10): synthesize pan + swipe on the pan-box.
   setTimeout(() => {
     const v = find('pan-box')
+
     console.log('[probe] panbox=' + (v ? v.constructor.name : 'none'))
     fireGesture(v, 8, 'pan', { deltaX: 12, deltaY: -4, state: 2 })
     fireGesture(v, 16, 'swipe', { direction: 1 })
@@ -689,6 +722,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // suppresses the write-back echo (each onCheckedChange should fire once).
   setTimeout(() => {
     const sw = find('sw-notifications')
+
     console.log('[probe] switch=' + (sw ? sw.constructor.name : 'none'))
     sw?.notify({ eventName: 'checkedChange', object: sw, value: false } as any)
   }, 2300)
@@ -705,6 +739,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
   setTimeout(() => {
     const lv = collect(thePage).find((v) => v instanceof ListView)
+
     console.log(
       '[probe] listview=' +
         (lv
@@ -725,7 +760,9 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     )
 
     console.log('[assert] dark class: ' + (hasDark ? 'OK' : 'FAIL'))
+
     const cs = getColorScheme()
+
     console.log(
       '[assert] color scheme: ' + (/^(light|dark)$/.test(cs) ? 'OK' : 'FAIL') + ' (' + cs + ')',
     )
@@ -748,6 +785,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // styled() probe (Exp 16): variant prop composes bg-danger into className.
     const db = find('danger-btn')
     const cls = String(db?.className ?? '')
+
     console.log(
       '[assert] styled variant: ' +
         (cls.includes('bg-danger') && cls.includes('extra') ? 'OK' : 'FAIL') +
@@ -763,6 +801,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // override), and tap must still reach onPress.
   setTimeout(() => {
     const mp = find('multi-pressable')
+
     console.log('[probe] multi-pressable=' + (mp ? mp.constructor.name : 'none'))
     assertHas('pressable child text', texts(mp), 'Multi')
     console.log(
@@ -794,11 +833,14 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   setTimeout(() => {
     const f = Frame.topmost() as any
     let pops = 0
+
     f?.on?.('navigatedTo', () => {
       const top = f.currentPage
+
       if (top?.id === 'detail-page') {
         assertHas('detail texts', texts(top), 'Detail screen')
         assertEq('backStack after push', f.backStack.length, 1)
+
         // Q-theme: does the ns-dark class / token resolution cross into a
         // pushed root? The class lives on the main page's subtree — a pushed
         // Page is a separate view tree entirely.
@@ -815,6 +857,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
         const pushTok = (top as any)?.style?.getCssVariable?.('--color-primary')
         const rootTok = (thePage as any)?.style?.getCssVariable?.('--color-primary')
+
         console.log(
           '[probe] pushed token: ' +
             JSON.stringify(pushTok) +
@@ -829,6 +872,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     })
 
     const d = find('detail-btn')
+
     console.log('[probe] detail-btn=' + (d ? d.constructor.name : 'none'))
     fireGesture(d, 1, 'tap', {})
   }, 3500)
@@ -837,6 +881,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // data: URI decodes synchronously → imageSource present.
   setTimeout(() => {
     const sv = find('scroll-box')
+
     console.log('[probe] scrollview=' + (sv ? sv.constructor.name : 'none'))
     sv?.scrollTo?.({ top: 200, behavior: 'instant' })
     console.log(
@@ -844,6 +889,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     )
 
     const img = find('img')
+
     console.log('[assert] image decoded: ' + (img?.imageSource ? 'OK' : 'FAIL'))
   }, 5000)
 
@@ -864,12 +910,14 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // Overlay probe: tap → RootLayout.open host mounts → content assert.
   setTimeout(() => {
     const o = find('overlay-btn')
+
     console.log('[probe] overlay-btn=' + (o ? o.constructor.name : 'none'))
     fireGesture(o, 1, 'tap', {})
   }, 6400)
 
   setTimeout(() => {
     const overlay = find('overlay-host')
+
     assertHas('overlay texts', texts(overlay), 'Overlay content')
   }, 6800)
 
@@ -878,6 +926,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   // dead-tap investigation). Close it the same way the sheet probe closes.
   setTimeout(() => {
     const overlay = find('overlay-host') as any
+
     if (overlay?.parent?.close) {
       overlay.parent.close(overlay).catch(() => {})
       console.log('[probe] overlay dismissed')
@@ -904,6 +953,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
   setTimeout(() => {
     const b = find('sheet-btn')
+
     console.log('[probe] sheet-btn=' + (b ? b.constructor.name : 'none'))
     fireGesture(b, 1, 'tap', {})
   }, 7400)
@@ -914,6 +964,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     const sheet = (bottomSheetHost() ?? find('sheet-host')) as any
 
     assertHas('sheet texts', texts(sheet), 'Sheet content')
+
     // Q-theme: sheet root — does the theme class / token resolution cross?
     const sheetDark = collect(sheet).some((v) =>
       String(v?.className ?? '')
@@ -924,13 +975,17 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // The app syncs its override into the theme store (setThemePreference) —
     // imperative roots must carry the scheme class on their host.
     assertHas('sheet theme class', [sheetDark ? 'ns-dark' : 'absent'], 'ns-dark')
+
     const sheetTok = (sheet as any)?.style?.getCssVariable?.('--color-primary')
+
     console.log('[probe] sheet token: ' + JSON.stringify(sheetTok))
+
     // RootLayout bookkeeping: the host must be a tracked popup child of a
     // RootLayout (getPopupIndex >= 0) — an untracked child is invisible to
     // bringToFront/closeAll and leaks shade covers.
     const owner = (sheet as any)?.parent as any
     const popupIndex = owner?.getPopupIndex?.(sheet)
+
     console.log(
       '[assert] sheet host registered: ' +
         (owner?.constructor?.name === 'RootLayout' && popupIndex >= 0 ? 'OK' : 'FAIL') +
@@ -967,12 +1022,14 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // modal-close's ancestors (the vx-sheet-host GridLayout).
     const closeBtn = find('modal-close')
     let host: any = closeBtn
+
     while (host && !String(host.className ?? '').includes('vx-sheet-host')) {
       host = host.parent
     }
 
     console.log('[probe] modal=' + (host ? host.constructor.name : 'none'))
     assertHas('modal texts', texts(host), 'Modal content')
+
     // Q19: theme + token propagation across the sheet's separate root.
     const modalDark = collect(host).some((v) =>
       String(v?.className ?? '')
@@ -988,6 +1045,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     )
 
     const tok = (thePage as any)?.style?.getCssVariable?.('--color-primary')
+
     console.log(
       '[assert] getCssVariable: ' +
         (typeof tok === 'string' && tok.length > 0 ? 'OK' : 'FAIL') +
@@ -1001,6 +1059,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
   setTimeout(() => {
     const gone = !find('modal-close')
+
     console.log('[assert] modal closed: ' + (gone ? 'OK' : 'FAIL'))
   }, 9300)
 
@@ -1012,6 +1071,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
   setTimeout(() => {
     const v = find('anim-box')
+
     console.log(
       '[assert] anim moved: ' + (v?.translateX > 10 ? 'OK' : 'FAIL') + ' (' + v?.translateX + ')',
     )
@@ -1019,6 +1079,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
   setTimeout(() => {
     const v = find('anim-box')
+
     console.log(
       '[assert] anim settled: ' +
         (Math.abs(v?.translateX ?? -1) < 5 ? 'OK' : 'FAIL') +
@@ -1051,6 +1112,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // observer of `type` — SwapTabs tabs are Pressables wrapping Text.
     const gestureTarget = (root: any, text: string, type = 1) => {
       let cur = collect(root).find((v) => v?.text === text)
+
       while (cur && !(cur.getGestureObservers?.(type)?.length ?? 0)) {
         cur = cur.parent
       }
@@ -1073,6 +1135,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
         () => {
           const f = find('probe-input') as any
           const et = f?.android
+
           if (!et) {
             console.log('[assert] android setText cursor: FAIL (no EditText)')
             return
@@ -1113,6 +1176,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
       const b = find('a11y-btn') as any
       const cd = b?.android?.getContentDescription?.()
       const role = b?.accessibilityRole
+
       console.log(
         '[assert] android contentDescription: ' +
           (String(cd) === 'Increment counter' ? 'OK' : 'FAIL (' + JSON.stringify(cd) + ')') +
@@ -1129,6 +1193,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
       const win = Application.android.foregroundActivity?.getWindow?.()
       const wc = (globalThis as any).androidx?.core?.view?.WindowCompat
       const ctrl = win && wc ? wc.getInsetsController(win, win.getDecorView()) : null
+
       return ctrl ? ctrl.isAppearanceLightStatusBars() : 'no-controller'
     }
 
@@ -1137,6 +1202,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
       setThemePreference('light')
       setTimeout(() => {
         const light = statusBarLightIcons()
+
         console.log(
           '[assert] statusbar icons light scheme: ' +
             (light === true ? 'OK' : 'FAIL (' + JSON.stringify(light) + ')'),
@@ -1145,6 +1211,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
         setThemePreference('dark')
         setTimeout(() => {
           const dark = statusBarLightIcons()
+
           console.log(
             '[assert] statusbar icons dark scheme: ' +
               (dark === false ? 'OK' : 'FAIL (' + JSON.stringify(dark) + ')'),
@@ -1153,6 +1220,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
           router.push({ to: '/detail', search: { from: 'bar-probe' } })
           setTimeout(() => {
             const pushed = statusBarLightIcons()
+
             console.log(
               '[assert] statusbar icons survive push: ' +
                 (pushed === false ? 'OK' : 'FAIL (' + JSON.stringify(pushed) + ')'),
@@ -1161,6 +1229,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
             router.back()
             setTimeout(() => {
               const popped = statusBarLightIcons()
+
               console.log(
                 '[assert] statusbar icons survive pop: ' +
                   (popped === false ? 'OK' : 'FAIL (' + JSON.stringify(popped) + ')'),
@@ -1181,6 +1250,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     // the bookkeeping path — no pane renders it on Android.
     setTimeout(() => {
       const t = gestureTarget(tabView(), 'Apps')
+
       console.log('[probe] android demos tab=' + (t ? t.constructor.name : 'none'))
       fireGesture(t, 1, 'tap', {})
     }, 15500)
@@ -1203,6 +1273,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
             () => paneTexts().includes('Demo count: 0'),
             () => {
               const ok = paneTexts().includes('Demo count: 0')
+
               console.log(
                 '[assert] swap-pane push renders screen: ' +
                   (ok ? 'OK' : 'FAIL') +
@@ -1216,6 +1287,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
                 () => {
                   const watchOk = paneTexts().some((t) => /^\d{2}:\d{2}:\d{2}/.test(t))
+
                   console.log(
                     '[assert] swap-pane second push renders: ' +
                       (watchOk ? 'OK' : 'FAIL') +
@@ -1225,6 +1297,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                   // A second named stack — bookkeeping only (no
                   // pane renders non-tab stacks on Android).
                   let unmountedStatus = 'pending'
+
                   void router
                     .push({ to: '/detail', search: { from: 'extras' }, stack: 'extras' })
                     .then((result) => {
@@ -1233,6 +1306,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
                   setTimeout(() => {
                     const other = router.forStack('extras').getSnapshot().route
+
                     console.log(
                       '[assert] unmounted stack reports blocked: ' +
                         (unmountedStatus === 'blocked' && other === null
@@ -1245,10 +1319,12 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                       () =>
                         (() => {
                           const route = router.forStack('demos').getSnapshot().route
+
                           return route?.to === '/demo/:id' && route.params.id === 'counter'
                         })() && paneTexts().includes('Demo count: 0'),
                       () => {
                         const backOk = paneTexts().includes('Demo count: 0')
+
                         console.log(
                           '[assert] swap-pane pop restores prior: ' + (backOk ? 'OK' : 'FAIL'),
                         )
@@ -1273,6 +1349,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                               params: { id: 'controls' },
                               stack: 'demos',
                             })
+
                             waitFor(
                               () =>
                                 collect(tabView()).some((v) => v?.constructor?.name === 'SVGView'),
@@ -1283,6 +1360,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
                                 const sized = svgs.filter((v) => {
                                   const s = (v as any).getActualSize?.() ?? {}
+
                                   return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
                                 })
 
@@ -1301,11 +1379,13 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                             // Safe-area read: the Test tab's Services
                             // section echoes useSafeAreaInsets — 'insets T/R/B/L'.
                             const svc = gestureTarget(tabView(), 'Test')
+
                             fireGesture(svc, 1, 'tap', {})
                             setTimeout(() => {
                               const m = paneTexts().find((t) => t.startsWith('insets '))
 
                               const top = m ? Number(m.split(' ')[1]?.split('/')[0]) : NaN
+
                               console.log(
                                 '[assert] safe-area insets nonzero: ' +
                                   (Number.isFinite(top) && top > 0 ? 'OK' : 'FAIL') +
@@ -1354,6 +1434,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
         () => router.forStack('root').getSnapshot().route == null,
         () => {
           const startRoute = router.forStack('root').getSnapshot().route?.name ?? 'none'
+
           router.push({ to: '/detail', search: { from: 'android-route-probe' } })
 
           poll(
@@ -1393,10 +1474,12 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
               )
 
               const beforeRedirectDepth = depth
+
               router.push({ to: '/detail', search: { from: 'redirect' } })
               poll(
                 () => {
                   const route = router.forStack('root').getSnapshot().route
+
                   return route?.to === '/detail' && route.search.from === 'redirect-target'
                 },
                 () => {
@@ -1449,8 +1532,10 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                       setTimeout(() => {
                         let finished = false
                         const originalWarn = console.warn
+
                         console.warn = (...args: any[]) => {
                           const message = args.map(String).join(' ')
+
                           if (
                             message.includes(
                               '[RecyclerView] cannot be nested inside native ScrollView.',
@@ -1510,6 +1595,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                                     nativeLinks[1]?.onClick(label.android)
                                     setTimeout(() => {
                                       const status = page?.getViewById?.('rich-text-status')?.text
+
                                       console.log(
                                         '[assert] Android RichText per-span taps: ' +
                                           (nativeLinks.length === 2 &&
@@ -1538,12 +1624,14 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
                             if (checked.status === 'valid') {
                               return router.push(checked.destination)
                             }
+
                             console.log(
                               '[assert] Android nested RecyclerView route availability: FAIL (' +
                                 checked.status +
                                 ')',
                             )
                           })
+
                         setTimeout(() => {
                           if (!finished) {
                             console.warn = originalWarn
@@ -1573,6 +1661,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
   if (!VIRTUAL_LIST_BENCH_MODE && Application.ios) {
     setTimeout(() => {
       const style = (Application.getRootView() as any)?.statusBarStyle
+
       console.log(
         '[assert] ios statusBarStyle under dark scheme: ' +
           (style === 'light' ? 'OK' : 'INFO (' + JSON.stringify(style) + ')'),
@@ -1588,6 +1677,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
     import('@octane-xplat/media').then(({ media }) => {
       setTimeout(async () => {
         const paritySweepComplete = (globalThis as any).__xplatParitySweepComplete
+
         if (Application.android && paritySweepComplete) {
           console.log('[probe] capturePhoto waits for parity report')
           await paritySweepComplete
@@ -1608,6 +1698,7 @@ if (!VIRTUAL_LIST_BENCH_MODE) {
 
         try {
           const p = await media.capturePhoto()
+
           console.log(
             '[assert] capturePhoto: ' +
               (p ? 'OK (' + p.name + ')' : 'INFO (null — cancelled or unsupported)'),

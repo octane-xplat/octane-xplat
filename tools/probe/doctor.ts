@@ -22,6 +22,7 @@ export async function doctor() {
 
   try {
     const { chromium } = await importFrom(appFor('web'), 'playwright')
+
     if (!existsSync(chromium.executablePath())) {
       targets.web.issues.push(
         'Chromium is missing; run bun run --cwd apps/web playwright install chromium',
@@ -36,6 +37,7 @@ export async function doctor() {
     targets.macos.issues.push('AppKit probes require an Apple Silicon Mac')
   } else {
     const sims = await inspect('xcrun', ['simctl', 'list', 'devices', 'available', '--json'])
+
     if (sims.code === 0) {
       targets.ios.devices = Object.values(JSON.parse(sims.stdout).devices)
         .flat()
@@ -57,10 +59,12 @@ export async function doctor() {
       if (physical.code === 0) {
         try {
           const reported = JSON.parse(physical.stdout)
+
           for (const entry of reported.result?.devices ?? []) {
             const hardware = entry.hardwareProperties ?? {}
             const deviceProps = entry.deviceProperties ?? {}
             const connection = entry.connectionProperties ?? {}
+
             if (
               hardware.reality !== 'physical' ||
               deviceProps.bootState !== 'booted' ||
@@ -85,6 +89,7 @@ export async function doctor() {
     }
 
     const ruby = await inspect('ruby', ['-e', 'require "xcodeproj"'])
+
     if (ruby.code) {
       targets.ios.issues.push('The Ruby on PATH cannot load xcodeproj')
     }
@@ -110,6 +115,7 @@ export async function doctor() {
   }
 
   const adb = await inspect('adb', ['devices', '-l'])
+
   if (adb.code) {
     targets.android.issues.push('adb is unavailable or its configured server cannot be reached')
   } else {
@@ -133,7 +139,9 @@ export async function doctor() {
     : process.platform === 'darwin'
       ? await inspect('/usr/libexec/java_home', ['-v', '21'])
       : await inspect('java', ['-version'])
+
   const needsVersionCheck = configuredJava || process.platform !== 'darwin'
+
   if (
     java.code ||
     (needsVersionCheck &&
@@ -151,6 +159,7 @@ export async function doctor() {
   }
 
   const ns = await inspect('which', ['ns'])
+
   for (const target of ['ios', 'android']) {
     if (ns.code) {
       targets[target].issues.push('NativeScript CLI missing from PATH')

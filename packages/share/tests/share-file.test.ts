@@ -185,6 +185,7 @@ describe('normalizeFilePath', () => {
 
   it('passes content:// URIs through untouched', () => {
     const uri = 'content://com.app.provider/docs/a.pdf'
+
     expect(normalizeFilePath(uri)).toEqual({ kind: 'content', uri })
   })
 
@@ -275,20 +276,26 @@ describe('shareFile (iOS leaf)', () => {
 
     const pending = shareFileIos('/docs/clip.mov')
     const sheet = mock.presented[0]
+
     expect(sheet.items).toEqual(['file:///docs/clip.mov'])
     sheet.completionWithItemsHandler(null, true)
     expect(await pending).toBe('shared')
 
     const again = shareFileIos('/docs/clip.mov')
+
     mock.presented[1].completionWithItemsHandler(null, false)
     expect(await again).toBe('cancelled')
   })
 
   it('anchors the popover presentation for iPad', async () => {
     mock.existingPaths.add('/docs/clip.mov')
+
     const view = { bounds: { size: { width: 100, height: 200 } } }
+
     mock.visibleVC = { view, presentViewControllerAnimatedCompletion: vi.fn() }
+
     const pending = shareFileIos('/docs/clip.mov')
+
     expect(mock.presented[0].popoverPresentationController.sourceView).toBe(view)
     expect(mock.presented[0].popoverPresentationController.sourceRect).toEqual({
       origin: { x: 50, y: 199 },
@@ -330,6 +337,7 @@ describe('shareFile (Android leaf)', () => {
     )
 
     const intent = mock.intents[0]
+
     expect(intent.action).toBe('android.intent.action.SEND')
     expect(intent.type).toBe('video/quicktime')
     expect(intent.extras.get('android.intent.extra.STREAM')).toBe(

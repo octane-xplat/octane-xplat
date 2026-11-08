@@ -8,7 +8,9 @@ import { build } from 'vite'
 
 const host = process.env.APP_MENU_GTK_HOST
 const vm = process.env.APP_MENU_GTK_VM ?? 'octane-linux'
+
 assert.ok(host, 'Set APP_MENU_GTK_HOST to a Linux host or an OrbStack Mac host')
+
 const q = (value) => "'" + value.replaceAll("'", "'\\''") + "'"
 const prefix = process.env.APP_MENU_GTK_VM ? `orb -m ${q(vm)} -w /tmp ` : ''
 const run = (script, input) =>
@@ -20,6 +22,7 @@ const run = (script, input) =>
 
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-app-menu-gtk-'))
 let remote
+
 try {
   await build({
     configFile: false,
@@ -40,6 +43,7 @@ try {
   remote = run('mktemp -d /tmp/xplat-app-menu-XXXXXX').trim()
   assert.match(remote, /^\/tmp\/xplat-app-menu-[A-Za-z0-9]+$/)
   run(`cat > ${q(remote + '/menu.js')}`, readFileSync(join(temporary, 'menu.js')))
+
   const driver = `
 set -u
 cd ${q(remote)}

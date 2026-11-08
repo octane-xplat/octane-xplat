@@ -19,11 +19,13 @@ function assert(condition: unknown, message: string) {
   if (!condition) {
     throw new Error(message)
   }
+
   checks.push(message)
 }
 
 async function waitFor(predicate: () => boolean) {
   const deadline = Date.now() + 15000
+
   while (!predicate()) {
     if (Date.now() >= deadline) {
       throw new Error('Timed out waiting for the native presenter')
@@ -38,11 +40,14 @@ const page = new Page(),
 
 label.text = 'Packed Stripe SDK guard checks'
 page.content = label
+
 let started = false
+
 page.on(Page.loadedEvent, () => {
   if (started) {
     return
   }
+
   started = true
   void (async () => {
     try {
@@ -59,6 +64,7 @@ page.on(Page.loadedEvent, () => {
       )
 
       await initStripe({ publishableKey: 'pk_test_fixture', urlScheme: 'testapp' })
+
       const options = {
         merchantDisplayName: 'Xplat packed Stripe fixture',
         paymentIntentClientSecret: 'pi_fixture_secret_fixture',
@@ -66,8 +72,10 @@ page.on(Page.loadedEvent, () => {
       }
 
       assert(!(await initPaymentSheet(options)).error, 'SPM SDK prepares the guest sheet')
+
       let finished = false
       const pending = presentPaymentSheet()
+
       void pending.then(
         () => {
           finished = true

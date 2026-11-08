@@ -16,6 +16,7 @@ import { textRoleClasses } from './text-role'
 export function Timer(props: TimerProps): unknown @{
   const format = resolveTimerFormat(props.format)
   const startRef = useRef<number>(0)
+
   if (startRef.current === 0) {
     startRef.current = props.startTimeMs ?? Date.now()
   }
@@ -34,6 +35,7 @@ export function Timer(props: TimerProps): unknown @{
 
       const at = Date.now()
       const elapsed = elapsedMilliseconds(at, startTimeMs)
+
       timer = setTimeout(
         () => {
           setNow(Date.now())

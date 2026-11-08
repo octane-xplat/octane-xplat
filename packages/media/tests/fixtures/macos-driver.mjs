@@ -104,7 +104,9 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
     NSData: {
       dataWithContentsOfURL(url) {
         events.push(['read-source', url.path])
+
         const data = disk.get(url.path)
+
         assert.equal(url.active, data.scoped !== false)
         return data.unreadable ? null : data
       },
@@ -149,7 +151,9 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
     }
 
     const exports = {}
+
     cache.set(path, exports)
+
     const source = readFileSync(path, 'utf8')
     const code = ts.transpile(source, {
       module: ts.ModuleKind.CommonJS,
@@ -169,6 +173,7 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
             },
           }
         }
+
         if (!name.startsWith('.')) {
           // The shared capability contract lives in @octane-xplat/lib.
           return createRequire(mediaRoot)(name)
@@ -194,10 +199,12 @@ export function createDriver({ mediaRoot = defaultRoot, filesRoot, ...options } 
   const publicEntry = (root) => {
     const manifest = JSON.parse(readFileSync(resolve(root, 'package.json'), 'utf8'))
     const entry = manifest.exports['.'].macos
+
     return load(resolve(root, typeof entry === 'string' ? entry : entry.default))
   }
 
   const media = publicEntry(mediaRoot).media
   const files = publicEntry(filesRoot ?? resolve(defaultRoot, '../files')).files
+
   return { media, files, source, selections, panels, events, disk, host }
 }

@@ -31,6 +31,7 @@ const plain = (value: any) => JSON.parse(JSON.stringify(value))
 test('padded label cell insets drawing and grows the measured size', () => {
   const cell = new PaddedLabelCell()
   const view = {}
+
   cell.controlView = view
   labelPaddings.set(view, { top: 4, left: 8, bottom: 4, right: 8 })
 
@@ -38,14 +39,17 @@ test('padded label cell insets drawing and grows the measured size', () => {
     plain(cell.drawingRectForBounds({ origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } })),
     { origin: { x: 8, y: 4 }, size: { width: 84, height: 32 } },
   )
+
   // The wrap width shrinks by horizontal padding; the result grows by both
   // axes so the reported box matches CSS border-box semantics.
   assert.deepEqual(
     plain(cell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } })),
     { width: 84 + 16, height: 12 + 8 },
   )
+
   // A cell without registered insets measures like a stock one.
   const plainCell = new PaddedLabelCell()
+
   assert.deepEqual(
     plain(
       plainCell.cellSizeForBounds({ origin: { x: 0, y: 0 }, size: { width: 100, height: 40 } }),
@@ -100,6 +104,7 @@ const labelNode = (style: Record<string, any> = {}) => ({
 
 test('label padding resolves the shorthand box and longhand edges onto the cell', () => {
   const node = labelNode()
+
   node.stylePaddingBox = { top: 4, right: 6, bottom: 4, left: 6 }
   node.stylePaddingEdges = { top: 2, left: 10 }
   writers.syncLabelPadding(node)
@@ -110,6 +115,7 @@ test('label padding resolves the shorthand box and longhand edges onto the cell'
     bottom: 4,
     left: 10,
   })
+
   assert.equal(node.view.invalidated, true)
   assert.equal(node.container.reconciles.at(-1), node.parent)
 
@@ -121,6 +127,7 @@ test('label padding resolves the shorthand box and longhand edges onto the cell'
 
 test('visibility hides without dropping the slot; collapse drops it', () => {
   const node = labelNode()
+
   node.styleVisibility = 'hidden'
   writers.syncVisibility(node)
   assert.equal(node.view.hidden, true)
@@ -139,6 +146,7 @@ test('visibility hides without dropping the slot; collapse drops it', () => {
 
 test('fontStyle italic converts the resolved font once', () => {
   const node = labelNode({ fontStyle: 'italic' })
+
   writers.syncNodeFont(node)
   assert.equal(node.view.font.italicTrait, 1)
 
@@ -173,6 +181,7 @@ const { setLabelText } = runSlice(
 
 test('letterSpacing bakes NSKern into the attributed string', () => {
   const node = labelNode()
+
   node.view.font = { name: 'font' }
   node.view.textColor = { name: 'color' }
   node.view.cell = { lineBreakMode: 0 }
@@ -216,8 +225,11 @@ const cursorSlice = runSlice(
 
 test('cursor installs a hover record, retakes inside, and releases on clear', () => {
   const node: any = { type: 'masonview', view: {}, styleCursor: 'pointer' }
+
   cursorSlice.syncCursor(node)
+
   const record: any = cursorRecords.get(node.view)
+
   assert.equal(record.cursor.name, 'hand')
 
   record.inside = true
@@ -234,7 +246,9 @@ test('cursor installs a hover record, retakes inside, and releases on clear', ()
 
 test('unknown cursor values warn and keep the inherited cursor', () => {
   cursorWarnings.length = 0
+
   const node: any = { type: 'label', view: {}, styleCursor: 'zoom-in' }
+
   cursorSlice.syncCursor(node)
   assert.equal(cursorWarnings.length, 1)
   assert.match(cursorWarnings[0], /unsupported cursor/)
@@ -243,12 +257,15 @@ test('unknown cursor values warn and keep the inherited cursor', () => {
 
 test('user-select toggles selectable on labels and restores htmlview default', () => {
   const label: any = { type: 'label', view: { selectable: false }, styleUserSelect: 'text' }
+
   cursorSlice.syncUserSelect(label)
   assert.equal(label.view.selectable, true)
   label.styleUserSelect = 'none'
   cursorSlice.syncUserSelect(label)
   assert.equal(label.view.selectable, false)
+
   const html: any = { type: 'htmlview', view: { selectable: false }, styleUserSelect: 'auto' }
+
   cursorSlice.syncUserSelect(html)
   assert.equal(html.view.selectable, true)
 })
@@ -273,12 +290,14 @@ test('outline shorthand and longhands resolve to a ring spec', () => {
     color: { CGColor: 'cg:#ff0000' },
     offset: 0,
   })
+
   assert.deepEqual(plain(outlineSpec({ outlineWidth: 2, outlineOffset: -1 })), {
     width: 2,
     style: 'solid',
     color: { CGColor: 'cg:focus' },
     offset: -1,
   })
+
   assert.equal(outlineSpec({ outline: 'none' }), null)
   assert.equal(outlineSpec({}), null)
 })
@@ -286,6 +305,7 @@ test('outline shorthand and longhands resolve to a ring spec', () => {
 // ---- mason dict ------------------------------------------------------------
 
 let masonSource = readFileSync(new URL('../src/mason.ts', import.meta.url), 'utf8')
+
 masonSource = masonSource.replace(/import\s*\{[\s\S]*?\}\s*from\s*'[^']*';?/g, '')
 masonSource = stripTypeScriptTypes(masonSource).replaceAll('export ', '')
 
@@ -320,6 +340,7 @@ test('label padding stays out of the mason dict; collapse reads as display none'
     top: [0, 8],
     bottom: [0, 8],
   })
+
   assert.equal(styleDict(leaf('label', { visibility: 'collapse' })).display, 'none')
   assert.equal(styleDict(leaf('label', { visibility: 'hidden' })).display, undefined)
 })

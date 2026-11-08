@@ -44,6 +44,7 @@ const DEFAULT_TIMEOUT_MS = 60_000
  */
 function resolveXplatArgv(): string[] {
   const explicit = process.env.XPLAT_MCP_XPLAT
+
   if (explicit) {
     return [explicit]
   }
@@ -53,6 +54,7 @@ function resolveXplatArgv(): string[] {
     const cliPackage = require.resolve('@octane-xplat/cli/package.json')
     const bin = join(dirname(cliPackage), 'bin')
     const native = join(bin, 'xplat.exe')
+
     if (existsSync(native) && statSync(native).size > 0 && statSync(native).isFile()) {
       return [native]
     }
@@ -70,6 +72,7 @@ function resolveXplatArgv(): string[] {
 /** Build the full argv for one call; selection/workspace flags are appended here, not by callers. */
 function argv(options: XplatTransportOptions, call: XplatCall): string[] {
   const argv = [...call.command]
+
   for (const [name, value] of Object.entries(call.flags ?? {})) {
     if (value === undefined || value === false) {
       continue
@@ -80,14 +83,19 @@ function argv(options: XplatTransportOptions, call: XplatCall): string[] {
       argv.push(String(value))
     }
   }
+
   for (const positional of call.positionals ?? []) {
     argv.push(positional)
   }
+
   argv.push('--json', '--project', options.workspaceRoot, '--client', 'xplat-mcp')
+
   const app = options.appId?.()
+
   if (app) {
     argv.push('--app', app)
   }
+
   return argv
 }
 
@@ -97,10 +105,12 @@ function argv(options: XplatTransportOptions, call: XplatCall): string[] {
  */
 function parseEnvelope(stdout: string, stderr: string, exit: number | null): ToolOutcome<unknown> {
   let envelope: any
+
   try {
     envelope = JSON.parse(stdout)
   } catch {
     const detail = stderr.trim() || stdout.trim() || `exit ${exit ?? 'unknown'}`
+
     return {
       ok: false,
       error: contractError(
@@ -121,9 +131,11 @@ function parseEnvelope(stdout: string, stderr: string, exit: number | null): Too
   }
 
   const error = envelope.error
+
   if (error && typeof error === 'object' && typeof error.code === 'string') {
     return { ok: false, error: error as ContractError }
   }
+
   return {
     ok: false,
     error: contractError('execution_failure', 'The xplat CLI failed without a contract error.'),
@@ -137,6 +149,7 @@ export function createXplatTransport(options: XplatTransportOptions): XplatTrans
     call(call) {
       return new Promise((resolve) => {
         const prefix = executable()
+
         if (!prefix || prefix.length === 0) {
           resolve({
             ok: false,
@@ -150,6 +163,7 @@ export function createXplatTransport(options: XplatTransportOptions): XplatTrans
 
         const env = { ...process.env }
         const grants = options.grants?.()
+
         if (grants && grants.length > 0) {
           env.XPLAT_PERMISSIONS = grants.join(',')
         }
@@ -190,18 +204,23 @@ export function createXplatTransport(options: XplatTransportOptions): XplatTrans
             stdout += chunk
           }
         })
+
         child.stderr.on('data', (chunk: string) => {
           if (stderr.length < limit) {
             stderr += chunk
           }
         })
+
         child.on('error', (error: Error & { code?: string }) => {
           if (finished) {
             return
           }
+
           finished = true
           clearTimeout(timer)
+
           const missing = error.code === 'ENOENT'
+
           resolve({
             ok: false,
             error: contractError(
@@ -219,10 +238,12 @@ export function createXplatTransport(options: XplatTransportOptions): XplatTrans
             ),
           })
         })
+
         child.on('close', (code) => {
           if (finished) {
             return
           }
+
           finished = true
           clearTimeout(timer)
           resolve(parseEnvelope(stdout, stderr, code))

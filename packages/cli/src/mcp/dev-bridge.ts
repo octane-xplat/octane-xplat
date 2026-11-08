@@ -50,6 +50,7 @@ const readBody = (req) =>
   new Promise((resolve, reject) => {
     const chunks = []
     let size = 0
+
     req.on('data', (chunk) => {
       size += chunk.length
       if (size > MAX_BODY) {
@@ -79,9 +80,11 @@ const readBody = (req) =>
  */
 export function xplatDevBridge(options = {}) {
   const native = nativeDevSocketPlugin()
+
   if (native) {
     return native
   }
+
   const token = randomBytes(24).toString('hex')
   const serverId = `srv_${randomUUID()}`
   const startedAt = new Date().toISOString()
@@ -97,6 +100,7 @@ export function xplatDevBridge(options = {}) {
 
   const resolveOutcomeFailures = async (outcome) => {
     const failures = outcome?.error?.failures
+
     if (!viteServer || !Array.isArray(failures)) {
       return
     }
@@ -108,6 +112,7 @@ export function xplatDevBridge(options = {}) {
 
       try {
         const sourceStack = await resolveStack(failure.stack)
+
         if (sourceStack) {
           failure.sourceStack = sourceStack
         }
@@ -117,6 +122,7 @@ export function xplatDevBridge(options = {}) {
 
   const prune = () => {
     const now = Date.now()
+
     for (const [id, entry] of instances) {
       if (now - entry.at >= INSTANCE_TTL_MS) {
         expireInstance(id, entry)
@@ -188,6 +194,7 @@ export function xplatDevBridge(options = {}) {
       }
 
       const delivered = entry.state === 'delivered'
+
       entry.state = 'completed'
       entry.completedAt = Date.now()
       entry.outcome = {
@@ -223,6 +230,7 @@ export function xplatDevBridge(options = {}) {
   const workFor = (instanceId) => {
     const invocations = []
     const cancel = []
+
     for (const [requestId, entry] of requests) {
       if (entry.request.appInstanceId !== instanceId || entry.outcome) {
         continue
@@ -244,6 +252,7 @@ export function xplatDevBridge(options = {}) {
   const routes = {
     'POST /registry': async (req, res) => {
       const body = await readBody(req)
+
       if (
         body?.protocol !== 'xplat-dev-actions' ||
         typeof body.appInstanceId !== 'string' ||
@@ -256,12 +265,15 @@ export function xplatDevBridge(options = {}) {
       }
 
       clearTimeout(instances.get(body.appInstanceId)?.timer)
+
       const instance = { announcement: body, at: Date.now() }
+
       instances.set(body.appInstanceId, instance)
       instance.timer = setTimeout(
         () => expireInstance(body.appInstanceId, instance),
         INSTANCE_TTL_MS,
       )
+
       instance.timer.unref?.()
       prune()
       return json(res, 200, { accepted: true, serverId })
@@ -271,6 +283,7 @@ export function xplatDevBridge(options = {}) {
     'POST /invoke': async (req, res) => {
       const body = await readBody(req)
       const { requestId, appInstanceId, actionId, registryRevision } = body ?? {}
+
       if (
         typeof requestId !== 'string' ||
         typeof appInstanceId !== 'string' ||
@@ -282,6 +295,7 @@ export function xplatDevBridge(options = {}) {
       }
 
       const existing = requests.get(requestId)
+
       if (existing) {
         // Stable request identity: a repeated request never queues twice.
         return json(res, 200, { accepted: true, deduplicated: true, requestId })
@@ -309,6 +323,7 @@ export function xplatDevBridge(options = {}) {
     },
     'GET /poll': async (req, res, url) => {
       const instanceId = url.searchParams.get('instance')
+
       if (!instanceId || !instances.has(instanceId)) {
         return json(res, 404, {
           error: { code: 'not_found', message: 'unknown app instance' },
@@ -317,6 +332,7 @@ export function xplatDevBridge(options = {}) {
 
       const wait = Number(url.searchParams.get('wait') ?? 0)
       let work = workFor(instanceId)
+
       if (!work.invocations.length && !work.cancel.length && wait > 0) {
         await awaitWork(instanceId, wait)
         prune()
@@ -331,6 +347,7 @@ export function xplatDevBridge(options = {}) {
     },
     'POST /result': async (req, res) => {
       const body = await readBody(req)
+
       if (typeof body?.requestId !== 'string' || typeof body?.outcome?.status !== 'string') {
         return json(res, 400, {
           error: { code: 'invalid_selection', message: 'malformed invocation result' },
@@ -338,6 +355,7 @@ export function xplatDevBridge(options = {}) {
       }
 
       const entry = requests.get(body.requestId)
+
       if (!entry) {
         return json(res, 404, {
           error: { code: 'not_found', message: `unknown request "${body.requestId}"` },
@@ -360,6 +378,7 @@ export function xplatDevBridge(options = {}) {
     'POST /invoke/cancel': async (req, res) => {
       const body = await readBody(req)
       const entry = requests.get(body?.requestId)
+
       if (!entry) {
         return json(res, 404, {
           error: { code: 'not_found', message: `unknown request "${body?.requestId}"` },
@@ -374,6 +393,7 @@ export function xplatDevBridge(options = {}) {
 
   const middleware = async (req, res, next) => {
     const url = new URL(req.url ?? '/', 'http://localhost')
+
     if (!url.pathname.startsWith(PREFIX)) {
       return next()
     }
@@ -387,6 +407,7 @@ export function xplatDevBridge(options = {}) {
       if (req.method === 'POST' && url.pathname === `${PREFIX}/logs`) {
         const body = await readBody(req)
         const batch = formatBrowserLogBatch(body)
+
         process.stderr.write(batch.text)
 
         return json(res, 200, { accepted: batch.accepted })
@@ -394,9 +415,11 @@ export function xplatDevBridge(options = {}) {
 
       // GET /invoke/<requestId> — the only parametrized route.
       const outcomeMatch = /^\/invoke\/([^/]+)$/.exec(url.pathname.slice(PREFIX.length))
+
       if (req.method === 'GET' && outcomeMatch) {
         const requestId = outcomeMatch[1]
         const entry = requests.get(requestId)
+
         if (!entry) {
           return json(res, 404, {
             error: { code: 'not_found', message: `unknown request "${requestId}"` },
@@ -405,6 +428,7 @@ export function xplatDevBridge(options = {}) {
 
         if (!entry.outcome) {
           const wait = Number(url.searchParams.get('wait') ?? 0)
+
           if (wait > 0) {
             await awaitOutcome(requestId, wait)
           }
@@ -418,6 +442,7 @@ export function xplatDevBridge(options = {}) {
       }
 
       const handler = routes[`${req.method} ${url.pathname.slice(PREFIX.length)}`]
+
       if (!handler) {
         return json(res, 404, { error: { code: 'not_found', message: 'unknown bridge route' } })
       }
@@ -458,6 +483,7 @@ export function xplatDevBridge(options = {}) {
 
       const writeSessionFile = () => {
         const address = server.httpServer?.address()
+
         if (!address || typeof address === 'string') {
           return
         }
@@ -478,6 +504,7 @@ export function xplatDevBridge(options = {}) {
 
         const appRoot = options.appRoot ?? server.config.root
         const dir = join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge')
+
         try {
           mkdirSync(dir, { recursive: true })
           writeFileSync(
@@ -498,6 +525,7 @@ export function xplatDevBridge(options = {}) {
 
       const removeSessionFile = () => {
         const appRoot = options.appRoot ?? server.config.root
+
         try {
           rmSync(
             join(appRoot, 'node_modules', '.cache', 'xplat', 'dev-bridge', `${serverId}.json`),

@@ -18,11 +18,15 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
   const [internal, setInternal] = useState(options.isDefaultOpen ?? false)
   const current = useRef(options)
   const surface = useRef<Omit<ContextRenderProps, 'positioning'> | undefined>(undefined)
+
   current.current = options
+
   const enabled = options.isEnabled !== false
   const open = enabled && (options.isOpen === undefined ? internal : options.isOpen)
   const opened = useRef(open)
+
   opened.current = open
+
   const configuration = () => {
     const value = current.current
     const rtl = interaction?.get_direction?.() === 2
@@ -73,8 +77,10 @@ export function useTooltip(options: TooltipOptions = {}): TooltipReturn {
     }
 
     const live = position.createTooltip(configuration())
+
     activeSession.current = live
     setSession(live)
+
     const loaded = () => {
       if (opened.current) {
         live.show()

@@ -50,6 +50,7 @@ function sheetHeightDips(height: BottomSheetProps['height'], vh: number): number
   }
 
   const trimmed = String(height).trim()
+
   if (trimmed.endsWith('%')) {
     return (parseFloat(trimmed) / 100) * vh
   }
@@ -85,6 +86,7 @@ export function attachBottomSheetHost(
   closeNow: () => void,
 ): () => void {
   const purpose = props.purpose ?? 'info'
+
   host.horizontalAlignment = 'stretch'
   host.verticalAlignment = 'bottom'
   host.accessibilityLabel = props.label ?? ''
@@ -101,6 +103,7 @@ export function attachBottomSheetHost(
   // Snap points fix the height to the largest stop; otherwise apply the
   // height budget (capped default keeps content from covering the screen).
   const sizedHeight = detentFractions.length ? null : sheetHeightDips(props.height, screenVh())
+
   if (sizedHeight != null) {
     host.height = sizedHeight
   }
@@ -144,16 +147,19 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
   })
 
   const dismiss = useRef(requestChange)
+
   dismiss.current = requestChange
 
   useEffect(() => {
     const cur = shown.current
+
     if (!open) {
       cur?.lifetime.close()
       return
     }
 
     const rl = rootLayoutFor(sentinel.current)
+
     if (!rl) {
       return
     }
@@ -181,12 +187,14 @@ export function BottomSheet(props: BottomSheetProps): unknown @{
 
     lifetime.own(unbindTheme)
     lifetime.own(bindKeyboard())
+
     const purpose = props.purpose ?? 'info'
     const hasScrim = props.hasScrim ?? true
     const enter = attachBottomSheetHost(panel, props, lifetime, () => {
       // User dismissal goes through RootLayout close → 'closed' →
       // lifetime reports dismissed → onOpenChange(false).
       const owner = host.parent as ToastOwner | undefined
+
       owner?.close?.(host)?.catch?.((error: unknown) => {
         console.error('[BottomSheet] close failed', error)
       })

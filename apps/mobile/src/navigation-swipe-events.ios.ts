@@ -13,18 +13,23 @@ export async function checkNativeSwipeEvents(
   wait: (name: string, condition: () => boolean) => Promise<void>,
 ): Promise<void> {
   const target = new Page()
+
   target.actionBarHidden = true
   target.content = new GridLayout()
   frame.navigate({ create: () => target, animated: false })
   await wait('swipe diagnostic Page commits', () => frame.currentPage === target)
+
   const controller = frame.ios.controller
   const edge = controller.interactivePopGestureRecognizer
   const content = controller.interactiveContentPopGestureRecognizer
+
   if (!edge || !content) {
     throw new Error('The swipe diagnostic requires iOS 26 or later')
   }
+
   check('native edge recognizer is enabled', edge.enabled)
   check('native content recognizer is enabled', content.enabled)
+
   const previousEdge = edge.delegate
   const previousContent = content.delegate
   let active = true
@@ -38,13 +43,16 @@ export async function checkNativeSwipeEvents(
         if (!active || settle) {
           return false
         }
+
         calls++
+
         const decision = new Promise<boolean>((resolve) => {
           settle = (allow) => {
             settle = undefined
             resolve(allow)
           }
         })
+
         tasks.push(
           decision.then((allow) => {
             completed++
@@ -53,14 +61,18 @@ export async function checkNativeSwipeEvents(
             }
           }),
         )
+
         return false
       },
     },
     { name: 'XplatNavigationSwipeDiagnosticDelegate', protocols: [UIGestureRecognizerDelegate] },
   )
+
   const delegate = Delegate.new()
+
   edge.delegate = delegate
   content.delegate = delegate
+
   const report = File.fromPath(knownFolders.documents().path + '/navigation-gesture-check.json')
   const phase = (name: string) =>
     report.writeTextSync(
@@ -70,6 +82,7 @@ export async function checkNativeSwipeEvents(
         height: controller.view.bounds.size.height,
       }),
     )
+
   try {
     phase('edge-deny')
     await wait('OS edge swipe reaches its delegate', () => calls > 0)
@@ -77,7 +90,9 @@ export async function checkNativeSwipeEvents(
     settle!(false)
     await wait('edge refusal settles', () => completed > 0)
     check('refused edge gesture keeps the current native Page', frame.currentPage === target)
+
     const before = calls
+
     phase('content-allow')
     await wait('OS content swipe reaches its delegate', () => calls > before)
     check('content callback suspends before a native pop', frame.currentPage === target)
@@ -122,11 +137,14 @@ export async function requestNavigationSwipe(
   await new Promise<void>((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   )
+
   const controller =
     phase === 'canonical-modal-down'
       ? frame.ios.controller.presentedViewController
       : frame.ios.controller
+
   const inputStarted = Date.now()
+
   while (
     !controller?.view.window ||
     controller.view.hidden ||
@@ -139,13 +157,17 @@ export async function requestNavigationSwipe(
 
     await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
   }
+
   const bounds = controller.view.bounds.size
   const root = knownFolders.documents().path
+
   File.fromPath(root + '/navigation-gesture-check.json').writeTextSync(
     JSON.stringify({ phase, width: bounds.width, height: bounds.height }),
   )
+
   const ack = root + '/navigation-gesture-ack.json'
   const started = Date.now()
+
   while (true) {
     if (File.exists(ack)) {
       try {
@@ -163,6 +185,7 @@ export async function requestNavigationSwipe(
 
     await new Promise((resolve) => setTimeout(resolve, 20))
   }
+
   await new Promise<void>((resolve) =>
     requestAnimationFrame(() => requestAnimationFrame(() => resolve())),
   )

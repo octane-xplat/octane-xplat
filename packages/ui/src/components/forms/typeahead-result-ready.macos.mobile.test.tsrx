@@ -8,7 +8,9 @@ import {
 } from 'octane/universal/native'
 
 import { BaseTypeaheadView } from './BaseTypeaheadView.macos.tsrx'
+
 const outlet = vi.hoisted(() => ({ current: null as any }))
+
 // This fixture explicitly signals the source-ready boundary. Actual portal
 // ownership/commit gating has separate unmocked component and controller cases.
 vi.mock('./TypeaheadResults.macos.tsrx', () => ({
@@ -19,6 +21,7 @@ vi.mock('./TypeaheadResults.macos.tsrx', () => ({
 }))
 
 afterEach(() => vi.unstubAllGlobals())
+
 function fixture() {
   const window: any = { firstResponder: null },
     inputRef = { current: null as any }
@@ -47,6 +50,7 @@ function fixture() {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -69,6 +73,7 @@ function fixture() {
 
 it('a source-ready notification reveals the current highlight after rows attach without another field render', () => {
   const f = fixture()
+
   try {
     expect(f.rows()[1].scrollRectToVisible).not.toHaveBeenCalled()
     f.ready()
@@ -82,6 +87,7 @@ it('a source-ready notification reveals the current highlight after rows attach 
 
 it('retained readiness resolves current rows and rejects blocked, closed, foreign or retired owners', () => {
   const f = fixture()
+
   try {
     f.render({ ...f.base, highlightedIndex: 0 })
     for (const row of f.rows()) {
@@ -93,7 +99,9 @@ it('retained readiness resolves current rows and rejects blocked, closed, foreig
     expect(f.rows()[1].scrollRectToVisible).not.toHaveBeenCalled()
     for (const state of [{ isReadOnly: true }, { isDisabled: true }, { open: false }]) {
       f.render({ ...f.base, ...state })
+
       const rows = f.rows()
+
       for (const row of rows) {
         row.scrollRectToVisible.mockClear()
       }

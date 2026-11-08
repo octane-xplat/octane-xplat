@@ -14,6 +14,7 @@ const owner = (host: object): Document | undefined => {
   const element = view(host),
     document = element?.ownerDocument,
     window = document?.defaultView
+
   try {
     return element?.isConnected &&
       window &&
@@ -30,12 +31,16 @@ const owner = (host: object): Document | undefined => {
 const watchWindow = (document: Document, rebind: () => void) => {
   const window = document.defaultView!
   let state = lifecycles.get(document)
+
   if (!state) {
     state = { readers: 0, paused: false }
     lifecycles.set(document, state)
   }
+
   const owned = state
+
   owned.readers++
+
   let active = true
   const hide = () => {
     if (active) {
@@ -43,18 +48,21 @@ const watchWindow = (document: Document, rebind: () => void) => {
       rebind()
     }
   }
+
   const show = () => {
     if (active) {
       owned.paused = false
       rebind()
     }
   }
+
   window.addEventListener('pagehide', hide)
   window.addEventListener('pageshow', show)
   return () => {
     if (!active) {
       return
     }
+
     active = false
     window.removeEventListener('pagehide', hide)
     window.removeEventListener('pageshow', show)
@@ -68,10 +76,12 @@ export const focusRuntime: FocusRuntime = {
   activate: () => focusedInputWindows.install(observeFocusedInput),
   getSnapshot(host) {
     const key = owner(host)
+
     return key ? focusedInputWindows.getSnapshot(key) : inactive
   },
   recheck(host) {
     const key = owner(host)
+
     if (key) {
       focusRechecks.get(key)?.()
     }
@@ -81,6 +91,7 @@ export const focusRuntime: FocusRuntime = {
     let key: Document | undefined,
       document: Document | undefined,
       initialized = false
+
     let observer: MutationObserver | undefined
     let offWindow = () => {}
     let off = () => {}
@@ -88,13 +99,17 @@ export const focusRuntime: FocusRuntime = {
       if (!active) {
         return
       }
+
       const nextDocument = view(host)?.ownerDocument
+
       if (nextDocument !== document) {
         observer?.disconnect()
         offWindow()
         offWindow = () => {}
         document = nextDocument
+
         const Observer = document?.defaultView?.MutationObserver
+
         observer = Observer ? new Observer(rebind) : undefined
         if (document) {
           observer?.observe(document, { childList: true, subtree: true })
@@ -104,10 +119,13 @@ export const focusRuntime: FocusRuntime = {
           offWindow = watchWindow(document, rebind)
         }
       }
+
       const next = owner(host)
+
       if (initialized && key === next) {
         return
       }
+
       initialized = true
       off()
       off = () => {}
@@ -118,6 +136,7 @@ export const focusRuntime: FocusRuntime = {
         listener(inactive)
       }
     }
+
     try {
       rebind()
     } catch (error) {
@@ -126,10 +145,12 @@ export const focusRuntime: FocusRuntime = {
       off()
       throw error
     }
+
     return () => {
       if (!active) {
         return
       }
+
       active = false
       observer?.disconnect()
       offWindow()

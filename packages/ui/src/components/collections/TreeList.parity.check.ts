@@ -9,6 +9,7 @@ export const CHECKS: ParityCheck[] = [
     equal: ['tree.box.w', 'tree.box.h', 'tree.style.backgroundColor', 'child.style.opacity'],
     check: (m) => {
       const child = m('child')
+
       return [
         dims(m('tree'), 180, 96),
         ['expanded child has a visible frame', child.box.w > 0 && child.box.h > 0],

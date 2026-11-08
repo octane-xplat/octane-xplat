@@ -84,6 +84,7 @@ describe('presentation resolution', () => {
 describe('calendar month grid', () => {
   it('fills leading/trailing days and constant row count', () => {
     const grid = buildMonthGrid(2026, 10, 0, false, 'en-US')
+
     expect(grid.weeks).toHaveLength(6)
     expect(grid.weeks[0][0].iso).toBe('2026-09-27')
     expect(grid.dayNames).toHaveLength(7)
@@ -91,6 +92,7 @@ describe('calendar month grid', () => {
 
   it('trims rows with hasVariableRowCount', () => {
     const grid = buildMonthGrid(2026, 2, 0, true, 'en-US')
+
     expect(grid.weeks.length).toBeLessThanOrEqual(6)
   })
 })
@@ -116,8 +118,10 @@ describe('range picking', () => {
 describe('date constraints', () => {
   it('applies min/max and callback constraints', () => {
     const check = createDateDisabledCheck({ min: '2026-03-10', max: '2026-03-20' })
+
     expect(check(plainDateFromISO('2026-03-05')!)).toBe(true)
     expect(check(plainDateFromISO('2026-03-15')!)).toBe(false)
+
     const weekend = createDateDisabledCheck({
       dateConstraints: [(d: Date) => d.getDay() !== 0 && d.getDay() !== 6],
     })

@@ -21,6 +21,7 @@ function cacheFontData(family: string, data: Uint8Array): string | undefined {
   const fs = nodeRequire('node:fs')
   const os = nodeRequire('node:os')
   const path = nodeRequire('node:path')
+
   if (!fs || !os || !path) {
     return undefined
   }
@@ -28,18 +29,24 @@ function cacheFontData(family: string, data: Uint8Array): string | undefined {
   // FNV-1a over the bytes — the host bridge cannot marshal typed arrays into
   // node:crypto, and a short content digest is all the cache file name needs.
   let digest = 0x811c9dc5
+
   for (let i = 0; i < data.length; i++) {
     digest = Math.imul(digest ^ data[i], 0x01000193) >>> 0
   }
 
   const dir = path.join(os.homedir(), 'Library', 'Caches', 'octane-xplat', 'macos', 'fonts')
+
   fs.mkdirSync(dir, { recursive: true })
+
   const fontPath = path.join(dir, `${family}-${digest.toString(16)}.ttf`)
+
   if (!fs.existsSync(fontPath)) {
     // The host's writeFileSync writes through NSData#writeToFileAtomically —
     // hand it an NSData built from the byte buffer.
     const copy = new Uint8Array(data.byteLength)
+
     copy.set(data)
+
     const nsData = NSData.dataWithBytesLength?.(copy.buffer, copy.byteLength)
 
     if (!nsData) {
@@ -65,6 +72,7 @@ export function registerNanoIconFont(
 ): Promise<NanoFontStatus> {
   const usable = !!(source?.path || source?.data)
   const pending = registrations.get(family)
+
   // Cache only attempts that carried a usable source for this platform — a
   // caller that couldn't provide one may retry when they can.
   if (pending && (pending.usable || !usable)) {
@@ -80,6 +88,7 @@ export function registerNanoIconFont(
       const data = source?.data ? fontBytes(source.data) : undefined
 
       const fontPath = source?.path ?? (data ? cacheFontData(family, data) : undefined)
+
       if (!fontPath) {
         console.warn(
           `[nano-icons] No font source for "${family}" — pass font.path or font.data (macOS), or register the family yourself`,
@@ -91,6 +100,7 @@ export function registerNanoIconFont(
       const descriptors = CTFontManagerCreateFontDescriptorsFromURL(NSURL.fileURLWithPath(fontPath))
 
       const count = Number(descriptors?.count ?? 0)
+
       if (!descriptors || count === 0) {
         console.warn(`[nano-icons] No font descriptors in ${fontPath}`)
         return 'missing'

@@ -6,8 +6,10 @@ export const ready = Promise.resolve()
 export const playUiTone = () => {
   context ??= new AudioContext()
   void context.resume()
+
   const oscillator = context.createOscillator()
   const gain = context.createGain()
+
   oscillator.frequency.value = 660
   gain.gain.setValueAtTime(0.0001, context.currentTime)
   gain.gain.exponentialRampToValueAtTime(0.16, context.currentTime + 0.008)

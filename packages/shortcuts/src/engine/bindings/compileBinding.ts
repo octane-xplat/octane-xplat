@@ -62,17 +62,21 @@ function normalizeBindingInput(input: BindingInput, handler?: ShortcutHandler): 
   if (handler) {
     throw new TypeError('Do not pass both an inline handler and a second handler argument')
   }
+
   if (!input.handler) {
     throw new TypeError('Binding handler is required')
   }
+
   if (!!input.combo === !!input.sequence) {
     throw new TypeError('Exactly one of combo or sequence is required')
   }
+
   return input
 }
 
 export function normalizeScopes(scope: string | readonly string[] | undefined): readonly string[] {
   const scopes = scope == null ? ['root'] : Array.isArray(scope) ? scope : [scope]
   const next = [...new Set(scopes.filter(Boolean))]
+
   return next.length > 0 ? next : ['root']
 }

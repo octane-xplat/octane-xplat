@@ -124,8 +124,10 @@ function InputNumberControl(inputProps: InputNumberProps): unknown @{
         } else {
           const next = parseFloat(text)
           const isNumericDraft = /^[+-]?(?:(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d*)?|\.?)$/i.test(text)
+
           if (!isNaN(next)) {
             const clamped = clamp(next)
+
             setValue(clamped, isNumericDraft && clamped === next ? text : undefined)
           } else if (isNumericDraft) {
             setDraft({ text, value })

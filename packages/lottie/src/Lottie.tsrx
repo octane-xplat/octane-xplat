@@ -21,6 +21,7 @@ const STRETCH: Record<string, string> = {
  *  seconds on iOS and ms on Android. */
 function durationMs(v: LottieView): number {
   const d = v.duration ?? 0
+
   return isAndroid ? d : Math.max(0, d) * 1000
 }
 
@@ -28,6 +29,7 @@ function currentProgress(v: LottieView): number {
   // the native type is platform-divergent (LottieAnimationView vs
   // CompatibleAnimationView) — runtime branch is the narrowing.
   const nv = v.nativeViewProtected as any
+
   return isAndroid ? (nv?.getProgress?.() ?? 0) : (nv?.currentProgress ?? 0)
 }
 
@@ -65,6 +67,7 @@ export function Lottie(props: LottieProps): unknown @{
 
   const onReady = () => {
     const v = host.current
+
     if (!v || loadedRef.current) {
       return
     }
@@ -88,6 +91,7 @@ export function Lottie(props: LottieProps): unknown @{
   // race past them.
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
@@ -114,11 +118,13 @@ export function Lottie(props: LottieProps): unknown @{
   // src — applied imperatively after the listeners exist.
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
 
     const src = props.data ? JSON.stringify(props.data) : props.src
+
     if (src === appliedSrc.current) {
       return
     }
@@ -131,6 +137,7 @@ export function Lottie(props: LottieProps): unknown @{
   // Controlled `playing` — play state is a method call, not a prop.
   useEffect(() => {
     const v = host.current
+
     if (!v || props.playing === undefined) {
       return
     }
@@ -147,6 +154,7 @@ export function Lottie(props: LottieProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (!v || props.progress === undefined || !loadedRef.current) {
       return
     }
@@ -156,6 +164,7 @@ export function Lottie(props: LottieProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (!v || props.speed === undefined || !loadedRef.current) {
       return
     }

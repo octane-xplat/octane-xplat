@@ -250,6 +250,7 @@ function findItem(items: FileSystemItem[], id: string): FileSystemItem | null {
 
     if (item.children) {
       const found = findItem(item.children, id)
+
       if (found) {
         return found
       }
@@ -261,6 +262,7 @@ function findItem(items: FileSystemItem[], id: string): FileSystemItem | null {
 
 function getFileExtension(name: string): string {
   const dot = name.lastIndexOf('.')
+
   return dot > 0 ? name.substring(dot + 1).toUpperCase() : 'File'
 }
 
@@ -273,10 +275,14 @@ export function FileExplorerTemplate() @{
 
   const columns = useMemo(() => {
     const cols: { items: FileSystemItem[]; selectedId: string | null }[] = []
+
     cols.push({ items: FILESYSTEM, selectedId: selectedPath[0] ?? null })
+
     let currentItems: FileSystemItem[] = FILESYSTEM
+
     for (let i = 0; i < selectedPath.length; i++) {
       const selected = currentItems.find((item) => item.id === selectedPath[i])
+
       if (selected?.children && selected.children.length > 0) {
         cols.push({
           items: selected.children,
@@ -299,12 +305,14 @@ export function FileExplorerTemplate() @{
 
     const lastId = selectedPath[selectedPath.length - 1]
     const item = findItem(FILESYSTEM, lastId)
+
     if (item?.type === 'folder') {
       return item.name
     }
 
     if (selectedPath.length >= 2) {
       const parent = findItem(FILESYSTEM, selectedPath[selectedPath.length - 2])
+
       return parent?.name ?? 'Home'
     }
 
@@ -318,6 +326,7 @@ export function FileExplorerTemplate() @{
 
     const lastId = selectedPath[selectedPath.length - 1]
     const item = findItem(FILESYSTEM, lastId)
+
     return item?.type === 'file' ? item : null
   }, [selectedPath])
 
@@ -426,6 +435,7 @@ export function FileExplorerTemplate() @{
         <HStack height="100%" style={columnRow}>
           {columns.map((col, colIndex) => {
             const showDivider = colIndex < columns.length - 1 || selectedFile != null
+
             return (
               <Section
                 key={colIndex}

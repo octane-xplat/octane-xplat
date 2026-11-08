@@ -32,6 +32,7 @@ function fixture() {
       }
     }
   }
+
   class Property {
     setNative = Symbol('setNative')
     constructor(options) {
@@ -41,12 +42,14 @@ function fixture() {
       const { name, defaultValue, valueChanged } = this.options
       const key = Symbol(name)
       const setter = this.setNative
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[key] ?? defaultValue
         },
         set(value) {
           const previous = this[key] ?? defaultValue
+
           this[key] = value
           valueChanged?.(this, previous, value)
           if (this.nativeViewProtected && this[setter]) {
@@ -56,6 +59,7 @@ function fixture() {
       })
     }
   }
+
   class NativeSlider {
     min = 0
     max = 100
@@ -93,10 +97,12 @@ function fixture() {
       if (this.failWrite) {
         throw new Error('native write failed')
       }
+
       value = Math.max(this.min, Math.min(this.max, value))
       if (value === this.value) {
         return
       }
+
       this.value = value
       if (this.ValueChanged) {
         this.callbacks++
@@ -104,6 +110,7 @@ function fixture() {
       }
     }
   }
+
   vm.runInNewContext(source, {
     exports: moduleExports,
     setTimeout(callback, delay) {
@@ -118,6 +125,7 @@ function fixture() {
       if (name === '@nativescript/core') {
         return { Property, View }
       }
+
       if (name === '@nativescript-community/octane') {
         return {
           registerElement(name, Type) {
@@ -126,6 +134,7 @@ function fixture() {
           },
         }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return {
           Microsoft: {
@@ -144,27 +153,37 @@ function fixture() {
                 name,
                 'Microsoft.UI.Xaml.Controls.Primitives.RangeBaseValueChangedEventHandler',
               )
+
               return callback
             },
           },
         }
       }
+
       throw new Error('Unexpected dependency: ' + name)
     },
   })
+
   const control = new Control()
+
   control.parent = new View()
   control.parent.nativeViewProtected = { XamlRoot: owner, IsTabStop: false }
   control.parent.children = [control]
+
   const requests = []
+
   control.requestChange = (value) => requests.push(value)
+
   const mount = () => {
     const native = control.createNativeView()
+
     control.nativeViewProtected = native
     control.initNativeView()
     return native
   }
+
   const native = mount()
+
   control.settings = { value: 42, min: 0, max: 100, increment: 1, page: 10, readOnly: false }
   return {
     control,
@@ -174,6 +193,7 @@ function fixture() {
     ...moduleExports,
     otherView: (peer) => {
       const other = new View()
+
       other.nativeViewProtected = peer
       other.parent = control.parent
       control.parent.children.push(other)
@@ -181,6 +201,7 @@ function fixture() {
     },
     takeTask: () => {
       const [id, callback] = queued.entries().next().value
+
       queued.delete(id)
       return callback
     },
@@ -198,6 +219,7 @@ function fixture() {
 
 test('transparent peer keeps native input semantics and restores rejected model writes', () => {
   const { native, requests } = fixture()
+
   assert.equal(native.IsHitTestVisible, false)
   assert.match(native.Template, /TargetType="Slider"/)
   assert.equal(native.SmallChange, 1)
@@ -211,10 +233,12 @@ test('transparent peer keeps native input semantics and restores rejected model 
 
 test('accepted changes and fractional prop writes do not echo native requests', () => {
   const { control, native, requests } = fixture()
+
   control.requestChange = (value) => {
     requests.push(value)
     control.settings = { ...control.settings, value }
   }
+
   native.Value = 65
   assert.equal(native.Value, 65)
   assert.deepEqual(requests, [65])
@@ -227,6 +251,7 @@ test('accepted changes and fractional prop writes do not echo native requests', 
 
 test('disjoint bounds updates keep native invariants and suppress coercion callbacks', () => {
   const { control, native, requests } = fixture()
+
   control.settings = { ...control.settings, min: 200, max: 300, value: 250 }
   assert.equal(native.Minimum, 200)
   assert.equal(native.Maximum, 300)
@@ -242,6 +267,7 @@ test('disjoint bounds updates keep native invariants and suppress coercion callb
 test('readonly disabled and unloaded peers restore the model without requesting changes', () => {
   for (const block of ['readonly', 'core-disabled', 'native-disabled', 'unloaded']) {
     const { control, native, requests } = fixture()
+
     if (block === 'readonly') {
       control.settings = { ...control.settings, readOnly: true }
     }
@@ -266,10 +292,12 @@ test('readonly disabled and unloaded peers restore the model without requesting 
 
 test('failed native prop writes restore listener ownership and writing depth', () => {
   const { control, native, requests } = fixture()
+
   native.failWrite = true
   assert.throws(() => {
     control.settings = { ...control.settings, value: 55 }
   }, /native write failed/)
+
   assert.equal(typeof native.ValueChanged, 'function')
   native.failWrite = false
   control.settings = { ...control.settings, value: 42 }
@@ -280,12 +308,15 @@ test('failed native prop writes restore listener ownership and writing depth', (
 test('disposal and replacement leave one handler and ignore retained old callbacks', () => {
   const { control, native, requests, mount } = fixture()
   const stale = native.ValueChanged
+
   control.disposeNativeView()
   assert.equal(native.ValueChanged, null)
   native.Value = 65
   stale()
   assert.deepEqual(requests, [])
+
   const replacement = mount()
+
   stale()
   replacement.Value = 65
   assert.equal(replacement.Value, 42)
@@ -294,6 +325,7 @@ test('disposal and replacement leave one handler and ignore retained old callbac
 
 test('pointer focus targets only a loaded enabled peer with the native pointer focus state', () => {
   const { control, native, focusSliderInput } = fixture()
+
   assert.equal(focusSliderInput(control), true)
   assert.deepEqual(native.focusCalls, [1])
   control.isLoaded = false
@@ -309,17 +341,22 @@ test('pointer focus targets only a loaded enabled peer with the native pointer f
 
 test('release focus waits for the native zero-delay task and can be cancelled', () => {
   const f = fixture()
+
   f.focusSliderInput(f.control)
   f.queueSliderInputFocus(f.control)
   assert.deepEqual(f.native.focusCalls, [1])
   f.flush()
   assert.deepEqual(f.native.focusCalls, [1, 1])
+
   const cancel = f.queueSliderInputFocus(f.control)
+
   cancel()
   f.flush()
   assert.deepEqual(f.native.focusCalls, [1, 1])
+
   const cancelDequeued = f.queueSliderInputFocus(f.control)
   const alreadyDequeued = f.takeTask()
+
   cancelDequeued()
   alreadyDequeued()
   assert.deepEqual(f.native.focusCalls, [1, 1])
@@ -344,6 +381,7 @@ test('queued release focus ignores unloaded disabled replaced and reparented pee
     },
   ]) {
     const f = fixture()
+
     f.queueSliderInputFocus(f.control)
     retire(f)
     f.flush()
@@ -353,6 +391,7 @@ test('queued release focus ignores unloaded disabled replaced and reparented pee
 
 test('queued focus preserves a newer target and permits only its own peer or parent', () => {
   const f = fixture()
+
   f.queueSliderInputFocus(f.control)
   f.setFocused({ XamlRoot: f.native.XamlRoot })
   f.flush()
@@ -370,6 +409,7 @@ test('queued focus preserves a newer target and permits only its own peer or par
 test('a null focus reader falls back to native focus state throughout the same-root view tree', () => {
   const f = fixture()
   const other = f.otherView({ XamlRoot: f.native.XamlRoot, FocusState: 2 })
+
   f.queueSliderInputFocus(f.control)
   f.flush()
   assert.deepEqual(f.native.focusCalls, [])
@@ -393,7 +433,9 @@ test('native focus fallback traverses layouts without Control.FocusState', () =>
       throw new Error('not a Control')
     },
   })
+
   const descendant = f.otherView({ XamlRoot: f.native.XamlRoot, FocusState: 3 })
+
   f.control.parent.children.pop()
   layout.children = [descendant]
   f.queueSliderInputFocus(f.control)

@@ -30,6 +30,7 @@ function renderTemplate(template: any, ctx: any) {
 /** Primitive template results draw as Text; nodes pass through. */
 function TemplateContent(props: { content: any }) {
   const content = props.content
+
   if (content == null || content === false) {
     return null
   }
@@ -43,6 +44,7 @@ function TemplateContent(props: { content: any }) {
 
 function sortIndicator(column: any) {
   const dir = column.getIsSorted?.()
+
   return dir === 'asc' ? ' ↑' : dir === 'desc' ? ' ↓' : ''
 }
 
@@ -60,7 +62,9 @@ function DataGridHeaderCell<TData extends RowData>(props: {
   direction?: 'ltr' | 'rtl'
 }) {
   const { header } = props
+
   void props.state
+
   const column = header.column as any
   const canSort = !header.isPlaceholder && column.getCanSort?.() === true
   const content = props.render
@@ -85,6 +89,7 @@ function DataGridHeaderCell<TData extends RowData>(props: {
   )
 
   const cls = 'vx-table-cell vx-table-th'
+
   return (
     <View
       className={cls}
@@ -143,7 +148,9 @@ function DataGridBodyRow<TData extends RowData>(props: {
   getRowLabel?: (row: any) => string
 }) {
   const { row } = props
+
   void props.state
+
   const cells = row.getVisibleCells()
   const inner = (
     <>
@@ -253,6 +260,7 @@ export function DataGrid<TData extends RowData = any>(props: DataGridProps<TData
     props.options?.manualPagination && props.options.rowCount == null ? -1 : table.getRowCount()
 
   const ariaRowCount = rowCount < 0 ? -1 : headerGroups.length + rowCount
+
   return (
     <View
       id={props.id}

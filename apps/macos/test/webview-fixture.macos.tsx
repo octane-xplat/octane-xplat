@@ -26,6 +26,7 @@ export function runWebViewFixture(first: string, second: string, missing: string
 
   const finish = () => {
     const native = handle.current?.native
+
     handle.current?.stopLoading()
     root.unmount()
     setTimeout(() => {
@@ -54,8 +55,10 @@ export function runWebViewFixture(first: string, second: string, missing: string
 
       const constraints = handle.current?.native?.constraints
       let heightMatches = false
+
       for (let index = 0; index < Number(constraints?.count ?? 0); index++) {
         const constraint = constraints.objectAtIndex(index)
+
         if (
           Number(constraint.firstAttribute) === 8 &&
           Number(constraint.constant) === size.height
@@ -79,7 +82,9 @@ export function runWebViewFixture(first: string, second: string, missing: string
     },
     onLoad: (event) => {
       loads++
+
       const expected = loads <= 3 ? undefined : [first, second, first, second][loads - 4]
+
       if (event.url !== expected) {
         return fail('load URL ' + event.url + ' expected ' + expected)
       }

@@ -28,10 +28,12 @@ const C = (n: string) => Object.assign(() => null, { displayName: n })
 function matchMeta(routes: readonly RouteMeta[], segments: string[]) {
   for (const meta of routes) {
     const params = matchRouteSegments(meta.segments, segments.map(decodeURIComponent))
+
     if (params) {
       return { meta, params }
     }
   }
+
   return null
 }
 
@@ -48,6 +50,7 @@ function preparation(routes: readonly RouteMeta[]) {
 
 function resolveRoute(routes: readonly RouteMeta[], url: string) {
   const result = preparation(routes).resolveUrl(url)
+
   return result.status === 'matched' ? { ...result.destination, name: result.name } : null
 }
 
@@ -58,9 +61,12 @@ it('stores reserved JavaScript names as ordinary route and loader keys', () => {
   const screen = C('Reserved')
   const baked = Object.fromEntries([['__proto__', { title: 'Reserved' }]])
   const routes = defineRoutes({ routes: [{ path: '__proto__', screen, dataMode: 'baked' }], baked })
+
   expect(Object.hasOwn(routes.screens, '__proto__')).toBe(true)
   expect(Object.hasOwn(routes.loaders!, '__proto__')).toBe(true)
+
   const combined = mergeRouteManifests(routes)
+
   expect(Object.hasOwn(combined.screens, '__proto__')).toBe(true)
   expect(Object.hasOwn(combined.baked!, '__proto__')).toBe(true)
   expect(combined.loaders!.__proto__({})).toEqual({ title: 'Reserved' })
@@ -70,6 +76,7 @@ it('keeps filename animation separate from presentation in catalog JSON', () => 
   const catalog = deriveRouteManifest({ './app/help+fade.web.tsrx': { screen: C('Help') } }, [
     'web',
   ])
+
   expect(manifestToJson(catalog).routes[0]).toMatchObject({
     name: 'help',
     presentation: 'push',
@@ -79,7 +86,9 @@ it('keeps filename animation separate from presentation in catalog JSON', () => 
 
 it('does not treat inherited properties as directory layouts', () => {
   expect(layoutChain({}, 'constructor/item')).toEqual([])
+
   const routes = defineRoutes([{ path: 'constructor/item', screen: C('Item') }])
+
   expect(manifestToJson({ ...routes, layouts: {} }).routes[0].layouts).toEqual([])
 })
 
@@ -87,6 +96,7 @@ it('retains reserved external search keys as string data without changing their 
   const params = parseRouteLocation(
     '/?__proto__=json:%7B%22injected%22:true%7D&constructor=ordinary',
   ).search
+
   expect(Object.hasOwn(params, '__proto__')).toBe(true)
   expect(params.__proto__).toBe('json:{"injected":true}')
   expect(params.injected).toBeUndefined()
@@ -95,6 +105,7 @@ it('retains reserved external search keys as string data without changing their 
 
 it('matches the declared index at the root URL, without inventing one for an empty catalog', () => {
   const routes = defineRoutes([{ path: 'index', screen: C('Home') }]).routes
+
   expect(resolveRoute(routes, '/')?.name).toBe('index')
   expect(resolveRoute(routes, '/?from=link')?.search).toEqual({ from: 'link' })
   expect(resolveRoute([], '/')).toBeNull()
@@ -126,7 +137,9 @@ describe('deriveRouteManifest', () => {
     })
 
     expect(Object.keys(m.screens).sort()).toEqual(['chat', 'demo/:id', 'detail'])
+
     const demo = m.routes.find((r) => r.name === 'demo/:id')!
+
     expect(demo.segments).toEqual(['demo', ':id'])
     expect(demo.params).toEqual(['id'])
   })
@@ -152,13 +165,17 @@ describe('deriveRouteManifest', () => {
     }
 
     const web = manifest(files, ['web'])
+
     expect(web.screens.settings.displayName).toBe('web')
+
     const mobile = manifest(files, ['ios', 'mobile'])
+
     expect(mobile.screens.settings.displayName).toBe('mobile')
   })
 
   it('skips a suffix that is not in the prefer list', () => {
     const m = manifest({ './app/x.ios.tsrx': { X: C('x') } }, ['android', 'mobile'])
+
     expect(m.screens.x).toBeUndefined()
   })
 
@@ -172,6 +189,7 @@ describe('deriveRouteManifest', () => {
       expect.unreachable()
     } catch (e) {
       const err = e as RouteManifestError
+
       expect(err).toBeInstanceOf(RouteManifestError)
       expect(err.issues).toHaveLength(1)
       expect(err.issues[0]).toMatchObject({
@@ -186,6 +204,7 @@ describe('deriveRouteManifest', () => {
   it('rejects malformed metadata instead of silently removing guards', () => {
     const loader = vi.fn(() => ({ private: true }))
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     try {
       const invalid = () =>
         manifest({
@@ -281,6 +300,7 @@ describe('optional segments and catch-alls', () => {
     })
 
     const absent = matchMeta(routes, ['guides', 'x'])!
+
     expect(absent.meta.name).toBe(':locale?/guides/:doc')
     expect(absent.params).toEqual({ doc: 'x' })
     expect('locale' in absent.params).toBe(false)
@@ -290,6 +310,7 @@ describe('optional segments and catch-alls', () => {
     // 'guides' could fill :locale? greedily — the matcher must release
     // it so the static 'guides' segment aligns and :doc gets 'x'.
     const { routes } = coreframe
+
     expect(matchMeta(routes, ['guides', 'x'])!.params.doc).toBe('x')
   })
 
@@ -309,6 +330,7 @@ describe('optional segments and catch-alls', () => {
 
   it('decodes per-segment inside the splat', () => {
     const m = defineRoutes([{ path: 'docs/*', screen: C('D') }])
+
     expect(matchMeta(m.routes, ['docs', 'a%20b', 'c'])!.params['*']).toBe('a b/c')
   })
 
@@ -352,9 +374,11 @@ describe('optional segments and catch-alls', () => {
     })
 
     const doc = m.routes.find((r) => r.name === ':lang/:locale?/doc')!
+
     expect(doc.params).toEqual(['lang', 'locale'])
 
     const files = m.routes.find((r) => r.name === 'files/*rest')!
+
     expect(files.params).toEqual(['rest'])
 
     expect(matchMeta(m.routes, ['en', 'doc'])!).toMatchObject({
@@ -531,7 +555,9 @@ describe('defineRoutes', () => {
 
     expect(Object.keys(m.screens).sort()).toEqual(['guides', 'guides/:slug', 'guides/new'])
     expect(m.routes.map((r) => r.name)).toEqual(['guides/new', 'guides/:slug', 'guides'])
+
     const guide = m.routes.find((r) => r.name === 'guides/:slug')!
+
     expect(guide.segments).toEqual(['guides', ':slug'])
     expect(guide.params).toEqual(['slug'])
   })
@@ -566,6 +592,7 @@ describe('defineRoutes', () => {
     ])
 
     const meta = m.routes[0]
+
     expect(meta.presentation).toBe('modal')
     expect(meta.loader).toBe(loader)
     expect(meta.beforeLoad).toBe(beforeLoad)
@@ -591,6 +618,7 @@ describe('defineRoutes', () => {
       expect.unreachable()
     } catch (e) {
       const err = e as RouteManifestError
+
       expect(err).toBeInstanceOf(RouteManifestError)
       expect(err.issues).toHaveLength(1)
       expect(err.issues[0]).toMatchObject({
@@ -615,6 +643,7 @@ describe('defineRoutes', () => {
       expect.unreachable()
     } catch (e) {
       const err = e as RouteManifestError
+
       expect(err).toBeInstanceOf(RouteManifestError)
 
       expect(err.issues.map((i) => i.code)).toEqual([
@@ -645,6 +674,7 @@ describe('defineRoutes', () => {
       expect.unreachable()
     } catch (e) {
       const err = e as RouteManifestError
+
       expect(err.issues.map((i) => i.path)).toEqual([
         'routes[1].presentation',
         'routes[1].dataMode',
@@ -668,6 +698,7 @@ describe('defineRoutes', () => {
 
   it('warns when a layouts key matches no route', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
     defineRoutes({
       routes: [{ path: 'guides/:slug', screen: C('Guide') }],
       layouts: { guid: C('TypoShell') },
@@ -739,11 +770,13 @@ describe('defineRoutes', () => {
 
     const fm = file.routes.find((r) => r.name === 'guides/:slug')!
     const sm = spec.routes.find((r) => r.name === 'guides/:slug')!
+
     expect({ ...sm, file: undefined, preparation: undefined }).toEqual({
       ...fm,
       file: undefined,
       preparation: undefined,
     })
+
     expect(fm.preparation).toMatchObject({ loader, beforeLoad })
     expect(sm.preparation).toMatchObject({ loader, beforeLoad })
     expect(spec.loaders!['guides/:slug']).toBe(loader)
@@ -759,17 +792,21 @@ describe('defineRoutes', () => {
     })
 
     const baked = m.routes.find((r) => r.name === 'changelog')!
+
     expect(baked.dataMode).toBe('baked')
     expect(await m.loaders!.changelog({})).toEqual({ entries: ['a', 'b'] })
 
     const live = m.routes.find((r) => r.name === 'live')!
+
     expect(live.dataMode).toBeUndefined()
     expect(await m.loaders!.live({})).toBe('live-data')
   })
 
   it('a baked route with no baked entry throws a coded error like a loader failure', () => {
     vi.spyOn(console, 'warn').mockImplementation(() => {}) // expected route/missing-baked-data
+
     const m = defineRoutes([{ path: 'gone', screen: C('Gone'), dataMode: 'baked' }])
+
     vi.restoreAllMocks()
     // commitRoute wraps the call in Promise.resolve().then() — a sync
     // throw becomes a rejection there, landing as the screen's error prop.
@@ -778,6 +815,7 @@ describe('defineRoutes', () => {
       expect.unreachable()
     } catch (e) {
       const err = e as RouteManifestError
+
       expect(err).toBeInstanceOf(RouteManifestError)
       expect(err.issues[0]).toMatchObject({
         code: 'route/missing-baked-data',
@@ -839,6 +877,7 @@ describe('defineRoutes', () => {
 
     const fj = manifestToJson(fileWithData).routes[0]
     const sj = manifestToJson(spec).routes[0]
+
     expect(sj).toEqual(fj)
     expect(fj).toEqual({
       name: 'guides/:slug',
@@ -866,6 +905,7 @@ describe('defineRoutes', () => {
     })
 
     const meta = m.routes.find((r) => r.name === 'report')!
+
     expect(meta.dataMode).toBe('baked')
     expect(meta.loader).not.toBe(loader) // baked lookup, not the file's
     expect(m.routes.map((r) => r.name)).toEqual(['report'])
@@ -874,6 +914,7 @@ describe('defineRoutes', () => {
 
   it('unbranded manifests extract to never/empty', () => {
     const m = manifest({ './app/detail.tsrx': { D: C('D') } })
+
     expectTypeOf<ManifestRouteNames<typeof m>>().toEqualTypeOf<never>()
     expectTypeOf<ManifestRouteParams<typeof m>>().toEqualTypeOf<{}>()
   })
@@ -913,7 +954,9 @@ describe('mergeRouteManifests', () => {
     const merged = mergeRouteManifests(file, dynamic)
 
     expect(merged.screens.detail.displayName).toBe('DynDetail')
+
     const meta = merged.routes.find((r) => r.name === 'detail')!
+
     expect(meta.loader).toBeUndefined()
     expect(merged.loaders!.detail).toBeUndefined()
   })
@@ -963,12 +1006,16 @@ it('rejects runtime catalogs that shadow a declared contract while retaining typ
   const first = defineRoutes([
     { path: '/known', loader: () => ({ title: 'known' }), screen: C('Known') },
   ])
+
   const runtime = defineRuntimeRoutes([{ path: '/known', loader: () => 31, screen: C('Runtime') }])
+
   expect(() => mergeRouteManifests(first, runtime)).toThrow(
     'cannot replace a declared route contract',
   )
+
   const last = defineRoutes([{ path: '/known', loader: () => 42, screen: C('Last') }])
   const merged = mergeRouteManifests(first, last)
+
   expect(await createRoutePreparation({ catalog: merged }).prepare('/known')).toMatchObject({
     status: 'ready',
     match: { data: 42 },

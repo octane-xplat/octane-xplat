@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { readFileSync } from 'node:fs'
 import ts from 'typescript-classic'
+
 // Isolate the imperative service from its AppKit-rendered content wrapper.
 const source = readFileSync(
   new URL('../src/components/overlays/bottom-sheet-service.macos.ts', import.meta.url),
@@ -26,6 +27,7 @@ const { openBottomSheet, closeBottomSheet, bottomSheetHost } = await import(
 
 test('AppKit imperative sheets preserve results and close the latest sheet first', async () => {
   const opened = []
+
   globalThis.__xplatAppKit = {
     presentSurface(options) {
       let resolve
@@ -52,6 +54,7 @@ test('AppKit imperative sheets preserve results and close the latest sheet first
   )
 
   const second = openBottomSheet(() => null)
+
   assert.deepEqual(opened[0].options.props.params, { id: 1 })
   assert.equal(opened[0].options.modal, false)
   assert.deepEqual(opened[0].options.snapPoints, ['25%', 300])
@@ -71,6 +74,7 @@ test('AppKit imperative sheets preserve results and close the latest sheet first
 
 test('the returned handle closes only its own sheet', async () => {
   const opened = []
+
   globalThis.__xplatAppKit = {
     presentSurface(options) {
       let resolve
@@ -92,6 +96,7 @@ test('the returned handle closes only its own sheet', async () => {
 
   const first = openBottomSheet(() => null)
   const second = openBottomSheet(() => null)
+
   first.close('mine')
   assert.equal(await first, 'mine')
   assert.equal(opened[0].controller.closes, 1)
@@ -102,6 +107,7 @@ test('the returned handle closes only its own sheet', async () => {
 
 test('content can close synchronously while mounting without leaving an active sheet', async () => {
   let closes = 0
+
   globalThis.__xplatAppKit = {
     presentSurface(options) {
       options.props.close('during render')
@@ -122,6 +128,7 @@ test('content can close synchronously while mounting without leaving an active s
 
 test('user and owner close settle once; failed mount rejects without an active entry', async () => {
   let options, resolve
+
   globalThis.__xplatAppKit = {
     presentSurface(next) {
       options = next
@@ -135,6 +142,7 @@ test('user and owner close settle once; failed mount rejects without an active e
   }
 
   const pending = openBottomSheet(() => null)
+
   options.onDismiss()
   resolve()
   assert.equal(await pending, 'closed')

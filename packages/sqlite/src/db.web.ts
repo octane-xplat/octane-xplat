@@ -34,6 +34,7 @@ const ensureWorker = (): Worker => {
     // emitted here — the leaf ships source). The wasm asset rides along via
     // the ?url import inside the worker module.
     const instance = new Worker(new URL('./worker.web.ts', import.meta.url), { type: 'module' })
+
     worker = instance
     instance.onmessage = (
       event: MessageEvent<{ id: number; result?: unknown; error?: string }>,
@@ -78,6 +79,7 @@ const ensureWorker = (): Worker => {
 const call = <T>(op: string, ...args: unknown[]): Promise<T> =>
   new Promise((resolve, reject) => {
     const id = ++nextId
+
     pending.set(id, { resolve, reject })
     try {
       ensureWorker().postMessage({ id, op, args })
@@ -131,6 +133,7 @@ class WebSqliteDb implements SqliteDb {
     await call('begin', this.databaseId)
     try {
       const result = await action(this)
+
       await call('commit', this.databaseId)
       return result
     } catch (error) {
@@ -182,11 +185,13 @@ export const openDatabase = async (
 ): Promise<SqliteDb> => {
   const generation = workerGeneration
   const result = await call<{ databaseId: number; persistent: boolean }>('open', name)
+
   if (generation !== workerGeneration) {
     throw new Error('sqlite Web worker failed while opening the database')
   }
 
   const db = new WebSqliteDb(result.databaseId, result.persistent, generation)
+
   openDatabases.set(result.databaseId, db)
   return isolateDatabase(db)
 }
@@ -194,6 +199,7 @@ export const openDatabase = async (
 /** Delete a database file by name; resolves false when nothing matched. */
 export const deleteDatabase = async (name: string): Promise<boolean> => {
   const result = await call<{ deleted: boolean; databaseIds: number[] }>('delete', name)
+
   for (const databaseId of result.databaseIds) {
     openDatabases.get(databaseId)?.invalidate()
     openDatabases.delete(databaseId)

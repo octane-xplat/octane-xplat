@@ -17,5 +17,6 @@ export function prepareFullScreenPage<T extends Page>(page: T): T {
   if (isIOS) {
     wrapFullScreenPageMeasure(page)
   }
+
   return page
 }

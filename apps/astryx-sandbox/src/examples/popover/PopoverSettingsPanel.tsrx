@@ -8,6 +8,7 @@ export function PopoverSettingsPanel() @{
   const [notifications, setNotifications] = useState(true)
   const [darkMode, setDarkMode] = useState(false)
   const [sounds, setSounds] = useState(true)
+
   return (
     <>
       <Button ref={anchor} label="Settings" clickAction={() => setIsOpen(true)} />

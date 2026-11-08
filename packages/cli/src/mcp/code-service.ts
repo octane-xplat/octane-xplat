@@ -44,8 +44,10 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
   function corpusFiles(corpora, { platform } = {}) {
     const files = []
     const coverage = []
+
     for (const corpus of corpora) {
       const { files: found, truncated } = listCorpusFiles(corpus.root, { platform })
+
       for (const file of found) {
         files.push({ ...file, corpus })
       }
@@ -67,6 +69,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
   /** Working-tree freshness marker: HEAD + uncommitted-edit count. */
   function treeMarker() {
     const run = execFile ?? execFileSync
+
     try {
       const head = String(
         run('git', ['-C', workspaceRoot, 'rev-parse', 'HEAD'], {
@@ -142,6 +145,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
     status(app, wk) {
       const corpora = corporaFor(app, wk)
       const { files, coverage } = corpusFiles(corpora)
+
       return {
         state: 'ready',
         detail:
@@ -186,6 +190,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
       }
 
       let corpora = corporaFor(app, wk)
+
       if (corpus !== 'all') {
         corpora = corpora.filter((c) => c.corpus === corpus)
       }
@@ -216,10 +221,12 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
       }
 
       const semantic = { state: 'not-requested' }
+
       if (mode !== 'exact' && query) {
         // Kick (or reuse) the background build over ALL corpora — scoped
         // filters apply at query time, not index time.
         const status = index.ensure(() => collectIndexFiles(app, wk))
+
         Object.assign(semantic, status)
 
         if (status.state === 'ready' || status.state === 'stale') {
@@ -236,11 +243,13 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
 
           for (const { chunk, score } of hits) {
             const key = `${chunk.file.corpus.corpus}:${chunk.file.rel}:${chunk.startLine}`
+
             if (mode !== 'semantic' && seen.has(key)) {
               continue
             }
 
             const current = files.find((f) => f.abs === chunk.file.abs)
+
             results.push(
               hit(chunk.file.corpus, current ?? chunk.file, {
                 matchType: 'semantic',
@@ -284,8 +293,10 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
 
       let key = path
       let corpusName = corpus ?? 'app'
+
       if (ref) {
         const parsed = parseCodeRef(ref)
+
         if (!parsed) {
           return { status: 'invalid-ref', ref }
         }
@@ -314,6 +325,7 @@ export function createCodeService({ workspaceRoot, workspaceKind, execFile }) {
       }
 
       const page = readCodeFile(resolved.abs, { offset, limit })
+
       if (!page) {
         return {
           status: 'unavailable',

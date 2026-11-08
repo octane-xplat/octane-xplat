@@ -33,6 +33,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   const emit = () => {
     const value = snapshot()
     const ownGeneration = generation
+
     for (const listener of listeners) {
       if (disposed || ownGeneration !== generation) {
         break
@@ -44,6 +45,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const updateMetadata = () => {
     const track = current()
+
     if (!track) {
       if (typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
         navigator.mediaSession.metadata = null
@@ -51,6 +53,7 @@ export const createAudioPlayer = (): AudioPlayer => {
 
       return
     }
+
     if (typeof navigator !== 'undefined' && 'mediaSession' in navigator) {
       navigator.mediaSession.metadata = new MediaMetadata({
         title: track.title ?? track.id,
@@ -85,7 +88,9 @@ export const createAudioPlayer = (): AudioPlayer => {
   const setTrack = () => {
     generation++
     error = undefined
+
     const track = current()
+
     if (!track) {
       audio.removeAttribute('src')
       state = 'idle'
@@ -119,7 +124,9 @@ export const createAudioPlayer = (): AudioPlayer => {
 
     index = Math.max(0, Math.min(index + delta, queue.length - 1))
     setTrack()
+
     const ownGeneration = generation
+
     try {
       await audio.play()
     } catch (cause) {
@@ -170,6 +177,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       await audio.play()
     }
   }
+
   const pause = async () => {
     waitingToResume = false
     audio.pause()
@@ -225,9 +233,11 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       const next = copyQueue(tracks)
       const old = current()
       const at = old ? next.findIndex((t) => t.id === old.id && t.source === old.source) : -1
+
       queue = next
       queueComplete = options.complete ?? queueComplete
       if (at < 0) {
@@ -257,6 +267,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       playbackRate = bounded(rate, 0.5, 3)
       audio.preservesPitch = true
       audio.playbackRate = playbackRate
@@ -266,6 +277,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       volume = bounded(gain, 0, 1)
       audio.volume = volume
       emit()
@@ -274,6 +286,7 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       muted = value
       audio.muted = muted
       emit()

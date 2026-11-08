@@ -23,6 +23,7 @@ function applyPlatformBag(el: any, props: NanoIconProps) {
   }
 
   const bag = isIOS ? props.ios : isAndroid ? props.android : undefined
+
   if (bag) {
     Object.assign(el, bag)
   }
@@ -32,6 +33,7 @@ const charCaches = new WeakMap<NanoGlyphMap, (codepoint: number) => string>()
 
 function charCacheFor(glyphMap: NanoGlyphMap) {
   let cache = charCaches.get(glyphMap)
+
   if (!cache) {
     cache = createCharCache()
     charCaches.set(glyphMap, cache)
@@ -96,7 +98,9 @@ function NanoGlyphLayers(props: NanoIconProps & { glyphMap: NanoGlyphMap }) @{
  */
 export function NanoIcon(props: NanoIconProps): unknown @{
   useStore(nanoIconSetRegistry)
+
   const resolved = resolveNanoIcon(props.name, props.set)
+
   if (!resolved) {
     if (!warnedNames.has(props.name)) {
       warnedNames.add(props.name)

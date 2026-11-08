@@ -19,8 +19,11 @@ function png(width, height) {
   const chunk = (name, data) => {
     const type = Buffer.from(name)
     const length = Buffer.alloc(4)
+
     length.writeUInt32BE(data.length)
+
     let crc = 0xffffffff
+
     for (const byte of Buffer.concat([type, data])) {
       crc ^= byte
       for (let bit = 0; bit < 8; bit++) {
@@ -29,16 +32,20 @@ function png(width, height) {
     }
 
     const checksum = Buffer.alloc(4)
+
     checksum.writeUInt32BE((crc ^ 0xffffffff) >>> 0)
     return Buffer.concat([length, type, data, checksum])
   }
 
   const header = Buffer.alloc(13)
+
   header.writeUInt32BE(width)
   header.writeUInt32BE(height, 4)
   header[8] = 8
   header[9] = 2 // RGB; no generated image is opened or visually inspected.
+
   const pixels = Buffer.alloc(height * (1 + width * 3), 80)
+
   for (let row = 0; row < height; row++) {
     pixels[row * (1 + width * 3)] = 0
   }
@@ -53,10 +60,14 @@ function png(width, height) {
 
 try {
   const sources = [join(directory, 'landscape.png'), join(directory, 'portrait.png')]
+
   await writeFile(sources[0], png(6, 4))
   await writeFile(sources[1], png(4, 6))
+
   const invalid = join(directory, 'invalid.png')
+
   await writeFile(invalid, 'invalid image bytes')
+
   // Transpile each AppKit leaf in dependency order and give CommonJS output a
   // sibling-only require: the JSC shim allows no relative requires.
   const transpileOptions = {
@@ -103,6 +114,7 @@ try {
   ]
 
   const script = join(directory, 'fixture.cjs')
+
   await writeFile(
     script,
     `${modules.join('\n')}
@@ -244,7 +256,9 @@ setTimeout(async () => {
   )
 
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+
   const result = spawnSync(
     await macOSExecutable(packageRoot, 'macos/host'),
     [
@@ -257,6 +271,7 @@ setTimeout(async () => {
   )
 
   const output = result.stdout + result.stderr
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /APPKIT_MEDIA_RUNTIME_FAIL/)
   assert.match(output, /APPKIT_MEDIA_RUNTIME_OK/)

@@ -5,6 +5,7 @@ import { useSignal$ } from 'octane/signals/client'
 export const timeRef = { current: null as any }
 export const timeChanges: any[] = []
 export const timeRefEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     timeRefEvents.push('attach')

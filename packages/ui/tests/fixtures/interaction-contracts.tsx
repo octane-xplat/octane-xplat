@@ -16,6 +16,7 @@ const keys: UseKeyboardOptions = {
   onKeyDown(event: KeyboardEvent) {
     const code: string = event.code
     const composing: boolean = event.isComposing
+
     event.preventDefault()
     void [code, composing]
     // @ts-expect-error normalized events do not leak host objects
@@ -46,6 +47,7 @@ const direction: SwipeEvent['direction'] = 4
 const invalidPhase: PanState = 'changed'
 // @ts-expect-error native direction flags are a bounded domain
 const invalidDirection: SwipeEvent['direction'] = 3
+
 void [
   supported,
   copied,

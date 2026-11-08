@@ -78,13 +78,16 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
 
   useEffect(() => {
     const owner = lifetime.current
+
     owner.active = true
     return () => {
       // Retire first: even an already queued timer or write completion is inert.
       owner.active = false
       owner.generation++
       owner.resetVersion++
+
       const timer = owner.timer
+
       owner.timer = null
       if (timer != null) {
         clearTimeout(timer)
@@ -97,11 +100,13 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
       const owner = lifetime.current
       const generation = owner.generation
       const isCurrent = () => owner.active && owner.generation === generation
+
       if (!isCurrent()) {
         return false
       }
 
       let value: string | undefined
+
       try {
         value = text ?? getItems?.()
       } catch {
@@ -113,6 +118,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
       }
 
       let success = false
+
       if (value !== undefined) {
         try {
           success = await copyText(value)
@@ -133,6 +139,7 @@ export function useClipboard(options: UseClipboardOptions = {}): UseClipboardRes
 
         const version = ++owner.resetVersion
         const previous = owner.timer
+
         owner.timer = null
         if (previous != null) {
           clearTimeout(previous)

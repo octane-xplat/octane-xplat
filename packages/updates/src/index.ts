@@ -2,6 +2,7 @@ import type { UpdatesClient, UpdatesOptions } from './types'
 import { createClient } from './client'
 import { nativeEnvironment } from './native.mobile'
 import { unsupportedClient } from './unsupported'
+
 export type {
   UpdatesClient,
   UpdatesOptions,
@@ -11,6 +12,7 @@ export type {
 } from './types'
 
 let instance: UpdatesClient | undefined
+
 /** Create the process's native updater. Call markHealthy after successful app startup. */
 export function createUpdates(options: UpdatesOptions): UpdatesClient {
   if (instance) {
@@ -18,6 +20,7 @@ export function createUpdates(options: UpdatesOptions): UpdatesClient {
   }
 
   const environment = nativeEnvironment()
+
   instance =
     environment.releaseBuild === false
       ? unsupportedClient(options)

@@ -39,7 +39,9 @@ function FileInputControl(inputProps: FileInputProps) @{
   const statusMessage = validationErrors.length ? validationErrors.join(' ') : props.status?.message
 
   const latest = useRef(props)
+
   latest.current = props
+
   const state = useMemo(
     () =>
       createAppKitFileInputState({
@@ -80,12 +82,15 @@ function FileInputControl(inputProps: FileInputProps) @{
     dropLease.current?.()
     dropLease.current = null
     dropHost.current = view
+
     const observe = (globalThis as any).__xplatAppKit?.observeFileDrop
+
     if (!view || typeof observe !== 'function') {
       return
     }
 
     const enabled = () => dropHost.current === view && Boolean(view.window) && state.canReceive()
+
     try {
       dropLease.current = observe(view, {
         enabled,
@@ -95,6 +100,7 @@ function FileInputControl(inputProps: FileInputProps) @{
           }
 
           const picked = appKitDroppedFiles(uris, latest.current.accept)
+
           return enabled() && state.receive(picked)
         },
       })

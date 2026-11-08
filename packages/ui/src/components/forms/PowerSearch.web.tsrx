@@ -28,6 +28,7 @@ export function PowerSearch<C extends PowerSearchConfig = PowerSearchConfig>(
   const results = (source.search(query) as PowerSearchItem[]).slice(0, props.maxSearchResults ?? 10)
   const choose = (item: any) => {
     const field = internal.getField(item.auxiliaryData?.fieldKey ?? item.id)
+
     if (!field) {
       return
     }

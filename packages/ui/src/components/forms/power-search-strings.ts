@@ -67,15 +67,18 @@ export type PowerSearchTranslate = (key: string, params?: { count?: number }) =>
  *  general i18n facility — PowerSearch internals only. */
 export const powerSearchTranslate: PowerSearchTranslate = (key, params) => {
   let text = STRINGS[key]
+
   if (text == null) {
     // Unknown catalog key — fall back to the last path segment so a custom
     // operator still reads sensibly ('my.app.operator.inRegion' → 'inRegion').
     const segment = key.split('.').pop() ?? key
+
     return segment.replace(/([a-z])([A-Z])/g, '$1 $2').toLowerCase()
   }
 
   if (params?.count != null) {
     const count = params.count
+
     text = text.replace(
       /\{count, plural, one \{([^}]*)\} other \{([^}]*)\}\}/g,
       (_m, one, other) => (count === 1 ? one : other),

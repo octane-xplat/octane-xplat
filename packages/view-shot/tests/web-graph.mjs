@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { octane } from 'octane/compiler/vite'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 // Compile/link only. Do not import or execute the resulting app/engine bundle.
 const result = await build({
@@ -23,6 +24,7 @@ const result = await build({
 })
 
 const chunks = (Array.isArray(result) ? result : [result]).flatMap((value) => value.output)
+
 assert.ok(
   chunks.some(
     (chunk) =>

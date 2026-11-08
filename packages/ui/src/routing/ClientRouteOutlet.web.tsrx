@@ -21,8 +21,11 @@ function BrowserRouteModal(props: {
   const panel = useRef<HTMLDivElement | null>(null)
   const dismiss = useRef<(() => unknown) | undefined>(undefined)
   const navigator = props.entry?.scope.navigator
+
   dismiss.current = navigator ? () => navigator.dismiss() : undefined
+
   const shown = !!props.entry
+
   useLayoutEffect(() => {
     if (!shown || !layer.current || !panel.current) {
       return
@@ -91,7 +94,9 @@ function OwnedClientRouteOutlet(props: BrowserOutletProps): any {
   const flow = props.flow ?? 'root'
   const host = props.host
   const scope = useMemo(() => ({ ...host.scope(flow), host }), [host, flow])
+
   useLayoutEffect(() => host.mount(flow), [host, flow])
+
   const snapshot = useSyncExternalStore(
     host.views.subscribe,
     host.views.getSnapshot,
@@ -107,6 +112,7 @@ function OwnedClientRouteOutlet(props: BrowserOutletProps): any {
   ]
 
   const modalFlows = new Map<string, { entry?: ClientRouteEntry; staged: ClientRouteEntry[] }>()
+
   if (flow === 'root') {
     for (const modal of snapshot.modals) {
       modalFlows.set(modal.flow, { entry: modal.entry, staged: [] })

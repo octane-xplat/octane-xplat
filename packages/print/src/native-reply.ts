@@ -1,4 +1,5 @@
 import type { FilePrintResult, Printer } from './types'
+
 /** Native payloads stay at this boundary; raw native objects never enter public declarations. */
 export function invoke<T>(
   start: (callback: (payload: unknown) => void) => void,
@@ -9,11 +10,13 @@ export function invoke<T>(
       start((payload) => {
         try {
           const result: unknown = payload
+
           if (!result || typeof result !== 'object' || Array.isArray(result)) {
             throw new Error('Invalid native print response')
           }
 
           const value = result as Record<string, unknown>
+
           if (value.ok !== true) {
             throw Object.assign(
               new Error(
@@ -43,6 +46,7 @@ export function fileResult(value: Record<string, unknown>): FilePrintResult {
   ) {
     throw new Error('Invalid native PDF response')
   }
+
   return {
     uri: value.uri,
     numberOfPages: Number(value.numberOfPages),
@@ -54,5 +58,6 @@ export function printerResult(value: Record<string, unknown>): Printer {
   if (typeof value.name !== 'string' || typeof value.url !== 'string') {
     throw new Error('Invalid native printer response')
   }
+
   return { name: value.name, url: value.url }
 }

@@ -1,4 +1,5 @@
 import type { SliderProps } from '../../props'
+
 export type SliderValue = number | [number, number]
 export interface SliderLimits {
   min: number
@@ -9,7 +10,9 @@ export interface SliderLimits {
 export function sliderLimits(props: SliderProps): SliderLimits {
   const low = props.min ?? props.minValue ?? 0,
     high = props.max ?? props.maxValue ?? 100
+
   const min = Number.isFinite(low) ? low : 0
+
   return {
     min,
     max: Number.isFinite(high) ? Math.max(min, high) : Math.max(min, 100),
@@ -24,8 +27,10 @@ export function sliderValue(value: SliderValue, limits: SliderLimits): SliderVal
   if (!Array.isArray(value)) {
     return clamp(value, limits)
   }
+
   const a = clamp(value[0], limits),
     b = clamp(value[1], limits)
+
   return [Math.min(a, b), Math.max(a, b)]
 }
 
@@ -44,14 +49,17 @@ export function moveSlider(
   if (!Number.isFinite(proposed)) {
     return value
   }
+
   // Match the current web leaf's zero-origin step grid; clamp after snapping.
   const next = clamp(
     limits.step > 0 ? Math.round(proposed / limits.step) * limits.step : proposed,
     limits,
   )
+
   if (!Array.isArray(value)) {
     return next
   }
+
   return thumb === 0 ? [Math.min(next, value[1]), value[1]] : [value[0], Math.max(next, value[0])]
 }
 
@@ -61,6 +69,7 @@ export function sameSliderValue(a: SliderValue, b: SliderValue): boolean {
 
 export function sliderKey(key: string, value: number, limits: SliderLimits): number | undefined {
   const delta = limits.step || (limits.max - limits.min) / 100
+
   switch (key) {
     case 'ArrowRight':
     case 'ArrowUp':

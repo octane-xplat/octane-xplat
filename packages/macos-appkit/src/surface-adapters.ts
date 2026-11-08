@@ -178,6 +178,7 @@ export function createSurfaceAdapters(deps: SurfaceAdapterDependencies): Surface
             },
           ),
         )
+
         if (props.separatorColor != null) {
           nativeColor(props.separatorColor)
         }
@@ -252,12 +253,14 @@ export function createSurfaceAdapters(deps: SurfaceAdapterDependencies): Surface
           if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
             return
           }
+
           deps.cssCascade.setNodeInlineStyle(node, { ...node.props.style, height })
           deps.nativeStyle.setSizeConstraint(node, 'height', height)
         })
       },
       dispose(node) {
         const failures = new FailureCollector()
+
         failures.run('web state', () => disposeBuiltinWebView(node))
         failures.run('web actions', () => deps.actions.disposeActions(node))
         failures.throwIfFailed()
@@ -275,6 +278,7 @@ export function createSurfaceAdapters(deps: SurfaceAdapterDependencies): Surface
       },
       dispose(node) {
         const failures = new FailureCollector()
+
         failures.run('image state', () => deps.imageElements.disposeBuiltinImage(node))
         failures.run('image actions', () => deps.actions.disposeActions(node))
         failures.throwIfFailed()
@@ -292,6 +296,7 @@ export function createSurfaceAdapters(deps: SurfaceAdapterDependencies): Surface
       },
       dispose(node) {
         const failures = new FailureCollector()
+
         failures.run('animated image state', () => deps.imageElements.disposeBuiltinImage(node))
         failures.run('animated image actions', () => deps.actions.disposeActions(node))
         failures.throwIfFailed()

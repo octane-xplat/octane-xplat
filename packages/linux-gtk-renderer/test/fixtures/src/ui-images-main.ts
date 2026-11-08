@@ -18,7 +18,9 @@ const check = (name: string, ok: boolean | unknown) => {
 
 const window = new Gtk.Window({ default_width: 400, default_height: 400 })
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -28,6 +30,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -37,6 +40,7 @@ const findNode = (id: string): any => {
       return n
     }
   }
+
   return null
 }
 
@@ -48,6 +52,7 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -67,6 +72,7 @@ async function run() {
 
   // Mount + loaded state — a decoded data: PNG lands a Gdk.Texture.
   const good = findView('img-good')
+
   check('Image mounts with src', !!good)
   check('Image loaded state clears', good?.isLoading === false)
   check('Image produced a texture', !!good?.imageSource)
@@ -76,11 +82,13 @@ async function run() {
   // Fit modes → Gtk.Picture content_fit.
   const contain = findView('img-fit-contain')
   const fill = findView('img-fit-fill')
+
   check('contentFit contain loads', !!contain?.imageSource)
   check('contentFit fill loads', !!fill?.imageSource)
 
   // Load error — invalid PNG bytes surface imageError, no texture.
   const bad = findView('img-bad')
+
   check('failed src produces imageError', !!bad?.imageError)
   check('failed src leaves no texture', !bad?.imageSource)
   check('failed src clears loading', bad?.isLoading === false)
@@ -108,19 +116,24 @@ async function run() {
   // must equal the shared encoder's output for the known pixels (4x4 solid
   // red 220,40,40,255 — the fixture PNG bytes).
   const expectedRgba = new Uint8Array(64)
+
   for (let i = 0; i < 16; i++) {
     const o = i * 4
+
     expectedRgba[o] = 220
     expectedRgba[o + 1] = 40
     expectedRgba[o + 2] = 40
     expectedRgba[o + 3] = 255
   }
+
   const expectedHash = rgbaToThumbHashUri(4, 4, expectedRgba)
   const hash = await thumbHashUri(PNG_2x2)
+
   check(
     'thumbHashUri returns a thumbhash: URI',
     typeof hash === 'string' && hash.startsWith('thumbhash:'),
   )
+
   check('thumbHashUri decodes to the encoder output', hash === expectedHash)
 
   // Source grammar: `~/` resolves relative to the bundle (import.meta.url),
@@ -129,6 +142,7 @@ async function run() {
   const pngBytes = new GLib.Bytes(GLib.base64_decode(PNG_2x2.slice(PNG_2x2.indexOf(',') + 1)))
   const bundleDir = Gio.File.new_for_uri(import.meta.url).get_parent()
   const tildeFile = bundleDir.get_child('probe-image.png')
+
   await new Promise((res, rej) =>
     tildeFile.replace_contents_bytes_async(pngBytes, null, false, 0, null, (f, r) => {
       try {
@@ -138,18 +152,24 @@ async function run() {
       }
     }),
   )
+
   const tildeHash = await thumbHashUri('~/probe-image.png')
+
   check('thumbHashUri resolves ~/ relative to the bundle', tildeHash === expectedHash)
 
   const absPath = '/tmp/gtk-probe-image.png'
+
   GLib.file_set_contents(absPath, pngBytes.get_data())
+
   const absHash = await thumbHashUri(absPath)
+
   check('thumbHashUri resolves an absolute file path', absHash === expectedHash)
 
   print(
     'GTK_IMAGES ' +
       JSON.stringify({ checks: checks.length, failures, osInput: false, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 

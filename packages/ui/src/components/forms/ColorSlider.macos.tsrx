@@ -23,7 +23,9 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   const drag = useRef<number | null>(null)
   const host = useRef<any>(null)
   const latest = useRef(props)
+
   latest.current = props
+
   // Stable ref identity: a fresh callback each render would rebind
   // useMeasure (null → el), reset bounds, and re-render forever.
   const bindHost = useCallback((el: any) => {
@@ -36,6 +38,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 
   const focusHost = () => {
     const target = host.current
+
     if (target && !latest.current.isDisabled) {
       target.window?.makeFirstResponder(target)
     }
@@ -71,6 +74,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   // the latest props so retained handlers never replay a stale hsb.
   const move = (next: Partial<Hsb>) => {
     const current = latest.current
+
     if (current.isDisabled) {
       return
     }
@@ -84,6 +88,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   const { keyboardProps } = useKeyboard({
     onKeyDown: (event) => {
       const current = latest.current
+
       if (
         current.isDisabled ||
         event.defaultPrevented ||
@@ -97,6 +102,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 
       const step = event.shiftKey ? 10 : 1
       let d = 0
+
       switch (event.key) {
         case 'ArrowRight':
         case 'ArrowUp':

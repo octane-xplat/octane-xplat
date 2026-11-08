@@ -39,11 +39,13 @@ const packageName = (specifier) => {
   }
 
   const parts = specifier.split('/')
+
   return specifier.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]
 }
 
 const importSpecifiers = (source) => {
   const specs = new Set()
+
   for (const pattern of [
     /\bfrom\s*['"]([^'"]+)['"]/g,
     /\bimport\s*['"]([^'"]+)['"]/g,
@@ -70,6 +72,7 @@ const sourceFiles = (root) => {
       }
 
       const file = join(dir, entry.name)
+
       if (entry.isDirectory()) {
         visit(file)
       } else if (/\.(?:m?[jt]sx?|tsrx)$/.test(entry.name)) {
@@ -85,9 +88,11 @@ const sourceFiles = (root) => {
 const workspacePackages = (cwd) => {
   const found = new Map()
   let dir = resolve(cwd)
+
   while (true) {
     for (const group of ['apps', 'packages', 'tools']) {
       const parent = join(dir, group)
+
       if (!existsSync(parent)) {
         continue
       }
@@ -95,6 +100,7 @@ const workspacePackages = (cwd) => {
       for (const name of readdirSync(parent)) {
         const root = join(parent, name)
         const manifest = readJson(join(root, 'package.json'))
+
         if (manifest?.name) {
           found.set(manifest.name, root)
         }
@@ -102,6 +108,7 @@ const workspacePackages = (cwd) => {
     }
 
     const next = dirname(dir)
+
     if (next === dir) {
       break
     }
@@ -146,6 +153,7 @@ export function findMissingPluginDeclarations(cwd) {
 
   const workspaces = workspacePackages(cwd)
   const pending = sourceFiles(join(cwd, 'src'))
+
   for (const dir of ['app', 'src/app']) {
     pending.push(...sourceFiles(join(cwd, dir)))
   }
@@ -155,12 +163,15 @@ export function findMissingPluginDeclarations(cwd) {
 
   while (pending.length) {
     const file = pending.pop()
+
     if (visited.has(file)) {
       continue
     }
 
     visited.add(file)
+
     let source
+
     try {
       source = readFileSync(file, 'utf8')
     } catch {
@@ -169,6 +180,7 @@ export function findMissingPluginDeclarations(cwd) {
 
     for (const specifier of importSpecifiers(source)) {
       const name = packageName(specifier)
+
       if (frameworkFallbacks[name]) {
         if (!frameworks.has(name)) {
           frameworks.set(name, new Set())
@@ -179,6 +191,7 @@ export function findMissingPluginDeclarations(cwd) {
       }
 
       const root = packageRoot(cwd, name, workspaces)
+
       if (root && workspaces.has(name)) {
         pending.push(...sourceFiles(root))
       }
@@ -186,6 +199,7 @@ export function findMissingPluginDeclarations(cwd) {
   }
 
   const missing = new Map()
+
   for (const [framework] of frameworks) {
     for (const plugin of frameworkPlugins(cwd, framework, workspaces)) {
       if (!owned.has(plugin)) {
@@ -216,6 +230,7 @@ export function findHmrScopeGaps(cwd) {
 
   const tsconfig = readJson(join(cwd, 'tsconfig.json'))
   let paths = tsconfig?.compilerOptions?.paths
+
   if (!paths && typeof tsconfig?.extends === 'string') {
     paths = readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
   }
@@ -225,6 +240,7 @@ export function findHmrScopeGaps(cwd) {
   }
 
   const workspaces = workspacePackages(cwd)
+
   if (workspaces.size === 0) {
     return []
   }
@@ -240,14 +256,18 @@ export function findHmrScopeGaps(cwd) {
 
   const visited = new Set()
   const gaps = new Set()
+
   while (pending.length) {
     const file = pending.pop()
+
     if (visited.has(file)) {
       continue
     }
 
     visited.add(file)
+
     let source
+
     try {
       source = readFileSync(file, 'utf8')
     } catch {
@@ -257,6 +277,7 @@ export function findHmrScopeGaps(cwd) {
     for (const specifier of importSpecifiers(source)) {
       const name = packageName(specifier)
       const root = workspaces.get(name)
+
       if (!root) {
         continue
       }
@@ -286,6 +307,7 @@ export function findLinkedCoreTypeGap(cwd) {
 
   const tsconfig = readJson(join(cwd, 'tsconfig.json'))
   let paths = tsconfig?.compilerOptions?.paths
+
   if (!paths && typeof tsconfig?.extends === 'string') {
     paths = readJson(join(cwd, tsconfig.extends))?.compilerOptions?.paths ?? undefined
   }
@@ -303,8 +325,10 @@ export function findLinkedCoreTypeGap(cwd) {
   ])
 
   const root = realpathSync(workspaceRoot(cwd))
+
   for (const name of declared) {
     const location = installedPackageRoot(cwd, name)
+
     if (location && location !== root && !location.startsWith(root + sep)) {
       return name
     }
@@ -330,9 +354,11 @@ export async function inspectDoctor({
   const messages: DoctorMessage[] = []
   const message = (level: DoctorMessage['level'], text: string) => {
     const value = { level, text }
+
     messages.push(value)
     onMessage?.(value)
   }
+
   const cwd = process.cwd()
 
   const rows: DoctorCheck[] = []
@@ -341,8 +367,10 @@ export async function inspectDoctor({
   const macos = hasMacOS(cwd)
   const manifest = readJson(join(cwd, 'package.json')) ?? {}
   let compatibilityFailed = false
+
   try {
     const compatibilityRows = inspectCompatibility(cwd)
+
     rows.push(...compatibilityRows)
     compatibilityFailed = compatibilityRows.some((r) => !r.ok)
   } catch (error) {
@@ -355,8 +383,10 @@ export async function inspectDoctor({
 
     compatibilityFailed = true
   }
+
   let declarationPackCheckFailed = false
   let declarationPackCheckOutput = ''
+
   if (existsSync(join(cwd, 'tsrx-typegen.json'))) {
     const declarations = check(
       packageManagerFor(cwd),
@@ -377,7 +407,9 @@ export async function inspectDoctor({
   }
 
   row('node', check('node', ['--version']).ok, check('node', ['--version']).out)
+
   const manager = packageManagerFor(cwd)
+
   row(manager, check(manager, ['--version']).ok, check(manager, ['--version']).out)
   if (native) {
     row(
@@ -402,7 +434,9 @@ export async function inspectDoctor({
     )
 
     const sims = check('xcrun', ['simctl', 'list', 'devices', 'booted'])
+
     row('iOS simulator', sims.ok, sims.out || 'none booted')
+
     const adb = check('adb', ['devices'])
     const devices = adb.ok
       ? adb.out
@@ -437,6 +471,7 @@ export async function inspectDoctor({
 
   if (hasLinux(cwd)) {
     const config = inspectLinuxPackageConfig(cwd)
+
     row(
       'Linux packaging config',
       config.issues.length === 0,
@@ -445,6 +480,7 @@ export async function inspectDoctor({
     )
 
     const tar = check('tar', ['--version'])
+
     row('Linux archive tool', tar.ok, tar.out, 'install tar')
     if (process.platform === 'linux') {
       const runtime = check('gjs', [
@@ -498,8 +534,10 @@ export async function inspectDoctor({
   }
 
   const windows = hasWindows(cwd)
+
   if (windows) {
     const winHost = process.platform === 'win32'
+
     row(
       'Windows host',
       winHost,
@@ -521,6 +559,7 @@ export async function inspectDoctor({
     if (winHost) {
       const dotnet = check('dotnet', ['--version'])
       const dotnetMajor = parseInt(dotnet.out ?? '', 10)
+
       row(
         '.NET SDK',
         dotnet.ok && dotnetMajor >= 10,
@@ -546,6 +585,7 @@ export async function inspectDoctor({
   }
 
   const pluginWarnings = native ? findMissingPluginDeclarations(cwd) : []
+
   for (const { plugin, frameworks } of pluginWarnings) {
     message(
       'warn',
@@ -554,6 +594,7 @@ export async function inspectDoctor({
   }
 
   const scopeGaps = native ? findHmrScopeGaps(cwd) : []
+
   for (const name of scopeGaps) {
     message(
       'warn',
@@ -562,15 +603,18 @@ export async function inspectDoctor({
   }
 
   const linkedCoreGap = native ? findLinkedCoreTypeGap(cwd) : null
+
   if (linkedCoreGap) {
     message(
       'warn',
       `linked dependency — ${linkedCoreGap} resolves outside this app's install; pin "@nativescript/core" and "@nativescript/core/*" to "./node_modules/@nativescript/core…" in tsconfig paths or linked checkouts typecheck a second core copy`,
     )
   }
+
   const bad = rows.filter((row) => !row.ok).length
   const summary =
     bad === 0 ? 'All checks pass' : `${bad} check(s) need attention — see the missing items above`
+
   return {
     rows,
     messages,

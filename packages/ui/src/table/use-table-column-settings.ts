@@ -60,6 +60,7 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
 ): UseTableColumnSettingsStateReturn<TColumnKey> {
   const { columns, activeColumnKeys } = config
   const configRef = useRef(config)
+
   configRef.current = config
 
   const activeSet = useMemo(() => new Set(activeColumnKeys), [activeColumnKeys])
@@ -70,10 +71,13 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
 
   const toggleColumn = (key: TColumnKey) => {
     const cfg = configRef.current
+
     if (cfg.columns.some((c) => c.key === key && c.isAlwaysVisible)) {
       return
     }
+
     const currentSet = new Set(cfg.activeColumnKeys)
+
     if (currentSet.has(key)) {
       cfg.onChangeActiveColumnKeys(cfg.activeColumnKeys.filter((k) => k !== key))
     } else {
@@ -86,11 +90,13 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
 
   const showAllColumns = () => {
     const cfg = configRef.current
+
     cfg.onChangeActiveColumnKeys(cfg.columns.map((c) => c.key))
   }
 
   const resetToDefault = () => {
     const cfg = configRef.current
+
     if (cfg.defaultColumnKeys) {
       cfg.onChangeActiveColumnKeys([...cfg.defaultColumnKeys])
     } else {
@@ -102,9 +108,11 @@ export function useTableColumnSettingsState<TColumnKey extends string = string>(
     const cfg = configRef.current
     const avSet = new Set(cfg.columns.filter((c) => c.isAlwaysVisible).map((c) => c.key))
     const valueSet = new Set(value)
+
     for (const key of avSet) {
       valueSet.add(key)
     }
+
     cfg.onChangeActiveColumnKeys(Array.from(valueSet) as unknown as TColumnKey[])
   }
 
@@ -126,6 +134,7 @@ export function useTableColumnSettings<
   TColumnKey extends string = string,
 >(config: UseTableColumnSettingsConfig<TColumnKey>): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   return {
@@ -133,11 +142,13 @@ export function useTableColumnSettings<
       const cfg = configRef.current
       const activeSet = new Set(cfg.activeColumnKeys)
       const orderMap = new Map(cfg.activeColumnKeys.map((key, index) => [key, index]))
+
       return columns
         .filter((col) => activeSet.has(col.key as TColumnKey))
         .sort((a, b) => {
           const orderA = orderMap.get(a.key as TColumnKey) ?? Infinity
           const orderB = orderMap.get(b.key as TColumnKey) ?? Infinity
+
           return orderA - orderB
         })
     },

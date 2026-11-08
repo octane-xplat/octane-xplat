@@ -22,6 +22,7 @@ function identifier(value: string): string {
   if (typeof value !== 'string' || !value.trim()) {
     throw new TypeError('A media identifier must not be empty')
   }
+
   return value
 }
 
@@ -29,6 +30,7 @@ function whole(value: number, name: string): number {
   if (!Number.isSafeInteger(value) || value < 0) {
     throw new RangeError(`${name} must be a nonnegative integer`)
   }
+
   return value
 }
 
@@ -36,9 +38,11 @@ function fileUri(value: string): string {
   if (typeof value === 'string' && value.startsWith('file://')) {
     return value
   }
+
   if (typeof value === 'string' && value.startsWith('/')) {
     return `file://${value.split('/').map(encodeURIComponent).join('/')}`
   }
+
   throw new TypeError('Asset creation requires a local file URI or absolute app file path')
 }
 
@@ -84,6 +88,7 @@ export class Asset {
     height: number
   } | null> {
     const value = await backend.metadata(this.id)
+
     return value.width === null || value.height === null
       ? null
       : { width: value.width, height: value.height }
@@ -91,9 +96,11 @@ export class Asset {
   /** Export a temporary Apple file or return an Android content URI. Release it with releaseAssetUri. */
   getUri(options: AssetUriOptions = {}): Promise<string> {
     const version = options.version ?? AssetUriVersion.CURRENT
+
     if (version !== 'current' && version !== 'original') {
       throw new TypeError('Unknown asset URI version')
     }
+
     return backend.uri(this.id, { version })
   }
   /** Export current media with metadata; release the returned uri after use. */
@@ -101,7 +108,9 @@ export class Asset {
     const value = await backend.metadata(this.id)
     const width = dimension(value.width, 'width'),
       height = dimension(value.height, 'height')
+
     const uri = await this.getUri()
+
     return { ...value, uri, filename: value.filename ?? '', width, height }
   }
   getLocation(): Promise<Location | null> {
@@ -114,6 +123,7 @@ export class Asset {
     if (typeof favorite !== 'boolean') {
       throw new TypeError('Favorite must be boolean')
     }
+
     return backend.setFavorite(this.id, favorite)
   }
   delete(): Promise<void> {
@@ -132,6 +142,7 @@ function dimension(value: number | null, name: string): number {
   if (value === null) {
     throw new Error(`Asset ${name} is unavailable in library metadata`)
   }
+
   return value
 }
 
@@ -139,6 +150,7 @@ function assetIds(assets: Asset[]): string[] {
   if (!Array.isArray(assets) || assets.some((asset) => !(asset instanceof Asset))) {
     throw new TypeError('Expected Asset handles')
   }
+
   return [...new Set(assets.map((asset) => asset.id))]
 }
 
@@ -163,6 +175,7 @@ export class Album {
       if (value.type === null) {
         throw new UnavailabilityError('Album.getType')
       }
+
       return value.type
     })
   }
@@ -190,12 +203,15 @@ export class Album {
     if (!Array.isArray(assets)) {
       throw new TypeError('Expected an array of file URIs or Asset handles')
     }
+
     const sources = assets.every((asset) => typeof asset === 'string')
       ? (assets as string[]).map(fileUri)
       : assetIds(assets as Asset[])
+
     if (typeof moveAssets !== 'boolean') {
       throw new TypeError('moveAssets must be boolean')
     }
+
     return new Album(await backend.createAlbum(title, sources, moveAssets))
   }
   /** Apple preserves assets by default; Android deletes the assets along with the directory album. */
@@ -203,14 +219,18 @@ export class Album {
     if (!Array.isArray(albums) || albums.some((album) => !(album instanceof Album))) {
       throw new TypeError('Expected Album handles')
     }
+
     if (typeof deleteAssets !== 'boolean') {
       throw new TypeError('deleteAssets must be boolean')
     }
+
     return backend.deleteAlbums([...new Set(albums.map((album) => album.id))], deleteAssets)
   }
   static async get(title: string): Promise<Album | null> {
     identifier(title)
+
     const match = (await backend.albums({})).find((album) => album.title === title)
+
     return match ? new Album(match.id) : null
   }
   static async getAll(): Promise<Album[]> {
@@ -237,9 +257,11 @@ export class Query {
     if (!Object.values(AssetField).includes(field)) {
       throw new TypeError('Unknown query field')
     }
+
     const values = Array.isArray(value) ? value : [value]
     const expected =
       field === 'mediaType' ? 'string' : field === 'isFavorite' ? 'boolean' : 'number'
+
     if (
       values.some(
         (item) => typeof item !== expected || (typeof item === 'number' && !Number.isFinite(item)),
@@ -247,15 +269,18 @@ export class Query {
     ) {
       throw new TypeError('Query value does not match its field')
     }
+
     if (
       field === 'mediaType' &&
       values.some((item) => !['unknown', 'image', 'audio', 'video'].includes(String(item)))
     ) {
       throw new TypeError('Unknown media type')
     }
+
     if (!['eq', 'within'].includes(operator) && expected !== 'number') {
       throw new TypeError('Ordering filters require a numeric field')
     }
+
     this.#spec.filters.push({ field, operator, value: Array.isArray(value) ? [...value] : value })
     return this
   }
@@ -266,6 +291,7 @@ export class Query {
     if (!Array.isArray(value)) {
       throw new TypeError('within requires an array')
     }
+
     return this.#filter(field, 'within', value)
   }
   gt(field: AssetField, value: number): this {
@@ -290,12 +316,15 @@ export class Query {
   }
   orderBy(value: SortDescriptor | AssetField): this {
     const descriptor = typeof value === 'string' ? { key: value, ascending: true } : { ...value }
+
     if (!Object.values(AssetField).includes(descriptor.key)) {
       throw new TypeError('Unknown sort field')
     }
+
     if (descriptor.ascending !== undefined && typeof descriptor.ascending !== 'boolean') {
       throw new TypeError('ascending must be boolean')
     }
+
     this.#spec.order.push(descriptor)
     return this
   }
@@ -303,6 +332,7 @@ export class Query {
     if (!(value instanceof Album)) {
       throw new TypeError('Expected an Album handle')
     }
+
     this.#spec.album = value.id
     return this
   }
@@ -315,6 +345,7 @@ export class Query {
       })),
       order: this.#spec.order.map((order) => ({ ...order })),
     }
+
     return backend.query(spec)
   }
   async exe(): Promise<Asset[]> {
@@ -334,6 +365,7 @@ function permissionArgs(
   if (typeof writeOnly !== 'boolean') {
     throw new TypeError('writeOnly must be boolean')
   }
+
   if (
     granular !== undefined &&
     (!Array.isArray(granular) ||
@@ -341,6 +373,7 @@ function permissionArgs(
   ) {
     throw new TypeError('Unknown granular media permission')
   }
+
   return granular === undefined ? undefined : [...new Set(granular)]
 }
 
@@ -368,6 +401,7 @@ export function presentPermissionsPicker(types?: MediaTypeFilter[]): Promise<voi
   ) {
     throw new TypeError('Unknown permissions-picker media type')
   }
+
   return backend.presentPermissionsPicker(types === undefined ? undefined : [...new Set(types)])
 }
 
@@ -377,6 +411,7 @@ export function releaseAssetUri(uri: string): void {
 }
 
 const subscriptions = new Set<{ remove(): void }>()
+
 /** Subscribe after read access is granted. Reload on changes and remove at the owner boundary. */
 export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => void): {
   remove(): void
@@ -384,12 +419,14 @@ export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => 
   if (typeof listener !== 'function') {
     throw new TypeError('A listener must be a function')
   }
+
   let active = true
   const native = backend.subscribe((event) => {
     if (active) {
       listener(event)
     }
   })
+
   const subscription = {
     remove() {
       if (subscriptions.delete(subscription)) {
@@ -398,6 +435,7 @@ export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => 
       }
     },
   }
+
   subscriptions.add(subscription)
   return subscription
 }
@@ -405,6 +443,7 @@ export function addListener(listener: (event: MediaLibraryAssetsChangeEvent) => 
 /** Remove every subscription owned by this module; prefer removing your own subscription. */
 export function removeAllListeners(): void {
   const pending = Array.from(subscriptions)
+
   for (const subscription of pending) {
     subscription.remove()
   }

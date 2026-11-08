@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import { providerVerification, hostedVerification } from './server-verification.mjs'
+
 const request = (body) =>
   new Request('https://example.test/verify', { method: 'POST', body: JSON.stringify(body) })
 

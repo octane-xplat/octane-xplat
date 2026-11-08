@@ -63,6 +63,7 @@ export function normalizeGlyphMap(map: NanoGlyphMapInput): NanoGlyphMap {
   }
 
   const meta = map.m
+
   if (!meta || typeof meta.f !== 'string' || !Number.isFinite(meta.u) || !Number.isFinite(meta.s)) {
     throw new TypeError('Glyph map metadata is missing or malformed (expected m.f, m.u, m.s)')
   }
@@ -81,8 +82,10 @@ export function resolveGlyphEntry(glyphMap: NanoGlyphMapInput, name: string): Gl
 /** A memoized codepoint → string converter, scoped per icon set. */
 export function createCharCache(): (codepoint: number) => string {
   const cache = new Map<number, string>()
+
   return (codepoint) => {
     let ch = cache.get(codepoint)
+
     if (ch === undefined) {
       ch = String.fromCodePoint(codepoint)
       cache.set(codepoint, ch)
@@ -122,8 +125,10 @@ const positionsByLayers = new WeakMap<readonly GlyphLayer[], number[]>()
 /** Layer index → palette position for `currentColor` tinting. */
 export function currentColorPositions(layers: readonly GlyphLayer[]): number[] {
   let positions = positionsByLayers.get(layers)
+
   if (!positions) {
     let next = 0
+
     positions = layers.map(([, srcColor]) => (srcColor === 'currentColor' ? next++ : -1))
 
     positionsByLayers.set(layers, positions)

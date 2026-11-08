@@ -37,6 +37,7 @@ export function microphonePermissionState(): RecorderPermissionState {
   }
 
   const context = appContext()
+
   if (!context?.checkSelfPermission) {
     return 'unsupported'
   }
@@ -57,6 +58,7 @@ export async function requestMicrophonePermission(): Promise<RecorderPermissionS
 
   const context = appContext()
   const activity = Application.android?.foregroundActivity ?? Application.android?.startActivity
+
   if (!context?.checkSelfPermission || !activity?.requestPermissions) {
     return 'unsupported'
   }
@@ -93,6 +95,7 @@ const asError = (cause: unknown) => (cause instanceof Error ? cause : new Error(
 /** Copy a Uint8Array into a Java byte[] for java.io writers. */
 const toJavaBytes = (bytes: Uint8Array) => {
   const native = (Array as any).create('byte', bytes.length)
+
   for (let i = 0; i < bytes.length; i++) {
     native[i] = bytes[i]
   }
@@ -104,9 +107,11 @@ const toJavaBytes = (bytes: Uint8Array) => {
  *  writes big-endian, so emit each little-endian byte directly. */
 const patchWavSizes = (file: any, dataLength: number) => {
   const raf = new java.io.RandomAccessFile(file, 'rw')
+
   try {
     const sizes = new Uint8Array(8)
     const view = new DataView(sizes.buffer)
+
     view.setUint32(0, 36 + dataLength, true)
     view.setUint32(4, dataLength, true)
     raf.seek(4)
@@ -123,8 +128,10 @@ const readFileBytes = (path: string): Uint8Array => {
   // the way @nativescript/core's own FileSystemAccess does.
   const file = new java.io.File(path)
   const stream = new java.io.FileInputStream(file)
+
   try {
     const bytes = (Array as any).create('byte', file.length())
+
     new java.io.DataInputStream(stream).readFully(bytes)
     return decodeBase64(android.util.Base64.encodeToString(bytes, android.util.Base64.NO_WRAP))
   } finally {
@@ -160,6 +167,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
   const emit = () => {
     const value = snapshot()
+
     for (const listener of listeners) {
       listener(value)
     }
@@ -168,6 +176,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
   const updatePeak = (buffer: any, length: number) => {
     for (let i = 0; i + 1 < length; i += 2) {
       const sample = Math.abs((((buffer[i + 1] << 8) | (buffer[i] & 0xff)) << 16) >> 16)
+
       if (sample > peak) {
         peak = sample
       }
@@ -176,8 +185,10 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
   const readLoop = (audioRecord: android.media.AudioRecord, out: any, chunkSize: number) => {
     const chunk = (Array as any).create('byte', chunkSize)
+
     while (capturing) {
       const read = audioRecord.read(chunk, 0, chunkSize)
+
       if (read > 0) {
         try {
           out.write(chunk, 0, read)
@@ -217,12 +228,14 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
   const resumeCapture = () => {
     const audioRecord = record
     const out = output
+
     if (!audioRecord || !out) {
       throw new Error('AudioRecorder has no open take')
     }
 
     audioRecord.startRecording()
     capturing = true
+
     const chunkSize = Math.max(4096, audioRecord.getBufferSizeInFrames() * options.channels * 2)
 
     thread = new java.lang.Thread(
@@ -303,7 +316,9 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
     error = undefined
     bytesWritten = 0
     peak = 0
+
     const context = appContext()
+
     if (!context) {
       throw new Error('AudioRecorder needs an Android application context')
     }
@@ -344,6 +359,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       takePath = file.getAbsolutePath()
       output = new java.io.FileOutputStream(file)
       output.write(toJavaBytes(wavHeader(0, options.sampleRate, options.channels)))
+
       // AudioRecordingCallback reports the OS silencing this input
       // (calls, mic arbitration) so interrupted takes are real, not silent
       // stretches of zeroes. Callbacks run on the main looper.
@@ -357,6 +373,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
       recordingCallback = new (android.media.AudioManager.AudioRecordingCallback as any).extend({
         onRecordingConfigChanged(configs: java.util.List<any>) {
           let silenced = false
+
           for (let i = 0; configs && i < configs.size(); i++) {
             silenced ||= configs.get(i).isClientSilenced() === true
           }
@@ -431,9 +448,13 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 
     const takenPath = takePath
     const dataLength = bytesWritten
+
     closeTake(false)
+
     const file = new java.io.File(takenPath)
+
     patchWavSizes(file, dataLength)
+
     const result: RecordingResult = {
       mimeType: 'audio/wav',
       bytes: readFileBytes(takenPath),

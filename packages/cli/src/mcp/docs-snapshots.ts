@@ -66,8 +66,10 @@ export async function gitAvailable(ctx) {
 export async function remoteTagSha(ctx, repo, tag) {
   const out = await git(ctx, ['ls-remote', repo, `refs/tags/${tag}`, `refs/tags/${tag}^{}`])
   let commit = null
+
   for (const line of out.split('\n')) {
     const [sha, ref] = line.trim().split(/\s+/)
+
     if (!sha) {
       continue
     }
@@ -88,7 +90,9 @@ export async function remoteTagSha(ctx, repo, tag) {
  */
 async function acquire(ctx, { repo, tag, packageDir, packageName, version }) {
   mkdirSync(ctx.cacheDir, { recursive: true })
+
   const tmp = mkdtempSync(join(ctx.cacheDir, 'tmp-'))
+
   try {
     await git(ctx, ['init', '-q', tmp])
     // core.hooksPath=/dev/null: a fetched repo's hooks must never execute.
@@ -99,9 +103,11 @@ async function acquire(ctx, { repo, tag, packageDir, packageName, version }) {
     )
 
     await git(ctx, ['checkout', '-q', '--detach', 'FETCH_HEAD'], tmp)
+
     const commit = (await git(ctx, ['rev-parse', 'HEAD'], tmp)).trim()
 
     let pkg = null
+
     try {
       pkg = JSON.parse(readFileSync(join(tmp, packageDir, 'package.json'), 'utf8'))
     } catch {
@@ -117,6 +123,7 @@ async function acquire(ctx, { repo, tag, packageDir, packageName, version }) {
     }
 
     const dest = join(ctx.cacheDir, 'snapshots', repoKey(repo), commit)
+
     if (!existsSync(dest)) {
       mkdirSync(dirname(dest), { recursive: true })
       renameSync(tmp, dest)
@@ -138,8 +145,10 @@ function readBindings(ctx) {
 
 function writeBindings(ctx, bindings) {
   mkdirSync(ctx.cacheDir, { recursive: true })
+
   const file = join(ctx.cacheDir, 'bindings.json')
   const tmp = `${file}.${process.pid}.tmp`
+
   writeFileSync(tmp, JSON.stringify(bindings, null, '\t'))
   renameSync(tmp, file)
 }
@@ -171,6 +180,7 @@ export async function ensureSnapshot(
   }
 
   let remote
+
   try {
     remote = await remoteTagSha(ctx, repo, tag)
   } catch {
@@ -212,6 +222,7 @@ export async function ensureSnapshot(
   }
 
   let got
+
   try {
     got = await acquire(ctx, { repo, tag, packageDir, packageName, version })
   } catch {

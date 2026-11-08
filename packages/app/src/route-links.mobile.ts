@@ -3,12 +3,14 @@ import { consumeInitialUrl, onDeepLink } from '@octane-xplat/platform'
 import { getStack, router } from '@octane-xplat/ui/routing'
 
 let wired = false
+
 export function wireRouteLinks(): void {
   if (wired) {
     return
   }
 
   wired = true
+
   const pending: string[] = []
   let scheduled = false
   const drain = (tries = 100) => {
@@ -25,6 +27,7 @@ export function wireRouteLinks(): void {
     }
 
     const initial = consumeInitialUrl()
+
     if (initial) {
       pending.unshift(initial)
     }

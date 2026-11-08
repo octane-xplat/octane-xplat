@@ -186,6 +186,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
             const options = group.items.map((item) => {
               const index = props.results.indexOf(item)
               const isSelected = item.id === selectedId && selectedId != null
+
               return (
                 <div
                   key={`${item.id}-${index}`}

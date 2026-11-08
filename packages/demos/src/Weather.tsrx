@@ -10,6 +10,7 @@ const ICONS = ['☀', '⛅', '☁', '☂', '❄']
 function fakeForecast(): Day[] {
   return NAMES.map((name, i) => {
     const lo = 8 + Math.floor(Math.random() * 8)
+
     return {
       id: 'd' + i,
       name,
@@ -28,10 +29,12 @@ function fakeForecast(): Day[] {
 export function Weather() @{
   const [days, setDays] = useState<Day[] | null>(null)
   const [gen, setGen] = useState(0)
+
   console.log('[demo] Weather render days=' + (days ? days.length : 'null'))
 
   useEffect(() => {
     setDays(null)
+
     const t = setTimeout(() => {
       console.log('[probe] weather loaded gen=' + gen)
       setDays(fakeForecast())

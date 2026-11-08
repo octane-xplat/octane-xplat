@@ -13,6 +13,7 @@ const hostServices = (globalThis as typeof globalThis & { __xplatAppKit: AppKitH
   .__xplatAppKit
 
 const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
+
 appKit.window.title = 'Octane packaged WKWebView proof'
 
 const webView = createMacOSWebView(appKit.contentView)
@@ -20,6 +21,7 @@ const webView = createMacOSWebView(appKit.contentView)
 const timed = <T>(operation: () => T) => {
   const started = Date.now()
   const result = operation()
+
   return { result, ms: Date.now() - started }
 }
 
@@ -49,6 +51,7 @@ const desktopHost = createDesktopWebViewHost<PackagedProofServices, PackagedProo
         const request = timed(() => sender.requestNotificationPermission())
         const after = timed(() => sender.notificationPermission())
         const notify = timed(() => sender.notify('packaged proof', 'notification probe'))
+
         return {
           permissionBefore: before.result,
           permissionMs: before.ms,

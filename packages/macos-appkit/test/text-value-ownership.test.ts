@@ -14,13 +14,16 @@ import { runSlice } from './mock-globals.ts'
 function fixture() {
   let text = 'draft',
     marked = true
+
   const writes: string[] = [],
     jobs: any[] = [],
     observers: any[] = []
+
   const hooks: any = {}
   const scheduler = {
     schedule(callback: () => void) {
       const job = { callback, cancelled: 0 }
+
       jobs.push(job)
       hooks.schedule?.(job)
       return job
@@ -31,6 +34,7 @@ function fixture() {
       hooks.cancel?.(job)
     },
   }
+
   const adapter = {
     read() {
       hooks.read?.()
@@ -47,6 +51,7 @@ function fixture() {
     },
     observeCommit(callback: () => void) {
       const observer = { callback, removed: 0 }
+
       observers.push(observer)
       hooks.observe?.(observer)
       return () => {
@@ -55,7 +60,9 @@ function fixture() {
       }
     },
   }
+
   const writer = createTextValueWriter(adapter, scheduler)
+
   return {
     writer,
     adapter,
@@ -76,6 +83,7 @@ function fixture() {
 test('observer acquisition coalesces reentrant values and releases a late handle after disposal', () => {
   for (const dispose of [false, true]) {
     const h = fixture()
+
     h.hooks.observe = (observer: any) => {
       observer.callback() // Acquisition is not ready to dispatch.
       if (dispose) {
@@ -107,9 +115,11 @@ test('failed observation retires its held callback and later updates retry acqui
   const h = fixture(),
     messages: unknown[][] = [],
     original = console.error
+
   console.error = (...args) => {
     messages.push(args)
   }
+
   try {
     h.hooks.observe = () => {
       throw Error('private registration payload')
@@ -134,12 +144,14 @@ test('failed observation retires its held callback and later updates retry acqui
 test('successful flush cleanup cannot let an older value overwrite a reentrant replacement', () => {
   const h = fixture()
   let replace = true
+
   h.hooks.release = () => {
     if (replace) {
       replace = false
       h.writer.update('replacement')
     }
   }
+
   try {
     h.writer.update('older')
     h.mark(false)
@@ -156,6 +168,7 @@ test('successful flush cleanup cannot let an older value overwrite a reentrant r
 test('reentrant scheduling releases the old late handle and preserves the newer task', () => {
   const h = fixture()
   let reenter = true
+
   h.hooks.schedule = () => {
     if (reenter) {
       reenter = false
@@ -163,6 +176,7 @@ test('reentrant scheduling releases the old late handle and preserves the newer 
       h.writer.flushLater()
     }
   }
+
   try {
     h.writer.update('older')
     h.writer.flushLater()
@@ -182,10 +196,12 @@ test('teardown retires task and observation before both throwing cleanup effects
   const h = fixture(),
     messages: unknown[][] = [],
     original = console.error
+
   console.error = (...args) => {
     messages.push(args)
     throw Error('diagnostic unavailable')
   }
+
   try {
     h.writer.update('pending')
     h.writer.flushLater()
@@ -221,8 +237,11 @@ test('read and marked-state reentry supersede stale writes before touching the n
   for (const phase of ['read', 'marked']) {
     for (const dispose of [false, true]) {
       const h = fixture()
+
       h.mark(false)
+
       let reenter = true
+
       h.hooks[phase] = () => {
         if (reenter) {
           reenter = false
@@ -272,6 +291,7 @@ test('registry claims factory ownership before reentrant updates and honors an u
 test('registry teardown cannot delete a newer writer created by the old cleanup', () => {
   const view = {},
     writes: string[] = []
+
   try {
     setTextValue(view, 'pending', () => ({
       read: () => '',
@@ -306,9 +326,11 @@ test('retired factory completion or failure preserves the replacement registry o
           marked: () => false,
           write: (value) => writes.push(value),
         }))
+
         if (fail) {
           throw Error('factory failure')
         }
+
         return {
           read: () => '',
           marked: () => false,
@@ -334,7 +356,9 @@ test('retired factory completion or failure preserves the replacement registry o
 test('an initial setter failure preserves the published writer and newer reentrant value', () => {
   const view = {},
     writes: string[] = []
+
   let text = ''
+
   try {
     assert.throws(
       () =>
@@ -366,9 +390,11 @@ test('schedule/native-write failures retain explicit retry and log fixed diagnos
   const h = fixture(),
     messages: unknown[][] = [],
     original = console.error
+
   console.error = (...args) => {
     messages.push(args)
   }
+
   try {
     h.writer.update('latest')
     h.mark(false)
@@ -403,6 +429,7 @@ test('schedule/native-write failures retain explicit retry and log fixed diagnos
 
 test('inline scheduler completion releases the late handle once and repeated callbacks stay inert', () => {
   const h = fixture()
+
   h.hooks.schedule = (job: any) => job.callback()
   try {
     h.writer.update('latest')
@@ -432,14 +459,17 @@ function nativeFixture() {
       token.removed++
     },
   }
+
   const host = { defaultCenter: center },
     window = {},
     view: any = { window },
     node: any = { type: 'textfield', view }
+
   const body = nativeSource.slice(
     nativeSource.indexOf('function updateNativeTextValue('),
     nativeSource.indexOf('function syncTextControlState('),
   )
+
   const { updateNativeTextValue } = runSlice(body + '\n({ updateNativeTextValue })', {
     setTextValue: (_view, _value, create) => {
       adapter = create()
@@ -447,6 +477,7 @@ function nativeFixture() {
     NSNotificationCenter: host,
     NSWindowDidUpdateNotification: 'update',
   })
+
   updateNativeTextValue(node, 'next')
   return { adapter, host, center, view, node, window, token: () => acquired }
 }
@@ -458,6 +489,7 @@ test('native commit observation captures cleanup and guards setup, replaced wind
       notices++
     }),
     token = h.token()
+
   assert.equal(notices, 0, 'registration callback is not ready')
   token.callback()
   assert.equal(notices, 1)
@@ -481,22 +513,28 @@ test('native commit observation captures cleanup and guards setup, replaced wind
 test('native observation without a window or after acquisition replacement returns no false handle', () => {
   const h = nativeFixture(),
     add = h.center.addObserverForNameObjectQueueUsingBlock
+
   h.view.window = null
   assert.equal(
     h.adapter.observeCommit(() => assert.fail('missing window dispatched')),
     undefined,
   )
+
   h.view.window = h.window
   h.center.addObserverForNameObjectQueueUsingBlock = function (...args) {
     const token = add.apply(this, args)
+
     h.node.view = {}
     return token
   }
+
   assert.equal(
     h.adapter.observeCommit(() => assert.fail('replaced view dispatched')),
     undefined,
   )
+
   const token = h.token()
+
   assert.equal(token.removed, 1)
   token.callback()
 })

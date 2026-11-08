@@ -25,6 +25,7 @@ function esc(v: string): string {
 
 function paintAttrs(m: Mark): string {
   let out = ''
+
   if (m.fill !== undefined) {
     out += ` fill="${esc(m.fill)}"`
   }
@@ -80,5 +81,6 @@ export function svgDocument(
   height: number,
 ): string {
   const body = `${grid.map(markXml).join('')}<g transform="translate(${num(plot.x)} ${num(plot.y)})">${marks.map(markXml).join('')}</g>${frame.map(markXml).join('')}`
+
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${num(width)} ${num(height)}" width="${num(width)}" height="${num(height)}">${body}</svg>`
 }

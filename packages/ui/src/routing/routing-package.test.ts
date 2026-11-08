@@ -11,18 +11,24 @@ import { join, resolve, sep } from 'node:path'
 it('connects package-root registration to consumer destination types', async () => {
   const root = fileURLToPath(new URL('../../', import.meta.url))
   const cache = join(root, 'node_modules/.cache')
+
   await mkdir(cache, { recursive: true })
+
   const fixture = await mkdtemp(join(cache, 'routing-package-'))
+
   try {
     const packed = process.env.XPLAT_ROUTING_UI_PACKAGE
+
     if (packed) {
       // A package scope prevents ancestor self-reference from silently using
       // workspace declarations when qualifying an extracted distribution.
       await writeFile(join(fixture, 'package.json'), '{"private":true,"type":"module"}')
       await mkdir(join(fixture, 'node_modules/@octane-xplat'), { recursive: true })
       await symlink(resolve(packed), join(fixture, 'node_modules/@octane-xplat/ui'), 'dir')
+
       const consumer = createRequire(join(fixture, 'consumer.mts'))
       const resolved = await realpath(consumer.resolve('@octane-xplat/ui/routing/core'))
+
       expect(resolved.startsWith((await realpath(packed)) + sep)).toBe(true)
     }
 
@@ -740,6 +746,7 @@ createRouter({ catalog: accountCatalog, host: undefined as unknown as RouterHost
     )
 
     const compiler = join(root, 'node_modules/typescript/bin/tsc')
+
     await writeFile(
       join(fixture, 'literal-diagnostic.mts'),
       `
@@ -785,11 +792,15 @@ void [destination, missing]
 
     expect(literalDiagnostic.error).toBeUndefined()
     expect(literalDiagnostic.status).toBe(2)
+
     const diagnostic = literalDiagnostic.stdout + literalDiagnostic.stderr
+
     expect(diagnostic.match(/error TS\d+/g), diagnostic).toHaveLength(1)
     expect(diagnostic).toContain('Preserve literal paths with as const')
+
     // Native TypeScript can omit the incidental missing-property explanation.
     const incidental = diagnostic.indexOf("Property 'baked' is missing")
+
     if (incidental >= 0) {
       expect(diagnostic.indexOf('Preserve literal paths with as const')).toBeLessThan(incidental)
     }

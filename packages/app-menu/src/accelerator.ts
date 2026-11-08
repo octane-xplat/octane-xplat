@@ -89,12 +89,15 @@ export function parseAccelerator(source: string): ParsedAccelerator {
   if (typeof source !== 'string' || !source.trim()) {
     fail('accelerator must be a non-empty string')
   }
+
   const tokens = source.split('+').map((token) => token.trim())
   const modifiers = { mod: false, ctrl: false, alt: false, shift: false, meta: false }
   let key: string | null = null
+
   for (const token of tokens) {
     const lower = token.toLowerCase()
     const modifier = MODIFIER_TOKENS[lower]
+
     if (modifier) {
       modifiers[modifier] = true
       continue
@@ -105,6 +108,7 @@ export function parseAccelerator(source: string): ParsedAccelerator {
     }
 
     let candidate: string | null = null
+
     if (/^[a-z]$/i.test(token)) {
       candidate = token.toUpperCase()
     } else if (/^[0-9]$/.test(token)) {
@@ -127,16 +131,20 @@ export function parseAccelerator(source: string): ParsedAccelerator {
 
     key = candidate
   }
+
   if (key === null) {
     fail(`invalid accelerator "${source}" — a key is required`)
   }
+
   const hasModifier = modifiers.mod || modifiers.ctrl || modifiers.alt || modifiers.meta
   const isFunctionKey = /^F(?:[1-9]|1[0-9]|2[0-4])$/.test(key)
+
   if (!hasModifier && !isFunctionKey) {
     fail(
       `invalid accelerator "${source}" — requires a non-Shift modifier (plain keys are reserved for typing)`,
     )
   }
+
   return { key, modifiers }
 }
 
@@ -167,15 +175,19 @@ const APPKIT_KEYS: Record<string, number> = {
  *  Command here. */
 export function toAppKit(parsed: ParsedAccelerator): AppKitAccelerator {
   let modifierMask = 0
+
   if (parsed.modifiers.shift) {
     modifierMask |= NS_SHIFT
   }
+
   if (parsed.modifiers.ctrl) {
     modifierMask |= NS_CONTROL
   }
+
   if (parsed.modifiers.alt) {
     modifierMask |= NS_OPTION
   }
+
   if (parsed.modifiers.mod || parsed.modifiers.meta) {
     modifierMask |= NS_COMMAND
   }
@@ -192,6 +204,7 @@ export function toAppKit(parsed: ParsedAccelerator): AppKitAccelerator {
             // an uppercase letter is unreachable by key events.
             parsed.key.toLowerCase()
           : parsed.key
+
   return { keyEquivalent, modifierMask }
 }
 
@@ -228,19 +241,25 @@ const GTK_KEYS: Record<string, string> = {
  *  Control and `meta` is Super here. */
 export function toGtk(parsed: ParsedAccelerator): string {
   let accel = ''
+
   if (parsed.modifiers.ctrl || parsed.modifiers.mod) {
     accel += '<Control>'
   }
+
   if (parsed.modifiers.shift) {
     accel += '<Shift>'
   }
+
   if (parsed.modifiers.alt) {
     accel += '<Alt>'
   }
+
   if (parsed.modifiers.meta) {
     accel += '<Super>'
   }
+
   const named = GTK_KEYS[parsed.key]
+
   accel += named ?? (parsed.key.length === 1 ? parsed.key.toLowerCase() : parsed.key)
   return accel
 }
@@ -283,20 +302,25 @@ const WINUI_KEYS: Record<string, number> = {
  *  `mod` is Control and `meta` is the Windows key here. */
 export function toWinUI(parsed: ParsedAccelerator): WinUIAccelerator {
   let modifiers = 0
+
   if (parsed.modifiers.ctrl || parsed.modifiers.mod) {
     modifiers |= WINUI_CONTROL
   }
+
   if (parsed.modifiers.alt) {
     modifiers |= WINUI_MENU
   }
+
   if (parsed.modifiers.shift) {
     modifiers |= WINUI_SHIFT
   }
+
   if (parsed.modifiers.meta) {
     modifiers |= WINUI_WINDOWS
   }
 
   let key = WINUI_KEYS[parsed.key]
+
   if (key === undefined) {
     if (/^[A-Z]$/.test(parsed.key)) {
       key = parsed.key.charCodeAt(0)
@@ -308,5 +332,6 @@ export function toWinUI(parsed: ParsedAccelerator): WinUIAccelerator {
       fail(`no WinUI VirtualKey for "${parsed.key}"`)
     }
   }
+
   return { key, modifiers }
 }

@@ -10,8 +10,10 @@ import {
 import { PowerSearchView } from './PowerSearchView.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
 import { createInternalConfig, createPowerSearchConfig } from './power-search-config'
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({ Popover: () => null }))
 afterEach(() => vi.unstubAllGlobals())
+
 const { config } = createPowerSearchConfig([{ key: 'title', type: 'string' }] as const)
 function mount(extra: any = {}, inherited = false) {
   const observers = new Map<object, any>(),
@@ -22,6 +24,7 @@ function mount(extra: any = {}, inherited = false) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name: string, _: any, __: any, callback: any) {
         const token = {}
+
         observers.set(token, { name, callback })
         return token
       },
@@ -34,6 +37,7 @@ function mount(extra: any = {}, inherited = false) {
   vi.stubGlobal('NSEvent', {
     addLocalMonitorForEventsMatchingMaskHandler(_: number, callback: any) {
       const token = {}
+
       monitors.set(token, callback)
       return token
     },
@@ -57,6 +61,7 @@ function mount(extra: any = {}, inherited = false) {
 
   driver.getPublicInstance = (node: any) => {
     const view: any = getPublicInstance(node)
+
     if (node.type === 'textfield' && !('currentEditor' in view)) {
       view.window = null
       view.currentEditor = () => null
@@ -112,6 +117,7 @@ function mount(extra: any = {}, inherited = false) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -138,6 +144,7 @@ function mount(extra: any = {}, inherited = false) {
 
 it('waits for the native input to attach, then focuses once without emitting edit/focus intents', async () => {
   const f = mount()
+
   try {
     await f.settle()
     expect(f.calls).toEqual([])
@@ -162,13 +169,16 @@ it('waits for the native input to attach, then focuses once without emitting edi
 it('user input, flag removal and teardown retire delayed work and native observation', async () => {
   for (const reason of ['input', 'flag', 'unmount']) {
     const f = mount()
+
     try {
       await f.settle()
+
       const input = f.input(),
         callbacks = [...f.observers.values()]
 
       if (reason === 'input') {
         const event = {}
+
         expect([...f.monitors.values()][0](event)).toBe(event)
       }
 
@@ -196,6 +206,7 @@ it('user input, flag removal and teardown retire delayed work and native observa
 it('current inherited blocking cancels and unblocking alone does not rearm; false-to-true does', async () => {
   for (const state of ['isDisabled', 'isReadOnly', 'isLoading']) {
     const f = mount({ [state]: true }, true)
+
     try {
       f.input().window = f.window
       f.notify()
@@ -219,11 +230,14 @@ it('current inherited blocking cancels and unblocking alone does not rearm; fals
 it('changed responder or active editing wins over an outstanding autofocus request', async () => {
   for (const reason of ['responder', 'editing']) {
     const f = mount()
+
     try {
       await f.settle()
       f.input().window = f.window
       f.notify()
+
       const other = {}
+
       if (reason === 'responder') {
         f.window.firstResponder = other
       } else {
@@ -246,12 +260,15 @@ it('stable callback handles use current blocking, preserve foreign blur and beco
     replacement = vi.fn()
 
   let held: any
+
   try {
     f.input().window = f.window
     held = f.handles[0]
     held.focusTypeahead()
     expect(f.window.firstResponder).toBe(f.input())
+
     const other = {}
+
     f.window.firstResponder = other
     held.blurTypeahead()
     expect(f.window.firstResponder).toBe(other)
@@ -264,6 +281,7 @@ it('stable callback handles use current blocking, preserve foreign blur and beco
   }
 
   const count = f.calls.length
+
   held.focusTypeahead()
   held.blurTypeahead()
   await f.settle()

@@ -19,6 +19,7 @@ function fixture() {
     reset: vi.fn(async () => {}),
     handleURL: vi.fn(async () => true),
   } satisfies StripeBackend
+
   return { backend, client: createStripeClient(backend) }
 }
 
@@ -27,18 +28,23 @@ function deferred<T>() {
   const promise = new Promise<T>((done) => {
     resolve = done
   })
+
   return { promise, resolve }
 }
 
 it('rejects secret keys before calling the SDK and snapshots mutable wallet settings', async () => {
   const { client, backend } = fixture()
+
   await expect(client.initStripe({ publishableKey: 'sk_test_notpublic' })).rejects.toThrow(
     'publishable',
   )
+
   expect(backend.initialize).not.toHaveBeenCalled()
   await client.initStripe(config)
+
   const applePay = { merchantCountryCode: 'US' }
   const pending = client.initPaymentSheet({ ...options, applePay })
+
   applePay.merchantCountryCode = 'CA'
   expect(await pending).toEqual({})
   expect(backend.prepare.mock.calls[0]?.[0].applePay?.merchantCountryCode).toBe('US')
@@ -46,22 +52,29 @@ it('rejects secret keys before calling the SDK and snapshots mutable wallet sett
 
 it('invalidates a previous sheet when replacement options are invalid', async () => {
   const { client, backend } = fixture()
+
   await client.initStripe(config)
   await client.initPaymentSheet(options)
   expect(
     (await client.initPaymentSheet({ ...options, customFlow: true } as never)).error,
   ).toBeDefined()
+
   expect((await client.presentPaymentSheet()).error).toBeDefined()
   expect(backend.present).not.toHaveBeenCalled()
 })
 
 it('blocks overlapping presentation, replacement, reconfiguration and disposal', async () => {
   const { client, backend } = fixture()
+
   await client.initStripe(config)
   await client.initPaymentSheet(options)
+
   const pending = deferred<PresentPaymentSheetResult>()
+
   backend.present.mockReturnValueOnce(pending.promise)
+
   const first = client.presentPaymentSheet()
+
   expect((await client.presentPaymentSheet()).error?.message).toContain('busy')
   expect((await client.initPaymentSheet(options)).error?.message).toContain('busy')
   expect((await client.resetPaymentSheet()).error?.message).toContain('busy')
@@ -75,9 +88,12 @@ it('blocks overlapping presentation, replacement, reconfiguration and disposal',
 
 it('never returns raw SDK failures or client secrets and releases failed initialization', async () => {
   const { client, backend } = fixture()
+
   await client.initStripe(config)
   backend.prepare.mockRejectedValueOnce(new Error(options.paymentIntentClientSecret))
+
   const result = await client.initPaymentSheet(options)
+
   expect(JSON.stringify(result)).not.toContain(options.paymentIntentClientSecret)
   expect((await client.presentPaymentSheet()).error).toBeDefined()
   expect(backend.reset).toHaveBeenCalledTimes(3)
@@ -85,6 +101,7 @@ it('never returns raw SDK failures or client secrets and releases failed initial
 
 it('passes only the configured URL scheme to the SDK and reports unsupported hosts safely', async () => {
   const { client, backend } = fixture()
+
   expect(await client.handleURLCallback('testapp://checkout')).toBe(false)
   await client.initStripe(config)
   expect(await client.handleURLCallback('otherapp://checkout')).toBe(false)
@@ -97,11 +114,13 @@ it('passes only the configured URL scheme to the SDK and reports unsupported hos
 
 it('requires encryption for return URLs outside local development', async () => {
   const { client, backend } = fixture()
+
   await client.initStripe(config)
   expect(
     (await client.initPaymentSheet({ ...options, returnURL: 'http://store.example.com/return' }))
       .error?.message,
   ).toContain('HTTPS')
+
   expect(backend.prepare).not.toHaveBeenCalled()
   expect(
     await client.initPaymentSheet({ ...options, returnURL: 'http://localhost:3000/return' }),

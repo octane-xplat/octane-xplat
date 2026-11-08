@@ -15,6 +15,7 @@ export interface BusyIndicatorLane {
 export function createBusyIndicatorLane(): BusyIndicatorLane {
   let isBusy = false
   const listeners = new Set<() => void>()
+
   return {
     onBusyChange(next: boolean) {
       if (isBusy === next) {

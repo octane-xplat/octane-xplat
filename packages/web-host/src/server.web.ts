@@ -40,8 +40,10 @@ function untilAborted<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
   if (signal.aborted) {
     return Promise.reject(signal.reason)
   }
+
   return new Promise((resolve, reject) => {
     const fail = () => reject(signal.reason)
+
     signal.addEventListener('abort', fail, { once: true })
     work.then(resolve, reject).finally(() => signal.removeEventListener('abort', fail))
   })
@@ -50,10 +52,12 @@ function untilAborted<T>(work: Promise<T>, signal: AbortSignal): Promise<T> {
 function renderTemplate(template: string, slots: Record<'head' | 'app' | 'scripts', string>) {
   for (const name of Object.keys(slots)) {
     const marker = `<!--xplat:${name}-->`
+
     if (template.split(marker).length !== 2) {
       throw new Error(`HTML template requires exactly one ${marker}`)
     }
   }
+
   // Substitute once: text from a rendered route must never become a new slot.
   return template.replace(
     /<!--xplat:(head|app|scripts)-->/g,
@@ -83,12 +87,15 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
   if (!options.buildId) {
     throw new TypeError('A web host requires a buildId')
   }
+
   if (options.template && options.Document) {
     throw new TypeError('Choose template or Document')
   }
+
   const declaredPaths = new Set(
     options.catalog.routes.filter(hasRouteContract).map((route) => '/' + route.segments.join('/')),
   )
+
   /** Prepared matches gain the declared/runtime stamp the callbacks' union
    * narrows on — the same ownership rule as router-instance's `project`. */
   const declaredMatch = (match: PreparedRouteMatch): RouterMatch<ContractsOf<Catalog>> =>
@@ -101,6 +108,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
     if (request.method !== 'GET' && request.method !== 'HEAD') {
       return new Response('Method Not Allowed', { status: 405, headers: { Allow: 'GET, HEAD' } })
     }
+
     const engine = createRoutePreparation({
       catalog: options.catalog,
       base: options.base,
@@ -108,9 +116,12 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
       context: () => options.context?.(request) ?? {},
       createCancellationController: () => new AbortController(),
     })
+
     let router: ReturnType<typeof createRouter> | undefined
+
     try {
       request.signal.throwIfAborted()
+
       const url = new URL(request.url)
       const path = url.pathname + url.search
       const mode =
@@ -127,8 +138,10 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 
       let metadata: ReturnType<typeof routeRenderContent>['head']
       let init: ResponseInit = {}
+
       if (mode === 'server') {
         const result = await engine.prepare(path, { signal: request.signal, redirects: 'return' })
+
         request.signal.throwIfAborted()
         if (result.status === 'redirect') {
           return new Response(null, {
@@ -158,7 +171,9 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         }
 
         const routedMatch = declaredMatch(result.match)
+
         init = options.response?.(routedMatch, request) ?? {}
+
         const projection = await untilAborted(
           Promise.resolve(options.transfer(routedMatch, request)),
           request.signal,
@@ -167,6 +182,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         // Validate and detach the projection before rendering; server and browser
         // see the same public values, including group-loader context.
         const publicData = JSON.parse(serializePublic(projection))
+
         if (
           !publicData ||
           !Object.hasOwn(publicData, 'data') ||
@@ -178,6 +194,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         }
 
         const { to, name, stack, params, search, href } = result.match
+
         match = JSON.parse(
           serializePublic({
             to,
@@ -192,6 +209,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         )
 
         const platform = createServerRouterHost()
+
         router = createRouter({
           catalog: options.catalog,
           host: platform.host,
@@ -201,9 +219,12 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         } as never)
 
         platform.attach(router)
+
         const content = routeRenderContent(options.catalog, match!)
+
         metadata = content.head
         platform.initialize(match!, content)
+
         const rendered = renderToString(
           WebRouterRoot,
           { host: platform, router, App: options.App },
@@ -217,6 +238,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
       }
 
       const headers = new Headers(init.headers)
+
       if (!headers.has('Content-Type')) {
         headers.set('Content-Type', 'text/html; charset=utf-8')
       }
@@ -227,6 +249,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
       }
 
       const headerEntries: [string, string][] = []
+
       headers.forEach((value, name) => {
         if (name !== 'set-cookie') {
           headerEntries.push([name, value])
@@ -267,6 +290,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
     ) {
       throw new TypeError('Rendered page does not match the document request')
     }
+
     const { mode, match, html, css, head, metadata } = page
 
     const bootstrap: WebBootstrap = {
@@ -288,6 +312,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
     const headProps = { ...metadata, styles: assets.styles }
     const scriptProps = { bootstrap: serializePublic(bootstrap), scripts: assets.scripts }
     let documentHtml: string
+
     if (options.template !== undefined) {
       documentHtml = renderTemplate(options.template, {
         head: renderToStaticMarkup(DocumentHead, headProps).html + head + css,
@@ -338,6 +363,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
         base: options.base,
         stacks: options.stacks,
       })
+
       try {
         return engine.href(destination as RouteDestinationInput)
       } finally {
@@ -352,6 +378,7 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
   options: WebHandlerOptions<Catalog>,
 ): (request: Request) => Promise<Response> {
   const renderer = createWebRenderer(options)
+
   return async (request) => {
     const finish = (response: Response) =>
       request.method === 'HEAD'
@@ -361,8 +388,10 @@ export function createWebHandler<const Catalog extends ContractRouteManifest>(
             headers: response.headers,
           })
         : response
+
     try {
       const page = await renderer.render(request)
+
       return finish(page instanceof Response ? page : await renderer.document(page, request))
     } catch (error) {
       if (request.signal.aborted) {

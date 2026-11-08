@@ -23,6 +23,7 @@ import { routePatternPath } from '@octane-xplat/lib/route-pattern'
 
 test('generated sibling imports resolve from default and nested output directories', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-paths-'))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
     await writeFile(
@@ -38,6 +39,7 @@ test('generated sibling imports resolve from default and nested output directori
       for (const suffix of ['types', 'web', 'catalog.web', 'windows', 'catalog.windows']) {
         const source = await readFile(join(root, `${base}.${suffix}.ts`), 'utf8')
         const references = [...source.matchAll(/\bfrom\s+['"](\.[^'"]+)['"]/g)]
+
         assert.ok(references.length > 0, suffix)
         for (const [, reference] of references) {
           assert.ok(!reference.includes('\\'), reference)
@@ -52,6 +54,7 @@ test('generated sibling imports resolve from default and nested output directori
 
 test('route metadata follows actual value exports without executing source', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-exports-'))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
     await writeFile(
@@ -89,15 +92,19 @@ export default function Screen() { return null }
     )
 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const manifest = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
     const real = manifest.routes.find((route) => route.name === 'real')
+
     assert.equal(real.dataMode, 'live')
     for (const flag of ['loader', 'guard', 'head', 'errorBoundary']) {
       assert.equal(real[flag], true, flag)
     }
 
     assert.equal(manifest.routes.find((route) => route.name === 'baked').dataMode, 'baked')
+
     const plain = manifest.routes.find((route) => route.name === 'plain')
+
     assert.equal(plain.dataMode, undefined)
     for (const flag of ['loader', 'guard', 'head', 'errorBoundary']) {
       assert.equal(plain[flag], false, flag)
@@ -109,6 +116,7 @@ export default function Screen() { return null }
 
 test('unresolvable build metadata fails with the route source and repair', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-export-errors-'))
+
   try {
     await mkdir(join(root, 'app'), { recursive: true })
     for (const source of [
@@ -136,19 +144,25 @@ test('unresolvable build metadata fails with the route source and repair', async
 
 test('unchanged generation preserves files and rename/removal refresh the route union', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-stable-'))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
+
     const screen = 'export default function Screen() { return null }'
+
     await writeFile(join(root, 'src/app/first.tsx'), screen)
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const files = (await readdir(join(root, 'src'))).filter((name) =>
       name.startsWith('routes.gen.'),
     )
 
     const stamp = new Date('2001-01-01T00:00:00Z')
     const before = new Map()
+
     for (const file of files) {
       const path = join(root, 'src', file)
+
       await utimes(path, stamp, stamp)
       before.set(file, await readFile(path, 'utf8'))
     }
@@ -156,6 +170,7 @@ test('unchanged generation preserves files and rename/removal refresh the route 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
     for (const file of files) {
       const path = join(root, 'src', file)
+
       assert.equal(await readFile(path, 'utf8'), before.get(file), file)
       assert.equal((await stat(path)).mtimeMs, stamp.getTime(), file)
     }
@@ -166,7 +181,9 @@ test('unchanged generation preserves files and rename/removal refresh the route 
     await rename(join(root, 'src/app/second.tsx'), join(root, 'src/app/moved.tsx'))
     await rm(join(root, 'src/app/first.tsx'))
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const contracts = await readFile(join(root, 'src/routes.gen.contracts.ts'), 'utf8')
+
     assert.match(contracts, /"\/moved"/)
     assert.doesNotMatch(contracts, /"\/(first|second)"/)
     assert.equal((await stat(join(root, 'src/routes.gen.data.ts'))).mtimeMs, stamp.getTime())
@@ -177,6 +194,7 @@ test('unchanged generation preserves files and rename/removal refresh the route 
 
 test('generation and runtime grammar agree without executing route modules', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-grammar-'))
+
   try {
     const paths = [
       'index.tsx',
@@ -188,6 +206,7 @@ test('generation and runtime grammar agree without executing route modules', asy
 
     for (const path of paths) {
       const file = join(root, 'src/app', path)
+
       await mkdir(join(file, '..'), { recursive: true })
       await writeFile(
         file,
@@ -196,6 +215,7 @@ test('generation and runtime grammar agree without executing route modules', asy
     }
 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const manifest = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
     const actual = manifest.routes.map((route) => routePatternPath(route.path)).sort()
     const expected = paths
@@ -205,7 +225,9 @@ test('generation and runtime grammar agree without executing route modules', asy
     assert.deepEqual(actual, expected)
     assert.equal(manifest.routes.find((route) => route.name === 'help').presentation, 'push')
     assert.equal(manifest.routes.find((route) => route.name === 'help').transition, 'fade')
+
     const types = await readFile(join(root, 'src/routes.gen.contracts.ts'), 'utf8')
+
     assert.match(types, /id: string/)
     assert.match(types, /locale\?: string/)
     assert.match(types, /'rest'\?: string/)
@@ -217,6 +239,7 @@ test('generation and runtime grammar agree without executing route modules', asy
 test('file and configured contracts infer together without executing application modules', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-contracts-'))
   const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
   try {
     await mkdir(join(root, 'src/app/items'), { recursive: true })
     await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
@@ -320,11 +343,15 @@ navigate({ to: '/settings', transition: 'invented' })
     )
 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const catalog = await readFile(join(root, 'src/routes.gen.catalog.web.ts'), 'utf8')
+
     assert.match(catalog, /from '@octane-xplat\/ui\/routing\/core'/)
     assert.doesNotMatch(catalog, /registerRoutes|configureRouter|routeContext/)
     assert.match(catalog, /configured0/)
+
     const client = await readFile(join(root, 'src/routes.gen.web.ts'), 'utf8')
+
     assert.match(client, /configureRouter\(\{/)
     assert.match(client, /context: routeContext/)
     assert.match(client, /transitions: routeTransitions/)
@@ -336,6 +363,7 @@ navigate({ to: '/settings', transition: 'invented' })
     assert.doesNotMatch(client, /registerRoutes/)
     for (const target of ['ios', 'android', 'mobile', 'macos', 'linux', 'windows']) {
       const source = await readFile(join(root, 'src/routes.gen.' + target + '.ts'), 'utf8')
+
       assert.match(source, /configureRouter\(\{/)
       assert.match(source, /context: routeContext/)
       assert.match(source, /transitions: routeTransitions/)
@@ -373,6 +401,7 @@ navigate({ to: '/settings', transition: 'invented' })
 test('separate generated catalogs contribute file and configured contracts in one TypeScript program', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-contributions-'))
   const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
   try {
     await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
     await symlink(
@@ -460,6 +489,7 @@ router.push({ to: '/beta/:slug' })
 test('reusable catalogs do not register ambient routes until the generated client types are imported', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-pure-contracts-'))
   const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
   try {
     await mkdir(join(root, 'src/app/items'), { recursive: true })
     await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
@@ -530,6 +560,7 @@ router.push({ to: '/items/:id' })
     )
 
     const require = createRequire(join(workspace, 'package.json'))
+
     for (const consumer of ['pure.ts', 'registered.ts']) {
       const checked = spawnSync(
         process.execPath,
@@ -561,6 +592,7 @@ router.push({ to: '/items/:id' })
 
 test('programmatic-only apps generate and invalid configuration fails before output', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-config-'))
+
   try {
     await writeFile(
       join(root, 'extra.ts'),
@@ -586,6 +618,7 @@ test('programmatic-only apps generate and invalid configuration fails before out
 
 test('baked Markdown preserves reserved route keys as own JSON data', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-baked-keys-'))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
     for (const name of ['__proto__', 'constructor']) {
@@ -593,7 +626,9 @@ test('baked Markdown preserves reserved route keys as own JSON data', async () =
     }
 
     await generateRoutes(root, 'src/app')
+
     const module = await import(pathToFileURL(join(root, 'src/routes.gen.data.ts')).href)
+
     assert.deepEqual(Object.keys(module.bakedRouteData).sort(), ['__proto__', 'constructor'])
     assert.equal(Object.getPrototypeOf(module.bakedRouteData), Object.prototype)
     assert.equal(typeof module.bakedRouteData.__proto__, 'object')
@@ -604,6 +639,7 @@ test('baked Markdown preserves reserved route keys as own JSON data', async () =
 
 test('emits OS catalogs that exclude shadowed and unavailable route modules', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-platforms-'))
+
   try {
     await mkdir(join(root, 'src/screens'), { recursive: true })
     for (const path of [
@@ -623,10 +659,12 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
     }
 
     await generateRoutes(root, 'src/screens', undefined, { bake: false })
+
     const catalog = (target) =>
       readFile(join(root, 'src/routes.gen.catalog.' + target + '.ts'), 'utf8')
 
     const ios = await catalog('ios')
+
     assert.match(ios, /!\.\/screens\/\*\*\/\*\.android/)
     assert.match(ios, /!\.\/screens\/detail\.tsx/)
     assert.match(ios, /!\.\/screens\/detail\.mobile\.tsrx/)
@@ -636,9 +674,12 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
     )
 
     const android = await catalog('android')
+
     assert.match(android, /!\.\/screens\/\*\*\/\*\.ios/)
     assert.match(android, /!\.\/screens\/detail\.mobile\.tsrx/)
+
     const linux = await catalog('linux')
+
     assert.match(linux, /!\.\/screens\/detail\.web\.tsx/)
     assert.match(
       linux,
@@ -646,10 +687,13 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
     )
 
     const mobile = await catalog('mobile')
+
     assert.doesNotMatch(mobile, /Device/)
     assert.match(mobile, /!\.\/screens\/\*\*\/\*\.ios/)
     assert.match(mobile, /!\.\/screens\/\*\*\/\*\.android/)
+
     const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
     await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
     await symlink(
       join(workspace, 'packages/ui'),
@@ -658,6 +702,7 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
     )
 
     const { build } = await import('vite')
+
     for (const [target, expected] of Object.entries({
       ios: 'detail.ios.tsx',
       android: 'detail.android.tsx',
@@ -668,6 +713,7 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
       windows: 'detail.tsx',
     })) {
       const outDir = join(root, 'dist', target)
+
       await build({
         root,
         configFile: false,
@@ -683,7 +729,9 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
       })
 
       globalThis.__xplatRouteGraphHits = []
+
       const { routes } = await import(pathToFileURL(join(outDir, 'catalog.mjs')).href)
+
       assert.deepEqual(globalThis.__xplatRouteGraphHits, [], target + ' defers screen evaluation')
       await routes.routes[0].loadModule()
       assert.deepEqual(
@@ -706,6 +754,7 @@ test('emits OS catalogs that exclude shadowed and unavailable route modules', as
 
 test('configured source directory wins over conventional directories during automatic generation', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-source-'))
+
   try {
     for (const folder of ['app', 'src/screens']) {
       await mkdir(join(root, folder), { recursive: true })
@@ -717,7 +766,9 @@ test('configured source directory wins over conventional directories during auto
 
     await writeFile(join(root, 'xplat.routes.json'), JSON.stringify({ directory: 'src/screens' }))
     assert.equal(await generateRoutes(root, undefined, undefined, { bake: false }), 1)
+
     const json = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
+
     assert.deepEqual(
       json.routes.map((route) => route.name),
       ['right'],
@@ -730,6 +781,7 @@ test('configured source directory wins over conventional directories during auto
 test('baked contracts infer sibling outputs and Markdown without executing loaders', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-baked-contracts-'))
   const workspace = fileURLToPath(new URL('../../../', import.meta.url))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
     await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
@@ -811,8 +863,11 @@ fallback.data.fabricated
     )
 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const contracts = await readFile(join(root, 'src/routes.gen.contracts.ts'), 'utf8')
+
     assert.match(contracts, /RouteBakedLoaderData<typeof import\("\.\/app\/baked\.loader\.ts"\)>/)
+
     const require = createRequire(import.meta.url)
     const checked = spawnSync(
       process.execPath,
@@ -840,6 +895,7 @@ fallback.data.fabricated
     assert.equal(checked.status, 0, checked.stdout + checked.stderr)
     for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
       const catalog = await readFile(join(root, `src/routes.gen.catalog.${target}.ts`), 'utf8')
+
       assert.doesNotMatch(catalog, /from\s+['"][^'"]*\.loader\.|import\(['"][^'"]*\.loader\./)
     }
 
@@ -855,6 +911,7 @@ fallback.data.fabricated
     )
 
     await generateRoutes(root, 'src/app')
+
     const dataSource = await readFile(join(root, 'src/routes.gen.data.ts'), 'utf8')
     const data = await import(
       'data:text/javascript,' +
@@ -887,6 +944,7 @@ fallback.data.fabricated
 
 test('declaration-only defaults do not make a platform route available elsewhere', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-contract-'))
+
   try {
     await mkdir(join(root, 'src/app'), { recursive: true })
     await writeFile(
@@ -900,10 +958,13 @@ test('declaration-only defaults do not make a platform route available elsewhere
     )
 
     await generateRoutes(root, 'src/app', undefined, { bake: false })
+
     const manifest = JSON.parse(await readFile(join(root, 'src/routes.gen.manifest.json'), 'utf8'))
+
     assert.ok(!JSON.stringify(manifest).includes('"file":"example.tsrx"'))
     for (const target of ['web', 'mobile', 'macos', 'windows', 'linux']) {
       const catalog = await readFile(join(root, `src/routes.gen.catalog.${target}.ts`), 'utf8')
+
       assert.ok(catalog.includes('!./app/example.tsrx'), target)
     }
   } finally {

@@ -15,6 +15,7 @@ import {
 
 import type { TableColumn, TablePlugin, UseTableColumnResizeConfig } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 type Person = { name: string; team: string; location: string; status: string }
 const rows: Person[] = [
   { name: 'Ada', team: 'Platform', location: 'London', status: 'Active' },
@@ -123,6 +124,7 @@ export default function TableScrollProbe() @{
 
   const measure = () => {
     const view = viewport.current
+
     setMetrics(
       view
         ? JSON.stringify({ viewport: view.contentView.bounds, document: view.documentView?.frame })

@@ -8,6 +8,7 @@ import type { JSX } from 'octane/jsx-runtime'
 function formatLabel(text: string): string {
   const lines = text.split('\n').length
   const chars = text.length
+
   return lines > 1 ? `${lines} lines, ${chars} chars` : `${chars} chars`
 }
 

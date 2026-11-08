@@ -42,11 +42,14 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
   const local = useRef(internal)
   const active = useRef(false)
   const latest = useRef({ props, disabled, busy })
+
   latest.current = { props, disabled, busy }
+
   const requestedOpen = props.isOpen ?? internal
   const open = requestedOpen && !disabled && !busy
   const setOpen = (next: boolean) => {
     const current = latest.current
+
     if (active.current || (next && (current.disabled || current.busy))) {
       return
     }

@@ -1,5 +1,6 @@
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import type { StripeBackend } from './backend-types'
+
 const unavailable = async (): Promise<never> => {
   throw new UnavailabilityError('Stripe PaymentSheet on this host')
 }

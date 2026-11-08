@@ -93,6 +93,7 @@ describe('desktop host facade', () => {
     })
 
     const host = desktopHost()
+
     expect(host).not.toBeNull()
     expect(desktopHostBootstrap()?.colorScheme).toBe('dark')
     expect(await desktopHostSupports('files', 'readText')).toBe(true)
@@ -107,6 +108,7 @@ describe('desktop host facade', () => {
     expect(await host!.system.openPath('/tmp/test.txt')).toBe(true)
 
     const closed = vi.fn()
+
     host!.on('windows.closed', closed)
     dispatcher.emit('windows.closed', 'secondary')
     expect(closed).toHaveBeenCalledWith('secondary')

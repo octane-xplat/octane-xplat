@@ -8,6 +8,7 @@ import { positionPopover } from '../../../../ui/src/components/overlays/popover-
 import { Popovers, counts, refs } from './ui-popover.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK Popover test',
   default_width: 800,
@@ -16,7 +17,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -55,6 +58,7 @@ const popupFor = (anchor: any) => {
       return child
     }
   }
+
   return null
 }
 
@@ -64,30 +68,39 @@ function acknowledge(widget: any) {
   if (!widget || acknowledged.has(widget)) {
     return
   }
+
   acknowledged.add(widget)
+
   const keys = new Gtk.EventControllerKey()
+
   keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
   keys.connect('key-pressed', (_controller: any, key: number) => {
     if (key !== Gdk.KEY_F12) {
       return false
     }
+
     ack++
     return true
   })
+
   widget.add_controller(keys)
 }
 
 acknowledge(window)
+
 const windowBaseline = controllerCount(window)
 const point = (widget: any) => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -96,14 +109,18 @@ const point = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 async function input(widget: any, action: { key?: string; type?: string } = {}) {
   const actions = action.key || action.type != null ? [action] : [{ hover: true }, {}]
+
   for (const phase of actions) {
     const next = ack + 1
+
     print('GTK_POPOVER_READY ' + JSON.stringify({ ...point(widget), ...phase }))
     for (let i = 0; i < 200 && ack < next; i++) {
       await pause(25)
@@ -137,32 +154,41 @@ async function run() {
   await pause()
   refs.peer.focus()
   await pause(120)
+
   const initialFocus = window.get_focus()
+
   await render({ open: true })
   await pause(400)
+
   const anchor = refs.anchor
   const popup = popupFor(anchor)
+
   check(
     'GTK leaf creates mapped nonmodal native popup',
     !!popup?.get_mapped() && !popup.get_autohide(),
   )
+
   check('opening preserves initial keyboard focus', window.get_focus() === initialFocus)
   check(
     'portal preserves context and resets size',
     node('popup-context')?.view!.get_text() === 'first:md:0',
   )
+
   check(
     'shared chrome provider owns the display once: ' + container.popoverChromeUsers?.(),
     container.popoverChromeUsers?.() === 1,
   )
+
   check('popup events bind the shared window pair', controllerCount(window) === windowBaseline + 2)
   for (const placement of ['top', 'bottom', 'left', 'right'] as const) {
     for (const alignment of ['start', 'center', 'end'] as const) {
       await render({ placement, alignment })
+
       const a = anchor.getBounds(),
         p = pane().getBounds()
 
       const expected = expectedFor(a, p, placement, 8, alignment)
+
       check(
         'native placement ' +
           placement +
@@ -174,29 +200,35 @@ async function run() {
       )
     }
   }
+
   await render({ anchorLeft: 620, anchorTop: 480, placement: 'bottom', alignment: 'start' })
   {
     const a = anchor.getBounds(),
       p = pane().getBounds()
 
     const expected = expectedFor(a, p, 'bottom', 8, 'start')
+
     check(
       'overflowing placement flips inside viewport: ' + JSON.stringify({ actual: p, expected }),
       near(p.x, expected.left) && near(p.y, expected.top) && expected.placement === 'top',
     )
   }
+
   await render({ anchorLeft: 640, anchorTop: 60 })
   {
     const a = anchor.getBounds(),
       p = pane().getBounds()
 
     const expected = expectedFor(a, p, 'bottom', 8, 'start')
+
     check(
       'cross axis clamps to the viewport edge: ' + JSON.stringify({ actual: p, expected }),
       near(p.x, expected.left) && near(p.y, expected.top) && expected.left < a.x,
     )
   }
+
   const oldPane = pane()
+
   await render({
     anchorLeft: 200,
     anchorTop: 160,
@@ -205,14 +237,17 @@ async function run() {
     alignment: 'start',
     offset: '16px',
   })
+
   check(
     'updates retain pane and content effect',
     pane() === oldPane && counts.mounts === 1 && counts.unmounts === 0,
   )
+
   check(
     'updated provider value reaches popup',
     node('popup-context')?.view!.get_text() === 'updated:md:0',
   )
+
   {
     const a = anchor.getBounds(),
       positioned = pane().getBounds()
@@ -222,10 +257,13 @@ async function run() {
       near(positioned.x, a.x) && near(positioned.y, a.y + a.height + 16),
     )
   }
+
   refs.entry.focus()
   await pause()
   check('popup editor can receive focus', window.get_focus() !== initialFocus)
+
   let osInput = false
+
   if (GLib.getenv('GTK_POPOVER_OS') === '1') {
     osInput = true
     acknowledge(popup)
@@ -260,7 +298,9 @@ async function run() {
 
     await render({ dismissOnEscape: true, nested: true, nestedDismissOnEscape: true })
     await pause(400)
+
     let nested = popupFor(refs.inner)
+
     check(
       'nested popover maps inside popover content: ' +
         JSON.stringify({ inner: !!refs.inner, mapped: nested?.get_mapped?.() }),
@@ -328,7 +368,9 @@ async function run() {
     )
 
     await render({ nested: false })
+
     const outsideBefore = counts.outside
+
     await input(node('popup-outside').view)
     check(
       'outside click is consumed and requests dismiss: ' +
@@ -347,13 +389,17 @@ async function run() {
     await render({ dismissOnOutsideTap: true })
     await render({ variant: 'uncontrolled' })
     await pause(400)
+
     const uAnchor = refs.uAnchor
     const uPopup = popupFor(uAnchor)
+
     check('uncontrolled defaultOpen maps on mount', !!uPopup?.get_mapped())
     acknowledge(uPopup)
     refs.uPeer.focus()
     await pause(150)
+
     const dismissBefore = counts.dismiss
+
     await input(refs.uPeer.native, { key: 'Escape' })
     check(
       'uncontrolled Escape closes itself',
@@ -363,9 +409,13 @@ async function run() {
     await render({ variant: 'controlled', open: false })
     await render({ variant: 'uncontrolled' })
     await pause(400)
+
     const uPopup2 = popupFor(refs.uAnchor)
+
     check('remounted uncontrolled maps again', !!uPopup2?.get_mapped())
+
     const outsideBefore2 = counts.outside
+
     await input(node('u-outside').view)
     check(
       'uncontrolled outside tap closes itself',
@@ -374,35 +424,47 @@ async function run() {
         !uPopup2.get_mapped(),
     )
   }
+
   await render({ variant: 'controlled', open: false })
   await pause(400)
   refs.peer.focus()
   await pause(120)
+
   const restoredFocus = window.get_focus()
+
   await render({ open: true })
   await pause(400)
+
   const anchor2 = refs.anchor
   const popup2 = popupFor(anchor2)
+
   check('reopened controlled popover maps', !!popup2?.get_mapped())
+
   const dismissBeforeUnmount = counts.dismiss
+
   await render({ showAnchor: false })
   check(
     'anchor unmount removes the native surface',
     popup2.get_parent() === null && !popup2.get_mapped(),
   )
+
   check('anchor unmount requests dismiss', counts.dismiss === dismissBeforeUnmount + 1)
   check(
     'anchor unmount removes portal content: ' + JSON.stringify({ node: !!node('popup-context') }),
     !node('popup-context'),
   )
+
   await render({ showAnchor: true })
   await pause(400)
+
   const anchor3 = refs.anchor
   const popup3 = anchor3 && popupFor(anchor3)
+
   check(
     'anchor remount maps a fresh native popover',
     !!anchor3 && anchor3 !== anchor2 && !!popup3?.get_mapped(),
   )
+
   refs.entry.focus()
   await pause()
   await render({ open: false })
@@ -411,13 +473,16 @@ async function run() {
   check('controlled close unparents native popup', popup3.get_parent() === null)
   await render({ open: true, finalFocus: true })
   await pause(400)
+
   const popup4 = popupFor(refs.anchor)
+
   check('finalFocus reopen maps a popover', !!popup4?.get_mapped())
   refs.entry.focus()
   await pause()
   await render({ open: false })
   {
     const focus = window.get_focus()
+
     check(
       'finalFocusRef wins over captured focus: ' +
         JSON.stringify({
@@ -427,13 +492,18 @@ async function run() {
       focus === focusTarget(refs.return?.native ?? refs.return),
     )
   }
+
   check('controlled close balances content effects', counts.mounts === counts.unmounts)
   await render({ open: true })
   await pause(400)
+
   const popup5 = popupFor(refs.anchor)
+
   check('teardown popover maps', !!popup5?.get_mapped())
+
   const popup5Controllers = controllerCount(popup5)
   const lastAnchor = refs.anchor
+
   root.unmount()
   await pause()
   check('unmount releases managed nodes', container.nodes.size === 0)
@@ -441,6 +511,7 @@ async function run() {
     'unmount unparents an open native popup',
     popup5.get_parent() === null && !popup5.get_mapped(),
   )
+
   check('unmount releases shared window controllers', controllerCount(window) === windowBaseline)
   check('unmount releases popup controllers', controllerCount(popup5) === popup5Controllers - 2)
   check('shared chrome provider refcount returns to zero', container.popoverChromeUsers?.() === 0)
@@ -454,12 +525,14 @@ async function run() {
         gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
 }
 
 let failed = false
+
 run()
   .catch((error) => {
     failed = true

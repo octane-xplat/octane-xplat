@@ -12,6 +12,7 @@ function load(file, require, console) {
   const source = ts.transpileModule(readFileSync(new URL(file, import.meta.url), 'utf8'), {
     compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   }).outputText
+
   vm.runInNewContext(source, { exports, require, console })
   return exports
 }
@@ -33,6 +34,7 @@ function fixture({ deferClose = false } = {}) {
     isEnabled: enabled,
     nativeViewProtected: { IsEnabled: enabled },
   })
+
   const main = child()
   const disabled = child(false)
   const shade = child()
@@ -53,6 +55,7 @@ function fixture({ deferClose = false } = {}) {
     },
     removeChild(view) {
       const i = children.indexOf(view)
+
       if (i >= 0) {
         children.splice(i, 1)
       }
@@ -72,10 +75,12 @@ function fixture({ deferClose = false } = {}) {
           }),
         )
       }
+
       root.removeChild(view)
       return Promise.resolve()
     },
   }
+
   const Microsoft = {
     UI: {
       Xaml: {
@@ -95,8 +100,10 @@ function fixture({ deferClose = false } = {}) {
       },
     },
   }
+
   const host = () => {
     const listeners = new Map()
+
     return {
       isLoaded: true,
       nativeViewProtected: { XamlRoot: xamlRoot, TabFocusNavigation: 0, IsHitTestVisible: true },
@@ -111,29 +118,36 @@ function fixture({ deferClose = false } = {}) {
       listeners,
     }
   }
+
   const api = load(
     '../src/components/overlays/overlay-lifetime.windows.ts',
     (name) => {
       if (name === './overlay-lifetime-common') {
         return base
       }
+
       if (name === './windows-overlay-exit') {
         return exits
       }
+
       if (name === './layer-stack') {
         return layers
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return { Microsoft, NSWinRT: { toPromise: (value) => Promise.resolve(value) } }
       }
+
       throw new Error(`Unexpected import ${name}`)
     },
     console,
   )
+
   const create = (view = host(), label = 'Dialog') => ({
     view,
     lifetime: api.createOverlayLifetime(root, view, null, label, () => {}),
   })
+
   return {
     state,
     main,
@@ -153,6 +167,7 @@ function fixture({ deferClose = false } = {}) {
 test('Windows dialogs disable background, preserve shade, cycle Tab and focus inside after opening', async () => {
   const { create, main, disabled, shade, state } = fixture()
   const { view, lifetime } = create()
+
   lifetime.open()
   assert.equal(main.nativeViewProtected.IsEnabled, false)
   assert.equal(disabled.nativeViewProtected.IsEnabled, false)
@@ -173,6 +188,7 @@ test('Windows dialogs disable background, preserve shade, cycle Tab and focus in
 test('Windows non-dialog overlays retain their original host behavior', async () => {
   const { create, main, state } = fixture()
   const { view, lifetime } = create(undefined, 'Popover')
+
   lifetime.open()
   await settle()
   assert.equal(main.nativeViewProtected.IsEnabled, true)
@@ -187,6 +203,7 @@ test('Windows modal Escape uses portable top-layer close/block and IME ownership
     ['close', 229, 0],
   ]) {
     const { create, layers, state, root } = fixture()
+
     layers.registerLayer({
       token: {},
       depth: 0,
@@ -198,10 +215,13 @@ test('Windows modal Escape uses portable top-layer close/block and IME ownership
     })
 
     const { view, lifetime } = create()
+
     lifetime.open()
     await settle()
+
     let prevented = 0
     const callback = view.listeners.get('keyDown')
+
     callback({
       nativeEvent: { Key: 27, OriginalKey: originalKey },
       preventDefault() {
@@ -226,9 +246,12 @@ test('Windows modal Escape uses portable top-layer close/block and IME ownership
 test('Windows nested/out-of-order modal cleanup keeps shared background disabled', async () => {
   const { create, main, state } = fixture()
   const a = create()
+
   a.lifetime.open()
   await settle()
+
   const b = create()
+
   b.lifetime.open()
   await settle()
   assert.equal(state.opened, 2)
@@ -243,6 +266,7 @@ test('Windows nested/out-of-order modal cleanup keeps shared background disabled
 test('Windows modal cleanup preserves an application-disabled background model', async () => {
   const { create, main } = fixture()
   const { lifetime } = create()
+
   lifetime.open()
   await settle()
   main.isEnabled = false
@@ -253,6 +277,7 @@ test('Windows modal cleanup preserves an application-disabled background model',
 
 test('Windows modal partial setup failure releases every acquired background', async () => {
   const { create, children, main, state } = fixture()
+
   children.push({
     nativeViewProtected: {
       get IsEnabled() {
@@ -263,7 +288,9 @@ test('Windows modal partial setup failure releases every acquired background', a
       },
     },
   })
+
   const { lifetime } = create()
+
   lifetime.open()
   await settle()
   assert.equal(main.nativeViewProtected.IsEnabled, true)
@@ -274,6 +301,7 @@ test('Windows modal partial setup failure releases every acquired background', a
 test('Windows modal missing/foreign XamlRoot rolls back without focusing', async () => {
   const { create, main, state } = fixture()
   const { view, lifetime } = create()
+
   view.nativeViewProtected.XamlRoot = {}
   lifetime.open()
   await settle()
@@ -286,6 +314,7 @@ test('Windows modal missing/foreign XamlRoot rolls back without focusing', async
 test('Windows modal cleanup attempts sibling restoration after a retired proxy throws', async () => {
   const { create, main, disabled, state } = fixture()
   const { lifetime } = create()
+
   lifetime.open()
   await settle()
   Object.defineProperty(disabled.nativeViewProtected, 'IsEnabled', {
@@ -293,6 +322,7 @@ test('Windows modal cleanup attempts sibling restoration after a retired proxy t
       throw new Error('retired')
     },
   })
+
   assert.doesNotThrow(() => lifetime.close())
   await settle()
   assert.equal(main.nativeViewProtected.IsEnabled, true)
@@ -307,8 +337,11 @@ test('Windows modal guards panel hit tests and descendant control focus separate
       callback(main)
     },
   }
+
   children.splice(0, children.length, panel, shade)
+
   const { lifetime } = create()
+
   lifetime.open()
   await settle()
   assert.equal(panel.nativeViewProtected.IsHitTestVisible, false)
@@ -321,6 +354,7 @@ test('Windows modal guards panel hit tests and descendant control focus separate
 
 test('Windows modal respects a previously handled native Escape', async () => {
   const { create, layers, state, root } = fixture()
+
   layers.registerLayer({
     token: {},
     depth: 0,
@@ -330,7 +364,9 @@ test('Windows modal respects a previously handled native Escape', async () => {
       state.dismissed++
     },
   })
+
   const { view, lifetime } = create()
+
   lifetime.open()
   await settle()
   view.listeners.get('keyDown')({
@@ -339,14 +375,18 @@ test('Windows modal respects a previously handled native Escape', async () => {
       throw Error('claimed twice')
     },
   })
+
   assert.equal(state.dismissed, 0)
   lifetime.close()
 })
 
 test('Windows rejected initial focus releases modal guards instead of leaving a half-open modal', async () => {
   const { create, main, state, Microsoft } = fixture()
+
   Microsoft.UI.Xaml.Input.FocusManager.TryFocusAsync = () => Promise.resolve({ Succeeded: false })
+
   const { view, lifetime } = create()
+
   lifetime.open()
   await settle()
   assert.equal(main.nativeViewProtected.IsEnabled, true)
@@ -356,8 +396,11 @@ test('Windows rejected initial focus releases modal guards instead of leaving a 
 
 test('Windows dialogs without interactive content give their native host a temporary tab stop', async () => {
   const { create, state, Microsoft } = fixture()
+
   Microsoft.UI.Xaml.Input.FocusManager.FindFirstFocusableElement = () => null
+
   const { view, lifetime } = create()
+
   view.nativeViewProtected.IsTabStop = false
   lifetime.open()
   await settle()
@@ -369,8 +412,10 @@ test('Windows dialogs without interactive content give their native host a tempo
 
 test('Windows suffix type resolution keeps the common lifetime separate from the modal adapter', () => {
   const dir = mkdtempSync(join(tmpdir(), 'windows-modal-types-'))
+
   try {
     const env = join(dir, 'env.d.ts')
+
     writeFileSync(
       env,
       "declare const console: {error(...args:unknown[]):void};\ndeclare module '@octane-xplat/platform/windows' { export const Microsoft:any; export const NSWinRT:any; }\n",
@@ -412,6 +457,7 @@ test('Windows suffix type resolution keeps the common lifetime separate from the
 test('Windows modal Escape selects its own root even when another window has a newer layer', async () => {
   const { create, layers, root, state } = fixture()
   let foreign = 0
+
   layers.registerLayer({
     token: {},
     depth: 0,
@@ -421,6 +467,7 @@ test('Windows modal Escape selects its own root even when another window has a n
       state.dismissed++
     },
   })
+
   layers.registerLayer({
     token: {},
     depth: 5,
@@ -430,16 +477,21 @@ test('Windows modal Escape selects its own root even when another window has a n
       foreign++
     },
   })
+
   const { view, lifetime } = create()
+
   lifetime.open()
   await settle()
+
   let claimed = 0
+
   view.listeners.get('keyDown')({
     nativeEvent: { Key: 27 },
     preventDefault() {
       claimed++
     },
   })
+
   assert.equal(claimed, 1)
   assert.equal(state.dismissed, 1)
   assert.equal(foreign, 0)
@@ -450,7 +502,9 @@ test('Portable layer key adapters without a scope retain global ownership and li
   const { layers } = fixture()
   let selected = 0,
     scope = {}
+
   const token = {}
+
   layers.registerLayer({
     token,
     depth: 0,
@@ -460,9 +514,13 @@ test('Portable layer key adapters without a scope retain global ownership and li
       selected++
     },
   })
+
   const current = {}
+
   scope = current
+
   let claimed = 0
+
   layers.dispatchLayerKey({
     key: 'Escape',
     acceptScope: (value) => value === current,
@@ -470,6 +528,7 @@ test('Portable layer key adapters without a scope retain global ownership and li
       claimed++
     },
   })
+
   assert.equal(claimed, 1)
   assert.equal(selected, 1)
   layers.dispatchLayerKey({
@@ -478,6 +537,7 @@ test('Portable layer key adapters without a scope retain global ownership and li
       claimed++
     },
   })
+
   assert.equal(claimed, 2)
   assert.equal(selected, 2)
 })
@@ -485,17 +545,23 @@ test('Portable layer key adapters without a scope retain global ownership and li
 test('Windows modal focus barrier waits for native backdrop exit and remains scoped to its root', async () => {
   const { create, state, exits, xamlRoot, main } = fixture({ deferClose: true })
   const { lifetime } = create()
+
   lifetime.open()
   await settle()
   lifetime.close()
   assert.equal(main.nativeViewProtected.IsEnabled, false)
+
   let restored = 0
+
   exits.afterWindowsOverlayExit(xamlRoot, () => {
     assert.equal(main.nativeViewProtected.IsEnabled, true)
     restored++
   })
+
   assert.equal(restored, 0)
+
   let otherRoot = 0
+
   exits.afterWindowsOverlayExit({}, () => otherRoot++)
   assert.equal(otherRoot, 1)
   state.closers[0]()
@@ -507,17 +573,21 @@ test('Windows failed native close releases background guards and does not strand
   for (const failure of ['throws', 'rejects']) {
     const { create, root, main, state, exits, xamlRoot } = fixture()
     const { lifetime, view } = create()
+
     lifetime.open()
     await settle()
     root.close = () => {
       if (failure === 'throws') {
         throw new Error('native close failed')
       }
+
       return Promise.reject(new Error('native close failed'))
     }
 
     lifetime.close()
+
     let restored = false
+
     exits.afterWindowsOverlayExit(xamlRoot, () => {
       assert.equal(main.nativeViewProtected.IsEnabled, true)
       restored = true

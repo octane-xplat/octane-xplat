@@ -8,6 +8,7 @@ import { mountXplat, viewText, waitUntil } from '@octane-xplat/platform/testing'
 // The `live` flag keeps a late timer from writing into an unmounted tree.
 function FetchLabel(props: { fail?: boolean }) @{
   const [state, setState] = useState('loading')
+
   useEffect(() => {
     let live = true
     const timer = setTimeout(() => {
@@ -28,6 +29,7 @@ function FetchLabel(props: { fail?: boolean }) @{
 describe('async loading and error states', () => {
   it('shows loading, then the settled value', async () => {
     const { view } = await mountXplat(FetchLabel)
+
     expect(viewText(view).includes('fetch: loading')).toBe(true)
     await waitUntil(() => viewText(view).includes('fetch: ready'), {
       message: 'loading state never settled to ready',
@@ -36,6 +38,7 @@ describe('async loading and error states', () => {
 
   it('shows loading, then the error state', async () => {
     const { view } = await mountXplat(FetchLabel, { fail: true })
+
     expect(viewText(view).includes('fetch: loading')).toBe(true)
     await waitUntil(() => viewText(view).includes('fetch: error'), {
       message: 'loading state never settled to error',

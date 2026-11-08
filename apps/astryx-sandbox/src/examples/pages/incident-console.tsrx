@@ -389,6 +389,7 @@ export function IncidentConsoleTemplate() @{
 
   const visible = useMemo(() => {
     const searched = applyFilters(filters, INCIDENTS)
+
     return statusFilter === 'all'
       ? searched
       : searched.filter((incident) => incident.status === statusFilter)

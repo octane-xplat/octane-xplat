@@ -41,6 +41,7 @@ describe('Bamboo xplat defaults', () => {
     ) as any
 
     const input = { output: [{ plugins: [] as any[] }, { plugins: [] as any[] }] }
+
     compiler.options.call({ environment: { name: 'client' } }, input)
     adapter.options.handler(input)
     for (const output of input.output) {

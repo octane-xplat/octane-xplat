@@ -20,6 +20,7 @@ describe('portable content display helpers', () => {
 
   it('returns per-line syntax tokens with source offsets', () => {
     const lines = tokenize('const answer = 42', 'typescript')
+
     expect(lines).toHaveLength(1)
     expect(lines[0]).toContainEqual({ type: 'keyword', start: 0, end: 5 })
     expect(lines[0]).toContainEqual({ type: 'number', start: 15, end: 17 })

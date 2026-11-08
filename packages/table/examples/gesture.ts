@@ -4,6 +4,7 @@ import type { ProbeContext } from '../../../tools/probe/context'
 export function pan(ctx: ProbeContext, id: string, dx: number, cancelled = false) {
   const view = ctx.find(id)
   const observers = view.getGestureObservers?.(8) ?? []
+
   if (!observers.length) {
     throw new Error(`No native pan observer: ${id}`)
   }

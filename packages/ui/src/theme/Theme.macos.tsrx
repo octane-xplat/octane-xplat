@@ -9,12 +9,14 @@ import { ThemeContext, ThemeNestingContext } from './theme-context'
  *  typings (same workaround as SizeProvider in size-context.ts). */
 const ThemeProviderEl: any = ThemeContext
 const ThemeNestingProviderEl: any = ThemeNestingContext
+
 import { setRootThemeScope } from './theme-scope'
 import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
 import { View } from '../components/layout/View.tsrx'
 
 import type { ThemeProps } from './Theme.tsrx'
+
 export type { ThemeProps } from './Theme.tsrx'
 
 export function Theme(props: ThemeProps): unknown @{
@@ -37,6 +39,7 @@ export function Theme(props: ThemeProps): unknown @{
 
     const unscope = setRootThemeScope(props.theme)
     const unsync = syncDocumentRootTheme(props.theme.name, effective)
+
     return () => {
       unsync()
       unscope()

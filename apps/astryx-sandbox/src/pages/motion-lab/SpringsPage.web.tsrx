@@ -121,6 +121,7 @@ function SpringRunner({ duration, bounce }: { duration: number; bounce: number }
   const run = useCallback(() => {
     const dot = dotRef.current
     const track = trackRef.current
+
     if (dot == null || track == null) {
       return
     }
@@ -136,6 +137,7 @@ function SpringRunner({ duration, bounce }: { duration: number; bounce: number }
     // A spring is movement, which is the first thing either reduced-motion
     // policy removes — so the box arrives rather than travels.
     const isInstant = reducedMotion !== 'off'
+
     dot.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${distance}px)` }], {
       duration: isInstant ? 1 : Math.max(1, spring.duration * 1000 * speed),
       easing: isInstant ? 'linear' : spring.linear(),
@@ -167,22 +169,27 @@ function InterruptDemo({ duration, bounce }: { duration: number; bounce: number 
   const toggle = useCallback(() => {
     const dot = dotRef.current
     const track = trackRef.current
+
     if (dot == null || track == null) {
       return
     }
 
     const next = !isOut
+
     setOut(next)
+
     const spring = createSpring(duration, bounce)
     const distance = Math.max(0, track.clientWidth - 52)
     // The running animation does not commit its value, so the position has to
     // be read off the box before it is cancelled.
     const matrix = new DOMMatrixReadOnly(window.getComputedStyle(dot).transform)
+
     for (const animation of dot.getAnimations()) {
       animation.cancel()
     }
 
     const isInstant = reducedMotion !== 'off'
+
     dot.animate(
       [
         { transform: `translateX(${matrix.m41}px)` },

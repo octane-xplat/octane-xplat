@@ -48,13 +48,17 @@ export function createSpring(duration: number, bounce: number): Spring {
     if (t <= 0) {
       return 0
     }
+
     if (zeta < 1) {
       const envelope = Math.exp(-zeta * omega * t)
+
       return (
         1 - envelope * (Math.cos(damped * t) + ((zeta * omega) / damped) * Math.sin(damped * t))
       )
     }
+
     const envelope = Math.exp(-omega * t)
+
     return 1 - envelope * (1 + omega * t)
   }
 
@@ -66,18 +70,22 @@ export function createSpring(duration: number, bounce: number): Spring {
     damping: Math.round(2 * zeta * omega * 10) / 10,
     linear(steps = 64) {
       const points: string[] = []
+
       for (let i = 0; i <= steps; i++) {
         points.push(sample((i / steps) * d).toFixed(4))
       }
+
       return `linear(${points.join(',')})`
     },
     overshoot() {
       // The peak of a light spring lands after the nominal duration, so look
       // past it or the number reads as zero overshoot on every preset.
       let peak = 0
+
       for (let i = 0; i <= 400; i++) {
         peak = Math.max(peak, sample((i / 400) * d * 3))
       }
+
       return peak
     },
     settle: () => sample(d),
@@ -99,16 +107,21 @@ const NAMED_CURVES: Readonly<Record<string, BezierPoints>> = {
 export function parseBezier(value: string): BezierPoints {
   const trimmed = value.trim()
   const named = NAMED_CURVES[trimmed]
+
   if (named != null) {
     return named
   }
+
   const match = /cubic-bezier\(([^)]+)\)/.exec(trimmed)
+
   if (match != null) {
     const parts = match[1].split(',').map(Number)
+
     if (parts.length === 4 && parts.every(Number.isFinite)) {
       return [parts[0], parts[1], parts[2], parts[3]]
     }
   }
+
   return NAMED_CURVES.ease
 }
 
@@ -122,6 +135,7 @@ export function isNamedCurve(value: string): boolean {
 
 const bezierAxis = (a: number, b: number, t: number): number => {
   const u = 1 - t
+
   return 3 * u * u * t * a + 3 * u * t * t * b + t * t * t
 }
 
@@ -130,14 +144,18 @@ export function bezierAt(points: BezierPoints, x: number): number {
   if (x <= 0) {
     return 0
   }
+
   if (x >= 1) {
     return 1
   }
+
   let low = 0
   let high = 1
   let t = x
+
   for (let i = 0; i < 32; i++) {
     const guess = bezierAxis(points[0], points[2], t)
+
     if (Math.abs(guess - x) < 1e-5) {
       break
     }
@@ -150,6 +168,7 @@ export function bezierAt(points: BezierPoints, x: number): number {
 
     t = (low + high) / 2
   }
+
   return bezierAxis(points[1], points[3], t)
 }
 
@@ -164,11 +183,14 @@ export function plotPath(
   samples = 120,
 ): string {
   const points: string[] = []
+
   for (let i = 0; i <= samples; i++) {
     const x = i / samples
     const px = pad + x * (width - pad * 2)
     const py = height - pad - ((fn(x) - yMin) / (yMax - yMin)) * (height - pad * 2)
+
     points.push(`${px.toFixed(2)},${py.toFixed(2)}`)
   }
+
   return `M${points.join('L')}`
 }

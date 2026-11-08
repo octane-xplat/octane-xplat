@@ -19,6 +19,7 @@ export function ClickableCard(props: ClickableCardProps): unknown @{
 
     if (props.href) {
       const url = sanitizeUrl(props.href)
+
       if (url) {
         Utils.openUrl(url)
       }

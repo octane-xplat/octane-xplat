@@ -48,6 +48,7 @@ async function transact<T>(
     }, 15_000)
 
     const request = indexedDB.open(databaseName, 1)
+
     request.onupgradeneeded = () => request.result.createObjectStore(storeName, { keyPath: 'id' })
     request.onerror = () => finish(request.error)
     request.onblocked = () => finish(new Error('Storage upgrade is blocked by another page'))
@@ -79,6 +80,7 @@ async function transact<T>(
 
 export async function reserveMovie(): Promise<string> {
   const estimate = await navigator.storage.estimate()
+
   if (
     estimate.quota !== undefined &&
     estimate.usage !== undefined &&
@@ -92,6 +94,7 @@ export async function reserveMovie(): Promise<string> {
   }
 
   const id = crypto.randomUUID()
+
   await transact<void>('readwrite', (store) => {
     store.add({ id })
   })
@@ -114,6 +117,7 @@ export async function commitMovie(id: string, bytes: Blob, clip: MovieClip): Pro
 
   // Reopen the committed entry before handing ownership to the app.
   const stored = await readMovie(id)
+
   if (!stored.bytes || stored.bytes.size !== bytes.size || !stored.clip) {
     throw storageError(new Error('Committed movie cannot be reopened'))
   }
@@ -128,6 +132,7 @@ export async function removeReservation(id: string): Promise<void> {
 async function readMovie(id: string): Promise<StoredMovie> {
   return transact<StoredMovie>('readonly', (store, result) => {
     const request = store.get(id)
+
     request.onsuccess = () => result(request.result ?? { id })
   })
 }
@@ -142,6 +147,7 @@ export async function openStoredMovie(output: MovieOutput): Promise<MovieOutputH
   }
 
   const stored = await readMovie(output.resourceId)
+
   if (!stored.bytes || !stored.clip) {
     throw new CameraCaptureError({
       kind: 'destinationUnavailable',
@@ -152,6 +158,7 @@ export async function openStoredMovie(output: MovieOutput): Promise<MovieOutputH
 
   const url = URL.createObjectURL(stored.bytes)
   let released = false
+
   return {
     url,
     release: () => {

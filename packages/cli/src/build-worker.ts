@@ -20,11 +20,14 @@ const protocol = 'octane-build-worker'
 const version = 1
 function projectViteEntry(): string {
   let current = process.cwd()
+
   for (;;) {
     const packageRoot = join(current, 'node_modules/vite')
+
     if (existsSync(join(packageRoot, 'package.json'))) {
       const require = createRequire(join(current, 'package.json'))
       const entry = realpathSync(require.resolve('vite'))
+
       if (!entry.startsWith(realpathSync(packageRoot) + sep)) {
         throw new Error('Vite must resolve from the selected project')
       }
@@ -33,6 +36,7 @@ function projectViteEntry(): string {
     }
 
     const parent = dirname(current)
+
     if (parent === current) {
       throw new Error('Install vite in the selected project (for example: bun add --dev vite).')
     }
@@ -42,22 +46,26 @@ function projectViteEntry(): string {
 }
 
 const [, , requestFile, resultFile] = process.argv
+
 if (!requestFile || !resultFile) {
   throw new Error('Usage: node build-worker.js REQUEST.json RESULT.json')
 }
 
 // Libraries/loaders may log. Results travel separately from diagnostics.
 globalThis.console = new Console({ stdout: process.stderr, stderr: process.stderr })
+
 let id: unknown = null
 let file: string | undefined
 let service = false
 const warnings: string[] = []
+
 try {
   if (statSync(requestFile).size > 64 * 1024 * 1024) {
     throw new Error('Worker request exceeds 64 MiB')
   }
 
   const request = JSON.parse(readFileSync(requestFile, 'utf8'))
+
   id = request.id
   if (request.protocol !== protocol || request.version !== version || typeof id !== 'string') {
     throw new Error('Unsupported build worker protocol')
@@ -71,30 +79,40 @@ try {
   }
 
   let data: unknown
+
   if (['add-targets', 'add-plan', 'add-install'].includes(request.operation)) {
     const { addOperation } = await import('./add-worker.ts')
+
     data = await addOperation(request)
   } else if (request.operation === 'workshop-build') {
     const { workshopBuildOperation } = await import('./workshop-worker.ts')
+
     data = await workshopBuildOperation(request)
   } else if (request.operation === 'workshop-dev') {
     service = true
+
     const { workshopService } = await import('./workshop-worker.ts')
+
     data = await workshopService(request, requestFile, resultFile)
   } else if (request.operation === 'workshop-init-plan') {
     const { workshopInitPlan } = await import('./workshop-worker.ts')
+
     data = await workshopInitPlan(request)
   } else if (['workshop-list', 'workshop-doctor'].includes(request.operation)) {
     const { workshopInspection } = await import('./workshop-worker.ts')
+
     data = await workshopInspection(request)
   } else if (request.operation === 'fonts-plan') {
     const { fontOperation } = await import('./fonts-worker.ts')
+
     data = await fontOperation(request, requestFile)
   } else if (request.operation === 'updates-check') {
     const { checkUpdatesDependencies } = await import('./updates-worker.ts')
+
     data = checkUpdatesDependencies()
   } else if (request.operation === 'route-plan') {
     const { planRoutes } = await import('./route-generator.ts')
+
     for (const key of ['directory', 'output']) {
       if (request[key] !== undefined && typeof request[key] !== 'string') {
         throw new Error(`Expected ${key} string`)
@@ -124,9 +142,11 @@ try {
     )
   ) {
     const { upgradeOperation } = await import('./upgrade-worker.ts')
+
     data = upgradeOperation(request)
   } else if (request.operation === 'doctor') {
     const platform = request.macosReport
+
     if (platform !== null && platform !== undefined) {
       if (
         platform.version !== 1 ||
@@ -155,6 +175,7 @@ try {
         if (!platform) {
           throw new Error('Install or update @octane-xplat/macos-build for macOS diagnostics')
         }
+
         return platform.rows
       },
     })
@@ -172,6 +193,7 @@ try {
     const { packageManagerRoot, packageManagerFor } = await import('./package-manager.ts')
     const root = realpathSync(packageManagerRoot(process.cwd()))
     const manager = packageManagerFor(process.cwd(), request.packageManager ?? undefined)
+
     if (
       typeof request.workspaceRoot !== 'string' ||
       root !== realpathSync(request.workspaceRoot) ||
@@ -220,6 +242,7 @@ try {
 
     const stage = request.stagingRoot
     const release = join(process.cwd(), 'dist/linux')
+
     if (
       typeof stage !== 'string' ||
       !lstatSync(stage).isDirectory() ||
@@ -239,6 +262,7 @@ try {
     ]
 
     const hostRoot = roots.find((root) => existsSync(join(root, 'gjs-host.js')))
+
     if (!hostRoot) {
       throw new Error('Update the selected CLI: Linux host assets are missing')
     }
@@ -262,15 +286,19 @@ try {
     }
 
     const { planFormat } = await import('./fmt-plan.ts')
+
     data = await planFormat(process.cwd(), request.inputs, request.stdin, async () => {
       const { resolveProjectTool } = await import('./package-root.ts')
       const entry = resolveProjectTool(process.cwd(), '@octane-xplat/fmt')
+
       if (!entry) {
         throw new Error(
           'Install @octane-xplat/fmt in the selected project (bun add --dev @octane-xplat/fmt).',
         )
       }
+
       const { createFormatter } = await import(pathToFileURL(entry).href)
+
       return createFormatter({ cwd: process.cwd() })
     })
   } else if (request.operation === 'typecheck-config') {
@@ -284,6 +312,7 @@ try {
       .map((name) => join(project, name))
 
     const loaded = loadEnvManifest(project)
+
     if (loaded) {
       const required = ['native', 'macos'].filter((name) => loaded.manifest.environments[name])
       const roots = [
@@ -311,6 +340,7 @@ try {
     data = { version: 1, configs }
   } else if (request.operation === 'route-analyze') {
     const { routeSourceMetadata } = await import('./route-source.ts')
+
     if (!Array.isArray(request.files)) {
       throw new Error('route-analyze requires files')
     }
@@ -319,6 +349,7 @@ try {
       if (typeof entry.file !== 'string' || typeof entry.source !== 'string') {
         throw new Error('Expected route source strings')
       }
+
       file = entry.file
       return {
         file,
@@ -328,12 +359,14 @@ try {
     })
   } else if (request.operation === 'route-bake') {
     const { assertRouteDataJson } = await import('./route-data.ts')
+
     if (!Array.isArray(request.loaders) || !Array.isArray(request.markdown)) {
       throw new Error('route-bake requires loaders and markdown arrays')
     }
 
     const { mdToDoc } = await import('./markdown.ts')
     const result: Record<string, unknown> = Object.create(null)
+
     for (const entry of request.markdown) {
       if (
         typeof entry.name !== 'string' ||
@@ -344,7 +377,9 @@ try {
       }
 
       file = entry.file
+
       const value = mdToDoc(entry.source)
+
       assertRouteDataJson(value, entry.name, entry.file)
       result[entry.name] = value
     }
@@ -366,8 +401,10 @@ try {
           }
 
           file = entry.file
+
           const module = await server.ssrLoadModule(resolve(process.cwd(), entry.file))
           const loader = module?.loader ?? module?.default
+
           if (typeof loader !== 'function') {
             throw new Error(
               `baked route '${entry.name}' — ${relative(process.cwd(), resolve(entry.file))} must export a 'loader' function`,
@@ -375,6 +412,7 @@ try {
           }
 
           const value = await loader({})
+
           assertRouteDataJson(value, entry.name, entry.file)
           result[entry.name] = value
         }
@@ -402,6 +440,7 @@ try {
 
     const declaration = validateActionDeclaration(request.action)
     let policy
+
     if (request.includePolicy === true && declaration.length === 0) {
       const action = request.action
       const availability = actionAvailability(action, request.platform)
@@ -438,6 +477,7 @@ try {
   writeFileSync(resultFile, JSON.stringify({ protocol, version, id, ok: true, data, warnings }))
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error)
+
   console.error(`${file ? `${file}: ` : ''}${message}`)
   writeFileSync(
     resultFile,

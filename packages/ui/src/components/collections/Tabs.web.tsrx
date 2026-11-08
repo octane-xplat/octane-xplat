@@ -24,11 +24,13 @@ function TabRouteSelection(props: TabsProps & { select(key: string): void }) {
   // selection remains owned by the caller; tab clicks themselves are UI state.
   useLayoutEffect(() => {
     const flow = snapshot.main?.flow
+
     if (!flow) {
       return
     }
 
     const index = props.tabs.findIndex((tab) => tab.stack === flow)
+
     if (index >= 0 && props.selectedKey === undefined && props.selectedIndex === undefined) {
       props.select(routeTabKey(props.tabs[index], index))
     }
@@ -40,6 +42,7 @@ function TabRouteSelection(props: TabsProps & { select(key: string): void }) {
 export function Tabs(props: TabsProps): any {
   const selection = useRouteTabsSelection(props)
   const idPrefix = props.id ?? selection.panelId
+
   return (
     <>
       {props.tabs.some((tab) => !!tab.stack) ? (

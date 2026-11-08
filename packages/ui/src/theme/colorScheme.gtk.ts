@@ -2,6 +2,7 @@ import { useSyncExternalStore } from 'octane'
 import { hostGlobal } from '../internal/platform/host-bridge'
 
 export type { ColorScheme } from '../props'
+
 import type { ColorScheme } from '../props'
 
 /** GTK/GJS color-scheme leaf — the renderer's `__octaneGtkHost` bridge is

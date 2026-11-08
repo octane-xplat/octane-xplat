@@ -157,8 +157,10 @@ const CSS_NAMED_COLORS: Record<string, number> = {
 export function nativeColor(value: any): NSColor {
   const string = String(value).trim().toLowerCase()
   let match = /^#([\da-f]{3})$/i.exec(string)
+
   if (match) {
     const hex = match[1]
+
     return NSColor.colorWithRedGreenBlueAlpha(
       parseInt(hex[0] + hex[0], 16) / 255,
       parseInt(hex[1] + hex[1], 16) / 255,
@@ -170,6 +172,7 @@ export function nativeColor(value: any): NSColor {
   match = /^#([\da-f]{4})$/i.exec(string)
   if (match) {
     const hex = match[1]
+
     return NSColor.colorWithRedGreenBlueAlpha(
       parseInt(hex[0] + hex[0], 16) / 255,
       parseInt(hex[1] + hex[1], 16) / 255,
@@ -181,6 +184,7 @@ export function nativeColor(value: any): NSColor {
   match = /^#([\da-f]{6})$/i.exec(string)
   if (match) {
     const hex = match[1]
+
     return NSColor.colorWithRedGreenBlueAlpha(
       parseInt(hex.slice(0, 2), 16) / 255,
       parseInt(hex.slice(2, 4), 16) / 255,
@@ -192,6 +196,7 @@ export function nativeColor(value: any): NSColor {
   match = /^#([\da-f]{8})$/i.exec(string)
   if (match) {
     const hex = match[1]
+
     return NSColor.colorWithRedGreenBlueAlpha(
       parseInt(hex.slice(0, 2), 16) / 255,
       parseInt(hex.slice(2, 4), 16) / 255,
@@ -201,6 +206,7 @@ export function nativeColor(value: any): NSColor {
   }
 
   const named = CSS_NAMED_COLORS[string]
+
   if (named !== undefined) {
     return NSColor.colorWithRedGreenBlueAlpha(
       ((named >> 16) & 0xff) / 255,
@@ -214,8 +220,10 @@ export function nativeColor(value: any): NSColor {
     /^hsla?\(\s*(-?[\d.]+)(?:deg|turn|rad)?[,\s]+([\d.]+)%?[,\s]+([\d.]+)%?[,\s/]*([\d.]*)\s*\)$/i.exec(
       string,
     )
+
   if (match) {
     let h = parseFloat(match[1])
+
     if (/turn/i.test(string)) {
       h *= 360
     } else if (/rad/i.test(string)) {
@@ -223,6 +231,7 @@ export function nativeColor(value: any): NSColor {
     }
 
     h = ((h % 360) + 360) % 360
+
     const sat = Math.min(100, Math.max(0, parseFloat(match[2]))) / 100
     const light = Math.min(100, Math.max(0, parseFloat(match[3]))) / 100
     const alpha = match[4] === '' ? 1 : Math.min(1, Math.max(0, Number(match[4])))

@@ -28,22 +28,27 @@ const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${p
 const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? '.exe' : ''}`)
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
 }
 
 const scratch = realpathSync(scratchRun(root, 'go-workshop'))
+
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const tools = projectToolFixture(root, work, scratch, { workshopCompiler: true })
 let sequence = 0
 function put(dir, file, content) {
   const path = join(dir, file)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(
     path,
     typeof content === 'string' || Buffer.isBuffer(content) ? content : JSON.stringify(content),
   )
+
   return path
 }
 
@@ -54,6 +59,7 @@ function link(source, destination) {
 
 function fixture({ workshop = true } = {}) {
   const dir = join(scratch, `app ${sequence++} π`)
+
   put(dir, 'package.json', { name: 'workshop-consumer', type: 'module', private: true })
   for (const name of [
     '@octane-xplat/cli',
@@ -65,11 +71,13 @@ function fixture({ workshop = true } = {}) {
   ]) {
     link(join(tools.nodeModules, name), join(dir, 'node_modules', name))
   }
+
   if (workshop) {
     // Stage the actual built backend beside the curated CLI: resolving from
     // the source-workspace symlink would accidentally use its full old CLI.
     const source = join(root, 'packages/workshop')
     const destination = join(dir, 'node_modules/@octane-xplat/workshop')
+
     put(destination, 'package.json', readFileSync(join(source, 'package.json')))
     for (const file of readdirSync(join(source, 'dist'), {
       recursive: true,
@@ -77,6 +85,7 @@ function fixture({ workshop = true } = {}) {
     })) {
       if (file.isFile()) {
         const path = join(file.parentPath, file.name)
+
         put(destination, path.slice(source.length + 1), readFileSync(path))
       }
     }
@@ -84,12 +93,14 @@ function fixture({ workshop = true } = {}) {
     for (const file of readdirSync(join(source, 'src'), { recursive: true, withFileTypes: true })) {
       if (file.isFile()) {
         const path = join(file.parentPath, file.name)
+
         put(destination, path.slice(source.length + 1), readFileSync(path))
       }
     }
 
     link(join(tools.nodeModules, 'tinyglobby'), join(dir, 'node_modules/tinyglobby'))
   }
+
   return dir
 }
 
@@ -135,8 +146,11 @@ export const Basic = defineStory({id:'counter/basic',title:'Counter / Basic',tar
 test('workshop schemas are native and expose partial migration truthfully', () => {
   const dir = fixture({ workshop: false })
   const result = run(dir, ['--schema'], { PATH: '' })
+
   success(result)
+
   const schema = JSON.parse(result.stdout).data.commands
+
   assert.deepEqual(
     schema.map((row) => [row.command, row.status]),
     [
@@ -147,23 +161,28 @@ test('workshop schemas are native and expose partial migration truthfully', () =
       ['workshop build', 'implemented'],
     ],
   )
+
   success(run(dir, ['list', '--help'], { PATH: '' }))
 })
 
 test('real workshop static discovery matches Node without executing story modules', () => {
   const dir = fixture()
+
   put(dir, 'src/counter.stories.tsrx', story)
   put(dir, 'src/mobile.stories.ios.tsrx', story.replaceAll('counter/basic', 'ios/basic'))
   for (const target of ['web', 'ios', 'macos']) {
     const actual = run(dir, ['list', '--json', '--target', target])
     const expected = reference(dir, 'list', true, target)
+
     success(actual)
     success(expected)
     assert.deepEqual(JSON.parse(actual.stdout), JSON.parse(expected.stdout))
     assert.equal(JSON.parse(actual.stdout).entries.length, 2)
   }
+
   const actual = run(dir, ['list']),
     expected = reference(dir, 'list', false)
+
   success(actual)
   success(expected)
   assert.equal(actual.stdout, expected.stdout)
@@ -171,6 +190,7 @@ test('real workshop static discovery matches Node without executing story module
 
 test('real Vite executes project configuration, while JSON stdout stays clean', () => {
   const dir = fixture()
+
   put(dir, 'src/counter.stories.tsrx', story)
   put(
     dir,
@@ -179,7 +199,9 @@ test('real Vite executes project configuration, while JSON stdout stays clean', 
 console.log('config diagnostic'); writeFileSync(${JSON.stringify(join(dir, 'loaded'))}, 'yes');
 export default {stories:{include:['nothing/**/*.stories.ts']}};`,
   )
+
   const result = run(dir, ['list', '--json'])
+
   success(result)
   assert.deepEqual(JSON.parse(result.stdout).entries, [])
   assert.equal(readFileSync(join(dir, 'loaded'), 'utf8'), 'yes')
@@ -188,18 +210,23 @@ export default {stories:{include:['nothing/**/*.stories.ts']}};`,
 
 test('discovery diagnostics succeed in JSON mode but fail in human mode', () => {
   const dir = fixture()
+
   put(
     dir,
     'bad.stories.ts',
     `export const Bad=defineStory({id: computed(),title:'Bad',component:()=>null})`,
   )
+
   const actual = run(dir, ['list', '--json']),
     expected = reference(dir, 'list')
+
   success(actual)
   success(expected)
   assert.deepEqual(JSON.parse(actual.stdout), JSON.parse(expected.stdout))
   assert.ok(JSON.parse(actual.stdout).diagnostics.length)
+
   const human = run(dir, ['list'])
+
   assert.equal(human.status, 1, human.stdout + human.stderr)
   assert.match(human.stdout, /workshop stories/)
   assert.match(human.stderr, /discovery diagnostic/)
@@ -209,6 +236,7 @@ test('real workshop doctor matches Node prerequisite reports without qualifying 
   const dir = fixture()
   const actual = run(dir, ['doctor', '--json']),
     expected = reference(dir, 'doctor')
+
   success(actual)
   success(expected)
   assert.deepEqual(JSON.parse(actual.stdout), JSON.parse(expected.stdout))
@@ -218,16 +246,21 @@ test('real workshop doctor matches Node prerequisite reports without qualifying 
 test('missing and nearer broken workshop installs fail without a global fallback', () => {
   const dir = fixture({ workshop: false })
   const missing = run(dir, ['list', '--json'], { NODE_PATH: join(root, 'node_modules') })
+
   assert.equal(missing.status, 1)
   assert.match(missing.stderr, /bun add -D @octane-xplat\/workshop/)
+
   const nested = join(dir, 'nested')
+
   put(nested, 'package.json', { name: 'nested', type: 'module' })
   link(join(root, 'packages/workshop'), join(dir, 'node_modules/@octane-xplat/workshop'))
   put(nested, 'node_modules/@octane-xplat/workshop/package.json', {
     name: '@octane-xplat/workshop',
     exports: { './node': './missing.js' },
   })
+
   const broken = run(nested, ['list', '--json'])
+
   assert.equal(broken.status, 1)
   assert.equal(broken.stdout, '')
   assert.match(broken.stderr, /missing\.js/)
@@ -236,12 +269,14 @@ test('missing and nearer broken workshop installs fail without a global fallback
 test('native inspection rejects malformed responses before publishing output', () => {
   const dir = fixture({ workshop: false })
   const pkg = join(dir, 'node_modules/@octane-xplat/cli')
+
   rmSync(pkg)
   put(pkg, 'package.json', {
     name: '@octane-xplat/cli',
     type: 'module',
     exports: { './worker': './worker.js' },
   })
+
   for (const change of [
     {},
     { version: 2 },
@@ -263,6 +298,7 @@ process.exitCode=change.processExit??0;`,
     )
 
     const result = run(dir, ['list', '--json'])
+
     if (Object.keys(change).length === 0) {
       success(result)
       assert.deepEqual(JSON.parse(result.stdout), { target: 'web', entries: [], diagnostics: [] })
@@ -280,14 +316,19 @@ process.exitCode=change.processExit??0;`,
 test('a selected workshop export may not escape its installed package', () => {
   const dir = fixture({ workshop: false })
   const pkg = join(dir, 'node_modules/@octane-xplat/workshop')
+
   put(pkg, 'package.json', {
     name: '@octane-xplat/workshop',
     type: 'module',
     exports: { './node': './escape.js' },
   })
+
   const outside = put(dir, 'outside.js', `throw Error('must not import escaped entry')`)
+
   symlinkSync(outside, join(pkg, 'escape.js'))
+
   const result = run(dir, ['list', '--json'])
+
   assert.equal(result.status, 1)
   assert.match(result.stderr, /must remain inside/)
 })
@@ -298,6 +339,7 @@ test(
   async () => {
     const dir = fixture(),
       ready = join(dir, 'child-pid')
+
     put(
       dir,
       'workshop.config.ts',
@@ -305,20 +347,27 @@ test(
 const child=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>{},1000)"],{stdio:'ignore'});
 writeFileSync(${JSON.stringify(ready)},String(child.pid)); await new Promise(()=>{}); export default {};`,
     )
+
     const child = spawn(binary, ['workshop', 'list', '--json'], {
       cwd: dir,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
+
     const exited = once(child, 'exit')
+
     try {
       for (let i = 0; i < 200 && !existsSync(ready); i++) {
         await delay(25)
       }
 
       assert.ok(existsSync(ready), 'configuration worker did not start')
+
       const descendant = Number(readFileSync(ready, 'utf8'))
+
       child.kill('SIGTERM')
+
       const [code, signal] = await exited
+
       assert.equal(signal, null)
       assert.equal(code, 143)
       for (let i = 0; i < 200; i++) {
@@ -346,6 +395,7 @@ writeFileSync(${JSON.stringify(ready)},String(child.pid)); await new Promise(()=
 
 function initializedFiles(dir) {
   const paths = ['package.json', 'workshop.config.ts', 'src/workshop/counter.stories.tsrx']
+
   return Object.fromEntries(
     paths
       .filter((path) => existsSync(join(dir, path)))
@@ -375,6 +425,7 @@ test('workshop initialization and repeat reports match the actual Node engine', 
     }
 
     const manifest = JSON.parse(readFileSync(join(actual, 'package.json')))
+
     assert.equal(Boolean(manifest.scripts?.workshop), scripts)
   }
 })
@@ -382,6 +433,7 @@ test('workshop initialization and repeat reports match the actual Node engine', 
 test('initialization preserves custom files, scripts, manifest data and permissions', () => {
   const a = fixture(),
     b = fixture()
+
   for (const dir of [a, b]) {
     put(dir, 'package.json', {
       name: 'custom',
@@ -394,24 +446,33 @@ test('initialization preserves custom files, scripts, manifest data and permissi
     put(dir, 'src/workshop/counter.stories.tsrx', 'custom story\n')
     chmodSync(join(dir, 'package.json'), 0o640)
   }
+
   const before = initializedFiles(a),
     actual = run(a, ['init']),
     expected = reference(b, 'init', false)
+
   success(actual)
   success(expected)
   assert.equal(actual.stdout, expected.stdout)
   assert.deepEqual(initializedFiles(a), before)
   assert.deepEqual(initializedFiles(a), initializedFiles(b))
+
   const dir = fixture()
+
   put(dir, 'package.json', {
     name: 'new-script',
     scripts: { build: 'vite build' },
     extra: { keep: ['π', 1] },
   })
+
   chmodSync(join(dir, 'package.json'), 0o640)
+
   const mode = statSync(join(dir, 'package.json')).mode & 0o777
+
   success(run(dir, ['init']))
+
   const updated = JSON.parse(readFileSync(join(dir, 'package.json')))
+
   assert.deepEqual(updated.extra, { keep: ['π', 1] })
   assert.equal(updated.scripts.build, 'vite build')
   assert.equal(statSync(join(dir, 'package.json')).mode & 0o777, mode)
@@ -419,7 +480,9 @@ test('initialization preserves custom files, scripts, manifest data and permissi
 
 test('the shared plan is read-only and does not execute workshop configuration', () => {
   const dir = fixture()
+
   put(dir, 'workshop.config.ts', "throw Error('initialization must not execute config')")
+
   const before = initializedFiles(dir)
   const result = spawnSync(
     'node',
@@ -433,8 +496,11 @@ test('the shared plan is read-only and does not execute workshop configuration',
     ],
     { cwd: dir, encoding: 'utf8', timeout: 30000 },
   )
+
   success(result)
+
   const plan = JSON.parse(result.stdout)
+
   assert.equal(plan.version, 1)
   assert.equal(plan.files.length, 2)
   assert.equal(plan.inputs.length, 3)
@@ -445,18 +511,25 @@ test('the shared plan is read-only and does not execute workshop configuration',
 test('initialization rejects aliased destinations and invalid scripts before publication', () => {
   const dir = fixture(),
     outside = join(scratch, 'outside-init')
+
   put(outside, 'sentinel', 'preserve')
   symlinkSync(outside, join(dir, 'src'), process.platform === 'win32' ? 'junction' : 'dir')
+
   const before = readFileSync(join(dir, 'package.json'))
   const result = run(dir, ['init'])
+
   assert.equal(result.status, 1, result.stdout + result.stderr)
   assert.equal(existsSync(join(dir, 'workshop.config.ts')), false)
   assert.equal(existsSync(join(outside, 'workshop')), false)
   assert.deepEqual(readFileSync(join(dir, 'package.json')), before)
   assert.equal(readFileSync(join(outside, 'sentinel'), 'utf8'), 'preserve')
+
   const invalid = fixture()
+
   put(invalid, 'package.json', { name: 'invalid-scripts', scripts: [] })
+
   const failed = run(invalid, ['init'])
+
   assert.equal(failed.status, 1, failed.stdout + failed.stderr)
   assert.equal(existsSync(join(invalid, 'workshop.config.ts')), false)
   assert.equal(existsSync(join(invalid, 'src')), false)
@@ -497,6 +570,7 @@ test('native initialization rejects malformed, stale and destructive plans with 
 
     const before = readFileSync(join(dir, 'package.json'))
     const result = run(dir, ['init'])
+
     if (!mutation) {
       success(result)
       assert.ok(existsSync(join(dir, 'workshop.config.ts')))
@@ -534,6 +608,7 @@ test(
     const original = baselineSource.stdout
       .replace(/(from\s+['"]\.\.?\/[^'"]+)\.ts(['"])/g, '$1.js$2')
       .replace(/(import\(['"]\.\.?\/[^'"]+)\.ts(['"]\))/g, '$1.js$2')
+
     for (const scenario of ['fresh', 'no-scripts', 'custom', 'missing-script']) {
       const a = fixture(),
         b = fixture(),
@@ -560,6 +635,7 @@ test(
       for (let attempt = 0; attempt < 2; attempt++) {
         const actual = run(a, ['init', ...(scripts ? [] : ['--no-scripts'])])
         const expected = reference(b, 'init', false, 'web', { scripts }, true)
+
         success(actual)
         success(expected)
         assert.equal(actual.stdout, expected.stdout, scenario)
@@ -571,17 +647,23 @@ test(
 
 test('native workshop service uses actual Vite HTTP/catalog updates and releases the listener on cancel', async () => {
   const dir = fixture()
+
   put(dir, 'counter.stories.tsrx', story)
+
   const child = spawn(binary, ['workshop', 'dev', '--target', 'web', '--port', '0'], {
     cwd: dir,
     stdio: ['ignore', 'pipe', 'pipe'],
     env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '' },
   })
+
   const exited = once(child, 'exit')
   let output = ''
+
   child.stdout.on('data', (b) => (output += b))
   child.stderr.on('data', (b) => (output += b))
+
   let address
+
   try {
     for (let i = 0; i < 1200; i++) {
       address = output.match(/WORKSHOP_READY (http:\/\/localhost:\d+\/)/)?.[1]
@@ -597,13 +679,19 @@ test('native workshop service uses actual Vite HTTP/catalog updates and releases
     }
 
     assert.ok(address, 'Vite did not listen: ' + output)
+
     const response = await fetch(address)
+
     assert.equal(response.status, 200)
+
     const html = await response.text()
+
     assert.match(html, /workshop/i)
+
     // Request the actual maintained Vite virtual catalog, without evaluating stories.
     const catalog = await fetch(new URL('/@id/__x00__xplat-workshop-catalog', address))
     const text = await catalog.text()
+
     writeFileSync(
       join(work, 'workshop-service-http.json'),
       JSON.stringify({ address, html, catalogStatus: catalog.status, catalog: text }),
@@ -612,9 +700,12 @@ test('native workshop service uses actual Vite HTTP/catalog updates and releases
     assert.equal(catalog.status, 200, text)
     assert.match(text, /counter\/basic/)
     put(dir, 'counter.stories.tsrx', story.replaceAll('counter/basic', 'counter/changed'))
+
     let updated = ''
+
     for (let i = 0; i < 200; i++) {
       const r = await fetch(new URL('/@id/__x00__xplat-workshop-catalog', address))
+
       updated = await r.text()
       if (updated.includes('counter/changed')) {
         break
@@ -625,7 +716,9 @@ test('native workshop service uses actual Vite HTTP/catalog updates and releases
 
     assert.match(updated, /counter\/changed/)
     child.kill('SIGTERM')
+
     const [code, signal] = await exited
+
     if (process.platform === 'win32') {
       // Node force-terminates Windows owners: this tests kill-on-close Job
       // cleanup, not console Ctrl-C delivery or graceful owner shutdown.
@@ -649,40 +742,50 @@ test('native workshop service uses actual Vite HTTP/catalog updates and releases
 test('native service reports project setup errors and preserves worker exit status', () => {
   const dir = fixture()
   const unsupported = run(dir, ['dev', '--target', 'windows'])
+
   assert.equal(unsupported.status, 1, unsupported.stdout + unsupported.stderr)
   assert.match(unsupported.stderr, /Windows|windows/)
+
   const invalid = run(dir, ['dev', '--port', '65536'])
+
   assert.equal(invalid.status, 1)
   assert.match(invalid.stderr, /--port expects/)
+
   // A valid admission frame never changes the actual engine failure status.
   const pkg = join(dir, 'node_modules/@octane-xplat/cli')
+
   rmSync(pkg)
   put(pkg, 'package.json', {
     name: '@octane-xplat/cli',
     type: 'module',
     exports: { './worker': './worker.js' },
   })
+
   put(
     pkg,
     'worker.js',
     `import{readFileSync,writeFileSync}from'node:fs';const req=JSON.parse(readFileSync(process.argv[2]));writeFileSync(process.argv[3],JSON.stringify({protocol:req.protocol,version:req.version,id:req.id,ok:true,data:{version:1,project:req.project,operation:req.operation,target:req.target,state:'accepted'},warnings:[]}));process.exitCode=7;`,
   )
+
   assert.equal(run(dir, ['dev']).status, 7)
 })
 
 test('static build dispatches a finite selected-project operation and exposes native flags', () => {
   const dir = fixture({ workshop: false })
   const schema = run(dir, ['build', '--schema'], { PATH: '' })
+
   success(schema)
   assert.deepEqual(
     JSON.parse(schema.stdout).data.input.flags.map((flag) => flag.flag),
     ['target', 'out-dir', 'base'],
   )
+
   put(dir, 'node_modules/@octane-xplat/workshop/package.json', {
     name: '@octane-xplat/workshop',
     type: 'module',
     exports: { './node': './engine.js' },
   })
+
   put(
     dir,
     'node_modules/@octane-xplat/workshop/engine.js',
@@ -694,10 +797,14 @@ export async function workshopBuild(options) {
 }
 `,
   )
+
   const result = run(dir, ['build', '--base', '/nested/', '--out-dir', 'dist/public'])
+
   success(result)
   assert.match(result.stdout, /2 components, 3 stories/)
+
   const native = run(dir, ['build', '--target', 'ios'])
+
   assert.notEqual(native.status, 0)
   assert.match(native.stderr, /supports only web/)
 })

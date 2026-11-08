@@ -5,6 +5,7 @@ import { tokenizeChatText } from './chat-tokenize'
 describe('Chat text helpers', () => {
   it('matches token values literally and preserves surrounding text', () => {
     const token = { value: '@[Ada](user-1)', label: 'Ada' }
+
     expect(tokenizeChatText('Hi @[Ada](user-1)!', [token])).toEqual([
       { kind: 'text', text: 'Hi ' },
       { kind: 'token', token, index: 3 },

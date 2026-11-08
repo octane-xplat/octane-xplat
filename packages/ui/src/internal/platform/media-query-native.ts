@@ -19,13 +19,16 @@ function evalTerm(term: string, traits: NativeMediaTraits): boolean {
 
   const m = /^(max|min)-(width|height)\s*:\s*([0-9.]+)px$/i.exec(body)
   let result: boolean
+
   if (m) {
     const size = m[2].toLowerCase() === 'width' ? traits.width : traits.height
+
     result = m[1].toLowerCase() === 'max' ? size <= Number(m[3]) : size >= Number(m[3])
   } else {
     const feature = /^([a-z-]+)\s*:\s*([a-z-]+)$/i.exec(body)
     const name = (feature ? feature[1] : body).toLowerCase()
     const value = (feature?.[2] ?? '').toLowerCase()
+
     if (name === 'pointer' || name === 'any-pointer') {
       result =
         value === ''
@@ -67,6 +70,7 @@ export function evaluateNativeMediaQuery(query: string, traits: NativeMediaTrait
   // `and` term. Nested groups and other CSS grammar are outside this subset.
   return query.split(/,|\s+or\s+/i).some((branch) => {
     const terms = branch.split(/\s+and\s+/i).map((term) => term.trim())
+
     return terms.every((term) => term.length > 0 && evalTerm(term, traits))
   })
 }

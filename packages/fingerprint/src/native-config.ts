@@ -22,21 +22,29 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
             ...defaults,
           ]
         : defaults
+
   const file = candidates.map((name) => resolve(root, name)).find(existsSync)
+
   if (!file) {
     return {}
   }
+
   try {
     const modules = new Map<string, { exports: any }>()
     const quiet = { log() {}, info() {}, warn() {}, error() {}, debug() {} }
     function load(path: string): any {
       const previous = modules.get(path)
+
       if (previous) {
         return previous.exports
       }
+
       const module = { exports: {} as any }
+
       modules.set(path, module)
+
       const source = readFileSync(path, 'utf8')
+
       if (path.endsWith('.json')) {
         module.exports = JSON.parse(source)
       } else {
@@ -59,11 +67,13 @@ export async function readNativeConfig(root: string): Promise<Record<string, any
           { filename: path },
         )(module.exports, localRequire, module, path, dirname(path), quiet)
       }
+
       return module.exports
     }
 
     const exported = load(file)
     const value: unknown = exported.default ?? exported
+
     if (!value || typeof value !== 'object' || Array.isArray(value)) {
       throw new Error()
     }
@@ -81,6 +91,7 @@ export function configValue(value: unknown, root: string, resources: string): un
   if (value === undefined) {
     return null
   }
+
   if (value === null || typeof value === 'boolean' || typeof value === 'number') {
     if (typeof value === 'number' && !Number.isFinite(value)) {
       throw new Error('Native build settings must be finite JSON values')
@@ -88,15 +99,19 @@ export function configValue(value: unknown, root: string, resources: string): un
 
     return value
   }
+
   if (typeof value === 'string') {
     return value.replaceAll(resources, '<App_Resources>').replaceAll(root, '<project>')
   }
+
   if (Array.isArray(value)) {
     return value.map((item) => configValue(item, root, resources))
   }
+
   if (typeof value !== 'object' || Object.getPrototypeOf(value) !== Object.prototype) {
     throw new Error('Native build settings must contain serializable values')
   }
+
   return Object.fromEntries(
     Object.entries(value).map(([key, item]) => [key, configValue(item, root, resources)]),
   )

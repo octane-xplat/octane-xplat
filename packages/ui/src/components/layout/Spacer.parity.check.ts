@@ -16,6 +16,7 @@ export const CHECKS: ParityCheck[] = [
       const leading = m('leading')
       const spacer = m('spacer')
       const trailing = m('trailing')
+
       return [
         dims(root, 96, 24),
         dims(leading, 16, 10),

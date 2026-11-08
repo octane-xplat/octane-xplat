@@ -4,6 +4,7 @@ import { cx } from '../src/cx.ts'
 
 test('joins nested class values for imperative assignments with existing coercion', () => {
   const view = { className: '' }
+
   view.className = cx('host', [null, ['active', false, ['', undefined]]], 0, NaN)
   assert.equal(view.className, 'host active')
   assert.equal(cx(), '')

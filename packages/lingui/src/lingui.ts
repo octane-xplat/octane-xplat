@@ -20,6 +20,7 @@ const listeners = new Set<() => void>()
 
 function notify(): void {
   const snapshot = [...listeners]
+
   for (const listener of snapshot) {
     listener()
   }
@@ -56,6 +57,7 @@ export function matchLocale(
   if (candidate) {
     const normalized = candidate.replace(/_/g, '-').toLowerCase()
     const exact = supported.find((locale) => locale.toLowerCase() === normalized)
+
     if (exact) {
       return exact
     }
@@ -100,9 +102,11 @@ export function catalogsFromGlob(
   record: Record<string, CatalogLoader>,
 ): Record<string, CatalogLoader> {
   const out: Record<string, CatalogLoader> = {}
+
   for (const [path, loader] of Object.entries(record)) {
     const segments = path.split('/')
     const locale = segments[segments.length - 2]
+
     if (locale) {
       out[locale] = loader
     }
@@ -117,6 +121,7 @@ export function catalogsFromGlob(
  */
 export async function setLocale(locale: string): Promise<void> {
   const loader = catalogs[locale]
+
   if (!loader) {
     throw new Error(
       `setLocale: no catalog registered for locale "${locale}" (registered: ${supportedLocales().join(', ') || 'none'})`,
@@ -125,9 +130,11 @@ export async function setLocale(locale: string): Promise<void> {
 
   const owner = ++activationGeneration
   const loaded = await loader()
+
   if (owner !== activationGeneration) {
     return
   }
+
   // `?lingui`-style modules wrap the catalog as `{ messages }`; compiled ES
   // catalogs are the messages object itself. A catalog whose own id is
   // literally `messages` only collides when its value is a plain object.
@@ -135,8 +142,10 @@ export async function setLocale(locale: string): Promise<void> {
     typeof loaded === 'object' && loaded !== null && 'messages' in loaded
       ? loaded.messages
       : undefined
+
   const catalog =
     wrapped !== null && typeof wrapped === 'object' && !Array.isArray(wrapped) ? wrapped : loaded
+
   // A catalog is a plain record of message entries; anything else is empty.
   const messages = (
     typeof catalog === 'object' && catalog !== null && !Array.isArray(catalog) ? catalog : {}
@@ -171,6 +180,7 @@ export async function initLingui(setup: LinguiSetup): Promise<string> {
   }
 
   persist = setup.persist
+
   const persisted = persist ? await persist.load() : undefined
   const initial = matchLocale(
     setup.locale ?? persisted ?? detectSystemLocale(),

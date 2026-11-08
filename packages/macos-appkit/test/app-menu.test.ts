@@ -46,15 +46,19 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
       if (specifier === '@octane-xplat/platform/macos') {
         return { url: 'data:text/javascript,' + encodeURIComponent(platform), shortCircuit: true }
       }
+
       if (specifier.startsWith('.') && owner.parentURL) {
         const candidate = new URL(specifier + '.ts', owner.parentURL)
+
         if (existsSync(candidate)) {
           return next(candidate.href, owner)
         }
       }
+
       return next(specifier, owner)
     },
   })
+
   try {
     const { createAppMenu } = await import('../src/app-menu.ts')
     const { NSApplication } = await import('@octane-xplat/platform/macos')
@@ -65,7 +69,9 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     })
 
     const previousBar = { foreign: true }
+
     app.mainMenu = previousBar
+
     const selected: string[] = []
     const installed = menu.installApplicationMenu([
       {
@@ -135,15 +141,21 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     ])
 
     assert.ok(installed)
+
     const bar = app.mainMenu
+
     assert.notEqual(bar, previousBar)
     assert.equal(bar.autoenablesItems, false)
     assert.equal(bar.items.length, 2)
+
     const [appItem, fileItem] = bar.items
+
     assert.equal(appItem.title, 'TestApp')
     assert.ok(appItem.submenu)
     assert.equal(appItem.submenu.autoenablesItems, false)
+
     const [about, separator, quit] = appItem.submenu.items
+
     // Selector items are nil-target responder-chain rows.
     assert.equal(about.target, null)
     assert.equal(about.action, 'orderFrontStandardAboutPanel:')
@@ -153,6 +165,7 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
 
     const file = fileItem.submenu
     const [newItem, wrapItem, recentItem] = file.items
+
     assert.equal(newItem.action, 'appMenuItemSelected:')
     assert.equal(newItem.keyEquivalent, 'n')
     assert.equal(newItem.keyEquivalentModifierMask, 1 << 20)
@@ -160,6 +173,7 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     assert.equal(wrapItem.state, 1)
     assert.equal(wrapItem.enabled, false)
     assert.ok(recentItem.submenu)
+
     const recentOne = recentItem.submenu.items[0]
 
     // Dispatch through the real target → tag → action-store → onSelect.
@@ -171,6 +185,7 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     assert.deepEqual(selected, ['new', 'one'])
 
     const staleTag = newItem.tag
+
     installed!.update([
       {
         type: 'submenu',
@@ -190,13 +205,16 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
     ])
 
     const nextBar = app.mainMenu
+
     assert.notEqual(nextBar, bar)
     // The retired generation's tags and targets are inert.
     store.dispatch(staleTag)
     assert.equal(newItem.target, null)
     assert.equal(newItem.action, null)
     assert.deepEqual(selected, ['new', 'one'])
+
     const open = nextBar.items[0].submenu.items[0]
+
     open.target.appMenuItemSelected(open)
     assert.deepEqual(selected, ['new', 'one', 'open'])
 
@@ -207,8 +225,10 @@ test('application menu builds the bar, dispatches tag selections, retires old ta
 
     // …but the bar restores the previous menu while still installed.
     app.mainMenu = previousBar
+
     const second = menu.installApplicationMenu([{ type: 'submenu', title: 'Only', children: [] }])
     const secondBar = app.mainMenu
+
     assert.notEqual(secondBar, previousBar)
     second!.dispose()
     assert.equal(app.mainMenu, previousBar)

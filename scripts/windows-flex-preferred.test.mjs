@@ -40,6 +40,7 @@ function harness(code, available = true) {
       if (child.rejectInsertion) {
         return false
       }
+
       child.parent = this
       return true
     }
@@ -51,6 +52,7 @@ function harness(code, available = true) {
       this.disposed = true
     }
   }
+
   const writes = []
   const widget = available
     ? Object.fromEntries(
@@ -66,10 +68,12 @@ function harness(code, available = true) {
         ]),
       )
     : {}
+
   const Parent = vm.runInNewContext(code + '\nFlexboxLayout', {
     FlexboxLayoutBase: Base,
     FlexboxWidget: widget,
   })
+
   const child = () => ({
     nativeViewProtected: { Width: 100, Height: 10 },
     style: {
@@ -80,10 +84,12 @@ function harness(code, available = true) {
         if (!this.listeners.has(name)) {
           this.listeners.set(name, new Set())
         }
+
         this.listeners.get(name).add(callback)
       },
       off(name, callback) {
         const callbacks = this.listeners.get(name)
+
         callbacks?.delete(callback)
         if (!callbacks?.size) {
           this.listeners.delete(name)
@@ -97,6 +103,7 @@ function harness(code, available = true) {
       },
     },
   })
+
   return { Parent, child, writes }
 }
 
@@ -107,6 +114,7 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child, writes } = harness(code)
     const parent = new Parent(),
       view = child()
+
     assert.equal(parent._addViewToNativeVisualTree(view), true)
     assert.equal(view.nativeViewProtected.preferredWidth, 100)
     assert.equal(view.nativeViewProtected.preferredHeight, 10)
@@ -124,10 +132,14 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child, writes } = harness(code)
     const parent = new Parent(),
       view = child()
+
     const unrelated = () => {}
+
     view.style.on('widthChange', unrelated)
     parent._addViewToNativeVisualTree(view)
+
     const stale = parent._preferredChildren.get(view).sync
+
     view.style.set('width', 120)
     view.nativeViewProtected.Width = NaN
     view.nativeViewProtected.Height = NaN
@@ -139,7 +151,9 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     assert.equal(parent._preferredChildren.size, 0)
     assert.deepEqual([...view.style.listeners.get('widthChange')], [unrelated])
     assert.equal(view.style.listeners.has('heightChange'), false)
+
     const count = writes.length
+
     stale()
     assert.equal(writes.length, count)
   })
@@ -148,11 +162,13 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child } = harness(code)
     const parent = new Parent(),
       view = child()
+
     parent._addViewToNativeVisualTree(view)
     for (const value of [{ unit: '%', value: 0.5 }, 'auto', NaN, Infinity, -1, null]) {
       view.style.set('width', value)
       assert.equal(view.nativeViewProtected.preferredWidth, -1)
     }
+
     for (const value of [0, { unit: 'dip', value: 0 }]) {
       view.style.set('width', value)
       assert.equal(view.nativeViewProtected.preferredWidth, 0)
@@ -164,12 +180,17 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const first = new Parent(),
       second = new Parent(),
       view = child()
+
     first._addViewToNativeVisualTree(view)
+
     const stale = first._preferredChildren.get(view).sync
+
     first._removeViewFromNativeVisualTree(view)
     view.style.set('width', 90)
     second._addViewToNativeVisualTree(view)
+
     const count = writes.length
+
     stale()
     assert.equal(writes.length, count)
     assert.equal(view.nativeViewProtected.preferredWidth, 90)
@@ -182,11 +203,16 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child, writes } = harness(code)
     const parent = new Parent(),
       view = child()
+
     parent._addViewToNativeVisualTree(view)
+
     const stale = parent._preferredChildren.get(view).sync
     const replacement = { Width: 27, Height: 13 }
+
     view.nativeViewProtected = replacement
+
     const count = writes.length
+
     view.style.set('width', 90)
     parent._removeViewFromNativeVisualTree(view)
     stale()
@@ -200,9 +226,11 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child } = harness(code)
     const parent = new Parent(),
       views = [child(), child()]
+
     for (const view of views) {
       parent._addViewToNativeVisualTree(view)
     }
+
     parent.disposeNativeView()
     assert.equal(parent.disposed, true)
     assert.equal(parent.preferredCountAtBaseDisposal, 0)
@@ -217,12 +245,15 @@ for (const [name, code] of Object.entries({ source, package: packaged })) {
     const { Parent, child } = harness(code)
     const parent = new Parent(),
       view = child()
+
     view.rejectInsertion = true
     assert.equal(parent._addViewToNativeVisualTree(view), false)
     assert.equal(view.style.listeners.size, 0)
+
     const old = harness(code, false),
       fallback = new old.Parent(),
       unpatched = old.child()
+
     assert.equal(fallback._addViewToNativeVisualTree(unpatched), true)
     assert.equal(unpatched.style.listeners.size, 0)
     assert.equal(unpatched.nativeViewProtected.Width, 100)

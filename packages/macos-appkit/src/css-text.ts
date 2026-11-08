@@ -6,8 +6,10 @@ export function splitStyleTokens(text: string): string[] {
   const tokens: string[] = []
   let depth = 0
   let start = -1
+
   for (let i = 0; i <= text.length; i++) {
     const c = text[i]
+
     if (c === '(') {
       depth++
     } else if (c === ')') {
@@ -23,6 +25,7 @@ export function splitStyleTokens(text: string): string[] {
       start = i
     }
   }
+
   return tokens
 }
 
@@ -31,8 +34,10 @@ export function splitTopLevelCommas(text: string): string[] {
   const parts: string[] = []
   let depth = 0
   let start = 0
+
   for (let i = 0; i <= text.length; i++) {
     const c = text[i]
+
     if (c === '(') {
       depth++
     } else if (c === ')') {
@@ -44,5 +49,6 @@ export function splitTopLevelCommas(text: string): string[] {
       start = i + 1
     }
   }
+
   return parts.filter(Boolean)
 }

@@ -51,6 +51,7 @@ export const barrier: LayoutBarrier = {
         root.invalidate('mutation')
       }
     })
+
     observer.observe(document.documentElement, {
       subtree: true,
       childList: true,
@@ -60,6 +61,7 @@ export const barrier: LayoutBarrier = {
     })
 
     const onResize = () => root.invalidate('resize')
+
     window.addEventListener('resize', onResize)
     return () => {
       observer.disconnect()

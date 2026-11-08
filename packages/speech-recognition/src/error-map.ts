@@ -23,6 +23,7 @@ const WEB_CODES: Record<string, SpeechRecognitionErrorCode> = {
 /** Classify a Web Speech `SpeechRecognitionErrorEvent.error` string. */
 export function mapWebSpeechError(error: string): SpeechRecognitionError {
   const code = WEB_CODES[error] ?? 'unknown'
+
   return new SpeechRecognitionError(code, `Speech recognition failed: ${error}`, {
     nativeCode: error,
   })
@@ -83,6 +84,7 @@ export function mapAppleSpeechError(
   message?: string,
 ): SpeechRecognitionError {
   let mapped: SpeechRecognitionErrorCode
+
   if (domain === APPLE_FACADE_DOMAIN) {
     mapped = APPLE_FACADE_CODES[code] ?? 'unknown'
   } else if (domain === 'NSURLErrorDomain') {

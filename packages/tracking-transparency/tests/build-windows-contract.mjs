@@ -4,6 +4,7 @@ import { createRequire } from 'node:module'
 import { join } from 'node:path'
 import { tmpdir } from 'node:os'
 import { fileURLToPath, pathToFileURL } from 'node:url'
+
 const root = process.env.XPLAT_TRACKING_PACKAGE ?? fileURLToPath(new URL('..', import.meta.url))
 const output =
   process.env.XPLAT_TRACKING_CONTRACT_OUTPUT ?? join(tmpdir(), 'xplat-tracking-windows-contract')

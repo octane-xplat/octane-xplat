@@ -22,6 +22,7 @@ test('formatted containers compose ordered nested spans with inherited styling a
   ])
 
   const runs = textRuns(tree, { fontFamily: 'system-ui', fontSize: 14 })
+
   assert.equal(runs.map((run) => run.text).join(''), 'ab3')
   assert.equal(runs[1].style.fontWeight, 'bold')
   assert.equal(runs[1].style.color, '#0000ff')
@@ -35,6 +36,7 @@ test('removed overrides restore inheritance, reordering and reparenting recomput
     b = node('span', { text: 'b' })
 
   const tree = node('formattedstring', { fontSize: 18, color: '#ff0000' }, [a, b])
+
   a.props = { text: 'A' }
   tree.children.reverse()
   assert.deepEqual(
@@ -74,6 +76,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
@@ -217,10 +220,12 @@ test('formatted spacing inherits and resets across nested, removed and reparente
     local,
     node('span', { text: 'C', style: { letterSpacing: -0.5 } }),
   ])
+
   assert.deepEqual(
     textRuns(tree).map((run) => run.style.letterSpacing),
     [2, 0, -0.5],
   )
+
   local.props = { text: 'B' }
   assert.equal(textRuns(tree)[1].style.letterSpacing, 2)
   assert.equal(
@@ -228,6 +233,7 @@ test('formatted spacing inherits and resets across nested, removed and reparente
       .letterSpacing,
     1,
   )
+
   local.props = { text: 'B', style: { letterSpacing: 'normal' } }
   assert.equal(textRuns(tree)[1].style.letterSpacing, 'normal')
 })
@@ -236,6 +242,7 @@ test('formatted spacing validates finite positive/negative/zero points and norma
   for (const letterSpacing of [0, 2, -0.5, 'normal']) {
     validateTextStyle({ style: { letterSpacing } }, () => {})
   }
+
   for (const letterSpacing of [NaN, Infinity, -Infinity, '2px', {}]) {
     assert.throws(() => validateTextStyle({ style: { letterSpacing } }, () => {}), /letterSpacing/)
   }
@@ -268,6 +275,7 @@ test('native attributed runs carry spacing and omit it for zero/normal resets', 
       },
     },
   )
+
   const runs = native.composeAttributedText(
     [
       node('span', { text: 'inherited' }),
@@ -281,6 +289,7 @@ test('native attributed runs carry spacing and omit it for zero/normal resets', 
     () => ({}),
     { fontSize: 16, fontWeight: 400, letterSpacing: 2 },
   ).runs
+
   assert.deepEqual(
     Array.from(runs, (run: any) => run.attributes.kern),
     [2, undefined, undefined, -1],
@@ -298,6 +307,7 @@ test('rich parent spacing follows computed style then inline fallback and resets
     nativeColor() {},
     queueLayoutReconcile() {},
   })
+
   const parent: any = {
     type: 'label',
     children: [node('span', { text: 'A' })],
@@ -307,6 +317,7 @@ test('rich parent spacing follows computed style then inline fallback and resets
     container: {},
     parent: null,
   }
+
   sync(parent)
   assert.equal(defaults.letterSpacing, 2)
   delete parent.computedStyle
@@ -328,6 +339,7 @@ test('rich host line height follows computed style, inline fallback and removal'
     nativeColor() {},
     queueLayoutReconcile() {},
   })
+
   const parent: any = {
     type: 'label',
     children: [node('span', { text: 'A' })],
@@ -337,6 +349,7 @@ test('rich host line height follows computed style, inline fallback and removal'
     container: {},
     parent: null,
   }
+
   sync(parent)
   assert.equal(defaults.lineHeight, 24)
   delete parent.computedStyle
@@ -373,6 +386,7 @@ test('rich paragraph height uses host defaults and removes fixed height for norm
       },
     },
   )
+
   const paragraph = (lineHeight: any, inline?: number) =>
     api.composeAttributedText(
       [node('span', { text: 'A' })],
@@ -382,6 +396,7 @@ test('rich paragraph height uses host defaults and removes fixed height for norm
       () => ({}),
       { fontSize: 16, fontWeight: 400, lineHeight },
     ).runs[0].attributes.paragraph
+
   assert.equal(paragraph(24, 20).minimumLineHeight, 24)
   assert.equal(paragraph(24, 20).maximumLineHeight, 24)
   assert.equal(paragraph(undefined, 20).minimumLineHeight, 20)

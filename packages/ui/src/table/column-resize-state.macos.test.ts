@@ -1,6 +1,7 @@
 import { expect, it } from 'vitest'
 import { createAppKitColumnResizeState, type AppKitResizeScope } from './column-resize-state.macos'
 import type { UseTableColumnResizeConfig } from './use-table-column-resize.tsrx'
+
 const scope = (extra: Partial<AppKitResizeScope> = {}): AppKitResizeScope => ({
   key: 'name',
   view: {},
@@ -21,6 +22,7 @@ it('uncontrolled drags preview cumulative translation, clamp and commit once wit
       changed() {},
     }),
     owner = scope()
+
   state.begin(owner)
   state.move(owner, 50)
   expect(state.widths()).toEqual({ name: 230 })
@@ -31,11 +33,13 @@ it('uncontrolled drags preview cumulative translation, clamp and commit once wit
   expect(commits).toEqual([{ name: 300 }])
   state.end(owner, 600)
   expect(commits).toHaveLength(1)
+
   const fractional = createAppKitColumnResizeState({
       config: () => ({ minWidth: 80.5, maxWidth: 300.5 }),
       changed() {},
     }),
     fine = scope({ width: 180.25 })
+
   fractional.begin(fine)
   fractional.end(fine, 0)
   expect(fractional.widths()).toEqual({})
@@ -49,8 +53,10 @@ it('controlled commits return to parent state unless acknowledged; programmatic 
     columnWidths: { name: 200, status: 140 },
     onColumnResizeEnd: (value) => commits.push(value),
   }
+
   const state = createAppKitColumnResizeState({ config: () => config, changed() {} }),
     owner = scope()
+
   state.begin(owner)
   state.move(owner, 40)
   expect(state.widths().name).toBe(240)
@@ -65,9 +71,12 @@ it('controlled commits return to parent state unless acknowledged; programmatic 
 it('parent feedback during a drag can acknowledge requests but unrelated active-column updates retire the preview', () => {
   let config: UseTableColumnResizeConfig = { columnWidths: { name: 200 } },
     commits = 0
+
   config.onColumnResizeEnd = () => commits++
+
   const state = createAppKitColumnResizeState({ config: () => config, changed() {} }),
     owner = scope()
+
   state.begin(owner)
   state.move(owner, 20)
   config = { ...config, columnWidths: { name: 220 } }
@@ -84,8 +93,10 @@ it('cancellation, invalid handle scope, changed limits and disposal discard prev
   let valid = true,
     commits = 0,
     config: UseTableColumnResizeConfig = { onColumnResizeEnd: () => commits++ }
+
   const state = createAppKitColumnResizeState({ config: () => config, changed() {} }),
     owner = scope({ valid: () => valid })
+
   state.begin(owner)
   state.move(owner, 30)
   state.cancel(owner.view)
@@ -111,6 +122,7 @@ it('RTL mirrors physical drag/arrows; keyboard limits and AX increments use the 
       changed() {},
     }),
     owner = scope({ direction: 'rtl' })
+
   state.begin(owner)
   state.end(owner, 20)
   expect(state.widths().name).toBe(160)
@@ -130,6 +142,7 @@ it('RTL mirrors physical drag/arrows; keyboard limits and AX increments use the 
 it('callbacks may throw or start a new gesture without reviving or retiring the old owner', () => {
   const first = scope(),
     second = scope({ key: 'team' })
+
   let commits = 0
   const state = createAppKitColumnResizeState({
     config: () => ({
@@ -141,6 +154,7 @@ it('callbacks may throw or start a new gesture without reviving or retiring the 
     }),
     changed() {},
   })
+
   state.begin(first)
   expect(() => state.end(first, 20)).toThrow('app callback')
   expect(state.active('team')).toBe(true)

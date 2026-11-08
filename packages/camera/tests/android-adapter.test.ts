@@ -6,6 +6,7 @@ vi.mock('@nativescript/core', () => {
     shouldShowRequestPermissionRationale: () => false,
     requestPermissions: () => {},
   }
+
   const context = {
     getSharedPreferences: () => ({
       getBoolean: () => false,
@@ -138,10 +139,13 @@ async function attachReadySession(
   afterAcquired?: (ready: ReadySession) => void,
 ): Promise<ReadySession> {
   const backend = createSessionBackend({})
+
   if (afterAcquired) {
     const switchCamera = backend.switchCamera!
+
     backend.switchCamera = (camera) => {
       const operation = switchCamera(camera)
+
       return {
         ...operation,
         completion: operation.completion.then((selected) => {
@@ -151,6 +155,7 @@ async function attachReadySession(
       }
     }
   }
+
   const result: ReadySession = {
     session: new SharedCameraSession(backend, {}),
     bridge: undefined as unknown as FakeBridge,
@@ -216,6 +221,7 @@ afterEach(() => {
 describe('android adapter onReady admission', () => {
   it('finalizes usable output with a warning if native acquisition cannot be committed', async () => {
     const { session, bridge, takes, detach } = await attachReadySession()
+
     bridge.readyValue = true
     bridge.emit('ready', 'true')
     bridge.emit(
@@ -232,12 +238,15 @@ describe('android adapter onReady admission', () => {
         container: 'mp4',
       }),
     )
+
     bridge.confirmCameraSwitch.mockImplementation(() => {
       throw new Error('Acquisition retired')
     })
+
     const flip = session.switchCamera('front')
     // Finalization cancels the operation; the clip carries the native diagnostic.
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     await flush()
     bridge.emit('switchFinished', JSON.stringify({ id: '1', label: 'Front', facing: 'front' }))
     await rejected
@@ -250,6 +259,7 @@ describe('android adapter onReady admission', () => {
       endReason: 'cameraUnavailable',
       warning: { operation: 'switchCamera', kind: 'unavailable' },
     })
+
     await detach()
     await session.dispose()
   })
@@ -258,6 +268,7 @@ describe('android adapter onReady admission', () => {
     const { session, bridge, takes, detach } = await attachReadySession((ready) =>
       ready.takes[0]!.stop(),
     )
+
     bridge.readyValue = true
     bridge.emit('ready', 'true')
     bridge.emit(
@@ -274,8 +285,10 @@ describe('android adapter onReady admission', () => {
         container: 'mp4',
       }),
     )
+
     const flip = session.switchCamera('front')
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     await flush()
     bridge.emit('switchFinished', JSON.stringify({ id: '1', label: 'Front', facing: 'front' }))
     await rejected
@@ -285,7 +298,9 @@ describe('android adapter onReady admission', () => {
     settleTake(bridge, clip)
     await takes[0]!.completion
     await detach()
+
     const detachAgain = session.attach({})
+
     await flush()
     expect(bridge.attachArgs.at(-1)!.selected).toBe('default')
     await detachAgain()
@@ -294,6 +309,7 @@ describe('android adapter onReady admission', () => {
 
   it('joins a native camera swap without admitting another take', async () => {
     const { session, bridge, takes, detach } = await attachReadySession()
+
     bridge.readyValue = true
     bridge.emit('ready', 'true')
     bridge.emit(
@@ -310,7 +326,9 @@ describe('android adapter onReady admission', () => {
         container: 'mp4',
       }),
     )
+
     const flip = session.switchCamera('front')
+
     await flush()
     expect(bridge.switchCamera).toHaveBeenCalledWith('front')
     bridge.emit('ready', 'true')
@@ -328,6 +346,7 @@ describe('android adapter onReady admission', () => {
 
   it('cancels a native swap on stop and ignores late native selection', async () => {
     const { session, bridge, takes, detach } = await attachReadySession()
+
     bridge.readyValue = true
     bridge.emit('ready', 'true')
     bridge.emit(
@@ -344,8 +363,10 @@ describe('android adapter onReady admission', () => {
         container: 'mp4',
       }),
     )
+
     const flip = session.switchCamera('front')
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     await flush()
     takes[0]!.stop()
     await rejected
@@ -361,6 +382,7 @@ describe('android adapter onReady admission', () => {
   it('does not rebind the native source when auto-recording overtakes configure', async () => {
     const { session, bridge, takes, events, detach } = await attachReadySession()
     const configuring = session.configure({ audio: true })
+
     bridge.readyValue = true
     bridge.emit('ready', 'true')
     expect(takes).toHaveLength(1)
@@ -376,6 +398,7 @@ describe('android adapter onReady admission', () => {
 
   it('withholds onReady until the availability event lands, then admits recording', async () => {
     const { session, bridge, takes, errors, detach } = await attachReadySession()
+
     expect(bridge.attachArgs).toHaveLength(1)
 
     // The pre-fix stream observer emitted "ready" before "availability"
@@ -415,7 +438,9 @@ describe('android adapter onReady admission', () => {
     )
 
     await flush()
+
     const bridge = FakeBridge.instances.at(-1)!
+
     // Reported ordering: ready fires while availability is still false,
     // the availability update landing in the same event burst.
     bridge.emit('availability', 'false')
@@ -437,6 +462,7 @@ describe('android adapter onReady admission', () => {
 
   it('withholds onReady while an interruption is in effect', async () => {
     const { session, bridge, takes, errors, detach } = await attachReadySession()
+
     bridge.emit('interruption', 'cameraInUse')
     bridge.readyValue = true
     bridge.emit('ready', 'true')
@@ -455,6 +481,7 @@ describe('android adapter onReady admission', () => {
 
   it('keeps onReady withheld while the camera is genuinely unavailable', async () => {
     const { session, bridge, takes, events, detach } = await attachReadySession()
+
     bridge.emit('availability', 'false')
     bridge.readyValue = true
     bridge.emit('ready', 'true')
@@ -483,6 +510,7 @@ describe('android adapter onReady admission', () => {
 
   it('drops a pending onReady when readiness is retracted', async () => {
     const { session, bridge, takes, detach } = await attachReadySession()
+
     bridge.emit('availability', 'false')
     bridge.readyValue = true
     bridge.emit('ready', 'true')
@@ -502,6 +530,7 @@ describe('android adapter onReady admission', () => {
 
   it('drops a pending onReady when the preview detaches', async () => {
     const { session, bridge, takes, detach } = await attachReadySession()
+
     bridge.emit('availability', 'false')
     bridge.readyValue = true
     bridge.emit('ready', 'true')
@@ -514,6 +543,7 @@ describe('android adapter onReady admission', () => {
 
   it('reports preview bind failures through onError and stays unavailable', async () => {
     const { session, bridge, errors, detach } = await attachReadySession()
+
     bridge.emit('previewError', 'java.lang.IllegalArgumentException: No SDR recording profile')
     expect(session.snapshot().cameraAvailable).toBe(false)
     expect(errors.at(-1)).toContain('No SDR recording profile')
@@ -547,8 +577,11 @@ describe('android adapter zoom and display readiness', () => {
     const backend = createSessionBackend({})
     const session = new SharedCameraSession(backend, {})
     const onDisplayReady = vi.fn()
+
     session.attach({}, { onDisplayReady })
+
     const bridge = FakeBridge.instances.at(-1)!
+
     bridge.emit('displayed', 'true')
     expect(onDisplayReady).toHaveBeenCalledTimes(1)
 

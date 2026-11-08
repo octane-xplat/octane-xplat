@@ -129,6 +129,7 @@ async function mount(component: any, props: any) {
   const host: any = new LayoutBase()
   const container = createNativeScriptContainer(host)
   const root = createUniversalRoot(container, nativeScriptDriver)
+
   container.root = root
   root.render(component, props)
   return {
@@ -149,6 +150,7 @@ it('writes explicit placement as grid lines and leaves automatic children unposi
     row: masonStyleOf(v)?.__writes.gridRow,
     col: masonStyleOf(v)?.__writes.gridColumn,
   }))
+
   // row={0} col={0} -> '1'; the composite child carries colSpan={2} ->
   // '1 / span 2'; auto-flow children keep no explicit lines.
   expect(writes[0]).toEqual({ row: '1', col: '1' })
@@ -175,6 +177,7 @@ it('reflows child-owned late insertion, removal and keyed reorder without rerend
 
   const grid = app.host.children[0]
   const a = grid.children[0]
+
   flushUniversalSync(() => update(['b', 'a', 'c']))
   await Promise.resolve()
   expect(grid.children.map((v: any) => v.text)).toEqual(['b', 'a', 'c'])
@@ -183,7 +186,9 @@ it('reflows child-owned late insertion, removal and keyed reorder without rerend
   flushUniversalSync(() => update(['c']))
   await Promise.resolve()
   expect(grid.children.map((v: any) => v.text)).toEqual(['c'])
+
   const insert = Object.getPrototypeOf(grid).insertChild
+
   flushUniversalSync(() => update(['d', 'c']))
   app.dispose()
   await Promise.resolve()
@@ -196,6 +201,7 @@ it.each(['rootlayout', 'contentview'])(
   async (type) => {
     const app = await mount(SlotCase, { type, visible: false })
     const host = app.host.children[0]
+
     app.root.render(SlotCase, { type, visible: true })
     expect(type === 'contentview' ? host.content.text : host.children[0].text).toBe('late')
     app.root.render(SlotCase, { type, visible: false })
@@ -215,6 +221,7 @@ it.each([
   async (component, rowLine) => {
     const app = await mount(component, { col: 2, span: 1 })
     const grid = app.host.children[0]
+
     app.root.render(component, { col: 0, span: 2 })
     await Promise.resolve()
     expect(masonStyleOf(grid.children[0])?.__writes.gridRow).toBe(rowLine)
@@ -243,9 +250,11 @@ it.each([
   'preserves CSS ownership of omitted tracks through nested Mason attach (%j)',
   async ({ columns, template, expected }) => {
     const app = await mount(TrackStyleCase, { columns, template })
+
     try {
       const grid = app.host.children[0].children[0]
       const style = masonStyleOf(grid)!
+
       expect(style.gridTemplateRows).toBe('auto 1fr')
       if (expected === undefined) {
         // Writing undefined would be replayed after attachment and erase a
@@ -267,9 +276,11 @@ it.each([
   'keeps removed tracks cleared when a later sibling attaches (%j)',
   async ({ columns, template, expected }) => {
     const app = await mount(TrackStyleCase, { columns, template })
+
     try {
       const parent = app.host.children[0]
       const grid = parent.children[0]
+
       expect(masonStyleOf(grid)!.gridTemplateColumns).toBe(expected)
 
       app.root.render(TrackStyleCase, {})

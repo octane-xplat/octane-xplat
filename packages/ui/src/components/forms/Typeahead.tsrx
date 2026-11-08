@@ -21,6 +21,7 @@ import {
  *  subscribing to the lane re-renders only itself per search transition. */
 function EndLane(props: { lane: BusyIndicatorLane; clear?: any }) @{
   const isBusy = useSyncExternalStore(props.lane.subscribe, props.lane.getIsBusy)
+
   if (!isBusy && props.clear == null) {
     return null
   }

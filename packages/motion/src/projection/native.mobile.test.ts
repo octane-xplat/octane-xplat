@@ -2,6 +2,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { Application } from '@nativescript/core'
 
 const observed: { observer: any } = { observer: null }
+
 vi.mock('octane/universal/native', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   observeBatches: (o: any) => {
@@ -30,6 +31,7 @@ const fakeRoot = (invalidations: string[]) => ({
 
 function fakeVto() {
   const listeners: Record<string, any[]> = { global: [], pre: [] }
+
   return {
     listeners,
     isAlive: () => true,
@@ -69,6 +71,7 @@ function installAndroid(decorView?: any) {
       },
     },
   }
+
   ;(Application as any).android = {
     foregroundActivity: decorView ? { getWindow: () => ({ getDecorView: () => decorView }) } : null,
   }
@@ -76,12 +79,15 @@ function installAndroid(decorView?: any) {
 
 function androidView(vto: any) {
   const nv = { getRootView: () => ({ getViewTreeObserver: () => vto }) }
+
   return { host: { nativeView: nv } }
 }
 
 beforeEach(() => {
   vi.useFakeTimers()
+
   ;(globalThis as any).UIApplication = undefined
+
   ;(globalThis as any).android = undefined
 })
 
@@ -94,8 +100,10 @@ afterEach(() => {
 describe('ios barrier', () => {
   it('reports supported and maps didApply to mutation invalidation', () => {
     expect(iosSupported).toBe(true)
+
     const invalidations: string[] = []
     const stop = iosBarrier.observe(fakeRoot(invalidations) as any)
+
     observed.observer.didApply({ host: {} })
     expect(invalidations).toEqual(['mutation'])
     stop()
@@ -105,6 +113,7 @@ describe('ios barrier', () => {
   it('lays out every window then runs the pass inside one microtask', async () => {
     const calls: string[] = []
     const win = (name: string) => ({ name, layoutIfNeeded: () => calls.push(`layout:${name}`) })
+
     ;(globalThis as any).UIApplication = {
       sharedApplication: {
         connectedScenes: {
@@ -115,6 +124,7 @@ describe('ios barrier', () => {
         windows: { count: 0, objectAtIndex: () => null },
       },
     }
+
     iosBarrier.schedule(() => calls.push('pass'))
     expect(calls).toEqual([])
     await microtasks()
@@ -125,12 +135,16 @@ describe('ios barrier', () => {
 describe('android barrier', () => {
   it('registers both listeners per VTO and posts an invalidate on the decor', () => {
     expect(androidSupported).toBe(true)
+
     const v1 = fakeVto()
     const decorVto = fakeVto()
     const decor = fakeView(decorVto)
+
     installAndroid(decor)
+
     const invalidations: string[] = []
     const stop = androidBarrier.observe(fakeRoot(invalidations) as any)
+
     // Two containers on the same root view → one listener pair.
     observed.observer.didApply(androidView(v1))
     observed.observer.didApply(androidView(v1))
@@ -147,12 +161,16 @@ describe('android barrier', () => {
   it('first event runs the pass once and removes listeners on every VTO', () => {
     const v1 = fakeVto()
     const decorVto = fakeVto()
+
     installAndroid(fakeView(decorVto))
+
     const invalidations: string[] = []
     const stop = androidBarrier.observe(fakeRoot(invalidations) as any)
+
     observed.observer.didApply(androidView(v1))
 
     const runs: number[] = []
+
     androidBarrier.schedule(() => runs.push(1))
 
     expect(v1.listeners.pre[0].impl.onPreDraw()).toBe(true)
@@ -170,10 +188,12 @@ describe('android barrier', () => {
 
   it('runs the pass in a microtask when there are no views', async () => {
     installAndroid() // no decor
+
     const invalidations: string[] = []
     const stop = androidBarrier.observe(fakeRoot(invalidations) as any)
     // No containers observed → no views to traverse.
     const runs: number[] = []
+
     androidBarrier.schedule(() => runs.push(1))
     expect(runs.length).toBe(0)
     await Promise.resolve().then(() => Promise.resolve())
@@ -189,17 +209,22 @@ describe('measure', () => {
       bounds: { size: { width: w, height: h } },
       superview: parent,
     })
+
     const win = ui(0, 0, 390, 800)
     // Scroll lives in the scroll view's bounds.origin, never in a center,
     // so a 120-DIP scroll leaves the content view's center unchanged.
     const scrollView = ui(0, 200, 390, 400, win)
+
     ;(scrollView.bounds as any).origin = { x: 0, y: 120 }
+
     const scrollContent = ui(0, 0, 390, 800, scrollView)
     const child = ui(40, 160, 50, 50, scrollContent)
+
     expect(measureIos({ nativeViewProtected: child })).toEqual({
       x: { min: 40, max: 90 },
       y: { min: 360, max: 410 },
     })
+
     expect(measureIos({ nativeViewProtected: child }, true)).toEqual({
       x: { min: 40, max: 90 },
       y: { min: 240, max: 290 },
@@ -216,14 +241,19 @@ describe('measure', () => {
       getResources: () => metrics,
       getParent: () => parent,
     })
+
     const decor = av(0, 0, 800, 1600)
     const inner = av(10, 30, 200, 100, decor)
+
     ;(inner as any).getScrollY = () => 40
+
     const child = av(80, 60, 100, 100, inner)
+
     expect(measureAndroid({ nativeView: child })).toEqual({
       x: { min: 45, max: 95 },
       y: { min: 45, max: 95 },
     })
+
     expect(measureAndroid({ nativeView: child }, true)).toEqual({
       x: { min: 45, max: 95 },
       y: { min: 25, max: 75 },
@@ -241,6 +271,7 @@ describe('measure', () => {
       getResources: () => metrics,
       getParent: () => viewRootImpl,
     }
+
     expect(measureAndroid({ nativeView: child })).toEqual({
       x: { min: 40, max: 90 },
       y: { min: 30, max: 80 },
@@ -264,6 +295,7 @@ describe('native host projection ops', () => {
   it('merges channel writes so an opacity-only write keeps transforms', () => {
     const node = fakeNode()
     const host = attachHost(node)
+
     host.write({ x: 10 })
     host.write({ opacity: 0.5 })
     expect(node.translateX).toBe(10)
@@ -273,6 +305,7 @@ describe('native host projection ops', () => {
   it('project maps the projection write and project(null) restores channels', () => {
     const node = fakeNode()
     const host = attachHost(node)
+
     host.write({ x: 10 })
     host.project!(projection as any)
     expect(node.translateX).toBe(-50)
@@ -287,6 +320,7 @@ describe('native host projection ops', () => {
   it('project(null) restores channel values written to the node while projecting', () => {
     const node = fakeNode()
     const host = attachHost(node)
+
     host.write({ x: 10 })
     host.project!({ ...projection, latest: { x: 30, rotate: 0 } } as any)
     host.project!(null)
@@ -296,6 +330,7 @@ describe('native host projection ops', () => {
   it('resetProjection is a no-op (native measurement ignores transforms)', () => {
     const node = fakeNode()
     const host = attachHost(node)
+
     host.project!(projection as any)
     host.resetProjection?.()
     expect(node.translateX).toBe(-50)

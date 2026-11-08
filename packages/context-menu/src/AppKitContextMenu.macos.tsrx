@@ -14,7 +14,9 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  serialized data; selection reports through `onItemSelected`. */
 export function AppKitContextMenu(props: AppKitContextMenuProps): unknown @{
   const latest = useRef(props)
+
   latest.current = props
+
   const [, rerender] = useState(0)
   const owner = useMemo(
     () =>

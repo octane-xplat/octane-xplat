@@ -35,6 +35,7 @@ export function isWebKitOnly(): boolean {
   }
 
   const ua = navigator.userAgent
+
   return ua.includes('AppleWebKit') && !ua.includes('Chrome')
 }
 
@@ -58,6 +59,7 @@ function ensureDynamicHighlightType(tokenType: string): void {
 
   if (!dynamicStyleSheet) {
     const style = document.createElement('style')
+
     style.setAttribute('data-xplat-highlight-dynamic', '')
     document.head.appendChild(style)
     dynamicStyleSheet = style.sheet ?? null
@@ -68,6 +70,7 @@ function ensureDynamicHighlightType(tokenType: string): void {
 
   const name = CSS.escape(`xplat-${tokenType}`)
   const colorVar = `var(${CSS.escape(`--color-syntax-${tokenType}`)}, currentColor)`
+
   try {
     dynamicStyleSheet.insertRule(`.vx-codeblock code::highlight(${name}) { color: ${colorVar}; }`)
   } catch {
@@ -78,8 +81,10 @@ function ensureDynamicHighlightType(tokenType: string): void {
 
 function createHighlightResolver(): (tokenType: string) => Highlight {
   const cache = new Map<string, Highlight>()
+
   return (tokenType: string): Highlight => {
     let highlight = cache.get(tokenType)
+
     if (highlight) {
       return highlight
     }
@@ -87,6 +92,7 @@ function createHighlightResolver(): (tokenType: string) => Highlight {
     ensureDynamicHighlightType(tokenType)
 
     const name = `xplat-${tokenType}`
+
     highlight = CSS.highlights.get(name) ?? new Highlight()
     if (!CSS.highlights.has(name)) {
       CSS.highlights.set(name, highlight)
@@ -117,6 +123,7 @@ function applyLineRanges(
   }
 
   const textNode = lineEl.firstChild
+
   if (!textNode || textNode.nodeType !== Node.TEXT_NODE) {
     return
   }
@@ -134,6 +141,7 @@ function applyLineRanges(
 
     try {
       const range = new Range()
+
       range.setStart(textNode, start)
       range.setEnd(textNode, end)
       highlight.add(range)
@@ -158,8 +166,10 @@ function applyRangesToContainer(
 ): RangeEntry[] {
   const results: RangeEntry[] = []
   const lineEls = container.querySelectorAll('[data-line]')
+
   for (let i = 0; i < lineEls.length; i++) {
     const tokens = tokenLines[globalLineOffset + i]
+
     if (tokens && tokens.length > 0) {
       applyLineRanges(lineEls[i], tokens, results, resolve)
     }
@@ -186,6 +196,7 @@ export function applyHighlightRangesChunked(
   for (let i = 0; i < codeEl.children.length; i++) {
     const child = codeEl.children[i]
     const lineEls = child.querySelectorAll('[data-line]')
+
     if (lineEls.length > 0 && child.tagName === 'DIV' && !child.hasAttribute('data-line')) {
       chunkWrappers.push(child)
       chunkLineOffsets.push(lineCount)
@@ -195,6 +206,7 @@ export function applyHighlightRangesChunked(
 
   if (chunkWrappers.length === 0) {
     const allRanges = applyRangesToContainer(codeEl, tokenLines, 0, resolve)
+
     return () => cleanupRanges(allRanges)
   }
 
@@ -214,6 +226,7 @@ export function applyHighlightRangesChunked(
 
   const removeChunk = (wrapper: Element) => {
     const ranges = chunkRanges.get(wrapper)
+
     if (ranges) {
       cleanupRanges(ranges)
       chunkRanges.delete(wrapper)
@@ -225,6 +238,7 @@ export function applyHighlightRangesChunked(
 
     const handler = (e: Event) => {
       const skipped = (e as ContentVisibilityAutoStateChangeEvent).skipped
+
       if (skipped) {
         removeChunk(wrapper)
       } else {
@@ -277,11 +291,13 @@ export function applyHighlightRangesBatch(
 
   for (let i = 0; i < tokenLines.length; i++) {
     const divIndex = startLine + i
+
     if (divIndex >= lineEls.length) {
       break
     }
 
     const tokens = tokenLines[i]
+
     if (tokens && tokens.length > 0) {
       applyLineRanges(lineEls[divIndex], tokens, results, resolve)
     }
@@ -302,8 +318,10 @@ export function applyHighlightRangesFlat(el: HTMLElement, tokenLines: TokenLine[
   const textNodes: { node: Text; start: number; length: number }[] = []
   let totalOffset = 0
   let current = walker.nextNode()
+
   while (current) {
     const text = current as Text
+
     textNodes.push({ node: text, start: totalOffset, length: text.length })
     totalOffset += text.length
     current = walker.nextNode()
@@ -316,6 +334,7 @@ export function applyHighlightRangesFlat(el: HTMLElement, tokenLines: TokenLine[
   const resolveOffset = (absOffset: number) => {
     for (const entry of textNodes) {
       const end = entry.start + entry.length
+
       if (absOffset >= entry.start && absOffset <= end) {
         return { node: entry.node, offset: absOffset - entry.start }
       }
@@ -326,18 +345,22 @@ export function applyHighlightRangesFlat(el: HTMLElement, tokenLines: TokenLine[
 
   const fullText = el.textContent ?? ''
   let lineOffset = 0
+
   for (const lineTokens of tokenLines) {
     if (lineTokens) {
       for (const token of lineTokens) {
         const startPos = resolveOffset(lineOffset + token.start)
         const endPos = resolveOffset(lineOffset + token.end)
+
         if (!startPos || !endPos) {
           continue
         }
 
         const highlight = resolve(token.type)
+
         try {
           const range = new Range()
+
           range.setStart(startPos.node, startPos.offset)
           range.setEnd(endPos.node, endPos.offset)
           highlight.add(range)
@@ -349,6 +372,7 @@ export function applyHighlightRangesFlat(el: HTMLElement, tokenLines: TokenLine[
     }
 
     const nlPos = fullText.indexOf('\n', lineOffset)
+
     lineOffset = nlPos === -1 ? fullText.length : nlPos + 1
   }
 

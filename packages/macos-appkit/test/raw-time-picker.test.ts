@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -88,10 +89,13 @@ function controlFixture() {
   const container: any = { nodes: new Map() }
   const node: any = { id: 1, type: 'timepicker', props: {}, children: [], parent: null, container }
   const control = api.makeTimePicker(node)
+
   node.view = control.view
   node.actionId = control.actionId
   container.nodes.set(1, node)
+
   const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })
+
   return { api, node, view, events, update, onTimeChange: (event: any) => events.push(event) }
 }
 
@@ -99,6 +103,7 @@ const dateValue = (view: any) => new Date(view.dateValue.timeIntervalSince1970 *
 
 test('TimePicker rejects children and accepts all maintained layout parents', () => {
   const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'span', 'timepicker']) {
     assert.throws(() => api.validateTextNesting('timepicker', child), /cannot contain JSX children/)
   }
@@ -196,7 +201,9 @@ test('TimePicker production ownership moves its native host between parents and 
   picker.actionId = 3
   picker.view.target = {}
   picker.view.action = 'controlChanged:'
+
   const retained = picker.view
+
   api.insert(container, 1, picker, null)
   assert.equal(left.contentChild, picker)
   api.insert(container, 2, picker, null)
@@ -219,23 +226,29 @@ test('TimePicker production ownership moves its native host between parents and 
 const minutes = (view: any) => dateValue(view).getHours() * 60 + dateValue(view).getMinutes()
 const bound = (view: any, key: string) => {
   const date = new Date(view[key].timeIntervalSince1970 * 1000)
+
   return date.getHours() * 60 + date.getMinutes()
 }
 
 test('TimePicker uses HourMinute chrome and normalizes Dates/strings without mutating inputs', () => {
   const { view, update, events, onTimeChange } = controlFixture()
+
   assert.equal(view.datePickerElements, 12)
   assert.equal(view.datePickerStyle, 0)
   assert.equal(view.datePickerMode, 0)
   assert.equal(view.action, 'controlChanged:')
   assert.equal(view.translatesAutoresizingMaskIntoConstraints, false)
+
   const date = new Date(2026, 4, 10, 17, 25, 42, 120)
+
   update({ time: date, onTimeChange })
   assert.equal(dateValue(view).getTime(), new Date(0, 0, 0, 17, 25).getTime())
   assert.equal(date.getSeconds(), 42)
   assert.equal(events.at(-1).eventName, 'timeChange')
   assert.equal(events.at(-1).object, view)
+
   const count = events.length
+
   update({ time: '17:25:59', onTimeChange })
   assert.equal(events.length, count)
   update({ time: '08:09', onTimeChange })
@@ -246,6 +259,7 @@ test('TimePicker uses HourMinute chrome and normalizes Dates/strings without mut
 test('TimePicker restores dropped time/components, bounds, enabled and styles', () => {
   const { node, view, update } = controlFixture()
   const initial = node.timePickerDefault.getTime()
+
   update({
     time: '09:10',
     minHour: 8,
@@ -271,6 +285,7 @@ test('TimePicker restores dropped time/components, bounds, enabled and styles', 
 
 test('TimePicker composes bounds atomically independent of prop order and clamps selection', () => {
   const { node, view, update } = controlFixture()
+
   update({ time: '09:00', minHour: 10, minMinute: 30, maxHour: 12, maxMinute: 15 })
   assert.equal(minutes(view), 630)
   update({ time: '14:00', maxMinute: 45, minMinute: 15, maxHour: 16, minHour: 14 })
@@ -290,8 +305,11 @@ test('TimePicker composes bounds atomically independent of prop order and clamps
 
 test('TimePicker action normalizes/clamps, suppresses duplicates and clears stale handlers', () => {
   const { view, update, events, onTimeChange } = controlFixture()
+
   update({ time: '10:20', minHour: 9, maxHour: 17, onTimeChange })
+
   let count = events.length
+
   view.dateValue = { timeIntervalSince1970: new Date(2026, 5, 1, 10, 20, 50).getTime() / 1000 }
   view.callback()
   assert.equal(events.length, count)
@@ -311,8 +329,11 @@ test('TimePicker action normalizes/clamps, suppresses duplicates and clears stal
 
 test('TimePicker rejects malformed input before mutating effective state or native bounds', () => {
   const { api, node, view, update } = controlFixture()
+
   update({ time: '10:20', minHour: 9, maxHour: 17 })
+
   const previous = node.props
+
   for (const value of [
     123,
     {},
@@ -344,6 +365,7 @@ test('TimePicker rejects malformed input before mutating effective state or nati
 test('TimePicker dropping an explicit creation-time value restores it after native edits', () => {
   const { node, view, update } = controlFixture()
   const initial = new Date(node.timePickerDefault)
+
   update({ time: initial })
   view.dateValue = {
     timeIntervalSince1970:

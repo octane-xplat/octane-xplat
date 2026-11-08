@@ -26,12 +26,14 @@ const COPY_FEEDBACK_MS = 1500
 
 function CopyButton(props: { value: string; label?: string }) @{
   const [copied, setCopied] = useState(false)
+
   useEffect(() => {
     if (!copied) {
       return
     }
 
     const t = setTimeout(() => setCopied(false), COPY_FEEDBACK_MS)
+
     return () => clearTimeout(t)
   }, [copied])
 

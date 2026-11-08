@@ -16,7 +16,9 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
  *  its edges. */
 export function AppKitDatePicker(props: AppKitDatePickerProps): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const [, rerender] = useState(0)
   const owner = useMemo(
     () =>
@@ -33,6 +35,7 @@ export function AppKitDatePicker(props: AppKitDatePickerProps): unknown @{
 
   useLayoutEffect(() => owner.update(), null)
   useEffect(() => () => owner.dispose(), [])
+
   const graphical =
     props.components === 'time' ||
     ((props.components ?? 'date') === 'date' && props.pickerStyle === 'graphical')

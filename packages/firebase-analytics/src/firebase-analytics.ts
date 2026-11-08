@@ -6,11 +6,13 @@ import type { FirebaseAnalyticsService } from './types'
 
 const analytics = () => {
   const a = (firebase() as any).analytics?.()
+
   if (!a) {
     throw new Error(
       'unsupported: firebase analytics is not available — is the Firebase app configured?',
     )
   }
+
   return a
 }
 

@@ -38,18 +38,22 @@ export const backgroundTasks: BackgroundTasks = {
     }
 
     const klass = schedulerClass()
+
     if (!klass) {
       throw new Error('backgroundTasks.register: NSBackgroundActivityScheduler is unavailable')
     }
 
     backgroundTasks.unregister(name).catch(() => {})
+
     const scheduler = klass.alloc().initWithIdentifier(`xplat.background.${name}`)
+
     scheduler.repeats = true
     scheduler.interval = Math.max(options?.minimumInterval ?? 3600, 60)
     scheduler.tolerance = scheduler.interval / 2
     scheduler.qualityOfService = 0x09 // NSQualityOfServiceBackground
     scheduler.scheduleWithBlock((completion: (result: number) => void) => {
       const executor = executors.get(name)
+
       if (scheduler.shouldDefer || !executor) {
         completion(RESULT_DEFERRED)
         return
@@ -62,11 +66,13 @@ export const backgroundTasks: BackgroundTasks = {
         )
         .catch(() => completion(RESULT_DEFERRED))
     })
+
     schedulers.set(name, scheduler)
   },
 
   unregister: async (name: string): Promise<void> => {
     const scheduler = schedulers.get(name)
+
     if (scheduler) {
       schedulers.delete(name)
       try {

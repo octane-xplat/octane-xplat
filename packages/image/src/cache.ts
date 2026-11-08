@@ -34,8 +34,10 @@ export function initializeImageCache(config?: ImageCacheConfig): void {
 export function prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
   try {
     initialize()
+
     const pipeline = getImagePipeline()
     const { concurrency, ...engineOptions } = options ?? {}
+
     return prefetchBatch(srcs, concurrency, (url) =>
       pipeline.prefetchToDiskCache(url, engineOptions).then(
         () => true,
@@ -94,6 +96,7 @@ export async function isImageCached(
 ): Promise<Record<string, ImageCacheState>> {
   const list = typeof srcs === 'string' ? [srcs] : srcs
   const states: Record<string, ImageCacheState> = {}
+
   try {
     initialize()
   } catch {
@@ -107,6 +110,7 @@ export async function isImageCached(
   }
 
   const pipeline = getImagePipeline() as unknown as CacheProbe
+
   await Promise.all(
     list.map(async (src) => {
       states[src] = pipeline.isInBitmapMemoryCache(src, options)

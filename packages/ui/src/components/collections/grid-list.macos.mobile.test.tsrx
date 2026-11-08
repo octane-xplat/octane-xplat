@@ -10,6 +10,7 @@ import {
 // The manager has separate fake-host regressions. These component tests check
 // callback/selection wiring only, not native input delivery or focus behavior.
 let navigationOptions: any
+
 vi.mock('./grid-navigation.macos', () => ({
   createAppKitGridNavigation: (options: any) => {
     navigationOptions = options
@@ -52,6 +53,7 @@ function fixture(extra: Record<string, unknown> = {}) {
 
 it('AppKit GridList distinguishes Enter from Space and excludes disabled keys from ranges', () => {
   const env = fixture()
+
   try {
     env.press('a', false)
     expect(env.props.onAction).toHaveBeenCalledWith('a')
@@ -69,6 +71,7 @@ it('AppKit GridList distinguishes Enter from Space and excludes disabled keys fr
 
 it('AppKit range anchors follow keys across reorder and controlled selection stays owned by the caller', () => {
   const env = fixture({ selectedKeys: new Set(['a']) })
+
   try {
     env.press('a', true)
     expect(env.props.onSelectionChange).toHaveBeenLastCalledWith(new Set())

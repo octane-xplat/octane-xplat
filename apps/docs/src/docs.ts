@@ -24,12 +24,14 @@ export interface DocPage {
 }
 
 const seen = new Set<string>()
+
 export const DOCS: DocPage[] = [
   ...Object.entries(files).map(([path, md]) => {
     const rel = path.split('/docs/')[1].replace(/\.md$/, '')
     const segs = rel.split('/')
     const dir = segs.slice(0, -1).join('/')
     const slug = slugFor(dir, segs[segs.length - 1])
+
     if (seen.has(slug)) {
       throw new Error(`docs: duplicate slug '${slug}' (${path})`)
     }
@@ -48,6 +50,7 @@ export const DOCS: DocPage[] = [
   CHANGELOG_DOC,
 ].sort((a, b) => {
   const d = rankOf(a.slug, a.dir) - rankOf(b.slug, b.dir)
+
   return d || a.slug.localeCompare(b.slug)
 })
 

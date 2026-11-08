@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { ColorPicker } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let lastChange = ''
 
 export default function ColorProbe() @{
@@ -23,6 +24,7 @@ export async function run(ctx: ProbeContext) {
   const area = host.querySelector('.vx-color-area')
   const track = host.querySelector('.vx-color-slider-track')
   const sat = host.querySelector('.vx-color-area-sat')
+
   ctx.record('track-gradient', getComputedStyle(track).backgroundImage)
   ctx.record('sat-gradient', getComputedStyle(sat).backgroundImage)
   ctx.assert(
@@ -38,6 +40,7 @@ export async function run(ctx: ProbeContext) {
   // Synthetic PointerEvents throw InvalidPointerId on setPointerCapture —
   // stub it on the host so the shared usePan down-handler sets `active`.
   area.setPointerCapture = () => {}
+
   const rect = area.getBoundingClientRect()
   const opts = (x: number, y: number) => ({
     clientX: x,
@@ -50,9 +53,11 @@ export async function run(ctx: ProbeContext) {
   area.dispatchEvent(new PointerEvent('pointerdown', opts(rect.left + 50, rect.top + 50)))
   area.dispatchEvent(new PointerEvent('pointermove', opts(rect.left + 30, rect.top + 50)))
   area.dispatchEvent(new PointerEvent('pointerup', opts(rect.left + 30, rect.top + 50)))
+
   // dom-dispatch probes cannot drive the shared pointer-capture pan path —
   // record the outcome rather than asserting it; drag is covered by jsdom.
   const deadline = Date.now() + 3000
+
   while (lastChange === '' && Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 50))
   }

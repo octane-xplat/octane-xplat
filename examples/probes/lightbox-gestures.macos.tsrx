@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { Button, Lightbox, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function LightboxGestureProbe() {
   const [first, setFirst] = useState(''),
     [second, setSecond] = useState(''),

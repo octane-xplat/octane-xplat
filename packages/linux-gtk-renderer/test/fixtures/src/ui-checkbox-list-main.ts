@@ -11,6 +11,7 @@ import {
 } from './ui-checkbox-list.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK checkbox list test',
   default_width: 360,
@@ -19,7 +20,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -47,19 +50,23 @@ const check = (name: string, ok: boolean) => {
 const nodes = (name: string) => [...container.nodes.values()].filter((n) => n.cssClasses?.has(name))
 const rows = () => {
   const owner = nodes('vx-checkbox-group')[0]
+
   if (!owner) {
     return nodes('vx-checkbox-row')
   }
+
   const found: (typeof owner)[] = []
   const walk = (node: typeof owner) => {
     if (node.cssClasses?.has('vx-checkbox-row')) {
       found.push(node)
       return
     }
+
     for (const child of node.children) {
       walk(child)
     }
   }
+
   walk(owner)
   return found
 }
@@ -90,20 +97,24 @@ const render = async (next: Partial<typeof props> = {}) => {
 
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 const osInput = GLib.getenv('GTK_CHECKBOX_LIST_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
   const bounds = view.getBounds()
   const ack = acknowledgments + 1
+
   print(
     'GTK_CHECKBOX_LIST_READY ' +
       JSON.stringify({
@@ -112,9 +123,11 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
         y: bounds.y + bounds.height / 2,
       }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed', acknowledgments >= ack)
   await pause()
 }
@@ -126,7 +139,9 @@ async function run() {
   native = (globalThis as any).imports.gi.XplatMason
   for (const parts of [false, true]) {
     await render({ parts })
+
     const mode = parts ? 'parts' : 'options'
+
     check(mode + ': three checkbox rows', rows().length === 3)
     check(mode + ': one field owner', nodes('vx-field').length === 1)
     check(
@@ -177,14 +192,17 @@ async function run() {
 
     await render({ isDisabled: false })
   }
+
   const changes: string[][] = []
   const checked = (index: number, value: boolean) =>
     state(rows()[index].view, Gtk.AccessibleState.CHECKED, value ? 1 : 0)
+
   const focused = (view: any) => window.get_focus() === view
   const label = (value: string) =>
     [...container.nodes.values()].find(
       (n) => n.type === 'label' && (n.view as any)?.get_text() === value,
     )!.view!
+
   if (osInput) {
     await render({ parts: false, onValueChange: (values) => changes.push([...values]) })
     rows()[0].view!.grab_focus()
@@ -197,7 +215,9 @@ async function run() {
     )
 
     check('pointer focuses the clicked checkbox', focused(rows()[2].view))
+
     const count = changes.length
+
     await input(rows()[2].view, { key: 'Return' })
     check('Return does not toggle a checkbox', changes.length === count && checked(2, true))
     rows()[0].view!.grab_focus()
@@ -212,7 +232,9 @@ async function run() {
     await render({ defaultValue: ['c'] })
     check('default updates do not reset local set', checked(0, false) && checked(2, false))
     await render({ isReadOnly: true })
+
     const readOnlyCount = changes.length
+
     rows()[0].view!.grab_focus()
     await input(label('Gamma'), { click: true })
     check(
@@ -233,8 +255,11 @@ async function run() {
 
     for (const parts of [false, true]) {
       const mode = parts ? 'parts' : 'options'
+
       await render({ parts, value: ['a'], onValueChange: (values) => changes.push([...values]) })
+
       const retained = rows().map((n) => n.view)
+
       rows()[2].view!.grab_focus()
       await input(rows()[2].view, { key: 'space' })
       check(
@@ -268,7 +293,9 @@ async function run() {
       )
 
       await render({ isReadOnly: true })
+
       const count = changes.length
+
       rows()[2].view!.grab_focus()
       await input(rows()[2].view, { key: 'space' })
       await input(label('Alpha'), { click: true })
@@ -284,6 +311,7 @@ async function run() {
       await render({ isDisabled: false })
     }
   }
+
   await render({
     parts: true,
     value: ['a'],
@@ -291,6 +319,7 @@ async function run() {
     isReadOnly: false,
     hasDividers: false,
   })
+
   const owner = group()
   const retained = new Map(
     rows().map((n) => [
@@ -298,39 +327,47 @@ async function run() {
       n.view,
     ]),
   )
+
   const beta = rows()[1].view!
   const plainBetaHeight = beta.getBounds().height
+
   await render({ hasDividers: true })
   check(
     'row dividers add native border height',
     Math.abs(beta.getBounds().height - plainBetaHeight - 1) <= 0.1,
   )
+
   check(
     'divider leaves checkbox inside row border',
     nodes('vx-ind-checkbox')[1].view!.getBounds().y +
       nodes('vx-ind-checkbox')[1].view!.getBounds().height <=
       beta.getBounds().y + beta.getBounds().height,
   )
+
   await render({ hasDividers: false })
   check(
     'removing dividers restores native row height',
     Math.abs(beta.getBounds().height - plainBetaHeight) <= 0.1,
   )
+
   await render({ width: '75%', size: 'lg', density: 'compact', isOptional: true })
   check(
     'percentage field and group width consumed once',
     Math.abs(nodes('vx-field')[0].view!.getBounds().width - 240) <= 2 &&
       Math.abs(group().getBounds().width - 240) <= 2,
   )
+
   check(
     'compact density uses small checkbox indicators',
     nodes('vx-ind-checkbox--sm').length === 3 &&
       nodes('vx-ind-checkbox--sm').every((n) => n.view!.getBounds().width === 20),
   )
+
   check(
     'optional overrides required form at group',
     bool(group(), Gtk.AccessibleProperty.REQUIRED, false),
   )
+
   await render({
     density: undefined,
     size: undefined,
@@ -339,20 +376,24 @@ async function run() {
     style: { opacity: 0.6 },
     isLabelHidden: true,
   })
+
   check(
     'indicator size resets to default',
     nodes('vx-ind-checkbox--md').length === 3 &&
       nodes('vx-ind-checkbox--md').every((n) => n.view!.getBounds().width === 24),
   )
+
   check(
     'group size resets to inherited medium',
     nodes('vx-checkbox-group')[0].cssClasses?.has('vx-checkbox-group--size-md') === true,
   )
+
   check('hidden group heading preserves accessible name', named(group(), 'Changed features'))
   check(
     'custom group class and opacity apply',
     nodes('checkbox-custom').length === 1 && Math.abs(group().get_opacity() - 0.6) < 0.02,
   )
+
   check(
     'heading and state changes retain group and rows',
     group() === owner &&
@@ -362,30 +403,40 @@ async function run() {
           retained.get(n.view!.get_accessible_role() + ':' + (n.props.accessibilityLabel ?? '')),
       ),
   )
+
   await render({ className: undefined, style: undefined, horizontal: true })
   check(
     'class and opacity reset',
     nodes('checkbox-custom').length === 0 && group().get_opacity() === 1,
   )
+
   const horizontal = rows().map((n) => n.view!.getBounds())
+
   check(
     'horizontal rows share an allocation row',
     horizontal.every((bounds) => Math.abs(bounds.y - horizontal[0].y) <= 2) &&
       horizontal[0].x < horizontal[1].x &&
       horizontal[1].x < horizontal[2].x,
   )
+
   await render({ style: { flexDirection: 'column' } })
+
   const vertical = rows().map((n) => n.view!.getBounds())
+
   check(
     'authored direction overrides horizontal default',
     vertical[0].y < vertical[1].y && vertical[1].y < vertical[2].y,
   )
+
   await render({ style: undefined })
+
   const resetRow = rows().map((n) => n.view!.getBounds())
+
   check(
     'dropping authored direction restores horizontal class',
     resetRow.every((bounds) => Math.abs(bounds.y - resetRow[0].y) <= 2),
   )
+
   await render({ style: undefined, horizontal: false, reverse: true })
   check(
     'keyed reorder changes logical row order',
@@ -393,6 +444,7 @@ async function run() {
       .map((n) => n.props.accessibilityLabel)
       .join() === 'Gamma,Beta,Alpha',
   )
+
   check(
     'keyed reorder retains row widgets',
     rows().every(
@@ -401,10 +453,12 @@ async function run() {
         retained.get(n.view!.get_accessible_role() + ':' + (n.props.accessibilityLabel ?? '')),
     ),
   )
+
   check(
     'keyed reorder changes physical positions',
     rows()[0].view!.getBounds().y < rows()[2].view!.getBounds().y,
   )
+
   await render({ reverse: false, hideMiddle: true })
   check('option removal detaches disabled row', rows().length === 2 && beta.get_parent() === null)
   await render({ hideMiddle: false })
@@ -412,28 +466,35 @@ async function run() {
     'option restoration preserves checked value',
     rows().length === 3 && state(rows()[0].view, Gtk.AccessibleState.CHECKED, 1),
   )
+
   await render({ longDescription: true, width: 200 })
+
   const description = nodes('vx-checkbox-description')[0].view!
   const end = nodes('checkbox-test-end')[0].view!
+
   check(
     'long option description wraps inside field',
     description.getBounds().height >= 28 &&
       description.getBounds().x + description.getBounds().width <= group().getBounds().x + 200,
   )
+
   check(
     'trailing content follows the label column',
     end.getBounds().x >= description.getBounds().x + description.getBounds().width - 2,
   )
+
   await render({ empty: true })
   check(
     'empty list retains its field and group',
     rows().length === 0 && group() === owner && nodes('vx-field').length === 1,
   )
+
   await render({ empty: false, longDescription: false })
   check(
     'repopulation restores controlled checked set',
     rows().length === 3 && state(rows()[0].view, Gtk.AccessibleState.CHECKED, 1),
   )
+
   root.render(CheckboxListContextScene, { defaultValue: ['c'] })
   await pause()
   check('external owner is not duplicated', nodes('vx-field').length === 1)
@@ -441,16 +502,20 @@ async function run() {
   check('external readOnly metadata', bool(group(), Gtk.AccessibleProperty.READ_ONLY, true))
   root.render(CheckboxStandaloneScene, { isChecked: 'indeterminate' })
   await pause()
+
   const standalone = rows()[0].view!
+
   check(
     'standalone checkbox role',
     standalone.get_accessible_role() === Gtk.AccessibleRole.CHECKBOX,
   )
+
   check('standalone mixed checked metadata', state(standalone, Gtk.AccessibleState.CHECKED, 2))
   check('standalone accessible name', named(standalone, 'Select all'))
   check('standalone focusable', standalone.get_focusable())
   if (osInput) {
     const requests: boolean[] = []
+
     root.render(CheckboxStandaloneScene, {
       isChecked: 'indeterminate',
       onCheck: (value) => requests.push(value),
@@ -483,11 +548,14 @@ async function run() {
       state(standalone, Gtk.AccessibleState.CHECKED, 0) && requests.at(-1) === false,
     )
   }
+
   if (osInput) {
     const changes: boolean[] = []
     const onChange = (value: boolean) => changes.push(value)
+
     root.render(SwitchFocusScene, { isReadOnly: true, onChange })
     await pause()
+
     const origin = rows()[0].view!
     const target = [...container.nodes.values()].find(
       (n) => n.view?.get_accessible_role() === Gtk.AccessibleRole.SWITCH,
@@ -522,6 +590,7 @@ async function run() {
       focused(origin) && changes.join() === 'true',
     )
   }
+
   root.unmount()
   await pause()
   check('unmount releases nodes', container.nodes.size === 0)
@@ -535,14 +604,17 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(String(error))
@@ -550,6 +622,7 @@ run().catch((error) => {
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

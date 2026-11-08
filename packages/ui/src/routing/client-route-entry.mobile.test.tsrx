@@ -17,6 +17,7 @@ import type { RouterHost, RouterInstance } from '../props'
 let navigation: RouterInstance<any>
 function Item() {
   const item = getRouteApi('/items/:id', navigation)
+
   return <label text={item.useParams().id + ':' + item.useLoaderData().title} />
 }
 
@@ -68,6 +69,7 @@ for (const broken of [false, true]) {
 
     try {
       const result = await navigation.push({ to: '/items/:id', params: { id: 'coat' } })
+
       if (broken) {
         expect(result).toMatchObject({ status: 'failed', phase: 'commit' })
       } else {

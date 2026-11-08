@@ -37,10 +37,12 @@ export type PickerAdapters = Readonly<Record<string, ElementAdapter>>
 export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAdapters {
   function dispose(node: ElementNode, release: (node: ElementNode) => void) {
     const failures = new FailureCollector()
+
     failures.run('picker actions', () => deps.actions.disposeActions(node))
     failures.run('picker state', () => release(node))
     failures.throwIfFailed()
   }
+
   return {
     listpicker: {
       container: false,
@@ -122,6 +124,7 @@ export function createPickerAdapters(deps: PickerAdapterDependencies): PickerAda
         for (const name of ['hour', 'minute', 'minHour', 'minMinute', 'maxHour', 'maxMinute']) {
           const value = props?.[name]
           const maximum = name.toLowerCase().includes('hour') ? 23 : 59
+
           if (value != null && (!Number.isInteger(value) || value < 0 || value > maximum)) {
             throw new TypeError(
               'AppKit timepicker ' + name + ' must be an integer from 0 through ' + maximum,

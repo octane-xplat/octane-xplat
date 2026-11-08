@@ -33,6 +33,7 @@ const patchesFor = (manager) =>
 
 export const specifierPackage = (spec) => {
   const i = spec.indexOf('@', 1)
+
   return i === -1 ? spec : spec.slice(0, i)
 }
 
@@ -82,6 +83,7 @@ const resolveCatalogs = (appDir, deps, manager) => {
   const config = readProjectWorkspace(appDir, manager)
   const shared = config.catalog ?? config.catalogs?.default ?? {}
   const named = config.catalogs ?? {}
+
   for (const [name, spec] of Object.entries(deps)) {
     if (spec === 'catalog:' || spec === 'catalog:default') {
       if (shared[name]) {
@@ -89,6 +91,7 @@ const resolveCatalogs = (appDir, deps, manager) => {
       }
     } else if (spec?.startsWith('catalog:')) {
       const pinned = named[spec.slice('catalog:'.length)]?.[name]
+
       if (pinned) {
         deps[name] = pinned
       }
@@ -101,19 +104,27 @@ const resolveCatalogs = (appDir, deps, manager) => {
 /** Read only the patch configuration owned by the selected package manager. */
 export const configuredPatches = (appDir, options = {}) => {
   appDir = packageManagerRoot(appDir)
+
   const manager = packageManagerFor(appDir, options.packageManager)
+
   if (manager === 'bun') {
     return readProjectPackage(appDir).patchedDependencies ?? {}
   }
+
   const file = join(appDir, 'pnpm-workspace.yaml')
+
   if (!existsSync(file)) {
     return {}
   }
+
   const doc = parseDocument(readFileSync(file, 'utf8'))
+
   if (doc.errors.length) {
     throw new Error(`Cannot read ${file}: ${doc.errors[0].message}`)
   }
+
   const pd = doc.get('patchedDependencies')
+
   return isMap(pd) ? pd.toJSON() : {}
 }
 
@@ -121,16 +132,21 @@ export const configuredPatches = (appDir, options = {}) => {
 const lockfilePatches = (appDir, manager) => {
   if (manager === 'bun') {
     const lock = readBunLock(appDir)
+
     return lock ? new Set(Object.keys(lock.patchedDependencies ?? {})) : null
   }
+
   const lock = join(appDir, 'pnpm-lock.yaml')
+
   if (!existsSync(lock)) {
     return null
   }
 
   const patches = new Set()
+
   for (const doc of readLockfileDocs(lock)) {
     const pd = doc.get('patchedDependencies')
+
     if (isMap(pd)) {
       for (const item of pd.items) {
         patches.add(String(item.key))
@@ -147,18 +163,22 @@ const lockfilePatches = (appDir, manager) => {
 const lockfileResolvedVersions = (appDir, manager) => {
   if (manager === 'bun') {
     const lock = readBunLock(appDir)
+
     if (!lock) {
       return null
     }
 
     const versions = {}
+
     for (const entry of Object.values(lock.packages ?? {})) {
       const spec = entry?.[0]
+
       if (typeof spec !== 'string') {
         continue
       }
 
       const at = spec.indexOf('@', 1)
+
       if (at === -1) {
         continue
       }
@@ -171,7 +191,9 @@ const lockfileResolvedVersions = (appDir, manager) => {
 
     return versions
   }
+
   const lock = join(appDir, 'pnpm-lock.yaml')
+
   if (!existsSync(lock)) {
     return null
   }
@@ -184,6 +206,7 @@ const lockfileResolvedVersions = (appDir, manager) => {
     }
 
     const set = (resolved[name] ??= new Set())
+
     set.add(version)
   }
 
@@ -210,6 +233,7 @@ const lockfileResolvedVersions = (appDir, manager) => {
     // `css@3.0.0` or `pkg@1.2.3(patch_hash=…)(peer@…)`.
     for (const section of ['packages', 'snapshots']) {
       const map = doc?.get(section)
+
       if (!isMap(map)) {
         continue
       }
@@ -217,6 +241,7 @@ const lockfileResolvedVersions = (appDir, manager) => {
       for (const item of map.items) {
         const key = String(item.key).split('(')[0]
         const at = key.lastIndexOf('@')
+
         if (at > 0) {
           add(key.slice(0, at), key.slice(at + 1))
         }
@@ -248,6 +273,7 @@ const versionOk = (declared, pinned, resolved) =>
  */
 export const inspectPatches = (appDir, options = {}) => {
   appDir = packageManagerRoot(appDir)
+
   const manager = packageManagerFor(appDir, options.packageManager)
   const deps = resolveCatalogs(
     appDir,
@@ -266,6 +292,7 @@ export const inspectPatches = (appDir, options = {}) => {
     const name = specifierPackage(patch.specifier)
     const declared = deps[name]
     const base = { ...patch, declared, path: configured[patch.specifier] }
+
     // Not needed when the app neither declares the package nor installs
     // it transitively at the pinned version (a patch may target a
     // transitive dep, e.g. reworkcss `css` under @nativescript/vite).
@@ -287,6 +314,7 @@ export const inspectPatches = (appDir, options = {}) => {
     }
 
     const file = join(appDir, base.path)
+
     if (!existsSync(file)) {
       return { ...base, state: 'missing-file' }
     }
@@ -325,6 +353,7 @@ export const wrapComment = (text, width = 88) => {
   const words = text.split(' ')
   const lines = []
   let line = ''
+
   for (const w of words) {
     if (line && line.length + w.length + 1 > width) {
       lines.push(line)
@@ -352,8 +381,10 @@ export const applyPatches = (
   { force = false, packageManager }: { force?: boolean; packageManager?: 'bun' | 'pnpm' } = {},
 ) => {
   appDir = packageManagerRoot(appDir)
+
   const manager = packageManagerFor(appDir, packageManager)
   const pkg = readJson(join(appDir, 'package.json'))
+
   if (!pkg) {
     return { error: `no package.json in ${appDir}` }
   }
@@ -363,6 +394,7 @@ export const applyPatches = (
     { ...workspaceDeps(appDir, manager), ...declaredDeps(pkg) },
     manager,
   )
+
   const configured = configuredPatches(appDir, { packageManager: manager })
   const resolved = lockfileResolvedVersions(appDir, manager)
   const report = { copied: [], kept: [], conflicts: [], skipped: [] }
@@ -372,6 +404,7 @@ export const applyPatches = (
     const name = specifierPackage(patch.specifier)
     const declared = deps[name]
     const pinned = specifierVersion(patch.specifier)
+
     if (declared === undefined && !resolved?.[name]?.has(pinned)) {
       report.skipped.push({
         ...patch,
@@ -394,15 +427,18 @@ export const applyPatches = (
   }
 
   const skipMerge = new Set()
+
   for (const patch of relevant) {
     const src = join(canonicalPatchesDir, patch.file)
     const target = `patches/${patch.file}`
     const configuredPath = configured[patch.specifier]
+
     // Entry already resolves to a byte-identical copy at another path
     // (this repo's own packages/cli/patches/ entries hit this) — leave
     // the mapping alone rather than repointing it at a second copy.
     if (configuredPath && configuredPath !== target) {
       const alt = join(appDir, configuredPath)
+
       if (existsSync(alt) && sha(alt) === sha(src)) {
         report.kept.push(patch)
         skipMerge.add(patch.specifier)
@@ -420,6 +456,7 @@ export const applyPatches = (
     }
 
     const dst = join(appDir, target)
+
     if (existsSync(dst)) {
       if (sha(src) === sha(dst)) {
         report.kept.push(patch)
@@ -459,6 +496,7 @@ const mergeConfig = (appDir, patches, { force, report, manager }) => {
     const file = join(appDir, 'pnpm-workspace.yaml')
     const doc = parseDocument(existsSync(file) ? readFileSync(file, 'utf8') : 'packages: []\n')
     let pd = doc.get('patchedDependencies')
+
     if (pd === undefined) {
       doc.set('patchedDependencies', doc.createNode({}))
       pd = doc.get('patchedDependencies')
@@ -472,9 +510,11 @@ const mergeConfig = (appDir, patches, { force, report, manager }) => {
     }
 
     let changed = false
+
     for (const patch of patches) {
       const target = `patches/${patch.file}`
       const existing = pd.get(patch.specifier)
+
       if (existing === target) {
         continue
       }
@@ -489,6 +529,7 @@ const mergeConfig = (appDir, patches, { force, report, manager }) => {
       }
 
       const key = new Scalar(patch.specifier)
+
       key.commentBefore = ' ' + wrapComment(patch.why)
       pd.set(key, target)
       changed = true
@@ -505,11 +546,15 @@ const mergeConfig = (appDir, patches, { force, report, manager }) => {
   const src = readFileSync(file, 'utf8')
   const pkg = JSON.parse(src)
   const owner = pkg
+
   owner.patchedDependencies ??= {}
+
   let changed = false
+
   for (const patch of patches) {
     const target = `patches/${patch.file}`
     const existing = owner.patchedDependencies[patch.specifier]
+
     if (existing === target) {
       continue
     }

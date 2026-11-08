@@ -10,6 +10,7 @@ import {
 
 export const left = createIconRegistry()
 export const right = createIconRegistry()
+
 left.registerIcon('local', { svg: 'M0 0h12v8H0z', viewBox: '0 0 12 8' })
 right.registerIcons({
   local: { markup: '<circle cx="4" cy="6" r="3" fill="currentColor"/>', viewBox: '0 0 8 12' },
@@ -60,6 +61,7 @@ export function Icons(props: {
 
 function createIconRegistryForSource(src: string) {
   const registry = createIconRegistry()
+
   registry.registerIcon('remote', { src })
   return registry
 }

@@ -13,6 +13,7 @@ export function checkUpdatesDependencies() {
     for (let at = project; ; at = dirname(at)) {
       const candidate = join(at, 'node_modules', name)
       let found = false
+
       try {
         lstatSync(candidate)
         found = true
@@ -38,5 +39,6 @@ export function checkUpdatesDependencies() {
       }
     }
   })
+
   return { version: 1, project, resolved }
 }

@@ -37,6 +37,7 @@ function fixture() {
       },
     },
   }
+
   const bridge: Record<string, any> = {
     retainFocusTarget: (view: any) => {
       retained.add(view)
@@ -45,18 +46,23 @@ function fixture() {
       }
     },
   }
+
   const manager = createAppKitFocusScopeManager(
     () => native,
     () => bridge,
   )
+
   const window: any = { isKeyWindow: true, firstResponder: null, reject: false }
+
   window.makeFirstResponder = (target: any) => {
     if (window.reject || target.window !== window) {
       return false
     }
+
     window.firstResponder = target
     return true
   }
+
   function view(name: string, focusable = false, children: any[] = []): any {
     const node: any = {
       name,
@@ -74,19 +80,27 @@ function fixture() {
         objectAtIndex: (index: number) => children[index],
       },
     }
+
     for (const child of children) {
       child.superview = node
     }
+
     return node
   }
+
   const trigger = view('trigger', true)
+
   window.firstResponder = trigger
+
   const key = (flags = 0, owner = window, code = 48) => {
     const event = { keyCode: code, modifierFlags: flags, window: owner }
+
     return { event, result: monitor(event) }
   }
+
   const update = (owner = window) =>
     observers.get('NSWindowDidUpdateNotification')?.({ object: owner })
+
   return {
     manager,
     window,
@@ -110,13 +124,16 @@ describe('AppKit focus scope manager', () => {
     const a = env.view('a', true),
       disabled = env.view('disabled', true),
       b = env.view('b', true)
+
     disabled.enabled = false
+
     const root = env.view('scope', false, [a, disabled, b])
     const off = env.manager.bind(root, () => ({
       contain: true,
       autoFocus: true,
       restoreFocus: true,
     }))
+
     await Promise.resolve()
     expect(env.window.firstResponder).toBe(a)
     expect(env.key().result).toBeNull()
@@ -143,6 +160,7 @@ describe('AppKit focus scope manager', () => {
       autoFocus: true,
       restoreFocus: true,
     }))
+
     await Promise.resolve()
     expect(env.window.firstResponder).toBe(root)
     expect(env.key().result).toBeNull()
@@ -155,11 +173,13 @@ describe('AppKit focus scope manager', () => {
     const env = fixture()
     const outerStop = env.view('outer', true),
       innerStop = env.view('inner', true)
+
     const inner = env.view('inner-scope', false, [innerStop])
     const outer = env.view('outer-scope', false, [outerStop, inner])
     const flags = () => ({ contain: true, autoFocus: true, restoreFocus: true })
     const closeInner = env.manager.bind(inner, flags)
     const closeOuter = env.manager.bind(outer, flags)
+
     await Promise.resolve()
     expect(env.window.firstResponder).toBe(innerStop)
     env.key()
@@ -179,10 +199,14 @@ describe('AppKit focus scope manager', () => {
     const env = fixture()
     const field = env.view('field', true),
       next = env.view('next', true)
+
     const root = env.view('scope', false, [field, next])
     const off = env.manager.bind(root, () => ({ contain: true }))
+
     await Promise.resolve()
+
     const editor = { delegate: field, isFieldEditor: true, hasMarkedText: true }
+
     field.currentEditor = () => editor
     env.window.firstResponder = editor
     expect(env.key().result).not.toBeNull()
@@ -192,6 +216,7 @@ describe('AppKit focus scope manager', () => {
     for (const mask of [1 << 18, 1 << 19, 1 << 20]) {
       expect(env.key(mask).result).not.toBeNull()
     }
+
     expect(env.key(0, { firstResponder: {} }).result).not.toBeNull()
     expect(env.key(0, null).result).not.toBeNull()
     env.window.reject = true
@@ -203,9 +228,11 @@ describe('AppKit focus scope manager', () => {
     const env = fixture()
     const a = env.view('a', true),
       b = env.view('b', true)
+
     const root = env.view('scope', false, [a, b])
     const options = { contain: true, restoreFocus: true }
     const off = env.manager.bind(root, () => options)
+
     await Promise.resolve()
     a.hidden = true
     env.key()
@@ -219,10 +246,14 @@ describe('AppKit focus scope manager', () => {
     const env = fixture()
     const a = env.view('a', true),
       b = env.view('b', true)
+
     const flags = () => ({ contain: true, autoFocus: true, restoreFocus: true })
     const closeA = env.manager.bind(env.view('first', false, [a]), flags)
+
     await Promise.resolve()
+
     const closeB = env.manager.bind(env.view('second', false, [b]), flags)
+
     await Promise.resolve()
     closeA()
     expect(env.window.firstResponder).toBe(b)
@@ -232,18 +263,23 @@ describe('AppKit focus scope manager', () => {
   it('defers initialization until the scope has a key window and reports missing bridges', async () => {
     const env = fixture()
     const root = env.view('pending', false, [env.view('field', true)])
+
     root.window = null
+
     const off = env.manager.bind(root, () => ({ autoFocus: true }))
+
     await Promise.resolve()
     expect(env.window.firstResponder).toBe(env.trigger)
     root.window = env.window
     env.update()
     expect(env.window.firstResponder).toBe(root.children[0])
     off()
+
     const missing = createAppKitFocusScopeManager(
       () => ({}),
       () => undefined,
     )
+
     expect(missing.capabilities()).toEqual({
       contain: false,
       autoFocus: false,
@@ -257,13 +293,17 @@ describe('AppKit focus scope manager', () => {
     const center = env.native.NSNotificationCenter.defaultCenter
     const observe = center.addObserverForNameObjectQueueUsingBlock
     let registrations = 0
+
     center.addObserverForNameObjectQueueUsingBlock = (...args) => {
       if (++registrations === 2) {
         throw new Error('registration failed')
       }
+
       return observe(...args)
     }
+
     const off = env.manager.bind(env.view('scope'), () => ({ contain: true }))
+
     expect(env.manager.capabilities().contain).toBe(false)
     expect(env.retained.size).toBe(0)
     expect(env.observers.size).toBe(0)
@@ -275,7 +315,9 @@ describe('AppKit focus scope manager', () => {
     const env = fixture()
     const a = env.view('a', true),
       b = env.view('b', true)
+
     const off = env.manager.bind(env.view('scope', false, [a, b]), () => ({ contain: true }))
+
     await Promise.resolve()
     env.bridge.dispatchKeyboardEvent = () => ({ defaultPrevented: true, propagationStopped: false })
     expect(env.key().result).toBeNull()
@@ -287,6 +329,7 @@ describe('AppKit focus scope manager', () => {
       defaultPrevented: false,
       propagationStopped: false,
     })
+
     expect(env.key().result).toBeNull()
     expect(env.window.firstResponder).toBe(b)
     off()
@@ -296,15 +339,22 @@ describe('AppKit focus scope manager', () => {
 it('retains native disabled-but-focusable views while excluding ordinary disabled controls', async () => {
   const env = fixture()
   const disabledCard = env.view('disabled card', true)
+
   disabledCard.isAccessibilityEnabled = false
+
   const disabledField = env.view('disabled field', true)
+
   disabledField.enabled = false
+
   const disabledAction = env.view('disabled action', true)
+
   disabledAction.isAccessibilityEnabled = false
   disabledAction.canBecomeKeyView = false
+
   const next = env.view('next', true)
   const root = env.view('scope', false, [disabledCard, disabledField, disabledAction, next])
   const off = env.manager.bind(root, () => ({ contain: true, autoFocus: true }))
+
   try {
     await Promise.resolve()
     expect(env.window.firstResponder).toBe(disabledCard)
@@ -321,8 +371,10 @@ it('exposes only the current eligible containment root to composed native naviga
   const s = fixture(),
     inner = s.view('inner'),
     outer = s.view('outer', false, [inner])
+
   const offOuter = s.manager.bind(outer, () => ({ contain: true }))
   const offInner = s.manager.bind(inner, () => ({ contain: true }))
+
   expect(s.manager.boundary(s.window)).toBe(inner)
   inner.hidden = true
   expect(s.manager.boundary(s.window)).toBe(outer)
@@ -337,11 +389,14 @@ it('shares one observation owner across nested scopes until the last scope relea
   const env = fixture(),
     first = env.view('outer field', true),
     nested = env.view('nested field', true)
+
   const inner = env.view('inner', false, [nested]),
     outer = env.view('outer', false, [first, inner])
+
   const flags = () => ({ contain: true, autoFocus: true, restoreFocus: true })
   const closeOuter = env.manager.bind(outer, flags),
     closeInner = env.manager.bind(inner, flags)
+
   await Promise.resolve()
   expect(env.monitors).toHaveLength(1)
   expect(env.observationHistory).toHaveLength(2)
@@ -366,6 +421,7 @@ it('shares observers across windows while navigation and release stay window-own
     a = env.view('first window field', true),
     b = env.view('second window field', true),
     c = env.view('second window last', true)
+
   const other: any = {
     isKeyWindow: true,
     firstResponder: null,
@@ -373,19 +429,26 @@ it('shares observers across windows while navigation and release stay window-own
       if (target.window !== other) {
         return false
       }
+
       other.firstResponder = target
       return true
     },
   }
+
   const second = env.view('second scope', false, [b, c])
+
   second.window = b.window = c.window = other
+
   const closeFirst = env.manager.bind(env.view('first scope', false, [a]), () => ({
     contain: true,
     autoFocus: true,
   }))
+
   await Promise.resolve()
   env.window.isKeyWindow = false
+
   const closeSecond = env.manager.bind(second, () => ({ contain: true, autoFocus: true }))
+
   await Promise.resolve()
   expect(env.window.firstResponder).toBe(a)
   expect(other.firstResponder).toBe(b)
@@ -409,18 +472,25 @@ it('retires old monitor and notification closures before a later observation own
       env.view('first scope', false, [env.view('old field', true)]),
       () => ({ contain: true }),
     )
+
   await Promise.resolve()
+
   const staleKey = env.monitors[0],
     staleUpdate = env.observationHistory[0].callback
+
   closeFirst()
   env.window.firstResponder = env.trigger
+
   const a = env.view('new first', true),
     b = env.view('new last', true)
+
   const closeSecond = env.manager.bind(env.view('new scope', false, [a, b]), () => ({
     contain: true,
     autoFocus: true,
   }))
+
   const event = { keyCode: 48, modifierFlags: 0, window: env.window }
+
   expect(staleKey(event)).toBe(event)
   staleUpdate({ object: env.window })
   expect(env.window.firstResponder).toBe(env.trigger)
@@ -437,13 +507,18 @@ it('carries the return path forward when an older scope detaches before its repl
   const env = fixture(),
     a = env.view('first field', true),
     b = env.view('replacement field', true)
+
   const first = env.view('first scope', false, [a]),
     second = env.view('replacement scope', false, [b])
+
   const flags = () => ({ contain: true, autoFocus: true, restoreFocus: true })
   const closeFirst = env.manager.bind(first, flags)
+
   await Promise.resolve()
   expect(env.window.firstResponder).toBe(a)
+
   const closeSecond = env.manager.bind(second, flags)
+
   await Promise.resolve()
   expect(env.window.firstResponder).toBe(b)
   // Native child/parent links may already be gone when effect cleanup runs.
@@ -483,6 +558,7 @@ it('does not navigate a scope closed, disabled or superseded by its attached key
     }
 
     const event = env.key()
+
     expect(event.result).toBe(event.event)
     expect(env.window.firstResponder).toBe(a)
     await Promise.resolve()
@@ -498,35 +574,45 @@ it('attempts all cleanup once after target/monitor/notification removal failure 
   const env = fixture(),
     retain = env.bridge.retainFocusTarget,
     remove = env.native.NSNotificationCenter.defaultCenter.removeObserver
+
   env.bridge.retainFocusTarget = (view: any) => {
     const release = retain(view)
+
     return () => {
       release()
       throw Error('private release detail')
     }
   }
+
   env.native.NSEvent.removeMonitor = (token) => {
     env.removed.push(token)
     throw Error('private monitor detail')
   }
+
   env.native.NSNotificationCenter.defaultCenter.removeObserver = (token) => {
     remove(token)
     if (token === 'NSWindowDidUpdateNotification') {
       throw Error('private observer detail')
     }
   }
+
   const root = env.view('scope', false, [env.view('field', true)]),
     close = env.manager.bind(root, () => ({ contain: true }))
+
   await Promise.resolve()
+
   const staleKey = env.monitors[0],
     staleUpdate = env.observationHistory[0].callback
+
   expect(() => close()).not.toThrow()
   expect(() => close()).not.toThrow()
   expect(env.removed).toHaveLength(3)
   expect(env.retained.size).toBe(0)
   expect(env.observers.size).toBe(0)
   env.window.firstResponder = env.trigger
+
   const event = { keyCode: 48, modifierFlags: 0, window: env.window }
+
   expect(staleKey(event)).toBe(event)
   staleUpdate({ object: env.window })
   expect(env.window.firstResponder).toBe(env.trigger)
@@ -535,12 +621,14 @@ it('attempts all cleanup once after target/monitor/notification removal failure 
 it('restoration failure still releases every scope and its shared observers during manager teardown', async () => {
   const env = fixture(),
     flags = () => ({ contain: true, autoFocus: true, restoreFocus: true })
+
   env.manager.bind(env.view('first scope', false, [env.view('first', true)]), flags)
   env.manager.bind(env.view('second scope', false, [env.view('second', true)]), flags)
   await Promise.resolve()
   env.window.makeFirstResponder = () => {
     throw Error('private responder detail')
   }
+
   expect(() => env.manager.dispose()).not.toThrow()
   expect(() => env.manager.dispose()).not.toThrow()
   expect(env.retained.size).toBe(0)
@@ -552,25 +640,33 @@ it('restoration failure still releases every scope and its shared observers duri
 it('rejects noncallable bridge hooks and recovers target registration while preserving active owners', async () => {
   const env = fixture(),
     retain = env.bridge.retainFocusTarget
+
   env.bridge.retainFocusTarget = true
   expect(env.manager.capabilities().contain).toBe(false)
   env.manager.bind(env.view('unavailable'), () => ({ contain: true }))()
   expect(env.monitors).toHaveLength(0)
   env.bridge.retainFocusTarget = retain
+
   const first = env.view('first', false, [env.view('first field', true)]),
     second = env.view('second', false, [env.view('second field', true)])
+
   const closeFirst = env.manager.bind(first, () => ({ contain: true }))
+
   env.bridge.retainFocusTarget = () => {
     throw Error('private target detail')
   }
+
   const unavailable = env.manager.bind(second, () => ({ contain: true }))
+
   unavailable()
   expect(env.manager.boundary(env.window)).toBe(first)
   expect(env.observers.size).toBe(2)
   expect(env.retained.size).toBe(1)
   expect(env.manager.capabilities().contain).toBe(false)
   env.bridge.retainFocusTarget = retain
+
   const closeSecond = env.manager.bind(second, () => ({ contain: true }))
+
   await Promise.resolve()
   expect(env.manager.capabilities().contain).toBe(true)
   expect(env.manager.boundary(env.window)).toBe(second)

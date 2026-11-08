@@ -7,6 +7,7 @@ import { VirtualListSizeIndex } from './virtual-list-layout'
 import type { VirtualListHandle } from '../../props'
 
 const roots: ReturnType<typeof createRoot>[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -20,6 +21,7 @@ afterEach(() => {
 it('keeps resize measurements immediate but defers estimate renders beyond microtasks', async () => {
   let deliver: ResizeObserverCallback
   const observed = new Set<Element>()
+
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -40,12 +42,14 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
 
   let nextFrame = 0
   const frames = new Map<number, FrameRequestCallback>()
+
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
     frames.set(++nextFrame, callback)
     return nextFrame
   })
 
   const cancelFrame = vi.fn((id: number) => frames.delete(id))
+
   vi.stubGlobal('cancelAnimationFrame', cancelFrame)
   vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockImplementation(() => ({
     x: 0,
@@ -62,8 +66,11 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
   const reset = vi.spyOn(VirtualListSizeIndex.prototype, 'reset')
   const set = vi.spyOn(VirtualListSizeIndex.prototype, 'set')
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -78,6 +85,7 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
   const flushFrame = () =>
     act(() => {
       const pending = [...frames.values()]
+
       frames.clear()
       for (const callback of pending) {
         callback(0)
@@ -86,7 +94,9 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
 
   // Establish the viewport and mounted rows before testing row delivery.
   const viewport = host.firstElementChild as HTMLElement
+
   Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })
+
   const record = (target: Element) =>
     ({ target, contentRect: { width: 100, height: 60 } }) as ResizeObserverEntry
 
@@ -100,7 +110,9 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
   )
 
   expect(set).toHaveBeenCalled()
+
   const before = host.innerHTML
+
   await Promise.resolve()
   expect(reset).not.toHaveBeenCalled()
   expect(host.innerHTML).toBe(before)
@@ -115,13 +127,16 @@ it('keeps resize measurements immediate but defers estimate renders beyond micro
   act(() => root.unmount())
   await Promise.resolve()
   expect(cancelFrame).toHaveBeenCalled()
+
   const rebuilds = reset.mock.calls.length
+
   flushFrame()
   expect(reset).toHaveBeenCalledTimes(rebuilds)
 })
 
 it('repositions measured cells even when every row remains visible', () => {
   let deliver: ResizeObserverCallback
+
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -135,6 +150,7 @@ it('repositions measured cells even when every row remains visible', () => {
   )
 
   const frames: FrameRequestCallback[] = []
+
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
     frames.push(callback)
     return frames.length
@@ -154,8 +170,11 @@ it('repositions measured cells even when every row remains visible', () => {
   }))
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -164,6 +183,7 @@ it('repositions measured cells even when every row remains visible', () => {
   )
 
   const viewport = host.firstElementChild as HTMLElement
+
   Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })
   act(() =>
     deliver!(
@@ -181,6 +201,7 @@ it('repositions measured cells even when every row remains visible', () => {
   }
 
   const body = host.querySelector('.vx-virtual-list-body') as HTMLElement
+
   expect(body.style.height).toBe('96px')
   expect(
     [...host.querySelectorAll<HTMLElement>('.vx-virtual-list-row')].map((node) => node.style.top),
@@ -189,6 +210,7 @@ it('repositions measured cells even when every row remains visible', () => {
 
 it('scrolls to a pixel offset through the imperative handle and clears it on unmount', async () => {
   let deliver: ResizeObserverCallback
+
   vi.stubGlobal(
     'ResizeObserver',
     class {
@@ -202,6 +224,7 @@ it('scrolls to a pixel offset through the imperative handle and clears it on unm
   )
 
   const frames: FrameRequestCallback[] = []
+
   vi.stubGlobal('requestAnimationFrame', (callback: FrameRequestCallback) => {
     frames.push(callback)
     return frames.length
@@ -222,8 +245,11 @@ it('scrolls to a pixel offset through the imperative handle and clears it on unm
 
   const handle: { current: VirtualListHandle | null } = { current: null }
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -237,6 +263,7 @@ it('scrolls to a pixel offset through the imperative handle and clears it on unm
   )
 
   const viewport = host.firstElementChild as HTMLElement
+
   Object.defineProperties(viewport, { clientWidth: { value: 100 }, clientHeight: { value: 200 } })
   act(() =>
     deliver!(
@@ -257,6 +284,7 @@ it('scrolls to a pixel offset through the imperative handle and clears it on unm
   }
 
   const rows = [...host.querySelectorAll('.vx-virtual-list-item')].map((node) => node.textContent)
+
   expect(rows).toContain('12')
   expect(rows).not.toContain('0')
   act(() => root.unmount())

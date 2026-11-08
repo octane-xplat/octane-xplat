@@ -18,19 +18,23 @@ test('native layout reentry is bounded per view and released after errors', () =
       if (calls > 10) {
         throw new Error('unbounded native reentry')
       }
+
       ;(this as BaseView).layout()
       if (fail) {
         throw new Error('native failure')
       }
     }
   }
+
   const { create } = runSlice(
     sourceWithoutImports(new URL('../src/mason.ts', import.meta.url)).replaceAll('export ', '') +
       '\ndeps = { baseView: NSView }; MasonLayoutView = createMasonLayoutView(); ({ create: () => MasonLayoutView.alloc().initWithFrame() })',
     { NSView: BaseView, NativeClass: () => {} },
   )
+
   const first = create()
   const second = create()
+
   first.layout()
   second.layout()
   assert.equal(calls, 2, 'another view still receives its own layout')

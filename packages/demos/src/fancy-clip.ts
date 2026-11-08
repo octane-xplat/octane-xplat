@@ -12,6 +12,7 @@ export function clipMarquee(view: any): void {
     }
 
     const android = view?.android
+
     if (typeof android?.setClipChildren === 'function') {
       android.setClipChildren(true)
       android.setClipToPadding(true)

@@ -25,6 +25,7 @@ export const tsrxExtractor: Extractor = {
   async extract(filename, code, onMessageExtracted, ctx) {
     const { code: tsCode, map, diagnostics } = compile(code, filename)
     const errors = diagnostics.filter((diagnostic) => diagnostic.severity === 'error')
+
     if (errors.length) {
       throw new Error(`${filename}: ${errors[0]!.message}`)
     }

@@ -16,15 +16,18 @@ function ListeningSettings(props: {
   const [audio, setAudio] = useState(props.player.snapshot())
   const [session, setSession] = useState('signed out')
   const [stream, setStream] = useState('idle')
+
   useEffect(() => props.player.subscribe(setAudio), [])
 
   const read = async () => {
     const result = await requestStream(`${origin}/records`)
     const reader = result.body.getReader()
     let text = ''
+
     try {
       while (!text.includes('\n')) {
         const chunk = await reader.read()
+
         if (chunk.done) {
           throw new Error('Stream ended before first record')
         }
@@ -69,6 +72,7 @@ function ListeningSettings(props: {
       id="listening.sign-in"
       onPress={async () => {
         const result = await props.auth.signIn()
+
         setSession(
           result.status === 'success'
             ? 'signed in'
@@ -109,8 +113,11 @@ export async function run(ctx: ProbeContext) {
   }
 
   const auth = createHostedAuth(config)
+
   ctx.assert('native hosted auth crypto available', auth.supported, true)
+
   let cleared = false
+
   ctx.onCleanup(async () => {
     player.dispose()
     if (!cleared) {
@@ -119,8 +126,10 @@ export async function run(ctx: ProbeContext) {
   })
 
   await player.setMuted(true)
+
   const first = { id: 'packed-one', source: `${origin}/one.wav` }
   const second = { id: 'packed-two', source: `${origin}/two.wav` }
+
   await player.setQueue([first], 0, { complete: false })
   await ctx.mount(ListeningSettings, {
     player,
@@ -144,7 +153,9 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.press('listening.play')
   await ctx.waitFor(() => player.snapshot().currentTime > 0.2, { timeout: 10000, interval: 20 })
+
   const position = player.snapshot().currentTime
+
   await ctx.press('listening.append')
   ctx.assert(
     'packed preserving queue position',
@@ -159,6 +170,7 @@ export async function run(ctx: ProbeContext) {
   })
 
   const marker = await requestStream(`${origin}/state`)
+
   ctx.assert(
     'packed first record before server completion',
     ((await marker.json()) as Record<string, unknown>).finished === true,
@@ -187,6 +199,7 @@ export async function run(ctx: ProbeContext) {
 
   const accountA = `readiness-progress-A-${Date.now()}`
   const accountB = `readiness-progress-B-${Date.now()}`
+
   try {
     storage.setString(accountA, '42')
     storage.setString(accountB, '7')

@@ -9,6 +9,7 @@ const requiredPackageFiles = ['index.d.ts', 'LICENSE']
 function readPackageManifest(path) {
   try {
     const manifest = JSON.parse(readFileSync(path, 'utf8'))
+
     return manifest && typeof manifest === 'object' && !Array.isArray(manifest) ? manifest : null
   } catch {
     return null
@@ -30,6 +31,7 @@ export function inspectMacOSRuntimePackage(appRoot) {
   const packageRoot =
     installedPackageRoot(appRoot, macOSRuntimePackageName) ??
     join(appRoot, 'node_modules', ...macOSRuntimePackageName.split('/'))
+
   const packageManifest = readPackageManifest(join(packageRoot, 'package.json'))
   const missingPaths = requiredPackageFiles.filter((path) => !isFile(join(packageRoot, path)))
 

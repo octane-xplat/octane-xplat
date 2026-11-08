@@ -22,6 +22,7 @@ export function createBrowserRouteTransitions(browser: Window): {
     active?.skip()
     active = undefined
   }
+
   return {
     interrupt,
     async run(
@@ -32,6 +33,7 @@ export function createBrowserRouteTransitions(browser: Window): {
       cancellation?: Promise<Extract<RouterHostResult, { status: 'cancelled' }>>,
     ): Promise<RouterHostResult> {
       interrupt()
+
       let updateTask: Promise<RouterHostResult> | undefined
       const commit = () => (updateTask ??= Promise.resolve().then(update))
       const direct = async (
@@ -39,6 +41,7 @@ export function createBrowserRouteTransitions(browser: Window): {
         error?: unknown,
       ) => {
         const result = await commit()
+
         return result.status === 'committed'
           ? {
               ...result,
@@ -48,6 +51,7 @@ export function createBrowserRouteTransitions(browser: Window): {
             }
           : result
       }
+
       if (
         !name ||
         name === 'none' ||
@@ -57,29 +61,38 @@ export function createBrowserRouteTransitions(browser: Window): {
       ) {
         return direct('disabled')
       }
+
       if (definition && definition.kind !== 'web') {
         return direct('unsupported')
       }
+
       if (!definition && name !== 'default' && name !== 'fade') {
         return direct('unsupported')
       }
+
       if (
         definition?.options.reducedMotion !== 'allow' &&
         browser.matchMedia?.('(prefers-reduced-motion: reduce)').matches
       ) {
         return direct('reduced-motion')
       }
+
       const document = browser.document
+
       if (!document.startViewTransition) {
         return direct('unsupported')
       }
+
       let types: readonly string[]
+
       try {
         const configured = definition?.options.types
+
         types = typeof configured === 'function' ? configured(context) : (configured ?? [])
       } catch (error) {
         return direct('unsupported', error)
       }
+
       let skipped: 'interrupted' | 'unsupported' | undefined
       let transition: ViewTransition
       let resolveUpdate!: (result: RouterHostResult) => void
@@ -88,6 +101,7 @@ export function createBrowserRouteTransitions(browser: Window): {
         resolveUpdate = resolve
         rejectUpdate = reject
       })
+
       void updated.catch(() => {})
       try {
         // Use the Level 1 callback form even when typed transitions are absent.
@@ -102,6 +116,7 @@ export function createBrowserRouteTransitions(browser: Window): {
       } catch (error) {
         return direct('unsupported', error)
       }
+
       const handle = {
         skip(reason: 'interrupted' | 'unsupported' = 'interrupted') {
           skipped ??= reason
@@ -112,6 +127,7 @@ export function createBrowserRouteTransitions(browser: Window): {
           }
         },
       }
+
       active = handle
       try {
         if (types.length) {
@@ -126,10 +142,12 @@ export function createBrowserRouteTransitions(browser: Window): {
       } catch {
         handle.skip('unsupported')
       }
+
       const ready = transition.ready.then(
         () => true,
         () => false,
       )
+
       // A rejected animation is observed immediately, independently of commit.
       const finished = Promise.all([ready, transition.finished])
         .then(
@@ -144,12 +162,16 @@ export function createBrowserRouteTransitions(browser: Window): {
             active = undefined
           }
         })
+
       void transition.updateCallbackDone.catch(() => {})
+
       const result = await (cancellation ? Promise.race([updated, cancellation]) : updated)
+
       if (result.status !== 'committed') {
         handle.skip()
         return result
       }
+
       return { ...result, finished }
     },
   }

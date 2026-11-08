@@ -2,6 +2,7 @@ import { validate } from './options'
 import { ReadableStream } from 'web-streams-polyfill'
 import type { StreamRequestOptions, StreamResponse } from './types'
 import { response } from './response'
+
 export type * from './types'
 /** Browser incremental fetch with redirects/cookies disabled to match native. */
 export async function requestStream(
@@ -17,6 +18,7 @@ export async function requestStream(
     redirect: 'error',
     credentials: 'omit',
   })
+
   if (!result.body) {
     return response(
       result.status,
@@ -28,12 +30,14 @@ export async function requestStream(
       }),
     )
   }
+
   const reader = result.body.getReader()
   const body = new ReadableStream<Uint8Array>(
     {
       async pull(controller) {
         try {
           const next = await reader.read()
+
           if (next.done) {
             controller.close()
             reader.releaseLock()
@@ -59,5 +63,6 @@ export async function requestStream(
     },
     { highWaterMark: 0 },
   )
+
   return response(result.status, Object.fromEntries(result.headers.entries()), body)
 }

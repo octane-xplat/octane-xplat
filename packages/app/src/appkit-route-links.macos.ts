@@ -16,18 +16,22 @@ export function bindAppKitRouteLinks(): () => void {
   const previous = current
   let active = true,
     armed = false
+
   let remove: (() => void) | undefined
   const pending: string[] = []
   const stop = () => {
     if (!active) {
       return
     }
+
     active = false
     pending.length = 0
     if (current === stop) {
       current = undefined
     }
+
     const release = remove
+
     remove = undefined
     try {
       release?.()
@@ -35,16 +39,19 @@ export function bindAppKitRouteLinks(): () => void {
       report('[macos] Incoming link cleanup failed')
     }
   }
+
   current = stop
   previous?.()
   if (!active || current !== stop) {
     stop()
     return stop
   }
+
   const forward = (url: string) => {
     if (!active) {
       return
     }
+
     try {
       void Promise.resolve(router.navigateUrl(url)).then(
         (result) => {
@@ -64,22 +71,27 @@ export function bindAppKitRouteLinks(): () => void {
       }
     }
   }
+
   const receive = (url: string) => {
     if (!active) {
       return
     }
+
     if (typeof url !== 'string') {
       report('[macos] Incoming link was not a string')
       return
     }
+
     if (armed) {
       forward(url)
     } else {
       pending.push(url)
     }
   }
+
   try {
     const release = onDeepLink(receive)
+
     if (!active) {
       try {
         release()
@@ -91,7 +103,9 @@ export function bindAppKitRouteLinks(): () => void {
     }
 
     remove = release
+
     const initial = consumeInitialUrl()
+
     if (active && initial !== null) {
       if (typeof initial === 'string') {
         pending.unshift(initial)
@@ -105,6 +119,7 @@ export function bindAppKitRouteLinks(): () => void {
       if (!active) {
         return
       }
+
       armed = true
       for (const url of pending.splice(0)) {
         forward(url)
@@ -114,10 +129,12 @@ export function bindAppKitRouteLinks(): () => void {
     stop()
     throw error
   }
+
   return stop
 }
 
 const hot = 'hot' in import.meta ? import.meta.hot : undefined
+
 if (
   typeof hot === 'object' &&
   hot !== null &&

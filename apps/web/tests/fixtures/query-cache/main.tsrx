@@ -16,6 +16,7 @@ import { routeContext } from '../../../../../packages/app/src/route-context'
 
 // Keep the real app screens, transport, and router, without importing unrelated demos.
 const route = defineRoute.withContext<ReturnType<typeof routeContext>>()
+
 configureRouter({
   catalog: defineRoutes([
     route({ path: '/cached-users', loader: loadFeed }).screen(CachedUsers),

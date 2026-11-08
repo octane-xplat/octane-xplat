@@ -77,6 +77,7 @@ export function openBottomSheetWithOwner(
   let closeSheet: ((result?: ModalOpenResult) => void) | undefined
   const handle = new Promise<ModalOpenResult>((resolve) => {
     const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+
     if (!host?.createOverlayLayer || !host.mountServiceRoot) {
       console.warn('[openBottomSheet] linux-gtk overlay host is not mounted — sheet skipped')
       resolve(undefined)
@@ -114,6 +115,7 @@ export function openBottomSheetWithOwner(
     // `useImperativeBottomSheet`; the standalone service lands on the
     // bridge's most recent live root.
     const createLayer = (owner?.host as any)?.createOverlayLayer ?? host.createOverlayLayer
+
     layer = createLayer({
       modal: options.hasScrim ?? true,
       scrim: options.hasScrim ?? true,
@@ -130,6 +132,7 @@ export function openBottomSheetWithOwner(
 
     if (owner) {
       const cr = owner.createRoot(layer.target, () => entry.finish())
+
       cr.render(GtkServiceSheet, props)
       contentRoot = cr
     } else {

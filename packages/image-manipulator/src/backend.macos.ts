@@ -39,11 +39,13 @@ function pixels(frame: ImageFrame): NSBitmapImageRep {
   if (!frame.image) {
     throw new Error('Image pixels were released')
   }
+
   return frame.image
 }
 
 function imageFor(frame: ImageFrame): NSImage {
   const image = NSImage.alloc().initWithSize({ width: frame.width, height: frame.height })
+
   image.addRepresentation(pixels(frame))
   return image
 }
@@ -62,10 +64,13 @@ function draw(size: Size, action: (context: NSGraphicsContext['CGContext']) => v
       0,
       0,
     )
+
   if (!bitmap) {
     throw new Error('Could not allocate image pixels')
   }
+
   const graphics = NSGraphicsContext.graphicsContextWithBitmapImageRep(bitmap)
+
   NSGraphicsContext.saveGraphicsState()
   try {
     CGContextClearRect(graphics.CGContext, rect(0, 0, size.width, size.height))
@@ -100,6 +105,7 @@ function paint(image: NSImage, target: Rect): void {
 async function dataFor(uri: string): Promise<NSData> {
   if (/^https?:\/\//i.test(uri)) {
     const url = NSURL.URLWithString(uri)
+
     if (!url) {
       throw new TypeError('Invalid image URL')
     }
@@ -115,12 +121,16 @@ async function dataFor(uri: string): Promise<NSData> {
           }
         },
       )
+
       task.resume()
     })
   }
+
   let data: NSData | null
+
   if (uri.startsWith('data:')) {
     const match = /^data:image\/[^;,]+;base64,([\s\S]+)$/i.exec(uri)
+
     if (!match) {
       throw new TypeError('Image data URIs must contain base64-encoded image bytes')
     }
@@ -128,32 +138,40 @@ async function dataFor(uri: string): Promise<NSData> {
     data = NSData.alloc().initWithBase64EncodedStringOptions(match[1], 0)
   } else {
     const local = uri.startsWith('file://') ? NSURL.URLWithString(uri)?.path : uri
+
     if (!local?.startsWith('/')) {
       throw new TypeError('AppKit image paths must be absolute file paths or file URLs')
     }
 
     data = NSData.dataWithContentsOfFile(local)
   }
+
   if (!data) {
     throw new Error('Could not read the image')
   }
+
   return data
 }
 
 async function load(uri: string, options: ImageLoadOptions): Promise<ImageFrame> {
   const data = await dataFor(uri)
   const representation = NSBitmapImageRep.imageRepWithData(data)
+
   if (!representation || representation.pixelsWide < 1 || representation.pixelsHigh < 1) {
     throw new Error('Could not decode the image')
   }
+
   const image = NSImage.alloc().initWithData(data)
+
   if (!image) {
     throw new Error('Could not decode the image')
   }
+
   const size = initialSize(
     { width: representation.pixelsWide, height: representation.pixelsHigh },
     options,
   )
+
   return draw(size, () => paint(image, rect(0, 0, size.width, size.height)))
 }
 
@@ -161,10 +179,13 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
   if (operation.kind === 'extent') {
     throw new UnavailabilityError('ImageManipulator.extent (web only)')
   }
+
   const size = outputSize(frame, operation)
   const image = imageFor(frame)
+
   return draw(size, (context) => {
     let target = rect(0, 0, frame.width, frame.height)
+
     switch (operation.kind) {
       case 'resize':
         target = rect(0, 0, size.width, size.height)
@@ -190,16 +211,20 @@ function transform(frame: ImageFrame, operation: Operation): ImageFrame {
           operation.axis === 'vertical' ? -1 : 1,
         )
     }
+
     paint(image, target)
   })
 }
 
 function removeOutput(uri: string): void {
   const local = NSURL.URLWithString(uri)?.path
+
   if (!local) {
     throw new TypeError('Invalid image output URL')
   }
+
   const manager = NSFileManager.defaultManager
+
   if (manager.fileExistsAtPath(local) && !manager.removeItemAtPathError(local, null)) {
     throw new Error('Could not remove the saved image')
   }
@@ -212,20 +237,26 @@ async function save(frame: ImageFrame, options: Required<SaveOptions>): Promise<
     options.format === 'jpeg' ? 3 : 4,
     properties,
   )
+
   const codec = lookupGlobal(['XplatWebPEncoder']) as WebPEncoderBridge | undefined
+
   if (options.format === 'webp' && !codec) {
     throw new UnavailabilityError('ImageManipulator WEBP codec; rebuild the app after installation')
   }
+
   const data =
     options.format === 'webp'
       ? encoded && codec!.encodePNGQuality(encoded, options.compress)
       : encoded
+
   if (!data) {
     throw new Error('Image encoding failed')
   }
+
   const manager = NSFileManager.defaultManager
   const local = `${String(manager.temporaryDirectory.path).replace(/\/$/, '')}/xplat-image-${NSUUID.UUID().UUIDString}.${options.format === 'jpeg' ? 'jpg' : options.format}`
   const uri = String(NSURL.fileURLWithPath(local).absoluteString)
+
   try {
     if (!data.writeToFileAtomically(local, true)) {
       throw new Error('Could not save the encoded image')

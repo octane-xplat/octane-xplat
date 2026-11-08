@@ -12,6 +12,7 @@ describe('component compiler boundaries without capturing images', () => {
     for (const hmr of [false, true]) {
       it(`${file} compiles for ${target} with HMR ${hmr}`, () => {
         const source = readFileSync(new URL('../src/' + file, import.meta.url), 'utf8')
+
         expect(() =>
           compile(source, file, {
             hmr,

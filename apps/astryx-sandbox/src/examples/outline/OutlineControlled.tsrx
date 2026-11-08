@@ -14,6 +14,7 @@ export function OutlineControlled() @{
   const index = items.findIndex((item) => item.id === activeId)
   const goTo = (next: number) => {
     const clamped = Math.max(0, Math.min(items.length - 1, next))
+
     setActiveId(items[clamped].id)
   }
 

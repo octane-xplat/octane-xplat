@@ -7,7 +7,9 @@ import type { GoogleSignInButtonProps } from './types'
 /** Native NSButton trigger for hosted Google sign-in; no official AppKit Google button. */
 export function GoogleSignInButton(props: GoogleSignInButtonProps) @{
   const current = useRef(props)
+
   current.current = props
+
   const action = useRef(
     createSignInButtonAction(
       () => current.current,

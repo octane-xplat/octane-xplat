@@ -23,6 +23,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 
   const removeVoice = (voice: Voice) => {
     const index = active.indexOf(voice)
+
     if (index !== -1) {
       active.splice(index, 1)
     }
@@ -72,23 +73,27 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 
       for (let index = active.length - 1; index >= 0; index--) {
         const voice = active[index]
+
         if (voice?.name === name) {
           stopVoice(voice)
         }
       }
 
       const clip: Clip = { source }
+
       clips.set(name, clip)
       await decode(clip)
     },
     play: async (name, { volume = 1 } = {}) => {
       const clip = clips.get(name)
+
       if (!clip || disposed) {
         return false
       }
 
       try {
         const buffer = await decode(clip)
+
         if (disposed || clips.get(name) !== clip) {
           return false
         }
@@ -96,6 +101,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
         await context.resume()
         while (active.length >= voiceLimit) {
           const oldest = active[0]
+
           if (oldest) {
             stopVoice(oldest)
           }
@@ -110,7 +116,9 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
         source.buffer = buffer
         source.connect(gain)
         gain.connect(context.destination)
+
         const voice: Voice = { source, gain, name }
+
         source.onended = () => removeVoice(voice)
         active.push(voice)
         source.start()
@@ -122,6 +130,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
     stop: (name) => {
       for (let index = active.length - 1; index >= 0; index--) {
         const voice = active[index]
+
         if (voice && (name === undefined || voice.name === name)) {
           stopVoice(voice)
         }

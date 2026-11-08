@@ -236,6 +236,7 @@ test('TabView preserves item/content identity across imperative updates, orderin
 
   left.props.items = [a, b]
   api.syncTabView(left)
+
   const host = a.childHost,
     native = a.tabNativeItem,
     root = a.tabContentRoot
@@ -274,7 +275,9 @@ test('TabView item title/icon updates restore defaults; ordinary tab labels meas
   assert.equal(a.tabNativeItem.label, 'After')
   assert.equal(a.tabNativeItem.image.name, 'Icon')
   assert.equal(a.tabNativeItem.sizeOfLabel(false).width, 30)
+
   let draws = 0
+
   a.props.iconSource = {
     macos: {
       drawInRectFromRectOperationFraction() {
@@ -341,10 +344,13 @@ test('TabView transfers between two item arrays in one batch without unmounting 
     a = item()
 
   const container: any = { layoutDirty: null }
+
   left.container = right.container = container
   left.props.items = [a]
   api.syncTabView(left)
+
   const root = a.tabContentRoot
+
   container.layoutDirty = new Set()
   left.props.items = []
   right.props.items = [a]
@@ -364,6 +370,7 @@ test('TabView transfers between two item arrays in one batch without unmounting 
 
 test('TabView rejects invalid host icon objects before replacing an item', () => {
   const { api } = fixture()
+
   assert.throws(() => api.validateTabProps('tabviewitem', { iconSource: {} }), /NSImage/)
 })
 
@@ -408,6 +415,7 @@ test('TabView compiler spread adapter reads children once and preserves prop/key
   }
 
   const result = api.__tabItemProps(props)
+
   assert.equal(reads, 1)
   assert.equal(result.key, 'a')
   assert.equal(result.ref, ref)
@@ -427,7 +435,9 @@ test('TabView system symbols and font glyph icons render and react to font-style
   assert.equal(a.tabNativeItem.image.symbol, 'gear')
   a.props = { iconSource: 'font://★', style: { fontSize: 24, color: '#2563eb' } }
   api.syncTabItem(a)
+
   const image = a.tabNativeItem.image
+
   assert.equal(image.size.height, 24)
   a.props = { iconSource: 'font://★' }
   api.syncTabItem(a)
@@ -442,6 +452,7 @@ test('source-owned tab content publishes only its final native target and create
     a = item('Owned')
 
   const targets: any[] = []
+
   a.props.__portalContent = true
   a.props.__onContentTarget = (target: any) => targets.push(target)
   left.props.items = [a]

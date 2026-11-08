@@ -191,6 +191,7 @@ function PaletteEntry({
           value={color.hex}
           onChange={(v) => {
             const parsed = parseColorInput(v.trim())
+
             if (parsed) {
               onChange(color.id, { hex: parsed })
             }
@@ -286,6 +287,7 @@ function TonalRamps({
 }) {
   const roleMap = useMemo(() => {
     const map = new Map<ThemeRole, PaletteColor>()
+
     for (const pc of palette) {
       if (pc.role) {
         map.set(pc.role, pc)
@@ -335,6 +337,7 @@ function TonalRamps({
                 : 0.012) * vibrancy
         } else {
           const oklch = assigned ? hexToOklch(assigned.hex) : { C: ch.oklchChroma, H: ch.oklchHue }
+
           hue = oklch.H
           chroma = oklch.C * vibrancy
         }
@@ -367,6 +370,7 @@ function TonalRamps({
       {customChannels.map((cc) => {
         const oklch = hexToOklch(cc.hex)
         const chroma = oklch.C * vibrancy
+
         return (
           <div key={cc.id} className="ColorStudioPage-static-15">
             <span style={{ ...S.tonalLabel, color: '#4f46e5', fontWeight: 600 }}>{cc.name}</span>
@@ -469,6 +473,7 @@ export function ColorStudioPage() {
     const h = Math.random() * 360
     const c = 30 + Math.random() * 50
     const hex = hctToHex({ hue: h, chroma: c, tone: 50 })
+
     setPalette((prev) => [...prev, makePaletteColor('Color ' + _nextId, hex)])
   }, [])
 
@@ -576,6 +581,7 @@ export function ColorStudioPage() {
                     clickAction={() => {
                       const h = Math.random() * 360
                       const hex = oklchClampedHex(0.5, 0.12, h)
+
                       setCustomChannels((prev) => [
                         ...prev,
                         { id: nextId(), name: `Custom ${prev.length + 1}`, hex },

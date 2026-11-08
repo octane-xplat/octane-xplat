@@ -28,7 +28,9 @@ export async function run(ctx: ProbeContext) {
     await ctx.mount(UnsupportedCanvas, { context: kind })
     await ctx.waitFor(() => received.length > 0)
     ctx.assert(`${kind ?? 'deferred'} mount callback once`, received.length, 1)
+
     const { canvas, context } = received[0]
+
     ctx.assert(`${kind ?? 'deferred'} resolved context unavailable`, context, null)
     for (const requested of kinds) {
       ctx.assert(

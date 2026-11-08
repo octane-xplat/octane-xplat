@@ -22,11 +22,13 @@ function decompose(v: number[]): Target {
   const scaleX = Math.hypot(a, c)
   const scaleY = Math.hypot(b, d)
   let rotate = scaleX && scaleY ? (Math.atan2(b / scaleY, a / scaleX) * 180) / Math.PI : 0
+
   if (!Number.isFinite(rotate)) {
     rotate = 0
   }
 
   let flippedY = scaleY
+
   // A negative determinant means one axis flipped; folding the sign into
   // scaleY and the angle round-trips the same matrix for every composition.
   if (a * d - b * c < 0) {
@@ -52,6 +54,7 @@ function readChannels(node: HTMLElement, fallback: Target): Target {
   }
 
   const match = /matrix(?:3d)?\(([^)]*)\)/.exec(computed.transform)
+
   if (!match) {
     return computed.transform === 'none'
       ? { ...base, x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0 }
@@ -59,6 +62,7 @@ function readChannels(node: HTMLElement, fallback: Target): Target {
   }
 
   const values = match[1].split(',').map(Number.parseFloat)
+
   return values.every(Number.isFinite) ? { ...base, ...decompose(values) } : base
 }
 
@@ -73,6 +77,7 @@ function waapiRun(
 
   const { target, eff, transition: t } = req
   const animatesTransform = TRANSFORM_KEYS.some((key) => target[key] !== undefined)
+
   if (!animatesTransform && target.opacity === undefined) {
     return null
   }
@@ -81,6 +86,7 @@ function waapiRun(
   // implicit "from" resolves to a matrix and would lose rotate windings.
   let last = readChannels(node, { opacity: 1, x: 0, y: 0, scaleX: 1, scaleY: 1, rotate: 0 })
   const frames: Keyframe[] = [{}, {}]
+
   if (animatesTransform) {
     frames[0].transform = transform(last)
     frames[1].transform = transform(eff)
@@ -93,6 +99,7 @@ function waapiRun(
 
   const [x1, y1, x2, y2] = bezierPoints(t.ease)
   let animation: Animation
+
   try {
     animation = node.animate(frames, {
       duration: (t.duration ?? 0.3) * 1000,
@@ -132,6 +139,7 @@ function waapiRun(
   }
 
   const cancelled = () => settle('cancelled')
+
   if (typeof animation.finished?.then === 'function') {
     // finished rejects with AbortError on cancel — observed here.
     void animation.finished.then(complete, cancelled)
@@ -148,6 +156,7 @@ function waapiRun(
       // presentation is sampled first and the adapter write holds the
       // frozen values for the next run's "from" keyframe.
       const current = sample()
+
       animation.cancel()
       write(current)
       settle('cancelled')
@@ -168,6 +177,7 @@ export function delegatedRun(
   }
 
   const run = waapiRun(node, req, write)
+
   if (!run) {
     delegationStats().fallback++
     return null

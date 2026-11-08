@@ -51,11 +51,13 @@ export function defaultFormat(value: number | string | Date): string {
 /** Cap categorical label count so boxes don't collide — keep every nth. */
 function thinDomain(domain: string[], plotWidth: number): string[] {
   const maxLabels = Math.max(2, Math.floor(plotWidth / 56))
+
   if (domain.length <= maxLabels) {
     return domain
   }
 
   const step = Math.ceil(domain.length / maxLabels)
+
   return domain.filter((_, i) => i % step === 0)
 }
 
@@ -87,20 +89,24 @@ export function xAxisModel(
 
   let values: (string | number | Date)[]
   let format: (v: number | string | Date) => string = fmt
+
   if (kind === 'band' || kind === 'point') {
     values = thinDomain((scale as ScaleBand<string> | ScalePoint<string>).domain(), plot.width)
   } else {
     const continuous = scale as ScaleLinear<number, number> | ScaleTime<number, number>
     const count = spec?.tickCount ?? 6
+
     values = continuous.ticks(count) as (number | Date)[]
     if (!spec?.format && kind === 'time') {
       const tf = (continuous as ScaleTime<number, number>).tickFormat(count)
+
       format = (v) => tf(v as Date)
     }
   }
 
   for (const v of values) {
     const px = plot.x + xCenter(kind, scale, v)
+
     if (stubs) {
       frame.push({
         kind: 'line',
@@ -170,6 +176,7 @@ export function yAxisModel(scale: YScale, spec: AxisSpec | undefined, plot: Plot
 
   for (const v of scale.ticks(spec?.tickCount ?? 5)) {
     const py = plot.y + scale(v)
+
     if (stubs) {
       frame.push({
         kind: 'line',

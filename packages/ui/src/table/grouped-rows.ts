@@ -31,6 +31,7 @@ const HEADER_PROXY_HANDLER: ProxyHandler<Record<string | symbol, unknown>> = {
     if (prop === GROUP_HEADER || prop === 'groupKey' || prop === 'count') {
       return t[prop]
     }
+
     return prop in t ? t[prop] : ''
   },
 }
@@ -46,6 +47,7 @@ export function makeGroupHeader<T extends Record<string, unknown>>(
     groupKey,
     count,
   }
+
   return new Proxy(target, HEADER_PROXY_HANDLER) as unknown as T
 }
 
@@ -66,9 +68,11 @@ export function flattenGroups<T extends Record<string, unknown>>(
 
   // Group preserving first-seen order.
   const groups = new Map<string, T[]>()
+
   for (const item of data) {
     const key = groupBy(item)
     const bucket = groups.get(key)
+
     if (bucket) {
       bucket.push(item)
     } else {
@@ -78,20 +82,25 @@ export function flattenGroups<T extends Record<string, unknown>>(
 
   // Determine iteration order.
   let keys = [...groups.keys()]
+
   if (groupOrder && groupOrder.length > 0) {
     const ordered = groupOrder.filter((k) => groups.has(k))
     const rest = keys.filter((k) => !groupOrder.includes(k))
+
     keys = [...ordered, ...rest]
   }
 
   const out: T[] = []
+
   for (const key of keys) {
     const rows = groups.get(key) ?? []
+
     out.push(makeGroupHeader<T>(key, rows.length))
     if (!collapsedGroups.has(key)) {
       out.push(...rows)
     }
   }
+
   return out
 }
 
@@ -107,13 +116,16 @@ export function makeGroupedIdKey<T extends Record<string, unknown>>(
   const positionByItem = getRowKey
     ? null
     : new Map<T, number>(flattened.map((item, i) => [item, i]))
+
   return (item: T): string => {
     if (isGroupHeader(item)) {
       return `__group_${item.groupKey}`
     }
+
     if (getRowKey) {
       return getRowKey(item)
     }
+
     return String(positionByItem?.get(item) ?? -1)
   }
 }

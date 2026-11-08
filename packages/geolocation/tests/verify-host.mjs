@@ -8,8 +8,10 @@ import { fileURLToPath } from 'node:url'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 
 import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
+
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const app = await mkdtemp(join(tmpdir(), 'xplat-location-host-'))
+
 try {
   await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(leaf, join(app, 'node_modules/@octane-xplat/geolocation'))
@@ -22,10 +24,15 @@ try {
   )
 
   const artifact = await buildMacOSNative(app)
+
   assert.equal(artifact.leaves.length, 1)
+
   const bootstrap = join(app, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap)
+
   const script = join(app, 'fixture.cjs')
+
   await writeFile(
     script,
     `

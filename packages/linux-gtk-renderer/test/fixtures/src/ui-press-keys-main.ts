@@ -3,7 +3,9 @@ import Gdk from 'gi://Gdk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { PressKeys, events, buttonRef } from './ui-press-keys.gtk.tsrx'
+
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK press keys test',
   default_width: 340,
@@ -12,7 +14,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -33,17 +37,20 @@ const check = (name: string, ok: boolean) => {
   if (!ok) {
     throw new Error(name)
   }
+
   checks++
 }
 
 const node = (id: string) => [...container.nodes.values()].find((n) => n.props.id === id)!
 const controller = (view: any) => {
   const all = view.observe_controllers()
+
   for (let i = 0; i < all.get_n_items(); i++) {
     if (all.get_item(i) instanceof Gtk.EventControllerKey) {
       return all.get_item(i)
     }
   }
+
   throw new Error('no keyboard controller')
 }
 
@@ -55,22 +62,27 @@ let props: Parameters<typeof PressKeys>[0] = { version: 1 }
 const render = () => root.render(PressKeys, props)
 let ack = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_controller: any, key: number) => {
   if (key === 65481) {
     ack++
     return true
   }
+
   return false
 })
 
 window.add_controller(keys)
+
 async function phase(phase: string) {
   const next = ack + 1
+
   print('GTK_PRESS_KEYS_READY ' + JSON.stringify({ phase }))
   for (let i = 0; i < 250 && ack < next; i++) {
     await pause(20)
   }
+
   check('OS phase completed ' + phase, ack >= next)
   await pause()
 }
@@ -80,9 +92,11 @@ async function run() {
   render()
   window.present()
   await pause(180)
+
   let button = node('key-button').view!
   const link = node('key-link').view!,
     peer = node('key-peer').view!
+
   peer.focus()
   await pause()
   check('semantic button accepts native focus', button.get_focusable() && button.focus())
@@ -119,19 +133,23 @@ async function run() {
     'modified shortcut is not consumed',
     down(button, Gdk.KEY_space, Gdk.ModifierType.CONTROL_MASK) === false,
   )
+
   up(button, Gdk.KEY_space, Gdk.ModifierType.CONTROL_MASK)
   check('modified shortcut does not activate', events.length === 0)
   down(button, Gdk.KEY_space)
   props = { ...props, disabled: true }
   render()
   await pause()
+
   const before = events.length
+
   up(button, Gdk.KEY_space)
   check('disabled pressable becomes natively insensitive', !button.get_sensitive())
   check(
     'disabling while held cannot activate on release',
     events.length === before && !events.some((e) => e.startsWith('press:')),
   )
+
   props = { ...props, disabled: false }
   render()
   await pause()
@@ -152,6 +170,7 @@ async function run() {
     'ancestor pressable does not consume child entry input',
     down(node('key-nested').view!, Gdk.KEY_space) === false,
   )
+
   up(node('key-nested').view!, Gdk.KEY_space)
   check('child focus does not activate parent', events.length === 0)
   check('neutral gesture view gets no keyboard stop', !node('key-neutral').view!.get_focusable())
@@ -184,11 +203,15 @@ async function run() {
 
     osInput = true
   }
+
   const childEntry = node('key-child').view!
+
   childEntry.focus()
   await pause()
+
   const delegate = window.get_focus()
   const parent = node('key-nested').view
+
   props = { ...props, nestedRole: 'link' }
   render()
   await pause()
@@ -197,9 +220,11 @@ async function run() {
   check('focused child survives an actual native parent swap', node('key-nested').view !== parent)
   button.focus()
   await pause()
+
   const original = button
   const logical = node('key-button')
   const label = node('key-action-label').view
+
   props = { ...props, role: 'link' }
   render()
   await pause()
@@ -224,6 +249,7 @@ async function run() {
     'role can return to a focused button',
     button.get_accessible_role() === Gtk.AccessibleRole.BUTTON && window.get_focus() === button,
   )
+
   props = { ...props, role: null }
   render()
   await pause()
@@ -232,6 +258,7 @@ async function run() {
     'role removal restores native generic role',
     button.get_accessible_role() === Gtk.AccessibleRole.GENERIC,
   )
+
   check('role removal removes keyboard stop', !button.get_focusable())
   check('role removal updates public ref', buttonRef.current === button)
   props = { ...props, role: 'button' }
@@ -242,11 +269,15 @@ async function run() {
   await pause()
   events.length = 0
   down(button, Gdk.KEY_space)
+
   const stale = controller(button)
+
   props = { ...props, show: false }
   render()
   await pause()
+
   const count = events.length
+
   stale.emit('key-released', Gdk.KEY_space, 0, 0)
   check('disposed controller cannot activate', events.length === count)
   check(
@@ -260,6 +291,7 @@ async function run() {
       }
     })(),
   )
+
   root.unmount()
   await pause()
   check('all nodes disposed', container.nodes.size === 0)
@@ -275,6 +307,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

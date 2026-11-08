@@ -16,6 +16,7 @@ function busyStyles() {
   const source = readFileSync(new URL('../../ui/src/theme/tokens.css', import.meta.url), 'utf8')
   const start = source.indexOf('/* AppKit busy animation rules. */'),
     end = source.indexOf('/* AppKit busy animation rules end. */', start)
+
   assert.ok(start >= 0 && end > start)
   return source.slice(start, end)
 }
@@ -30,6 +31,7 @@ function animations(classes: string[]) {
     children: [],
     parent: null,
   }
+
   return computeCascade(node).animations.filter((info) => info.keyframes?.length)
 }
 
@@ -40,6 +42,7 @@ test('AppKit busy CSS selects rotation and percent slide tracks without matching
     colorScheme: 'light',
     reducedMotion: false,
   }))
+
   registerStylesheet('appkit-busy-source', busyStyles())
   try {
     const ring = animations(['vx-spinner', 'vx-spinner--appkit']),
@@ -48,10 +51,12 @@ test('AppKit busy CSS selects rotation and percent slide tracks without matching
     assert.equal(ring.length, 1)
     assert.equal(bar.length, 1)
     assert.equal(animations(['vx-progressbar-fill--appkit']).length, 0)
+
     const first = sampleKeyframeAnimation(ring[0], 0, {}),
       later = sampleKeyframeAnimation(ring[0], 400, {})
 
     assert.notEqual(first.values.rotate, later.values.rotate)
+
     const left = sampleKeyframeAnimation(bar[0], 0, { box: { width: 40, height: 8 } }),
       right = sampleKeyframeAnimation(bar[0], 600, { box: { width: 40, height: 8 } })
 
@@ -67,17 +72,20 @@ test('AppKit busy CSS selects rotation and percent slide tracks without matching
 
 test('AppKit busy rules remove and restore tracks when the reduced-motion environment refreshes', () => {
   let reduced = false
+
   setStyleEnvironment(() => ({
     width: 400,
     height: 300,
     colorScheme: 'light',
     reducedMotion: reduced,
   }))
+
   registerStylesheet('appkit-busy-reduce', busyStyles())
   registerStylesheet(
     'appkit-busy-generic-later',
     '.vx-spinner { animation:vx-appkit-spinner-turn .7s linear infinite }',
   )
+
   refreshMediaQueries()
   try {
     assert.equal(animations(['vx-spinner', 'vx-spinner--appkit']).length, 2)
@@ -101,6 +109,7 @@ test('AppKit busy rules remove and restore tracks when the reduced-motion enviro
 
 test('AppKit playback advances a percent slide and subtree stop restores base and retires ticking', (context) => {
   context.mock.timers.enable({ apis: ['Date', 'setTimeout'], now: 0 })
+
   const frames: any[] = []
   const api = createCssAnimations({
     nativeStyle: {
@@ -110,12 +119,14 @@ test('AppKit playback advances a percent slide and subtree stop restores base an
       },
     },
   })
+
   setStyleEnvironment(() => ({
     width: 400,
     height: 300,
     colorScheme: 'light',
     reducedMotion: false,
   }))
+
   registerStylesheet('appkit-busy-playback', busyStyles())
   try {
     const node = {
@@ -131,13 +142,16 @@ test('AppKit playback advances a percent slide and subtree stop restores base an
     )
 
     const first = frames.at(-1).translateX
+
     context.mock.timers.tick(600)
     assert.ok(frames.at(-1).translateX > first)
     assert.ok(Reflect.get(node, 'cssAnimation'))
     api.stopSubtreeAnimations(node)
     assert.equal(Reflect.get(node, 'cssAnimation'), undefined)
     assert.equal(frames.at(-1).translateX, 0)
+
     const stoppedFrames = frames.length
+
     context.mock.timers.tick(100)
     assert.equal(frames.length, stoppedFrames)
   } finally {

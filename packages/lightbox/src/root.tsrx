@@ -117,12 +117,14 @@ export const SlideContext: Context<SlideCtx | null> = createContext<SlideCtx | n
 type NativeProvider<T> = (props: { value: T; children?: unknown }) => unknown
 const LightboxProvider = LightboxContext as unknown as NativeProvider<LightboxCtx>
 const SlideProvider = SlideContext as unknown as NativeProvider<SlideCtx>
+
 export const InternalTriggersProvider = InternalTriggersContext as unknown as NativeProvider<
   Map<number, Set<any>>
 >
 
 export function useLightboxCtx(): LightboxCtx @{
   const ctx = useContext(LightboxContext)
+
   if (!ctx) {
     throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
   }
@@ -132,6 +134,7 @@ export function useLightboxCtx(): LightboxCtx @{
 
 export function useSlideCtx(): SlideCtx @{
   const slide = useContext(SlideContext)
+
   if (!slide) {
     throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')
   }
@@ -171,8 +174,11 @@ export function Root(props: LightboxRootProps): unknown @{
 
   const focusSession = useRef(0)
   const live = useRef(state)
+
   live.current = state
+
   const mounted = useRef(true)
+
   useLayoutEffect(() => {
     mounted.current = true
     return () => {
@@ -189,13 +195,16 @@ export function Root(props: LightboxRootProps): unknown @{
   const viewport = useRef<ViewportController | null>(null)
   const openTrigger = useRef<any>(null)
   const [hideTrigger] = useState(createNativeTriggerVisibility)
+
   useLayoutEffect(() => () => hideTrigger(null), [hideTrigger])
+
   const pendingFade = useRef<{ from: number; to: number } | null>(null)
   const closeVelocity = useRef<{ x: number; y: number } | undefined>(undefined)
 
   const pickTrigger = useEffectEvent(
     (i: number, scroll: 'auto' | 'instant' | 'smooth' | false): any => {
       const el = pickNativeTrigger(triggers.get(i) ?? [], openTrigger.current)
+
       if (el && scroll) {
         scrollTriggerIntoView(el, scroll === 'smooth' ? 'smooth' : 'instant')
       }
@@ -205,8 +214,11 @@ export function Root(props: LightboxRootProps): unknown @{
   )
 
   const onOpenChangeRef = useRef(onOpenChange)
+
   onOpenChangeRef.current = onOpenChange
+
   const onIndexChangeRef = useRef(onIndexChange)
+
   onIndexChangeRef.current = onIndexChange
 
   const runEffects = useEffectEvent((effects: RootEffect[]) => {
@@ -215,6 +227,7 @@ export function Root(props: LightboxRootProps): unknown @{
         case 'animateIn': {
           const index = live.current.index
           const image = images.get(index)
+
           if (!image) {
             break
           }
@@ -224,11 +237,15 @@ export function Root(props: LightboxRootProps): unknown @{
         }
         case 'animateOut': {
           const index = live.current.index
+
           viewport.current?.freeze(index)
+
           const trigger = pickTrigger(index, scrollTriggerOption === false ? false : 'instant')
           const image = images.get(index)
           const velocity = closeVelocity.current
+
           closeVelocity.current = undefined
+
           const animation = image
             ? image.animateOut(trigger, velocity)
             : presence
@@ -265,6 +282,7 @@ export function Root(props: LightboxRootProps): unknown @{
 
   const dispatch = useEffectEvent((action: RootAction) => {
     const next = reduce(live.current, action)
+
     if (action.kind === 'open' && next.state !== live.current) {
       focusSession.current++
     }
@@ -337,6 +355,7 @@ export function Root(props: LightboxRootProps): unknown @{
 
   const controlledOpen = props.isOpen ?? props.defaultOpen
   const firstControlled = useRef(false)
+
   useEffect(() => {
     if (controlledOpen === undefined) {
       return
@@ -372,6 +391,7 @@ export function Root(props: LightboxRootProps): unknown @{
 
   const indexProp = props.index ?? props.defaultIndex
   const prevIndexProp = useRef(indexProp)
+
   useEffect(() => {
     if (indexProp === undefined || indexProp === prevIndexProp.current) {
       return
@@ -385,11 +405,13 @@ export function Root(props: LightboxRootProps): unknown @{
 
   useLayoutEffect(() => {
     const jump = pendingFade.current
+
     if (!jump || state.phase !== 'open' || jump.to !== state.index) {
       return
     }
 
     pendingFade.current = null
+
     // The target may have been outside the render window. Begin only once
     // its content and the held source have committed.
     const timer = setTimeout(() => {
@@ -410,9 +432,12 @@ export function Root(props: LightboxRootProps): unknown @{
     }
 
     hideTrigger(pickTrigger(state.index, false))
+
     const trigger = pickTrigger(state.index, false)
+
     if (trigger && scrollTriggerOption && nativeVisibleFraction(trigger) < 0.99) {
       const timer = setTimeout(() => scrollTriggerIntoView(trigger, scrollTriggerOption), 150)
+
       return () => clearTimeout(timer)
     }
   }, [state.index, state.phase, scrollTriggerOption])
@@ -431,13 +456,16 @@ export function Root(props: LightboxRootProps): unknown @{
 export function Trigger(props: LightboxTriggerPartProps): unknown @{
   const ctx = useLightboxCtx()
   const ref = useRef<any>(null)
+
   useLayoutEffect(() => {
     const v = ref.current
+
     if (!v) {
       return
     }
 
     let set = ctx.triggers.get(props.index)
+
     if (!set) {
       set = new Set()
       ctx.triggers.set(props.index, set)
@@ -448,6 +476,7 @@ export function Trigger(props: LightboxTriggerPartProps): unknown @{
   }, [ctx.triggers, props.index])
 
   const active = ctx.phase !== 'closed' && ctx.index === props.index
+
   return (
     <Pressable
       ref={ref as never}
@@ -472,8 +501,10 @@ export function Trigger(props: LightboxTriggerPartProps): unknown @{
 export function Backdrop(props: LightboxPartProps): unknown @{
   const ctx = useLightboxCtx()
   const ref = useRef<any>(null)
+
   useLayoutEffect(() => {
     const v = ref.current
+
     if (!v) {
       return
     }
@@ -523,22 +554,28 @@ export function Popup(props: LightboxPartProps): unknown @{
   const ctx = useLightboxCtx()
   const host = useRef<View | null>(null)
   const latest = useRef(ctx)
+
   latest.current = ctx
+
   const pendingFocus = useRef<(() => void) | null>(null)
   const shown = ctx.phase !== 'closed'
+
   useLayoutEffect(() => {
     if (!shown) {
       return
     }
 
     pendingFocus.current?.()
+
     const layer = host.current?.parent
     const session = ctx.focusSession
+
     return () => {
       pendingFocus.current = restoreNativeFocus(
         layer,
         () => {
           const current = latest.current
+
           return [
             current.options.finalFocusRef?.current,
             current.pickTrigger(current.index, false),
@@ -565,7 +602,9 @@ export function Popup(props: LightboxPartProps): unknown @{
       }
 
       ctx.presence.set(0)
+
       const animation = ctx.presence.animate(1, ctx.options.open)
+
       stop = () => animation.stop()
       void animation.finished.then((result) => {
         if (active && result === 'finished') {
@@ -614,6 +653,7 @@ export function Popup(props: LightboxPartProps): unknown @{
 
 export function Viewport(props: LightboxPartProps): unknown @{
   const ctx = useLightboxCtx()
+
   return (
     <Track
       className={cx('vx-lightbox-viewport', props.className)}
@@ -643,6 +683,7 @@ export function Slide(props: LightboxSlidePartProps): unknown @{
   const index = props.index
   const near = Math.abs(ctx.index - index) <= 2 || index === ctx.held
   const current = ctx.index === index
+
   return (
     <SlideProvider value={{ index, onTap: props.onTap }}>
       <masonview
@@ -663,6 +704,7 @@ export function Slide(props: LightboxSlidePartProps): unknown @{
 
 export function Close(props: LightboxPartProps & { onPress?: () => void }): unknown {
   const ctx = useLightboxCtx()
+
   return (
     <Pressable
       className={cx('vx-lightbox-close', props.className)}
@@ -683,6 +725,7 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) @{
   const ctx = useLightboxCtx()
   const target = ctx.index + props.step
   const disabled = target < 0 || target >= ctx.items.length
+
   return (
     <Pressable
       disabled={disabled}
@@ -709,6 +752,7 @@ export function Title(props: LightboxPartProps): unknown @{
   const ctx = useLightboxCtx()
   const ref = useRef<Label | null>(null)
   const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children, ref)
+
   return (
     <label
       ref={ref}
@@ -726,6 +770,7 @@ export function Description(props: LightboxPartProps): unknown @{
   const ctx = useLightboxCtx()
   const ref = useRef<Label | null>(null)
   const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children, ref)
+
   return (
     <label
       ref={ref}
@@ -744,6 +789,7 @@ export function Description(props: LightboxPartProps): unknown @{
 export function useLightboxState<T extends LightboxMedia = LightboxMedia>(): UseLightboxState<T> {
   const ctx = useLightboxCtx()
   const image = () => ctx.images.get(ctx.index)
+
   return {
     items: ctx.items as T[],
     item: ctx.items[ctx.index] as T,

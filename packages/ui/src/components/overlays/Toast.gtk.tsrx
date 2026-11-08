@@ -21,6 +21,7 @@ export function Toast(props: ToastProps): unknown @{
   const el = useRef<any>(null)
   const dismissed = useRef(false)
   const onDismiss = useRef(props.onDismiss)
+
   onDismiss.current = props.onDismiss
 
   const dismiss = (reason: 'auto' | 'manual' = 'auto') => {
@@ -38,11 +39,13 @@ export function Toast(props: ToastProps): unknown @{
     }
 
     const timer = setTimeout(() => dismiss('auto'), duration)
+
     return () => clearTimeout(timer)
   }, [autoHide, duration])
 
   useEffect(() => {
     const view = el.current
+
     if (!view?.on) {
       return
     }

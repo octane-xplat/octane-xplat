@@ -97,6 +97,7 @@ export class OwnedResources {
   private async runOne(cleanup: StoryCleanup, late = false): Promise<void> {
     try {
       const work = cleanup()
+
       await (late ? withTimeout(Promise.resolve(work), this.lateTimeout, () => {}) : work)
     } catch (error) {
       this.failures.push({ cleanup, error })
@@ -109,7 +110,9 @@ export class OwnedResources {
   /** Unwind in reverse registration order; every entry is attempted. */
   async dispose(): Promise<{ errors: unknown[] }> {
     this.settled = true
+
     const entries = this.cleanups.splice(0)
+
     // Start every cleanup in reverse ownership order. A hung cleanup must
     // not prevent siblings from being attempted before the global timeout.
     await Promise.all(entries.reverse().map((cleanup) => this.runOne(cleanup)))
@@ -140,6 +143,7 @@ export async function withTimeout<T>(
   onTimeout: () => void,
 ): Promise<T> {
   let timer: ReturnType<typeof setTimeout> | undefined
+
   try {
     return await Promise.race([
       Promise.resolve(value),

@@ -14,6 +14,7 @@ export const CHECKS: ParityCheck[] = [
       const expectedWidth = ({ web: 182, ios: 184, android: 181.71 } as Record<string, number>)[
         target
       ]
+
       const rows: CheckRow[] = [
         dims(m('panel'), 200, 96),
         ['command list has a visible frame', list.box.w > 0 && list.box.h > 0],

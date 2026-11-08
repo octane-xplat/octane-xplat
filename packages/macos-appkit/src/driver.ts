@@ -60,6 +60,7 @@ export function createDriver(deps: Dependencies) {
       }
 
       const node = container.nodes.get(id)
+
       return node ? deps.registry.parentReference(node.parent) : undefined
     }
 
@@ -94,15 +95,18 @@ export function createDriver(deps: Dependencies) {
           continue
         case 'recreate': {
           const entry = known(command.id)
+
           if (!entry) {
             throw new Error('Unknown AppKit node ' + command.id)
           }
 
           deps.registry.assertSupportedType(command.type)
           deps.nodes.validateNodeProps(command.type, command.props)
+
           const existing = container.nodes.get(command.id)
           const parentId = parentOf(command.id) ?? null
           const parent = parentNode(parentId)
+
           deps.tree.validateTextNesting(parent?.type, command.type)
           if (
             ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
@@ -132,6 +136,7 @@ export function createDriver(deps: Dependencies) {
         }
         case 'update': {
           const entry = known(command.id)
+
           if (!entry) {
             throw new Error('Unknown AppKit node ' + command.id)
           }
@@ -142,12 +147,14 @@ export function createDriver(deps: Dependencies) {
         case 'insert':
         case 'move': {
           const entry = known(command.id)
+
           if (!entry) {
             throw new Error('Unknown AppKit node ' + command.id)
           }
 
           const parentId = command.parent
           const parent = parentNode(parentId)
+
           deps.tree.validateTextNesting(parent?.type, entry.type)
           if (parentId !== null) {
             if (!parent) {
@@ -182,6 +189,7 @@ export function createDriver(deps: Dependencies) {
           }
 
           const seen = new Set([command.id])
+
           for (
             let ancestor: UniversalHostParent = parentId;
             typeof ancestor === 'number';
@@ -229,6 +237,7 @@ export function createDriver(deps: Dependencies) {
         // A retried batch can re-create an id the earlier attempt already
         // registered — release the previous node instead of orphaning it.
         const existing = container.nodes.get(command.id)
+
         if (
           ['masonview', 'contentview', 'actionbar', 'rootlayout'].includes(
             existing?.parent?.type ?? '',
@@ -254,6 +263,7 @@ export function createDriver(deps: Dependencies) {
       }
       case 'update': {
         const node = container.nodes.get(command.id)
+
         if (!node) {
           throw new Error('Unknown AppKit node ' + command.id)
         }
@@ -261,6 +271,7 @@ export function createDriver(deps: Dependencies) {
         // node.props records what applied — restore it when a prop throws
         // mid-update so the bookkeeping doesn't claim unapplied props.
         const previousProps = node.props
+
         try {
           // Host updates carry the complete current prop bag; a key that
           // vanished must read as removed and reset what it installed.
@@ -278,6 +289,7 @@ export function createDriver(deps: Dependencies) {
       case 'insert':
       case 'move': {
         const node = container.nodes.get(command.id)
+
         if (!node) {
           throw new Error('Unknown AppKit node ' + command.id)
         }
@@ -287,6 +299,7 @@ export function createDriver(deps: Dependencies) {
       }
       case 'remove': {
         const node = container.nodes.get(command.id)
+
         if (node) {
           deps.tree.remove(container, command.parent, node)
         }
@@ -295,6 +308,7 @@ export function createDriver(deps: Dependencies) {
       }
       case 'destroy': {
         const node = container.nodes.get(command.id)
+
         if (node) {
           deps.nodes.destroy(node)
         }
@@ -307,6 +321,7 @@ export function createDriver(deps: Dependencies) {
       }
       case 'visibility': {
         const node = container.nodes.get(command.id)
+
         if (node?.view) {
           node.view.hidden = command.state === 'hidden'
         }
@@ -317,11 +332,13 @@ export function createDriver(deps: Dependencies) {
         return
       case 'recreate': {
         const node = container.nodes.get(command.id)
+
         if (!node) {
           throw new Error('Unknown AppKit node ' + command.id)
         }
 
         const parent = node.parent
+
         if (
           ['masonview', 'contentview', 'actionbar', 'rootlayout', 'proxyviewcontainer'].includes(
             parent?.type ?? '',
@@ -348,6 +365,7 @@ export function createDriver(deps: Dependencies) {
         const beforeId = index < 0 ? null : (siblings[index + 1]?.id ?? null)
         const parentId = deps.registry.parentReference(parent)
         const failures = new FailureCollector()
+
         failures.run('recreate removal', () => deps.tree.remove(container, parentId, node))
         failures.run('recreate disposal', () => deps.nodes.destroy(node))
         if (failures.failed) {
@@ -374,11 +392,13 @@ export function createDriver(deps: Dependencies) {
         }
 
         const owner = deps.registry.nodeContainersByView.get(target)
+
         if (owner && owner !== container) {
           throw new Error('AppKit portal target belongs to another Octane root.')
         }
 
         let id = container.portalTargetIds.get(target)
+
         if (id === undefined) {
           id = container.nextPortalTargetId++
           container.portalTargetIds.set(target, id)
@@ -386,6 +406,7 @@ export function createDriver(deps: Dependencies) {
 
         const handle = createPortalTargetHandle(id)
         let registration = container.portalTargets.get(handle)
+
         if (registration && registration.root.view !== target) {
           throw new Error('AppKit portal target handle resolved to a different NSView.')
         }
@@ -423,7 +444,9 @@ export function createDriver(deps: Dependencies) {
         }
 
         registration.registrations++
+
         let released = false
+
         return {
           handle,
           release() {
@@ -438,6 +461,7 @@ export function createDriver(deps: Dependencies) {
             }
 
             let cleanupError: unknown
+
             for (const child of registration!.root.children.slice()) {
               try {
                 deps.tree.detach(container, child)
@@ -470,6 +494,7 @@ export function createDriver(deps: Dependencies) {
             container,
             () => {
               const failures = new FailureCollector()
+
               failures.run('commands', () => {
                 for (const command of batch.commands) {
                   try {
@@ -492,11 +517,13 @@ export function createDriver(deps: Dependencies) {
                   }
                 }
               })
+
               failures.run('css', () => {
                 // Restyle while the layout batch is open so style-driven layout
                 // work joins the batch's single drain.
                 deps.cssCascade.flushStyleDirty(container!)
               })
+
               failures.throwIfFailed()
             },
             (dirty, outcome) => {
@@ -505,6 +532,7 @@ export function createDriver(deps: Dependencies) {
               if (outcome === 'failed') {
                 return
               }
+
               flushTabViews(container)
               deps.layout.drainLayoutDirty(dirty)
               notifyLayoutCommit(container.hostView)
@@ -516,9 +544,11 @@ export function createDriver(deps: Dependencies) {
     },
     getPublicInstance(container, id) {
       const node = container.nodes.get(id)
+
       return node?.adapter?.publicInstance === 'node' ? node : (node?.view ?? null)
     },
   }
+
   return {
     macOSDriver,
   }

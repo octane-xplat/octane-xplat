@@ -14,7 +14,9 @@ export function ensureThemeCss(theme: DefinedTheme): void {
   if (injected.has(theme.name)) {
     return
   }
+
   const el = document.createElement('style')
+
   el.setAttribute('data-xds-theme-css', theme.name)
   el.textContent = generateThemeCss(theme, { target: 'web' })
   document.head.appendChild(el)
@@ -35,6 +37,7 @@ export function syncDocumentRootTheme(name: string, mode: 'light' | 'dark'): () 
   const prevScheme = root.style.colorScheme
   const scopeClass = themeScopeClass(name)
   const modeClasses = mode === 'dark' ? ['dark', 'ns-dark'] : ['xds-light']
+
   root.setAttribute('data-xds-theme', name)
   root.classList.add('xds-theme', scopeClass, ...modeClasses)
   root.style.colorScheme = mode
@@ -44,6 +47,7 @@ export function syncDocumentRootTheme(name: string, mode: 'light' | 'dark'): () 
     } else {
       root.setAttribute('data-xds-theme', prev)
     }
+
     root.classList.remove('xds-theme', scopeClass, ...modeClasses)
     root.style.colorScheme = prevScheme
   }

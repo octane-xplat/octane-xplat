@@ -23,7 +23,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -46,12 +48,14 @@ const findText = (text: string): any => {
       // ancestor so the click lands on the owning control.
       for (let cur: any = n; cur; cur = cur.parent) {
         const v = cur.view
+
         if (v && typeof v.compute_bounds === 'function') {
           return v
         }
       }
     } catch {}
   }
+
   return null
 }
 
@@ -61,6 +65,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -72,14 +77,17 @@ const hasText = (id: string, text: string): boolean => {
           if (!node) {
             return false
           }
+
           if (JSON.stringify(node.props).includes(text)) {
             return true
           }
+
           for (const c of node.children ?? []) {
             if (probe(c)) {
               return true
             }
           }
+
           return false
         }
 
@@ -87,6 +95,7 @@ const hasText = (id: string, text: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -95,6 +104,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -105,12 +115,14 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error(
       'No native input bounds for ' +
@@ -119,9 +131,11 @@ const point = (widget: any): { x: number; y: number } => {
           JSON.stringify(widget && Object.keys(widget).slice(0, 6))),
     )
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -130,7 +144,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -143,17 +159,20 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
@@ -240,12 +259,14 @@ async function run() {
     'unmount returns popover chrome refcount',
     ((container as any).popoverChromeUsers?.() ?? 0) === 0,
   )
+
   check('teardown clears overlay layers', overlayChildren() === 0)
 
   print(
     'GTK_OVERLAYS ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 

@@ -7,6 +7,7 @@ import { createServer } from 'vite'
 const webDir = fileURLToPath(new URL('..', import.meta.url))
 const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -33,12 +34,17 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await browserType.launch()
+
   const page = await browser.newPage()
+
   page.setDefaultTimeout(10000)
+
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
 
   page.on('console', (message) => {
@@ -48,12 +54,14 @@ try {
   })
 
   const address = server.httpServer.address()
+
   assert(address && typeof address === 'object')
   await page.goto(`http://127.0.0.1:${address.port}/__sheet_readiness`)
   await page.locator('#open-platform-sheet').waitFor()
 
   const dialog = page.getByRole('dialog', { name: 'Account actions' })
   const panel = page.locator('#platform-sheet-panel')
+
   await page.locator('#open-platform-sheet').click()
   await dialog.waitFor()
   assert.equal(await panel.isVisible(), true)
@@ -115,8 +123,10 @@ try {
 
   await page.locator('#open-platform-sheet').click()
   await dialog.waitFor()
+
   const handle = page.locator('.xplat-web-sheet-handle')
   const bounds = await handle.boundingBox()
+
   assert(bounds)
   await page.mouse.move(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2)
   await page.mouse.down()
@@ -138,14 +148,18 @@ try {
   console.log(`[${browserName}] explicit close restores focus without reporting user dismissal`)
 
   await page.locator('#open-locked-platform-sheet').click()
+
   const lockedDialog = page.getByRole('dialog', { name: 'Required actions' })
+
   await lockedDialog.waitFor()
   await page.keyboard.press('Escape')
   assert.equal(await lockedDialog.isVisible(), true)
   await lockedDialog.click({ position: { x: 4, y: 4 } })
   assert.equal(await lockedDialog.isVisible(), true)
+
   const lockedHandle = page.locator('.xplat-web-sheet-handle')
   const lockedBounds = await lockedHandle.boundingBox()
+
   assert(lockedBounds)
   await page.mouse.move(
     lockedBounds.x + lockedBounds.width / 2,

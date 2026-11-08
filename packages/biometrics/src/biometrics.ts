@@ -18,6 +18,7 @@ const available = async (): Promise<PermissionResponse> => {
     // Android reports `any` for a secure lockscreen without biometrics —
     // verify() requires BIOMETRIC_STRONG, so that state is not usable.
     const usable = !!(r.any && (isIOS || r.biometrics))
+
     return {
       status: usable ? 'granted' : 'unsupported',
       granted: usable,
@@ -52,6 +53,7 @@ export const biometrics: Permissioned<BiometricsImpl> = {
         : { title: reason }
 
       const r = await bio.verifyBiometric(options)
+
       return r.code === 0
     } catch {
       return false

@@ -13,6 +13,7 @@ for (const source of [
     // The baked literal is JSON — normalize the runtime doc the same way so
     // explicit `undefined` fields (absent keys after JSON) compare equal.
     const doc = JSON.parse(JSON.stringify(parseMdDoc(source)))
+
     assert.deepEqual(mdToDoc(source), doc)
   })
 }

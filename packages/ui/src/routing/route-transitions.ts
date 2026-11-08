@@ -10,6 +10,7 @@ export function defineTransitions<const Definitions extends TransitionRegistry>(
   definitions: Definitions,
 ): Definitions {
   const snapshot: Record<string, TransitionRegistry[string]> = {}
+
   for (const [name, definition] of Object.entries(definitions)) {
     if (!name || ['default', 'none', 'fade'].includes(name)) {
       throw new TypeError(`Reserved or empty route transition name: ${name}`)
@@ -21,6 +22,7 @@ export function defineTransitions<const Definitions extends TransitionRegistry>(
 
     if (definition.kind === 'web') {
       const options = definition.options
+
       if (!options || typeof options !== 'object') {
         throw new TypeError(`Invalid browser transition options: ${name}`)
       }
@@ -45,5 +47,6 @@ export function defineTransitions<const Definitions extends TransitionRegistry>(
       })
     }
   }
+
   return Object.freeze(snapshot) as Definitions
 }

@@ -41,8 +41,11 @@ function Parent() @{
 describe('createStore + useStore (DOM renderer)', () => {
   it('parent store subscription re-renders a bare-read child too (DOM semantics)', () => {
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Parent />))
     expect(el.querySelector('.bare')!.textContent).toBe('0')
     expect(el.querySelector('.subbed')!.textContent).toBe('0')

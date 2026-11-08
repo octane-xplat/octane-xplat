@@ -4,7 +4,9 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { Scrollable, scrollRefs } from './ui-scroll.gtk.tsrx'
+
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK scroll test',
   default_width: 300,
@@ -13,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -35,6 +39,7 @@ const check = (label: string, ok: boolean) => {
   if (!ok) {
     throw new Error(label)
   }
+
   checks++
 }
 
@@ -43,11 +48,14 @@ async function run() {
   root.render(Scrollable, props)
   window.present()
   await pause(250)
+
   const view = scrollRefs.viewport
+
   check(
     'headless refs bind real viewport and content',
     view instanceof Gtk.ScrolledWindow && scrollRefs.content instanceof Gtk.Widget,
   )
+
   check(
     'adjustments expose browser-shaped dimensions',
     view.scrollWidth === 600 &&
@@ -57,6 +65,7 @@ async function run() {
       view.clientHeight > 0 &&
       view.clientHeight <= 100,
   )
+
   check(
     'hook observes overflow on both axes',
     scrollRefs.state.inline.isScrollable &&
@@ -66,12 +75,14 @@ async function run() {
       scrollRefs.state.block.atStart &&
       !scrollRefs.state.block.atEnd,
   )
+
   let calls = 0
   let event: any
   const listener = (value: any) => {
     calls++
     event = value
   }
+
   view.on('scroll', listener)
   view.scrollLeft = 30
   view.scrollTop = 40
@@ -80,10 +91,12 @@ async function run() {
     'offset writes move native adjustments',
     view.get_hadjustment().get_value() === 30 && view.get_vadjustment().get_value() === 40,
   )
+
   check(
     'scroll subscriptions report the actual widget and offsets',
     calls >= 2 && event.object === view && event.scrollX === 30 && event.scrollY === 40,
   )
+
   check(
     'hook updates interior edge flags',
     !scrollRefs.state.inline.atStart &&
@@ -91,8 +104,11 @@ async function run() {
       !scrollRefs.state.block.atStart &&
       !scrollRefs.state.block.atEnd,
   )
+
   view.off('scroll', listener)
+
   const stopped = calls
+
   view.scrollToVerticalOffset(1e6, false)
   view.scrollToHorizontalOffset(1e6, false)
   await pause()
@@ -101,10 +117,12 @@ async function run() {
     view.scrollTop === view.scrollHeight - view.clientHeight &&
       view.scrollLeft === view.scrollWidth - view.clientWidth,
   )
+
   check(
     'removing one listener preserves the hook subscription',
     calls === stopped && scrollRefs.state.inline.atEnd && scrollRefs.state.block.atEnd,
   )
+
   view.scrollToVerticalOffset(-100)
   view.scrollToHorizontalOffset(-100)
   await pause()
@@ -115,6 +133,7 @@ async function run() {
     'animated offset samples an intermediate position',
     view.scrollTop > 0 && view.scrollTop < 200,
   )
+
   await pause(300)
   check('animated offset reaches its target', view.scrollTop === 200)
   view.scrollToVerticalOffset(250, true)
@@ -139,6 +158,7 @@ async function run() {
       view.clientHeight <= 100 &&
       view.scrollHeight > view.clientHeight,
   )
+
   root.render(Scrollable, { ...props, axis: 'block', width: 200 })
   await pause()
   check(
@@ -149,8 +169,10 @@ async function run() {
       !scrollRefs.state.inline.isScrollable &&
       scrollRefs.state.block.isScrollable,
   )
+
   let layouts = 0
   const layout = () => layouts++
+
   view.on('layoutChanged', layout)
   root.render(Scrollable, { ...props, axis: 'block', width: 200, height: 60 })
   await pause()
@@ -162,6 +184,7 @@ async function run() {
       scrollRefs.state.block.atEnd &&
       layouts > 0,
   )
+
   view.off('layoutChanged', layout)
   root.render(Scrollable, { ...props, axis: 'inline', height: 60 })
   await pause()
@@ -172,6 +195,7 @@ async function run() {
       scrollRefs.state.inline.isScrollable &&
       !scrollRefs.state.block.isScrollable,
   )
+
   root.render(Scrollable, { ...props, axis: 'block', width: 200 })
   await pause()
   view.scrollTop = 0
@@ -182,14 +206,17 @@ async function run() {
         reject(new Error('OS wheel timeout'))
         return false
       })
+
       const wheel = () => {
         if (view.scrollTop <= 0) {
           return
         }
+
         view.off('scroll', wheel)
         GLib.source_remove(timeout)
         resolve()
       }
+
       view.on('scroll', wheel)
       print('GTK_UI_SCROLL_READY')
     })
@@ -197,6 +224,7 @@ async function run() {
     osWheel = true
     check('actual X11 wheel input scrolls the GTK viewport', view.scrollTop > 0)
   }
+
   view.scrollToVerticalOffset(200, true)
   root.unmount()
   await pause(350)
@@ -208,12 +236,14 @@ async function run() {
       view.scrollTop === 0 &&
       view.scrollHeight === 0,
   )
+
   view.scrollToVerticalOffset(200, true)
   await pause(300)
   check(
     'stale scroll handles cannot revive disposed widgets',
     view.scrollTop === 0 && container.nodes.size === 0,
   )
+
   window.destroy()
   print(
     'GTK_UI_SCROLL ' +
@@ -226,6 +256,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error

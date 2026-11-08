@@ -26,14 +26,19 @@ const repo = fileURLToPath(new URL('../../../', import.meta.url))
 // prints the exact install-native command.
 function repairNativeCli(dir) {
   const unrepaired = spawnSync('bun', ['run', 'xplat', '--version'], { cwd: dir, encoding: 'utf8' })
+
   assert.notEqual(unrepaired.status, 0)
+
   const repair = unrepaired.stderr.match(/^\s*node "(.+install-native\.mjs)"$/m)
+
   assert.ok(repair, unrepaired.stderr)
   run(process.execPath, [repair[1]], dir)
 }
 
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/toolchain')
+
 mkdirSync(scratch, { recursive: true })
+
 const root = mkdtempSync(join(scratch, 'consumer-'))
 const json = (file) => JSON.parse(readFileSync(file, 'utf8'))
 const write = (file, value) => writeFileSync(file, JSON.stringify(value, null, 2) + '\n')
@@ -53,9 +58,11 @@ try {
       .filter((entry) => entry.isDirectory())
       .flatMap((entry) => {
         const path = join(repo, 'packages', entry.name)
+
         if (!existsSync(join(path, 'package.json'))) {
           return []
         }
+
         return [[json(join(path, 'package.json')).name, path]]
       }),
   )
@@ -65,9 +72,11 @@ try {
     if (overrides[name]) {
       return
     }
+
     const path = workspaces.get(name)
     const pkg = json(join(path, 'package.json'))
     const tarball = join(root, `${name.replaceAll(/[@/]/g, '-')}.tgz`)
+
     run('bun', ['pm', 'pack', '--ignore-scripts', '--filename', tarball], path)
     overrides[name] = `file:${tarball}`
     for (const dependency of Object.keys(pkg.dependencies ?? {})) {
@@ -78,6 +87,7 @@ try {
   }
 
   pack('octane-xplat')
+
   // The published CLI is the staged production layout: postinstall selects
   // the host payload out of optionalDependencies.
   const nativeDir = nativeFixture(
@@ -103,11 +113,15 @@ try {
   // The umbrella now supplies lint/fmt to consumers; pack them into the
   // overrides so their workspace versions resolve.
   pack('@octane-xplat/lint')
+
   const { composeTargets } = await import('../../create/dist/scaffold.js')
   const app = join(root, 'app')
+
   composeTargets(['web'], app)
+
   const template = json(join(app, 'package.json'))
   const pins = template.workspaces.catalogs.xplat
+
   // A minimal app isolates the development toolchain from framework UI features.
   write(join(app, 'package.json'), {
     name: 'toolchain-consumer',
@@ -163,6 +177,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
 
   run('bun', ['install'], app)
   repairNativeCli(app)
+
   const cliBin = join(
     app,
     `node_modules/.bun/${readdirSync(join(app, 'node_modules/.bun')).find((d) => d.startsWith('@octane-xplat+cli@'))}/node_modules/@octane-xplat/cli/bin/xplat.exe`,
@@ -203,6 +218,7 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
   run('bun', ['run', 'xplat', 'build', '--targets', 'web'], app)
   assert.match(readFileSync(join(app, 'dist/index.html'), 'utf8'), /assets/)
   writeFileSync(join(app, 'main.web.tsrx'), 'const broken: number = "wrong"\n')
+
   const failure = spawnSync('bun', ['run', 'xplat', 'typecheck'], {
     cwd: app,
     encoding: 'utf8',
@@ -211,9 +227,13 @@ export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBound
 
   assert.notEqual(failure.status, 0)
   assert.match(failure.stdout + failure.stderr, /TS2322/)
+
   const starter = join(root, 'starter')
+
   composeTargets(['web'], starter)
+
   const starterManifest = json(join(starter, 'package.json'))
+
   for (const section of ['dependencies', 'devDependencies']) {
     for (const name of Object.keys(starterManifest[section] ?? {})) {
       if (workspaces.has(name)) {

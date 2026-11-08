@@ -20,16 +20,19 @@ function videoFixture() {
       throw failures.get(name)
     }
   }
+
   Object.assign(NSObject.prototype, {
     init() {
       return this
     },
   })
+
   Object.assign(AVPlayerView.prototype, {
     initWithFrame() {
       return this
     },
   })
+
   Object.assign(AVPlayer.prototype, {
     init() {
       return this
@@ -59,11 +62,13 @@ function videoFixture() {
       run('pause')
     },
   })
+
   Object.assign(NSNotificationCenter.defaultCenter, {
     removeObserver() {
       run('notification unobserve')
     },
   })
+
   const view = makeVideoView()
   let calls = 0
   const node: any = {
@@ -79,6 +84,7 @@ function videoFixture() {
       },
     },
   }
+
   const props = {
     observeCurrentTime: true,
     onCurrentTimeUpdated() {
@@ -88,6 +94,7 @@ function videoFixture() {
       calls++
     },
   }
+
   updateVideoView(node, props)
   return {
     trace,
@@ -103,6 +110,7 @@ function videoFixture() {
 
 test('video KVO resolves the observed player to its live surface owner', () => {
   const f = videoFixture()
+
   f.view.player.timeControlStatus = 2
   f.observer()['observeValueForKeyPath:ofObject:change:context:'](
     'timeControlStatus',
@@ -110,26 +118,33 @@ test('video KVO resolves the observed player to its live surface owner', () => {
     null,
     null,
   )
+
   assert.equal(f.calls(), 1)
   disposeVideoView(f.view)
 })
 
 test('video retires held time callbacks and continues independent release after observer failure', () => {
   const f = videoFixture()
+
   f.callbacks[0]({ seconds: 1 })
   assert.equal(f.calls(), 1)
+
   const failure = Error('time observer release')
+
   f.failures.set('time unobserve', failure)
   assert.throws(
     () => disposeVideoView(f.view),
     (error) => error === failure,
   )
+
   assert.ok(f.trace.includes('player unobserve'))
   assert.ok(f.trace.includes('pause'))
   assert.equal(f.view.player, null)
   f.callbacks[0]({ seconds: 2 })
   assert.equal(f.calls(), 1)
+
   const count = f.trace.length
+
   disposeVideoView(f.view)
   assert.equal(f.trace.length, count)
 })

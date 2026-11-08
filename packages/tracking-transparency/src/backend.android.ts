@@ -2,6 +2,7 @@ import { Application } from '@nativescript/core'
 import { UnavailabilityError } from '@octane-xplat/lib/capability'
 import { lookupGlobal } from '@octane-xplat/lib/capability'
 import type { TrackingBackend } from './backend-types'
+
 interface Engine {
   Callback: new (implementation: { receive(json: string): void }) => object
   available(context: android.content.Context): boolean
@@ -20,9 +21,11 @@ function engine(): Engine | undefined {
 
 function context(): android.content.Context {
   const context = Application.android.context as android.content.Context | undefined
+
   if (!context) {
     throw new Error('An initialized Android app is required')
   }
+
   return context
 }
 
@@ -52,22 +55,26 @@ export const backend: TrackingBackend = {
   advertisingIdAsync: () =>
     new Promise<string | null>((resolve, reject) => {
       const native = engine()
+
       if (!native) {
         throw new UnavailabilityError(
           'Native Android advertising ID bridge; rebuild the app after installation',
         )
       }
+
       native.readAdvertisingId(
         context(),
         new native.Callback({
           receive(json) {
             try {
               const value: unknown = JSON.parse(json)
+
               if (!value || typeof value !== 'object') {
                 throw new Error('Malformed advertising identifier reply')
               }
 
               const reply = value as IdentifierReply
+
               if (typeof reply.error === 'string') {
                 throw new Error(reply.error)
               }

@@ -180,6 +180,7 @@ export function TokenSlider({
 }) {
   const { rawToken, setToken } = useMotionLab()
   const value = parseMs(rawToken(token))
+
   return (
     <div className={cx('ml-sliderRow')}>
       <Slider
@@ -294,6 +295,7 @@ export function Runner({
   const run = useCallback(() => {
     const dot = dotRef.current
     const track = trackRef.current
+
     if (dot == null || track == null) {
       return
     }
@@ -303,6 +305,7 @@ export function Runner({
     }
 
     const distance = Math.max(0, track.clientWidth - 36)
+
     dot.animate([{ transform: 'translateX(0)' }, { transform: `translateX(${distance}px)` }], {
       duration: Math.max(1, scaledMs(durationToken)),
       easing: rawToken(easeToken) || 'linear',
@@ -321,6 +324,7 @@ export function Runner({
 
     const period = Math.max(900, scaledMs(durationToken) + 900)
     const id = window.setInterval(run, period)
+
     return () => window.clearInterval(id)
   }, [auto, isLooping, run, scaledMs, durationToken])
 
@@ -382,6 +386,7 @@ export function CurveEditor({
     (event: any) => {
       const handle = dragging.current
       const svg = svgRef.current
+
       if (handle == null || svg == null) {
         return
       }
@@ -406,6 +411,7 @@ export function CurveEditor({
       const ix = handle === 0 ? 0 : 2
       const iy = handle === 0 ? 1 : 3
       const next = [...points] as [number, number, number, number]
+
       next[ix] = Math.min(1, Math.max(0, next[ix] + dx))
       next[iy] = Math.min(yMax, Math.max(yMin, next[iy] + dy))
       commit(next as unknown as BezierPoints)
@@ -423,6 +429,7 @@ export function CurveEditor({
     }
 
     const delta = map[event.key]
+
     if (delta != null) {
       event.preventDefault()
       nudge(handle, delta[0], delta[1])
@@ -480,6 +487,7 @@ export function CurveEditor({
         {([0, 1] as const).map((handle) => {
           const cx = handle === 0 ? points[0] : points[2]
           const cy = handle === 0 ? points[1] : points[3]
+
           return (
             <circle
               key={handle}
@@ -531,6 +539,7 @@ export { isNamedCurve }
 export function useReplay(run: () => void) {
   const { replayNonce } = useMotionLab()
   const ref = useRef(run)
+
   useLayoutEffect(() => {
     ref.current = run
   })
@@ -544,6 +553,7 @@ export function useReplay(run: () => void) {
 export function useLoop(run: () => void, periodMs: number) {
   const { isLooping, replayNonce } = useMotionLab()
   const ref = useRef(run)
+
   useLayoutEffect(() => {
     ref.current = run
   })
@@ -555,6 +565,7 @@ export function useLoop(run: () => void, periodMs: number) {
     }
 
     const id = window.setInterval(() => ref.current(), Math.max(700, periodMs))
+
     return () => window.clearInterval(id)
   }, [isLooping, periodMs, replayNonce])
 }

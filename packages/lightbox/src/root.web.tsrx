@@ -105,6 +105,7 @@ export const SlideContext: Context<SlideCtx | null> = createContext<SlideCtx | n
 
 export function useLightboxCtx(): LightboxCtx {
   const ctx = useContext(LightboxContext)
+
   if (!ctx) {
     throw new Error('Lightbox parts must be used inside <Lightbox.Root>.')
   }
@@ -114,6 +115,7 @@ export function useLightboxCtx(): LightboxCtx {
 
 export function useSlideCtx(): SlideCtx {
   const slide = useContext(SlideContext)
+
   if (!slide) {
     throw new Error('<Lightbox.Image> must be inside <Lightbox.Slide>.')
   }
@@ -148,7 +150,9 @@ export function Root(props: LightboxRootProps): JSX.Element {
   const maxZoom = props.hasZoom === false ? 1 : requestedMaxZoom
   const [state, setState] = useState(initialState)
   const live = useRef(state)
+
   live.current = state
+
   const reducedMotion = useReducedMotion() ?? false
   const presence = useMotionValue(0)
   const progress = useMotionValue(0)
@@ -177,8 +181,10 @@ export function Root(props: LightboxRootProps): JSX.Element {
       const opened = list.find((el) => el === openTrigger.current && visibleFraction(el) > 0)
       let best: HTMLElement | null = null
       let seen = 0
+
       for (const el of list) {
         const v = visibleFraction(el)
+
         if (v > seen + 0.01) {
           ;[best, seen] = [el, v]
         }
@@ -186,6 +192,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
 
       const el = opened ?? best ?? list[0] ?? null
       const v = el ? visibleFraction(el) : 1
+
       if (el && scroll && v < 0.99) {
         el.scrollIntoView?.({
           block: v > 0 ? 'nearest' : 'center',
@@ -199,6 +206,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
   )
 
   const isOpen = live.current.phase !== 'closed'
+
   useLayoutEffect(() => (isOpen ? lockScroll() : undefined), [isOpen])
 
   // The page behind keeps up: hide the current thumbnail and keep it in view.
@@ -214,6 +222,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
 
     const id = setTimeout(() => {
       const el = pickTrigger(state.index, false)
+
       if (el && visibleFraction(el) < 0.99) {
         el.scrollIntoView?.({
           block: 'nearest',
@@ -233,8 +242,11 @@ export function Root(props: LightboxRootProps): JSX.Element {
   }, [state.phase])
 
   const onOpenChangeRef = useRef(onOpenChange)
+
   onOpenChangeRef.current = onOpenChange
+
   const onIndexChangeRef = useRef(onIndexChange)
+
   onIndexChangeRef.current = onIndexChange
 
   const runEffects = useEffectEvent((effects: RootEffect[]) => {
@@ -243,6 +255,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
         case 'animateIn': {
           const index = live.current.index
           const image = images.get(index)
+
           if (!image) {
             break
           }
@@ -252,15 +265,20 @@ export function Root(props: LightboxRootProps): JSX.Element {
         }
         case 'animateOut': {
           const index = live.current.index
+
           viewport.current?.freeze(index)
+
           const trigger = pickTrigger(index, scrollTriggerIntoView === false ? false : 'instant')
+
           if (trigger && scrollTriggerIntoView) {
             trigger.scrollIntoView?.({ block: 'nearest', inline: 'nearest', behavior: 'auto' })
           }
 
           const image = images.get(index)
           const velocity = closeVelocity.current
+
           closeVelocity.current = undefined
+
           const animation = image
             ? image.animateOut(trigger, velocity)
             : presence
@@ -307,6 +325,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
 
   const dispatch = useEffectEvent((action: RootAction) => {
     const next = reduce(live.current, action)
+
     live.current = next.state
     setState(next.state)
     runEffects(next.effects)
@@ -379,6 +398,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
   // Controlled/uncontrolled open + index.
   const controlledOpen = props.isOpen ?? props.defaultOpen
   const firstControlled = useRef(false)
+
   useEffect(() => {
     if (controlledOpen === undefined) {
       // Uncontrolled triggers still allowed — but if a Trigger or openAt ran,
@@ -419,6 +439,7 @@ export function Root(props: LightboxRootProps): JSX.Element {
   // Controlled index: navigate when it changes.
   const indexProp = props.index ?? props.defaultIndex
   const prevIndexProp = useRef(indexProp)
+
   useEffect(() => {
     if (indexProp === undefined || indexProp === prevIndexProp.current) {
       return
@@ -450,13 +471,16 @@ export function Root(props: LightboxRootProps): JSX.Element {
 export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
   const ctx = useLightboxCtx()
   const ref = useRef<HTMLElement | null>(null)
+
   useLayoutEffect(() => {
     const el = ref.current
+
     if (!el) {
       return
     }
 
     let set = ctx.triggers.get(props.index)
+
     if (!set) {
       set = new Set()
       ctx.triggers.set(props.index, set)
@@ -467,6 +491,7 @@ export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
   }, [ctx.triggers, props.index])
 
   const active = ctx.phase !== 'closed' && ctx.index === props.index
+
   return (
     <button
       ref={ref as never}
@@ -495,12 +520,14 @@ export function Trigger(props: LightboxTriggerPartProps): JSX.Element {
 export function Backdrop(props: LightboxPartProps): JSX.Element | null {
   const ctx = useLightboxCtx()
   const ref = useRef<HTMLDivElement | null>(null)
+
   if (ctx.phase === 'closed') {
     return null
   }
 
   useLayoutEffect(() => {
     const el = ref.current
+
     if (!el) {
       return
     }
@@ -533,13 +560,16 @@ const isEditable = (t: EventTarget | null) =>
 export function Popup(props: LightboxPartProps): JSX.Element | null {
   const ctx = useLightboxCtx()
   const ref = useRef<HTMLDivElement | null>(null)
+
   useLayoutEffect(() => {
     const el = ref.current
+
     if (!el) {
       return
     }
 
     const apply = (v: number) => el.style.setProperty('--lightbox-presence', String(v))
+
     apply(ctx.presence.get())
     return ctx.presence.on('change', apply)
   }, [ctx.presence])
@@ -562,6 +592,7 @@ export function Popup(props: LightboxPartProps): JSX.Element | null {
   useEffect(() => {
     const el = ref.current
     const active = document.activeElement
+
     if (
       el &&
       (!active ||
@@ -578,6 +609,7 @@ export function Popup(props: LightboxPartProps): JSX.Element | null {
     }
 
     const image = ctx.images.get(ctx.index)
+
     if (e.key === 'ArrowRight') {
       ctx.goTo(ctx.index + 1)
     } else if (e.key === 'ArrowLeft') {
@@ -596,6 +628,7 @@ export function Popup(props: LightboxPartProps): JSX.Element | null {
   }
 
   const mods = `vx-lightbox-popup--${ctx.phase}`
+
   if (ctx.phase === 'closed') {
     return null
   }
@@ -642,13 +675,16 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
   // Publishing a fractional scroll can change the current index. Keep the
   // listener stable so that update does not remount and re-snap the scroller.
   const onScrollIndex = useRef(ctx.onScrollIndex)
+
   onScrollIndex.current = ctx.onScrollIndex
+
   const { progress, reducedMotion } = ctx
   const fadeP = useMotionValue(0)
   const trackP = useMotionValue(0)
 
   useLayoutEffect(() => {
     const el = ref.current
+
     if (!el) {
       return
     }
@@ -679,6 +715,7 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
       }
 
       const [a, b] = el.children as unknown as HTMLElement[]
+
       return a && b
         ? b.getBoundingClientRect().left - a.getBoundingClientRect().left
         : el.clientWidth
@@ -686,7 +723,9 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
 
     const to = (i: number, behavior: 'auto' | 'instant' | 'smooth') => {
       stopTrack()
+
       const left = clamp(i, 0, count - 1) * stride()
+
       if (typeof el.scrollTo === 'function') {
         el.scrollTo({ left, behavior })
       } else {
@@ -695,6 +734,7 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
     }
 
     let fading: { finish(): void } | null = null
+
     viewport.current = {
       goTo: to,
       track(phase, dx, vx) {
@@ -711,10 +751,13 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
           }
 
           dragStart = null
+
           const width = stride()
           const index = clamp(Math.round((el.scrollLeft - 0.2 * vx) / width), 0, count - 1)
           const target = index * width
+
           trackP.jump(el.scrollLeft)
+
           const off = trackP.on('change', (left: number) => {
             el.scrollLeft = left
           })
@@ -756,16 +799,20 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
       fade: (from, target) =>
         new Promise((resolve) => {
           fading?.finish()
+
           const slides = el.querySelectorAll<HTMLElement>(':scope > [data-lightbox-slide]')
           const [a, b] = [slides[from], slides[target]]
+
           to(target, 'auto')
           if (!a || !b) {
             return resolve()
           }
 
           fixedStride = stride()
+
           const restore = [a, b].map((slide) => {
             const { transform, zIndex, opacity, scrollSnapAlign } = slide.style
+
             return () => Object.assign(slide.style, { transform, zIndex, opacity, scrollSnapAlign })
           })
 
@@ -777,6 +824,7 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
 
           b.style.opacity = '0'
           fadeP.jump(0)
+
           const offP = fadeP.on('change', (v: number) => {
             a.style.opacity = String(1 - v)
             b.style.opacity = String(v)
@@ -806,6 +854,7 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
           }
 
           const handle = { finish }
+
           fading = handle
           void anims[0]!.finished.then(finish)
         }),
@@ -814,8 +863,10 @@ export function Viewport(props: LightboxPartProps): JSX.Element {
     // Land on the requested slide: openAt(index>0) must not leave the
     // current slide clipped offscreen on mount.
     to(ctx.index, 'auto')
+
     const onScroll = () => {
       const p = el.scrollLeft / stride()
+
       if (!fading) {
         progress.set(p)
       }
@@ -917,6 +968,7 @@ export function Close(
   props: LightboxPartProps & { onClick?: (e: MouseEvent) => void },
 ): JSX.Element {
   const ctx = useLightboxCtx()
+
   return (
     <button
       type="button"
@@ -940,6 +992,7 @@ function NavButton(props: LightboxPartProps & { step: 1 | -1 }) {
   const ctx = useLightboxCtx()
   const target = ctx.index + props.step
   const disabled = target < 0 || target >= ctx.items.length
+
   return (
     <button
       type="button"
@@ -966,6 +1019,7 @@ export function Next(props: LightboxPartProps): JSX.Element {
 export function Title(props: LightboxPartProps & { id?: string }): JSX.Element {
   const ctx = useLightboxCtx()
   const id = useDialogPart(ctx.dialogText, 'title', props.id, props.children)
+
   return (
     <h2 id={id} className={cx('vx-lightbox-title', props.className)} style={props.style}>
       {props.children as never}
@@ -976,6 +1030,7 @@ export function Title(props: LightboxPartProps & { id?: string }): JSX.Element {
 export function Description(props: LightboxPartProps & { id?: string }): JSX.Element {
   const ctx = useLightboxCtx()
   const id = useDialogPart(ctx.dialogText, 'description', props.id, props.children)
+
   return (
     <p id={id} className={cx('vx-lightbox-description', props.className)} style={props.style}>
       {props.children as never}
@@ -987,6 +1042,7 @@ export function Description(props: LightboxPartProps & { id?: string }): JSX.Ele
 export function useLightboxState<T extends LightboxMedia = LightboxMedia>(): UseLightboxState<T> {
   const ctx = useLightboxCtx()
   const image = () => ctx.images.get(ctx.index)
+
   return {
     items: ctx.items as T[],
     item: ctx.items[ctx.index] as T,

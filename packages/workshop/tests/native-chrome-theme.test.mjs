@@ -3,6 +3,7 @@ import { afterAll, beforeAll, expect, it } from 'vitest'
 import { computeCascade, registerStylesheet, unregisterStylesheet } from '@octane-xplat/css-engine'
 
 const sheet = 'workshop-native-theme-test'
+
 beforeAll(() =>
   registerStylesheet(
     sheet,
@@ -32,12 +33,14 @@ function node(classes, parent = null, type = 'masonview') {
       return this.children.length
     },
   }
+
   parent?.children.push(n)
   return n
 }
 
 function restyle(n) {
   const result = computeCascade(n)
+
   n.computedStyle = result.style
   n.computedCustomProps = result.customProps
   for (const child of n.children) {
@@ -49,6 +52,7 @@ it.each(['ns-macos', 'ns-gtk'])('switches the %s root palette light → dark →
   const root = node(['xw-root', 'ns-root', platform, 'ns-light'])
   const label = node(['xw-action-label'], root, 'label')
   const stage = node(['xw-stage'], root)
+
   for (const [scheme, background, foreground] of [
     ['light', '#ffffff', '#171717'],
     ['dark', '#171717', '#fafafa'],
@@ -68,6 +72,7 @@ it('keeps the NativeScript ancestor class path working', () => {
   const page = node(['ns-dark'])
   const root = node(['xw-root'], page)
   const label = node(['xw-action-label'], root, 'label')
+
   restyle(page)
   expect(root.computedStyle.backgroundColor).toBe('#171717')
   expect(label.computedStyle.color).toBe('#fafafa')

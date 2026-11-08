@@ -33,6 +33,7 @@ export function registerToastViewport(id: string): () => void {
  *  viewport unmounted fall back so they still dismiss on schedule. */
 export function toastOnViewport(entry: ToastEntry, viewportId: string): boolean {
   const owner = entry.viewportId ?? FALLBACK_TOAST_VIEWPORT
+
   if (owner === viewportId) {
     return true
   }
@@ -51,6 +52,7 @@ export function toastOnViewport(entry: ToastEntry, viewportId: string): boolean 
 export function pushToast(options: ToastOptions, viewportId?: string): string {
   const list = toastStore.getSnapshot()
   const uniqueID = options.uniqueID
+
   if (
     uniqueID &&
     (options.collisionBehavior ?? 'overwrite') === 'ignore' &&
@@ -60,8 +62,10 @@ export function pushToast(options: ToastOptions, viewportId?: string): string {
   }
 
   const entry: ToastEntry = { id: `xplat-toast-${++counter}`, options, viewportId }
+
   if (uniqueID) {
     const existing = list.findIndex((t) => t.options.uniqueID === uniqueID)
+
     if (existing >= 0) {
       toastStore.set(list.map((t) => (t.options.uniqueID === uniqueID ? entry : t)))
       return entry.id
@@ -82,6 +86,7 @@ export function dismissToast(id: string, reason: ToastDismissReason = 'manual'):
 
   const list = toastStore.getSnapshot()
   const entry = list.find((t) => t.id === id)
+
   if (!entry || entry.exiting) {
     return
   }
@@ -103,6 +108,7 @@ export function updateToast(id: string, options: ToastOptions): void {
 
   const list = toastStore.getSnapshot()
   const index = list.findIndex((t) => t.id === id)
+
   if (index === -1 || list[index].exiting) {
     return
   }
@@ -137,6 +143,7 @@ export function toastTiming(options: ToastOptions): {
   autoHideDuration: number
 } {
   const type = options.type ?? 'info'
+
   return {
     isAutoHide: options.isAutoHide ?? type !== 'error',
     autoHideDuration: Math.max(0, options.autoHideDuration ?? 5000),

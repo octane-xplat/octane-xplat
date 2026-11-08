@@ -111,6 +111,7 @@ function createFixture(host: ClientRouterHost, pane: boolean) {
 
 function Late(): any {
   const fixture = useContext(Context)!
+
   useLayoutEffect(() => {
     fixture.lateMounted++
   }, [])
@@ -154,6 +155,7 @@ export async function qualifyRouteRetention(options: {
   const wait = (name: string, condition: () => boolean) => options.wait(prefix + name, condition)
   async function drive<Result>(name: string, operation: Promise<Result>): Promise<Result> {
     let done = false
+
     void operation.then(
       () => {
         done = true
@@ -169,6 +171,7 @@ export async function qualifyRouteRetention(options: {
 
   const find = (id: string) => [...fixture.entries].find((entry) => entry.id === id)
   const near = (actual: number, expected: number) => Math.abs(actual - expected) < 2
+
   try {
     await wait('outlet mounted', () => fixture.ready)
     check(
@@ -189,6 +192,7 @@ export async function qualifyRouteRetention(options: {
     const a = find('a')!
     const originalScroll = a.scroll!.native
     const originalInput = a.input!.native
+
     await wait(
       'first viewport has measured scrollable content',
       () => options.range(a.scroll!) >= 400,
@@ -213,6 +217,7 @@ export async function qualifyRouteRetention(options: {
     )
 
     const b = find('b')!
+
     await wait(
       'second viewport has measured scrollable content',
       () => options.range(b.scroll!) >= 400,
@@ -237,8 +242,10 @@ export async function qualifyRouteRetention(options: {
     await wait('explicit blur clears native focus', () => !options.focused(a.input!))
     a.input!.focus()
     await wait('explicit focus reaches the native field', () => options.focused(a.input!))
+
     const beforePending = options.offset(a.scroll!)
     const pending = navigation.push({ to: '/retention-late' })
+
     await wait('delayed loader starts', () => fixture.started)
     check('pending loader keeps committed focus', options.focused(a.input!))
     check(
@@ -286,6 +293,7 @@ export async function qualifyRouteRetention(options: {
     )
 
     const modal = find('modal')!
+
     await wait(
       'modal viewport has measured scrollable content',
       () => options.range(modal.scroll!) >= 400,

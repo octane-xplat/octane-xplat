@@ -12,8 +12,11 @@ import { generateRoutes } from '../../cli/src/route-generator.ts'
 // Every sample runs in a separate process so discarded compiler caches cannot
 // inflate the following sample's heap or artificially warm its editor program.
 const repository = fileURLToPath(new URL('../../../', import.meta.url))
+
 process.chdir(repository)
+
 const args = process.argv.slice(2)
+
 if (args.includes('--help')) {
   console.log(`Usage: bun run --filter @octane-xplat/ui bench:routing-types [options]
   --sizes 32,128,512,1024      Total destinations per generated catalog (8–4096)
@@ -28,6 +31,7 @@ This measures TypeScript's language service, not a running editor or target OS.`
 
 function option(name: string, fallback: string): string {
   const index = args.indexOf(name)
+
   return index < 0 ? fallback : (args[index + 1] ?? '')
 }
 
@@ -43,6 +47,7 @@ async function fixture(root: string, size: number) {
     await mkdir(dirname(join(root, path)), { recursive: true })
     await writeFile(join(root, path), contents)
   }
+
   await mkdir(join(root, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(uiPackage, join(root, 'node_modules/@octane-xplat/ui'), 'dir')
   await put('package.json', JSON.stringify({ private: true, type: 'module' }))
@@ -53,6 +58,7 @@ async function fixture(root: string, size: number) {
       manifests: [{ module: './extra.ts', export: 'extra' }],
     }),
   )
+
   await put('context.ts', `export const context = { account: { id: 'sample-account' } }\n`)
   await put(
     'search.ts',
@@ -62,13 +68,16 @@ async function fixture(root: string, size: number) {
   return { tab, page: Number(raw.page ?? 1) } as const
 }\n`,
   )
+
   for (const path of ['index', 'settings', 'guides/[[section]]', 'assets/[...rest]']) {
     await put(`app/${path}.tsx`, 'export default function Screen() { return null }\n')
   }
+
   for (let index = 0; index < files; index++) {
     const key = id(index)
     const route = `/files/${key}/:id`
     const baked = index % 16 === 0
+
     await put(
       `app/files/${key}/[id].tsx`,
       `
@@ -102,6 +111,7 @@ export function loader() { return { title: 'Baked item', detail${key}: 1, owner:
       )
     }
   }
+
   await put(
     'extra.ts',
     `
@@ -112,6 +122,7 @@ const route = defineRoute.withContext<typeof context>()
 export const extra = defineRoutes([
 ${Array.from({ length: programmatic }, (_, index) => {
   const key = id(index)
+
   return `  route({ path: '/program/${key}/:id', validateSearch,
     beforeLoad: ({ params, context }) => ({ owner: context.account.id + params.id }),
     loader: ({ params, search, context }) => ({ title: params.id, detail${key}: search.page, owner: context.owner }),
@@ -126,12 +137,14 @@ ${Array.from({ length: programmatic }, (_, index) => {
 ])
 `,
   )
+
   const selected = [
     ['files', 0],
     ['files', files - 1],
     ['program', 0],
     ['program', programmatic - 1],
   ] as const
+
   await put(
     'consumer.tsx',
     `
@@ -145,6 +158,7 @@ ${selected
   .map(([kind, index]) => {
     const key = id(index)
     const route = `/${kind}/${key}/:id`
+
     return `  navigation.push({ to: '${route}', params: { id: 'coat' }, search: { tab: 'activity', page: 2 } })
   { const detail: number = getRouteApi('${route}').useLoaderData().detail${key} }
   { const owner: string = getRouteApi('${route}').useContext().owner }
@@ -161,6 +175,7 @@ ${selected
   return null
 }\n`,
   )
+
   const lastProgram = `/program/${id(programmatic - 1)}/:id`
   const editor = `
 import './routes.gen.types'
@@ -173,12 +188,16 @@ export function Editor() {
   const title: string = data.title
   return null
 }\n`
+
   const destinationPosition = editor.indexOf('/*destination*/')
   const withoutDestination = editor.replace('/*destination*/', '')
   const propertyPosition = withoutDestination.indexOf('/*property*/')
   const editorSource = withoutDestination.replace('/*property*/', '')
+
   await put('editor.tsx', editorSource)
+
   const started = performance.now()
+
   await generateRoutes(root, 'app', undefined, { bake: false })
   return {
     files,
@@ -193,6 +212,7 @@ export function Editor() {
 
 function diagnostics(program: ts.Program) {
   const issues = ts.getPreEmitDiagnostics(program)
+
   assert.equal(
     issues.length,
     0,
@@ -207,7 +227,9 @@ function diagnostics(program: ts.Program) {
 async function sample(size: number, condition: string) {
   const root =
     option('--fixture-root', '') || (await mkdtemp(join(tmpdir(), 'xplat-routing-types-')))
+
   let service: ts.LanguageService | undefined
+
   try {
     const input = await fixture(root, size)
     const options: ts.CompilerOptions = {
@@ -239,7 +261,9 @@ async function sample(size: number, condition: string) {
 
     let started = performance.now()
     const program = ts.createProgram([join(root, 'consumer.tsx')], options)
+
     diagnostics(program)
+
     const compileMs = elapsed(started)
     const instantiations = program.getInstantiationCount()
     const types = program.getTypeCount()
@@ -251,6 +275,7 @@ async function sample(size: number, condition: string) {
       getScriptVersion: (path) => String(versions.get(path)?.version ?? 0),
       getScriptSnapshot: (path) => {
         const source = versions.get(path)?.text ?? ts.sys.readFile(path)
+
         return source === undefined ? undefined : ts.ScriptSnapshot.fromString(source)
       },
       getCurrentDirectory: () => root,
@@ -261,13 +286,16 @@ async function sample(size: number, condition: string) {
     }
 
     service = ts.createLanguageService(host)
+
     function complete(position: number) {
       return service!.getCompletionsAtPosition(editorPath, position, {})?.entries ?? []
     }
 
     started = performance.now()
+
     const destinations = complete(input.destinationPosition)
     const coldCompletionMs = elapsed(started)
+
     assert.equal(
       destinations.length,
       size,
@@ -282,6 +310,7 @@ async function sample(size: number, condition: string) {
     }
 
     const warmCompletionMs: number[] = []
+
     for (let attempt = 0; attempt < 5; attempt++) {
       started = performance.now()
       assert.equal(complete(input.destinationPosition).length, size)
@@ -293,15 +322,20 @@ async function sample(size: number, condition: string) {
     )
 
     const titlePosition = input.editorSource.lastIndexOf('title')
+
     started = performance.now()
+
     const info = ts.displayPartsToString(
       service.getQuickInfoAtPosition(editorPath, titlePosition)?.displayParts,
     )
 
     const quickInfoMs = elapsed(started)
+
     assert.match(info, /title: string/, 'The editor must report the loader property type, not any')
+
     // Change a real route dependency, rather than timing an irrelevant comment edit.
     const extraPath = join(root, 'extra.ts')
+
     versions.set(extraPath, {
       version: 1,
       text: (await readFile(extraPath, 'utf8')).replace(
@@ -317,6 +351,7 @@ async function sample(size: number, condition: string) {
     )
 
     const editCompletionMs = elapsed(started)
+
     return {
       size,
       fileRoutes: input.files + 4,
@@ -347,6 +382,7 @@ if (args.includes('--sample')) {
 } else {
   const sizes = option('--sizes', '32,128,512,1024').split(',').map(Number)
   const conditions = option('--conditions', 'web').split(',')
+
   assert.ok(
     sizes.every((size) => Number.isInteger(size) && size >= 8 && size <= 4096),
     'Sizes must be integers from 8 to 4096',
@@ -360,10 +396,12 @@ if (args.includes('--sample')) {
   )
 
   const results: Awaited<ReturnType<typeof sample>>[] = []
+
   for (const condition of conditions) {
     for (const size of sizes) {
       // The parent owns cleanup even if a timed-out worker cannot run finally.
       const root = await mkdtemp(join(tmpdir(), 'xplat-routing-types-'))
+
       try {
         const child = spawnSync(
           process.execPath,
@@ -386,7 +424,9 @@ if (args.includes('--sample')) {
         )
 
         assert.equal(child.status, 0, child.error?.message || child.stderr || child.stdout)
+
         const result = JSON.parse(child.stdout)
+
         results.push(result)
         console.log(
           `${condition} ${size} routes: compile ${result.compileMs} ms; editor cold ${result.coldCompletionMs} ms, edit ${result.editCompletionMs} ms; ${result.peakRssMiB} MiB peak RSS`,
@@ -408,6 +448,7 @@ if (args.includes('--sample')) {
   }
 
   const output = option('--output', '')
+
   if (output) {
     await writeFile(output, JSON.stringify(report, null, 2) + '\n')
   }

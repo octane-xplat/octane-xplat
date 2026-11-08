@@ -6,6 +6,7 @@ import { promisify } from 'node:util'
 import { setTimeout as delay } from 'node:timers/promises'
 
 assert.equal(process.platform, 'darwin', 'AppKit process profiling requires macOS')
+
 // An initial ceiling for this small silent fixture, not an application budget.
 const limitMiB = 384
 const command = promisify(execFile)
@@ -32,6 +33,7 @@ const observe = (async () => {
     const { stdout } = await command('ps', ['-axo', 'pid=,ppid=,rss=,command='])
     const processes = stdout.split('\n').flatMap((line) => {
       const match = /^\s*(\d+)\s+(\d+)\s+(\d+)\s+(.*)$/.exec(line)
+
       return match
         ? [
             {
@@ -46,6 +48,7 @@ const observe = (async () => {
 
     const descendants = new Set([child.pid])
     let previous = -1
+
     while (previous !== descendants.size) {
       previous = descendants.size
       for (const process of processes) {
@@ -72,6 +75,7 @@ const observe = (async () => {
 
 try {
   const [[code]] = await Promise.all([completed, observe])
+
   assert.equal(code, 0, 'Foreground fixture failed')
 } finally {
   running = false
@@ -83,7 +87,9 @@ try {
 }
 
 assert.ok(samples > 0, 'No owned AppKit host samples were collected')
+
 const peakMiB = peakKiB / 1024
+
 console.log(
   JSON.stringify({
     metric: 'owned AppKit host peak RSS',

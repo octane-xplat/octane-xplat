@@ -19,6 +19,7 @@ const check = (name, actual, expected) => {
 }
 
 let server, browser
+
 try {
   const checked = spawnSync(
     'bun',
@@ -34,6 +35,7 @@ try {
   )
 
   assert.equal(checked.status, 0, (checked.stdout ?? '') + (checked.stderr ?? ''))
+
   const configuration = {
     configFile: false,
     root,
@@ -46,7 +48,9 @@ try {
   await build(configuration)
   server = await preview({ ...configuration, preview: { host: '127.0.0.1', port: 0 } })
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   page.on('pageerror', (error) => errors.push(error.message))
   await page.goto(new URL('private/coat', server.resolvedUrls.local[0]).href)
   await page.waitForFunction(() => window.__routingAuth?.ready)
@@ -72,6 +76,7 @@ try {
   )
 
   const initialHistory = await page.evaluate(() => history.length)
+
   await page.getByRole('button', { name: 'Sign in', exact: true }).click()
   await page.evaluate(() => window.__routingAuth.complete(0, { kind: 'expired' }))
   await page.locator('#sign-in-status').filter({ hasText: 'expired' }).waitFor()
@@ -123,6 +128,7 @@ try {
 
   const oldPrivate = await page.locator('#private-item').elementHandle()
   const expired = await page.evaluate(() => window.__routingAuth.expire())
+
   check(
     'account expiry removes the previous private DOM',
     await oldPrivate.evaluate((node) => node.isConnected),
@@ -175,7 +181,9 @@ try {
   await page.evaluate(() => window.__routingAuth.reset('/', { id: 'account-a' }))
   await page.evaluate(() => window.__routingAuth.open('coat'))
   await page.evaluate(() => window.__routingAuth.open('boots'))
+
   const previousAccount = await page.locator('#private-item').elementHandle()
+
   await page.evaluate(() => window.__routingAuth.switchAccount('account-b'))
   check(
     'switching accounts disposes the prior account screen',
@@ -291,7 +299,9 @@ try {
   )
 
   await page.evaluate(() => window.__routingAuth.reset('/login'))
+
   const retired = await page.evaluate(() => window.__routingAuth.returnFromOldOwner())
+
   check('a return from the retiring owner is cancelled', retired.status, 'cancelled')
   check(
     'a retired navigator cannot revive protected DOM',
@@ -309,7 +319,9 @@ try {
   )
 
   await page.evaluate(() => window.__routingAuth.reset('/login'))
+
   const invalid = await page.evaluate(() => window.__routingAuth.returnUrl('/private/%ZZ'))
+
   check(
     'a malformed return preserves the login route',
     await page.evaluate(

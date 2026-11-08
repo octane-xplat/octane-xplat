@@ -6,13 +6,16 @@ test('native tag dispatch keeps identity on replacement and rejects invalid nati
   const store = createActionStore(),
     view = {},
     calls: string[] = []
+
   const lease = store.allocate(view)
+
   lease.setHandler(() => calls.push('old'))
   store.dispatch(lease.id)
   lease.setHandler(() => calls.push('new'))
   for (const id of [undefined, null, '1', 0, -1, 1.5, NaN, Infinity, Number.MAX_SAFE_INTEGER + 1]) {
     store.dispatch(id)
   }
+
   store.dispatch(lease.id)
   assert.equal(store.idForView(view), lease.id)
   assert.equal(store.hasHandler(view), true)
@@ -27,15 +30,20 @@ test('release is inert under reentry, held dispatch, handler resurrection and vi
   const store = createActionStore(),
     view = {},
     calls: string[] = []
+
   const old = store.allocate(view)
+
   old.setHandler(() => calls.push('old'))
+
   const held = () => store.dispatch(old.id)
   const next = store.allocate(view)
+
   next.setHandler(() => {
     next.release()
     store.dispatch(next.id)
     calls.push('next')
   })
+
   held()
   old.release()
   old.release()

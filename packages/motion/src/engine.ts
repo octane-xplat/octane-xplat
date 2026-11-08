@@ -21,6 +21,7 @@ const MOTION_KEYS: MotionKey[] = ['opacity', 'x', 'y', 'scale', 'scaleX', 'scale
 
 /** Platform animators take one timing curve per run — cubic-bezier only. */
 const BEZIER_EASES = new Set(['linear', 'easeIn', 'easeOut', 'easeInOut'])
+
 export function isBezierEase(ease: Transition['ease']): boolean {
   return ease === undefined || Array.isArray(ease) || BEZIER_EASES.has(ease)
 }
@@ -140,6 +141,7 @@ export function validateTransition(t: Transition): void {
     'bounceDamping',
   ] as const) {
     const value = t[key]
+
     if (
       value !== undefined &&
       (!Number.isFinite(value) ||
@@ -214,6 +216,7 @@ export function validateTransition(t: Transition): void {
 export function validateTransitionInput(t: TransitionInput): void {
   if (isOrchestrated(t)) {
     const { staggerChildren, delayChildren, when, ...channels } = t
+
     validateTransition({ staggerChildren, delayChildren, when })
     for (const [key, value] of Object.entries(channels)) {
       if (key !== 'default' && key !== 'layout' && !MOTION_KEYS.includes(key as MotionKey)) {
@@ -240,6 +243,7 @@ export function runAnimation(
   complete?: () => void,
 ): AnimationControls {
   validateTransition(transition)
+
   let frame = 0
   let settled = false
   let resolve!: (result: AnimationResult) => void
@@ -308,6 +312,7 @@ export function runAnimation(
     }
 
     const now = clock.now()
+
     if (now < legStart) {
       frame = clock.request(tick)
       return
@@ -322,13 +327,16 @@ export function runAnimation(
         : repeatType === 'loop' || leg % 2 === 0
           ? to
           : from
+
     update(state.done ? legEnd : state.value)
     if (state.done) {
       if (leg < repeat) {
         leg++
+
         // 'loop' replays the same direction; 'reverse'/'mirror' alternate
         // legs (identical for two keyframes, which is all we generate).
         const [legFrom, legTo] = repeatType === 'loop' || leg % 2 === 0 ? [from, to] : [to, from]
+
         generator = makeGenerator(legFrom, legTo)
         legStart = now + repeatDelay
         frame = clock.request(tick)

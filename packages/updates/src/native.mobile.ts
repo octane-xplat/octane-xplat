@@ -19,6 +19,7 @@ export function nativeEnvironment(): Environment {
   const location = (name: string) => path.join(root, name)
   const remove = (name: string) => {
     const file = location(name)
+
     if (isIOS) {
       if (
         NSFileManager.defaultManager.fileExistsAtPath(file) &&
@@ -30,6 +31,7 @@ export function nativeEnvironment(): Environment {
       const erase = (entry: java.io.File) => {
         if (entry.isDirectory()) {
           const children = entry.listFiles()
+
           for (let i = 0; children && i < children.length; i++) {
             erase(children[i])
           }
@@ -56,6 +58,7 @@ export function nativeEnvironment(): Environment {
       remove,
       write(name, value) {
         const file = location(name)
+
         Folder.fromPath(file.slice(0, file.lastIndexOf('/')))
         if (typeof value === 'string') {
           File.fromPath(file).writeTextSync(value, fail)
@@ -77,6 +80,7 @@ export function nativeEnvironment(): Environment {
           }
         } else {
           const bytes = (Array as any).create('byte', value.length)
+
           for (let i = 0; i < value.length; i++) {
             bytes[i] = value[i] > 127 ? value[i] - 256 : value[i]
           }

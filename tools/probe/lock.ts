@@ -5,8 +5,11 @@ import { caseIdentity, repo } from './project.ts'
 
 export async function acquireCaseLock(target, caseFile) {
   const parent = join(repo, 'research/probes', caseIdentity(target, caseFile))
+
   await mkdir(parent, { recursive: true })
+
   const lock = join(parent, '.runner-lock')
+
   try {
     await mkdir(lock)
   } catch (error) {
@@ -15,6 +18,7 @@ export async function acquireCaseLock(target, caseFile) {
     }
 
     let owner
+
     try {
       owner = JSON.parse(await readFile(join(lock, 'owner.json'), 'utf8'))
     } catch {
@@ -41,6 +45,7 @@ export async function acquireCaseLock(target, caseFile) {
   await writeFile(join(lock, 'owner.json'), JSON.stringify({ pid: process.pid }))
   return async () => {
     const owner = JSON.parse(await readFile(join(lock, 'owner.json'), 'utf8'))
+
     if (owner.pid === process.pid) {
       await rm(lock, { recursive: true })
     }

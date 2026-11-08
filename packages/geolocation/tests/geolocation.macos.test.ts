@@ -4,6 +4,7 @@ import { geolocation } from '../src/geolocation.macos.ts'
 import { permissions } from '../../platform/src/permissions.ts'
 
 const globals = globalThis as any
+
 afterEach(() => {
   delete globals.XplatGeolocation
 })
@@ -44,6 +45,7 @@ test('permission outcomes remain distinct and register with the permission dispa
 
 test('position options, JSON normalization, and concurrent callbacks stay independent', async () => {
   const calls: any[] = []
+
   globals.XplatGeolocation = {
     isAvailable: () => true,
     positionTimeoutMaximumAgeCompletion: (...args: any[]) => calls.push(args),
@@ -56,6 +58,7 @@ test('position options, JSON normalization, and concurrent callbacks stay indepe
   })
 
   const second = geolocation.getCurrentPosition()
+
   assert.deepEqual(
     calls.map((call) => call.slice(0, 3)),
     [

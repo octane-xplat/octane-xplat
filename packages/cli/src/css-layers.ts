@@ -1,10 +1,12 @@
 function skipComment(css, index) {
   const end = css.indexOf('*/', index + 2)
+
   return end < 0 ? css.length : end + 2
 }
 
 function skipString(css, index) {
   const quote = css[index]
+
   for (let i = index + 1; i < css.length; i++) {
     if (css[i] === '\\') {
       i++
@@ -18,6 +20,7 @@ function skipString(css, index) {
 
 function atRuleDelimiter(css, index) {
   let parentheses = 0
+
   for (let i = index; i < css.length; i++) {
     if (css.startsWith('/*', i)) {
       i = skipComment(css, i) - 1
@@ -39,6 +42,7 @@ function atRuleDelimiter(css, index) {
 
 function matchingBrace(css, open) {
   let depth = 1
+
   for (let i = open + 1; i < css.length; i++) {
     if (css.startsWith('/*', i)) {
       i = skipComment(css, i) - 1
@@ -58,6 +62,7 @@ function matchingBrace(css, open) {
 export function unwrapCssLayers(css) {
   let output = ''
   let copiedThrough = 0
+
   for (let i = 0; i < css.length; i++) {
     if (css.startsWith('/*', i)) {
       i = skipComment(css, i) - 1
@@ -74,6 +79,7 @@ export function unwrapCssLayers(css) {
     }
 
     const delimiter = atRuleDelimiter(css, i + 6)
+
     if (!delimiter) {
       continue
     }
@@ -86,6 +92,7 @@ export function unwrapCssLayers(css) {
     }
 
     const close = matchingBrace(css, delimiter.index)
+
     if (close < 0) {
       throw new Error('Unclosed @layer block in NativeScript stylesheet')
     }

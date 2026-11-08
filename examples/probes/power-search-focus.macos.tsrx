@@ -11,6 +11,7 @@ import {
 
 import type { PowerSearchFilterFor } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const { config } = createPowerSearchConfig([
   { key: 'title', type: 'string', label: 'Title' },
 ] as const)

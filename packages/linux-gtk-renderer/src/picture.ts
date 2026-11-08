@@ -17,11 +17,14 @@ function httpBytes(uri: string, cancellable: any): Promise<any> {
           reject(new Error('Cancelled'))
           return
         }
+
         const message = Soup.Message.new('GET', uri)
+
         if (!message) {
           reject(new Error('Invalid image URI'))
           return
         }
+
         session.send_and_read_async(
           message,
           GLib.PRIORITY_DEFAULT,
@@ -30,6 +33,7 @@ function httpBytes(uri: string, cancellable: any): Promise<any> {
             try {
               const bytes = session.send_and_read_finish(result)
               const status = message.get_status()
+
               if (status < 200 || status >= 300) {
                 throw new Error('Image HTTP status ' + status)
               }
@@ -47,6 +51,7 @@ function httpBytes(uri: string, cancellable: any): Promise<any> {
 function dataBytes(body: string): Uint8Array {
   const raw = new TextEncoder().encode(body)
   const bytes: number[] = []
+
   for (let i = 0; i < raw.length; i++) {
     if (raw[i] !== 37) {
       bytes.push(raw[i])
@@ -54,6 +59,7 @@ function dataBytes(body: string): Uint8Array {
     }
 
     const pair = String.fromCharCode(raw[i + 1] ?? 0, raw[i + 2] ?? 0)
+
     if (!/^[0-9a-f]{2}$/i.test(pair)) {
       throw new Error('Invalid image data URI escape')
     }
@@ -61,6 +67,7 @@ function dataBytes(body: string): Uint8Array {
     bytes.push(Number.parseInt(pair, 16))
     i += 2
   }
+
   return new Uint8Array(bytes)
 }
 
@@ -68,20 +75,26 @@ async function sourceBytes(source: string, cancellable: any, bundleUrl: string):
   if (/^\s*(?:<\?xml[^>]*>\s*)?<svg\b/i.test(source)) {
     return new GLib.Bytes(new TextEncoder().encode(source))
   }
+
   if (source.startsWith('data:')) {
     const comma = source.indexOf(',')
+
     if (comma < 0) {
       throw new Error('Invalid image data URI')
     }
 
     const header = source.slice(0, comma)
     const body = source.slice(comma + 1)
+
     return new GLib.Bytes(/;base64$/i.test(header) ? GLib.base64_decode(body) : dataBytes(body))
   }
+
   if (/^https?:\/\//i.test(source)) {
     return httpBytes(source, cancellable)
   }
+
   let file: any
+
   if (source.startsWith('~/')) {
     file = Gio.File.new_for_uri(bundleUrl).get_parent().resolve_relative_path(source.slice(2))
   } else if (source.startsWith('res://')) {
@@ -91,6 +104,7 @@ async function sourceBytes(source: string, cancellable: any, bundleUrl: string):
   } else {
     file = Gio.File.new_for_path(source)
   }
+
   return new Promise((resolve, reject) => {
     file.load_bytes_async(cancellable, (loaded: any, result: any) => {
       try {
@@ -114,6 +128,7 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
       node.emitRefEvent?.('isLoadingChange', { value })
     }
   }
+
   let disposed = false
   let generation = 0
   let source: unknown
@@ -126,25 +141,33 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
     if (!markup || disposed) {
       return
     }
+
     const color = String(node.computedStyle?.color ?? '#000000')
     const resolved = evaluateCssVariables(node as unknown as CssHostNode, markup).replace(
       /currentColor\b/gi,
       color,
     )
+
     if (resolved === rendered) {
       return
     }
+
     const texture = Gdk.Texture.new_from_bytes(new GLib.Bytes(new TextEncoder().encode(resolved)))
+
     view.set_paintable(texture)
     view.imageSource = texture
     rendered = resolved
   }
+
   const setSource = (next: unknown) => {
     if (disposed || next === source) {
       return
     }
+
     source = next
+
     const version = ++generation
+
     cancellable?.cancel()
     cancellable = new Gio.Cancellable()
     markup = rendered = null
@@ -156,6 +179,7 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
       markLoading(false)
       return
     }
+
     // A decoded placeholder paints under the pending src — replaced by the
     // real texture on success, kept on failure (contract: visible while
     // src loads, not a fetch-blocking preview).
@@ -166,31 +190,40 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
       view.set_paintable(null)
       view.imageSource = null
     }
+
     markLoading(true)
+
     const cancellation = cancellable
+
     Promise.resolve(next)
       .then((value) => {
         if (disposed || version !== generation) {
           return null
         }
+
         if (typeof value !== 'string') {
           throw new Error('Image source must be a string')
         }
+
         return sourceBytes(value, cancellation, bundleUrl)
       })
       .then((bytes) => {
         if (!bytes || disposed || version !== generation) {
           return
         }
+
         const text = new TextDecoder().decode(bytes.get_data())
+
         if (/^\s*(?:<\?xml[^>]*>\s*)?(?:<!--[\s\S]*?-->\s*)*<svg\b/i.test(text)) {
           markup = text
           renderSvg()
         } else {
           const texture = Gdk.Texture.new_from_bytes(bytes)
+
           view.set_paintable(texture)
           view.imageSource = texture
         }
+
         markLoading(false)
         view.queue_resize()
       })
@@ -198,11 +231,13 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
         if (disposed || version !== generation) {
           return
         }
+
         markLoading(false)
         view.imageError = error
         console.warn('[linux-gtk] image source could not be loaded')
       })
   }
+
   return {
     setSource,
     restyle: renderSvg,
@@ -210,16 +245,19 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
       if (disposed) {
         return
       }
+
       placeholderSource = value
       if (value == null || value === '') {
         placeholderTexture = null
         return
       }
+
       sourceBytes(String(value), null, bundleUrl)
         .then((bytes) => {
           if (disposed || !bytes) {
             return
           }
+
           placeholderTexture = Gdk.Texture.new_from_bytes(bytes)
           if (view.isLoading && !view.imageSource) {
             view.set_paintable(placeholderTexture)
@@ -238,10 +276,13 @@ export function bindPicture(node: ElementNode, bundleUrl: string) {
         scaleDown: Gtk.ContentFit.SCALE_DOWN,
         none: Gtk.ContentFit.SCALE_DOWN,
       }
+
       const fit = modes[String(value)]
+
       if (fit === undefined) {
         throw new Error('linux-gtk picture: unsupported stretch ' + String(value))
       }
+
       view.set_content_fit(fit)
     },
     dispose() {

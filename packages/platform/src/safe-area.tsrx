@@ -16,16 +16,19 @@ function readAndroidInsets(windowInsets?: any): Insets {
   const activity = androidActivity()
   const decorView = activity?.getWindow?.()?.getDecorView?.()
   const insets = windowInsets ?? decorView?.getRootWindowInsets?.()
+
   if (!insets) {
     return zeroInsets()
   }
 
   const scale = Screen.mainScreen.scale || 1
+
   if (android.os.Build.VERSION.SDK_INT >= 30) {
     const systemBars =
       android.view.WindowInsets.Type.systemBars() | android.view.WindowInsets.Type.displayCutout()
 
     const i = insets.getInsets(systemBars)
+
     return {
       top: i.top / scale,
       bottom: i.bottom / scale,
@@ -45,6 +48,7 @@ function readAndroidInsets(windowInsets?: any): Insets {
 function readInsets(): Insets {
   if (Application.ios) {
     const i = Application.ios.rootController?.view?.safeAreaInsets
+
     if (i) {
       return { top: i.top, bottom: i.bottom, left: i.left, right: i.right }
     }
@@ -59,6 +63,7 @@ function readInsets(): Insets {
 
 function watchAndroidInsets(update: (insets: Insets) => void): () => void {
   const decorView = androidActivity()?.getWindow?.()?.getDecorView?.()
+
   if (!decorView) {
     return () => {}
   }
@@ -80,11 +85,15 @@ function watchAndroidInsets(update: (insets: Insets) => void): () => void {
  *  (Android) window-inset application. Zeroes on platforms without insets. */
 export function useSafeAreaInsets(): Insets {
   const [insets, setInsets] = useState<Insets>(readInsets)
+
   useEffect(() => {
     const update = () => setInsets(readInsets())
+
     Application.on(Application.orientationChangedEvent, update)
     Application.on(Application.resumeEvent, update)
+
     const stopWatchingAndroid = Application.android ? watchAndroidInsets(setInsets) : () => {}
+
     update()
 
     return () => {

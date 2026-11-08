@@ -76,6 +76,7 @@ export function ProgressBar(props: ProgressBarProps): JSX.Element @{
         {marks.map((mark) => {
           const markPct = (clamp(mark.value, 0, max) / max) * 100
           const placement = markPct < 25 ? 'start' : markPct > 75 ? 'end' : 'middle'
+
           // The Tooltip wrapper is the absolutely-positioned box so the
           // mark's tooltip anchor IS the mark.
           return (

@@ -68,6 +68,7 @@ const pend2Promise = new Promise<string>((r) => (pend2Resolve = r))
 function SlotRenderer(props: { text: string }): unknown @{
   const seen = useContext(Ctx)
   const local$ = useSignal$(0)
+
   stats.renders++
   useEffect(() => {
     stats.mounts++
@@ -77,6 +78,7 @@ function SlotRenderer(props: { text: string }): unknown @{
   }, [])
 
   const derived = useMemo(() => props.text.toUpperCase(), [props.text])
+
   return (
     <View>
       <label id="slot-ctx" text={`ctx:${String(seen)}`} />
@@ -96,11 +98,13 @@ function ThrowingRenderer(): unknown @{
 
 function PendingRenderer(): unknown @{
   const v = use(pendPromise)
+
   return <label id="pend-ok" text={`resolved:${v}`} />
 }
 
 function SecondSuspender(): unknown @{
   const v = use(pend2Promise)
+
   return <label id="pend2-ok" text={`late:${v}`} />
 }
 
@@ -177,12 +181,19 @@ describe('markdown renderer contracts (universal object driver)', () => {
   it('RichText emits a formattedstring of styled/tappable flat runs', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(RichSurface, {})
+
     const rich = byId(container, 'rich')
+
     expect(rich?.type).toBe('label')
+
     const fs = rich.children.find((c: any) => c.type === 'formattedstring')
+
     expect(fs).toBeTruthy()
+
     const spans = fs.children.filter((c: any) => c.type === 'span')
+
     expect(spans.map((s: any) => s.props?.text ?? s.text)).toEqual(['a ', 'b', ' tap'])
     // Per-run tap delivery (onLinkTap) is device-qualified — the object
     // driver stores listeners in its own registry; the md-seams probe
@@ -193,20 +204,28 @@ describe('markdown renderer contracts (universal object driver)', () => {
   it('nested Text emits span children under the text host', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(RichSurface, {})
+
     const nested = byId(container, 'nested')
+
     expect(nested?.type).toBe('label')
+
     const spans = all(nested).filter((n) => n.type === 'span')
+
     expect(spans.length).toBeGreaterThan(0)
   })
 
   it('renderers keep hooks/context across updates without remounting', async () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(ContractSurface, {})
     flushUniversalSync(() => {})
     await vi.waitFor(() => expect(byId(container, 'slot-ctx')?.props?.text).toBe('ctx:provided'))
+
     const mountsBefore = stats.mounts
+
     prop$.set('second')
     flushUniversalSync(() => {})
     await vi.waitFor(() => expect(byId(container, 'slot-derived')?.props?.text).toBe('memo:SECOND'))
@@ -217,6 +236,7 @@ describe('markdown renderer contracts (universal object driver)', () => {
   it('thrown, pending, declined and unmounted renderers hit their contract arms', async () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(ContractSurface, {})
     flushUniversalSync(() => {})
     // thrown → catch arm
@@ -242,8 +262,10 @@ describe('markdown renderer contracts (universal object driver)', () => {
     expect(byId(container, 'fb-pend2-err')).toBeFalsy()
     // declined mounts nothing; siblings unaffected
     expect(byId(container, 'tail')?.props?.text).toBe('tail')
+
     // reset() re-enters the body once the renderer no longer throws
     const resetBtn = byId(container, 'fb-reset')
+
     flushUniversalSync(() => container.dispatchEvent(resetBtn, 'tap', {}))
     await vi.waitFor(() => expect(byId(container, 'threw-ok')?.props?.text).toBe('recovered'))
   })

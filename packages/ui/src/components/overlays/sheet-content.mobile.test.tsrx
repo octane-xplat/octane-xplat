@@ -9,11 +9,13 @@ import {
 } from 'octane/universal/native'
 
 import { SheetContent } from './sheet-content.tsrx'
+
 let edit = (_value: number) => {},
   retired = 0
 
 function Editing(props: { id: string }) @{
   const [value, setValue] = useState(0)
+
   edit = setValue
   useEffect(
     () => () => {
@@ -33,6 +35,7 @@ function Host(props: { id: string }) @{
 
 it('separates panel editing state while retaining the surrounding presentation', async () => {
   retired = 0
+
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
 
@@ -42,7 +45,9 @@ it('separates panel editing state while retaining the surrounding presentation',
     await vi.waitFor(() => expect(container.children[0].props.text).toBe('first:0'))
     flushUniversalSync(() => edit(7))
     expect(container.children[0].props.text).toBe('first:7')
+
     const original = container.children[0]
+
     root.render(Host, { id: 'second' })
     flushUniversalSync(() => {})
     await vi.waitFor(() => expect(container.children[0].props.text).toBe('second:0'))

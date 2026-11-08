@@ -8,6 +8,7 @@ import { join } from 'node:path'
 export function scratchRun(workspace, label) {
   const key = createHash('sha256').update(workspace).digest('hex').slice(0, 8)
   const base = join(homedir(), 'agent-scratch/octane-xplat', `go-cli-${key}`)
+
   mkdirSync(base, { recursive: true })
   try {
     writeFileSync(
@@ -20,5 +21,6 @@ export function scratchRun(workspace, label) {
       throw error
     }
   }
+
   return mkdtempSync(join(base, `${new Date().toISOString().slice(0, 10)}-${label}-`))
 }

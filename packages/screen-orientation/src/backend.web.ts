@@ -14,9 +14,11 @@ const orientation = (): BrowserOrientation | undefined =>
 
 const required = () => {
   const value = orientation()
+
   if (!value) {
     throw new UnavailabilityError('Screen Orientation API')
   }
+
   return value
 }
 
@@ -43,9 +45,11 @@ let lastPolicy: WebLock = WebOrientationLock.UNKNOWN
 let lastLock: OrientationLock = OrientationLock.UNKNOWN
 async function apply(value: WebLock, lock: OrientationLock) {
   const native = required()
+
   if (typeof native.lock !== 'function') {
     throw new UnavailabilityError('Browser orientation locking')
   }
+
   await native.lock(value)
   lastPolicy = value
   lastLock = lock
@@ -71,9 +75,11 @@ export const backend: OrientationBackend = {
   },
   async unlock() {
     const native = required()
+
     if (typeof native.unlock !== 'function') {
       throw new UnavailabilityError('Browser orientation unlocking')
     }
+
     native.unlock()
     lastPolicy = WebOrientationLock.UNKNOWN
     lastLock = OrientationLock.DEFAULT
@@ -82,12 +88,15 @@ export const backend: OrientationBackend = {
     if (!options.screenOrientationLockWeb) {
       throw new TypeError('Web requires screenOrientationLockWeb')
     }
+
     const value = options.screenOrientationLockWeb
     const index = policies.indexOf(value as (typeof policies)[number])
+
     await apply(value, index < 0 ? OrientationLock.OTHER : (index as OrientationLock))
   },
   subscribe(changed) {
     const native = required()
+
     native.addEventListener('change', changed)
     return {
       remove() {

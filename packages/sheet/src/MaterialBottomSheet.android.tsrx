@@ -54,6 +54,7 @@ function createPortal(children: unknown, target: unknown) {
 export function MaterialBottomSheet(props: MaterialBottomSheetProps): unknown @{
   const contentId = useRef<string>('')
   const [portalHost, setPortalHost] = useState<GridLayout | null>(null)
+
   if (!contentId.current) {
     contentId.current = `xplatsheet${++seq}`
   }
@@ -68,7 +69,9 @@ export function MaterialBottomSheet(props: MaterialBottomSheetProps): unknown @{
     const nativeHost = host as any
 
     nativeHost._setupAsRootView(context)
+
     const releaseAttachment = bindNativeHostAttachment(nativeHost)
+
     com.octanexplat.sheet.XplatViewRegistry.register(contentId.current, host.android)
     // Gate contentId on registration — AndroidView's factory resolves the
     // host once contentId arrives in updateData.

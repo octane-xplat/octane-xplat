@@ -4,6 +4,7 @@ import type { DelegatedRun } from './host-types'
 // run from a silent JS-engine fallback without widening the public API.
 export function delegationStats(): any {
   const platform = globalThis as any
+
   return (platform.__xplatMotionDelegations ??= {
     started: 0,
     finished: 0,
@@ -15,6 +16,7 @@ export function delegationStats(): any {
 /** Count a delegated run and fold its settled result into the counters. */
 export function trackDelegatedRun(run: DelegatedRun): DelegatedRun {
   delegationStats().started++
+
   const finished = run.finished.then((result) => {
     if (result === 'finished') {
       delegationStats().finished++

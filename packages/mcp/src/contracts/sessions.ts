@@ -62,11 +62,13 @@ export function createSessionRegistry() {
 
     get(sessionId) {
       const session = sessions.get(sessionId)
+
       return session ? { ...session } : null
     },
 
     requireUsable(sessionId) {
       const session = sessions.get(sessionId)
+
       if (!session) {
         return {
           usable: false,
@@ -105,6 +107,7 @@ export function createSessionRegistry() {
 
     markReady(sessionId, meta = {}) {
       const session = sessions.get(sessionId)
+
       if (!session || ['stopped', 'failed'].includes(session.state)) {
         return null
       }
@@ -124,6 +127,7 @@ export function createSessionRegistry() {
 
     markDisconnected(sessionId, detail) {
       const session = sessions.get(sessionId)
+
       if (!session || ['stopped', 'failed'].includes(session.state)) {
         return null
       }
@@ -140,17 +144,21 @@ export function createSessionRegistry() {
     },
     setLaunch(sessionId, progress) {
       const session = sessions.get(sessionId)
+
       if (!session || ['stopped', 'failed'].includes(session.state)) {
         return
       }
+
       session.launch = { ...session.launch, ...progress }
       notify(session)
     },
     markFailed(sessionId, error) {
       const session = sessions.get(sessionId)
+
       if (!session || session.state === 'stopped') {
         return
       }
+
       session.state = 'failed'
       session.launch = { ...session.launch, phase: 'failed', error }
       session.detail = error.message
@@ -159,6 +167,7 @@ export function createSessionRegistry() {
 
     async end(sessionId) {
       const session = sessions.get(sessionId)
+
       if (!session) {
         return { sessionId, ended: false }
       }
@@ -171,6 +180,7 @@ export function createSessionRegistry() {
       if (session.state !== 'failed') {
         session.state = 'stopped'
       }
+
       notify(session)
 
       if (session.ownership === 'attached') {
@@ -182,10 +192,14 @@ export function createSessionRegistry() {
       }
 
       const cleanup = cleanups.get(sessionId)
+
       cleanups.delete(sessionId)
+
       let released = []
+
       try {
         const out = cleanup ? await cleanup() : undefined
+
         released = out?.released ?? []
       } catch {
         released = ['cleanup reported a failure — inspect target state manually']
@@ -196,6 +210,7 @@ export function createSessionRegistry() {
 
     async shutdown() {
       const results = []
+
       for (const sessionId of sessions.keys()) {
         results.push(await this.end(sessionId))
       }
@@ -216,6 +231,7 @@ export function createJobRegistry(options = {}) {
 
   const trim = () => {
     const finished = [...jobs.values()].filter((j) => JOB_TERMINAL_STATES.includes(j.state))
+
     if (finished.length <= historyLimit) {
       return
     }
@@ -282,6 +298,7 @@ export function createJobRegistry(options = {}) {
 
       if (input.run) {
         const controller = new AbortController()
+
         controllers.set(job.jobId, controller)
         void runJob(job, input.run, controller)
       }
@@ -291,11 +308,13 @@ export function createJobRegistry(options = {}) {
 
     status: (jobId) => {
       const job = jobs.get(jobId)
+
       return job ? snapshot(job) : null
     },
 
     setProgress(jobId, progress) {
       const job = jobs.get(jobId)
+
       if (!job || !live(job)) {
         return null
       }
@@ -306,6 +325,7 @@ export function createJobRegistry(options = {}) {
 
     succeed(jobId, result) {
       const job = jobs.get(jobId)
+
       if (!job || !live(job)) {
         return null
       }
@@ -320,6 +340,7 @@ export function createJobRegistry(options = {}) {
 
     fail(jobId, error) {
       const job = jobs.get(jobId)
+
       if (!job || !live(job)) {
         return null
       }
@@ -334,6 +355,7 @@ export function createJobRegistry(options = {}) {
 
     cancel(jobId) {
       const job = jobs.get(jobId)
+
       if (!job) {
         return null
       }
@@ -343,7 +365,9 @@ export function createJobRegistry(options = {}) {
       }
 
       job.state = 'cancelling'
+
       const controller = controllers.get(jobId)
+
       if (controller) {
         controller.abort()
       } else {

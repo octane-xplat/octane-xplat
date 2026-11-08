@@ -23,11 +23,13 @@ function ensureFallbackViewport(): void {
   }
 
   const present = appKitHost()?.presentSurface
+
   if (!present) {
     throw new Error('AppKit host has no toast presenter')
   }
 
   const unregister = registerToastViewport(FALLBACK_TOAST_VIEWPORT)
+
   try {
     // A zero-size coordinator root owns the four edge stacks and anchored
     // popovers; it closes with its window, releasing subscriptions/timers.
@@ -66,6 +68,7 @@ export const showToast: ShowToastFn = (options) => {
 
 export function useToast(): ShowToastFn @{
   const ctx = useContext(ToastViewportContext)
+
   return useCallback(
     (options: ToastOptions) => {
       ensureFallbackViewport()

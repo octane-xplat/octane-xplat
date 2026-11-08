@@ -33,8 +33,11 @@ afterEach(() => {
 
 function mount() {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(<MotionPatterns />))
   return {
     container,
@@ -53,6 +56,7 @@ const advance = async (ms: number) => {
 
 const click = (container: HTMLElement, id: string) => {
   const el = container.querySelector<HTMLElement>('#' + id)
+
   if (!el) {
     throw new Error('missing #' + id)
   }
@@ -78,6 +82,7 @@ const items = (container: HTMLElement) =>
 describe('MotionPatterns showcase', () => {
   it('renders the dashboard readable before effects finish', async () => {
     const { container, close } = mount()
+
     expect(container.textContent).toContain('Activity overview')
     expect(container.querySelector('#mp-total')?.textContent).toBe('1,284')
     expect(items(container).length).toBe(3)
@@ -92,6 +97,7 @@ describe('MotionPatterns showcase', () => {
 
   it('switches ranges wait-style and converges on the latest selection', async () => {
     const { container, close } = mount()
+
     await advance(400)
     segment(container, 'mp-range', 'Week')
     await advance(60)
@@ -107,6 +113,7 @@ describe('MotionPatterns showcase', () => {
 
   it('swaps panels directly under the reduced-motion preview', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-reduce')
     expect(container.querySelector('#mp-reduce-effective')?.textContent).toBe('Reduced (preview)')
@@ -120,8 +127,11 @@ describe('MotionPatterns showcase', () => {
 
   it('interpolates the total and settles on the exact target', async () => {
     const { container, close } = mount()
+
     await advance(400)
+
     const total = container.querySelector('#mp-total') as HTMLElement
+
     click(container, 'mp-inc')
     // Assistive tech gets the latest meaningful target immediately.
     expect(total.getAttribute('aria-label')).toBe('Total: 1,534')
@@ -148,6 +158,7 @@ describe('MotionPatterns showcase', () => {
 
   it('settles the total instantly under reduced motion', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-reduce')
     click(container, 'mp-inc')
@@ -157,8 +168,11 @@ describe('MotionPatterns showcase', () => {
 
   it('replays the group without changing items or order', async () => {
     const { container, close } = mount()
+
     await advance(600)
+
     const before = items(container)
+
     click(container, 'mp-replay')
     await advance(800)
     expect(items(container)).toEqual(before)
@@ -167,6 +181,7 @@ describe('MotionPatterns showcase', () => {
 
   it('opens a focused view with its own isolated example', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-index-group')
     expect(container.querySelector('#mp-focus-group')).not.toBeNull()
@@ -189,8 +204,11 @@ describe('MotionPatterns showcase', () => {
 
   it('cycles phrases on play, pauses, and steps with next', async () => {
     const { container, close } = mount()
+
     await advance(400)
+
     const phrase = () => container.querySelector('#mp-phrase')?.textContent
+
     expect(phrase()).toBe('Review today')
     click(container, 'mp-loop-toggle')
     expect(container.querySelector('#mp-loop-state')?.textContent).toBe('Playing')
@@ -198,7 +216,9 @@ describe('MotionPatterns showcase', () => {
     expect(phrase()).toBe('Track this week')
     click(container, 'mp-loop-toggle')
     expect(container.querySelector('#mp-loop-state')?.textContent).toBe('Paused')
+
     const held = phrase()
+
     await advance(7000)
     expect(phrase()).toBe(held)
     click(container, 'mp-loop-next')
@@ -209,6 +229,7 @@ describe('MotionPatterns showcase', () => {
 
   it('disables autonomous cycling and swaps directly under reduced motion', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-reduce')
     // Play is disabled while reduced — autonomous cycling never starts.
@@ -227,6 +248,7 @@ describe('MotionPatterns showcase', () => {
 
   it('pauses cycling when reduced motion turns on mid-play', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-loop-toggle')
     click(container, 'mp-reduce')
@@ -239,7 +261,9 @@ describe('MotionPatterns showcase', () => {
 
   it('honors the system preference over the preview and reports it', async () => {
     systemReduced = true
+
     const { container, close } = mount()
+
     await advance(400)
     expect(container.querySelector('#mp-reduce-effective')?.textContent).toBe(
       'Reduced (system preference)',
@@ -253,6 +277,7 @@ describe('MotionPatterns showcase', () => {
 
   it('shows and recovers the empty-range state in the focused view', async () => {
     const { container, close } = mount()
+
     await advance(400)
     click(container, 'mp-index-panels')
     await advance(400)

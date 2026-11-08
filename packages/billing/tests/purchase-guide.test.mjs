@@ -11,6 +11,7 @@ const source = await readFile(
 )
 
 const exports = {}
+
 vm.runInNewContext(
   ts.transpile(source, { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 }),
   {
@@ -37,6 +38,7 @@ function fixture({ ready = true, supported = true, verify, finish, available = [
     entitled = false,
     connected = false,
     disconnected = false
+
   const calls = []
   const store = {
     supported,
@@ -69,19 +71,25 @@ function fixture({ ready = true, supported = true, verify, finish, available = [
       await finish?.()
     },
   }
+
   const request = async (path, init) => {
     calls.push(path)
     if (path === '/api/entitlements') {
       return reply({ premium: entitled })
     }
+
     const body = JSON.parse(init.body)
+
     if (verify) {
       return verify(body)
     }
+
     entitled = true
     return reply({ granted: true, transactionId: body.transactionId, productId: body.productId })
   }
+
   const owner = createPurchaseSession({ store, request, platform: 'android', productId: 'premium' })
+
   return {
     owner,
     calls,
@@ -100,6 +108,7 @@ const settled = () => new Promise((resolve) => setImmediate(resolve))
 
 test('localized product loads, while an opened purchase sheet never grants access', async () => {
   const f = fixture()
+
   await f.owner.start()
   assert.equal(f.owner.state.getSnapshot().product.displayPrice, '$4.99')
   await f.owner.buy()
@@ -110,6 +119,7 @@ test('localized product loads, while an opened purchase sheet never grants acces
 
 test('pending, cancelled and failed store outcomes do not finish or grant', async () => {
   const f = fixture()
+
   await f.owner.start()
   f.emit([{ ...purchase, state: 'pending' }])
   await settled()
@@ -125,12 +135,15 @@ test('pending, cancelled and failed store outcomes do not finish or grant', asyn
 
 test('verification and durable server grant precede completion; repeated updates finish once', async () => {
   const f = fixture()
+
   await f.owner.start()
   f.emit([purchase])
   f.emit([purchase])
   await settled()
   assert.equal(f.owner.state.getSnapshot().unlocked, true)
+
   const finishes = f.calls.filter(Array.isArray)
+
   assert.equal(finishes.length, 1)
   assert.equal(finishes[0][1].native, purchase.native)
   assert.equal(finishes[0][2].consume, false)
@@ -144,6 +157,7 @@ test('invalid or unavailable backend verification leaves the transaction unfinis
     () => reply({ granted: true, transactionId: 'other', productId: 'premium' }),
   ]) {
     const f = fixture({ verify })
+
     await f.owner.start()
     f.emit([purchase])
     await settled()
@@ -163,6 +177,7 @@ test('restoration retries failed completion using the same store transaction', a
       }
     },
   })
+
   await f.owner.start()
   assert.match(f.owner.state.getSnapshot().message, /Retry Restore/)
   await f.owner.restore()
@@ -175,7 +190,9 @@ test('closing an account owner retires late verification without finishing its t
   const waiting = new Promise((resolve) => {
     finishVerify = resolve
   })
+
   const f = fixture({ verify: () => waiting })
+
   await f.owner.start()
   f.emit([purchase])
   await settled()
@@ -189,13 +206,16 @@ test('closing an account owner retires late verification without finishing its t
 
 test('readiness has a manual retry and unsupported hosts never open a store connection', async () => {
   const f = fixture({ ready: false })
+
   await f.owner.start()
   assert.equal(f.connected(), true)
   assert.equal(f.owner.state.getSnapshot().product, null)
   f.setReady()
   await f.owner.reload()
   assert.equal(f.owner.state.getSnapshot().product.id, 'premium')
+
   const unsupported = fixture({ supported: false })
+
   await unsupported.owner.start()
   assert.equal(unsupported.connected(), false)
   assert.match(unsupported.owner.state.getSnapshot().message, /unavailable/)
@@ -206,17 +226,22 @@ test('the first load waits for the store connection before fetching', async () =
   const gate = new Promise((resolve) => {
     release = resolve
   })
+
   const f = fixture()
   const order = []
+
   f.store.connect = async () => {
     order.push('connect')
     await gate
   }
+
   f.store.fetchProducts = async () => {
     order.push('fetchProducts')
     return [product]
   }
+
   const starting = f.owner.start()
+
   await settled()
   assert.deepEqual(order, ['connect'])
   release()
@@ -233,6 +258,7 @@ test('a rejected old transaction does not prevent processing a later valid trans
         productId: body.productId,
       }),
   })
+
   await f.owner.start()
   f.emit([{ ...purchase, transactionId: 'old' }, purchase])
   await settled()
@@ -242,9 +268,11 @@ test('a rejected old transaction does not prevent processing a later valid trans
 
 test('a deferred purchase rejection remains pending instead of enabling a second request', async () => {
   const f = fixture()
+
   f.store.requestPurchase = async () => {
     throw Object.assign(new Error('provider detail'), { code: 'DEFERRED_PAYMENT' })
   }
+
   await f.owner.start()
   await f.owner.buy()
   assert.equal(f.owner.state.getSnapshot().pending, true)

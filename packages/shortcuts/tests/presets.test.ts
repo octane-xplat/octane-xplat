@@ -29,16 +29,20 @@ describe('blocklist presets', () => {
     expect(combos(commonBrowserShortcuts)).toEqual(
       expect.arrayContaining(['Mod+F', 'Mod+P', 'Mod+S', 'Mod+O', 'Mod+0', 'Mod+-']),
     )
+
     expect(combos(commonBrowserShortcuts)).not.toContain('Mod+Shift+N')
     expect(combos(chromeBrowserShortcuts)).toEqual(
       expect.arrayContaining(['Ctrl+Shift+N', 'Ctrl+Shift+J', 'Meta+Option+I']),
     )
+
     expect(combos(edgeBrowserShortcuts)).toEqual(
       expect.arrayContaining(['Ctrl+Shift+N', 'Ctrl+Shift+K', 'Meta+Shift+C']),
     )
+
     expect(combos(firefoxBrowserShortcuts)).toEqual(
       expect.arrayContaining(['Ctrl+Shift+P', 'Ctrl+Shift+A', 'Meta+Option+K']),
     )
+
     expect(combos(safariBrowserShortcuts)).toEqual(
       expect.arrayContaining(['Meta+Shift+N', 'Meta+Control+1', 'Meta+Shift+D']),
     )
@@ -48,9 +52,11 @@ describe('blocklist presets', () => {
     expect(
       macOsShortcuts.every((entry) => entry.category === 'os' && entry.platform === 'mac'),
     ).toBe(true)
+
     expect(
       windowsOsShortcuts.every((entry) => entry.category === 'os' && entry.platform === 'windows'),
     ).toBe(true)
+
     expect(
       linuxOsShortcuts.every((entry) => entry.category === 'os' && entry.platform === 'linux'),
     ).toBe(true)
@@ -73,6 +79,7 @@ describe('blocklist presets', () => {
     }
 
     const unscopedEntries = entries.map((entry) => ({ ...entry, platform: undefined }))
+
     expect(() => compileBlocklist(unscopedEntries, 'other')).not.toThrow()
   })
 })

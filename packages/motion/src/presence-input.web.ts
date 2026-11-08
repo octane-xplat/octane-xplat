@@ -3,6 +3,7 @@ export function blockInput(node: HTMLElement): () => void {
   const hidden = node.getAttribute('aria-hidden')
   const pointerEvents = node.style.pointerEvents
   const focused = node.ownerDocument.activeElement as HTMLElement | null
+
   if (focused && node.contains(focused)) {
     focused.blur()
   }

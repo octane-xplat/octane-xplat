@@ -22,9 +22,11 @@ export function Tooltip(props: TooltipProps): unknown @{
   }
 
   const current = useRef(options)
+
   current.current = options
   useEffect(() => {
     const live = anchor.current.createTooltip(current.current)
+
     setSession(live)
     return () => live.dispose()
   }, [])

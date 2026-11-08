@@ -39,6 +39,7 @@ const PATCH_PACKAGE = join(repo, 'packages/patches')
 const PATCH_PACKAGE_FILES = join(PATCH_PACKAGE, 'patches')
 const CHECK = process.argv.includes('--check')
 const PACKAGE_ONLY = process.argv.includes('--package-only')
+
 for (const arg of process.argv.slice(2)) {
   if (arg !== '--check' && arg !== '--package-only') {
     throw new Error(`sync-patches: unknown option ${arg}`)
@@ -55,9 +56,11 @@ const syncPatchPackageFiles = (failures) => {
   }
 
   const wanted = new Set(manifest.map((p) => p.file))
+
   for (const patch of manifest) {
     const src = join(CLI_PATCHES, patch.file)
     const dst = join(PATCH_PACKAGE_FILES, patch.file)
+
     if (existsSync(dst) && readFileSync(src).equals(readFileSync(dst))) {
       continue
     }
@@ -82,10 +85,12 @@ const syncPatchPackageFiles = (failures) => {
 }
 
 const failures = []
+
 if (!PACKAGE_ONLY) {
   const file = join(repo, 'package.json')
   const before = readFileSync(file, 'utf8')
   const pkg = JSON.parse(before)
+
   pkg.patchedDependencies = Object.fromEntries(
     manifest
       .filter((patch) => patch.repository !== false)
@@ -98,6 +103,7 @@ if (!PACKAGE_ONLY) {
   )
 
   const after = JSON.stringify(pkg, null, '\t') + '\n'
+
   if (before !== after) {
     failures.push('package.json — Bun patchedDependencies are stale')
     if (!CHECK) {
@@ -112,6 +118,7 @@ if (!PACKAGE_ONLY) {
     const patches = manifest.filter((patch) => {
       const at = patch.specifier.indexOf('@', 1)
       const pin = managedPackage(patch.specifier.slice(0, at))
+
       return patch.template !== false && (!pin || pin.version === patch.specifier.slice(at + 1))
     })
 
@@ -120,6 +127,7 @@ if (!PACKAGE_ONLY) {
     )
 
     const after = JSON.stringify(pkg, null, '\t') + '\n'
+
     if (after !== readFileSync(file, 'utf8')) {
       failures.push(`${relative(file)} — patch registrations are stale`)
       if (!CHECK) {
@@ -128,11 +136,13 @@ if (!PACKAGE_ONLY) {
     }
 
     const destination = join(base, 'patches')
+
     if (!CHECK) {
       mkdirSync(destination, { recursive: true })
     }
 
     const wanted = new Set(patches.map((patch) => patch.file))
+
     for (const name of existsSync(destination) ? readdirSync(destination) : []) {
       if (!wanted.has(name)) {
         failures.push(`${relative(destination)}/${name} — obsolete starter patch`)
@@ -145,6 +155,7 @@ if (!PACKAGE_ONLY) {
     for (const patch of patches) {
       const src = join(CLI_PATCHES, patch.file)
       const dst = join(destination, patch.file)
+
       if (!existsSync(dst) || !readFileSync(src).equals(readFileSync(dst))) {
         failures.push(`${relative(dst)} — starter patch is stale`)
         if (!CHECK) {

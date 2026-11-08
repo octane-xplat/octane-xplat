@@ -214,6 +214,7 @@ const cohortRows: CohortRow[] = COHORTS.map((c, i) => ({
 
 function RetentionCell(props: { value: string | number }) @{
   const pct = typeof props.value === 'number' ? props.value : NaN
+
   if (Number.isNaN(pct)) {
     return <Text color="secondary">—</Text>
   }
@@ -295,6 +296,7 @@ function FunnelSteps(props: { segment: Segment }) @{
     const from = prev.users[props.segment]
     const conv = (to / from) * 100
     const drop = 100 - conv
+
     return {
       key: stage.key,
       label: `${prev.label} → ${stage.label}`,
@@ -341,12 +343,14 @@ export function DashboardCohortFunnelTemplate() @{
   const kpis = KPIS[segment]
   const topOfFunnel = useMemo(() => {
     const base = FUNNEL_STAGES[0].users[segment]
+
     return Math.round(base * WINDOW_FACTOR[funnelWindow])
   }, [segment, funnelWindow])
 
   const overallConversion = useMemo(() => {
     const top = FUNNEL_STAGES[0].users[segment]
     const bottom = FUNNEL_STAGES[FUNNEL_STAGES.length - 1].users[segment]
+
     return ((bottom / top) * 100).toFixed(1)
   }, [segment])
 

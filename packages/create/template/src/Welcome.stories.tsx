@@ -4,6 +4,7 @@ import { defineStory } from '@octane-xplat/workshop'
 
 function Welcome() {
   const [count, setCount] = useState(0)
+
   return (
     <Pressable onPress={() => setCount(count + 1)}>
       <Text>Hello from Workshop: {count}</Text>

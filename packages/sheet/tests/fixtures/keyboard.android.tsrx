@@ -4,6 +4,7 @@ import { View, TextInput } from '@octane-xplat/ui'
 import { MaterialBottomSheet } from '@octane-xplat/sheet/android'
 import { KeyboardController } from '../../../keyboard/src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let background: any,
   field: any,
   show = (_open: boolean) => {},
@@ -48,6 +49,7 @@ export default function NativeSheetProbe() @{
 export async function run(ctx: ProbeContext) {
   ctx.record('phase', 'background host')
   await ctx.waitFor(() => background?.isLoaded && background.android?.hasWindowFocus())
+
   const keys: any[] = []
   const off = KeyboardController.onMove(background, (s) => {
     keys.push(s)
@@ -58,6 +60,7 @@ export async function run(ctx: ProbeContext) {
   background.focus()
   await ctx.waitFor(() => {
     const s = keys.at(-1)
+
     return (
       s?.inset > 100 &&
       s.currentFrame &&
@@ -76,6 +79,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   ctx.assert('Material presented input has usable bounds', field.getActualSize().height >= 47, true)
+
   const sheetKeys: any[] = []
   const stop = KeyboardController.onMove(field, (s) => {
     sheetKeys.push(s)
@@ -83,8 +87,10 @@ export async function run(ctx: ProbeContext) {
   })
 
   ctx.onCleanup(stop)
+
   const visible = () => {
     const s = sheetKeys.at(-1)
+
     if (!field?.android?.isAttachedToWindow()) {
       return false
     }
@@ -94,6 +100,7 @@ export async function run(ctx: ProbeContext) {
 
     field.android.getLocationOnScreen(xy)
     field.android.getRootView().getLocationOnScreen(origin)
+
     const density = field.android.getResources().getDisplayMetrics().density,
       y = (xy[1] - origin[1]) / density,
       height = field.android.getHeight() / density
@@ -110,6 +117,7 @@ export async function run(ctx: ProbeContext) {
   field.focus()
   await ctx.waitFor(() => field.android.hasFocus() && visible())
   ctx.assert('Material dialog owns keyboard clearance', !!visible(), true)
+
   const firstStamp = sheetKeys.at(-1).timestampMs,
     firstWindow = field.android.getRootView(),
     presented = field

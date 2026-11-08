@@ -13,6 +13,7 @@ export function unsupportedBackend(
     assignment: 'none',
     reason,
   }
+
   return {
     platform: null,
     support: () => Promise.resolve({ ...support }),

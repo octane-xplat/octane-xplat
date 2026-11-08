@@ -14,6 +14,7 @@ it('uses converted window bounds and normalizes unflipped coordinates', () => {
 
   const view = { window: { contentView: content }, bounds: {}, convertRectToView }
   const rect = measure(view)!
+
   expect(rect.boundingRectangle).toMatchObject({ left: 20, top: 60, width: 100, height: 40 })
   expect(convertRectToView).toHaveBeenCalledWith(view.bounds, content)
   content.isFlipped = true

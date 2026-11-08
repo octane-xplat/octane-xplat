@@ -32,6 +32,7 @@ export function ChatMessageMetadata(props: ChatMessageMetadataProps): unknown @{
   const hasTimestamp = renderable(props.timestamp)
   const hasFooter = renderable(props.footer)
   const hasStatus = props.status != null
+
   if (!hasTimestamp && !hasFooter && !hasStatus) {
     return null
   }

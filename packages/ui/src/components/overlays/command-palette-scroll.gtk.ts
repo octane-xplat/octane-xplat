@@ -5,9 +5,11 @@ import Gtk from 'gi://Gtk?version=4.0'
  *  the row's translated y. Mirrors the AppKit `scrollRectToVisible` helper. */
 export function scrollCommandPaletteHighlight(row: any): void {
   const widget = row
+
   for (let cur = widget?.get_parent?.(); cur; cur = cur.get_parent?.()) {
     if (cur instanceof Gtk.ScrolledWindow) {
       const [ok, dx, dy] = widget.translate_coordinates(cur, 0, 0) ?? [false, 0, 0]
+
       void dx
       if (!ok) {
         return
@@ -18,6 +20,7 @@ export function scrollCommandPaletteHighlight(row: any): void {
       const bottom = top + widget.get_height()
       const page = adj.get_page_size()
       let value = adj.get_value()
+
       if (top < value) {
         value = top
       } else if (bottom > value + page) {

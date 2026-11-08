@@ -22,12 +22,14 @@ export function useDialogText(): DialogTextResult {
         }
 
         const next = new Map(previous)
+
         next.delete(token)
         return next
       })
   }, [])
 
   const values = [...entries.values()]
+
   return {
     register,
     labelledBy:
@@ -67,6 +69,7 @@ export function useDialogPart(
   const token = useRef({})
   const text = typeof children === 'string' || typeof children === 'number' ? String(children) : ''
   const register = dialog.register
+
   useLayoutEffect(() => {
     let remove = () => {}
     const view = host?.current

@@ -21,6 +21,7 @@ export function resolveSortKey<T extends Record<string, unknown>>(
   column: TableColumn<T>,
 ): string | null {
   const { sortable } = column
+
   if (!sortable) {
     return null
   }
@@ -81,6 +82,7 @@ function SortHeaderButton<T extends Record<string, unknown>>(props: {
     const allowUnsorted = cfg.allowUnsortedState ?? true
     const currentEntry = cfg.sort.find((s) => s.sortKey === sortKey)
     const nextDir = getNextDirection(currentEntry?.direction ?? null, allowUnsorted)
+
     if (nextDir == null) {
       cfg.onSortChange([])
     } else {
@@ -110,6 +112,7 @@ export function useTableSortable<
   TSortKey extends string = string,
 >(config: UseTableSortableConfig<TSortKey>): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   return {
@@ -118,6 +121,7 @@ export function useTableSortable<
       column: TableColumn<T>,
     ): HeaderCellRenderProps {
       const sortKey = resolveSortKey(column)
+
       if (sortKey == null) {
         return props
       }

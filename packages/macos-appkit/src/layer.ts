@@ -2,6 +2,7 @@
 
 import { NSView } from '@octane-xplat/platform/macos'
 import type { NSClass, NSEvent, NSNotificationCenter, NSSize } from '@octane-xplat/platform/macos'
+
 export interface WindowLayerBounds {
   left: number
   top: number
@@ -64,6 +65,7 @@ const notificationOwners = new WeakMap<NSView, NotificationRecord>()
 
 function ownNotifications(view: NSView) {
   let record = notificationOwners.get(view)
+
   if (!record) {
     record = {
       count: 0,
@@ -108,6 +110,7 @@ export function showWindowLayer(
   const anchor = options.anchor
   const ownerWindow = anchor?.window
   const container = ownerWindow?.contentView
+
   if (
     !container ||
     !View ||
@@ -126,14 +129,18 @@ export function showWindowLayer(
   const root = options.createContentRoot
     ? options.createContentRoot(contentView)
     : createRoot(contentView, anchor)
+
   if (!root || typeof root.render !== 'function' || typeof root.unmount !== 'function') {
     throw new TypeError('AppKit layer content root requires render and unmount')
   }
+
   contentView.hidden = true
+
   let ready = false,
     presented = false,
     revision = 0,
     requested = !options.deferPresentation
+
   let surface = options.props ?? {}
   let positioning: WindowLayerOptions = options
   let monitor: any = null
@@ -148,9 +155,11 @@ export function showWindowLayer(
       layer.close(true)
       return
     }
+
     if (!ready) {
       return
     }
+
     const viewport = container.bounds
     const height = viewport.size.height
     const rect = anchor.convertRectToView(anchor.bounds, container)
@@ -175,10 +184,12 @@ export function showWindowLayer(
     if (layer.closed) {
       return
     }
+
     if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) {
       layer.close(true)
       return
     }
+
     const frame = {
       origin: {
         x: viewport.origin.x + point.left,
@@ -186,6 +197,7 @@ export function showWindowLayer(
       },
       size,
     }
+
     if (
       ![frame.origin.x, frame.origin.y, size.width, size.height].every(Number.isFinite) ||
       size.width < 0 ||
@@ -193,7 +205,9 @@ export function showWindowLayer(
     ) {
       throw new RangeError('AppKit layer positioning requires finite, nonnegative geometry')
     }
+
     const previous = contentView.frame
+
     if (
       !previous ||
       previous.origin.x !== frame.origin.x ||
@@ -212,6 +226,7 @@ export function showWindowLayer(
       if (layer.closed) {
         return
       }
+
       requested = true
       updatePosition()
       if (!layer.closed && ready) {
@@ -237,12 +252,15 @@ export function showWindowLayer(
       }
 
       const current = ++revision
+
       ready = false
       root.render(options.component, surface)
+
       const committed = () => {
         if (layer.closed || current !== revision) {
           return
         }
+
         ready = true
         try {
           updatePosition()
@@ -260,6 +278,7 @@ export function showWindowLayer(
           throw error
         }
       }
+
       if (root.whenCommitted) {
         root.whenCommitted(committed)
       } else {
@@ -270,10 +289,12 @@ export function showWindowLayer(
       if (layer.closed) {
         return
       }
+
       layer.closed = true
       revision++
       ready = false
       presented = false
+
       const failures: unknown[] = []
       const clean = (action: () => void) => {
         try {
@@ -282,25 +303,32 @@ export function showWindowLayer(
           failures.push(error)
         }
       }
+
       clean(() => {
         contentView.hidden = true
       })
+
       const previousMonitor = monitor
+
       monitor = null
       if (previousMonitor) {
         clean(() => Event!.removeMonitor(previousMonitor))
       }
+
       for (const observer of observers.splice(0)) {
         clean(() => Center!.defaultCenter.removeObserver(observer))
       }
+
       for (const release of releases.splice(0)) {
         clean(release)
       }
+
       clean(() => root.unmount())
       clean(() => contentView.removeFromSuperview())
       if (dismissed) {
         clean(() => options.onClose?.())
       }
+
       if (failures.length) {
         throw failures[0]
       }
@@ -370,17 +398,21 @@ export function showWindowLayer(
           if (layer.closed) {
             return event
           }
+
           if (anchor.window !== ownerWindow || ownerWindow?.contentView !== container) {
             layer.close(true)
             return event
           }
+
           if (!presented || !positioning.lightDismiss || event.window !== ownerWindow) {
             return event
           }
 
           const point = container.convertPointFromView(event.locationInWindow, null)
+
           if (positioning.excludeAnchorFromDismiss) {
             const rect = anchor.convertRectToView(anchor.bounds, container)
+
             if (
               point.x >= rect.origin.x &&
               point.y >= rect.origin.y &&
@@ -390,7 +422,9 @@ export function showWindowLayer(
               return event
             }
           }
+
           const frame = contentView.frame
+
           if (
             point.x < frame.origin.x ||
             point.y < frame.origin.y ||

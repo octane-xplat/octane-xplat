@@ -47,6 +47,7 @@ const handler = () =>
 const createTransport = (): HostTransport | null => {
   const post = handler()
   const host = typeof window !== 'undefined' ? window.__xplatHostTransport : undefined
+
   if (!post || !host) {
     return null
   }
@@ -68,6 +69,7 @@ const hostClient = () => {
   }
 
   const transport = createTransport()
+
   client = transport
     ? createHostClient<FrameworkHostServices, FrameworkHostEvents>(transport)
     : null
@@ -88,6 +90,7 @@ export const call: HostClient<FrameworkHostServices, FrameworkHostEvents>['call'
   ...args
 ) => {
   const host = hostClient()
+
   if (!host) {
     return Promise.reject(new Error(`xplat host bridge is unavailable (${service}.${method})`))
   }
@@ -100,6 +103,7 @@ export function onHostEvent<Event extends keyof FrameworkHostEvents & string>(
   listener: (payload: FrameworkHostEvents[Event]) => void,
 ): () => void {
   const host = hostClient()
+
   return host ? host.on(name, listener) : () => {}
 }
 
@@ -109,6 +113,7 @@ export function bootstrap(): HostBootstrapState | null {
 
 export function on(service: string, event: string, listener: Listener): () => void {
   const host = hostClient()
+
   return host
     ? host.on(eventName(service, event) as keyof FrameworkHostEvents & string, listener)
     : () => {}
@@ -130,6 +135,7 @@ if (typeof window !== 'undefined' && !window.__xplatBridge) {
     },
     call: (service, method, args) => {
       const host = hostClient()
+
       if (!host) {
         return Promise.reject(new Error(`xplat host bridge is unavailable (${service}.${method})`))
       }

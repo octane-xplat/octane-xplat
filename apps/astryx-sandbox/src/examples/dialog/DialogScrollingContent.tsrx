@@ -49,6 +49,7 @@ function Content(props: { onClose: () => void }) @{
 
 export function DialogScrollingContent() @{
   const dialog = useImperativeDialog({ maxHeight: '50dvh' })
+
   return (
     <>
       <Dialog isOpen isInline onOpenChange={() => {}} maxHeight={360}>

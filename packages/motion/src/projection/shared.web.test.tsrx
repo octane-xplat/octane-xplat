@@ -3,11 +3,13 @@ import { expect, it, vi } from 'vitest'
 import { motion, LayoutGroup, Presence } from '../index.web'
 
 const frames = vi.hoisted(() => ({ time: 0, id: 0, queue: new Map<number, () => void>() }))
+
 vi.mock('../clock', () => ({
   clock: {
     now: () => frames.time,
     request: (callback: () => void) => {
       const id = ++frames.id
+
       frames.queue.set(id, callback)
       return id
     },
@@ -19,7 +21,9 @@ vi.mock('../clock', () => ({
 
 function advance(ms: number) {
   frames.time += ms
+
   const queued = [...frames.queue.values()]
+
   frames.queue.clear()
   for (const callback of queued) {
     callback()
@@ -53,10 +57,14 @@ function App(props: { next: boolean; retain?: boolean }) @{
 
 it('hands off across component lifetimes and isolates group namespaces', async () => {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const original = Element.prototype.getBoundingClientRect
+
   Element.prototype.getBoundingClientRect = function () {
     const x = this.id === 'next' ? 200 : this.id === 'isolated' ? 500 : 0
+
     return {
       x,
       y: 0,
@@ -70,12 +78,15 @@ it('hands off across component lifetimes and isolates group namespaces', async (
   }
 
   const root = createRoot(container)
+
   try {
     act(() => root.render(<App next={false} retain />))
     await act(async () => {})
     act(() => root.render(<App next retain />))
     await act(async () => {})
+
     const next = container.querySelector('#next') as HTMLElement
+
     expect(next.style.transform).toContain('-200px')
     expect(container.querySelector('#old')).not.toBeNull()
     expect((container.querySelector('#isolated') as HTMLElement).style.transform).not.toContain(
@@ -96,10 +107,14 @@ it('hands off across component lifetimes and isolates group namespaces', async (
 
 it('hands off when the source unmounts in the same commit without Presence', async () => {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const original = Element.prototype.getBoundingClientRect
+
   Element.prototype.getBoundingClientRect = function () {
     const x = this.id === 'next' ? 200 : this.id === 'isolated' ? 500 : 0
+
     return {
       x,
       y: 0,
@@ -113,6 +128,7 @@ it('hands off when the source unmounts in the same commit without Presence', asy
   }
 
   const root = createRoot(container)
+
   try {
     act(() => root.render(<App next={false} />))
     await act(async () => {})

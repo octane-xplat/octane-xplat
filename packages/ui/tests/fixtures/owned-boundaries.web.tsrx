@@ -19,6 +19,7 @@ function Controls() {
 export default function Case() {
   const [name, setName] = useState('Avery')
   const [open, setOpen] = useState(true)
+
   updateName = setName
   closeOwner = () => setOpen(false)
   return (
@@ -34,11 +35,14 @@ export default function Case() {
 export async function run(ctx: any) {
   const find = (id: string) => document.getElementById(id)
   const canceled = sheet.open(Content, { id: 'canceled-sheet' }, { label: 'Canceled' })
+
   canceled.close('canceled')
   ctx.assert('close before portal commit settles its handle', await canceled, 'canceled')
   ctx.assert('canceled content never mounts', find('canceled-sheet') == null, true)
+
   const first = sheet.open(Content, { id: 'owned-sheet-first' }, { label: 'First' })
   const second = sheet.open(Content, { id: 'owned-sheet-second' }, { label: 'Second' })
+
   await ctx.waitFor(() => find('owned-sheet-first') && find('owned-sheet-second'))
   ctx.assert(
     'first sheet inherits the nearest provider',
@@ -68,7 +72,9 @@ export async function run(ctx: any) {
   await second
   await ctx.waitFor(() => !find('owned-sheet-second'))
   ctx.assert('owner removal releases the sheet', find('owned-sheet-second') == null, true)
+
   let rejected = false
+
   try {
     await sheet.open(Content, { id: 'late-sheet' })
   } catch {

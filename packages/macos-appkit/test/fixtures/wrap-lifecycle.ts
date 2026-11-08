@@ -21,6 +21,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 
   const rect = (view: any) => {
     const r = view.alignmentRectForFrame(view.frame)
+
     return [
       Number(r.origin.x),
       Number(view.superview.bounds.size.height) - Number(r.origin.y) - Number(r.size.height),
@@ -31,6 +32,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 
   const expectRect = (id: string, expected: number[]) => {
     const actual = rect(debug.findId(id))
+
     check(
       actual.every((value, i) => Math.abs(value - expected[i]) < 1),
       id + ': expected ' + expected.join(',') + ' got ' + actual.join(','),
@@ -44,11 +46,13 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 
   root.render(Wrap, {})
   await settle()
+
   const host = debug.findId('wrap'),
     moving = debug.findId('wrap-moving'),
     descendant = debug.findId('wrap-descendant')
 
   const children = ['a', 'b', 'c'].map((id) => debug.findId('wrap-' + id))
+
   check(
     wrapRefs.host.current === host && wrapRefs.child.current === moving,
     'Wrap refs not assigned',
@@ -96,8 +100,10 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
   nativeWindow.setContentSize({ width: 400, height: 200 })
   await settle()
   expectRect('wrap-resize-last', [240, 0, 80, 30])
+
   const naturalLabel = debug.findId('wrap-natural-label')
   const initialNaturalWidth = rect(naturalLabel)[2]
+
   check(initialNaturalWidth > 0 && initialNaturalWidth < 200, 'Natural label size failed')
 
   await advance()
@@ -144,6 +150,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
   expectRect('wrap-moving', [120, 0, 40, 20])
   check(wrapEvents.join(',') === 'attach', 'Updates reassigned refs')
   await advance()
+
   const replacement = debug.findId('wrap-moving'),
     replacementDescendant = debug.findId('wrap-descendant')
 
@@ -167,6 +174,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = debug.findId('wrap-moving'),
     movedDescendant = debug.findId('wrap-descendant')
 
@@ -177,6 +185,7 @@ export async function checkWrapLifecycle(root: any, nativeWindow: any) {
 
   expectRect('wrap-moving', [10, 10, 40, 20])
   await advance()
+
   const returned = debug.findId('wrap-moving'),
     returnedDescendant = debug.findId('wrap-descendant')
 

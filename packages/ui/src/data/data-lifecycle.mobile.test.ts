@@ -39,6 +39,7 @@ const roots: ReturnType<typeof createUniversalRoot>[] = []
 function mount(Component: any, props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   roots.push(root)
   root.render(Component, props)
   return {
@@ -71,6 +72,7 @@ describe('compiler-owned query lifecycle on universal roots', () => {
   it('suspends on first data, catches a query error, and retries the boundary', async () => {
     const { calls, load } = requests()
     const view = mount(SuspenseProfile, { load })
+
     expect(view.text()).toEqual(['pending'])
     calls[0].reject(new Error('offline'))
     await settle()
@@ -87,13 +89,16 @@ describe('compiler-owned query lifecycle on universal roots', () => {
   it('shares the declaring component query with a child reader', async () => {
     const { calls, load } = requests()
     const view = mount(NestedProfile, { load })
+
     expect(calls).toHaveLength(1)
     calls[0].resolve('nested result')
     await settle()
     expect(view.text()).toEqual(['ready', 'nested result'])
     view.root.unmount()
     expect(view.container.children).toEqual([])
+
     const pendingView = mount(NestedProfile, { load })
+
     expect(calls).toHaveLength(2)
     pendingView.root.unmount()
     expect(calls[1].signal.aborted).toBe(true)
@@ -106,6 +111,7 @@ describe('compiler-owned query lifecycle on universal roots', () => {
     const { calls, load } = requests()
     const first = mount(Profile, { id: 'first', load })
     const second = mount(Profile, { id: 'second', load })
+
     expect(calls.map((call) => call.id)).toEqual(['first', 'second'])
     calls[0].resolve('one')
     calls[1].resolve('two')
@@ -148,6 +154,7 @@ describe('compiler-owned query lifecycle on universal roots', () => {
   it('reports pending, error, retry, refetch, and reset separately', async () => {
     const { calls, load } = requests()
     const view = mount(Profile, { id: 'a', load })
+
     expect(view.text()).toEqual(['a:pending:none:false'])
     calls[0].reject(new Error('offline'))
     await settle()
@@ -173,7 +180,9 @@ describe('compiler-owned query lifecycle on universal roots', () => {
   it('updates a module signal across roots and disconnects unmounted readers', async () => {
     const selection$ = sharedSelection$
     const calls = sharedCalls
+
     selection$.set('a')
+
     let renders = 0
     const props = {
       onRender: () => {
@@ -184,6 +193,7 @@ describe('compiler-owned query lifecycle on universal roots', () => {
     const page = mount(Reader, props)
     const sheet = mount(Reader, props)
     const modal = mount(Reader, props)
+
     expect(calls).toHaveLength(1)
     calls[0].resolve('one')
     await settle()
@@ -205,6 +215,7 @@ describe('compiler-owned query lifecycle on universal roots', () => {
     }
 
     const before = renders
+
     flushUniversalSync(() => selection$.set(''))
     await settle()
     expect(renders).toBe(before)
@@ -229,7 +240,9 @@ describe('compiler-owned query lifecycle on universal roots', () => {
 
     roots.push(root)
     root.render(Retained, { pending, fail })
+
     const body = container.children[0]
+
     expect(body.props.text).toBe('ready')
     flushUniversalSync(() => container.dispatchEvent(body, 'tap', {}))
     await settle()

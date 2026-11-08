@@ -16,6 +16,7 @@ export const CHECKS: ParityCheck[] = [
       const content = m('content')
       const first = m('first')
       const second = m('second')
+
       return [
         dims(scroll, 96, 32),
         dims(content, 96, 64),
@@ -58,6 +59,7 @@ export const CHECKS: ParityCheck[] = [
       const content = m('content')
       const first = m('first')
       const second = m('second')
+
       return [
         dims(root, 96, 48),
         dims(content, 96, 64),

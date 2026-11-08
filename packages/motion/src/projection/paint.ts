@@ -10,6 +10,7 @@ export function paintScale(write: ProjectionWrite): {
   const delta = write.layoutDelta ?? write.delta
   const x = Math.max(0.0001, Math.abs(delta.x.scale * write.treeScale.x))
   const y = Math.max(0.0001, Math.abs(delta.y.scale * write.treeScale.y))
+
   return { x, y, uniform: Math.sqrt(x * y) }
 }
 
@@ -18,12 +19,15 @@ export function divideLength(value: any, scale: number): any {
   if (typeof value === 'number') {
     return value / scale
   }
+
   if (value && typeof value === 'object' && typeof value.value === 'number') {
     return value.unit === '%' ? value : { ...value, value: value.value / scale }
   }
+
   if (typeof value === 'string' && /^-?[\d.]+(?:px|dip)?$/.test(value)) {
     return `${parseFloat(value) / scale}${value.replace(/^-?[\d.]+/, '')}`
   }
+
   return value
 }
 
@@ -46,6 +50,7 @@ export function correctNativePaint(
 ): Record<string, any> {
   const scale = paintScale(write)
   const corrected: Record<string, any> = {}
+
   if (
     typeof style.borderRadius === 'string' &&
     style.borderRadius.split('/').length <= 2 &&
@@ -61,12 +66,14 @@ export function correctNativePaint(
       token.endsWith('%') ? token : String(divideLength(token, scale.uniform)),
     )
   }
+
   if (typeof style.boxShadow === 'string' && style.boxShadow && style.boxShadow !== 'none') {
     corrected.boxShadow = correctBoxShadow.correct(style.boxShadow, {
       treeScale: write.treeScale,
       projectionDelta: write.layoutDelta ?? write.delta,
     } as any)
   }
+
   for (const key of radiusKeys) {
     if (!(key in style)) {
       continue
@@ -74,6 +81,7 @@ export function correctNativePaint(
 
     corrected[key] = divideLength(style[key], scale.uniform)
   }
+
   if (Array.isArray(style.boxShadow)) {
     corrected.boxShadow = style.boxShadow.map((shadow: any) => ({
       ...shadow,
@@ -83,5 +91,6 @@ export function correctNativePaint(
       spreadRadius: divideLength(shadow.spreadRadius, scale.uniform),
     }))
   }
+
   return corrected
 }

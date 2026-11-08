@@ -15,6 +15,7 @@ function setRect(element: Element | null, x: number, y: number, width: number, h
 
 Element.prototype.getBoundingClientRect = function () {
   const r = rects.get(this) ?? { x: 0, y: 0, width: 0, height: 0 }
+
   return {
     x: r.x,
     y: r.y,
@@ -30,6 +31,7 @@ Element.prototype.getBoundingClientRect = function () {
 
 const gbrCalls = { count: 0 }
 const wrappedGbr = Element.prototype.getBoundingClientRect
+
 Element.prototype.getBoundingClientRect = function () {
   gbrCalls.count++
   return wrappedGbr.call(this)
@@ -37,8 +39,11 @@ Element.prototype.getBoundingClientRect = function () {
 
 function mount(component: any) {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(component))
   return {
     container,
@@ -75,6 +80,7 @@ describe('motion layout on web', () => {
   it('writes a non-identity transform after a layout-changing re-render', async () => {
     const mounted = mount(<Mover />)
     const el = mounted.container.querySelector('#mover') as HTMLElement
+
     setRect(el, 0, 0, 100, 100)
     await flush()
     expect(el.style.transform).not.toContain('translate3d')
@@ -90,6 +96,7 @@ describe('motion layout on web', () => {
     const mounted = mount(<Reorder items={['a', 'b']} />)
     const a = mounted.container.querySelector('#a') as HTMLElement
     const b = mounted.container.querySelector('#b') as HTMLElement
+
     setRect(a, 0, 0, 100, 50)
     setRect(b, 0, 50, 100, 50)
     await flush()
@@ -106,6 +113,7 @@ describe('motion layout on web', () => {
   it('animates when a non-motion sibling mutates the DOM', async () => {
     const mounted = mount(<Sibling className="idle" />)
     const el = mounted.container.querySelector('#tracked') as HTMLElement
+
     setRect(el, 0, 50, 100, 50)
     await flush()
 
@@ -125,10 +133,13 @@ describe('motion layout on web', () => {
     }
 
     const mounted = mount(<Channel />)
+
     await flush()
     gbrCalls.count = 0
     await new Promise((resolve) => setTimeout(resolve, 120))
+
     const node = mounted.container.querySelector('#chan') as HTMLElement
+
     expect(node.style.transform).toContain('translateX(40px)')
     expect(gbrCalls.count).toBe(0)
     mounted.close()
@@ -147,6 +158,7 @@ describe('motion layout on web', () => {
 
     const mounted = mount(<OpacityX />)
     const el = mounted.container.querySelector('#opx') as HTMLElement
+
     setRect(el, 0, 0, 100, 100)
     await flush()
 
@@ -165,6 +177,7 @@ describe('motion layout on web', () => {
   it('disconnects the observer after the last layout host unmounts', async () => {
     const disconnect = vi.spyOn(MutationObserver.prototype, 'disconnect')
     const mounted = mount(<Mover />)
+
     act(() => mounted.close())
     await flush()
     expect(disconnect).toHaveBeenCalled()

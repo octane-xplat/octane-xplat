@@ -21,6 +21,7 @@ vi.mock('../components/layout/View', () => ({
 // The mobile pane executor needs the real SDK only for instanceof checks;
 // object-driver targets are plain objects and correctly report unsupported.
 vi.mock('@nativescript/core', () => ({ View: class View {} }))
+
 import { createRenderRouterHost } from './render-router-host'
 import { RenderRouteOutlet } from './RenderRouteOutlet.tsrx'
 import { createRouter } from './router-instance'
@@ -55,6 +56,7 @@ function Item() {
   const person = useContext(Person)
   const [count, setCount] = useState(0)
   const router = useRouter(navigation)
+
   observations.set(id, {
     title,
     count,
@@ -73,6 +75,7 @@ function Broken() {
 function App(props: { platform: ReturnType<typeof createRenderRouterHost> }) {
   const [owned, setOwned] = useState(true)
   const [person, setPerson] = useState('Avery')
+
   removeOwner = () => setOwned(false)
   restoreOwner = () => setOwned(true)
   changePerson = setPerson
@@ -100,6 +103,7 @@ async function tick() {
 
 async function drive<T>(promise: Promise<T>): Promise<T> {
   let settled = false
+
   void promise.then(
     () => {
       settled = true
@@ -122,6 +126,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
   behavior?: { guard?(id: string): void | Promise<void>; title?(id: string, load: number): string },
 ) {
   observations.clear()
+
   let loads = 0
   const platform = createRenderRouterHost()
   const router = createRouter({
@@ -131,6 +136,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
         beforeLoad: ({ params }) => behavior?.guard?.(params.id),
         loader: ({ params }) => {
           const load = ++loads
+
           return { title: behavior?.title?.(params.id, load) ?? params.id + load }
         },
       }).screen(Item),
@@ -142,6 +148,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
 
   navigation = router
   platform.attach(router)
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createObjectDriver('nativescript'),
@@ -162,6 +169,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
 
 it('commits rendered panes, retains local state and providers, and refreshes in place', async () => {
   const test = await fixture()
+
   try {
     expect(
       (await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))).status,
@@ -190,6 +198,7 @@ it('commits rendered panes, retains local state and providers, and refreshes in 
 
 it('keeps independent flow histories and implements replace and reset', async () => {
   const test = await fixture()
+
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
     await drive(
@@ -210,6 +219,7 @@ it('keeps independent flow histories and implements replace and reset', async ()
 
 it('blocks missing owners and reports render failures without waiting forever', async () => {
   const test = await fixture()
+
   try {
     test.router.addRoutes(
       defineRoutes([defineRoute({ path: '/render-failure/:id' }).screen(Broken)]),
@@ -233,6 +243,7 @@ it('blocks missing owners and reports render failures without waiting forever', 
 
 it('finishes accepted commits in order rather than cancelling an earlier receipt', async () => {
   const test = await fixture()
+
   try {
     const command = (id: string) => ({
       action: 'push' as const,
@@ -252,10 +263,13 @@ it('finishes accepted commits in order rather than cancelling an earlier receipt
     })
 
     const first = Promise.resolve(test.platform.host.commit(command('coat') as any))
+
     // Allow acceptance without flushing a renderer commit.
     await Promise.resolve()
+
     const second = Promise.resolve(test.platform.host.commit(command('hat') as any))
     const [coat, hat] = await drive(Promise.all([first, second]))
+
     expect(coat).toMatchObject({ status: 'committed', route: { params: { id: 'coat' } } })
     expect(hat).toMatchObject({ status: 'committed', route: { params: { id: 'hat' } } })
     expect(test.platform.views.getSnapshot().get('root')!.entries).toHaveLength(3)
@@ -267,16 +281,19 @@ it('finishes accepted commits in order rather than cancelling an earlier receipt
 it('keeps the current pane until a composition barrier completes and preserves it if the barrier fails', async () => {
   const test = await fixture()
   let release!: () => void
+
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
     observations.get('coat')!.increment()
     await tick()
+
     const barrier = new Promise<void>((resolve) => {
       release = resolve
     })
 
     let waiting = false
     const original = test.platform.host.commit.bind(test.platform.host)
+
     test.platform.host.commit = (command) =>
       original({
         ...command,
@@ -287,6 +304,7 @@ it('keeps the current pane until a composition barrier completes and preserves i
       })
 
     const pending = test.router.replace({ to: '/items/:id', params: { id: 'hat' } })
+
     for (let i = 0; i < 100 && !waiting; i++) {
       await tick()
     }
@@ -317,12 +335,15 @@ it('keeps the current pane until a composition barrier completes and preserves i
 
 it('stages failed push, replace and reset without discarding the current pane state', async () => {
   const test = await fixture()
+
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
     observations.get('coat')!.increment()
     await tick()
+
     let barriers = 0
     const original = test.platform.host.commit.bind(test.platform.host)
+
     test.platform.host.commit = (command) =>
       original({
         ...command,
@@ -365,6 +386,7 @@ it('stages failed push, replace and reset without discarding the current pane st
 it('does not revive an old commit in a remounted pane after its barrier completes', async () => {
   const test = await fixture()
   let release!: () => void
+
   try {
     let waiting = false
     const barrier = new Promise<void>((resolve) => {
@@ -372,6 +394,7 @@ it('does not revive an old commit in a remounted pane after its barrier complete
     })
 
     const original = test.platform.host.commit.bind(test.platform.host)
+
     test.platform.host.commit = (command) =>
       original({
         ...command,
@@ -382,6 +405,7 @@ it('does not revive an old commit in a remounted pane after its barrier complete
       })
 
     const pending = test.router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     for (let i = 0; i < 100 && !waiting; i++) {
       await tick()
     }
@@ -406,8 +430,10 @@ it('does not revive an old commit in a remounted pane after its barrier complete
 
 it('does not stage a screen for a command already known to be obsolete', async () => {
   const test = await fixture()
+
   try {
     const original = test.platform.host.commit.bind(test.platform.host)
+
     test.platform.host.commit = (command) => original({ ...command, isCurrent: () => false })
     expect(
       await drive(test.router.push({ to: '/items/:id', params: { id: 'stale' } })),
@@ -422,6 +448,7 @@ it('does not stage a screen for a command already known to be obsolete', async (
 
 it('honors explicit skipped definitions on opening a pane and reversing its entry', async () => {
   const test = await fixture(defineTransitions({ fallback: { kind: 'skip' } }))
+
   try {
     const opened = await drive(
       test.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'fallback' }),
@@ -433,6 +460,7 @@ it('honors explicit skipped definitions on opening a pane and reversing its entr
     })
 
     const back = await drive(test.router.back())
+
     expect(back.status === 'committed' && (await back.finished)).toEqual({
       status: 'skipped',
       reason: 'disabled',
@@ -490,7 +518,9 @@ it('replaces the retained target on a guard redirect without borrowing its local
     await tick()
     await drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
     redirect = true
+
     const result = await drive(test.router.back())
+
     expect(result.status === 'committed' && result.redirected).toBe(true)
     expect(test.router.getSnapshot().route?.params.id).toBe('cap')
     expect(observations.get('cap')).toMatchObject({ title: 'cap3', count: 0 })
@@ -521,7 +551,9 @@ it('lets a newer pane navigation cancel a pending history guard without revealin
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
     await drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
     waiting = true
+
     const older = test.router.back()
+
     for (let index = 0; index < 100 && !started; index++) {
       await tick()
     }

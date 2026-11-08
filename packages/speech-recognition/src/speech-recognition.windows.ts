@@ -30,9 +30,11 @@ const speechApi = () => projection()?.Media?.SpeechRecognition
 
 const toPromise = (op: any): Promise<any> => {
   const bridge = NSWinRT()
+
   if (bridge?.toPromise && op != null) {
     return bridge.toPromise(op)
   }
+
   if (op?.done) {
     return new Promise((resolve, reject) => {
       try {
@@ -42,6 +44,7 @@ const toPromise = (op: any): Promise<any> => {
       }
     })
   }
+
   return Promise.resolve(op)
 }
 
@@ -86,6 +89,7 @@ export function mapWindowsSpeechError(
   message?: string,
 ): SpeechRecognitionError {
   let code: SpeechRecognitionErrorCode
+
   switch (statusOrHresult) {
     case HR_PRIVACY_NOT_ACCEPTED:
       code = 'permission-denied'
@@ -118,6 +122,7 @@ export function mapWindowsSpeechError(
     default:
       code = 'unknown'
   }
+
   return new SpeechRecognitionError(
     code,
     message ?? `Speech recognition failed: ${statusOrHresult}`,
@@ -129,10 +134,13 @@ export function mapWindowsSpeechError(
 
 const hresultOf = (cause: unknown): number | null => {
   const value = (cause as any)?.number ?? (cause as any)?.hresult
+
   if (typeof value === 'number') {
     return value | 0
   }
+
   const match = /0x[0-9a-fA-F]+/.exec(String((cause as any)?.message ?? ''))
+
   return match ? Number(match[0]) | 0 : null
 }
 
@@ -157,6 +165,7 @@ const accessToPermission = (status: number | undefined): PermissionResponse => {
 function readPermission(): Promise<PermissionResponse> {
   try {
     const capability = micCapability()
+
     return Promise.resolve(accessToPermission(capability?.CheckAccess?.()))
   } catch {
     return Promise.resolve({ status: 'undetermined', granted: false, canAskAgain: true })
@@ -166,11 +175,13 @@ function readPermission(): Promise<PermissionResponse> {
 async function ensurePermission(): Promise<PermissionResponse> {
   try {
     const capability = micCapability()
+
     if (!capability) {
       return { status: 'undetermined', granted: false, canAskAgain: true }
     }
 
     const current = accessToPermission(capability.CheckAccess())
+
     if (current.status !== 'undetermined') {
       return current
     }
@@ -183,6 +194,7 @@ async function ensurePermission(): Promise<PermissionResponse> {
 
 const defaultLang = (): string => {
   const api = speechApi()
+
   try {
     return String(api?.SpeechRecognizer?.SystemSpeechLanguage?.LanguageTag ?? 'en-US')
   } catch {
@@ -200,6 +212,7 @@ function availability(lang?: string): Promise<SpeechRecognitionAvailability> {
     networkUse: null,
     continuous: false,
   }
+
   if (!api?.SpeechRecognizer) {
     return Promise.resolve(unsupported)
   }
@@ -259,11 +272,13 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     // result is one segment the core commits.
     recognizer.HypothesisGenerated = asDelegate(HYPOTHESIS_DELEGATE, (_sender, args) => {
       const text = String(args?.Hypothesis?.Text ?? '')
+
       if (text !== '') {
         sink.hypothesis(text, false)
       }
     })
   }
+
   recognizer.StateChanged = asDelegate(STATE_DELEGATE, (_sender, args) => {
     // SpeechRecognizerState: 1 Capturing, 3 SoundStarted — the first
     // non-idle state means capture is live.
@@ -280,9 +295,11 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
     } catch {
       // The projection may not support delegate removal — Dispose covers it.
     }
+
     try {
       // IClosable — the projection may expose Dispose, Close, or close.
       const close = recognizer.Dispose ?? recognizer.Close ?? recognizer.close
+
       close?.call(recognizer)
     } catch {
       // Already disposed.
@@ -294,10 +311,13 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
       api.SpeechRecognitionScenario?.Dictation ?? 0,
       'dictation',
     )
+
     try {
       recognizer.Constraints.Append(constraint)
+
       const compiled = await toPromise(recognizer.CompileConstraintsAsync())
       const compileStatus = compiled?.Status ?? STATUS_SUCCESS
+
       if (compileStatus !== STATUS_SUCCESS) {
         sink.failed(mapWindowsSpeechError(compileStatus, 'Dictation constraint compilation failed'))
         return
@@ -323,13 +343,16 @@ function begin(options: SpeechBeginOptions, sink: SpeechEngineSink): SpeechEngin
         }
 
         const result = await toPromise(recognizer.RecognizeAsync())
+
         if (closed) {
           return
         }
 
         const status = result?.Status ?? 12 /* Unknown */
+
         if (status === STATUS_SUCCESS) {
           const text = String(result?.Text ?? '')
+
           if (text !== '') {
             sink.hypothesis(text, true)
           }

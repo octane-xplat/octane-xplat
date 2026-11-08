@@ -119,6 +119,7 @@ export function Calendar(props: CalendarProps): unknown @{
   const monthYearLabel = months.map((m) => monthLabel(m.year, m.month, locale)).join(' – ')
 
   const firstLabel = useRef(true)
+
   useEffect(() => {
     if (firstLabel.current) {
       firstLabel.current = false
@@ -129,9 +130,11 @@ export function Calendar(props: CalendarProps): unknown @{
   }, [monthYearLabel])
 
   const navApi = useRef({ navigateTo: (_: ISODateString) => {} })
+
   navApi.current = {
     navigateTo: (iso: ISODateString) => {
       const pd = plainDateFromISO(iso)
+
       if (pd) {
         setBaseMonth(monthStart(pd))
       }
@@ -146,6 +149,7 @@ export function Calendar(props: CalendarProps): unknown @{
 
   const pick = (iso: ISODateString) => {
     const pd = plainDateFromISO(iso)
+
     if (!pd || isDateDisabled(pd)) {
       return
     }
@@ -171,6 +175,7 @@ export function Calendar(props: CalendarProps): unknown @{
     }
 
     const result = applyRangePick(rangeAnchor, iso, props.minRangeSpan)
+
     if (result.kind === 'cancel') {
       setRangeAnchor(null)
       setAnnouncement(messages.rangeCleared)

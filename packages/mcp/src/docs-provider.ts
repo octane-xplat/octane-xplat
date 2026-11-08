@@ -23,8 +23,11 @@ export function createDocsProvider(context, options = {}) {
       }
 
       const service = serviceFor(app)
+
       await service.refresh()
+
       const binding = await service.status()
+
       return {
         state: binding.identity.packages.length ? 'ready' : 'unavailable',
         detail:

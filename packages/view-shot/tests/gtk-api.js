@@ -4,6 +4,7 @@ import Gsk from 'gi://Gsk?version=4.0'
 import Gio from 'gi://Gio'
 import GLib from 'gi://GLib'
 import Graphene from 'gi://Graphene?version=1.0'
+
 // Introspection only: never initialize a window, snapshot a widget or encode pixels.
 const methods = [
   [Gtk.Widget.prototype, 'get_mapped'],

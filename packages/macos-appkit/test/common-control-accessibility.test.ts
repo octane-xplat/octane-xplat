@@ -22,8 +22,10 @@ function fixture() {
     notifications: unknown[] = [],
     events: string[] = [],
     forwarded: unknown[] = []
+
   const disabledFocus = createDisabledFocusTargets(),
     tabStops = createTabStopSuppression()
+
   const scopeFocus = new WeakMap()
   const { AccessibleHostView, applyAccessibility } = runSlice(
     host + '\n' + apply + '\n({AccessibleHostView,applyAccessibility})',
@@ -59,8 +61,11 @@ function fixture() {
         notifications.push([view, name]),
     },
   )
+
   const view = new AccessibleHostView()
+
   ids.set(view, 1)
+
   const node = {
     type: 'masonview',
     view,
@@ -75,6 +80,7 @@ function fixture() {
       } as any,
     },
   }
+
   return {
     applyAccessibility,
     view,
@@ -93,6 +99,7 @@ function fixture() {
 
 test('self-drawn switch/tab/adjustable hosts expose native roles and values', () => {
   const f = fixture()
+
   f.set('accessibilityRole', 'switch')
   f.set('accessibilityState', { checked: true })
   assert.equal(f.view.accessibilityRole(), 'AXCheckBox')
@@ -120,16 +127,19 @@ test('self-drawn switch/tab/adjustable hosts expose native roles and values', ()
 test('native adjustable selectors dispatch current callbacks in a discrete scope', () => {
   const f = fixture(),
     changes: number[] = []
+
   f.set('accessibilityRole', 'adjustable')
   f.set('accessibilityValue', 4)
   f.set('onAccessibilityIncrement', () => {
     changes.push(5)
     f.set('accessibilityValue', 5)
   })
+
   f.set('onAccessibilityDecrement', () => {
     changes.push(4)
     f.set('accessibilityValue', 4)
   })
+
   assert.equal(f.view.accessibilityPerformIncrement(), true)
   assert.equal(f.view.accessibilityPerformDecrement(), true)
   assert.deepEqual(changes, [5, 4])
@@ -138,6 +148,7 @@ test('native adjustable selectors dispatch current callbacks in a discrete scope
     [f.view, 'AXValueChanged'],
     [f.view, 'AXValueChanged'],
   ])
+
   f.set('accessibilityValue', 4)
   assert.equal(f.notifications.length, 2)
   f.set('onAccessibilityIncrement', undefined)
@@ -158,6 +169,7 @@ test('native adjustable selectors dispatch current callbacks in a discrete scope
 test('ignored and read-only hosts reject press/adjustment, and value notifications track selection', () => {
   const f = fixture()
   let presses = 0
+
   f.handlers.set(1, () => presses++)
   f.set('accessibilityRole', 'tab')
   f.set('accessibilityState', { selected: false })
@@ -180,6 +192,7 @@ test('ignored and read-only hosts reject press/adjustment, and value notificatio
 test('self-drawn activation preserves modified shortcuts and blocked native key handling', () => {
   const f = fixture()
   let presses = 0
+
   f.handlers.set(1, () => presses++)
   f.set('accessibilityRole', 'button')
   f.view.keyDown({ keyCode: 36 })
@@ -190,6 +203,7 @@ test('self-drawn activation preserves modified shortcuts and blocked native key 
       f.view.keyDown({ keyCode, modifierFlags })
     }
   }
+
   assert.equal(presses, 2)
   assert.equal(f.forwarded.length, 6)
   f.view.keyDown({ keyCode: 36, modifierFlags: 1 << 17 }) // Shift alone retains activation.
@@ -208,6 +222,7 @@ test('self-drawn activation preserves modified shortcuts and blocked native key 
 
 test('pressed buttons use native checked values and notify only changed pressed states', () => {
   const f = fixture()
+
   f.set('accessibilityRole', 'button')
   assert.equal(f.view.accessibilityRole(), 'AXButton')
   f.set('accessibilityState', { pressed: false })
@@ -227,12 +242,15 @@ test('pressed buttons use native checked values and notify only changed pressed 
 
 test('disabled focus claims allow focus without actions and respect suppression, hiding and other owners', () => {
   const f = fixture()
+
   f.set('accessibilityRole', 'checkbox')
   f.set('accessibilityState', { checked: true, disabled: true })
   assert.equal(f.view.acceptsFirstResponder(), false)
   assert.equal(f.view.canBecomeKeyView(), false)
+
   const first = f.disabledFocus.retain(f.view),
     second = f.disabledFocus.retain(f.view)
+
   assert.equal(f.view.acceptsFirstResponder(), true)
   assert.equal(f.view.canBecomeKeyView(), true)
   assert.equal(f.view.isAccessibilityEnabled(), false)
@@ -240,7 +258,9 @@ test('disabled focus claims allow focus without actions and respect suppression,
   f.view.keyDown({ keyCode: 49 })
   assert.equal(f.forwarded.length, 1)
   assert.equal(f.handlers.size, 0)
+
   const unsuppress = f.tabStops.retain(f.view)
+
   assert.equal(f.view.canBecomeKeyView(), false)
   unsuppress()
   f.view.hiddenOrHasHiddenAncestor = true
@@ -259,6 +279,7 @@ test('disabled focus claims allow focus without actions and respect suppression,
 
 test('AppKit enabled protocol getter overrides the native default and follows retained host state', () => {
   const f = fixture()
+
   assert.equal(f.exposed.isAccessibilityEnabled.returns, 'bool')
   assert.equal(Object.hasOwn(f.exposed, 'accessibilityIsEnabled'), false)
   assert.equal(f.view.isAccessibilityEnabled(), true)
@@ -273,6 +294,7 @@ test('AppKit enabled protocol getter overrides the native default and follows re
 
 test('menu surfaces and row kinds expose native roles and current titles without changing other native titles', () => {
   const f = fixture()
+
   assert.equal(f.exposed.accessibilityTitle.returns, 'id')
   f.set('accessibilityRole', 'menu')
   f.set('accessibilityLabel', 'Actions')
@@ -285,6 +307,7 @@ test('menu surfaces and row kinds expose native roles and current titles without
     assert.equal(f.view.accessibilityTitle(), 'Updated')
     f.set('accessibilityLabel', 'Actions')
   }
+
   f.set('accessibilityLabel', undefined)
   assert.equal(f.view.accessibilityTitle(), '')
   f.set('accessibilityRole', 'button')
@@ -297,10 +320,12 @@ test('menu surfaces and row kinds expose native roles and current titles without
 test('native selected/expanded getters report parent-owned state without conflating checked state or activation', () => {
   const f = fixture()
   let calls = 0
+
   f.handlers.set(1, () => calls++)
   for (const name of ['isAccessibilitySelected', 'isAccessibilityExpanded']) {
     assert.equal(f.exposed[name].returns, 'bool')
   }
+
   f.set('accessibilityRole', 'menuitem')
   assert.equal(f.view.isAccessibilitySelected(), false)
   assert.equal(f.view.isAccessibilityExpanded(), false)
@@ -321,6 +346,7 @@ test('native selected/expanded getters report parent-owned state without conflat
 
 test('listbox and option hosts expose native list/row roles and current selected state', () => {
   const f = fixture()
+
   f.set('accessibilityRole', 'listbox')
   assert.equal(f.view.accessibilityRole(), 'AXList')
   f.set('accessibilityRole', 'option')
@@ -335,6 +361,7 @@ test('editable combobox role restores the specialized native baseline when dropp
   const f = fixture(),
     view = { accessibilityRole: 'AXTextField' },
     node: any = { type: 'textfield', view }
+
   f.applyAccessibility(node, 'accessibilityRole', 'combobox')
   assert.equal(view.accessibilityRole, 'AXComboBox')
   f.applyAccessibility(node, 'accessibilityRole', undefined)
@@ -352,6 +379,7 @@ test('native expanded state restores its baseline without changing multiline ena
       setAccessibilityEnabled: (value: boolean) => enabled.push(value),
     },
     node: any = { type: 'textview', view }
+
   f.applyAccessibility(node, 'accessibilityState', { expanded: false, disabled: true })
   assert.equal(view.accessibilityExpanded, false)
   f.applyAccessibility(node, 'accessibilityState', { expanded: true })
@@ -366,9 +394,12 @@ test('replacement native inputs release old role/expanded overrides and own a fr
   const f = fixture(),
     previous = { accessibilityRole: 'AXTextField', accessibilityExpanded: false },
     node: any = { type: 'textfield', view: previous }
+
   f.applyAccessibility(node, 'accessibilityRole', 'combobox')
   f.applyAccessibility(node, 'accessibilityState', { expanded: true })
+
   const next = { accessibilityRole: 'AXSearchField', accessibilityExpanded: true }
+
   node.view = next
   f.applyAccessibility(node, 'accessibilityRole', 'combobox')
   f.applyAccessibility(node, 'accessibilityState', { expanded: false })
@@ -381,6 +412,7 @@ test('replacement native inputs release old role/expanded overrides and own a fr
 test('column resize separators expose native splitter role, vertical orientation, numeric range and current adjustment callbacks', () => {
   const f = fixture(),
     values: number[] = []
+
   f.set('accessibilityRole', 'separator')
   f.set('accessibilityValue', '240')
   f.set('accessibilityMinValue', 80)
@@ -390,6 +422,7 @@ test('column resize separators expose native splitter role, vertical orientation
     values.push(250)
     f.set('accessibilityValue', '250')
   })
+
   assert.equal(f.view.accessibilityRole(), 'AXSplitter')
   assert.equal(f.view.accessibilityOrientation(), 1)
   assert.equal(f.view.accessibilityValue(), 240)
@@ -404,6 +437,7 @@ test('column resize separators expose native splitter role, vertical orientation
 
 test('named toolbar hosts expose AXToolbar without becoming action or Tab targets', () => {
   const f = fixture()
+
   f.set('accessibilityRole', 'toolbar')
   f.set('accessibilityLabel', 'Page actions')
   assert.equal(f.view.accessibilityOrientation(), 0)

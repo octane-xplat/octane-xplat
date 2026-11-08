@@ -20,10 +20,12 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
   const control = () => all().find((node) => node.props?.accessibilityRole === 'checkbox')
+
   render(props)
   return { root, render, all, control }
 }
@@ -62,6 +64,7 @@ it('renders metadata and retains mixed/uncontrolled state across metadata change
     expect(host.props.accessibilityValue).toBeUndefined()
     expect(host.props.accessibilityLabel).toBe('Selected')
     expect(env.all().map((node) => node.props?.text)).not.toContain('Selected')
+
     const outer = env
       .all()
       .find((node) => String(node.props?.className).includes('vx-checkbox-field--appkit'))
@@ -91,10 +94,13 @@ it('uses the parent Field metadata once and blocks disabled/read-only actions', 
   }
 
   const env = mount(Parent, { disabled: true })
+
   try {
     for (const state of [{ disabled: true }, { readonly: true }]) {
       env.render(state)
+
       const text = env.all().map((node) => node.props?.text)
+
       expect(text.filter((value) => value === 'Parent')).toHaveLength(1)
       expect(text.filter((value) => value === 'Parent error')).toHaveLength(1)
       expect(text).not.toContain('Own accessible name')
@@ -137,6 +143,7 @@ it('advances rapid held-handler local requests from mixed before a render', () =
 
   try {
     const tap = env.control().props.onTap
+
     tap()
     tap()
     tap()
@@ -187,6 +194,7 @@ it('propagates consumer failure while retaining local intent and releasing owner
 
   try {
     const tap = env.control().props.onTap
+
     expect(tap).toThrow('consumer failure')
     fail = false
     tap()
@@ -211,6 +219,7 @@ it('held callbacks read current inherited gates and the current controlled callb
   }
 
   const env = mount(Parent, { value: false, change: (value: boolean) => old.push(value) })
+
   try {
     const host = env.control(),
       tap = host.props.onTap
@@ -246,6 +255,7 @@ it('retires held callbacks when a consumer detaches the control', () => {
 
   try {
     const tap = env.control().props.onTap
+
     remove = () => env.root.unmount()
     tap()
     tap()
@@ -260,8 +270,10 @@ it('keeps controlled rejection authoritative and retains the original local seed
     change = (value: boolean) => changes.push(value)
 
   const env = mount(Checkbox, { value: false, defaultValue: 'indeterminate', onChange: change })
+
   try {
     const tap = env.control().props.onTap
+
     tap()
     tap()
     flushUniversalSync(() => {})

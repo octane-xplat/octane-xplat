@@ -18,6 +18,7 @@ export function isMobileNavConfig(value: unknown): value is MobileNavConfig {
   }
 
   const record = value as Record<string, unknown>
+
   return (
     Object.keys(record).length === 0 ||
     CONFIG_KEYS.some((key) => Object.prototype.hasOwnProperty.call(record, key))

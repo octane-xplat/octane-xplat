@@ -94,15 +94,18 @@ test(
     const clang = spawnSync('xcrun', ['--sdk', 'macosx', '--find', 'clang'], {
       encoding: 'utf8',
     })
+
     const sdk = spawnSync('xcrun', ['--sdk', 'macosx', '--show-sdk-path'], {
       encoding: 'utf8',
     })
+
     if (clang.status !== 0 || sdk.status !== 0) {
       t.skip('no Xcode clang to build the block-lifetime provider dylib')
       return
     }
 
     const dir = mkdtempSync(join(tmpdir(), 'xplat-block-lifetime-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
 
     // No ARC: stack literals stay __NSStackBlock__ and the explicit release
@@ -123,12 +126,16 @@ test(
       ],
       { encoding: 'utf8' },
     )
+
     assert.equal(compile.status, 0, `provider compile failed: ${compile.stderr ?? ''}`)
 
     const script = join(dir, 'fixture.cjs')
+
     writeFileSync(script, fixture.replace('__DYLIB__', dylib))
+
     // The shipped shim is the bootstrap the packaged/dev host runs.
     const bootstrap = join(dir, 'bootstrap.js')
+
     writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
     // The rebuild output directory carries host + framework but not metadata;
@@ -153,15 +160,19 @@ test(
         env: { ...process.env, MallocScribble: '1' },
       },
     )
+
     let output = ''
+
     child.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     const status = await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         child.kill('SIGKILL')
         resolve('timeout')
       }, 30_000)
+
       child.on('close', (code) => {
         clearTimeout(timeout)
         resolve(code)

@@ -42,18 +42,22 @@ export function createAppKitCalendarFocus(
   let root: NSView | null = null,
     owner: NSWindow | null = null,
     focused: string | undefined
+
   let pending: { iso: string; window: NSWindow } | null = null,
     queued = false,
     stopObserver: (() => void) | undefined
+
   const cells = () =>
     options
       .current()
       .months.flatMap((month) => month.weeks.flat())
       .filter((day) => !day.isOutsideMonth && !options.current().isDisabled(day.date))
+
   const preferred = () => {
     const enabled = cells(),
       value = options.current().value,
       selected = typeof value === 'string' ? value : value?.start
+
     return (
       enabled.find((day) => day.iso === focused)?.iso ??
       enabled.find((day) => day.iso === selected)?.iso ??
@@ -61,6 +65,7 @@ export function createAppKitCalendarFocus(
       enabled[0]?.iso
     )
   }
+
   const navigation = createAppKitChoiceFocus(
     {
       root: () => root,
@@ -74,12 +79,15 @@ export function createAppKitCalendarFocus(
     },
     bridge,
   )
+
   const refresh = () => {
     const window = root?.window
     const flag = (name: string) => {
       const value = root ? Reflect.get(root, name) : false
+
       return Boolean(typeof value === 'function' ? value.call(root) : value)
     }
+
     if (
       !window ||
       flag('hidden') ||
@@ -91,13 +99,16 @@ export function createAppKitCalendarFocus(
       pending = null
       return
     }
+
     if (owner !== window) {
       navigation.dispose()
       owner = window
     }
+
     if (pending && pending.window !== window) {
       pending = null
     }
+
     navigation.synchronize()
     if (pending) {
       if (!cells().some((day) => day.iso === pending!.iso)) {
@@ -115,6 +126,7 @@ export function createAppKitCalendarFocus(
       navigation.focus() // Repair a focused date invalidated by new constraints.
     }
   }
+
   const refreshSafely = () => {
     try {
       refresh()
@@ -122,10 +134,12 @@ export function createAppKitCalendarFocus(
       console.warn('[macos-calendar] focus refresh failed', error)
     }
   }
+
   const update = (): void => {
     if (queued) {
       return
     }
+
     queued = true
     void Promise.resolve().then(() => {
       queued = false
@@ -134,10 +148,12 @@ export function createAppKitCalendarFocus(
       }
     })
   }
+
   const bind = (view: NSView | null): void => {
     if (root === view) {
       return
     }
+
     navigation.dispose()
     stopObserver?.()
     stopObserver = undefined
@@ -149,8 +165,10 @@ export function createAppKitCalendarFocus(
       views.clear()
       return
     }
+
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter
+
     if (
       bridge()?.keyboardEventsSupported &&
       center?.addObserverForNameObjectQueueUsingBlock &&
@@ -173,10 +191,13 @@ export function createAppKitCalendarFocus(
         console.warn('[macos-calendar] focus observation unavailable', error)
       }
     }
+
     update()
   }
+
   const activate = (iso: ISODateString): void => {
     const view = views.get(iso)
+
     if (
       !root?.window ||
       view?.window !== root.window ||
@@ -185,9 +206,11 @@ export function createAppKitCalendarFocus(
     ) {
       return
     }
+
     if (bridge()?.keyboardEventsSupported && navigation.focus(iso)) {
       focused = iso
     }
+
     options.pick(iso)
   }
 
@@ -202,6 +225,7 @@ export function createAppKitCalendarFocus(
         if (views.get(iso) === view) {
           views.delete(iso)
         }
+
         update()
       }
     },
@@ -215,6 +239,7 @@ export function createAppKitCalendarFocus(
       const window = root?.window,
         target = event.target,
         state = options.current()
+
       if (
         !window ||
         !bridge()?.keyboardEventsSupported ||
@@ -226,10 +251,13 @@ export function createAppKitCalendarFocus(
       ) {
         return
       }
+
       if ((event.ctrlKey || event.metaKey) && event.key !== 'Home' && event.key !== 'End') {
         return
       }
+
       const iso = [...views].find(([, view]) => view === target)?.[0]
+
       if (
         !iso ||
         !navigation.orderedKeys().includes(iso) ||
@@ -237,22 +265,26 @@ export function createAppKitCalendarFocus(
       ) {
         return
       }
+
       const stop = () => {
         event.preventDefault()
         event.stopPropagation()
       }
+
       if (event.key === 'Escape' && state.mode === 'range' && state.rangeAnchor !== null) {
         stop()
         pending = null
         options.cancelRange()
         return
       }
+
       if (event.key === 'Enter' || event.key === ' ') {
         stop()
         pending = null
         options.pick(iso)
         return
       }
+
       if (
         ![
           'ArrowLeft',
@@ -267,6 +299,7 @@ export function createAppKitCalendarFocus(
       ) {
         return
       }
+
       const next = calendarKeyTarget({
         iso,
         event,
@@ -276,11 +309,14 @@ export function createAppKitCalendarFocus(
         min: state.min,
         max: state.max,
       })
+
       stop()
       if (!next) {
         return
       }
+
       const date = plainDateFromISO(next)!
+
       if (!state.months.some((month) => month.year === date.year && month.month === date.month)) {
         pending = { iso: next, window }
         try {

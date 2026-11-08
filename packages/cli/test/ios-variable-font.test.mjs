@@ -31,6 +31,7 @@ function runtime(source = installedSource) {
       }
     }
   }
+
   const array = (values) => ({ count: values.length, objectAtIndex: (index) => values[index] })
   const weights = {
     THIN: '100',
@@ -43,6 +44,7 @@ function runtime(source = installedSource) {
     EXTRA_BOLD: '800',
     BLACK: '900',
   }
+
   class FontBase {
     constructor(family, size, style = 'normal', weight = 'normal', scale = 1, settings) {
       Object.assign(this, {
@@ -61,16 +63,19 @@ function runtime(source = installedSource) {
       return this.fontStyle === 'italic'
     }
   }
+
   const faces = {
     Variable: [weightAxis, widthAxis],
     Narrow: [{ ...weightAxis, min: 300, max: 600, default: 300 }],
     Static: [],
   }
+
   const named = new Map()
   let creations = 0
   let copies = 0
   const make = (descriptor) => {
     creations++
+
     const family = descriptor.fontFamily[0] || 'Static'
     const axes = faces[family] || []
     const font = {
@@ -82,9 +87,11 @@ function runtime(source = installedSource) {
       nativeWeight: descriptor.fontWeight,
       italic: descriptor.isItalic,
     }
+
     named.set(font.fontName, font)
     return font
   }
+
   const ctAxes = (font) =>
     array(
       font.axes.map(
@@ -97,6 +104,7 @@ function runtime(source = installedSource) {
           ]),
       ),
     )
+
   const context = {
     FontBase,
     FontWeight: weights,
@@ -154,10 +162,12 @@ function runtime(source = installedSource) {
     UIFontWeightBlack: 0.62,
     console,
   }
+
   const body = source
     .replace(/^import .*;\r?$/gm, '')
     .replace(/^export \{.*\}.*;\r?$/gm, '')
     .replace(/^export /gm, '')
+
   vm.runInNewContext(body + '\nthis.Font = Font;', context, { filename: 'patched-font.ios.js' })
   return { Font: context.Font, creations: () => creations, copies: () => copies }
 }
@@ -167,6 +177,7 @@ const defaultFont = { pointSize: 17 }
 
 test('iOS variable fonts derive normal and computed numeric/named weights', () => {
   const { Font } = runtime()
+
   for (const [weight, expected] of [
     [undefined, 400],
     ['normal', 400],
@@ -177,6 +188,7 @@ test('iOS variable fonts derive normal and computed numeric/named weights', () =
     [900, 900],
   ]) {
     const font = new Font('Variable', 24, undefined, weight)
+
     assert.equal(coordinate(font.getUIFont(defaultFont)), expected)
     assert.equal(
       font.fontVariationSettings,
@@ -192,7 +204,9 @@ test('explicit wght wins while other axes and authored settings survive', () => 
     Object.freeze({ axis: 'wght', value: 550 }),
     Object.freeze({ axis: 'wdth', value: 120 }),
   ])
+
   const result = new Font('Variable', 24, 'italic', 700, 1.5, settings).getUIFont(defaultFont)
+
   assert.equal(coordinate(result), 550)
   assert.equal(coordinate(result, 'wdth'), 120)
   assert.equal(result.pointSize, 36)
@@ -206,12 +220,14 @@ test('an explicit non-weight axis does not suppress computed weight', () => {
   const result = new Font('Variable', 24, undefined, 600, 1, [
     { axis: 'wdth', value: 110 },
   ]).getUIFont(defaultFont)
+
   assert.equal(coordinate(result), 600)
   assert.equal(coordinate(result, 'wdth'), 110)
 })
 
 test('coordinates clamp to the chosen font range', () => {
   const { Font } = runtime()
+
   assert.equal(coordinate(new Font('Narrow', 24, undefined, 100).getUIFont(defaultFont)), 300)
   assert.equal(coordinate(new Font('Narrow', 24, undefined, 900).getUIFont(defaultFont)), 600)
   assert.equal(
@@ -230,17 +246,22 @@ test('weight, family and explicit-axis changes cannot reuse a stale cached font'
   const bold = original.getUIFont(defaultFont)
   const medium = original.withFontWeight(500).getUIFont(defaultFont)
   const normal = original.withFontWeight(undefined).getUIFont(defaultFont)
+
   assert.equal(coordinate(bold), 700)
   assert.equal(coordinate(medium), 500)
   assert.equal(coordinate(normal), 400)
   assert.equal(original.getUIFont(defaultFont), bold)
   assert.equal(r.creations(), 3)
+
   const explicit = original
     .withFontVariationSettings([{ axis: 'wght', value: 550 }])
     .getUIFont(defaultFont)
+
   assert.equal(coordinate(explicit), 550)
   assert.equal(original.withFontVariationSettings(undefined).getUIFont(defaultFont), bold)
+
   const staticFont = original.withFontFamily('Static').getUIFont(defaultFont)
+
   assert.equal(coordinate(staticFont), undefined)
   assert.equal(staticFont.nativeWeight, 0.4)
 })
@@ -248,6 +269,7 @@ test('weight, family and explicit-axis changes cannot reuse a stale cached font'
 test('static fonts keep their native selection without a variation copy', () => {
   const r = runtime()
   const result = new r.Font('Static', 24, 'italic', 'bold').getUIFont(defaultFont)
+
   assert.equal(result.nativeWeight, 0.4)
   assert.equal(result.italic, true)
   assert.equal(r.copies(), 0)

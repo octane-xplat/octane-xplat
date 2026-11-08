@@ -10,6 +10,7 @@ import type { JSX } from 'octane/jsx-runtime'
 export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
   const video = useRef<HTMLVideoElement | null>(null)
   const latest = useRef(props)
+
   latest.current = props
 
   const handle = (v: HTMLVideoElement | null): BarcodeScannerHandle => ({
@@ -23,17 +24,20 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
   useEffect(() => {
     const Detector = (globalThis as any).BarcodeDetector
     const mediaDevices = (globalThis as any).navigator?.mediaDevices
+
     if (!Detector || typeof mediaDevices?.getUserMedia !== 'function') {
       props.onError?.({ message: 'unsupported: BarcodeDetector/getUserMedia is not available' })
       return
     }
 
     const el = video.current
+
     if (!el) {
       return
     }
 
     let detector: any
+
     try {
       detector = new Detector({ formats: toDetectorFormats(props.formats) })
     } catch {
@@ -52,8 +56,10 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
 
       try {
         const codes = await detector.detect(el)
+
         for (const code of codes ?? []) {
           const box = code.boundingBox
+
           latest.current.onCodeScanned?.({
             type: fromDetectorFormat(code.format),
             data: String(code.rawValue ?? ''),
@@ -73,6 +79,7 @@ export function BarcodeScanner(props: BarcodeScannerProps): JSX.Element @{
       }
 
       const rvfc = (el as any).requestVideoFrameCallback
+
       if (typeof rvfc === 'function') {
         rvfc.call(el, () => poll())
       } else {

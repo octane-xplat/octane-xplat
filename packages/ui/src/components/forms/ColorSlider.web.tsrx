@@ -30,6 +30,7 @@ export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
 
     const step = event.shiftKey ? 10 : 1
     let d = 0
+
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':
@@ -114,6 +115,7 @@ export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
 
 export function ColorSlider(props: ColorSliderProps): JSX.Element {
   const color = useColorState(props, '#ff0000')
+
   return (
     <ColorSliderView
       hsb={color.hsb}

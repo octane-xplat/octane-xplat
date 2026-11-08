@@ -29,10 +29,13 @@ function fakeBackend(overrides: Partial<FakeBackend> = {}): FakeBackend {
     bind(request, onPress) {
       backend.requests.push(request)
       backend.presses.set(request.key, onPress)
+
       const outcome = backend.bindResults?.[request.accelerator.text]
+
       if (outcome !== undefined) {
         return Promise.resolve(outcome)
       }
+
       return Promise.resolve({
         ok: true,
         trigger: request.accelerator.text,
@@ -56,6 +59,7 @@ function fakeBackend(overrides: Partial<FakeBackend> = {}): FakeBackend {
     },
     ...overrides,
   } as FakeBackend
+
   return backend
 }
 
@@ -70,10 +74,12 @@ describe('createGlobalShortcuts', () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const result = await shortcuts.register(options('a'))
+
     expect(result.ok).toBe(true)
     if (!result.ok) {
       return
     }
+
     expect(result.shortcut.accelerator).toBe('Ctrl+Alt+KeyK')
     expect(result.shortcut.trigger).toBe('Ctrl+Alt+KeyK')
     expect(shortcuts.list().map((s) => s.id)).toEqual(['a'])
@@ -93,6 +99,7 @@ describe('createGlobalShortcuts', () => {
       accelerator: 'Ctrl+Alt+KeyK',
       onPress: (event) => seen.push(`${event.id}:${event.accelerator}`),
     })
+
     expect(result.ok).toBe(true)
     backend.fire(1)
     expect(seen).toEqual(['a:Ctrl+Alt+KeyK'])
@@ -103,8 +110,11 @@ describe('createGlobalShortcuts', () => {
 
   it('rejects a duplicate id', async () => {
     const shortcuts = createRegistry(fakeBackend()).createGlobalShortcuts()
+
     await shortcuts.register(options('a'))
+
     const again = await shortcuts.register({ ...options('a'), accelerator: 'Ctrl+Alt+KeyJ' })
+
     expect(again.ok).toBe(false)
     if (!again.ok) {
       expect(again.error.code).toBe('duplicate-id')
@@ -115,12 +125,16 @@ describe('createGlobalShortcuts', () => {
     const registry = createRegistry(fakeBackend())
     const first = registry.createGlobalShortcuts()
     const second = registry.createGlobalShortcuts()
+
     expect((await first.register(options('a'))).ok).toBe(true)
+
     const clash = await second.register(options('b'))
+
     expect(clash.ok).toBe(false)
     if (!clash.ok) {
       expect(clash.error.code).toBe('conflict')
     }
+
     // After the owner releases, the accelerator can be taken again.
     await first.unregister('a')
     expect((await second.register(options('b'))).ok).toBe(true)
@@ -130,10 +144,12 @@ describe('createGlobalShortcuts', () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const result = await shortcuts.register(options('a', 'Ctrl+Alt+Delete'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('reserved')
     }
+
     expect(backend.requests).toEqual([])
   })
 
@@ -141,8 +157,10 @@ describe('createGlobalShortcuts', () => {
     const backend = fakeBackend({
       reserved: (accelerator) => (accelerator.code === 'Space' ? 'The desktop owns Space.' : null),
     })
+
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const result = await shortcuts.register(options('a', 'Ctrl+Alt+Space'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('reserved')
@@ -159,8 +177,10 @@ describe('createGlobalShortcuts', () => {
         },
       },
     })
+
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const result = await shortcuts.register(options('a'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('conflict')
@@ -172,15 +192,18 @@ describe('createGlobalShortcuts', () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const result = await shortcuts.register(options('a', 'k'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('invalid-accelerator')
     }
+
     expect(backend.requests).toEqual([])
   })
 
   it('throws TypeError for programmer errors', async () => {
     const shortcuts = createRegistry(fakeBackend()).createGlobalShortcuts()
+
     // @ts-expect-error runtime contract
     expect(() => shortcuts.register(null)).toThrow(TypeError)
     expect(() => shortcuts.register({ ...options(''), onPress: () => {} })).toThrow(TypeError)
@@ -195,6 +218,7 @@ describe('createGlobalShortcuts', () => {
     const onError = vi.fn()
     const shortcuts = createRegistry(backend).createGlobalShortcuts({ onError })
     const boom = new Error('boom')
+
     await shortcuts.register({
       id: 'a',
       accelerator: 'Ctrl+Alt+KeyK',
@@ -202,6 +226,7 @@ describe('createGlobalShortcuts', () => {
         throw boom
       },
     })
+
     backend.fire(1)
     expect(onError).toHaveBeenCalledWith(boom)
     // Later presses still arrive.
@@ -213,23 +238,28 @@ describe('createGlobalShortcuts', () => {
   it('disposes all registrations and rejects later work', async () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
+
     await shortcuts.register(options('a'))
     await shortcuts.register({ ...options('b'), accelerator: 'Ctrl+Alt+KeyJ' })
     await shortcuts.dispose()
     expect(shortcuts.disposed).toBe(true)
     expect(backend.released.sort()).toEqual([1, 2])
     expect(shortcuts.list()).toEqual([])
+
     const late = await shortcuts.register(options('c', 'Ctrl+Alt+KeyL'))
+
     expect(late.ok).toBe(false)
     if (!late.ok) {
       expect(late.error.code).toBe('disposed')
     }
+
     await shortcuts.dispose()
   })
 
   it('releases a bind that resolves after dispose raced it', async () => {
     const backend = fakeBackend()
     let resolveBind: ((outcome: BindOutcome) => void) | null = null
+
     backend.bind = (request, onPress) => {
       backend.requests.push(request)
       backend.presses.set(request.key, onPress)
@@ -237,11 +267,15 @@ describe('createGlobalShortcuts', () => {
         resolveBind = resolve
       })
     }
+
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
     const pending = shortcuts.register(options('a'))
+
     await Promise.resolve()
     await shortcuts.dispose()
+
     let released = false
+
     resolveBind!({
       ok: true,
       trigger: 'Ctrl+Alt+KeyK',
@@ -250,17 +284,21 @@ describe('createGlobalShortcuts', () => {
         return Promise.resolve()
       },
     })
+
     const result = await pending
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('disposed')
     }
+
     expect(released).toBe(true)
   })
 
   it('disposes live instances on app exit', async () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
+
     await shortcuts.register(options('a'))
     backend.exit()
     await Promise.resolve()
@@ -272,6 +310,7 @@ describe('createGlobalShortcuts', () => {
   it('unregisterAll keeps the instance usable', async () => {
     const backend = fakeBackend()
     const shortcuts = createRegistry(backend).createGlobalShortcuts()
+
     await shortcuts.register(options('a'))
     await shortcuts.register({ ...options('b'), accelerator: 'Ctrl+Alt+KeyJ' })
     await shortcuts.unregisterAll()
@@ -287,10 +326,13 @@ describe('unsupported entries', () => {
   it('default entry reports unsupported and refuses register', async () => {
     const entry = await import('../src/index')
     const support = await entry.getGlobalShortcutSupport()
+
     expect(support.supported).toBe(false)
     expect(support.mechanism).toBe('none')
+
     const shortcuts = entry.createGlobalShortcuts()
     const result = await shortcuts.register(options('a'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('unsupported')
@@ -300,9 +342,12 @@ describe('unsupported entries', () => {
   it('web entry reports unsupported with a browser reason', async () => {
     const entry = await import('../src/index.web')
     const support = await entry.getGlobalShortcutSupport()
+
     expect(support.supported).toBe(false)
     expect(support.platform).toBe('web')
+
     const result = await entry.createGlobalShortcuts().register(options('a'))
+
     expect(result.ok).toBe(false)
     if (!result.ok) {
       expect(result.error.code).toBe('unsupported')
@@ -312,6 +357,7 @@ describe('unsupported entries', () => {
   it('unsupported entries still parse accelerators', async () => {
     const entry = await import('../src/index.web')
     const parsed = entry.parseAccelerator('Ctrl+Alt+KeyK', { platform: 'windows' })
+
     expect(parsed.ok).toBe(true)
   })
 })

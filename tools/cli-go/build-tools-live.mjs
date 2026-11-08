@@ -48,10 +48,12 @@ for (const source of regexSources) {
 
   assert.ok(transformed?.map)
   assert.ok(!transformed.code.includes('\\p{') && !transformed.code.includes('\\P{'))
+
   const actual = Function(transformed.code + '; return regex')(),
     expected = Function(source + '; return regex')()
 
   const matches = []
+
   for (const sample of ['héllo_', '日本', '123', '😀', 'a-b']) {
     const observed = actual.exec(sample),
       reference = expected.exec(sample)
@@ -80,25 +82,37 @@ result.productionCssFiltered = true
 result.appPostcssPreserved = true
 
 const server = await createServer({ root, logLevel: 'silent' })
+
 try {
   await server.listen()
+
   const sessionFile = readdirSync(cache).find((file) => file.endsWith('.json'))
+
   assert.ok(sessionFile)
+
   const endpoint = JSON.parse(readFileSync(join(cache, sessionFile)))
   const mainResponse = await fetch(endpoint.url + '/src/main.js')
+
   assert.equal(mainResponse.status, 200)
   assert.ok((await mainResponse.text()).includes('/src/theme.web.css'))
   result.platformSiblingSelected = true
+
   const cssResponse = await fetch(endpoint.url + '/src/theme.web.css')
+
   assert.equal(cssResponse.status, 200)
+
   const source = await cssResponse.text()
+
   assert.ok(source.includes('.packed-web'))
   assert.ok(!source.includes('must-not-ship'))
   assert.ok(source.includes('preserved'))
   assert.ok(!source.includes('unprocessed'))
   result.devCssFiltered = true
+
   const unauthorized = await fetch(endpoint.url + '/__xplat_dev__/registry')
+
   assert.equal(unauthorized.status, 401)
+
   const headers = { 'content-type': 'application/json', 'x-xplat-dev-token': endpoint.token }
   const post = async (path, body) => {
     const response = await fetch(endpoint.url + '/__xplat_dev__' + path, {
@@ -106,6 +120,7 @@ try {
       headers,
       body: JSON.stringify(body),
     })
+
     assert.equal(response.status, 200)
     return response.json()
   }

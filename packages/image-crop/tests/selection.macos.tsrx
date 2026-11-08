@@ -14,6 +14,7 @@ let reset: (options?: { disabled?: boolean; width?: number; aspect?: number }) =
 function Fixture() @{
   const [crop, setCrop] = useState<Crop>({ unit: 'px', x: 60, y: 60, width: 120, height: 120 })
   const [options, setOptions] = useState({ disabled: false, width: 320, aspect: 1 })
+
   reset = (next = {}) => {
     setCrop({ unit: 'px', x: 60, y: 60, width: 120, height: 120 })
     setOptions({ disabled: false, width: 320, aspect: 1, ...next })
@@ -48,14 +49,17 @@ function Fixture() @{
 export async function run(ctx: ProbeContext) {
   const host = ctx.host as any
   const root = createMacOSRoot(host.contentView) as any
+
   ctx.onCleanup(() => root.unmount())
   root.render(Fixture, {})
+
   const flush = async () => {
     await new Promise((resolve) => setTimeout(resolve, 30))
     host.contentView.layoutSubtreeIfNeeded()
   }
 
   await flush()
+
   const find = (handle: string) => root.__macosDebug.findId('crop-' + handle)
   const pan = async (handle: string, state: number, dx = 0, dy = 0) => {
     root.__macosDebug.panView(find(handle), {
@@ -72,9 +76,11 @@ export async function run(ctx: ProbeContext) {
   for (const handle of ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w']) {
     reset()
     await flush()
+
     const dx = handle.includes('w') ? -20 : handle.includes('e') ? 20 : 0
     const dy = handle.includes('n') ? -20 : handle.includes('s') ? 20 : 0
     const before = completed
+
     await pan(handle, 1)
     await pan(handle, 2, dx, dy)
     await pan(handle, 3, dx, dy)
@@ -104,7 +110,9 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('maximum', latest?.width, 180)
   reset()
   await flush()
+
   const before = completed
+
   await pan('move', 1)
   await pan('move', 2, 10, 10)
   await pan('move', 0)
@@ -120,7 +128,9 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('resize cancels active gesture', latest, null)
   reset({ disabled: true })
   await flush()
+
   let rejected = false
+
   try {
     await pan('move', 1)
   } catch {
@@ -131,14 +141,18 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('disabled has no changes', latest, null)
   reset()
   await flush()
+
   const move = find('move'),
     absolute = move.superview
 
   const image = absolute.subviews.objectAtIndex(0)
+
   ctx.assert('contain-fit scales up', Number(image.imageScaling), 3)
   ctx.assert('image loaded', !!image.image, true)
   ctx.assert('image passes input through', image.hitTest({ x: 100, y: 100 }) == null, true)
+
   const guide = absolute.subviews.objectAtIndex(2)
+
   ctx.assert('guide passes input through', guide.hitTest({ x: 1, y: 1 }) == null, true)
   ctx.assert(
     'interior is hit-testable',
@@ -147,6 +161,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const windowSize = host.window.frame.size
+
   host.window.setContentSize({ width: 800, height: 600 })
   await flush()
   ctx.assert(

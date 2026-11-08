@@ -15,6 +15,7 @@ export function styled<
 ): (props: P & StyledVariantSelection<V>, context: any) => any {
   function Styled(props: P & StyledVariantSelection<V>) {
     const { classes, rest } = resolveStyledClasses(def, props)
+
     rest.className = cx(classes)
     return universalComponent('macos', Base as unknown as UniversalComponent<any>, rest)
   }

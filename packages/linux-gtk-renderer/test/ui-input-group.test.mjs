@@ -7,16 +7,20 @@ import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
+
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
+
 test(
   'GTK input groups share field state and name without duplicate control IDs',
   { timeout: 90000 },
   async (t) => {
     const outDir = join(fixture, 'dist-ui-input-group')
+
     if (!gjsAvailable() || !masonTypelibPresent()) {
       t.skip('GJS and XplatMason required for runtime')
       return
     }
+
     await build({
       logLevel: 'error',
       ...(await xplatLinuxGtk('production', {
@@ -25,27 +29,36 @@ test(
         outDir,
       })),
     })
+
     const bundle = join(outDir, 'app.js')
+
     assert.doesNotMatch(readFileSync(bundle, 'utf8'), /document\.createElement|window\.document/)
+
     const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const result = spawnSync('gjs', ['-m', bundle], {
       env: { ...process.env, GTK_A11Y: 'test', XPLAT_MASON_TYPELIB: nativeDir },
       encoding: 'utf8',
       timeout: 45000,
     })
+
     assert.equal(result.status, 0, result.stdout + '\n' + result.stderr)
     assert.doesNotMatch(
       result.stderr,
       /Gjs-CRITICAL|Gtk-CRITICAL|effect.*failed|\[linux-gtk\] event handler failed/,
     )
+
     const line = result.stdout.split('\n').find((s) => s.startsWith('GTK_INPUT_GROUP '))
+
     assert.ok(line, result.stdout)
+
     const info = JSON.parse(line.slice('GTK_INPUT_GROUP '.length))
+
     assert.ok(info.checks >= 40, JSON.stringify(info))
     t.diagnostic(
       result.stdout.split('\n').find((s) => s.startsWith('GTK_GROUP_GEOMETRY ')) ??
         'No geometry diagnostic',
     )
+
     t.diagnostic(
       process.platform +
         '; GTK ' +

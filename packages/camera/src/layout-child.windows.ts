@@ -13,16 +13,19 @@ export function layoutChildProps(
   style: string | Record<string, any>
 } {
   const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {
     style.gridRow = `span ${props.rowSpan}`
   }
+
   if (props.col !== undefined) {
     style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
   } else if (props.colSpan !== undefined) {
     style.gridColumn = `span ${props.colSpan}`
   }
+
   if (props.dock !== undefined) {
     style.position = style.position ?? 'absolute'
     if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') {
@@ -41,14 +44,17 @@ export function layoutChildProps(
       style.bottom = style.bottom ?? 0
     }
   }
+
   for (const key of ['left', 'top', 'flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
     if (props[key] !== undefined) {
       style[key] = props[key]
     }
   }
+
   if ((props.left !== undefined || props.top !== undefined) && props.dock === undefined) {
     style.position = style.position ?? 'absolute'
   }
+
   return { style: typeof baseStyle === 'string' ? mergeStyle(style, baseStyle) : style }
 }
 

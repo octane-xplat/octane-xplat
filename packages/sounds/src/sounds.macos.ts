@@ -81,6 +81,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 
   const stopVoice = (voice: Voice) => {
     const index = active.indexOf(voice)
+
     if (index !== -1) {
       active.splice(index, 1)
     }
@@ -94,6 +95,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
   const reap = () => {
     for (let index = active.length - 1; index >= 0; index--) {
       const voice = active[index]!
+
       if (!voice.player.playing) {
         stopVoice(voice)
       }
@@ -103,6 +105,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
   const stop = (name?: string) => {
     for (let index = active.length - 1; index >= 0; index--) {
       const voice = active[index]!
+
       if (name === undefined || voice.name === name) {
         stopVoice(voice)
       }
@@ -111,6 +114,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 
   const playerFor = (data: SoundData) => {
     const player = AVAudioPlayer.alloc().initWithDataError(data, null)
+
     if (!player || !player.prepareToPlay()) {
       player?.stop()
       throw new Error('Failed to decode sound')
@@ -137,9 +141,13 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
 
       stop(name)
       clips.get(name)?.cancel?.()
+
       const clip: Clip = {}
+
       clips.set(name, clip)
+
       const uri = typeof source === 'string' ? source : source.uri
+
       try {
         const url = /^[a-z][a-z\d+.-]*:/i.test(uri)
           ? NSURL.URLWithString(uri)
@@ -197,6 +205,7 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
         }
 
         const player = playerFor(data)
+
         player.stop()
         clip.data = data
       } catch (error) {
@@ -209,11 +218,13 @@ export const createSoundBank = ({ maxVoices = 6 }: SoundBankOptions = {}): Sound
     },
     play: async (name, { volume = 1 } = {}) => {
       const data = clips.get(name)?.data
+
       if (disposed || !data) {
         return false
       }
 
       let player: SoundPlayer | undefined
+
       try {
         player = playerFor(data)
         player.volume = Number.isFinite(volume) ? Math.max(0, Math.min(1, volume)) : 1

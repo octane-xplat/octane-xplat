@@ -29,6 +29,7 @@ export default function KeepAwakeProbe() @{
 
   async function check() {
     const own = ++generation.current
+
     try {
       const available = await keepAwake.isAvailable(),
         held = await keepAwake.isActivated()

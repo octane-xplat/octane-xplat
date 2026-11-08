@@ -50,6 +50,7 @@ interface PaletteItem extends CommandPaletteItem {
 
 const paletteItem = (hit: SearchHit, index: number): PaletteItem => {
   const id = `${hit.kind}-${hit.slug}-${hit.anchor ?? 'doc'}-${index}`
+
   paletteHits.set(id, hit)
   return {
     id,
@@ -85,6 +86,7 @@ export function App() @{
   const scheme = useColorScheme()
   const dark = override ?? scheme === 'dark'
   const compact = useMediaQuery('(max-width: 1100px)')
+
   useEffect(() => {
     setThemePreference(override === null ? 'system' : override ? 'dark' : 'light')
   }, [override])
@@ -133,6 +135,7 @@ export function App() @{
     }
 
     const d = DOCS.find((x) => x.slug === s)
+
     // The index doc lives at '/', not /README.
     void router.push({ ...routeForDoc(d), hash: anchor }).then((result) => {
       if (result.status === 'committed') {
@@ -207,6 +210,7 @@ export function App() @{
             className="mode-toggle"
             onPress={() => {
               const next = !dark
+
               saveThemePreference(next)
               setOverride(next)
             }}
@@ -316,6 +320,7 @@ export function App() @{
           searchSource={DOC_SEARCH}
           onValueChange={(id) => {
             const hit = paletteHits.get(id)
+
             if (hit) {
               selectDoc(hit.slug, hit.anchor)
             }
@@ -326,6 +331,7 @@ export function App() @{
           maxHeight={520}
           renderItem={(item) => {
             const hit = item.auxiliaryData?.hit
+
             return (
               <>
                 <Text className={hit?.kind === 'api' ? 'hit-label mono' : 'hit-label'}>

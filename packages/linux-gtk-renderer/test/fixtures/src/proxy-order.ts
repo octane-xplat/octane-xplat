@@ -15,6 +15,7 @@ const runtimeGtk = Gtk as typeof Gtk & {
 }
 
 runtimeGtk.init()
+
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const container = createGtkContainer(host)
 
@@ -37,9 +38,11 @@ function labels(): string[] {
   // Root content mounts into the renderer-owned overlay's contentHost —
   // the outer host box only holds the overlay widget.
   const content = (container as any).contentHost ?? host
+
   for (let child = content.get_first_child(); child; child = child.get_next_sibling()) {
     result.push(String((child as any).label))
   }
+
   return result
 }
 
@@ -64,6 +67,7 @@ try {
 
   const actual = labels()
   const proxyChild = container.nodes.get(2)?.children.map((node: ElementNode) => node.props.text)
+
   apply([
     { op: 'create', id: 5, type: 'proxyviewcontainer', props: {} },
     { op: 'insert', id: 5, parent: 2, before: 4 },
@@ -74,14 +78,23 @@ try {
   ] as UniversalHostCommand[])
 
   const nestedBefore = labels()
+
   apply([{ op: 'remove', id: 6 }] as UniversalHostCommand[])
+
   const removedChild = labels()
+
   apply([{ op: 'move', id: 2, parent: null, before: null }] as UniversalHostCommand[])
+
   const movedProxy = labels()
+
   apply([{ op: 'remove', id: 2 }] as UniversalHostCommand[])
+
   const removedProxy = labels()
+
   apply([{ op: 'insert', id: 2, parent: null, before: 3 }] as UniversalHostCommand[])
+
   const reinsertedProxy = labels()
+
   print(
     `GTK_PROXY_ORDER ${JSON.stringify({
       gtk: `${runtimeGtk.get_major_version()}.${runtimeGtk.get_minor_version()}.${runtimeGtk.get_micro_version()}`,

@@ -17,6 +17,7 @@ export const googleAuth: GoogleAuth = {
   async signIn(options = {}): Promise<SignInResult> {
     const config = configuration
     const flow = config?.hostedFlow
+
     if (!authSession.supported) {
       return { status: 'error', message: 'AuthenticationServices is unavailable on this host' }
     }
@@ -64,6 +65,7 @@ export const googleAuth: GoogleAuth = {
       }
 
       const credential = await flow.complete(result.url)
+
       if (
         credential?.provider !== 'google' ||
         typeof credential.user?.id !== 'string' ||

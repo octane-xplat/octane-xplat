@@ -16,6 +16,7 @@ const MAX_UNITS = 256
 
 function useLiveReducedMotion(active: boolean): boolean {
   const [reduced, setReduced] = useState(() => (active ? readReducedMotion() : false))
+
   useEffect(() => {
     if (!active) {
       setReduced(false)
@@ -24,6 +25,7 @@ function useLiveReducedMotion(active: boolean): boolean {
 
     const update = () => setReduced(readReducedMotion())
     const off = observeReducedMotion(update)
+
     update()
     return off
   }, [active])
@@ -63,6 +65,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   const alloc = () => ++nextId.current
 
   const latest = useRef({ rollBy, direction, policy, reduced, durationMs, delayMs })
+
   latest.current = { rollBy, direction, policy, reduced, durationMs, delayMs }
 
   // Mount snaps to the initial value — all cells start settled.
@@ -82,6 +85,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 
   function unitsFor(value: string): string[] {
     const units = segmentUnits(value, latest.current.rollBy)
+
     return units.length > MAX_UNITS ? [value] : units
   }
 
@@ -92,6 +96,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 
   function removeCell(id: number) {
     const next = cellsRef.current.filter((cell) => cell.id !== id)
+
     if (next.length !== cellsRef.current.length) {
       setCellsSync(next)
     }
@@ -100,7 +105,9 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   function finishRun() {
     runningRef.current = false
     runTimerRef.current = null
+
     const pending = pendingRef.current
+
     pendingRef.current = null
     if (pending !== null && pending !== committedRef.current) {
       startRun(pending)
@@ -186,6 +193,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   useLayoutEffect(() => {
     const units = unitsFor(committedRef.current)
     const current = cellsRef.current.filter((cell) => cell.phase !== 'exit')
+
     if (
       units.length === current.length &&
       units.every((unit, index) => unit === current[index].unit)
@@ -209,10 +217,13 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
   // the next plan — `settled` is what stops it from re-rolling.
   useLayoutEffect(() => {
     const alive = new Set<number>()
+
     for (const cell of cells) {
       alive.add(cell.id)
+
       const view = viewsRef.current.get(cell.id)
       const tween = tweens.current.get(cell.id)
+
       if (cell.phase === 'stable') {
         if (tween) {
           tween.cancel()
@@ -246,10 +257,13 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
       }
 
       settled.current.delete(cell.id)
+
       const sign = latest.current.direction === 'up' ? 1 : -1
       const distance = distanceRef.current || viewHeight(view)
+
       if (cell.phase === 'enter') {
         const id = cell.id
+
         tweens.current.set(id, {
           phase: 'enter',
           cancel: playRoll(view, {
@@ -267,6 +281,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
         })
       } else {
         const id = cell.id
+
         tweens.current.set(id, {
           phase: 'exit',
           cancel: playRoll(view, {
@@ -323,6 +338,7 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
 
   const attachCell = useCallback((id: number) => {
     let fn = attachFns.current.get(id)
+
     if (!fn) {
       fn = (view: any) => {
         if (!view) {
@@ -331,11 +347,14 @@ export function useRollingText(props: RollingTextProps): RollingTextHandle {
         }
 
         viewsRef.current.set(id, view)
+
         const cell = cellsRef.current.find((entry) => entry.id === id)
+
         if (cell?.phase === 'enter') {
           // Park the incoming face outside the clip before the first
           // paint; the layout effect starts the roll on this commit.
           const sign = latest.current.direction === 'up' ? 1 : -1
+
           writeCell(view, sign * distanceRef.current, 0)
         }
       }

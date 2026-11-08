@@ -3,6 +3,7 @@ import type { MeasureBounds } from '../../props'
 /** Convert every view into top-left window-content coordinates, in AppKit points. */
 export function readBounds(view: any): MeasureBounds | null {
   const content = view?.window?.contentView
+
   if (!content || !view?.convertRectToView) {
     return null
   }
@@ -10,6 +11,7 @@ export function readBounds(view: any): MeasureBounds | null {
   const frame = view.convertRectToView(view.bounds, content)
   const bounds = content.bounds
   const flipped = Boolean(content.flipped)
+
   return {
     x: Number(frame.origin.x) - Number(bounds.origin.x),
     y: flipped

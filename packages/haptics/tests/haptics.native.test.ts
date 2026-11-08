@@ -27,6 +27,7 @@ const loadLeaf = (globals: Record<string, unknown>) => {
     .replace(/import type.*\n/, '')
     .replace(/declare const .*\n/g, '')
     .replace('export const', 'const')
+
   return vm.runInContext(
     `${stripTypeScriptTypes(source)}\ncreateHaptics()`,
     vm.createContext(globals),
@@ -63,6 +64,7 @@ const androidGlobals = (activity: object | null) => {
             if (!this.context.isActivity) {
               throw new TypeError('ClassCastException')
             }
+
             return {
               getByName: (name: string) =>
                 UPSTREAM_PRESETS.has(name) ? { play: () => played.push(name) } : null,
@@ -106,6 +108,7 @@ const androidGlobals = (activity: object | null) => {
       },
     },
   }
+
   return {
     globals: {
       Application: { android: { foregroundActivity: activity ?? undefined } },
@@ -121,6 +124,7 @@ const iosGlobals = () => {
   const played: string[] = []
   // pulsar-ios 1.4.0 getByName lowercases the name then hits the mapper.
   const registered = new Set([...UPSTREAM_PRESETS].map((name) => name.toLowerCase()))
+
   return {
     globals: {
       Application: {},
@@ -132,6 +136,7 @@ const iosGlobals = () => {
           if (!registered.has(name.toLowerCase())) {
             return false
           }
+
           played.push(name)
           return true
         }
@@ -166,6 +171,7 @@ test('Android presets resolve registered pulsar names', () => {
   for (const preset of presets) {
     assert.equal(engine.play(preset), true, preset)
   }
+
   assert.deepEqual(played, [
     'SystemSelection',
     'SystemImpactLight',
@@ -199,6 +205,7 @@ test('iOS presets resolve registered pulsar names', () => {
   for (const preset of presets) {
     assert.equal(engine.play(preset), true, preset)
   }
+
   assert.deepEqual(played, [
     'SystemSelection',
     'SystemImpactLight',

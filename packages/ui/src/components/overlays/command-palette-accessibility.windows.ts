@@ -4,6 +4,7 @@ import { Microsoft } from '@octane-xplat/platform/windows'
 export function announceCommandPalette(view: any, message: string): void {
   const element = view?.nativeViewProtected
   const peers = Microsoft?.UI?.Xaml?.Automation?.Peers
+
   if (!element || !message || !peers?.FrameworkElementAutomationPeer) {
     return
   }
@@ -11,6 +12,7 @@ export function announceCommandPalette(view: any, message: string): void {
   const peer =
     peers.FrameworkElementAutomationPeer.FromElement(element) ??
     peers.FrameworkElementAutomationPeer.CreatePeerForElement(element)
+
   peer?.RaiseNotificationEvent?.(
     peers.AutomationNotificationKind.Other,
     peers.AutomationNotificationProcessing.MostRecent,

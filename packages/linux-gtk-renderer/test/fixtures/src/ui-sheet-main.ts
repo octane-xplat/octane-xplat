@@ -35,7 +35,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -53,6 +55,7 @@ const findGtkText = (needle: string): any => {
     if (found || !w) {
       return
     }
+
     try {
       const text =
         typeof w.get_label === 'function'
@@ -66,10 +69,12 @@ const findGtkText = (needle: string): any => {
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -80,6 +85,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -91,16 +97,19 @@ const findByName = (name: string): any => {
     if (found || !w) {
       return
     }
+
     try {
       if (w.get_name?.() === name) {
         found = w
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -113,6 +122,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -123,6 +133,7 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -135,14 +146,17 @@ const hasText = (id: string, text: string): boolean => {
           if (!node) {
             return false
           }
+
           if (JSON.stringify(node.props).includes(text)) {
             return true
           }
+
           for (const c of node.children ?? []) {
             if (probe(c)) {
               return true
             }
           }
+
           return false
         }
 
@@ -150,6 +164,7 @@ const hasText = (id: string, text: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -158,9 +173,11 @@ const hasText = (id: string, text: string): boolean => {
 const bounds = (w: any): { x: number; y: number; w: number; h: number } | null => {
   const [ok, pt] = w.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
   const [okB, rect] = w.compute_bounds(w)
+
   if (!ok || !okB) {
     return null
   }
+
   return { x: pt.x, y: pt.y, w: rect.size.width, h: rect.size.height }
 }
 
@@ -175,27 +192,34 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const point = (widget: any) => {
   const native = widget?.get_native?.()
+
   if (!native) {
     return null
   }
+
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds for widget')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -204,25 +228,31 @@ const point = (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
 const clickAt = async (widget: any, what?: string) => {
   const p = widget && point(widget)
+
   if (!p) {
     dbg.push('MISSING widget ' + String(what))
     return
   }
+
   await ready(p)
 }
 
 const dragAt = async (widget: any, dx: number, dy: number, what?: string) => {
   const p = widget && point(widget)
+
   if (!p) {
     dbg.push('MISSING widget ' + String(what))
     return
   }
+
   await ready({ x: p.x, y: p.y, drag: { dx, dy } })
 }
 
@@ -243,13 +273,16 @@ async function run() {
   await clickAt(findView('ctl-open'))
   await pump(400)
   check('controlled sheet opens', !!findGtkText('ctl-body'))
+
   const ctlPanel = findByName('ctl-sheet')
   const ctlBounds = ctlPanel && bounds(ctlPanel)
+
   dbg.push('ctl ' + JSON.stringify(ctlBounds))
   check(
     'sheet docks to the window bottom',
     !!ctlBounds && Math.abs(ctlBounds.y + ctlBounds.h - VH) <= 6,
   )
+
   check('capped sheet height is 62 percent', !!ctlBounds && Math.abs(ctlBounds.h - VH * 0.62) <= 8)
   await clickAt(findView('bg-btn'))
   await pump(400)
@@ -270,12 +303,15 @@ async function run() {
   await clickAt(findView('ctl-open'))
   await pump(400)
   check('sheet reopens for swipe', !!findGtkText('ctl-body'))
+
   const grabber = findByName('ctl-sheet-grabber')
+
   check('grabber row exists', !!grabber)
   dbg.push('grabber=' + !!grabber + ' panel=' + !!findByName('ctl-sheet'))
   if (grabber) {
     await dragAt(grabber, 0, 120)
   }
+
   await pump(450)
   dbg.push(
     'after-swipe panel=' +
@@ -285,6 +321,7 @@ async function run() {
       ' last=' +
       String((globalThis as any).__sheetPanLast),
   )
+
   check('grabber swipe dismisses the sheet', !findGtkText('ctl-body'))
 
   // Snap points: the largest stop sizes the panel; releases snap to the
@@ -292,42 +329,56 @@ async function run() {
   await clickAt(findView('snap-open'))
   await pump(400)
   check('snap sheet opens', !!findGtkText('snap-body'))
+
   const snapPanel = () => findByName('snap-sheet')
   const snapBounds = snapPanel() && bounds(snapPanel())
+
   dbg.push('snap ' + JSON.stringify(snapBounds))
   check(
     'snap panel sizes to the largest detent',
     !!snapBounds && Math.abs(snapBounds.h - VH * 0.9) <= 8,
   )
+
   check(
     'snap sheet rests at the smallest detent',
     !!snapBounds && Math.abs(snapBounds.y - (VH - VH * 0.25)) <= 14,
   )
+
   const snapGrabber = findByName('snap-sheet-grabber')
+
   await dragAt(snapGrabber, 0, -400, 'snap-grabber')
   await pump(450)
+
   const topBounds = snapPanel() && bounds(snapPanel())
+
   dbg.push('snap-top ' + JSON.stringify(topBounds))
   check(
     'drag up snaps to the largest detent',
     !!topBounds && Math.abs(topBounds.y - (VH - VH * 0.9)) <= 14,
   )
+
   await dragAt(snapGrabber, 0, 250, 'snap-grabber')
   await pump(450)
+
   const midBounds = snapPanel() && bounds(snapPanel())
+
   dbg.push('snap-mid ' + JSON.stringify(midBounds))
   check(
     'drag down snaps to the middle detent',
     !!midBounds && Math.abs(midBounds.y - VH * 0.5) <= 14,
   )
+
   await dragAt(snapGrabber, 0, 150, 'snap-grabber')
   await pump(450)
+
   const lowBounds = snapPanel() && bounds(snapPanel())
+
   dbg.push('snap-low ' + JSON.stringify(lowBounds))
   check(
     'drag down snaps to the peek detent',
     !!lowBounds && Math.abs(lowBounds.y - VH * 0.75) <= 14,
   )
+
   await dragAt(snapGrabber, 0, 250, 'snap-grabber')
   await pump(500)
   check('drag past the peek detent dismisses', !findGtkText('snap-body'))
@@ -341,10 +392,13 @@ async function run() {
     ['h-num', 300, 8],
     ['h-pct', VH * 0.5, 8],
   ]
+
   for (const [id, expected, tol] of heightCases) {
     await clickAt(findView(id))
     await pump(400)
+
     const hb = findByName('h-sheet') && bounds(findByName('h-sheet'))
+
     dbg.push(id + ' ' + JSON.stringify(hb))
     check(id + ' presents a sheet', !!findGtkText('height-body'))
     if (expected == null) {
@@ -370,10 +424,13 @@ async function run() {
   await ready({ key: 'Escape' })
   await pump(350)
   check('required sheet ignores Escape', !!findGtkText('req-body'))
+
   const reqGrabber = findByName('req-sheet-grabber')
+
   if (reqGrabber) {
     await dragAt(reqGrabber, 0, 300)
   }
+
   await pump(450)
   check('required sheet snaps back after swipe', !!findGtkText('req-body'))
   await clickAt(findByName('req-close'))
@@ -488,6 +545,7 @@ async function run() {
     'unmount returns popover chrome refcount',
     ((container as any).popoverChromeUsers?.() ?? 0) === 0,
   )
+
   check('teardown clears overlay layers', overlayChildren() === 0)
 
   GLib.file_set_contents('/tmp/gtk-sheet-dbg.log', dbg.join('\n'))
@@ -495,6 +553,7 @@ async function run() {
     'GTK_SHEET ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 

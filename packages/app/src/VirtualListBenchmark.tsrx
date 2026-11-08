@@ -49,12 +49,14 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
     void runVirtualListBenchmark('vlist-bench-list')
       .then((metrics) => {
         const json = JSON.stringify(metrics)
+
         console.log('[vlist-benchmark] result ' + json)
         setResult(json)
         setStatus('Profile complete')
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error)
+
         console.log('[vlist-benchmark] error ' + message)
         setStatus('Profile failed · ' + message)
       })
@@ -75,6 +77,7 @@ export function VirtualListBenchmark(props: { fixed?: boolean } = {}) @{
       })
       .catch((error) => {
         const message = error instanceof Error ? error.message : String(error)
+
         console.log('[vlist-input] error ' + message)
         setStatus('Capture failed · ' + message)
       })

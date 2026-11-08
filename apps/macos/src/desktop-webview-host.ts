@@ -15,6 +15,7 @@ type AppInfo = ReturnType<FrameworkHostServices['app']['getInfo']>
 type AppState = ReturnType<FrameworkHostServices['app']['getState']>
 type WindowSize = ReturnType<FrameworkHostServices['app']['getWindowSize']>
 type PermissionResult = Awaited<ReturnType<FrameworkHostServices['notifications']['ensure']>>
+
 import { createHostedWindow } from './appkit'
 
 export interface AppKitHostServices {
@@ -69,6 +70,7 @@ const windowSizeFor = (
 
 const notificationPermission = (webView: MacOSWebView): PermissionResult => {
   const status = webView.notificationPermission()
+
   if (status === 'granted' || status === 'denied') {
     return status
   }
@@ -118,6 +120,7 @@ export function createDesktopWebViewHost<
     'isEqual' in value &&
     typeof value.isEqual === 'function' &&
     Boolean(value.isEqual(other))
+
   const sameNativeWindow = (left: unknown, right: unknown) =>
     left === right || isEqual(left, right) || isEqual(right, left)
 
@@ -133,6 +136,7 @@ export function createDesktopWebViewHost<
       'size' in window.frame
         ? window.frame.size
         : undefined
+
     return windowSizeFor(size ?? primaryWindow?.frame?.size ?? appKit.windowSize)
   }
 
@@ -171,6 +175,7 @@ export function createDesktopWebViewHost<
     }
 
     const dispatcher = createHostDispatcher<Services, Events>(services, port)
+
     target.installDispatcher((message) => void dispatcher.dispatch(message))
     endpoints.set(target, { webView: target, dispatcher })
     return dispatcher
@@ -188,11 +193,14 @@ export function createDesktopWebViewHost<
   const keepAwakeFor = (sender: MacOSWebView) => {
     const owner = ++nextKeepAwakeOwner
     const tags = new Map<string, string>()
+
     keepAwakeTags.set(sender, tags)
+
     const service = createTaggedKeepAwake({
       available: () => keepAwake.isAvailable(),
       async activate(tag) {
         const key = `webview:${owner}:${tag}`
+
         if (!(await keepAwake.activate(key))) {
           return false
         }
@@ -207,6 +215,7 @@ export function createDesktopWebViewHost<
       },
       async deactivate(tag) {
         const key = tags.get(tag)
+
         if (key && !(await keepAwake.deactivate(key))) {
           return false
         }
@@ -231,12 +240,14 @@ export function createDesktopWebViewHost<
 
   const loadTarget = (target: MacOSWebView, targetUrl?: string) => {
     const raw = targetUrl ?? '/'
+
     if (/^https?:\/\//i.test(raw)) {
       return target.load(raw)
     }
 
     const packaged = raw.match(/^xplat:\/\/app(\/.*)?$/i)?.[1] ?? ''
     const path = packaged || (raw.startsWith('/') ? raw : `/${raw}`) || '/index.html'
+
     if (baseUrl) {
       return target.load(`${baseUrl.replace(/\/$/, '')}${path}`)
     }
@@ -254,12 +265,14 @@ export function createDesktopWebViewHost<
     })
 
     const child = createMacOSWebView(controller.window.contentView)
+
     child.setWindowContext(id, JSON.stringify(options.data ?? null))
     attach(child, servicesFor(child))
 
     secondaryWindows.set(id, { controller, webView: child, opener })
     void controller.closed.then(() => {
       const entry = secondaryWindows.get(id)
+
       secondaryWindows.delete(id)
       endpoints.get(entry?.opener ?? opener)?.dispatcher.emit('windows.closed', id)
       detach(child)
@@ -283,6 +296,7 @@ export function createDesktopWebViewHost<
           getWindowSize: () => senderWindowSize(sender),
           consumeInitialUrl: () => {
             const url = pendingInitialUrls.get(sender) ?? null
+
             pendingInitialUrls.delete(sender)
             return url
           },
@@ -315,6 +329,7 @@ export function createDesktopWebViewHost<
           open: (options) => Promise.resolve(openWebWindow(sender, options)),
           close: (id) => {
             const entry = secondaryWindows.get(id)
+
             if (!entry) {
               return Promise.resolve(false)
             }
@@ -324,6 +339,7 @@ export function createDesktopWebViewHost<
           },
           setTitle: (id, title) => {
             const entry = secondaryWindows.get(id)
+
             entry?.controller.setTitle(title)
             return Promise.resolve(Boolean(entry))
           },

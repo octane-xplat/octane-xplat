@@ -13,19 +13,24 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
       location.reload()
     }
   })
+
   const params = new URLSearchParams(location.search)
   const view =
     params.get('view') ??
     (params.has('story') || location.hash.startsWith('#/story/')
       ? 'story'
       : (options.defaultView ?? 'story'))
+
   if (view === 'gallery') {
     startGallery(options)
     return
   }
+
   const story = params.get('story') ?? options.initialStoryId
+
   if (view !== 'frame') {
     const runtime = startWorkshop({ ...options, initialStoryId: story })
+
     window.addEventListener(
       'pagehide',
       () => {
@@ -36,33 +41,42 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
 
     return
   }
+
   const token = params.get('token')
   const host = document.getElementById('workshop-root') ?? document.body
+
   host.replaceChildren()
   host.className = 'xw-frame-stage'
   host.style.cssText = 'padding:16px;box-sizing:border-box;min-height:120px'
+
   const session = new WorkshopSession({
     host: createWebStageHost(host),
     target: options.target,
     globalProviders: options.globalProviders ?? [],
   })
+
   let disposed = false
   const send = (type: string, extra: Record<string, unknown> = {}) =>
     parent.postMessage({ workshop: 1, type, token, ...extra }, location.origin)
+
   const unsubscribe = session.subscribe((state) => {
     if (state.failure) {
       send('error', { message: String(state.failure) })
     }
   })
+
   const resize =
     typeof ResizeObserver === 'undefined'
       ? undefined
       : new ResizeObserver(() => send('height', { height: host.scrollHeight }))
+
   resize?.observe(host)
+
   const dispose = async () => {
     if (disposed) {
       return
     }
+
     disposed = true
     resize?.disconnect()
     unsubscribe()
@@ -75,6 +89,7 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
       send('disposed')
     }
   }
+
   const message = (event: MessageEvent) => {
     if (
       event.source !== parent ||
@@ -84,9 +99,11 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
     ) {
       return
     }
+
     if (event.data.type === 'dispose') {
       void dispose()
     }
+
     if (event.data.type === 'reset' && !disposed) {
       void session.reset().then(() =>
         send(session.state.failure ? 'error' : 'ready', {
@@ -95,19 +112,23 @@ export function bootWorkshop(options: WorkshopBootOptions): void {
       )
     }
   }
+
   const onHide = () => {
     void dispose()
   }
+
   window.addEventListener('message', message)
   window.addEventListener('pagehide', onHide)
   void (async () => {
     try {
       const entry = options.catalog.find((item) => item.id === story && item.load)
+
       if (!entry?.load) {
         throw new Error('Story is unavailable on this target')
       }
 
       const loaded = await entry.load()
+
       if (disposed) {
         return
       }

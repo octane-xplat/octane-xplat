@@ -1,5 +1,6 @@
 /** AppKit border style resolution shared by painting and Mason edge sizing. */
 export type Side = 'top' | 'right' | 'bottom' | 'left'
+
 const sides: Side[] = ['top', 'right', 'bottom', 'left']
 const styles = new Set([
   'none',
@@ -31,6 +32,7 @@ const edgeKeys: Record<string, Side> = Object.assign(Object.create(null), {
 export function borderStyleSides(style: Record<string, unknown>): Record<Side, string> {
   // Width-only native styles retain the existing implicit solid default.
   const out = { top: 'solid', right: 'solid', bottom: 'solid', left: 'solid' }
+
   for (const [key, value] of Object.entries(style)) {
     if (
       value == null ||
@@ -40,8 +42,10 @@ export function borderStyleSides(style: Record<string, unknown>): Record<Side, s
     }
 
     const text = String(value).trim().toLowerCase()
+
     if (key === 'borderStyle') {
       const parts = text.split(/\s+/)
+
       if (parts.length > 4) {
         continue
       }
@@ -60,11 +64,13 @@ export function borderStyleSides(style: Record<string, unknown>): Record<Side, s
       out[sideKeys[key]] = text
     } else if (key === 'border' || edgeKeys[key]) {
       const named = text.split(/\s+/).find((part) => styles.has(part)) ?? 'solid'
+
       for (const side of key === 'border' ? sides : [edgeKeys[key]]) {
         out[side] = named
       }
     }
   }
+
   return out
 }
 
@@ -79,12 +85,15 @@ export function borderStrokeStyle(
   if (!(width > 0) || !Number.isFinite(width * 3)) {
     return null
   }
+
   if (style === 'dashed') {
     return { pattern: [width * 3, width * 3], cap: 'butt' }
   }
+
   if (style === 'dotted') {
     return { pattern: [0, width * 2], cap: 'round' }
   }
+
   return null
 }
 
@@ -95,6 +104,7 @@ export type BorderBand = { from: number; to: number; shade: 'base' | 'dark' }
  *  partition: top and left shades face the light. */
 export function borderBands(style: string, side: Side, width: number): BorderBand[] {
   const topLeft = side === 'top' || side === 'left'
+
   switch (style) {
     case 'double':
       return width >= 3
@@ -140,6 +150,7 @@ export function darkBorderComponents(c: {
 
   const v = Math.max(c.red, c.green, c.blue)
   const m = Math.max(0, (v - 0.33) / v)
+
   return { red: c.red * m, green: c.green * m, blue: c.blue * m, alpha: c.alpha }
 }
 
@@ -161,12 +172,14 @@ export function borderBandPoints(
     bottom: widths.bottom * from,
     left: widths.left * from,
   }
+
   const b = {
     top: widths.top * to,
     right: widths.right * to,
     bottom: widths.bottom * to,
     left: widths.left * to,
   }
+
   switch (side) {
     case 'top':
       return [

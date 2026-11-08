@@ -21,11 +21,13 @@ import { ThemeContext, ThemeNestingContext } from './theme-context'
  *  typings (same workaround as SizeProvider in size-context.ts). */
 const ThemeProviderEl: any = ThemeContext
 const ThemeNestingProviderEl: any = ThemeNestingContext
+
 import { setRootThemeScope } from './theme-scope'
 import { ensureThemeCss, syncDocumentRootTheme } from './theme-css-inject'
 import { useThemeScheme } from './theme-scheme'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 export interface ThemeProps {
   /** Theme built by `defineTheme`. */
   theme: DefinedTheme
@@ -54,6 +56,7 @@ export function Theme(props: ThemeProps): JSX.Element @{
 
     const unscope = setRootThemeScope(props.theme)
     const unsync = syncDocumentRootTheme(props.theme.name, effective)
+
     return () => {
       unsync()
       unscope()

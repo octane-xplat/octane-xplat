@@ -15,12 +15,16 @@ export function createAppKitAnimatedImageOwner(props: () => AnimatedImageProps) 
   const sync = () => {
     const native = view,
       own = ++revision
+
     if (!native) {
       return
     }
+
     const current = props(),
       next = { source: current.src, fit: current.stretch ?? 'aspectFit', alt: current.alt ?? '' }
+
     const state = (applied ??= {})
+
     try {
       if (state.fit !== next.fit) {
         state.fit = next.fit
@@ -52,6 +56,7 @@ export function createAppKitAnimatedImageOwner(props: () => AnimatedImageProps) 
       throw error
     }
   }
+
   return {
     sync,
     attach(next: AppKitAnimatedImageNative) {
@@ -59,7 +64,9 @@ export function createAppKitAnimatedImageOwner(props: () => AnimatedImageProps) 
         sync()
         return
       }
+
       const previous = view
+
       revision++
       view = next
       applied = null
@@ -70,6 +77,7 @@ export function createAppKitAnimatedImageOwner(props: () => AnimatedImageProps) 
     },
     dispose() {
       const previous = view
+
       revision++
       view = null
       applied = null

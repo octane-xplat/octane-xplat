@@ -10,6 +10,7 @@ export function staticallyReserved(
   accelerator: Accelerator,
 ): string | null {
   const { ctrl, alt, shift, meta, code } = accelerator
+
   if (platform === 'mac') {
     if (meta && !ctrl && !alt && !shift && code === 'Tab') {
       return 'Meta+Tab switches applications on macOS and cannot be registered.'
@@ -29,6 +30,7 @@ export function staticallyReserved(
 
     return null
   }
+
   if (platform === 'windows') {
     if (ctrl && alt && !meta && code === 'Delete') {
       return 'Ctrl+Alt+Delete is handled by Windows and cannot be registered.'
@@ -44,5 +46,6 @@ export function staticallyReserved(
 
     return null
   }
+
   return null
 }

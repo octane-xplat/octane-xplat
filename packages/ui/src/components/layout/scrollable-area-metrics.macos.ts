@@ -24,6 +24,7 @@ export function scrollableAreaMetrics(
   const flipped = Boolean(document?.flipped)
 
   const y = Number(clip?.origin?.y ?? event?.verticalOffset ?? 0)
+
   return {
     maxX,
     maxY,

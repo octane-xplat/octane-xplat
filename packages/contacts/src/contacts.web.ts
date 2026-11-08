@@ -11,6 +11,7 @@ interface ContactPicker {
 
 const picker = (): ContactPicker | null => {
   const nav = (globalThis as any).navigator
+
   return typeof nav?.contacts?.select === 'function' ? (nav.contacts as ContactPicker) : null
 }
 
@@ -40,10 +41,13 @@ export const contacts: Contacts = {
 
   async getAll(options?: GetContactsOptions): Promise<Contact[]> {
     const p = picker()
+
     if (!p) {
       throw new Error('unsupported: navigator.contacts.select is not available')
     }
+
     const selected = await p.select(['name', 'email', 'tel'], { multiple: true })
+
     return (selected ?? []).map(asContact)
   },
 
@@ -55,4 +59,5 @@ export const contacts: Contacts = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.contacts = () => contacts.ensure()

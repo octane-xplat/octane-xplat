@@ -122,6 +122,7 @@ function fixture() {
 
 it('requests initial edges and moves manual focus with arrows/Home/End/Page keys without choosing', () => {
   const f = fixture()
+
   expect(f.key('ArrowDown').defaultPrevented).toBe(true)
   expect(f.opened).toEqual([['first', undefined]])
   f.state.open = false
@@ -147,6 +148,7 @@ it('requests initial edges and moves manual focus with arrows/Home/End/Page keys
 
 it('commits Enter/Space, blocks pending commits and preserves search caret/space keys', () => {
   const f = fixture()
+
   f.key('Enter')
   expect(f.state.open).toBe(true)
   f.state.focused = 'c'
@@ -168,13 +170,16 @@ it('commits Enter/Space, blocks pending commits and preserves search caret/space
 
 it('preserves composition/modified/owned keys and closes Escape/Tab with explicit focus intents', () => {
   const f = fixture()
+
   f.state.open = true
   expect(f.key('Escape', { isComposing: true }).defaultPrevented).toBe(false)
   f.key('ArrowDown', { altKey: true })
   f.key('ArrowDown', { ctrlKey: true })
   f.key('ArrowDown', { defaultPrevented: true })
   expect(f.focused).toEqual([])
+
   const escape = f.key('Escape')
+
   expect(escape.stopped).toBe(true)
   expect(f.closed).toEqual(['anchor'])
   f.state.open = true
@@ -189,6 +194,7 @@ it('preserves composition/modified/owned keys and closes Escape/Tab with explici
 
 it('cycles repeated prefixes, resets after timeout and chooses closed single values without opening', () => {
   const f = fixture()
+
   f.key('a')
   expect(f.picks).toEqual(['ap'])
   f.state.open = true
@@ -215,6 +221,7 @@ it('cycles repeated prefixes, resets after timeout and chooses closed single val
 
 it('starts local search outside the editor and leaves actual editor typing native', () => {
   const f = fixture()
+
   f.state.searchable = true
   f.key('x')
   expect(f.queries).toEqual(['x'])
@@ -229,6 +236,7 @@ it('starts local search outside the editor and leaves actual editor typing nativ
 
 it('bulk shortcuts belong to nonediting multi-select and closed clear respects pending/shortcuts', () => {
   const f = fixture()
+
   f.state.open = true
   f.state.multiple = true
   f.key('a', { metaKey: true })

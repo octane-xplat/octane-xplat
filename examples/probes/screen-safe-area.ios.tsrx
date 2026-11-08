@@ -46,8 +46,10 @@ export async function run(ctx: ProbeContext) {
   page.iosIgnoreSafeArea = false
   ctx.mount(InsetContent)
   await ctx.waitFor(() => (ctx.find('stage') as View)?.getActualSize().height > 0)
+
   const inspect = () => {
     const stage = ctx.find('stage') as View
+
     return {
       page: bounds(page),
       app: bounds(ctx.find('page-content') as View),
@@ -59,7 +61,9 @@ export async function run(ctx: ProbeContext) {
   }
 
   const first = inspect()
+
   ctx.record('first', first)
+
   const near = (name: string, actual: number, expected: number) =>
     ctx.assert(name, Math.abs(actual - expected) < 1, true)
 
@@ -79,14 +83,18 @@ export async function run(ctx: ProbeContext) {
   // Compare after a distinct layout pass, without using that pass to repair
   // the initial assertions above.
   await new Promise((resolve) => setTimeout(resolve, 100))
+
   const next = inspect()
+
   ctx.record('relayout', next)
   near('relayout preserves stage origin', next.stage.y, first.stage.y)
   near('relayout preserves stage height', next.stage.height, first.stage.height)
   prepareFullScreenPage(page)
   ctx.mount(Content, {})
   await ctx.waitFor(() => (ctx.find('stage') as View)?.getActualSize().height > 0)
+
   const prepared = inspect()
+
   ctx.record('preparedPage', prepared)
   for (const key of ['app', 'screen', 'content', 'stage'] as const) {
     near(`${key} origin matches prepared Page`, prepared[key].y, prepared.page.y)
@@ -96,7 +104,9 @@ export async function run(ctx: ProbeContext) {
 
   ctx.mount(Content, { safe: true })
   await ctx.waitFor(() => (ctx.find('stage') as View)?.getActualSize().height > 0)
+
   const later = inspect()
+
   ctx.record('laterScreen', later)
   near(
     'SafeArea pads top once',

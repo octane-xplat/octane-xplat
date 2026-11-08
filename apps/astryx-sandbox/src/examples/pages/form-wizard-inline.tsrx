@@ -201,11 +201,13 @@ export function FormWizardInlineTemplate() @{
 
   const errorsByStep = useMemo<Array<Record<string, string>>>(() => {
     const repository: Record<string, string> = {}
+
     if (triggers.length === 0) {
       repository.triggers = 'Pick at least one trigger.'
     }
 
     const pipeline: Record<string, string> = {}
+
     if (jobs.length === 0) {
       pipeline.jobs = 'Pick at least one job.'
     }
@@ -223,6 +225,7 @@ export function FormWizardInlineTemplate() @{
     }
 
     const state = auto[active]
+
     if (state.status !== 'idle') {
       return undefined
     }
@@ -256,6 +259,7 @@ export function FormWizardInlineTemplate() @{
     setActive(index)
     setAuto((s) => {
       const next = { ...s }
+
       for (const stepIndex of AUTO_STEPS) {
         if (stepIndex >= index) {
           next[stepIndex] = IDLE
@@ -358,6 +362,7 @@ export function FormWizardInlineTemplate() @{
           {checks.map((check, i) => {
             const isPast = i < state.done
             const isCurrent = i === state.done
+
             return (
               <Step
                 key={check.id}
@@ -424,6 +429,7 @@ export function FormWizardInlineTemplate() @{
           >
             {STEP_META.map((meta, index) => {
               const phase = phaseOf(index)
+
               return (
                 <Step
                   key={meta.label}

@@ -11,6 +11,7 @@ const call = (command, args, options = {}) =>
   execFileSync(command, args, { stdio: 'inherit', timeout: 120_000, ...options })
 
 const remote = process.env.XPLAT_IOS_WRITER_HOST
+
 if (remote && !/^[a-zA-Z0-9.-]+$/.test(remote)) {
   throw new Error('Invalid simulator host')
 }
@@ -39,6 +40,7 @@ const broker = (resources, purpose, command, args) =>
 
 if (process.argv[2] === '--device') {
   const [udid, binary] = process.argv.slice(3)
+
   try {
     hostCall('xcrun', ['simctl', 'boot', udid])
     hostCall('xcrun', ['simctl', 'bootstatus', udid, '-b'])
@@ -52,11 +54,14 @@ if (process.argv[2] === '--device') {
   }
 
   const scratch = resolve(homedir(), 'agent-scratch/octane-xplat/olive-crab-ios-writer')
+
   mkdirSync(scratch, { recursive: true })
+
   const work = mkdtempSync(resolve(scratch, 'generated-'))
   let udid
   let hostWork = work
   let remoteCreated = false
+
   try {
     const swift = resolve(work, 'main.swift')
     const remoteHome = remote
@@ -68,6 +73,7 @@ if (process.argv[2] === '--device') {
       : work
 
     const binary = resolve(hostWork, 'writer-test')
+
     writeFileSync(
       swift,
       readFileSync(resolve(tests, '../platforms/ios/src/XplatSwitchingMovieWriter.swift'), 'utf8') +
@@ -113,6 +119,7 @@ if (process.argv[2] === '--device') {
     ).runtimes
 
     const runtime = runtimes.filter((r) => r.isAvailable && r.identifier.includes('.iOS-')).at(-1)
+
     if (!runtime) {
       throw new Error('No available iOS Simulator runtime')
     }

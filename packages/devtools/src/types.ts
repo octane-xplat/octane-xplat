@@ -78,6 +78,7 @@ export type PanelInboundFrame =
 export function parseHubFrame(text: string): BackendInboundFrame | PanelInboundFrame | undefined {
   try {
     const frame = JSON.parse(text) as { type?: unknown }
+
     return typeof frame?.type === 'string'
       ? (frame as BackendInboundFrame | PanelInboundFrame)
       : undefined
@@ -104,5 +105,6 @@ export interface DevGlobalWebSocket {
 
 export function devSocket(url: string): DevSocket | undefined {
   const Constructor = (globalThis as DevGlobalWebSocket).WebSocket
+
   return Constructor ? new Constructor(url) : undefined
 }

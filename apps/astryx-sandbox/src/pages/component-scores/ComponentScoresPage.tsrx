@@ -326,6 +326,7 @@ export function ComponentScoresPage() @{
         }
 
         const previousOnClick = props.htmlProps.onClick
+
         return {
           ...props,
           htmlProps: {
@@ -348,6 +349,7 @@ export function ComponentScoresPage() @{
 
   const visible = useMemo(() => {
     const term = query.trim().toLowerCase()
+
     return ROSTER.filter((row) => {
       if (auditFilter === 'audited' && !row.audited) {
         return false
@@ -377,6 +379,7 @@ export function ComponentScoresPage() @{
     const audited = ROSTER.filter((r) => r.audited).length
     const scored = ROSTER.map((r) => r.score).filter((s): s is number => typeof s === 'number')
     const average = scored.length ? scored.reduce((a, b) => a + b, 0) / scored.length : null
+
     return { audited, notStarted: ROSTER.length - audited, average, scored: scored.length }
   }, [])
 

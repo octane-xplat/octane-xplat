@@ -31,9 +31,11 @@ export function createSearchUpdater(
 ) {
   return async (search: unknown, options?: { replace?: boolean }): Promise<SearchUpdateResult> => {
     const before = navigator.getSnapshot()
+
     if (!before.route || readRouterMatch(owner, before.route) !== entry) {
       return { status: 'cancelled', reason: 'superseded' } as const
     }
+
     try {
       const previous = Object.fromEntries(
         Object.entries(entry.search).map(([key, value]) => [
@@ -43,6 +45,7 @@ export function createSearchUpdater(
       )
 
       const next = typeof search === 'function' ? search(previous) : search
+
       // A callback must be synchronous and pure. Reentrant navigation or
       // disposal cannot turn this stale read into a later winning edit.
       if (navigator.getSnapshot() !== before) {

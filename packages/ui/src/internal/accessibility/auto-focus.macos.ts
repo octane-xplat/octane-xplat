@@ -3,11 +3,13 @@ import type { NSView } from '@octane-xplat/platform/macos'
 type Host = Record<string, any>
 const read = (view: object, name: string) => {
   const value = Reflect.get(view, name)
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
 const enabled = (view: object, name: string) => {
   const value = read(view, name)
+
   return value == null || Boolean(value)
 }
 
@@ -28,10 +30,12 @@ export function createAppKitAutoFocus(
     queued: boolean
     observed: boolean
   }
+
   let view: NSView | null = null,
     requested = false,
     disposed = false,
     pending: Request | null = null
+
   const releases: (() => void)[] = []
   const cancel = () => {
     pending = null // Retire before native cleanup or application focus callbacks.
@@ -43,16 +47,20 @@ export function createAppKitAutoFocus(
       }
     }
   }
+
   const attempt = (request: Request): void => {
     if (pending !== request || disposed) {
       return
     }
+
     if (!options.requested() || options.blocked() || request.view !== view) {
       cancel()
       return
     }
+
     const target = view,
       window = target?.window
+
     if (!target || !window) {
       if (request.window || !request.observed) {
         cancel()
@@ -60,10 +68,12 @@ export function createAppKitAutoFocus(
 
       return
     }
+
     if (request.window && request.window !== window) {
       cancel()
       return
     }
+
     // Snapshot late attachment before another microtask claims the responder,
     // so competing requests from the same commit see each other's focus move.
     if (!request.window) {
@@ -72,7 +82,9 @@ export function createAppKitAutoFocus(
       queue(request)
       return
     }
+
     const responder = window.firstResponder
+
     if (
       responder === target ||
       (responder != null && responder === read(target, 'currentEditor'))
@@ -80,6 +92,7 @@ export function createAppKitAutoFocus(
       cancel()
       return
     }
+
     if (
       responder !== request.responder ||
       !['enabled', 'isEnabled', 'isAccessibilityEnabled'].every((key) => enabled(target, key))
@@ -87,6 +100,7 @@ export function createAppKitAutoFocus(
       cancel()
       return
     }
+
     if (read(target, 'hidden') || read(target, 'hiddenOrHasHiddenAncestor')) {
       if (!request.observed) {
         cancel()
@@ -94,10 +108,12 @@ export function createAppKitAutoFocus(
 
       return
     }
+
     if (read(target, 'acceptsFirstResponder') === false) {
       cancel()
       return
     }
+
     cancel() // One attempt, including native refusal; never activate a window.
     if (
       disposed ||
@@ -108,21 +124,26 @@ export function createAppKitAutoFocus(
     ) {
       return
     }
+
     try {
       window.makeFirstResponder(target)
     } catch (error) {
       console.warn('[macos-autofocus] focus request failed', error)
     }
   }
+
   const queue = (request: Request): void => {
     const window = view?.window
+
     if (!request.window && request.view === view && window) {
       request.window = window
       request.responder = window.firstResponder
     }
+
     if (request.queued) {
       return
     }
+
     request.queued = true
     void Promise.resolve().then(() => {
       request.queued = false
@@ -137,10 +158,12 @@ export function createAppKitAutoFocus(
       }
     })
   }
+
   const observe = (request: Request) => {
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter,
       events = host.NSEvent
+
     // An unobservable request gets one post-commit attempt, never a delayed
     // retry that could steal focus after unobserved user activity.
     if (
@@ -151,6 +174,7 @@ export function createAppKitAutoFocus(
     ) {
       return
     }
+
     try {
       const mask =
         (host.NSEventMask?.KeyDown ?? 1024) |
@@ -162,6 +186,7 @@ export function createAppKitAutoFocus(
         if (pending === request) {
           cancel()
         }
+
         return event
       })
 
@@ -182,6 +207,7 @@ export function createAppKitAutoFocus(
             if (pending !== request) {
               return
             }
+
             if (name === 'NSApplicationDidResignActiveNotification') {
               cancel()
             } else if (note.object === view?.window || note.object === request.window) {
@@ -214,38 +240,48 @@ export function createAppKitAutoFocus(
       console.warn('[macos-autofocus] delayed observation unavailable', error)
     }
   }
+
   const update = (): void => {
     if (disposed) {
       return
     }
+
     const next = options.requested(),
       rising = next && !requested
+
     requested = next
     if (!next || options.blocked()) {
       cancel()
       return
     }
+
     if (rising) {
       cancel()
+
       const window = view?.window
+
       pending = { view, window, responder: window?.firstResponder, queued: false, observed: false }
       observe(pending)
     }
+
     if (pending) {
       queue(pending)
     }
   }
+
   return {
     update,
     bind(next: NSView | null): void {
       if (disposed || view === next) {
         return
       }
+
       if (view || !next) {
         cancel()
       } else if (pending && !pending.view) {
         pending.view = next
       }
+
       view = next
       update()
     },

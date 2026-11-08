@@ -60,11 +60,13 @@ const rawStatus = () =>
 
 function ensureAccess(): Promise<PermissionResult> {
   const s = contactStore()
+
   if (!s) {
     return Promise.resolve('unsupported')
   }
 
   const status = rawStatus()
+
   if (status === 3) {
     return Promise.resolve('granted')
   }
@@ -102,6 +104,7 @@ const FIELD_KEYS: Record<Exclude<ContactField, 'name'>, string[]> = {
 
 function fetchKeys(fields?: ContactField[]): string[] {
   const keys = [...BASE_KEYS]
+
   for (const field of fields ?? (Object.keys(FIELD_KEYS) as ContactField[])) {
     for (const key of FIELD_KEYS[field as keyof typeof FIELD_KEYS] ?? []) {
       if (!keys.includes(key)) {
@@ -109,6 +112,7 @@ function fetchKeys(fields?: ContactField[]): string[] {
       }
     }
   }
+
   return keys
 }
 
@@ -122,9 +126,11 @@ const nsarray = (list: any): any[] => {
   }
 
   const out: any[] = []
+
   for (let i = 0, count = Number(list.count ?? 0); i < count; i++) {
     out.push(list.objectAtIndex(i))
   }
+
   return out
 }
 
@@ -185,6 +191,7 @@ function asContact(native: any): Contact {
     if (native?.imageDataAvailable) {
       const data = native?.imageData
       const base64 = data?.base64EncodedStringWithOptions?.(0)
+
       if (base64) {
         contact.image = { data: String(base64) }
       }
@@ -202,20 +209,24 @@ function applySort(list: Contact[], sort?: GetContactsOptions['sort']): Contact[
   }
 
   const key = sort === 'firstName' ? 'firstName' : 'lastName'
+
   return [...list].sort((a, b) => (a[key] ?? a.name).localeCompare(b[key] ?? b.name))
 }
 
 function applyPage(list: Contact[], options?: GetContactsOptions): Contact[] {
   const start = options?.pageOffset ?? 0
   const size = options?.pageSize
+
   return size === undefined ? list.slice(start) : list.slice(start, start + size)
 }
 
 function requireStore(): any {
   const s = contactStore()
+
   if (!s) {
     throw new Error('contacts: the Contacts store is unavailable on this host')
   }
+
   return s
 }
 
@@ -229,6 +240,7 @@ function applyNewContact(target: any, source: NewContact): void {
   target.emailAddresses = (source.emails ?? []).map((e) =>
     CNLabeledValue.labeledValueWithLabelValue(e.label ?? null, e.email),
   )
+
   target.phoneNumbers = (source.phoneNumbers ?? []).map((p) =>
     CNLabeledValue.labeledValueWithLabelValue(
       p.label ?? null,
@@ -251,6 +263,7 @@ export const contacts: Contacts = {
     const s = requireStore()
     const request = CNContactFetchRequest.alloc().initWithKeysToFetch(fetchKeys(options?.fields))
     const out: Contact[] = []
+
     if (
       !s.enumerateContactsWithFetchRequestErrorUsingBlock(request, null, (contact: any) => {
         out.push(asContact(contact))
@@ -269,41 +282,52 @@ export const contacts: Contacts = {
       fetchKeys(fields),
       null,
     )
+
     return nsarray(list).map(asContact)
   },
 
   async getById(id: string, fields?: ContactField[]): Promise<Contact | null> {
     const s = requireStore()
     const native = s.unifiedContactWithIdentifierKeysToFetchError(id, fetchKeys(fields), null)
+
     return native ? asContact(native) : null
   },
 
   async add(contact: NewContact): Promise<string> {
     const s = requireStore()
     const native = CNMutableContact.new()
+
     applyNewContact(native, contact)
+
     const request = CNSaveRequest.new()
+
     request.addContactToContainerWithIdentifier(native, null)
     if (!s.executeSaveRequestError(request, null)) {
       throw new Error('contacts.add: the store refused the save request')
     }
+
     return String(native.identifier ?? '')
   },
 
   async update(id: string, contact: NewContact): Promise<string> {
     const s = requireStore()
     const existing = s.unifiedContactWithIdentifierKeysToFetchError(id, fetchKeys(), null)
+
     if (!existing) {
       throw new Error(`contacts.update: no contact with id ${id}`)
     }
 
     const native = existing.mutableCopy()
+
     applyNewContact(native, contact)
+
     const request = CNSaveRequest.new()
+
     request.updateContact(native)
     if (!s.executeSaveRequestError(request, null)) {
       throw new Error('contacts.update: the store refused the save request')
     }
+
     return id
   },
 
@@ -314,11 +338,13 @@ export const contacts: Contacts = {
       [CNContactIdentifierKey],
       null,
     )
+
     if (!existing) {
       return
     }
 
     const request = CNSaveRequest.new()
+
     request.deleteContact(existing.mutableCopy())
     if (!s.executeSaveRequestError(request, null)) {
       throw new Error('contacts.remove: the store refused the save request')
@@ -327,14 +353,17 @@ export const contacts: Contacts = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.contacts = {
   getPermissions: async () => {
     const s = contactStore()
+
     if (!s) {
       return { status: 'unsupported' as const, granted: false, canAskAgain: false }
     }
 
     const status = rawStatus()
+
     return {
       status:
         status === 3
@@ -348,6 +377,7 @@ permissionOwners.contacts = {
   },
   requestPermissions: async () => {
     const result = await contacts.ensure()
+
     return { status: result, granted: result === 'granted', canAskAgain: result === 'granted' }
   },
 }

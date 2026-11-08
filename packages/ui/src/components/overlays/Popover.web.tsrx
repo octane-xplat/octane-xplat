@@ -36,6 +36,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
   const [position, setPosition] = useState<Position | null>(null)
   const update = () => {
     const anchor = props.anchorElement
+
     if (!anchor?.getBoundingClientRect) {
       return
     }
@@ -81,6 +82,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
     update()
     window.addEventListener('resize', update)
     window.addEventListener('scroll', update, true)
+
     const observer =
       typeof ResizeObserver === 'undefined' || !panelRef.current ? null : new ResizeObserver(update)
 
@@ -124,6 +126,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
   // style min-width/inline-size wins.
   const panelStyle = () => {
     const style = { ...styleRecord(props.style) }
+
     if (props.anchorMinWidth && position && style.minWidth == null && style.inlineSize == null) {
       style.minWidth = `min(${position.anchorWidth}px, calc(100vw - 32px))`
     }
@@ -172,6 +175,7 @@ function PopoverLayer(props: PopoverInternalProps & { anchorElement: any }) @{
                 focusedInside.current = true
                 {
                   const r = props.web?.onFocusIn
+
                   if (typeof r === 'function') {
                     r(event)
                   }
@@ -205,6 +209,7 @@ export function Popover(props: PopoverProps): JSX.Element | null @{
 
   useEffect(() => {
     const next = props.anchor?.current ?? null
+
     if (next !== anchorElement) {
       setAnchorElement(next)
     }

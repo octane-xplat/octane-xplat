@@ -29,19 +29,25 @@ export function borderLength(value: any): number {
   if (typeof value === 'number') {
     return Number.isFinite(value) ? Math.max(0, value) : 0
   }
+
   const text = String(value ?? '')
     .trim()
     .toLowerCase()
+
   if (text === 'thin') {
     return 1
   }
+
   if (text === 'medium') {
     return 3
   }
+
   if (text === 'thick') {
     return 5
   }
+
   const points = parseFloat(text)
+
   return Number.isFinite(points) ? Math.max(0, points) : 0
 }
 
@@ -50,8 +56,10 @@ export function borderLength(value: any): number {
 export function borderRadiusPoints(value: any, width: number, height: number): number {
   if (typeof value === 'string' && value.trim().endsWith('%')) {
     const pct = parseFloat(value)
+
     return Number.isFinite(pct) ? Math.max(0, (pct / 100) * Math.min(width, height)) : 0
   }
+
   return borderLength(value)
 }
 
@@ -75,20 +83,25 @@ export function scaleBorderRadii(radii: Record<BorderCorner, number>, w: number,
     ['bottomLeft', 'bottomRight', w],
     ['topLeft', 'bottomLeft', h],
   ]
+
   for (const [a, b, edge] of edges) {
     const sum = radii[a] + radii[b]
+
     if (sum > edge && sum > 0) {
       scale = Math.min(scale, edge / sum)
     }
   }
+
   if (scale < 1) {
     const scaled = { ...radii }
+
     for (const corner of BORDER_CORNERS) {
       scaled[corner] *= scale
     }
 
     return scaled
   }
+
   return radii
 }
 
@@ -119,6 +132,7 @@ export function roundedBoxCGPath(
   if (typeof CGPathCreateMutable !== 'function') {
     return null
   }
+
   const path = into ?? CGPathCreateMutable()
   const corner = (vx: number, vy: number, nx: number, ny: number, r: number) => {
     if (r > 0) {
@@ -127,6 +141,7 @@ export function roundedBoxCGPath(
       CGPathAddLineToPoint(path, null, vx + dx, vy + dy)
     }
   }
+
   CGPathMoveToPoint(path, null, radii.topLeft + dx, h + dy)
   corner(w, h, w, h - radii.topRight, radii.topRight)
   CGPathAddLineToPoint(path, null, w + dx, radii.bottomRight + dy)
@@ -150,6 +165,7 @@ export function borderStrokeCGPath(
   const inner = Object.fromEntries(
     BORDER_CORNERS.map((corner) => [corner, Math.max(0, radii[corner] - inset)]),
   ) as Record<BorderCorner, number>
+
   return roundedBoxCGPath(
     w - inset * 2,
     h - inset * 2,
@@ -163,12 +179,15 @@ export function borderBandCGPath(points: [number, number][]): any {
   if (typeof CGPathCreateMutable !== 'function' || !points.length) {
     return null
   }
+
   const path = CGPathCreateMutable()
   const [first, ...rest] = points
+
   CGPathMoveToPoint(path, null, first[0], first[1])
   for (const [x, y] of rest) {
     CGPathAddLineToPoint(path, null, x, y)
   }
+
   CGPathCloseSubpath(path)
   return path
 }
@@ -177,6 +196,7 @@ export function borderBandCGPath(points: [number, number][]): any {
 // than throwing mid-apply — nativeColor is strict by design elsewhere.
 export function borderNSColor(node: ElementNode, value: any): NSColor | null {
   const raw = value ?? effectiveStyle(node).color ?? '#000'
+
   try {
     return nativeColor(raw)
   } catch {
@@ -191,5 +211,6 @@ export function outsetShadowOnSelf(
   if (!(shadows?.some((s) => !s.inset) === true)) {
     return false
   }
+
   return view.layer?.superlayer == null && view.superview == null
 }

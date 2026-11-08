@@ -1,7 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 // @vitest-environment jsdom
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { act, createRoot } from 'octane'
 import { SizeProvider, useSize } from './size-context'
 import { useFieldControlProps } from '../forms/field-context'
@@ -30,8 +32,11 @@ function FieldProbe(props: { tag: string }) @{
 const roots: any[] = []
 function mount(node: any) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(node))
   return el
@@ -123,6 +128,7 @@ describe('container inheritance (web)', () => {
   it('Toolbar cascades its size to a Button child', () => {
     const host = mount(<Toolbar label="t" size="sm" startContent={<Button label="B" />} />)
     const button = host.querySelector('.vx-button')!
+
     expect(button.classList.contains('vx-button--size-sm')).toBe(true)
   })
 
@@ -132,6 +138,7 @@ describe('container inheritance (web)', () => {
     )
 
     const button = host.querySelector('.vx-button')!
+
     expect(button.classList.contains('vx-button--size-lg')).toBe(true)
   })
 
@@ -149,6 +156,7 @@ describe('container inheritance (web)', () => {
     )
 
     const button = host.querySelector('.vx-button')!
+
     expect(button.classList.contains('vx-button--size-lg')).toBe(true)
   })
 
@@ -166,6 +174,7 @@ describe('container inheritance (web)', () => {
     )
 
     const button = host.querySelector('.vx-button')!
+
     expect(button.classList.contains('vx-button--size-sm')).toBe(true)
   })
 
@@ -178,6 +187,7 @@ describe('container inheritance (web)', () => {
 describe('layer boundary (web)', () => {
   it('portaled layer content does not inherit the declaring tree size', async () => {
     const anchor = { current: document.createElement('div') }
+
     document.body.append(anchor.current)
     mount(
       <SizeProvider value="sm">

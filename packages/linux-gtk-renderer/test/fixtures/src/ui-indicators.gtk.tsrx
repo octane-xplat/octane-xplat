@@ -13,8 +13,10 @@ import {
 } from '@octane-xplat/ui'
 
 import type { IndicatorName, IndicatorProps, IndicatorSize } from '@octane-xplat/ui'
+
 export { defaultIndicators, getIndicator, registerIndicator, registerIndicators, indicatorScope }
 export const refs: Array<object | null> = []
+
 const bindBox = (view: object | null) => {
   refs[0] = view
 }
@@ -28,8 +30,10 @@ const bindCheck = (view: object | null) => {
 }
 
 export const reads: Record<string, number> = {}
+
 function Watch(props: { name: IndicatorName }) @{
   const Ind = useIndicator(props.name)
+
   reads[props.name] = (reads[props.name] ?? 0) + 1
 
   @if (Ind) {

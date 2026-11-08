@@ -52,17 +52,21 @@ const loads = new WeakMap<object, SessionLoad | null>()
 
 function requireState(view: object): AnimatedImageState {
   const state = states.get(view)
+
   if (!state) {
     throw new Error('Animated image view is missing its state')
   }
+
   return state
 }
 
 function updateAnimation(view: NSView): void {
   const state = states.get(view)
+
   if (!state) {
     return
   }
+
   state.imageView.animates =
     !state.disposed &&
     view.window != null &&
@@ -84,6 +88,7 @@ class AnimatedImageSessionDelegate extends NSObject implements NSURLSessionDataD
       }
 
       const descriptor = Object.getOwnPropertyDescriptor(this.prototype, name)!
+
       Object.defineProperty(this.prototype, name, { ...descriptor, enumerable: true })
     }
 
@@ -96,6 +101,7 @@ class AnimatedImageSessionDelegate extends NSObject implements NSURLSessionDataD
     data: NSData,
   ) {
     const load = loads.get(this)
+
     if (load?.task === dataTask) {
       load.body.appendData(data)
     }
@@ -107,15 +113,20 @@ class AnimatedImageSessionDelegate extends NSObject implements NSURLSessionDataD
     error: NSError | null,
   ) {
     const load = loads.get(this)
+
     if (!load || load.task !== (task as NSURLSessionDataTask)) {
       return
     }
+
     loads.set(this, null)
+
     // File tasks report no HTTP response; every other source requires a 2xx.
     const status = load.isFile
       ? 200
       : Number((task.response as NSHTTPURLResponse | null)?.statusCode ?? 0)
+
     const payload = error == null && status >= 200 && status < 300 ? load.body : null
+
     // Redispatch install through a fresh main-queue operation, matching the
     // Swift wrapper's DispatchQueue.main.async boundary.
     NSOperationQueue.mainQueue.addOperationWithBlock(() => load.install(payload))
@@ -129,11 +140,14 @@ const ALLOWED_SCHEMES = new Set(['http', 'https', 'file', 'data'])
 function sourceURL(source: string): NSURL | null {
   if (source.startsWith('~/')) {
     const base = NSBundle.mainBundle.resourceURL
+
     return base ? base.URLByAppendingPathComponentIsDirectory(source.slice(2), false) : null
   }
+
   if (source.startsWith('/')) {
     return NSURL.fileURLWithPath(source)
   }
+
   return NSURL.URLWithString(source)
 }
 
@@ -147,12 +161,15 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
       origin: { x: 0, y: 0 },
       size: { width: 0, height: 0 },
     })
+
     view.wantsLayer = true
     view.layer.masksToBounds = true
+
     const imageView = NSImageView.alloc().initWithFrame({
       origin: { x: 0, y: 0 },
       size: { width: 0, height: 0 },
     })
+
     imageView.imageScaling = NSImageScaling.ImageScaleAxesIndependently
     imageView.editable = false
     imageView.allowsCutCopyPaste = false
@@ -160,13 +177,18 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
     view.addSubview(imageView)
     view.accessibilityRole = NSAccessibilityImageRole
     view.accessibilityElement = false
+
     const configuration = NSURLSessionConfiguration.ephemeralSessionConfiguration
+
     configuration.URLCache = null as unknown as NSURLSessionConfiguration['URLCache']
     configuration.URLCredentialStorage =
       null as unknown as NSURLSessionConfiguration['URLCredentialStorage']
+
     configuration.HTTPCookieStorage =
       null as unknown as NSURLSessionConfiguration['HTTPCookieStorage']
+
     configuration.HTTPShouldSetCookies = false
+
     const delegate = AnimatedImageSessionDelegate.new()
     const state: AnimatedImageState = {
       imageView,
@@ -182,8 +204,11 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
       fit: 'aspectFit',
       displayObserver: null,
     }
+
     states.set(view, state)
+
     const observed = new WeakRef(view)
+
     state.displayObserver =
       NSWorkspace.sharedWorkspace.notificationCenter.addObserverForNameObjectQueueUsingBlock(
         NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification,
@@ -191,11 +216,13 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
         NSOperationQueue.mainQueue,
         () => {
           const target = observed.deref()
+
           if (target) {
             updateAnimation(target)
           }
         },
       )
+
     return view
   }
 
@@ -214,13 +241,17 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
   layout() {
     super.layout()
+
     const state = states.get(this)
+
     if (!state) {
       return
     }
+
     const { imageView } = state
     const bounds = this.bounds
     const image = imageView.image
+
     if (!image) {
       imageView.frame = {
         origin: { x: 0, y: 0 },
@@ -229,7 +260,9 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
       return
     }
+
     const size = image.size
+
     if (!(size.width > 0 && size.height > 0 && bounds.size.width > 0 && bounds.size.height > 0)) {
       imageView.frame = {
         origin: { x: 0, y: 0 },
@@ -238,15 +271,19 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
       return
     }
+
     let target = { width: size.width, height: size.height }
+
     if (state.fit === 'fill') {
       target = { width: bounds.size.width, height: bounds.size.height }
     } else if (state.fit !== 'none') {
       const x = bounds.size.width / size.width
       const y = bounds.size.height / size.height
       const scale = state.fit === 'aspectFill' ? Math.max(x, y) : Math.min(x, y)
+
       target = { width: size.width * scale, height: size.height * scale }
     }
+
     imageView.frame = {
       origin: {
         x: bounds.origin.x + bounds.size.width / 2 - target.width / 2,
@@ -283,9 +320,11 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
   setSource(source: string): void {
     const state = requireState(this)
+
     if (state.disposed) {
       return
     }
+
     state.revision += 1
     state.task?.cancel()
     state.task = null
@@ -293,35 +332,45 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
     state.imageView.animates = false
     state.imageView.image = null as unknown as NSImage
     this.invalidateIntrinsicContentSize()
+
     const own = state.revision
     const url = sourceURL(source)
+
     if (!url) {
       return
     }
+
     const scheme = String(url.scheme ?? '').toLowerCase()
+
     if (!ALLOWED_SCHEMES.has(scheme)) {
       return
     }
+
     if (!(url.isFileURL() || scheme === 'data' || String(url.host ?? '').length > 0)) {
       return
     }
+
     const self = new WeakRef(this)
     const install = (data: NSData | null) => {
       const view = self.deref()
+
       if (!view || state.disposed || state.revision !== own) {
         return
       }
+
       state.task = null
       state.imageView.image = (data ? NSImage.alloc().initWithData(data) : null) as NSImage
       view.invalidateIntrinsicContentSize()
       view.needsLayout = true
       updateAnimation(view)
     }
+
     if (scheme === 'data') {
       // URLSession cannot serve data: URLs. The read is in-process base64
       // decode, so run it inline and defer delivery to stay asynchronous —
       // callers rely on install never re-entering setSource synchronously.
       const data = NSData.dataWithContentsOfURL(url)
+
       try {
         NSOperationQueue.mainQueue.addOperationWithBlock(() => install(data))
       } catch {
@@ -330,13 +379,16 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
       return
     }
+
     const load: SessionLoad = {
       task: null as unknown as NSURLSessionDataTask,
       body: NSMutableData.new(),
       isFile: url.isFileURL(),
       install,
     }
+
     const task = state.session.dataTaskWithURL(url)
+
     load.task = task
     loads.set(state.delegate, load)
     state.task = task
@@ -345,9 +397,11 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
 
   dispose(): void {
     const state = states.get(this)
+
     if (!state || state.disposed) {
       return
     }
+
     state.disposed = true
     state.revision += 1
     loads.set(state.delegate, null)
@@ -360,6 +414,7 @@ export class XplatAnimatedImageView extends NSView implements AppKitAnimatedImag
     if (state.displayObserver) {
       NSWorkspace.sharedWorkspace.notificationCenter.removeObserver(state.displayObserver)
     }
+
     state.displayObserver = null
   }
 }

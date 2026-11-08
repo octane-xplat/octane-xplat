@@ -16,7 +16,9 @@ it('unchecked light Switch real iOS capture', async () => {
   expect(__IOS_CAPTURE__!.target).toBe('ios')
   expect(__IOS_CAPTURE__!.provenance).toBe('real')
   expect(__IOS_CAPTURE__!.displacement).toBe(0)
+
   const decoded = await decodePng(__IOS_CAPTURE__!.pngBase64)
+
   expect([decoded.width, decoded.height]).toEqual([96, 64])
   await expect(__IOS_CAPTURE__!.pngBase64).toMatchImageSnapshot({
     snapshotKey: 'real',

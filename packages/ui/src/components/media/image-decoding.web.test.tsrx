@@ -8,8 +8,11 @@ const roots: any[] = []
 
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(<Image {...props} />))
   return el.firstElementChild as HTMLImageElement

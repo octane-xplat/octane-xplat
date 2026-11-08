@@ -35,14 +35,18 @@ export function createShadowPaint() {
   // shadow, so the first entry of each kind wins; `none` clears.
   function parseBoxShadow(value: any): ParsedBoxShadow[] {
     const text = String(value ?? '').trim()
+
     if (!text || text === 'none') {
       return []
     }
+
     const shadows: ParsedBoxShadow[] = []
+
     for (const part of splitTopLevelCommas(text)) {
       let inset = false
       const lengths: number[] = []
       let color = ''
+
       for (const token of splitStyleTokens(part)) {
         if (token.toLowerCase() === 'inset') {
           inset = true
@@ -68,6 +72,7 @@ export function createShadowPaint() {
         })
       }
     }
+
     return shadows
   }
 
@@ -85,25 +90,32 @@ export function createShadowPaint() {
 
   function siblingShadowSuperlayer(view: NSView): any | null {
     const superlayer = view.layer?.superlayer
+
     if (superlayer) {
       return superlayer
     }
+
     const superview = (view as any).superview
+
     if (!superview) {
       return null
     }
+
     superview.wantsLayer = true
     return superview.layer ?? null
   }
 
   function syncBoxShadow(node: ElementNode, state: BoxPaintState) {
     const view = node.view
+
     if (!view) {
       return
     }
+
     const shadows = correctProjectionShadows<ParsedBoxShadow>(view, state.boxShadowSpec ?? [])
     const outsets = shadows.filter((s: ParsedBoxShadow) => !s.inset)
     const insets = shadows.filter((s: ParsedBoxShadow) => s.inset)
+
     if (
       !outsets.length &&
       !insets.length &&
@@ -113,10 +125,13 @@ export function createShadowPaint() {
     ) {
       return
     }
+
     if (outsets.length || insets.length) {
       view.wantsLayer = true
     }
+
     const layer = view.layer
+
     if (!layer) {
       return
     }
@@ -135,18 +150,22 @@ export function createShadowPaint() {
     )
 
     const superlayer = outsets.length ? siblingShadowSuperlayer(view) : null
+
     if (superlayer) {
       // One empty sibling layer per outset shadow; the first CSS shadow sits
       // closest to the view (topmost).
       const hosts = (state.outsetShadowHosts ??= [])
+
       outsets.forEach((s, index) => {
         const host = (hosts[index] ??= CALayer.alloc().init())
+
         // `frame` is already transformed. Match the backing layer's local box
         // and transform so inverse projection correction paints in that space.
         host.bounds = layer.bounds
         host.anchorPoint = layer.anchorPoint
         host.position = layer.position
         host.transform = layer.transform
+
         const s2 = s.spread
         const grown = {
           topLeft: Math.max(0, radii.topLeft + s2),
@@ -154,6 +173,7 @@ export function createShadowPaint() {
           bottomRight: Math.max(0, radii.bottomRight + s2),
           bottomLeft: Math.max(0, radii.bottomLeft + s2),
         }
+
         host.shadowPath = roundedBoxCGPath(w + 2 * s2, h + 2 * s2, grown)
         host.shadowColor = borderNSColor(node, s.color)?.CGColor ?? null
         host.shadowOffset = { width: s.dx - s2, height: -s.dy - s2 }
@@ -190,6 +210,7 @@ export function createShadowPaint() {
       state.shadowApplied = true
       if (outsets.length > 1) {
         const warned = (state.shadowWarnings ??= new Set<string>())
+
         if (!warned.has('self')) {
           warned.add('self')
           console.warn('[macos-css] root view: only the first outset box-shadow paints')
@@ -200,6 +221,7 @@ export function createShadowPaint() {
       layer.shadowPath = null
       state.shadowApplied = false
     }
+
     if (!outsets.length || !superlayer) {
       for (const host of state.outsetShadowHosts ?? []) {
         host.removeFromSuperlayer()
@@ -210,20 +232,26 @@ export function createShadowPaint() {
 
     if (insets.length && typeof CAShapeLayer !== 'undefined') {
       const host = (state.insetShadowHost ??= CALayer.alloc().init())
+
       if (host.superlayer !== layer) {
         layer.insertSublayerAtIndex(host, state.bgHost ? 1 : 0)
       }
 
       host.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
+
       const shapes = (state.insetShadowShapes ??= [])
+
       insets.forEach((s, index) => {
         const shape = (shapes[index] ??= CAShapeLayer.alloc().init())
+
         if (shape.superlayer !== host) {
           host.addSublayer(shape)
         }
+
         shape.zPosition = insets.length - index
         shape.frame = { origin: { x: 0, y: 0 }, size: { width: w, height: h } }
         shape.masksToBounds = true
+
         const spread = s.spread
         const inner = {
           topLeft: Math.max(0, radii.topLeft - spread),
@@ -231,12 +259,14 @@ export function createShadowPaint() {
           bottomRight: Math.max(0, radii.bottomRight - spread),
           bottomLeft: Math.max(0, radii.bottomLeft - spread),
         }
+
         // The wall fills everything except a hole = the box inset by
         // spread. Positive spread leaves a visible solid ring — the
         // shadow's hard core — and the cast shadow continues fading into
         // the hole. Negative spread pushes the caster edge outside.
         const path = CGPathCreateMutable()
         const pad = Math.abs(s.dx) + Math.abs(s.dy) + Math.abs(s.blur) * 4 + Math.abs(spread) + 32
+
         roundedBoxCGPath(w + 2 * pad, h + 2 * pad, ZERO_RADII, -pad, -pad, path)
         roundedBoxCGPath(
           Math.max(0, w - 2 * spread),
@@ -246,6 +276,7 @@ export function createShadowPaint() {
           spread,
           path,
         )
+
         shape.path = path
         shape.fillRule = 'even-odd'
         shape.fillColor = borderNSColor(node, s.color)?.CGColor ?? null
@@ -266,11 +297,14 @@ export function createShadowPaint() {
       state.insetShadowShapes = undefined
     }
   }
+
   function syncOutsetGeometry(node: ElementNode, state: BoxPaintState) {
     const layer = node.view?.layer
+
     if (!layer) {
       return
     }
+
     for (const host of state.outsetShadowHosts ?? []) {
       host.bounds = layer.bounds
       host.anchorPoint = layer.anchorPoint
@@ -283,6 +317,7 @@ export function createShadowPaint() {
     const failures = new FailureCollector()
     const hosts = state.outsetShadowHosts ?? []
     const inset = state.insetShadowHost
+
     state.boxShadowSpec = undefined
     state.outsetShadowHosts = undefined
     state.insetShadowHost = null
@@ -290,9 +325,11 @@ export function createShadowPaint() {
     for (const host of hosts) {
       failures.run('outset shadow', () => host.removeFromSuperlayer())
     }
+
     failures.run('inset shadow', () => inset?.removeFromSuperlayer())
     failures.throwIfFailed()
   }
+
   return {
     parseBoxShadow,
     syncBoxShadow,

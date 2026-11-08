@@ -28,6 +28,7 @@ export async function prepareModelFixtures({ tokenizerOnly = true } = {}) {
     }
 
     const path = resolve(modelFixtureDir, file)
+
     if (existsSync(path) && sha(readFileSync(path)) === digest) {
       continue
     }
@@ -42,12 +43,15 @@ export async function prepareModelFixtures({ tokenizerOnly = true } = {}) {
     }
 
     const bytes = new Uint8Array(await response.arrayBuffer())
+
     if (sha(bytes) !== digest) {
       throw Error(`Fixture checksum mismatch: ${file}`)
     }
 
     mkdirSync(dirname(path), { recursive: true })
+
     const staging = `${path}.${randomUUID()}.tmp`
+
     try {
       writeFileSync(staging, bytes)
       renameSync(staging, path)
@@ -57,6 +61,7 @@ export async function prepareModelFixtures({ tokenizerOnly = true } = {}) {
 
     console.log(`Prepared pinned model fixture: ${file} (${bytes.length} bytes)`)
   }
+
   return modelFixtureDir
 }
 

@@ -16,6 +16,7 @@ describe('xplat component in a real runtime', () => {
 
     const inc = view.getViewById<View>('counter-inc')
     const dec = view.getViewById<View>('counter-dec')
+
     expect(inc && inc.isLoaded, 'counter-inc Pressable resolves to a loaded native view').toBe(true)
 
     expect(

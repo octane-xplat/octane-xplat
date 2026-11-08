@@ -13,6 +13,7 @@ vi.mock('../../routing/default-router.macos', () => ({ router: { navigateUrl: vi
 it('opens normalized external URLs through the platform instead of creating native windows', () => {
   vi.mocked(openUrl).mockClear()
   vi.mocked(router.navigateUrl).mockClear()
+
   const previous = (globalThis as any).__xplatAppKitOpenWindow
   const createWindow = vi.fn()
 

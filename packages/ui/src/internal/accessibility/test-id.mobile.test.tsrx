@@ -8,6 +8,7 @@ import {
 
 vi.mock('@nativescript/core', () => ({ isIOS: false, isAndroid: true }))
 vi.mock('../../components/media/Icon', () => ({ Icon: () => null }))
+
 import { Pressable } from '../../components/actions/Pressable.tsrx'
 import { View } from '../../components/layout/View.tsrx'
 import { Stack } from '../../components/layout/Stack.tsrx'
@@ -24,6 +25,7 @@ function ActionWithChild(props: any) {
 
 function ContainerWithChild(props: any) {
   const Component = props.Component
+
   return (
     <Component testID="parent">
       <Pressable testID="child" />
@@ -40,8 +42,11 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const props = { id: 'legacy', accessibilityLabel: 'Open item', accessibilityRole: 'button' }
+
     root.render(ActionWithChild, { ...props, testID: 'item.a.open' })
+
     const host = container.children[0]
+
     expect(host.props.testID).toBe('item.a.open')
     expect(host.children[0].props.testID).toBe('child.action')
     root.render(ActionWithChild, { ...props, testID: 'item.b.open' })
@@ -59,6 +64,7 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
   it.each([View, Stack])('assigns container identity only to its host', (Component) => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(ContainerWithChild, { Component })
     expect(
       nodes(container.children)
@@ -74,8 +80,11 @@ describe('automation identity binding (renderer evidence, not OS qualification)'
     (Component) => {
       const container = createObjectContainer('nativescript')
       const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
       root.render(Component, { testID: 'entry', icon: false, hasClear: false })
+
       const identified = nodes(container.children).filter((node) => node.props.testID)
+
       expect(identified).toHaveLength(1)
       expect(identified[0].type).toBe('textfield')
       root.unmount()

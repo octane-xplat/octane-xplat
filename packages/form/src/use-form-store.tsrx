@@ -16,6 +16,7 @@ export function useFormStore<T, S>(store: FormStore<T>, select?: (state: T) => S
   const subscribe = useMemo(
     () => (notify: () => void) => {
       const subscription = store.subscribe(notify)
+
       return () => subscription.unsubscribe()
     },
     [store],

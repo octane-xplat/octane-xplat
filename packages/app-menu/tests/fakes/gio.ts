@@ -22,6 +22,7 @@ export class SimpleAction {
 
   static new_stateful(name: string, _parameterType: unknown, state: Variant): SimpleAction {
     const action = new SimpleAction(name)
+
     action.stateful = true
     action.state = state
     return action

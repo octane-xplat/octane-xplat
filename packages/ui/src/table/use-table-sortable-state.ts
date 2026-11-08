@@ -44,6 +44,7 @@ function toSortableString(value: unknown): string {
   if (value instanceof Date) {
     return value.toISOString()
   }
+
   if (
     typeof value === 'string' ||
     typeof value === 'number' ||
@@ -52,6 +53,7 @@ function toSortableString(value: unknown): string {
   ) {
     return String(value)
   }
+
   return ''
 }
 
@@ -60,6 +62,7 @@ const DIGIT_RUN = /(\d+)/
 function naturalCompare(a: string, b: string): number {
   const aParts = a.toLowerCase().split(DIGIT_RUN)
   const bParts = b.toLowerCase().split(DIGIT_RUN)
+
   for (let i = 0; i < Math.min(aParts.length, bParts.length); i++) {
     if (aParts[i] === bParts[i]) {
       continue
@@ -72,6 +75,7 @@ function naturalCompare(a: string, b: string): number {
       return diff
     }
   }
+
   return aParts.length - bParts.length || (a === b ? 0 : a < b ? 1 : -1)
 }
 
@@ -80,9 +84,11 @@ let collatorConstructor: typeof Intl.Collator | undefined
 
 function compareStrings(a: string, b: string): number {
   const constructor = typeof Intl === 'undefined' ? undefined : Intl.Collator
+
   if (typeof constructor !== 'function') {
     return naturalCompare(a, b)
   }
+
   // A later opt-in may install or replace this capability. Do not cache absence.
   if (constructor !== collatorConstructor) {
     // Collator exists on runtimes whose ICU backing is absent; its
@@ -94,6 +100,7 @@ function compareStrings(a: string, b: string): number {
       return naturalCompare(a, b)
     }
   }
+
   return collator!.compare(a, b)
 }
 
@@ -102,18 +109,23 @@ function defaultCompare<T extends Record<string, unknown>>(a: T, b: T, sortKey: 
   const bVal = b[sortKey]
   const aMissing = aVal == null || (typeof aVal === 'number' && Number.isNaN(aVal))
   const bMissing = bVal == null || (typeof bVal === 'number' && Number.isNaN(bVal))
+
   if (aMissing && bMissing) {
     return 0
   }
+
   if (aMissing) {
     return 1
   }
+
   if (bMissing) {
     return -1
   }
+
   if (typeof aVal === 'number' && typeof bVal === 'number') {
     return aVal - bVal
   }
+
   return compareStrings(toSortableString(aVal), toSortableString(bVal))
 }
 
@@ -126,15 +138,18 @@ export function sortTableData<T extends Record<string, unknown>, TSortKey extend
   if (sortState.length === 0) {
     return data
   }
+
   return [...data].sort((a, b) => {
     for (const entry of sortState) {
       const { sortKey, direction } = entry
       const customCmp = comparators?.[sortKey]
       const cmp = customCmp ? customCmp(a, b) : defaultCompare(a, b, sortKey)
+
       if (cmp !== 0) {
         return direction === 'ascending' ? cmp : -cmp
       }
     }
+
     return 0
   })
 }
@@ -161,8 +176,11 @@ export function useTableSortableState<
   const onSortChange = isControlled ? (controlledOnSortChange ?? (() => {})) : setInternalSort
 
   const comparatorsRef = useRef(comparators)
+
   comparatorsRef.current = comparators
+
   const onSortChangeRef = useRef(onSortChange)
+
   onSortChangeRef.current = onSortChange
 
   const sortedData = useMemo(() => sortTableData(data, sort, comparatorsRef.current), [data, sort])

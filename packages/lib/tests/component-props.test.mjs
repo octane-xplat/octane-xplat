@@ -16,7 +16,9 @@ test('accessibility forwarding preserves false, undefined and state identity wit
     style: {},
     onPress() {},
   }
+
   const picked = pickAccessibilityProps(props)
+
   assert.deepEqual(picked, {
     accessible: false,
     accessibilityRole: 'button',
@@ -26,18 +28,21 @@ test('accessibility forwarding preserves false, undefined and state identity wit
     accessibilityState: state,
     accessibilityLiveRegion: undefined,
   })
+
   assert.equal(picked.accessibilityState, state)
   assert.equal(equalAccessibilityProps(props, { ...props, style: {} }), true)
   assert.equal(
     equalAccessibilityProps(props, { ...props, accessibilityState: { checked: false } }),
     false,
   )
+
   assert.equal(equalAccessibilityProps({}, { accessible: undefined }), true)
 })
 
 test('layout forwarding preserves metadata for the inner host conversion', () => {
   const props = { row: 0, col: 2, rowSpan: 3, dock: 'left', flexGrow: 0, style: { color: 'red' } }
   const picked = pickLayoutChildProps(props)
+
   assert.deepEqual(picked, {
     row: 0,
     col: 2,
@@ -51,6 +56,7 @@ test('layout forwarding preserves metadata for the inner host conversion', () =>
     alignSelf: undefined,
     order: undefined,
   })
+
   assert.equal(equalLayoutChildProps(props, { ...props, style: {} }), true)
   assert.equal(equalLayoutChildProps(props, { ...props, row: 1 }), false)
   assert.equal(equalLayoutChildProps({}, { row: undefined }), true)

@@ -13,6 +13,7 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repository = resolve(root, '../..')
 const webOnly = process.argv.includes('--web-only')
 const device = process.argv.find((arg) => arg.startsWith('--device='))?.slice(9)
+
 if (!webOnly && (!device || !/^[0-9A-F-]{36}$/i.test(device))) {
   throw new Error('Pass --device=SIMULATOR_UDID for the authorized iOS simulator')
 }
@@ -66,6 +67,7 @@ function baselineHashes(directory = join(root, 'vis'), hashes = {}) {
 
   for (const entry of readdirSync(directory, { withFileTypes: true })) {
     const path = join(directory, entry.name)
+
     if (entry.isDirectory()) {
       if (!['__results__', '__diffs__'].includes(entry.name)) {
         baselineHashes(path, hashes)
@@ -80,12 +82,15 @@ function baselineHashes(directory = join(root, 'vis'), hashes = {}) {
 
 const originalBaselines = baselineHashes()
 const output = resolve(process.env.VIS_CAPTURE_DIR || join(root, 'artifacts', manifest.runId))
+
 mkdirSync(dirname(output), { recursive: true })
 mkdirSync(output)
 writeFileSync(join(output, 'manifest.json'), JSON.stringify(manifest, null, 2))
+
 let child
 let cancelled = false
 const captures = new Map()
+
 for (const signal of ['SIGINT', 'SIGTERM']) {
   process.once(signal, () => {
     cancelled = true
@@ -112,6 +117,7 @@ const server = createServer(async (request, response) => {
     }
 
     let body = ''
+
     for await (const chunk of request) {
       body += chunk
       if (body.length > 1000000) {
@@ -126,7 +132,9 @@ const server = createServer(async (request, response) => {
     }
 
     validateCapture(capture, manifest)
+
     const key = `${capture.target}-${capture.index}`
+
     if (captures.has(key)) {
       throw new Error('Duplicate capture')
     }
@@ -140,6 +148,7 @@ const server = createServer(async (request, response) => {
     }
 
     const expectedDisplacement = capture.index === (capture.target === 'ios' ? 3 : 1) ? 1 : 0
+
     if (capture.displacement !== expectedDisplacement) {
       throw new Error('Unexpected rendered displacement')
     }
@@ -155,6 +164,7 @@ const server = createServer(async (request, response) => {
 })
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
 const env = {
   ...process.env,
   VISUAL_CAPTURE_URL: `http://127.0.0.1:${server.address().port}`,
@@ -176,6 +186,7 @@ function run(command, args, cwd, extra = {}) {
     })
 
     let log = ''
+
     for (const stream of [child.stdout, child.stderr]) {
       stream.on('data', (chunk) => {
         log += chunk
@@ -184,6 +195,7 @@ function run(command, args, cwd, extra = {}) {
     }
 
     const timer = setTimeout(() => child.kill('SIGTERM'), 1800000)
+
     child.on('error', reject)
     child.on('close', (code) => {
       clearTimeout(timer)
@@ -202,6 +214,7 @@ let originalProject
 const projectPath = join(repository, 'apps/mobile/platforms/ios/mobile.xcodeproj/project.pbxproj')
 let bootedByUs = false
 let phase = 'launch'
+
 try {
   if (!webOnly) {
     const devices = JSON.parse(
@@ -242,6 +255,7 @@ try {
     }
 
     originalProject = readFileSync(projectPath)
+
     // Rewrite only the identifier lines. A full ruby-xcodeproj save can drop
     // the generated project's Swift package references, breaking the next
     // build's AudioContextNative link (see scripts/pbxproj.ts).
@@ -285,6 +299,7 @@ try {
   for (const index of webOnly ? [] : [1, 2]) {
     const a = validateCapture(captures.get('ios-0'), manifest)
     const b = validateCapture(captures.get(`ios-${index}`), manifest)
+
     if (comparePixels(a, b).differentPixels !== 0) {
       throw new Error(`Unstable iOS capture ${index}`)
     }
@@ -301,7 +316,9 @@ try {
     )
 
     process.stdout.write(result.stdout + result.stderr)
+
     const report = JSON.parse(readFileSync(join(output, `${diagnostic}-report.json`)))
+
     if (result.status !== 1 || report.status !== 'divergence' || report.differentPixels === 0) {
       throw new Error(`${diagnostic} did not fail with divergent pixels`)
     }

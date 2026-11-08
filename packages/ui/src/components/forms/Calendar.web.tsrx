@@ -132,6 +132,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
 
   // Announce the visible month when navigation changes it (not on mount).
   const firstLabel = useRef(true)
+
   useEffect(() => {
     if (firstLabel.current) {
       firstLabel.current = false
@@ -144,6 +145,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
   // Apply pending focus after a month page — the target cell lives in the
   // newly rendered grid.
   const root = useRef<HTMLDivElement | null>(null)
+
   useEffect(() => {
     if (!pendingFocus || !root.current) {
       return
@@ -164,9 +166,11 @@ export function Calendar(props: CalendarProps): JSX.Element @{
 
   // ref → {navigateTo}
   const navApi = useRef({ navigateTo: (_: ISODateString) => {} })
+
   navApi.current = {
     navigateTo: (iso: ISODateString) => {
       const pd = plainDateFromISO(iso)
+
       if (pd) {
         setBaseMonth(monthStart(pd))
       }
@@ -181,6 +185,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
 
   const pick = (iso: ISODateString) => {
     const pd = plainDateFromISO(iso)
+
     if (!pd || isDateDisabled(pd)) {
       return
     }
@@ -206,6 +211,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
     }
 
     const result = applyRangePick(rangeAnchor, iso, props.minRangeSpan)
+
     if (result.kind === 'cancel') {
       setRangeAnchor(null)
       setAnnouncement(messages.rangeCleared)
@@ -259,6 +265,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
 
     // Header controls must retain their own keyboard behavior.
     const active = e.target?.closest?.('button[data-date]')
+
     if (!active || !root.current?.contains(active)) {
       return
     }
@@ -304,6 +311,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
 
     const target = plainDateFromISO(iso)!
     const pane = monthStart(target)
+
     if (
       plainDateIsBefore(pane, baseMonth) ||
       plainDateIsBefore(monthStart(plainDateAddMonths(baseMonth, numberOfMonths - 1)), pane)
@@ -353,6 +361,7 @@ export function Calendar(props: CalendarProps): JSX.Element @{
       }
 
       const pd = plainDateFromISO(iso)
+
       if (!pd) {
         return false
       }

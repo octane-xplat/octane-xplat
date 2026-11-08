@@ -9,6 +9,7 @@ export const CHECKS: ParityCheck[] = [
     equal: [...controlEqual, 'selected.box.w', 'selected.box.h', 'selected.style.backgroundColor'],
     check: (m) => {
       const selected = m('selected')
+
       return [
         ...controlRows(m, 180, 56),
         ['selected radio dot has positive bounds', selected.box?.w > 0 && selected.box?.h > 0],

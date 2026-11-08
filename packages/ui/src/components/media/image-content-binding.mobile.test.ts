@@ -23,6 +23,7 @@ function mockView(width = 0, height = 0) {
     srcWrites: [] as any[],
     on: (event: string, callback: () => void) => {
       const set = handlers.get(event) ?? new Set()
+
       set.add(callback)
       handlers.set(event, set)
     },
@@ -41,6 +42,7 @@ function mockView(width = 0, height = 0) {
   }
 
   let src: any
+
   Object.defineProperty(view, 'src', {
     get: () => src,
     set: (value) => {
@@ -65,6 +67,7 @@ describe('image content binding — source handoff', () => {
   it('forwards a single source to the issue seam with no decode override', () => {
     const view = mockView(100, 100)
     const binding = create()
+
     binding.update(view, view, noSources)
     expect(view.src).toBe('img.png')
     expect(view.issueGates).toEqual([undefined])
@@ -83,6 +86,7 @@ describe('image content binding — source selection (L8)', () => {
   it('holds src until a real layout, then picks the closest pixel count', () => {
     const view = mockView(0, 0)
     const binding = create()
+
     binding.update(view, view, arrayUpdate)
 
     expect(view.src).toBeUndefined()
@@ -102,6 +106,7 @@ describe('image content binding — source selection (L8)', () => {
   it('picks along the one measured axis after the first layout — a 0 axis is not a blocker', () => {
     const view = mockView(0, 0)
     const binding = create()
+
     binding.update(view, view, arrayUpdate)
 
     expect(view.src).toBeUndefined()
@@ -115,6 +120,7 @@ describe('image content binding — source selection (L8)', () => {
   it('re-issues the same pick on repeat evaluates — dedup lives in the sized binding', () => {
     const view = mockView(100, 100)
     const binding = create()
+
     binding.update(view, view, arrayUpdate)
 
     view.emit('layoutChanged')
@@ -135,6 +141,7 @@ describe('image content binding — computed content rect (L7)', () => {
     const host = mockView(400, 300)
     const image = mockView(0, 0)
     const binding = create()
+
     binding.update(host, image, update('cover', {}))
 
     // Host-box placeholder — a real measure is what unblocks the
@@ -156,8 +163,11 @@ describe('image content binding — computed content rect (L7)', () => {
   it('centers none at intrinsic size (the iOS TopLeft divergence) and asks for full-res decode', () => {
     const host = mockView(400, 300)
     const image = mockView(0, 0)
+
     image.imageSource = { width: 200, height: 100 }
+
     const binding = create()
+
     binding.update(host, image, update('none', {}))
 
     expect(image.width).toBe(200)
@@ -170,8 +180,11 @@ describe('image content binding — computed content rect (L7)', () => {
   it('applies edge positions and re-evaluates on resize', () => {
     const host = mockView(400, 300)
     const image = mockView(0, 0)
+
     image.imageSource = { width: 200, height: 100 }
+
     const binding = create()
+
     binding.update(host, image, update('none', { bottom: 0, right: 0 }))
 
     expect(image.left).toBe(200)
@@ -187,6 +200,7 @@ describe('image content binding — computed content rect (L7)', () => {
     const host = mockView(400, 300)
     const image = mockView(0, 0)
     const binding = create()
+
     binding.update(host, image, update('cover', {}))
     binding.update(host, image, update('cover', {}))
     expect(host.handlerCount('layoutChanged')).toBe(1)

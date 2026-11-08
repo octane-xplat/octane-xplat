@@ -33,6 +33,7 @@ function applyIcon(item: TabViewItem, name: string): void {
   }
 
   const glyph = getIcon(name)
+
   if (!glyph) {
     warnIconOnce(name, `tab icon '${name}' isn't registered — call registerIcons() at boot.`)
     return
@@ -64,18 +65,21 @@ function warnIconOnce(name: string, msg: string): void {
 
 function itemsFor(tabs: readonly PlatformTabSpec[]): TabViewItem[] {
   let items = itemsCache.get(tabs)
+
   if (items !== undefined) {
     return items
   }
 
   items = tabs.map((t) => {
     const item = new TabViewItem()
+
     item.title = t.title
     if (t.icon) {
       applyIcon(item, t.icon)
     }
 
     const pane = new GridLayout()
+
     panesByItem.set(item, pane)
 
     item.view = pane
@@ -112,6 +116,7 @@ function NavInner(props: {
     {loaded
       ? items.map((item, index) => {
           const target = panesByItem.get(item)
+
           return target
             ? createPortal(
                 <TabPane render={props.tabs[index].render} stack={props.tabs[index].stack} />,

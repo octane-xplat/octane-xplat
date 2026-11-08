@@ -16,6 +16,7 @@ const cleaned: Record<Surface, number> = { sheet: 0, menu: 0 }
 
 function PortalContextProbe(props: { surface: Surface }) @{
   const value = useContext(AccountName)
+
   rendered[props.surface] = value
   useEffect(() => {
     mounted[props.surface] += 1
@@ -77,6 +78,7 @@ describe('Android plugin portals preserve context', () => {
       await import('@octane-xplat/context-menu/android'))
 
     const { view, unmount } = await mountXplat(PortalContextFixture)
+
     await waitUntil(() => mounted.sheet > 0 && mounted.menu > 0, {
       message: 'plugin portal children did not mount',
     })

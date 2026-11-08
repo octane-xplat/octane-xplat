@@ -51,6 +51,7 @@ async function waitForReady(mounted: {
   const deadline = performance.now() + READINESS_TIMEOUT
   let stage: Element | null = null
   let control: Element | null | undefined = null
+
   for (;;) {
     stage = mounted.host.querySelector('.visual-stage')
     control = stage?.querySelector('[role="switch"]')
@@ -80,8 +81,11 @@ async function waitForReady(mounted: {
   }
 
   const first = stage!.getBoundingClientRect()
+
   await new Promise(requestAnimationFrame)
+
   const second = stage!.getBoundingClientRect()
+
   if (
     first.width !== second.width ||
     first.height !== second.height ||
@@ -108,6 +112,7 @@ async function waitForReady(mounted: {
 
   const track = control!.getBoundingClientRect()
   const thumb = control!.firstElementChild?.getBoundingClientRect()
+
   if (!thumb) {
     throw new Error(`Switch thumb missing for ${mounted.storyId}`)
   }
@@ -140,12 +145,14 @@ async function waitForReady(mounted: {
 
 async function captureStage(mounted: { host: HTMLElement; storyId: string }) {
   const stage = mounted.host.querySelector('.visual-stage')
+
   if (!stage) {
     throw new Error(`Stage missing at capture for ${mounted.storyId}`)
   }
 
   const pngBase64 = await page.screenshot({ element: stage, save: false })
   const decoded = await decodePng(pngBase64)
+
   if (decoded.width !== WEB_PROFILE.width || decoded.height !== WEB_PROFILE.height) {
     throw new Error(
       `Incompatible capture geometry ${decoded.width}x${decoded.height} for ${WEB_PROFILE.id}`,
@@ -169,12 +176,17 @@ async function captureStage(mounted: { host: HTMLElement; storyId: string }) {
 
 export async function decodePng(pngBase64: string) {
   const image = new Image()
+
   image.src = `data:image/png;base64,${pngBase64}`
   await image.decode()
+
   const canvas = document.createElement('canvas')
+
   canvas.width = image.naturalWidth
   canvas.height = image.naturalHeight
+
   const context = canvas.getContext('2d')
+
   if (!context) {
     throw new Error('Canvas 2D context unavailable for capture decode')
   }
@@ -202,6 +214,7 @@ function hasVariation(data: Uint8ClampedArray) {
   const g = data[1]
   const b = data[2]
   const a = data[3]
+
   for (let i = 4; i < data.length; i += 4) {
     if (data[i] !== r || data[i + 1] !== g || data[i + 2] !== b || data[i + 3] !== a) {
       return true

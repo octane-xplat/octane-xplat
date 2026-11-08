@@ -3,9 +3,12 @@ import type { UseLandmarkOptions, LandmarkProps } from './use-landmark.tsrx'
 import { createAppKitLandmarks } from './landmark-state.macos'
 import { appKitFocusBoundary } from '../../components/overlays/FocusScope.macos.tsrx'
 import type { NSView } from '@octane-xplat/platform/macos'
+
 export type { UseLandmarkOptions, LandmarkProps } from './use-landmark.tsrx'
+
 const landmarks = createAppKitLandmarks(appKitFocusBoundary)
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
+
 hot?.dispose(() => landmarks.dispose())
 
 /** Experimental native F6 region cycling; semantic props remain available without the bridge. */
@@ -19,6 +22,7 @@ export function useLandmark(options: UseLandmarkOptions): { landmarkProps: Landm
     }
 
     const previous = release.current
+
     release.current = undefined
     current.current = view
     previous?.()
@@ -30,6 +34,7 @@ export function useLandmark(options: UseLandmarkOptions): { landmarkProps: Landm
   useEffect(
     () => () => {
       const previous = release.current
+
       release.current = undefined
       current.current = null
       previous?.()

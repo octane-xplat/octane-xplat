@@ -40,6 +40,7 @@ const native = vi.hoisted(() => {
     pending: { page: Page; args: any; action: string; back?: any } | undefined
     on(name: string, listener: (event: any) => void) {
       const values = this.listeners.get(name) ?? new Set()
+
       values.add(listener)
       this.listeners.set(name, values)
     }
@@ -68,6 +69,7 @@ const native = vi.hoisted(() => {
     }
     stage(args: any, action: string, back?: any) {
       const page = args.create()
+
       if (!page.ios) {
         throw new Error('Required page does not have a viewController created.')
       }
@@ -77,7 +79,9 @@ const native = vi.hoisted(() => {
     }
     complete() {
       const pending = this.pending!
+
       this.pending = undefined
+
       const removed =
         pending.action === 'back'
           ? [
@@ -120,6 +124,7 @@ const native = vi.hoisted(() => {
 
 vi.mock('@nativescript/core', () => ({ ...native, isIOS: false }))
 vi.mock('../internal/platform/native-portal', () => ({ createPortal: (children: any) => children }))
+
 import { createNativeRouterHost } from './native-router-host'
 import { ClientRouteOutlet } from './ClientRouteOutlet.tsrx'
 import { createRouter } from './router-instance'
@@ -137,12 +142,14 @@ const frameRenderFailures = new Set<string>()
 function Item() {
   const item = getRouteApi('/items/:id', navigation)
   const id = item.useParams().id
+
   if (frameRenderFailures.has(id)) {
     throw new Error('History target render failed')
   }
 
   const title = item.useLoaderData().title
   const [count, setCount] = useState(0)
+
   frameEntries.set(id, { title, count, increment: () => setCount((value) => value + 1) })
   return <label text={id + ':' + title} />
 }
@@ -155,6 +162,7 @@ let removeOwner = () => {}
 let restoreOwner = () => {}
 function App(props: { platform: ReturnType<typeof createNativeRouterHost> }) {
   const [owned, setOwned] = useState(true)
+
   removeOwner = () => setOwned(false)
   restoreOwner = () => setOwned(true)
   return owned ? <ClientRouteOutlet host={props.platform} /> : <label text="outside" />
@@ -182,7 +190,9 @@ function fixture<const Effects extends TransitionRegistry = {}>(
 ) {
   frameEntries.clear()
   frameRenderFailures.clear()
+
   const frame = new native.Frame()
+
   if (!ready) {
     ;(frame as any).currentPage = undefined
   }
@@ -208,6 +218,7 @@ function fixture<const Effects extends TransitionRegistry = {}>(
 
   navigation = router
   platform.attach(router)
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createObjectDriver('nativescript'),
@@ -239,6 +250,7 @@ function fixture<const Effects extends TransitionRegistry = {}>(
 it('waits for actual currentPage confirmation after staged content rendering', async () => {
   const test = fixture()
   const base = test.frame.currentPage
+
   try {
     let settled = false
     const pending = test.router
@@ -262,6 +274,7 @@ it('waits for actual currentPage confirmation after staged content rendering', a
 function lateFrameFixture(timeout = 1000) {
   frameEntries.clear()
   frameRenderFailures.clear()
+
   const listeners = new Set<(flow: string) => void>()
   const state: { frame?: native.Frame } = {}
   const platform = createNativeRouterHost({
@@ -285,6 +298,7 @@ function lateFrameFixture(timeout = 1000) {
 
   navigation = router
   platform.attach(router)
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createObjectDriver('nativescript'),
@@ -318,8 +332,10 @@ function lateFrameFixture(timeout = 1000) {
 
 it('binds a Frame announced after the outlet mounted', async () => {
   const test = lateFrameFixture()
+
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+
     test.state.frame = new native.Frame()
     test.notify()
     expect((await test.drive(pending)).status).toBe('committed')
@@ -330,9 +346,12 @@ it('binds a Frame announced after the outlet mounted', async () => {
 
 it('picks up an unannounced Frame at the next commit', async () => {
   const test = lateFrameFixture()
+
   try {
     test.state.frame = new native.Frame()
+
     const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+
     expect((await test.drive(pending)).status).toBe('committed')
   } finally {
     test.close()
@@ -341,6 +360,7 @@ it('picks up an unannounced Frame at the next commit', async () => {
 
 it('moves readiness from an unready Frame to its replacement', async () => {
   const test = lateFrameFixture()
+
   try {
     const stale = new native.Frame()
 
@@ -349,7 +369,9 @@ it('moves readiness from an unready Frame to its replacement', async () => {
     test.notify()
     test.state.frame = new native.Frame()
     test.notify()
+
     const pending = test.router.push({ to: '/items/:id', params: { id: 'late' } })
+
     expect((await test.drive(pending)).status).toBe('committed')
   } finally {
     test.close()
@@ -358,6 +380,7 @@ it('moves readiness from an unready Frame to its replacement', async () => {
 
 it('waits for the initial Frame receipt before accepting a cold navigation', async () => {
   const test = fixture(1000, false)
+
   try {
     let settled = false
     const pending = test.router
@@ -380,8 +403,10 @@ it('waits for the initial Frame receipt before accepting a cold navigation', asy
 
 it('cancels initial Frame waits on owner removal and ignores late readiness', async () => {
   const test = fixture(1000, false)
+
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'cold' } })
+
     await tick()
     removeOwner()
     await tick()
@@ -397,10 +422,14 @@ it('cancels initial Frame waits on owner removal and ignores late readiness', as
 
 it('supersedes an unaccepted cold navigation while sharing the host readiness receipt', async () => {
   const test = fixture(1000, false)
+
   try {
     const first = test.router.push({ to: '/items/:id', params: { id: 'old' } })
+
     await tick()
+
     const second = test.router.push({ to: '/items/:id', params: { id: 'new' } })
+
     expect(await first).toMatchObject({ status: 'cancelled', reason: 'superseded' })
     test.frame.currentPage = new native.Page()
     test.frame.emit('navigatedTo', {})
@@ -414,6 +443,7 @@ it('supersedes an unaccepted cold navigation while sharing the host readiness re
 
 it('bounds initial Frame readiness rather than leaving navigation pending forever', async () => {
   const test = fixture(20, false)
+
   try {
     expect(await test.router.push({ to: '/items/:id', params: { id: 'cold' } })).toMatchObject({
       status: 'failed',
@@ -428,9 +458,12 @@ it('bounds initial Frame readiness rather than leaving navigation pending foreve
 
 it('retains prepared Back entries and uses native replacement/reset semantics', async () => {
   const test = fixture()
+
   try {
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
+
     const coat = test.frame.currentPage
+
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
     await test.drive(test.router.back())
     expect(test.frame.currentPage).toBe(coat)
@@ -447,8 +480,10 @@ it('retains prepared Back entries and uses native replacement/reset semantics', 
 
 it('settles missing native callbacks without claiming to undo accepted native work', async () => {
   const test = fixture(30)
+
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     await until(() => !!test.frame.pending)
     expect(await pending).toMatchObject({ status: 'failed', phase: 'commit' })
     // NativeScript can still deliver the accepted operation after a timeout.
@@ -461,6 +496,7 @@ it('settles missing native callbacks without claiming to undo accepted native wo
 
 it('rejects a rendering failure before mutating the Frame', async () => {
   const test = fixture()
+
   try {
     test.router.addRoutes(
       defineRoutes([defineRoute({ path: '/render-failure/:id' }).screen(Broken)]),
@@ -486,6 +522,7 @@ it('rejects a rendering failure before mutating the Frame', async () => {
 it('returns to the declaring base when an owner leaves after reset', async () => {
   const test = fixture()
   const base = test.frame.currentPage
+
   try {
     await test.drive(test.router.reset({ to: '/items/:id', params: { id: 'coat' } }))
     removeOwner()
@@ -501,8 +538,10 @@ it('returns to the declaring base when an owner leaves after reset', async () =>
 it('returns an accepted in-flight Page to its owner without leaving a blank orphan', async () => {
   const test = fixture()
   const base = test.frame.currentPage
+
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     await until(() => !!test.frame.pending)
     test.root.unmount()
     expect(await pending).toMatchObject({ status: 'cancelled' })
@@ -517,6 +556,7 @@ it('returns an accepted in-flight Page to its owner without leaving a blank orph
 
 it('removes readiness observers when disposed before the initial Page commits', () => {
   const test = fixture(1000, false)
+
   try {
     expect(test.frame.listeners.get('navigatedTo')?.size).toBe(1)
     test.router.dispose()
@@ -532,12 +572,17 @@ it('returns an owner cleanup receipt only after the declaring Page is current ag
   const base = frame.currentPage
   const platform = createNativeRouterHost({ getFrame: () => frame as any })
   const router = createRouter({ catalog: defineRoutes([]), host: platform.host })
+
   platform.attach(router)
+
   const owner = createContentOwner()
   const detach = platform.mount('root', owner)
+
   frame.currentPage = new native.Page()
   frame.backStack = [{ resolvedPage: base }]
+
   let returned = false
+
   try {
     const receipt = detach().then(() => {
       returned = true
@@ -560,6 +605,7 @@ it('keeps Back at the declaring base when the Frame contains earlier unowned his
   const test = fixture()
   const base = test.frame.currentPage
   const previous = new native.Page()
+
   test.frame.backStack.push({ resolvedPage: previous })
   try {
     await tick()
@@ -579,10 +625,14 @@ it('keeps Back at the declaring base when the Frame contains earlier unowned his
 
 it('consumes Android Back while the first accepted Page is still navigating', async () => {
   const test = fixture()
+
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     await until(() => !!test.frame.pending)
+
     const event = { cancel: false, activity: native.activity, object: native.Application }
+
     native.backEvents.get('back')!(event)
     expect(event.cancel).toBe(true)
     expect(test.frame.pending).toBeDefined()
@@ -596,6 +646,7 @@ it('consumes Android Back while the first accepted Page is still navigating', as
 it('does not mutate the Frame when a staged composition barrier fails', async () => {
   const test = fixture()
   const original = test.platform.host.commit.bind(test.platform.host)
+
   test.platform.host.commit = (command) =>
     original({
       ...command,
@@ -627,6 +678,7 @@ it('rechecks disposal after a staged composition barrier completes', async () =>
 
   let waiting = false
   const original = test.platform.host.commit.bind(test.platform.host)
+
   test.platform.host.commit = (command) =>
     original({
       ...command,
@@ -638,6 +690,7 @@ it('rechecks disposal after a staged composition barrier completes', async () =>
 
   try {
     const pending = test.router.push({ to: '/items/:id', params: { id: 'coat' } })
+
     await until(() => waiting)
     expect(test.frame.pending).toBeUndefined()
     test.router.dispose()
@@ -655,8 +708,10 @@ it('rechecks disposal after a staged composition barrier completes', async () =>
 it('selects a registered native engine transition once and leaves Back reversal to its Frame', async () => {
   const page = vi.fn(() => ({ name: 'slideLeft', duration: 240 }))
   const f = fixture(1000, true, defineTransitions({ detail: defineNativeTransition({ page }) }))
+
   try {
     const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
+
     await until(() => !!f.frame.pending)
     expect(f.frame.pending!.args.transition).toEqual({ name: 'slideLeft', duration: 240 })
     expect(f.frame.pending!.args.animated).toBe(true)
@@ -668,7 +723,9 @@ it('selects a registered native engine transition once and leaves Back reversal 
     })
 
     f.frame.complete()
+
     const result = await push
+
     expect(result.status === 'committed' && (await result.finished)).toEqual({
       status: 'completed',
     })
@@ -696,10 +753,13 @@ it('commits without animation when a native factory throws and exposes its separ
 
   try {
     const push = f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' })
+
     await until(() => !!f.frame.pending)
     expect(f.frame.pending!.args.animated).toBe(false)
     f.frame.complete()
+
     const result = await push
+
     expect(result.status === 'committed' && (await result.finished)).toEqual({
       status: 'failed',
       error,
@@ -727,7 +787,9 @@ it('does not mutate a Frame after an application transition factory disposes its
   )
 
   dispose = () => f.router.dispose()
+
   const base = f.frame.currentPage
+
   try {
     expect(
       await f.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'detail' }),
@@ -743,6 +805,7 @@ it('does not mutate a Frame after an application transition factory disposes its
 it('waits for the old Frame owner to restore its base before a remounted owner navigates', async () => {
   const test = fixture()
   const base = test.frame.currentPage
+
   try {
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
     removeOwner()
@@ -750,6 +813,7 @@ it('waits for the old Frame owner to restore its base before a remounted owner n
     expect(test.frame.pending?.page).toBe(base)
     restoreOwner()
     await tick()
+
     let settled = false
     const next = test.router.push({ to: '/items/:id', params: { id: 'hat' } }).then((result) => {
       settled = true
@@ -785,11 +849,15 @@ it('rechecks a retained Frame Page before popping and refreshes its data without
   try {
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
+
     const coat = test.frame.currentPage
+
     frameEntries.get('coat')!.increment()
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
+
     const hat = test.frame.currentPage
+
     allowed = false
     account = 'b'
     expect(await test.router.back()).toEqual({ status: 'forbidden' })
@@ -818,12 +886,16 @@ it('redirects Frame Back into the retained Page with a fresh screen identity', a
   try {
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
+
     const coat = test.frame.currentPage
+
     frameEntries.get('coat')!.increment()
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
     redirect = true
+
     const result = await test.drive(test.router.back())
+
     expect(result.status === 'committed' && result.redirected).toBe(true)
     expect(test.frame.currentPage).toBe(coat)
     expect(test.router.getSnapshot().route?.params.id).toBe('cap')
@@ -847,15 +919,21 @@ it('preserves a retained target when a redirected Frame history screen fails to 
   try {
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'coat' } }))
+
     const coat = test.frame.currentPage
+
     frameEntries.get('coat')!.increment()
     await tick()
     await test.drive(test.router.push({ to: '/items/:id', params: { id: 'hat' } }))
+
     const hat = test.frame.currentPage
+
     redirect = true
     frameRenderFailures.add('cap')
+
     const pending = test.router.back()
     let settled = false
+
     void pending.then(() => {
       settled = true
     })

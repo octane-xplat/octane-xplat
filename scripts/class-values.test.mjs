@@ -13,10 +13,13 @@ function normalizer(path, name) {
   const declaration = ast.statements.find(
     (node) => ts.isFunctionDeclaration(node) && node.name?.text === name,
   )
+
   assert.ok(declaration, `${name} must exist in ${path}`)
+
   const { outputText } = ts.transpileModule(declaration.getText(ast), {
     compilerOptions: { target: ts.ScriptTarget.ESNext, module: ts.ModuleKind.CommonJS },
   })
+
   return new Function('exports', `${outputText}\nreturn ${name}`)({})
 }
 
@@ -55,6 +58,7 @@ for (const [renderer, normalize] of Object.entries(normalizers)) {
   test(`${renderer} follows Octane numeric class composition`, () => {
     for (const [input, expected] of cases) {
       const result = normalize(input)
+
       assert.equal(Array.isArray(result) ? result.join(' ') : result, expected)
     }
   })

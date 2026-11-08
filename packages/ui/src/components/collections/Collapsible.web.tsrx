@@ -27,6 +27,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element @{
     }
 
     const next = !open
+
     if (!controlled) {
       setInternal(next)
     }
@@ -59,6 +60,7 @@ export function Collapsible(props: CollapsibleProps): JSX.Element @{
 export function CollapsibleGroup(props: CollapsibleGroupProps): JSX.Element @{
   const [internal, setInternal] = useState<string[]>(() => {
     const dv = props.defaultValue
+
     return dv == null ? [] : Array.isArray(dv) ? [...dv] : [dv]
   })
 
@@ -85,6 +87,7 @@ export function CollapsibleGroup(props: CollapsibleGroupProps): JSX.Element @{
     isOpen: (v: string) => openKeys.includes(v),
     toggle: (v: string) => {
       const isOpen = openKeys.includes(v)
+
       report(
         multiple
           ? isOpen

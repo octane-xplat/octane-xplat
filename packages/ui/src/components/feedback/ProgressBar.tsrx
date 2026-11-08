@@ -45,6 +45,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
 
     const trackView = track.current
     const fillView = fill.current
+
     if (!trackView || !fillView) {
       return
     }
@@ -59,7 +60,9 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
 
       const width = trackView.getActualSize?.().width ?? 0
       const fillWidth = width * 0.4
+
       fillView.translateX = -fillWidth
+
       const done = () => {
         timer = setTimeout(run, 0)
       }
@@ -163,6 +166,7 @@ export function ProgressBar(props: ProgressBarProps): unknown @{
       />
       {marks.map((mark) => {
         const markPct = clamp(mark.value, 0, max) / max
+
         return (
           <masonview
             key={mark.value}

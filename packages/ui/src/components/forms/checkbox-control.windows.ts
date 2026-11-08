@@ -33,11 +33,13 @@ class WindowsCheckboxControl extends View {
 
   createNativeView() {
     const native = new Microsoft.UI.Xaml.Controls.CheckBox()
+
     native.MinWidth = 0
     native.MinHeight = 0
     native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
       '<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="CheckBox"><Border Background="Transparent" /></ControlTemplate>',
     )
+
     // Mixed reporting needs three-state enabled; ordinary activation stays binary.
     native.IsThreeState = this.checked === 'indeterminate'
     this.writeNativeState(native, this.checked)
@@ -46,11 +48,15 @@ class WindowsCheckboxControl extends View {
 
   initNativeView() {
     super.initNativeView()
+
     const native = this.nativeViewProtected
+
     this.eventNative = native
+
     const changed = (nativeState: boolean) => {
       // Leaving mixed state always requests true, independent of WinUI's native cycle.
       const next = this.checked === 'indeterminate' ? true : nativeState
+
       if (this.eventNative !== native || this.writing || next === this.checked) {
         return
       }
@@ -70,6 +76,7 @@ class WindowsCheckboxControl extends View {
 
   disposeNativeView() {
     const native = this.eventNative
+
     this.eventNative = undefined
     this.eventHandlers = undefined
     if (native) {
@@ -83,6 +90,7 @@ class WindowsCheckboxControl extends View {
   private writeChecked(value: boolean | 'indeterminate') {
     const native = this.nativeViewProtected
     const handlers = this.eventNative === native ? this.eventHandlers : undefined
+
     this.writing++
     try {
       // Avoid entering JS through synchronous native events during a host prop write.

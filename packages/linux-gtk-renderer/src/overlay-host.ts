@@ -49,9 +49,11 @@ interface OverlayContainer {
 export function bindOverlayHost(view: any, container: OverlayContainer) {
   const createOverlayLayer = (options: OverlayLayerOptions = {}): OverlayLayer => {
     const overlay = container.overlay
+
     if (!overlay) {
       throw new Error('linux-gtk overlay layers require a root Gtk.Overlay host.')
     }
+
     const modal = options.modal === true
     const useScrim = options.scrim ?? modal
 
@@ -62,6 +64,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
     // layers with an explicit `align` dock to that edge and hug their
     // content, so empty window regions have no widget over them to pick.
     const layer = new Gtk.Overlay()
+
     layer.add_css_class('vx-overlay-layer')
     if (useScrim || !options.align) {
       layer.set_hexpand(true)
@@ -75,6 +78,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
     // input) and forwards the dismiss gesture. It is the overlay's main
     // child — under the target — so a press outside the surface lands here.
     let scrim: any = null
+
     if (useScrim) {
       scrim = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
       scrim.set_hexpand(true)
@@ -82,6 +86,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
       scrim.add_css_class('vx-overlay-scrim')
       if (options.onScrimPress) {
         const press = new Gtk.GestureClick()
+
         press.connect('pressed', () => options.onScrimPress?.())
         scrim.add_controller(press)
       }
@@ -92,6 +97,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
     // The portal target — an overlay child above the scrim, positioned by
     // alignment (centered by default; start/end/fill dock to an edge).
     const target = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
     target.set_halign(ALIGN[options.align?.h ?? 'center'])
     target.set_valign(ALIGN[options.align?.v ?? 'center'])
     layer.add_overlay(target)
@@ -103,6 +109,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
       if (!modal) {
         return
       }
+
       for (const w of [container.contentHost, ...Array.from(container.overlayLayers ?? [])]) {
         if (!w || w === layer) {
           continue
@@ -113,6 +120,7 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
         w.can_target = false
       }
     }
+
     const restoreLower = () => {
       for (const [w, canFocus, canTarget] of suppressed) {
         try {
@@ -122,12 +130,14 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
           }
         } catch {}
       }
+
       suppressed.length = 0
     }
 
     const restoreFocus = (() => {
       const owner = view.get_root()
       const initial = owner?.get_focus?.()
+
       return () => {
         try {
           if (owner?.get_mapped?.() && initial?.get_mapped?.() && initial.get_root?.() === owner) {
@@ -139,8 +149,10 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
 
     let disposed = false
     let presented = false
+
     ;(container.overlayLayers ??= new Set()).add(layer)
     overlay.add_overlay(layer)
+
     // The widget set gates background input; handles are tracked
     // separately so root teardown can dispose live layers.
     const handle = {
@@ -149,9 +161,11 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
         if (disposed) {
           return
         }
+
         if (visible === presented) {
           return
         }
+
         presented = visible
         layer.set_visible(visible)
         if (visible) {
@@ -169,19 +183,23 @@ export function bindOverlayHost(view: any, container: OverlayContainer) {
         if (disposed) {
           return
         }
+
         disposed = true
         restoreLower()
         restoreFocus()
         try {
           overlay.remove_overlay(layer)
         } catch {}
+
         container.overlayLayers?.delete(layer)
         container.overlayLayerHandles?.delete(handle)
       },
     }
+
     ;(container.overlayLayerHandles ??= new Set()).add(handle)
     return handle
   }
+
   view.createOverlayLayer = createOverlayLayer
   return () => {
     if (view.createOverlayLayer === createOverlayLayer) {

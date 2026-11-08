@@ -29,6 +29,7 @@ describe('mergeProps', () => {
 
   it('last non-function prop wins; undefined is skipped', () => {
     const merged = mergeProps({ role: 'grid', id: 'a' }, { role: 'list', id: undefined })
+
     expect(merged.role).toBe('list')
     expect(merged.id).toBe('a')
   })
@@ -45,6 +46,7 @@ describe('mergeProps', () => {
 
     const host = { node: true }
     const attach = merged.ref as (instance: any) => void
+
     attach(host)
     expect(first).toHaveBeenCalledWith(host)
     expect(second.current).toBe(host)
@@ -58,6 +60,7 @@ describe('mergeProps', () => {
 
   it('keeps a lone ref untouched', () => {
     const ref = vi.fn()
+
     expect(mergeProps({ ref }, { id: 'x' }).ref).toBe(ref)
   })
 })

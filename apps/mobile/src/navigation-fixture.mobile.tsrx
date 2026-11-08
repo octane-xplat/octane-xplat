@@ -21,12 +21,14 @@ import { NavigationTabs } from './navigation-tabs.tsrx'
 import type { TabSpec } from '@octane-xplat/ui'
 
 let fixtureNavigation: RouterInstance<any>
+
 export function bindNavigationInstance(instance: RouterInstance<any>) {
   fixtureNavigation = instance
 }
 
 let brokenGate: Promise<void> | undefined
 let releaseBroken: (() => void) | undefined
+
 export const loaderFailureControl = {
   hold() {
     brokenGate = new Promise<void>((resolve) => {
@@ -35,6 +37,7 @@ export const loaderFailureControl = {
   },
   release() {
     const release = releaseBroken
+
     brokenGate = undefined
     releaseBroken = undefined
     release?.()
@@ -55,6 +58,7 @@ export function NavigationScreen(props: {
   const navigation = useRouter(fixtureNavigation)
   const state = useRouterState(fixtureNavigation)
   const feedback = useNavigation()
+
   screenNavigators.set(props.params.id ?? '', navigation)
 
   <View id="nav-screen">
@@ -93,6 +97,7 @@ const tabs: TabSpec[] = [
 export function NavigationShell(props: { routed?: boolean }) @{
   const [selected, setSelected] = useState('first')
   const [checkedLink, setCheckedLink] = useState<ValidatedDestination | null>(null)
+
   checkedLinkControl.set = setCheckedLink
 
   <Screen>

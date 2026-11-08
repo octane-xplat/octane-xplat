@@ -9,22 +9,26 @@ import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../prop
  *  degrades to the old screen-relative value rather than failing. */
 function surfaceOrigin(view: any): { x: number; y: number } {
   let root = view
+
   while (root?.parent) {
     root = root.parent
   }
 
   const point = root?.getLocationOnScreen?.()
+
   return point ? { x: point.x, y: point.y } : { x: 0, y: 0 }
 }
 
 function readBounds(view: any): MeasureBounds | null {
   const point = view?.getLocationOnScreen?.()
   const size = view?.getActualSize?.()
+
   if (!point || !size) {
     return null
   }
 
   const origin = surfaceOrigin(view)
+
   return {
     x: point.x - origin.x,
     y: point.y - origin.y,
@@ -49,6 +53,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
       const update = () => {
         const next = readBounds(view)
+
         // Fresh object each read — skip the setState when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
         setBounds((prev: MeasureBounds | null) => {
@@ -65,10 +70,14 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
       view.on?.('loaded', update)
       update()
+
       const scrollParents: any[] = []
+
       if (observe) {
         view.on?.('layoutChanged', update)
+
         let parent = view.parent
+
         while (parent) {
           parent.on?.('scroll', update)
           scrollParents.push(parent)

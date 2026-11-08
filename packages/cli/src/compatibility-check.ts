@@ -22,13 +22,17 @@ export type CompatibilityCheck = { name: string; ok: boolean; detail: string; hi
 /** Resolve metadata without importing package code, including export-restricted packages. */
 function installedPackage(from: string, name: string) {
   const require = createRequire(join(from, 'package.json'))
+
   for (const path of require.resolve.paths(name) ?? []) {
     const file = join(path, name, 'package.json')
+
     if (existsSync(file)) {
       const dir = realpathSync(join(path, name))
+
       return { dir, pkg: readPackage(join(dir, 'package.json')) }
     }
   }
+
   return undefined
 }
 
@@ -38,20 +42,24 @@ const versionTuple = (version: string) =>
 const atLeast = (actual: string, minimum: string) => {
   const left = versionTuple(actual)
   const right = versionTuple(minimum)
+
   if (left.length !== 3 || left.some(Number.isNaN)) {
     return false
   }
+
   for (let index = 0; index < 3; index++) {
     if (left[index] !== right[index]) {
       return left[index] > right[index]
     }
   }
+
   return true
 }
 
 function commandVersion(command: string, cwd: string) {
   try {
     const shell = process.platform === 'win32' && ['bun', 'pnpm'].includes(command)
+
     return execFileSync(shell ? `${command} --version` : command, shell ? [] : ['--version'], {
       cwd,
       encoding: 'utf8',
@@ -69,6 +77,7 @@ export function inspectCompatibility(
   tools?: { node: string; bun?: string; pnpm?: string },
 ): CompatibilityCheck[] {
   dir = realpathSync(resolve(dir))
+
   const root = workspaceRoot(dir)
   const manager = packageManagerFor(root)
   const config = readWorkspace(root).toJS() ?? {}
@@ -81,16 +90,19 @@ export function inspectCompatibility(
     detail: string,
     hint = 'run xplat upgrade, then bun run xplat doctor',
   ) => rows.push({ name, ok, detail, ...(!ok && { hint }) })
+
   const runtime = tools ?? {
     node: commandVersion('node', dir),
     [manager]: commandVersion(manager, dir),
   }
+
   row(
     'compatibility Node',
     atLeast(runtime.node, compatibility.tools.nodeMinimum),
     `${runtime.node}; requires >=${compatibility.tools.nodeMinimum}`,
     `install Node >=${compatibility.tools.nodeMinimum}`,
   )
+
   row(
     `compatibility ${manager}`,
     manager === 'bun'
@@ -99,9 +111,11 @@ export function inspectCompatibility(
     `${runtime[manager]}; expected ${compatibility.tools[manager]}`,
     `use ${manager} ${compatibility.tools[manager]}`,
   )
+
   const rootPkg = existsSync(join(root, 'package.json'))
     ? readPackage(join(root, 'package.json'))
     : pkg
+
   row(
     'compatibility packageManager',
     rootPkg.packageManager?.split('+')[0] === `${manager}@${compatibility.tools[manager]}`,
@@ -116,6 +130,7 @@ export function inspectCompatibility(
   const replacedEngines = [masonCorePackage, masonFullPackage, masonLegacyPackage].filter(
     (name) => name !== engine,
   )
+
   for (const name of replacedEngines) {
     if (declared[name]) {
       row(
@@ -126,12 +141,14 @@ export function inspectCompatibility(
       )
     }
   }
+
   for (const [name, spec] of Object.entries(declared) as [string, string][]) {
     if (!managedPackage(name, profile)) {
       continue
     }
 
     const resolved = resolveCatalog(spec, name, config)
+
     if (localSpecifier(resolved)) {
       local.add(name)
       continue
@@ -141,6 +158,7 @@ export function inspectCompatibility(
 
     row(`compatibility pin ${name}`, resolved === expected, `${resolved}; expected ${expected}`)
   }
+
   if (declared.octane && !declared['@tsrx/oxc'] && !local.has('octane')) {
     row(
       'compatibility compiler peer @tsrx/oxc',
@@ -148,6 +166,7 @@ export function inspectCompatibility(
       'Octane requires the app to declare @tsrx/oxc',
     )
   }
+
   // The patched NativeScript driver imports the mason engine for container
   // layout — apps using it must declare the package.
   if (
@@ -169,15 +188,19 @@ export function inspectCompatibility(
     name,
     required: !pkg.optionalDependencies?.[name],
   }))
+
   const visited = new Set<string>()
   const checked = new Set<string>()
   const singletons = new Map<string, Map<string, string>>()
   const masonEngines = new Map<string, string>()
+
   for (let index = 0; index < queue.length; index++) {
     const { from, name, required } = queue[index]
     const installed = installedPackage(from, name)
+
     if (!installed) {
       const key = `${from}:${name}`
+
       if (
         required &&
         (managedPackage(name, profile) || name === masonCorePackage) &&
@@ -197,6 +220,7 @@ export function inspectCompatibility(
 
     const { dir: location, pkg: dependency } = installed
     const identity = dependency.name ?? name
+
     if ([masonCorePackage, masonFullPackage, masonLegacyPackage].includes(identity)) {
       masonEngines.set(location, identity)
     }
@@ -204,8 +228,10 @@ export function inspectCompatibility(
     // A managed npm alias has its own pin (typescript-classic is still named
     // typescript inside its tarball). Do not compare it with the native compiler.
     const managed = managedPackage(name, profile) ?? managedPackage(identity, profile)
+
     if (managed?.singleton) {
       const copies = singletons.get(identity) ?? new Map<string, string>()
+
       copies.set(location, dependency.version)
       singletons.set(identity, copies)
     }
@@ -218,6 +244,7 @@ export function inspectCompatibility(
       // typescript) is that package's implementation detail.
       if (from === dir || managed.singleton) {
         const expected = managed.version
+
         row(
           `compatibility installed ${name}`,
           dependency.version === expected,
@@ -248,6 +275,7 @@ export function inspectCompatibility(
       queue.push({ from: location, name: child, required })
     }
   }
+
   if (masonEngines.size) {
     row(
       'compatibility installed mason engines',
@@ -256,6 +284,7 @@ export function inspectCompatibility(
       `keep exactly one ${engine} copy in the app dependency graph`,
     )
   }
+
   for (const [name, copies] of singletons) {
     // Copies inside the workspace install are what the bundle can see; a
     // copy under a `link:`/`file:`/`portal:` checkout's own node_modules is
@@ -263,6 +292,7 @@ export function inspectCompatibility(
     // singletons to the app copy, so it is not a duplicate runtime.
     const bundled = [...copies].filter(([path]) => path === root || path.startsWith(root + sep))
     const external = copies.size - bundled.length
+
     row(
       `compatibility singleton ${name}`,
       bundled.length === 1,
@@ -274,5 +304,6 @@ export function inspectCompatibility(
       'align dependency pins and remove nested runtime copies; run bun why ' + name,
     )
   }
+
   return rows
 }

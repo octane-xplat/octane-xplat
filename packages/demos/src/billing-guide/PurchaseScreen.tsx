@@ -8,6 +8,7 @@ export function PurchaseScreen({
   purchases: ReturnType<typeof createPurchaseSession>
 }) {
   const state = useStore(purchases.state)
+
   return (
     <VStack>
       <Text>{state.unlocked ? 'Premium unlocked' : 'Unlock Premium'}</Text>

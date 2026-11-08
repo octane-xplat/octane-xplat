@@ -3,6 +3,7 @@ import { createApi } from './api.ts'
 
 const issuer = process.env.AUTH_ISSUER
 const audience = process.env.AUTH_AUDIENCE
+
 if (!issuer || !audience) {
   throw new Error('Set AUTH_ISSUER and AUTH_AUDIENCE in the server .env')
 }
@@ -11,6 +12,7 @@ const handle = createApi({ issuer, audience })
 const server = createServer(async (req, res) => {
   try {
     const headers = new Headers()
+
     for (const [name, value] of Object.entries(req.headers)) {
       if (value !== undefined) {
         headers.set(name, Array.isArray(value) ? value.join(', ') : value)
@@ -23,6 +25,7 @@ const server = createServer(async (req, res) => {
     })
 
     const response = await handle(request)
+
     res.writeHead(response.status, Object.fromEntries(response.headers))
     res.end(await response.text())
   } catch {

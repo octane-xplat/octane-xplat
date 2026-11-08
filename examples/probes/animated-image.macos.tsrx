@@ -4,6 +4,7 @@ import { AnimatedImage } from '../../packages/gif/src/index.macos'
 import { Button, Text, TextInput, VStack } from '@octane-xplat/ui'
 import type { AnimatedImageProps } from '../../packages/gif/src/props'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function AnimatedImageProbe() {
   const [address, setAddress] = useState(''),
     [source, setSource] = useState(''),

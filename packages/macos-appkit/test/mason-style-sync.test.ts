@@ -10,6 +10,7 @@ function fixture() {
       if (op === 'node' || op === 'mnode') {
         return 1
       }
+
       if (op === 'style') {
         if (fail) {
           throw new Error('style failed')
@@ -17,9 +18,11 @@ function fixture() {
 
         styles.push(JSON.parse(JSON.stringify(args[1])))
       }
+
       return null
     },
   }
+
   const api = runSlice(
     sourceWithoutImports(new URL('../src/mason.ts', import.meta.url)).replaceAll('export ', '') +
       '\n({ syncMasonNode, layoutMasonChildren, releaseMasonNodes })',
@@ -28,12 +31,14 @@ function fixture() {
       NSThread: { mainThread: { threadDictionary: { objectForKey: () => host } } },
     },
   )
+
   const node: any = {
     type: 'masonview',
     children: [],
     props: { style: { gap: 8 } },
     view: { bounds: { size: { width: 100, height: 80 } } },
   }
+
   return {
     ...api,
     node,
@@ -46,10 +51,12 @@ function fixture() {
 
 test('unchanged styles skip engine writes; nested changes and removal still apply', () => {
   const env = fixture()
+
   env.syncMasonNode(env.node, () => env.node.view)
   for (let i = 0; i < 20; i++) {
     env.syncMasonNode(env.node, () => env.node.view)
   }
+
   assert.equal(env.styles.length, 1)
   env.node.props.style.gap = 12
   env.syncMasonNode(env.node, () => env.node.view)
@@ -68,6 +75,7 @@ test('temporary root dimensions restore authored styles and follow resizing', ()
       () => env.node.view,
       () => {},
     )
+
   layout()
   assert.deepEqual(env.styles.at(-1)?.width, [1, 100])
   assert.deepEqual(env.styles.at(-1)?.height, [1, 80])
@@ -82,6 +90,7 @@ test('temporary root dimensions restore authored styles and follow resizing', ()
 
 test('recreated handles receive their styles even when the native handle is reused', () => {
   const env = fixture()
+
   env.syncMasonNode(env.node, () => env.node.view)
   env.releaseMasonNodes(env.node)
   env.syncMasonNode(env.node, () => env.node.view)
@@ -90,6 +99,7 @@ test('recreated handles receive their styles even when the native handle is reus
 
 test('scroll-content sizing does not leave the authored size cache stale', () => {
   const env = fixture()
+
   env.node.type = 'scrollview'
   env.node.props.style = { width: 300, height: 400, minHeight: 250, maxHeight: 800 }
   env.layoutMasonChildren(
@@ -97,9 +107,11 @@ test('scroll-content sizing does not leave the authored size cache stale', () =>
     () => env.node.view,
     () => {},
   )
+
   for (const key of ['width', 'height', 'minHeight', 'maxHeight']) {
     assert.equal(env.styles.at(-1)?.[key], undefined)
   }
+
   env.syncMasonNode(env.node, () => env.node.view)
   assert.deepEqual(env.styles.at(-1)?.width, [1, 300])
   assert.deepEqual(env.styles.at(-1)?.minHeight, [1, 250])
@@ -107,6 +119,7 @@ test('scroll-content sizing does not leave the authored size cache stale', () =>
 
 test('failed native style writes are retried', () => {
   const env = fixture()
+
   env.syncMasonNode(env.node, () => env.node.view)
   env.node.props.style.gap = 20
   env.fail(true)
@@ -119,6 +132,7 @@ test('failed native style writes are retried', () => {
 
 test('a failed write invalidates the previous style before restoration', () => {
   const env = fixture()
+
   env.syncMasonNode(env.node, () => env.node.view)
   env.node.props.style.gap = 20
   env.fail(true)

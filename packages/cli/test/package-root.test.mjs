@@ -31,6 +31,7 @@ const makePkg = (dir, manifest, files = {}) => {
     mkdirSync(join(dir, file, '..'), { recursive: true })
     writeFileSync(join(dir, file), contents)
   }
+
   return dir
 }
 
@@ -39,6 +40,7 @@ const makePkg = (dir, manifest, files = {}) => {
 const makeHoistedApp = () => {
   const ws = tmp('xplat-pkgroot-ws-')
   const app = join(ws, 'apps/mobile')
+
   mkdirSync(app, { recursive: true })
   writeFileSync(
     join(app, 'package.json'),
@@ -54,6 +56,7 @@ const makeHoistedApp = () => {
       },
     }),
   )
+
   return { ws, app }
 }
 
@@ -66,15 +69,20 @@ afterEach(() => {
 describe('installedToolPackageRoot', () => {
   it('resolves only declared umbrella tools and prefers the app tool', () => {
     const app = tmp('xplat-toolchain-app-')
+
     makePkg(app, { name: 'app' })
+
     const umbrella = makePkg(join(app, 'node_modules/octane-xplat'), {
       name: 'octane-xplat',
       dependencies: { typescript: '5.9.3', '@octane-xplat/cli': '1.0.0' },
     })
+
     const compiler = makePkg(join(umbrella, 'node_modules/typescript'), { name: 'typescript' })
+
     makePkg(join(umbrella, 'node_modules/unrelated'), { name: 'unrelated' })
     assert.equal(installedToolPackageRoot(app, 'typescript'), compiler)
     assert.equal(installedToolPackageRoot(app, 'unrelated'), null)
+
     const cli = makePkg(
       join(umbrella, 'node_modules/@octane-xplat/cli'),
       {
@@ -83,14 +91,18 @@ describe('installedToolPackageRoot', () => {
       },
       { 'dist/macos.js': '', 'dist/host.js': '' },
     )
+
     assert.equal(appCliFile({ root: app }, 'macos', 'host.js'), join(cli, 'dist/host.js'))
     assert.equal(installedPackageRoot(app, 'typescript'), null)
+
     const direct = makePkg(join(app, 'node_modules/typescript'), { name: 'typescript' })
+
     assert.equal(
       installedToolPackageRoot(app, 'typescript'),
       compiler,
       'incidental hoisted tools do not shadow the umbrella',
     )
+
     makePkg(app, { name: 'app', devDependencies: { typescript: '7.1.0-beta' } })
     assert.equal(installedToolPackageRoot(app, 'typescript'), direct)
   })
@@ -99,29 +111,37 @@ describe('installedToolPackageRoot', () => {
 describe('installedPackageRoot', () => {
   it('resolves a dep installed at the app root (isolated layout)', () => {
     const app = tmp('xplat-pkgroot-app-')
+
     writeFileSync(join(app, 'package.json'), '{}')
+
     const dep = makePkg(join(app, 'node_modules/dep'), { name: 'dep' })
+
     assert.equal(installedPackageRoot(app, 'dep'), dep)
   })
 
   it('resolves a dep hoisted to the workspace root', () => {
     const { ws, app } = makeHoistedApp()
     const dep = makePkg(join(ws, 'node_modules/hoisted-dep'), { name: 'hoisted-dep' })
+
     assert.equal(installedPackageRoot(app, 'hoisted-dep'), dep)
   })
 
   it('finds packages whose exports hide ./package.json', () => {
     const app = tmp('xplat-pkgroot-exp-')
+
     writeFileSync(join(app, 'package.json'), '{}')
+
     const dep = makePkg(join(app, 'node_modules/hidden'), {
       name: 'hidden',
       exports: { '.': './index.js' },
     })
+
     assert.equal(installedPackageRoot(app, 'hidden'), dep)
   })
 
   it('returns null for a missing package', () => {
     const app = tmp('xplat-pkgroot-miss-')
+
     writeFileSync(join(app, 'package.json'), '{}')
     assert.equal(installedPackageRoot(app, 'not-installed'), null)
   })
@@ -130,20 +150,24 @@ describe('installedPackageRoot', () => {
 describe('hoisted workspace node_modules reads', () => {
   it('sourceOnlyDeps lists a rootless dep hoisted to the workspace root', () => {
     const { ws, app } = makeHoistedApp()
+
     makePkg(join(ws, 'node_modules/rootless-dep'), {
       name: 'rootless-dep',
       exports: { './sub': './sub.js' },
     })
+
     makePkg(join(ws, 'node_modules/plain-dep'), { name: 'plain-dep', main: 'index.js' })
     assert.deepEqual(sourceOnlyDeps(app), ['rootless-dep'])
   })
 
   it('xplatNative sees hoisted deps: rootless in NS_VENDOR_EXCLUDE, nativescript deps excluded', async () => {
     const { ws, app } = makeHoistedApp()
+
     makePkg(join(ws, 'node_modules/rootless-dep'), {
       name: 'rootless-dep',
       exports: { './sub': './sub.js' },
     })
+
     makePkg(join(ws, 'node_modules/plain-dep'), { name: 'plain-dep', main: 'index.js' })
     makePkg(join(ws, 'node_modules/ns-plugin'), {
       name: 'ns-plugin',
@@ -151,12 +175,14 @@ describe('hoisted workspace node_modules reads', () => {
       nativescript: { platforms: { ios: '9.0.0' } },
       dependencies: { 'transitive-ns': '1.0.0' },
     })
+
     // Transitive nativescript plugin — reachable only via ns-plugin's dep.
     makePkg(join(ws, 'node_modules/transitive-ns'), {
       name: 'transitive-ns',
       main: 'index.js',
       nativescript: { platforms: { ios: '9.0.0' } },
     })
+
     // xplatNative's own boundary deps must resolve from the app.
     for (const name of ['@octane-xplat/nativescript-mason-core', 'octane']) {
       makePkg(
@@ -167,6 +193,7 @@ describe('hoisted workspace node_modules reads', () => {
         },
       )
     }
+
     makePkg(
       join(ws, 'node_modules/@nativescript-community/vite-octane'),
       {
@@ -175,6 +202,7 @@ describe('hoisted workspace node_modules reads', () => {
       },
       { 'index.js': 'export const octaneConfig = () => ({})' },
     )
+
     makePkg(
       join(ws, 'node_modules/@nativescript-community/octane'),
       {
@@ -186,26 +214,32 @@ describe('hoisted workspace node_modules reads', () => {
         'driver.js': 'export {}',
       },
     )
+
     // vite must resolve for xplatNative's own imports — symlink the real
     // installed package into the hoisted workspace root.
     const { createRequire } = await import('node:module')
     const { dirname } = await import('node:path')
     const realVite = dirname(createRequire(import.meta.url).resolve('vite/package.json'))
+
     mkdirSync(join(ws, 'node_modules'), { recursive: true })
     symlinkSync(realVite, join(ws, 'node_modules/vite'), 'dir')
 
     const cwd = process.cwd()
     const prevExclude = process.env.NS_VENDOR_EXCLUDE
+
     try {
       process.chdir(app)
+
       const config = await xplatNative('development')
       const excluded = process.env.NS_VENDOR_EXCLUDE ?? ''
+
       assert.ok(
         excluded.split(',').includes('rootless-dep'),
         `NS_VENDOR_EXCLUDE ${excluded} should contain rootless-dep`,
       )
 
       const optExclude = config.optimizeDeps?.exclude ?? []
+
       assert.ok(optExclude.includes('ns-plugin'), 'ns-plugin excluded from optimizeDeps')
       assert.ok(
         optExclude.includes('transitive-ns'),
@@ -223,6 +257,7 @@ describe('hoisted workspace node_modules reads', () => {
 
   it('inspectMacOSRuntimePackage resolves a hoisted runtime package from a nested app', () => {
     const { ws, app } = makeHoistedApp()
+
     makePkg(
       join(ws, 'node_modules/@nativescript/macos-node-api'),
       {
@@ -234,7 +269,9 @@ describe('hoisted workspace node_modules reads', () => {
         LICENSE: 'test license',
       },
     )
+
     const info = inspectMacOSRuntimePackage(app)
+
     assert.equal(info.packageManifest?.version, '0.4.4')
     assert.deepEqual(info.missingPaths, [])
   })

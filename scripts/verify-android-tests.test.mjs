@@ -7,6 +7,7 @@ import { verifyAndroidTests } from './verify-android-tests.ts'
 
 function fixture(t, overrides = {}) {
   const appDir = mkdtempSync(join(tmpdir(), 'xplat-android-gate-'))
+
   t.after(() => rmSync(appDir, { recursive: true, force: true }))
   writeFileSync(
     join(appDir, 'nativescript.config.ts'),
@@ -50,6 +51,7 @@ function fixture(t, overrides = {}) {
 
 test('explicit device and boot readiness gate all app writes and launches', (t) => {
   const f = fixture(t, { boot: '0' })
+
   assert.throws(
     () => verifyAndroidTests({ ...f, device: undefined }),
     /requires VERIFY_ANDROID_DEVICE/,
@@ -66,12 +68,14 @@ test('explicit device and boot readiness gate all app writes and launches', (t) 
 
 test('repeated runs reset only the disposable identity and stop it', (t) => {
   const f = fixture(t, { installed: true })
+
   for (let i = 0; i < 2; i++) {
     assert.match(verifyAndroidTests(f), /gesture-observer-dispatch/)
   }
 
   const config = readFileSync(join(f.appDir, 'nativescript.config.ts'), 'utf8')
   const id = config.match(/id: '([^']+)'/)[1]
+
   assert.match(id, /^org\.octanexplat\.consumer\.t[a-f0-9]{12}$/)
   for (const c of f.calls.filter(
     (c) => c.args.includes('uninstall') || c.args.includes('force-stop'),
@@ -84,6 +88,7 @@ test('repeated runs reset only the disposable identity and stop it', (t) => {
 
 test('assertion failure still stops the owned app and returns non-success', (t) => {
   const f = fixture(t, { testStatus: 1 })
+
   assert.throws(() => verifyAndroidTests(f), /ns test android exited 1/)
   assert.ok(f.calls.some((c) => c.args.includes('force-stop')))
 })

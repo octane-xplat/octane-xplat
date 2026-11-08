@@ -25,10 +25,13 @@ function declarationFences(markdown) {
       if (markdown.lastIndexOf('**Examples**', offset) > markdown.lastIndexOf('\n##', offset)) {
         return _match
       }
+
       // Re-exporting a function as default gives it a reserved name in exports-md.
       code = code.replace(/^export default function default(?=[<(])/gm, 'export default function ')
+
       const ast = ts.createSourceFile('signature.ts', code, ts.ScriptTarget.Latest, true)
       const edits = []
+
       for (const node of ast.statements) {
         if (
           !ts.isVariableStatement(node) ||
@@ -50,9 +53,11 @@ function declarationFences(markdown) {
           text: exported ? ' declare' : 'declare ',
         })
       }
+
       for (const edit of edits.reverse()) {
         code = code.slice(0, edit.at) + edit.text + code.slice(edit.at)
       }
+
       return `\`\`\`${language}\n${code}\`\`\``
     },
   )
@@ -67,6 +72,7 @@ export async function packageMarkdown(manifestPath) {
   const untyped = new Set()
   const wildcards = []
   const sdkAliases = []
+
   try {
     cpSync(source, staging, {
       recursive: true,
@@ -74,6 +80,7 @@ export async function packageMarkdown(manifestPath) {
         if (['node_modules', '.git', '.turbo', 'platforms'].includes(basename(path))) {
           return false
         }
+
         return !/\.[^/]+$/.test(basename(path)) || /\.(?:[cm]?tsx?|tsrx|json)$/.test(path)
       },
     })
@@ -101,11 +108,13 @@ export async function packageMarkdown(manifestPath) {
       if (typeof value === 'string') {
         if (/\.[cm]?js$/.test(value)) {
           const declaration = value.replace(/\.([cm]?)js$/, '.d.$1ts')
+
           if (globSync(declaration, { cwd: source }).length) {
             return value
           }
 
           const candidate = value.replace(/^\.\/dist\//, './src/').replace(/\.[cm]?js$/, '.ts')
+
           if (globSync(candidate, { cwd: source }).length) {
             return target(candidate, entry)
           }
@@ -128,9 +137,11 @@ export async function packageMarkdown(manifestPath) {
 
         return value
       }
+
       if (Array.isArray(value)) {
         return value.map((v) => target(v, entry)).filter(Boolean)
       }
+
       if (value && typeof value === 'object') {
         if ('types' in value) {
           return { types: target(value.types, entry) }
@@ -142,6 +153,7 @@ export async function packageMarkdown(manifestPath) {
             .filter(([, v]) => v !== undefined),
         )
       }
+
       return value
     }
 
@@ -156,9 +168,11 @@ export async function packageMarkdown(manifestPath) {
               sdkAliases.push(entry)
               return false
             }
+
             if (!entry.includes('*')) {
               return true
             }
+
             wildcards.push(entry)
             return false
           })
@@ -183,6 +197,7 @@ export async function packageMarkdown(manifestPath) {
         ts.findConfigFile(source, ts.sys.fileExists) ?? resolve(source, '../../tsconfig.base.json')
 
       const config = ts.readConfigFile(configPath, ts.sys.readFile)
+
       if (config.error) {
         throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, '\n'))
       }
@@ -203,18 +218,25 @@ export async function packageMarkdown(manifestPath) {
 
       const emitted = program.emit(undefined, (file, contents, _bom, _error, sourceFiles) => {
         const original = sourceFiles?.[0]?.fileName
+
         if (!original) {
           return
         }
+
         const rel = relative(source, original)
+
         if (rel.startsWith('..')) {
           return
         }
+
         const destination = join(staging, rel.replace(/\.(?:([cm]?)ts|tsx)$/, '.d.$1ts'))
+
         mkdirSync(dirname(destination), { recursive: true })
         writeFileSync(destination, contents)
+
         // Let relative re-exports resolve to declarations instead of recompiling source.
         const copiedSource = join(staging, rel)
+
         if (copiedSource !== destination) {
           rmSync(copiedSource, { force: true })
         }
@@ -253,6 +275,7 @@ export async function packageMarkdown(manifestPath) {
         if (!ts.isVariableStatement(node)) {
           return [node]
         }
+
         return node.declarationList.declarations.map((declaration) =>
           ts.factory.updateVariableStatement(
             node,
@@ -269,6 +292,7 @@ export async function packageMarkdown(manifestPath) {
     }
 
     writeFileSync(join(staging, 'package.json'), JSON.stringify(manifest))
+
     // All code entries may be executable JavaScript workers. Their existence
     // was checked above; list them without inventing declarations or importing
     // code. Any explicit type target or remaining code export still uses the
@@ -315,11 +339,13 @@ export async function packageMarkdown(manifestPath) {
 // without changing the package's own module-resolution links or process cwd.
 function compilerContext(staging) {
   const cwd = join(staging, '.compiler')
+
   mkdirSync(join(cwd, 'node_modules'), { recursive: true })
   symlinkSync(
     dirname(fileURLToPath(import.meta.resolve('typescript-classic/package.json'))),
     join(cwd, 'node_modules/typescript'),
     'junction',
   )
+
   return cwd
 }

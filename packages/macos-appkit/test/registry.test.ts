@@ -6,6 +6,7 @@ import { createRegistry } from '../src/registry.ts'
 // node factories, native classes or runtime bridges have been constructed.
 test('registry queries track plugin registrations independently of node construction', () => {
   const registry = createRegistry()
+
   assert.throws(() => registry.assertSupportedType('label'), /label/)
   registry.adapters.register('label', { container: false, hasView: true, create() {} })
   assert.doesNotThrow(() => registry.assertSupportedType('label'))
@@ -24,6 +25,7 @@ test('registry queries track plugin registrations independently of node construc
     create() {},
     layout() {},
   })
+
   assert.doesNotThrow(() => registry.assertSupportedType('plugin-host'))
   assert.equal(registry.canContainView('plugin-host'), true)
   assert.equal(
@@ -45,6 +47,7 @@ test('registry queries track plugin registrations independently of node construc
 test('independent registries do not share plugin registrations', () => {
   const first = createRegistry(),
     second = createRegistry()
+
   first.adapters.register('plugin-host', { container: true, hasView: true, create() {} })
   assert.throws(() => second.assertSupportedType('plugin-host'), /plugin-host/)
   assert.equal(second.canContainView('plugin-host'), false)

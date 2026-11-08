@@ -14,6 +14,7 @@ async function reset(url = '/', account: { id: string } | null = null) {
   }
 
   const result = await example.router.navigateUrl(url, { replace: true })
+
   ready = true
   return result.status
 }

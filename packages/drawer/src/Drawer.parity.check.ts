@@ -29,6 +29,7 @@ export const CHECKS: ParityCheck[] = [
       const main = m('main')
       const backdrop = m('backdrop')
       const panel = m('panel')
+
       return [
         dims(root, 320, 48),
         dims(main, 320, 48),

@@ -9,7 +9,9 @@ const host = (): any => (globalThis as any).__xplatAppKit ?? {}
 /** A native noneditable NSPopUpButton with stable string selection IDs. */
 export function AppKitPicker(props: AppKitPickerProps): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const [, rerender] = useState(0)
   const owner = useMemo(
     () =>

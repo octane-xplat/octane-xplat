@@ -469,7 +469,9 @@ export function rendererSource(): string {
   if (cached !== undefined) {
     return cached
   }
+
   const modules = new Map<string, Map<string, string>>()
+
   for (const [module] of declarations) {
     if (modules.has(module)) {
       continue
@@ -487,6 +489,7 @@ export function rendererSource(): string {
       ) {
         return [statement.declaration]
       }
+
       if (
         module === 'runtime' &&
         statement.type === 'FunctionDeclaration' &&
@@ -494,6 +497,7 @@ export function rendererSource(): string {
       ) {
         return [statement]
       }
+
       return []
     })[0]
 
@@ -530,10 +534,12 @@ export function rendererSource(): string {
       }
 
       let key: string
+
       if (statement.type === 'FunctionDeclaration' || statement.type === 'ClassDeclaration') {
         key = statement.id!.name
       } else if (statement.type === 'VariableDeclaration') {
         const binding = statement.declarations[0].id
+
         key = binding.type === 'Identifier' ? binding.name : 'round'
       } else if (
         module === 'runtime' &&
@@ -637,6 +643,7 @@ export function rendererSource(): string {
 
     modules.set(module, found)
   }
+
   cached = declarations
     .flatMap(([module, symbol]) => {
       let text = modules.get(module)?.get(symbol)
@@ -650,9 +657,11 @@ export function rendererSource(): string {
         accessibilityRoles: 'const accessibilityRoles = new Map()',
         stackAccessibilityPropsByView: 'const stackAccessibilityPropsByView = new WeakMap()',
       }
+
       if (!text) {
         text = legacyDeclarations[symbol]
       }
+
       if (symbol === 'invokeAction') {
         text = 'function invokeAction(id) { actionHandlers.get(id)?.() }'
       }
@@ -661,5 +670,6 @@ export function rendererSource(): string {
       return text === undefined ? [] : [text]
     })
     .join('\n')
+
   return cached
 }

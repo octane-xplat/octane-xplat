@@ -7,6 +7,7 @@ export function __PortalTabItem(props: any) {
   const [target, setTarget] = useState<any>(null)
   const onTarget = useCallback((host: any) => setTarget(host), [])
   const { children, ...attributes } = props
+
   return (
     <>
       <tabviewitem {...attributes} __portalContent={true} __onContentTarget={onTarget} />
@@ -37,6 +38,7 @@ function CellPortal(props: {
   render: (item: any, index: number) => any
 }) {
   const cell = props.cell
+
   // Generations reject stale release callbacks; the physical cell retains
   // its content identity when a same-count update changes the bound item.
   return createPortal(
@@ -53,6 +55,7 @@ export function __PortalList(props: any) {
   const onTarget = useCallback((event: CellBinding & { type: 'bind' | 'release' }) => {
     setCells((current) => {
       const existing = current.find((cell) => cell.id === event.id)
+
       if (event.type === 'release') {
         return existing?.generation === event.generation
           ? current.filter((cell) => cell.id !== event.id)

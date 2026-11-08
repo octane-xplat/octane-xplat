@@ -19,9 +19,13 @@ export function MaterialDialog(props: MaterialDialogProps): unknown @{
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
   const open = props.open ?? internal
   const onClose = useRef(props.onClose)
+
   onClose.current = props.onClose
+
   const controlled = useRef(props.open !== undefined)
+
   controlled.current = props.open !== undefined
+
   const closed = (result?: unknown) => {
     if (!controlled.current) {
       setInternal(false)
@@ -49,6 +53,7 @@ export function MaterialDialog(props: MaterialDialogProps): unknown @{
   useEffect(() => {
     if (open && !shown.current) {
       const presenter = modalPresenter(Frame.topmost())
+
       if (!presenter) {
         // Dropped, not deferred: the effect only re-runs when props
         // change, so warn loudly instead of silently swallowing open.
@@ -82,6 +87,7 @@ export function MaterialDialog(props: MaterialDialogProps): unknown @{
       })
     } else if (!open && shown.current) {
       const instance = shown.current
+
       try {
         instance.host.closeModal()
       } catch {
@@ -93,6 +99,7 @@ export function MaterialDialog(props: MaterialDialogProps): unknown @{
   useEffect(
     () => () => {
       const instance = shown.current
+
       if (!instance) {
         return
       }

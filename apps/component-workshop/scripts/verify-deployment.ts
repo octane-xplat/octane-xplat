@@ -19,36 +19,48 @@ function publishedBuild(value: unknown): PublishedWorkshopBuild {
   ) {
     throw new Error('Invalid published Workshop build metadata')
   }
+
   return { revision: value.revision, components: value.components }
 }
 
 const [address, revision] = process.argv.slice(2)
+
 if (!address || !revision) {
   throw new Error('Usage: verify-deployment.ts WORKSHOP_URL EXPECTED_GIT_REVISION')
 }
 
 const url = new URL(address)
+
 if (url.username || url.password || !['http:', 'https:'].includes(url.protocol)) {
   throw new Error('Expected a public HTTP(S) Workshop URL')
 }
 
 const manifestResponse = await fetch(new URL('workshop-build.json', url))
+
 assert.equal(manifestResponse.status, 200)
 assert.match(manifestResponse.headers.get('content-type') ?? '', /json/)
+
 const manifest = publishedBuild(await manifestResponse.json())
+
 assert.equal(manifest.revision, revision)
+
 const html = await (await fetch(url)).text()
 const script = /<script[^>]+src="([^"]+)"/.exec(html)?.[1]
+
 assert.ok(script, 'Workshop HTML has no entry script')
+
 const scriptResponse = await fetch(new URL(script, url))
+
 assert.equal(scriptResponse.status, 200)
 assert.match(scriptResponse.headers.get('content-type') ?? '', /javascript/)
 await scriptResponse.body?.cancel()
 
 const browser = await chromium.launch({ headless: true })
+
 try {
   const page = await browser.newPage()
   const errors: string[] = []
+
   page.on('pageerror', (error) => errors.push(error.message))
   page.on('response', (response) => {
     if (response.status() >= 400 && new URL(response.url()).origin === url.origin) {
@@ -66,12 +78,17 @@ try {
   )
 
   const count = await page.locator('iframe').count()
+
   assert.ok(count > 0 && count <= 8)
+
   const components = page.getByRole('tab', { name: 'Components', exact: true })
   const primitives = page.getByRole('tab', { name: 'Primitives', exact: true })
+
   assert.equal(await components.getAttribute('aria-selected'), 'true')
   await primitives.click()
+
   const search = page.getByRole('searchbox')
+
   await search.fill('VStack')
   assert.equal(await page.locator('section:visible').count(), 1)
   await components.click()

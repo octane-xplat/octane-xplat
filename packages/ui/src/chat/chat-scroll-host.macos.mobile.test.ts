@@ -1,22 +1,26 @@
 import { expect, it, vi } from 'vitest'
 import { chatHost } from './chat-scroll-host.macos'
+
 it('falls back to the native clip when its animator proxy cannot scroll', () => {
   const clip: any = {
     bounds: { origin: { x: 0, y: 0 }, size: { width: 400, height: 300 } },
     animator: () => ({}),
     scrollToPoint: vi.fn(),
   }
+
   const host = {
     contentView: clip,
     documentView: { frame: { size: { width: 400, height: 1000 } }, flipped: false },
     reflectScrolledClipView: vi.fn(),
   }
+
   chatHost.scroll(host).scrollToVerticalOffset(200, true)
   expect(clip.scrollToPoint).toHaveBeenCalledWith({ x: 0, y: 500 })
 })
 
 it('separates unflipped range drift from manual clip movement and releases notification ownership', () => {
   const callbacks = new Set<() => void>()
+
   vi.stubGlobal('NSNotificationCenter', {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(
@@ -33,17 +37,21 @@ it('separates unflipped range drift from manual clip movement and releases notif
       },
     },
   })
+
   const clip: any = {
     bounds: { origin: { x: 0, y: 200 }, size: { width: 400, height: 300 } },
     postsBoundsChangedNotifications: false,
   }
+
   const host: any = {
     contentView: clip,
     documentView: { frame: { size: { width: 400, height: 1000 } }, flipped: false },
   }
+
   const scroll = chatHost.scroll(host),
     first = vi.fn(),
     second = vi.fn()
+
   try {
     scroll.on('scroll', first)
     scroll.on('scroll', second)

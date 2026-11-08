@@ -30,7 +30,9 @@ export default function Placeholder() {
       ref={refs}
       onCreatingView={(event: any) => {
         creatingViewEvents.push(event)
+
         const field = NSTextField.labelWithString('slot-' + key + '-' + ++counter)
+
         assignedViews.push(field)
         event.view = field
       }}

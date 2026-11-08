@@ -4,6 +4,7 @@ import type { LinkProviderProps } from '../../props'
 import { LinkContext } from './link-context'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 /** Bare Context objects aren't valid JSX element types under the shared
  *  typings (same workaround as ThemeProviderEl in theme/Theme.tsrx). */
 const LinkProviderEl: any = LinkContext

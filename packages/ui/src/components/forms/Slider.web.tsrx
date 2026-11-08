@@ -72,6 +72,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
     }
 
     const clamped = Math.min(max, Math.max(min, snap(next)))
+
     if (clamped !== hi) {
       emit(clamped)
     }
@@ -87,6 +88,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
     const current = hi
     const delta = step > 0 ? step : (max - min) / 100
     let next: number | undefined
+
     switch (event.key) {
       case 'ArrowRight':
       case 'ArrowUp':
@@ -112,6 +114,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
 
   useEffect(() => {
     const node = host.current
+
     if (!node) {
       return
     }
@@ -133,6 +136,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
       const frac = width > 0 ? origin.current / width : 0
       const at = min + frac * (max - min)
       const which = isRange && Math.abs(at - lo) <= Math.abs(at - hi) ? 'lo' : 'hi'
+
       drag.current = { lo0: lo, hi0: hi, which }
       return
     }
@@ -144,6 +148,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
     if (e.state === 'moved') {
       const base = drag.current.which === 'lo' ? drag.current.lo0 : drag.current.hi0
       const next = base + (e.dx / width) * (max - min)
+
       move(drag.current.which, next)
     } else {
       drag.current = null

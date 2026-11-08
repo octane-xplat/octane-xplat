@@ -5,6 +5,7 @@ export function followHref(href: string): void {
   if (!href) {
     return
   }
+
   if (
     defaultRouterRuntime.configured.getSnapshot() &&
     router.resolveUrl(href).status === 'matched'
@@ -12,5 +13,6 @@ export function followHref(href: string): void {
     void router.navigateUrl(href)
     return
   }
+
   window.location.href = href
 }

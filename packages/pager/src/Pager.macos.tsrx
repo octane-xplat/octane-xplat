@@ -16,7 +16,9 @@ export function Pager(props: PagerProps): unknown @{
     attached = useRef(false)
 
   const live = useRef({ props, direction })
+
   live.current = { props, direction }
+
   const [size, setSize] = useState({ width: 0, height: 0, page: 0 }),
     previous = useRef(size),
     [, rerender] = useState(0)
@@ -81,6 +83,7 @@ export function Pager(props: PagerProps): unknown @{
             value = workspace?.accessibilityDisplayShouldReduceMotion
 
           const reduced = Boolean(typeof value === 'function' ? value.call(workspace) : value)
+
           area.current?.scrollToOffset({ inline }, { animated: animated && !reduced })
         },
         report: (page) => {
@@ -107,13 +110,16 @@ export function Pager(props: PagerProps): unknown @{
     measuring.current = true
     try {
       events.validate()
+
       const geometry = frame()
+
       control.synchronize()
       if (!area.current || !geometry) {
         return
       }
 
       const next = { width: geometry.width, height: geometry.height, page: control.selected() }
+
       if (
         next.width !== previous.current.width ||
         next.height !== previous.current.height ||
@@ -130,7 +136,9 @@ export function Pager(props: PagerProps): unknown @{
   }
 
   const latestMeasure = useRef(measure)
+
   latestMeasure.current = measure
+
   const events = useMemo(
     () =>
       createAppKitPagerEvents({
@@ -144,6 +152,7 @@ export function Pager(props: PagerProps): unknown @{
 
   beforeWrite.current = events.cancel
   userBusy.current = events.busy
+
   const queueMeasure = () => {
     if (!queued.current) {
       queued.current = true
@@ -163,7 +172,9 @@ export function Pager(props: PagerProps): unknown @{
 
     area.current = handle
     attached.current = !!handle
+
     const view = viewport()
+
     if (view) {
       view.hasHorizontalScroller = false
       view.hasVerticalScroller = false

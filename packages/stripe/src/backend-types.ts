@@ -1,4 +1,5 @@
 import type { InitStripeParams, PaymentSheetSetupParams, PresentPaymentSheetResult } from './types'
+
 export interface StripeBackend {
   available(): boolean
   initialize(options: InitStripeParams): Promise<void>

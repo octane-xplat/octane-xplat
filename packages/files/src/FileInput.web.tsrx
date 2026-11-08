@@ -41,12 +41,14 @@ function FileInputControl(inputProps: FileInputProps) @{
   const minted = useRef(new Set<string>())
   const mintRef = (file: any): FileInputFile => {
     const uri = URL.createObjectURL(file)
+
     minted.current.add(uri)
     return { name: file.name, uri, size: file.size, mimeType: file.type, file }
   }
 
   const releaseDropped = (next: FileInputFile[], candidates: FileInputFile[]) => {
     const keep = new Set(next.map((file) => file.uri))
+
     for (const file of candidates) {
       if (file.uri && minted.current.has(file.uri) && !keep.has(file.uri)) {
         minted.current.delete(file.uri)
@@ -73,6 +75,7 @@ function FileInputControl(inputProps: FileInputProps) @{
 
   const fireChange = (next: FileInputFile[]) => {
     const emitted = emitValue(next)
+
     props.onChange?.(emitted)
     if (props.changeAction) {
       setBusy(true)
@@ -97,7 +100,9 @@ function FileInputControl(inputProps: FileInputProps) @{
     })
 
     setValidationErrors(errors)
+
     const next = !props.isMultiple && errors.length ? files : valid
+
     releaseDropped(next, [...files, ...picked])
     if (
       next.length !== files.length ||
@@ -113,7 +118,9 @@ function FileInputControl(inputProps: FileInputProps) @{
     }
 
     setValidationErrors([])
+
     const next = files.filter((_, i) => i !== index)
+
     releaseDropped(next, files)
     fireChange(next)
   }
@@ -138,6 +145,7 @@ function FileInputControl(inputProps: FileInputProps) @{
   const handleFileSelect = (e: any) => {
     const list = e.target.files as any
     const picked: FileInputFile[] = []
+
     if (list) {
       for (let i = 0; i < list.length; i++) {
         picked.push(mintRef(list[i]))
@@ -157,11 +165,13 @@ function FileInputControl(inputProps: FileInputProps) @{
     }
 
     const list = e.dataTransfer?.files
+
     if (!list?.length) {
       return
     }
 
     const picked: FileInputFile[] = []
+
     for (let i = 0; i < list.length; i++) {
       picked.push(mintRef(list[i]))
     }
@@ -331,6 +341,7 @@ export function FileInput(props: FileInputProps): JSX.Element @{
   const { inField } = useFieldControl(props)
   const cid = useId()
   const control = <FileInputControl {...props} />
+
   if (inField) {
     return control
   }

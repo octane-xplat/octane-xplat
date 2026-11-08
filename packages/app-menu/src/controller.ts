@@ -18,10 +18,13 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
 
   function flushDeferred(): void {
     deferredScheduled = false
+
     const op = deferred
+
     deferred = null
     if (op === 'dispose') {
       const native = retired
+
       retired = null
       native?.dispose()
     } else if (op === 'update') {
@@ -33,6 +36,7 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
     if (kind === 'dispose' || deferred !== 'dispose') {
       deferred = kind
     }
+
     if (!deferredScheduled) {
       deferredScheduled = true
       host.defer(flushDeferred)
@@ -41,17 +45,22 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
 
   const dispatch: AppMenuDispatch = (id, gen) => {
     const current = slot
+
     if (!current || gen !== current.tree.generation) {
       return false
     }
+
     const node = current.tree.nodes.get(id)
+
     if (!node) {
       return false
     }
+
     if (node.kind === 'role') {
       // Host-handled — current is all the host needs to know.
       return true
     }
+
     dispatching++
     try {
       if (node.kind === 'action') {
@@ -64,6 +73,7 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
     } finally {
       dispatching--
     }
+
     return true
   }
 
@@ -86,15 +96,18 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
       if (!readSupported()) {
         throw new UnavailabilityError('appMenu')
       }
+
       // A deferred teardown/update is a pending native write — settle it
       // before claiming the slot.
       flushDeferred()
       if (slot) {
         throw new Error('An app menu is already installed; update or dispose it first')
       }
+
       const tree = normalizeAppMenu(menus, options, host.platform, ++generation)
       // host.install throwing leaves the slot free for the next attempt.
       const native = host.install(tree, dispatch)
+
       slot = { native, tree }
 
       let disposed = false
@@ -106,7 +119,9 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
           if (disposed) {
             throw new Error('App menu is disposed')
           }
+
           const next = normalizeAppMenu(nextMenus, nextOptions, host.platform, ++generation)
+
           // Logical swap is immediate — old-tree callbacks die on the
           // generation check; the native rebuild may defer.
           slot!.tree = next
@@ -120,8 +135,11 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
           if (disposed) {
             return
           }
+
           disposed = true
+
           const native = slot!.native
+
           slot = null
           if (dispatching > 0) {
             retired = native
@@ -131,6 +149,7 @@ export function createAppMenuService(host: AppMenuHost): AppMenuService {
           }
         },
       }
+
       return handle
     },
   }

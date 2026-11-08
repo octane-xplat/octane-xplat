@@ -44,12 +44,14 @@ export function HoverCard(props: HoverCardProps): JSX.Element @{
     }
 
     const el = wrapper.current?.firstElementChild as HTMLElement | null
+
     card.ref(el)
     if (!el || !props.label) {
       return
     }
 
     const prevHaspopup = el.getAttribute('aria-haspopup')
+
     el.setAttribute('aria-haspopup', 'dialog')
     if (card.isOpen) {
       el.setAttribute('aria-controls', card.id)

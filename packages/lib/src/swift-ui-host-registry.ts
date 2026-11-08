@@ -26,6 +26,7 @@ function getRegistry(): SwiftUIHostRegistry {
   const resolve = (id: string): SwiftUIHostHandler | undefined => {
     let match = ''
     let handler: SwiftUIHostHandler | undefined
+
     for (const [key, candidate] of handlers) {
       if ((id === key || id.startsWith(`${key}-`)) && key.length > match.length) {
         match = key

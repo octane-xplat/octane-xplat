@@ -25,6 +25,7 @@ export async function inspectMovie(
   const read = async () => {
     const video = await input.getPrimaryVideoTrack()
     const audio = await input.getPrimaryAudioTrack()
+
     if (!video) {
       throw new CameraCaptureError({
         kind: 'noMedia',
@@ -38,6 +39,7 @@ export async function inspectMovie(
     const durationMs = (await input.computeDuration()) * 1000
     const width = await video.getDisplayWidth()
     const height = await video.getDisplayHeight()
+
     if (
       !Number.isFinite(durationMs) ||
       durationMs <= 0 ||
@@ -71,6 +73,7 @@ export async function inspectMovie(
   }
 
   let timer: ReturnType<typeof setTimeout> | undefined
+
   try {
     return await Promise.race([
       read(),

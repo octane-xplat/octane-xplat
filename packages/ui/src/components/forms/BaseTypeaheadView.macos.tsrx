@@ -38,7 +38,9 @@ export function BaseTypeaheadView<T extends SearchableItem>(
       : -1
 
   const live = useRef(props)
+
   live.current = props
+
   const rows = useRef(new Map<string, { view: NSView }>())
   const list = useRef<NSView | null>(null),
     shell = useRef<NSView | null>(null)
@@ -82,8 +84,10 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
   useLayoutEffect(() => accessibility.update(), null)
   useEffect(() => () => accessibility.dispose(), [])
+
   const bindRow = (id: string) => {
     let lease: { view: NSView } | undefined
+
     return (view: NSView | null) => {
       if (view) {
         lease = { view }
@@ -102,6 +106,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
         input: () => live.current.inputRef.current,
         state: () => {
           const p = live.current
+
           return {
             open: p.open,
             blocked: !!p.isDisabled || !!p.isReadOnly,
@@ -122,6 +127,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
 
   const resultsReady = useCallback(() => {
     accessibility.update()
+
     const current = live.current,
       item = current.results[current.highlightedIndex]
 
@@ -226,6 +232,7 @@ export function BaseTypeaheadView<T extends SearchableItem>(
           @for (const item of group.items; index gi; key item.id + '-' + gi) {
             const index = props.results.indexOf(item)
             const isSelected = item.id === selectedId && selectedId != null
+
             <masonview
               ref={bindRow(item.id)}
               className={cx(

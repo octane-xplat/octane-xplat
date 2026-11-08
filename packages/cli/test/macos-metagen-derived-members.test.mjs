@@ -42,19 +42,24 @@ test(
     if (!existsSync(generator)) {
       return t.skip('prebuilt objc-metadata-generator is not installed')
     }
+
     // The generator links the Command Line Tools libclang at runtime.
     const check = spawnSync(generator, ['--xplat-check'], { encoding: 'utf8' })
+
     if (check.status !== 0) {
       return t.skip(`generator self-check failed: ${check.stderr.trim()}`)
     }
+
     const sdk = spawnSync('xcrun', ['--sdk', 'macosx', '--show-sdk-path'], {
       encoding: 'utf8',
     })
+
     if (sdk.status !== 0) {
       return t.skip('no macOS SDK available for the generator run')
     }
 
     const dir = mkdtempSync(join(tmpdir(), 'xplat-metagen-derived-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
 
     const result = spawnSync(
@@ -76,6 +81,7 @@ test(
       ],
       { encoding: 'utf8', timeout: 60_000 },
     )
+
     assert.equal(
       result.status,
       0,
@@ -92,11 +98,13 @@ test(
       kind: 'method',
       selector: 'scrollThing:',
     })
+
     assert.deepEqual(byName('MiniRoot').plainCount, {
       jsName: 'plainCount',
       kind: 'method',
       selector: 'plainCount',
     })
+
     // The mid-chain redeclaration stays a method (the phantom used to
     // cascade through it into MiniRoot).
     assert.deepEqual(byName('MiniMid').scrollThing, {
@@ -104,6 +112,7 @@ test(
       kind: 'method',
       selector: 'scrollThing:',
     })
+
     // The descendant's own declared property still emits as a property
     // with its custom accessors.
     assert.deepEqual(byName('MiniLeaf').scrollThing, {
@@ -112,6 +121,7 @@ test(
       selector: 'isThingOn',
       setterSelector: 'makeThingOn:',
     })
+
     assert.equal(byName('MiniLeaf').plainCount?.kind, 'property')
     // Unrelated subclasses of the same root are untouched.
     assert.equal(byName('MiniUnrelated').scrollThing, undefined)
@@ -123,6 +133,7 @@ test(
       kind: 'method',
       selector: 'sharedThing',
     })
+
     // The refined protocol's own declaration and the implementing
     // class's declaration remain properties.
     assert.equal(byName('MiniRefinedProto').sharedThing?.kind, 'property')

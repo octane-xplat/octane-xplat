@@ -46,6 +46,7 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
   // scroll-shadow callback — consumers typically pass fresh array literals
   // each render, so array identity must not enter any memo deps.
   const stateRef = useRef({ start, end, hasStart, hasEnd })
+
   stateRef.current = { start, end, hasStart, hasEnd }
 
   // Scroll-aware shadows: toggle CSS variables on the scroll container so
@@ -66,6 +67,7 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
       // scrollLeft under RTL, so Math.abs collapses both conventions to a
       // distance-from-inline-start. No-op under LTR.
       const pos = Math.abs(el.scrollLeft)
+
       if (hs) {
         el.style.setProperty(SHADOW_VAR_START, hasOverflow && pos > 1 ? '1' : '0')
       }
@@ -76,7 +78,9 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
     }
 
     el.addEventListener('scroll', update, { passive: true })
+
     const resizeObserver = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(update) : null
+
     resizeObserver?.observe(el)
     update()
     detachRef.current = () => {
@@ -92,6 +96,7 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
     ): HeaderCellRenderProps {
       const { start: s, end: e } = stateRef.current
       const side = resolveStickySide(props.columns as any, column.key, s, e)
+
       if (!side) {
         return props
       }
@@ -119,6 +124,7 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
     transformBodyCell(props: BodyCellRenderProps, column: TableColumn<T>): BodyCellRenderProps {
       const { start: s, end: e } = stateRef.current
       const side = resolveStickySide(props.columns as any, column.key, s, e)
+
       if (!side) {
         return props
       }

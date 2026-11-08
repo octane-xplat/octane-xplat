@@ -23,8 +23,10 @@ function PinInputControl(props: PinInputProps) @{
   const value = controlled ? props.value! : internal
   const handles = useRef<(TextInputHandle | null)[]>([])
   const pendingFocus = useRef<number | null>(null)
+
   useEffect(() => {
     const next = pendingFocus.current
+
     if (next !== null && next <= value.length) {
       pendingFocus.current = null
       handles.current[next]?.focus()
@@ -33,6 +35,7 @@ function PinInputControl(props: PinInputProps) @{
 
   const setValue = (next: string) => {
     const clipped = next.slice(0, length)
+
     if (!controlled) {
       setInternal(clipped)
     }
@@ -59,6 +62,7 @@ function PinInputControl(props: PinInputProps) @{
     setValue(next)
     if (pendingFocus.current !== null && pendingFocus.current <= value.length) {
       const index = pendingFocus.current
+
       pendingFocus.current = null
       handles.current[index]?.focus()
     }

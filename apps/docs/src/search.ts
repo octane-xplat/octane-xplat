@@ -80,6 +80,7 @@ function indexDoc(doc: DocPage): DocIndex {
 
   const flush = () => {
     const text = parts.join(' ').replace(/\s+/g, ' ').trim()
+
     if (text) {
       sections.push({ heading, anchor, text, lower: text.toLowerCase() })
     }
@@ -89,6 +90,7 @@ function indexDoc(doc: DocPage): DocIndex {
 
   const addSymbol = (name: string) => {
     const k = key(name)
+
     if (k.length < 2 || KEYWORDS.has(k) || symbols.has(k)) {
       return
     }
@@ -142,6 +144,7 @@ const index = () => (INDEX ??= DOCS.map(indexDoc))
 // Exact → prefix → substring (earlier is better) → all-terms → subsequence.
 function textScore(q: string, terms: string[], text: string): number | null {
   const t = text.toLowerCase()
+
   if (t === q) {
     return 1
   }
@@ -151,6 +154,7 @@ function textScore(q: string, terms: string[], text: string): number | null {
   }
 
   const at = t.indexOf(q)
+
   if (at !== -1) {
     return 0.7 - Math.min(at / t.length, 1) * 0.1
   }
@@ -171,8 +175,10 @@ function fuzzy(needle: string, hay: string): number | null {
   let i = 0
   let start = -1
   let end = 0
+
   for (const ch of needle) {
     const j = hay.indexOf(ch, i)
+
     if (j === -1) {
       return null
     }
@@ -190,8 +196,10 @@ function fuzzy(needle: string, hay: string): number | null {
 
 function snippet(s: Section, terms: string[]): string {
   let at = s.lower.length
+
   for (const t of terms) {
     const i = s.lower.indexOf(t)
+
     if (i !== -1 && i < at) {
       at = i
     }
@@ -203,6 +211,7 @@ function snippet(s: Section, terms: string[]): string {
 
   const start = Math.max(0, at - 35)
   const end = Math.min(s.text.length, at + 85)
+
   return (
     (start > 0 ? '… ' : '') + s.text.slice(start, end).trim() + (end < s.text.length ? ' …' : '')
   )
@@ -213,6 +222,7 @@ const trail = (doc: DocPage, heading?: string) =>
 
 export function searchDocs(query: string): SearchHit[] {
   const q = query.trim().toLowerCase()
+
   if (!q) {
     return []
   }
@@ -252,6 +262,7 @@ export function searchDocs(query: string): SearchHit[] {
     }
 
     const ts = textScore(q, terms, doc.title)
+
     if (ts !== null) {
       pages.push({
         kind: 'page',
@@ -264,6 +275,7 @@ export function searchDocs(query: string): SearchHit[] {
 
     for (const h of d.headings) {
       const sc = textScore(q, terms, h.text)
+
       if (sc !== null) {
         pages.push({
           kind: 'page',
@@ -277,8 +289,10 @@ export function searchDocs(query: string): SearchHit[] {
     }
 
     let best: { s: Section; score: number } | null = null
+
     for (const s of d.sections) {
       let sc: number | null = null
+
       if (s.lower.includes(q)) {
         sc = 0.6
       } else if (terms.length > 1 && terms.every((t) => s.lower.includes(t))) {
@@ -304,6 +318,7 @@ export function searchDocs(query: string): SearchHit[] {
   }
 
   const byScore = (a: SearchHit, b: SearchHit) => b.score - a.score
+
   api.sort(byScore)
   pages.sort(byScore)
   body.sort(byScore)

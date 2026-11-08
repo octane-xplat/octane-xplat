@@ -11,13 +11,16 @@ function normalizeTrack(token: string): string | null {
   }
 
   const fixed = /^(\d+(?:\.\d+)?|\.\d+)(?:px)?$/.exec(token)
+
   if (fixed) {
     return String(Number(fixed[1]))
   }
 
   const star = /^(\d+(?:\.\d+)?|\.\d+)?(?:\*|fr)$/.exec(token)
+
   if (star) {
     const weight = Number(star[1] || 1)
+
     // A zero share is a zero-length track — keep it fixed so boundary
     // values (a mark at 0%/100%) stay silent and zero-sized.
     return weight > 0 ? `${weight}*` : '0'
@@ -28,6 +31,7 @@ function normalizeTrack(token: string): string | null {
 
 function warnInvalid(axis: 'rows' | 'columns', token: string): void {
   const key = axis + ':' + token
+
   if (warned.has(key)) {
     return
   }
@@ -49,13 +53,16 @@ export function parseGridTrackList(
 ): string[] {
   const raw = typeof spec === 'string' ? spec.split(/[\s,]+/) : (spec ?? [])
   const tracks: string[] = []
+
   for (const entry of raw) {
     const token = String(entry).trim()
+
     if (!token) {
       continue
     }
 
     const normalized = normalizeTrack(token)
+
     if (normalized == null) {
       warnInvalid(axis, token)
       tracks.push('auto')
@@ -74,6 +81,7 @@ export function gridTrackListToCss(
   axis: 'rows' | 'columns',
 ): string | undefined {
   const tracks = parseGridTrackList(spec, axis)
+
   if (!tracks.length) {
     return undefined
   }

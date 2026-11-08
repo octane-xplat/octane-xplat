@@ -5,32 +5,40 @@ export function positiveInteger(value: number, name: string): number {
   if (!Number.isSafeInteger(value) || value <= 0) {
     throw new RangeError(`${name} must be a positive integer`)
   }
+
   return value
 }
 
 export function loadOptions(options: ImageLoadOptions = {}): ImageLoadOptions {
   const result = { ...options }
+
   if (result.maxWidth !== undefined) {
     positiveInteger(result.maxWidth, 'maxWidth')
   }
+
   if (result.maxHeight !== undefined) {
     positiveInteger(result.maxHeight, 'maxHeight')
   }
+
   return result
 }
 
 export function resizeOperation(size: ResizeOptions): Operation {
   const width = size.width ?? null
   const height = size.height ?? null
+
   if (width === null && height === null) {
     throw new RangeError('resize requires width or height')
   }
+
   if (width !== null) {
     positiveInteger(width, 'width')
   }
+
   if (height !== null) {
     positiveInteger(height, 'height')
   }
+
   return { kind: 'resize', width, height }
 }
 
@@ -60,6 +68,7 @@ export function outputSize(input: Size, operation: Operation): Size {
       }
     case 'rotate': {
       const radians = (operation.degrees * Math.PI) / 180
+
       // A tiny floating point residue at a quarter turn must not add a pixel.
       return {
         width: Math.max(
@@ -102,6 +111,7 @@ export function initialSize(input: Size, options: ImageLoadOptions): Size {
     (options.maxWidth ?? input.width) / input.width,
     (options.maxHeight ?? input.height) / input.height,
   )
+
   return {
     width: Math.max(1, Math.round(input.width * ratio)),
     height: Math.max(1, Math.round(input.height * ratio)),
@@ -110,15 +120,20 @@ export function initialSize(input: Size, options: ImageLoadOptions): Size {
 
 export function saveOptions(options: SaveOptions = {}): Required<SaveOptions> {
   const format = options.format ?? 'jpeg'
+
   if (format !== 'jpeg' && format !== 'png' && format !== 'webp') {
     throw new TypeError('Unknown image format')
   }
+
   const compress = options.compress ?? 1
+
   if (!Number.isFinite(compress) || compress < 0 || compress > 1) {
     throw new RangeError('compress must be between 0 and 1')
   }
+
   if (options.base64 !== undefined && typeof options.base64 !== 'boolean') {
     throw new TypeError('base64 must be a boolean')
   }
+
   return { format, compress, base64: options.base64 ?? false }
 }

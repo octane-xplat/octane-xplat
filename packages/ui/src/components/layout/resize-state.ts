@@ -47,6 +47,7 @@ export interface ResizableMachine {
 const warned = new Set<string>()
 function devWarn(what: string, msg: string) {
   const k = what + ':' + msg
+
   if (warned.has(k)) {
     return
   }
@@ -87,11 +88,13 @@ export function createResizableRegion(
 
   const resolvedMin = () => {
     const v = toPixels(cfg.minSize, basisValue ?? 0)
+
     return v ?? 0
   }
 
   const resolvedMax = () => {
     const v = toPixels(cfg.maxSize, basisValue ?? Infinity)
+
     return v ?? Infinity
   }
 
@@ -103,6 +106,7 @@ export function createResizableRegion(
     }
 
     const d = toPixels(cfg.defaultSize, basisValue ?? 0)
+
     return d ?? 0
   }
 
@@ -115,6 +119,7 @@ export function createResizableRegion(
 
   const recomputeSnapshot = () => {
     const size = isCollapsed() ? 0 : chosenSize
+
     if (snapshot.size !== size || snapshot.isCollapsed !== isCollapsed()) {
       snapshot = { size, isCollapsed: isCollapsed() }
     }
@@ -161,6 +166,7 @@ export function createResizableRegion(
 
   const expand = () => {
     const wasCollapsed = isCollapsed()
+
     setCollapsed(false)
     if (wasCollapsed) {
       cfg.onCollapseChange?.(false)
@@ -182,6 +188,7 @@ export function createResizableRegion(
 
     const clamped = clampSize(newSize, resolvedMin(), resolvedMax(), snaps())
     const wasCollapsed = isCollapsed()
+
     chosenSize = clamped
     setCollapsed(false)
     if (wasCollapsed) {
@@ -200,6 +207,7 @@ export function createResizableRegion(
   const onResizeMove = (delta: number) => {
     const raw = dragStartSize + delta
     const collapsedSize = cfg.collapsedSize ?? DEFAULT_COLLAPSED_SIZE
+
     if (cfg.collapsible && raw < collapsedSize) {
       if (!isCollapsed()) {
         setCollapsed(true)
@@ -217,6 +225,7 @@ export function createResizableRegion(
     }
 
     const clamped = clampSize(raw, resolvedMin(), resolvedMax(), snaps())
+
     chosenSize = clamped
     cfg.onSizeChange?.(clamped)
     notify()
@@ -285,6 +294,7 @@ export function createResizableRegion(
       } // frozen mid-gesture
 
       const next = basis.measure(containerRef, direction)
+
       if (next == null || next === basisValue) {
         return
       }

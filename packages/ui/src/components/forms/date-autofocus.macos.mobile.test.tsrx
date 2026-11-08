@@ -10,8 +10,10 @@ import {
 import { DateInput } from './DateInput.macos.tsrx'
 import { TimeInput } from './TimeInput.macos.tsrx'
 import { FormField } from './FormField.macos.tsrx'
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({ Popover: () => null }))
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(Control: any, extra: any = {}, inherited = false) {
   const observers = new Map<object, any>(),
     monitors = new Map<object, any>(),
@@ -21,6 +23,7 @@ function mount(Control: any, extra: any = {}, inherited = false) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name: string, _: any, __: any, callback: any) {
         const token = {}
+
         observers.set(token, { name, callback })
         return token
       },
@@ -33,6 +36,7 @@ function mount(Control: any, extra: any = {}, inherited = false) {
   vi.stubGlobal('NSEvent', {
     addLocalMonitorForEventsMatchingMaskHandler(_: number, callback: any) {
       const token = {}
+
       monitors.set(token, callback)
       return token
     },
@@ -74,6 +78,7 @@ function mount(Control: any, extra: any = {}, inherited = false) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -99,6 +104,7 @@ for (const [name, Control] of [
 ] as const) {
   it(`${name} waits for attachment, honors the live autofocus flag, focuses once and cleans native observation`, async () => {
     const f = mount(Control)
+
     try {
       await Promise.resolve()
       expect(f.calls).toEqual([])
@@ -122,14 +128,17 @@ for (const [name, Control] of [
   it(`${name} cancels delayed requests on user input, prop removal or teardown`, async () => {
     for (const reason of ['input', 'flag', 'unmount']) {
       const f = mount(Control)
+
       try {
         await Promise.resolve()
+
         const field = f.field(),
           callbacks = [...f.observers.values()]
 
         if (reason === 'input') {
           const event = { type: 10 }
           const monitor = [...f.monitors.values()][0]
+
           expect(monitor(event)).toBe(event)
         }
 
@@ -158,6 +167,7 @@ for (const [name, Control] of [
 
   it(`${name} does not rearm merely on inherited unblocking; an explicit new request uses current props`, async () => {
     const f = mount(Control, { isDisabled: true }, true)
+
     try {
       f.field().window = f.window
       f.notify()

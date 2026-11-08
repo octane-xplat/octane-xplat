@@ -52,6 +52,7 @@ export function createNodes(deps: Dependencies) {
     }
 
     const style = props?.style
+
     if (style != null) {
       if (typeof style !== 'object') {
         throw new Error('AppKit spike expects style to be an object')
@@ -82,7 +83,9 @@ export function createNodes(deps: Dependencies) {
     // actions — the node only reaches container.nodes after this returns, so
     // a throwing prop below must unwind whatever was already acquired.
     deps.registry.assertSupportedType(type)
+
     const adapter = deps.registry.adapters.lookup(type)
+
     validateNodeProps(type, props, undefined, adapter)
 
     const node: ElementNode = {
@@ -104,6 +107,7 @@ export function createNodes(deps: Dependencies) {
       computedStyle: undefined,
       computedCustomProps: new Map(),
     }
+
     node.getChildIndex = (child: ElementNode) => deps.cssCascade.cssChildren(node).indexOf(child)
     node.getChildAt = (i: number) => deps.cssCascade.cssChildren(node)[i]
     node.getChildrenCount = () => deps.cssCascade.cssChildren(node).length
@@ -126,6 +130,7 @@ export function createNodes(deps: Dependencies) {
 
       if (node.view) {
         const owner = deps.registry.nodeContainersByView.get(node.view)
+
         if (owner && owner !== container) {
           throw new Error('AppKit node view is already owned by another Octane root.')
         }
@@ -145,6 +150,7 @@ export function createNodes(deps: Dependencies) {
       // Release whatever the failed creation registered — action slots,
       // observers, WebView delegates — since no caller can destroy it.
       const failures = new FailureCollector()
+
       failures.run('construction', () => {
         throw error
       })
@@ -159,13 +165,16 @@ export function createNodes(deps: Dependencies) {
     if (node.lifecycle === 'disposing' || node.lifecycle === 'disposed') {
       return
     }
+
     node.lifecycle = 'disposing'
+
     const failures = new FailureCollector()
     const release = (phase: string, operation: () => void) => failures.run(phase, operation)
 
     // Feature dispatch checks lifecycle before entering user code. Retire every
     // stored hook before invoking any of them so reentrant destroy is inert.
     const hooks = [...(node.destroyHooks ?? [])]
+
     node.destroyHooks = undefined
     release('adapter retire', () => node.adapter?.retire?.(node))
     release('focus subscription', () => {
@@ -176,6 +185,7 @@ export function createNodes(deps: Dependencies) {
         deps.subscriptions.focusWithinDispatcher.set(node.view)
       }
     })
+
     release('keyboard subscription', () => {
       if (
         node.view &&
@@ -184,29 +194,37 @@ export function createNodes(deps: Dependencies) {
         deps.subscriptions.keyboardDispatcher.set(node.view)
       }
     })
+
     release('css dirty', () => node.container?.cssDirty?.delete(node))
     release('animations', () => deps.cssAnimations.cancelKeyframeAnimations(node))
     for (const [index, hook] of hooks.entries()) {
       release('destroy hook ' + index, hook)
     }
+
     release('adapter prepare', () => node.adapter?.prepareDispose?.(node))
     release('detach', () => deps.tree.detach(node.container, node))
     release('press gestures', () => disposePressGestures(node))
+
     const hover = node.cssHoverDispose
+
     node.cssHoverDispose = undefined
     release('hover', () => hover?.())
     release('visual state', () => setVisualStateTracking(node, null))
     release('adapter dispose', () => node.adapter?.dispose?.(node))
 
     const layoutObserver = node.layoutObserver
+
     node.layoutObserver = null
     release('layout observer', () => {
       if (layoutObserver) {
         NSNotificationCenter.defaultCenter.removeObserver(layoutObserver)
       }
     })
+
     release('box paint', () => deps.boxPaint.dispose(node))
+
     const observedView = node.layoutObservedView
+
     node.layoutObservedView = null
     release('layout identity', () => deps.layout.layoutHandlers.delete(observedView))
     release('accessibility', () => deps.accessibility.disposeAccessibility(node))
@@ -219,16 +237,19 @@ export function createNodes(deps: Dependencies) {
         deps.registry.nodeContainersByView.delete(node.view)
       }
     })
+
     release('css view identity', () => {
       if (node.view && deps.registry.cssNodesByView.get(node.view) === node) {
         deps.registry.cssNodesByView.delete(node.view)
       }
     })
+
     release('node identity', () => {
       if (node.container.nodes?.get(node.id) === node) {
         node.container.nodes.delete(node.id)
       }
     })
+
     node.lifecycle = 'disposed'
     failures.throwIfFailed()
   }

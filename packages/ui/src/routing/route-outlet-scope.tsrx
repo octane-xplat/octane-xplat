@@ -16,6 +16,7 @@ export function useRouteOutletScope(
   defaultClient: boolean
 } {
   const scope = useContext(RouterScopeContext)
+
   if (scope?.host) {
     if (stack !== undefined) {
       ;(scope.instance as RouterInstance<any, string>).forStack(stack)
@@ -33,6 +34,7 @@ export function useRouteOutletScope(
   }
 
   const flow = stack ?? 'root'
+
   if (!runtime.hasStack(flow)) {
     throw new Error(`Unknown router stack '${flow}'`)
   }

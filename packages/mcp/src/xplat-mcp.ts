@@ -29,6 +29,7 @@ authorization; visual-capture always needs an explicit per-task grant.
 
 const arg = (name: string): string | undefined => {
   const index = process.argv.indexOf(`--${name}`)
+
   return index >= 0 ? process.argv[index + 1] : undefined
 }
 
@@ -43,6 +44,7 @@ const permissionScopes = (arg('permissions') ?? process.env.XPLAT_MCP_PERMISSION
   .filter(Boolean)
 
 const unknown = permissionScopes.filter((s) => !PERMISSION_SCOPES.includes(s as PermissionScope))
+
 if (unknown.length) {
   process.stderr.write(`xplat-mcp: ignoring unknown permission scopes: ${unknown.join(', ')}\n`)
 }
@@ -81,6 +83,7 @@ const close = async () => {
     await shutdown()
   } catch (error) {
     const detail = error instanceof Error ? error.message : String(error)
+
     process.stderr.write(`xplat-mcp: shutdown cleanup failed: ${detail}\n`)
   } finally {
     await server.close()

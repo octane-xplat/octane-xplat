@@ -25,7 +25,9 @@ test('xplatLinuxGtk compiles the fixture app into a single ESM bundle', async ()
   })
 
   const bundle = join(outDir, 'app.js')
+
   assert.ok(existsSync(bundle), `expected bundle at ${bundle}`)
+
   const code = readFileSync(bundle, 'utf8')
 
   // GI imports stay external — the platform provides them at load time.
@@ -62,14 +64,18 @@ test('canonical routing selects GTK panes without NativeScript Frame or modal ho
     new URL('../../../docs/platform/linux-gtk.md', import.meta.url),
     'utf8',
   )
+
   const example = guide.split('## Add retained route panes')[1]?.match(/```tsx\n([\s\S]*?)```/)
+
   assert.ok(example, 'the public GTK pane example exists')
   assert.equal(
     example[1].trim(),
     readFileSync(join(fixture, 'src/routing.gtk.tsx'), 'utf8').trim(),
     'the maintained routing fixture executes the public example',
   )
+
   const modules = []
+
   await build({
     configFile: join(fixture, 'vite.routing.config.mjs'),
     logLevel: 'error',
@@ -82,7 +88,9 @@ test('canonical routing selects GTK panes without NativeScript Frame or modal ho
       },
     ],
   })
+
   const code = readFileSync(join(outDir, 'routing/app.js'), 'utf8')
+
   assert.match(code, /GTK_ROUTING_OK/)
   assert.match(code, /from\s+['"]gi:\/\/Gtk\?version=4\.0['"]/)
   assert.ok(modules.some((id) => id.includes('/default-router.gtk.ts')))
@@ -96,11 +104,13 @@ test('canonical routing selects GTK panes without NativeScript Frame or modal ho
     ),
     'GTK routing must not import the NativeScript client integration',
   )
+
   assert.doesNotMatch(code, /document\.createElement|window\.document/)
 }, 120000)
 
 test('the proxy ordering fixture builds and exercises real GTK when available', async (t) => {
   const proxyOut = join(fixture, 'dist', 'proxy-order')
+
   await build({
     logLevel: 'error',
     ...(await xplatLinuxGtk('production', {
@@ -109,9 +119,13 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
       outDir: proxyOut,
     })),
   })
+
   const bundle = join(proxyOut, 'app.js')
+
   assert.ok(existsSync(bundle), 'the real driver fixture was bundled')
+
   let gjsVersion
+
   try {
     gjsVersion = execFileSync('gjs', ['--version'], { encoding: 'utf8' }).trim()
   } catch (error) {
@@ -124,20 +138,27 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
   }
 
   const env = { ...process.env }
+
   if (process.platform === 'darwin') {
     const prefix = execFileSync('brew', ['--prefix'], { encoding: 'utf8' }).trim()
+
     env.DYLD_FALLBACK_LIBRARY_PATH = [join(prefix, 'lib'), env.DYLD_FALLBACK_LIBRARY_PATH]
       .filter(Boolean)
       .join(':')
   }
+
   const output = execFileSync('gjs', ['-m', bundle], {
     env,
     encoding: 'utf8',
     timeout: 15000,
   })
+
   const marker = output.split('\n').find((line) => line.startsWith('GTK_PROXY_ORDER '))
+
   assert.ok(marker, `native fixture result missing: ${output}`)
+
   const result = JSON.parse(marker.slice('GTK_PROXY_ORDER '.length))
+
   t.diagnostic(`${process.platform}; ${gjsVersion}; GTK ${result.gtk}; no window or input`)
   assert.deepEqual(result.initial, ['A', 'C'], 'setup mounted the surrounding native siblings')
   assert.deepEqual(result.proxyChild, ['B'], 'the logical proxy owns the inserted child')

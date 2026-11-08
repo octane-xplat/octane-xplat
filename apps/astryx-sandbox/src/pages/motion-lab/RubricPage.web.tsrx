@@ -275,6 +275,7 @@ function Verdict({ tone, label, text }: { tone: 'pass' | 'fail'; label: string; 
 
 function CriterionCard({ criterion }: { criterion: Criterion }) {
   const demo = demoFor(criterion.id)
+
   return (
     <DemoCard
       title={`${criterion.n}. ${criterion.title}`}

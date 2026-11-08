@@ -26,7 +26,9 @@ function fixture(
   }
 
   const controller = new Controller(clock)
+
   controller.seed({ x: 10, y: 20 })
+
   let callbacks: PanCallbacks
   const detach = vi.fn()
   const delegate = vi.fn()
@@ -45,6 +47,7 @@ function fixture(
   }
 
   controller.attach(adapter)
+
   const off = attachDrag(
     adapter,
     controller,
@@ -74,7 +77,9 @@ function fixture(
     },
     advance(ms: number) {
       time += ms
+
       const pending = [...frames.values()]
+
       frames.clear()
       pending.forEach((fn) => fn())
     },
@@ -113,6 +118,7 @@ describe('bounded drag', () => {
 
   it('uses default elasticity and springs back inside constraints without momentum', () => {
     const f = fixture({ drag: 'x', dragConstraints: { right: 30 }, dragMomentum: false })
+
     f.emit('start', 0)
     f.emit('move', 100)
     expect(f.controller.value('x').get()).toBe(58)
@@ -128,6 +134,7 @@ describe('bounded drag', () => {
 
   it('hands release velocity to a JS spring and bounds every hard-constraint sample', () => {
     const f = fixture({ drag: 'x', dragConstraints: { left: -20, right: 50 }, dragElastic: false })
+
     f.emit('start', 0)
     f.emit('move', 10)
     f.emit('end', 10, 500)
@@ -145,18 +152,23 @@ describe('bounded drag', () => {
 
   it('cancellation drops momentum; reduced motion snaps; teardown cancels settlement', () => {
     const cancel = fixture({ drag: true })
+
     cancel.emit('start', 0)
     cancel.emit('move', 20)
     cancel.emit('end', 20, 500, true)
     expect(cancel.count()).toBe(0)
     cancel.off()
+
     const reduced = fixture({ drag: 'x' }, true)
+
     reduced.emit('start', 0)
     reduced.emit('end', 10, 500)
     expect(reduced.controller.value('x').get()).toBe(120)
     expect(reduced.count()).toBe(0)
     reduced.off()
+
     const f = fixture({ drag: 'x' })
+
     f.emit('start', 0)
     f.emit('end', 10, 500)
     expect(f.count()).toBe(1)
@@ -181,7 +193,9 @@ it('rebases drag displacement and subsequent samples through layout shifts, then
     }),
     endDrag: vi.fn(),
   }
+
   const f = fixture({ drag: 'x', dragMomentum: false }, false, projection)
+
   f.emit('start', 0)
   f.emit('move', 20)
   expect(f.controller.value('x').get()).toBe(-20)
@@ -199,6 +213,7 @@ it('rebases drag displacement and subsequent samples through layout shifts, then
 it('releases the layout block when a live drag attachment is disposed', () => {
   const projection = { beginDrag: vi.fn(), endDrag: vi.fn() }
   const f = fixture({ drag: true }, false, projection)
+
   f.emit('start', 0)
   f.off()
   expect(projection.endDrag).toHaveBeenCalledOnce()

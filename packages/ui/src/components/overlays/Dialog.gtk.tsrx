@@ -85,6 +85,7 @@ export function Dialog(props: DialogProps): unknown @{
   const shown = useRef<any>(null)
   const [layer, setLayer] = useState<any>(null)
   const dismiss = useRef(requestChange)
+
   dismiss.current = requestChange
 
   useLayerDismissal({
@@ -102,6 +103,7 @@ export function Dialog(props: DialogProps): unknown @{
 
   useEffect(() => {
     const view = sentinel.current
+
     if (!view || !open || props.isInline) {
       return
     }

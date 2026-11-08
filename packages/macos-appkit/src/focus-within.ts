@@ -38,7 +38,9 @@ function focusedView(window: any): FocusView | null {
     typeof delegate?.currentEditor === 'function'
       ? delegate.currentEditor()
       : delegate?.currentEditor
+
   const target = delegate?.window === window && editor === raw ? delegate : raw
+
   return target?.window === window ? target : null
 }
 
@@ -48,6 +50,7 @@ function contains(root: FocusView, target: FocusView | null): boolean {
       return true
     }
   }
+
   return false
 }
 
@@ -66,12 +69,15 @@ export function createAppKitFocusWithinDispatcher(
     typeof native().NSNotificationCenter?.defaultCenter?.addObserverForNameObjectQueueUsingBlock ===
       'function' &&
     typeof native().NSNotificationCenter?.defaultCenter?.removeObserver === 'function'
+
   const synchronize = (window: any) => {
     if (!window) {
       return
     }
+
     const target = focusedView(window)
     const previous = targets.get(window) ?? null
+
     targets.set(window, target)
     for (const binding of [...bindings.values()]) {
       if (bindings.get(binding.view) !== binding) {
@@ -79,6 +85,7 @@ export function createAppKitFocusWithinDispatcher(
       }
 
       const owner = binding.view.window
+
       if (owner !== window && binding.window !== window) {
         continue
       }
@@ -86,6 +93,7 @@ export function createAppKitFocusWithinDispatcher(
       const within = owner === window && contains(binding.view, target)
       const last = binding.target
       const changed = binding.within !== within
+
       binding.window = owner
       binding.within = within
       binding.target = within ? target : null
@@ -94,11 +102,13 @@ export function createAppKitFocusWithinDispatcher(
       }
 
       const focused = within ? target : last
+
       if (!focused) {
         continue
       }
 
       const type = within ? 'focus' : 'blur'
+
       binding.handlers[within ? 'onFocus' : 'onBlur']?.({
         type,
         eventName: type,
@@ -111,20 +121,26 @@ export function createAppKitFocusWithinDispatcher(
       })
     }
   }
+
   const release = () => {
     if (token != null) {
       const previous = token
+
       token = undefined
       center.removeObserver(previous)
     }
+
     targets = new WeakMap()
   }
+
   const attach = () => {
     if (token != null || !available()) {
       return
     }
+
     try {
       const host = native()
+
       center = host.NSNotificationCenter.defaultCenter
       token = center.addObserverForNameObjectQueueUsingBlock(
         host.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',
@@ -140,6 +156,7 @@ export function createAppKitFocusWithinDispatcher(
       failed = true
     }
   }
+
   return {
     available,
     synchronize,
@@ -152,12 +169,15 @@ export function createAppKitFocusWithinDispatcher(
 
         return
       }
+
       const existing = bindings.get(view)
+
       if (existing) {
         existing.handlers = handlers
       } else {
         bindings.set(view, { view, handlers, window: view.window, within: false, target: null })
       }
+
       attach()
       if (!existing && token != null) {
         // Props are installed during host commit; notify after that commit.

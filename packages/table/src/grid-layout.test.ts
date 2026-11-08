@@ -19,6 +19,7 @@ describe('column gesture geometry', () => {
 
   it('keeps hidden IDs in the complete order and rejects missing targets', () => {
     const order = ['a', 'hidden', 'b']
+
     expect(moveColumn(order, 'a', 'b')).toEqual(['hidden', 'b', 'a'])
     expect(order).toEqual(['a', 'hidden', 'b'])
     expect(moveColumn(order, 'missing', 'b')).toBe(order)
@@ -26,6 +27,7 @@ describe('column gesture geometry', () => {
 
   it('clamps to both configured size bounds', () => {
     const column = { columnDef: { minSize: 80, maxSize: 180 } }
+
     expect(resizedWidth(column, 10)).toBe(80)
     expect(resizedWidth(column, 500)).toBe(180)
   })

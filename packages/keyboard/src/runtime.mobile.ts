@@ -17,6 +17,7 @@ export const keyboardRuntime: KeyboardRuntime = {
     const offFocus = focusRuntime.activate()
     let offViewport = () => {}
     let offSource: () => void
+
     try {
       offViewport = installKeyboardViewportAdapter(leaseKeyboardViewport)
       offSource = keyboardWindows.install(observeKeyboardMotion ?? observeKeyboardDestination)
@@ -29,11 +30,14 @@ export const keyboardRuntime: KeyboardRuntime = {
 
       throw error
     }
+
     let active = true
+
     return () => {
       if (!active) {
         return
       }
+
       active = false
       try {
         offSource()

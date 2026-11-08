@@ -4,6 +4,7 @@ import vm from 'node:vm'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { resolve } from 'node:path'
+
 // Execute the installed, patched Windows implementation without booting WinRT.
 const appRequire = createRequire(new URL('../apps/windows/package.json', import.meta.url))
 const coreFile = (path) =>
@@ -61,6 +62,7 @@ function setup() {
     isEnabled: true,
     on(name, callback) {
       const list = events.get(name) || []
+
       list.push(callback)
       events.set(name, list)
     },
@@ -95,6 +97,7 @@ function setup() {
     timer: {
       setTimeout(fn) {
         const id = ++nextTimer
+
         timers.set(id, () => {
           timers.delete(id)
           fn()
@@ -133,6 +136,7 @@ function setup() {
 
   const add = (type, callback) => {
     const observer = new context.Observer(target, callback)
+
     observers.push(observer)
     observer.observe(type)
     return observer
@@ -144,6 +148,7 @@ function setup() {
       Timestamp: name === 'PointerReleased' ? 110000 : 100000,
       GetCurrentPoint: () => ({ Position: { X: x, Y: options.y ?? 0 } }),
     }
+
     native[name]?.(native, event)
     if (name === 'PointerReleased' && native.captured?.PointerId === event.Pointer.PointerId) {
       native.captured = null
@@ -152,6 +157,7 @@ function setup() {
   }
 
   const lifecycle = (name) => (events.get(name) || []).slice().forEach((fn) => fn())
+
   return {
     native,
     target,
@@ -166,9 +172,12 @@ function setup() {
 
 test('gesture attachment preserves backgrounds and supplies a transparent hit-test surface', () => {
   const s = setup()
+
   s.add(types.tap, () => {})
   assert.equal(s.native.Background.Color.A, 0)
+
   const background = { authored: true }
+
   s.native.Background = background
   s.add(types.touch, () => {})
   assert.equal(s.native.Background, background)
@@ -177,6 +186,7 @@ test('gesture attachment preserves backgrounds and supplies a transparent hit-te
 test('touch movement requires contact while hover remains independent', () => {
   const s = setup()
   const actions = []
+
   s.add(types.touch, (args) => actions.push(args.action))
   s.emit('PointerEntered', 0, false)
   assert.equal(s.hovered(), true)
@@ -194,6 +204,7 @@ test('tap and touch coexist; disconnect and reload retain independent ownership'
   const calls = []
   const tap = s.add(types.tap, () => calls.push('tap'))
   const touch = s.add(types.touch, (args) => calls.push(args.action))
+
   s.emit('PointerPressed')
   s.emit('PointerReleased')
   assert.deepEqual(calls, ['down', 'tap', 'up'])
@@ -216,6 +227,7 @@ test('hover persists while one observer remains and clears on final unload', () 
   const s = setup()
   const tap = s.add(types.tap, () => {})
   const touch = s.add(types.touch, () => {})
+
   s.emit('PointerEntered')
   assert.equal(s.hovered(), true)
   tap.disconnect()
@@ -236,6 +248,7 @@ test('cancel and capture loss prevent a tap and cancel pending long press', () =
   for (const event of ['PointerCanceled', 'PointerCaptureLost']) {
     const s = setup()
     const calls = []
+
     s.add(types.tap, () => calls.push('tap'))
     s.add(types.longPress, () => calls.push('long'))
     s.add(types.touch, (args) => calls.push(args.action))
@@ -251,6 +264,7 @@ test('cancel and capture loss prevent a tap and cancel pending long press', () =
 test('moving beyond slop cancels long press and disabled views do not activate', () => {
   const s = setup()
   const calls = []
+
   s.add(types.tap, () => calls.push('tap'))
   s.add(types.longPress, () => calls.push('long'))
   s.emit('PointerPressed')
@@ -268,6 +282,7 @@ test('moving beyond slop cancels long press and disabled views do not activate',
 test('long press fires only its own callback and unload cancels timers', () => {
   const s = setup()
   const calls = []
+
   s.add(types.tap, () => calls.push('tap'))
   s.add(types.longPress, () => calls.push('long'))
   s.emit('PointerPressed')
@@ -281,6 +296,7 @@ test('long press fires only its own callback and unload cancels timers', () => {
 test('double tap delivers only double callback and suppresses delayed single tap', () => {
   const s = setup()
   const calls = []
+
   s.add(types.tap, () => calls.push('tap'))
   s.add(types.doubleTap, () => calls.push('double'))
   s.add(types.touch, (args) => calls.push(args.action))
@@ -295,6 +311,7 @@ test('double tap delivers only double callback and suppresses delayed single tap
 test('disable before a delayed tap suppresses activation; unload removes the pending timer', () => {
   const s = setup()
   const calls = []
+
   s.add(types.tap, () => calls.push('tap'))
   s.add(types.doubleTap, () => {})
   s.emit('PointerPressed')
@@ -315,6 +332,7 @@ test('disable before a delayed tap suppresses activation; unload removes the pen
 test('a throwing cancellation callback does not prevent sibling cancellation', () => {
   const s = setup()
   const calls = []
+
   s.add(types.touch, (args) => {
     if (args.action === 'cancel') {
       throw new Error('callback failed')
@@ -330,10 +348,13 @@ test('a throwing cancellation callback does not prevent sibling cancellation', (
 test('reload after native identity replacement removes old delegates and binds only the new native', () => {
   const s = setup()
   const calls = []
+
   s.add(types.tap, () => calls.push('tap'))
   s.add(types.touch, (args) => calls.push(args.action))
   s.lifecycle('unloaded')
+
   const replacement = {}
+
   s.target.nativeViewProtected = replacement
   s.lifecycle('loaded')
   assert.equal(s.native.PointerPressed, null)
@@ -353,6 +374,7 @@ test('independent subscriptions survive removal, reattachment and idempotent dis
   const callback = () => calls.push('same')
   const first = subscribe(native, callback)
   const second = subscribe(native, callback)
+
   native.PointerPressed()
   assert.equal(calls.length, 2)
   first()
@@ -361,7 +383,9 @@ test('independent subscriptions survive removal, reattachment and idempotent dis
   assert.equal(calls.length, 3)
   second()
   assert.equal(native.PointerPressed, null)
+
   const third = subscribe(native, callback)
+
   native.PointerPressed()
   assert.equal(calls.length, 4)
   third()
@@ -397,6 +421,7 @@ test('routed registrations are shared and removed using the same event/delegate'
 
   const one = subscribe(native, () => {}, event)
   const two = subscribe(native, () => {}, event)
+
   assert.equal(calls.length, 1)
   assert.equal(calls[0][3], true)
   one()
@@ -429,6 +454,7 @@ test('partial routed registration rolls back before fallback and siblings stay a
   const calls = []
   const one = subscribe(native, () => calls.push(1), {})
   const two = subscribe(native, () => calls.push(2), {})
+
   assert.deepEqual(order, ['add', 'rollback', 'fallback'])
   native.handler()
   assert.deepEqual(calls, [1, 2])
@@ -453,7 +479,9 @@ test('failed fallback registration can be retried without a poisoned registry', 
 
   assert.throws(() => subscribe(native, () => {}))
   reject = false
+
   const dispose = subscribe(native, () => {})
+
   assert.equal(typeof native.handler, 'function')
   dispose()
 })
@@ -465,6 +493,7 @@ test('native objects and event names are independent', () => {
   const removeA = subscribe(a, () => calls.push('a'))
   const removeB = subscribe(b, () => calls.push('b'))
   const removeUp = subscribeNativeEvent(a, 'PointerReleased', () => calls.push('up'), null, wrap)
+
   removeA()
   b.PointerPressed()
   a.PointerReleased()
@@ -499,6 +528,7 @@ test('known E_NOINTERFACE rejection safely uses fallback even when RemoveHandler
 
   const calls = []
   const dispose = subscribe(native, () => calls.push(1), {})
+
   native.PointerPressed()
   assert.deepEqual(calls, [1])
   dispose()
@@ -508,6 +538,7 @@ test('pan emits cumulative DIP deltas through the installed pointer owner withou
   const s = setup()
   const pan = []
   const touch = []
+
   s.add(types.pan, (args) => pan.push([args.state, args.deltaX, args.deltaY, args.eventName]))
   s.add(types.touch, (args) => touch.push([args.action, args.getX(), args.getY()]))
   s.emit('PointerPressed', 40, true, { y: 20 })
@@ -520,12 +551,14 @@ test('pan emits cumulative DIP deltas through the installed pointer owner withou
     [2, 20, 10, '8'],
     [3, 20, 10, '8'],
   ])
+
   assert.deepEqual(touch, [
     ['down', 40, 20],
     ['move', 55, 24],
     ['move', 55, 24],
     ['up', 60, 30],
   ])
+
   assert.equal(s.native.captures, 1)
   assert.equal(s.native.releases, 0)
   assert.equal(s.native.captured, null)
@@ -534,6 +567,7 @@ test('pan emits cumulative DIP deltas through the installed pointer owner withou
 test('pan hover and stationary press do not manufacture a changed delta', () => {
   const s = setup()
   const calls = []
+
   s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
   s.emit('PointerMoved', 50, false)
   s.emit('PointerPressed', 30)
@@ -549,6 +583,7 @@ test('pan capture loss and cancellation terminate once with the last delivered d
   for (const terminal of ['PointerCanceled', 'PointerCaptureLost']) {
     const s = setup()
     const calls = []
+
     s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
     s.emit('PointerPressed', 10)
     s.emit('PointerMoved', 25)
@@ -568,6 +603,7 @@ test('pan capture loss and cancellation terminate once with the last delivered d
 test('pan disabled during contact cancels before forwarding another move', () => {
   const s = setup()
   const calls = []
+
   s.add(types.pan, (args) => calls.push(args.state))
   s.emit('PointerPressed', 10)
   s.target.isEnabled = false
@@ -586,6 +622,7 @@ test('pan disconnect and native unload release owned capture and leave no stale 
     const s = setup()
     const calls = []
     const observer = s.add(types.pan, (args) => calls.push(args.state))
+
     s.emit('PointerPressed', 10)
     if (action === 'disconnect') {
       observer.disconnect()
@@ -610,6 +647,7 @@ test('pan disconnect and native unload release owned capture and leave no stale 
 test('pan keeps the initiating contact until its terminal event', () => {
   const s = setup()
   const calls = []
+
   s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
   s.emit('PointerPressed', 10, true, { id: 1 })
   s.emit('PointerPressed', 100, true, { id: 2 })
@@ -622,12 +660,14 @@ test('pan keeps the initiating contact until its terminal event', () => {
     [2, 20],
     [3, 20],
   ])
+
   assert.equal(s.native.captures, 1)
 })
 
 test('pan without capture cancels on exit and permits the next contact', () => {
   const s = setup()
   const calls = []
+
   s.native.CapturePointer = () => false
   s.add(types.pan, (args) => calls.push([args.state, args.deltaX]))
   s.emit('PointerPressed', 10)
@@ -643,5 +683,6 @@ test('pan without capture cancels on exit and permits the next contact', () => {
     [1, 0],
     [3, 0],
   ])
+
   assert.equal(s.native.releases, 0)
 })

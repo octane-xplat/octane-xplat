@@ -73,6 +73,7 @@ function TimeInputControl(inputProps: CoreProps) @{
     }
 
     const emitted = next ?? null
+
     lastEmitted.current = emitted
     props.onChange?.(emitted)
     if (props.changeAction) {
@@ -130,6 +131,7 @@ function TimeInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.value as string
+
     setPendingInput(text)
     if (hasDateComposition(input.current, e)) {
       return

@@ -13,6 +13,7 @@ export function normalizeFocusWithinEvent(
   if (!event || 'type' in event) {
     return event
   }
+
   return {
     type,
     target: event.object,

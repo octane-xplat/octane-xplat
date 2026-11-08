@@ -25,25 +25,31 @@ function routeAstMetadata(ast: unknown, file: string): RouteSourceMetadata {
     if (!node || node.declare) {
       return
     }
+
     if (node.type === 'VariableDeclaration') {
       const names = (pattern) => {
         if (pattern.type === 'Identifier') {
           return [pattern.name]
         }
+
         if (pattern.type === 'ObjectPattern') {
           return pattern.properties.flatMap((property) =>
             names(property.value ?? property.argument),
           )
         }
+
         if (pattern.type === 'ArrayPattern') {
           return pattern.elements.filter(Boolean).flatMap(names)
         }
+
         if (pattern.type === 'AssignmentPattern') {
           return names(pattern.left)
         }
+
         if (pattern.type === 'RestElement') {
           return names(pattern.argument)
         }
+
         return []
       }
 
@@ -64,6 +70,7 @@ function routeAstMetadata(ast: unknown, file: string): RouteSourceMetadata {
       }
     }
   }
+
   for (const node of ast.body) {
     if (node.type === 'ExportAllDeclaration' && node.exportKind !== 'type') {
       throw new Error(
@@ -90,7 +97,9 @@ function routeAstMetadata(ast: unknown, file: string): RouteSourceMetadata {
       }
     }
   }
+
   const result = {}
+
   for (const [name, flag] of [
     ['loader', 'loader'],
     ['beforeLoad', 'guard'],
@@ -103,9 +112,11 @@ function routeAstMetadata(ast: unknown, file: string): RouteSourceMetadata {
       result[flag] = true
     }
   }
+
   if (exported.has('dataMode')) {
     let value = bindings.get(exported.get('dataMode'))?.value
     const visited = new Set()
+
     while (value) {
       if (
         [
@@ -132,5 +143,6 @@ function routeAstMetadata(ast: unknown, file: string): RouteSourceMetadata {
 
     result.dataMode = value.value
   }
+
   return result
 }

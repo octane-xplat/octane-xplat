@@ -20,6 +20,7 @@ const temporary = mkdtempSync(join(tmpdir(), 'octane-icons-consumer-'))
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -38,14 +39,19 @@ function run(command, args, cwd) {
 try {
   const pack = join(temporary, 'pack')
   const extracted = join(temporary, 'extracted')
+
   mkdirSync(pack)
   mkdirSync(extracted)
   run('bun', ['pm', 'pack', '--destination', pack], packageRoot)
+
   const tarball = readdirSync(pack).find((name) => name.endsWith('.tgz'))
+
   assert.ok(tarball)
   run('tar', ['-xzf', join(pack, tarball), '-C', extracted], temporary)
+
   const packed = join(extracted, 'package')
   const manifest = JSON.parse(readFileSync(join(packed, 'package.json'), 'utf8'))
+
   assert.equal(manifest.dependencies['@octane-xplat/ui'].startsWith('workspace:'), false)
   for (const condition of ['web', 'native', 'macos']) {
     const conditionExport = manifest.exports['.'][condition]
@@ -56,6 +62,7 @@ try {
   }
 
   const macosComponent = readFileSync(join(packed, 'src/Icon.macos.tsrx'), 'utf8')
+
   assert.equal(
     macosComponent,
     readFileSync(join(packageRoot, 'src/Icon.macos.tsrx'), 'utf8'),
@@ -66,6 +73,7 @@ try {
     for (const mode of ['bundler', 'nodenext']) {
       const consumer = join(temporary, `${target}-${mode}`)
       const modules = join(consumer, 'node_modules')
+
       mkdirSync(join(modules, '@octane-xplat'), { recursive: true })
       cpSync(packed, join(modules, '@octane-xplat/icons'), { recursive: true })
       for (const dependency of [
@@ -75,6 +83,7 @@ try {
         ...(target === 'macos' ? ['@octane-xplat/jsx', '@octane-xplat/macos-appkit'] : []),
       ]) {
         const destination = join(modules, dependency)
+
         mkdirSync(dirname(destination), { recursive: true })
         symlinkSync(join(packageRoot, 'node_modules', dependency), destination, 'dir')
       }

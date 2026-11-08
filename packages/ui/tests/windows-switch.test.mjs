@@ -19,6 +19,7 @@ function fixture() {
     initNativeView() {}
     disposeNativeView() {}
   }
+
   class Property {
     setNative = Symbol('setNative')
     constructor(options) {
@@ -28,6 +29,7 @@ function fixture() {
       const { name, defaultValue } = this.options
       const value = Symbol(name)
       const setter = this.setNative
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[value] ?? defaultValue
@@ -41,6 +43,7 @@ function fixture() {
       })
     }
   }
+
   class ToggleButton {
     IsEnabled = true
     state = false
@@ -54,25 +57,32 @@ function fixture() {
       if (this.failWrite) {
         throw new Error('native write failed')
       }
+
       assert.equal(typeof next, 'boolean')
       if (this.state === next) {
         return
       }
+
       this.state = next
+
       const callback = this[next ? 'Checked' : 'Unchecked']
+
       if (callback) {
         this.nativeCallbacks++
         callback()
       }
+
       this.afterWrite?.()
     }
   }
+
   vm.runInNewContext(source, {
     exports: {},
     require(name) {
       if (name === '@nativescript/core') {
         return { View, Property }
       }
+
       if (name === '@nativescript-community/octane') {
         return {
           registerElement(name, Type) {
@@ -81,6 +91,7 @@ function fixture() {
           },
         }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return {
           Microsoft: {
@@ -93,23 +104,30 @@ function fixture() {
           },
         }
       }
+
       throw new Error('Unexpected dependency: ' + name)
     },
   })
+
   const control = new Control()
   const requests = []
+
   control.requestChange = (next) => requests.push(next)
+
   const mount = () => {
     const native = control.createNativeView()
+
     control.nativeViewProtected = native
     control.initNativeView()
     return native
   }
+
   return { control, requests, mount, native: mount() }
 }
 
 test('native Checked/Unchecked request booleans while a rejected model stays authoritative', () => {
   const { native, control, requests } = fixture()
+
   native.IsChecked = true
   assert.deepEqual(requests, [true])
   assert.equal(native.state, false)
@@ -120,10 +138,12 @@ test('native Checked/Unchecked request booleans while a rejected model stays aut
 
 test('accepted model updates and programmatic prop changes do not echo requests', () => {
   const { native, control, requests } = fixture()
+
   control.requestChange = (next) => {
     requests.push(next)
     control.checked = next
   }
+
   native.IsChecked = true
   native.IsChecked = false
   assert.deepEqual(requests, [true, false])
@@ -138,6 +158,7 @@ test('programmatic writes do not reenter JS through native delegates and restore
   const { native, control, requests } = fixture()
   const checked = native.Checked
   const unchecked = native.Unchecked
+
   control.checked = true
   control.checked = false
   assert.equal(native.nativeCallbacks, 0)
@@ -150,6 +171,7 @@ test('programmatic writes do not reenter JS through native delegates and restore
 
 test('a view disposed during a prop write never restores retired native subscriptions', () => {
   const { native, control } = fixture()
+
   native.afterWrite = () => control.disposeNativeView()
   control.checked = true
   assert.equal(native.Checked, null)
@@ -159,15 +181,19 @@ test('a view disposed during a prop write never restores retired native subscrip
 for (const blockedBy of ['readOnly', 'modelDisabled', 'nativeDisabled']) {
   test(`${blockedBy} rejects a native request and restores the model without a callback`, () => {
     const { native, control, requests } = fixture()
+
     if (blockedBy === 'readOnly') {
       control.readOnly = true
     }
+
     if (blockedBy === 'modelDisabled') {
       control.isEnabled = false
     }
+
     if (blockedBy === 'nativeDisabled') {
       native.IsEnabled = false
     }
+
     native.IsChecked = true
     assert.equal(native.state, false)
     assert.deepEqual(requests, [])
@@ -176,6 +202,7 @@ for (const blockedBy of ['readOnly', 'modelDisabled', 'nativeDisabled']) {
 
 test('a previously checked readonly control also rejects Unchecked', () => {
   const { native, control, requests } = fixture()
+
   control.checked = true
   control.readOnly = true
   native.IsChecked = false
@@ -185,6 +212,7 @@ test('a previously checked readonly control also rejects Unchecked', () => {
 
 test('callback replacement/removal is observed without rebinding native events', () => {
   const { native, control, requests } = fixture()
+
   control.requestChange = undefined
   native.IsChecked = true
   control.requestChange = (next) => requests.push(!next)
@@ -195,11 +223,14 @@ test('callback replacement/removal is observed without rebinding native events',
 test('dispose unbinds events and old handlers cannot request changes after native recreation', () => {
   const { native, control, requests, mount } = fixture()
   const late = native.Checked
+
   control.disposeNativeView()
   assert.equal(native.Checked, null)
   assert.equal(native.Unchecked, null)
   late()
+
   const replacement = mount()
+
   late()
   assert.deepEqual(requests, [])
   replacement.IsChecked = true
@@ -208,10 +239,12 @@ test('dispose unbinds events and old handlers cannot request changes after nativ
 
 test('a failed native write releases the echo guard and preserves the thrown error', () => {
   const { native, control, requests } = fixture()
+
   native.failWrite = true
   assert.throws(() => {
     control.checked = true
   }, /native write failed/)
+
   native.failWrite = false
   native.Unchecked()
   assert.deepEqual(requests, [false])

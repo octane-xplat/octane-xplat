@@ -13,6 +13,7 @@ export function* outlineChildViews(view: any): Generator<any> {
 
   if (typeof view.eachChildView === 'function') {
     const kids: any[] = []
+
     view.eachChildView((c: any) => {
       kids.push(c)
       return true
@@ -27,6 +28,7 @@ export function* outlineChildViews(view: any): Generator<any> {
   }
 
   const kids = view.children ?? view.subviews
+
   if (Array.isArray(kids)) {
     yield* kids
   }
@@ -38,6 +40,7 @@ function textOf(view: any): string {
   }
 
   let out = ''
+
   for (const child of outlineChildViews(view)) {
     out += textOf(child)
   }
@@ -48,6 +51,7 @@ function textOf(view: any): string {
 function levelOf(view: any): number {
   const cls = String(view.className ?? '')
   const m = cls.match(/vx-h(\d)/)
+
   return m ? Number(m[1]) : 2
 }
 
@@ -62,8 +66,10 @@ export function outlineItemsFromViewTree(root: any): OutlineItem[] {
 
     if (view.accessibilityRole === 'header') {
       const label = textOf(view).trim()
+
       if (label) {
         const id = view.id || uniqueSlug(slugify(label), counts)
+
         items.push({ id, label, level: levelOf(view) })
       }
 
@@ -92,6 +98,7 @@ export function findViewById(root: any, id: string): any {
 
   for (const child of outlineChildViews(root)) {
     const hit = findViewById(child, id)
+
     if (hit) {
       return hit
     }

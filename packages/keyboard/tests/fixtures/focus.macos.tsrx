@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { FocusedInputController } from '../../src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './focus.css'
+
 let validate = (_height: number) => {},
   grow = (_height: number) => {},
   removeArea = () => {}
@@ -11,6 +12,7 @@ export default function FocusProbe() @{
   const [validation, setValidation] = useState(0)
   const [height, setHeight] = useState(100)
   const [show, setShow] = useState(true)
+
   validate = setValidation
   grow = setHeight
   removeArea = () => setShow(false)
@@ -34,18 +36,25 @@ export async function run(ctx: ProbeContext) {
     window = field.window
 
   const snapshots: any[] = []
+
   field.stringValue = 'A😀B'
 
   ;(area.documentView ?? area).string = 'first\nsecond\nthird'
+
   const off = FocusedInputController.subscribe(root, (value) => snapshots.push(value))
+
   ctx.onCleanup(off)
+
   let editor: any, nativeArea: any
+
   try {
     ctx.assert('field can become native first responder', window.makeFirstResponder(field), true)
     editor = field.currentEditor()
     editor.selectedRange = { location: 1, length: 2 }
     await ctx.waitFor(() => snapshots.at(-1)?.selection?.end === 3)
+
     const first = snapshots.at(-1)
+
     ctx.record('initial focus geometry', {
       inputIsField: first.input === field,
       inputIsEditor: first.input === editor,
@@ -85,6 +94,7 @@ export async function run(ctx: ProbeContext) {
     )
 
     const before = first.inputRect.y
+
     validate(40)
     await ctx.waitFor(() => Math.abs(snapshots.at(-1).inputRect.y - before - 40) < 1)
     ctx.assert(

@@ -45,6 +45,7 @@ function makeRouter() {
       }),
     }),
   })
+
   host.attach(navigation)
   return { host, navigation, directions }
 }
@@ -72,17 +73,23 @@ export async function qualifyAppKitRouteTransitions(
     origin: { x: 0, y: 0 },
     size: { width: 640, height: 480 },
   })
+
   window.contentView = nativeHost
+
   const root = createMacOSRoot(nativeHost)
   const fixture = makeRouter()
+
   // The universal compiler supplies the component brand during this build.
   root.render(Panes as unknown as UniversalComponent<ReturnType<typeof makeRouter>>, fixture)
+
   const pane = (id: string): NSView =>
     (root as typeof root & { __macosDebug: { findId(id: string): NSView } }).__macosDebug.findId(
       'motion-' + id,
     ).superview
+
   const push = (id: string, transition: 'detail' | 'broken' | 'none' = 'detail') =>
     fixture.navigation.push({ to: '/motion/:id', params: { id }, transition })
+
   try {
     await until(
       () =>
@@ -92,6 +99,7 @@ export async function qualifyAppKitRouteTransitions(
     )
 
     const first = await push('first')
+
     check(first.status === 'committed', 'AppKit custom effect commits')
     if (first.status !== 'committed') {
       throw new Error('No first commit')
@@ -112,11 +120,13 @@ export async function qualifyAppKitRouteTransitions(
 
     const retained = pane('first')
     const second = await push('second')
+
     if (second.status !== 'committed') {
       throw new Error('No second commit')
     }
 
     const back = await fixture.navigation.back()
+
     check(back.status === 'committed', 'AppKit Back commits during an effect')
     check(
       (await second.finished).status === 'skipped',
@@ -135,7 +145,9 @@ export async function qualifyAppKitRouteTransitions(
     )
 
     check((await back.finished).status === 'completed', 'AppKit reverse effect completes')
+
     const failed = await push('failure', 'broken')
+
     check(
       failed.status === 'committed' && (await failed.finished).status === 'failed',
       'AppKit animation failure preserves the navigation commit',
@@ -156,11 +168,13 @@ export async function qualifyAppKitRouteTransitions(
     )
 
     const exiting = await push('dispose')
+
     if (exiting.status !== 'committed') {
       throw new Error('No disposal commit')
     }
 
     const disposedView = pane('dispose')
+
     root.unmount()
     check(
       (await exiting.finished).status === 'skipped',

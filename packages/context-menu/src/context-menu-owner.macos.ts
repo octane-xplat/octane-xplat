@@ -13,11 +13,13 @@ function menuSnapshot(
   items: readonly AppKitContextMenuItem[] = [],
 ): AppKitContextMenuItem[] | null {
   const ids = new Set<string>()
+
   try {
     return items.map((item) => {
       if (typeof item.id !== 'string' || typeof item.title !== 'string' || ids.has(item.id)) {
         throw Error('invalid menu')
       }
+
       ids.add(item.id)
       return {
         id: item.id,
@@ -36,6 +38,7 @@ const sameMenuItems = (a: readonly AppKitContextMenuItem[], b: readonly AppKitCo
   a.length === b.length &&
   a.every((item, i) => {
     const other = b[i]
+
     return (
       item.id === other.id &&
       item.title === other.title &&
@@ -64,9 +67,11 @@ export function createContextMenuOwner(deps: {
     selecting: boolean
     detach?: () => void
   }
+
   let view: object | null = null,
     session: Session | null = null,
     disposed = false
+
   let status: ContextMenuStatus = 'empty'
   const report = (next: ContextMenuStatus) => {
     if (!disposed && next !== status) {
@@ -74,29 +79,36 @@ export function createContextMenuOwner(deps: {
       deps.status?.(next)
     }
   }
+
   const detach = () => {
     const old = session
+
     session = null
     try {
       old?.detach?.()
     } catch {}
   }
+
   const update = () => {
     if (disposed || !view) {
       return
     }
+
     const props = deps.props(),
       items = menuSnapshot(props.items)
+
     if (!items) {
       detach()
       report('invalid')
       return
     }
+
     if (!items.length) {
       detach()
       report('empty')
       return
     }
+
     if (
       session &&
       session.view === view &&
@@ -105,13 +117,18 @@ export function createContextMenuOwner(deps: {
     ) {
       return
     }
+
     detach()
+
     const attach = deps.attach()
+
     if (!attach) {
       report('unavailable')
       return
     }
+
     const owner: Session = { view, scope: props.id, items, ready: false, selecting: false }
+
     session = owner
     try {
       const cleanup = attach(view, { items }, (id) => {
@@ -124,8 +141,10 @@ export function createContextMenuOwner(deps: {
         ) {
           return
         }
+
         const current = deps.props(),
           currentItems = menuSnapshot(current.items)
+
         if (
           !currentItems ||
           current.id !== owner.scope ||
@@ -134,10 +153,13 @@ export function createContextMenuOwner(deps: {
           update()
           return
         }
+
         const item = currentItems.find((item) => item.id === id)
+
         if (!item || item.disabled) {
           return
         }
+
         owner.selecting = true
         try {
           current.onItemSelected?.(id)
@@ -167,6 +189,7 @@ export function createContextMenuOwner(deps: {
       }
     }
   }
+
   return {
     update,
     bind(next: object | null) {

@@ -54,6 +54,7 @@ afterEach(() => {
 describe('desktop host probe', () => {
   it('re-probes on the next call when the transport is absent', async () => {
     const cameraHost = await loadCameraHost()
+
     platform.transport = false
     expect(await cameraHost()).toBeNull()
     platform.transport = true
@@ -63,11 +64,14 @@ describe('desktop host probe', () => {
 
   it('a failed probe does not stick — later calls retry until confirmed', async () => {
     const cameraHost = await loadCameraHost()
+
     platform.transport = true
     // Probe: capabilities RPC fails → null; the same call already
     // re-probes and confirms a client.
     platform.nextCapabilities = [null, fullService]
+
     const host = await cameraHost()
+
     expect(host).not.toBeNull()
     expect(platform.clients).toHaveLength(2)
     expect(platform.clients[0].dispose).toHaveBeenCalled()

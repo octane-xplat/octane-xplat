@@ -50,11 +50,13 @@ const onKeyDown = (event: KeyboardEvent) => {
   }
 
   const els = ordered()
+
   if (!els.length) {
     return
   }
 
   event.preventDefault()
+
   const current = els.findIndex((el) => el.contains(document.activeElement))
   const next = current < 0 ? 0 : (current + (event.shiftKey ? -1 : 1) + els.length) % els.length
 
@@ -72,6 +74,7 @@ const attach = () => {
 
 export function useLandmark(options: UseLandmarkOptions): { landmarkProps: LandmarkProps } {
   attach()
+
   const current = useRef<HTMLElement | null>(null)
   const ref = (el: HTMLElement | null) => {
     if (current.current) {

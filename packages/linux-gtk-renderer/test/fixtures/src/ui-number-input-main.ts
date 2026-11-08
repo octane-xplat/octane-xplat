@@ -4,7 +4,9 @@ import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { NumberScene, NumberContextScene } from './ui-number-input.gtk.tsrx'
+
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK number input test',
   default_width: 360,
@@ -13,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -71,20 +75,24 @@ const text = (name: string) =>
 
 let acknowledgments = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: unknown, key: number) => {
   if (key !== 65481) {
     return false
   }
+
   acknowledgments++
   return true
 })
 
 window.add_controller(keys)
+
 const osInput = GLib.getenv('GTK_NUMBER_OS') === '1'
 async function input(view: any, action: { type?: string; key?: string; click?: boolean }) {
   const bounds = view.getBounds()
   const ack = acknowledgments + 1
+
   print(
     'GTK_NUMBER_READY ' +
       JSON.stringify({
@@ -93,9 +101,11 @@ async function input(view: any, action: { type?: string; key?: string; click?: b
         y: bounds.y + bounds.height / 2,
       }),
   )
+
   for (let i = 0; i < 200 && acknowledgments < ack; i++) {
     await pause(25)
   }
+
   check('OS phase completed', acknowledgments >= ack)
   await pause()
 }
@@ -105,7 +115,9 @@ async function run() {
   window.present()
   await pause(240)
   native = (globalThis as any).imports.gi.XplatMason
+
   const original = entry()
+
   check('native Entry', original instanceof Gtk.Entry)
   check('default value', original.text === '2')
   check('one field owner', nodes('vx-field').length === 1)
@@ -119,15 +131,18 @@ async function run() {
       'Choose amount',
     ) === null,
   )
+
   check(
     'required form default',
     native.test_accessible_boolean_property(original, Gtk.AccessibleProperty.REQUIRED, true) ===
       null,
   )
+
   check(
     'control id belongs to editor',
     [...container.nodes.values()].find((n) => n.view === original)!.props.id === 'number-control',
   )
+
   check('default two steppers', nodes('vx-inputnumber-step').length === 2)
   check(
     'steppers have button semantics',
@@ -135,30 +150,37 @@ async function run() {
       (n) => n.view!.get_accessible_role() === Gtk.AccessibleRole.BUTTON,
     ),
   )
+
   const bounds = original.getBounds()
   const minus = nodes('vx-inputnumber-step')[0].view!.getBounds()
   const plus = nodes('vx-inputnumber-step')[1].view!.getBounds()
+
   check(
     'steppers flank the editor horizontally',
     minus.x + minus.width <= bounds.x + 2 && bounds.x + bounds.width <= plus.x + 2,
   )
+
   check(
     'steppers share the editor row',
     Math.abs(minus.y - plus.y) <= 2 && bounds.y < minus.y + minus.height,
   )
+
   check(
     'numeric shell consumes field width',
     close(nodes('vx-inputnumber')[0].view!.getBounds().width, 280),
   )
+
   check(
     'stepper accessible names',
     named(nodes('vx-inputnumber-step')[0].view!, 'Decrement') &&
       named(nodes('vx-inputnumber-step')[1].view!, 'Increment'),
   )
+
   check(
     'steppers accept keyboard focus',
     nodes('vx-inputnumber-step').every((n) => n.view!.get_focusable()),
   )
+
   await render({ units: 'kg', hasNumberSteppers: false, hasClear: true })
   check('units shown', text('vx-inputnumber-units') === 'kg')
   check('steppers can hide', nodes('vx-inputnumber-step').length === 0)
@@ -168,6 +190,7 @@ async function run() {
     nodes('vx-inputnumber-clear')[0]?.view?.get_accessible_role() === Gtk.AccessibleRole.BUTTON &&
       named(nodes('vx-inputnumber-clear')[0].view!, 'Clear value'),
   )
+
   check(
     'clear accepts keyboard focus',
     nodes('vx-inputnumber-clear')[0]?.view?.get_focusable() === true,
@@ -187,26 +210,31 @@ async function run() {
     isLoading: true,
     status: { type: 'error', message: 'Invalid amount' },
   })
+
   check('readOnly editor', !original.get_editable())
   check(
     'readOnly metadata',
     native.test_accessible_boolean_property(original, Gtk.AccessibleProperty.READ_ONLY, true) ===
       null,
   )
+
   check('busy metadata', state(Gtk.AccessibleState.BUSY, 1))
   check('invalid metadata', state(Gtk.AccessibleState.INVALID, 1))
   check(
     'readOnly steppers disabled',
     nodes('vx-inputnumber-step').every((n) => !n.view!.is_sensitive()),
   )
+
   await render({ isReadOnly: false, isLoading: false, isDisabled: true })
   check('disabled native editor', !original.is_sensitive())
   check(
     'disabled steppers',
     nodes('vx-inputnumber-step').every((n) => !n.view!.is_sensitive()),
   )
+
   const changes: (number | null)[] = []
   const order: string[] = []
+
   await render({
     value: undefined,
     hasClear: true,
@@ -220,6 +248,7 @@ async function run() {
     },
     onClear: () => order.push('clear'),
   })
+
   check('controlled to local restores local number', original.text === '2')
   await render({
     defaultValue: 9,
@@ -229,12 +258,14 @@ async function run() {
     label: 'Changed quantity',
     description: undefined,
   })
+
   check('default updates do not reset local owner', original.text === '2')
   check(
     'percentage width consumed once',
     close(nodes('vx-field')[0].view!.getBounds().width, 240) &&
       close(nodes('vx-inputnumber')[0].view!.getBounds().width, 240),
   )
+
   check(
     'explicit size reaches number shell and editor',
     nodes('vx-inputnumber')[0].cssClasses?.has('vx-inputnumber--size-lg') === true &&
@@ -242,23 +273,28 @@ async function run() {
         .find((n) => n.view === original)!
         .cssClasses?.has('vx-input--size-lg') === true,
   )
+
   check(
     'changed label names retained editor',
     named(original, 'Changed quantity') && entry() === original,
   )
+
   check(
     'optional overrides required form',
     native.test_accessible_boolean_property(original, Gtk.AccessibleProperty.REQUIRED, false) ===
       null,
   )
+
   check(
     'reset restores editor enabled and editable',
     original.is_sensitive() && original.get_editable(),
   )
+
   check(
     'reset clears busy and invalid states',
     state(Gtk.AccessibleState.BUSY, 0) && state(Gtk.AccessibleState.INVALID, 0),
   )
+
   await render({
     width: 280,
     size: undefined,
@@ -267,15 +303,18 @@ async function run() {
     className: 'number-custom',
     style: { opacity: 0.6 },
   })
+
   check('custom class applies to numeric shell', nodes('number-custom').length === 1)
   check(
     'dynamic opacity applies',
     Math.abs(nodes('vx-inputnumber')[0].view!.get_opacity() - 0.6) < 0.02,
   )
+
   check(
     'size resets to inherited default',
     nodes('vx-inputnumber')[0].cssClasses?.has('vx-inputnumber--size-md') === true,
   )
+
   check('hidden label keeps accessible name', named(original, 'Changed quantity'))
   await render({ className: undefined, style: undefined })
   check(
@@ -297,7 +336,9 @@ async function run() {
     )
 
     order.length = 0
+
     const clear = nodes('vx-inputnumber-clear')[0]?.view
+
     if (clear) {
       await input(clear, { click: true })
     }
@@ -313,6 +354,7 @@ async function run() {
     )
 
     const plus = nodes('vx-inputnumber-step')[1].view!
+
     plus.grab_focus()
     await input(plus, { key: 'space' })
     check(
@@ -394,9 +436,12 @@ async function run() {
       original.text === '' && changes.at(-1) === 0.5,
     )
   }
+
   if (osInput) {
     await render({ value: 4, isReadOnly: true })
+
     const count = changes.length
+
     original.grab_focus()
     await input(original, { type: '2' })
     check('readOnly native input does not edit', original.text === '4' && changes.length === count)
@@ -407,7 +452,9 @@ async function run() {
       original.text === '4' && changes.length === count,
     )
   }
+
   const oldChangeCount = changes.length
+
   root.render(NumberContextScene, { defaultValue: 6 })
   await pause()
   check('external Field has one owner', nodes('vx-field').length === 1)
@@ -417,10 +464,12 @@ async function run() {
     'external size applies',
     nodes('vx-inputnumber')[0].cssClasses?.has('vx-inputnumber--size-sm') === true,
   )
+
   check(
     'external state blocks steppers',
     nodes('vx-inputnumber-step').every((n) => !n.view!.is_sensitive()),
   )
+
   root.render(NumberContextScene, { defaultValue: 9, label: 'Child amount', size: 'lg' })
   await pause()
   check('external owner preserves numeric local value', entry().text === '6')
@@ -429,10 +478,13 @@ async function run() {
     'explicit child size overrides field size',
     nodes('vx-inputnumber')[0].cssClasses?.has('vx-inputnumber--size-lg') === true,
   )
+
   original.set_text('99')
   await pause()
   check('replaced editor cannot report retired numeric edits', changes.length === oldChangeCount)
+
   const last = entry()
+
   root.unmount()
   await pause()
   check('unmount releases nodes', container.nodes.size === 0 && last.get_parent() === null)
@@ -447,20 +499,24 @@ async function run() {
           Gtk.get_major_version() + '.' + Gtk.get_minor_version() + '.' + Gtk.get_micro_version(),
       }),
   )
+
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr(error.stack ?? error)
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

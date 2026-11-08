@@ -15,6 +15,7 @@ export function usePinch(cb?: (e: PinchEvent) => void): ((e: any) => void) | und
     (e: any) => {
       const focusX = typeof e.getFocusX === 'function' ? e.getFocusX() : undefined
       const focusY = typeof e.getFocusY === 'function' ? e.getFocusY() : undefined
+
       cb?.({
         scale: typeof e.scale === 'number' ? e.scale : 1,
         focusX: Number.isFinite(focusX) ? focusX : undefined,

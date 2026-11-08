@@ -17,6 +17,7 @@ const names = (table: any) => table.getRowModel().rows.map((r: any) => r.origina
 describe('createTable', () => {
   it('builds the core row model in data order', () => {
     const table = createTable({ data: DATA, columns })
+
     expect(names(table)).toEqual(['Charlie', 'Alice', 'Bob'])
     expect(table.getHeaderGroups().map((g: any) => g.headers.map((h: any) => h.column.id))).toEqual(
       [['name', 'n']],
@@ -25,6 +26,7 @@ describe('createTable', () => {
 
   it('sorts through the sorting state slice', () => {
     const table = createTable({ data: DATA, columns })
+
     table.setSorting([{ id: 'name', desc: false }])
     expect(names(table)).toEqual(['Alice', 'Bob', 'Charlie'])
     table.setSorting([{ id: 'name', desc: true }])
@@ -38,6 +40,7 @@ describe('createTable', () => {
     const seen: unknown[] = []
     const sub = table.store.subscribe((s: any) => seen.push(s.sorting))
     const before = table.getRowModel()
+
     table.setSorting([{ id: 'name', desc: false }])
     expect(seen.at(-1)).toEqual([{ id: 'name', desc: false }])
     expect(table.getRowModel() === before).toBe(false)
@@ -46,6 +49,7 @@ describe('createTable', () => {
 
   it('filters via global filter', () => {
     const table = createTable({ data: DATA, columns })
+
     table.setGlobalFilter('ali')
     expect(names(table)).toEqual(['Alice'])
     table.setGlobalFilter('a')
@@ -66,6 +70,7 @@ describe('createTable', () => {
 
   it('syncs option updates through setOptions', () => {
     const table = createTable({ data: DATA, columns })
+
     table.setOptions((prev: any) => ({ ...prev, data: [{ name: 'Zed', n: 9 }] }))
     expect(names(table)).toEqual(['Zed'])
   })

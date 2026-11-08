@@ -7,6 +7,7 @@ export default function ResponsiveLayoutProbe() {
   const wide = useMediaQuery('(min-width: 800px)')
   const desktop = useMediaQuery('(pointer: fine) and (hover: hover)')
   const size = useWindowSize()
+
   return (
     <VStack id="responsive-root" gap={2}>
       <Text id="responsive-mode">{wide ? 'wide' : 'compact'}</Text>
@@ -20,9 +21,11 @@ export default function ResponsiveLayoutProbe() {
 // pointer input or visual parity. Run only after human authorization.
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('responsive-root')?.window)
+
   const window = ctx.find('responsive-root').window
   const size = window.contentView.bounds.size
   const original = { width: Number(size.width), height: Number(size.height) }
+
   try {
     window.setContentSize({ width: 700, height: 500 })
     await ctx.waitFor(() => String(ctx.find('responsive-mode')?.stringValue) === 'compact')

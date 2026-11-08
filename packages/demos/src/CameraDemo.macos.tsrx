@@ -22,12 +22,14 @@ export function CameraDemo() @{
   const start = async () => {
     try {
       const permission = await session.requestPermission('camera')
+
       if (permission !== 'granted') {
         setStatus(`camera permission ${permission}`)
         return
       }
 
       const next = session.startRecording()
+
       setTake(next)
       setRecording(true)
       setStatus('recording…')
@@ -36,6 +38,7 @@ export function CameraDemo() @{
         setTake(undefined)
         if (outcome.kind === 'clip') {
           const clip = outcome.clip
+
           setStatus(
             `saved ${clip.durationMs}ms ${clip.width}x${clip.height} — ${clip.output.kind === 'nativeFile' ? clip.output.fileUrl : clip.output.resourceId}`,
           )

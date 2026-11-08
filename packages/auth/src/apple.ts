@@ -16,6 +16,7 @@ import type {
 function isCancel(error: unknown): boolean {
   // ASAuthorizationErrorCanceled = 1001 (NSError.code via SignInError.native).
   const code = (error as any)?.native?.code ?? (error as any)?.code
+
   if (code === 1001) {
     return true
   }
@@ -26,6 +27,7 @@ function isCancel(error: unknown): boolean {
 function toCredential(user: any): AuthCredential {
   const fullName = user.fullName
   const name = [fullName?.givenName, fullName?.familyName].filter(Boolean).join(' ') || undefined
+
   return {
     provider: 'apple',
     idToken: user.identityToken ?? undefined,
@@ -79,6 +81,7 @@ export const appleAuth: AppleAuth = {
 
     try {
       const state = await SignIn.getState(userId)
+
       switch (state) {
         case 'Authorized':
           return 'authorized'

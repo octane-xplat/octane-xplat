@@ -37,6 +37,7 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 
   root.render(Html, {})
   await settle()
+
   const first = htmlRef.current,
     left = debug.findId('html-left'),
     tail = debug.findId('html-tail')
@@ -69,7 +70,9 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
   )
 
   check(attr(first, NSLinkAttributeName, 8) != null, 'HTML link attribute missing')
+
   const rect = first.alignmentRectForFrame(first.frame)
+
   check(
     Math.abs(Number(rect.size.width) - 200) < 1 && Math.abs(Number(rect.size.height) - 40) < 1,
     'HtmlView layout size failed',
@@ -103,10 +106,12 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 
   const srgb = (color: any) => {
     const rgb = color.colorUsingColorSpace(NSColorSpace.sRGBColorSpace)
+
     return [rgb.redComponent, rgb.greenComponent, rgb.blueComponent, rgb.alphaComponent]
       .map((component: any) => Math.round(Number(component) * 255))
       .join(',')
   }
+
   check(
     Number(first.font.pointSize) === 16 && srgb(first.textColor) === srgb(NSColor.labelColor),
     'Dropped HTML style did not restore host defaults',
@@ -119,6 +124,7 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
       'NSAppearanceNameAqua',
       'NSAppearanceNameDarkAqua',
     ]) === 'NSAppearanceNameDarkAqua'
+
   nativeWindow.appearance = NSAppearance.appearanceNamed(
     appDark ? 'NSAppearanceNameAqua' : 'NSAppearanceNameDarkAqua',
   )
@@ -136,15 +142,20 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
 
   // The importer omits the attribute for black body text, which AppKit draws black.
   const body = attr(first, NSForegroundColorAttributeName) ?? NSColor.blackColor
+
   nativeWindow.appearance = null
+
   const red = Number(body.colorUsingColorSpace(NSColorSpace.sRGBColorSpace).redComponent)
+
   check(
     appDark ? red < 0.1 : red > 0.9,
     'HTML labelColor default did not resolve under the host appearance: ' + srgb(body),
   )
 
   await advance()
+
   const moved = htmlRef.current
+
   check(
     moved && moved !== first && moved.superview === debug.findId('html-right') && !first.superview,
     'HTML parent change ownership failed',
@@ -156,14 +167,18 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = htmlRef.current
+
   check(
     returned && returned !== moved && returned.superview === left && !moved.superview,
     'HTML return to original parent failed',
   )
 
   await advance()
+
   const replacement = htmlRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -181,7 +196,9 @@ export async function checkHtmlLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = htmlRef.current
+
   check(retained && retained.superview === left, 'HTML reinsertion failed')
   root.unmount()
   check(

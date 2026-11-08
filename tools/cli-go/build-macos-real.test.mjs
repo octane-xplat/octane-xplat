@@ -16,6 +16,7 @@ import {
 import { join, resolve, dirname } from 'node:path'
 import { homedir } from 'node:os'
 import { createHash } from 'node:crypto'
+
 const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
@@ -42,6 +43,7 @@ function run(command, args, cwd, environment = {}) {
       XPLAT_MACOS_SKIP_SIGNING: '0',
     },
   })
+
   assert.equal(result.status, 0, result.stdout + result.stderr + (result.error?.message ?? ''))
   commands.push({
     command,
@@ -50,6 +52,7 @@ function run(command, args, cwd, environment = {}) {
     stdout: result.stdout,
     stderr: result.stderr,
   })
+
   return result.stdout
 }
 
@@ -59,20 +62,28 @@ test(
   async () => {
     const build = JSON.parse(readFileSync(binary + '.json'))
     const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
     assert.equal(sha(readFileSync(binary)), build.sha256)
     for (const [file, hash] of Object.entries(build.inputs)) {
       assert.equal(sha(readFileSync(join(root, file))), hash, file)
     }
+
     const base = join(homedir(), 'agent-scratch/octane-xplat/go-cli-stoic-forge')
+
     mkdirSync(base, { recursive: true })
+
     const scratch = realpathSync(mkdtempSync(join(base, 'macos-build-')))
     let complete = false
+
     try {
       const packs = join(scratch, 'packs')
+
       mkdirSync(packs)
+
       const pack = (path) => {
         const dir = join(root, path)
         const manifest = JSON.parse(readFileSync(join(dir, 'package.json')))
+
         run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packs], dir)
         return join(
           packs,
@@ -84,8 +95,11 @@ test(
         leaf = pack('packages/cli/test/fixtures/macos-native-leaves/c')
 
       const app = join(scratch, 'app')
+
       mkdirSync(app)
+
       const catalog = JSON.parse(readFileSync(join(root, 'package.json'))).workspaces.catalog
+
       put(join(app, 'package.json'), {
         name: 'go-macos-package-fixture',
         private: true,
@@ -125,8 +139,11 @@ test(
       )
 
       run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], app)
+
       const output = run(binary, ['build', '--targets', 'macos'], app)
+
       assert.match(output, /Build complete/)
+
       const release = join(app, 'artifacts/macos-universal'),
         bundle = join(release, 'previous.app'),
         image = join(release, 'previous-macos-universal.dmg')
@@ -137,8 +154,10 @@ test(
       run('plutil', ['-lint', join(bundle, 'Contents/Info.plist')], app)
       run('hdiutil', ['verify', image], app)
       cpSync(worker, join(work, 'macos-worker-' + sha(readFileSync(worker)) + '.tgz'))
+
       const executable = join(bundle, 'Contents/MacOS/previous')
       const architectures = run('lipo', ['-archs', executable], app)
+
       assert.match(architectures, /arm64/)
       assert.match(architectures, /x86_64/)
       put(join(work, 'build-macos-real-qualification.json'), {

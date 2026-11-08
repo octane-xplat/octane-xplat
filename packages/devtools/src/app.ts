@@ -75,6 +75,7 @@ export function openDevChannel<In = unknown, Out = unknown>(
   })
 
   let closed = false
+
   return {
     get state() {
       return current

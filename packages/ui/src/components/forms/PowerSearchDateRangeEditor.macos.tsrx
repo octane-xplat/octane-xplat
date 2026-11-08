@@ -22,7 +22,9 @@ interface Props extends PowerSearchFilterEditorProps {
 
 export function PowerSearchDateRangeEditor(props: Props): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const source = useRef({
     filter: props.filter,
     field: props.field.key,
@@ -49,6 +51,7 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
 
   const [, rerender] = useState(0)
   const record = useRef({ revision, draft: seed() })
+
   if (record.current.revision !== revision) {
     record.current = { revision, draft: seed() }
   }
@@ -56,6 +59,7 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
   const draft = record.current.draft
   const inputs = useRef(new Map<string, { token: object; handle: TextInputHandle }>())
   const alive = useRef(true)
+
   useEffect(() => {
     alive.current = true
     return () => {
@@ -81,11 +85,13 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
 
   const partChange = (edge: 'start' | 'end', patch: Partial<RangePartDraft>) => {
     const latest = record.current.draft
+
     change({ ...latest, [edge]: { ...latest[edge], ...patch } })
   }
 
   const inputRef = (key: string) => {
     const token = {}
+
     return (handle: TextInputHandle | null) => {
       if (handle) {
         if (alive.current && source.current.revision === revision) {
@@ -114,11 +120,13 @@ export function PowerSearchDateRangeEditor(props: Props): unknown @{
 
     // Revalidate NOW/relative ordering against one current instant at Apply.
     const next = rangeValue(record.current.draft)
+
     if (!next.value || !editable()) {
       return
     }
 
     const savedDraft = record.current.draft
+
     submitted.current = savedDraft
     try {
       live.current.onSave({

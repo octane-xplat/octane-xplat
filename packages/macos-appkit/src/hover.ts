@@ -41,6 +41,7 @@ export function createHover() {
 
   function dispatchHover(area: any, phase: 'enter' | 'exit') {
     const record = hoverRecordsByArea.get(area)
+
     if (record) {
       if (phase === 'enter') {
         record.inside = true
@@ -64,7 +65,9 @@ export function createHover() {
         }
       }
     }
+
     const handler = phase === 'enter' ? record?.enter : record?.exit
+
     if (typeof handler !== 'function') {
       return
     }
@@ -89,7 +92,9 @@ export function createHover() {
     // A re-registration (tooltip arriving after a cursor style, or vice
     // versa) keeps the cursor fields — they belong to the view, not the area.
     const previous = hoverRecordByView.get(view)
+
     unobserveHover(view)
+
     const area = NSTrackingArea.alloc().initWithRectOptionsOwnerUserInfo(
       { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
       HOVER_TRACKING_OPTIONS,
@@ -102,6 +107,7 @@ export function createHover() {
     }
 
     view.addTrackingArea(area)
+
     const record = {
       view,
       area,
@@ -110,6 +116,7 @@ export function createHover() {
       cursor: previous?.cursor,
       hidesCursor: previous?.hidesCursor,
     }
+
     hoverRecordsByArea.set(area, record)
     hoverRecordByView.set(view, record)
     return () => unobserveHover(view)
@@ -117,6 +124,7 @@ export function createHover() {
 
   function unobserveHover(view: NSView) {
     const record = hoverRecordByView.get(view)
+
     if (!record) {
       return
     }
@@ -126,9 +134,11 @@ export function createHover() {
     if (record.pushed) {
       NSCursor.pop()
     }
+
     if (record.cursorHidden) {
       NSCursor.unhide()
     }
+
     try {
       view.removeTrackingArea(record.area)
     } catch (error) {

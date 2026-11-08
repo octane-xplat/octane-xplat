@@ -13,6 +13,7 @@ let ticks = 0
 function IntervalCounter() @{
   useEffect(() => {
     activeEffects += 1
+
     const timer = setInterval(() => {
       ticks += 1
     }, 15)
@@ -47,6 +48,7 @@ describe('mount/unmount cleanup', () => {
     ticks = 0
     for (let i = 0; i < 3; i++) {
       const { unmount } = await mountXplat(IntervalCounter)
+
       expect(activeEffects, 'each mount subscribes exactly once').toBe(1)
       await unmount()
       expect(activeEffects, 'unmount runs the effect cleanup').toBe(0)
@@ -54,6 +56,7 @@ describe('mount/unmount cleanup', () => {
 
     // The cleared interval must not fire after the last unmount.
     const settled = ticks
+
     await new Promise((resolve) => setTimeout(resolve, 60))
     expect(ticks, 'interval work continued after unmount').toBe(settled)
   })
@@ -61,6 +64,7 @@ describe('mount/unmount cleanup', () => {
   it('releases external-store subscriptions at unmount', async () => {
     for (let i = 0; i < 3; i++) {
       const { unmount } = await mountXplat(StoreReader)
+
       expect(listeners.size, 'each mount subscribes exactly once').toBe(1)
       await unmount()
       expect(listeners.size, 'unmount releases the subscription').toBe(0)

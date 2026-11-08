@@ -14,6 +14,7 @@ export function useAppKitViewKeys(options: UseKeyboardOptions): {
     release = useRef<(() => void) | null>(null)
 
   latest.current = options
+
   const bridge = appKitHost(),
     observe = bridge?.observeViewKeys
 

@@ -21,42 +21,59 @@ export const backend: ConversionBackend = {
     ) {
       return false
     }
+
     return canEncodeVideo(format === 'mp4' ? 'avc' : 'vp9')
   },
   async convert(source, request, control) {
     const controller = new AbortController()
+
     control.onCancel(() => controller.abort())
+
     const response = await fetch(source, { signal: controller.signal })
+
     if (!response.ok) {
       throw new Error(`Could not read GIF (${response.status})`)
     }
+
     const bytes = await response.arrayBuffer()
+
     if (bytes.byteLength > 64 * 1024 * 1024) {
       throw new RangeError('GIF exceeds 64 MiB')
     }
+
     const gif = parseGIF(bytes)
+
     if (gif.header.signature !== 'GIF') {
       throw new TypeError('Source must be a GIF')
     }
+
     const frames = gif.frames.filter((frame) => 'image' in frame)
     const { width, height } = gif.lsd
+
     if (!width || !height || width * height > 4_194_304 || !frames.length || frames.length > 1000) {
       throw new RangeError('GIF must have 1–1000 frames and at most 4194304 pixels')
     }
+
     for (const frame of frames) {
       const d = frame.image.descriptor
+
       if (!d.width || !d.height || d.left + d.width > width || d.top + d.height > height) {
         throw new TypeError('GIF frame lies outside its canvas')
       }
     }
+
     const delays = frames.map((frame) => (frame.gce?.delay ? frame.gce.delay * 10 : 100))
     const duration = delays.reduce((sum, value) => sum + value, 0)
+
     if (duration > 60_000) {
       throw new RangeError('GIF traversal exceeds 60 seconds')
     }
+
     const outputWidth = width + (width % 2),
       outputHeight = height + (height % 2)
+
     const codec = request.format === 'mp4' ? 'avc' : 'vp9'
+
     if (
       !(await canEncodeVideo(codec, {
         width: outputWidth,
@@ -66,27 +83,36 @@ export const backend: ConversionBackend = {
     ) {
       throw new UnavailabilityError(`GIF encoder at ${outputWidth}×${outputHeight}`)
     }
+
     const canvas = document.createElement('canvas'),
       composition = document.createElement('canvas'),
       patch = document.createElement('canvas')
+
     canvas.width = outputWidth
     canvas.height = outputHeight
     composition.width = width
     composition.height = height
+
     const ctx = canvas.getContext('2d')!,
       layers = composition.getContext('2d')!,
       patchContext = patch.getContext('2d')!
+
     if (!ctx || !layers || !patchContext) {
       throw new UnavailabilityError('MediaConverter canvas')
     }
+
     const target = new BufferTarget()
     const output = new Output({
       format: request.format === 'mp4' ? new Mp4OutputFormat() : new WebMOutputFormat(),
       target,
     })
+
     const video = new CanvasSource(canvas, { codec, bitrate: request.bitrate })
+
     output.addVideoTrack(video)
+
     let timestamp = 0
+
     try {
       await output.start()
       for (let index = 0; index < frames.length; index++) {
@@ -96,6 +122,7 @@ export const backend: ConversionBackend = {
 
         const frame = decompressFrame(frames[index]!, gif.gct, true)
         const d = frame.dims
+
         if (d.left + d.width > width || d.top + d.height > height || !d.width || !d.height) {
           throw new TypeError('GIF frame lies outside its canvas')
         }
@@ -139,6 +166,7 @@ export const backend: ConversionBackend = {
       }
 
       const mimeType = request.format === 'mp4' ? 'video/mp4' : 'video/webm'
+
       return {
         uri: URL.createObjectURL(new Blob([target.buffer], { type: mimeType })),
         width: outputWidth,

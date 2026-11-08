@@ -37,6 +37,7 @@ void [
 ]
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -49,8 +50,11 @@ function mount(node: any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(node))
   cleanups.push(() => {
     root.unmount()
@@ -64,6 +68,7 @@ describe('Select package-root boundary', () => {
   it('exposes Selector and MultiSelector through the package barrel, not SelectView', () => {
     const props: SelectorProps = { options }
     const multiProps: MultiSelectorProps = { options }
+
     expect(typeof Selector).toBe('function')
     expect(typeof MultiSelector).toBe('function')
     expect(props.options).toBe(options)
@@ -74,6 +79,7 @@ describe('Select package-root boundary', () => {
     const onValueChange = vi.fn()
     const host = mount(<Selector label="Choice" options={options} onValueChange={onValueChange} />)
     const trigger = host.querySelector('.vx-select-trigger') as HTMLElement
+
     trigger.focus()
     act(() =>
       trigger.dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true })),

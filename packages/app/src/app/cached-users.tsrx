@@ -8,6 +8,7 @@ import { demoSession, replaceDemoSession } from '../shared-query-data'
 
 export function loader() {
   const session = demoSession.getSnapshot()
+
   return session.queries.ensureData(session.feed, '')
 }
 
@@ -69,6 +70,7 @@ export function CachedUsers() @{
         </Pressable>
         @try {
           const data = reader.data$.get()
+
           <>
             @for (const user of data.pages.flatMap(
                 (page) => page.items,

@@ -60,6 +60,7 @@ export function ChartExample() {
 
 export function ImageCropExample() {
   const [crop, setCrop] = useState<Crop>({ unit: '%', x: 10, y: 10, width: 70, height: 70 })
+
   return (
     <ImageCrop
       src={picture}
@@ -76,6 +77,7 @@ export function ImageCropExample() {
 
 export function RollingTextExample() {
   const [value, setValue] = useState(12)
+
   return (
     <>
       <RollingText value={String(value)} />
@@ -108,6 +110,7 @@ export function SmoothCornersExample() {
 
 export function MotionExample() {
   const [visible, setVisible] = useState(false)
+
   return (
     <MotionConfig reducedMotion="user">
       <LayoutGroup>
@@ -163,6 +166,7 @@ export function DataGridExample() {
 
 export function DrawerExample() {
   const [open, setOpen] = useState(false)
+
   return (
     <Drawer
       open={open}
@@ -180,6 +184,7 @@ export function DrawerExample() {
 
 export function PagerExample() {
   const [page, setPage] = useState(0)
+
   return (
     <>
       <Pager
@@ -197,6 +202,7 @@ export function PagerExample() {
 
 export function AnimatedImageExample() {
   const [playing, setPlaying] = useState(false)
+
   return (
     <>
       <AnimatedImage
@@ -220,6 +226,7 @@ export function AnimatedImageExample() {
 
 export function VideoExample() {
   const [playing, setPlaying] = useState(false)
+
   return (
     <>
       <Video

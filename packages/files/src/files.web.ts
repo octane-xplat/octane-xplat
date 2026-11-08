@@ -23,6 +23,7 @@ const objectBlobs = new Map<string, Blob>()
 
 function mintObjectUrl(blob: Blob): string {
   const uri = URL.createObjectURL(blob)
+
   objectBlobs.set(uri, blob)
   return uri
 }
@@ -30,9 +31,11 @@ function mintObjectUrl(blob: Blob): string {
 function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
   return new Promise((resolve) => {
     const input = document.createElement('input')
+
     input.type = 'file'
     input.accept = accept
     input.multiple = multiple
+
     let settled = false
     const settle = (refs: FileRef[]) => {
       if (settled) {
@@ -46,6 +49,7 @@ function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
 
     input.onchange = () => {
       const refs: FileRef[] = []
+
       for (const file of Array.from(input.files ?? [])) {
         refs.push({ name: file.name, uri: mintObjectUrl(file) })
       }
@@ -76,6 +80,7 @@ function chooseFiles(accept: string, multiple: boolean): Promise<FileRef[]> {
 // materializing the whole response.
 async function fetchBytes(uri: string, opts?: FileReadBytesOptions): Promise<Uint8Array> {
   const response = await fetch(uri, { signal: opts?.signal })
+
   if (!response.ok) {
     throw new Error(`Unable to read file: ${uri}`)
   }
@@ -85,8 +90,10 @@ async function fetchBytes(uri: string, opts?: FileReadBytesOptions): Promise<Uin
   }
 
   const reader = response.body?.getReader()
+
   if (!reader) {
     const bytes = new Uint8Array(await response.arrayBuffer())
+
     if (bytes.byteLength > opts.maxBytes) {
       throw fileTooLarge(uri, opts.maxBytes)
     }
@@ -96,9 +103,11 @@ async function fetchBytes(uri: string, opts?: FileReadBytesOptions): Promise<Uin
 
   const chunks: Uint8Array[] = []
   let total = 0
+
   try {
     while (true) {
       const { done, value } = await reader.read()
+
       if (done) {
         break
       }
@@ -125,6 +134,7 @@ export const files: Files = {
   },
   async pick(accept = '*/*', opts?: { startingFolder?: string }): Promise<FileRef | null> {
     const host = desktopHost()
+
     if (host && (await host.supports('files', 'pick'))) {
       return host.files.pick(accept, { startingFolder: opts?.startingFolder })
     }
@@ -133,8 +143,10 @@ export const files: Files = {
   },
   async readText(ref: FileRef): Promise<string> {
     const host = desktopHost()
+
     if (host && (await host.supports('files', 'readText'))) {
       const text = await host.files.readText(ref.uri)
+
       if (text === null) {
         throw new Error(`Unable to read host file: ${ref.uri}`)
       }
@@ -148,13 +160,16 @@ export const files: Files = {
   },
   async readBytes(ref: FileRef, opts?: FileReadBytesOptions): Promise<Uint8Array> {
     throwIfAborted(opts?.signal)
+
     const blob = objectBlobs.get(ref.uri)
+
     if (blob) {
       if (opts?.maxBytes != null && blob.size > opts.maxBytes) {
         throw fileTooLarge(ref.uri, opts.maxBytes)
       }
 
       const bytes = new Uint8Array(await blob.arrayBuffer())
+
       throwIfAborted(opts?.signal)
       return bytes
     }
@@ -166,9 +181,12 @@ export const files: Files = {
   /** Desktop hosts write the selected path; plain web starts a download. */
   async writeText(name: string, text: string): Promise<FileRef> {
     assertSafeFileName(name)
+
     const host = desktopHost()
+
     if (host && (await host.supports('files', 'writeText'))) {
       const file = await host.files.writeText(name, text)
+
       if (!file) {
         throw new Error('Host file save was cancelled')
       }
@@ -178,6 +196,7 @@ export const files: Files = {
 
     const uri = mintObjectUrl(new Blob([text], { type: 'text/plain' }))
     const a = document.createElement('a')
+
     a.href = uri
     a.download = name
     a.click()
@@ -186,8 +205,10 @@ export const files: Files = {
   /** The desktop host contract is text-only, so bytes always download. */
   async writeBytes(name: string, bytes: Uint8Array): Promise<FileRef> {
     assertSafeFileName(name)
+
     const uri = mintObjectUrl(new Blob([exactBuffer(bytes)], { type: 'application/octet-stream' }))
     const a = document.createElement('a')
+
     a.href = uri
     a.download = name
     a.click()
@@ -199,6 +220,7 @@ export const files: Files = {
     opts?: FileExportOptions,
   ): Promise<FileExportResult> {
     assertSafeFileName(name)
+
     const picker = (window as any).showSaveFilePicker as ((opts: any) => Promise<any>) | undefined
 
     if (typeof picker !== 'function') {
@@ -212,6 +234,7 @@ export const files: Files = {
     try {
       const handle = await picker.call(window, { suggestedName: name, types })
       const writable = await handle.createWritable()
+
       await writable.write(bytes)
       await writable.close()
       return 'saved'

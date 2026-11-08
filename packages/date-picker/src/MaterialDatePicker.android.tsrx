@@ -57,6 +57,7 @@ export function MaterialDatePicker(props: MaterialDatePickerProps): unknown @{
     data={data}
     onComposeEvent={(event: any) => {
       const millis = event.data?.date
+
       props.onDateSelected?.(typeof millis === 'number' ? new Date(millis) : null)
     }}
   />

@@ -11,6 +11,7 @@ export function focusRect(value: any): KeyboardRect | null {
     width: value.size?.width,
     height: value.size?.height,
   }
+
   return isKeyboardRect(rect) ? rect : null
 }
 

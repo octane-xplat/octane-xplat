@@ -10,6 +10,7 @@
 
 export const WEBVIEW_MESSAGE_SOURCE = 'xplat-webview'
 export const WEBVIEW_OUTBOX_KEY = '__xplatWebViewOutbox'
+
 const OUTBOX_LIMIT = 100
 
 /** Removes and returns the queued page→host values as a JSON array.
@@ -40,6 +41,7 @@ export function isWebViewMessage(value: unknown): value is WebViewMessageEnvelop
  *  `jsonEncoded` to unwrap the transport encoding first. */
 export function parseMessageBatch(value: unknown, jsonEncoded?: boolean): unknown[] | null {
   let result = value
+
   if (jsonEncoded) {
     try {
       result = JSON.parse(String(value))
@@ -54,6 +56,7 @@ export function parseMessageBatch(value: unknown, jsonEncoded?: boolean): unknow
 
   try {
     const batch = JSON.parse(String(result))
+
     return Array.isArray(batch) ? batch : null
   } catch {
     return null
@@ -63,11 +66,13 @@ export function parseMessageBatch(value: unknown, jsonEncoded?: boolean): unknow
 function parentTargetOrigin(scope: any): string {
   try {
     const ancestors = scope.location?.ancestorOrigins
+
     if (ancestors?.length) {
       return ancestors[0]
     }
 
     const referrer = scope.document?.referrer
+
     if (referrer) {
       return new URL(referrer).origin
     }
@@ -83,6 +88,7 @@ function parentTargetOrigin(scope: any): string {
  *  in) or the value cannot serialize. */
 export function postToHost(value: unknown): boolean {
   let serialized: string
+
   try {
     serialized = JSON.stringify(value)
     if (serialized === undefined) {
@@ -94,6 +100,7 @@ export function postToHost(value: unknown): boolean {
 
   const scope = globalThis as any
   const outbox = (scope[WEBVIEW_OUTBOX_KEY] ??= [])
+
   if (outbox.length >= OUTBOX_LIMIT) {
     outbox.shift()
   }
@@ -101,6 +108,7 @@ export function postToHost(value: unknown): boolean {
   outbox.push(value)
 
   const webkit = scope.webkit?.messageHandlers?.xplatWebView
+
   if (webkit) {
     webkit.postMessage(serialized)
     return true
@@ -112,6 +120,7 @@ export function postToHost(value: unknown): boolean {
   }
 
   const parent = scope.parent
+
   if (parent && parent !== scope) {
     try {
       parent.postMessage({ source: WEBVIEW_MESSAGE_SOURCE, data: value }, parentTargetOrigin(scope))

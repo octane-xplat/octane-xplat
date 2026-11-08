@@ -6,7 +6,9 @@ import { runSlice } from './mock-globals.ts'
 const source = rendererSource()
 const start = source.indexOf('function syncLabelAlignment(')
 const end = source.indexOf('// A style key present', start)
+
 assert.ok(start >= 0 && end > start)
+
 const modes = { Left: 0, Center: 1, Right: 2, Justified: 3 }
 function fixture() {
   const warnings: string[] = []
@@ -15,12 +17,15 @@ function fixture() {
     nodeClasses: (node) => node.classes ?? [],
     warnUnsupportedCssProp: (_node, key) => warnings.push(key),
   })
+
   const node: any = { view: { alignment: 0 } }
+
   return { node, warnings, sync: (style: any) => syncLabelAlignment(node, style) }
 }
 
 test('logical alignment follows CSS direction while physical and justified alignment stay explicit', () => {
   const h = fixture()
+
   for (const direction of ['ltr', 'rtl']) {
     for (const [textAlign, expected] of [
       ['left', 0],
@@ -34,6 +39,7 @@ test('logical alignment follows CSS direction while physical and justified align
       assert.equal(h.node.view.alignment, expected)
     }
   }
+
   h.sync({ textAlign: 'end' })
   assert.equal(h.node.view.alignment, 2)
   h.sync({ direction: 'rtl' })
@@ -50,6 +56,7 @@ test('unsupported modes default without coercing values or inheriting dictionary
         throw Error('private style payload')
       },
     }
+
   h.sync({ textAlign: 'center' })
   h.sync({ textAlign: opaque })
   assert.equal(h.node.view.alignment, 0)
@@ -64,6 +71,7 @@ test('unchanged alignment avoids native writes and removal retains the grabber b
   const h = fixture()
   let alignment = 0,
     writes = 0
+
   Object.defineProperty(h.node.view, 'alignment', {
     get: () => alignment,
     set: (value) => {
@@ -71,6 +79,7 @@ test('unchanged alignment avoids native writes and removal retains the grabber b
       alignment = value
     },
   })
+
   h.sync({ textAlign: 'left' })
   assert.equal(writes, 0)
   h.sync({ textAlign: 'end' })

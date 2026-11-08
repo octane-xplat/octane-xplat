@@ -42,6 +42,7 @@ const normalize = (text) => {
 }
 
 let failed = false
+
 for (const [copy, source] of pairs) {
   if (normalize(await readFile(copy, 'utf8')) === normalize(await readFile(source, 'utf8'))) {
     console.log(`vendored copy in sync: ${copy}`)

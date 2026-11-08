@@ -30,6 +30,7 @@ export function paintedStyle(style: any): any {
   }
 
   const next = { ...style }
+
   for (const key of MARGIN_KEYS) {
     delete next[key]
   }
@@ -46,16 +47,19 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
   style: Record<string, any>
 } {
   const style: Record<string, any> = {}
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {
     style.gridRow = `span ${props.rowSpan}`
   }
+
   if (props.col !== undefined) {
     style.gridColumn = `${props.col + 1} / span ${props.colSpan ?? 1}`
   } else if (props.colSpan !== undefined) {
     style.gridColumn = `span ${props.colSpan}`
   }
+
   if (props.dock !== undefined) {
     style.position = 'absolute'
     if (props.dock === 'left' || props.dock === 'top' || props.dock === 'bottom') {
@@ -74,14 +78,17 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
       style.bottom = 0
     }
   }
+
   if (props.left !== undefined) {
     style.left = props.left
     style.position = style.position ?? 'absolute'
   }
+
   if (props.top !== undefined) {
     style.top = props.top
     style.position = style.position ?? 'absolute'
   }
+
   for (const key of ['flexGrow', 'flexShrink', 'alignSelf', 'order'] as const) {
     if (props[key] !== undefined) {
       style[key] = props[key]
@@ -89,6 +96,7 @@ export function outerLayoutProps(props: LayoutChildProps & { style?: any }): {
   }
 
   const source = props.style && typeof props.style === 'object' ? props.style : {}
+
   for (const key of OUTER_STYLE_KEYS) {
     if (source[key] !== undefined) {
       style[key] = source[key]
@@ -107,27 +115,35 @@ export function innerLayoutProps(
   style: Record<string, any>
 } {
   const style: Record<string, any> = {}
+
   if (props.flexDirection !== undefined) {
     style.flexDirection = props.flexDirection
   }
+
   if (props.justifyContent !== undefined) {
     style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
   }
+
   if (props.alignItems !== undefined) {
     style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
   }
+
   if (props.flexWrap !== undefined) {
     style.flexWrap =
       props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
   }
+
   if (props.gap !== undefined) {
     style.gap = props.gap
   }
+
   if (props.rowGap !== undefined) {
     style.rowGap = props.rowGap
   }
+
   if (props.columnGap !== undefined) {
     style.columnGap = props.columnGap
   }
+
   return { style }
 }

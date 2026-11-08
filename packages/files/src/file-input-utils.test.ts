@@ -16,6 +16,7 @@ describe('file validation', () => {
     ]
 
     const result = validateFiles(files, { maxSize: 100, maxFiles: 1 })
+
     expect(result.valid.map((file) => file.name)).toEqual(['a'])
     expect(result.errors).toHaveLength(2)
   })

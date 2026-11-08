@@ -15,6 +15,7 @@ const macOSRenderers = new Set(['appkit', 'webview'])
 
 function rendererOf(value, issues, prefix) {
   const renderer = value ?? 'appkit'
+
   if (!macOSRenderers.has(renderer)) {
     issues.push(`${prefix}.renderer must be "appkit" or "webview"`)
     return 'appkit'
@@ -35,6 +36,7 @@ function resolveBuildPaths(appRoot, settings, issues, prefix, renderer, stage) {
     : ['viteConfig', 'bundleFile']
 
   const paths = {}
+
   for (const key of names) {
     if (typeof settings[key] !== 'string' || !settings[key].trim()) {
       issues.push(`missing ${prefix}.${key}`)
@@ -53,6 +55,7 @@ function resolveBuildPaths(appRoot, settings, issues, prefix, renderer, stage) {
   }
 
   const bundleKey = webview ? 'hostBundleFile' : 'bundleFile'
+
   if (typeof settings[bundleKey] === 'string' && !settings[bundleKey].endsWith('.cjs')) {
     issues.push(`macOS ${bundleKey} must point to a CommonJS .cjs bundle`)
   }
@@ -68,6 +71,7 @@ function compareVersions(left, right) {
 
   for (let index = 0; index < Math.max(leftParts.length, rightParts.length); index++) {
     const difference = (leftParts[index] ?? 0) - (rightParts[index] ?? 0)
+
     if (difference !== 0) {
       return difference
     }
@@ -84,6 +88,7 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 
   const path = resolve(root, value)
   const fromRoot = relative(root, path)
+
   if (fromRoot === '..' || fromRoot.startsWith(`..${sep}`) || isAbsolute(fromRoot)) {
     issues.push(`${label} must stay inside the app root`)
     return null
@@ -101,6 +106,7 @@ function resolveProjectPath(root, value, label, issues, { mustExist = false } = 
 export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
   const issues = []
   const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+
   if (settings !== value) {
     issues.push('xplat.targets.macos.package must be an object')
   }
@@ -196,6 +202,7 @@ export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
         }
 
         const kind = typeof value
+
         if (kind !== 'string' && kind !== 'boolean' && kind !== 'number') {
           issues.push(
             `xplat.targets.macos.package.infoPlist.${key} must be a string, number, or boolean`,
@@ -214,11 +221,13 @@ export function inspectMacOSPackageConfig(appRoot, value, selectedRenderer) {
 export function inspectMacOSDevConfig(appRoot, value, selectedRenderer) {
   const issues = []
   const settings = value && typeof value === 'object' && !Array.isArray(value) ? value : {}
+
   if (settings !== value) {
     issues.push('xplat.targets.macos.dev must be an object')
   }
 
   const renderer = rendererOf(selectedRenderer, issues, 'xplat.targets.macos')
+
   if (renderer === 'webview') {
     const paths = resolveBuildPaths(
       appRoot,
@@ -233,6 +242,7 @@ export function inspectMacOSDevConfig(appRoot, value, selectedRenderer) {
   }
 
   const paths = {}
+
   for (const key of ['viteConfig', 'bundleFile', 'shellViteConfig', 'shellBundleFile']) {
     if (settings[key] === undefined && key.startsWith('shell')) {
       continue

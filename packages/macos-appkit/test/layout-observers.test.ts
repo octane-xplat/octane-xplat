@@ -7,6 +7,7 @@ test('layout commit subscriptions preserve root identity and unsubscribe', () =>
   const first = {}
   const second = {}
   const stop = observeLayoutCommits(({ hostView }) => seen.push(hostView))
+
   notifyLayoutCommit(first)
   notifyLayoutCommit(second)
   stop()

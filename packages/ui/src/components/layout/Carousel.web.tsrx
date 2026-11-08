@@ -10,6 +10,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { Pressable } from '../actions/Pressable.web.tsrx'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 const EPS = 1
 
 /** Horizontal slide strip (Astryx `Carousel`), web leaf — a scrollable
@@ -30,6 +31,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   const measure = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -39,6 +41,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
     const max = Math.max(0, el.scrollWidth - el.clientWidth)
     const prev = x > EPS
     const next = x < max - EPS
+
     setAtStart(!prev)
     setAtEnd(!next)
     setCanPrev(loop ? count > 1 : prev)
@@ -47,6 +50,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   const slideOffsets = useCallback((): number[] => {
     const t = track.current
+
     if (!t) {
       return []
     }
@@ -68,12 +72,14 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
     (i: number) => {
       const el = scroller.current
       const offsets = slideOffsets()
+
       if (!el || !offsets.length) {
         return
       }
 
       const clamped = Math.min(Math.max(i, 0), count - 1)
       const target = offsets[clamped] ?? 0
+
       el.scrollTo({ left: isRtl() ? -target : target, behavior: behavior() })
     },
     [count, slideOffsets],
@@ -81,6 +87,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   const scrollNext = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -88,6 +95,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
     const rtl = isRtl()
     const x = rtl ? -el.scrollLeft : el.scrollLeft
     const max = Math.max(0, el.scrollWidth - el.clientWidth)
+
     if (x >= max - EPS && loop) {
       // Loop wraps to the start (scrollLeft 0 is the start edge in both
       // directions — RTL scroll offsets run negative toward the end).
@@ -100,6 +108,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   const scrollPrev = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -107,6 +116,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
     const rtl = isRtl()
     const x = rtl ? -el.scrollLeft : el.scrollLeft
     const max = Math.max(0, el.scrollWidth - el.clientWidth)
+
     if (x <= EPS && loop) {
       el.scrollTo({ left: rtl ? -max : max, behavior: behavior() })
       return
@@ -121,6 +131,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
     scrollTo: scrollToIndex,
     canScrollNext: () => {
       const el = scroller.current
+
       if (!el) {
         return false
       }
@@ -131,10 +142,12 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
       const rtl = isRtl()
       const x = rtl ? -el.scrollLeft : el.scrollLeft
+
       return x < Math.max(0, el.scrollWidth - el.clientWidth) - EPS
     },
     canScrollPrev: () => {
       const el = scroller.current
+
       if (!el) {
         return false
       }
@@ -145,6 +158,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
       const rtl = isRtl()
       const x = rtl ? -el.scrollLeft : el.scrollLeft
+
       return x > EPS
     },
   }
@@ -153,12 +167,15 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
 
   useEffect(() => {
     measure()
+
     const el = scroller.current
+
     if (!el) {
       return
     }
 
     el.addEventListener('scroll', measure, { passive: true })
+
     const ro = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(measure)
 
     ro?.observe(el)
@@ -175,6 +192,7 @@ function CarouselImpl(props: CarouselProps): JSX.Element @{
   // Shift+wheel scrolls horizontally (Astryx behavior).
   const onWheel = (event: WheelEvent) => {
     const el = scroller.current
+
     if (!el || !event.shiftKey || el.scrollWidth <= el.clientWidth) {
       return
     }

@@ -23,19 +23,23 @@ test('length caps bound the insertion and retain original text around a paste/re
     remove('abcXYZdef', excessTextRange('abcdef', 'abcXYZdef', 8, { location: 3, length: 0 })),
     'abcXYdef',
   )
+
   assert.equal(
     remove('abXYZef', excessTextRange('abcdef', 'abXYZef', 6, { location: 2, length: 2 })),
     'abXYef',
   )
+
   assert.equal(remove('aaaa', excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 })), 'aaa')
   assert.deepEqual(excessTextRange('aaa', 'aaaa', 3, { location: 1, length: 0 }), {
     location: 1,
     length: 1,
   })
+
   assert.equal(excessTextRange('long value', 'long valu', 3, { location: 9, length: 1 }), null)
   for (const cap of [undefined, null, NaN, Infinity, -1, 2.5, '3']) {
     assert.equal(excessTextRange('', 'long', cap), null)
   }
+
   assert.equal(remove('value', excessTextRange('', 'value', 0)), '')
   assert.equal(remove('A😀B', excessTextRange('', 'A😀B', 2)), 'A')
   assert.equal(remove('😁x', excessTextRange('😀', '😁x', 1)), '')
@@ -61,6 +65,7 @@ function fixture(before = 'abcd') {
       notifications.push(isNormalizingTextLimit(view))
     },
   }
+
   rememberTextLimitValue(view)
   return {
     view,
@@ -73,6 +78,7 @@ function fixture(before = 'abcd') {
 
 test('committed edits preserve their selection and guard the correction notification', () => {
   const { view, notifications } = fixture()
+
   recordTextLimitEdit(view, { location: 2, length: 0 })
   view.string = 'abXYZcd'
   rememberTextLimitValue(view, true) // Reapplying a cap cannot discard a pending edit.
@@ -87,6 +93,7 @@ test('committed edits preserve their selection and guard the correction notifica
 
 test('marked updates stay intact until commit, including an explicit unmark without a change event', () => {
   const { view, compose } = fixture()
+
   recordTextLimitEdit(view, { location: 1, length: 2 })
   compose(true)
   view.string = 'a候補編集中d'
@@ -103,6 +110,7 @@ test('marked updates stay intact until commit, including an explicit unmark with
 
 test('programmatic values may exceed the cap; native vetoes/failures release the correction guard', () => {
   const { view } = fixture('external value')
+
   assert.equal(enforceTextLimit(view, 3), false)
   recordTextLimitEdit(view, { location: 0, length: view.string.length })
   view.string = 'replacement'
@@ -115,6 +123,7 @@ test('programmatic values may exceed the cap; native vetoes/failures release the
   view.shouldChangeTextInRangeReplacementString = () => {
     throw new Error('native error')
   }
+
   assert.throws(() => enforceTextLimit(view, 3), /native error/)
   assert.equal(isNormalizingTextLimit(view), false)
 })
@@ -125,10 +134,12 @@ test('native subclass unmark applies a deferred cap once', () => {
     source.indexOf('class InteractionTextView'),
     source.indexOf('class InteractionTextFieldCell'),
   )
+
   const textNodesByView = new WeakMap()
   let unmarks = 0,
     normalizations = 0,
     changes = 0
+
   const { InteractionTextView } = runSlice(body + '\n({ InteractionTextView })', {
     notifyTextValueCommit,
     NSTextView: class {
@@ -147,7 +158,9 @@ test('native subclass unmark applies a deferred cap once', () => {
     },
     actionIdsByView: new WeakMap(),
   })
+
   const view = new InteractionTextView()
+
   textNodesByView.set(view, { props: { maxLength: 5 }, actionId: 7 })
   view.unmarkText()
   view.unmarkText()
@@ -161,9 +174,11 @@ test('delegate normalization exposes the corrected text once despite a nested na
     source.indexOf('class ButtonActionTarget'),
     source.indexOf('const buttonActionTarget'),
   )
+
   const { view } = fixture()
   const nodes = new WeakMap(),
     actions = new WeakMap()
+
   const values: string[] = []
   const { ButtonActionTarget } = runSlice(body + '\n({ ButtonActionTarget })', {
     NSObject: class {},
@@ -186,7 +201,9 @@ test('delegate normalization exposes the corrected text once despite a nested na
     fitTextView() {},
     invokeAction: () => values.push(view.string),
   })
+
   const target = new ButtonActionTarget()
+
   nodes.set(view, { props: { maxLength: 5 } })
   actions.set(view, 1)
   view.didChangeText = () => target.textDidChange({ object: view })
@@ -198,6 +215,7 @@ test('delegate normalization exposes the corrected text once despite a nested na
 
 test('a wholly rejected insertion emits no duplicate value but composition restoration does', () => {
   const { view, compose } = fixture('full')
+
   recordTextLimitEdit(view, { location: 2, length: 0 })
   view.string = 'fuXll'
   enforceTextLimit(view, 4)

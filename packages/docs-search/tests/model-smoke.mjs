@@ -11,6 +11,7 @@ const cacheDir = resolve(
 )
 
 mkdirSync(cacheDir, { recursive: true })
+
 const docs = (version) => [
   {
     path: 'docs/navigation.md',
@@ -34,6 +35,7 @@ const start = performance.now()
 // Exercise input boundaries with real tokenization/inference, without network.
 const originalFetch = globalThis.fetch
 const boundaryEmbedder = localEmbedder(cacheDir, true)
+
 await boundaryEmbedder.prepare()
 globalThis.fetch = () => {
   throw new Error('Inference attempted network access')
@@ -42,8 +44,10 @@ globalThis.fetch = () => {
 try {
   const texts = ['', 'Café 中文 🚀', 'navigation '.repeat(800)]
   const together = await boundaryEmbedder.embed(texts)
+
   for (let i = 0; i < texts.length; i++) {
     const [alone] = await boundaryEmbedder.embed([texts[i]])
+
     assert.equal(alone.length, MODEL.dimensions)
     assert.ok(alone.every(Number.isFinite))
     assert.ok(Math.abs(Math.hypot(...alone) - 1) < 1e-6)
@@ -59,8 +63,11 @@ try {
 for (const version of ['1.0.0', '2.0.0']) {
   const documents = docs(version)
   const options = { documents, binding: version, cacheDir }
+
   await prepareIndex(options)
+
   const fetch = globalThis.fetch
+
   globalThis.fetch = () => {
     throw new Error('Search attempted network access')
   }
@@ -123,6 +130,7 @@ const cases = [
 ]
 
 const evaluation = []
+
 globalThis.fetch = () => {
   throw new Error('Guide search attempted network access')
 }
@@ -130,6 +138,7 @@ globalThis.fetch = () => {
 try {
   for (const [query, expected] of cases) {
     const found = await searchIndex({ ...guideOptions, query, limit: 3 })
+
     assert.equal(found.retrieval.used, 'hybrid', JSON.stringify(found.retrieval))
     evaluation.push({
       query,

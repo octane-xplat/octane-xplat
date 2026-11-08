@@ -24,14 +24,17 @@ test('native Lingui initializes its required APIs, not relative time or segmenta
   assert.equal(typeof Intl.Segmenter, 'undefined')
  `,
   })
+
   assert.equal(
     result.modules.some((id) => /intl-relativetimeformat|intl-segmenter/.test(id)),
     false,
   )
+
   assert.equal(
     result.modules.some((id) => id.includes('/locale-data/de.js')),
     false,
   )
+
   console.log(`Lingui native: ${result.bytes} uncompressed JS bytes`)
 })
 
@@ -48,6 +51,7 @@ test('native locale and zone data register before Lingui formatting', async () =
    assert.equal(leaf.i18n.date(0, {timeZone:'America/New_York', hour:'numeric', hourCycle:'h23'}), '19 Uhr')
   `,
   })
+
   assert.ok(result.modules.some((id) => id.includes('/locale-data/de.js')))
 })
 
@@ -66,6 +70,7 @@ test('web Lingui relies on built-ins without bundling FormatJS', async () => {
     before: 'const before = Intl.NumberFormat',
     check: checks + 'assert.equal(Intl.NumberFormat, before)',
   })
+
   assert.equal(
     result.modules.some((id) => id.includes('@formatjs')),
     false,

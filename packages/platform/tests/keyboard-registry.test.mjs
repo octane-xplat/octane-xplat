@@ -6,10 +6,12 @@ function source(initial = 0) {
   const attached = []
   const observe = (window, publish) => {
     const entry = { window, publish, stopped: 0 }
+
     attached.push(entry)
     publish(typeof initial === 'function' ? initial(window) : initial)
     return () => entry.stopped++
   }
+
   return { observe, attached }
 }
 
@@ -22,12 +24,17 @@ test('windows share their own observer, replay current state, and release the fi
     first = [],
     late = [],
     other = []
+
   assert.equal(registry.getSnapshot(a), 0)
   assert.equal(native.attached.length, 0)
+
   const offA = registry.subscribe(a, (value) => first.push(value))
   const offB = registry.subscribe(b, (value) => other.push(value))
+
   native.attached[0].publish(280)
+
   const offLate = registry.subscribe(a, (value) => late.push(value))
+
   assert.equal(native.attached.length, 2)
   assert.deepEqual(first, [0, 280])
   assert.deepEqual(late, [280])
@@ -52,12 +59,15 @@ test('repeated controller activations share ownership and restore the fallback',
   const registry = createKeyboardWindowRegistry(() => 0)
   const fallback = source(120),
     controller = source(300)
+
   const removeFallback = registry.install(fallback.observe, 'fallback')
   const window = {},
     values = []
+
   const off = registry.subscribe(window, (value) => values.push(value))
   const first = registry.install(controller.observe)
   const second = registry.install(controller.observe)
+
   assert.equal(controller.attached.length, 1)
   assert.equal(fallback.attached[0].stopped, 1)
   fallback.attached[0].publish(999)
@@ -80,6 +90,7 @@ test('installing or releasing a source with no readers does not attach native re
   const registry = createKeyboardWindowRegistry(() => 0)
   const native = source(250)
   const remove = registry.install(native.observe)
+
   assert.equal(registry.getSnapshot({}), 0)
   remove()
   assert.equal(native.attached.length, 0)
@@ -89,14 +100,19 @@ test('inactive object snapshots stay stable for external-store readers without r
   const registry = createKeyboardWindowRegistry(() => ({ inset: 0 }))
   const window = {},
     other = {}
+
   const empty = registry.getSnapshot(window)
+
   assert.equal(registry.getSnapshot(window), empty)
   assert.notEqual(registry.getSnapshot(other), empty)
+
   const remove = registry.install((_key, publish) => {
     publish({ inset: 300 })
     return () => {}
   })
+
   const off = registry.subscribe(window, () => {})
+
   assert.equal(registry.getSnapshot(window).inset, 300)
   off()
   assert.equal(registry.getSnapshot(window), empty)
@@ -107,8 +123,10 @@ test('removing the only source returns remaining readers to unknown initial stat
   const registry = createKeyboardWindowRegistry(() => 0)
   const native = source(250),
     values = []
+
   const remove = registry.install(native.observe)
   const off = registry.subscribe({}, (value) => values.push(value))
+
   remove()
   assert.deepEqual(values, [250, 0])
   native.attached[0].publish(999)
@@ -122,24 +140,30 @@ test('failed activation restores every window and invalidates partially attached
     b = {},
     valuesA = [],
     valuesB = []
+
   const fallback = source((window) => (window === a ? 100 : 200))
+
   registry.install(fallback.observe, 'fallback')
+
   const offA = registry.subscribe(a, (value) => valuesA.push(value))
   const offB = registry.subscribe(b, (value) => valuesB.push(value))
   let stale,
     stopped = 0
+
   assert.throws(
     () =>
       registry.install((window, publish) => {
         if (window === b) {
           throw new Error('Missing native callback bridge')
         }
+
         stale = publish
         publish(300)
         return () => stopped++
       }),
     /activation failed/,
   )
+
   assert.equal(stopped, 1)
   assert.equal(registry.getSnapshot(a), 100)
   assert.equal(registry.getSnapshot(b), 200)
@@ -156,13 +180,17 @@ test('one throwing reader does not prevent other readers receiving current state
   const native = source(),
     values = [],
     window = {}
+
   registry.install(native.observe)
+
   const offThrowing = registry.subscribe(window, (value) => {
     if (value > 0) {
       throw new Error('Broken subscriber')
     }
   })
+
   const offHealthy = registry.subscribe(window, (value) => values.push(value))
+
   assert.throws(() => native.attached[0].publish(200), /subscriber failed/)
   assert.deepEqual(values, [0, 200])
   offThrowing()
@@ -176,6 +204,7 @@ test('a failing initial reader releases its already-attached source', () => {
   const registry = createKeyboardWindowRegistry(() => 0)
   const native = source(200),
     window = {}
+
   registry.install(native.observe)
   assert.throws(
     () =>
@@ -184,6 +213,7 @@ test('a failing initial reader releases its already-attached source', () => {
       }),
     /subscriber failed/,
   )
+
   assert.equal(native.attached[0].stopped, 1)
   assert.equal(registry.getSnapshot(window), 0)
 })
@@ -194,14 +224,18 @@ test('unmount during source replacement releases the new observer and rejects it
     next = source(250),
     window = {},
     values = []
+
   registry.install(fallback.observe, 'fallback')
+
   const off = registry.subscribe(window, (value) => {
     values.push(value)
     if (value > 0) {
       off()
     }
   })
+
   const remove = registry.install(next.observe)
+
   assert.equal(fallback.attached[0].stopped, 1)
   assert.equal(next.attached[0].stopped, 1)
   next.attached[0].publish(500)

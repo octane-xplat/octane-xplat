@@ -33,24 +33,31 @@ export function createTree(deps: Dependencies) {
     const previousParent = node.parent
     const failures = new FailureCollector()
     const release = (phase: string, operation: () => void) => failures.run(phase, operation)
+
     release('detach animations', () => deps.cssAnimations.stopSubtreeAnimations(node))
     if (node.type === 'tabviewitem' && !preserveTab) {
       release('detach tab', () => detachTabItem(node))
     }
+
     const physicalParent = node.layoutParent ?? previousParent
+
     if (node.layoutParent) {
       release('detach projection', () => deps.projection.releaseProjectedView(node))
     }
+
     if (node.type === 'proxyviewcontainer') {
       for (const child of deps.projection.projectedViews(node)) {
         release('detach proxy projection', () => deps.projection.releaseProjectedView(child))
       }
     }
+
     const siblings = previousParent?.children ?? container.children
     const index = siblings.indexOf(node)
+
     if (index >= 0) {
       siblings.splice(index, 1)
     }
+
     // Retire edges before native calls can reenter; the live parent still needs
     // synchronization even though the child has begun disposal.
     node.parent = null
@@ -59,6 +66,7 @@ export function createTree(deps: Dependencies) {
     release('detach placement', () => deps.layout.releasePlacementPins(node))
     if (node.view) {
       const parentView = physicalParent?.childHost ?? physicalParent?.view
+
       release('detach arranged view', () => {
         if (
           parentView?.removeArrangedSubview &&
@@ -70,6 +78,7 @@ export function createTree(deps: Dependencies) {
 
       release('detach native view', () => deps.layout.layoutView(node).removeFromSuperview())
     }
+
     if (
       previousParent &&
       ['contentview', 'actionbar'].includes(previousParent.type) &&
@@ -78,16 +87,20 @@ export function createTree(deps: Dependencies) {
       previousParent.contentChild = null
       release('detach content size', () => previousParent.view!.invalidateIntrinsicContentSize())
     }
+
     release('detach parent layout', () =>
       deps.layout.queueLayoutReconcile(container, previousParent),
     )
+
     release('detach parent text', () => deps.textElements.syncText(previousParent))
     if (previousParent?.type === 'tabview') {
       release('detach parent tab', () => syncTabView(previousParent))
     }
+
     if (previousParent?.type === 'segmentedbar') {
       release('detach parent segment', () => deps.pickerElements.syncSegmentedBar(previousParent))
     }
+
     failures.throwIfFailed()
   }
 
@@ -179,6 +192,7 @@ export function createTree(deps: Dependencies) {
     const text = child?.text ?? child?.props?.value
     const detail =
       childType === '#text' ? ` ("${String(text ?? '').slice(0, 60)}")` : ` (<${childType}>)`
+
     return new Error(
       'AppKit <' +
         (parent?.type ?? '?') +
@@ -195,6 +209,7 @@ export function createTree(deps: Dependencies) {
     beforeId: number | null,
   ) {
     const parent = deps.registry.resolveParentNode(container, parentId)
+
     validateTextNesting(parent?.type, node.type)
     // Validate before detaching — a rejected insert must not leave the node
     // orphaned from its current parent.
@@ -230,20 +245,25 @@ export function createTree(deps: Dependencies) {
       parent?.children.some((child) => child.type === 'proxyviewcontainer')
 
     const parentView = parent?.childHost ?? parent?.view ?? container.hostView
+
     if (node.view && !parentView) {
       throw new Error('AppKit host has no parent view for node ' + node.id)
     }
 
     detach(container, node, node.type === 'tabviewitem' && node.parent === parent)
+
     const siblings = parent ? parent.children : container.children
     const beforeIndex =
       beforeId === null ? -1 : siblings.findIndex((child) => child.id === beforeId)
+
     const index = beforeIndex < 0 ? siblings.length : beforeIndex
+
     siblings.splice(index, 0, node)
     node.parent = parent
     if (projected) {
       if (parent && ['contentview', 'actionbar'].includes(parent.type)) {
         const previous = parent.contentChild
+
         if (previous && previous !== node) {
           for (const child of previous.type === 'proxyviewcontainer'
             ? deps.projection.projectedViews(previous)
@@ -300,6 +320,7 @@ export function createTree(deps: Dependencies) {
           deps.layout.queueLayoutReconcile(container, parent)
         } else if (['contentview', 'actionbar'].includes(parent.type ?? '')) {
           const previous = parent.contentChild
+
           if (previous && previous !== node) {
             deps.layout.releasePlacementPins(previous)
             deps.layout.layoutView(previous).removeFromSuperview()
@@ -374,9 +395,11 @@ export function createTree(deps: Dependencies) {
 
   function remove(container: RootContainer, parentId: UniversalHostParent, node: ElementNode) {
     const expectedParent = deps.registry.resolveParentNode(container, parentId)
+
     if (node.parent !== expectedParent) {
       return
     }
+
     if (
       expectedParent &&
       (stylesheetScope().hasAdjacentCombinatorSelectors ||
@@ -404,6 +427,7 @@ export function createTree(deps: Dependencies) {
 
     const siblings = expectedParent ? expectedParent.children : container.children
     const index = siblings.indexOf(node)
+
     if (index >= 0) {
       siblings.splice(index, 1)
     }
@@ -412,6 +436,7 @@ export function createTree(deps: Dependencies) {
     deps.layout.releasePlacementPins(node)
     if (node.view) {
       const parentView = expectedParent?.childHost ?? expectedParent?.view
+
       if (
         parentView?.removeArrangedSubview &&
         deps.layout.layoutView(node)?.superview === parentView
@@ -443,6 +468,7 @@ export function createTree(deps: Dependencies) {
       deps.pickerElements.syncSegmentedBar(expectedParent)
     }
   }
+
   return {
     detach,
     validateTextNesting,

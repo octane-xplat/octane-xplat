@@ -11,11 +11,14 @@ test(
   { skip: process.platform !== 'darwin' || process.env.XPLAT_NATIVE_TEST_HOST !== 'skymac.local' },
   (t) => {
     const root = mkdtempSync(join(tmpdir(), 'xplat-ota-guard-'))
+
     t.after(() => rmSync(root, { recursive: true, force: true }))
+
     const guard = readFileSync(
       fileURLToPath(new URL('../native/boot.m', import.meta.url)),
       'utf8',
     ).replaceAll('__XPLAT_NATIVE_FINGERPRINT__', 'a'.repeat(64))
+
     const source = `#import <Foundation/Foundation.h>
 static NSString *home;
 static NSString *XplatTestHome(void) { return home; }
@@ -92,7 +95,9 @@ int main(int argc, char **argv) { @autoreleasepool {
       )
 
       assert.equal(compile.status, 0, compile.stderr)
+
       const result = spawnSync(binary, [join(root, 'container-' + mode)], { encoding: 'utf8' })
+
       assert.equal(result.status, 0, result.stderr)
     }
   },

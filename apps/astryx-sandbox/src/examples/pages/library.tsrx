@@ -311,14 +311,17 @@ export function LibraryTemplate() @{
 
   const filtered = useMemo(() => {
     let items = activeTab === 'All' ? ITEMS : ITEMS.filter((i) => i.category === activeTab)
+
     if (search.trim()) {
       const q = search.toLowerCase()
+
       items = items.filter(
         (i) => i.name.toLowerCase().includes(q) || i.description.toLowerCase().includes(q),
       )
     }
 
     const sorted = [...items]
+
     if (sortOrder === 'A-Z') {
       sorted.sort((a, b) => a.name.localeCompare(b.name))
     } else if (sortOrder === 'Z-A') {
@@ -337,8 +340,10 @@ export function LibraryTemplate() @{
 
     const order = CATEGORIES.filter((c) => c !== 'All')
     const map = new Map<string, LibraryItem[]>()
+
     for (const item of filtered) {
       let group = map.get(item.category)
+
       if (!group) {
         group = []
         map.set(item.category, group)

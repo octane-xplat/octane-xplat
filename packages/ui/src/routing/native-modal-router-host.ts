@@ -51,9 +51,11 @@ function nativeSurface(
     if (!themeBound) {
       return
     }
+
     themeBound = false
     unbindTheme()
   }
+
   let started = false
   let nativeShown = false
   let closed = false
@@ -71,13 +73,16 @@ function nativeSurface(
     resolveShown = resolve
     rejectShown = reject
   })
+
   const closure = new Promise<void>((resolve, reject) => {
     resolveClosed = resolve
     rejectClosed = reject
   })
+
   // Native callbacks may arrive before the router starts awaiting a receipt.
   void shown.catch(() => {})
   void closure.catch(() => {})
+
   const root = request.owner.createRoot(native, request.onOwnerDisposed)
   const transition = request.route.transition
   const skipped = request.transition?.kind === 'skip'
@@ -95,14 +100,17 @@ function nativeSurface(
               ? 'reduced-motion'
               : 'unsupported',
       }
+
   const settleShown = (result: Shown) => {
     if (showSettled) {
       return
     }
+
     showSettled = true
     clearTimeout(showTimer)
     resolveShown(result)
   }
+
   const cleanup = () => {
     effects.interrupt()
     clearTimeout(showTimer)
@@ -112,6 +120,7 @@ function nativeSurface(
     root.unmount()
     releaseTheme()
   }
+
   const onShown = () => {
     nativeShown = true
     settleShown({
@@ -121,28 +130,34 @@ function nativeSurface(
           ? effects.run(request.context, transition, request.transition, native)
           : Promise.resolve(finished),
     })
+
     if (closeRequested) {
       invokeClose()
     }
   }
+
   const onClosed = () => {
     if (closed) {
       return
     }
+
     closed = true
     settleShown({ status: 'closed' })
     if (!closeSettled) {
       closeSettled = true
       resolveClosed()
     }
+
     cleanup()
     request.onClosed()
   }
+
   let closingNative = false
   const invokeClose = () => {
     if (closed || closingNative || !nativeShown) {
       return
     }
+
     closingNative = true
     try {
       native.closeModal()
@@ -154,6 +169,7 @@ function nativeSurface(
       }
     }
   }
+
   native.on('shownModally', onShown)
   native.on('closedModally', onClosed)
   return {
@@ -163,9 +179,11 @@ function nativeSurface(
       if (disposed || closed) {
         return Promise.resolve({ status: 'closed' })
       }
+
       if (started) {
         return shown
       }
+
       started = true
       showTimer = setTimeout(() => {
         if (!showSettled) {
@@ -173,6 +191,7 @@ function nativeSurface(
           rejectShown(new Error('Native modal presentation did not complete'))
         }
       }, timeout)
+
       try {
         // Direct SDK cancellation cannot await route admission. Canonical dismiss
         // and the claimed Android Back path prepare the presenter first.
@@ -184,12 +203,14 @@ function nativeSurface(
           rejectShown(error)
         }
       }
+
       return shown
     },
     async close() {
       if (closed) {
         return
       }
+
       if (!started) {
         closed = true
         settleShown({ status: 'closed' })
@@ -201,6 +222,7 @@ function nativeSurface(
         cleanup()
         return
       }
+
       if (!closeRequested) {
         closeRequested = true
         effects.interrupt()
@@ -215,12 +237,14 @@ function nativeSurface(
         await shown.catch(() => {})
         invokeClose()
       }
+
       return closure
     },
     dispose() {
       if (disposed) {
         return
       }
+
       disposed = true
       effects.interrupt()
       releaseTheme()
@@ -253,9 +277,11 @@ export function createNativeModalRouterHost(
   },
 ): NativeModalRouterHost {
   const timeout = options.modalTimeoutMs ?? 15000
+
   if (!Number.isFinite(timeout) || timeout <= 0) {
     throw new TypeError('Expected a positive modal timeout')
   }
+
   const activeFlows = new Map<string, { active: boolean; order: number }>()
   let activationOrder = 0
   let instanceDisposed = false
@@ -268,6 +294,7 @@ export function createNativeModalRouterHost(
     frameFlows: options.frameFlows,
     isFrameFlow: options.frameFlows ? undefined : (flow) => !!options.getFrame(flow),
   })
+
   const platform = createModalRouterHost({
     base,
     onCleanupError: options.onCleanupError,
@@ -279,16 +306,20 @@ export function createNativeModalRouterHost(
             options.getFrame(request.presenterFlow) ??
             options.getFrame('root'),
         )
+
       if (!presenter) {
         return undefined
       }
+
       return nativeSurface(request, presenter, timeout)
     },
   })
+
   const token = {}
   let detachBack = () => {}
   let detachPaneBack = () => {}
   const dispose = platform.host.dispose
+
   platform.host.dispose = () => {
     instanceDisposed = true
     detachPaneBack()
@@ -296,6 +327,7 @@ export function createNativeModalRouterHost(
     detachBack()
     dispose?.()
   }
+
   return {
     ...platform,
     setFlowActive(flow: string, active: boolean): void {
@@ -311,9 +343,11 @@ export function createNativeModalRouterHost(
             if (instanceDisposed || !event.activity || !isNativeActivityBackEvent(event)) {
               return false
             }
+
             if (options.getFrame('root')?.android?.activity !== event.activity) {
               return false
             }
+
             for (const [flow, state] of [...activeFlows].sort(
               ([, a], [, b]) => b.order - a.order,
             )) {
@@ -327,6 +361,7 @@ export function createNativeModalRouterHost(
 
               return true
             }
+
             return false
           },
         },
@@ -337,22 +372,29 @@ export function createNativeModalRouterHost(
         handle(event) {
           const modals = platform.modals.getSnapshot()
           const top = modals.at(-1)
+
           if (!top) {
             return false
           }
+
           const surface = platform.getSurface(top.flow)
+
           if (!surface || (!isNativeActivityBackEvent(event) && event.object !== surface.native)) {
             return false
           }
+
           let rootFlow = top.presenterFlow
+
           while (true) {
             const parent = modals.find((modal) => modal.flow === rootFlow)
+
             if (!parent) {
               break
             }
 
             rootFlow = parent.presenterFlow
           }
+
           if (
             !event.activity ||
             (options.getFrame(rootFlow) ?? options.getFrame('root'))?.android?.activity !==
@@ -360,16 +402,21 @@ export function createNativeModalRouterHost(
           ) {
             return false
           }
+
           const state = platform.host.getSnapshot(top.flow)
+
           // Consume during presentation/teardown; never start a competing
           // SDK transaction while an accepted one is completing.
           if (!state.route || state.disposed) {
             return true
           }
+
           const modal = bindRouterFlow(router, top.flow)
+
           void (state.canGoBack ? modal.back() : modal.dismiss()).catch(() => {
             console.warn('[octane-xplat] Routed modal Back failed')
           })
+
           return true
         },
       })

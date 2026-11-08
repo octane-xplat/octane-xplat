@@ -26,6 +26,7 @@ export function Lottie(props: LottieProps): JSX.Element @{
   const ready = useRef(false)
 
   const latest = useRef(props)
+
   latest.current = props
 
   const build = (host: HTMLDivElement) => {
@@ -35,6 +36,7 @@ export function Lottie(props: LottieProps): JSX.Element @{
     ready.current = false
 
     let animationData: object | undefined
+
     try {
       animationData = props.data ?? (props.src?.startsWith('{') ? JSON.parse(props.src) : undefined)
     } catch (error) {
@@ -43,11 +45,13 @@ export function Lottie(props: LottieProps): JSX.Element @{
     }
 
     const path = animationData ? undefined : props.src
+
     if (!animationData && !path) {
       return
     }
 
     let a: AnimationItem
+
     try {
       a = lottie.loadAnimation({
         container: host,
@@ -72,7 +76,9 @@ export function Lottie(props: LottieProps): JSX.Element @{
       }
 
       ready.current = true
+
       const current = latest.current
+
       if (current.speed !== undefined) {
         a.setSpeed(current.speed)
       }
@@ -98,11 +104,13 @@ export function Lottie(props: LottieProps): JSX.Element @{
 
   const seekTo = (p: number) => {
     const a = anim.current
+
     if (!a) {
       return
     }
 
     const frame = clamp01(p) * a.totalFrames
+
     // goToAndStop parks the playhead — keep playing state instead.
     if (a.isPaused) {
       a.goToAndStop(frame, true)
@@ -114,6 +122,7 @@ export function Lottie(props: LottieProps): JSX.Element @{
   // Build once the container exists; rebuild on src/data/fit changes.
   useEffect(() => {
     const host = el.current
+
     if (!host) {
       return
     }

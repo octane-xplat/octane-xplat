@@ -423,7 +423,9 @@ function reject(reason: string): never {
     activeRun.failed = true
     activeRun.reason = reason
   }
+
   const rejection = new RemarkAdapterRejection(reason)
+
   adapterReasons.set(rejection, reason)
   throw rejection
 }
@@ -434,6 +436,7 @@ function reject(reason: string): never {
  */
 function withRunState<Result>(state: RunState, work: () => Result): Result {
   const previous = activeRun
+
   activeRun = state
   try {
     return work()
@@ -459,16 +462,20 @@ function defuseThenable(value: unknown): boolean {
   if ((typeof value !== 'object' && typeof value !== 'function') || value === null) {
     return false
   }
+
   let then: unknown
+
   try {
     then = (value as { then?: unknown }).then
   } catch {
     // A `then` accessor that throws is a thenable-shaped hostile value.
     return true
   }
+
   if (typeof then !== 'function') {
     return false
   }
+
   try {
     then.call(
       value,
@@ -478,6 +485,7 @@ function defuseThenable(value: unknown): boolean {
   } catch {
     // A `then` that throws when called is refused all the same.
   }
+
   return true
 }
 
@@ -497,6 +505,7 @@ function knownType(type: unknown): string {
  */
 function knownFileKey(property: string | symbol): string {
   const key = typeof property === 'symbol' ? 'unknown' : property
+
   return FILE_SURFACE.has(key) || NAMED_UNSUPPORTED_FILE_KEYS.has(key) ? key : 'unknown'
 }
 
@@ -515,7 +524,9 @@ function isPlainObject(value: unknown): value is UnknownRecord {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
     return false
   }
+
   const prototype = Object.getPrototypeOf(value)
+
   return prototype === Object.prototype || prototype === null
 }
 
@@ -526,6 +537,7 @@ function samePoint(left: unknown, right: unknown): boolean {
   if (!isPlainObject(left) || !isPlainObject(right)) {
     return false
   }
+
   for (const point of [left, right]) {
     for (const field of Object.keys(point)) {
       if (!POINT_FIELDS.includes(field)) {
@@ -533,6 +545,7 @@ function samePoint(left: unknown, right: unknown): boolean {
       }
     }
   }
+
   return POINT_FIELDS.every((field) => left[field] === right[field])
 }
 
@@ -545,9 +558,11 @@ function samePosition(left: unknown, right: unknown): boolean {
   if (left === undefined || right === undefined) {
     return left === right
   }
+
   if (!isPlainObject(left) || !isPlainObject(right)) {
     return false
   }
+
   for (const position of [left, right]) {
     for (const field of Object.keys(position)) {
       if (!POSITION_FIELDS.includes(field)) {
@@ -555,6 +570,7 @@ function samePosition(left: unknown, right: unknown): boolean {
       }
     }
   }
+
   return samePoint(left.start, right.start) && samePoint(left.end, right.end)
 }
 
@@ -562,16 +578,21 @@ function copyPoint(point: unknown): MarkdownRemarkPoint | undefined {
   if (!isPlainObject(point)) {
     return undefined
   }
+
   const copy: MarkdownRemarkPoint = {}
+
   if (typeof point.line === 'number') {
     copy.line = point.line
   }
+
   if (typeof point.column === 'number') {
     copy.column = point.column
   }
+
   if (typeof point.offset === 'number') {
     copy.offset = point.offset
   }
+
   return copy
 }
 
@@ -579,28 +600,34 @@ function copyPosition(position: unknown): MarkdownRemarkPosition | undefined {
   if (!isPlainObject(position)) {
     return undefined
   }
+
   const start = copyPoint(position.start)
   const end = copyPoint(position.end)
+
   return start == null || end == null ? undefined : { start, end }
 }
 
 function copyData<Value>(value: Value): Value {
   if (Array.isArray(value)) {
     const copy: unknown[] = []
+
     for (const entry of value) {
       copy.push(copyData(entry))
     }
 
     return copy as Value
   }
+
   if (isPlainObject(value)) {
     const copy: UnknownRecord = {}
+
     for (const [key, nested] of Object.entries(value)) {
       copy[key] = copyData(nested)
     }
 
     return copy as Value
   }
+
   return value
 }
 
@@ -608,19 +635,23 @@ function sameJsonValue(left: unknown, right: unknown): boolean {
   if (left === right) {
     return true
   }
+
   if (Array.isArray(left) && Array.isArray(right)) {
     return (
       left.length === right.length && left.every((item, index) => sameJsonValue(item, right[index]))
     )
   }
+
   if (isPlainObject(left) && isPlainObject(right)) {
     const leftKeys = Object.keys(left)
     const rightKeys = Object.keys(right)
+
     return (
       leftKeys.length === rightKeys.length &&
       leftKeys.every((key) => key in right && sameJsonValue(left[key], right[key]))
     )
   }
+
   return false
 }
 
@@ -648,7 +679,9 @@ function toRemarkChildren(children: unknown, index: OriginIndex): UnknownRecord[
 
 function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
   indexOrigin(node, index)
+
   const copy: UnknownRecord = { type: node.type }
+
   switch (node.type) {
     case 'paragraph':
     case 'blockquote':
@@ -727,13 +760,17 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
     default:
       break
   }
+
   if (node.data !== undefined) {
     copy.data = copyData(node.data)
   }
+
   const position = copyPosition(node.position)
+
   if (position != null) {
     copy.position = position
   }
+
   // Enumerable so an immutable-style plugin that spreads a node keeps its
   // provenance; symbol-keyed so it never reaches JSON, data, or rendering.
   Object.defineProperty(copy, REMARK_ORIGIN, {
@@ -742,6 +779,7 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
     value: node,
     writable: false,
   })
+
   return copy
 }
 
@@ -749,19 +787,23 @@ function toRemarkNode(node: UnknownRecord, index: OriginIndex): UnknownRecord {
  *  `kind`/`v` tags are Core's, so the plugin never observes them. */
 function toRemarkDocument(document: MdDoc, index: OriginIndex): MarkdownRemarkRoot {
   indexOrigin(document as unknown as UnknownRecord, index)
+
   const copy: UnknownRecord = {
     type: 'root',
     children: toRemarkChildren(document.children, index),
   }
+
   if (document.data !== undefined) {
     copy.data = copyData(document.data)
   }
+
   Object.defineProperty(copy, REMARK_ORIGIN, {
     configurable: false,
     enumerable: true,
     value: document,
     writable: false,
   })
+
   return copy as unknown as MarkdownRemarkRoot
 }
 
@@ -795,24 +837,30 @@ function resolveOrigin(
   context: BackContext,
 ): UnknownRecord | null {
   const linked = (node as { [REMARK_ORIGIN]?: unknown })[REMARK_ORIGIN]
+
   if (linked === undefined) {
     return null
   }
+
   if (!isPlainObject(linked) || !context.index.all.has(linked)) {
     reject(`a "${knownType(type)}" node carries forged provenance`)
   }
+
   if (canonicalTypeOf(linked) !== type) {
     reject(`a source "${knownType(canonicalTypeOf(linked))}" node cannot be retyped`)
   }
+
   if (context.used.has(linked)) {
     reject(`a source "${knownType(type)}" node cannot be duplicated`)
   }
+
   context.used.add(linked)
   return linked
 }
 
 function assertKnownFields(type: string, node: UnknownRecord): void {
   const allowed = FIELDS_BY_TYPE[type]
+
   for (const key of Object.keys(node)) {
     if (key !== 'type' && key !== 'position' && key !== 'data' && !allowed.includes(key)) {
       reject(
@@ -826,6 +874,7 @@ function convertData(type: string, value: unknown): MdDataValue | undefined {
   if (value === undefined) {
     return undefined
   }
+
   if (isPlainObject(value)) {
     for (const key of RAW_MARKUP_DATA_KEYS) {
       if (key in value) {
@@ -833,9 +882,11 @@ function convertData(type: string, value: unknown): MdDataValue | undefined {
       }
     }
   }
+
   if (!isMarkdownPluginData(value)) {
     reject(`a "${knownType(type)}" node's data must be finite JSON-like values`)
   }
+
   return copyData(value)
 }
 
@@ -843,6 +894,7 @@ function requireString(type: string, field: string, value: unknown): string {
   if (typeof value !== 'string') {
     reject(`a "${knownType(type)}" node requires a string "${knownField(type, field)}"`)
   }
+
   return value
 }
 
@@ -863,12 +915,15 @@ function assertPlacement(
   if (parentType == null) {
     return
   }
+
   if (type === 'root') {
     reject('a document can only contain one root')
   }
+
   const display = type === 'extension' ? node.display : undefined
   const phrasing = PHRASING_TYPES.has(type) || display === 'inline'
   const block = BLOCK_TYPES.has(type) || display === 'block'
+
   if (
     (PHRASING_PARENTS.has(parentType) && !phrasing) ||
     (BLOCK_PARENTS.has(parentType) && !block) ||
@@ -878,6 +933,7 @@ function assertPlacement(
   ) {
     reject(`a "${knownType(type)}" node cannot be a child of a "${knownType(parentType)}" node`)
   }
+
   if (insideLink && type === 'link') {
     reject('a link cannot be nested inside another link')
   }
@@ -891,13 +947,17 @@ function sameCanonicalFields(origin: UnknownRecord, fields: UnknownRecord): bool
   const originKeys = Object.keys(origin).filter(
     (key) => key !== 'type' && key !== 'kind' && key !== 'v' && origin[key] !== undefined,
   )
+
   const fieldKeys = Object.keys(fields).filter((key) => fields[key] !== undefined)
+
   if (originKeys.length !== fieldKeys.length) {
     return false
   }
+
   for (const key of fieldKeys) {
     const next = fields[key]
     const previous = origin[key]
+
     if (next === previous) {
       continue
     }
@@ -917,6 +977,7 @@ function sameCanonicalFields(origin: UnknownRecord, fields: UnknownRecord): bool
       return false
     }
   }
+
   return true
 }
 
@@ -928,8 +989,10 @@ function buildCanonicalNode(
   if (origin != null && sameCanonicalFields(origin, fields)) {
     return origin
   }
+
   const built: UnknownRecord =
     type === 'root' ? { kind: MD_DOC_KIND, v: MD_DOC_VERSION, ...fields } : { type, ...fields }
+
   if (origin != null) {
     // Carries Core's own enumerable symbol markers (source-heading identity)
     // onto the replacement so Core still recognizes the node it authored.
@@ -944,6 +1007,7 @@ function buildCanonicalNode(
       }
     }
   }
+
   return built
 }
 
@@ -956,6 +1020,7 @@ function fromRemarkChildren(
   if (!Array.isArray(children)) {
     reject(`a "${knownType(type)}" node requires a children array`)
   }
+
   return children.map((child) =>
     fromRemarkNode(child, type, insideLink || type === 'link', context),
   )
@@ -970,20 +1035,26 @@ function fromRemarkNode(
   if (!isPlainObject(value)) {
     reject('every transformed node must be a plain object')
   }
+
   const type = value.type
+
   if (typeof type !== 'string') {
     reject('every transformed node requires a string type')
   }
+
   if (type === 'html') {
     reject('raw HTML has no Octane representation')
   }
+
   if (!(type in FIELDS_BY_TYPE)) {
     reject(`the node type "${knownType(type)}" is outside the supported MDAST subset`)
   }
+
   assertKnownFields(type, value)
   assertPlacement(type, value, parentType, insideLink)
 
   const origin = resolveOrigin(value, type, context)
+
   if (origin == null) {
     if (value.position !== undefined) {
       reject(`a new "${knownType(type)}" node cannot carry a source position`)
@@ -995,6 +1066,7 @@ function fromRemarkNode(
   }
 
   const fields: UnknownRecord = {}
+
   switch (type) {
     case 'root':
     case 'paragraph':
@@ -1008,6 +1080,7 @@ function fromRemarkNode(
       break
     case 'heading': {
       const depth = value.depth
+
       if (typeof depth !== 'number' || !Number.isInteger(depth) || depth < 1 || depth > 6) {
         reject('a heading requires a depth between 1 and 6')
       }
@@ -1022,6 +1095,7 @@ function fromRemarkNode(
     }
     case 'listItem': {
       const checked = value.checked
+
       if (checked !== undefined && checked !== null) {
         if (typeof checked !== 'boolean') {
           reject('a list item requires a boolean "checked" value')
@@ -1045,11 +1119,13 @@ function fromRemarkNode(
       break
     case 'code': {
       const lang = value.lang
+
       if (lang !== undefined && lang !== null && typeof lang !== 'string') {
         reject('a code node requires a string or null "lang"')
       }
 
       const meta = value.meta
+
       if (meta !== undefined && meta !== null && typeof meta !== 'string') {
         reject('a code node requires a string or null "meta"')
       }
@@ -1064,6 +1140,7 @@ function fromRemarkNode(
     }
     case 'link': {
       const url = requireString(type, 'url', value.url)
+
       if (!isSafeMdParserUrl(url)) {
         reject('a link destination was rejected by the navigation owner')
       }
@@ -1075,6 +1152,7 @@ function fromRemarkNode(
     }
     case 'image': {
       const url = requireString(type, 'url', value.url)
+
       if (!isSafeMdParserUrl(url)) {
         reject('an image source was rejected by the resource owner')
       }
@@ -1094,7 +1172,9 @@ function fromRemarkNode(
       }
 
       fields.ordered = value.ordered
+
       const start = value.start
+
       if (start !== undefined && start !== null) {
         if (typeof start !== 'number' || !Number.isFinite(start)) {
           reject('a list requires a finite "start" value')
@@ -1108,6 +1188,7 @@ function fromRemarkNode(
       }
 
       const delimiter = value.delimiter
+
       if (delimiter !== undefined) {
         if (delimiter !== '.' && delimiter !== ')') {
           reject('a list requires a "." or ")" delimiter')
@@ -1121,6 +1202,7 @@ function fromRemarkNode(
     }
     case 'table': {
       const align = value.align
+
       if (
         !Array.isArray(align) ||
         !align.every(
@@ -1165,21 +1247,26 @@ function fromRemarkNode(
   }
 
   const data = convertData(type, value.data)
+
   if (data !== undefined) {
     fields.data = data
   }
+
   if (origin != null && origin.position !== undefined) {
     fields.position = origin.position
   }
 
   const node = buildCanonicalNode(type, fields, origin)
+
   if (type === 'table' && node !== origin) {
     const rows = fields.children as UnknownRecord[]
     const width = (rows[0]?.children as unknown[] | undefined)?.length ?? 0
+
     if (rows.some((row) => (row.children as unknown[] | undefined)?.length !== width)) {
       reject('a transformed table cannot have ragged rows')
     }
   }
+
   return node
 }
 
@@ -1193,6 +1280,7 @@ function createMessage(
   ruleId: string | undefined,
 ): MarkdownRemarkMessage {
   const text = reason instanceof Error ? reason.message : reason
+
   return {
     reason: text,
     fatal: false,
@@ -1249,11 +1337,13 @@ function createConstrainedFile(source: string): {
     },
     message(reason, place, ruleId) {
       const message = createMessage(reason, place, ruleId)
+
       messages.push(message)
       return message
     },
     fail(reason, place, ruleId) {
       const message = createMessage(reason, place, ruleId)
+
       message.fatal = true
       messages.push(message)
       // `reject` records the verdict in run state, so a plugin that
@@ -1276,9 +1366,11 @@ function createConstrainedFile(source: string): {
         // surface. Answering `undefined` here cannot mislead a plugin.
         return Reflect.get(target, property, receiver) as unknown
       }
+
       if (!FILE_SURFACE.has(property)) {
         reject(`the file has no "${knownFileKey(property)}" in this profile`)
       }
+
       return Reflect.get(target, property, receiver) as unknown
     },
     set(_target, property) {
@@ -1356,6 +1448,7 @@ const processorGuard: unknown = new Proxy(Object.freeze({}), {
  */
 function describeFailure(error: unknown): string {
   const reason = error instanceof RemarkAdapterRejection ? adapterReasons.get(error) : undefined
+
   return reason ?? 'the plugin threw an error'
 }
 
@@ -1405,10 +1498,12 @@ export function createMarkdownRemarkTransform(
 
   const attach = (): void => {
     attached = true
+
     // The attacher can touch the processor guard and catch the rejection,
     // so it gets its own sticky state; a swallowed capability access is
     // still a failed attach.
     const attachState = createRunState()
+
     withRunState(attachState, () => {
       try {
         const created = (
@@ -1419,6 +1514,7 @@ export function createMarkdownRemarkTransform(
         // guard and returned a rejected promise must not leave that
         // promise unhandled just because the guard is reported instead.
         const attacherIsAsync = defuseThenable(created)
+
         if (attachState.failed) {
           reject(attachState.reason ?? FAILED_BY_PLUGIN)
         }
@@ -1444,6 +1540,7 @@ export function createMarkdownRemarkTransform(
         attachFailure = describeFailure(error)
       }
     })
+
     if (attachState.failed && attachFailure == null) {
       attachFailure = attachState.reason
       transformer = null
@@ -1454,7 +1551,9 @@ export function createMarkdownRemarkTransform(
     if (!attached) {
       attach()
     }
+
     const runner = transformer
+
     if (runner == null) {
       context.report(`Remark adapter: ${attachFailure ?? 'the plugin failed'}`)
       return document
@@ -1473,6 +1572,7 @@ export function createMarkdownRemarkTransform(
         // gets that promise handled — the sticky verdict decides only
         // what is *reported*, never whether the promise is left dangling.
         const returnedIsAsync = defuseThenable(returned)
+
         if (run.failed) {
           // The plugin tripped a guard — a prohibited file key, a
           // processor access, its own fail() — and swallowed the
@@ -1486,17 +1586,20 @@ export function createMarkdownRemarkTransform(
         }
 
         const output = returned ?? tree
+
         if (!isMarkdownPluginData(state.data)) {
           reject('file data must be finite JSON-like values')
         }
 
         const back: BackContext = { index, used: new Set() }
         const root = fromRemarkNode(output, null, false, back)
+
         if (root.type !== 'root' && root.kind !== MD_DOC_KIND) {
           reject('a transformer must return the document root')
         }
 
         const children = root.children as UnknownRecord[]
+
         if (
           context.display === 'inline' &&
           (children.length !== 1 || children[0]?.type !== 'paragraph')

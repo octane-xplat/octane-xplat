@@ -17,6 +17,7 @@ export const CHECKS: ParityCheck[] = [
     ],
     check: (m) => {
       const active = m('active')
+
       return [
         dims(m('root'), 220, 40),
         ['active item has a visible frame', active.box.w > 0 && active.box.h > 0],

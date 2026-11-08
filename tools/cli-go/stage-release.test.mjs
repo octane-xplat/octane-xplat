@@ -25,12 +25,17 @@ const binary = join(
 
 test('staged release carries the augmented CLI manifest and payload inventory', (t) => {
   const scratch = realpathSync(scratchRun(root, 'go-stage-release'))
+
   t.after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
   const nativeDir = nativeFixture(root, binary)
+
   t.after(() => rmSync(nativeDir, { recursive: true, force: true }))
+
   const version = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
   const staged = stageRelease({ root, version, nativeDir, outputDir: join(scratch, 'stage') })
   const { manifest: pkg } = staged.cli
+
   assert.equal(pkg.name, '@octane-xplat/cli')
   assert.equal(pkg.version, version)
   assert.equal(pkg.bin.xplat, './bin/xplat.exe')
@@ -39,17 +44,21 @@ test('staged release carries the augmented CLI manifest and payload inventory', 
   for (const name of nativePlatformPackages) {
     assert.equal(pkg.optionalDependencies[name], version)
   }
+
   assert.equal(pkg.exports['./tsrx-mapper'], './bin/tsrx-mapper.mjs')
   assert.equal(pkg.exports['./package.json'], './package.json')
   assert.equal(staged.payloads.length, 5)
+
   const build = JSON.parse(readFileSync(binary + '.json'))
   const host = staged.platforms.targets[`${process.platform}-${process.arch}`]
+
   assert.equal(host.package, `@octane-xplat/cli-native-${process.platform}-${process.arch}`)
   assert.equal(host.sha256, build.sha256)
   assert.equal(host.bytes, build.bytes)
   for (const [target, record] of Object.entries(staged.platforms.targets)) {
     assert.equal(record.package, `@octane-xplat/cli-native-${target}`)
   }
+
   for (const { manifest } of staged.payloads) {
     assert.equal(manifest.version, version)
     assert.equal(manifest.repository.directory, 'packages/cli')
@@ -60,12 +69,14 @@ test('staged release carries the augmented CLI manifest and payload inventory', 
 
 test('install-native exits 0 without a payload for an unsupported host', (t) => {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-install-'))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   cpSync(join(root, 'tools/cli-go/install-native.mjs'), join(dir, 'install-native.mjs'))
   writeFileSync(
     join(dir, 'package.json'),
     JSON.stringify({ name: '@octane-xplat/cli', version: '1.0.0' }),
   )
+
   writeFileSync(
     join(dir, 'native-platforms.json'),
     JSON.stringify({
@@ -80,9 +91,11 @@ test('install-native exits 0 without a payload for an unsupported host', (t) => 
       },
     }),
   )
+
   const result = spawnSync(process.execPath, [join(dir, 'install-native.mjs')], {
     encoding: 'utf8',
   })
+
   assert.equal(result.status, 0, result.stderr)
   assert.match(result.stderr, /no native executable for .*; supported: unsupported-test/)
 })

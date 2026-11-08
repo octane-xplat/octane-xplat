@@ -23,11 +23,14 @@ export function Overlay(props: OverlayProps): unknown @{
   }
 
   const dismiss = useRef(requestDismiss)
+
   dismiss.current = requestDismiss
+
   const modal = !!(props.shadeCover || props.isModal)
 
   useEffect(() => {
     const view = hostView.current
+
     if (!view || !open) {
       return
     }

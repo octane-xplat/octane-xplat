@@ -12,15 +12,19 @@ function fixture() {
   const listeners = new Set<(change?: RouterHostChange) => void>()
   const entries = (flow: string) => {
     let found = histories.get(flow)
+
     if (!found) {
       found = [null]
       histories.set(flow, found)
     }
+
     return found
   }
+
   const events: string[] = []
   let account = 'a',
     contexts = 0
+
   const host: RouterHost = {
     history: 'independent',
     canReset: true,
@@ -38,17 +42,21 @@ function fixture() {
     async commit(command) {
       const values = entries(command.flow)
       let target = values.at(-2)
+
       if (command.action === 'back' && target) {
         const result = await command.prepare!(target.href, command.flow)
+
         if (result.status !== 'ready') {
           return result
         }
 
         target = result.route
       }
+
       if (!command.beginCommit()) {
         return { status: 'cancelled', reason: 'superseded' }
       }
+
       if (command.action === 'back') {
         values.pop()
         values[values.length - 1] = target ?? null
@@ -59,13 +67,16 @@ function fixture() {
       } else {
         values.push(command.route!)
       }
+
       events.push('commit:' + command.action)
       for (const listener of listeners) {
         listener({ flow: command.flow })
       }
+
       return { status: 'committed', route: host.getSnapshot(command.flow).route }
     },
   }
+
   const catalog = defineRoutes([
     defineRoute
       .withContext<{ account: string }>()({
@@ -80,6 +91,7 @@ function fixture() {
       })
       .screen(() => null),
   ])
+
   const router = createRouter({
     catalog,
     host,
@@ -89,10 +101,12 @@ function fixture() {
       return { account }
     },
   })
+
   const root = router.forStack('root')
   const blocker = createNavigationBlocker()
   let when = true
   let remove = () => {}
+
   return {
     router,
     root,
@@ -121,20 +135,25 @@ function fixture() {
 
 function controls(test: ReturnType<typeof fixture>) {
   const value = test.blocker.getSnapshot()
+
   if (value.status !== 'blocked') {
     throw new Error('Expected confirmation')
   }
+
   return value
 }
 
 it('holds before context/guards/loaders and snapshots current context after proceeding', async () => {
   const test = fixture()
+
   try {
     await test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     test.register()
     test.events.length = 0
+
     const contexts = test.contexts
     const next = test.root.push({ to: '/items/:id', params: { id: 'hat' } })
+
     expect(test.root.getSnapshot().route?.params.id).toBe('coat')
     expect(test.root.getSnapshot().navigation.status).toBe('pending')
     expect(test.events).toEqual([])
@@ -153,12 +172,17 @@ it('holds before context/guards/loaders and snapshots current context after proc
 
 it('reset cancels without failure feedback, loading or history mutation', async () => {
   const test = fixture()
+
   try {
     await test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     test.register()
+
     const current = test.root.getSnapshot().route
+
     test.events.length = 0
+
     const next = test.root.replace({ to: '/items/:id', params: { id: 'hat' } })
+
     controls(test).reset()
     expect(await next).toEqual({ status: 'cancelled', reason: 'aborted' })
     expect(test.root.getSnapshot()).toMatchObject({
@@ -175,12 +199,15 @@ it('reset cancels without failure feedback, loading or history mutation', async 
 
 it('supersedes held attempts and prevents their controls from accepting a newer destination', async () => {
   const test = fixture()
+
   try {
     test.register()
+
     const first = test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     const obsolete = controls(test)
     const next = test.root.push({ to: '/items/:id', params: { id: 'hat' } })
     const current = controls(test)
+
     obsolete.proceed()
     obsolete.reset()
     expect(await first).toEqual({ status: 'cancelled', reason: 'superseded' })
@@ -195,17 +222,22 @@ it('supersedes held attempts and prevents their controls from accepting a newer 
 
 it('confirms Back to both a prepared entry and the declaring base', async () => {
   const test = fixture()
+
   try {
     await test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     await test.root.push({ to: '/items/:id', params: { id: 'hat' } })
     test.register()
     test.events.length = 0
+
     const refused = test.root.back()
+
     controls(test).reset()
     expect(await refused).toEqual({ status: 'cancelled', reason: 'aborted' })
     expect(test.entries('root')).toHaveLength(3)
     expect(test.events).toEqual([])
+
     const admitted = test.root.back()
+
     test.setAccount('b')
     controls(test).proceed()
     expect(await admitted).toMatchObject({
@@ -214,6 +246,7 @@ it('confirms Back to both a prepared entry and the declaring base', async () => 
     })
 
     const base = test.root.back()
+
     controls(test).proceed()
     expect(await base).toMatchObject({ status: 'committed', route: null })
     expect(test.root.getSnapshot().canGoBack).toBe(false)
@@ -224,6 +257,7 @@ it('confirms Back to both a prepared entry and the declaring base', async () => 
 
 it('keeps confirmation independent per flow and lets refresh stay in the current entry', async () => {
   const test = fixture()
+
   try {
     await test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     test.register()
@@ -247,13 +281,17 @@ it('keeps confirmation independent per flow and lets refresh stay in the current
 
 it('removal refuses a held request but a new registration still works', async () => {
   const test = fixture()
+
   try {
     const remove = test.register()
     const held = test.root.push({ to: '/items/:id', params: { id: 'coat' } })
+
     remove()
     expect(await held).toEqual({ status: 'cancelled', reason: 'aborted' })
     test.register()
+
     const next = test.root.push({ to: '/items/:id', params: { id: 'hat' } })
+
     controls(test).proceed()
     expect((await next).status).toBe('committed')
   } finally {
@@ -263,8 +301,10 @@ it('removal refuses a held request but a new registration still works', async ()
 
 it('instance disposal and registry replacement release held work', async () => {
   const test = fixture()
+
   try {
     test.register()
+
     const first = test.root.push({ to: '/items/:id', params: { id: 'coat' } })
     const registration = test.router.addRoutes(
       defineRoutes([defineRoute({ path: '/extra' }).screen(() => null)]),
@@ -275,7 +315,9 @@ it('instance disposal and registry replacement release held work', async () => {
     await Promise.resolve()
     expect(test.blocker.getSnapshot().status).toBe('idle')
     registration.dispose()
+
     const second = test.root.push({ to: '/items/:id', params: { id: 'hat' } })
+
     test.router.dispose()
     expect(await second).toEqual({ status: 'cancelled', reason: 'disposed' })
     expect(test.events).toEqual([])
@@ -286,11 +328,16 @@ it('instance disposal and registry replacement release held work', async () => {
 
 it('rejects a statically invalid destination without opening an unsaved-change confirmation', async () => {
   const test = fixture()
+
   try {
     test.register()
+
     const missing = test.root.navigateUrl('/missing')
+
     await Promise.resolve()
+
     const state = test.blocker.getSnapshot()
+
     // Keep the regression bounded if admission ever asks first.
     if (state.status === 'blocked') {
       state.reset()

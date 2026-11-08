@@ -57,9 +57,11 @@ export interface SyncIconStubsResult {
  */
 export function discoverIconifyCollections(dir: string): Map<string, string> {
   const found = new Map<string, string>()
+
   for (let current = resolve(dir); ; current = dirname(current)) {
     const scope = join(current, 'node_modules', '@iconify-json')
     let entries: Dirent[]
+
     try {
       entries = readdirSync(scope, { withFileTypes: true })
     } catch {
@@ -72,6 +74,7 @@ export function discoverIconifyCollections(dir: string): Map<string, string> {
       }
 
       const jsonPath = join(scope, entry.name, 'icons.json')
+
       try {
         if (statSync(jsonPath).isFile()) {
           found.set(entry.name, jsonPath)
@@ -90,16 +93,19 @@ export function discoverIconifyCollections(dir: string): Map<string, string> {
 function stubNames(jsonPath: string): Set<string> {
   const collection = JSON.parse(readFileSync(jsonPath, 'utf8')) as IconifyJSON
   const names = new Set<string>()
+
   for (const name of Object.keys(collection.icons ?? {})) {
     if (identifier.test(name)) {
       names.add(name)
     }
   }
+
   for (const name of Object.keys(collection.aliases ?? {})) {
     if (identifier.test(name)) {
       names.add(name)
     }
   }
+
   return names
 }
 
@@ -113,9 +119,11 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
   const outDir = options.outDir ?? join(options.root, '.icons')
   const collections = new Map<string, string>()
   const missing: string[] = []
+
   if (options.collections) {
     for (const prefix of options.collections) {
       const jsonPath = resolveCollectionJson(prefix, join(options.root, 'package.json'))
+
       if (jsonPath) {
         collections.set(prefix, jsonPath)
       } else {
@@ -129,6 +137,7 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
   }
 
   const expected = new Map<string, Set<string>>()
+
   for (const [prefix, jsonPath] of collections) {
     if (identifier.test(prefix)) {
       expected.set(prefix, stubNames(jsonPath))
@@ -137,14 +146,17 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
 
   let removed = 0
   let existing: Dirent[]
+
   try {
     existing = readdirSync(outDir, { withFileTypes: true })
   } catch {
     existing = []
   }
+
   for (const entry of existing) {
     const names = expected.get(entry.name)
     const dir = join(outDir, entry.name)
+
     if (!entry.isDirectory() || !names) {
       rmSync(dir, { recursive: true, force: true })
       removed++
@@ -160,13 +172,16 @@ export function syncIconStubs(options: SyncIconStubsOptions): SyncIconStubsResul
   }
 
   let written = 0
+
   for (const [prefix, names] of expected) {
     const dir = join(outDir, prefix)
+
     mkdirSync(dir, { recursive: true })
     for (const name of names) {
       const file = join(dir, `${name}.icon`)
       const content = `icons:${prefix}/${name}\n`
       let current
+
       try {
         current = readFileSync(file, 'utf8')
       } catch {

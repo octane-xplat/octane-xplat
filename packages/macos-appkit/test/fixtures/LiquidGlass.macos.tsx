@@ -3,6 +3,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const glassRefs = { host: { current: null as any }, child: { current: null as any } }
 export const glassEvents: string[] = []
+
 const callback = (view: any) => {
   if (view) {
     glassEvents.push('attach')
@@ -38,6 +39,7 @@ function Moving() {
 export default function Glass() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
+
   return (
     <masonview
       style={{

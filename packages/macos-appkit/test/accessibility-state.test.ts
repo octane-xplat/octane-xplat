@@ -5,17 +5,24 @@ import { createAccessibilityState } from '../src/accessibility-state.ts'
 test('AX-only views have semantic identity, immutable snapshots and identity-safe leases', () => {
   const state = createAccessibilityState(),
     view = {}
+
   const old = state.acquire(view),
     authored = { disabled: false }
+
   old.update({
     accessibilityLabel: 'Progress',
     accessibilityRole: 'progressbar',
     accessibilityState: authored,
   })
+
   authored.disabled = true
+
   const snapshot = state.get(view)!
+
   assert.equal(snapshot.accessibilityState?.disabled, false)
+
   const next = state.acquire(view)
+
   next.update({ accessibilityRole: 'adjustable' })
   old.update({ accessibilityLabel: 'stale' })
   old.release()

@@ -45,6 +45,7 @@ export function createAnimatedValue(
 
     return new Promise((resolve) => {
       settle = resolve
+
       const finish = (result: AnimationResult) => {
         settle = undefined
         resolve(result)
@@ -60,6 +61,7 @@ export function createAnimatedValue(
         frame = 0
         try {
           const value = host.reducedMotion?.() ? null : step(Math.max(0, host.now() - start))
+
           apply(value === null ? target : value)
           if (disposed || token !== generation) {
             return
@@ -107,6 +109,7 @@ export function createAnimatedValue(
     },
     to(target, opts) {
       const duration = opts?.duration ?? 300
+
       if (!Number.isFinite(target) || !Number.isFinite(duration) || duration < 0) {
         throw new Error('useAnimation: invalid target or duration')
       }
@@ -122,6 +125,7 @@ export function createAnimatedValue(
     spring(target, opts) {
       const damping = opts?.damping ?? 14
       const stiffness = opts?.stiffness ?? 120
+
       if (
         !Number.isFinite(target) ||
         !Number.isFinite(damping) ||
@@ -137,16 +141,20 @@ export function createAnimatedValue(
       const from = current - target
       const decay = damping / 2
       const discriminant = stiffness - decay * decay
+
       return run(target, (elapsed) => {
         const t = elapsed / 1000
         let x: number, velocity: number
+
         if (Math.abs(discriminant) < 1e-8) {
           const envelope = Math.exp(-decay * t)
+
           x = from * (1 + decay * t) * envelope
           velocity = -from * decay * decay * t * envelope
         } else if (discriminant > 0) {
           const frequency = Math.sqrt(discriminant)
           const envelope = Math.exp(-decay * t)
+
           x =
             from *
             envelope *
@@ -160,6 +168,7 @@ export function createAnimatedValue(
           const b = (1 - decay / frequency) / 2
           const slow = Math.exp((-decay + frequency) * t)
           const fast = Math.exp((-decay - frequency) * t)
+
           x = from * (a * slow + b * fast)
           velocity = from * (a * (-decay + frequency) * slow + b * (-decay - frequency) * fast)
         }

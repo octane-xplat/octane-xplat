@@ -50,6 +50,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
     const audioContext = getCtx()
     const source = audioContext.createMediaStreamSource(stream)
     const analyser = audioContext.createAnalyser()
+
     analyser.fftSize = 256
     analyser.smoothingTimeConstant = 0.5
     source.connect(analyser)
@@ -64,6 +65,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
       calibrationSamples++
       for (let i = 0; i < dataArray.length; i++) {
         const val = dataArray[i] / 255
+
         if (val > noiseFloor[i]) {
           noiseFloor[i] = val
         }
@@ -72,6 +74,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
 
     function getCleanBin(i: number): number {
       const raw = dataArray[i] / 255
+
       if (calibrationSamples < CALIBRATION_FRAMES) {
         return 0
       }
@@ -90,9 +93,11 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
       const voiceSplits = [3, 6, 11, 18, binCount]
       const splits = count <= voiceSplits.length ? voiceSplits.slice(0, count) : voiceSplits
       let start = 1
+
       for (let b = 0; b < splits.length; b++) {
         const end = splits[b]
         let sum = 0
+
         for (let i = start; i < end; i++) {
           sum += clean ? getCleanBin(i) : dataArray[i] / 255
         }
@@ -113,6 +118,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
         }
 
         let sum = 0
+
         for (let i = 0; i < dataArray.length; i++) {
           sum += getCleanBin(i)
         }
@@ -181,7 +187,9 @@ export function useSpeechRecognition(
 
   const recognitionRef = useRef<SpeechRecognitionInstance | null>(null)
   const getAudioContextRef = useRef(getAudioContext)
+
   getAudioContextRef.current = getAudioContext
+
   const analyserRef = useRef<VolumeAnalyser | null>(null)
   const rafRef = useRef(0)
 
@@ -210,6 +218,7 @@ export function useSpeechRecognition(
   const startVolumePolling = useCallback(() => {
     const poll = () => {
       const a = analyserRef.current
+
       if (a) {
         setVolume(a.getVolume())
         setBands(a.getBands(5))
@@ -233,12 +242,15 @@ export function useSpeechRecognition(
 
   const start = useCallback(() => {
     const SR = getSpeechRecognition()
+
     if (!SR) {
       return
     }
 
     recognitionRef.current?.abort()
+
     const recognition = new SR()
+
     if (lang) {
       recognition.lang = lang
     }
@@ -270,9 +282,11 @@ export function useSpeechRecognition(
 
     recognition.onresult = (event: any) => {
       let interim = ''
+
       for (let i = event.resultIndex; i < event.results.length; i++) {
         const result = event.results[i]
         let transcript = result[0].transcript
+
         if (callbacksRef.current.transformTranscript) {
           transcript = callbacksRef.current.transformTranscript(transcript)
         }

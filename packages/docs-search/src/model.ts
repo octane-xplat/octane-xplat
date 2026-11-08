@@ -35,8 +35,10 @@ const digest = (bytes: Uint8Array) => createHash('sha256').update(bytes).digest(
 
 async function modelDirectory(cacheDir: string, download: boolean) {
   const dir = resolve(cacheDir, 'models', MODEL.name, MODEL.revision)
+
   for (const [file, sha] of Object.entries(FILES)) {
     const path = join(dir, file)
+
     if (existsSync(path) && digest(readFileSync(path)) === sha) {
       continue
     }
@@ -55,12 +57,15 @@ async function modelDirectory(cacheDir: string, download: boolean) {
     }
 
     const bytes = new Uint8Array(await response.arrayBuffer())
+
     if (digest(bytes) !== sha) {
       throw new Error('Model file checksum mismatch')
     }
 
     mkdirSync(dirname(path), { recursive: true })
+
     const tmp = `${path}.${randomUUID()}.tmp`
+
     try {
       writeFileSync(tmp, bytes)
       renameSync(tmp, path)
@@ -68,6 +73,7 @@ async function modelDirectory(cacheDir: string, download: boolean) {
       rmSync(tmp, { force: true })
     }
   }
+
   return dir
 }
 
@@ -80,19 +86,24 @@ export function localEmbedder(cacheDir: string, download = false): Embedder {
       import('@huggingface/tokenizers'),
       import('onnxruntime-web/wasm'),
     ])
+
     const tokenizer = new Tokenizer(
       JSON.parse(readFileSync(join(dir, 'tokenizer.json'), 'utf8')),
       JSON.parse(readFileSync(join(dir, 'tokenizer_config.json'), 'utf8')),
     )
+
     // Node's WASM execution provider supports a single thread. Runtime assets
     // resolve from the installed package; inference never needs a CDN.
     ort.env.wasm.numThreads = 1
+
     const session = await ort.InferenceSession.create(
       new Uint8Array(readFileSync(join(dir, 'onnx/model_quantized.onnx'))),
       { executionProviders: ['wasm'] },
     )
+
     return { tokenizer, ort, session }
   }
+
   return {
     id: modelId,
     async prepare() {
@@ -102,9 +113,12 @@ export function localEmbedder(cacheDir: string, download = false): Embedder {
       if (!texts.length) {
         return []
       }
+
       loading ??= load()
+
       const { tokenizer, ort, session } = await loading
       const vectors: number[][] = []
+
       // One sequence per run avoids padding and batch-dependent q8 outputs.
       for (const text of texts) {
         const encoded = encodeText(tokenizer, text, MODEL.maxTokens)
@@ -117,6 +131,7 @@ export function localEmbedder(cacheDir: string, download = false): Embedder {
 
         const outputs = await session.run(inputs)
         const output = outputs.last_hidden_state
+
         if (
           !output ||
           output.type !== 'float32' ||
@@ -132,12 +147,16 @@ export function localEmbedder(cacheDir: string, download = false): Embedder {
           poolEmbedding(output.data as Float32Array, encoded.attention_mask, MODEL.dimensions),
         )
       }
+
       return vectors
     },
     async dispose() {
       const current = loading
+
       loading = undefined
+
       const loaded = await current?.catch(() => undefined)
+
       await loaded?.session.release()
     },
   }

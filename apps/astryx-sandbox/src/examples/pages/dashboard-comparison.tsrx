@@ -44,6 +44,7 @@ const TREND_DAYS = 90
 
 function noise(i: number, seed: number): number {
   const x = Math.sin(i * 127.1 + seed * 311.7) * 43758.5453
+
   return x - Math.floor(x)
 }
 
@@ -55,12 +56,16 @@ interface SparkPoint {
 function spark(seed: number, trend: number): SparkPoint[] {
   const out: SparkPoint[] = []
   let drift = 0
+
   for (let i = 0; i < TREND_DAYS; i++) {
     const base = 50 + (trend * i * 24) / TREND_DAYS
     const weekly = Math.sin((i * Math.PI * 2) / 7 + seed) * 2.5
+
     drift = drift * 0.72 + (noise(i, seed) - 0.5) * 7
+
     const jitter = (noise(i, seed + 17) - 0.5) * 8
     const burst = noise(i, seed + 91) > 0.9 ? (noise(i, seed + 43) - 0.4) * 20 : 0
+
     out.push({ i, v: Math.round(base + weekly + drift + jitter + burst) })
   }
 
@@ -177,9 +182,11 @@ const OVERVIEW_METRICS: Metric[] = [
 
 const ACTIVE_TREND = (() => {
   const out: { t: number; label: string; desktop: number; mobile: number; tablet: number }[] = []
+
   for (let i = 0; i < TREND_DAYS; i++) {
     const weekend = i % 7 === 5 || i % 7 === 6
     const spike = noise(i, 61) > 0.88 ? 1 : 0
+
     out.push({
       t: i,
       label: `Day ${i + 1}`,

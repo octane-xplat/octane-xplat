@@ -23,6 +23,7 @@ export function createDevStackResolver(
   const transformFor = async (moduleUrl, cache) => {
     const viteServer = getServer()
     let entry = cache.get(moduleUrl)
+
     if (entry === undefined) {
       try {
         entry = options.cachedOnly
@@ -45,13 +46,16 @@ export function createDevStackResolver(
     const viteServer = getServer()
     const key = `device:${pathname}${search}`
     let code = cache.get(key)
+
     if (code === undefined) {
       code = null
       try {
         const base = viteServer.resolvedUrls?.local?.[0] ?? origin
         const res = await fetch(new URL(pathname + search, base))
+
         if (res.ok) {
           const body = await res.text()
+
           if (body.length <= MAX_DEVICE_MODULE_BYTES) {
             code = body
           }
@@ -71,12 +75,14 @@ export function createDevStackResolver(
   // taking the nearest ancestor of the vite root where the file exists.
   const deviceModuleUrl = (rel) => {
     const viteServer = getServer()
+
     if (rel.startsWith('@fs/') || existsSync(join(viteServer.config.root, rel))) {
       return `/${rel}`
     }
 
     for (let dir = dirname(viteServer.config.root); ; dir = dirname(dir)) {
       const abs = join(dir, rel)
+
       if (existsSync(abs)) {
         return `${FS_PREFIX}${abs.split(sep).join('/')}`
       }
@@ -96,6 +102,7 @@ export function createDevStackResolver(
     const deviceLines = deviceCode.split('\n')
     const transformedLines = transformedCode.split('\n')
     const text = deviceLines[line0]?.trim()
+
     if (!text || text.length < 8) {
       return undefined
     }
@@ -103,12 +110,14 @@ export function createDevStackResolver(
     let bestBefore = -1
     let nearest = -1
     let nearestDistance = Infinity
+
     for (let i = 0; i < transformedLines.length; i++) {
       if (transformedLines[i].trim() !== text) {
         continue
       }
 
       const distance = Math.abs(i - line0)
+
       if (distance < nearestDistance) {
         nearestDistance = distance
         nearest = i
@@ -120,45 +129,57 @@ export function createDevStackResolver(
     }
 
     const index = bestBefore >= 0 ? bestBefore : nearest
+
     if (index < 0) {
       return undefined
     }
 
     const col = Math.max(0, indent(transformedLines[index]) + (col0 - indent(deviceLines[line0])))
+
     return { line: index, col }
   }
 
   const resolveFrame = async (url, line, col, cache) => {
     const viteServer = getServer()
     const { origin, pathname, search } = new URL(url)
+
     if (options.origin && origin !== options.origin) {
       return undefined
     }
+
     if (!Number.isSafeInteger(line) || !Number.isSafeInteger(col) || line < 1 || col < 1) {
       return undefined
     }
+
     const isDeviceModule = pathname.startsWith(NS_MODULE_PREFIX)
+
     if (options.cachedOnly && isDeviceModule) {
       return undefined
     }
+
     const moduleUrl = isDeviceModule
       ? deviceModuleUrl(pathname.slice(NS_MODULE_PREFIX.length))
       : pathname + search
+
     const transformed = await transformFor(moduleUrl, cache)
     const map = transformed?.map
+
     if (!map || (options.cachedOnly && JSON.stringify(map).length > MAX_DEVICE_MODULE_BYTES)) {
       return undefined
     }
 
     let generatedLine = line - 1
     let generatedColumn = col - 1
+
     if (isDeviceModule) {
       const deviceCode = await deviceCodeFor(pathname, search, origin, cache)
+
       if (!deviceCode || !transformed.code) {
         return undefined
       }
 
       const mapped = mapDevicePosition(deviceCode, transformed.code, generatedLine, generatedColumn)
+
       if (!mapped) {
         return undefined
       }
@@ -168,12 +189,14 @@ export function createDevStackResolver(
     }
 
     let sourceMap = cache.get(`map:${moduleUrl}`)
+
     if (!sourceMap) {
       sourceMap = new SourceMap(map)
       cache.set(`map:${moduleUrl}`, sourceMap)
     }
 
     const found = sourceMap.findEntry(generatedLine, generatedColumn)
+
     if (!found?.originalSource) {
       return undefined
     }
@@ -188,6 +211,7 @@ export function createDevStackResolver(
       (modulePath.startsWith(FS_PREFIX)
         ? modulePath.slice(FS_PREFIX.length)
         : join(viteServer.config.root, modulePath))
+
     const original = found.originalSource
     const sourcePath = isAbsolute(original)
       ? original
@@ -196,7 +220,9 @@ export function createDevStackResolver(
           typeof map.sourceRoot === 'string' ? map.sourceRoot : '.',
           original,
         )
+
     const rootRelative = relative(viteServer.config.root, sourcePath).split(sep).join('/')
+
     return `${rootRelative}:${found.originalLine + 1}:${found.originalColumn + 1}`
   }
 
@@ -209,12 +235,14 @@ export function createDevStackResolver(
     let last = 0
     let changed = false
     let frames = 0
+
     for (const match of stack.matchAll(HTTP_FRAME)) {
       if (++frames > 64) {
         break
       }
 
       let resolved
+
       try {
         resolved = await resolveFrame(match[1], Number(match[2]), Number(match[3]), cache)
       } catch {
@@ -233,7 +261,9 @@ export function createDevStackResolver(
     }
 
     parts.push(stack.slice(last))
+
     const result = parts.join('')
+
     return options.cachedOnly && Buffer.byteLength(result) > 16 * 1024 ? undefined : result
   }
 

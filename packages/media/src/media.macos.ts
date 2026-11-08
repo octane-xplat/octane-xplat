@@ -11,6 +11,7 @@ function temporaryImages(): Set<string> {
 
 function removeOutput(uri: string): void {
   const manager = (globalThis as any).NSFileManager.defaultManager
+
   if (manager.fileExistsAtPath(uri) && !manager.removeItemAtPathError(uri, null)) {
     throw new Error(`Could not remove temporary image: ${uri}`)
   }
@@ -21,9 +22,11 @@ function removeOutput(uri: string): void {
 function persistSelection(url: any, outputs: string[]): PickedImage {
   const host = globalThis as any
   const scoped = url.startAccessingSecurityScopedResource()
+
   try {
     const data = host.NSData.dataWithContentsOfURL(url)
     const bitmap = data && host.NSBitmapImageRep.imageRepWithData(data)
+
     if (!bitmap || !(bitmap.pixelsWide > 0 && bitmap.pixelsHigh > 0)) {
       throw new Error('Could not decode the selected image')
     }
@@ -40,6 +43,7 @@ function persistSelection(url: any, outputs: string[]): PickedImage {
     const manager = host.NSFileManager.defaultManager
     const filename = `octane-image-${host.NSUUID.UUID().UUIDString}.jpg`
     const uri = String(manager.temporaryDirectory.URLByAppendingPathComponent(filename).path)
+
     if (manager.fileExistsAtPath(uri)) {
       throw new Error('Temporary image path already exists')
     }
@@ -53,6 +57,7 @@ function persistSelection(url: any, outputs: string[]): PickedImage {
 
     // Read back the app-owned file before relinquishing access to the source.
     const readable = host.NSData.dataWithContentsOfFile(uri)
+
     if (!readable?.isEqualToData(jpeg)) {
       throw new Error('Could not read the saved temporary image')
     }
@@ -70,11 +75,13 @@ function persistSelection(url: any, outputs: string[]): PickedImage {
 
 function pickSelections(multiple: boolean): PickedImage[] {
   const host = globalThis as any
+
   if (!host.NSOpenPanel?.openPanel) {
     throw new Error('AppKit NSOpenPanel is unavailable in this macOS host')
   }
 
   const panel = host.NSOpenPanel.openPanel()
+
   panel.canChooseFiles = true
   panel.canChooseDirectories = false
   panel.allowsMultipleSelection = multiple
@@ -84,10 +91,13 @@ function pickSelections(multiple: boolean): PickedImage[] {
   }
 
   const outputs: string[] = []
+
   try {
     const refs: PickedImage[] = []
+
     if (multiple) {
       const selected = panel.URLs
+
       for (let index = 0; index < Number(selected?.count ?? 0); index++) {
         refs.push(persistSelection(selected.objectAtIndex(index), outputs))
       }
@@ -98,6 +108,7 @@ function pickSelections(multiple: boolean): PickedImage[] {
     return refs
   } catch (error) {
     const failures: unknown[] = []
+
     for (const uri of outputs) {
       try {
         removeOutput(uri)

@@ -33,13 +33,16 @@ export function createClientRouteEntry(
     reject = fail
     settle = resolve
   })
+
   const finish = (result: RouterHostResult) => {
     if (settled) {
       return
     }
+
     settled = true
     settle(result)
   }
+
   return {
     id,
     flow,
@@ -54,6 +57,7 @@ export function createClientRouteEntry(
       if (settled) {
         return
       }
+
       settled = true
       reject(error)
     },

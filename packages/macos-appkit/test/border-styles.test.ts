@@ -16,12 +16,14 @@ test('border styles expand CSS side order and preserve explicit shorthand/side o
     bottom: 'solid',
     left: 'hidden',
   })
+
   assert.deepEqual(borderStyleSides({ borderStyle: 'dashed dotted' }), {
     top: 'dashed',
     right: 'dotted',
     bottom: 'dashed',
     left: 'dotted',
   })
+
   assert.deepEqual(
     borderStyleSides({
       borderStyle: 'dashed',
@@ -35,12 +37,14 @@ test('border styles expand CSS side order and preserve explicit shorthand/side o
       left: 'none',
     },
   )
+
   assert.deepEqual(borderStyleSides({ borderTopStyle: 'dashed', border: '1px solid red' }), {
     top: 'solid',
     right: 'solid',
     bottom: 'solid',
     left: 'solid',
   })
+
   assert.equal(borderStyleSides({ borderWidth: 1 }).top, 'solid')
 })
 
@@ -50,9 +54,11 @@ test('pattern metrics scale with width and hidden styles remain separate from so
   for (const width of [0, -1, NaN, Infinity, Number.MAX_VALUE]) {
     assert.equal(borderStrokeStyle('dashed', width), null)
   }
+
   for (const style of ['solid', 'none', 'hidden', 'double']) {
     assert.equal(borderStrokeStyle(style, 2), null)
   }
+
   assert.equal(hiddenBorderStyle('none'), true)
   assert.equal(hiddenBorderStyle('hidden'), true)
   assert.equal(hiddenBorderStyle('dashed'), false)
@@ -64,6 +70,7 @@ test('border resolution ignores unrelated style values and inherited dictionary 
       throw Error('unrelated style coerced')
     },
   }
+
   assert.deepEqual(
     borderStyleSides({
       transform: unsafe,
@@ -82,11 +89,13 @@ test('border resolution ignores unrelated style values and inherited dictionary 
 
 test('borderBands partitions double/groove/ridge/inset/outset per side and collapses thin doubles', () => {
   const full = { from: 0, to: 1, shade: 'base' }
+
   for (const style of ['solid', 'dashed', 'dotted', 'none', 'hidden', 'bogus']) {
     for (const side of ['top', 'right', 'bottom', 'left'] as const) {
       assert.deepEqual(borderBands(style, side, 4), [full], `${style}/${side} stays one base band`)
     }
   }
+
   for (const side of ['top', 'right', 'bottom', 'left'] as const) {
     assert.deepEqual(
       borderBands('double', side, 4),
@@ -137,7 +146,9 @@ test('darkBorderComponents matches Chromium Color::Dark()', () => {
     blue: 84 / 255,
     alpha: 0.5,
   })
+
   const red = darkBorderComponents({ red: 1, green: 0, blue: 0, alpha: 1 })
+
   assert.ok(Math.abs(red.red - 0.67) < 1e-9 && red.green === 0 && red.blue === 0 && red.alpha === 1)
   assert.deepEqual(darkBorderComponents({ red: 0.2, green: 0.1, blue: 0.05, alpha: 1 }), {
     red: 0,
@@ -166,18 +177,21 @@ test('borderBandPoints(0,1) reproduces the original side trapezoids with unequal
     [96, 52],
     [6, 52],
   ])
+
   assertPoints(borderBandPoints('right', 100, 60, WIDTHS, 0, 1), [
     [100, 60],
     [100, 0],
     [96, 12],
     [96, 52],
   ])
+
   assertPoints(borderBandPoints('bottom', 100, 60, WIDTHS, 0, 1), [
     [100, 0],
     [0, 0],
     [6, 12],
     [96, 12],
   ])
+
   assertPoints(borderBandPoints('left', 100, 60, WIDTHS, 0, 1), [
     [0, 0],
     [0, 60],
@@ -193,6 +207,7 @@ test('borderBandPoints splits a double top border into outer and inner third tra
     [100 - 4 / 3, 60 - 8 / 3],
     [2, 60 - 8 / 3],
   ])
+
   assertPoints(borderBandPoints('top', 100, 60, WIDTHS, 2 / 3, 1), [
     [4, 60 - 16 / 3],
     [100 - 8 / 3, 60 - 16 / 3],

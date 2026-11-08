@@ -2,6 +2,7 @@
 // Native GTK uses an owned widget shell without NativeScript gesture adapters.
 import { RouterFlowVisibilityContext } from './router-hook-context'
 import type { RoutePaneProps } from '../props'
+
 const Visibility: any = RouterFlowVisibilityContext
 
 export function RoutePane(props: RoutePaneProps): any {

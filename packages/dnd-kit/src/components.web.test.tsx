@@ -9,8 +9,11 @@ const roots: ReturnType<typeof createRoot>[] = []
 
 function mount(jsx: any) {
   const element = document.createElement('div')
+
   document.body.append(element)
+
   const root = createRoot(element)
+
   roots.push(root)
   act(() => root.render(jsx))
   return { element }
@@ -18,6 +21,7 @@ function mount(jsx: any) {
 
 function pointer(type: string, clientX: number, clientY: number): PointerEvent {
   const event = new Event(type, { bubbles: true, cancelable: true })
+
   Object.assign(event, { pointerId: 1, clientX, clientY })
   return event as PointerEvent
 }
@@ -44,11 +48,13 @@ async function flush() {
 
 function DragSource() {
   const drag = useDraggable({ id: 'source' })
+
   return <View id="drag-source" ref={drag.ref} onPan={drag.onPan} style={drag.style} />
 }
 
 function DropTarget() {
   const drop = useDroppable({ id: 'target' })
+
   return <View id="drop-target" ref={drop.ref} style={{ height: 40 }} />
 }
 
@@ -75,6 +81,7 @@ describe('@octane-xplat/dnd-kit (web)', () => {
 
     const source = element.querySelector('#drag-source')!
     const target = element.querySelector('#drop-target')!
+
     setBounds(source, 0)
     setBounds(target, 80)
 
@@ -107,6 +114,7 @@ describe('@octane-xplat/dnd-kit (web)', () => {
     await flush()
 
     const source = element.querySelector('#drag-source')!
+
     setBounds(source, 0)
     act(() => source.dispatchEvent(pointer('pointerdown', 20, 20)))
     await flush()

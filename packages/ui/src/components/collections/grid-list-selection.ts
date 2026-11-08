@@ -45,6 +45,7 @@ export function gridListPress(args: GridListPressArgs): GridListPressResult {
   }
 
   let next: Set<Key>
+
   if (args.selectionMode === 'single') {
     next = selected.has(key) ? new Set() : new Set([key])
   } else if (args.selectionBehavior === 'replace') {

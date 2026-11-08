@@ -55,11 +55,13 @@ export function ChatComposer(props: ChatComposerProps): unknown @{
   const handleSend = useCallback(
     (value: string) => {
       const trimmed = value.trim()
+
       if (!trimmed || isDisabled) {
         return
       }
 
       const sendAction = props.onSend ?? props.onSubmit
+
       sendAction?.(trimmed)
       if (!isControlledDraft) {
         setInternalDraft(EMPTY_DRAFT)

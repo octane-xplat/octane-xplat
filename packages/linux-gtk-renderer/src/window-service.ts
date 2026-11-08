@@ -61,22 +61,29 @@ export function createGtkWindowService(deps: {
     }
 
     const kind = options.kind ?? 'regular'
+
     if (!KINDS.has(kind)) {
       throw new RangeError(`Unsupported GTK window kind: ${String(kind)}`)
     }
 
     const parentOption = options.parent ?? null
+
     if (parentOption !== null && typeof parentOption !== 'object') {
       throw new TypeError('openWindow parent must be a Gtk.Window or window controller')
     }
+
     if (parentOption?.isClosed === true) {
       throw new Error('openWindow cannot use a closed parent window')
     }
+
     const rawParent = parentOption && 'window' in parentOption ? parentOption.window : parentOption
+
     if (rawParent != null && !(rawParent instanceof Gtk.Window)) {
       throw new TypeError('openWindow parent must be a Gtk.Window or window controller')
     }
+
     const parentWindow = rawParent ?? (kind === 'regular' ? null : deps.parentWindow())
+
     if (kind !== 'regular' && !parentWindow) {
       throw new Error(`openWindow kind "${kind}" requires a parent window`)
     }
@@ -92,21 +99,26 @@ export function createGtkWindowService(deps: {
       default_width: size.width,
       default_height: size.height,
     })
+
     if (parentWindow) {
       win.set_transient_for(parentWindow)
     }
+
     if (kind === 'dialog') {
       win.set_modal(true)
     }
 
     const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
     win.set_child(content)
+
     const mounted = deps.mount(content)
 
     let resolveClosed!: () => void
     const closed = new Promise<void>((resolve) => {
       resolveClosed = resolve
     })
+
     const controller: GtkWindowServiceController = {
       window: win,
       closed,
@@ -118,6 +130,7 @@ export function createGtkWindowService(deps: {
         if (controller.isClosed) {
           return
         }
+
         finish()
         try {
           win.destroy()
@@ -128,27 +141,33 @@ export function createGtkWindowService(deps: {
       },
       setSize(next: { width: number; height: number }) {
         const n = normalizeWindowSize(next, 'setSize')
+
         win.set_default_size(n.width, n.height)
       },
     }
+
     const finish = () => {
       if (controller.isClosed) {
         return
       }
+
       controller.isClosed = true
       try {
         mounted.root.unmount()
       } catch {
         // Teardown is best-effort — the window is going away regardless.
       }
+
       resolveClosed()
     }
+
     // User-initiated close requests route through the veto before GTK's
     // default destroys the window; the mounted root unmounts first.
     win.connect('close-request', () => {
       if (controller.onCloseRequested?.() === false) {
         return true
       }
+
       finish()
       return false
     })
@@ -156,6 +175,7 @@ export function createGtkWindowService(deps: {
     const component =
       options.component ??
       (typeof resolver === 'function' ? resolver(options.data ?? null, controller) : null)
+
     if (typeof component !== 'function') {
       try {
         win.destroy()
@@ -167,6 +187,7 @@ export function createGtkWindowService(deps: {
           : 'openWindow component must resolve to a component',
       )
     }
+
     mounted.root.render(component, options.props ?? { data: options.data ?? null, controller })
     win.present()
     return controller
@@ -178,6 +199,7 @@ export function createGtkWindowService(deps: {
       if (resolve !== null && typeof resolve !== 'function') {
         throw new TypeError('setWindowContentResolver expects a function or null')
       }
+
       resolver = resolve
     },
   }

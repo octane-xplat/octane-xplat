@@ -29,7 +29,9 @@ export function attachAppleButton(view: any, props: AppleSignInButtonProps, pres
   }
 
   const target = ActionTarget.new()
+
   target.callback = press
+
   // Values from ASAuthorizationAppleIDButton.h (macOS 10.15+).
   const type = props.type === 'continue' ? 1 : props.type === 'signUp' ? 2 : 0
   const theme = props.theme === 'white' ? 0 : props.theme === 'whiteOutline' ? 1 : 2
@@ -44,6 +46,7 @@ export function attachAppleButton(view: any, props: AppleSignInButtonProps, pres
   button.enabled = !props.disabled
   button.translatesAutoresizingMaskIntoConstraints = false
   view.addSubview(button)
+
   const constraints = [
     button.leadingAnchor.constraintEqualToAnchor(view.leadingAnchor),
     button.trailingAnchor.constraintEqualToAnchor(view.trailingAnchor),

@@ -117,7 +117,9 @@ export function DocumentationDesignTemplate() @{
 
   const scrollToId = (id: string) => {
     setActiveId(id)
+
     const target = document.getElementById(id)
+
     if (target != null) {
       target.scrollIntoView({ behavior: 'smooth', block: 'start' })
       window.history.pushState(null, '', `#${id}`)
@@ -215,6 +217,7 @@ export function DocumentationDesignTemplate() @{
             {DOCS.examples.map((example, i) => {
               const tabKey = `button-${i}`
               const activeTab = exampleTabs[tabKey] ?? 'description'
+
               return (
                 <Card key={i} padding={0}>
                   <Section padding={3} variant="transparent">

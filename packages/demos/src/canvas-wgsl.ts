@@ -19,6 +19,7 @@ fn fs(@builtin(position) p: vec4f) -> @location(0) vec4f {
 
 export function draw(canvas: any, context: any, report: (status: string) => void) {
   const gpu = getGPU()
+
   if (!gpu || !context) {
     report('webgpu: unavailable')
     return
@@ -40,7 +41,9 @@ export function draw(canvas: any, context: any, report: (status: string) => void
       }
 
       const format = gpu.getPreferredCanvasFormat()
+
       context.configure({ device, format, alphaMode: 'opaque' })
+
       const module = device.createShaderModule({ code: WGSL })
       const pipeline = device.createRenderPipeline({
         layout: 'auto',

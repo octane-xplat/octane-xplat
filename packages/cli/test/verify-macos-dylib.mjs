@@ -10,11 +10,13 @@ const fixture = join(repoRoot, 'packages/cli/test/fixtures/macos-dylib')
 const hostRoot = join(repoRoot, 'packages/cli/src/macos/jsc-host')
 const prebuilt = join(hostRoot, 'prebuilt/macos')
 const scratch = join(repoRoot, 'research/macos-dylib-probe')
+
 mkdirSync(scratch, { recursive: true })
 
 function run(command, args, { log, env = process.env, timeout = 300_000 } = {}) {
   const result = spawnSync(command, args, { cwd: repoRoot, env, encoding: 'utf8', timeout })
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
+
   if (log) {
     writeFileSync(join(scratch, log), output)
   }
@@ -36,6 +38,7 @@ const sdk = run('xcrun', ['--sdk', 'macosx', '--show-sdk-path'])
 const clang = run('xcrun', ['--find', 'clang'])
 const clangxx = run('xcrun', ['--find', 'clang++'])
 const generatorSource = join(scratch, 'generator')
+
 if (!existsSync(generatorSource)) {
   const source = run('opensrc', ['path', `NativeScript/runtimes@${revision}`])
     .split('\n')
@@ -45,6 +48,7 @@ if (!existsSync(generatorSource)) {
 }
 
 const build = join(scratch, 'build-xcode')
+
 run(
   'cmake',
   [
@@ -63,7 +67,9 @@ run(
 )
 
 run('cmake', ['--build', build, '-j', '8'], { log: 'build.log' })
+
 const dylib = join(scratch, 'libxplat-probe.dylib')
+
 run(clang, [
   '-dynamiclib',
   '-arch',
@@ -79,11 +85,13 @@ run(clang, [
 console.log('[dylib-probe] compiled custom arm64 dylib')
 
 const output = join(scratch, 'metadata')
+
 for (const dir of [output, join(output, 'types'), join(output, 'json')]) {
   mkdirSync(dir, { recursive: true })
 }
 
 const metadata = join(output, 'metadata.nsmd')
+
 run(
   join(build, 'bin/objc-metadata-generator'),
   [

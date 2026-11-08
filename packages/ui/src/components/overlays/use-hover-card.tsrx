@@ -10,6 +10,7 @@ const host = () => appKitHost() ?? {}
 
 function HoverCardPanel(props: { body: any; enter: () => void; exit: () => void }) @{
   const view = useRef<any>(null)
+
   useEffect(
     () => host().observeHover?.(view.current, { enter: props.enter, exit: props.exit }),
     [props.enter, props.exit],
@@ -46,8 +47,11 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
   const openTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const onShow = useRef(options.onShow)
+
   onShow.current = options.onShow
+
   const onHide = useRef(options.onHide)
+
   onHide.current = options.onHide
 
   const clearTimers = useCallback(() => {
@@ -142,6 +146,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
       }
 
       const observe = host().observeHover
+
       if (typeof observe !== 'function') {
         return
       }

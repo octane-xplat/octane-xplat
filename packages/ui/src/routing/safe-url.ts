@@ -18,6 +18,7 @@ function comparableUrl(normalized: string): string {
 export function sanitizeUrl(url: string): string | null {
   const normalized = normalizeUrl(url)
   const lower = comparableUrl(normalized)
+
   if (
     lower.startsWith('javascript:') ||
     lower.startsWith('vbscript:') ||
@@ -42,9 +43,11 @@ export function isSafeDestination(destination: unknown): boolean {
   if (destination == null) {
     return true
   }
+
   if (typeof destination === 'string') {
     return isSafeUrl(destination)
   }
+
   if (typeof destination !== 'object') {
     return false
   }
@@ -54,31 +57,38 @@ export function isSafeDestination(destination: unknown): boolean {
   const protocol = 'protocol' in destination ? destination.protocol : undefined
   const host = 'host' in destination ? destination.host : undefined
   const hostname = 'hostname' in destination ? destination.hostname : undefined
+
   for (const field of [pathname, href, protocol, host, hostname]) {
     if (field != null && typeof field !== 'string') {
       return false
     }
   }
+
   if (typeof pathname === 'string' && !isSafeUrl(pathname)) {
     return false
   }
+
   if (typeof href === 'string' && !isSafeUrl(href)) {
     return false
   }
+
   if (typeof protocol === 'string' && protocol !== '') {
     // URL-object formatters accept a protocol with or without its colon and
     // can assemble a data media type from the host and pathname fields.
     const normalizedProtocol = normalizeUrl(protocol)
     const prefix = normalizedProtocol.endsWith(':') ? normalizedProtocol : `${normalizedProtocol}:`
+
     if (!isSafeUrl(prefix)) {
       return false
     }
 
     const body = (host || hostname || '') as string
     const path = typeof pathname === 'string' ? pathname : ''
+
     if (!isSafeUrl(`${prefix}${body}${path}`)) {
       return false
     }
   }
+
   return true
 }

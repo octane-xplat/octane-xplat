@@ -25,6 +25,7 @@ const clients: QueryClient[] = []
 function mount(Component: any, props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   roots.push(root)
   root.render(Component, props)
   return {
@@ -40,6 +41,7 @@ async function settle() {
   for (let i = 0; i < 20; i++) {
     await Promise.resolve()
   }
+
   await new Promise<void>((resolve) => setTimeout(resolve, 0))
   flushUniversalSync(() => {})
 }
@@ -51,7 +53,9 @@ function fixture() {
     (id: string, { signal }) =>
       new Promise<string>((resolve) => calls.push({ id, signal, resolve })),
   )
+
   const client = createQueryClient()
+
   clients.push(client)
   return { client, definition, calls }
 }
@@ -60,6 +64,7 @@ afterEach(async () => {
   for (const root of roots.splice(0)) {
     root.unmount()
   }
+
   await Promise.all(clients.splice(0).map((client) => client.dispose()))
 })
 
@@ -68,6 +73,7 @@ describe('shared query readers on universal roots', () => {
     const f = fixture()
     const a = mount(InstanceProfile, { ...f, id: 'same' })
     const b = mount(InstanceProfile, { ...f, id: 'same' })
+
     await settle()
     expect(f.calls).toHaveLength(1)
     a.root.unmount()
@@ -76,9 +82,11 @@ describe('shared query readers on universal roots', () => {
     await settle()
     expect(b.text()).toEqual(['same:ready:shared:idle'])
   })
+
   it('keeps two same-family selections independent within one component', async () => {
     const f = fixture()
     const screen = mount(TwoProfiles, f)
+
     await settle()
     expect(f.calls.map((call) => call.id)).toEqual(['a', 'b'])
     f.calls[0]!.resolve('A')
@@ -86,10 +94,12 @@ describe('shared query readers on universal roots', () => {
     await settle()
     expect(screen.text()).toEqual(['A:B'])
   })
+
   it('refreshes both roots once while retaining visible data', async () => {
     const f = fixture()
     const a = mount(InstanceProfile, { ...f, id: 'same' })
     const b = mount(InstanceProfile, { ...f, id: 'same' })
+
     await settle()
     f.calls[0]!.resolve('first')
     await settle()
@@ -103,9 +113,11 @@ describe('shared query readers on universal roots', () => {
     expect(a.text()).toEqual(['same:ready:next:idle'])
     expect(b.text()).toEqual(['same:ready:next:idle'])
   })
+
   it('does not let an obsolete selection overwrite a later selection', async () => {
     const f = fixture()
     const screen = mount(InstanceProfile, { ...f, id: 'a' })
+
     await settle()
     flushUniversalSync(() => screen.root.render(InstanceProfile, { ...f, id: 'b' }))
     await settle()
@@ -114,9 +126,11 @@ describe('shared query readers on universal roots', () => {
     await settle()
     expect(screen.text()).toEqual(['b:ready:B:idle'])
   })
+
   it('suspends for first data and removes disposed account data through the boundary', async () => {
     const f = fixture()
     const screen = mount(SuspenseProfile, f)
+
     await settle()
     expect(screen.text()).toEqual(['loading'])
     f.calls[0]!.resolve('private record')
@@ -126,10 +140,12 @@ describe('shared query readers on universal roots', () => {
     await settle()
     expect(screen.text()).toEqual(['retired'])
   })
+
   it('publishes a confirmed save to independent native roots without another request', async () => {
     const f = fixture()
     const a = mount(InstanceProfile, { ...f, id: 'same' })
     const b = mount(InstanceProfile, { ...f, id: 'same' })
+
     await settle()
     f.calls[0]!.resolve('first')
     await settle()
@@ -139,9 +155,12 @@ describe('shared query readers on universal roots', () => {
     expect(b.text()).toEqual(['same:ready:saved:idle'])
     expect(f.calls).toHaveLength(1)
   })
+
   it('reuses navigation preparation when its screen mounts', async () => {
     const client = createQueryClient()
+
     clients.push(client)
+
     let calls = 0
     const definition = defineQuery(
       ['profile'],
@@ -151,28 +170,36 @@ describe('shared query readers on universal roots', () => {
       },
       { staleTimeMs: 10000 },
     )
+
     // A route loader or navigation-intent handler calls this before mounting.
     await client.ensureData(definition, 'prepared')
+
     const screen = mount(InstanceProfile, { client, definition, id: 'prepared' })
+
     await settle()
     expect(screen.text()).toEqual(['prepared:ready:prepared:idle'])
     expect(calls).toBe(1)
   })
+
   it('shares native optimistic presentation and confirmed receipts across roots', async () => {
     const f = fixture()
     const a = mount(InstanceProfile, { ...f, id: 'same' })
     const b = mount(InstanceProfile, { ...f, id: 'same' })
+
     await settle()
     f.calls[0]!.resolve('before')
     await settle()
+
     let finish!: (value: string) => void
     const receipt = new Promise<string>((resolve) => {
       finish = resolve
     })
+
     const save = f.client.runOptimistic(f.definition, 'same', async (operation, view$) => {
       operation.set(view$, 'tentative')
       operation.adopt(await receipt)
     })
+
     await settle()
     expect(a.text()).toEqual(['same:ready:tentative:idle'])
     expect(b.text()).toEqual(['same:ready:tentative:idle'])
@@ -182,9 +209,12 @@ describe('shared query readers on universal roots', () => {
     expect(a.text()).toEqual(['same:ready:confirmed:idle'])
     expect(b.text()).toEqual(['same:ready:confirmed:idle'])
   })
+
   it('shares cached pages between native roots', async () => {
     const client = createQueryClient()
+
     clients.push(client)
+
     const calls: number[] = []
     const definition = defineCursorQuery(
       ['feed'],
@@ -194,8 +224,10 @@ describe('shared query readers on universal roots', () => {
       },
       { initialCursor: 0, staleTimeMs: Infinity },
     )
+
     const a = mount(CursorFeed, { client, definition })
     const b = mount(CursorFeed, { client, definition })
+
     await settle()
     expect(calls).toEqual([0])
     await client.fetchNextPage(definition, 'all')

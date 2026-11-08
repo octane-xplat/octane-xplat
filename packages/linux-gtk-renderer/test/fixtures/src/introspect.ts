@@ -13,6 +13,7 @@ Gtk.init()
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
 const { root } = createGtkRoot(host)
+
 root.render(App, {})
 
 const seen: string[] = []
@@ -32,15 +33,20 @@ print(JSON.stringify(seen, null, 0))
 // Event + reconciliation check: pressing the button runs onPress → setState →
 // the label text folds to "Count: 1".
 const button = all.find((w) => w.constructor.$gtype.name === 'GtkButton')
+
 button?.emit('clicked')
+
 // The octane re-render flushes through a Promise microtask — drain the main
 // loop once so it lands before reading the label.
 const loop = GLib.MainLoop.new(null, false)
+
 GLib.idle_add(GLib.PRIORITY_DEFAULT, () => {
   loop.quit()
   return false
 })
 
 loop.run()
+
 const label = all.find((w) => w.constructor.$gtype.name === 'GtkLabel')
+
 print(JSON.stringify({ buttonPressed: !!button, labelText: (label as any)?.label ?? null }))

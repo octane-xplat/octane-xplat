@@ -60,6 +60,7 @@ const check = () =>
 // `icons.d.ts` wildcard is their opt-in floor — generic IconifyIcon typing
 // for every specifier, no name check and no stub tree.
 const classicTsc = join(repo, 'node_modules/typescript-classic/bin/tsc')
+
 writeFileSync(
   join(fixture, 'tsconfig.classic.json'),
   JSON.stringify({
@@ -94,13 +95,17 @@ const rotate: 1 | undefined = turned.rotate
 export { body, width, rotate }
 `,
   )
+
   const result = check()
+
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
 })
 
 test('a specifier without a stub fails module resolution', () => {
   writeFileSync(join(fixture, 'main.ts'), `import nope from 'icons:mini/nope'\nexport { nope }\n`)
+
   const result = check()
+
   assert.notEqual(result.status, 0)
   assert.match(result.stdout, /error TS2307: Cannot find module 'icons:mini\/nope'/)
 })
@@ -108,7 +113,9 @@ test('a specifier without a stub fails module resolution', () => {
 test('a stale stub reports the mapper diagnostic', () => {
   writeFileSync(join(fixture, '.icons/mini/gone.icon'), 'icons:mini/gone\n')
   writeFileSync(join(fixture, 'main.ts'), `import gone from 'icons:mini/gone'\nexport { gone }\n`)
+
   const result = check()
+
   assert.notEqual(result.status, 0)
   assert.match(result.stdout, /icons770102.*not found in @iconify-json\/mini/)
 
@@ -125,7 +132,9 @@ const body: string = wide.body
 export { body, nope }
 `,
   )
+
   const result = checkClassic()
+
   assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
 })
 

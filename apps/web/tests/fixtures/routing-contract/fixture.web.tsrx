@@ -72,6 +72,7 @@ let runtimeRegistration: RouteRegistration | undefined
 const checkedDestination = createStore<ValidatedDestination | null>(null)
 const chromeKind = createStore<string | null>(null)
 const itemApi = getRouteApi('/items/:id')
+
 // Compiled against both installed declarations and platform-suffixed sources.
 export function checkHookTypes() {
   // @ts-expect-error A platform forwarding leaf must preserve DTO checking.
@@ -89,7 +90,9 @@ function FilteredItem(props: {
   data: { title: string }
 }): import('@octane-xplat/ui').Renderable {
   const updateSearch = itemApi.useUpdateSearch()
+
   currentSearchUpdate = updateSearch
+
   const changeFilter = () =>
     updateSearch((previous) => ({ tab: previous.tab === 'details' ? 'activity' : 'details' }))
 
@@ -115,6 +118,7 @@ function FilteredItem(props: {
 function NavigationFeedback() {
   const state = useNavigation()
   const navigator = useRouter()
+
   return (
     <div id="navigation-feedback">
       <span id="feedback-status">
@@ -151,6 +155,7 @@ function NavigationWidgets() {
   } as const
 
   let content
+
   if (kind === 'strip') {
     content = <NavigationMenu items={[{ key: 'target', label: 'Open target', ...destination }]} />
   } else if (kind === 'side') {
@@ -212,6 +217,7 @@ function NavigationConfirmation(props: { id: string }) {
   )
 
   const blocker = useNavigationBlocker({ when: dirty === props.id })
+
   return (
     <div>
       <output id="confirmation-status">{blocker.status}</output>
@@ -236,7 +242,9 @@ function NavigationConfirmation(props: { id: string }) {
 
 function Item(props: { params: { id: string }; data: { title: string } }) {
   const [count, setCount] = useState(0)
+
   currentNavigator = useRouter(navigation)
+
   const checked = useSyncExternalStore(
     checkedDestination.subscribe,
     checkedDestination.getSnapshot,
@@ -298,6 +306,7 @@ const failingCatalog = defineRoutes([
 
 const validateSearch = (raw: { tab?: unknown }) => {
   const tab = raw.tab ?? 'details'
+
   if (tab !== 'details' && tab !== 'activity') {
     throw new Error('Invalid tab')
   }
@@ -385,6 +394,7 @@ const initialHistoryLength = history.length
 let contextReads = 0
 let currentAccount = 'account-a'
 const rootOwnerVisible = createStore(true)
+
 export function routingContext() {
   contextReads++
   return { account: currentAccount }
@@ -397,6 +407,7 @@ function LeftBase() {
 
 function RightBase() {
   const [count, setCount] = useState(0)
+
   return (
     <button id="tab-count" aria-label="Increment tab" onClick={() => setCount(count + 1)}>
       Tab count {count}
@@ -412,6 +423,7 @@ const clientTabs = [
 let observed: { id: unknown; back: boolean; sameRoute: boolean }
 function RootWatcher() {
   const state = useRouterState()
+
   observed = {
     id: state.route?.to === '/items/:id' ? state.route.params.id : undefined,
     back: state.canGoBack,
@@ -450,14 +462,18 @@ let lastMotion: Promise<unknown> | undefined
 ;(window as any).__routing = {
   async qualifyPanes() {
     const container = document.createElement('div')
+
     document.body.append(container)
+
     const url = location.href
     const length = history.length
     const checks: string[] = []
+
     try {
       await qualifyPaneRouterExample({
         mount(Component, props) {
           const root = createRoot(container)
+
           root.render(Component, props)
           return () => root.unmount()
         },
@@ -471,6 +487,7 @@ let lastMotion: Promise<unknown> | undefined
         },
         async wait(name, predicate) {
           const deadline = Date.now() + 10000
+
           while (!predicate()) {
             if (Date.now() > deadline) {
               throw new Error(name)
@@ -512,6 +529,7 @@ let lastMotion: Promise<unknown> | undefined
   },
   get historyModalState() {
     const state = defaultRouterRuntime.getClient().platform.views.getSnapshot()
+
     return { loads: historyModalLoads, main: state.main?.route.to, modals: state.modals.length }
   },
   async retryHistory() {
@@ -542,10 +560,13 @@ let lastMotion: Promise<unknown> | undefined
   },
   async releaseFeedback() {
     const release = releaseFeedback
+
     feedbackGate = undefined
     releaseFeedback = undefined
     release?.()
+
     const failed: unknown = await failedFeedbackRequest
+
     return typeof failed === 'object' && failed !== null && 'status' in failed
       ? failed.status
       : undefined
@@ -631,6 +652,7 @@ let lastMotion: Promise<unknown> | undefined
   },
   get searchState() {
     const search = navigation.getSnapshot().route?.search
+
     return {
       href: location.pathname + location.search,
       length: history.length,
@@ -661,6 +683,7 @@ let lastMotion: Promise<unknown> | undefined
     }
 
     let finished = false
+
     lastMotion = result.finished.then((value) => {
       finished = true
       return value
@@ -698,6 +721,7 @@ let lastMotion: Promise<unknown> | undefined
   },
   get modalId() {
     const state = currentNavigator.getSnapshot()
+
     return state.modal && state.route?.to === '/items/:id' ? state.route.params.id : undefined
   },
   async replace(id: string) {
@@ -742,6 +766,7 @@ let lastMotion: Promise<unknown> | undefined
   initialHistoryLength,
   get fileContract() {
     const match = navigation.getSnapshot().route
+
     return match?.to === '/items/:id' ? { search: match.search, context: match.context } : null
   },
   async fail(action: 'push' | 'replace' | 'modal') {

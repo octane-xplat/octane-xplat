@@ -101,12 +101,15 @@ const fixture = `// !$*UTF8*$!
 
 test('rewrites only the named target identifiers and preserves every other byte', () => {
   const out = setProductBundleIdentifier(fixture, 'mobile', 'org.nativescript.xplat.visual')
+
   assert.match(out, /PRODUCT_BUNDLE_IDENTIFIER = org\.nativescript\.xplat\.visual;/)
   assert.match(out, /PRODUCT_BUNDLE_IDENTIFIER = "org\.nativescript\.xplat\.visual";/)
   // Other target keeps its own identifier.
   assert.match(out, /PRODUCT_BUNDLE_IDENTIFIER = org\.nativescript\.xplat\.tests;/)
+
   // Swift package references survive byte-for-byte.
   const strip = (text) => text.replace(/PRODUCT_BUNDLE_IDENTIFIER = [^;]+;/g, '')
+
   assert.equal(strip(out), strip(fixture))
   // Bare vs quoted spelling follows the original assignment.
   assert.equal(
@@ -124,6 +127,7 @@ test('fails loudly when the named target is absent', () => {
 
 test('is a no-op when the target already carries the identifier', () => {
   const already = setProductBundleIdentifier(fixture, 'mobile', 'org.nativescript.xplat.visual')
+
   assert.equal(
     setProductBundleIdentifier(already, 'mobile', 'org.nativescript.xplat.visual'),
     already,

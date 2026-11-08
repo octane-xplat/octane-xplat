@@ -21,10 +21,13 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
   const isMulti = 'regions' in config
 
   const state = useRef<{ machines: Map<string, ResizableMachine>; order: string[] } | null>(null)
+
   if (state.current == null) {
     const machines = new Map<string, ResizableMachine>()
+
     if (isMulti) {
       const multi = config as UseResizableMultiConfig
+
       for (const [key, regionConfig] of Object.entries(multi.regions)) {
         machines.set(
           key,
@@ -39,6 +42,7 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
       state.current = { machines, order: Object.keys(multi.regions) }
     } else {
       const single = config as UseResizableSingleConfig
+
       machines.set('default', createResizableRegion(single, basis))
       state.current = { machines, order: ['default'] }
     }
@@ -47,6 +51,7 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
   // Push config updates between renders.
   for (const [key, machine] of state.current.machines) {
     const single = (config as UseResizableMultiConfig).regions?.[key]
+
     machine.update(
       isMulti
         ? {
@@ -60,14 +65,17 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
 
   // Re-render when a region's size/collapse changes.
   const snapshotRef = useRef<any[]>([])
+
   useSyncExternalStore(
     (cb) => {
       const unsubs = Array.from(state.current!.machines.values()).map((m) => m.subscribe(cb))
+
       return () => unsubs.forEach((u) => u())
     },
     () => {
       const next = Array.from(state.current!.machines.values()).map((m) => m.getSnapshot())
       const prev = snapshotRef.current
+
       if (prev.length === next.length && prev.every((p, i) => p === next[i])) {
         return prev
       }
@@ -80,6 +88,7 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
   // Observe the basis for changes and re-measure.
   const containerRef = config.containerRef
   const direction = config.direction ?? 'horizontal'
+
   useEffect(() => {
     const remeasure = () => {
       for (const machine of state.current!.machines.values()) {
@@ -93,6 +102,7 @@ export function useResizable(config: UseResizableSingleConfig | UseResizableMult
 
   if (isMulti) {
     const result: Record<string, ResizableRegion> = {}
+
     for (const key of state.current.order) {
       result[key] = state.current.machines.get(key)!.region
     }

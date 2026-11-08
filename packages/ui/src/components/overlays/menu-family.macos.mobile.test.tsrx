@@ -25,6 +25,7 @@ import { Button } from '../actions/Button.macos.tsrx'
 
 // Inline surfaces exercise source ownership only, not NSPopover/native input.
 const popup = vi.hoisted(() => ({ current: null as any, byAnchor: new Map<object, any>() }))
+
 vi.mock('./Popover.macos.tsrx', () => ({
   Popover: (props: any) => {
     popup.current = props
@@ -44,6 +45,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -93,8 +95,10 @@ it('disabled action/checkbox/radio hosts remove native activation and reenable o
   }
 
   const env = mount(Rows, { disabled: true, sort: 'oldest' })
+
   try {
     const hosts = ['action', 'check', 'radio'].map(env.byID)
+
     for (const host of hosts) {
       expect(host.props.disabled).toBe(true)
       expect(host.props.onTap).toBeUndefined()
@@ -125,8 +129,10 @@ it('dropdown button refs and IDs reach the same native trigger and caller ID ove
     second = { current: null as any }
 
   const env = mount(DropdownMenu, { button: { id: 'button-id', label: 'Actions', ref: first } })
+
   try {
     const host = env.byID('button-id')
+
     expect(first).toHaveBeenCalledWith(host)
     env.render({ id: 'menu-id', button: { id: 'button-id', label: 'Actions', ref: second } })
     expect(env.byID('menu-id')).toBe(host)
@@ -158,6 +164,7 @@ it('controlled dropdowns suppress open surfaces for own, button or inherited gro
   }
 
   const env = mount(Grouped, {})
+
   try {
     expect(lists(env)).toHaveLength(1)
     for (const flag of ['own', 'button', 'group']) {
@@ -207,6 +214,7 @@ it('disabled controlled submenu/context surfaces hide immediately and request cl
   }
 
   const env = mount(Menus, {})
+
   try {
     expect(lists(env)).toHaveLength(3)
     expect(env.byID('sub').props.accessibilityState.expanded).toBe(true)
@@ -245,6 +253,7 @@ it('all actionable row kinds forward destructive tone and remove it on retained 
   }
 
   const env = mount(Rows, { variant: 'destructive' })
+
   try {
     const ids = ['action', 'check', 'radio', 'link', 'sub'],
       hosts = ids.map(env.byID)
@@ -284,6 +293,7 @@ function nativeMenuFixture() {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name, _owner, _queue, notify) {
         const token = {}
+
         if (
           name ===
           ((globalThis as any).NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification')
@@ -394,8 +404,10 @@ it('menu surface wires current manual focus/activation, preserves nested editors
   }
 
   const env = mount(Rows, { select: initial })
+
   try {
     const surface = lists(env)[0]
+
     f.hydrate(surface, owner)
     await vi.waitFor(() => {
       flushUniversalSync(() => {})
@@ -411,7 +423,9 @@ it('menu surface wires current manual focus/activation, preserves nested editors
     expect(check).toHaveBeenCalledWith(true)
     f.key(surface, 'End')
     expect(owner.firstResponder).toBe(env.byID('gamma'))
+
     const cachedPress = env.byID('gamma').props.onTap
+
     env.render({ select: updated })
     f.hydrate(surface, owner)
     f.key(surface, 'Enter')
@@ -433,7 +447,9 @@ it('menu surface wires current manual focus/activation, preserves nested editors
     expect(f.key(surface, 'Home').defaultPrevented).toBe(false)
     expect(f.key(surface, 'Enter').defaultPrevented).toBe(false)
     expect(owner.firstResponder).toBe(env.byID('menu-editor'))
+
     const cachedKeys = { props: { onKeyDown: surface.props.onKeyDown } }
+
     env.root.unmount()
     cachedPress()
     expect(updated).toHaveBeenCalledOnce()
@@ -468,8 +484,10 @@ it('submenu keys stay in their popup registry and controlled close does not rest
   }
 
   const env = mount(Rows, { open: false })
+
   try {
     let surfaces = lists(env)
+
     f.hydrate(surfaces[0], main)
     await vi.waitFor(() => {
       flushUniversalSync(() => {})
@@ -500,6 +518,7 @@ it('submenu keys stay in their popup registry and controlled close does not rest
     expect(close).not.toHaveBeenCalled()
     expect(lists(env)).toHaveLength(2)
     expect(child.firstResponder).toBe(env.byID('nested'))
+
     const cached = { props: { onKeyDown: surfaces[1].props.onKeyDown } },
       press = env.byID('nested').props.onTap
 
@@ -527,6 +546,7 @@ function triggerKeysFixture() {
 
   ;(globalThis as any).__xplatAppKit.observeViewKeys = (view: object, handlers: any) => {
     let owned = subscriptions.get(view)
+
     if (!owned) {
       owned = new Set()
       subscriptions.set(view, owned)
@@ -605,18 +625,24 @@ it('closed dropdown trigger arrows request first/last focus on the existing Butt
   }
 
   const env = mount(DropdownMenu, props)
+
   try {
     const trigger = env.byID('menu')
+
     f.hydrate(trigger, main)
     main.firstResponder = trigger
     expect(ref).toHaveBeenCalledWith(trigger)
     expect(f.subscriptions.has(trigger)).toBe(true)
     expect(f.registrations).toBe(1)
+
     const up = f.triggerKey(trigger, 'ArrowUp')
+
     expect(up.defaultPrevented).toBe(true)
     expect(up.stopped).toBe(true)
     expect(changes).toHaveBeenCalledWith(true)
+
     let surface = lists(env)[0]
+
     f.hydrate(surface, panel)
     await vi.waitFor(() => {
       flushUniversalSync(() => {})
@@ -665,11 +691,15 @@ it('controlled trigger arrows preserve pending edge intent and current guards, i
   }
 
   const env = mount(DropdownMenu, base)
+
   try {
     const trigger = env.byID('menu')
+
     f.hydrate(trigger, main)
     main.firstResponder = trigger
+
     const cached = [...f.subscriptions.get(trigger)!][0].onKeyDown
+
     for (const flag of [
       'isComposing',
       'altKey',
@@ -679,6 +709,7 @@ it('controlled trigger arrows preserve pending edge intent and current guards, i
       'defaultPrevented',
     ]) {
       const event = f.triggerKey(trigger, 'ArrowDown', { [flag]: true })
+
       expect(event.stopped).toBe(false)
     }
 
@@ -706,6 +737,7 @@ it('controlled trigger arrows preserve pending edge intent and current guards, i
     }
 
     env.root.unmount()
+
     const event: any = {
       target: trigger,
       key: 'ArrowDown',
@@ -742,6 +774,7 @@ it('owned dropdown Tab/Shift-Tab records same-window return intent without resto
   }
 
   const env = mount(DropdownMenu, props)
+
   try {
     const trigger = env.byID('menu'),
       next = { window: main },
@@ -750,15 +783,20 @@ it('owned dropdown Tab/Shift-Tab records same-window return intent without resto
     f.hydrate(trigger, main)
     trigger.nextValidKeyView = next
     trigger.previousValidKeyView = previous
+
     const surface = lists(env)[0]
+
     f.hydrate(surface, panel)
+
     const restore = vi.spyOn(main, 'makeFirstResponder')
+
     await vi.waitFor(() => {
       flushUniversalSync(() => {})
       expect(panel.firstResponder).toBe(env.byID('alpha'))
     })
 
     const owner = popupFor('menu')
+
     expect(f.key(surface, 'Tab').defaultPrevented).toBe(true)
     expect(changes).toHaveBeenCalledWith(false)
     expect(lists(env)).toHaveLength(1)
@@ -801,13 +839,16 @@ it('nested Tab requests the whole menu chain and return refs follow accepted anc
   }
 
   const env = mount(Menus, { root: true, sub: true })
+
   try {
     const trigger = env.byID('menu'),
       next = { window: main }
 
     f.hydrate(trigger, main)
     trigger.nextValidKeyView = next
+
     const surfaces = lists(env)
+
     f.hydrate(surfaces[0], parentWindow)
     f.hydrate(surfaces[1], childWindow)
     await vi.waitFor(() => {
@@ -860,10 +901,13 @@ it.each([
     }
 
     const env = mount(ContextMenu, base)
+
     try {
       const host = env.byID('context')
+
       f.hydrate(host, main)
       expect(host.props.accessibilityLabel).toBe('Item actions')
+
       const field = env.byID('context-input'),
         next = { window: main }
 
@@ -880,6 +924,7 @@ it.each([
       })
 
       const owner = popupFor('context')
+
       expect(owner.finalFocusRef.current).toBe(field)
       expect(f.key(lists(env)[0], 'Tab').defaultPrevented).toBe(true)
       expect(changes).toHaveBeenLastCalledWith(false)
@@ -910,14 +955,18 @@ it('visible context triggers keep primitive content and provide ordinary/Tab ret
   }
 
   const env = mount(ContextMenu, props)
+
   try {
     const host = env.byID('context')
+
     f.hydrate(host, main)
+
     const trigger = env
       .all()
       .find((node) => String(node.props?.className).split(' ').includes('vx-contextmenu-trigger'))
 
     const previous = { window: main }
+
     trigger.previousValidKeyView = previous
     expect(env.all().some((node) => node.type === 'label' && node.props?.text === 'Actions')).toBe(
       true,
@@ -937,7 +986,9 @@ it('visible context triggers keep primitive content and provide ordinary/Tab ret
     expect(lists(env)).toHaveLength(0)
     expect(env.byID('context')).toBe(host)
     expect(popupFor('context').finalFocusRef.current).toBe(previous)
+
     const cached = trigger.props.onTap
+
     env.render({ ...props, isDisabled: true })
     changes.mockClear()
     cached()
@@ -968,9 +1019,12 @@ it.each([
     }
 
     const env = mount(ContextMenu, base)
+
     try {
       const host = env.byID('context')
+
       f.hydrate(host, main)
+
       const field = env.byID('context-input'),
         cached = { props: { onKeyDown: host.props.onKeyDown } }
 
@@ -1060,12 +1114,18 @@ it('context pointer intent opens from decorative content without directly invoki
   }
 
   const env = mount(ContextMenu, base)
+
   try {
     const host = env.byID('context')
+
     f.hydrate(host, main)
+
     const button = env.byID('context-item')
+
     button.acceptsFirstResponder = () => true
+
     const label = env.all().find((node) => node.type === 'label' && node.props?.text === 'Item')
+
     expect(f.owners.has(host)).toBe(true)
     expect(f.registered).toBe(1)
     expect(f.owners.get(host)!(label)).toBe(true)
@@ -1104,9 +1164,12 @@ it('pointer context scope falls back to the visible invoker and rejects stale di
   }
 
   const env = mount(ContextMenu, base)
+
   try {
     const host = env.byID('context')
+
     f.hydrate(host, main)
+
     const handler = f.owners.get(host)!,
       trigger = env
         .all()
@@ -1146,8 +1209,10 @@ it('AppKit menu links forward their current text label and clear it for non-text
   }
 
   const env = mount(Links, { label: 'Help' })
+
   try {
     const host = env.byID('named-link')
+
     expect(host.props.accessibilityRole).toBe('menuitem')
     expect(host.props.accessibilityLabel).toBe('Help')
     env.render({ label: 'Documentation' })
@@ -1170,6 +1235,7 @@ it('rapid AppKit dropdown toggles use current local visibility before render', (
 
   try {
     const press = env.byID('current-menu').props.onTap
+
     press()
     press()
     press()
@@ -1195,6 +1261,7 @@ it('held dropdown toggles respect current controlled visibility, callbacks and t
 
   try {
     const press = env.byID('current-menu').props.onTap
+
     press()
     press()
     flushUniversalSync(() => {})
@@ -1236,8 +1303,10 @@ it('held dropdown opening checks current own, button, group and loading policy',
   }
 
   const env = mount(Grouped, {})
+
   try {
     const press = env.byID('current-menu').props.onTap
+
     for (const state of [{ own: true }, { button: true }, { group: true }, { loading: true }]) {
       env.render(state)
       press()
@@ -1370,6 +1439,7 @@ it('dropdown arrow opening shares current busy, local visibility and reentry own
   }
 
   const env = mount(DropdownMenu, base)
+
   try {
     const host = env.byID('current-menu'),
       key = [...f.subscriptions.get(host)!][0].onKeyDown
@@ -1385,22 +1455,29 @@ it('dropdown arrow opening shares current busy, local visibility and reentry own
     })
 
     env.render({ ...base, button: { label: 'Actions', isLoading: true } })
+
     const blocked = event()
+
     key(blocked)
     expect(blocked.defaultPrevented).toBe(false)
     expect(events).toEqual([])
     env.render(base)
+
     const dismiss = popup.current.onDismiss
+
     nested = () => {
       key(event())
       dismiss()
     }
 
     const first = event()
+
     key(first)
     expect(first.defaultPrevented).toBe(true)
     expect(events).toEqual([true])
+
     const repeated = event()
+
     key(repeated)
     expect(repeated.defaultPrevented).toBe(false)
     flushUniversalSync(() => {})

@@ -6,6 +6,7 @@ import { windowsLaunchBlocker, windowsPreflight } from '../dist/build/windows/pr
 import { workshopDev, workshopDoctor } from '../dist/build/node.js'
 
 const roots = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     rmSync(root, { recursive: true, force: true })
@@ -14,6 +15,7 @@ afterEach(() => {
 
 function consumer({ complete = false, runtime = '0.1.0-alpha.146' } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'workshop-windows-'))
+
   roots.push(root)
   writeFileSync(
     join(root, 'package.json'),
@@ -39,6 +41,7 @@ function consumer({ complete = false, runtime = '0.1.0-alpha.146' } = {}) {
       'vite',
     ]) {
       const dir = join(root, 'node_modules', name)
+
       mkdirSync(dir, { recursive: true })
       writeFileSync(join(dir, 'package.json'), JSON.stringify({ name, version: '1.0.0' }))
     }
@@ -54,6 +57,7 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
     })
 
     const report = windowsPreflight(consumer({ complete: true }), { platform: 'darwin', run })
+
     expect(report.status).toBe('remote-host-required')
     expect(report.executionHost.reachable).toBe(false)
     expect(report.requirements).not.toHaveProperty('.NET SDK >= 10')
@@ -64,6 +68,7 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
 
   it('separates setup failure from story failure', () => {
     const report = windowsPreflight(consumer(), { platform: 'win32', run: () => null })
+
     expect(report.status).toBe('missing-prerequisites')
     expect(report.requirements['.NET SDK >= 10']).toBe(false)
     expect(report.requirements['Developer Mode (development launch)']).toBe(false)
@@ -75,6 +80,7 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
   it('does not claim availability when every prerequisite passes', () => {
     const run = vi.fn((command) => (command === 'dotnet' ? '10.0.100' : '1'))
     const report = windowsPreflight(consumer({ complete: true }), { platform: 'win32', run })
+
     expect(Object.values(report.requirements).every(Boolean)).toBe(true)
     expect(report.status).toBe('unqualified-backend')
     expect(report.qualification).toBe('unverified')
@@ -109,8 +115,10 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
 
   it('doctor reports the actual execution host without evaluating consumer configuration', async () => {
     const log = vi.spyOn(console, 'log').mockImplementation(() => {})
+
     try {
       const report = await workshopDoctor({ cwd: consumer(), json: true })
+
       expect(report.targets.windows.executionHost.current).toBe(process.platform)
       expect(report.targets.windows.qualification).toBe('unverified')
       expect(report.targets.windows.status).not.toBe('available')

@@ -22,10 +22,13 @@ export type ClipPath =
 function parseLength(text: string): number | { value: number; unit: '%' } {
   const s = text.trim()
   const p = /^([+-]?(?:\d+\.?\d*|\.\d+))%$/.exec(s)
+
   if (p) {
     return { value: Number(p[1]) / 100, unit: '%' }
   }
+
   const m = /^([+-]?(?:\d+\.?\d*|\.\d+))(px|dip|pt)?$/.exec(s)
+
   return m ? Number(m[1]) : 0
 }
 
@@ -46,18 +49,23 @@ function resolveRadius(v: number | { value: number; unit: '%' }, w: number, h: n
 /** NS shorthand edges: 1–4 values → top/right/bottom/left. */
 function edgeParts(parts: string[]): [any, any, any, any] {
   const vals = parts.map(parseLength)
+
   if (vals.length === 1) {
     return [vals[0], vals[0], vals[0], vals[0]]
   }
+
   if (vals.length === 2) {
     return [vals[0], vals[1], vals[0], vals[1]]
   }
+
   if (vals.length === 3) {
     return [vals[0], vals[1], vals[2], vals[1]]
   }
+
   if (vals.length === 4) {
     return [vals[0], vals[1], vals[2], vals[3]]
   }
+
   throw new Error(`clip-path: expected 1-4 inset values, got ${parts.length}`)
 }
 
@@ -65,7 +73,9 @@ function centerAt(at: string | undefined, w: number, h: number): [number, number
   if (!at) {
     return [w / 2, h / 2]
   }
+
   const [x, y] = at.trim().split(/\s+/).map(parseLength)
+
   return [resolveX(x ?? 0, w), resolveY(y ?? 0, h)]
 }
 
@@ -82,11 +92,14 @@ export function resolveClipPath(
   if (value == null || value === 'none' || value === '') {
     return { type: 'none' }
   }
+
   const open = value.indexOf('(')
   const close = value.lastIndexOf(')')
+
   if (open === -1 || close === -1) {
     return { type: 'none' }
   }
+
   const shape = value.substring(0, open).trim()
   const rule = value.substring(open + 1, close)
 
@@ -101,9 +114,11 @@ export function resolveClipPath(
 
       const [top, right, bottom, left] = edgeParts(edges)
       const radii: [number, number][] = []
+
       if (radiiPart) {
         // Corner groups: "rx ry / rx ry" or single pairs per corner.
         const corners = radiiPart.trim().split('/')
+
         for (const corner of corners) {
           const [rx, ry] = corner
             .trim()
@@ -132,6 +147,7 @@ export function resolveClipPath(
       const sizes = (atIdx === -1 ? rule : rule.slice(0, atIdx)).trim().split(/[\s,]+/)
       const at = atIdx === -1 ? undefined : rule.slice(atIdx + 2)
       const [cx, cy] = centerAt(at, width, height)
+
       if (shape === 'circle') {
         return {
           type: 'circle',

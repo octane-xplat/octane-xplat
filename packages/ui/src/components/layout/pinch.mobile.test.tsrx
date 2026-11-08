@@ -26,6 +26,7 @@ function BareHost() @{
 function mountPinchHost() {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(PinchHost, {})
   cleanups.push(() => root.unmount())
   return { container, root, host: container.children[0] }
@@ -69,6 +70,7 @@ describe('native pinch normalization', () => {
 
   it('preserves finite focal coordinates and omits unavailable values', () => {
     const { container, host } = mountPinchHost()
+
     container.dispatchEvent(host, 'pinch', { state: 2, getFocusX: () => 14, getFocusY: () => 44 })
     container.dispatchEvent(host, 'pinch', {
       state: 2,
@@ -84,6 +86,7 @@ describe('native pinch normalization', () => {
   it('leaves the prop unset without a callback', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     root.render(BareHost, {})
     cleanups.push(() => root.unmount())
     expect(() =>

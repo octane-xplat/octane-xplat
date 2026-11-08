@@ -35,13 +35,17 @@ function load(file, globals = {}, imports = {}) {
     }
 
     const key = name.replace('./', '')
+
     if (cache[key]) {
       return cache[key]
     }
 
     const exports = {}
+
     cache[key] = exports
+
     const run = vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)
+
     run(exports, require)
     return exports
   }
@@ -58,7 +62,9 @@ test('macOS tag set deduplicates and retains other owners; failed native calls r
       processInfo: {
         beginActivityWithOptionsReason: (options, tag) => {
           assert.equal(options, 2 ** 40 + 0x00efffff)
+
           const token = { tag }
+
           begun.push(token)
           return token
         },
@@ -77,8 +83,11 @@ test('macOS tag set deduplicates and retains other owners; failed native calls r
   assert.equal(ended.length, 1)
   await api.deactivate('b')
   assert.equal(await api.isActivated(), false)
+
   const absent = load('keep-awake.macos').api
+
   assert.equal(await absent.activate(), false)
+
   const windows = load(
     'keep-awake.windows',
     {},
@@ -87,6 +96,7 @@ test('macOS tag set deduplicates and retains other owners; failed native calls r
       '@octane-xplat/platform/windows': { Windows: undefined },
     },
   ).api
+
   for (const name of ['activate', 'deactivate', 'isAvailable', 'isActivated']) {
     assert.equal(await windows[name](), false)
   }
@@ -150,6 +160,7 @@ test('web deduplicates, reports auto-release and reacquires visible requested ta
   const { api, document, events, sentinels } = browser()
   const released = []
   const stop = api.onRelease((tag) => released.push(tag))
+
   await api.activate('a')
   await api.activate('a')
   await api.activate('b')
@@ -189,6 +200,7 @@ test('pending web activation followed by cleanup cannot leak a sentinel', async 
 
   const activation = api.activate('a')
   const cleanup = api.deactivate('a')
+
   while (!resolve) {
     await Promise.resolve()
   }
@@ -208,7 +220,9 @@ test('web denied requests return false and can retry; host takes priority', asyn
   assert.equal(await denied.api.activate(), false)
   assert.equal(await denied.api.isActivated(), false)
   await denied.api.deactivate()
+
   const host = browser(null, true)
+
   await host.api.activate('a')
   await host.api.activate('a')
   await host.api.deactivate('a')
@@ -291,6 +305,7 @@ function native(ios) {
 
 test('iOS clears in background and reapplies on resume; last tag cleans listeners', async () => {
   const { api, app, handlers } = native(true)
+
   await api.activate('a')
   await api.activate('b')
   assert.equal(app.idleTimerDisabled, true)
@@ -308,12 +323,17 @@ test('iOS clears in background and reapplies on resume; last tag cleans listener
 
 test('Android defers before first activity, applies to new windows and clears every owned window', async () => {
   const n = native(false)
+
   assert.equal(await n.api.activate('a'), true)
   assert.equal(await n.api.isActivated(), false)
+
   const first = n.makeActivity()
+
   n.setCurrent(first)
   n.activityHandlers.get('started')({ activity: first })
+
   const second = n.makeActivity()
+
   n.activityHandlers.get('started')({ activity: second })
   assert.equal(await n.api.isActivated(), true)
   assert.deepEqual(
@@ -373,10 +393,12 @@ test('Linux host scopes cookies to webviews, handles zero cookies and releases o
   })
 
   vm.runInContext(definitions, context)
+
   const a = { get_root: () => 'a' },
     b = { get_root: () => 'b' }
 
   const dispatch = (wv, method, tag) => context.dispatch(wv, 'id', 'keepAwake', method, [tag], true)
+
   dispatch(a, 'activate', 'reading')
   assert.equal(replies.at(-1).value, false)
   nextCookie = 11
@@ -456,6 +478,7 @@ test('hook owns a stable generated tag and filters release callbacks before clea
   })
 
   const cleanup = effect()
+
   releaseListener('another')
   releaseListener('generated')
   cleanup()
@@ -532,6 +555,7 @@ test('macOS desktop windows own independent tags and close cancels late activati
   )
 
   vm.runInContext(code, context)
+
   const a = {},
     b = {},
     c = {}
@@ -548,13 +572,16 @@ test('macOS desktop windows own independent tags and close cancels late activati
   assert.equal(held.size, 1)
   await second.deactivate('reading')
   assert.equal(held.size, 0)
+
   const third = context.hostFor(c)
   let complete
+
   delayed = new Promise((resolve) => {
     complete = resolve
   })
 
   const activation = third.activate('late')
+
   while (calls.length < 3) {
     await Promise.resolve()
   }

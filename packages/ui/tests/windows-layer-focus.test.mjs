@@ -19,6 +19,7 @@ function fixture(options = {}) {
       callback()
     }
   }
+
   const owner = { IsHostVisible: true, ContentIslandEnvironment: { AppWindowId: { Value: 7 } } }
   const state = {
     focus: [],
@@ -29,6 +30,7 @@ function fixture(options = {}) {
     layerKeySetup: null,
     layerKeyEvents: [],
   }
+
   const control = (root = owner) => ({
     XamlRoot: root,
     IsLoaded: true,
@@ -38,6 +40,7 @@ function fixture(options = {}) {
       return true
     },
   })
+
   const initial = control()
   const host = { nativeViewProtected: { XamlRoot: owner } }
   const Microsoft = {
@@ -67,12 +70,14 @@ function fixture(options = {}) {
       },
     },
   }
+
   const Application = {
     getRootView() {
       state.primaryReads++
       return host
     },
   }
+
   const exits = {}
   const exitSource = ts.transpileModule(
     readFileSync(
@@ -83,8 +88,11 @@ function fixture(options = {}) {
       compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
     },
   ).outputText
+
   vm.runInNewContext(exitSource, { exports: exits })
+
   const exports = {}
+
   vm.runInNewContext(source, {
     exports,
     queueMicrotask: (callback) => pending.push(callback),
@@ -92,6 +100,7 @@ function fixture(options = {}) {
       if (id === './windows-overlay-exit') {
         return exits
       }
+
       if (id === './layer-stack') {
         return {
           configureLayerKeys(setup) {
@@ -102,17 +111,22 @@ function fixture(options = {}) {
           },
         }
       }
+
       if (id === '@nativescript/core') {
         return { Application }
       }
+
       if (id === '@octane-xplat/platform/windows') {
         return { Microsoft }
       }
+
       throw new Error(`Unexpected import: ${id}`)
     },
   })
+
   const capture = (...args) => {
     const restore = exports.captureLayerFocus(...args)
+
     return () => {
       restore()
       if (options.flush !== false) {
@@ -120,12 +134,14 @@ function fixture(options = {}) {
       }
     }
   }
+
   return { capture, flush, owner, initial, host, control, state, Microsoft, exits }
 }
 
 test('Windows layers restore the captured control only after checking the owning window', () => {
   const { capture, owner, initial, host, state } = fixture()
   const restore = capture(undefined, host)
+
   assert.deepEqual(state.captures, [owner])
   assert.deepEqual(state.focus, [])
   assert.deepEqual(state.activationReads, [])
@@ -142,6 +158,7 @@ test('Windows layers resolve the latest explicit NativeScript view or public han
     const restore = capture(() => target, host)
     const native = control()
     const view = { nativeViewProtected: native, isLoaded: true, isEnabled: true }
+
     target = handle ? { native: view } : view
     restore()
     assert.deepEqual(state.focus, [[native, 3]])
@@ -150,6 +167,7 @@ test('Windows layers resolve the latest explicit NativeScript view or public han
 
 test('Windows layers never fall back to primary focus for an unattached supplied host', () => {
   const { capture, control, state } = fixture()
+
   capture(() => control(), { nativeViewProtected: {} })()
   assert.deepEqual(state.focus, [])
   assert.deepEqual(state.captures, [])
@@ -159,6 +177,7 @@ test('Windows layers never fall back to primary focus for an unattached supplied
 test('Windows layers capture the target root or primary root only when no host is supplied', () => {
   const { capture, owner, control, state } = fixture()
   const target = control()
+
   capture(() => ({ native: { nativeViewProtected: target } }))()
   assert.deepEqual(state.captures, [owner])
   assert.deepEqual(state.focus, [[target, 3]])
@@ -173,6 +192,7 @@ test('Windows layers skip inactive and hidden owners and never query another win
   for (const reason of ['inactive', 'hidden', 'missing-window-id']) {
     const { capture, owner, host, state } = fixture()
     const restore = capture(undefined, host)
+
     if (reason === 'inactive') {
       state.active = false
     }
@@ -196,6 +216,7 @@ test('Windows layers reject a foreign explicit target or a host moved to another
     const { capture, initial, host, control, state } = fixture()
     const target = moved === 'target' ? control({}) : undefined
     const restore = capture(() => target, host)
+
     if (moved === 'host') {
       host.nativeViewProtected = { XamlRoot: {} }
     }
@@ -215,6 +236,7 @@ test('Windows layers skip unloaded or disabled views and controls without fallba
     const native = control()
     const view = { nativeViewProtected: native }
     const restore = capture(() => ({ native: view }), host)
+
     if (field[0] === 'i') {
       view[field] = false
     } else {
@@ -224,8 +246,10 @@ test('Windows layers skip unloaded or disabled views and controls without fallba
     restore()
     assert.deepEqual(state.focus, [])
   }
+
   const { capture, host, initial, state } = fixture()
   const restore = capture(undefined, host)
+
   initial.IsLoaded = false
   restore()
   assert.deepEqual(state.focus, [])
@@ -234,11 +258,13 @@ test('Windows layers skip unloaded or disabled views and controls without fallba
 test('Windows layers fail closed when activation or focus projections are absent', () => {
   for (const missing of ['activation', 'state', 'focus-state', 'focus-method', 'capture']) {
     const { capture, host, initial, Microsoft, state } = fixture()
+
     if (missing === 'capture') {
       delete Microsoft.UI.Xaml.Input.FocusManager
     }
 
     const restore = capture(undefined, host)
+
     if (missing === 'activation') {
       delete Microsoft.UI.Input.InputActivationListener
     }
@@ -265,15 +291,18 @@ test('Windows layers tolerate retired proxies and failing target getters without
   const restore = capture(() => {
     throw new Error('retired ref')
   }, host)
+
   assert.doesNotThrow(restore)
   assert.deepEqual(state.focus, [])
   initial.Focus = () => {
     throw new Error('retired native')
   }
+
   assert.doesNotThrow(capture(undefined, host))
   Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot = () => {
     throw new Error('closed')
   }
+
   assert.doesNotThrow(capture(undefined, host))
   assert.equal(state.primaryReads, 0)
 })
@@ -281,6 +310,7 @@ test('Windows layers tolerate retired proxies and failing target getters without
 test('Windows focus return waits for modal background cleanup', () => {
   const { capture, flush, host, initial, state } = fixture({ flush: false })
   const restore = capture(undefined, host)
+
   initial.IsEnabled = false
   restore()
   assert.deepEqual(state.focus, [])
@@ -291,6 +321,7 @@ test('Windows focus return waits for modal background cleanup', () => {
 
 test('Windows focus return rechecks activation when deferred restoration runs', () => {
   const { capture, flush, host, state } = fixture({ flush: false })
+
   capture(undefined, host)()
   state.active = false
   flush()
@@ -299,10 +330,13 @@ test('Windows focus return rechecks activation when deferred restoration runs', 
 
 test('Windows explicit focus return survives a missing scoped snapshot projection', () => {
   const { capture, host, control, Microsoft, state } = fixture()
+
   Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot = () => {
     throw new Error('snapshot projection absent')
   }
+
   const target = control()
+
   capture(() => ({ native: { nativeViewProtected: target } }), host)()
   assert.deepEqual(state.focus, [[target, 3]])
   state.focus.length = 0
@@ -313,11 +347,13 @@ test('Windows explicit focus return survives a missing scoped snapshot projectio
 
 test('Windows .NET focus capture supplies the owner to the scoped overload', () => {
   const { capture, owner, initial, host, Microsoft, state } = fixture()
+
   delete Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot
   Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement = (...args) => {
     assert.deepEqual(args, [owner])
     return initial
   }
+
   capture(undefined, host)()
   assert.deepEqual(state.focus, [[initial, 3]])
   assert.equal(state.primaryReads, 0)
@@ -325,6 +361,7 @@ test('Windows .NET focus capture supplies the owner to the scoped overload', () 
 
 test('Windows rejects an ambiguous focus overload returning another root', () => {
   const { capture, control, host, Microsoft, state } = fixture()
+
   delete Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElementWithRoot
   Microsoft.UI.Xaml.Input.FocusManager.GetFocusedElement = () => control({})
   capture(undefined, host)()
@@ -336,6 +373,7 @@ test('Windows focus return waits for all native exits and rechecks target eligib
   for (const disabled of [false, true]) {
     const { capture, owner, host, initial, state, exits } = fixture()
     let finishFirst, finishLast
+
     exits.trackWindowsOverlayExit(
       owner,
       new Promise((resolve) => {

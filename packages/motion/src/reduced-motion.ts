@@ -2,6 +2,7 @@ import { Application, Device, Utils } from '@nativescript/core'
 
 export function readReducedMotion(): boolean {
   const platform = globalThis as any
+
   if (Application.ios) {
     return Boolean(platform.UIAccessibilityIsReduceMotionEnabled?.())
   }
@@ -19,6 +20,7 @@ export function readReducedMotion(): boolean {
 
   // `Utils.android` is a {} stub in the pinned Windows core build.
   const context = (Utils.android as any).getApplicationContext()
+
   return (
     platform.android.provider.Settings.Global.getFloat(
       context.getContentResolver(),
@@ -35,12 +37,14 @@ export function observeReducedMotion(notify: () => void): () => void {
   if (Application.ios) {
     const name = (globalThis as any).UIAccessibilityReduceMotionStatusDidChangeNotification
     const observer = Application.ios.addNotificationObserver(name, notify)
+
     return () => Application.ios.removeNotificationObserver(observer, name)
   }
 
   let previous = readReducedMotion()
   const check = () => {
     const next = readReducedMotion()
+
     if (next !== previous) {
       previous = next
       notify()
@@ -48,6 +52,7 @@ export function observeReducedMotion(notify: () => void): () => void {
   }
 
   const timer = setInterval(check, 500)
+
   Application.on(Application.resumeEvent, check)
   return () => {
     clearInterval(timer)

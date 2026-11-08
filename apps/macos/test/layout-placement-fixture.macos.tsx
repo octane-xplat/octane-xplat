@@ -106,6 +106,7 @@ export async function runLayoutPlacementFixture(stopHost = true) {
   // No required contentView size pins: placement must not defeat AppKit's
   // WindowSizeStayPut priority and shrink the host to content fitting size.
   window.orderFront(null)
+
   const root = createMacOSRoot(window.contentView)
   const view = (id: string) => (root as any).__macosDebug.findId(id)
   const near = (actual: number, expected: number, message: string) => {
@@ -129,6 +130,7 @@ export async function runLayoutPlacementFixture(stopHost = true) {
   try {
     for (const Component of [AbsolutePanel, GridPanel]) {
       const initialOrigin = window.frame.origin
+
       root.render(Component as unknown as UniversalComponent)
       await settle()
       near(Number(window.contentView.bounds.size.width), 288, 'initial host width')
@@ -141,14 +143,18 @@ export async function runLayoutPlacementFixture(stopHost = true) {
         { width: 288, height: 803 },
       ]) {
         window.setContentSize(size)
+
         const origin = window.frame.origin
+
         for (let solve = 0; solve < 3; solve++) {
           await settle()
           near(Number(window.contentView.bounds.size.width), size.width, 'host width')
           near(Number(window.contentView.bounds.size.height), size.height, 'host height')
           near(Number(window.frame.origin.x), Number(origin.x), 'host x')
           near(Number(window.frame.origin.y), Number(origin.y), 'host y')
+
           const panel = view('panel').frame
+
           near(Number(panel.origin.x), 10, 'panel leading')
           near(Number(panel.origin.y), 18, 'panel bottom')
           near(Number(panel.size.width), 268, 'panel width')

@@ -23,6 +23,7 @@ export function releaseChannel(jobs, track = 'stable') {
 // never replace a newer failure or invalid report.
 export function latestEvidenceArtifact(artifacts, name) {
   const matches = artifacts.filter((artifact) => artifact.name === name)
+
   for (const artifact of matches) {
     assert.ok(Number.isSafeInteger(artifact.id) && artifact.id > 0, 'invalid evidence artifact ID')
     assert.ok(
@@ -30,6 +31,7 @@ export function latestEvidenceArtifact(artifacts, name) {
       'invalid evidence artifact timestamp',
     )
   }
+
   return matches.sort(
     (a, b) => Date.parse(b.created_at) - Date.parse(a.created_at) || b.id - a.id,
   )[0]
@@ -40,6 +42,7 @@ export function latestEvidenceArtifact(artifacts, name) {
 export function verifyEvidence(evidence, { sha, tree, runId, track, repository, run, jobs }) {
   const channel = releaseChannel(evidence.jobs, track)
   const required = RELEASE_TRACKS[track]
+
   assert.equal(evidence.track, track, 'evidence belongs to a different release track')
   assert.equal(evidence.sha, sha, 'evidence belongs to a different revision')
   if (track === 'stable') {
@@ -48,6 +51,7 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
     assert.ok(evidence.tree, 'stable evidence has no tree')
     assert.equal(evidence.tree, tree, 'evidence belongs to a different tree')
   }
+
   assert.equal(evidence.runId, runId, 'evidence was recorded by a different CI run')
   assert.deepEqual(evidence.required, required.jobs, 'evidence does not cover the required jobs')
   assert.equal(evidence.status, channel === 'none' ? 'failure' : 'success')
@@ -60,6 +64,7 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
 
     assert.equal(evidence.runAttempt, run.run_attempt, 'evidence belongs to a different CI attempt')
   }
+
   assert.equal(run.head_sha, sha, 'CI tested a different revision')
   assert.equal(
     run.head_branch,
@@ -68,6 +73,7 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
       ? 'stable evidence must come from the release pull request'
       : 'release evidence must come from main',
   )
+
   assert.equal(run.repository?.full_name, repository, 'CI ran in a different repository')
   assert.equal(run.head_repository?.full_name, repository, 'CI tested a fork')
   assert.equal(run.path, `.github/workflows/${required.workflow}`, 'unexpected CI workflow')
@@ -76,6 +82,7 @@ export function verifyEvidence(evidence, { sha, tree, runId, track, repository, 
   assert.notEqual(run.conclusion, 'cancelled', 'CI was superseded or cancelled')
   for (const job of required.jobs) {
     const matches = jobs.filter((entry) => entry.name === job)
+
     assert.ok(matches.length <= 1, `ambiguous CI job: ${job}`)
     assert.equal(
       matches[0]?.conclusion ?? 'absent',

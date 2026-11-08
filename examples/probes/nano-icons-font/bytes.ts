@@ -9,12 +9,14 @@ export function probeFontBytes(): Uint8Array {
   const src = probeFontBase64
   const out = new Uint8Array(Math.ceil(src.length / 4) * 3)
   let o = 0
+
   for (let i = 0; i < src.length; i += 4) {
     const a = table.indexOf(src[i])
     const b = table.indexOf(src[i + 1])
     const c = src[i + 2] === '=' ? -1 : table.indexOf(src[i + 2])
     const d = src[i + 3] === '=' ? -1 : table.indexOf(src[i + 3])
     const n = (a << 18) | (b << 12) | ((c < 0 ? 0 : c) << 6) | (d < 0 ? 0 : d)
+
     out[o++] = (n >> 16) & 255
     if (c >= 0) {
       out[o++] = (n >> 8) & 255

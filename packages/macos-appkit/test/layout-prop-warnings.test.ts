@@ -35,6 +35,7 @@ const { applyProps } = runSlice(applyPropsSrc + '\n({ applyProps })', {
 function node(type: string, parentType?: string) {
   const parent = parentType ? { type: parentType, children: [] } : null
   const child = { type, props: {}, view: {}, container: { layoutDirty: null }, parent }
+
   parent?.children.push(child)
   return child
 }

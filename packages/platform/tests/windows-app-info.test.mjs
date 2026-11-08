@@ -11,6 +11,7 @@ const code = ts.transpileModule(
 
 function load(Windows) {
   const exports = {}
+
   vm.runInNewContext(code, {
     exports,
     require(id) {
@@ -18,6 +19,7 @@ function load(Windows) {
       return { Windows }
     },
   })
+
   return exports.appInfo
 }
 
@@ -31,12 +33,14 @@ const snapshot = (info) => ({ ...info })
 test('Windows app info preserves package identity and every package-version component', () => {
   const id = identity()
   const info = load({ ApplicationModel: { Package: { Current: { Id: id } } } })
+
   assert.deepEqual(snapshot(info), {
     supported: true,
     version: '2.5.13.7',
     build: '13',
     bundleId: id.Name,
   })
+
   id.Version = { Major: 0, Minor: 65535, Build: 0, Revision: 65535 }
   assert.equal(info.version, '0.65535.0.65535')
   assert.equal(info.build, '0')
@@ -53,11 +57,13 @@ test('Windows app info does not read package identity during module evaluation o
           if (!ready) {
             throw new Error('host not ready')
           }
+
           return { Id: identity() }
         },
       },
     },
   })
+
   assert.equal(reads, 0)
   assert.equal(info.supported, false)
   ready = true
@@ -69,6 +75,7 @@ test('Windows app info does not read package identity during module evaluation o
 
 test('Windows app info reports absent, unpackaged and malformed identities without leaking errors', () => {
   const unavailable = { supported: false, version: null, build: null, bundleId: null }
+
   for (const Windows of [
     undefined,
     {},
@@ -84,6 +91,7 @@ test('Windows app info reports absent, unpackaged and malformed identities witho
   ]) {
     assert.deepEqual(snapshot(load(Windows)), unavailable)
   }
+
   for (const Name of [undefined, null, '', '  ', 123, {}]) {
     assert.deepEqual(
       snapshot(load({ ApplicationModel: { Package: { Current: { Id: { Name } } } } })),
@@ -95,6 +103,7 @@ test('Windows app info reports absent, unpackaged and malformed identities witho
 test('Windows app info retains usable identity when version fields cannot be trusted', () => {
   const id = identity()
   const info = load({ ApplicationModel: { Package: { Current: { Id: id } } } })
+
   for (const field of ['Major', 'Minor', 'Build', 'Revision']) {
     for (const value of [undefined, null, -1, 65536, 1.5, NaN, Infinity, '1']) {
       id.Version = { ...identity().Version, [field]: value }
@@ -104,11 +113,13 @@ test('Windows app info retains usable identity when version fields cannot be tru
       assert.equal(info.build, null)
     }
   }
+
   Object.defineProperty(id, 'Version', {
     get() {
       throw new Error('unavailable projection')
     },
   })
+
   assert.equal(info.supported, true)
   assert.equal(info.version, null)
   assert.equal(info.build, null)

@@ -44,7 +44,9 @@ function fixture() {
       }),
     },
   })
+
   const scanner = vm.runInContext(stripTypeScriptTypes(SOURCE) + '\nbarcodeScanner', context)
+
   return { scanner, calls, request, state, image, context }
 }
 
@@ -56,13 +58,16 @@ const observation = (symbology: string, payloadStringValue: string, boundingBox?
 
 test('a path scans QR symbologies and maps Vision bounds into image pixels', async () => {
   const f = fixture()
+
   f.request.results = [
     observation('VNBarcodeSymbologyQR', 'HELLO', {
       origin: { x: 0.25, y: 0.5 },
       size: { width: 0.5, height: 0.25 },
     }),
   ]
+
   const codes = await f.scanner.scanImage('/tmp/qr.png', ['qr'])
+
   assert.deepEqual(f.calls.paths, ['/tmp/qr.png'])
   assert.deepEqual(f.calls.urls, [])
   assert.deepEqual(plain(f.request.symbologies), ['VNBarcodeSymbologyQR'])
@@ -75,6 +80,7 @@ test('a path scans QR symbologies and maps Vision bounds into image pixels', asy
     count: 1,
     objectAtIndex: (i: number) => [observation('VNBarcodeSymbologyQR', 'RAW')][i],
   }
+
   assert.deepEqual(plain(await f.scanner.scanImage('/tmp/qr.png', ['qr'])), [
     { type: 'qr', data: 'RAW' },
   ])
@@ -82,6 +88,7 @@ test('a path scans QR symbologies and maps Vision bounds into image pixels', asy
 
 test('file URLs, {uri} refs and duck-typed NSImages pick the right input path', async () => {
   const f = fixture()
+
   await f.scanner.scanImage('file:///tmp/a.png', ['qr'])
   assert.deepEqual(f.calls.urls, ['file:///tmp/a.png'])
   await f.scanner.scanImage({ uri: '/tmp/b.png' }, ['qr'])
@@ -93,14 +100,17 @@ test('file URLs, {uri} refs and duck-typed NSImages pick the right input path', 
 
 test('omitted formats request the full vocabulary and results map back', async () => {
   const f = fixture()
+
   f.request.results = [
     observation('VNBarcodeSymbologyEAN13', '0123456789012'),
     observation('VNBarcodeSymbologyEAN13', '4006381333931'),
     observation('VNBarcodeSymbologyCode39FullASCII', 'ABC'),
     observation('VNBarcodeSymbologyITF14', '04912345'),
   ]
+
   const codes = await f.scanner.scanImage('/tmp/mixed.png')
   const symbologies = plain(f.request.symbologies)
+
   assert.equal(symbologies.filter((s: string) => s === 'VNBarcodeSymbologyCodabar').length, 1)
   assert.equal(symbologies.filter((s: string) => s === 'VNBarcodeSymbologyEAN13').length, 1)
   assert.deepEqual(plain(codes), [
@@ -113,21 +123,26 @@ test('omitted formats request the full vocabulary and results map back', async (
 
 test('a upc_a-only request drops genuine EAN-13s and unwraps leading-zero ones', async () => {
   const f = fixture()
+
   f.request.results = [
     observation('VNBarcodeSymbologyEAN13', '4006381333931'),
     observation('VNBarcodeSymbologyEAN13', '0123456789012'),
   ]
+
   const codes = await f.scanner.scanImage('/tmp/upc.png', ['upc_a'])
+
   assert.deepEqual(plain(f.request.symbologies), ['VNBarcodeSymbologyEAN13'])
   assert.deepEqual(plain(codes), [{ type: 'upc_a', data: '123456789012' }])
 })
 
 test('scanImage rejects remote URLs, foreign inputs, unreadable images and Vision failures', async () => {
   const f = fixture()
+
   await assert.rejects(
     f.scanner.scanImage('https://x/y.png', ['qr']),
     /download remote images first/,
   )
+
   await assert.rejects(f.scanner.scanImage(42, ['qr']), /expected a file path, file URL/)
   await assert.rejects(f.scanner.scanImage('/tmp/missing.png', ['qr']), /could not read the image/)
   f.state.performed = false
@@ -139,6 +154,7 @@ test('scanImage rejects remote URLs, foreign inputs, unreadable images and Visio
 
 test('the service reports still-image support without a camera permission owner', async () => {
   const f = fixture()
+
   assert.equal(f.scanner.supported, true)
   assert.equal(await f.scanner.ensure(), 'unsupported')
   assert.equal(f.context.__xplatPermissionOwners, undefined)

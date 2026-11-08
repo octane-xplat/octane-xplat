@@ -221,6 +221,7 @@ export function createAsyncListData<T, C = string>(
   // completion promise.
   const supersede = () => {
     const op = current
+
     current = undefined
     op?.controller?.abort()
     op?.settle()
@@ -231,6 +232,7 @@ export function createAsyncListData<T, C = string>(
   // also safe to call after supersede() already resolved the promise.
   const beginOperation = (kind: LoadingState, abortable: boolean) => {
     supersede()
+
     const mine = ++ticket
     let settle!: () => void
     const completed = new Promise<void>((resolve) => {
@@ -238,8 +240,10 @@ export function createAsyncListData<T, C = string>(
     })
 
     const controller = abortable ? new AbortController() : undefined
+
     current = { ticket: mine, controller, settle }
     phase(kind)
+
     const finish = () => {
       if (current?.ticket === mine) {
         current = undefined
@@ -254,6 +258,7 @@ export function createAsyncListData<T, C = string>(
   const run = (kind: LoadingState, nextCursor?: C): Promise<void> => {
     const { mine, controller, completed, finish } = beginOperation(kind, true)
     const signal = controller!.signal
+
     void (async () => {
       try {
         const result = await options.load({
@@ -286,6 +291,7 @@ export function createAsyncListData<T, C = string>(
 
     return completed
   }
+
   return {
     getSnapshot: () => snap,
     subscribe(notify) {
@@ -359,6 +365,7 @@ export function createAsyncListData<T, C = string>(
         // No request to abort — the ticket check drops a superseded
         // sort's result instead of letting it publish over a newer op.
         const { mine, completed, finish } = beginOperation('sorting', false)
+
         Promise.resolve()
           .then(() =>
             options.sort!({ items: base.getSnapshot().items, sortDescriptor: descriptor }),

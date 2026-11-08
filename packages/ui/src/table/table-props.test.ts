@@ -8,12 +8,14 @@ describe('Table schema types', () => {
       { key: 'name', header: 'Name' },
       { key: 'qty', header: 'Qty', sortable: true },
     ]
+
     expectTypeOf<TableProps<Row>['columns']>().toEqualTypeOf<TableColumn<Row>[] | undefined>()
     void columns
   })
 
   it('threads the row type into renderCell', () => {
     type Row = { name: string; qty: number }
+
     expectTypeOf<NonNullable<TableColumn<Row>['renderCell']>>().toEqualTypeOf<(item: Row) => any>()
   })
 
@@ -28,6 +30,7 @@ describe('Table schema types', () => {
 
     // @ts-expect-error renderCell receives the row item, not (row, column, index).
     const renderCell: NonNullable<TableColumn<Row>['renderCell']> = positional
+
     void renderCell
   })
 })

@@ -9,20 +9,26 @@ export function bindChatReadingAnchor(
   following: () => boolean,
 ): (() => void) & { update(): void } {
   const scroll = chatHost.scroll(viewport)
+
   if (!scroll?.on) {
     return Object.assign(() => {}, { update() {} })
   }
+
   let active = true,
     correcting = false
+
   let anchor: { row: object; y: number; offset: number } | null = null
   const capture = () => {
     if (!active || correcting) {
       return
     }
+
     const children = chatHost.children(content)
     const marked = children.filter(isChatRow)
+
     for (const row of marked.length ? marked : children) {
       const rect = chatHost.position(row, viewport)
+
       if (
         rect &&
         rect.height > 0 &&
@@ -33,14 +39,18 @@ export function bindChatReadingAnchor(
         return
       }
     }
+
     anchor = null
   }
+
   const changed = () => {
     if (!active || correcting) {
       return
     }
+
     if (!following() && anchor && chatHost.contains(content, anchor.row)) {
       const rect = chatHost.position(anchor.row, viewport)
+
       if (rect && Math.abs(rect.y - anchor.y) > 0.5) {
         correcting = true
         try {
@@ -59,13 +69,16 @@ export function bindChatReadingAnchor(
         }
       }
     }
+
     capture()
   }
+
   const scrolled = () => {
     if (!anchor || Math.abs((scroll.verticalOffset ?? 0) - anchor.offset) > 0.5) {
       capture()
     }
   }
+
   scroll.on('scroll', scrolled)
   capture()
   return Object.assign(

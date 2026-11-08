@@ -14,6 +14,7 @@ export function useMediaQuery(query: string, options?: UseMediaQueryOptions): bo
       }
 
       const mq = matchMedia(query)
+
       if (mq.addEventListener) {
         mq.addEventListener('change', cb)
         return () => mq.removeEventListener('change', cb)

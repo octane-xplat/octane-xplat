@@ -70,6 +70,7 @@ test('script results include assertions and recorded data', async () => {
 test('components mount after readiness and retire after cleanup in reverse order', async () => {
   const events = []
   function Component() {}
+
   await execute(
     {
       default: Component,
@@ -102,6 +103,7 @@ test('assertions, runtime errors, and cleanup failures cannot pass', async () =>
 
   assert.equal(failed.status, 'fail')
   assert.equal(failed.assertions[0].pass, false)
+
   let reportError
   const runtime = await execute(
     {
@@ -118,6 +120,7 @@ test('assertions, runtime errors, and cleanup failures cannot pass', async () =>
   )
 
   assert.equal(runtime.status, 'fail')
+
   const cleanup = await execute(
     { run() {} },
     host(() => {
@@ -152,7 +155,9 @@ test('a hung case times out, disposes, and cannot act after completion', async (
 
 test('nonserializable recorded values fail instead of losing the completion packet', async () => {
   const circular = {}
+
   circular.self = circular
+
   const result = await execute({
     run(ctx) {
       ctx.record('bad', circular)
@@ -184,6 +189,7 @@ test('case ownership refuses a second runner and releases for the next run', asy
   const { acquireCaseLock } = await import('./lock.ts')
   const caseFile = `/tmp/xplat-probe-lock-test-${process.pid}.ts`
   const release = await acquireCaseLock('web', caseFile)
+
   try {
     await assert.rejects(acquireCaseLock('web', caseFile), /already has a web runner/)
   } finally {
@@ -191,6 +197,7 @@ test('case ownership refuses a second runner and releases for the next run', asy
   }
 
   const releaseNext = await acquireCaseLock('web', caseFile)
+
   await releaseNext()
 })
 
@@ -201,14 +208,21 @@ test('resource edits and additions invalidate the build fingerprint', async () =
   const { fingerprint } = await import('./project.ts')
   const resources = await mkdtemp(join(tmpdir(), 'xplat-probe-resource-test-'))
   const deps = { nativeFiles: [], resolved: new Map() }
+
   try {
     await writeFile(join(resources, 'resource.txt'), 'before')
+
     const first = await fingerprint(deps, resources)
+
     await writeFile(join(resources, 'resource.txt'), 'after')
+
     const edited = await fingerprint(deps, resources)
+
     assert.notEqual(first.key, edited.key)
     await writeFile(join(resources, 'new-resource.txt'), 'added')
+
     const added = await fingerprint(deps, resources)
+
     assert.notEqual(edited.key, added.key)
   } finally {
     await rm(resources, { recursive: true })
@@ -231,6 +245,7 @@ test('native probe collects required layout/gesture plugins and their pnpm runti
       join(deps.resolved.get('@octane-xplat/nativescript-mason-core'), 'package.json'),
     ),
   )
+
   assert.ok(
     deps.nativeFiles.some((path) =>
       path.startsWith(
@@ -238,6 +253,7 @@ test('native probe collects required layout/gesture plugins and their pnpm runti
       ),
     ),
   )
+
   assert.ok(deps.resolved.get('@nativescript-community/observable'))
   assert.ok(
     deps.nativeFiles.includes(
@@ -252,35 +268,47 @@ test('an explicit core probe excludes the default full engine and fingerprints i
   const { join } = await import('node:path')
   const { dependencies, fingerprint } = await import('./project.ts')
   const work = await realpath(await mkdtemp(join(tmpdir(), 'xplat-probe-mason-core-')))
+
   t.after(() => rm(work, { recursive: true, force: true }))
+
   const core = '@octane-xplat/nativescript-mason-core'
   const full = '@octane-xplat/nativescript-masonkit'
   const directory = join(work, 'node_modules', core)
+
   await mkdir(join(directory, 'platforms/android'), { recursive: true })
   await writeFile(join(directory, 'package.json'), JSON.stringify({ name: core, version: '0.0.0' }))
+
   const nativeFile = join(directory, 'platforms/android/include.gradle')
+
   await writeFile(nativeFile, 'before')
+
   const deps = await dependencies('android', join(work, 'case.tsrx'), [core])
+
   assert.ok(deps.names.has(core))
   assert.ok(!deps.names.has(full))
   assert.ok(!deps.resolved.has(full))
   assert.ok(deps.nativeFiles.includes(nativeFile))
+
   const before = await fingerprint(deps)
+
   await writeFile(nativeFile, 'after')
   assert.notEqual((await fingerprint(deps)).key, before.key)
   await assert.rejects(
     dependencies('android', join(work, 'case.tsrx'), [core, full]),
     /native classes and libraries overlap/,
   )
+
   await mkdir(join(work, 'node_modules', full), { recursive: true })
   await writeFile(
     join(work, 'node_modules', full, 'package.json'),
     JSON.stringify({ name: full, version: '0.0.0' }),
   )
+
   await writeFile(
     join(directory, 'package.json'),
     JSON.stringify({ name: core, version: '0.0.0', dependencies: { [full]: '0.0.0' } }),
   )
+
   await assert.rejects(
     dependencies('android', join(work, 'case.tsrx'), [core]),
     /conflicting runtime dependency/,
@@ -296,8 +324,10 @@ test('native cases reuse host Core for external style property imports', async (
   const project = join(repo, 'apps/mobile')
   const { build } = await importFrom(project, 'vite')
   const work = await mkdtemp(join(tmpdir(), 'xplat-probe-core-test-'))
+
   try {
     const entry = join(work, 'case.mjs')
+
     await writeFile(
       entry,
       [
@@ -321,6 +351,7 @@ test('native cases reuse host Core for external style property imports', async (
     const core = { paddingTopProperty: {}, View: class View {} }
     const required = []
     const module = { exports: {} }
+
     new Function('module', 'exports', 'require', chunk.code)(module, module.exports, (id) => {
       required.push(id)
       assert.equal(id, '@nativescript/core')
@@ -337,6 +368,7 @@ test('native cases reuse host Core for external style property imports', async (
 
 test('only allowlisted web host diagnostics can pass with recorded errors', async () => {
   const message = 'ResizeObserver loop completed with undelivered notifications.'
+
   for (const [target, messages, status] of [
     ['web', [message], 'pass'],
     ['web', [message, 'actual failure'], 'fail'],
@@ -371,6 +403,7 @@ test('only allowlisted web host diagnostics can pass with recorded errors', asyn
   })
 
   assert.equal(thrown.status, 'fail')
+
   const cleanup = await execute(
     { run() {} },
     host(() => {

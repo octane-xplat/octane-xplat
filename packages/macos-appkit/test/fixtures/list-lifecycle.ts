@@ -36,6 +36,7 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
 
   root.render(ListPicker, {})
   await settle()
+
   const first = listRef.current,
     left = debug.findId('list-left'),
     tail = debug.findId('list-tail')
@@ -95,6 +96,7 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
   )
 
   const before = listChanges.length
+
   first.selectItemAtIndex(0)
   first.target.controlChanged(first)
   check(
@@ -123,7 +125,9 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = listRef.current
+
   check(
     moved && moved !== first && moved.superview === debug.findId('list-right') && disposed(first),
     'ListPicker parent change ownership failed',
@@ -135,14 +139,18 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = listRef.current
+
   check(
     returned && returned !== moved && returned.superview === left && disposed(moved),
     'ListPicker return failed',
   )
 
   await advance()
+
   const replacement = listRef.current
+
   check(
     replacement && replacement !== returned && replacement.superview === left && disposed(returned),
     'ListPicker replacement failed',
@@ -157,7 +165,9 @@ export async function checkListLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = listRef.current
+
   check(retained && retained.superview === left, 'ListPicker reinsertion failed')
   root.unmount()
   check(

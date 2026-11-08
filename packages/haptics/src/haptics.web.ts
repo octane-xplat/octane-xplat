@@ -53,12 +53,14 @@ export const createHaptics = (): Haptics => {
 
       const pulses: number[] = []
       let cursor = 0
+
       for (const point of pattern.points) {
         if (!Number.isFinite(point.at)) {
           continue
         }
 
         const at = Math.max(0, point.at)
+
         if (duration !== null && at >= duration) {
           continue
         }
@@ -68,6 +70,7 @@ export const createHaptics = (): Haptics => {
           : 0
 
         let pulse = Math.round(10 + intensity * 40)
+
         if (duration !== null) {
           pulse = Math.min(pulse, Math.max(0, Math.round(duration - at)))
         }

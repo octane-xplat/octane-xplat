@@ -30,6 +30,7 @@ export function OverflowList(props: OverflowListProps): unknown @{
   const calculate = useCallback(() => {
     const host = container.current
     const rows = measure.current
+
     if (!host || !rows) {
       return
     }
@@ -48,15 +49,18 @@ export function OverflowList(props: OverflowListProps): unknown @{
     let indicatorWidth = 0
     let measuredRowHeight = 0
     const count = Math.min(itemCount, rows.getChildrenCount?.() ?? 0)
+
     for (let i = 0; i < count; i++) {
       const child = rows.getChildAt(i)
       const w = child?.getMeasuredWidth?.() ?? 0
+
       widths.push(w)
       measuredRowHeight = Math.max(measuredRowHeight, child?.getMeasuredHeight?.() ?? 0)
     }
 
     // The indicator sits after the items in the hidden copy.
     const extra = (rows.getChildrenCount?.() ?? 0) - itemCount
+
     if (extra > 0) {
       indicatorWidth = rows.getChildAt(itemCount)?.getMeasuredWidth?.() ?? 0
     }
@@ -106,6 +110,7 @@ export function OverflowList(props: OverflowListProps): unknown @{
   const overflowKey = JSON.stringify(overflowItems.map(({ index }) => index))
   const reportedKeyRef = useRef<string>('[]')
   const overflowItemsRef = useRef(overflowItems)
+
   overflowItemsRef.current = overflowItems
 
   useEffect(() => {

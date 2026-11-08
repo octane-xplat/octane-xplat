@@ -10,6 +10,7 @@ it('returns an empty attachment when the AppKit key bridge is unavailable', () =
 
 it('exposes portable fields and live prevention without leaking native targets', () => {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   let prevented = false
   let stopped = false
   let received: any
@@ -36,6 +37,7 @@ it('exposes portable fields and live prevention without leaking native targets',
       stopped = true
     },
   }
+
   const { isSupported, keyboardProps } = useKeyboard({
     onKeyDown: (event) => {
       received = event
@@ -43,6 +45,7 @@ it('exposes portable fields and live prevention without leaking native targets',
       event.stopPropagation()
     },
   })
+
   expect(isSupported).toBe(true)
   keyboardProps.onKeyDown?.(raw)
   expect(received).toMatchObject({ key: 'k', code: 'KeyK', metaKey: true })
@@ -55,8 +58,10 @@ it('exposes portable fields and live prevention without leaking native targets',
 
 it('does not attach absent callbacks and forwards key-up independently', () => {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   const up = vi.fn()
   const { keyboardProps } = useKeyboard({ onKeyUp: up })
+
   expect(keyboardProps.onKeyDown).toBeUndefined()
   keyboardProps.onKeyUp?.({
     key: 'a',
@@ -71,5 +76,6 @@ it('does not attach absent callbacks and forwards key-up independently', () => {
     preventDefault() {},
     stopPropagation() {},
   })
+
   expect(up).toHaveBeenCalledOnce()
 })

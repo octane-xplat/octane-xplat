@@ -47,26 +47,33 @@ const PLUGIN_FIELDS: Record<ContactField, string> = {
 function pluginFields(fields?: ContactField[]): string[] {
   const wanted = fields ?? ALL_FIELDS
   const mapped = wanted.map((f) => PLUGIN_FIELDS[f])
+
   // The plugin reads `name` for the display string regardless of selection.
   if (!mapped.includes('name')) {
     mapped.push('name')
   }
+
   return mapped
 }
 
 function iosEnsure(): Promise<PermissionResult> {
   const store = typeof CNContactStore === 'undefined' ? null : CNContactStore.new?.()
+
   if (!store || typeof CNEntityTypeContacts === 'undefined') {
     return Promise.resolve('unsupported')
   }
+
   // CNAuthorizationStatus: 0 notDetermined, 1 restricted, 2 denied, 3 authorized
   const status = CNContactStore.authorizationStatusForEntityType(CNEntityTypeContacts)
+
   if (status === 3) {
     return Promise.resolve('granted')
   }
+
   if (status === 1 || status === 2) {
     return Promise.resolve('denied')
   }
+
   return new Promise((resolve) => {
     store.requestAccessForEntityTypeCompletionHandler(CNEntityTypeContacts, (granted: boolean) =>
       resolve(granted ? 'granted' : 'denied'),
@@ -79,6 +86,7 @@ let contactRequestCode = 7719
 function androidEnsure(): Promise<PermissionResult> {
   const perm = 'android.permission.READ_CONTACTS'
   const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
   try {
     if (
       activity?.checkSelfPermission?.(perm) === android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -97,6 +105,7 @@ function androidEnsure(): Promise<PermissionResult> {
         if (args.requestCode !== requestCode) {
           return
         }
+
         Application.android.off(event, onResult)
         resolve(
           args.grantResults?.[0] === android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -104,6 +113,7 @@ function androidEnsure(): Promise<PermissionResult> {
             : 'denied',
         )
       }
+
       Application.android.on(event, onResult)
       try {
         activity.requestPermissions([perm], requestCode)
@@ -120,9 +130,11 @@ function androidEnsure(): Promise<PermissionResult> {
 function asContact(native: any): Contact {
   const collection = (list: any, key: string) =>
     (list ?? []).map((c: any) => ({ label: c?.label, [key]: c?.value }))
+
   const address = (list: any): ContactAddress[] =>
     (list ?? []).map((c: any) => {
       const v = c?.value ?? {}
+
       return {
         label: c?.label,
         street: v.street ?? v.Street,
@@ -132,8 +144,10 @@ function asContact(native: any): Contact {
         country: v.country ?? v.Country,
       }
     })
+
   const given = native?.name?.given
   const family = native?.name?.family
+
   return {
     id: String(native?.id ?? ''),
     name: native?.name?.displayname ?? [given, family].filter(Boolean).join(' ') ?? '',
@@ -156,13 +170,16 @@ function applySort(list: Contact[], sort?: GetContactsOptions['sort']): Contact[
   if (!sort || sort === 'none') {
     return list
   }
+
   const key = sort === 'firstName' ? 'firstName' : 'lastName'
+
   return [...list].sort((a, b) => (a[key] ?? a.name).localeCompare(b[key] ?? b.name))
 }
 
 function applyPage(list: Contact[], options?: GetContactsOptions): Contact[] {
   const start = options?.pageOffset ?? 0
   const size = options?.pageSize
+
   return size === undefined ? list.slice(start) : list.slice(start, start + size)
 }
 
@@ -177,16 +194,19 @@ function applyNewContact(target: any, source: NewContact): void {
     suffix: '',
     phonetic: { given: '', middle: '', family: '' },
   }
+
   target.nickname = source.nickname
   target.notes = source.note
   if (source.company || source.jobTitle) {
     target.organization = { name: source.company, jobTitle: source.jobTitle }
   }
+
   target.emailAddresses = (source.emails ?? []).map((e) => ({ label: e.label, value: e.email }))
   target.phoneNumbers = (source.phoneNumbers ?? []).map((p) => ({
     label: p.label,
     value: p.number,
   }))
+
   // save() also maps postalAddresses/urls unconditionally.
   target.postalAddresses = []
   target.urls = []
@@ -203,11 +223,13 @@ export const contacts: Contacts = {
 
   async getAll(options?: GetContactsOptions): Promise<Contact[]> {
     const result = await NativeContacts.getAllContacts(pluginFields(options?.fields))
+
     return applyPage(applySort((result?.data ?? []).map(asContact), options?.sort), options)
   },
 
   async getByName(predicate: string, fields?: ContactField[]): Promise<Contact[]> {
     const result = await NativeContacts.getContactsByName(predicate, pluginFields(fields))
+
     return (result?.data ?? []).map(asContact)
   },
 
@@ -215,16 +237,20 @@ export const contacts: Contacts = {
     if (Application.ios) {
       const result = await NativeContacts.getContactById(id, pluginFields(fields))
       const native = result?.data ?? result
+
       return native ? asContact(native) : null
     }
+
     // Plugin ships getContactById for iOS only — full-store fetch + filter.
     const result = await NativeContacts.getAllContactsWithoutWorker(pluginFields(fields))
     const native = (result?.data ?? []).find((c: any) => String(c?.id) === id)
+
     return native ? asContact(native) : null
   },
 
   async add(contact: NewContact): Promise<string> {
     const native = new (NativeContact as any)()
+
     applyNewContact(native, contact)
     native.save()
     return String(native.id ?? '')
@@ -232,10 +258,13 @@ export const contacts: Contacts = {
 
   async update(id: string, contact: NewContact): Promise<string> {
     const existing = await contacts.getById(id)
+
     if (!existing) {
       throw new Error(`contacts.update: no contact with id ${id}`)
     }
+
     const native = new (NativeContact as any)()
+
     native.id = id
     applyNewContact(native, contact)
     native.save()
@@ -244,6 +273,7 @@ export const contacts: Contacts = {
 
   async remove(id: string): Promise<void> {
     const native = new (NativeContact as any)()
+
     native.id = id
     native.delete()
   },
@@ -251,4 +281,5 @@ export const contacts: Contacts = {
 
 // Register the permission kind this leaf owns for the platform dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.contacts = () => contacts.ensure()

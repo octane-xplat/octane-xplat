@@ -30,6 +30,7 @@ test('rejects one-pixel and fractional layout drift without rounding or alignmen
     for (const axis of ['x', 'y', 'width', 'height']) {
       for (const drift of [-1, 1, 0.01, NaN]) {
         const actual = geometry()
+
         actual[part][axis] += drift
         assert.throws(() => assertSwitchGeometry(actual, false), /Invalid Switch geometry/)
       }
@@ -41,6 +42,7 @@ test('a shifted control cannot enter an unchanged capture or hide behind a shift
   assert.throws(() => assertSwitchGeometry(geometry(false, 1), false), /track.x/)
 
   const actual = geometry(false, 1)
+
   actual.stage.x = 1
   assert.throws(() => assertSwitchGeometry(actual, false, 1), /stage.x/)
   assert.throws(() => assertSwitchGeometry(geometry(), false, 2), /displacement/)

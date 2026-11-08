@@ -6,6 +6,7 @@ import { runSlice } from './mock-globals.ts'
 const source = rendererSource()
 function fn(name: string) {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0)
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
@@ -76,8 +77,11 @@ function fixture() {
 
 test('ActionBar title updates reuse the label; flat removal restores shadow', () => {
   const f = fixture()
+
   f.sync()
+
   const title = f.node.actionBarDisplay
+
   assert.equal(title.view, f.node.actionBarTitle)
   assert.equal(title.view.stringValue, 'First')
   assert.equal(title.view.superview, f.node.view)
@@ -95,9 +99,12 @@ test('ActionBar title updates reuse the label; flat removal restores shadow', ()
 
 test('ActionBar replaces and releases external titleView and restores plain title', () => {
   const f = fixture()
+
   f.sync()
+
   const old = f.node.actionBarDisplay
   const external = f.view()
+
   f.node.actionBarExternal = external
   f.sync()
   assert.equal(old.view.superview, null)
@@ -112,8 +119,11 @@ test('ActionBar replaces and releases external titleView and restores plain titl
 
 test('ActionBar JSX child replaces fallback and keeps its own placement data', () => {
   const f = fixture()
+
   f.sync()
+
   const child = { view: f.view(), props: {} }
+
   child.view.superview = f.node.view
   f.node.contentChild = child
   f.sync()
@@ -128,6 +138,7 @@ test('ActionBar JSX child replaces fallback and keeps its own placement data', (
 test('ActionBar rejects stealing an attached title view and hierarchy cycles', () => {
   const f = fixture()
   const external = f.view()
+
   external.superview = f.view()
   f.node.actionBarExternal = external
   assert.throws(f.sync, /already belongs/)
@@ -137,9 +148,12 @@ test('ActionBar rejects stealing an attached title view and hierarchy cycles', (
 
 test('invalid external ownership preserves the current title and placement', () => {
   const f = fixture()
+
   f.sync()
+
   const retained = f.node.actionBarDisplay
   const foreign = f.view()
+
   foreign.superview = f.view()
   f.node.actionBarExternal = foreign
   assert.throws(f.sync, /already belongs/)
@@ -151,6 +165,7 @@ test('invalid external ownership preserves the current title and placement', () 
 test('a raw view without intrinsic metrics retains its supplied dimensions', () => {
   const f = fixture()
   const raw: any = f.view()
+
   raw.intrinsicContentSize = { width: -1, height: -1 }
   raw.frame = { size: { width: 80, height: 24 } }
   f.node.actionBarExternal = raw
@@ -177,6 +192,7 @@ test('ActionBar rejects non-NSView titleView values during prop preflight', () =
     registerElementType: () => {},
     NSView,
   })
+
   for (const titleView of ['text', {}, true, 5]) {
     assert.throws(() => validate('actionbar', { titleView }), /titleView must be an AppKit NSView/)
   }
@@ -185,6 +201,7 @@ test('ActionBar rejects non-NSView titleView values during prop preflight', () =
 test('assigning the active JSX titleView keeps the same slot and placement', () => {
   const f = fixture()
   const child = { view: f.view(), props: {} }
+
   child.view.superview = f.node.view
   f.node.contentChild = child
   f.setTitle(child.view)

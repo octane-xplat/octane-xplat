@@ -33,6 +33,7 @@ const DOCK_ANIM_MS = 180
  * globalThis so nothing references NS globals at module scope. */
 function makeInsets(top: number, left: number, bottom: number, right: number) {
   const make = hostGlobal('UIEdgeInsetsMake')
+
   if (make) {
     return make(top, left, bottom, right)
   }
@@ -60,6 +61,7 @@ function makeInsets(top: number, left: number, bottom: number, right: number) {
  *  props land a render after `onRefresh` fires. */
 export function createPullToRefresh(host: RefreshHost): RefreshController {
   const { scroller, indicator, isAtTop, cfg } = host
+
   if (!scroller || !indicator) {
     return { sync: () => {}, detach: () => {} }
   }
@@ -82,6 +84,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
    * caller. */
   const iosOverscroll = () => {
     const sv = scroller.ios
+
     if (!sv?.contentOffset) {
       return 0
     }
@@ -91,6 +94,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 
   const applyReveal = (reveal: number) => {
     const ty = reveal - REFRESH_HEADER_HEIGHT
+
     if (ty !== lastTy) {
       lastTy = ty
       indicator.translateY = ty
@@ -112,6 +116,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
 
   const setInset = (on: boolean) => {
     const sv = scroller.ios
+
     if (!sv?.contentInset) {
       return
     }
@@ -121,6 +126,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
     }
 
     const next = (baseInsetTop ?? 0) + (on ? REFRESH_HEADER_HEIGHT : 0)
+
     if (Math.abs(sv.contentInset.top - next) < 0.5) {
       return
     }
@@ -135,6 +141,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
     }
 
     const UIView = hostGlobal('UIView')
+
     if (UIView?.animateWithDurationAnimations) {
       UIView.animateWithDurationAnimations(DOCK_ANIM_MS / 1000, apply)
     } else {
@@ -171,6 +178,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
    *  the dock re-fires nothing). */
   const release = (extra: number) => {
     const reveal = extra + (held() ? REFRESH_HEADER_HEIGHT : 0)
+
     if (extra > 0 && reveal >= threshold()) {
       cfg.current.onRefresh?.()
       dock()
@@ -213,6 +221,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
       // indicator stays pinned — the dock is header-fixed, not a
       // content row (uniform with the Android/web overlay).
       const extra = iosOverscroll()
+
       if (e.state === PAN_ENDED) {
         touching = false
         release(extra)
@@ -239,6 +248,7 @@ export function createPullToRefresh(host: RefreshHost): RefreshController {
     }
 
     const inc = e.deltaY - prevDy
+
     prevDy = e.deltaY
     if (!isAtTop()) {
       return

@@ -29,6 +29,7 @@ const impl: GeolocationImpl = {
       }
 
       const timeout = milliseconds(options?.timeout, Infinity)
+
       XplatGeolocation.positionTimeoutMaximumAgeCompletion(
         options?.enableHighAccuracy ?? false,
         timeout === Infinity ? -1 : timeout,
@@ -79,6 +80,7 @@ export const geolocation: Permissioned<GeolocationImpl> = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.location = {
   getPermissions: () => geolocation.getPermissions(),
   requestPermissions: () => geolocation.requestPermissions(),

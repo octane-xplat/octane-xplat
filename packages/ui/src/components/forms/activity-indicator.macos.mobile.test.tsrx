@@ -19,6 +19,7 @@ function mount(props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -63,7 +64,9 @@ it('gives a labeled ring one ID and one progress owner, and hides when not busy'
 
   try {
     expect(env.all().filter((node) => node.props?.id === 'loading')).toHaveLength(1)
+
     const owners = env.all().filter((node) => node.props?.accessibilityRole === 'progressbar')
+
     expect(owners).toHaveLength(1)
     expect(owners[0].props.accessibilityLabel).toBe('Saving')
     expect(owners[0].props.accessibilityState.busy).toBe(true)
@@ -80,6 +83,7 @@ it('gives a labeled ring one ID and one progress owner, and hides when not busy'
 
 it('keeps supplied node labels instead of coercing them to strings', () => {
   const env = mount({ label: <label text="Wait for upload" /> })
+
   try {
     expect(env.all().some((node) => node.props?.text === 'Wait for upload')).toBe(true)
   } finally {

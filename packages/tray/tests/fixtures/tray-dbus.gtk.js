@@ -18,6 +18,7 @@ const check = (value, name) => {
 
 const pump = (ms = 60) => {
   const deadline = Date.now() + ms
+
   while (Date.now() < deadline) {
     ctx.iteration(false)
   }
@@ -115,6 +116,7 @@ new GLib.MainLoop(null, false).run()`
 const readRegistered = () => {
   try {
     const [, bytes] = GLib.file_get_contents('watcher-registered.txt')
+
     return new TextDecoder().decode(bytes).trim().split('\n').filter(Boolean)
   } catch {
     return []
@@ -144,11 +146,15 @@ const startWatcher = () => {
   try {
     Gio.File.new_for_path('watcher-registered.txt').delete(null)
   } catch {}
+
   const src = Gio.File.new_for_path('watcher-process.js')
+
   src.replace_contents(WATCHER_SRC, null, false, 0, null)
   watcherProc = Gio.Subprocess.new(['gjs', '-m', 'watcher-process.js'], Gio.SubprocessFlags.NONE)
+
   // Wait for the watcher to own its bus name.
   const deadline = Date.now() + 5000
+
   while (Date.now() < deadline && !hasOwner('org.kde.StatusNotifierWatcher')) {
     pump(50)
   }
@@ -159,8 +165,10 @@ const stopWatcher = () => {
     watcherProc.force_exit()
     watcherProc = null
   }
+
   // Wait until the name is released so later phases see a clean bus.
   const deadline = Date.now() + 3000
+
   while (Date.now() < deadline && hasOwner('org.kde.StatusNotifierWatcher')) {
     pump(50)
   }
@@ -168,6 +176,7 @@ const stopWatcher = () => {
 
 // --- Signal capture ---------------------------------------------------------
 const signals = []
+
 bus.signal_subscribe(
   null,
   'org.kde.StatusNotifierItem',
@@ -221,37 +230,47 @@ const MENU = [
 
 const findId = (node, label) => {
   const [id, props, children] = node
+
   if (props.label && uv(props.label) === label) {
     return id
   }
+
   for (const child of children) {
     const found = findId(child.deepUnpack(), label)
+
     if (found !== null) {
       return found
     }
   }
+
   return null
 }
 
 async function main() {
   // (a) No watcher: unavailable + createTray rejects.
   const none = await getTrayAvailability()
+
   check(
     none.available === false && none.reason === 'no-status-notifier-host',
     'no host availability',
   )
+
   let rejected = null
+
   try {
     await createTray({ id: 'early', icon: { type: 'named', name: 'star' } })
   } catch (error) {
     rejected = error
   }
+
   check(rejected && rejected.code === 'no-status-notifier-host', 'create rejects without host')
 
   // (b) Watcher + host over real D-Bus.
   startWatcher()
   pump()
+
   const ready = await getTrayAvailability()
+
   check(ready.available === true && ready.platform === 'linux', 'available linux')
 
   const tray = await createTray({
@@ -262,19 +281,25 @@ async function main() {
     menu: MENU,
     onActivate: () => events.push('activate'),
   })
+
   pump()
   check(readRegistered().length === 1, 'watcher recorded registration')
+
   const name = readRegistered()[0]
+
   check(name.startsWith('org.kde.StatusNotifierItem-'), 'well-known name shape')
 
   const props = await getAll(name, '/StatusNotifierItem', 'org.kde.StatusNotifierItem')
+
   check(uv(props.Id) === 'xplat-tray-test', 'Id')
   check(uv(props.Title) === 'TT', 'Title')
   check(uv(props.ItemIsMenu) === false, 'ItemIsMenu false with onActivate')
   check(uv(props.Menu) === '/MenuBar', 'Menu path')
   check(uv(props.IconName) === 'star', 'IconName')
   check(uv(props.XAyatanaLabel) === 'TT', 'XAyatanaLabel')
+
   const tip = uv(props.ToolTip)
+
   check(tip[2] === 'TT' && tip[3] === 'tip', 'ToolTip tuple')
 
   await call(
@@ -285,6 +310,7 @@ async function main() {
     new GLib.Variant('(ii)', [0, 0]),
     null,
   )
+
   pump()
   check(events.includes('activate'), 'Activate dispatches onActivate')
 
@@ -296,16 +322,22 @@ async function main() {
     new GLib.Variant('(iias)', [0, -1, []]),
     '(u(ia{sv}av))',
   )
+
   check(typeof revision === 'number' && revision >= 1, 'layout revision')
+
   const root = rootLayout
+
   check(root[0] === 0, 'root id 0')
   check(root[2].length === 11, 'top-level row count (got ' + root[2].length + ')')
+
   const actId = findId(root, 'Act')
   const checkId = findId(root, 'Check')
   const oneId = findId(root, 'One')
   const twoId = findId(root, 'Two')
   const subActId = findId(root, 'SubAct')
+
   check(actId && checkId && oneId && twoId && subActId, 'item ids resolve')
+
   const clicked = (id) =>
     call(
       name,
@@ -315,6 +347,7 @@ async function main() {
       new GLib.Variant('(isvu)', [id, 'clicked', new GLib.Variant('s', ''), 0]),
       null,
     )
+
   clicked(actId)
   clicked(checkId)
   clicked(oneId) // already selected → no event
@@ -329,12 +362,15 @@ async function main() {
   tray.update({
     menu: [{ type: 'action', key: 'b', label: 'B', onSelect: () => events.push('b') }],
   })
+
   pump(150)
   check(signals.includes('NewTitle'), 'NewTitle emitted')
   check(signals.includes('NewToolTip'), 'NewToolTip emitted')
   check(signals.includes('NewIcon'), 'NewIcon emitted')
   check(signals.includes('LayoutUpdated'), 'LayoutUpdated emitted')
+
   const props2 = await getAll(name, '/StatusNotifierItem', 'org.kde.StatusNotifierItem')
+
   check(uv(props2.Title) === 'T2', 'Title updated')
   check(uv(props2.IconName) === 'circle', 'IconName updated')
   check(uv(props2.ToolTip)[3] === 'tip2', 'ToolTip updated')
@@ -345,20 +381,29 @@ async function main() {
     icon: { type: 'file', path: GLib.getenv('TRAY_ICON_PATH') ?? '/tmp/tray-icon.png' },
     tooltip: 'file',
   })
+
   pump()
   check(readRegistered().length === 2, 'second registration')
+
   const name2 = readRegistered()[1]
+
   check(name2 !== name && name2.startsWith('org.kde.StatusNotifierItem-'), 'distinct names')
+
   const props3 = await getAll(name2, '/StatusNotifierItem', 'org.kde.StatusNotifierItem')
   const pixmaps = uv(props3.IconPixmap)
+
   check(pixmaps.length >= 2, 'icon pixmap set present')
+
   const [w, h, bytes] = pixmaps[0]
+
   check(w === 4 && h === 4, 'native 4x4 pixmap dims (got ' + w + 'x' + h + ')')
   check(
     bytes[0] === 0xff && bytes[1] === 0xff && bytes[2] === 0 && bytes[3] === 0,
     'ARGB first pixel red',
   )
+
   const small = pixmaps.find((p) => p[0] === 24 || p[1] === 24)
+
   check(Boolean(small), '24px scaled pixmap present')
 
   // (c) Watcher restart → exactly one re-registration.
@@ -375,6 +420,7 @@ async function main() {
   tray.destroy()
   tray2.destroy()
   pump(150)
+
   const owned = await call(
     'org.freedesktop.DBus',
     '/org/freedesktop/DBus',
@@ -383,19 +429,24 @@ async function main() {
     new GLib.Variant('(s)', [name]),
     '(b)',
   )
+
   check(owned[0] === false, 'name vanished after destroy')
+
   let destroyed = null
+
   try {
     tray.update({ title: 'x' })
   } catch (error) {
     destroyed = error
   }
+
   check(destroyed && destroyed.code === 'destroyed', 'update after destroy')
 
   print('TRAY_GTK_OK ' + assertions)
 }
 
 const loop = GLib.MainLoop.new(null, false)
+
 main()
   .then(() => loop.quit())
   .catch((error) => {

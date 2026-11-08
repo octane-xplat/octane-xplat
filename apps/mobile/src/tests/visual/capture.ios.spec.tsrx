@@ -53,12 +53,15 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
   )
 
   expect(composed.id).toBe('switch--unchecked-light')
+
   const window = Application.ios.nativeApp.keyWindow
+
   if (!window) {
     throw new Error('iOS test host has no key window')
   }
 
   const previousAppearance = window.overrideUserInterfaceStyle
+
   window.overrideUserInterfaceStyle = 1 // UIKit light appearance
   try {
     for (const [index, displacement] of [0, 0, 0, 1].entries()) {
@@ -69,6 +72,7 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
 
       try {
         const stage = mounted.view.getViewById(composed.id)
+
         await waitUntil(
           () =>
             Boolean(
@@ -84,9 +88,11 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
         let stable = 0
         let previous = ''
         const deadline = Date.now() + 5000
+
         while (stable < 2) {
           await frame()
           native.layoutIfNeeded()
+
           const geometry = JSON.stringify([
             native.bounds.size.width,
             native.bounds.size.height,
@@ -104,6 +110,7 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
         expect(native.bounds.origin.y).toBe(0)
         expect(native.bounds.size.width).toBe(CAPTURE_PROFILE.width)
         expect(native.bounds.size.height).toBe(CAPTURE_PROFILE.height)
+
         const control = findByTestId(mounted.view, 'visual-switch')! as any
         const thumbPosition = control.getChildAt(0).getLocationRelativeTo(control)
         const trackRect = control.ios.convertRectToView(control.ios.bounds, native)
@@ -129,9 +136,12 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
         expect(composed.args.checked).toBe(false)
         expect(thumbPosition.x).toBe(3)
         expect(thumbPosition.y).toBe(3)
+
         const format = UIGraphicsImageRendererFormat.defaultFormat()
+
         format.scale = CAPTURE_PROFILE.scale
         format.opaque = true
+
         const renderer = UIGraphicsImageRenderer.alloc().initWithSizeFormat(
           native.bounds.size,
           format,
@@ -143,8 +153,11 @@ it.skipIf(!__VISUAL_CAPTURE__)('captures the real iOS Switch stage', async () =>
         })
 
         expect(drawn).toBe(true)
+
         const png = UIImagePNGRepresentation(image)
+
         expect(png).toBeTruthy()
+
         const response = await fetch(config.url, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

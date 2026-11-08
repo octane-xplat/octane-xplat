@@ -23,6 +23,7 @@ it('Toolbar keeps a named toolbar host and its actions while label, orientation 
 
   const nodes = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -46,6 +47,7 @@ it('Toolbar keeps a named toolbar host and its actions while label, orientation 
     })
 
     const host = nodes().find((node) => node.props?.id === 'actions')
+
     expect(host.props.accessibilityRole).toBe('toolbar')
     expect(host.props.accessibilityLabel).toBe('Page actions')
     expect(host.props.accessibilityOrientation).toBe('horizontal')
@@ -97,6 +99,7 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
         notify: (note: any) => void,
       ) {
         const token = {}
+
         observers.set(token, notify)
         return token
       },
@@ -145,6 +148,7 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -196,6 +200,7 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
   try {
     render('horizontal')
     await Promise.resolve()
+
     const host = all().find((node) => node.props?.id === 'toolbar'),
       save = all().find((node) => node.props?.id === 'save'),
       share = all().find((node) => node.props?.id === 'share')
@@ -207,13 +212,16 @@ it('Toolbar wires owned button focus while preserving ordinary activation and ed
     expect(actions).toEqual([])
     share.props.onTap()
     expect(actions).toEqual(['share'])
+
     const editor = all().find((node) => node.props?.id === 'editor')
+
     window.firstResponder = editor
     expect(key(host, 'Home').defaultPrevented).toBe(false)
     editor.props.onTextChange('draft')
     expect(actions).toEqual(['share', 'draft'])
     render('vertical')
     await Promise.resolve()
+
     const first = all().find((node) => node.props?.id === 'save'),
       last = all().find((node) => node.props?.id === 'share')
 
@@ -235,6 +243,7 @@ it('changing toolbar axes retains slot hosts, local toggle choice and editor dra
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -252,12 +261,14 @@ it('changing toolbar axes retains slot hosts, local toggle choice and editor dra
 
   try {
     render('horizontal')
+
     const pin = all().find((node) => node.props?.id === 'pin'),
       draft = all().find((node) => node.props?.id === 'draft')
 
     pin.props.onTap()
     draft.props.onTextChange('local draft')
     flushUniversalSync(() => {})
+
     const slots = all().filter((node) =>
       String(node.props?.className).split(' ').includes('vx-toolbar-slot'),
     )

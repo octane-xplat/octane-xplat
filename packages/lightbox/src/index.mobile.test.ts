@@ -10,6 +10,7 @@ vi.mock('@octane-xplat/ui', () => ({
 
 it('native index exports the real surface under native platform resolution', async () => {
   const native = await import('./index.ts')
+
   for (const name of [
     'Lightbox',
     'useLightbox',

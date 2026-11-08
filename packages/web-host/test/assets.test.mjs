@@ -53,6 +53,7 @@ test('prefixes every asset with a custom base and tolerates missing imports or c
     ),
     { scripts: ['/static/assets/app.js'], styles: [] },
   )
+
   for (const base of ['static', 'static/', '/static', '']) {
     assert.throws(() => manifestAssets(manifest, 'src/main.ts', { base }), TypeError, base)
   }

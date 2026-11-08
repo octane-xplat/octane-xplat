@@ -1,5 +1,6 @@
 import { mkdir, readFile, realpath, symlink } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
+
 export async function linkDependencies(root, repo) {
   const platform = process.env.XPLAT_CRYPTO_PLATFORM_ROOT ?? join(repo, 'packages/platform')
   const lib = process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')
@@ -13,6 +14,7 @@ export async function linkDependencies(root, repo) {
       }
     }
   }
+
   for (const [name, source] of [
     ['@nativescript/core', join(repo, 'apps/mobile/node_modules/@nativescript/core')],
     ['@octane-xplat/lib', lib],
@@ -20,8 +22,10 @@ export async function linkDependencies(root, repo) {
   ]) {
     await link(source, join(root, 'node_modules', name))
   }
+
   if (process.env.XPLAT_CRYPTO_PLATFORM_ROOT) {
     const manifest = JSON.parse(await readFile(join(platform, 'package.json'), 'utf8'))
+
     for (const name of Object.keys(manifest.dependencies ?? {})) {
       await link(
         name === '@octane-xplat/lib'

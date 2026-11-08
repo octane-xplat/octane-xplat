@@ -20,16 +20,19 @@ vi.mock('@nativescript/core', () => ({
 
 vi.mock('../../components/media/Icon', async () => {
   const { defineUniversalComponent } = await import('octane/universal/native')
+
   return { Icon: defineUniversalComponent('nativescript', () => null) }
 })
 
 vi.mock('../../components/actions/Pressable', async () => {
   const { defineUniversalComponent } = await import('octane/universal/native')
+
   return { Pressable: defineUniversalComponent('nativescript', (props: any) => props.children) }
 })
 
 vi.mock('../../components/layout/Grid.tsrx', async () => {
   const { defineUniversalComponent } = await import('octane/universal/native')
+
   return { Grid: defineUniversalComponent('nativescript', (props: any) => props.children) }
 })
 
@@ -45,6 +48,7 @@ import { OrdinaryChildren } from '../../../tests/children.fixture.mobile.tsrx'
 it('normalizes ordinary JSX sibling boundaries', () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(OrdinaryChildren, {})
   expect(
     container.children[0].children.map((row) => row.children.map((child) => child.props.text)),
@@ -58,10 +62,13 @@ it('updates deferred expressions, inserts and removes children', async () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const texts = () => container.children[0].children.map((row) => row.children[0].props.text)
+
   root.render(ChangingChildren, { values: ['a', 'b'], last: false })
   expect(texts()).toEqual(['first', 'a', 'b'])
+
   const a = container.children[0].children[1]
   const b = container.children[0].children[2]
+
   root.render(ChangingChildren, { values: ['b', 'a', 'c'], last: true })
   expect(texts()).toEqual(['first', 'b', 'a', 'c', 'last'])
   expect(container.children[0].children[1]).toBe(b)
@@ -80,7 +87,9 @@ it('renders ordinary JSX list rows, overflow and native leaf text hosts', async 
     (node.props.text ?? node.props.value ?? '') + node.children.map(text).join('')
 
   root.render(CollectionLeaves, { start: 1, max: 2, keyName: 'A' })
+
   const [list, avatars, key, wrapped, button, quote] = container.children[0].children
+
   expect(list.children.map(text)).toEqual(['1.First', '2.Second'])
   expect(avatars.children.map(text)).toEqual(['AA', 'BB', '+1'])
   expect(key.children).toHaveLength(1)
@@ -103,9 +112,12 @@ it('preserves context, keyed component ownership and cleanup', async () => {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const events: string[] = []
+
   root.render(OwnedChildren, { values: ['a', 'b'], events, context: 'one' })
   expect(events.sort()).toEqual(['mount:a', 'mount:b', 'mount:fixed'])
+
   const a = container.children[0].children[1].children[0]
+
   root.render(OwnedChildren, { values: ['b', 'a', 'c'], events, context: 'two' })
   expect(container.children[0].children[2].children[0]).toBe(a)
   expect(a.props.text).toBe('two:a')
@@ -130,7 +142,9 @@ it('normalizes ordinary children in Carousel, MetadataList and OverflowList', as
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const walk = (node: any): any[] => [node, ...node.children.flatMap(walk)]
+
   root.render(OtherCollections, {})
+
   const nodes = container.children.flatMap(walk)
   const slides = nodes.filter((node) =>
     String(node.props.className).split(' ').includes('vx-carousel-slide'),
@@ -151,6 +165,7 @@ it('normalizes ordinary children in Carousel, MetadataList and OverflowList', as
   ).not.toContain('meta2')
 
   const overflow = nodes.find((node) => node.props.id === 'overflow')
+
   expect(overflow.children.map((node: any) => node.props.text)).toEqual(['tool1', 'tool2'])
   root.unmount()
 })
@@ -160,6 +175,7 @@ it('does not mount excluded children and cleans up when the limit shrinks', asyn
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const events: string[] = []
+
   root.render(LimitedChildren, { max: 2, events })
   expect(events).toEqual(['mount:a', 'mount:b'])
   root.render(LimitedChildren, { max: 1, events })
@@ -190,6 +206,7 @@ it('namespaces nested collection keys and drops empty mapped values', async () =
   const container = createObjectContainer('nativescript')
   const { defineUniversalComponent } = await import('octane/universal/native')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(
     defineUniversalComponent('nativescript', () => mapped),
     {},
@@ -209,6 +226,7 @@ it('reactively updates child collections through the owning component state', as
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const events: string[] = []
   let update!: (names: string[]) => void
+
   root.render(ReactiveChildren, {
     events,
     capture: (setter: typeof update) => {
@@ -217,6 +235,7 @@ it('reactively updates child collections through the owning component state', as
   })
 
   const a = container.children[0].children[1].children[0]
+
   flushUniversalSync(() => update(['b', 'a', 'c']))
   expect(container.children[0].children.map((row) => row.children[0].props.text)).toEqual([
     'fixed',

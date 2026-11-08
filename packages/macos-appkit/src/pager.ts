@@ -51,17 +51,20 @@ let nextPortalPageId = 0
 
 function pageIndex(state: PagerState): number {
   const width = Number(state.clip.bounds?.size?.width ?? 0)
+
   if (!(width > 0)) {
     return state.current
   }
 
   const x = Number(state.clip.bounds?.origin?.x ?? 0)
+
   return Math.max(0, Math.min(state.count - 1, Math.round(x / width)))
 }
 
 function scrollToPage(state: PagerState, index: number) {
   const width = Number(state.clip.bounds?.size?.width ?? 0)
   const x = Math.max(0, Math.min(state.count - 1, index)) * width
+
   if (x === Number(state.clip.bounds?.origin?.x ?? 0)) {
     return
   }
@@ -76,6 +79,7 @@ function scheduleSettle(state: PagerState) {
   if (state.closed) {
     return
   }
+
   if (state.settleTimer !== undefined) {
     clearTimeout(state.settleTimer)
   }
@@ -87,6 +91,7 @@ function scheduleSettle(state: PagerState) {
     }
 
     const index = pageIndex(state)
+
     scrollToPage(state, index)
     if (index === state.current) {
       return
@@ -115,6 +120,7 @@ function releasePage(page: PagerPage) {
 
 function bindPage(state: PagerState, page: PagerPage, index: number) {
   const item = state.props.items?.[index]
+
   page.index = index
   page.bound = true
   page.host.bindingContext = item
@@ -174,10 +180,13 @@ function layoutPages(state: PagerState) {
   }
 
   state.pageConstraints = []
+
   const clip = state.clip
   let previous: View | null = null
+
   for (const page of state.pages) {
     const host = page.host
+
     state.pageConstraints.push(
       host.widthAnchor.constraintEqualToAnchor(clip.widthAnchor),
       host.topAnchor.constraintEqualToAnchor(clip.topAnchor),
@@ -203,13 +212,16 @@ function layoutPages(state: PagerState) {
 
 export function makePagerView(node?: ElementNode): NSView {
   const view = NSScrollViewMake() as View
+
   if (node) {
     node.view = view
   }
+
   view.translatesAutoresizingMaskIntoConstraints = false
   view.hasHorizontalScroller = false
   view.hasVerticalScroller = false
   view.drawsBackground = false
+
   const document = NSView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 0, height: 0 },
@@ -231,6 +243,7 @@ export function makePagerView(node?: ElementNode): NSView {
   states.set(view, state)
   view.documentView = document
   clip.postsBoundsChangedNotifications = true
+
   const observer = NSNotificationCenter.defaultCenter.addObserverForNameObjectQueueUsingBlock(
     NSViewBoundsDidChangeNotification,
     clip,
@@ -257,7 +270,9 @@ function NSScrollViewMake() {
 export function updatePagerView(view: NSView, props: Props) {
   const state = states.get(view)!
   const previous = state.props
+
   state.props = props
+
   const count = Number(props.items?.length ?? 0)
 
   while (state.pages.length < count) {
@@ -286,6 +301,7 @@ export function updatePagerView(view: NSView, props: Props) {
   }
 
   const selected = Number(props.selectedIndex ?? state.current)
+
   if (Number.isFinite(selected) && selected !== state.current) {
     // Programmatic writes scroll to the page; the settle reports the
     // arrival but is muted against echoing back through
@@ -298,41 +314,52 @@ export function updatePagerView(view: NSView, props: Props) {
 
 export function disposePagerView(view: NSView) {
   const state = states.get(view)
+
   if (!state || state.closed) {
     return
   }
+
   state.closed = true
   states.delete(view)
   state.props = {}
+
   const timer = state.settleTimer
   const observer = state.boundsObserver
   const constraints = state.pageConstraints
   const pages = state.pages
+
   state.settleTimer = undefined
   state.boundsObserver = undefined
   state.pageConstraints = []
   state.pages = []
+
   const failures = new FailureCollector()
+
   failures.run('pager settle', () => {
     if (timer !== undefined) {
       clearTimeout(timer)
     }
   })
+
   failures.run('pager observer', () => {
     if (observer) {
       NSNotificationCenter.defaultCenter.removeObserver(observer)
     }
   })
+
   for (const constraint of constraints) {
     failures.run('pager constraint', () => {
       constraint.active = false
     })
   }
+
   for (const page of pages) {
     failures.run('pager page', () => unbindPage(state, page))
   }
+
   failures.run('pager document', () => {
     state.view.documentView = null
   })
+
   failures.throwIfFailed()
 }

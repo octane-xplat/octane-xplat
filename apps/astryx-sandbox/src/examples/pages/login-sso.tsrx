@@ -45,6 +45,7 @@ const SSO_PROVIDERS: Record<string, SSOProvider> = {
 
 function getProvider(email: string) {
   const domain = email.split('@')[1]?.toLowerCase()
+
   return domain ? (SSO_PROVIDERS[domain] ?? null) : null
 }
 

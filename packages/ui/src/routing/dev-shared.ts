@@ -25,6 +25,7 @@ export async function runXplatNavigate(
   const navigation = await devNavigate(router, String(input.url), context.signal, {
     replace: input.replace === true,
   })
+
   if (navigation.ok) {
     return { status: 'committed', route: navigation.route ?? '' }
   }
@@ -66,6 +67,7 @@ const describe = (result: NavigationResult): string => {
 const currentLocation = (router: RouterInstance) => {
   try {
     const snapshot = router.getSnapshot()
+
     return { route: snapshot.route?.href ?? null, modal: snapshot.modal }
   } catch {
     // The default client is not configured yet.
@@ -105,6 +107,7 @@ export async function devNavigate(
   }
 
   let flowNavigator
+
   try {
     // The blocker registry binds to the flow's bound navigator, not the
     // public facade — resolve it so active blockers are observable.
@@ -129,6 +132,7 @@ export async function devNavigate(
     pending.then(finish, (error) =>
       finish({ status: 'failed', phase: 'commit', error } as NavigationResult),
     )
+
     if (signal.aborted) {
       finish('aborted')
     } else {
@@ -198,6 +202,7 @@ export async function devNavigate(
 export function registerRouterDevActionsFor(router: RouterInstance): { dispose(): void } {
   const g = globalThis as unknown as Record<string, { dispose(): void } | undefined>
   const existing = g[GLOBAL_KEY]
+
   if (existing) {
     return existing
   }
@@ -245,6 +250,7 @@ export function registerRouterDevActionsFor(router: RouterInstance): { dispose()
       }
     },
   }
+
   g[GLOBAL_KEY] = registration
   return registration
 }

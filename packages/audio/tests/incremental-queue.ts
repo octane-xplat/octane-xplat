@@ -16,20 +16,25 @@ export async function run(ctx: ProbeContext) {
       throw cause
     }
   }
+
   ctx.onCleanup(() => player.dispose())
   await player.setPlaybackRate(1.5)
   await player.setVolume(0.25)
   await player.setMuted(true) // Silent fixture: this never establishes physical output.
+
   const first = { id: 'one', source: `${origin}/one.wav` }
   const second = { id: 'two', source: `${origin}/two.wav` }
   const third = { id: 'three', source: `${origin}/three.wav` }
+
   await player.setQueue([first], 0, { complete: false })
   await player.play()
   await waitFor(
     () => player.snapshot().state === 'playing' && player.snapshot().currentTime > 0.2,
     { timeout: 15000, interval: 50 },
   )
+
   const before = player.snapshot().currentTime
+
   await player.updateQueue([{ ...first, title: 'Updated' }, second])
   ctx.assert('current item retained', player.snapshot().track?.id, 'one')
   ctx.assert('position retained', player.snapshot().currentTime >= before - 0.15, true)
@@ -42,6 +47,7 @@ export async function run(ctx: ProbeContext) {
     () => player.snapshot().track?.id === 'three' && player.snapshot().state === 'playing',
     { timeout: 15000, interval: 50 },
   )
+
   ctx.assert('append resumes waiting player', player.snapshot().track?.id, 'three')
   await player.pause()
   await waitFor(() => player.snapshot().state === 'paused', { timeout: 5000, interval: 50 })

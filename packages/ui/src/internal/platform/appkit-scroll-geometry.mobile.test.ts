@@ -11,17 +11,20 @@ function fixture(flipped: boolean) {
     }),
     animator: vi.fn(() => ({})),
   }
+
   const view = {
     contentView: clip,
     documentView: { frame: { size: { width: 300, height: 400 } }, flipped },
     reflectScrolledClipView: vi.fn(),
   }
+
   return { view, clip }
 }
 
 it('AppKit seeks and metrics agree on top-down offsets for the generated flipped property', () => {
   for (const flipped of [true, false]) {
     const { view, clip } = fixture(flipped)
+
     scrollableAreaOffset(view, { block: 75 }, true)
     expect(clip.scrollToPoint).toHaveBeenLastCalledWith({ x: 25, y: flipped ? 75 : 225 })
     expect(scrollableAreaMetrics(view).y).toBe(75)
@@ -37,14 +40,17 @@ it('AppKit seeks and metrics agree on top-down offsets for the generated flipped
 
 it('AppKit seeks tolerate missing documents, invalid axes, short content and unavailable animator selectors', () => {
   const { view, clip } = fixture(false)
+
   scrollableAreaOffset(view, { block: NaN, inline: Infinity }, true)
   expect(clip.scrollToPoint).not.toHaveBeenCalled()
   expect(clip.animator).not.toHaveBeenCalled()
   view.documentView.frame.size.height = 40
   scrollableAreaOffset(view, { block: 100 }, true)
   expect(clip.scrollToPoint).toHaveBeenCalledWith({ x: 25, y: 0 })
+
   const animated = vi.fn()
   const host: any = view
+
   host.contentView.animator = () => ({ scrollToPoint: animated })
   scrollableAreaOffset(view, { inline: 20 }, true)
   expect(animated).toHaveBeenCalledWith({ x: 20, y: 0 })

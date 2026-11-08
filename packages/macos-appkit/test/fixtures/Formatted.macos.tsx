@@ -4,6 +4,7 @@ import { useSignal$ } from 'octane/signals/client'
 export const formattedRef = { current: null as any }
 export const spanRef = { current: null as any }
 export const formattedRefEvents: string[] = []
+
 const callback = (element: any) => {
   if (element) {
     formattedRefEvents.push('attach')

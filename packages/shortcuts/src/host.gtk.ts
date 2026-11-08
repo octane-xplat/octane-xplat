@@ -38,6 +38,7 @@ export const host: ShortcutHost = {
       callback()
       return GLib.SOURCE_REMOVE
     })
+
     return () => {
       if (active) {
         active = false
@@ -57,9 +58,11 @@ export const host: ShortcutHost = {
   },
   subscribe(target, callbacks) {
     const widget = unwrap(target)
+
     if (typeof widget?.add_controller !== 'function' || !widget.get_root?.()) {
       throw new Error('Shortcuts require an attached GTK4 widget')
     }
+
     const releases: (() => void)[] = []
     const held = new Set<number>()
     let active = true
@@ -69,29 +72,37 @@ export const host: ShortcutHost = {
         callbacks.reset()
       }
     }
+
     try {
       // Legacy is required for cancellable key-up: EventControllerKey::key-released is void.
       // Bubble after native editors so their IM contexts filter composition first.
       const controller = new Gtk.EventControllerLegacy()
+
       controller.set_propagation_phase(Gtk.PropagationPhase.BUBBLE)
       widget.add_controller(controller)
       releases.push(() => widget.remove_controller(controller))
+
       const id = controller.connect('event', (_controller: unknown, raw: any) => {
         if (!active) {
           return false
         }
+
         const type = raw.get_event_type()
+
         if (type !== Gdk.EventType.KEY_PRESS && type !== Gdk.EventType.KEY_RELEASE) {
           return false
         }
+
         const down = type === Gdk.EventType.KEY_PRESS
         const keycode = raw.get_keycode()
         const repeat = down && held.has(keycode)
+
         if (down) {
           held.add(keycode)
         } else {
           held.delete(keycode)
         }
+
         const keyval = raw.get_keyval()
         const name = Gdk.keyval_name(keyval) ?? ''
         const unicode = Gdk.keyval_to_unicode(keyval)
@@ -102,12 +113,14 @@ export const host: ShortcutHost = {
             : unicode
               ? String.fromCodePoint(unicode)
               : name || 'Unidentified')
+
         const state = Number(raw.get_modifier_state())
         const mask = Gdk.ModifierType
         const focus = widget.get_root()?.get_focus?.() ?? widget
         const path = pathFrom(focus, (node) => node.get_parent?.())
         let prevented = false,
           stopped = false
+
         const event: ShortcutEvent = {
           type: down ? 'keydown' : 'keyup',
           key,
@@ -130,19 +143,26 @@ export const host: ShortcutHost = {
           },
           composedPath: () => [...path],
         }
+
         if (down) {
           callbacks.capture?.(event)
         }
+
         callbacks.key(event)
         return prevented || stopped
       })
 
       releases.push(() => controller.disconnect(id))
+
       const focusController = new Gtk.EventControllerFocus()
+
       widget.add_controller(focusController)
       releases.push(() => widget.remove_controller(focusController))
+
       const leave = focusController.connect('leave', reset)
+
       releases.push(() => focusController.disconnect(leave))
+
       const root = widget.get_root()
       const inactive = root.connect('notify::is-active', () => {
         if (!root.is_active) {
@@ -156,6 +176,7 @@ export const host: ShortcutHost = {
       cleanupAll(releases)
       throw error
     }
+
     return () => {
       if (active) {
         active = false

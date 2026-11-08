@@ -12,6 +12,7 @@ import { isSafeDestination } from '../../routing/safe-url'
 function createSafeLink(Component: any) {
   function SafeLink(props: any) {
     const { href, to, ...rest } = props
+
     if (!isSafeDestination(href) || !isSafeDestination(to)) {
       return <a {...rest} />
     }
@@ -33,5 +34,6 @@ function createSafeLink(Component: any) {
 export function useLinkComponent(as?: LinkComponentType): LinkComponentType {
   const ctx = useContext(LinkContext)
   const resolved: any = as ?? ctx?.component ?? 'a'
+
   return useMemo(() => createSafeLink(resolved), [resolved])
 }

@@ -24,6 +24,7 @@ const OPACITY_NEAR = 0.01
 const REQUIRED_TARGETS = ['web', 'ios', 'android']
 
 const CHECKS: ParityCheck[] = []
+
 for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root }).sort()) {
   const mod: { CHECKS?: ParityCheck[] } = await import(pathToFileURL(join(root, file)).href)
 
@@ -31,6 +32,7 @@ for (const file of globSync('packages/*/src/**/*.parity.check.ts', { cwd: root }
 }
 
 const dumps = new Map<string, ParityDump>()
+
 if (existsSync(dir)) {
   for (const f of readdirSync(dir)) {
     if (f.endsWith('.json')) {
@@ -64,12 +66,14 @@ if (unknownTargets.length) {
 
 const expectedTargets = requestedTargets ?? REQUIRED_TARGETS
 const missingTargets = expectedTargets.filter((target) => !dumps.has(target))
+
 if (missingTargets.length) {
   console.error(`[parity] missing required dump(s): ${missingTargets.join(', ')}`)
   process.exit(1)
 }
 
 const targets = requestedTargets ?? [...dumps.keys()]
+
 if (targets.length === 0) {
   console.log('[parity] no dumps — write one first (bun run --filter @xplat/web parity)')
   process.exit(1)
@@ -87,11 +91,13 @@ const normalizeColor = (value: string): string | undefined => {
     const channel = (part: string) => {
       const parsed = Number.parseFloat(part)
       const number = part.endsWith('%') ? (parsed * 255) / 100 : parsed
+
       return Math.max(0, Math.min(255, Math.round(number)))
     }
 
     const hex = (number: number) => number.toString(16).padStart(2, '0')
     const channels = [rgb[1], rgb[2], rgb[3]].map((part) => hex(channel(part))).join('')
+
     if (rgb[4] === undefined) {
       return `#${channels}`
     }
@@ -101,15 +107,18 @@ const normalizeColor = (value: string): string | undefined => {
       : Number.parseFloat(rgb[4])
 
     const alpha = hex(Math.max(0, Math.min(255, Math.round(opacity * 255))))
+
     return alpha === 'ff' ? `#${channels}` : `#${channels}${alpha}`
   }
 
   const hex = /^#([\da-f]{3,4}|[\da-f]{6}|[\da-f]{8})$/i.exec(value)?.[1]?.toLowerCase()
+
   if (!hex) {
     return undefined
   }
 
   const expanded = hex.length <= 4 ? [...hex].map((digit) => digit + digit).join('') : hex
+
   return expanded.length === 8 && expanded.endsWith('ff')
     ? `#${expanded.slice(0, 6)}`
     : `#${expanded}`
@@ -135,6 +144,7 @@ const normValue = (v: unknown, facet: string): unknown => {
   }
 
   const color = normalizeColor(v)
+
   if (color !== undefined) {
     return color
   }
@@ -166,6 +176,7 @@ const resolve = (dump: ParityDump, fixture: string, elements: Record<string, str
   return (name) => {
     const cls = elements[name]
     const node = (dump.cells?.[fixture] ?? []).find((n) => n.classes?.includes(cls))
+
     if (!node) {
       throw new Error(`'.${cls}' not in '${fixture}' dump`)
     }
@@ -180,6 +191,7 @@ const resolve = (dump: ParityDump, fixture: string, elements: Record<string, str
 const facetOf = (node: MeasuredNode, path: string): unknown => {
   const parts = path.split('.')
   let v: unknown = node
+
   for (const p of parts.slice(1)) {
     v = (v as Record<string, unknown> | undefined)?.[p]
   }
@@ -210,12 +222,14 @@ for (const def of CHECKS) {
 
   for (const target of applicableTargets) {
     const dump = dumps.get(target)!
+
     if (!dump.cells?.[def.fixture]) {
       report(false, `${def.fixture} · ${target} · fixture`, 'cell missing from dump')
       continue
     }
 
     let m: Resolve
+
     try {
       m = resolve(dump, def.fixture, def.elements)
     } catch (e) {
@@ -224,6 +238,7 @@ for (const def of CHECKS) {
     }
 
     let rows
+
     try {
       rows = def.check(m, target, dump)
     } catch (e) {
@@ -261,6 +276,7 @@ for (const def of CHECKS) {
           typeof value === 'number'
         ) {
           const scale = Math.max(1, Math.abs(first[1]), Math.abs(value))
+
           return Math.abs(first[1] - value) <= scale * relativeTolerance
         }
 

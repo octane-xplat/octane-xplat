@@ -70,6 +70,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
       // before registering or AppKit dispatch cannot reach them.
       for (const name of Object.keys(this.ObjCExposedMethods)) {
         const descriptor = Object.getOwnPropertyDescriptor(this.prototype, name)
+
         if (descriptor && typeof descriptor.value === 'function' && !descriptor.enumerable) {
           Object.defineProperty(this.prototype, name, { ...descriptor, enumerable: true })
         }
@@ -118,10 +119,12 @@ class XplatPhotoCaptureSheet extends SheetBase {
   ['present:reply:'](options: any, reply: (result: string | null) => void): void {
     const app = NSApplication.sharedApplication
     const parent = app.keyWindow ?? app.mainWindow
+
     if (parent == null) {
       reply(null)
       return
     }
+
     this.presentOnWindow(parent, options ?? {}, reply)
   }
 
@@ -137,35 +140,47 @@ class XplatPhotoCaptureSheet extends SheetBase {
       reply(null)
       return
     }
+
     this.options = options
     this.reply = reply
     this.parent = parent
+
     const frame = (w: number, h: number) => ({
       origin: { x: 0, y: 0 },
       size: { width: w, height: h },
     })
+
     const sheet = typed(
       NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(frame(640, 480), 3, 2, false),
       NSWindow,
     )
+
     sheet.title = 'Take a photo'
     sheet.delegate = this
+
     const content = NSView.alloc().initWithFrame(frame(640, 480))
     const preview = NSView.alloc().initWithFrame({
       origin: { x: 16, y: 80 },
       size: { width: 608, height: 384 },
     })
+
     preview.wantsLayer = true
     preview.layer.backgroundColor = NSColor.blackColor.CGColor
     content.addSubview(preview)
+
     const status = NSTextField.labelWithString('Choose Capture to start the camera.')
+
     status.frame = { origin: { x: 16, y: 48 }, size: { width: 440, height: 22 } }
     content.addSubview(status)
+
     const cancel = NSButton.buttonWithTitleTargetAction('Cancel', this, 'cancelPhoto')
+
     cancel.keyEquivalent = ''
     cancel.frame = { origin: { x: 432, y: 12 }, size: { width: 92, height: 32 } }
     content.addSubview(cancel)
+
     const capture = NSButton.buttonWithTitleTargetAction('Capture', this, 'capturePhoto')
+
     capture.keyEquivalent = '\r'
     capture.frame = { origin: { x: 528, y: 12 }, size: { width: 96, height: 32 } }
     content.addSubview(capture)
@@ -180,6 +195,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
       NSOperationQueue.mainQueue,
       () => this.complete(null),
     )
+
     parent.beginSheetCompletionHandler(sheet, () => this.complete(null))
   }
 
@@ -187,6 +203,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
     if (this.timeout !== undefined) {
       clearTimeout(this.timeout)
     }
+
     this.timeout = setTimeout(() => {
       if (!this.disposed && this.life.accepts(token)) {
         this.complete(null)
@@ -196,8 +213,10 @@ class XplatPhotoCaptureSheet extends SheetBase {
 
   ['capturePhoto'](): void {
     const prepared = this.life.prepare()
+
     if (prepared != null) {
       const token = prepared
+
       if (this.captureButton != null) {
         this.captureButton.isEnabled = false
       }
@@ -212,28 +231,36 @@ class XplatPhotoCaptureSheet extends SheetBase {
         if (this.disposed || !this.life.accepts(token)) {
           return
         }
+
         if (status !== 'granted') {
           this.complete(null)
           return
         }
+
         const failure = this.host.configure({ photo: true, audio: false })
+
         if (this.disposed || !this.life.accepts(token)) {
           return
         }
+
         if (failure != null || this.preview == null) {
           this.complete(null)
           return
         }
+
         this.host.installObserver((message: string) => {
           let event: any
+
           try {
             event = JSON.parse(message)
           } catch {
             return
           }
+
           if (!this.life.accepts(token)) {
             return
           }
+
           if (event.type === 'previewReady' && event.ready === true && this.life.ready(token)) {
             if (this.timeout !== undefined) {
               clearTimeout(this.timeout)
@@ -251,6 +278,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
             this.complete(null)
           }
         })
+
         if (this.host.attachPreview(this.preview) != null) {
           this.complete(null)
         }
@@ -258,24 +286,33 @@ class XplatPhotoCaptureSheet extends SheetBase {
 
       return
     }
+
     const token = this.life.capture()
+
     if (token == null) {
       return
     }
+
     if (this.captureButton != null) {
       this.captureButton.isEnabled = false
     }
+
     if (this.statusLabel != null) {
       this.statusLabel.stringValue = 'Taking photo…'
     }
+
     this.deadline(token)
+
     const failure = this.host.capturePhoto((data: any) => {
       if (this.disposed || !this.life.accepts(token)) {
         return
       }
+
       const result = data != null ? this.persist(data) : null
+
       this.complete(result)
     })
+
     if (failure != null) {
       this.complete(null)
     }
@@ -283,15 +320,19 @@ class XplatPhotoCaptureSheet extends SheetBase {
 
   private persist(data: any): string | null {
     const source = typed(NSBitmapImageRep.alloc().initWithData(data), NSBitmapImageRep)
+
     if (source == null) {
       return null
     }
+
     // Option semantics match the Swift NSNumber cast: a non-number falls
     // back to the source size, while an out-of-range number fails below.
     const width =
       typeof this.options.width === 'number' ? this.options.width : Number(source.pixelsWide)
+
     const height =
       typeof this.options.height === 'number' ? this.options.height : Number(source.pixelsHigh)
+
     if (
       !Number.isFinite(width) ||
       !Number.isFinite(height) ||
@@ -303,21 +344,26 @@ class XplatPhotoCaptureSheet extends SheetBase {
     ) {
       return null
     }
+
     const keepAspectRatio = this.options.keepAspectRatio !== false
     const scale = Math.min(width / source.pixelsWide, height / source.pixelsHigh, 1)
     const size = {
       width: keepAspectRatio ? source.pixelsWide * scale : width,
       height: keepAspectRatio ? source.pixelsHigh * scale : height,
     }
+
     // The long NSBitmapImageRep designated initializer is absent from the
     // bridge metadata; resize through NSImage + TIFFRepresentation instead.
     const image = typed(NSImage.alloc().init(), NSImage)
+
     if (image == null) {
       return null
     }
+
     try {
       image.addRepresentation(source)
       image.size = { width: Math.floor(size.width), height: Math.floor(size.height) }
+
       const tiff =
         typeof image.TIFFRepresentation === 'function'
           ? image.TIFFRepresentation()
@@ -331,8 +377,11 @@ class XplatPhotoCaptureSheet extends SheetBase {
       }
 
       const props = NSMutableDictionary.dictionary()
+
       props.setObjectForKey(0.9, NSImageCompressionFactor)
+
       const jpeg = scaled.representationUsingTypeProperties(g.NSBitmapImageFileTypeJPEG ?? 3, props)
+
       if (jpeg == null) {
         return null
       }
@@ -346,6 +395,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
   private persistWrite(jpeg: any): string | null {
     const name = `octane-capture-${NSUUID.UUID().UUIDString}.jpg`
     const url = NSFileManager.defaultManager.temporaryDirectory.URLByAppendingPathComponent(name)
+
     try {
       const payload = {
         name,
@@ -354,6 +404,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
       }
 
       const message = JSON.stringify(payload)
+
       if (!jpeg.writeToURLAtomically(url, true)) {
         return null
       }
@@ -383,7 +434,9 @@ class XplatPhotoCaptureSheet extends SheetBase {
     if (!this.life.finish()) {
       return
     }
+
     const callback = this.reply
+
     this.reply = undefined
     this.dispose()
     callback?.(result)
@@ -398,6 +451,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
     const manager = NSFileManager.defaultManager
     const tempDir = String(manager.temporaryDirectory.path ?? '')
     const name = value.slice(value.lastIndexOf('/') + 1)
+
     if (
       tempDir === '' ||
       !name.startsWith('octane-capture-') ||
@@ -405,6 +459,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
     ) {
       return
     }
+
     manager.removeItemAtPathError(value, null)
   }
 
@@ -412,20 +467,24 @@ class XplatPhotoCaptureSheet extends SheetBase {
     if (this.disposed) {
       return
     }
+
     this.disposed = true
     if (this.timeout !== undefined) {
       clearTimeout(this.timeout)
       this.timeout = undefined
     }
+
     if (this.closeObserver != null) {
       NSNotificationCenter.defaultCenter.removeObserver(this.closeObserver)
       this.closeObserver = undefined
     }
+
     this._host?.dispose()
     if (this.sheet != null) {
       this.parent?.endSheet(this.sheet)
       this.sheet.orderOut(null)
     }
+
     this.sheet = undefined
     this.preview = undefined
     this.captureButton = undefined
@@ -433,6 +492,7 @@ class XplatPhotoCaptureSheet extends SheetBase {
     // Disposal is also a cancellation, including an external owner teardown.
     if (this.life.finish()) {
       const callback = this.reply
+
       this.reply = undefined
       callback?.(null)
     }

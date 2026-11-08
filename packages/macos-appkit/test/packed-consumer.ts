@@ -11,14 +11,18 @@ const actionBarOnly = process.argv.includes('--actionbar')
 const liquidGlassOnly = process.argv.includes('--liquidglass')
 
 const ambientEnv = { ...process.env }
+
 delete ambientEnv.XPLAT_MASON_LIB
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(packageRoot, '../..')
 const directory = await mkdtemp(join(tmpdir(), 'xplat-macos-appkit-'))
+
 console.log('[packed renderer] consumer: ' + directory)
+
 const packs = join(directory, 'packs')
 const app = join(directory, 'consumer')
+
 await mkdir(packs)
 await mkdir(join(app, 'src'), { recursive: true })
 
@@ -34,11 +38,13 @@ function run(command: string, args: string[], cwd = app) {
 
 async function pack(root: string) {
   const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
+
   run('bun', ['pm', 'pack', '--destination', packs], root)
   return `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
 
 const renderer = await pack(packageRoot)
+
 assert.ok(
   run('tar', ['-tzf', renderer.slice('file:'.length)], packs).includes(
     'package/platforms/macos/prebuilt/libxplatmason.dylib',
@@ -66,6 +72,7 @@ const compatibility = JSON.parse(
 const octaneVersion = compatibility.packages.octane.version
 const oxcVersion = compatibility.packages['@tsrx/oxc'].version
 const fixture = join(packageRoot, 'test/fixtures')
+
 for (const file of [
   'App.macos.tsx',
   'Paint.macos.tsx',
@@ -150,6 +157,7 @@ if (liquidGlassOnly) {
 // Keep the contributor example checked by the same independent consumer.
 const ledger = await readFile(join(repo, '.agents/docs/notes/appkit-native-intrinsics.md'), 'utf8')
 const examples = [...ledger.matchAll(/```tsx\n([\s\S]*?)```/g)]
+
 assert.equal(
   examples.length,
   22,
@@ -222,6 +230,7 @@ await writeFile(
 
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
+
 consumerConfig.overrides = {
   ...Object.fromEntries(
     stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`]),
@@ -273,7 +282,9 @@ run('bun', ['run', 'xplat', 'patches', 'apply'])
 run('bun', ['install', '--ignore-scripts', '--no-frozen-lockfile'])
 run('bun', ['run', 'tsc', '--noEmit'])
 run('bun', ['run', 'vite', 'build'])
+
 const bundled = await readFile(join(app, 'dist/package-build/main.cjs'), 'utf8')
+
 assert.doesNotMatch(bundled, /Geist|__XPLAT_GEIST|packages\/app\/src/)
 console.log('[packed renderer] types and production build pass without harness assets')
 
@@ -302,6 +313,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 
   assert.match(notices, /@octane-xplat\/macos-appkit/)
   assert.match(notices, /Apache License/)
+
   const executable = join(
     app,
     'artifacts/macos-universal/RendererConsumer.app/Contents/MacOS/RendererConsumer',
@@ -321,6 +333,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   })
 
   const output = result.stdout + result.stderr
+
   await writeFile(join(directory, 'appkit-runtime.log'), output)
   assert.equal(result.status, 0, output)
   assert.match(output, /PACKED_RENDERER_OK/)
@@ -373,6 +386,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   )
 
   console.log('[packed renderer] verifying retained-root HMR')
+
   const dev = spawn('bun', ['run', 'xplat', 'dev', '--targets', 'macos'], {
     shell: process.platform === 'win32',
     cwd: app,
@@ -387,12 +401,14 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   // Dev startup compiles the cold shell and then the watched app before the
   // first runtime assertion. Allow both builds under concurrent CI workloads.
   const deadline = setTimeout(() => dev.kill('SIGTERM'), 180_000)
+
   for (const stream of [dev.stdout!, dev.stderr!]) {
     stream.on('data', (chunk) => {
       devOutput += chunk.toString()
       if (!editing && devOutput.includes('HMR_CONSUMER_READY')) {
         editing = (async () => {
           const source = join(app, 'src/App.macos.tsx')
+
           await writeFile(
             source,
             (await readFile(source, 'utf8')).replaceAll('First revision', 'Second revision'),

@@ -13,10 +13,15 @@ const renderItem = (item: string) => <span class="pg">{item}</span>
 
 function mount(extra: any = {}) {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
+
   const root = createRoot(el)
+
   act(() => root.render(<Pager items={items} renderItem={renderItem} {...extra} />))
+
   const pager = el.querySelector('.vx-pager') as any
+
   Object.defineProperty(pager, 'clientWidth', { value: 100, configurable: true })
   pager.scrollTo = vi.fn((opts: any) => {
     pager.scrollLeft = opts.left
@@ -33,6 +38,7 @@ describe('Pager (web leaf)', () => {
 
   it('renders one snap page per item, plus renderEmpty', () => {
     const { el, root, pager } = mount()
+
     expect(pager.className).toContain('vx-pager')
     expect(el.querySelectorAll('.vx-pager-page')).toHaveLength(3)
     expect(el.querySelectorAll('.pg')).toHaveLength(3)
@@ -42,8 +48,10 @@ describe('Pager (web leaf)', () => {
 
   it('fires onPageChange once the scroll settles', () => {
     vi.useFakeTimers()
+
     const onPageChange = vi.fn()
     const { el, root, pager } = mount({ onPageChange })
+
     pager.scrollLeft = 200
     pager.dispatchEvent(new Event('scroll'))
     vi.advanceTimersByTime(200)
@@ -55,6 +63,7 @@ describe('Pager (web leaf)', () => {
 
   it('wires each host after empty states and cancels detached-host work', () => {
     vi.useFakeTimers()
+
     const width = vi.spyOn(HTMLElement.prototype, 'clientWidth', 'get').mockReturnValue(100)
     const onPageChange = vi.fn()
     const el = document.createElement('div')
@@ -75,7 +84,9 @@ describe('Pager (web leaf)', () => {
     try {
       render([])
       render(items)
+
       const first = el.querySelector('.vx-pager') as HTMLElement
+
       expect(first.scrollLeft).toBe(100)
       first.scrollLeft = 200
       first.dispatchEvent(new Event('scroll'))
@@ -83,7 +94,9 @@ describe('Pager (web leaf)', () => {
       vi.advanceTimersByTime(200)
       expect(onPageChange).not.toHaveBeenCalled()
       render(items, 2)
+
       const second = el.querySelector('.vx-pager') as HTMLElement
+
       expect(second).not.toBe(first)
       expect(second.scrollLeft).toBe(200)
       second.scrollLeft = 0
@@ -100,9 +113,12 @@ describe('Pager (web leaf)', () => {
 
   it('suppresses the echo of its own controlled writes', () => {
     vi.useFakeTimers()
+
     const onPageChange = vi.fn()
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
     const set = { page: 0 }
     function Host() @{
@@ -110,7 +126,9 @@ describe('Pager (web leaf)', () => {
     }
 
     act(() => root.render(<Host />))
+
     const pager = el.querySelector('.vx-pager') as any
+
     Object.defineProperty(pager, 'clientWidth', { value: 100, configurable: true })
     pager.scrollTo = vi.fn((opts: any) => {
       pager.scrollLeft = opts.left

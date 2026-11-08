@@ -3,8 +3,11 @@ import { readdir } from 'node:fs/promises'
 import { spawnSync } from 'node:child_process'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = process.env.XPLAT_STRIPE_IOS_SDK
+
 assert.ok(root, 'Point XPLAT_STRIPE_IOS_SDK at the extracted official 26.15.1 SDK on skymac.local')
+
 const frameworkRoots = []
 async function visit(directory) {
   for (const entry of await readdir(directory, { withFileTypes: true })) {
@@ -13,6 +16,7 @@ async function visit(directory) {
     }
 
     const path = join(directory, entry.name)
+
     if (entry.name.endsWith('.xcframework')) {
       const slices = await readdir(path)
       const simulator = slices.find(
@@ -30,11 +34,13 @@ async function visit(directory) {
 
 await visit(root)
 assert.ok(frameworkRoots.length, 'No simulator framework slices were found')
+
 const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
   encoding: 'utf8',
 })
 
 assert.equal(sdk.status, 0, sdk.stderr)
+
 const source = fileURLToPath(
   new URL('../platforms/ios/src/XplatStripePaymentSheet.swift', import.meta.url),
 )

@@ -7,6 +7,7 @@ export function announceCommandPalette(view: any, message: string): void {
   }
 
   const notify = hostGlobal('UIAccessibilityPostNotification')
+
   if (typeof notify === 'function') {
     notify(hostGlobal('UIAccessibilityAnnouncementNotification'), message)
   } else {

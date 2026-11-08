@@ -9,10 +9,12 @@ export async function initializeUpdates(root) {
   // Resolve the optional runtime from the app, never from the CLI's own dependencies.
   createRequire(join(root, 'package.json')).resolve('@octane-xplat/updates/prepare')
   createRequire(join(root, 'package.json')).resolve('@octane-xplat/fingerprint')
+
   const folder = join(root, 'hooks/after-prepare')
   const destination = join(folder, 'xplat-updates.cjs')
 
   let existing
+
   try {
     existing = await readFile(destination, 'utf8')
   } catch (error) {
@@ -27,8 +29,10 @@ export async function initializeUpdates(root) {
 
   await mkdir(folder, { recursive: true })
   await writeFile(destination, updatesHook)
+
   const ignoreFile = join(root, '.gitignore')
   let ignored = ''
+
   try {
     ignored = await readFile(ignoreFile, 'utf8')
   } catch (error) {
@@ -36,11 +40,13 @@ export async function initializeUpdates(root) {
       throw error
     }
   }
+
   if (!ignored.split(/\r?\n/).some((line) => ['.xplat/', '/.xplat/'].includes(line.trim()))) {
     await writeFile(
       ignoreFile,
       ignored + (ignored && !ignored.endsWith('\n') ? '\n' : '') + '.xplat/\n',
     )
   }
+
   return destination
 }

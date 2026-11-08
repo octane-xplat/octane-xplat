@@ -37,7 +37,9 @@ export function BaseTypeahead<T extends SearchableItem>(
     [open, setOpen] = useState(false)
 
   const live = useRef({ props, query, results, open })
+
   live.current = { props, query, results, open }
+
   const generation = useRef(0),
     resultsGeneration = useRef(-1),
     loading = useRef(false),
@@ -51,6 +53,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   const cancel = () => {
     const gen = ++generation.current
     const controller = request.current
+
     request.current = null
     if (timer.current != null) {
       clearTimeout(timer.current)
@@ -90,6 +93,7 @@ export function BaseTypeahead<T extends SearchableItem>(
       notify = live.current.props.onOpenChange
 
     const gen = cancel()
+
     if (generation.current !== gen) {
       return
     }
@@ -107,6 +111,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   }
 
   const source = useRef(props.searchSource)
+
   if (source.current !== props.searchSource) {
     source.current = props.searchSource
     generation.current++
@@ -129,6 +134,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     } // Query-entry callbacks may replace props or unmount.
 
     const shown = [...fetched, ...derived]
+
     resultsGeneration.current = gen
     live.current.results = shown
     setResults(shown)
@@ -145,9 +151,11 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const controller = new AbortController()
+
     request.current = controller
     try {
       let value = live.current.props.searchSource.bootstrap({ signal: controller.signal })
+
       if (!Array.isArray(value)) {
         if (valid(gen)) {
           setLoading(true)
@@ -177,6 +185,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const controller = new AbortController()
+
     request.current = controller
     setHasSearched(true)
     setLoading(true)
@@ -212,6 +221,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     editing.current = true
     try {
       const gen = cancel()
+
       live.current.query = text
       setQuery(text)
       setLoading(false)
@@ -232,6 +242,7 @@ export function BaseTypeahead<T extends SearchableItem>(
         (text.length > 0 && characterCount(text) < (current.minQueryLength ?? 1))
       ) {
         const derived = (current as BaseTypeaheadInternalProps<T>).__queryEntries?.(text, []) ?? []
+
         if (!valid(gen)) {
           return
         }
@@ -297,6 +308,7 @@ export function BaseTypeahead<T extends SearchableItem>(
         notify = current.props.onOpenChange
 
       const gen = cancel()
+
       if (inputRef.current && generation.current === gen) {
         live.current.query = ''
         live.current.results = []
@@ -324,6 +336,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const current = live.current
+
     if (
       current.results.length &&
       (current.query.length || current.props.hasEntriesOnFocus) &&
@@ -332,12 +345,14 @@ export function BaseTypeahead<T extends SearchableItem>(
       showLayer()
     } else if (!current.query.length && current.props.hasEntriesOnFocus) {
       const gen = cancel()
+
       void performBootstrap(gen)
     } else if (
       current.query.length &&
       characterCount(current.query) >= (current.props.minQueryLength ?? 1)
     ) {
       const gen = cancel()
+
       void performSearch(current.query, gen)
     }
   }
@@ -348,6 +363,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const gen = generation.current
+
     live.current.props.onFocus?.()
     if (generation.current === gen) {
       offerResults()
@@ -360,6 +376,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const notify = live.current.props.onBlur
+
     hideLayer()
     notify?.()
   }
@@ -377,6 +394,7 @@ export function BaseTypeahead<T extends SearchableItem>(
       },
       set current(view: NSTextField | null) {
         const changed = inputRef.current !== view
+
         if (changed) {
           cancel()
         }
@@ -415,6 +433,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   )
 
   const actions = useRef({ handleQueryChange })
+
   actions.current = { handleQueryChange }
   useImperativeHandle(
     props.ref,
@@ -428,6 +447,7 @@ export function BaseTypeahead<T extends SearchableItem>(
           (current.isDisabled && !current.isFocusableDisabled) ||
           ['hidden', 'hiddenOrHasHiddenAncestor'].some((key) => {
             const value = Reflect.get(view, key)
+
             return Boolean(typeof value === 'function' ? value.call(view) : value)
           })
         ) {

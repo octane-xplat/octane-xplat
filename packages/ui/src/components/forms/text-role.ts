@@ -49,6 +49,7 @@ export function textRoleClasses(props: {
   weight?: TextWeight
 }): string[] {
   const out: string[] = []
+
   if (props.type && VALID_TYPES.has(props.type)) {
     out.push(`vx-type-${props.type}`)
   }

@@ -20,6 +20,7 @@ vi.mock('../overlays/escape-props', () => ({
 
 vi.mock('../media/Icon.tsrx', async () => {
   const { defineUniversalComponent } = await import('octane/universal/native')
+
   return { Icon: defineUniversalComponent('nativescript', () => null) }
 })
 
@@ -36,9 +37,11 @@ describe('native controlled input writes', () => {
     const container = createObjectContainer('nativescript')
     const ref = vi.fn()
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     expect(() => root.render(TextArea, { secure: true, defaultValue: 'private', ref })).toThrow(
       'secure multiline input is unavailable',
     )
+
     expect(ref.mock.calls.some(([handle]) => handle != null)).toBe(false)
     root.unmount()
   })
@@ -51,9 +54,11 @@ describe('native controlled input writes', () => {
       if (!handle) {
         return
       }
+
       field = handle.native
       field.style = {}
     }
+
     root.render(TextArea, { defaultValue: 'start', maxLength: 3, ref })
     await vi.waitFor(() => expect(field?.props.maxLength).toBe(3))
     root.render(TextArea, { defaultValue: 'start', maxLength: 0, ref })
@@ -122,10 +127,13 @@ describe('native controlled input writes', () => {
       flushUniversalSync(() =>
         container.dispatchEvent(node, 'textchange', { object: node, value: text }),
       )
+
       expect(change).toHaveBeenCalledTimes(2)
       await vi.waitFor(() => expect(text).toBe('x'))
+
       const dismiss = vi.fn()
       const clearFocus = vi.fn()
+
       node.android.clearFocus = clearFocus
       node.dismissSoftInput = dismiss // NativeScript returns void and has no blur method.
       expect(() => inputHandle.blur()).not.toThrow()
@@ -151,7 +159,9 @@ describe('native TextArea row sizing', () => {
         }
       }),
     }
+
     const dispose = fitTextArea(view, { rows: 2 })
+
     view.ios.font.lineHeight = 20
     loaded!()
     expect(view.style.minHeight).toBe(40)
@@ -162,6 +172,7 @@ describe('native TextArea row sizing', () => {
 
   it('releases fixed and bounded limits as sizing modes change', () => {
     const view = { ios: { font: { lineHeight: 20 } }, style: {} as any }
+
     fitTextArea(view, {})
     expect(view.style).toMatchObject({ minHeight: 60, maxHeight: 60 })
     fitTextArea(view, { autoGrow: true, rows: 2, maxRows: 4 })
@@ -173,8 +184,10 @@ describe('native TextArea row sizing', () => {
     expect(view.style.minHeight).toBeUndefined()
     expect(view.style.maxHeight).toBeUndefined()
   })
+
   it('preserves authored constraints and recomputes native font metrics', () => {
     const view = { ios: { font: { lineHeight: 20 } }, style: {} as any }
+
     fitTextArea(view, { rows: 2, style: { minHeight: '25%', maxHeight: 200 } })
     expect(view.style.minHeight).toBe('25%')
     expect(view.style.maxHeight).toBe(200)

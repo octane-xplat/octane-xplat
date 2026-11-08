@@ -27,6 +27,7 @@ function isExternal(href: string) {
 export function SandboxLink(props: SandboxLinkProps) @{
   const { href, to, onClick, ...rest } = props
   const destination = typeof to === 'string' ? to : href
+
   return (
     <a
       {...rest}

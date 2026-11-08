@@ -35,6 +35,7 @@ describe('form subscriptions on the universal runtime', () => {
 
     const container = createObjectContainer()
     const root = createUniversalRoot(container, createObjectDriver())
+
     try {
       root.render(Parent, { show: true })
       expect(container.children[0].props.text).toBe(':')
@@ -68,12 +69,14 @@ describe('form subscriptions on the universal runtime', () => {
       })
 
       const field = useField({ form, name: 'enabled' })
+
       submit = form.handleSubmit
       return label(String(field.state.value))
     })
 
     const container = createObjectContainer()
     const root = createUniversalRoot(container, createObjectDriver())
+
     try {
       root.render(Screen, {})
       expect(mount).toHaveBeenCalledTimes(1)

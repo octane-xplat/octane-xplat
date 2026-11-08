@@ -32,6 +32,7 @@ export function inspectDOM({ control, offset = 0, limit = 20, focus = false }) {
     const y = frame.y + frame.height / 2
     const hit = document.elementFromPoint(x, y)
     const disabled = el.matches(':disabled') || el.getAttribute('aria-disabled') === 'true'
+
     if (focus && !hidden && !disabled && !sensitive) {
       el.focus()
     }

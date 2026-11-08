@@ -63,6 +63,7 @@ function ensureAnchorClass() {
     {
       presentationAnchorForWebAuthenticationSession(session: any): any {
         const operation = active
+
         // Native wrappers can differ while denoting the same session.
         try {
           if (!operation || !operation.session) {
@@ -70,6 +71,7 @@ function ensureAnchorClass() {
           }
 
           const owns = operation.session === session || operation.session.isEqual?.(session)
+
           return owns && operation.window?.visible ? operation.window : null
         } catch {
           return null
@@ -112,6 +114,7 @@ const implementation: AuthSessionImpl = {
     }
 
     const operation = { session: null as any, provider: null as any, window: null as any }
+
     active = operation
     return new Promise((resolve) => {
       let settled = false
@@ -123,8 +126,10 @@ const implementation: AuthSessionImpl = {
         }
 
         settled = true
+
         const session = operation.session,
           provider = operation.provider
+
         for (const observer of observers.splice(0)) {
           try {
             center.removeObserver(observer)
@@ -132,12 +137,14 @@ const implementation: AuthSessionImpl = {
             /* Retired callbacks remain inert. */
           }
         }
+
         operation.session = null
         operation.provider = null
         operation.window = null
         if (active === operation) {
           active = null
         }
+
         try {
           if (session?.presentationContextProvider === provider) {
             session.presentationContextProvider = null
@@ -145,6 +152,7 @@ const implementation: AuthSessionImpl = {
         } catch {
           /* JS ownership is already retired. */
         }
+
         if (cancelNative) {
           try {
             session?.cancel()
@@ -152,8 +160,10 @@ const implementation: AuthSessionImpl = {
             /* Cancellation must still settle. */
           }
         }
+
         resolve(result)
       }
+
       const observe = (name: any, object: any) => {
         const token = center.addObserverForNameObjectQueueUsingBlock(
           name,
@@ -163,9 +173,11 @@ const implementation: AuthSessionImpl = {
             finish({ type: 'cancel' }, true)
           },
         )
+
         if (!token) {
           throw new Error('authSession.open: presenter observation failed')
         }
+
         // Registration itself may synchronously deliver teardown.
         if (settled) {
           try {
@@ -180,6 +192,7 @@ const implementation: AuthSessionImpl = {
         // Snapshot once, before any native call can reenter application code.
         const callbackScheme = options?.callbackScheme
         const ephemeral = !!options?.prefersEphemeralSession
+
         if (
           typeof url !== 'string' ||
           typeof callbackScheme !== 'string' ||
@@ -192,11 +205,13 @@ const implementation: AuthSessionImpl = {
         }
 
         const nsUrl = NSURL.URLWithString(url)
+
         if (!nsUrl?.host) {
           throw new Error('authSession.open: invalid URL')
         }
 
         const app = NSApplication.sharedApplication
+
         operation.window = [app.keyWindow, app.mainWindow].find(
           (window) =>
             window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
@@ -236,6 +251,7 @@ const implementation: AuthSessionImpl = {
               if (settled) {
                 return
               }
+
               try {
                 if (error) {
                   finish(
@@ -246,6 +262,7 @@ const implementation: AuthSessionImpl = {
                   )
                 } else if (callbackURL) {
                   const callback = String(callbackURL.absoluteString)
+
                   if (callback.split(':')[0].toLowerCase() !== callbackScheme.toLowerCase()) {
                     throw new Error('authSession.open: unexpected callback scheme')
                   }
@@ -263,6 +280,7 @@ const implementation: AuthSessionImpl = {
         // A bridge may deliver completion synchronously during construction.
         if (settled) {
           const lateSession = operation.session
+
           operation.session = null
           try {
             lateSession?.cancel()
@@ -272,6 +290,7 @@ const implementation: AuthSessionImpl = {
         }
 
         const session = operation.session
+
         session.prefersEphemeralWebBrowserSession = ephemeral
         if (settled) {
           return

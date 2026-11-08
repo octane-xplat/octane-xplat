@@ -59,11 +59,13 @@ const short = (e: unknown) => String(e).replace(/\s+/g, ' ').slice(0, 140)
  *  an iterable array that keeps the mutation methods. */
 function patchClassList(VElement: any): void {
   const proto = VElement?.prototype
+
   if (!proto) {
     throw new Error('VElement.prototype unavailable')
   }
 
   const desc = Object.getOwnPropertyDescriptor(proto, 'classList')
+
   if (!desc?.get) {
     throw new Error('classList is not a prototype getter')
   }
@@ -74,6 +76,7 @@ function patchClassList(VElement: any): void {
 
   const patched = function (this: any) {
     const cl = desc.get!.call(this)
+
     if (cl && typeof cl[Symbol.iterator] !== 'function') {
       const tokens = String(this.getAttribute('class') ?? '')
         .split(/\s+/)
@@ -98,6 +101,7 @@ function patchClassList(VElement: any): void {
  *  real DOM (web target) is never clobbered. */
 function installDomShim(zeed: any): void {
   const g = globalThis as any
+
   if (g.window?.DOMParser) {
     return
   }
@@ -105,6 +109,7 @@ function installDomShim(zeed: any): void {
   class ZeedDOMParser {
     parseFromString(html: string) {
       const doc = zeed.createHTMLDocument()
+
       doc.body.innerHTML = html
       return doc
     }
@@ -124,6 +129,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
   const tryImport = async (id: string, label: string, load: () => Promise<any>) => {
     try {
       const m = await load()
+
       step(id, `import ${label}`, true)
       return m
     } catch (e) {
@@ -134,6 +140,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
 
   const model = await tryImport('pm-model', '@tiptap/pm/model', () => import('@tiptap/pm/model'))
   const state = await tryImport('pm-state', '@tiptap/pm/state', () => import('@tiptap/pm/state'))
+
   await tryImport('pm-transform', '@tiptap/pm/transform', () => import('@tiptap/pm/transform'))
   // The DOM-bound slice: observed, not gated — it deciding the leaf's import
   // boundary is the point of the probe.
@@ -167,6 +174,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
 
   const StarterKit = (sk as any).default ?? (sk as any).StarterKit
   let schema: any
+
   try {
     schema = core.getSchema([StarterKit])
     step(
@@ -181,6 +189,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
   }
 
   let doc: any
+
   try {
     doc = model.Node.fromJSON(schema, DOC_JSON)
     step('from-json', 'Node.fromJSON', doc?.type?.name === 'doc', `nodeSize ${doc?.nodeSize}`)
@@ -189,8 +198,10 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
   }
 
   let html: string | undefined
+
   try {
     const render = sr.renderToHTMLString
+
     html = render({ extensions: [StarterKit], content: DOC_JSON })
     step(
       'to-html',
@@ -214,6 +225,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
     try {
       const back = core.generateJSON(html, [StarterKit])
       const types = (back?.content ?? []).map((n: any) => n.type).join(',')
+
       step(
         'to-json',
         'generateJSON(HTML)',
@@ -222,6 +234,7 @@ export async function runTiptapProbe(): Promise<ProbeStep[]> {
       )
 
       const html2 = sr.renderToHTMLString({ extensions: [StarterKit], content: back })
+
       step(
         'round-trip',
         'JSON→HTML→JSON→HTML stable',

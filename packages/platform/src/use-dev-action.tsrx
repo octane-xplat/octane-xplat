@@ -31,10 +31,13 @@ export function useDevAction(spec: DevActionSpec, options?: DevActionHookOptions
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(spec.run)
+
   runRef.current = spec.run
+
   const probe = spec.availability?.ready
   const probeFn = typeof probe === 'function' ? (probe as ReadyProbe) : undefined
   const probeRef = useRef(probeFn)
+
   probeRef.current = probeFn
 
   const { run: _run, availability, ...rest } = spec
@@ -83,6 +86,7 @@ export function useDevActionHandler(
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(run)
+
   runRef.current = run
   useEffect(() => {
     if (!enabled) {
@@ -104,6 +108,7 @@ export function useDevEffect(
   const enabled = options?.enabled !== false
   const label = options?.label
   const runRef = useRef(run)
+
   runRef.current = run
   useEffect(() => {
     if (!enabled) {

@@ -7,5 +7,6 @@ export function paginateData<T>(data: T[], page: number, pageSize: number): T[] 
   const size = Number.isFinite(pageSize) ? Math.max(1, Math.floor(pageSize)) : 10
   const p = Number.isFinite(page) ? Math.max(1, Math.floor(page)) : 1
   const start = (p - 1) * size
+
   return data.slice(start, start + size)
 }

@@ -12,6 +12,7 @@ let changeRows: (rows: number) => void
 
 export default function Fixture() {
   const [rows, setRows] = useState(2)
+
   changeRows = setRows
   return (
     <masonview id="parity-stage" style={{ width: 320, height: 360 }}>
@@ -32,6 +33,7 @@ export default function Fixture() {
 export async function run(ctx: ProbeContext) {
   const dump = () => (globalThis as any).__xplatMacOSDebug.measureParity([]).cells.inputs
   const node = (id: string) => dump()?.find((value: any) => value.id === id)
+
   await ctx.waitFor(() => node('default-area')?.box.h > 0)
   ctx.assert('direct TextInput import uses AppKit natural height', node('natural-input').box.h, 20)
   ctx.assert('direct TextArea import sizes two rows', node('rows-area').box.h, 48)

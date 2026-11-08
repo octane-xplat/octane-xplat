@@ -7,6 +7,7 @@ it('retains live iOS scroll ancestors through detach', () => {
   const parent = { superview: root, bounds: { origin: { x: 0, y: 20 } } }
   const view = { nativeView: { superview: parent } as any }
   const offset = ios(view)
+
   view.nativeView.superview = null
   parent.bounds.origin.y = 50
   expect(offset().y).toBe(-60)
@@ -21,7 +22,9 @@ it('retains Android scroll ancestors and converts pixels to DIP', () => {
       getResources: () => ({ getDisplayMetrics: () => ({ density: 2 }) }),
     },
   }
+
   const offset = android(view)
+
   scroll = 80
   expect(offset().y).toBe(-40)
 })

@@ -21,8 +21,10 @@ const buildOnly = process.argv.includes('--build-only')
 const runName = human ? 'runHumanReducedMotion' : 'runRollingText'
 const fixture = human ? 'human-reduced-motion.macos.tsx' : 'qualification.macos.tsx'
 const directory = await mkdtemp(join(tmpdir(), 'octane-rolling-text-'))
+
 try {
   const entry = join(directory, 'entry.ts')
+
   await writeFile(
     entry,
     `import { ${runName} } from ${JSON.stringify(join(packageRoot, 'tests', fixture))}\nNSApplication.sharedApplication\nvoid ${runName}()\n`,
@@ -43,6 +45,7 @@ try {
   })
 
   const bundle = join(directory, 'main.cjs')
+
   await validateHostBundle(bundle, appRoot)
   if (buildOnly) {
     console.log(
@@ -51,7 +54,9 @@ try {
   } else {
     const artifact = await buildMacOSNative(appRoot)
     const bootstrap = join(directory, 'bootstrap.js')
+
     await writeNativeBootstrap(artifact, bootstrap)
+
     const child = spawn(
       await macOSExecutable(appRoot, 'macos/host'),
       [
@@ -70,6 +75,7 @@ try {
     )
 
     let output = ''
+
     for (const stream of [child.stdout, child.stderr]) {
       stream.on('data', (chunk) => {
         output += chunk.toString()
@@ -78,9 +84,12 @@ try {
     }
 
     const stop = () => child.kill('SIGTERM')
+
     process.on('SIGINT', stop)
     process.on('SIGTERM', stop)
+
     const timer = setTimeout(stop, human ? 540000 : 15000)
+
     try {
       const status = await new Promise((resolve, reject) => {
         child.once('error', reject)

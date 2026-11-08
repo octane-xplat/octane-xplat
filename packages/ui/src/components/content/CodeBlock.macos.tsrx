@@ -28,7 +28,9 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
   const fontSize = size === 'sm' ? 12 : 14
 
   const lines = useMemo(() => props.code.split('\n'), [props.code])
+
   useTokenLines(props.code, language, props.tokenizer)
+
   const { copy, copied } = useCodeCopy(props.code, props.onCopy)
   const highlighted = useMemo(() => new Set(props.highlightLines ?? []), [props.highlightLines])
 
@@ -65,6 +67,7 @@ export function CodeBlock(props: CodeBlockProps): unknown @{
       {lines.map((line, i) => {
         const lineNo = i + 1
         const isHl = highlighted.has(lineNo)
+
         return (
           <masonview
             key={lineNo}

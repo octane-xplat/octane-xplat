@@ -10,6 +10,7 @@ export function sameSelection(a: string[], b: string[]): boolean {
 
 export function filterSelectOptions(options: SelectOption[], query: string): SelectOption[] {
   const lower = query.toLowerCase()
+
   return options.filter((option) => (option.label ?? option.value).toLowerCase().includes(lower))
 }
 
@@ -20,8 +21,10 @@ export interface SelectOptionGroup {
 
 export function groupSelectOptions(options: SelectOption[]): SelectOptionGroup[] {
   const groups = new Map<string | undefined, SelectOption[]>()
+
   for (const option of options) {
     const rows = groups.get(option.group)
+
     if (rows) {
       rows.push(option)
     } else {
@@ -35,11 +38,13 @@ export function groupSelectOptions(options: SelectOption[]): SelectOptionGroup[]
 /** Bulk toggles affect only the visible enabled set, retaining hidden/disabled values. */
 export function toggleVisibleSelection(selected: string[], options: SelectOption[]): string[] {
   const enabled = options.filter((option) => !option.isDisabled).map((option) => option.value)
+
   if (!enabled.length) {
     return selected
   }
 
   const allSelected = enabled.every((value) => selected.includes(value))
+
   return allSelected
     ? selected.filter((value) => !enabled.includes(value))
     : [...new Set([...selected, ...enabled])]

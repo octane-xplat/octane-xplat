@@ -16,6 +16,7 @@ export const storeReview: StoreReview = {
     if (config.iosAppStoreId) {
       return `https://apps.apple.com/app/id${config.iosAppStoreId}`
     }
+
     return config.androidPackageName
       ? `https://play.google.com/store/apps/details?id=${config.androidPackageName}`
       : ''

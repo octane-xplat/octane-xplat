@@ -14,6 +14,7 @@ export function ListMarkerScope(props: {
   children?: unknown
 }): unknown {
   const context = useContext(ListContext)
+
   if (context == null) {
     return props.children
   }

@@ -24,6 +24,7 @@ const flush = () => new Promise((resolve) => setTimeout(resolve, 0))
 
 async function drainPending(promise: Promise<boolean>) {
   let result: boolean | undefined
+
   void promise.then((value) => {
     result = value
   })
@@ -47,8 +48,10 @@ describe('prefetch (web)', () => {
 
   it('resolves true only after every <img> fires load', async () => {
     vi.stubGlobal('Image', MockImage)
+
     const promise = prefetch(['https://x/a.gif', 'https://x/b.gif'])
     let settled = false
+
     void promise.then(() => {
       settled = true
     })
@@ -60,8 +63,10 @@ describe('prefetch (web)', () => {
 
   it('resolves false when any URL fails', async () => {
     vi.stubGlobal('Image', MockImage)
+
     const promise = prefetch(['https://x/a.gif', 'https://x/b.gif'])
     const [failed] = MockImage.instances.splice(0)
+
     failed.fail()
     expect(await promise).toBe(false)
   })
@@ -69,13 +74,16 @@ describe('prefetch (web)', () => {
   it('accepts a single URL and resolves true for an empty batch', async () => {
     vi.stubGlobal('Image', MockImage)
     expect(await prefetch([])).toBe(true)
+
     const promise = prefetch('https://x/a.gif')
+
     expect(MockImage.instances).toHaveLength(1)
     expect(await drainPending(promise)).toBe(true)
   })
 
   it('caps in-flight loads at options.concurrency', async () => {
     vi.stubGlobal('Image', MockImage)
+
     const promise = prefetch(
       Array.from({ length: 7 }, (_, i) => `https://x/${i}.gif`),
       { concurrency: 2, headers: { Authorization: 'Bearer x' } },
@@ -91,7 +99,9 @@ describe('prefetch (web)', () => {
 
   it('defaults to five parallel loads', async () => {
     vi.stubGlobal('Image', MockImage)
+
     const promise = prefetch(Array.from({ length: 9 }, (_, i) => `https://x/${i}.gif`))
+
     expect(MockImage.instances).toHaveLength(5)
     expect(await drainPending(promise)).toBe(true)
   })

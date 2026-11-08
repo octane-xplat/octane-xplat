@@ -7,6 +7,7 @@ import type { ToastHandle } from '@octane-xplat/ui'
 export function ToastDismiss() @{
   const toast = useToast()
   const handleRef = useRef<ToastHandle | null>(null)
+
   return (
     <VStack gap={3}>
       <Toast

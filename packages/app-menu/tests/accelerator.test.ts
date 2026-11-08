@@ -15,6 +15,7 @@ describe('parseAccelerator', () => {
       key: 'Z',
       modifiers: { mod: true, ctrl: false, alt: false, shift: true, meta: false },
     })
+
     expect(parse('ctrl+alt+delete')).toEqual({
       key: 'Delete',
       modifiers: { mod: false, ctrl: true, alt: true, shift: false, meta: false },
@@ -34,8 +35,10 @@ describe('parseAccelerator', () => {
       ['Super', 'meta'],
     ] as const) {
       const parsed = parse(`${token}+A`)
+
       expect(parsed.modifiers[flag], token).toBe(true)
     }
+
     expect(parse('shift+F5').modifiers.shift).toBe(true)
   })
 
@@ -54,6 +57,7 @@ describe('parseAccelerator', () => {
     for (const source of ['', '   ', 'Mod+', 'Mod+Hyper', 'N', 'Mod+N+O', 'Mod+Shift']) {
       expect(() => parse(source), JSON.stringify(source)).toThrow(TypeError)
     }
+
     expect(() => parse('Nope+K')).toThrow(/unknown/)
   })
 
@@ -100,8 +104,10 @@ describe('toAppKit', () => {
       ['Tab', 0x09],
       ['Space', 0x20],
     ]
+
     for (const [key, code] of cases) {
       const { keyEquivalent } = toAppKit(parse(`Mod+${key}`))
+
       expect(keyEquivalent, key).toBe(String.fromCharCode(code))
     }
   })
@@ -146,6 +152,7 @@ describe('toGtk', () => {
       ['F5', 'F5'],
       ['0', '0'],
     ]
+
     for (const [key, name] of cases) {
       expect(toGtk(parse(`Mod+${key}`)), key).toBe(`<Control>${name}`)
     }
@@ -167,11 +174,14 @@ describe('toWinUI', () => {
 
 describe('platform Mod semantics', () => {
   const parsed: ParsedAccelerator = parse('Mod+K')
+
   it('is Command on macOS, Control on GTK and WinUI', () => {
     expect(toAppKit(parsed).modifierMask & command).toBeTruthy()
     expect(toGtk(parsed)).toContain('<Control>')
     expect(toWinUI(parsed).modifiers & 1).toBeTruthy()
+
     const meta = parse('Meta+K')
+
     expect(toAppKit(meta).modifierMask & command).toBeTruthy()
     expect(toGtk(meta)).toContain('<Super>')
     expect(toWinUI(meta).modifiers & 8).toBeTruthy()

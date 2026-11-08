@@ -7,10 +7,13 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { gifBytes } from './gif.mjs'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
+
 const repo = fileURLToPath(new URL('../../..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'xplat-conversion-consumer-'))
+
 try {
   const modules = join(directory, 'node_modules/@octane-xplat')
+
   await mkdir(modules, { recursive: true })
   for (const name of ['media-converter', 'image-manipulator', 'macos-appkit']) {
     await symlink(join(repo, 'packages', name), join(modules, name), 'dir')
@@ -30,12 +33,18 @@ try {
   )
 
   await writeFile(join(directory, 'input.gif'), gifBytes())
+
   const artifact = await buildMacOSNative(directory)
+
   assert.ok(artifact.leaves.includes('@octane-xplat/media-converter'))
   assert.ok(artifact.leaves.includes('@octane-xplat/image-manipulator'))
+
   const bootstrap = join(directory, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap)
+
   const entry = join(directory, 'case.ts')
+
   await writeFile(
     entry,
     `

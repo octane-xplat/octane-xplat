@@ -28,10 +28,12 @@ test('contract errors carry code, message, and the smallest corrective action', 
 
 test('task authorization covers workspace + runtime-actions, never visual-capture', () => {
   const policy = createPolicyStore({ taskAuthorization: true })
+
   assert.equal(policy.require('workspace').granted, true)
   assert.equal(policy.require('runtime-actions').granted, true)
 
   const visual = policy.require('visual-capture')
+
   assert.equal(visual.granted, false)
   assert.equal(visual.error.code, 'permission_denied')
   assert.match(visual.error.recovery.action, /developer/)
@@ -39,6 +41,7 @@ test('task authorization covers workspace + runtime-actions, never visual-captur
 
 test('grants are checked at action time, expire, and are revocable', async () => {
   const policy = createPolicyStore({ taskAuthorization: true })
+
   policy.grant('visual-capture', { expiresAt: new Date(Date.now() - 1).toISOString() })
   assert.equal(policy.require('visual-capture').granted, false)
 
@@ -54,12 +57,14 @@ test('grants are checked at action time, expire, and are revocable', async () =>
 test('requestGrant uses the elicitation channel when one exists', async () => {
   const calls = []
   const policy = createPolicyStore({ taskAuthorization: true })
+
   policy.setElicitor(async (scope, reason) => {
     calls.push([scope, reason])
     return 'granted'
   })
 
   const result = await policy.requestGrant('visual-capture', 'Verify the dashboard renders')
+
   assert.equal(result.granted, true)
   assert.equal(calls[0][0], 'visual-capture')
 })
@@ -67,6 +72,7 @@ test('requestGrant uses the elicitation channel when one exists', async () => {
 test('requestGrant without a channel records required state, never self-grants', async () => {
   const policy = createPolicyStore({ taskAuthorization: true })
   const result = await policy.requestGrant('visual-capture', 'need it')
+
   assert.equal(result.granted, false)
   assert.equal(policy.list().find((g) => g.scope === 'visual-capture').state, 'required')
 })
@@ -86,6 +92,7 @@ test('default capability matrix is honest: status supported, service-routed unav
   )
 
   const byId = Object.fromEntries(matrix.capabilities.map((c) => [c.capability, c]))
+
   assert.equal(byId.project_status.status, 'supported')
   // Launch, jobs, session end and evidence route through the xplat transport —
   // without a provider row they are honestly unavailable, never implied.
@@ -102,6 +109,7 @@ test('default capability matrix is honest: status supported, service-routed unav
 
 test('providers override defaults; screenshot stays permission-gated', async () => {
   const registry = createCapabilityRegistry()
+
   registry.register({
     platform: 'web',
     describe: () => [
@@ -127,6 +135,7 @@ test('providers override defaults; screenshot stays permission-gated', async () 
   )
 
   const byId = Object.fromEntries(matrix.capabilities.map((c) => [c.capability, c]))
+
   assert.equal(byId.build.status, 'supported')
   assert.equal(byId.screenshot.status, 'permission_gated')
   assert.equal(byId.launch.status, 'unavailable') // untouched defaults stay honest
@@ -148,24 +157,32 @@ test('owned sessions clean up on end; attached sessions are preserved', async ()
   const attached = sessions.attach({ appId: '.', platform: 'web', targetId: 'web' })
 
   const ownEnd = await sessions.end(owned.sessionId)
+
   assert.equal(cleaned, true)
   assert.deepEqual(ownEnd.released, ['process'])
 
   const attachEnd = await sessions.end(attached.sessionId)
+
   assert.match(attachEnd.preserved[0], /user-owned/)
 })
 
 test('stopped and disconnected sessions are refused with honest errors', async () => {
   const sessions = createSessionRegistry()
   const owned = sessions.bindOwned({ appId: '.', platform: 'web', targetId: 'web' })
+
   await sessions.end(owned.sessionId)
+
   const stopped = sessions.requireUsable(owned.sessionId)
+
   assert.equal(stopped.usable, false)
   assert.equal(stopped.error.code, 'stale_identity')
 
   const other = sessions.bindOwned({ appId: '.', platform: 'web', targetId: 'web' })
+
   sessions.markDisconnected(other.sessionId, 'device unplugged')
+
   const disconnected = sessions.requireUsable(other.sessionId)
+
   assert.equal(disconnected.error.code, 'disconnected_runtime')
 })
 
@@ -184,10 +201,12 @@ test('repeated job requests deduplicate; cancellation is cooperative', async () 
   })
 
   const second = jobs.start({ kind: 'build', sessionId: 's1', requestKey: 'build-web-1' })
+
   assert.equal(second.deduplicated, true)
   assert.equal(second.job.jobId, first.job.jobId)
 
   const cancelled = jobs.cancel(first.job.jobId)
+
   assert.equal(cancelled.state, 'cancelling')
   await new Promise((r) => setTimeout(r, 10))
   assert.equal(observedSignal.aborted, true)
@@ -207,10 +226,12 @@ test('evidence is session-scoped; retain/delete report the transcript limit', ()
   assert.equal(record.retention.scope, 'session')
 
   const retained = store.retain(record.id, { expiresAt: null })
+
   assert.equal(retained.record.retention.scope, 'retained')
   assert.match(retained.transcriptNote, /transcript/)
 
   const deleted = store.delete(record.id)
+
   assert.equal(deleted.deleted, true)
   assert.equal(deleted.transcriptNote, TRANSCRIPT_LIMITATION_NOTE)
 })
@@ -226,9 +247,11 @@ test('session close deletes session evidence but keeps retained artifacts', () =
   })
 
   const keep = store.record({ kind: 'note', summary: 'keep me', provenance: {} })
+
   store.retain(keep.id)
 
   const closed = store.closeSession()
+
   assert.equal(closed.deleted, 1)
   assert.equal(store.list().length, 1)
   assert.equal(store.list()[0].id, keep.id)

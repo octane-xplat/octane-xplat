@@ -21,7 +21,9 @@ it('programmatic definitions carry inferred behavior through ordinary manifest a
     beforeLoad: ({ params }) => ({ title: params.id }),
     loader: ({ search, context }) => ({ title: context.title, page: search.page }),
   }).screen(() => null)
+
   const core = createRoutePreparation({ catalog: defineRoutes([definition]) })
+
   expect(await core.prepare('/items/coat?page=2')).toMatchObject({
     status: 'ready',
     match: { data: { title: 'coat', page: 2 } },
@@ -35,20 +37,26 @@ it('accepts Standard Schema validation without importing a validator dependency'
       vendor: 'fixture',
       validate(input) {
         const page = Number((input as { page?: unknown }).page ?? 1)
+
         return Number.isInteger(page) && page > 0
           ? { value: { page } }
           : { issues: [{ message: 'Expected a positive page', path: ['page'] }] }
       },
     },
   }
+
   const definition = defineRoute({
     path: '/items',
     validateSearch: validator,
     loader: ({ search }) => search.page,
   }).screen(() => null)
+
   const core = createRoutePreparation({ catalog: defineRoutes([definition]) })
+
   expect(await core.prepare('/items')).toMatchObject({ status: 'ready', match: { data: 1 } })
+
   const invalid = await core.prepare('/items?page=no')
+
   expect(invalid.status).toBe('invalid-input')
   if (invalid.status === 'invalid-input') {
     expect(invalid.error).toBeInstanceOf(RouteSearchValidationError)
@@ -62,14 +70,17 @@ it('decodes strict numeric schemas consistently for object destinations, URLs an
       vendor: 'strict-number',
       validate(raw) {
         const page = (raw as { page: unknown }).page
+
         return typeof page === 'number' && Number.isInteger(page) && page > 0
           ? { value: { page } }
           : { issues: [{ message: 'Expected a positive integer' }] }
       },
     },
   }
+
   const validateSearch = withSearchDecoder(schema, (raw) => ({ page: Number(raw.page) }))
   const loader = ({ search }: { search: { page: number } }) => search.page
+
   for (const catalog of [
     defineRoutes([defineRoute({ path: '/pages', validateSearch, loader }).screen(() => null)]),
     deriveRouteManifest({ './app/pages.tsx': { validateSearch, loader, screen: () => null } }, [
@@ -77,9 +88,11 @@ it('decodes strict numeric schemas consistently for object destinations, URLs an
     ]),
   ]) {
     const engine = createRoutePreparation({ catalog })
+
     try {
       const destination = { to: '/pages', search: { page: 2 } }
       const href = engine.href(destination)
+
       expect(href).toBe('/pages?page=2')
       for (const input of [destination, href]) {
         expect(await engine.prepare(input)).toMatchObject({
@@ -89,6 +102,7 @@ it('decodes strict numeric schemas consistently for object destinations, URLs an
       }
 
       const checked = await engine.validateDestination(destination)
+
       expect(checked.status).toBe('valid')
       if (checked.status === 'valid') {
         expect(await engine.prepare(checked.destination)).toMatchObject({
@@ -127,6 +141,7 @@ it.each([false, true])(
                 Number.isInteger(page) && page > 0
                   ? { value: { page } }
                   : { issues: [{ message: 'Expected a positive page' }] }
+
               return async ? Promise.resolve(result) : result
             },
           },
@@ -147,11 +162,13 @@ it.each([false, true])(
       }
 
       const { screen, ...preparation } = callbacks
+
       for (const catalog of [
         defineRoutes([defineRoute({ path: '/items', ...preparation }).screen(screen)]),
         deriveRouteManifest({ ['./app/items.' + target + '.tsx']: callbacks }, [target]),
       ]) {
         const core = createRoutePreparation({ catalog })
+
         try {
           calls.length = 0
           expect(await core.prepare('/items?page=2')).toMatchObject({
@@ -161,7 +178,9 @@ it.each([false, true])(
 
           expect(calls).toEqual(['guard', 'loader'])
           calls.length = 0
+
           const invalid = await core.prepare('/items?page=invalid')
+
           expect(invalid).toMatchObject({ status: 'invalid-input', path: 'search' })
           if (invalid.status === 'invalid-input') {
             expect(invalid.error).toBeInstanceOf(RouteSearchValidationError)
@@ -185,6 +204,7 @@ it('reserves search validators instead of mistaking them for named screens', () 
     },
     ['web'],
   )
+
   expect(definitions.screens.help).toBe(screen)
 })
 
@@ -198,6 +218,7 @@ it('named route files prepare the same structured contract on each platform', as
         if (raw.tab !== undefined && raw.tab !== 'details') {
           throw new Error('Invalid tab')
         }
+
         return { tab: 'details' as const }
       },
       beforeLoad(args: {
@@ -229,8 +250,10 @@ it('named route files prepare the same structured contract on each platform', as
     ])
 
     const core = createRoutePreparation({ catalog, context: { account: 'account-a' } })
+
     try {
       const result = await core.prepare('/items/coat', { signal })
+
       expect(result).toMatchObject({
         status: 'ready',
         match: {
@@ -275,6 +298,7 @@ it('named file Standard Schema failures prevent guards and loaders', async () =>
       validate: () => ({ issues: [{ message: 'Invalid page' }] }),
     },
   }
+
   let loaded = false
   const catalog = deriveRouteManifest(
     {
@@ -291,9 +315,12 @@ it('named file Standard Schema failures prevent guards and loaders', async () =>
     },
     ['web'],
   )
+
   const core = createRoutePreparation({ catalog })
+
   try {
     const result = await core.prepare('/items')
+
     expect(result.status).toBe('invalid-input')
     if (result.status === 'invalid-input') {
       expect(result.error).toBeInstanceOf(RouteSearchValidationError)
@@ -321,7 +348,9 @@ it('named file guard denial prevents loading', async () => {
     },
     ['web'],
   )
+
   const core = createRoutePreparation({ catalog })
+
   try {
     expect(await core.prepare('/items')).toEqual({ status: 'forbidden' })
     expect(loaded).toBe(false)
@@ -335,8 +364,11 @@ it('baked named files read generated data through structured preparation', async
     { './app/help.tsx': { dataMode: 'baked', screen: () => null } },
     ['web'],
   )
+
   catalog.baked = { help: { title: 'Baked help' } }
+
   const core = createRoutePreparation({ catalog })
+
   try {
     expect(await core.prepare('/help')).toMatchObject({
       status: 'ready',
@@ -351,18 +383,23 @@ it('requires modified inferred definitions to be authored again', () => {
   const original = defineRoute({ path: '/item', loader: () => ({ title: 'item' }) }).screen(
     () => null,
   )
+
   expect(() => defineRoutes([{ ...original, preparation: { loader: () => 42 } }])).toThrow(
     'Use defineRoute',
   )
+
   expect(Reflect.set(original.preparation!, 'loader', () => 42)).toBe(false)
 })
 
 it('captures preparation before attaching immutable, independently registered screens', async () => {
   const input = { path: '/captured' as const, loader: () => ({ title: 'captured' }) }
   const builder = defineRoute(input)
+
   input.loader = () => ({ title: 'changed' })
+
   const first = builder.screen(() => null)
   const second = builder.screen(() => 'another screen')
+
   expect(Object.isFrozen(builder)).toBe(true)
   expect('path' in builder).toBe(false)
   expect(first).not.toBe(second)
@@ -370,6 +407,7 @@ it('captures preparation before attaching immutable, independently registered sc
   expect(first.preparation).toBe(second.preparation)
   for (const definition of [first, second]) {
     const core = createRoutePreparation({ catalog: defineRoutes([definition]) })
+
     try {
       expect(await core.prepare('/captured')).toMatchObject({
         status: 'ready',
@@ -385,7 +423,9 @@ it('rejects flat screen options, unfinished builders and non-component attachmen
   expect(() =>
     Reflect.apply(defineRoute, undefined, [{ path: '/old', screen: () => null }]),
   ).toThrow('defineRoute(options).screen(component)')
+
   const builder = defineRoute({ path: '/unfinished' })
+
   expect(() => Reflect.apply(defineRoutes, undefined, [[builder]])).toThrow()
   expect(() => Reflect.apply(builder.screen, builder, [null])).toThrow('route screen component')
 })
@@ -403,6 +443,7 @@ it('prepares parent groups before child guards and loaders for objects and direc
       return { name: context.user }
     },
   })
+
   const child = parent.group({
     id: 'project',
     loader: ({ context }) => {
@@ -410,14 +451,17 @@ it('prepares parent groups before child guards and loaders for objects and direc
       return { owner: context.account.name }
     },
   })
+
   const beforeLoad = ({ context }: { context: { project: { owner: string } } }) => {
     calls.push('child guard')
     return { owner: context.project.owner }
   }
+
   const loader = ({ context }: { context: { owner: string } }) => {
     calls.push('child loader')
     return context.owner
   }
+
   for (const catalog of [
     defineRoutes([
       child.route({ path: '/projects/:id/edit', beforeLoad, loader }).screen(() => null),
@@ -428,6 +472,7 @@ it('prepares parent groups before child guards and loaders for objects and direc
     ),
   ]) {
     const engine = createRoutePreparation({ catalog, context: { session: 'Alex' } })
+
     for (const destination of [
       '/projects/coat/edit',
       { to: '/projects/:id/edit', params: { id: 'coat' } },
@@ -462,14 +507,19 @@ it('stops child preparation on parent denial or cancellation', async () => {
       throw new RouteForbidden()
     },
   })
+
   const deniedCatalog = defineRoutes([
     denied.route({ path: '/private', loader: deniedLoader }).screen(() => null),
   ])
+
   expect(manifestToJson(deniedCatalog).routes[0]).toMatchObject({ guard: true, loader: true })
+
   const deniedEngine = createRoutePreparation({ catalog: deniedCatalog })
+
   expect(await deniedEngine.prepare('/private')).toMatchObject({ status: 'forbidden' })
   expect(deniedLoader).not.toHaveBeenCalled()
   deniedEngine.dispose()
+
   let resume!: () => void
   const loader = vi.fn()
   const parent = defineRouteGroup({
@@ -479,10 +529,13 @@ it('stops child preparation on parent denial or cancellation', async () => {
         resume = resolve
       }),
   })
+
   const engine = createRoutePreparation({
     catalog: defineRoutes([parent.route({ path: '/private', loader }).screen(() => null)]),
   })
+
   const pending = engine.prepare('/private')
+
   await vi.waitFor(() => expect(resume).toBeTypeOf('function'))
   engine.cancel()
   expect(await pending).toMatchObject({ status: 'cancelled' })
@@ -513,13 +566,16 @@ it('computes head from the prepared params, search, parent context and awaited l
       },
     })
     .screen(() => null)
+
   const catalog = defineRoutes([definition])
   const engine = createRoutePreparation({ catalog })
   const prepared = await engine.prepare('/items/coat?tab=activity')
+
   expect(calls).toEqual(['loader'])
   expect(prepared.status).toBe('ready')
   if (prepared.status === 'ready') {
     const content = routeRenderContent(catalog, prepared.match)
+
     expect(content.head).toEqual({
       title: 'Alex:coat:activity',
       meta: { item: 'coat', tab: 'activity', owner: 'Alex' },
@@ -527,6 +583,7 @@ it('computes head from the prepared params, search, parent context and awaited l
 
     expect(content.props.data).toBe(prepared.match.data)
   }
+
   expect(calls).toEqual(['loader', 'head'])
   engine.dispose()
 })

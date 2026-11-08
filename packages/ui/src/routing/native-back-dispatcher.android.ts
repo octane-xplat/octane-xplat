@@ -17,24 +17,31 @@ export function registerNativeBackHandler(
   handler: NativeRouterBackHandler,
 ): () => void {
   const android = Application?.android
+
   if (!android) {
     return () => {}
   }
+
   const app = Application as unknown as Record<symbol, BackState | undefined>
   let state = app[stateKey]
+
   if (!state) {
     state = { sequence: 0, registrations: new Map() }
     app[stateKey] = state
+
     const current = state
+
     android.on(
       Application.AndroidApplication.activityBackPressedEvent,
       (event: NativeRouterBackEvent) => {
         if (event.cancel) {
           return
         }
+
         const handlers = [...current.registrations.entries()].sort(
           ([, a], [, b]) => b.priority - a.priority || b.order - a.order,
         )
+
         for (const [key, registration] of handlers) {
           if (current.registrations.get(key) !== registration) {
             continue
@@ -55,7 +62,9 @@ export function registerNativeBackHandler(
       },
     )
   }
+
   const registration = { ...handler, order: ++state.sequence }
+
   state.registrations.set(key, registration)
   return () => {
     if (state.registrations.get(key) === registration) {

@@ -22,6 +22,7 @@ const renderer = {
 
 async function fixture(run) {
   const root = await mkdtemp(join(tmpdir(), 'xplat-static-'))
+
   try {
     await run(root, {
       origin: 'https://example.com',
@@ -55,6 +56,7 @@ test('validates paths and filesystem collisions before rendering', () =>
         /path|disk/i,
       )
     }
+
     for (const paths of [
       ['/a', '/a/'],
       ['/A', '/a'],
@@ -69,15 +71,18 @@ test('validates paths and filesystem collisions before rendering', () =>
         /collision/i,
       )
     }
+
     await assert.rejects(
       prerender(renderer, { ...options, cacheFile: join(options.outDir, 'cache') }),
       /outside/,
     )
+
     await assert.rejects(prerender(renderer, { ...options, revision: '' }), /revision/)
     await assert.rejects(
       prerender(renderer, { ...options, origin: 'https://example.com/private' }),
       /origin/,
     )
+
     await assert.rejects(
       prerender(renderer, { ...options, paths: [{ destination: '/' }] }),
       /content key/,
@@ -100,9 +105,11 @@ test('serializes concurrent builds and releases the lock after failures', () =>
     const ready = new Promise((resolve) => {
       entered = resolve
     })
+
     const wait = new Promise((resolve) => {
       release = resolve
     })
+
     const pending = prerender(
       {
         ...renderer,
@@ -114,6 +121,7 @@ test('serializes concurrent builds and releases the lock after failures', () =>
       },
       options,
     )
+
     await ready
     await assert.rejects(prerender(renderer, options), { code: 'EEXIST' })
     release()
@@ -131,6 +139,7 @@ test('serializes concurrent builds and releases the lock after failures', () =>
       ),
       /document failed/,
     )
+
     assert.equal(await readFile(join(options.outDir, 'index.html'), 'utf8'), 'page')
     assert.equal((await prerender(renderer, options)).reused, 1)
   }))
@@ -142,6 +151,7 @@ test('writes a marked not-found page to 404.html and reuses it like other pages'
       href: (path) => path,
       render: async (request) => {
         const url = new URL(request.url).pathname
+
         return {
           version: 1,
           url,
@@ -159,13 +169,16 @@ test('writes a marked not-found page to 404.html and reuses it like other pages'
           headers: page.headers,
         }),
     }
+
     const settings = { ...options, notFound }
+
     assert.deepEqual(await prerender(renderer, settings), {
       rendered: 2,
       reused: 0,
       paths: ['/'],
       notFound: '/oops',
     })
+
     assert.equal(await readFile(join(options.outDir, '404.html'), 'utf8'), 'missing|fallback')
     assert.equal(await readFile(join(options.outDir, 'index.html'), 'utf8'), 'page')
     assert.deepEqual(await prerender(renderer, settings), {
@@ -183,12 +196,15 @@ test('requires a public 404 page for the not-found output and reserves 404.html'
       ...renderer,
       render: async (request) => {
         const page = await renderer.render(request)
+
         if (new URL(request.url).pathname === '/oops') {
           page.status = 404
         }
+
         return page
       },
     }
+
     // A 200 page is rejected before the document is assembled.
     await assert.rejects(prerender(renderer, { ...options, notFound }), /404 page/)
     // The document response itself must also carry the 404.
@@ -202,6 +218,7 @@ test('requires a public 404 page for the not-found output and reserves 404.html'
       ),
       /404 page/,
     )
+
     assert.equal(
       (
         await prerender(
@@ -215,6 +232,7 @@ test('requires a public 404 page for the not-found output and reserves 404.html'
       ).notFound,
       '/oops',
     )
+
     for (const destination of ['/404.html', '/404.HTML', '/404.html/nested']) {
       await assert.rejects(
         prerender(renderer, { ...options, paths: [{ destination, key: null }] }),
@@ -227,9 +245,12 @@ test('requires a public 404 page for the not-found output and reserves 404.html'
 test('corrupt cache entries rerender and encoded paths map to decoded static files', () =>
   fixture(async (_, options) => {
     const settings = { ...options, paths: [{ destination: '/caf%C3%A9', key: 'v1' }] }
+
     await prerender(renderer, settings)
     assert.equal(await readFile(join(options.outDir, 'café/index.html'), 'utf8'), 'page')
+
     const cache = JSON.parse(await readFile(options.cacheFile, 'utf8'))
+
     Object.values(cache.pages)[0].content = '{corrupt'
     await writeFile(options.cacheFile, JSON.stringify(cache))
     assert.equal((await prerender(renderer, settings)).rendered, 1)

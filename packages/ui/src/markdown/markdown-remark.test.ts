@@ -47,6 +47,7 @@ function mutateFirst(
   mutate: (node: MutableNode) => void,
 ): void {
   let done = false
+
   visit(asTree(tree), (node) => {
     if (!done && node.type === type) {
       done = true
@@ -61,18 +62,23 @@ const remarkStrongTerm: MarkdownRemarkPlugin<[{ term: string }]> =
   ({ term }) =>
   (tree, file) => {
     let matches = 0
+
     visit(asTree(tree), (node) => {
       if (!Array.isArray(node.children) || node.type === 'strong') {
         return
       }
+
       node.children = node.children.flatMap((candidate) => {
         if (candidate.type !== 'text' || typeof candidate.value !== 'string') {
           return [candidate]
         }
+
         const parts = (candidate.value as string).split(term)
+
         if (parts.length === 1) {
           return [candidate]
         }
+
         matches += parts.length - 1
         return parts.flatMap((part, index) =>
           index === 0
@@ -86,6 +92,7 @@ const remarkStrongTerm: MarkdownRemarkPlugin<[{ term: string }]> =
         )
       })
     })
+
     if (matches > 0) {
       file.message(`wrapped ${matches} term(s)`)
     }
@@ -104,9 +111,11 @@ const notePlugin = createMarkdownPlugin<'notes', NoteNode>({
         maxSpan: 200,
         tokenize({ source, offset, end, isFinal }) {
           const close = source.indexOf('\n:::', offset + 7)
+
           if (close < 0 || close + 4 > end) {
             return isFinal ? { status: 'no-match' } : { status: 'defer' }
           }
+
           return {
             status: 'match',
             end: close + 4,
@@ -139,6 +148,7 @@ function deepFreeze<T>(value: T, seen = new Set<object>()): T {
 
     Object.freeze(value)
   }
+
   return value
 }
 
@@ -175,6 +185,7 @@ function runAdapter(
           math: options.math,
           plugins: options.plugins,
         })
+
   const root = deepFreeze(parsed)
   const reports: string[] = []
   const context: MarkdownTransformContext = {
@@ -183,7 +194,9 @@ function runAdapter(
     display,
     report: (message) => reports.push(message),
   }
+
   const result = createMarkdownRemarkTransform(plugin)(root, context)
+
   return { root, result, reports }
 }
 
@@ -238,6 +251,7 @@ describe('remark adapter — supported round trip', () => {
         plugins: [notePlugin],
       }),
     )
+
     const reports: string[] = []
     const transform = createMarkdownRemarkTransform(() => () => undefined)
     const result = transform(root, {
@@ -255,6 +269,7 @@ describe('remark adapter — supported round trip', () => {
 
   it('exposes the supported subset as a mutable mdast tree', () => {
     const seen: string[] = []
+
     runAdapter(
       everyNodeSource,
       () => (tree) => {
@@ -264,6 +279,7 @@ describe('remark adapter — supported round trip', () => {
       },
       { sourceIds: new Set(['ref']), plugins: [notePlugin], math: true },
     )
+
     expect(new Set(seen)).toEqual(
       new Set([
         'root',
@@ -298,12 +314,16 @@ describe('remark adapter — supported round trip', () => {
       'Use Astryx with `Astryx code` and Astryx prose.',
       () => remarkStrongTerm({ term: 'Astryx' }) as never,
     )
+
     const paragraph = result.children[0] as { children: { type: string; value?: string }[] }
     const strongs = paragraph.children.filter((node) => node.type === 'strong')
+
     expect(strongs).toHaveLength(2)
+
     // The plugin's own walk skips non-text nodes, so the code span's value
     // survives untouched while surrounding text splits into strong runs.
     const code = paragraph.children.find((node) => node.type === 'inlineCode')
+
     expect(code?.value).toBe('Astryx code')
     expect(reports).toEqual([])
   })
@@ -312,10 +332,12 @@ describe('remark adapter — supported round trip', () => {
     const { result } = runAdapter('# One\n\n## Two\n\nBody.', () => (tree) => {
       const root = asTree(tree)
       const index = root.children?.findIndex((node) => node.type === 'heading')
+
       if (index != null && index >= 0) {
         root.children?.splice(index, 1)
       }
     })
+
     expect(result.children.map((node) => node.type)).toEqual(['heading', 'paragraph'])
   })
 
@@ -329,6 +351,7 @@ describe('remark adapter — supported round trip', () => {
         node.value = 'mutated'
       })
     })
+
     expect(result).not.toBe(root)
     expect(JSON.stringify(root)).toContain('Alpha')
     expect(JSON.stringify(result)).toContain('mutated')
@@ -341,8 +364,11 @@ describe('remark adapter — fenced code metadata', () => {
       '```ts title="example.ts"\nconst v = 1;\n```',
       () => () => undefined,
     )
+
     expect(result).toBe(root)
+
     const code = result.children[0] as { lang: string; meta?: string; value: string }
+
     expect(code.lang).toBe('ts')
     expect(code.meta).toBe('title="example.ts"')
   })
@@ -354,7 +380,9 @@ describe('remark adapter — fenced code metadata', () => {
         node.meta = 'line=1'
       })
     })
+
     const code = result.children[0] as { lang: string; meta?: string }
+
     expect(code.lang).toBe('ts')
     expect(code.meta).toBe('line=1')
   })
@@ -365,6 +393,7 @@ describe('remark adapter — fenced code metadata', () => {
         node.meta = 42
       })
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(/string or null "meta"/)
   })
@@ -384,10 +413,12 @@ describe('remark adapter — the constrained file fails closed', () => {
     'map',
     'contents',
   ]
+
   it.each(unsupportedKeys)('rejects reading file.%s', (key) => {
     const { root, result, reports } = runAdapter('Body.', () => (tree, file) => {
       void (file as unknown as Record<string, unknown>)[key]
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(new RegExp(`no "${key}" in this profile`))
   })
@@ -396,6 +427,7 @@ describe('remark adapter — the constrained file fails closed', () => {
     const { result, root, reports } = runAdapter('Body.', () => (tree, file) => {
       void (file as unknown as Record<string, unknown>)['plugin-chosen-key']
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toContain('"unknown"')
     expect(reports.join('\n')).not.toContain('plugin-chosen-key')
@@ -405,6 +437,7 @@ describe('remark adapter — the constrained file fails closed', () => {
     const { root, result, reports } = runAdapter('Body.', () => (tree, file) => {
       ;(file as unknown as Record<string, unknown>)[key] = 'x'
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(/cannot be assigned/)
   })
@@ -414,6 +447,7 @@ describe('remark adapter — the constrained file fails closed', () => {
       if ('path' in file) {
         throw new Error('must not reach')
       }
+
       expect(Object.keys(file)).toEqual([
         'value',
         'data',
@@ -422,9 +456,11 @@ describe('remark adapter — the constrained file fails closed', () => {
         'fail',
         'toString',
       ])
+
       expect(file.value).toBe('Body.')
       expect(file.toString()).toBe('Body.')
     })
+
     expect(result).toBe(root)
   })
 })
@@ -438,6 +474,7 @@ describe('remark adapter — a plugin cannot talk its way out of a failure', () 
         // Swallowing the refusal does not clear the run's verdict.
       }
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toContain('unsupported')
     expect(reports.join('\n')).not.toContain('secret text')
@@ -450,8 +487,10 @@ describe('remark adapter — a plugin cannot talk its way out of a failure', () 
       } catch {
         // swallowed
       }
+
       throw new Error('plugin message must not echo')
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toContain('unsupported')
     expect(reports.join('\n')).not.toContain('plugin message')
@@ -464,6 +503,7 @@ describe('remark adapter — a plugin cannot talk its way out of a failure', () 
       this.data('micromarkExtensions')
       return () => undefined
     } as never)
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(/processor registration/)
   })
@@ -472,6 +512,7 @@ describe('remark adapter — a plugin cannot talk its way out of a failure', () 
     const { reports } = runAdapter('Body.', () => () => {
       throw new Error('plugin-authored text must not echo')
     })
+
     expect(reports).toHaveLength(1)
     expect(reports[0]).toContain('Remark adapter:')
     expect(reports[0]).not.toContain('plugin-authored')
@@ -589,6 +630,7 @@ describe('remark adapter — rejection matrix', () => {
       plugin: () => (tree) => {
         const root = asTree(tree)
         const first = root.children?.[0]
+
         if (first != null) {
           root.children?.push(first)
         }
@@ -717,6 +759,7 @@ describe('remark adapter — rejection matrix', () => {
       plugins: testCase.plugins,
       display: testCase.display,
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(testCase.reason)
   })
@@ -725,11 +768,13 @@ describe('remark adapter — rejection matrix', () => {
     const failing = createMarkdownRemarkTransform(() => () => {
       throw new Error('broken')
     })
+
     const renaming = createMarkdownRemarkTransform(() => (tree) => {
       mutateFirst(tree, 'text', (node) => {
         node.value = (node.value as string).replace('Body', 'Changed')
       })
     })
+
     const parsed = deepFreeze(parseMdDoc('Body text.'))
     const reports: string[] = []
     const context: MarkdownTransformContext = {
@@ -738,9 +783,13 @@ describe('remark adapter — rejection matrix', () => {
       display: 'block',
       report: (message) => reports.push(message),
     }
+
     const afterFail = failing(parsed, context)
+
     expect(afterFail).toBe(parsed)
+
     const afterRename = renaming(afterFail, context)
+
     expect(JSON.stringify(afterRename)).toContain('Changed')
   })
 
@@ -753,11 +802,14 @@ describe('remark adapter — rejection matrix', () => {
       // Capture a mutable node carrying this run's provenance marker.
       ;(globalThis as { __donorNode?: unknown }).__donorNode = asTree(tree).children?.[0]
     })
+
     void donor
+
     const donorNode = (globalThis as { __donorNode?: unknown }).__donorNode
     const { root, result, reports } = runAdapter('Other text.', () => (tree) => {
       asTree(tree).children = [donorNode] as never
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(/forged provenance|cannot be duplicated|plain object/)
   })
@@ -767,6 +819,7 @@ describe('remark adapter — a refused promise is never left unhandled', () => {
   it('refuses an already-rejected transformer result quietly', async () => {
     const unhandled: unknown[] = []
     const onUnhandled = (reason: unknown) => unhandled.push(reason)
+
     process.on('unhandledRejection', onUnhandled)
     try {
       const { root, result, reports } = runAdapter('Body.', () => () => {
@@ -790,6 +843,7 @@ describe('remark adapter — a refused promise is never left unhandled', () => {
         },
       } as never
     })
+
     expect(result).toBe(root)
     expect(reports.join('\n')).toMatch(/asynchronous transformer/)
   })

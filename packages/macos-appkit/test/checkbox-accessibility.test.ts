@@ -54,9 +54,12 @@ test('AppKit checkbox/radio roles and values update and disabled controls reject
 
   const view = new AccessibleHostView()
   const node = { type: 'flexboxlayout', view, actionId: 1 }
+
   ids.set(view, 1)
   handlers.set(1, () => presses++)
+
   const set = (name, value) => applyAccessibility(node, name, value)
+
   set('accessibilityRole', 'checkbox')
   set('accessibilityLabel', 'Select Alice')
   set('accessibilityHint', 'Row 31 of 100')

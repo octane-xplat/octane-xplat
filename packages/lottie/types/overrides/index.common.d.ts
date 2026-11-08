@@ -5,6 +5,7 @@
  * Version 1.0.0                                           walkerrunpdx@gmail.com
  **********************************************************************************/
 import { CoreTypes, Property, View } from '@nativescript/core'
+
 export interface KeyPathColors {
   [k: string]: Color | string
 }

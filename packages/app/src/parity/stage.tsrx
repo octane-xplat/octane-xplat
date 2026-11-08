@@ -15,6 +15,7 @@ const PARITY_BOX_STYLE = { width: 220, height: 64 }
 export function ParityStage() @{
   const filter = (globalThis as any).__xplatParityFixtureFilter as string[] | undefined
   const fixtures = filter ? FIXTURES.filter((f) => filter.includes(f.name)) : FIXTURES
+
   useEffect(() => {
     installParityDump()
   }, [])

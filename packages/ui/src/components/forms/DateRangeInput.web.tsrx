@@ -79,6 +79,7 @@ function RangeControl(inputProps: DateRangeInputProps) @{
 
   const isSelectedPreset = (p: { getRange: () => DateRange }) => {
     const r = p.getRange()
+
     return shown?.start === r.start && shown?.end === r.end
   }
 
@@ -239,6 +240,7 @@ export function DateRangeInput(props: DateRangeInputProps): JSX.Element @{
   const inField = useContext(FieldContext) != null
   const cid = useId()
   const control = <RangeControl {...props} />
+
   if (inField) {
     return control
   }

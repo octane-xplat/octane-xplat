@@ -8,6 +8,7 @@ import './screen-layers.css'
 // opening/closing a full-bounds player. No media or consumer app is required.
 export default function ScreenLayers() {
   const [playing, setPlaying] = useState(false)
+
   return (
     <Grid id="layers-host" className="screen-layers-host" rows="*" columns="*">
       <View id="library-layer" row={0} col={0}>
@@ -42,14 +43,19 @@ export async function run(ctx: ProbeContext) {
   }
 
   await ctx.waitFor(() => ctx.inspect('layers-host').frame?.height)
+
   const library = ctx.find('retained-library')
+
   for (let cycle = 0; cycle < 2; cycle++) {
     await ctx.press('open-player')
     await ctx.waitFor(() => ctx.find('player-stage') && ctx.inspect('player-stage').frame?.height)
+
     const host = ctx.inspect('layers-host').frame!
+
     ctx.assert('host has nonzero bounds', host.width > 0 && host.height > 0, true)
     for (const id of ['library-layer', 'player-layer', 'player-stage']) {
       const frame = ctx.inspect(id).frame!
+
       ctx.record(`${cycle}:${id}`, frame)
       for (const key of ['x', 'y', 'width', 'height'] as const) {
         ctx.assert(`${cycle}:${id}.${key} matches host`, Math.abs(frame[key] - host[key]) < 1, true)
@@ -58,6 +64,7 @@ export async function run(ctx: ProbeContext) {
 
     for (const id of ['delete-confirmation', 'cancel-delete']) {
       const frame = ctx.inspect(id).frame!
+
       ctx.record(`${cycle}:${id}`, frame)
       ctx.assert(
         `${id} stays within host`,

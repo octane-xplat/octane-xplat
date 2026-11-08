@@ -53,6 +53,7 @@ function walk(dir, out = []) {
       out.push(path.join(dir, entry.name))
     }
   }
+
   return out
 }
 
@@ -110,6 +111,7 @@ const componentDirs = PACKAGES.flatMap((pkg) =>
 
 const componentOf = (file, pkg) => {
   const top = path.relative(pkg.root, file).split(path.sep)[0]
+
   return /^[A-Z]/.test(top) ? top : '(shared)'
 }
 
@@ -137,7 +139,9 @@ for (const { file, pkg } of files) {
   const component = componentOf(file, pkg)
   const scan = (re, fn) => {
     re.lastIndex = 0
+
     let m
+
     while ((m = re.exec(text)) !== null) {
       fn(m)
     }
@@ -168,19 +172,25 @@ for (const { file, pkg } of files) {
   for (const [prop, re] of Object.entries(RE.duration)) {
     scan(re, (m) => {
       const raw = m[1].trim().replace(/,$/, '').trim()
+
       if (TOKEN_DURATION.test(raw)) {
         return
       }
+
       const lit = DUR_LITERAL.exec(raw)
+
       if (lit == null) {
         return
       }
+
       const ms = Number(lit[1]) * (lit[2] === 'ms' ? 1 : 1000)
       const value = raw.replace(/^['"]|['"]$/g, '')
+
       bump(literalValues, value)
       if (ms <= 1) {
         bump(instantSpellings, value)
       }
+
       hardcoded.push({
         file: rel,
         package: pkg.name,
@@ -197,14 +207,19 @@ for (const { file, pkg } of files) {
   for (const [prop, re] of Object.entries(RE.easing)) {
     scan(re, (m) => {
       const raw = m[1].trim().replace(/,$/, '').trim()
+
       if (TOKEN_EASE.test(raw)) {
         return
       }
+
       EASE_LITERAL.lastIndex = 0
+
       const lit = EASE_LITERAL.exec(raw)
+
       if (lit == null) {
         return
       }
+
       bump(literalValues, lit[0])
       hardcoded.push({
         file: rel,
@@ -226,11 +241,14 @@ for (const { file, pkg } of files) {
   ]) {
     scan(re, (m) => {
       const raw = m[1]
+
       if (TOKEN_DURATION.test(raw) && TOKEN_EASE.test(raw)) {
         return
       }
+
       for (const lit of raw.matchAll(/(?<![\w-])(\d+(?:\.\d+)?)(ms|s)(?![\w-])/g)) {
         const ms = Number(lit[1]) * (lit[2] === 'ms' ? 1 : 1000)
+
         bump(literalValues, lit[0])
         if (ms <= 1) {
           bump(instantSpellings, lit[0])
@@ -247,6 +265,7 @@ for (const { file, pkg } of files) {
           ms,
         })
       }
+
       for (const lit of raw.matchAll(EASE_LITERAL)) {
         bump(literalValues, lit[0])
         hardcoded.push({
@@ -270,6 +289,7 @@ for (const { file, pkg } of files) {
   scan(RE.transitionProperty, (m) => {
     const declared = m[1]
     const line = lineOf(text, m.index)
+
     if (/\btransform\b/.test(declared)) {
       transformTransitions.push({
         file: rel,
@@ -279,6 +299,7 @@ for (const { file, pkg } of files) {
         decl: squash(m[0]),
       })
     }
+
     if (/['"]all['"]/.test(declared)) {
       transitionAll.push({ file: rel, package: pkg.name, component, line, decl: squash(m[0]) })
     }
@@ -352,6 +373,7 @@ const animating = [
 const staticComponents = componentDirs.filter((c) => !animating.includes(c.name)).map((c) => c.name)
 
 const byComponent = new Map()
+
 for (const site of hardcoded) {
   bump(byComponent, site.component)
 }

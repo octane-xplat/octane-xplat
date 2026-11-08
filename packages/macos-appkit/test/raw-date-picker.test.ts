@@ -9,6 +9,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
   return source.slice(start, source.indexOf('\n}', start) + 2)
 }
@@ -88,10 +89,13 @@ function controlFixture() {
   const container: any = { nodes: new Map() }
   const node: any = { id: 1, type: 'datepicker', props: {}, children: [], parent: null, container }
   const control = api.makeDatePicker(node)
+
   node.view = control.view
   node.actionId = control.actionId
   container.nodes.set(1, node)
+
   const update = (props: any) => api.applyCommand(container, { op: 'update', id: 1, props })
+
   return { api, node, view, events, update, onDateChange: (event: any) => events.push(event) }
 }
 
@@ -99,6 +103,7 @@ const dateValue = (view: any) => new Date(view.dateValue.timeIntervalSince1970 *
 
 test('DatePicker creates date-only native chrome and normalizes without mutating caller Dates', () => {
   const { api, node, view, onDateChange, events } = controlFixture()
+
   assert.equal(view.datePickerElements, 224)
   assert.equal(view.datePickerStyle, 0)
   assert.equal(view.datePickerMode, 0)
@@ -106,7 +111,9 @@ test('DatePicker creates date-only native chrome and normalizes without mutating
   assert.equal(view.drawsBackground, true)
   assert.equal(view.action, 'controlChanged:')
   assert.equal(view.translatesAutoresizingMaskIntoConstraints, false)
+
   const date = new Date(2026, 4, 10, 19, 30)
+
   api.applyProps(node, {
     date,
     minDate: new Date(2026, 4, 1, 8),
@@ -126,6 +133,7 @@ test('DatePicker creates date-only native chrome and normalizes without mutating
 test('DatePicker update commands restore removed dates, bounds, components, enabled and styles', () => {
   const { node, view, update } = controlFixture()
   const initial = node.datePickerDefault.getTime()
+
   update({
     date: new Date(2026, 4, 10),
     minDate: new Date(2026, 4, 1),
@@ -148,8 +156,11 @@ test('DatePicker update commands restore removed dates, bounds, components, enab
 test('DatePicker action bridge normalizes, suppresses duplicates and removes stale event handlers', () => {
   const { view, update, onDateChange, events } = controlFixture()
   const date = new Date(2026, 4, 10)
+
   update({ date, onDateChange })
+
   const initialCount = events.length
+
   view.dateValue = { timeIntervalSince1970: new Date(2026, 4, 14, 19).getTime() / 1000 }
   view.callback()
   assert.equal(events.length, initialCount + 1)
@@ -171,6 +182,7 @@ test('DatePicker action bridge normalizes, suppresses duplicates and removes sta
 
 test('DatePicker bounds clamp selection, then clearing bounds permits another day', () => {
   const { view, update } = controlFixture()
+
   update({
     date: new Date(2026, 4, 1),
     minDate: new Date(2026, 4, 10),
@@ -191,6 +203,7 @@ test('DatePicker bounds clamp selection, then clearing bounds permits another da
 
 test('DatePicker rejects invalid primitives before host mutation and supports calendar rollovers', () => {
   const { api } = controlFixture()
+
   for (const name of ['date', 'minDate', 'maxDate']) {
     for (const value of [123, {}, 'not a date', new Date(NaN)]) {
       assert.throws(() => api.validateNodeProps('datepicker', { [name]: value }), /datepicker/)
@@ -204,11 +217,13 @@ test('DatePicker rejects invalid primitives before host mutation and supports ca
   }
 
   const date = new Date(2026, 9, 31, 23, 59)
+
   assert.equal(api.calendarDate(date).getTime(), new Date(2026, 9, 31).getTime())
 })
 
 test('DatePicker rejects children and accepts all maintained layout parents', () => {
   const api = runSlice(fn('validateTextNesting') + '\n({validateTextNesting})')
+
   for (const child of ['label', '#text', 'span', 'datepicker']) {
     assert.throws(() => api.validateTextNesting('datepicker', child), /cannot contain JSX children/)
   }
@@ -306,7 +321,9 @@ test('DatePicker production ownership moves its native host between parents and 
   picker.actionId = 3
   picker.view.target = {}
   picker.view.action = 'controlChanged:'
+
   const retained = picker.view
+
   api.insert(container, 1, picker, null)
   assert.equal(left.contentChild, picker)
   api.insert(container, 2, picker, null)

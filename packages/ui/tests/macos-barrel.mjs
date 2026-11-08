@@ -42,6 +42,7 @@ export async function buildMacOSBarrel(
 
 export async function checkMacOSBarrels(root) {
   const rootExports = await buildMacOSBarrel(root, '@octane-xplat/ui')
+
   for (const name of ['useLayer', 'openWindow', 'applyThemeClasses']) {
     assert.ok(rootExports.includes(name), `root barrel retains the public ${name} API`)
   }
@@ -60,6 +61,7 @@ export async function checkMacOSBarrels(root) {
   }
 
   const routing = await buildMacOSBarrel(root, '@octane-xplat/ui/routing')
+
   for (const name of [
     'router',
     'configureRouter',
@@ -78,6 +80,7 @@ export async function checkMacOSBarrels(root) {
   }
 
   const data = await buildMacOSBarrel(root, '@octane-xplat/ui/data')
+
   for (const name of [
     'createStore',
     'useStore',
@@ -93,6 +96,7 @@ export async function checkMacOSBarrels(root) {
   }
 
   const markdown = await buildMacOSBarrel(root, '@octane-xplat/ui/markdown')
+
   for (const name of [
     'Markdown',
     'MarkdownScreen',
@@ -104,6 +108,7 @@ export async function checkMacOSBarrels(root) {
   }
 
   const chat = await buildMacOSBarrel(root, '@octane-xplat/ui/chat')
+
   for (const name of [
     'ChatComposer',
     'ChatLayout',

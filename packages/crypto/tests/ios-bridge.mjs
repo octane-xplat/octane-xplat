@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url'
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+
 const sdk = spawnSync('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path'], {
   encoding: 'utf8',
 })

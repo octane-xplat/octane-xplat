@@ -3,11 +3,13 @@ import { useState } from 'octane'
 import { Button, Calendar, VStack } from '@octane-xplat/ui'
 import type { DateRange } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function CalendarKeysProbe() {
   const [day, setDay] = useState<string | null>('2026-03-05'),
     [range, setRange] = useState<DateRange | null>(null)
 
   const [rtl, setRTL] = useState(false)
+
   return (
     <VStack gap={2}>
       <label text="Tab into a day; arrows move focus, Home/End use row edges, Command+Home/End use the visible grid, PageUp/PageDown change months. Enter/Space selects. Range Escape clears an unfinished anchor before a surrounding layer handles dismissal. No OS keys are synthesized by the runner." />

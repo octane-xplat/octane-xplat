@@ -36,6 +36,7 @@ export const Manager = {
         },
         emit: (name: string, data: any) => listeners.get(name)?.({ data }),
       }
+
       handlers.push(handler)
       return handler
     },

@@ -38,6 +38,7 @@ function RowIndexCell<T extends Record<string, unknown>>(props: {
   startFrom: number
 }) @{
   const idx = props.lookup(props.item)
+
   if (idx == null) {
     return null as any
   }
@@ -59,8 +60,10 @@ export function useTableRowIndex<T extends Record<string, unknown>>(
   // extractor changes. Keyed by getRowKey when provided, else by reference.
   const lookup = useMemo(() => {
     const map = new Map<unknown, number>()
+
     for (let i = 0; i < data.length; i++) {
       const item = data[i]!
+
       map.set(getRowKey ? getRowKey(item) : item, i)
     }
 

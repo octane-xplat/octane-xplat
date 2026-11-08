@@ -13,6 +13,7 @@ export function useImageManipulator(
     () => ImageManipulator.manipulate(source, { maxWidth, maxHeight }),
     [source, maxWidth, maxHeight],
   )
+
   useEffect(() => () => context.release(), [context])
   return context
 }

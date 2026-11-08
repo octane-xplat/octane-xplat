@@ -15,9 +15,12 @@ const hosts: HTMLElement[] = []
 
 function host() {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
   hosts.push(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   return { el, root }
 }
@@ -39,6 +42,7 @@ describe('TreeList (web leaf)', () => {
   it('expands a parent row uncontrolled and reports the full open set', () => {
     const { el, root } = host()
     const onExpandedChange = vi.fn()
+
     act(() =>
       root.render(
         <Tree nodes={nodes} defaultExpandedKeys={['docs']} onExpandedChange={onExpandedChange} />,
@@ -59,6 +63,7 @@ describe('TreeList (web leaf)', () => {
   it('follows controlled expandedKeys without mutating them', () => {
     const { el, root } = host()
     const onExpandedChange = vi.fn()
+
     act(() =>
       root.render(<Tree nodes={nodes} expandedKeys={[]} onExpandedChange={onExpandedChange} />),
     )
@@ -81,6 +86,7 @@ describe('TreeList (web leaf)', () => {
     const { el, root } = host()
     const onSelectionChange = vi.fn()
     const onAction = vi.fn()
+
     act(() =>
       root.render(
         <Tree
@@ -94,7 +100,9 @@ describe('TreeList (web leaf)', () => {
     )
 
     click(rows(el)[1])
+
     const selection = onSelectionChange.mock.calls[0][0] as Selection
+
     expect(selection).toBeInstanceOf(Set)
     expect([...(selection as Set<Key>)]).toEqual(['app'])
     expect(onAction).toHaveBeenCalledWith('app')
@@ -103,13 +111,16 @@ describe('TreeList (web leaf)', () => {
     click(rows(el)[0])
     expect(el.textContent).toContain('App.tsrx')
     expect(onSelectionChange).toHaveBeenCalledTimes(1)
+
     const selectedRow = el.querySelector('[role="treeitem"][aria-selected="true"] .vx-tree-row')
+
     expect(selectedRow?.textContent).toBe('App.tsrx')
   })
 
   it('toggles leaf selection under multiple and reports Selection', () => {
     const { el, root } = host()
     const onSelectionChange = vi.fn()
+
     act(() =>
       root.render(
         <Tree nodes={nodes} selectionMode="multiple" onSelectionChange={onSelectionChange} />,

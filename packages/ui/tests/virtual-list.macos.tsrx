@@ -45,13 +45,17 @@ export async function run(ctx: ProbeContext) {
   )
 
   await ctx.waitFor(() => ctx.find('row-c'))
+
   const retained = ctx.find('row-a')
+
   await ctx.press('sort')
   await ctx.waitFor(() => ctx.inspect('row-c').text === 'c:0')
   ctx.assert('updated keyed ordinal', ctx.inspect('row-a').text, 'a:2')
   ctx.assert('retained keyed view', ctx.find('row-a') === retained, true)
+
   const y = (id: string) => {
     const view = ctx.find(id)
+
     return Number(view.convertRectToView(view.bounds, ctx.find('list').documentView).origin.y)
   }
 
@@ -63,6 +67,7 @@ export async function run(ctx: ProbeContext) {
 
   const doc = ctx.find('list').documentView
   const flipped = typeof doc.isFlipped === 'function' ? doc.isFlipped() : doc.isFlipped
+
   ctx.assert(
     'native rows follow descending data',
     flipped ? y('row-c') < y('row-a') : y('row-c') > y('row-a'),

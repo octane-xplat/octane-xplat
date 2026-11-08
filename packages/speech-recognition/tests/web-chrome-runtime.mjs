@@ -46,6 +46,7 @@ const runDir = join(
 )
 
 mkdirSync(runDir, { recursive: true })
+
 const logLines = []
 const log = (line) => {
   console.log(line)
@@ -55,6 +56,7 @@ const log = (line) => {
 function makeWav() {
   const aiff = join(runDir, 'phrase.aiff')
   const wav = join(runDir, 'phrase.wav')
+
   execFileSync('say', ['-o', aiff, phrase])
   execFileSync('ffmpeg', [
     '-y',
@@ -68,6 +70,7 @@ function makeWav() {
     '1',
     wav,
   ])
+
   return wav
 }
 
@@ -75,11 +78,13 @@ async function startFixtureServer() {
   // The page imports the package's workspace web entry; the lib dep resolves
   // through source aliases so no install state leaks into the result.
   const fixture = join(runDir, 'fixture')
+
   mkdirSync(fixture, { recursive: true })
   writeFileSync(
     join(fixture, 'index.html'),
     '<!doctype html><html><body><script type="module" src="/main.ts"></script></body></html>',
   )
+
   writeFileSync(
     join(fixture, 'main.ts'),
     `import { speechRecognition } from '@octane-xplat/speech-recognition'\n` +
@@ -100,24 +105,31 @@ async function startFixtureServer() {
     },
     server: { host: '127.0.0.1', port: 0 },
   })
+
   await server.listen()
   return server
 }
 
 async function runRoute(route, serverUrl) {
   const launchArgs = ['--use-fake-ui-for-media-stream']
+
   if (route === 'wav') {
     launchArgs.push('--use-fake-device-for-media-stream')
     launchArgs.push(`--use-file-for-fake-audio-capture=${makeWav()}`)
   }
 
   log(`route=${route} headed=${headed} args=${JSON.stringify(launchArgs)}`)
+
   const browser = await chromium.launch({ channel: 'chrome', headless: !headed, args: launchArgs })
+
   try {
     const context = await browser.newContext()
     const page = await context.newPage()
+
     page.setDefaultTimeout(30000)
+
     const consoleErrors = []
+
     page.on('pageerror', (error) => consoleErrors.push(error.message))
     page.on('console', (message) => {
       if (message.type() === 'error') {
@@ -151,6 +163,7 @@ async function runRoute(route, serverUrl) {
         }
 
         const { result } = event
+
         return {
           type: 'end',
           result: {
@@ -173,7 +186,9 @@ async function runRoute(route, serverUrl) {
         continuous: true,
         interimResults: true,
       })
+
       const events = []
+
       globalThis.probe = { session, events }
       session.subscribe((event) => events.push(project(event)))
     })
@@ -191,6 +206,7 @@ async function runRoute(route, serverUrl) {
 
     if (route === 'boom') {
       const say = spawn('say', ['-a', 'BoomAudio', phrase])
+
       await new Promise((resolve, reject) => {
         say.on('close', resolve)
         say.on('error', reject)
@@ -201,6 +217,7 @@ async function runRoute(route, serverUrl) {
 
     // Wait for a committed (final) transcript or the playback window.
     let sawFinal = false
+
     try {
       await page.waitForFunction(
         () => globalThis.probe.events.some((e) => e.type === 'transcript' && e.isFinal),
@@ -216,6 +233,7 @@ async function runRoute(route, serverUrl) {
     const outcome = await page.evaluate(() => {
       const { session, events } = globalThis.probe
       const stopping = session.stop()
+
       return stopping.then((result) => ({ result, events }))
     })
 
@@ -224,8 +242,11 @@ async function runRoute(route, serverUrl) {
 
     // Release check: nothing may be emitted after end.
     const eventCount = outcome.events.length
+
     await page.waitForTimeout(750)
+
     const laterCount = await page.evaluate(() => globalThis.probe.events.length)
+
     assert.equal(laterCount, eventCount, 'no events after end')
 
     // A second session aborts cleanly — the service is reusable.
@@ -234,6 +255,7 @@ async function runRoute(route, serverUrl) {
         lang: 'en-US',
         continuous: true,
       })
+
       return new Promise((resolve) => {
         setTimeout(() => {
           session.abort()
@@ -261,21 +283,25 @@ async function runRoute(route, serverUrl) {
 
 const server = await startFixtureServer()
 let exitError = null
+
 try {
   const url = server.resolvedUrls.local[0]
   const routes = forcedRoute !== null ? [forcedRoute] : ['wav', 'boom']
   let lastFailure = null
+
   for (const route of routes) {
     try {
       const { outcome, sawFinal, consoleErrors } = await runRoute(route, url)
       const transcript = outcome.result.transcript.toLowerCase()
       const words = ['quick', 'brown', 'fox', 'lazy', 'dog'].filter((w) => transcript.includes(w))
+
       assert.ok(
         words.length >= 2,
         `expected at least 2 phrase words in transcript, got ${JSON.stringify(transcript)}`,
       )
 
       const interim = outcome.events.filter((e) => e.type === 'transcript' && !e.isFinal)
+
       assert.ok(interim.length > 0 || sawFinal, 'interim or final transcript events arrived')
       assert.ok(
         outcome.result.reason === 'stopped' || outcome.result.reason === 'completed',

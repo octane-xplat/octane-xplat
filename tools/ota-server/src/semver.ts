@@ -5,6 +5,7 @@ const VERSION_RE = /^(\d+)\.(\d+)\.(\d+)$/
 
 export function parseVersion(input: string): [number, number, number] | null {
   const match = VERSION_RE.exec(input)
+
   if (!match) {
     return null
   }
@@ -17,6 +18,7 @@ export function parseVersion(input: string): [number, number, number] | null {
 export function compareVersions(a: string, b: string): -1 | 0 | 1 | null {
   const pa = parseVersion(a)
   const pb = parseVersion(b)
+
   if (!pa || !pb) {
     return null
   }

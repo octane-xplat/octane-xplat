@@ -35,6 +35,7 @@ export function useLightbox(options: UseLightboxOptions): UseLightboxReturn {
   const triggers = useState(() => new Map<number, Set<HTMLElement>>())[0]
   const refFor = (i: number) => (el: unknown) => {
     let set = triggers.get(i)
+
     if (!set) {
       set = new Set()
       triggers.set(i, set)

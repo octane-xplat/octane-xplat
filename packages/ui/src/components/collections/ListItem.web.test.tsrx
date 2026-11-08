@@ -6,6 +6,7 @@ import { List } from './List.web.tsrx'
 import { ListItem } from './ListItem.web.tsrx'
 
 const roots: any[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -16,11 +17,16 @@ afterEach(() => {
 
 it('activates an action row from its label, without duplicating hit-button or nested-control actions', () => {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const press = vi.fn()
   const nested = vi.fn()
+
   act(() =>
     root.render(
       <List>

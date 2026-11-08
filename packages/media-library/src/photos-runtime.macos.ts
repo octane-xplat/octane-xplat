@@ -8,24 +8,31 @@ function runtime(): PhotoRuntime | null {
   if (cached !== undefined) {
     return cached
   }
+
   // Metadata describes classes; the public framework must also be loaded before resolving them.
   const bundle = NSBundle.bundleWithPath('/System/Library/Frameworks/Photos.framework')
+
   if (!bundle?.load()) {
     return (cached = null)
   }
+
   const value = globalThis as unknown as PhotoRuntime
+
   return (cached =
     typeof value.PHPhotoLibrary?.authorizationStatusForAccessLevel === 'function' ? value : null)
 }
 
 let subscribe: ReturnType<typeof observerFactory> | undefined
+
 export const appleHost: AppleHost = {
   runtime,
   observer(listener) {
     const kit = runtime()
+
     if (!kit) {
       throw new UnavailabilityError('MediaLibrary PhotoKit')
     }
+
     if (!subscribe) {
       subscribe = observerFactory(
         NSObject,
@@ -40,7 +47,9 @@ export const appleHost: AppleHost = {
           kit.PHPhotoLibrary.sharedPhotoLibrary().unregisterChangeObserver(observer as never),
       )
     }
+
     const subscription = subscribe(listener)
+
     return { release: () => subscription.remove() }
   },
   async permissionsPicker() {

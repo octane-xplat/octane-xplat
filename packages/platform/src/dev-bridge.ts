@@ -25,6 +25,7 @@ export interface DevBridgeEndpoint {
 
 export function devBridgePlatform(): 'ios' | 'android' | 'windows' {
   const os = Device.os.toLowerCase()
+
   return os === 'ios' || os === 'android' ? os : 'windows'
 }
 
@@ -35,6 +36,7 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
       : ((globalThis as any).__XPLAT_DEV_BRIDGE__ as
           | { token?: string; socket?: string; instanceId?: string; targetId?: string }
           | undefined)
+
   const origin = (globalThis as any).__NS_HTTP_ORIGIN__ ?? (globalThis as any).__XPLAT_DEV_ORIGIN__
 
   if (
@@ -59,15 +61,19 @@ export function devBridgeEndpoint(): DevBridgeEndpoint | null {
 export function devBridgeSocket(url: string): AppDebugSocket | undefined {
   const Constructor = (globalThis as unknown as { WebSocket?: new (url: string) => AppDebugSocket })
     .WebSocket
+
   if (Constructor && url.startsWith('/')) {
     const endpoint = devBridgeEndpoint()
+
     if (!endpoint || !url.startsWith('/__xplat_dev__/app?')) {
       throw new Error('Invalid app debug relay endpoint')
     }
 
     const resolved = new URL(url, endpoint.origin)
+
     resolved.protocol = resolved.protocol === 'https:' ? 'wss:' : 'ws:'
     url = resolved.href
   }
+
   return Constructor ? new Constructor(url) : undefined
 }

@@ -86,11 +86,14 @@ function pack<T, C extends QueryKeyPart>(
 ): CursorQueryData<T, C> {
   if (pages.length > limit) {
     const start = direction === 'next' ? pages.length - limit : 0
+
     pages = pages.slice(start, start + limit)
     params = params.slice(start, start + limit)
   }
+
   const nextCursor = pages.at(-1)?.nextCursor
   const previousCursor = pages[0]?.previousCursor
+
   return Object.freeze({
     pages: Object.freeze([...pages]),
     pageParams: Object.freeze([...params]),
@@ -109,15 +112,19 @@ async function page<A extends QueryKeyPart, T, C extends QueryKeyPart>(
   direction: CursorPageContext<C>['direction'],
 ): Promise<CursorPage<T, C>> {
   const loaded = await engine.loadPage(selection, { cursor: copyCursor(cursor), signal, direction })
+
   if (!loaded || !Array.isArray(loaded.items)) {
     throw new TypeError('A cursor page must contain an items array')
   }
+
   if (loaded.nextCursor !== undefined) {
     canonicalQueryKey(loaded.nextCursor)
   }
+
   if (loaded.previousCursor !== undefined) {
     canonicalQueryKey(loaded.previousCursor)
   }
+
   return Object.freeze({ ...loaded, items: Object.freeze([...loaded.items]) })
 }
 
@@ -140,14 +147,17 @@ export function defineCursorQuery<A extends QueryKeyPart, T, C>(
   options: CursorQueryOptions<T, C & QueryKeyPart>,
 ): CursorQueryDefinition<A, T, C & QueryKeyPart> {
   const { initialCursor, maxPages = Infinity, ...policy } = options
+
   if (maxPages !== Infinity && (!Number.isSafeInteger(maxPages) || maxPages < 1)) {
     throw new TypeError('maxPages must be a positive integer or Infinity')
   }
+
   const engine: CursorEngine<A, T, C & QueryKeyPart> = Object.freeze({
     loadPage,
     initialCursor: copyCursor(initialCursor),
     maxPages,
   })
+
   const definition = defineQuery(
     key,
     async (
@@ -158,13 +168,16 @@ export function defineCursorQuery<A extends QueryKeyPart, T, C>(
       let cursor = previous?.pageParams.length ? previous.pageParams[0]! : engine.initialCursor
       const pages: CursorPage<T, C & QueryKeyPart>[] = []
       const params: (C & QueryKeyPart)[] = []
+
       for (let index = 0; index < count; index++) {
         if (params.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))) {
           throw new Error('A cursor refresh repeated a page parameter')
         }
 
         params.push(copyCursor(cursor))
+
         const next = await page(engine, selection, cursor, signal, previous ? 'refresh' : 'initial')
+
         pages.push(next)
         if (next.nextCursor === undefined) {
           break
@@ -172,10 +185,12 @@ export function defineCursorQuery<A extends QueryKeyPart, T, C>(
 
         cursor = next.nextCursor
       }
+
       return pack(pages, params, maxPages, 'next')
     },
     policy,
   )
+
   return Object.freeze({ ...definition, [CURSOR_QUERY]: engine })
 }
 
@@ -186,23 +201,30 @@ export function cursorPageLoader<A extends QueryKeyPart, T, C extends QueryKeyPa
   direction: 'next' | 'previous',
 ): QueryDefinition<A, CursorQueryData<T, C>>['load'] {
   const engine = definition[CURSOR_QUERY]
+
   if (!engine) {
     throw new TypeError('Use defineCursorQuery for page operations')
   }
+
   return async (selection, { signal, previous }) => {
     if (!previous) {
       throw new Error('Load the initial cursor page first')
     }
+
     const cursor = direction === 'next' ? previous.nextCursor : previous.previousCursor
+
     if (cursor === undefined) {
       return previous
     }
+
     if (
       previous.pageParams.some((param) => canonicalQueryKey(param) === canonicalQueryKey(cursor))
     ) {
       throw new Error('A cursor query repeated a retained page parameter')
     }
+
     const loaded = await page(engine, selection, cursor, signal, direction)
+
     return direction === 'next'
       ? pack(
           [...previous.pages, loaded],

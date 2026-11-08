@@ -6,6 +6,7 @@ import { createNativeConnectivity } from './native-connectivity'
 
 function connectionType(value = Connectivity.getConnectionType()): ConnectionType {
   const types = Connectivity.connectionType as any
+
   if (value === types.none) {
     return 'none'
   }
@@ -35,6 +36,7 @@ function connectionType(value = Connectivity.getConnectionType()): ConnectionTyp
 
 function read(value?: number): ConnectivityState {
   const type = connectionType(value)
+
   return { online: type !== 'none', type }
 }
 

@@ -30,7 +30,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -50,6 +52,7 @@ const findGtkText = (needle: string): any => {
     if (found || !w) {
       return
     }
+
     try {
       const text =
         typeof w.get_label === 'function'
@@ -63,10 +66,12 @@ const findGtkText = (needle: string): any => {
         return
       }
     } catch {}
+
     for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
       walk(c)
     }
   }
+
   walk(window)
   return found
 }
@@ -77,6 +82,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -88,14 +94,17 @@ const hasText = (id: string, text: string): boolean => {
           if (!node) {
             return false
           }
+
           if (JSON.stringify(node.props).includes(text)) {
             return true
           }
+
           for (const c of node.children ?? []) {
             if (probe(c)) {
               return true
             }
           }
+
           return false
         }
 
@@ -103,6 +112,7 @@ const hasText = (id: string, text: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -118,6 +128,7 @@ const cardOf = (w: any): any => {
       return cur
     }
   }
+
   return null
 }
 
@@ -125,14 +136,17 @@ const cardOf = (w: any): any => {
 const bounds = (w: any): { x: number; y: number; w: number; h: number } | null => {
   const [ok, pt] = w.compute_point(window, new Graphene.Point({ x: 0, y: 0 }))
   const [okB, rect] = w.compute_bounds(w)
+
   if (!ok || !okB) {
     return null
   }
+
   return { x: pt.x, y: pt.y, w: rect.size.width, h: rect.size.height }
 }
 
 const cardBounds = (needle: string) => {
   const w = findGtkText(needle)
+
   return w ? bounds(cardOf(w) ?? w) : null
 }
 
@@ -145,24 +159,29 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const clickAt = async (widget: any) => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds for widget')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -171,7 +190,9 @@ const clickAt = async (widget: any) => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   await ready({ x: x + wx, y: y + wy })
 }
 
@@ -193,8 +214,11 @@ async function run() {
 
   // Module showToast → fallback stack (bottomEnd).
   const mod = showToast({ body: 'mod-toast-body', isAutoHide: false, onHide: hide('mod') })
+
   await pump(300)
+
   const mb = cardBounds('mod-toast-body')
+
   dbg.push('mod ' + JSON.stringify(mb))
   check('showToast lands a toast on the fallback stack', !!mb)
   check('fallback toast docks bottomEnd', !!mb && mb.x + mb.w > W * 0.7 && mb.y + mb.h > H * 0.6)
@@ -234,7 +258,9 @@ async function run() {
   // Anchored toast → Popover against the anchor view (a separate surface).
   await clickAt(findView('t-anchor'))
   await pump(300)
+
   const anch = findGtkText('anchored-toast-body')
+
   check('anchored toast presents via Popover', !!anch)
   check('anchored toast lives on a popover surface', !!anch && anch.get_native?.() !== window)
   await ready({ key: 'Escape' })
@@ -244,6 +270,7 @@ async function run() {
 
   // ToastHandle.dismiss → manual.
   const handle = showToast({ body: 'handle-toast-body', isAutoHide: false, onHide: hide('handle') })
+
   await pump(250)
   check('handle toast presents', !!findGtkText('handle-toast-body'))
   handle?.dismiss()
@@ -253,6 +280,7 @@ async function run() {
 
   // ToastHandle.update swaps content in place.
   const upd = showToast({ body: 'update-toast-v1', isAutoHide: false })
+
   await pump(250)
   check('update toast presents v1', !!findGtkText('update-toast-v1'))
   upd?.update({ body: 'update-toast-v2' })
@@ -275,6 +303,7 @@ async function run() {
     collisionBehavior: 'ignore',
     isAutoHide: false,
   })
+
   await pump(200)
   check(
     'uniqueID ignore suppresses the new toast',
@@ -284,14 +313,18 @@ async function run() {
   // Per-toast position override → topStart on the fallback surface.
   showToast({ body: 'topstart-toast-body', position: 'topStart', isAutoHide: false })
   await pump(250)
+
   const tsb = cardBounds('topstart-toast-body')
+
   dbg.push('ts ' + JSON.stringify(tsb))
   check('per-toast position override docks topStart', !!tsb && tsb.x < W * 0.3 && tsb.y < H * 0.4)
 
   // Declared viewport: position topEnd, maxVisible 2.
   await clickAt(findView('vp-push'))
   await pump(250)
+
   const vpb = cardBounds('vp-toast-a')
+
   dbg.push('vp ' + JSON.stringify(vpb))
   check('viewport toast docks on the viewport layers', !!vpb)
   check('viewport toast lands topEnd', !!vpb && vpb.x + vpb.w > W * 0.7 && vpb.y < H * 0.4)
@@ -305,6 +338,7 @@ async function run() {
     'maxVisible shows the newest entries',
     !!findGtkText('vp-toast-b') && !!findGtkText('vp-toast-c'),
   )
+
   check('maxVisible queues the overflow', !findGtkText('vp-toast-a'))
 
   // Dismiss c through its handle → the queued a resurfaces on the stack.
@@ -316,7 +350,9 @@ async function run() {
   // Second viewport: bottomStart + inset.
   await clickAt(findView('in-push'))
   await pump(250)
+
   const inb = cardBounds('in-toast-a')
+
   dbg.push('in ' + JSON.stringify(inb))
   // dump tree for the inset layer geometry
   {
@@ -324,7 +360,9 @@ async function run() {
       if (d > 9 || !w) {
         return
       }
+
       const b = bounds(w)
+
       dbg.push(' '.repeat(d) + (w.constructor?.name ?? '?') + ' ' + JSON.stringify(b))
       for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
         dump(c, d + 1)
@@ -333,6 +371,7 @@ async function run() {
 
     dump(window, 0)
   }
+
   check('inset viewport toast presents', !!inb)
   // bottomStart + inset {start:50, bottom:60} → left ≈66, bottom ≈700-76=624.
   check(
@@ -344,14 +383,18 @@ async function run() {
   // the fallback stack (bottomEnd).
   await clickAt(findView('vp2-toggle'))
   await pump(400)
+
   const ob = cardBounds('in-toast-a')
+
   dbg.push('orphan ' + JSON.stringify(ob))
   {
     const dump = (w: any, d: number) => {
       if (d > 9 || !w) {
         return
       }
+
       const b = bounds(w)
+
       dbg.push(' '.repeat(d) + (w.constructor?.name ?? '?') + ' ' + JSON.stringify(b))
       for (let c = w.get_first_child?.(); c; c = c.get_next_sibling?.()) {
         dump(c, d + 1)
@@ -360,6 +403,7 @@ async function run() {
 
     dump(window, 0)
   }
+
   check('orphaned toast reroutes to the fallback stack', !!ob && ob.x + ob.w > W * 0.7)
 
   // Teardown — overlay children + service roots disposed, chrome refcount 0.
@@ -370,6 +414,7 @@ async function run() {
     'unmount returns popover chrome refcount',
     ((container as any).popoverChromeUsers?.() ?? 0) === 0,
   )
+
   check('teardown clears overlay layers', overlayChildren() === 0)
   void mod
 
@@ -378,6 +423,7 @@ async function run() {
     'GTK_TOAST ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 
@@ -385,6 +431,7 @@ run().catch((e) => {
   dbg.push(
     'ERROR ' + String((e && e.name + ' ' + e.message) || e) + ' @ ' + String(e && (e.stack || e)),
   )
+
   GLib.file_set_contents('/tmp/gtk-toast-dbg.log', dbg.join('\n'))
   print('GTK_TOAST_ERROR ' + String(e && (e.stack || e)))
   loop.quit()

@@ -3,6 +3,7 @@ import { Button, Card, Center, Text, useLayer, VStack } from '@octane-xplat/ui'
 
 export function LayerHookUsage() @{
   const layer = useLayer({ mode: 'context', lightDismiss: true })
+
   return (
     <Center style={{ height: 220 }}>
       <VStack gap={2}>

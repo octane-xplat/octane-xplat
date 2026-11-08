@@ -9,15 +9,20 @@ export function createKeyboardOverlayHost(panelAlignment: 'bottom' | 'stretch' =
   bindKeyboard: () => () => void
 } {
   const host = new GridLayout()
+
   host.horizontalAlignment = 'stretch'
   host.verticalAlignment = 'stretch'
   host.isPassThroughParentEnabled = true
+
   const keyboardHost = new GridLayout()
+
   keyboardHost.horizontalAlignment = 'stretch'
   keyboardHost.verticalAlignment = 'stretch'
   keyboardHost.isPassThroughParentEnabled = true
   host.addChild(keyboardHost)
+
   const panel = new GridLayout()
+
   panel.horizontalAlignment = 'stretch'
   panel.verticalAlignment = panelAlignment
   keyboardHost.addChild(panel)

@@ -28,6 +28,7 @@ function App(props: { platform: ReturnType<typeof createBrowserRouterHost> }) {
 
 let y = 0
 const cleanups: (() => void)[] = []
+
 beforeEach(() => {
   history.replaceState(null, '', '/')
   vi.stubGlobal('matchMedia', (media: string) => ({
@@ -70,10 +71,15 @@ function fixture() {
 
   const platform = createBrowserRouterHost()
   const navigation = createRouter({ catalog, host: platform.host })
+
   platform.attach(navigation)
+
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(App, { platform }))
   cleanups.push(() => {
     navigation.dispose()
@@ -101,6 +107,7 @@ const settle = () =>
 
 it('starts a committed push at the top and restores each history entry independently', async () => {
   const { navigation } = fixture()
+
   await navigation.push({ to: '/detail' })
   expect(window.scrollTo).toHaveBeenLastCalledWith(0, 0)
   y = 111
@@ -117,6 +124,7 @@ it('scrolls a fresh hash after rendering and restores a saved position on Back',
   const { navigation, container } = fixture()
   const scrollIntoView = vi.fn()
   const original = HTMLElement.prototype.scrollIntoView
+
   HTMLElement.prototype.scrollIntoView = scrollIntoView
   try {
     await navigation.push({ to: '/detail', hash: 'section' })
@@ -138,6 +146,7 @@ it('uses the validated hash without decoding a literal percent twice', async () 
   const { navigation, container } = fixture()
   const scrollIntoView = vi.fn()
   const original = HTMLElement.prototype.scrollIntoView
+
   HTMLElement.prototype.scrollIntoView = scrollIntoView
   try {
     await navigation.push({ to: '/detail', hash: 'percent%section' })
@@ -151,6 +160,7 @@ it('uses the validated hash without decoding a literal percent twice', async () 
 
 it('retains modal background scroll and reprepares admitted history data and context', async () => {
   const f = fixture()
+
   await f.navigation.push({ to: '/detail' })
   y = 150
   vi.mocked(window.scrollTo).mockClear()
@@ -179,12 +189,15 @@ it('retains modal background scroll and reprepares admitted history data and con
 
 it('runs direct-entry guards and loaders once without adding history', async () => {
   history.replaceState(null, '', '/detail')
+
   const f = fixture()
   const length = history.length
+
   expect((await f.navigation.navigateUrl('/detail', { replace: true })).status).toBe('committed')
   expect(history.length).toBe(length)
   expect(f.guards).toBe(1)
   expect(f.loads).toBe(1)
+
   const registration = f.navigation.addRoutes(
     defineRoutes([defineRoute({ path: '/extra' }).screen(Page)]),
     { id: 'extra' },
@@ -197,6 +210,7 @@ it('runs direct-entry guards and loaders once without adding history', async () 
 it('applies document metadata only after commit and restores it with history and disposal', async () => {
   const initialTitle = document.title
   const f = fixture()
+
   await f.navigation.push({ to: '/detail' })
   expect(document.title).toBe('Detail')
   expect(document.head.querySelector('meta[name="description"]')?.getAttribute('content')).toBe(

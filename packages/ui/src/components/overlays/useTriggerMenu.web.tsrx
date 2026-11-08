@@ -27,11 +27,13 @@ export interface UseTriggerMenuOptions {
 
 function getTextBeforeCursor(editable: HTMLDivElement): string | null {
   const selection = window.getSelection()
+
   if (!selection || selection.rangeCount === 0) {
     return null
   }
 
   const range = selection.getRangeAt(0)
+
   if (!range.collapsed || !editable.contains(range.startContainer)) {
     return null
   }
@@ -51,6 +53,7 @@ function findActiveTrigger(
 ): { trigger: ChatComposerTrigger; query: string; triggerStart: number } | null {
   for (let i = textBeforeCursor.length - 1; i >= 0; i--) {
     const char = textBeforeCursor[i]
+
     if (char === ' ' || char === '\n') {
       return null
     }
@@ -58,6 +61,7 @@ function findActiveTrigger(
     for (const trigger of triggers) {
       if (char === trigger.character) {
         const prevChar = i > 0 ? textBeforeCursor[i - 1] : null
+
         if (prevChar === null || prevChar === ' ' || prevChar === '\n') {
           return { trigger, query: textBeforeCursor.slice(i + 1), triggerStart: i }
         }
@@ -70,20 +74,25 @@ function findActiveTrigger(
 
 function deleteTriggerText(editable: HTMLDivElement, triggerStart: number): void {
   const selection = window.getSelection()
+
   if (!selection || selection.rangeCount === 0) {
     return
   }
 
   const range = selection.getRangeAt(0)
   const node = range.startContainer
+
   if (node.nodeType !== Node.TEXT_NODE) {
     return
   }
 
   const text = node.textContent ?? ''
   const cursorOffset = range.startOffset
+
   node.textContent = text.slice(0, triggerStart) + text.slice(cursorOffset)
+
   const newRange = document.createRange()
+
   newRange.setStart(node, triggerStart)
   newRange.collapse(true)
   selection.removeAllRanges()
@@ -153,19 +162,24 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
   // contenteditable (inside would split text nodes and break offsets).
   const setAnchor = useCallback(() => {
     const editable = editableRef.current
+
     if (!editable) {
       return
     }
 
     const selection = window.getSelection()
+
     if (!selection || selection.rangeCount === 0) {
       anchorRef.current.current = editable
       return
     }
 
     removeAnchorSpan()
+
     const range = selection.getRangeAt(0).cloneRange()
+
     range.collapse(true)
+
     const rect =
       typeof range.getBoundingClientRect === 'function' ? range.getBoundingClientRect() : null
 
@@ -175,6 +189,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
     }
 
     const span = document.createElement('span')
+
     span.setAttribute('aria-hidden', 'true')
     span.setAttribute('data-vx-trigger-anchor', '')
     span.style.position = 'fixed'
@@ -219,6 +234,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
 
       const testResult = trigger.searchSource.search('')
       const isAsync = testResult instanceof Promise
+
       if (isAsync && debounceMs > 0) {
         setState((prev) => ({ ...prev, isLoading: true }))
         searchTimeoutRef.current = setTimeout(doSearch, debounceMs)
@@ -233,6 +249,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
     (item: ChatComposerTriggerItem) => {
       const trigger = state.activeTrigger
       const editable = editableRef.current
+
       if (!trigger || !editable) {
         return
       }
@@ -268,6 +285,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
     }
 
     const editable = editableRef.current
+
     if (!editable) {
       return
     }
@@ -284,6 +302,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
     }
 
     const { trigger, query, triggerStart } = found
+
     if (!state.isActive || state.activeTrigger !== trigger) {
       triggerStartRef.current = triggerStart
       setState((prev) => ({
@@ -402,6 +421,7 @@ export function useTriggerMenu(options: UseTriggerMenuOptions): UseTriggerMenuWe
 
       for (const item of group.items) {
         const idx = flatIndex++
+
         rows.push(
           <div
             key={item.id}

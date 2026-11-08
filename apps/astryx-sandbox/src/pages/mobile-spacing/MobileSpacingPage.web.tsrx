@@ -286,6 +286,7 @@ function getIntensityMultiplier(spacingBase: number, intensity: MobileIntensity)
 
 function getIntensityLabel(value: number): string {
   const matchingMark = INTENSITY_OPTIONS.find((mark) => mark.value === value)
+
   if (matchingMark != null) {
     return matchingMark.label
   }
@@ -299,6 +300,7 @@ function formatPx(value: number): string {
 
 function getIntensityRateLabel(spacingBase: number, intensity: number): string {
   const change = spacingBase * intensity
+
   return change === 0 ? '0px' : `−${formatPx(change)}`
 }
 
@@ -318,6 +320,7 @@ function getCurrentProfile(spacingBase: number): Record<SemanticTokenId, number>
 
 function getRecommendedMobileProfile(spacingBase: number): Record<SemanticTokenId, number> {
   const explicitProfile = EXPLICIT_MOBILE_PROFILES[spacingBase]
+
   if (explicitProfile != null) {
     return explicitProfile
   }
@@ -369,6 +372,7 @@ function getSemanticVariables(
   profile: Record<SemanticTokenId, number>,
 ): Record<string, string | number> {
   const vars: CssVars = {}
+
   for (const item of SEMANTIC_TOKENS) {
     vars[item.token] = `${profile[item.id]}px`
   }
@@ -858,6 +862,7 @@ export function MobileSpacingPage() {
   const resetMobileOverrides = () => {
     setMobileOverridesByBase((prev) => {
       const next = { ...prev }
+
       delete next[spacingBase]
       return next
     })

@@ -4,6 +4,7 @@ import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { compile } from 'octane/compiler'
 import { createAppKitLandmarks } from './landmark-state.macos'
+
 function setup() {
   let callback: (event: any) => any = (event) => event,
     boundary: any,
@@ -12,6 +13,7 @@ function setup() {
     retained = 0,
     removed = 0,
     registered = 0
+
   const window: any = {
     isKeyWindow: true,
     firstResponder: null,
@@ -20,10 +22,12 @@ function setup() {
       if (view.reject) {
         return false
       }
+
       window.firstResponder = view
       return true
     },
   }
+
   const view = (name: string, focusable = false, children: any[] = []): any => {
     const result: any = {
       name,
@@ -40,17 +44,22 @@ function setup() {
         objectAtIndex: (i: number) => children[i],
       },
     }
+
     for (const child of children) {
       child.superview = result
     }
+
     return result
   }
+
   const aStop = view('a-stop', true),
     bStop = view('b-stop', true),
     a = view('a', false, [aStop]),
     b = view('b', false, [bStop]),
     root = view('root', false, [a, b])
+
   window.contentView = root
+
   const native = {
     NSEvent: {
       addLocalMonitorForEventsMatchingMaskHandler: (_mask: number, next: typeof callback) => {
@@ -63,6 +72,7 @@ function setup() {
       },
     },
   }
+
   const bridge: any = {
     retainFocusTarget: () => {
       retained++
@@ -72,15 +82,19 @@ function setup() {
     },
     dispatchKeyboardEvent: () => dispatch,
   }
+
   const manager = createAppKitLandmarks(
     () => boundary,
     () => native,
     () => bridge,
   )
+
   const key = (flags = 0, extra = {}) => {
     const event = { type: 10, keyCode: 97, modifierFlags: flags, window, ...extra }
+
     return { event, result: callback(event) }
   }
+
   return {
     manager,
     window,
@@ -115,6 +129,7 @@ function setup() {
 
 it('cycles forward/backward in current native order regardless of registration order', () => {
   const s = setup()
+
   s.manager.register(s.b)
   s.manager.register(s.a)
   expect(s.key().result).toBeNull()
@@ -134,12 +149,15 @@ it('cycles forward/backward in current native order regardless of registration o
 it('resolves field editors to the innermost region and retains an empty region fallback', () => {
   const s = setup(),
     nested = s.view('nested', false, [s.view('nested-stop', true)])
+
   nested.superview = s.a
   s.a.children.push(nested)
   s.manager.register(s.a)
   s.manager.register(nested)
   s.manager.register(s.b)
+
   const editor = { delegate: nested.children[0], isFieldEditor: true }
+
   nested.children[0].currentEditor = () => editor
   s.window.firstResponder = editor
   s.key()
@@ -152,6 +170,7 @@ it('resolves field editors to the innermost region and retains an empty region f
 
 it('active containment, hidden/disabled regions and other windows cannot be escaped by cycling', () => {
   const s = setup()
+
   s.manager.register(s.a)
   s.manager.register(s.b)
   s.setBoundary(s.a)
@@ -175,14 +194,19 @@ it('active containment, hidden/disabled regions and other windows cannot be esca
 
 it('preserves modified/native/IME keys and focused handler cancellation before navigation', () => {
   const s = setup()
+
   s.manager.register(s.a)
   s.window.firstResponder = s.aStop
   for (const flags of [1 << 18, 1 << 19, 1 << 20]) {
     const key = s.key(flags)
+
     expect(key.result).toBe(key.event)
   }
+
   s.aStop.hasMarkedText = () => true
+
   let key = s.key()
+
   expect(key.result).toBe(key.event)
   s.aStop.hasMarkedText = () => false
   s.setDispatch({ defaultPrevented: true })
@@ -199,12 +223,15 @@ it('preserves modified/native/IME keys and focused handler cancellation before n
 
 it('duplicate refs share a monitor; failed registration rolls back and last release blocks stale callbacks', () => {
   const s = setup()
+
   s.setMode('nil')
   s.manager.register(s.a)
   expect(s.retained).toBe(0)
   s.setMode('ok')
+
   const first = s.manager.register(s.a),
     second = s.manager.register(s.a)
+
   expect(s.retained).toBe(2)
   expect(s.registered).toBe(2)
   first()
@@ -217,7 +244,9 @@ it('duplicate refs share a monitor; failed registration rolls back and last rele
   s.bridge.dispatchKeyboardEvent = () => {
     throw Error('stale dispatch')
   }
+
   const key = s.key()
+
   expect(key.result).toBe(key.event)
   s.manager.dispose()
   expect(s.removed).toBe(1)
@@ -226,6 +255,7 @@ it('duplicate refs share a monitor; failed registration rolls back and last rele
 it('native focus rejection can fall through and focus callbacks cannot recursively cycle or use retired roots', () => {
   const s = setup()
   const offA = s.manager.register(s.a)
+
   s.manager.register(s.b)
   s.aStop.reject = true
   s.a.reject = true
@@ -239,6 +269,7 @@ it('native focus rejection can fall through and focus callbacks cannot recursive
     expect(s.manager.cycle(s.window, false)).toBe(false)
     return true
   }
+
   expect(s.key().result).toBeNull()
   expect(s.window.firstResponder).toBe(s.aStop)
   s.manager.dispose()
@@ -248,6 +279,7 @@ for (const hmr of [false, true]) {
   it(`landmark hook compiles for the universal AppKit renderer with HMR ${hmr}`, () => {
     const filename = 'use-landmark.macos.tsrx',
       source = readFileSync(join(dirname(fileURLToPath(import.meta.url)), filename), 'utf8')
+
     compile(source, filename, {
       hmr,
       renderer: {

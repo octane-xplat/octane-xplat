@@ -12,6 +12,7 @@ export const childRefs: Record<string, { current: any }> = {
 
 export const refEvents: string[] = []
 export const tapEvents: string[] = []
+
 const stackRef = (view: any) => {
   if (view) {
     stackRefs.push(view)
@@ -22,6 +23,7 @@ const stackRef = (view: any) => {
 
 export default function App() {
   const count$ = useSignal$(0)
+
   return (
     <masonview
       style={{

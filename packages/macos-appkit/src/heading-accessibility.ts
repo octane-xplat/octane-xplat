@@ -19,6 +19,7 @@ const originals = new WeakMap<HeadingView, Original>()
 export function syncHeadingAccessibility(view: HeadingView, props: Record<string, unknown>) {
   if (props.accessibilityRole !== 'heading') {
     const original = originals.get(view)
+
     if (!original) {
       return
     }
@@ -32,8 +33,10 @@ export function syncHeadingAccessibility(view: HeadingView, props: Record<string
 
     return
   }
+
   if (!originals.has(view)) {
     const value = view.accessibilityValue
+
     originals.set(view, {
       role: String(view.accessibilityRole ?? ''),
       title: view.accessibilityTitle == null ? null : String(view.accessibilityTitle),
@@ -41,7 +44,9 @@ export function syncHeadingAccessibility(view: HeadingView, props: Record<string
       valueFollowsText: value === String(view.stringValue ?? ''),
     })
   }
+
   const level = props.accessibilityHeadingLevel
+
   view.accessibilityRole = 'AXHeading'
   view.accessibilityTitle = String(view.stringValue ?? '')
   view.accessibilityValue =

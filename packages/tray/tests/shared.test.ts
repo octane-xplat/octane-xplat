@@ -20,6 +20,7 @@ function options(overrides: Record<string, unknown> = {}) {
 describe('normalizeTrayOptions', () => {
   it('accepts a minimal valid options object', () => {
     const normalized = normalizeTrayOptions(options(), 'macos')
+
     expect(normalized.id).toBe('test-tray')
     expect(normalized.icon).toEqual(baseIcon)
   })
@@ -41,6 +42,7 @@ describe('normalizeTrayOptions', () => {
     expect(() => normalizeTrayOptions(options({ title: 7 }), 'macos')).toThrowError(
       expect.objectContaining({ code: 'invalid-options' }),
     )
+
     expect(() => normalizeTrayOptions(options({ tooltip: null }), 'macos')).toThrowError(
       expect.objectContaining({ code: 'invalid-options' }),
     )
@@ -51,6 +53,7 @@ describe('normalizeTrayOptions', () => {
       options({ icon: { linux: { type: 'named', name: 'star' }, macos: baseIcon } }),
       'linux',
     )
+
     expect(normalized.icon).toEqual({ type: 'named', name: 'star' })
   })
 
@@ -64,9 +67,11 @@ describe('normalizeTrayOptions', () => {
     expect(() =>
       normalizeTrayOptions(options({ icon: { type: 'file', path: '' } }), 'macos'),
     ).toThrowError(expect.objectContaining({ code: 'invalid-icon' }))
+
     expect(() => normalizeTrayOptions(options({ icon: { type: 'named' } }), 'macos')).toThrowError(
       expect.objectContaining({ code: 'invalid-icon' }),
     )
+
     expect(() => normalizeTrayOptions(options({ icon: { type: 'bogus' } }), 'macos')).toThrowError(
       expect.objectContaining({ code: 'invalid-icon' }),
     )
@@ -94,6 +99,7 @@ describe('validateTrayMenu', () => {
       { type: 'section', key: 'sec', label: 'Sec', items: [{ type: 'separator', key: 'sep' }] },
       { type: 'separator', key: 'sep2' },
     ]
+
     expect(validateTrayMenu(menu)).toBe(menu)
   })
 
@@ -117,6 +123,7 @@ describe('validateTrayMenu', () => {
     expect(() =>
       validateTrayMenu([{ type: 'action', key: 'a', label: 1 as unknown as string }]),
     ).toThrowError(expect.objectContaining({ code: 'invalid-menu' }))
+
     expect(() =>
       validateTrayMenu([
         {
@@ -133,9 +140,11 @@ describe('validateTrayMenu', () => {
     expect(() =>
       validateTrayMenu([{ type: 'unknown', key: 'a' } as unknown as TrayMenuItem]),
     ).toThrowError(expect.objectContaining({ code: 'invalid-menu' }))
+
     expect(() =>
       validateTrayMenu([{ type: 'checkbox', key: 'c', label: 'C' } as unknown as TrayMenuItem]),
     ).toThrowError(expect.objectContaining({ code: 'invalid-menu' }))
+
     expect(() =>
       validateTrayMenu([{ type: 'radio-group', key: 'r', items: [] } as unknown as TrayMenuItem]),
     ).toThrowError(expect.objectContaining({ code: 'invalid-menu' }))
@@ -145,6 +154,7 @@ describe('validateTrayMenu', () => {
 describe('normalizeTrayUpdate', () => {
   it('maps null to clear and keeps undefined unchanged', () => {
     const update = normalizeTrayUpdate({ title: null, tooltip: 'tip' }, 'macos')
+
     expect(update.title).toBeNull()
     expect(update.tooltip).toBe('tip')
   })
@@ -153,6 +163,7 @@ describe('normalizeTrayUpdate', () => {
     expect(() => normalizeTrayUpdate({ title: 5 as unknown as string }, 'macos')).toThrowError(
       expect.objectContaining({ code: 'invalid-options' }),
     )
+
     expect(() =>
       normalizeTrayUpdate(
         {
@@ -170,6 +181,7 @@ describe('normalizeTrayUpdate', () => {
 describe('dispatchTraySelect', () => {
   it('fires onSelect for enabled actions only', () => {
     const onSelect = vi.fn()
+
     dispatchTraySelect({ type: 'action', key: 'a', label: 'A', onSelect })
     expect(onSelect).toHaveBeenCalledTimes(1)
     dispatchTraySelect({ type: 'action', key: 'a', label: 'A', isDisabled: true, onSelect })
@@ -178,6 +190,7 @@ describe('dispatchTraySelect', () => {
 
   it('toggles checkbox value through onValueChange', () => {
     const onValueChange = vi.fn()
+
     dispatchTraySelect({ type: 'checkbox', key: 'c', label: 'C', value: false, onValueChange })
     expect(onValueChange).toHaveBeenCalledWith(true)
     dispatchTraySelect({ type: 'checkbox', key: 'c', label: 'C', value: true, onValueChange })
@@ -196,9 +209,11 @@ describe('dispatchTraySelect', () => {
         { key: 'o2', label: 'Two', value: 'two' },
       ],
     }
+
     if (group.type !== 'radio-group') {
       throw new Error('unreachable')
     }
+
     dispatchTraySelect(group, group.items[0])
     expect(onValueChange).not.toHaveBeenCalled()
     dispatchTraySelect(group, group.items[1])
@@ -207,6 +222,7 @@ describe('dispatchTraySelect', () => {
 
   it('falls back to the option key as the radio value', () => {
     const onValueChange = vi.fn()
+
     dispatchTraySelect(
       {
         type: 'radio-group',
@@ -217,11 +233,13 @@ describe('dispatchTraySelect', () => {
       },
       { key: 'plain', label: 'P' },
     )
+
     expect(onValueChange).toHaveBeenCalledWith('plain')
   })
 
   it('swallows callback exceptions and reports them', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     expect(() =>
       dispatchTraySelect({
         type: 'action',
@@ -232,6 +250,7 @@ describe('dispatchTraySelect', () => {
         },
       }),
     ).not.toThrow()
+
     expect(spy).toHaveBeenCalled()
     spy.mockRestore()
   })

@@ -25,6 +25,7 @@ const item = defineRoute({
 
 function Item(props: RouteScreenProps<typeof item>): any {
   const fixture = useContext(Fixture)
+
   if (!fixture) {
     throw new Error('The pane example requires its instance provider')
   }
@@ -34,6 +35,7 @@ function Item(props: RouteScreenProps<typeof item>): any {
   const person = useContext(Person)
   const navigator = useRouter(fixture.navigation)
   const [count, setCount] = useState(0)
+
   fixture.entries.set(props.params.id, {
     id,
     title: props.data.title,
@@ -68,10 +70,13 @@ const catalog = defineRoutes({ routes: [item.screen(Item)], layouts: { 'pane-exa
 export function createPaneRouterExample() {
   const host = createPaneRouterHost()
   const navigation = createRouter({ catalog, host: host.host, stacks: ['other'] })
+
   host.attach(navigation)
+
   const entries = new Map<string, Entry>()
   let removeRoot = () => {}
   let changePerson = (_person: string) => {}
+
   return {
     navigation,
     host,
@@ -89,6 +94,7 @@ export function PaneRouterExample(props: { fixture: PaneExampleState }): any {
   const fixture = props.fixture
   const [shown, setShown] = useState(true)
   const [person, setPerson] = useState('Avery')
+
   fixture.bindViewActions({ removeRoot: () => setShown(false), changePerson: setPerson })
   return (
     <FixtureProvider value={fixture}>
@@ -125,6 +131,7 @@ export async function qualifyPaneRouterExample(options: {
     options.wait('public panes: ' + name, predicate)
 
   const destination = (id: string) => ({ to: '/pane-example/:id', params: { id } }) as const
+
   try {
     await wait('base mounts', () => !!options.find('pane-example-base'))
     check(
@@ -133,6 +140,7 @@ export async function qualifyPaneRouterExample(options: {
     )
 
     const coat = options.find('pane-example-coat')
+
     check(
       'prepared data and source provider render',
       !!coat &&
@@ -161,6 +169,7 @@ export async function qualifyPaneRouterExample(options: {
     )
 
     const glove = options.find('pane-example-glove')
+
     check(
       'flows stay independent',
       fixture.navigation.getSnapshot().route?.params.id === 'hat' &&

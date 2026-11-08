@@ -55,14 +55,19 @@ export function shouldReceivePrimaryClick(
   if (!owner) {
     return false
   }
+
   if (Number(event.type) !== 1) {
     return true
   } // NSEventType.LeftMouseDown
+
   const window = owner.window
+
   if (!window || (event.window && event.window !== window)) {
     return false
   }
+
   const hit = appKitMouseHit(window, event.locationInWindow)
+
   for (let view = hit; view; view = view.superview) {
     if (view === owner) {
       return true
@@ -72,6 +77,7 @@ export function shouldReceivePrimaryClick(
       return false
     }
   }
+
   return false
 }
 
@@ -81,9 +87,12 @@ export function appKitMouseHit(
   point: { x: number; y: number } | null | undefined,
 ): NSView | null {
   const root = window?.contentView
+
   if (!root || !point || !Number.isFinite(point.x) || !Number.isFinite(point.y)) {
     return null
   }
+
   const parent = root.superview
+
   return root.hitTest(parent ? parent.convertPointFromView(point, null) : point)
 }

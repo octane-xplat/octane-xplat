@@ -69,6 +69,7 @@ export function compileBlocklistCombo(source: string, platform: Platform): Compi
   }
 
   const compact = source.trim().replace(/\s*\+\s*/g, '+')
+
   if (/\s/.test(compact)) {
     throw new TypeError(`Blocked shortcut "${source}" must be a single combo`)
   }
@@ -80,12 +81,14 @@ function stepsMatch(left: CompiledStep, right: CompiledStep): boolean {
   const keyMatches =
     left.key === right.key ||
     (left.code !== undefined && right.code !== undefined && left.code === right.code)
+
   if (!keyMatches) {
     return false
   }
 
   const leftModifiers = buildModifierState(left)
   const rightModifiers = buildModifierState(right)
+
   return (
     leftModifiers.ctrl === rightModifiers.ctrl &&
     leftModifiers.meta === rightModifiers.meta &&

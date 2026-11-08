@@ -41,6 +41,7 @@ test('nested retained schema is read without treating exit zero as a gate pass',
   ]
 
   const result = auditRetainedRun(proof, [{ kind: 'app-exited', data: { code: 0 } }])
+
   assert.equal(result.distributions.idleSignal.samples, 100)
   assert.equal(result.distributions.resizeSignal.samples, 40)
   assert.equal(result.distributions.reorder.samples, 1)
@@ -233,6 +234,7 @@ const mutatePhase = (proof, name, patch) =>
 
 test('a complete contract-satisfying run produces a pass verdict', () => {
   const result = assessContractRun(validProof(), validOrchestrator())
+
   assert.equal(result.status, 'pass')
   assert.deepEqual(result.gaps, [])
   assert.equal(result.independentGate, 'not-assessed')
@@ -269,6 +271,7 @@ test('every missing required phase fails with a named gap', () => {
     'run-status',
   ]) {
     const result = assessContractRun(removePhase(validProof(), name), validOrchestrator())
+
     assert.equal(result.status, 'fail', name)
     assert.ok(
       result.gaps.some((gap) => gap.includes(name)),
@@ -284,6 +287,7 @@ test('a pass requires 100 samples and an in-bound p95 per distribution', () => {
 
     const end = name === 'input-latency' ? 'callbackMs' : name === 'reorder' ? 'pickMs' : 'endMs'
     const pairsKey = name === 'resize' ? 'signalPairs' : 'pairs'
+
     for (const count of [0, 40, 99]) {
       const proof = mutatePhase(validProof(), name, () => ({
         [pairsKey]: monotonicPairs(count, 1, start, end),
@@ -308,6 +312,7 @@ test('a pass requires 100 samples and an in-bound p95 per distribution', () => {
 test('reported aggregates inconsistent with measured pairs fail integrity', () => {
   const wrong = mutatePhase(validProof(), 'signal-latency', () => ({ p95: 0.5, samples: 100 }))
   const result = assessContractRun(wrong, validOrchestrator())
+
   assert.equal(result.status, 'fail')
   assert.ok(result.gaps.some((gap) => gap.includes('reported p95')))
 
@@ -320,19 +325,25 @@ test('reported aggregates inconsistent with measured pairs fail integrity', () =
 
 test('non-monotonic or reversed pairs cannot pass', () => {
   assert.equal(pairDurations([{ a: 0, b: -1 }], 'a', 'b').valid, false)
+
   const reversed = [...monotonicPairs(100, 1)].reverse()
+
   assert.equal(pairDurations(reversed, 'startMs', 'endMs').ordered, false)
+
   const proof = mutatePhase(validProof(), 'signal-latency', () => ({ pairs: reversed }))
+
   assert.equal(assessContractRun(proof, validOrchestrator()).status, 'fail')
 })
 
 test('resize timers below 100 samples or outside [40,200] ms fail', () => {
   for (const timers of [Array(40).fill(50), Array(100).fill(39), Array(100).fill(201)]) {
     const proof = mutatePhase(validProof(), 'resize', () => ({ timerSamples: timers }))
+
     assert.equal(assessContractRun(proof, validOrchestrator()).status, 'fail')
   }
 
   const starved = mutatePhase(validProof(), 'resize', () => ({ inputDuringResize: 0 }))
+
   assert.equal(assessContractRun(starved, validOrchestrator()).status, 'fail')
 })
 
@@ -347,6 +358,7 @@ test('lifecycle aggregates cannot hide a cycle that misses baseline', () => {
   }))
 
   const result = assessContractRun(proof, validOrchestrator())
+
   assert.equal(result.status, 'fail')
   assert.ok(result.gaps.some((gap) => gap.includes('baseline')))
 
@@ -384,9 +396,11 @@ test('toolkit-dispatched input and rejected mechanisms cannot satisfy OS input',
     ['input-latency', 'mechanism'],
   ]) {
     const toolkit = mutatePhase(validProof(), name, () => ({ inputClass: 'toolkit' }))
+
     assert.equal(assessContractRun(toolkit, validOrchestrator()).status, 'fail', name)
 
     const rejected = mutatePhase(validProof(), name, () => ({ [field]: 'gtk-widget-activate' }))
+
     assert.equal(assessContractRun(rejected, validOrchestrator()).status, 'fail', name)
   }
 
@@ -401,9 +415,12 @@ test('toolkit-dispatched input and rejected mechanisms cannot satisfy OS input',
 
 test('a declared policy that relaxes any contract bound fails', () => {
   const relaxed = validPolicy()
+
   relaxed.boundsMs.idleSignal = 20
   assert.equal(declaredPolicySatisfies(relaxed), false)
+
   const proof = mutatePhase(validProof(), 'contract-header', () => ({ policy: relaxed }))
+
   assert.equal(assessContractRun(proof, validOrchestrator()).status, 'fail')
 
   for (const mutate of [
@@ -424,11 +441,13 @@ test('a declared policy that relaxes any contract bound fails', () => {
     },
   ]) {
     const policy = validPolicy()
+
     mutate(policy)
     assert.equal(declaredPolicySatisfies(policy), false)
   }
 
   const tightened = validPolicy()
+
   tightened.boundsMs.idleSignal = 8
   tightened.minSamples = 200
   assert.equal(declaredPolicySatisfies(tightened), true)
@@ -439,15 +458,19 @@ test('contract-header must declare the policy before measured evidence', () => {
   const headerIndex = phaseIndex(proof, 'contract-header')
   const latencyIndex = phaseIndex(proof, 'signal-latency')
   const held = proof[headerIndex]
+
   proof[headerIndex] = proof[latencyIndex]
   proof[latencyIndex] = held
+
   const result = assessContractRun(proof, validOrchestrator())
+
   assert.equal(result.status, 'fail')
   assert.ok(result.gaps.some((gap) => gap.includes('predeclared')))
 })
 
 test('editing must cover zero synthetic echoes and selection interruption', () => {
   const synthetic = mutatePhase(validProof(), 'editing-controlled', () => ({ syntheticChanges: 1 }))
+
   assert.equal(assessContractRun(synthetic, validOrchestrator()).status, 'fail')
 
   const noInterrupt = mutatePhase(validProof(), 'editing-controlled', () => ({
@@ -459,17 +482,21 @@ test('editing must cover zero synthetic echoes and selection interruption', () =
 
 test('failure classes need cause, process state and bounded shutdown', () => {
   const ready = mutatePhase(validProof(), 'failure-load', () => ({ reportedReady: true }))
+
   assert.equal(assessContractRun(ready, validOrchestrator()).status, 'fail')
 
   const slow = mutatePhase(validProof(), 'failure-load', () => ({ shutdownMs: 5001 }))
+
   assert.equal(assessContractRun(slow, validOrchestrator()).status, 'fail')
 
   const noStderr = mutatePhase(validProof(), 'failure-rejection', () => ({ stderrRetained: false }))
+
   assert.equal(assessContractRun(noStderr, validOrchestrator()).status, 'fail')
 })
 
 test('exit nonzero, extra case records after run-status and over-bound wall time fail', () => {
   const doubleExit = [...validOrchestrator(), { kind: 'app-exited', data: { code: 1 } }]
+
   assert.equal(assessContractRun(validProof(), doubleExit).status, 'fail')
 
   const trailing = [

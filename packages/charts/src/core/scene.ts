@@ -94,7 +94,9 @@ export function computeScene(props: ChartProps, width: number, height: number): 
 
     marks = built.marks
     points = []
+
     const center = { cx: built.pie!.cx + plot.x, cy: built.pie!.cy + plot.y }
+
     pieScene = {
       ...built.pie!,
       ...center,
@@ -121,6 +123,7 @@ export function computeScene(props: ChartProps, width: number, height: number): 
 
     const xAxis = xAxisModel(xKind, layout.x, props.xAxis, plot)
     const yAxis = yAxisModel(layout.y, props.yAxis, plot)
+
     labels = [...xAxis.labels, ...yAxis.labels]
     grid = [...xAxis.grid, ...yAxis.grid]
     frame = [...xAxis.frame, ...yAxis.frame]

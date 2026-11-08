@@ -32,6 +32,7 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
     }
 
     const next = indeterminate ? true : !checked
+
     if (props.value === undefined) {
       setInternal(next)
     }
@@ -42,6 +43,7 @@ export function Checkbox(inputProps: CheckboxProps): JSX.Element @{
     }
 
     const previous = checked
+
     setPending(true)
     Promise.resolve(props.changeAction(next)).then(
       () => setPending(false),

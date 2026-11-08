@@ -4,13 +4,16 @@ import { spawnSync } from 'node:child_process'
 import { cp, mkdir } from 'node:fs/promises'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const repo = process.env.XPLAT_NATIVE_TEST_REPO,
   device = process.env.XPLAT_IOS_DEVICE
 
 assert.ok(repo && device, 'Select skymac.local checkout and a task-owned simulator')
 await linkDependencies(root, repo)
+
 const resources = join(root, 'tests/.runtime/App_Resources')
+
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
@@ -45,7 +48,9 @@ const result = spawnSync(
 )
 
 assert.equal(result.status, 0, `${result.stdout}${result.stderr} signal=${result.signal}`)
+
 const report = JSON.parse(result.stdout.slice(result.stdout.indexOf('{')))
+
 assert.equal(report.results.length, 1)
 assert.equal(report.results[0].status, 'pass', JSON.stringify(report.results[0]))
 assert.equal(report.results[0].measurements.cryptoConformance, true)

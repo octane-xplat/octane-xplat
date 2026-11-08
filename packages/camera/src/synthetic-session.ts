@@ -77,6 +77,7 @@ export function createMemoryCameraStorage(): SyntheticCameraStorage & {
   files: Map<string, Uint8Array>
 } {
   const files = new Map<string, Uint8Array>()
+
   return {
     files,
     write: (path, bytes) => {
@@ -132,6 +133,7 @@ export function createSyntheticCameraSession(
   storage: SyntheticCameraStorage = createMemoryCameraStorage(),
 ): CameraSession {
   const controls: SyntheticCameraScript = { ...defaultScript(), ...script }
+
   return new SharedCameraSession(createSyntheticBackend(controls, storage, config), config)
 }
 
@@ -144,6 +146,7 @@ function createSyntheticBackend(
     capabilities.cameras.find((entry) =>
       typeof camera === 'object' ? entry.id === camera.deviceId : entry.facing === camera,
     ) ?? capabilities.cameras[0]!
+
   let selected = selection(config.camera)
   let observer: BackendObserver | undefined
   let attached = false
@@ -271,17 +274,20 @@ function createSyntheticBackend(
     switchCamera: (camera) => {
       let cancelled = false
       const next = selection(camera)
+
       return {
         completion: Promise.resolve().then(() => {
           if (cancelled) {
             throw new Error('Synthetic camera switch cancelled')
           }
+
           return { ...next }
         }),
         commit: () => {
           if (cancelled) {
             throw new Error('Synthetic camera switch cancelled')
           }
+
           selected = next
         },
         cancel: () => {
@@ -393,6 +399,7 @@ function createSyntheticBackend(
     stopCapture: () => {
       // Settle asynchronously — native stop is async too.
       const request = pendingRequest
+
       later(5, () => {
         if (request) {
           void settleClip(request, false)
@@ -403,6 +410,7 @@ function createSyntheticBackend(
     openOutput: async (output) => {
       const path = output.kind === 'nativeFile' ? output.fileUrl.slice('file://'.length) : ''
       const exists = storage.exists ? await storage.exists(path) : !!(await storage.read(path))
+
       if (!exists) {
         throw new Error(`Synthetic clip is missing at ${output.resourceId}`)
       }

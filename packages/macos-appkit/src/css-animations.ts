@@ -47,6 +47,7 @@ export function createCssAnimations(deps: Dependencies) {
     const opacity = Number(style.opacity ?? node.props.opacity)
     const parts =
       typeof style.transform === 'string' ? transformToParts(style.transform) : undefined
+
     return {
       opacity: Number.isFinite(opacity) ? opacity : 1,
       backgroundColor:
@@ -71,6 +72,7 @@ export function createCssAnimations(deps: Dependencies) {
     if (!node.view) {
       return
     }
+
     node.cssAnimation = { infos, startMs: Date.now(), base: animationBase(node) }
     animatedNodes.add(node)
     // Segment 0 lands synchronously, like NS `animate(view, 0)` at play.
@@ -82,11 +84,13 @@ export function createCssAnimations(deps: Dependencies) {
 
   function tickKeyframeAnimations() {
     const now = Date.now()
+
     for (const node of playingNodes) {
       if (!advanceKeyframeAnimation(node, now)) {
         playingNodes.delete(node)
       }
     }
+
     animationTimer = playingNodes.size
       ? setTimeout(tickKeyframeAnimations, ANIMATION_FRAME_MS)
       : null
@@ -96,30 +100,39 @@ export function createCssAnimations(deps: Dependencies) {
   function advanceKeyframeAnimation(node: ElementNode, now: number): boolean {
     const play = node.cssAnimation
     const view = node.view
+
     if (!play || !view) {
       return false
     }
+
     const size = view.frame?.size ?? {}
     const box = { width: Number(size.width) || 0, height: Number(size.height) || 0 }
     const overlay: PropBag = {}
     let done = true
+
     for (const info of play.infos) {
       const sample = sampleKeyframeAnimation(info, now - play.startMs, { base: play.base, box })
+
       Object.assign(overlay, sample.values)
       done &&= sample.done
     }
+
     // % translates arrive as TranslateAxis objects — resolve to points.
     for (const key of ['translateX', 'translateY'] as const) {
       const value = overlay[key]
+
       if (value !== null && typeof value === 'object') {
         overlay[key] = resolveTranslate(value, key === 'translateX' ? box.width : box.height)
       }
     }
+
     const prev = node.animatedStyle
+
     node.animatedStyle = Object.keys(overlay).length > 0 ? overlay : undefined
     if (prev !== undefined || node.animatedStyle !== undefined) {
       applyAnimationFrame(node)
     }
+
     return !done
   }
 
@@ -129,9 +142,11 @@ export function createCssAnimations(deps: Dependencies) {
     const merged = node.animatedStyle
       ? { ...node.computedStyle, ...node.animatedStyle }
       : (node.computedStyle ?? {})
+
     if (node.appliedStyle && shallowEqualStyle(node.appliedStyle, merged)) {
       return
     }
+
     deps.nativeStyle.applyStyle(node, node.computedStyle ?? {})
   }
 
@@ -141,10 +156,13 @@ export function createCssAnimations(deps: Dependencies) {
     if (node.cssAnimation === undefined) {
       return false
     }
+
     node.cssAnimation = undefined
     animatedNodes.delete(node)
     playingNodes.delete(node)
+
     const hadOverlay = node.animatedStyle !== undefined
+
     node.animatedStyle = undefined
     return hadOverlay
   }
@@ -155,12 +173,15 @@ export function createCssAnimations(deps: Dependencies) {
     if (animatedNodes.size === 0) {
       return
     }
+
     if (cancelKeyframeAnimations(node) && node.view) {
       deps.nativeStyle.applyStyle(node, node.computedStyle ?? {})
     }
+
     for (const child of node.children) {
       stopSubtreeAnimations(child)
     }
   }
+
   return { sameAnimations, playKeyframeAnimations, cancelKeyframeAnimations, stopSubtreeAnimations }
 }

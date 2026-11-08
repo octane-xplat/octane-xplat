@@ -27,6 +27,7 @@ export function percent(
   }
 
   const bound = 'min' in constraint ? constraint.min : constraint.max
+
   if (bound.type !== 'pixel' || !Number.isFinite(bound.value) || bound.value < 0) {
     throw new Error('percent(): the bound must be pixel(px) with a non-negative finite number')
   }
@@ -63,6 +64,7 @@ export function isPercentSize(v: unknown): v is ResizablePercentSize {
   // counts as absent so `min?: never`/`max?: never` variants still hold.
   const min = 'min' in v ? v.min : undefined
   const max = 'max' in v ? v.max : undefined
+
   if ((min != null) === (max != null)) {
     return false
   }
@@ -86,17 +88,21 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 
   if (typeof size === 'string') {
     const trimmed = size.trim()
+
     if (trimmed.endsWith('px')) {
       const n = parseFloat(trimmed)
+
       return Number.isFinite(n) ? n : null
     }
 
     if (trimmed.endsWith('%')) {
       const pct = parseFloat(trimmed)
+
       return Number.isFinite(pct) ? (pct / 100) * basis : null
     }
 
     const n = parseFloat(trimmed)
+
     return Number.isFinite(n) ? n : null
   }
 
@@ -106,6 +112,7 @@ export function toPixels(size: ResizableSize | undefined, basis: number): number
 
   if (isPercentSize(size)) {
     const px = (size.value / 100) * basis
+
     if ('min' in size && size.min) {
       return Math.max(px, size.min.value)
     }
@@ -129,14 +136,17 @@ export function clampSize(
   snaps: readonly number[],
 ): number {
   const clamped = Math.max(minPx, Math.min(size, maxPx))
+
   if (snaps.length === 0) {
     return clamped
   }
 
   let nearest = snaps[0]
   let dist = Math.abs(clamped - snaps[0])
+
   for (let i = 1; i < snaps.length; i++) {
     const d = Math.abs(clamped - snaps[i])
+
     if (d < dist) {
       dist = d
       nearest = snaps[i]

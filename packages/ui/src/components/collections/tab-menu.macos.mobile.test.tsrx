@@ -8,7 +8,9 @@ import {
 } from 'octane/universal/native'
 
 import { TabList, Tab, TabMenu } from './TabList.macos.tsrx'
+
 const popup = vi.hoisted(() => ({ current: null as any }))
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({
   Popover: (props: any) => {
     popup.current = props
@@ -17,6 +19,7 @@ vi.mock('../overlays/Popover.macos.tsrx', () => ({
 }))
 
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(extra: any = {}, supported = true) {
   const keys = new Map<any, any>(),
     claims = new Set<any>(),
@@ -43,6 +46,7 @@ function mount(extra: any = {}, supported = true) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(_: any, __: any, ___: any, callback: any) {
         const token = {}
+
         observers.set(token, callback)
         return token
       },
@@ -92,6 +96,7 @@ function mount(extra: any = {}, supported = true) {
   const has = (node: any, cls: string) => String(node.props?.className).split(' ').includes(cls)
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -192,6 +197,7 @@ function mount(extra: any = {}, supported = true) {
 
 it('registers the selected overflow trigger with strip roving focus and releases trigger/menu ownership on teardown', () => {
   const env = mount({ value: 'settings' })
+
   try {
     env.notify(env.main)
     expect(env.claims.has(env.one('overview'))).toBe(true)
@@ -212,6 +218,7 @@ it('registers the selected overflow trigger with strip roving focus and releases
 
 it('Down/Up opens first/last options, menu navigation and prefix focus remain manual, and Enter selects once', async () => {
   const env = mount()
+
   try {
     expect(env.key(env.one('more'), 'ArrowUp')).toEqual({ prevented: true, stopped: true })
     await vi.waitFor(() => {
@@ -236,8 +243,10 @@ it('Down/Up opens first/last options, menu navigation and prefix focus remain ma
 
 it('Tab records current strip-neighbor intent and ordinary Escape remains owned by the layer', async () => {
   const env = mount()
+
   try {
     const previous = { window: env.main }
+
     env.one('more').previousValidKeyView = previous
     env.key(env.one('more'), 'ArrowDown')
     await vi.waitFor(() => {
@@ -281,6 +290,7 @@ it('rejects duplicate selection during parent flush, stale removed rows and empt
     })
 
     const pick = env.rows()[0].props.onTap
+
     repeat = () => {
       env.render({ ...env.base, value: 'settings' })
       pick()
@@ -294,7 +304,9 @@ it('rejects duplicate selection during parent flush, stale removed rows and empt
     expect(env.popup().open).toBe(false)
     toggle()
     env.flush()
+
     const removed = env.rows()[1].props.onTap
+
     env.render({ ...env.base, options: [env.base.options[0]] })
     removed()
     expect(changed).toHaveBeenCalledTimes(1)
@@ -313,6 +325,7 @@ it('rejects duplicate selection during parent flush, stale removed rows and empt
 
 it('preserves modified/composing/prevented/descendant trigger input without opening', () => {
   const env = mount()
+
   try {
     for (const extra of [
       { altKey: true },
@@ -333,6 +346,7 @@ it('preserves modified/composing/prevented/descendant trigger input without open
 
 it('older keyboard bridges retain pointer selection without a trigger key lease', () => {
   const env = mount({}, false)
+
   try {
     expect(env.keys.size).toBe(0)
     env.one('more').props.onTap()
@@ -348,6 +362,7 @@ it('older keyboard bridges retain pointer selection without a trigger key lease'
 
 it('a nonempty overflow menu repairs removal of its focused option without selecting or reopening', async () => {
   const env = mount()
+
   try {
     env.key(env.one('more'), 'ArrowUp')
     await vi.waitFor(() => {

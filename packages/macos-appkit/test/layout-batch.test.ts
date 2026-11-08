@@ -5,6 +5,7 @@ import { withLayoutBatch, type LayoutBatchState } from '../src/layout-batch.ts'
 test('nested layout work joins one root owner and commits once after releasing ownership', () => {
   const root: LayoutBatchState<string> = { layoutDirty: null }
   const drained: string[][] = []
+
   withLayoutBatch(
     root,
     () => {
@@ -20,12 +21,14 @@ test('nested layout work joins one root owner and commits once after releasing o
       drained.push([...dirty])
     },
   )
+
   assert.deepEqual(drained, [['outer', 'inner']])
 })
 
 test('a failed update commits acquired layout work and leaves the root available for the next update', () => {
   const root: LayoutBatchState<string> = { layoutDirty: null }
   const drained: string[][] = []
+
   assert.throws(
     () =>
       withLayoutBatch(
@@ -38,18 +41,21 @@ test('a failed update commits acquired layout work and leaves the root available
       ),
     /native write failed/,
   )
+
   assert.equal(root.layoutDirty, null)
   withLayoutBatch(
     root,
     () => root.layoutDirty!.add('retry'),
     (dirty) => drained.push([...dirty]),
   )
+
   assert.deepEqual(drained, [['partial'], ['retry']])
 })
 
 test('a failing commit releases ownership and other roots keep independent batches', () => {
   const first: LayoutBatchState<string> = { layoutDirty: null }
   const second: LayoutBatchState<string> = { layoutDirty: null }
+
   assert.throws(
     () =>
       withLayoutBatch(
@@ -70,6 +76,7 @@ test('a failing commit releases ownership and other roots keep independent batch
       ),
     /layout commit failed/,
   )
+
   assert.equal(first.layoutDirty, null)
   assert.equal(second.layoutDirty, null)
 })
@@ -78,6 +85,7 @@ test('outcomes distinguish empty failed updates and preserve update plus finaliz
   const root: LayoutBatchState<string> = { layoutDirty: null }
   const primary = Error('update'),
     cleanup = Error('commit')
+
   assert.throws(
     () =>
       withLayoutBatch(
@@ -98,6 +106,7 @@ test('outcomes distinguish empty failed updates and preserve update plus finaliz
       return true
     },
   )
+
   withLayoutBatch(
     root,
     () => {},
@@ -108,6 +117,7 @@ test('outcomes distinguish empty failed updates and preserve update plus finaliz
 test('throwing undefined is a failed update and is not mistaken for success', () => {
   const root: LayoutBatchState<string> = { layoutDirty: null }
   let thrown = false
+
   try {
     withLayoutBatch(
       root,
@@ -120,6 +130,7 @@ test('throwing undefined is a failed update and is not mistaken for success', ()
     thrown = true
     assert.equal(error, undefined)
   }
+
   assert.equal(thrown, true)
   assert.equal(root.layoutDirty, null)
 })

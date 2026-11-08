@@ -5,7 +5,9 @@ import { join } from 'node:path'
 import { createServer } from 'vite'
 import { xplatCss } from '@octane-xplat/cli/vite'
 import { chromium } from 'playwright'
+
 const root = mkdtempSync(join(tmpdir(), 'xplat-css-browser-'))
+
 writeFileSync(
   join(root, 'index.html'),
   '<div class="card">Platform card</div><script type="module" src="/main.js"></script>',
@@ -27,10 +29,13 @@ const server = await createServer({
 })
 
 let browser
+
 try {
   await server.listen()
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   await page.goto(server.resolvedUrls.local[0])
   await page.waitForFunction(
     () => getComputedStyle(document.querySelector('.card')).paddingTop === '11px',

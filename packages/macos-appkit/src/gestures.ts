@@ -51,6 +51,7 @@ export function registerGestureClass(ctor: any) {
     }
 
     const descriptor = Object.getOwnPropertyDescriptor(ctor.prototype, name)!
+
     Object.defineProperty(ctor.prototype, name, { ...descriptor, enumerable: true })
   }
 
@@ -67,9 +68,11 @@ class GestureDelegate extends NSObject {
     event: NSEvent,
   ) {
     const attempt = attempts.get(recognizer)
+
     if (!attempt) {
       return true
     }
+
     try {
       return attempt(event)
     } catch (error) {
@@ -98,6 +101,7 @@ export function configureGesture(
   } else {
     attempts.delete(recognizer)
   }
+
   recognizer.delegate = delegate
   recognizer.delaysPrimaryMouseButtonEvents = false
   return recognizer
@@ -176,6 +180,7 @@ class VisualStateGestureRecognizer extends NSGestureRecognizer {
 export function setVisualStateTracking(node: GestureNode, callback: VisualStateCallback | null) {
   const view = node.view
   let recognizer = node.cssStateRecognizer as VisualStateGestureRecognizer | undefined
+
   if (callback === null) {
     if (recognizer && view) {
       recognizer.callback = null
@@ -230,17 +235,21 @@ const target = GestureTarget.new()
 
 export function setPressGesture(node: GestureNode, name: string) {
   nodes.set(node.view!, node)
+
   const key = name + 'GestureRecognizer'
   let recognizer = node[key] as NSGestureRecognizer | undefined
+
   if (!recognizer && typeof node.props[name] === 'function') {
     if (name === 'onTouch') {
       recognizer = TouchGestureRecognizer.new() as NSGestureRecognizer
     } else if (name === 'onLongPress') {
       const press = NSPressGestureRecognizer.alloc().initWithTargetAction(target, 'longPressed:')
+
       press.minimumPressDuration = 0.5
       recognizer = press
     } else {
       const click = NSClickGestureRecognizer.alloc().initWithTargetAction(target, 'doublePressed:')
+
       click.numberOfClicksRequired = 2
       recognizer = click
     }
@@ -263,6 +272,7 @@ export function disposePressGestures(node: GestureNode) {
   nodes.delete(node.view)
   for (const name of ['onTouch', 'onLongPress', 'onDoubleTap']) {
     const recognizer = node[name + 'GestureRecognizer']
+
     if (recognizer) {
       recognizer.enabled = false
       node.view.removeGestureRecognizer(recognizer)

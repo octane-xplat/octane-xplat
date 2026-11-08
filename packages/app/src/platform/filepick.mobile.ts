@@ -14,13 +14,16 @@ if (Application.ios && !VIRTUAL_LIST_BENCH_MODE) {
     try {
       await files.writeText('harness.txt', 'octane-xplat file service')
       console.log('[probe] files.pick presenting — pick harness.txt')
+
       const f = await files.pick('*/*', { startingFolder: knownFolders.documents().path })
+
       console.log(
         '[assert] files.pick returns ref: ' + (f ? 'OK (' + f.name + ')' : 'INFO (cancelled)'),
       )
 
       if (f) {
         const text = await files.readText(f)
+
         console.log(
           '[assert] files.readText picked file: ' +
             (text === 'octane-xplat file service'

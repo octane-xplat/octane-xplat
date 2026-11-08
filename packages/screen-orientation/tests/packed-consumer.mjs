@@ -4,24 +4,32 @@ import { cp, mkdir, mkdtemp, readdir, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const repo = fileURLToPath(new URL('../../..', import.meta.url))
 const temporary = await mkdtemp(join(tmpdir(), 'xplat-orientation-consumer-'))
 const run = (cmd, args, cwd) => {
   const result = spawnSync(cmd, args, { cwd, encoding: 'utf8', timeout: 120000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
 }
 
 try {
   const pack = join(temporary, 'pack')
+
   await mkdir(pack)
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
+
   const archive = (await readdir(pack)).find((name) => name.endsWith('.tgz'))
+
   assert.ok(archive)
   run('tar', ['-xzf', join(pack, archive), '-C', pack], root)
+
   const packed = join(pack, 'package')
+
   for (const target of ['web', 'ios', 'android', 'macos', 'linux', 'windows']) {
     const app = join(temporary, target)
+
     await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
     await cp(packed, join(app, 'node_modules/@octane-xplat/screen-orientation'), {
       recursive: true,

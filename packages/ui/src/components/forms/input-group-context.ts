@@ -19,5 +19,6 @@ export const InputGroupProvider: any = InputGroupContext
  *  surface — the control should flatten its own border/radius/background. */
 export function useInputGroup(): (InputGroupContextValue & { inInputGroup: boolean }) | null {
   const group = useContext(InputGroupContext)
+
   return group == null ? null : { ...group, inInputGroup: true }
 }

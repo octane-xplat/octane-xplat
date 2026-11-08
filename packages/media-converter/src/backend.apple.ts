@@ -3,6 +3,7 @@ import { lookupGlobal } from '@octane-xplat/lib/capability'
 import { aborted } from './backend-types'
 import type { ConversionBackend } from './backend-types'
 import type { ConvertedVideo } from './types'
+
 /** The bridge's progress/result event envelope. */
 interface ConverterEvent {
   progress?: number
@@ -23,6 +24,7 @@ let serial = 0
 type NativeEngineFactory = { new: () => Engine }
 function host(): Engine | undefined {
   const type = lookupGlobal(['XplatMediaConverter']) as NativeEngineFactory | undefined
+
   return (engine ??= type?.new())
 }
 
@@ -30,12 +32,15 @@ export const backend: ConversionBackend = {
   isAvailable: async (format) => format === 'mp4' && Boolean(host()),
   async convert(source, request, control) {
     const value = host()
+
     if (!value) {
       throw new UnavailabilityError(
         'MediaConverter native bridge; rebuild the app after installation',
       )
     }
+
     const id = `conversion-${Date.now()}-${++serial}`
+
     return new Promise<ConvertedVideo>((resolve, reject) => {
       value.startCallback(JSON.stringify({ ...request, source, id }), (json) => {
         try {
@@ -56,6 +61,7 @@ export const backend: ConversionBackend = {
           reject(error)
         }
       })
+
       control.onCancel(() => value.cancel(id))
     })
   },

@@ -20,7 +20,9 @@ function fixture(profile, overrides = {}) {
     NetworkInformation: { GetInternetConnectionProfile: () => profile },
     ...overrides,
   }
+
   const exports = {}
+
   vm.runInNewContext(code, {
     exports,
     require(id) {
@@ -28,7 +30,9 @@ function fixture(profile, overrides = {}) {
       return { Windows: { Networking: { Connectivity: api } } }
     },
   })
+
   const read = () => ({ ...exports.readWindowsConnectivity() })
+
   read.raw = exports.readWindowsConnectivity
   return read
 }
@@ -42,6 +46,7 @@ test('Windows connectivity reports known offline profiles separately from unavai
   for (const profile of [null, connected(0)]) {
     assert.deepEqual(fixture(profile)(), { supported: true, online: false, type: 'none' })
   }
+
   for (const read of [
     fixture(undefined),
     fixture(connected(3), { NetworkInformation: undefined }),
@@ -104,6 +109,7 @@ test('Windows connectivity labels only recognized transports and preserves onlin
     ],
   ]) {
     const profile = Object.defineProperties(connected(), Object.getOwnPropertyDescriptors(details))
+
     assert.deepEqual(fixture(profile)(), { supported: true, online: true, type })
   }
 })
@@ -113,6 +119,7 @@ test('Windows connectivity re-reads each snapshot without exposing shared mutabl
   const read = fixture(null, {
     NetworkInformation: { GetInternetConnectionProfile: () => profile },
   })
+
   read.raw().online = true
   assert.deepEqual(read(), { supported: true, online: false, type: 'none' })
   profile = connected(3, { IsWlanConnectionProfile: true })

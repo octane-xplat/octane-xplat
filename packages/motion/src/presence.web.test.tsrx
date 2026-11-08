@@ -8,6 +8,7 @@ let mounts = 0,
 
 function Child(props: any) @{
   const [count, setCount] = useState(0)
+
   useEffect(() => {
     mounts++
     return () => {
@@ -38,8 +39,11 @@ function Scene(props: any) @{
 
 function mount(props: any) {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(<Scene {...props} />))
   return {
     container,
@@ -64,10 +68,12 @@ describe('retained presence', () => {
   it('retains component state until exit finishes, blocks input and relinquishes focus', async () => {
     vi.useFakeTimers()
     mounts = cleanups = 0
+
     const done = vi.fn()
     const r = mount({ present: true, done })
     const node = r.container.querySelector('#exiting')
     const button = r.container.querySelector('button') as HTMLButtonElement
+
     act(() => button.click())
     button.focus()
     expect(button.textContent).toBe('1')
@@ -87,9 +93,11 @@ describe('retained presence', () => {
   it('reverses without remounting or stale removal', async () => {
     vi.useFakeTimers()
     mounts = cleanups = 0
+
     const done = vi.fn()
     const r = mount({ present: true, done })
     const node = r.container.querySelector('#exiting')
+
     r.update({ present: false, done })
     await advance(32)
     r.update({ present: true, done })
@@ -107,8 +115,10 @@ describe('retained presence', () => {
   it('disposes immediately when the boundary unmounts', async () => {
     vi.useFakeTimers()
     mounts = cleanups = 0
+
     const done = vi.fn()
     const r = mount({ present: true, done })
+
     r.update({ present: false, done })
     r.close()
     expect(cleanups).toBe(1)
@@ -120,8 +130,10 @@ describe('retained presence', () => {
   it('starts absent, supports repeated cycles and instant reduced exits', async () => {
     vi.useFakeTimers()
     mounts = cleanups = 0
+
     const done = vi.fn()
     const r = mount({ present: false, done, reduced: true })
+
     expect(r.container.querySelector('#exiting')).toBeNull()
     for (let i = 0; i < 2; i++) {
       r.update({ present: true, done, reduced: true })
@@ -139,10 +151,14 @@ describe('retained presence', () => {
 })
 
 import { PresenceDemo } from '../examples/PresenceDemo.tsrx'
+
 it('mounts the retained-presence example', () => {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(<PresenceDemo />))
   expect(container.textContent).toContain('Count: 0')
   act(() => root.unmount())
@@ -150,8 +166,10 @@ it('mounts the retained-presence example', () => {
 })
 
 import { useMotionValue } from './index.web'
+
 function Independent(props: any) @{
   const x = useMotionValue(0)
+
   useEffect(() => {
     props.ready(x)
   }, [])
@@ -169,14 +187,18 @@ function Independent(props: any) @{
 
 it('exit reversal does not take ownership of independent MotionValue channels', async () => {
   vi.useFakeTimers()
+
   let x: any
   const ready = (value: any) => {
     x = value
   }
 
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   act(() => root.render(<Independent present={true} ready={ready} />))
   act(() => root.render(<Independent present={false} ready={ready} />))
   await advance(32)

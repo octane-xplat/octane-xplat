@@ -63,6 +63,7 @@ let retainedGlassBackdrop: any
 let reloaded = false
 function reload() {
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
+
   if (!liveComponent) {
     liveComponent = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
     root.render(liveComponent, {})
@@ -122,6 +123,7 @@ function reload() {
     setTimeout(() => {
       const label = debug.findId('count')
       const revision = debug.findId('revision')
+
       if (
         debug.findId('hmr-listview') === retainedListView &&
         retainedListView.documentView === retainedListViewTable &&
@@ -208,6 +210,7 @@ function reload() {
         }
 
         let duplicateRejected = false
+
         try {
           renderer.createMacOSRoot(hostView)
         } catch {
@@ -224,6 +227,7 @@ function reload() {
         }
 
         const replacementRoot = renderer.createMacOSRoot(hostView)
+
         root.unmount()
         if (
           (replacementRoot as any).__macosDebug !== Reflect.get(globalThis, '__xplatMacOSDebug')

@@ -5,6 +5,7 @@ import { BottomSheet, Button, Divider, Heading, Section, Text, VStack } from '@o
 export function BottomSheetNoScrim() @{
   const [isOpen, setIsOpen] = useState(false)
   const [backgroundClicks, setBackgroundClicks] = useState(0)
+
   return (
     <Section padding={4}>
       <VStack gap={3}>

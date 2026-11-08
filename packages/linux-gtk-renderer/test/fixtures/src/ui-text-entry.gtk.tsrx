@@ -11,8 +11,10 @@ export const focusEvents: string[] = []
 export const controlledRef: { current: TextInputHandle | null } = { current: null }
 export const controlledChanges: string[] = []
 export const controlledValue = { current: '' }
+
 function ControlledEntry(props: { mode: 'accept' | 'reject' }) @{
   const [value, setValue] = useState('12')
+
   controlledValue.current = value
 
   <TextInput

@@ -55,19 +55,23 @@ function InputRatingControl(inputProps: InputRatingProps): unknown @{
 
     const horizontal = event.key === 'ArrowRight' || event.key === 'ArrowLeft'
     const vertical = event.key === 'ArrowUp' || event.key === 'ArrowDown'
+
     if (horizontal || vertical) {
       event.preventDefault()
+
       const cell = event.currentTarget as HTMLElement
       const options = Array.from(
         cell.parentElement!.querySelectorAll<HTMLElement>('[role="radio"]'),
       )
 
       let direction = event.key === 'ArrowRight' || event.key === 'ArrowDown' ? 1 : -1
+
       if (horizontal && getComputedStyle(cell.parentElement!).direction === 'rtl') {
         direction *= -1
       }
 
       const index = (score - 1 + direction + options.length) % options.length
+
       options[index]?.focus()
       setValue(index + 1)
     } else if (event.key === ' ' && !props.isReadOnly) {

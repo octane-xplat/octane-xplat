@@ -15,10 +15,14 @@ import {
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
+
 await mkdir(scratch, { recursive: true })
+
 const directory = await mkdtemp(join(scratch, 'macos-fonts-'))
 const bootstrap = join(directory, 'bootstrap.js')
+
 await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js'), 'utf8'))
+
 const config = await createMacOSConfig({
   packaged: true,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
@@ -26,6 +30,7 @@ const config = await createMacOSConfig({
 
 for (const custom of [false, true]) {
   const entry = join(directory, 'main.mjs')
+
   await writeFile(
     entry,
     [
@@ -51,7 +56,9 @@ for (const custom of [false, true]) {
   })
 
   const bundle = join(directory, 'fixture.cjs')
+
   await validateHostBundle(bundle, appRoot)
+
   const result = spawnSync(
     await macOSExecutable(appRoot, 'macos/host'),
     [
@@ -69,6 +76,7 @@ for (const custom of [false, true]) {
   )
 
   const output = result.stdout + result.stderr
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /FONT_FIXTURE_FAIL|uncaught render error/)
   assert.match(output, custom ? /CUSTOM_FONT_OK/ : /SYSTEM_FONT_OK/)

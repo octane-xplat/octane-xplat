@@ -69,6 +69,7 @@ const validateFields = (contract, path, problems) => {
 
 export function validateActionDeclaration(action) {
   const problems = []
+
   if (!isRecord(action)) {
     return ['action declaration must be an object']
   }
@@ -196,6 +197,7 @@ const checkValue = (field, value, path, errors) => {
 function checkFields(fields, value, path, errors, out = null) {
   for (const [name, field] of Object.entries(fields)) {
     const present = Object.prototype.hasOwnProperty.call(value, name) && value[name] !== undefined
+
     if (!present) {
       if (field.default === undefined) {
         errors.push(`${path}.${name}: required`)
@@ -228,6 +230,7 @@ function validateAgainst(contract, value, basePath) {
   const fields = contract?.fields ?? {}
   const out = {}
   const errors = []
+
   checkFields(fields, value, basePath, errors, out)
   return errors.length ? { ok: false, errors } : { ok: true, value: out }
 }
@@ -252,6 +255,7 @@ export function isDevActionAnnouncement(value) {
 
 export function actionAvailability(action, platform) {
   const availability = action.availability
+
   if (availability?.platforms && !availability.platforms.includes(platform)) {
     return { ready: false, reason: `not applicable on ${platform}` }
   }

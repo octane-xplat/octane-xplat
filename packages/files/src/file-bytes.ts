@@ -26,6 +26,7 @@ export function fileTooLarge(name: string, maxBytes: number): Error {
 /** Named rejection for a second `files.export` while one is in flight. */
 export function exportBusy(): Error {
   const error = new Error('files.export: an export is already in progress')
+
   error.name = 'ExportBusyError'
   return error
 }
@@ -41,6 +42,7 @@ export function throwIfAborted(signal: AbortSignal | undefined): void {
   }
 
   const error = new Error('The operation was aborted')
+
   error.name = 'AbortError'
   throw error
 }
@@ -49,6 +51,7 @@ export function throwIfAborted(signal: AbortSignal | undefined): void {
 export function concatBytes(chunks: Uint8Array[], total: number): Uint8Array {
   const out = new Uint8Array(total)
   let offset = 0
+
   for (const chunk of chunks) {
     out.set(chunk, offset)
     offset += chunk.byteLength

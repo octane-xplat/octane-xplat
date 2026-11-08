@@ -6,6 +6,7 @@ import type { KeepAwakeOptions } from './keep-awake.types'
 export function useKeepAwake(tag?: string, options?: KeepAwakeOptions): void {
   const id = useId()
   const key = tag ?? id
+
   useEffect(() => {
     const stop = keepAwake.onRelease?.((released) => {
       if (released === key) {

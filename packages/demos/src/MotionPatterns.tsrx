@@ -128,6 +128,7 @@ const LOOP_DWELL_MS = 3200
 function useWaitSwap<K>(value: K, immediate: boolean) {
   const [shown, setShown] = useState(value)
   const target = useRef(value)
+
   target.current = value
   useLayoutEffect(() => {
     if (immediate && shown !== value) {
@@ -136,6 +137,7 @@ function useWaitSwap<K>(value: K, immediate: boolean) {
   }, [immediate, value, shown])
 
   const settleExit = useCallback(() => setShown(target.current), [])
+
   return {
     shown: immediate ? value : shown,
     exiting: !immediate && shown !== value,
@@ -147,6 +149,7 @@ function useWaitSwap<K>(value: K, immediate: boolean) {
 function useMotionPreview() {
   const system = useReducedMotion()
   const [preview, setPreview] = useState(false)
+
   return { system, preview, setPreview, reduced: system || preview }
 }
 
@@ -242,12 +245,14 @@ function AnimatedTotal(props: { id: string; value: number; reduced: boolean }) @
   const [text, setText] = useState(() => formatTotal(props.value))
   const [announcement, setAnnouncement] = useState('')
   const latest = useRef(props)
+
   latest.current = props
 
   useMotionValueEvent(mv, 'change', (next) => setText(formatTotal(next)))
 
   useEffect(() => {
     const target = latest.current.value
+
     if (!Number.isFinite(target)) {
       mv.jump(0)
       setText(formatTotal(target))
@@ -267,6 +272,7 @@ function AnimatedTotal(props: { id: string; value: number; reduced: boolean }) @
     }
 
     let alive = true
+
     void mv.animate(target, { duration: 0.45, ease: 'easeOut' }).finished.then((result) => {
       if (alive && result === 'finished') {
         settle()
@@ -303,6 +309,7 @@ function RotatingCopy(props: { idPrefix: string; phrases: string[]; reduced: boo
   const { shown, exiting, settleExit } = useWaitSwap(safeIndex, props.reduced)
 
   const pause = useCallback(() => setPlaying(false), [])
+
   usePauseOnHidden(pause)
 
   // A reduced-motion change during play pauses autonomous cycling entirely.
@@ -318,6 +325,7 @@ function RotatingCopy(props: { idPrefix: string; phrases: string[]; reduced: boo
     }
 
     const timer = setInterval(() => setIndex((i) => (i + 1) % count), LOOP_DWELL_MS)
+
     return () => clearInterval(timer)
   }, [playing, props.reduced, count])
 

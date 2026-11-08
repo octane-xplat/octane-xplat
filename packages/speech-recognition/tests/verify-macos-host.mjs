@@ -16,6 +16,7 @@ import { buildMacOSSpeechArm64 } from './macos-build.mjs'
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const app = await mkdtemp(join(tmpdir(), 'xplat-speech-host-'))
 let artifactDir = null
+
 try {
   await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
   await symlink(leaf, join(app, 'node_modules/@octane-xplat/speech-recognition'))
@@ -28,11 +29,16 @@ try {
   )
 
   const artifact = await buildMacOSSpeechArm64(app)
+
   artifactDir = artifact.directory
   assert.equal(artifact.leaves.length, 1)
+
   const bootstrap = join(app, 'bootstrap.js')
+
   await writeNativeBootstrap(artifact, bootstrap)
+
   const script = join(app, 'fixture.cjs')
+
   await writeFile(
     script,
     `
@@ -73,13 +79,16 @@ console.log('MACOS_SPEECH_HOST_BOUNDARY_OK');
         resolveDone()
       }
     })
+
     run.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     run.on('exit', resolveDone)
   })
 
   const timeout = setTimeout(() => resolveDone(), 30000)
+
   await done
   clearTimeout(timeout)
   run.kill('SIGTERM')

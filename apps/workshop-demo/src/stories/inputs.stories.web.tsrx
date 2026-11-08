@@ -5,6 +5,7 @@ import { defineStory } from '@octane-xplat/workshop'
 function Inputs(props: { disabled: boolean }) {
   const [checked, setChecked] = useState(false)
   const [text, setText] = useState('initial')
+
   return (
     <section>
       <label>

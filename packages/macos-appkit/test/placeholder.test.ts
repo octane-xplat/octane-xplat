@@ -8,8 +8,11 @@ const source = rendererSource()
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   assert.ok(start >= 0, name)
+
   const rest = source.slice(start)
+
   return rest.slice(0, rest.search(/\n(?:export )?(?:function |class |const )/))
 }
 
@@ -42,6 +45,7 @@ class NSView {
     return {
       constraintEqualToAnchor: (other: any) => {
         const constraint = { other, active: false }
+
         this.constraints.push(constraint)
         return constraint
       },
@@ -74,6 +78,7 @@ class NSView {
 
 function makeContext(calls: string[] = []) {
   const noop = () => {}
+
   return {
     NSView,
     NativeClass: noop,
@@ -132,6 +137,7 @@ function fixture(props: any = {}) {
 
 test('placeholder host is an AppKit view registered for intrinsic sizing', () => {
   const { api, node, context } = fixture()
+
   assert.ok(node.view instanceof api.PlaceholderHostView)
   assert.ok(node.view instanceof NSView)
   assert.equal(node.view.translatesAutoresizingMaskIntoConstraints, false)
@@ -142,7 +148,9 @@ test('placeholder host is an AppKit view registered for intrinsic sizing', () =>
 
 test('creatingView fires once on attach and pins the assigned view', () => {
   const assigned = new NSView()
+
   assigned.intrinsicContentSize = { width: 60, height: 30 }
+
   const events: any[] = []
   const { api, node, context } = fixture({
     onCreatingView: (event: any) => {
@@ -171,12 +179,14 @@ test('creatingView fires once on attach and pins the assigned view', () => {
 
 test('creatingView without a handler or assignment leaves an empty host', () => {
   const bare = fixture()
+
   bare.api.fireCreatingView(bare.node)
   assert.equal(bare.node.placeholderCreated, true)
   assert.equal(bare.node.placeholderContent ?? null, null)
   assert.equal(bare.node.view.subviews.length, 0)
 
   const silent = fixture({ onCreatingView: () => {} })
+
   silent.api.fireCreatingView(silent.node)
   assert.equal(silent.node.placeholderContent ?? null, null)
   assert.equal(silent.node.view.subviews.length, 0)
@@ -233,6 +243,7 @@ test('creatingView rejects foreign-owned and already-owned views', () => {
 
 test('creatingView rejects a host already used by another element', () => {
   const { api, node, container } = fixture()
+
   container.nodes.set(9, {
     id: 9,
     type: 'label',
@@ -253,6 +264,7 @@ test('creatingView rejects a host already used by another element', () => {
 test('insert attaches the host, fires creatingView once, survives a keyed move', () => {
   const calls: string[] = []
   const context = makeContext(calls)
+
   Object.assign(context, {
     layoutView: (node: any) => node.view,
     arrangedView: (node: any) => node.view,
@@ -273,6 +285,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
     detach: (container: any, node: any) => {
       const siblings = node.parent ? node.parent.children : container.children
       const index = siblings.indexOf(node)
+
       if (index >= 0) {
         siblings.splice(index, 1)
       }
@@ -282,6 +295,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
   })
 
   const parentView = new NSView() as any
+
   parentView.insertViewAtIndexInGravity = function (view: any, index: number) {
     this.subviews.splice(index, 0, view)
     view.superview = this
@@ -303,6 +317,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
   }
 
   parent.container = container
+
   const api = runSlice(
     placeholderHostClass +
       '\n' +
@@ -359,6 +374,7 @@ test('insert attaches the host, fires creatingView once, survives a keyed move',
 
 test('validateNodeProps rejects a non-function onCreatingView', () => {
   const { api } = fixture()
+
   assert.throws(
     () => api.validateNodeProps('placeholder', { onCreatingView: 'x' }),
     /onCreatingView must be a function/,
@@ -378,6 +394,7 @@ test('placeholder rejects JSX children through the shared nesting rule', () => {
       ),
     registerElementType: () => {},
   })
+
   assert.throws(
     () => api.validateTextNesting('placeholder', 'label'),
     /content comes from creatingView/,
@@ -386,6 +403,7 @@ test('placeholder rejects JSX children through the shared nesting rule', () => {
 
 test('applyProps keeps handler registration inert and warns on foreign props', () => {
   const { api, node, calls } = fixture()
+
   api.applyProps(node, {
     onCreatingView: () => {},
     id: 'slot',

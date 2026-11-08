@@ -17,6 +17,7 @@ export function useImageMode(
 
   const key = JSON.stringify([src, x, y, width, height, threshold, fallback])
   const [result, setResult] = useState<{ key: string; mode: 'dark' | 'light' | null } | null>(null)
+
   useEffect(() => {
     if (!src) {
       return
@@ -26,8 +27,10 @@ export function useImageMode(
     let cancelled = false
     const detect = async () => {
       let bitmap: ImageBitmap | undefined
+
       try {
         const response = await fetch(src, { mode: 'cors', signal: controller.signal })
+
         if (!response.ok) {
           throw new Error('Image unavailable')
         }
@@ -51,6 +54,7 @@ export function useImageMode(
 
         const canvas = new OffscreenCanvas(10, 10)
         const ctx = canvas.getContext('2d')
+
         if (!ctx) {
           throw new Error('Image sampling unavailable')
         }

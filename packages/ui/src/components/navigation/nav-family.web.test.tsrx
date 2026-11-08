@@ -7,6 +7,7 @@ import { Toolbar } from '../layout/Toolbar.web.tsrx'
 
 function host() {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
   return { el, root: createRoot(el) }
 }
@@ -14,8 +15,11 @@ function host() {
 describe('NavIcon (web leaf)', () => {
   it('renders the circular container with the supplied icon', () => {
     const { el, root } = host()
+
     act(() => root.render(<NavIcon icon={<span className="test-glyph">x</span>} />))
+
     const box = el.querySelector('.vx-navicon')!
+
     expect(box).toBeTruthy()
     expect(box.querySelector('.test-glyph')).toBeTruthy()
     root.unmount()
@@ -26,6 +30,7 @@ describe('NavIcon (web leaf)', () => {
 describe('Toolbar (web leaf)', () => {
   it('renders role=toolbar with label and slot content', () => {
     const { el, root } = host()
+
     act(() =>
       root.render(
         <Toolbar
@@ -37,6 +42,7 @@ describe('Toolbar (web leaf)', () => {
     )
 
     const bar = el.querySelector('[role="toolbar"]')!
+
     expect(bar.getAttribute('aria-label')).toBe('Actions')
     expect(bar.getAttribute('aria-orientation')).toBe('horizontal')
     expect(bar.querySelector('.vx-toolbar-slot--start')!.textContent).toBe('Back')
@@ -47,6 +53,7 @@ describe('Toolbar (web leaf)', () => {
 
   it('arrows move focus between items (roving tabindex)', () => {
     const { el, root } = host()
+
     act(() =>
       root.render(
         <Toolbar
@@ -62,6 +69,7 @@ describe('Toolbar (web leaf)', () => {
     )
 
     const buttons = el.querySelectorAll('button')
+
     act(() => (buttons[0] as HTMLElement).focus())
     act(() => {
       buttons[0].dispatchEvent(new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true }))
@@ -86,6 +94,7 @@ describe('NavHeadingMenu (web leaf)', () => {
   it('renders role=menu/menuitem and activates items via Enter', () => {
     const { el, root } = host()
     const hits: string[] = []
+
     act(() =>
       root.render(
         <NavHeadingMenu>
@@ -97,8 +106,11 @@ describe('NavHeadingMenu (web leaf)', () => {
     )
 
     const menu = el.querySelector('[role="menu"]')!
+
     expect(menu).toBeTruthy()
+
     const items = Array.from(el.querySelectorAll('[role="menuitem"]')) as HTMLElement[]
+
     expect(items.length).toBe(3)
     expect(items[1].getAttribute('aria-disabled')).toBe('true')
     act(() => items[0].focus())
@@ -119,6 +131,7 @@ describe('NavHeadingMenu (web leaf)', () => {
 
   it('anchor items get real href navigation semantics', () => {
     const { el, root } = host()
+
     act(() =>
       root.render(
         <NavHeadingMenu>
@@ -128,6 +141,7 @@ describe('NavHeadingMenu (web leaf)', () => {
     )
 
     const item = el.querySelector('[role="menuitem"]') as HTMLAnchorElement
+
     expect(item.tagName).toBe('A')
     expect(item.getAttribute('href')).toBe('/docs')
     root.unmount()
@@ -138,6 +152,7 @@ describe('NavHeadingMenu (web leaf)', () => {
 describe('AppShell + TopNav + SideNav (web leaf)', () => {
   it('lays out header/sidenav/content landmarks', () => {
     const { el, root } = host()
+
     act(() =>
       root.render(
         <AppShell
@@ -172,6 +187,7 @@ describe('AppShell + TopNav + SideNav (web leaf)', () => {
   it('mobile toggle opens the drawer below the breakpoint', () => {
     // jsdom has no matchMedia — the defaultIsMobile hint makes the shell mobile.
     const { el, root } = host()
+
     act(() =>
       root.render(
         <AppShell
@@ -188,12 +204,14 @@ describe('AppShell + TopNav + SideNav (web leaf)', () => {
     )
 
     const toggle = el.querySelector('.vx-mobilenav-toggle') as HTMLElement
+
     expect(toggle).toBeTruthy()
     act(() => {
       toggle.dispatchEvent(new MouseEvent('click', { bubbles: true }))
     })
 
     const dialog = el.querySelector('dialog.vx-mobilenav') as HTMLDialogElement
+
     expect(dialog).toBeTruthy()
     expect(dialog.hasAttribute('open') || dialog.open).toBeTruthy()
     root.unmount()
@@ -205,6 +223,7 @@ describe('NavigationMenu (web leaf)', () => {
   it('renders items with href as anchors and others as buttons', () => {
     const { el, root } = host()
     const hits: string[] = []
+
     act(() =>
       root.render(
         <NavigationMenu
@@ -217,6 +236,7 @@ describe('NavigationMenu (web leaf)', () => {
     )
 
     const items = el.querySelectorAll('.vx-navmenu-strip-item')
+
     expect((items[0] as HTMLElement).tagName).toBe('A')
     expect((items[1] as HTMLElement).tagName).toBe('BUTTON')
     act(() => {
@@ -248,8 +268,11 @@ describe('ResizeHandle + useResizable (web leaf)', () => {
 
   it('arrow keys resize by 10px steps (50 with shift), Home/End clamp', () => {
     const { el, root } = host()
+
     act(() => root.render(<Harness />))
+
     const handle = el.querySelector('[role="separator"]') as HTMLElement
+
     expect(handle.getAttribute('aria-valuenow')).toBe('200')
     act(() => handle.focus())
     act(() => {

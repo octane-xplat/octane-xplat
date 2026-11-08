@@ -26,6 +26,7 @@ describe('postToHost', () => {
 
   it('rejects non-serializable payloads without queueing', () => {
     const circular: any = {}
+
     circular.self = circular
     expect(postToHost(circular)).toBe(false)
     expect(postToHost(undefined)).toBe(false)
@@ -34,6 +35,7 @@ describe('postToHost', () => {
 
   it('posts serialized JSON through a registered WK script handler', () => {
     const postMessage = vi.fn()
+
     scope.webkit = { messageHandlers: { xplatWebView: { postMessage } } }
 
     expect(postToHost({ type: 'ready', n: 1 })).toBe(true)
@@ -42,6 +44,7 @@ describe('postToHost', () => {
 
   it('posts serialized JSON through the Android interface global', () => {
     const postMessage = vi.fn()
+
     scope.__xplatWebView = { postMessage }
 
     expect(postToHost('ping')).toBe(true)
@@ -50,6 +53,7 @@ describe('postToHost', () => {
 
   it('posts the envelope to window.parent inside a frame', () => {
     const postMessage = vi.fn()
+
     Object.defineProperty(scope, 'parent', { value: { postMessage }, configurable: true })
 
     expect(postToHost({ type: 'ready' })).toBe(true)
@@ -61,6 +65,7 @@ describe('postToHost', () => {
 
   it('skips the parent transport in a top-level document', () => {
     const postMessage = vi.fn()
+
     // jsdom's top-level window has parent === window.
     Object.defineProperty(scope, 'parent', { value: scope, configurable: true })
     scope.parent.postMessage = postMessage
@@ -75,6 +80,7 @@ describe('postToHost', () => {
     }
 
     const outbox = scope[WEBVIEW_OUTBOX_KEY]
+
     expect(outbox).toHaveLength(100)
     expect(outbox[0]).toBe(5)
     expect(outbox[99]).toBe(104)

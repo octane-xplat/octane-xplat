@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, expect, it, vi } from 'vitest'
+
 // State/key fixtures use an explicit inline test host; floating ownership has separate cases.
 vi.mock('./TypeaheadResults.macos.tsrx', () => ({
   TypeaheadResults: (props: any) => (props.open ? (props.children ?? null) : null),
@@ -13,13 +14,16 @@ import {
 } from 'octane/universal/native'
 
 import { Tokenizer } from './Tokenizer.macos.tsrx'
+
 vi.mock('../overlays/Tooltip.tsrx', () => ({ Tooltip: (props: any) => props.children ?? null }))
+
 const tags = [
   { id: 'a', label: 'Ada' },
   { id: 'g', label: 'Grace' },
 ]
 
 afterEach(() => vi.useRealTimers())
+
 function mount(extra: any = {}) {
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -40,6 +44,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -97,11 +102,14 @@ function mount(extra: any = {}) {
 
 it('empty Backspace requests the current tail and controlled echo selects the next current tail', () => {
   const f = mount()
+
   try {
     expect(f.key().defaultPrevented).toBe(true)
     expect(f.base.onChange).toHaveBeenLastCalledWith([tags[0]], { type: 'remove', item: tags[1] })
     expect(f.window.firstResponder).toBe(f.input())
+
     const current = { ...tags[0], label: 'Current Ada' }
+
     f.render({ ...f.base, value: [current] })
     f.key({ repeat: true })
     expect(f.base.onChange).toHaveBeenLastCalledWith([], { type: 'remove', item: current })
@@ -114,13 +122,16 @@ it('empty Backspace requests the current tail and controlled echo selects the ne
 
 it('query and native editor text preserve ordinary deletion independently', () => {
   const f = mount()
+
   try {
     f.input().props.onTextChange('draft')
     f.flush()
     expect(f.key().defaultPrevented).toBe(false)
     f.input().props.onTextChange('')
     f.flush()
+
     const editor = { string: 'native draft', hasMarkedText: false }
+
     f.input().currentEditor = () => editor
     f.window.firstResponder = editor
     expect(f.key().defaultPrevented).toBe(false)
@@ -134,6 +145,7 @@ it('query and native editor text preserve ordinary deletion independently', () =
 
 it('composing, marked editors and every modifier retain native editing', () => {
   const f = mount()
+
   try {
     for (const extra of [
       { isComposing: true },
@@ -147,6 +159,7 @@ it('composing, marked editors and every modifier retain native editing', () => {
     }
 
     const editor: any = { string: '', hasMarkedText: true }
+
     f.input().currentEditor = () => editor
     f.window.firstResponder = editor
     expect(f.key().defaultPrevented).toBe(false)
@@ -164,6 +177,7 @@ it('held token callbacks use current identity and reject removed or currently bl
 
   try {
     const current = { ...tags[1], label: 'Current Grace' }
+
     f.render({ ...f.base, value: [current, tags[0]] })
     remove()
     expect(f.base.onChange).toHaveBeenLastCalledWith([tags[0]], { type: 'remove', item: current })
@@ -209,6 +223,7 @@ it('one public live handle clears the previous ref and becomes inert after teard
 
   try {
     const handle = first.mock.calls.find(([value]) => value)?.[0]
+
     expect(first).toHaveBeenCalledTimes(1)
     expect(handle.native).toBe(f.wrapper())
     f.render({ ...f.base, ref: second })
@@ -227,6 +242,7 @@ it('one public live handle clears the previous ref and becomes inert after teard
 
 it('delayed blur retains embedded focus, then uses the latest callback and cancels on teardown', () => {
   vi.useFakeTimers()
+
   const f = mount(),
     blur = vi.fn(),
     retired = vi.fn()
@@ -235,7 +251,9 @@ it('delayed blur retains embedded focus, then uses the latest callback and cance
     f.render({ ...f.base, onBlur: retired })
     f.input().props.onFocus()
     f.flush()
+
     const child = { superview: f.wrapper() }
+
     f.window.firstResponder = child
     f.wrapper().props.onBlur()
     vi.advanceTimersByTime(50)

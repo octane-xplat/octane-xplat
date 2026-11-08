@@ -34,6 +34,7 @@ class Base {
 }
 
 const exports = {}
+
 runInNewContext(compiled, {
   exports,
   require(name) {
@@ -48,6 +49,7 @@ runInNewContext(compiled, {
         path: { join: (...parts) => parts.join('/') },
       }
     }
+
     if (name === './index.common') {
       return {
         SVGView: Base,
@@ -55,9 +57,11 @@ runInNewContext(compiled, {
         stretchProperty: { setNative: Symbol('stretch') },
       }
     }
+
     if (name === './svg-use') {
       return { resolveSvgUse: (markup) => markup }
     }
+
     throw new Error(`Unexpected import: ${name}`)
   },
 })
@@ -66,6 +70,7 @@ runInNewContext(compiled, {
 // is not hidden — the dropped-while-hidden behavior behind issue #149.
 function makeNative({ width = 0, height = 0, hidden = false } = {}) {
   const layer = { contents: null }
+
   return {
     bounds: { size: { width, height } },
     hidden,
@@ -83,6 +88,7 @@ function makeNative({ width = 0, height = 0, hidden = false } = {}) {
 
 function makeView(native) {
   const view = new exports.SVGView()
+
   view.nativeViewProtected = native
   return view
 }
@@ -117,14 +123,18 @@ test('visibility restored over positive bounds requests display', () => {
 
 test('drawn or still-hidden views are not re-marked for display', () => {
   const drawn = makeNative({ width: 72, height: 72 })
+
   drawn.layer.contents = { backing: true }
+
   const view = makeView(drawn)
+
   view.onLayout(0, 0, 72, 72)
   view[visibilityProperty.setNative]('visible')
   assert.equal(drawn.displayRequests, 0)
 
   const hidden = makeNative({ width: 72, height: 72, hidden: true })
   const hiddenView = makeView(hidden)
+
   hiddenView.onLayout(0, 0, 72, 72)
   assert.equal(hidden.displayRequests, 0)
 })

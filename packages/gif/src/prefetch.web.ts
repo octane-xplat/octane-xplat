@@ -13,6 +13,7 @@ export function prefetch(srcs: string | string[], options?: PrefetchOptions): Pr
     (url) =>
       new Promise<boolean>((resolve) => {
         const image = new Image()
+
         image.onload = () => resolve(true)
         image.onerror = () => resolve(false)
         image.src = url

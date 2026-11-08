@@ -12,6 +12,7 @@ import { Image } from './Image.macos.tsrx'
 function mount(props: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(Image, props)
   flushUniversalSync(() => {})
   return { root, host: container.children[0] }
@@ -94,6 +95,7 @@ it('AppKit Image selects declared candidates after box/density changes and sourc
   ]
 
   const env = mount({ src: sources, style: { width: 100, height: 50 } })
+
   try {
     expect(env.host.props.src).toBe('~/small.png')
     env.host.props.onImageGeometryChanged({ width: 100, height: 50, scale: 2 })
@@ -164,11 +166,14 @@ it('the private callback handoff forwards current load/error functions and remov
     error = (event: any) => calls.push(event)
 
   const env = mount({ src: '~/photo.png', __appKitImageLoad: load, __appKitImageError: error })
+
   try {
     expect(Reflect.get(Image, '__xplatAppKitImageEvents')).toBe(true)
     expect(env.host.props.onImageLoad).toBe(load)
     expect(env.host.props.onImageError).toBe(error)
+
     const event = { width: 64, height: 32, source: 'local' }
+
     env.host.props.onImageLoad(event)
     expect(calls).toEqual([event])
     env.root.render(Image, { src: '~/photo.png' })

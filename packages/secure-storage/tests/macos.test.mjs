@@ -16,6 +16,7 @@ const compiled = ts.transpileModule(source, {
 function load(bridge, descriptor) {
   const exports = {},
     context = { exports, require: (id) => requireLib(id) }
+
   Object.defineProperty(context, 'XplatSecureStorage', descriptor ?? { value: bridge })
   runInNewContext(compiled, context)
   return exports.secureStorage
@@ -32,6 +33,7 @@ function complete(overrides = {}) {
 
 test('absence is unsupported', async () => {
   const capability = load(undefined)
+
   assert.equal(capability.supported, false)
   assert.equal(await capability.isAvailable(), false)
   await assert.rejects(capability.get('entry'), { name: 'UnavailabilityError' })
@@ -84,6 +86,7 @@ test('bridge failures never forward native exception contents', async () => {
   }
 
   const store = load({ get: fail, set: fail, remove: fail })
+
   await assert.rejects(store.get('entry'), { message: 'Keychain read failed' })
   assert.equal(await store.set('entry', payload), false)
   assert.equal(await store.remove('entry'), false)
@@ -94,6 +97,7 @@ test('bridge failures never forward native exception contents', async () => {
 // Authored source/VM models only; these are not native Keychain evidence.
 test('partial bridges are unsupported and operations reject without dispatch', async () => {
   let calls = 0
+
   for (const bridge of [
     {},
     {
@@ -105,12 +109,14 @@ test('partial bridges are unsupported and operations reject without dispatch', a
     complete({ remove: undefined }),
   ]) {
     const store = load(bridge)
+
     assert.equal(store.supported, false)
     assert.equal(await store.isAvailable(), false)
     await assert.rejects(store.get('entry'), { name: 'UnavailabilityError' })
     await assert.rejects(store.set('entry', ''), { name: 'UnavailabilityError' })
     await assert.rejects(store.remove('entry'), { name: 'UnavailabilityError' })
   }
+
   assert.equal(calls, 0)
 })
 
@@ -119,6 +125,7 @@ test('binding and method lookup failures are contained without forwarding payloa
     fail = () => {
       throw Error(payload)
     }
+
   for (const store of [
     load(undefined, { get: fail }),
     load(Object.defineProperty(complete(), 'set', { get: fail })),
@@ -131,6 +138,7 @@ test('binding and method lookup failures are contained without forwarding payloa
       () => store.remove('entry'),
     ]) {
       let pending
+
       assert.doesNotThrow(() => {
         pending = invoke()
       })
@@ -190,6 +198,7 @@ test('each operation captures one binding and method set with their native recei
     })
 
     const result = action === 'set' ? await store.set('entry', '') : await store[action]('entry')
+
     assert.equal(result, action === 'get' ? '' : true)
     assert.deepEqual([bindings, getReads, setReads, removeReads, calls], [1, 1, 1, 1, 1])
   }
@@ -199,6 +208,7 @@ test('missing and malformed native read responses are failures, not missing entr
   const fail = () => {
     throw Error(randomUUID())
   }
+
   const responses = [
     null,
     undefined,
@@ -211,6 +221,7 @@ test('missing and malformed native read responses are failures, not missing entr
     { objectForKey: fail },
     { objectForKey: (field) => (field === 'status' ? 0 : fail()) },
   ]
+
   for (const response of responses) {
     await assert.rejects(load(complete({ get: () => response })).get('entry'), {
       message: 'Keychain read failed',
@@ -233,6 +244,7 @@ test('dictionary reading captures its receiver, reads status once and skips fail
             statusReads++
             return status
           }
+
           valueReads++
           assert.equal(status, 0)
           return ''
@@ -241,6 +253,7 @@ test('dictionary reading captures its receiver, reads status once and skips fail
     }
 
     const store = load(complete({ get: () => response }))
+
     if (status === 0) {
       assert.equal(await store.get('entry'), '')
     } else if (status === -25300) {
@@ -256,6 +269,7 @@ test('dictionary reading captures its receiver, reads status once and skips fail
 test('nonboolean write and removal responses cannot report success', async () => {
   for (const result of [undefined, null, 0, 1, '', 'YES', {}]) {
     const store = load(complete({ set: () => result, remove: () => result }))
+
     assert.equal(await store.set('entry', ''), false)
     assert.equal(await store.remove('entry'), false)
   }

@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { KeyboardStickyView, KeyboardController } from '../../src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './sticky.css'
+
 let offset = (_value: number) => {},
   enable = (_value: boolean) => {},
   remove = () => {}
@@ -76,6 +77,7 @@ export async function run(ctx: ProbeContext) {
   const bottom = () => {
     if (host.ios) {
       const rect = host.ios.convertRectToView(host.ios.bounds, host.ios.window)
+
       return rect.origin.y + rect.size.height
     }
 
@@ -91,6 +93,7 @@ export async function run(ctx: ProbeContext) {
   }
 
   const top = () => (states.at(-1).currentFrame ?? states.at(-1).targetFrame).y
+
   ctx.record('open position', { bottom: bottom(), top: top(), translateY: host.translateY })
   await ctx.waitFor(() => Math.abs(bottom() - top() + 8) < 2)
   ctx.assert(
@@ -100,6 +103,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const transition = states.at(-1).transitionId
+
   offset(20)
   await ctx.waitFor(() => Math.abs(bottom() - top() + 20) < 2)
   ctx.assert(

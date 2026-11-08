@@ -21,8 +21,10 @@ export function PinInput(inputProps: PinInputProps): unknown @{
   const value = controlled ? props.value! : internal
   const handles = useRef<(TextInputHandle | null)[]>([])
   const pendingFocus = useRef<number | null>(null)
+
   useEffect(() => {
     const next = pendingFocus.current
+
     if (props.isDisabled || props.isReadOnly || (next !== null && next >= length)) {
       pendingFocus.current = null
       return
@@ -36,6 +38,7 @@ export function PinInput(inputProps: PinInputProps): unknown @{
 
   const setValue = (next: string) => {
     const clipped = next.slice(0, length)
+
     if (!controlled) {
       setInternal(clipped)
     }
@@ -62,6 +65,7 @@ export function PinInput(inputProps: PinInputProps): unknown @{
     setValue(next)
     if (pendingFocus.current !== null && pendingFocus.current <= value.length) {
       const index = pendingFocus.current
+
       pendingFocus.current = null
       handles.current[index]?.focus()
     }
@@ -85,11 +89,13 @@ export function PinInput(inputProps: PinInputProps): unknown @{
     }
 
     const index = handles.current.findIndex((handle) => handle?.native === event.target)
+
     if (index <= 0 || index >= length || index > value.length || cellValue(index) !== '') {
       return
     }
 
     const previous = handles.current[index - 1]
+
     if (!previous) {
       return
     }

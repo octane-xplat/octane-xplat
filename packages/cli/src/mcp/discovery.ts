@@ -71,6 +71,7 @@ const isAppDir = (dir, manifest) => {
 // Platform detection mirrors packages/cli/src/targets.ts so CLI and MCP agree.
 export function detectPlatforms(dir) {
   const manifest = readJson(join(dir, 'package.json'))
+
   if (!manifest) {
     return []
   }
@@ -127,9 +128,11 @@ function installedVersions(dir, declared) {
   // Resolve each declared dep through Node's walk-up so hoisted workspaces
   // (scope dir only at the workspace root) report their installed versions.
   const found = new Map()
+
   for (const name of Object.keys(declared).filter((n) => XPLAT_DEP.test(n))) {
     const root = installedPackageRoot(dir, name)
     const manifest = root && readJson(join(root, 'package.json'))
+
     if (manifest?.version) {
       found.set(name, manifest.version)
     }
@@ -139,6 +142,7 @@ function installedVersions(dir, declared) {
     .filter((name) => XPLAT_DEP.test(name))
     .map((name) => {
       const spec = declared[name]
+
       if (found.has(name)) {
         return { name, version: found.get(name), source: 'installed' }
       }
@@ -154,6 +158,7 @@ function installedVersions(dir, declared) {
 /** The versions the nearest workspace lockfile recorded for this importer. */
 function lockedVersions(workspaceRoot, appDir, declared) {
   const bun = bunLockedVersions(appDir)
+
   if (bun) {
     return Object.keys(declared)
       .filter((name) => XPLAT_DEP.test(name))
@@ -164,9 +169,12 @@ function lockedVersions(workspaceRoot, appDir, declared) {
         declared: declared[name],
       }))
   }
+
   let dir = appDir
+
   while (true) {
     const lockfile = join(dir, 'pnpm-lock.yaml')
+
     if (existsSync(lockfile)) {
       try {
         const doc = parseYaml(readFileSync(lockfile, 'utf8'))
@@ -188,6 +196,7 @@ function lockedVersions(workspaceRoot, appDir, declared) {
     }
 
     const next = dirname(dir)
+
     if (next === dir || !resolve(next).startsWith(resolve(workspaceRoot))) {
       return []
     }
@@ -212,8 +221,10 @@ export function resolveFrameworkBinding(workspaceRoot, appDir) {
   const packages = resolved ? installed : locked.map((p) => ({ ...p, source: 'lockfile' }))
 
   let discrepancy
+
   for (const lockedPkg of locked) {
     const actual = installedByName.get(lockedPkg.name)
+
     if (
       actual?.version &&
       lockedPkg.version &&
@@ -239,6 +250,7 @@ function scanPackageDirs(root) {
     }
 
     let entries
+
     try {
       entries = readdirSync(dir, { withFileTypes: true })
     } catch {
@@ -251,6 +263,7 @@ function scanPackageDirs(root) {
       }
 
       const path = join(dir, entry.name)
+
       if (existsSync(join(path, 'package.json'))) {
         found.push(path)
         // Still descend — apps can nest (e.g. examples/ inside an app).
@@ -278,14 +291,18 @@ export function discoverWorkspace(workspaceRoot) {
   const dirs = [root, ...scanPackageDirs(root)]
   const seen = new Set()
   const apps = []
+
   for (const dir of dirs) {
     const manifest = readJson(join(dir, 'package.json'))
+
     if (!manifest || seen.has(dir) || !isAppDir(dir, manifest)) {
       continue
     }
 
     seen.add(dir)
+
     const rel = relative(root, dir) || '.'
+
     apps.push({
       id: rel,
       name: manifest.name ?? rel.split(sep).pop(),
@@ -383,6 +400,7 @@ const prerequisiteChecks = [
 /** Probe prerequisites relevant to the given declared platforms. */
 export function checkPrerequisites(platforms) {
   const wanted = new Set(platforms)
+
   return prerequisiteChecks
     .filter((check) => !check.platforms || check.platforms.some((p) => wanted.has(p)))
     .map(({ probe, ...meta }) => ({ ...meta, ...probe() }))

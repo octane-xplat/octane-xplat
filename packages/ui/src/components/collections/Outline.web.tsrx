@@ -10,6 +10,7 @@ const SETTLE_MS = 120
 
 function isScrollable(el: HTMLElement): boolean {
   const style = getComputedStyle(el)
+
   return /(auto|scroll)/.test(style.overflowY) && el.scrollHeight > el.clientHeight
 }
 
@@ -24,6 +25,7 @@ function resolveScrollContainer(
   }
 
   let node = navEl?.parentElement ?? null
+
   while (node) {
     if (isScrollable(node)) {
       return node
@@ -54,6 +56,7 @@ function headingTop(container: Element | Document, el: HTMLElement): number {
   }
 
   const ce = container as HTMLElement
+
   return el.getBoundingClientRect().top - ce.getBoundingClientRect().top + ce.scrollTop
 }
 
@@ -65,6 +68,7 @@ function scrollTopOf(container: Element | Document): number {
 
 function scrollToTop(container: Element | Document, top: number, smooth: boolean) {
   const opts = { top, behavior: (smooth ? 'smooth' : 'auto') as ScrollBehavior }
+
   if (container instanceof Document || container === document.documentElement) {
     window.scrollTo(opts)
   } else {
@@ -117,12 +121,14 @@ export function Outline(props: OutlineProps): JSX.Element @{
       const tops = items
         .map((item) => {
           const el = headingEl(c, item.id)
+
           return el ? { id: item.id, top: headingTop(c, el) } : null
         })
         .filter((t): t is { id: string; top: number } => t != null)
 
       const edge = scrollTopOf(c) + offset + SPY_EDGE
       let current = tops[0]?.id
+
       for (const t of tops) {
         if (t.top <= edge) {
           current = t.id
@@ -143,12 +149,14 @@ export function Outline(props: OutlineProps): JSX.Element @{
   }, [controlled, items, offset])
 
   const activeIdRef = useRef<string | undefined>(activeId)
+
   activeIdRef.current = activeId
 
   // Sliding indicator geometry from the active item's measured box.
   useEffect(() => {
     const el = activeId ? itemEls.current.get(activeId) : undefined
     const host = navRef.current
+
     if (!el || !host) {
       setIndicator(null)
       return
@@ -166,6 +174,7 @@ export function Outline(props: OutlineProps): JSX.Element @{
 
   const activate = (id: string) => {
     const item = items.find((i) => i.id === id)
+
     if (!item) {
       return
     }
@@ -177,6 +186,7 @@ export function Outline(props: OutlineProps): JSX.Element @{
     if (hasScrollOnClick) {
       const c = container()
       const target = headingEl(c, id)
+
       if (target) {
         scrollToTop(c, headingTop(c, target) - offset, true)
         if (typeof history !== 'undefined' && history.replaceState) {
@@ -208,6 +218,7 @@ export function Outline(props: OutlineProps): JSX.Element @{
     const idx = items.findIndex((i) => i.id === focusId)
     const move = (next: number) => {
       const item = items[Math.max(0, Math.min(items.length - 1, next))]
+
       if (!item) {
         return
       }
@@ -265,6 +276,7 @@ export function Outline(props: OutlineProps): JSX.Element @{
       ) : null}
       {items.map((item) => {
         const isActive = item.id === activeId
+
         return (
           <button
             key={item.id}

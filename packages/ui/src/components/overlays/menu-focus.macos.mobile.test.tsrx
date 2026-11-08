@@ -9,7 +9,9 @@ import {
 
 import { MenuSurface } from './MenuSurface.macos.tsrx'
 import { DropdownMenuItem } from './MenuParts.macos.tsrx'
+
 afterEach(() => vi.unstubAllGlobals())
+
 function mount() {
   const claims = new Set<any>(),
     retained = new Set<any>(),
@@ -32,6 +34,7 @@ function mount() {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(_: any, __: any, ___: any, callback: any) {
         const token = {}
+
         observers.set(token, callback)
         return token
       },
@@ -79,6 +82,7 @@ function mount() {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -141,6 +145,7 @@ function mount() {
 
 it('row detach/disabled updates queue same-position repair, then fall back to the retained menu container without selecting', async () => {
   const f = mount()
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -179,6 +184,7 @@ it('row detach/disabled updates queue same-position repair, then fall back to th
 
 it('row mutations preserve nested field editors and an external menu responder', async () => {
   const f = mount()
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -192,7 +198,9 @@ it('row mutations preserve nested field editors and an external menu responder',
     ]) {
       f.window.firstResponder = external
       f.notify()
+
       const before = f.calls.length
+
       f.render([{ id: 'a' }, { id: 'b', disabled: true }])
       await Promise.resolve()
       f.flush()
@@ -206,6 +214,7 @@ it('row mutations preserve nested field editors and an external menu responder',
 
 it('old-window detach observation releases claims and queued row repair does not focus after teardown', async () => {
   const f = mount()
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -219,7 +228,9 @@ it('old-window detach observation releases claims and queued row repair does not
     f.notify()
     f.render([{ id: 'b' }])
     f.root.unmount()
+
     const before = f.calls.length
+
     await Promise.resolve()
     f.flush()
     expect(f.calls).toHaveLength(before)

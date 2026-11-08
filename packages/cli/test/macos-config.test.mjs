@@ -7,19 +7,23 @@ import { inspectMacOSDevConfig, inspectMacOSPackageConfig } from '../dist/macos/
 
 function project(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-macos-config-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   return root
 }
 
 function write(root, path) {
   const file = join(root, path)
+
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, '')
 }
 
 test('macOS AppKit configuration keeps its existing Vite bundle contract', (t) => {
   const root = project(t)
+
   write(root, 'vite.config.mjs')
+
   const config = inspectMacOSDevConfig(root, {
     viteConfig: 'vite.config.mjs',
     bundleFile: 'dist/app.cjs',
@@ -32,8 +36,10 @@ test('macOS AppKit configuration keeps its existing Vite bundle contract', (t) =
 
 test('macOS webview dev configuration requires a frontend and CommonJS host bundle', (t) => {
   const root = project(t)
+
   write(root, 'vite.web.config.mjs')
   write(root, 'vite.host.config.mjs')
+
   const config = inspectMacOSDevConfig(
     root,
     {
@@ -67,8 +73,10 @@ test('macOS webview dev configuration requires a frontend and CommonJS host bund
 
 test('macOS webview package configuration validates the static frontend output', (t) => {
   const root = project(t)
+
   write(root, 'vite.web.config.mjs')
   write(root, 'vite.host.config.mjs')
+
   const settings = {
     productName: 'Octane Test',
     bundleIdentifier: 'org.octane.test',
@@ -99,5 +107,6 @@ test('macOS webview package configuration validates the static frontend output',
 test('macOS renderer selection rejects unknown names', (t) => {
   const root = project(t)
   const config = inspectMacOSDevConfig(root, {}, 'cef')
+
   assert.ok(config.issues.includes('xplat.targets.macos.renderer must be "appkit" or "webview"'))
 })

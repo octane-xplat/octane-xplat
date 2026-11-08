@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { createServer } from 'vite'
 import { chromium } from 'playwright'
 import { fileURLToPath } from 'node:url'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 // Exercise the real Firebase SDK at synthetic gtag and service-worker boundaries.
 // This does not qualify provider ingestion, push delivery or OS notifications.
@@ -17,6 +18,7 @@ const server = await createServer({
         if (id === '/push.js') {
           return '\0push'
         }
+
         if (id === '/sdk.js') {
           return '\0sdk'
         }
@@ -25,6 +27,7 @@ const server = await createServer({
         if (id === '\0push') {
           return "export { push } from '@octane-xplat/push'"
         }
+
         if (id === '\0sdk') {
           return "export { SDK_VERSION, getApps, deleteApp } from 'firebase/app'"
         }
@@ -61,10 +64,13 @@ const config = {
 try {
   await server.listen()
   browser = await chromium.launch()
+
   const page = await browser.newPage()
   const requests = []
+
   await page.route('https://**/*', async (route) => {
     const url = route.request().url()
+
     requests.push(new URL(url).hostname)
     if (url.includes('firebase.googleapis.com')) {
       return route.fulfill({
@@ -73,6 +79,7 @@ try {
         body: JSON.stringify(config),
       })
     }
+
     if (url.includes('firebaseinstallations.googleapis.com')) {
       return route.fulfill({
         status: 200,
@@ -84,9 +91,11 @@ try {
         }),
       })
     }
+
     if (url.includes('googletagmanager.com')) {
       return route.fulfill({ status: 200, contentType: 'text/javascript', body: '' })
     }
+
     throw new Error('Unexpected external Firebase request: ' + new URL(url).hostname)
   })
 
@@ -100,6 +109,7 @@ try {
     const { firebaseAnalytics } = await import('/src/index.web.ts')
     const { push } = await import('/push.js')
     const { SDK_VERSION } = await import('/sdk.js')
+
     await firebaseAnalytics.init(config)
     await firebaseAnalytics.setUserId('synthetic-user')
     await firebaseAnalytics.setUserProperty('cohort', 'production')
@@ -111,11 +121,15 @@ try {
         window.fixtureBarriers++
       }
     })
+
     window.fixtureMessages = []
     window.fixtureOpened = []
+
     const offMessage = push.onMessage((message) => window.fixtureMessages.push(message))
     const offOpen = push.onNotificationOpen((message) => window.fixtureOpened.push(message))
+
     await push.configure({ firebaseConfig: config, serviceWorkerUrl: '/messaging-sw.js' })
+
     const registration = await navigator.serviceWorker.ready
     const send = () => {
       registration.active.postMessage([
@@ -135,11 +149,13 @@ try {
         { fixtureBarrier: true },
       ])
     }
+
     window.fixtureSend = send
     window.fixtureOff = () => {
       offMessage()
       offOpen()
     }
+
     send()
     return {
       version: SDK_VERSION,
@@ -190,10 +206,13 @@ try {
     if (window.fixtureMessages.length !== 1 || window.fixtureOpened.length !== 1) {
       throw new Error('listener disposal failed')
     }
+
     for (const registration of await navigator.serviceWorker.getRegistrations()) {
       await registration.unregister()
     }
+
     const sdk = await import('/sdk.js')
+
     for (const app of sdk.getApps()) {
       await sdk.deleteApp(app)
     }

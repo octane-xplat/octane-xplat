@@ -16,6 +16,7 @@ import { Pagination } from '../../components/collections/Pagination.web.tsrx'
 import { useAnnounce } from '../../components/content/use-announce.web'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn())
   vi.unstubAllGlobals()
@@ -33,8 +34,11 @@ function Read() @{
 
 it('updates the parent scope while nested scopes and outside readers remain isolated', () => {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   cleanups.push(() => {
     root.unmount()
     host.remove()
@@ -82,14 +86,18 @@ it('resolves parent overrides before exact catalogs and falls back to English', 
 
 it('mirrors chevrons and permits Enter/Space while guarding disabled boundaries', () => {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   cleanups.push(() => {
     root.unmount()
     host.remove()
   })
 
   const change = vi.fn()
+
   act(() =>
     root.render(
       <InternationalizationProvider locale="en" dir="rtl">
@@ -100,6 +108,7 @@ it('mirrors chevrons and permits Enter/Space while guarding disabled boundaries'
 
   const prev = host.querySelector('[aria-label="Previous page"]')!
   const next = host.querySelector('[aria-label="Next page"]')!
+
   expect(prev.textContent).toBe('›')
   expect(next.textContent).toBe('‹')
   for (const key of ['Enter', ' ']) {
@@ -114,19 +123,23 @@ it('mirrors chevrons and permits Enter/Space while guarding disabled boundaries'
 it('clears pending live-region messages and keeps polite and assertive channels separate (DOM only)', () => {
   const frames = new Map<number, FrameRequestCallback>()
   let serial = 0
+
   vi.stubGlobal('requestAnimationFrame', (fn: FrameRequestCallback) => {
     frames.set(++serial, fn)
     return serial
   })
 
   vi.stubGlobal('cancelAnimationFrame', (id: number) => frames.delete(id))
+
   const flush = () => {
     const pending = [...frames.values()]
+
     frames.clear()
     pending.forEach((fn) => fn(0))
   }
 
   const announce = useAnnounce()
+
   announce('old')
   announce('')
   flush()

@@ -14,6 +14,7 @@ function openSettingsPage(): boolean {
   try {
     if (Application.ios) {
       const settingsUrl = (globalThis as any).UIApplicationOpenSettingsURLString ?? 'app-settings:'
+
       return Utils.openUrl(settingsUrl)
     }
 

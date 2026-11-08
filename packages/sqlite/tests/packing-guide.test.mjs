@@ -12,10 +12,12 @@ function load(path, dependencies) {
     module: ts.ModuleKind.CommonJS,
     target: ts.ScriptTarget.ES2022,
   })
+
   new Function('require', 'exports', code)((id) => {
     assert.ok(id in dependencies, id)
     return dependencies[id]
   }, exports)
+
   return exports
 }
 
@@ -45,6 +47,7 @@ function backend(path, persistent = true) {
       sql.exec('BEGIN')
       try {
         const result = await action(db)
+
         sql.exec('COMMIT')
         return result
       } catch (error) {
@@ -57,6 +60,7 @@ function backend(path, persistent = true) {
       open = false
     },
   }
+
   return isolateDatabase(db)
 }
 
@@ -70,10 +74,13 @@ test('packing list: real file CRUD survives close/reopen and parameterized label
   const dir = mkdtempSync(join(tmpdir(), 'packing-guide-'))
   const api = guide((name) => Promise.resolve(backend(join(dir, name))))
   let list
+
   try {
     list = await api.openPackingList()
     await list.add("Passport'); DROP TABLE packing_items;--")
+
     const [item] = await list.list()
+
     await list.rename(item.id, 'Charger')
     await list.setPacked(item.id, true)
     await list.close()
@@ -95,11 +102,15 @@ test('packing migration upgrades a v1 file while retaining existing records', as
   const dir = mkdtempSync(join(tmpdir(), 'packing-migration-'))
   const path = join(dir, 'packing.db')
   const sql = new DatabaseSync(path)
+
   sql.exec(
     "CREATE TABLE packing_items (id INTEGER PRIMARY KEY, label TEXT NOT NULL); INSERT INTO packing_items(label) VALUES ('Passport'); PRAGMA user_version=1",
   )
+
   sql.close()
+
   const list = await guide(() => Promise.resolve(backend(path))).openPackingList()
+
   try {
     assert.deepEqual(await list.list(), [{ id: 1, label: 'Passport', packed: 0 }])
   } finally {
@@ -110,9 +121,11 @@ test('packing migration upgrades a v1 file while retaining existing records', as
 
 test('failed migration rolls back both schema and version', async () => {
   const db = backend(':memory:')
+
   await db.execute(
     'CREATE TABLE packing_items (id INTEGER PRIMARY KEY, label TEXT NOT NULL, packed INTEGER)',
   )
+
   await db.setUserVersion(1)
   try {
     await assert.rejects(guide().migratePackingList(db), /duplicate column/)
@@ -125,6 +138,7 @@ test('failed migration rolls back both schema and version', async () => {
 
 test('future schema is rejected without deleting data', async () => {
   const db = backend(':memory:')
+
   await db.setUserVersion(3)
   try {
     await assert.rejects(guide().migratePackingList(db), /newer app/)
@@ -136,12 +150,15 @@ test('future schema is rejected without deleting data', async () => {
 
 test('transient storage is refused and closed; explicit preview can opt in', async () => {
   const db = backend(':memory:', false)
+
   await assert.rejects(guide(() => Promise.resolve(db)).openPackingList(), /Durable storage/)
   assert.equal(db.isOpen, false)
+
   const list = await guide(() => Promise.resolve(backend(':memory:', false))).openPackingList(
     'preview.db',
     true,
   )
+
   try {
     assert.equal(list.persistent, false)
     await list.add('Session only')

@@ -20,6 +20,7 @@ import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 
 export const FONT_EXTENSIONS = new Set(['.ttf', '.otf'])
+
 const CONVERTIBLE_EXTENSIONS = new Set(['.woff', '.woff2'])
 const WEB_ENTRIES = ['main.web.tsrx', 'main.web.tsx', 'main.web.ts', 'main.web.ts', 'main.web.js']
 const MANIFEST = 'fonts.json'
@@ -93,6 +94,7 @@ function pickName(records, nameIDs) {
 
 function tableDirectory(buf) {
   let dirOffset = 0
+
   if (buf.toString('latin1', 0, 4) === 'ttcf') {
     if (buf.length < 16) {
       return null
@@ -107,8 +109,10 @@ function tableDirectory(buf) {
 
   const numTables = buf.readUInt16BE(dirOffset + 4)
   const tables = new Map()
+
   for (let i = 0; i < numTables; i++) {
     const rec = dirOffset + 12 + i * 16
+
     if (rec + 16 > buf.length) {
       return null
     }
@@ -124,6 +128,7 @@ function tableDirectory(buf) {
 
 function readNameRecords(buf, table) {
   const base = table.offset
+
   if (base + 6 > buf.length) {
     return []
   }
@@ -131,8 +136,10 @@ function readNameRecords(buf, table) {
   const count = buf.readUInt16BE(base + 2)
   const stringBase = base + buf.readUInt16BE(base + 4)
   const records = []
+
   for (let i = 0; i < count; i++) {
     const rec = base + 6 + i * 12
+
     if (rec + 12 > buf.length) {
       break
     }
@@ -144,6 +151,7 @@ function readNameRecords(buf, table) {
     const length = buf.readUInt16BE(rec + 8)
     const offset = buf.readUInt16BE(rec + 10)
     const start = stringBase + offset
+
     if (start + length > buf.length) {
       continue
     }
@@ -161,11 +169,13 @@ function readNameRecords(buf, table) {
 const fixedToNumber = (v) => {
   const n = v / 65536
   const rounded = Math.round(n)
+
   return Math.abs(n - rounded) < 0.01 ? rounded : Math.round(n * 100) / 100
 }
 
 function readWghtAxis(buf, tables) {
   const fvar = tables.get('fvar')
+
   if (!fvar || fvar.offset + 16 > buf.length) {
     return null
   }
@@ -173,8 +183,10 @@ function readWghtAxis(buf, tables) {
   const axesOffset = fvar.offset + buf.readUInt16BE(fvar.offset + 4)
   const axisCount = buf.readUInt16BE(fvar.offset + 8)
   const axisSize = buf.readUInt16BE(fvar.offset + 10)
+
   for (let i = 0; i < axisCount; i++) {
     const rec = axesOffset + i * axisSize
+
     if (rec + 20 > buf.length || rec + 20 > fvar.offset + fvar.length) {
       break
     }
@@ -195,12 +207,14 @@ function readWghtAxis(buf, tables) {
 // command run in apps that never installed the platform toolchains.
 export function parseFontBuffer(buf) {
   const tables = tableDirectory(buf)
+
   if (!tables || !tables.has('name')) {
     return { family: undefined, postscript: undefined, wght: null, weightClass: undefined }
   }
 
   const records = readNameRecords(buf, tables.get('name'))
   const os2 = tables.get('OS/2')
+
   return {
     family: pickName(records, [16, 1]),
     postscript: pickName(records, [6]),
@@ -215,6 +229,7 @@ export function readFontInfo(file) {
 
 const checksum = (buf) => {
   let sum = 0
+
   for (let i = 0; i < buf.length; i += 4) {
     sum = (sum + buf.readUInt32BE(i)) % 0x100000000
   }
@@ -240,8 +255,10 @@ function buildSfnt(flavor, tables) {
   out.writeUInt16BE(n * 16 - maxPow2 * 16, 10)
 
   let cursor = 12 + n * 16
+
   tables.forEach((t, i) => {
     const rec = 12 + i * 16
+
     out.write(t.tag, rec, 'latin1')
     out.writeUInt32BE(
       checksum(
@@ -258,8 +275,10 @@ function buildSfnt(flavor, tables) {
 
   // head.checkSumAdjustment must read zero while the whole font is summed.
   const headIdx = tables.findIndex((t) => t.tag === 'head')
+
   if (headIdx !== -1) {
     const headOffset = out.readUInt32BE(12 + headIdx * 16 + 8)
+
     out.writeUInt32BE(0, headOffset + 8)
     out.writeUInt32BE((0xb1b0afba - checksum(out)) >>> 0, headOffset + 8)
   }
@@ -277,8 +296,10 @@ export function woffToSfnt(buf) {
   const flavor = buf.readUInt32BE(4)
   const numTables = buf.readUInt16BE(12)
   const tables = []
+
   for (let i = 0; i < numTables; i++) {
     const rec = 44 + i * 20
+
     if (rec + 20 > buf.length) {
       throw new Error('truncated WOFF table directory')
     }
@@ -288,12 +309,14 @@ export function woffToSfnt(buf) {
     const compLen = buf.readUInt32BE(rec + 8)
     const origLen = buf.readUInt32BE(rec + 12)
     const checkSum = buf.readUInt32BE(rec + 16)
+
     if (offset + compLen > buf.length) {
       throw new Error(`truncated WOFF table ${tag}`)
     }
 
     const packed = buf.subarray(offset, offset + compLen)
     const data = compLen < origLen ? inflateSync(packed) : Buffer.from(packed)
+
     if (data.length !== origLen) {
       throw new Error(`WOFF table ${tag} inflated to ${data.length}, expected ${origLen}`)
     }
@@ -312,12 +335,14 @@ export function woffToSfnt(buf) {
 export async function woff2ToSfnt(buf) {
   const mod = await import('wawoff2')
   const decompress = mod.default?.decompress ?? mod.decompress
+
   return Buffer.from(await decompress(buf))
 }
 
 export async function toSfnt(file) {
   const buf = readFileSync(file)
   const ext = extname(file).toLowerCase()
+
   if (ext === '.woff') {
     return woffToSfnt(buf)
   }
@@ -336,17 +361,22 @@ const sanitizeFileBase = (name) => name.replace(/[^A-Za-z0-9._-]/g, '-')
 // readable; local file inputs keep their own basename instead.
 async function stageAsTtf(sourcePath, stagingDir, destName) {
   const sourceInfo = statSync(sourcePath)
+
   if (!sourceInfo.isFile() || sourceInfo.size > 16 * 1024 * 1024) {
     throw new Error('Font source must be an ordinary file within 16 MiB')
   }
+
   const ext = extname(sourcePath).toLowerCase()
   const sfnt = FONT_EXTENSIONS.has(ext) ? readFileSync(sourcePath) : await toSfnt(sourcePath)
+
   if (sfnt.length > 16 * 1024 * 1024) {
     throw new Error('Converted font exceeds 16 MiB')
   }
+
   const info = parseFontBuffer(sfnt)
   const name = destName ?? sanitizeFileBase(info.postscript ?? basename(sourcePath, ext)) + '.ttf'
   const staged = join(stagingDir, name)
+
   writeFileSync(staged, sfnt)
   return { staged, destName: name, info }
 }
@@ -357,6 +387,7 @@ const webFamilyFromCss = (cssPath) => {
   }
 
   const match = readFileSync(cssPath, 'utf8').match(/font-family:\s*'([^']+)'/)
+
   return match?.[1]
 }
 
@@ -366,6 +397,7 @@ function fontsourceRoot(appDir, spec) {
   for (let at = resolve(appDir); ; at = dirname(at)) {
     const path = join(at, 'node_modules', spec)
     let present = false
+
     try {
       lstatSync(path)
       present = true
@@ -394,6 +426,7 @@ export async function prepareFontsource(
   { subset = 'latin', weights, install, stagingRoot } = {},
 ) {
   const variable = spec.startsWith('@fontsource-variable/')
+
   if (!isFontsourceSpec(spec)) {
     return { error: `unsupported package ${spec} — only @fontsource/* and @fontsource-variable/*` }
   }
@@ -403,6 +436,7 @@ export async function prepareFontsource(
   // ./package.json, so probe the package dir rather than requiring it.
   let pkgDir = fontsourceRoot(appDir, spec) ?? join(appDir, 'node_modules', ...spec.split('/'))
   let wasInstalled = false
+
   if (!existsSync(join(pkgDir, 'package.json'))) {
     if (!install) {
       return { error: `${spec} is not installed — run \`bun add ${spec}\` or pass --install` }
@@ -427,6 +461,7 @@ export async function prepareFontsource(
   }
 
   const filesDir = join(pkgDir, 'files')
+
   if (!existsSync(filesDir)) {
     return { error: `${spec} has no files/ directory — not a Fontsource layout` }
   }
@@ -466,11 +501,13 @@ export async function prepareFontsource(
 
     if (!picked) {
       const subsets = [...new Set(listing.map((f) => f.subset))].join(', ')
+
       return { error: `${spec}: no ${subset}/normal face in files/ (subsets: ${subsets})` }
     }
 
     const face = await stageAsTtf(join(filesDir, picked.file), stagingDir)
     const cssPath = join(pkgDir, `${picked.key}.css`)
+
     return {
       faces: [face],
       webImports: [`@import '${spec}/${picked.key}.css';`],
@@ -491,6 +528,7 @@ export async function prepareFontsource(
   // Prefer .woff sources (zlib-only inflate); woff2-only packages take woff2.
   const faces = candidates.filter((f) => f.file.endsWith('.woff'))
   const chosen = faces.length ? faces : candidates.filter((f) => f.file.endsWith('.woff2'))
+
   if (!chosen.length) {
     return {
       error: `${spec}: no ${subset}/normal faces for weights ${weights?.join(',') ?? '(any)'}`,
@@ -499,8 +537,10 @@ export async function prepareFontsource(
 
   const staged = []
   const webImports = []
+
   for (const f of chosen) {
     const face = await stageAsTtf(join(filesDir, f.file), stagingDir)
+
     staged.push({ ...face, weight: Number(f.key) })
     webImports.push(`@import '${spec}/${subset}-${f.key}.css';`)
   }
@@ -523,6 +563,7 @@ function managedBlock(token, faces, genericFallbacks) {
 
   if (token === 'sans') {
     const defaults = faces.find((f) => f.weight === 400) ?? faces[0]
+
     // Literal list on the native root — harness-proven; var() in font-family
     // is not assumed to resolve on the NS css adapter.
     rules.push(
@@ -551,6 +592,7 @@ function managedBlock(token, faces, genericFallbacks) {
 function upsertManagedBlock(css, token, block) {
   const start = css.indexOf(managedStart(token))
   const end = css.indexOf(managedEnd(token))
+
   if (start !== -1 && end !== -1 && end > start) {
     return css.slice(0, start) + block + css.slice(end + managedEnd(token).length)
   }
@@ -565,12 +607,14 @@ function ensureWebImport(entrySource) {
 
   const lines = entrySource.split('\n')
   const styleLine = lines.findIndex((l) => /^import\s+['"].*style\.css['"]/.test(l))
+
   if (styleLine !== -1) {
     lines.splice(styleLine + 1, 0, `import './fonts.css';`)
     return { source: lines.join('\n'), changed: true }
   }
 
   let lastImport = -1
+
   for (let i = 0; i < lines.length; i++) {
     if (/^import\s/.test(lines[i])) {
       lastImport = i
@@ -588,8 +632,10 @@ function ensureWebImport(entrySource) {
 function appSourceDir(appDir, read) {
   const configPath = join(appDir, 'nativescript.config.ts')
   const config = read(configPath)
+
   if (config !== null) {
     const match = config.toString('utf8').match(/appPath:\s*['"]([^'"]+)['"]/)
+
     if (match) {
       return join(appDir, match[1])
     }
@@ -601,6 +647,7 @@ function appSourceDir(appDir, read) {
 const readManifest = (fontsDir, read) => {
   const manifestPath = join(fontsDir, MANIFEST)
   const bytes = read(manifestPath)
+
   if (bytes === null) {
     return { tokens: {} }
   }
@@ -622,22 +669,30 @@ const readManifest = (fontsDir, read) => {
 // prepareFontsource.
 export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [], webFamily } = {}) {
   appDir = realpathSync(appDir)
+
   const files = new Map(),
     inputs = new Map(),
     contents = new Map()
+
   const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
   const read = (path) => {
     path = resolve(path)
+
     const rel = relative(appDir, path)
+
     if (rel === '..' || rel.startsWith('..' + sep) || isAbsolute(rel)) {
       throw new Error(`Font registration leaves the selected app: ${path}`)
     }
+
     if (contents.has(path)) {
       return contents.get(path)
     }
+
     let bytes = null
+
     try {
       const info = lstatSync(path)
+
       if (!info.isFile() || info.size > 16 * 1024 * 1024 || realpathSync(path) !== path) {
         throw new Error(
           `Font registration input must be an ordinary app file within 16 MiB: ${path}`,
@@ -653,17 +708,21 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
         throw error
       }
     }
+
     contents.set(path, bytes)
     inputs.set(path, { path, before: bytes === null ? null : hash(bytes) })
     return bytes
   }
+
   const present = (path) => files.has(path) || read(path) !== null
   const write = (path, data, mode) => {
     const before = read(path),
       bytes = Buffer.isBuffer(data) ? data : Buffer.from(data)
+
     if (bytes.length > 16 * 1024 * 1024) {
       throw new Error('Font output exceeds 16 MiB')
     }
+
     files.set(path, {
       path,
       before: before === null ? null : hash(before),
@@ -671,6 +730,7 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
       mode: before === null ? (mode ?? 0o666 & ~process.umask()) : lstatSync(path).mode & 0o777,
     })
   }
+
   const report = {
     copied: [],
     faces: [],
@@ -684,6 +744,7 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
   }
 
   const srcDir = appSourceDir(appDir, read)
+
   if (!existsSync(srcDir)) {
     return { error: `no app source directory at ${srcDir}` }
   }
@@ -699,13 +760,17 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
   ) {
     throw new Error('Font source directory must be ordinary and inside the selected app')
   }
+
   const family = stagedFaces[0].info.family
+
   report.names.family = webFamily ?? family
 
   const fontsDir = join(srcDir, 'fonts')
 
   const manifest = readManifest(fontsDir, read)
+
   manifest.tokens[token] ??= { faces: [], webImports: [] }
+
   const state = manifest.tokens[token]
   const changedTokens = new Set([token])
   const changedFaces = new Set()
@@ -718,6 +783,7 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
     const stagedBytes = readFileSync(face.staged)
     const existing = read(target)
     const pending = files.get(target)
+
     if (pending && !Buffer.from(pending.content, 'base64').equals(stagedBytes)) {
       throw new Error(
         `Conflicting font inputs use the same filename ${face.destName}; rename one input`,
@@ -766,6 +832,7 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
     }
 
     const previous = state.faces.find((f) => f.file === entry.file && f.weight === entry.weight)
+
     if (previous) {
       Object.assign(previous, entry)
     } else {
@@ -852,8 +919,10 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 
   // Import the faces from the web entry — native never sees this file.
   const entry = WEB_ENTRIES.map((e) => join(srcDir, e)).find((e) => present(e))
+
   if (entry) {
     const { source, changed } = ensureWebImport(read(entry).toString('utf8'))
+
     if (changed) {
       write(entry, source)
       report.edited.push(basename(entry))
@@ -865,15 +934,19 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
   }
 
   const styleTokens = [...changedTokens].filter((value) => value !== 'none')
+
   if (styleTokens.length) {
     const stylePath = join(srcDir, 'style.css')
+
     if (!present(stylePath)) {
       report.warnings.push(`no ${stylePath} — add the token + font-family rules manually`)
     } else {
       const styleCss = read(stylePath).toString('utf8')
       let next = styleCss
+
       for (const savedToken of styleTokens) {
         const generic = GENERIC_FALLBACKS[savedToken] ?? ['sans-serif']
+
         next = upsertManagedBlock(
           next,
           savedToken,
@@ -890,13 +963,17 @@ export function planFont(appDir, stagedFaces, { token = 'sans', webImports = [],
 
   report.names.ios = [...new Set(report.names.ios.filter(Boolean))]
   report.names.android = [...new Set(report.names.android)]
+
   let total = 0
+
   for (const file of files.values()) {
     total += Buffer.from(file.content, 'base64').length
   }
+
   if (files.size > 512 || inputs.size > 2048 || total > 32 * 1024 * 1024) {
     throw new Error('Font plan exceeds inventory/byte limits')
   }
+
   return {
     version: 1,
     project: appDir,
@@ -915,6 +992,7 @@ export async function planFontInputs(
   { name, token, subset, weights, install } = {},
 ) {
   const stagingDir = mkdtempSync(join(tmpdir(), 'xplat-fonts-'))
+
   try {
     const staged = []
     const webImports = []
@@ -949,16 +1027,19 @@ export async function planFontInputs(
         }
 
         const ext = extname(input).toLowerCase()
+
         if (!FONT_EXTENSIONS.has(ext) && !CONVERTIBLE_EXTENSIONS.has(ext)) {
           return { error: `${basename(input)} — expected .ttf, .otf, .woff, or .woff2` }
         }
 
         const localStage = mkdtempSync(join(stagingDir, 'local-'))
+
         staged.push(await stageAsTtf(input, localStage, basename(input, ext) + '.ttf'))
       }
     }
 
     const families = new Set(staged.map((f) => f.info.family).filter(Boolean))
+
     if (families.size > 1 && token !== 'none' && !name) {
       return {
         error: `inputs resolve to multiple families (${[...families].join(', ')}) — run one family per token or pass --token none`,
@@ -972,6 +1053,7 @@ export async function planFontInputs(
     }
 
     const plan = planFont(appDir, staged, { token, webImports, webFamily })
+
     if (plan.error) {
       return plan
     }
@@ -987,8 +1069,10 @@ function applyFontPlan(plan) {
   if (plan.error) {
     return plan
   }
+
   for (const input of plan.inputs) {
     let bytes = null
+
     try {
       bytes = readFileSync(input.path)
     } catch (error) {
@@ -998,14 +1082,17 @@ function applyFontPlan(plan) {
     }
 
     const before = bytes === null ? null : createHash('sha256').update(bytes).digest('hex')
+
     if (before !== input.before) {
       throw new Error(`Font input changed before publication: ${input.path}`)
     }
   }
+
   mkdirSync(join(plan.sourceDirectory, 'fonts'), { recursive: true })
   for (const file of plan.files) {
     writeFileSync(file.path, Buffer.from(file.content, 'base64'), { mode: file.mode })
   }
+
   return plan.report
 }
 

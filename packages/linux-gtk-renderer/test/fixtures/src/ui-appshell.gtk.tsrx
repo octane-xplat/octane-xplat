@@ -59,6 +59,7 @@ function HookProbe() {
  *  provider's value is visible. */
 function CollapseProbe() {
   const c = useSideNavCollapse()
+
   state.collapsed = c?.isCollapsed ?? null
   return null
 }
@@ -107,7 +108,9 @@ function ResizablePanel() {
 
 export function AppShellProbe() @{
   const [pick, setPick] = useState<string | null>(null)
+
   state.navPick = pick
+
   // Imperative collapse handle — a labeled control in the content area drives
   // expand with real input (the icon-only rail button is not reliably
   // hit-testable in this fixture's layout).

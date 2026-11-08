@@ -21,8 +21,10 @@ const nativeFingerprint = 'a'.repeat(64)
 const options = { endpoint: 'https://ota.example.test', embeddedVersion: '1.0.0' }
 function fixture(t, extra = {}) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-ota-client-'))
+
   t.after(() => rmSync(root, { recursive: true, force: true }))
   writeFileSync(join(root, 'native.txt'), 'native-binary')
+
   const archive = zipSync({
     'package.json': strToU8('{"main":"bundle"}'),
     'bundle.mjs': strToU8('globalThis.version = 2'),
@@ -81,6 +83,7 @@ function fixture(t, extra = {}) {
 
 test('checks and stages without touching running bundle; confirmation cannot confirm staged code', async (t) => {
   const f = fixture(t)
+
   f.storage.write('active/app/bundle.mjs', 'old bundle')
   assert.deepEqual(await f.client.check(), { available: true, manifest: f.manifest })
   await f.client.install(f.manifest)
@@ -98,6 +101,7 @@ test('checks and stages without touching running bundle; confirmation cannot con
 
 test('corrupted download never reaches staging', async (t) => {
   const f = fixture(t)
+
   f.env.request = async () => ({ status: 200, bytes: new Uint8Array(f.archive.length) })
   await assert.rejects(f.client.install(f.manifest), /integrity/)
   assert.equal(f.storage.exists('next'), false)
@@ -107,6 +111,7 @@ test('corrupted download never reaches staging', async (t) => {
 test('rejects traversal, absolute paths, backslashes and case collisions', async (t) => {
   for (const name of ['../escape', '/escape', 'dir\\escape', 'BUNDLE.mjs']) {
     const f = fixture(t, { [name]: strToU8('unsafe') })
+
     await assert.rejects(f.client.install(f.manifest), /Unsafe path|Duplicate path/)
     assert.equal(f.storage.exists('next'), false)
   }
@@ -115,12 +120,14 @@ test('rejects traversal, absolute paths, backslashes and case collisions', async
 test('caps expanded bytes before writing any archive file', async (t) => {
   const f = fixture(t, { large: new Uint8Array(4096) })
   const client = createClient({ ...options, maxExpandedBytes: 1024 }, f.env)
+
   await assert.rejects(client.install(f.manifest), /storage limit/)
   assert.equal(f.storage.exists('next'), false)
 })
 
 test('requires the real boot entry and a matching native fingerprint', async (t) => {
   const f = fixture(t)
+
   await assert.rejects(
     f.client.install({ ...f.manifest, nativeFingerprint: 'b'.repeat(64) }),
     /incompatible/,
@@ -132,11 +139,13 @@ test('requires the real boot entry and a matching native fingerprint', async (t)
   )
 
   const missing = fixture(t, { 'package.json': strToU8('{"main":"missing"}') })
+
   await assert.rejects(missing.client.install(missing.manifest), /entry point missing/)
 })
 
 test('native guard rejection prevents both automatic and explicit reinstall', async (t) => {
   const f = fixture(t)
+
   f.storage.write('rejected.txt', f.manifest.sha256)
   assert.deepEqual(await f.client.check(), { available: false, reason: 'rejected' })
   await assert.rejects(f.client.install(f.manifest), /failed a previous boot/)
@@ -144,6 +153,7 @@ test('native guard rejection prevents both automatic and explicit reinstall', as
 
 test('confirms only matching running code and schedules rollback without swapping files', (t) => {
   const f = fixture(t)
+
   f.storage.write('current.json', JSON.stringify(f.manifest))
   f.storage.write('pending.txt', f.manifest.sha256)
   assert.equal(f.client.status().needsConfirmation, true)
@@ -157,15 +167,19 @@ test('confirms only matching running code and schedules rollback without swappin
 test('serializes installation and recovers from failed storage writes', async (t) => {
   const f = fixture(t)
   let complete
+
   f.env.request = () =>
     new Promise((resolve) => {
       complete = resolve
     })
 
   const first = f.client.install(f.manifest)
+
   await assert.rejects(f.client.install(f.manifest), /being installed/)
   complete({ status: 200, bytes: f.archive })
+
   const original = f.storage.write
+
   f.storage.write = () => {
     throw new Error('disk full')
   }
@@ -179,6 +193,7 @@ test('serializes installation and recovers from failed storage writes', async (t
 
 test('missing wiring and malformed manifests fail explicitly', async (t) => {
   const f = fixture(t)
+
   f.storage.remove('native.txt')
   assert.throws(() => createClient(options, f.env), /boot wiring missing/)
   f.env.request = async () => ({ status: 200, bytes: strToU8('{"updateAvailable":true}') })
@@ -187,6 +202,7 @@ test('missing wiring and malformed manifests fail explicitly', async (t) => {
 
 test('unsupported target has identical API and performs no installation', async () => {
   const client = createUpdates(options)
+
   assert.equal(client.supported, false)
   assert.deepEqual(await client.check(), { available: false, reason: 'unsupported' })
   await assert.rejects(client.install({}), /iOS or Android release build/)
@@ -208,6 +224,7 @@ test('matching descriptor cannot authorize a mismatched or missing payload finge
     }),
   ]) {
     const f = fixture(t, { 'xplat-native.json': strToU8(metadata) })
+
     await assert.rejects(f.client.install(f.manifest), /payload does not match/)
     assert.equal(f.storage.exists('next'), false)
   }

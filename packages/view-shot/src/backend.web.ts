@@ -12,10 +12,13 @@ function element(target: object): HTMLElement {
   ) {
     throw new TypeError('Capture target must be a connected HTML element from this document')
   }
+
   const bounds = target.getBoundingClientRect()
+
   if (bounds.width <= 0 || bounds.height <= 0) {
     throw new RangeError('Capture target has no laid-out area')
   }
+
   return target
 }
 
@@ -24,6 +27,7 @@ function dimensions(host: HTMLElement, options: NormalizedCaptureOptions) {
   const ratio = host.ownerDocument.defaultView?.devicePixelRatio ?? 1
   const sourceWidth = Math.ceil(bounds.width * ratio),
     sourceHeight = Math.ceil(bounds.height * ratio)
+
   checkDimensions(sourceWidth, sourceHeight)
   return {
     width: options.width ?? sourceWidth,
@@ -37,12 +41,15 @@ function assertOptions(options: NormalizedCaptureOptions) {
   if (options.fileName !== undefined) {
     throw new UnavailabilityError('Custom capture file names on web')
   }
+
   if (options.format === 'webp') {
     throw new UnavailabilityError('WebP in this browser capture subset')
   }
+
   if (options.snapshotContentContainer) {
     throw new UnavailabilityError('Full scroll-content capture in this browser subset')
   }
+
   if (options.handleGLSurfaceViewOnAndroid || options.useRenderInContext) {
     throw new UnavailabilityError('Native capture strategies on web')
   }
@@ -50,7 +57,9 @@ function assertOptions(options: NormalizedCaptureOptions) {
 
 async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
   assertOptions(options)
+
   const host = element(target)
+
   // Cross-origin/protected documents and hardware video cannot be faithfully
   // represented by this DOM engine. Refuse those descendants explicitly.
   if (
@@ -59,13 +68,18 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
   ) {
     throw new UnavailabilityError('Iframe/video surfaces in DOM view capture')
   }
+
   dimensions(host, options)
+
   const { default: render } = await import('html2canvas-pro')
+
   element(host)
+
   const size = dimensions(host, options)
   const bounds = host.getBoundingClientRect()
   let canvas: HTMLCanvasElement | undefined
   let output: HTMLCanvasElement | undefined
+
   try {
     canvas = await render(host, {
       backgroundColor: options.format === 'jpg' ? '#ffffff' : null,
@@ -84,7 +98,9 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
       output = host.ownerDocument.createElement('canvas')
       output.width = size.width
       output.height = size.height
+
       const context = output.getContext('2d')
+
       if (!context) {
         throw new Error('Could not allocate a capture canvas')
       }
@@ -98,8 +114,10 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
     }
 
     const mime = options.format === 'jpg' ? 'image/jpeg' : 'image/png'
+
     if (options.result !== 'tmpfile') {
       const uri = output.toDataURL(mime, options.quality)
+
       if (!uri.startsWith(`data:${mime};base64,`)) {
         throw new Error('Browser did not encode the requested image format')
       }
@@ -122,7 +140,9 @@ async function capture(target: object, options: NormalizedCaptureOptions): Promi
     )
 
     element(host)
+
     const uri = URL.createObjectURL(blob)
+
     owned.add(uri)
     return uri
   } finally {
@@ -162,6 +182,7 @@ export const backend: CaptureBackend = {
   },
   async waitForLayout(target, cancelled) {
     const start = Date.now()
+
     while (!cancelled()) {
       try {
         element(target)
@@ -174,6 +195,7 @@ export const backend: CaptureBackend = {
 
       await new Promise<void>((resolve) => setTimeout(resolve, 16))
     }
+
     throw new Error('ViewShot unmounted while waiting for layout')
   },
 }

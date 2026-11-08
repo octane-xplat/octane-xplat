@@ -19,8 +19,10 @@ import {
 } from './slider-values.macos'
 
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(component: any, props: any) {
   vi.stubGlobal('__xplatAppKit', { keyboardEventsSupported: true })
+
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const render = (next: any) => {
@@ -29,8 +31,10 @@ function mount(component: any, props: any) {
   }
 
   render(props)
+
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -65,6 +69,7 @@ function key(thumb: any, name: string, extras = {}) {
 
 it('slider value math handles aliases, equal bounds, steps and non-crossing pairs', () => {
   const limits = sliderLimits({ min: 10, max: 30, minValue: 0, maxValue: 100, step: 5 })
+
   expect(limits).toEqual({ min: 10, max: 30, step: 5 })
   expect(moveSlider([10, 25], 0, 99, limits)).toEqual([25, 25])
   expect(moveSlider([15, 30], 1, -20, limits)).toEqual([15, 15])
@@ -111,8 +116,10 @@ it('uncontrolled keys persist, while controlled values request changes without r
 
 it('range thumbs have separate keys/bounds and cannot cross', () => {
   const env = mount(Slider, { min: 0, max: 100, defaultValue: [20, 80], label: 'Range' })
+
   try {
     const [lower, upper] = env.named('vx-slider-thumb')
+
     expect(lower.props.accessibilityLabel).toBe('Range lower value')
     expect(upper.props.accessibilityLabel).toBe('Range upper value')
     key(lower, 'ArrowRight')
@@ -177,12 +184,15 @@ it('field state blocks pan, keys and adjustable actions without duplicating Fiel
   }
 
   const env = mount(Parent, { disabled: true })
+
   try {
     expect(env.named('vx-field')).toHaveLength(1)
     for (const state of [{ disabled: true }, { readonly: true }]) {
       env.render(state)
       expect(env.named('vx-slider--appkit')[0].props.onPan).toBeUndefined()
+
       const thumb = env.named('vx-slider-thumb')[0]
+
       expect(thumb.props.onAccessibilityIncrement).toBeUndefined()
       expect(key(thumb, 'ArrowRight').defaultPrevented).toBe(false)
       expect(thumb.props.accessibilityValue).toBe('40')
@@ -235,6 +245,7 @@ it('AppKit pan keeps shared delta aliases and exposes pointer location separatel
   }
 
   const env = mount(Listener, {})
+
   try {
     env
       .named('pan-listener')[0]
@@ -286,6 +297,7 @@ it('retained thumb callbacks reject current blocking and detached hosts without 
     tap = thumb.props.onTap
 
   let focused = 0
+
   thumb.window = {
     makeFirstResponder: () => {
       focused++
@@ -324,6 +336,7 @@ it('AppKit slider adjustments reject callback reentry and release their claim af
   try {
     const increment = env.named('vx-slider-thumb')[0].props.onAccessibilityIncrement
     let nested = true
+
     env.render({
       value: 20,
       onValueChange: (value: unknown) => {
@@ -399,6 +412,7 @@ it('matching controlled feedback keeps an AppKit drag while mode, limits and blo
 
   try {
     env.render(props())
+
     const host = env.named('vx-slider--appkit')[0],
       view = { bounds: { size: { width: 120 } } },
       thumb = () => env.named('vx-slider-thumb')[0]
@@ -422,7 +436,9 @@ it('matching controlled feedback keeps an AppKit drag while mode, limits and blo
       env.render({ value: 40, onValueChange: (value: unknown) => requests.push(value) })
       pan(1, 0)
       pan(2, 5)
+
       const before = requests.length
+
       env.render({ ...replacement, onValueChange: (value: unknown) => requests.push(value) })
       pan(2, 20)
       pan(3, 20)

@@ -26,6 +26,7 @@ export function PlacementCase(props: { values: string[] }) @{
 
 function ReactiveChildren(props: { capture: (fn: (values: string[]) => void) => void }) @{
   const [values, setValues] = useState(['a'])
+
   props.capture(setValues)
 
   <>
@@ -106,8 +107,10 @@ export default function GridPlacementProbe() @{
 
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('probe-auto') && ctx.find('probe-a'))
+
   const composite = ctx.find('probe-composite') as any
   const automatic = ctx.find('probe-auto') as any
+
   ctx.assert('composite row', composite.row, 0)
   ctx.assert('composite column', composite.col, 0)
   ctx.assert('composite span', composite.colSpan, 2)

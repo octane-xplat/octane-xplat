@@ -50,6 +50,7 @@ export function ChatMessageList(props: ChatMessageListProps): unknown @{
   useEffect(() => {
     const scroller = chatHost.scroll(layoutContext?.scrollContainerRef?.current)
     const action = props.scrollToTopAction
+
     if (!action || !scroller?.on) {
       return
     }

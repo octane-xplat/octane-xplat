@@ -23,6 +23,7 @@ export const random: RandomImpl = {
     }
 
     const target = new Uint8Array(view.buffer, view.byteOffset, view.byteLength)
+
     if (target.length === 0) {
       return view
     }
@@ -32,6 +33,7 @@ export const random: RandomImpl = {
     }
 
     const data = NSMutableData.dataWithLength(target.length)
+
     // errSecSuccess = 0
     if (SecRandomCopyBytes(kSecRandomDefault, target.length, data.mutableBytes) !== 0) {
       throw new Error('random: SecRandomCopyBytes failed')

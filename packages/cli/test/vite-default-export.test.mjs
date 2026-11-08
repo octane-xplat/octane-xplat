@@ -10,12 +10,15 @@ import { createServer } from 'vite'
 const ns = pathToFileURL(createRequire(import.meta.url).resolve('@nativescript/vite'))
 const { registerNsModuleServerRoute } = await import(new URL('./hmr/server/websocket-ns-m.js', ns))
 const { setProjectFlavor } = await import(new URL('./helpers/flavor.js', ns))
+
 setProjectFlavor('javascript')
 
 async function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), 'xplat-default-export-'))
+
   mkdirSync(join(root, 'src'))
   writeFileSync(join(root, 'package.json'), '{"type":"module"}')
+
   let graphVersion = 0
   const server = await createServer({
     root,
@@ -43,12 +46,16 @@ async function fixture(t) {
       },
     ],
   })
+
   t.after(async () => {
     await server.close()
     rmSync(root, { recursive: true, force: true })
   })
+
   await server.listen()
+
   const origin = `http://127.0.0.1:${server.httpServer.address().port}`
+
   return {
     root,
     write(name, source) {
@@ -62,7 +69,9 @@ async function fixture(t) {
         join(root, 'src', 'import-' + name + '.mjs'),
         `import value from '${origin}/ns/m/src/${name}.mjs'; export { value };`,
       )
+
       const response = await fetch(origin + '/ns/m/src/import-' + name + '.mjs')
+
       assert.equal(response.status, 200)
       return (await response.text()).includes('[link-check] Missing default export')
     },
@@ -71,7 +80,9 @@ async function fixture(t) {
 
 it('native HTTP link checking agrees with actual ESM default exports', async (t) => {
   const f = await fixture(t)
+
   f.write('base', 'export default 17; export const other = 1;')
+
   const cases = {
     direct: 'export default 17;',
     function: 'export default function named() {}',
@@ -87,10 +98,13 @@ it('native HTTP link checking agrees with actual ESM default exports', async (t)
     comment: '// export default 17;\nexport const named = 99;',
     string: 'export const text = "export default 17";',
   }
+
   for (const [name, source] of Object.entries(cases)) {
     await t.test(name, async () => {
       f.write(name, source)
+
       const namespace = await import(pathToFileURL(join(f.root, 'src', name + '.mjs')))
+
       assert.equal(await f.rejects(name), !Object.hasOwn(namespace, 'default'))
     })
   }
@@ -98,6 +112,7 @@ it('native HTTP link checking agrees with actual ESM default exports', async (t)
 
 it('rechecks default exports after the target gains or loses its default', async (t) => {
   const f = await fixture(t)
+
   for (const source of [
     'export const named = 99;',
     'const named = 23; export { named as default };',
@@ -105,6 +120,7 @@ it('rechecks default exports after the target gains or loses its default', async
     'export default 17;',
   ]) {
     f.write('changing', source)
+
     const namespace = await import(
       pathToFileURL(join(f.root, 'src/changing.mjs')) + '?' + Date.now()
     )

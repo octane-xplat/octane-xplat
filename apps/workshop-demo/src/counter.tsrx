@@ -11,6 +11,7 @@ export function WorkshopCounter(props: {
   fixture: { account: string }
 }) {
   const { count } = useStore(props.state)
+
   return (
     <Pressable
       accessibilityLabel="Increment"

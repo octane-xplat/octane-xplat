@@ -30,9 +30,11 @@ export class RecordStateController {
 
     const eventType = options?.eventType ?? 'keydown'
     const timeout = options?.timeout ?? sequenceTimeout
+
     if (!Number.isFinite(timeout) || timeout <= 0) {
       throw new TypeError('Recording timeout must be a positive number of milliseconds')
     }
+
     const suppressHandlers = options?.suppressHandlers ?? true
     const consumeEvents = options?.consumeEvents ?? false
     const target = options?.target ?? runtimeTarget
@@ -49,6 +51,7 @@ export class RecordStateController {
       if (this.state !== state || state.settled) {
         return
       }
+
       this.clearTimer(this.state)
       this.state.settled = true
       this.state = null
@@ -59,6 +62,7 @@ export class RecordStateController {
       if (this.state !== state || state.settled) {
         return
       }
+
       this.clearTimer(this.state)
       this.state.settled = true
       this.state = null
@@ -78,12 +82,14 @@ export class RecordStateController {
       finish,
       fail,
     }
+
     this.state = state
     this.restartTimer(state)
 
     return {
       stop: () => {
         const recording = finalizeRecording(state.steps, eventType)
+
         state.finish(recording)
         return recording
       },
@@ -101,9 +107,11 @@ export class RecordStateController {
     onError: ((error: unknown, info: ErrorInfo) => void) | undefined,
   ): { intercepted: boolean } {
     const active = this.state
+
     if (!active) {
       return { intercepted: false }
     }
+
     if (this.host.boundaryDepth(active.target, nativeEvent) == null) {
       return { intercepted: false }
     }
@@ -113,7 +121,9 @@ export class RecordStateController {
 
     if (captured && mutate) {
       active.steps.push(maybeStep)
+
       const recording = finalizeRecording(active.steps, active.eventType)
+
       this.restartTimer(active)
       try {
         active.onUpdate?.(recording)
@@ -144,6 +154,7 @@ export class RecordStateController {
     if (!this.state) {
       return
     }
+
     this.state.fail(createAbortError())
     this.state = null
   }
@@ -152,6 +163,7 @@ export class RecordStateController {
     this.clearTimer(active)
     active.timer = this.host.delay(() => {
       const recording = finalizeRecording(active.steps, active.eventType)
+
       active.finish(recording)
     }, active.timeout)
   }
@@ -166,27 +178,35 @@ export class RecordStateController {
 
 function stepFromEvent(event: NormalizedKeyEvent): string | null {
   const key = event.key
+
   if (parseBindingToken(key).type === 'modifier') {
     return null
   }
+
   const modifiers: string[] = []
+
   if (event.modifiers.ctrl) {
     modifiers.push('Ctrl')
   }
+
   if (event.modifiers.meta) {
     modifiers.push('Meta')
   }
+
   if (event.modifiers.alt) {
     modifiers.push('Alt')
   }
+
   if (event.modifiers.shift) {
     modifiers.push('Shift')
   }
+
   return [...modifiers, key].join('+')
 }
 
 function finalizeRecording(steps: readonly string[], eventType: KeyEventType): ShortcutRecording {
   const frozenSteps = Object.freeze([...steps]) as readonly string[]
+
   return Object.freeze({
     steps: frozenSteps,
     expression: frozenSteps.join(' '),
@@ -196,6 +216,7 @@ function finalizeRecording(steps: readonly string[], eventType: KeyEventType): S
 
 function createAbortError(): Error {
   const error = new Error('Recording cancelled')
+
   error.name = 'AbortError'
   return error
 }

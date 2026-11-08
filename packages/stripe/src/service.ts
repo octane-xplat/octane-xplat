@@ -8,6 +8,7 @@ import type {
 } from './types'
 
 const client = createStripeClient(backend)
+
 /** Initialize the app's Stripe SDK with a publishable key before checkout. Reconfiguration requires idle checkout. */
 export const initStripe: (options: InitStripeParams) => Promise<void> = client.initStripe
 /** Prepare guest PaymentIntent checkout. Native wallet options require platform merchant setup.

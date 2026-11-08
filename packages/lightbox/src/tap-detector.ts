@@ -18,11 +18,14 @@ export function createTapDetector(opts: {
 } {
   let lastTap: (XY & { t: number }) | null = null
   let cancelTimer: (() => void) | null = null
+
   return {
     up(at, pointer, waitForDouble, emit) {
       cancelTimer?.()
       cancelTimer = null
+
       const now = opts.now()
+
       if (waitForDouble) {
         if (
           lastTap &&
@@ -38,6 +41,7 @@ export function createTapDetector(opts: {
         cancelTimer = opts.schedule(() => emit({ kind: 'tap', at, pointer }), TAP_DELAY_MS)
         return
       }
+
       emit({ kind: 'tap', at, pointer })
     },
     cancel() {

@@ -1,4 +1,5 @@
 import type { StreamRequestOptions, StreamResponse } from './types'
+
 export type * from './types'
 /** Native Linux/Windows streaming is not qualified by this leaf. */
 export function requestStream(

@@ -76,8 +76,11 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
   const escapeHiding = useRef(false)
 
   const onShowRef = useRef(onShow)
+
   onShowRef.current = onShow
+
   const onHideRef = useRef(onHide)
+
   onHideRef.current = onHide
 
   const clearTimers = useCallback(() => {
@@ -181,6 +184,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
 
       if (touchTrigger === 'auto') {
         const target = event.target as HTMLElement | null
+
         if (target?.closest?.(ACTION_SELECTOR)) {
           return
         }
@@ -212,6 +216,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
   const onFocusOut = useCallback(
     (event: FocusEvent) => {
       const next = event.relatedTarget as HTMLElement | null
+
       if (cardEl.current?.contains(next)) {
         return
       }
@@ -224,6 +229,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
   const interactionRef = useCallback(
     (el: any) => {
       const prev = interactionEl.current
+
       if (prev) {
         prev.removeEventListener('mouseenter', onMouseEnter)
         prev.removeEventListener('mouseleave', onMouseLeave)
@@ -237,6 +243,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
         el.addEventListener('mouseenter', onMouseEnter)
         el.addEventListener('mouseleave', onMouseLeave)
         el.addEventListener('pointerdown', onPointerDown as EventListener)
+
         const attachFocus =
           focusTrigger === 'always' || (focusTrigger === 'auto' && isFocusable(el))
 
@@ -335,6 +342,7 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn {
             onFocusOut: (e: FocusEvent) => {
               const next = e.relatedTarget as HTMLElement | null
               const panel = e.currentTarget as HTMLElement
+
               if (panel.contains(next) || interactionEl.current?.contains(next)) {
                 return
               }

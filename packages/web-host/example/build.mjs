@@ -5,6 +5,7 @@ import { octane } from 'octane/compiler/vite'
 import { xplatCss } from '@octane-xplat/build/vite'
 import { webHost } from '@octane-xplat/web-host/vite'
 import { prerender } from '@octane-xplat/web-host/prerender'
+
 const root = new URL('..', import.meta.url).pathname
 const common = {
   root,
@@ -41,6 +42,7 @@ await build({
 
 // Keep static HTML separate from client assets so only owned pages are replaced.
 const { staticRenderer } = await import('./dist/server/server.web.js')
+
 console.log(
   await prerender(staticRenderer, {
     origin: 'http://localhost:4174',

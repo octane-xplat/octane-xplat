@@ -6,15 +6,18 @@ for (const name of ['setTimeout', 'clearTimeout', 'setInterval', 'clearInterval'
 
 const ui = Microsoft.UI.Xaml
 const window = new ui.Window()
+
 window.Title = 'XplatGlobalHotkeys'
 window.Content = new ui.Controls.StackPanel()
 window.Activate()
 
 const say = (m) => console.log('GHK ' + m)
 let presses = 0
+
 setTimeout(async () => {
   try {
     const support = await getGlobalShortcutSupport()
+
     say('support ' + JSON.stringify(support))
     if (!support.supported) {
       throw new Error('unsupported: ' + support.reason)
@@ -36,8 +39,10 @@ setTimeout(async () => {
     }
 
     say('registered trigger=' + result.shortcut.trigger)
+
     // The driver sends the chord twice with a foreign window focused.
     const deadline = Date.now() + 45000
+
     while (presses < 2 && Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 200))
     }
@@ -50,7 +55,9 @@ setTimeout(async () => {
     // The driver sends once more; delivery must not resume.
     await new Promise((r) => setTimeout(r, 2500))
     say('post-unregister presses=' + presses)
+
     const reserved = await shortcuts.register({ id: 'res', accelerator: 'Meta+KeyL', onPress() {} })
+
     say('reserved ok=' + reserved.ok + ' code=' + (reserved.ok ? '-' : reserved.error.code))
     if (!reserved.ok && reserved.error.code !== 'reserved') {
       throw new Error('expected reserved for Meta+KeyL, got ' + reserved.error.code)

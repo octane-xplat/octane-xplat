@@ -12,6 +12,7 @@ describe('Markdown public parser', () => {
     const parser = createMarkdownStreamParser()
     const first = parser.append('# Hello\n\nBody\n\n')
     const next = parser.append('more **bold')
+
     expect(next.kind).toBe('octane-xplat/md')
     expect(next.v).toBe(2)
     expect(next.children[0]).toBe(first.children[0])
@@ -23,11 +24,13 @@ describe('Markdown public parser', () => {
     'finishes exactly like a full parse: %s',
     (source) => {
       const parser = createMarkdownStreamParser()
+
       for (const chunk of source) {
         parser.append(chunk)
       }
 
       const final = parser.finish()
+
       expect(final).toEqual(parseMdDoc(source))
       expect(parser.finish()).toBe(final)
       expect(() => parser.append('more')).toThrow('reset')
@@ -37,6 +40,7 @@ describe('Markdown public parser', () => {
   it('resets after finish and keeps independent streams isolated', () => {
     const a = createMarkdownStreamParser()
     const b = createMarkdownStreamParser()
+
     a.append('old')
     a.finish()
     expect(a.reset()).toEqual(parseMdDoc(''))
@@ -49,6 +53,7 @@ describe('Markdown public parser', () => {
   it('reports line-relative, half-open UTF-16 syntax offsets', () => {
     const code = '// 😀\nconst value = "😀"'
     const lines = tokenize(code, 'typescript')
+
     expect(lines[0]).toContainEqual({ type: 'comment', start: 0, end: 5 })
     expect(lines[1]).toContainEqual({ type: 'keyword', start: 0, end: 5 })
     for (const [index, tokens] of lines.entries()) {
@@ -68,5 +73,6 @@ it('splits absolute custom tokens across newlines without out-of-line offsets', 
 
 it('clips built-in multiline matches to their current line', () => {
   const lines = tokenize('/* a\nb */', 'typescript')
+
   expect(lines[0]).toEqual([{ type: 'comment', start: 0, end: 4 }])
 })

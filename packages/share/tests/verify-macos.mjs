@@ -9,8 +9,11 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 const leaf = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repo = resolve(leaf, '../..')
+
 await mkdir(join(repo, 'research'), { recursive: true })
+
 const app = await mkdtemp(join(repo, 'research/macos-share-'))
+
 await mkdir(join(app, 'node_modules/@octane-xplat'), { recursive: true })
 await symlink(leaf, join(app, 'node_modules/@octane-xplat/share'))
 await writeFile(
@@ -43,16 +46,23 @@ const compiled = spawnSync(
 )
 
 assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
+
 const dispatched = spawnSync(executable, [], { encoding: 'utf8', timeout: 10_000 })
+
 assert.equal(dispatched.status, 0, dispatched.stdout + dispatched.stderr)
 assert.match(dispatched.stdout, /NATIVE_SHARE_CONTRACT_OK/)
 console.log(dispatched.stdout.trim())
+
 const artifact = await buildMacOSNative(app)
+
 assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/platform', '@octane-xplat/share'])
 
 const bootstrap = join(app, 'bootstrap.js')
+
 await writeNativeBootstrap(artifact, bootstrap)
+
 const script = join(app, 'fixture.cjs')
+
 await writeFile(
   script,
   `

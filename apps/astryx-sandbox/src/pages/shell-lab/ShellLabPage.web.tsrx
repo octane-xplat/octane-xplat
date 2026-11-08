@@ -906,8 +906,10 @@ function SampleTopNav({
 
 function configToParams(config: ShellConfig): URLSearchParams {
   const params = new URLSearchParams()
+
   for (const [key, value] of Object.entries(config)) {
     const defaultValue = DEFAULT_CONFIG[key as keyof ShellConfig]
+
     if (value !== defaultValue) {
       params.set(key, String(value))
     }
@@ -918,9 +920,11 @@ function configToParams(config: ShellConfig): URLSearchParams {
 
 function paramsToConfig(params: URLSearchParams): ShellConfig {
   const config = { ...DEFAULT_CONFIG }
+
   for (const [key, value] of params.entries()) {
     if (key in DEFAULT_CONFIG) {
       const defaultValue = DEFAULT_CONFIG[key as keyof ShellConfig]
+
       if (typeof defaultValue === 'boolean') {
         ;(config as Record<string, unknown>)[key] = value === 'true'
       } else {

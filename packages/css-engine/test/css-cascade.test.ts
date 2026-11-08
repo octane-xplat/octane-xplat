@@ -25,6 +25,7 @@ function node(type: string, opts: any = {}) {
     computedStyle: {},
     computedCustomProps: new Map(),
   }
+
   n.getChildIndex = (c: any) => n.children.indexOf(c)
   n.getChildAt = (i: number) => n.children[i]
   n.getChildrenCount = () => n.children.length
@@ -32,12 +33,14 @@ function node(type: string, opts: any = {}) {
     n.parent.children.push(n)
     compute(n.parent) // parent computed before child inherits from it
   }
+
   compute(n)
   return n
 }
 
 function compute(n: any) {
   const { style, customProps, cssKeys, inheritedKeys } = computeCascade(n, stylesheetScope())
+
   n.computedStyle = style
   n.computedCustomProps = customProps
   n.cssOriginKeys = cssKeys
@@ -54,7 +57,9 @@ function recompute(n: any) {
 
 test('class rule sets backgroundColor; removing the class resets it', () => {
   registerStylesheet('t1', '.a { background-color: #ff0000 }')
+
   const n = node('masonview', { classes: ['a'] })
+
   assert.equal(n.computedStyle.backgroundColor, '#ff0000')
   n.cssClasses = new Set()
   recompute(n)
@@ -66,6 +71,7 @@ test('specificity, source order, and cascade layers', () => {
     't2',
     '@layer low { .a.b { background-color: #001 } .b { background-color: #002 } } .b { background-color: #010 }',
   )
+
   // unlayered beats layered regardless of layered specificity
   assert.equal(node('masonview', { classes: ['a', 'b'] }).computedStyle.backgroundColor, '#010')
   registerStylesheet('t2b', '.b { background-color: #100 } .b { background-color: #200 }')
@@ -75,7 +81,9 @@ test('specificity, source order, and cascade layers', () => {
 
 test('inline beats CSS; removing the inline key falls back to CSS', () => {
   registerStylesheet('t3', '.a { color: red }')
+
   const n = node('label', { classes: ['a'], style: { color: 'blue' } })
+
   assert.equal(n.computedStyle.color, 'blue')
   n.props.style = {}
   recompute(n)
@@ -84,8 +92,10 @@ test('inline beats CSS; removing the inline key falls back to CSS', () => {
 
 test('an element prop named like a style property outranks CSS and inheritance', () => {
   registerStylesheet('t-local-prop', '.lp-root { font-size: 16px } .lp-label { color: red }')
+
   const root = node('masonview', { classes: ['lp-root'] })
   const label = node('label', { parent: root, classes: ['lp-label'] })
+
   label.props.fontSize = 14
   label.props.color = 'blue'
   compute(label)
@@ -94,6 +104,7 @@ test('an element prop named like a style property outranks CSS and inheritance',
     undefined,
     'the fontSize prop governs, not the inherited 16',
   )
+
   assert.equal(label.computedStyle.color, undefined, 'the color prop outranks the CSS rule')
   label.props.style = { fontSize: 12 }
   compute(label)
@@ -102,8 +113,10 @@ test('an element prop named like a style property outranks CSS and inheritance',
 
 test('color/font-size inherit to child label; background-color does not', () => {
   registerStylesheet('t4', '.p { color: #123456; font-size: 20px; background-color: #abcdef }')
+
   const p = node('masonview', { classes: ['p'] })
   const child = node('label', { parent: p })
+
   assert.equal(child.computedStyle.color, '#123456')
   assert.equal(child.computedStyle.fontSize, 20)
   assert.equal(child.computedStyle.backgroundColor, undefined)
@@ -114,19 +127,27 @@ test('custom properties: root token, dark flip, fallback, nested override', () =
     't5',
     '.ns-root { --c: #111 } .ns-dark { --c: #222 } .x { color: var(--c) } .m { color: var(--missing, blue) }',
   )
+
   const root = node('masonview')
+
   root.cssClasses = new Set(['ns-root'])
   recompute(root)
+
   const child = node('label', { classes: ['x'], parent: root })
+
   assert.equal(child.computedStyle.color, '#111')
   root.cssClasses = new Set(['ns-root', 'ns-dark'])
   recompute(root)
   assert.equal(child.computedStyle.color, '#222')
+
   const m = node('label', { classes: ['m'], parent: root })
+
   assert.equal(m.computedStyle.color, 'blue')
+
   // nested override
   const mid = node('masonview', { parent: root, style: { '--c': '#333' } })
   const deep = node('label', { classes: ['x'], parent: mid })
+
   assert.equal(deep.computedStyle.color, '#333')
 })
 
@@ -137,13 +158,19 @@ test('same-node --c + var(--c) resolves (bug C)', () => {
 
 test('descendant/child combinators; reparenting drops the match', () => {
   registerStylesheet('t7', '.p .k { color: red } .p > .y { color: blue }')
+
   const p = node('masonview', { classes: ['p'] })
   const mid = node('masonview', { parent: p })
   const x = node('label', { classes: ['k'], parent: mid })
+
   assert.equal(x.computedStyle.color, 'red')
+
   const y = node('label', { classes: ['y'], parent: p })
+
   assert.equal(y.computedStyle.color, 'blue')
+
   const other = node('masonview')
+
   mid.children.splice(mid.children.indexOf(x), 1)
   x.parent = other
   other.children.push(x)
@@ -153,7 +180,9 @@ test('descendant/child combinators; reparenting drops the match', () => {
 
 test(':disabled pseudo toggles a rule', () => {
   registerStylesheet('t8', '.x:disabled { opacity: 0.5 }')
+
   const n = node('button', { classes: ['x'], pseudo: ['disabled'] })
+
   assert.equal(n.computedStyle.opacity, 0.5)
   n.cssPseudoClasses = new Set()
   recompute(n)
@@ -173,6 +202,7 @@ test('lengths: 12px/12dip/12 -> 12; 50% stays string', () => {
     't10',
     '.a { width: 12px } .b { width: 12dip } .c { width: 12 } .d { width: 50% }',
   )
+
   assert.equal(node('masonview', { classes: ['a'] }).computedStyle.width, 12)
   assert.equal(node('masonview', { classes: ['b'] }).computedStyle.width, 12)
   assert.equal(node('masonview', { classes: ['c'] }).computedStyle.width, 12)
@@ -184,20 +214,28 @@ test('padding shorthand and var() expand to edges; flex-direction reaches style'
     't11',
     '.e { --p: 4px 8px; padding: var(--p) } .f { padding: 4px 8px; flex-direction: row }',
   )
+
   const e = node('masonview', { classes: ['e'] })
+
   assert.equal(e.computedStyle.paddingTop, 4)
   assert.equal(e.computedStyle.paddingRight, 8)
+
   const f = node('masonview', { classes: ['f'] })
+
   assert.equal(f.computedStyle.paddingTop, 4)
   assert.equal(f.computedStyle.flexDirection, 'row')
 })
 
 test('sibling-dependent selector updates after inserting a sibling', () => {
   registerStylesheet('t12', '.a + .b { color: red }')
+
   const p = node('masonview')
   const b = node('label', { classes: ['b'], parent: p })
+
   assert.equal(b.computedStyle.color, undefined)
+
   const a = node('label', { classes: ['a'], parent: p })
+
   p.children.splice(p.children.indexOf(b), 0, a)
   p.children.splice(p.children.indexOf(a), 1)
   // insert a before b
@@ -216,6 +254,7 @@ test('media evaluator: color scheme + size', () => {
     }),
     true,
   )
+
   assert.equal(
     evalMediaQuery('(min-width: 100px)', {
       width: 200,
@@ -225,6 +264,7 @@ test('media evaluator: color scheme + size', () => {
     }),
     true,
   )
+
   assert.equal(
     evalMediaQuery('(orientation: landscape)', {
       width: 200,
@@ -234,6 +274,7 @@ test('media evaluator: color scheme + size', () => {
     }),
     true,
   )
+
   assert.equal(
     evalMediaQuery('(hover: hover)', {
       width: 0,
@@ -243,6 +284,7 @@ test('media evaluator: color scheme + size', () => {
     }),
     true,
   )
+
   assert.equal(
     evalMediaQuery('(prefers-reduced-motion: reduce)', {
       width: 0,
@@ -252,6 +294,7 @@ test('media evaluator: color scheme + size', () => {
     }),
     true,
   )
+
   assert.equal(stylesheetsHaveMediaRules(), false)
 })
 
@@ -260,8 +303,10 @@ test('explicit animation none resets earlier rules and earlier declarations but 
     'animation-reset-boundary',
     '@keyframes reset-test-spin { to { transform:rotate(360deg) } } .reset-base { animation:reset-test-spin 1s linear infinite } .reset-stop { animation:none } .reset-again { animation:reset-test-spin 2s linear infinite } .reset-in-rule { animation:reset-test-spin 1s linear infinite; animation:none } .reset-name { animation-name:none }',
   )
+
   const animations = (...classes: string[]) =>
     computeCascade(node('masonview', { classes }), stylesheetScope()).animations
+
   assert.equal(animations('reset-base').length, 1)
   assert.equal(animations('reset-base', 'reset-stop').length, 0)
   assert.equal(animations('reset-base', 'reset-in-rule').length, 0)
@@ -274,7 +319,9 @@ test('desktop CSS ids select independently of numeric host identity and reset on
     'desktop-css-ids',
     '.desktop-id-fallback { color: #111111 } #desktop-card { color: #222222; --desktop-tint: #333333 } #desktop-other { color: #444444 }',
   )
+
   const n = node('masonview', { classes: ['desktop-id-fallback'] })
+
   n.id = 987654
   n.cssId = 'desktop-card'
   compute(n)
@@ -295,16 +342,20 @@ test('desktop CSS id lookup supports compound selectors and does not duplicate n
     'desktop-css-id-compound',
     '.desktop-id-parent > #desktop-id-child { opacity: 0.4 }',
   )
+
   const parent = node('masonview', { classes: ['desktop-id-parent'] })
   const child = node('label', { parent })
+
   child.id = 987655
   child.cssId = 'desktop-id-child'
   compute(child)
   assert.equal(child.computedStyle.opacity, 0.4)
   child.id = 'desktop-id-child'
+
   const matched = stylesheetScope()
     .query(child)
     .selectors.filter((selector) => selector.match(child))
+
   assert.equal(
     matched.filter((selector) =>
       selector.ruleset?.declarations.some(

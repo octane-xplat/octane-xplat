@@ -15,6 +15,7 @@ const rows = Array.from({ length: 100 }, (_, index) => ({ id: index, text: 'row-
 
 function TabContent() {
   const name = useContext(Name)
+
   useEffect(() => {
     tabMounted = true
     tabMounts++
@@ -28,6 +29,7 @@ function TabContent() {
 
 function Row(props: { item: { id: number; text: string } }) {
   const name = useContext(Name)
+
   return <label id={'owned-row-' + props.item.id} text={props.item.text + ': ' + name} />
 }
 
@@ -38,6 +40,7 @@ export default function Case() {
   const [arrays, setArrays] = useState({ left: [] as any[], right: [] as any[] })
   const [items, setItems] = useState(rows)
   const [open, setOpen] = useState(true)
+
   assign = (left, right) => setArrays({ left, right })
   updateName = setName
   replaceItems = () => setItems(rows.map((item) => ({ ...item, text: 'updated-' + item.id })))
@@ -87,10 +90,14 @@ export default function Case() {
 export async function run(ctx: any) {
   await ctx.waitFor(() => tabRef.current && ctx.find('owned-row-0'))
   ctx.assert('unassigned tab content remains unmounted', tabMounted, false)
+
   const handle = tabRef.current
+
   assign([handle], [])
   await ctx.waitFor(() => tabMounted && ctx.find('owned-tab-content'))
+
   const tab = ctx.find('owned-tab-content')
+
   ctx.assert('tab uses a portal, not a content root', handle.contentRoot, null)
   ctx.assert('tab inherits the nearest provider', String(tab.stringValue), 'Avery')
   ctx.assert(
@@ -111,7 +118,9 @@ export async function run(ctx: any) {
   await ctx.waitFor(() => Number(ctx.find('owned-tabs-right').numberOfTabViewItems) === 1)
   ctx.assert('tab transfer retains native content', ctx.find('owned-tab-content') === tab, true)
   ctx.assert('tab transfer retains component state', tabMounts, 1)
+
   const table = listRef.current.documentView
+
   table.scrollRowToVisible(80)
   await ctx.waitFor(() => ctx.find('owned-row-80'))
   ctx.assert(

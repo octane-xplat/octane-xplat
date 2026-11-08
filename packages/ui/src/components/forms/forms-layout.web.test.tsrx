@@ -31,8 +31,11 @@ import { useIndicator } from '../feedback/use-indicator.tsrx'
 
 function mount(node: any) {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
+
   const root = createRoot(el)
+
   act(() => root.render(node))
   return { el, root }
 }
@@ -47,6 +50,7 @@ describe('flow Stack family (web)', () => {
     )
 
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.className).toContain('vx-stack')
     expect(stack.style.flexDirection).toBe('column')
     expect(stack.style.gap).toBe('8px')
@@ -57,6 +61,7 @@ describe('flow Stack family (web)', () => {
   it('direction="horizontal" flips axes: hAlign is main, vAlign is cross', () => {
     const { el, root } = mount(<Stack direction="horizontal" hAlign="end" vAlign="center" />)
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.style.flexDirection).toBe('row')
     expect(stack.style.justifyContent).toBe('flex-end')
     expect(stack.style.alignItems).toBe('center')
@@ -66,6 +71,7 @@ describe('flow Stack family (web)', () => {
   it('vertical stack maps vAlign→main, hAlign→cross; justify/align alias', () => {
     const { el, root } = mount(<Stack justify="between" align="end" />)
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.style.flexDirection).toBe('column')
     expect(stack.style.justifyContent).toBe('space-between')
     expect(stack.style.alignItems).toBe('flex-end')
@@ -85,9 +91,12 @@ describe('flow Stack family (web)', () => {
     )
 
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.className).toContain('vx-stack')
     expect(stack.style.flexDirection).toBe('column')
+
     const items = stack.querySelectorAll('.vx-stackitem')
+
     expect((items[0] as HTMLElement).style.flexGrow).toBe('1')
     expect((items[1] as HTMLElement).style.flexGrow).toBe('0')
     root.unmount()
@@ -102,6 +111,7 @@ describe('flow Stack family (web)', () => {
     )
 
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.style.display).not.toBe('grid')
     root.unmount()
   })
@@ -109,6 +119,7 @@ describe('flow Stack family (web)', () => {
   it('isScrollable sets overflow:auto; as picks the tag', () => {
     const { el, root } = mount(<Stack as="section" isScrollable />)
     const stack = el.firstElementChild as HTMLElement
+
     expect(stack.tagName).toBe('SECTION')
     expect(stack.style.overflow).toBe('auto')
     root.unmount()
@@ -124,6 +135,7 @@ describe('Center (web)', () => {
     )
 
     const c = el.firstElementChild as HTMLElement
+
     expect(c.style.justifyContent).toBe('center')
     expect(c.style.alignItems).toBe('')
     root.unmount()
@@ -131,6 +143,7 @@ describe('Center (web)', () => {
 
   it('isInline renders inline-flex', () => {
     const { el, root } = mount(<Center isInline />)
+
     expect((el.firstElementChild as HTMLElement).style.display).toBe('inline-flex')
     root.unmount()
   })
@@ -145,8 +158,11 @@ describe('Section (web)', () => {
     )
 
     const outer = el.firstElementChild as HTMLElement
+
     expect(outer.className).toContain('vx-section--muted')
+
     const inner = outer.firstElementChild as HTMLElement
+
     expect(inner.className).toContain('vx-section--divider-top')
     expect(inner.className).toContain('vx-section--divider-end')
     expect(inner.style.paddingBlockStart).toBe('8px')
@@ -163,6 +179,7 @@ describe('AspectRatio (web)', () => {
     )
 
     const ar = el.firstElementChild as HTMLElement
+
     expect(ar.style.aspectRatio).toContain('1.777')
     expect(ar.className).toContain('vx-aspectratio--ellipse')
     expect(ar.className).toContain('vx-aspectratio-fit-contain')
@@ -175,6 +192,7 @@ describe('VisuallyHidden (web)', () => {
   it('renders a clipped span that stays in the a11y tree', () => {
     const { el, root } = mount(<VisuallyHidden>hidden label</VisuallyHidden>)
     const vh = el.firstElementChild as HTMLElement
+
     expect(vh.tagName).toBe('SPAN')
     expect(vh.className).toBe('vx-visually-hidden')
     expect(vh.getAttribute('aria-hidden')).toBeNull()
@@ -193,8 +211,11 @@ describe('FormLayout (web)', () => {
     )
 
     const layout = el.querySelector('.vx-formlayout--horizontal-labels')
+
     expect(layout).not.toBeNull()
+
     const field = el.querySelector('.vx-field--hl') as HTMLElement
+
     expect(field).not.toBeNull()
     // display:contents comes from the vx-field--hl class (stylesheet), not inline style
     expect(field.className).toContain('vx-field--hl')
@@ -216,9 +237,12 @@ describe('FormLayout (web)', () => {
     )
 
     const labels = Array.from(el.querySelectorAll('.vx-field-label')).map((l) => l.textContent)
+
     expect(labels[0]).toBe('Email')
     expect(labels[1]).toBe('Nick ∙ Optional')
+
     const inputs = el.querySelectorAll('input')
+
     expect(inputs[0].getAttribute('aria-required')).toBe('true')
     expect(inputs[1].getAttribute('aria-required')).toBeNull()
     root.unmount()
@@ -236,6 +260,7 @@ describe('FormLayout (web)', () => {
     )
 
     const inputs = el.querySelectorAll('input')
+
     expect(inputs[0].getAttribute('aria-required')).toBe('true')
     expect(inputs[1].getAttribute('aria-required')).toBeNull()
     expect(inputs[2].getAttribute('aria-required')).toBe('true')
@@ -253,6 +278,7 @@ describe('ButtonGroup defaults (web)', () => {
     )
 
     const buttons = el.querySelectorAll('button.vx-pressable')
+
     expect(buttons[0].className).toContain('vx-button--size-sm')
     expect(buttons[1].className).toContain('vx-button--size-lg')
     expect((buttons[0] as HTMLButtonElement).disabled).toBe(true)
@@ -271,8 +297,11 @@ describe('InputGroup (web)', () => {
     )
 
     const group = el.querySelector('.vx-inputgroup') as HTMLElement
+
     expect(group.getAttribute('role')).toBe('group')
+
     const label = el.querySelector('.vx-field-label') as HTMLElement
+
     expect(label.tagName).toBe('SPAN')
     expect(group.getAttribute('aria-labelledby')).toBe(label.id)
     expect(group.getAttribute('aria-describedby')).toContain('description')
@@ -291,6 +320,7 @@ describe('InputGroup (web)', () => {
     )
 
     const inputs = el.querySelectorAll('input')
+
     expect(inputs[0].className).toContain('vx-input--size-sm')
     expect(inputs[1].className).toContain('vx-input--size-lg')
     root.unmount()
@@ -301,6 +331,7 @@ describe('indicators (web)', () => {
   it('CheckboxIndicator draws box states; indeterminate renders a dash', () => {
     const { el, root } = mount(<CheckboxIndicator state="indeterminate" />)
     const box = el.querySelector('.vx-ind-checkbox--indeterminate')
+
     expect(box).not.toBeNull()
     expect(box?.querySelector('.vx-ind-dash')).not.toBeNull()
     root.unmount()
@@ -308,6 +339,7 @@ describe('indicators (web)', () => {
 
   it('CheckIndicator renders nothing when unchecked, a glyph when checked', () => {
     const { el, root } = mount(<CheckIndicator state="unchecked" />)
+
     expect(el.children.length).toBe(0)
     act(() => root.render(<CheckIndicator state="checked" />))
     expect(el.querySelector('.vx-ind-check')?.textContent).toBe('✓')
@@ -316,6 +348,7 @@ describe('indicators (web)', () => {
 
   it('RadioIndicator draws the circle; dot only when checked', () => {
     const { el, root } = mount(<RadioIndicator state="unchecked" />)
+
     expect(el.querySelector('.vx-ind-radio')).not.toBeNull()
     expect(el.querySelector('.vx-ind-radio-dot')).toBeNull()
     act(() => root.render(<RadioIndicator state="checked" />))
@@ -327,10 +360,12 @@ describe('indicators (web)', () => {
     const Custom = (p: any) => <span className="vx-ind-custom" />
     function Reader() {
       const Ind = useIndicator('checkbox') ?? CheckboxIndicator
+
       return <Ind state="unchecked" />
     }
 
     const { el, root } = mount(<Reader />)
+
     expect(el.querySelector('.vx-ind-checkbox')).not.toBeNull()
     expect(el.querySelector('.vx-ind-custom')).toBeNull()
 
@@ -347,6 +382,7 @@ describe('indicators (web)', () => {
 
   it('Checkbox renders through the indicator registry', () => {
     const { el, root } = mount(<Checkbox value />)
+
     expect(el.querySelector('.vx-ind-checkbox--checked')).not.toBeNull()
     expect(el.querySelector('.vx-ind-checkmark')).not.toBeNull()
     root.unmount()
@@ -363,9 +399,12 @@ describe('List/ListItem (web)', () => {
     )
 
     const list = el.querySelector('ul.vx-list')
+
     expect(list).not.toBeNull()
     expect(list?.getAttribute('role')).toBe('list')
+
     const items = el.querySelectorAll('li.vx-listitem')
+
     expect(items.length).toBe(2)
     expect((items[0] as HTMLElement).className).toContain('vx-listitem--density-compact')
     expect((items[1] as HTMLElement).textContent).toContain('desc')
@@ -381,6 +420,7 @@ describe('List/ListItem (web)', () => {
     )
 
     const list = el.querySelector('ol.vx-list--decimal') as HTMLElement
+
     expect(list).not.toBeNull()
     expect(list.getAttribute('start')).toBe('3')
     expect(list.style.counterReset).toBe('vx-list 2')
@@ -412,6 +452,7 @@ describe('List/ListItem (web)', () => {
 
     const button = el.querySelector('button.vx-listitem-hit') as HTMLButtonElement
     const anchor = el.querySelector('a.vx-listitem-hit') as HTMLAnchorElement
+
     expect(button.disabled).toBe(true)
     expect(anchor.tabIndex).toBe(-1)
     button.click()
@@ -429,6 +470,7 @@ describe('List/ListItem (web)', () => {
 
     const header = el.querySelector('.vx-list-header') as HTMLElement
     const list = el.querySelector('ul.vx-list')
+
     expect(list?.getAttribute('aria-labelledby')).toBe(header.id)
     root.unmount()
   })
@@ -447,6 +489,7 @@ describe('Field description channel (web)', () => {
     )
 
     const input = el.querySelector('input')!
+
     expect(input.getAttribute('aria-label')).toBeNull()
     expect(el.querySelector('label.vx-field-label')?.textContent).toBe('Name')
     expect(input.getAttribute('aria-description')).toBe('Locked by admin')
@@ -463,6 +506,7 @@ describe('Field description channel (web)', () => {
 
     const input = el.querySelector('input')!
     const describedby = input.getAttribute('aria-describedby') ?? ''
+
     expect(describedby).toContain('-description')
     expect(describedby).toContain('-status')
     expect(input.getAttribute('aria-description')).toBeNull()

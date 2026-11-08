@@ -45,8 +45,10 @@ vi.mock('../media/Icon', async () => ({
 }))
 
 vi.mock('./Popover', async () => ({ Popover: (await vi.importActual('../layout/View.tsrx')).View }))
+
 import { MenuSurface } from './MenuSurface.tsrx'
 import { DropdownMenuItem, MenuData } from './MenuParts.tsrx'
+
 const orphanCaught: { error?: unknown } = {}
 function OrphanItem() @{
   @try {
@@ -104,6 +106,7 @@ describe('native menu action contracts (object driver)', () => {
     ]
 
     const row = (id: string) => all(container).find((node) => node.props?.id === id)
+
     try {
       root.render(DataSurface, { items, closeMenu: close })
       flushUniversalSync(() => {})
@@ -131,6 +134,7 @@ describe('native menu action contracts (object driver)', () => {
   it('rejects menu parts rendered outside a menu surface', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
     orphanCaught.error = undefined
     try {
       root.render(OrphanItem, {})
@@ -147,9 +151,11 @@ describe('native menu action contracts (object driver)', () => {
     const container = createObjectContainer('nativescript')
     const root = createUniversalRoot(container, createObjectDriver('nativescript'))
     const back = vi.fn()
+
     try {
       root.render(DataSurface, { items: [], closeMenu: vi.fn(), closeLevel: back, label: 'Move' })
       flushUniversalSync(() => {})
+
       const button = () =>
         all(container).find((node) => node.props?.accessibilityLabel === 'Back to parent menu')
 
@@ -191,6 +197,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
         callback: any,
       ) {
         const token = {}
+
         observers.set(token, callback)
         return token
       },
@@ -265,6 +272,7 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
     })
 
     flushUniversalSync(() => {})
+
     const trigger = all(container).find((node) =>
       String(node.props?.className).includes('vx-menu-trigger'),
     )
@@ -274,7 +282,9 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
     await settle()
     expect(layers).toHaveLength(1)
     expect(layers[0].options.anchor).toBe(trigger)
+
     const submenu = all(container).find((node) => node.props?.id === 'move')
+
     hydrate(submenu)
     flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
     await settle()
@@ -287,7 +297,9 @@ it('keeps AppKit anchors and nested menu ownership across separate popup roots',
     flushUniversalSync(() => container.dispatchEvent(submenu, 'tap', {}))
     await settle()
     expect(layers).toHaveLength(3)
+
     const target = all(container).find((node) => node.props?.id === 'target')
+
     flushUniversalSync(() => container.dispatchEvent(target, 'tap', {}))
     expect(pick).toHaveBeenCalledOnce()
     expect(close).toHaveBeenCalledWith(false)

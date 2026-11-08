@@ -27,6 +27,7 @@ export function createPullToRefresh(host: {
   cfg: { current: RefreshConfig }
 }): RefreshController {
   const { scroller, indicator, cfg } = host
+
   if (!scroller || !indicator) {
     return { sync: () => {}, detach: () => {} }
   }
@@ -77,7 +78,9 @@ export function createPullToRefresh(host: {
    *  inside the dock re-fires nothing). */
   const release = () => {
     pulling = false
+
     const reveal = pull + (held() ? REFRESH_HEADER_HEIGHT : 0)
+
     if (pull > 0 && reveal >= threshold()) {
       cfg.current.onRefresh?.()
       dock()
@@ -118,6 +121,7 @@ export function createPullToRefresh(host: {
     }
 
     const dy = y - y0
+
     if (dy <= 0 || scroller.scrollTop > 0) {
       pulling = false
       pull = 0

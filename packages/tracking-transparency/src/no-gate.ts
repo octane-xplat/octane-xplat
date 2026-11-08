@@ -1,4 +1,5 @@
 import type { TrackingBackend } from './backend-types'
+
 /** Expo's no-ATT-gate result is granted. It does not assert user consent. */
 export const backend: TrackingBackend = {
   capabilities: () => ({ prompt: false, advertisingId: false, advertisingIdAsync: false }),

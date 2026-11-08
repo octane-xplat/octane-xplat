@@ -8,6 +8,7 @@ import type {
 } from './props'
 
 import { prefetchBatch } from './prefetch-batch.ts'
+
 interface ImageCacheBridge {
   readonly supportsCachePolicy?: boolean
   readonly supportsLoadEvents?: boolean
@@ -33,14 +34,17 @@ export function createAppKitImageCache(
       if (config && Object.values(config).some((value) => value !== undefined)) {
         throw new TypeError('AppKit image cache configuration options are not implemented')
       }
+
       bridge()?.initialize()
     },
     async prefetch(srcs: string | string[], options?: PrefetchOptions): Promise<boolean> {
       if (options?.headers && Object.keys(options.headers).length) {
         return false
       }
+
       try {
         const cache = bridge()
+
         if (!cache) {
           return false
         }
@@ -59,6 +63,7 @@ export function createAppKitImageCache(
     },
     async clear(): Promise<void> {
       const cache = bridge()
+
       if (cache && !cache.clear()) {
         throw new Error('AppKit image cache could not be cleared')
       }
@@ -68,8 +73,10 @@ export function createAppKitImageCache(
       options?: ImageCacheQueryOptions,
     ): Promise<Record<string, ImageCacheState>> {
       const states: Record<string, ImageCacheState> = {}
+
       for (const source of typeof srcs === 'string' ? [srcs] : srcs) {
         let state: ImageCacheState = 'none'
+
         if (options?.decodeWidth === undefined && options?.decodeHeight === undefined) {
           try {
             state = bridge()?.isCached(source) ?? 'none'
@@ -83,6 +90,7 @@ export function createAppKitImageCache(
           value: state,
         })
       }
+
       return states
     },
   }
@@ -100,6 +108,7 @@ export function validateAppKitImageOptions(options: {
   ) {
     throw new TypeError('Invalid AppKit Image cache policy')
   }
+
   if (options.headers && Object.keys(options.headers).length) {
     throw new TypeError('AppKit Image request headers are not implemented')
   }
@@ -130,6 +139,7 @@ export function withAppKitImageRequest<
   ) {
     throw new Error('AppKit Image cache bypass requires matching UI and renderer support')
   }
+
   if (
     (props.onLoad || props.onError) &&
     (('__xplatAppKitImageEvents' in core ? core.__xplatAppKitImageEvents : undefined) !== true ||
@@ -137,6 +147,7 @@ export function withAppKitImageRequest<
   ) {
     throw new Error('AppKit Image callbacks require matching UI and renderer support')
   }
+
   return {
     ...props,
     __appKitImageCachePolicy: props.cachePolicy ?? 'memory-disk',

@@ -1,6 +1,8 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
+
 assert.equal(process.platform, 'win32', 'Run Windows checks through ssh windy')
+
 const types = spawnSync(
   'powershell',
   [
@@ -12,6 +14,7 @@ const types = spawnSync(
 )
 
 assert.equal(types.status, 0, 'WinRT AdvertisingManager type must resolve; no identifier is read')
+
 const { backend, advertisingIdentifier } = await import('./windows-contract-bundle.mjs')
 let reads = 0,
   fixture = 'SYNTHETICADVERTISINGID123'

@@ -42,10 +42,14 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
     stackAccessibilityPropsByView: new WeakMap(),
     appKitBridge: bridge,
   })
+
   const root = new AccessibleHostView()
+
   assert.equal(root.acceptsFirstResponder(), false)
+
   const a = bridge.retainFocusTarget(root)
   const b = bridge.retainFocusTarget(root)
+
   assert.equal(root.acceptsFirstResponder(), true)
   assert.equal(root.canBecomeKeyView(), false)
   root.keyDown({ keyCode: 36 })
@@ -61,8 +65,10 @@ test('AppKit scope fallback accepts programmatic focus without a Tab stop or fak
   assert.equal(root.canBecomeKeyView(), true)
   root.keyDown({ keyCode: 36 })
   assert.equal(presses, 1)
+
   const first = tabStops.retain(root)
   const second = tabStops.retain(root)
+
   assert.equal(root.acceptsFirstResponder(), true)
   assert.equal(root.canBecomeKeyView(), false)
   first()

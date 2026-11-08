@@ -129,6 +129,7 @@ export function ChatToolCalls(props: ChatToolCallsProps): unknown @{
 
   const toggle = () => {
     const next = !isExpanded
+
     if (!isControlled) {
       setInternalExpanded(next)
     }

@@ -11,6 +11,7 @@ const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'workshop-packed-windows-')))
 const consumer = join(work, 'consumer')
 const packs = join(work, 'packs')
+
 mkdirSync(consumer)
 mkdirSync(packs)
 
@@ -21,6 +22,7 @@ function run(args, cwd = consumer) {
     maxBuffer: 16 * 1024 * 1024,
     shell: process.platform === 'win32',
   })
+
   assert.equal(
     result.status,
     0,
@@ -32,9 +34,11 @@ function run(args, cwd = consumer) {
 
 try {
   const tarballs = {}
+
   for (const dir of ['create', 'cli', 'lib', 'ui', 'workshop']) {
     const root = join(repo, 'packages', dir)
     const manifest = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
     run(['pm', 'pack', '--ignore-scripts', '--destination', packs], root)
     tarballs[manifest.name] =
       `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -58,15 +62,20 @@ try {
 
   const file = join(consumer, 'package.json')
   const manifest = JSON.parse(readFileSync(file, 'utf8'))
+
   manifest.overrides = tarballs
   manifest.packageManager = 'bun@1.4.4'
   writeFileSync(file, JSON.stringify(manifest))
 
   run(['install', '--ignore-scripts'])
+
   const require = createRequire(join(consumer, 'package.json'))
+
   assert.ok(realpathSync(require.resolve('@octane-xplat/workshop/node')).startsWith(work))
+
   const reportText = run(['run', 'xplat', 'workshop', 'doctor', '--json'])
   const report = JSON.parse(reportText.slice(reportText.indexOf('{')))
+
   assert.equal(report.targets.windows.executionHost.current, process.platform)
   assert.equal(report.targets.windows.qualification, 'unverified')
   assert.notEqual(report.targets.windows.status, 'available')
@@ -79,8 +88,10 @@ export const Basic = defineStory({ id: '${id}', title: 'Examples / ${id}', targe
 
   writeFileSync(join(consumer, 'native.stories.windows.tsrx'), story('native/basic', 'windows'))
   writeFileSync(join(consumer, 'browser.stories.web.tsrx'), story('browser/basic', 'web'))
+
   const listText = run(['run', 'xplat', 'workshop', 'list', '--target', 'windows', '--json'])
   const list = JSON.parse(listText.slice(listText.indexOf('{')))
+
   assert.equal(list.diagnostics.length, 0)
   assert.equal(list.entries.find((entry) => entry.id === 'native/basic').applicable, true)
   assert.equal(list.entries.find((entry) => entry.id === 'browser/basic').applicable, false)

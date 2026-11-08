@@ -7,7 +7,9 @@ import ts from 'typescript-classic'
 const source = await readFile(new URL('../src/session-backend.ios.ts', import.meta.url), 'utf8')
 const start = source.indexOf('const preferAutoStabilization =')
 const end = source.indexOf('const mapInterruptionReason =', start)
+
 assert.ok(start >= 0 && end > start)
+
 const compiled = ts.transpile(
   'const videoStabilizationModeAuto = -1;\n' +
     source.slice(start, end) +
@@ -19,7 +21,9 @@ const compiled = ts.transpile(
 )
 
 const context = vm.createContext({})
+
 vm.runInContext(compiled, context)
+
 const { prefer } = context
 
 test('supported connections receive the automatic stabilization preference', () => {
@@ -50,6 +54,7 @@ test('explicit unsupported mode leaves the preference unchanged', () => {
 test('older connections use the capability fallback and missing connections no-op', () => {
   for (const supported of [true, false]) {
     const connection = { preferredVideoStabilizationMode: 0, supportsVideoStabilization: supported }
+
     prefer(connection)
     assert.equal(connection.preferredVideoStabilizationMode, supported ? -1 : 0)
   }

@@ -9,10 +9,12 @@ export function scrollTriggerIntoView(
   behavior: 'smooth' | 'instant' = 'instant',
 ): boolean {
   const target = nativeImageIn(trigger) ?? trigger
+
   for (let node = trigger?.parent; node; node = node.parent) {
     const horizontal = node.orientation === 'horizontal'
     const scroll = horizontal ? node.scrollToHorizontalOffset : node.scrollToVerticalOffset
     const maximum = horizontal ? node.scrollableWidth : node.scrollableHeight
+
     if (typeof scroll !== 'function' || !Number.isFinite(maximum)) {
       continue
     }
@@ -40,11 +42,13 @@ export function scrollTriggerIntoView(
             : 0
 
     const offset = clamp(current + delta, 0, Math.max(0, maximum))
+
     if (offset !== current || behavior === 'instant') {
       scroll.call(node, offset, behavior === 'smooth')
     }
 
     return true
   }
+
   return false
 }

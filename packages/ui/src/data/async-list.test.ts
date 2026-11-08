@@ -89,6 +89,7 @@ describe('createAsyncListData', () => {
     }))
 
     const list = createAsyncListData<{ name: string }>({ load, getKey: (item) => item.name })
+
     list.reload()
     await tick()
     list.sort({ column: 'name', direction: 'descending' })
@@ -143,6 +144,7 @@ describe('createAsyncListData', () => {
 
     const first = list.reload()
     const second = list.reload()
+
     // The superseded reload resolves too — its caller must not hang.
     await expect(first).resolves.toBeUndefined()
     gate.resolve!()
@@ -182,6 +184,7 @@ describe('createAsyncListData', () => {
     })
 
     const pending = list.reload()
+
     expect(list.isLoading).toBe(true)
     list.abort()
     expect(signals[0].aborted).toBe(true)
@@ -211,8 +214,10 @@ describe('createAsyncListData', () => {
     })
 
     await list.reload()
+
     const sorted = list.sort({ column: 'name', direction: 'descending' })
     const reloaded = list.reload()
+
     releaseSort()
     await expect(sorted).resolves.toBeUndefined()
     await expect(reloaded).resolves.toBeUndefined()
@@ -276,9 +281,12 @@ describe('atomic async collection updates', () => {
         cursor === undefined ? { items: initial, cursor: 'next' } : { items: [{ id: 'c' }] },
       sort: ({ items }) => ({ items: [...items].reverse() }),
     })
+
     await list.reload()
     list.setSelectedKeys(['a', 'b'])
+
     const seen: string[][] = []
+
     list.subscribe(() => seen.push(list.items.map((item) => item.id)))
     await list.sort({ column: 'id', direction: 'descending' })
     expect([...list.selectedKeys]).toEqual(['a', 'b'])
@@ -295,7 +303,9 @@ describe('atomic async collection updates', () => {
     const list = createAsyncListData({
       load: async () => ({ items: [{ id: 1 }], selectedKeys: [1], cursor: 'next' }),
     })
+
     const seen: ReturnType<typeof list.getSnapshot>[] = []
+
     list.subscribe(() => seen.push(list.getSnapshot()))
     await list.reload()
     expect(seen).toHaveLength(2)
@@ -314,11 +324,13 @@ describe('atomic async collection updates', () => {
         if (seen.length === 2) {
           throw new Error('temporary page failure')
         }
+
         return cursor === undefined
           ? { items: [{ id: 1 }], cursor: 'page-2' }
           : { items: [{ id: 2 }] }
       },
     })
+
     await list.reload()
     list.setSelectedKeys([1])
     await expect(list.loadMore()).resolves.toBeUndefined()
@@ -339,6 +351,7 @@ describe('atomic async collection updates', () => {
       initialSelectedKeys: 'all',
       load: async () => ({ items: [{ id: 1 }] }),
     })
+
     await list.reload()
     await list.reload()
     expect(list.selectedKeys).toBe('all')

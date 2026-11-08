@@ -26,27 +26,36 @@ export function collectFiles(cwd: string, inputs: string[], patterns: string[]) 
   const selected = inputs.map((input) => {
     const file = resolve(cwd, input)
     const rel = relative(cwd, file)
+
     if (rel === '..' || rel.startsWith(`..${sep}`) || isAbsolute(rel)) {
       throw new Error(`path must be inside the working directory: ${input}`)
     }
+
     const stat = lstatSync(file, { throwIfNoEntry: false })
+
     if (!stat) {
       throw new Error(`no such file or directory: ${input}`)
     }
+
     if (stat.isSymbolicLink()) {
       throw new Error(`not following symlink: ${input}`)
     }
+
     if (!stat.isDirectory() && (!stat.isFile() || !EXTENSIONS.has(extname(file)))) {
       throw new Error(`unsupported source file: ${input}`)
     }
+
     return file
   })
+
   const configIgnore = ignore().add(patterns)
   const eslintMatcher = ignore()
   const eslintIgnore = join(cwd, '.eslintignore')
+
   if (existsSync(eslintIgnore)) {
     eslintMatcher.add(readFileSync(eslintIgnore, 'utf8'))
   }
+
   const files: string[] = []
   const visit = (
     directory: string,
@@ -56,6 +65,7 @@ export function collectFiles(cwd: string, inputs: string[], patterns: string[]) 
     const matchers = existsSync(localIgnore)
       ? [...parents, { directory, matcher: ignore().add(readFileSync(localIgnore, 'utf8')) }]
       : parents
+
     for (const entry of readdirSync(directory, { withFileTypes: true })) {
       if (entry.isSymbolicLink()) {
         continue
@@ -63,6 +73,7 @@ export function collectFiles(cwd: string, inputs: string[], patterns: string[]) 
 
       const file = join(directory, entry.name)
       const isDirectory = entry.isDirectory()
+
       if (
         selected.length &&
         !selected.some(
@@ -82,13 +93,16 @@ export function collectFiles(cwd: string, inputs: string[], patterns: string[]) 
 
       const suffix = isDirectory ? '/' : ''
       const rel = relative(cwd, file).replaceAll('\\', '/') + suffix
+
       if (configIgnore.ignores(rel) || eslintMatcher.ignores(rel)) {
         continue
       }
 
       let gitIgnored = false
+
       for (const { directory: base, matcher } of matchers) {
         const result = matcher.test(relative(base, file).replaceAll('\\', '/') + suffix)
+
         if (result.ignored) {
           gitIgnored = true
         } else if (result.unignored) {
@@ -107,6 +121,7 @@ export function collectFiles(cwd: string, inputs: string[], patterns: string[]) 
       }
     }
   }
+
   visit(cwd, [])
   return files.sort()
 }

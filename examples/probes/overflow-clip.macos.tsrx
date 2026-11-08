@@ -2,6 +2,7 @@
 import { useState } from 'octane'
 import { Button, Text, VStack } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function OverflowClipProbe() {
   const [mode, setMode] = useState<'hidden' | 'clip' | 'visible' | undefined>('hidden'),
     [presses, setPresses] = useState(0)

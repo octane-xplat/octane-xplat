@@ -31,6 +31,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
   }
 
   const groupRef = useRef<WindowsRadioGroup | null>(null)
+
   if (!groupRef.current) {
     groupRef.current = new WindowsRadioGroup()
   }

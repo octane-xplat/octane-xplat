@@ -28,6 +28,7 @@ function Detail(props: RouteScreenProps<typeof detail>) {
 
 const host = createPaneRouterHost()
 const navigation = createRouter({ host: host.host, catalog: defineRoutes([detail.screen(Detail)]) })
+
 host.attach(navigation)
 
 export function App() {

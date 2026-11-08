@@ -6,6 +6,7 @@ let running = false
 // tear down under automation before the stage settles; mount the stage inline
 // instead (see _layout.tsrx).
 let openStage: (() => void) | undefined
+
 export function onParityStageOpen(fn: () => void): void {
   openStage = fn
 }
@@ -16,6 +17,7 @@ let prevParsed: any = null
 
 function stableDump() {
   const dump = (globalThis as any).__xplatParity?.()
+
   if (!dump) {
     lastDump = ''
     lastParsed = null
@@ -23,6 +25,7 @@ function stableDump() {
   }
 
   const json = JSON.stringify(dump)
+
   if (json === lastDump) {
     return dump
   }
@@ -39,9 +42,11 @@ function diffCells(a: any, b: any): string {
   }
 
   const out: string[] = []
+
   for (const name of Object.keys(b.cells)) {
     const ja = JSON.stringify(a.cells[name])
     const jb = JSON.stringify(b.cells[name])
+
     if (ja !== jb) {
       out.push(name)
     }
@@ -54,6 +59,7 @@ function diffCells(a: any, b: any): string {
 // keep polling well past the worst observed settle time.
 function waitForDump(tries = 300): void {
   const dump = stableDump()
+
   if (dump) {
     console.log('[parity-json] ' + JSON.stringify(dump))
     return
@@ -83,6 +89,7 @@ function pumpRunLoop(): boolean {
   const runLoop = (globalThis as any).NSRunLoop?.currentRunLoop
   const NSDate = (globalThis as any).NSDate
   const mode = (globalThis as any).NSDefaultRunLoopMode ?? 'kCFRunLoopDefaultMode'
+
   if (!runLoop || !NSDate || typeof runLoop.runModeBeforeDate !== 'function') {
     return false
   }
@@ -123,6 +130,7 @@ export function runParity(): void {
     title: 'parity',
     size: { width: 1600, height: 1100 },
   })
+
   if (!controller) {
     openStage?.()
   }
@@ -136,11 +144,15 @@ export function runParity(): void {
   // wedged stage reports cleanly instead of timing out silently.
   const deadline = Date.now() + 90000
   let lastPoll = 0
+
   while (Date.now() < deadline) {
     const now = Date.now()
+
     if (now - lastPoll >= 100) {
       lastPoll = now
+
       const dump = stableDump()
+
       if (dump) {
         console.log('[parity-json] ' + JSON.stringify(dump))
         controller?.close?.()
@@ -171,6 +183,7 @@ export function runParity(): void {
         diffCells(prevParsed, lastParsed),
     )
   }
+
   controller?.close?.()
 }
 

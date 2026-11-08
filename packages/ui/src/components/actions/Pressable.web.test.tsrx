@@ -3,25 +3,35 @@
 import { afterEach, expect, it, vi } from 'vitest'
 import { act, createRoot } from 'octane'
 import { Pressable } from './Pressable.web.tsrx'
+
 const roots: any[] = []
 function mount(props: any = {}) {
   vi.useFakeTimers()
+
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const render = (next: any = {}) => act(() => root.render(<Pressable {...props} {...next} />))
+
   render()
+
   const pointer = (type: string) =>
     act(() => el.firstElementChild!.dispatchEvent(new Event(type, { bubbles: true })))
 
   const keyboard = (type: string, key: string, repeat = false) => {
     const event = new KeyboardEvent(type, { key, repeat, bubbles: true, cancelable: true })
+
     act(() => el.firstElementChild!.dispatchEvent(event))
     return event
   }
 
   const advance = () => act(() => vi.advanceTimersByTime(500))
+
   return { root, render, pointer, keyboard, advance, el }
 }
 
@@ -36,6 +46,7 @@ afterEach(() => {
 
 it('updates and removes the shared expanded accessibility state', () => {
   const { el, render } = mount({ accessibilityState: { expanded: false } })
+
   expect(el.firstElementChild!.getAttribute('aria-expanded')).toBe('false')
   render({ accessibilityState: { expanded: true } })
   expect(el.firstElementChild!.getAttribute('aria-expanded')).toBe('true')
@@ -48,6 +59,7 @@ it.each(['pointerup', 'pointerleave', 'pointercancel'])(
   (event) => {
     const callback = vi.fn()
     const { render, pointer, advance } = mount({ onLongPress: callback })
+
     pointer('pointerdown')
     render({ className: 'updated' })
     pointer(event)
@@ -59,6 +71,7 @@ it.each(['pointerup', 'pointerleave', 'pointercancel'])(
 it('cancels on unmount', () => {
   const callback = vi.fn()
   const { root, pointer, advance } = mount({ onLongPress: callback })
+
   pointer('pointerdown')
   act(() => root.unmount())
   advance()
@@ -70,6 +83,7 @@ it.each([{ disabled: true }, { onLongPress: undefined }])(
   (next) => {
     const callback = vi.fn()
     const { render, pointer, advance } = mount({ onLongPress: callback })
+
     pointer('pointerdown')
     render(next)
     advance()
@@ -82,6 +96,7 @@ it('reports one long press through the latest callback', () => {
     current = vi.fn()
 
   const { render, pointer, advance } = mount({ onLongPress: old })
+
   pointer('pointerdown')
   render({ onLongPress: current })
   advance()
@@ -93,6 +108,7 @@ it('reports one long press through the latest callback', () => {
 it('does not start a disabled long press', () => {
   const callback = vi.fn()
   const { pointer, advance } = mount({ onLongPress: callback, disabled: true })
+
   pointer('pointerdown')
   advance()
   expect(callback).not.toHaveBeenCalled()
@@ -102,6 +118,7 @@ it('exposes an enabled pressable as a button and activates once on Enter', () =>
   const callback = vi.fn()
   const { el, keyboard } = mount({ onPress: callback })
   const button = el.firstElementChild!
+
   expect(button.getAttribute('role')).toBe('button')
   expect(button.getAttribute('tabindex')).toBe('0')
   expect(keyboard('keydown', 'Enter').defaultPrevented).toBe(true)
@@ -112,6 +129,7 @@ it('exposes an enabled pressable as a button and activates once on Enter', () =>
 it('activates on Space release, not on Space press', () => {
   const callback = vi.fn()
   const { keyboard } = mount({ onPress: callback })
+
   expect(keyboard('keydown', ' ').defaultPrevented).toBe(true)
   expect(callback).not.toHaveBeenCalled()
   expect(keyboard('keyup', ' ').defaultPrevented).toBe(true)

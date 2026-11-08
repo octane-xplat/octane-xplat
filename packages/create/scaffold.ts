@@ -30,6 +30,7 @@ export type { PackageManager } from './package-manager.ts'
 const moduleDir = dirname(fileURLToPath(import.meta.url))
 // dist/ emit sits one level deeper than the root sources it mirrors.
 const pkgRoot = basename(moduleDir) === 'dist' ? join(moduleDir, '..') : moduleDir
+
 export const TEMPLATE_DIR = join(pkgRoot, 'template')
 export const LIBRARY_TEMPLATE_DIR = join(pkgRoot, 'library-template')
 
@@ -132,6 +133,7 @@ export function resolveTargets(ids) {
   const resolved: string[] = []
   const visit = (id) => {
     const t = targets[id]
+
     if (!t) {
       throw new Error(`unknown target "${id}" — expected one of: ${selectableTargets.join(', ')}`)
     }
@@ -169,12 +171,14 @@ function ownerOf(path) {
 
 function walk(dir, prefix = '') {
   const out: string[] = []
+
   for (const name of readdirSync(dir)) {
     if (name === 'node_modules') {
       continue
     }
 
     const rel = prefix ? `${prefix}/${name}` : name
+
     if (statSync(join(dir, name)).isDirectory()) {
       out.push(...walk(join(dir, name), rel))
     } else {
@@ -187,6 +191,7 @@ function walk(dir, prefix = '') {
 
 function pickKeys(source, names, label) {
   const out: Record<string, string> = {}
+
   for (const name of names) {
     if (source[name] === undefined) {
       throw new Error(`template/package.json has no ${label} entry "${name}"`)
@@ -211,6 +216,7 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
   for (const section of ['dependencies', 'devDependencies']) {
     const key = section === 'dependencies' ? 'deps' : 'devDeps'
     const wanted = new Set<string>()
+
     for (const id of resolved) {
       for (const name of targets[id][key] ?? []) {
         wanted.add(name)
@@ -218,6 +224,7 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
     }
 
     const next = {}
+
     for (const [name, spec] of Object.entries(tpl[section] ?? {})) {
       // Unclaimed entries are base; claimed entries follow their target.
       const claimed = Object.keys(targets).some((id) => (targets[id][key] ?? []).includes(name))
@@ -231,6 +238,7 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
   }
 
   const wantedScripts = new Set(BASE_SCRIPTS)
+
   for (const id of resolved) {
     for (const name of targets[id].scripts ?? []) {
       wantedScripts.add(name)
@@ -239,6 +247,7 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
 
   const scripts = pickKeys(tpl.scripts ?? {}, [...wantedScripts].sort(), 'script')
   const typecheck: string[] = [BASE_TYPECHECK]
+
   for (const id of resolved) {
     if (targets[id].typecheck) {
       typecheck.push(targets[id].typecheck)
@@ -264,15 +273,18 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
       .filter(([id]) => !resolved.includes(id))
       .flatMap(([, target]) => target.patches ?? []),
   )
+
   manifest.patchedDependencies = Object.fromEntries(
     Object.entries(tpl.patchedDependencies).filter(
       ([key]) => !drop.has(key.slice(0, key.indexOf('@', 1))),
     ),
   )
+
   const used = new Set([
     ...Object.keys(manifest.dependencies),
     ...Object.keys(manifest.devDependencies),
   ])
+
   manifest.workspaces = {
     ...tpl.workspaces,
     catalogs: {
@@ -282,6 +294,7 @@ export function composeManifest(ids: string[], packageManager: PackageManager = 
       ),
     },
   }
+
   if (packageManager === 'bun') {
     return manifest
   }
@@ -310,6 +323,7 @@ const deniedBuilds: { name: string; target?: string }[] = [
  */
 function allowBuildsFor(manifest, resolved: Set<string>) {
   const wanted = new Set<string>()
+
   for (const id of resolved) {
     for (const name of targets[id].builds ?? []) {
       wanted.add(name)
@@ -317,8 +331,10 @@ function allowBuildsFor(manifest, resolved: Set<string>) {
   }
 
   const builds: Record<string, boolean> = {}
+
   for (const name of manifest.trustedDependencies ?? []) {
     const claimed = Object.values(targets).some((target) => (target.builds ?? []).includes(name))
+
     if (!claimed || wanted.has(name)) {
       builds[name] = true
     }
@@ -346,6 +362,7 @@ function allowBuildsFor(manifest, resolved: Set<string>) {
 function splitForPnpm(manifest, resolved: Set<string>) {
   const next = { ...manifest }
   const workspace: Record<string, any> = {}
+
   workspace.packages = next.workspaces?.packages ?? []
   if (next.workspaces?.catalogs) {
     workspace.catalogs = next.workspaces.catalogs
@@ -386,6 +403,7 @@ function splitForPnpm(manifest, resolved: Set<string>) {
 export function composePnpmWorkspace(ids: string[]): string {
   const resolved = resolveTargets(ids)
   const { workspace } = splitForPnpm(composeManifest(resolved), new Set(resolved))
+
   return stringify(workspace)
 }
 
@@ -393,11 +411,13 @@ export function composePnpmWorkspace(ids: string[]): string {
 function neededPatchEntries(enabledIds, present: Set<string>): [string, string][] {
   const needed = new Set(enabledIds.flatMap((id) => targets[id].patches ?? []))
   const out: [string, string][] = []
+
   for (const [specifier, path] of Object.entries(templateManifest().patchedDependencies) as [
     string,
     string,
   ][]) {
     const name = specifier.slice(0, specifier.indexOf('@', 1))
+
     if (!needed.has(name) || present.has(name)) {
       continue
     }
@@ -413,6 +433,7 @@ function stagePatchFile(root, path, read, write) {
   const source = join(TEMPLATE_DIR, path)
   const destination = join(root, path)
   const before = read(destination)
+
   if (before !== null && !readFileSync(source).equals(before)) {
     throw new Error(
       `Custom patch ${destination} differs from the framework patch; reconcile it first`,
@@ -427,19 +448,24 @@ const specifierName = (specifier: string) => specifier.slice(0, specifier.indexO
 /** Add target-owned local patches before installing newly enabled dependencies. */
 function ensurePatchEntries(enabledIds, root, pkg, read, write) {
   const present = new Set(Object.keys(pkg.patchedDependencies ?? {}).map(specifierName))
+
   pkg.patchedDependencies ??= {}
+
   let changed = false
+
   for (const [specifier, path] of neededPatchEntries(enabledIds, present)) {
     stagePatchFile(root, path, read, write)
     pkg.patchedDependencies[specifier] = path
     changed = true
   }
+
   return changed
 }
 
 /** The selected manager at a workspace root — mirrors the CLI's detection. */
 function managerForRoot(root: string, pkg) {
   const declared = pkg?.packageManager?.split('@')[0]
+
   if (declared !== undefined) {
     if (declared === 'bun' || declared === 'pnpm') {
       return declared
@@ -450,20 +476,25 @@ function managerForRoot(root: string, pkg) {
 
   const bun = existsSync(join(root, 'bun.lock')) || existsSync(join(root, 'bun.lockb'))
   const pnpm = existsSync(join(root, 'pnpm-lock.yaml'))
+
   if (bun && pnpm) {
     throw new Error(
       'Both Bun and pnpm lockfiles exist. Set packageManager in package.json or pass --package-manager.',
     )
   }
+
   if (bun) {
     return 'bun'
   }
+
   if (pnpm) {
     return 'pnpm'
   }
+
   if (pkg?.patchedDependencies) {
     return 'bun'
   }
+
   return existsSync(join(root, 'pnpm-workspace.yaml')) ? 'pnpm' : 'bun'
 }
 
@@ -486,6 +517,7 @@ export const nativeCorePaths = {
 export function composeTsconfig(ids) {
   const resolved = new Set(resolveTargets(ids))
   const config = JSON.parse(readFileSync(join(TEMPLATE_DIR, 'tsconfig.json'), 'utf8'))
+
   if (!resolved.has('native-shared')) {
     delete config.files
     delete config.compilerOptions.paths
@@ -550,6 +582,7 @@ export function localizeCommands(text: string, manager: PackageManager): string 
 export function composeTargets(ids, dir, options?: { packageManager?: PackageManager }) {
   const packageManager = options?.packageManager ?? 'bun'
   const resolved = new Set(resolveTargets(ids))
+
   mkdirSync(dir, { recursive: true })
 
   for (const rel of walk(TEMPLATE_DIR)) {
@@ -562,12 +595,14 @@ export function composeTargets(ids, dir, options?: { packageManager?: PackageMan
     }
 
     const owner = ownerOf(rel)
+
     if (owner && !resolved.has(owner)) {
       continue
     }
 
     const source = join(TEMPLATE_DIR, rel)
     const dest = join(dir, destName(rel))
+
     mkdirSync(dirname(dest), { recursive: true })
     if (packageManager === 'pnpm' && isManagerTextFile(rel)) {
       writeFileSync(dest, localizeCommands(readFileSync(source, 'utf8'), packageManager))
@@ -580,6 +615,7 @@ export function composeTargets(ids, dir, options?: { packageManager?: PackageMan
     join(dir, 'package.json'),
     JSON.stringify(composeManifest(ids, packageManager), null, '\t') + '\n',
   )
+
   writeFileSync(join(dir, 'tsconfig.json'), composeTsconfig(ids))
   if (packageManager === 'pnpm') {
     writeFileSync(join(dir, 'pnpm-workspace.yaml'), composePnpmWorkspace(ids))
@@ -604,6 +640,7 @@ export function composeLibrary(
   }
 
   const packageManager = options?.packageManager ?? 'bun'
+
   mkdirSync(dir, { recursive: true })
   for (const rel of walk(LIBRARY_TEMPLATE_DIR)) {
     if (rel === 'package.json' || (packageManager === 'pnpm' && rel === 'bunfig')) {
@@ -611,10 +648,14 @@ export function composeLibrary(
     }
 
     const dest = join(dir, destName(rel))
+
     mkdirSync(dirname(dest), { recursive: true })
+
     const source = join(LIBRARY_TEMPLATE_DIR, rel)
+
     if (/\.(?:md|ts|tsx|mjs|json)$/.test(rel)) {
       let content = readFileSync(source, 'utf8').replaceAll('octane-xplat-library', packageName)
+
       if (packageManager === 'pnpm' && isManagerTextFile(rel)) {
         content = localizeCommands(content, packageManager)
       }
@@ -626,6 +667,7 @@ export function composeLibrary(
   }
 
   const manifest = JSON.parse(readFileSync(join(LIBRARY_TEMPLATE_DIR, 'package.json'), 'utf8'))
+
   manifest.name = packageName
   if (packageManager === 'pnpm') {
     for (const [name, script] of Object.entries(manifest.scripts ?? {})) {
@@ -635,6 +677,7 @@ export function composeLibrary(
     // The library exercises web and native builds — its dependency tree spans
     // the native toolchain, so target claims resolve as native-shared.
     const { manifest: split, workspace } = splitForPnpm(manifest, new Set(['native-shared']))
+
     writeFileSync(join(dir, 'package.json'), JSON.stringify(split, null, '\t') + '\n')
     writeFileSync(join(dir, 'pnpm-workspace.yaml'), stringify(workspace))
     return
@@ -668,6 +711,7 @@ export function targetEnabled(appRoot, id) {
   const manifest: Record<string, any> = readJson(join(appRoot, 'package.json')) ?? {}
   const declared = { ...manifest.dependencies, ...manifest.devDependencies }
   const runtime = { ios: '@nativescript/ios', android: '@nativescript/android' }[id]
+
   return runtime ? typeof declared[runtime] === 'string' : false
 }
 
@@ -675,10 +719,12 @@ export function targetEnabled(appRoot, id) {
 function copyMissing(rel, appRoot, report, present, copy) {
   const src = join(TEMPLATE_DIR, rel)
   const dest = join(appRoot, destName(rel))
+
   if (present(dest)) {
     report.skipped.push(rel)
     return
   }
+
   copy(src, dest)
   report.copied.push(rel)
 }
@@ -693,20 +739,24 @@ function enableNativeInTsconfig(appRoot, read, write) {
   const path = join(appRoot, 'tsconfig.json')
   const text = read(path)?.toString('utf8') ?? ''
   let config
+
   try {
     config = JSON.parse(text)
   } catch {
     return false
   }
+
   if (!config || typeof config !== 'object') {
     return false
   }
 
   const indent = text.match(/\n(\s+)"/)?.[1] ?? '\t'
+
   config.files = [...new Set(['references.d.ts', ...(config.files ?? [])])]
   config.exclude = (config.exclude ?? []).filter((e) => e !== 'src/main.ts')
 
   const types = config.compilerOptions?.types
+
   if (config.compilerOptions && Array.isArray(types) && !types.includes('@nativescript/types')) {
     config.compilerOptions.types = [...types, '@nativescript/types']
   }
@@ -715,6 +765,7 @@ function enableNativeInTsconfig(appRoot, read, write) {
   // an existing core mapping always win.
   if (config.compilerOptions && typeof config.compilerOptions === 'object') {
     const paths = (config.compilerOptions.paths ??= {})
+
     for (const [key, value] of Object.entries(nativeCorePaths)) {
       if (!(key in paths)) {
         paths[key] = value
@@ -733,6 +784,7 @@ function enableNativeInTsconfig(appRoot, read, write) {
  */
 export function planTarget(appRoot, id) {
   appRoot = resolve(appRoot)
+
   const root = compatibilityRoot(appRoot)
   const inputs = new Map<string, any>()
   const contents = new Map<string, Buffer>()
@@ -741,17 +793,22 @@ export function planTarget(appRoot, id) {
   const hash = (bytes) => createHash('sha256').update(bytes).digest('hex')
   const within = (path) => {
     const rel = relative(root, path)
+
     return rel === '' || (rel !== '..' && !rel.startsWith('..' + sep) && !isAbsolute(rel))
   }
+
   const observe = (path) => {
     path = resolve(path)
     if (!within(path)) {
       throw new Error(`Scaffold path leaves its workspace: ${path}`)
     }
+
     if (inputs.has(path)) {
       return inputs.get(path)
     }
+
     let info
+
     try {
       info = lstatSync(path)
     } catch (error) {
@@ -760,58 +817,76 @@ export function planTarget(appRoot, id) {
       }
 
       const input = { path, kind: 'missing' }
+
       inputs.set(path, input)
       return input
     }
+
     if (info.isSymbolicLink() || (!info.isDirectory() && !info.isFile())) {
       throw new Error(`Scaffold path must be an ordinary file or directory: ${path}`)
     }
+
     const input: Record<string, any> = {
       path,
       kind: info.isDirectory() ? 'directory' : 'file',
       mode: info.mode & 0o777,
     }
+
     if (input.kind === 'file') {
       if (info.size > 16 * 1024 * 1024) {
         throw new Error(`Scaffold input exceeds 16 MiB: ${path}`)
       }
 
       const bytes = readFileSync(path)
+
       input.sha256 = hash(bytes)
       contents.set(path, bytes)
     }
+
     inputs.set(path, input)
     return input
   }
+
   const read = (path) => {
     const input = observe(path)
+
     if (input.kind === 'missing') {
       return null
     }
+
     if (input.kind !== 'file') {
       throw new Error(`Expected scaffold file: ${path}`)
     }
+
     return contents.get(resolve(path))!
   }
+
   const directory = (path, mode = 0o755) => {
     if (path === root || path === appRoot) {
       return
     }
+
     const input = observe(path)
+
     if (input.kind === 'directory') {
       return
     }
+
     if (input.kind !== 'missing') {
       throw new Error(`Expected scaffold directory: ${path}`)
     }
+
     directory(dirname(path))
     directories.set(path, mode)
   }
+
   const write = (path, bytes, mode) => {
     const before = read(path)
+
     if (before !== null && before.equals(bytes)) {
       return
     }
+
     directory(dirname(path))
     files.set(path, {
       path,
@@ -820,8 +895,10 @@ export function planTarget(appRoot, id) {
       mode: before === null ? mode : observe(path).mode,
     })
   }
+
   const copy = (source, dest) => {
     const info = lstatSync(source)
+
     if (info.isDirectory()) {
       directory(dest, info.mode & 0o777)
       for (const name of readdirSync(source).sort()) {
@@ -833,11 +910,14 @@ export function planTarget(appRoot, id) {
       throw new Error(`Scaffold template must not contain aliases: ${source}`)
     }
   }
+
   const manifestPath = join(appRoot, 'package.json')
   const raw = read(manifestPath)?.toString('utf8')
+
   if (raw === undefined) {
     throw new Error(`No package.json at ${appRoot}`)
   }
+
   const manifest: Record<string, any> = JSON.parse(raw)
   const tpl = templateManifest()
   const report: Record<string, any> = {
@@ -867,7 +947,9 @@ export function planTarget(appRoot, id) {
     }
 
     report.enabled.push(tid)
+
     const t = targets[tid]
+
     for (const rel of t.files) {
       copyMissing(rel, appRoot, report, (path) => observe(path).kind !== 'missing', copy)
     }
@@ -897,6 +979,7 @@ export function planTarget(appRoot, id) {
 
     if (t.typecheck) {
       const current = manifest.scripts.typecheck ?? ''
+
       if (!current.includes(t.typecheck)) {
         manifest.scripts.typecheck = current ? `${current} && ${t.typecheck}` : t.typecheck
         report.scriptsAdded.push('typecheck')
@@ -926,10 +1009,12 @@ export function planTarget(appRoot, id) {
       ? manifest
       : JSON.parse(read(join(root, 'package.json'))?.toString('utf8') ?? 'null'),
   )
+
   if (manager === 'pnpm') {
     const yamlPath = join(root, 'pnpm-workspace.yaml')
     const doc = parseDocument(read(yamlPath)?.toString('utf8') ?? 'packages: []\n')
     const { catalog, pins } = requestedCatalogPins(manifest)
+
     for (const [name, spec] of Object.entries(pins)) {
       if (doc.getIn(['catalogs', catalog, name]) === undefined) {
         doc.setIn(['catalogs', catalog, name], spec)
@@ -942,6 +1027,7 @@ export function planTarget(appRoot, id) {
     )
 
     const patches = neededPatchEntries(enabledTargets, present)
+
     for (const [specifier, path] of patches) {
       stagePatchFile(root, path, read, write)
       doc.setIn(['patchedDependencies', specifier], path)
@@ -952,6 +1038,7 @@ export function planTarget(appRoot, id) {
     }
 
     const resolved = new Set(resolveTargets(enabledTargets))
+
     for (const id of resolved) {
       for (const name of targets[id].builds ?? []) {
         if (doc.getIn(['allowBuilds', name]) === undefined) {
@@ -993,19 +1080,25 @@ export function planTarget(appRoot, id) {
   if (JSON.stringify(manifest) !== JSON.stringify(JSON.parse(raw))) {
     // Match the file's existing indent so diffs stay minimal.
     const indent = raw.match(/\n(\s+)"/)?.[1] ?? '\t'
+
     write(manifestPath, Buffer.from(JSON.stringify(manifest, null, indent) + '\n'), 0o644)
   }
+
   if (files.size > 8192 || inputs.size > 20000 || directories.size > 8192) {
     throw new Error('Scaffold plan exceeds inventory limits')
   }
+
   let total = 0
+
   for (const file of files.values()) {
     const bytes = Buffer.from(file.content, 'base64').length
+
     total += bytes
     if (bytes > 16 * 1024 * 1024 || total > 32 * 1024 * 1024) {
       throw new Error('Scaffold plan exceeds byte limits')
     }
   }
+
   return {
     version: 1,
     root,
@@ -1021,8 +1114,10 @@ export function planTarget(appRoot, id) {
 /** Apply the same read-only plan used by native CLI orchestration. */
 export function applyTarget(appRoot, id) {
   const plan = planTarget(appRoot, id)
+
   for (const input of plan.inputs) {
     let info
+
     try {
       info = lstatSync(input.path)
     } catch (error) {
@@ -1047,11 +1142,14 @@ export function applyTarget(appRoot, id) {
       throw new Error(`Scaffold input changed; retry: ${input.path}`)
     }
   }
+
   for (const entry of plan.directories) {
     mkdirSync(entry.path, { recursive: true, mode: entry.mode })
   }
+
   for (const entry of plan.files) {
     writeFileSync(entry.path, Buffer.from(entry.content, 'base64'), { mode: entry.mode })
   }
+
   return plan.report
 }

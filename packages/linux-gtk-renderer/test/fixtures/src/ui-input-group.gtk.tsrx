@@ -2,6 +2,7 @@
 import { View, TextInput, Pressable } from '@octane-xplat/ui'
 import { InputGroup, InputGroupText } from '@octane-xplat/ui'
 import type { InputGroupProps, TextInputHandle } from '@octane-xplat/ui'
+
 export const groupRef: { current: any } = { current: null }
 export const prefixRef: { current: any } = { current: null }
 export const handles: Array<TextInputHandle | null> = []

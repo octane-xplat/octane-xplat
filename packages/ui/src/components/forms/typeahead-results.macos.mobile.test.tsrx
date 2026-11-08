@@ -20,6 +20,7 @@ function PersonLabel() {
 }
 
 afterEach(() => vi.unstubAllGlobals())
+
 function fixture() {
   const observers = new Map<object, any>(),
     layers: any[] = []
@@ -33,6 +34,7 @@ function fixture() {
         callback: any,
       ) {
         const token = {}
+
         observers.set(token, callback)
         return token
       },
@@ -45,6 +47,7 @@ function fixture() {
   const viewport = { origin: { x: 0, y: 0 }, size: { width: 500, height: 300 } }
   const window: any = { contentView: { bounds: viewport, flipped: true }, firstResponder: null }
   const bounds = { origin: { x: 20, y: 40 }, size: { width: 180, height: 28 } }
+
   vi.stubGlobal('__xplatAppKit', {
     showLayer(options: any) {
       const target = { window },
@@ -108,6 +111,7 @@ function fixture() {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -160,6 +164,7 @@ function fixture() {
 
 it('result content keeps declaring providers and current updates through the actual source portal', async () => {
   const f = fixture()
+
   try {
     await f.settle()
     expect(f.layers).toHaveLength(1)
@@ -181,9 +186,12 @@ it('result content keeps declaring providers and current updates through the act
 
 it('results have a bounded scrolling outlet and resize with current width and viewport', async () => {
   const f = fixture()
+
   try {
     await f.settle()
+
     const scroll = () => f.all().find((node) => node.type === 'scrollview')
+
     expect(scroll().props.style).toMatchObject({ width: 180, maxHeight: 224 })
     f.viewport.size.width = 260
     f.render({ ...f.base, menuWidth: 400 })
@@ -201,6 +209,7 @@ it('input, shared editor and popup descendants form one field-leave blur boundar
 
   try {
     await f.settle()
+
     const shell = f.find('vx-typeahead'),
       popup = () => f.find('vx-typeahead-dropdown'),
       row = f.find('vx-typeahead-option')
@@ -211,7 +220,9 @@ it('input, shared editor and popup descendants form one field-leave blur boundar
     f.window.firstResponder = row
     shell.props.onBlur(event)
     expect(f.base.onInputBlur).not.toHaveBeenCalled()
+
     const blur = vi.fn()
+
     f.render({ ...f.base, onInputBlur: blur })
     await f.settle()
     f.window.firstResponder = {}
@@ -225,7 +236,9 @@ it('input, shared editor and popup descendants form one field-leave blur boundar
 
 it('current blocking retires the portal, and held blur/commit callbacks cannot act after teardown', async () => {
   const f = fixture()
+
   await f.settle()
+
   const blur = f.find('vx-typeahead-dropdown').props.onBlur,
     source = f.layers[0].source
 

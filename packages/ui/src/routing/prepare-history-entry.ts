@@ -11,10 +11,13 @@ export function prepareHistoryEntry(
   if (!command.prepare) {
     return Promise.resolve({ status: 'unsupported', operation: 'history-preparation' })
   }
+
   const resolved = instance.resolveUrl(entry.route.href)
+
   if (resolved.status !== 'matched') {
     return Promise.resolve(resolved)
   }
+
   return command.prepare(
     {
       ...resolved.destination,

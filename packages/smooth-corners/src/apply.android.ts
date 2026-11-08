@@ -14,6 +14,7 @@ const PATH_KEY = '__smoothPath'
 
 function toAndroidPath(cmds: PathCommand[]): any {
   const p = new android.graphics.Path()
+
   for (const c of cmds) {
     switch (c.c) {
       case 'M':
@@ -28,6 +29,7 @@ function toAndroidPath(cmds: PathCommand[]): any {
       case 'A': {
         // Canvas is y-down like SVG — degrees map directly.
         const rect = new android.graphics.RectF(c.cx - c.r, c.cy - c.r, c.cx + c.r, c.cy + c.r)
+
         p.arcTo(rect, c.startDeg, c.sweepDeg, false)
         break
       }
@@ -44,14 +46,17 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
   const Drawable = (android.graphics.drawable.Drawable as any).extend({
     draw(canvas: any) {
       const path = state.path
+
       if (!path) {
         return
       }
 
       const bg = state.view?.backgroundColor ?? state.view?.style?.backgroundColor
       const border = state.props.border
+
       if (bg) {
         const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
         paint.setStyle(android.graphics.Paint.Style.FILL)
         paint.setColor(new Color(bg).android)
         canvas.drawPath(path, paint)
@@ -59,10 +64,13 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
 
       if (border && border.width > 0 && border.color) {
         const paint = new android.graphics.Paint(android.graphics.Paint.ANTI_ALIAS_FLAG)
+
         paint.setStyle(android.graphics.Paint.Style.STROKE)
+
         // Clip the paint operation itself: visible child overflow must not
         // expose the outer half of the doubled inside border.
         const checkpoint = canvas.save()
+
         canvas.clipPath(path)
         paint.setStrokeWidth(Utils.layout.toDevicePixels(border.width) * 2)
         paint.setColor(new Color(border.color).android)
@@ -76,15 +84,19 @@ function makeDrawable(state: { view: any; props: SmoothCornersProps; path: any }
     setAlpha(_a: number) {},
     setColorFilter(_f: any) {},
   })
+
   return new Drawable()
 }
 
 /** Clip the inner box: outline provider + background/border drawable. */
 export function applySmoothClip(view: any, props: SmoothCornersProps, clip = true): void {
   const s = view?.[PATH_KEY] ?? (view[PATH_KEY] = { view, props, path: null, drawable: null })
+
   s.props = props
+
   const v = view?.android as any
   const size = view?.getActualSize?.()
+
   if (!v || !size || size.width <= 0 || size.height <= 0) {
     return
   }
@@ -98,6 +110,7 @@ export function applySmoothClip(view: any, props: SmoothCornersProps, clip = tru
   )
 
   const path = s.path
+
   v.setOutlineProvider(
     new ((android.view.ViewOutlineProvider as any).extend({
       getOutline(target: any, outline: any) {

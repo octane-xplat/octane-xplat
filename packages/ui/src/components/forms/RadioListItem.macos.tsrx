@@ -14,10 +14,13 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
   const group = useContext(RadioListContext)
   const views = useContext(AppKitRadioViewsContext)
   const live = useRef({ props, group, views })
+
   live.current = { props, group, views }
+
   const own = useRef<{ view: NSView } | null>(null)
   const bind = useMemo(() => {
     let lease: { view: NSView } | null = null
+
     return (view: NSView | null) => {
       if (lease) {
         if (views?.get(props.value) === lease.view) {
@@ -39,6 +42,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
 
   const activate = () => {
     const current = live.current
+
     if (
       !own.current ||
       current.props.isDisabled ||

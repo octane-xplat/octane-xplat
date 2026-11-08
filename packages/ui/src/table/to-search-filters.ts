@@ -22,9 +22,11 @@ function resolveOperator(
   if (operatorKey) {
     return field.operators.find((o) => o.key === operatorKey)
   }
+
   if (field.defaultOperator) {
     return field.operators.find((o) => o.key === field.defaultOperator)
   }
+
   return field.operators[0]
 }
 
@@ -36,10 +38,13 @@ export function resolveFilterConfig(
   const fieldKey = typeof filter === 'string' ? filter : filter.field
   const operatorKey = typeof filter === 'string' ? undefined : filter.operator
   const field = searchConfig.fields.find((f) => f.key === fieldKey)
+
   if (!field) {
     return undefined
   }
+
   const operator = resolveOperator(field, operatorKey)
+
   return operator?.value
 }
 
@@ -88,12 +93,14 @@ export function toSearchFilters<_T extends Record<string, unknown>>(
   searchConfig: PowerSearchConfig,
 ): PowerSearchFilter[] {
   const result: PowerSearchFilter[] = []
+
   for (const col of columns) {
     if (!col.filter) {
       continue
     }
 
     const value = filters[col.key]
+
     if (value == null) {
       continue
     }
@@ -101,21 +108,25 @@ export function toSearchFilters<_T extends Record<string, unknown>>(
     const fieldKey = typeof col.filter === 'string' ? col.filter : col.filter.field
     const operatorKey = typeof col.filter === 'string' ? undefined : col.filter.operator
     const field = searchConfig.fields.find((f) => f.key === fieldKey)
+
     if (!field) {
       continue
     }
 
     const operator = resolveOperator(field, operatorKey)
+
     if (!operator) {
       continue
     }
 
     const filterValue = tableValueToFilterValue(value, operator.value)
+
     if (!filterValue) {
       continue
     }
 
     result.push({ field: fieldKey, operator: operator.key, value: filterValue })
   }
+
   return result
 }

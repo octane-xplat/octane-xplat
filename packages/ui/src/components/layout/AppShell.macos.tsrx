@@ -57,6 +57,7 @@ export function AppShell(props: AppShellProps): unknown @{
   const [isBelowBreakpoint, setBelow] = useState<boolean>(mobileNavConfig?.defaultIsMobile ?? false)
   const onShellLayout = (e: any) => {
     const w = e?.object?.getActualSize?.().width ?? null
+
     if (w != null && w !== measuredWidth) {
       setMeasuredWidth(w)
       setBelow(sideNavBreakpoint === 'none' ? false : w < breakpointDips)

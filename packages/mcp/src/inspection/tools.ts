@@ -15,6 +15,7 @@ export function registerInspectionTools(
     (method: 'inspect' | 'interact' | 'screenshot') =>
     async (args: any): Promise<ReturnType<Respond>> => {
       const data = await context.inspection[method](args)
+
       return respond(data)
     }
 

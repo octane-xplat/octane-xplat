@@ -9,6 +9,7 @@ import { macOSHostArch, hostBundle, hostRoot } from '../../cli/src/macos/jsc-hos
 
 async function consumer(packed, app, source) {
   const installed = join(app, 'node_modules/@octane-xplat/sounds')
+
   await mkdir(installed, { recursive: true })
   await cp(packed, installed, { recursive: true })
   await writeFile(join(app, 'package.json'), JSON.stringify({ type: 'module' }))
@@ -48,6 +49,7 @@ check().catch(error => { console.error(error); process.exitCode = 1 })
   )
 
   const result = spawnSync(process.execPath, [script], { encoding: 'utf8', timeout: 10_000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   assert.match(result.stdout, /PUBLIC_MACOS_SOUNDS_IMPORT_OK/)
   console.log('Packed macOS public import/construct passes without mobile peers.')
@@ -56,6 +58,7 @@ check().catch(error => { console.error(error); process.exitCode = 1 })
 function silentWav() {
   const samples = 16000
   const bytes = Buffer.alloc(44 + samples * 2)
+
   bytes.write('RIFF')
   bytes.writeUInt32LE(bytes.length - 8, 4)
   bytes.write('WAVEfmt ', 8)
@@ -73,12 +76,17 @@ function silentWav() {
 
 export async function verifyMacOS(packed, temporary) {
   assert.equal(process.platform, 'darwin')
+
   const app = join(temporary, 'target')
+
   await mkdir(app, { recursive: true })
+
   const local = join(app, 'silence.wav')
   const malformed = join(app, 'malformed.wav')
+
   await writeFile(local, silentWav())
   await writeFile(malformed, 'not audio')
+
   const server = createServer((request, response) => {
     if (request.url === '/slow') {
       return
@@ -89,7 +97,9 @@ export async function verifyMacOS(packed, temporary) {
   })
 
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
   const remote = `http://127.0.0.1:${server.address().port}`
+
   try {
     const script = await consumer(
       packed,
@@ -175,6 +185,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_SOUNDS_ERROR'
       )
 
       let text = ''
+
       child.stdout.on('data', (chunk) => {
         text += chunk
       })
@@ -184,6 +195,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_SOUNDS_ERROR'
       })
 
       const timeout = setTimeout(() => child.kill('SIGKILL'), 20_000)
+
       child.once('error', (error) => {
         clearTimeout(timeout)
         reject(error)

@@ -10,11 +10,13 @@ export function manifestAssets(
   options?: { base?: string },
 ): WebAssets {
   const base = options?.base ?? '/'
+
   if (!base.startsWith('/') || !base.endsWith('/')) {
     throw new TypeError('Asset base must start and end with /')
   }
 
   const chunk = manifest[entry]
+
   if (!chunk?.isEntry) {
     throw new TypeError(`Asset manifest has no entry chunk: ${entry}`)
   }
@@ -28,7 +30,9 @@ export function manifestAssets(
     }
 
     seen.add(key)
+
     const imported = manifest[key]
+
     if (!imported) {
       return
     }
@@ -41,6 +45,7 @@ export function manifestAssets(
       styles.push(base + href)
     }
   }
+
   for (const key of chunk.imports ?? []) {
     visit(key)
   }

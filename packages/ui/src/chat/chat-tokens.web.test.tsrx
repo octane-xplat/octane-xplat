@@ -8,8 +8,11 @@ const roots: { root: any; host: HTMLElement }[] = []
 
 function mount(token: { value: string; label: string; variant: 'info' }) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   roots.push({ root, host })
   act(() => root.render(<ChatTokenChip token={token} />))
   return host

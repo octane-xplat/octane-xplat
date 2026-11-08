@@ -19,6 +19,7 @@ export interface WindowsMediaTraits {
 function presence(read: () => unknown): KnownBoolean {
   try {
     const value = read()
+
     return typeof value === 'boolean'
       ? value
       : typeof value === 'number' && Number.isFinite(value) && value >= 0
@@ -37,15 +38,18 @@ export function readWindowsMediaTraits(): WindowsMediaTraits {
   let pen = false
   let penHover: KnownBoolean = false
   let complete = false
+
   try {
     const devices = input.PointerDevice.GetPointerDevices()
     const types = input.PointerDeviceType
     const count = devices.Size ?? devices.Count
+
     if (typeof count === 'number' && Number.isSafeInteger(count) && count >= 0) {
       complete = true
       for (let index = 0; index < count; index++) {
         const device = devices.GetAt(index)
         const type = device.PointerDeviceType
+
         if (
           (types.Mouse != null && type === types.Mouse) ||
           (types.Touchpad != null && type === types.Touchpad)
@@ -55,7 +59,9 @@ export function readWindowsMediaTraits(): WindowsMediaTraits {
           touch = true
         } else if (types.Pen != null && type === types.Pen) {
           pen = true
+
           const hover = presence(() => device.MaxPointersWithZDistance)
+
           if (hover === true) {
             penHover = true
           } else if (hover === null && penHover !== true) {
@@ -69,10 +75,12 @@ export function readWindowsMediaTraits(): WindowsMediaTraits {
   } catch {
     complete = false
   }
+
   const animations = presence(() => new Windows.UI.ViewManagement.UISettings().AnimationsEnabled)
   const fine = mouse === true || pen
   const coarse = touch === true
   const pointer = fine ? 'fine' : coarse ? 'coarse' : complete ? 'none' : null
+
   return {
     width: Screen.mainScreen.widthDIPs,
     height: Screen.mainScreen.heightDIPs,
@@ -88,8 +96,10 @@ export function readWindowsMediaTraits(): WindowsMediaTraits {
 
 function featureMatches(name: string, value: string, traits: WindowsMediaTraits): KnownBoolean {
   const dimension = /^(?:(min|max)-)?(width|height)$/.exec(name)
+
   if (dimension) {
     const size = dimension[2] === 'width' ? traits.width : traits.height
+
     if (!Number.isFinite(size) || size < 0) {
       return null
     }
@@ -103,6 +113,7 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
     }
 
     const bound = Number.parseFloat(value)
+
     if (dimension[1] === 'min') {
       return size >= bound
     }
@@ -113,6 +124,7 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
 
     return size === bound
   }
+
   if (name === 'orientation') {
     if (
       !Number.isFinite(traits.width) ||
@@ -133,6 +145,7 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
 
     return null
   }
+
   if (name === 'pointer') {
     if (traits.pointer === null) {
       return null
@@ -144,6 +157,7 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
 
     return ['none', 'fine', 'coarse'].includes(value) ? value === traits.pointer : null
   }
+
   if (name === 'any-pointer') {
     switch (value) {
       case 'fine':
@@ -158,6 +172,7 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
         return null
     }
   }
+
   if (name === 'prefers-reduced-motion') {
     if (value === 'reduce' || value === '') {
       return traits.reducedMotion
@@ -165,30 +180,37 @@ function featureMatches(name: string, value: string, traits: WindowsMediaTraits)
 
     return value === 'no-preference' && traits.reducedMotion !== null ? !traits.reducedMotion : null
   }
+
   if (name === 'hover' || name === 'any-hover') {
     const hover = name === 'hover' ? traits.hover : traits.anyHover
+
     if (value === 'hover' || value === '') {
       return hover
     }
 
     return value === 'none' && hover !== null ? !hover : null
   }
+
   return null
 }
 
 function termMatches(term: string, traits: WindowsMediaTraits): KnownBoolean {
   const match = /^(not\s+)?\(\s*([a-z-]+)\s*(?::\s*([^()]+))?\s*\)$/i.exec(term.trim())
+
   if (!match) {
     return null
   }
+
   const result = featureMatches(
     match[2].toLowerCase(),
     match[3]?.trim().toLowerCase() ?? '',
     traits,
   )
+
   if (result === null) {
     return null
   }
+
   return match[1] ? !result : result
 }
 
@@ -213,41 +235,52 @@ export function observeWindowsMediaTraits(changed: () => void): () => void {
       Application.resumeEvent,
     ]),
   ]
+
   const refresh = () => {
     if (!active) {
       return
     }
+
     bindRoot()
     changed()
   }
+
   const bindRoot = () => {
     const next = Application.getRootView() ?? undefined
+
     if (root === next) {
       return
     }
+
     for (const event of rootEvents) {
       root?.off(event, refresh)
     }
+
     root = next
     for (const event of rootEvents) {
       root?.on(event, refresh)
     }
   }
+
   bindRoot()
   for (const event of appEvents) {
     Application.on(event, refresh)
   }
+
   return () => {
     if (!active) {
       return
     }
+
     active = false
     for (const event of appEvents) {
       Application.off(event, refresh)
     }
+
     for (const event of rootEvents) {
       root?.off(event, refresh)
     }
+
     root = undefined
   }
 }

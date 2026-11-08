@@ -18,6 +18,7 @@ export function useMediaQuery(query: string): boolean {
 
     const mql = window.matchMedia(query)
     const update = () => setMatches(mql.matches)
+
     update()
     mql.addEventListener?.('change', update)
     return () => mql.removeEventListener?.('change', update)

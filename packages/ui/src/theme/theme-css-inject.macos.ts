@@ -9,6 +9,7 @@ export function ensureThemeCss(theme: DefinedTheme): void {
   if (injected.has(theme.name)) {
     return
   }
+
   registerStylesheet(`xplat-theme:${theme.name}`, generateThemeCss(theme, { target: 'native' }))
   injected.add(theme.name)
 }

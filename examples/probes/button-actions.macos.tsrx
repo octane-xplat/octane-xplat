@@ -29,7 +29,9 @@ export default function ButtonActionsProbe() {
   useEffect(
     () => () => {
       alive.current = false
+
       const tasks = pending.current
+
       pending.current = []
       tasks.forEach((task) => task.resolve())
     },

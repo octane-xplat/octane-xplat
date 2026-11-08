@@ -24,6 +24,7 @@ import type {
 } from '../props'
 
 import { RouterScopeContext as ScopeContext } from './router-hook-context'
+
 const Provider: any = ScopeContext
 
 /** Internal entry boundary, also used for retained native Pages and portals. */
@@ -59,6 +60,7 @@ export function RouterProvider<Contracts, Stacks extends string, Transitions ext
 
 function useScope(instance?: object, declared = false): RouterRenderScope {
   const scope = useContext(ScopeContext)
+
   return requireRouterRenderScope(scope, instance, declared)
 }
 
@@ -75,6 +77,7 @@ export function useRouter(instance?: object): RouterNavigator<any, string> {
 
 function useSnapshot(instance?: object, declared = false): RouterState<any> {
   const { navigator } = useScope(instance, declared)
+
   return useSyncExternalStore(navigator.subscribe, navigator.getSnapshot, navigator.getSnapshot)
 }
 
@@ -114,6 +117,7 @@ export function useNavigation(instance?: object): RouterNavigationState {
 export function useNavigationBlocker(options: NavigationBlockerOptions): NavigationBlockerState {
   const { instance, navigator, match } = useScope()
   const blocker = useMemo(createNavigationBlocker, [navigator, match])
+
   useLayoutEffect(
     () =>
       registerNavigationBlocker(navigator, {
@@ -125,6 +129,7 @@ export function useNavigationBlocker(options: NavigationBlockerOptions): Navigat
 
           const rendering = match.getSnapshot()
           const projected = rendering ? readRouterMatch(instance, rendering) : null
+
           return projected === navigator.getSnapshot().route
         },
       }),
@@ -148,6 +153,7 @@ export function useRouteMatch<Contracts, Stacks extends string>(
 export function useRouteMatch(instance?: object): any {
   const { match, instance: owner } = useScope(instance, true)
   const value = useSyncExternalStore(match.subscribe, match.getSnapshot, match.getSnapshot)
+
   return value ? readRouterMatch(owner, value) : null
 }
 
@@ -168,11 +174,13 @@ export function getRouteApi(to: string, instance?: object): RouteApi<any, string
   function useMatch(): any {
     const { match, instance: owner } = useScope(instance, true)
     const value = useSyncExternalStore(match.subscribe, match.getSnapshot, match.getSnapshot)
+
     if (!value || value.to !== to) {
       throw new Error(`Route '${to}' is not the rendering match`)
     }
 
     const declared = readRouterMatch(owner, value)
+
     if (declared.contract !== 'declared') {
       throw new Error(`Route '${to}' has no declared contract in this router instance`)
     }
@@ -189,6 +197,7 @@ export function getRouteApi(to: string, instance?: object): RouteApi<any, string
     useUpdateSearch: () => {
       const { instance: owner, navigator } = useScope(instance, true)
       const match = useMatch()
+
       return useMemo(() => createSearchUpdater(owner, navigator, match), [owner, navigator, match])
     },
   }

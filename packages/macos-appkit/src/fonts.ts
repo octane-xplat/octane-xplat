@@ -50,6 +50,7 @@ export function registerFontFamily(family: string, faces: readonly FontFace[]) {
     .sort((left, right) => left.weight - right.weight)
 
   const name = family.trim().toLowerCase()
+
   if (systemFamilies.has(name)) {
     throw new Error('System font family names cannot be registered')
   }
@@ -64,6 +65,7 @@ export function resolveFont(size: number, weight: number | string = 400, family?
   const [, nativeWeight, managerWeight] = weights.find(([limit]) => numeric <= limit)!
   const systemFont = () => {
     const font = NSFont.systemFontOfSizeWeight(Number(size), nativeWeight)
+
     if (!font) {
       throw new Error('Failed to create the AppKit system font face')
     }
@@ -73,6 +75,7 @@ export function resolveFont(size: number, weight: number | string = 400, family?
 
   for (const name of String(family ?? '').split(',')) {
     const trimmed = name.trim().replace(/^['"]|['"]$/g, '')
+
     if (!trimmed) {
       continue
     }
@@ -82,9 +85,11 @@ export function resolveFont(size: number, weight: number | string = 400, family?
     }
 
     const faces = families.get(trimmed.toLowerCase())
+
     if (faces) {
       const face = faces.find((face) => numeric <= face.weight) ?? faces.at(-1)!
       const font = NSFont.fontWithDescriptorSize(face.descriptor, Number(size))
+
       if (font) {
         return font
       }

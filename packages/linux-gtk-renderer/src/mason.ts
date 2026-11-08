@@ -42,10 +42,12 @@ let initFailed = false
 
 function loadMasonNamespace(): any {
   const typelibDir = GLib.getenv?.('XPLAT_MASON_TYPELIB')
+
   if (typelibDir) {
     try {
       const repo = (globalThis as any).imports?.gi?.GIRepository?.Repository
       const instance = repo?.get_default?.() ?? repo?.dup_default?.()
+
       if (instance?.prepend_search_path) {
         instance.prepend_search_path(typelibDir)
       } else {
@@ -65,6 +67,7 @@ function loadMasonNamespace(): any {
       // paths (LD_LIBRARY_PATH, DYLD_FALLBACK_LIBRARY_PATH) still apply.
     }
   }
+
   try {
     return (globalThis as any).imports?.gi?.XplatMason ?? null
   } catch {
@@ -76,6 +79,7 @@ function masonEngine(): number | null {
   if (engine || initFailed) {
     return engine || null
   }
+
   mason = loadMasonNamespace()
   if (!mason) {
     console.warn(
@@ -86,11 +90,13 @@ function masonEngine(): number | null {
     initFailed = true
     return null
   }
+
   engine = mason.engine_new()
   if (!engine) {
     initFailed = true
     return null
   }
+
   // GTK logical pixels are already the device scale CSS px assume.
   mason.engine_set_scale(engine, 1)
   return engine
@@ -108,28 +114,35 @@ function autoDim(value: any): [number, number] | undefined {
   if (value == null || value === 'auto') {
     return undefined
   }
+
   if (typeof value === 'number') {
     return Number.isFinite(value) ? [1, value] : undefined
   }
+
   if (typeof value === 'string') {
     const text = value.trim()
     const percent = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))%$/)
+
     if (percent) {
       return [2, Number(percent[1]) / 100]
     }
 
     const points = Number(text.replace(/px$/, ''))
+
     return Number.isFinite(points) ? [1, points] : undefined
   }
+
   return undefined
 }
 
 /** Length/percent dimension for gap — 0 length, 1 percent. */
 function lenDim(value: any): [number, number] | undefined {
   const dim = autoDim(value)
+
   if (!dim) {
     return undefined
   }
+
   return dim[0] === 2 ? [1, dim[1]] : dim[0] === 1 ? [0, dim[1]] : undefined
 }
 
@@ -233,6 +246,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
   const context = physicalView(node)?.get_style_context()
   const edges = ['left', 'right', 'top', 'bottom'] as const
   const margin = contentBox ? null : context?.get_margin()
+
   out.margin = Object.fromEntries(edges.map((edge) => [edge, [1, margin?.[edge] ?? 0]]))
   if (MASON_CONTAINERS.has(node.type)) {
     for (const box of ['border', 'padding']) {
@@ -246,6 +260,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 
   for (const key of ENUM_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'string') {
       out[key] = value
     }
@@ -262,6 +277,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
   if (props.visible === false || (style.visibility ?? props.visibility) === 'collapse') {
     out.display = 'none'
   }
+
   // The native FFI treats an omitted enum as "keep the previous value".
   // Always send the default so dropping display/visible/collapse restores flow.
   out.display ??= 'flex'
@@ -269,6 +285,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
   for (const [from, to] of DIM_AUTO_KEYS) {
     const value = from === 'flexBasis' ? style[from] : (style[from] ?? props[from])
     const dim = autoDim(value)
+
     if (dim) {
       out[to] = dim
     }
@@ -276,6 +293,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 
   for (const [from, to] of DIM_EDGES) {
     const dim = autoDim(style[from])
+
     if (dim) {
       ;(out.inset ??= {})[to] = dim
     }
@@ -284,15 +302,18 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
   const gap = lenDim(style.gap)
   const rowGap = lenDim(style.rowGap) ?? gap
   const columnGap = lenDim(style.columnGap) ?? gap
+
   if (rowGap) {
     out.gapRow = rowGap
   }
+
   if (columnGap) {
     out.gapColumn = columnGap
   }
 
   for (const key of NUMBER_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'number') {
       out[key] = value
     }
@@ -300,6 +321,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 
   for (const key of GRID_STYLE_KEYS) {
     const value = style[key]
+
     if (typeof value === 'string') {
       out[key] = value
     }
@@ -322,6 +344,7 @@ function styleDict(node: NodeLike, contentBox = false): Record<string, any> {
 function syncMasonNode(node: NodeLike) {
   const masonEngine_ = masonEngine()
   const view = physicalView(node)
+
   if (masonEngine_ == null) {
     return 0
   }
@@ -344,7 +367,9 @@ function syncMasonNode(node: NodeLike) {
   if (view) {
     nodesByChildView.set(view, node)
   }
+
   const dict = styleDict(node)
+
   mason.node_set_style(masonEngine_, node.masonNode, JSON.stringify(dict))
   return node.masonNode
 }
@@ -360,6 +385,7 @@ function effectiveChildren(parent: NodeLike, out: NodeLike[] = []): NodeLike[] {
       effectiveChildren(child, out)
     }
   }
+
   return out
 }
 
@@ -367,6 +393,7 @@ function effectiveChildren(parent: NodeLike, out: NodeLike[] = []): NodeLike[] {
  *  descendants recurse; every other child is a measured leaf. */
 function syncMasonTree(parent: NodeLike): number {
   const root = syncMasonNode(parent)
+
   if (!root) {
     return 0
   }
@@ -377,6 +404,7 @@ function syncMasonTree(parent: NodeLike): number {
 
   for (const child of children) {
     const handle = MASON_CONTAINERS.has(child.type) ? syncMasonTree(child) : syncMasonNode(child)
+
     if (!handle) {
       continue
     }
@@ -406,13 +434,16 @@ function syncMasonTree(parent: NodeLike): number {
 
 function records(bytes: any): Float32Array {
   const u8: Uint8Array = bytes.toArray()
+
   return new Float32Array(u8.buffer.slice(u8.byteOffset, u8.byteOffset + u8.byteLength))
 }
 
 /** Computes the subtree and returns the root record's [width, height]. */
 function computeRootSize(root: number, width: number, height: number): [number, number] {
   mason.node_compute(masonEngine()!, root, width, height)
+
   const flat = records(mason.node_layout_shallow(masonEngine()!, root))
+
   return flat.length >= 5 ? [flat[3], flat[4]] : [0, 0]
 }
 
@@ -420,6 +451,7 @@ function computeRootSize(root: number, width: number, height: number): [number, 
  *  manager's allocate vfunc drives this on every GTK allocation. */
 function layoutChildren(node: NodeLike, width: number, height: number) {
   const root = syncMasonTree(node)
+
   if (!root) {
     return
   }
@@ -431,18 +463,22 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
   // never inherit a temporary fixed size.
   const engine = masonEngine()!
   const authored = styleDict(node)
+
   mason.node_set_style(
     engine,
     root,
     JSON.stringify({ ...styleDict(node, true), width: [1, width], height: [1, height] }),
   )
+
   let flat: ReturnType<typeof records>
+
   try {
     mason.node_compute(engine, root, width, height)
     flat = records(mason.node_layout_shallow(engine, root))
   } finally {
     mason.node_set_style(engine, root, JSON.stringify(authored))
   }
+
   if (flat.length < RECORD * 2) {
     return
   }
@@ -450,12 +486,14 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
   const host = node.view
   const allocation = new (Gdk as any).Rectangle()
   let index = 0
+
   for (
     let child = host.get_first_child();
     child !== null;
     child = child.get_next_sibling(), index++
   ) {
     const off = RECORD + index * RECORD
+
     if (off + 5 > flat.length) {
       break
     }
@@ -469,11 +507,14 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
     // Mason returns a border box after placing its margins. GTK expects
     // the surrounding margin box and consumes its CSS margin itself.
     const margin = child.get_style_context().get_margin()
+
     allocation.x = Math.round(flat[off + 1]) - margin.left
     allocation.y = Math.round(flat[off + 2]) - margin.top
     allocation.width = Math.max(0, Math.round(flat[off + 3]) + margin.left + margin.right)
     allocation.height = Math.max(0, Math.round(flat[off + 4]) + margin.top + margin.bottom)
+
     const transform = childTransform(nodesByChildView.get(child), allocation, margin)
+
     if (transform) {
       child.allocate(allocation.width, allocation.height, -1, transform)
     } else {
@@ -486,6 +527,7 @@ function layoutChildren(node: NodeLike, width: number, height: number) {
  *  keyframe overlay the driver keeps on `node.animatedStyle`. */
 function paintStyle(node: NodeLike): Record<string, any> {
   const base = node?.computedStyle ?? node?.props?.style ?? {}
+
   return node?.animatedStyle ? { ...base, ...node.animatedStyle } : base
 }
 
@@ -496,19 +538,24 @@ function childTransform(node: NodeLike, allocation: any, margin: any): any {
   if (!node) {
     return null
   }
+
   const parts = resolveTransform(paintStyle(node))
+
   if (!parts) {
     return null
   }
+
   const w = allocation.width - margin.left - margin.right
   const h = allocation.height - margin.top - margin.bottom
   let t = new (Gsk as any).Transform()
+
   t = t.translate(
     new (Graphene as any).Point({
       x: allocation.x + margin.left + w / 2,
       y: allocation.y + margin.top + h / 2,
     }),
   )
+
   for (const step of transformSteps(parts, w, h)) {
     switch (step.kind) {
       case 'perspective':
@@ -531,6 +578,7 @@ function childTransform(node: NodeLike, allocation: any, margin: any): any {
         break
     }
   }
+
   return t.translate(
     new (Graphene as any).Point({ x: -w / 2 - margin.left, y: -h / 2 - margin.top }),
   )
@@ -545,6 +593,7 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
   const rounded = (x: number, y: number, w: number, h: number, radii: [number, number][]) => {
     const rr = new (Gsk as any).RoundedRect()
     const size = ([rx, ry]: [number, number]) => new G.Size({ width: rx, height: ry })
+
     rr.init(
       new G.Rect().init(x, y, w, h),
       size(radii[0]),
@@ -552,12 +601,15 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
       size(radii[2]),
       size(radii[3]),
     )
+
     snapshot.push_rounded_clip(rr)
   }
+
   switch (clip.type) {
     case 'inset': {
       const w = Math.max(0, clip.right - clip.left)
       const h = Math.max(0, clip.bottom - clip.top)
+
       rounded(
         clip.left,
         clip.top,
@@ -577,6 +629,7 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
     }
     case 'circle': {
       const r = clip.radius
+
       rounded(clip.cx - r, clip.cy - r, 2 * r, 2 * r, [
         [r, r],
         [r, r],
@@ -588,6 +641,7 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
     }
     case 'ellipse': {
       const corner: [number, number] = [clip.rx, clip.ry]
+
       rounded(clip.cx - clip.rx, clip.cy - clip.ry, 2 * clip.rx, 2 * clip.ry, [
         corner,
         corner,
@@ -599,6 +653,7 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
     }
     case 'polygon': {
       const PathBuilder = (Gsk as any).PathBuilder
+
       if (typeof PathBuilder !== 'function' || typeof snapshot.push_fill !== 'function') {
         if (!polygonClipWarned) {
           polygonClipWarned = true
@@ -609,6 +664,7 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
       }
 
       const builder = new PathBuilder()
+
       clip.points.forEach(([x, y], index) =>
         index === 0 ? builder.move_to(x, y) : builder.line_to(x, y),
       )
@@ -628,26 +684,33 @@ function pushClip(snapshot: any, clip: ClipPath): boolean {
  *  same as NS iOS, whose layer mask doesn't change hitTest. */
 function snapshotClipped(host: any, child: any, snapshot: any, text: string) {
   let clip: ClipPath
+
   try {
     clip = resolveClipPath(text, child.get_width(), child.get_height())
   } catch {
     // NS rejects malformed clip-path values — paint unclipped.
     clip = { type: 'none' }
   }
+
   const [ok, matrix] = child.compute_transform(host)
   const [invertible, inverse] = ok ? matrix.inverse() : [false, null]
+
   if (clip.type === 'none' || !invertible) {
     host.snapshot_child(child, snapshot)
     return
   }
+
   snapshot.save()
   snapshot.transform_matrix(matrix)
+
   const pushed = pushClip(snapshot, clip)
+
   snapshot.transform_matrix(inverse)
   host.snapshot_child(child, snapshot)
   if (pushed) {
     snapshot.pop()
   }
+
   snapshot.restore()
 }
 
@@ -656,13 +719,17 @@ function snapshotClipped(host: any, child: any, snapshot: any, text: string) {
  *  hitTest ignores layer.zPosition. */
 function snapshotChildren(host: any, snapshot: any) {
   const children: any[] = []
+
   for (let child = host.get_first_child(); child !== null; child = child.get_next_sibling()) {
     children.push(child)
   }
+
   const styles = children.map((child) => paintStyle(nodesByChildView.get(child)))
   const order = paintOrder(styles.map(zIndexOf)) ?? children.map((_, index) => index)
+
   for (const index of order) {
     const clipPath = styles[index].clipPath
+
     if (typeof clipPath === 'string' && clipPath.trim() && clipPath.trim() !== 'none') {
       snapshotClipped(host, children[index], snapshot, clipPath)
     } else {
@@ -675,9 +742,11 @@ function snapshotChildren(host: any, snapshot: any) {
  *  root record; forSize constrains the opposite axis when GTK knows it. */
 function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [number, number] {
   const root = syncMasonTree(node)
+
   if (!root) {
     return [0, 0]
   }
+
   // GTK asks for content size, then adds border/padding/margin itself.
   // Mason's root size excludes margins; remove its border/padding from
   // the result and ignore its own margins while resolving the cross axis.
@@ -690,6 +759,7 @@ function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [num
   const cross = horizontal ? y : x
   const offer = forSize >= 0 ? forSize + cross : MAX_CONTENT
   const authored = styleDict(node)
+
   mason.node_set_style(
     masonEngine()!,
     root,
@@ -698,6 +768,7 @@ function measureNode(node: NodeLike, horizontal: boolean, forSize: number): [num
       margin: { left: [1, 0], right: [1, 0], top: [1, 0], bottom: [1, 0] },
     }),
   )
+
   try {
     const nat = horizontal
       ? computeRootSize(root, MAX_CONTENT, offer)[0]
@@ -719,13 +790,16 @@ export function releaseMasonNodes(node: NodeLike) {
   if (!mason) {
     return
   }
+
   for (const child of node.children ?? []) {
     releaseMasonNodes(child)
   }
+
   if (node.masonNode) {
     mason.node_free(engine, node.masonNode)
     node.masonNode = undefined
   }
+
   node.masonChildren = undefined
 }
 
@@ -745,14 +819,18 @@ const MasonLayoutManager = GObject.registerClass(
   class XplatMasonLayoutManager extends (Gtk as any).LayoutManager {
     vfunc_measure(widget: GtkView, orientation: number, forSize: number) {
       const node = nodesByView.get(widget)
+
       if (!node) {
         return [0, 0, -1, -1]
       }
+
       const [min, nat] = measureNode(node, orientation === 0, forSize)
+
       return [Math.ceil(min), Math.ceil(nat), -1, -1]
     }
     vfunc_allocate(widget: GtkView, width: number, height: number, _baseline: number) {
       const node = nodesByView.get(widget)
+
       if (node) {
         layoutChildren(node, width, height)
       }
@@ -791,6 +869,7 @@ type GtkView = any
  *  layout manager. `bindMasonView` links the logical node before first use. */
 export function makeMasonView(): GtkView {
   const view = new MasonView()
+
   view.set_layout_manager(new MasonLayoutManager())
   return view
 }

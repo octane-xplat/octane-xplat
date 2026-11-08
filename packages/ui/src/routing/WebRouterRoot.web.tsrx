@@ -20,6 +20,7 @@ export function WebRouterRoot(props: {
 }): any {
   const scope = useMemo(() => ({ ...props.host.scope('root'), host: props.host }), [props.host])
   const App = props.App ?? DefaultWebApp
+
   return (
     <RouterRenderScopeProvider scope={scope}>
       <App router={props.router} host={props.host} />

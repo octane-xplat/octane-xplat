@@ -30,49 +30,65 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
   const prompts = new Map<number, Promise<PermissionResponse>>()
   const runtime = (): PhotoRuntime => {
     const value = host.runtime()
+
     if (!value) {
       throw new UnavailabilityError('MediaLibrary PhotoKit')
     }
+
     return value
   }
+
   const permission = (writeOnly = false) =>
     response(Number(runtime().PHPhotoLibrary.authorizationStatusForAccessLevel(writeOnly ? 1 : 2)))
+
   const read = () => {
     if (!permission().granted) {
       throw new Error('Photo library read permission is required')
     }
   }
+
   const write = () => {
     if (!permission(true).granted && !permission().granted) {
       throw new Error('Photo library write permission is required')
     }
   }
+
   const list = <T>(fetch: PHFetchResult): T[] =>
     Array.from({ length: fetch.count }, (_, index) => fetch.objectAtIndex(index) as T)
+
   const raw = (id: string) => id.replace(/^ph:\/\//, '')
   const asset = (id: string): PHAsset => {
     read()
+
     const value = runtime().PHAsset.fetchAssetsWithLocalIdentifiersOptions([raw(id)], null)
       .firstObject as PHAsset | null
+
     if (!value) {
       throw new Error('Asset is missing or outside the granted photo-library scope')
     }
+
     return value
   }
+
   const collection = (id: string): PHAssetCollection => {
     read()
+
     const value = runtime().PHAssetCollection.fetchAssetCollectionsWithLocalIdentifiersOptions(
       [id],
       null,
     ).firstObject as PHAssetCollection | null
+
     if (!value) {
       throw new Error('Album is missing or outside the granted photo-library scope')
     }
+
     return value
   }
+
   const metadata = (value: PHAsset): AssetMetadata => {
     const resources = runtime().PHAssetResource.assetResourcesForAsset(value)
     const first = resources.count > 0 ? resources.objectAtIndex(0) : null
+
     return {
       id: `ph://${value.localIdentifier}`,
       filename: first ? String(first.originalFilename) : null,
@@ -88,14 +104,17 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
       isFavorite: Boolean(value.favorite),
     }
   }
+
   const albumMetadata = (value: PHAssetCollection): AlbumMetadata => ({
     id: value.localIdentifier,
     title: value.localizedTitle ?? '',
     type: Number(value.assetCollectionType) === 2 ? 'smartAlbum' : 'album',
   })
+
   const changes = (action: () => void): Promise<void> =>
     new Promise((resolve, reject) => {
       let actionError: unknown
+
       runtime()
         .PHPhotoLibrary.sharedPhotoLibrary()
         .performChangesCompletionHandler(
@@ -117,34 +136,45 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
           },
         )
     })
+
   const nativeArray = (values: PHAsset[] | PHAssetCollection[]) =>
     runtime().NSArray.arrayWithArray(values)
+
   const localSource = (uri: string) => {
     const kit = runtime(),
       url = kit.NSURL.URLWithString(uri)
+
     if (!url?.fileURL || !kit.NSFileManager.defaultManager.fileExistsAtPath(url.path)) {
       throw new Error('Asset source must be a readable local file')
     }
+
     return url
   }
+
   const createRequest = (url: ReturnType<typeof localSource>) => {
     const kit = runtime()
+
     return /\.(mov|mp4|m4v|avi)$/i.test(url.path)
       ? kit.PHAssetChangeRequest.creationRequestForAssetFromVideoAtFileURL(url)
       : kit.PHAssetChangeRequest.creationRequestForAssetFromImageAtFileURL(url)
   }
+
   const create = async (uri: string, album?: string): Promise<string> => {
     write()
+
     const kit = runtime()
     const url = localSource(uri)
     const target = album ? collection(album) : undefined
     let id: string | undefined
+
     await changes(() => {
       const request = createRequest(url)
       const placeholder = request?.placeholderForCreatedAsset
+
       if (!placeholder) {
         throw new Error('PhotoKit could not create the asset')
       }
+
       id = placeholder.localIdentifier
       if (target) {
         kit.PHAssetCollectionChangeRequest.changeRequestForAssetCollection(target).addAssets(
@@ -152,24 +182,31 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
         )
       }
     })
+
     if (!id) {
       throw new Error('PhotoKit returned no created asset identifier')
     }
+
     return `ph://${id}`
   }
+
   const temporary = (extension: string) => {
     const kit = runtime()
     const root = String(kit.NSFileManager.defaultManager.temporaryDirectory.path).replace(/\/$/, '')
+
     return kit.NSURL.fileURLWithPath(
       `${root}/xplat-library-${kit.NSUUID.UUID().UUIDString}.${extension}`,
     )
   }
+
   const remove = (uri: string) => {
     if (!owned.has(uri)) {
       return
     }
+
     const kit = runtime(),
       url = kit.NSURL.URLWithString(uri)
+
     if (
       url &&
       kit.NSFileManager.defaultManager.fileExistsAtPath(url.path) &&
@@ -177,14 +214,17 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     ) {
       throw new Error('Could not remove the temporary asset export')
     }
+
     owned.delete(uri)
   }
+
   const exported = async (
     extension: string,
     action: (target: ReturnType<typeof temporary>) => void | Promise<void>,
   ): Promise<string> => {
     const target = temporary(extension.slice(0, 16)),
       uri = String(target.absoluteString)
+
     owned.add(uri)
     try {
       await action(target)
@@ -207,16 +247,22 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     isAvailable: () => host.runtime() !== null,
     async permissions(request, writeOnly) {
       const current = permission(writeOnly)
+
       if (!request || current.status !== 'undetermined') {
         return current
       }
+
       const kit = runtime(),
         level = writeOnly ? 1 : 2
+
       const key = writeOnly ? 'NSPhotoLibraryAddUsageDescription' : 'NSPhotoLibraryUsageDescription'
+
       if (!kit.NSBundle.mainBundle.objectForInfoDictionaryKey(key)) {
         throw new Error(`Declare ${key} before requesting Photos access`)
       }
+
       let pending = prompts.get(level)
+
       if (!pending) {
         pending = new Promise<PermissionResponse>((resolve) =>
           kit.PHPhotoLibrary.requestAuthorizationForAccessLevelHandler(level, (status) =>
@@ -227,16 +273,20 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
         prompts.set(level, pending)
         void pending.finally(() => prompts.delete(level))
       }
+
       return pending
     },
     presentPermissionsPicker: () => host.permissionsPicker(),
     async query(spec: QuerySpec) {
       read()
+
       const kit = runtime(),
         target = spec.album ? collection(spec.album) : undefined
+
       if (spec.limit === 0) {
         return []
       }
+
       const options = kit.PHFetchOptions.alloc().init()
       const predicates = spec.filters.map((filter) => {
         const convert = (value: string | number | boolean) =>
@@ -245,41 +295,53 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
             : filter.field.endsWith('Time')
               ? kit.NSDate.dateWithTimeIntervalSince1970(Number(value))
               : value
+
         const value = Array.isArray(filter.value)
           ? filter.value.map(convert)
           : convert(filter.value as string | number | boolean)
+
         const operator = { eq: '==', within: 'IN', gt: '>', gte: '>=', lt: '<', lte: '<=' }[
           filter.operator
         ]
+
         return kit.NSPredicate.predicateWithFormatArgumentArray(`%K ${operator} %@`, [
           keys[filter.field],
           value,
         ])
       })
+
       options.predicate = kit.NSCompoundPredicate.andPredicateWithSubpredicates(predicates)
+
       const order = spec.order.length
         ? spec.order
         : [{ key: 'creationTime' as const, ascending: false }]
+
       options.sortDescriptors = order.map((value) =>
         kit.NSSortDescriptor.sortDescriptorWithKeyAscending(
           keys[value.key],
           value.ascending ?? true,
         ),
       )
+
       if (spec.limit !== undefined) {
         options.fetchLimit = spec.offset + spec.limit
       }
+
       const fetch = target
         ? kit.PHAsset.fetchAssetsInAssetCollectionOptions(target, options)
         : kit.PHAsset.fetchAssetsWithOptions(options)
+
       const end = Math.min(
         fetch.count,
         spec.limit === undefined ? fetch.count : spec.offset + spec.limit,
       )
+
       const result: AssetMetadata[] = []
+
       for (let index = spec.offset; index < end; index++) {
         result.push(metadata(fetch.objectAtIndex(index) as PHAsset))
       }
+
       return result
     },
     async metadata(id) {
@@ -287,6 +349,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     },
     async location(id) {
       const location = asset(id).location
+
       return location
         ? { latitude: location.coordinate.latitude, longitude: location.coordinate.longitude }
         : null
@@ -294,6 +357,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     async uri(id, options) {
       const value = asset(id),
         kit = runtime()
+
       if (options.version === 'original') {
         const resources = kit.PHAssetResource.assetResourcesForAsset(value)
         const candidates = Array.from({ length: resources.count }, (_, index) =>
@@ -315,6 +379,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
             ?.replace(/[^a-zA-Z0-9]/g, '') || 'bin'
 
         const request = kit.PHAssetResourceRequestOptions.alloc().init()
+
         request.networkAccessAllowed = true
         return exported(
           extension,
@@ -329,8 +394,10 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
             ),
         )
       }
+
       if (Number(value.mediaType) === 1) {
         const request = kit.PHImageRequestOptions.alloc().init()
+
         request.networkAccessAllowed = true
         request.version = 0
         request.deliveryMode = 1
@@ -343,6 +410,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
                 reject(new Error('The current asset image could not be exported'))
                 return
               }
+
               const extension =
                 (
                   {
@@ -353,6 +421,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
                     'com.compuserve.gif': 'gif',
                   } as Record<string, string>
                 )[uti] ?? 'image'
+
               void exported(extension, (target) => {
                 if (!data.writeToFileAtomically(target.path, true)) {
                   throw new Error('Could not save the asset export')
@@ -362,10 +431,13 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
           )
         })
       }
+
       if (Number(value.mediaType) !== 2) {
         throw new UnavailabilityError('PhotoKit export for this media kind')
       }
+
       const request = kit.PHVideoRequestOptions.alloc().init()
+
       request.networkAccessAllowed = true
       request.version = 0
       return new Promise<string>((resolve, reject) => {
@@ -378,6 +450,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
               reject(new Error('The current video could not be exported'))
               return
             }
+
             void exported(
               'mov',
               (target) =>
@@ -409,15 +482,19 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     },
     async setFavorite(id, favorite) {
       write()
+
       const value = asset(id)
+
       await changes(() => {
         runtime().PHAssetChangeRequest.changeRequestForAsset(value).favorite = favorite
       })
     },
     async albums(options) {
       read()
+
       const kit = runtime(),
         type = options.smart ? 2 : 1
+
       const fetch = options.asset
         ? kit.PHAssetCollection.fetchAssetCollectionsContainingAssetWithTypeOptions(
             asset(options.asset),
@@ -429,6 +506,7 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
             Number('9223372036854775807'),
             null,
           )
+
       return list<PHAssetCollection>(fetch).map(albumMetadata)
     },
     async album(id) {
@@ -439,29 +517,37 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     },
     async createAlbum(title, ids) {
       write()
+
       const kit = runtime()
       const existing = ids.filter((id) => !id.startsWith('file://')).map(asset)
       const files = ids.filter((id) => id.startsWith('file://')).map(localSource)
       let id: string | undefined
+
       await changes(() => {
         const placeholders = files.map((url) => createRequest(url).placeholderForCreatedAsset)
         const request =
           kit.PHAssetCollectionChangeRequest.creationRequestForAssetCollectionWithTitle(title)
+
         id = request.placeholderForCreatedAssetCollection.localIdentifier
         if (existing.length || placeholders.length) {
           request.addAssets(kit.NSArray.arrayWithArray([...existing, ...placeholders]))
         }
       })
+
       if (!id) {
         throw new Error('PhotoKit returned no album identifier')
       }
+
       return id
     },
     async deleteAlbums(ids, deleteAssets) {
       write()
+
       const kit = runtime(),
         values = ids.map(collection)
+
       const assets = new Map<string, PHAsset>()
+
       if (deleteAssets) {
         for (const value of values) {
           for (const item of list<PHAsset>(
@@ -471,19 +557,23 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
           }
         }
       }
+
       if (values.length) {
         await changes(() => {
           if (assets.size) {
             kit.PHAssetChangeRequest.deleteAssets(nativeArray([...assets.values()]))
           }
+
           kit.PHAssetCollectionChangeRequest.deleteAssetCollections(nativeArray(values))
         })
       }
     },
     async addAssets(id, ids) {
       write()
+
       const value = collection(id),
         assets = ids.map(asset)
+
       if (assets.length) {
         await changes(() =>
           runtime()
@@ -494,8 +584,10 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     },
     async removeAssets(id, ids) {
       write()
+
       const value = collection(id),
         assets = ids.map(asset)
+
       if (assets.length) {
         await changes(() =>
           runtime()
@@ -506,13 +598,16 @@ export function createPhotosBackend(host: AppleHost): LibraryBackend {
     },
     subscribe(listener) {
       read()
+
       const observer = host.observer(() => listener({ hasIncrementalChanges: false }))
       let active = true
+
       return {
         remove() {
           if (!active) {
             return
           }
+
           active = false
           observer.release()
         },

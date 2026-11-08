@@ -35,6 +35,7 @@ function viewportStyle(props: ScrollableAreaProps) {
 function contentPadding(props: ScrollableAreaProps) {
   const p = spacingStep(props.padding)
   const style: Record<string, any> = {}
+
   style.paddingTop =
     spacingStep(props.paddingBlockStart) ?? spacingStep(props.paddingBlock) ?? p ?? 0
 
@@ -62,6 +63,7 @@ function scrollableAreaHandle(
     scrollToOffset: (offset, options) => {
       const animated = options?.animated === true
       const target = inlineScroller?.current
+
       if (target) {
         scrollableAreaOffset(blockScroller.current, { block: offset.block }, animated)
         scrollableAreaOffset(target, { inline: offset.inline }, animated)
@@ -92,6 +94,7 @@ const a11y = (props: ScrollableAreaProps) => ({
  *  block axis pulls. */
 function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
   const cfg = useRef<RefreshConfig>({})
+
   cfg.current = {
     onRefresh: props.onRefresh,
     refreshing: props.refreshing,
@@ -125,6 +128,7 @@ function ScrollableAreaRefreshable(props: ScrollableAreaProps) @{
   }, [props.refreshing])
 
   const handle = useMemo(() => scrollableAreaHandle(scroller), [])
+
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const forwardedRef = useMemo(
@@ -201,6 +205,7 @@ function ScrollableAreaCore(props: ScrollableAreaProps) @{
   const scroller = useRef<any>(null)
   const inlineScroller = useRef<any>(null)
   const handle = useMemo(() => scrollableAreaHandle(scroller, inlineScroller), [])
+
   useImperativeHandle(props.ref, () => handle, [props.ref])
 
   const forwardedRef = useMemo(

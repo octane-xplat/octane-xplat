@@ -26,9 +26,13 @@ const run = (command, args, cwd = temporary) =>
 
 try {
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', temporary], root)
+
   const tarball = readdirSync(temporary).find((name) => name.endsWith('.tgz'))
+
   run('tar', ['-xzf', join(temporary, tarball), '-C', temporary])
+
   const scope = join(temporary, 'node_modules/@octane-xplat')
+
   mkdirSync(scope, { recursive: true })
   symlinkSync(join(temporary, 'package'), join(scope, 'shortcuts'), 'dir')
   mkdirSync(join(temporary, 'package/node_modules/@casbin'), { recursive: true })
@@ -82,6 +86,7 @@ export function inspect(shortcuts: ShortcutRuntime, event: ShortcutEvent) {retur
       )
 
       const config = JSON.parse(readFileSync(join(temporary, 'tsconfig.json')))
+
       config.files.push('console.d.ts')
       writeFileSync(join(temporary, 'tsconfig.json'), JSON.stringify(config))
       run(process.execPath, [

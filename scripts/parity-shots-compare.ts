@@ -25,6 +25,7 @@ function paeth(a, b, c) {
   const pa = Math.abs(p - a)
   const pb = Math.abs(p - b)
   const pc = Math.abs(p - c)
+
   return pa <= pb && pa <= pc ? a : pb <= pc ? b : c
 }
 
@@ -40,10 +41,12 @@ function decodePng(buf) {
   let bitDepth = 0
   let interlace = 0
   const idat = []
+
   while (pos < buf.length) {
     const len = buf.readUInt32BE(pos)
     const type = buf.toString('ascii', pos + 4, pos + 8)
     const data = buf.subarray(pos + 8, pos + 8 + len)
+
     if (type === 'IHDR') {
       w = data.readUInt32BE(0)
       h = data.readUInt32BE(4)
@@ -64,6 +67,7 @@ function decodePng(buf) {
   }
 
   const channels = { 0: 1, 2: 3, 4: 2, 6: 4 }[colorType]
+
   if (!channels) {
     throw new Error('unsupported PNG color type ' + colorType)
   }
@@ -72,15 +76,18 @@ function decodePng(buf) {
   const raw = inflateSync(Buffer.concat(idat))
   const px = Buffer.alloc(h * stride)
   let prev = Buffer.alloc(stride)
+
   for (let y = 0; y < h; y++) {
     const row = raw.subarray(y * (stride + 1) + 1, (y + 1) * (stride + 1))
     const filter = raw[y * (stride + 1)]
     const out = px.subarray(y * stride, (y + 1) * stride)
+
     for (let x = 0; x < stride; x++) {
       const left = x >= channels ? out[x - channels] : 0
       const up = prev[x]
       const upLeft = x >= channels ? prev[x - channels] : 0
       const v = row[x]
+
       out[x] =
         filter === 0
           ? v
@@ -98,8 +105,10 @@ function decodePng(buf) {
 
   // normalize to RGBA
   const rgba = Buffer.alloc(w * h * 4)
+
   for (let i = 0; i < w * h; i++) {
     const s = i * channels
+
     if (colorType === 6) {
       rgba[i * 4] = px[s]
       rgba[i * 4 + 1] = px[s + 1]
@@ -124,10 +133,12 @@ function decodePng(buf) {
 
 function crc32(buf) {
   let table = crc32.table
+
   if (!table) {
     table = crc32.table = new Uint32Array(256)
     for (let n = 0; n < 256; n++) {
       let c = n
+
       for (let k = 0; k < 8; k++) {
         c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1
       }
@@ -137,6 +148,7 @@ function crc32(buf) {
   }
 
   let c = 0xffffffff
+
   for (let i = 0; i < buf.length; i++) {
     c = table[(c ^ buf[i]) & 0xff] ^ (c >>> 8)
   }
@@ -147,6 +159,7 @@ function crc32(buf) {
 function encodePng({ w, h, data }) {
   const stride = w * 4
   const raw = Buffer.alloc(h * (stride + 1))
+
   for (let y = 0; y < h; y++) {
     raw[y * (stride + 1)] = 0
     data.copy(raw, y * (stride + 1) + 1, y * stride, (y + 1) * stride)
@@ -154,6 +167,7 @@ function encodePng({ w, h, data }) {
 
   const chunk = (type, payload) => {
     const out = Buffer.alloc(12 + payload.length)
+
     out.writeUInt32BE(payload.length, 0)
     out.write(type, 4)
     payload.copy(out, 8)
@@ -162,6 +176,7 @@ function encodePng({ w, h, data }) {
   }
 
   const ihdr = Buffer.alloc(13)
+
   ihdr.writeUInt32BE(w, 0)
   ihdr.writeUInt32BE(h, 4)
   ihdr[8] = 8
@@ -176,10 +191,13 @@ function encodePng({ w, h, data }) {
 
 function crop(img, x, y, w, h) {
   const out = Buffer.alloc(w * h * 4)
+
   for (let row = 0; row < h; row++) {
     const sy = y + row
+
     for (let col = 0; col < w; col++) {
       const sx = x + col
+
       if (sx < 0 || sy < 0 || sx >= img.w || sy >= img.h) {
         continue
       }
@@ -198,11 +216,13 @@ const macosManifest = JSON.parse(readFileSync(join(shotsDir, 'macos', 'manifest.
 const webScale = webManifest.viewport.scale
 
 const webShots = new Map()
+
 for (const shot of webManifest.shots) {
   webShots.set(shot.file, decodePng(readFileSync(join(shotsDir, 'web', shot.file))))
 }
 
 const macosSidecars = new Map()
+
 for (const shot of macosManifest.shots) {
   macosSidecars.set(
     shot.file,
@@ -214,8 +234,10 @@ for (const shot of macosManifest.shots) {
 // viewport (cells pinned high carry the least clipped-context risk)
 function pickWeb(name) {
   let best = null
+
   for (const shot of webManifest.shots) {
     const cell = shot.cells[name]
+
     if (!cell?.visible) {
       continue
     }
@@ -230,9 +252,11 @@ function pickWeb(name) {
 
 function pickMacos(name) {
   let best = null
+
   for (const shot of macosManifest.shots) {
     const side = macosSidecars.get(shot.file)
     const cell = side?.cells.find((c) => c.name === name)
+
     if (!cell) {
       continue
     }
@@ -250,6 +274,7 @@ function pickMacos(name) {
 
     // distance of the cell top below the scrollview top, in points
     const topDist = scrollTopInWindow - topInWindow
+
     if (!best || topDist < best.topDist) {
       best = { shot, cell, side, topDist }
     }
@@ -259,6 +284,7 @@ function pickMacos(name) {
 }
 
 const names = new Set()
+
 for (const shot of webManifest.shots) {
   for (const name of Object.keys(shot.cells)) {
     names.add(name)
@@ -277,6 +303,7 @@ const macosImage = (file) => {
 const THRESHOLD = 16 // per-channel delta counted as a differing pixel
 const report = []
 const diffsDir = join(shotsDir, 'diffs')
+
 if (DIFFS) {
   mkdirSync(diffsDir, { recursive: true })
 }
@@ -284,6 +311,7 @@ if (DIFFS) {
 for (const name of [...names].sort()) {
   const webPick = pickWeb(name)
   const macPick = pickMacos(name)
+
   if (!webPick || !macPick) {
     report.push({
       name,
@@ -320,6 +348,7 @@ for (const name of [...names].sort()) {
   let diffPixels = 0
   let sumAbs = 0
   const diffImg = DIFFS ? Buffer.alloc(cw * ch * 4) : null
+
   for (let i = 0; i < cw * ch; i++) {
     const d = Math.max(
       Math.abs(wCrop.data[i * 4] - mCrop.data[i * 4]),
@@ -387,5 +416,6 @@ if (JSON_OUT) {
   }
 
   const measured = report.filter((r) => !r.error)
+
   console.log(`\n${measured.length}/${report.length} fixtures compared`)
 }

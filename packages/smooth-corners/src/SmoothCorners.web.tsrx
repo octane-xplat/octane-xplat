@@ -14,6 +14,7 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
 
   const update = () => {
     const el = ref.current
+
     if (!el) {
       return
     }
@@ -23,20 +24,26 @@ export function SmoothCorners(props: SmoothCornersProps): JSX.Element @{
     const h = el.offsetHeight
     const style = getComputedStyle(el)
     const clip = clipsChildren(style.overflowX, style.overflowY)
+
     setBox((prev) => (prev.w === w && prev.h === h && prev.clip === clip ? prev : { w, h, clip }))
   }
 
   useLayoutEffect(() => {
     const el = ref.current
+
     if (!el) {
       return
     }
 
     update()
+
     const resize = new ResizeObserver(update)
+
     resize.observe(el)
+
     // Ancestor classes can change the selected overflow rule as well.
     const mutations = new MutationObserver(update)
+
     for (let node: Element | null = el; node; node = node.parentElement) {
       mutations.observe(node, { attributes: true, attributeFilter: ['class', 'style'] })
     }

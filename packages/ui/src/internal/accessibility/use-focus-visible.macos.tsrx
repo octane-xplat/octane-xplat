@@ -12,6 +12,7 @@ const modality = createAppKitFocusVisibleSource(
 )
 
 const hot = (import.meta as ImportMeta & { hot?: { dispose(callback: () => void): void } }).hot
+
 hot?.dispose(() => modality.dispose())
 
 /** Observe AppKit keyboard/mouse modality. Each reader subscribes; the last

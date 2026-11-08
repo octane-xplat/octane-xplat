@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { View, TextInput, FormLayout, Field } from '@octane-xplat/ui'
 import type { FormLayoutProps, TextInputHandle } from '@octane-xplat/ui'
+
 export const formRef: { current: any } = { current: null }
 export const handles: Array<TextInputHandle | null> = []
 export function FormScene(

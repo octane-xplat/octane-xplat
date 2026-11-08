@@ -10,6 +10,7 @@ import { loadRoutingConfig } from '../dist/route-config.js'
 const screen = 'export default function Screen() { return null }'
 const until = async (predicate) => {
   const deadline = Date.now() + 5000
+
   while (!(await predicate())) {
     assert.ok(Date.now() < deadline, 'watch condition did not settle')
     await delay(20)
@@ -21,11 +22,13 @@ const text = (file) =>
     if (error.code === 'ENOENT') {
       return ''
     }
+
     throw error
   })
 
 const fixture = async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-route-watch-'))
+
   await mkdir(join(root, 'app'), { recursive: true })
   await writeFile(join(root, 'app/first.tsx'), screen)
   return root
@@ -38,6 +41,7 @@ test(
     const root = await fixture()
     let watcher
     const errors = []
+
     try {
       await writeFile(
         join(root, 'xplat.routes.json'),
@@ -74,6 +78,7 @@ test(
     let watcher
     const errors = []
     const roots = []
+
     try {
       await writeFile(join(root, 'xplat.routes.json'), '{')
       watcher = createRouteWatcher({
@@ -81,6 +86,7 @@ test(
         debounceMs: 20,
         generate: async () => {
           const config = JSON.parse(await text(join(root, 'xplat.routes.json')))
+
           roots.push(config.directory)
           return roots.length
         },
@@ -94,7 +100,9 @@ test(
       await writeFile(join(root, 'xplat.routes.json.tmp'), '{"directory":"other"}')
       await rename(join(root, 'xplat.routes.json.tmp'), join(root, 'xplat.routes.json'))
       await until(() => roots.at(-1) === 'other')
+
       const before = roots.length
+
       await writeFile(join(root, 'other/second.tsx'), screen)
       await until(() => roots.length > before)
       assert.equal(roots.at(-1), 'other')
@@ -119,6 +127,7 @@ test('closing before initial generation cancels readiness without calling the ge
       throw error
     },
   })
+
   try {
     await watcher.close()
     await assert.rejects(watcher.ready, { name: 'AbortError' })
@@ -139,16 +148,19 @@ test(
     let active = 0
     let maximum = 0
     let watcher
+
     try {
       watcher = createRouteWatcher({
         cwd: root,
         debounceMs: 20,
         async generate(signal) {
           maximum = Math.max(maximum, ++active)
+
           let release
           const pending = new Promise((resolve) => {
             release = resolve
           })
+
           attempts.push({ signal, release })
           await pending
           active--
@@ -171,6 +183,7 @@ test(
       assert.equal(maximum, 1)
       await writeFile(join(root, 'app/third.tsx'), screen)
       await until(() => attempts.length === 3)
+
       let closed = false
       const closing = watcher.close().then(() => {
         closed = true

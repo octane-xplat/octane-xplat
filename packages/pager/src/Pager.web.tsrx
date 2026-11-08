@@ -28,6 +28,7 @@ export function Pager(props: PagerProps): JSX.Element @{
 
   useEffect(() => {
     const el = host.current
+
     if (!el) {
       return
     }
@@ -39,13 +40,16 @@ export function Pager(props: PagerProps): JSX.Element @{
 
       settle.current = setTimeout(() => {
         settle.current = null
+
         const el2 = host.current
+
         if (!el2 || el2.clientWidth === 0) {
           return
         }
 
         const max = Math.max(latest.current.items.length - 1, 0)
         const next = Math.max(0, Math.min(max, Math.round(el2.scrollLeft / el2.clientWidth)))
+
         if (next !== current.current) {
           current.current = next
           latest.current.onPageChange?.(next)
@@ -69,6 +73,7 @@ export function Pager(props: PagerProps): JSX.Element @{
   // still flows through the tracked-index path.
   useEffect(() => {
     const el = host.current
+
     if (!el) {
       return
     }
@@ -82,6 +87,7 @@ export function Pager(props: PagerProps): JSX.Element @{
   // must not scroll again.
   useEffect(() => {
     const el = host.current
+
     if (!el || props.page === undefined || props.page === current.current) {
       return
     }

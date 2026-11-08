@@ -4,12 +4,14 @@ import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 const directory = await mkdtemp(join(tmpdir(), 'xplat-webp-engine-'))
 const vendor = join(root, 'platforms/macos/vendor/libwebp')
 const { globSync } = await import('node:fs')
 function run(command, args) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout: 120000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   return result.stdout
 }
@@ -21,6 +23,7 @@ try {
   )
 
   const main = join(directory, 'main.m')
+
   await writeFile(
     main,
     `#import <Foundation/Foundation.h>
@@ -53,8 +56,10 @@ int main() { @autoreleasepool {
   ]
 
   const objects = []
+
   for (const [index, source] of sources.entries()) {
     const object = join(directory, `${index}.o`)
+
     run('xcrun', [
       'clang',
       '-O2',
@@ -92,7 +97,9 @@ int main() { @autoreleasepool {
   ])
 
   console.log(run(join(directory, 'case'), []).trim())
+
   const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
+
   run('xcrun', [
     'clang',
     '-fsyntax-only',

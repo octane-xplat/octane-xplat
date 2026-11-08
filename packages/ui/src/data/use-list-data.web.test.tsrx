@@ -23,8 +23,11 @@ function Reader() @{
 describe('useListData (DOM renderer)', () => {
   it('re-renders on mutator commits', () => {
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Reader />))
     expect(el.querySelector('.items')!.textContent).toBe('a,b')
 

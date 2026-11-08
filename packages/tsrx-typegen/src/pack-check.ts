@@ -15,6 +15,7 @@ const moduleSpecifierNodes = (ts, sourceFile) => {
       nodes.push(node.moduleSpecifier)
     } else if (ts.isImportTypeNode(node)) {
       const argument = node.argument
+
       if (ts.isLiteralTypeNode(argument) && ts.isStringLiteralLike(argument.literal)) {
         nodes.push(argument.literal)
       }
@@ -35,6 +36,7 @@ const moduleSpecifierNodes = (ts, sourceFile) => {
 
 const pathInside = (root, file) => {
   const rel = relative(root, file)
+
   return rel === '' || (rel !== '..' && !rel.startsWith(`..${sep}`) && !isAbsolute(rel))
 }
 
@@ -55,6 +57,7 @@ const codeTarget = (target) =>
 
 function exportBranches(exportsMap, fallbackTypes: any[] = []) {
   const branches: any[] = []
+
   for (const [subpath, mapping] of Object.entries(exportsMap ?? {})) {
     const visit = (value, inheritedTypes) => {
       if (typeof value === 'string') {
@@ -75,6 +78,7 @@ function exportBranches(exportsMap, fallbackTypes: any[] = []) {
 
       // An earlier condition cannot use a later sibling's type fallback.
       let types = inheritedTypes
+
       for (const [condition, child] of Object.entries(value)) {
         if (condition === 'types') {
           if (!types.length) {
@@ -101,6 +105,7 @@ function packageFiles(root) {
       }
 
       const file = join(dir, entry.name)
+
       if (entry.isDirectory()) {
         visit(file)
       } else {
@@ -115,6 +120,7 @@ function packageFiles(root) {
 
 function expandTarget(target, files, packageRoot) {
   const extensionless = !extname(target)
+
   if (!target.includes('*') && !extensionless) {
     return [{ path: target, capture: undefined }]
   }
@@ -133,6 +139,7 @@ function expandTarget(target, files, packageRoot) {
   const suffix = marker === -1 ? '' : pattern.slice(marker + 1)
   const matches = files.flatMap((file) => {
     const path = relative(packageRoot, file).replaceAll('\\', '/')
+
     // Extensionless source exports let the app choose platform siblings.
     // Their wildcard captures are module stems, not source extensions.
     if (!codeTarget(path) || (extensionless && !extname(path))) {
@@ -140,6 +147,7 @@ function expandTarget(target, files, packageRoot) {
     }
 
     const matchedPath = extensionless ? path.slice(0, -extname(path).length) : path
+
     if (
       !matchedPath.startsWith(prefix) ||
       !matchedPath.endsWith(suffix) ||
@@ -170,6 +178,7 @@ function packedPath(packageRoot, target) {
   }
 
   const file = resolve(packageRoot, target)
+
   if (!pathInside(packageRoot, file)) {
     throw new Error(`packed export target escapes the package: ${target}`)
   }
@@ -209,8 +218,10 @@ function localSourceModule(file, specifier) {
   const target = resolve(dirname(file), specifier)
   const extension = extname(target)
   const candidates = [target]
+
   if (extension === '.js' || extension === '.mjs' || extension === '.cjs') {
     const stem = target.slice(0, -extension.length)
+
     candidates.push(`${stem}.ts`, `${stem}.tsx`, `${stem}.tsrx`, `${stem}.d.ts`)
   } else if (!['.ts', '.tsx', '.tsrx'].includes(extension)) {
     candidates.push(`${target}.ts`, `${target}.tsx`, `${target}.tsrx`, `${target}.d.ts`)
@@ -235,6 +246,7 @@ function localSourceModule(file, specifier) {
 
 function staticRuntimeExports(ts, file, seen: Set<any> = new Set()) {
   const absolute = resolve(file)
+
   if (seen.has(absolute)) {
     return new Set()
   }
@@ -259,6 +271,7 @@ function staticRuntimeExports(ts, file, seen: Set<any> = new Set()) {
     const modifiers = ts.canHaveModifiers(statement) ? (ts.getModifiers(statement) ?? []) : []
     const exported = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword)
     const isDefault = modifiers.some((modifier) => modifier.kind === ts.SyntaxKind.DefaultKeyword)
+
     if (isDefault) {
       names.add('default')
     }
@@ -290,6 +303,7 @@ function staticRuntimeExports(ts, file, seen: Set<any> = new Set()) {
         ts.isStringLiteralLike(statement.moduleSpecifier)
       ) {
         const target = localSourceModule(absolute, statement.moduleSpecifier.text)
+
         if (target) {
           for (const name of staticRuntimeExports(ts, target, seen)) {
             if (name !== 'default') {
@@ -324,6 +338,7 @@ function compilerExports(
   pending: Set<any> = new Set(),
 ) {
   const absolute = resolve(file)
+
   if (cache.has(absolute)) {
     return cache.get(absolute)
   }
@@ -333,21 +348,26 @@ function compilerExports(
   }
 
   const source = program.getSourceFile(file)
+
   if (!source) {
     return undefined
   }
 
   const checker = program.getTypeChecker()
   const module = checker.getSymbolAtLocation(source)
+
   if (!module) {
     return undefined
   }
 
   const all = new Set<any>()
   const values = new Set<any>()
+
   for (const symbol of checker.getExportsOfModule(module)) {
     all.add(symbol.name)
+
     let resolved = symbol
+
     if (symbol.flags & ts.SymbolFlags.Alias) {
       try {
         resolved = checker.getAliasedSymbol(symbol)
@@ -373,6 +393,7 @@ function compilerExports(
   // still reads as a value even though no value binding crosses the edge.
   // Subtract names whose only export edges are type-only.
   const typeOnly = new Set<any>()
+
   for (const statement of source.statements) {
     if (!ts.isExportDeclaration(statement)) {
       continue
@@ -398,6 +419,7 @@ function compilerExports(
       ts.isStringLiteralLike(statement.moduleSpecifier)
     ) {
       pending.add(absolute)
+
       const target = ts.resolveModuleName(
         statement.moduleSpecifier.text,
         file,
@@ -422,6 +444,7 @@ function compilerExports(
 
   if (typeOnly.size) {
     const valueEdges = staticRuntimeExports(ts, file)
+
     for (const name of values) {
       if (typeOnly.has(name) && !valueEdges.has(name)) {
         values.delete(name)
@@ -430,6 +453,7 @@ function compilerExports(
   }
 
   const result = { all, values }
+
   cache.set(absolute, result)
   return result
 }
@@ -476,8 +500,10 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
 
   for (const file of declarationFiles(packageRoot, files)) {
     const source = sourceFile(ts, file)
+
     for (const node of moduleSpecifierNodes(ts, source)) {
       const specifier = node.text
+
       if (specifier.startsWith('.') || specifier.startsWith('#')) {
         // Asset imports (`./x.css`) preserved verbatim from source are not
         // declaration references; skip extension-bearing non-code specifiers.
@@ -486,6 +512,7 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
         }
 
         const resolved = ts.resolveModuleName(specifier, file, options, host).resolvedModule
+
         if (!resolved) {
           failures.push(
             `${relative(packageRoot, file)} has unresolved declaration reference ${specifier}`,
@@ -535,12 +562,14 @@ function verifyDeclarationClosure(ts, packageRoot, files, manifest, failures) {
 function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures, options) {
   const fallbackTypes = [manifest.types ?? manifest.typings].filter(Boolean)
   const branches = exportBranches(exportsMap, fallbackTypes)
+
   if (!branches.length) {
     failures.push('package exports contain no runtime entrypoints to verify')
     return
   }
 
   const pairs: any[] = []
+
   for (const branch of branches) {
     if (!branch.types.length) {
       failures.push(`${branch.subpath} runtime ${branch.runtime} has no types condition`)
@@ -548,6 +577,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
     }
 
     let runtimeMatches
+
     try {
       runtimeMatches = expandTarget(branch.runtime, files, packageRoot)
     } catch (error) {
@@ -557,6 +587,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
 
     for (const runtimeMatch of runtimeMatches) {
       let runtimeFile
+
       try {
         runtimeFile = packedPath(packageRoot, runtimeMatch.path)
       } catch (error) {
@@ -577,6 +608,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
             : typeTarget
 
         let typeFile
+
         try {
           typeFile = packedPath(packageRoot, concreteType)
         } catch (error) {
@@ -594,11 +626,13 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
   ].filter((file) => !file.endsWith('.tsrx'))
 
   const program = ts.createProgram(programRoots, options)
+
   for (const pair of pairs) {
     const declarationExports = compilerExports(ts, program, pair.typeFile)
     const runtimeExports = compilerExports(ts, program, pair.runtimeFile)
     const declaredValues = declarationExports?.values ?? new Set()
     let runtimeValues
+
     if (
       pair.runtimeFile.endsWith('.ts') ||
       pair.runtimeFile.endsWith('.tsx') ||
@@ -616,6 +650,7 @@ function verifyExportMap(ts, packageRoot, files, manifest, exportsMap, failures,
 
     const missing = [...runtimeValues].filter((name) => !declaredValues.has(name)).sort()
     const extra = [...declaredValues].filter((name) => !runtimeValues.has(name)).sort()
+
     if (missing.length || extra.length) {
       failures.push(
         `${pair.branch.subpath} runtime/type value exports differ for ${pair.runtimePath} → ${pair.concreteType}` +
@@ -630,6 +665,7 @@ export function verifyPackedPackage(ts, packageRoot) {
   const failures: any[] = []
   const manifestPath = join(packageRoot, 'package.json')
   let manifest
+
   try {
     manifest = JSON.parse(readFileSync(manifestPath, 'utf8'))
   } catch (error) {
@@ -677,6 +713,7 @@ export function checkPackedPackage(projectRoot, ts) {
   const temporary = mkdtempSync(join(tmpdir(), 'tsrx-typegen-pack-'))
   const packOutput = join(temporary, 'pack')
   const extractedRoot = join(temporary, 'extracted')
+
   mkdirSync(packOutput)
   mkdirSync(extractedRoot)
   try {
@@ -703,6 +740,7 @@ export function checkPackedPackage(projectRoot, ts) {
     }
 
     const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
     if (tarballs.length !== 1) {
       throw new Error(`expected one package tarball; found ${tarballs.length}`)
     }

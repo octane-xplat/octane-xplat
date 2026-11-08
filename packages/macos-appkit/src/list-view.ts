@@ -72,6 +72,7 @@ const defaultPlan = universalPlan('macos', { kind: 'host', type: 'label', bindin
 
 function itemAt(state: ListState, index: number) {
   const source = state.props.items
+
   return typeof source?.getItem === 'function' ? source.getItem(index) : source?.[index]
 }
 
@@ -87,11 +88,16 @@ function releasePortal(cell: Cell) {
 
 function clearContent(state: ListState, cell: Cell) {
   const failures = new FailureCollector()
+
   failures.run('list portal', () => releasePortal(cell))
+
   const root = cell.root
+
   cell.root = null
   failures.run('list nested root', () => root?.unmount())
+
   const host = cell.factoryView
+
   cell.factoryView = null
   cell.mode = null
   if (host) {
@@ -103,6 +109,7 @@ function clearContent(state: ListState, cell: Cell) {
 
     failures.run('list factory host', () => host.removeFromSuperview())
   }
+
   failures.throwIfFailed()
 }
 
@@ -128,6 +135,7 @@ function bind(state: ListState, cell: Cell, index: number) {
   cell.host.bindingContext = item
   if (mode === 'factory') {
     const host = factory!() as View
+
     if (!(host instanceof NSView)) {
       throw new TypeError(
         '[macos-host] listview template factory must return an AppKit NSView host',
@@ -200,6 +208,7 @@ function bind(state: ListState, cell: Cell, index: number) {
 
 function cellFor(state: ListState, index: number) {
   let cell = [...state.cells].find((entry) => entry.index === index)
+
   if (!cell) {
     const host = state.table.makeViewWithIdentifierOwner(
       'xplat-list-cell',
@@ -239,6 +248,7 @@ const ListDelegate = NSObject.extend(
     },
     ['tableView:viewForTableColumn:row:'](table: NSView, _column: unknown, row: number): NSView {
       const state = states.get(table)!
+
       if (state.closed || row < 0 || row >= state.count) {
         return NSView.alloc().init()
       }
@@ -247,12 +257,14 @@ const ListDelegate = NSObject.extend(
     },
     ['tableView:didAddRowView:forRow:'](table: NSView, rowView: NSView, row: number) {
       const state = states.get(table)
+
       if (!state || state.closed || row < 0 || row >= state.count) {
         return
       }
 
       const host = (rowView as any).viewAtColumn?.(0)
       const cell = host && cellsByHost.get(host)
+
       if (cell) {
         cell.rowView = rowView
       }
@@ -266,6 +278,7 @@ const ListDelegate = NSObject.extend(
         host = rowView.viewAtColumn(0)
 
       const cell = host && cellsByHost.get(host)
+
       if (state && cell && cell.index === row && (!cell.rowView || cell.rowView === rowView)) {
         cell.rowView = undefined
         // renderItem roots retain their tree for the next recycled binding.
@@ -289,6 +302,7 @@ const ListDelegate = NSObject.extend(
       }
 
       const cell = [...state.cells].find((cell) => cell.index === index)
+
       if (cell) {
         state.props.onItemTap?.(
           Object.freeze({ eventName: 'itemTap', object: state.view, index, view: cell.host }),
@@ -335,10 +349,12 @@ export function makeListView(
   if (node) {
     node.view = view
   }
+
   view.translatesAutoresizingMaskIntoConstraints = false
   view.hasVerticalScroller = true
   view.hasHorizontalScroller = false
   view.borderType = 0
+
   const table = NSTableView.alloc().initWithFrame({
     origin: { x: 0, y: 0 },
     size: { width: 200, height: 200 },
@@ -350,10 +366,13 @@ export function makeListView(
   table.intercellSpacing = { width: 0, height: 1 }
   table.usesAutomaticRowHeights = true
   table.rowHeight = 24
+
   const column = NSTableColumn.alloc().initWithIdentifier('default')
+
   column.width = 200
   column.resizingMask = NSTableColumnResizingOptions.AutoresizingMask
   table.addTableColumn(column)
+
   const delegate = ListDelegate.alloc().init()
   const state: ListState = {
     ...deps,
@@ -381,6 +400,7 @@ export function makeListView(
 export function updateListView(view: NSView, props: Props) {
   const state = states.get(view)!
   const previous = state.props
+
   state.props = props
   state.table.gridColor =
     props.separatorColor == null ? state.defaultSeparator : state.color(props.separatorColor)
@@ -388,7 +408,9 @@ export function updateListView(view: NSView, props: Props) {
   if (previous.items !== props.items) {
     state.stopItems?.()
     state.stopItems = undefined
+
     const source = props.items
+
     if (typeof source?.on === 'function' && typeof source.off === 'function') {
       const changed = () => {
         if (!state.closed) {
@@ -432,12 +454,16 @@ function refreshList(state: ListState) {
 
 export function disposeListView(view: NSView) {
   const state = states.get(view)
+
   if (!state || state.closed) {
     return
   }
+
   state.closed = true
+
   const failures = new FailureCollector()
   const stopItems = state.stopItems
+
   state.stopItems = undefined
   failures.run('list subscription', () => stopItems?.())
   for (const field of ['delegate', 'dataSource', 'target', 'action'] as const) {
@@ -445,9 +471,12 @@ export function disposeListView(view: NSView) {
       state.table[field] = null
     })
   }
+
   states.delete(state.table)
   states.delete(view)
+
   const cells = [...state.cells]
+
   state.cells.clear()
   for (const cell of cells) {
     failures.run('list cell content', () => clearContent(state, cell))
@@ -458,11 +487,13 @@ export function disposeListView(view: NSView) {
     failures.run('list cell host', () => cell.host.removeFromSuperview())
     cellsByHost.delete(cell.host)
   }
+
   state.props = {}
   state.count = 0
   failures.run('list reload', () => state.table.reloadData())
   failures.run('list document', () => {
     state.view.documentView = null
   })
+
   failures.throwIfFailed()
 }

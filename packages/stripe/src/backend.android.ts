@@ -2,6 +2,7 @@ import { Application } from '@nativescript/core'
 import type { StripeBackend } from './backend-types'
 import type { PaymentSheetSetupParams } from './types'
 import { lookupGlobal } from '@octane-xplat/lib/capability'
+
 interface Bridge {
   initialize(context: android.content.Context, json: string): void
   present(activity: android.app.Activity, json: string, listener: object): void
@@ -13,14 +14,17 @@ function bridge(): Bridge | undefined {
 }
 
 let prepared: PaymentSheetSetupParams | undefined
+
 export const backend: StripeBackend = {
   available: () =>
     typeof android !== 'undefined' && android.os.Build.VERSION.SDK_INT >= 23 && Boolean(bridge()),
   async initialize(options) {
     const native = bridge()
+
     if (!native || !Application.android.context) {
       throw new Error('Rebuild Android with the Stripe plugin')
     }
+
     native.initialize(Application.android.context, JSON.stringify(options))
   },
   async prepare(options) {
@@ -30,9 +34,11 @@ export const backend: StripeBackend = {
     const native = bridge(),
       activity = Application.android.foregroundActivity,
       options = prepared
+
     if (!native || !activity || !options) {
       throw new Error('An active Android checkout presenter is required')
     }
+
     return new Promise((resolve) =>
       native.present(
         activity,

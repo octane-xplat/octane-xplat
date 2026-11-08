@@ -15,8 +15,11 @@ vi.mock('@octane-xplat/ui', () => ({
 const roots: any[] = []
 function mount(jsx: any) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(jsx))
   return el
@@ -124,6 +127,7 @@ describe('FileInput (web)', () => {
 
   it('revokes a minted object URL when the file is removed', async () => {
     let counter = 0
+
     vi.stubGlobal('URL', {
       ...URL,
       createObjectURL: (_file: File) => `blob:mock/${counter++}`,
@@ -132,14 +136,18 @@ describe('FileInput (web)', () => {
 
     const change = vi.fn()
     const el = document.createElement('div')
+
     document.body.append(el)
+
     const root = createRoot(el)
+
     roots.push(root)
     act(() =>
       root.render(<FileInput value={null} isMultiple={true} onChange={change} accept=".txt" />),
     )
 
     const input = el.querySelector('.vx-fileinput-nativeinput') as HTMLInputElement
+
     Object.defineProperty(input, 'files', {
       value: [new File(['x'], 'a.txt', { type: 'text/plain' })],
       configurable: true,
@@ -176,6 +184,7 @@ describe('FileInput (web)', () => {
 
   it('revokes a minted object URL when validation rejects the pick', async () => {
     let counter = 0
+
     vi.stubGlobal('URL', {
       ...URL,
       createObjectURL: (_file: File) => `blob:mock/${counter++}`,
@@ -185,6 +194,7 @@ describe('FileInput (web)', () => {
     const el = mount(<FileInput value={null} onChange={vi.fn()} accept=".txt" />)
 
     const input = el.querySelector('.vx-fileinput-nativeinput') as HTMLInputElement
+
     Object.defineProperty(input, 'files', {
       value: [new File(['x'], 'no.exe', { type: 'application/octet-stream' })],
       configurable: true,

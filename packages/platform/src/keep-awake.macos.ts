@@ -1,5 +1,6 @@
 import { createTaggedKeepAwake } from './keep-awake-tags'
 import type { KeepAwakeImpl } from './keep-awake.types'
+
 export { KeepAwakeDefaultTag } from './keep-awake.types'
 export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'
 
@@ -14,7 +15,9 @@ function processActivity(): ProcessActivity | undefined {
   if (typeof NSProcessInfo === 'undefined' || NSProcessInfo == null) {
     return
   }
+
   const owner = NSProcessInfo.processInfo
+
   return owner &&
     typeof owner.beginActivityWithOptionsReason === 'function' &&
     typeof owner.endActivity === 'function'
@@ -34,25 +37,31 @@ export const keepAwake: KeepAwakeImpl = createTaggedKeepAwake({
   available: () => !!processActivity(),
   activate(tag) {
     const owner = processActivity()
+
     if (!owner) {
       return false
     }
+
     const release = owner.endActivity
     const token = owner.beginActivityWithOptionsReason(displayActivityOptions, tag)
+
     if (!token) {
       return false
     }
+
     tokens.set(tag, { owner, token, release })
     return true
   },
   deactivate(tag) {
     const held = tokens.get(tag)
+
     if (held) {
       // The activity belongs to the process object/method that created it,
       // even after the global bridge is replaced or disappears.
       held.release.call(held.owner, held.token)
       tokens.delete(tag)
     }
+
     return true
   },
 })

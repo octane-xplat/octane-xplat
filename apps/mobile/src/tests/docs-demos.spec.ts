@@ -37,6 +37,7 @@ describe('docs demos in a native runtime', () => {
     const { view } = await mountXplat(PackingList)
     const text = () => viewText(view).join(' ')
     const field = findByTestId<TextInputView>(view, 'packing-search')!
+
     await enterText(field, 'water')
     await waitUntil(() => text().includes('1 shown'))
     await tap(view.getViewById<View>('pack-water')!)

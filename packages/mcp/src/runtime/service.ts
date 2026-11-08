@@ -44,9 +44,11 @@ export function createRuntimeService(context: WorkspaceContext): RuntimeService 
 
     attach: async ({ platform, targetId }) => {
       const permission = await context.policy.require('runtime-actions')
+
       if (!permission.granted) {
         return { ok: false, error: permission.error }
       }
+
       return call({
         command: ['session', 'attach'],
         flags: { platform, target: targetId },

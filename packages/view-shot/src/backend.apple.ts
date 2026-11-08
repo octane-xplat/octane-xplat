@@ -73,65 +73,86 @@ export function createAppleBackend(policy: {
       throw new UnavailabilityError('Native view capture on this host')
     }
   }
+
   function protectedLayer(layer: NativeLayer | null): boolean {
     if (!layer) {
       return false
     }
+
     for (const name of policy.protectedLayer) {
       const type = NSClassFromString(name)
+
       if (type && layer.isKindOfClass(type)) {
         return true
       }
     }
+
     const sublayers = layer.sublayers
+
     if (!sublayers) {
       return false
     }
+
     for (let i = 0; i < sublayers.count; i++) {
       if (protectedLayer(sublayers.objectAtIndex(i))) {
         return true
       }
     }
+
     return false
   }
+
   function protectedSurface(view: NativeView): boolean {
     for (const name of policy.protectedView) {
       const type = NSClassFromString(name)
+
       if (type && view.isKindOfClass(type)) {
         return true
       }
     }
+
     if (protectedLayer(view.layer)) {
       return true
     }
+
     for (let i = 0; i < view.subviews.count; i++) {
       if (protectedSurface(view.subviews.objectAtIndex(i))) {
         return true
       }
     }
+
     return false
   }
+
   function check(view: NativeView): void {
     if (!NSThread.isMainThread) {
       throw new Error('View capture requires the main thread')
     }
+
     if (policy.attached ? !policy.attached(view) : !view.window) {
       throw new Error('View is detached')
     }
+
     const { width, height } = view.bounds.size
+
     if (!Number.isFinite(width) || !Number.isFinite(height) || width <= 0 || height <= 0) {
       throw new Error('View has no laid-out area')
     }
+
     if (protectedSurface(view)) {
       throw new Error('Web/video/GPU surfaces are outside this capture subset')
     }
   }
+
   function validate(target: object): NativeView {
     required()
+
     const view = policy.resolve(target)
+
     check(view)
     return view
   }
+
   function withinLimits(width: number, height: number): boolean {
     return (
       Number.isFinite(width) &&
@@ -145,6 +166,7 @@ export function createAppleBackend(policy: {
       width * height <= MAX_CAPTURE_PIXELS
     )
   }
+
   async function capture(target: object, options: NormalizedCaptureOptions): Promise<string> {
     if (
       options.format === 'webp' ||
@@ -155,19 +177,23 @@ export function createAppleBackend(policy: {
     ) {
       throw new UnavailabilityError('Requested format/strategy in this Apple capture subset')
     }
+
     const view = validate(target)
     const scale = policy.scale(view)
     const naturalWidth = Math.ceil(view.bounds.size.width * scale)
     const naturalHeight = Math.ceil(view.bounds.size.height * scale)
     const width = options.width ?? naturalWidth
     const height = options.height ?? naturalHeight
+
     if (
       (policy.checkSourceDimensions && !withinLimits(naturalWidth, naturalHeight)) ||
       !withinLimits(width, height)
     ) {
       throw new Error('Capture dimensions exceed the bitmap limit')
     }
+
     const data = policy.render(view, width, height, options)
+
     if (options.result === 'tmpfile') {
       const file = NSFileManager.defaultManager.temporaryDirectory.URLByAppendingPathComponent(
         `octane-view-shot-${NSUUID.UUID().UUIDString}.${options.format}`,
@@ -178,22 +204,29 @@ export function createAppleBackend(policy: {
       }
 
       const uri = String(file.absoluteString)
+
       owned.set(uri, file)
       return uri
     }
+
     const base64 = data.base64EncodedStringWithOptions(0)
+
     return options.result === 'data-uri'
       ? `data:image/${options.format === 'jpg' ? 'jpeg' : 'png'};base64,${base64}`
       : base64
   }
+
   function remove(uri: string): boolean {
     if (!NSThread.isMainThread) {
       return false
     }
+
     const file = owned.get(uri)
+
     if (!file) {
       return true
     }
+
     try {
       if (NSFileManager.defaultManager.fileExistsAtPath(String(file.path))) {
         NSFileManager.defaultManager.removeItemAtURLError(file)
@@ -205,6 +238,7 @@ export function createAppleBackend(policy: {
       return false
     }
   }
+
   return {
     capabilities: () => ({
       view: policy.available(),
@@ -220,19 +254,23 @@ export function createAppleBackend(policy: {
       if (!policy.screen) {
         throw new UnavailabilityError('App-screen capture on this host; use captureRef')
       }
+
       return capture(policy.screen(), options)
     },
     release(uri) {
       if (!uri.startsWith('file:')) {
         return
       }
+
       if (policy.available() && !remove(uri)) {
         throw new Error('Could not release the temporary capture')
       }
     },
     async waitForLayout(target, cancelled) {
       required()
+
       const start = Date.now()
+
       while (!cancelled()) {
         try {
           validate(target)
@@ -245,6 +283,7 @@ export function createAppleBackend(policy: {
 
         await new Promise<void>((resolve) => setTimeout(resolve, 16))
       }
+
       throw new Error('ViewShot unmounted while waiting for layout')
     },
   }

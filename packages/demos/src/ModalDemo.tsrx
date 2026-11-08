@@ -37,6 +37,7 @@ export function ModalDemo() @{
 
   const pick = async () => {
     const result = await sheet.open(Picker, { choices: ['Red', 'Green', 'Blue'] })
+
     setPicked(result as string | undefined)
   }
 

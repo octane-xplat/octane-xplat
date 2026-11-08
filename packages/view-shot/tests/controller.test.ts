@@ -11,6 +11,7 @@ function deferred<T>() {
     resolve = done
     reject = fail
   })
+
   return { promise, resolve, reject }
 }
 
@@ -27,7 +28,9 @@ function setup(initial: CaptureLifecycleProps = {}) {
     release: vi.fn(),
     waitForLayout: vi.fn(async () => {}),
   }
+
   const controller = createCaptureController(() => props, dependencies)
+
   return {
     controller,
     dependencies,
@@ -43,6 +46,7 @@ describe('capture lifecycle without capturing images', () => {
   it('mounts once, resolves component refs and releases automatic output on disposal', async () => {
     const onCapture = vi.fn()
     const { controller, dependencies, host } = setup({ captureMode: 'mount', onCapture })
+
     controller.attach(host)
     controller.rendered()
     await tick()
@@ -56,13 +60,17 @@ describe('capture lifecycle without capturing images', () => {
     expect(dependencies.release).toHaveBeenCalledExactlyOnceWith('owned:one')
     expect(() => resolveTarget(controller.handle)).toThrow('disposed')
   })
+
   it('coalesces renders during capture, uses the latest props and releases superseded output', async () => {
     const onCapture = vi.fn(),
       pending = deferred<string>()
+
     const state = setup({ captureMode: 'update', onCapture })
+
     state.dependencies.capture
       .mockReturnValueOnce(pending.promise)
       .mockResolvedValueOnce('owned:two')
+
     state.controller.attach(state.host)
     state.controller.rendered()
     await tick()
@@ -77,11 +85,14 @@ describe('capture lifecycle without capturing images', () => {
     state.controller.dispose()
     expect(state.dependencies.release).toHaveBeenLastCalledWith('owned:two')
   })
+
   it('discards an automatic result that finishes after unmount and does not call stale callbacks', async () => {
     const pending = deferred<string>(),
       onCapture = vi.fn(),
       onCaptureFailure = vi.fn()
+
     const state = setup({ captureMode: 'mount', onCapture, onCaptureFailure })
+
     state.dependencies.capture.mockReturnValueOnce(pending.promise)
     state.controller.attach(state.host)
     state.controller.rendered()
@@ -93,29 +104,38 @@ describe('capture lifecycle without capturing images', () => {
     expect(onCapture).not.toHaveBeenCalled()
     expect(onCaptureFailure).not.toHaveBeenCalled()
   })
+
   it('keeps delivered manual results caller-owned, while releasing an undeliverable manual result', async () => {
     const state = setup()
+
     state.controller.attach(state.host)
     state.controller.rendered()
     expect(await state.controller.handle.capture()).toBe('owned:one')
     state.controller.dispose()
     expect(state.dependencies.release).not.toHaveBeenCalled()
     await expect(state.controller.handle.capture()).rejects.toThrow('not mounted')
+
     const other = setup(),
       pending = deferred<string>()
+
     other.dependencies.capture.mockReturnValueOnce(pending.promise)
     other.controller.attach(other.host)
     other.controller.rendered()
+
     const manual = other.controller.handle.capture()
+
     other.controller.dispose()
     pending.resolve('owned:late')
     await expect(manual).rejects.toThrow('unmounted')
     expect(other.dependencies.release).toHaveBeenCalledExactlyOnceWith('owned:late')
   })
+
   it('reports capture errors once and does not retry a mount endlessly', async () => {
     const onCaptureFailure = vi.fn(),
       error = new Error('native refusal')
+
     const state = setup({ captureMode: 'mount', onCaptureFailure })
+
     state.dependencies.capture.mockRejectedValueOnce(error)
     state.controller.attach(state.host)
     state.controller.rendered()
@@ -125,19 +145,25 @@ describe('capture lifecycle without capturing images', () => {
     expect(onCaptureFailure).toHaveBeenCalledExactlyOnceWith(error)
     expect(state.dependencies.capture).toHaveBeenCalledTimes(1)
   })
+
   it('waits for commit, restarts mount ownership for a replacement host, and discards the old result', async () => {
     const pending = deferred<string>(),
       onCapture = vi.fn()
+
     const state = setup({ captureMode: 'mount', onCapture })
+
     state.dependencies.capture
       .mockReturnValueOnce(pending.promise)
       .mockResolvedValueOnce('owned:new-host')
+
     state.controller.attach(state.host)
     await tick()
     expect(state.dependencies.capture).not.toHaveBeenCalled()
     state.controller.rendered()
     await tick()
+
     const replacement = {}
+
     state.controller.attach(replacement)
     state.controller.rendered()
     pending.resolve('owned:old-host')
@@ -148,10 +174,12 @@ describe('capture lifecycle without capturing images', () => {
     expect(state.dependencies.release).toHaveBeenCalledExactlyOnceWith('owned:old-host')
     state.controller.dispose()
   })
+
   it('rejects invalid refs, unsupported options and unbounded allocation before capture', () => {
     for (const target of [null, 1, { current: null }]) {
       expect(() => resolveTarget(target as never)).toThrow()
     }
+
     for (const options of [
       null,
       { width: 0, height: 10 },
@@ -165,6 +193,7 @@ describe('capture lifecycle without capturing images', () => {
     ]) {
       expect(() => normalizeOptions(options as never)).toThrow()
     }
+
     expect(normalizeOptions({ format: 'png' })).toMatchObject({
       format: 'png',
       quality: 1,

@@ -19,6 +19,7 @@ function tabStops(panel: HTMLElement): HTMLElement[] {
 
     for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
       const style = getComputedStyle(parent)
+
       if (style.display === 'none' || style.visibility === 'hidden') {
         return false
       }
@@ -37,6 +38,7 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 
   useEffect(() => {
     const current = dialog.current
+
     if (!props.open || !current || current.open) {
       return
     }
@@ -45,7 +47,9 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
       props.finalFocusRef?.current ?? (current.ownerDocument.activeElement as WebFocusTarget | null)
 
     const previousTabIndex = current.getAttribute('tabindex')
+
     current.showModal()
+
     const stops = panel.current ? tabStops(panel.current) : []
     const autofocus = current.querySelector<HTMLElement>('[autofocus]')
     const initialFocus =
@@ -99,6 +103,7 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 
   const onPointerMove = (event: PointerEvent) => {
     const active = drag.current
+
     if (!active || active.pointerId !== event.pointerId) {
       return
     }
@@ -109,11 +114,13 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 
   const onPointerUp = (event: PointerEvent) => {
     const active = drag.current
+
     if (!active || active.pointerId !== event.pointerId) {
       return
     }
 
     const shouldDismiss = active.offsetY >= Math.min(120, window.innerHeight * 0.18)
+
     resetDrag()
 
     if (shouldDismiss && props.sheetGesturesEnabled !== false) {
@@ -135,12 +142,14 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 
     const current = dialog.current
     const active = current?.ownerDocument.activeElement
+
     if (!current?.open || (active !== current && !panel.current?.contains(active as Node | null))) {
       return
     }
 
     const stops = panel.current ? tabStops(panel.current) : []
     const index = stops.indexOf(active as HTMLElement)
+
     event.preventDefault()
     if (!stops.length) {
       dialog.current?.focus({ preventScroll: true })
@@ -160,6 +169,7 @@ export function BottomSheet(props: BottomSheetProps): JSX.Element @{
 
   useEffect(() => {
     const current = dialog.current
+
     if (!props.open || !current) {
       return
     }

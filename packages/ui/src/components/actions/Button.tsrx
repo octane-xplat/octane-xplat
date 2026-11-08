@@ -60,12 +60,14 @@ export function Button(props: ButtonProps): unknown @{
 
     if (props.href != null) {
       const url = sanitizeUrl(props.href)
+
       if (url != null) {
         Utils.openUrl(url)
       }
     }
 
     let action: void | Promise<void> | undefined
+
     try {
       action = props.clickAction?.()
     } catch (error) {

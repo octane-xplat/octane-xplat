@@ -98,6 +98,7 @@ function SectionLabel({ label }: { label: string }) {
 
 function DialogPreview() {
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <div>
       <div className="DocumentationPage-static-2">
@@ -571,6 +572,7 @@ const COMPONENT_DOCS: Record<
 function getComponentName(key: string): string {
   for (const cat of COMPONENT_CATEGORIES) {
     const item = cat.items.find((i) => i.key === key)
+
     if (item) {
       return item.name
     }
@@ -582,6 +584,7 @@ function getComponentName(key: string): string {
 function getComponentDesc(key: string): string {
   for (const cat of COMPONENT_CATEGORIES) {
     const item = cat.items.find((i) => i.key === key)
+
     if (item) {
       return item.desc
     }
@@ -597,6 +600,7 @@ function getComponentDocs(key: string) {
 
   const name = getComponentName(key)
   const desc = getComponentDesc(key)
+
   return {
     tagline: desc.split('.')[0] + '.',
     description: desc,
@@ -984,6 +988,7 @@ export function DocumentationPage() {
             {/* Description */}
             {(() => {
               const docs = getComponentDocs(activeNav)
+
               return (
                 <div className="DocumentationPage-static-55">
                   <Heading level={3}>{docs.tagline}</Heading>
@@ -1016,6 +1021,7 @@ export function DocumentationPage() {
             {/* Anatomy */}
             {(() => {
               const docs = getComponentDocs(activeNav)
+
               return (
                 <div className="DocumentationPage-static-61">
                   <Heading level={2}>Anatomy</Heading>

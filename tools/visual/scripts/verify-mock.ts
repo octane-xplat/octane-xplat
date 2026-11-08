@@ -14,6 +14,7 @@ function run(label, env, expectedStatus, expectedMessage) {
   })
 
   const output = result.stdout + result.stderr
+
   process.stdout.write(output)
   if (
     result.error ||
@@ -56,6 +57,7 @@ try {
   }
 
   const baselineDir = join(temporaryRoot, '__baselines__')
+
   try {
     if (pngFiles(baselineDir).length) {
       throw new Error('Ordinary run wrote a missing baseline')

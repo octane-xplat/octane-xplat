@@ -10,6 +10,7 @@ export function gridRowPosition(
   label: string
 } {
   const ordinal = pagination.pageIndex * pagination.pageSize + index + 1
+
   return {
     ariaIndex: headerRows + ordinal,
     label: rowCount < 0 ? `Row ${ordinal}` : `Row ${ordinal} of ${rowCount}`,

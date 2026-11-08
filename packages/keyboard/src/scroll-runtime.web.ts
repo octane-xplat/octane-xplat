@@ -1,4 +1,5 @@
 import type { FocusScrollRuntime } from './scroll-runtime-types'
+
 export const scrollRuntime: FocusScrollRuntime = {
   owner: (host) => (host as any).native ?? host,
   read: (owner) => (owner as HTMLElement).scrollTop,
@@ -13,9 +14,11 @@ export const scrollRuntime: FocusScrollRuntime = {
         listener()
       }
     }
+
     for (const event of events) {
       view.addEventListener(event, manual, { passive: true })
     }
+
     return () => {
       for (const event of events) {
         view.removeEventListener(event, manual)

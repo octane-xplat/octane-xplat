@@ -25,6 +25,7 @@ function PanHost() @{
 function mountPanHost() {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(PanHost, {})
   return { container, root, host: container.children[0] }
 }
@@ -60,7 +61,9 @@ afterEach(() => {
 describe('native pan normalization', () => {
   it('preserves Android ACTION_CANCEL as cancelled and clears release velocity', () => {
     const velocityTracker = tracker()
+
     installAndroid(velocityTracker)
+
     const { container, root, host } = mountPanHost()
     const target = { id: 'native-pan-target' }
 
@@ -91,7 +94,9 @@ describe('native pan normalization', () => {
 
   it('keeps ACTION_UP ended and converts Android velocity from px/s to dip/s', () => {
     const velocityTracker = tracker()
+
     installAndroid(velocityTracker)
+
     const { container, root, host } = mountPanHost()
 
     container.dispatchEvent(host, 'pan', {

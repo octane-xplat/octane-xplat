@@ -13,6 +13,7 @@ import { useDirection } from '../internal/platform/internationalization'
 import { refList } from '../internal/accessibility/ref-list'
 import { resolveStickySide } from './sticky-column-offsets'
 import { createAppKitStickyColumns } from './sticky-columns-state.macos'
+
 export type { UseTableStickyColumnsConfig } from './types'
 
 /** Native layout pins plus row ordering; OS input/AX qualification pending. */
@@ -23,6 +24,7 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
     live = useRef({ config, direction })
 
   live.current = { config, direction }
+
   const control = useMemo(
     () =>
       createAppKitStickyColumns({
@@ -73,6 +75,8 @@ export function useTableStickyColumns<T extends Record<string, unknown>>(
 
   useLayoutEffect(() => control.sync(), [config.startKeys, config.endKeys, direction])
   useEffect(() => () => control.dispose(), [])
+
   const enabled = Boolean(config.startKeys?.length || config.endKeys?.length)
+
   return enabled && typeof appKitHost()?.retainTableStickyPlacement === 'function' ? plugin : {}
 }

@@ -46,6 +46,7 @@ export function Reorder() @{
 
     if (e.state === 'began') {
       const from = items.indexOf(item)
+
       drag.current = {
         id: item.id,
         from,
@@ -58,6 +59,7 @@ export function Reorder() @{
     }
 
     const d = drag.current
+
     if (!d || d.id !== item.id) {
       return
     }
@@ -69,6 +71,7 @@ export function Reorder() @{
       }
 
       const last = items.length - 1
+
       d.hover = Math.min(last, Math.max(0, d.from + Math.round(e.dy / d.pitch)))
       setTranslate(el, 0, e.dy)
       items.forEach((sib, i) => {
@@ -93,6 +96,7 @@ export function Reorder() @{
     setLifted(null)
     if (e.state === 'ended' && d.hover !== d.from) {
       const next = items.slice()
+
       next.splice(d.from, 1)
       next.splice(d.hover, 0, item)
       setItems(next)

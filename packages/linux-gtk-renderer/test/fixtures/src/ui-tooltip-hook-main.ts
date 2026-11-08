@@ -6,6 +6,7 @@ import { createGtkRoot } from '@octane-xplat/linux-gtk'
 import { TooltipHookScene, EmptyTooltipScene, binding, lifetime } from './ui-tooltip-hook.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK tooltip hook test',
   default_width: 700,
@@ -14,7 +15,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {
   onUncaughtError(error) {
     throw error
@@ -46,13 +49,16 @@ const popup = (anchor = view('hook-trigger')): any => {
       return child
     }
   }
+
   return null
 }
 
 const emit = (type: 'hover' | 'leave' | 'focus' | 'blur' | 'touch') => {
   const model = view('hook-trigger').observe_controllers()
+
   for (let i = 0; i < model.get_n_items(); i++) {
     const controller = model.get_item(i)
+
     if (controller instanceof Gtk.EventControllerMotion && (type === 'hover' || type === 'leave')) {
       if (type === 'hover') {
         controller.emit('enter', 0, 0)
@@ -92,22 +98,27 @@ const options = async (next: NonNullable<typeof props.options>) =>
 
 let ack = 0
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_c: any, key: number) => {
   if (key === 65481) {
     ack++
     return true
   }
+
   return false
 })
 
 window.add_controller(keys)
+
 async function phase(payload: object) {
   const next = ack + 1
+
   print('GTK_TOOLTIP_HOOK_READY ' + JSON.stringify(payload))
   for (let i = 0; i < 250 && ack < next; i++) {
     await pause(20)
   }
+
   check('OS phase acknowledged', ack >= next)
   await pause(180)
 }
@@ -116,11 +127,14 @@ async function run() {
   await render()
   window.present()
   await pause(180)
+
   const osInput = GLib.getenv('GTK_TOOLTIP_HOOK_OS') === '1'
+
   if (osInput) {
     await phase({ key: 'F12' })
     check('fixture window is active for focus checks', window.is_active)
   }
+
   view('hook-peer').focus()
   await pause()
   notifications.length = 0
@@ -137,10 +151,12 @@ async function run() {
     'native description is attached',
     Gtk.test_accessible_has_relation(view('hook-trigger'), Gtk.AccessibleRelation.DESCRIBED_BY),
   )
+
   await render({
     value: 'Second',
     renderProps: { className: 'hook-custom', style: { padding: 12 } },
   })
+
   check('open content updates through context', view('hook-content')?.get_text() === 'Second')
   check(
     'render class and style are applied',
@@ -150,6 +166,7 @@ async function run() {
         Number.parseFloat(String(n.computedStyle?.padding)) === 12,
     ),
   )
+
   emit('leave')
   await pause(20)
   check('hide delay retains panel', popup().get_visible())
@@ -159,21 +176,27 @@ async function run() {
   check('closing releases content', !view('hook-content'))
   await options({ isOpen: true, placement: 'above', alignment: 'start' })
   check('controlled open shows panel', popup().get_mapped())
+
   let [, rect] = popup().get_pointing_to()
+
   check(
     'start alignment and default gap reach native placement',
     Math.abs(rect.x - popup().get_child().get_width() / 2) <= 1 &&
       rect.y === 0 &&
       popup().get_offset()[1] === -8,
   )
+
   await options({ alignment: 'end' })
+
   ;[, rect] = popup().get_pointing_to()
   check(
     'end alignment updates native placement',
     Math.abs(rect.x - (view('hook-trigger').get_width() - popup().get_child().get_width() / 2)) <=
       1,
   )
+
   await render({ renderProps: { placement: 'below', alignment: 'center', offset: '12px' } })
+
   ;[, rect] = popup().get_pointing_to()
   check('render overrides placement', popup().get_position() === Gtk.PositionType.BOTTOM)
   check(
@@ -182,6 +205,7 @@ async function run() {
       rect.y === view('hook-trigger').get_height() &&
       popup().get_offset()[1] === 12,
   )
+
   emit('leave')
   emit('blur')
   await pause(150)
@@ -203,6 +227,7 @@ async function run() {
     onShow: () => notifications.push('latest-show'),
     onHide: () => notifications.push('latest-hide'),
   })
+
   view('hook-trigger').focus()
   await pause()
   check('focus always opens', popup().get_visible())
@@ -244,12 +269,15 @@ async function run() {
   await pause()
   await render({ plain: false, split: true, renderProps: undefined })
   await options({ isOpen: true, placement: 'below' })
+
   const native = popup(view('hook-position'))
+
   check('split refs position at separate host', !!native && !popup(view('hook-trigger')))
   check(
     'split refs describe interaction target',
     Gtk.test_accessible_has_relation(view('hook-trigger'), Gtk.AccessibleRelation.DESCRIBED_BY),
   )
+
   await options({ isOpen: false })
   view('hook-trigger').set_direction(Gtk.TextDirection.RTL)
   await options({ isOpen: true, placement: 'start' })
@@ -257,6 +285,7 @@ async function run() {
     'logical placement follows RTL',
     popup(view('hook-position')).get_position() === Gtk.PositionType.RIGHT,
   )
+
   await render({ split: false })
   view('hook-trigger').set_direction(Gtk.TextDirection.LTR)
   await options({
@@ -265,10 +294,12 @@ async function run() {
     focusTrigger: 'auto',
     touchTrigger: 'auto',
   })
+
   view('hook-peer').focus()
   await pause()
   if (osInput) {
     const bounds = view('hook-trigger').getBounds()
+
     await phase({ x: bounds.x + 10, y: bounds.y + 10, hover: true })
     check('real pointer hover opens', popup().get_mapped())
     await phase({ x: 600, y: 300, hover: true })
@@ -280,12 +311,15 @@ async function run() {
     await phase({ key: 'Escape' })
     check('real Escape dismisses', !popup().get_visible())
   }
+
   root.render(EmptyTooltipScene, {})
   await pause()
   await render({ options: { isDefaultOpen: true, onShow: () => notifications.push('default') } })
   check('default open shows on mount', popup().get_mapped())
   check('default open notifies visibility', notifications.at(-1) === 'default')
+
   const last = popup()
+
   root.unmount()
   await pause()
   check('unmount releases popup and all nodes', !last.get_parent() && container.nodes.size === 0)
@@ -299,17 +333,20 @@ async function run() {
         gtk: `${Gtk.get_major_version()}.${Gtk.get_minor_version()}.${Gtk.get_micro_version()}`,
       }),
   )
+
   window.destroy()
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   printerr('GTK_TOOLTIP_HOOK_ERROR ' + String(error?.stack ?? error))
   try {
     root.unmount()
   } catch {}
+
   window.destroy()
   loop.quit()
 })

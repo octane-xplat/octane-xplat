@@ -30,6 +30,7 @@ async function settle(page: Page) {
 async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 8000) {
   const start = Date.now()
   let last = ''
+
   for (;;) {
     const cur =
       (await page
@@ -56,6 +57,7 @@ async function waitStable(page: Page, sel: string, idleMs = 300, timeoutMs = 800
  *  observed on WebKit), else the action element itself. */
 async function actionLocator(page: Page, key: string) {
   const inner = page.locator(`[data-parity-action="${key}"] :is(button, a, [role="button"], input)`)
+
   return (await inner.count()) > 0
     ? inner.first()
     : page.locator(`[data-parity-action="${key}"]`).first()
@@ -82,6 +84,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
       'task-list',
     ]) {
       const sel = `[data-parity-key="${key}"]`
+
       if ((await page.locator(sel).count()) === 0) {
         record(`${key}/missing`, true)
         continue
@@ -96,9 +99,11 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
             target: a.getAttribute('target'),
             rel: a.getAttribute('rel'),
           }))
+
           const headings = [...el.querySelectorAll('h1,h2,h3,h4,h5,h6,[role="heading"]')].map(
             (h) => ({ tag: h.tagName, id: h.id, level: h.getAttribute('aria-level') }),
           )
+
           return {
             text: el.textContent,
             links,
@@ -114,6 +119,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
     for (const key of ['link-cancel', 'link-allow']) {
       const sel = `[data-parity-key="${key}"] a, [data-parity-key="${key}"] [role="link"]`
       const count = (await page.evaluate(() => window.__parity.events.length)) as number
+
       if ((await page.locator(sel).count()) > 0) {
         await page.locator(sel).first().click()
         await settle(page)
@@ -137,6 +143,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
       'plugin-pending',
     ]) {
       const sel = `[data-parity-key="${key}"]`
+
       if ((await page.locator(sel).count()) === 0) {
         record(`${key}/missing`, true)
         continue
@@ -146,6 +153,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
         `${key}/dom`,
         await page.locator(sel).evaluate((el) => {
           const img = el.querySelector('img')
+
           return {
             text: el.textContent,
             headings: [...el.querySelectorAll('h1,h2,h3,h4,h5,h6,[role="heading"]')].map((h) => ({
@@ -170,6 +178,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
 
     // Citation activation: hash navigation stays on-page.
     const citeSel = `[data-parity-key="citation-activate"] a[href^="#cite"]`
+
     if ((await page.locator(citeSel).count()) > 0) {
       await page.locator(citeSel).first().click()
       await settle(page)
@@ -210,6 +219,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
         // rather than by class name.
         const fades = [...el.querySelectorAll('span')].filter((s) => {
           const cs = getComputedStyle(s)
+
           return (
             s.className.includes('fade') ||
             cs.animationName !== 'none' ||
@@ -219,7 +229,9 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
               .includes('opacity')
           )
         })
+
         const cs = fades[0] ? getComputedStyle(fades[0]) : null
+
         return {
           text: el.textContent,
           fadeSpans: fades.length,
@@ -280,6 +292,7 @@ export async function markdownBehaviorProbes(browser: Browser, baseUrl: string) 
   } finally {
     await context.close()
   }
+
   return out
 }
 
@@ -296,12 +309,14 @@ export async function markdownLayoutProbes(browser: Browser, baseUrl: string) {
 
     for (const cell of await page.locator('[data-parity-key]').all()) {
       const key = await cell.getAttribute('data-parity-key')
+
       out.push({
         step: key!,
         value: await cell.evaluate((el) => {
           const blocks = [...el.children].map((child) => {
             const r = (child as HTMLElement).getBoundingClientRect()
             const cs = getComputedStyle(child as HTMLElement)
+
             return {
               tag: child.tagName,
               h: Math.round(r.height * 100) / 100,
@@ -311,8 +326,10 @@ export async function markdownLayoutProbes(browser: Browser, baseUrl: string) {
               fs: cs.fontSize,
             }
           })
+
           const table = el.querySelector('table')
           const scroller = el.querySelector('[class*="scroll" i], [data-scroll]')
+
           return {
             cellWidth: (el as HTMLElement).getBoundingClientRect().width,
             blocks,
@@ -329,5 +346,6 @@ export async function markdownLayoutProbes(browser: Browser, baseUrl: string) {
   } finally {
     await context.close()
   }
+
   return out
 }

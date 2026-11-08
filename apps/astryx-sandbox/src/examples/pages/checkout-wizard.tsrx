@@ -181,11 +181,13 @@ export function CheckoutWizardTemplate() @{
 
   const errorsByStep = useMemo<Array<Record<string, string>>>(() => {
     const cart: Record<string, string> = {}
+
     if (items.length === 0) {
       cart.items = 'Your cart is empty.'
     }
 
     const shippingStep: Record<string, string> = {}
+
     if (!EMAIL_PATTERN.test(email)) {
       shippingStep.email = 'Enter an email address for order updates.'
     }
@@ -215,6 +217,7 @@ export function CheckoutWizardTemplate() @{
     }
 
     const payment: Record<string, string> = {}
+
     if (cardNumber.replace(/\D/g, '').length < 15) {
       payment.cardNumber = 'Enter the full card number.'
     }
@@ -269,6 +272,7 @@ export function CheckoutWizardTemplate() @{
 
   const applyPromo = () => {
     const code = promoInput.trim().toUpperCase()
+
     setPromoWasChecked(true)
     setAppliedPromo(PROMOS[code] ? code : null)
   }

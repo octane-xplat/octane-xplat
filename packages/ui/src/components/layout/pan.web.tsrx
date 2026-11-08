@@ -10,10 +10,14 @@ const VELOCITY_MAX_AGE_MS = 100
  *  that's why callers pass the bound-element ref. */
 export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) => void): void {
   const callback = useRef(cb)
+
   callback.current = cb
+
   const enabled = Boolean(cb)
+
   useEffect(() => {
     const node = el.current
+
     if (!node || !enabled) {
       return
     }
@@ -35,6 +39,7 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
       const dt = Math.max(now - t0, 1) / 1000
       const dx = e.clientX - lx
       const dy = e.clientY - last
+
       if (state === 'began') {
         vx = vy = 0
         velocityAt = now
@@ -48,7 +53,9 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
       lx = e.clientX
       last = e.clientY
       t0 = now
+
       const fresh = now - velocityAt <= VELOCITY_MAX_AGE_MS
+
       callback.current?.({
         x: e.clientX - sx,
         y: e.clientY - sy,

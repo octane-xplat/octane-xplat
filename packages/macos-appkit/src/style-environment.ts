@@ -57,15 +57,19 @@ export function createStyleEnvironment(deps: Dependencies) {
   // an unseeded window restyles unconditionally when any media rule exists.
   function containerWindowTargets(container: RootContainer): object[] {
     const windows: object[] = []
+
     if (container.hostView?.window) {
       windows.push(container.hostView.window)
     }
+
     for (const entry of container.portalTargets.values()) {
       const win = entry.root.view?.window
+
       if (win && !windows.includes(win)) {
         windows.push(win)
       }
     }
+
     return windows
   }
 
@@ -73,16 +77,20 @@ export function createStyleEnvironment(deps: Dependencies) {
     if (!stylesheetsHaveMediaRules()) {
       return false
     }
+
     const envs = (container.mediaEnvs ??= new Map())
     const next = deps.cssCascade.windowMediaSize(win, container.hostView?.frame)
     const prev = envs.get(win)
+
     envs.set(win, next)
     if (!prev) {
       return true
     }
+
     const shared = deps.cssCascade.mediaSharedEnv()
     const before = { ...prev, ...shared }
     const after = { ...next, ...shared }
+
     return stylesheetMediaQueries().some(
       (q) => evalMediaQuery(q, before) !== evalMediaQuery(q, after),
     )
@@ -103,6 +111,7 @@ export function createStyleEnvironment(deps: Dependencies) {
     if (resizeQueued) {
       return
     }
+
     resizeQueued = true
     queueMicrotask(() => {
       resizeQueued = false
@@ -129,10 +138,13 @@ export function createStyleEnvironment(deps: Dependencies) {
     if (resizeObserverInstalled || typeof NSNotificationCenter === 'undefined') {
       return
     }
+
     const center = NSNotificationCenter.defaultCenter
+
     if (!center || typeof center.addObserverForNameObjectQueueUsingBlock !== 'function') {
       return
     }
+
     center.addObserverForNameObjectQueueUsingBlock(
       NSWindowDidResizeNotification ?? 'NSWindowDidResizeNotification',
       null,
@@ -146,6 +158,7 @@ export function createStyleEnvironment(deps: Dependencies) {
         }
       },
     )
+
     resizeObserverInstalled = true
   }
 
@@ -157,6 +170,7 @@ export function createStyleEnvironment(deps: Dependencies) {
     if (accessibilityDisplayObserver !== undefined) {
       return
     }
+
     try {
       const workspace = NSWorkspace.sharedWorkspace,
         center = workspace?.notificationCenter
@@ -183,16 +197,19 @@ export function createStyleEnvironment(deps: Dependencies) {
       console.warn('[macos-css] accessibility display observer unavailable', error)
     }
   }
+
   let activated = false
   function activate() {
     if (activated) {
       return
     }
+
     installResizeObserver()
     installAccessibilityDisplayObserver()
     deps.directory.observe(seedContainerMedia)
     activated = true
   }
+
   return {
     activate,
     restyleAllContainers,

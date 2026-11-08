@@ -21,6 +21,7 @@ describe('meterRange', () => {
 
   it('falls back when max is not above min', () => {
     const { min, max, value } = meterRange(60, 50, 50)
+
     expect(min).toBe(50)
     expect(max).toBe(150)
     expect(value).toBe(60)

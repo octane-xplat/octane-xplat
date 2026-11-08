@@ -154,6 +154,7 @@ function ChannelsSheet(props: {
 
 export function BottomSheetSwitcherShowcase() @{
   const [activeSheet, setActiveSheet] = useState<string | null>(null)
+
   return (
     <>
       <Button label="Set up notifications" clickAction={() => setActiveSheet('overview')} />

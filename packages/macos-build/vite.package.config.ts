@@ -38,18 +38,22 @@ export default defineConfig({
       enforce: 'pre',
       load(id) {
         const replacement = replacements.get(normalizePath(id.split('?')[0]))
+
         if (replacement) {
           return readFileSync(replacement, 'utf8')
         }
       },
       closeBundle() {
         cpSync(resolve(source, 'macos/dev.d.ts'), resolve(root, 'dist/macos/dev.d.ts'))
+
         const payload = resolve(root, 'dist/macos/jsc-host')
+
         mkdirSync(payload, { recursive: true })
         cpSync(resolve(source, 'macos/jsc-host/prebuilt'), resolve(payload, 'prebuilt'), {
           recursive: true,
           verbatimSymlinks: true,
         })
+
         cpSync(resolve(source, 'macos/jsc-host/shim.js'), resolve(payload, 'shim.js'))
         cpSync(
           resolve(root, '../cli/dist/macos/jsc-host/abort-globals.cjs'),

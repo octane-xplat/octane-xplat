@@ -4,13 +4,16 @@ import { useEffect, useRef, useState } from 'octane'
 export function useScrollMetrics() {
   const [result, setResult] = useState({ running: false, frames: 0, drops: 0, fps: 0 })
   const frameRef = useRef(0)
+
   useEffect(() => () => cancelAnimationFrame(frameRef.current), [])
+
   const run = (container: HTMLElement | null) => {
     if (!container || result.running) {
       return
     }
 
     const distance = container.scrollHeight - container.clientHeight
+
     if (distance <= 0) {
       return
     }
@@ -19,7 +22,9 @@ export function useScrollMetrics() {
     let previous = start
     let frames = 0
     let drops = 0
+
     setResult({ running: true, frames: 0, drops: 0, fps: 0 })
+
     const step = (now: number) => {
       frames++
       if (now - previous > 20) {
@@ -27,8 +32,10 @@ export function useScrollMetrics() {
       }
 
       previous = now
+
       const elapsed = now - start
       const fraction = Math.min(elapsed / 2400, 1)
+
       container.scrollTop = distance * (fraction < 0.5 ? fraction * 2 : (1 - fraction) * 2)
       if (fraction < 1) {
         frameRef.current = requestAnimationFrame(step)

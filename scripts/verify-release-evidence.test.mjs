@@ -29,6 +29,7 @@ function fixture(track = 'stable') {
     required: [...required],
     jobs,
   }
+
   const run = {
     id: runId,
     head_sha: sha,
@@ -43,6 +44,7 @@ function fixture(track = 'stable') {
     status: 'completed',
     conclusion: 'success',
   }
+
   const context = {
     sha,
     tree,
@@ -52,11 +54,13 @@ function fixture(track = 'stable') {
     run,
     jobs: required.map((name) => ({ name, conclusion: 'success' })),
   }
+
   return { evidence, context }
 }
 
 test('ci qualification does not depend on any stable job', () => {
   const jobs = { checks: 'success' }
+
   assert.equal(releaseChannel(jobs, 'ci'), 'ci')
   for (const lane of RELEASE_TRACKS.stable.jobs) {
     for (const result of ['failure', 'cancelled', 'skipped', 'absent']) {
@@ -68,6 +72,7 @@ test('ci qualification does not depend on any stable job', () => {
 test('each track fails closed when any required gate does not pass', () => {
   for (const track of ['ci', 'stable']) {
     const { evidence } = fixture(track)
+
     assert.equal(releaseChannel(evidence.jobs, track), track)
     for (const lane of RELEASE_TRACKS[track].jobs) {
       for (const result of ['failure', 'cancelled', 'skipped', undefined]) {
@@ -79,21 +84,25 @@ test('each track fails closed when any required gate does not pass', () => {
       }
     }
   }
+
   assert.equal(releaseChannel(undefined, 'ci'), 'none')
   assert.throws(() => releaseChannel({}, 'unknown'), /unknown release track/)
 })
 
 test('recording evidence covers the complete job set for its track', () => {
   const out = mkdtempSync(join(tmpdir(), 'release-evidence-test-'))
+
   try {
     for (const track of ['ci', 'stable']) {
       const { evidence } = fixture(track)
+
       for (const result of ['absent', 'failure', 'skipped', 'success']) {
         const needs = Object.fromEntries(
           Object.keys(evidence.jobs).map((job) => [job, { result: 'success' }]),
         )
 
         const lane = RELEASE_TRACKS[track].jobs.at(-1)
+
         if (result === 'absent') {
           delete needs[lane]
         } else {
@@ -124,7 +133,9 @@ test('recording evidence covers the complete job set for its track', () => {
         )
 
         assert.equal(run.status, 0, run.stderr)
+
         const actual = JSON.parse(readFileSync(join(out, 'ci-evidence.json'), 'utf8'))
+
         assert.equal(actual.runAttempt, 2)
         assert.equal(actual.track, track)
         assert.equal(actual.status, result === 'success' ? 'success' : 'failure')
@@ -159,6 +170,7 @@ test('recording stable evidence requires its tree', () => {
     ],
     { encoding: 'utf8' },
   )
+
   assert.notEqual(run.status, 0)
   assert.match(run.stderr, /--tree required/)
 })
@@ -268,8 +280,10 @@ test('release evidence rejects mismatched artifacts, workflows and live job resu
       },
     ],
   ]
+
   for (const [label, mutate] of cases) {
     const value = fixture('ci')
+
     mutate(value)
     assert.throws(() => verifyEvidence(value.evidence, value.context), undefined, label)
   }
@@ -277,6 +291,7 @@ test('release evidence rejects mismatched artifacts, workflows and live job resu
 
 test('stable evidence binds the release pull request, its tested sha, and its tree', () => {
   const { evidence, context } = fixture()
+
   assert.equal(context.run.event, 'pull_request')
   assert.equal(verifyEvidence(evidence, context), 'stable')
   for (const [label, mutate] of [
@@ -318,6 +333,7 @@ test('stable evidence binds the release pull request, its tested sha, and its tr
     ],
   ]) {
     const value = fixture()
+
     mutate(value)
     assert.throws(() => verifyEvidence(value.evidence, value.context), undefined, label)
   }
@@ -327,9 +343,12 @@ test('stable evidence binds the release pull request, its tested sha, and its tr
 // No network calls or publishing credentials are used by these tests.
 function withGithubFixture(callback) {
   const directory = mkdtempSync(join(tmpdir(), 'release-cli-test-'))
+
   try {
     const { evidence, context } = fixture()
+
     writeFileSync(join(directory, 'ci-evidence.json'), JSON.stringify(evidence))
+
     const zip = join(directory, 'evidence.zip')
     const packed = spawnSync('zip', ['-q', zip, 'ci-evidence.json'], {
       cwd: directory,
@@ -337,6 +356,7 @@ function withGithubFixture(callback) {
     })
 
     assert.equal(packed.status, 0, packed.stderr)
+
     const base = `repos/${repository}/actions`
     const responses = {
       [`${base}/runs/200/artifacts?per_page=100&page=1`]: {
@@ -351,8 +371,11 @@ function withGithubFixture(callback) {
     }
 
     const data = join(directory, 'responses.json')
+
     writeFileSync(data, JSON.stringify(responses))
+
     const gh = join(directory, 'gh')
+
     writeFileSync(
       gh,
       `#!/usr/bin/env node
@@ -368,6 +391,7 @@ else {
     )
 
     chmodSync(gh, 0o755)
+
     const output = join(directory, 'output')
     const execute = (args) =>
       spawnSync(
@@ -405,6 +429,7 @@ else {
 test('stable verification resolves the artifact by tree and publishes the tested SHA', () => {
   withGithubFixture(({ execute, output }) => {
     const run = execute(['--tree', tree])
+
     assert.equal(run.status, 0, run.stderr)
     assert.equal(readFileSync(output, 'utf8'), `channel=stable\nsha=${sha}\n`)
   })
@@ -415,8 +440,11 @@ test('stable verification reports none — not an error — when no run carried 
     responses[
       `repos/${repository}/actions/workflows/stable.yml/runs?event=pull_request&branch=release/lockstep&status=completed&per_page=20`
     ] = { workflow_runs: [] }
+
     writeFileSync(data, JSON.stringify(responses))
+
     const run = execute(['--tree', tree])
+
     assert.equal(run.status, 0, run.stderr)
     assert.equal(readFileSync(output, 'utf8'), 'channel=none\nsha=\n')
   })
@@ -425,9 +453,12 @@ test('stable verification reports none — not an error — when no run carried 
 test('stable verification still rejects forged evidence for the searched tree', () => {
   withGithubFixture(({ execute, responses, data }) => {
     const run = { ...responses[`repos/${repository}/actions/runs/200`], head_branch: 'main' }
+
     responses[`repos/${repository}/actions/runs/200`] = run
     writeFileSync(data, JSON.stringify(responses))
+
     const rejected = execute(['--tree', tree])
+
     assert.notEqual(rejected.status, 0)
   })
 })
@@ -437,20 +468,24 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   const stable = parse(readFileSync('.github/workflows/stable.yml', 'utf8'))
   const release = parse(readFileSync('.github/workflows/release.yml', 'utf8'))
   const dependencies = (job) => [job.needs ?? []].flat()
+
   assert.deepEqual(dependencies(ci.jobs.evidence), RELEASE_TRACKS.ci.jobs)
   assert.deepEqual(dependencies(stable.jobs.evidence), RELEASE_TRACKS.stable.jobs)
   assert.deepEqual(stable.on.pull_request.branches, ['main'])
   assert.equal(stable.on.workflow_call.inputs.sha.required, true)
   assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
   assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
+
   const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
   const prepared = commands.indexOf('bun run build:packages')
   const checked = commands.indexOf('bun run check:pack')
   const smoke = commands.indexOf('bun run check:consumer --no-build --quick')
+
   assert.ok(
     prepared >= 0 && checked > prepared && smoke > checked,
     'quick packing must follow package preparation and integrity checks',
   )
+
   for (const id of RELEASE_TRACKS.stable.jobs) {
     assert.ok(
       stable.jobs[id].if.includes("github.event.pull_request.head.ref == 'release/lockstep'"),
@@ -463,6 +498,7 @@ test('workflow dependencies keep ci independent and stable bound to the release 
 
     assert.equal(checkout.with.ref, '${{ env.TESTED_SHA }}')
   }
+
   assert.equal(release.jobs.qualify.uses, './.github/workflows/stable.yml')
   assert.equal(release.jobs.qualify.with.sha, '${{ needs.gate.outputs.lockstep_sha }}')
   assert.deepEqual(dependencies(release.jobs.lockstep), ['gate', 'qualify'])
@@ -483,6 +519,7 @@ test('rerun artifact selection uses creation time and ID regardless of status or
     status: 'failure',
     expired: true,
   }
+
   assert.equal(latestEvidenceArtifact([newer, older], 'evidence'), newer)
   assert.equal(latestEvidenceArtifact([older, newer], 'evidence'), newer)
   assert.equal(latestEvidenceArtifact([{ ...newer, id: 3 }, newer], 'evidence').id, 3)
@@ -494,13 +531,17 @@ test('stable CLI selects the newer report across artifact pages after a passing 
   withGithubFixture(({ execute, responses, data }) => {
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]
+
     responses[path] = {
       total_count: 2,
       artifacts: [{ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' }],
     }
+
     responses[path.replace('&page=1', '&page=2')] = { total_count: 2, artifacts: [current] }
     writeFileSync(data, JSON.stringify(responses))
+
     const result = execute(['--tree', tree])
+
     assert.equal(result.status, 0, result.stderr)
     assert.match(result.stdout, /release channel: stable/)
   })
@@ -510,12 +551,16 @@ test('stable CLI rejects expired newest evidence instead of falling back', () =>
   withGithubFixture(({ execute, responses, data }) => {
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]
+
     responses[path].artifacts = [
       { ...current, expired: true },
       { ...current, id: 2, created_at: '2026-11-07T11:53:01Z' },
     ]
+
     writeFileSync(data, JSON.stringify(responses))
+
     const result = execute(['--tree', tree])
+
     assert.notEqual(result.status, 0)
     assert.match(result.stderr, /expired/)
   })
@@ -523,6 +568,7 @@ test('stable CLI rejects expired newest evidence instead of falling back', () =>
 
 test('an older success cannot qualify a failed latest attempt', () => {
   const { evidence, context } = fixture()
+
   context.jobs[0].conclusion = 'failure'
   assert.throws(() => verifyEvidence(evidence, context), /latest result disagrees/)
   evidence.jobs[context.jobs[0].name] = 'failure'
@@ -532,6 +578,7 @@ test('an older success cannot qualify a failed latest attempt', () => {
 
 test('attempt-bound evidence rejects a stale attempt and keeps existing records usable', () => {
   const { evidence, context } = fixture()
+
   context.run.run_attempt = 2
   assert.equal(verifyEvidence(evidence, context), 'stable')
   evidence.runAttempt = 1
@@ -543,18 +590,25 @@ test('attempt-bound evidence rejects a stale attempt and keeps existing records 
 test('invalid newest contents are rejected without trying an older artifact', () => {
   withGithubFixture(({ execute, responses, data, directory, zip }) => {
     const { evidence } = fixture()
+
     evidence.sha = 'wrong'
     writeFileSync(join(directory, 'ci-evidence.json'), JSON.stringify(evidence))
+
     const packed = spawnSync('zip', ['-q', zip, 'ci-evidence.json'], {
       cwd: directory,
       encoding: 'utf8',
     })
+
     assert.equal(packed.status, 0, packed.stderr)
+
     const path = `repos/${repository}/actions/runs/200/artifacts?per_page=100&page=1`
     const current = responses[path].artifacts[0]
+
     responses[path].artifacts.push({ ...current, id: 2, created_at: '2026-11-07T11:53:01Z' })
     writeFileSync(data, JSON.stringify(responses))
+
     const rejected = execute(['--tree', tree])
+
     assert.notEqual(rejected.status, 0)
     assert.match(rejected.stderr, /different revision/)
   })

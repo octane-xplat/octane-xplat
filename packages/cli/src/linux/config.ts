@@ -8,6 +8,7 @@ export function inspectLinuxPackageConfig(appRoot) {
   const settings = target.package ?? {}
   const issues = []
   const runtime = target.runtime
+
   if (runtime !== 'webkitgtk' && runtime !== 'gtk') {
     issues.push('linux.runtime must be webkitgtk or gtk')
   }
@@ -15,6 +16,7 @@ export function inspectLinuxPackageConfig(appRoot) {
   const { applicationId, productName, executableName } = settings
   const version = settings.version ?? manifest.version
   const scheme = target.host?.scheme ?? 'xplat'
+
   if (
     typeof applicationId !== 'string' ||
     applicationId.length > 255 ||
@@ -64,7 +66,9 @@ export function inspectLinuxPackageConfig(appRoot) {
 
   const config =
     settings.viteConfig ?? (runtime === 'gtk' ? 'vite.gtk.config.ts' : 'vite.linux.config.ts')
+
   let viteConfig
+
   if (
     typeof config !== 'string' ||
     isAbsolute(config) ||

@@ -21,6 +21,7 @@ function mount(component: any, props: any) {
   }
 
   render(props)
+
   const control = (): any => {
     const walk = (node: any): any =>
       node.props?.accessibilityRole === 'switch' ? node : node.children?.map(walk).find(Boolean)
@@ -35,6 +36,7 @@ function mount(component: any, props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -67,6 +69,7 @@ it('calls changeAction after onChange, marks pending and prevents overlapping ac
   try {
     const host = env.control()
     const activate = host.props.onTap
+
     env.tap()
     activate() // Cached same-frame handler is blocked by the token too.
     expect(events).toEqual([
@@ -156,6 +159,7 @@ it('ignores completion after unmount and honors inherited Field blocking', async
   }
 
   const env = mount(Parent, { disabled: true })
+
   for (const state of [{ disabled: true }, { readonly: true }]) {
     env.render(state)
     env.tap()
@@ -220,6 +224,7 @@ it('renders standalone metadata, style forms and stable state as label layout ch
     expect(env.control()).toBe(host)
     expect(host.props.accessibilityState.checked).toBe(true)
     expect(host.props.className).toContain('vx-switch--size-sm')
+
     const row = env
       .all()
       .find((node) => String(node.props?.className).includes('vx-switch-container--appkit'))
@@ -258,8 +263,10 @@ it('leaves labels and status with an enclosing Field', () => {
   }
 
   const env = mount(Parent, {})
+
   try {
     const text = env.all().map((node) => node.props?.text)
+
     expect(text.filter((value) => value === 'Shared label')).toHaveLength(1)
     expect(text.filter((value) => value === 'Shared status')).toHaveLength(1)
     expect(env.control().props.id).toBe('field-switch')
@@ -275,6 +282,7 @@ it('routes label presses through the same save owner and releases Tab exclusion'
     focus = vi.fn()
 
   vi.stubGlobal('__xplatAppKit', { suppressTabStop: suppress })
+
   const task = deferred(),
     changes: boolean[] = [],
     save = vi.fn(() => task.promise)
@@ -291,6 +299,7 @@ it('routes label presses through the same save owner and releases Tab exclusion'
 
   try {
     const host = env.control()
+
     host.window = { makeFirstResponder: focus }
     expect(suppress).toHaveBeenCalledTimes(1)
     label().props.onTap()
@@ -318,6 +327,7 @@ it('routes label presses through the same save owner and releases Tab exclusion'
 
 it('does not activate hidden, blocked or unsupported label targets', () => {
   vi.stubGlobal('__xplatAppKit', { suppressTabStop: () => () => {} })
+
   const env = mount(Switch, { label: 'Alerts', isReadOnly: true })
   const labels = () =>
     env.all().filter((node) => node.props?.className === 'vx-field-label-press--appkit')
@@ -338,6 +348,7 @@ it('does not activate hidden, blocked or unsupported label targets', () => {
 
 it('shows external loading feedback and removes it when the prop is dropped', () => {
   const env = mount(Switch, { defaultValue: true, isLoading: true })
+
   try {
     const host = env.control()
     const rings = () =>
@@ -392,6 +403,7 @@ it('claims switch ownership before onChange reentry and preserves detached saves
     detachedChanges = vi.fn(() => unmount())
 
   const detached = mount(Switch, { onChange: detachedChanges, changeAction: lateSave })
+
   unmount = () => detached.root.unmount()
   detached.control().props.onTap()
   expect(lateSave).toHaveBeenCalledWith(true)
@@ -413,7 +425,9 @@ it('a throwing onChange releases switch ownership without starting a save', asyn
   try {
     expect(() => env.control().props.onTap()).toThrow('change failed')
     expect(save).not.toHaveBeenCalled()
+
     const changed = vi.fn()
+
     env.render({ onChange: changed, changeAction: save })
     env.tap()
     expect(changed).toHaveBeenCalledOnce()
@@ -465,6 +479,7 @@ it('cached switch handlers read current blocking props and callbacks', async () 
 
   try {
     const cached = env.control().props.onTap
+
     for (const blocked of [{ isDisabled: true }, { isReadOnly: true }]) {
       env.render({ ...blocked, onChange: current, changeAction: save })
       cached()
@@ -498,6 +513,7 @@ it('advances local switch requests before render without a save', () => {
 
   try {
     const tap = env.control().props.onTap
+
     tap()
     tap()
     tap()
@@ -546,8 +562,10 @@ it('restores local switch intent after async failure and preserves it for rapid 
     change = (value: boolean) => changes.push(value)
 
   const env = mount(Switch, { onChange: change, changeAction: () => task.promise })
+
   try {
     const tap = env.control().props.onTap
+
     tap()
     tap()
     expect(changes).toEqual([true])
@@ -573,8 +591,10 @@ it('keeps switch controlled requests parent-owned and retains the original local
     change = (value: boolean) => changes.push(value)
 
   const env = mount(Switch, { value: false, defaultValue: true, onChange: change })
+
   try {
     const tap = env.control().props.onTap
+
     tap()
     tap()
     flushUniversalSync(() => {})
@@ -609,6 +629,7 @@ it('retains local switch intent when a forward callback throws before rendering'
 
   try {
     const tap = env.control().props.onTap
+
     expect(tap).toThrow('consumer failure')
     expect(save).not.toHaveBeenCalled()
     fail = false

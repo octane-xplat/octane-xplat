@@ -9,8 +9,11 @@ const roots: any[] = []
 
 function mount(props: any = {}) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() =>
     root.render(
@@ -35,6 +38,7 @@ it('renders the top-layer viewport behind display:contents outlet and layer wrap
   const outlet = el.querySelector('.vx-toast-outlet')!
   const layer = outlet.querySelector('.vx-toast-layer')!
   const viewport = layer.querySelector('.vx-toast-viewport')!
+
   expect(outlet.parentElement).toBe(el)
   expect(layer.parentElement).toBe(outlet)
   expect(viewport.parentElement).toBe(layer)
@@ -47,14 +51,18 @@ it('renders the top-layer viewport behind display:contents outlet and layer wrap
 it('anchors the viewport to the configured edge', () => {
   const el = mount({ position: 'topStart' })
   const viewport = el.querySelector('.vx-toast-viewport')!
+
   expect(viewport.classList.contains('vx-toast-viewport--top')).toBe(true)
   expect(viewport.classList.contains('vx-toast-viewport--start')).toBe(true)
 })
 
 it('omits the outlet wrappers when isTopLayer is false', () => {
   const el = mount({ isTopLayer: false })
+
   expect(el.querySelector('.vx-toast-outlet')).toBeNull()
+
   const viewport = el.querySelector('.vx-toast-viewport')!
+
   expect(viewport.parentElement).toBe(el)
   expect(viewport.hasAttribute('popover')).toBe(false)
 })
@@ -67,5 +75,6 @@ it('announces string bodies through the document-level live regions', async () =
   })
 
   const region = document.body.querySelector('[data-xplat-live-region="polite"]')!
+
   expect(region.textContent).toBe('Saved')
 })

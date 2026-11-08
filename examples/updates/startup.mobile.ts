@@ -14,7 +14,9 @@ export async function afterSuccessfulStartup() {
   }
 
   updates.markHealthy()
+
   const result = await updates.check()
+
   if (result.available) {
     await updates.install(result.manifest)
   }

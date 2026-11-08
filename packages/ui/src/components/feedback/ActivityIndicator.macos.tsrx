@@ -9,6 +9,7 @@ import { mergeStyle } from '../../internal/layout/style-merge'
  * Native playback and presentation remain unqualified. */
 export function ActivityIndicator(props: ActivityIndicatorProps): unknown @{
   const dark = useThemeScheme() === 'dark'
+
   if (props.busy === false) {
     return null
   }

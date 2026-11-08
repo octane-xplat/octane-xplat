@@ -47,6 +47,7 @@ const args = process.argv.slice(2)
 const mode = args[0]
 const value = (name) => {
   const i = args.indexOf(`--${name}`)
+
   return i >= 0 ? args[i + 1] : undefined
 }
 
@@ -57,7 +58,9 @@ let sha = value('sha') ?? (mode === 'record' ? process.env.GITHUB_SHA : undefine
 const runId = value('run-id') ?? (mode === 'record' ? process.env.GITHUB_RUN_ID : undefined)
 const outDir = value('out') ?? '.ci-evidence'
 const track = value('track') ?? 'stable'
+
 assert.ok(Object.hasOwn(RELEASE_TRACKS, track), `unknown release track: ${track}`)
+
 const required = RELEASE_TRACKS[track].jobs
 const tree = value('tree')
 
@@ -69,14 +72,18 @@ if (mode === 'record') {
   }
 
   const runAttempt = Number(value('run-attempt') ?? process.env.GITHUB_RUN_ATTEMPT ?? 1)
+
   assert.ok(Number.isSafeInteger(runAttempt) && runAttempt > 0, 'invalid evidence attempt')
+
   const needs = JSON.parse(value('jobs') ?? '{}')
   const jobs = Object.fromEntries(required.map((job) => [job, needs[job]?.result ?? 'absent']))
 
   const status = Object.values(jobs).every((r) => r === 'success') ? 'success' : 'failure'
 
   mkdirSync(outDir, { recursive: true })
+
   const file = join(outDir, 'ci-evidence.json')
+
   writeFileSync(
     file,
     JSON.stringify(
@@ -109,12 +116,15 @@ if (mode === 'verify') {
   }
 
   const repo = process.env.GITHUB_REPOSITORY
+
   assert.ok(repo, 'GITHUB_REPOSITORY required')
+
   const gh = (path) => execFileSync('gh', ['api', path], { encoding: 'utf8' })
 
   const artifactName = `ci-evidence-${track}-${track === 'stable' ? tree : sha}`
   const findArtifact = (id) => {
     const artifacts = []
+
     for (let page = 1; ; page++) {
       const result = JSON.parse(
         gh(`repos/${repo}/actions/runs/${id}/artifacts?per_page=100&page=${page}`),
@@ -127,11 +137,13 @@ if (mode === 'verify') {
 
       assert.ok(result.artifacts?.length, 'incomplete evidence artifact listing')
     }
+
     return latestEvidenceArtifact(artifacts, artifactName)
   }
 
   let evidenceRunId = runId ? Number(runId) : null
   let artifact = evidenceRunId ? findArtifact(evidenceRunId) : null
+
   if (evidenceRunId) {
     assert.ok(
       artifact,
@@ -179,12 +191,14 @@ if (mode === 'verify') {
   }
 
   assert.ok(!artifact.expired, 'CI release evidence has expired')
+
   const run = JSON.parse(gh(`repos/${repo}/actions/runs/${evidenceRunId}`))
   const { jobs } = JSON.parse(
     gh(`repos/${repo}/actions/runs/${evidenceRunId}/jobs?filter=latest&per_page=100`),
   )
 
   mkdirSync(outDir, { recursive: true })
+
   const tmp = mkdtempSync(join(tmpdir(), 'ci-evidence-'))
 
   const zipPath = join(tmp, 'evidence.zip')
@@ -194,11 +208,17 @@ if (mode === 'verify') {
   })
 
   writeFileSync(zipPath, binary)
+
   const unzip = spawnSync('unzip', ['-o', zipPath, '-d', tmp], { stdio: 'inherit' })
+
   assert.equal(unzip.status, 0, 'unzip failed')
+
   const evidenceFile = readdirSync(tmp).find((f) => f === 'ci-evidence.json')
+
   assert.ok(evidenceFile, 'artifact did not contain ci-evidence.json')
+
   const evidence = JSON.parse(readFileSync(join(tmp, evidenceFile), 'utf8'))
+
   sha ??= evidence.sha
 
   const channel = verifyEvidence(evidence, {

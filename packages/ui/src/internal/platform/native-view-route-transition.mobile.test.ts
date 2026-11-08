@@ -11,6 +11,7 @@ const sdk = vi.hoisted(() => {
     scaleY = 1
     rotate = 0
   }
+
   class Animation {
     definitions: any[]
     isPlaying = false
@@ -31,6 +32,7 @@ const sdk = vi.hoisted(() => {
           this.isPlaying = false
           resolve()
         }
+
         this.fail = (error) => {
           this.isPlaying = false
           reject(error)
@@ -38,6 +40,7 @@ const sdk = vi.hoisted(() => {
       })
     }
   }
+
   return { View, Animation, animations }
 })
 
@@ -48,6 +51,7 @@ vi.mock('../../routing/native-route-motion-policy', () => ({
 
 import { defineNativeTransition } from '../../routing/native-route-transition'
 import { createNativeViewRouteTransitions } from './native-view-route-transition.mobile'
+
 const context = { direction: 'forward' as const, action: 'push' as const, from: null, to: null }
 const effect = defineNativeTransition({
   view: {
@@ -69,6 +73,7 @@ it('animates only the owned SDK view and restores neutral values at completion',
     settled = true
     return result
   })
+
   expect(view).toMatchObject({ opacity: 0, translateX: 24, scaleX: 0.9, rotate: 5 })
   await Promise.resolve()
   expect(settled).toBe(false)
@@ -83,6 +88,7 @@ it('animates only the owned SDK view and restores neutral values at completion',
       curve: 'linear',
     },
   ])
+
   sdk.animations[0].complete()
   expect(await finished).toEqual({ status: 'completed' })
   expect(view).toMatchObject({ opacity: 1, translateX: 0, scaleX: 1, rotate: 0 })
@@ -94,6 +100,7 @@ it('settles interruption once and ignores a late engine callback', async () => {
   const previous = driver.run(context, 'detail', effect, oldView)
   const nextView = new sdk.View()
   const next = driver.run(context, 'detail', effect, nextView)
+
   expect(await previous).toEqual({ status: 'skipped', reason: 'interrupted' })
   expect(sdk.animations[0].cancel).toHaveBeenCalledOnce()
   expect(oldView.opacity).toBe(1)
@@ -110,10 +117,13 @@ it('isolates concurrent flow engines and keeps engine failure local to motion', 
   const rightView = new sdk.View()
   const leftResult = left.run(context, 'detail', effect, leftView)
   const rightResult = right.run(context, 'detail', effect, rightView)
+
   left.interrupt()
   expect(await leftResult).toMatchObject({ status: 'skipped' })
   expect(rightView.opacity).toBe(0)
+
   const error = new Error('native engine failed')
+
   sdk.animations[1].fail(error)
   expect(await rightResult).toEqual({ status: 'failed', error })
   expect(rightView.opacity).toBe(1)
@@ -121,16 +131,20 @@ it('isolates concurrent flow engines and keeps engine failure local to motion', 
 
 it('skips unsupported targets and disabled/refresh effects without starting the engine', async () => {
   const driver = createNativeViewRouteTransitions()
+
   expect(await driver.run(context, 'detail', effect, {})).toEqual({
     status: 'skipped',
     reason: 'unsupported',
   })
+
   expect(
     await driver.run({ ...context, action: 'refresh' }, 'detail', effect, new sdk.View()),
   ).toEqual({ status: 'skipped', reason: 'disabled' })
+
   expect(await driver.run(context, 'none', effect, new sdk.View())).toEqual({
     status: 'skipped',
     reason: 'disabled',
   })
+
   expect(sdk.animations).toHaveLength(0)
 })

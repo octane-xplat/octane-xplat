@@ -20,6 +20,7 @@ export function Collapsible(props: CollapsibleProps): unknown @{
     }
 
     const next = !open
+
     if (!controlled) {
       setInternal(next)
     }

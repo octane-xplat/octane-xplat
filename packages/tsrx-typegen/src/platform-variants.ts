@@ -23,13 +23,16 @@ export function platformVariantOf(
   const suffix = (moduleSuffixes ?? [])
     .filter((candidate) => candidate)
     .find((candidate) => stem.endsWith(candidate))
+
   if (!suffix) {
     return undefined
   }
 
   const base = stem.slice(0, -suffix.length)
+
   for (const candidate of extensions) {
     const sibling = join(dirname(file), base + candidate)
+
     if (sibling !== file && existsSync(sibling)) {
       return sibling
     }

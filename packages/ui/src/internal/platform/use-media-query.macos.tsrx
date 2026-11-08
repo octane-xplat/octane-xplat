@@ -8,5 +8,6 @@ import { createAppKitMediaQuerySource } from './media-query-source.macos'
 export function useMediaQuery(query: string): boolean {
   const host = appKitHost()
   const source = useMemo(() => createAppKitMediaQuerySource(query, host), [query, host])
+
   return useSyncExternalStore(source.subscribe, source.getSnapshot)
 }

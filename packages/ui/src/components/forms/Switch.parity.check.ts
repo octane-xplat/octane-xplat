@@ -14,6 +14,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const track = m('track')
       const thumb = m('thumb')
+
       return [
         dims(track, 40, 24),
         dims(thumb, 16, 16),
@@ -40,6 +41,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const track = m('track')
       const thumb = m('thumb')
+
       return [
         dims(track, 40, 24),
         // Astryx grows the thumb 16→20 when on rather than translating it.

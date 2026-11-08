@@ -6,6 +6,7 @@ import type { WindowLayer } from '../../packages/macos-appkit/src/layer'
 import { appKitHost } from '../../packages/ui/src/internal/platform/host-bridge'
 import { createPortal } from '../../packages/ui/src/internal/platform/native-portal'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const LabelContext = createContext('missing source provider')
 const LabelProvider: any = LabelContext
 interface Lease {
@@ -18,6 +19,7 @@ interface Lease {
 
 function PortalBody(props: { committed(): void }) {
   const label = useContext(LabelContext)
+
   useLayoutEffect(() => props.committed(), [label, props.committed])
   return (
     <masonview style={{ display: 'flex', width: 240, height: 72 }}>
@@ -37,6 +39,7 @@ export default function WindowLayerPortalProbe() {
 
   const close = () => {
     const lease = owner.current
+
     owner.current = null
     if (lease) {
       lease.live = false
@@ -60,7 +63,9 @@ export default function WindowLayerPortalProbe() {
 
   const stage = () => {
     close()
+
     const lease: Lease = { handle: null, target: null, live: true, committed: false, waiters: [] }
+
     owner.current = lease
     lease.handle =
       appKitHost()?.showLayer?.({
@@ -87,7 +92,9 @@ export default function WindowLayerPortalProbe() {
             unmount() {
               lease.live = false
               lease.waiters = []
+
               const current = owner.current === lease
+
               if (current) {
                 owner.current = null
               }
@@ -152,6 +159,7 @@ export default function WindowLayerPortalProbe() {
         label="Reveal"
         clickAction={() => {
           const layer = owner.current?.handle
+
           if (layer && !layer.closed) {
             layer.show()
             setStatus('reveal requested')

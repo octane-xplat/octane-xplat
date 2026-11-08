@@ -15,6 +15,7 @@ function fixture({ supported = true, flush = true, registerError = false } = {})
     definitions = new Map(),
     requests = [],
     removals = []
+
   const service = {
     supported,
     defineTask: (name, callback) => definitions.set(name, callback),
@@ -28,23 +29,28 @@ function fixture({ supported = true, flush = true, registerError = false } = {})
       removals.push(name)
     },
   }
+
   const storage = {
     getString: (key) => values.get(key) ?? null,
     setString: (key, value) => values.set(key, value),
     remove: (key) => values.delete(key),
     flush: () => flush,
   }
+
   const exports = {}
+
   vm.runInNewContext(compiled, {
     exports,
     require: (name) =>
       name === '@octane-xplat/platform' ? { storage } : { backgroundTasks: service },
   })
+
   return { example: exports, values, definitions, requests, removals }
 }
 
 test('module load defines the task without scheduling work or writing execution evidence', () => {
   const f = fixture()
+
   assert.equal(f.definitions.has('record-refresh'), true)
   f.example.requestAtNativeStartup()
   assert.equal(f.requests.length, 0)
@@ -53,11 +59,14 @@ test('module load defines the task without scheduling work or writing execution 
 
 test('enable schedules immediately and persists intent for future startups', async () => {
   const f = fixture()
+
   assert.equal(await f.example.enableRefresh(), true)
   assert.equal(f.requests.length, 1)
   assert.equal(f.requests[0].options.minimumInterval, 3600)
+
   // Each fresh launch re-requests at most once while the flag stays enabled.
   const fresh = fixture()
+
   fresh.values.set('refresh.enabled', 'yes')
   fresh.example.requestAtNativeStartup()
   fresh.example.requestAtNativeStartup()
@@ -68,6 +77,7 @@ test('enable schedules immediately and persists intent for future startups', asy
 
 test('foreground and controlled task execution keep separate timestamp keys', async () => {
   const f = fixture()
+
   assert.equal(await f.example.refreshNow(), 'success')
   assert.ok(f.example.readEvidence().foregroundAt)
   assert.equal(f.example.readEvidence().backgroundAt, null)
@@ -77,8 +87,11 @@ test('foreground and controlled task execution keep separate timestamp keys', as
 
 test('failed flush reports failure, and registration failure does not become execution evidence', async () => {
   const f = fixture({ flush: false })
+
   assert.equal(await f.example.refreshNow(), 'failed')
+
   const rejected = fixture({ registerError: true })
+
   await assert.rejects(rejected.example.enableRefresh(), /provider details/)
   rejected.values.set('refresh.enabled', 'yes')
   rejected.example.requestAtNativeStartup()
@@ -89,11 +102,14 @@ test('failed flush reports failure, and registration failure does not become exe
 
 test('disable removes durable intent and requests cancellation; unsupported targets retain foreground work', async () => {
   const f = fixture()
+
   await f.example.enableRefresh()
   await f.example.disableRefresh()
   assert.equal(f.example.readEvidence().enabled, false)
   assert.deepEqual(f.removals, ['record-refresh'])
+
   const unsupported = fixture({ supported: false })
+
   assert.equal(await unsupported.example.enableRefresh(), false)
   unsupported.example.requestAtNativeStartup()
   assert.equal(unsupported.requests.length, 0)
@@ -102,6 +118,7 @@ test('disable removes durable intent and requests cancellation; unsupported targ
 
 test('failed preference durability still attempts cancellation and reports disable failure', async () => {
   const f = fixture({ flush: false })
+
   await assert.rejects(f.example.disableRefresh(), /Could not save disabled preference/)
   assert.deepEqual(f.removals, ['record-refresh'])
 })

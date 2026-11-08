@@ -277,19 +277,23 @@ export function KanbanBoardTemplate() @{
   const computeTarget = (px: number, py: number, draggedId: string): DropTarget | null => {
     for (const [colId, el] of Array.from(columnEls.current.entries())) {
       const r = el.getBoundingClientRect()
+
       if (px < r.left || px > r.right || py < r.top || py > r.bottom) {
         continue
       }
 
       const ids = itemsByColumn[colId].filter((it) => it.id !== draggedId).map((it) => it.id)
       let index = ids.length
+
       for (let i = 0; i < ids.length; i++) {
         const cardEl = cardEls.current.get(ids[i])
+
         if (!cardEl) {
           continue
         }
 
         const cr = cardEl.getBoundingClientRect()
+
         if (py < cr.top + cr.height / 2) {
           index = i
           break
@@ -305,6 +309,7 @@ export function KanbanBoardTemplate() @{
   const commitDrag = (id: string, target: DropTarget) => {
     setItems((prev) => {
       const moved = prev.find((it) => it.id === id)
+
       if (!moved) {
         return prev
       }
@@ -313,11 +318,13 @@ export function KanbanBoardTemplate() @{
       const updated: WorkItem = { ...moved, column: target.column }
       const colItems = rest.filter((it) => it.column === target.column)
       const anchor = colItems[target.index]
+
       if (!anchor) {
         return [...rest, updated]
       }
 
       const at = rest.indexOf(anchor)
+
       return [...rest.slice(0, at), updated, ...rest.slice(at)]
     })
   }
@@ -328,6 +335,7 @@ export function KanbanBoardTemplate() @{
     }
 
     const cardEl = cardEls.current.get(id)
+
     if (!cardEl) {
       return
     }
@@ -361,6 +369,7 @@ export function KanbanBoardTemplate() @{
 
     const onUp = (ev: PointerEvent) => {
       const target = computeTarget(ev.clientX, ev.clientY, id)
+
       if (target) {
         commitDrag(id, target)
       }
@@ -416,6 +425,7 @@ export function KanbanBoardTemplate() @{
             const colItems = itemsByColumn[col.id]
             const dropIndex = drag?.target?.column === col.id ? drag.target.index : -1
             const visibleIds = colItems.filter((it) => it.id !== drag?.id).map((it) => it.id)
+
             return (
               <div
                 key={col.id}
@@ -446,6 +456,7 @@ export function KanbanBoardTemplate() @{
                   {colItems.map((item) => {
                     const idxExcluding = visibleIds.indexOf(item.id)
                     const showLineBefore = dropIndex >= 0 && idxExcluding === dropIndex
+
                     return (
                       <div
                         key={item.id}

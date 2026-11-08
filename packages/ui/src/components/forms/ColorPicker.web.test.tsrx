@@ -10,6 +10,7 @@ import { ColorField } from './ColorField.web.tsrx'
 import type { ColorPickerProps } from '../../props'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   for (const cleanup of cleanups.splice(0)) {
     cleanup()
@@ -18,9 +19,12 @@ afterEach(() => {
 
 function mount<P extends object>(component: (p: P) => any, props: P) {
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
   const render = (next: P) => act(() => root.render(component, next))
+
   render(props)
   cleanups.push(() => {
     act(() => root.unmount())
@@ -33,6 +37,7 @@ function mount<P extends object>(component: (p: P) => any, props: P) {
 // jsdom has no layout; useMeasure reads getBoundingClientRect once at
 // mount, so stub it on the prototype before mounting.
 const realGBCR = Element.prototype.getBoundingClientRect
+
 beforeEach(() => {
   Element.prototype.getBoundingClientRect = function () {
     return {
@@ -55,6 +60,7 @@ afterEach(() => {
 function pan(el: Element, steps: [number, number, 'began' | 'moved' | 'ended'][]) {
   for (const [x, y, phase] of steps) {
     const type = phase === 'began' ? 'pointerdown' : phase === 'moved' ? 'pointermove' : 'pointerup'
+
     act(() =>
       el.dispatchEvent(
         new PointerEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true }),
@@ -69,6 +75,7 @@ it('uncontrolled ColorPicker drags hue and reports onChange/onChangeEnd', () => 
 
   const { host } = mount(ColorPicker, { onChange: change, onChangeEnd: end } as ColorPickerProps)
   const slider = host.querySelectorAll('[role="slider"]')[1] as HTMLElement
+
   pan(slider, [
     [0, 0, 'began'],
     [50, 0, 'moved'],
@@ -84,6 +91,7 @@ it('area keyboard steps saturation and brightness', () => {
 
   const { host } = mount(ColorArea, { defaultValue: '#ff0000', onChange: change, onChangeEnd: end })
   const area = host.querySelector('[role="slider"]') as HTMLElement
+
   area.dispatchEvent(
     new KeyboardEvent('keydown', { key: 'ArrowLeft', bubbles: true, cancelable: true }),
   )
@@ -96,6 +104,7 @@ it('hue slider keyboard steps 1° and Shift steps 10°', () => {
   const change = vi.fn()
   const { host } = mount(ColorSlider, { channel: 'hue', defaultValue: '#ff0000', onChange: change })
   const slider = host.querySelector('[role="slider"]') as HTMLElement
+
   act(() =>
     slider.dispatchEvent(
       new KeyboardEvent('keydown', { key: 'ArrowRight', bubbles: true, cancelable: true }),
@@ -119,6 +128,7 @@ it('hue slider keyboard steps 1° and Shift steps 10°', () => {
 
 it('controlled value resyncs the parts', () => {
   const { host, render } = mount(ColorPicker, { value: '#ff0000' } as ColorPickerProps)
+
   render({ value: '#0000ff' } as ColorPickerProps)
   expect(host.querySelector('.vx-color-swatch')!.getAttribute('style')).toContain('rgb(0, 0, 255)')
 })
@@ -134,6 +144,7 @@ it('field commits valid hex and restores on invalid', () => {
   })
 
   const input = host.querySelector('input')!
+
   act(() => {
     input.value = '#00ff00'
     input.dispatchEvent(new InputEvent('input', { bubbles: true }))
@@ -162,6 +173,7 @@ it('isDisabled ignores pointer and keyboard input', () => {
   })
 
   const slider = host.querySelector('[role="slider"]') as HTMLElement
+
   pan(slider, [
     [0, 0, 'began'],
     [50, 0, 'moved'],
@@ -182,6 +194,7 @@ it('dragging brightness to 0 and back keeps the hue', () => {
   const change = vi.fn()
   const { host } = mount(ColorArea, { defaultValue: '#ff0000', onChange: change })
   const area = host.querySelector('[role="slider"]') as HTMLElement
+
   // Drag down past the bottom → b:0 black; back up → hue still red.
   pan(area, [
     [50, 50, 'began'],
@@ -202,5 +215,6 @@ it('dragging brightness to 0 and back keeps the hue', () => {
 it('swatch shows the hex chip and role img', () => {
   const { host } = mount(ColorSwatch, { color: '#F80' })
   const chip = host.querySelector('[role="img"]') as HTMLElement
+
   expect(chip.getAttribute('aria-label')).toBe('#ff8800')
 })

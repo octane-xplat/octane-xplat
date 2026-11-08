@@ -25,6 +25,7 @@ const request = (credential, path = '/api/me', method = 'GET') =>
 
 test('a cryptographically verified token returns only its own subject without caching', async () => {
   const response = await api(request(await token()))
+
   assert.equal(response.status, 200)
   assert.deepEqual(await response.json(), { subject: 'person-1' })
   assert.equal(response.headers.get('cache-control'), 'no-store')
@@ -50,6 +51,7 @@ test('another issuer, audience, expired token or missing subject is rejected', a
       .setAudience(name === 'audience' ? value : audience)
 
     const response = await api(request(await builder.sign(privateKey)))
+
     assert.equal(response.status, 401)
     assert.equal(response.headers.get('www-authenticate'), 'Bearer error="invalid_token"')
   }
@@ -57,6 +59,7 @@ test('another issuer, audience, expired token or missing subject is rejected', a
 
 test('a token signed by an untrusted key is rejected', async () => {
   const untrusted = await generateKeyPair('RS256')
+
   assert.equal((await api(request(await token({}, untrusted.privateKey)))).status, 401)
 })
 
@@ -73,7 +76,9 @@ test('key-service failures offer recovery without challenging a valid session', 
       throw new Error('offline')
     },
   })
+
   const response = await unavailable(request(await token()))
+
   assert.equal(response.status, 503)
   assert.equal(response.headers.get('www-authenticate'), null)
 })
@@ -87,5 +92,6 @@ test('issuer configuration requires an exact HTTPS origin and audience', () => {
   ]) {
     assert.throws(() => createApi({ issuer: invalid, audience, keys }))
   }
+
   assert.throws(() => createApi({ issuer, audience: '', keys }))
 })

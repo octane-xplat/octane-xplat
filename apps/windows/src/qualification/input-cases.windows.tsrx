@@ -19,6 +19,7 @@ function watchKeys(
 ): () => void {
   const view = () => {
     const native = handle()?.native as any
+
     return typeof native?.on === 'function' ? native : null
   }
 
@@ -40,6 +41,7 @@ function watchKeys(
   let attached = false
   const timer = setInterval(() => {
     const v = view()
+
     if (v && !attached) {
       v.on('keyDown', down)
       v.on('keyUp', up)
@@ -50,7 +52,9 @@ function watchKeys(
 
   return () => {
     clearInterval(timer)
+
     const v = view()
+
     if (v && attached) {
       v.off('keyDown', down)
       v.off('keyUp', up)
@@ -212,11 +216,14 @@ export function ScrollCases(props: {
   const area = useScrollableArea<any>({ axis: props.axis })
   const axisState = props.axis === 'block' ? area.state.block : area.state.inline
   const emitRef = useRef(props.emit)
+
   emitRef.current = props.emit
+
   const last = useRef('')
 
   useEffect(() => {
     const summary = `${props.axis}:${axisState.isScrollable}:${axisState.atStart}:${axisState.atEnd}`
+
     if (summary !== last.current) {
       last.current = summary
       emitRef.current('scroll-state', {
@@ -229,6 +236,7 @@ export function ScrollCases(props: {
   }, [axisState.isScrollable, axisState.atStart, axisState.atEnd, props.axis])
 
   const rows = []
+
   for (let index = 0; index < props.rows; index++) {
     rows.push(<Text key={`scroll-${index}`}>{`Scroll row ${index}`}</Text>)
   }

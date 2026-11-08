@@ -8,10 +8,12 @@ export function legacyActionBoundary(context: Record<string, any>) {
   const allocate = (view?: object) => {
     const id = next++
     let active = true
+
     handlers.set(id, null)
     if (view) {
       ids.set(view, id)
     }
+
     return {
       id,
       setHandler(handler: unknown) {
@@ -28,12 +30,14 @@ export function legacyActionBoundary(context: Record<string, any>) {
       },
     }
   }
+
   const adoptAction = (node: any, action: any) => {
     registrations.get(node)?.release()
     registrations.set(node, action)
     node.actionId = action.id
     return action.id
   }
+
   return {
     allocate,
     adoptAction,

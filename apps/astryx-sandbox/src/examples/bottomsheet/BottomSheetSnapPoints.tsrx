@@ -47,6 +47,7 @@ const steps = [
 
 export function BottomSheetSnapPoints() @{
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <>
       <VStack gap={3} align="start">

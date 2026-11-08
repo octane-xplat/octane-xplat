@@ -4,8 +4,11 @@ import { mountStory } from './adapter.web'
 
 it('unchecked light Switch real web capture', async () => {
   const sentinel = document.createElement('div')
+
   document.body.append(sentinel)
+
   let mounted: Awaited<ReturnType<typeof launchWeb>> | undefined
+
   try {
     mounted = await launchWeb('switch--unchecked-light')
     expect(mounted.capture.provenance).toBe('real')
@@ -33,6 +36,7 @@ it('unchecked light Switch real web capture', async () => {
 
 it('args updates and story switches leave no residual pixels', async () => {
   const first = await launchWeb('switch--unchecked-light')
+
   try {
     const initial = await decodePng(first.capture.pngBase64)
 
@@ -41,7 +45,9 @@ it('args updates and story switches leave no residual pixels', async () => {
     expect(first.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('true')
 
     first.update({ checked: false })
+
     const returned = await decodePng((await first.recapture()).pngBase64)
+
     expect(pixelsEqual(initial, returned)).toBe(true)
   } finally {
     first.dispose()
@@ -50,6 +56,7 @@ it('args updates and story switches leave no residual pixels', async () => {
   expect(first.host.isConnected).toBe(false)
 
   const away = await launchWeb('switch--checked-light')
+
   try {
     expect(away.host.querySelector('[role="switch"]')?.getAttribute('aria-checked')).toBe('true')
   } finally {
@@ -59,9 +66,11 @@ it('args updates and story switches leave no residual pixels', async () => {
   expect(away.host.isConnected).toBe(false)
 
   const back = await launchWeb('switch--unchecked-light')
+
   try {
     const baseline = await decodePng(first.capture.pngBase64)
     const afterSwitch = await decodePng(back.capture.pngBase64)
+
     expect(pixelsEqual(baseline, afterSwitch)).toBe(true)
   } finally {
     back.dispose()
@@ -70,6 +79,7 @@ it('args updates and story switches leave no residual pixels', async () => {
 
 it('rejects unknown selection without allocating a host', () => {
   const before = document.body.childElementCount
+
   expect(() => mountStory('unknown')).toThrow('Unknown story')
   expect(document.body.childElementCount).toBe(before)
 })

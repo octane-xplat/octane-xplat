@@ -25,14 +25,18 @@ export function createBrowserRouteEffects(browser: Window): {
     ) {
       return false
     }
+
     for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
       const style = browser.getComputedStyle(parent)
+
       if (style.display === 'none' || style.visibility === 'hidden') {
         return false
       }
     }
+
     return true
   }
+
   const findId = (id: string, root?: HTMLElement | null) => {
     const local =
       (root?.id === id
@@ -40,49 +44,63 @@ export function createBrowserRouteEffects(browser: Window): {
         : Array.from(root?.querySelectorAll<HTMLElement>('[id]') ?? []).find(
             (node) => node.id === id,
           )) ?? null
+
     if (visible(local)) {
       return local
     }
+
     const global = document.getElementById(id)
+
     return visible(global) ? global : null
   }
+
   const focus = (target: HTMLElement) => {
     releaseFocusTarget?.()
     releaseFocusTarget = focusBrowserTarget(target, { focusVisible: false })
   }
+
   const pageTarget = (root?: HTMLElement | null) => {
     const container = root ?? null
+
     if (!visible(container)) {
       return document.body
     }
+
     for (const selector of [
       '[autofocus]',
       'h1,[role="heading"][aria-level="1"]',
       'main,[role="main"]',
     ]) {
       const target = Array.from(container.querySelectorAll<HTMLElement>(selector)).find(visible)
+
       if (target) {
         return target
       }
     }
+
     return document.body
   }
+
   const metadata = new Map<
     string,
     { node: HTMLMetaElement; original: string | null; created: boolean }
   >()
+
   let applied = false
   let activeMeta = new Set<string>()
   const head = (next?: RouteHead): void => {
     applied = true
     document.title = next?.title ?? initialTitle
+
     const names = new Set(Object.keys(next?.meta ?? {}))
+
     for (const name of activeMeta) {
       if (names.has(name)) {
         continue
       }
 
       const previous = metadata.get(name)!
+
       if (previous.created) {
         previous.node.remove()
       } else if (previous.original === null) {
@@ -91,14 +109,17 @@ export function createBrowserRouteEffects(browser: Window): {
         previous.node.content = previous.original
       }
     }
+
     for (const name of names) {
       let entry = metadata.get(name)
+
       if (!entry) {
         const existing = [...document.head.querySelectorAll('meta[name]')].find(
           (node) => node.getAttribute('name') === name,
         ) as HTMLMetaElement | undefined
 
         const node = existing ?? document.createElement('meta')
+
         entry = { node, original: existing?.getAttribute('content') ?? null, created: !existing }
         metadata.set(name, entry)
       }
@@ -109,13 +130,16 @@ export function createBrowserRouteEffects(browser: Window): {
         document.head.append(entry.node)
       }
     }
+
     activeMeta = names
   }
+
   return {
     head,
     save(key: string | undefined): void {
       if (key) {
         const active = document.activeElement as HTMLElement | null
+
         positions.set(key, {
           x: browser.scrollX,
           y: browser.scrollY,
@@ -136,6 +160,7 @@ export function createBrowserRouteEffects(browser: Window): {
     ): void {
       const position = key ? positions.get(key) : undefined
       const hashTarget = options.hash ? findId(options.hash, options.root) : null
+
       if (options.focus !== false) {
         const previous = position?.focus
         const restored = visible(previous ?? null)
@@ -146,10 +171,12 @@ export function createBrowserRouteEffects(browser: Window): {
 
         focus(restored ?? hashTarget ?? pageTarget(options.root))
       }
+
       if (position) {
         browser.scrollTo(position.x, position.y)
         return
       }
+
       if (hashTarget?.scrollIntoView) {
         hashTarget.scrollIntoView()
       } else {
@@ -162,6 +189,7 @@ export function createBrowserRouteEffects(browser: Window): {
       if (applied) {
         head()
       }
+
       positions.clear()
       metadata.clear()
     },

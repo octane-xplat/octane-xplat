@@ -134,9 +134,11 @@ export function createContainerAdapters(deps: ContainerAdapterDependencies): Con
         if (name === 'style') {
           deps.cssCascade.setNodeInlineStyle(node, value)
         }
+
         if (name === 'className') {
           deps.cssCascade.applyClassName(node, value)
         }
+
         return true
       },
       afterProps(node) {

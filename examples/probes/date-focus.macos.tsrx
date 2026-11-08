@@ -11,6 +11,7 @@ import {
 
 import type { DateRange, TextInputHandle } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 export default function DateFocusProbe() {
   const date = useRef<TextInputHandle | null>(null),
     time = useRef<TextInputHandle | null>(null)
@@ -25,6 +26,7 @@ export default function DateFocusProbe() {
     [r, setR] = useState<DateRange | null>(null)
 
   const [blocked, setBlocked] = useState(false)
+
   return (
     <VStack gap={2}>
       <label text="Use the buttons to request each field's primary focus. Check DateTimeInput blur from both segments, unrelated editors, draft/IME callbacks, current blocking and popup interactions. The runner synthesizes no native focus or input." />

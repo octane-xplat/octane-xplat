@@ -25,12 +25,14 @@ function ensureFallbackViewport(): void {
   }
 
   const host = hostGlobal<Record<string, any>>('__octaneGtkHost')
+
   if (!host?.createOverlayLayer || !host.mountServiceRoot) {
     console.warn('[Toast] linux-gtk overlay host is not mounted; toast was skipped')
     return
   }
 
   const layers: Partial<Record<ToastPosition, any>> = {}
+
   for (const position of TOAST_POSITIONS) {
     const layer = host.createOverlayLayer({
       modal: false,
@@ -56,6 +58,7 @@ function ensureFallbackViewport(): void {
   // chained the service root's unmount into the host layer's dispose.
   const hostLayer = layers.bottomEnd
   const release = hostLayer.dispose.bind(hostLayer)
+
   hostLayer.dispose = () => {
     for (const layer of Object.values(layers)) {
       if (layer !== hostLayer) {
@@ -85,6 +88,7 @@ export const showToast: ShowToastFn = (options: ToastOptions) => {
  *  configured edge; outside one they land on the fallback stack. */
 export function useToast(): ShowToastFn @{
   const ctx = useContext(ToastViewportContext)
+
   return useCallback(
     (options: ToastOptions) => {
       // Always keep the fallback stack mounted — it receives orphaned

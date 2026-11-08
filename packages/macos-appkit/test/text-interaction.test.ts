@@ -87,6 +87,7 @@ test('focus transitions deduplicate notifications and read the latest callbacks'
   const { dispatchTextEvent } = load()
   const calls = []
   const control = node({ onFocus: () => calls.push('focus'), onBlur: () => calls.push('blur') })
+
   dispatchTextEvent(control, 'onFocus')
   dispatchTextEvent(control, 'onFocus')
   control.props.onBlur = () => calls.push('new blur')
@@ -100,8 +101,11 @@ test('multiline action returns submit once; ordinary Return remains a newline', 
   const view = {}
   let submits = 0
   const control = node({ onSubmit: () => submits++ })
+
   nodes.set(view, control)
+
   const target = new ButtonActionTarget()
+
   for (const key of [undefined, 'next', 'go', 'search']) {
     control.props.returnKeyType = key
     assert.equal(target.textViewDoCommandBySelector(view, 'insertNewline:'), false)
@@ -122,6 +126,7 @@ test('growth uses measured wrapped content, caps viewport, and preserves full do
   const { fitTextView } = load()
   let measured = 120
   const control = node({ rows: 2, autoGrow: true, maxRows: 3 })
+
   control.view = {
     font: { ascender: 15, descender: -5, leading: 0 },
     textContainer: {},
@@ -140,6 +145,7 @@ test('growth uses measured wrapped content, caps viewport, and preserves full do
     documentView: control.view,
     contentView: { bounds: { size: { width: 100, height: 0 } } },
   }
+
   fitTextView(control)
   assert.equal(control.height, 60)
   assert.equal(control.view.frame.size.height, 120)
@@ -196,6 +202,7 @@ function sizingNode() {
   let measurements = 0,
     frames = 0,
     minimums = 0
+
   control.view = {
     font: { ascender: 15, descender: -5, leading: 0 },
     textContainer: {},
@@ -215,10 +222,12 @@ function sizingNode() {
       minimums++
     },
   }
+
   control.textViewport = {
     documentView: control.view,
     contentView: { bounds: { size: { width: 100, height: 0 } } },
   }
+
   return { control, counts: () => ({ measurements, frames, minimums }) }
 }
 
@@ -226,18 +235,21 @@ function sizingNode() {
 test('retired multiline nodes skip later sizing without touching native scope', () => {
   const { fitTextView } = load(),
     f = sizingNode()
+
   f.control.textLayoutRetired = true
   Object.defineProperty(f.control.textViewport, 'contentView', {
     get() {
       throw Error('retired native scope')
     },
   })
+
   fitTextView(f.control)
   assert.deepEqual(f.counts(), { measurements: 0, frames: 0, minimums: 0 })
 })
 
 test('sizing stops when native layout retires or replaces the editor scope', () => {
   const { fitTextView } = load()
+
   for (const phase of ['ensure', 'measure']) {
     const f = sizingNode(),
       manager = f.control.view.layoutManager
@@ -264,13 +276,16 @@ test('sizing stops when native layout retires or replaces the editor scope', () 
 test('constraint reentry cannot apply later document frame writes to a retired editor', () => {
   const { fitTextView } = load(),
     f = sizingNode()
+
   let constraints = 0
+
   Object.defineProperty(f.control, 'height', {
     set() {
       constraints++
       f.control.textLayoutRetired = true
     },
   })
+
   fitTextView(f.control)
   assert.equal(constraints, 1)
   assert.deepEqual(f.counts(), { measurements: 1, frames: 0, minimums: 0 })

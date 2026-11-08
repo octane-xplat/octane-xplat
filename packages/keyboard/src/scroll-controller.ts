@@ -9,6 +9,7 @@ const checked = (options: KeyboardScrollOptions) => {
   if (!Number.isFinite(options.clearance ?? 8) || (options.clearance ?? 8) < 0) {
     throw new RangeError('Keyboard scroll clearance must be finite and nonnegative')
   }
+
   return { ...options }
 }
 
@@ -19,6 +20,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
       active = true,
       paused = false,
       applying = false
+
     let focus = FocusedInputController.getSnapshot(host)
     let keyboard = KeyboardController.getSnapshot(host)
     let open = false
@@ -28,6 +30,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
       if (!active || applying) {
         return
       }
+
       applying = true
       try {
         const root = scrollRuntime.owner(host)
@@ -40,6 +43,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
           if (options.keyboardClose === 'restore') {
             for (const [owner, saved] of restoration) {
               const current = scrollRuntime.read(owner)
+
               if (current !== null && Math.abs(current - saved.expected) < 1) {
                 scrollRuntime.write(owner, saved.before)
               }
@@ -59,6 +63,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
         for (const operation of focusScrollPlan(focus, keyboard, root, options.clearance ?? 8)) {
           if (nowOpen) {
             const previous = restoration.get(operation.id)
+
             restoration.set(operation.id, {
               before: previous?.before ?? operation.from,
               expected: operation.to,
@@ -71,10 +76,12 @@ export const KeyboardScrollController: KeyboardScrollService = {
         applying = false
       }
     }
+
     const release = () => {
       if (!active) {
         return
       }
+
       active = false
       try {
         scope.release()
@@ -82,6 +89,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
         restoration.clear()
       }
     }
+
     try {
       scope.defer(
         scrollRuntime.watchManual(host, () => {
@@ -106,6 +114,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
           ) {
             paused = false
           }
+
           focus = state
           apply()
         }),
@@ -114,6 +123,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
       release()
       throw error
     }
+
     return {
       release,
       update(next) {
@@ -126,6 +136,7 @@ export const KeyboardScrollController: KeyboardScrollService = {
         if (!active) {
           return
         }
+
         paused = false
         FocusedInputController.recheck(host)
         focus = FocusedInputController.getSnapshot(host)

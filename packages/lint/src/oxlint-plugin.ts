@@ -27,6 +27,7 @@ const wrap = (check) => ({
       'Program:exit'(program) {
         const options = context.options?.[0]
         const filename = filenameOf(context)
+
         for (const v of check(program, context.sourceCode.text, filename, options)) {
           context.report({ node: v.node, message: v.message })
         }
@@ -36,6 +37,7 @@ const wrap = (check) => ({
 })
 
 const rules = {}
+
 for (const [name, check] of Object.entries(XPLAT_CHECKS)) {
   rules[name] = wrap(check)
 }

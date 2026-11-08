@@ -45,16 +45,19 @@ export type TextAdapters = Readonly<Record<string, ElementAdapter>>
 export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters {
   function inheritFont(node: ElementNode) {
     const control = node.view as NSTextField | NSTextView
+
     if (control.font) {
       control.font = fontForFamilyStyle(control.font.pointSize, 400, node.container.fontFamily)
     }
   }
+
   function createInput(node: ElementNode) {
     deps.actions.acquireAction(node, node.view!)
     if (node.type === 'textview') {
       ;(node.view as NSTextView).delegate = deps.actions.buttonActionTarget
     } else {
       const field = node.view as NSTextField
+
       field.delegate = deps.actions.buttonActionTarget
       field.target = deps.actions.buttonActionTarget
       // The search delegate owns submission; ordinary fields use Return.
@@ -66,20 +69,25 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
         field.action = 'textFieldSubmitted:'
       }
     }
+
     inheritFont(node)
   }
+
   function disposeInput(node: ElementNode) {
     const failures = new FailureCollector()
+
     failures.run('text links', () => deps.textElements.disposeTextLinks(node))
     failures.run('input actions', () => deps.actions.disposeActions(node))
     failures.run('input state', () => deps.inputElements.disposeBuiltinTextInput(node))
     failures.throwIfFailed()
   }
+
   function syncFormatted(node: ElementNode) {
     if (node.children?.some((child) => child.type === 'formattedstring' || child.type === 'span')) {
       deps.textElements.syncText(node)
     }
   }
+
   const logical: ElementAdapter = {
     publicInstance: 'node',
     styleValidation: 'none',
@@ -94,6 +102,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
     },
     prepareDispose: deps.textElements.disposeBuiltinFormattedText,
   }
+
   return {
     label: {
       styleValidation: 'text',
@@ -101,18 +110,22 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
       hasView: true,
       validate(props, previous) {
         const merged = { ...previous, ...props }
+
         if (merged.whiteSpace != null && !['normal', 'nowrap'].includes(merged.whiteSpace)) {
           throw new Error('[macos-host] label whiteSpace supports only normal and nowrap')
         }
+
         if (merged.textOverflow != null && !['clip', 'ellipsis'].includes(merged.textOverflow)) {
           throw new Error('[macos-host] label textOverflow supports only clip and ellipsis')
         }
+
         if (
           merged.maxLines != null &&
           (!Number.isInteger(merged.maxLines) || merged.maxLines < 0)
         ) {
           throw new Error('[macos-host] label maxLines must be a non-negative integer')
         }
+
         if (props.fontSize !== undefined && !Number.isFinite(Number(props.fontSize))) {
           throw new Error('[macos-host] label fontSize must be a finite number')
         }
@@ -185,6 +198,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
           node.props,
           node.stylePlaceholderColor,
         )
+
         syncFormatted(node)
       },
       dispose: disposeInput,
@@ -238,6 +252,7 @@ export function createTextAdapters(deps: TextAdapterDependencies): TextAdapters 
         if ('value' in patch) {
           node.text = String(patch.value ?? '')
         }
+
         deps.textElements.syncText(node.parent)
       },
     },

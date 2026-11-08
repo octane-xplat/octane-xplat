@@ -23,12 +23,15 @@ function checkedValues(values: AppKitTransitionValues): AppKitTransitionValues {
   if (!values || typeof values !== 'object' || Array.isArray(values)) {
     throw new TypeError('Expected AppKit transition starting values')
   }
+
   if (isThenable(values)) {
     // Drain so an unhandled rejection does not surface after the throw.
     void Promise.resolve(values).catch(() => {})
     throw new TypeError('AppKit transition starting values must be synchronous')
   }
+
   const captured: AppKitTransitionValues = {}
+
   for (const [key, value] of Object.entries(values)) {
     if (
       !Object.hasOwn(neutral, key) ||
@@ -42,6 +45,7 @@ function checkedValues(values: AppKitTransitionValues): AppKitTransitionValues {
       captured[key as keyof AppKitTransitionValues] = value
     }
   }
+
   return Object.freeze(captured)
 }
 
@@ -58,8 +62,10 @@ export function defineAppKitTransition(
   if (!options || !Number.isFinite(options.duration ?? 240) || (options.duration ?? 240) < 0) {
     throw new TypeError('Expected a nonnegative AppKit transition duration')
   }
+
   const from = typeof options.from === 'function' ? options.from : checkedValues(options.from)
   const definition = Object.freeze({ kind: 'native' }) as NativeTransitionDefinition
+
   definitions.set(definition, Object.freeze({ ...options, from }))
   return definition
 }
@@ -71,19 +77,25 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
   const interrupt = () => {
     active?.()
   }
+
   return {
     interrupt,
     run(context, name, definition, view) {
       interrupt()
+
       const skipped = (reason: 'disabled' | 'unsupported' | 'reduced-motion') =>
         Promise.resolve<RouteTransitionResult>({ status: 'skipped', reason })
+
       if (!name || name === 'none' || definition?.kind === 'skip' || context.action === 'refresh') {
         return skipped('disabled')
       }
+
       const options = definition?.kind === 'native' ? definitions.get(definition) : undefined
+
       if (!options || !view) {
         return skipped('unsupported')
       }
+
       try {
         if (options.reducedMotion !== 'allow' && readReducedMotion()) {
           return skipped('reduced-motion')
@@ -91,20 +103,26 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
       } catch (error) {
         return Promise.resolve({ status: 'failed', error })
       }
+
       const controllers: ReturnType<typeof createAnimatedValue>[] = []
       const restore: (() => void)[] = []
+
       return new Promise<RouteTransitionResult>((resolve) => {
         let settled = false
         const finish = (result: RouteTransitionResult) => {
           if (settled) {
             return
           }
+
           settled = true
           active = undefined
+
           const errors: unknown[] = []
+
           for (const controller of controllers) {
             controller.dispose()
           }
+
           for (const reset of restore) {
             try {
               reset()
@@ -112,6 +130,7 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
               errors.push(error)
             }
           }
+
           resolve(
             errors.length
               ? {
@@ -121,6 +140,7 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
               : result,
           )
         }
+
         active = () => finish({ status: 'skipped', reason: 'interrupted' })
         try {
           const values = checkedValues(
@@ -133,7 +153,9 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
 
           const tasks = Object.entries(values).map(([property, initial]) => {
             const target = neutral[property as keyof AppKitTransitionValues]
+
             restore.push(() => writeAnimatedProperty(view, property, target))
+
             const controller = createAnimatedValue(initial, {
               now: () => Date.now(),
               request: (callback) => setTimeout(callback, 16) as unknown as number,
@@ -141,6 +163,7 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
               write: (targetView, value) => writeAnimatedProperty(targetView, property, value),
               reducedMotion: options.reducedMotion === 'allow' ? undefined : readReducedMotion,
             })
+
             controllers.push(controller)
             controller.ref(view)
             return controller.to(target, { duration: options.duration ?? 240 })
@@ -149,6 +172,7 @@ export function createAppKitRouteTransitions(): PaneRouteTransitions {
           void Promise.all(tasks).then(
             (results) => {
               const failure = results.find((result) => result.status === 'failed')
+
               finish(
                 failure?.status === 'failed'
                   ? { status: 'failed', error: failure.error }

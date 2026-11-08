@@ -59,6 +59,7 @@ export function createWorkspaceContext(options: any): WorkspaceContext {
       workspaceRoot: options.workspaceRoot,
       appId: () => {
         const selection = resolveSelection(context)
+
         return selection.state === 'bound' ? selection.app.id : null
       },
       grants: () =>
@@ -84,6 +85,7 @@ export function createWorkspaceContext(options: any): WorkspaceContext {
 
   if (context.configuredAppSelector) {
     const matches = selectApp(context.discovery, context.configuredAppSelector)
+
     if (matches.length === 1) {
       context.boundApp = matches[0]
       context.selectionReason = 'configured'
@@ -106,6 +108,7 @@ export function resolveSelection(context: WorkspaceContext): Selection {
   // The discovery library is untyped JavaScript; its app records follow the
   // AppRef contract shape — this is the one place the boundary is asserted.
   const apps = context.discovery.apps as AppRef[]
+
   if (context.configuredAppSelector) {
     return { state: 'ambiguous', candidates: apps }
   }
@@ -123,6 +126,7 @@ export function resolveSelection(context: WorkspaceContext): Selection {
 
 export function bindApp(context: WorkspaceContext, selector: string) {
   const matches = selectApp(context.discovery, selector)
+
   if (matches.length === 0) {
     return { error: 'not_found', candidates: context.discovery.apps }
   }
@@ -160,6 +164,7 @@ function nextSteps(report: any): string[] {
   }
 
   const missing = report.prerequisites.filter((p: any) => p.status === 'missing')
+
   if (missing.length) {
     steps.push(
       `Missing prerequisites: ${missing.map((p: any) => `${p.name} — ${p.remedy}`).join('; ')}.`,
@@ -182,6 +187,7 @@ function nextSteps(report: any): string[] {
  */
 export async function buildProjectStatus(context: WorkspaceContext) {
   const outcome = await context.transport.call({ command: ['status'] })
+
   if (!outcome.ok) {
     return { error: outcome.error }
   }

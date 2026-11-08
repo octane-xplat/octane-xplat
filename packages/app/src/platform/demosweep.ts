@@ -10,6 +10,7 @@ import { VIRTUAL_LIST_BENCH_MODE } from './virtual-list-benchmark-mode'
 
 function demoId(stack: 'demos' | 'test'): string | undefined {
   const route = router.forStack(stack).getSnapshot().route
+
   return route?.to === '/demo/:id' ? route.params.id : undefined
 }
 
@@ -21,6 +22,7 @@ function demoId(stack: 'demos' | 'test'): string | undefined {
 // xplat core patch). The focused VirtualList check below uses the
 // Android-safe swap-pane route.
 const SKIP = Application.android != null
+
 if (SKIP) {
   console.log(
     '[sweep] catalog sweep skipped on android — asserts native Page objects; swap-pane route used instead',
@@ -36,6 +38,7 @@ if (SKIP) {
 // gesture-observer callback directly.
 function fireTap(view: any) {
   const observers = view?.getGestureObservers?.(1) ?? []
+
   if (view && view.isLoaded === false) {
     // Unloaded views keep their JS observers but lose their native
     // recognizers — the dispatch works while a real tap would die.
@@ -103,6 +106,7 @@ let lastSheetHost: any = null
 function assertHas(name: string, needle: string, view: any = demosPage()) {
   const hay = viewTexts(view)
   const ok = hay.includes(needle)
+
   console.log(
     '[assert] ' +
       name +
@@ -118,6 +122,7 @@ function assertHas(name: string, needle: string, view: any = demosPage()) {
 function assertMatch(name: string, re: RegExp, view: any = demosPage()) {
   const hay = viewTexts(view)
   const ok = hay.some((t) => re.test(t))
+
   console.log(
     '[assert] ' + name + ': ' + (ok ? 'OK' : 'FAIL') + ' (' + re + ')' + (ok ? '' : dump(hay)),
   )
@@ -129,6 +134,7 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
   }
 
   const nextPath = [...path, view]
+
   if (view.text === text) {
     // Prefer loaded ancestors: an unloaded view still lists its JS
     // gesture observers (they only splice on removeEventListener), so an
@@ -142,6 +148,7 @@ function tapTargetForText(view: any, text: string, path: any[] = []): any {
   }
 
   let found: any = null
+
   view.eachChildView?.((child: any) => {
     found = tapTargetForText(child, text, nextPath)
     return !found
@@ -156,6 +163,7 @@ function runNavLinkProbe() {
   const homeView = getStack('root')?.currentPage
   const target = tapTargetForText(homeView, 'Detail →')
   const observers = fireTap(target)
+
   if (!observers) {
     console.log('[assert] NavLink tap target: FAIL (Detail → has no tap observer)')
     return
@@ -166,6 +174,7 @@ function runNavLinkProbe() {
     () => {
       const route = router.forStack('root').getSnapshot().route
       const ok = route?.to === '/detail' && route.search.from === 'home'
+
       console.log(
         '[assert] NavLink pushes detail page: ' +
           (ok ? 'OK' : 'FAIL') +
@@ -191,6 +200,7 @@ function runModalRouteProbe() {
   const homeView = getStack('root')?.currentPage
   const target = tapTargetForText(homeView, 'About ⤴')
   const observers = fireTap(target)
+
   if (!observers) {
     console.log('[assert] modal route tap target: FAIL (About ⤴ has no tap observer)')
     return
@@ -203,10 +213,12 @@ function runModalRouteProbe() {
       ),
     () => {
       const ok = true
+
       console.log('[assert] +modal route opens showModal root: ' + (ok ? 'OK' : 'FAIL'))
 
       const modalView = (getStack('root')?.currentPage as any)?.modal
       const texts = modalView ? viewTexts(modalView) : []
+
       console.log(
         '[assert] modal route screen mounted: ' +
           (texts.some((t) => t.includes('About (modal route)')) ? 'OK' : 'FAIL') +
@@ -242,6 +254,7 @@ function virtualListRowMetrics(list: any) {
     .map((view) => {
       const size = view.getActualSize?.() ?? {}
       const screenPoint = view.getLocationOnScreen?.() ?? {}
+
       return {
         id: String(view.id),
         y: Number(screenPoint.y),
@@ -253,6 +266,7 @@ function virtualListRowMetrics(list: any) {
 function visibleVirtualListRows(list: any) {
   const listY = Number(list?.getLocationOnScreen?.()?.y)
   const listHeight = Number(list?.getActualSize?.()?.height)
+
   if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {
     return []
   }
@@ -268,12 +282,15 @@ function visibleVirtualListRows(list: any) {
 
 function runVirtualListHeightProbe() {
   const list: any = find('vlist')
+
   virtualListHandle.current?.scrollToOffset(960)
+
   const heightAnchorReady = () => {
     const offset = Number(list?.scrollTop)
     const listY = Number(list?.getLocationOnScreen?.()?.y)
     const row15 = virtualListRowMetrics(list).find((row) => row.id === 'row-r15')
     const anchor = visibleVirtualListRows(list).find((row) => Number(row.id.slice(5)) > 15)
+
     return (
       row15 != null &&
       Number.isFinite(offset) &&
@@ -310,11 +327,13 @@ function runVirtualListHeightProbe() {
 
       console.log('[assert] VirtualList height anchor captured: OK (' + before.id + ')')
       fireTap(tapTargetForText(demosPage(), 'Grow r15'))
+
       let previousAnchorY = Number.NaN
       let stableAnchorSamples = 0
       const heightAnchorSettled = () => {
         const newHeight = Number((find('row-r15') as any)?.getActualSize?.().height ?? 0)
         const after = virtualListRowMetrics(list).find((row) => row.id === before.id)
+
         if (newHeight < oldHeight + 23 || !after) {
           stableAnchorSamples = 0
           return false
@@ -393,6 +412,7 @@ function runVirtualListHeightProbe() {
           )
 
           const emptyTarget = tapTargetForText(demosPage(), 'Empty')
+
           if (!emptyTarget) {
             console.log('[assert] VirtualList renders its empty state: FAIL (button missing)')
             return
@@ -403,11 +423,13 @@ function runVirtualListHeightProbe() {
             () => viewTexts(find('vlist')).includes('No rows'),
             () => {
               const emptyRendered = viewTexts(find('vlist')).includes('No rows')
+
               console.log(
                 '[assert] VirtualList renders its empty state: ' + (emptyRendered ? 'OK' : 'FAIL'),
               )
 
               const restoreTarget = tapTargetForText(demosPage(), 'Restore')
+
               if (!restoreTarget) {
                 console.log(
                   '[assert] VirtualList restores rows after the empty state: FAIL (button missing)',
@@ -468,6 +490,7 @@ function waitForVirtualListDeepRowVisible(
   const readVisibleWindow = () => {
     const listY = Number(list?.getLocationOnScreen?.()?.y)
     const listHeight = Number(list?.getActualSize?.()?.height)
+
     if (!Number.isFinite(listY) || !Number.isFinite(listHeight) || listHeight <= 0) {
       return null
     }
@@ -485,11 +508,13 @@ function waitForVirtualListDeepRowVisible(
     )
 
     const candidate = fullyVisible.find((row) => Number(row.id.slice(5)) >= minIndex)
+
     return { listY, listHeight, rows, candidate }
   }
 
   const visibleWindowIsStable = () => {
     const current = readVisibleWindow()
+
     if (!current?.candidate) {
       previousSignature = ''
       positionSamples = []
@@ -498,6 +523,7 @@ function waitForVirtualListDeepRowVisible(
     }
 
     const signature = current.rows.map((row) => row.id).join(',')
+
     if (signature !== previousSignature) {
       previousSignature = signature
       positionSamples = []
@@ -545,6 +571,7 @@ function waitForVirtualListDeepRowVisible(
       const rowView = find(lastCandidate.id)
       const rowText = viewTexts(rowView).find((value) => /^Row \d+ · \d+$/.test(value))
       const target = rowText ? tapTargetForText(list, rowText) : null
+
       if (!rowText || !target) {
         console.log(
           '[assert] VirtualList stable deep visible row: FAIL (' +
@@ -576,6 +603,7 @@ function runVirtualListStateProbe() {
     () => {
       if (!hasViewport()) {
         const size = list?.getActualSize?.()
+
         console.log(
           '[assert] VirtualList lays out a nonzero viewport: FAIL (' +
             'loaded=' +
@@ -591,8 +619,10 @@ function runVirtualListStateProbe() {
       }
 
       list?.scrollTo?.({ top: 10800, behavior: 'instant' })
+
       const rowMountedAtTarget = () => {
         const row: any = find('row-r200')
+
         return (
           Number(list?.scrollTop ?? 0) >= 9000 &&
           row?.isLoaded !== false &&
@@ -615,11 +645,13 @@ function runVirtualListStateProbe() {
             const rowLabel = rowText.slice(0, rowText.lastIndexOf(' · '))
             const priorPressCount = Number(rowText.slice(rowText.lastIndexOf(' · ') + 3))
             const pressedText = rowLabel + ' · ' + (priorPressCount + 1)
+
             fireTap(rowTarget)
             waitFor(
               () => viewTexts(demosPage()).includes(pressedText),
               () => {
                 const rowPressed = viewTexts(demosPage()).includes(pressedText)
+
                 console.log(
                   '[assert] VirtualList row-r' +
                     rowIndex +
@@ -629,7 +661,9 @@ function runVirtualListStateProbe() {
 
                 const anchorBefore = visibleVirtualListRows(list)[0]
                 const prependTarget = tapTargetForText(demosPage(), 'Prepend')
+
                 fireTap(prependTarget)
+
                 let previousAnchorY = Number.NaN
                 let stableAnchorSamples = 0
                 const prependAnchorStable = () => {
@@ -676,6 +710,7 @@ function runVirtualListStateProbe() {
                     )
 
                     const stayed = rowTextsAfterPrepend.includes(pressedText)
+
                     console.log(
                       '[assert] VirtualList keyed row state survives prepend: ' +
                         (stayed ? 'OK' : 'FAIL (' + JSON.stringify(rowTextsAfterPrepend) + ')'),
@@ -738,6 +773,7 @@ const STEPS: Step[] = [
           // The host ref survives even when its owning rootlayout
           // unloads (tab-pane shells churn) — assert on it directly.
           lastSheetHost = bottomSheetHost() ?? findOnRoot('sheet-host')
+
           const ok = collect(lastSheetHost).some(
             (v) => typeof v?.text === 'string' && v.text.includes('Demo count'),
           )
@@ -760,6 +796,7 @@ const STEPS: Step[] = [
         at: 2700,
         run: () => {
           const ok = lastSheetHost != null && lastSheetHost.parent == null
+
           console.log(
             '[assert] sheet close detaches host: ' +
               (ok ? 'OK' : 'FAIL (parent=' + lastSheetHost?.parent?.constructor?.name + ')'),
@@ -791,6 +828,7 @@ const STEPS: Step[] = [
           )
 
           const bounded = rows.length > 0 && rows.length < 40
+
           console.log(
             '[assert] VirtualList bounds mounted rows: ' +
               (bounded ? 'OK' : 'FAIL') +
@@ -836,6 +874,7 @@ const STEPS: Step[] = [
         at: 1100,
         run: () => {
           const lv = collect(demosPage()).find((v) => v instanceof ListView)
+
           console.log('[probe] list-demo listview=' + (lv ? lv.constructor.name : 'none'))
           lv?.notify({ eventName: 'loadMoreItems', object: lv } as any)
         },
@@ -859,6 +898,7 @@ const STEPS: Step[] = [
 
           const enc = hay.indexOf('Encore')
           const water = hay.indexOf('Water station: Available by the entrance.')
+
           console.log(
             '[assert] list rebind order: ' +
               (enc >= 0 && water >= 0 && enc < water ? 'OK' : 'FAIL') +
@@ -883,6 +923,7 @@ const STEPS: Step[] = [
           const list = collect(demosPage()).find((v) => v.id === 'scrollbox-demo-list')
           let parent = list?.parent
           let nested = false
+
           while (parent) {
             nested ||= parent.constructor?.name === 'ScrollView'
             parent = parent.parent
@@ -965,6 +1006,7 @@ const STEPS: Step[] = [
         run: () => {
           const el: any = findOnRoot('richtext-editor')
           const ios = el?.ios ?? el?.nativeView
+
           console.log(
             '[assert] richtext ios mounts XplatAztecEditorView: ' +
               (ios && String(ios.constructor?.name ?? '').includes('XplatAztecEditorView')
@@ -1016,6 +1058,7 @@ const STEPS: Step[] = [
         at: 400,
         run: () => {
           const t = tapTargetForText(demosPage(), 'Toggle anchored popover')
+
           console.log('[probe] popover tap target: ' + (t ? t.constructor.name : 'none'))
 
           fireTap(t)
@@ -1030,6 +1073,7 @@ const STEPS: Step[] = [
         run: () => {
           const hay = viewTexts(demosPage())
           const ok = hay.includes('Anchored to the button')
+
           console.log('[assert] popover anchored: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
         },
       },
@@ -1043,6 +1087,7 @@ const STEPS: Step[] = [
         at: 1400,
         run: () => {
           const t = tapTargetForText(demosPage(), 'HoverCard trigger')
+
           console.log('[probe] hovercard tap target=' + (t ? 'found' : 'missing'))
           if (t) {
             fireTap(t)
@@ -1053,6 +1098,7 @@ const STEPS: Step[] = [
         at: 1600,
         run: () => {
           const ok = viewTexts(demosPage()).includes('A toast from the demo')
+
           console.log('[assert] toast shows: ' + (ok ? 'OK' : 'FAIL'))
         },
       },
@@ -1062,6 +1108,7 @@ const STEPS: Step[] = [
           // HoverCard tap mounts the card (touchTrigger 'auto' → 'tap'
           // on native — the trigger is plain text here).
           const ok = viewTexts(demosPage()).includes('Hint card text')
+
           console.log('[assert] hovercard card on tap: ' + (ok ? 'OK' : 'FAIL'))
         },
       },
@@ -1071,6 +1118,7 @@ const STEPS: Step[] = [
         run: () => {
           const hay = viewTexts(demosPage())
           const ok = hay.includes('Overlay is open')
+
           console.log('[assert] overlay opens: ' + (ok ? 'OK' : 'FAIL') + dump(hay))
         },
       },
@@ -1078,6 +1126,7 @@ const STEPS: Step[] = [
         at: 4300,
         run: () => {
           const ok = viewTexts(demosPage()).includes('Top toast')
+
           console.log('[assert] toast position=top: ' + (ok ? 'OK' : 'FAIL'))
         },
       },
@@ -1085,6 +1134,7 @@ const STEPS: Step[] = [
         at: 5600,
         run: () => {
           const ok = viewTexts(demosPage()).includes('Anchored toast')
+
           console.log('[assert] toast anchored: ' + (ok ? 'OK' : 'FAIL'))
         },
       },
@@ -1109,6 +1159,7 @@ const STEPS: Step[] = [
         at: 1200,
         run: () => {
           const d = collect(demosPage()).find((v) => typeof v.isOpened === 'function')
+
           console.log('[assert] drawer opens: ' + (d?.isOpened?.('left') ? 'OK' : 'FAIL'))
         },
       },
@@ -1126,6 +1177,7 @@ const STEPS: Step[] = [
         run: () => {
           const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal
           const ok = m && viewTexts(m).includes('Declarative children')
+
           console.log('[assert] modal children: ' + (ok ? 'OK' : 'FAIL'))
           if (ok) {
             fireTap(tapTargetForText(m, 'Close modal'))
@@ -1138,6 +1190,7 @@ const STEPS: Step[] = [
         run: () => {
           const m = demosPage()?.modal ?? Frame.topmost()?.currentPage?.modal
           const ok = m && viewTexts(m).includes('Choose a color')
+
           console.log('[assert] imperative modal: ' + (ok ? 'OK' : 'FAIL'))
           if (ok) {
             fireTap(tapTargetForText(m, 'Red'))
@@ -1160,12 +1213,14 @@ const STEPS: Step[] = [
         run: () => {
           const m = (id: string) => {
             const v = collect(demosPage()).find((x) => x.id === id)
+
             if (!v) {
               return null
             }
 
             const s = v.getActualSize?.() ?? {}
             const p = v.getLocationOnScreen?.() ?? {}
+
             return {
               w: Math.round(s.width ?? -1),
               h: Math.round(s.height ?? -1),
@@ -1194,10 +1249,12 @@ const STEPS: Step[] = [
             'dv-ag-text',
           ]) {
             const r = m(id)
+
             console.log('[probe] ' + id + ' ' + (r ? `${r.w}x${r.h}@${r.x},${r.y}` : 'MISSING'))
           }
 
           const collText = m('dv-coll-text')
+
           console.log(
             '[assert] Text wraps by default: ' +
               (collText && collText.h >= 30 ? 'OK' : 'FAIL') +
@@ -1205,6 +1262,7 @@ const STEPS: Step[] = [
           )
 
           const agRow = m('dv-collapse-allgrow')
+
           console.log(
             '[assert] auto-height grow row keeps content height: ' +
               (agRow && agRow.h >= 40 ? 'OK' : 'FAIL') +
@@ -1212,6 +1270,7 @@ const STEPS: Step[] = [
           )
 
           const grow = m('dv-grow-fill')
+
           console.log(
             '[assert] grow child keeps height: ' +
               (grow && grow.h >= 40 ? 'OK' : 'FAIL') +
@@ -1223,6 +1282,7 @@ const STEPS: Step[] = [
           // `min-w-0` opt-in on the fix row is what lets the wide text
           // compress instead of overflowing.
           const sib = m('dv-sib')
+
           console.log(
             '[assert] default shrink-0 keeps fixed sibling: ' +
               (sib && sib.w >= 88 ? 'OK' : 'FAIL') +
@@ -1230,6 +1290,7 @@ const STEPS: Step[] = [
           )
 
           const sibFix = m('dv-sib-fix')
+
           console.log(
             '[assert] shrink+min-w-0 row keeps fixed sibling: ' +
               (sibFix && sibFix.w >= 88 ? 'OK' : 'FAIL') +
@@ -1238,6 +1299,7 @@ const STEPS: Step[] = [
 
           const wide = m('dv-wide')
           const wideFix = m('dv-wide-fix')
+
           // iOS quirk: the shrink pass re-measures the child at the
           // compressed spec (the text re-wraps taller) but the laid-out
           // frame keeps the natural width — the height delta is the
@@ -1252,6 +1314,7 @@ const STEPS: Step[] = [
           // tell a missing class application apart from a measure bug.
           const fs = (id: string) => {
             const v = collect(demosPage()).find((x) => x.id === id)
+
             return v ? String(v.flexShrink ?? v.style?.flexShrink) : 'MISSING'
           }
 
@@ -1262,6 +1325,7 @@ const STEPS: Step[] = [
           // Real divergence: auto margins are ignored on native — the
           // build warns; this stays FAIL until a shim exists.
           const auto = m('dv-auto')
+
           console.log(
             '[assert] margin-left:auto pushes trail right: ' +
               (auto && auto.x > 200 ? 'OK' : 'FAIL') +
@@ -1271,6 +1335,7 @@ const STEPS: Step[] = [
           // justifyContent prop is the portable path — it must push the
           // trailing item right on native the same as web.
           const autoFix = m('dv-auto-fix')
+
           console.log(
             '[assert] justifyContent=space-between pushes trail right: ' +
               (autoFix && autoFix.x > 200 ? 'OK' : 'FAIL') +
@@ -1288,6 +1353,7 @@ const STEPS: Step[] = [
         at: 450,
         run: () => {
           const sec = collect(demosPage()).some((v) => v.secure === true)
+
           console.log('[assert] secure input: ' + (sec ? 'OK' : 'FAIL'))
         },
       },
@@ -1297,6 +1363,7 @@ const STEPS: Step[] = [
         at: 1000,
         run: () => {
           const b = collect(demosPage()).find((v) => v.accessibilityLabel === 'Save profile')
+
           console.log(
             '[assert] a11y hint+value: ' +
               (b?.accessibilityHint === 'Saves the current profile details' &&
@@ -1322,6 +1389,7 @@ const STEPS: Step[] = [
         run: () => {
           const row: any = find('reorder-a')
           const obs = row?.getGestureObservers?.(8) ?? []
+
           console.log('[probe] reorder-a pan observers=' + obs.length)
           for (const o of obs) {
             o.callback.call(o.context, {
@@ -1348,6 +1416,7 @@ const STEPS: Step[] = [
         at: 900,
         run: () => {
           const row: any = find('reorder-a')
+
           console.log(
             '[assert] pan translates row: ' +
               (row?.translateY === 90 ? 'OK' : 'FAIL (' + row?.translateY + ')'),
@@ -1363,6 +1432,7 @@ const STEPS: Step[] = [
           // Pitch is row height (52) + gap (8) = 60 dips; dy=90 → hover=2,
           // so the two rows the drag crossed each shift up one slot.
           const b: any = find('reorder-b')
+
           console.log(
             '[assert] sibling makes room: ' +
               (b?.translateY === -60 ? 'OK' : 'FAIL (' + b?.translateY + ')'),
@@ -1374,6 +1444,7 @@ const STEPS: Step[] = [
         run: () => {
           const row: any = find('reorder-a')
           const obs = row?.getGestureObservers?.(8) ?? []
+
           for (const o of obs) {
             o.callback.call(o.context, {
               eventName: 'pan',
@@ -1401,6 +1472,7 @@ const STEPS: Step[] = [
           )
 
           const row: any = find('reorder-a')
+
           console.log(
             '[assert] shifts cleared on drop: ' +
               (row?.translateY === 0 && row?.style?.zIndex !== 1 ? 'OK' : 'FAIL'),
@@ -1414,6 +1486,7 @@ const STEPS: Step[] = [
         run: () => {
           const row: any = find('reorder-b')
           const obs = row?.getGestureObservers?.(8) ?? []
+
           for (const o of obs) {
             o.callback.call(o.context, {
               eventName: 'pan',
@@ -1452,6 +1525,7 @@ const STEPS: Step[] = [
             .map((v) => v.id)
 
           const row: any = find('reorder-b')
+
           console.log(
             '[assert] cancelled pan restores order+shifts: ' +
               (order[0] === 'reorder-b' && row?.translateY === 0 ? 'OK' : 'FAIL'),
@@ -1527,6 +1601,7 @@ const STEPS: Step[] = [
 
           const sized = svgs.filter((v) => {
             const s = v.getActualSize?.() ?? {}
+
             return (s.width ?? 0) > 0 && (s.height ?? 0) > 0
           })
 
@@ -1566,6 +1641,7 @@ const TAB_LABEL: Record<string, string> = { demos: 'Apps', test: 'Test' }
 function selectTab(stack: string) {
   const root = getStack('root')?.currentPage
   const target = tapTargetForText(root, TAB_LABEL[stack])
+
   if (!target) {
     console.log('[sweep] selectTab ' + stack + ' — no tap target for "' + TAB_LABEL[stack] + '"')
     return
@@ -1587,6 +1663,7 @@ if (!SKIP && !VIRTUAL_LIST_BENCH_MODE) {
     waitFor(
       () => {
         const chip = find('menu-counter')
+
         // A dead gallery twin (unloaded subtree) satisfies getViewById
         // but can never take a real tap — wait for the live one.
         return demosPage() != null && chip != null && chip.isLoaded !== false
@@ -1628,11 +1705,14 @@ if (SKIP && !VIRTUAL_LIST_BENCH_MODE) {
         waitFor(
           () => {
             const chip = findInRootLayouts('menu-vlist')
+
             return chip != null && chip.isLoaded !== false
           },
           () => {
             stepStack = 'demos'
+
             const chip = findInRootLayouts('menu-vlist')
+
             if (!chip || chip.isLoaded === false) {
               console.log('[assert] Android VirtualList gallery chip: FAIL')
               return
@@ -1694,6 +1774,7 @@ function runAndroidLeafProbes() {
   waitFor(
     () => {
       const chip = findInRootLayouts('menu-richtext-editor')
+
       return chip != null && chip.isLoaded !== false
     },
     () => {
@@ -1711,10 +1792,12 @@ function runAndroidLeafProbes() {
 function probeAztecLeaf() {
   const el: any = findInRootLayouts('richtext-editor') ?? find('richtext-editor')
   const aztec = el?.nativeView ?? el?.android
+
   console.log('[assert] Android Aztec leaf mounts: ' + (aztec ? 'OK' : 'FAIL'))
   assertMatch('richtext editor status', /ready/)
 
   const text = aztec?.getText?.()?.toString?.() ?? ''
+
   console.log(
     '[assert] Android Aztec renders initial HTML: ' +
       (text.includes('WordPress Aztec') && text.includes('first item') ? 'OK' : 'FAIL') +
@@ -1728,11 +1811,16 @@ function probeAztecLeaf() {
   }
 
   const len = aztec.getText().length()
+
   aztec.setSelection(0, len)
+
   const FORMAT_BOLD = (globalThis as any).org.wordpress.aztec.AztecTextFormat.FORMAT_BOLD
+
   aztec.toggleFormatting(FORMAT_BOLD)
+
   const styles = aztec.getAppliedStyles(0, len)
   let bold = false
+
   for (let i = 0; i < (styles?.size?.() ?? 0); i++) {
     if (styles.get(i) === FORMAT_BOLD) {
       bold = true
@@ -1746,9 +1834,11 @@ function probeAztecLeaf() {
   // sweep documents what undo covers instead of asserting a revert it
   // cannot produce.
   const beforeInsert = aztec.getText().length()
+
   aztec.getText().insert(beforeInsert, '!')
 
   const grew = aztec.getText().length() === beforeInsert + 1
+
   console.log('[assert] Android Aztec programmatic insert edits text: ' + (grew ? 'OK' : 'FAIL'))
 
   aztec.undo()
@@ -1770,8 +1860,10 @@ function probeAztecLeaf() {
 
 function probeTiptapFacade() {
   assertMatch('tiptap facade status', /ready/)
+
   const hay = viewTexts(demosPage())
   const jsonOk = hay.some((t) => t.includes('json ok'))
+
   console.log('[assert] Android tiptap facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay))
 
   router.push({ to: '/demo/:id', params: { id: 'lexical-probe' }, stack: 'test' })
@@ -1795,8 +1887,10 @@ function probeLexicalImports() {
 
 function probeLexicalFacade() {
   assertMatch('lexical facade status', /ready/)
+
   const hay = viewTexts(demosPage())
   const jsonOk = hay.some((t) => t.includes('json ok'))
+
   console.log(
     '[assert] Android lexical facade json bridge: ' + (jsonOk ? 'OK' : 'FAIL') + dump(hay),
   )
@@ -1814,6 +1908,7 @@ function runStep(i: number) {
   }
 
   const step = STEPS[i]
+
   stepStack = stackFor(step.id)
 
   // The swap-pane Tabs unmounts the non-active stack's page — select the
@@ -1822,6 +1917,7 @@ function runStep(i: number) {
   waitFor(
     () => {
       const chip = find('menu-' + step.id)
+
       return demosPage() != null && chip != null && chip.isLoaded !== false
     },
     () => runStepBody(step, i),
@@ -1836,6 +1932,7 @@ function runStepBody(step: Step, i: number) {
   // candidate mechanism for chips that highlight yet never fire onPress.
   // loaded=false marks the JS view as dead (recognizers detached).
   let chipInfo = ''
+
   if (chip) {
     const cSize = (chip as any).getActualSize?.()
     const pSize = (chip.parent as any)?.getActualSize?.()

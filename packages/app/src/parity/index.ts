@@ -2,6 +2,7 @@
 // src/ registers itself by filename convention and is discovered here at
 // build time via a single import.meta.glob. Consumed by the /parity stage.
 import type { ParityFixture } from '@octane-xplat/ui/parity'
+
 export type { ParityFixture } from '@octane-xplat/ui/parity'
 
 type ImportGlob = (
@@ -16,6 +17,7 @@ const modules =
     : {}
 
 const fixtures: ParityFixture[] = []
+
 for (const [path, mod] of Object.entries(modules).sort(([a], [b]) => a.localeCompare(b))) {
   if (!/\.parity\.(tsrx|tsx)$/.test(path)) {
     // <Comp>.parity.<platform>.tsrx — platform fixture variants are not yet

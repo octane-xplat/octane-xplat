@@ -17,6 +17,7 @@ const fixture = (t) => {
   // realpath: macOS /var -> /private/var, and the pass reports paths
   // relative to its own cwd.
   const dir = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-lint-tsrx-')))
+
   t.after(() => rmSync(dir, { recursive: true, force: true }))
   writeFileSync(join(dir, '.oxlintrc.json'), '{"rules":{}}')
   return dir
@@ -24,6 +25,7 @@ const fixture = (t) => {
 
 const addFile = (dir, path, source = broken) => {
   const file = join(dir, path)
+
   mkdirSync(dirname(file), { recursive: true })
   writeFileSync(file, source)
 }
@@ -48,6 +50,7 @@ test('lint-tsrx stops at nested repository boundaries', (t) => {
   addFile(dir, 'linked-worktree/deep/broken.tsrx')
 
   const run = lint(dir)
+
   assert.equal(run.status, 1, run.stderr)
   assert.match(run.stderr, /^broken\.tsrx:/m)
   assert.match(run.stderr, /^src\/ordinary\/broken\.tsrx:/m)
@@ -57,11 +60,13 @@ test('lint-tsrx stops at nested repository boundaries', (t) => {
 
 test('lint-tsrx passes a clean tree that contains a nested repository', (t) => {
   const dir = fixture(t)
+
   addFile(dir, 'ok.tsrx', 'export const x = 1\n')
   mkdirSync(join(dir, 'nested-checkout/.git'), { recursive: true })
   addFile(dir, 'nested-checkout/broken.tsrx')
 
   const run = lint(dir)
+
   assert.equal(run.status, 0, run.stderr)
   assert.doesNotMatch(run.stderr, /nested-checkout/)
 })

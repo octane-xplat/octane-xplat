@@ -13,6 +13,7 @@ import type { PowerSearchConfig, SearchableItem } from '../../props'
 // Preserve exact editor closures with mock children. These cases do not exercise
 // native Tokenizer search/input, Button, TextInput, OS focus, IME or accessibility.
 const tokenizer = vi.hoisted(() => ({ props: null as any }))
+
 vi.mock('./Tokenizer.macos.tsrx', () => ({
   Tokenizer: (props: any) => {
     tokenizer.props = props
@@ -37,6 +38,7 @@ vi.mock('../actions/controls.macos.tsrx', () => ({
 }))
 
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
+
 function mount(search = vi.fn((q: string) => Promise.resolve([{ id: q, label: q }]))) {
   const config: PowerSearchConfig = {
     name: 'entities',
@@ -72,6 +74,7 @@ function mount(search = vi.fn((q: string) => Promise.resolve([{ id: q, label: q 
   const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
   const all = (): any[] => {
     const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]
+
     return container.children.flatMap(visit)
   }
 
@@ -83,14 +86,17 @@ function mount(search = vi.fn((q: string) => Promise.resolve([{ id: q, label: q 
     flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 
   const flush = () => flushUniversalSync(() => {})
+
   render(base)
   return { root, base, filter, config, render, flush, button, input }
 }
 
 it('routes searched selection/custom rows, keeps rapid changes and submits only public data once per draft', () => {
   const f = mount()
+
   try {
     const value = f.config.fields[0].operators[0].value
+
     if (value.type !== 'entity_list') {
       throw Error('Expected entity operator')
     }
@@ -119,6 +125,7 @@ it('routes searched selection/custom rows, keeps rapid changes and submits only 
 
 it('bulk input waits for marked text and explicit Add; Apply never drops unprocessed input', async () => {
   const f = mount()
+
   try {
     const input = f.input(),
       add = f.button('Add entries'),
@@ -156,6 +163,7 @@ it('keeps the draft atomic, blocks repeats/edits during pending work and aborts 
 
   try {
     f.input().props.onTextChange('A,B')
+
     const add = f.button('Add entries'),
       job = add()
 
@@ -164,7 +172,9 @@ it('keeps the draft atomic, blocks repeats/edits during pending work and aborts 
     tokenizer.props.onChange([])
     expect(search).toHaveBeenCalledTimes(1)
     expect(f.base.onSave).not.toHaveBeenCalled()
+
     const request = (search.mock.calls[0] as any[])[1]
+
     f.button('Cancel')()
     expect(request.signal.aborted).toBe(true)
     finish([{ id: 'A', label: 'A' }])
@@ -194,7 +204,9 @@ it('readonly, filter/source replacement and unmount retire outstanding work and 
         apply = f.button('Apply')
 
       f.input().props.onTextChange('A')
+
       const job = f.button('Add entries')()
+
       if (reason === 'readonly') {
         f.render({ ...f.base, isReadOnly: true })
       }
@@ -248,8 +260,10 @@ it('readonly, filter/source replacement and unmount retire outstanding work and 
 
 it('consumer save failures release the submit claim for retry', () => {
   const f = mount()
+
   try {
     const save = f.button('Apply')
+
     f.base.onSave.mockImplementationOnce(() => {
       throw Error('consumer')
     })

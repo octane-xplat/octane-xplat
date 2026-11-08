@@ -21,22 +21,27 @@ describe('gallery representatives', () => {
       story('legacy'),
       story('native', { componentId: 'native', applicable: false, targets: ['ios'] }),
     ])
+
     expect(entries).toHaveLength(3)
     expect(entries.find((e) => e.componentId === 'button')?.selected?.id).toBe('z')
     expect(entries.find((e) => e.componentId === 'button')?.height).toBe(200)
     expect(entries.find((e) => e.componentId === 'native')?.selected).toBeUndefined()
   })
+
   it('uses stable story identity ordering, independent of discovery order', () => {
     const entries = [story('z', { componentId: 'button' }), story('a', { componentId: 'button' })]
+
     expect(galleryEntries(entries)[0].selected?.id).toBe('a')
     expect(galleryEntries([...entries].reverse())).toEqual(galleryEntries(entries))
   })
+
   it('uses explicit group metadata across variants and defaults other components', () => {
     const entries = galleryEntries([
       story('a', { componentId: 'button' }),
       story('b', { componentId: 'button', gallery: { group: 'primitives' } }),
       story('chart', { title: 'Chart / Basic' }),
     ])
+
     expect(entries.find((entry) => entry.componentId === 'button')?.group).toBe('primitives')
     expect(entries.find((entry) => entry.componentId === 'chart')?.group).toBe('components')
     expect(() =>
@@ -46,6 +51,7 @@ describe('gallery representatives', () => {
       ]),
     ).toThrow('conflicting gallery groups')
   })
+
   it('rejects conflicting representatives', () => {
     expect(() =>
       galleryEntries(

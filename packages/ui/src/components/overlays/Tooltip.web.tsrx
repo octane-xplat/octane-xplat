@@ -35,6 +35,7 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
   const described = useRef<HTMLElement | null>(null)
   const layer = useLayer({ mode: 'context', dismissOnEscape: true, onHide: () => closeNow() })
   const tooltipId = layer.id
+
   useEffect(() => {
     if (open) {
       layer.show()
@@ -113,6 +114,7 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     }
 
     const old = binding.current
+
     if (old) {
       old.node.removeEventListener('mouseenter', old.enter)
       old.node.removeEventListener('mouseleave', old.leave)
@@ -147,7 +149,9 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     () => () => {
       clearOpen()
       clearClose()
+
       const current = binding.current
+
       if (current) {
         current.node.removeEventListener('mouseenter', current.enter)
         current.node.removeEventListener('mouseleave', current.leave)
@@ -174,6 +178,7 @@ export function Tooltip(props: TooltipProps): JSX.Element @{
     }
 
     const onScroll = () => closeNow()
+
     window.addEventListener('scroll', onScroll, true)
     return () => {
       window.removeEventListener('scroll', onScroll, true)

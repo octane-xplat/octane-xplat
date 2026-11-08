@@ -4,6 +4,7 @@ import { AlertDialog } from '@octane-xplat/ui'
 
 export function AlertDialogAsyncAction() @{
   const [isLoading, setIsLoading] = useState(false)
+
   return (
     <AlertDialog
       isOpen

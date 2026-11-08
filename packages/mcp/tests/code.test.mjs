@@ -19,6 +19,7 @@ async function connect(root, options = {}) {
     transport,
     ...options,
   })
+
   transport.handlers.status = () => ok(statusFixture(context))
   transport.handlers.capabilities = () =>
     ok({
@@ -45,12 +46,14 @@ async function connect(root, options = {}) {
   const { server } = createXplatMcpServer(context)
   const [clientTransport, serverTransport] = InMemoryTransport.createLinkedPair()
   const client = new Client({ name: 'test-client', version: '0.0.0' })
+
   await Promise.all([server.connect(serverTransport), client.connect(clientTransport)])
   return { client, context }
 }
 
 test('code search/read work over the real service on the bound app', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, '.', { name: 'code-app' })
   writeFile(root, 'src/App.tsrx', 'export function App() {\n\treturn <Meter />\n}\n')
   writeJson(root, 'node_modules/@octane-xplat/ui/package.json', {
@@ -68,9 +71,13 @@ test('code search/read work over the real service on the bound app', async () =>
   })
 
   assert.ok(!found.isError)
+
   const data = found.structuredContent.data
+
   assert.ok(data.results.length > 0)
+
   const byCorpus = Object.fromEntries(data.results.map((r) => [r.corpus, r]))
+
   assert.equal(byCorpus.app.path, 'src/App.tsrx')
   assert.equal(byCorpus.framework.package, '@octane-xplat/ui')
   assert.equal(byCorpus.framework.provenance.servedVersion, '0.14.0')
@@ -86,6 +93,7 @@ test('code search/read work over the real service on the bound app', async () =>
 
   // Secrets never surface through the tool surface.
   writeFile(root, '.env', 'TOKEN=x\n')
+
   const env = await client.callTool({
     name: 'xplat_code_read',
     arguments: { corpus: 'app', path: '.env' },
@@ -97,6 +105,7 @@ test('code search/read work over the real service on the bound app', async () =>
 
 test('search paths feed code_read directly for a nested app root', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, 'apps/qual-app', { name: 'qual-app' })
   writeFile(root, 'apps/qual-app/src/App.tsrx', 'export function App() {\n\treturn <Meter />\n}\n')
 
@@ -108,7 +117,9 @@ test('search paths feed code_read directly for a nested app root', async () => {
   })
 
   assert.ok(!found.isError)
+
   const hit = found.structuredContent.data.results.find((r) => r.corpus === 'app')
+
   assert.ok(hit)
   assert.equal(hit.path, 'apps/qual-app/src/App.tsrx')
   assert.equal(hit.ref, 'xplat-code://app/apps/qual-app/src/App.tsrx')
@@ -135,10 +146,13 @@ test('search paths feed code_read directly for a nested app root', async () => {
 
 test('project status and the capability matrix reflect the wired provider', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, '.', { name: 'cap-code-app' })
+
   const { client } = await connect(root)
 
   const status = await client.callTool({ name: 'xplat_project_status', arguments: {} })
+
   assert.equal(status.structuredContent.data.codeIndex.state, 'ready')
   assert.equal(status.structuredContent.data.codeIndex.semantic.backend, 'local-tfidf')
 
@@ -152,8 +166,10 @@ test('project status and the capability matrix reflect the wired provider', asyn
 
 test('ambiguous selection fails honestly; missing provider reports unavailable', async () => {
   const root = makeWorkspace()
+
   makeConsumerApp(root, 'apps/a', { name: 'a' })
   makeConsumerApp(root, 'apps/b', { name: 'b' })
+
   const { client } = await connect(root)
 
   const ambiguous = await client.callTool({
@@ -169,7 +185,9 @@ test('ambiguous selection fails honestly; missing provider reports unavailable',
   const { server } = createXplatMcpServer(bare)
   const [ct, st] = InMemoryTransport.createLinkedPair()
   const client2 = new Client({ name: 'test-client-2', version: '0.0.0' })
+
   await Promise.all([server.connect(st), client2.connect(ct)])
+
   const missing = await client2.callTool({
     name: 'xplat_code_search',
     arguments: { query: 'anything' },

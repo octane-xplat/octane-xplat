@@ -6,6 +6,7 @@ export function runDateChangeAction(
   onSettled: () => void,
 ): void {
   let result: void | Promise<void>
+
   try {
     result = action()
   } catch {

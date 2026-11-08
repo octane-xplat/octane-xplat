@@ -4,16 +4,19 @@ export function imageCacheFixture(disk = new Map<string, any>()) {
     tasks: any[] = [],
     configurations: any[] = [],
     stores: any[] = []
+
   let failStart = false,
     failResume = false,
     writable = true,
     readable = true,
     directory = true
+
   const cache = {
     cachedResponseForRequest(request: any) {
       if (!readable) {
         throw Error('cache unavailable')
       }
+
       return disk.get(request.URL)
     },
     storeCachedResponseForRequest(entry: any, request: any) {
@@ -26,19 +29,23 @@ export function imageCacheFixture(disk = new Map<string, any>()) {
       if (!writable) {
         throw Error('cache unavailable')
       }
+
       disk.delete(request.URL)
     },
     removeAllCachedResponses() {
       if (!writable) {
         throw Error('cache unavailable')
       }
+
       disk.clear()
     },
   }
+
   const url = (path: string): any => ({
     path,
     URLByAppendingPathComponentIsDirectory: (child: string) => url(path + '/' + child),
   })
+
   const native: any = {
     NSBundle: { mainBundle: { bundleIdentifier: 'test.image-cache' } },
     NSFileManager: {
@@ -93,6 +100,7 @@ export function imageCacheFixture(disk = new Map<string, any>()) {
             if (failStart) {
               throw Error('setup failed')
             }
+
             const task = {
               request,
               handler,
@@ -106,6 +114,7 @@ export function imageCacheFixture(disk = new Map<string, any>()) {
                 this.cancelled++
               },
             }
+
             tasks.push(task)
             return task
           },
@@ -113,6 +122,7 @@ export function imageCacheFixture(disk = new Map<string, any>()) {
       },
     },
   }
+
   return {
     native,
     disk,

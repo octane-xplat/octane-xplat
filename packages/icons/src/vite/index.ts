@@ -68,6 +68,7 @@ export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
       }
 
       const match = iconSpecifierParts(source)
+
       if (!match) {
         return this.error(
           `Invalid icon specifier "${source}" — expected icons:<prefix>/<name> (kebab-case).`,
@@ -79,7 +80,9 @@ export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
         importer && !importer.startsWith('\0')
           ? importer.split(/[?#]/, 1)[0]
           : join(root, 'package.json')
+
       const jsonPath = resolveCollectionJson(prefix, anchor)
+
       if (!jsonPath) {
         return this.error(
           `Cannot resolve @iconify-json/${prefix} for "${source}" — install the collection package.`,
@@ -89,17 +92,21 @@ export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
       // The resolved JSON path keys the virtual id so two installs of the
       // same prefix (nested monorepo deps) cannot collide.
       const id = `${virtual}${jsonPath}:${name}`
+
       resolved.set(id, { prefix, name, jsonPath })
       return id
     },
     load(id) {
       const entry = resolved.get(id)
+
       if (!entry) {
         return null
       }
 
       this.addWatchFile(entry.jsonPath)
+
       const icon = readIconData(entry.jsonPath, entry.name)
+
       if (!icon) {
         return this.error(
           `Icon "${entry.name}" not found in @iconify-json/${entry.prefix} — check the name against its icons.json.`,

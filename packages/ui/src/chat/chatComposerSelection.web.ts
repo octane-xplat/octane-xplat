@@ -7,11 +7,13 @@
 
 export function getSelectionRangeInside(editable: HTMLElement): Range | null {
   const selection = window.getSelection()
+
   if (!selection || selection.rangeCount === 0) {
     return null
   }
 
   const range = selection.getRangeAt(0)
+
   if (!editable.contains(range.startContainer) || !editable.contains(range.endContainer)) {
     return null
   }
@@ -21,6 +23,7 @@ export function getSelectionRangeInside(editable: HTMLElement): Range | null {
 
 export function restoreSelectionRange(range: Range): void {
   const selection = window.getSelection()
+
   if (!selection) {
     return
   }
@@ -31,11 +34,13 @@ export function restoreSelectionRange(range: Range): void {
 
 export function placeCaretAtEnd(editable: HTMLElement): boolean {
   const selection = window.getSelection()
+
   if (!selection) {
     return false
   }
 
   const range = document.createRange()
+
   range.selectNodeContents(editable)
   range.collapse(false)
   selection.removeAllRanges()
@@ -45,18 +50,21 @@ export function placeCaretAtEnd(editable: HTMLElement): boolean {
 
 export function ensureCaretInside(editable: HTMLElement): Selection | null {
   const selection = window.getSelection()
+
   if (!selection) {
     return null
   }
 
   if (selection.rangeCount > 0) {
     const existing = selection.getRangeAt(0)
+
     if (editable.contains(existing.startContainer)) {
       return selection
     }
   }
 
   const range = document.createRange()
+
   range.selectNodeContents(editable)
   range.collapse(false)
   selection.removeAllRanges()
@@ -66,21 +74,25 @@ export function ensureCaretInside(editable: HTMLElement): Selection | null {
 
 export function isSelectionAtStart(editable: HTMLElement): boolean {
   const selection = window.getSelection()
+
   if (!selection || selection.rangeCount === 0) {
     return false
   }
 
   const range = selection.getRangeAt(0)
+
   return isBoundaryAtEdge(editable, range.startContainer, range.startOffset, 'start')
 }
 
 export function isSelectionAtEnd(editable: HTMLElement): boolean {
   const selection = window.getSelection()
+
   if (!selection || selection.rangeCount === 0) {
     return false
   }
 
   const range = selection.getRangeAt(0)
+
   return isBoundaryAtEdge(editable, range.endContainer, range.endOffset, 'end')
 }
 
@@ -132,13 +144,17 @@ function hasContentSibling(node: Node, edge: 'start' | 'end'): boolean {
 
 export function insertTextAtCursor(editable: HTMLElement, text: string): boolean {
   const selection = ensureCaretInside(editable)
+
   if (!selection || selection.rangeCount === 0) {
     return false
   }
 
   const range = selection.getRangeAt(0)
+
   range.deleteContents()
+
   const textNode = document.createTextNode(text)
+
   range.insertNode(textNode)
   range.setStartAfter(textNode)
   range.collapse(true)

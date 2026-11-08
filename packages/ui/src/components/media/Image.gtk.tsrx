@@ -12,6 +12,7 @@ import type { ImageProps } from '../../props'
  *  contract — a placeholder that must fetch first is pointless. */
 function gtkPlaceholder(placeholder: string): string | undefined {
   const png = hashToPngBase64(placeholder)
+
   if (png) {
     return `data:image/png;base64,${png}`
   }

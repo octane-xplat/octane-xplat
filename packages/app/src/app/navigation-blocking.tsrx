@@ -11,6 +11,7 @@ export function NavigationBlocking(): Renderable {
   const [dirty, setDirty] = useState(false)
   const navigation = useRouter()
   const blocker = useNavigationBlocker({ when: dirty })
+
   return (
     <Screen id="navigation-blocking" className="vx-app detail gap-3">
       <Text className="text-2xl font-semibold">Unsaved navigation</Text>

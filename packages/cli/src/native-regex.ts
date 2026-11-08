@@ -21,6 +21,7 @@ const expansionCache = new Map<string, { inner: string; negated: boolean }>()
 function expandEscape(letter: string, body: string) {
   const key = `${letter}{${body}}`
   let entry = expansionCache.get(key)
+
   if (entry === undefined) {
     const res = transformSync(`/${'\\' + key}/u`, {
       filename: 'xplat-escape.js',
@@ -37,9 +38,11 @@ function expandEscape(letter: string, body: string) {
 
     const src = res.code.trim().replace(/;+$/, '')
     const negated = src.startsWith('/[^')
+
     entry = { inner: src.slice(negated ? 3 : 2, src.lastIndexOf(']')), negated }
     expansionCache.set(key, entry)
   }
+
   return entry
 }
 
@@ -49,8 +52,10 @@ const TEMPLATE_PROPERTY_ESCAPE = /\\([pP])\{([^}]+)\}/g
  *  (`u`-mode classes don't nest; `\` escapes the next character). */
 function inClass(source: string, offset: number) {
   let open = false
+
   for (let i = 0; i < offset; i++) {
     const ch = source[i]
+
     if (ch === '\\') {
       i++
     } else if (ch === '[') {
@@ -59,6 +64,7 @@ function inClass(source: string, offset: number) {
       open = false
     }
   }
+
   return open
 }
 
@@ -72,27 +78,35 @@ function expandTemplateEscapes(pattern: types.TemplateLiteral) {
     if (cooked == null || !HAS_PROPERTY_ESCAPE.test(cooked)) {
       return null
     }
+
     for (const m of cooked.matchAll(TEMPLATE_PROPERTY_ESCAPE)) {
       if (m[1] === 'P' && inClass(cooked, m.index)) {
         return undefined
       }
     }
+
     return cooked.replace(TEMPLATE_PROPERTY_ESCAPE, (_m, letter, body, offset) => {
       const exp = expandEscape(letter, body)
+
       if (inClass(cooked, offset)) {
         return exp.inner
       }
+
       return exp.negated ? `[^${exp.inner}]` : `[${exp.inner}]`
     })
   })
+
   if (next.includes(undefined)) {
     return
   }
+
   next.forEach((cooked, i) => {
     if (cooked == null) {
       return
     }
+
     const raw = cooked.replace(/[\\`]|\$(?=\{)/g, '\\$&')
+
     pattern.quasis[i].value = { raw, cooked }
   })
 }
@@ -111,9 +125,11 @@ export function transformNativeRegex(code: string, filename = 'xplat-native.ts')
         visitor: {
           'NewExpression|CallExpression'(path) {
             const node = path.node
+
             if (!types.isNewExpression(node) && !types.isCallExpression(node)) {
               return
             }
+
             if (
               !types.isIdentifier(node.callee, { name: 'RegExp' }) ||
               path.scope.getBinding('RegExp') ||
@@ -123,13 +139,16 @@ export function transformNativeRegex(code: string, filename = 'xplat-native.ts')
             }
 
             const [pattern, flags] = node.arguments
+
             if (!types.isStringLiteral(flags) || !/[uv]/.test(flags.value)) {
               return
             }
+
             if (types.isStringLiteral(pattern) && HAS_PROPERTY_ESCAPE.test(pattern.value)) {
               path.replaceWith(types.regExpLiteral(pattern.value, flags.value))
               return
             }
+
             // Computed patterns (e.g. `new RegExp(\`…${x.source}…\`, 'ug')`)
             // can't become literals; expand the static \p{…} escapes inside
             // the template into explicit ranges instead.
@@ -163,6 +182,7 @@ export function nativeUnicodeRegex() {
       }
 
       const result = await transformNativeRegex(code, id.split('?')[0])
+
       return result ? { code: result.code, map: result.map } : null
     },
   }
@@ -177,6 +197,7 @@ function nativeUnicodeRegexOptimizeDeps() {
       }
 
       const result = await transformNativeRegex(code, id.split('?')[0])
+
       return result ? { code: result.code, map: result.map } : null
     },
   }

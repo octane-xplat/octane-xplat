@@ -13,14 +13,20 @@ import { hostBundle, macOSHostArch } from '../dist/macos/jsc-host/runtime.js'
 
 const repo = resolve(dirname(fileURLToPath(import.meta.url)), '../../..')
 const scratch = join(repo, 'research')
+
 await mkdir(scratch, { recursive: true })
+
 const app = await mkdtemp(join(scratch, 'macos-native-'))
 const fixtures = join(repo, 'packages/cli/test/fixtures/macos-native-leaves')
+
 await mkdir(join(app, 'node_modules'))
 for (const name of ['c', 'objc', 'swift', 'zig']) {
   const root = join(app, `leaf-${name}`)
+
   await cp(join(fixtures, name), root, { recursive: true })
+
   const manifest = JSON.parse(await readFile(join(root, 'package.json'), 'utf8'))
+
   await symlink(root, join(app, 'node_modules', manifest.name))
 }
 
@@ -40,12 +46,18 @@ await writeFile(
 )
 
 assert.equal(discoverMacOSNative(app).leaves.length, 4)
+
 const [first, concurrent] = await Promise.all([buildMacOSNative(app), buildMacOSNative(app)])
+
 assert.equal(first.key, concurrent.key)
 assert.equal((await buildMacOSNative(app)).cached, true)
+
 const bootstrap = join(app, 'bootstrap.js')
+
 await writeNativeBootstrap(first, bootstrap)
+
 const script = join(app, 'probe.cjs')
+
 await writeFile(
   script,
   `
@@ -76,13 +88,16 @@ const result = spawnSync(
 
 assert.equal(result.status, 0, `${result.stdout}\n${result.stderr}`)
 assert.match(result.stderr, /MACOS_NATIVE_LANGUAGES_OK/)
+
 const source = join(app, 'leaf-c/platforms/macos/src/XplatC.c')
+
 await writeFile(
   source,
   '#include "XplatC.h"\nint xplat_c_value(void) { return XPLAT_VALUE + 1; }\n',
 )
 
 const changed = await buildMacOSNative(app)
+
 assert.notEqual(changed.key, first.key)
 assert.equal(changed.cached, false)
 await writeFile(source, 'int xplat_c_value(void) { this is not valid C; }\n')

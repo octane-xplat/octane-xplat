@@ -213,6 +213,7 @@ function CheckboxListGrid() {
 // Per-route behavior fixtures: a controlled, observable control per component.
 function TextInputBehavior() {
   const [value, setValue] = useState('')
+
   return (
     <>
       <button data-parity-key="before">Before</button>
@@ -237,6 +238,7 @@ function TextInputBehavior() {
 function CheckboxBehavior() {
   const [checked, setChecked] = useState(false)
   const [mixed, setMixed] = useState<'indeterminate' | boolean>('indeterminate')
+
   return (
     <>
       <button data-parity-key="before">Before</button>
@@ -270,6 +272,7 @@ function CheckboxBehavior() {
 
 function SwitchBehavior() {
   const [on, setOn] = useState(false)
+
   return (
     <>
       <button data-parity-key="before">Before</button>
@@ -410,6 +413,7 @@ function StreamPump({ id }: { id: string }) {
   const [idx, setIdx] = useState(0)
   const [mounted, setMounted] = useState(true)
   const text = STREAM_FIXTURE_CHUNKS.slice(0, idx).join('')
+
   return (
     <span data-parity-key={id}>
       <button
@@ -446,6 +450,7 @@ function StreamPump({ id }: { id: string }) {
 
 function SourceSwap() {
   const [alt, setAlt] = useState(false)
+
   return (
     <span data-parity-key="source-swap">
       <button
@@ -464,6 +469,7 @@ function SourceSwap() {
 
 function SourceIdChange() {
   const [withApi, setWithApi] = useState(false)
+
   return (
     <span data-parity-key="source-id-change">
       <button
@@ -484,6 +490,7 @@ function SourceIdChange() {
 
 function MarkdownBehavior() {
   const doc = '[internal](/docs/page) and [external](https://example.com)'
+
   return (
     <>
       <span data-parity-key="links">
@@ -589,10 +596,12 @@ function MarkdownLayout() {
     { key: 'unbroken-tokens', width: 480 },
     { key: 'large-table', width: 480 },
   ]
+
   return (
     <>
       {cells.map((cell, i) => {
         const s = markdownScenarios.find((x) => x.key === cell.key)!
+
         return (
           <div
             key={`${cell.key}-${i}`}
@@ -626,6 +635,7 @@ const pages: Record<string, { title: string; el: React.ReactNode }> = {
 }
 
 const page = (pages[window.location.pathname] ?? pages['/button']).el
+
 document.title = pages[window.location.pathname]?.title ?? 'Button parity'
 
 createRoot(document.getElementById('root')!).render(page)

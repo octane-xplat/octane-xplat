@@ -163,6 +163,7 @@ export function FormWizardTemplate() @{
   // step's issue list. Keyed by step index so a step's validity is a lookup.
   const errorsByStep = useMemo<Array<Record<string, string>>>(() => {
     const workspace: Record<string, string> = {}
+
     if (!name.trim()) {
       workspace.name = 'Enter a name for the workspace.'
     }
@@ -177,11 +178,13 @@ export function FormWizardTemplate() @{
     }
 
     const team: Record<string, string> = {}
+
     if (invalidEmails.length > 0) {
       team.invites = `Not a valid email address: ${invalidEmails.join(', ')}`
     }
 
     const planStep: Record<string, string> = {}
+
     if (seatCount < 1) {
       planStep.seats = 'Add at least one seat.'
     } else if (seatCount > plan.seatLimit) {
@@ -189,6 +192,7 @@ export function FormWizardTemplate() @{
     }
 
     const review: Record<string, string> = {}
+
     if (!acceptedTerms) {
       review.terms = 'Accept the terms to create the workspace.'
     }
@@ -214,7 +218,9 @@ export function FormWizardTemplate() @{
 
   const goNext = () => {
     markAttempted(step)
+
     const [firstProblem] = Object.keys(errorsByStep[step])
+
     if (firstProblem) {
       return
     }

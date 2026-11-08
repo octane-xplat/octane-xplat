@@ -37,6 +37,7 @@ export function LexicalEditorDemo() @{
 
   const press = (item: (typeof TOOLBAR)[number]) => {
     const e = editor.current
+
     if (!e) {
       return
     }
@@ -50,6 +51,7 @@ export function LexicalEditorDemo() @{
     } else if (item.call === 'json') {
       const doc = e.getJSON()
       const types = ((doc?.root as any)?.children ?? []).map((n: any) => n.type).join(',')
+
       setJsonTypes(types || 'null')
       console.log('[probe] lexical facade getJSON: ' + (types || 'null'))
     } else if (item.format) {

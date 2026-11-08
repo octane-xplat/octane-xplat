@@ -18,6 +18,7 @@ if (!existsSync(binary)) {
 }
 
 const result = spawnSync(binary, process.argv.slice(2), { stdio: 'inherit' })
+
 if (result.signal) {
   process.kill(process.pid, result.signal)
 } else {

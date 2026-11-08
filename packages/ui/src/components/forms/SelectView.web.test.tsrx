@@ -15,6 +15,7 @@ const options: SelectOption[] = [
 ]
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((cleanup) => cleanup())
   vi.unstubAllGlobals()
@@ -29,6 +30,7 @@ function fixture(overrides: Partial<SelectViewProps> = {}): SelectViewProps {
     overrides.groups ?? groupSelectOptions(filterSelectOptions(overrides.options ?? options, query))
 
   const shown = overrides.shown ?? groups.flatMap((group) => group.options)
+
   return {
     label: 'Choice',
     options,
@@ -59,23 +61,30 @@ function mount(props: SelectViewProps) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(<SelectView {...props} />))
+
   const unmount = () => {
     root.unmount()
     host.remove()
   }
 
   cleanups.push(unmount)
+
   const trigger = () => host.querySelector('.vx-select-trigger') as HTMLElement
   const click = (target: Element) => act(() => (target as HTMLElement).click())
+
   return { host, props, trigger, click, unmount }
 }
 
 describe('SelectView resolved-state fixtures', () => {
   it('renders a closed placeholder trigger without a listbox', () => {
     const ui = mount(fixture({ triggerText: 'Pick a fruit' }))
+
     expect(ui.trigger().getAttribute('aria-expanded')).toBe('false')
     expect(ui.trigger().textContent).toContain('Pick a fruit')
     expect(ui.host.querySelector('.vx-select-placeholder')).not.toBeNull()
@@ -107,11 +116,14 @@ describe('SelectView resolved-state fixtures', () => {
   it('renders the open listbox with groups, selected marks, and the resolved highlight', () => {
     const ui = mount(fixture({ open: true, selected: ['apple'], activeValue: 'banana' }))
     const options = document.querySelectorAll('[role="option"]')
+
     expect(options).toHaveLength(4)
     expect(document.querySelectorAll('[role="group"]')).toHaveLength(2)
     expect(document.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe('Fruit')
     expect(document.querySelector('.vx-select-option--on')?.textContent).toContain('Apple')
+
     const highlighted = document.querySelector('.vx-select-option--highlighted')!
+
     expect(highlighted.textContent).toContain('Banana')
     expect(highlighted.getAttribute('aria-selected')).toBe('false')
     expect(ui.trigger().getAttribute('aria-activedescendant')).toBe(highlighted.id)
@@ -119,7 +131,9 @@ describe('SelectView resolved-state fixtures', () => {
 
   it('renders filtered query state with group reduction', () => {
     mount(fixture({ open: true, searchable: true, query: 'ber', emptyText: 'No results found' }))
+
     const search = document.querySelector('.vx-select-search') as HTMLInputElement
+
     expect(search.value).toBe('ber')
     expect(document.querySelectorAll('[role="option"]')).toHaveLength(1)
     expect(document.querySelector('[role="group"]')?.getAttribute('aria-label')).toBe('Cities')
@@ -163,11 +177,13 @@ describe('SelectView resolved-state fixtures', () => {
 
   it('renders disabled and read-only controls without editing affordances', () => {
     const disabled = mount(fixture({ isDisabled: true }))
+
     expect(disabled.trigger().getAttribute('aria-disabled')).toBe('true')
     expect(disabled.trigger().className).toContain('vx-select--disabled')
     disabled.unmount()
 
     const readonly = mount(fixture({ isReadOnly: true, selected: ['apple'], triggerText: 'Apple' }))
+
     expect(readonly.trigger().getAttribute('aria-readonly')).toBe('true')
     expect(readonly.trigger().getAttribute('role')).toBe('combobox')
     expect(readonly.host.querySelector('.vx-select-caret')).toBeNull()
@@ -203,6 +219,7 @@ describe('SelectView resolved-state fixtures', () => {
 
   it('renders field status and size treatments', () => {
     const ui = mount(fixture({ status: { type: 'error', message: 'Required' }, size: 'sm' }))
+
     expect(ui.trigger().getAttribute('aria-invalid')).toBe('true')
     expect(ui.trigger().className).toContain('vx-select--status-error')
     expect(ui.trigger().className).toContain('vx-select--size-sm')
@@ -212,11 +229,13 @@ describe('SelectView resolved-state fixtures', () => {
 describe('SelectView intent wiring', () => {
   it('reports open, pick, and query intents without deciding them', () => {
     const closed = mount(fixture())
+
     closed.click(closed.trigger())
     expect(closed.props.onOpenChange).toHaveBeenCalledWith(true)
     closed.unmount()
 
     const picking = mount(fixture({ open: true }))
+
     picking.click(document.querySelectorAll('[role="option"]')[2])
     expect(picking.props.onPick).toHaveBeenCalledWith(options[2])
     expect(document.querySelector('[role="listbox"]')).not.toBeNull()
@@ -224,6 +243,7 @@ describe('SelectView intent wiring', () => {
 
     const searching = mount(fixture({ open: true, searchable: true }))
     const search = document.querySelector('.vx-select-search') as HTMLInputElement
+
     act(() => {
       search.value = 'ap'
       search.dispatchEvent(new Event('input', { bubbles: true }))
@@ -234,10 +254,12 @@ describe('SelectView intent wiring', () => {
 
   it('reports clear and select-all intents', () => {
     const clearing = mount(fixture({ selected: ['apple'], hasClear: true, multiple: true }))
+
     clearing.click(clearing.host.querySelector('.vx-select-clear')!)
     expect(clearing.props.onClear).toHaveBeenCalledTimes(1)
 
     const all = mount(fixture({ open: true, multiple: true, hasSelectAll: true }))
+
     all.click(document.querySelector('.vx-select-all')!)
     expect(all.props.onSelectAll).toHaveBeenCalledTimes(1)
   })

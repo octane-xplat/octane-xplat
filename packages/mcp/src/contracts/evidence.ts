@@ -37,6 +37,7 @@ const safeName = (name) =>
 export function createEvidenceStore({ root }) {
   const sessionDir = join(root, SESSION_DIR)
   const retainedDir = join(root, RETAINED_DIR)
+
   mkdirSync(sessionDir, { recursive: true })
   mkdirSync(retainedDir, { recursive: true })
 
@@ -49,6 +50,7 @@ export function createEvidenceStore({ root }) {
     }
 
     const abs = resolve(record.artifactPath)
+
     if (abs.startsWith(resolve(root) + sep) && existsSync(abs)) {
       rmSync(abs, { force: true })
     }
@@ -57,8 +59,10 @@ export function createEvidenceStore({ root }) {
   const toRecord = (input) => {
     const id = `ev_${randomUUID()}`
     let artifactPath
+
     if (input.artifact !== undefined) {
       const name = `${id}-${safeName(input.artifactName ?? input.kind)}`
+
       artifactPath = join(sessionDir, name)
       writeFileSync(artifactPath, input.artifact)
     }
@@ -83,6 +87,7 @@ export function createEvidenceStore({ root }) {
 
     record(input) {
       const record = toRecord(input)
+
       records.set(record.id, record)
       return { ...record }
     },
@@ -99,6 +104,7 @@ export function createEvidenceStore({ root }) {
 
     retain(id, options = {}) {
       const record = records.get(id)
+
       if (!record) {
         return {
           error: contractError('not_found', `No evidence record "${id}".`, {
@@ -122,6 +128,7 @@ export function createEvidenceStore({ root }) {
 
       if (record.artifactPath) {
         const dest = join(retainedDir, basename(record.artifactPath))
+
         if (existsSync(record.artifactPath)) {
           renameSync(record.artifactPath, dest)
         }
@@ -138,6 +145,7 @@ export function createEvidenceStore({ root }) {
 
     delete(id) {
       const record = records.get(id)
+
       if (!record) {
         return {
           error: contractError('not_found', `No evidence record "${id}".`),
@@ -151,6 +159,7 @@ export function createEvidenceStore({ root }) {
 
     sweepExpired(now = new Date()) {
       let deleted = 0
+
       for (const record of records.values()) {
         if (
           record.retention.scope === 'retained' &&
@@ -168,6 +177,7 @@ export function createEvidenceStore({ root }) {
 
     closeSession() {
       let deleted = 0
+
       for (const record of records.values()) {
         if (record.retention.scope === 'session') {
           removeArtifact(record)

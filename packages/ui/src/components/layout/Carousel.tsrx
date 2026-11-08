@@ -32,11 +32,13 @@ export function Carousel(props: CarouselProps): unknown @{
 
   const offsets = useCallback((): number[] => {
     const t = track.current
+
     if (!t?.eachChildView) {
       return []
     }
 
     const out: number[] = []
+
     t.eachChildView((c: any) => {
       out.push(c.getLocationRelativeTo?.(t)?.x ?? 0)
       return true
@@ -47,6 +49,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   const measure = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -55,6 +58,7 @@ export function Carousel(props: CarouselProps): unknown @{
     const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0))
     const prev = x > EPS
     const next = x < max - EPS
+
     setAtStart(!prev)
     setAtEnd(!next)
     setCanPrev(loop ? count > 1 : prev)
@@ -65,11 +69,13 @@ export function Carousel(props: CarouselProps): unknown @{
     (i: number) => {
       const el = scroller.current
       const o = offsets()
+
       if (!el || !o.length) {
         return
       }
 
       const clamped = Math.min(Math.max(i, 0), count - 1)
+
       el.scrollTo?.({ left: o[clamped] ?? 0, behavior: 'smooth' })
     },
     [count, offsets],
@@ -77,6 +83,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   const scrollNext = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -84,6 +91,7 @@ export function Carousel(props: CarouselProps): unknown @{
     const x = Number(el.scrollLeft) || 0
     const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0))
     const page = el.getActualSize?.().width || 0
+
     if (x >= max - EPS && loop) {
       el.scrollTo?.({ left: 0, behavior: 'smooth' })
       return
@@ -94,6 +102,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   const scrollPrev = useCallback(() => {
     const el = scroller.current
+
     if (!el) {
       return
     }
@@ -101,6 +110,7 @@ export function Carousel(props: CarouselProps): unknown @{
     const x = Number(el.scrollLeft) || 0
     const max = Math.max(0, (Number(el.scrollWidth) || 0) - (Number(el.clientWidth) || 0))
     const page = el.getActualSize?.().width || 0
+
     if (x <= EPS && loop) {
       el.scrollTo?.({ left: max, behavior: 'smooth' })
       return
@@ -115,6 +125,7 @@ export function Carousel(props: CarouselProps): unknown @{
     scrollTo: scrollToIndex,
     canScrollNext: () => {
       const el = scroller.current
+
       if (!el) {
         return false
       }
@@ -130,6 +141,7 @@ export function Carousel(props: CarouselProps): unknown @{
     },
     canScrollPrev: () => {
       const el = scroller.current
+
       if (!el) {
         return false
       }
@@ -146,6 +158,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   useEffect(() => {
     const el = scroller.current
+
     if (!el?.on) {
       return
     }
@@ -160,12 +173,14 @@ export function Carousel(props: CarouselProps): unknown @{
         snapTimer.current = setTimeout(() => {
           const o = offsets()
           const elNow = scroller.current
+
           if (!o.length || !elNow) {
             return
           }
 
           const x = Number(elNow.scrollLeft) || 0
           let nearest = o[0]
+
           for (const off of o) {
             if (Math.abs(off - x) < Math.abs(nearest - x)) {
               nearest = off

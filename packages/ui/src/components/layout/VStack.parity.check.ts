@@ -14,6 +14,7 @@ export const CHECKS: ParityCheck[] = [
       const root = m('root')
       const first = m('first')
       const second = m('second')
+
       return [
         dims(root, 96, 48),
         dims(first, 16, 8),

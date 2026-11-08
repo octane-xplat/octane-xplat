@@ -6,6 +6,7 @@ function host(): { credentials: any; resource: string } | null {
   try {
     const credentials = Windows?.Security?.Credentials
     const family = Windows?.ApplicationModel?.Package?.Current?.Id?.FamilyName
+
     if (
       typeof family !== 'string' ||
       !family ||
@@ -24,9 +25,11 @@ function host(): { credentials: any; resource: string } | null {
 
 function requireHost() {
   const value = host()
+
   if (!value) {
     throw new UnavailabilityError('secureStorage')
   }
+
   return value
 }
 
@@ -34,6 +37,7 @@ function userName(key: string): string {
   if (typeof key !== 'string') {
     throw new TypeError('Expected a string key')
   }
+
   // WinRT disallows empty user names; JSON also escapes control characters.
   return `key:${JSON.stringify(key)}`
 }
@@ -50,9 +54,11 @@ export const secureStorage: Service<SecureStore> = {
   },
   async isAvailable() {
     const value = host()
+
     if (!value) {
       return false
     }
+
     try {
       new value.credentials.PasswordVault()
       return true
@@ -62,10 +68,14 @@ export const secureStorage: Service<SecureStore> = {
   },
   async get(key) {
     const { credentials, resource } = requireHost()
+
     try {
       const credential = new credentials.PasswordVault().Retrieve(resource, userName(key))
+
       credential.RetrievePassword()
+
       const value = JSON.parse(credential.Password)
+
       if (typeof value === 'string') {
         return value
       }
@@ -74,11 +84,13 @@ export const secureStorage: Service<SecureStore> = {
         return null
       }
     }
+
     // Native errors may include keys or credentials. Do not forward them.
     throw new Error('Credential Locker read failed')
   },
   async set(key, value) {
     const { credentials, resource } = requireHost()
+
     try {
       if (typeof value !== 'string') {
         return false
@@ -96,8 +108,10 @@ export const secureStorage: Service<SecureStore> = {
   },
   async remove(key) {
     const { credentials, resource } = requireHost()
+
     try {
       const vault = new credentials.PasswordVault()
+
       vault.Remove(vault.Retrieve(resource, userName(key)))
       return true
     } catch (error) {

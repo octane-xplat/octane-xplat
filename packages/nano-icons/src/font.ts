@@ -39,6 +39,7 @@ function iosRegisterFontFile(filePath: string): boolean {
     const data = NSData.dataWithContentsOfFile(filePath)
     const provider = CGDataProviderCreateWithCFData(data)
     const font = CGFontCreateWithDataProvider(provider)
+
     if (!font) {
       return false
     }
@@ -54,6 +55,7 @@ function iosRegisterData(family: string, data: Uint8Array): boolean {
   // avoids manual pointer marshaling into NSData.
   try {
     const filePath = path.join(knownFolders.temp().path, `${family}.ttf`)
+
     File.fromPath(filePath).writeSync(data)
     return iosRegisterFontFile(filePath)
   } catch {
@@ -65,6 +67,7 @@ function iosRegisterFile(fileName: string): boolean {
   const fontsPath = path.join(knownFolders.currentApp().path, 'fonts', fileName)
   const appPath = path.join(knownFolders.currentApp().path, fileName)
   const filePath = File.exists(fontsPath) ? fontsPath : File.exists(appPath) ? appPath : null
+
   if (!filePath) {
     return false
   }
@@ -86,6 +89,7 @@ export function registerNanoIconFont(
 ): Promise<NanoFontStatus> {
   const usable = !!(source?.fileName || source?.data)
   const pending = registrations.get(family)
+
   // Cache only attempts that carried a usable source for this platform — a
   // caller that couldn't provide one may retry when they can.
   if (pending && (pending.usable || !usable)) {
@@ -103,6 +107,7 @@ export function registerNanoIconFont(
       }
 
       const fileName = source?.fileName ?? `${family}.ttf`
+
       if (iosRegisterFile(fileName) && iosFontAvailable(family)) {
         return 'ready'
       }

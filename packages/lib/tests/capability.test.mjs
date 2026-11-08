@@ -4,6 +4,7 @@ import { assertAvailable, UnavailabilityError } from '../src/capability.ts'
 
 test('UnavailabilityError carries the feature name', () => {
   const error = new UnavailabilityError('secureStorage')
+
   assert.equal(error.name, 'UnavailabilityError')
   assert.equal(error.feature, 'secureStorage')
   assert.match(error.message, /secureStorage/)

@@ -11,6 +11,7 @@ export function UseStreamingTextHookUsage() @{
   const [streaming, setStreaming] = useState(false)
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const displayed = useStreamingText(text, streaming, { speed: 'fast' })
+
   useEffect(() => () => clearTimeout(timer.current), [])
   useEffect(() => {
     if (streaming && displayed === response) {

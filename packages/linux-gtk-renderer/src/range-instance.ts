@@ -14,21 +14,26 @@ export function bindRangeInstance(
   let disposed = false
   let keys: any = null,
     pointer: any = null
+
   const connections: Array<[any, number]> = []
   const connect = (object: any, name: string, listener: (...args: any[]) => unknown) =>
     connections.push([object, object.connect(name, listener)])
+
   const role = () => view.get_accessible_role() === Gtk.AccessibleRole.SLIDER
   const shortcuts =
     Gdk.ModifierType.CONTROL_MASK |
     Gdk.ModifierType.ALT_MASK |
     Gdk.ModifierType.SUPER_MASK |
     Gdk.ModifierType.META_MASK
+
   const double = (value: number) => {
     const boxed = new GObject.Value()
+
     boxed.init(GObject.TYPE_DOUBLE)
     boxed.set_double(value)
     return boxed
   }
+
   view.setAccessibilityRange = (range: {
     min: number
     max: number
@@ -38,9 +43,11 @@ export function bindRangeInstance(
     if (disposed) {
       return
     }
+
     if (![range.min, range.max, range.value].every(Number.isFinite) || range.max < range.min) {
       throw new TypeError('linux-gtk accessibility range requires finite ordered bounds')
     }
+
     view.update_property(
       [
         Gtk.AccessibleProperty.VALUE_MIN,
@@ -56,11 +63,13 @@ export function bindRangeInstance(
       ],
     )
   }
+
   return {
     refresh() {
       if (disposed || keys) {
         return
       }
+
       keys = new Gtk.EventControllerKey()
       connect(keys, 'key-pressed', (_: unknown, key: number, _code: number, modifiers: number) => {
         if (
@@ -73,8 +82,10 @@ export function bindRangeInstance(
         ) {
           return false
         }
+
         let direction: 'accessibilityIncrement' | 'accessibilityDecrement',
           action: string | undefined
+
         switch (key) {
           case Gdk.KEY_Right:
           case Gdk.KEY_Up:
@@ -95,12 +106,15 @@ export function bindRangeInstance(
           default:
             return false
         }
+
         if (!hasListener(direction)) {
           return false
         }
+
         emit(direction, { action })
         return true
       })
+
       view.add_controller(keys)
       pointer = new Gtk.GestureClick()
       pointer.set_button(1)
@@ -115,19 +129,23 @@ export function bindRangeInstance(
           view.grab_focus()
         }
       })
+
       view.add_controller(pointer)
     },
     dispose() {
       if (disposed) {
         return
       }
+
       disposed = true
       for (const [object, id] of connections) {
         object.disconnect(id)
       }
+
       if (keys) {
         view.remove_controller(keys)
       }
+
       if (pointer) {
         view.remove_controller(pointer)
       }

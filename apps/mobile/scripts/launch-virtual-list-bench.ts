@@ -4,6 +4,7 @@ import { readdirSync } from 'node:fs'
 import path from 'node:path'
 
 const [target, device] = process.argv.slice(2)
+
 if (!['ios', 'android'].includes(target) || !device) {
   throw new Error('Usage: launch-virtual-list-bench.mjs <ios|android> <device>')
 }
@@ -13,6 +14,7 @@ const env = { ...process.env, XPLAT_VLIST_APP_ID: appId }
 const run = (command, args) =>
   new Promise((resolve, reject) => {
     const child = spawn(command, args, { env, stdio: 'inherit' })
+
     child.once('error', reject)
     child.once('exit', (code) =>
       code === 0 ? resolve() : reject(new Error(`${command} exited ${code}`)),
@@ -21,7 +23,9 @@ const run = (command, args) =>
 
 if (target === 'android') {
   execFileSync('adb', ['-s', device, 'get-state'], { encoding: 'utf8' })
+
   let pid = ''
+
   try {
     pid = execFileSync('adb', ['-s', device, 'shell', 'pidof', appId], { encoding: 'utf8' }).trim()
   } catch (error) {
@@ -38,6 +42,7 @@ if (target === 'android') {
     // NativeScript preserves extracted bundle files on adb install -r.
     // Explicitly opting in removes this benchmark app's data under the target lock.
     let installed = false
+
     try {
       installed = Boolean(
         execFileSync('adb', ['-s', device, 'shell', 'pm', 'path', appId], {
@@ -52,6 +57,7 @@ if (target === 'android') {
 
     if (installed) {
       const result = execFileSync('adb', ['-s', device, 'uninstall', appId], { encoding: 'utf8' })
+
       if (!result.includes('Success')) {
         throw new Error('Could not remove benchmark app for a fresh install')
       }
@@ -77,6 +83,7 @@ if (target === 'android') {
   }
 
   await run('xcrun', ['simctl', 'bootstatus', device, '-b'])
+
   const jobs = execFileSync('xcrun', ['simctl', 'spawn', device, 'launchctl', 'list'], {
     encoding: 'utf8',
   })
@@ -87,8 +94,10 @@ if (target === 'android') {
 
   // Build without rebooting the shared simulator; only install this benchmark ID.
   await run('bun', ['run', 'ns', 'build', 'ios', '--emulator'])
+
   const buildDir = path.resolve('platforms/ios/build/Debug-iphonesimulator')
   const apps = readdirSync(buildDir).filter((name) => name.endsWith('.app'))
+
   if (apps.length !== 1) {
     throw new Error(`Expected one simulator app in ${buildDir}: ${apps}`)
   }

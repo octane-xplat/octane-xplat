@@ -253,6 +253,7 @@ export function TableFilterTemplate() @{
     onToggleGroup: (key) =>
       setCollapsedGroups((previous) => {
         const next = new Set(previous)
+
         if (next.has(key)) {
           next.delete(key)
         } else {

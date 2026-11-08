@@ -62,6 +62,7 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
   config: UseTableRowExpansionConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   // Final rendered column count, captured in transformColumns (pipeline step
@@ -78,11 +79,13 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
     renderCell: (item: T) => {
       const cfg = configRef.current
       const expandable = cfg.getIsItemExpandable ? cfg.getIsItemExpandable(item) : true
+
       if (!expandable) {
         return null
       }
 
       const key = cfg.getRowKey(item)
+
       return (
         <ExpansionChevron
           isExpanded={cfg.expandedKeys.has(key)}
@@ -95,6 +98,7 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
   return {
     transformColumns(columns: TableColumn<T>[]) {
       const withExpansion = [expansionColumn, ...columns]
+
       columnCountRef.current = withExpansion.length
       return withExpansion
     },
@@ -106,17 +110,20 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
     ): BodyCellRenderProps {
       const cfg = configRef.current
       const expandable = cfg.getIsItemExpandable ? cfg.getIsItemExpandable(item) : true
+
       if (!expandable) {
         return props
       }
 
       const key = cfg.getRowKey(item)
       const prior = props.contextMenuActions
+
       return {
         ...props,
         // Lazy getter: the label reflects expansion state at menu-open time.
         contextMenuActions: () => {
           const isExpanded = configRef.current.expandedKeys.has(key)
+
           return [
             ...resolveActions(prior),
             {
@@ -136,11 +143,13 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
     transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
       const cfg = configRef.current
       const expandable = cfg.getIsItemExpandable ? cfg.getIsItemExpandable(item) : true
+
       if (!expandable) {
         return props
       }
 
       const key = cfg.getRowKey(item)
+
       if (!cfg.expandedKeys.has(key)) {
         return props
       }

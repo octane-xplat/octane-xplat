@@ -112,6 +112,7 @@ export function SandboxNav() @{
           .filter((c) => c.slug !== 'templates')
           .map((category) => {
             const href = '/' + category.slug + '/'
+
             return (
               <SideNavItem
                 key={category.slug}

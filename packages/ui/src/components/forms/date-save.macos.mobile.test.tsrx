@@ -9,6 +9,7 @@ import {
 
 import { DateInput } from './DateInput.macos.tsrx'
 import { DateRangeInput } from './DateRangeInput.macos.tsrx'
+
 const captured = vi.hoisted(() => ({
   calendar: new Map<string, any>(),
   popup: new Map<string, any>(),
@@ -51,6 +52,7 @@ function mount(mode: string, Control: any, extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -63,6 +65,7 @@ function mount(mode: string, Control: any, extra: any = {}) {
   }
 
   render(base)
+
   const toggle = one(mode === 'single' ? 'toggle' : 'trigger').props.onTap
   const popup = () => captured.popup.get(`${prefix}-popover`)
   const open = () => {
@@ -94,8 +97,10 @@ it.each(cases)(
       )
 
     const env = mount(mode, Control, { onChange: change, changeAction: save })
+
     try {
       const pick = env.open()
+
       repeat = () => {
         env.render({ ...env.base, label: 'Reentered' })
         pick(selected(mode))
@@ -132,6 +137,7 @@ it.each(cases)(
 
     try {
       const pick = env.open()
+
       env.render({ ...env.base, max: '2026-03-04' })
       pick(selected(mode))
       env.flush()
@@ -170,8 +176,11 @@ it.each(cases)(
 
     try {
       const pick = env.open()
+
       expect(() => pick(selected(mode))).toThrow('forward')
+
       const changed = vi.fn()
+
       env.render({
         ...env.base,
         onChange: changed,
@@ -232,13 +241,17 @@ it('range preset activation resolves the current keyed preset once and rejects r
 
   try {
     env.open()
+
     const activate = env.all().find((node) => node.props?.id === 'when-preset-0').props.onTap
+
     env.render({ ...env.base, presets: [] })
     initial.mockClear()
     activate()
     expect(initial).not.toHaveBeenCalled()
     expect(changed).not.toHaveBeenCalled()
+
     const replacement = vi.fn(() => ({ start: '2026-03-10', end: '2026-03-11' }))
+
     env.render({
       ...env.base,
       presets: [{ label: 'Trip', getRange: replacement }],

@@ -45,8 +45,10 @@ export function createPointerStyle(deps: Dependencies) {
     const name = node.styleCursor
     const hidesCursor = name === 'none'
     let cursor: any = null
+
     if (name != null && !hidesCursor) {
       const property = CSS_CURSORS[String(name)]
+
       if (property) {
         cursor = (NSCursor as any)[property]
       } else {
@@ -61,6 +63,7 @@ export function createPointerStyle(deps: Dependencies) {
         NSCursor.pop()
         record.pushed = false
       }
+
       if (record.cursorHidden) {
         NSCursor.unhide()
         record.cursorHidden = false
@@ -69,6 +72,7 @@ export function createPointerStyle(deps: Dependencies) {
 
     if (!cursor && !hidesCursor) {
       const record = deps.hover.hoverRecordByView.get(view)
+
       if (record) {
         release(record)
         record.cursor = null
@@ -82,6 +86,7 @@ export function createPointerStyle(deps: Dependencies) {
     }
 
     let record = deps.hover.hoverRecordByView.get(view)
+
     if (!record) {
       deps.hover.observeHover(view, {})
       record = deps.hover.hoverRecordByView.get(view)
@@ -108,6 +113,7 @@ export function createPointerStyle(deps: Dependencies) {
   // controls keep their own editing affordance.
   function syncUserSelect(node: ElementNode) {
     const value = node.styleUserSelect
+
     // `selectable` reads readonly on the generated NSTextField type; the
     // setter exists on every AppKit text control.
     if (value === 'none') {
@@ -119,6 +125,7 @@ export function createPointerStyle(deps: Dependencies) {
       ;(node.view as any).selectable = node.type === 'htmlview'
     }
   }
+
   return {
     syncCursor,
     syncUserSelect,

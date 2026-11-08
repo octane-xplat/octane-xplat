@@ -11,9 +11,12 @@ import {
 
 import { measureKeyboardHost } from '../../../ui/src/internal/keyboard/keyboard-host-bounds'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let show = (_open: boolean) => {}
+
 export default function OsInputJourney() @{
   const [open, setOpen] = useState(false)
+
   show = setOpen
 
   <Screen>
@@ -60,7 +63,9 @@ export async function run(ctx: ProbeContext) {
   identify(field, 'keyboard-os-form-ready')
   await ctx.waitFor(() => field.text === 'FormVerified', { timeout: 90000 })
   await ctx.waitFor(() => keys.at(-1)?.inset > 100 && focus.at(-1)?.inputRect)
+
   const frame = () => keys.at(-1).currentFrame ?? keys.at(-1).targetFrame
+
   await ctx.waitFor(
     () => focus.at(-1).inputRect.y + focus.at(-1).inputRect.height <= frame().y - 10,
   )
@@ -76,6 +81,7 @@ export async function run(ctx: ProbeContext) {
 
   await ctx.waitFor(() => {
     const box = measureKeyboardHost(sticky)
+
     return box && Math.abs(box.y + box.height - frame().y) < 3
   })
 
@@ -86,6 +92,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   show(true)
+
   const sheet: any = await ctx.waitFor(
     () => ctx.find('os-sheet-field')?.isLoaded && ctx.find('os-sheet-field'),
   )

@@ -13,9 +13,11 @@ const root = mkdtempSync(join(tmpdir(), 'tsrx-typegen-pack-fixture-'))
 
 function writePackage(files) {
   const rootPath = join(root, `case-${Math.random().toString(36).slice(2)}`)
+
   mkdirSync(rootPath, { recursive: true })
   for (const [path, contents] of Object.entries(files)) {
     const file = join(rootPath, path)
+
     mkdirSync(dirname(file), { recursive: true })
     writeFileSync(file, contents)
   }
@@ -114,9 +116,11 @@ try {
   }
 
   verifyPackedPackage(ts, writePackage(extensionlessSource))
+
   // hook.web.tsrx is a platform variant of hook.tsrx — a wildcard subpath for
   // it has no declaration of its own, so omitting the file is not an error.
   const { 'types/hook.web.d.ts': omitted, ...missingVariant } = extensionlessSource
+
   assert.ok(omitted)
   verifyPackedPackage(ts, writePackage(missingVariant))
 

@@ -1,5 +1,6 @@
 import { unsupportedClient } from './unsupported.ts'
 import type { UpdatesClient, UpdatesOptions } from './types'
+
 export type {
   UpdatesClient,
   UpdatesOptions,

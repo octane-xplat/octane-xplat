@@ -31,6 +31,7 @@ function context(): android.content.Context {
   if (!available()) {
     throw new UnavailabilityError('MediaLibrary on Android 10+ with its native plugin')
   }
+
   return Application.android.context
 }
 
@@ -66,6 +67,7 @@ function permissionResponse(writeOnly: boolean, granular = defaults): Permission
       accessPrivileges: 'all',
     }
   }
+
   const names = namesFor(granular)
   const all = names.every(granted)
   const limited =
@@ -73,6 +75,7 @@ function permissionResponse(writeOnly: boolean, granular = defaults): Permission
     granular.some((value) => value !== 'audio') &&
     granted(visualSelected) &&
     (!granular.includes('audio') || granted(granularNames.audio))
+
   const activity = Application.android.foregroundActivity ?? Application.android.startActivity
   const canAskAgain = names.some(
     (value) =>
@@ -80,6 +83,7 @@ function permissionResponse(writeOnly: boolean, granular = defaults): Permission
       (!preferences().getBoolean(value, false) ||
         Boolean(activity?.shouldShowRequestPermissionRationale(value))),
   )
+
   return {
     status:
       all || limited
@@ -96,11 +100,13 @@ function permissionResponse(writeOnly: boolean, granular = defaults): Permission
 
 function assertReadable(): void {
   context()
+
   const any =
     sdk() >= 33
       ? defaults.some((value) => granted(granularNames[value])) ||
         (sdk() >= 34 && granted(visualSelected))
       : granted('android.permission.READ_EXTERNAL_STORAGE')
+
   if (!any) {
     throw new Error('Media-library read permission is required')
   }
@@ -110,10 +116,12 @@ let requestCode = 22528
 let presentation = Promise.resolve()
 function serialized<T>(action: () => Promise<T>): Promise<T> {
   const operation = presentation.then(action, action)
+
   presentation = operation.then(
     () => {},
     () => {},
   )
+
   return operation
 }
 
@@ -127,7 +135,9 @@ async function permissions(
   if (!granular.length) {
     throw new RangeError('Request at least one granular permission')
   }
+
   const current = permissionResponse(writeOnly, granular)
+
   if (
     !request ||
     writeOnly ||
@@ -136,54 +146,71 @@ async function permissions(
   ) {
     return current
   }
+
   const key = [...granular].sort().join(',')
   const previous = prompts.get(key)
+
   if (previous) {
     return previous
   }
+
   const operation = serialized(async () => {
     const activity = Application.android.foregroundActivity
+
     if (!activity) {
       throw new Error('A foreground Android activity is required to request media permissions')
     }
+
     const names = namesFor(granular)
+
     if (sdk() >= 34 && granular.some((value) => value !== 'audio')) {
       names.push(visualSelected)
     }
+
     const info = context()
       .getPackageManager()
       .getPackageInfo(context().getPackageName(), android.content.pm.PackageManager.GET_PERMISSIONS)
+
     const declared = Array.from(info.requestedPermissions ?? [])
     const missing = names.filter((name) => !declared.includes(name))
+
     if (missing.length) {
       throw new Error(
         `Declare Android media permissions before requesting them: ${missing.join(', ')}`,
       )
     }
+
     return new Promise<PermissionResponse>((resolve, reject) => {
       const code = requestCode++
       const cleanup = () => {
         Application.android.off(Application.android.activityRequestPermissionsEvent, result)
         Application.android.off(Application.android.activityDestroyedEvent, destroyed)
       }
+
       const result = (args: { requestCode: number }) => {
         if (args.requestCode !== code) {
           return
         }
+
         cleanup()
+
         const editor = preferences().edit()
+
         for (const name of names) {
           editor.putBoolean(name, true)
         }
+
         editor.apply()
         resolve(permissionResponse(writeOnly, granular))
       }
+
       const destroyed = (args: { activity: android.app.Activity }) => {
         if (args.activity === activity) {
           cleanup()
           reject(new Error('Media permission request was interrupted'))
         }
       }
+
       Application.android.on(Application.android.activityRequestPermissionsEvent, result)
       Application.android.on(Application.android.activityDestroyedEvent, destroyed)
       try {
@@ -194,11 +221,13 @@ async function permissions(
       }
     })
   })
+
   prompts.set(key, operation)
   void operation.then(
     () => prompts.delete(key),
     () => prompts.delete(key),
   )
+
   return operation
 }
 
@@ -206,6 +235,7 @@ function mediaUri(id: string): android.net.Uri {
   if (!/^content:\/\/media\/[^/]+\/(?:images\/media|video\/media|audio\/media)\/\d+$/.test(id)) {
     throw new TypeError('Expected a MediaStore asset identifier')
   }
+
   return android.net.Uri.parse(id)
 }
 
@@ -237,28 +267,34 @@ const projections = [
 
 const nullableNumber = (cursor: android.database.Cursor, column: string): number | null => {
   const index = cursor.getColumnIndex(column)
+
   return index < 0 || cursor.isNull(index) ? null : Number(cursor.getLong(index))
 }
 
 const nullableString = (cursor: android.database.Cursor, column: string): string | null => {
   const index = cursor.getColumnIndex(column)
+
   return index < 0 || cursor.isNull(index) ? null : String(cursor.getString(index))
 }
 
 function metadata(cursor: android.database.Cursor): AssetMetadata {
   const kind = nullableNumber(cursor, 'media_type'),
     row = nullableString(cursor, '_id')
+
   if (row === null) {
     throw new Error('MediaStore returned no asset identifier')
   }
+
   const collection =
     kind === 1
       ? android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
       : kind === 2
         ? android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
         : android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+
   const duration = nullableNumber(cursor, 'duration'),
     creation = nullableNumber(cursor, 'datetaken')
+
   return {
     id: `${String(collection)}/${row}`,
     filename: nullableString(cursor, '_display_name'),
@@ -285,15 +321,19 @@ function cursorFor(
     args,
     order,
   )
+
   if (!cursor) {
     throw new Error('MediaStore did not return a query cursor')
   }
+
   return cursor
 }
 
 function rowFor(id: string): AssetMetadata {
   assertReadable()
+
   const cursor = cursorFor(mediaUri(id))
+
   try {
     if (!cursor.moveToFirst()) {
       throw new Error('Asset is missing or outside the granted library scope')
@@ -307,19 +347,23 @@ function rowFor(id: string): AssetMetadata {
 
 function query(spec: QuerySpec): AssetMetadata[] {
   assertReadable()
+
   const where = ['media_type IN (1,2,3)', 'is_pending = 0'],
     args: string[] = []
+
   if (spec.album) {
     album(spec.album)
     where.push('bucket_id = ?')
     args.push(spec.album)
   }
+
   for (const filter of spec.filters) {
     if (filter.field === 'isFavorite' && sdk() < 30) {
       throw new UnavailabilityError('MediaStore favorite filters on Android 10')
     }
 
     const values = Array.isArray(filter.value) ? filter.value : [filter.value]
+
     if (filter.operator === 'within' && !values.length) {
       return []
     }
@@ -348,20 +392,26 @@ function query(spec: QuerySpec): AssetMetadata[] {
       args.push(String(converted))
     }
   }
+
   if (spec.limit === 0) {
     return []
   }
+
   if (sdk() < 30 && spec.order.some((value) => value.key === 'isFavorite')) {
     throw new UnavailabilityError('MediaStore favorite sorting on Android 10')
   }
+
   const order = spec.order.length
     ? spec.order
         .map((value) => `${columns[value.key]} ${value.ascending === false ? 'DESC' : 'ASC'}`)
         .join(',')
     : null
+
   const cursor = cursorFor(root(), where.join(' AND '), args, order)
+
   try {
     const rows: AssetMetadata[] = []
+
     cursor.moveToPosition(spec.offset - 1)
     while ((spec.limit === undefined || rows.length < spec.limit) && cursor.moveToNext()) {
       rows.push(metadata(cursor))
@@ -375,9 +425,12 @@ function query(spec: QuerySpec): AssetMetadata[] {
 
 function albums(): Array<AlbumMetadata & { path: string }> {
   assertReadable()
+
   const cursor = cursorFor(root(), 'media_type IN (1,2,3) AND is_pending = 0')
+
   try {
     const result = new Map<string, AlbumMetadata & { path: string }>()
+
     while (cursor.moveToNext()) {
       const id = nullableString(cursor, 'bucket_id'),
         name = nullableString(cursor, 'bucket_display_name'),
@@ -396,9 +449,11 @@ function albums(): Array<AlbumMetadata & { path: string }> {
 
 function album(id: string) {
   assertReadable()
+
   const cursor = cursorFor(root(), 'bucket_id = ? AND media_type IN (1,2,3) AND is_pending = 0', [
     id,
   ])
+
   try {
     if (!cursor.moveToFirst()) {
       throw new Error('Album is missing or outside the granted library scope')
@@ -423,19 +478,23 @@ function confirm(intent: android.app.PendingIntent): Promise<void> {
     () =>
       new Promise((resolve, reject) => {
         const activity = Application.android.foregroundActivity
+
         if (!activity) {
           reject(new Error('A foreground activity is required for media confirmation'))
           return
         }
+
         const code = requestCode++
         const cleanup = () => {
           Application.android.off(Application.android.activityResultEvent, result)
           Application.android.off(Application.android.activityDestroyedEvent, destroyed)
         }
+
         const result = (args: { requestCode: number; resultCode: number }) => {
           if (args.requestCode !== code) {
             return
           }
+
           cleanup()
           if (args.resultCode === android.app.Activity.RESULT_OK) {
             resolve()
@@ -447,12 +506,14 @@ function confirm(intent: android.app.PendingIntent): Promise<void> {
             )
           }
         }
+
         const destroyed = (args: { activity: android.app.Activity }) => {
           if (args.activity === activity) {
             cleanup()
             reject(new Error('Media confirmation was interrupted'))
           }
         }
+
         Application.android.on(Application.android.activityResultEvent, result)
         Application.android.on(Application.android.activityDestroyedEvent, destroyed)
         try {
@@ -474,9 +535,11 @@ function confirm(intent: android.app.PendingIntent): Promise<void> {
 
 function uriList(ids: string[]) {
   const result = new java.util.ArrayList<android.net.Uri>()
+
   for (const id of ids) {
     result.add(mediaUri(id))
   }
+
   return result
 }
 
@@ -491,6 +554,7 @@ function recoverable(error: unknown): android.app.RecoverableSecurityException |
     typeof error === 'object' && error !== null && 'nativeException' in error
       ? error.nativeException
       : error
+
   return value instanceof android.app.RecoverableSecurityException ? value : undefined
 }
 
@@ -499,10 +563,12 @@ async function removeAssets(ids: string[]): Promise<void> {
   if (!ids.length) {
     return
   }
+
   if (sdk() >= 30) {
     await confirm(android.provider.MediaStore.createDeleteRequest(resolver(), uriList(ids)))
     return
   }
+
   for (const id of ids) {
     try {
       if (resolver().delete(mediaUri(id), null, null) < 1) {
@@ -510,6 +576,7 @@ async function removeAssets(ids: string[]): Promise<void> {
       }
     } catch (error) {
       const security = recoverable(error)
+
       if (security) {
         await confirm(security.getUserAction().getActionIntent())
         if (resolver().delete(mediaUri(id), null, null) < 1) {
@@ -524,6 +591,7 @@ async function removeAssets(ids: string[]): Promise<void> {
 
 function valuesForPath(path: string) {
   const values = new android.content.ContentValues()
+
   values.put('relative_path', path)
   return values
 }
@@ -537,6 +605,7 @@ async function move(ids: string[], path: string): Promise<void> {
       }
     } catch (error) {
       const security = recoverable(error)
+
       if (sdk() === 29 && security) {
         await confirm(security.getUserAction().getActionIntent())
         if (resolver().update(mediaUri(id), valuesForPath(path), null, null) < 1) {
@@ -552,18 +621,24 @@ async function move(ids: string[], path: string): Promise<void> {
 async function create(file: string, targetPath?: string): Promise<string> {
   const uri = android.net.Uri.parse(file),
     local = uri.getPath()
+
   if (uri.getScheme() !== 'file' || !local) {
     throw new Error('Asset creation requires a local file URI')
   }
+
   const source = new java.io.File(local)
+
   if (!source.isFile()) {
     throw new Error('Asset source must be a readable local file')
   }
+
   const extension = source.getName().split('.').pop()?.toLowerCase() ?? ''
   const mime = android.webkit.MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+
   if (!mime) {
     throw new Error('Asset source requires a recognized image, video or audio extension')
   }
+
   return publishCopy(source.getName(), mime, targetPath, () => new java.io.FileInputStream(source))
 }
 
@@ -571,18 +646,22 @@ async function copyAsset(id: string, targetPath: string): Promise<string> {
   const value = rowFor(id),
     uri = mediaUri(id),
     mime = resolver().getType(uri)
+
   if (!mime) {
     throw new Error('The source asset media type is unavailable')
   }
+
   return publishCopy(
     value.filename ?? `asset-${uri.getLastPathSegment()}`,
     mime,
     targetPath,
     () => {
       const stream = resolver().openInputStream(uri)
+
       if (!stream) {
         throw new Error('The source asset could not be opened')
       }
+
       return stream
     },
   )
@@ -601,27 +680,36 @@ async function publishCopy(
       : mime.startsWith('audio/')
         ? 'audio'
         : null
+
   if (!kind) {
     throw new Error('Only images, videos and audio can be saved to the media library')
   }
+
   const collection =
     kind === 'image'
       ? android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI
       : kind === 'video'
         ? android.provider.MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         : android.provider.MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+
   const values = valuesForPath(targetPath ?? (kind === 'audio' ? 'Music/' : 'Pictures/'))
+
   values.put('_display_name', filename)
   values.put('mime_type', mime)
   values.put('is_pending', java.lang.Integer.valueOf(1))
+
   const destination = resolver().insert(collection, values)
+
   if (!destination) {
     throw new Error('MediaStore did not create an asset')
   }
+
   try {
     const input = open()
+
     try {
       const output = resolver().openOutputStream(destination)
+
       if (!output) {
         throw new Error('MediaStore did not open the asset for writing')
       }
@@ -629,6 +717,7 @@ async function publishCopy(
       try {
         const bytes = java.nio.ByteBuffer.allocate(65536).array()
         let count: number
+
         while ((count = input.read(bytes)) !== -1) {
           output.write(bytes, 0, count)
         }
@@ -640,6 +729,7 @@ async function publishCopy(
     }
 
     const finished = new android.content.ContentValues()
+
     finished.put('is_pending', java.lang.Integer.valueOf(0))
     if (resolver().update(destination, finished, null, null) < 1) {
       throw new Error('MediaStore could not publish the created asset')
@@ -659,7 +749,9 @@ export const backend: LibraryBackend = {
     if (sdk() < 34) {
       throw new UnavailabilityError('MediaLibrary selected-access picker before Android 14')
     }
+
     const granular: GranularPermission[] = types ?? ['photo', 'video']
+
     if (permissionResponse(false, granular).accessPrivileges === 'limited') {
       await permissions(true, false, granular)
     }
@@ -686,8 +778,11 @@ export const backend: LibraryBackend = {
     if (sdk() < 30) {
       throw new UnavailabilityError('MediaStore favorites before Android 11')
     }
+
     await writable([id])
+
     const values = new android.content.ContentValues()
+
     values.put('is_favorite', java.lang.Integer.valueOf(favorite ? 1 : 0))
     if (resolver().update(mediaUri(id), values, null, null) < 1) {
       throw new Error('Favorite update did not affect a row')
@@ -697,19 +792,23 @@ export const backend: LibraryBackend = {
     if (options.smart) {
       throw new UnavailabilityError('MediaLibrary smart albums on Android')
     }
+
     if (options.asset) {
       const cursor = cursorFor(mediaUri(options.asset))
+
       try {
         if (!cursor.moveToFirst()) {
           throw new Error('Asset is missing')
         }
 
         const id = nullableString(cursor, 'bucket_id')
+
         return id === null ? [] : [album(id)]
       } finally {
         cursor.close()
       }
     }
+
     return albums()
   },
   async album(id) {
@@ -722,9 +821,11 @@ export const backend: LibraryBackend = {
     if (!ids.length) {
       throw new Error('Android albums require at least one asset')
     }
+
     if (/[/\\]|^\.{1,2}$/.test(title)) {
       throw new TypeError('Album titles must be a single directory name')
     }
+
     const kinds = ids.map((id) =>
       id.startsWith('file://')
         ? android.webkit.MimeTypeMap.getSingleton()
@@ -734,12 +835,16 @@ export const backend: LibraryBackend = {
             ?.split('/')[0]
         : rowFor(id).mediaType,
     )
+
     const audio = kinds.every((kind) => kind === 'audio')
+
     if (!audio && kinds.some((kind) => kind === 'audio')) {
       throw new Error('Android cannot combine audio and visual media in one album')
     }
+
     const target = `${audio ? 'Music' : 'Pictures'}/${title}/`
     const created: string[] = []
+
     for (const id of ids) {
       if (id.startsWith('file://')) {
         created.push(await create(id, target))
@@ -750,13 +855,16 @@ export const backend: LibraryBackend = {
         created.push(await copyAsset(id, target))
       }
     }
+
     const cursor = cursorFor(mediaUri(created[0]))
+
     try {
       if (!cursor.moveToFirst()) {
         throw new Error('Created album cannot be resolved')
       }
 
       const id = nullableString(cursor, 'bucket_id')
+
       if (id === null) {
         throw new Error('MediaStore returned no album identifier')
       }
@@ -768,12 +876,14 @@ export const backend: LibraryBackend = {
   },
   async deleteAlbums(ids) {
     const assets = new Set<string>()
+
     for (const id of ids) {
       album(id)
       for (const value of query({ filters: [], order: [], offset: 0, album: id })) {
         assets.add(value.id)
       }
     }
+
     await removeAssets([...assets])
   },
   async addAssets(id, ids) {
@@ -786,14 +896,19 @@ export const backend: LibraryBackend = {
   },
   subscribe(listener) {
     assertReadable()
+
     const Bridge = observerBridge()
+
     if (!Bridge) {
       throw new UnavailabilityError('MediaLibrary native change observer')
     }
+
     const callback = new Bridge.Listener({
       changed: () => listener({ hasIncrementalChanges: false }),
     })
+
     const observer = new Bridge(callback)
+
     observer.start(resolver())
     return {
       remove() {

@@ -19,8 +19,11 @@ let swap: (value: boolean) => void
 
 export default function CachedImageProbe() {
   const [second, setSecond] = useState(false)
+
   swap = setSecond
+
   const src = second ? SECOND : FIRST
+
   return (
     <VStack>
       <Text id="probe-label">{src}</Text>
@@ -63,6 +66,7 @@ export async function run(ctx: ProbeContext) {
   const displayed = await isImageCached(FIRST, DECODE)
   const bareDisplayed = await isImageCached(FIRST)
   const states = await isImageCached([FIRST, SECOND, NEVER], DECODE)
+
   ctx.record('displayedWithDecodeContext', displayed)
   // iOS keys transformed entries by decode context — the bare probe misses
   // the decoded memory entry the options probe finds. Recorded, not
@@ -77,6 +81,7 @@ export async function run(ctx: ProbeContext) {
 
   if (ctx.target === 'android' || ctx.target === 'ios') {
     const source = events[2].split(':')[1]
+
     ctx.assert('reload served from engine cache', source === 'memory' || source === 'disk', true)
     ctx.assert('never-loaded URL reports none', states[NEVER], 'none')
 
@@ -95,7 +100,9 @@ export async function run(ctx: ProbeContext) {
 
     // prefetch warms the untransformed key — a bare probe reports it.
     ctx.assert('prefetch succeeds', await prefetch(PREFETCHED), true)
+
     const prefetched = await isImageCached(PREFETCHED)
+
     ctx.record('prefetchedState', prefetched)
     ctx.assert('prefetched image reports cached', prefetched[PREFETCHED] !== 'none', true)
     ctx.assert('disk prefetch does not warm memory', prefetched[PREFETCHED], 'disk')

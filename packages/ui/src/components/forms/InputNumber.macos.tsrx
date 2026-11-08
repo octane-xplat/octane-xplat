@@ -32,6 +32,7 @@ function InputNumberControl(
     live = useRef(props)
 
   live.current = props
+
   const attached = useRef(false),
     active = useRef<symbol | null>(null)
 
@@ -45,11 +46,13 @@ function InputNumberControl(
 
   const request = (action: NumberRequest) => {
     const props = live.current
+
     if (!attached.current || props.isDisabled || props.isReadOnly || active.current) {
       return
     }
 
     const token = Symbol('number-input-change')
+
     active.current = token
     try {
       const previous = props.value !== undefined ? props.value : local.current
@@ -57,8 +60,10 @@ function InputNumberControl(
         Math.min(props.max ?? Infinity, Math.max(props.min ?? -Infinity, n))
 
       let next: number | null
+
       if (action.kind !== 'edit') {
         const field = input.current?.native
+
         if (!field || hasDateComposition(field)) {
           return
         }
@@ -80,6 +85,7 @@ function InputNumberControl(
         next = null
       } else {
         const parsed = parseFloat(action.text)
+
         if (isNaN(parsed)) {
           return
         }

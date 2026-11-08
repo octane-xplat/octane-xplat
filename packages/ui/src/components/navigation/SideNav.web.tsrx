@@ -53,6 +53,7 @@ function HeadingRow(props: {
   onClick?: (e: any) => void
 }) {
   const LinkEl: any = useLinkComponent(props.as)
+
   if (props.href != null) {
     return (
       <LinkEl
@@ -98,6 +99,7 @@ export function SideNav(props: SideNavProps): JSX.Element @{
 
   const toggle = useCallback(() => {
     const next = !collapsed
+
     if (!controlled) {
       setUncontrolled(next)
     }
@@ -448,6 +450,7 @@ export function SideNavItem(props: NavigationItemImplementation<SideNavItemProps
 
   const toggleChildren = () => {
     const next = !childrenCollapsed
+
     if (!itemControlled) {
       setUncontrolledCollapsed(next)
     }

@@ -32,6 +32,7 @@ function fillBytes(target: Uint8Array): void {
 
   if (iosReady()) {
     const data = NSMutableData.dataWithLength(target.length)
+
     // errSecSuccess = 0
     if (SecRandomCopyBytes(kSecRandomDefault, target.length, data.mutableBytes) !== 0) {
       throw new Error('random: SecRandomCopyBytes failed')
@@ -43,8 +44,10 @@ function fillBytes(target: Uint8Array): void {
 
   if (androidReady()) {
     secureRandom ??= new java.security.SecureRandom()
+
     // NativeScript's Array.create allocates a real java byte[].
     const buffer = (Array as any).create('byte', target.length)
+
     secureRandom.nextBytes(buffer)
     // Java bytes are signed; Uint8Array assignment wraps them to 0–255.
     for (let i = 0; i < target.length; i++) {

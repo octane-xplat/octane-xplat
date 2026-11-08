@@ -23,7 +23,9 @@ setTimeout(async () => {
         : 'denied'
 
     context.invalidate()
+
     const actual = (await biometrics.requestPermissions()).status
+
     if (actual !== expected) {
       throw new Error(`Expected ${expected}, got ${actual}`)
     }

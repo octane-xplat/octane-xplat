@@ -11,6 +11,7 @@ let reduce: (value: boolean) => void = () => {}
 export default function SharedLayoutProbe() @{
   const [next, setNext] = useState(false)
   const [reduced, setReduced] = useState(false)
+
   select = setNext
   reduce = setReduced
 
@@ -89,19 +90,24 @@ export default function SharedLayoutProbe() @{
 
 function geometry(view: any, target: string) {
   const native = view?.nativeViewProtected ?? view?.nativeView
+
   if (!native) {
     throw new Error('Missing native view')
   }
 
   if (target === 'ios') {
     const rect = native.convertRectToView(native.bounds, null)
+
     return { x: Number(rect.origin.x), y: Number(rect.origin.y), width: Number(rect.size.width) }
   }
 
   const density = native.getResources().getDisplayMetrics().density
   const location = Array.create('int', 2)
+
   native.getLocationInWindow(location)
+
   let scale = 1
+
   for (let current = native; current?.getScaleX; current = current.getParent()) {
     scale *= current.getScaleX()
   }
@@ -115,10 +121,13 @@ function geometry(view: any, target: string) {
 
 export async function run(ctx: ProbeContext) {
   const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
+
   await ctx.waitFor(() => views.old?.isLoaded, { timeout: 15000, interval: 20 })
   await sleep(100)
+
   const before = geometry(views.old, ctx.target)
   const lineBefore = geometry(views.oldLine, ctx.target)
+
   select(true)
   await ctx.waitFor(() => views.next?.isLoaded && Number(views.next.scaleX) < 0.95, {
     timeout: 2000,
@@ -126,8 +135,10 @@ export async function run(ctx: ProbeContext) {
   })
 
   await sleep(170)
+
   const incoming = geometry(views.next, ctx.target)
   const outgoing = geometry(views.old, ctx.target)
+
   ctx.record('handoff', {
     before,
     incoming,
@@ -147,7 +158,9 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('both members crossfade', views.next.opacity > 0 && views.old.opacity > 0, true)
   ctx.assert('other group does not move', views.isolated.translateX, 0)
   ctx.assert('other group does not scale', views.isolated.scaleX, 1)
+
   const lineMid = geometry(views.nextLine, ctx.target)
+
   ctx.assert(
     'unmounted underline source hands off',
     lineMid.x > lineBefore.x + 5 && lineMid.x < lineBefore.x + 135,
@@ -157,11 +170,15 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('underline retains its size', Math.abs(lineMid.width - 60) <= 1, true)
   select(false)
   await sleep(35)
+
   const reversed = geometry(views.old, ctx.target)
+
   ctx.assert('reversal stays near presented position', Math.abs(reversed.x - incoming.x) < 20, true)
   await sleep(850)
   ctx.assert('retained destination removed', views.next == null, true)
+
   const settled = geometry(views.old, ctx.target)
+
   ctx.assert('source returns to initial position', Math.abs(settled.x - before.x) <= 1, true)
   ctx.assert('source restores width', Math.abs(settled.width - 100) <= 1, true)
   ctx.assert('source restores opacity', views.old.opacity, 1)

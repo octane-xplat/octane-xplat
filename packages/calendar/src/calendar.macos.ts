@@ -30,11 +30,13 @@ const rawStatus = () =>
 
 function ensureAccess(): Promise<PermissionResult> {
   const s = eventStore()
+
   if (!s) {
     return Promise.resolve('unsupported')
   }
 
   const status = rawStatus()
+
   if (status === 3 || status === 4) {
     return Promise.resolve('granted')
   }
@@ -52,11 +54,13 @@ function ensureAccess(): Promise<PermissionResult> {
 
 const permissionResponse = () => {
   const s = eventStore()
+
   if (!s) {
     return { status: 'unsupported' as const, granted: false, canAskAgain: false }
   }
 
   const status = rawStatus()
+
   return {
     status:
       status === 3 || status === 4
@@ -73,8 +77,10 @@ function calendars(): CalendarInfo[] {
   const s = eventStore()
   const out: CalendarInfo[] = []
   const list = s?.calendarsForEntityType?.(EKEntityType.Event ?? 0)
+
   for (let i = 0; i < (list?.count ?? 0); i++) {
     const c = list.objectAtIndex(i)
+
     out.push({
       id: String(c.calendarIdentifier ?? ''),
       title: String(c.title ?? ''),
@@ -120,6 +126,7 @@ export const calendar: Calendar = {
 
   async getDefaultCalendar(): Promise<CalendarInfo | null> {
     const def = eventStore()?.defaultCalendarForNewEvents
+
     return def
       ? {
           id: String(def.calendarIdentifier),
@@ -138,15 +145,19 @@ export const calendar: Calendar = {
     const wanted = calendarIds?.length
       ? calendarIds.map((id) => s?.calendarWithIdentifier?.(id)).filter((c: any) => c != null)
       : null
+
     const predicate = s?.predicateForEventsWithStartDateEndDateCalendars(
       toNSDate(startDate),
       toNSDate(endDate),
       wanted?.length ? wanted : null,
     )
+
     const list = s?.eventsMatchingPredicate?.(predicate)
     const out: CalendarEvent[] = []
+
     for (let i = 0; i < (list?.count ?? 0); i++) {
       const e = asEvent(list.objectAtIndex(i))
+
       if (!calendarIds?.length || calendarIds.includes(e.calendarId ?? '')) {
         out.push(e)
       }
@@ -157,16 +168,19 @@ export const calendar: Calendar = {
 
   async getEvent(id: string): Promise<CalendarEvent | null> {
     const e = eventStore()?.eventWithIdentifier?.(id)
+
     return e ? asEvent(e) : null
   },
 
   async createEvent(calendarId: string | undefined, event: NewEvent): Promise<string> {
     const s = eventStore()
+
     if (!s) {
       throw new Error('calendar.createEvent: EventKit is unavailable on this host')
     }
 
     const e = EKEvent.eventWithEventStore(s)
+
     e.title = event.title
     e.startDate = toNSDate(event.startDate)
     e.endDate = toNSDate(event.endDate)
@@ -187,6 +201,7 @@ export const calendar: Calendar = {
   async updateEvent(id: string, patch: Partial<NewEvent>): Promise<string> {
     const s = eventStore()
     const e = s?.eventWithIdentifier?.(id)
+
     if (!e) {
       throw new Error(`calendar.updateEvent: no event ${id}`)
     }
@@ -225,6 +240,7 @@ export const calendar: Calendar = {
   async deleteEvent(id: string): Promise<void> {
     const s = eventStore()
     const e = s?.eventWithIdentifier?.(id)
+
     if (e && !s.removeEventSpanError(e, EKSpan.ThisEvent ?? 0, null)) {
       throw new Error('calendar.deleteEvent: EKEventStore.removeEvent failed')
     }
@@ -232,10 +248,12 @@ export const calendar: Calendar = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.calendar = {
   getPermissions: async () => permissionResponse(),
   requestPermissions: async () => {
     const result = await calendar.ensure()
+
     return { status: result, granted: result === 'granted', canAskAgain: result === 'granted' }
   },
 }

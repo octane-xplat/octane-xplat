@@ -9,14 +9,17 @@ export function followHref(href: string): void {
   if (!href) {
     return
   }
+
   if (/^[a-z][a-z0-9+.-]*:/i.test(href)) {
     const open = hostGlobal('__octaneGtkHost')?.openUri
+
     if (typeof open !== 'function' || open(href) !== true) {
       console.warn(`[octane-xplat] Cannot open external URI on this GTK host: ${href}`)
     }
 
     return
   }
+
   void router.navigateUrl(href).then((result) => {
     if (result.status === 'not-found' || result.status === 'invalid-input') {
       console.warn('[octane-xplat] No route for the supplied href')

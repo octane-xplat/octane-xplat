@@ -14,6 +14,7 @@ export const transitions = defineTransitions({
         from: context.from?.href,
         to: context.to?.href,
       }
+
       return ['detail-' + context.direction]
     },
   }),

@@ -20,16 +20,20 @@ const pageSources = import.meta.glob('./pages/**/*.tsrx', {
 
 // Template name -> source text (file basename equals the template name).
 const byExampleName = new Map<string, string>()
+
 for (const [path, text] of Object.entries(exampleSources)) {
   const name = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length).replace(/\.web$/, '')
+
   byExampleName.set(name, text)
 }
 
 // Page file basename -> source text; routed through the page registry's
 // explicit route<->file map below.
 const pageByFile = new Map<string, string>()
+
 for (const [path, text] of Object.entries(pageSources)) {
   const file = path.slice(path.lastIndexOf('/') + 1, -'.tsrx'.length).replace(/\.web$/, '')
+
   pageByFile.set(file, text)
 }
 
@@ -75,9 +79,12 @@ export function sourceForRow(row: CoverageRow | undefined): string | null {
   if (!row) {
     return null
   }
+
   if ((row.kind === 'template-block' || row.kind === 'template-page') && row.name) {
     return byExampleName.get(row.name) ?? null
   }
+
   const file = pageSourceFiles[row.route]
+
   return file ? (pageByFile.get(file) ?? null) : null
 }

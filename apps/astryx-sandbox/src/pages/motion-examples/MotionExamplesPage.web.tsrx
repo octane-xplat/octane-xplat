@@ -36,6 +36,7 @@ import {
 
 import { useRef, useState } from 'octane'
 import { cx } from '../../cx'
+
 // Copyright (c) Meta Platforms, Inc. and affiliates.
 
 // =============================================================================
@@ -482,6 +483,7 @@ export function DemoPopover({
 }) {
   const anchorRef = useRef<HTMLButtonElement | null>(null)
   const [open, setOpen] = useState(false)
+
   return (
     <>
       <Button

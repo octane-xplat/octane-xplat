@@ -24,7 +24,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -42,6 +44,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -54,14 +57,17 @@ const hasText = (id: string, text: string): boolean => {
           if (!node) {
             return false
           }
+
           if (JSON.stringify(node.props).includes(text)) {
             return true
           }
+
           for (const c of node.children ?? []) {
             if (probe(c)) {
               return true
             }
           }
+
           return false
         }
 
@@ -69,6 +75,7 @@ const hasText = (id: string, text: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -77,6 +84,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -87,6 +95,7 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -94,12 +103,15 @@ const findLabel = (text: string): any => {
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -108,7 +120,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -117,12 +131,15 @@ const boundsOf = (
 ): { left: number; top: number; width: number; height: number } | null => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     return null
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx
   let y = rect.origin.y - ty
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -131,7 +148,9 @@ const boundsOf = (
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { left: x + wx, top: y + wy, width: rect.size.width, height: rect.size.height }
 }
 
@@ -146,17 +165,20 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
@@ -189,14 +211,18 @@ async function run() {
     ['geo-ls', 'left', 'start'],
   ] as const) {
     const anchor = findView(id + '-trigger')
+
     await clickAt(anchor)
     await pump(250)
+
     const bodyText = 'Context: from-declaring'
     const panel = findLabel(bodyText)
+
     check('useLayer context opens ' + placement + '/' + alignment, !!panel)
     if (panel && anchor) {
       const a = boundsOf(anchor)
       const b = boundsOf(panel)
+
       if (a && b) {
         const expected = positionPopover(
           { left: a.left, top: a.top, width: a.width, height: a.height },
@@ -218,6 +244,7 @@ async function run() {
     await pump(200)
     check('useLayer closes on hide ' + placement, !findLabel('Context: from-declaring'))
   }
+
   // Controlled isOpen — the parent toggles it; onShow/onHide fire.
   await clickAt(findView('ctl-toggle'))
   await pump(250)
@@ -236,6 +263,7 @@ async function run() {
   // claims it (like the mobile backdrop): the layer hides and the background
   // control does NOT receive the tap.
   const lightTrig = findView('layer-light-trigger')
+
   await clickAt(lightTrig)
   await pump(250)
   check('lightDismiss layer opens', !!findLabel('Context: from-declaring'))
@@ -252,6 +280,7 @@ async function run() {
   // lightDismiss false — the outside press is not claimed: the layer stays
   // open and the background control receives the tap.
   const noLightTrig = findView('layer-nolight-trigger')
+
   await clickAt(noLightTrig)
   await pump(250)
   check('no-lightDismiss layer opens', !!findLabel('Context: from-declaring'))
@@ -262,12 +291,14 @@ async function run() {
     'lightDismiss false: background receives the tap',
     !!findLabel('nolightbg') && hasText('nolightbg-count', '1'),
   )
+
   await clickAt(noLightTrig)
   await pump(200)
   check('no-lightDismiss layer closes on hide', !findLabel('Context: from-declaring'))
 
   // dismissOnEscape false — Escape does not dismiss.
   const noEscTrig = findView('layer-noesc-trigger')
+
   await clickAt(noEscTrig)
   await pump(250)
   await ready({ key: 'Escape' })
@@ -290,9 +321,11 @@ async function run() {
     )
 
     const body = findView(id + '-body')
+
     check('fixed layer opens at ' + fx + ',' + fy, !!body)
     if (body) {
       const b = boundsOf(body)
+
       if (b) {
         check(
           'fixed layer at ' + fx + ',' + fy + ' bounds',
@@ -308,8 +341,10 @@ async function run() {
 
   // HoverCard — real pointer enter/leave via xdotool motion.
   const hc = findView('hc')
+
   if (hc) {
     const c = point(hc)
+
     await ready({ x: c.x, y: c.y, hover: true })
     await pump(60)
     check('HoverCard not open before delay', !findLabel('Card body'))
@@ -321,22 +356,26 @@ async function run() {
         try {
           const cls = n.props?.className
           const cs = Array.isArray(cls) ? cls.join(' ') : String(cls ?? '')
+
           if (n.view && cs.includes('vx-hovercard')) {
             return n.view
           }
         } catch {}
       }
+
       return findLabel('Card body')
     })()
 
     if (card) {
       const cc = point(card)
+
       await ready({ x: cc.x, y: cc.y, hover: true })
       await pump(200)
       check('HoverCard stays open over the card', !!findLabel('Card body'))
     }
 
     const away = point(findView('picked'))
+
     await ready({ x: away.x, y: away.y, hover: true })
     await pump(60)
     check('HoverCard still open just after leaving', !!findLabel('Card body'))
@@ -346,8 +385,10 @@ async function run() {
 
   // Disabled HoverCard does not open on hover.
   const hcOff = findView('hc-off')
+
   if (hcOff) {
     const c = point(hcOff)
+
     await ready({ x: c.x, y: c.y, hover: true })
     await pump(400)
     check('disabled HoverCard does not open on hover', !findLabel('Disabled card'))
@@ -366,6 +407,7 @@ async function run() {
     'GTK_LAYERS ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   loop.quit()
 }
 

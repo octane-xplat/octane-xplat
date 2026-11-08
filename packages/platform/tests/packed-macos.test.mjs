@@ -13,6 +13,7 @@ test('packed macOS consumer resolves generated declarations and platform contrac
   const directory = mkdtempSync(join(tmpdir(), 'xplat-announce-consumer-'))
   const run = (command, args, cwd) => {
     const result = spawnSync(command, args, { cwd, encoding: 'utf8', timeout: 300_000 })
+
     assert.equal(result.status, 0, result.stdout + result.stderr)
     return result.stdout
   }
@@ -25,8 +26,11 @@ test('packed macOS consumer resolves generated declarations and platform contrac
     .split('\n')
     .reverse()
     .find((line) => line.trim().endsWith('.tgz'))
+
   assert.ok(tarball, `no tarball path in bun pm pack output:\n${output}`)
+
   const modules = join(directory, 'node_modules/@octane-xplat/platform')
+
   mkdirSync(modules, { recursive: true })
   run('tar', ['-xzf', tarball, '--strip-components=1', '-C', modules], directory)
 
@@ -37,16 +41,22 @@ test('packed macOS consumer resolves generated declarations and platform contrac
     ['pm', 'pack', '--quiet', '--destination', directory],
     resolve(root, '../lib'),
   )
+
   const libTarball = libOutput
     .trim()
     .split('\n')
     .reverse()
     .find((line) => line.trim().endsWith('.tgz'))
+
   assert.ok(libTarball, `no tarball path in bun pm pack output:\n${libOutput}`)
+
   const libModules = join(directory, 'node_modules/@octane-xplat/lib')
+
   mkdirSync(libModules, { recursive: true })
   run('tar', ['-xzf', libTarball, '--strip-components=1', '-C', libModules], directory)
+
   const manifest = JSON.parse(readFileSync(join(modules, 'package.json'), 'utf8'))
+
   assert.equal(manifest.exports['.'].macos, './src/index.macos.ts')
   assert.equal(manifest.exports['.'].types, './types/generated/index.d.ts')
   assert.match(
@@ -60,6 +70,7 @@ test('packed macOS consumer resolves generated declarations and platform contrac
   )
 
   const entry = join(directory, 'consumer.ts')
+
   writeFileSync(
     entry,
     `import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState, type WindowSize, device, locale, type DeviceInfo, type Locale, systemBars } from '@octane-xplat/platform'
@@ -124,6 +135,7 @@ random.fill(16)
   }
 
   const resolved = ts.resolveModuleName('@octane-xplat/platform', entry, options, ts.sys)
+
   assert.equal(
     resolved.resolvedModule.resolvedFileName,
     realpathSync(join(modules, 'types/generated/index.d.ts')),
@@ -146,12 +158,14 @@ random.fill(16)
   }
 
   const example = join(directory, 'announce-status.ts')
+
   writeFileSync(
     example,
     readFileSync(join(root, '../../examples/accessibility/announce-status.ts'), 'utf8'),
   )
 
   const program = ts.createProgram([entry, example], options)
+
   assert.deepEqual(
     program
       .getSourceFiles()
@@ -161,6 +175,7 @@ random.fill(16)
   )
 
   const diagnostics = ts.getPreEmitDiagnostics(program)
+
   assert.equal(
     diagnostics.length,
     0,

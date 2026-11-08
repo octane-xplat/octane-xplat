@@ -13,6 +13,7 @@ function fixture(initial: 'first' | 'last' | 'container' = 'first') {
       onFocus: () => {},
       onDispose: () => {},
     }
+
   const window: any = {
     firstResponder: null,
     makeFirstResponder(view: any) {
@@ -20,19 +21,24 @@ function fixture(initial: 'first' | 'last' | 'container' = 'first') {
       if (!state.allow || view.window !== this) {
         return false
       }
+
       this.firstResponder = view
       state.onFocus()
       return true
     },
   }
+
   const root: any = { window, hidden: false },
     views = new Map<string, any>()
+
   for (const key of ['a', 'b', 'c']) {
     views.set(key, { window, key })
   }
+
   let current: any = root
   const eligible = () =>
     [...views].filter(([, view]) => !view.disabled && !view.hidden).map(([key]) => key)
+
   const focus = createAppKitMenuFocus({
     root: () => current,
     views,
@@ -53,12 +59,15 @@ function fixture(initial: 'first' | 'last' | 'container' = 'first') {
       focus: (key) => views.has(key) && current?.window?.makeFirstResponder(views.get(key)),
     },
   })
+
   const remove = (key: string) => {
     const view = views.get(key)
+
     focus.removed(key, view)
     views.delete(key)
     return view
   }
+
   return {
     root,
     window,
@@ -77,13 +86,16 @@ function fixture(initial: 'first' | 'last' | 'container' = 'first') {
 test('initial edges/container and observed removal repair preserve position without activating rows', () => {
   for (const initial of ['first', 'last', 'container'] as const) {
     const f = fixture(initial)
+
     f.focus.refresh()
     assert.equal(
       f.window.firstResponder,
       initial === 'container' ? f.root : f.views.get(initial === 'first' ? 'a' : 'c'),
     )
   }
+
   const f = fixture()
+
   f.focus.refresh()
   f.focus.focus('b')
   f.remove('b')
@@ -100,13 +112,16 @@ test('initial edges/container and observed removal repair preserve position with
 
 test('current disabled/hidden rows repair to an enabled neighbor; unrelated item changes do not reset focus', () => {
   const f = fixture()
+
   f.focus.refresh()
   f.focus.focus('b')
   f.views.get('b').disabled = true
   f.focus.refresh()
   assert.equal(f.window.firstResponder, f.views.get('c'))
   f.views.get('a').hidden = true
+
   const before = f.calls.length
+
   f.focus.refresh()
   assert.equal(f.calls.length, before)
   f.views.get('c').disabled = true
@@ -121,6 +136,7 @@ test('current disabled/hidden rows repair to an enabled neighbor; unrelated item
 test('captured removal permits native null/container/window fallback but preserves nested, other-menu and field-editor responders', () => {
   for (const fallback of ['null', 'container', 'window'] as const) {
     const f = fixture()
+
     f.focus.refresh()
     f.focus.focus('b')
     f.window.firstResponder =
@@ -130,13 +146,17 @@ test('captured removal permits native null/container/window fallback but preserv
     f.focus.refresh()
     assert.equal(f.window.firstResponder, f.views.get('c'))
   }
+
   for (const external of [{ editor: true }, { anotherMenu: true }, { nestedInput: true }]) {
     const f = fixture()
+
     f.focus.refresh()
     f.focus.focus('b')
     f.remove('b')
     f.window.firstResponder = external
+
     const before = f.calls.length
+
     f.focus.refresh()
     assert.equal(f.window.firstResponder, external)
     assert.equal(f.calls.length, before)
@@ -148,11 +168,14 @@ test('captured removal permits native null/container/window fallback but preserv
 
 test('scope hide/detach/window changes and unsupported bridges discard old ownership; failed native focus can retry', () => {
   const f = fixture()
+
   f.focus.refresh()
   f.focus.focus('b')
   f.remove('b')
   f.root.hidden = true
+
   const before = f.calls.length
+
   f.focus.refresh()
   assert.equal(f.calls.length, before)
   f.root.hidden = false
@@ -176,18 +199,23 @@ test('scope hide/detach/window changes and unsupported bridges discard old owner
   f.detach()
   f.focus.refresh()
   assert.equal(f.focus.focus('c'), false)
+
   const moved = fixture()
+
   moved.focus.refresh()
   moved.focus.focus('b')
   moved.remove('b')
+
   const otherWindow: any = {
     firstResponder: null,
     makeFirstResponder: moved.window.makeFirstResponder,
   }
+
   moved.root.window = otherWindow
   for (const view of moved.views.values()) {
     view.window = otherWindow
   }
+
   moved.focus.refresh()
   assert.equal(otherWindow.firstResponder, moved.views.get('a'))
   assert.equal(moved.focus.observes(moved.window), false)
@@ -196,11 +224,14 @@ test('scope hide/detach/window changes and unsupported bridges discard old owner
 
 test('native notification recursion and synchronous teardown cannot resurrect stale initial or repair focus', () => {
   const f = fixture()
+
   f.state.onFocus = () => f.focus.refresh()
   f.focus.refresh()
   assert.equal(f.calls.length, 1)
   f.state.onDispose = () => f.focus.refresh()
+
   const synchronized = f.state.synchronized
+
   f.focus.reset()
   assert.equal(f.state.synchronized, synchronized)
   f.state.onDispose = () => {}
@@ -209,10 +240,14 @@ test('native notification recursion and synchronous teardown cannot resurrect st
   f.remove('b')
   f.state.onFocus = f.detach
   f.focus.refresh()
+
   const before = f.calls.length
+
   f.focus.refresh()
   assert.equal(f.calls.length, before)
+
   const initial = fixture()
+
   initial.state.onFocus = initial.detach
   initial.focus.refresh()
   assert.equal(initial.focus.focus('a'), false)

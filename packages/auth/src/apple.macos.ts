@@ -110,6 +110,7 @@ function sameNative(left: any, right: any): boolean {
   if (!left || !right) {
     return false
   }
+
   try {
     return left === right || !!left.isEqual?.(right)
   } catch {
@@ -129,6 +130,7 @@ function ensureClasses() {
           authorization: any,
         ) {
           const operation = active
+
           if (
             !operation ||
             !sameNative(operation.delegate, this) ||
@@ -136,8 +138,10 @@ function ensureClasses() {
           ) {
             return
           }
+
           try {
             const credential = toCredential(authorization.credential)
+
             if (!credential.user.id || !credential.idToken) {
               throw new Error('Sign in with Apple returned an incomplete credential')
             }
@@ -152,6 +156,7 @@ function ensureClasses() {
         },
         authorizationControllerDidCompleteWithError(this: any, controller: any, error: any) {
           const operation = active
+
           if (
             !operation ||
             !sameNative(operation.delegate, this) ||
@@ -159,6 +164,7 @@ function ensureClasses() {
           ) {
             return
           }
+
           try {
             operation.finish?.(
               isCancel(error)
@@ -188,11 +194,13 @@ function ensureClasses() {
       },
     )
   }
+
   if (AppleAuthAnchor === null) {
     AppleAuthAnchor = NSObject.extend(
       {
         presentationAnchorForAuthorizationController(this: any, controller: any): any {
           const operation = active
+
           try {
             return operation &&
               sameNative(operation.anchor, this) &&
@@ -235,6 +243,7 @@ function clearController(controller: any, delegate: any, anchor: any) {
       controller.delegate = null
     }
   } catch {}
+
   try {
     if (sameNative(controller?.presentationContextProvider, anchor)) {
       controller.presentationContextProvider = null
@@ -273,6 +282,7 @@ export const appleAuth: AppleAuth = {
       window: null,
       finish: null,
     }
+
     active = operation
     return new Promise<SignInResult>((resolve) => {
       let settled = false
@@ -282,8 +292,11 @@ export const appleAuth: AppleAuth = {
         if (settled) {
           return
         }
+
         settled = true
+
         const { controller, delegate, anchor } = operation
+
         operation.finish = null
         for (const observer of observers.splice(0)) {
           try {
@@ -292,6 +305,7 @@ export const appleAuth: AppleAuth = {
             /* Retired callbacks remain inert. */
           }
         }
+
         operation.controller = null
         operation.delegate = null
         operation.anchor = null
@@ -299,13 +313,17 @@ export const appleAuth: AppleAuth = {
         if (active === operation) {
           active = null
         }
+
         clearController(controller, delegate, anchor)
         if (cancelNative) {
           cancelController(controller)
         }
+
         resolve(result)
       }
+
       operation.finish = finish
+
       const observe = (name: any, object: any) => {
         const token = center.addObserverForNameObjectQueueUsingBlock(
           name,
@@ -313,9 +331,11 @@ export const appleAuth: AppleAuth = {
           NSOperationQueue.mainQueue,
           () => finish({ status: 'cancelled' }, true),
         )
+
         if (!token) {
           throw new Error('Sign in with Apple presenter observation failed')
         }
+
         if (settled) {
           try {
             center.removeObserver(token)
@@ -324,11 +344,13 @@ export const appleAuth: AppleAuth = {
           observers.push(token)
         }
       }
+
       try {
         const scopes = options?.scopes?.slice(),
           nonce = options?.nonce
 
         const app = NSApplication.sharedApplication
+
         operation.window = [app.keyWindow, app.mainWindow].find(
           (window) =>
             window && (window.visible === true || window.visible === 1) && !window.attachedSheet,
@@ -361,11 +383,13 @@ export const appleAuth: AppleAuth = {
         }
 
         const provider = ASAuthorizationAppleIDProvider.new()
+
         if (settled) {
           return
         }
 
         const request = provider.createRequest()
+
         if (settled) {
           return
         }
@@ -393,6 +417,7 @@ export const appleAuth: AppleAuth = {
         }
 
         const allocation = ASAuthorizationController.alloc()
+
         if (settled) {
           return
         }
@@ -405,6 +430,7 @@ export const appleAuth: AppleAuth = {
         }
 
         const { controller, delegate, anchor } = operation
+
         controller.delegate = delegate
         if (settled) {
           clearController(controller, delegate, anchor)

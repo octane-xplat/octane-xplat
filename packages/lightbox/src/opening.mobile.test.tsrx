@@ -9,8 +9,10 @@ import {
 
 import { Root, Popup, Viewport, Title, Description, useLightboxCtx } from './root.tsrx'
 import { Lightbox } from './Lightbox.tsrx'
+
 vi.mock('@octane-xplat/ui', () => import('../test/content-ui.mobile.tsrx'))
 vi.mock('./clip', () => ({ createClipWriter: () => ({ setClip() {}, clear() {} }) }))
+
 const media = [{ src: '', alt: 'Clip', type: 'video' as const }]
 let ctx: ReturnType<typeof useLightboxCtx>
 function Read() {
@@ -50,6 +52,7 @@ afterEach(() => {
 
 it('opens custom content and cancels fallback work on early close', async () => {
   vi.useFakeTimers()
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createObjectDriver('nativescript'),
@@ -76,6 +79,7 @@ it('opens custom content and cancels fallback work on early close', async () => 
 
 it('default viewport registers an Image and does not use the custom fallback while image layout is pending', async () => {
   vi.useFakeTimers()
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createObjectDriver('nativescript'),
@@ -97,7 +101,9 @@ it('default viewport registers an Image and does not use the custom fallback whi
 
 it('opens the native video alt-text fallback', async () => {
   vi.useFakeTimers()
+
   const { setRead } = await import('../test/content-ui.mobile.tsrx')
+
   setRead(() => {
     ctx = useLightboxCtx()
   })
@@ -134,11 +140,13 @@ function Named() {
 
 it('registers native title text for the modal accessible name', async () => {
   vi.useFakeTimers()
+
   const object = createObjectDriver('nativescript')
   const root = createUniversalRoot(createObjectContainer('nativescript'), {
     ...object,
     getPublicInstance(container, id) {
       const view = object.getPublicInstance(container, id)
+
       if (view) {
         Object.assign(view, { text: 'Gallery title', on() {}, off() {} })
       }

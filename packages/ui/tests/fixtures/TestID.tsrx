@@ -19,6 +19,7 @@ export default function TestID() {
   const [open, setOpen] = useState(false)
   const [item, setItem] = useState<string | undefined>('a')
   const [checked, setChecked] = useState(false)
+
   return (
     <Stack testID="screen.controls" style={{ padding: 24, gap: 8 }}>
       <Text testID="counter.value">{'Count: ' + count}</Text>

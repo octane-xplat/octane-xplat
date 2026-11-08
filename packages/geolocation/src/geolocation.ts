@@ -10,6 +10,7 @@ function asPosition(nativeLocation: any): GeolocationPosition {
   const ios = nativeLocation.ios
   const heading = nativeLocation.direction ?? nativeLocation.heading
   const speed = nativeLocation.speed
+
   return {
     latitude: nativeLocation.latitude,
     longitude: nativeLocation.longitude,
@@ -66,6 +67,7 @@ function positionErrorCode(reason: unknown): 1 | 2 | 3 {
 
 function asPositionError(reason: unknown): Error & { code: 1 | 2 | 3 } {
   const code = positionErrorCode(reason)
+
   if (reason instanceof Error) {
     return Object.assign(reason, { code })
   }
@@ -121,6 +123,7 @@ export const geolocation: Permissioned<GeolocationImpl> = {
 // See @octane-xplat/media for the pattern — registers the kind this leaf owns
 // for the platform permissions dispatcher.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.location = {
   getPermissions: () => geolocation.getPermissions(),
   requestPermissions: () => geolocation.requestPermissions(),

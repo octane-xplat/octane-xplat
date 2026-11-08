@@ -10,6 +10,7 @@ function toFontSource(source: NanoFontSource): string | ArrayBuffer | undefined 
 
   if (source.data) {
     const bytes = fontBytes(source.data)
+
     return bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
   }
 
@@ -28,6 +29,7 @@ export function registerNanoIconFont(
 ): Promise<NanoFontStatus> {
   const usable = !!(source?.url || source?.data)
   const pending = registrations.get(family)
+
   // Cache only attempts that carried a usable source for this platform — a
   // caller that couldn't provide one may retry when they can.
   if (pending && (pending.usable || !usable)) {
@@ -44,6 +46,7 @@ export function registerNanoIconFont(
     }
 
     const fontData = source ? toFontSource(source) : undefined
+
     if (fontData === undefined) {
       console.warn(
         `[nano-icons] No font source for "${family}" — pass font.url/font.data to createNanoIconSet or register it with your own @font-face`,
@@ -54,6 +57,7 @@ export function registerNanoIconFont(
 
     try {
       const face = new FontFace(family, fontData)
+
       await face.load()
       document.fonts.add(face)
       return 'ready'

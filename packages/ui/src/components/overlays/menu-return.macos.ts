@@ -22,25 +22,32 @@ export function createAppKitMenuReturn(options: {
   parent?(): AppKitMenuReturnOwner | null
 }): AppKitMenuReturnOwner {
   let requested: { target: NSView; window: NSWindow } | null = null
+
   return {
     isOpen: () => options.open() && (options.parent?.()?.isOpen() ?? true),
     resolveTab(backward) {
       const parent = options.parent?.()
+
       if (parent) {
         return parent.resolveTab(backward)
       }
+
       const anchor = options.anchor(),
         window = anchor?.window
+
       if (!anchor || !window) {
         return null
       }
+
       const candidate = backward ? anchor.previousValidKeyView : anchor.nextValidKeyView
+
       return candidate && candidate.window === window ? candidate : anchor
     },
     requestTab(target) {
       if (!target.window) {
         return
       }
+
       requested = { target, window: target.window }
       options.close()
       options.parent?.()?.requestTab(target)
@@ -48,9 +55,11 @@ export function createAppKitMenuReturn(options: {
     focusTarget() {
       const parent = options.parent?.(),
         anchor = options.anchor()
+
       if (parent) {
         return parent.isOpen() ? anchor : parent.focusTarget()
       }
+
       return requested &&
         requested.target.window === requested.window &&
         anchor?.window === requested.window

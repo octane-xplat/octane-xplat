@@ -72,14 +72,17 @@ const pinned: object[] = []
 const bufferAddress = (buf: ArrayBuffer | ArrayBufferView): number => {
   const interop = projection().NSWinRT!.interop!
   const p = interop.pointerFromBuffer(buf)
+
   return typeof p === 'number' ? p : Number(interop.pointerKey(p))
 }
 
 const utf16ptr = (text: string): number => {
   const buf = new Uint16Array(text.length + 1)
+
   for (let i = 0; i < text.length; i++) {
     buf[i] = text.charCodeAt(i)
   }
+
   pinned.push(buf)
   return bufferAddress(buf)
 }
@@ -109,8 +112,10 @@ function buildMenuModel(menu: readonly TrayMenuItem[] | undefined): MenuRegistry
     registry.byId.set(row.cmd, { item, option })
     return row
   }
+
   const build = (items: readonly TrayMenuItem[]): RenderRow[] => {
     const rows: RenderRow[] = []
+
     for (const item of items) {
       switch (item.type) {
         case 'separator':
@@ -154,6 +159,7 @@ function buildMenuModel(menu: readonly TrayMenuItem[] | undefined): MenuRegistry
 
           for (const option of item.items) {
             const value = option.value ?? option.key
+
             rows.push(
               push(
                 {
@@ -189,8 +195,10 @@ function buildMenuModel(menu: readonly TrayMenuItem[] | undefined): MenuRegistry
         }
       }
     }
+
     return rows
   }
+
   registry.rows = build(menu ?? [])
   return registry
 }
@@ -227,12 +235,14 @@ function iconSpec(icon: TrayIcon): IconSpec {
 
     return { kind: 'stock', id }
   }
+
   if (!/\.(ico|cur|ani)$/i.test(icon.path)) {
     throw new TrayError(
       'invalid-icon',
       `Windows tray icons must be .ico/.cur/.ani files (got ${icon.path}); convert the image to .ico`,
     )
   }
+
   return { kind: 'file', path: icon.path }
 }
 
@@ -497,6 +507,7 @@ function appWindows(): number[] {
   const hwnds: number[] = []
   let hwnd = Number(call('user32.dll', 'GetTopWindow', 'pointer', ptr(0)))
   let guard = 0
+
   while (hwnd && guard++ < 512) {
     call('user32.dll', 'GetWindowThreadProcessId', 'u32', ptr(hwnd), ptr(pidA))
     if (pidView.getUint32(0, true) === pid) {
@@ -505,6 +516,7 @@ function appWindows(): number[] {
 
     hwnd = Number(call('user32.dll', 'GetWindow', 'pointer', ptr(hwnd), u32(2)))
   }
+
   return hwnds
 }
 
@@ -518,6 +530,7 @@ const anyAppWindowVisible = () =>
 /** Report whether this host can create a tray item. */
 export function getTrayAvailability(): Promise<TrayAvailability> {
   const { NSWinRT: nsrt, Worker: WorkerGlobal } = projection()
+
   if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer || !WorkerGlobal) {
     return Promise.resolve({
       available: false,
@@ -526,6 +539,7 @@ export function getTrayAvailability(): Promise<TrayAvailability> {
         'the Windows host does not expose the Win32 FFI, buffer pointers, or workers needed for a notification-area icon',
     })
   }
+
   return Promise.resolve({ available: true, platform: 'windows' })
 }
 
@@ -550,6 +564,7 @@ const ipcAppend = (path: string, text: string): void => {
   // GENERIC_WRITE + FILE_SHARE_READ so the worker can keep reading while we
   // append; retry briefly because the peer's open can briefly deny the share.
   let h = 0
+
   for (let attempt = 0; attempt < 50; attempt++) {
     h = Number(
       call(
@@ -572,11 +587,15 @@ const ipcAppend = (path: string, text: string): void => {
 
     call('kernel32.dll', 'Sleep', 'void', u32(10))
   }
+
   if (invalidHandle(h)) {
     throw new TrayError('registration-failed', `cannot open tray IPC file ${path}`)
   }
+
   call('kernel32.dll', 'SetFilePointer', 'u32', ptr(h), i32(0), ptr(0), u32(2))
+
   const bytes = new TextEncoder().encode(text)
+
   call(
     'kernel32.dll',
     'WriteFile',
@@ -587,6 +606,7 @@ const ipcAppend = (path: string, text: string): void => {
     ptr(bufferAddress(new ArrayBuffer(8))),
     ptr(0),
   )
+
   call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
 }
 
@@ -605,15 +625,20 @@ const ipcRead = (path: string): string => {
       ptr(0),
     ),
   )
+
   if (invalidHandle(h)) {
     return ''
   }
+
   const size = Number(call('kernel32.dll', 'GetFileSize', 'u32', ptr(h), ptr(0)))
+
   if (!size) {
     call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
     return ''
   }
+
   const buf = new ArrayBuffer(size + 1)
+
   call(
     'kernel32.dll',
     'ReadFile',
@@ -624,6 +649,7 @@ const ipcRead = (path: string): string => {
     ptr(bufferAddress(new ArrayBuffer(8))),
     ptr(0),
   )
+
   call('kernel32.dll', 'CloseHandle', 'bool', ptr(h))
   return new TextDecoder().decode(buf.slice(0, size))
 }
@@ -631,18 +657,24 @@ const ipcRead = (path: string): string => {
 function ipcPaths(tag: string): { cmd: string; evt: string } {
   const buf = new ArrayBuffer(520)
   const view = new DataView(buf)
+
   call('kernel32.dll', 'GetTempPathW', 'u32', u32(260), ptr(bufferAddress(buf)))
+
   let dir = ''
+
   for (let i = 0; i < 260; i++) {
     const c = view.getUint16(i * 2, true)
+
     if (!c) {
       break
     }
 
     dir += String.fromCharCode(c)
   }
+
   const pid = Number(call('kernel32.dll', 'GetCurrentProcessId', 'u32'))
   const uniq = `${pid}-${tag}-${Math.floor(Math.random() * 0xffffffff).toString(16)}`
+
   return {
     cmd: `${dir}xplat-tray-${uniq}-cmd.jsonl`,
     evt: `${dir}xplat-tray-${uniq}-evt.jsonl`,
@@ -655,8 +687,10 @@ export function createTray(options: TrayOptions): Promise<Tray> {
     if (!availability.available) {
       throw new TrayError(availability.reason, availability.message)
     }
+
     const state = normalizeTrayOptions(options, 'windows')
     const registry = buildMenuModel(state.menu)
+
     return new Promise<Tray>((resolve, reject) => {
       const Worker = projection().Worker!
       const paths = ipcPaths(options.id)
@@ -664,8 +698,10 @@ export function createTray(options: TrayOptions): Promise<Tray> {
         '__TRAY_EVT__',
         JSON.stringify(paths.evt),
       )
+
       const worker = new Worker(source, { eval: true })
       const tray = new WindowsTray(options.id, state, registry, worker, paths)
+
       tray.attach(resolve, reject)
     })
   })
@@ -710,14 +746,17 @@ class WindowsTray implements Tray {
         new TrayError('registration-failed', 'Windows tray worker did not become ready within 15s'),
       )
     }, 15_000)
+
     this.pollTimer = setInterval(() => {
       try {
         const text = ipcRead(this.paths.evt)
+
         if (text.length <= this.evtOffset) {
           return
         }
 
         const chunk = text.slice(this.evtOffset)
+
         this.evtOffset = text.length
         for (const line of chunk.split('\n')) {
           if (!line.trim()) {
@@ -769,6 +808,7 @@ class WindowsTray implements Tray {
         break
       case 'rect': {
         const listener = this.rectListeners.get(msg.tag ?? '')
+
         if (listener) {
           this.rectListeners.delete(msg.tag ?? '')
           listener(msg.hr === 0 ? (msg.box ?? null) : null)
@@ -827,28 +867,36 @@ class WindowsTray implements Tray {
 
   update(changes: TrayUpdate): void {
     this.assertLive()
+
     const normalized = normalizeTrayUpdate(changes, 'windows')
     const msg: Record<string, unknown> = { t: 'update' }
+
     if (normalized.icon !== undefined) {
       const resolved = resolvePlatformIcon(normalized.icon, 'windows')
+
       msg.icon = iconSpec(resolved)
       this.state.icon = resolved
     }
+
     if (normalized.tooltip !== undefined) {
       this.state.tooltip = normalized.tooltip ?? undefined
       msg.tooltip = this.state.tooltip ?? ''
     }
+
     if (normalized.title !== undefined) {
       this.state.title = normalized.title ?? undefined
     }
+
     if (normalized.menu !== undefined) {
       this.registry = buildMenuModel(normalized.menu ?? undefined)
       msg.menu = this.registry.rows
       this.state.menu = normalized.menu ?? undefined
     }
+
     if (normalized.onActivate !== undefined) {
       this.state.onActivate = normalized.onActivate ?? undefined
     }
+
     msg.menuOnPrimary = !this.state.onActivate && !!this.state.menu?.length
     this.sendCommand(msg)
   }
@@ -857,6 +905,7 @@ class WindowsTray implements Tray {
     if (this.destroyed) {
       return
     }
+
     this.destroyed = true
     try {
       this.sendCommand({ t: 'destroy' })
@@ -873,6 +922,7 @@ class WindowsTray implements Tray {
 
   handleMenuCommand(cmd: number) {
     const entry = this.registry.byId.get(cmd)
+
     if (entry) {
       dispatchTraySelect(entry.item, entry.option)
     }
@@ -887,6 +937,7 @@ class WindowsTray implements Tray {
 
 function requireWin32() {
   const { NSWinRT: nsrt } = projection()
+
   if (!nsrt?.win32?.call || !nsrt.interop?.pointerFromBuffer) {
     throw new TrayError(
       'unsupported-runtime',
@@ -898,13 +949,17 @@ function requireWin32() {
 /** Reveal and focus the app's windows; `false` when no app window exists to show. */
 export function showAppWindows(): boolean {
   requireWin32()
+
   const hwnds = appWindows()
+
   for (const hwnd of hwnds) {
     call('user32.dll', 'ShowWindow', 'bool', ptr(hwnd), i32(5)) // SW_SHOW
   }
+
   if (hwnds.length > 0) {
     call('user32.dll', 'SetForegroundWindow', 'bool', ptr(hwnds[0]))
   }
+
   return hwnds.length > 0
 }
 
@@ -922,6 +977,7 @@ export function toggleAppWindows(): boolean {
     hideAppWindows()
     return false
   }
+
   return showAppWindows()
 }
 

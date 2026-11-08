@@ -126,6 +126,7 @@ function blockSpacing(node: MdNode, compact: boolean): readonly [number, number]
             : node.type
 
   const s = SPACING[slot] ?? SPACING.paragraph
+
   return compact ? s.c : s.d
 }
 
@@ -139,6 +140,7 @@ function seamStyle(nodes: readonly MdNode[], i: number, compact: boolean) {
 
   const prevEnd = blockSpacing(nodes[i - 1], compact)[1]
   const start = blockSpacing(nodes[i], compact)[0]
+
   return { marginTop: Math.max(prevEnd, start) }
 }
 
@@ -151,11 +153,13 @@ const NUMBER_MARKERS = ['decimal', 'lower-alpha', 'lower-roman'] as const
  *  `diff` layers over plaintext, `diff-<lang>` over `<lang>`. */
 function parseFenceLanguage(info: string | undefined): { language: string; isDiff: boolean } {
   const value = (info ?? '').trim()
+
   if (value === 'diff') {
     return { language: 'plaintext', isDiff: true }
   }
 
   const layered = /^diff-(.+)$/.exec(value)
+
   if (layered) {
     return { language: layered[1], isDiff: true }
   }
@@ -172,6 +176,7 @@ const TABLE_HEADER_ONE_LINE_MAX_CH = 20
 
 function computeTableColumnMinWidths(node: MdTable): number[] {
   const [header, ...rows] = node.children
+
   if (header == null) {
     return []
   }
@@ -179,10 +184,13 @@ function computeTableColumnMinWidths(node: MdTable): number[] {
   return header.children.map((cell, colIdx) => {
     const headerLen = mdInlineLen(cell.children)
     let maxLen = headerLen
+
     for (const row of rows) {
       const rowCell = row.children[colIdx]
+
       if (rowCell != null) {
         const len = mdInlineLen(rowCell.children)
+
         if (len > maxLen) {
           maxLen = len
         }
@@ -191,6 +199,7 @@ function computeTableColumnMinWidths(node: MdTable): number[] {
 
     const bodyFloor = Math.ceil(maxLen / TABLE_COLUMN_TARGET_LINES)
     const headerFloor = Math.min(headerLen, TABLE_HEADER_ONE_LINE_MAX_CH)
+
     return Math.min(TABLE_COLUMN_MAX_CH, Math.max(TABLE_COLUMN_MIN_CH, bodyFloor, headerFloor))
   })
 }
@@ -210,6 +219,7 @@ interface StreamCursor {
  *  (Astryx `wrapTextWithFade` + `computeSegments` key contract). */
 function SegmentedText(props: { text: string; pos: number; stream: StreamCursor; segKey: string }) {
   const segs = computeSegments(props.text, props.pos, props.stream.boundaries, props.segKey)
+
   if (!segs) {
     return <MdTextRun text={props.text} />
   }
@@ -262,6 +272,7 @@ function blockSourceLines(
 
   const start = node.position?.start.line
   const end = node.position?.end.line
+
   return start != null && end != null ? { start, end } : undefined
 }
 
@@ -292,6 +303,7 @@ const pluginBoundaryIds = new WeakMap<object, number>()
 let nextPluginBoundaryId = 0
 function pluginBoundaryId(value: object): number {
   let id = pluginBoundaryIds.get(value)
+
   if (id == null) {
     id = ++nextPluginBoundaryId
     pluginBoundaryIds.set(value, id)
@@ -314,11 +326,13 @@ function renderMdPluginNode(
   fallback: unknown,
 ): unknown {
   const renderer = getMarkdownExtensionRenderer(prepared, node)
+
   if (renderer == null) {
     return fallback
   }
 
   let rendered: unknown
+
   try {
     rendered = renderer.render({ node })
   } catch (error) {
@@ -362,6 +376,7 @@ function MdHeadingPermalink(props: {
   })
 
   const { getContainerProps, getContentRevealProps } = useContainerReveal()
+
   return (
     <View
       className="vx-md-heading-links"
@@ -402,6 +417,7 @@ function useStableMdSyntaxEntries(
   prepared: PreparedMarkdownPlugins | undefined,
 ): PreparedMarkdownPlugins | undefined {
   const prevRef = useRef<PreparedMarkdownPlugins | undefined>(undefined)
+
   if (
     prepared !== prevRef.current &&
     (prepared == null ||
@@ -416,6 +432,7 @@ function useStableMdSyntaxEntries(
 
 function citationNumber(ctx: NonNullable<RenderCtx['citations']>, sourceId: string): number {
   let num = ctx.numberMap.get(sourceId)
+
   if (num == null) {
     num = ctx.nextNumber++
     ctx.numberMap.set(sourceId, num)
@@ -441,13 +458,18 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
   }
 
   const allMatches: RawMatch[] = []
+
   for (const plugin of plugins) {
     plugin.pattern.lastIndex = 0
+
     let m: RegExpExecArray | null
+
     while ((m = plugin.pattern.exec(text)) !== null) {
       let end: number
+
       if (plugin.getEndIndex) {
         const result = plugin.getEndIndex(text, m)
+
         if (result === false) {
           continue
         }
@@ -462,8 +484,10 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
   }
 
   allMatches.sort((a, b) => a.start - b.start)
+
   const resolved: RawMatch[] = []
   let lastEnd = 0
+
   for (const m of allMatches) {
     if (m.start >= lastEnd) {
       resolved.push(m)
@@ -477,8 +501,10 @@ function applyInlinePlugins(text: string, plugins: MarkdownInlinePlugin[]): Inli
 
   const segments: InlineSegment[] = []
   let cursor = 0
+
   for (let i = 0; i < resolved.length; i++) {
     const m = resolved[i]
+
     if (m.start > cursor) {
       segments.push({ type: 'text', content: text.slice(cursor, m.start) })
     }
@@ -521,12 +547,15 @@ function Inlines(props: {
   for (const n of props.nodes ?? []) {
     const at = pos
     const key = `${props.segKey}.${seq}`
+
     switch (n.type) {
       case 'text': {
         if (props.ctx.inlinePlugins && props.ctx.inlinePlugins.length > 0) {
           const segments = applyInlinePlugins(n.value, props.ctx.inlinePlugins)
+
           if (!(segments.length === 1 && segments[0].type === 'text')) {
             let segPos = at
+
             for (const seg of segments) {
               if (seg.type === 'text') {
                 out.push(
@@ -594,12 +623,14 @@ function Inlines(props: {
         break
       case 'inlineCode': {
         const Comp = props.ctx.components?.inlineCode as any
+
         out.push(Comp ? <Comp>{n.value}</Comp> : <MdCodeRun>{n.value}</MdCodeRun>)
         pos += n.value.length
         break
       }
       case 'inlineMath': {
         const Comp = props.ctx.components?.math as any
+
         if (Comp == null) {
           out.push(
             props.ctx.stream ? (
@@ -629,6 +660,7 @@ function Inlines(props: {
           out.push(kids)
         } else {
           const Comp = props.ctx.components?.link as any
+
           out.push(
             Comp ? (
               <Comp href={safe}>{kids}</Comp>
@@ -646,6 +678,7 @@ function Inlines(props: {
       case 'image': {
         const safe = sanitizeUrl(n.url)
         const Comp = props.ctx.components?.image as any
+
         out.push(
           safe == null ? (
             <MdTextRun text={`[${n.alt}]`} />
@@ -661,7 +694,9 @@ function Inlines(props: {
       }
       case 'citation': {
         pos += 1
+
         const cctx = props.ctx.citations
+
         if (!cctx) {
           out.push(<MdTextRun text={`[${n.sourceId}]`} />)
           break
@@ -671,6 +706,7 @@ function Inlines(props: {
         const source = cctx.sources[n.sourceId] ?? { title: n.sourceId }
         const variant = cctx.style === 'number' ? 'number' : 'label'
         const Comp = props.ctx.components?.citation as any
+
         out.push(
           Comp ? (
             <Comp source={source} number={num} variant={variant} />
@@ -828,6 +864,7 @@ function ListItems(props: {
   const itemContent = (item: MdList['children'][number], j: number) => {
     const first = item.children[0]
     const isInline = item.children.length === 1 && first?.type === 'paragraph'
+
     return isInline ? (
       // Runs need a text host on native — bare spans inside a view fold to
       // text-only children, which AppKit's spike rejects outright.
@@ -922,12 +959,14 @@ function Blocks(props: {
   const blockAlignStyle = () => (props.contentAlign === 'center' ? { alignSelf: 'center' } : {})
 
   const blocks = []
+
   for (const [i, node] of props.nodes.entries()) {
     const segKey = `${props.segKey}.${i}`
     const margin =
       props.margin !== undefined ? props.margin : seamStyle(props.nodes, i, props.compact)
 
     const sl = blockSourceLines(props.ctx, node)
+
     switch (node.type) {
       case 'heading': {
         const level = Math.min(6, node.depth + (props.ctx.headingLevelStart ?? 1) - 1) as
@@ -977,6 +1016,7 @@ function Blocks(props: {
       case 'paragraph': {
         const kids = <Inlines nodes={node.children} ctx={props.ctx} segKey={segKey} />
         const Comp = props.ctx.components?.paragraph as any
+
         blocks.push(
           <MdSourceLines lines={sl}>
             {Comp ? (
@@ -1020,11 +1060,14 @@ function Blocks(props: {
         // this code block; its renderer may decline (null/boolean →
         // fallback), throw, or suspend — all land on the same fallback.
         const proposal = getMarkdownFenceProposal(node)
+
         if (proposal != null) {
           const renderer = getMarkdownExtensionRenderer(props.ctx.plugins, proposal.node)
+
           if (renderer != null) {
             let rendered: unknown
             let failed = false
+
             try {
               rendered = renderer.render({ node: proposal.node })
             } catch (error) {
@@ -1056,6 +1099,7 @@ function Blocks(props: {
       }
       case 'math': {
         const Comp = props.ctx.components?.math as any
+
         blocks.push(
           <MdSourceLines lines={sl}>
             {Comp ? (
@@ -1110,6 +1154,7 @@ function Blocks(props: {
         )
 
         const Comp = props.ctx.components?.blockquote as any
+
         blocks.push(
           <MdSourceLines lines={sl}>
             {Comp ? (
@@ -1124,6 +1169,7 @@ function Blocks(props: {
       }
       case 'thematicBreak': {
         const Comp = props.ctx.components?.hr as any
+
         blocks.push(
           <MdSourceLines lines={sl}>
             {Comp ? (
@@ -1148,6 +1194,7 @@ function Blocks(props: {
       case 'image': {
         const safe = sanitizeUrl(node.url)
         const Comp = props.ctx.components?.image as any
+
         blocks.push(
           <MdSourceLines lines={sl}>
             {safe == null ? (
@@ -1175,6 +1222,7 @@ function Blocks(props: {
         // paragraph spacing and prose width/align; the readable fallback
         // is the node's source (or its plugin's text projection).
         const fallback = node.source ?? markdownExtensionText(props.ctx.plugins, node)
+
         blocks.push(
           <MdSourceLines lines={sl}>
             <View style={{ ...margin, ...proseStyle() } as never}>
@@ -1244,6 +1292,7 @@ export function Markdown(props: MarkdownProps): unknown @{
     const duration = parseCssDuration(token('--duration-fast-max')) ?? 230
     const base = parseCssDuration(token('--duration-fast-min'))
     const tickMs = base != null ? Math.max(4, Math.round(base / 10)) : 50
+
     return Math.min(Math.ceil(duration / tickMs), 12)
   }, [token])
 
@@ -1264,6 +1313,7 @@ export function Markdown(props: MarkdownProps): unknown @{
     let nodes: MdNode[]
     let inlineNodes: MdInline[]
     const inline = props.display === 'inline'
+
     if (props.data) {
       // A baked document is already transformed; entries only supply the
       // renderers its extension nodes resolve against.
@@ -1276,7 +1326,9 @@ export function Markdown(props: MarkdownProps): unknown @{
       inlineNodes = []
     } else if (inline) {
       const input = streaming ? trimStreamingArtifacts(smoothedText, options) : smoothedText
+
       incRef.current = undefined
+
       const parsed = parseMdInline(input, options)
       const transformed = applyMarkdownTransforms(
         mdDoc([{ type: 'paragraph', children: parsed }]),
@@ -1287,11 +1339,14 @@ export function Markdown(props: MarkdownProps): unknown @{
       )
 
       const paragraph = transformed.children[0]
+
       inlineNodes = paragraph?.type === 'paragraph' ? [...paragraph.children] : parsed
       nodes = []
     } else if (streaming) {
       incRef.current ??= createMarkdownIncrementalState()
+
       const input = trimStreamingArtifacts(smoothedText, options)
+
       nodes = applyMarkdownTransforms(
         parseMarkdownIncremental(input, incRef.current, options),
         preparedPlugins,
@@ -1320,6 +1375,7 @@ export function Markdown(props: MarkdownProps): unknown @{
     }
 
     prevTextRef.current = smoothedText
+
     const boundaries = streaming
       ? computeBoundaries(boundariesRef.current, prevLenRef.current, maxSpans)
       : []
@@ -1328,9 +1384,12 @@ export function Markdown(props: MarkdownProps): unknown @{
 
     const offsets: number[] = new Array(nodes.length)
     let acc = 0
+
     for (let i = 0; i < nodes.length; i++) {
       offsets[i] = acc
+
       const node = nodes[i]
+
       acc += node.type === 'extension' ? extensionText(node).length : markdownTextLength([node])
     }
 
@@ -1343,6 +1402,7 @@ export function Markdown(props: MarkdownProps): unknown @{
       : projectMarkdownHeadingLinks(mdDoc(nodes), preparedPlugins)
 
     const headingIds = inline ? undefined : (headingLinks?.ids ?? projectMdHeadings(nodes).ids)
+
     return {
       nodes,
       inlineNodes,
@@ -1462,6 +1522,7 @@ export function MarkdownPluginNodeRenderer(props: {
   }, [props.plugins])
 
   const fallback = <>{props.node.source ?? markdownExtensionText(prepared, props.node)}</>
+
   return <>{renderMdPluginNode(prepared, props.node, fallback)}</>
 }
 

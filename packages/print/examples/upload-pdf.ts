@@ -8,7 +8,9 @@ export async function uploadPdf(
   if (!Print.capabilities.printToFile) {
     throw new Error('PDF file export is unavailable on this host')
   }
+
   const result = await printToFileAsync({ html })
+
   try {
     await upload(result.uri)
   } finally {

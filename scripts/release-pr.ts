@@ -25,9 +25,11 @@ export function resolveOverride(input: string, body: string | undefined): string
   if (input === 'auto') {
     return undefined
   }
+
   if (input) {
     return releaseVersion(input)
   }
+
   return body ? readOverride(body) : undefined
 }
 
@@ -38,11 +40,14 @@ const BODY_LIMIT = 65000
 
 function truncateNotes(notes: string, budget: number): string {
   const trimmed = notes.trim()
+
   if (trimmed.length <= budget) {
     return trimmed
   }
+
   const boundary = trimmed.lastIndexOf('\n\n', budget)
   const cut = boundary > 0 ? trimmed.slice(0, boundary) : trimmed.slice(0, budget)
+
   return (
     cut.trimEnd() +
     '\n\n---\n\n_Notes truncated to fit GitHub’s pull request body limit — ' +
@@ -71,15 +76,19 @@ export function renderReleaseBody({
     '',
     '',
   ].join('\n')
+
   return preamble + truncateNotes(notes, BODY_LIMIT - preamble.length - 1) + '\n'
 }
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try {
     const [command, ...rest] = process.argv.slice(2)
+
     if (command === 'override') {
       assert.equal(rest.length, 1, 'usage: node scripts/release-pr.ts override <input>')
+
       const body = readFileSync(0, 'utf8')
+
       console.log(resolveOverride(rest[0], body || undefined) ?? '')
     } else if (command === 'body') {
       assert.ok(
@@ -88,6 +97,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
       )
 
       const [version, notesFile, override] = rest
+
       process.stdout.write(
         renderReleaseBody({
           version: releaseVersion(version),

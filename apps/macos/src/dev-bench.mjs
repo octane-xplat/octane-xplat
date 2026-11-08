@@ -28,6 +28,7 @@ function summarize(values) {
     sorted[Math.min(sorted.length - 1, Math.ceil(sorted.length * fraction) - 1)]
 
   const round = (value) => Number(value.toFixed(2))
+
   return {
     samples: sorted.length,
     p50Ms: round(percentile(0.5)),
@@ -117,6 +118,7 @@ export function createDevBench(root, appKit) {
     afterRender() {
       setTimeout(() => {
         const after = metrics()
+
         initialRenderMs = performance.now() - renderStartedAt
         initialRenderCpuMs = after.cpuMs - renderMetricsBefore.cpuMs
         initialRenderRssDeltaMiB = (after.rssBytes - renderMetricsBefore.rssBytes) / 1024 / 1024
@@ -143,8 +145,10 @@ export function createDevBench(root, appKit) {
               let requestedScrollOffset = null
               let actualScrollOffset = null
               let afterScroll = null
+
               if (mode === 'windowed') {
                 const scrollView = initial.scrollViews.find((view) => view.id === 'vlist-bench')
+
                 requestedScrollOffset = Math.max(
                   0,
                   scrollView.contentHeight - scrollView.viewportHeight,
@@ -201,6 +205,7 @@ export function createDevBench(root, appKit) {
             )
 
             const maxOffset = Math.max(0, contentHeight - (scrollView?.viewportHeight ?? 0))
+
             for (let index = 1; index <= count; index++) {
               root.__macosDebug.scrollToId('vlist-bench', Math.min(index * 8, maxOffset))
               await new Promise((resolve) => setTimeout(resolve, 16))

@@ -15,6 +15,7 @@ export function registerRootLayout(rl: RootLayout | undefined | null): void {
 
 export function unregisterRootLayout(rl: RootLayout | undefined | null): void {
   const i = rl ? registry.indexOf(rl) : -1
+
   if (i >= 0) {
     registry.splice(i, 1)
   }
@@ -47,6 +48,7 @@ export function rootLayoutFor(view: any): RootLayout | undefined {
 export function currentRootLayoutFor(view: any): RootLayout | undefined {
   const page = view?.page
   const current = page?.frame?.currentPage
+
   if (!current || current === page) {
     return rootLayoutFor(view)
   }
@@ -57,6 +59,7 @@ export function currentRootLayoutFor(view: any): RootLayout | undefined {
     }
 
     let result: RootLayout | undefined
+
     node?.eachChildView?.((child: any) => {
       result = walk(child)
       return !result
@@ -86,12 +89,14 @@ export function findInRootLayouts(id: string): any {
     }
 
     let hit: any = null
+
     view.eachChildView?.((c: any) => {
       if (c?.isLoaded === false) {
         return true
       }
 
       const found = walk(c)
+
       if (found) {
         hit = found
         return false
@@ -105,11 +110,13 @@ export function findInRootLayouts(id: string): any {
 
   for (let i = registry.length - 1; i >= 0; i--) {
     const hit = walk(registry[i])
+
     if (hit) {
       return hit
     }
   }
 
   const rl = getRootLayout()
+
   return rl ? walk(rl) : null
 }

@@ -8,8 +8,10 @@ import { spawn } from 'node:child_process'
 import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import { audioResponse } from './fixture-server.mjs'
+
 const budgets = process.argv.includes('--foreground-budgets')
 const server = createServer(audioResponse)
+
 await new Promise((resolve, reject) => {
   server.once('error', reject)
   server.listen(19688, '0.0.0.0', resolve)

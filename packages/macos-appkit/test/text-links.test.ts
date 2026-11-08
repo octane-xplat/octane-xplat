@@ -26,6 +26,7 @@ test('link handlers fold through nested spans; an inner handler wins', () => {
   ])
 
   const runs = textRuns(tree)
+
   assert.equal(runs.map((run) => run.text).join(''), 'abcde')
   assert.deepEqual(
     runs.map((run) => run.link),
@@ -37,6 +38,7 @@ test('dropped span handlers clear the inherited link; re-added handlers reappear
   const tap = () => {}
   const span = node('span', { text: 'a', onLinkTap: tap }, [node('span', { text: 'b' })])
   const tree = node('formattedstring', {}, [span])
+
   assert.deepEqual(
     textRuns(tree).map((run) => run.link),
     [tap, tap],
@@ -109,6 +111,7 @@ test('composed runs carry per-range link entries and NSLink tokens in order', ()
       { location: 4, length: 2, handler: second },
     ],
   )
+
   assert.equal(runs[1].attributes.NSLink, 'octane-span://0')
   assert.equal(runs[2].attributes.NSLink, 'octane-span://1')
   assert.equal(runs[0].attributes.NSLink, undefined)
@@ -119,6 +122,7 @@ const source = stripTypeScriptTypes(rendererSource())
 
 const fn = (name: string) => {
   const start = source.indexOf(`function ${name}(`)
+
   return source.slice(start, source.indexOf('\nfunction ', start + 1))
 }
 
@@ -140,8 +144,10 @@ test('rich labels keep the folded link table; plain text drops it', () => {
           if (run.link) {
             links.push({ location: offset, length: run.text.length, handler: run.link })
           }
+
           return offset + run.text.length
         }, 0)
+
       return 'A'
     },
     syncTextLinks: (n: any) => calls.push(n.textLinks?.length ?? 0),
@@ -162,6 +168,7 @@ test('rich labels keep the folded link table; plain text drops it', () => {
     container: {},
     parent: null,
   }
+
   slice(parent)
   assert.equal(parent.textLinks.length, 1)
   assert.equal(parent.textLinks[0].location, 2)
@@ -210,9 +217,13 @@ test('linkPressed dispatches only the handler owning the tapped character', () =
       { location: 9, length: 3, handler: () => calls.push('second') },
     ],
   }
+
   nodes.set(view, control)
+
   const sender = { view, locationInView: () => ({ x: 0, y: 0 }) }
+
   control.linkClickRecognizer = sender
+
   const target = new ButtonActionTarget()
 
   tapped.index = 2
@@ -250,6 +261,7 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
         alloc: () => ({
           initWithTargetAction: () => {
             const recognizer = { addedTo: [] as any[], enabled: true }
+
             recognizers.push(recognizer)
             return recognizer
           },
@@ -274,6 +286,7 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
       recognizer.addedTo.push(this)
     },
   }
+
   const control: any = { type: 'label', view, props: {} }
 
   slice.syncTextLinks(control)
@@ -290,6 +303,7 @@ test('syncTextLinks attaches one gated recognizer and follows link/disabled stat
   assert.equal(view.accessibilityCustomActions[0].name, 'Open link ab')
 
   const firstAction = view.accessibilityCustomActions[0]
+
   slice.syncTextLinks(control)
   assert.equal(recognizers.length, 1, 'the recognizer is reused across re-syncs')
   // Pooled: the same name resolves to the same action object. Fresh objects

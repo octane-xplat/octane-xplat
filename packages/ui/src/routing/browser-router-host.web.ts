@@ -20,6 +20,7 @@ import type {
 import type { RouterRenderScope } from './router-render-scope'
 
 type Modal = { flow: string; startDepth: number; entry: ClientRouteEntry }
+
 export type BrowserRouteSnapshot = {
   main: ClientRouteEntry | null
   modals: readonly Modal[]
@@ -35,6 +36,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
   if (typeof window === 'undefined') {
     throw new Error('A browser router host requires a browser')
   }
+
   const browser = window
   const history = browser.history
   const effects = createBrowserRouteEffects(browser)
@@ -71,6 +73,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         key: string
       }
     | undefined
+
   const notify = (change?: RouterHostChange) => {
     // Cleanup observers can replace their subscriptions during notification.
     // oxlint-disable-next-line unicorn/no-useless-spread
@@ -78,6 +81,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       listener(change)
     }
   }
+
   const top = (snapshot = current) => snapshot.modals.at(-1)?.entry ?? snapshot.main
   const stamp = (
     snapshot: BrowserRouteSnapshot,
@@ -90,11 +94,13 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       ...history.state,
       __octaneXplatRouter: { owner: historyOwner, key, depth: atDepth },
     }
+
     if (replace) {
       history.replaceState(state, '', href)
     } else {
       history.pushState(state, '', href)
     }
+
     // Browser rejection must not advance the router's history bookkeeping.
     for (const [at, oldKey] of depthKeys) {
       if (at >= atDepth) {
@@ -103,6 +109,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         depthKeys.delete(at)
       }
     }
+
     saved.set(key, snapshot)
     depthKeys.set(atDepth, key)
     activeKey = key
@@ -115,12 +122,14 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         entry.cancel()
       }
     }
+
     current = snapshot
     flushSync(() => {
       views.set(snapshot)
       notify({ external })
     })
   }
+
   const prepareSnapshot = async (
     snapshot: BrowserRouteSnapshot,
     command: RouterHostCommand,
@@ -131,14 +140,17 @@ export function createBrowserRouterHost(): BrowserRouterHost {
     if (!command.prepare || !instance) {
       return { status: 'unsupported', operation: 'history-preparation' }
     }
+
     const entries = [snapshot.main, ...snapshot.modals.map((modal) => modal.entry)]
     const prepared: ClientRouteEntry[] = []
+
     for (const entry of entries) {
       if (!entry) {
         continue
       }
 
       const resolved = instance.resolveUrl(entry.route.href)
+
       if (resolved.status !== 'matched') {
         return resolved
       }
@@ -191,7 +203,9 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         break
       }
     }
+
     let index = 0
+
     return {
       status: 'ready',
       snapshot: {
@@ -202,6 +216,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       },
     }
   }
+
   const stageSnapshot = async (
     snapshot: BrowserRouteSnapshot,
     command: RouterHostCommand,
@@ -211,13 +226,17 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       ...(snapshot.main ? [{ entry: snapshot.main, modal: false }] : []),
       ...snapshot.modals.map((modal) => ({ entry: modal.entry, modal: true })),
     ]
+
     if (candidates.some((stage) => !outlets.has(stage.modal ? 'root' : stage.entry.flow))) {
       return { status: 'unsupported', operation: 'missing-outlet' }
     }
+
     const pending = candidates.filter((stage) => !existing.has(stage.entry.id))
+
     if (!pending.length) {
       return { status: 'committed', route: top(snapshot)?.route ?? null }
     }
+
     flushSync(() => views.set({ ...current, staged: pending }))
     try {
       const rendered = Promise.all(pending.map((stage) => stage.entry.committed))
@@ -249,21 +268,25 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       throw error
     }
   }
+
   const rebaseHistory = (snapshot: BrowserRouteSnapshot, href: string) => {
     historyOwner = prefix + ':epoch:' + ++sequence
     for (const oldKey of saved.keys()) {
       effects.forget(oldKey)
     }
+
     saved.clear()
     depthKeys.clear()
     depth = baseDepth = 0
     stamp(snapshot, true, href)
     stamped = true
   }
+
   const correctHistory = async (targetDepth: number | undefined, previousHref: string) => {
     if (disposed) {
       return
     }
+
     if (targetDepth !== undefined && activeKey && targetDepth !== depth) {
       try {
         await new Promise<void>((resolve, reject) => {
@@ -272,6 +295,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
             correction = undefined
             reject(new Error('Browser history correction did not complete'))
           }, 5000)
+
           correction = { key, resolve, timer }
           history.go(depth - targetDepth)
         })
@@ -288,10 +312,12 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         }
       }
     }
+
     // Missing coordinates or an unacknowledged correction cannot leave a
     // denied URL attached to the admitted view. Older entries stay external.
     rebaseHistory(current, previousHref)
   }
+
   const restore = async (
     next: BrowserRouteSnapshot,
     key: string | undefined,
@@ -305,6 +331,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
     const target = top(next)
     const back = targetDepth < previousDepth
     const source = back ? previousRoute : target?.route
+
     return motion.run(
       {
         direction: back ? 'back' : 'forward',
@@ -318,9 +345,11 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         if (disposed || version !== viewVersion || (command && !command.beginCommit())) {
           return { status: 'cancelled', reason: disposed ? 'disposed' : 'superseded' }
         }
+
         if (target && !outlets.has(target.flow) && !(next.modals.length && outlets.has('root'))) {
           return { status: 'unsupported', operation: 'missing-outlet' }
         }
+
         activeKey = key
         depth = targetDepth
         baseDepth = Math.min(baseDepth, depth)
@@ -330,6 +359,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         } else {
           rebaseHistory(next, target?.route.href ?? browser.location.href)
         }
+
         // A redirect replaces the traversed entry, never adds another one.
         if (
           target &&
@@ -338,10 +368,13 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         ) {
           history.replaceState(history.state, '', target.route.href)
         }
+
         committedHref = browser.location.href
         publish(next)
+
         const result = await (target?.committed ??
           Promise.resolve<RouterHostResult>({ status: 'committed', route: null }))
+
         if (result.status === 'committed' && !disposed && current === next) {
           effects.head(target?.content.head)
           if (next.main?.id !== previousMain) {
@@ -352,41 +385,52 @@ export function createBrowserRouterHost(): BrowserRouterHost {
             })
           }
         }
+
         return result
       },
       command?.cancellation,
     )
   }
+
   const onPop = async () => {
     if (disposed) {
       return
     }
+
     const owned = history.state?.__octaneXplatRouter
+
     if (correction && owned?.owner === historyOwner && owned.key === correction.key) {
       const pending = correction
+
       correction = undefined
       clearTimeout(pending.timer)
       pending.resolve()
       return
     }
+
     if (correction) {
       clearTimeout(correction.timer)
       correction.resolve()
       correction = undefined
     }
+
     const version = ++viewVersion
     const targetHref = browser.location.pathname + browser.location.search + browser.location.hash
     const previousHref = committedHref
+
     effects.save(activeKey)
+
     const sameOwner = owned?.owner === historyOwner && Number.isInteger(owned.depth)
     const targetDepth = sameOwner ? (owned.depth as number) : undefined
     const key = sameOwner ? (owned.key as string) : undefined
     const snapshot = key ? saved.get(key) : undefined
     const pending = traversal
+
     traversal = undefined
     if (pending) {
       clearTimeout(pending.timer)
     }
+
     try {
       if (pending && pending.key === key) {
         pending.resolve(await restore(pending.next, key, targetDepth ?? 0, version))
@@ -412,11 +456,14 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 
               return { status: 'cancelled', reason: 'superseded' }
             }
+
             let prepared: Awaited<ReturnType<typeof prepareSnapshot>>
+
             if (snapshot) {
               prepared = await prepareSnapshot(snapshot, command)
             } else {
               const result = await command.prepare!(targetHref, 'root')
+
               if (result.status === 'ready' && result.transition) {
                 definitions.set(result.route, result.transition)
               }
@@ -438,6 +485,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
                     }
                   : result
             }
+
             if (!command.isCurrent() || version !== viewVersion) {
               if (!disposed && version === viewVersion) {
                 await correctHistory(targetDepth, previousHref)
@@ -445,12 +493,15 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 
               return { status: 'cancelled', reason: 'superseded' }
             }
+
             if (prepared.status !== 'ready') {
               await correctHistory(targetDepth, previousHref)
               return prepared
             }
+
             try {
               const staged = await stageSnapshot(prepared.snapshot, command)
+
               if (staged.status !== 'committed') {
                 if (command.isCurrent() && version === viewVersion) {
                   await correctHistory(targetDepth, previousHref)
@@ -490,6 +541,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       }
     }
   }
+
   const traverse = (
     delta: number,
     next: BrowserRouteSnapshot,
@@ -500,15 +552,18 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         traversal = undefined
         reject(new Error('Browser history traversal did not complete'))
       }, 5000)
+
       traversal = { resolve, reject, timer, next, key }
       history.go(delta)
     })
+
   const host: RouterHost = {
     history: 'linear',
     canReset: false,
     getSnapshot(flow) {
       const modal = current.modals.find((value) => value.flow === flow)
       const entry = modal?.entry ?? (current.main?.flow === flow ? current.main : null)
+
       return {
         route: entry?.route ?? null,
         canGoBack: depth > baseDepth && (flow === 'root' || top()?.flow === flow),
@@ -532,9 +587,11 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       if (disposed) {
         return { status: 'cancelled', reason: 'disposed' }
       }
+
       if (traversal) {
         return { status: 'blocked' }
       }
+
       const modal = current.modals.find((value) => value.flow === command.flow)
       const visible = top()
       const owner = outlets.get(command.flow)
@@ -543,9 +600,11 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         owner
           ? outlets.get(command.flow) === owner
           : !!rootOwner && outlets.get('root') === rootOwner && current.modals.includes(modal!)
+
       if (!owner && (!modal || !rootOwner)) {
         return { status: 'blocked' }
       }
+
       if (command.action === 'back' || command.action === 'dismiss') {
         if (command.flow !== 'root' && visible?.flow !== command.flow) {
           return { status: 'unsupported', operation: 'inactive-flow-history' }
@@ -560,22 +619,26 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         }
 
         const delta = command.action === 'dismiss' ? -(depth - modal!.startDepth + 1) : -1
+
         if (-delta > depth - baseDepth) {
           return { status: 'unsupported', operation: 'dismiss-without-presenter-history' }
         }
 
         const targetKey = depthKeys.get(depth + delta)
         const target = targetKey ? saved.get(targetKey) : undefined
+
         if (!target) {
           return { status: 'unsupported', operation: 'unknown-history-entry' }
         }
 
         const prepared = await prepareSnapshot(target, command)
+
         if (prepared.status !== 'ready') {
           return prepared
         }
 
         const staged = await stageSnapshot(prepared.snapshot, command)
+
         if (staged.status !== 'committed') {
           return staged
         }
@@ -597,21 +660,27 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 
         return traverse(delta, prepared.snapshot, targetKey!)
       }
+
       if (command.action === 'reset') {
         return { status: 'unsupported', operation: 'reset' }
       }
+
       if (!command.route || !command.content || !instance) {
         throw new Error('Browser commit requires prepared render content')
       }
+
       if (modal && modal !== current.modals.at(-1)) {
         return { status: 'unsupported', operation: 'inactive-modal' }
       }
+
       if (command.route.presentation === 'modal' && !outlets.has('root')) {
         return { status: 'blocked' }
       }
+
       if (!command.isCurrent()) {
         return { status: 'cancelled', reason: 'superseded' }
       }
+
       const replace = command.action === 'replace' || command.action === 'refresh'
       const nextDepth = depth + (replace ? 0 : 1)
       const opensModal = command.route.presentation === 'modal' && command.action !== 'refresh'
@@ -619,11 +688,14 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       const previous = modal?.entry ?? current.main
       const id =
         command.action === 'refresh' && previous ? previous.id : prefix + ':view:' + ++sequence
+
       if (opensModal) {
         preparingModals.add(flow)
       }
+
       const entry = createClientRouteEntry(instance, flow, id, command.route, command.content)
       let next: BrowserRouteSnapshot
+
       if (opensModal) {
         next = { ...current, modals: [...current.modals, { flow, startDepth: nextDepth, entry }] }
       } else if (modal) {
@@ -634,16 +706,19 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       } else {
         next = { main: entry, modals: [] }
       }
+
       const clearStage = () => {
         if (views.getSnapshot().staged?.some((stage) => stage.entry === entry)) {
           flushSync(() => views.set(current))
         }
+
         entry.cancel()
         if (opensModal && !current.modals.some((modal) => modal.flow === flow)) {
           preparingModals.delete(flow)
           notify({ ownerDisposed: true, flowDisposed: true, flow })
         }
       }
+
       try {
         if (command.action !== 'refresh') {
           flushSync(() =>
@@ -651,6 +726,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
           )
 
           const rendered = await entry.committed
+
           if (rendered.status !== 'committed') {
             clearStage()
             return rendered
@@ -677,34 +753,44 @@ export function createBrowserRouterHost(): BrowserRouterHost {
               clearStage()
               return { status: 'cancelled', reason: 'disposed' }
             }
+
             if (version !== viewVersion || !command.beginCommit()) {
               clearStage()
               return { status: 'cancelled', reason: 'superseded' }
             }
+
             if (command.beforeMutation) {
               await command.beforeMutation()
             }
+
             if (disposed || !isMounted()) {
               clearStage()
               return { status: 'cancelled', reason: 'disposed' }
             }
+
             if (!command.isCurrent()) {
               clearStage()
               return { status: 'cancelled', reason: 'superseded' }
             }
+
             if (!stamped) {
               stamp(current, true)
               stamped = true
             }
+
             effects.save(activeKey)
+
             const changesDocument = next.main?.id !== current.main?.id
+
             stamp(next, replace, entry.route.href, nextDepth)
             depth = nextDepth
             publish(next)
             if (command.transition) {
               definitions.set(entry.route, command.transition)
             }
+
             const result = await entry.committed
+
             if (result.status === 'committed' && !disposed && current === next) {
               effects.head(top(next)?.content.head)
               if (changesDocument && command.action !== 'refresh') {
@@ -715,6 +801,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
                 })
               }
             }
+
             return result
           },
           command.cancellation,
@@ -738,6 +825,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       if (disposed) {
         return
       }
+
       disposed = true
       motion.interrupt()
       if (correction) {
@@ -745,25 +833,30 @@ export function createBrowserRouterHost(): BrowserRouterHost {
         correction.resolve()
         correction = undefined
       }
+
       browser.removeEventListener('popstate', onPop)
       if (owners.get(browser) === token) {
         owners.delete(browser)
       }
+
       if (scrollRestoration !== undefined) {
         history.scrollRestoration = scrollRestoration
       }
+
       effects.dispose()
       if (traversal) {
         clearTimeout(traversal.timer)
         traversal.resolve({ status: 'cancelled', reason: 'disposed' })
         traversal = undefined
       }
+
       for (const snapshot of saved.values()) {
         snapshot.main?.cancel()
         for (const modal of snapshot.modals) {
           modal.entry.cancel()
         }
       }
+
       views.getSnapshot().staged?.forEach((stage) => stage.entry.cancel())
       saved.clear()
       depthKeys.clear()
@@ -776,20 +869,25 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       instance = undefined
     },
   }
+
   // A browser document has one linear commit order, including async barriers.
   const commit = host.commit
   let commits: Promise<unknown> = Promise.resolve()
   const enqueue = (work: () => RouterHostResult | Promise<RouterHostResult>) => {
     const result = commits.catch(() => {}).then(work)
+
     commits = result
     return result
   }
+
   host.commit = (command) => {
     if (disposed) {
       return Promise.resolve({ status: 'cancelled', reason: 'disposed' })
     }
+
     return enqueue(() => commit(command))
   }
+
   return {
     host,
     views,
@@ -799,7 +897,9 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       if (!instance || disposed || stamped || outlets.size || current.main) {
         throw new Error('Initial route must be installed before mounting the browser host')
       }
+
       const entry = createClientRouteEntry(instance, route.stack, 'initial', route, content)
+
       void entry.committed.catch(() => {})
       current = { main: entry, modals: [] }
       stamp(current, true)
@@ -818,25 +918,31 @@ export function createBrowserRouterHost(): BrowserRouterHost {
       if (instance || disposed) {
         throw new Error('Browser router host cannot be attached')
       }
+
       instance = router
     },
     scope(flow: string) {
       if (!instance) {
         throw new Error('Browser router host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     mount(flow: string) {
       if (disposed) {
         throw new Error('Browser router host is disposed')
       }
+
       if (outlets.has(flow)) {
         throw new Error('A route flow already has a mounted outlet')
       }
+
       const owner = owners.get(browser)
+
       if (owner && owner !== token) {
         throw new Error('This document already has a browser router host')
       }
+
       owners.set(browser, token)
       if (!outlets.size) {
         browser.addEventListener('popstate', onPop)
@@ -845,12 +951,15 @@ export function createBrowserRouterHost(): BrowserRouterHost {
           history.scrollRestoration = 'manual'
         }
       }
+
       const lifetime = {}
+
       outlets.set(flow, lifetime)
       return () => {
         if (outlets.get(flow) !== lifetime) {
           return
         }
+
         outlets.delete(flow)
         notify({ ownerDisposed: true, flow })
         if (flow === 'root') {
@@ -858,7 +967,9 @@ export function createBrowserRouterHost(): BrowserRouterHost {
             notify({ ownerDisposed: true, flow: modal.flow })
           }
         }
+
         const staged = views.getSnapshot().staged ?? []
+
         if (staged.some((stage) => stage.entry.flow === flow || flow === 'root')) {
           for (const stage of staged) {
             stage.entry.cancel()
@@ -866,11 +977,13 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 
           views.set(current)
         }
+
         for (const entry of [current.main, ...current.modals.map((value) => value.entry)]) {
           if (entry && (entry.flow === flow || flow === 'root')) {
             entry.cancel()
           }
         }
+
         if (flow === 'root') {
           ++viewVersion
           motion.interrupt()
@@ -881,6 +994,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
           }
 
           const endedModals = new Set<string>()
+
           for (const [key, snapshot] of saved) {
             snapshot.main?.cancel()
             for (const modal of snapshot.modals) {
@@ -907,6 +1021,7 @@ export function createBrowserRouterHost(): BrowserRouterHost {
 
           notify({ flow })
         }
+
         if (!outlets.size) {
           if (traversal) {
             clearTimeout(traversal.timer)

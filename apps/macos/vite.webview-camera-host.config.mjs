@@ -12,6 +12,7 @@ export default defineConfig(async ({ mode }) => {
     entry: resolve(appRoot, 'webview-camera-proof-host.ts'),
     outDir: resolve(appRoot, 'dist/webview-camera-host'),
   })
+
   return {
     ...config,
     define: { ...config.define, ...bundledFontDefines() },

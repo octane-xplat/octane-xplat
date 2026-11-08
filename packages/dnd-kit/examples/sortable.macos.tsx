@@ -22,6 +22,7 @@ export default function SortableExample(): unknown {
     const scroll = scrollRef.current
     const clip = scroll?.contentView
     const content = scroll?.documentView
+
     if (!clip || !content) {
       return 0
     }
@@ -50,6 +51,7 @@ export default function SortableExample(): unknown {
         <masonview
           onLayoutChanged={() => {
             const scroll = scrollRef.current
+
             if (
               initialized.current ||
               !scroll?.window ||
@@ -59,6 +61,7 @@ export default function SortableExample(): unknown {
             }
 
             initialized.current = true
+
             const content = scroll.documentView
             const flipped =
               typeof content.isFlipped === 'function' ? content.isFlipped() : content.isFlipped
@@ -88,6 +91,7 @@ export default function SortableExample(): unknown {
                 offsetRef,
                 maxOffset: () => {
                   const scroll = scrollRef.current
+
                   return Math.max(
                     0,
                     Number(scroll?.documentView?.frame?.size?.height ?? 0) -

@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createRoot, useRef, useEffect } from 'octane'
 import { afterEach, describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Dialog } from './Dialog.web.tsrx'
 import { DropdownMenu } from './DropdownMenu.web.tsrx'
@@ -14,8 +16,11 @@ const roots: ReturnType<typeof createRoot>[] = []
 
 function mount(Component: any, props: any) {
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
+
   roots.push(root)
   act(() => root.render(Component, props))
   return root
@@ -137,6 +142,7 @@ describe('shared nested dismissal', () => {
       updated = vi.fn()
 
     const root = mount(Nested, { dialog: true, menu: true, closeDialog, closeMenu })
+
     expect(escape().defaultPrevented).toBe(true)
     expect(closeMenu).toHaveBeenCalledWith(false)
     expect(closeDialog).not.toHaveBeenCalled()
@@ -154,6 +160,7 @@ describe('shared nested dismissal', () => {
       closeInner = vi.fn()
 
     const root = mount(Pair, { outer: true, inner: true, closeOuter, closeInner })
+
     escape()
     expect(closeInner).toHaveBeenCalledTimes(1)
     expect(closeOuter).not.toHaveBeenCalled()
@@ -201,7 +208,9 @@ describe('shared nested dismissal', () => {
 
   it('honors an editor claiming Escape', () => {
     const closeOuter = vi.fn()
+
     mount(Pair, { outer: true, inner: false, closeOuter, closeInner: vi.fn() })
+
     const button = Array.from(document.querySelectorAll('button')).find(
       (el) => el.textContent === 'Outer content',
     )!
@@ -229,6 +238,7 @@ describe('shared nested dismissal', () => {
       closeMenu = vi.fn()
 
     const root = mount(Card, { open: true, menu: true, close, closeDialog, closeMenu })
+
     escape()
     expect(closeMenu).toHaveBeenCalledTimes(1)
     expect(close).not.toHaveBeenCalled()
@@ -261,6 +271,7 @@ describe('shared nested dismissal', () => {
       upperTarget = document.createElement('button')
 
     document.body.append(lowerTarget, upperTarget)
+
     const lowerFocus = vi.spyOn(lowerTarget, 'focus')
     const lower = mount(Dialog, {
       isOpen: true,
@@ -277,6 +288,7 @@ describe('shared nested dismissal', () => {
     })
 
     const current = document.activeElement
+
     act(() => lower.render(Dialog, { isOpen: false }))
     expect(document.activeElement).toBe(current)
     expect(lowerFocus).not.toHaveBeenCalled()
@@ -310,6 +322,7 @@ describe('shared nested dismissal', () => {
       closeDialog = vi.fn()
 
     const root = mount(ManualLayer, { hide, closeDialog })
+
     escape()
     expect(hide).not.toHaveBeenCalled()
     expect(closeDialog).not.toHaveBeenCalled()
@@ -321,10 +334,13 @@ describe('shared nested dismissal', () => {
 
   it('returns focus after accepted removal, without reporting programmatic close', () => {
     const trigger = document.createElement('button')
+
     document.body.append(trigger)
     trigger.focus()
+
     const closeDialog = vi.fn()
     const root = mount(Nested, { dialog: true, menu: false, closeDialog, closeMenu: vi.fn() })
+
     act(() => root.render(Nested, { dialog: false, menu: false, closeDialog, closeMenu: vi.fn() }))
     expect(document.activeElement).toBe(trigger)
     expect(closeDialog).not.toHaveBeenCalled()

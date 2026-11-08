@@ -11,12 +11,14 @@ export const CHECKS: ParityCheck[] = [
     // a platform mismatch or hard-coding one device's inset.
     check: (m, target, dump) => {
       const expectedHeight = 80
+
       if (target === 'ios') {
         const safeArea = dump.cells?.['safe-area-layout']?.find((node) =>
           node.classes?.includes('parity-safe-area-root'),
         )
 
         const bottomInset = Number(safeArea?.style?.paddingBottom)
+
         if (!Number.isFinite(bottomInset)) {
           return [
             [

@@ -30,6 +30,7 @@ const browserName =
 
 if (browserName === 'all') {
   const args = process.argv.slice(2).filter((arg) => !arg.startsWith('--browser='))
+
   for (const engine of ['chromium', 'firefox', 'webkit']) {
     const result = spawnSync(
       process.execPath,
@@ -50,6 +51,7 @@ if (browserName === 'all') {
 }
 
 const browserType = { chromium, firefox, webkit }[browserName]
+
 if (!browserType) {
   throw new Error(`Unknown browser: ${browserName}`)
 }
@@ -59,6 +61,7 @@ const context = await browser.newContext()
 const page = await context.newPage()
 
 const errors = []
+
 page.on('pageerror', (e) => errors.push(String(e)))
 page.on('console', (m) => {
   if (m.type() === 'error') {
@@ -68,6 +71,7 @@ page.on('console', (m) => {
 
 const verifySpinnerShowcase = async () => {
   await page.goto(baseUrl + '/templates/SpinnerShowcase/', { waitUntil: 'networkidle' })
+
   const spinner = page.locator('.sb-preview-stage .vx-spinner')
   const count = await spinner.count()
   const role = count === 1 ? await spinner.getAttribute('role') : null
@@ -75,7 +79,9 @@ const verifySpinnerShowcase = async () => {
     count === 1
       ? await spinner.evaluate((element) => [element.style.width, element.style.height])
       : []
+
   const rendered = count === 1 && role === 'progressbar' && dimensions.join('x') === '24pxx24px'
+
   check(
     'SpinnerShowcase renders its large spinner',
     rendered,
@@ -92,6 +98,7 @@ if (process.argv.includes('--spinner-only')) {
   }
 
   const failures = results.filter((result) => !result.pass)
+
   console.log(
     `${results.length - failures.length}/${results.length} SpinnerShowcase checks passed (${browserName})`,
   )
@@ -108,6 +115,7 @@ if (process.argv.includes('--content-chat-only')) {
   }
 
   const failures = results.filter((result) => !result.pass)
+
   console.log(
     `${results.length - failures.length}/${results.length} content/chat checks passed (${browserName})`,
   )
@@ -124,6 +132,7 @@ if (process.argv.includes('--locale-only')) {
   }
 
   const failures = results.filter((result) => !result.pass)
+
   console.log(
     `${results.length - failures.length}/${results.length} locale/accessibility checks passed (${browserName})`,
   )
@@ -140,6 +149,7 @@ if (process.argv.includes('--rich-tables-only')) {
   }
 
   const failures = results.filter((result) => !result.pass)
+
   console.log(
     `${results.length - failures.length}/${results.length} rich-table checks passed (${browserName})`,
   )
@@ -158,6 +168,7 @@ if (process.argv.includes('--coverage-only')) {
   }
 
   const failures = results.filter((r) => !r.pass)
+
   console.log(
     `${results.length - failures.length}/${results.length} unit-14 coverage checks passed (${browserName})`,
   )
@@ -174,6 +185,7 @@ if (process.argv.includes('--media-only')) {
   }
 
   const failures = results.filter((r) => !r.pass)
+
   console.log(`${results.length - failures.length}/${results.length} media checks passed`)
   process.exit(failures.length ? 1 : 0)
 }
@@ -190,10 +202,13 @@ try {
   // Category filter row (upstream ToggleButtonGroup, F-7) — four options,
   // selecting one swaps the grouped sections for a single ungrouped grid.
   const filterGroup = page.locator('[role="group"][aria-label="Filter by category"]')
+
   check('home category filter renders', (await filterGroup.locator('button').count()) === 4)
   await filterGroup.locator('button', { hasText: 'Themes' }).click()
   await page.waitForTimeout(200)
+
   const themedCards = await page.locator('.sb-card-grid a').count()
+
   check('category filter narrows grid', themedCards > 0 && themedCards < 20, `${themedCards} cards`)
   check(
     'filtered grid is ungrouped',
@@ -207,7 +222,9 @@ try {
   // Search filters cards
   await page.fill('input[type="search"], input[placeholder="Search..."]', 'palette')
   await page.waitForTimeout(200)
+
   const cardCount = await page.locator('.sb-card-grid a').count()
+
   check('home search filters', cardCount > 0 && cardCount < 30, `${cardCount} cards`)
 
   // Category page via sidebar navigation (client-side)
@@ -225,16 +242,22 @@ try {
 
   for (const [route, label] of categoryCases) {
     await page.goto(baseUrl + route, { waitUntil: 'networkidle' })
+
     const heading = await page.textContent('h1')
     const cards = await page.locator('.sb-card-grid a').count()
+
     check(`category ${route} renders`, heading?.includes(label) && cards > 0, `${cards} cards`)
   }
 
   // Templates ledger: counts + family rows + statuses
   await page.goto(baseUrl + '/templates/', { waitUntil: 'networkidle' })
+
   const ledgerText = await page.textContent('body')
+
   check('ledger summary counts', ledgerText.includes('771 routes'), undefined)
+
   const pendingTotal = Number(ledgerText.match(/(\d+) pending/)?.[1])
+
   check(
     'ledger keeps every pending route visible',
     (await page.locator('.sb-status--pending').count()) === pendingTotal,
@@ -242,7 +265,9 @@ try {
 
   // Ported Button example route
   await page.goto(baseUrl + '/templates/ButtonShowcase/', { waitUntil: 'networkidle' })
+
   const buttons = await page.locator('button').allTextContents()
+
   check(
     'ButtonShowcase renders buttons',
     buttons.some((t) => t.includes('Primary')) && buttons.some((t) => t.includes('Destructive')),
@@ -277,9 +302,11 @@ try {
 
   for (const name of unit1Examples) {
     await page.goto(`${baseUrl}/templates/${name}/`, { waitUntil: 'networkidle' })
+
     const stage = page.locator('.sb-preview-stage')
     const pending = await stage.locator('.sb-pending').count()
     const content = ((await stage.textContent()) ?? '').trim()
+
     check(
       `unit-1 route ${name} renders ported content`,
       pending === 0 && content.length > 0,
@@ -289,7 +316,9 @@ try {
 
   // Blocked template route — honest placeholder naming the recorded gap
   await page.goto(baseUrl + '/templates/PaginationVariants/', { waitUntil: 'networkidle' })
+
   const pendingText = await page.textContent('body')
+
   check(
     'blocked template shows placeholder',
     pendingText.includes('blocked') && pendingText.includes('PaginationVariants'),
@@ -318,6 +347,7 @@ try {
   await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
   await page.locator('button[aria-label*="mode"], [aria-label*="mode"]').first().click()
   await page.waitForTimeout(300)
+
   const darkItem = page
     .locator('[role="menuitem"], [role="menuitemradio"]')
     .filter({ hasText: 'Dark' })
@@ -326,7 +356,9 @@ try {
   if (await darkItem.count()) {
     await darkItem.click()
     await page.waitForTimeout(300)
+
     const stored = await page.evaluate(() => window.localStorage.getItem('astryx-sandbox-mode'))
+
     check('dark mode persists', stored === 'dark', `stored=${stored}`)
   } else {
     check('dark mode persists', false, 'mode menu items not found')
@@ -335,12 +367,15 @@ try {
   // --- Theme runtime (unit 2) ---
   // Root scope carries the named theme + mode markers.
   await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
+
   const rootTheme = await page.evaluate(() =>
     document.documentElement.getAttribute('data-xds-theme'),
   )
 
   check('root theme scope on <html>', rootTheme === 'neutral', `data-xds-theme=${rootTheme}`)
+
   const scopeCount = await page.locator('.xds-theme-neutral').count()
+
   check('root theme scope class stamped', scopeCount > 0, `${scopeCount} scopes`)
 
   // Theme switch: pick Matcha from the nav theme menu, verify the root
@@ -387,14 +422,20 @@ try {
     .click()
 
   await page.waitForTimeout(300)
+
   const darkScope = await page.locator('.xds-theme-matcha.dark').count()
+
   check('dark mode marker on scope', darkScope > 0, `${darkScope}`)
+
   const darkAccent = await page.evaluate(() => {
     const scope = document.querySelector('.xds-theme-matcha.dark')
     const probe = document.createElement('div')
+
     probe.style.color = 'var(--color-accent)'
     scope.appendChild(probe)
+
     const c = getComputedStyle(probe).color
+
     probe.remove()
     return c
   })
@@ -413,6 +454,7 @@ try {
     .click()
 
   await page.waitForTimeout(300)
+
   const themeCases = [
     ['Neutral', 'neutral'],
     ['Matcha', 'matcha'],
@@ -439,13 +481,18 @@ try {
 
     const themedAccent = await page.evaluate((name) => {
       const scope = document.querySelector(`.xds-theme-${name}`)
+
       if (!scope) {
         return ''
       }
+
       const probe = document.createElement('div')
+
       probe.style.color = 'var(--color-accent)'
       scope.appendChild(probe)
+
       const c = getComputedStyle(probe).color
+
       probe.remove()
       return c
     }, id)
@@ -455,6 +502,7 @@ try {
 
   // Nested theme example: inner scope's tokens differ from outer's.
   await page.goto(baseUrl + '/templates/ThemeNested/', { waitUntil: 'networkidle' })
+
   const warm = await page.evaluate(() =>
     getComputedStyle(document.querySelector('.xds-theme-warm-docs'))
       .getPropertyValue('--color-accent')
@@ -475,6 +523,7 @@ try {
 
   // useTheme example resolves concrete values into SVG.
   await page.goto(baseUrl + '/templates/useThemeHookUsage/', { waitUntil: 'networkidle' })
+
   const barColor = await page.evaluate(
     () => getComputedStyle(document.querySelector('.sb-chart-bar')).backgroundColor,
   )
@@ -485,7 +534,9 @@ try {
   // authored pages live inside the preview shell's embed iframe (unit 3) —
   // read the frame document, not the outer body.
   await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
+
   const neutralText = await frameBodyText(page, 'neutral-palette', 'Neutral Theme Palette')
+
   check(
     'neutral palette renders',
     (neutralText ?? '').includes('Neutral Theme Palette') &&
@@ -495,7 +546,9 @@ try {
 
   // Gothic single-mode palette renders dark-only.
   await page.goto(baseUrl + '/pages/gothic-palette/', { waitUntil: 'networkidle' })
+
   const gothicText = await frameBodyText(page, 'gothic-palette', 'Gothic Theme Palette')
+
   check(
     'gothic palette renders dark mode',
     (gothicText ?? '').includes('Gothic Theme Palette') && (gothicText ?? '').includes('Dark Mode'),
@@ -510,6 +563,7 @@ try {
   )
 
   const embedStored = await page.evaluate(() => window.localStorage.getItem('astryx-sandbox-theme'))
+
   check('embed leaves storage untouched', embedStored === 'stone', `stored=${embedStored}`)
 
   // Persistence: stored stone + dark apply on plain relaunch.
@@ -550,9 +604,13 @@ try {
   // a leaf link routes client-side.
   await page.locator('button[aria-label*="sidebar" i]').first().click()
   await page.waitForTimeout(300)
+
   const treeItems = await page.locator('[role="treeitem"]').count()
+
   check('sidebar tree covers families', treeItems > 160, `${treeItems} rows`)
+
   const treeText = await page.locator('.sb-preview-sidebar').textContent()
+
   check(
     'sidebar groups pages+components',
     treeText.includes('Pages') && treeText.includes('Components') && treeText.includes('Button'),
@@ -569,7 +627,9 @@ try {
   await page.waitForTimeout(300)
   await page.fill('.vx-cmdk-search', 'Funnel & Cohort')
   await page.waitForTimeout(400)
+
   const funnel = page.locator('[role="option"]', { hasText: 'Funnel & Cohort Dashboard' }).first()
+
   check('palette finds distant template', (await funnel.count()) > 0)
   await funnel.click()
   await page.waitForTimeout(500)
@@ -598,7 +658,9 @@ try {
     })
 
   await page.waitForTimeout(300)
+
   const codeText = await page.textContent('.sb-preview-code')
+
   check('source view shows Octane source', (codeText ?? '').includes('export function TextWrap'))
   // Copy-source action reports copied state (icon/label swap).
   await page.locator('button[aria-label="Copy source"]').first().click()
@@ -612,8 +674,10 @@ try {
   // Embed/preview iframe on a page template + authored fullscreen page.
   await page.goto(baseUrl + '/pages/neutral-palette/', { waitUntil: 'networkidle' })
   await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
+
   const frameText = await frameBodyText(page, 'embed=1', 'Neutral Theme Palette')
   const frame = page.frames().find((f) => f.url().includes('embed=1'))
+
   check('fullscreen page renders in embed iframe', !!frame, frame?.url() ?? 'none')
   check('iframe renders palette page', (frameText ?? '').includes('Neutral Theme Palette'))
   // Theme dropdown in the preview toolbar syncs the iframe via postMessage.
@@ -656,6 +720,7 @@ try {
   await page.goto(baseUrl + '/', { waitUntil: 'networkidle' })
   await page.setViewportSize({ width: 480, height: 800 })
   await page.waitForTimeout(400)
+
   const navToggle = page
     .locator('button[aria-label*="navigation" i], button[aria-label*="nav" i]')
     .first()
@@ -759,6 +824,7 @@ try {
   // poll for the hint text rather than asserting on a fixed wait.
   await page.goto(baseUrl + '/templates/TooltipHookUsage/', { waitUntil: 'networkidle' })
   await page.locator('button', { hasText: 'Using hook directly' }).first().hover()
+
   const hintMounted = await page
     .waitForFunction(() => document.body.textContent?.includes('Tooltip via hook'), undefined, {
       timeout: 5000,
@@ -770,16 +836,22 @@ try {
 
   // Toasts mount through the LayerProvider-mounted viewport.
   await page.goto(baseUrl + '/templates/ToastShowcase/', { waitUntil: 'networkidle' })
+
   const before = (await page.textContent('body')).match(/Document saved successfully/g)?.length ?? 0
+
   await page.locator('button', { hasText: 'Show toast' }).first().click()
   await page.waitForTimeout(500)
+
   const after = (await page.textContent('body')).match(/Document saved successfully/g)?.length ?? 0
+
   check('toast mounts via provider viewport', after > before, `${before}→${after}`)
 
   // --- Unit 5: forms, selection and date examples ---
   // Field chrome: label + required marker + status message.
   await page.goto(baseUrl + '/templates/FieldStatusVariants/', { waitUntil: 'networkidle' })
+
   const fieldText = await page.textContent('body')
+
   check(
     'Field status renders error/warning/success',
     fieldText.includes('valid email address') &&
@@ -812,11 +884,14 @@ try {
 
   await page.locator('.vx-checkboxlist-item', { hasText: 'Select all' }).first().click()
   await page.waitForTimeout(300)
+
   const checkedCount = await page.locator('.vx-checkboxlist-item.vx-checkbox--on').count()
+
   check('CheckboxList select-all checks all', checkedCount >= 5, `${checkedCount} checked`)
 
   // Switch toggles.
   await page.goto(baseUrl + '/templates/SwitchShowcase/', { waitUntil: 'networkidle' })
+
   const switchOn = await page
     .locator('[role="switch"][aria-checked="true"], .vx-switch--on')
     .count()
@@ -834,7 +909,9 @@ try {
 
   // Stepper Step children: active index + status indicators.
   await page.goto(baseUrl + '/templates/StepperStatus/', { waitUntil: 'networkidle' })
+
   const stepText = await page.textContent('body')
+
   check(
     'Stepper Step renders states',
     stepText.includes('Passport upload failed') && stepText.includes('Pending review'),
@@ -899,7 +976,9 @@ try {
 
   // FormLayout: fields render in the shared grid.
   await page.goto(baseUrl + '/templates/FormLayoutShowcase/', { waitUntil: 'networkidle' })
+
   const formText = await page.textContent('body')
+
   check(
     'FormLayout renders fields',
     formText.includes('Full name') && formText.includes('Select role'),
@@ -907,7 +986,9 @@ try {
 
   // tap-targets page: audit table + live controls.
   await page.goto(baseUrl + '/pages/tap-targets/', { waitUntil: 'networkidle' })
+
   const tapText = await page.textContent('body')
+
   check(
     'tap-targets audit table renders',
     tapText.includes('WCAG 2.5.8') && tapText.includes('CheckboxInput'),
@@ -915,13 +996,16 @@ try {
 
   // textarea-counter page: counter + status row.
   await page.goto(baseUrl + '/pages/textarea-counter/', { waitUntil: 'networkidle' })
+
   const counterText = await page.textContent('body')
+
   check(
     'textarea-counter live count',
     counterText.includes('/140') || counterText.includes('remaining'),
   )
 
   await verifyMedia(page, baseUrl, check, browser)
+
   // ==================== Unit 6: flat-table contracts ====================
 
   const tableCases = [
@@ -946,19 +1030,23 @@ try {
 
   for (const [route, needle, needle2] of tableCases) {
     await page.goto(baseUrl + route, { waitUntil: 'networkidle' })
+
     const hit = await page.locator(`text=${needle}`).count()
     const hit2 = await page.locator(`text=${needle2}`).count()
+
     check(`route ${route}`, hit > 0 && hit2 > 0, `${hit}/${hit2} needles`)
   }
 
   // Sorting: click "Age" header — ascending then descending reorders rows.
   await page.goto(baseUrl + '/templates/TableSortableTable/', { waitUntil: 'networkidle' })
+
   const ageHeader = page
     .locator('th', { hasText: 'Age' })
     .locator('button, [role="button"], .vx-table-sort-button')
     .first()
 
   const firstCell = () => page.locator('tbody tr td').nth(1).textContent()
+
   check(
     'sortable header button present',
     (await page.locator('.vx-table-sort-button').count()) >= 4,
@@ -967,7 +1055,9 @@ try {
 
   await ageHeader.click()
   await page.waitForTimeout(300)
+
   const firstAgeAsc = await page.locator('tbody tr').first().locator('td').nth(3).textContent()
+
   check(
     'sort ascending by age',
     firstAgeAsc?.trim() === '28' || firstAgeAsc?.trim() === '29',
@@ -976,13 +1066,17 @@ try {
 
   await ageHeader.click()
   await page.waitForTimeout(300)
+
   const firstAgeDesc = await page.locator('tbody tr').first().locator('td').nth(3).textContent()
+
   check('sort descending by age', firstAgeDesc?.trim() === '45', `first age ${firstAgeDesc}`)
 
   // Selection: header select-all selects all rows; row checkbox toggles;
   // bulk-actions toolbar appears and clears.
   await page.goto(baseUrl + '/templates/TableBulkActionsTable/', { waitUntil: 'networkidle' })
+
   const selAll = page.locator('thead .vx-checkbox-input, thead input[type="checkbox"]').first()
+
   check(
     'selection checkboxes render',
     (await page.locator('tbody input[type="checkbox"]').count()) === 5,
@@ -1002,10 +1096,14 @@ try {
 
   // Pagination: next page swaps rows.
   await page.goto(baseUrl + '/templates/TablePaginatedTable/', { waitUntil: 'networkidle' })
+
   const pageOneFirst = await page.locator('tbody tr').first().locator('td').first().textContent()
+
   await page.locator('.vx-page-btn', { hasText: /^2$/ }).first().click()
   await page.waitForTimeout(300)
+
   const pageTwoFirst = await page.locator('tbody tr').first().locator('td').first().textContent()
+
   check(
     'pagination swaps rows',
     pageOneFirst?.includes('Alice') === true && pageTwoFirst?.includes('Frank') === true,
@@ -1023,6 +1121,7 @@ try {
     .catch(() => {})
 
   await page.waitForTimeout(300)
+
   const statusOption = page
     .locator('[role="option"], .vx-menu-item, label', { hasText: 'Status' })
     .first()
@@ -1033,19 +1132,26 @@ try {
   }
 
   const headerCount = await page.locator('thead th').count()
+
   check('column settings toggle hides column', headerCount === 4, `${headerCount} headers`)
 
   // Column resize: header separator handle exists; keyboard resize widens.
   await page.goto(baseUrl + '/templates/TableResizableTable/', { waitUntil: 'networkidle' })
+
   const handles = await page.locator('[role="separator"].vx-table-resize-handle').count()
+
   check('resize handles render', handles >= 3, `${handles} handles`)
+
   const nameCol = page.locator('thead th', { hasText: 'Name' })
   const beforeW = await nameCol.boundingBox()
+
   await page.locator('thead th', { hasText: 'Name' }).locator('[role="separator"]').first().focus()
   await page.keyboard.press('ArrowRight')
   await page.keyboard.press('ArrowRight')
   await page.waitForTimeout(200)
+
   const afterW = await nameCol.boundingBox()
+
   check(
     'keyboard resize widens column',
     beforeW != null && afterW != null && afterW.width > beforeW.width,
@@ -1054,6 +1160,7 @@ try {
 
   // Filtering (popover): funnel opens control; text filter narrows rows.
   await page.goto(baseUrl + '/templates/TableFilterableTable/', { waitUntil: 'networkidle' })
+
   const funnelBtn = page
     .locator('thead th', { hasText: 'Name' })
     .locator('button, [role="button"]')
@@ -1062,12 +1169,16 @@ try {
   check('filter trigger renders', (await page.locator('thead button').count()) >= 3)
   await funnelBtn.click()
   await page.waitForTimeout(400)
+
   const filterInput = page.locator('[role="dialog"] input, .vx-popover input').first()
+
   await filterInput.fill('Ali').catch(() => {})
   await page.waitForTimeout(200)
   await page.locator('button', { hasText: 'Apply' }).click()
   await page.waitForTimeout(300)
+
   const filteredRows = await page.locator('tbody tr').count()
+
   check('popover filter narrows rows', filteredRows === 1, `${filteredRows} rows`)
 
   // Filtering (inline): enum selector narrows rows.
@@ -1078,6 +1189,7 @@ try {
   )
 
   const roleSel = page.locator('thead').locator('[role="combobox"], select').first()
+
   await roleSel.click().catch(() => {})
   await page.waitForTimeout(300)
   await page
@@ -1087,7 +1199,9 @@ try {
     .catch(() => {})
 
   await page.waitForTimeout(300)
+
   const inlineRows = await page.locator('tbody tr').count()
+
   check('inline filter narrows rows', inlineRows > 0 && inlineRows < 5, `${inlineRows} rows`)
 
   // /templates/table/ page: layout + table rows (rendered in the embed iframe).
@@ -1095,17 +1209,21 @@ try {
     await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
     for (let i = 0; i < 10; i++) {
       const f = page.frames().find((fr) => fr !== page.mainFrame() && fr.url().includes(part))
+
       if (f) {
         return f
       }
 
       await page.waitForTimeout(400)
     }
+
     return page
   }
 
   await page.goto(baseUrl + '/templates/table/', { waitUntil: 'networkidle' })
+
   const tplFrame = await embedFrame('/templates/table?')
+
   check(
     'table template page',
     (await tplFrame.locator('text=Item One').count()) > 0 &&
@@ -1114,7 +1232,9 @@ try {
 
   // /templates/table-page/ invoice: filters + sort + totals + empty state.
   await page.goto(baseUrl + '/templates/table-page/', { waitUntil: 'networkidle' })
+
   const invFrame = await embedFrame('/templates/table-page?')
+
   check(
     'invoice table renders',
     (await invFrame.locator('text=Invoice INV-2043').count()) > 0 &&
@@ -1124,7 +1244,9 @@ try {
 
   await invFrame.locator('input[placeholder="Search…"]').fill('wireframes')
   await page.waitForTimeout(300)
+
   const invRows = await invFrame.locator('tbody tr').count()
+
   check('invoice search narrows to 1 row', invRows === 1, `${invRows} rows`)
   check('filtered-view banner appears', (await invFrame.locator('text=Filtered view').count()) > 0)
   await invFrame.locator('button', { hasText: 'Clear all filters' }).click()
@@ -1136,7 +1258,9 @@ try {
 
   // /pages/component-scores/ audit ledger.
   await page.goto(baseUrl + '/pages/component-scores/', { waitUntil: 'networkidle' })
+
   const csFrame = await embedFrame('/pages/component-scores?')
+
   check(
     'component-scores ledger',
     (await csFrame.locator('text=Component Audits').count()) > 0 &&
@@ -1239,10 +1363,13 @@ try {
     .map(([, name]) => name)
 
   let unit11Failures = 0
+
   for (const name of unit11Examples) {
     await page.goto(`${baseUrl}/templates/${name}/`, { waitUntil: 'networkidle' })
+
     const rendered = await page.evaluate(() => {
       const stage = document.querySelector('.sb-preview-stage')
+
       if (!stage) {
         // Full-page demos (e.g. SpinnerShowcase, hook-usage pages) render
         // straight into the body without the stage wrapper — count any
@@ -1253,18 +1380,23 @@ try {
 
         return nodes > 0 ? { ok: true, reason: `body=${nodes}` } : { ok: false, reason: 'no-stage' }
       }
+
       if (stage.querySelector('.sb-pending')) {
         return { ok: false, reason: 'pending' }
       }
+
       const nodes = stage.querySelectorAll('*').length
+
       if (nodes > 0) {
         return { ok: true, reason: `stage=${nodes} nodes` }
       }
+
       // Overlays (CommandPalette) render outside the stage — accept
       // body-level rendered content for those routes.
       const bodyNodes = document.body.querySelectorAll(
         '.vx-command-palette, [role="dialog"], .vx-overlay *',
       ).length
+
       return bodyNodes > 0
         ? { ok: true, reason: `portal=${bodyNodes}` }
         : { ok: false, reason: 'empty' }
@@ -1286,6 +1418,7 @@ try {
 
   // Interaction spot checks for meaningful behavior.
   await page.goto(baseUrl + '/templates/CollapsibleShowcase/', { waitUntil: 'networkidle' })
+
   const collapsibleTrigger = page
     .locator(
       '.sb-preview-stage .vx-collapsible-trigger, .sb-preview-stage [aria-expanded], .sb-preview-stage [role="button"]',
@@ -1294,9 +1427,12 @@ try {
 
   if (await collapsibleTrigger.count()) {
     const before = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
     await collapsibleTrigger.click()
     await page.waitForTimeout(250)
+
     const after = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
     check(
       'Collapsible toggles content',
       before !== after || (await collapsibleTrigger.getAttribute('aria-expanded')) === 'true',
@@ -1307,9 +1443,13 @@ try {
   }
 
   await page.goto(baseUrl + '/templates/TimerShowcase/', { waitUntil: 'networkidle' })
+
   const timerBefore = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
   await page.waitForTimeout(1600)
+
   const timerAfter = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
   check(
     'Timer ticks',
     timerBefore !== timerAfter,
@@ -1317,15 +1457,19 @@ try {
   )
 
   await page.goto(baseUrl + '/templates/BannerDismissable/', { waitUntil: 'networkidle' })
+
   const dismiss = page
     .locator('.sb-preview-stage [aria-label*="ismiss"], .sb-preview-stage button')
     .last()
 
   if (await dismiss.count()) {
     const before = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
     await dismiss.click()
     await page.waitForTimeout(250)
+
     const after = (await page.locator('.sb-preview-stage').textContent()) ?? ''
+
     check(
       'Banner dismiss removes content',
       before !== after,
@@ -1352,6 +1496,7 @@ async function frameBodyText(page, urlPart, needle) {
   await page.waitForSelector('iframe', { timeout: 8000 }).catch(() => {})
   for (let i = 0; i < 20; i++) {
     const frame = page.frames().find((f) => f !== page.mainFrame() && f.url().includes(urlPart))
+
     if (frame) {
       const text = await frame
         .locator('body')
@@ -1365,9 +1510,11 @@ async function frameBodyText(page, urlPart, needle) {
 
     await page.waitForTimeout(500)
   }
+
   return ''
 }
 
 const failed = results.filter((r) => !r.pass)
+
 console.log(`\n${results.length - failed.length}/${results.length} checks passed`)
 process.exit(failed.length ? 1 : 0)

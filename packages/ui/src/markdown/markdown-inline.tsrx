@@ -72,6 +72,7 @@ export function MdTextRun(props: {
   onLinkTap?: () => void
 }): unknown {
   const run = useContext(MdRunContext) as MdRunStyle
+
   return (
     <span
       text={props.text}
@@ -96,6 +97,7 @@ function activationEvent(): NavigationActivationEvent & { defaultPrevented: bool
  *  Children render as flat descendant runs carrying the merged weight. */
 export function MdStrong(props: { children?: unknown }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
+
   return (
     <MdRunScope value={{ ...run, style: mergeRunStyle(run?.style, { fontWeight: '600' }) }}>
       {props.children}
@@ -105,6 +107,7 @@ export function MdStrong(props: { children?: unknown }): unknown @{
 
 export function MdEmphasis(props: { children?: unknown }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
+
   return (
     <MdRunScope value={{ ...run, style: mergeRunStyle(run?.style, { fontStyle: 'italic' }) }}>
       {props.children}
@@ -114,6 +117,7 @@ export function MdEmphasis(props: { children?: unknown }): unknown @{
 
 export function MdDelete(props: { children?: unknown }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
+
   return (
     <MdRunScope
       value={{
@@ -161,6 +165,7 @@ export function mdRunText(children: unknown): string {
   }
 
   const props = (children as { props?: any }).props
+
   return props != null ? mdRunText(props.text ?? props.children) : ''
 }
 
@@ -175,6 +180,7 @@ export function MdLinkRun(props: {
 }): unknown @{
   const run = useContext(MdRunContext) as MdRunStyle
   const href = props.href
+
   return (
     <MdRunScope
       value={{
@@ -185,6 +191,7 @@ export function MdLinkRun(props: {
         onLinkTap: () => {
           const event = activationEvent()
           const result = props.onLinkClick?.(href, event)
+
           if (result === false || event.defaultPrevented) {
             return
           }
@@ -216,6 +223,7 @@ export function MdCitation(props: {
   const url = props.source.url
   const safe = url == null ? null : sanitizeUrl(url)
   const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
+
   return (
     <MdTextRun
       text={text}
@@ -249,6 +257,7 @@ export function MdInlineRoot(props: { children?: unknown }): unknown {
  *  colors render settled instead of skipping the reveal silently. */
 export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
   const color = useFadeRunColor(props.runColor)
+
   return (
     <MdTextRun text={mdRunText(props.children)} style={color == null ? undefined : { color }} />
   )

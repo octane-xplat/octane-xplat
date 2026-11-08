@@ -52,6 +52,7 @@ export function attachSheetDetents(
 ): SheetDetentsController {
   const sorted = normalizeDetents(detents)
   const swipeOnly = options.swipeOnly === true || !sorted.length
+
   if (!sorted.length && !options.swipeOnly) {
     return { detach: () => {}, enter: () => {} }
   }
@@ -72,6 +73,7 @@ export function attachSheetDetents(
       contentInset.set(Math.max(0, offset))
     }
   }
+
   let active = true
   const timers = new Set<ReturnType<typeof setTimeout>>()
   let cur = 0
@@ -80,9 +82,12 @@ export function attachSheetDetents(
   host.translateY = vh() // fully below the screen until enter()
 
   const grabber = new FlexboxLayout()
+
   grabber.className = 'vx-sheet-grabber'
   grabber.verticalAlignment = 'top'
+
   const grip = new FlexboxLayout()
+
   grip.className = 'vx-sheet-grip'
   // FlexboxLayout is a View at runtime; NativeScript's generated symbol
   // setter index signatures make its Android declaration incompatible.
@@ -101,11 +106,15 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       options.onOffset?.(value, vh())
       then?.()
     }
+
     updateContentInset(value)
+
     const done = host.animate?.({ translate: { x: 0, y: value }, duration: SNAP_MS })
+
     if (done?.then) {
       // A closing presentation can cancel an in-flight entrance/snap.
       void done.then(complete, () => {})
@@ -125,7 +134,9 @@ export function attachSheetDetents(
     }
 
     dragging = false
+
     const ty = host.translateY
+
     if (swipeOnly) {
       // Content-sized sheet: dismiss past ~40% of the panel height or on
       // a downward fling; otherwise settle back to the open position.
@@ -139,6 +150,7 @@ export function attachSheetDetents(
     }
 
     const next = snapDetentIndex(ty, vy, sorted, vh())
+
     if (next < 0) {
       if (dismissible()) {
         animateTo(vh(), closeNow)
@@ -159,6 +171,7 @@ export function attachSheetDetents(
       typeof e.ios?.numberOfTouches === 'number'
         ? e.ios.numberOfTouches
         : (e.android?.current?.getPointerCount?.() ?? 1)
+
     if (touches >= 2) {
       if (dragging) {
         dragging = false
@@ -192,13 +205,16 @@ export function attachSheetDetents(
     const now = Date.now()
     const dt = (now - lastT) / 1000
     const inc = e.deltaY - lastDy
+
     if (dt > 0) {
       vy = vy * 0.7 + (inc / dt) * 0.3
     }
 
     lastDy = e.deltaY
     lastT = now
+
     const next = Math.min(Math.max(ty0 + (e.deltaY - dy0), 0), vh())
+
     host.translateY = next
     updateContentInset(next)
     options.onOffset?.(next, vh())
@@ -211,6 +227,7 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       if (swipeOnly) {
         host.translateY = vh()
         animateTo(0)
@@ -227,10 +244,12 @@ export function attachSheetDetents(
       if (!active) {
         return
       }
+
       active = false
       for (const timer of timers) {
         clearTimeout(timer)
       }
+
       timers.clear()
       contentInset.release()
       grabber.off('pan', onPan)

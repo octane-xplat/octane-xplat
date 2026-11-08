@@ -45,19 +45,23 @@ export function createPickerElements(deps: Dependencies) {
     view.target = deps.actions.buttonActionTarget
     view.action = 'controlChanged:'
     view.translatesAutoresizingMaskIntoConstraints = false
+
     const action = deps.actions.allocate(view)
+
     try {
       view.tag = action.id
     } catch (error) {
       action.release()
       throw error
     }
+
     return { view, action }
   }
 
   /** A noneditable AppKit picker for the shared NativeScript item/index API. */
   function makeListPicker(node: ElementNode) {
     const control = makePopUpControl()
+
     deps.actions.adoptAction(node, control.action, control.view)
     node.listPickerIndex = -1
     node.listPickerRequested = -1
@@ -66,6 +70,7 @@ export function createPickerElements(deps: Dependencies) {
 
   function notifyListPickerChange(node: ElementNode, value: number) {
     const oldValue = node.listPickerIndex
+
     node.listPickerIndex = value
     if (value !== oldValue && typeof node.props.onSelectedIndexChange === 'function') {
       node.props.onSelectedIndexChange({
@@ -81,6 +86,7 @@ export function createPickerElements(deps: Dependencies) {
     const view = node.view! as NSPopUpButton
     const items = node.props.items ?? []
     const titles = Array.from(items, (item, index) => (item == null ? String(index) : item + ''))
+
     // Adding by title can merge duplicate labels. Explicit menu items preserve
     // every entry and its index, including empty or repeated labels.
     if (
@@ -111,6 +117,7 @@ export function createPickerElements(deps: Dependencies) {
       node,
       () => {
         const index = Number(view.indexOfSelectedItem)
+
         node.listPickerRequested = index
         notifyListPickerChange(node, index)
       },
@@ -131,7 +138,9 @@ export function createPickerElements(deps: Dependencies) {
 
     view.translatesAutoresizingMaskIntoConstraints = false
     view.selectedSegmentBezelColor = nativeColor('#0000ff')
+
     const actionId = deps.actions.acquireAction(node, view)
+
     view.tag = actionId
     node.segmentedBarIndex = -1
     node.segmentedBarRequested = -1
@@ -140,6 +149,7 @@ export function createPickerElements(deps: Dependencies) {
 
   function notifySegmentedBarChange(node: ElementNode, value: number) {
     const oldIndex = node.segmentedBarIndex
+
     node.segmentedBarIndex = value
     if (value !== oldIndex && typeof node.props.onSelectedIndexChange === 'function') {
       node.props.onSelectedIndexChange({
@@ -189,6 +199,7 @@ export function createPickerElements(deps: Dependencies) {
       node,
       () => {
         const index = Number(view.selectedSegment)
+
         node.segmentedBarRequested = index
         notifySegmentedBarChange(node, index)
       },
@@ -202,6 +213,7 @@ export function createPickerElements(deps: Dependencies) {
   function timeOfDay(value: Date | string): Date {
     if (typeof value === 'string') {
       const match = /^(\d{2}):(\d{2})(?::(\d{2}))?$/.exec(value)
+
       if (
         !match ||
         match[0] !== value ||
@@ -241,7 +253,9 @@ export function createPickerElements(deps: Dependencies) {
     view.action = 'controlChanged:'
     view.sizeToFit()
     view.translatesAutoresizingMaskIntoConstraints = false
+
     const actionId = deps.actions.acquireAction(node, view)
+
     view.tag = actionId
     node.timePickerDefault = timeOfDay(new Date())
     node.timePickerValue = node.timePickerDefault
@@ -260,6 +274,7 @@ export function createPickerElements(deps: Dependencies) {
 
     const time = new Date(0, 0, 0, 0, minutes)
     const oldValue = node.timePickerValue!
+
     node.timePickerValue = time
 
     ;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(
@@ -282,31 +297,38 @@ export function createPickerElements(deps: Dependencies) {
     const view = node.view! as NSDatePicker
     const minimum = (node.props.minHour ?? 0) * 60 + (node.props.minMinute ?? 0)
     const maximum = (node.props.maxHour ?? 23) * 60 + (node.props.maxMinute ?? 59)
+
     // Bounds are one atomic range. Never partially apply an inverted proposal.
     if (minimum <= maximum) {
       node.timePickerBounds = [minimum, maximum]
     }
 
     const [lower, upper] = node.timePickerBounds!
+
     view.minDate = null as any
     view.maxDate = null as any
     view.minDate = NSDate.dateWithTimeIntervalSince1970(
       new Date(0, 0, 0, 0, lower).getTime() / 1000,
     )
+
     view.maxDate = NSDate.dateWithTimeIntervalSince1970(
       new Date(0, 0, 0, 0, upper).getTime() / 1000,
     )
+
     let time = new Date(node.timePickerValue!)
     const previous = node.timePickerInputs ?? {}
+
     for (const name of Object.keys(props)) {
       if (!['time', 'hour', 'minute'].includes(name)) {
         continue
       }
 
       const value = props[name]
+
       if (name === 'time') {
         const next = value == null ? node.timePickerDefault! : timeOfDay(value)
         const old = previous.time == null ? node.timePickerDefault! : timeOfDay(previous.time)
+
         if (
           (value == null) === (previous.time == null) &&
           next.getHours() === old.getHours() &&
@@ -344,6 +366,7 @@ export function createPickerElements(deps: Dependencies) {
   /** DatePicker's shared values carry a local calendar day, never time-of-day. */
   function calendarDate(value: Date | string): Date {
     const date = new Date(value)
+
     if (!Number.isFinite(date.getTime())) {
       throw new Error('AppKit datepicker requires a valid date')
     }
@@ -368,7 +391,9 @@ export function createPickerElements(deps: Dependencies) {
     view.action = 'controlChanged:'
     view.sizeToFit()
     view.translatesAutoresizingMaskIntoConstraints = false
+
     const actionId = deps.actions.acquireAction(node, view)
+
     view.tag = actionId
     node.datePickerDefault = calendarDate(new Date())
     node.datePickerValue = node.datePickerDefault
@@ -378,6 +403,7 @@ export function createPickerElements(deps: Dependencies) {
   function notifyDateChange(node: ElementNode, value: Date) {
     const oldValue = node.datePickerValue as Date
     const date = calendarDate(value)
+
     node.datePickerValue = date
 
     ;(node.view! as NSDatePicker).dateValue = NSDate.dateWithTimeIntervalSince1970(
@@ -396,6 +422,7 @@ export function createPickerElements(deps: Dependencies) {
 
   function syncDatePicker(node: ElementNode, props: PropBag) {
     const view = node.view! as NSDatePicker
+
     // Clear both old bounds before applying a new range, so moving the range
     // does not leave AppKit temporarily constrained by the previous endpoint.
     view.minDate = null as any
@@ -414,6 +441,7 @@ export function createPickerElements(deps: Dependencies) {
 
     let date = new Date(node.datePickerValue as Date)
     const previous = node.datePickerInputs ?? {}
+
     // Property order matches NativeScript's sequential setters. An explicit
     // date sets all components; subsequent component props adjust that date.
     for (const name of Object.keys(props)) {
@@ -425,6 +453,7 @@ export function createPickerElements(deps: Dependencies) {
       }
 
       const value = props[name]
+
       if (name === 'date') {
         date = value == null ? new Date(node.datePickerDefault as Date) : calendarDate(value)
       } else if (name === 'year') {
@@ -454,6 +483,7 @@ export function createPickerElements(deps: Dependencies) {
 
     notifyDateChange(node, date)
   }
+
   function applyBuiltinSegmentedBarProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (['items', 'selectedIndex', 'onSelectedIndexChange', 'id'].includes(name)) {
       return

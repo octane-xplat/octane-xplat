@@ -7,6 +7,7 @@ const nativeNavigator = Object.getOwnPropertyDescriptor(globalThis, 'navigator')
 
 const installVibrate = () => {
   const calls: unknown[] = []
+
   Object.defineProperty(globalThis, 'navigator', {
     configurable: true,
     value: {
@@ -31,6 +32,7 @@ afterEach(() => {
 test('playPattern emits pause-then-vibrate pairs preserving authored timing', () => {
   const calls = installVibrate()
   const engine = createHaptics()
+
   assert.equal(
     engine.playPattern({
       duration: 1000,
@@ -50,6 +52,7 @@ test('playPattern emits pause-then-vibrate pairs preserving authored timing', ()
 test('playPattern clips points and pulses to the duration envelope', () => {
   const calls = installVibrate()
   const engine = createHaptics()
+
   assert.equal(
     engine.playPattern({
       duration: 120,
@@ -69,6 +72,7 @@ test('playPattern clips points and pulses to the duration envelope', () => {
 test('playPattern reports false when nothing can play', () => {
   const calls = installVibrate()
   const engine = createHaptics()
+
   assert.equal(engine.playPattern({ duration: 100, points: [] }), false)
   assert.equal(
     engine.playPattern({
@@ -88,7 +92,9 @@ test('playPattern reports false when nothing can play', () => {
 
 test('capabilities report unsupported without the Vibration API', () => {
   delete globals.navigator
+
   const engine = createHaptics()
+
   assert.equal(engine.capabilities().supported, false)
   assert.equal(engine.capabilities().realtime, false)
   assert.equal(engine.play('selection'), false)

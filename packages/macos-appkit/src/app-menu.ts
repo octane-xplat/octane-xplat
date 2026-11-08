@@ -90,6 +90,7 @@ export function createAppMenu(deps: Dependencies) {
     created: BuiltItem[],
   ): NSMenu {
     const menu = NSMenu.alloc().init()
+
     menu.autoenablesItems = false
     for (const child of node.children) {
       if (child.type === 'separator') {
@@ -99,6 +100,7 @@ export function createAppMenu(deps: Dependencies) {
 
       if (child.type === 'submenu') {
         const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(child.title, null, '')
+
         item.submenu = buildMenu(child, state, created)
         menu.addItem(item)
         continue
@@ -113,22 +115,31 @@ export function createAppMenu(deps: Dependencies) {
       item.keyEquivalentModifierMask = child.modifierMask
       item.enabled = child.enabled
       item.state = child.state
+
       const onSelect = child.selector ? undefined : child.onSelect
+
       if (onSelect) {
         item.target = menuActionTarget
+
         const action = deps.actions.allocate()
+
         created.push({ action, item })
         item.tag = action.id
+
         const disabled = !child.enabled
+
         action.setHandler(() => {
           if (!state.active || disabled) {
             return
           }
+
           const enabled = (item as any).isEnabled
           const nativeEnabled = typeof enabled === 'function' ? enabled.call(item) : enabled
+
           if (nativeEnabled === false || nativeEnabled === 0) {
             return
           }
+
           try {
             onSelect()
           } catch (error) {
@@ -142,6 +153,7 @@ export function createAppMenu(deps: Dependencies) {
 
       menu.addItem(item)
     }
+
     return menu
   }
 
@@ -151,6 +163,7 @@ export function createAppMenu(deps: Dependencies) {
     created: BuiltItem[],
   ): NSMenu {
     const bar = NSMenu.alloc().init()
+
     bar.autoenablesItems = false
     for (const node of nodes) {
       if (node.type !== 'submenu') {
@@ -159,9 +172,11 @@ export function createAppMenu(deps: Dependencies) {
       }
 
       const item = NSMenuItem.alloc().initWithTitleActionKeyEquivalent(node.title, null, '')
+
       item.submenu = buildMenu(node, state, created)
       bar.addItem(item)
     }
+
     return bar
   }
 
@@ -173,7 +188,9 @@ export function createAppMenu(deps: Dependencies) {
     ) {
       return null
     }
+
     const app = NSApplication?.sharedApplication
+
     if (!app) {
       return null
     }
@@ -181,8 +198,10 @@ export function createAppMenu(deps: Dependencies) {
     const state = { active: true }
     const previous = app.mainMenu ?? null
     const current: { bar: NSMenu | null; created: BuiltItem[] } = { bar: null, created: [] }
+
     try {
       const bar = buildBar(nodes, state, current.created)
+
       app.mainMenu = bar
       current.bar = bar
     } catch {
@@ -201,8 +220,10 @@ export function createAppMenu(deps: Dependencies) {
         if (!state.active) {
           return
         }
+
         const built: BuiltItem[] = []
         let nextBar: NSMenu
+
         try {
           nextBar = buildBar(next, state, built)
           app.mainMenu = nextBar
@@ -210,7 +231,9 @@ export function createAppMenu(deps: Dependencies) {
           retireItems(built)
           throw error
         }
+
         const old = current.created
+
         current.created = built
         current.bar = nextBar
         // Swap before retiring so a stale tag can never reach dead items.
@@ -220,8 +243,11 @@ export function createAppMenu(deps: Dependencies) {
         if (!state.active) {
           return
         }
+
         state.active = false
+
         const old = current.created
+
         current.created = []
         retireItems(old)
         try {

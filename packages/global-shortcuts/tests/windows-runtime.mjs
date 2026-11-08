@@ -14,6 +14,7 @@ import { build } from 'vite'
 
 const host = process.env.GLOBAL_SHORTCUTS_WINDOWS_HOST
 const runtime = process.env.GLOBAL_SHORTCUTS_WINDOWS_RUNTIME
+
 assert.ok(
   host && runtime,
   'Set GLOBAL_SHORTCUTS_WINDOWS_HOST and GLOBAL_SHORTCUTS_WINDOWS_RUNTIME (remote compiled WinUI runtime directory)',
@@ -47,6 +48,7 @@ const id = randomUUID().replaceAll('-', '')
 const identity = `org.xplat.ghk.${id}`
 const directory = mkdtempSync(join(tmpdir(), 'xplat-global-shortcuts-windows-'))
 let remote
+
 try {
   await build({
     configFile: false,
@@ -68,6 +70,7 @@ try {
   ).trim()
 
   assert.ok(remote.endsWith(`\\xplat-ghk-${id}`), remote)
+
   const write = (name, contents) =>
     run(
       `[IO.File]::WriteAllBytes(${quote(remote + '\\' + name)}, [Convert]::FromBase64String('${Buffer.from(contents).toString('base64')}'))`,
@@ -89,7 +92,9 @@ try {
   )
 
   const runner = `try { & ${quote(remote + '\\driver.ps1')} -Directory ${quote(remote)} -Runtime ${quote(runtime)} -Identity ${quote(identity)} *> ${quote(remote + '\\output.log')}; $code=0 } catch { $_ | Out-File -Append ${quote(remote + '\\output.log')}; $code=1 } finally { Set-Content ${quote(remote + '\\exit')} $code }`
+
   write('run.ps1', runner)
+
   const output = run(`
 $name='OctaneGlobalHotkey${id}'
 try {

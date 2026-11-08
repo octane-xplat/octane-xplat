@@ -92,6 +92,7 @@ test('iOS preserves title for missing/empty bodies under plugin 7.0.0 normalizat
     const body = iosBody(input)
     const title: string = 'title'
     const content = { title: body ? title : undefined, body: body || title || ' ' }
+
     assert.equal(content.title, 'title')
     assert.equal(content.body, input || ' ')
   }
@@ -111,6 +112,7 @@ function iosFixture({ granted = true } = {}) {
     UNNotificationRequest: {
       requestWithIdentifierContentTrigger: (identifier: string, content: any, trigger: any) => {
         const request = { identifier, content, trigger }
+
         requests.push(request)
         return request
       },
@@ -126,6 +128,7 @@ function iosFixture({ granted = true } = {}) {
     NSMutableDictionary: {
       new: () => {
         const dict: Record<string, unknown> = {}
+
         return {
           setObjectForKey: (value: unknown, key: string) => {
             dict[key] = value
@@ -144,11 +147,13 @@ function iosFixture({ granted = true } = {}) {
       },
     },
   })
+
   return { leaf, requests, added }
 }
 
 test('iOS notify posts an untriggered request for immediate delivery', async () => {
   const { leaf, requests, added } = iosFixture()
+
   leaf.notify('title', 'body')
   await flush()
 
@@ -159,6 +164,7 @@ test('iOS notify posts an untriggered request for immediate delivery', async () 
   assert.equal(added.length, 1)
 
   const { content } = requests[0]
+
   assert.equal(content.title, 'title')
   assert.equal(content.body, 'body')
   assert.equal(content.sound, 'default-sound')
@@ -168,6 +174,7 @@ test('iOS notify posts an untriggered request for immediate delivery', async () 
 
 test('iOS notify keeps the title slot and blank-body fallback', async () => {
   const { leaf, requests } = iosFixture()
+
   leaf.notify('title')
   await flush()
   assert.equal(requests[0].content.title, 'title')
@@ -176,6 +183,7 @@ test('iOS notify keeps the title slot and blank-body fallback', async () => {
 
 test('iOS notify drops denied sends without touching the center', async () => {
   const { leaf, requests, added } = iosFixture({ granted: false })
+
   leaf.notify('title', 'body')
   await flush()
   assert.equal(requests.length, 0)
@@ -187,9 +195,12 @@ test('web absence is unsupported and notify throws UnavailabilityError', async (
     desktopHost: () => null,
     UnavailabilityError,
   })
+
   assert.equal(leaf.supported, false)
   assert.equal(await leaf.isAvailable(), false)
+
   const response = await leaf.getPermissions()
+
   assert.equal(response.status, 'unsupported')
   assert.equal(response.granted, false)
   assert.equal(response.canAskAgain, false)
@@ -206,11 +217,13 @@ test('web forwards granted notifications and preserves desktop host delivery', a
   }
 
   const leaf = loadLeaf('notifications.web', { desktopHost: () => null, Notification })
+
   leaf.notify('title', 'body')
   assert.equal(calls.length, 1)
   Notification.permission = 'denied'
   leaf.notify('blocked')
   assert.equal(calls.length, 1)
+
   const hostLeaf = loadLeaf('notifications.web', {
     desktopHost: () => ({ notifications: { notify: async (title: string) => calls.push(title) } }),
   })

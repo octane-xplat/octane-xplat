@@ -11,6 +11,7 @@ import { BaseTypeaheadView } from './BaseTypeaheadView.tsrx'
 
 function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
   const length = characterCount(query)
+
   return length > 0 && length < minQueryLength
 }
 
@@ -59,7 +60,9 @@ export function BaseTypeahead<T extends SearchableItem>(
 
   const nextRequest = () => {
     abortRequest()
+
     const controller = new AbortController()
+
     requestRef.current = controller
     return { signal: controller.signal }
   }
@@ -88,6 +91,7 @@ export function BaseTypeahead<T extends SearchableItem>(
     )?.getActualSize?.()
 
     const anchorW = size2?.width
+
     if (anchorW != null && anchorW > 0) {
       setAnchorWidth(anchorW)
     }
@@ -108,6 +112,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   }
 
   const prevSearchSourceRef = useRef(searchSource)
+
   if (prevSearchSourceRef.current !== searchSource) {
     abortRequest()
     prevSearchSourceRef.current = searchSource
@@ -120,7 +125,9 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     resultsGenRef.current = gen
+
     const shown = bootstrapResults.slice(0, maxMenuItems)
+
     setResults(shown)
     setHighlightedIndex(shown.length > 0 ? 0 : -1)
     if (bootstrapResults.length > 0) {
@@ -131,6 +138,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   const performBootstrap = async () => {
     const gen = ++searchGenRef.current
     let bootstrapResult: T[] | Promise<T[]>
+
     try {
       bootstrapResult = searchSource.bootstrap(nextRequest())
     } catch {
@@ -164,16 +172,20 @@ export function BaseTypeahead<T extends SearchableItem>(
 
   const performSearch = async (searchQuery: string) => {
     abortRequest()
+
     const gen = ++searchGenRef.current
+
     setLoading(true)
     setHasSearched(true)
     try {
       const searchResults = await searchSource.search(searchQuery, nextRequest())
+
       if (searchGenRef.current !== gen) {
         return
       }
 
       resultsGenRef.current = gen
+
       const fetched = searchResults.slice(0, maxMenuItems)
       const shown = [
         ...fetched,
@@ -213,7 +225,9 @@ export function BaseTypeahead<T extends SearchableItem>(
     ) {
       searchGenRef.current++
       abortRequest()
+
       const derived = (props as BaseTypeaheadInternalProps<T>).__queryEntries?.(newQuery, []) ?? []
+
       setResults(derived)
       setHighlightedIndex(derived.length > 0 ? 0 : -1)
       setHasSearched(false)

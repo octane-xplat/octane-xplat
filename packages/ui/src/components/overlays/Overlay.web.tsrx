@@ -24,8 +24,11 @@ export function Overlay(props: OverlayProps): JSX.Element | null @{
   }
 
   const dismiss = useRef(requestDismiss)
+
   dismiss.current = requestDismiss
+
   const modal = !!(props.shadeCover || props.isModal)
+
   useEffect(() => {
     if (!open || !modal || !layer.current || !panel.current) {
       return

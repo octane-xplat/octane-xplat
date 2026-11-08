@@ -5,6 +5,7 @@ import { act, createRoot } from 'octane'
 import { FormApi, useField, useForm, useFormStore } from './index'
 
 const roots: { unmount(): void }[] = []
+
 afterEach(() => {
   for (const root of roots.splice(0)) {
     act(() => root.unmount())
@@ -14,6 +15,7 @@ afterEach(() => {
 function mount() {
   const host = document.createElement('div')
   const root = createRoot(host)
+
   roots.push(root)
   return { host, root }
 }
@@ -36,6 +38,7 @@ describe('Octane TanStack Form adapter', () => {
 
       const enabled = useField({ form, name: 'enabled' })
       const submitting = useFormStore(form.store, (state) => state.isSubmitting)
+
       return (
         <div>
           <input
@@ -53,8 +56,11 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { host, root } = mount()
+
     act(() => root.render(<Screen />))
+
     const input = host.querySelector('input')!
+
     act(() => input.dispatchEvent(new FocusEvent('focusout', { bubbles: true })))
     expect(host.querySelector('span')?.textContent).toBe('Name required')
     await act(async () => {
@@ -114,6 +120,7 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { root } = mount()
+
     act(() => root.render(<Screen id="one" save={first} />))
     act(() => root.render(<Screen id="one" save={second} />))
     expect(instances.at(-1)).toBe(instances[0])
@@ -133,6 +140,7 @@ describe('Octane TanStack Form adapter', () => {
     const form = new FormApi({ defaultValues: { first: 'A', last: 'B' } })
     function Reader(props: { name: 'first' | 'last' }) {
       const field = useField({ form, name: props.name })
+
       return <span>{field.state.value}</span>
     }
 
@@ -141,6 +149,7 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { host, root } = mount()
+
     act(() => root.render(<Screen name="first" show />))
     expect(host.textContent).toBe('A')
     expect(form.getFieldInfo('first').instance).toBeDefined()
@@ -158,7 +167,9 @@ describe('Octane TanStack Form adapter', () => {
     let active = 0
     const subscribe = vi.spyOn(form.store, 'subscribe').mockImplementation((listener) => {
       active++
+
       const subscription = originalSubscribe(listener)
+
       return {
         unsubscribe() {
           active--
@@ -174,8 +185,11 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { host, root } = mount()
+
     act(() => root.render(<Reader />))
+
     const baseline = renders
+
     act(() => form.setFieldValue('other', 'ignored'))
     expect(renders).toBe(baseline)
     act(() => form.setFieldValue('name', 'updated'))
@@ -184,7 +198,9 @@ describe('Octane TanStack Form adapter', () => {
     expect(active).toBe(1)
     act(() => root.unmount())
     expect(active).toBe(0)
+
     const unmounted = renders
+
     act(() => form.setFieldValue('name', 'after teardown'))
     expect(renders).toBe(unmounted)
     roots.pop()
@@ -202,6 +218,7 @@ describe('Octane TanStack Form adapter', () => {
 
     function Screen() {
       const field = useField({ form, name: 'name', validators: { onChangeAsync: validate } })
+
       return (
         <span>
           {String(field.state.meta.isValidating)}:{field.state.meta.errors.join(',')}
@@ -210,6 +227,7 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { host, root } = mount()
+
     act(() => root.render(<Screen />))
     await act(async () => {
       form.setFieldValue('name', 'taken')
@@ -249,6 +267,7 @@ describe('Octane TanStack Form adapter', () => {
     function Screen() {
       const form = useForm({ defaultValues: { name: 'Ada' }, onSubmit: save })
       const pending = useFormStore(form.store, (state) => state.isSubmitting)
+
       return (
         <button
           disabled={pending}
@@ -262,8 +281,11 @@ describe('Octane TanStack Form adapter', () => {
     }
 
     const { host, root } = mount()
+
     act(() => root.render(<Screen />))
+
     const button = host.querySelector('button')!
+
     await act(async () => {
       button.click()
       await Promise.resolve()

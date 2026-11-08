@@ -8,6 +8,7 @@ const root = fileURLToPath(new URL('..', import.meta.url))
 const page = fileURLToPath(new URL('../../../docs/app/keyboard-shortcuts-api.md', import.meta.url))
 const markdown = readFileSync(page, 'utf8')
 const examples = [...markdown.matchAll(/^```ts\n([\s\S]*?)^```/gm)]
+
 assert.ok(examples.length > 0, 'API reference must contain TypeScript examples')
 
 // Export coverage catches a newly added public name that has no reference entry.
@@ -47,15 +48,20 @@ for (const file of ['src/shared.ts', 'src/index.web.ts']) {
 }
 
 const prose = markdown.replace(/^```[^\n]*\n[\s\S]*?^```/gm, '')
+
 for (const name of names) {
   assert.match(prose, new RegExp(`\\b${name}\\b`), `Missing API reference for ${name}`)
 }
 
 const cache = join(root, 'node_modules/.cache')
+
 mkdirSync(cache, { recursive: true })
+
 const temporary = mkdtempSync(join(cache, 'shortcuts-docs-'))
+
 try {
   const scope = join(temporary, 'node_modules/@octane-xplat')
+
   mkdirSync(scope, { recursive: true })
   symlinkSync(root, join(scope, 'shortcuts'), 'dir')
   writeFileSync(
@@ -71,6 +77,7 @@ export declare const editor: HTMLDivElement
     const code = match[1]
     const source = ts.createSourceFile(`example-${index}.ts`, code, ts.ScriptTarget.Latest, true)
     const declared = new Set()
+
     for (const node of source.statements) {
       if (ts.isVariableStatement(node)) {
         for (const declaration of node.declarationList.declarations) {
@@ -80,10 +87,12 @@ export declare const editor: HTMLDivElement
         }
       }
     }
+
     const context = ['shortcuts', 'editor'].filter((name) => !declared.has(name))
     const prelude = context.length ? `import { ${context.join(', ')} } from './context.js'\n` : ''
     const file = join(temporary, `example-${index + 1}.ts`)
     const line = markdown.slice(0, match.index).split('\n').length
+
     writeFileSync(file, `// keyboard-shortcuts-api.md:${line}\n${prelude}${code}\nexport {}\n`)
     return file
   })
@@ -100,6 +109,7 @@ export declare const editor: HTMLDivElement
   })
 
   const diagnostics = ts.getPreEmitDiagnostics(program)
+
   if (diagnostics.length) {
     throw new Error(
       ts.formatDiagnosticsWithColorAndContext(diagnostics, {

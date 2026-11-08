@@ -2,16 +2,19 @@ import { observeLayoutCommits } from '@octane-xplat/macos-appkit'
 import type { LayoutBarrier } from './types'
 
 export const layoutSupported = true
+
 const hosts = new Set<any>()
 
 export const barrier: LayoutBarrier = {
   schedule(pass) {
     queueMicrotask(() => {
       const pending = [...hosts]
+
       hosts.clear()
       for (const host of pending) {
         host.layoutSubtreeIfNeeded()
       }
+
       pass()
     })
   },
@@ -20,6 +23,7 @@ export const barrier: LayoutBarrier = {
       hosts.add(hostView)
       root.invalidate('mutation')
     })
+
     const center = (globalThis as any).NSNotificationCenter.defaultCenter
     const token = center.addObserverForNameObjectQueueUsingBlock(
       'NSWindowDidResizeNotification',
@@ -27,6 +31,7 @@ export const barrier: LayoutBarrier = {
       null,
       () => root.invalidate('resize'),
     )
+
     return () => {
       stop()
       hosts.clear()

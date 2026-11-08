@@ -192,8 +192,10 @@ function resolveOptions(
   if (arg == null) {
     return incremental ? EMPTY_INCREMENTAL_OPTS : EMPTY_OPTS
   }
+
   const plugins =
     arg.plugins != null && arg.plugins.length > 0 ? prepareMarkdownPlugins(arg.plugins) : undefined
+
   return makeResolvedOptions({
     sourceIds: arg.sourceIds,
     autolink: arg.autolink,
@@ -249,8 +251,10 @@ function stripBlockquoteMarkers(line: string): {
 } {
   let content = line.endsWith('\r') ? line.slice(0, -1) : line
   let quoteDepth = 0
+
   while (true) {
     const marker = /^ {0,3}> ?/.exec(content)
+
     if (marker == null) {
       return { content, quoteDepth }
     }
@@ -262,14 +266,17 @@ function stripBlockquoteMarkers(line: string): {
 
 function stripExactBlockquoteDepth(line: string, quoteDepth: number): string | null {
   let content = line
+
   for (let depth = 0; depth < quoteDepth; depth++) {
     const marker = /^ {0,3}> ?/.exec(content)
+
     if (marker == null) {
       return null
     }
 
     content = content.slice(marker[0].length)
   }
+
   return content
 }
 
@@ -281,9 +288,11 @@ function stripExactBlockquoteDepth(line: string, quoteDepth: number): string | n
 function displayMathContainer(line: string): DisplayMathContainer | null {
   const outer = stripBlockquoteMarkers(line)
   const listMarker = /^( {0,9})(?:[-*+]|\d+[.)]) +(.*)$/.exec(outer.content)
+
   if (listMarker != null) {
     const taskMarker = /^\[[ xX]\] +(.*)$/.exec(listMarker[2])
     const inner = stripBlockquoteMarkers(taskMarker?.[1] ?? listMarker[2])
+
     return inner.content.trim() === '$$'
       ? {
           outerQuoteDepth: outer.quoteDepth,
@@ -292,6 +301,7 @@ function displayMathContainer(line: string): DisplayMathContainer | null {
         }
       : null
   }
+
   return outer.content.trim() === '$$'
     ? {
         outerQuoteDepth: outer.quoteDepth,
@@ -305,6 +315,7 @@ type DisplayMathLineState = 'close' | 'inside' | 'outside'
 
 function displayMathLineState(line: string, container: DisplayMathContainer): DisplayMathLineState {
   const outerContent = stripExactBlockquoteDepth(line, container.outerQuoteDepth)
+
   if (outerContent == null) {
     return 'outside'
   }
@@ -320,32 +331,41 @@ function displayMathLineState(line: string, container: DisplayMathContainer): Di
   }
 
   const continuationIndent = outerContent.length - outerContent.trimStart().length
+
   if (continuationIndent <= container.listBaseIndent) {
     return 'outside'
   }
+
   const innerContent = stripExactBlockquoteDepth(
     outerContent.trimStart(),
     container.innerQuoteDepth,
   )
+
   if (innerContent == null || /^ {0,3}> ?/.test(innerContent)) {
     return 'outside'
   }
+
   return innerContent.trim() === '$$' ? 'close' : 'inside'
 }
 
 /** Match a complete `$$…$$` display-math block without consuming partial input. */
 function matchDisplayMathBlock(lines: string[], lineIndex: number): DisplayMathMatch | null {
   const trimmed = lines[lineIndex].trim()
+
   if (trimmed.length > 4 && trimmed.startsWith('$$') && trimmed.endsWith('$$')) {
     const value = trimmed.slice(2, -2)
+
     return value.trim() === '' ? null : { value, nextIndex: lineIndex + 1, endLine: lineIndex }
   }
+
   if (trimmed !== '$$') {
     return null
   }
+
   for (let index = lineIndex + 1; index < lines.length; index++) {
     if (lines[index].trim() === '$$') {
       const value = lines.slice(lineIndex + 1, index).join('\n')
+
       return value.trim() === ''
         ? null
         : {
@@ -355,6 +375,7 @@ function matchDisplayMathBlock(lines: string[], lineIndex: number): DisplayMathM
           }
     }
   }
+
   return null
 }
 
@@ -362,19 +383,23 @@ function matchLinkDefinition(
   line: string,
 ): { label: string; destination: string; hasTitle: boolean } | null {
   const match = LINK_DEFINITION_RE.exec(line)
+
   // A longer label defines nothing, so the line stays text, as a reference
   // with that label does.
   if (match == null || match[1].length > MAX_LINK_LABEL_LENGTH) {
     return null
   }
+
   const label = normalizeLinkLabel(match[1])
   // `match[2]` is the `<...>` destination (present but possibly empty, e.g.
   // `<>` → empty href, valid per CommonMark); `match[3]` is the bare
   // destination (always non-empty). One of the two always matches.
   const destination = match[2] != null ? match[2] : match[3]
+
   if (label === '' || destination == null) {
     return null
   }
+
   return {
     label,
     destination: decodeLinkDestination(destination),
@@ -397,6 +422,7 @@ const FENCE_LINE = /^( {0,3})(`{3,}|~{3,})/
  */
 function closesFence(line: string, fence: string): boolean {
   const match = /^ {0,3}(`{3,}|~{3,})[ \t]*\r?$/.exec(line)
+
   return match != null && match[1].startsWith(fence[0]) && match[1].length >= fence.length
 }
 
@@ -418,12 +444,16 @@ function listItemScopeOf(line: string): ListItemScope | null {
   if (isHorizontalRule(line)) {
     return null
   }
+
   const marker = /^( {0,9})([-*+]|\d+[.)]) /.exec(line)
+
   if (marker == null) {
     return null
   }
+
   const markerEnd = marker[0].length
   const spacesAfter = getIndent(line.slice(markerEnd))
+
   return {
     base: marker[1].length,
     content: spacesAfter >= 4 ? markerEnd : markerEnd + spacesAfter,
@@ -470,12 +500,15 @@ function topLevelFences(): {
       itemEndsInParagraph = false
       return
     }
+
     const opening = FENCE_LINE.exec(text)
+
     if (opening != null) {
       itemFence = opening[2]
       itemEndsInParagraph = false
       return
     }
+
     itemEndsInParagraph = text.trim() !== '' && !isHeadingOrBreak(text)
   }
 
@@ -485,6 +518,7 @@ function topLevelFences(): {
     },
     read(lines, index) {
       const line = lines[index]
+
       if (fence !== '') {
         if (closesFence(line, fence)) {
           fence = ''
@@ -493,17 +527,22 @@ function topLevelFences(): {
 
         return 'inside'
       }
+
       if (line.trim() === '') {
         itemHadBlank = item != null
         paragraphOpen = false
         return null
       }
+
       const indent = getIndent(line)
+
       if (item != null && (itemHadBlank ? indent >= item.content : indent > item.base)) {
         readItemLine(line.slice(Math.min(indent, item.content)))
         return null
       }
+
       const scope = listItemScopeOf(line)
+
       if (
         scope != null &&
         !(paragraphOpen && item == null && scope.ordered && !/^ {0,9}0*1[.)]/.test(line))
@@ -515,13 +554,16 @@ function topLevelFences(): {
         readItemLine(line.slice(scope.content))
         return null
       }
+
       const opening = FENCE_LINE.exec(line)
+
       if (opening != null) {
         item = null
         paragraphOpen = false
         fence = opening[2]
         return 'open'
       }
+
       if (
         item != null &&
         !itemHadBlank &&
@@ -531,6 +573,7 @@ function topLevelFences(): {
         // A lazy continuation line of the item's paragraph.
         return null
       }
+
       item = null
       paragraphOpen = !isHeadingOrBreak(line)
       return null
@@ -576,6 +619,7 @@ function extractLinkDefinitions(
 
   for (let index = 0; index < lines.length; index++) {
     const line = lines[index]
+
     if (fences.open) {
       // The line after a closed fence begins a new block.
       atBoundary = fences.read(lines, index) === 'close'
@@ -584,6 +628,7 @@ function extractLinkDefinitions(
 
     if (math) {
       const displayMath = matchDisplayMathBlock(lines, index)
+
       if (displayMath != null) {
         // Math is opaque Markdown content: definition-shaped TeX must not leak
         // into the document-wide link-definition map.
@@ -605,6 +650,7 @@ function extractLinkDefinitions(
 
     if (atBoundary) {
       const def = matchLinkDefinition(line)
+
       if (def != null) {
         if (!defs.has(def.label)) {
           defs.set(def.label, def.destination)
@@ -635,13 +681,17 @@ function extractLinkDefinitions(
   if (defs.size === 0) {
     return { defs, cleaned: input }
   }
+
   const lineMap: number[] = []
+
   for (let index = 0; index < lines.length; index++) {
     if (keep[index]) {
       lineMap.push(index)
     }
   }
+
   const cleaned = lineMap.map((index) => lines[index]).join('\n')
+
   return { defs, cleaned, lineMap }
 }
 
@@ -655,6 +705,7 @@ function linkDefsSignature(defs: ReadonlyMap<string, string>): string {
   if (defs.size === 0) {
     return ''
   }
+
   return [...defs]
     .sort((a, b) => (a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0))
     .map(([label, dest]) => `${label}\u0000${dest}`)
@@ -679,13 +730,17 @@ function matchReferenceLink(
   end: number
 } | null {
   const textClose = inlineIndex.openerClose(start)
+
   if (textClose === -1) {
     return null
   }
+
   const linkText = text.slice(start + 1, textClose)
+
   // Full `[text][label]` / collapsed `[text][]` — a matching definition wins.
   if (text[textClose + 1] === '[') {
     const labelClose = inlineIndex.closingBracket(textClose + 2)
+
     if (labelClose !== -1) {
       const rawLabel = text.slice(textClose + 2, labelClose)
       // Only truly-empty brackets are the collapsed form; a whitespace-only
@@ -693,6 +748,7 @@ function matchReferenceLink(
       // matches nothing.
       const label = rawLabel === '' ? linkText : rawLabel
       const href = linkDefs.get(normalizeLinkLabel(label))
+
       if (href != null && isSafeMdParserUrl(href)) {
         return {
           node: {
@@ -707,14 +763,18 @@ function matchReferenceLink(
       // leaving the trailing `[label]` to be parsed separately.
     }
   }
+
   // Shortcut: `[text]`.
   if (linkText.trim() === '') {
     return null
   }
+
   const href = linkDefs.get(normalizeLinkLabel(linkText))
+
   if (href == null || !isSafeMdParserUrl(href)) {
     return null
   }
+
   return {
     node: {
       type: 'link',
@@ -751,6 +811,7 @@ function imageAlt(
   if (imageAltDepth >= MAX_IMAGE_ALT_DEPTH) {
     return decodeLiteralText(description)
   }
+
   imageAltDepth++
   try {
     return mdInlineText(breaksAsLineEndings(parseInlineImpl(description, opts, context)))
@@ -796,16 +857,21 @@ function matchReferenceImage(
   end: number
 } | null {
   const altClose = inlineIndex.openerClose(start + 1)
+
   if (altClose === -1) {
     return null
   }
+
   const alt = text.slice(start + 2, altClose)
+
   if (text[altClose + 1] === '[') {
     const labelClose = inlineIndex.closingBracket(altClose + 2)
+
     if (labelClose !== -1) {
       const rawLabel = text.slice(altClose + 2, labelClose)
       const label = rawLabel === '' ? alt : rawLabel
       const src = linkDefs.get(normalizeLinkLabel(label))
+
       if (src != null && isSafeMdParserUrl(src)) {
         return {
           node: { type: 'image', url: src, alt: imageAlt(alt, opts, context) },
@@ -815,13 +881,17 @@ function matchReferenceImage(
       // No match — fall back to a shortcut `![alt]`.
     }
   }
+
   if (alt.trim() === '') {
     return null
   }
+
   const src = linkDefs.get(normalizeLinkLabel(alt))
+
   if (src == null || !isSafeMdParserUrl(src)) {
     return null
   }
+
   return {
     node: { type: 'image', url: src, alt: imageAlt(alt, opts, context) },
     end: altClose + 1,
@@ -852,14 +922,18 @@ const INLINE_DESTINATION_WITH_TITLE =
  */
 function angleDestinationClose(text: string, open: number): number | 'refused' | null {
   let index = open + 1
+
   while (text[index] === ' ' || text[index] === '\t') {
     index++
   }
+
   if (text[index] !== '<') {
     return null
   }
+
   for (index++; index < text.length; index++) {
     const character = text[index]
+
     if (character === '\\' && text[index + 1] !== '\n' && text[index + 1] !== '\r') {
       index++
     } else if (character === '\n' || character === '\r' || character === '<') {
@@ -868,17 +942,22 @@ function angleDestinationClose(text: string, open: number): number | 'refused' |
       break
     }
   }
+
   if (index >= text.length) {
     return 'refused'
   }
+
   // After the brackets: spaces, an optional title, spaces, and the `)`.
   index++
   while (/\s/.test(text[index] ?? '')) {
     index++
   }
+
   const quote = text[index]
+
   if (quote === '"' || quote === "'" || quote === '(') {
     const closer = quote === '(' ? ')' : quote
+
     for (index++; index < text.length && text[index] !== closer; index++) {
       if (text[index] === '\\') {
         index++
@@ -894,6 +973,7 @@ function angleDestinationClose(text: string, open: number): number | 'refused' |
       index++
     }
   }
+
   return text[index] === ')' ? index : 'refused'
 }
 
@@ -903,6 +983,7 @@ function angleDestinationClose(text: string, open: number): number | 'refused' |
  */
 function inlineDestination(content: string): string {
   const match = INLINE_DESTINATION_WITH_TITLE.exec(content)
+
   return match == null ? content : (match[1] ?? match[2] ?? content)
 }
 
@@ -917,10 +998,13 @@ function decodeLinkDestination(raw: string): string {
   if (!raw.includes('\\') && !raw.includes('&')) {
     return raw
   }
+
   let decoded = ''
   let index = 0
+
   while (index < raw.length) {
     const character = raw[index]
+
     if (character === '\\' && isAsciiPunctuation(raw[index + 1])) {
       decoded += raw[index + 1]
       index += 2
@@ -929,6 +1013,7 @@ function decodeLinkDestination(raw: string): string {
 
     if (character === '&') {
       const reference = matchCharacterReference(raw, index)
+
       if (reference != null) {
         decoded += reference.value
         index = reference.end
@@ -939,6 +1024,7 @@ function decodeLinkDestination(raw: string): string {
     decoded += character
     index++
   }
+
   return decoded
 }
 
@@ -988,11 +1074,13 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
       backtickStarts = new Map()
       for (let start = text.indexOf('`'); start !== -1;) {
         let end = start
+
         while (text[end] === '`') {
           end++
         }
 
         const sameLength = backtickStarts.get(end - start)
+
         if (sameLength == null) {
           backtickStarts.set(end - start, [start])
         } else {
@@ -1002,39 +1090,50 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
         start = text.indexOf('`', end)
       }
     }
+
     const sameLength = backtickStarts.get(length)
+
     if (sameLength == null) {
       return -1
     }
+
     let low = 0
     let high = sameLength.length
+
     while (low < high) {
       const middle = (low + high) >> 1
+
       if (sameLength[middle] < from) {
         low = middle + 1
       } else {
         high = middle
       }
     }
+
     return low < sameLength.length ? sameLength[low] : -1
   }
+
   let nextClosingBracket: Int32Array | null = null
   const closingBracket = (from: number): number => {
     if (nextClosingBracket == null) {
       // Which `]` can close: outside code spans, paired left to right as
       // the inline scan pairs them, and not escaped.
       const closes = new Uint8Array(text.length)
+
       for (let index = 0; index < text.length; index++) {
         const character = text[index]
+
         if (character === '\\') {
           index++
         } else if (character === '`') {
           let runEnd = index
+
           while (text[runEnd] === '`') {
             runEnd++
           }
 
           const closer = backtickCloser(runEnd, runEnd - index)
+
           index = (closer === -1 ? runEnd : closer + (runEnd - index)) - 1
         } else if (character === ']') {
           closes[index] = 1
@@ -1046,31 +1145,39 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
         nextClosingBracket[index] = closes[index] === 1 ? index : nextClosingBracket[index + 1]
       }
     }
+
     return from < text.length ? nextClosingBracket[from] : -1
   }
+
   let parenPartners: Int32Array | null = null
   const closingParen = (open: number): number => {
     if (parenPartners == null) {
       // Every parenthesis pairs once, by nesting, so no destination search
       // rescans the text after an unclosed one.
       parenPartners = new Int32Array(text.length).fill(-1)
+
       const opens: number[] = []
+
       for (let index = 0; index < text.length; index++) {
         const character = text[index]
+
         if (character === '\\') {
           index++
         } else if (character === '(') {
           opens.push(index)
         } else if (character === ')') {
           const opened = opens.pop()
+
           if (opened !== undefined) {
             parenPartners[opened] = index
           }
         }
       }
     }
+
     return text[open] === '(' ? parenPartners[open] : -1
   }
+
   /**
    * Where the link or image whose text closes at `close` ends — past its
    * destination or label — or -1 when nothing after the `]` makes one. The
@@ -1080,20 +1187,26 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
     if (text[close + 1] === '(') {
       const angleClose = angleDestinationClose(text, close + 1)
       const urlClose = angleClose === 'refused' ? -1 : (angleClose ?? closingParen(close + 1))
+
       if (urlClose !== -1) {
         return urlClose + 1
       }
     }
+
     if (linkDefs == null || close - open - 1 > MAX_LINK_LABEL_LENGTH) {
       return -1
     }
+
     const linkText = text.slice(open + 1, close)
     const defines = (label: string): boolean => {
       const href = linkDefs.get(normalizeLinkLabel(label))
+
       return href != null && isSafeMdParserUrl(href)
     }
+
     if (text[close + 1] === '[') {
       const labelClose = closingBracket(close + 2)
+
       if (
         labelClose !== -1 &&
         labelClose - close - 2 <= MAX_LINK_LABEL_LENGTH &&
@@ -1102,8 +1215,10 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
         return labelClose + 1
       }
     }
+
     return linkText.trim() !== '' && defines(linkText) ? close + 1 : -1
   }
+
   let openerCloses: Map<number, number> | null = null
   const openerClose = (open: number): number => {
     if (openerCloses == null) {
@@ -1111,19 +1226,24 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
       // closes the nearest open `[`; when that makes a link, every `[`
       // still open before it can no longer make one.
       openerCloses = new Map()
+
       const openers: { index: number; image: boolean }[] = []
       let inactiveBelow = 0
+
       for (let index = 0; index < text.length; index++) {
         const character = text[index]
+
         if (character === '\\') {
           index++
         } else if (character === '`') {
           let runEnd = index
+
           while (text[runEnd] === '`') {
             runEnd++
           }
 
           const closer = backtickCloser(runEnd, runEnd - index)
+
           index = (closer === -1 ? runEnd : closer + (runEnd - index)) - 1
         } else if (character === '!' && text[index + 1] === '[') {
           openers.push({ index: index + 1, image: true })
@@ -1133,14 +1253,18 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
         } else if (character === ']' && openers.length > 0) {
           const position = openers.length - 1
           const opener = openers[position]
+
           openers.pop()
+
           const active = opener.image || position >= inactiveBelow
+
           inactiveBelow = Math.min(inactiveBelow, position)
           if (!active) {
             continue
           }
 
           const end = linkEnd(opener.index, index)
+
           if (end === -1) {
             continue
           }
@@ -1155,8 +1279,10 @@ function inlineIndexOf(text: string, linkDefs?: ReadonlyMap<string, string>): In
         }
       }
     }
+
     return openerCloses.get(open) ?? -1
   }
+
   return { backtickCloser, closingBracket, closingParen, openerClose }
 }
 
@@ -1174,6 +1300,7 @@ function appendInlineText(
   value: string,
 ): void {
   const last = nodes[nodes.length - 1]
+
   if (last?.type === 'text' && delimiterNodes?.has(last) !== true) {
     nodes[nodes.length - 1] = { ...last, value: last.value + value }
   } else {
@@ -1208,13 +1335,17 @@ function characterBefore(text: string, index: number): string | undefined {
   if (index <= 0) {
     return undefined
   }
+
   const low = text.charCodeAt(index - 1)
+
   if (low >= 0xdc00 && low <= 0xdfff && index >= 2) {
     const high = text.charCodeAt(index - 2)
+
     if (high >= 0xd800 && high <= 0xdbff) {
       return text.slice(index - 2, index)
     }
   }
+
   return text[index - 1]
 }
 
@@ -1223,7 +1354,9 @@ function characterAt(text: string, index: number): string | undefined {
   if (index >= text.length) {
     return undefined
   }
+
   const codePoint = text.codePointAt(index)
+
   return codePoint == null ? undefined : String.fromCodePoint(codePoint)
 }
 
@@ -1247,8 +1380,10 @@ function delimiterRun(
   const isPunctuationAfter = after != null && UNICODE_PUNCTUATION.test(after)
   const isLeftFlanking =
     !isSpaceAfter && (!isPunctuationAfter || isSpaceBefore || isPunctuationBefore)
+
   const isRightFlanking =
     !isSpaceBefore && (!isPunctuationBefore || isSpaceAfter || isPunctuationAfter)
+
   return {
     node: { type: 'text', value: text.slice(start, end) },
     character,
@@ -1298,22 +1433,28 @@ function resolveEmphasis(
     previous: null,
     next: null,
   }
+
   let tail = head
   const entryOf = new Map<object, Entry>()
+
   for (const node of nodes) {
     const entry: Entry = { node, previous: tail, next: null }
+
     tail.next = entry
     tail = entry
     entryOf.set(node, entry)
   }
+
   const unlink = (entry: Entry): void => {
     if (entry.previous != null) {
       entry.previous.next = entry.next
     }
+
     if (entry.next != null) {
       entry.next.previous = entry.previous
     }
   }
+
   // The delimiter stack, as a doubly linked list in source order: a run
   // leaves it once used up, paired across, or unable to pair, so every
   // search below visits only runs still on it, and the whole pass is linear.
@@ -1326,6 +1467,7 @@ function resolveEmphasis(
     depthAfter: number
     canClose: boolean
   }
+
   const stack: StackRun[] = delimiters.map((run, index) => ({
     run,
     index,
@@ -1334,20 +1476,24 @@ function resolveEmphasis(
     depthAfter: 0,
     canClose: run.canClose,
   }))
+
   stack.forEach((item, index) => {
     item.previous = stack[index - 1] ?? null
     item.next = stack[index + 1] ?? null
   })
+
   // Takes a run off the stack; what followed it now follows the one before.
   const leave = (item: StackRun): void => {
     if (item.previous != null) {
       item.previous.next = item.next
       item.previous.depthAfter = Math.max(item.previous.depthAfter, item.depthAfter)
     }
+
     if (item.next != null) {
       item.next.previous = item.previous
     }
   }
+
   // Where the search for an opener stops, by source index, for closers of
   // each kind: no opener at or before it can match them.
   const openersBottom = new Map<string, number>()
@@ -1357,9 +1503,12 @@ function resolveEmphasis(
     readonly opener: DelimiterRun
     readonly closer: DelimiterRun
   } | null = null
+
   let closerItem: StackRun | null = stack[0] ?? null
+
   while (closerItem != null) {
     const closer = closerItem.run
+
     if (!closerItem.canClose || closer.length === 0) {
       closerItem = closerItem.next
       continue
@@ -1368,6 +1517,7 @@ function resolveEmphasis(
     const key = `${closer.character}${closer.canOpen ? 1 : 0}${closer.originalLength % 3}`
     const bottom = openersBottom.get(key) ?? -1
     let openerItem: StackRun | null = closerItem.previous
+
     for (; openerItem != null && openerItem.index > bottom;) {
       const candidate = openerItem.run
       // The rule of three: a run that can both open and close does not pair
@@ -1391,7 +1541,9 @@ function resolveEmphasis(
 
     if (openerItem == null || openerItem.index <= bottom) {
       openersBottom.set(key, closerItem.index - 1)
+
       const next: StackRun | null = closerItem.next
+
       if (!closer.canOpen) {
         leave(closerItem)
       }
@@ -1404,6 +1556,7 @@ function resolveEmphasis(
     // Runs between the pair can no longer pair: take them off the stack, and
     // note the deepest emphasis among the nodes between.
     let innerDepth = openerItem.depthAfter
+
     for (
       let between = openerItem.next;
       between != null && between !== closerItem;
@@ -1419,6 +1572,7 @@ function resolveEmphasis(
       // Nesting deeper than the cap: both runs stay text, so no input can
       // build a tree deep enough to exhaust the stack of whatever walks it.
       const next: StackRun | null = closerItem.next
+
       leave(openerItem)
       closerItem.canClose = false
       if (!closer.canOpen) {
@@ -1431,22 +1585,26 @@ function resolveEmphasis(
 
     const openerEntry = entryOf.get(opener.node)
     const closerEntry = entryOf.get(closer.node)
+
     if (openerEntry == null || closerEntry == null) {
       break
     }
 
     const use = opener.length >= 2 && closer.length >= 2 ? 2 : 1
     const children: PhrasingNode[] = []
+
     for (let entry = openerEntry.next; entry != null && entry !== closerEntry; entry = entry.next) {
       children.push(entry.node)
     }
 
     let wrapper: PhrasingNode
+
     if (use === 2) {
       wrapper = { type: 'strong', children }
       lastStrong = { node: wrapper, opener, closer }
     } else {
       const [only] = children
+
       wrapper =
         children.length === 1 &&
         only === lastStrong?.node &&
@@ -1480,21 +1638,27 @@ function resolveEmphasis(
 
     if (closer.length === 0) {
       unlink(closerEntry)
+
       const next: StackRun | null = closerItem.next
+
       leave(closerItem)
       closerItem = next
     }
   }
+
   // An unpaired run is text, joined to the text beside it.
   const leftover = new Set<object>(
     delimiters.filter((run) => run.length > 0).map((run) => run.node),
   )
+
   const result: PhrasingNode[] = []
   let previousIsLeftover = false
+
   for (let entry = head.next; entry != null; entry = entry.next) {
     const { node } = entry
     const isLeftover = leftover.has(node)
     const last = result[result.length - 1]
+
     if (node.type === 'text' && last?.type === 'text' && (isLeftover || previousIsLeftover)) {
       result[result.length - 1] = { ...last, value: last.value + node.value }
       previousIsLeftover = true
@@ -1504,15 +1668,18 @@ function resolveEmphasis(
     result.push(isLeftover ? { type: 'text', value: (node as { value: string }).value } : node)
     previousIsLeftover = isLeftover
   }
+
   return result
 }
 
 /** True when the character at `index` is preceded by an odd backslash run. */
 function isEscaped(text: string, index: number): boolean {
   let backslashes = 0
+
   for (let i = index - 1; i >= 0 && text[i] === '\\'; i--) {
     backslashes++
   }
+
   return backslashes % 2 === 1
 }
 
@@ -1565,6 +1732,7 @@ function findInlineMathEnd(text: string, start: number): number {
 
     return index
   }
+
   return -1
 }
 
@@ -1585,14 +1753,19 @@ function matchFullwidthCitation(
   if (!opts.sourceIds || text[i] !== '\u3010') {
     return null
   }
+
   const closeIndex = text.indexOf('\u3011', i + 1)
+
   if (closeIndex === -1) {
     return null
   }
+
   const id = text.slice(i + 1, closeIndex)
+
   if (id.length === 0 || !opts.sourceIds.has(id)) {
     return null
   }
+
   return { sourceId: id, end: closeIndex + 1 }
 }
 
@@ -1608,17 +1781,23 @@ function matchBracketCitation(
   if (!opts.sourceIds || text[i] !== '[') {
     return null
   }
+
   const closeIndex = text.indexOf(']', i + 1)
+
   if (closeIndex === -1) {
     return null
   }
+
   if (text[closeIndex + 1] === '(') {
     return null
   }
+
   const id = text.slice(i + 1, closeIndex)
+
   if (id.length === 0 || !opts.sourceIds.has(id)) {
     return null
   }
+
   return { sourceId: id, end: closeIndex + 1 }
 }
 
@@ -1647,19 +1826,24 @@ function matchExtensionSyntax(
       : opts.allowBlockSyntax === false
         ? undefined
         : opts.plugins?.blockByFirstCharacter
+
   const candidates = byFirstCharacter?.get(source[offset])
+
   if (candidates == null) {
     return { status: 'none' }
   }
 
   const seen = new Set<PreparedSyntaxContribution>()
+
   for (const candidate of candidates) {
     if (seen.has(candidate)) {
       continue
     }
 
     seen.add(candidate)
+
     let fullPrefix = false
+
     for (const prefix of candidate.contribution.startsWith) {
       if (source.startsWith(prefix, offset)) {
         fullPrefix = true
@@ -1668,6 +1852,7 @@ function matchExtensionSyntax(
 
       if (!opts.isFinal) {
         const remaining = source.slice(offset)
+
         if (remaining.length < prefix.length && prefix.startsWith(remaining)) {
           return { status: 'defer' }
         }
@@ -1680,6 +1865,7 @@ function matchExtensionSyntax(
 
     const end = Math.min(source.length, offset + candidate.contribution.maxSpan)
     let result: ReturnType<typeof candidate.contribution.tokenize>
+
     try {
       result = candidate.contribution.tokenize({
         source: end === source.length ? source : source.slice(0, end),
@@ -1750,6 +1936,7 @@ function matchExtensionSyntax(
     const { source: _ignoredSource, position: _ignoredPosition, ...safeNode } = rawNode
     const absoluteStart = (opts.baseOffset ?? 0) + offset
     const absoluteEnd = (opts.baseOffset ?? 0) + result.end
+
     return {
       status: 'match',
       end: result.end,
@@ -1768,6 +1955,7 @@ function matchExtensionSyntax(
       }) as MdExtension,
     }
   }
+
   return { status: 'none' }
 }
 
@@ -1779,6 +1967,7 @@ function lineEndingLengthAt(text: string, index: number): number {
   if (text[index] === '\n') {
     return 1
   }
+
   return text[index] === '\r' && text[index + 1] === '\n' ? 2 : 0
 }
 
@@ -1786,9 +1975,11 @@ function lineEndingLengthAt(text: string, index: number): number {
 export function parseMdInline(text: string, options?: MdParseOptions): MdInline[] {
   const opts = resolveOptions(options)
   const nodes = parseInlineEntry(text, opts)
+
   if ((opts.plugins?.transforms.length ?? 0) === 0) {
     return nodes
   }
+
   const transformed = applyMarkdownTransforms(
     { kind: 'octane-xplat/md', v: 2, children: [{ type: 'paragraph', children: nodes }] },
     opts.plugins,
@@ -1796,7 +1987,9 @@ export function parseMdInline(text: string, options?: MdParseOptions): MdInline[
     opts.isFinal,
     'inline',
   )
+
   const paragraph = transformed.children[0]
+
   return paragraph?.type === 'paragraph' ? [...paragraph.children] : nodes
 }
 
@@ -1815,6 +2008,7 @@ function parseInlineEntry(
   context: 'default' | 'tableCell' = 'default',
 ): MdInline[] {
   const nodes = parseInlineImpl(text, opts, context)
+
   return opts.autolink === 'gfm' ? transformAutolinks(nodes) : nodes
 }
 
@@ -1835,6 +2029,7 @@ function parseInlineImpl(
     (opts.plugins?.inlineByFirstCharacter.size ?? 0) > 0
       ? opts.plugins?.inlineByFirstCharacter
       : undefined
+
   let i = 0
 
   while (i < text.length) {
@@ -1843,6 +2038,7 @@ function parseInlineImpl(
     // backslash (CommonMark 0.31, backslash escapes and hard line breaks).
     if (text[i] === '\\' && i + 1 < text.length) {
       const lineEnding = lineEndingLengthAt(text, i + 1)
+
       if (lineEnding > 0) {
         nodes.push({ type: 'break' })
         i += 1 + lineEnding
@@ -1861,12 +2057,14 @@ function parseInlineImpl(
     // (CommonMark 0.31 §6.1).
     if (text[i] === '`') {
       let openIndex = i
+
       while (text[openIndex] === '`') {
         openIndex++
       }
 
       const tickCount = openIndex - i
       const closeIndex = inlineIndex.backtickCloser(openIndex, tickCount)
+
       if (closeIndex === -1) {
         appendInlineText(nodes, delimiterNodes, text.slice(i, openIndex))
         i = openIndex
@@ -1888,6 +2086,7 @@ function parseInlineImpl(
     // --- Inline math (opt-in; code takes precedence) ---
     if (opts.math && text[i] === '$') {
       const closeIndex = findInlineMathEnd(text, i)
+
       if (closeIndex !== -1) {
         nodes.push({
           type: 'inlineMath',
@@ -1902,6 +2101,7 @@ function parseInlineImpl(
     // --- Citation: fullwidth 【id】 ---
     {
       const citation = matchFullwidthCitation(text, i, opts)
+
       if (citation) {
         nodes.push({ type: 'citation', sourceId: citation.sourceId })
         i = citation.end
@@ -1912,6 +2112,7 @@ function parseInlineImpl(
     // --- Image ![alt](src) ---
     if (text[i] === '!' && text[i + 1] === '[') {
       const altClose = inlineIndex.openerClose(i + 1)
+
       if (altClose !== -1 && text[altClose + 1] === '(') {
         const angleClose = angleDestinationClose(text, altClose + 1)
         const srcClose =
@@ -1919,6 +2120,7 @@ function parseInlineImpl(
 
         if (srcClose !== -1) {
           const src = decodeLinkDestination(inlineDestination(text.slice(altClose + 2, srcClose)))
+
           if (!isSafeMdParserUrl(src)) {
             // Dangerous scheme — emit as plain text.
             nodes.push({ type: 'text', value: text.slice(i, srcClose + 1) })
@@ -1939,6 +2141,7 @@ function parseInlineImpl(
     // --- Reference image ![alt][label] / ![alt][] / ![alt] ---
     if (opts.linkDefs != null && text[i] === '!' && text[i + 1] === '[') {
       const ref = matchReferenceImage(text, i, opts.linkDefs, inlineIndex, opts, context)
+
       if (ref) {
         nodes.push(ref.node)
         i = ref.end
@@ -1949,6 +2152,7 @@ function parseInlineImpl(
     // --- Citation: bracket [id] (before link — link requires `(` after `]`) ---
     {
       const citation = matchBracketCitation(text, i, opts)
+
       if (citation) {
         nodes.push({ type: 'citation', sourceId: citation.sourceId })
         i = citation.end
@@ -1959,6 +2163,7 @@ function parseInlineImpl(
     // --- Link [text](url) ---
     if (text[i] === '[') {
       const textClose = inlineIndex.openerClose(i)
+
       if (textClose !== -1 && text[textClose + 1] === '(') {
         const angleClose = angleDestinationClose(text, textClose + 1)
         const urlClose =
@@ -1966,6 +2171,7 @@ function parseInlineImpl(
 
         if (urlClose !== -1) {
           const href = decodeLinkDestination(inlineDestination(text.slice(textClose + 2, urlClose)))
+
           if (!isSafeMdParserUrl(href)) {
             // Dangerous scheme — emit as plain text instead of a link.
             nodes.push({ type: 'text', value: text.slice(i, urlClose + 1) })
@@ -1986,6 +2192,7 @@ function parseInlineImpl(
     // --- Reference link [text][label] / [text][] / [text] ---
     if (opts.linkDefs != null && text[i] === '[') {
       const ref = matchReferenceLink(text, i, opts.linkDefs, opts, context, inlineIndex)
+
       if (ref) {
         nodes.push(ref.node)
         i = ref.end
@@ -1999,11 +2206,13 @@ function parseInlineImpl(
     if (text[i] === '*' || text[i] === '_') {
       const character = text[i] as '*' | '_'
       let runEnd = i + 1
+
       while (text[runEnd] === character) {
         runEnd++
       }
 
       const run = delimiterRun(character, text, i, runEnd)
+
       if (run.canOpen || run.canClose) {
         nodes.push(run.node)
 
@@ -2027,6 +2236,7 @@ function parseInlineImpl(
     // --- Strikethrough: ~~ ---
     if (text[i] === '~' && text[i + 1] === '~') {
       const closeIndex = text.indexOf('~~', i + 2)
+
       if (closeIndex !== -1) {
         nodes.push({
           type: 'delete',
@@ -2042,6 +2252,7 @@ function parseInlineImpl(
     // plugins are consulted only at ordinary characters they indexed. ---
     if (inlineExtensionStarts !== undefined) {
       const extension = matchExtensionSyntax(text, i, 'inline', opts)
+
       if (extension.status === 'match') {
         nodes.push(extension.node as MdInline)
         i = extension.end
@@ -2058,6 +2269,7 @@ function parseInlineImpl(
     // --- Character reference: the characters it names, as plain text ---
     if (text[i] === '&') {
       const reference = matchCharacterReference(text, i)
+
       if (reference != null) {
         appendInlineText(nodes, delimiterNodes, reference.value)
         i = reference.end
@@ -2067,6 +2279,7 @@ function parseInlineImpl(
 
     // --- Plain text (with line-break detection) ---
     let end = i + 1
+
     while (
       end < text.length &&
       !'*_~`[!\\\n\u3010&'.includes(text[end]) &&
@@ -2087,11 +2300,13 @@ function parseInlineImpl(
       // space in a long run that does not end the line, so its time grows
       // with the square of the run.
       let spaces = 0
+
       while (line[line.length - 1 - spaces] === ' ') {
         spaces++
       }
 
       const trimmed = line.slice(0, line.length - spaces)
+
       if (spaces >= 2) {
         if (trimmed.length > 0) {
           appendInlineText(nodes, delimiterNodes, trimmed)
@@ -2106,6 +2321,7 @@ function parseInlineImpl(
     appendInlineText(nodes, delimiterNodes, content)
     i = end
   }
+
   return delimiters == null ? nodes : resolveEmphasis(nodes, delimiters)
 }
 
@@ -2161,10 +2377,12 @@ interface AutolinkMatch {
  */
 function peelTrailingPunctAndParens(url: string): string {
   let s = url
+
   while (s.length > 0) {
     // Peel trailing punctuation characters in one pass.
     if (TRAILING_PUNCT_CHARS.has(s[s.length - 1])) {
       let end = s.length - 1
+
       while (end > 0 && TRAILING_PUNCT_CHARS.has(s[end - 1])) {
         end--
       }
@@ -2176,6 +2394,7 @@ function peelTrailingPunctAndParens(url: string): string {
     if (s.endsWith(')')) {
       let open = 0
       let close = 0
+
       for (let idx = 0; idx < s.length; idx++) {
         if (s[idx] === '(') {
           open++
@@ -2192,6 +2411,7 @@ function peelTrailingPunctAndParens(url: string): string {
 
     break
   }
+
   return s
 }
 
@@ -2209,6 +2429,7 @@ function isUrlBoundaryChar(ch: string | undefined): boolean {
   if (ch == null) {
     return true
   }
+
   return !URL_CONTINUATION_CHARS.has(ch)
 }
 
@@ -2219,8 +2440,10 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   {
     const re = new RegExp(ANGLE_URL_RE.source, 'g')
     let m: RegExpExecArray | null
+
     while ((m = re.exec(text)) !== null) {
       const url = m[1]
+
       // Skip dangerous URL schemes (javascript:, vbscript:, data:text/html)
       if (!isSafeMdParserUrl(url)) {
         continue
@@ -2239,8 +2462,10 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   {
     const re = new RegExp(ANGLE_EMAIL_RE.source, 'g')
     let m: RegExpExecArray | null
+
     while ((m = re.exec(text)) !== null) {
       const email = m[1]
+
       matches.push({
         start: m.index,
         end: m.index + m[0].length,
@@ -2254,8 +2479,10 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   {
     const re = new RegExp(URL_LITERAL_RE.source, 'g')
     let m: RegExpExecArray | null
+
     while ((m = re.exec(text)) !== null) {
       const prev = text[m.index - 1]
+
       if (!isUrlBoundaryChar(prev)) {
         continue
       }
@@ -2265,6 +2492,7 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
       }
 
       const cleaned = peelTrailingPunctAndParens(m[0])
+
       if (cleaned.length === 0) {
         continue
       }
@@ -2282,8 +2510,10 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   {
     const re = new RegExp(WWW_LITERAL_RE.source, 'g')
     let m: RegExpExecArray | null
+
     while ((m = re.exec(text)) !== null) {
       const prev = text[m.index - 1]
+
       if (!isUrlBoundaryChar(prev)) {
         continue
       }
@@ -2294,6 +2524,7 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
       }
 
       const cleaned = peelTrailingPunctAndParens(m[0])
+
       if (cleaned.length === 0) {
         continue
       }
@@ -2311,8 +2542,10 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   {
     const re = new RegExp(EMAIL_LITERAL_RE.source, 'g')
     let m: RegExpExecArray | null
+
     while ((m = re.exec(text)) !== null) {
       const prev = text[m.index - 1]
+
       // Reject if previous char could be part of the local part or sits in
       // a position that would make this match continuation of something
       // bigger (`name@x.y@host`, `foo+bar@x`, `mailto:user@host`).
@@ -2336,14 +2569,17 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
   // Sort by start; first-match-wins on overlaps so e.g. an angle-bracket
   // <https://x> outranks the bare https://x inside it.
   matches.sort((a, b) => a.start - b.start)
+
   const resolved: AutolinkMatch[] = []
   let lastEnd = 0
+
   for (const m of matches) {
     if (m.start >= lastEnd) {
       resolved.push(m)
       lastEnd = m.end
     }
   }
+
   return resolved
 }
 
@@ -2353,11 +2589,14 @@ function scanAutolinksInText(text: string): AutolinkMatch[] {
  */
 function splitTextOnAutolinks(content: string): MdInline[] {
   const matches = scanAutolinksInText(content)
+
   if (matches.length === 0) {
     return [{ type: 'text', value: content }]
   }
+
   const out: MdInline[] = []
   let cursor = 0
+
   for (const m of matches) {
     if (m.start > cursor) {
       out.push({ type: 'text', value: content.slice(cursor, m.start) })
@@ -2371,9 +2610,11 @@ function splitTextOnAutolinks(content: string): MdInline[] {
 
     cursor = m.end
   }
+
   if (cursor < content.length) {
     out.push({ type: 'text', value: content.slice(cursor) })
   }
+
   return out
 }
 
@@ -2387,11 +2628,14 @@ function splitTextOnAutolinks(content: string): MdInline[] {
  */
 function transformAutolinks(nodes: ReadonlyArray<MdInline>): MdInline[] {
   const out: MdInline[] = []
+
   for (const node of nodes) {
     if (node.type === 'text') {
       const split = splitTextOnAutolinks(node.value)
+
       for (const seg of split) {
         const last = out[out.length - 1]
+
         if (seg.type === 'text' && last?.type === 'text') {
           out[out.length - 1] = { ...last, value: last.value + seg.value }
         } else {
@@ -2404,6 +2648,7 @@ function transformAutolinks(nodes: ReadonlyArray<MdInline>): MdInline[] {
       out.push(node)
     }
   }
+
   return out
 }
 
@@ -2413,9 +2658,11 @@ function transformAutolinks(nodes: ReadonlyArray<MdInline>): MdInline[] {
 
 function getIndent(line: string): number {
   let count = 0
+
   while (count < line.length && line[count] === ' ') {
     count++
   }
+
   return count
 }
 
@@ -2423,22 +2670,27 @@ function getIndent(line: string): number {
 function isHorizontalRule(line: string): boolean {
   const trimmed = line.trim()
   const ch = trimmed[0]
+
   if (trimmed.length < 3 || (ch !== '-' && ch !== '*' && ch !== '_') || !trimmed.endsWith(ch)) {
     return false
   }
+
   // Three or more of one marker, spaces between allowed. Both ends are
   // checked first and the scan stops at the first other character, so a long
   // line that is not a rule costs next to nothing — this runs on every line
   // at every nesting level.
   let count = 0
+
   for (let idx = 0; idx < trimmed.length; idx++) {
     const character = trimmed[idx]
+
     if (character === ch) {
       count++
     } else if (character !== ' ') {
       return false
     }
   }
+
   return count >= 3
 }
 
@@ -2462,6 +2714,7 @@ function hasUnescapedPipe(line: string): boolean {
       return true
     }
   }
+
   return false
 }
 
@@ -2470,8 +2723,10 @@ function isTableSeparator(line: string): boolean {
   if (!line.includes('|')) {
     return false
   }
+
   const cells = line.split('|').map((cell) => cell.trim())
   const nonEmpty = cells.filter((cell) => cell.length > 0)
+
   return nonEmpty.length > 0 && nonEmpty.every((cell) => /^:?-+:?$/.test(cell))
 }
 
@@ -2506,6 +2761,7 @@ function nestedAt(
 
 function blockExtensionColumn(line: string): number | null {
   const indentation = line.length - line.trimStart().length
+
   return indentation <= 3 ? indentation : null
 }
 
@@ -2529,24 +2785,31 @@ function isBlockStart(line: string): boolean {
   if (/^ {0,3}#{1,6} /.test(line)) {
     return true
   }
+
   if (FENCE_LINE.test(line)) {
     return true
   }
+
   if (isHorizontalRule(line)) {
     return true
   }
+
   if (QUOTE_MARKER.test(line)) {
     return true
   }
+
   if (/^ {0,9}[-*+] /.test(line)) {
     return true
   }
+
   if (/^ {0,9}0*1[.)] /.test(line)) {
     return true
   }
+
   if (line.includes('|')) {
     return true
   }
+
   return false
 }
 
@@ -2561,9 +2824,11 @@ function canContinueParagraphLazily(
   insideList = false,
 ): boolean {
   const line = lines[lineIndex]
+
   if (line == null || line.trim() === '') {
     return false
   }
+
   if (
     /^ {0,3}#{1,6} /.test(line) ||
     FENCE_LINE.test(line) ||
@@ -2574,6 +2839,7 @@ function canContinueParagraphLazily(
   ) {
     return false
   }
+
   return !(
     line.includes('|') &&
     lineIndex + 1 < lines.length &&
@@ -2583,19 +2849,25 @@ function canContinueParagraphLazily(
 
 function endsInParagraph(blocks: ReadonlyArray<MdNode>): boolean {
   const last = blocks[blocks.length - 1]
+
   if (last == null) {
     return false
   }
+
   if (last.type === 'paragraph') {
     return true
   }
+
   if (last.type === 'blockquote') {
     return endsInParagraph(last.children)
   }
+
   if (last.type === 'list') {
     const item = last.children[last.children.length - 1]
+
     return item != null && endsInParagraph(item.children)
   }
+
   return false
 }
 
@@ -2604,36 +2876,45 @@ function sourceEndsInParagraph(source: string, opts: ResolvedOptions): boolean {
   // at each nesting level then costs a lookup, not another parse of every
   // level below it.
   const record = opts.nestedParses
+
   if (record != null) {
     record.map ??= new Map()
   }
+
   const known = record?.map?.get(nestedParseKey(opts.blockDepth + 1, source))
+
   return endsInParagraph(known ?? parseMarkdownImpl(source, { ...nested(opts), probing: true }))
 }
 
 function splitTableRow(line: string): string[] {
   let start = 0
   let end = line.length
+
   // A row's indentation, and its leading pipe, open no cell.
   while (start < end && (line[start] === ' ' || line[start] === '\t')) {
     start++
   }
+
   if (line[start] === '|') {
     start++
     while (start < end && line[start] === ' ') {
       start++
     }
   }
+
   while (end > start && line[end - 1] === ' ') {
     end--
   }
+
   if (end > start && line[end - 1] === '|') {
     end--
   }
+
   // Split on unescaped pipes (not preceded by backslash)
   const content = line.slice(start, end)
   const cells: string[] = []
   let current = ''
+
   for (let i = 0; i < content.length; i++) {
     if (content[i] === '\\' && i + 1 < content.length && content[i + 1] === '|') {
       // Escaped pipe — keep the backslash-pipe literal for parseInline to handle
@@ -2646,6 +2927,7 @@ function splitTableRow(line: string): string[] {
       current += content[i]
     }
   }
+
   cells.push(current.trim())
   return cells
 }
@@ -2659,10 +2941,12 @@ function parseTable(
     type: 'tableCell',
     children: parseInlineEntry(cell, opts, 'tableCell'),
   }))
+
   const alignments: MdTableAlignment[] = splitTableRow(lines[lineIndex + 1]).map((cell) => {
     const trimmed = cell.trim()
     const leftAligned = trimmed.startsWith(':')
     const rightAligned = trimmed.endsWith(':')
+
     return leftAligned && rightAligned
       ? 'center'
       : rightAligned
@@ -2671,8 +2955,10 @@ function parseTable(
           ? 'left'
           : null
   })
+
   const rows: MdTableRow[] = []
   let rowIndex = lineIndex + 2
+
   while (
     rowIndex < lines.length &&
     lines[rowIndex].includes('|') &&
@@ -2688,10 +2974,12 @@ function parseTable(
 
     rowIndex++
   }
+
   const header: MdTableRow = {
     type: 'tableRow',
     children: headers,
   }
+
   return {
     node: {
       type: 'table',
@@ -2710,10 +2998,13 @@ function listItemSource(
   if (subLines.length === 0) {
     return itemText
   }
+
   const nonBlankIndents = subLines
     .filter((line, index) => line.trim() !== '' && !lazyLineIndexes.has(index))
     .map(getIndent)
+
   const minSubIndent = nonBlankIndents.length === 0 ? 0 : Math.min(...nonBlankIndents)
+
   return `${itemText}\n${subLines
     .map((line, index) =>
       line.trim() === ''
@@ -2753,6 +3044,7 @@ function parseList(
   // A line that is a thematic break is one, not an item, even where an item
   // could start (CommonMark 0.31 §4.1): `* * *` after `- item` ends the list.
   const startsItem = (line: string) => itemPattern.test(line) && !isHorizontalRule(line)
+
   while (index < lines.length && startsItem(lines[index])) {
     const itemStart = index
     const content = ordered
@@ -2768,6 +3060,7 @@ function parseList(
     const taskMatch = content.match(/^\[([ xX])\] (.*)/)
     let checked: boolean | undefined
     let itemText: string
+
     if (taskMatch) {
       checked = taskMatch[1].toLowerCase() === 'x'
       itemText = taskMatch[2]
@@ -2826,6 +3119,7 @@ function parseList(
     // paragraph. Lazy continuation stops at a blank line.
     for (;;) {
       let next = index
+
       while (next < lines.length && lines[next].trim() === '') {
         next++
       }
@@ -2856,6 +3150,7 @@ function parseList(
     // — line 0 is the marker line. `lineOrigin` maps them back to the
     // document so a nested parse can still record source lines.
     let itemOrigin: (number | undefined)[] | null = null
+
     if (documentLineOf != null) {
       itemOrigin = [documentLineOf(itemStart)]
       for (let j = 0; j < subLines.length; j++) {
@@ -2873,6 +3168,7 @@ function parseList(
     // and indent still form one list. Skip the blanks and continue if the
     // next non-blank line matches the same item pattern.
     let lookahead = index
+
     while (lookahead < lines.length && lines[lookahead].trim() === '') {
       lookahead++
     }
@@ -2882,6 +3178,7 @@ function parseList(
       index = lookahead
     }
   }
+
   const node: MdList = {
     type: 'list',
     ordered,
@@ -2890,6 +3187,7 @@ function parseList(
     spread: loose || undefined,
     children: items,
   }
+
   listMarkerShapes.set(node, `${baseIndent}:${ordered ? delim : bullet}`)
   return { node, nextIndex: index }
 }
@@ -2906,6 +3204,7 @@ export function parseMdNodes(input: string, options?: MdParseOptions): MdNode[] 
 /** Parse block Markdown into a versioned `MdDoc` envelope. */
 export function parseMdDoc(input: string, options?: MdParseOptions): MdDoc {
   const resolved = resolveOptions(options)
+
   return applyMarkdownTransforms(
     { kind: 'octane-xplat/md', v: 2, children: parseMarkdownImpl(input, resolved) },
     resolved.plugins,
@@ -2923,6 +3222,7 @@ function parseMdInternal(
 ): MdNode[] {
   const resolved = resolveOptions(arg)
   const opts = isFinal ? resolved : { ...resolved, isFinal: false }
+
   return applyMarkdownTransforms(
     { kind: 'octane-xplat/md', v: 2, children: parseMarkdownImpl(input, opts) },
     opts.plugins,
@@ -2937,11 +3237,14 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
   if (callerOpts.blockDepth >= MAX_BLOCK_NESTING) {
     // Nested deeper than the cap: the content is one paragraph of text.
     const text = input.trim()
+
     return text === '' ? [] : [{ type: 'paragraph', children: parseInlineEntry(text, callerOpts) }]
   }
+
   // One document's nested parses share one record of what they produced.
   const baseOpts: ResolvedOptions =
     callerOpts.nestedParses == null ? { ...callerOpts, nestedParses: { map: null } } : callerOpts
+
   // Collect this input's link reference definitions and strip their lines,
   // then merge them with any definitions inherited from an enclosing parse
   // (the incremental parser passes the whole document's definitions in; a
@@ -2952,6 +3255,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
   const { defs, cleaned, lineMap } = extractLinkDefinitions(input, baseOpts.math)
   const inherited = baseOpts.linkDefs
   let linkDefs: ReadonlyMap<string, string> | undefined
+
   if (defs.size === 0) {
     linkDefs = inherited
   } else if (inherited == null) {
@@ -2959,22 +3263,27 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
   } else {
     linkDefs = new Map<string, string>([...defs, ...inherited])
   }
+
   const opts: ResolvedOptions = linkDefs != null ? { ...baseOpts, linkDefs } : baseOpts
   const lines = cleaned.split('\n')
   // Whether block-level plugin syntax may interrupt paragraphs, quotes, and
   // lazy continuations here — top-level parses only.
   const hasBlockExtensionSyntax =
     opts.allowBlockSyntax !== false && (opts.plugins?.blockByFirstCharacter.size ?? 0) > 0
+
   // Derived from the already-split lines rather than a second character
   // scan: every line contributes its own length plus the newline it ended on.
   const lineOffsets = [0]
+
   if (opts.astPositions === true || hasBlockExtensionSyntax) {
     let offset = 0
+
     for (let index = 0; index < lines.length; index++) {
       offset += lines[index].length + 1
       lineOffsets.push(offset)
     }
   }
+
   const blocks: MdNode[] = []
   // Maps a line of this parse's block loop to its 0-based document line, or
   // `undefined` when this parse records no lines. Stripped definition lines
@@ -2987,11 +3296,13 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       : opts.sourceLines === true
         ? (loopLine: number): number | undefined => {
             const inputLine = lineMap != null ? lineMap[loopLine] : loopLine
+
             return opts.lineOrigin != null
               ? opts.lineOrigin[inputLine]
               : (opts.baseLine ?? 0) + inputLine
           }
         : undefined
+
   // Extension match results for the block parser, keyed to the loop line
   // each was computed at so paragraph/lazy-continuation checks can ask the
   // same question without re-tokenizing.
@@ -2999,22 +3310,29 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
   const joinedLines = hasBlockExtensionSyntax ? lines.join('\n') : ''
   const blockExtensionMatchAt = (lineIndex: number): ExtensionMatch => {
     let match = blockExtensionMatches.get(lineIndex)
+
     if (match === undefined) {
       match = matchExtensionSyntax(joinedLines, lineOffsets[lineIndex], 'block', opts)
       blockExtensionMatches.set(lineIndex, match)
     }
+
     return match
   }
+
   const interruptsWithBlockExtension = (lineIndex: number): boolean => {
     if (!hasBlockExtensionSyntax || lineIndex >= lines.length) {
       return false
     }
+
     if (blockExtensionColumn(lines[lineIndex]) == null) {
       return false
     }
+
     const match = blockExtensionMatchAt(lineIndex)
+
     return match.status === 'match' || match.status === 'defer'
   }
+
   // The line each block started on, parallel to `blocks`. Only collected when
   // ranges were asked for; a block's end is resolved after the loop, since the
   // branch that produced it has already moved `index` past whatever it read.
@@ -3022,6 +3340,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
   // the top level, or nested with a table of its lines' origins.
   const blockStartLines: number[] | null =
     opts.astPositions === true || documentLineOf != null ? [] : null
+
   // Set only by a block that consumes blank lines as content, where the
   // positional end derivation would trim them away.
   const blockEndLines: (number | undefined)[] | null = blockStartLines != null ? [] : null
@@ -3031,11 +3350,14 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     blockStartLines?.push(blockStartLine)
     blockEndLines?.push(endLine)
   }
+
   let index = 0
 
   while (index < lines.length) {
     blockStartLine = index
+
     const line = lines[index]
+
     if (line.trim() === '') {
       index++
       continue
@@ -3043,6 +3365,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 
     // --- Fenced code block ---
     const fenceMatch = FENCE_LINE.exec(line)
+
     if (fenceMatch) {
       const [opening, indentation, fence] = fenceMatch
       // The rest of the line is the info string; its first word, after any
@@ -3053,6 +3376,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       const codeLines: string[] = []
       // Each code line loses as much indentation as the opening fence has.
       const fenceIndentation = new RegExp(`^ {0,${indentation.length}}`)
+
       index++
       while (index < lines.length && !closesFence(lines[index], fence)) {
         codeLines.push(lines[index].replace(fenceIndentation, ''))
@@ -3060,6 +3384,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       }
 
       const closed = index < lines.length
+
       // A fence left open in the document runs to its end, whose final line
       // ending starts no line of code (CommonMark 0.31 §4.5) — as a closed
       // fence's code ends before its closing line. A container's content is
@@ -3094,6 +3419,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     // --- Display math (opt-in; fenced code takes precedence) ---
     if (opts.math) {
       const displayMath = matchDisplayMathBlock(lines, index)
+
       if (displayMath != null) {
         pushBlock({ type: 'math', value: displayMath.value }, displayMath.endLine)
         index = displayMath.nextIndex
@@ -3104,6 +3430,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     // --- Heading ---
     // An ATX heading may be indented up to three spaces (CommonMark 0.31 §4.2).
     const headingMatch = line.match(/^ {0,3}(#{1,6}) +(.*)/)
+
     if (headingMatch) {
       pushBlock({
         type: 'heading',
@@ -3127,6 +3454,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     // literal text, the same rule the inline image path applies.
     const imageMatch = line.match(/^!\[([^\]]*)\]\(([^)]+)\)/)
     const imageSrc = imageMatch ? decodeLinkDestination(inlineDestination(imageMatch[2])) : ''
+
     if (imageMatch && line.trim() === imageMatch[0] && isSafeMdParserUrl(imageSrc)) {
       pushBlock({
         type: 'image',
@@ -3141,6 +3469,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     // --- Table (with or without leading pipe) ---
     if (index + 1 < lines.length && line.includes('|') && isTableSeparator(lines[index + 1])) {
       const tableResult = parseTable(lines, index, opts)
+
       pushBlock(tableResult.node)
       index = tableResult.nextIndex
       continue
@@ -3151,10 +3480,13 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       const quoteLines: string[] = []
       const quoteOrigin: (number | undefined)[] = []
       let lazyParagraphOpen: boolean | undefined
+
       while (index < lines.length) {
         const quoteLine = lines[index]
+
         if (QUOTE_MARKER.test(quoteLine)) {
           const content = quotedContent(quoteLine)
+
           quoteLines.push(content)
           if (documentLineOf != null) {
             quoteOrigin.push(documentLineOf(index))
@@ -3244,9 +3576,11 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
     // plugins are consulted only at a line start they indexed. ---
     if (hasBlockExtensionSyntax && blockExtensionColumn(line) != null) {
       const extension = blockExtensionMatchAt(index)
+
       if (extension.status === 'match') {
         const matchedLines = extension.node.source?.split('\n').length ?? 1
         const consumedLines = lines.slice(index, index + matchedLines)
+
         if (consumedLines.join('\n') !== extension.node.source) {
           reportMarkdownPluginFailure(
             extension.node.plugin,
@@ -3263,9 +3597,11 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
 
     // --- Paragraph ---
     const paraLines: string[] = [line]
+
     index++
     while (index < lines.length) {
       const nextLine = lines[index]
+
       if (
         isBlockStart(nextLine) ||
         interruptsWithBlockExtension(index) ||
@@ -3284,6 +3620,7 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       children: parseInlineEntry(paraLines.join('\n'), opts),
     })
   }
+
   if (blockStartLines != null) {
     stampSourceRanges(
       blocks,
@@ -3296,10 +3633,13 @@ function parseMarkdownImpl(input: string, callerOpts: ResolvedOptions): MdNode[]
       documentLineOf,
     )
   }
+
   const nestedParses = baseOpts.nestedParses?.map
+
   if (baseOpts.probing === true && nestedParses != null) {
     nestedParses.set(nestedParseKey(baseOpts.blockDepth, input), blocks)
   }
+
   return blocks
 }
 
@@ -3326,6 +3666,7 @@ function stampSourceRanges(
   const base = opts.baseOffset ?? 0
   // Offset of the first character of every line of the input.
   const inputLineStarts = [0]
+
   if (withOffsets) {
     for (let i = 0; i < input.length; i++) {
       if (input[i] === '\n') {
@@ -3333,6 +3674,7 @@ function stampSourceRanges(
       }
     }
   }
+
   // Stripping removes whole lines and never edits one, so a parsed line's
   // length is its input line's length.
   const lineStart = (line: number): number =>
@@ -3341,8 +3683,10 @@ function stampSourceRanges(
   for (let i = 0; i < blocks.length; i++) {
     const startLine = blockStartLines[i]
     let endLine = blockEndLines[i]
+
     if (endLine == null) {
       const nextStart = i + 1 < blocks.length ? blockStartLines[i + 1] : lines.length
+
       endLine = nextStart - 1
       while (endLine > startLine && lines[endLine].trim() === '') {
         endLine--
@@ -3467,6 +3811,7 @@ function makeIncrementalCache(state: MarkdownIncrementalState): IncrementalCache
     linkDefsKey: linkDefsSignature(defs),
     work: { ...EMPTY_INCREMENTAL_WORK },
   }
+
   incrementalCaches.set(state, cache)
   return cache
 }
@@ -3485,6 +3830,7 @@ export function createMarkdownIncrementalState(): MarkdownIncrementalState {
     settledBlocks: [],
     settledUpTo: 0,
   }
+
   makeIncrementalCache(state)
   return state
 }
@@ -3528,6 +3874,7 @@ function findSettledBoundary(
 
     if (mathContainer != null) {
       const state = displayMathLineState(line, mathContainer)
+
       if (state === 'close') {
         mathContainer = null
         continue
@@ -3550,6 +3897,7 @@ function findSettledBoundary(
     // same expression instead of opening a new one.
     if (math && !suppressMathUntilBoundary) {
       const container = displayMathContainer(line)
+
       if (container != null) {
         mathContainer = container
         boundaryBeforeMath = lastBoundary
@@ -3617,12 +3965,14 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
       }
 
       const close = findInlineMathEnd(tail, index)
+
       if (close !== -1) {
         index = close
         continue
       }
 
       let laterDollar = -1
+
       for (let next = index + 1; next < tail.length; next++) {
         if (tail[next] === '$' && !isEscaped(tail, next)) {
           laterDollar = next
@@ -3642,10 +3992,12 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
   // Scan backwards for unclosed syntax markers — no regex to avoid ReDoS
   // Find the last unclosed [ or ![ (link/image start)
   const lastBracket = tail.lastIndexOf('[')
+
   if (lastBracket !== -1) {
     const afterBracket = tail.slice(lastBracket)
     // A closed link/image has ](...)  somewhere after the [
     const hasClose = afterBracket.includes('](') && afterBracket.includes(')')
+
     if (!hasClose) {
       // Also trim a preceding `!` for images
       const trimTo =
@@ -3657,13 +4009,16 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 
   // Find trailing unclosed backticks
   let end = tail.length
+
   while (end > 0 && tail[end - 1] === '`') {
     end--
   }
+
   if (end < tail.length && end > 0) {
     // There are trailing backticks — check if they opened inline code
     const ticks = tail.length - end
     const opener = tail.lastIndexOf('`'.repeat(ticks), end - 1)
+
     if (opener === -1) {
       // Unclosed — trim from the backticks
       tail = tail.slice(0, end)
@@ -3676,10 +4031,13 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
   while (end > 0 && tail[end - 1] === '*') {
     end--
   }
+
   if (end < tail.length && end > 0) {
     const stars = tail.length - end
+
     if (stars <= 3) {
       const opener = tail.lastIndexOf('*'.repeat(stars), end - 1)
+
       if (opener === -1) {
         tail = tail.slice(0, end)
       }
@@ -3692,14 +4050,17 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
   {
     let searchFrom = 0
     const markers: { pos: number; len: number }[] = []
+
     while (searchFrom < tail.length) {
       const idx = tail.indexOf('*', searchFrom)
+
       if (idx === -1) {
         break
       }
 
       // Determine marker length (* or ** or ***)
       let markerLen = 1
+
       while (idx + markerLen < tail.length && tail[idx + markerLen] === '*') {
         markerLen++
       }
@@ -3716,6 +4077,7 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
 
     // Pair markers greedily. Unpaired openers get auto-closed.
     const paired = new Set<number>()
+
     for (let i = 0; i < markers.length; i++) {
       if (paired.has(i)) {
         continue
@@ -3742,6 +4104,7 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
         const marker = markers[i]
         const content = tail.slice(marker.pos + marker.len)
         const trailing = content.length - content.trimEnd().length
+
         // Only close if there's actual content after the opener
         if (trailing < content.length) {
           tail =
@@ -3760,12 +4123,14 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
   if (tail.length >= 2 && tail.endsWith('~~')) {
     // Check if there's an opener before these closing ~~
     const opener = tail.lastIndexOf('~~', tail.length - 3)
+
     if (opener === -1) {
       tail = tail.slice(0, -2)
     }
   } else if (tail.endsWith('~')) {
     // Single trailing ~ after content — might be start of ~~
     const secondLast = tail.length - 2
+
     if (secondLast >= 0 && tail[secondLast] !== '~') {
       tail = tail.slice(0, -1)
     }
@@ -3777,8 +4142,10 @@ export function trimStreamingArtifacts(input: string, options?: { math?: boolean
     let count = 0
     let searchFrom = 0
     const positions: number[] = []
+
     while (true) {
       const idx = tail.indexOf('~~', searchFrom)
+
       if (idx === -1) {
         break
       }
@@ -3819,6 +4186,7 @@ function trimOpenDisplayMath(text: string): string {
 
   for (let index = 0; index < lines.length; index++) {
     const line = lines[index]
+
     if (fences.open) {
       fences.read(lines, index)
       continue
@@ -3826,6 +4194,7 @@ function trimOpenDisplayMath(text: string): string {
 
     if (mathContainer != null) {
       const state = displayMathLineState(line, mathContainer)
+
       if (state === 'close') {
         mathContainer = null
         mathStartLine = -1
@@ -3850,6 +4219,7 @@ function trimOpenDisplayMath(text: string): string {
     }
 
     const container = suppressMathUntilBoundary ? null : displayMathContainer(line)
+
     if (container != null) {
       mathContainer = container
       mathStartLine = index
@@ -3893,6 +4263,7 @@ function trimUnsettledStructural(text: string): string {
       // header test mirrors the block parser's own `includes('|')`, which
       // accepts an escaped-only header line once its separator arrives.
       let tableEstablished = false
+
       for (let i = lines.length - 2; i >= 1; i--) {
         if (isTableSeparator(lines[i]) && lines[i - 1].includes('|')) {
           tableEstablished = true
@@ -3949,17 +4320,21 @@ function continuesList(previous: MdList, next: MdList): boolean {
   if (previous.ordered !== next.ordered || previous.delimiter !== next.delimiter) {
     return false
   }
+
   const previousShape = listMarkerShapes.get(previous)
   const nextShape = listMarkerShapes.get(next)
+
   return previousShape == null || nextShape == null || previousShape === nextShape
 }
 
 /** `merged`, carrying the marker shape of the list it continues. */
 function withMarkerShapeOf<Node extends object>(list: object, merged: Node): Node {
   const shape = listMarkerShapes.get(list)
+
   if (shape != null) {
     listMarkerShapes.set(merged, shape)
   }
+
   return merged
 }
 
@@ -3975,8 +4350,10 @@ function mergeSettledBlocks(prev: MdNode[], delta: MdNode[]): MdNode[] {
   if (prev.length === 0 || delta.length === 0) {
     return [...prev, ...delta]
   }
+
   const prevLast = prev[prev.length - 1]
   const deltaFirst = delta[0]
+
   if (
     prevLast.type === 'list' &&
     deltaFirst.type === 'list' &&
@@ -4002,6 +4379,7 @@ function mergeSettledBlocks(prev: MdNode[], delta: MdNode[]): MdNode[] {
 
     return [...prev.slice(0, -1), withMarkerShapeOf(prevLast, merged), ...delta.slice(1)]
   }
+
   return [...prev, ...delta]
 }
 
@@ -4010,12 +4388,15 @@ function appendSettledBlocks(prev: MdNode[], delta: MdNode[]): boolean {
   if (delta.length === 0) {
     return false
   }
+
   if (prev.length === 0) {
     prev.push(...delta)
     return false
   }
+
   const prevLast = prev[prev.length - 1]
   const deltaFirst = delta[0]
+
   if (
     prevLast.type === 'list' &&
     deltaFirst.type === 'list' &&
@@ -4041,6 +4422,7 @@ function appendSettledBlocks(prev: MdNode[], delta: MdNode[]): boolean {
     prev.push(...delta.slice(1))
     return true
   }
+
   prev.push(...delta)
   return false
 }
@@ -4048,9 +4430,11 @@ function appendSettledBlocks(prev: MdNode[], delta: MdNode[]): boolean {
 /** Line breaks in `text` — O(n), counted once per parse segment. */
 function countNewlines(text: string): number {
   let count = 0
+
   for (let i = text.indexOf('\n'); i !== -1; i = text.indexOf('\n', i + 1)) {
     count++
   }
+
   return count
 }
 
@@ -4072,11 +4456,13 @@ function sameUnsettledDefinitions(
       return false
     }
   }
+
   for (const [label, destination] of next) {
     if (!settled.has(label) && previous.get(label) !== destination) {
       return false
     }
   }
+
   return true
 }
 
@@ -4122,6 +4508,7 @@ export function parseMarkdownIncremental(
 
   const nextSourceIdsKey = sourceIdsSignature(opts.sourceIds)
   const nextPluginSyntaxIdentity = opts.pluginSyntaxIdentity ?? ''
+
   if (
     state.autolink !== opts.autolink ||
     state.math !== opts.math ||
@@ -4134,6 +4521,7 @@ export function parseMarkdownIncremental(
     state.sourceIdsKey = nextSourceIdsKey
     state.pluginSyntaxIdentity = nextPluginSyntaxIdentity
   }
+
   if (input === '') {
     resetIncrementalCache(state, cache)
     return applyMarkdownTransforms(
@@ -4144,6 +4532,7 @@ export function parseMarkdownIncremental(
       'block',
     )
   }
+
   // The settled prefix is only reusable while the input still contains it
   // verbatim. `startsWith` is a memcmp-speed scan with no allocation and is
   // the one whole-prefix operation retained per call — the contract that a
@@ -4169,8 +4558,10 @@ export function parseMarkdownIncremental(
   // Changes that affect the effective set reparse settled blocks:
   // document-global references may precede their footer definition.
   let definitionsChanged = false
+
   if (settledDelta !== '') {
     const { defs: deltaDefs } = extractLinkDefinitions(settledDelta, opts.math)
+
     for (const [label, destination] of deltaDefs) {
       if (!cache.settledLinkDefs.has(label)) {
         cache.settledLinkDefs.set(label, destination)
@@ -4180,10 +4571,13 @@ export function parseMarkdownIncremental(
       }
     }
   }
+
   const { defs: tailLinkDefs } = extractLinkDefinitions(unsettledInput, opts.math)
+
   if (!sameUnsettledDefinitions(cache.tailLinkDefs, tailLinkDefs, cache.settledLinkDefs)) {
     definitionsChanged = true
   }
+
   cache.tailLinkDefs = tailLinkDefs
 
   if (definitionsChanged) {
@@ -4192,7 +4586,9 @@ export function parseMarkdownIncremental(
     cache.linkDefsKey = linkDefsSignature(cache.linkDefs)
     reparseSettled = true
   }
+
   state.linkDefsKey = cache.linkDefsKey
+
   const parseOpts: ResolvedOptions =
     cache.linkDefs.size > 0 ? { ...opts, linkDefs: cache.linkDefs } : opts
 
@@ -4227,6 +4623,7 @@ export function parseMarkdownIncremental(
     trimmedUnsettledInput !== '' && /\r(?:\n[\s]*)?$/.test(unsettledInput)
       ? `${trimmedUnsettledInput}\r`
       : trimmedUnsettledInput
+
   // Structural trimming holds back lines that look like an incomplete list
   // or table, which inside a fence is ordinary code. An open fence's
   // trailing blank lines are code, as in a full parse of the same text.
@@ -4237,6 +4634,7 @@ export function parseMarkdownIncremental(
       : trimUnsettledStructural(unsettledRaw)
 
   let parsedSettledBlocks = 0
+
   if (reparseSettled) {
     state.settledBlocks = state.settledText ? parseMarkdownImpl(state.settledText, parseOpts) : []
     parsedSettledBlocks = state.settledBlocks.length
@@ -4258,10 +4656,12 @@ export function parseMarkdownIncremental(
     unsettledText && (opts.astPositions === true || opts.sourceLines === true)
       ? input.indexOf(unsettledText, cache.settledEnd)
       : -1
+
   const unsettledBaseLine =
     unsettledStart >= 0 && opts.sourceLines === true
       ? (cache.settledEndLine ?? 0) + countNewlines(input.slice(cache.settledEnd, unsettledStart))
       : 0
+
   const unsettledBlocks = unsettledText
     ? parseMarkdownImpl(
         unsettledText,
@@ -4278,6 +4678,7 @@ export function parseMarkdownIncremental(
     definitionCharacters: settledDelta.length + unsettledInput.length,
     renderedBlocks: parsedSettledBlocks + unsettledBlocks.length,
   }
+
   return applyMarkdownTransforms(
     {
       kind: 'octane-xplat/md',

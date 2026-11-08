@@ -81,6 +81,7 @@ export default function QueryCacheProbe() @{
 export async function run(ctx: ProbeContext) {
   ctx.onCleanup(() => queries.dispose())
   ctx.record('environment', environment.getSnapshot())
+
   const inspector = inspectQueryClient(queries, {
     eventLimit: 16,
     labels: [{ definition: record, label: 'record' }],
@@ -165,6 +166,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const first = createQueryClient({ namespace: 'qualification-a' })
+
   ctx.onCleanup(() => first.dispose())
   await first.prefetch(feed, 'all')
   await Promise.all([first.fetchNextPage(feed, 'all'), first.fetchNextPage(feed, 'all')])
@@ -176,12 +178,18 @@ export async function run(ctx: ProbeContext) {
   )
 
   await first.dispose()
+
   const restored = createQueryClient({ namespace: 'qualification-a' })
+
   ctx.onCleanup(() => restored.dispose())
+
   const restoredPages = await restored.ensureData(feed, 'all')
+
   ctx.assert('new client restores coherent page window', restoredPages.pages.length, 2)
   ctx.assert('fresh restore needs no transport', pagesLoaded, 2)
+
   const isolated = createQueryClient({ namespace: 'qualification-b' })
+
   ctx.onCleanup(() => isolated.dispose())
   ctx.assert(
     'new account does not inherit cached pages',
@@ -203,9 +211,12 @@ export async function run(ctx: ProbeContext) {
   }))
 
   await first.dispose()
+
   const retired = createQueryClient()
+
   ctx.onCleanup(() => retired.dispose())
   await retired.ensureData(authority, 'same-id')
+
   const late = retired
     .runOptimistic(authority, 'same-id', async (operation, view$, { signal }) => {
       saveSignal = signal
@@ -218,7 +229,9 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('account disposal aborts outstanding writes', saveSignal?.aborted, true)
   ctx.assert('account write rejects promptly', await late, 'cancelled')
   saveGate.resolve({ value: 99, revision: 2 })
+
   const active = createQueryClient()
+
   ctx.onCleanup(() => active.dispose())
   ctx.assert(
     'late receipt cannot populate replacement account',
@@ -227,15 +240,20 @@ export async function run(ctx: ProbeContext) {
   )
 
   const transient = createQueryClient()
+
   ctx.onCleanup(() => transient.dispose())
+
   const history = inspectQueryClient(transient, { eventLimit: 16 })
+
   ctx.onCleanup(() => history.dispose())
+
   const shortLived = defineQuery(['qualification-retention'], (id: number) => id, {
     gcTimeMs: 1,
     networkMode: 'always',
   })
 
   const observed = transient.observe$(shortLived, -1)
+
   await Promise.all(Array.from({ length: 1000 }, (_, id) => transient.ensureData(shortLived, id)))
   await ctx.waitFor(() => history.snapshot().queries.length === 1)
   ctx.assert('long session collects 1000 inactive entries', history.snapshot().queries.length, 1)

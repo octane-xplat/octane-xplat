@@ -6,6 +6,7 @@ import type { ElementNode, PropBag } from './model'
 export function parseEdgeInsets(value: any) {
   if (typeof value === 'number' || !isNaN(Number(value))) {
     const n = Number(value)
+
     return { top: n, left: n, bottom: n, right: n }
   }
 
@@ -17,6 +18,7 @@ export function parseEdgeInsets(value: any) {
   const right = parts.length > 1 ? parts[1] : top
   const bottom = parts.length > 2 ? parts[2] : top
   const left = parts.length > 3 ? parts[3] : right
+
   return { top, left, bottom, right }
 }
 
@@ -39,10 +41,12 @@ export function normalizeClass(value: any): string {
   }
 
   let str = ''
+
   if (Array.isArray(value)) {
     for (const item of value) {
       if (item) {
         const inner = normalizeClass(item)
+
         if (inner) {
           str = str ? str + ' ' + inner : inner
         }
@@ -70,6 +74,7 @@ export function isCollapsed(node: any) {
 
 export function shallowEqualStyle(a: PropBag, b: PropBag) {
   const keys = Object.keys(a)
+
   return keys.length === Object.keys(b).length && keys.every((key) => a[key] === b[key])
 }
 

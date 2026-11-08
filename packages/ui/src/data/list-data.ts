@@ -89,6 +89,7 @@ export function defaultItemKey<T>(item: T): Key {
   const id = fields !== null && 'id' in fields ? fields.id : undefined
   const key = fields !== null && 'key' in fields ? fields.key : undefined
   const resolved = id ?? key
+
   if (typeof resolved !== 'string' && typeof resolved !== 'number') {
     throw new Error('item has no `id` or `key` property — pass getKey or keyExtractor')
   }
@@ -111,6 +112,7 @@ function pruneSelection(selection: Selection, removed: ReadonlySet<Key>): Select
   }
 
   const next = new Set(selection)
+
   for (const key of removed) {
     next.delete(key)
   }
@@ -151,6 +153,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
   const remove = (keys: Iterable<Key>) => {
     const removed = new Set(keys)
     const items = snapshot.items.filter((item) => !removed.has(getKey(item)))
+
     if (items.length === snapshot.items.length) {
       return
     }
@@ -164,18 +167,21 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
 
   const insertAt = (index: number, values: T[]) => {
     const items = [...snapshot.items]
+
     items.splice(index, 0, ...values)
     commit({ ...snapshot, items })
   }
 
   const moveKeys = (keys: Iterable<Key>, targetIndex: (remaining: T[]) => number) => {
     const moving = new Set(keys)
+
     if (!moving.size) {
       return
     }
 
     const picked = snapshot.items.filter((item) => moving.has(getKey(item)))
     const remaining = snapshot.items.filter((item) => !moving.has(getKey(item)))
+
     remaining.splice(targetIndex(remaining), 0, ...picked)
     commit({ ...snapshot, items: remaining })
   }
@@ -209,6 +215,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
     insert: (index, ...values) => insertAt(index, values),
     insertBefore(key, ...values) {
       const index = indexOf(key)
+
       if (index < 0) {
         return
       }
@@ -217,6 +224,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
     },
     insertAfter(key, ...values) {
       const index = indexOf(key)
+
       if (index < 0) {
         return
       }
@@ -239,6 +247,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
     },
     moveBefore(key, keys) {
       const target = snapshot.items.find((item) => getKey(item) === key)
+
       if (target === undefined) {
         return
       }
@@ -247,6 +256,7 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
     },
     moveAfter(key, keys) {
       const target = snapshot.items.find((item) => getKey(item) === key)
+
       if (target === undefined) {
         return
       }
@@ -255,20 +265,24 @@ export function createListDataController<T>(options: ListDataOptions<T> = {}): {
     },
     update(key, value) {
       const index = indexOf(key)
+
       if (index < 0) {
         return
       }
 
       const items = [...snapshot.items]
+
       items[index] = value
       commit({ ...snapshot, items })
     },
   }
+
   return {
     list,
     replace(items: readonly T[], selectedKeys?: Selection | Iterable<Key>): void {
       const present = new Set(items.map(getKey))
       const removed = new Set(snapshot.items.map(getKey).filter((key) => !present.has(key)))
+
       commit({
         ...snapshot,
         items: [...items],

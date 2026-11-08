@@ -28,6 +28,7 @@ export function writeCell(view: any, y: number, opacity: number): void {
   }
 
   const transaction = (globalThis as any).CATransaction
+
   transaction?.begin()
   try {
     transaction?.setDisableActions(true)

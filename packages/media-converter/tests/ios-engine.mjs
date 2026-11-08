@@ -5,9 +5,11 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { gifBytes } from './gif.mjs'
+
 const root = fileURLToPath(new URL('..', import.meta.url))
 function run(command, args, timeout = 120000) {
   const result = spawnSync(command, args, { encoding: 'utf8', timeout })
+
   assert.equal(result.status, 0, `${result.stdout}${result.stderr}`)
   return result.stdout
 }
@@ -24,10 +26,13 @@ function reserved(request, command, args, timeout = 120000) {
 
 const directory = await mkdtemp(join(tmpdir(), 'xplat-converter-ios-'))
 let device
+
 try {
   await copyFile(join(root, 'tests/apple-main.swift'), join(directory, 'main.swift'))
   await writeFile(join(directory, 'source.gif'), gifBytes())
+
   const sdk = run('xcrun', ['--sdk', 'iphonesimulator', '--show-sdk-path']).trim()
+
   reserved(
     { resources: { native_builds: 1 }, purpose: 'Build GIF conversion iOS engine fixture' },
     'xcrun',
@@ -48,6 +53,7 @@ try {
 
   const runtimes = JSON.parse(run('xcrun', ['simctl', 'list', 'runtimes', '-j'])).runtimes
   const runtime = runtimes.find((value) => value.isAvailable && value.name.startsWith('iOS'))
+
   assert.ok(runtime, 'An installed iOS simulator runtime is required')
   device = run('xcrun', [
     'simctl',
@@ -58,6 +64,7 @@ try {
   ]).trim()
 
   const runner = join(directory, 'run.mjs')
+
   await writeFile(
     runner,
     `import { spawnSync } from 'node:child_process';

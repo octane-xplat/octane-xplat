@@ -56,6 +56,7 @@ const ACTIVE_OF: [TiptapFormat, string, any?][] = [
 
 export function activeFormats(editor: any): TiptapFormat[] {
   const out: TiptapFormat[] = []
+
   for (const [name, kind, attrs] of ACTIVE_OF) {
     if (editor.isActive(kind, attrs)) {
       out.push(name)
@@ -71,11 +72,13 @@ export function activeFormats(editor: any): TiptapFormat[] {
  *  registering two StarterKits trips tiptap's duplicate-name warning. */
 export function resolveExtensions(web: TiptapWebOptions | undefined): Extensions {
   const extras = web?.extensions ?? []
+
   if (web?.starterKit === false || extras.some((ext) => ext?.name === 'starterKit')) {
     return extras
   }
 
   const kit = web?.starterKit ? StarterKit.configure(web.starterKit) : StarterKit
+
   return [kit, ...extras]
 }
 
@@ -89,6 +92,7 @@ export function bindEditorHandle(e: any): TiptapEditorHandle {
     setJSON: (doc) => e.commands.setContent(doc),
     apply: (format) => {
       const command = COMMAND[format as WebFormat]
+
       if (!command || typeof e.commands[command[0]] !== 'function') {
         throw new RangeError(`[tiptap] Unsupported apply format: ${format}; use linkTo for links`)
       }

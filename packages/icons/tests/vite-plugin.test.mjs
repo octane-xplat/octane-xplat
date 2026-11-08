@@ -9,6 +9,7 @@ const { xplatIcons } = await loadSource(new URL('../src/vite/index.ts', import.m
 
 const root = mkdtempSync(join(tmpdir(), 'xplat-icons-plugin-'))
 const importer = join(root, 'src/App.ts')
+
 mkdirSync(join(root, 'node_modules/@iconify-json/mini'), { recursive: true })
 writeFileSync(
   join(root, 'node_modules/@iconify-json/mini/icons.json'),
@@ -24,6 +25,7 @@ writeFileSync(
 writeFileSync(join(root, 'package.json'), '{"type":"module"}')
 
 const plugin = xplatIcons()
+
 plugin.configResolved({ root })
 
 const context = (watched = []) => ({
@@ -41,12 +43,15 @@ test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', ()
   const id = plugin.resolveId.call(ctx, 'icons:mini/wide', importer)
   const code = plugin.load.call(ctx, id)
   const icon = JSON.parse(code.replace('export default ', ''))
+
   assert.equal(icon.body, '<path d="M0 0h32v16H0z"/>')
   // Collection dimensions and aliases are baked in at resolve time.
   assert.equal(icon.width, 32)
   assert.equal(icon.height, 16)
+
   const aliasId = plugin.resolveId.call(ctx, 'icons:mini/turned', importer)
   const alias = JSON.parse(plugin.load.call(ctx, aliasId).replace('export default ', ''))
+
   assert.equal(alias.rotate, 1)
   assert.equal(watched.length, 2)
   assert.equal(plugin.load.call(ctx, '\0icons:unknown'), null)
@@ -54,16 +59,19 @@ test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', ()
 
 test('xplatIcons syncs the .icon type-stub tree at config time', () => {
   const synced = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-sync-'))
+
   mkdirSync(join(synced, 'node_modules/@iconify-json'), { recursive: true })
   symlinkSync(
     join(root, 'node_modules/@iconify-json/mini'),
     join(synced, 'node_modules/@iconify-json/mini'),
   )
+
   try {
     xplatIcons().configResolved({ root: synced })
     assert.ok(existsSync(join(synced, '.icons/mini/wide.icon')))
 
     const bare = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-off-'))
+
     mkdirSync(join(bare, 'node_modules/@iconify-json'), { recursive: true })
     symlinkSync(
       join(root, 'node_modules/@iconify-json/mini'),
@@ -83,10 +91,13 @@ test('xplatIcons syncs the .icon type-stub tree at config time', () => {
 
 test('xplatIcons register mode self-registers each module', () => {
   const registering = xplatIcons({ register: true })
+
   registering.configResolved({ root })
+
   const ctx = context()
   const id = registering.resolveId.call(ctx, 'icons:mini/wide', importer)
   const code = registering.load.call(ctx, id)
+
   assert.match(code, /import \{ addIcon \} from '@octane-xplat\/icons'/)
   assert.match(code, /addIcon\('mini:wide', icon\)/)
   assert.match(code, /export default icon/)
@@ -94,16 +105,20 @@ test('xplatIcons register mode self-registers each module', () => {
 
 test('xplatIcons rejects bad specifiers, missing collections, and missing icons', () => {
   const ctx = context()
+
   assert.equal(plugin.resolveId.call(ctx, './local.js', importer), null)
   assert.throws(
     () => plugin.resolveId.call(ctx, 'icons:Mini/Bad', importer),
     /expected icons:<prefix>\/<name>/,
   )
+
   assert.throws(
     () => plugin.resolveId.call(ctx, 'icons:absent/x', importer),
     /Cannot resolve @iconify-json\/absent/,
   )
+
   const id = plugin.resolveId.call(ctx, 'icons:mini/nope', importer)
+
   assert.throws(() => plugin.load.call(ctx, id), /Icon "nope" not found in @iconify-json\/mini/)
 })
 

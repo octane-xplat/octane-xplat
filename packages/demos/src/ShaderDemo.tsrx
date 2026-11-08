@@ -57,6 +57,7 @@ export function ShaderDemo() @{
 
   const togglePause = () => {
     const instance = shader.current
+
     if (!instance) {
       return
     }

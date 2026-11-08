@@ -11,9 +11,11 @@ export async function checkoutPaymentIntent(
     paymentIntentClientSecret,
     returnURL,
   })
+
   if (initialized.error) {
     return initialized
   }
+
   try {
     return await presentPaymentSheet()
   } finally {

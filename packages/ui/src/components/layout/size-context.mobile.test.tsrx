@@ -127,6 +127,7 @@ const CaseLayer = (props: { anchor: any }) => @{
 function render(Component: any, props?: any) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   flushUniversalAct(() => root.render(Component, props))
   // Effects that publish state (e.g. Popover's portalHost) need a second
   // flush so their follow-up render reaches the assertions.
@@ -137,12 +138,14 @@ function render(Component: any, props?: any) {
 describe('useSize resolution (universal renderer)', () => {
   it('falls back to md with no prop and no provider', () => {
     const { root } = render(CaseBare)
+
     expect(captured.a).toBe('md')
     root.unmount()
   })
 
   it('honors the explicit default and prop precedence', () => {
     const { root } = render(CaseDefaults)
+
     expect(captured.d).toBe('lg')
     expect(captured.p).toBe('sm')
     root.unmount()
@@ -150,6 +153,7 @@ describe('useSize resolution (universal renderer)', () => {
 
   it('inherits, lets the prop win, and nests to the nearest provider', () => {
     const { root } = render(CaseNested)
+
     expect(captured.a).toBe('lg')
     expect(captured.b).toBe('sm')
     expect(captured.c).toBe('sm')
@@ -158,6 +162,7 @@ describe('useSize resolution (universal renderer)', () => {
 
   it('explicit null provider falls back to the default', () => {
     const { root } = render(CaseNullProvider)
+
     expect(captured.a).toBe('sm')
     root.unmount()
   })
@@ -166,6 +171,7 @@ describe('useSize resolution (universal renderer)', () => {
 describe('container inheritance (universal renderer)', () => {
   it('Toolbar cascades its size; explicit prop and field-control resolution follow the same chain', () => {
     const { root } = render(CaseToolbar)
+
     expect(captured.a).toBe('sm')
     expect(captured.b).toBe('lg')
     expect(captured.f).toBe('sm')
@@ -176,6 +182,7 @@ describe('container inheritance (universal renderer)', () => {
 describe('layer boundary (universal renderer)', () => {
   it('portaled layer content does not inherit the declaring tree size', async () => {
     const { root } = render(CaseLayer, { anchor: { current: {} } })
+
     await vi.waitFor(() => expect(captured.layer).toBeDefined())
     expect(captured.in).toBe('sm')
     expect(captured.layer).toBe('md')

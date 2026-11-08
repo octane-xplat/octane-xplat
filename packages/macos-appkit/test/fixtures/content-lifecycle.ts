@@ -27,12 +27,14 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 
   root.render(Content, {})
   await settle()
+
   const host = debug.findId('content')
   const first = debug.findId('content-child')
   const firstLabel = debug.findId('content-label')
   const slot = debug.findId('replacement-slot')
   const superseded = debug.findId('slot-a')
   const current = debug.findId('slot-b')
+
   check(
     Number(slot.subviews.count) === 1 && current.superview === slot && !superseded.superview,
     'ContentView insertion did not replace the native slot',
@@ -42,13 +44,16 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
   const top = (view: any) => {
     const parent = view.superview
     const flipped = parent.flipped
+
     return flipped
       ? Number(rect(view).origin.y)
       : Number(parent.bounds.size.height) -
           Number(rect(view).origin.y) -
           Number(rect(view).size.height)
   }
+
   const describe = (r: any) => [r.origin.x, r.origin.y, r.size.width, r.size.height].join(',')
+
   check(
     contentRefs.host.current === host && contentRefs.child.current === first,
     'ContentView ref mount failed',
@@ -92,6 +97,7 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
     String(firstLabel.stringValue) === 'Updated content',
     'ContentView reactive child update failed',
   )
+
   check(
     near(host.frame.size.width, 260) &&
       near(rect(firstLabel).origin.x, 200) &&
@@ -121,8 +127,10 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 
   debug.pressId('advance-content')
   await settle()
+
   const replacement = debug.findId('content-child')
   const descendant = debug.findId('content-descendant')
+
   check(
     replacement !== first && !first.superview && !firstLabel.superview,
     'ContentView replacement kept the previous child',
@@ -163,8 +171,10 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
 
   debug.pressId('advance-content')
   await settle()
+
   const finalChild = debug.findId('content-child')
   const finalDescendant = debug.findId('content-descendant')
+
   check(
     finalChild !== replacement &&
       finalChild.superview === host &&
@@ -192,11 +202,13 @@ export async function checkContentLifecycle(root: any, nativeWindow: any) {
     NSViewFrameDidChangeNotification,
     host,
   )
+
   await settle()
   check(
     !finalChild.superview && !finalDescendant.superview && Number(host.subviews.count) === 0,
     'Retired pilot geometry delivery restored children',
   )
+
   console.log('PACKED_ADAPTER_CONTENT_RETIRE_OK')
   root.unmount()
   check(contentEvents.length === 6, 'ContentView cleanup repeated')

@@ -20,6 +20,7 @@ export function createAppKitFileInputState(options: {
   let errors: string[] = []
   const files = (props: FileInputProps): FileInputFile[] =>
     props.value == null ? [] : Array.isArray(props.value) ? props.value : [props.value]
+
   const owns = (token: symbol) => attached && active === token
   const blocked = (props: FileInputProps) => props.isDisabled || props.isReadOnly || props.isLoading
   const editable = (token: symbol) => owns(token) && !blocked(options.props())
@@ -29,30 +30,39 @@ export function createAppKitFileInputState(options: {
       options.publish(active !== null, errors)
     }
   }
+
   const save = async (next: FileInputFile[], token: symbol) => {
     if (!editable(token)) {
       return
     }
+
     const props = options.props()
     const emitted = props.isMultiple ? next : (next[0] ?? null)
+
     props.onChange(emitted)
     if (owns(token)) {
       await props.changeAction?.(emitted)
     }
   }
+
   const ready = () => attached && !active && !blocked(options.props())
   const accept = async (result: FileInputFile[], token: symbol) => {
     if (!editable(token) || !result.length) {
       return
     }
+
     const props = options.props(),
       previous = files(props)
+
     const { valid, errors: invalid } = validateFiles(
       props.isMultiple ? [...previous, ...result] : result,
       props,
     )
+
     report(invalid)
+
     const next = !props.isMultiple && invalid.length ? previous : valid
+
     if (
       next.length !== previous.length ||
       next.some((file, index) => file.uri !== previous[index]?.uri)
@@ -60,11 +70,14 @@ export function createAppKitFileInputState(options: {
       await save(next, token)
     }
   }
+
   const run = (action: (token: symbol) => Promise<void>) => {
     if (!ready()) {
       return false
     }
+
     const token = Symbol('file-input')
+
     active = token
     options.publish(true, errors)
     void (async () => {
@@ -81,8 +94,10 @@ export function createAppKitFileInputState(options: {
         }
       }
     })()
+
     return true
   }
+
   return {
     attach(): void {
       attached = true
@@ -99,6 +114,7 @@ export function createAppKitFileInputState(options: {
           accept: request.accept,
           multiple: request.isMultiple,
         })
+
         await accept(normalizePicked(result), token)
       })
     },
@@ -107,15 +123,18 @@ export function createAppKitFileInputState(options: {
       if (!picked.length) {
         return false
       }
+
       return run((token) => accept(picked, token))
     },
     remove(uri: string): void {
       run(async (token) => {
         const previous = files(options.props()),
           index = previous.findIndex((file) => file.uri === uri)
+
         if (index < 0) {
           return
         }
+
         report([])
         await save(
           previous.filter((_, i) => i !== index),
@@ -128,6 +147,7 @@ export function createAppKitFileInputState(options: {
         if (!files(options.props()).length) {
           return
         }
+
         report([])
         await save([], token)
       })

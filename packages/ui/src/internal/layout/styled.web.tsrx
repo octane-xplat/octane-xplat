@@ -3,6 +3,7 @@ import type { ClassValue, StyledDef, StyledVariant, StyledVariantSelection } fro
 import { resolveStyledClasses } from './styled-variants'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 /**
  * styled() — decision #7. Web side: DOM codegen lowers JSX in nested
  * functions fine, so the factory is a plain component.

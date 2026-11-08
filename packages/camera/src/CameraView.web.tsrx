@@ -15,6 +15,7 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
 
   useEffect(() => {
     const element = video.current
+
     if (!element || !active) {
       return
     }
@@ -38,6 +39,7 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
     }
 
     const mediaDevices = navigator.mediaDevices
+
     if (!mediaDevices?.getUserMedia) {
       props.onError?.({ message: 'camera unsupported' })
       return
@@ -45,6 +47,7 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
 
     let stream: MediaStream | null = null
     let disposed = false
+
     readyFired.current = false
     mediaDevices
       .getUserMedia({
@@ -122,11 +125,13 @@ export function CameraView(props: CameraViewProps): JSX.Element @{
         onClick={(event: MouseEvent) => {
           const onTap = props.onTap
           const target = event.currentTarget as HTMLElement | null
+
           if (!onTap || !target) {
             return
           }
 
           const rect = target.getBoundingClientRect()
+
           if (!(rect.width > 0) || !(rect.height > 0)) {
             return
           }

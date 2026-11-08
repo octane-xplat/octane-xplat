@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 import { chromium } from 'playwright'
 import { networkResponse } from './fixture-server.mjs'
+
 const temp = await mkdtemp(join(tmpdir(), 'xplat-network-browser-'))
 let browser
 const server = createServer(async (request, response) => {
@@ -40,11 +41,15 @@ try {
 
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   browser = await chromium.launch({ headless: true })
+
   const page = await browser.newPage()
+
   await page.goto(`http://127.0.0.1:${server.address().port}`)
   await page.getByRole('button', { name: 'Start network check' }).click()
   await page.waitForFunction(() => globalThis.networkResult !== null, null, { timeout: 45000 })
+
   const result = await page.evaluate(() => globalThis.networkResult)
+
   assert.equal(result.error, undefined, result.error)
   assert.equal(result.assertions.length, 8)
   console.log(

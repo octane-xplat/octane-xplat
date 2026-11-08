@@ -25,6 +25,7 @@ const filter: PowerSearchFilterFor<typeof config> = {
 }
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => {
   cleanups.splice(0).forEach((fn) => fn())
   vi.unstubAllGlobals()
@@ -37,8 +38,11 @@ function mount(node: any) {
   )
 
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   act(() => root.render(node))
   cleanups.push(() => {
     root.unmount()
@@ -54,12 +58,14 @@ const click = (selector: string) =>
 const input = (selector: string, value: string) =>
   act(() => {
     const el = document.querySelector(selector) as HTMLInputElement
+
     el.value = value
     el.dispatchEvent(new Event('input', { bubbles: true }))
   })
 
 function fixture(overrides: Partial<PowerSearchViewProps> = {}): PowerSearchViewProps {
   const query = overrides.query ?? ''
+
   return {
     config,
     internal,
@@ -83,6 +89,7 @@ function fixture(overrides: Partial<PowerSearchViewProps> = {}): PowerSearchView
 
 it('renders resolved query/results and reports intents without changing its state', () => {
   const props = fixture({ query: 'title foo', suggestionsOpen: true })
+
   mount(<PowerSearchView {...props} />)
   expect((document.querySelector('.vx-power-search-input input') as HTMLInputElement).value).toBe(
     'title foo',
@@ -107,6 +114,7 @@ it('renders empty, loading, disabled, read-only, count and status fixtures', () 
   })
 
   const ui = mount(<PowerSearchView {...props} />)
+
   expect(document.querySelector('.vx-power-search-empty')?.textContent).toBe('No results')
   expect(ui.host.querySelector('[role="alert"]')?.textContent).toBe('Offline')
   expect(ui.host.querySelector('.vx-power-search-count')?.textContent).toBe('0')
@@ -121,6 +129,7 @@ it('renders empty, loading, disabled, read-only, count and status fixtures', () 
 
 it.each([-1, 0])('renders resolved create/edit editor %s and reports save/cancel', (index) => {
   const props = fixture({ editing: { filter, index } })
+
   mount(<PowerSearchView {...props} />)
   expect(document.querySelector('.vx-power-search-editor')).not.toBeNull()
   click('.vx-power-search-editor-actions button.vx-pressable:last-child')
@@ -132,8 +141,10 @@ it.each([-1, 0])('renders resolved create/edit editor %s and reports save/cancel
 it('preserves package-root family imports and canonical add/edit/remove/clear transitions', () => {
   expect(PowerSearchToken).toBeTypeOf('function')
   expect(PowerSearchFilterEditor).toBeTypeOf('function')
+
   const onChange = vi.fn()
   const ui = mount(<PowerSearch config={config} filters={[]} onChange={onChange} />)
+
   input('.vx-power-search-input input', 'title hello')
   click('.vx-power-search-result')
   input('.vx-power-search-editor input', 'hello')
@@ -197,6 +208,7 @@ it('preserves focus/blur handle and limits suggestions through the canonical com
   )
 
   const handle = handleRef.mock.calls[0][0]
+
   act(() => handle.focusTypeahead())
   expect(document.activeElement).toBe(ui.host.querySelector('input'))
   expect(onFocus).toHaveBeenCalledTimes(1)
@@ -230,6 +242,7 @@ it('mounts token and unsupported editor fixtures through existing leaf contracts
   click('.vx-power-search-remove')
   expect(onPress).toHaveBeenCalledTimes(1)
   expect(onRemove).toHaveBeenCalledTimes(1)
+
   const unsupported = {
     name: 'Unsupported',
     fields: [

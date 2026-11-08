@@ -14,6 +14,7 @@ describe('unsupported variants', () => {
   for (const { name, api, reason } of variants) {
     it(`${name} reports unavailable`, async () => {
       const availability = await api.getTrayAvailability()
+
       expect(availability.available).toBe(false)
       if (!availability.available) {
         expect(availability.reason).toBe(reason)
@@ -44,6 +45,7 @@ describe('unsupported variants', () => {
 
   it('web explains it needs a native desktop runtime', async () => {
     const availability = await web.getTrayAvailability()
+
     expect(availability.available).toBe(false)
     if (!availability.available) {
       expect(availability.message).toMatch(/native desktop runtime/)
@@ -58,6 +60,7 @@ describe('unsupported variants', () => {
 describe('windows leaf without the Win32 projection', () => {
   it('reports unsupported-runtime', async () => {
     const availability = await windows.getTrayAvailability()
+
     expect(availability.available).toBe(false)
     if (!availability.available) {
       expect(availability.reason).toBe('unsupported-runtime')

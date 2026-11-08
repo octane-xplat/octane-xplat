@@ -18,6 +18,7 @@ export function TypedForm(): void {
 
   const text: string = name.state.value
   const dirty: boolean = useFormStore(form.store, (state) => state.isDirty)
+
   name.handleChange('Ada')
   // @ts-expect-error a string field cannot receive a boolean
   name.handleChange(true)

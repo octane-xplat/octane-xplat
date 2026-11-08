@@ -8,6 +8,7 @@ it('preserves the Windows host measurement, content, and page identity', () => {
   // A frozen fixture also rejects accidental mobile property writes.
   const page = Object.freeze({ measure, content })
   const prepared = prepareFullScreenPage(page as unknown as Page)
+
   expect(prepared).toBe(page)
   expect(prepareFullScreenPage(prepared)).toBe(page)
   prepared.measure(123, 456)

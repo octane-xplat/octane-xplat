@@ -31,7 +31,9 @@ interface Draft {
 
 export function PowerSearchEntityEditor(props: Props): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const config = props.operator.value.type === 'entity_list' ? props.operator.value : null
   const readOnly = !!(props.isReadOnly || props.filter.isReadOnly)
   const identity = [
@@ -49,6 +51,7 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
   const source = useRef({ identity, revision: 0 })
   const pending = useRef<AbortController | null>(null)
   const closed = useRef(false)
+
   if (identity.some((value, index) => value !== source.current.identity[index])) {
     source.current = { identity, revision: source.current.revision + 1 }
     pending.current?.abort()
@@ -71,6 +74,7 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
   })
 
   const draft = useRef(seed())
+
   if (draft.current.revision !== revision) {
     draft.current = seed()
   }
@@ -129,12 +133,14 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
 
     pending.current = owner
     rerender((n) => n + 1)
+
     const options = {
       ...config,
       tokenization: config.tokenization ? { ...config.tokenization } : undefined,
     }
 
     const result = await resolveEntityEntries(initial.text, options, initial.items, owner.signal)
+
     if (
       !editable() ||
       owner.signal.aborted ||
@@ -169,6 +175,7 @@ export function PowerSearchEntityEditor(props: Props): unknown @{
     }
 
     const saved = draft.current
+
     submitted.current = saved
     try {
       live.current.onSave({

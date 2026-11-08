@@ -20,6 +20,7 @@ let visible = { count: 0, person: '' }
 function Counter() {
   const [count, setCount] = useState(0)
   const person = useContext(Person)
+
   increment = () => setCount((value) => value + 1)
   visible = { count, person }
   return <label text={count + ':' + person} />
@@ -28,6 +29,7 @@ function Counter() {
 function App() {
   const content = useOwnedContent()
   const [person, setPerson] = useState('Avery')
+
   owner = content.owner
   updatePerson = setPerson
   return <PersonProvider value={person}>{content.element}</PersonProvider>
@@ -47,8 +49,10 @@ it('retains a later portal and its context when an earlier owned root is removed
 
   root.render(App, {})
   await tick()
+
   const first = owner.createRoot({})
   const second = owner.createRoot({})
+
   try {
     first.render(Counter)
     second.render(Counter)

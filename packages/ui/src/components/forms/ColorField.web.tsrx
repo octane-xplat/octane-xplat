@@ -16,8 +16,11 @@ export function ColorField(props: ColorFieldProps): JSX.Element {
 
   const commit = () => {
     const text = draft.current
+
     draft.current = null
+
     const parsed = normalizeHex(text ?? '')
+
     if (parsed) {
       color.setHex(parsed)
       color.end()

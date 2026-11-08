@@ -92,6 +92,7 @@ export function observeLoadedListPeer<T>(
 
   const detach = () => {
     const current = nativeObserver
+
     nativeObserver = null
     peer = null
     current?.dispose()
@@ -108,6 +109,7 @@ export function observeLoadedListPeer<T>(
     }
 
     const next = getPeer()
+
     if (next == null || next === peer) {
       return
     }

@@ -1,6 +1,7 @@
 import type { TextMorphProps, TextMorphRun, TextMorphCancel } from '../types/index.js'
 
 declare function accepts(props: TextMorphProps): void
+
 accepts({
   value: 'Deploy\tqueued',
   className: 'status',

@@ -44,14 +44,17 @@ function VariableFontSample() @{
 
 function nativeFont(label: Label): UIFont {
   const native: UILabel = label.ios
+
   return native.font
 }
 
 function weightCoordinate(label: Label): number | undefined {
   const font = nativeFont(label)
   const axes = CTFontCopyVariationAxes(font)
+
   for (let index = 0; index < (axes?.count ?? 0); index++) {
     const axis: NSDictionary<string, unknown> = axes!.objectAtIndex(index)
+
     if (axis.objectForKey(kCTFontVariationAxisIdentifierKey) !== WEIGHT_AXIS) {
       continue
     }
@@ -63,6 +66,7 @@ function weightCoordinate(label: Label): number | undefined {
     // CoreText can omit an unmodified coordinate. Only use the default after
     // proving this font actually declares a variable weight axis.
     const resolved = coordinate ?? axis.objectForKey(kCTFontVariationAxisDefaultValueKey)
+
     return typeof resolved === 'number' ? resolved : undefined
   }
 
@@ -75,8 +79,10 @@ it.skipIf(!isIOS)(
     // The harness stages the real Geist-Variable.ttf as fonts/Geist.ttf.
     // Inspect CoreText's resolved axis, so fallback or synthetic bold cannot pass.
     const { view } = await mountXplat(VariableFontSample)
+
     for (const weight of WEIGHTS) {
       const label = view.getViewById<Label>('weight-' + weight)!
+
       await waitUntil(() => label.isLoaded && label.getActualSize().height > 0)
       expect(nativeFont(label).familyName).toBe('Geist')
       expect(weightCoordinate(label), 'resolved wght coordinate for ' + weight).toBeCloseTo(
@@ -89,6 +95,7 @@ it.skipIf(!isIOS)(
 
     const changing = view.getViewById<Label>('changing-weight')!
     const native: UILabel = changing.ios
+
     expect(weightCoordinate(changing)).toBeCloseTo(300, 0)
     await tap(view.getViewById<NativeView>('change-weight')!)
     await waitUntil(() => Math.abs((weightCoordinate(changing) ?? NaN) - 700) < 0.5, {

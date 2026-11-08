@@ -23,7 +23,9 @@ export const firebaseAnalytics: FirebaseAnalyticsService = {
     if (!(await fbIsSupported())) {
       return
     }
+
     const app = getApps().length ? getApps()[0] : initializeApp(config as any)
+
     analytics = getAnalytics(app)
   },
 

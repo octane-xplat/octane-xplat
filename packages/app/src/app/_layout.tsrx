@@ -57,6 +57,7 @@ export function RootLayout(props: { children?: any }) @{
   // AppKit host presents pushed root routes as surfaces that automation
   // can't keep alive long enough to measure.
   const [parityOpen, setParityOpen] = useState(false)
+
   useEffect(() => onParityStageOpen(() => setParityOpen(true)), [])
 
   useEffect(() => {

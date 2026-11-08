@@ -6,6 +6,7 @@ const listeners = new Set<(state: ConnectivityState) => void>()
 
 function connectionType(): ConnectionType {
   const type = (navigator as Navigator & { connection?: { type?: string } }).connection?.type
+
   switch (type) {
     case 'wifi':
       return 'wifi'
@@ -28,6 +29,7 @@ function read(): ConnectivityState {
 
 function notify() {
   const state = read()
+
   for (const listener of listeners) {
     listener(state)
   }

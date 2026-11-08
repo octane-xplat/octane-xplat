@@ -8,7 +8,9 @@ import {
 } from 'octane/universal/native'
 
 import { Calendar } from './Calendar.macos.tsrx'
+
 afterEach(() => vi.unstubAllGlobals())
+
 function mount(props: any) {
   const claims = new Set<object>(),
     observers = new Set<object>()
@@ -25,6 +27,7 @@ function mount(props: any) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock() {
         const token = {}
+
         observers.add(token)
         return token
       },
@@ -39,6 +42,7 @@ function mount(props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -93,6 +97,7 @@ function mount(props: any) {
 
   const key = (value: string) => {
     let prevented = false
+
     panel().props.onKeyDown({
       key: value,
       target: window.firstResponder,
@@ -138,8 +143,10 @@ it('Calendar keeps controlled month focus intent until parent acceptance and det
     base = { value: null, focusDate: '2026-03-01', onChange: changed, onFocusDateChange: month }
 
   const env = mount(base)
+
   try {
     await vi.waitFor(() => expect(env.claims.size).toBe(30))
+
     const oldDay = env.day(31),
       cached = oldDay.props.onTap
 

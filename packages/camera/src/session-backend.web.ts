@@ -117,11 +117,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
   const readZoom = () => {
     const track = stream?.getVideoTracks()[0]
     const zoom = (track?.getCapabilities?.() as any)?.zoom
+
     if (!track || typeof zoom?.min !== 'number' || typeof zoom?.max !== 'number') {
       return undefined
     }
 
     const current = (track.getSettings?.() as any)?.zoom
+
     return {
       zoom: typeof current === 'number' ? current : zoom.min,
       minZoom: zoom.min,
@@ -226,7 +228,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     owner = lease
+
     const epoch = generation
+
     try {
       const acquired = await navigator.mediaDevices.getUserMedia({
         video: constraints(),
@@ -279,6 +283,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     const element = host
     const epoch = generation
+
     if ((await checkPermission('camera')) !== 'granted') {
       listener?.onError?.(
         error(
@@ -298,7 +303,9 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     element.srcObject = stream
     element.muted = true
+
     const facing = stream.getVideoTracks()[0]?.getSettings().facingMode
+
     element.style.transform = facing === 'user' ? 'scaleX(-1)' : ''
     await element.play()
     if (host !== element || released || epoch !== generation) {
@@ -337,6 +344,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     }
 
     const desktop = await hostProbe
+
     if (desktop) {
       try {
         const { status } = await desktop.call('camera', 'permissionStatus', {
@@ -364,6 +372,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     try {
       const status = await navigator.permissions.query({ name: kind as PermissionName })
+
       return status.state === 'granted'
         ? 'granted'
         : status.state === 'denied'
@@ -377,12 +386,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const tracks = kind === 'camera' ? stream?.getVideoTracks() : stream?.getAudioTracks()
+
       return tracks?.some((track) => track.readyState === 'live') ? 'granted' : 'unknown'
     }
   }
 
   const settle = (value: Parameters<BackendCaptureSink['settled']>[0], expected = sink) => {
     const target = sink
+
     if (!target || target !== expected) {
       return
     }
@@ -399,6 +410,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       recordingVideo.release()
       recordingVideo = undefined
     }
+
     clearTimeout(stopTimer)
     clearTimeout(watchdog)
     if (!host) {
@@ -419,8 +431,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
     stoppedAt ||= performance.now()
     clearTimeout(watchdog)
+
     const target = sink
     const fail = captureFailure
+
     watchdog = setTimeout(() => {
       if (sink !== target) {
         return
@@ -449,6 +463,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     checkPermission,
     requestPermission: async (kind) => {
       const status = await checkPermission(kind)
+
       if (status === 'blocked' || status === 'unavailable') {
         return status
       }
@@ -464,6 +479,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       }
 
       const desktop = await hostProbe
+
       if (desktop) {
         const { status: hostStatus } = await desktop.call('camera', 'requestPermission', {
           kind: hostMediaKind(kind),
@@ -497,6 +513,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         } else if (!stream?.getAudioTracks().some((track) => track.readyState === 'live')) {
           const epoch = generation
           const audio = await navigator.mediaDevices.getUserMedia({ audio: true, video: false })
+
           if (released || epoch !== generation) {
             audio.getTracks().forEach((track) => track.stop())
             return 'unavailable'
@@ -531,11 +548,14 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
     },
     getCapabilities: async () => {
       const desktop = await hostProbe
+
       persistent = (await navigator.storage?.persisted?.().catch(() => false)) ?? false
+
       const devices = (await navigator.mediaDevices?.enumerateDevices?.().catch(() => [])) ?? []
       const settings = stream?.getVideoTracks()[0]?.getSettings()
       const mime = mimeType()
       const storageReady = persistent || !!desktop
+
       return {
         supported: supported(),
         available: ready && storageReady && stream?.getVideoTracks()[0]?.readyState === 'live',
@@ -567,6 +587,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         exposurePointOfInterest: false,
         zoom: (() => {
           const state = readZoom()
+
           return !!state && state.maxZoom > state.minZoom
         })(),
         orientations: [],
@@ -666,6 +687,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       if (!sink || !recordingVideo || pendingSwitch) {
         throw error('invalidState', 'switchCamera', 'The recording source cannot switch now')
       }
+
       if (
         (camera === 'front' || camera === 'back') &&
         !navigator.mediaDevices.getSupportedConstraints().facingMode
@@ -676,6 +698,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           'This browser cannot select by facing; choose a listed camera device ID',
         )
       }
+
       const videoSource = recordingVideo
       const previous = currentConfig.camera
       const microphones = stream?.getAudioTracks() ?? []
@@ -685,11 +708,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const cancellation = new Promise<never>((_resolve, reject) => {
         rejectCancellation = reject
       })
+
       const operation = {
         cancel: () => {
           if (cancelled || pendingSwitch !== operation) {
             return
           }
+
           cancelled = true
           videoSource.hold()
           stream?.getVideoTracks().forEach((track) => track.stop())
@@ -700,12 +725,15 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           )
         },
       }
+
       pendingSwitch = operation
+
       const check = () => {
         if (cancelled || released || recordingVideo !== videoSource || !sink) {
           throw error('invalidState', 'switchCamera', 'The recording is no longer active')
         }
       }
+
       const obtain = async (selection: CameraSelection | undefined) => {
         let expired = false
         let timeout: ReturnType<typeof setTimeout> | undefined
@@ -716,8 +744,10 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
               value.getTracks().forEach((track) => track.stop())
               throw error('invalidState', 'switchCamera', 'Camera acquisition was retired')
             }
+
             return value
           })
+
         try {
           return await Promise.race([
             acquisition,
@@ -734,11 +764,15 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           clearTimeout(timeout)
         }
       }
+
       const install = async (selection: CameraSelection | undefined) => {
         check()
+
         const acquired = await obtain(selection)
+
         try {
           check()
+
           const settings = acquired.getVideoTracks()[0]!.getSettings()
           const expectedFacing =
             selection === 'front' ? 'user' : selection === 'back' ? 'environment' : undefined
@@ -780,6 +814,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           throw cause
         }
       }
+
       const completion = (async () => {
         videoSource.hold()
         stream?.getVideoTracks().forEach((track) => track.stop())
@@ -788,6 +823,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
         markReady(false)
         try {
           const selected = await install(camera)
+
           acquired = true
           return selected
         } catch (cause) {
@@ -816,6 +852,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           }
         }
       })()
+
       return {
         completion,
         commit: () => {
@@ -827,6 +864,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
               'Camera switching was cancelled before commit',
             )
           }
+
           currentConfig = { ...currentConfig, camera }
           pendingSwitch = undefined
         },
@@ -839,9 +877,11 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       switchWarning = undefined
       startedAt = 0
       stoppedAt = 0
+
       const source = stream
       const video = source?.getVideoTracks()[0]
       const audio = source?.getAudioTracks().filter((track) => track.readyState === 'live') ?? []
+
       if (!video || (request.audio && !audio.length)) {
         settle({
           kind: 'failed',
@@ -867,6 +907,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       let limitReached = false
       let failing = false
       let didStart = false
+
       captureFailure = fail
       void (async () => {
         try {
@@ -910,6 +951,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
           if (supportsRecordingVideoSource()) {
             const settings = video.getSettings()
+
             recordingVideo = createRecordingVideoSource(
               settings.width ?? 1280,
               settings.height ?? 720,
@@ -929,6 +971,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
           }
 
           const activeRecorder = new MediaRecorder(recordingStream, { mimeType: mimeType() })
+
           recorder = activeRecorder
           activeRecorder.ondataavailable = (event) => {
             if (sink !== target || failing) {
@@ -962,6 +1005,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
             clearTimeout(watchdog)
             startedAt = performance.now()
             stage = 'capture'
+
             const settings = video.getSettings()
             const effective: EffectiveCaptureConfig = {
               cameraId: settings.deviceId ?? '',
@@ -989,6 +1033,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
                 }
 
                 const remaining = limit - (performance.now() - startedAt)
+
                 if (remaining > 0) {
                   stopTimer = setTimeout(checkLimit, Math.min(remaining, 2_147_483_647))
                 } else {
@@ -1024,11 +1069,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
 
                 const bytes = new Blob(chunks, { type: activeRecorder.mimeType })
                 const metadata = await inspectMovie(bytes, request.audio)
+
                 if (sink !== target || failing) {
                   return
                 }
 
                 stage = 'storage'
+
                 const output = desktop
                   ? await commitHostMovie(desktop, reservation!, bytes)
                   : {
@@ -1038,6 +1085,7 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
                     }
 
                 const clip: MovieClip = { ...metadata, output }
+
                 if (!desktop) {
                   await commitMovie(reservation!, bytes, clip)
                 }
@@ -1122,11 +1170,13 @@ export function createSessionBackend(config: CameraSessionConfig): CameraSession
       const applied = track?.applyConstraints?.({
         advanced: [{ zoom: ratio } as any],
       })
+
       applied?.catch?.(() => {})
     },
     openOutput: async (output) => {
       if (output.kind === 'nativeFile') {
         const desktop = await hostProbe
+
         if (!desktop) {
           throw error(
             'unavailable',

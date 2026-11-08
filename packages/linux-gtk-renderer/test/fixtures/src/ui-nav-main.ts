@@ -25,7 +25,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -43,6 +45,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -54,6 +57,7 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -62,6 +66,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -72,18 +77,22 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -92,7 +101,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -105,17 +116,20 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', (_c, keyval) => {
   if (keyval === Gdk.KEY_F12 && readyResolve) {
     readyResolve()
     readyResolve = null
   }
+
   return false
 })
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
   await pump(200)
 }
@@ -125,6 +139,7 @@ const clickAt = async (widget: any) => {
 // browser to prove the OS-side open).
 const hostBridge = (globalThis as any).__octaneGtkHost
 const openedUris: string[] = []
+
 if (hostBridge) {
   hostBridge.openUri = (uri: string) => {
     openedUris.push(String(uri))
@@ -138,9 +153,11 @@ async function run() {
   await pump(50)
   window.present()
   await pump(200)
+
   // The pane host starts with no history entry — navigate after the outlet
   // mounts so the commit lands on the live subscription.
   const seedResult = await seedRoute()
+
   state.seedStatus = (seedResult as any)?.status ?? 'none'
   await pump(300)
 
@@ -154,12 +171,14 @@ async function run() {
       'DBG seed events=' + JSON.stringify(events.slice(0, 6)) + ' route=' + String(state.route),
     )
   }
+
   check('TabList mounts', !!findView('tl'))
   check('Tabs mounts', !!findView('tabs'))
   check('first pane visible', hasText('PANE A'))
   check('second pane mounted hidden', hasText('SECOND PANE'))
 
   const tabB = findView('tab-b')
+
   check('Beta tab view', !!tabB)
   if (tabB) {
     await clickAt(tabB)
@@ -167,11 +186,14 @@ async function run() {
   }
 
   const tm = findView('tabmenu')
+
   check('TabMenu trigger', !!tm)
   if (tm) {
     await clickAt(tm)
     check('TabMenu popover opens', hasText('Gamma'))
+
     const gamma = findLabel('Gamma')
+
     check('Gamma row found', !!gamma)
     if (gamma) {
       await clickAt(gamma)
@@ -181,18 +203,23 @@ async function run() {
 
   // Pane A is visible: bump its counter, then switch to Second and back.
   const inc = findView('paneA-inc')
+
   check('pane A increment view', !!inc)
   if (inc) {
     await clickAt(inc)
     check('pane A counter increments', state.paneACount === 1)
   }
+
   const second = findLabel('Second')
+
   check('Second tab found', !!second)
   if (second) {
     await clickAt(second)
     check('Tabs onSelectionChange fires', events.includes('tabsel:b'))
   }
+
   const first = findLabel('First')
+
   if (first) {
     await clickAt(first)
     check('switch back to First', events.includes('tabsel:a'))
@@ -200,18 +227,22 @@ async function run() {
   }
 
   const docsItem = findLabel('Docs')
+
   check('nav Docs item found', !!docsItem)
   if (docsItem) {
     await clickAt(docsItem)
     await pump(250)
     check('menu Docs navigates route', hasText('DOCS ROUTE') && state.route === '/docs')
+
     // Retention contract: the covered entry's logical nodes stay mounted
     // but own no visible views — nothing labeled HOME ROUTE may render.
     let homeVisible = false
+
     for (const n of (container as any).nodes.values()) {
       try {
         if (JSON.stringify(n.props).includes('HOME ROUTE')) {
           let cur = n
+
           while (cur && !cur.view) {
             cur = cur.parent
           }
@@ -223,6 +254,7 @@ async function run() {
           // Any invisible ancestor (the RoutePane wrapper) means hidden;
           // children keep visible=true under a hidden parent on GTK.
           let anyHidden = false
+
           for (let w = cur.view; w; w = w.get_parent?.()) {
             if (w.visible === false || w.get_visible?.() === false) {
               anyHidden = true
@@ -239,14 +271,19 @@ async function run() {
 
     check('home pane hidden under docs', !homeVisible)
   }
+
   check('NavLink mounts', !!findView('nlto'))
+
   const nlext = findLabel('External')
+
   check('external item found', !!nlext)
   if (nlext) {
     await clickAt(nlext)
     check('external href reaches openUri seam', openedUris.includes('https://example.com/x'))
   }
+
   const homeItem = findLabel('Home')
+
   if (homeItem) {
     await clickAt(homeItem)
     await pump(250)
@@ -259,6 +296,7 @@ async function run() {
 }
 
 let failure: unknown
+
 run()
   .catch((error) => {
     failure = error
@@ -274,9 +312,11 @@ run()
           gtk: [Gtk.MAJOR_VERSION, Gtk.MINOR_VERSION, Gtk.MICRO_VERSION].join('.'),
         }),
     )
+
     try {
       root.unmount()
     } catch {}
+
     window.destroy()
     loop.quit()
   })

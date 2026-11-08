@@ -7,16 +7,19 @@ import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
+
 test(
   'GTK checkbox and switch preserve field defaults, labels and label actions',
   { timeout: 120000 },
   async (t) => {
     const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
     const outDir = join(fixture, 'dist-ui-toggle-fields')
+
     if (!gjsAvailable() || !masonTypelibPresent()) {
       t.skip('GJS and XplatMason required for runtime')
       return
     }
+
     await build({
       logLevel: 'error',
       ...(await xplatLinuxGtk('production', {
@@ -25,33 +28,41 @@ test(
         outDir,
       })),
     })
+
     const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
     const osInput =
       process.platform === 'linux' &&
       !!process.env.DISPLAY &&
       spawnSync('xdotool', ['version']).status === 0
+
     const env = {
       ...process.env,
       GTK_A11Y: 'test',
       GTK_TOGGLE_FIELDS_OS: osInput ? '1' : '0',
       XPLAT_MASON_TYPELIB: nativeDir,
     }
+
     const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {
       env,
       stdio: ['ignore', 'pipe', 'pipe'],
     })
+
     let stdout = '',
       stderr = '',
       inputError
+
     child.stderr.on('data', (data) => {
       stderr += data
     })
+
     const lines = createInterface({ input: child.stdout })
+
     lines.on('line', (line) => {
       stdout += line + '\n'
       if (!line.startsWith('GTK_TOGGLE_FIELDS_READY ')) {
         return
       }
+
       try {
         const phase = JSON.parse(line.slice('GTK_TOGGLE_FIELDS_READY '.length))
         const id = execFileSync(
@@ -63,6 +74,7 @@ test(
           .split('\n')[0]
 
         const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
+
         send('windowfocus', id)
         if (phase.phase === 'label') {
           send('mousemove', '--window', id, String(phase.x), String(phase.y))
@@ -81,7 +93,9 @@ test(
         child.kill()
       }
     })
+
     const timer = setTimeout(() => child.kill(), 45000)
+
     t.after(() => {
       clearTimeout(timer)
       lines.close()
@@ -89,15 +103,21 @@ test(
         child.kill()
       }
     })
+
     const code = await new Promise((resolve, reject) => {
       child.once('error', reject)
       child.once('close', resolve)
     })
+
     assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
     assert.doesNotMatch(stderr, /Gtk-CRITICAL|Gjs-(?:Console-)?CRITICAL|event handler failed/)
+
     const line = stdout.split('\n').find((line) => line.startsWith('GTK_TOGGLE_FIELDS '))
+
     assert.ok(line, stdout)
+
     const result = JSON.parse(line.slice('GTK_TOGGLE_FIELDS '.length))
+
     assert.ok(result.checks >= (osInput ? 80 : 35), JSON.stringify(result))
     assert.equal(result.osInput, osInput)
     t.diagnostic(

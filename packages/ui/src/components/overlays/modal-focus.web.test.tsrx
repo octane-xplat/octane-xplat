@@ -3,7 +3,9 @@
 import { describe, expect, it, vi } from 'vitest'
 import { act, createRoot, useRef } from 'octane'
 import { Popover } from './Popover.web.tsrx'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { BottomSheet } from './BottomSheet.web.tsrx'
 import { Overlay } from './Overlay.web.tsrx'
 import { isolateModalFocus } from './modal-focus.web'
@@ -22,8 +24,11 @@ describe('modal focus isolation', () => {
   ] as const) {
     it(`${name} isolates background focus and restores its trigger on close`, () => {
       const host = document.createElement('div')
+
       document.body.appendChild(host)
+
       const root = createRoot(host)
+
       act(() =>
         root.render(
           <>
@@ -36,6 +41,7 @@ describe('modal focus isolation', () => {
       )
 
       const trigger = host.querySelector('#trigger') as HTMLElement
+
       trigger.focus()
       act(() =>
         root.render(
@@ -83,22 +89,33 @@ describe('modal focus isolation', () => {
 
   it('preserves nested isolation when the lower modal closes first', async () => {
     const host = document.createElement('div')
+
     host.innerHTML = '<button id="return">Return</button>'
+
     const existing = document.createElement('div')
+
     existing.setAttribute('inert', '')
     document.body.append(host, existing)
+
     const trigger = host.firstElementChild as HTMLElement
+
     trigger.focus()
+
     const outer = document.createElement('div')
+
     outer.innerHTML = '<button>Outer</button>'
     document.body.append(outer)
+
     const closeOuter = isolateModalFocus(outer, outer, () => {})
     const inner = document.createElement('div')
+
     inner.innerHTML = '<button>Inner</button>'
     document.body.append(inner)
     await Promise.resolve() // outer modal's observer sees the new portal
     expect(inner.hasAttribute('inert')).toBe(true)
+
     const closeInner = isolateModalFocus(inner, inner, () => {})
+
     expect(outer.hasAttribute('inert')).toBe(true)
     closeOuter()
     outer.remove()
@@ -115,17 +132,24 @@ describe('modal focus isolation', () => {
 
   it('restores the clicked opener when pointer activation leaves focus elsewhere', () => {
     const host = document.createElement('div')
+
     host.innerHTML = '<button id="previous">Previous</button><button id="trigger">Open</button>'
+
     const layer = document.createElement('div')
+
     layer.innerHTML = '<button id="inside">Close</button>'
     document.body.append(host, layer)
+
     const previous = host.querySelector('#previous') as HTMLElement
     const trigger = host.querySelector('#trigger') as HTMLElement
     const inside = layer.querySelector('#inside') as HTMLElement
+
     previous.focus()
     trigger.dispatchEvent(new MouseEvent('click', { bubbles: true, composed: true }))
     expect(document.activeElement).toBe(previous)
+
     const close = isolateModalFocus(layer, layer, () => {})
+
     expect(document.activeElement).toBe(inside)
     close()
     expect(document.activeElement).toBe(trigger)
@@ -166,15 +190,19 @@ function ModalPopover(props: {
 for (const sheet of [false, true]) {
   it(`keeps a child popover inside its ${sheet ? 'sheet' : 'overlay'} focus owner`, () => {
     const host = document.createElement('div')
+
     document.body.append(host)
+
     const root = createRoot(host)
     const closePopover = vi.fn(),
       closeModal = vi.fn()
 
     try {
       act(() => root.render(ModalPopover, { sheet, popover: true, closePopover, closeModal }))
+
       const option = document.querySelector('#popover-option') as HTMLElement
       const anchor = document.querySelector('#popover-anchor') as HTMLElement
+
       expect(option).not.toBeNull()
       expect(option.closest('[data-vx-modal-layer]')).toBe(anchor.closest('[data-vx-modal-layer]'))
       expect(option.closest('[inert]')).toBeNull()
@@ -208,19 +236,26 @@ for (const sheet of [false, true]) {
 
 it('derives popover dismissal depth from a separately mounted modal owner', () => {
   const layer = document.createElement('div')
+
   layer.setAttribute('data-vx-modal-layer', '')
+
   const panel = document.createElement('div')
   const anchor = document.createElement('button')
+
   panel.append(anchor)
+
   const host = document.createElement('div')
+
   panel.append(host)
   layer.append(panel)
   document.body.append(layer)
+
   const closeModal = vi.fn(),
     closePopover = vi.fn()
 
   const release = isolateModalFocus(layer, panel, closeModal, 4)
   const root = createRoot(host)
+
   try {
     act(() =>
       root.render(
@@ -231,6 +266,7 @@ it('derives popover dismissal depth from a separately mounted modal owner', () =
     )
 
     const option = document.querySelector('#service-option') as HTMLElement
+
     expect(option.closest('[data-vx-modal-layer]')).toBe(layer)
     option.focus()
     act(() =>
@@ -299,7 +335,9 @@ function ModalFloatingLayer(props: {
 for (const custom of [false, true]) {
   it(`keeps a ${custom ? 'custom-positioned' : 'fixed'} child layer interactive inside its modal`, async () => {
     const host = document.createElement('div')
+
     document.body.append(host)
+
     const root = createRoot(host)
     const close = vi.fn(),
       closeModal = vi.fn()
@@ -308,13 +346,17 @@ for (const custom of [false, true]) {
       await act(async () => root.render(ModalFloatingLayer, { custom, close, closeModal }))
       // Allow the modal's MutationObserver to isolate newly appended portals.
       await Promise.resolve()
+
       const option = document.querySelector('#floating-option') as HTMLElement
+
       expect(option).not.toBeNull()
       expect(host.hasAttribute('inert')).toBe(true)
       expect(option.closest('[inert]')).toBeNull()
       option.focus()
       expect(document.activeElement).toBe(option)
+
       const panel = option.parentElement as HTMLElement
+
       expect(panel.style.position).toBe('fixed')
       expect(custom ? panel.style.right : panel.style.left).toBe('12px')
       expect(custom ? panel.style.bottom : panel.style.top).toBe('18px')
@@ -360,20 +402,27 @@ function PlainOverlay(props: { dismiss: () => void }) @{
 describe('Overlay isModal', () => {
   it('makes a shade-free overlay modal: dialog semantics, inert siblings, Escape', () => {
     const host = document.createElement('div')
+
     document.body.append(host)
+
     const root = createRoot(host)
     const dismiss = vi.fn()
+
     try {
       act(() => root.render(IsModalOverlay, { dismiss }))
+
       const layer = document.querySelector('.vx-overlay') as HTMLElement
       const panel = document.querySelector('.vx-overlay-content') as HTMLElement
+
       expect(layer.hasAttribute('data-vx-modal-layer')).toBe(true)
       expect(document.querySelector('.vx-overlay-shade')).toBeNull()
       expect(panel.getAttribute('role')).toBe('dialog')
       expect(panel.getAttribute('aria-modal')).toBe('true')
       expect(panel.getAttribute('aria-label')).toBe('Photo viewer')
       expect(host.hasAttribute('inert')).toBe(true)
+
       const inside = document.querySelector('#inside') as HTMLElement
+
       act(() =>
         inside.dispatchEvent(
           new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),
@@ -389,18 +438,25 @@ describe('Overlay isModal', () => {
 
   it('stays non-modal without isModal or shadeCover', () => {
     const host = document.createElement('div')
+
     document.body.append(host)
+
     const root = createRoot(host)
     const dismiss = vi.fn()
+
     try {
       act(() => root.render(PlainOverlay, { dismiss }))
+
       const layer = document.querySelector('.vx-overlay') as HTMLElement
       const panel = document.querySelector('.vx-overlay-content') as HTMLElement
+
       expect(layer.hasAttribute('data-vx-modal-layer')).toBe(false)
       expect(panel.getAttribute('role')).toBeNull()
       expect(panel.getAttribute('aria-modal')).toBeNull()
       expect(host.hasAttribute('inert')).toBe(false)
+
       const inside = document.querySelector('#inside') as HTMLElement
+
       act(() =>
         inside.dispatchEvent(
           new KeyboardEvent('keydown', { key: 'Escape', bubbles: true, cancelable: true }),

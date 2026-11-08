@@ -10,6 +10,7 @@ export const rowRefs = [{ current: null as any }, { current: null as any }]
 export const listViewEvents: any[] = []
 export const factoryHosts: any[] = []
 export const factoryRefs: any[] = []
+
 const listRef = (view: any) => {
   if (view) {
     listViewRefs.push('attach')

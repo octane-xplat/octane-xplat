@@ -40,6 +40,7 @@ export function TicTacToe() @{
     }
 
     const next = board.slice()
+
     next[i] = xNext ? 'X' : 'O'
     console.log('[probe] ttt play ' + i + ' -> ' + next[i])
     setBoard(next)

@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { JSX } from 'octane/jsx-runtime'
+
 export default function Badge(props: {
   label: string
   tone?: 'quiet' | 'loud'

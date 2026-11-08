@@ -34,7 +34,9 @@ export interface UseFocusWithinResult {
  */
 export function useFocusWithinState(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
   const latest = useRef(options)
+
   latest.current = options
+
   const within = useRef(false)
   const update = (next: boolean, event?: FocusEventPayload) => {
     if (next === within.current) {

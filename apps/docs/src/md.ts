@@ -34,12 +34,14 @@ export function inlineSpans(text: string): Span[] {
     /(`[^`]*`)|(\*\*(?:[^*]|\*[^*])+\*\*)|((?<!\*)\*(?!\*)[^*\s][^*]*\*(?!\*))|(~~[^~\s][^~]*~~)|((?<![\\=])==(?!=)[^=\s](?:[^=]|=(?!=))*==(?!=))|(\[[^\]]+\]\([^)\s]+\))/g
 
   let last = 0
+
   for (const m of text.matchAll(re)) {
     if (m.index > last) {
       spans.push({ text: text.slice(last, m.index) })
     }
 
     const tok = m[0]
+
     if (tok.startsWith('`')) {
       spans.push({ text: tok.slice(1, -1), mono: true })
     } else if (tok.startsWith('**')) {
@@ -60,6 +62,7 @@ export function inlineSpans(text: string): Span[] {
       }
     } else {
       const lm = /^\[([^\]]+)\]\(([^)\s]+)\)$/.exec(tok)!
+
       for (const s of inlineSpans(lm[1])) {
         spans.push({ ...s, href: lm[2] })
       }
@@ -92,12 +95,14 @@ export function parseMd(md: string): Block[] {
   const lines = md.split('\n')
   let i = 0
   let seenQuote = false
+
   while (i < lines.length) {
     const line = lines[i]
 
     if (line.trim().startsWith('```')) {
       const lang = line.trim().slice(3).trim()
       const buf: string[] = []
+
       while (++i < lines.length && !lines[i].trim().startsWith('```')) {
         buf.push(lines[i])
       }
@@ -119,8 +124,10 @@ export function parseMd(md: string): Block[] {
         .replace(/ /g, '-')
 
       let id = explicit?.[2] ?? slug
+
       if (!explicit) {
         let suffix = 0
+
         while (headingIds.has(id)) {
           id = `${slug}-${++suffix}`
         }
@@ -134,6 +141,7 @@ export function parseMd(md: string): Block[] {
 
     if (/^\s*\|.*\|\s*$/.test(line)) {
       const rows: string[][] = []
+
       while (i < lines.length && /^\s*\|.*\|\s*$/.test(lines[i])) {
         if (!/^\s*\|[\s:|-]+\|\s*$/.test(lines[i])) {
           rows.push(
@@ -154,10 +162,12 @@ export function parseMd(md: string): Block[] {
     if (/^\s*(?:[-*]|\d+[.)])\s+/.test(line)) {
       const m = line.match(/^(\s*)([-*]|\d+[.)])\s+(.*)/)!
       const parts = [m[3]]
+
       // Soft-wrapped continuation: indented lines that don't start a new
       // block join the item (nested items have their own marker).
       while (i + 1 < lines.length) {
         const nx = lines[i + 1]
+
         if (!/^\s{2,}\S/.test(nx)) {
           break
         }
@@ -183,11 +193,13 @@ export function parseMd(md: string): Block[] {
 
     if (/^\s*>\s?/.test(line)) {
       const buf: string[] = []
+
       while (i < lines.length && /^\s*>\s?/.test(lines[i])) {
         buf.push(lines[i++].replace(/^\s*>\s?/, ''))
       }
 
       const cm = buf[0]?.match(/^\[!(\w+)\]\s*(.*)/)
+
       if (cm && CALLOUTS.has(cm[1].toLowerCase())) {
         const lines = [cm[2], ...buf.slice(1)]
           .map((l) => l.trim())
@@ -197,9 +209,11 @@ export function parseMd(md: string): Block[] {
         blocks.push({ kind: 'callout', level: cm[1].toLowerCase(), lines })
       } else {
         let body = buf
+
         if (!seenQuote) {
           // paragraphs split on blank `>` lines; drop status-metadata paras
           const paras: string[][] = [[]]
+
           for (const l of buf) {
             if (l.trim() === '') {
               paras.push([])
@@ -231,6 +245,7 @@ export function parseMd(md: string): Block[] {
     }
 
     const buf: string[] = []
+
     while (i < lines.length && lines[i].trim() !== '' && !BLOCKSTART.test(lines[i])) {
       buf.push(lines[i])
       i++

@@ -6,6 +6,7 @@ export async function withCardCapture(
   consume: (uri: string) => Promise<void>,
 ): Promise<void> {
   const uri = await captureRef(target, { format: 'png', result: 'tmpfile' })
+
   try {
     await consume(uri)
   } finally {

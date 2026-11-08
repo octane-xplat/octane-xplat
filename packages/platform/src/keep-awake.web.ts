@@ -1,5 +1,6 @@
 import { desktopHostClient, desktopHostSupports } from './host-runtime.web'
 import { KeepAwakeDefaultTag, type KeepAwakeImpl } from './keep-awake.types'
+
 export { KeepAwakeDefaultTag } from './keep-awake.types'
 export type { KeepAwakeImpl, KeepAwakeOptions } from './keep-awake.types'
 
@@ -10,6 +11,7 @@ const listeners = new Set<(tag: string) => void>()
 let pending = Promise.resolve(true)
 const enqueue = (operation: () => Promise<boolean>) => {
   const next = pending.then(operation, operation).catch(() => false)
+
   pending = next
   return next
 }
@@ -22,6 +24,7 @@ async function acquire(tag: string): Promise<boolean> {
 
   if (await desktopHostSupports('keepAwake', 'activate')) {
     const result = await desktopHostClient()!.call('keepAwake', 'activate', tag)
+
     if (result) {
       hostTags.add(tag)
     }
@@ -34,6 +37,7 @@ async function acquire(tag: string): Promise<boolean> {
   }
 
   const sentinel = await navigator.wakeLock.request('screen')
+
   sentinels.set(tag, sentinel)
   sentinel.addEventListener('release', () => {
     if (sentinels.get(tag) !== sentinel) {
@@ -91,6 +95,7 @@ export const keepAwake: KeepAwakeImpl = {
       }
 
       const sentinel = sentinels.get(tag)
+
       if (sentinel) {
         await sentinel.release()
         sentinels.delete(tag)

@@ -43,7 +43,9 @@ function loadWeb({ clientId = 'client-id', prompt } = {}) {
   }
 
   vm.runInNewContext(googleWeb, context)
+
   const mod = context.exports
+
   mod.googleAuth.configure({ clientId })
   return { calls, fakeGoogle, ...mod }
 }
@@ -61,6 +63,7 @@ test('a rendered button parks the single credential slot; a second flow refuses'
   const second = []
   const hostA = host()
   const hostB = host()
+
   await renderGoogleButton(hostA, {}, (r) => first.push(r))
   await renderGoogleButton(hostB, {}, (r) => second.push(r))
 
@@ -74,14 +77,18 @@ test('a mounted button blocks a headless prompt until the host disconnects', asy
   const { googleAuth, renderGoogleButton, calls } = loadWeb()
 
   const buttonHost = host()
+
   await renderGoogleButton(buttonHost, {}, () => {})
 
   const blocked = await googleAuth.signIn()
+
   assert.equal(blocked.status, 'error')
   assert.match(blocked.message ?? '', /already active/)
 
   buttonHost.isConnected = false
+
   const pending = googleAuth.signIn()
+
   await tick()
   calls.prompt[0]({ isNotDisplayed: () => true })
   assert.equal((await pending).status, 'cancelled')
@@ -90,9 +97,11 @@ test('a mounted button blocks a headless prompt until the host disconnects', asy
 test('a pending prompt blocks a button render and resolves its own credential', async () => {
   const { googleAuth, renderGoogleButton, calls } = loadWeb()
   const pending = googleAuth.signIn()
+
   await tick()
 
   const results = []
+
   await renderGoogleButton(host(), {}, (r) => results.push(r))
   assert.equal(results.length, 1)
   assert.match(results[0].message, /already active/)
@@ -115,6 +124,7 @@ test('a re-fired ref on the same host does not re-render or re-park', async () =
 test('the rendered button wires onPress through the GIS click_listener', async () => {
   const { renderGoogleButton, calls } = loadWeb()
   let presses = 0
+
   await renderGoogleButton(host(), { onPress: () => presses++ }, () => {})
 
   assert.equal(typeof calls.renderButton[0].options.click_listener, 'function')
@@ -126,6 +136,7 @@ test('a signIn nonce reaches its own initialize and does not bleed into the butt
   const { googleAuth, renderGoogleButton, calls } = loadWeb()
 
   const pending = googleAuth.signIn({ nonce: 'prompt-nonce' })
+
   await tick()
   calls.prompt[0]({ isNotDisplayed: () => true })
   assert.equal((await pending).status, 'cancelled')

@@ -36,11 +36,13 @@ function readPackageConfig(appRoot) {
   const packagePath = join(appRoot, 'package.json')
   const manifest = JSON.parse(readFileSync(packagePath, 'utf8'))
   const target = manifest.xplat?.targets?.macos
+
   if (target?.runtime !== 'appkit-node-api') {
     throw new Error('Declare xplat.targets.macos.runtime as "appkit-node-api".')
   }
 
   const config = inspectMacOSPackageConfig(appRoot, target.package, target.renderer)
+
   if (config.issues.length) {
     throw new Error(config.issues.join('; '))
   }
@@ -51,6 +53,7 @@ function readPackageConfig(appRoot) {
 function viteExecutable(appRoot) {
   const viteRoot = installedPackageRoot(appRoot, 'vite') ?? join(appRoot, 'node_modules', 'vite')
   let manifest
+
   try {
     manifest = JSON.parse(readFileSync(join(viteRoot, 'package.json'), 'utf8'))
   } catch {
@@ -60,6 +63,7 @@ function viteExecutable(appRoot) {
   }
 
   const bin = typeof manifest.bin === 'string' ? manifest.bin : manifest.bin?.vite
+
   if (typeof bin !== 'string') {
     throw new Error('Installed Vite package has no CLI binary.')
   }
@@ -200,6 +204,7 @@ export async function packageMacOS(
 
   const signingIdentity = process.env.MACOS_SIGNING_IDENTITY
   const notaryProfile = process.env.MACOS_NOTARY_PROFILE
+
   if (notaryProfile && !signingIdentity) {
     throw new Error('MACOS_NOTARY_PROFILE requires MACOS_SIGNING_IDENTITY.')
   }
@@ -211,6 +216,7 @@ export async function packageMacOS(
   }
 
   const runtimeInspection = inspectMacOSRuntimePackage(appRoot)
+
   if (!runtimeInspection.packageManifest) {
     throw new Error(
       `Cannot resolve ${macOSRuntimePackageName} from the app. Declare it in dependencies.`,
@@ -230,6 +236,7 @@ export async function packageMacOS(
   }
 
   let nativeRuntimePackage
+
   try {
     nativeRuntimePackage = await realpath(runtimeInspection.packageRoot)
   } catch {
@@ -239,6 +246,7 @@ export async function packageMacOS(
   }
 
   const hostInspection = inspectJscHost()
+
   if (hostInspection.issues.length) {
     throw new Error(`JavaScriptCore host is unavailable: ${hostInspection.issues.join('; ')}`)
   }
@@ -286,11 +294,13 @@ export async function packageMacOS(
   await validateHostBundle(bundleFile, appRoot)
 
   const octaneRoot = installedPackageRoot(appRoot, 'octane')
+
   if (!octaneRoot) {
     throw new Error(
       'Cannot resolve octane from the app. Declare it in dependencies and run bun install.',
     )
   }
+
   const octaneLicense = await readFile(join(octaneRoot, 'LICENSE'), 'utf8')
   const nativeLicense = await readFile(join(nativeRuntimePackage, 'LICENSE'), 'utf8')
   const hostLicenses = await Promise.all(
@@ -301,11 +311,15 @@ export async function packageMacOS(
   )
 
   const releaseRoot = join(appRoot, 'artifacts', 'macos-universal')
+
   await mkdir(releaseRoot, { recursive: true })
+
   const stagingRoot = suppliedStagingRoot ?? (await mkdtemp(join(releaseRoot, '.xplat-macos-')))
+
   if (suppliedStagingRoot) {
     const release = await realpath(releaseRoot)
     const supplied = await realpath(suppliedStagingRoot)
+
     // The caller owns this empty staging directory, never an existing release.
     if (
       dirname(supplied) !== release ||
@@ -318,6 +332,7 @@ export async function packageMacOS(
       )
     }
   }
+
   const appPath = join(stagingRoot, `${settings.executableName}.app`)
   const contentsPath = join(appPath, 'Contents')
   const resourcesPath = join(contentsPath, 'Resources')
@@ -326,6 +341,7 @@ export async function packageMacOS(
   const dmgPath = join(stagingRoot, `${settings.executableName}-macos-universal.dmg`)
 
   let preserveStagingRoot = false
+
   try {
     await mkdir(dirname(mainExecutable), { recursive: true })
     await mkdir(join(resourcesPath, 'licenses'), { recursive: true })
@@ -339,7 +355,9 @@ export async function packageMacOS(
     await cp(native.metadata.arm64, join(resourcesPath, 'metadata.macos.arm64.nsmd'))
     await cp(native.metadata.x86_64, join(resourcesPath, 'metadata.macos.x86_64.nsmd'))
     await writeNativeBootstrap(native, join(resourcesPath, 'host-shim.js'), { packaged: true })
+
     const packagedFrameworkPath = join(contentsPath, 'Frameworks', 'NativeScript.framework')
+
     await mkdir(dirname(packagedFrameworkPath), { recursive: true })
     await cp(join(hostBundle, 'NativeScript.framework'), packagedFrameworkPath, {
       recursive: true,
@@ -348,21 +366,26 @@ export async function packageMacOS(
     })
 
     await completeFrameworkSymlinks(packagedFrameworkPath)
+
     const nativeLibraries = []
+
     for (const library of native.prebuilt ?? []) {
       const path = join(contentsPath, 'Frameworks', library.file)
+
       await cp(library.source, path)
       nativeLibraries.push(path)
     }
 
     for (const library of native.libraries) {
       const path = join(contentsPath, 'Frameworks', library.file)
+
       await cp(join(native.directory, library.file), path)
       nativeLibraries.push(path)
     }
 
     for (const resource of native.resources ?? []) {
       const destination = join(resourcesPath, resource.destination)
+
       await mkdir(dirname(destination), { recursive: true })
       await cp(resource.source, destination)
     }
@@ -442,6 +465,7 @@ export async function packageMacOS(
     const previousAppPath = join(stagingRoot, `${settings.executableName}.previous.app`)
     let previousAppMoved = false
     let appPublished = false
+
     try {
       if (await exists(finalAppPath)) {
         await rename(finalAppPath, previousAppPath)
@@ -453,6 +477,7 @@ export async function packageMacOS(
       await rename(dmgPath, finalDmgPath)
     } catch (error) {
       const rollbackErrors = []
+
       if (appPublished) {
         try {
           await rm(finalAppPath, { recursive: true, force: true })

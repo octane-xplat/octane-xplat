@@ -16,7 +16,9 @@ const output = ts.transpile(source, {
 })
 
 const exports = {}
+
 vm.runInNewContext(output, { exports, require: () => ({ createStore }) })
+
 const { createAccountSession } = exports
 const response = (status, body) => ({ status, ok: status === 200, json: async () => body })
 const fake = (overrides = {}) => ({
@@ -30,6 +32,7 @@ const fake = (overrides = {}) => ({
 
 test('restoration verifies the account before displaying authenticated UI', async () => {
   const account = createAccountSession(fake())
+
   assert.equal(account.state.getSnapshot().status, 'checking')
   await account.restore()
   assert.equal(account.state.getSnapshot().status, 'authenticated')
@@ -39,10 +42,13 @@ test('restoration verifies the account before displaying authenticated UI', asyn
 
 test('cancellation and unsupported targets settle without a fake successful session', async () => {
   const cancelled = createAccountSession(fake({ signIn: async () => ({ status: 'cancelled' }) }))
+
   await cancelled.signIn()
   assert.equal(cancelled.state.getSnapshot().status, 'anonymous')
   assert.equal(cancelled.state.getSnapshot().subject, null)
+
   const unsupported = createAccountSession(fake({ supported: false }))
+
   await unsupported.restore()
   assert.equal(unsupported.state.getSnapshot().status, 'unsupported')
 })
@@ -52,11 +58,15 @@ test('an old account response cannot restore private UI after sign-out', async (
   const waiting = new Promise((resolve) => {
     finish = resolve
   })
+
   const account = createAccountSession(fake({ fetch: () => waiting }))
   const old = account.restore()
+
   await new Promise((resolve) => setImmediate(resolve))
   await account.signOut()
+
   const authority = account.state.getSnapshot().authority
+
   finish(response(200, { subject: 'old-person' }))
   await old
   assert.equal(account.state.getSnapshot().status, 'anonymous')
@@ -75,6 +85,7 @@ test('credential deletion failure keeps private UI retired and requires a retry'
       },
     }),
   )
+
   await account.restore()
   await account.signOut()
   assert.equal(account.state.getSnapshot().subject, null)
@@ -97,9 +108,11 @@ test('a rejected backend session is cleared, while network failures offer recove
       },
     }),
   )
+
   await expired.restore()
   assert.equal(revoked, true)
   assert.equal(expired.state.getSnapshot().status, 'anonymous')
+
   const offline = createAccountSession(
     fake({
       fetch: async () => {
@@ -107,6 +120,7 @@ test('a rejected backend session is cleared, while network failures offer recove
       },
     }),
   )
+
   await offline.restore()
   assert.equal(offline.state.getSnapshot().status, 'error')
   assert.equal(offline.state.getSnapshot().subject, null)
@@ -118,6 +132,7 @@ test('remounting during sign-out cannot bypass a pending durable deletion failur
   const removal = new Promise((_, reject) => {
     rejectRemoval = reject
   })
+
   const account = createAccountSession(
     fake({
       restore: async () => {
@@ -127,7 +142,9 @@ test('remounting during sign-out cannot bypass a pending durable deletion failur
       signOut: () => removal,
     }),
   )
+
   const pending = account.signOut()
+
   await account.restore()
   assert.equal(restorations, 0)
   rejectRemoval(new Error('could not delete'))

@@ -8,11 +8,17 @@ const roots: any[] = []
 
 function mount(props: any = {}) {
   vi.useFakeTimers()
+
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
+
   const render = (next: any = {}) => act(() => root.render(<Image {...props} {...next} />))
+
   render()
   return { root, render, el, img: el.firstElementChild as HTMLImageElement }
 }
@@ -49,6 +55,7 @@ it('swaps to src when the placeholder errors', () => {
 
 it('passes non-hash placeholders through as plain URLs', () => {
   const { img } = mount({ src: 'https://x/photo.png', placeholder: 'https://x/tiny.jpg' })
+
   expect(img.getAttribute('src')).toBe('https://x/tiny.jpg')
   act(() => img.dispatchEvent(new Event('load')))
   expect(img.getAttribute('src')).toBe('https://x/photo.png')
@@ -56,5 +63,6 @@ it('passes non-hash placeholders through as plain URLs', () => {
 
 it('does not re-run the placeholder when src is already complete', () => {
   const { img } = mount({ src: 'https://x/photo.png' })
+
   expect(img.getAttribute('src')).toBe('https://x/photo.png')
 })

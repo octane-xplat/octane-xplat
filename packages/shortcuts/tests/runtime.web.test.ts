@@ -7,22 +7,26 @@ import {
 
 function keydown(target: EventTarget, init: KeyboardEventInit & { key: string }): KeyboardEvent {
   const event = new KeyboardEvent('keydown', { bubbles: true, cancelable: true, ...init })
+
   target.dispatchEvent(event)
   return event
 }
 
 function keyup(target: EventTarget, init: KeyboardEventInit & { key: string }): KeyboardEvent {
   const event = new KeyboardEvent('keyup', { bubbles: true, cancelable: true, ...init })
+
   target.dispatchEvent(event)
   return event
 }
 
 function withPlatform<T>(platform: string, run: () => T): T {
   const descriptor = Object.getOwnPropertyDescriptor(navigator, 'platform')
+
   Object.defineProperty(navigator, 'platform', {
     configurable: true,
     value: platform,
   })
+
   try {
     return run()
   } finally {
@@ -41,10 +45,12 @@ describe('shortcuts', () => {
 
   it('binds and dispatches a basic combo', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind('Ctrl+k', () => calls.push('palette'))
 
     keydown(host, { key: 'k', ctrlKey: true, code: 'KeyK' })
@@ -55,6 +61,7 @@ describe('shortcuts', () => {
 
   it('blocks browser defaults while still dispatching app bindings', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -62,6 +69,7 @@ describe('shortcuts', () => {
       target: host,
       blocklist: [{ combo: 'Ctrl+w', category: 'browser', browser: 'chrome' }],
     })
+
     shortcuts.bind('Ctrl+w', () => calls.push('close-editor'))
 
     const event = keydown(host, { key: 'w', ctrlKey: true, code: 'KeyW' })
@@ -71,12 +79,14 @@ describe('shortcuts', () => {
     expect(shortcuts.explain(event).blockedBy).toEqual([
       { combo: 'Ctrl+w', category: 'browser', browser: 'chrome' },
     ])
+
     shortcuts.dispose()
   })
 
   it('blocks browser defaults during capture before bubbling is stopped', () => {
     const host = document.createElement('div')
     const child = document.createElement('button')
+
     host.appendChild(child)
     document.body.appendChild(host)
 
@@ -84,6 +94,7 @@ describe('shortcuts', () => {
       target: host,
       blocklist: [{ combo: 'Ctrl+w', category: 'browser' }],
     })
+
     child.addEventListener('keydown', (event) => event.stopPropagation())
 
     const event = keydown(child, { key: 'w', ctrlKey: true, code: 'KeyW' })
@@ -94,6 +105,7 @@ describe('shortcuts', () => {
 
   it('validates browser and operating-system blocklist entries structurally', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({
@@ -105,6 +117,7 @@ describe('shortcuts', () => {
     })
 
     const browserResult = shortcuts.validateShortcut('Ctrl+w')
+
     expect(browserResult).toEqual({
       valid: false,
       combo: 'Ctrl+w',
@@ -121,6 +134,7 @@ describe('shortcuts', () => {
     })
 
     const invalidResult = shortcuts.validateShortcut('g g')
+
     expect(invalidResult.valid).toBe(false)
     if (!invalidResult.valid) {
       expect(invalidResult.errors[0]).toMatchObject({
@@ -130,12 +144,14 @@ describe('shortcuts', () => {
     }
 
     const ordinaryResult = shortcuts.validateShortcut('Ctrl+x')
+
     expect(ordinaryResult).toEqual({ valid: true, combo: 'Ctrl+x', canonicalCombo: 'Ctrl+x' })
     shortcuts.dispose()
   })
 
   it('uses operating-system entries for validation without preventing browser defaults', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({
@@ -155,12 +171,14 @@ describe('shortcuts', () => {
       valid: false,
       errors: [{ code: 'shortcut-blocked', category: 'os' }],
     })
+
     shortcuts.dispose()
   })
 
   it('resolves Mod and platform-specific entries using the current platform', () => {
     withPlatform('MacIntel', () => {
       const host = document.createElement('div')
+
       document.body.appendChild(host)
 
       const shortcuts = createShortcuts({
@@ -174,6 +192,7 @@ describe('shortcuts', () => {
       })
 
       const browserResult = shortcuts.validateShortcut('Mod+w')
+
       expect(browserResult.valid).toBe(false)
 
       expect(shortcuts.validateShortcut('Meta+[')).toMatchObject({
@@ -189,6 +208,7 @@ describe('shortcuts', () => {
       })
 
       const osResult = shortcuts.validateShortcut('Meta+Space')
+
       expect(osResult).toMatchObject({
         valid: false,
         errors: [{ code: 'shortcut-blocked', category: 'os', platform: 'mac' }],
@@ -198,12 +218,14 @@ describe('shortcuts', () => {
         valid: false,
         errors: [{ code: 'shortcut-blocked', category: 'os', platform: 'mac' }],
       })
+
       shortcuts.dispose()
     })
   })
 
   it('does not block composing or keyup events', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({
@@ -217,6 +239,7 @@ describe('shortcuts', () => {
       ctrlKey: true,
       isComposing: true,
     })
+
     const keyupEvent = keyup(host, { key: 'w', code: 'KeyW', ctrlKey: true })
 
     expect(composingEvent.defaultPrevented).toBe(false)
@@ -226,10 +249,12 @@ describe('shortcuts', () => {
 
   it('does not dispatch or consume matching events during IME composition', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({
       combo: 'Enter',
       preventDefault: true,
@@ -248,10 +273,12 @@ describe('shortcuts', () => {
 
   it('does not let composing events disturb an active sequence', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({ sequence: 'g g', handler: () => calls.push('top') })
 
     keydown(host, { key: 'g', code: 'KeyG' })
@@ -267,12 +294,14 @@ describe('shortcuts', () => {
     const editor = document.createElement('div')
     const editorChild = document.createElement('button')
     const sidebar = document.createElement('div')
+
     editor.appendChild(editorChild)
     host.append(editor, sidebar)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({ combo: 'Ctrl+k', within: editor, handler: () => calls.push('editor') })
 
     keydown(sidebar, { key: 'k', ctrlKey: true, code: 'KeyK' })
@@ -285,11 +314,13 @@ describe('shortcuts', () => {
   it('binds within an element using the string shorthand', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
+
     host.appendChild(editor)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bindWithin(editor, 'Ctrl+k', () => calls.push('editor'))
 
     keydown(editor, { key: 'k', ctrlKey: true, code: 'KeyK' })
@@ -302,12 +333,14 @@ describe('shortcuts', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
     const input = document.createElement('div')
+
     editor.appendChild(input)
     host.appendChild(editor)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({ combo: 'x', within: input, handler: () => calls.push('input') })
     shortcuts.bind({ combo: 'x', within: editor, handler: () => calls.push('editor') })
     shortcuts.bind('x', () => calls.push('global'))
@@ -321,11 +354,13 @@ describe('shortcuts', () => {
   it('keeps priority above element-boundary specificity', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
+
     host.appendChild(editor)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({ combo: 'x', within: editor, handler: () => calls.push('editor') })
     shortcuts.bind({ combo: 'x', priority: 1, handler: () => calls.push('priority') })
 
@@ -337,10 +372,12 @@ describe('shortcuts', () => {
 
   it('matches alt number-row shortcuts by physical digit code', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind('Alt+1', () => calls.push('semantic'))
     shortcuts.bind('Alt+Digit2', () => calls.push('physical'))
 
@@ -353,10 +390,12 @@ describe('shortcuts', () => {
 
   it('matches alt letter shortcuts by physical key code', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind('Alt+l', () => calls.push('semantic'))
     shortcuts.bind('Alt+KeyM', () => calls.push('physical'))
 
@@ -369,10 +408,12 @@ describe('shortcuts', () => {
 
   it('keeps non-alt printable shortcuts semantic unless physical code is explicit', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind('1', () => calls.push('semantic digit'))
     shortcuts.bind('Digit2', () => calls.push('physical digit'))
     shortcuts.bind('l', () => calls.push('semantic letter'))
@@ -389,10 +430,12 @@ describe('shortcuts', () => {
 
   it('evaluates when clauses against nested context keys', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.setContext('editor.focus', true)
     shortcuts.setContext('editor.hasSelection', false)
 
@@ -413,6 +456,7 @@ describe('shortcuts', () => {
 
   it('filters canDispatch candidates before choosing a winner', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -421,6 +465,7 @@ describe('shortcuts', () => {
       handler: unknown
       matchedScope: string
     }> = []
+
     const highPriority = () => calls.push('high')
     const lowPriority = () => calls.push('low')
     const shortcuts = createShortcuts({
@@ -431,6 +476,7 @@ describe('shortcuts', () => {
           handler: candidate.handler,
           matchedScope: candidate.matchedScope,
         })
+
         return candidate.handler !== highPriority
       },
     })
@@ -441,6 +487,7 @@ describe('shortcuts', () => {
       preventDefault: true,
       handler: highPriority,
     })
+
     shortcuts.bind({ combo: 'x', handler: lowPriority })
 
     const event = keydown(host, { key: 'x', code: 'KeyX' })
@@ -451,11 +498,13 @@ describe('shortcuts', () => {
       { combo: 'x', handler: highPriority, matchedScope: 'root' },
       { combo: 'x', handler: lowPriority, matchedScope: 'root' },
     ])
+
     shortcuts.dispose()
   })
 
   it('runs canDispatch only after when clauses pass', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -469,6 +518,7 @@ describe('shortcuts', () => {
         return true
       },
     })
+
     shortcuts.setContext('editor.enabled', false)
 
     shortcuts.bind({
@@ -477,6 +527,7 @@ describe('shortcuts', () => {
       when: 'editor.enabled',
       handler: blocked,
     })
+
     shortcuts.bind({ combo: 'x', handler: available })
 
     keydown(host, { key: 'x', code: 'KeyX' })
@@ -488,6 +539,7 @@ describe('shortcuts', () => {
 
   it('reports canDispatch errors and keeps lower-priority candidates eligible', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -500,6 +552,7 @@ describe('shortcuts', () => {
         if (candidate.handler === throwing) {
           throw new Error('not handled')
         }
+
         return true
       },
       onError: (error, info) => {
@@ -514,6 +567,7 @@ describe('shortcuts', () => {
       priority: 10,
       handler: throwing,
     })
+
     shortcuts.bind({ combo: 'x', handler: available })
 
     keydown(host, { key: 'x', code: 'KeyX' })
@@ -525,6 +579,7 @@ describe('shortcuts', () => {
 
   it('resolves scope precedence through getActiveScopes', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -544,12 +599,14 @@ describe('shortcuts', () => {
 
   it('checks external availability against active scopes and when clauses', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({
       target: host,
       getActiveScopes: () => ['modal', 'editor'],
     })
+
     shortcuts.setContext('editor.canCopy', true)
 
     expect(
@@ -558,6 +615,7 @@ describe('shortcuts', () => {
         when: 'scope.matched === "modal" && editor.canCopy',
       }),
     ).toBe(true)
+
     expect(
       shortcuts.isAvailable({
         scope: 'sidebar',
@@ -570,6 +628,7 @@ describe('shortcuts', () => {
 
   it('does not run canDispatch for external availability checks', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -588,6 +647,7 @@ describe('shortcuts', () => {
 
   it('provides inert event values for external availability checks', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
@@ -597,6 +657,7 @@ describe('shortcuts', () => {
         when: 'event.key == null && !event.ctrl && !event.meta && !event.repeat',
       }),
     ).toBe(true)
+
     expect(
       shortcuts.isAvailable({
         when: 'event.ctrl',
@@ -608,6 +669,7 @@ describe('shortcuts', () => {
 
   it('supports overlapping sequences with shared prefixes', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -628,11 +690,13 @@ describe('shortcuts', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
     const sidebar = document.createElement('div')
+
     host.append(editor, sidebar)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host, sequenceTimeout: 1000 })
+
     shortcuts.bindWithin(editor, {
       sequence: 'g g',
       handler: () => calls.push('editor'),
@@ -652,6 +716,7 @@ describe('shortcuts', () => {
 
   it('pauses a scope and prevents dispatch', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -673,6 +738,7 @@ describe('shortcuts', () => {
 
   it('ignores paused scopes when checking external availability', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({
@@ -694,9 +760,11 @@ describe('shortcuts', () => {
 
   it('treats when evaluation errors as unavailable for external checks', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.setContext('editor', null)
 
     expect(
@@ -710,6 +778,7 @@ describe('shortcuts', () => {
 
   it('throws on invalid when syntax for external availability checks', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
@@ -725,10 +794,12 @@ describe('shortcuts', () => {
 
   it('records shortcuts while suppressing handlers', async () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host, sequenceTimeout: 30 })
+
     shortcuts.bind('Meta+k', () => calls.push('handler'))
 
     const session = shortcuts.record({ suppressHandlers: true, timeout: 10 })
@@ -746,14 +817,18 @@ describe('shortcuts', () => {
 
   it('preserves composing events for active shortcut recording', async () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind('Enter', () => calls.push('handler'))
+
     const session = shortcuts.record({ suppressHandlers: false })
 
     keydown(host, { key: 'Enter', code: 'Enter', isComposing: true })
+
     const recording = session.stop()
 
     expect(recording.steps).toEqual(['Enter'])
@@ -764,6 +839,7 @@ describe('shortcuts', () => {
 
   it('emits live recording snapshots as steps are captured', async () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const updates: string[] = []
@@ -787,6 +863,7 @@ describe('shortcuts', () => {
     vi.useFakeTimers()
     try {
       const host = document.createElement('div')
+
       document.body.appendChild(host)
 
       const shortcuts = createShortcuts({ target: host, sequenceTimeout: 30 })
@@ -810,6 +887,7 @@ describe('shortcuts', () => {
     vi.useFakeTimers()
     try {
       const host = document.createElement('div')
+
       document.body.appendChild(host)
 
       const errors: string[] = []
@@ -848,6 +926,7 @@ describe('shortcuts', () => {
     vi.useFakeTimers()
     try {
       const host = document.createElement('div')
+
       document.body.appendChild(host)
 
       const shortcuts = createShortcuts({ target: host, sequenceTimeout: 30 })
@@ -871,9 +950,11 @@ describe('shortcuts', () => {
 
   it('explains why a binding did not match', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.setContext('editor.focus', true)
     shortcuts.setContext('editor.hasSelection', false)
     shortcuts.bind({
@@ -883,6 +964,7 @@ describe('shortcuts', () => {
     })
 
     const event = new KeyboardEvent('keydown', { key: 'c', code: 'KeyC', bubbles: true })
+
     Object.defineProperty(event, 'target', { value: host })
 
     const trace = shortcuts.explain(event)
@@ -897,12 +979,14 @@ describe('shortcuts', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
     const sidebar = document.createElement('div')
+
     host.append(editor, sidebar)
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
     const handle = shortcuts.bindWithin(editor, 'x', () => {})
     const event = new KeyboardEvent('keydown', { key: 'x', code: 'KeyX', bubbles: true })
+
     Object.defineProperty(event, 'target', { value: sidebar })
 
     const trace = shortcuts.explain(event)
@@ -915,11 +999,13 @@ describe('shortcuts', () => {
         rejectedBy: 'boundary',
       },
     ])
+
     shortcuts.dispose()
   })
 
   it('explains candidates rejected by canDispatch', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -935,9 +1021,11 @@ describe('shortcuts', () => {
       priority: 10,
       handler: rejected,
     })
+
     const acceptedHandle = shortcuts.bind({ combo: 'x', handler: accepted })
 
     const event = new KeyboardEvent('keydown', { key: 'x', code: 'KeyX', bubbles: true })
+
     Object.defineProperty(event, 'target', { value: host })
 
     const trace = shortcuts.explain(event)
@@ -955,11 +1043,13 @@ describe('shortcuts', () => {
   it('respects editable-target policy overrides', () => {
     const host = document.createElement('div')
     const input = document.createElement('input')
+
     host.appendChild(input)
     document.body.appendChild(host)
 
     const calls: string[] = []
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bind({ combo: 'k', handler: () => calls.push('blocked') })
     shortcuts.bind({
       combo: 'Meta+k',
@@ -976,6 +1066,7 @@ describe('shortcuts', () => {
 
   it('replaces binding-set contents atomically', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -1004,6 +1095,7 @@ describe('shortcuts', () => {
 
   it('clears and disposes binding sets', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -1026,11 +1118,13 @@ describe('shortcuts', () => {
     expect(() => bindingSet.replace([{ combo: 'Meta+/', handler: () => {} }])).toThrow(
       'Binding set is disposed',
     )
+
     shortcuts.dispose()
   })
 
   it('preserves direct-binding precedence across repeated binding-set replacement', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -1054,6 +1148,7 @@ describe('shortcuts', () => {
 
   it('preserves binding-set precedence across repeated replacement', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const calls: string[] = []
@@ -1077,6 +1172,7 @@ describe('shortcuts', () => {
 
   it('drops active sequence state when replacing a binding set', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host, sequenceTimeout: 1000 })
@@ -1095,6 +1191,7 @@ describe('shortcuts', () => {
 
   it('returns binding snapshots in stable runtime order', () => {
     const host = document.createElement('div')
+
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
@@ -1119,10 +1216,12 @@ describe('shortcuts', () => {
   it('includes element boundaries in binding snapshots', () => {
     const host = document.createElement('div')
     const editor = document.createElement('div')
+
     host.appendChild(editor)
     document.body.appendChild(host)
 
     const shortcuts = createShortcuts({ target: host })
+
     shortcuts.bindWithin(editor, 'x', () => {})
 
     expect(shortcuts.getBindings()[0]?.within).toBe(editor)

@@ -20,6 +20,7 @@ export const CHECKS: ParityCheck[] = [
     ],
     check: (m) => {
       const dismiss = m('dismiss')
+
       return [
         dims(m('banner'), 220, 48),
         dims(m('icon'), 24, 24),

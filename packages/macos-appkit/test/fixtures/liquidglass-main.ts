@@ -10,7 +10,9 @@ import {
 import { checkLiquidGlassLifecycle } from './liquidglass-lifecycle'
 
 const app = NSApplication.sharedApplication
+
 app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
+
 const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
   { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
   NSWindowStyleMask.Titled,
@@ -19,7 +21,9 @@ const window = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
 )
 
 window.releasedWhenClosed = false
+
 const root = createMacOSRoot(window.contentView)
+
 window.makeKeyAndOrderFront(app)
 app.finishLaunching()
 setTimeout(async () => {

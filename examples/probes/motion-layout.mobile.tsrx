@@ -16,26 +16,32 @@ let setOrder: (v: string[]) => void = () => {}
 
 function onScreen(view: any, target: 'ios' | 'android' | string) {
   const nv = view?.nativeViewProtected ?? view?.nativeView
+
   if (!nv) {
     return null
   }
 
   const d = target === 'ios' ? 1 : (nv.getResources?.()?.getDisplayMetrics?.()?.density ?? 1)
+
   if (target === 'ios') {
     const win = nv.convertRectToView?.(nv.bounds, null)
+
     return win
       ? { x: win.origin.x / d, y: win.origin.y / d, w: win.size.width / d, h: win.size.height / d }
       : null
   }
 
   const loc = Array.create('int', 2)
+
   nv.getLocationInWindow(loc)
+
   // Fold the whole ancestor scale chain: projection writes counter-scaling
   // onto children's own scaleX, so multiplying by it alone overstates the
   // rendered size.
   let sx = 1
   let sy = 1
   let p: any = nv
+
   while (p && typeof p.getScaleX === 'function') {
     sx *= p.getScaleX()
     sy *= p.getScaleY()
@@ -55,6 +61,7 @@ const sleep = (ms: number) => new Promise<void>((r) => setTimeout(r, ms))
 /** Untransformed layout box (proves the commit's layout actually applied). */
 function rawLayout(v: any, target: string) {
   const nv = v?.nativeView ?? v?.nativeViewProtected
+
   if (!nv) {
     return null
   }
@@ -64,6 +71,7 @@ function rawLayout(v: any, target: string) {
     const b = nv.bounds
     const w = b?.size?.width
     const h = b?.size?.height
+
     return { cx: c?.x, cy: c?.y, x: c?.x - w / 2, y: c?.y - h / 2, w, h }
   }
 
@@ -71,6 +79,7 @@ function rawLayout(v: any, target: string) {
   let x = 0
   let y = 0
   let n: any = nv
+
   while (n && typeof n.getLeft === 'function') {
     x += n.getLeft()
     y += n.getTop()
@@ -94,6 +103,7 @@ function captureFirstFrame(target: string, read: () => unknown): Promise<unknown
     (globalThis as any).Application?.android?.startActivity
 
   const decor = activity?.getWindow?.()?.getDecorView?.()
+
   if (!decor) {
     return sleep(0).then(read)
   }
@@ -103,11 +113,13 @@ function captureFirstFrame(target: string, read: () => unknown): Promise<unknown
     const listener = new (globalThis as any).android.view.ViewTreeObserver.OnDrawListener({
       onDraw() {
         const nv = (views as any).parent?.nativeViewProtected ?? (views as any).parent?.nativeView
+
         console.log(
           `PROBE dbg draw parentScaleX=${nv?.getScaleX?.()} parentTx=${nv?.getTranslationX?.()} t=${Date.now()}`,
         )
 
         const data = read()
+
         decor.post(
           new (globalThis as any).java.lang.Runnable({
             run: () => vto.removeOnDrawListener(listener),
@@ -141,6 +153,7 @@ function transforms(view: any) {
 export default function MotionLayoutProbe() @{
   const [wide, w] = useState(false)
   const [order, o] = useState(['a', 'b', 'c'])
+
   setWide = w
   setOrder = o
   return (
@@ -184,6 +197,7 @@ export async function run(ctx: ProbeContext) {
 
   const target = ctx.target
   const screen = (v: any) => onScreen(v, target)
+
   Trace.enable()
   Trace.addCategories(Trace.categories.Error)
   Trace.addWriter({
@@ -195,7 +209,9 @@ export async function run(ctx: ProbeContext) {
   const t0 = Date.now()
   const step = (name: string) => console.log(`PROBE step ${name} t=${Date.now() - t0}`)
   const uncaught: string[] = []
+
   Application.on?.('uncaughtError', (a: any) => uncaught.push(String(a?.error ?? a)))
+
   const batchUnsub = observeBatches({
     didApply(container, commands) {
       const host =
@@ -230,6 +246,7 @@ export async function run(ctx: ProbeContext) {
 
     step('setWide')
     setWide(true)
+
     const first = (await drawPromise) as any
     const firstFrame = first.parent
     const firstChild = first.child
@@ -243,8 +260,10 @@ export async function run(ctx: ProbeContext) {
       target === 'ios'
         ? await (async () => {
             await sleep(20)
+
             const l = (views.parent as any)?.ios?.layer?.presentationLayer?.()
             const f = l?.frame
+
             return f ? { x: f.origin.x, y: f.origin.y, w: f.size.width, h: f.size.height } : null
           })()
         : undefined
@@ -262,6 +281,7 @@ export async function run(ctx: ProbeContext) {
     step('mid-start')
     // Mid-animation: parent between 120 and 180 wide, child stays 50.
     await sleep(200)
+
     const mid = screen(views.parent)
     const midChild = screen(views.child)
     const midOk =
@@ -272,8 +292,10 @@ export async function run(ctx: ProbeContext) {
     step('settle-start')
     // Settle: transforms back to channel values, parent at its new size.
     await sleep(700)
+
     const settled = screen(views.parent)
     const settledTransforms = transforms(views.parent)
+
     log('settle', { settled, settledTransforms })
   } catch (error) {
     log('flash', { error: String(error) })
@@ -291,14 +313,18 @@ export async function run(ctx: ProbeContext) {
     })
 
     step('reorder-start')
+
     const drawPromise = captureFirstFrame(target, () => ({
       on: ['a', 'b', 'c'].map((k) => screen(views[`row${k}`])),
       raw: ['a', 'b', 'c'].map((k) => rawLayout(views[`row${k}`], target)),
     }))
 
     setOrder(['c', 'b', 'a'])
+
     const first = (await drawPromise) as any
+
     stop()
+
     const firstFrame = first.on
     const rawAfter = first.raw
     const rawSwapped =
@@ -308,9 +334,11 @@ export async function run(ctx: ProbeContext) {
       rawSwapped && before.every((b, i) => Math.abs((firstFrame[i]?.y ?? 0) - (b?.y ?? 0)) <= 0.5)
 
     await sleep(600)
+
     const after = ['a', 'b', 'c'].map((k) => screen(views[`row${k}`]))
     const endsMoved = Math.abs((after[0]?.y ?? 0) - (before[2]?.y ?? 0)) <= 0.5
     const settledTransforms = ['a', 'b', 'c'].map((k) => transforms(views[`row${k}`]))
+
     log('reorder', {
       before,
       firstFrame,

@@ -17,12 +17,15 @@ export function AppKitColumnResizeHandle(props: {
     latest = useRef(props)
 
   latest.current = props
+
   const [measured, setMeasured] = useState(0),
     lastWidth = useRef(0)
 
   const measure = () => {
     latest.current.state.synchronize()
+
     const width = Number(view.current?.superview?.bounds.size.width)
+
     if (Number.isFinite(width) && width > 0 && Math.abs(lastWidth.current - width) > 0.5) {
       lastWidth.current = width
       setMeasured(width)
@@ -92,6 +95,7 @@ export function AppKitColumnResizeHandle(props: {
       }
 
       const current = scope()
+
       if (current && latest.current.state.key(current, event.key)) {
         event.preventDefault()
         event.stopPropagation()
@@ -101,6 +105,7 @@ export function AppKitColumnResizeHandle(props: {
 
   const onPan = usePan((event) => {
     const current = scope()
+
     if (!current) {
       if (view.current) {
         latest.current.state.cancel(view.current)
@@ -133,6 +138,7 @@ export function AppKitColumnResizeHandle(props: {
     }
 
     parent.postsFrameChangedNotifications = true
+
     const tokens: unknown[] = []
     let active = true,
       observedWindow = target.window
@@ -196,6 +202,7 @@ export function AppKitColumnResizeHandle(props: {
 
   const adjust = (amount: number) => {
     const current = scope()
+
     return current ? latest.current.state.step(current, amount) : false
   }
 
@@ -210,6 +217,7 @@ export function AppKitColumnResizeHandle(props: {
     onLayoutChanged={queueMeasure}
     onTap={() => {
       const target = view.current
+
       if (target) {
         target.window?.makeFirstResponder(target)
         measure()

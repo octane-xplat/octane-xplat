@@ -4,6 +4,7 @@ import { appKitActivitySource } from './appkit-state.macos'
 
 export function useAppState(): AppState {
   const source = appKitActivitySource()
+
   return useSyncExternalStore(source.subscribe, source.getSnapshot)
 }
 

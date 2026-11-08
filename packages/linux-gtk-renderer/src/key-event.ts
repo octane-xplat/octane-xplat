@@ -61,6 +61,7 @@ export function normalizeKeyEvent(keyval: number, modifiers: number) {
     unicode >= 0x20 && unicode !== 0x7f
       ? String.fromCharCode(unicode)
       : (KEY_NAMES.get(keyval) ?? Gdk.keyval_name(keyval) ?? '')
+
   const event = {
     key,
     code: '',
@@ -79,5 +80,6 @@ export function normalizeKeyEvent(keyval: number, modifiers: number) {
       event.cancelBubble = true
     },
   }
+
   return event
 }

@@ -20,26 +20,33 @@ export function parseHex(input: string | null | undefined): Rgb | null {
   if (!input) {
     return null
   }
+
   let h = input.trim()
+
   if (h.startsWith('#')) {
     h = h.slice(1)
   }
+
   if (/^[0-9a-fA-F]{3}$/.test(h)) {
     h = h
       .split('')
       .map((c) => c + c)
       .join('')
   }
+
   if (!/^[0-9a-fA-F]{6}$/.test(h)) {
     return null
   }
+
   const n = parseInt(h, 16)
+
   return { r: (n >> 16) & 0xff, g: (n >> 8) & 0xff, b: n & 0xff }
 }
 
 /** Normalize an accepted hex input to lowercase '#rrggbb', or null. */
 export function normalizeHex(input: string | null | undefined): string | null {
   const rgb = parseHex(input)
+
   return rgb ? formatHex(rgb) : null
 }
 
@@ -48,6 +55,7 @@ export function formatHex(rgb: Rgb): string {
     Math.round(Math.min(255, Math.max(0, v)))
       .toString(16)
       .padStart(2, '0')
+
   return `#${to2(rgb.r)}${to2(rgb.g)}${to2(rgb.b)}`
 }
 
@@ -55,10 +63,13 @@ export function rgbToHsb({ r, g, b }: Rgb): Hsb {
   const rr = r / 255,
     gg = g / 255,
     bb = b / 255
+
   const max = Math.max(rr, gg, bb),
     min = Math.min(rr, gg, bb)
+
   const d = max - min
   let h = 0
+
   if (d !== 0) {
     if (max === rr) {
       h = ((gg - bb) / d) % 6
@@ -73,6 +84,7 @@ export function rgbToHsb({ r, g, b }: Rgb): Hsb {
       h += 360
     }
   }
+
   return { h, s: max === 0 ? 0 : d / max, b: max }
 }
 
@@ -84,6 +96,7 @@ export function hsbToRgb({ h, s, b }: Hsb): Rgb {
   let rr = 0,
     gg = 0,
     bb = 0
+
   if (hh < 60) {
     rr = c
     gg = x
@@ -103,6 +116,7 @@ export function hsbToRgb({ h, s, b }: Hsb): Rgb {
     rr = c
     bb = x
   }
+
   return { r: (rr + m) * 255, g: (gg + m) * 255, b: (bb + m) * 255 }
 }
 
@@ -116,16 +130,20 @@ export function hsbToHex(hsb: Hsb): string {
  *  to 0 and back would lose the hue the user picked. */
 export function hsbForValue(prev: Hsb | null, hex: string): Hsb {
   const rgb = parseHex(hex)
+
   if (!rgb) {
     return prev ?? { h: 0, s: 0, b: 0 }
   }
+
   const next = rgbToHsb(rgb)
+
   if (prev && (next.s === 0 || next.b === 0)) {
     next.h = prev.h
     if (next.b === 0) {
       next.s = prev.s
     }
   }
+
   return next
 }
 

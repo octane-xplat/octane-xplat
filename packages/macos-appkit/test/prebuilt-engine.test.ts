@@ -22,6 +22,7 @@ function machOMinimumSystemVersion(bytes: Buffer): string | null {
 
   const commands = bytes.readUInt32LE(16)
   let offset = 32
+
   for (let index = 0; index < commands; index++) {
     if (offset + 8 > bytes.length) {
       return null
@@ -29,12 +30,14 @@ function machOMinimumSystemVersion(bytes: Buffer): string | null {
 
     const command = bytes.readUInt32LE(offset)
     const size = bytes.readUInt32LE(offset + 4)
+
     if (size < 8 || offset + size > bytes.length) {
       return null
     }
 
     if (command === 0x32 && size >= 24) {
       const version = bytes.readUInt32LE(offset + 12)
+
       return `${version >>> 16}.${(version >>> 8) & 255}`
     }
 
@@ -49,6 +52,7 @@ test('the package publishes the prebuilt engine files', () => {
   assert.deepEqual(manifest.xplat?.macos?.prebuiltLibraries, [
     'platforms/macos/prebuilt/libxplatmason.dylib',
   ])
+
   assert.equal(manifest.xplat?.macos?.notices, 'platforms/macos/licenses/nativescript-mason.txt')
   assert.ok(existsSync(packageFile(manifest.xplat.macos.notices)))
 })
@@ -57,8 +61,11 @@ test('the engine manifest checksum matches the shipped bytes', () => {
   const prebuilt = JSON.parse(
     readFileSync(join(packageRoot, 'platforms/macos/prebuilt/manifest.json'), 'utf8'),
   )
+
   assert.equal(prebuilt.library, 'libxplatmason.dylib')
+
   const sha = createHash('sha256').update(readFileSync(dylibPath)).digest('hex')
+
   assert.equal(prebuilt.sha256['libxplatmason.dylib'], sha)
 })
 
@@ -66,9 +73,11 @@ test('the engine manifest records the pinned mason-c desktop artifact', () => {
   const prebuilt = JSON.parse(
     readFileSync(join(packageRoot, 'platforms/macos/prebuilt/manifest.json'), 'utf8'),
   )
+
   const pin = JSON.parse(
     readFileSync(join(packageRoot, 'native/xplatmason/mason-core.pin.json'), 'utf8'),
   )
+
   assert.equal(prebuilt.source.mason.repository, pin.repository)
   assert.equal(prebuilt.source.mason.revision, pin.revision)
   assert.equal(prebuilt.source.mason.crate, 'mason-c')
@@ -79,6 +88,7 @@ test('the engine manifest records the pinned mason-c desktop artifact', () => {
 
 test('the facade compiles against the shipped generated header', () => {
   const facade = readFileSync(join(packageRoot, 'native/xplatmason/XPLMason.m'), 'utf8')
+
   assert.match(facade, /#import "mason_native\.h"/)
   assert.doesNotMatch(
     facade,
@@ -89,17 +99,25 @@ test('the facade compiles against the shipped generated header', () => {
 
 test('the engine is a universal Mach-O within the app deployment target', () => {
   const bytes = readFileSync(dylibPath)
+
   assert.equal(bytes.readUInt32BE(0), 0xcafebabe, 'expected a universal (fat) binary')
+
   const count = bytes.readUInt32BE(4)
   const slices = new Set<number>()
+
   for (let index = 0; index < count; index++) {
     const entry = 8 + index * 20
+
     slices.add(bytes.readUInt32BE(entry))
+
     const offset = bytes.readUInt32BE(entry + 8)
     const size = bytes.readUInt32BE(entry + 12)
     const minos = machOMinimumSystemVersion(bytes.subarray(offset, offset + size))
+
     assert.ok(minos, `expected an LC_BUILD_VERSION deployment target in slice ${index}`)
+
     const [major, minor] = minos.split('.').map(Number)
+
     assert.ok(
       major < 13 || (major === 13 && minor <= 5),
       `engine slice ${index} requires macOS ${minos}, above the 13.5 floor`,

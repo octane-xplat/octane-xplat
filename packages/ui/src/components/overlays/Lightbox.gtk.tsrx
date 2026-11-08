@@ -36,6 +36,7 @@ function LightboxPanel(props: {
 
   const onStagePan = (e: any) => {
     const el = imgView.current
+
     if (!zoomed || !el) {
       return
     }
@@ -47,6 +48,7 @@ function LightboxPanel(props: {
 
     const dx = e.dx ?? e.deltaX ?? 0
     const dy = e.dy ?? e.deltaY ?? 0
+
     panAcc.current = { x: dx, y: dy }
     el.translateX = dx
     el.translateY = dy
@@ -55,6 +57,7 @@ function LightboxPanel(props: {
   const toggleZoom = () => {
     const el = imgView.current
     const next = !zoomed
+
     setZoomed(next)
     // GTK ref.animate implements translate only — write the transform
     // directly (instant zoom, same contract).
@@ -209,8 +212,11 @@ export function Lightbox(props: LightboxProps): unknown @{
   const [internal, setInternal] = useState(props.defaultIndex ?? 0)
   const [layer, setLayer] = useState<any>(null)
   const dismiss = useRef(props.onOpenChange)
+
   dismiss.current = props.onOpenChange
+
   const onIndexChange = useRef(props.onIndexChange)
+
   onIndexChange.current = props.onIndexChange
 
   const count = props.media.length
@@ -218,6 +224,7 @@ export function Lightbox(props: LightboxProps): unknown @{
 
   const setIndex = (i: number) => {
     const clamped = clampIndex(i, count)
+
     if (props.index == null) {
       setInternal(clamped)
     }
@@ -231,6 +238,7 @@ export function Lightbox(props: LightboxProps): unknown @{
   // navigation state in a ref so Left/Right always step from the current
   // slide.
   const nav = useRef({ index, count, setIndex })
+
   nav.current = { index, count, setIndex }
 
   const open = props.isOpen && count > 0
@@ -245,6 +253,7 @@ export function Lightbox(props: LightboxProps): unknown @{
 
   useEffect(() => {
     const view = sentinel.current
+
     if (!view || !open) {
       return
     }
@@ -257,6 +266,7 @@ export function Lightbox(props: LightboxProps): unknown @{
     })
 
     l.target.set_can_focus?.(true)
+
     // Left/Right page through media while the modal surface is up (macOS
     // presentation contract). A capture-phase controller on the window
     // sees every key regardless of which widget holds focus — the layer
@@ -265,9 +275,11 @@ export function Lightbox(props: LightboxProps): unknown @{
     // window's layer-dismissal sink.
     const root = view.get_root?.()
     const keys = new Gtk.EventControllerKey()
+
     keys.set_propagation_phase?.(Gtk.PropagationPhase.CAPTURE)
     keys.connect('key-pressed', (_c: any, keyval: number) => {
       const n = nav.current
+
       if (keyval === Gdk.KEY_Left) {
         n.setIndex(Math.max(n.index - 1, 0))
         return true

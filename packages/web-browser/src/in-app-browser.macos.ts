@@ -57,6 +57,7 @@ const sameObject = (a: unknown, b: unknown): boolean =>
 
 const setAccessibilityLabel = (view: NSObject, label: string): void => {
   const setter = 'setAccessibilityLabel' in view ? view.setAccessibilityLabel : undefined
+
   if (typeof setter === 'function') {
     setter.call(view, label)
   }
@@ -70,6 +71,7 @@ const setAccessibilityLabel = (view: NSObject, label: string): void => {
 // the block's own parameters through the invocation.
 const blockArg = (type: number, value: unknown): interop.Reference => {
   const ref = new interop.Reference(type)
+
   ;(ref as { value?: unknown }).value = value
   return ref
 }
@@ -77,10 +79,12 @@ const blockArg = (type: number, value: unknown): interop.Reference => {
 const callBlock = (block: unknown, argEncoding: string, ...args: interop.Reference[]): void => {
   const signatureObject = NSMethodSignature.signatureWithObjCTypes('v@:' + argEncoding)
   const invocation = NSInvocation.invocationWithMethodSignature(signatureObject)
+
   invocation.selector = 'invoke'
   for (let i = 0; i < args.length; i++) {
     invocation.setArgumentAtIndex(args[i], i + 2)
   }
+
   invocation.invokeWithTarget(block)
 }
 
@@ -94,6 +98,7 @@ const callBlock = (block: unknown, argEncoding: string, ...args: interop.Referen
 // tests) have no block pointer and stay callable as-is.
 const copyBlock = (handler: unknown): interop.Pointer | null => {
   const ptr = blockPointer(handler)
+
   return ptr === handler ? null : _Block_copy(ptr as interop.PointerConvertible)
 }
 
@@ -118,14 +123,20 @@ function finishSheet(sheet: PendingSheet, response: number, parent: NSWindow | n
   if (sheet.claimed) {
     return
   }
+
   sheet.claimed = true
+
   const value = sheet.deliver(response)
   const window = sheet.window
+
   if (parent != null && sameObject(window.sheetParent, parent)) {
     NSApplication.sharedApplication.endSheetReturnCode(window, response)
   }
+
   window.orderOut(null)
+
   const complete = sheet.complete
+
   NSOperationQueue.mainQueue.addOperationWithBlock(() => complete(value))
 }
 
@@ -158,6 +169,7 @@ const sessionOf = (target: unknown): Session | undefined => {
       return session
     }
   }
+
   return undefined
 }
 
@@ -165,35 +177,45 @@ const isHTTP = (url: NSURL | null | undefined): url is NSURL => {
   if (url == null) {
     return false
   }
+
   const scheme = String(url.scheme ?? '').toLowerCase()
+
   return (scheme === 'http' || scheme === 'https') && String(url.host ?? '').length > 0
 }
 
 const addressURL = (value: string): NSURL | null => {
   const url = NSURL.URLWithString(value)
+
   return isHTTP(url) ? url : null
 }
 
 function updateChrome(session: Session): void {
   const browser = session.webView
+
   if (browser == null) {
     return
   }
+
   const title = browser.title
+
   if (session.window != null) {
     session.window.title = title != null && String(title).length > 0 ? title : 'Browser'
   }
+
   if (session.address != null) {
     session.address.stringValue = String(
       browser.URL?.absoluteString ?? session.initialURL?.absoluteString ?? '',
     )
   }
+
   if (session.backButton != null) {
     session.backButton.enabled = browser.canGoBack
   }
+
   if (session.forwardButton != null) {
     session.forwardButton.enabled = browser.canGoForward
   }
+
   if (session.reloadButton != null) {
     session.reloadButton.title = browser.isLoading() ? 'Stop' : 'Reload'
   }
@@ -202,11 +224,13 @@ function updateChrome(session: Session): void {
 function cancelPanels(session: Session): void {
   const pending = session.dialog
   const selection = session.fileSelection
+
   session.dialog = null
   session.fileSelection = null
   if (pending != null) {
     finishSheet(pending, NSModalResponseCancel, session.window)
   }
+
   if (selection != null) {
     finishSheet(selection, NSModalResponseCancel, session.window)
   }
@@ -228,9 +252,11 @@ function cleanup(
     if (pending != null) {
       finishSheet(pending, NSModalResponseCancel, panel)
     }
+
     if (selection != null) {
       finishSheet(selection, NSModalResponseCancel, panel)
     }
+
     if (browser != null) {
       if (delegate != null) {
         for (const key of OBSERVED_KEYS) {
@@ -246,6 +272,7 @@ function cleanup(
       browser.UIDelegate = null as unknown as WKUIDelegate
       browser.stopLoading()
     }
+
     if (panel != null) {
       panel.delegate = null as unknown as NSWindowDelegate
       panel.contentView = null as unknown as NSView
@@ -254,6 +281,7 @@ function cleanup(
       }
     }
   }
+
   if (NSThread.isMainThread) {
     work()
   } else {
@@ -267,9 +295,11 @@ function teardown(session: Session, close: boolean): void {
   const pending = session.dialog
   const selection = session.fileSelection
   const delegate = session.delegate
+
   if (delegate != null) {
     sessions.delete(session)
   }
+
   session.window = null
   session.webView = null
   session.delegate = null
@@ -290,6 +320,7 @@ function closeBrowser(session: Session): void {
     NSOperationQueue.mainQueue.addOperationWithBlock(() => closeBrowser(session))
     return
   }
+
   teardown(session, true)
 }
 
@@ -306,9 +337,11 @@ function navigationFailed(
   ) {
     return
   }
+
   if (error.domain === NSURLErrorDomain && error.code === NSURLErrorCancelled) {
     return
   }
+
   if (session.status != null) {
     session.status.stringValue = 'Could not load this page. Try Reload.'
     session.status.hidden = false
@@ -318,12 +351,14 @@ function navigationFailed(
 function pageAlert(message: string, frame: WKFrameInfo, cancel: boolean): NSAlert {
   const alert = NSAlert.new()
   const host = String(frame.securityOrigin.host ?? '')
+
   alert.messageText = host.length === 0 ? 'Web page' : `Web page: ${host}`
   alert.informativeText = message
   alert.addButtonWithTitle('OK')
   if (cancel) {
     alert.addButtonWithTitle('Cancel').keyEquivalent = '\u{1b}'
   }
+
   return alert
 }
 
@@ -334,6 +369,7 @@ function presentDialog(
   completion: (response: number) => void,
 ): void {
   const panel = session.window
+
   if (
     !sameObject(browser, session.webView) ||
     panel == null ||
@@ -345,21 +381,25 @@ function presentDialog(
     completion(NSModalResponseCancel)
     return
   }
+
   const pending: PendingSheet = {
     window: alert.window,
     claimed: false,
     deliver: (response) => response,
     complete: completion,
   }
+
   session.dialog = pending
   panel.beginSheetCompletionHandler(alert.window, (response: number) => {
     const current =
       session.dialog === pending &&
       sameObject(browser, session.webView) &&
       sameObject(panel, session.window)
+
     if (current) {
       session.dialog = null
     }
+
     finishSheet(pending, current ? response : NSModalResponseCancel, panel)
   })
 }
@@ -371,9 +411,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
     {
       windowWillClose(this: NSObject, notification: { object: unknown }) {
         const session = sessionOf(this)
+
         if (session == null || !sameObject(notification?.object, session.window)) {
           return
         }
+
         teardown(session, false)
       },
       webViewDecidePolicyForNavigationActionDecisionHandler(
@@ -384,23 +426,28 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       ) {
         const session = sessionOf(browser)
         const url = action?.request?.URL ?? null
+
         if (session == null || !sameObject(browser, session.webView) || url == null) {
           decisionHandler(WKNavigationActionPolicy.Cancel)
           return
         }
+
         const scheme = String(url.scheme ?? '').toLowerCase()
         const targetFrame: unknown = action.targetFrame
         const frame =
           typeof targetFrame === 'object' && targetFrame !== null
             ? (targetFrame as TargetFrame)
             : null
+
         const mainFrame =
           frame == null
             ? false
             : typeof frame.isMainFrame === 'function'
               ? frame.isMainFrame()
               : frame.isMainFrame === true
+
         const childDocument = !mainFrame && (scheme === 'about' || scheme === 'data')
+
         decisionHandler(
           isHTTP(url) || childDocument
             ? WKNavigationActionPolicy.Allow
@@ -416,6 +463,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       ): WKWebView | null {
         const session = sessionOf(this)
         const url = action?.request?.URL ?? null
+
         if (
           session == null ||
           !sameObject(browser, session.webView) ||
@@ -424,6 +472,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
         ) {
           return null
         }
+
         session.navigation = browser.loadRequest(action.request)
         return null
       },
@@ -436,6 +485,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       ) {
         const session = sessionOf(browser)
         const kept = copyBlock(completionHandler)
+
         if (session == null) {
           completionHandler()
           if (kept != null) {
@@ -444,6 +494,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 
           return
         }
+
         presentDialog(session, pageAlert(message, frame, false), browser, () => {
           completionHandler()
           if (kept != null) {
@@ -460,6 +511,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       ) {
         const session = sessionOf(browser)
         const kept = copyBlock(completionHandler)
+
         if (session == null) {
           completionHandler(false)
           if (kept != null) {
@@ -468,6 +520,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 
           return
         }
+
         presentDialog(session, pageAlert(message, frame, true), browser, (response) => {
           completionHandler(response === NSAlertFirstButtonReturn)
           if (kept != null) {
@@ -485,6 +538,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       ) {
         const session = sessionOf(browser)
         const kept = copyBlock(completionHandler)
+
         if (session == null) {
           completionHandler(null)
           if (kept != null) {
@@ -493,11 +547,13 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 
           return
         }
+
         const alert = pageAlert(prompt, frame, true)
         const input = NSTextField.alloc().initWithFrame({
           origin: { x: 0, y: 0 },
           size: { width: 320, height: 24 },
         })
+
         input.stringValue = defaultText ?? ''
         setAccessibilityLabel(input, 'Response')
         alert.accessoryView = input
@@ -519,6 +575,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
         const session = sessionOf(browser)
         const owner = session?.window ?? null
         const kept = copyBlock(completionHandler)
+
         if (
           session == null ||
           !sameObject(browser, session.webView) ||
@@ -535,17 +592,21 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
 
           return
         }
+
         const panel = NSOpenPanel.openPanel()
         const host = String(frame.securityOrigin.host ?? '')
+
         panel.message =
           host.length === 0
             ? 'Choose files for this web page'
             : `Choose files for web page: ${host}`
+
         panel.prompt = 'Choose'
         panel.allowsMultipleSelection = parameters.allowsMultipleSelection
         panel.canChooseDirectories = parameters.allowsDirectories
         panel.canChooseFiles = !parameters.allowsDirectories
         panel.canCreateDirectories = false
+
         // WKOpenPanelParameters has no public accepted-content-type property.
         const selection: PendingSheet = {
           window: panel,
@@ -558,15 +619,18 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
             }
           },
         }
+
         session.fileSelection = selection
         panel.beginSheetModalForWindowCompletionHandler(owner, (response: number) => {
           const current =
             session.fileSelection === selection &&
             sameObject(browser, session.webView) &&
             sameObject(owner, session.window)
+
           if (current) {
             session.fileSelection = null
           }
+
           finishSheet(selection, current ? response : NSModalResponseCancel, owner)
         })
       },
@@ -576,9 +640,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
         navigation: unknown,
       ) {
         const session = sessionOf(browser)
+
         if (session == null || !sameObject(browser, session.webView)) {
           return
         }
+
         cancelPanels(session)
         session.navigation = navigation
         if (session.status != null) {
@@ -588,6 +654,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       },
       webViewDidFinishNavigation(this: NSObject, browser: WKWebView, navigation: unknown) {
         const session = sessionOf(this)
+
         if (
           session == null ||
           !sameObject(browser, session.webView) ||
@@ -595,9 +662,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
         ) {
           return
         }
+
         if (session.status != null) {
           session.status.hidden = true
         }
+
         updateChrome(session)
       },
       webViewDidFailProvisionalNavigationWithError(
@@ -618,9 +687,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       },
       webViewWebContentProcessDidTerminate(this: NSObject, browser: WKWebView) {
         const session = sessionOf(this)
+
         if (session == null || !sameObject(browser, session.webView)) {
           return
         }
+
         cancelPanels(session)
         if (session.status != null) {
           session.status.stringValue = 'Page stopped. Try Reload.'
@@ -635,9 +706,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
         _context: unknown,
       ) {
         const session = sessionOf(object)
+
         if (session == null) {
           return
         }
+
         // Match the Swift DispatchQueue.main.async boundary before mutating.
         NSOperationQueue.mainQueue.addOperationWithBlock(() => {
           if (sameObject(object, session.webView)) {
@@ -648,6 +721,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       goBack(this: NSObject, _sender: unknown) {
         const session = sessionOf(this)
         const browser = session?.webView
+
         if (session != null && browser != null && browser.canGoBack) {
           session.navigation = browser.goBack()
         }
@@ -655,6 +729,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       goForward(this: NSObject, _sender: unknown) {
         const session = sessionOf(this)
         const browser = session?.webView
+
         if (session != null && browser != null && browser.canGoForward) {
           session.navigation = browser.goForward()
         }
@@ -662,9 +737,11 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       reloadOrStop(this: NSObject, _sender: unknown) {
         const session = sessionOf(this)
         const browser = session?.webView
+
         if (session == null || browser == null) {
           return
         }
+
         if (browser.isLoading()) {
           browser.stopLoading()
         } else if (browser.URL != null) {
@@ -675,6 +752,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       },
       closeAction(this: NSObject, _sender: unknown) {
         const session = sessionOf(this)
+
         if (session != null) {
           closeBrowser(session)
         }
@@ -695,6 +773,7 @@ function delegateClass(): { alloc(): { init(): NSObject } } {
       },
     },
   ) as unknown as DelegateConstructor
+
   return DelegateClass
 }
 
@@ -719,33 +798,43 @@ function openBrowserWindow(session: Session, value: string): boolean {
   if (!NSThread.isMainThread || (globalThis as BrowserGlobals).NSApp == null) {
     return false
   }
+
   const url = addressURL(value)
+
   if (url == null) {
     return false
   }
+
   closeBrowser(session)
+
   const configuration = WKWebViewConfiguration.new()
   const browser = WKWebView.alloc().initWithFrameConfiguration(
     { origin: { x: 0, y: 0 }, size: { width: 0, height: 0 } },
     configuration,
   )
+
   browser.allowsBackForwardNavigationGestures = true
+
   const delegate = delegateClass().alloc().init()
+
   session.delegate = delegate
   sessions.add(session)
   browser.navigationDelegate = delegate as unknown as WKNavigationDelegate
   browser.UIDelegate = delegate as unknown as WKUIDelegate
+
   const mask =
     NSWindowStyleMask.Titled |
     NSWindowStyleMask.Closable |
     NSWindowStyleMask.Miniaturizable |
     NSWindowStyleMask.Resizable
+
   const panel = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
     { origin: { x: 0, y: 0 }, size: { width: 900, height: 640 } },
     mask,
     NSBackingStoreType.Buffered,
     false,
   )
+
   panel.releasedWhenClosed = false
   panel.minSize = { width: 480, height: 320 }
   panel.title = 'Browser'
@@ -759,6 +848,7 @@ function openBrowserWindow(session: Session, value: string): boolean {
   const reload = NSButton.buttonWithTitleTargetAction('Reload', delegate, 'reloadOrStop:')
   const closeButton = NSButton.buttonWithTitleTargetAction('Close', delegate, 'closeAction:')
   const location = NSTextField.labelWithString(value)
+
   location.selectable = true
   location.lineBreakMode = NSLineBreakMode.TruncatingMiddle
   setAccessibilityLabel(location, 'Page address')
@@ -766,26 +856,36 @@ function openBrowserWindow(session: Session, value: string): boolean {
     NSLayoutPriorityDefaultLow,
     NSLayoutConstraintOrientation.Horizontal,
   )
+
   location.setContentCompressionResistancePriorityForOrientation(
     NSLayoutPriorityDefaultLow,
     NSLayoutConstraintOrientation.Horizontal,
   )
+
   const toolbar = NSStackView.stackViewWithViews([back, forward, reload, location, closeButton])
+
   toolbar.orientation = NSUserInterfaceLayoutOrientation.Horizontal
   toolbar.alignment = NSLayoutAttribute.CenterY
   toolbar.spacing = 8
+
   const feedback = NSTextField.labelWithString('')
+
   feedback.hidden = true
+
   const chrome = NSStackView.stackViewWithViews([toolbar, feedback])
+
   chrome.orientation = NSUserInterfaceLayoutOrientation.Vertical
   chrome.alignment = NSLayoutAttribute.Leading
   chrome.spacing = 4
+
   const root = NSView.new()
+
   panel.contentView = root
   for (const child of [chrome, browser]) {
     child.translatesAutoresizingMaskIntoConstraints = false
     root.addSubview(child)
   }
+
   NSLayoutConstraint.activateConstraints([
     chrome.topAnchor.constraintEqualToAnchorConstant(root.topAnchor, 8),
     chrome.leadingAnchor.constraintEqualToAnchorConstant(root.leadingAnchor, 8),
@@ -796,6 +896,7 @@ function openBrowserWindow(session: Session, value: string): boolean {
     browser.trailingAnchor.constraintEqualToAnchorConstant(root.trailingAnchor, 0),
     browser.bottomAnchor.constraintEqualToAnchorConstant(root.bottomAnchor, 0),
   ])
+
   session.address = location
   session.status = feedback
   session.backButton = back
@@ -805,6 +906,7 @@ function openBrowserWindow(session: Session, value: string): boolean {
   for (const key of OBSERVED_KEYS) {
     browser.addObserverForKeyPathOptionsContext(delegate, key, 5, null)
   }
+
   session.navigation = browser.loadRequest(NSURLRequest.requestWithURL(url))
   panel.center()
   panel.makeKeyAndOrderFront(null)
@@ -818,6 +920,7 @@ export function createInAppBrowserFactory(): AppKitBrowserFactory | undefined {
   try {
     const globals = globalThis as BrowserGlobals
     const nsObject = globals.NSObject
+
     if (
       typeof globals.dlopen !== 'function' ||
       typeof globals.WKWebView !== 'function' ||
@@ -829,6 +932,7 @@ export function createInAppBrowserFactory(): AppKitBrowserFactory | undefined {
   } catch {
     return undefined
   }
+
   return {
     accepts: (value: string) => addressURL(value) != null,
     create(): AppKitBrowserNative {
@@ -846,6 +950,7 @@ export function createInAppBrowserFactory(): AppKitBrowserFactory | undefined {
         forwardButton: null,
         reloadButton: null,
       }
+
       return {
         open: (value: string) => openBrowserWindow(session, value),
         close: () => closeBrowser(session),

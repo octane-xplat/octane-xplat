@@ -13,6 +13,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const first = m('first')
       const second = m('second')
+
       return [
         dims(first, 16, 8),
         dims(second, 20, 12),

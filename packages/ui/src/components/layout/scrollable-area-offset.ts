@@ -7,6 +7,7 @@ export function scrollableAreaOffset(
   if (offset.block != null && Number.isFinite(offset.block)) {
     view?.scrollToVerticalOffset?.(Math.max(0, offset.block), animated)
   }
+
   if (offset.inline != null && Number.isFinite(offset.inline)) {
     view?.scrollToHorizontalOffset?.(Math.max(0, offset.inline), animated)
   }

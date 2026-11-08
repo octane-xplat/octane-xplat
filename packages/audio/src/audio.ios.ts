@@ -69,6 +69,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   const current = () => queue[index]
   const seconds = (time: PlayerTime) => {
     const value = CMTimeGetSeconds(time)
+
     return Number.isFinite(value) && value > 0 ? value : 0
   }
 
@@ -87,6 +88,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   const emit = () => {
     const value = snapshot()
     const ownGeneration = generation
+
     for (const listener of listeners) {
       if (disposed || ownGeneration !== generation) {
         break
@@ -102,12 +104,14 @@ export const createAudioPlayer = (): AudioPlayer => {
     }
 
     const track = current()
+
     if (!track) {
       nowPlaying.nowPlayingInfo = null as unknown as NSDictionary<string, any>
       return
     }
 
     const info = NSMutableDictionary.dictionary()
+
     info.setObjectForKey(track.title ?? track.id, MPMediaItemPropertyTitle)
     if (track.artist) {
       info.setObjectForKey(track.artist, MPMediaItemPropertyArtist)
@@ -131,6 +135,7 @@ export const createAudioPlayer = (): AudioPlayer => {
   // detail, falling back to the player error.
   const playerError = () => {
     const cause = player?.currentItem?.error ?? player?.error
+
     return new Error(cause?.localizedDescription ?? 'Audio playback failed')
   }
 
@@ -151,9 +156,12 @@ export const createAudioPlayer = (): AudioPlayer => {
 
   const load = async (autoplay = false) => {
     const ownGeneration = ++generation
+
     clearTrack()
     wasPlayingBeforeInterruption = false
+
     const track = current()
+
     if (!track) {
       state = 'idle'
       updateNowPlaying()
@@ -167,12 +175,14 @@ export const createAudioPlayer = (): AudioPlayer => {
     if (disposed || ownGeneration !== generation) {
       return
     }
+
     try {
       const url = track.source.startsWith('/')
         ? NSURL.fileURLWithPath(track.source)
         : NSURL.URLWithString(track.source)
 
       const item = AVPlayerItem.playerItemWithURL(url)
+
       item.audioTimePitchAlgorithm = AVAudioTimePitchAlgorithmTimeDomain
       player = AVPlayer.playerWithPlayerItem(item)
       player.volume = volume
@@ -196,6 +206,7 @@ export const createAudioPlayer = (): AudioPlayer => {
           if (disposed || ownGeneration !== generation) {
             return
           }
+
           const cause = notification.userInfo?.objectForKey(
             AVPlayerItemFailedToPlayToEndTimeErrorKey,
           )
@@ -244,6 +255,7 @@ export const createAudioPlayer = (): AudioPlayer => {
     }
 
     const category = AVAudioSessionCategoryPlayback
+
     session.setCategoryModeOptionsError(
       category,
       AVAudioSessionModeDefault,
@@ -392,9 +404,11 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       const next = copyQueue(tracks)
       const old = current()
       const at = old ? next.findIndex((t) => t.id === old.id && t.source === old.source) : -1
+
       queue = next
       queueComplete = options.complete ?? queueComplete
       if (at < 0) {
@@ -420,10 +434,12 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       playbackRate = bounded(rate, 0.5, 3)
       if (player && state === 'playing') {
         player.rate = playbackRate
       }
+
       updateNowPlaying()
       emit()
     },
@@ -431,20 +447,24 @@ export const createAudioPlayer = (): AudioPlayer => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       volume = bounded(gain, 0, 1)
       if (player) {
         player.volume = volume
       }
+
       emit()
     },
     setMuted: async (value) => {
       if (disposed) {
         throw new Error('AudioPlayer is disposed')
       }
+
       muted = value
       if (player) {
         player.muted = muted
       }
+
       emit()
     },
     dispose: () => {

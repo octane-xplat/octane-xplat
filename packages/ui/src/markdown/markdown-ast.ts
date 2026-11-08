@@ -267,18 +267,23 @@ function isDataValue(value: unknown): value is MdDataValue {
   if (value === null || typeof value !== 'object') {
     return value === null || ['boolean', 'number', 'string'].includes(typeof value)
   }
+
   if (Array.isArray(value)) {
     return value.every(isDataValue)
   }
+
   return Object.values(value as Record<string, unknown>).every(isDataValue)
 }
 
 function checkBase(node: object, path: string): void {
   const n = node as MdNodeBase
+
   if (n.position !== undefined) {
     const pos = n.position
+
     for (const side of ['start', 'end'] as const) {
       const point = pos?.[side]
+
       if (point == null || typeof point !== 'object') {
         fail(path, `position.${side} must be an object`)
       }
@@ -290,6 +295,7 @@ function checkBase(node: object, path: string): void {
       }
     }
   }
+
   if (n.data !== undefined && !isDataValue(n.data)) {
     fail(path, 'data must be JSON-compatible')
   }
@@ -299,9 +305,13 @@ function checkInline(node: unknown, path: string): void {
   if (typeof node !== 'object' || node === null) {
     fail(path, 'inline node must be an object')
   }
+
   const n = node as MdInline
+
   checkBase(n, path)
+
   const kids = (n as MdStrong | MdLink).children
+
   switch (n.type) {
     case 'text':
     case 'inlineCode':
@@ -361,15 +371,19 @@ function checkExtension(node: MdExtension, path: string, display: 'inline' | 'bl
   if (typeof node.plugin !== 'string' || node.plugin === '') {
     fail(path, 'extension.plugin must be a non-empty string')
   }
+
   if (typeof node.name !== 'string' || node.name === '') {
     fail(path, 'extension.name must be a non-empty string')
   }
+
   if (node.display !== display) {
     fail(path, `extension in ${display} position must have display '${display}'`)
   }
+
   if (!isDataValue(node.data)) {
     fail(path, 'extension.data must be JSON-compatible')
   }
+
   if (node.source !== undefined && typeof node.source !== 'string') {
     fail(path, 'extension.source must be a string')
   }
@@ -379,7 +393,9 @@ function checkBlock(node: unknown, path: string): void {
   if (typeof node !== 'object' || node === null) {
     fail(path, 'block node must be an object')
   }
+
   const n = node as MdNode
+
   checkBase(n, path)
   switch (n.type) {
     case 'heading':
@@ -452,13 +468,16 @@ function checkBlock(node: unknown, path: string): void {
         if (item.type !== 'listItem') {
           fail(`${path}/list[${i}]`, 'list children must be listItem nodes')
         }
+
         checkBase(item, `${path}/list[${i}]`)
         if (item.checked !== undefined && typeof item.checked !== 'boolean') {
           fail(`${path}/list[${i}]`, 'listItem.checked must be a boolean')
         }
+
         if (!Array.isArray(item.children)) {
           fail(`${path}/list[${i}]`, 'listItem.children must be an array')
         }
+
         item.children.forEach((k: MdNode, j: number) => checkBlock(k, `${path}/list[${i}][${j}]`))
       })
 
@@ -483,16 +502,20 @@ function checkBlock(node: unknown, path: string): void {
         if (row.type !== 'tableRow') {
           fail(`${path}/table[${i}]`, 'table children must be tableRow nodes')
         }
+
         if (!Array.isArray(row.children)) {
           fail(`${path}/table[${i}]`, 'tableRow.children must be an array')
         }
+
         row.children.forEach((cell: MdTableCell, j: number) => {
           if (cell.type !== 'tableCell') {
             fail(`${path}/table[${i}][${j}]`, 'tableRow children must be tableCell nodes')
           }
+
           if (!Array.isArray(cell.children)) {
             fail(`${path}/table[${i}][${j}]`, 'tableCell.children must be an array')
           }
+
           cell.children.forEach((k: MdInline, c: number) =>
             checkInline(k, `${path}/table[${i}][${j}][${c}]`),
           )
@@ -531,22 +554,28 @@ export function assertMdDoc(value: unknown): asserts value is MdDoc {
   if (typeof value !== 'object' || value === null) {
     fail('$', 'document must be an object')
   }
+
   const doc = value as MdDoc
+
   if (doc.kind !== MD_DOC_KIND) {
     fail('$', `kind must be ${JSON.stringify(MD_DOC_KIND)}`)
   }
+
   if (doc.v !== MD_DOC_VERSION) {
     fail(
       '$',
       `unsupported version ${JSON.stringify((doc as { v?: unknown }).v)} — expected ${MD_DOC_VERSION}`,
     )
   }
+
   if (doc.data !== undefined && !isDataValue(doc.data)) {
     fail('$', 'data must be JSON-compatible')
   }
+
   if (!Array.isArray(doc.children)) {
     fail('$', 'children must be an array')
   }
+
   doc.children.forEach((node: MdNode, i: number) => checkBlock(node, `$/children[${i}]`))
 }
 
@@ -566,6 +595,7 @@ export function mdInlineText(
     node.source ?? '',
 ): string {
   let text = ''
+
   for (const node of nodes ?? []) {
     switch (node.type) {
       case 'text':
@@ -592,6 +622,7 @@ export function mdInlineText(
         node satisfies never
     }
   }
+
   return text
 }
 
@@ -602,6 +633,7 @@ export function mdInlineLen(
     node.source ?? '',
 ): number {
   let n = 0
+
   for (const node of nodes ?? []) {
     switch (node.type) {
       case 'text':
@@ -631,6 +663,7 @@ export function mdInlineLen(
         break
     }
   }
+
   return n
 }
 

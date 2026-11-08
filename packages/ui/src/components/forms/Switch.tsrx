@@ -28,6 +28,7 @@ function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
     }
 
     const next = !checked
+
     if (props.value === undefined) {
       setInternal(next)
     }
@@ -38,6 +39,7 @@ function SwitchControl(inputProps: SwitchProps & { standalone?: boolean }) @{
     }
 
     const previous = checked
+
     setPending(true)
     Promise.resolve()
       .then(() => props.changeAction!(next))

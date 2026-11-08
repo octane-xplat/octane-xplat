@@ -11,6 +11,7 @@ export const TOKEN_ID_ATTR = 'data-vx-chat-token-id'
 
 function isInsideToken(node: Node): HTMLElement | null {
   let current: Node | null = node
+
   while (current) {
     if (current instanceof HTMLElement && current.hasAttribute(TOKEN_ATTR)) {
       return current
@@ -34,11 +35,13 @@ export function useChatComposerTokens({
   const insertToken = useCallback(
     (token: any): string | undefined => {
       const editable = editableRef.current as HTMLElement | null | undefined
+
       if (!editable) {
         return
       }
 
       const selection = ensureCaretInside(editable)
+
       if (!selection || selection.rangeCount === 0) {
         return
       }
@@ -47,6 +50,7 @@ export function useChatComposerTokens({
 
       const span = document.createElement('span')
       const id = `token-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+
       span.setAttribute(TOKEN_ATTR, '')
       span.setAttribute(TOKEN_VALUE_ATTR, token.value)
       span.setAttribute(TOKEN_ID_ATTR, id)
@@ -57,9 +61,11 @@ export function useChatComposerTokens({
       range.insertNode(span)
 
       const space = document.createTextNode('\u00A0')
+
       span.after(space)
 
       const newRange = document.createRange()
+
       newRange.setStartAfter(space)
       newRange.collapse(true)
       selection.removeAllRanges()
@@ -78,6 +84,7 @@ export function useChatComposerTokens({
       }
 
       const selection = window.getSelection()
+
       if (!selection || !selection.isCollapsed || selection.rangeCount === 0) {
         return false
       }
@@ -105,8 +112,10 @@ export function useChatComposerTokens({
         startContainer.previousSibling.hasAttribute(TOKEN_ATTR)
       ) {
         e.preventDefault()
+
         const tokenSpan = startContainer.previousSibling
         const parent = startContainer.parentNode
+
         if (parent) {
           parent.removeChild(startContainer)
           parent.removeChild(tokenSpan)
@@ -124,11 +133,13 @@ export function useChatComposerTokens({
   const handlePaste = useCallback(
     (e: any): boolean => {
       const editable = editableRef.current as HTMLElement | null | undefined
+
       if (!editable) {
         return false
       }
 
       const selection = ensureCaretInside(editable)
+
       if (!selection || selection.rangeCount === 0) {
         return false
       }
@@ -137,11 +148,14 @@ export function useChatComposerTokens({
 
       // Pasting into a token would break it — collapse after the token.
       const tokenEl = isInsideToken(range.startContainer)
+
       if (tokenEl) {
         e.preventDefault()
+
         const text = e.clipboardData.getData('text/plain')
         const space = tokenEl.nextSibling
         const newRange = document.createRange()
+
         if (space && space.nodeType === Node.TEXT_NODE) {
           newRange.setStartAfter(space)
         } else {
@@ -164,11 +178,13 @@ export function useChatComposerTokens({
   const expandToken = useCallback(
     (id: string) => {
       const editable = editableRef.current as HTMLElement | null | undefined
+
       if (!editable) {
         return
       }
 
       const portal = tokenPortals.find((p) => p.id === id)
+
       if (!portal) {
         return
       }
@@ -178,6 +194,7 @@ export function useChatComposerTokens({
       const textNode = document.createTextNode(value)
 
       const next = span.nextSibling
+
       if (next?.nodeType === Node.TEXT_NODE && next.textContent === '\u00A0') {
         next.remove()
       }
@@ -185,8 +202,10 @@ export function useChatComposerTokens({
       span.replaceWith(textNode)
 
       const selection = window.getSelection()
+
       if (selection) {
         const range = document.createRange()
+
         range.setStartAfter(textNode)
         range.collapse(true)
         selection.removeAllRanges()

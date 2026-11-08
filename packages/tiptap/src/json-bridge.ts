@@ -23,11 +23,13 @@ let bridge: Bridge | null | undefined
  *  an iterable array that keeps the mutation methods. */
 function patchClassList(VElement: any): void {
   const proto = VElement?.prototype
+
   if (!proto) {
     throw new Error('VElement.prototype unavailable')
   }
 
   const desc = Object.getOwnPropertyDescriptor(proto, 'classList')
+
   if (!desc?.get) {
     throw new Error('classList is not a prototype getter')
   }
@@ -38,6 +40,7 @@ function patchClassList(VElement: any): void {
 
   const patched = function (this: any) {
     const cl = desc.get!.call(this)
+
     if (cl && typeof cl[Symbol.iterator] !== 'function') {
       const tokens = String(this.getAttribute('class') ?? '')
         .split(/\s+/)
@@ -62,6 +65,7 @@ function patchClassList(VElement: any): void {
  *  target) is never clobbered. */
 function installDomShim(zeed: any): void {
   const g = globalThis as any
+
   if (g.window?.DOMParser) {
     return
   }
@@ -69,6 +73,7 @@ function installDomShim(zeed: any): void {
   class ZeedDOMParser {
     parseFromString(html: string) {
       const doc = zeed.createHTMLDocument()
+
       doc.body.innerHTML = html
       return doc
     }
@@ -94,6 +99,7 @@ export async function ensureJSONBridge(): Promise<boolean> {
 
     patchClassList(zeed.VElement)
     installDomShim(zeed)
+
     const StarterKit = (sk as any).default ?? (sk as any).StarterKit
 
     bridge = {

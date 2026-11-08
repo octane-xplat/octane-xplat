@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuItem, DropdownMenuSubMenu, Text, VStack } fro
 
 export function DropdownMenuWithSubmenu() @{
   const [lastAction, setLastAction] = useState<string | null>(null)
+
   return (
     <VStack gap={3} align="start">
       <DropdownMenu button={{ label: 'Actions' }}>

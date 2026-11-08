@@ -62,6 +62,7 @@ export function GridListExample() {
 
 export function PinInputExample() {
   const [value, setValue] = useState('')
+
   return <UI.PinInput value={value} onValueChange={setValue} length={4} />
 }
 
@@ -94,6 +95,7 @@ export function AlertExample() {
 
 export function ChipExample() {
   const [selected, setSelected] = useState(false)
+
   return (
     <UI.Chip selected={selected} onSelect={() => setSelected(!selected)}>
       Select this topic
@@ -220,6 +222,7 @@ export function ColorPickerExample() {
 export function IconRegistryProviderExample() {
   const [registry] = useState(() => {
     const registry = UI.createIconRegistry()
+
     registry.registerIcon('example', { svg: 'M4 12l5 5L20 6' })
     return registry
   })
@@ -246,6 +249,7 @@ export function RadioIndicatorExample() {
 export function MenuPartsExample() {
   const [checked, setChecked] = useState(false)
   const [value, setValue] = useState('small')
+
   return (
     <UI.DropdownMenu label="Open example menu">
       <UI.DropdownMenuSection label="Actions">
@@ -283,6 +287,7 @@ export function PowerSearchTokenExample() {
 
 export function PowerSearchFilterEditorExample() {
   const [saved, setSaved] = useState('')
+
   return (
     <>
       <UI.PowerSearchFilterEditor

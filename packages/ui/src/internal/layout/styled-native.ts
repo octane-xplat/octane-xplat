@@ -33,6 +33,7 @@ export function styled<
 ): (props: P & StyledVariantSelection<V>, context: any) => any {
   function Styled(props: P & StyledVariantSelection<V>) {
     const { classes, rest } = resolveStyledClasses(def, props)
+
     rest.className = classes
     return universalComponent(universalTarget, Base as unknown as UniversalComponent<any>, rest)
   }

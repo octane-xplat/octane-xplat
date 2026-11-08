@@ -24,6 +24,7 @@ export function SelectableCardMulti() @{
         onChange={(isNow: boolean) =>
           setSelected((prev) => {
             const n = new Set(prev)
+
             isNow ? n.add(tag.id) : n.delete(tag.id)
             return n
           })

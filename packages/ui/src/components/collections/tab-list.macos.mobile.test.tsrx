@@ -37,25 +37,35 @@ function geometry(start: number, width = 40, current = 0) {
 
 it('reveals native selected-tab bounds horizontally and preserves vertical position', () => {
   const f = geometry(160)
+
   expect(revealAppKitTab(f.scroll, f.tab)).toBe(true)
   expect(f.calls).toEqual([{ x: 100, y: 30 }])
   expect(revealAppKitTab(f.scroll, f.tab)).toBe(false)
+
   const back = geometry(20, 40, 100)
+
   revealAppKitTab(back.scroll, back.tab)
   expect(back.calls).toEqual([{ x: 20, y: 30 }])
 })
 
 it('handles oversized, out-of-range, invalid and unrelated tab geometry', () => {
   const oversized = geometry(150, 200)
+
   revealAppKitTab(oversized.scroll, oversized.tab)
   expect(oversized.calls).toEqual([{ x: 150, y: 30 }])
   expect(revealAppKitTab(oversized.scroll, oversized.tab)).toBe(false)
+
   const end = geometry(490)
+
   revealAppKitTab(end.scroll, end.tab)
   expect(end.calls).toEqual([{ x: 400, y: 30 }])
+
   const invalid = geometry(NaN)
+
   expect(revealAppKitTab(invalid.scroll, invalid.tab)).toBe(false)
+
   const detached = geometry(160)
+
   detached.tab.isDescendantOf = () => false
   expect(revealAppKitTab(detached.scroll, detached.tab)).toBe(false)
   expect(revealAppKitTab(null, undefined)).toBe(false)
@@ -88,12 +98,15 @@ it('names visible/hidden/disabled tabs and gives the tablist native grouping', (
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
   try {
     render('overview')
+
     const byID = (id: string) => all().find((node) => node.props?.id === id)
+
     expect(byID('sections').props.accessibilityRole).toBe('tablist')
     expect(byID('sections').props.accessibilityLabel).toBe('Tabs')
     expect(byID('overview').props.accessibilityLabel).toBe('Overview')
@@ -153,6 +166,7 @@ function focusFixture(automatic = false) {
     c = item('c')
 
   children.push(a, b, c)
+
   let selected: string | undefined = 'b'
   let pattern: 'tabs' | 'nav' = 'tabs',
     direction: 'ltr' | 'rtl' = 'ltr',
@@ -231,6 +245,7 @@ function focusFixture(automatic = false) {
 
 it('uses one registered-tab stop, native child order and manual arrow selection', () => {
   const f = focusFixture()
+
   f.navigation.synchronize()
   expect(f.excluded).toEqual(new Set([f.a, f.c]))
   f.window.firstResponder = f.b
@@ -252,6 +267,7 @@ it('uses one registered-tab stop, native child order and manual arrow selection'
 
 it('skips disabled/hidden tabs, supports RTL and preserves vertical/modifier/IME keys', () => {
   const f = focusFixture()
+
   f.window.firstResponder = f.b
   f.c.enabled = false
   f.key('ArrowRight')
@@ -279,6 +295,7 @@ it('skips disabled/hidden tabs, supports RTL and preserves vertical/modifier/IME
 
 it('does not consume a key when native focus rejects the target or focus is outside the strip', () => {
   const f = focusFixture()
+
   f.window.firstResponder = f.b
   f.window.makeFirstResponder = () => false
   expect(f.key('ArrowRight').defaultPrevented).toBe(false)
@@ -290,6 +307,7 @@ it('does not consume a key when native focus rejects the target or focus is outs
 
 it('automatic choices request selection once only after successful native focus', () => {
   const f = focusFixture(true)
+
   f.window.firstResponder = f.b
   f.key('ArrowRight')
   expect(f.requests).toEqual(['c'])
@@ -304,6 +322,7 @@ it('automatic choices request selection once only after successful native focus'
 
 it('leaves keys on interactive trailing descendants to that control', () => {
   const f = focusFixture(true)
+
   f.window.firstResponder = { window: f.window, superview: f.b }
   expect(f.key('ArrowLeft').defaultPrevented).toBe(false)
   expect(f.requests).toEqual([])
@@ -312,6 +331,7 @@ it('leaves keys on interactive trailing descendants to that control', () => {
 
 it('uses the first enabled choice when a radio-like group has no selection', () => {
   const f = focusFixture(true)
+
   f.select(undefined)
   f.navigation.synchronize()
   expect(f.excluded).toEqual(new Set([f.b, f.c]))
@@ -323,6 +343,7 @@ it('uses the first enabled choice when a radio-like group has no selection', () 
 
 it('manual choice focus reuses native ordering and never requests automatic selection', () => {
   const f = focusFixture(true)
+
   expect(f.navigation.orderedKeys()).toEqual(['a', 'b', 'c'])
   expect(f.navigation.focus('c')).toBe(true)
   expect(f.window.firstResponder).toBe(f.c)
@@ -332,7 +353,9 @@ it('manual choice focus reuses native ordering and never requests automatic sele
   f.select(undefined)
   expect(f.navigation.focus(undefined, 'last')).toBe(true)
   expect(f.window.firstResponder).toBe(f.b)
+
   const previous = f.revealed.length
+
   f.window.makeFirstResponder = () => false
   expect(f.navigation.focus('a')).toBe(false)
   expect(f.revealed).toHaveLength(previous)
@@ -342,6 +365,7 @@ it('manual choice focus reuses native ordering and never requests automatic sele
 
 it('restores ordinary option Tab stops when the host explicitly lacks key dispatch', () => {
   const f = focusFixture()
+
   f.navigation.synchronize()
   expect(f.excluded.size).toBe(2)
   f.capability(false)

@@ -33,6 +33,7 @@ describe('createTreeData', () => {
 
   it('inserts into the root and into parents', () => {
     const tree = data([{ name: 'a', items: [{ name: 'a1' }] }])
+
     tree.insert(null, 1, { name: 'b' })
     expect(outline(tree.items)).toEqual(['a(a1())', 'b()'])
     tree.insert('a', 1, { name: 'a2' })
@@ -44,6 +45,7 @@ describe('createTreeData', () => {
 
   it('inserts before and after sibling keys', () => {
     const tree = data([{ name: 'a', items: [{ name: 'a1' }, { name: 'a3' }] }])
+
     tree.insertBefore('a3', { name: 'a2' })
     tree.insertAfter('a1', { name: 'a1b' })
     expect(outline(tree.items)).toEqual(['a(a1(),a1b(),a2(),a3())'])
@@ -76,6 +78,7 @@ describe('createTreeData', () => {
 
   it('rebuilds a node on update, re-deriving children', () => {
     const tree = data([{ name: 'a', items: [{ name: 'a1' }] }])
+
     tree.update('a', { name: 'a', items: [{ name: 'x' }, { name: 'y' }] })
     expect(outline(tree.items)).toEqual(['a(x(),y())'])
   })
@@ -86,8 +89,10 @@ describe('tree move integrity', () => {
     const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], {
       initialSelectedKeys: ['a1'],
     })
+
     const before = tree.getSnapshot()
     let calls = 0
+
     tree.subscribe(() => calls++)
     tree.move('a', parent, 0)
     expect(tree.getSnapshot()).toBe(before)
@@ -99,7 +104,9 @@ describe('tree move integrity', () => {
     const tree = data([{ name: 'a', items: [{ name: 'a1' }] }, { name: 'b' }], {
       initialSelectedKeys: ['a1'],
     })
+
     const seen: string[][] = []
+
     tree.subscribe(() => seen.push(outline(tree.items)))
     tree.move('a', 'b', 0)
     expect(seen).toEqual([['b(a(a1()))']])

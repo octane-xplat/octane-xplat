@@ -15,8 +15,10 @@ const items = ['a', 'b', 'c'].map((id) => ({ id }))
 // AppKit leaf set style={props.style} directly and dropped placement.
 it('AppKit VirtualList forwards layout-child placement to the scrollview host', () => {
   vi.useFakeTimers()
+
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   try {
     root.render(VirtualList, {
       items,
@@ -29,6 +31,7 @@ it('AppKit VirtualList forwards layout-child placement to the scrollview host', 
     flushUniversalSync(() => {})
 
     const host = container.children[0]
+
     expect(host.props.style.gridRow).toBe('2 / span 2')
     expect(host.props.style.gridColumn).toBe('3 / span 1')
   } finally {

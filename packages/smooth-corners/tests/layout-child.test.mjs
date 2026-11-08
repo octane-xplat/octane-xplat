@@ -129,6 +129,7 @@ test('web outer style folds metadata into CSS', () => {
   assert.equal(style.dock, undefined)
 
   const withBox = outerLayoutPropsWeb({ style: { width: 50, marginTop: 4, padding: 8 } }).style
+
   assert.equal(withBox.width, 50)
   assert.equal(withBox.marginTop, 4)
   assert.equal(withBox.padding, undefined)
@@ -138,11 +139,13 @@ test('web inner style emits display:flex only when a flex prop is set', () => {
   assert.deepEqual(innerLayoutPropsWeb({}).style, {})
 
   const { style } = innerLayoutPropsWeb({ gap: 8 })
+
   assert.equal(style.display, 'flex')
   assert.equal(style.flexDirection, 'column')
   assert.equal(style.gap, 8)
 
   const row = innerLayoutPropsWeb({ flexDirection: 'row', justifyContent: 'start' }).style
+
   assert.equal(row.flexDirection, 'row')
   assert.equal(row.justifyContent, 'flex-start')
 })

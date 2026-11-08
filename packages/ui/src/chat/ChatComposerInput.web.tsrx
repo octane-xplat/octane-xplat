@@ -42,6 +42,7 @@ const PASTED_TOKEN_MIN = 200
  *  `data-vx-chat-token-value`, <br> to newline, containers recursed. */
 function serialize(node: Node): string {
   let result = ''
+
   for (const child of Array.from(node.childNodes)) {
     if (child.nodeType === Node.TEXT_NODE) {
       result += child.textContent ?? ''
@@ -61,11 +62,13 @@ function serialize(node: Node): string {
 
 function selectAll(el: HTMLElement): void {
   const selection = window.getSelection()
+
   if (!selection) {
     return
   }
 
   const range = document.createRange()
+
   range.selectNodeContents(el)
   selection.removeAllRanges()
   selection.addRange(range)
@@ -127,6 +130,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   const emitDraftChange = useCallback(
     (nextText: string, nextTokens: ChatComposerToken[]) => {
       const nextDraft: ChatComposerDraft = { text: nextText, tokens: nextTokens }
+
       composerOnDraftChange?.(nextDraft)
       if (props.onDraftChange !== composerOnDraftChange) {
         props.onDraftChange?.(nextDraft)
@@ -151,6 +155,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   const emitChangeVersionRef = useRef(0)
   const tokenPortalsRef = useRef<{ token: ChatComposerToken }[]>([])
   const emitDraftChangeRef = useRef(emitDraftChange)
+
   emitDraftChangeRef.current = emitDraftChange
 
   const emitChange = useCallback(() => {
@@ -164,6 +169,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
 
     const trimmedEmpty = text.trim().length === 0 && !hasTokens
     const nextValue = trimmedEmpty ? '' : text
+
     pendingEchoValueRef.current = nextValue
     setIsEmpty(trimmedEmpty)
     emitChangeVersionRef.current += 1
@@ -177,8 +183,11 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   }, [onChange])
 
   const tokens = useChatComposerTokens({ editableRef, onEmitChange: emitChange })
+
   tokenPortalsRef.current = tokens.tokenPortals
+
   const cleanupPortalsRef = useRef<(() => void) | null>(tokens.cleanupPortals)
+
   cleanupPortalsRef.current = tokens.cleanupPortals
 
   const defaultPasteAsToken = useChatPasteAsToken({ inputRef: selfRef })
@@ -187,6 +196,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
 
   const insertTextWithoutEmit = useCallback((text: string) => {
     const editable = editableRef.current
+
     if (!editable) {
       return
     }
@@ -210,11 +220,13 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   // ArrowUp would recall history over the draft).
   const focusEditable = useCallback(() => {
     const editable = editableRef.current
+
     if (!editable) {
       return
     }
 
     const existing = getSelectionRangeInside(editable)
+
     editable.focus()
     if (existing) {
       restoreSelectionRange(existing)
@@ -226,6 +238,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
 
   const focusEditableAtEnd = useCallback(() => {
     const editable = editableRef.current
+
     if (!editable) {
       return
     }
@@ -252,6 +265,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
 
   // Register focus control with the composer shell (body click-to-focus).
   const inputControlRef = composerCtx?.inputControlRef
+
   useEffect(() => {
     if (!inputControlRef) {
       return
@@ -276,14 +290,19 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
     }
 
     const editable = editableRef.current
+
     if (serialize(editable) !== value) {
       pendingEchoValueRef.current = undefined
+
       const wasFocused = document.activeElement === editable
+
       editable.textContent = value
       if (wasFocused) {
         const selection = window.getSelection()
+
         if (selection) {
           const range = document.createRange()
+
           range.selectNodeContents(editable)
           range.collapse(false)
           selection.removeAllRanges()
@@ -307,6 +326,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
     }
 
     const editable = editableRef.current
+
     if (serialize(editable) !== draft.text) {
       editable.textContent = draft.text
       setIsEmpty(draft.text.length === 0)
@@ -354,9 +374,11 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
       // Backspace near tokens — keep the browser from leaving stray <br>.
       if (e.key === 'Backspace') {
         const selection = window.getSelection()
+
         if (selection && selection.isCollapsed && selection.rangeCount > 0) {
           const range = selection.getRangeAt(0)
           const { startContainer, startOffset } = range
+
           if (
             startContainer.nodeType === Node.TEXT_NODE &&
             startOffset === 0 &&
@@ -372,8 +394,10 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
             startContainer.previousSibling.hasAttribute(TOKEN_ATTR)
           ) {
             e.preventDefault()
+
             const tokenSpan = startContainer.previousSibling
             const parent = startContainer.parentNode
+
             if (parent) {
               parent.removeChild(startContainer)
               parent.removeChild(tokenSpan)
@@ -397,6 +421,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
         }
 
         const text = serialize(editableRef.current).trim()
+
         if (!text) {
           return
         }
@@ -419,22 +444,26 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
       // moves between lines mid-draft.
       if (hasHistory && (e.key === 'ArrowUp' || e.key === 'ArrowDown')) {
         const editable = editableRef.current
+
         if (!editable) {
           return
         }
 
         ensureCaretInside(editable)
+
         const isCollapsed = window.getSelection()?.isCollapsed ?? true
         const atStart = isSelectionAtStart(editable)
         const atEnd = isSelectionAtEnd(editable)
         const canRecallPrev = atStart && (isCollapsed || atEnd)
         const canRecallNext = atEnd && (isCollapsed || atStart)
+
         if (e.key === 'ArrowUp' ? !canRecallPrev : !canRecallNext) {
           return
         }
 
         const text = serialize(editable)
         const history = historyRef.current
+
         if (history.length === 0) {
           return
         }
@@ -456,6 +485,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
           e.preventDefault()
         } else if (e.key === 'ArrowDown' && historyIndexRef.current !== -1) {
           const nextIndex = historyIndexRef.current + 1
+
           if (nextIndex >= history.length) {
             historyIndexRef.current = -1
             editable.textContent = currentDraftRef.current
@@ -479,6 +509,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   const handlePaste = useCallback(
     (e: ClipboardEvent) => {
       const editable = editableRef.current
+
       if (!editable) {
         return
       }
@@ -490,6 +521,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
       }
 
       const files = Array.from(e.clipboardData?.files ?? [])
+
       if (files.length > 0) {
         e.preventDefault()
         props.onFiles?.(toFiles(files))
@@ -497,11 +529,13 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
       }
 
       e.preventDefault()
+
       const text = e.clipboardData?.getData('text/plain') ?? ''
 
       const pasteEvent = { preventDefault: () => {}, native: e }
       const versionBefore = emitChangeVersionRef.current
       const handled = props.onPaste?.(pasteEvent, text)
+
       if (handled) {
         if (emitChangeVersionRef.current === versionBefore) {
           emitChange()
@@ -530,6 +564,7 @@ export function ChatComposerInput(props: ChatComposerInputProps): JSX.Element @{
   const handleDrop = useCallback(
     (e: DragEvent) => {
       const files = Array.from(e.dataTransfer?.files ?? [])
+
       if (files.length === 0) {
         return
       }

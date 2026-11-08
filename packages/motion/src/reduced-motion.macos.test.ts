@@ -9,6 +9,7 @@ function host(reduced = false) {
     addObserverForNameObjectQueueUsingBlock: vi.fn(
       (_name: string, _object: unknown, _queue: unknown, callback: () => void) => {
         const token = {}
+
         callbacks.set(token, callback)
         return token
       },
@@ -20,6 +21,7 @@ function host(reduced = false) {
 
   const workspace = { accessibilityDisplayShouldReduceMotion: reduced, notificationCenter: center }
   const queue = {}
+
   vi.stubGlobal('NSWorkspace', { sharedWorkspace: workspace })
   vi.stubGlobal('NSOperationQueue', { mainQueue: queue })
   vi.stubGlobal(
@@ -46,6 +48,7 @@ function host(reduced = false) {
 describe('macOS reduced-motion preference', () => {
   it.each([false, true])('reads the initial OS preference %s without subscribing', (reduced) => {
     const fixture = host(reduced)
+
     expect(readReducedMotion()).toBe(reduced)
     expect(fixture.center.addObserverForNameObjectQueueUsingBlock).not.toHaveBeenCalled()
   })
@@ -54,6 +57,7 @@ describe('macOS reduced-motion preference', () => {
     const fixture = host()
     const values: boolean[] = []
     const off = observeReducedMotion(() => values.push(readReducedMotion()))
+
     expect(values).toEqual([])
     expect(fixture.center.addObserverForNameObjectQueueUsingBlock).toHaveBeenCalledWith(
       'accessibility-change',
@@ -78,6 +82,7 @@ describe('macOS reduced-motion preference', () => {
     const off = observeReducedMotion(notify)
     const [token, callback] = [...fixture.callbacks.entries()][0]
     const replacement = host()
+
     off()
     off()
     callback()
@@ -96,9 +101,12 @@ describe('macOS reduced-motion preference', () => {
 
     const offFirst = observeReducedMotion(first)
     const offSecond = observeReducedMotion(second)
+
     offFirst()
     fixture.post()
+
     const offThird = observeReducedMotion(third)
+
     fixture.post()
     expect(first).not.toHaveBeenCalled()
     expect(second).toHaveBeenCalledTimes(2)
@@ -112,6 +120,7 @@ describe('macOS reduced-motion preference', () => {
     const fixture = host()
     const notify = vi.fn(() => off())
     const off = observeReducedMotion(notify)
+
     fixture.post()
     fixture.post()
     expect(notify).toHaveBeenCalledTimes(1)
@@ -120,8 +129,11 @@ describe('macOS reduced-motion preference', () => {
 
   it('uses the AppKit notification name when the bridge omits its constant', () => {
     const fixture = host()
+
     vi.stubGlobal('NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification', undefined)
+
     const off = observeReducedMotion(vi.fn())
+
     expect(fixture.center.addObserverForNameObjectQueueUsingBlock.mock.calls[0][0]).toBe(
       'NSWorkspaceAccessibilityDisplayOptionsDidChangeNotification',
     )
@@ -131,10 +143,14 @@ describe('macOS reduced-motion preference', () => {
 
   it('stays safe without an AppKit workspace and does not install polling', () => {
     vi.stubGlobal('NSWorkspace', undefined)
+
     const timer = vi.spyOn(globalThis, 'setInterval')
+
     try {
       expect(readReducedMotion()).toBe(false)
+
       const off = observeReducedMotion(vi.fn())
+
       off()
       off()
       expect(timer).not.toHaveBeenCalled()
@@ -145,6 +161,7 @@ describe('macOS reduced-motion preference', () => {
 
   it('does not acquire an observer when cleanup is unavailable', () => {
     const fixture = host()
+
     vi.stubGlobal('NSWorkspace', {
       sharedWorkspace: {
         notificationCenter: {

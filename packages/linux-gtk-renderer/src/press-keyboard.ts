@@ -15,12 +15,15 @@ export function bindPressKeys(node: ElementNode) {
   const connections: Array<[any, number]> = []
   const connect = (object: any, signal: string, fn: (...args: any[]) => unknown) =>
     connections.push([object, object.connect(signal, fn)])
+
   const eligible = () => !disposed && view.has_focus && view.get_focusable() && view.is_sensitive()
   const accepts = (key: number) => {
     const role = view.get_accessible_role()
+
     if (role === Gtk.AccessibleRole.LINK) {
       return key === Gdk.KEY_Return || key === Gdk.KEY_KP_Enter
     }
+
     if (
       [Gtk.AccessibleRole.CHECKBOX, Gtk.AccessibleRole.SWITCH, Gtk.AccessibleRole.RADIO].includes(
         role,
@@ -28,36 +31,44 @@ export function bindPressKeys(node: ElementNode) {
     ) {
       return key === Gdk.KEY_space
     }
+
     return (
       role === Gtk.AccessibleRole.BUTTON &&
       [Gdk.KEY_Return, Gdk.KEY_KP_Enter, Gdk.KEY_space].includes(key)
     )
   }
+
   const cancel = (notify = true) => {
     if (held === null) {
       return
     }
+
     held = null
     if (notify) {
       listeners.get('touch')?.('cancel')
     }
   }
+
   const shortcuts =
     Gdk.ModifierType.CONTROL_MASK |
     Gdk.ModifierType.ALT_MASK |
     Gdk.ModifierType.SUPER_MASK |
     Gdk.ModifierType.META_MASK
+
   let keys: any = null,
     focus: any = null,
     togglePointer: any = null
+
   const pointerRole = () =>
     [Gtk.AccessibleRole.CHECKBOX, Gtk.AccessibleRole.SWITCH, Gtk.AccessibleRole.RADIO].includes(
       view.get_accessible_role(),
     )
+
   const ensure = () => {
     if (disposed || !view.get_focusable()) {
       return
     }
+
     if (!togglePointer && pointerRole()) {
       togglePointer = new Gtk.GestureClick()
       togglePointer.set_button(1)
@@ -75,6 +86,7 @@ export function bindPressKeys(node: ElementNode) {
 
       view.add_controller(togglePointer)
     }
+
     if (
       disposed ||
       keys ||
@@ -83,32 +95,40 @@ export function bindPressKeys(node: ElementNode) {
     ) {
       return
     }
+
     keys = new Gtk.EventControllerKey()
     connect(keys, 'key-pressed', (_controller, key, _code, modifiers) => {
       if (!eligible() || modifiers & shortcuts) {
         return false
       }
+
       if (navigateRadio(node, key, cancel)) {
         return true
       }
+
       if (!accepts(key) || listeners.size === 0) {
         return false
       }
+
       if (held === null) {
         held = key
         listeners.get('touch')?.('down')
       }
+
       return true
     })
+
     connect(keys, 'key-released', (_controller, key, _code, modifiers) => {
       if (held !== key) {
         return
       }
+
       held = null
       if (!eligible() || !accepts(key) || modifiers & shortcuts) {
         listeners.get('touch')?.('cancel')
         return
       }
+
       listeners.get('touch')?.('up')
       if (
         !disposed &&
@@ -119,6 +139,7 @@ export function bindPressKeys(node: ElementNode) {
         listeners.get('tap')?.()
       }
     })
+
     view.add_controller(keys)
     focus = new Gtk.EventControllerFocus()
     connect(focus, 'leave', () => cancel())
@@ -145,6 +166,7 @@ export function bindPressKeys(node: ElementNode) {
       if (disposed || (type !== 'tap' && type !== 'touch')) {
         return
       }
+
       if (listener) {
         listeners.set(type, listener)
         ensure()
@@ -164,6 +186,7 @@ export function bindPressKeys(node: ElementNode) {
       if (disposed) {
         return
       }
+
       disposed = true
       unregisterRadioNode()
       cancel(false)
@@ -171,12 +194,15 @@ export function bindPressKeys(node: ElementNode) {
       for (const [object, id] of connections) {
         object.disconnect(id)
       }
+
       if (keys) {
         view.remove_controller(keys)
       }
+
       if (focus) {
         view.remove_controller(focus)
       }
+
       if (togglePointer) {
         view.remove_controller(togglePointer)
       }

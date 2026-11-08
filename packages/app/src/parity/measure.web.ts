@@ -9,6 +9,7 @@ const round = (n: number) => Math.round(n * 100) / 100
 
 function ownText(el: any): string | undefined {
   let t = ''
+
   for (const n of el.childNodes ?? []) {
     if (n.nodeType === 3) {
       t += n.textContent
@@ -25,6 +26,7 @@ function measureTextLineAdvances(value: string, font: string): number[] | undefi
   }
 
   const context = document.createElement('canvas').getContext('2d')
+
   if (!context) {
     return undefined
   }
@@ -39,13 +41,16 @@ function measureTextLineCount(el: any): number | undefined {
   }
 
   const range = document.createRange()
+
   range.selectNodeContents(el)
+
   const tops = [...range.getClientRects()]
     .filter((rect) => rect.width > 0 && rect.height > 0)
     .map((rect) => rect.top)
     .sort((a, b) => a - b)
 
   const lineTops: number[] = []
+
   for (const top of tops) {
     if (lineTops.every((existing) => Math.abs(existing - top) > 1)) {
       lineTops.push(top)
@@ -65,6 +70,7 @@ function measureContentBox(el: any, bounds: DOMRect, box: DOMRect, cs: CSSStyleD
   const right = styleNumber('borderRightWidth') + styleNumber('paddingRight')
   const top = styleNumber('borderTopWidth') + styleNumber('paddingTop')
   const bottom = styleNumber('borderBottomWidth') + styleNumber('paddingBottom')
+
   return {
     x: round(bounds.left - box.left + left),
     y: round(bounds.top - box.top + top),
@@ -88,8 +94,10 @@ function nodeFor(el: any, boxEl: any) {
   const placeholder = typeof el.placeholder === 'string' ? el.placeholder || undefined : undefined
   const placeholderCss = placeholder ? getComputedStyle(el, '::placeholder') : undefined
   const style: Record<string, string> = {}
+
   for (const f of STYLE_FACETS) {
     const v = (cs as any)[f]
+
     if (v !== undefined && v !== null && v !== '') {
       style[f] = String(v)
     }
@@ -119,12 +127,14 @@ function nodeFor(el: any, boxEl: any) {
 
 export function measureTree(stageEl: any) {
   const cells: Record<string, any[]> = {}
+
   for (const cell of stageEl.querySelectorAll('.parity-cell')) {
     const name = String(cell.id ?? '').replace(/^cell-/, '')
     const box = cell.querySelector('.parity-box') ?? cell
     const marker = `.parity-portal--${name}`
     const portal = document.querySelector(marker)
     const portalNodes = portal ? [portal, ...portal.querySelectorAll('*')] : []
+
     cells[name] = [box, ...box.querySelectorAll('*'), ...portalNodes].map((el) => nodeFor(el, box))
   }
 
@@ -137,6 +147,7 @@ export function measureTree(stageEl: any) {
 export function installParityDump() {
   ;(globalThis as any).__xplatParity = () => {
     const stage = document.getElementById('parity-stage')
+
     return stage ? measureTree(stage) : null
   }
 }

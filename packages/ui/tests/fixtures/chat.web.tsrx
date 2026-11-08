@@ -5,6 +5,7 @@ import type { ChatMessageData } from '@octane-xplat/ui/chat'
 import { TextInput } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './chat.css'
+
 let stream = () => {},
   prepend = () => {},
   append = () => {},
@@ -85,13 +86,16 @@ export async function run(ctx: ProbeContext) {
   })
 
   const end = () => root.scrollHeight - root.clientHeight - root.scrollTop < 2
+
   await ctx.waitFor(() => root.scrollHeight > 1000 && end())
   ctx.assert('long chat initially follows conversation end', end(), true)
   root.scrollTop = Math.max(0, root.scrollHeight - root.clientHeight - 700)
   await new Promise((resolve) => requestAnimationFrame(() => requestAnimationFrame(resolve)))
+
   const rootBox = root.getBoundingClientRect()
   const row: any = Array.from(root.querySelectorAll('[id^="row-"]')).find((element: any) => {
     const b = element.getBoundingClientRect()
+
     return b.bottom > rootBox.top && b.top < rootBox.bottom
   })
 
@@ -100,6 +104,7 @@ export async function run(ctx: ProbeContext) {
     offset = root.scrollTop
 
   const beforeStream = root.scrollHeight
+
   stream()
   await ctx.waitFor(() => root.scrollHeight > beforeStream + 90)
   ctx.assert(
@@ -115,6 +120,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const beforePrepend = root.scrollHeight
+
   prepend()
   await ctx.waitFor(() => ctx.find('row-old0') && root.scrollHeight > beforePrepend + 300)
   await ctx.waitFor(() => Math.abs(row.getBoundingClientRect().y - y) < 1)
@@ -126,6 +132,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const beforeGrow = root.scrollHeight
+
   grow(96)
   await ctx.waitFor(() => root.scrollHeight > beforeGrow + 40)
   ctx.assert(
@@ -135,6 +142,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const beforeAppend = root.scrollHeight
+
   append()
   await ctx.waitFor(() => root.scrollHeight > beforeAppend + 60)
   await ctx.waitFor(() => root.querySelector('[aria-label="New messages"]'))
@@ -147,7 +155,9 @@ export async function run(ctx: ProbeContext) {
   root.querySelector('[aria-label="New messages"]').click()
   await ctx.waitFor(end)
   ctx.assert('new-message action returns to the end', end(), true)
+
   const beforeLastGrow = root.scrollHeight
+
   grow(160)
   await ctx.waitFor(() => root.scrollHeight > beforeLastGrow + 60 && end())
   ctx.assert('composer growth follows only after end tracking resumes', end(), true)

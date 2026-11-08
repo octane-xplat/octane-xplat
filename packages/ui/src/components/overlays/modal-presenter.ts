@@ -16,6 +16,7 @@ export function modalPresenter(
   }
 
   const page = frame.currentPage
+
   if (page && page.isLoaded && page.frame === frame) {
     return page
   }

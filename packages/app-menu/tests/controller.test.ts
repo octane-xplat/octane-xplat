@@ -26,9 +26,12 @@ function fakeHost(platform: 'macos' | 'linux' | 'windows' | null = 'linux') {
       if (installError) {
         throw installError
       }
+
       const record: Installed = { tree, dispatch, updates: [], disposed: 0 }
+
       installed.push(record)
       calls.push('install')
+
       const native: NativeAppMenu = {
         update(next) {
           record.updates.push(next)
@@ -40,9 +43,11 @@ function fakeHost(platform: 'macos' | 'linux' | 'windows' | null = 'linux') {
           calls.push('native.dispose')
         },
       }
+
       return native
     },
   }
+
   return {
     host,
     calls,
@@ -91,6 +96,7 @@ function idOf(installed: Installed, key: string): number {
       return id
     }
   }
+
   throw new Error(`no node for key ${key}`)
 }
 
@@ -99,8 +105,11 @@ afterEach(() => vi.restoreAllMocks())
 describe('createAppMenuService', () => {
   it('reports support without throwing', () => {
     const f = fakeHost()
+
     f.setSupported(false)
+
     const service = createAppMenuService(f.host)
+
     expect(service.supported).toBe(false)
     f.setSupported(true)
     expect(service.supported).toBe(true)
@@ -108,8 +117,11 @@ describe('createAppMenuService', () => {
 
   it('install throws UnavailabilityError when unsupported', () => {
     const f = fakeHost()
+
     f.setSupported(false)
+
     const service = createAppMenuService(f.host)
+
     expect(() => service.install(menus())).toThrow(UnavailabilityError)
     expect(() => service.install(menus())).toThrow(/appMenu is unavailable/)
   })
@@ -117,6 +129,7 @@ describe('createAppMenuService', () => {
   it('isAvailable resolves the supported flag and never rejects', async () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
+
     await expect(service.isAvailable()).resolves.toBe(true)
     f.setSupported(false)
     await expect(service.isAvailable()).resolves.toBe(false)
@@ -134,7 +147,9 @@ describe('createAppMenuService', () => {
         throw new Error('unreachable')
       },
     }
+
     const service = createAppMenuService(host)
+
     expect(service.supported).toBe(false)
     await expect(service.isAvailable()).resolves.toBe(false)
     expect(() => service.install(menus())).toThrow(UnavailabilityError)
@@ -144,9 +159,11 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     const first = service.install(menus())
+
     expect(() => service.install(menus())).toThrow(
       'An app menu is already installed; update or dispose it first',
     )
+
     first.dispose()
     expect(service.install(menus())).toBeTruthy()
   })
@@ -162,7 +179,9 @@ describe('createAppMenuService', () => {
 
     handle.update(menus([action('fresh', () => hits.push('fresh'))]))
     expect(f.calls).toContain('native.update')
+
     const newGen = installed.tree.generation
+
     expect(newGen).not.toBe(oldGen)
     installed.dispatch(oldId, oldGen) // stale generation
     expect(hits).toEqual([])
@@ -174,6 +193,7 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     const handle = service.install(menus())
+
     handle.dispose()
     expect(handle.isDisposed).toBe(true)
     handle.dispose()
@@ -185,10 +205,13 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     const hits: string[] = []
+
     service.install(menus([action('a', () => hits.push('a'))]))
+
     const installed = f.installed[0]!
     const id = idOf(installed, 'a')
     const gen = installed.tree.generation
+
     expect(installed.dispatch(id, gen + 1)).toBe(false)
     expect(installed.dispatch(999, gen)).toBe(false)
     expect(hits).toEqual([])
@@ -200,6 +223,7 @@ describe('createAppMenuService', () => {
     const seen: boolean[] = []
     const handle = service.install(menus([checkbox('wrap', true, (v) => seen.push(v))]))
     const installed = f.installed[0]!
+
     installed.dispatch(idOf(installed, 'wrap'), installed.tree.generation)
     expect(seen).toEqual([false])
     // The model value is controlled — the next update flips the reported value.
@@ -212,6 +236,7 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     const error = vi.spyOn(console, 'error').mockImplementation(() => {})
+
     service.install(
       menus([
         action('boom', () => {
@@ -219,10 +244,13 @@ describe('createAppMenuService', () => {
         }),
       ]),
     )
+
     const installed = f.installed[0]!
+
     expect(() =>
       installed.dispatch(idOf(installed, 'boom'), installed.tree.generation),
     ).not.toThrow()
+
     expect(error).toHaveBeenCalledWith('[app-menu] menu action failed', expect.any(Error))
   })
 
@@ -231,6 +259,7 @@ describe('createAppMenuService', () => {
     const service = createAppMenuService(f.host)
     let handle!: ReturnType<typeof service.install>
     const hits: string[] = []
+
     handle = service.install(
       menus([
         action('trigger', () => {
@@ -241,8 +270,10 @@ describe('createAppMenuService', () => {
         }),
       ]),
     )
+
     const installed = f.installed[0]!
     const triggerGen = installed.tree.generation
+
     installed.dispatch(idOf(installed, 'trigger'), triggerGen)
     // Logical effect is immediate: the old tree's ids are already dead.
     expect(installed.dispatch(idOf(installed, 'trigger'), triggerGen)).toBe(false)
@@ -260,6 +291,7 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     let handle!: ReturnType<typeof service.install>
+
     handle = service.install(
       menus([
         action('trigger', () => {
@@ -268,7 +300,9 @@ describe('createAppMenuService', () => {
         }),
       ]),
     )
+
     const installed = f.installed[0]!
+
     installed.dispatch(idOf(installed, 'trigger'), installed.tree.generation)
     expect(handle.isDisposed).toBe(true)
     expect(installed.dispatch(idOf(installed, 'trigger'), installed.tree.generation)).toBe(false)
@@ -281,8 +315,11 @@ describe('createAppMenuService', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
     let handle!: ReturnType<typeof service.install>
+
     handle = service.install(menus([action('trigger', () => handle.dispose())]))
+
     const installed = f.installed[0]!
+
     installed.dispatch(idOf(installed, 'trigger'), installed.tree.generation)
     expect(f.calls).toEqual(['install'])
     service.install(menus())
@@ -295,6 +332,7 @@ describe('createAppMenuService', () => {
   it('leaves the slot free when host.install throws', () => {
     const f = fakeHost()
     const service = createAppMenuService(f.host)
+
     f.setInstallError(new Error('native write failed'))
     expect(() => service.install(menus())).toThrow('native write failed')
     f.setInstallError(null)
@@ -306,6 +344,7 @@ describe('createAppMenuService', () => {
     const service = createAppMenuService(f.host)
     const handle = service.install(menus([action('a')]))
     const gen = f.installed[0]!.tree.generation
+
     expect(() => handle.update(menus([action('a'), action('a')]))).toThrow(/duplicate sibling key/)
     expect(f.calls).not.toContain('native.update')
     expect(f.installed[0]!.tree.generation).toBe(gen)

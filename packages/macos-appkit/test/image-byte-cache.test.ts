@@ -2,13 +2,16 @@ import { test } from 'node:test'
 import assert from 'node:assert/strict'
 import { createImageByteCache } from '../src/image-byte-cache.ts'
 import { imageCacheFixture } from './fixtures/image-cache.ts'
+
 const src = 'https://image-test/bytes'
 
 test('prefetch uses an image-owned disk cache and isolated transport, stores bytes without decode and shares current work', async () => {
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native)
+
   const first = cache.prefetch(src),
     second = cache.prefetch(src)
+
   await env.start()
   assert.equal(env.tasks.length, 1)
   assert.deepEqual(env.configurations[0], {
@@ -18,18 +21,22 @@ test('prefetch uses an image-owned disk cache and isolated transport, stores byt
     HTTPShouldSetCookies: false,
     requestCachePolicy: 1,
   })
+
   assert.deepEqual(env.configurations[1], {
     memory: 0,
     capacity: 64 * 1024 * 1024,
     path: '/cache/octane-xplat-images-v1/test.image-cache',
   })
+
   env.tasks[0].handler('encoded', { statusCode: 200 }, null)
   assert.equal(env.disk.size, 0)
   env.flush()
   assert.equal(await first, true)
   assert.equal(await second, true)
   assert.equal(cache.isCached(src), true)
+
   const hit = cache.prefetch(src)
+
   await env.start()
   assert.equal(await hit, true)
   assert.equal(env.tasks.length, 1)
@@ -39,13 +46,16 @@ test('later instances can read the same image-owned disk cache without fetching 
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native),
     warm = cache.prefetch(src)
+
   await env.start()
   env.tasks[0].handler('encoded', { statusCode: 200 }, null)
   env.flush()
   assert.equal(await warm, true)
+
   const next = imageCacheFixture(env.disk),
     nextCache = createImageByteCache(() => next.native),
     read = nextCache.prefetch(src)
+
   await next.start()
   assert.equal(await read, true)
   assert.equal(next.tasks.length, 0)
@@ -64,7 +74,9 @@ test('noncacheable/protected/varying responses remain displayable but never repo
       data: any[] = []
 
     cache.subscribe(src, (value) => data.push(value))
+
     const warm = cache.prefetch(src)
+
     await env.start()
     env.tasks[0].handler('bytes', { statusCode: 200, allHeaderFields: headers }, null)
     env.flush()
@@ -89,7 +101,9 @@ test('HTTP errors, transport failures and rejected writes cannot claim disk succ
 
     env.failStart(failure === 'setup')
     env.failResume(failure === 'resume')
+
     const warm = cache.prefetch(src)
+
     await env.start()
     if (!['resume', 'setup'].includes(failure)) {
       env.tasks[0].handler(
@@ -108,11 +122,16 @@ test('HTTP errors, transport failures and rejected writes cannot claim disk succ
 
 test('missing disk ownership still permits display transport and never falls back to shared caching', async () => {
   const env = imageCacheFixture()
+
   env.directory(false)
+
   const cache = createImageByteCache(() => env.native),
     data: any[] = []
+
   cache.subscribe(src, (value) => data.push(value))
+
   const warm = cache.prefetch(src)
+
   await env.start()
   env.tasks[0].handler('bytes', { statusCode: 200 }, null)
   env.flush()
@@ -125,10 +144,13 @@ test('eviction retires old disk writers while preserving subscribed delivery and
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native),
     data: any[] = []
+
   cache.subscribe(src, (value) => data.push(value))
   await env.start()
   assert.equal(cache.evict(src), true)
+
   const warm = cache.prefetch(src)
+
   await env.start()
   assert.equal(env.tasks.length, 2)
   env.tasks[1].handler('fresh', { statusCode: 200 }, null)
@@ -144,14 +166,18 @@ test('eviction retires old disk writers while preserving subscribed delivery and
 test('clear invalidates queued network writers and cancelled subscribers cannot populate disk', async () => {
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native)
+
   const warm = cache.prefetch(src)
+
   await env.start()
   env.tasks[0].handler('old', { statusCode: 200 }, null)
   assert.equal(cache.clear(), true)
   env.flush()
   assert.equal(await warm, false)
   assert.equal(env.disk.size, 0)
+
   const release = cache.subscribe(src, () => assert.fail('cancelled delivery'))
+
   await env.start()
   env.tasks[1].handler('cancelled', { statusCode: 200 }, null)
   release()
@@ -163,6 +189,7 @@ test('clear invalidates queued network writers and cancelled subscribers cannot 
 test('unsupported/invalid sources and unavailable main queue settle without reserving network work', async () => {
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native)
+
   assert.equal(await cache.prefetch('file:///local'), false)
   assert.equal(await cache.prefetch('https://image-test/invalid'), false)
   env.native.NSOperationQueue.mainQueue = null
@@ -173,13 +200,17 @@ test('unsupported/invalid sources and unavailable main queue settle without rese
 test('native NSDictionary response headers participate in storage policy', async () => {
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native)
+
   const warm = cache.prefetch(src)
+
   await env.start()
+
   const names = ['cAcHe-CoNtRoL'],
     headers = {
       allKeys: { count: 1, objectAtIndex: (index: number) => names[index] },
       objectForKey: () => 'no-store',
     }
+
   env.tasks[0].handler('bytes', { statusCode: 200, allHeaderFields: headers }, null)
   env.flush()
   assert.equal(await warm, false)
@@ -190,6 +221,7 @@ test('bypass skips owned disk reads/writes and cache-directory initialization wh
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native),
     received: any[] = []
+
   env.disk.set(src, { data: 'older', storagePolicy: 0 })
   cache.subscribe(src, (result) => received.push(result), 'none')
   await env.start()
@@ -208,8 +240,10 @@ test('bypass work shares only with bypass consumers and final removal cannot can
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native),
     warm = cache.prefetch(src)
+
   const first = cache.subscribe(src, () => assert.fail('retired bypass'), 'none'),
     second = cache.subscribe(src, () => assert.fail('retired bypass'), 'none')
+
   await env.start()
   assert.equal(env.tasks.length, 2)
   first()
@@ -228,6 +262,7 @@ test('cache clear does not cancel or cache an independently owned bypass deliver
   const env = imageCacheFixture(),
     cache = createImageByteCache(() => env.native),
     received: any[] = []
+
   cache.subscribe(src, (result) => received.push(result), 'none')
   await env.start()
   cache.clear()

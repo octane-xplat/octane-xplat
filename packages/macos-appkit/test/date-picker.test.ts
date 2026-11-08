@@ -21,6 +21,7 @@ const STYLES = { TextFieldAndStepper: 0, ClockAndCalendar: 1, TextField: 2 }
 function fixture(failure: { constraint?: number } = {}) {
   const pickers: any[] = [],
     constraints: any[] = []
+
   const actions = new Map()
   const anchor = () => ({
     constraintEqualToAnchor() {
@@ -34,9 +35,11 @@ function fixture(failure: { constraint?: number } = {}) {
           if (value && failure.constraint === index) {
             throw Error('native constraint failed')
           }
+
           active = value
         },
       }
+
       constraints.push(constraint)
       return constraint
     },
@@ -112,6 +115,7 @@ function fixture(failure: { constraint?: number } = {}) {
 
 test('dateAndTime mode combines the year-month-day and hour-minute elements', () => {
   const { attach, view, pickers } = fixture()
+
   attach(view, { mode: 'dateAndTime' }, () => {})
   assert.equal(pickers[0].datePickerElements, ELEMENTS.YearMonthDay | ELEMENTS.HourMinute)
   // The graphical calendar cannot render the time group — the combined
@@ -121,6 +125,7 @@ test('dateAndTime mode combines the year-month-day and hour-minute elements', ()
 
 test('date and time modes pick their element group and style', () => {
   const { attach, view, pickers } = fixture()
+
   attach(view, { mode: 'date' }, () => {})
   attach(view, { mode: 'date', style: 'graphical' }, () => {})
   attach(view, { mode: 'time' }, () => {})
@@ -135,6 +140,7 @@ test('date and time modes pick their element group and style', () => {
 test('update without a selection leaves the picked value; update with one pushes it', () => {
   const { attach, view, pickers } = fixture()
   const handle = attach(view, { mode: 'date' }, () => {})
+
   pickers[0].dateValue = { timeIntervalSince1970: 1700000000 }
   // An uncontrolled render must not snap the picker back.
   handle.update({ selectionMillis: undefined, enabled: true })
@@ -147,10 +153,13 @@ test('update without a selection leaves the picked value; update with one pushes
 test('programmatic updates suppress action echoes, update native labels and clear removed bounds', () => {
   const { attach, view, pickers, actions } = fixture(),
     changes: number[] = []
+
   const handle = attach(view, { selectionMillis: 1000 }, (millis: number) => changes.push(millis)),
     picker = pickers[0]
+
   const action = actions.get(picker.tag)
   let date = picker.dateValue
+
   Object.defineProperty(picker, 'dateValue', {
     get: () => date,
     set: (value) => {
@@ -158,12 +167,14 @@ test('programmatic updates suppress action echoes, update native labels and clea
       action()
     },
   })
+
   handle.update({
     selectionMillis: 2000,
     minimumMillis: 0,
     maximumMillis: 3000,
     accessibilityLabel: 'Departure',
   })
+
   assert.deepEqual(changes, [])
   assert.equal(picker.accessibilityLabel, 'Departure')
   assert.equal(picker.minDate.timeIntervalSince1970, 0)
@@ -180,9 +191,11 @@ test('programmatic updates suppress action echoes, update native labels and clea
 test('disabled, native-disabled, detached-window/view and retired actions cannot dispatch', () => {
   const { attach, view, pickers, actions, constraints } = fixture(),
     changes: number[] = []
+
   const handle = attach(view, { selectionMillis: 1000 }, (millis: number) => changes.push(millis)),
     picker = pickers[0],
     action = actions.get(picker.tag)
+
   picker.dateValue = { timeIntervalSince1970: 2 }
   handle.update({ enabled: false })
   action()
@@ -215,6 +228,7 @@ test('disabled, native-disabled, detached-window/view and retired actions cannot
 test('invalid raw options disable without unsafe native dates and invalid/out-of-range events do not emit', () => {
   const { attach, view, pickers, actions } = fixture(),
     changes: number[] = []
+
   const handle = attach(
       view,
       { selectionMillis: 1000, minimumMillis: 0, maximumMillis: 3000 },
@@ -222,10 +236,12 @@ test('invalid raw options disable without unsafe native dates and invalid/out-of
     ),
     picker = pickers[0],
     action = actions.get(picker.tag)
+
   for (const seconds of [NaN, Infinity, 1e30, -1, 4]) {
     picker.dateValue = { timeIntervalSince1970: seconds }
     action()
   }
+
   assert.deepEqual(changes, [])
   picker.dateValue = { timeIntervalSince1970: 1 }
   for (const options of [
@@ -239,6 +255,7 @@ test('invalid raw options disable without unsafe native dates and invalid/out-of
     assert.equal(picker.dateValue.timeIntervalSince1970, 1)
     action()
   }
+
   assert.deepEqual(changes, [])
   handle.update({ selectionMillis: 2000, minimumMillis: 0, maximumMillis: 3000 })
   assert.equal(picker.enabled, true)
@@ -248,10 +265,12 @@ test('invalid raw options disable without unsafe native dates and invalid/out-of
 
 test('partial constraint failure removes the picker and deactivates owned constraints', () => {
   const { attach, view, pickers, actions, constraints } = fixture({ constraint: 1 })
+
   assert.equal(
     attach(view, { selectionMillis: 1000 }, () => {}),
     null,
   )
+
   assert.equal(actions.size, 0)
   assert.equal(pickers[0].removed, 1)
   assert.equal(pickers[0].target, null)
@@ -261,19 +280,23 @@ test('partial constraint failure removes the picker and deactivates owned constr
 test('native update failure retires the handle before propagating to its owner', () => {
   const { attach, view, pickers, actions, constraints } = fixture(),
     changes: number[] = []
+
   const handle = attach(view, { selectionMillis: 1000 }, (millis: number) => changes.push(millis)),
     picker = pickers[0],
     action = actions.get(picker.tag)
+
   Object.defineProperty(picker, 'maxDate', {
     configurable: true,
     set: () => {
       throw Error('native range failed')
     },
   })
+
   assert.throws(
     () => handle.update({ selectionMillis: 2000, maximumMillis: 3000 }),
     /native range failed/,
   )
+
   action()
   handle.detach()
   assert.deepEqual(changes, [])
@@ -290,10 +313,12 @@ test('unchanged bounds/value do not rewrite an editing control and disjoint rang
       () => {},
     ),
     picker = pickers[0]
+
   let min = picker.minDate,
     max = picker.maxDate,
     date = picker.dateValue,
     writes = 0
+
   Object.defineProperty(picker, 'minDate', {
     get: () => min,
     set: (next) => {
@@ -302,6 +327,7 @@ test('unchanged bounds/value do not rewrite an editing control and disjoint rang
       writes++
     },
   })
+
   Object.defineProperty(picker, 'maxDate', {
     get: () => max,
     set: (next) => {
@@ -310,6 +336,7 @@ test('unchanged bounds/value do not rewrite an editing control and disjoint rang
       writes++
     },
   })
+
   Object.defineProperty(picker, 'dateValue', {
     get: () => date,
     set: (next) => {
@@ -317,6 +344,7 @@ test('unchanged bounds/value do not rewrite an editing control and disjoint rang
       writes++
     },
   })
+
   handle.update({ selectionMillis: 2000, minimumMillis: 1000, maximumMillis: 3000 })
   assert.equal(writes, 0)
   handle.update({ selectionMillis: 5000, minimumMillis: 4000, maximumMillis: 6000 })

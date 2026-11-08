@@ -31,7 +31,9 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])(
   'handles delayed layout: %s',
   async (action) => {
     const closeBeforeLayout = action === 'close-before-layout'
+
     vi.useFakeTimers()
+
     let measured = false
     let send: ((intent: any) => void) | undefined
     const listeners = new Set<() => void>()
@@ -41,11 +43,13 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])(
       on: (_: string, listener: () => void) => listeners.add(listener),
       off: (_: string, listener: () => void) => listeners.delete(listener),
     }
+
     const trigger = {
       parent: slide,
       getActualSize: () => ({ width: 120, height: 80 }),
       getLocationOnScreen: () => ({ x: 20, y: 30 }),
     }
+
     fixture.context = {
       items: [{ src: '', alt: 'Photo', width: 800, height: 600 }],
       index: 0,
@@ -73,12 +77,14 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])(
       setZoomed: vi.fn(),
       setDragging: vi.fn(),
     }
+
     const container = createObjectContainer('nativescript')
     const object = createObjectDriver('nativescript')
     const root = createUniversalRoot(container, {
       ...object,
       getPublicInstance(container, id) {
         const view = object.getPublicInstance(container, id)
+
         if (view) {
           Object.assign(view, {
             parent: slide,
@@ -87,9 +93,11 @@ it.each(['open', 'close-before-layout', 'close-during-morph'])(
             getActualSize: () => (measured ? { width: 400, height: 300 } : { width: 0, height: 0 }),
           })
         }
+
         return view
       },
     })
+
     try {
       root.render(Image, {})
       flushUniversalSync(() => {})

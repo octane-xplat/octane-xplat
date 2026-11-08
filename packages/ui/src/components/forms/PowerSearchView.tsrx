@@ -22,6 +22,7 @@ export function PowerSearchView(props: PowerSearchViewProps): unknown @{
   const { query, editing, results, internal } = props
   const Suggestion: any = Pressable
   const status = props.status
+
   useEffect(() => {
     props.handleRef?.({
       focusTypeahead: () => inputHandle.current?.focus?.(),
@@ -72,6 +73,7 @@ export function PowerSearchView(props: PowerSearchViewProps): unknown @{
         }
 
         const Token = props.components?.[filter.value.type]?.Token ?? PowerSearchToken
+
         return (
           <Token
             key={`${filter.field}-${index}`}

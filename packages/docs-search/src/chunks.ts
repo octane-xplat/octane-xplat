@@ -37,6 +37,7 @@ export function chunkMarkdown(doc: Document): Chunk[] {
   let size = 0
   const emit = (end: number) => {
     const content = lines.slice(start, end).join('\n').trim()
+
     if (content) {
       chunks.push({
         key: hash(`${doc.path}:${start}:${content}`),
@@ -51,12 +52,15 @@ export function chunkMarkdown(doc: Document): Chunk[] {
         ...(releaseDate ? { releaseDate } : {}),
       })
     }
+
     start = end
     size = 0
   }
+
   for (let i = 0; i < lines.length; i++) {
     const line = lines[i]
     const marker = /^\s{0,3}(`{3,}|~{3,})/.exec(line)?.[1]
+
     if (marker) {
       if (!fence) {
         fence = marker
@@ -65,6 +69,7 @@ export function chunkMarkdown(doc: Document): Chunk[] {
       }
     } else if (!fence) {
       const h = /^(#{1,6})\s+(.+)$/.exec(line)
+
       if (h) {
         emit(i)
         heading = h[2]
@@ -74,6 +79,7 @@ export function chunkMarkdown(doc: Document): Chunk[] {
 
         if (doc.corpus === 'changelog' && h[1].length <= 2) {
           const release = /(?:Octane Xplat\s+|\[v?|^v?)(\d+\.\d+\.\d+(?:-[\w.-]+)?)/.exec(heading)
+
           releaseVersion = release?.[1]
           releaseDate = /\b\d{4}-\d{2}-\d{2}\b/.exec(heading)?.[0]
         }
@@ -84,6 +90,7 @@ export function chunkMarkdown(doc: Document): Chunk[] {
 
     size += line.length + 1
   }
+
   emit(lines.length)
   return chunks
 }

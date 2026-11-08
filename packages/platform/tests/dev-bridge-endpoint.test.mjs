@@ -12,8 +12,11 @@ for (const platform of ['web', 'macos', 'linux']) {
 
   const endpoint = (globals) => {
     const context = { exports: {}, ...globals }
+
     vm.runInNewContext(source, context)
+
     const value = context.exports.devBridgeEndpoint()
+
     return value == null ? value : { ...value }
   }
 
@@ -25,10 +28,12 @@ for (const platform of ['web', 'macos', 'linux']) {
         null,
       )
     }
+
     assert.equal(
       endpoint({ __XPLAT_DEV_BRIDGE__: { token: 'test-token' }, location: { origin: 'file://' } }),
       null,
     )
+
     assert.equal(endpoint({ __XPLAT_DEV_BRIDGE__: { token: 'test-token', socket: 42 } }), null)
     assert.deepEqual(
       endpoint({

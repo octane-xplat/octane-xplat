@@ -112,6 +112,7 @@ function DateInputControl(inputProps: CoreProps) @{
   const commitParsed = (pd: ReturnType<typeof parseDateInput>) => {
     if (pd && !isDateDisabled(pd)) {
       const iso = plainDateToISO(pd)
+
       if (iso !== shown) {
         fireChange(iso)
       }
@@ -151,6 +152,7 @@ function DateInputControl(inputProps: CoreProps) @{
     }
 
     const text = e.value as string
+
     setPendingInput(text)
     if (hasDateComposition(input.current, e)) {
       return

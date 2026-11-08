@@ -22,6 +22,7 @@ const root = resolve(import.meta.dirname, '../..')
 const binary = join(root, 'research/go-cli/xplat-go-darwin-arm64-cli')
 const build = JSON.parse(readFileSync(binary + '.json'))
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, `Stale actual-app typecheck: ${file}`)
@@ -47,6 +48,7 @@ for (const [name, directory] of [
       // prerequisite for this fixture, then remove only our newly created link.
       const workerLink = join(app, 'node_modules/@octane-xplat/cli')
       let installedWorker = false
+
       if (name === 'lightbox') {
         try {
           lstatSync(workerLink)
@@ -60,12 +62,16 @@ for (const [name, directory] of [
           installedWorker = true
         }
       }
+
       const child = spawn(binary, ['typecheck'], { cwd: app })
       let stdout = '',
         stderr = ''
+
       child.stdout.on('data', (bytes) => (stdout += bytes))
       child.stderr.on('data', (bytes) => (stderr += bytes))
+
       const timer = setTimeout(() => child.kill('SIGTERM'), 120000)
+
       try {
         const result = await new Promise((resolve, reject) => {
           child.once('error', reject)

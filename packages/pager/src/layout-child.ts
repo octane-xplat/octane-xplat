@@ -18,6 +18,7 @@ export function layoutChildProps(
   style: string | Record<string, any>
 } {
   const style: Record<string, any> = { ...(typeof baseStyle === 'object' ? baseStyle : {}) }
+
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
   } else if (props.rowSpan !== undefined) {
@@ -52,9 +53,11 @@ export function layoutChildProps(
   if (props.left !== undefined) {
     style.left = props.left
   }
+
   if (props.top !== undefined) {
     style.top = props.top
   }
+
   if ((props.left !== undefined || props.top !== undefined) && props.dock === undefined) {
     style.position = style.position ?? 'absolute'
   }
@@ -62,12 +65,15 @@ export function layoutChildProps(
   if (props.flexGrow !== undefined) {
     style.flexGrow = props.flexGrow
   }
+
   if (props.flexShrink !== undefined) {
     style.flexShrink = props.flexShrink
   }
+
   if (props.alignSelf !== undefined) {
     style.alignSelf = props.alignSelf
   }
+
   if (props.order !== undefined) {
     style.order = props.order
   }
@@ -77,19 +83,24 @@ export function layoutChildProps(
   if (props.justifyContent !== undefined) {
     style.justifyContent = FLEX_JUSTIFY[props.justifyContent] ?? props.justifyContent
   }
+
   if (props.alignItems !== undefined) {
     style.alignItems = FLEX_ALIGN[props.alignItems] ?? props.alignItems
   }
+
   if (props.flexWrap !== undefined) {
     style.flexWrap =
       props.flexWrap === true ? 'wrap' : props.flexWrap === false ? 'nowrap' : props.flexWrap
   }
+
   if (props.gap !== undefined) {
     style.gap = props.gap
   }
+
   if (props.rowGap !== undefined) {
     style.rowGap = props.rowGap
   }
+
   if (props.columnGap !== undefined) {
     style.columnGap = props.columnGap
   }

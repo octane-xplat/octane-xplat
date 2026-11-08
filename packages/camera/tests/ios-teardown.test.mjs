@@ -24,11 +24,13 @@ const findStopStatement = (node) => {
     stopStatement = node
     return
   }
+
   ts.forEachChild(node, findStopStatement)
 }
 
 ts.forEachChild(sourceFile, findStopStatement)
 assert.ok(stopStatement, 'stopSessionIfIdle declaration not found in session-backend.ios.ts')
+
 const compiled = ts.transpile(
   source.slice(stopStatement.getStart(sourceFile), stopStatement.getEnd()) +
     '\nglobalThis.stop = stopSessionIfIdle',
@@ -66,6 +68,7 @@ const load = (overrides = {}) => {
 
 test('idle teardown ends interruption and restores availability for the next session', () => {
   const { context, events } = load()
+
   context.stop()
   assert.equal(context.session, undefined)
   assert.equal(context.interrupted, false)
@@ -77,6 +80,7 @@ test('idle teardown ends interruption and restores availability for the next ses
 test('active preview or capture keeps its session and interruption state', () => {
   for (const overrides of [{ previewHost: {} }, { captureSink: {} }]) {
     const { context, events } = load(overrides)
+
     context.stop()
     assert.ok(context.session)
     assert.equal(context.interrupted, true)
@@ -86,6 +90,7 @@ test('active preview or capture keeps its session and interruption state', () =>
 
 test('uninterrupted teardown restores availability without a spurious ended event', () => {
   const { context, events } = load({ interrupted: false })
+
   context.stop()
   assert.deepEqual(events, ['stop', 'clear', ['availability', true]])
 })
@@ -101,6 +106,7 @@ test('idle teardown releases the candidate writer and retracts its readiness', (
     nativeWriter: {},
     writerSourceReady: true,
   })
+
   context.stop()
   assert.equal(releases, 1)
   assert.equal(context.writerDriver, undefined)

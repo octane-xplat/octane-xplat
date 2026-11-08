@@ -19,6 +19,7 @@ import { build } from 'vite'
 
 const host = process.env.TRAY_WINDOWS_HOST
 const runtime = process.env.TRAY_WINDOWS_RUNTIME
+
 assert.ok(host && runtime, 'Set TRAY_WINDOWS_HOST and TRAY_WINDOWS_RUNTIME')
 
 const quote = (value) => "'" + value.replaceAll("'", "''") + "'"
@@ -47,6 +48,7 @@ const remote = 'C:\\Users\\alecs\\xplat-trayprobe-runtime'
 const logPath = 'C:\\Users\\alecs\\xplat-tray-selftest.txt'
 
 const temporary = mkdtempSync(join(tmpdir(), 'xplat-tray-win-'))
+
 try {
   // Bundle the fixture against the real leaf.
   await build({
@@ -74,6 +76,7 @@ try {
   }
 
   const bundleLocal = join(temporary, 'bundle.mjs')
+
   execFileSync(
     'scp',
     ['-q', bundleLocal, `${host}:${remote.replaceAll('\\', '/')}/app/bundle.mjs`],
@@ -83,7 +86,9 @@ try {
   )
 
   run(`Set-Content ${quote(remote + '\\app\\package.json')} '{"main":"bundle.mjs"}'`)
+
   const manifest = remote + '\\AppxManifest.xml'
+
   run(
     `[xml]$xml=Get-Content ${quote(manifest)}; $xml.Package.Identity.Name=${quote(identity)}; if($xml.Package.Extensions){[void]$xml.Package.RemoveChild($xml.Package.Extensions)}; $xml.Save(${quote(manifest)})`,
   )
@@ -96,8 +101,10 @@ try {
 
   if (!pfn) {
     console.log('registering package via session-1 task (may take minutes)')
+
     const reg = remote + '\\register.ps1'
     const regLocal = join(temporary, 'register.ps1')
+
     writeFileSync(
       regLocal,
       `try { Add-AppxPackage -Register '${manifest}' -ForceUpdateFromAnyVersion -ErrorAction Stop; Set-Content '${remote}\\regdone' 'ok' } catch { Set-Content '${remote}\\regdone' ('fail ' + $_.ToString()) }\n`,

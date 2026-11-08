@@ -70,6 +70,7 @@ export class SequenceMachine {
       }
 
       const expectedStep = binding.steps[state.stepIndex]
+
       if (expectedStep && matchesStep(normalized, expectedStep)) {
         if (state.stepIndex === binding.steps.length - 1) {
           producedCandidate = true
@@ -94,6 +95,7 @@ export class SequenceMachine {
 
     if (binding.keyEvent === normalized.type && (!normalized.repeat || binding.allowRepeat)) {
       const firstStep = binding.steps[0]!
+
       if (matchesStep(normalized, firstStep)) {
         if (binding.steps.length === 1) {
           producedCandidate = true

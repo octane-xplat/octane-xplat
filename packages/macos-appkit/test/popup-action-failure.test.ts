@@ -17,7 +17,9 @@ test('popup allocation retires its action if the native tag write fails before a
       throw failure
     },
   }
+
   context.mock.method(NSPopUpButton, 'alloc', () => ({ initWithFramePullsDown: () => view }))
+
   const store = createActionStore()
   const pickers = createPickerElements({
     actions: {
@@ -36,10 +38,12 @@ test('popup allocation retires its action if the native tag write fails before a
     accessibility: { applyAccessibility() {} },
     tree: { detach() {} },
   })
+
   assert.throws(
     () => pickers.makePopUpControl(),
     (error) => error === failure,
   )
+
   assert.equal(store.idForView(view), undefined)
 })
 

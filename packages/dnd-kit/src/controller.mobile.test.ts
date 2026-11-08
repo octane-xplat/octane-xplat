@@ -19,10 +19,13 @@ const pan = (source: ReturnType<DndController['registerDraggable']>, state: stri
 
 function setup() {
   const manager = new DndController()
+
   manager.draggableNodes.set('a', node(0, 0))
   manager.droppableNodes.set('a', node(0, 0))
   manager.droppableNodes.set('b', node(0, 80))
+
   const source = manager.registerDraggable({ id: 'a', data: { container: 'first' } })
+
   manager.registerDroppable({ id: 'a' })
   manager.registerDroppable({ id: 'b', data: { container: 'second' } })
   return { manager, source }
@@ -60,6 +63,7 @@ describe('native pan substrate and abstract core', () => {
   it('serializes a quick begin/move/release and permits a second drag', async () => {
     const { manager, source } = setup()
     const end = vi.fn()
+
     manager.options = { onDragEnd: end }
     pan(source, 'began')
     pan(source, 'moved', 80)
@@ -92,6 +96,7 @@ describe('native pan substrate and abstract core', () => {
 
   it('excludes disabled and rejected drop targets', async () => {
     const { manager, source } = setup()
+
     manager.registry.droppables.get('b')!.disabled = true
     pan(source, 'began')
     await flush()
@@ -109,6 +114,7 @@ describe('native pan substrate and abstract core', () => {
 
   it('does not start disabled or unmeasurable sources and rejects duplicate ids', async () => {
     const { manager, source } = setup()
+
     source.disabled = true
     pan(source, 'began')
     await flush()
@@ -124,6 +130,7 @@ describe('native pan substrate and abstract core', () => {
 
   it('scrolls while held near an edge, clamps offsets, and stops on cancel', async () => {
     vi.useFakeTimers()
+
     const { manager, source } = setup()
     const offsetRef = { current: 0 }
     const scrollTo = vi.fn((offset: number) => {
@@ -149,7 +156,9 @@ describe('native pan substrate and abstract core', () => {
     manager.cancel()
     await flush()
     expect(manager.getSnapshot().transform).toEqual({ x: 0, y: 0 })
+
     const calls = scrollTo.mock.calls.length
+
     await vi.advanceTimersByTimeAsync(100)
     expect(scrollTo).toHaveBeenCalledTimes(calls)
     manager.disposeController()
@@ -158,6 +167,7 @@ describe('native pan substrate and abstract core', () => {
 
   it('stops queued input and unregisters sensor bindings on destruction', async () => {
     const { manager, source } = setup()
+
     pan(source, 'began')
     await flush()
     manager.disposeController()
@@ -170,6 +180,7 @@ describe('native pan substrate and abstract core', () => {
 
 it('arrayMove preserves input and ignores invalid indices', () => {
   const items = ['a', 'b', 'c']
+
   expect(arrayMove(items, 0, 2)).toEqual(['b', 'c', 'a'])
   expect(items).toEqual(['a', 'b', 'c'])
   expect(arrayMove(items, -1, 2)).toEqual(items)

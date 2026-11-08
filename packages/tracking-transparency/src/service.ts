@@ -1,6 +1,7 @@
 import { backend } from './backend'
 import { advertisingIdentifier, permissionResponse } from './permission'
 import type { PermissionResponse } from './types'
+
 export type TrackingTransparencyModule = Readonly<{
   readonly supported: boolean
   readonly capabilities: Readonly<{
@@ -17,9 +18,11 @@ export type TrackingTransparencyModule = Readonly<{
 
 let prompt: Promise<PermissionResponse> | undefined
 let identifier: Promise<string | null> | undefined
+
 /** Whether this host implements a native tracking capability; inspect capabilities.prompt for ATT. */
 export function isAvailable(): boolean {
   const value = backend.capabilities()
+
   return value.prompt || value.advertisingId || value.advertisingIdAsync
 }
 
@@ -38,6 +41,7 @@ export function requestTrackingPermissionsAsync(): Promise<PermissionResponse> {
         prompt = undefined
       })
   }
+
   return prompt
 }
 
@@ -56,6 +60,7 @@ export function getAdvertisingIdAsync(): Promise<string | null> {
         identifier = undefined
       })
   }
+
   return identifier
 }
 

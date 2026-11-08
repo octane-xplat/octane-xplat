@@ -24,6 +24,7 @@ let setPreviewEnabled: (enabled: boolean) => void
 
 function ContextLabel(props: { surface: Surface }) {
   const value = useContext(NameContext)
+
   rendered[props.surface].push(value)
   useEffect(() => {
     mounted.add(props.surface)
@@ -37,6 +38,7 @@ export default function SwiftUIComponentPortals() {
   const [name, setName] = useState('Avery')
   const [sheetEnabled, setSheetEnabledState] = useState(true)
   const [preview, setPreview] = useState(true)
+
   updateName = setName
   setSheetEnabled = setSheetEnabledState
   setPreviewEnabled = setPreview

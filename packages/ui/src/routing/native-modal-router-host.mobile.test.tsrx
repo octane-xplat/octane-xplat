@@ -47,6 +47,7 @@ const native = vi.hoisted(() => {
     listeners = new Map<string, Set<(event: any) => void>>()
     on(name: string, listener: (event: any) => void) {
       const values = this.listeners.get(name) ?? new Set()
+
       values.add(listener)
       this.listeners.set(name, values)
     }
@@ -117,6 +118,7 @@ const native = vi.hoisted(() => {
     }
     navigate(args: any) {
       const page = args.create()
+
       this.emit('navigatingTo', { entry: { resolvedPage: page } })
       if (args.clearHistory) {
         this.backStack = []
@@ -131,6 +133,7 @@ const native = vi.hoisted(() => {
     }
     replacePage(args: any) {
       const page = args.create()
+
       this.emit('navigatingTo', { entry: { resolvedPage: page } })
       this.currentPage = page
       page.frame = this
@@ -159,8 +162,10 @@ const native = vi.hoisted(() => {
 })
 
 const theme = vi.hoisted(() => ({ unbound: vi.fn() }))
+
 vi.mock('@nativescript/core', () => ({ ...native, isIOS: false }))
 vi.mock('../theme/theme-host', () => ({ applyThemeClasses: () => theme.unbound }))
+
 function TestView(props: any) {
   return (
     <stacklayout ref={props.ref} style={props.style}>
@@ -221,6 +226,7 @@ function Item() {
   const title = item.useLoaderData().title
   const person = useContext(Person)
   const [count, setCount] = useState(0)
+
   observations.set(id, {
     count,
     person,
@@ -238,6 +244,7 @@ function Broken() {
 
 function RemountedEntry(props: { version: number }) {
   const owner = useRouter(navigation)
+
   useLayoutEffect(() => {
     if (props.version > 0) {
       remountNavigation = owner.replace({
@@ -254,8 +261,11 @@ function RemountedEntry(props: { version: number }) {
 function App(props: { platform: ReturnType<typeof createNativeModalRouterHost> }) {
   const [owned, setOwned] = useState(true)
   const [version, setVersion] = useState(0)
+
   remountOwner = () => setVersion((value) => value + 1)
+
   const [person, setPerson] = useState('Avery')
+
   removeOwner = () => setOwned(false)
   restoreOwner = () => setOwned(true)
   changePerson = setPerson
@@ -294,6 +304,7 @@ async function until(condition: () => boolean) {
 
 async function drive<T>(promise: Promise<T>): Promise<T> {
   let settled = false
+
   void promise.then(
     () => {
       settled = true
@@ -320,6 +331,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
   native.animations.length = 0
   theme.unbound.mockClear()
   observations.clear()
+
   const frame = new native.Frame()
   const errors: unknown[] = []
   const platform = createNativeModalRouterHost({
@@ -348,6 +360,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
 
   navigation = router
   platform.attach(router)
+
   const root = createUniversalRoot(
     createObjectContainer('nativescript'),
     createPortalObjectDriver(),
@@ -371,9 +384,13 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
       })
 
       await until(() => native.surfaces.length > before)
+
       const view = native.surfaces.at(-1)
+
       view.completeShow()
+
       const result = await drive(pending)
+
       expect(result.status).toBe('committed')
       return view
     },
@@ -398,6 +415,7 @@ async function fixture<const Effects extends TransitionRegistry = {}>(
 
 it('waits for native shown confirmation after rendering, without a nested Frame', async () => {
   const test = await fixture()
+
   try {
     let settled = false
     const pending = test.router
@@ -413,7 +431,9 @@ it('waits for native shown confirmation after rendering, without a nested Frame'
     expect(test.frame.backStack).toHaveLength(0)
     expect(native.surfaces[0].options).toMatchObject({ fullscreen: true, cancelable: false })
     native.surfaces[0].completeShow()
+
     const result = await drive(pending)
+
     expect(result.status).toBe('committed')
     if (result.status === 'committed') {
       expect(await result.finished).toEqual({ status: 'skipped', reason: 'disabled' })
@@ -425,9 +445,11 @@ it('waits for native shown confirmation after rendering, without a nested Frame'
 
 it('pushes and goes Back inside one modal, keeps providers/state, and dismisses the whole flow', async () => {
   const test = await fixture()
+
   try {
     const view = await test.open('coat')
     const modal = observations.get('coat')!.navigation
+
     expect(await modal.back()).toEqual({ status: 'at-base' })
     observations.get('coat')!.increment()
     await tick()
@@ -445,6 +467,7 @@ it('pushes and goes Back inside one modal, keeps providers/state, and dismisses 
 
     expect((await drive(observations.get('hat')!.navigation.back())).status).toBe('committed')
     expect(observations.get('coat')).toMatchObject({ count: 1, person: 'Jordan' })
+
     let dismissed = false
     const pending = modal.dismiss().then((result) => {
       dismissed = true
@@ -473,12 +496,16 @@ it('pushes and goes Back inside one modal, keeps providers/state, and dismisses 
 
 it('presents nested modals from their owning surface and returns to the parent match', async () => {
   const test = await fixture()
+
   try {
     const parent = await test.open('coat')
     const parentNavigation = observations.get('coat')!.navigation
     const child = await test.open('hat', parentNavigation)
+
     expect(child.parentModal).toBe(parent)
+
     const pending = observations.get('hat')!.navigation.dismiss()
+
     await until(() => child.closeRequested)
     child.completeClose()
     expect(await drive(pending)).toMatchObject({
@@ -495,6 +522,7 @@ it('presents nested modals from their owning surface and returns to the parent m
 
 it('does not present a failed render or a flow without an owning outlet', async () => {
   const test = await fixture()
+
   try {
     test.router.addRoutes(
       defineRoutes([defineRoute({ path: '/render-failure/:id' }).screen(Broken)]),
@@ -526,9 +554,11 @@ it('does not present a failed render or a flow without an owning outlet', async 
 
 it('reconciles external native dismissal without reviving the closed flow', async () => {
   const test = await fixture()
+
   try {
     const view = await test.open('coat')
     const modal = observations.get('coat')!.navigation
+
     view.completeClose()
     await tick()
     expect(test.platform.modals.getSnapshot()).toHaveLength(0)
@@ -540,9 +570,11 @@ it('reconciles external native dismissal without reviving the closed flow', asyn
 
 it('replaces and resets modal history without replacing its native surface', async () => {
   const test = await fixture()
+
   try {
     const view = await test.open('coat')
     const modal = observations.get('coat')!.navigation
+
     await drive(modal.push({ to: '/items/:id', params: { id: 'hat' } }))
     await drive(modal.replace({ to: '/items/:id', params: { id: 'cap' } }))
     expect(modal.getSnapshot().canGoBack).toBe(true)
@@ -562,6 +594,7 @@ it('replaces and resets modal history without replacing its native surface', asy
 
 it('serializes a later root modal behind the first accepted presentation', async () => {
   const test = await fixture()
+
   try {
     const first = test.router.push({
       to: '/items/:id',
@@ -571,6 +604,7 @@ it('serializes a later root modal behind the first accepted presentation', async
     })
 
     await until(() => native.surfaces.length === 1)
+
     const coat = native.surfaces[0]
     let secondResult: unknown
     const second = test.router
@@ -608,11 +642,13 @@ it('serializes a later root modal behind the first accepted presentation', async
 
 it('closes nested descendants before dismissing a parent surface', async () => {
   const test = await fixture()
+
   try {
     const parent = await test.open('coat')
     const modal = observations.get('coat')!.navigation
     const child = await test.open('hat', modal)
     const pending = modal.dismiss()
+
     await until(() => child.closeRequested)
     expect(parent.closeRequested).toBe(false)
     child.completeClose()
@@ -627,6 +663,7 @@ it('closes nested descendants before dismissing a parent surface', async () => {
 
 it('settles owner removal promptly while a native presentation is accepted and completes late', async () => {
   const test = await fixture()
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -636,7 +673,9 @@ it('settles owner removal promptly while a native presentation is accepted and c
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
+
     removeOwner()
     await tick()
     expect(await drive(pending)).toMatchObject({ status: 'cancelled' })
@@ -652,6 +691,7 @@ it('settles owner removal promptly while a native presentation is accepted and c
 
 it('can remount the declaring outlet while its old accepted modal is closing', async () => {
   const test = await fixture()
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -661,7 +701,9 @@ it('can remount the declaring outlet while its old accepted modal is closing', a
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
+
     removeOwner()
     await tick()
     expect((await drive(pending)).status).toBe('cancelled')
@@ -680,6 +722,7 @@ it('can remount the declaring outlet while its old accepted modal is closing', a
 
 it('fails a missing native shown receipt and closes a late presentation only after confirmation', async () => {
   const test = await fixture(15)
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -689,7 +732,9 @@ it('fails a missing native shown receipt and closes a late presentation only aft
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
+
     expect(await drive(pending)).toMatchObject({ status: 'failed', phase: 'commit' })
     expect(test.platform.modals.getSnapshot()).toHaveLength(0)
     expect(view.closeRequested).toBe(false)
@@ -708,10 +753,12 @@ it('fails a missing native shown receipt and closes a late presentation only aft
 
 it('settles a missing native dismissal receipt without reviving the modal flow', async () => {
   const test = await fixture(15)
+
   try {
     const view = await test.open('coat')
     const modal = observations.get('coat')!.navigation
     const pending = modal.dismiss()
+
     await until(() => view.closeRequested)
     expect(await drive(pending)).toMatchObject({ status: 'failed', phase: 'commit' })
     expect(test.platform.modals.getSnapshot()).toHaveLength(0)
@@ -727,10 +774,12 @@ it('settles a missing native dismissal receipt without reviving the modal flow',
 
 it('releases nested flows when the platform externally closes their parent', async () => {
   const test = await fixture()
+
   try {
     const parent = await test.open('coat')
     const child = await test.open('hat', observations.get('coat')!.navigation)
     const childNavigation = observations.get('hat')!.navigation
+
     parent.completeClose()
     await until(() => child.closeRequested)
     child.completeClose()
@@ -755,6 +804,7 @@ it('claims Android Back for the owning modal flow before the background and lega
 
   const press = (object: unknown, activity: unknown = native.activity) => {
     const event = { cancel: false, object, activity }
+
     native.backEvents.get('back')!(event)
     return event.cancel
   }
@@ -762,6 +812,7 @@ it('claims Android Back for the owning modal flow before the background and lega
   try {
     const view = await test.open('coat')
     const modal = observations.get('coat')!.navigation
+
     await drive(modal.push({ to: '/items/:id', params: { id: 'hat' } }))
     expect(press(view)).toBe(true)
     await until(() => modal.getSnapshot().route?.params.id === 'coat')
@@ -784,6 +835,7 @@ it('claims Android Back for the owning modal flow before the background and lega
 
 it('consumes Android Back during native modal presentation without issuing a competing close', async () => {
   const test = await fixture()
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -793,8 +845,10 @@ it('consumes Android Back during native modal presentation without issuing a com
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
     const event = { cancel: false, object: view, activity: native.activity }
+
     native.backEvents.get('back')!(event)
     expect(event.cancel).toBe(true)
     expect(view.closeRequested).toBe(false)
@@ -807,16 +861,20 @@ it('consumes Android Back during native modal presentation without issuing a com
 
 it('opens a modal from a rendered named pane and keeps both presenter histories independent', async () => {
   const test = await fixture()
+
   try {
     const pane = bindRouterFlow(test.router, 'other')
+
     expect((await drive(pane.push({ to: '/items/:id', params: { id: 'pane-coat' } }))).status).toBe(
       'committed',
     )
 
     observations.get('pane-coat')!.increment()
     await tick()
+
     const view = await test.open('modal-hat', observations.get('pane-coat')!.navigation)
     const flow = test.platform.modals.getSnapshot().at(-1)!
+
     expect(flow.presenterFlow).toBe('other')
     expect(test.router.getSnapshot().route).toBeNull()
     expect(pane.getSnapshot().route?.params.id).toBe('pane-coat')
@@ -829,6 +887,7 @@ it('opens a modal from a rendered named pane and keeps both presenter histories 
     )
 
     const pending = observations.get('modal-hat')!.navigation.dismiss()
+
     await until(() => view.closeRequested)
     view.completeClose()
     expect(await drive(pending)).toMatchObject({
@@ -846,9 +905,12 @@ it('opens a modal from a rendered named pane and keeps both presenter histories 
 
 it('closes a pane-owned modal before a root Frame takeover and preserves the pane history', async () => {
   const test = await fixture()
+
   try {
     const pane = bindRouterFlow(test.router, 'other')
+
     await drive(pane.push({ to: '/items/:id', params: { id: 'pane-coat' } }))
+
     const view = await test.open('modal-hat', pane)
     const pending = test.router.push({
       to: '/items/:id',
@@ -870,6 +932,7 @@ it('closes a pane-owned modal before a root Frame takeover and preserves the pan
 
 it('serializes presentation across a root Frame and a rendered pane in the same window', async () => {
   const test = await fixture()
+
   try {
     const first = test.router.push({
       to: '/items/:id',
@@ -879,6 +942,7 @@ it('serializes presentation across a root Frame and a rendered pane in the same 
     })
 
     await until(() => native.surfaces.length === 1)
+
     const firstView = native.surfaces[0]
     const pane = bindRouterFlow(test.router, 'other')
     const second = pane.push({
@@ -906,6 +970,7 @@ it('serializes presentation across a root Frame and a rendered pane in the same 
 
 it('lets an independent pane commit while another pane awaits accepted native presentation', async () => {
   const test = await fixture()
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -915,8 +980,10 @@ it('lets an independent pane commit while another pane awaits accepted native pr
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
     const pane = bindRouterFlow(test.router, 'other')
+
     expect((await drive(pane.push({ to: '/items/:id', params: { id: 'pane-coat' } }))).status).toBe(
       'committed',
     )
@@ -933,6 +1000,7 @@ it('lets an independent pane commit while another pane awaits accepted native pr
 
 it('refreshes a presenter behind nested modals without dismissing either surface', async () => {
   const test = await fixture()
+
   try {
     await drive(
       test.router.push({ to: '/items/:id', params: { id: 'root-glove' }, transition: 'none' }),
@@ -941,6 +1009,7 @@ it('refreshes a presenter behind nested modals without dismissing either surface
     const parent = await test.open('modal-coat')
     const parentNavigation = observations.get('modal-coat')!.navigation
     const child = await test.open('modal-hat', parentNavigation)
+
     expect((await drive(test.router.refresh())).status).toBe('committed')
     expect((await drive(parentNavigation.refresh())).status).toBe('committed')
     expect(test.platform.modals.getSnapshot()).toHaveLength(2)
@@ -954,6 +1023,7 @@ it('refreshes a presenter behind nested modals without dismissing either surface
 
 it('retains the current modal when a root takeover screen fails before native commitment', async () => {
   const test = await fixture()
+
   try {
     const view = await test.open('modal-coat')
     const modal = observations.get('modal-coat')!.navigation
@@ -988,6 +1058,7 @@ it('retains the current modal when a root takeover screen fails before native co
 
 it('honors an explicitly skipped named definition on a native modal surface', async () => {
   const test = await fixture(1000, defineTransitions({ fallback: { kind: 'skip' } }))
+
   try {
     const opened = test.router.push({
       to: '/items/:id',
@@ -997,9 +1068,13 @@ it('honors an explicitly skipped named definition on a native modal surface', as
     })
 
     await until(() => native.surfaces.length === 1)
+
     const view = native.surfaces[0]
+
     view.completeShow()
+
     const result = await drive(opened)
+
     expect(result.status === 'committed' && (await result.finished)).toEqual({
       status: 'skipped',
       reason: 'disabled',
@@ -1011,6 +1086,7 @@ it('honors an explicitly skipped named definition on a native modal surface', as
 
 it('does not let delayed base-owner cleanup cancel navigation from a new keyed owner', async () => {
   const test = await fixture()
+
   try {
     expect(
       (
@@ -1048,18 +1124,24 @@ it('keeps a modal open on presenter denial and refreshes its presenter before an
 
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' }))
+
     const presenter = test.frame.currentPage
+
     observations.get('coat')!.increment()
     await tick()
+
     const view = await test.open('hat')
     const owner = observations.get('hat')!.navigation
+
     allowed = false
     account = 'b'
     expect(await drive(owner.dismiss())).toEqual({ status: 'forbidden' })
     expect(view.isLoaded && !view.closeRequested).toBe(true)
     expect(observations.get('coat')).toMatchObject({ title: 'a:coat', count: 1 })
     allowed = true
+
     const pending = owner.retry()
+
     await until(() => view.closeRequested)
     expect(observations.get('coat')).toMatchObject({ title: 'b:coat', count: 1 })
     expect(test.frame.currentPage).toBe(presenter)
@@ -1080,11 +1162,16 @@ it('refreshes the existing parent modal without opening another presentation on 
 
   try {
     const parent = await test.open('coat')
+
     observations.get('coat')!.increment()
     await tick()
+
     const child = await test.open('hat', observations.get('coat')!.navigation)
+
     account = 'b'
+
     const pending = observations.get('hat')!.navigation.dismiss()
+
     await until(() => child.closeRequested)
     expect(observations.get('coat')).toMatchObject({ title: 'b:coat', count: 1, person: 'Avery' })
     expect(native.surfaces).toHaveLength(2)
@@ -1118,10 +1205,14 @@ it('hands Frame Back to another pane without popping the source Frame or loading
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' }))
     await drive(test.router.push({ to: '/items/:id', params: { id: 'hat' }, transition: 'none' }))
+
     const source = test.frame.currentPage
     const depth = test.frame.backStack.length
+
     redirect = true
+
     const result = await drive(test.router.back())
+
     expect(result.status === 'committed' && result.redirected).toBe(true)
     expect(test.frame.currentPage).toBe(source)
     expect(test.frame.backStack).toHaveLength(depth)
@@ -1157,12 +1248,17 @@ it('honors an explicit root escape when modal Back redirects from a root-owned f
 
     const view = await test.open('coat')
     const owner = observations.get('coat')!.navigation
+
     await drive(owner.push({ to: '/items/:id', params: { id: 'hat' }, transition: 'none' }))
     redirect = true
+
     const pending = observations.get('hat')!.navigation.back()
+
     await until(() => view.closeRequested)
     view.completeClose()
+
     const result = await drive(pending)
+
     expect(result.status === 'committed' && result.redirected).toBe(true)
     expect(test.platform.modals.getSnapshot()).toHaveLength(0)
     expect(test.router.getSnapshot().route?.params.id).toBe('login')
@@ -1184,10 +1280,14 @@ it('prepares a modal presenter redirect before closing and replacing its root Pa
 
   try {
     await drive(test.router.push({ to: '/items/:id', params: { id: 'coat' }, transition: 'none' }))
+
     const presenter = test.frame.currentPage
     const view = await test.open('hat')
+
     redirect = true
+
     const pending = observations.get('hat')!.navigation.dismiss()
+
     await until(() => view.closeRequested)
     expect(test.frame.currentPage).toBe(presenter)
     view.completeClose()
@@ -1259,6 +1359,7 @@ it('qualifies sign-in return, expiry and late SDK completion through owned nativ
 it('commits native modal presentation before its custom content effect finishes', async () => {
   const detail = defineNativeTransition({ view: { from: { opacity: 0 }, duration: 400 } })
   const test = await fixture(1000, defineTransitions({ detail }))
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -1268,10 +1369,14 @@ it('commits native modal presentation before its custom content effect finishes'
     })
 
     await until(() => native.surfaces.length === 1)
+
     const surface = native.surfaces[0]
+
     expect(surface.options).toMatchObject({ animated: false, cancelable: false })
     surface.completeShow()
+
     const result = await drive(pending)
+
     expect(result.status).toBe('committed')
     expect(surface.opacity).toBe(0)
     expect(native.animations).toHaveLength(1)
@@ -1280,6 +1385,7 @@ it('commits native modal presentation before its custom content effect finishes'
     }
 
     let finished = false
+
     void result.finished.then(() => {
       finished = true
     })
@@ -1297,6 +1403,7 @@ it('commits native modal presentation before its custom content effect finishes'
 it('interrupts modal content motion on guarded dismissal and retains commitment on effect failure', async () => {
   const detail = defineNativeTransition({ view: { from: { opacity: 0 }, duration: 400 } })
   const test = await fixture(1000, defineTransitions({ detail }))
+
   try {
     const pending = test.router.push({
       to: '/items/:id',
@@ -1306,14 +1413,19 @@ it('interrupts modal content motion on guarded dismissal and retains commitment 
     })
 
     await until(() => native.surfaces.length === 1)
+
     const surface = native.surfaces[0]
+
     surface.completeShow()
+
     const result = await drive(pending)
+
     if (result.status !== 'committed') {
       throw new Error('Expected a committed modal')
     }
 
     const dismissal = observations.get('coat')!.navigation.dismiss()
+
     await until(() => surface.closeRequested)
     expect(await result.finished).toEqual({ status: 'skipped', reason: 'interrupted' })
     expect(surface.opacity).toBe(1)
@@ -1329,12 +1441,15 @@ it('interrupts modal content motion on guarded dismissal and retains commitment 
 
     await until(() => native.surfaces.length === 2)
     native.surfaces[1].completeShow()
+
     const committed = await drive(opening)
+
     if (committed.status !== 'committed') {
       throw new Error('Expected a committed modal')
     }
 
     const error = new Error('SDK motion failed')
+
     native.animations[1].fail(error)
     expect(await committed.finished).toEqual({ status: 'failed', error })
     expect(observations.get('hat')?.title).toBe('HAT')

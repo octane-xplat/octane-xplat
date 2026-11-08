@@ -9,6 +9,7 @@ const browserName = process.env.XPLAT_WEB_BROWSER ?? 'chromium'
 const audioMode = process.env.XPLAT_WEB_AUDIO_MODE ?? 'playback'
 const browsers = { chromium, firefox, webkit }
 const browserType = browsers[browserName]
+
 if (!browserType) {
   throw new Error(`Unsupported XPLAT_WEB_BROWSER: ${browserName}`)
 }
@@ -19,6 +20,7 @@ if (!['playback', 'metadata'].includes(audioMode)) {
 
 const withTimeout = (promise, label, timeoutMs = 8000) => {
   let timer
+
   return Promise.race([
     promise,
     new Promise((_, reject) => {
@@ -33,8 +35,11 @@ const withTimeout = (promise, label, timeoutMs = 8000) => {
 const assertPlaybackResumeState = async (page) => {
   const states = await page.evaluate(() => {
     const audio = window.audioElements[0]
+
     audio.dispatchEvent(new Event('waiting'))
+
     const waiting = window.player.snapshot().state
+
     audio.dispatchEvent(new Event('playing'))
     return { waiting, resumed: window.player.snapshot().state }
   })
@@ -68,6 +73,7 @@ const compiled = Object.fromEntries(
 const sampleRate = 44100
 const samples = sampleRate * 10
 const wav = Buffer.alloc(44 + samples * 2)
+
 wav.write('RIFF')
 wav.writeUInt32LE(wav.length - 8, 4)
 wav.write('WAVEfmt ', 8)
@@ -88,6 +94,7 @@ const toneSource = `data:audio/wav;base64,${wav.toString('base64')}`
 
 const server = http.createServer((request, response) => {
   const name = request.url?.slice(1).replace('.js', '')
+
   if (compiled[name]) {
     response.setHeader('Content-Type', 'text/javascript')
     response.end(compiled[name])
@@ -98,17 +105,23 @@ const server = http.createServer((request, response) => {
 })
 
 await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
 let browser
+
 try {
   browser = await browserType.launch({ headless: true })
+
   const page = await browser.newPage()
+
   await page.goto(`http://127.0.0.1:${server.address().port}`)
   await page.evaluate((source) => {
     window.toneSource = source
   }, toneSource)
 
   const errors = []
+
   page.on('pageerror', (error) => errors.push(error.message))
+
   const fallbacks = await page.evaluate(async () => {
     const [{ authSession }, { appleAuth }, { googleAuth }] = await Promise.all([
       import('/session.js'),
@@ -128,9 +141,12 @@ try {
   assert.equal(fallbacks.hostedEnsure, 'unsupported')
   assert.equal(fallbacks.apple, 'error')
   assert.equal(fallbacks.google, 'error')
+
   const chooser = page.waitForEvent('filechooser')
+
   await page.evaluate(async () => {
     const { media } = await import('/media.js')
+
     window.selection = media.pickImage()
   })
 
@@ -145,6 +161,7 @@ try {
   const selected = await page.evaluate(async () => {
     const ref = await window.selection
     const bytes = await (await fetch(ref.uri)).text()
+
     URL.revokeObjectURL(ref.uri)
     return {
       name: ref.name,
@@ -166,6 +183,7 @@ try {
     window.mediaActions = new Map()
     if (navigator.mediaSession) {
       const register = navigator.mediaSession.setActionHandler.bind(navigator.mediaSession)
+
       navigator.mediaSession.setActionHandler = (action, handler) => {
         window.mediaActions.set(action, handler)
         register(action, handler)
@@ -173,8 +191,10 @@ try {
     }
 
     const NativeAudio = window.Audio
+
     window.Audio = function (...args) {
       const audio = new NativeAudio(...args)
+
       window.audioElements.push(audio)
       for (const event of [
         'loadstart',
@@ -197,8 +217,10 @@ try {
       }
 
       const clone = audio.cloneNode.bind(audio)
+
       audio.cloneNode = () => {
         const voice = clone()
+
         window.effectVoices.push(voice)
         window.audioElements.push(voice)
         return voice
@@ -228,6 +250,7 @@ try {
       try {
         const playerPlayback = window.player.play()
         const effectPlayback = window.bank.play('effect', { volume: 0.2 })
+
         await playerPlayback
         window.effectPlayed = await effectPlayback
         window.optionalStage = 'complete'
@@ -246,6 +269,7 @@ try {
 
   const capabilities = await page.evaluate(() => window.player.capabilities())
   const hasMediaSession = await page.evaluate(() => 'mediaSession' in navigator)
+
   assert.equal(capabilities.systemControls, hasMediaSession)
   assert.equal(capabilities.backgroundPlayback, false)
   await withTimeout(
@@ -262,6 +286,7 @@ try {
 
     assert.equal(metadataReady, true)
     await assertPlaybackResumeState(page)
+
     const cleanup = await page.evaluate(() => {
       window.bank.dispose()
       window.player.dispose()
@@ -319,14 +344,18 @@ try {
 
     const effects = await page.evaluate(async () => {
       const before = window.player.snapshot().state
+
       await window.bank.play('effect')
       await window.bank.play('effect')
+
       const active = window.effectVoices.filter(
         (voice) => !voice.paused && voice.getAttribute('src'),
       ).length
 
       window.bank.stop()
+
       const stopped = window.effectVoices.every((voice) => voice.paused)
+
       return { before, after: window.player.snapshot().state, active, stopped }
     })
 
@@ -334,16 +363,20 @@ try {
     assert.equal(effects.stopped, true)
     assert.equal(effects.before, 'playing')
     assert.equal(effects.after, 'playing')
+
     const controls = await page.evaluate(async () => {
       await window.player.pause()
       await new Promise((resolve) => setTimeout(resolve, 50))
+
       const seeked = new Promise((resolve) =>
         window.audioElements[0].addEventListener('seeked', resolve, { once: true }),
       )
 
       await window.player.seek(0.2)
       await seeked
+
       const paused = window.player.snapshot()
+
       await window.player.play()
       return {
         paused: paused.state,

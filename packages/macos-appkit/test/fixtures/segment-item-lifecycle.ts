@@ -28,6 +28,7 @@ export async function checkSegmentItemLifecycle(root: any, nativeWindow: any) {
 
   root.render(SegmentItems, {})
   await settle()
+
   const bar = debug.findId('item-bar'),
     first = segmentItemRef.current,
     sibling = debug.findId('item-first')
@@ -83,7 +84,9 @@ export async function checkSegmentItemLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = segmentItemRef.current
+
   check(
     replacement !== first &&
       first.parent === null &&
@@ -93,7 +96,9 @@ export async function checkSegmentItemLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = segmentItemRef.current
+
   check(
     moved !== replacement &&
       replacement.parent === null &&
@@ -119,7 +124,9 @@ export async function checkSegmentItemLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const restored = segmentItemRef.current
+
   check(restored && titles(bar) === 'Same|Updated||Last', 'SegmentedBarItem reinsertion failed')
   root.unmount()
   await settle()

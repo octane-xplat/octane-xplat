@@ -10,4 +10,5 @@ export const barcodeScanner: BarcodeScannerService = {
 }
 
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.camera = () => barcodeScanner.ensure()

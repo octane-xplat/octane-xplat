@@ -17,6 +17,7 @@ const easeOut = (t: number) => 1 - (1 - t) * (1 - t) * (1 - t)
  *  leaves the view at its last written value; settling belongs to the caller. */
 export function playRoll(view: any, spec: RollTween): () => void {
   writeCell(view, spec.fromY, spec.fromOpacity)
+
   let raf = 0
   let timer: ReturnType<typeof setTimeout> | null = null
   let cancelled = false
@@ -38,6 +39,7 @@ export function playRoll(view: any, spec: RollTween): () => void {
     }
 
     const now = frame.now()
+
     if (start < 0) {
       start = now
     }
@@ -73,6 +75,7 @@ export function playRoll(view: any, spec: RollTween): () => void {
   }
 
   const delay = spec.delayMs ?? 0
+
   if (delay > 0) {
     timer = setTimeout(begin, delay)
   } else {

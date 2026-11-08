@@ -64,6 +64,7 @@ function emitMirror(
   const seconds = (name: string) => Number((parseMs(rawToken(name)) / 1000).toFixed(3))
   const curve = (name: string) => {
     const value = rawToken(name)
+
     return isNamedCurve(value) ? JSON.stringify(value) : `[${parseBezier(value).join(', ')}]`
   }
 
@@ -151,6 +152,7 @@ function ChartPane({ mode }: { mode: 'before' | 'after' }) {
 
   const draw = useCallback((values: ReadonlyArray<number>) => {
     const canvas = canvasRef.current
+
     if (canvas == null) {
       return
     }
@@ -159,12 +161,14 @@ function ChartPane({ mode }: { mode: 'before' | 'after' }) {
     const width = canvas.clientWidth || 280
     const pixelWidth = Math.round(width * ratio)
     const pixelHeight = Math.round(CHART_HEIGHT * ratio)
+
     if (canvas.width !== pixelWidth || canvas.height !== pixelHeight) {
       canvas.width = pixelWidth
       canvas.height = pixelHeight
     }
 
     const ctx = canvas.getContext('2d')
+
     if (ctx == null) {
       return
     }
@@ -172,17 +176,22 @@ function ChartPane({ mode }: { mode: 'before' | 'after' }) {
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
     ctx.clearRect(0, 0, width, CHART_HEIGHT)
     ctx.fillStyle = window.getComputedStyle(canvas).color
+
     const gap = 8
     const barWidth = (width - gap * (values.length - 1)) / values.length
+
     values.forEach((value, i) => {
       const height = Math.max(2, value * (CHART_HEIGHT - 6))
+
       ctx.fillRect(i * (barWidth + gap), CHART_HEIGHT - height, barWidth, height)
     })
   }, [])
 
   const advance = useCallback(() => {
     const next = DATASETS[stepRef.current % DATASETS.length]
+
     stepRef.current += 1
+
     const from = currentRef.current
 
     // Under either reduced-motion policy the after pane collapses into the
@@ -197,10 +206,13 @@ function ChartPane({ mode }: { mode: 'before' | 'after' }) {
     const ms = Math.max(1, scaledMs('--duration-reveal'))
     const curve = parseBezier(rawToken('--ease-move'))
     const startedAt = performance.now()
+
     window.cancelAnimationFrame(frameRef.current)
+
     const step = (now: number) => {
       const k = Math.min(1, (now - startedAt) / ms)
       const eased = bezierAt(curve, k)
+
       draw(next.map((target, i) => from[i] + (target - from[i]) * eased))
       if (k < 1) {
         frameRef.current = window.requestAnimationFrame(step)

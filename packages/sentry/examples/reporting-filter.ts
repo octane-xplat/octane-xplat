@@ -15,9 +15,11 @@ export function filterError(event: SentryEvent): SentryEvent {
       colno: frame.colno,
       in_app: frame.in_app,
     }))
+
   const breadcrumbs = Array.isArray(event.breadcrumbs)
     ? event.breadcrumbs
     : event.breadcrumbs?.values
+
   return {
     type: event.type,
     event_id: event.event_id,

@@ -11,6 +11,7 @@ export async function addOperation(request: Record<string, any>) {
   const project = realpathSync(process.cwd())
   const manager = packageManagerFor(project)
   const root = installedPackageRoot(project, 'create-octane-xplat')
+
   if (!root) {
     const install =
       manager === 'pnpm'
@@ -21,30 +22,40 @@ export async function addOperation(request: Record<string, any>) {
       `Install create-octane-xplat@${request.frameworkVersion} in the selected project (${install}) before enabling platforms`,
     )
   }
+
   const pkg = JSON.parse(readFileSync(join(root, 'package.json'), 'utf8'))
+
   if (pkg.version !== request.frameworkVersion) {
     throw new Error(
       `Platform addition requires create-octane-xplat@${request.frameworkVersion}; the selected project has ${pkg.version}`,
     )
   }
+
   const require = createRequire(join(project, 'package.json'))
   const load = async (name: string) => {
     const entry = realpathSync(require.resolve('create-octane-xplat/' + name))
+
     if (!entry.startsWith(root + sep)) {
       throw new Error('Creator module escapes the selected installation')
     }
+
     return import(pathToFileURL(entry).href)
   }
+
   const scaffold = await load('scaffold'),
     compatibility = await load('compatibility')
+
   const workspace = realpathSync(compatibility.compatibilityRoot(project))
+
   if (
     typeof request.workspaceRoot !== 'string' ||
     realpathSync(request.workspaceRoot) !== workspace
   ) {
     throw new Error('Platform additions require the selected workspace identity')
   }
+
   const data = { version: 1, project, root: workspace, frameworkVersion: pkg.version }
+
   if (request.operation === 'add-targets') {
     return {
       ...data,
@@ -56,6 +67,7 @@ export async function addOperation(request: Record<string, any>) {
       })),
     }
   }
+
   if (request.operation === 'add-plan') {
     if (
       typeof request.target !== 'string' ||
@@ -70,6 +82,7 @@ export async function addOperation(request: Record<string, any>) {
 
     return { ...data, plan: scaffold.planTarget(project, request.target) }
   }
+
   if (request.operation === 'add-install') {
     const windows = process.platform === 'win32'
     const result = spawnSync(
@@ -84,5 +97,6 @@ export async function addOperation(request: Record<string, any>) {
 
     return { ...data, exitCode: result.status ?? 1 }
   }
+
   throw new Error('Unknown platform operation')
 }

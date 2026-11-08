@@ -159,8 +159,11 @@ export function mockNativeBoundary(
   appendSource = '',
 ) {
   const previous = Object.getOwnPropertyDescriptor(globalThis, 'dlopen')
+
   Object.defineProperty(globalThis, 'dlopen', { value: () => ({}), configurable: true })
+
   let source = platform
+
   if (overrides) {
     for (const name of overrides.exports) {
       source = source.replace(
@@ -175,27 +178,35 @@ export function mockNativeBoundary(
       )
     }
   }
+
   if (overrides?.exports.includes('NSNotificationCenter')) {
     source = source.replace('NSNotificationCenter.defaultCenter = { removeObserver() {} };', '')
   }
+
   source += appendSource
+
   const hooks = registerHooks({
     resolve(specifier, owner, next) {
       if (specifier === '@nativescript/macos-node-api') {
         return { url: 'data:text/javascript,export {}', shortCircuit: true }
       }
+
       if (specifier === '@octane-xplat/platform/macos') {
         return { url: 'data:text/javascript,' + encodeURIComponent(source), shortCircuit: true }
       }
+
       if (specifier.startsWith('.') && owner.parentURL) {
         const candidate = new URL(specifier + '.ts', owner.parentURL)
+
         if (existsSync(candidate)) {
           return next(candidate.href, owner)
         }
       }
+
       return next(specifier, owner)
     },
   })
+
   return {
     deregister() {
       hooks.deregister()

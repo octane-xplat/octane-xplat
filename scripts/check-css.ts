@@ -93,14 +93,19 @@ for (const file of FILES) {
 
   for (const target of targets) {
     const ast = parsePlatformCss(stripped, target, rel)
+
     ast.walkDecls((node) => {
       const prop = node.prop
       const key = `${node.source?.start?.offset}:${prop}:${node.value}`
+
       if (seen.has(key)) {
         return
       }
+
       seen.add(key)
+
       const loc = node.source?.start ? `${rel}:${node.source.start.line}` : rel
+
       if (isCustomProp(prop) || SUPPORTED.has(prop)) {
         return
       }

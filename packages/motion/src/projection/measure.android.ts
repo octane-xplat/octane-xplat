@@ -2,6 +2,7 @@ import type { Box } from './types'
 
 function isView(v: any): boolean {
   const View = (globalThis as any).android?.view?.View
+
   return View ? v instanceof View : typeof v?.getLeft === 'function'
 }
 
@@ -12,14 +13,17 @@ function isView(v: any): boolean {
  */
 export function measureNativeBox(view: any, viewport = false): Box | null {
   let v = view?.nativeView ?? view?.android ?? null
+
   if (!v) {
     return null
   }
+
   const density = v.getResources()?.getDisplayMetrics?.()?.density ?? 1
   const w = v.getWidth()
   const h = v.getHeight()
   let x = 0
   let y = 0
+
   while (isView(v)) {
     x += v.getLeft()
     y += v.getTop()
@@ -29,6 +33,7 @@ export function measureNativeBox(view: any, viewport = false): Box | null {
       y -= v.getScrollY?.() ?? 0
     }
   }
+
   x /= density
   y /= density
   return { x: { min: x, max: x + w / density }, y: { min: y, max: y + h / density } }

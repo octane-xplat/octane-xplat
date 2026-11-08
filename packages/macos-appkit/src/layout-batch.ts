@@ -20,14 +20,18 @@ export function withLayoutBatch<Node>(
   }
 
   const dirty = new Set<Node>()
+
   state.layoutDirty = dirty
+
   const failures = new FailureCollector()
+
   try {
     failures.run('update', update)
   } finally {
     // Release before finalization even when update threw (including undefined).
     state.layoutDirty = null
   }
+
   failures.run('commit', () => commit(dirty, failures.failed ? 'failed' : 'succeeded'))
   failures.throwIfFailed()
 }

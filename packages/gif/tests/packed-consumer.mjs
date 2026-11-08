@@ -20,11 +20,13 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-gif-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -46,6 +48,7 @@ function typecheck(packagePath, target, mode, exportMapIndex) {
   const consumerRoot = join(temporary, `map-${exportMapIndex}-${target}-${mode.name}`)
   const modules = join(consumerRoot, 'node_modules')
   const packageLink = join(modules, '@octane-xplat/gif')
+
   mkdirSync(dirname(packageLink), { recursive: true })
   cpSync(packagePath, packageLink, { recursive: true })
   symlinkSync(join(packageRoot, 'node_modules/octane'), join(modules, 'octane'), 'dir')
@@ -71,6 +74,7 @@ void prefetchResult
   )
 
   const configPath = join(consumerRoot, `tsconfig.${mode.name}.json`)
+
   writeFileSync(
     configPath,
     JSON.stringify(
@@ -108,12 +112,16 @@ void prefetchResult
 
 try {
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
+
   assert.deepEqual(
     packedManifest.exports,
     workspaceManifest.exports,
@@ -131,10 +139,12 @@ try {
 
   for (const [index, exportsMap] of uniqueExportMaps.entries()) {
     const consumerPackage = join(temporary, `package-${index}`)
+
     cpSync(packedRoot, consumerPackage, { recursive: true })
     if (index > 0) {
       const consumerManifestPath = join(consumerPackage, 'package.json')
       const consumerManifest = JSON.parse(readFileSync(consumerManifestPath, 'utf8'))
+
       consumerManifest.exports = exportsMap
       writeFileSync(consumerManifestPath, `${JSON.stringify(consumerManifest, null, 2)}\n`)
     }

@@ -1,7 +1,9 @@
 import { Application } from '@nativescript/core'
 import { requestNative } from './native'
 import type { StreamRequestOptions, StreamResponse } from './types'
+
 export type * from './types'
+
 declare const XplatStreamingRequest: {
   new: () => { startEvent(options: string, event: (json: string) => void): void; cancel(): void }
 }
@@ -28,15 +30,19 @@ export function requestStream(
       if (!Application.ios && !Application.android) {
         throw new Error('Incremental HTTP is unsupported on this native host')
       }
+
       if (Application.ios) {
         if (typeof XplatStreamingRequest === 'undefined') {
           throw new Error('Rebuild the app with @octane-xplat/network')
         }
 
         const native = XplatStreamingRequest.new()
+
         return { start: (o, e) => native.startEvent(o, e), cancel: () => native.cancel() }
       }
+
       const native = new com.xplat.network.StreamingRequest()
+
       return {
         start: (encoded, event) =>
           native.start(encoded, new com.xplat.network.StreamingRequest.Events({ onEvent: event })),

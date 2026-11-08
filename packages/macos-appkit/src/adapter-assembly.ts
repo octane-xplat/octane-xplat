@@ -36,16 +36,20 @@ export function createElementAdapters(deps: Dependencies) {
       scrollview: createScrollAdapter(deps),
     }),
   )
+
   for (const [type, adapter] of definitions) {
     deps.registry.adapters.register(type, adapter)
   }
+
   function registerElementType(type: string, registration: ElementAdapterRegistration): void {
     const base = definitions.get(type)
     const { applyProp, layout, beforeProps } = registration
     const create = registration.create ?? base?.create
+
     if (!create) {
       throw new Error('AppKit adapter <' + type + '> requires create')
     }
+
     function phases(
       first: ((node: import('./model').ElementNode) => void) | undefined,
       second: ((node: import('./model').ElementNode) => void) | undefined,
@@ -53,16 +57,20 @@ export function createElementAdapters(deps: Dependencies) {
       if (!first) {
         return second
       }
+
       if (!second) {
         return first
       }
+
       return (node: import('./model').ElementNode) => {
         const failures = new FailureCollector()
+
         failures.run('registered phase', () => first(node))
         failures.run('builtin phase', () => second(node))
         failures.throwIfFailed()
       }
     }
+
     deps.registry.adapters.register(type, {
       ...base,
       ...registration,
@@ -70,9 +78,11 @@ export function createElementAdapters(deps: Dependencies) {
       applyProp(node, name, value) {
         const handled =
           applyProp?.(node, name, value) || base?.applyProp?.(node, name, value) || false
+
         if (!handled && value !== undefined) {
           console.warn('[macos-host] ignored ' + type + ' prop ' + name)
         }
+
         return handled
       },
       beforeProps(node, patch) {
@@ -90,5 +100,6 @@ export function createElementAdapters(deps: Dependencies) {
         : base?.layout,
     })
   }
+
   return { registerElementType }
 }

@@ -12,6 +12,7 @@ export class PhaseErrors extends AggregateError {
       failures.map((failure) => failure.error),
       failures.map((failure) => failure.phase).join(', '),
     )
+
     this.name = 'PhaseErrors'
     this.failures = failures
   }
@@ -37,6 +38,7 @@ export class FailureCollector {
     if (this.failures.length === 1) {
       throw this.failures[0]!.error
     }
+
     if (this.failed) {
       throw new PhaseErrors(this.failures)
     }

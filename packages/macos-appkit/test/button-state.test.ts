@@ -2,6 +2,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { runSlice, sourceWithoutImports } from './mock-globals.ts'
+
 const source = sourceWithoutImports(new URL('../src/controls.ts', import.meta.url)).replace(
   /^export /gm,
   '',
@@ -10,6 +11,7 @@ const source = sourceWithoutImports(new URL('../src/controls.ts', import.meta.ur
 function fixture() {
   const events: string[] = [],
     warnings: string[] = []
+
   const actions = new Map<number, () => void>()
   const node = {
     type: 'button',
@@ -25,6 +27,7 @@ function fixture() {
       } as any,
     },
   }
+
   const controls = runSlice(source + '\n;createControls(deps)', {
     deps: {
       actions: { actionHandlers: actions },
@@ -35,18 +38,21 @@ function fixture() {
       error: (text: string) => warnings.push(text),
     },
   })
+
   const apply = (patch: Record<string, unknown>) => {
     node.props = { ...node.props, ...patch }
     for (const [name, value] of Object.entries(patch)) {
       controls.applyBuiltinButtonProp(node, name, value)
     }
   }
+
   return { node, apply, events, warnings, press: () => actions.get(1)?.() }
 }
 
 test('native button isEnabled applies to the control and guards dispatched actions', () => {
   const h = fixture()
   let presses = 0
+
   h.apply({ text: 'Google', isEnabled: false, onPress: () => presses++ })
   assert.equal(h.node.view.title, 'Google')
   assert.equal(h.node.view.enabled, false)
@@ -66,6 +72,7 @@ test('native button isEnabled applies to the control and guards dispatched actio
 
 test('clearing button isEnabled restores state without overriding an independent disabled native alias', () => {
   const h = fixture()
+
   h.apply({ isEnabled: false })
   h.apply({ isEnabled: undefined })
   assert.equal(h.node.view.enabled, true)
@@ -81,6 +88,7 @@ test('clearing button isEnabled restores state without overriding an independent
 test('button dispatch uses the current handler and stops after handler/root retirement', () => {
   const h = fixture(),
     calls: string[] = []
+
   h.apply({ onPress: () => calls.push('old') })
   h.apply({ onPress: () => calls.push('current') })
   h.press()

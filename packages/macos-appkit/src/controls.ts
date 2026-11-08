@@ -43,7 +43,9 @@ export function createControls(deps: Dependencies) {
     button.bezelStyle = NSBezelStyle.Rounded
     button.setButtonType(NSButtonType.MomentaryLight)
     button.translatesAutoresizingMaskIntoConstraints = false
+
     const actionId = deps.actions.acquireAction(node, button)
+
     button.tag = actionId
     return { view: button, actionId }
   }
@@ -55,9 +57,11 @@ export function createControls(deps: Dependencies) {
     })
 
     node.view = scroll
+
     // The document view is a mason host — the engine sizes it to content and
     // pins scroll children inside it.
     const content = makeMasonHostView(node)
+
     node.childHost = content
     scroll.hasVerticalScroller = true
     scroll.drawsBackground = false
@@ -69,6 +73,7 @@ export function createControls(deps: Dependencies) {
 
   function setScrollAction(node: ElementNode, handler: ((event: any) => void) | undefined) {
     const clipView = (node.view! as NSScrollView).contentView
+
     if (typeof handler !== 'function') {
       scrollHandlers.delete(clipView)
       return
@@ -108,6 +113,7 @@ export function createControls(deps: Dependencies) {
 
       if ((process.env as { [key: string]: string | undefined }).OCTANE_MACOS_AUTOMATION === '1') {
         node.scrollMetrics ??= { events: [] }
+
         const sample = {
           verticalOffset: event.verticalOffset,
           callbackMs: performance.now() - startedAt,
@@ -139,10 +145,13 @@ export function createControls(deps: Dependencies) {
       deps.actions.buttonActionTarget,
       'controlChanged:',
     )
+
     button.setButtonType(NSButtonType.Switch)
     button.state = props.checked ? 1 : 0
     button.translatesAutoresizingMaskIntoConstraints = false
+
     const actionId = deps.actions.acquireAction(node, button)
+
     button.tag = actionId
     return { view: button, actionId }
   }
@@ -168,6 +177,7 @@ export function createControls(deps: Dependencies) {
   function syncProgress(node: ElementNode) {
     const view = node.view! as NSProgressIndicator
     const maximum = node.props.maxValue ?? 100
+
     // A positive native range keeps the degenerate shared case at 0%,
     // without asking AppKit to divide by zero or accept a negative range.
     view.maxValue = maximum > 0 ? maximum : 100
@@ -191,6 +201,7 @@ export function createControls(deps: Dependencies) {
 
   function syncActivityIndicator(node: ElementNode) {
     const view = node.view! as NSProgressIndicator
+
     if (node.props.busy === true) {
       view.startAnimation(null)
     } else {
@@ -214,10 +225,13 @@ export function createControls(deps: Dependencies) {
     slider.target = deps.actions.buttonActionTarget
     slider.action = 'controlChanged:'
     slider.translatesAutoresizingMaskIntoConstraints = false
+
     const actionId = deps.actions.acquireAction(node, slider)
+
     slider.tag = actionId
     return { view: slider, actionId }
   }
+
   function applyBuiltinProgressProp(node: ElementNode, name: string, value: PropBag[string]) {
     if (['value', 'maxValue', 'id'].includes(name)) {
       return
@@ -273,6 +287,7 @@ export function createControls(deps: Dependencies) {
               ) {
                 return
               }
+
               try {
                 node.container.root.eventScope('discrete', value)
               } catch (error) {
@@ -370,8 +385,11 @@ export function createControls(deps: Dependencies) {
   function disposeBuiltinScrollView(node: ElementNode) {
     if (node.type === 'scrollview' && node.scrollObserverInstalled && node.view) {
       const clipView = node.view.contentView
+
       scrollHandlers.delete(clipView)
+
       const observer = node.scrollObserver
+
       node.scrollObserver = null
       node.scrollObserverInstalled = false
       NSNotificationCenter.defaultCenter.removeObserver(observer)

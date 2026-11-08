@@ -4,7 +4,9 @@ import { characterCount } from '../forms/typeahead-source'
 import { getLocaleDirection } from '../../internal/platform/internationalization'
 
 const nativeIntl = Intl
+
 afterEach(() => vi.unstubAllGlobals())
+
 const rows = [{ name: 'item10' }, { name: 'item2' }]
 const sort = () => sortTableData(rows, [{ sortKey: 'name', direction: 'ascending' }], undefined)
 
@@ -21,10 +23,12 @@ it('uses newly installed capabilities after an initial fallback', () => {
   vi.stubGlobal('Intl', {})
   sort()
   expect(characterCount('e\u0301')).toBe(2)
+
   const compare = vi.fn((a: string, b: string) => (b < a ? -1 : 1))
   class Collator {
     compare = compare
   }
+
   vi.stubGlobal('Intl', { Collator, Segmenter: nativeIntl.Segmenter })
   expect(sort().map((row) => row.name)).toEqual(['item2', 'item10'])
   expect(compare).toHaveBeenCalled()

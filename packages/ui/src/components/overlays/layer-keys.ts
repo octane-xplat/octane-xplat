@@ -20,6 +20,7 @@ configureLayerKeys(() => {
           : responder?.hasMarkedText
 
       let prevented = false
+
       dispatchLayerKey({
         key: 'Escape',
         isComposing: !!marked,
@@ -43,9 +44,12 @@ export function captureLayerFocus(getTarget?: () => any, host?: any): () => void
   const owner =
     (host?.nativeViewProtected ?? host)?.window ??
     hostGlobal('NSApplication')?.sharedApplication?.keyWindow
+
   const responder = owner?.firstResponder
+
   return () => {
     const target = getTarget?.()
+
     if (target?.focus) {
       target.focus()
       return

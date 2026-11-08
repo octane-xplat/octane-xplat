@@ -22,8 +22,11 @@ import { buildReleaseWorker } from './release-worker.mjs'
 const root = resolve(import.meta.dirname, '../..')
 const work = join(root, 'research/go-cli')
 const moduleDirectory = join(root, 'packages/cli/go')
+
 mkdirSync(work, { recursive: true })
+
 const flags = process.argv.slice(2)
+
 assert.ok(
   flags.every((value) =>
     ['--test', '--test-binary', '--onnx', '--cli', '--test-dev-server-race'].includes(value),
@@ -34,6 +37,7 @@ const onnx = flags.includes('--onnx')
 const cli = flags.includes('--cli')
 const testBinary = flags.includes('--test-binary')
 const devServerRace = flags.includes('--test-dev-server-race')
+
 assert.ok(
   !devServerRace || flags.length === 1,
   'Race qualification is a host-only standalone test mode',
@@ -41,6 +45,7 @@ assert.ok(
 
 const tags = onnx ? ['onnx'] : []
 const sourceVersion = JSON.parse(readFileSync(join(root, 'packages/cli/package.json'))).version
+
 assert.equal(
   sourceVersion,
   JSON.parse(readFileSync(join(root, 'packages/create/compatibility.json'))).frameworkVersion,
@@ -49,7 +54,9 @@ assert.equal(
 
 // The CLI publishes at the lockstep version like every other package.
 const version = process.env.XPLAT_GO_VERSION ?? sourceVersion
+
 assert.equal(version, sourceVersion, 'Native CLI builds pin the lockstep package version')
+
 const embedded = JSON.parse(
   readFileSync(join(root, 'packages/cli/go/internal/assets/catalog.json')),
 )
@@ -88,11 +95,13 @@ function run(command, args, options = {}) {
     encoding: 'utf8',
     ...options,
   })
+
   assert.equal(
     result.status,
     0,
     `${command} ${args.join(' ')}\n${result.stdout ?? ''}${result.stderr ?? ''}${result.error?.message ?? ''}`,
   )
+
   return result.stdout
 }
 
@@ -143,6 +152,7 @@ if (flags.includes('--test') || devServerRace) {
   const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
   const inputs = () => nativeInputs(root)
   const before = inputs()
+
   if (testBinary && existsSync(binary) && !statSync(binary).isDirectory()) {
     rmSync(binary)
   }
@@ -167,14 +177,17 @@ if (flags.includes('--test') || devServerRace) {
   if (testBinary) {
     const suffix = target.startsWith('windows') ? '.test.exe' : '.test'
     const packageDirs = {}
+
     for (const line of run('go', ['list', '-f', '{{.Dir}}', './...']).trim().split('\n')) {
       const normalized = line.replaceAll('\\', '/')
       const prefix = moduleDirectory.replaceAll('\\', '/')
       const relative = normalized === prefix ? '.' : normalized.replace(prefix + '/', '')
+
       packageDirs[normalized.split('/').pop()] = relative
     }
 
     const binaries = {}
+
     for (const file of readdirSync(binary).sort()) {
       if (!file.endsWith(suffix)) {
         continue
@@ -183,6 +196,7 @@ if (flags.includes('--test') || devServerRace) {
       const directory = file.slice(0, -suffix.length)
       const packages = packageDirs[directory] ? [packageDirs[directory]] : []
       const bytes = readFileSync(join(binary, file))
+
       binaries[file] = {
         bytes: bytes.length,
         sha256: sha(bytes),
@@ -213,15 +227,19 @@ if (flags.includes('--test') || devServerRace) {
 
   const stage = mkdtempSync(join(work, 'download-'))
   let download
+
   try {
     const executable = target.startsWith('windows') ? 'xplat-go.exe' : 'xplat-go'
+
     writeFileSync(join(stage, executable), bytes, { mode: 0o755 })
+
     const goroot = run('go', ['env', 'GOROOT']).trim()
     const goLicense = existsSync(join(goroot, 'LICENSE'))
       ? join(goroot, 'LICENSE')
       : join(dirname(goroot), 'LICENSE')
 
     const notices = ['Go standard library\n' + readFileSync(goLicense, 'utf8')]
+
     notices.push(
       readFileSync(join(moduleDirectory, 'NOTICE.txt'), 'utf8'),
       readFileSync(join(moduleDirectory, 'licenses/tokenizers-js.txt'), 'utf8'),
@@ -261,6 +279,7 @@ if (flags.includes('--test') || devServerRace) {
     }
 
     const archive = binary + '.tgz'
+
     run(
       'tar',
       [
@@ -279,6 +298,7 @@ if (flags.includes('--test') || devServerRace) {
     )
 
     const packed = readFileSync(archive)
+
     download = { file: archive, bytes: packed.length, sha256: sha(packed) }
   } finally {
     rmSync(stage, { recursive: true, force: true })

@@ -18,6 +18,7 @@ function fixture() {
     calls = [],
     openCalls = [],
     combos = []
+
   let taskId = 0
   class View {
     children = []
@@ -42,9 +43,11 @@ function fixture() {
       for (const child of this.children) {
         this._removeViewFromNativeVisualTree(child)
       }
+
       this.disposeNativeView()
     }
   }
+
   class Panel {
     get Margin() {
       return (this.target ?? this).nativeMargin ?? { Left: 0, Top: 0, Right: 0, Bottom: 0 }
@@ -75,6 +78,7 @@ function fixture() {
       }
     }
   }
+
   class Property {
     constructor(options) {
       this.options = options
@@ -82,6 +86,7 @@ function fixture() {
     register(Type) {
       const { name, valueChanged } = this.options,
         key = Symbol(name)
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[key]
@@ -93,14 +98,17 @@ function fixture() {
       })
     }
   }
+
   class Item {
     set Content(value) {
       if (this.content) {
         this.content.Parent = undefined
       }
+
       if (value?.Parent) {
         throw Error('already parented')
       }
+
       this.content = value
       if (value) {
         value.Parent = this
@@ -110,6 +118,7 @@ function fixture() {
       return this.content
     }
   }
+
   class Combo {
     ApplyTemplate() {}
     index = -1
@@ -131,9 +140,11 @@ function fixture() {
       if (value === this.index) {
         return
       }
+
       if (this.eventDepth) {
         this.reentrantWrites.push(value)
       }
+
       this.index = value
       this.eventDepth++
       try {
@@ -149,6 +160,7 @@ function fixture() {
       if (value === this.open) {
         return
       }
+
       this.open = value
       this.eventDepth++
       try {
@@ -158,6 +170,7 @@ function fixture() {
       }
     }
   }
+
   const Microsoft = {
     UI: {
       Xaml: {
@@ -179,6 +192,7 @@ function fixture() {
       },
     },
   }
+
   vm.runInNewContext(source, {
     exports: {},
     setTimeout: (callback) => {
@@ -190,18 +204,23 @@ function fixture() {
       if (name === '@nativescript/core') {
         return { View, ContentView: View, LayoutBase: View, Property }
       }
+
       if (name === '@nativescript-community/octane') {
         return { registerElement: (name, Type) => types.set(name, Type) }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return { Microsoft, NSWinRT: { asDelegate: (_type, callback) => callback } }
       }
+
       throw Error(name)
     },
   })
+
   const Control = types.get('xplatwindowsselect'),
     Option = types.get('xplatwindowsselectoption'),
     control = new Control()
+
   control.settings = {
     value: 'a',
     open: false,
@@ -211,9 +230,12 @@ function fixture() {
     onPick: (value) => calls.push(value),
     onOpenChange: (value) => openCalls.push(value),
   }
+
   control.nativeViewProtected = control.createNativeView()
+
   function option(value, disabled = false, index = control.children.length) {
     const view = new Option()
+
     view.settings = { value, label: value.toUpperCase(), disabled }
     view.id = 'option-' + value
     view.nativeViewProtected = new Panel()
@@ -221,19 +243,23 @@ function fixture() {
     assert.equal(control._addViewToNativeVisualTree(view), true)
     return view
   }
+
   function update(props) {
     control.settings = { ...control.settings, ...props }
   }
+
   function flush() {
     for (const [id, callback] of [...tasks]) {
       tasks.delete(id)
       callback()
     }
   }
+
   function remove(view) {
     control._removeViewFromNativeVisualTree(view)
     control.children.splice(control.children.indexOf(view), 1)
   }
+
   return {
     control,
     option,
@@ -253,8 +279,11 @@ function fixture() {
 test('Windows Selector retains shared content and rolls rejected native selection back after the event', () => {
   const f = fixture(),
     a = f.option('a')
+
   f.option('disabled', true)
+
   const b = f.option('b')
+
   f.control.onLoaded()
   assert.equal(a.peer.Content, a.nativeViewProtected)
   assert.equal(b.peer.name, 'B')
@@ -275,6 +304,7 @@ test('Windows Selector retains shared content and rolls rejected native selectio
       f.update({ value, open: false })
     },
   })
+
   f.combo.SelectedIndex = 2
   assert.deepEqual(f.combo.reentrantWrites, [])
   f.flush()
@@ -284,6 +314,7 @@ test('Windows Selector retains shared content and rolls rejected native selectio
 
 test('Windows Selector reports native popup intent once and respects controlled open state', () => {
   const f = fixture()
+
   f.option('a')
   f.option('b')
   f.control.onLoaded()
@@ -300,6 +331,7 @@ test('Windows Selector reports native popup intent once and respects controlled 
       f.update({ open })
     },
   })
+
   f.combo.IsDropDownOpen = false
   f.flush()
   assert.deepEqual(f.openCalls, [true, false])
@@ -311,6 +343,7 @@ test('Windows Selector rejects disabled items and blocked commits and resets nam
   const a = f.option('a'),
     disabled = f.option('disabled', true),
     b = f.option('b')
+
   f.control.onLoaded()
   assert.equal(disabled.peer.IsEnabled, false)
   assert.equal(disabled.peer.IsTabStop, false)
@@ -340,9 +373,12 @@ test('Windows Selector rebuilds structural changes without duplicate parenting o
   const f = fixture(),
     a = f.option('a'),
     b = f.option('b')
+
   f.control.onLoaded()
+
   const old = f.combo,
     stale = old.SelectionChanged
+
   f.option('new', false, 1)
   assert.notEqual(f.combo, old)
   assert.equal(a.peer.Content, a.nativeViewProtected)
@@ -357,7 +393,9 @@ test('Windows Selector rebuilds structural changes without duplicate parenting o
   assert.equal(f.combo.SelectedIndex, 1)
   f.combo.SelectedIndex = 0
   assert.equal(f.tasks.size, 1)
+
   const late = f.combo.SelectionChanged
+
   f.control.onUnloaded()
   assert.equal(f.tasks.size, 0)
   late()
@@ -372,16 +410,20 @@ test('Windows Selector rebuilds structural changes without duplicate parenting o
 
 test('Windows Selector unmount inside a selection callback cannot restart retired timers', () => {
   const f = fixture()
+
   f.option('a')
   f.option('b')
   f.control.onLoaded()
+
   const combo = f.combo
+
   f.update({
     onPick: () => {
       f.control.onUnloaded()
       f.control._tearDownUI()
     },
   })
+
   combo.SelectedIndex = 1
   assert.equal(f.tasks.size, 0)
   assert.equal(combo.SelectionChanged, null)
@@ -391,8 +433,10 @@ test('Windows Selector unmount inside a selection callback cannot restart retire
 
 test('Windows Selector borrows typed accessors for base wrappers and leaves popup content intact', () => {
   const f = fixture()
+
   f.option('a')
   f.control.onLoaded()
+
   const caption = { nativeName: 'ContentPresenter', nativeOpacity: 1 },
     glyph = { nativeName: 'DropDownGlyph', nativeVisibility: 0, nativeOpacity: 1 },
     highlight = {
@@ -401,12 +445,16 @@ test('Windows Selector borrows typed accessors for base wrappers and leaves popu
       nativeMargin: { Left: -4, Top: -4, Right: -4, Bottom: -4 },
     },
     background = { nativeName: 'Background', nativeOpacity: 1 }
+
   const optionContent = { nativeName: 'ContentPresenter', nativeOpacity: 1 },
     popup = { nativeName: 'Popup', visualChildren: [optionContent] }
+
   f.combo.visualChildren = [
     { nativeName: 'LayoutRoot', visualChildren: [caption, glyph, highlight, background, popup] },
   ]
+
   const stale = f.combo.LayoutUpdated
+
   stale()
   assert.equal(caption.nativeOpacity, 0)
   assert.equal(glyph.nativeVisibility, 0)

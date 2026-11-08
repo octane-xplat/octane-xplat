@@ -2,11 +2,13 @@ import { host } from './appkit-host'
 import { connectivity } from './connectivity.macos'
 import type { ConnectivityState } from './types'
 import type { RuntimeEnvironment } from './environment-types'
+
 export type { RuntimeEnvironment, RuntimeEnvironmentSnapshot } from './environment-types'
 
 function snapshot(network: ConnectivityState) {
   const app = host()
   const activity = typeof app.onAppStateChange === 'function' && app.appState !== undefined
+
   return {
     online: network.supported === false ? undefined : network.online,
     active: activity ? app.appState === 'active' : undefined,
@@ -24,17 +26,23 @@ export const environment: RuntimeEnvironment = {
     const subscribeApp = app.onAppStateChange
     let active = true,
       registering = true
+
     let network: ConnectivityState | undefined
     let stopApp: (() => void) | undefined, stopNetwork: (() => void) | undefined
     const stop = () => {
       if (!active) {
         return
       }
+
       active = false
+
       const cleanups = [stopNetwork, stopApp]
+
       stopNetwork = stopApp = undefined
+
       let failure: unknown
       let failed = false
+
       for (const cleanup of cleanups) {
         try {
           cleanup?.()
@@ -45,16 +53,19 @@ export const environment: RuntimeEnvironment = {
           }
         }
       }
+
       if (failed) {
         throw failure
       }
     }
+
     try {
       if (typeof subscribeApp === 'function') {
         stopApp = subscribeApp.call(app, () => {
           if (!active || registering || host() !== app || app.onAppStateChange !== subscribeApp) {
             return
           }
+
           try {
             listener(snapshot(network ?? connectivity.getState()))
           } catch {
@@ -67,6 +78,7 @@ export const environment: RuntimeEnvironment = {
         if (!active) {
           return
         }
+
         network = state
         if (!registering) {
           listener(snapshot(state))
@@ -85,6 +97,7 @@ export const environment: RuntimeEnvironment = {
 
       throw error
     }
+
     return stop
   },
 }

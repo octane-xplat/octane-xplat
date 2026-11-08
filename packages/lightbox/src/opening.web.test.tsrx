@@ -3,13 +3,18 @@
 import { act, createRoot } from 'octane'
 import { expect, it, vi } from 'vitest'
 import { Root, Popup, Viewport } from './root.web.tsrx'
+
 vi.mock('@octane-xplat/ui', () => import('../test/content-ui.web.tsrx'))
 it('cancels the unmeasured image opening frame when unmounted', async () => {
   vi.useFakeTimers()
+
   const cancel = vi.spyOn(globalThis, 'cancelAnimationFrame')
   const host = document.createElement('div')
+
   document.body.append(host)
+
   const root = createRoot(host)
+
   try {
     await act(async () =>
       root.render(

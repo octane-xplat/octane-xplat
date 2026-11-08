@@ -40,6 +40,7 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
 
   root.render(SegmentedBar, {})
   await settle()
+
   const first = segmentRef.current,
     left = debug.findId('segment-left'),
     tail = debug.findId('segment-tail')
@@ -109,6 +110,7 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
   )
 
   const before = segmentChanges.length
+
   first.selectedSegment = 0
   first.target.controlChanged(first)
   check(
@@ -144,7 +146,9 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = segmentRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -160,14 +164,18 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = segmentRef.current
+
   check(
     returned && returned !== moved && returned.superview === left && disposed(moved),
     'SegmentedBar return failed',
   )
 
   await advance()
+
   const replacement = segmentRef.current
+
   check(
     replacement && replacement !== returned && replacement.superview === left && disposed(returned),
     'SegmentedBar replacement failed',
@@ -182,7 +190,9 @@ export async function checkSegmentLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = segmentRef.current
+
   check(retained && retained.superview === left, 'SegmentedBar reinsertion failed')
   root.unmount()
   check(

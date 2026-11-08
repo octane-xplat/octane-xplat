@@ -12,6 +12,7 @@ let setSheetOpen: (open: boolean) => void
 
 function ContextLabel() {
   const value = useContext(SheetContext)
+
   rendered.push(value)
   useEffect(() => {
     mounted = true
@@ -26,6 +27,7 @@ function ContextLabel() {
 export default function AppKitSheetPortal() {
   const [name, setName] = useState('Avery')
   const [open, setOpen] = useState(true)
+
   updateName = setName
   setSheetOpen = setOpen
 
@@ -41,6 +43,7 @@ export async function run(ctx: ProbeContext) {
   ctx.assert('AppKit sheet reads declaring context', rendered.at(-1), 'Avery')
 
   const beforeUpdate = rendered.length
+
   updateName('Jordan')
   await ctx.waitFor(() => rendered.length > beforeUpdate && rendered.at(-1) === 'Jordan', {
     timeout: 5000,

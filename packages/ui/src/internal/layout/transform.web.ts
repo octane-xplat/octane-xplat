@@ -29,8 +29,10 @@ export function writeTransformProp(el: HTMLElement, prop: string, value: number)
   if (Object.prototype.hasOwnProperty.call(transformProps, prop)) {
     const transformProp = prop as TransformProp
     let state = transformStates.get(el)
+
     if (!state) {
       const computed = getComputedStyle(el).transform
+
       state = {
         base: computed === 'none' ? '' : computed,
         values: new Map(),
@@ -40,6 +42,7 @@ export function writeTransformProp(el: HTMLElement, prop: string, value: number)
     }
 
     state.values.set(transformProp, value)
+
     const transforms = Object.entries(transformProps)
       .filter(([name]) => state.values.has(name as TransformProp))
       .map(([name, toTransform]) => toTransform(state.values.get(name as TransformProp)!))

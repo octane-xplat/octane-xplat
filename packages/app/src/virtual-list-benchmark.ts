@@ -60,6 +60,7 @@ export const VIRTUAL_LIST_BENCH_FIXED_ITEMS: VirtualListBenchItem[] = VIRTUAL_LI
 
 const rowOffsets = (() => {
   const offsets = new Array<number>(VIRTUAL_LIST_BENCH_ROW_COUNT + 1)
+
   offsets[0] = 0
   for (let index = 0; index < VIRTUAL_LIST_BENCH_ROW_COUNT; index += 1) {
     offsets[index + 1] = offsets[index] + virtualListBenchRowHeight(index)
@@ -73,8 +74,10 @@ export const VIRTUAL_LIST_BENCH_TOTAL_HEIGHT = rowOffsets[VIRTUAL_LIST_BENCH_ROW
 function indexAtOffset(offset: number) {
   let low = 0
   let high = VIRTUAL_LIST_BENCH_ROW_COUNT
+
   while (low < high) {
     const middle = Math.floor((low + high) / 2)
+
     if (rowOffsets[middle + 1] <= offset) {
       low = middle + 1
     } else {
@@ -128,6 +131,7 @@ function percentile(values: number[], p: number) {
   }
 
   const sorted = [...values].sort((a, b) => a - b)
+
   return Number(sorted[Math.max(0, Math.ceil((p / 100) * sorted.length) - 1)].toFixed(2))
 }
 
@@ -148,6 +152,7 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
   const { start, end } = virtualListBenchVisibleRange(snapshot.offset, snapshot.viewportHeight)
   const mounted = new Set(snapshot.mountedIndices)
   let missingVisibleRows = 0
+
   for (let index = start; index < end; index += 1) {
     if (!mounted.has(index)) {
       missingVisibleRows += 1
@@ -164,6 +169,7 @@ function snapshotCoverage(snapshot: VirtualListBenchSnapshot) {
 
   let coveredUntil = 0
   let maxGap = 0
+
   for (const row of visible) {
     if (row.top > coveredUntil) {
       maxGap = Math.max(maxGap, row.top - coveredUntil)
@@ -188,6 +194,7 @@ export async function runVirtualListInputTrace(
   const now = () => performanceApi?.now?.() ?? Date.now()
   let first = adapter.read()
   const readyDeadline = now() + 10_000
+
   while (
     (first.viewportHeight <= 0 || first.mountedIndices.length === 0) &&
     now() < readyDeadline
@@ -248,6 +255,7 @@ export async function runVirtualListInputTrace(
     const leadingGap = visible[0]?.top ?? snapshot.viewportHeight
     let coveredUntil = visible[0]?.bottom ?? 0
     let internalGap = 0
+
     for (const row of visible.slice(1)) {
       internalGap = Math.max(internalGap, row.top - coveredUntil)
       coveredUntil = Math.max(coveredUntil, row.bottom)
@@ -289,11 +297,15 @@ export async function runVirtualListInputTrace(
 
   while (now() - startedAt < durationMs) {
     await adapter.wait()
+
     const snapshot = adapter.read()
     const sampledAt = now()
+
     intervalSamples.push(Math.max(0, sampledAt - previousAt))
     previousAt = sampledAt
+
     const nextMounted = new Set(snapshot.mountedIndices)
+
     for (const index of nextMounted) {
       if (!previousMounted.has(index)) {
         mountedRowsAdded += 1
@@ -308,6 +320,7 @@ export async function runVirtualListInputTrace(
 
     if (snapshot.mountedCellIds) {
       const cells = new Set(snapshot.mountedCellIds)
+
       for (const id of cells) {
         if (!previousCells.has(id)) {
           cellHostsAdded++
@@ -326,7 +339,9 @@ export async function runVirtualListInputTrace(
 
     previousMounted = nextMounted
     mountedSamples.push(snapshot.mountedIndices.length)
+
     const gap = visibleGap(snapshot)
+
     gapSamples.push(gap.maxGap)
     if (gap.overscrollGap > 1) {
       overscrollGapSamples += 1
@@ -348,8 +363,10 @@ export async function runVirtualListInputTrace(
   const nonzeroMovements = movements.filter((delta) => Math.abs(delta) > 0.5)
   let directionChanges = 0
   let previousDirection = 0
+
   for (const delta of nonzeroMovements) {
     const direction = Math.sign(delta)
+
     if (previousDirection !== 0 && previousDirection !== direction) {
       directionChanges += 1
     }
@@ -361,6 +378,7 @@ export async function runVirtualListInputTrace(
   const minOffset = offsets.length ? Math.min(...offsets) : 0
   const maxVelocity = movements.reduce((max, delta, index) => {
     const interval = intervalSamples[index] ?? 0
+
     return interval > 0 ? Math.max(max, (Math.abs(delta) / interval) * 1000) : max
   }, 0)
 
@@ -421,6 +439,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 
     const { start, end } = virtualListBenchVisibleRange(bounded, snapshot.viewportHeight)
     const mounted = new Set(snapshot.mountedIndices)
+
     for (let index = start; index < end; index += 1) {
       if (!mounted.has(index)) {
         return false
@@ -432,6 +451,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 
   let first = adapter.read()
   const readyDeadline = now() + 10_000
+
   while (
     (first.viewportHeight <= 0 || first.mountedIndices.length === 0) &&
     now() < readyDeadline
@@ -488,6 +508,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
     }
 
     const firedAt = now()
+
     eventLoopDriftSamples.push(Math.max(0, firedAt - heartbeatDue))
     heartbeatDue = firedAt + 25
     heartbeatTimer = setTimeout(heartbeat, 25)
@@ -500,6 +521,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
     phaseCoverage: typeof streamCoverage,
   ) => {
     const nextMounted = new Set(snapshot.mountedIndices)
+
     for (const index of nextMounted) {
       if (!previousMounted.has(index)) {
         mountedRowsAdded += 1
@@ -516,6 +538,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
     mountedSamples.push(snapshot.mountedIndices.length)
 
     const coverage = snapshotCoverage(snapshot)
+
     phaseCoverage.samples += 1
     phaseCoverage.maxMissingVisibleRows = Math.max(
       phaseCoverage.maxMissingVisibleRows,
@@ -549,6 +572,7 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 
   for (const targetOffset of trace.streamOffsets) {
     const issuedAt = now()
+
     if (previousStreamIssueAt !== null) {
       streamIntervalSamples.push(issuedAt - previousStreamIssueAt)
     }
@@ -556,8 +580,11 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
     previousStreamIssueAt = issuedAt
     adapter.writeOffset(targetOffset)
     await wait()
+
     const snapshot = adapter.read()
+
     recordSnapshot(snapshot, streamCoverage)
+
     const clampedTarget = Math.max(
       0,
       Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - snapshot.viewportHeight),
@@ -573,7 +600,9 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
 
   for (const targetOffset of trace.seekOffsets) {
     const issuedAt = now()
+
     adapter.writeOffset(targetOffset)
+
     const deadline = issuedAt + VIRTUAL_LIST_BENCH_MAX_SETTLE_MS
     let reached = false
     let polls = 0
@@ -581,11 +610,13 @@ export async function runVirtualListBenchTrace(adapter: VirtualListBenchAdapter)
     let stablePolls = 0
     let measuredLatency: number | null = null
     let lastSnapshot = adapter.read()
+
     while (now() <= deadline) {
       await wait()
       lastSnapshot = adapter.read()
       polls += 1
       recordSnapshot(lastSnapshot, seekCoverage)
+
       const clampedTarget = Math.max(
         0,
         Math.min(targetOffset, VIRTUAL_LIST_BENCH_TOTAL_HEIGHT - lastSnapshot.viewportHeight),

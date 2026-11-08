@@ -64,6 +64,7 @@ export async function buildMacOSSpeechArm64(appRoot) {
       }
 
       const object = join(staging, `${leaf.id}-${index}.o`)
+
       await run(
         toolchain.clang,
         [
@@ -103,6 +104,7 @@ export async function buildMacOSSpeechArm64(appRoot) {
 
   await mkdir(join(staging, 'types'), { recursive: true })
   await mkdir(join(staging, 'json'), { recursive: true })
+
   const includeArgs = [
     ...new Set([...headers.map(dirname), ...leaves.flatMap((leaf) => leaf.includePaths)]),
   ].map((path) => `include=${path}`)

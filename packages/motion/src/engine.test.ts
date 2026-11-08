@@ -25,7 +25,9 @@ function fakeClock() {
     clock,
     advance(ms: number) {
       time += ms
+
       const pending = [...callbacks.values()]
+
       callbacks.clear()
       pending.forEach((fn) => fn())
     },
@@ -62,15 +64,19 @@ describe('portable playback', () => {
     let value = 0
     const options = { stiffness: 180, damping: 16, mass: 2, velocity: 90 }
     const reference = spring({ ...options, keyframes: [0, 100] })
+
     runAnimation(time.clock, 0, 100, { ...options, type: 'spring' }, (next) => {
       value = next
     })
 
     let elapsed = 0
+
     for (const dt of [8, 16, 34, 5, 100, 10000]) {
       elapsed += dt
       time.advance(dt)
+
       const expected = reference.next(elapsed)
+
       expect(value).toBeCloseTo(expected.done ? 100 : expected.value)
     }
 
@@ -102,10 +108,13 @@ describe('portable playback', () => {
     const time = fakeClock()
     const value = new MotionValue(0, time.clock)
     const first = value.animate(100, { type: 'spring' })
+
     time.advance(16)
     time.advance(16)
     expect(value.getVelocity()).toBeGreaterThan(0)
+
     const second = value.animate(0, { type: 'spring' })
+
     expect(await first.finished).toBe('replaced')
     value.jump(25)
     expect(value.get()).toBe(25)
@@ -118,6 +127,7 @@ describe('portable playback', () => {
     const time = fakeClock()
     const controller = new Controller(time.clock)
     const result = controller.animate({ x: 40, opacity: 0 }, { duration: 1 }, false)
+
     controller.destroy()
     time.advance(1000)
     expect(await result).toBe('replaced')
@@ -218,6 +228,7 @@ describe('upstream-shaped transitions', () => {
 
   it('rejects fractional repeats', () => {
     const time = fakeClock()
+
     expect(() => runAnimation(time.clock, 0, 1, { duration: 1, repeat: 1.5 }, () => {})).toThrow(
       'repeat',
     )
@@ -241,15 +252,19 @@ describe('inertia transitions', () => {
     const time = fakeClock()
     let value = 0
     const reference = inertia({ keyframes: [0], ...spec })
+
     runAnimation(time.clock, 0, 999, spec, (next) => {
       value = next
     })
 
     let elapsed = 0
+
     for (const dt of [8, 16, 34, 5, 100, 40, 10000]) {
       elapsed += dt
       time.advance(dt)
+
       const expected = reference.next(elapsed)
+
       expect(value).toBeCloseTo(expected.value)
       if (expected.done) {
         break
@@ -316,6 +331,7 @@ describe('inertia transitions', () => {
     [{ type: 'inertia', min: 10, max: 5 }, 'min'],
   ] as const)('rejects %o with %s', (transition, pattern) => {
     const time = fakeClock()
+
     expect(() => runAnimation(time.clock, 0, 1, transition as any, () => {})).toThrow(pattern)
   })
 })
@@ -337,15 +353,19 @@ describe('inertia transitions', () => {
     const time = fakeClock()
     let value = 0
     const reference = inertia({ keyframes: [0], ...spec })
+
     runAnimation(time.clock, 0, 999, spec, (next) => {
       value = next
     })
 
     let elapsed = 0
+
     for (const dt of [8, 16, 34, 5, 100, 40, 10000]) {
       elapsed += dt
       time.advance(dt)
+
       const expected = reference.next(elapsed)
+
       expect(value).toBeCloseTo(expected.value)
       if (expected.done) {
         break
@@ -412,6 +432,7 @@ describe('inertia transitions', () => {
     [{ type: 'inertia', min: 10, max: 5 }, 'min'],
   ] as const)('rejects %o with %s', (transition, pattern) => {
     const time = fakeClock()
+
     expect(() => runAnimation(time.clock, 0, 1, transition as any, () => {})).toThrow(pattern)
   })
 })

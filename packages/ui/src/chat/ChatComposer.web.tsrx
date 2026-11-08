@@ -60,11 +60,13 @@ export function ChatComposer(props: ChatComposerProps): JSX.Element @{
   const handleSend = useCallback(
     (value: string) => {
       const trimmed = value.trim()
+
       if (!trimmed || isDisabled) {
         return
       }
 
       const sendAction = props.onSend ?? props.onSubmit
+
       sendAction?.(trimmed)
       if (!isControlledDraft) {
         setInternalDraft(EMPTY_DRAFT)
@@ -91,6 +93,7 @@ export function ChatComposer(props: ChatComposerProps): JSX.Element @{
 
   const handleBodyClick = useCallback((e: any) => {
     const target = e.target as HTMLElement
+
     if (
       target.closest?.('button, a, [role="button"], [contenteditable="true"], [data-vx-chat-token]')
     ) {

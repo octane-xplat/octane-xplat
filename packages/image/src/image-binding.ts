@@ -48,6 +48,7 @@ export function createImageBinding(options: {
     // 'none' draws the source at intrinsic size — downsampling would
     // shrink it (core parity; see ui/src/image-sizing.ts).
     const downscale = fit !== 'none'
+
     view.decodeWidth = bounds.width ?? (downscale ? width : 0)
     view.decodeHeight = bounds.height ?? (downscale ? height : 0)
     view.src = next
@@ -62,6 +63,7 @@ export function createImageBinding(options: {
 
     const viewWidth = (host.getMeasuredWidth?.() ?? 0) / scale()
     const viewHeight = (host.getMeasuredHeight?.() ?? 0) / scale()
+
     if (viewWidth <= 0 || viewHeight <= 0) {
       return
     }
@@ -83,12 +85,14 @@ export function createImageBinding(options: {
 
   const evaluate = () => {
     const sizeView = host ?? view
+
     if (!view || !sizeView) {
       return
     }
 
     const measuredWidth = sizeView.getMeasuredWidth?.() ?? 0
     const measuredHeight = sizeView.getMeasuredHeight?.() ?? 0
+
     // Hold the request until a real layout — an earlier write decodes at
     // the default 0 dims (full source resolution).
     if (measuredWidth <= 0 || measuredHeight <= 0) {
@@ -96,6 +100,7 @@ export function createImageBinding(options: {
     }
 
     let next = pending.source
+
     if (pending.sources) {
       next =
         bestImageSource(pending.sources, measuredWidth / scale(), measuredHeight / scale(), scale())
@@ -107,12 +112,14 @@ export function createImageBinding(options: {
     }
 
     const resized = applied && (measuredWidth !== width || measuredHeight !== height)
+
     if (applied && next === appliedSrc && !resized) {
       applyRect()
       return
     }
 
     const fit = options.getFit()
+
     // A same-src resize re-issue only matters where the decode target
     // changes the result — 'fill'/'none' keep the existing bitmap.
     if (applied && next === appliedSrc && (fit === 'fill' || fit === 'none')) {
@@ -134,6 +141,7 @@ export function createImageBinding(options: {
   let measured: any = null
   const listen = () => {
     const target = host ?? view
+
     if (target === measured) {
       return
     }

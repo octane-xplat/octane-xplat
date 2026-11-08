@@ -17,6 +17,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
     const audioContext = getCtx()
     const source = audioContext.createMediaStreamSource(stream)
     const analyser = audioContext.createAnalyser()
+
     analyser.fftSize = 256
     analyser.smoothingTimeConstant = 0.5
     source.connect(analyser)
@@ -31,6 +32,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
       calibrationSamples++
       for (let i = 0; i < dataArray.length; i++) {
         const val = dataArray[i] / 255
+
         if (val > noiseFloor[i]) {
           noiseFloor[i] = val
         }
@@ -39,6 +41,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
 
     function getCleanBin(i: number): number {
       const raw = dataArray[i] / 255
+
       if (calibrationSamples < CALIBRATION_FRAMES) {
         return 0
       }
@@ -57,9 +60,11 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
       const voiceSplits = [3, 6, 11, 18, binCount]
       const splits = count <= voiceSplits.length ? voiceSplits.slice(0, count) : voiceSplits
       let start = 1
+
       for (let b = 0; b < splits.length; b++) {
         const end = splits[b]
         let sum = 0
+
         for (let i = start; i < end; i++) {
           sum += clean ? getCleanBin(i) : dataArray[i] / 255
         }
@@ -80,6 +85,7 @@ async function createVolumeAnalyser(getCtx: () => any): Promise<VolumeAnalyser |
         }
 
         let sum = 0
+
         for (let i = 0; i < dataArray.length; i++) {
           sum += getCleanBin(i)
         }
@@ -123,6 +129,7 @@ function playPlop(freq: number, delay: number, getCtx: () => any, volume = 0.25)
     const dur = freq < 200 ? 0.18 : 0.06
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
+
     osc.type = 'sine'
     osc.frequency.setValueAtTime(freq * 1.3, now + delay)
     osc.frequency.exponentialRampToValueAtTime(freq, now + delay + 0.01)
@@ -189,21 +196,28 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 
   const volumeHistoryRef = useRef<number[]>([])
   const getAudioContextRef = useRef(getAudioContext)
+
   getAudioContextRef.current = getAudioContext
+
   const analyserRef = useRef<VolumeAnalyser | null>(null)
   const rafRef = useRef(0)
   const interimSpanRef = useRef<HTMLSpanElement | null>(null)
 
   const callbacksRef = useRef({ onTranscriptProp, onResultProp, onStartProp, onEndProp })
+
   callbacksRef.current = { onTranscriptProp, onResultProp, onStartProp, onEndProp }
 
   const startVolumePolling = useCallback(() => {
     const poll = () => {
       const analyser = analyserRef.current
+
       if (analyser) {
         const vol = analyser.getVolume()
+
         setVolume(vol)
+
         const hist = volumeHistoryRef.current
+
         hist.push(vol)
         if (hist.length > 30) {
           hist.shift()
@@ -231,6 +245,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 
   const getEditable = useCallback((): HTMLDivElement | null => {
     const active = document.activeElement
+
     if (active?.getAttribute('contenteditable') === 'true') {
       return active as HTMLDivElement
     }
@@ -242,11 +257,13 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 
   const insertInterimSpan = useCallback(() => {
     const editable = getEditable()
+
     if (!editable) {
       return
     }
 
     const span = document.createElement('span')
+
     span.setAttribute('data-vx-chat-dictation-interim', '')
     span.contentEditable = 'false'
     span.className = 'vx-chatinput-interim'
@@ -257,6 +274,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
 
   const removeInterimSpan = useCallback(() => {
     const span = interimSpanRef.current
+
     if (span?.isConnected) {
       try {
         span.remove()
@@ -271,6 +289,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
   const transformTranscript = useCallback(
     (text: string) => {
       let t = text
+
       if (userTransform) {
         t = userTransform(t)
       }
@@ -278,6 +297,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
       // Sustained loud speech → CAPS LOCK.
       const hist = volumeHistoryRef.current
       const avg = hist.length > 0 ? hist.reduce((a, b) => a + b, 0) / hist.length : 0
+
       if (avg >= 0.15 && hist.length >= 10) {
         t = t.toUpperCase()
       }
@@ -305,7 +325,9 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
       if (inputRef) {
         if (isFinal) {
           removeInterimSpan()
+
           const handle = inputRef.current
+
           if (handle) {
             handle.focus()
             handle.insertText(transcript + ' ')
@@ -315,6 +337,7 @@ export function useChatDictation(options: UseChatDictationOptions = {}): UseChat
           insertInterimSpan()
         } else {
           const span = interimSpanRef.current
+
           if (span) {
             span.textContent = transcript
           } else {

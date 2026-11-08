@@ -13,8 +13,11 @@ export const PresenceContext: Context<PresenceState | null> = createContext<Pres
 export function Presence(props: PresenceProps): unknown @{
   const [retained, setRetained] = useState(props.present)
   const latest = useRef(props)
+
   latest.current = props
+
   const stateRef = useRef<PresenceState | null>(null)
+
   if (!stateRef.current) {
     stateRef.current = new PresenceState(props.present, () => {
       setRetained(false)

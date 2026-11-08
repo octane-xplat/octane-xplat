@@ -5,6 +5,7 @@ import { mockGlobals } from './mock-globals.ts'
 class NativeObject {
   static extend(methods) {
     class Extended extends this {}
+
     Object.assign(Extended.prototype, methods)
     return Extended
   }
@@ -96,6 +97,7 @@ function fixture(props) {
 
 test('HTML wins including empty HTML; callback changes do not reload; source transitions and bundle paths load', () => {
   const { node, update } = fixture({ src: 'https://example.com', html: '' })
+
   assert.deepEqual(node.view.calls.at(-1), ['html', ''])
   update({ onLoad() {} })
   assert.equal(node.view.calls.length, 2)
@@ -133,13 +135,17 @@ test('delegate reports successful load, measured size and height; ignores stale 
   assert.deepEqual(sizes, [{ width: 320, height: 800 }])
   update({ scrollEnabled: false })
   assert.match(view.calls.at(-1)[1], /if \(true\)/)
+
   const stale = view.pending.shift()
+
   update({ html: '<p>replacement</p>' })
   stale('{"width":320,"height":900}', null)
   assert.deepEqual(heights, [800])
   delegate['webView:didStartProvisionalNavigation:'](view, navigation)
   delegate['webView:didFinishNavigation:'](view, navigation)
+
   const disposed = view.pending.shift()
+
   disposeWebView(view)
   assert.equal(view.navigationDelegate, null)
   disposed('{"width":320,"height":1000}', null)

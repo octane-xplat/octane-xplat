@@ -16,11 +16,15 @@ import { buildMacOSNative, writeNativeBootstrap } from '../../../packages/cli/sr
 
 const appRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = resolve(appRoot, '../../research')
+
 await mkdir(scratch, { recursive: true })
+
 const directory = await mkdtemp(join(scratch, 'macos-overlays-'))
 const bootstrap = join(directory, 'bootstrap.js')
 const artifact = await buildMacOSNative(appRoot)
+
 await writeNativeBootstrap(artifact, bootstrap)
+
 const config = await createMacOSConfig({
   packaged: true,
   rules: [{ include: '**/*.{tsx,tsrx}', renderer: 'macos' }],
@@ -28,6 +32,7 @@ const config = await createMacOSConfig({
 
 {
   const entry = join(directory, 'main.mjs')
+
   await writeFile(
     entry,
     [
@@ -52,7 +57,9 @@ const config = await createMacOSConfig({
   })
 
   const bundle = join(directory, 'fixture.cjs')
+
   await validateHostBundle(bundle, appRoot)
+
   const result = spawnSync(
     await macOSExecutable(appRoot, 'macos/host'),
     [
@@ -70,6 +77,7 @@ const config = await createMacOSConfig({
   )
 
   const output = result.stdout + result.stderr
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /APPKIT_OVERLAYS_FAIL|uncaught render error/)
   assert.match(output, /APPKIT_OVERLAYS_OK/)

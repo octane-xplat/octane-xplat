@@ -8,6 +8,7 @@ import {
 import type { KeyboardScrollBinding } from '../../src/scroll-types'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './scroll.css'
+
 let binding: KeyboardScrollBinding | null
 const capture = (next: KeyboardScrollBinding | null) => {
   binding = next
@@ -34,11 +35,13 @@ export async function run(ctx: ProbeContext) {
     area = ctx.find('scroll-area')
 
   await ctx.waitFor(() => binding)
+
   const values: any[] = [],
     keys: any[] = []
 
   const off = FocusedInputController.subscribe(root, (state) => values.push(state))
   const offKeys = KeyboardController.onMove(root, (state) => keys.push(state))
+
   ctx.onCleanup(off)
   ctx.onCleanup(offKeys)
   if (field.android) {
@@ -47,6 +50,7 @@ export async function run(ctx: ProbeContext) {
 
   field.focus()
   await ctx.waitFor(() => keys.at(-1)?.inset > 100 && values.at(-1)?.inputRect)
+
   const visible = () => {
     const focus = values.at(-1),
       key = keys.at(-1)
@@ -57,6 +61,7 @@ export async function run(ctx: ProbeContext) {
     )
 
     const target = focus.inputRect.height > 300 ? focus.caretRect : focus.inputRect
+
     return (
       !!target &&
       !!viewport &&
@@ -99,6 +104,7 @@ export async function run(ctx: ProbeContext) {
   )
 
   const before = root.scrollTop
+
   binding!.recheck()
   await ctx.waitFor(visible)
   ctx.assert(

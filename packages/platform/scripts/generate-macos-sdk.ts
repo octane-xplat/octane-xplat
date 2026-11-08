@@ -146,12 +146,16 @@ const sources = new Map()
 
 for (const file of files) {
   const text = readFileSync(join(sdkSrc, file), 'utf8')
+
   sources.set(file, text)
+
   const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
   const names = new Map()
+
   for (const stmt of sf.statements) {
     for (const [n, kind] of stmtNames(stmt)) {
       const f = names.get(n) ?? { type: false, value: false, _class: false, kinds: new Set() }
+
       f.type =
         f.type ||
         kind === 'class' ||
@@ -177,6 +181,7 @@ for (const file of files) {
   decls.set(file, names)
   for (const name of names.keys()) {
     const prev = owners.get(name)
+
     if (prev && prev !== file) {
       duplicates.set(name, (duplicates.get(name) ?? [prev]).concat(file))
     } else {
@@ -187,6 +192,7 @@ for (const file of files) {
 
 function stmtNames(stmt) {
   const out = []
+
   if (
     ts.isClassDeclaration(stmt) ||
     ts.isInterfaceDeclaration(stmt) ||
@@ -225,8 +231,10 @@ function stmtNames(stmt) {
 // module tree can't. The alphabetically-first file keeps the declaration;
 // others drop it at emission.
 const dropped = new Map() // file -> Set(name)
+
 for (const [name, candidates] of duplicates) {
   const keeper = candidates.sort()[0]
+
   for (const f of candidates) {
     if (f !== keeper) {
       if (!dropped.has(f)) {
@@ -255,6 +263,7 @@ function collectUsage(sf) {
   const used = new Map() // name -> 'type' | 'value'
   const add = (name, kind) => {
     const prev = used.get(name)
+
     if (prev !== 'value') {
       used.set(name, kind)
     }
@@ -274,6 +283,7 @@ function collectUsage(sf) {
       // Qualified name `interop.Pointer` — the type name is the rightmost
       // identifier; the qualifier root (`interop`) is the external ref.
       const n = node.typeName
+
       if (ts.isIdentifier(n)) {
         add(n.text, 'type')
       } else if (ts.isQualifiedName(n) && ts.isIdentifier(n.left)) {
@@ -281,6 +291,7 @@ function collectUsage(sf) {
       }
     } else if (ts.isTypeQueryNode(node)) {
       let e = node.exprName
+
       while (e && !ts.isIdentifier(e)) {
         e = e.left
       }
@@ -299,6 +310,7 @@ function collectUsage(sf) {
         ts.isClassDeclaration(node.parent.parent)
 
       let e = node.expression
+
       while (e && !ts.isIdentifier(e)) {
         e = e.left
       }
@@ -335,6 +347,7 @@ const apiText = readFileSync(objcApi, 'utf8')
 const apiSf = ts.createSourceFile('index.d.ts', apiText, ts.ScriptTarget.Latest, true)
 
 let globalBlock = null
+
 for (const stmt of apiSf.statements) {
   if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
     globalBlock = stmt
@@ -346,6 +359,7 @@ const inlineSrc = join(dirname(objcApi), 'inline_functions.d.ts')
 const inlineText = readFileSync(inlineSrc, 'utf8')
 const inlineSf = ts.createSourceFile('inline.d.ts', inlineText, ts.ScriptTarget.Latest, true)
 const globalBlocks = [globalBlock]
+
 for (const stmt of inlineSf.statements) {
   if (ts.isModuleDeclaration(stmt) && stmt.name.text === 'global') {
     globalBlocks.push(stmt)
@@ -360,12 +374,14 @@ const runtimeLines = [
 
 const runtimeExported = new Map()
 const runtimeNsMembers = new Map() // namespace name -> [member names]
+
 for (const block of globalBlocks) {
   if (!block?.body) {
     continue
   }
 
   const src = block.getSourceFile()
+
   for (const member of block.body.statements) {
     for (const [n, kind] of stmtNames(member)) {
       RUNTIME_NAMES.add(n)
@@ -397,6 +413,7 @@ for (const block of globalBlocks) {
       ts.isModuleBlock(member.body)
     ) {
       const props = []
+
       for (const stmt of member.body.statements) {
         if (ts.isFunctionDeclaration(stmt) && stmt.name) {
           const tp = stmt.typeParameters?.length
@@ -405,6 +422,7 @@ for (const block of globalBlocks) {
 
           const params = stmt.parameters.map((p) => p.getText(src)).join(', ')
           const ret = stmt.type ? `: ${stmt.type.getText(src)}` : ': void'
+
           props.push(`${stmt.name.text}${tp}(${params})${ret}`)
         } else if (
           ts.isExportDeclaration(stmt) &&
@@ -420,6 +438,7 @@ for (const block of globalBlocks) {
               if (fn) {
                 const params = fn.parameters.map((p) => p.getText(src)).join(', ')
                 const ret = fn.type ? `: ${fn.type.getText(src)}` : ': void'
+
                 props.push(`import(${params})${ret}`)
               }
             }
@@ -432,6 +451,7 @@ for (const block of globalBlocks) {
     }
 
     const text = member.getText(src).replace(/^declare\s+/, '')
+
     // `export {…}` statements inside declare global already carry `export`.
     runtimeLines.push(text.startsWith('export') ? text : `export ${text}`)
   }
@@ -447,8 +467,10 @@ const runtimeSf = ts.createSourceFile(
 
 const runtimeUsed = collectUsage(runtimeSf)
 const runtimeImports = []
+
 for (const [name] of runtimeUsed) {
   const owner = owners.get(name)
+
   if (owner) {
     runtimeImports.push([owner.replace(/\.d\.ts$/, ''), name])
   }
@@ -456,6 +478,7 @@ for (const [name] of runtimeUsed) {
 
 if (runtimeImports.length) {
   const byFile = new Map()
+
   for (const [f, n] of runtimeImports) {
     if (!byFile.has(f)) {
       byFile.set(f, [])
@@ -479,6 +502,7 @@ writeFileSync(join(outDir, 'objc-runtime.d.ts'), runtimeLines.join('\n\n') + '\n
 // ---------------------------------------------------------------------------
 
 let totalImported = 0
+
 for (const file of files) {
   const text = sources.get(file)
   const sf = ts.createSourceFile(file, text, ts.ScriptTarget.Latest, true)
@@ -501,6 +525,7 @@ for (const file of files) {
     }
 
     const owner = owners.get(name)
+
     if (RUNTIME_NAMES.has(name)) {
       push(kind === 'value' ? valueImports : typeImports, './objc-runtime', name)
     } else if (owner && owner !== file) {
@@ -529,17 +554,20 @@ for (const file of files) {
   }
 
   const drops = dropped.get(file) ?? new Set()
+
   for (const stmt of sf.statements) {
     if (stmt.kind === ts.SyntaxKind.NotEmittedStatement || !stmt.getText(sf).trim()) {
       continue
     }
 
     let s = stmt.getText(sf)
+
     if (s.startsWith('///')) {
       continue
     }
 
     const names = stmtNames(stmt)
+
     if (names.length && names.every(([n]) => drops.has(n))) {
       continue
     }
@@ -551,6 +579,7 @@ for (const file of files) {
       names.length &&
       names.every(([n]) => {
         const f = localNames.get(n)
+
         return f && [...f.kinds].some((k) => k !== 'var' && k !== 'interface' && k !== 'type')
       })
     ) {
@@ -650,6 +679,7 @@ const LAZY = `export const lazyGlobal = (name) => {
 // Per-SDK-file impl modules under src/types/macos-impl/ — a single 78k-export
 // module makes rolldown/vite quadratic; per-file modules bundle linearly.
 const implDir = join(outDir, '..', 'macos-impl')
+
 rmSync(implDir, { recursive: true, force: true })
 mkdirSync(implDir, { recursive: true })
 
@@ -723,10 +753,13 @@ export declare const _bind: any
 // Type facets — `export type X = _ns.X` aliases merge with the same-named
 // value exports below (re-export `export type {X}` would collide).
 const typeParams = new Map() // name -> [decl, args]
+
 for (const file of files) {
   const sf = ts.createSourceFile(file, sources.get(file), ts.ScriptTarget.Latest, true)
+
   for (const stmt of sf.statements) {
     const tps = stmt.typeParameters
+
     for (const [n] of stmtNames(stmt)) {
       if (tps?.length) {
         typeParams.set(n, [
@@ -739,6 +772,7 @@ for (const file of files) {
 }
 
 const impl = []
+
 for (const file of files) {
   const local = decls.get(file)
   const drops = dropped.get(file) ?? new Set()
@@ -754,6 +788,7 @@ for (const file of files) {
 
   const needsRuntime = owned.some((n) => {
     const p = typeParams.get(n)
+
     return p && /\b(interop|objc|NativeObject|NativeClass)\./.test(p[0])
   })
 
@@ -769,6 +804,7 @@ for (const file of files) {
 
   for (const name of owned) {
     const f = local.get(name)
+
     if (f.value) {
       // The binding call must stay marked pure so unused names drop out of
       // consumer bundles — eagerly materializing all ~78k lazy globals at

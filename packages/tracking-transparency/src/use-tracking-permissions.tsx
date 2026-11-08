@@ -29,6 +29,7 @@ export function useTrackingPermissions(
       'Tracking prompts require an explicit action; use the returned request function',
     )
   }
+
   const owner = useMemo(() => ({ active: false, serial: 0, manual: 0, requesting: 0 }), [])
   const [value, setValue] = useState<PermissionResponse | null>(null)
   const methods = useMemo(() => {
@@ -36,10 +37,13 @@ export function useTrackingPermissions(
       if (!automatic) {
         owner.manual++
       }
+
       const serial = ++owner.serial
+
       if (request) {
         owner.requesting++
       }
+
       try {
         const response = await (request
           ? requestTrackingPermissionsAsync()
@@ -56,14 +60,17 @@ export function useTrackingPermissions(
         }
       }
     }
+
     return {
       request: () => invoke(true),
       get: () => invoke(false),
       automatic: () => invoke(false, true),
     }
   }, [owner])
+
   const get = options.get ?? true
   const manualAtRender = owner.manual
+
   useLayoutEffect(() => {
     owner.active = true
     return () => {
@@ -71,6 +78,7 @@ export function useTrackingPermissions(
       owner.serial++
     }
   }, [owner])
+
   useEffect(() => {
     // An action between render and this passive effect outranks the default read.
     if (get && owner.manual === manualAtRender && owner.requesting === 0) {
@@ -83,5 +91,6 @@ export function useTrackingPermissions(
         )
     }
   }, [owner, get, methods])
+
   return [value, methods.request, methods.get]
 }

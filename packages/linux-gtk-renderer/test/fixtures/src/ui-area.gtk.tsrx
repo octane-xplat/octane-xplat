@@ -4,6 +4,7 @@ import type { ScrollableAreaHandle } from '@octane-xplat/ui'
 
 export const areaRef: { current: ScrollableAreaHandle | null } = { current: null }
 export const refreshEvents: number[] = []
+
 const bindArea = (handle: ScrollableAreaHandle | null) => {
   areaRef.current = handle
 }

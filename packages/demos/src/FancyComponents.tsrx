@@ -94,7 +94,9 @@ function Marquee(props: {
     }
 
     x.jump(normalizeLeg(x.get(), Math.min(start, end), span))
+
     const remaining = Math.abs(end - x.get()) / span
+
     if (remaining < 0.001) {
       loop()
     } else {
@@ -157,6 +159,7 @@ function Typewriter(props: {
 
     const target = texts[phase.text % texts.length]
     let delay: number | null = null
+
     if (!phase.deleting) {
       if (phase.len < target.length) {
         delay = typeMs
@@ -174,6 +177,7 @@ function Typewriter(props: {
     const timer = setTimeout(() => {
       setPhase((p) => {
         const full = texts[p.text % texts.length]
+
         if (!p.deleting) {
           return p.len < full.length ? { ...p, len: p.len + 1 } : { ...p, deleting: true }
         }
@@ -194,6 +198,7 @@ function Typewriter(props: {
     }
 
     const timer = setInterval(() => setCaret((on) => !on), 530)
+
     return () => clearInterval(timer)
   }, [reduced])
 
@@ -232,6 +237,7 @@ function ScrambleIn(props: {
   const reduced = props.reduced ?? false
   const [step, setStep] = useState(0)
   const latest = useRef(props.onDone)
+
   latest.current = props.onDone
 
   const finished = reduced || step >= len + trailing
@@ -245,6 +251,7 @@ function ScrambleIn(props: {
     }
 
     const timer = setInterval(() => setStep((s) => s + 1), speed)
+
     return () => clearInterval(timer)
   }, [finished, speed])
 
@@ -287,6 +294,7 @@ function NumberTicker(props: {
   const value = useMotionValue(from)
   const [text, setText] = useState(() => TICKER_FORMAT.format(from))
   const latest = useRef(props)
+
   latest.current = props
 
   useMotionValueEvent(value, 'change', (next) => setText(TICKER_FORMAT.format(Math.round(next))))
@@ -349,8 +357,11 @@ function useLoopProgress(period: number, playing: boolean, reduced: boolean): Mo
     }
 
     const held = ((progress.get() % 1) + 1) % 1
+
     progress.jump(held)
+
     const remaining = 1 - held
+
     if (remaining < 0.001) {
       loop()
     } else {
@@ -524,6 +535,7 @@ function DragItem(props: {
     }
 
     const [fx, fy] = DRAG_SCATTER[props.index % DRAG_SCATTER.length]
+
     placed.current = props.seed
     x.jump(fx * props.maxX)
     y.jump(fy * props.maxY)
@@ -618,6 +630,7 @@ const TYPE_PHRASES = [
 function useMotionPreview() {
   const system = useReducedMotion()
   const [preview, setPreview] = useState(false)
+
   return { system, preview, setPreview, reduced: system || preview }
 }
 

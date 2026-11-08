@@ -36,6 +36,7 @@ const SECTIONS = [
 
 export function DialogFullscreenDialog() @{
   const [isOpen, setIsOpen] = useState(false)
+
   return (
     <Card>
       <VStack gap={3}>

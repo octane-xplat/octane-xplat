@@ -13,6 +13,7 @@ function allText(root: ViewBase): string[] {
   const out = viewText(root)
   const walk = (view: any) => {
     const fs = view.formattedText
+
     if (fs?.spans) {
       fs.spans.forEach((span: any) => {
         if (typeof span.text === 'string') {
@@ -37,6 +38,7 @@ function findLinkSpan(root: ViewBase, text: string): any {
   let found: any
   const walk = (view: any) => {
     const fs = view.formattedText
+
     if (fs?.spans) {
       fs.spans.forEach((span: any) => {
         if (!found && span.text === text && span.hasListeners?.('linkTap')) {
@@ -92,6 +94,7 @@ function interceptOpenUrl(opened: string[]): () => void {
     const writer = {
       write(message: unknown) {
         const match = /handling URL: (.*)$/.exec(String(message))
+
         if (match != null) {
           opened.push(match[1])
         }
@@ -103,12 +106,14 @@ function interceptOpenUrl(opened: string[]): () => void {
   }
 
   const app = (globalThis as any).UIApplication?.sharedApplication
+
   if (app == null) {
     return () => {}
   }
 
   const origCan = app.canOpenURL
   const origOpen = app.openURLOptionsCompletionHandler
+
   app.canOpenURL = () => true
   app.openURLOptionsCompletionHandler = (url: any, _options: any, done: any) => {
     opened.push(String(url?.absoluteString ?? url))
@@ -129,6 +134,7 @@ it('renders block and inline content on the real host', async () => {
   })
 
   const text = allText(view).join('\n')
+
   for (const fragment of [
     'Parity Title',
     'Body copy with',
@@ -165,6 +171,7 @@ it('flows inline markdown inside surrounding text', async () => {
   })
 
   const text = allText(view).join(' ')
+
   expect(text).toContain('bold run')
   expect(text).toContain('code run')
 
@@ -172,14 +179,17 @@ it('flows inline markdown inside surrounding text', async () => {
   // FormattedString: sibling #text must survive as spans beside the markdown
   // runs, not drop behind formattedText (decision #25 fold).
   const folded = allText(view).join(' ')
+
   expect(folded).toContain('before')
   expect(folded).toContain('after')
+
   const label = (function find(v: any): any {
     if (v.formattedText?.spans?.length) {
       return v
     }
 
     let hit: any
+
     v.eachChildView?.((c: any) => {
       hit ??= find(c)
       return !hit
@@ -189,6 +199,7 @@ it('flows inline markdown inside surrounding text', async () => {
   })(view)
 
   const ordered = (label?.formattedText?.spans ?? []).map((s: any) => s.text).join('')
+
   expect(ordered).toBe('before bold run and code run after')
 })
 
@@ -219,13 +230,16 @@ it('keeps nested mark styling in flat runs', async () => {
   walk(view)
 
   const deep = spans.find((s) => s.text === 'deep')
+
   // The flat FormattedString run carries the union of enclosing marks —
   // strong's weight plus emphasis's italic (reference nested-element
   // styling), not the dropped-inner-style fold.
   expect(deep).toBeTruthy()
   expect(String(deep.fontStyle)).toBe('italic')
   expect(String(deep.fontWeight)).toBe('600')
+
   const bold = spans.find((s) => s.text === 'bold ')
+
   expect(bold).toBeTruthy()
   expect(String(bold.fontWeight)).toBe('600')
 })
@@ -258,6 +272,7 @@ it('dispatches link taps to onLinkClick and honors cancellation', async () => {
     })
 
     const span = findLinkSpan(view, 'the link')
+
     span.notify({ eventName: 'linkTap', object: span })
 
     expect(events).toEqual(['click:https://example.com/dest'])
@@ -289,6 +304,7 @@ it('dispatches citation taps through the resolved source url', async () => {
     })
 
     const span = findLinkSpan(view, 'Octane docs')
+
     expect(span, 'citation span has no linkTap listener').toBeTruthy()
     span.notify({ eventName: 'linkTap', object: span })
     expect(opened).toEqual(['#cite-docs'])
@@ -301,6 +317,7 @@ const CHUNKS = ['# Stream doc', '\n\nfirst **chunk**', ' and second chunk', ' fi
 
 function StreamFixture(): unknown {
   const [idx, setIdx] = useState(0)
+
   return (
     <Screen>
       <Pressable testID="md.pump" onPress={() => setIdx(Math.min(idx + 1, CHUNKS.length))}>
@@ -317,6 +334,7 @@ it('renders appended streaming chunks and stays mounted through updates', async 
   // Empty stream start — the mount path that crashed the web candidate under
   // non-reduced motion; on native it must mount and render nothing fatal.
   const pump = findByTestId(view, 'md.pump')
+
   expect(pump, 'stream pump control missing').toBeTruthy()
 
   for (let i = 0; i < CHUNKS.length; i++) {
@@ -329,6 +347,7 @@ it('renders appended streaming chunks and stays mounted through updates', async 
   })
 
   const text = allText(view).join('\n')
+
   expect(text).toContain('Stream doc')
   expect(text).toContain('first')
   expect(text).toContain('final.')
@@ -337,6 +356,7 @@ it('renders appended streaming chunks and stays mounted through updates', async 
 it('re-renders cleanly when the document source changes', async () => {
   function SwapFixture(): unknown {
     const [alt, setAlt] = useState(false)
+
     return (
       <Screen>
         <Pressable testID="md.swap" onPress={() => setAlt(true)}>
@@ -348,11 +368,13 @@ it('re-renders cleanly when the document source changes', async () => {
   }
 
   const { view } = await mountXplat(SwapFixture)
+
   await waitUntil(() => allText(view).some((t) => t.includes('alpha text')), {
     message: 'initial doc never rendered',
   })
 
   const swap = findByTestId(view, 'md.swap')!
+
   await tap(swap)
   await waitUntil(() => allText(view).some((t) => t.includes('beta text')), {
     message: 'swapped doc never rendered',
@@ -387,6 +409,7 @@ it('lays out a wide table inside its scroll region', async () => {
   let scrollView: any
   const walk = (v: any) => {
     const name = v?.typeName ?? ''
+
     if (!scrollView && /scroll/i.test(name)) {
       scrollView = v
     }

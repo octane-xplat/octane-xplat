@@ -8,6 +8,7 @@ import { test } from 'node:test'
 test('quick consumer mode refuses native qualification before creating or resetting work', () => {
   const directory = mkdtempSync(join(tmpdir(), 'consumer-options-test-'))
   const work = join(directory, 'consumer')
+
   try {
     for (const flags of [
       ['--native', 'ios'],
@@ -38,9 +39,11 @@ test(
   { skip: process.platform === 'win32' },
   () => {
     const directory = mkdtempSync(join(tmpdir(), 'consumer-prepared-test-'))
+
     try {
       const bin = join(directory, 'bin')
       const log = join(directory, 'commands.jsonl')
+
       mkdirSync(bin)
       writeFileSync(
         join(bin, 'bun'),
@@ -66,6 +69,7 @@ process.exit(1)
       // build or pack, and its arguments establish the lifecycle contract.
       assert.notEqual(result.status, 0)
       assert.match(result.stderr, /bun pm pack failed/)
+
       const commands = readFileSync(log, 'utf8')
         .trim()
         .split('\n')

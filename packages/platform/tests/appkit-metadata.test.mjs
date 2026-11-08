@@ -32,10 +32,13 @@ function load(tag, intlOverride) {
           },
         }
       : intlOverride
+
   const context = vm.createContext({ Intl: intl }),
     cache = {}
+
   function require(name) {
     const file = files.find((file) => './' + file.slice(0, -3) === name)
+
     if (!file) {
       if (name.startsWith('./') || name === '@octane-xplat/lib/capability') {
         return {}
@@ -43,15 +46,19 @@ function load(tag, intlOverride) {
 
       throw new Error('Unexpected metadata import')
     }
+
     if (!cache[file]) {
       const exports = (cache[file] = {})
+
       vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(
         exports,
         require,
       )
     }
+
     return cache[file]
   }
+
   return { require, reads: () => reads, context }
 }
 
@@ -70,12 +77,14 @@ test('AppKit metadata separates script/region and retains canonical full locale 
 
 test('AppKit metadata has a valid documented fallback without a usable Intl locale', () => {
   const missing = load('fr')
+
   missing.context.Intl = undefined
   assert.deepEqual(plain(missing.require('./locale.macos').locale), {
     tag: 'en',
     language: 'en',
     region: '',
   })
+
   for (const intl of [
     null,
     {},
@@ -105,6 +114,7 @@ test('AppKit metadata has a valid documented fallback without a usable Intl loca
       region: '',
     })
   }
+
   for (const tag of [undefined, null, 123, '', 'not_a_valid_locale_!']) {
     assert.deepEqual(plain(load(tag).require('./locale.macos').locale), {
       tag: 'en',
@@ -117,6 +127,7 @@ test('AppKit metadata has a valid documented fallback without a usable Intl loca
 test('AppKit root and purpose metadata share one snapshot and retain the truthful device subset', () => {
   const h = load('zh-Hant-TW'),
     root = h.require('./index.macos')
+
   assert.equal(root.locale, h.require('./locale.macos').locale)
   assert.equal(root.device, h.require('./device.macos').device)
   assert.deepEqual(plain(root.device), {
@@ -127,19 +138,23 @@ test('AppKit root and purpose metadata share one snapshot and retain the truthfu
     language: 'zh',
     region: 'TW',
   })
+
   assert.equal(h.reads(), 1)
   h.context.Intl.DateTimeFormat = () => {
     throw new Error('later runtime change')
   }
+
   assert.equal(root.locale.tag, 'zh-Hant-TW')
   assert.equal(h.reads(), 1)
 })
 
 test('AppKit metadata export conditions select matching runtime/types and preserve other targets', async () => {
   const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'))
+
   for (const service of ['locale', 'device']) {
     for (const suffix of ['', '.ts']) {
       const entry = manifest.exports[`./${service}${suffix}`]
+
       assert.equal(entry.macos, `./src/${service}.macos.ts`)
       assert.equal(entry.types, `./types/generated/${service}.d.ts`)
       assert.equal(entry.default, `./src/${service}${suffix}`)

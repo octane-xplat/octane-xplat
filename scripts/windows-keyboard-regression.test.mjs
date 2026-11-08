@@ -28,6 +28,7 @@ const viewClass = ast.statements.find(
 )
 
 assert.ok(viewClass, 'Windows View missing')
+
 const methods = new Set([
   'initNativeView',
   'onLoaded',
@@ -79,6 +80,7 @@ function fixture() {
       },
     },
   })
+
   const { createWindowsKeyEvents, subscribeNativeEvent, takeWindowsKeyHandled } = vm.runInContext(
     pointer +
       '\n' +
@@ -86,6 +88,7 @@ function fixture() {
       '\n({createWindowsKeyEvents,subscribeNativeEvent,takeWindowsKeyHandled});',
     context,
   )
+
   class Base {
     static layoutChangedEvent = 'layoutChanged'
     isLoaded = false
@@ -99,9 +102,11 @@ function fixture() {
     }
     addEventListener(name, handler, _thisArg, once) {
       const list = this.handlers.get(name) ?? []
+
       if (!list.some((entry) => entry.handler === handler)) {
         list.push({ handler, once })
       }
+
       this.handlers.set(name, list)
     }
     removeEventListener(name, handler) {
@@ -142,22 +147,28 @@ function fixture() {
     _clearPercentParent() {}
     _ensureSizeWatch() {}
   }
+
   context.ViewCommon = Base
   context.createWindowsKeyEvents = createWindowsKeyEvents
   context.takeWindowsKeyHandled = takeWindowsKeyHandled
+
   const View = vm.runInContext(
     'class View extends ViewCommon {\n' + integration + '\n}; View;',
     context,
   )
+
   const view = new View()
+
   view.nativeViewProtected = { IsEnabled: true }
   context.View = View
   context.TextFieldBase = { returnPressEvent: 'returnPress' }
   context.Windows = { System: { VirtualKey: { Enter: 13 } } }
+
   const TextField = vm.runInContext(
     'class TextField extends View {\n' + fieldMethods + '\n}; TextField;',
     context,
   )
+
   return { view, calls, subscribeNativeEvent, TextField }
 }
 
@@ -167,18 +178,25 @@ test('Windows keys attach lazily, forward raw payload and release each channel i
   const { view } = fixture()
   const events = []
   const down = (event) => events.push(event)
+
   view.on('keyDown', down)
   assert.equal(view.nativeViewProtected.KeyDown, undefined)
   view.onLoaded()
+
   const native = view.nativeViewProtected
   const args = { Key: 13 }
+
   emit(native, 'KeyDown', args)
   assert.equal(events.length, 1)
   assert.equal(events[0].nativeEvent, args)
   assert.equal(events[0].object, view)
+
   const delegate = native.KeyDown
+
   view.on('keyUp', down)
+
   const upArgs = { Key: 13 }
+
   emit(native, 'KeyUp', upArgs)
   assert.equal(events[1].eventName, 'keyUp')
   assert.equal(events[1].nativeEvent, upArgs)
@@ -195,6 +213,7 @@ test('Windows keys share the text-submit subscriber without replacing it', () =>
   const native = view.nativeViewProtected
   let submitted = 0,
     keys = 0
+
   const off = subscribeNativeEvent(
     native,
     'KeyDown',
@@ -202,8 +221,10 @@ test('Windows keys share the text-submit subscriber without replacing it', () =>
     null,
     (callback) => callback,
   )
+
   const submitDelegate = native.KeyDown
   const callback = () => keys++
+
   view.on('keyDown', callback)
   view.onLoaded()
   assert.equal(native.KeyDown, submitDelegate)
@@ -221,10 +242,13 @@ test('Windows keys share the text-submit subscriber without replacing it', () =>
 test('Windows keys retire stale delegates on unload and rebind on load or native replacement', () => {
   const { view } = fixture()
   let count = 0
+
   view.on('keyDown', () => count++)
   view.onLoaded()
+
   const old = view.nativeViewProtected
   const stale = old.KeyDown
+
   view.onUnloaded()
   stale(old, { Key: 13 })
   assert.equal(count, 0)
@@ -232,7 +256,9 @@ test('Windows keys retire stale delegates on unload and rebind on load or native
   view.onLoaded()
   emit(old)
   assert.equal(count, 1)
+
   const replacement = { IsEnabled: true }
+
   view.nativeViewProtected = replacement
   view.initNativeView()
   stale(old, { Key: 13 })
@@ -249,9 +275,12 @@ test('Windows keys retire stale delegates on unload and rebind on load or native
 test('Windows keys suppress model/native disabled targets and stale identities', () => {
   const { view } = fixture()
   let count = 0
+
   view.on('keyDown', () => count++)
   view.onLoaded()
+
   const native = view.nativeViewProtected
+
   view.isEnabled = false
   emit(native)
   view.isEnabled = true
@@ -268,9 +297,12 @@ test('Windows keys suppress model/native disabled targets and stale identities',
 test('Windows once handlers retire their key channel after Observable removes the listener', () => {
   const { view } = fixture()
   let count = 0
+
   view.on('keyDown', () => count++, true)
   view.onLoaded()
+
   const native = view.nativeViewProtected
+
   emit(native)
   assert.equal(count, 1)
   assert.equal(native.KeyDown, null)
@@ -278,9 +310,12 @@ test('Windows once handlers retire their key channel after Observable removes th
 
 test('Windows disposal during dispatch cannot reattach the retiring channel', () => {
   const { view } = fixture()
+
   view.on('keyDown', () => view.disposeNativeView())
   view.onLoaded()
+
   const native = view.nativeViewProtected
+
   emit(native)
   assert.equal(native.KeyDown, null)
 })
@@ -290,15 +325,18 @@ test('Windows binding failure rolls back newly bound channels and retries withou
   const native = view.nativeViewProtected
   let fail = true,
     up
+
   Object.defineProperty(native, 'KeyUp', {
     get: () => up,
     set(value) {
       if (fail && value) {
         throw new Error('key up rejected')
       }
+
       up = value
     },
   })
+
   view.on('keyDown', () => {})
   view.on('keyUp', () => {})
   assert.throws(() => view.onLoaded(), /key up rejected/)
@@ -313,25 +351,31 @@ test('Windows unload attempts every detach and still forwards base lifecycle aft
   const { view, calls } = fixture()
   const native = view.nativeViewProtected
   let down, up
+
   Object.defineProperty(native, 'KeyDown', {
     get: () => down,
     set(value) {
       if (value === null) {
         throw new Error('down detach failed')
       }
+
       down = value
     },
   })
+
   Object.defineProperty(native, 'KeyUp', {
     get: () => up,
     set(value) {
       up = value
     },
   })
+
   view.on('keyDown', () => assert.fail('retired delegate fired'))
   view.on('keyUp', () => {})
   view.onLoaded()
+
   const stale = native.KeyDown
+
   assert.throws(() => view.onUnloaded(), /Windows key event cleanup failed/)
   assert.equal(view.isLoaded, false)
   assert.ok(calls.includes('unload'))
@@ -343,23 +387,30 @@ for (const submitFirst of [true, false]) {
   test(`Windows consumed Return suppresses submit with submit-first=${submitFirst}`, () => {
     const { TextField } = fixture()
     const view = new TextField()
+
     view.nativeViewProtected = { IsEnabled: true }
     view.editable = true
     view.onLoaded()
+
     let submitted = 0,
       keys = 0
+
     view.on('returnPress', () => submitted++)
+
     const consume = (event) => {
       keys++
       event.nativeEvent.Handled = true
     }
+
     if (submitFirst) {
       view._attachReturnKeyListener()
     }
+
     view.on('keyDown', consume)
     if (!submitFirst) {
       view._attachReturnKeyListener()
     }
+
     emit(view.nativeViewProtected, 'KeyDown', { Key: 13, Handled: false })
     assert.equal(keys, 1)
     assert.equal(submitted, 0)
@@ -373,11 +424,14 @@ for (const submitFirst of [true, false]) {
 test('Windows legacy submit remains unchanged for a prehandled native event without raw consumption', () => {
   const { TextField } = fixture()
   const view = new TextField()
+
   view.nativeViewProtected = { IsEnabled: true }
   view.editable = true
   view.onLoaded()
   view._attachReturnKeyListener()
+
   let submitted = 0
+
   view.on('returnPress', () => submitted++)
   emit(view.nativeViewProtected, 'KeyDown', { Key: 13, Handled: true })
   assert.equal(submitted, 1)
@@ -386,14 +440,19 @@ test('Windows legacy submit remains unchanged for a prehandled native event with
 test('Windows once key handlers can explicitly consume Return even when native Handled was already set', () => {
   const { TextField } = fixture()
   const view = new TextField()
+
   view.nativeViewProtected = { IsEnabled: true }
   view.editable = true
   view.onLoaded()
   view._attachReturnKeyListener()
+
   let submitted = 0
+
   view.on('returnPress', () => submitted++)
   view.on('keyDown', (event) => event.preventDefault(), true)
+
   const args = { Key: 13, Handled: true }
+
   emit(view.nativeViewProtected, 'KeyDown', args)
   assert.equal(submitted, 0)
   args.Handled = false

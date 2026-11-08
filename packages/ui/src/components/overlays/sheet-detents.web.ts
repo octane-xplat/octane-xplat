@@ -40,6 +40,7 @@ export function attachSheetDetents(
 ): SheetDetentsController {
   const sorted = normalizeDetents(detents)
   const swipeOnly = options.swipeOnly === true || !sorted.length
+
   if (!sorted.length && !options.swipeOnly) {
     return { detach: () => {} }
   }
@@ -59,8 +60,11 @@ export function attachSheetDetents(
   }
 
   const grabber = document.createElement('div')
+
   grabber.className = 'vx-sheet-grabber'
+
   const grip = document.createElement('div')
+
   grip.className = 'vx-sheet-grip'
   grabber.appendChild(grip)
   panel.appendChild(grabber)
@@ -112,6 +116,7 @@ export function attachSheetDetents(
 
     const now = Date.now()
     const dt = (now - lastT) / 1000
+
     if (dt > 0) {
       // Smoothed velocity — a single noisy event shouldn't fling.
       vy = vy * 0.7 + ((e.clientY - lastY) / dt) * 0.3
@@ -140,6 +145,7 @@ export function attachSheetDetents(
     }
 
     const next = snapDetentIndex(ty, vy, sorted, vh())
+
     if (next < 0) {
       if (dismissible()) {
         animateTo(vh(), closeNow)
@@ -168,6 +174,7 @@ export function attachSheetDetents(
   // Slide in from below the screen edge, matching the native leaf's
   // translateY = vh → resting enter animation.
   applyTy(vh())
+
   const raf = requestAnimationFrame(() =>
     animateTo(swipeOnly ? 0 : detentOffset(sorted, cur, vh())),
   )

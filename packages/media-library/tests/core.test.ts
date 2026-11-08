@@ -19,6 +19,7 @@ const native = vi.hoisted(() => ({
 }))
 
 vi.mock('../src/backend', () => ({ backend: native }))
+
 import {
   Asset,
   Album,
@@ -56,13 +57,19 @@ it('snapshots query parameters before execution and uses durable asset handles',
     .orderBy({ key: AssetField.CREATION_TIME, ascending: false })
     .limit(2)
     .offset(1)
+
   const pending = query.exe()
+
   values.push(MediaType.VIDEO)
   query.eq(AssetField.IS_FAVORITE, true).offset(20)
+
   const assets = await pending
+
   expect(assets[0]).toBeInstanceOf(Asset)
   expect(assets[0].id).toBe('ph://owned')
+
   const captured = native.query.mock.calls[0][0]
+
   expect(captured.filters).toEqual([{ field: 'mediaType', operator: 'within', value: ['image'] }])
   expect(captured.offset).toBe(1)
   expect(captured.order).toEqual([{ key: 'creationTime', ascending: false }])
@@ -85,6 +92,7 @@ it('reads permission state separately from prompting and preserves limited scope
     expires: 'never',
     accessPrivileges: 'limited',
   })
+
   expect((await getPermissionsAsync(false, ['photo'])).accessPrivileges).toBe('limited')
   await requestPermissionsAsync(true)
   expect(native.permissions.mock.calls).toEqual([
@@ -95,6 +103,7 @@ it('reads permission state separately from prompting and preserves limited scope
 
 it('rereads current metadata instead of freezing mutable library state', async () => {
   const asset = new Asset('ph://owned')
+
   expect(await asset.getFavorite()).toBe(false)
   native.metadata.mockResolvedValue({ ...metadata, isFavorite: true, width: null })
   expect(await asset.getFavorite()).toBe(true)
@@ -106,6 +115,7 @@ it('rereads current metadata instead of freezing mutable library state', async (
 it('keeps album and asset deletion separate and deduplicates identifiers', async () => {
   const asset = new Asset('ph://owned'),
     album = new Album('owned-album')
+
   await Asset.delete([asset, asset])
   await album.delete()
   await Album.delete([album], true)
@@ -119,12 +129,16 @@ it('keeps album and asset deletion separate and deduplicates identifiers', async
 it('stops already queued listener delivery and removes each native observer once', () => {
   const remove = vi.fn(),
     callback = vi.fn()
+
   let deliver!: (event: { hasIncrementalChanges: boolean }) => void
+
   native.subscribe.mockImplementation((listener) => {
     deliver = listener
     return { remove }
   })
+
   const subscription = addListener(callback)
+
   deliver({ hasIncrementalChanges: false })
   subscription.remove()
   subscription.remove()
@@ -142,6 +156,7 @@ it('copies native app paths with reserved characters without accepting network r
     ['file:///app/cache/photo%20%231%25.png', undefined],
     ['file:///app/cache/already%20encoded.png', undefined],
   ])
+
   await expect(Asset.create('https://example.com/photo.png')).rejects.toThrow('local file')
   expect(native.createAsset).toHaveBeenCalledTimes(2)
 })

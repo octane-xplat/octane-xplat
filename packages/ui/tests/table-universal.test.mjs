@@ -17,6 +17,7 @@ for (const name of [
     test(`${name} compiles for AppKit with HMR ${hmr ? 'on' : 'off'}`, async () => {
       const filename = `use-table-${name}.tsrx`
       const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
+
       compile(source, filename, {
         hmr,
         renderer: {
@@ -35,6 +36,7 @@ for (const hmr of [false, true]) {
   test(`AppKit column resize handle compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
     const filename = 'column-resize-handle.macos.tsrx'
     const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
+
     compile(source, filename, {
       hmr,
       renderer: {
@@ -52,6 +54,7 @@ for (const hmr of [false, true]) {
   test(`AppKit Table body text compiles with HMR ${hmr ? 'on' : 'off'}`, async () => {
     const filename = 'Table.macos.tsrx'
     const source = await readFile(new URL(`../src/table/${filename}`, import.meta.url), 'utf8')
+
     compile(source, filename, {
       hmr,
       renderer: {

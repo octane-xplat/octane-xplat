@@ -15,6 +15,7 @@ export const setTranslate: SetTranslate = (view, x = 0, y = 0) => {
   }
 
   const target = view as TranslateTarget
+
   target.translateX = x
   target.translateY = y
 }

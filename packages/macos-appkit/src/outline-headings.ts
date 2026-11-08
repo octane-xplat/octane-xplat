@@ -19,12 +19,16 @@ export function readOutlineHeadings(
 ): AppKitOutlineHeading[] {
   const headings: AppKitOutlineHeading[] = [],
     seen = new Set<object>()
+
   const visit = (view: any) => {
     if (!view || (typeof view !== 'object' && typeof view !== 'function') || seen.has(view)) {
       return
     }
+
     seen.add(view)
+
     const node = nodeForView(view)
+
     if (
       node &&
       node.view === view &&
@@ -48,13 +52,16 @@ export function readOutlineHeadings(
 
       return
     }
+
     const children = view.subviews
+
     if (Array.isArray(children)) {
       for (const child of children) {
         visit(child)
       }
     } else if (children && typeof children.objectAtIndex === 'function') {
       const count = Number(children.count)
+
       if (Number.isSafeInteger(count) && count >= 0) {
         for (let index = 0; index < count; index++) {
           visit(children.objectAtIndex(index))
@@ -62,6 +69,7 @@ export function readOutlineHeadings(
       }
     }
   }
+
   visit(root)
   return headings
 }

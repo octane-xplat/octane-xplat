@@ -34,7 +34,9 @@ export function attachHost(node: any): HostAdapter {
   let latestValues: Target = { ...original }
   const write = (values: Target) => {
     latestValues = { ...latestValues, ...values }
+
     const transforms: [string, number][] = []
+
     if (values.x !== undefined) {
       transforms.push(['transform.translation.x', values.x])
     }
@@ -60,6 +62,7 @@ export function attachHost(node: any): HostAdapter {
     }
 
     const transaction = (globalThis as any).CATransaction
+
     transaction.begin()
     try {
       transaction.setDisableActions(true)
@@ -88,6 +91,7 @@ export function attachHost(node: any): HostAdapter {
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
       const box = measureNativeBox(node)
+
       return box
         ? {
             layoutBox: box,
@@ -105,9 +109,11 @@ export function attachHost(node: any): HostAdapter {
         setLayoutProjectionScale(node, null)
         return
       }
+
       const { delta, treeScale, latest } = projection
       const saved = { ...original, ...latest }
       const anchor = node.layer.anchorPoint
+
       // Projection math uses a center origin; AppKit's layer anchor is
       // usually bottom-left. Keep AppKit's anchor and compensate in points.
       write({
@@ -122,6 +128,7 @@ export function attachHost(node: any): HostAdapter {
         scaleX: delta.x.scale,
         scaleY: delta.y.scale,
       })
+
       latestValues = saved
       // The paint owner copies the current backing transform to outset
       // siblings, so publish compensation after writing this sample.

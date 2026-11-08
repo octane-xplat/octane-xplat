@@ -17,9 +17,12 @@ const hostRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../src/macos/
 function boot(fixture) {
   const dir = mkdtempSync(join(tmpdir(), 'xplat-class-cluster-'))
   const script = join(dir, 'fixture.cjs')
+
   writeFileSync(script, fixture)
+
   // The shipped shim is the bootstrap the packaged/dev host runs.
   const bootstrap = join(dir, 'bootstrap.js')
+
   writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
   // The rebuild output directory carries host + framework but not metadata;
@@ -41,20 +44,25 @@ function boot(fixture) {
     ],
     { stdio: ['ignore', 'ignore', 'pipe'] },
   )
+
   let output = ''
+
   child.stderr.on('data', (chunk) => {
     output += chunk
   })
+
   const status = new Promise((resolve) => {
     const timeout = setTimeout(() => {
       child.kill('SIGKILL')
       resolve('timeout')
     }, 60_000)
+
     child.on('close', (code) => {
       clearTimeout(timeout)
       resolve(code)
     })
   })
+
   return { status, output: () => output, dir }
 }
 
@@ -145,14 +153,20 @@ test(
   { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
   async (t) => {
     const run = boot(fixture)
+
     t.after(() => rmSync(run.dir, { recursive: true, force: true }))
+
     const status = await run.status
     const output = run.output()
 
     assert.equal(status, 0, `host exited ${status}\n${output}`)
+
     const marker = /CHECKS (.+)/.exec(output)?.[1]
+
     assert.ok(marker, `missing checks marker:\n${output}`)
+
     const failed = JSON.parse(marker).filter(([, v]) => v !== true)
+
     assert.deepEqual(failed, [], `failed checks: ${JSON.stringify(failed)}`)
   },
 )

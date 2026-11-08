@@ -25,6 +25,7 @@ type Scope = {
 
 function flag(view: any, name: string, fallback = false): boolean {
   const value = view?.[name]
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -34,6 +35,7 @@ function contains(root: NSView, target: any): boolean {
       return true
     }
   }
+
   return false
 }
 
@@ -44,6 +46,7 @@ function responder(window: NSWindow): any {
     typeof delegate?.currentEditor === 'function'
       ? delegate.currentEditor()
       : delegate?.currentEditor
+
   return delegate?.window === window && (editor === current || flag(current, 'isFieldEditor'))
     ? delegate
     : current
@@ -61,9 +64,11 @@ function eligible(view: any): boolean {
 
 function ancestors(root: NSView): Set<NSView> {
   const result = new Set<NSView>()
+
   for (let view = root.superview; view; view = view.superview) {
     result.add(view)
   }
+
   return result
 }
 
@@ -81,6 +86,7 @@ export function createAppKitFocusScopeManager(
   const capable = () => {
     const host = native()
     const center = host.NSNotificationCenter?.defaultCenter
+
     return (
       typeof bridge()?.retainFocusTarget === 'function' &&
       typeof host.NSEvent?.addLocalMonitorForEventsMatchingMaskHandler === 'function' &&
@@ -89,8 +95,10 @@ export function createAppKitFocusScopeManager(
       typeof center?.removeObserver === 'function'
     )
   }
+
   const top = (window: NSWindow): Scope | undefined => {
     let current: Scope | undefined
+
     for (const scope of scopes) {
       if (scope.root.window !== window || !scope.options().contain || !eligible(scope.root)) {
         continue
@@ -100,14 +108,17 @@ export function createAppKitFocusScopeManager(
         current = scope
       }
     }
+
     return current
   }
+
   const stops = (scope: Scope): NSView[] => {
     const result: NSView[] = []
     const visit = (view: NSView) => {
       if (!eligible(view)) {
         return
       }
+
       if (
         view !== scope.root &&
         !scopes.some((item) => item.root === view) &&
@@ -116,16 +127,21 @@ export function createAppKitFocusScopeManager(
       ) {
         result.push(view)
       }
+
       const children = view.subviews
+
       for (let index = 0; index < Number(children?.count ?? 0); index++) {
         visit(children.objectAtIndex(index) as NSView)
       }
     }
+
     visit(scope.root)
     return result
   }
+
   const focus = (scope: Scope, target: any): boolean => {
     const window = scope.root.window
+
     if (
       !scopes.includes(scope) ||
       !window ||
@@ -135,6 +151,7 @@ export function createAppKitFocusScopeManager(
     ) {
       return false
     }
+
     moving = true
     try {
       if (!window.makeFirstResponder(target)) {
@@ -147,18 +164,23 @@ export function createAppKitFocusScopeManager(
       moving = false
     }
   }
+
   const fallback = (scope: Scope, released?: NSView) => {
     const candidates = stops(scope).filter((view) => !released || !contains(released, view))
+
     return scope.last && candidates.includes(scope.last)
       ? scope.last
       : (candidates[0] ?? scope.root)
   }
+
   const synchronize = (window?: NSWindow) => {
     if (moving) {
       return
     }
+
     for (const scope of scopes) {
       const owner = scope.root.window
+
       if (!owner || (window && owner !== window)) {
         continue
       }
@@ -177,35 +199,44 @@ export function createAppKitFocusScopeManager(
         }
 
         scope.initialized = true
+
         const containing = top(owner)
+
         if (scope.options().autoFocus && (!containing || contains(containing.root, scope.root))) {
           focus(scope, stops(scope)[0] ?? scope.root)
         }
       }
 
       const current = responder(owner)
+
       if (contains(scope.root, current)) {
         scope.last = current
       }
     }
+
     const windows = window
       ? [window]
       : [...new Set(scopes.map((scope) => scope.root.window).filter(Boolean))]
+
     for (const owner of windows) {
       const scope = top(owner)
+
       if (scope && flag(owner, 'isKeyWindow', true) && !contains(scope.root, responder(owner))) {
         focus(scope, fallback(scope))
       }
     }
   }
+
   const attach = () => {
     // Nested/sibling scopes and other windows share this one observation owner.
     if (releaseObservers) {
       return true
     }
+
     if (!capable()) {
       return false
     }
+
     const host = native()
     const events = host.NSEvent
     const center = host.NSNotificationCenter.defaultCenter
@@ -216,9 +247,12 @@ export function createAppKitFocusScopeManager(
       if (!observing) {
         return
       }
+
       // Invalidate closures before native removal, which may throw or reenter.
       observing = false
+
       const keyMonitor = monitor
+
       monitor = undefined
       if (keyMonitor != null) {
         try {
@@ -227,6 +261,7 @@ export function createAppKitFocusScopeManager(
           failed = true
         }
       }
+
       for (const observer of observers.splice(0)) {
         try {
           center.removeObserver(observer)
@@ -235,6 +270,7 @@ export function createAppKitFocusScopeManager(
         }
       }
     }
+
     try {
       monitor = events.addLocalMonitorForEventsMatchingMaskHandler(
         host.NSEventMask?.KeyDown ?? 1024,
@@ -242,34 +278,45 @@ export function createAppKitFocusScopeManager(
           if (!observing) {
             return event
           }
+
           if (
             Number(event.keyCode) !== 48 ||
             Number(event.modifierFlags) & ((1 << 18) | (1 << 19) | (1 << 20))
           ) {
             return event
           }
+
           if (!event.window) {
             return event
           }
+
           const scope = top(event.window)
+
           if (!scope) {
             return event
           }
+
           const dispatched = bridge()?.dispatchKeyboardEvent?.(event)
+
           if (dispatched?.defaultPrevented) {
             return null
           }
+
           if (dispatched?.propagationStopped) {
             return event
           }
+
           // An attached handler may close, replace or disable this scope.
           if (!observing || !scopes.includes(scope) || top(event.window) !== scope) {
             return event
           }
+
           const raw = event.window.firstResponder
+
           if (flag(raw, 'hasMarkedText')) {
             return event
           }
+
           const candidates = stops(scope)
           const index = candidates.indexOf(responder(event.window))
           const backwards = Boolean(Number(event.modifierFlags) & (1 << 17))
@@ -279,6 +326,7 @@ export function createAppKitFocusScopeManager(
                 ? candidates.length - 1
                 : 0
               : (index + (backwards ? candidates.length - 1 : 1)) % candidates.length
+
           return focus(scope, candidates[next] ?? scope.root) ? null : event
         },
       )
@@ -319,6 +367,7 @@ export function createAppKitFocusScopeManager(
       return false
     }
   }
+
   return {
     /** Current native containment boundary for other owned focus navigation. */
     boundary(window: NSWindow): NSView | undefined {
@@ -326,6 +375,7 @@ export function createAppKitFocusScopeManager(
     },
     capabilities(): FocusScopeCapabilities {
       const supported = !failed && capable()
+
       return {
         contain: supported,
         autoFocus: supported,
@@ -337,7 +387,9 @@ export function createAppKitFocusScopeManager(
       if (!attach()) {
         return () => {}
       }
+
       let releaseTarget: () => void
+
       try {
         releaseTarget = bridge()!.retainFocusTarget(root)
         if (typeof releaseTarget !== 'function') {
@@ -347,13 +399,16 @@ export function createAppKitFocusScopeManager(
         failed = true
         if (!scopes.length) {
           const cleanup = releaseObservers
+
           releaseObservers = undefined
           cleanup?.()
         }
 
         return () => {}
       }
+
       failed = false
+
       const previous = root.window ? responder(root.window) : null
       const scope: Scope = {
         root,
@@ -367,6 +422,7 @@ export function createAppKitFocusScopeManager(
         order: ++serial,
         ancestors: ancestors(root),
       }
+
       scopes.push(scope)
       // Register all nested scopes before deciding which owner may autofocus.
       Promise.resolve().then(() => {
@@ -374,15 +430,18 @@ export function createAppKitFocusScopeManager(
           synchronize(root.window)
         }
       })
+
       let active = true
       const dispose = () => {
         if (!active) {
           return
         }
+
         active = false
         scopes.splice(scopes.indexOf(scope), 1)
         try {
           const owner = scope.owner
+
           // A newer scope may have saved a control in this retiring subtree.
           // Keep its return path valid even after native parent links disappear.
           for (const other of scopes) {
@@ -401,6 +460,7 @@ export function createAppKitFocusScopeManager(
 
           if (scope.initialized && options().restoreFocus && owner && !newerIndependent) {
             const previous = scope.previous
+
             if (
               previous?.window === owner &&
               eligible(previous) &&
@@ -422,11 +482,13 @@ export function createAppKitFocusScopeManager(
 
           if (!scopes.length) {
             const cleanup = releaseObservers
+
             releaseObservers = undefined
             cleanup?.()
           }
         }
       }
+
       scope.dispose = dispose
       return dispose
     },

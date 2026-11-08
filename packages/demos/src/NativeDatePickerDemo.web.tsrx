@@ -12,6 +12,7 @@ import {
 
 function toLocalDate(date: Date): ISODateString {
   const pad = (n: number) => String(n).padStart(2, '0')
+
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}` as ISODateString
 }
 
@@ -69,6 +70,7 @@ export function NativeDatePickerDemo() @{
           label: 'Tomorrow',
           getRange: () => {
             const date = toLocalDate(new Date(Date.now() + 86400000))
+
             return { start: date, end: date }
           },
         },

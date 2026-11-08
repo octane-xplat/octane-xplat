@@ -81,6 +81,7 @@ export function useForm<
   TSubmitMeta
 > {
   const form = useMemo(() => new FormApi(opts), [opts?.formId])
+
   useLayoutEffect(() => {
     form.update(opts)
   }, null)

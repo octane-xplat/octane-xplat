@@ -21,6 +21,7 @@ let setPage: (value: number) => void
 
 function ContextLabel(props: { surface: Surface }) {
   const value = useContext(NameContext)
+
   rendered[props.surface].push(value)
   useEffect(() => {
     mounted.add(props.surface)
@@ -52,6 +53,7 @@ const pages = ['first', 'second']
 export default function NativeTabPagerPortals() {
   const [name, setName] = useState('Avery')
   const [page, setCurrentPage] = useState(0)
+
   updateName = setName
   setPage = setCurrentPage
   return (
@@ -66,6 +68,7 @@ export default function NativeTabPagerPortals() {
 
 export async function run(ctx: ProbeContext) {
   const initial = ['tab-stack', 'tab-pane', 'pager-first'] as const
+
   await ctx.waitFor(
     () => initial.every((surface) => mounted.has(surface) && rendered[surface].at(-1) === 'Avery'),
     { timeout: 12000, interval: 25 },

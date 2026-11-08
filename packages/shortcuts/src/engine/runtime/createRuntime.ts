@@ -70,9 +70,11 @@ type BindingSetState = {
 export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): ShortcutRuntime {
   const runtimeTarget = options.target
   const sequenceTimeout = options.sequenceTimeout ?? 1000
+
   if (!Number.isFinite(sequenceTimeout) || sequenceTimeout <= 0) {
     throw new TypeError('sequenceTimeout must be a positive number of milliseconds')
   }
+
   const defaultEditablePolicy = options.editablePolicy ?? 'ignore-editable'
   const getActiveScopes = options.getActiveScopes
   const canDispatch = options.canDispatch
@@ -103,10 +105,13 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     if (disposed) {
       return
     }
+
     if (host.boundaryDepth(runtimeTarget, event) == null) {
       return
     }
+
     const normalized = normalizeKeyboardEvent(event)
+
     if (findBlockedEntries(compiledBlocklist, normalized).length > 0) {
       event.preventDefault()
     }
@@ -120,7 +125,9 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
   function bind(input: BindingInput, handler?: ShortcutHandler): BindingHandle {
     ensureNotDisposed()
+
     const compiled = compileRuntimeBinding(input, handler, nextSlotOrder++, 0)
+
     registerBinding(compiled)
 
     return {
@@ -143,23 +150,28 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
       return bind({ combo: input, within, handler })
     }
+
     return bind({ ...input, within }, handler)
   }
 
   function unbind(binding: BindingHandle | string): boolean {
     const id = typeof binding === 'string' ? binding : binding.id
     const bindingSet = bindingSetByBindingId.get(id)
+
     if (!removeBinding(id)) {
       return false
     }
+
     if (bindingSet) {
       bindingSet.bindingIds = bindingSet.bindingIds.filter((bindingId) => bindingId !== id)
     }
+
     return true
   }
 
   function createBindingSet(): BindingSet {
     ensureNotDisposed()
+
     const bindingSet: BindingSetState = {
       slotOrder: nextSlotOrder++,
       bindingIds: [],
@@ -169,9 +181,11 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     return {
       replace(next: readonly BindingSpec[]): void {
         ensureBindingSetUsable(bindingSet)
+
         const nextBindings = next.map((input, index) =>
           compileRuntimeBinding(input, undefined, bindingSet.slotOrder, index),
         )
+
         replaceBindingSetBindings(bindingSet, nextBindings)
       },
 
@@ -184,6 +198,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
         if (disposed || bindingSet.disposed) {
           return []
         }
+
         return bindingSet.bindingIds
           .map((id) => bindings.get(id))
           .filter((binding): binding is BindingRecord => !!binding)
@@ -194,10 +209,12 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
         if (bindingSet.disposed || disposed) {
           return
         }
+
         bindingSet.disposed = true
         for (const id of bindingSet.bindingIds) {
           removeBinding(id)
         }
+
         bindingSet.bindingIds = []
       },
     }
@@ -219,43 +236,56 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
   function setContext(path: string, value: unknown): void {
     ensureNotDisposed()
+
     const segments = splitPath(path)
+
     if (segments.length === 0) {
       throw new TypeError('Context path must not be empty')
     }
+
     if (RESERVED_CONTEXT_NAMES.has(segments[0]!)) {
       throw new TypeError(`Context path "${path}" uses a reserved namespace`)
     }
+
     userContext = cloneContextTree(userContext)
     setNestedValue(userContext, segments, value)
   }
 
   function getContext(path: string): unknown {
     const segments = splitPath(path)
+
     if (segments.length === 0) {
       return undefined
     }
+
     return getNestedValue(userContext, segments)
   }
 
   function deleteContext(path: string): boolean {
     ensureNotDisposed()
+
     const segments = splitPath(path)
+
     if (segments.length === 0) {
       return false
     }
+
     if (RESERVED_CONTEXT_NAMES.has(segments[0]!)) {
       throw new TypeError(`Context path "${path}" uses a reserved namespace`)
     }
+
     userContext = cloneContextTree(userContext)
     return deleteNestedValue(userContext, segments)
   }
 
   function batchContext(update: Record<string, unknown>): void {
     ensureNotDisposed()
+
     const nextContext = cloneContextTree(userContext)
+
     for (const [path, value] of Object.entries(update)) {
       const segments = splitPath(path)
+
       if (segments.length === 0) {
         continue
       }
@@ -266,15 +296,18 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
       setNestedValue(nextContext, segments, value)
     }
+
     userContext = nextContext
   }
 
   function isAvailable(input: RunnableInput): boolean {
     const activeScopes = resolveActiveScopes(getActiveScopes)
     const matchedScope = pickMatchedScope(normalizeScopes(input.scope), activeScopes)
+
     if (!matchedScope) {
       return false
     }
+
     if (!input.when) {
       return true
     }
@@ -302,6 +335,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     try {
       const step = compileBlocklistCombo(combo, platform)
       const matches = findBlocklistMatches(compiledBlocklist, step)
+
       if (matches.length === 0) {
         return { valid: true, combo, canonicalCombo: step.expression }
       }
@@ -337,6 +371,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     if (disposed) {
       return
     }
+
     disposed = true
     try {
       releaseHost()
@@ -359,26 +394,32 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
   function evaluateKeyboardEvent(nativeEvent: ShortcutEvent, mutate: boolean): EvaluateResult {
     const boundaryMatched = host.boundaryDepth(runtimeTarget, nativeEvent) != null
     const normalized = normalizeKeyboardEvent(nativeEvent)
+
     if (!boundaryMatched) {
       return { trace: { event: normalized, candidates: [] } }
     }
 
     const blockedBy = findBlockedEntries(compiledBlocklist, normalized)
+
     if (mutate && blockedBy.length > 0) {
       nativeEvent.preventDefault()
     }
+
     const blockedTrace = blockedBy.length > 0 ? { blockedBy } : {}
 
     const now = Date.now()
+
     if (mutate) {
       sequenceMachine.prune(now)
     }
 
     const traceCandidates = new Map<string, CandidateTrace>()
     const recordingIntercepted = recordState.handle(normalized, nativeEvent, mutate, onError)
+
     if (recordingIntercepted.intercepted) {
       return { trace: { event: normalized, ...blockedTrace, candidates: [] } }
     }
+
     if (normalized.composing) {
       return { trace: { event: normalized, ...blockedTrace, candidates: [] } }
     }
@@ -409,6 +450,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
       }
 
       const boundaryDepth = host.boundaryDepth(binding.within, nativeEvent)
+
       if (boundaryDepth == null) {
         trace.rejectedBy = 'boundary'
         traceCandidates.set(binding.id, trace)
@@ -473,6 +515,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     }
 
     const eligibleCandidates: Candidate[] = []
+
     for (const candidate of candidates) {
       const trace = traceCandidates.get(candidate.binding.id)!
       let context: Record<string, unknown> | undefined
@@ -484,6 +527,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
         ))
 
       const whenTrace = evaluateWhen(candidate.binding, getContext)
+
       if (whenTrace) {
         trace.when = whenTrace
         if (!whenTrace.result) {
@@ -493,6 +537,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
       }
 
       const canDispatchTrace = evaluateCanDispatch(candidate, normalized, getContext, mutate)
+
       if (canDispatchTrace) {
         trace.canDispatch = canDispatchTrace
         if (!canDispatchTrace.result) {
@@ -505,10 +550,12 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     }
 
     const winner = chooseWinner(eligibleCandidates, activeScopesAfterPause)
+
     if (winner) {
       for (const candidate of eligibleCandidates) {
         if (candidate.binding.id !== winner.binding.id) {
           const trace = traceCandidates.get(candidate.binding.id)
+
           if (trace && !trace.rejectedBy) {
             trace.rejectedBy = 'conflict'
           }
@@ -561,6 +608,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     if (!binding.when) {
       return undefined
     }
+
     try {
       return {
         source: binding.when.source,
@@ -584,12 +632,14 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     if (!canDispatch) {
       return undefined
     }
+
     try {
       return {
         result: canDispatch(toShortcutCandidate(candidate, normalized, getContext())),
       }
     } catch (error) {
       const normalizedError = error instanceof Error ? error : new Error(String(error))
+
       if (reportErrors) {
         reportError(normalizedError, {
           phase: 'canDispatch',
@@ -641,6 +691,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
       onError(error, info)
       return
     }
+
     host.delay(() => {
       throw error instanceof Error ? error : new Error(String(error))
     }, 0)
@@ -671,21 +722,28 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
   function registerBinding(binding: BindingRecord): void {
     bindings.set(binding.id, binding)
+
     const index = findBindingInsertIndex(binding.slotOrder)
+
     bindingOrder.splice(index, 0, binding.id)
   }
 
   function removeBinding(id: string): boolean {
     const existed = bindings.delete(id)
+
     if (!existed) {
       return false
     }
+
     sequenceMachine.removeBinding(id)
     bindingSetByBindingId.delete(id)
+
     const index = bindingOrder.indexOf(id)
+
     if (index >= 0) {
       bindingOrder.splice(index, 1)
     }
+
     return true
   }
 
@@ -696,6 +754,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     const previousBindingIds = bindingSet.bindingIds
     let insertIndex =
       previousBindingIds.length > 0 ? bindingOrder.indexOf(previousBindingIds[0]!) : -1
+
     if (insertIndex < 0) {
       insertIndex = findBindingInsertIndex(bindingSet.slotOrder)
     }
@@ -705,10 +764,12 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     }
 
     const nextBindingIds = nextBindings.map((binding) => binding.id)
+
     for (const binding of nextBindings) {
       bindings.set(binding.id, binding)
       bindingSetByBindingId.set(binding.id, bindingSet)
     }
+
     bindingOrder.splice(insertIndex, 0, ...nextBindingIds)
     bindingSet.bindingIds = nextBindingIds
   }
@@ -716,10 +777,12 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
   function findBindingInsertIndex(slotOrder: number): number {
     for (let index = 0; index < bindingOrder.length; index += 1) {
       const binding = bindings.get(bindingOrder[index]!)
+
       if (binding && binding.slotOrder > slotOrder) {
         return index
       }
     }
+
     return bindingOrder.length
   }
 
@@ -727,6 +790,7 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
     if (bindingSet.disposed) {
       throw new TypeError('Binding set is disposed')
     }
+
     ensureNotDisposed()
   }
 
@@ -745,10 +809,12 @@ export function createShortcuts(options: ShortcutOptions, host: ShortcutHost): S
 
   function getCompiledWhenClause(source: string) {
     let compiled = whenCache.get(source)
+
     if (!compiled) {
       compiled = compileWhenClause(source)
       whenCache.set(source, compiled)
     }
+
     return compiled
   }
 
@@ -784,9 +850,11 @@ function splitPath(path: string): string[] {
     .split('.')
     .map((segment) => segment.trim())
     .filter(Boolean)
+
   if (segments.some((segment) => ['__proto__', 'prototype', 'constructor'].includes(segment))) {
     throw new TypeError('Context paths cannot access object prototypes')
   }
+
   return segments
 }
 
@@ -796,22 +864,27 @@ function setNestedValue(
   value: unknown,
 ): void {
   let cursor: Record<string, unknown> = root
+
   for (let index = 0; index < segments.length - 1; index += 1) {
     const segment = segments[index]!
     const current = cursor[segment]
+
     if (!isPlainObject(current)) {
       const next: Record<string, unknown> = {}
+
       cursor[segment] = next
       cursor = next
     } else {
       cursor = current
     }
   }
+
   cursor[segments[segments.length - 1]!] = value
 }
 
 function getNestedValue(root: Record<string, unknown>, segments: readonly string[]): unknown {
   let cursor: unknown = root
+
   for (const segment of segments) {
     if (!isPlainObject(cursor) && !Array.isArray(cursor)) {
       return undefined
@@ -819,32 +892,40 @@ function getNestedValue(root: Record<string, unknown>, segments: readonly string
 
     cursor = (cursor as Record<string, unknown>)[segment]
   }
+
   return cursor
 }
 
 function deleteNestedValue(root: Record<string, unknown>, segments: readonly string[]): boolean {
   let cursor: Record<string, unknown> = root
+
   for (let index = 0; index < segments.length - 1; index += 1) {
     const next = cursor[segments[index]!]
+
     if (!isPlainObject(next)) {
       return false
     }
 
     cursor = next
   }
+
   const last = segments[segments.length - 1]!
+
   if (!(last in cursor)) {
     return false
   }
+
   delete cursor[last]
   return true
 }
 
 function cloneContextTree(value: Record<string, unknown>): Record<string, unknown> {
   const next: Record<string, unknown> = {}
+
   for (const [key, child] of Object.entries(value)) {
     next[key] = isPlainObject(child) ? cloneContextTree(child) : child
   }
+
   return next
 }
 
@@ -863,5 +944,6 @@ function pauseOrScopeRejection(
   ) {
     return 'paused'
   }
+
   return 'scope'
 }

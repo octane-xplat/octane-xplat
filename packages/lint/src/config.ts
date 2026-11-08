@@ -17,6 +17,7 @@ type Config = {
 
 export function readConfig(cwd: string) {
   const path = join(cwd, '.oxlintrc.json')
+
   if (!existsSync(path)) {
     for (const name of ['.oxlintrc.jsonc', 'oxlint.config.ts', 'oxlint.config.mts']) {
       if (existsSync(join(cwd, name))) {
@@ -47,11 +48,15 @@ export function readConfig(cwd: string) {
     if (loading.has(file)) {
       throw new Error(`circular lint config extends: ${file}`)
     }
+
     loading.add(file)
+
     const config: Config = JSON.parse(readFileSync(file, 'utf8'))
+
     if (!config || typeof config !== 'object' || Array.isArray(config)) {
       throw new Error(`lint config must be an object: ${file}`)
     }
+
     for (const parent of config.extends ?? []) {
       const parentPath =
         parent.startsWith('.') || isAbsolute(parent)
@@ -60,12 +65,15 @@ export function readConfig(cwd: string) {
 
       load(parentPath)
     }
+
     layers.push({ config, directory: dirname(file) })
     loading.delete(file)
     return config
   }
+
   const root = load(path)
   const rules = Object.assign({}, ...layers.map(({ config }) => config.rules))
+
   return {
     path,
     defaults: undefined,
@@ -73,8 +81,10 @@ export function readConfig(cwd: string) {
     ignorePatterns: root.ignorePatterns ?? [],
     rulesFor(file: string): Record<string, unknown> {
       const selected = { ...rules }
+
       for (const { config, directory } of layers) {
         const rel = relative(directory, file).replaceAll('\\', '/')
+
         for (const override of config.overrides ?? []) {
           // Oxlint's globset includes dotfiles and lets a single star
           // cross path separators; Node's matchesGlob does neither.
@@ -90,6 +100,7 @@ export function readConfig(cwd: string) {
           }
         }
       }
+
       return selected
     },
   }
@@ -99,15 +110,20 @@ export function ruleConfig(entry: unknown) {
   if (entry === undefined) {
     return undefined
   }
+
   const [severity, options] = Array.isArray(entry) ? entry : [entry, undefined]
+
   if (severity === 'off' || severity === 'allow' || severity === 0) {
     return undefined
   }
+
   if (severity === 'warn' || severity === 1) {
     return { severity: 'warn', options }
   }
+
   if (severity === 'error' || severity === 'deny' || severity === 2) {
     return { severity: 'error', options }
   }
+
   throw new Error(`invalid lint severity: ${JSON.stringify(severity)}`)
 }

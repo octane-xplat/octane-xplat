@@ -37,8 +37,10 @@ const nativeCLI = join(
 const work = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-workshop-packed-')))
 const consumer = join(work, 'consumer')
 const pack = join(work, 'pack')
+
 mkdirSync(consumer)
 mkdirSync(pack)
+
 let server
 let serverOutput = ''
 let browser
@@ -48,7 +50,9 @@ function run(command, args, cwd = consumer) {
     command = nativeCLI
     args = args.slice(2)
   }
+
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   assert.equal(
     result.status,
     0,
@@ -68,10 +72,13 @@ try {
     readdirSync(join(repo, 'packages')).flatMap((directory) => {
       const root = join(repo, 'packages', directory)
       const file = join(root, 'package.json')
+
       if (!existsSync(file)) {
         return []
       }
+
       const manifest = JSON.parse(readFileSync(file, 'utf8'))
+
       return [[manifest.name, { root, manifest }]]
     }),
   )
@@ -81,11 +88,15 @@ try {
     if (wanted.has(name) || !packages.has(name)) {
       return
     }
+
     wanted.add(name)
+
     const { manifest } = packages.get(name)
+
     for (const dependency of Object.keys(manifest.dependencies ?? {})) {
       include(dependency)
     }
+
     for (const dependency of Object.keys(manifest.peerDependencies ?? {})) {
       if (!manifest.peerDependenciesMeta?.[dependency]?.optional) {
         include(dependency)
@@ -102,6 +113,7 @@ try {
   include('octane-xplat')
   for (const name of wanted) {
     const { root, manifest } = packages.get(name)
+
     run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', pack], root)
     tarballs[name] =
       `file:${join(pack, `${name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
@@ -135,6 +147,7 @@ try {
   )
 
   const manifest = JSON.parse(readFileSync(join(consumer, 'package.json'), 'utf8'))
+
   manifest.overrides = tarballs
   manifest.packageManager = 'bun@1.4.4'
   write('package.json', JSON.stringify(manifest))
@@ -148,12 +161,17 @@ try {
   }
 
   const initialized = run('bun', ['run', 'xplat', 'workshop', 'init'])
+
   assert.match(initialized, /created workshop.config.ts/)
+
   const config = readFileSync(join(consumer, 'workshop.config.ts'), 'utf8')
+
   run('bun', ['run', 'xplat', 'workshop', 'init'])
   assert.equal(readFileSync(join(consumer, 'workshop.config.ts'), 'utf8'), config)
+
   const doctor = run('bun', ['run', 'xplat', 'workshop', 'doctor', '--json'])
   const targetReport = JSON.parse(doctor.slice(doctor.indexOf('{')))
+
   assert.equal(Object.keys(targetReport.targets).length, 6)
   assert.equal(targetReport.targets.web.status, 'available')
   assert.equal(
@@ -165,7 +183,9 @@ try {
   // Use the maintained acceptance catalog, without the init example.
   rmSync(join(consumer, 'src/workshop'), { recursive: true })
   cpSync(join(repo, 'apps/workshop-demo/src'), join(consumer, 'src'), { recursive: true })
+
   const list = run('bun', ['run', 'xplat', 'workshop', 'list', '--json'])
+
   assert.match(list, /counter\/basic/)
   assert.match(list, /ios-only/)
   assert.equal(
@@ -197,8 +217,10 @@ try {
   )
 
   run('bun', ['run', 'tsc', '--noEmit'])
+
   const req = createRequire(join(consumer, 'package.json'))
   const { WORKSHOP_CONTRACT_VERSION } = await import(req.resolve('@octane-xplat/workshop'))
+
   assert.equal(WORKSHOP_CONTRACT_VERSION, 1)
   for (const specifier of ['@octane-xplat/workshop', '@octane-xplat/ui', '@octanejs/vite-plugin']) {
     assert.equal(
@@ -215,8 +237,10 @@ try {
 
   const port = await new Promise((resolve) => {
     const socket = createNetServer()
+
     socket.listen(0, () => {
       const port = socket.address().port
+
       socket.close(() => resolve(port))
     })
   })
@@ -233,7 +257,9 @@ try {
     const capture = (chunk) => {
       output += chunk
       serverOutput += chunk
+
       const match = /WORKSHOP_READY (https?:\/\/\S+)/.exec(output)
+
       if (match) {
         clearTimeout(timer)
         accept(match[1])
@@ -250,9 +276,12 @@ try {
 
   // Compile the installed source graph before the interaction and warm-edit checks.
   const { chromium } = createRequire(join(repo, 'apps/workshop-demo/package.json'))('playwright')
+
   browser = await chromium.launch({ headless: true })
+
   const cold = await browser.newPage()
   const coldStart = performance.now()
+
   await cold.goto(`${url}#/story/counter/basic`, { waitUntil: 'domcontentloaded', timeout: 60_000 })
   await cold.waitForFunction(
     () => ['ready', 'failed'].includes(globalThis.__xplatWorkshopRuntime?.session.state.phase),
@@ -262,6 +291,7 @@ try {
 
   const coldState = await cold.evaluate(() => {
     const state = globalThis.__xplatWorkshopRuntime.session.state
+
     return { phase: state.phase, failure: state.failure?.message }
   })
 
@@ -288,12 +318,14 @@ try {
   // only same-document hash navigations, while a reload repeats the URL.
   let lastUrl = ''
   let pageReloads = 0
+
   page.on('framenavigated', (frame) => {
     if (frame !== page.mainFrame()) {
       return
     }
 
     const next = frame.url()
+
     if (next === lastUrl) {
       pageReloads++
     }
@@ -308,9 +340,12 @@ try {
 
   const sourcePath = join(consumer, 'src/counter.tsrx')
   const original = readFileSync(sourcePath, 'utf8')
+
   await page.getByRole('button', { name: 'Increment', exact: true }).click()
+
   const before = await page.evaluate(() => globalThis.__xplatWorkshopRuntime.session.state.revision)
   const start = performance.now()
+
   writeFileSync(sourcePath, original.replace('(+{props.step})', '(warm +{props.step})'))
   await page.waitForFunction(
     (revision) =>
@@ -320,6 +355,7 @@ try {
   )
 
   const latency = Math.round(performance.now() - start)
+
   assert.ok(latency <= 2000, `warm web edit exceeded 2s: ${latency}ms`)
   assert.match(await page.locator('.xw-stage-mount').innerText(), /Demo: 0/)
   writeFileSync(sourcePath, 'this is invalid source !!!')
@@ -344,6 +380,7 @@ try {
 
   const storyPath = join(consumer, 'src/stories/counter.stories.tsrx')
   const originalStory = readFileSync(storyPath, 'utf8')
+
   writeFileSync(storyPath, originalStory.replace('args: { step: 1 }', 'args: { step: 3 }'))
   await page.waitForFunction(
     () =>
@@ -381,6 +418,7 @@ try {
   })
 
   const dynamicPath = join(consumer, 'src/stories/dynamic.stories.tsrx')
+
   writeFileSync(
     dynamicPath,
     `import { defineStory } from '@octane-xplat/workshop'
@@ -432,6 +470,7 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
   )
 
   run('bun', ['run', 'vite', 'build'])
+
   function files(dir) {
     return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
       entry.isDirectory() ? files(join(dir, entry.name)) : [join(dir, entry.name)],
@@ -453,9 +492,12 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
   )
 
   run('bun', ['run', 'xplat', 'workshop', 'build', '--out-dir', 'out/static', '--base', '/nested/'])
+
   const staticRoot = join(consumer, 'out/static')
   const html = readFileSync(join(staticRoot, 'index.html'), 'utf8')
+
   assert.match(html, /src="\/nested\/assets\//)
+
   const staticCSS = files(staticRoot)
     .filter((file) => file.endsWith('.css'))
     .map((file) => readFileSync(file, 'utf8'))
@@ -473,14 +515,18 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
 
   assert.doesNotMatch(shipped, /\/@fs\/|\/@id\/|vite\/client/)
   assert.ok(!shipped.includes(consumer), 'static output must not expose the consumer path')
+
   const { createServer } = await import('node:http')
   const staticServer = createServer((req, res) => {
     const pathname = new URL(req.url, 'http://localhost').pathname
+
     if (!pathname.startsWith('/nested/')) {
       res.writeHead(404).end()
       return
     }
+
     const file = join(staticRoot, pathname.slice('/nested/'.length) || 'index.html')
+
     try {
       res.setHeader(
         'content-type',
@@ -496,6 +542,7 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
   await new Promise((done) => staticServer.listen(0, '127.0.0.1', done))
   try {
     const staticPage = await browser.newPage()
+
     await staticPage.goto(`http://127.0.0.1:${staticServer.address().port}/nested/?view=gallery`)
     await staticPage.locator('.xw-gallery section').first().waitFor()
     await staticPage.waitForFunction(() => document.querySelectorAll('iframe').length > 0)

@@ -18,6 +18,7 @@ export function validateSearch(raw: { id?: unknown }) {
 /** Navigation preparation and the screen share one definition and client. */
 export function loader({ search }: RouteLoaderArgs<'/cached-user'>) {
   const session = demoSession.getSnapshot()
+
   return session.queries.ensureData(session.users, search.id)
 }
 
@@ -57,6 +58,7 @@ export function CachedUser(props: RouteProps<'/cached-user'>) @{
     } @else {
       @try {
         const user = reader.data$.get()
+
         <>
           <Text id="cached-name">{user.name}</Text>
           <Pressable id="cached-save" onPress={() => save(user.name, false)}>

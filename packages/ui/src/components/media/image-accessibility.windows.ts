@@ -18,20 +18,24 @@ export function bindImageAccessibility(
     }
 
     restore?.()
+
     const image = view.windows
     const border = view.nativeViewProtected
     const previousName = automation.GetName(image)
     const previousView = automation.GetAccessibilityView(border)
+
     automation.SetName(image, label)
     automation.SetAccessibilityView(
       border,
       Microsoft.UI.Xaml.Automation.Peers.AccessibilityView.Raw,
     )
+
     restore = () => {
       automation.SetName(image, previousName)
       automation.SetAccessibilityView(border, previousView)
     }
   }
+
   view.on('loaded', apply)
   if (view.isLoaded) {
     apply()

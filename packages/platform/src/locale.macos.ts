@@ -5,6 +5,7 @@ function readLocale(): Locale {
     // A script subtag (zh-Hant-TW) is not a region. Let Intl parse the tag.
     const tag = Intl.DateTimeFormat().resolvedOptions().locale
     const parsed = new Intl.Locale(tag.replace(/_/g, '-'))
+
     return { tag: parsed.toString(), language: parsed.language, region: parsed.region ?? '' }
   } catch {
     // A valid deterministic fallback keeps metadata imports usable without Intl.

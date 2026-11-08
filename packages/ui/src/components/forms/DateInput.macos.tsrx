@@ -61,7 +61,9 @@ function DateInputControl(inputProps: DateInputProps) @{
 
   const [open, setOpenState] = useState(false)
   const openRef = useRef(open)
+
   openRef.current = open
+
   const writing = useRef(false),
     actionPending = useRef(false)
 
@@ -81,6 +83,7 @@ function DateInputControl(inputProps: DateInputProps) @{
   const isDisabled = !!props.isDisabled || !!props.isReadOnly
   const isBusy = !!props.isLoading || busy
   const blocked = useRef(isDisabled || isBusy)
+
   blocked.current = isDisabled || isBusy
   useImperativeHandle(
     props.ref,
@@ -103,7 +106,9 @@ function DateInputControl(inputProps: DateInputProps) @{
   )
 
   const current = useRef({ props, isDateDisabled })
+
   current.current = { props, isDateDisabled }
+
   const autoFocus = useMemo(
     () =>
       createAppKitAutoFocus({
@@ -135,6 +140,7 @@ function DateInputControl(inputProps: DateInputProps) @{
 
   const fireChange = (next: ISODateString | null): boolean => {
     const live = current.current
+
     if (!anchor.current || blocked.current || writing.current || actionPending.current) {
       return false
     }
@@ -143,6 +149,7 @@ function DateInputControl(inputProps: DateInputProps) @{
     try {
       if (next !== null) {
         const parsed = plainDateFromISO(next)
+
         if (!parsed || live.isDateDisabled(parsed)) {
           return false
         }
@@ -187,6 +194,7 @@ function DateInputControl(inputProps: DateInputProps) @{
     }
 
     const iso = plainDateToISO(pd)
+
     return iso !== current.current.props.value && fireChange(iso)
   }
 

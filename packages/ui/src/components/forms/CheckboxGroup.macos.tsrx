@@ -16,18 +16,22 @@ export function CheckboxGroup(inputProps: CheckboxGroupProps): unknown @{
   const controlled = props.value !== undefined
   const selected = controlled ? props.value! : internal
   const liveSelected = useRef(selected)
+
   liveSelected.current = selected
+
   const select = (value: string, on = true) => {
     if (props.isDisabled || props.isReadOnly) {
       return
     }
 
     const current = liveSelected.current
+
     if (current.includes(value) === on) {
       return
     }
 
     const next = on ? [...current, value] : current.filter((key) => key !== value)
+
     if (!controlled) {
       liveSelected.current = next
       setInternal(next)

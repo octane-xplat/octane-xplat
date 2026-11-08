@@ -29,19 +29,25 @@ function addSoftBreakClaims(source: string, density: MarkdownBenchmarkClaimDensi
   if (density === 'none') {
     return source
   }
+
   return source
     .split('\n')
     .flatMap((line) => {
       const match = /^Section (\d+) contains /.exec(line)
+
       if (match == null) {
         return [line]
       }
+
       const section = Number(match[1])
       const claimed = density === 'dense' || section % 10 === 1
+
       if (!claimed) {
         return [line]
       }
+
       const splitAt = line.indexOf(', and inline ')
+
       return splitAt < 0 ? [line] : [line.slice(0, splitAt + 1), line.slice(splitAt + 2)]
     })
     .join('\n')
@@ -67,8 +73,10 @@ export function getMarkdownBenchmarkProfile(
   id: MarkdownBenchmarkProfileId,
 ): MarkdownBenchmarkProfile {
   const profile = MARKDOWN_BENCHMARK_PROFILES.find((entry) => entry.id === id)
+
   if (profile == null) {
     throw new RangeError(`Unknown Markdown benchmark profile: ${id}`)
   }
+
   return profile
 }

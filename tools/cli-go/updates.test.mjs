@@ -31,22 +31,27 @@ const binary = join(work, `xplat-go-${host}-cli${process.platform === 'win32' ? 
   build = JSON.parse(readFileSync(binary + '.json'))
 
 const sha = (b) => createHash('sha256').update(b).digest('hex')
+
 assert.equal(sha(readFileSync(binary)), build.sha256)
 for (const [file, hash] of Object.entries(build.inputs)) {
   assert.equal(sha(readFileSync(join(root, file))), hash, file)
 }
 
 const scratch = realpathSync(scratchRun(root, 'go-updates'))
+
 after(() => rmSync(scratch, { recursive: true, force: true, maxRetries: 5, retryDelay: 200 }))
+
 const tools = projectToolFixture(root, work, scratch, { vite: false, packageManagement: true })
 let sequence = 0
 function put(dir, file, data) {
   const path = join(dir, file)
+
   mkdirSync(dirname(path), { recursive: true })
   writeFileSync(
     path,
     typeof data === 'string' || Buffer.isBuffer(data) ? data : JSON.stringify(data),
   )
+
   return path
 }
 
@@ -56,6 +61,7 @@ function install(dir) {
     ['fingerprint', './index.js'],
   ]) {
     const pkg = join(dir, 'node_modules/@octane-xplat', name)
+
     put(pkg, 'package.json', { name: '@octane-xplat/' + name, exports })
     put(
       pkg,
@@ -67,17 +73,22 @@ function install(dir) {
 
 function fixture(dependencies = true) {
   const dir = join(scratch, 'app ' + sequence++ + ' π')
+
   put(dir, 'package.json', { name: 'updates-app', private: true })
+
   const dest = join(dir, 'node_modules/@octane-xplat/cli')
+
   mkdirSync(dirname(dest), { recursive: true })
   symlinkSync(
     realpathSync(join(tools.nodeModules, '@octane-xplat/cli')),
     dest,
     process.platform === 'win32' ? 'junction' : 'dir',
   )
+
   if (dependencies) {
     install(dir)
   }
+
   return dir
 }
 
@@ -105,6 +116,7 @@ function tree(dir) {
       }
 
       const file = join(path, f.name)
+
       if (f.isDirectory()) {
         walk(file)
       } else if (f.isFile()) {
@@ -112,15 +124,19 @@ function tree(dir) {
       }
     }
   }
+
   walk(dir)
   return result
 }
 
 test('updates group help and native init schema need no Node or project', () => {
   const dir = fixture(false)
+
   success(run(dir, ['--help'], { PATH: '' }))
   success(run(dir, ['init', '--help'], { PATH: '' }))
+
   const r = run(dir, ['init', '--schema'], { PATH: '' })
+
   success(r)
   assert.equal(JSON.parse(r.stdout).data.status, 'implemented')
   assert.equal(run(dir).status, 1)
@@ -138,17 +154,24 @@ test('native updates generates the exact reference hook and appends ignore data 
     '  /.xplat/  \r\n',
   ]) {
     const dir = fixture()
+
     put(dir, '.gitignore', ignored)
+
     const r = run(dir, ['init'])
+
     success(r)
     assert.match(r.stdout, /rebuild your iOS\/Android binaries/)
+
     const file = join(dir, 'hooks/after-prepare/xplat-updates.cjs')
+
     assert.equal(readFileSync(file, 'utf8'), updatesHook)
+
     const expected = ignored.split(/\r?\n/).some((l) => ['.xplat/', '/.xplat/'].includes(l.trim()))
       ? ignored
       : ignored + (ignored && !ignored.endsWith('\n') ? '\n' : '') + '.xplat/\n'
 
     assert.equal(readFileSync(join(dir, '.gitignore'), 'utf8'), expected)
+
     const before = tree(dir),
       mtime = statSync(file).mtimeMs
 
@@ -160,8 +183,11 @@ test('native updates generates the exact reference hook and appends ignore data 
 
 test('explicit app selection and workspace package resolution never execute optional modules', () => {
   const project = fixture(false)
+
   install(project)
+
   const app = join(project, 'apps/mobile')
+
   put(app, 'package.json', { name: 'app' })
   success(run(scratch, ['init', '--dir', app]))
   assert.equal(existsSync(join(app, 'hooks/after-prepare/xplat-updates.cjs')), true)
@@ -170,8 +196,10 @@ test('explicit app selection and workspace package resolution never execute opti
     name: '@octane-xplat/updates',
     exports: { './prepare': './missing.cjs' },
   })
+
   const before = tree(app),
     r = run(scratch, ['init', '--dir', app])
+
   assert.notEqual(r.status, 0)
   assert.deepEqual(tree(app), before)
 })
@@ -179,6 +207,7 @@ test('explicit app selection and workspace package resolution never execute opti
 test('missing dependencies and custom hooks fail without changing the app', () => {
   for (const custom of [null, '// edited hook']) {
     const dir = fixture(custom !== null)
+
     if (custom) {
       put(dir, 'hooks/after-prepare/xplat-updates.cjs', custom)
     }
@@ -190,7 +219,9 @@ test('missing dependencies and custom hooks fail without changing the app', () =
     assert.match(r.stderr, custom ? /Existing OTA hook differs/ : /Install @octane-xplat\/updates/)
     assert.deepEqual(tree(dir), before)
   }
+
   const dir = fixture()
+
   put(dir, 'hooks/after-prepare/xplat-updates.cjs', '')
   success(run(dir, ['init']))
 })
@@ -201,7 +232,9 @@ test('hook and ignore aliases cannot write outside the selected app', () => {
       outside = join(scratch, 'outside ' + sequence++)
 
     put(outside, 'keep', 'private')
+
     const dest = name === 'hooks' ? outside : put(outside, 'ignore', 'private')
+
     symlinkSync(
       dest,
       join(dir, name),
@@ -225,12 +258,14 @@ test(
   () => {
     const dir = fixture()
     const file = put(dir, '.gitignore', Buffer.from([0xff, 10]))
+
     chmodSync(file, 0o640)
     success(run(dir, ['init']))
     assert.deepEqual(
       readFileSync(file),
       Buffer.concat([Buffer.from([0xff, 10]), Buffer.from('.xplat/\n')]),
     )
+
     assert.equal(statSync(file).mode & 0o777, 0o640)
   },
 )
@@ -272,11 +307,13 @@ test('malformed worker identity/results cannot authorize publication', () => {
 })
 
 const referenceEntry = join(root, 'packages/cli/dist/commands/updates.js')
+
 test(
   'native outputs match the actual built TypeScript initializer',
   { skip: !existsSync(referenceEntry) },
   async () => {
     const { initializeUpdates } = await import(pathToFileURL(referenceEntry).href)
+
     for (const text of [
       '',
       'node_modules',
@@ -299,23 +336,28 @@ test(
 test('cancellation waits for blocked resolution worker descendants before returning', async (t) => {
   const dir = fixture(),
     pkg = join(dir, 'node_modules/@octane-xplat/cli')
+
   rmSync(pkg, { recursive: true, force: true })
   put(pkg, 'package.json', {
     name: '@octane-xplat/cli',
     type: 'module',
     exports: { './worker': './wait.mjs' },
   })
+
   put(
     pkg,
     'wait.mjs',
     `import{spawn}from'node:child_process';import{writeFileSync}from'node:fs';process.on('SIGTERM',()=>{});const child=spawn(process.execPath,['-e',"process.on('SIGTERM',()=>{});setInterval(()=>{},1000)"],{stdio:'ignore'});writeFileSync('pids.json',JSON.stringify([process.pid,child.pid]));setInterval(()=>{},1000)`,
   )
+
   const child = spawn(binary, ['updates', 'init'], {
     cwd: dir,
     env: { ...process.env, NODE_OPTIONS: '', NODE_PATH: '' },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
+
   let diagnostic = ''
+
   child.stdout.on('data', (b) => (diagnostic += b))
   child.stderr.on('data', (b) => (diagnostic += b))
   t.after(() => {
@@ -323,15 +365,21 @@ test('cancellation waits for blocked resolution worker descendants before return
       child.kill('SIGKILL')
     }
   })
+
   const deadline = Date.now() + 15000
+
   while (!existsSync(join(dir, 'pids.json')) && Date.now() < deadline) {
     await delay(25)
   }
+
   assert.equal(existsSync(join(dir, 'pids.json')), true, diagnostic)
+
   const pids = JSON.parse(readFileSync(join(dir, 'pids.json'))),
     closed = once(child, 'close')
+
   child.kill('SIGTERM')
   await closed
+
   const alive = (pid) => {
     try {
       process.kill(pid, 0)
@@ -340,14 +388,17 @@ test('cancellation waits for blocked resolution worker descendants before return
       return false
     }
   }
+
   for (const pid of pids) {
     const until = Date.now() + 6000
+
     while (alive(pid) && Date.now() < until) {
       await delay(25)
     }
 
     assert.equal(alive(pid), false, 'resolution descendant survived ' + pid)
   }
+
   assert.equal(existsSync(join(dir, 'hooks')), false)
   install(dir)
   // Replace the owned fake worker with the real operation and verify recovery.
@@ -357,5 +408,6 @@ test('cancellation waits for blocked resolution worker descendants before return
     pkg,
     process.platform === 'win32' ? 'junction' : 'dir',
   )
+
   success(run(dir, ['init']))
 })

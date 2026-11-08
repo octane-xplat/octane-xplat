@@ -23,6 +23,7 @@ function mount(props: any) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -38,8 +39,10 @@ it('default body labels retain full text and native hosts across wrap/truncate/r
     columns = [{ key: 'name', header: 'Name' }]
 
   const env = mount({ data, columns, idKey: 'id' })
+
   try {
     const label = env.bodyText()[0]
+
     expect(label.props.text).toBe(data[0].name)
     expect(label.props).toMatchObject({ whiteSpace: 'normal', textOverflow: 'clip' })
     expect(label.props.maxLines).toBeUndefined()
@@ -72,10 +75,12 @@ it('table overflow governs default body text without overriding headers or custo
   ]
 
   const env = mount({ data, columns, textOverflow: 'truncate' })
+
   try {
     expect(env.bodyText().map((node) => node.props.text)).toEqual(['Ada'])
     for (const text of ['Name', 'Notes', data[0].note]) {
       const label = env.all().find((node) => node.type === 'label' && node.props?.text === text)
+
       expect(label).toBeDefined()
       expect(label.props.maxLines).toBeUndefined()
       expect(label.props.whiteSpace).toBeUndefined()
@@ -88,6 +93,7 @@ it('table overflow governs default body text without overriding headers or custo
 
 function StatefulCell() {
   const [count, setCount] = useState(0)
+
   return <button id="custom-counter" title={`Count ${count}`} onTap={() => setCount(count + 1)} />
 }
 
@@ -95,8 +101,10 @@ it('custom slot content keeps its owner and local state while sibling default ov
   const data = [{ id: '1', name: 'Ada', actions: '' }]
   const columns = [{ key: 'name' }, { key: 'actions', renderCell: () => tableSlot(StatefulCell) }]
   const env = mount({ data, columns, textOverflow: 'wrap' })
+
   try {
     const counter = env.all().find((node) => node.props?.id === 'custom-counter')
+
     counter.props.onTap()
     flushUniversalSync(() => {})
     expect(counter.props.title).toBe('Count 1')
@@ -115,8 +123,10 @@ it('changing between default and custom text clears table-owned overflow on the 
     columns: any[] = [{ key: 'name' }]
 
   const env = mount({ data, columns, idKey: 'id', textOverflow: 'truncate' })
+
   try {
     const label = env.bodyText()[0]
+
     env.render({
       data,
       columns: [{ key: 'name', renderCell: () => 0 }],

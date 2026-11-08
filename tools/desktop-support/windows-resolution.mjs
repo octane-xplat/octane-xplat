@@ -3,6 +3,7 @@ import { resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import { writeFileSync } from 'node:fs'
 import { localOutputFile } from './local-output.mjs'
+
 const root = process.cwd()
 const outputPath = localOutputFile(
   process.argv[2] ?? 'research/desktop-audit/windows-resolution.json',
@@ -11,8 +12,10 @@ const outputPath = localOutputFile(
 
 const req = createRequire(resolve(root, 'apps/windows/package.json'))
 const { createServer } = await import(req.resolve('vite'))
+
 process.chdir(resolve(root, 'apps/windows'))
 process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
+
 const { xplatNative } = await import(pathToFileURL(resolve(root, 'packages/cli/src/vite.ts')))
 const config = await xplatNative('production')
 const server = await createServer({
@@ -36,6 +39,7 @@ const server = await createServer({
 
 try {
   const results = []
+
   for (const [s, i] of [
     ['@octane-xplat/ui', 'apps/windows/src/index.ts'],
     ['@octane-xplat/gif', 'apps/windows/src/index.ts'],

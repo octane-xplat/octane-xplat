@@ -1,7 +1,9 @@
 import { appKitHost } from '../platform/host-bridge'
 import type { NSView, NSWindow } from '@octane-xplat/platform/macos'
+
 const flag = (view: any, name: string, fallback = false): boolean => {
   const value = view?.[name]
+
   return value == null ? fallback : Boolean(typeof value === 'function' ? value.call(view) : value)
 }
 
@@ -18,11 +20,13 @@ const contains = (root: NSView, target: any): boolean => {
       return true
     }
   }
+
   return false
 }
 
 function children(view: NSView): NSView[] {
   const items = view.subviews as any
+
   return Array.from({ length: Number(items?.count ?? items?.length ?? 0) }, (_, i) =>
     items.objectAtIndex ? items.objectAtIndex(i) : items[i],
   )
@@ -31,10 +35,12 @@ function children(view: NSView): NSView[] {
 function focused(window: NSWindow): any {
   const raw = window.firstResponder as any,
     delegate = raw?.delegate
+
   const editor =
     typeof delegate?.currentEditor === 'function'
       ? delegate.currentEditor()
       : delegate?.currentEditor
+
   return delegate?.window === window && (editor === raw || flag(raw, 'isFieldEditor'))
     ? delegate
     : raw
@@ -58,6 +64,7 @@ export function createAppKitLandmarks(
     moving = false,
     handling = false,
     disposed = false
+
   const releaseTarget = (entry: Entry) => {
     try {
       entry.release()
@@ -65,8 +72,10 @@ export function createAppKitLandmarks(
       console.warn('[macos-landmark] focus target cleanup failed')
     }
   }
+
   const removeMonitor = () => {
     const token = monitor
+
     monitor = undefined
     if (token != null) {
       try {
@@ -76,49 +85,61 @@ export function createAppKitLandmarks(
       }
     }
   }
+
   const available = () =>
     typeof bridge()?.retainFocusTarget === 'function' &&
     typeof bridge()?.dispatchKeyboardEvent === 'function' &&
     typeof native().NSEvent?.addLocalMonitorForEventsMatchingMaskHandler === 'function' &&
     typeof native().NSEvent?.removeMonitor === 'function'
+
   const cycle = (window: NSWindow, backward: boolean): boolean => {
     if (disposed || moving || !window || !flag(window, 'isKeyWindow', true)) {
       return false
     }
+
     const scope = boundary(window),
       root = scope ?? window.contentView
+
     if (!root) {
       return false
     }
+
     const ordered: NSView[] = []
     const visit = (view: NSView) => {
       if (view.window !== window || !eligible(view)) {
         return
       }
+
       if (regions.has(view)) {
         ordered.push(view)
       }
+
       for (const child of children(view)) {
         visit(child)
       }
     }
+
     visit(root)
     if (!ordered.length) {
       return false
     }
+
     const current = focused(window)
     let index = -1
+
     for (let i = 0; i < ordered.length; i++) {
       if (contains(ordered[i]!, current)) {
         index = i
       }
     } // Innermost registered ancestor.
+
     const start =
       index < 0
         ? backward
           ? ordered.length - 1
           : 0
         : (index + (backward ? -1 : 1) + ordered.length) % ordered.length
+
     moving = true
     try {
       for (let offset = 0; offset < ordered.length; offset++) {
@@ -138,6 +159,7 @@ export function createAppKitLandmarks(
           if (!eligible(view) || view.window !== window || (view !== region && regions.has(view))) {
             return
           }
+
           if (
             view !== region &&
             flag(view, 'acceptsFirstResponder') &&
@@ -145,6 +167,7 @@ export function createAppKitLandmarks(
           ) {
             targets.push(view)
           }
+
           for (const child of children(view)) {
             collect(child)
           }
@@ -182,6 +205,7 @@ export function createAppKitLandmarks(
       moving = false
     }
   }
+
   const keyDown = (event: any): any => {
     if (
       disposed ||
@@ -194,10 +218,13 @@ export function createAppKitLandmarks(
     ) {
       return event
     }
+
     const flags = Number(event.modifierFlags ?? 0)
+
     if (flags & ((1 << 18) | (1 << 19) | (1 << 20))) {
       return event
     }
+
     handling = true
     try {
       const raw = event.window.firstResponder,
@@ -208,6 +235,7 @@ export function createAppKitLandmarks(
       }
 
       const dispatched = bridge()?.dispatchKeyboardEvent?.(event)
+
       if (dispatched?.defaultPrevented) {
         return null
       }
@@ -221,6 +249,7 @@ export function createAppKitLandmarks(
       handling = false
     }
   }
+
   return {
     cycle,
     keyDown,
@@ -228,15 +257,20 @@ export function createAppKitLandmarks(
       if (disposed || !available()) {
         return () => {}
       }
+
       let entry: Entry | undefined
+
       try {
         const release = bridge()!.retainFocusTarget(view)
+
         if (typeof release !== 'function') {
           return () => {}
         }
 
         entry = { release }
+
         let entries = regions.get(view)
+
         if (!entries) {
           entries = new Set()
           regions.set(view, entries)
@@ -253,6 +287,7 @@ export function createAppKitLandmarks(
       } catch {
         if (entry) {
           const entries = regions.get(view)
+
           entries?.delete(entry)
           if (!entries?.size) {
             regions.delete(view)
@@ -263,23 +298,31 @@ export function createAppKitLandmarks(
 
         return () => {}
       }
+
       if (!entry) {
         return () => {}
       }
+
       const owner = entry
       let active = true
+
       return () => {
         if (!active) {
           return
         }
+
         active = false
+
         const entries = regions.get(view)
+
         if (!entries?.delete(owner)) {
           return
         }
+
         if (!entries.size) {
           regions.delete(view)
         }
+
         try {
           releaseTarget(owner)
         } finally {
@@ -293,6 +336,7 @@ export function createAppKitLandmarks(
       if (disposed) {
         return
       }
+
       disposed = true
       try {
         removeMonitor()

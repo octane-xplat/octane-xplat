@@ -7,6 +7,7 @@ import test from 'node:test'
 import { build } from 'vite'
 import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
+
 for (const fallback of [false, true]) {
   test(
     'GTK radio lists preserve fields and grouped keyboard navigation (' +
@@ -16,10 +17,12 @@ for (const fallback of [false, true]) {
     async (t) => {
       const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
       const outDir = join(fixture, 'dist-ui-radio-list')
+
       if (!gjsAvailable() || (!fallback && !masonTypelibPresent())) {
         t.skip('GJS required, plus XplatMason for Mason mode')
         return
       }
+
       await build({
         logLevel: 'error',
         ...(await xplatLinuxGtk('production', {
@@ -28,11 +31,13 @@ for (const fallback of [false, true]) {
           outDir,
         })),
       })
+
       const nativeDir = fileURLToPath(new URL('../native/xplatmason/', import.meta.url))
       const osInput =
         process.platform === 'linux' &&
         !!process.env.DISPLAY &&
         spawnSync('xdotool', ['version']).status === 0
+
       const env = {
         ...process.env,
         GTK_A11Y: 'test',
@@ -40,6 +45,7 @@ for (const fallback of [false, true]) {
         XPLAT_MASON_TYPELIB: fallback ? undefined : nativeDir,
         GTK_RADIO_FALLBACK: fallback ? '1' : '0',
       }
+
       if (fallback) {
         if (env.GI_TYPELIB_PATH) {
           env.GI_TYPELIB_PATH = env.GI_TYPELIB_PATH.split(':')
@@ -64,22 +70,28 @@ for (const fallback of [false, true]) {
           return
         }
       }
+
       const child = spawn('gjs', ['-m', join(outDir, 'app.js')], {
         env,
         stdio: ['ignore', 'pipe', 'pipe'],
       })
+
       let stdout = '',
         stderr = '',
         inputError
+
       child.stderr.on('data', (data) => {
         stderr += data
       })
+
       const lines = createInterface({ input: child.stdout })
+
       lines.on('line', (line) => {
         stdout += line + '\n'
         if (!line.startsWith('GTK_RADIO_READY ')) {
           return
         }
+
         try {
           const phase = JSON.parse(line.slice('GTK_RADIO_READY '.length))
           const id = execFileSync(
@@ -91,6 +103,7 @@ for (const fallback of [false, true]) {
             .split('\n')[0]
 
           const send = (...args) => execFileSync('xdotool', args, { env, timeout: 7000 })
+
           send('windowfocus', id)
           if (phase.point) {
             send('mousemove', '--window', id, String(phase.point.x), String(phase.point.y))
@@ -105,7 +118,9 @@ for (const fallback of [false, true]) {
           child.kill()
         }
       })
+
       const timer = setTimeout(() => child.kill(), 45000)
+
       t.after(() => {
         clearTimeout(timer)
         lines.close()
@@ -113,19 +128,26 @@ for (const fallback of [false, true]) {
           child.kill()
         }
       })
+
       const code = await new Promise((resolve, reject) => {
         child.once('error', reject)
         child.once('close', resolve)
       })
+
       assert.equal(code, 0, stdout + '\n' + stderr + '\n' + (inputError ?? ''))
       assert.doesNotMatch(stderr, /Gtk-CRITICAL|Gjs-(?:Console-)?CRITICAL|event handler failed/)
+
       const line = stdout.split('\n').find((line) => line.startsWith('GTK_RADIO '))
+
       assert.ok(line, stdout)
+
       const result = JSON.parse(line.slice('GTK_RADIO '.length))
+
       assert.ok(
         result.checks >= (osInput ? (fallback ? 55 : 100) : fallback ? 18 : 50),
         JSON.stringify(result),
       )
+
       assert.equal(result.osInput, osInput)
       assert.equal(result.fallback, fallback)
       t.diagnostic(

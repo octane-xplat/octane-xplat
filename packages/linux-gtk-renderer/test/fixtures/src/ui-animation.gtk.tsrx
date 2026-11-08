@@ -7,6 +7,7 @@ export function Animated(props: { version: number; keyframes?: boolean }) @{
   const opacity = useAnimation(1, 'opacity')
   const width = useAnimation(40, 'width')
   const scale = useAnimation(1, 'scale')
+
   Object.assign(animations, { motion, opacity, width, scale })
 
   <View id="animation-root" style={{ width: 300, height: 250, flexDirection: 'column' }}>

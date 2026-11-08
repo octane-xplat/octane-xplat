@@ -16,6 +16,7 @@ function validateLock(lock: OrientationLock) {
 let pending: Promise<void> = Promise.resolve()
 function enqueue(operation: () => Promise<void>): Promise<void> {
   const result = pending.then(operation)
+
   pending = result.catch(() => {})
   return result
 }
@@ -62,7 +63,9 @@ export async function lockPlatformAsync(options: PlatformOrientationInfo): Promi
   ) {
     throw new TypeError('Supply exactly one platform orientation field')
   }
+
   const copy = { ...options }
+
   if ('screenOrientationArrayIOS' in copy) {
     if (
       !Array.isArray(copy.screenOrientationArrayIOS) ||
@@ -95,6 +98,7 @@ export async function lockPlatformAsync(options: PlatformOrientationInfo): Promi
   } else {
     throw new TypeError('Unknown platform orientation field')
   }
+
   return enqueue(() => backend.lockPlatform(copy))
 }
 
@@ -110,25 +114,31 @@ export function addOrientationChangeListener(listener: OrientationChangeListener
   if (typeof listener !== 'function') {
     throw new TypeError('Orientation listener must be a function')
   }
+
   let previous = axis(backend.info().orientation)
   let active = true
   const subscription = backend.subscribe(() => {
     if (!active) {
       return
     }
+
     const info = backend.info()
     const next = axis(info.orientation)
+
     if (next === 'unknown' || next === previous) {
       return
     }
+
     previous = next
     listener({ orientationInfo: { ...info }, orientationLock: backend.policy() })
   })
+
   return {
     remove() {
       if (!active) {
         return
       }
+
       active = false
       subscription.remove()
     },

@@ -1,12 +1,15 @@
 import type { ChatHostAdapter } from './chat-scroll-host-types'
 
 const scrollers = new WeakMap<object, any>()
+
 export const chatHost: ChatHostAdapter = {
   scroll(host: HTMLElement) {
     if (!host) {
       return null
     }
+
     let port = scrollers.get(host)
+
     if (!port) {
       port = {
         get verticalOffset() {
@@ -31,6 +34,7 @@ export const chatHost: ChatHostAdapter = {
 
       scrollers.set(host, port)
     }
+
     return port
   },
   height: (host) => Number((host as HTMLElement)?.getBoundingClientRect().height ?? 0),
@@ -38,18 +42,22 @@ export const chatHost: ChatHostAdapter = {
   position(host: HTMLElement, viewport: HTMLElement) {
     const box = host.getBoundingClientRect(),
       root = viewport.getBoundingClientRect()
+
     return { y: box.y - root.y, height: box.height }
   },
   contains: (parent: HTMLElement, child: HTMLElement) => parent.contains(child),
   observeLayout(host: HTMLElement, changed) {
     const document = host.ownerDocument,
       window = document.defaultView!
+
     let active = true,
       frame = 0
+
     const observer = new window.ResizeObserver(() => {
       if (!active || frame) {
         return
       }
+
       frame = window.requestAnimationFrame(() => {
         frame = 0
         if (active) {
@@ -57,6 +65,7 @@ export const chatHost: ChatHostAdapter = {
         }
       })
     })
+
     observer.observe(host)
     return () => {
       active = false

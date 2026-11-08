@@ -21,6 +21,7 @@ import {
 } from '@modelcontextprotocol/sdk/client/stdio.js'
 
 const work = process.argv[2] && resolve(process.argv[2])
+
 if (!work) {
   throw new Error('Supply the prepare-packed-consumer.mjs work directory.')
 }
@@ -53,6 +54,7 @@ const serverEnv = (extra = {}) => ({
 })
 
 const serverBin = join(appDir, 'node_modules', '.bin', 'xplat-mcp')
+
 assert.ok(realpathSync(serverBin), 'installed xplat-mcp bin missing')
 
 const transport = new StdioClientTransport({
@@ -76,14 +78,17 @@ const call = async (name, args = {}) => {
   }
 
   const result = await client.callTool({ name, arguments: args })
+
   assert.equal(result.isError, false, JSON.stringify(result.structuredContent))
   return result.structuredContent.data
 }
 
 const until = async (fn, timeoutMs = 60000) => {
   const deadline = Date.now() + timeoutMs
+
   while (Date.now() < deadline) {
     const result = await fn()
+
     if (result) {
       return result
     }
@@ -97,6 +102,7 @@ const until = async (fn, timeoutMs = 60000) => {
 const jobDone = (jobId) =>
   until(async () => {
     const { job } = await call('xplat_job_status', { jobId })
+
     assert.ok(!['failed', 'cancelled'].includes(job.state), JSON.stringify(job))
     return job.state === 'succeeded' ? job : null
   })
@@ -127,6 +133,7 @@ try {
     '@octane-xplat/mcp',
   ]) {
     const resolved = realpathSync(join(appDir, 'node_modules', name))
+
     assert.ok(
       !resolved.includes('/octane-xplat/packages/'),
       `${name} resolves into the framework workspace: ${resolved}`,
@@ -136,7 +143,9 @@ try {
   evidence.push({ check: 'installed packages are packed payloads, not workspace links' })
 
   await client.connect(transport)
+
   const status = await call('xplat_project_status')
+
   assert.equal(status.identity.selection.state, 'bound')
   assert.equal(status.identity.framework.status, 'installed')
   for (const pkg of status.identity.framework.packages) {
@@ -163,12 +172,16 @@ try {
   })
 
   assert.ok(docs.results.length, JSON.stringify(docs))
+
   const hit = docs.results[0]
+
   assert.equal(hit.provenance.match, 'exact')
   assert.equal(hit.provenance.tag, manifest.releaseTag)
   assert.equal(hit.provenance.commit, manifest.fixtureCommit)
   assert.equal(hit.provenance.servedVersion, manifest.frameworkVersion)
+
   const page = await call('xplat_docs_read', { ref: hit.ref, limit: 2000 })
+
   assert.equal(page.provenance.match, 'exact')
   assert.equal(page.provenance.commit, manifest.fixtureCommit)
   evidence.push({
@@ -183,6 +196,7 @@ try {
 
   assert.ok(mcpUnavailable, 'expected tag-absent unavailable for @octane-xplat/mcp@0.0.0')
   assert.equal(mcpUnavailable.reason, 'tag-absent')
+
   // An explicit out-of-binding version can never fall back to latest docs.
   const outside = await call('xplat_docs_read', {
     package: '@octane-xplat/ui',
@@ -205,7 +219,9 @@ try {
   })
 
   assert.ok(code.results.length)
+
   const codePage = await call('xplat_code_read', { ref: code.results[0].ref })
+
   assert.ok(JSON.stringify(codePage).includes('counter.increment'))
   evidence.push({ check: 'current app code search/read' })
 
@@ -213,6 +229,7 @@ try {
   const build = await call('xplat_build', { platform: 'web' })
   const built = await jobDone(build.job.jobId)
   const dist = productionSources(join(appDir, 'dist'))
+
   assert.ok(
     !dist.some(
       (source) =>
@@ -236,8 +253,10 @@ try {
   })
 
   sessionId = launch.session.sessionId
+
   const launched = await until(async () => {
     const { session } = await call('xplat_sessions', { sessionId })
+
     assert.ok(!['failed', 'stopped'].includes(session.state), JSON.stringify(session))
     return session.state === 'ready'
       ? { result: { ...session.launch, buildIdentity: session.buildIdentity } }
@@ -267,7 +286,9 @@ try {
   })
 
   const control = await inspect('counter.increment')
+
   assert.ok(control.controls[0].frame.width > 0)
+
   const domClick = await call('xplat_interact', {
     sessionId,
     documentId: control.documentId,
@@ -301,6 +322,7 @@ try {
 
     if (result.isError) {
       const message = JSON.stringify(result.structuredContent)
+
       if (/could not become active|is not active|permission unavailable/.test(message)) {
         return { state: 'blocked', message }
       }
@@ -309,6 +331,7 @@ try {
     }
 
     const osClick = result.structuredContent.data
+
     await until(async () => (await inspect('counter.value')).controls[0].text === expectedCount)
 
     assert.equal(osClick.evidence.provenance.mechanism, 'os-input')
@@ -316,8 +339,10 @@ try {
   }
 
   let expectedCount = '2'
+
   if (osInput) {
     const outcome = await attemptOsInput()
+
     osInputState = outcome.state
     if (outcome.state === 'passed') {
       evidence.push({
@@ -341,12 +366,14 @@ try {
   })
 
   assert.equal(missing.structuredContent.error.code, 'not_found')
+
   const duplicate = await client.callTool({
     name: 'xplat_inspect',
     arguments: { sessionId, control: { kind: 'testID', name: 'fixture.duplicate' } },
   })
 
   assert.equal(duplicate.structuredContent.error.code, 'ambiguous_selection')
+
   const privateHost = await call('xplat_inspect', {
     sessionId,
     control: { kind: 'id', name: 'fixture.private' },
@@ -354,12 +381,18 @@ try {
 
   assert.equal(privateHost.controls[0].text, '[redacted]')
   assert.ok(!JSON.stringify(privateHost).includes('PRIVATE_FIXTURE_VALUE'))
+
   const bounded = await call('xplat_inspect', { sessionId, limit: 1 })
+
   assert.equal(bounded.controls.length, 1)
   assert.ok(bounded.nextOffset !== null)
+
   const capture = await client.callTool({ name: 'xplat_screenshot', arguments: { sessionId } })
+
   assert.equal(capture.structuredContent.error.code, 'permission_denied')
+
   const captures = await call('xplat_evidence', { op: 'list', kind: 'screenshot' })
+
   assert.equal(captures.evidence.length, 0)
   evidence.push({
     check:
@@ -369,6 +402,7 @@ try {
   // -- automatic dev-action discovery + invocation -----------------------------------
   const registry = await until(async () => {
     const value = await call('xplat_dev_actions')
+
     return value.instances.find((instance) =>
       instance.actions.some((action) => action.id === 'fixture.describe-counter'),
     )
@@ -381,6 +415,7 @@ try {
   })
 
   const action = await jobDone(invoke.job.jobId)
+
   assert.equal(action.result.outcome.result.label, 'starter-counter')
   assert.equal(action.result.outcome.result.controls, 3)
   assert.equal(
@@ -396,6 +431,7 @@ try {
   // Late retry: the console may have unlocked during the lane.
   if (osInputState === 'blocked') {
     const retry = await attemptOsInput()
+
     if (retry.state === 'passed') {
       osInputState = 'passed'
       blocked.length = 0
@@ -409,13 +445,19 @@ try {
 
   // -- logs + owned cleanup -------------------------------------------------------------
   const logs = await call('xplat_diagnostics', { sessionId, limit: 20 })
+
   assert.ok(logs.logs.records.length)
+
   const ended = await call('xplat_session_end', { sessionId })
+
   assert.ok(ended.result.released.some((item) => item.includes('chromium')))
   assert.ok(ended.result.released.some((item) => item.includes('vite')))
+
   const stopped = await client.callTool({ name: 'xplat_inspect', arguments: { sessionId } })
+
   assert.equal(stopped.structuredContent.error.code, 'stale_identity')
   await until(async () => pidGone(browserPid), 15000)
+
   const leakedProfiles = readdirSync(tmpdir()).filter(
     (name) => name.startsWith(PROFILE_PREFIX) && !profilesBefore.has(name),
   )
@@ -438,9 +480,12 @@ try {
   })
 
   offlineTransport.stderr?.on('data', (chunk) => appendFileSync(stderrLog, chunk))
+
   const offlineClient = new Client({ name: 'packed-stdio-offline', version: '1' })
+
   try {
     await offlineClient.connect(offlineTransport)
+
     const offlinePage = await offlineClient.callTool({
       name: 'xplat_docs_read',
       arguments: {
@@ -451,6 +496,7 @@ try {
     })
 
     const offlineData = offlinePage.structuredContent.data
+
     assert.equal(offlineData.provenance.commit, manifest.fixtureCommit)
     assert.equal(offlineData.provenance.offline, true)
     evidence.push({
@@ -464,6 +510,7 @@ try {
 
   // -- the spawned server itself is an owned process ----------------------------------------
   const serverPid = transport.pid
+
   await client.close()
   await transport.close()
   if (serverPid) {

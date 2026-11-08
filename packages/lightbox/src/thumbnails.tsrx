@@ -20,6 +20,7 @@ const ThumbnailsProvider = ThumbnailsContext as unknown as (props: {
 
 function useThumbnails() {
   const api = useContext(ThumbnailsContext)
+
   if (!api) {
     throw new Error(
       'Lightbox.Thumbnail and Lightbox.ThumbnailIndicator require Lightbox.Thumbnails.',
@@ -42,6 +43,7 @@ export function Thumbnails(props: LightboxPartProps): unknown {
 
         const point = host.getLocationRelativeTo?.(row.current)
         const size = host.getActualSize?.()
+
         return point && size ? { x: point.x, y: point.y, w: size.width, h: size.height } : null
       },
       place(host, box) {
@@ -65,6 +67,7 @@ export function Thumbnails(props: LightboxPartProps): unknown {
       center(box) {
         const strip = ref.current
         const width = strip?.getActualSize?.().width
+
         if (!width) {
           return
         }
@@ -84,6 +87,7 @@ export function Thumbnails(props: LightboxPartProps): unknown {
   const [api] = useState<ThumbnailsApi>(() => ({
     register(index, host) {
       const off = layout.register(index, host)
+
       host.on?.('layoutChanged', layout.remeasure)
       return () => {
         host.off?.('layoutChanged', layout.remeasure)
@@ -96,11 +100,14 @@ export function Thumbnails(props: LightboxPartProps): unknown {
   useLayoutEffect(() => {
     const strip = ref.current
     const track = row.current
+
     strip?.on?.('layoutChanged', layout.remeasure)
     track?.on?.('layoutChanged', layout.remeasure)
     layout.remeasure()
     layout.place(ctx.progress.get())
+
     const off = ctx.progress.on('change', layout.place)
+
     return () => {
       off()
       strip?.off?.('layoutChanged', layout.remeasure)
@@ -131,6 +138,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): unknown {
   const ctx = useLightboxCtx()
   const api = useThumbnails()
   const ref = useRef<any>(null)
+
   useLayoutEffect(
     () => (ref.current ? api.register(props.index, ref.current) : undefined),
     [api, props.index],
@@ -158,6 +166,7 @@ export function Thumbnail(props: LightboxThumbnailPartProps): unknown {
 export function ThumbnailIndicator(props: LightboxPartProps): unknown {
   const api = useThumbnails()
   const ref = useRef<any>(null)
+
   useLayoutEffect(() => {
     if (!ref.current) {
       return

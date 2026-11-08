@@ -3,6 +3,7 @@ import { useSignal$ } from 'octane/signals/client'
 
 export const contentRefs = { host: { current: null as any }, child: { current: null as any } }
 export const contentEvents: string[] = []
+
 const childRef = (view: any) => {
   if (view) {
     contentEvents.push('attach')
@@ -15,6 +16,7 @@ const contentChildRef = [contentRefs.child, childRef]
 export default function Content() {
   const phase$ = useSignal$(0)
   const phase = phase$.get()
+
   return (
     <masonview
       style={{

@@ -18,13 +18,16 @@ export function Toolbar(props: ToolbarProps): unknown @{
   const grid = hasCenter && !vertical
   const dividerCls = (props.dividers ?? []).map((d) => 'vx-toolbar--div-' + d).join(' ')
   const live = useRef(props)
+
   live.current = props
+
   const focus = useMemo(
     () => createAppKitToolbarFocus({ orientation: () => live.current.orientation ?? 'horizontal' }),
     [],
   )
 
   const { keyboardProps } = useKeyboard({ onKeyDown: focus.keyDown })
+
   useLayoutEffect(() => {
     focus.update()
   }, [props])

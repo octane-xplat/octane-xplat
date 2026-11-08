@@ -11,11 +11,14 @@ export async function dictateField(
   onEvent: (event: SpeechRecognitionEvent) => void,
 ): Promise<SpeechRecognitionResult> {
   const availability = await speechRecognition.getAvailability({ lang: 'en-US' })
+
   if (!availability.available) {
     return { transcript: '', reason: 'error', error: null }
   }
+
   const session = speechRecognition.start({ lang: 'en-US' })
   const off = session.subscribe(onEvent)
+
   try {
     await waitForStop()
     return await session.stop()

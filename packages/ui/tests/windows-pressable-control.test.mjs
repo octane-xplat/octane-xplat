@@ -27,12 +27,14 @@ function fixture(tag = 'xplatwindowsbutton') {
       }
     }
   }
+
   class TextBase extends View {
     constructor(text) {
       super()
       this.text = text
     }
   }
+
   class Property {
     constructor(options) {
       this.options = options
@@ -40,31 +42,38 @@ function fixture(tag = 'xplatwindowsbutton') {
     register(Type) {
       const { name, valueChanged } = this.options
       const key = Symbol(name)
+
       Object.defineProperty(Type.prototype, name, {
         get() {
           return this[key]
         },
         set(value) {
           const previous = this[key]
+
           this[key] = value
           valueChanged(this, previous, value)
         },
       })
     }
   }
+
   class Button {
     IsEnabled = true
   }
+
   class HyperlinkButton extends Button {}
+
   vm.runInNewContext(source, {
     exports: {},
     require(name) {
       if (name === '@nativescript/core') {
         return { Property, TextBase, View }
       }
+
       if (name === '@nativescript-community/octane') {
         return { registerElement: (tag, Type) => controls.set(tag, Type) }
       }
+
       if (name === '@octane-xplat/platform/windows') {
         return {
           Microsoft: {
@@ -78,17 +87,22 @@ function fixture(tag = 'xplatwindowsbutton') {
           NSWinRT: { asDelegate: (_type, callback) => callback },
         }
       }
+
       throw new Error(name)
     },
   })
+
   const control = new (controls.get(tag))()
   const root = new View()
   const content = new View()
   const text = new TextBase('First label')
+
   content.children = [text]
   root.children = [content, control]
   control.parent = root
+
   const calls = []
+
   control.settings = { onPress: () => calls.push('first') }
   control.nativeViewProtected = control.createNativeView()
   control.initNativeView()
@@ -109,6 +123,7 @@ test('native button and hyperlink retain their WinUI peer under a transparent te
     ['xplatwindowslink', 'HyperlinkButton'],
   ]) {
     const f = fixture(tag)
+
     assert.equal(f.native.constructor, f[kind])
     assert.match(f.native.Template, new RegExp(`TargetType="${kind}"`))
     assert.equal(f.native.MinWidth, 0)
@@ -118,6 +133,7 @@ test('native button and hyperlink retain their WinUI peer under a transparent te
 
 test('one native Click uses the latest callback and removed settings cannot activate', () => {
   const f = fixture()
+
   f.native.Click()
   f.control.settings = { onPress: () => f.calls.push('updated') }
   f.native.Click()
@@ -131,6 +147,7 @@ test('disabled, detached and disposed peers reject callbacks, including retired 
   const f = fixture()
   const click = f.native.Click
   const layout = f.native.LayoutUpdated
+
   f.control.isEnabled = false
   click()
   f.control.isEnabled = true
@@ -156,6 +173,7 @@ test('disabled, detached and disposed peers reject callbacks, including retired 
 
 test('implicit names follow live nested text and explicit names reset on removal', () => {
   const f = fixture()
+
   assert.equal(f.control.accessibilityLabel, 'First label')
   f.text.text = 'Updated label'
   f.native.LayoutUpdated()
@@ -172,6 +190,7 @@ test('implicit names follow live nested text and explicit names reset on removal
 test('accessibility opt-out is removed from the Tab sequence and resets', () => {
   const f = fixture()
   const onPress = () => {}
+
   f.control.settings = { accessible: false, onPress }
   assert.equal(f.native.IsTabStop, false)
   f.control.settings = { onPress }

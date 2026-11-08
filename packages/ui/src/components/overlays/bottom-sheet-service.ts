@@ -65,6 +65,7 @@ export function openBottomSheetWithOwner(
   let closeSheet: ((result?: ModalOpenResult) => void) | undefined
   const handle = new Promise<ModalOpenResult>((resolve) => {
     const rl = owner ? currentRootLayoutFor(owner.host) : topRootLayout()
+
     if (!rl) {
       console.warn('[openBottomSheet] no RootLayout mounted — sheet skipped')
       resolve(undefined)
@@ -73,9 +74,11 @@ export function openBottomSheetWithOwner(
 
     const { host, panel, bindKeyboard } = createKeyboardOverlayHost()
     const unbindTheme = applyThemeClasses(panel, 'vx-sheet-host vx-bottom-sheet-host')
+
     host.horizontalAlignment = 'stretch'
     host.verticalAlignment = 'bottom'
     panel.accessibilityLabel = options.label ?? ''
+
     const root = owner?.createRoot(panel, () => closeSheet?.()) ?? createNativeScriptRoot(panel)
     // Detents own enter/slide-out — the RootLayout animation always
     // lands translateY at 0, so it's skipped while gestures attach.
@@ -95,6 +98,7 @@ export function openBottomSheetWithOwner(
     // hosting inputs (e.g. the demo 'In sheet' todo add row) are covered
     // otherwise.
     const unbindKeyboard = bindKeyboard()
+
     attachTapToBlur(host)
 
     let finished = false
@@ -117,7 +121,9 @@ export function openBottomSheetWithOwner(
       unbindTheme()
       detents.detach()
       root.unmount?.()
+
       const owner = host.parent as ToastOwner | undefined
+
       if (owner?.hasChild?.(host) && !closing) {
         if (owner.getPopupIndex?.(host) === -1) {
           owner.removeChild?.(host)
@@ -136,6 +142,7 @@ export function openBottomSheetWithOwner(
     let closing = false
 
     const entry: ActiveSheet = { host, root, unbindKeyboard, finish }
+
     // 'closed' covers tap-to-dismiss — finish through the same path, but
     // mark the close as already in flight so finish doesn't re-enter
     // RootLayout.close (see above).

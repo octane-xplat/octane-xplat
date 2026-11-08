@@ -16,6 +16,7 @@ export function observeLayoutCommits(observer: (commit: LayoutCommit) => void): 
 export function notifyLayoutCommit(hostView: any): void {
   // Snapshot membership: subscriptions added during dispatch start next time.
   const current = Array.from(observers)
+
   for (const observer of current) {
     observer({ hostView })
   }

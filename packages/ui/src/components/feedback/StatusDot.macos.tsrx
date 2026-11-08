@@ -13,10 +13,12 @@ import { isRenderable } from '../../internal/rendering/is-renderable'
 export function StatusDot(props: StatusDotProps): unknown @{
   const dot = useRef<any>(null)
   const scheme = getColorScheme()
+
   // The AppKit layer animates via CAAnimation — a JS opacity loop is the
   // same pulse without adding host plumbing.
   useEffect(() => {
     const view = dot.current
+
     if (!props.isPulsing || !view) {
       return
     }
@@ -28,6 +30,7 @@ export function StatusDot(props: StatusDotProps): unknown @{
       }
 
       const result = view.animate?.({ opacity, duration: 750 })
+
       if (result?.then) {
         result.then(
           () => !cancelled && beat(opacity === 1 ? 0.4 : 1),

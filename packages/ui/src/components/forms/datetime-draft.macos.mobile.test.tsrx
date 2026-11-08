@@ -8,7 +8,9 @@ import {
 } from 'octane/universal/native'
 
 import { DateTimeInput } from './DateTimeInput.macos.tsrx'
+
 vi.mock('../overlays/Popover.macos.tsrx', () => ({ Popover: () => null }))
+
 function mount(extra: any = {}) {
   const container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -25,6 +27,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -96,9 +99,11 @@ it('both fields retain marked drafts and use the existing AppKit editor guard un
 it('current disabled/readonly/loading state preserves both drafts against held text/submit/clear callbacks', () => {
   for (const blocked of [{ isDisabled: true }, { isReadOnly: true }, { isLoading: true }]) {
     const f = mount()
+
     try {
       f.edit('date', 'unfinished date')
       f.edit('time', 'unfinished time')
+
       const date = f.field('date').props,
         time = f.field('time').props,
         clear = f.clear()
@@ -155,6 +160,7 @@ it('one pending save owns both fields before the busy render and through settlem
 
 it('retained callbacks use current date/seconds/endpoints and reject old allowed dates after bounds change', () => {
   const f = mount({ min: '2026-03-05T00:00', max: '2026-03-10T23:59' })
+
   try {
     const date = f.field('date').props,
       time = f.field('time').props,
@@ -191,6 +197,7 @@ it('retained callbacks use current date/seconds/endpoints and reject old allowed
 
 it('a date-less time draft is available before render and can be cleared without inventing a parent value', () => {
   const f = mount({ value: null })
+
   try {
     f.field('time').props.onTextChange('15:45')
     f.field('date').props.onTextChange('2026-03-06')
@@ -201,6 +208,7 @@ it('a date-less time draft is available before render and can be cleared without
   }
 
   const g = mount({ value: null })
+
   try {
     g.edit('time', '15:45')
     g.field('time').props.onSubmit()

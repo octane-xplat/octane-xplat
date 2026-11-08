@@ -25,6 +25,7 @@ const items = [
 
 function AuditViewer() {
   const lightbox = useLightbox({ media: items.slice(0, 1), hasZoom: false, maxZoom: 8 })
+
   return (
     <>
       <button

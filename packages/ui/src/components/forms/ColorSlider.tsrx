@@ -37,6 +37,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   })
 
   adjustRef.current = adjust
+
   const bindHost = useCallback((el: any) => {
     host.current = el
     measure.ref(el)
@@ -51,6 +52,7 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   // the first layoutChanged arrives.
   const targetSize = () => {
     const size = lastTarget.current?.getActualSize?.()
+
     return size && size.width > 0 ? size : measure.bounds
   }
 
@@ -70,11 +72,13 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
 
     if (e.state === 'moved') {
       const size = targetSize()
+
       if (drag.current == null || !size || !(size.width > 0)) {
         return
       }
 
       const h = Math.min(360, Math.max(0, drag.current + (e.dx / size.width) * 360))
+
       props.onHsb({ ...props.hsb, h })
     } else {
       if (drag.current != null) {

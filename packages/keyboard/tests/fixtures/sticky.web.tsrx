@@ -2,7 +2,9 @@
 import { useState } from 'octane'
 import { KeyboardStickyView, KeyboardController } from '../../src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
+
 let change = () => {}
+
 export default function StickyNeutral() @{
   const [offset, setOffset] = useState(8),
     [enabled, setEnabled] = useState(true)
@@ -21,6 +23,7 @@ export async function run(ctx: ProbeContext) {
   const host: any = await ctx.waitFor(() => ctx.find('neutral-sticky'))
   const field: any = ctx.find('neutral-field')
   const before = host.getBoundingClientRect().y
+
   field.focus()
   change()
   await ctx.waitFor(() => field === ctx.find('neutral-field'))

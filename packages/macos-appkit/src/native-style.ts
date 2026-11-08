@@ -53,6 +53,7 @@ export function createNativeStyle(deps: Dependencies) {
   // which follow the application's appearance without a second class cascade.
   function syncNativeColors(node: ElementNode) {
     const view = node.view
+
     if (!view) {
       return
     }
@@ -96,6 +97,7 @@ export function createNativeStyle(deps: Dependencies) {
   function setSizeConstraint(node: ElementNode, name: string, value: any) {
     const spec = sizeConstraintSpec(value)
     const specs = (node.sizeConstraintSpecs ??= {})
+
     if (!spec) {
       delete specs[name]
       // null/undefined is an intentional clear — only malformed values warn.
@@ -124,21 +126,26 @@ export function createNativeStyle(deps: Dependencies) {
     if (typeof value === 'string') {
       const text = value.trim()
       const percent = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))%$/)
+
       if (percent) {
         const multiplier = Number(percent[1]) / 100
+
         return Number.isFinite(multiplier) && multiplier >= 0
           ? { kind: 'percent', multiplier }
           : null
       }
 
       const px = text.match(/^([+-]?(?:\d+\.?\d*|\.\d+))px$/i)
+
       if (px) {
         const points = Number(px[1])
+
         return Number.isFinite(points) && points >= 0 ? { kind: 'points', points } : null
       }
     }
 
     const points = typeof value === 'number' ? value : Number(value)
+
     return Number.isFinite(points) && points >= 0 ? { kind: 'points', points } : null
   }
 
@@ -152,12 +159,14 @@ export function createNativeStyle(deps: Dependencies) {
 
   function applySizeConstraint(node: ElementNode, name: string) {
     const constraints = (node.sizeConstraints ??= {})
+
     if (constraints[name]) {
       constraints[name].active = false
       delete constraints[name]
     }
 
     const spec = node.sizeConstraintSpecs?.[name]
+
     if (
       !spec ||
       !node.view ||
@@ -167,8 +176,10 @@ export function createNativeStyle(deps: Dependencies) {
     }
 
     let constraint
+
     if (spec.kind === 'percent') {
       const parentView = sizeConstraintParentView(node)
+
       if (!parentView) {
         return
       }
@@ -179,6 +190,7 @@ export function createNativeStyle(deps: Dependencies) {
           : deps.layout.layoutView(node).heightAnchor
 
       const parentAnchor = name === 'width' ? parentView.widthAnchor : parentView.heightAnchor
+
       constraint = anchor.constraintEqualToAnchorMultiplier(parentAnchor, spec.multiplier)
     } else {
       constraint =
@@ -200,6 +212,7 @@ export function createNativeStyle(deps: Dependencies) {
   function deactivateSizeConstraints(node: ElementNode) {
     for (const name of ['width', 'height']) {
       const constraint = node.sizeConstraints?.[name]
+
       if (constraint) {
         constraint.active = false
         delete node.sizeConstraints[name]
@@ -217,31 +230,38 @@ export function createNativeStyle(deps: Dependencies) {
       (['label', 'htmlview'].includes(node.type) ? 16 : 14)
 
     const weight = node.styleFontWeight ?? 400
+
     node.appliedFontWeight = String(weight)
     node.appliedFontFamily = node.styleFontFamily ?? node.container.fontFamily
+
     let font = fontForFamilyStyle(size, weight, node.appliedFontFamily)
     const fontStyle = String(effectiveStyle(node).fontStyle ?? 'normal')
+
     if (font && (fontStyle === 'italic' || fontStyle === 'oblique')) {
       font =
         NSFontManager.sharedFontManager.convertFontToHaveTrait(font, NSFontTraitMask.Italic) ?? font
     }
+
     node.view!.font = font
   }
 
   // NSStackView edgeInsets apply the resolved padding styles.
   function syncEdgeInsets(node: ElementNode) {
     const view = node.view
+
     if (!view) {
       return
     }
 
     const edges = node.stylePaddingEdges
     const box = node.stylePaddingBox
+
     if (!edges && !box && !node.insetsApplied) {
       return
     }
 
     node.insetsApplied = true
+
     const insets = {
       top: edges?.top ?? box?.top ?? 0,
       right: edges?.right ?? box?.right ?? 0,
@@ -262,6 +282,7 @@ export function createNativeStyle(deps: Dependencies) {
   function syncLabelPadding(node: ElementNode) {
     const view = node.view
     const cell = view?.cell
+
     if (!view || typeof cell?.cellSizeForBounds !== 'function') {
       return
     }
@@ -274,6 +295,7 @@ export function createNativeStyle(deps: Dependencies) {
       bottom: edges?.bottom ?? box?.bottom ?? 0,
       left: edges?.left ?? box?.left ?? 0,
     }
+
     // Register on both wrappers — the cell reads through its own reference or
     // back through controlView, and bridged object identity is not guaranteed
     // to round-trip.
@@ -294,6 +316,7 @@ export function createNativeStyle(deps: Dependencies) {
   // Zero the margin sides a removed style owned and re-queue the mason pass.
   function clearMarginStyle(node: ElementNode, name: string) {
     const insets = node.marginInsets
+
     if (!insets) {
       return
     }
@@ -305,6 +328,7 @@ export function createNativeStyle(deps: Dependencies) {
     }
 
     const marginParent = node.layoutParent ?? node.parent
+
     if (deps.registry.isManualLayoutParent(marginParent)) {
       deps.layout.queueLayoutReconcile(node.container, marginParent)
     }
@@ -312,13 +336,17 @@ export function createNativeStyle(deps: Dependencies) {
 
   function syncLabelAlignment(node: ElementNode, style: PropBag) {
     const view = node.view
+
     if (!view) {
       return
     }
+
     const rtl = style.direction === 'rtl'
+
     if (style.direction != null && style.direction !== 'ltr' && !rtl) {
       deps.cssCascade.warnUnsupportedCssProp(node, 'direction')
     }
+
     const start = rtl ? NSTextAlignment.Right : NSTextAlignment.Left
     const end = rtl ? NSTextAlignment.Left : NSTextAlignment.Right
     let alignment: interop.Enum<typeof NSTextAlignment> = nodeClasses(node).includes(
@@ -326,6 +354,7 @@ export function createNativeStyle(deps: Dependencies) {
     )
       ? NSTextAlignment.Center
       : start
+
     switch (style.textAlign) {
       case null:
       case undefined:
@@ -351,6 +380,7 @@ export function createNativeStyle(deps: Dependencies) {
       default:
         deps.cssCascade.warnUnsupportedCssProp(node, 'textAlign')
     }
+
     // Alignment writes can affect native text editing/selection. Leave an
     // unchanged value alone; attributed values are recomposed by the caller.
     if (view.alignment !== alignment) {
@@ -363,6 +393,7 @@ export function createNativeStyle(deps: Dependencies) {
   // reverts, and shared properties resolve their class/default source again.
   function resetStyle(node: ElementNode, name: string) {
     const view = node.view
+
     if (!view) {
       return
     }
@@ -446,6 +477,7 @@ export function createNativeStyle(deps: Dependencies) {
       setSizeConstraint(node, name, undefined)
     } else if (name === 'left' || name === 'top' || name === 'right' || name === 'bottom') {
       const resetParent = node.layoutParent ?? node.parent
+
       if (deps.registry.isManualLayoutParent(resetParent)) {
         deps.layout.queueLayoutReconcile(node.container, resetParent)
       }
@@ -475,6 +507,7 @@ export function createNativeStyle(deps: Dependencies) {
     const next: PropBag = node.animatedStyle ? { ...style, ...node.animatedStyle } : (style ?? {})
 
     const prev: PropBag = node.appliedStyle ?? {}
+
     for (const name of Object.keys(prev)) {
       if (prev[name] != null && next[name] == null) {
         resetStyle(node, name)
@@ -524,6 +557,7 @@ export function createNativeStyle(deps: Dependencies) {
         continue
       } else if (name === 'padding' && node.type === 'label') {
         const box = parseEdgeInsets(value)
+
         node.stylePaddingBox = box
         node.stylePaddingEdges = {
           top: box.top,
@@ -535,6 +569,7 @@ export function createNativeStyle(deps: Dependencies) {
         syncLabelPadding(node)
       } else if (EDGE_INSET_PROPS.has(name) && node.type === 'label') {
         const edges = (node.stylePaddingEdges ??= {})
+
         for (const edge of EDGE_INSET_PROPS.get(name)!) {
           edges[edge] = Number(value) || 0
         }
@@ -542,6 +577,7 @@ export function createNativeStyle(deps: Dependencies) {
         syncLabelPadding(node)
       } else if (name === 'padding' && node.adapter?.containerStyles) {
         const box = parseEdgeInsets(value)
+
         node.stylePaddingBox = box
         node.stylePaddingEdges = {
           top: box.top,
@@ -553,6 +589,7 @@ export function createNativeStyle(deps: Dependencies) {
         syncEdgeInsets(node)
       } else if (EDGE_INSET_PROPS.has(name) && node.adapter?.containerStyles) {
         const edges = (node.stylePaddingEdges ??= {})
+
         for (const edge of EDGE_INSET_PROPS.get(name)!) {
           edges[edge] = Number(value) || 0
         }
@@ -655,9 +692,11 @@ export function createNativeStyle(deps: Dependencies) {
     if (node.adapter?.layout) {
       deps.layout.queueLayoutReconcile(node.container, node)
     }
+
     // A manual container can also be a child of another layout owner. Both
     // passes are required after projected styles reach the child cascade.
     const layoutParent = node.layoutParent ?? node.parent
+
     if (layoutParent?.adapter?.layout) {
       deps.layout.queueLayoutReconcile(node.container, layoutParent)
     }
@@ -669,12 +708,14 @@ export function createNativeStyle(deps: Dependencies) {
       node.overflowClipping.view.clipsToBounds = node.overflowClipping.original
       node.overflowClipping = undefined
     }
+
     if (node.view) {
       const keys = ['overflow', 'overflowX', 'overflowY'].filter((key) => next[key] != null)
       const x = next.overflowX ?? next.overflow ?? 'visible'
       const y = next.overflowY ?? next.overflow ?? 'visible'
       const clipped = (x === 'hidden' || x === 'clip') && (y === 'hidden' || y === 'clip')
       const visible = x === 'visible' && y === 'visible'
+
       if (keys.length && (clipped || visible)) {
         node.overflowClipping ??= { view: node.view, original: node.view.clipsToBounds }
         node.view.clipsToBounds = clipped
@@ -716,6 +757,7 @@ export function createNativeStyle(deps: Dependencies) {
         deps.textElements.syncText(node)
       }
     }
+
     if (node.adapter?.layout) {
       deps.layout.queueLayoutReconcile(node.container, node)
     }

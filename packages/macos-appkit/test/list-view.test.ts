@@ -21,6 +21,7 @@ function fixture() {
     }
     static extend(bag: any) {
       class Delegate extends View {}
+
       Object.assign(Delegate.prototype, bag, {
         numberOfRowsInTableView: bag['numberOfRowsInTableView:'],
         itemClicked: bag['itemClicked:'],
@@ -55,6 +56,7 @@ function fixture() {
     noteHeightOfRowsWithIndexesChanged() {}
     makeViewWithIdentifierOwner() {
       const host = this.recycled
+
       this.recycled = null
       return host
     }
@@ -175,7 +177,9 @@ test('renderItem wins over templates; rebinds diff one retained row root and exp
   }
 
   update(props)
+
   const host = row(0)
+
   assert.equal(roots.length, 1)
   assert.equal(roots[0].mounts[0], 'A0')
   assert.equal(host.bindingContext, 'A')
@@ -204,7 +208,9 @@ test('renderItem wins over templates; rebinds diff one retained row root and exp
 
 test('recycled renderItem host and root retain identity across row indices', () => {
   const f = fixture()
+
   f.update({ items: ['A', 'B'], renderItem: (item: any) => item })
+
   const host = f.row(0),
     root = f.roots[0]
 
@@ -222,6 +228,7 @@ test('callable templates own root disposal on rebind, recycle and list release; 
 
   const factory = () => {
     const view = f.View.alloc().init()
+
     hosts.push(view)
     return view
   }
@@ -233,6 +240,7 @@ test('callable templates own root disposal on rebind, recycle and list release; 
   }
 
   f.update(props)
+
   const cell = f.row(0),
     first = hosts[0]
 
@@ -243,12 +251,16 @@ test('callable templates own root disposal on rebind, recycle and list release; 
   assert.equal(f.released[0], first)
   assert.equal(first.superview, null)
   assert.equal(first.bindingContext, undefined)
+
   const second = hosts[1]
+
   f.table.delegate['tableView:didRemoveRowView:forRow:'](f.table, { viewAtColumn: () => cell }, 0)
   assert.equal(f.released[1], second)
   assert.equal(second.superview, null)
   f.row(0)
+
   const third = hosts[2]
+
   f.api.disposeListView(f.view)
   assert.equal(f.released.at(-1), third)
   assert.equal(third.superview, null)
@@ -256,6 +268,7 @@ test('callable templates own root disposal on rebind, recycle and list release; 
 
 test('string/default path updates binding values in retained roots and separator removal restores native default', () => {
   const f = fixture()
+
   f.update({
     items: [{ name: 'A' }],
     itemTemplate: '<Label text="{{ name }}"/>',
@@ -263,7 +276,9 @@ test('string/default path updates binding values in retained roots and separator
   })
 
   f.row(0)
+
   const root = f.roots[0]
+
   assert.equal(root.mounts[0].values[0].text, 'A')
   assert.equal(f.table.gridColor, 'red')
   f.update({ items: [{ name: 'B' }], itemTemplate: '<Label text="{{ name }}"/>' })
@@ -302,7 +317,9 @@ test('ItemsSource change subscriptions refresh, transfer and release without ret
   f.update({ items: [] })
   assert.equal(subscriptions.size, 0)
   f.update({ items: source })
+
   const late = subscriptions.get('change')
+
   f.api.disposeListView(f.view)
   assert.equal(subscriptions.size, 0)
   late()
@@ -325,19 +342,25 @@ test('portal cells publish bindings without roots and ignore an obsolete row rem
   }
 
   f.update(props)
+
   const host = f.row(0)
   const first = { viewAtColumn: () => host }
   const second = { viewAtColumn: () => host }
+
   f.table.delegate['tableView:didAddRowView:forRow:'](f.table, first, 0)
   assert.equal(f.roots.length, 0)
   assert.equal(events.at(-1).item, 'A')
+
   const generation = events.at(-1).generation
+
   f.update({ ...props, items: ['B'] })
   f.row(0)
   f.table.delegate['tableView:didAddRowView:forRow:'](f.table, second, 0)
   assert.equal(events.at(-1).item, 'B')
   assert.ok(events.at(-1).generation > generation)
+
   const before = events.length
+
   f.table.delegate['tableView:didRemoveRowView:forRow:'](f.table, first, 0)
   assert.equal(events.length, before)
   f.table.delegate['tableView:didRemoveRowView:forRow:'](f.table, second, 0)
@@ -348,13 +371,16 @@ test('portal cells publish bindings without roots and ignore an obsolete row rem
 test('obsolete row-add callbacks never inspect removed native columns', () => {
   const f = fixture()
   const events: any[] = []
+
   f.update({ items: ['A'], onLoadMoreItems: (event: any) => events.push(event) })
+
   const didAdd = f.table.delegate['tableView:didAddRowView:forRow:']
   const removedRow = {
     viewAtColumn() {
       throw new Error('native row has no columns')
     },
   }
+
   assert.doesNotThrow(() => didAdd(f.table, removedRow, -1))
   assert.doesNotThrow(() => didAdd(f.table, removedRow, 1))
   f.update({ items: [] })

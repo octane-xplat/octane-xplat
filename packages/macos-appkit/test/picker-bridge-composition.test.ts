@@ -34,15 +34,19 @@ test('date bridge accepts native class handles and retires acquired resources on
       if (specifier === '@octane-xplat/platform/macos') {
         return { url: 'data:text/javascript,' + encodeURIComponent(platform), shortCircuit: true }
       }
+
       if (specifier.startsWith('.') && owner.parentURL) {
         const candidate = new URL(specifier + '.ts', owner.parentURL)
+
         if (existsSync(candidate)) {
           return next(candidate.href, owner)
         }
       }
+
       return next(specifier, owner)
     },
   })
+
   try {
     const { createPickerBridge } = await import('../src/picker-bridge.ts')
     const store = createActionStore()
@@ -66,6 +70,7 @@ test('date bridge accepts native class handles and retires acquired resources on
     }
 
     const events: number[] = []
+
     for (const mode of ['date', 'time', 'dateAndTime']) {
       const handle = bridge.attachDatePicker(view, { mode, selectionMillis: 120000 }, (value) =>
         events.push(value),
@@ -74,10 +79,14 @@ test('date bridge accepts native class handles and retires acquired resources on
       assert.ok(handle)
       assert.equal(picker.dateValue.timeIntervalSince1970, 120)
       assert.equal(picker.datePickerElements, mode === 'time' ? 12 : mode === 'date' ? 224 : 236)
+
       const callback = () => store.dispatch(picker.tag)
+
       callback()
       assert.equal(events.at(-1), 120000)
+
       const count = events.length
+
       handle.update({ selectionMillis: 180000 })
       assert.equal(picker.dateValue.timeIntervalSince1970, 180)
       assert.equal(events.length, count)
@@ -93,8 +102,11 @@ test('date bridge accepts native class handles and retires acquired resources on
     }
 
     const handle = bridge.attachDatePicker(view, {}, () => {})
+
     assert.ok(handle)
+
     const failure = Error('native write')
+
     picker.failWrite = failure
     assert.throws(
       () => handle.update({ enabled: false }),

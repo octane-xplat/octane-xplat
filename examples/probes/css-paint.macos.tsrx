@@ -69,11 +69,13 @@ export default function CssPaintProbe() {
 
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => ctx.find('paint-sample'))
+
   const sample = () => ctx.find('paint-sample')
   const layerOf = () => sample().layer
   const children = (layer: any) => {
     const out: any[] = []
     const subs = layer?.sublayers
+
     for (let i = 0; i < (subs?.count ?? subs?.length ?? 0); i++) {
       out.push(subs[i] ?? subs.objectAtIndex?.(i))
     }
@@ -85,11 +87,13 @@ export async function run(ctx: ProbeContext) {
   sample().className = 'paint-sample paint-bg-layers paint-outline-none paint-shadow-none'
   await ctx.waitFor(() => {
     const host = children(layerOf())[0]
+
     return host && children(host).length === 3
   })
 
   const bgHost = children(layerOf())[0]
   const bgKids = children(bgHost)
+
   ctx.assert('bg host holds one child per comma layer', bgKids.length, 3)
   ctx.assert(
     'first CSS layer paints topmost',
@@ -102,17 +106,21 @@ export async function run(ctx: ProbeContext) {
   // Non-solid outline: dashed strokes a centered path with a dash pattern.
   sample().className = 'paint-sample paint-bg-none paint-outline-dashed paint-shadow-none'
   await ctx.waitFor(() => children(layerOf()).some((l) => l.lineDashPattern != null))
+
   const outline = children(layerOf()).find((l) => l.lineDashPattern != null)
+
   ctx.assert('dashed outline installs a dashed stroke', outline?.lineWidth > 0, true)
 
   // Multi outset shadows: sibling hosts below view.layer keep the corner clip.
   sample().className = 'paint-sample paint-bg-none paint-outline-none paint-shadow-multi'
   await ctx.waitFor(() => {
     const below = children(layerOf().superlayer).filter((l) => l.shadowColor != null)
+
     return below.length >= 3
   })
 
   const below = children(layerOf().superlayer).filter((l) => l.shadowColor != null)
+
   ctx.assert('three outset shadows paint three sibling hosts', below.length, 3)
   ctx.assert('masksToBounds stays on with sibling shadows', layerOf().masksToBounds, true)
 
@@ -124,6 +132,7 @@ export async function run(ctx: ProbeContext) {
 
   const insetHost = children(layerOf()).find((l) => children(l).some((c) => c.shadowColor != null))
   const wall = children(insetHost).find((c) => c.shadowColor != null)
+
   ctx.assert('inset wall carries real blur', Number(wall.shadowRadius) > 0, true)
   ctx.assert('inset wall clips to the interior', wall.masksToBounds, true)
   ctx.record(

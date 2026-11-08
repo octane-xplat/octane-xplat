@@ -11,6 +11,7 @@ function fixture() {
           accepts(value) {
             try {
               const url = new URL(value)
+
               return ['http:', 'https:'].includes(url.protocol) && !!url.hostname
             } catch {
               return false
@@ -27,12 +28,14 @@ function fixture() {
                   calls.push('close')
                 },
               }
+
             views.push({ native, calls })
             return native
           },
         }
       : undefined,
   )
+
   return {
     browser,
     views,
@@ -44,6 +47,7 @@ function fixture() {
 
 test('capability is conditional and invalid/non-HTTP URLs never create a window or launch an external browser', async () => {
   const f = fixture()
+
   assert.equal(f.browser.supported, true)
   for (const url of [
     'not a URL',
@@ -53,6 +57,7 @@ test('capability is conditional and invalid/non-HTTP URLs never create a window 
   ]) {
     assert.deepEqual(await f.browser.openBrowser(url), { type: 'cancel' })
   }
+
   assert.equal(f.views.length, 0)
   f.unavailable()
   assert.equal(f.browser.supported, false)
@@ -66,12 +71,14 @@ test('capability is conditional and invalid/non-HTTP URLs never create a window 
 
 test('opened reports presentation, replacement closes the prior owner, and dismiss is idempotent', async () => {
   const f = fixture()
+
   assert.deepEqual(await f.browser.openBrowser('https://example.invalid'), { type: 'opened' })
   assert.deepEqual(f.views[0].calls, ['open:https://example.invalid'])
   assert.deepEqual(
     await f.browser.openBrowser('http://example.invalid/help', { showTitle: true }),
     { type: 'opened' },
   )
+
   assert.deepEqual(f.views[0].calls, ['open:https://example.invalid', 'close'])
   f.browser.dismissBrowser()
   f.browser.dismissBrowser()
@@ -98,6 +105,7 @@ test('false/throwing presentation cancels and cleans up, while true/one are expl
     browser.dismissBrowser()
     assert.equal(closes, 1)
   }
+
   let closes = 0
   const browser = createAppKitWebBrowser(() => ({
     accepts: () => true,
@@ -110,6 +118,7 @@ test('false/throwing presentation cancels and cleans up, while true/one are expl
       },
     }),
   }))
+
   assert.deepEqual(await browser.openBrowser('https://example.invalid'), { type: 'cancel' })
   assert.equal(closes, 1)
   assert.equal(
@@ -122,19 +131,25 @@ test('false/throwing presentation cancels and cleans up, while true/one are expl
 
 test('reentrant replacement during old close cannot present or close a later owner', async () => {
   const f = fixture()
+
   await f.browser.openBrowser('https://example.invalid/old')
+
   let nested: Promise<unknown> | undefined
+
   f.views[0].native.close = () => {
     nested = f.browser.openBrowser('https://example.invalid/latest')
   }
+
   assert.deepEqual(await f.browser.openBrowser('https://example.invalid/retired'), {
     type: 'cancel',
   })
+
   assert.deepEqual(await nested, { type: 'opened' })
   assert.equal(
     f.views[1].calls.some((call) => call.startsWith('open:')),
     false,
   )
+
   assert.deepEqual(f.views[2].calls, ['open:https://example.invalid/latest'])
   f.browser.dismissBrowser()
   assert.equal(f.views[2].calls.at(-1), 'close')
@@ -143,6 +158,7 @@ test('reentrant replacement during old close cannot present or close a later own
 test('dismiss during presentation retires the pending result and a subsequent open can recover', async () => {
   let closes = 0,
     first = true
+
   const browser = createAppKitWebBrowser(() => ({
     accepts: () => true,
     create: () => ({
@@ -151,6 +167,7 @@ test('dismiss during presentation retires the pending result and a subsequent op
           first = false
           browser.dismissBrowser()
         }
+
         return true
       },
       close() {
@@ -158,6 +175,7 @@ test('dismiss during presentation retires the pending result and a subsequent op
       },
     }),
   }))
+
   assert.deepEqual(await browser.openBrowser('https://example.invalid/retired'), { type: 'cancel' })
   assert.ok(closes >= 1)
   assert.deepEqual(await browser.openBrowser('https://example.invalid/current'), { type: 'opened' })

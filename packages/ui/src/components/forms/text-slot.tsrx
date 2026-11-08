@@ -6,6 +6,7 @@ import { toChildArray, mapChildren } from '../../internal/rendering/child-array'
 export function TextSlot(props: { children?: any; className?: string }): unknown @{
   const runs: any[] = []
   let text: string | null = null
+
   for (const child of toChildArray(props.children)) {
     if (typeof child === 'string' || typeof child === 'number' || typeof child === 'bigint') {
       text = (text ?? '') + String(child)

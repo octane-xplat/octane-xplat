@@ -43,6 +43,7 @@ export function createOutlines() {
     let styleName: string | undefined
     let color: any
     const shorthand = style.outline
+
     if (shorthand != null && shorthand !== '') {
       for (const token of String(shorthand).trim().split(/\s+/)) {
         if (/^[+-]?[\d.]+(px)?$/.test(token)) {
@@ -68,20 +69,27 @@ export function createOutlines() {
         }
       }
     }
+
     const longWidth = Number(style.outlineWidth)
+
     if (Number.isFinite(longWidth)) {
       width = longWidth
     }
+
     if (style.outlineStyle != null) {
       styleName = String(style.outlineStyle)
     }
+
     if (style.outlineColor != null) {
       color = style.outlineColor
     }
+
     const offset = Number(style.outlineOffset)
+
     if (width == null || width <= 0 || styleName === 'none' || styleName === 'hidden') {
       return null
     }
+
     return {
       width,
       style: styleName === 'auto' || styleName == null ? 'solid' : styleName,
@@ -97,24 +105,33 @@ export function createOutlines() {
   // bands borders use, on the expanded box. `none`/`hidden` clear.
   function syncOutline(node: ElementNode, state: BoxPaintState) {
     const view = node.view!
+
     clearOutline(node, state)
+
     const spec = outlineSpec(effectiveStyle(node))
+
     if (!spec || !view.layer) {
       return
     }
+
     const layers = typeof CAShapeLayer !== 'undefined' && typeof CGPathCreateMutable === 'function'
+
     if (!layers && spec.style !== 'solid') {
       const warned = (state.outlineWarnings ??= new Set<string>())
+
       if (!warned.has(spec.style)) {
         warned.add(spec.style)
         console.warn('[macos-css] outline layers unavailable; drawing solid')
       }
     }
+
     const style = layers ? spec.style : 'solid'
+
     if (
       !['solid', 'dashed', 'dotted', 'double', 'groove', 'ridge', 'inset', 'outset'].includes(style)
     ) {
       const warned = (state.outlineWarnings ??= new Set<string>())
+
       if (!warned.has(style)) {
         warned.add(style)
         console.warn(
@@ -122,11 +139,15 @@ export function createOutlines() {
         )
       }
     }
+
     view.wantsLayer = true
+
     const host = CALayer.alloc().init()
+
     state.outlineLayer = host
     host.backgroundColor = null
     view.layer.addSublayer(host)
+
     const outline = spec
     const resize = () => {
       const grow = outline.offset + outline.width
@@ -134,7 +155,9 @@ export function createOutlines() {
       const h = Math.max(0, Number(view.bounds.size.height))
       const W = w + grow * 2
       const H = h + grow * 2
+
       host.frame = { origin: { x: -grow, y: -grow }, size: { width: W, height: H } }
+
       const specBorder = state.borderSpec
       const scaled = scaleBorderRadii(
         correctProjectionRadii(
@@ -145,21 +168,27 @@ export function createOutlines() {
         w,
         h,
       )
+
       const outerRadii = Object.fromEntries(
         BORDER_CORNERS.map((c) => [c, scaled[c] + grow]),
       ) as Record<BorderCorner, number>
+
       if (style === 'solid' || !BORDER_STYLE_WORDS.has(style)) {
         host.borderWidth = outline.width
         host.borderColor = outline.color?.CGColor ?? null
         host.cornerRadius = Number(view.layer.cornerRadius) + grow
         return
       }
+
       host.borderWidth = 0
       host.borderColor = null
       host.cornerRadius = 0
+
       const stroke = borderStrokeStyle(style, outline.width)
+
       if (stroke) {
         const shape = ((state.outlineShapes ??= {}).stroke ??= CAShapeLayer.alloc().init())
+
         if (shape.superlayer !== host) {
           host.addSublayer(shape)
         }
@@ -180,27 +209,33 @@ export function createOutlines() {
 
         return
       }
+
       // Decorative styles: per-side shaded bands on the expanded box, masked
       // to the outer rounded outline. Inner band edges stay straight at
       // rounded corners — the same limit the border bands carry.
       const mask = (state.outlineMask ??= CAShapeLayer.alloc().init())
+
       mask.frame = { origin: { x: 0, y: 0 }, size: { width: W, height: H } }
       mask.path = roundedBoxCGPath(W, H, outerRadii)
       host.mask = mask
       if (state.outlineShapes?.stroke) {
         state.outlineShapes.stroke.hidden = true
       }
+
       const widths = {
         top: outline.width,
         right: outline.width,
         bottom: outline.width,
         left: outline.width,
       }
+
       for (const side of BORDER_SIDES) {
         const bands = borderBands(style, side, outline.width)
         const shapes = ((state.outlineShapes ??= {})[side] ??= [] as any[])
+
         for (let i = 0; i < bands.length; i++) {
           const shape = (shapes[i] ??= CAShapeLayer.alloc().init())
+
           if (shape.superlayer !== host) {
             host.addSublayer(shape)
           }
@@ -223,6 +258,7 @@ export function createOutlines() {
         }
       }
     }
+
     state.outlineResize = resize
     resize()
   }
@@ -233,6 +269,7 @@ export function createOutlines() {
 
   function clearOutline(node: ElementNode, state: BoxPaintState) {
     const host = state.outlineLayer
+
     state.outlineResize = undefined
     state.outlineLayer = null
     state.outlineMask = undefined
@@ -242,14 +279,18 @@ export function createOutlines() {
 
   function darkOutlineColor(base: NSColor | null, view: NSView): NSColor | null {
     const components = base && srgbComponents(base, view.effectiveAppearance)
+
     if (!components) {
       return base
     }
+
     const dark = darkBorderComponents(components)
+
     return (
       NSColor.colorWithSRGBRedGreenBlueAlpha(dark.red, dark.green, dark.blue, dark.alpha) ?? base
     )
   }
+
   return {
     syncOutline,
     syncOutlineGeometry,

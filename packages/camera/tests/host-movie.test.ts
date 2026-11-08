@@ -23,6 +23,7 @@ const CHUNK = 4 * 1024 * 1024
 
 const sourceBytes = (size: number) => {
   const data = new Uint8Array(size)
+
   for (let index = 0; index < size; index += 1) {
     data[index] = index % 251
   }
@@ -80,6 +81,7 @@ describe('host movie transport', () => {
     )
 
     const output = await commitHostMovie(host, 'file:///c.mov', new Blob([sourceBytes(64)]))
+
     expect(output.resourceId).toBe('file:///c.mov')
     expect(calls.map((call) => call.method)).toEqual(['writeMovieFile'])
   })
@@ -93,6 +95,7 @@ describe('host movie transport', () => {
         movieFileInfo: () => ({ info: { exists: true, size: stored.length } }),
         readMovieFileChunk: ({ offset, length }: any) => {
           const slice = stored.subarray(offset, offset + length)
+
           return { base64: Buffer.from(slice).toString('base64') }
         },
       },
@@ -115,6 +118,7 @@ describe('host movie transport', () => {
     // The reassembled bytes must match the stored movie exactly.
     const response = await fetch(handle.url)
     const data = new Uint8Array(await response.arrayBuffer())
+
     expect(Buffer.from(data).equals(Buffer.from(stored))).toBe(true)
     handle.release()
   })
@@ -130,6 +134,7 @@ describe('host movie transport', () => {
       )
 
       const pending = commitHostMovie(host, 'file:///c.mp4', new Blob([sourceBytes(CHUNK + 1)]))
+
       await expect(pending).rejects.toMatchObject({ kind: 'storageFailed' })
       expect(calls).toHaveLength(1)
     },

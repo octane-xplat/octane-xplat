@@ -32,8 +32,10 @@ export function planCells(
   const prevUnits = committedUnits(cells)
   const match = matchUnits(prevUnits, nextUnits)
   const matchedOld = new Map<number, number>()
+
   for (let ni = 0; ni < match.length; ni++) {
     const oi = match[ni]
+
     if (oi >= 0) {
       matchedOld.set(oi, ni)
     }
@@ -42,6 +44,7 @@ export function planCells(
   type Item = { cell: CellState; newIndex: number | null }
   const retained: Item[] = []
   let oldIndex = -1
+
   for (const cell of cells) {
     if (cell.phase === 'exit') {
       retained.push({ cell, newIndex: null })
@@ -49,7 +52,9 @@ export function planCells(
     }
 
     oldIndex++
+
     const ni = matchedOld.get(oldIndex)
+
     retained.push(
       ni === undefined
         ? { cell: { ...cell, phase: 'exit' }, newIndex: null }
@@ -71,19 +76,23 @@ export function planCells(
 
     const cell: CellState = { id: alloc(), unit: nextUnits[ni], phase: 'enter', index: ni }
     const anchor = survivorNewIndexes.find((index) => index !== null && index > ni)
+
     if (anchor === undefined || anchor === null) {
       tail.push(cell)
     } else {
       const list = anchors.get(anchor) ?? []
+
       list.push(cell)
       anchors.set(anchor, list)
     }
   }
 
   const out: CellState[] = []
+
   for (const item of retained) {
     if (item.newIndex !== null) {
       const pending = anchors.get(item.newIndex)
+
       if (pending) {
         out.push(...pending)
       }

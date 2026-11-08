@@ -132,6 +132,7 @@ function PresenceCounter(props: { onMount: () => void; onUnmount: () => void }) 
 
 function DisposalProbe(props: { onResult: (result: string) => void }) @{
   const x = useMotionValue(0)
+
   useEffect(() => {
     void x.animate(300, { duration: 8 }).finished.then(props.onResult)
   }, [])
@@ -153,6 +154,7 @@ export default function MotionProbe() @{
   const reduced = useReducedMotion()
   const panX = useMotionValue(0)
   const pacer = useMotionValue(0)
+
   useEffect(
     () =>
       pacer.on('change', () => {
@@ -184,7 +186,9 @@ export default function MotionProbe() @{
       panX.set(Math.max(-100, Math.min(100, panOrigin.current + event.dx)))
     } else if (event.state === 'ended' || event.state === 'cancelled') {
       panPhases.current.push(event.state)
+
       const velocity = event.state === 'ended' ? event.vx : 0
+
       void panX
         .animate(
           0,
@@ -217,6 +221,7 @@ export default function MotionProbe() @{
           id="motion-tween-to"
           onPress={() => {
             const next = target === 100 ? -100 : 100
+
             setMode('tween')
             setTarget(next)
             setDestinationStatus(`tween to ${next}`)
@@ -229,6 +234,7 @@ export default function MotionProbe() @{
           id="motion-interrupt-spring"
           onPress={() => {
             const next = target > 0 ? -40 : 40
+
             setMode('spring')
             setTarget(next)
             setDestinationStatus(`spring to ${next}`)
@@ -295,6 +301,7 @@ export default function MotionProbe() @{
           id="motion-value-cancel"
           onPress={() => {
             const controls = panX.animate(100, { duration: 3 })
+
             setPanStatus('MotionValue animation started')
             setTimeout(() => controls.stop(), 150)
             void controls.finished.then((result) => setPanStatus(`MotionValue ${result}`))
@@ -322,6 +329,7 @@ export default function MotionProbe() @{
           id="motion-presence-toggle"
           onPress={() => {
             const next = !present
+
             setPresent(next)
             setPresenceStatus(next ? 're-entry requested' : 'exit requested')
           }}
@@ -433,6 +441,7 @@ export async function run(ctx: ProbeContext) {
   // Gesture phases: synthetic dispatch — PointerEvents on DOM targets, the
   // native pan gesture observer (GestureTypes.pan = 8) on iOS/Android.
   const panRow = ctx.find('motion-pan-row')
+
   if (ctx.target === 'web' || ctx.target === 'linux') {
     const fire = (type: string, x: number) =>
       panRow.dispatchEvent(
@@ -479,6 +488,7 @@ export async function run(ctx: ProbeContext) {
   // This exercises normalization/JS settlement, not native scroll hit-testing.
   if (ctx.target === 'web' || ctx.target === 'ios') {
     const box = ctx.find('motion-drag-box')
+
     dragSamples = []
     dragPhases = []
     dragInput(box, 'start', 0)
@@ -540,7 +550,9 @@ export async function run(ctx: ProbeContext) {
   // declarative animate target. Native `touch` is a gesture observer
   // (GestureTypes.touch = 128), not a plain event — dispatch through it.
   const tapBox = ctx.find('motion-tap-box')
+
   tapSamples = []
+
   const fireTouch = (action: 'down' | 'up') => {
     if (ctx.target === 'web' || ctx.target === 'linux') {
       tapBox.dispatchEvent(
@@ -577,6 +589,7 @@ export async function run(ctx: ProbeContext) {
   // on iOS, ViewPropertyAnimator on Android. macOS shares the native entry but
   // has no delegated driver, so its counter is absent or all-fallback.
   const g = globalThis as any
+
   ctx.record('delegations', JSON.parse(JSON.stringify(g.__xplatMotionDelegations ?? null)))
   if (ctx.target !== 'macos') {
     ctx.assert('platform delegation engaged', (g.__xplatMotionDelegations?.started ?? 0) >= 1)
@@ -590,6 +603,7 @@ export async function run(ctx: ProbeContext) {
   })
 
   const deltas = frameStamps.slice(1).map((t, i) => t - frameStamps[i])
+
   ctx.record('pacing', {
     frames: frameStamps.length,
     dropped: deltas.filter((d) => d > 34).length,

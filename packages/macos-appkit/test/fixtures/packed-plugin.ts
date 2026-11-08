@@ -9,11 +9,13 @@ export function installPackedPlugin(identity: string) {
         origin: { x: 0, y: 0 },
         size: { width: 24, height: 24 },
       })
+
       return this.nativeView
     }
     dispose() {
       pluginRetirements.push(identity)
     }
   }
+
   registerPluginElement('placeholder', { createView: () => new PackedPlugin() })
 }

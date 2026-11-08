@@ -87,12 +87,16 @@ test(
   { skip: process.platform !== 'darwin' && 'requires the macOS AppKit host' },
   async (t) => {
     const dir = mkdtempSync(join(tmpdir(), 'xplat-foreign-imp-'))
+
     t.after(() => rmSync(dir, { recursive: true, force: true }))
 
     const script = join(dir, 'fixture.cjs')
+
     writeFileSync(script, fixture)
+
     // The shipped shim is the bootstrap the packaged/dev host runs.
     const bootstrap = join(dir, 'bootstrap.js')
+
     writeFileSync(bootstrap, readFileSync(join(hostRoot, 'shim.js'), 'utf8'))
 
     // The rebuild output directory carries host + framework but not metadata;
@@ -114,15 +118,19 @@ test(
       ],
       { stdio: ['ignore', 'ignore', 'pipe'] },
     )
+
     let output = ''
+
     child.stderr.on('data', (chunk) => {
       output += chunk
     })
+
     const status = await new Promise((resolve) => {
       const timeout = setTimeout(() => {
         child.kill('SIGKILL')
         resolve('timeout')
       }, 30_000)
+
       child.on('close', (code) => {
         clearTimeout(timeout)
         resolve(code)
@@ -136,7 +144,9 @@ test(
     assert.match(output, /DETACHED_X3/)
 
     const marker = /PROBE_RESULT (.+)/.exec(output)?.[1]
+
     assert.ok(marker, `missing probe result marker:\n${output}`)
+
     const delivered = JSON.parse(marker.slice(0, marker.indexOf(' opFinished=')))
     const opFinished = Number(/ opFinished=(\S+)/.exec(marker)?.[1])
     const opResult = / opResult=(\S+)/.exec(marker)?.[1]
@@ -149,6 +159,7 @@ test(
       respondOnMain: 1,
       nestedPost: 1,
     })
+
     // The queue thread's caller frame parked until main filled ret, and the
     // NSString the JS callback returned made it back through the boundary.
     assert.equal(opFinished, 1)

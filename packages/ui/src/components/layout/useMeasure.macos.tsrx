@@ -14,8 +14,10 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     (view: any) => {
       detach.current?.()
       detach.current = null
+
       const update = () => {
         const next = readBounds(view)
+
         setBounds((previous: MeasureBounds | null) =>
           previous &&
           next &&
@@ -37,6 +39,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
       const center = appKit.NSNotificationCenter.defaultCenter
       const observers: any[] = []
       let ancestor = view
+
       while (ancestor) {
         ancestor.postsFrameChangedNotifications = true
         ancestor.postsBoundsChangedNotifications = true

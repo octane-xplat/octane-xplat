@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
 import type { JSX } from 'octane/jsx-runtime'
+
 function CardRoot(props: { title: string }): JSX.Element @{
   <div>{props.title}</div>
 }

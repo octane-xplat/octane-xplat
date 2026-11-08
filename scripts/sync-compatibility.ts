@@ -18,6 +18,7 @@ export function syncCompatibility(check = false) {
   const stale: string[] = []
   const sync = (path: string, after: string) => {
     const before = readFileSync(join(repo, path), 'utf8')
+
     if (before !== after) {
       stale.push(path)
       if (!check) {
@@ -27,6 +28,7 @@ export function syncCompatibility(check = false) {
   }
 
   const framework: { name: string; version: string }[] = lockstepPackages(repo)
+
   for (const pkg of framework) {
     if (pkg.version !== compatibility.frameworkVersion) {
       throw new Error(
@@ -37,11 +39,14 @@ export function syncCompatibility(check = false) {
 
   compatibility.frameworkPackages = framework.map((pkg) => pkg.name).sort()
   sync('packages/create/compatibility.json', JSON.stringify(compatibility, null, '\t') + '\n')
+
   const toolchainPath = 'packages/toolchain/package.json'
   const toolchain = JSON.parse(readFileSync(join(repo, toolchainPath), 'utf8'))
+
   for (const name of Object.keys(toolchain.dependencies)) {
     if (!name.startsWith('@octane-xplat/')) {
       const version = managedSpecifier(name)
+
       if (!version) {
         throw new Error(`Toolchain dependency ${name} has no compatibility pin`)
       }
@@ -49,17 +54,20 @@ export function syncCompatibility(check = false) {
       toolchain.dependencies[name] = version
     }
   }
+
   toolchain.engines = {
     ...toolchain.engines,
     node: `>=${compatibility.tools.nodeMinimum}`,
     bun: `>=${compatibility.tools.bun}`,
   }
+
   sync(toolchainPath, JSON.stringify(toolchain, null, '\t') + '\n')
   for (const template of ['template', 'library-template']) {
     const base = `packages/create/${template}`
     const pkg = JSON.parse(readFileSync(join(repo, base, 'package.json'), 'utf8'))
     const ws = (pkg.workspaces ??= { packages: [] })
     const pins: Record<string, string> = {}
+
     for (const section of dependencySections) {
       for (const name of Object.keys(pkg[section] ?? {})) {
         if (!managedPackage(name)) {
@@ -105,6 +113,7 @@ if (
 ) {
   const check = process.argv.includes('--check')
   const stale = syncCompatibility(check)
+
   if (stale.length) {
     console.error(`${check ? 'compatibility drift' : 'synced'}: ${stale.join(', ')}`)
     if (check) {

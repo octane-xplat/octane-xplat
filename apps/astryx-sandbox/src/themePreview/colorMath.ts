@@ -14,6 +14,7 @@ export function hexToRgb(hex: string): Rgb {
   const h = hex.replace('#', '').slice(0, 6)
   const full = h.length === 3 ? h[0] + h[0] + h[1] + h[1] + h[2] + h[2] : h
   const n = parseInt(full, 16)
+
   return [(n >> 16) & 0xff, (n >> 8) & 0xff, n & 0xff]
 }
 
@@ -22,16 +23,19 @@ export function rgbToHex(r: number, g: number, b: number): string {
     Math.max(0, Math.min(255, Math.round(n)))
       .toString(16)
       .padStart(2, '0')
+
   return '#' + clamp(r) + clamp(g) + clamp(b)
 }
 
 function srgbToLinear(c: number): number {
   const s = c / 255
+
   return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
 }
 
 function linearToSrgb(c: number): number {
   const s = c <= 0.0031308 ? c * 12.92 : 1.055 * Math.pow(c, 1 / 2.4) - 0.055
+
   return Math.round(Math.min(255, Math.max(0, s * 255)))
 }
 
@@ -54,11 +58,13 @@ function xyzToLinearRgb(x: number, y: number, z: number): Rgb {
 const D65: Rgb = [0.95047, 1.0, 1.08883]
 function labF(t: number): number {
   const d = 6 / 29
+
   return t > d * d * d ? Math.cbrt(t) : t / (3 * d * d) + 4 / 29
 }
 
 function labFInv(t: number): number {
   const d = 6 / 29
+
   return t > d ? t * t * t : 3 * d * d * (t - 4 / 29)
 }
 
@@ -66,6 +72,7 @@ function xyzToLab(x: number, y: number, z: number): Rgb {
   const fx = labF(x / D65[0]),
     fy = labF(y / D65[1]),
     fz = labF(z / D65[2])
+
   return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)]
 }
 
@@ -73,20 +80,24 @@ function labToXyz(L: number, a: number, b: number): Rgb {
   const fy = (L + 16) / 116,
     fx = a / 500 + fy,
     fz = fy - b / 200
+
   return [labFInv(fx) * D65[0], labFInv(fy) * D65[1], labFInv(fz) * D65[2]]
 }
 
 export function hexToLab(hex: string): Rgb {
   const [r, g, b] = hexToRgb(hex)
+
   return xyzToLab(...linearRgbToXyz(srgbToLinear(r), srgbToLinear(g), srgbToLinear(b)))
 }
 
 export function hexToHct(hex: string): HCT {
   const [L, a, b] = hexToLab(hex)
   let hue = (Math.atan2(b, a) * 180) / Math.PI
+
   if (hue < 0) {
     hue += 360
   }
+
   return { hue, chroma: Math.sqrt(a * a + b * b), tone: L }
 }
 
@@ -96,14 +107,19 @@ export function hctToHex({ hue, chroma, tone }: HCT): string {
   const rad = (hue * Math.PI) / 180
   const tryC = (c: number): [number, number, number] => {
     const [x, y, z] = labToXyz(tone, c * Math.cos(rad), c * Math.sin(rad))
+
     return xyzToLinearRgb(x, y, z)
   }
+
   let lo = 0,
     hi = Math.max(0, chroma)
+
   let best: Rgb = [0, 0, 0]
+
   for (let i = 0; i < 24; i++) {
     const mid = (lo + hi) / 2
     const [r, g, b] = tryC(mid)
+
     if (r >= -0.001 && r <= 1.001 && g >= -0.001 && g <= 1.001 && b >= -0.001 && b <= 1.001) {
       best = [r, g, b]
       lo = mid
@@ -111,6 +127,7 @@ export function hctToHex({ hue, chroma, tone }: HCT): string {
       hi = mid
     }
   }
+
   return rgbToHex(linearToSrgb(best[0]), linearToSrgb(best[1]), linearToSrgb(best[2]))
 }
 
@@ -125,10 +142,13 @@ export type ToneStep = (typeof TONE_STEPS)[number]
 export function tonalPalette(hue: number, chroma: number): Record<number, string> {
   const result: Record<number, string> = {}
   const maxChroma = chroma * 1.8
+
   for (const t of TONE_STEPS) {
     const boost = t < 50 ? 1 + (50 - t) / 40 : 1
+
     result[t] = hctToHex({ hue, chroma: Math.min(chroma * boost, maxChroma), tone: t })
   }
+
   return result
 }
 
@@ -142,8 +162,10 @@ export function darkTonalPalette(hue: number, chroma: number): Record<number, st
   const adjustedChroma = chroma * DARK_CHROMA_FACTOR
   const maxChroma = adjustedChroma * 1.8
   const result: Record<number, string> = {}
+
   for (const t of TONE_STEPS) {
     let lift = DARK_TONE_LIFT
+
     if (t >= DARK_LIFT_TAPER_END) {
       lift = 0
     } else if (t > DARK_LIFT_TAPER_START) {
@@ -153,12 +175,14 @@ export function darkTonalPalette(hue: number, chroma: number): Record<number, st
 
     const liftedTone = Math.min(100, t + lift)
     const boost = liftedTone < 50 ? 1 + (50 - liftedTone) / 40 : 1
+
     result[t] = hctToHex({
       hue,
       chroma: Math.min(adjustedChroma * boost, maxChroma),
       tone: liftedTone,
     })
   }
+
   return result
 }
 

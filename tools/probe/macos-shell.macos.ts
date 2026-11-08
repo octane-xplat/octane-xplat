@@ -27,6 +27,7 @@ function adapter() {
   const find = (id) => root?.__macosDebug.findId(id) ?? null
   const required = (id) => {
     const view = find(id)
+
     if (!view) {
       throw new Error('Missing probe view: ' + id)
     }
@@ -53,9 +54,11 @@ function adapter() {
     },
     inspect(id) {
       appKit.contentView.layoutSubtreeIfNeeded()
+
       const view = required(id)
       const frame = view.frame
       const alignment = view.alignmentRectForFrame?.(frame)
+
       return {
         text: String(view.stringValue ?? view.string ?? view.title ?? ''),
         value: String(view.stringValue ?? view.string ?? ''),
@@ -91,6 +94,7 @@ function reload() {
   running = running
     .then(async () => {
       const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE)
+
       await loaded.start(adapter())
     })
     .catch((error) => console.error('[xplat-probe-host-error]', error?.stack ?? String(error)))

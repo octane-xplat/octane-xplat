@@ -19,6 +19,7 @@ function SignalOwner(props: {
   capture: (value$: ReturnType<typeof signal$<number>>) => void
 }) @{
   const value$ = signal$(props.initial)
+
   props.capture(value$)
 
   <SignalReader value$={value$} />
@@ -37,6 +38,7 @@ function LocalSignal(props: {
   capture: (value$: ReturnType<typeof useSignal$<number>>) => void
 }) @{
   const value$ = useSignal$(4)
+
   props.capture(value$)
 
   <label text={String(value$.get())} />
@@ -46,12 +48,14 @@ it('preserves declaring ownership across child readers and isolates instances', 
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   const values: ReturnType<typeof signal$<number>>[] = []
+
   try {
     flushUniversalSync(() =>
       root.render(SignalInstances, { capture: (value$) => values.push(value$) }),
     )
 
     const texts = () => container.children[0].children.map((child) => child.props.text)
+
     expect(texts()).toEqual(['1', '10'])
     flushUniversalSync(() => values[0].set(2))
     expect(texts()).toEqual(['2', '10'])
@@ -66,6 +70,7 @@ it('uses universal hook slots for local signals and observes their writes', () =
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
   let value$: ReturnType<typeof useSignal$<number>>
+
   try {
     flushUniversalSync(() =>
       root.render(LocalSignal, {

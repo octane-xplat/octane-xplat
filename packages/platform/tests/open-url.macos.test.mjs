@@ -25,18 +25,24 @@ function load(globals = {}) {
     if (name === '@octane-xplat/lib/capability') {
       return requireLib(name)
     }
+
     const key = name.replace(/^\.\//, '')
+
     if (!compiled[key]) {
       return {}
     }
+
     if (cache.has(key)) {
       return cache.get(key)
     }
+
     const exports = {}
+
     cache.set(key, exports)
     vm.runInContext(`(function(exports, require) {${compiled[key]}\n})`, context)(exports, require)
     return exports
   }
+
   return { context, leaf: require('./open-url.macos'), root: require('./index.macos') }
 }
 
@@ -49,6 +55,7 @@ function fixture({ url = {}, accepted = true, fail } = {}) {
       if (fail === 'lookup') {
         throw new Error('lookup failed')
       }
+
       return url
     },
     openURL(value) {
@@ -56,15 +63,18 @@ function fixture({ url = {}, accepted = true, fail } = {}) {
       if (fail === 'open') {
         throw new Error('open failed')
       }
+
       return accepted
     },
   }
+
   return { workspace, lookups, opens, ...load({ NSWorkspace: { sharedWorkspace: workspace } }) }
 }
 
 test('AppKit settings separate bridge support, installed-app availability and launch requests', async () => {
   const target = { kind: 'settings-application' }
   const env = fixture({ url: target })
+
   assert.equal(env.root.openSettings, env.leaf.openSettings)
   assert.equal(env.root.openUrl, env.leaf.openUrl)
   assert.equal(env.leaf.openSettings.supported, true)
@@ -78,6 +88,7 @@ test('AppKit settings separate bridge support, installed-app availability and la
 
 test('absent/partial/throwing native bridges are unsupported and reads remain live', async () => {
   const env = load()
+
   assert.equal(env.leaf.openSettings.supported, false)
   assert.equal(await env.leaf.openSettings.isAvailable(), false)
   assert.throws(() => env.leaf.openSettings.open(), { name: 'UnavailabilityError' })
@@ -88,6 +99,7 @@ test('absent/partial/throwing native bridges are unsupported and reads remain li
       throw new Error('unavailable')
     },
   })
+
   assert.equal(env.leaf.openSettings.supported, false)
   env.context.NSWorkspace = { sharedWorkspace: fixture().workspace }
   assert.equal(env.leaf.openSettings.supported, true)
@@ -99,6 +111,7 @@ test('absent/partial/throwing native bridges are unsupported and reads remain li
 test('missing installed settings app and native lookup failures return false without launching', async () => {
   for (const options of [{ url: null }, { fail: 'lookup' }]) {
     const env = fixture(options)
+
     assert.equal(env.leaf.openSettings.supported, true)
     assert.equal(await env.leaf.openSettings.isAvailable(), false)
     assert.equal(env.leaf.openSettings.open(), false)
@@ -109,6 +122,7 @@ test('missing installed settings app and native lookup failures return false wit
 test('rejected or throwing launches return false and each open resolves a fresh app URL', () => {
   for (const options of [{ accepted: false }, { fail: 'open' }]) {
     const env = fixture(options)
+
     assert.equal(env.leaf.openSettings.open(), false)
     assert.equal(env.leaf.openSettings.open(), false)
     assert.equal(env.lookups.length, 2)
@@ -118,6 +132,7 @@ test('rejected or throwing launches return false and each open resolves a fresh 
 
 test('a settings pane routes through the x-apple.systempreferences URL before the app fallback', () => {
   const env = fixture({ url: { kind: 'settings-application' } })
+
   env.context.NSURL = { URLWithString: (url) => ({ url }) }
   assert.equal(env.leaf.openSettings.open('camera'), true)
   assert.equal(env.opens.length, 1)
@@ -135,14 +150,18 @@ test('a settings pane routes through the x-apple.systempreferences URL before th
 
 test('outbound links still delegate to the live host independently of settings support', () => {
   const env = load()
+
   assert.equal(env.leaf.openUrl('https://example.test'), false)
+
   const links = []
+
   env.context.__xplatAppKit = {
     openUrl: (url) => {
       links.push(url)
       return true
     },
   }
+
   assert.equal(env.root.openUrl('https://example.test'), true)
   assert.deepEqual(links, ['https://example.test'])
   assert.equal(env.leaf.openSettings.supported, false)

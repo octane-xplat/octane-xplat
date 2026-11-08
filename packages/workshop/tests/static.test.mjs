@@ -8,6 +8,7 @@ describe('static output ownership', () => {
       await expect(buildStaticWorkshop({ cwd: process.cwd(), outDir })).rejects.toThrow('output')
     },
   )
+
   it('rejects native targets and malformed bases', async () => {
     await expect(buildStaticWorkshop({ target: 'ios' })).rejects.toThrow('web only')
     await expect(buildStaticWorkshop({ base: '//example.com/' })).rejects.toThrow('base')

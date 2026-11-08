@@ -50,25 +50,32 @@ test('hover and menu constructors own their targets independently and menus disp
       if (specifier === '@octane-xplat/platform/macos') {
         return { url: 'data:text/javascript,' + encodeURIComponent(platform), shortCircuit: true }
       }
+
       if (specifier.startsWith('.') && owner.parentURL) {
         const candidate = new URL(specifier + '.ts', owner.parentURL)
+
         if (existsSync(candidate)) {
           return next(candidate.href, owner)
         }
       }
+
       return next(specifier, owner)
     },
   })
+
   try {
     const { createHover } = await import('../src/hover.ts')
     const { createContextMenu } = await import('../src/context-menu.ts')
     const logs: unknown[][] = []
+
     context.mock.method(console, 'error', (...args: unknown[]) => logs.push(args))
+
     const store = createActionStore()
     const allocated: ReturnType<typeof store.allocate>[] = []
     const actions = {
       allocate() {
         const lease = store.allocate()
+
         allocated.push(lease)
         return lease
       },
@@ -78,6 +85,7 @@ test('hover and menu constructors own their targets independently and menus disp
     // This is the runtime's real order: hover is built before contextMenu.
     const hover = createHover()
     const menu = createContextMenu({ actions })
+
     assert.ok(hover.hoverTrackingTarget)
     assert.deepEqual(logs, [])
 
@@ -88,10 +96,14 @@ test('hover and menu constructors own their targets independently and menus disp
     )
 
     assert.equal(typeof detach, 'function')
+
     const item = view.menu.items[0]
+
     item.target.menuItemSelected(item)
     assert.deepEqual(selected, ['open'])
+
     const retainedAction = () => store.dispatch(item.tag)
+
     detach!()
     assert.equal(view.menu, null)
     retainedAction?.()
@@ -104,6 +116,7 @@ test('hover and menu constructors own their targets independently and menus disp
     )
 
     const failed = allocated.at(-1)!
+
     failed.setHandler(() => selected.push('resurrected'))
     store.dispatch(failed.id)
     assert.deepEqual(selected, ['open'])

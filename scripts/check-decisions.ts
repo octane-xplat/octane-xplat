@@ -25,12 +25,14 @@ function normalize(statement) {
 export function readDocDecisions(root) {
   const source = readFileSync(resolve(root, '.agents/design/decisions.md'), 'utf8')
   const decisions = new Map()
+
   for (const line of source.split('\n')) {
     if (!/^\|\s*\d+\s*\|/.test(line)) {
       continue
     }
 
     const [num, statement, status] = cells(line)
+
     decisions.set(Number(num), {
       statement,
       status: status.replace(/\*/g, '').toLowerCase(),
@@ -43,12 +45,14 @@ export function readDocDecisions(root) {
 export function readSiloDecisions(sql = defaultSql) {
   const output = sql('SELECT num, statement, status FROM decisions ORDER BY num')
   const decisions = new Map()
+
   for (const line of output.split('\n')) {
     if (!/^\|\s*\d+\s*\|/.test(line)) {
       continue
     }
 
     const [num, statement, status] = cells(line)
+
     decisions.set(Number(num), { statement, status: status.toLowerCase() })
   }
 
@@ -71,6 +75,7 @@ export function checkDecisions(docDecisions, siloDecisions) {
 
   for (const [num, doc] of docDecisions) {
     const silo = siloDecisions.get(num)
+
     if (!silo) {
       errors.push(`decisions.md #${num}: no Silo row — mirror the ledger entry`)
       continue
@@ -106,6 +111,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
   const root = fileURLToPath(new URL('../', import.meta.url))
   const docDecisions = readDocDecisions(root)
   const { errors, warnings } = checkDecisions(docDecisions, readSiloDecisions())
+
   for (const warning of warnings) {
     console.warn(`warning: ${warning}`)
   }

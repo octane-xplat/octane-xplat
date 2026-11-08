@@ -18,6 +18,7 @@ export function RouterPane<Contracts, Stacks extends string, Transitions extends
 ): any {
   const host = resolvePaneRouterHost(props.host)
   const flow = props.stack ?? 'root'
+
   if (props.stack !== undefined) {
     props.router.forStack(props.stack)
   }

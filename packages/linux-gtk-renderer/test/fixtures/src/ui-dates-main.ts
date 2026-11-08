@@ -39,7 +39,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const { root, container } = createGtkRoot(host, {})
 const loop = GLib.MainLoop.new(null, false)
 
@@ -54,6 +56,7 @@ const settle = () => {
 const pump = (ms: number) =>
   new Promise<void>((resolve) => {
     settle()
+
     let done = false
     const finish = () => {
       if (!done) {
@@ -61,10 +64,12 @@ const pump = (ms: number) =>
         resolve()
       }
     }
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms, () => {
       finish()
       return false
     })
+
     GLib.timeout_add(GLib.PRIORITY_DEFAULT, ms + 800, () => {
       finish()
       return false
@@ -77,6 +82,7 @@ const findView = (id: string): any => {
       return n.view
     }
   }
+
   return null
 }
 
@@ -92,6 +98,7 @@ const findByTypeUnder = (type: string, ancestorId: string): any => {
       }
     }
   }
+
   return null
 }
 
@@ -103,6 +110,7 @@ const hasText = (needle: string): boolean => {
       }
     } catch {}
   }
+
   return false
 }
 
@@ -111,6 +119,7 @@ const findLabel = (text: string): any => {
     try {
       if (JSON.stringify(n.props).includes(text)) {
         let cur = n
+
         while (cur && !cur.view) {
           cur = cur.parent
         }
@@ -121,6 +130,7 @@ const findLabel = (text: string): any => {
       }
     } catch {}
   }
+
   return null
 }
 
@@ -144,12 +154,14 @@ const findDayCell = (needle: string): any => {
         !cur.props.className.includes('--outside')
       ) {
         const v = cur.view
+
         if (v && v.get_mapped?.()) {
           return v
         }
       }
     }
   }
+
   return null
 }
 
@@ -169,6 +181,7 @@ const pickDayCellUnder = (needle: string, ancestorId: string): any => {
 
     for (let cur = n; cur; cur = cur.parent) {
       const cn = cur?.props?.className
+
       if (
         typeof cn !== 'string' ||
         !cn.includes('vx-calendar-day') ||
@@ -179,6 +192,7 @@ const pickDayCellUnder = (needle: string, ancestorId: string): any => {
       }
 
       let inScope = false
+
       for (let a = cur; a; a = a.parent) {
         if (a?.props?.id === ancestorId) {
           inScope = true
@@ -191,18 +205,21 @@ const pickDayCellUnder = (needle: string, ancestorId: string): any => {
       }
 
       const v = cur.view
+
       if (!v || !v.get_mapped?.()) {
         continue
       }
 
       try {
         const c = point(v)
+
         if (c.x >= 0 && c.x <= 700 && c.y >= 0 && c.y <= 720) {
           return v
         }
       } catch {}
     }
   }
+
   return null
 }
 
@@ -218,6 +235,7 @@ const findDayCellNode = (needle: string): any => {
 
     for (let cur = n; cur; cur = cur.parent) {
       const cn = cur?.props?.className
+
       if (
         typeof cn === 'string' &&
         cn.includes('vx-calendar-day') &&
@@ -230,6 +248,7 @@ const findDayCellNode = (needle: string): any => {
       }
     }
   }
+
   return null
 }
 
@@ -253,17 +272,20 @@ const pickDayCell = (needle: string): any => {
         !cur.props.className.includes('--outside')
       ) {
         const v = cur.view
+
         if (!v || !v.get_mapped?.()) {
           continue
         }
 
         const c = point(v)
+
         if (c.x >= 0 && c.x <= 700 && c.y >= 0 && c.y <= 720) {
           return v
         }
       }
     }
   }
+
   return findDayCell(needle)
 }
 
@@ -278,6 +300,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
     }
 
     let hit = false
+
     for (let cur = n; cur; cur = cur.parent) {
       if (ancestorId === undefined || cur?.props?.id === ancestorId) {
         hit = true
@@ -290,6 +313,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
     }
 
     let cur = n
+
     while (cur && !cur.view) {
       cur = cur.parent
     }
@@ -298,6 +322,7 @@ const findUnder = (needle: string, ancestorId?: string): any => {
       return cur.view
     }
   }
+
   return null
 }
 
@@ -313,6 +338,7 @@ const findInClass = (needle: string, classSub: string): any => {
     }
 
     let hit = false
+
     for (let cur = n; cur; cur = cur.parent) {
       if (typeof cur?.props?.className === 'string' && cur.props.className.includes(classSub)) {
         hit = true
@@ -325,6 +351,7 @@ const findInClass = (needle: string, classSub: string): any => {
     }
 
     let cur = n
+
     while (cur && !cur.view) {
       cur = cur.parent
     }
@@ -333,18 +360,22 @@ const findInClass = (needle: string, classSub: string): any => {
       return cur.view
     }
   }
+
   return null
 }
 
 const point = (widget: any): { x: number; y: number } => {
   const native = widget.get_native()
   const [ok, rect] = widget.compute_bounds(native)
+
   if (!ok) {
     throw new Error('No native input bounds')
   }
+
   const [tx, ty] = native.get_surface_transform()
   let x = rect.origin.x - tx + rect.size.width / 2
   let y = rect.origin.y - ty + rect.size.height / 2
+
   for (
     let surface = native.get_surface();
     typeof surface.get_parent === 'function';
@@ -353,7 +384,9 @@ const point = (widget: any): { x: number; y: number } => {
     x += surface.get_position_x()
     y += surface.get_position_y()
   }
+
   const [wx, wy] = window.get_surface_transform()
+
   return { x: x + wx, y: y + wy }
 }
 
@@ -363,6 +396,7 @@ const describePoint = (tag: string, widget: any) => {
     const [ok, rect] = widget.compute_bounds(native)
     const [tx, ty] = native.get_surface_transform()
     const chain: any[] = []
+
     for (
       let s = native.get_surface();
       s && typeof s.get_parent === 'function';
@@ -372,6 +406,7 @@ const describePoint = (tag: string, widget: any) => {
     }
 
     const [wx, wy] = window.get_surface_transform()
+
     diag('GEOM', {
       tag,
       native: native?.constructor?.name,
@@ -395,6 +430,7 @@ const describePoint = (tag: string, widget: any) => {
 // crossing/grab bookkeeping on a freshly opened popup surface.
 const clickAtSettled = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y, hover: true })
   await pump(120)
   await ready({ x: c.x, y: c.y })
@@ -404,6 +440,7 @@ const pickHit = (widget: any) => {
   try {
     const native = widget.get_native()
     const [ok, rect] = widget.compute_bounds(native)
+
     if (!ok) {
       return 'no-bounds'
     }
@@ -412,6 +449,7 @@ const pickHit = (widget: any) => {
     const cy = rect.origin.y + rect.size.height / 2
     const hit = native.pick?.(cx, cy, 0)
     const names: string[] = []
+
     for (let w = hit; w; w = w.get_parent?.()) {
       names.push(
         w.constructor?.name +
@@ -432,6 +470,7 @@ const pickHit = (widget: any) => {
 
 const clickAt = async (widget: any) => {
   const c = point(widget)
+
   await ready({ x: c.x, y: c.y })
 }
 
@@ -444,15 +483,19 @@ const onKey = (_c: any, keyval: number) => {
     readyResolve()
     readyResolve = null
   }
+
   return false
 }
 
 const armAcks = () => {
   for (const n of (container as any).nodes.values()) {
     const r = n?.view?.get_root?.()
+
     if (r && !armed.has(r)) {
       armed.add(r)
+
       const ctl = new Gtk.EventControllerKey()
+
       ctl.connect('key-pressed', onKey)
       r.add_controller(ctl)
     }
@@ -473,6 +516,7 @@ const ready = (payload: any) => {
           readyResolve = null
           resolve()
         }
+
         return false
       })
     }
@@ -480,6 +524,7 @@ const ready = (payload: any) => {
 }
 
 const keyCtl = new Gtk.EventControllerKey()
+
 window.add_controller(keyCtl)
 keyCtl.connect('key-pressed', onKey)
 
@@ -498,28 +543,35 @@ async function run() {
   check('hook grid has days', state.hookDays >= 35)
   check('constraint disables outside date', state.hookDisabledOut === true)
   check('constraint allows in-range date', state.hookDisabledIn === false)
+
   const hookNext = findView('hook-next')
+
   if (hookNext) {
     await clickAt(hookNext)
     await pump(200)
   }
+
   check('navigateMonths advances grid', state.hookMonth === '2025-07')
 
   // Calendar — real click on a day cell writes the ISO date.
   const day15 = pickDayCell('June 15')
+
   check('day cell present', !!day15)
   if (day15) {
     await clickAt(day15)
     await pump(200)
   }
+
   check('day pick fires ISO date', state.calPick === '2025-06-15')
 
   // Month navigation via the chevron Pressable.
   const next = findUnder('Next month', 'cal')
+
   if (next) {
     await clickAt(next)
     await pump(200)
   }
+
   check('next month navigates', !!findUnder('July 2025', 'cal'))
 
   // Range calendar — anchored 'August 2025' — two clicks complete a range.
@@ -533,6 +585,7 @@ async function run() {
     attempt++
   ) {
     const r10 = pickDayCell('August 10')
+
     diag('r10', { attempt, found: !!r10, state: state.rangePick ?? null })
     if (r10) {
       await clickAt(r10)
@@ -540,12 +593,14 @@ async function run() {
     }
 
     const r20 = pickDayCell('August 20')
+
     diag('r20', { attempt, found: !!r20, state: state.rangePick ?? null })
     if (r20) {
       await clickAt(r20)
       await pump(300)
     }
   }
+
   diag('range', state.rangePick ?? null)
   check(
     'range pick fires start+end',
@@ -563,17 +618,20 @@ async function run() {
   // DateInput — 'adaptive-native' resolves to a Popover on a fine-pointer
   // desktop: calendar in an anchored layer, NOT an overlay sheet.
   const diToggle = findUnder('Open di calendar', 'di') ?? findLabel('Open di calendar')
+
   check('date toggle present', !!diToggle)
   if (diToggle) {
     await clickAt(diToggle)
     await pump(500)
   }
+
   check('calendar popover opens', !!pickDayCell('June 15'))
   check('no sheet overlay for popover', ((container as any).overlayLayers?.size ?? 0) === 0)
   // Popover autohides on an outside-press: if a click misses and closes it,
   // re-open via the toggle before the next attempt.
   for (let attempt = 0; attempt < 5 && state.datePopover !== '2025-06-15'; attempt++) {
     let popDay = pickDayCell('June 15')
+
     if (!popDay) {
       await pump(300)
       popDay = pickDayCell('June 15')
@@ -581,6 +639,7 @@ async function run() {
 
     if (!popDay) {
       const tgl = findUnder('Open di calendar', 'di') ?? findLabel('Open di calendar')
+
       if (tgl) {
         await clickAt(tgl)
         await pump(600)
@@ -599,12 +658,14 @@ async function run() {
     await clickAtSettled(popDay)
     await pump(300)
   }
+
   check('popover day pick writes value', state.datePopover === '2025-06-15')
   await ready({ key: 'Escape' })
   await pump(200)
 
   // Typed entry — click the field, type ISO, commit with Return.
   const diField = findByTypeUnder('textfield', 'di-typed')
+
   check('typed date field present', !!diField)
   if (diField) {
     await clickAt(diField)
@@ -612,6 +673,7 @@ async function run() {
     diField.focus?.()
     await pump(100)
   }
+
   await ready({ type: '2025-07-04' })
   await pump(150)
   await ready({ key: 'Return' })
@@ -620,6 +682,7 @@ async function run() {
 
   // TimeInput default presentation = typed field on fine pointer.
   const tiField = findByTypeUnder('textfield', 'ti')
+
   check('time field present', !!tiField)
   if (tiField) {
     await clickAt(tiField)
@@ -627,6 +690,7 @@ async function run() {
     tiField.focus?.()
     await pump(100)
   }
+
   await ready({ type: '14:30' })
   await pump(150)
   await ready({ key: 'Return' })
@@ -635,43 +699,55 @@ async function run() {
 
   // TimeInput 'bottom-sheet' — opens a real BottomSheet with wheel columns.
   const sheetField = findLabel('Open sheet picker')
+
   check('sheet field present', !!sheetField)
   if (sheetField) {
     await clickAt(sheetField)
     await pump(500)
   }
+
   check('sheet overlay opens', ((container as any).overlayLayers?.size ?? 0) >= 1)
+
   const min30 = findLabel('Minute 30')
+
   check('wheel columns render', !!findLabel('Hour 14') && !!min30)
+
   // Wheel rows allocate at content offsets — find an Hour row that is mapped
   // and inside the window, click it, and expect its value on Done.
   let hourRow: any = null
   let hourValue = ''
+
   for (let h = 0; h < 24 && !hourRow; h++) {
     const needle = 'Hour ' + String(h).padStart(2, '0')
     const row = findLabel(needle)
+
     if (!row) {
       continue
     }
 
     try {
       const c = point(row)
+
       if (c.y > 150 && c.y < 690 && row.get_mapped?.()) {
         hourRow = row
         hourValue = String(h).padStart(2, '0')
       }
     } catch {}
   }
+
   diag('hourRow', { found: !!hourRow, value: hourValue })
   if (hourRow) {
     await clickAt(hourRow)
     await pump(150)
   }
+
   const done = findLabel('Done')
+
   if (done) {
     await clickAt(done)
     await pump(250)
   }
+
   diag('sheet', { committed: state.timeSheet ?? null, expectedHour: hourValue })
   check('sheet time commits', hourValue !== '' && state.timeSheet === hourValue + ':30')
   check('sheet closes after commit', !findLabel('Hour 14'))
@@ -680,6 +756,7 @@ async function run() {
   // time part of the ISO datetime.
   {
     const toggles: any[] = []
+
     for (const n of (container as any).nodes.values()) {
       try {
         if (!JSON.stringify(n.props).includes('Open calendar')) {
@@ -690,6 +767,7 @@ async function run() {
       }
 
       const ids: string[] = []
+
       for (let cur = n; cur; cur = cur.parent) {
         if (cur?.props?.id) {
           ids.push(cur.props.id)
@@ -697,6 +775,7 @@ async function run() {
       }
 
       let cur = n
+
       while (cur && !cur.view) {
         cur = cur.parent
       }
@@ -711,20 +790,25 @@ async function run() {
 
     diag('toggles', toggles)
   }
+
   // 'Open calendar' is shared across date fields — di-typed's vx-dateinput-toggle
   // comes first in node order, so discriminate by the dti toggle's class.
   await ready({ key: 'Escape' })
   await pump(250)
+
   const dtToggle =
     findInClass('Open calendar', 'vx-datetimeinput-calendartoggle') ?? findLabel('Open calendar')
+
   diag('dtToggle-found', {
     scoped: !!findInClass('Open calendar', 'vx-datetimeinput-calendartoggle'),
     any: !!dtToggle,
   })
+
   if (dtToggle) {
     await clickAt(dtToggle)
     await pump(500)
   }
+
   // The popover month tracks the input's pending value — read the shown
   // month title and pick day 15 of it adaptively.
   let monthTitle = ''
@@ -742,6 +826,7 @@ async function run() {
     November: '11',
     December: '12',
   }
+
   for (const n of (container as any).nodes.values()) {
     try {
       const s = JSON.stringify(n.props)
@@ -755,10 +840,13 @@ async function run() {
       }
     } catch {}
   }
+
   const mm = monthTitle.match(/(\w+) (\d{4})/)
   const dayNeedle = mm ? mm[1] + ' 15' : 'June 15'
+
   for (let attempt = 0; attempt < 5 && !/-15T10:00/.test(String(state.dtPick ?? '')); attempt++) {
     let dtDay = pickDayCell(dayNeedle)
+
     if (!dtDay) {
       await pump(300)
       dtDay = pickDayCell(dayNeedle)
@@ -782,10 +870,12 @@ async function run() {
       // Instrument: does a real press reach the cell's widget tree at all?
       try {
         const ctl = new Gtk.EventControllerLegacy()
+
         ctl.connect('event', (_c: any, ev: any) => {
           try {
             diag('pev', { t: ev.get_event_type(), x: ev.get_position?.()?.[0] })
           } catch {}
+
           return false
         })
 
@@ -798,6 +888,7 @@ async function run() {
 
     try {
       const dn = findDayCellNode(dayNeedle)
+
       diag('dtday', {
         attempt,
         needle: dayNeedle,
@@ -816,6 +907,7 @@ async function run() {
     // n_press++ on the same spot (double-click suppression territory).
     await ready({ x: 8, y: 8, hover: true })
   }
+
   diag('dtpick', { month: monthTitle, pick: state.dtPick ?? null, all: { ...state } })
   check('datetime pick keeps time part', /-15T10:00/.test(String(state.dtPick ?? '')))
 
@@ -825,11 +917,13 @@ async function run() {
 
   // DateRangeInput — trigger opens the Popover (fine-pointer surface).
   const driTrigger = findLabel('Select a date range')
+
   check('range trigger present', !!driTrigger)
   if (driTrigger) {
     await clickAt(driTrigger)
     await pump(500)
   }
+
   check('range popover calendar opens', !!pickDayCell('June 15') && !!pickDayCell('June 20'))
   for (
     let attempt = 0;
@@ -846,6 +940,7 @@ async function run() {
     }
 
     const s15 = pickDayCell('June 15')
+
     try {
       diag('s15', { attempt, found: !!s15, pt: s15 ? point(s15) : null })
     } catch (e) {
@@ -862,6 +957,7 @@ async function run() {
     }
 
     const s20 = pickDayCell('June 20')
+
     try {
       diag('s20', { attempt, found: !!s20, pt: s20 ? point(s20) : null })
     } catch (e) {
@@ -873,6 +969,7 @@ async function run() {
       await pump(300)
     }
   }
+
   check(
     'range input fires',
     state.rangeInput?.start === '2025-06-15' && state.rangeInput?.end === '2025-06-20',
@@ -889,6 +986,7 @@ async function run() {
     'GTK_DATES ' +
       JSON.stringify({ checks: checks.length, failures, osInput: true, gtk: '4.14.5' }),
   )
+
   window.destroy()
   loop.quit()
 }

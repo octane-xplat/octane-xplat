@@ -7,10 +7,13 @@ import { createAnimatedImageView } from './animated-image-view.macos.ts'
 /** Experimental NSImageView animation; native playback remains unqualified. */
 export function AnimatedImage(props: AnimatedImageProps) @{
   const latest = useRef(props)
+
   latest.current = props
+
   const owner = useMemo(() => createAppKitAnimatedImageOwner(() => latest.current), [])
   const create = useCallback((event: { view?: unknown }) => {
     const view = createAnimatedImageView()
+
     event.view = view
     owner.attach(view)
   }, [])

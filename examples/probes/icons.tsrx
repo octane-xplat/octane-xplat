@@ -7,11 +7,13 @@ import { iconFixture, otherIconFixture } from './icons-data'
 import { iconSnapshot } from './icons-host'
 
 const selection = createStore({ name: 'probe-icons:wide', color: '#123456', size: 24 })
+
 addCollection(iconFixture)
 addCollection(otherIconFixture)
 
 export default function IconsProbe() {
   const current = useStore(selection)
+
   return (
     <Column>
       <Icon id="icon-main" {...current} label="Direction" />
@@ -28,7 +30,9 @@ export default function IconsProbe() {
 
 export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => iconSnapshot(ctx.find('icon-main')).body.includes('#123456'))
+
   const main = iconSnapshot(ctx.find('icon-main'))
+
   ctx.assert('wide icon width', main.width, 48)
   ctx.assert('icon height', main.height, 24)
   ctx.assert('accessible label', main.label, 'Direction')
@@ -43,6 +47,7 @@ export async function run(ctx: ProbeContext) {
 
   const first = iconSnapshot(ctx.find('icon-gradient-a')).body.match(/id="(paint[^"]*)"/)?.[1]
   const second = iconSnapshot(ctx.find('icon-gradient-b')).body.match(/id="(paint[^"]*)"/)?.[1]
+
   ctx.assert('gradient definition exists', typeof first, 'string')
   ctx.assert('instance IDs differ', first !== second, true)
   ctx.assert('missing icon has no host', !!ctx.find('icon-late'), false)

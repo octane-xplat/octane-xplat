@@ -19,6 +19,7 @@ function ExpansionCell<T extends Record<string, unknown>>(props: {
 }) @{
   const cfg = props.configRef.current
   const expandable = cfg.getIsItemExpandable ? cfg.getIsItemExpandable(props.item) : true
+
   if (!expandable) {
     return null as any
   }
@@ -70,6 +71,7 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
   config: UseTableRowExpansionConfig<T>,
 ): TablePlugin<T> {
   const configRef = useRef(config)
+
   configRef.current = config
 
   const expansionColumn: TableColumn<T> = {
@@ -88,11 +90,13 @@ export function useTableRowExpansion<T extends Record<string, unknown>>(
     transformBodyRow(props: BodyRowRenderProps, item: T): BodyRowRenderProps {
       const cfg = configRef.current
       const expandable = cfg.getIsItemExpandable ? cfg.getIsItemExpandable(item) : true
+
       if (!expandable) {
         return props
       }
 
       const key = cfg.getRowKey(item)
+
       if (!cfg.expandedKeys.has(key)) {
         return props
       }

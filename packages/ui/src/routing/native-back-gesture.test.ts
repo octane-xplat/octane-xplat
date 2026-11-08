@@ -13,6 +13,7 @@ import {
 
 function view() {
   const ancestors = new Set<object>()
+
   return {
     ancestors,
     isEqual(other: object) {
@@ -34,12 +35,14 @@ function fixture() {
       if (!listeners.has(name)) {
         listeners.set(name, new Set())
       }
+
       listeners.get(name)!.add(callback)
     },
     off(name: string, callback: (event: any) => void) {
       listeners.get(name)?.delete(callback)
     },
   }
+
   let active = true
   const back = vi.fn(async () => ({ status: 'committed' }))
   const detach = attachNativeBackGesture(frame as any, { canBegin: () => active, back })
@@ -54,10 +57,12 @@ function fixture() {
       ios: { view: nativeView, velocityInView: () => velocity },
       ...data,
     }
+
     for (const listener of listeners.get('pan') ?? []) {
       listener(event)
     }
   }
+
   return {
     frame,
     initial,
@@ -78,6 +83,7 @@ function fixture() {
 it('disables unprepared UIKit pops only on the owned Page', () => {
   const page = { enableSwipeBackNavigation: true }
   const other = { enableSwipeBackNavigation: true }
+
   prepareNativeBackGesture(page as any)
   expect(page.enableSwipeBackNavigation).toBe(false)
   expect(other.enableSwipeBackNavigation).toBe(true)
@@ -86,6 +92,7 @@ it('disables unprepared UIKit pops only on the owned Page', () => {
 it('removes only its own pan subscription and makes disposal idempotent', () => {
   const test = fixture()
   const foreign = vi.fn()
+
   test.frame.on('pan', foreign)
   test.detach()
   test.detach()
@@ -97,6 +104,7 @@ it('removes only its own pan subscription and makes disposal idempotent', () => 
 
 it('rejects inactive, wrong-edge, leftward and vertical starts', async () => {
   const test = fixture()
+
   try {
     test.setActive(false)
     test.swipe()
@@ -114,6 +122,7 @@ it('rejects inactive, wrong-edge, leftward and vertical starts', async () => {
 
 it('ignores cancelled, short, reversed and vertical drags', async () => {
   const test = fixture()
+
   try {
     test.emit(1)
     test.emit(0)
@@ -132,8 +141,10 @@ it('ignores cancelled, short, reversed and vertical drags', async () => {
 
 it('requests Back once on release and holds off duplicates until preparation settles', async () => {
   const test = fixture()
+
   try {
     let release!: () => void
+
     test.back.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
@@ -161,6 +172,7 @@ it('requests Back once on release and holds off duplicates until preparation set
 
 it('accepts a deliberate fast flick above the minimum distance', async () => {
   const test = fixture()
+
   try {
     test.swipe({ deltaX: 45 })
     await vi.waitFor(() => expect(test.back).toHaveBeenCalledTimes(1))
@@ -172,6 +184,7 @@ it('accepts a deliberate fast flick above the minimum distance', async () => {
 it('rechecks active ownership and disposal before the deferred request, independently per Frame', async () => {
   const first = fixture()
   const second = fixture()
+
   try {
     first.swipe()
     first.detach()
@@ -182,7 +195,9 @@ it('rechecks active ownership and disposal before the deferred request, independ
     first.detach()
     second.detach()
   }
+
   const third = fixture()
+
   try {
     third.swipe()
     third.setActive(false)
@@ -195,6 +210,7 @@ it('rechecks active ownership and disposal before the deferred request, independ
 
 it('uses the leading edge and reversed direction in RTL layouts', async () => {
   const test = fixture()
+
   try {
     test.initial.effectiveUserInterfaceLayoutDirection = 1
     test.swipe({ startX: 2, deltaX: -200, velocity: { x: -700, y: 0 } })
@@ -210,6 +226,7 @@ it('uses the leading edge and reversed direction in RTL layouts', async () => {
 it('recognizes nested native Frames and rejects events from a foreign native view', async () => {
   const parent = fixture()
   const child = fixture()
+
   try {
     child.initial.ancestors.add(parent.initial)
     expect(isNativeFrameDescendant(child.frame as any, parent.frame as any)).toBe(true)
@@ -226,6 +243,7 @@ it('recognizes nested native Frames and rejects events from a foreign native vie
 
 it('does not reuse a drag after its Page changes before or after release', async () => {
   const test = fixture()
+
   try {
     test.emit(1)
     test.frame.currentPage = { id: 'during-drag' }

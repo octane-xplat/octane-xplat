@@ -32,9 +32,11 @@ const stopPreview = () => {
 
 async function addRenderedFontData(page, dump) {
   const session = await page.context().newCDPSession(page)
+
   try {
     await session.send('DOM.enable')
     await session.send('CSS.enable')
+
     const {
       root: { nodeId: documentNodeId },
     } = await session.send('DOM.getDocument')
@@ -55,6 +57,7 @@ async function addRenderedFontData(page, dump) {
       })
 
       const measuredNodeIds = [boxNodeId, ...nodeIds]
+
       for (let index = 0; index < Math.min(nodes.length, measuredNodeIds.length); index++) {
         const { fonts } = await session.send('CSS.getPlatformFontsForNode', {
           nodeId: measuredNodeIds[index],
@@ -67,6 +70,7 @@ async function addRenderedFontData(page, dump) {
         ]
 
         const style = nodes[index]?.style
+
         if (!style || families.length === 0) {
           continue
         }
@@ -88,6 +92,7 @@ try {
   const browser = await chromium.launch()
   const page = await browser.newPage()
   const errors = []
+
   page.on('pageerror', (e) => errors.push('pageerror: ' + e.message))
 
   await page.goto(BASE + '/parity', { waitUntil: 'networkidle' })
@@ -119,10 +124,14 @@ try {
     process.exitCode = 1
   } else {
     await addRenderedFontData(page, dump)
+
     const out = path.join(repoDir, 'parity-report', 'web.json')
+
     mkdirSync(path.dirname(out), { recursive: true })
     writeFileSync(out, JSON.stringify(dump, null, 2))
+
     const cells = Object.keys(dump.cells ?? {})
+
     console.log(`[parity] web dump → parity-report/web.json (${cells.length} fixtures)`)
     if (errors.length) {
       console.log('[parity] page errors: ' + errors.join(' | '))

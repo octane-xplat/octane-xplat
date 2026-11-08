@@ -49,6 +49,7 @@ interface FixedSurfaceProps {
  *  anchor measurement. */
 function FixedLayerSurface(props: FixedSurfaceProps) @{
   const panelRef = useRef<any>(null)
+
   useEffect(() => {
     applyNativeProps(panelRef.current, props)
   }, [props.ios, props.android])
@@ -104,16 +105,19 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
   } | null>(null)
 
   const dismiss = useRef(props.onDismiss)
+
   dismiss.current = props.onDismiss
 
   useEffect(() => {
     const current = shown.current
+
     if (!props.open) {
       current?.lifetime.close()
       return
     }
 
     const rl = rootLayoutFor(sentinel.current)
+
     if (!rl) {
       return
     }
@@ -124,8 +128,10 @@ function FixedLayerMount(props: FixedSurfaceProps & { open?: boolean }) @{
 
     const host = new GridLayout()
     const unbindTheme = applyThemeClasses(host, 'vx-layer-host')
+
     host.horizontalAlignment = 'stretch'
     host.verticalAlignment = 'stretch'
+
     const lifetime = createOverlayLifetime(rl, host, null, 'Layer', (dismissed) => {
       if (shown.current?.host === host) {
         shown.current = null
@@ -198,10 +204,15 @@ export function useLayer<O extends LayerOptions>(
   const controlled = options.isOpen !== undefined
   const openRef = useRef(false)
   const anchor = useRef<{ current: any }>({ current: null })
+
   openRef.current = isOpen
+
   const onShow = useRef(options.onShow)
+
   onShow.current = options.onShow
+
   const onHide = useRef(options.onHide)
+
   onHide.current = options.onHide
 
   const show = useCallback(() => {
@@ -238,6 +249,7 @@ export function useLayer<O extends LayerOptions>(
     (children: any, props?: ContextRenderProps | FixedRenderProps) => {
       if (fixed) {
         const p = (props ?? {}) as FixedRenderProps
+
         return (
           <FixedLayerMount
             open={isOpen}
@@ -258,6 +270,7 @@ export function useLayer<O extends LayerOptions>(
       }
 
       const p = (props ?? {}) as ContextRenderProps
+
       if (p.positioning === 'custom') {
         return (
           <FixedLayerMount

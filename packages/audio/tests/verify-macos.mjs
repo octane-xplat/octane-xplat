@@ -13,6 +13,7 @@ import { hostBundle } from '../../cli/src/macos/jsc-host/runtime.ts'
 
 async function consumer(packed, app, source) {
   const installed = join(app, 'node_modules/@octane-xplat/audio')
+
   await mkdir(installed, { recursive: true })
   await cp(packed, installed, { recursive: true })
   await writeFile(
@@ -75,6 +76,7 @@ check().catch(error => { console.error(error); process.exitCode = 1 })
   )
 
   const result = spawnSync(process.execPath, [script], { encoding: 'utf8', timeout: 10_000 })
+
   assert.equal(result.status, 0, result.stdout + result.stderr)
   assert.match(result.stdout, /PUBLIC_MACOS_AUDIO_IMPORT_OK/)
   console.log('Public macOS import/construct/contract passes without mobile peers (mock bridge).')
@@ -83,6 +85,7 @@ check().catch(error => { console.error(error); process.exitCode = 1 })
 function silentWav() {
   const samples = 8000 // One second of silence; no audible playback claim.
   const bytes = Buffer.alloc(44 + samples * 2)
+
   bytes.write('RIFF')
   bytes.writeUInt32LE(bytes.length - 8, 4)
   bytes.write('WAVEfmt ', 8)
@@ -100,18 +103,24 @@ function silentWav() {
 
 export async function verifyMacOS(packed, temporary) {
   assert.equal(process.platform, 'darwin', 'macOS target check requires macOS')
+
   const app = join(temporary, 'target')
+
   await mkdir(app, { recursive: true })
+
   const local = join(app, 'silence.wav')
   const malformed = join(app, 'malformed.wav')
   const wav = silentWav()
+
   await writeFile(local, wav)
   await writeFile(malformed, 'This is not audio')
+
   const server = createServer((request, response) => {
     if (request.url === '/audio.wav') {
       const range = /^bytes=(\d+)-(\d*)$/.exec(request.headers.range ?? '')
       const start = range ? Number(range[1]) : 0
       const end = range?.[2] ? Math.min(Number(range[2]), wav.length - 1) : wav.length - 1
+
       if (start > end) {
         response.writeHead(416, { 'Content-Range': `bytes */${wav.length}` })
         response.end()
@@ -133,7 +142,9 @@ export async function verifyMacOS(packed, temporary) {
   })
 
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
+
   const remote = `http://127.0.0.1:${server.address().port}`
+
   try {
     const script = await consumer(
       packed,
@@ -202,9 +213,13 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
     )
 
     const artifact = await buildMacOSNative(app)
+
     assert.deepEqual([...artifact.leaves].sort(), ['@octane-xplat/audio', '@octane-xplat/platform'])
+
     const bootstrap = join(app, 'bootstrap.js')
+
     await writeNativeBootstrap(artifact, bootstrap)
+
     const output = await new Promise((resolve, reject) => {
       const child = spawn(
         join(hostBundle, 'host'),
@@ -218,6 +233,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
       )
 
       let text = ''
+
       child.stdout.on('data', (chunk) => {
         text += chunk
       })
@@ -227,6 +243,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
       })
 
       const timeout = setTimeout(() => child.kill('SIGKILL'), 45_000)
+
       child.once('error', (error) => {
         clearTimeout(timeout)
         reject(error)
@@ -270,9 +287,11 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
     )
 
     assert.equal(compiled.status, 0, compiled.stdout + compiled.stderr)
+
     // Keep the HTTP fixture's event loop alive while native playback runs.
     const lifecycle = spawn(executable, [local, `${remote}/audio.wav`], { timeout: 30000 })
     let lifecycleOutput = ''
+
     lifecycle.stdout.on('data', (chunk) => {
       lifecycleOutput += chunk
     })
@@ -282,6 +301,7 @@ main().then(() => __xplatStopHost(), error => { console.log('MACOS_AUDIO_ERROR',
     })
 
     const [exitCode] = await once(lifecycle, 'close')
+
     assert.equal(exitCode, 0, lifecycleOutput)
     assert.match(lifecycleOutput, /NATIVE_AUDIO_LIFECYCLE_OK/)
     assert.match(lifecycleOutput, /NATIVE_AUDIO_RAPID_RESUME_OK/)

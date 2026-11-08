@@ -1,8 +1,12 @@
 import { expect, it, vi } from 'vitest'
+
 const api = vi.hoisted(() => ({ getCurrentLocation: vi.fn(), enableLocationRequest: vi.fn() }))
+
 vi.mock('@nativescript/geolocation', () => api)
 vi.mock('@nativescript/core', () => ({ CoreTypes: { Accuracy: { high: 1, any: 0 } } }))
+
 import { geolocation } from './geolocation.ts'
+
 const fix = { latitude: 1, longitude: 2, horizontalAccuracy: 3, timestamp: new Date(123) }
 
 it('uses Android presence flags while preserving real zero and negative altitude', async () => {
@@ -37,6 +41,7 @@ it('uses iOS altitude validity and rejects negative course/speed sentinels', asy
   })
 
   const absent = await geolocation.getCurrentPosition()
+
   expect([absent.altitude, absent.heading, absent.speed]).toEqual([null, null, null])
   api.getCurrentLocation.mockResolvedValue({
     ...fix,
@@ -47,6 +52,7 @@ it('uses iOS altitude validity and rejects negative course/speed sentinels', asy
   })
 
   const present = await geolocation.getCurrentPosition()
+
   expect([present.altitude, present.heading, present.speed]).toEqual([-10, 0, 0])
 })
 
@@ -77,8 +83,11 @@ it('attaches the shared timeout code to the plugin timeout rejection', async () 
 
 it('defaults remaining failures to unavailable and preserves the plugin Error', async () => {
   const error = new Error('Localized platform failure')
+
   api.getCurrentLocation.mockRejectedValue(error)
+
   const rejection = await geolocation.getCurrentPosition().catch((reason) => reason)
+
   expect(rejection).toBe(error)
   expect(rejection.code).toBe(2)
 })
@@ -93,11 +102,13 @@ it('wraps non-Error rejections without losing the shared code', async () => {
 
 it('reports an unsupported capability on windows', async () => {
   const windows = await import('./geolocation.windows')
+
   expect(windows.geolocation.supported).toBe(false)
   expect(windows.geolocation.supported).toBe(false)
   await expect(windows.geolocation.requestPermissions()).resolves.toMatchObject({
     status: 'unsupported',
   })
+
   await expect(windows.geolocation.getCurrentPosition()).rejects.toMatchObject({
     name: 'UnavailabilityError',
   })

@@ -15,6 +15,7 @@ import {
 } from '@octane-xplat/platform/macos'
 
 const webKit = dlopen('/System/Library/Frameworks/WebKit.framework/WebKit', 2)
+
 if (!webKit) {
   throw new Error('Unable to load the system WebKit framework')
 }
@@ -40,6 +41,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
   {
     'webView:didStartProvisionalNavigation:'(view: WKWebView, navigation: any) {
       const state = states.get(view)
+
       if (!state) {
         return
       }
@@ -51,6 +53,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 
     'webView:didFinishNavigation:'(view: WKWebView, navigation: any) {
       const state = states.get(view)
+
       if (!state || state.navigation !== navigation) {
         return
       }
@@ -72,6 +75,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 
     'webView:didFailNavigation:withError:'(view: WKWebView, navigation: any, error: NSError) {
       const state = states.get(view)
+
       if (!state || state.navigation !== navigation) {
         return
       }
@@ -89,6 +93,7 @@ const EmbeddedNavigationDelegate = NSObject.extend(
 
     'webViewWebContentProcessDidTerminate:'(view: WKWebView) {
       const state = states.get(view)
+
       if (!state) {
         return
       }
@@ -172,6 +177,7 @@ export function updateWebView(
 ) {
   const view = node.view as WKWebView
   let state = states.get(view)
+
   if (!state) {
     // `created` is a const so the closures below keep their declared type.
     const created: WebViewState = {
@@ -182,6 +188,7 @@ export function updateWebView(
       delegate: EmbeddedNavigationDelegate.alloc().init(),
       emit(name: string, payload: any) {
         const handler = created.props[name]
+
         if (handler) {
           try {
             node.container.root!.eventScope('discrete', () => handler(payload))
@@ -192,6 +199,7 @@ export function updateWebView(
       },
       measure() {
         const generation = created.generation
+
         view.evaluateJavaScriptCompletionHandler(
           scrollScript(created.props.scrollEnabled),
           null as any,
@@ -212,6 +220,7 @@ export function updateWebView(
           }
 
           let size: any
+
           try {
             size = JSON.parse(String(result))
           } catch {
@@ -237,6 +246,7 @@ export function updateWebView(
       },
       drainMessages() {
         const generation = created.generation
+
         view.evaluateJavaScriptCompletionHandler(drainScript, (result: any, error: any) => {
           if (
             states.get(view) !== created ||
@@ -248,6 +258,7 @@ export function updateWebView(
           }
 
           let batch: any
+
           try {
             batch = JSON.parse(String(result))
           } catch {
@@ -259,6 +270,7 @@ export function updateWebView(
           }
 
           const url = created.inline ? undefined : view.URL?.absoluteString
+
           for (const data of batch) {
             created.emit('onMessage', { data, url })
           }
@@ -294,8 +306,10 @@ export function updateWebView(
   }
 
   state.props = node.props
+
   const inline = state.props.html !== undefined
   const source = inline ? state.props.html : state.props.src
+
   if (state.inline !== inline || state.source !== source) {
     state.inline = inline
     state.source = source
@@ -313,6 +327,7 @@ export function updateWebView(
 
       const url = path.startsWith('/') ? NSURL.fileURLWithPath(path) : NSURL.URLWithString(path)
       const file = url?.isFileURL()
+
       if (!url || (!file && !url.scheme)) {
         state.emit('onError', { url: src, error: 'Invalid document URL' })
       } else if (file) {
@@ -349,6 +364,7 @@ export function updateWebView(
 
 export function disposeWebView(view: WKWebView) {
   const state = states.get(view)
+
   if (state?.messageTimer !== undefined) {
     clearTimeout(state.messageTimer)
   }

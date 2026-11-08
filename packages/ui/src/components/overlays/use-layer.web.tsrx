@@ -47,6 +47,7 @@ function FloatingLayer(props: FloatingLayerProps) @{
   const sourceRef = useRef<HTMLSpanElement | null>(null)
   const panelRef = useRef<HTMLDivElement | null>(null)
   const [source, setSource] = useState<HTMLSpanElement | null>(null)
+
   // The hidden source marker keeps anchorless layers tied to their actual
   // DOM owner, including content mounted in a separate service root.
   useEffect(() => {
@@ -137,10 +138,15 @@ export function useLayer<O extends LayerOptions>(
   const controlled = options.isOpen !== undefined
   const openRef = useRef(false)
   const anchor = useRef<{ current: any }>({ current: null })
+
   openRef.current = isOpen
+
   const onShowRef = useRef(options.onShow)
+
   onShowRef.current = options.onShow
+
   const onHideRef = useRef(options.onHide)
+
   onHideRef.current = options.onHide
 
   const show = useCallback(() => {
@@ -185,6 +191,7 @@ export function useLayer<O extends LayerOptions>(
     (children: any, props?: ContextRenderProps | FixedRenderProps) => {
       if (fixed) {
         const p = (props ?? {}) as FixedRenderProps
+
         return (
           <FloatingLayer
             open={isOpen}

@@ -34,19 +34,27 @@ export function bindKeyboardAvoidance(
   const apply = (state: KeyboardWindowState, window?: object) => {
     lastState = state
     lastWindow = window
+
     const currentOptions = typeof options === 'function' ? options() : options
+
     viewport.update()
+
     const bindingState = state.bindingFrame ? { ...state, currentFrame: state.bindingFrame } : state
     const current = keyboardBottomOverlap(state.windowRect, state.currentFrame ?? state.targetFrame)
     const target = keyboardBottomOverlap(state.windowRect, state.targetFrame)
+
     if (window !== previousWindow) {
       demand = 0
     }
+
     const moving = state.motion && !['idle', 'end'].includes(state.motion.phase)
+
     demand = moving
       ? Math.max(demand, current, target, state.inset)
       : Math.max(current, target, state.inset)
+
     const inherited = window === currentOptions.ancestorWindow ? currentOptions.ancestorBottom : 0
+
     padding.set(
       keyboardAvoidancePadding({
         windowInset: Math.max(current, state.inset),
@@ -56,14 +64,18 @@ export function bindKeyboardAvoidance(
         offset: currentOptions.offset,
       }),
     )
+
     const bottom = Math.max(inherited, demand - Math.max(0, currentOptions.safeBottom))
+
     if (previousWindow !== window || previousBottom !== bottom) {
       previousWindow = window
       previousBottom = bottom
       claim({ window, bottom })
     }
   }
+
   let off: () => void
+
   try {
     off = subscribeKeyboardState(apply, host)
   } catch (error) {
@@ -71,11 +83,13 @@ export function bindKeyboardAvoidance(
     padding.release()
     throw error
   }
+
   let active = true
   const release = () => {
     if (!active) {
       return
     }
+
     active = false
     try {
       off()
@@ -87,6 +101,7 @@ export function bindKeyboardAvoidance(
       }
     }
   }
+
   return Object.assign(release, {
     update() {
       if (active && lastState) {

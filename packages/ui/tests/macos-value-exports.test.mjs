@@ -13,6 +13,7 @@ test('macOS explicitly exports every declared runtime value', () => {
     module: ts.ModuleKind.ESNext,
     target: ts.ScriptTarget.ESNext,
   })
+
   const checker = program.getTypeChecker()
   const module = checker.getSymbolAtLocation(program.getSourceFile(declaration))
   const declared = checker
@@ -20,17 +21,21 @@ test('macOS explicitly exports every declared runtime value', () => {
     .filter((symbol) => {
       const resolved =
         symbol.flags & ts.SymbolFlags.Alias ? checker.getAliasedSymbol(symbol) : symbol
+
       return resolved.flags & ts.SymbolFlags.Value
     })
     .map((symbol) => symbol.name)
     .sort()
+
   const source = ts.createSourceFile(
     'index.macos.ts',
     readFileSync(new URL('../src/index.macos.ts', import.meta.url), 'utf8'),
     ts.ScriptTarget.Latest,
     true,
   )
+
   const values = new Set()
+
   for (const statement of source.statements) {
     if (
       ts.isExportDeclaration(statement) &&
@@ -57,6 +62,7 @@ test('macOS explicitly exports every declared runtime value', () => {
       }
     }
   }
+
   assert.deepEqual([...values].sort(), declared)
 })
 
@@ -67,6 +73,7 @@ test('AppKit named themes register scoped CSS once without NativeScript', () => 
   )
     .replace(/^import .*$/gm, '')
     .replace(/^export /gm, '')
+
   const registrations = []
   const theme = { name: 'travel' }
   const api = runInNewContext(
@@ -81,11 +88,13 @@ test('AppKit named themes register scoped CSS once without NativeScript', () => 
       },
     },
   )
+
   api.ensureThemeCss(theme)
   api.ensureThemeCss(theme)
   assert.deepEqual(registrations, [
     ['xplat-theme:travel', '.xds-theme-travel { --color-primary: blue; }'],
   ])
+
   api.syncDocumentRootTheme('travel', 'dark')()
 })
 
@@ -94,5 +103,6 @@ test('the AppKit Theme leaf bundles with the macOS platform guard', async () => 
     undefined,
     fileURLToPath(new URL('../src/theme/Theme.macos.tsrx', import.meta.url)),
   )
+
   assert.deepEqual(values, ['Theme'])
 })

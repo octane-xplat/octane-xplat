@@ -17,11 +17,15 @@ export function useChatNewMessages({
   const [hasNewMessages, setHasNewMessages] = useState(false)
   const lastMessageRef = useRef<any>(null)
   const isLockedRef = useRef(isLocked)
+
   isLockedRef.current = isLocked
 
   const viewportRef = useRef(scrollRef)
+
   viewportRef.current = scrollRef
+
   const onResizeRef = useRef(onResize)
+
   onResizeRef.current = onResize
 
   const elementRef = useRef<any>(null)
@@ -43,8 +47,10 @@ export function useChatNewMessages({
     const onLayout = () => {
       anchor?.update()
       onResizeRef.current?.()
+
       const children = chatHost.children(el)
       const last = children.at(-1) ?? null
+
       if (last && last !== lastMessageRef.current) {
         lastMessageRef.current = last
         if (!following()) {
@@ -55,6 +61,7 @@ export function useChatNewMessages({
 
     const off = chatHost.observeLayout(el, onLayout, true)
     const offViewport = viewport ? chatHost.observeLayout(viewport, onLayout, true) : () => {}
+
     cleanupRef.current = () => {
       off()
       offViewport()

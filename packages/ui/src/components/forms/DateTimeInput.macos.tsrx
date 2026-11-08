@@ -72,7 +72,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
   const [open, setOpenState] = useState<'calendar' | 'times' | null>(null)
   const openRef = useRef(open)
+
   openRef.current = open
+
   const setOpen = (next: 'calendar' | 'times' | null) => {
     openRef.current = next
     if (anchor.current) {
@@ -131,7 +133,9 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
   const isBusy = !!props.isLoading || busy
   const hasSeconds = !!props.hasSeconds
   const current = useRef({ props, isDisabled, isBusy })
+
   current.current = { props, isDisabled, isBusy }
+
   const canEdit = () =>
     !!anchor.current &&
     !current.current.isDisabled &&
@@ -226,11 +230,13 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
   const fireChange = (next: ISODateTimeString | null | undefined): boolean => {
     const live = current.current
+
     if (!canEdit()) {
       return false
     }
 
     const emitted = next ?? null
+
     if (emitted === (live.props.value ?? null)) {
       return true
     }
@@ -275,6 +281,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
     }
 
     const ownClaim = !editing.current
+
     if (ownClaim) {
       editing.current = true
     }
@@ -298,6 +305,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
       // Constraints may call application code; reject metadata replaced there.
       const next = current.current.props
+
       if (
         next.value !== metadata.value ||
         next.min !== metadata.min ||
@@ -315,6 +323,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
         ownedDate = dateDraft.current
 
       let time = live.valueParts.time ?? ownedLocalTime.value ?? currentISOTime(live.hasSeconds)
+
       if (
         live.minParts.date === iso &&
         live.minParts.time &&
@@ -332,6 +341,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
 
       const accepted = fireChange(combineDateTime(iso, time))
+
       if (accepted && host && anchor.current === host) {
         if (localTime.current === ownedLocalTime) {
           setTimeDraft(undefined)
@@ -367,6 +377,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
     if (time === undefined) {
       const accepted = live.props.value != null ? fireChange(null) : true
+
       if (accepted && host && anchor.current === host && localTime.current === ownedLocalTime) {
         setTimeDraft(undefined)
       }
@@ -405,6 +416,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
 
       const parsed = parseDateInput(text, values.current.locale)
+
       if (parsed) {
         commitDate(plainDateToISO(parsed), false)
       }
@@ -425,10 +437,12 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
 
       let accepted = false
+
       if (!owned.text.trim()) {
         accepted = current.current.props.value != null ? fireChange(null) : true
       } else {
         const parsed = parseDateInput(owned.text, values.current.locale)
+
         if (parsed) {
           accepted = commitDate(plainDateToISO(parsed), false)
         }
@@ -467,6 +481,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
 
       const parsed = parseTimeInput(text, values.current.hasSeconds)
+
       if (parsed) {
         commitTime(parsed)
       }
@@ -487,10 +502,12 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
       }
 
       let accepted = false
+
       if (!owned.text.trim()) {
         accepted = commitTime(undefined)
       } else {
         const parsed = parseTimeInput(owned.text, values.current.hasSeconds)
+
         if (parsed) {
           accepted = commitTime(parsed)
         }
@@ -513,8 +530,10 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
     }
 
     const list: { time: ISOTimeString; label: string }[] = []
+
     for (let m = 0; m < MINUTES_PER_DAY; m += props.timeOptionInterval) {
       const t = formatISOTime({ hour: Math.floor(m / 60), minute: m % 60, second: 0 }, hasSeconds)
+
       if (!isTimeInRange(t, timeMin, timeMax)) {
         continue
       }
@@ -574,6 +593,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
   const chooseTime = (time: ISOTimeString) => {
     const current = timeState.current
+
     if (
       !anchor.current ||
       editing.current ||
@@ -590,11 +610,13 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
     choosingTime.current = true
     openRef.current = null // Claim before application callbacks can reenter or flush parent state.
     timeReturn.reset()
+
     const host = anchor.current,
       field = timeInput.current,
       owned = timeTextDraft.current
 
     let accepted = false
+
     try {
       accepted = current.commitTime(time)
     } finally {
@@ -616,6 +638,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
   const leaveTimes = (backward: boolean) => {
     const target = timeReturn.resolveTab(backward)
+
     if (target) {
       timeReturn.requestTab(target)
       return true
@@ -627,6 +650,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
   const timeKeyDown = (event: NativeKeyboardEvent<NSView>) => {
     const live = timeState.current
+
     if (
       !timeInput.current ||
       event.target !== timeInput.current ||
@@ -663,6 +687,7 @@ function DateTimeInputControl(inputProps: DateTimeInputProps) @{
 
     event.preventDefault()
     event.stopPropagation()
+
     const base =
       localTime.current.value ?? values.current.valueParts.time ?? currentISOTime(live.hasSeconds)
 

@@ -20,6 +20,7 @@ export function Select(props: SelectProps): unknown {
   // after every commit — including commits that only rebuilt the menu items.
   useEffect(() => {
     const view = host.current
+
     if (!view) {
       return
     }
@@ -28,6 +29,7 @@ export function Select(props: SelectProps): unknown {
     view.autoenablesItems = false
     for (let index = 0; index < props.options.length; index++) {
       const item = view.itemAtIndex(index)
+
       if (item) {
         item.enabled = !props.options[index].disabled
       }
@@ -60,6 +62,7 @@ export function Select(props: SelectProps): unknown {
           }
 
           const option = props.options[event.value]
+
           if (!option || option.disabled) {
             host.current?.selectItemAtIndex(selectedIndex)
             return

@@ -39,6 +39,7 @@ function Content(props: { onClose: () => void }) @{
 
 export function DialogFormDialog() @{
   const dialog = useImperativeDialog({ purpose: 'form', width: 480 })
+
   return (
     <>
       <Dialog isOpen isInline onOpenChange={() => {}} purpose="form" width={480}>

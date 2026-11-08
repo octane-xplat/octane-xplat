@@ -12,6 +12,7 @@ import type { JSX } from 'octane/jsx-runtime'
  *  untouched state — `hasEntriesOnFocus` owns what happens there. */
 function isBelowMinQueryLength(query: string, minQueryLength: number): boolean {
   const length = characterCount(query)
+
   return length > 0 && length < minQueryLength
 }
 
@@ -67,7 +68,9 @@ export function BaseTypeahead<T extends SearchableItem>(
 
   const nextRequest = () => {
     abortRequest()
+
     const controller = new AbortController()
+
     requestRef.current = controller
     return { signal: controller.signal }
   }
@@ -86,6 +89,7 @@ export function BaseTypeahead<T extends SearchableItem>(
 
   const showLayer = () => {
     const el = anchorEl() as HTMLElement | null
+
     if (el?.getBoundingClientRect) {
       setAnchorWidth(el.getBoundingClientRect().width)
     }
@@ -108,6 +112,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   // Results still arriving from a replaced source must not land in the new
   // one's menu.
   const prevSearchSourceRef = useRef(searchSource)
+
   if (prevSearchSourceRef.current !== searchSource) {
     abortRequest()
     prevSearchSourceRef.current = searchSource
@@ -120,7 +125,9 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     resultsGenRef.current = gen
+
     const shown = bootstrapResults.slice(0, maxMenuItems)
+
     setResults(shown)
     setHighlightedIndex(shown.length > 0 ? 0 : -1)
     if (bootstrapResults.length > 0) {
@@ -131,6 +138,7 @@ export function BaseTypeahead<T extends SearchableItem>(
   const performBootstrap = async () => {
     const gen = ++searchGenRef.current
     let bootstrapResult: T[] | Promise<T[]>
+
     try {
       bootstrapResult = searchSource.bootstrap(nextRequest())
     } catch {
@@ -164,18 +172,22 @@ export function BaseTypeahead<T extends SearchableItem>(
 
   const performSearch = async (searchQuery: string) => {
     abortRequest()
+
     // Claim a generation so overlapping searches can't race — an in-flight
     // response for an older query fails this check instead of overwriting.
     const gen = ++searchGenRef.current
+
     setLoading(true)
     setHasSearched(true)
     try {
       const searchResults = await searchSource.search(searchQuery, nextRequest())
+
       if (searchGenRef.current !== gen) {
         return
       }
 
       resultsGenRef.current = gen
+
       const fetched = searchResults.slice(0, maxMenuItems)
       const shown = [
         ...fetched,
@@ -225,7 +237,9 @@ export function BaseTypeahead<T extends SearchableItem>(
     ) {
       searchGenRef.current++
       abortRequest()
+
       const derived = (props as BaseTypeaheadInternalProps<T>).__queryEntries?.(newQuery, []) ?? []
+
       setResults(derived)
       setHighlightedIndex(derived.length > 0 ? 0 : -1)
       setHasSearched(false)
@@ -302,9 +316,11 @@ export function BaseTypeahead<T extends SearchableItem>(
     }
 
     const next = e.relatedTarget as Node | null
+
     if (next) {
       const anchor = anchorEl() as HTMLElement | null
       const panel = document.getElementById(panelId)
+
       if (anchor?.contains(next) || panel?.contains(next)) {
         return
       }

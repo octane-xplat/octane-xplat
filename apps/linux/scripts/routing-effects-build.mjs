@@ -7,6 +7,7 @@ import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
 
 const args = process.argv.slice(2)
+
 assert.equal(
   args.length,
   2,
@@ -14,10 +15,15 @@ assert.equal(
 )
 
 const input = await realpath(resolve(args[0]))
+
 await readFile(join(input, 'index.html'))
+
 const parent = resolve(args[1])
+
 await mkdir(parent, { recursive: true })
+
 const output = await realpath(await mkdtemp(join(parent, 'linux-routing-effects-')))
+
 try {
   await cp(input, output, { recursive: true })
   await build({
@@ -38,6 +44,7 @@ try {
   })
 
   const html = await readFile(join(output, 'index.html'), 'utf8')
+
   assert.ok(html.includes('</head>'), 'Expected the production routing HTML document')
   await writeFile(
     join(output, 'index.html'),

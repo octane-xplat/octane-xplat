@@ -43,9 +43,12 @@ function DocsDemos() @{
 Application.run({
   create: () => {
     const page = prepareFullScreenPage(new Page())
+
     page.actionBarHidden = true
     renderNativeScriptApp(page, DocsDemos)
+
     const frame = new Frame()
+
     frame.navigate({ create: () => page })
     return frame
   },

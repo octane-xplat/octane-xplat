@@ -50,6 +50,7 @@ export function Checkbox(inputProps: CheckboxProps): unknown @{
     }
 
     const previous = checked
+
     setPending(true)
     Promise.resolve(props.changeAction(next)).then(
       () => setPending(false),

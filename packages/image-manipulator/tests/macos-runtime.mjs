@@ -22,8 +22,11 @@ try {
   )
 
   const image = join(temporary, 'source.png')
+
   await writeFile(image, png())
+
   const modules = []
+
   for (const name of ['types', 'geometry', 'backend.macos', 'core']) {
     const source = await readFile(join(packageRoot, 'src', `${name}.ts`), 'utf8')
     const code = ts.transpile(source, {
@@ -39,6 +42,7 @@ try {
   // The existing native runtime/metadata is reused. No app window, screenshots,
   // platform rebuild, or mutations of the remote repository are needed.
   const fixture = join(temporary, 'fixture.cjs')
+
   await writeFile(
     fixture,
     `
@@ -125,12 +129,18 @@ setTimeout(async () => {
   )
 
   const bootstrap = join(temporary, 'bootstrap.js')
+
   await writeFile(bootstrap, await readFile(join(hostRoot, 'shim.js')))
+
   const manifest = JSON.parse(await readFile(join(hostRoot, 'prebuilt/manifest.json'), 'utf8'))
   const bytes = await readFile(join(bundle, 'host'))
+
   assert.equal(createHash('sha256').update(bytes).digest('hex'), manifest.sha256['macos/host'])
+
   const executable = join(temporary, 'host')
+
   await writeFile(executable, bytes, { mode: 0o755 })
+
   const result = spawnSync(
     executable,
     [
@@ -143,14 +153,18 @@ setTimeout(async () => {
   )
 
   const output = `${result.stdout ?? ''}${result.stderr ?? ''}`
+
   assert.equal(result.status, 0, output)
   assert.doesNotMatch(output, /IMAGE_APPKIT_FAIL/)
   assert.match(output, /IMAGE_APPKIT_OK/)
+
   const samples = output.split('\n').filter((line) => line.startsWith('IMAGE_PIXELS '))
+
   assert.equal(samples.length, 5)
   for (const line of samples) {
     const sample = JSON.parse(line.slice('IMAGE_PIXELS '.length))
     const actual = redsOf(sample.base64)
+
     assert.ok(
       actual.length === sample.expected.length &&
         actual.every((value, index) => Math.abs(value - sample.expected[index]) <= 1),

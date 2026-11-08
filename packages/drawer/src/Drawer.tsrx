@@ -10,6 +10,7 @@ import { bindDrawer } from './native-binding'
 // This module is reachable only through the opt-in drawer package. The
 // upstream import also installs gesture lifecycle mixins; do not mark it pure.
 install()
+
 class DrawerHost extends PluginDrawer {
   onAnimationError?: (error: unknown) => void
   // Upstream open() does not await animateToPosition(). Catch at the actual
@@ -29,7 +30,9 @@ registerElement('xplatDrawer', DrawerHost)
  * this is a custom native layout, not OS-provided menu chrome. */
 export function Drawer(props: DrawerProps): unknown @{
   const latest = useRef(props)
+
   latest.current = props
+
   const host = useRef<DrawerHost | null>(null)
   const binding = useRef<ReturnType<typeof bindDrawer> | null>(null)
   const checkReady = useRef<(() => void) | null>(null)
@@ -43,6 +46,7 @@ export function Drawer(props: DrawerProps): unknown @{
 
   useEffect(() => {
     const view = host.current
+
     if (!view) {
       return
     }
@@ -62,6 +66,7 @@ export function Drawer(props: DrawerProps): unknown @{
 
     binding.current = control
     view.onAnimationError = control.reportError
+
     const ready = () => {
       if (
         view.isLoaded &&
@@ -74,6 +79,7 @@ export function Drawer(props: DrawerProps): unknown @{
     }
 
     checkReady.current = ready
+
     const opened = () => control.settled(true)
     const closed = () => control.settled(false)
     const back = (event: { cancel: boolean }) => {
@@ -114,6 +120,7 @@ export function Drawer(props: DrawerProps): unknown @{
 
   useEffect(() => {
     const bag = isIOS ? props.ios : props.android
+
     if (host.current && bag) {
       Object.assign(host.current, bag)
     }

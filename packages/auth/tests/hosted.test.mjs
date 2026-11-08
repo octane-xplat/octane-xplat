@@ -13,14 +13,18 @@ const compile = async (file) =>
 
 const hosted = await compile('hosted')
 const base64Module = {}
+
 vm.runInNewContext(await compile('base64'), { exports: base64Module })
+
 const sha256Module = {}
+
 vm.runInNewContext(await compile('sha256'), { exports: sha256Module })
 
 const ORIGIN = 'https://api.test'
 
 function loadHosted({ platform = {} } = {}) {
   const exports = {}
+
   vm.runInNewContext(hosted, {
     exports,
     require: (id) => {
@@ -69,6 +73,7 @@ function fakeFetch(handler) {
 
 const memoryStore = () => {
   const map = new Map()
+
   return {
     map,
     get: async (key) => map.get(key) ?? null,
@@ -79,6 +84,7 @@ const memoryStore = () => {
 
 const sessionReturning = (result) => {
   const opened = []
+
   return {
     opened,
     session: {
@@ -109,6 +115,7 @@ function ticketFlow({ origin = ORIGIN, overrides = {} } = {}) {
       })
 
       const body = await res.json()
+
       if (!res.ok) {
         throw new Error(`ticketFlow: attempt rejected (${res.status})`)
       }
@@ -122,6 +129,7 @@ function ticketFlow({ origin = ORIGIN, overrides = {} } = {}) {
     },
     complete: async (callbackUrl, attempt, { fetch: transport, pkce }) => {
       const ticket = readTicket(callbackUrl)
+
       if (!ticket) {
         return null
       }
@@ -132,6 +140,7 @@ function ticketFlow({ origin = ORIGIN, overrides = {} } = {}) {
       })
 
       const body = await res.json()
+
       if (!res.ok) {
         throw new Error(`ticketFlow: grant rejected (${res.status})`)
       }
@@ -153,6 +162,7 @@ function ticketFlow({ origin = ORIGIN, overrides = {} } = {}) {
       }
 
       const body = await res.json()
+
       return {
         expiresAt: body.valid_until,
         sessionToken: creds.sessionToken,
@@ -172,6 +182,7 @@ function ticketFlow({ origin = ORIGIN, overrides = {} } = {}) {
 const attemptThenGrant = ({ exchangeStatus = 200, exchangeBody } = {}) => {
   const session = sessionReturning((url) => {
     const state = new URL(url).searchParams.get('state')
+
     return { type: 'success', url: `testapp://cb?ticket=t.${'x'.repeat(32)}&state=${state}` }
   })
 
@@ -207,6 +218,7 @@ const storedCreds = (overrides = {}) =>
 
 test('rejects a non-origin apiOrigin', () => {
   const { createHostedAuth } = loadHosted()
+
   assert.throws(() => createHostedAuth({ apiOrigin: 'https://api.test/path', flow: {} }), /origin/)
 })
 
@@ -236,11 +248,15 @@ test('runs begin → ceremony → complete and stores credentials', async () => 
 
   // The client supplies a real PKCE pair: challenge = base64url(sha256(verifier)).
   const { pkce } = beginCalls[0]
+
   assert.match(pkce.verifier, /^[A-Za-z0-9_-]{43}$/)
+
   const expectedChallenge = createHash('sha256').update(pkce.verifier).digest()
+
   assert.equal(pkce.challenge, Buffer.from(expectedChallenge).toString('base64url'))
 
   const attemptBody = JSON.parse(String(requests[0].init?.body))
+
   assert.equal(attemptBody.scheme, 'testapp')
   assert.equal(attemptBody.challenge, pkce.challenge)
   assert.deepEqual(opened, [
@@ -248,11 +264,13 @@ test('runs begin → ceremony → complete and stores credentials', async () => 
   ])
 
   const grantBody = JSON.parse(String(requests[1].init?.body))
+
   assert.equal(grantBody.ticket, `t.${'x'.repeat(32)}`)
   assert.equal(grantBody.verifier, pkce.verifier)
   assert.equal(grantBody.state, 's'.repeat(43))
 
   const stored = JSON.parse(storage.map.get('hosted-auth'))
+
   assert.equal(stored.sessionToken, 'session-token')
   assert.equal(stored.token, 'access-token')
   assert.equal(typeof stored.expiresAt, 'number')
@@ -302,7 +320,9 @@ test('rejects a callback whose state does not match the attempt', async () => {
 test('fetch attaches Bearer only to same-origin authorized paths', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds())
+
   const { fetch, requests } = fakeFetch(() => response(200, {}))
   const auth = createHostedAuth({
     apiOrigin: ORIGIN,
@@ -319,6 +339,7 @@ test('fetch attaches Bearer only to same-origin authorized paths', async () => {
   await auth.fetch('/other/path')
 
   const bearer = (r) => r.init?.headers?.authorization
+
   assert.equal(requests[0].url, `${ORIGIN}/api/me`)
   assert.equal(bearer(requests[0]), 'Bearer access-token')
   assert.equal(bearer(requests[1]), 'Bearer access-token')
@@ -330,7 +351,9 @@ test('fetch attaches Bearer only to same-origin authorized paths', async () => {
 test('custom authorizePath overrides the default carve-out', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds())
+
   const { fetch, requests } = fakeFetch(() => response(200, {}))
   const auth = createHostedAuth({
     apiOrigin: ORIGIN,
@@ -350,6 +373,7 @@ test('custom authorizePath overrides the default carve-out', async () => {
 test('replays once with a fresh token on an invalid_token challenge', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ token: 'stale-token' }))
 
   let apiCalls = 0
@@ -375,6 +399,7 @@ test('replays once with a fresh token on an invalid_token challenge', async () =
   await auth.restore()
 
   const res = await auth.fetch('/api/me')
+
   assert.equal(res.status, 200)
   assert.equal(apiCalls, 2)
   assert.equal(requests[2].init?.headers?.authorization, 'Bearer fresh-token')
@@ -383,7 +408,9 @@ test('replays once with a fresh token on an invalid_token challenge', async () =
 test('clears credentials when the flow refresh reports a dead session', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ expiresAt: Date.now() - 1000, token: 'dead-token' }))
+
   const { fetch } = fakeFetch(() => response(401, {}))
   const auth = createHostedAuth({
     apiOrigin: ORIGIN,
@@ -402,7 +429,9 @@ test('clears credentials when the flow refresh reports a dead session', async ()
 test('signOut revokes the session credential and clears storage', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds())
+
   const { fetch, requests } = fakeFetch(() => response(200, {}))
   const auth = createHostedAuth({
     apiOrigin: ORIGIN,
@@ -438,6 +467,7 @@ test('a flow without refresh/revoke still signs in and clears on sign-out', asyn
   assert.equal((await auth.signIn()).status, 'success')
   // With no refresh path, an expired access token resolves null.
   storage.map.set('hosted-auth', storedCreds({ expiresAt: Date.now() - 1000 }))
+
   const stale = createHostedAuth({
     apiOrigin: ORIGIN,
     fetch,
@@ -460,6 +490,7 @@ test('supported reports the platform ceremony and CSPRNG capabilities', async ()
 
   const { createHostedAuth } = unsupported
   const flow = ticketFlow()
+
   assert.equal(createHostedAuth({ apiOrigin: ORIGIN, flow }).supported, false)
   assert.equal(supportedPlatform.createHostedAuth({ apiOrigin: ORIGIN, flow }).supported, true)
   assert.equal(noRandom.createHostedAuth({ apiOrigin: ORIGIN, flow }).supported, false)
@@ -468,6 +499,7 @@ test('supported reports the platform ceremony and CSPRNG capabilities', async ()
 test('apiOrigin requires HTTPS, allows loopback HTTP for development', () => {
   const { createHostedAuth } = loadHosted()
   const flow = ticketFlow()
+
   for (const bad of [
     'http://api.test',
     'https://user:pass@api.test',
@@ -503,7 +535,9 @@ test('a second concurrent signIn resolves an already-active error', async () => 
   })
 
   void auth.signIn() // first ceremony stays parked on the open browser session
+
   const second = await auth.signIn()
+
   assert.equal(second.status, 'error')
   assert.match(second.message, /already active/)
 })
@@ -527,6 +561,7 @@ test('a malformed percent-encoded callback resolves an error result', async () =
   })
 
   const result = await auth.signIn()
+
   assert.equal(result.status, 'error')
   assert.match(result.message ?? '', /state/)
   assert.ok(!requests.some((r) => r.url.endsWith('/oauth2/grant')))
@@ -535,6 +570,7 @@ test('a malformed percent-encoded callback resolves an error result', async () =
 test('a signOut landing mid-refresh is not resurrected by the refresh result', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set(
     'hosted-auth',
     storedCreds({ expiresAt: Date.now() - 1000, sessionToken: 'old-session', token: 'stale' }),
@@ -556,7 +592,9 @@ test('a signOut landing mid-refresh is not resurrected by the refresh result', a
   const auth = createHostedAuth({ apiOrigin: ORIGIN, fetch, flow, storage })
 
   await auth.restore()
+
   const token = auth.getAccessToken() // starts the in-flight refresh
+
   await entered.promise
   await auth.signOut() // clears the slot while the refresh is pending
   releaseRefresh({
@@ -573,6 +611,7 @@ test('a signOut landing mid-refresh is not resurrected by the refresh result', a
 test('a fresh signIn landing mid-refresh survives a dead-session refresh result', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set(
     'hosted-auth',
     storedCreds({ expiresAt: Date.now() - 1000, sessionToken: 'old-session' }),
@@ -594,13 +633,17 @@ test('a fresh signIn landing mid-refresh survives a dead-session refresh result'
   const auth = createHostedAuth({ apiOrigin: ORIGIN, authSession: session, fetch, flow, storage })
 
   await auth.restore()
+
   const token = auth.getAccessToken() // pending refresh on the old session
+
   await entered.promise
   assert.equal((await auth.signIn()).status, 'success')
   releaseRefresh(null) // the old session reports dead
 
   assert.equal(await token, null)
+
   const stored = JSON.parse(storage.map.get('hosted-auth'))
+
   assert.equal(stored.sessionToken, 'session-token') // the new signIn's credential survives
   assert.equal(await auth.getAccessToken(), 'access-token')
 })
@@ -608,6 +651,7 @@ test('a fresh signIn landing mid-refresh survives a dead-session refresh result'
 test('a non-replayable body surfaces the original challenge instead of a replay throw', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ token: 'stale-token' }))
 
   const body = { used: false }
@@ -632,9 +676,11 @@ test('a non-replayable body surfaces the original challenge instead of a replay 
   })
 
   const auth = createHostedAuth({ apiOrigin: ORIGIN, fetch, flow: ticketFlow(), storage })
+
   await auth.restore()
 
   const res = await auth.fetch('/api/me', { body, method: 'POST' })
+
   assert.equal(res.status, 401)
   assert.equal(apiCalls, 2)
   assert.equal(requests[2].init?.headers?.authorization, 'Bearer fresh-token')
@@ -646,6 +692,7 @@ function deferred() {
     resolve = res
     reject = rej
   })
+
   return { promise, resolve, reject }
 }
 
@@ -672,15 +719,19 @@ for (const stage of ['begin', 'open', 'complete']) {
     const owner = stage === 'open' ? config.authSession : config.flow
     const original = owner[stage]
     let calls = 0
+
     owner[stage] = async (...args) => {
       if (++calls === 1) {
         entered.resolve()
         await finish.promise
       }
+
       return original(...args)
     }
+
     const auth = createHostedAuth(config)
     const stale = auth.signIn()
+
     await entered.promise
     await auth.signOut()
     assert.equal(await auth.restore(), 'unauthenticated')
@@ -705,13 +756,17 @@ test('sign-out waits for an earlier save and removes it before a restart', async
       await storage.set(key, value)
     },
   })
+
   const auth = createHostedAuth(config)
   const signingIn = auth.signIn()
+
   await entered.promise
+
   let signedOut = false
   const signingOut = auth.signOut().then(() => {
     signedOut = true
   })
+
   await Promise.resolve()
   assert.equal(await auth.restore(), 'unauthenticated')
   assert.equal(signedOut, false)
@@ -725,13 +780,18 @@ test('sign-out waits for an earlier save and removes it before a restart', async
 test('sign-out clears and revokes credentials without requiring an earlier restore', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds())
+
   let revoked
   const config = lifecycleConfig(storage)
+
   config.flow.revoke = async (creds) => {
     revoked = creds.sessionToken
   }
+
   const auth = createHostedAuth(config)
+
   await auth.signOut()
   assert.equal(revoked, 'session-token')
   assert.equal(storage.map.size, 0)
@@ -741,7 +801,9 @@ test('sign-out clears and revokes credentials without requiring an earlier resto
 test('a delayed refresh save cannot return or restore a token after sign-out', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ expiresAt: 0 }))
+
   const entered = deferred()
   const finish = deferred()
   const config = lifecycleConfig({
@@ -752,11 +814,16 @@ test('a delayed refresh save cannot return or restore a token after sign-out', a
       await storage.set(key, value)
     },
   })
+
   config.flow.refresh = async () => JSON.parse(storedCreds({ token: 'fresh' }))
+
   const auth = createHostedAuth(config)
   const token = auth.getAccessToken()
+
   await entered.promise
+
   const signingOut = auth.signOut()
+
   finish.resolve()
   await signingOut
   assert.equal(await token, null)
@@ -766,7 +833,9 @@ test('a delayed refresh save cannot return or restore a token after sign-out', a
 test('a challenged request cannot replay across an account change', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ token: 'account-a', sessionToken: 'session-a' }))
+
   const entered = deferred()
   const challenge = deferred()
   const { fetch, requests } = fakeFetch(() => {
@@ -777,13 +846,20 @@ test('a challenged request cannot replay across an account change', async () => 
 
     return response(200)
   })
+
   const config = lifecycleConfig(storage, { fetch })
+
   config.flow.complete = async () =>
     JSON.parse(storedCreds({ token: 'account-b', sessionToken: 'session-b' }))
+
   config.flow.refresh = async (creds) => ({ ...creds, token: 'account-b-refreshed' })
+
   const auth = createHostedAuth(config)
+
   await auth.restore()
+
   const request = auth.fetch('/api/orders', { method: 'POST', body: 'account-a-order' })
+
   await entered.promise
   assert.equal(requests[0].init.headers.authorization, 'Bearer account-a')
   await auth.signOut()
@@ -804,17 +880,22 @@ test('a request retired during credential loading is never dispatched', async ()
   const entered = deferred()
   const finish = deferred()
   const storage = memoryStore()
+
   storage.get = async () => {
     entered.resolve()
     await finish.promise
     return storedCreds()
   }
+
   const { fetch, requests } = fakeFetch(() => response(200))
   const auth = createHostedAuth(lifecycleConfig(storage, { fetch }))
   const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
   const rejected = assert.rejects(request, /request session changed/)
+
   await entered.promise
+
   const signingOut = auth.signOut()
+
   finish.resolve()
   await signingOut
   await rejected
@@ -824,18 +905,23 @@ test('a request retired during credential loading is never dispatched', async ()
 test('a request retired during challenge refresh returns the original response', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds())
+
   const entered = deferred()
   const finish = deferred()
   const challenge = response(401, {}, { 'www-authenticate': 'Bearer error="invalid_token"' })
   const { fetch, requests } = fakeFetch(() => challenge)
   const config = lifecycleConfig(storage, { fetch })
+
   config.flow.refresh = async () => {
     entered.resolve()
     return finish.promise
   }
+
   const auth = createHostedAuth(config)
   const request = auth.fetch('/api/orders', { method: 'POST', body: 'old-order' })
+
   await entered.promise
   await auth.signOut()
   await auth.signIn()
@@ -847,7 +933,9 @@ test('a request retired during challenge refresh returns the original response',
 test('a request issued during sign-in cannot replay after the new session lands', async () => {
   const { createHostedAuth } = loadHosted()
   const storage = memoryStore()
+
   storage.map.set('hosted-auth', storedCreds({ token: 'account-a' }))
+
   const completing = deferred()
   const finishLogin = deferred()
   const issued = deferred()
@@ -856,17 +944,26 @@ test('a request issued during sign-in cannot replay after the new session lands'
     issued.resolve()
     return requests.length === 1 ? challenge.promise : response(200)
   })
+
   const config = lifecycleConfig(storage, { fetch })
+
   config.flow.complete = async () => {
     completing.resolve()
     return finishLogin.promise
   }
+
   config.flow.refresh = async (creds) => ({ ...creds, token: 'account-b-refreshed' })
+
   const auth = createHostedAuth(config)
+
   await auth.restore()
+
   const login = auth.signIn()
+
   await completing.promise
+
   const request = auth.fetch('/api/orders', { method: 'POST', body: 'account-a-order' })
+
   await issued.promise
   assert.equal(requests[0].init.headers.authorization, 'Bearer account-a')
   finishLogin.resolve(JSON.parse(storedCreds({ token: 'account-b', sessionToken: 'session-b' })))
@@ -890,18 +987,25 @@ for (const failure of ['false', 'throw']) {
       sessionToken: 'synthetic-session',
       expiresAt: Date.now() + 100000,
     }
+
     const storage = memoryStore()
+
     storage.map.set('hosted-auth', JSON.stringify(saved))
+
     const remove = storage.remove
+
     storage.remove = async (key) => {
       if (!fail) {
         return remove(key)
       }
+
       if (failure === 'throw') {
         throw new Error('platform error containing secret fixture details')
       }
+
       return false
     }
+
     const client = createHostedAuth({
       apiOrigin: ORIGIN,
       storage,
@@ -912,11 +1016,13 @@ for (const failure of ['false', 'throw']) {
         },
       },
     })
+
     assert.equal(await client.restore(), 'authenticated')
     await assert.rejects(
       client.signOut(),
       /^Error: hostedAuth: unable to remove stored credentials$/,
     )
+
     assert.equal(revoked, true)
     assert.equal(await client.getAccessToken(), null)
     assert.equal(await client.restore(), 'unauthenticated')
@@ -931,14 +1037,17 @@ test('synthetic HTTP backend verifies PKCE and rotates a challenged access token
   let challenge,
     refreshed = 0,
     revoked = 0
+
   const server = createServer(async (req, res) => {
     try {
       let raw = ''
+
       for await (const part of req) {
         raw += part
       }
 
       const body = raw ? JSON.parse(raw) : {}
+
       res.setHeader('content-type', 'application/json')
       if (req.url === '/oauth2/attempt') {
         challenge = body.challenge
@@ -978,6 +1087,7 @@ test('synthetic HTTP backend verifies PKCE and rotates a challenged access token
       res.end('{}')
     }
   })
+
   await new Promise((resolve) => server.listen(0, '127.0.0.1', resolve))
   try {
     const origin = `http://127.0.0.1:${server.address().port}`
@@ -997,9 +1107,12 @@ test('synthetic HTTP backend verifies PKCE and rotates a challenged access token
     })
 
     assert.equal((await client.signIn()).status, 'success')
+
     const response = await client.fetch(`${origin}/api/me`)
+
     assert.equal((await response.json()).id, 'synthetic-account')
     assert.equal(refreshed, 1)
+
     const restored = loadHosted().createHostedAuth({
       apiOrigin: origin,
       fetch,

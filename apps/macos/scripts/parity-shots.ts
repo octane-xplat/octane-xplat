@@ -38,8 +38,10 @@ const host = spawn(process.execPath, [xplatCli, 'dev', 'macos'], {
 
 let lineQueue = []
 let lineWaiters = []
+
 createInterface({ input: host.stdout }).on('line', (line) => {
   const waiter = lineWaiters.find((w) => w.match(line))
+
   if (waiter) {
     lineWaiters = lineWaiters.filter((w) => w !== waiter)
     waiter.resolve(line)
@@ -50,12 +52,14 @@ createInterface({ input: host.stdout }).on('line', (line) => {
 
 function nextLine(match, timeoutMs, label) {
   const buffered = lineQueue.findIndex((line) => match(line))
+
   if (buffered >= 0) {
     return Promise.resolve(lineQueue.splice(buffered, 1)[0])
   }
 
   return new Promise((resolvePromise, reject) => {
     const waiter = { match, resolve: resolvePromise }
+
     lineWaiters.push(waiter)
     setTimeout(() => {
       lineWaiters = lineWaiters.filter((w) => w !== waiter)
@@ -72,17 +76,21 @@ const closed = new Promise((resolve) =>
 
 async function cells() {
   send('cells')
+
   const line = await nextLine((l) => l.includes('[parity-cells] '), 10000, 'cell frames')
+
   return JSON.parse(line.slice(line.indexOf('[parity-cells] ') + 15))
 }
 
 async function waitForCapture(file, timeoutMs = 600000) {
   const path = join(outDir, file)
   const deadline = Date.now() + timeoutMs
+
   while (Date.now() < deadline) {
     if (existsSync(path) && statSync(path).size > 0) {
       // settle: a still-writing capture grows between checks
       const size = statSync(path).size
+
       await sleep(250)
       if (existsSync(path) && statSync(path).size === size) {
         return
@@ -105,6 +113,7 @@ try {
   const first = await cells()
   const maxTop = Math.max(0, first.docHeight - first.viewportHeight)
   const offsets = []
+
   for (let o = 0; o <= maxTop; o += STEP) {
     offsets.push(o)
   }
@@ -123,9 +132,13 @@ try {
 
   for (let i = 0; i < offsets.length; i++) {
     const file = `shot-${String(i).padStart(3, '0')}.png`
+
     send(`scrolltop ${offsets[i]}`)
+
     const scrolled = await nextLine((l) => l.includes('[scrolled] '), 10000, 'scroll')
+
     await sleep(250)
+
     const frames = await cells()
     const sidecar = {
       requested: offsets[i],
@@ -157,6 +170,7 @@ try {
   process.exitCode = 1
 } finally {
   host.kill('SIGTERM')
+
   const result = await Promise.race([
     closed,
     new Promise((resolve) => setTimeout(() => resolve(null), 3000)),

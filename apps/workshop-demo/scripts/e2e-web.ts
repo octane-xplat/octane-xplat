@@ -26,9 +26,12 @@ if (!base) {
     )
 
     let output = ''
+
     server.stdout.on('data', (chunk) => {
       output += chunk
+
       const match = /WORKSHOP_READY (https?:\/\/\S+)/.exec(output)
+
       if (match) {
         resolve(match[1])
       }
@@ -46,11 +49,13 @@ const check = (name, ok, detail = '') => {
 }
 
 const browser = await chromium.launch({ headless: true })
+
 try {
   const page = await browser.newPage({ viewport: { width: 1400, height: 900 } })
   const text = async (sel) => (await page.textContent(sel).catch(() => null))?.trim()
 
   const pageErrors = []
+
   page.on('pageerror', (e) => pageErrors.push('pageerror: ' + e.message))
   page.on('console', (m) => {
     if (m.type() === 'error' && !m.text().includes('Failed to load resource')) {
@@ -74,7 +79,9 @@ try {
   check('foreign leaf stories listed disabled', stories.filter((s) => s.disabled).length === 2)
 
   await page.fill('.xw-search', 'async')
+
   const found = await page.$$eval('.xw-story', (els) => els.map((el) => el.textContent?.trim()))
+
   check('search filters', found.length === 1 && found[0] === 'Async fixture')
   await page.fill('.xw-search', '')
 
@@ -85,6 +92,7 @@ try {
       pageErrors.join('\n'),
       await page.textContent('.xw-stage-area'),
     )
+
     throw error
   })
 
@@ -103,6 +111,7 @@ try {
   )
 
   const mountedStory = await page.$('.xw-stage-mount')
+
   await page.fill('.xw-search', 'no-such-story')
   check(
     'empty search explains recovery',
@@ -116,6 +125,7 @@ try {
   const palette = () =>
     page.evaluate(() => {
       const style = (selector) => getComputedStyle(document.querySelector(selector))
+
       return {
         surface: style('.xw-catalog').backgroundColor,
         text: style('.xw-catalog').color,
@@ -135,12 +145,16 @@ try {
         .map(Number)
         .map((n) => {
           const v = n / 255
+
           return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4
         })
+
       return rgb[0] * 0.2126 + rgb[1] * 0.7152 + rgb[2] * 0.0722
     }
+
     const a = luminance(foreground),
       b = luminance(background)
+
     return (Math.max(a, b) + 0.05) / (Math.min(a, b) + 0.05)
   }
 
@@ -152,9 +166,13 @@ try {
   )
 
   await page.hover('.xw-reset')
+
   const hover = await page.$eval('.xw-reset', (el) => getComputedStyle(el).backgroundColor)
+
   await page.mouse.move(0, 0)
+
   const resting = await page.$eval('.xw-reset', (el) => getComputedStyle(el).backgroundColor)
+
   check('toolbar hover state', hover !== resting)
   await page.keyboard.press('Tab')
   await page.focus('.xw-search')
@@ -162,6 +180,7 @@ try {
     'keyboard focus visible',
     await page.$eval('.xw-search', (el) => {
       const style = getComputedStyle(el)
+
       return (
         el.matches(':focus-visible') &&
         style.outlineStyle !== 'none' &&
@@ -177,7 +196,9 @@ try {
   )
 
   await page.emulateMedia({ colorScheme: 'dark', reducedMotion: 'reduce' })
+
   const dark = await palette()
+
   check(
     'dark chrome contrast',
     contrast(dark.text, dark.surface) >= 4.5 &&
@@ -194,6 +215,7 @@ try {
     'reduced motion chrome is immediate',
     await page.$eval('.xw-reset', (el) => {
       const style = getComputedStyle(el)
+
       return style.animationName === 'none' && style.transitionDuration === '0s'
     }),
   )
@@ -213,6 +235,7 @@ try {
       await page.$$eval('.xw-statusbar .xw-btn', (els) =>
         els.every((el) => {
           const rect = el.getBoundingClientRect()
+
           return rect.left >= 0 && rect.right <= window.innerWidth && rect.height >= 32
         }),
       ),
@@ -246,7 +269,9 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.waitForTimeout(400)
+
   const phoneStageKept = (await text('.xw-stage-mount')) === 'Demo: 0 (+1)'
+
   await page.click('.xw-statusbar >> text=Stories')
   await page.waitForSelector('.xw-overlay', { timeout: 3_000 })
   await page.keyboard.press('Escape')
@@ -431,7 +456,9 @@ try {
 
   await page.setViewportSize({ width: 390, height: 844 })
   await page.waitForSelector('.xw-phone')
+
   const opener = page.locator('.xw-statusbar').getByRole('button', { name: 'Stories', exact: true })
+
   await opener.focus()
   await page.keyboard.press('Enter')
   await page.waitForSelector('.xw-overlay')
@@ -454,6 +481,7 @@ try {
 
   const ax = await page.locator('.xw-statusbar').ariaSnapshot()
   const previewAx = await page.locator('.xw-preview-head').ariaSnapshot()
+
   check(
     'accessible shell exposes named reset and status',
     ax.includes('button "Reset"') && previewAx.includes('Ready'),
@@ -462,6 +490,7 @@ try {
   check('no page errors', pageErrors.length === 0, pageErrors[0])
 
   const failures = results.filter(([, ok]) => !ok)
+
   console.log(`${results.length - failures.length}/${results.length} checks passed`)
   process.exitCode = failures.length ? 1 : 0
 } finally {

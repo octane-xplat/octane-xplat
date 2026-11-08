@@ -19,6 +19,7 @@ function load() {
 
 test('CSS chrome leaves the native bezel and background configuration intact', () => {
   const { syncInputChrome } = load()
+
   for (const enabled of [false, true]) {
     const view = { bezeled: enabled, drawsBackground: enabled, invalidateIntrinsicContentSize() {} }
     const node = {
@@ -46,6 +47,7 @@ test('textarea CSS padding aligns text and placeholder without changing native b
     placeholderTop: { constant: 0 },
     computedStyle: { paddingLeft: 8, paddingTop: 4, backgroundColor: 'white' },
   }
+
   syncInputChrome(node)
   assert.deepEqual({ ...node.view.textContainerInset }, { width: 8, height: 4 })
   assert.equal(node.placeholderLeading.constant, 8)

@@ -28,6 +28,7 @@ export function BannerAd(props: BannerAdProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
@@ -39,6 +40,7 @@ export function BannerAd(props: BannerAdProps): unknown @{
     }
 
     const bag = isAndroid ? props.android : props.ios
+
     if (bag) {
       Object.assign(v, bag)
     }
@@ -46,6 +48,7 @@ export function BannerAd(props: BannerAdProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (v && props.size) {
       v.size = SIZES[props.size]?.() ?? (BannerAdSize as any).BANNER
     }

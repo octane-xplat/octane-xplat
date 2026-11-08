@@ -40,6 +40,7 @@ const id = randomUUID().replaceAll('-', '')
 const identity = `org.xplat.speech.${id}`
 const directory = mkdtempSync(join(tmpdir(), 'xplat-speech-windows-'))
 let remote
+
 try {
   assert.ok(run(`Test-Path ${quote(runtime)}`).trim() === 'True', `runtime missing: ${runtime}`)
 
@@ -87,6 +88,7 @@ try {
   )
 
   const runner = `try { & ${quote(remote + '\\driver.ps1')} -Directory ${quote(remote)} -Runtime ${quote(runtime)} -Identity ${quote(identity)} *> ${quote(remote + '\\output.log')}; $code=0 } catch { $_ | Out-File -Append ${quote(remote + '\\output.log')}; $code=1 } finally { Set-Content ${quote(remote + '\\exit')} $code }`
+
   write('run.ps1', runner)
 
   const output = run(

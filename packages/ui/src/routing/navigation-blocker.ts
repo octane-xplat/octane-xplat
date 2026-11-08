@@ -29,6 +29,7 @@ export function createNavigationBlocker(): NavigationBlocker {
       console.warn('[octane-xplat] Navigation blocker observer threw')
     }
   }
+
   return {
     getSnapshot: store.getSnapshot,
     subscribe: store.subscribe,
@@ -39,20 +40,24 @@ export function createNavigationBlocker(): NavigationBlocker {
       if (!attempt.isCurrent()) {
         return Promise.resolve(false)
       }
+
       current?.stop()
       if (!attempt.isCurrent()) {
         return Promise.resolve(false)
       }
+
       let resolve!: (allowed: boolean) => void
       let decided = false
       const result = new Promise<boolean>((settle) => {
         resolve = settle
       })
+
       const request = {
         stop() {
           if (current !== request || decided) {
             return
           }
+
           current = undefined
           publish(idle)
           decided = true
@@ -60,17 +65,21 @@ export function createNavigationBlocker(): NavigationBlocker {
           attempt.cancel()
         },
       }
+
       current = request
+
       const clear = () => {
         if (!decided) {
           decided = true
           resolve(false)
         }
+
         if (current === request) {
           current = undefined
           publish(idle)
         }
       }
+
       void Promise.race([attempt.cancellation, attempt.finished]).then(clear, clear)
       publish({
         status: 'blocked',
@@ -80,12 +89,14 @@ export function createNavigationBlocker(): NavigationBlocker {
           if (current !== request || decided || !attempt.isCurrent()) {
             return
           }
+
           decided = true
           publish({
             status: 'proceeding',
             action: attempt.action,
             destination: attempt.destination,
           })
+
           resolve(true)
         },
         reset() {
@@ -94,6 +105,7 @@ export function createNavigationBlocker(): NavigationBlocker {
           }
         },
       })
+
       return result
     },
   }
@@ -133,16 +145,20 @@ export function connectNavigationBlockers(navigator: object): () => void {
   if (bindings.has(navigator)) {
     throw new Error('Flow blockers are already connected')
   }
+
   const registry = new Set<NavigationBlockerBinding>()
+
   bindings.set(navigator, registry)
   return () => {
     if (bindings.get(navigator) !== registry) {
       return
     }
+
     bindings.delete(navigator)
     for (const binding of registry) {
       binding.blocker.reset()
     }
+
     registry.clear()
   }
 }
@@ -152,14 +168,17 @@ export function registerNavigationBlocker(
   binding: NavigationBlockerBinding,
 ): () => void {
   const registry = bindings.get(navigator)
+
   if (!registry) {
     throw new Error('Navigation blocker requires a live canonical router flow')
   }
+
   registry.add(binding)
   return () => {
     if (!registry.delete(binding)) {
       return
     }
+
     binding.blocker.reset()
   }
 }
@@ -182,9 +201,11 @@ export async function admitNavigationBlockers(
   attempt: NavigationBlockerAttempt,
 ): Promise<boolean> {
   const registry = bindings.get(navigator)
+
   if (!registry) {
     return attempt.isCurrent()
   }
+
   // The newest active registration confirms first; every active one agrees.
   for (const binding of [...registry].reverse()) {
     if (!attempt.isCurrent()) {
@@ -197,5 +218,6 @@ export async function admitNavigationBlockers(
       }
     }
   }
+
   return attempt.isCurrent()
 }

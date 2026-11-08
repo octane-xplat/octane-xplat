@@ -52,6 +52,7 @@ export function focusSliderInput(view: View | null): boolean {
 function hasOtherSliderFocus(view: View, native: any, owner: any): boolean {
   const ancestors = new Set<any>()
   let root = view
+
   for (let parent = view.parent; parent instanceof View; parent = parent.parent) {
     ancestors.add(parent.nativeViewProtected)
     root = parent
@@ -59,6 +60,7 @@ function hasOtherSliderFocus(view: View, native: any, owner: any): boolean {
 
   const isOther = (current: any) =>
     current && current !== native && !(ancestors.has(current) && current.IsTabStop === false)
+
   try {
     const manager = Microsoft.UI.Xaml.Input.FocusManager
     const current =
@@ -76,6 +78,7 @@ function hasOtherSliderFocus(view: View, native: any, owner: any): boolean {
   let found = false
   const visit = (current: Pick<View, 'nativeViewProtected' | 'eachChildView'>) => {
     const peer = current.nativeViewProtected
+
     try {
       if (peer?.XamlRoot === owner && Number(peer.FocusState) > 0 && isOther(peer)) {
         found = true
@@ -84,11 +87,13 @@ function hasOtherSliderFocus(view: View, native: any, owner: any): boolean {
     } catch {
       // Layout peers need not expose Control.FocusState; inspect their children.
     }
+
     current.eachChildView?.((child) => {
       visit(child)
       return !found
     })
   }
+
   visit(root)
   return found
 }
@@ -105,6 +110,7 @@ export function queueSliderInputFocus(view: View | null): () => void {
       clearTimeout(task)
     }
   }
+
   if (!view?.isLoaded || !view.isEnabled || native?.IsEnabled === false || !owner) {
     return cancel
   }
@@ -121,6 +127,7 @@ export function queueSliderInputFocus(view: View | null): () => void {
       focusSliderInput(view)
     }
   }, 0)
+
   return cancel
 }
 
@@ -135,19 +142,23 @@ class WindowsSliderControl extends View {
 
   createNativeView() {
     const native = new Microsoft.UI.Xaml.Controls.Slider()
+
     native.MinWidth = 0
     native.MinHeight = 0
     native.IsHitTestVisible = false
     native.Template = Microsoft.UI.Xaml.Markup.XamlReader.Load(
       '<ControlTemplate xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" TargetType="Slider"><Border Background="Transparent" /></ControlTemplate>',
     )
+
     this.writeSettings(native, this.settings)
     return native
   }
 
   initNativeView() {
     super.initNativeView()
+
     const native = this.nativeViewProtected
+
     this.eventNative = native
     this.writeSettings(native, this.settings)
     this.delegate = NSWinRT.asDelegate(
@@ -158,6 +169,7 @@ class WindowsSliderControl extends View {
         }
 
         const next = Number(native.Value)
+
         if (next === this.settings.value) {
           return
         }
@@ -169,11 +181,13 @@ class WindowsSliderControl extends View {
         }
       },
     )
+
     native.ValueChanged = this.delegate
   }
 
   disposeNativeView() {
     const native = this.eventNative
+
     this.eventNative = undefined
     this.delegate = undefined
     if (native) {
@@ -185,6 +199,7 @@ class WindowsSliderControl extends View {
 
   private writeSettings(native: any, settings: SliderSettings) {
     const delegate = this.eventNative === native ? this.delegate : undefined
+
     this.writing++
     try {
       if (delegate) {
@@ -196,7 +211,9 @@ class WindowsSliderControl extends View {
       native.Maximum = Math.max(Number(native.Maximum), settings.max)
       native.Minimum = settings.min
       native.Maximum = settings.max
+
       const increment = settings.increment
+
       native.SmallChange = increment
       native.LargeChange = settings.page
       native.StepFrequency = increment
@@ -214,6 +231,7 @@ class WindowsSliderControl extends View {
 
   applySettings(settings: SliderSettings) {
     const native = this.nativeViewProtected
+
     if (native && this.eventNative === native) {
       this.writeSettings(native, settings)
     }

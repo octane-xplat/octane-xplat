@@ -5068,6 +5068,7 @@ export type RouteResolution =
     >
 
 declare const validatedDestinationTypes: unique symbol
+
 /** Opaque, instance-bound destination produced by validateDestination(). Pass
  * the original value to navigation/href or NavLink's to prop. Choose route
  * options before validation; copying or serializing this value loses its proof. */
@@ -5234,6 +5235,7 @@ export interface RouteSearchSchema<Input = unknown, Output = unknown> {
 }
 
 declare const decodedRouteSearch: unique symbol
+
 /** A schema with an explicit decoder from URL strings to its navigation input.
  * Created by withSearchDecoder; numeric/boolean schema inputs require this
  * adapter unless the schema already accepts decoded URL strings. */
@@ -5402,6 +5404,7 @@ export type BuiltinRouteTransitionName = 'default' | 'none' | 'fade'
 export type RouteTransitionName = BuiltinRouteTransitionName | (keyof AppRouteTransitions & string)
 
 declare const defaultRouteContractScope: unique symbol
+
 /** The current application's inferred contracts. Shared facade destinations
  * require a screen on every generated target; platform-only routes require
  * `validateDestination` proof or an explicit target-catalog instance. */
@@ -5862,6 +5865,7 @@ export type RouteRootContext<Value> = Value extends (...args: any[]) => infer Co
   : Value
 
 declare const routeGroupTypes: unique symbol
+
 /** Parent lifecycle metadata. Create groups with defineRouteGroup. */
 export interface RouteGroup<Context = RouteContext, Root = Context> {
   /** Phantom brand carrying the group contract inference — never present
@@ -6139,6 +6143,7 @@ export type TransitionDefinition =
   | NativeTransitionDefinition
 
 declare const nativeTransitionTypes: unique symbol
+
 /** Opaque native effect created by a platform integration helper. Portable
  * routing contracts do not import the platform's view or animation types. */
 export interface NativeTransitionDefinition {

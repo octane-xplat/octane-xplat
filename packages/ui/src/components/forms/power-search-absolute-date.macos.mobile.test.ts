@@ -9,6 +9,7 @@ it('retains unchanged time, sub-millisecond source precision and expanded years'
   ]) {
     const original = { type: 'date_absolute' as const, unixSeconds }
     const text = absoluteFilterText(unixSeconds)
+
     expect(absoluteFilterValue(text, { type: 'date_absolute' }, original).value).toEqual(original)
   }
 })
@@ -44,6 +45,7 @@ it('rejects calendar rollover, blank, ambiguous, partial, out-of-range and offse
 
 it('date-only deliberately drops time to midnight UTC and rejects typed time components', () => {
   const unixSeconds = Date.parse('2026-10-29T12:30:01.123Z') / 1000
+
   expect(absoluteFilterText(unixSeconds, true)).toBe('2026-10-29')
   expect(
     absoluteFilterValue(
@@ -52,6 +54,7 @@ it('date-only deliberately drops time to midnight UTC and rejects typed time com
       { type: 'date_absolute', unixSeconds },
     ).value?.unixSeconds,
   ).toBe(Date.parse('2026-10-29T00:00:00Z') / 1000)
+
   for (const text of ['2026-10-29T00:00Z', '2026-10-29 00:00', '2026-02-30']) {
     expect(absoluteFilterValue(text, { type: 'date_absolute', isDateOnly: true }).value).toBeNull()
   }
@@ -80,6 +83,7 @@ it('date-only handles stored expanded years and pre-epoch sub-millisecond days w
 it('invalid stored instants are editable errors, never render exceptions or saved NaN', () => {
   for (const unixSeconds of [NaN, Infinity, 1e30]) {
     const original = { type: 'date_absolute' as const, unixSeconds }
+
     expect(absoluteFilterText(unixSeconds)).toBe('')
     expect(absoluteFilterValue('', { type: 'date_absolute' }, original).value).toBeNull()
     expect(

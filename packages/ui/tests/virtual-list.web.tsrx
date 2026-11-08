@@ -44,7 +44,9 @@ export async function run(ctx: ProbeContext) {
   await new Promise((resolve) => setTimeout(resolve, 250))
   ctx.assert('bounded viewport', ctx.inspect('list').frame?.height, 160)
   ctx.assert('row intrinsic height', ctx.inspect('row-0').frame?.height, 32)
+
   const list = ctx.find('list') as HTMLElement
+
   list.scrollTop = 344
   list.dispatchEvent(new Event('scroll'))
   await ctx.waitFor(() => ctx.find('row-10'))

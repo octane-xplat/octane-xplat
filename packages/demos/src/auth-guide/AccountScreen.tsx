@@ -5,9 +5,11 @@ import type { createAccountSession } from './session'
 
 export function AccountScreen({ account }: { account: ReturnType<typeof createAccountSession> }) {
   const state = useStore(account.state)
+
   useEffect(() => {
     void account.restore()
   }, [account])
+
   return (
     <VStack>
       <Text>{state.message}</Text>

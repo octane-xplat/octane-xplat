@@ -31,8 +31,10 @@ const listFiles = (dir) => {
   if (!existsSync(dir)) {
     return []
   }
+
   return readdirSync(dir).flatMap((entry) => {
     const path = join(dir, entry)
+
     return statSync(path).isDirectory() ? listFiles(path) : [path]
   })
 }
@@ -47,6 +49,7 @@ const SQLITE_PACKAGES = [
 
 test('installed sqlite plugin family ships no bare library-slice modulemaps', () => {
   const offenders = []
+
   for (const name of SQLITE_PACKAGES) {
     for (const file of listFiles(join(packageRoot(name), 'platforms/ios'))) {
       // Framework-style maps (<x>.framework/Modules/module.modulemap) merge
@@ -60,6 +63,7 @@ test('installed sqlite plugin family ships no bare library-slice modulemaps', ()
       }
     }
   }
+
   assert.deepEqual(
     offenders,
     [],
@@ -74,9 +78,11 @@ test('sqlite-bridge slices retain headers and static libraries', () => {
   const slices = [...plist.matchAll(/<key>LibraryIdentifier<\/key>\s*<string>([^<]+)/g)].map(
     (m) => m[1],
   )
+
   assert.ok(slices.length > 0, 'no AvailableLibraries in NSSqliteBridge.xcframework')
   for (const slice of slices) {
     const dir = join(xcframework, slice)
+
     assert.ok(
       existsSync(join(dir, 'Headers/NSSqliteBridge.h')),
       `${slice}: missing Headers/NSSqliteBridge.h — NativeScript metadata generation and ObjC consumers read this header`,
@@ -97,6 +103,7 @@ test('canonical patch removes one modulemap per published slice', () => {
     join(repo, 'packages/cli/patches/@nativescript-community__sqlite-bridge@4.1.1.patch'),
     'utf8',
   )
+
   const removed = new Set(
     [
       ...patch.matchAll(
@@ -104,15 +111,19 @@ test('canonical patch removes one modulemap per published slice', () => {
       ),
     ].map((m) => m[1].slice(2)),
   )
+
   assert.ok(removed.size > 0, 'patch removes no module.modulemap files')
+
   const root = packageRoot('@nativescript-community/sqlite-bridge')
   const plist = readFileSync(
     join(root, 'platforms/ios/NSSqliteBridge.xcframework/Info.plist'),
     'utf8',
   )
+
   const expected = [...plist.matchAll(/<key>LibraryIdentifier<\/key>\s*<string>([^<]+)/g)].map(
     (m) => `platforms/ios/NSSqliteBridge.xcframework/${m[1]}/Headers/module.modulemap`,
   )
+
   for (const path of expected) {
     assert.ok(
       removed.has(path),

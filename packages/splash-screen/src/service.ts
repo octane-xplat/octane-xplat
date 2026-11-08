@@ -27,6 +27,7 @@ export function setOptions(options: SplashScreenOptions): void {
   ) {
     throw new TypeError('Invalid splash screen options')
   }
+
   if (
     options.duration !== undefined &&
     (typeof options.duration !== 'number' ||
@@ -36,9 +37,11 @@ export function setOptions(options: SplashScreenOptions): void {
   ) {
     throw new RangeError('Splash screen duration must be between 0 and 60000 milliseconds')
   }
+
   if (options.fade !== undefined && typeof options.fade !== 'boolean') {
     throw new TypeError('Splash screen fade must be a Boolean')
   }
+
   backend.configure({ ...options })
 }
 

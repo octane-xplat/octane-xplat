@@ -55,6 +55,7 @@ export const ads: Ads = {
   async initialize(): Promise<void> {
     // The plugin's method is spelled `initalize` upstream — try both.
     const m = MobileAds as any
+
     await (m.initalize?.() ?? m.initialize?.())
   },
 

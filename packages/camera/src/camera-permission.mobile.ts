@@ -14,6 +14,7 @@ export function cameraHardwarePresent(): boolean {
 
   try {
     const context = Application.android?.context ?? Application.android?.startActivity
+
     return context?.getPackageManager()?.hasSystemFeature('android.hardware.camera.any') !== false
   } catch {
     return true
@@ -26,6 +27,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
       const av = (globalThis as any).AVCaptureDevice
       const mediaType = (globalThis as any).AVMediaTypeVideo ?? 'vide'
       const status = av?.authorizationStatusForMediaType?.(mediaType)
+
       if (status === 3) {
         return true
       }
@@ -42,6 +44,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
     if (isAndroid) {
       const permission = 'android.permission.CAMERA'
       const activity = Application.android.foregroundActivity ?? Application.android.startActivity
+
       if (
         activity?.checkSelfPermission?.(permission) ===
         android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -74,6 +77,7 @@ export async function ensureCameraPermission(): Promise<boolean> {
         // rotated before the result must not hang the caller or leak the
         // listener.
         const timer = setTimeout(() => finish(false), 120_000)
+
         Application.android.on(Application.android.activityRequestPermissionsEvent, onResult)
 
         try {

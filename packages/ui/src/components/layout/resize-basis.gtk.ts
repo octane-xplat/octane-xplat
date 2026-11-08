@@ -11,11 +11,13 @@ export const nativeBasisSource: ResizableBasisSource = {
     const view = containerRef?.current
     const size = view?.getActualSize?.()
     const measured = direction === 'horizontal' ? size?.width : size?.height
+
     if (measured != null && measured > 0) {
       return measured
     }
 
     const host = hostGlobal('__octaneGtkHost')?.getWindowSize?.()
+
     if (host) {
       return direction === 'horizontal' ? host.width : host.height
     }
@@ -24,6 +26,7 @@ export const nativeBasisSource: ResizableBasisSource = {
   },
   observe: (containerRef, _direction, cb) => {
     const view = containerRef?.current
+
     if (view?.on) {
       view.on('layoutChanged', cb)
       return () => view.off?.('layoutChanged', cb)

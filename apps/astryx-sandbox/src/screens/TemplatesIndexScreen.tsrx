@@ -26,6 +26,7 @@ function StatusBadge(props: { status: CoverageRow['status'] }) @{
 
 function LedgerRow(props: { row: CoverageRow }) @{
   const row = props.row
+
   return (
     <tr>
       <td>

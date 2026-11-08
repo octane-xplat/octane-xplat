@@ -69,6 +69,7 @@ export function Video(props: VideoProps): unknown @{
   // (the plugin opens the clip when the src property lands).
   useEffect(() => {
     const v = host.current
+
     if (!v) {
       return
     }
@@ -78,6 +79,7 @@ export function Video(props: VideoProps): unknown @{
 
   useEffect(() => {
     const v = host.current
+
     if (!v || props.src === appliedSrc.current) {
       return
     }
@@ -98,6 +100,7 @@ export function Video(props: VideoProps): unknown @{
 
   const togglePlay = () => {
     const next = !playing
+
     setPlaying(next)
     drive(host.current, next)
     props.onPlayingChange?.(next)
@@ -152,6 +155,7 @@ export function Video(props: VideoProps): unknown @{
       onPlaybackReady={() => {
         const v = host.current
         const ms = v?.getDuration?.() ?? 0
+
         setDuration(ms)
         props.onReady?.({ duration: ms })
       }}
@@ -169,6 +173,7 @@ export function Video(props: VideoProps): unknown @{
         onTogglePlay={togglePlay}
         onToggleMute={() => {
           const next = !muted
+
           setInternalMuted(next)
           if (host.current) {
             host.current.muted = next

@@ -22,6 +22,7 @@ function gammaLuma(r: number, g: number, b: number): number {
 function wcagLuminance(r: number, g: number, b: number): number {
   const lin = (c: number) => {
     const s = c / 255
+
     return s <= 0.04045 ? s / 12.92 : Math.pow((s + 0.055) / 1.055, 2.4)
   }
 
@@ -32,6 +33,7 @@ function wcagLuminance(r: number, g: number, b: number): number {
 function apcaLightness(r: number, g: number, b: number): number {
   const lin = (c: number) => Math.pow(c / 255, 2.4)
   const y = 0.2126729 * lin(r) + 0.7151522 * lin(g) + 0.072175 * lin(b)
+
   return Math.pow(y, 0.56)
 }
 
@@ -80,13 +82,16 @@ export function useImageModeTest(
 
     async function detect() {
       let bitmap: ImageBitmap | undefined
+
       try {
         const response = await fetch(srcUrl, { mode: 'cors', signal: controller.signal })
+
         if (!response.ok) {
           throw new Error('Image unavailable')
         }
 
         const blob = await response.blob()
+
         bitmap = await createImageBitmap(blob)
 
         if (cancelled) {
@@ -101,11 +106,13 @@ export function useImageModeTest(
         const sampleSize = 10
         const canvas = new OffscreenCanvas(sampleSize, sampleSize)
         const ctx = canvas.getContext('2d')
+
         if (!ctx) {
           return
         }
 
         ctx.drawImage(bitmap, sx, sy, sw, sh, 0, 0, sampleSize, sampleSize)
+
         const imageData = ctx.getImageData(0, 0, sampleSize, sampleSize).data
 
         let totalR = 0,
@@ -113,6 +120,7 @@ export function useImageModeTest(
           totalB = 0
 
         const pixelCount = sampleSize * sampleSize
+
         for (let i = 0; i < imageData.length; i += 4) {
           totalR += imageData[i]
           totalG += imageData[i + 1]

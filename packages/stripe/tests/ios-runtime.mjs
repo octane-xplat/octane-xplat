@@ -3,18 +3,23 @@ import { spawnSync } from 'node:child_process'
 import { cp, mkdir, readdir, realpath, symlink, writeFile } from 'node:fs/promises'
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 const repo = process.env.XPLAT_NATIVE_TEST_REPO
 const sdk = process.env.XPLAT_STRIPE_IOS_SDK
 const device = process.env.XPLAT_IOS_DEVICE
+
 assert.ok(
   repo && sdk && device,
   'Select the skymac checkout, official SDK directory and task-owned simulator',
 )
 
 const runtime = join(packageRoot, 'tests/.runtime')
+
 await mkdir(runtime, { recursive: true })
+
 const plugin = join(runtime, 'sdk-plugin')
+
 await mkdir(join(plugin, 'platforms/ios'), { recursive: true })
 await writeFile(
   join(plugin, 'package.json'),
@@ -34,6 +39,7 @@ async function visit(directory) {
     }
 
     const path = join(directory, entry.name)
+
     if (entry.name.endsWith('.xcframework')) {
       try {
         await symlink(path, join(plugin, 'platforms/ios', entry.name), 'dir')
@@ -58,6 +64,7 @@ for (const [name, source] of [
   ['@octane-xplat/lib', process.env.XPLAT_IMAGE_LIB_ROOT ?? join(repo, 'packages/lib')],
 ]) {
   const destination = join(packageRoot, 'node_modules', name)
+
   await mkdir(resolve(destination, '..'), { recursive: true })
   try {
     await symlink(await realpath(source), destination, 'dir')
@@ -69,6 +76,7 @@ for (const [name, source] of [
 }
 
 const resources = join(runtime, 'App_Resources')
+
 await cp(join(repo, 'apps/mobile/App_Resources'), resources, {
   recursive: true,
   filter: (path) => !path.endsWith('google-services.json'),
@@ -103,7 +111,9 @@ const result = spawnSync(
 )
 
 assert.equal(result.status, 0, `${result.stdout}${result.stderr}`)
+
 const report = JSON.parse(result.stdout.slice(result.stdout.indexOf('{')))
+
 assert.equal(report.results.length, 1)
 assert.equal(report.results[0].status, 'pass', JSON.stringify(report.results[0]))
 console.log(

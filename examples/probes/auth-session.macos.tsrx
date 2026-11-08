@@ -9,6 +9,7 @@ import type { ProbeContext } from '../../tools/probe/context'
 // single-use attempt and verify state/PKCE/nonce at that backend separately.
 const startUrl = 'https://example.com'
 const callbackScheme = 'xplat-auth-probe'
+
 export default function AuthSessionProbe() {
   const [result, setResult] = useState('No auth session requested')
   const alive = useRef(true),
@@ -24,6 +25,7 @@ export default function AuthSessionProbe() {
 
   const start = async () => {
     const own = ++generation.current
+
     try {
       const outcome = await authSession.open(startUrl, {
         callbackScheme,

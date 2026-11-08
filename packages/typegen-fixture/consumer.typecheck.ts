@@ -1,13 +1,16 @@
 import { Badge, Box, Card, createBadge, decode, format, type BoxProps } from 'tsrx-typegen-fixture'
 
 const props: BoxProps<number> = { value: 42 }
+
 Box(props)
 Badge({ label: 'ready', tone: 'quiet' })
 Card({ title: 'surface' })
 Card.Header({ text: 'title' })
 createBadge('fallback')({ label: 'explicit' })
 format(props.value).toFixed()
+
 const decodedNumber = decode(42)
+
 decodedNumber.value.toFixed()
 
 // @ts-expect-error value is required

@@ -20,9 +20,12 @@ export default async function nativeCaseConfig(project, target) {
 
   const previousDirectory = process.cwd()
   let css
+
   try {
     process.chdir(project)
+
     const preset = await xplatNative('production')
+
     css = preset.plugins.flat(Infinity).find((plugin) => plugin?.name === 'xplat-native-css')
     if (!css) {
       throw new Error('NativeScript preset is missing its CSS normalization plugin')

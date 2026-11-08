@@ -12,21 +12,26 @@ export function PackingScreen() {
     () => createStore({ items: [] as PackingItem[], message: 'Opening packing list…', busy: true }),
     [],
   )
+
   const state = useStore(store)
   const owner = useMemo(() => ({ list: null as PackingList | null, active: true }), [])
   const [draft, setDraft] = useState('Passport')
+
   useEffect(() => {
     owner.active = true
     void (async () => {
       try {
         const list = await openPackingList()
+
         if (!owner.active) {
           await list.close()
           return
         }
 
         owner.list = list
+
         const items = await list.list()
+
         if (owner.active) {
           store.set({ items, busy: false, message: 'Packing list loaded.' })
         }
@@ -40,23 +45,30 @@ export function PackingScreen() {
         }
       }
     })()
+
     return () => {
       owner.active = false
+
       const list = owner.list
+
       owner.list = null
       if (list) {
         void list.close().catch(() => console.error('Packing database close failed.'))
       }
     }
   }, [])
+
   async function change(action: (list: PackingList) => Promise<void>) {
     if (store.getSnapshot().busy || !owner.list) {
       return
     }
+
     store.update((s) => ({ ...s, busy: true }))
     try {
       await action(owner.list)
+
       const items = await owner.list.list()
+
       if (owner.active) {
         store.set({ items, busy: false, message: 'Saved on this device.' })
       }
@@ -71,6 +83,7 @@ export function PackingScreen() {
       }
     }
   }
+
   return (
     <VStack>
       <Text>Packing list</Text>

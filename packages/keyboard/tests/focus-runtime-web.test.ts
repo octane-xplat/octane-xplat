@@ -1,5 +1,7 @@
 import { expect, it, vi } from 'vitest'
+
 vi.mock('../src/focus-source', async () => await import('../src/focus-source.web'))
+
 import { focusRuntime } from '../src/focus-runtime.web'
 import { focusRechecks } from '../src/focus-source.web'
 import { focusWebFixture as fixture } from './helpers/focus-web'
@@ -8,9 +10,11 @@ it('shares one window source and releases detached hosts and stale lifecycle cal
   const f = fixture(),
     first: any[] = [],
     second: any[] = []
+
   const deactivate = focusRuntime.activate()
   const a = focusRuntime.subscribe(f.root, (value) => first.push(value))
   const b = focusRuntime.subscribe(f.scroll, (value) => second.push(value))
+
   expect(f.queue.size).toBe(1)
   expect(first[0]).toBe(second[0])
   expect(focusRuntime.getSnapshot(f.root)).toBe(first[0])
@@ -39,8 +43,10 @@ it('moves observation to the host document and releases the old window', () => {
   const first = fixture(),
     next = fixture(),
     snapshots: any[] = []
+
   const deactivate = focusRuntime.activate()
   const off = focusRuntime.subscribe(first.root, (value) => snapshots.push(value))
+
   first.root.ownerDocument = next.document
   first.watchers[0].callback()
   expect(first.queue.size).toBe(0)
@@ -55,11 +61,13 @@ it('moves observation to the host document and releases the old window', () => {
 it('rolls back a failed initial subscriber without retaining a source or host observer', () => {
   const f = fixture(),
     deactivate = focusRuntime.activate()
+
   expect(() =>
     focusRuntime.subscribe(f.root, () => {
       throw new Error('reader failed')
     }),
   ).toThrow()
+
   expect(f.queue.size).toBe(0)
   expect(f.watchers.every((observer: any) => observer.disconnected)).toBe(true)
   expect(focusRechecks.has(f.document)).toBe(false)
@@ -70,12 +78,15 @@ it('invalidates a suspended window before notifying any of its readers and resum
   const f = fixture(),
     values: any[] = [],
     cached: any[] = []
+
   const deactivate = focusRuntime.activate()
   const a = focusRuntime.subscribe(f.root, (value) => {
     values.push(value)
     cached.push(focusRuntime.getSnapshot(f.root))
   })
+
   const b = focusRuntime.subscribe(f.scroll, () => {})
+
   f.dispatch('pagehide')
   expect(values.at(-1).capabilities.inputBounds).toBe(false)
   expect(cached.at(-1)).toBe(values.at(-1))
@@ -93,16 +104,21 @@ it('scopes navigation by document even when the WindowProxy identity is reused',
   const first = fixture(),
     next = fixture(),
     deactivate = focusRuntime.activate()
+
   const before: any[] = [],
     after: any[] = []
+
   const oldOff = focusRuntime.subscribe(first.root, (value) => before.push(value))
   // A navigation replaces the global/document behind the same WindowProxy.
   const proxy = first.window
+
   proxy.document = next.document
   proxy.requestAnimationFrame = next.window.requestAnimationFrame
   proxy.cancelAnimationFrame = next.window.cancelAnimationFrame
   next.document.defaultView = proxy
+
   const newOff = focusRuntime.subscribe(next.root, (value) => after.push(value))
+
   expect(after.at(-1).input).toBe(next.field)
   first.watchers[0].callback()
   expect(before.at(-1).capabilities.inputBounds).toBe(false)

@@ -12,7 +12,9 @@ const render = join(root, 'tools/desktop-support/render.mjs')
 
 function temporary(t, parent = tmpdir()) {
   mkdirSync(parent, { recursive: true })
+
   const directory = mkdtempSync(join(parent, 'desktop-audit-'))
+
   t.after(() => rmSync(directory, { recursive: true, force: true }))
   return directory
 }
@@ -27,6 +29,7 @@ test('desktop audit refuses output in tracked source locations', () => {
 test('desktop audit accepts ignored and external local output', (t) => {
   for (const directory of [temporary(t, join(root, 'research')), temporary(t)]) {
     const output = join(directory, 'nested', 'inventory.json')
+
     assert.equal(localOutputFile(output, root), output)
     assert.ok(existsSync(join(directory, 'nested')))
   }
@@ -36,6 +39,7 @@ test('desktop audit rendering uses explicit findings and writes beside the local
   const directory = temporary(t)
   const inventory = join(directory, 'inventory.json')
   const findings = join(directory, 'findings.json')
+
   writeFileSync(
     inventory,
     JSON.stringify({
@@ -50,6 +54,7 @@ test('desktop audit rendering uses explicit findings and writes beside the local
       dependencyGraphs: {},
     }),
   )
+
   writeFileSync(findings, '[]')
   execFileSync(process.execPath, [render, inventory, findings], { cwd: root })
   for (const name of [
@@ -61,12 +66,14 @@ test('desktop audit rendering uses explicit findings and writes beside the local
   ]) {
     assert.ok(existsSync(join(directory, name)), name)
   }
+
   assert.equal(
     JSON.parse(readFileSync(join(directory, 'snapshot.json'), 'utf8')).revision,
     'fixture',
   )
 
   const missing = spawnSync(process.execPath, [render, inventory], { cwd: root, encoding: 'utf8' })
+
   assert.notEqual(missing.status, 0)
   assert.match(missing.stderr, /Usage:.*INVENTORY FINDINGS/)
 
@@ -78,6 +85,7 @@ test('desktop audit rendering uses explicit findings and writes beside the local
       encoding: 'utf8',
     },
   )
+
   assert.notEqual(rejected.status, 0)
   assert.match(rejected.stderr, /Operational output must be Git-ignored or outside/)
 })

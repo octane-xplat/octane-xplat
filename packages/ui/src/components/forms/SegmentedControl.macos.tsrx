@@ -20,7 +20,9 @@ export function SegmentedControl(inputProps: SegmentedControlProps): unknown @{
   const segments = useRef(new Map<NSView, () => AppKitSegment>())
   const textDirection = useDirection()
   const direction = useRef(textDirection)
+
   direction.current = textDirection
+
   const select = (value: string) => {
     if (props.isDisabled || props.isReadOnly) {
       return

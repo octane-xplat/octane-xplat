@@ -21,6 +21,7 @@ if (!manifest) {
 }
 
 let programs
+
 try {
   programs = expandEnvPrograms(dir, manifest)
 } catch (e) {
@@ -30,6 +31,7 @@ try {
 
 for (const { env, configPath } of programs) {
   console.log(`typecheck[${env}]: tsc --runExternalCode --noEmit -p ${configPath}`)
+
   const res = spawnSync('bun', ['run', 'tsc', '--runExternalCode', '--noEmit', '-p', configPath], {
     shell: process.platform === 'win32',
     cwd: dir,

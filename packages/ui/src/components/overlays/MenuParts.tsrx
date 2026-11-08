@@ -33,6 +33,7 @@ import { MenuSurface } from './MenuSurface.tsrx'
 /** One selectable action inside a DropdownMenu/ContextMenu (and BreadcrumbMenu overflow). */
 export function DropdownMenuItem(props: MenuItemProps): unknown @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -75,6 +76,7 @@ export function DropdownMenuItem(props: MenuItemProps): unknown @{
 /** Menu item with a checkbox — toggles an independent on/off value. */
 export function DropdownMenuCheckboxItem(props: MenuCheckboxItemProps): unknown @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuCheckboxItem requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -154,6 +156,7 @@ export function DropdownMenuRadioGroup(props: MenuRadioGroupProps): unknown @{
 export function DropdownMenuRadioItem(props: MenuRadioItemProps): unknown @{
   const group = useContext(MenuRadioContext)
   const menu = useDropdownMenuContext()
+
   if (!group) {
     throw new Error('MenuRadioItem requires a MenuRadioGroup')
   }
@@ -232,6 +235,7 @@ export function DropdownMenuLink<
 
 export function DropdownMenuLink(props: NavigationItemImplementation<MenuLinkProps>) @{
   const menu = useDropdownMenuContext()
+
   if (!menu) {
     throw new Error(
       'DropdownMenuLink requires a menu — render it inside DropdownMenu or ContextMenu',
@@ -272,6 +276,7 @@ export function DropdownMenuSubMenu(
   props: NavigationMenuImplementation<MenuSubMenuProps>,
 ) @{
   const parent = useDropdownMenuContext()
+
   if (!parent) {
     throw new Error(
       'DropdownMenuSubMenu requires a menu — render it inside DropdownMenu or ContextMenu',

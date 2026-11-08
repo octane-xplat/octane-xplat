@@ -10,6 +10,7 @@ export function StorageControls() @{
   const latest = useRef(draft)
   const [result, setResult] = useState('Not requested')
   const alive = useRef(true)
+
   useEffect(() => {
     alive.current = true
     return () => {
@@ -33,6 +34,7 @@ export function StorageControls() @{
         setResult(storage.flush() ? 'Host handoff confirmed' : 'Host handoff not confirmed')
       } else {
         const value = storage.getString(demoKey)
+
         setResult(value === null ? 'No saved value' : `Saved value: ${value}`)
       }
     } catch {

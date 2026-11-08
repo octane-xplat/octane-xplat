@@ -14,7 +14,9 @@ const root = resolve(import.meta.dirname, '../..'),
 
 const host = `${process.platform === 'win32' ? 'windows' : process.platform}-${process.arch === 'x64' ? 'amd64' : process.arch}`
 const binary = join(work, `xplat-go-${host}${process.platform === 'win32' ? '.exe' : ''}`)
+
 assert.deepEqual(JSON.parse(readFileSync(binary + '.json')).inputs, nativeInputs(root))
+
 const scratch = scratchRun(root, 'go-bindings')
 let count = 0
 function fixture() {
@@ -47,39 +49,49 @@ function reference(request) {
 
 function compare(request, { emptyPath = false } = {}) {
   let expected, failed
+
   try {
     expected = reference(request)
   } catch (error) {
     failed = error
   }
+
   const file = join(scratch, 'request.json')
+
   put(file, request)
+
   const result = spawnSync(binary, ['package-manager', '--request', file], {
     encoding: 'utf8',
     timeout: 15000,
     env: { ...process.env, NODE_PATH: '', NODE_OPTIONS: '', ...(emptyPath ? { PATH: '' } : {}) },
   })
+
   const value = JSON.parse(result.stdout)
+
   assert.equal(result.stderr, '')
   assert.equal(
     result.status,
     failed ? 1 : 0,
     JSON.stringify({ request, expected, actual: value, error: failed?.message }),
   )
+
   if (!failed) {
     assert.deepEqual(value, JSON.parse(JSON.stringify(expected)), JSON.stringify(request))
   } else if (['manager', 'bun'].includes(request.operation)) {
     assert.equal(value.error, failed.message)
   }
+
   count++
   return value
 }
 
 test('workspace membership honors simple literal and star patterns with exclusions', () => {
   const project = fixture()
+
   for (const name of ['alpha', 'beta', 'alpha-extra', '1', '2', '03', '.hidden', 'nested/deep']) {
     put(join(project, 'apps', name, 'package.json'), { name })
   }
+
   for (const patterns of [
     ['apps/*'],
     ['apps/*', '!apps/beta'],
@@ -92,6 +104,7 @@ test('workspace membership honors simple literal and star patterns with exclusio
       compare({ operation: 'root', directory: join(project, 'apps', app) })
     }
   }
+
   for (const setting of [
     { packageManager: 'bun@1.4.4', workspaces: ['apps/*'] },
     {
@@ -124,6 +137,7 @@ test('workspace membership honors simple literal and star patterns with exclusio
 test('advanced workspace globs fail explicitly without starting a Node worker', () => {
   const project = fixture(),
     app = join(project, 'apps/alpha')
+
   put(join(app, 'package.json'), { name: 'alpha' })
   for (const pattern of [
     'apps/**',
@@ -133,8 +147,11 @@ test('advanced workspace globs fail explicitly without starting a Node worker', 
     'apps/@(alpha|beta)',
   ]) {
     put(join(project, 'package.json'), { workspaces: [pattern] })
+
     const file = join(scratch, 'unsupported.json')
+
     put(file, { operation: 'root', directory: app })
+
     const result = spawnSync(binary, ['package-manager', '--request', file], {
       encoding: 'utf8',
       env: { ...process.env, PATH: '' },
@@ -159,6 +176,7 @@ test('package manager declaration wins over stale locks and conflicting undeclar
     { patchedDependencies: {} },
   ]) {
     const project = fixture()
+
     put(join(project, 'package.json'), pkg)
     put(join(project, 'bun.lock'), '{}')
     put(join(project, 'pnpm-lock.yaml'), '{}')
@@ -171,33 +189,40 @@ test('package manager declaration wins over stale locks and conflicting undeclar
 test('Bun importer versions, workspace links and installed/lockfile conflicts match Node', () => {
   const project = fixture(),
     app = join(project, 'apps/app')
+
   put(join(project, 'package.json'), {
     name: 'owner',
     packageManager: 'bun@1.4.4',
     workspaces: ['apps/*', 'packages/*'],
   })
+
   put(join(app, 'package.json'), {
     name: 'consumer',
     dependencies: { '@octane-xplat/ui': 'catalog:', '@octane-xplat/cli': 'workspace:*' },
   })
+
   put(
     join(project, 'bun.lock'),
     `// text lock\n{"workspaces":{"apps/app":{"name":"consumer"},"packages/cli":{"version":"0.19.0"}},"packages":{"consumer/@octane-xplat/ui":["@octane-xplat/ui@0.18.0",],"@octane-xplat/cli":["@octane-xplat/cli@workspace:packages/cli"]},}`,
   )
+
   compare({ operation: 'versions', directory: app }, { emptyPath: true })
   compare({ operation: 'binding', directory: app, root: project }, { emptyPath: true })
   put(join(project, 'node_modules/@octane-xplat/ui/package.json'), {
     name: '@octane-xplat/ui',
     version: '0.19.0',
   })
+
   const bound = compare(
     { operation: 'binding', directory: app, root: project },
     { emptyPath: true },
   )
+
   assert.match(
     bound.discrepancy,
     /Lockfile records @octane-xplat\/cli@0\.19\.0.*installation has workspace:\*/,
   )
+
   put(join(app, 'node_modules/@octane-xplat/ui/package.json'), '{broken')
   compare({ operation: 'binding', directory: app, root: project }, { emptyPath: true })
 })
@@ -212,6 +237,7 @@ test('pnpm versions, nullish fallbacks and malformed-lock policy preserve warnin
     "importers: {'.': {dependencies: {'@octane-xplat/ui': {version: '0.18.0'}}}}\nimporters: {}\n",
   ]) {
     const project = fixture()
+
     put(join(project, 'package.json'), { dependencies: { '@octane-xplat/ui': '0.19.0' } })
     put(join(project, 'pnpm-lock.yaml'), lock)
     compare({ operation: 'binding', directory: project, root: project }, { emptyPath: true })

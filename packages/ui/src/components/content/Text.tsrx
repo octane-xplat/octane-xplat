@@ -15,6 +15,7 @@ import { useTheme } from '../../theme/use-theme.tsrx'
 import { textScaleStyle } from '../forms/text-scale'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 /**
  * Nested <Text> renders a <span> (rich-text run) inside the parent's
  * label/formattedstring. The patched NativeScript driver folds `#text` and
@@ -57,6 +58,7 @@ export function Text(props: TextProps): unknown @{
   }
 
   const lineHeight = textStyle.lineHeight
+
   // Native controls need an explicit minimum to honor authored line height.
   if (
     (Application.ios || Application.android) &&

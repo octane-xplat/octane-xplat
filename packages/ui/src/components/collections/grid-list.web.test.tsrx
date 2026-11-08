@@ -20,8 +20,11 @@ const items = [
 
 const render = (props: any = {}) => {
   const el = document.createElement('div')
+
   document.body.appendChild(el)
+
   const root = createRoot(el)
+
   act(() =>
     root.render(
       <GridList
@@ -34,6 +37,7 @@ const render = (props: any = {}) => {
   )
 
   const rows = () => Array.from(el.querySelectorAll<HTMLElement>('[role="row"]'))
+
   return { el, root, rows }
 }
 
@@ -57,8 +61,11 @@ describe('GridList (DOM renderer)', () => {
     }
 
     const el = document.createElement('div')
+
     document.body.appendChild(el)
+
     const root = createRoot(el)
+
     act(() => root.render(<Probe />))
     expect(captured.isSupported).toBe(true)
     expect(typeof captured.gridProps.onKeyDown).toBe('function')
@@ -69,6 +76,7 @@ describe('GridList (DOM renderer)', () => {
 
   it('renders role=grid > role=row > role=gridcell with a roving tab stop', () => {
     const { el, root, rows } = render({ accessibilityLabel: 'Cells' })
+
     expect(el.querySelector('[role="grid"]')).not.toBeNull()
     expect(el.querySelectorAll('[role="gridcell"]').length).toBe(6)
     expect(rows().map((r) => r.tabIndex)).toEqual([0, -1, -1, -1, -1, -1])
@@ -99,6 +107,7 @@ describe('GridList (DOM renderer)', () => {
 
   it('skips disabled rows in arrow navigation', () => {
     const { el, root, rows } = render({ columns: 2, disabledKeys: ['b'] })
+
     key(rows()[0], 'ArrowRight')
     expect(document.activeElement).toBe(rows()[2])
     expect(rows()[1].getAttribute('aria-disabled')).toBe('true')
@@ -109,6 +118,7 @@ describe('GridList (DOM renderer)', () => {
   it('toggles selection on click, extends ranges on shift+click', () => {
     const onSelectionChange = vi.fn()
     const { el, root, rows } = render({ selectionMode: 'multiple', onSelectionChange })
+
     click(rows()[0])
     expect(onSelectionChange).toHaveBeenLastCalledWith(new Set(['a']))
     click(rows()[3], { shiftKey: true })
@@ -135,6 +145,7 @@ describe('GridList (DOM renderer)', () => {
     el.remove()
 
     const single = render({ selectionMode: 'single' })
+
     click(single.rows()[0])
     expect(single.rows()[0].getAttribute('aria-selected')).toBe('true')
     click(single.rows()[0])
@@ -147,6 +158,7 @@ describe('GridList (DOM renderer)', () => {
     const onAction = vi.fn()
     const onSelectionChange = vi.fn()
     const { el, root, rows } = render({ selectionMode: 'multiple', onAction, onSelectionChange })
+
     click(rows()[1])
     expect(onAction).toHaveBeenCalledWith('b')
     key(rows()[2], 'Enter')
@@ -176,6 +188,7 @@ describe('GridList (DOM renderer)', () => {
     el.remove()
 
     const none = render({ selectionMode: 'none', onAction })
+
     expect(none.rows()[0].hasAttribute('aria-selected')).toBe(false)
     click(none.rows()[0])
     expect(onAction).toHaveBeenCalledWith('a')
@@ -207,6 +220,7 @@ describe('GridList (DOM renderer)', () => {
   it('forwards layout-child placement to the grid host', () => {
     const { el, root } = render({ row: 1, col: 2, rowSpan: 2 })
     const host = el.firstElementChild as HTMLElement
+
     expect(host.style.gridRow).toBe('2 / span 2')
     expect(host.style.gridColumn).toBe('3 / span 1')
     root.unmount()
@@ -215,11 +229,13 @@ describe('GridList (DOM renderer)', () => {
 
   it('renders the empty state and stacks under layout="stack"', () => {
     const { el, root } = render({ items: [], renderEmpty: () => <em>Nothing here</em> })
+
     expect(el.querySelector('[role="row"]')).toBeNull()
     expect(el.textContent).toContain('Nothing here')
     root.unmount()
 
     const stacked = render({ layout: 'stack' })
+
     expect(stacked.el.querySelector('.vx-gridlist--stack')).not.toBeNull()
     stacked.root.unmount()
     stacked.el.remove()

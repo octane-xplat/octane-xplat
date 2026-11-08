@@ -19,11 +19,13 @@ const repoRoot = resolve(packageRoot, '../..')
 const temporary = mkdtempSync(join(tmpdir(), 'octane-xplat-jsx-consumer-'))
 const packOutput = join(temporary, 'pack')
 const extractedRoot = join(temporary, 'extracted')
+
 mkdirSync(packOutput)
 mkdirSync(extractedRoot)
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 16 * 1024 * 1024 })
+
   if (result.stdout) {
     process.stdout.write(result.stdout)
   }
@@ -423,6 +425,7 @@ function linkDependencies(modules, names) {
     const source = join(packageRoot, 'node_modules', dependency)
     const fallback = join(repoRoot, 'node_modules', dependency)
     const resolved = existsSync(source) ? source : existsSync(fallback) ? fallback : null
+
     assert.ok(resolved, `dependency ${dependency} must be installed in the workspace`)
     mkdirSync(dirname(join(modules, dependency)), { recursive: true })
     symlinkSync(resolved, join(modules, dependency), 'dir')
@@ -431,9 +434,12 @@ function linkDependencies(modules, names) {
 
 try {
   run('bun', ['pm', 'pack', '--destination', packOutput], packageRoot)
+
   const tarballs = readdirSync(packOutput).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1, 'bun pm pack produces one tarball')
   run('tar', ['-xzf', join(packOutput, tarballs[0]), '-C', extractedRoot], temporary)
+
   const packedRoot = join(extractedRoot, 'package')
 
   for (const [laneName, lane] of Object.entries(lanes)) {
@@ -441,11 +447,13 @@ try {
       const consumerRoot = join(temporary, `${laneName}-${mode.name}`)
       const modules = join(consumerRoot, 'node_modules')
       const packageLink = join(modules, '@octane-xplat/jsx')
+
       mkdirSync(dirname(packageLink), { recursive: true })
       cpSync(packedRoot, packageLink, { recursive: true })
 
       // octane is a required peer (DOM types + universal runtime types).
       const deps = ['octane']
+
       if (lane.nsCore) {
         deps.push('@nativescript/core', '@nativescript/types')
       }
@@ -458,6 +466,7 @@ try {
       )
 
       const files = []
+
       if (lane.domOnly) {
         writeFileSync(join(consumerRoot, 'dom.tsx'), domSource)
         writeFileSync(

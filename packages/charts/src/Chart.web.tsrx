@@ -21,7 +21,9 @@ export function Chart(props: ChartProps): JSX.Element @{
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
+
   propsRef.current = props
+
   const hostRef = useRef<HTMLElement | null>(null)
 
   const bounds = measure.bounds
@@ -54,8 +56,10 @@ export function Chart(props: ChartProps): JSX.Element @{
   sceneRef.current = scene
 
   const interactive = !!(props.onPress || props.onScrub || props.tooltip || props.crosshair)
+
   useEffect(() => {
     const el = hostRef.current
+
     if (!el || !interactive) {
       return
     }
@@ -68,22 +72,27 @@ export function Chart(props: ChartProps): JSX.Element @{
 
     const at = (e: PointerEvent) => {
       const rect = el.getBoundingClientRect()
+
       return { x: e.clientX - rect.left, y: e.clientY - rect.top }
     }
 
     const down = (e: PointerEvent) => {
       el.setPointerCapture?.(e.pointerId)
+
       const p = at(e)
+
       scrub('down', p.x, p.y)
     }
 
     const move = (e: PointerEvent) => {
       const p = at(e)
+
       scrub(e.buttons !== 0 ? 'move' : 'hover', p.x, p.y)
     }
 
     const up = (e: PointerEvent) => {
       const p = at(e)
+
       scrub('up', p.x, p.y)
     }
 
@@ -101,6 +110,7 @@ export function Chart(props: ChartProps): JSX.Element @{
 
     const end = () => scrub('cancel', 0, 0)
     const leave = () => scrub('leave', 0, 0)
+
     el.addEventListener('pointerdown', down)
     el.addEventListener('pointermove', move)
     el.addEventListener('pointerup', up)

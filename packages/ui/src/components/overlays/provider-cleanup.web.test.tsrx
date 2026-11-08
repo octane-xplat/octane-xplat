@@ -42,9 +42,13 @@ describe('provider child disposal', () => {
     'disposes descendants when children become empty (undefined=%s)',
     (undefinedChild) => {
       mounts = unmounts = 0
+
       const host = document.createElement('div')
+
       document.body.append(host)
+
       const root = createRoot(host)
+
       try {
         act(() => root.render(ProviderCase, { open: true, undefinedChild }))
         expect(host.textContent).toBe('Owned content')

@@ -53,6 +53,7 @@ export function TabList(props: TabListProps): JSX.Element @{
 
   const updateOverflow = useCallback(() => {
     const el = strip.current
+
     if (!el) {
       return
     }
@@ -63,15 +64,20 @@ export function TabList(props: TabListProps): JSX.Element @{
 
   useEffect(() => {
     const el = strip.current
+
     if (!el || !hasScroll) {
       return
     }
 
     updateOverflow()
     el.addEventListener('scroll', updateOverflow, { passive: true })
+
     const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(updateOverflow) : null
+
     ro?.observe(el)
+
     const mo = new MutationObserver(updateOverflow)
+
     mo.observe(el, { childList: true, subtree: true })
     return () => {
       el.removeEventListener('scroll', updateOverflow)
@@ -82,6 +88,7 @@ export function TabList(props: TabListProps): JSX.Element @{
 
   const revealSelected = useCallback(() => {
     const el = strip.current
+
     if (!el || !hasScroll) {
       return
     }
@@ -100,6 +107,7 @@ export function TabList(props: TabListProps): JSX.Element @{
   }, [props.value, hasScroll])
 
   const revealed = useRef<string | null>(null)
+
   useEffect(() => {
     if (revealed.current === props.value) {
       return
@@ -112,17 +120,20 @@ export function TabList(props: TabListProps): JSX.Element @{
   // The selection stays visible when the strip itself resizes.
   useEffect(() => {
     const el = strip.current
+
     if (!el || !hasScroll || typeof ResizeObserver === 'undefined') {
       return
     }
 
     const ro = new ResizeObserver(revealSelected)
+
     ro.observe(el)
     return () => ro.disconnect()
   }, [hasScroll, revealSelected])
 
   const scrollPage = useCallback((dir: -1 | 1) => {
     const el = strip.current
+
     if (!el) {
       return
     }
@@ -254,11 +265,13 @@ export function Tab<
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('Tab must be used within a TabList.')
   }
 
   const isTabs = ctx.pattern === 'tabs'
+
   if (isTabs && props.to !== undefined) {
     throw new TypeError(
       'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',
@@ -351,6 +364,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
  *  options. The selected option's label becomes the trigger text. */
 export function TabMenu(props: TabMenuProps): JSX.Element @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('TabMenu must be used within a TabList.')
   }

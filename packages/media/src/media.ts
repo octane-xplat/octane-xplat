@@ -23,6 +23,7 @@ import { android } from '@octane-xplat/platform/android'
 
 async function ensurePhotos(): Promise<PermissionResult> {
   let picker
+
   try {
     picker = createImagePicker({ mode: 'single', mediaType: 1 as ImagePickerMediaType })
   } catch {
@@ -32,6 +33,7 @@ async function ensurePhotos(): Promise<PermissionResult> {
 
   try {
     const granted: unknown = await picker.authorize()
+
     return granted === true ||
       (typeof granted === 'object' &&
         granted !== null &&
@@ -63,6 +65,7 @@ async function ensureCamera(): Promise<PermissionResult> {
       const video = (globalThis as any).AVMediaTypeVideo
       // 0=notDetermined 1=restricted 2=denied 3=authorized
       const status = av?.authorizationStatusForMediaType?.(video)
+
       if (status === 3) {
         return 'granted'
       }
@@ -132,8 +135,10 @@ async function ensureCamera(): Promise<PermissionResult> {
 async function persistImage(source: ImageSource, name: string): Promise<PickedImage> {
   const filename = `octane-image-${Date.now()}-${Math.random().toString(36).slice(2)}.jpg`
   const uri = path.join(knownFolders.temp().path, filename)
+
   try {
     const saved = await source.saveToFileAsync(uri, 'jpeg', 85)
+
     if (!saved) {
       throw new Error('Could not save the image to temporary storage')
     }
@@ -152,6 +157,7 @@ async function persistImage(source: ImageSource, name: string): Promise<PickedIm
 async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[]> {
   const picker = createImagePicker({ mode, mediaType: 1 as ImagePickerMediaType })
   const granted: unknown = await picker.authorize()
+
   if (
     !(
       granted === true ||
@@ -166,10 +172,12 @@ async function pickSelections(mode: 'single' | 'multiple'): Promise<PickedImage[
 
   const selections = await picker.present()
   const refs: PickedImage[] = []
+
   try {
     for (const selection of selections) {
       const source = await ImageSource.fromAsset(selection.asset)
       const name = selection.originalFilename || selection.filename || 'image.jpg'
+
       refs.push(await persistImage(source, name))
     }
 
@@ -202,6 +210,7 @@ async function cameraStatus(): Promise<PermissionResponse> {
     if (Application.ios) {
       const av = (globalThis as any).AVCaptureDevice
       const status = av?.authorizationStatusForMediaType?.((globalThis as any).AVMediaTypeVideo)
+
       if (status === 3) {
         return toResponse('granted')
       }
@@ -247,6 +256,7 @@ const media: Service<MediaImpl> = {
   /** Opens the native image picker; returns null when canceled. */
   async pickImage(): Promise<PickedImage | null> {
     const [image] = await pickSelections('single')
+
     return image ?? null
   },
   /** Opens the native image picker in multiple-selection mode. */
@@ -269,6 +279,7 @@ const media: Service<MediaImpl> = {
       })
 
       const source = await ImageSource.fromAsset(asset)
+
       return await persistImage(source, `octane-capture-${Date.now()}.jpg`)
     } catch {
       return null
@@ -287,6 +298,7 @@ const media: Service<MediaImpl> = {
 // dependency edge — the generic seam reports 'unsupported' when the leaf is
 // not installed.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.camera = {
   getPermissions: () => media.getPermissions('camera'),
   requestPermissions: () => media.requestPermissions('camera'),

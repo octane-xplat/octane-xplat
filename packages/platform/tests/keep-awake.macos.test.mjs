@@ -25,28 +25,36 @@ const compiled = Object.fromEntries(
 function load(globals = {}) {
   const cache = {},
     context = vm.createContext({ ...globals })
+
   function require(name) {
     const file = `${name.slice(2)}.ts`
+
     if (!cache[file]) {
       const exports = (cache[file] = {})
+
       vm.runInContext(`(function(exports, require) {${compiled[file]}\n})`, context)(
         exports,
         require,
       )
     }
+
     return cache[file]
   }
+
   return { api: require('./keep-awake.macos').keepAwake, context }
 }
 
 function processOwner() {
   const begun = [],
     ended = []
+
   const owner = {
     beginActivityWithOptionsReason(options, reason) {
       assert.equal(this, owner)
       assert.equal(options, 2 ** 40 + 0x00efffff)
+
       const token = { reason }
+
       begun.push(token)
       return token
     },
@@ -55,12 +63,14 @@ function processOwner() {
       ended.push(token)
     },
   }
+
   return { owner, begun, ended }
 }
 
 test('AppKit availability checks both methods without allocating and recognizes late bridges', async () => {
   const h = load(),
     native = processOwner()
+
   for (const bridge of [
     undefined,
     null,
@@ -76,6 +86,7 @@ test('AppKit availability checks both methods without allocating and recognizes 
     assert.equal(await h.api.isAvailable(), false)
     assert.equal(await h.api.activate('reading'), false)
   }
+
   h.context.NSProcessInfo = { processInfo: native.owner }
   assert.equal(await h.api.isAvailable(), true)
   assert.equal(native.begun.length, 0)
@@ -86,11 +97,14 @@ test('AppKit availability checks both methods without allocating and recognizes 
 test('AppKit release retains the creating receiver and method across replacement and host loss', async () => {
   const first = processOwner(),
     next = processOwner()
+
   const h = load({ NSProcessInfo: { processInfo: first.owner } })
+
   assert.equal(await h.api.activate('first'), true)
   first.owner.endActivity = () => {
     throw new Error('replacement method must not run')
   }
+
   h.context.NSProcessInfo = { processInfo: next.owner }
   assert.equal(await h.api.activate('next'), true)
   assert.equal(await h.api.deactivate('first'), true)
@@ -108,15 +122,19 @@ test('AppKit failed release retains its token for retry without reallocating a d
   const native = processOwner()
   let failing = true,
     attempts = 0
+
   native.owner.endActivity = function (token) {
     assert.equal(this, native.owner)
     attempts++
     if (failing) {
       throw new Error('release unavailable')
     }
+
     native.ended.push(token)
   }
+
   const h = load({ NSProcessInfo: { processInfo: native.owner } })
+
   assert.equal(await h.api.activate('reading'), true)
   assert.equal(await h.api.deactivate('reading'), false)
   assert.equal(await h.api.isActivated(), true)
@@ -138,10 +156,12 @@ test('AppKit rejected or throwing activation leaves no held tag and can retry', 
       if (throws) {
         throw new Error('activity unavailable')
       }
+
       return null
     }
 
     const h = load({ NSProcessInfo: { processInfo: native.owner } })
+
     assert.equal(await h.api.activate('reading'), false)
     assert.equal(await h.api.isActivated(), false)
     native.owner.beginActivityWithOptionsReason = begin
@@ -155,9 +175,12 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
   const calls = [],
     listeners = [],
     warnings = []
+
   const optionsRef = { current: undefined },
     exports = {}
+
   let pending, mounted
+
   vm.runInNewContext(compiled['use-keep-awake.macos.tsrx'], {
     exports,
     console: { warn: (message) => warnings.push(message) },
@@ -171,6 +194,7 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
           },
         }
       }
+
       return {
         keepAwake: {
           activate: async (tag) => {
@@ -194,6 +218,7 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
       }
     },
   })
+
   return {
     calls,
     listeners,
@@ -203,6 +228,7 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
       if (mounted && pending.dependencies.every((value, i) => value === mounted.dependencies[i])) {
         return
       }
+
       mounted?.cleanup()
       mounted = { dependencies: pending.dependencies, cleanup: pending.run() }
     },
@@ -213,12 +239,14 @@ function hook({ removeThrows = false, deactivate = async () => true } = {}) {
 test('AppKit hook updates callbacks and warning preferences without cycling its tag', async () => {
   const h = hook({ deactivate: async () => false }),
     released = []
+
   h.render(undefined, { onRelease: () => released.push('old') })
   h.commit()
   h.render(undefined, {
     onRelease: () => released.push('current'),
     suppressDeactivateWarnings: true,
   })
+
   h.commit()
   h.listeners[0]('another')
   h.listeners[0]('generated')
@@ -236,6 +264,7 @@ test('AppKit hook updates callbacks and warning preferences without cycling its 
 test('AppKit hook retires old callbacks and releases once before acquiring a different tag', () => {
   const h = hook(),
     released = []
+
   h.render('first', { onRelease: (tag) => released.push(tag) })
   h.commit()
   h.render('next', { onRelease: (tag) => released.push(tag) })
@@ -249,6 +278,7 @@ test('AppKit hook retires old callbacks and releases once before acquiring a dif
     ['deactivate', 'first'],
     ['activate', 'next'],
   ])
+
   h.cleanup()
 })
 
@@ -259,6 +289,7 @@ test('AppKit hook releases despite listener cleanup failure and handles rejected
       throw new Error('release failed')
     },
   })
+
   h.render('reading', {})
   h.commit()
   assert.throws(h.cleanup, /listener cleanup failed/)

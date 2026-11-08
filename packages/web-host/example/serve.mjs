@@ -7,10 +7,12 @@ const client = fileURLToPath(new URL('./dist/client', import.meta.url))
 const port = Number(process.env.PORT ?? 4174)
 
 let server
+
 if (process.env.STATIC === '1') {
   // Static-only deployment: files plus 404.html for unmatched URLs, without
   // ever loading the server bundle.
   const notFound = new URL('./dist/static/404.html', import.meta.url)
+
   server = serve({
     port,
     hostname: '127.0.0.1',
@@ -26,6 +28,7 @@ if (process.env.STATIC === '1') {
   })
 } else {
   const { handle } = await import('./dist/server/server.web.js')
+
   server = serve({
     port,
     hostname: '127.0.0.1',
@@ -35,5 +38,6 @@ if (process.env.STATIC === '1') {
 }
 
 export { server }
+
 await server.ready()
 console.log(new URL('/products/coat', server.url).href)

@@ -42,6 +42,7 @@ import {
 function mount(component: any, props: any = {}) {
   const container = createObjectContainer('nativescript')
   const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+
   root.render(component, props)
   return { container, root }
 }
@@ -52,12 +53,14 @@ function findByClass(node: any, cls: string): any {
   }
 
   const classes = String(node.props?.className ?? '').split(' ')
+
   if (classes.includes(cls)) {
     return node
   }
 
   for (const child of node.children ?? []) {
     const hit = findByClass(child, cls)
+
     if (hit) {
       return hit
     }
@@ -76,6 +79,7 @@ describe('native flow Stack', () => {
     })
 
     const view = container.children[0]
+
     expect(view.type).toBe('masonview')
     expect(view.props.style?.flexDirection).toBe('row')
     expect(view.props.style?.justifyContent).toBe('flex-end')
@@ -87,6 +91,7 @@ describe('native flow Stack', () => {
   it('vertical is the default; justify/align map to main/cross', () => {
     const { container, root } = mount(VStack as any, { vAlign: 'end', hAlign: 'center' })
     const view = container.children[0]
+
     expect(view.props.style?.flexDirection).toBe('column')
     expect(view.props.style?.justifyContent).toBe('flex-end')
     expect(view.props.style?.alignItems).toBe('center')
@@ -96,6 +101,7 @@ describe('native flow Stack', () => {
   it('HStack is horizontal; isScrollable wraps in scrollview', () => {
     const { container, root } = mount(HStack as any, { isScrollable: true })
     const view = container.children[0]
+
     expect(view.type).toBe('scrollview')
     expect(view.props.orientation).toBe('horizontal')
     root.unmount()
@@ -104,6 +110,7 @@ describe('native flow Stack', () => {
   it('StackItem size=fill grows via style', () => {
     const { container, root } = mount(StackItem as any, { size: 'fill' })
     const view = container.children[0]
+
     expect(view.props.style?.flexGrow).toBe(1)
     root.unmount()
   })
@@ -113,6 +120,7 @@ describe('native layout leaves', () => {
   it('Center emits its CSS class and explicit axis overrides', () => {
     const { container, root } = mount(Center as any, { axis: 'vertical' })
     const view = container.children[0]
+
     expect(String(view.props.className)).toContain('vx-center')
     expect(view.props.style?.justifyContent).toBe('flex-start')
     expect(view.props.style?.flexDirection).toBeUndefined()
@@ -128,6 +136,7 @@ describe('native layout leaves', () => {
     })
 
     const view = container.children[0]
+
     expect(String(view.props.className)).toContain('vx-section--muted')
     expect(String(view.props.className)).toContain('vx-section--divider-top')
     expect(view.props.style?.paddingTop).toBe(8)
@@ -136,6 +145,7 @@ describe('native layout leaves', () => {
 
   it('VisuallyHidden renders a hidden container that keeps the tree', () => {
     const { container, root } = mount(VisuallyHidden as any)
+
     expect(String(container.children[0].props.className)).toContain('vx-visually-hidden')
     root.unmount()
   })
@@ -144,10 +154,12 @@ describe('native layout leaves', () => {
 describe('native FormLayout + InputGroup', () => {
   it('vertical stays a column flex; horizontal becomes a grid', () => {
     const a = mount(FormLayout as any)
+
     expect(a.container.children[0].type).toBe('masonview')
     a.root.unmount()
 
     const b = mount(FormLayout as any, { direction: 'horizontal' })
+
     expect(b.container.children[0].type).toBe('masonview')
     b.root.unmount()
   })
@@ -177,12 +189,14 @@ describe('native FormLayout + InputGroup', () => {
 describe('native indicators + list', () => {
   it('Checkbox renders through the indicator registry', () => {
     const { container, root } = mount(Checkbox, { value: true })
+
     expect(findByClass(container.children[0], 'vx-ind-checkbox--checked')).not.toBeNull()
     root.unmount()
   })
 
   it('indeterminate renders the dash state', () => {
     const { container, root } = mount(Checkbox as any, { value: 'indeterminate' })
+
     expect(findByClass(container.children[0], 'vx-ind-checkbox--indeterminate')).not.toBeNull()
     expect(findByClass(container.children[0], 'vx-ind-dash')).not.toBeNull()
     root.unmount()
@@ -190,6 +204,7 @@ describe('native indicators + list', () => {
 
   it('getIndicator resolves defaults and registered overrides', () => {
     const Custom = () => null
+
     registerIndicator('check', Custom as any)
     expect(getIndicator('check')).toBe(Custom)
     registerIndicator('check', CheckIndicator as any)
@@ -205,12 +220,14 @@ describe('native indicators + list', () => {
     })
 
     const list = container.children[0]
+
     expect(list.type).toBe('masonview')
     root.unmount()
   })
 
   it('ListItem renders label/desc text nodes', () => {
     const { container, root } = mount(ListItem as any, { label: 'Row', description: 'sub' })
+
     expect(findByClass(container.children[0], 'vx-listitem')).not.toBeNull()
     expect(findByClass(container.children[0], 'vx-listitem-label')?.props?.text).toBe('Row')
     root.unmount()
@@ -225,6 +242,7 @@ describe('native indicators + list', () => {
     })
 
     const disabledView = findByClass(disabled.container.children[0], 'vx-listitem')
+
     expect(() =>
       disabled.container.dispatchEvent(disabledView, 'tap', { object: disabledView }),
     ).toThrow('no "tap" listener')
@@ -238,6 +256,7 @@ describe('native indicators + list', () => {
     })
 
     const enabledView = findByClass(enabled.container.children[0], 'vx-listitem')
+
     enabled.container.dispatchEvent(enabledView, 'tap', { object: enabledView })
     expect(calls).toBe(1)
     enabled.root.unmount()

@@ -27,6 +27,7 @@ export function useMediaQuery(query: string): boolean {
   useEffect(() => {
     const update = () => setMatches(matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
     const release = observeWindowsMediaTraits(update)
+
     update()
     return release
   }, [query])

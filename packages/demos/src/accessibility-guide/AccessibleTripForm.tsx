@@ -11,6 +11,7 @@ export function AccessibleTripForm() {
   const announce = useAnnounce()
   function submit() {
     const next = name.trim()
+
     if (!next) {
       setError('Enter a trip name before continuing.')
       setStatus('Trip name needs attention.')
@@ -18,10 +19,12 @@ export function AccessibleTripForm() {
       announce('Enter a trip name before continuing.', 'assertive')
       return
     }
+
     setError(null)
     setStatus(`Trip name selected: ${next}.`)
     announce('Trip name selected.')
   }
+
   function clear() {
     setName('')
     setError(null)
@@ -29,6 +32,7 @@ export function AccessibleTripForm() {
     input.current?.focus()
     announce('Trip name cleared.')
   }
+
   return (
     <VStack className="accessible-trip-form">
       <Text>Plan your trip</Text>

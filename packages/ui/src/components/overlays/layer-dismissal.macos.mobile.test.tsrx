@@ -10,10 +10,12 @@ import {
 
 import { LayerDepthProvider, useLayerDismissal } from './layer-dismissal.tsrx'
 import { dispatchLayerKey } from './layer-stack'
+
 // This suite qualifies AppKit monitor ownership using the object driver.
 vi.mock('./layer-keys', () => import('./layer-keys.ts'))
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
 vi.mock('./use-layer', () => import('./use-layer.tsrx'))
+
 import { useHoverCard } from './use-hover-card.tsrx'
 
 function CardProbe(props: { open: boolean; hide: () => void }) @{
@@ -65,6 +67,7 @@ function freshRoot() {
 
 function escape(composing = false) {
   const preventDefault = vi.fn()
+
   dispatchLayerKey({ key: 'Escape', isComposing: composing, preventDefault })
   flushUniversalSync(() => {})
   return preventDefault
@@ -117,6 +120,7 @@ describe('portable cross-root layer ownership', () => {
     let handler: any
     const token = {}
     const removeMonitor = vi.fn()
+
     vi.stubGlobal('NSEvent', {
       addLocalMonitorForEventsMatchingMaskHandler: vi.fn((_mask, callback) => {
         handler = callback
@@ -139,6 +143,7 @@ describe('portable cross-root layer ownership', () => {
       ).toHaveBeenCalledTimes(1)
 
       const marked = { keyCode: 53, window: { firstResponder: { hasMarkedText: () => true } } }
+
       expect(handler(marked)).toBeNull()
       expect(dismiss).not.toHaveBeenCalled()
       expect(handler({ keyCode: 53 })).toBeNull()
@@ -192,8 +197,11 @@ describe('portable cross-root layer ownership', () => {
       updated = vi.fn()
 
     const show = vi.fn(() => ({ close, update: vi.fn() }))
+
     vi.stubGlobal('__xplatAppKit', { showLayer: show })
+
     const root = freshRoot()
+
     try {
       root.render(CardProbe, { open: true, hide })
       flushUniversalSync(() => {})

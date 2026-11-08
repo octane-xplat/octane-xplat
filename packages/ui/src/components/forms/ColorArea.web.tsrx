@@ -10,6 +10,7 @@ import { hsbToHex, type Hsb } from '../../theme/color'
 import { useColorState } from '../../theme/color-state.tsrx'
 
 import type { JSX } from 'octane/jsx-runtime'
+
 const THUMB = 16
 
 /** Internal 2D area view — saturation left→right, brightness top→bottom.
@@ -142,6 +143,7 @@ export function ColorAreaView(props: ColorAreaViewProps): JSX.Element {
 
 export function ColorArea(props: ColorAreaProps): JSX.Element {
   const color = useColorState(props, '#ff0000')
+
   return (
     <ColorAreaView
       hsb={color.hsb}

@@ -38,6 +38,7 @@ class FakeRecognition {
 
   static async available(options: { langs: string[]; processLocally: boolean }) {
     const results = FakeRecognition.availableResults
+
     return options.processLocally
       ? (results?.local ?? 'unavailable')
       : (results?.remote ?? 'available')
@@ -144,7 +145,9 @@ describe('getAvailability', () => {
   it('reports networkUse possible without a static probe', async () => {
     stubNavigator()
     stubCtor(FakeRecognitionNoProbe)
+
     const availability = await speechRecognition.getAvailability({ lang: 'en-US' })
+
     expect(availability).toEqual({
       available: true,
       reason: null,
@@ -164,7 +167,9 @@ describe('getAvailability', () => {
     expect((await speechRecognition.getAvailability({ lang: 'en-US' })).networkUse).toBe('required')
 
     FakeRecognition.availableResults = { remote: 'unavailable', local: 'unavailable' }
+
     const availability = await speechRecognition.getAvailability({ lang: 'tlh' })
+
     expect(availability).toEqual({
       available: false,
       reason: 'language-unsupported',
@@ -188,6 +193,7 @@ describe('permissions', () => {
       })
 
       const permission = await speechRecognition.getPermissions()
+
       expect(permission.status).toBe(status)
       vi.unstubAllGlobals()
     }
@@ -195,7 +201,9 @@ describe('permissions', () => {
 
   it('requests through getUserMedia and stops the tracks', async () => {
     stubCtor()
+
     let stopped = 0
+
     stubNavigator({
       mediaDevices: {
         getUserMedia: async () => ({
@@ -203,7 +211,9 @@ describe('permissions', () => {
         }),
       },
     })
+
     const permission = await speechRecognition.requestPermissions()
+
     expect(permission.status).toBe('granted')
     expect(stopped).toBe(1)
   })
@@ -214,12 +224,15 @@ describe('permissions', () => {
       mediaDevices: {
         getUserMedia: async () => {
           const error = new Error('denied')
+
           error.name = 'NotAllowedError'
           throw error
         },
       },
     })
+
     const permission = await speechRecognition.requestPermissions()
+
     expect(permission).toEqual({ status: 'denied', granted: false, canAskAgain: false })
   })
 
@@ -230,14 +243,17 @@ describe('permissions', () => {
       mediaDevices: {
         getUserMedia: async () => {
           const error = new Error('no mic')
+
           error.name = 'NotFoundError'
           throw error
         },
       },
     })
+
     // The microphone permission is still granted — the device is missing,
     // so the recognizer itself surfaces 'audio-capture' when capture starts.
     const permission = await speechRecognition.requestPermissions()
+
     expect(permission.status).toBe('granted')
   })
 })
@@ -247,11 +263,15 @@ describe('session wiring', () => {
     stubNavigator()
     stubCtor()
     vi.stubGlobal('document', fakeDocument)
+
     const events: SpeechRecognitionEvent[] = []
     const session = speechRecognition.start(options)
+
     session.subscribe((event) => events.push(event))
     await tick()
+
     const recognition = FakeRecognition.instances.at(-1)!
+
     return { session, events, recognition }
   }
 
@@ -260,6 +280,7 @@ describe('session wiring', () => {
       continuous: true,
       interimResults: true,
     })
+
     expect(recognition.startCalls).toBe(1)
     expect(recognition.lang).toBe('en-US')
     expect(recognition.continuous).toBe(true)
@@ -281,19 +302,25 @@ describe('session wiring', () => {
     const transcripts = events.flatMap((event) =>
       event.type === 'transcript' ? [`${event.transcript}|${event.isFinal}`] : [],
     )
+
     expect(transcripts).toEqual(['the quick|false', 'the quick|true', 'the quick brown|false'])
 
     session.abort()
+
     const result = await session.result
+
     expect(result.reason).toBe('aborted')
     expect(result.transcript).toBe('the quick brown')
   })
 
   it('maps onerror through the web error table', async () => {
     const { session, recognition } = await sessionSetup()
+
     recognition.emitStart()
     recognition.emitError('network')
+
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('network')
     expect(result.error?.nativeCode).toBe('network')
@@ -301,24 +328,33 @@ describe('session wiring', () => {
 
   it('onend completes the session', async () => {
     const { session, recognition } = await sessionSetup({ continuous: true })
+
     recognition.emitStart()
     recognition.emitEnd()
+
     const result = await session.result
+
     expect(result.reason).toBe('completed')
   })
 
   it('stop() calls recognition.stop and resolves on end', async () => {
     const { session, recognition } = await sessionSetup({ continuous: true })
+
     recognition.emitStart()
+
     const stopping = session.stop()
+
     expect(recognition.stopCalls).toBe(1)
     recognition.emitEnd()
+
     const result = await stopping
+
     expect(result.reason).toBe('stopped')
   })
 
   it('abort() aborts the recognizer and detaches every handler', async () => {
     const { session, recognition } = await sessionSetup({ continuous: true })
+
     recognition.emitStart()
     session.abort()
     expect(recognition.abortCalls).toBe(1)
@@ -332,6 +368,7 @@ describe('session wiring', () => {
 
   it('hiding the page while listening fails interrupted and aborts', async () => {
     const { session, events, recognition } = await sessionSetup({ continuous: true })
+
     recognition.emitStart()
     expect(documentListeners.has('visibilitychange')).toBe(true)
 
@@ -339,6 +376,7 @@ describe('session wiring', () => {
     documentListeners.get('visibilitychange')?.()
 
     const result = await session.result
+
     expect(result.reason).toBe('error')
     expect(result.error?.code).toBe('interrupted')
     expect(recognition.abortCalls).toBe(1)
@@ -348,6 +386,7 @@ describe('session wiring', () => {
 
   it('hiding the page before the recognizer starts does not interrupt', async () => {
     const { session, recognition } = await sessionSetup()
+
     fakeDocument.visibilityState = 'hidden'
     documentListeners.get('visibilitychange')?.()
     expect(session.state).toBe('starting')
@@ -359,6 +398,7 @@ describe('session wiring', () => {
 
   it('releases the visibilitychange listener when the session ends normally', async () => {
     const { session, recognition } = await sessionSetup()
+
     recognition.emitStart()
     recognition.emitEnd()
     await session.result

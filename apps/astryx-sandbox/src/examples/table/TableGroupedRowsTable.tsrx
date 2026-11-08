@@ -29,6 +29,7 @@ export function TableGroupedRowsTable() @{
   const onToggleGroup = (key: string) => {
     setCollapsed((prev: Set<string>) => {
       const next = new Set(prev)
+
       if (next.has(key)) {
         next.delete(key)
       } else {

@@ -98,6 +98,7 @@ it('calls willApply before commands and didApply after, with container, commands
   } finally {
     stop()
   }
+
   apply(target)
   expect(events).toEqual(['will', 'did'])
 
@@ -110,6 +111,7 @@ it('fires for nested applies with the applying depth', () => {
       ;(globalThis as Record<string, unknown>).__probe?.()
     }
   }
+
   registerElement('probeview', ProbeView)
 
   const target = container()
@@ -129,9 +131,11 @@ it('fires for nested applies with the applying depth', () => {
     if (nested) {
       return
     }
+
     nested = true
     apply(target)
   }
+
   apply(target, [{ op: 'create', id: 1, type: 'probeview', props: { probe: true } }])
 
   expect(depths).toEqual([
@@ -140,6 +144,7 @@ it('fires for nested applies with the applying depth', () => {
     ['did', 1],
     ['did', 0],
   ])
+
   delete (globalThis as Record<string, unknown>).__probe
   stop()
 
@@ -155,6 +160,7 @@ it('iterates a snapshot and stays consistent when an observer throws', () => {
       stopFirst()
     },
   })
+
   const stopSecond = observeBatches({ willApply: () => calls.push('second') })
 
   apply(target)
@@ -172,12 +178,14 @@ it('iterates a snapshot and stays consistent when an observer throws', () => {
       throw error
     },
   })
+
   const depths: number[] = []
   const stopAfter = observeBatches({
     didApply(_container, _commands, depth) {
       depths.push(depth)
     },
   })
+
   try {
     // The carried driver patch reports observer errors without aborting a batch.
     expect(() => apply(target)).not.toThrow()

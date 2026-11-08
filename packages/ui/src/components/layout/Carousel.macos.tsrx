@@ -36,6 +36,7 @@ export function Carousel(props: CarouselProps): unknown @{
     live = useRef({ count, loop: props.hasLoop === true, snap: props.hasSnap === true, direction })
 
   live.current = { count, loop: props.hasLoop === true, snap: props.hasSnap === true, direction }
+
   const beforeMove = useRef<() => void>(() => {})
   const control = useMemo(
     () =>
@@ -65,6 +66,7 @@ export function Carousel(props: CarouselProps): unknown @{
 
   beforeMove.current = snap.invalidate
   useImperativeHandle(props.ref, () => control.handle, [])
+
   const [measured, setMeasured] = useState({ width: 0, canPrev: false, canNext: false })
   const previous = useRef(measured),
     queued = useRef(false),
@@ -79,12 +81,14 @@ export function Carousel(props: CarouselProps): unknown @{
     measuring.current = true
     try {
       const view = viewport.current
+
       snap.validate()
       if (view.window) {
         owner.current = view.window
       }
 
       const width = control.width()
+
       if (width > 0 && width !== previous.current.width) {
         snap.invalidate()
       }
@@ -103,6 +107,7 @@ export function Carousel(props: CarouselProps): unknown @{
       }
 
       const next = { width: width || previous.current.width, ...control.state() }
+
       if (
         viewport.current === view &&
         (next.width !== previous.current.width ||
@@ -120,7 +125,9 @@ export function Carousel(props: CarouselProps): unknown @{
   }
 
   const latestMeasure = useRef(measure)
+
   latestMeasure.current = measure
+
   const queueMeasure = () => {
     if (queued.current) {
       return
@@ -179,6 +186,7 @@ export function Carousel(props: CarouselProps): unknown @{
     }
 
     let token: unknown
+
     try {
       token = center.addObserverForNameObjectQueueUsingBlock(
         native.NSWindowDidUpdateNotification ?? 'NSWindowDidUpdateNotification',

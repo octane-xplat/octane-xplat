@@ -77,12 +77,14 @@ export function MdLinkRun(props: {
   children?: unknown
 }): unknown @{
   const href = props.href
+
   return (
     <span
       style={{ color: accentColor(getColorScheme()), textDecorationLine: 'underline' }}
       onLinkTap={() => {
         const event = activationEvent()
         const result = props.onLinkClick?.(href, event)
+
         if (result === false || event.defaultPrevented) {
           return
         }
@@ -106,6 +108,7 @@ export function MdCitation(props: {
 }): unknown @{
   const safe = props.source.url == null ? null : sanitizeUrl(props.source.url)
   const text = props.variant === 'number' ? `${props.number}` : `${props.source.title ?? ''}`
+
   return (
     <span
       style={{ color: accentColor(getColorScheme()) }}
@@ -132,5 +135,6 @@ export function MdInlineRoot(props: { children?: unknown }): unknown @{
  *  `--duration-medium` under the workspace reduce-motion setting. */
 export function MdFadeRun(props: { runColor?: string; children?: unknown }): unknown @{
   const color = useFadeRunColor(props.runColor)
+
   return <span style={color == null ? undefined : { color }}>{props.children}</span>
 }

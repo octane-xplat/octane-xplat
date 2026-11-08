@@ -26,7 +26,9 @@ function retire(subscription: Lifecycle): void {
   if (lifecycle === subscription) {
     lifecycle = undefined
   }
+
   const remove = subscription.remove
+
   subscription.remove = undefined
   try {
     remove?.()
@@ -37,6 +39,7 @@ function retire(subscription: Lifecycle): void {
 
 function current(): { owner: AppKitHost | undefined; store: Store } {
   let owner = installedHost()
+
   if (
     lifecycle &&
     (!owner ||
@@ -47,19 +50,24 @@ function current(): { owner: AppKitHost | undefined; store: Store } {
     retire(lifecycle)
     owner = installedHost()
   }
+
   if (!owner) {
     return { owner, store: memory }
   }
+
   let store = stores.get(owner)
+
   if (!store) {
     store = createStore()
     stores.set(owner, store)
   }
+
   // Writes accepted before host installation remain explicit pending intent.
   // Already acknowledged values from another host never cross this boundary.
   for (const [key, mutation] of memory.pending) {
     store.pending.set(key, mutation)
   }
+
   memory.pending.clear()
   memory.values.clear()
   return { owner, store }
@@ -71,6 +79,7 @@ function acknowledge(store: Store, key: string, mutation: Mutation): void {
   } else {
     store.values.set(key, mutation.value)
   }
+
   if (store.pending.get(key) === mutation) {
     store.pending.delete(key)
   }
@@ -90,6 +99,7 @@ function deliver(owner: AppKitHost, key: string, mutation: Mutation): boolean {
 
     owner.storageSet(key, mutation.value)
   }
+
   return true
 }
 
@@ -97,6 +107,7 @@ function flushStore(owner: AppKitHost | undefined, store: Store): boolean {
   if (!owner || store.busy || installedHost() !== owner) {
     return false
   }
+
   store.busy = true
   try {
     // One bounded snapshot: writes made reentrantly remain pending.
@@ -133,12 +144,16 @@ function arm(owner: AppKitHost | undefined, store: Store): void {
   if (!owner || installedHost() !== owner) {
     return
   }
+
   const subscribe = owner.onAppStateChange
   const flush = owner.storageFlush
+
   if (lifecycle || typeof subscribe !== 'function' || typeof flush !== 'function') {
     return
   }
+
   const subscription: Lifecycle = { owner, subscribe, flush, active: true }
+
   lifecycle = subscription
   try {
     const remove = subscribe.call(owner, () => {
@@ -151,6 +166,7 @@ function arm(owner: AppKitHost | undefined, store: Store): void {
         retire(subscription)
         return
       }
+
       if (owner.appState !== 'active') {
         try {
           flushStore(owner, store)
@@ -182,6 +198,7 @@ function mutate(key: string, value: string | null): void {
   const { owner, store } = current()
   const previous = store.pending.get(key)
   const mutation = { value }
+
   store.pending.set(key, mutation)
   if (owner && !store.busy) {
     store.busy = true
@@ -203,6 +220,7 @@ function mutate(key: string, value: string | null): void {
       store.busy = false
     }
   }
+
   arm(owner, store)
   // A write can happen after the host's inactive event was already delivered.
   if (owner && installedHost() === owner && owner.appState === 'inactive') {
@@ -222,11 +240,14 @@ export const storage = {
   getString(key: string): string | null {
     const { owner, store } = current()
     const pending = store.pending.get(key)
+
     if (pending) {
       return pending.value
     }
+
     if (typeof owner?.storageGet === 'function') {
       const value = owner.storageGet(key) ?? null
+
       if (value === null) {
         store.values.delete(key)
       } else {
@@ -235,6 +256,7 @@ export const storage = {
 
       return value
     }
+
     return store.values.get(key) ?? null
   },
   setString(key: string, value: string): void {
@@ -247,6 +269,7 @@ export const storage = {
    *  power loss. Missing mutation hooks keep flush() false. */
   flush(): boolean {
     const { owner, store } = current()
+
     arm(owner, store)
     return flushStore(owner, store)
   },

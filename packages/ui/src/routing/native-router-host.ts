@@ -90,9 +90,11 @@ export function createNativeRouterHost(options: {
   mount(flow: string, owner: ContentOwner): () => Promise<void>
 } {
   const timeoutMs = options.navigationTimeoutMs ?? 15000
+
   if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
     throw new TypeError('Expected a positive native navigation timeout')
   }
+
   const token = {}
   const flows = new Map<string, Flow>()
   const closingFrames = new Set<Frame>()
@@ -112,20 +114,25 @@ export function createNativeRouterHost(options: {
       listener(change)
     }
   }
+
   const release = (flow: Flow, page: Page) => {
     const content = flow.pages.get(page)
+
     if (!content) {
       return
     }
+
     flow.pages.delete(page)
     content.entry.cancel()
     content.root.unmount()
   }
+
   const reconcile = (flow: Flow) => {
     const live = new Set([
       flow.frame.currentPage,
       ...flow.frame.backStack.map((entry) => entry.resolvedPage),
     ])
+
     for (const [page, content] of flow.pages) {
       if (page === flow.frame.currentPage) {
         content.phase = 'committed'
@@ -136,27 +143,35 @@ export function createNativeRouterHost(options: {
       }
     }
   }
+
   const finish = (flow: Flow, result: RouterHostResult) => {
     const pending = flow.pending
+
     flow.pending = undefined
     pending?.settle(result)
   }
+
   const close = (flow: Flow): Promise<void> => {
     if (flow.closing) {
       return flow.closing
     }
+
     let returned!: () => void
     let failed!: (error: unknown) => void
+
     flow.closing = new Promise<void>((resolve, reject) => {
       returned = resolve
       failed = reject
     })
+
     void flow.closing.catch(() => {})
+
     const waitingForAccepted =
       !!flow.pending ||
       [...flow.pages].some(
         ([page, content]) => content.phase === 'navigating' && page !== flow.frame.currentPage,
       )
+
     const trace = (kind: OwnerEventKind, error?: unknown) => {
       if (options.onOwnerEvent) {
         try {
@@ -177,6 +192,7 @@ export function createNativeRouterHost(options: {
         console.warn('[octane-xplat] Native routing owner restoration failed')
       }
     }
+
     trace('owner-close')
     flow.closed = true
     finish(flow, { status: 'cancelled', reason: 'disposed' })
@@ -186,8 +202,10 @@ export function createNativeRouterHost(options: {
     for (const page of [...flow.pages.keys()]) {
       release(flow, page)
     }
+
     flows.delete(flow.name)
     closingFrames.add(flow.frame)
+
     let returning = false
     let timer: ReturnType<typeof setTimeout>
     const cleanup = (error?: unknown) => {
@@ -197,6 +215,7 @@ export function createNativeRouterHost(options: {
       if (frameOwners.get(flow.frame) === token) {
         frameOwners.delete(flow.frame)
       }
+
       notify({ flow: flow.name })
       if (error) {
         failed(error)
@@ -204,15 +223,18 @@ export function createNativeRouterHost(options: {
         returned()
       }
     }
+
     const returnToBase = () => {
       if (flow.frame.currentPage === flow.base) {
         trace('owner-returned')
         cleanup()
         return
       }
+
       if (returning) {
         return
       }
+
       returning = true
       trace('owner-return')
       try {
@@ -221,6 +243,7 @@ export function createNativeRouterHost(options: {
         }
 
         const baseEntry = flow.frame.backStack.find((entry) => entry.resolvedPage === flow.base)
+
         if (baseEntry) {
           flow.frame.goBack(baseEntry)
         } else {
@@ -232,35 +255,45 @@ export function createNativeRouterHost(options: {
         cleanup(error)
       }
     }
+
     flow.frame.on('navigatedTo', returnToBase)
     timer = setTimeout(() => {
       trace('owner-timeout')
       cleanup(new Error('Native Frame owner restoration did not complete'))
     }, timeoutMs)
+
     ;(timer as any).unref?.()
     if (!waitingForAccepted) {
       returnToBase()
     }
+
     return flow.closing
   }
 
   const ensure = (name: string): Flow | undefined => {
     const found = flows.get(name)
+
     if (found) {
       return found
     }
+
     const owner = owners.get(name)
     const frame = options.getFrame(name)
+
     if (!owner || owner.disposed || !frame?.currentPage) {
       return undefined
     }
+
     if (closingFrames.has(frame)) {
       return undefined
     }
+
     if (frameOwners.has(frame)) {
       throw new Error('Native Frame already belongs to a routing flow')
     }
+
     frameOwners.set(frame, token)
+
     const declaringPage = owner.host?.page as Page | undefined
     const flow: Flow = {
       name,
@@ -274,10 +307,12 @@ export function createNativeRouterHost(options: {
       closed: false,
       detach: () => {},
     }
+
     const navigating = (event: any) => {
       if (flow.closed) {
         return
       }
+
       if (event.entry?.resolvedPage !== flow.pending?.target) {
         notify({ external: true, flow: name })
         if (flow.pending) {
@@ -285,10 +320,12 @@ export function createNativeRouterHost(options: {
         }
       }
     }
+
     const navigated = () => {
       if (flow.closed) {
         return
       }
+
       reconcile(flow)
       notify({ flow: name })
       if (flow.pending?.target === frame.currentPage) {
@@ -299,8 +336,10 @@ export function createNativeRouterHost(options: {
         })
       }
     }
+
     frame.on('navigatingTo', navigating)
     frame.on('navigatedTo', navigated)
+
     const detachGesture = attachNativeBackGesture(frame, {
       canBegin: () => {
         return !!(
@@ -328,14 +367,17 @@ export function createNativeRouterHost(options: {
       },
       back: () => bindRouterFlow(instance!, name).back(),
     })
+
     flow.detach = () => {
       detachGesture()
       frame.off('navigatingTo', navigating)
       frame.off('navigatedTo', navigated)
     }
+
     flows.set(name, flow)
     return flow
   }
+
   const beginFrameOperation = (
     flow: Flow,
     target: Page,
@@ -349,19 +391,24 @@ export function createNativeRouterHost(options: {
         clearTimeout(timer)
         resolve(result)
       }
+
       fail = (error) => {
         clearTimeout(timer)
         reject(error)
       }
     })
+
     const pending = { target, done, settle, fail }
+
     flow.pending = pending
     timer = setTimeout(() => {
       if (flow.pending === pending) {
         flow.pending = undefined
       }
+
       fail(new Error('Native Frame navigation did not complete'))
     }, timeoutMs)
+
     try {
       // NativeScript may unload a retained Frame while its Page changes.
       // Match the qualified legacy adapter's public loaded re-arm.
@@ -374,8 +421,10 @@ export function createNativeRouterHost(options: {
       flow.pending = undefined
       fail(error)
     }
+
     return done
   }
+
   const host: RouterHost = {
     history: 'independent',
     canReset: true,
@@ -383,6 +432,7 @@ export function createNativeRouterHost(options: {
       const flow = flows.get(name)
       const frame = flow?.frame ?? options.getFrame(name)
       const previous = frame?.backStack.at(-1)?.resolvedPage
+
       return {
         route: frame?.currentPage
           ? (flow?.pages.get(frame.currentPage)?.entry.route ?? null)
@@ -407,15 +457,21 @@ export function createNativeRouterHost(options: {
       if (disposed) {
         return { status: 'cancelled', reason: 'disposed' }
       }
+
       if (command.action === 'dismiss' || command.route?.presentation === 'modal') {
         return { status: 'unsupported', operation: 'modal' }
       }
+
       pendingRebind.get(command.flow)?.()
+
       const waiting = readiness.get(command.flow)
+
       if (waiting) {
         let timer: ReturnType<typeof setTimeout> | undefined
+
         try {
           const waits: Promise<void | RouterHostResult>[] = [waiting]
+
           if (command.cancellation) {
             waits.push(command.cancellation)
           }
@@ -430,6 +486,7 @@ export function createNativeRouterHost(options: {
           )
 
           const cancelled = await Promise.race(waits)
+
           if (cancelled) {
             return cancelled
           }
@@ -447,30 +504,38 @@ export function createNativeRouterHost(options: {
           return { status: 'cancelled', reason: 'superseded' }
         }
       }
+
       const flow = ensure(command.flow)
+
       if (!flow || !instance) {
         return {
           status: 'blocked',
           reason: owners.has(command.flow) ? 'host-not-ready' : 'missing-outlet',
         }
       }
+
       if (flow.pending) {
         await flow.pending.done.catch(() => {})
       }
+
       if (flow.closed || flow.owner.disposed) {
         return { status: 'cancelled', reason: 'disposed' }
       }
+
       if (!command.isCurrent()) {
         return { status: 'cancelled', reason: 'superseded' }
       }
+
       if (command.action === 'back') {
         const target = flow.frame.backStack.at(-1)
+
         if (!target) {
           return { status: 'blocked', reason: 'at-base' }
         }
 
         const retained = flow.pages.get(target.resolvedPage)
         let prepared: Awaited<ReturnType<typeof prepareHistoryEntry>> | undefined
+
         if (retained) {
           prepared = await prepareHistoryEntry(instance, command, retained.entry)
           if (prepared.status !== 'ready') {
@@ -511,13 +576,17 @@ export function createNativeRouterHost(options: {
         let candidate: { root: ContentRoot; container: GridLayout } | undefined
         let updatingRetained = false
         let engineStarted = false
+
         try {
           if (entry && prepared?.status === 'ready' && prepared.redirected) {
             const container = new GridLayout()
             const root = flow.owner.createRoot(container, () => entry.cancel())
+
             candidate = { root, container }
             root.render(ClientRouteView, { entry })
+
             const rendered = await entry.committed
+
             if (rendered.status !== 'committed') {
               return rendered
             }
@@ -535,7 +604,9 @@ export function createNativeRouterHost(options: {
             updatingRetained = true
             retained.entry = entry
             retained.root.render(ClientRouteView, { entry })
+
             const rendered = await entry.committed
+
             if (rendered.status !== 'committed') {
               return rendered
             }
@@ -554,6 +625,7 @@ export function createNativeRouterHost(options: {
 
           if (retained && entry && candidate) {
             const previousRoot = retained.root
+
             target.resolvedPage.content = candidate.container
             retained.root = candidate.root
             retained.entry = entry
@@ -568,7 +640,9 @@ export function createNativeRouterHost(options: {
           const animated = flow.frame.currentEntry?.animated ?? flow.frame.animated ?? true
           const transition = flow.pages.get(flow.frame.currentPage)?.entry.route.transition
           const motion = flow.pages.get(flow.frame.currentPage)?.motion
+
           engineStarted = true
+
           const result = await beginFrameOperation(flow, target.resolvedPage, () =>
             flow.frame.goBack(target),
           )
@@ -607,11 +681,14 @@ export function createNativeRouterHost(options: {
           candidate?.root.unmount()
         }
       }
+
       if (!command.route || !command.content) {
         throw new Error('Native commit requires prepared render content')
       }
+
       if (command.action === 'refresh') {
         const current = flow.pages.get(flow.frame.currentPage)
+
         if (!current) {
           return { status: 'unsupported', operation: 'refresh-unowned-page' }
         }
@@ -632,7 +709,9 @@ export function createNativeRouterHost(options: {
         current.entry = entry
         try {
           current.root.render(ClientRouteView, { entry })
+
           const result = await entry.committed
+
           if (result.status !== 'committed') {
             return result
           }
@@ -661,15 +740,21 @@ export function createNativeRouterHost(options: {
           throw error
         }
       }
+
       const page = prepareFullScreenPage(new Page())
+
       page.actionBarHidden = true
       prepareNativeBackGesture(page)
       if (command.content.head?.title !== undefined) {
         page.actionBar.title = command.content.head.title
       }
+
       page.id = 'refined-page-' + sequence
+
       const container = new GridLayout()
+
       page.content = container
+
       const entry = createClientRouteEntry(
         instance,
         command.flow,
@@ -677,13 +762,17 @@ export function createNativeRouterHost(options: {
         command.route,
         command.content,
       )
+
       const root = flow.owner.createRoot(container, () => {
         entry.cancel()
       })
+
       flow.pages.set(page, { entry, root, phase: 'staged' })
       try {
         root.render(ClientRouteView, { entry })
+
         const rendered = await entry.committed
+
         if (rendered.status !== 'committed') {
           release(flow, page)
           return rendered
@@ -729,6 +818,7 @@ export function createNativeRouterHost(options: {
 
         flow.pages.get(page)!.motion = motion.result
         flow.pages.get(page)!.phase = 'navigating'
+
         const result = await beginFrameOperation(flow, page, () => {
           if (command.action === 'replace') {
             flow.frame.replacePage(nativeEntry)
@@ -762,6 +852,7 @@ export function createNativeRouterHost(options: {
       if (disposed) {
         return
       }
+
       disposed = true
       detachBack()
       // Lifecycle callbacks can change this collection during iteration.
@@ -769,22 +860,26 @@ export function createNativeRouterHost(options: {
       for (const flow of [...flows.values()]) {
         close(flow)
       }
+
       // Lifecycle callbacks can change this collection during iteration.
       // oxlint-disable-next-line unicorn/no-useless-spread
       for (const detach of [...pendingReady]) {
         detach()
       }
+
       owners.clear()
       listeners.clear()
       instance = undefined
     },
   }
+
   return {
     host,
     attach(router: RouterInstance<any>): void {
       if (instance || disposed) {
         throw new Error('Native host cannot be attached')
       }
+
       instance = router
       detachBack = registerNativeBackHandler(token, {
         priority: 0,
@@ -792,9 +887,11 @@ export function createNativeRouterHost(options: {
           if (disposed || !event.activity || !isNativeActivityBackEvent(event)) {
             return false
           }
+
           const candidates = [...flows.values()].sort(
             (a, b) => Number(b.name === 'root') - Number(a.name === 'root'),
           )
+
           for (const flow of candidates) {
             if (
               flow.closed ||
@@ -824,6 +921,7 @@ export function createNativeRouterHost(options: {
 
             return true
           }
+
           return false
         },
       })
@@ -832,16 +930,20 @@ export function createNativeRouterHost(options: {
       if (!instance) {
         throw new Error('Native host is not attached')
       }
+
       return createRouterRenderScope(instance, flow)
     },
     mount(flow: string, owner: ContentOwner) {
       if (disposed) {
         throw new Error('Native host is disposed')
       }
+
       if (owners.has(flow)) {
         throw new Error('A native flow already has a mounted outlet')
       }
+
       owners.set(flow, owner)
+
       // Bind the declaring base as soon as this Frame is ready. Waiting until
       // the first push can capture an unrelated later page as the owner base.
       // The Frame may not exist yet (mount runs before the platform adapter
@@ -851,13 +953,16 @@ export function createNativeRouterHost(options: {
       const waiting = new Promise<void>((resolve) => {
         releaseReady = resolve
       })
+
       readiness.set(flow, waiting)
+
       const unsubscribeFrameChange =
         options.onFrameChange?.((name) => {
           if (name === flow) {
             rebind()
           }
         }) ?? null
+
       const detachReady = () => {
         frame?.off('navigatedTo', ready)
         unsubscribeFrameChange?.()
@@ -866,29 +971,37 @@ export function createNativeRouterHost(options: {
         if (readiness.get(flow) === waiting) {
           readiness.delete(flow)
         }
+
         releaseReady()
       }
+
       const ready = () => {
         if (disposed || owners.get(flow) !== owner) {
           detachReady()
           return
         }
+
         if (!frame?.currentPage || closingFrames.has(frame)) {
           return
         }
+
         detachReady()
         ensure(flow)
       }
+
       function rebind() {
         const next = options.getFrame(flow)
+
         if (next === frame) {
           return
         }
+
         frame?.off('navigatedTo', ready)
         frame = next
         frame?.on('navigatedTo', ready)
         ready()
       }
+
       pendingReady.add(detachReady)
       pendingRebind.set(flow, rebind)
       // A remount may see the previous routed Page while its owner returns
@@ -899,7 +1012,9 @@ export function createNativeRouterHost(options: {
         detachReady()
         owners.delete(flow)
         notify({ ownerDisposed: true, flow })
+
         const state = flows.get(flow)
+
         return state ? close(state) : Promise.resolve()
       }
     },

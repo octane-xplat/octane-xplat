@@ -22,17 +22,21 @@ function topViewController(): any {
   const foregroundActive = (globalThis as any).UISceneActivationState?.ForegroundActive
   let controller: any
   const scenes = UIApplication.sharedApplication.connectedScenes.allObjects
+
   for (let i = 0; i < scenes.count; i++) {
     const scene = scenes.objectAtIndex(i) as UIWindowScene
+
     if (scene.activationState === foregroundActive) {
       controller = scene.windows.objectAtIndex(0)?.rootViewController
       break
     }
   }
+
   controller ??= UIApplication.sharedApplication.keyWindow?.rootViewController
   while (controller?.presentedViewController) {
     controller = controller.presentedViewController
   }
+
   return controller
 }
 
@@ -42,17 +46,20 @@ function iosOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrowserR
   return new Promise((resolve) => {
     const nsUrl = NSURL.URLWithString(url)
     const presenter = topViewController()
+
     if (!nsUrl || !presenter) {
       resolve({ type: 'cancel' })
       return
     }
 
     let controller: any
+
     if (
       typeof SFSafariViewControllerConfiguration !== 'undefined' &&
       (options?.toolbarColor || options?.controlsColor)
     ) {
       const config = SFSafariViewControllerConfiguration.new()
+
       if (options.toolbarColor) {
         config.preferredBarTintColor = new Color(options.toolbarColor).ios
       }
@@ -82,12 +89,15 @@ function androidOpen(url: string, options?: OpenBrowserOptions): Promise<WebBrow
     const androidUtils = Utils.android as any
     const activity = androidUtils?.getCurrentActivity?.() ?? Application.android?.foregroundActivity
     const tabs = (globalThis as any).androidx?.browser?.customtabs
+
     if (!activity || !tabs?.CustomTabsIntent) {
       resolve({ type: 'cancel' })
       return
     }
+
     try {
       const builder = new tabs.CustomTabsIntent.Builder()
+
       if (options?.toolbarColor) {
         builder.setToolbarColor(android.graphics.Color.parseColor(options.toolbarColor))
       }
@@ -120,10 +130,12 @@ function withTabsClient(
     const androidUtils = Utils.android as any
     const context = androidUtils?.getApplicationContext?.()
     const androidx = (globalThis as any).androidx?.browser?.customtabs
+
     if (!context || !androidx?.CustomTabsClient) {
       resolve()
       return
     }
+
     const pkg = packageName ?? 'com.android.chrome'
     const connection = new androidx.CustomTabsServiceConnection({
       onCustomTabsServiceConnected: (_name: any, client: any) => {
@@ -135,6 +147,7 @@ function withTabsClient(
       },
       onServiceDisconnected: () => {},
     })
+
     tabsConnection = connection
     androidx.CustomTabsClient.bindCustomTabsService(context, pkg, connection)
   })
@@ -165,12 +178,15 @@ export const webBrowser: WebBrowser = {
     if (isIOS) {
       return Promise.resolve()
     }
+
     const androidUtils = Utils.android as any
     const context = androidUtils?.getApplicationContext?.()
+
     if (context && tabsConnection) {
       context.unbindService(tabsConnection)
       tabsConnection = null
     }
+
     return Promise.resolve()
   },
 
@@ -178,8 +194,10 @@ export const webBrowser: WebBrowser = {
     if (isIOS) {
       return Promise.resolve()
     }
+
     return withTabsClient(packageName, (client) => {
       const session = client.newSession(null)
+
       session?.mayLaunchUrl(android.net.Uri.parse(url), null, null)
     })
   },

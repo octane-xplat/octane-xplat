@@ -38,6 +38,7 @@ vi.mock('@nativescript-community/octane', async (importOriginal) => ({
   ...(await importOriginal<Record<string, unknown>>()),
   createNativeScriptRoot: (host: any) => {
     const root = { host, render: vi.fn(), unmount: vi.fn() }
+
     state.roots.push(root)
     return root
   },
@@ -54,6 +55,7 @@ vi.mock('./modal-presenter', () => ({ modalPresenter: () => state.presenter }))
 vi.mock('../../theme/theme-host', () => ({
   applyThemeClasses: (host: any) => {
     const cleanup = vi.fn()
+
     state.themes.push({ host, cleanup })
     return cleanup
   },
@@ -83,6 +85,7 @@ function mount(Component: any, props: any) {
   )
 
   mounted.push(root)
+
   const render = (next: any = {}) => {
     root.render(Component, { open: true, children: 'content', ...props, ...next })
     flushUniversalSync(() => {})
@@ -117,9 +120,11 @@ describe.each([
   it('portals children from the declaring root and closes the native host', async () => {
     const onClose = vi.fn()
     const { root, render } = mount(Component, { onClose })
+
     await settle()
 
     const host = state.hosts[0]
+
     expect(state.presenter.showModal).toHaveBeenCalledTimes(1)
     expect(state.presenter.showModal).toHaveBeenCalledWith(
       host,
@@ -147,6 +152,7 @@ describe.each([
 
   it('portals component content with its explicit params', async () => {
     const { root } = mount(Component, { component: ModalComponent, params: { value: 'provided' } })
+
     await settle()
 
     expect(state.roots).toHaveLength(0)

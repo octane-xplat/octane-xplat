@@ -9,6 +9,7 @@ import {
 
 import { PowerSearchFilterEditor } from './PowerSearchFilterEditor.macos.tsrx'
 import type { PowerSearchConfig } from '../../props'
+
 // Mock child controls to retain the editor's exact callbacks. This covers
 // editor ownership, not TextInput/Button native event translation or input.
 vi.mock('./text-controls.macos.tsrx', () => ({
@@ -29,6 +30,7 @@ vi.mock('../actions/controls.macos.tsrx', () => ({
 
 vi.mock('./SegmentedControl.macos.tsrx', () => ({ SegmentedControl: () => <masonview /> }))
 vi.mock('./Tokenizer.macos.tsrx', () => ({ Tokenizer: () => <masonview /> }))
+
 const config: PowerSearchConfig = {
   name: 'range',
   fields: [
@@ -76,6 +78,7 @@ function mount() {
   const base = { config, filter: filter(), mode: 'edit', onSave: vi.fn(), onCancel: vi.fn() }
   const all = (): any[] => {
     const visit = (node: any): any[] => [node, ...(node.children?.flatMap(visit) ?? [])]
+
     return container.children.flatMap(visit)
   }
 
@@ -87,12 +90,14 @@ function mount() {
     flushUniversalSync(() => root.render(PowerSearchFilterEditor, props))
 
   const flush = () => flushUniversalSync(() => {})
+
   render(base)
   return { root, base, render, flush, fields, button, all }
 }
 
 it('routes the default editor into a range form, retains rapid endpoint edits and saves once per draft', () => {
   const f = mount()
+
   try {
     const fields = f.fields(),
       apply = f.button('Apply')
@@ -143,7 +148,9 @@ it('current readonly/filter replacement/unmount retire held callbacks without re
     expect(f.base.onSave).not.toHaveBeenCalled()
     f.render({ ...f.base, filter: old })
     expect(f.fields()[0].props.text).toBe('1970-01-01T00:00:00.000Z')
+
     const save = f.button('Apply')
+
     f.root.unmount()
     save()
     expect(f.base.onSave).not.toHaveBeenCalled()
@@ -154,10 +161,13 @@ it('current readonly/filter replacement/unmount retire held callbacks without re
 
 it('interval presets retain semantic relative parts, Cancel does not save, and consumer errors allow retry', () => {
   const f = mount()
+
   try {
     f.button('Last week')()
     f.flush()
+
     const apply = f.button('Apply')
+
     f.base.onSave.mockImplementationOnce(() => {
       throw Error('consumer failed')
     })

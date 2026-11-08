@@ -29,6 +29,7 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
         // registration path runs.
         return new Proxy({}, { get: (_, prop) => context[prop] })
       }
+
       assert.equal(name, './list-viewability-runtime')
       return {
         observeLoadedListPeer: (_list, getPeer, attach) => attach(getPeer()),
@@ -77,7 +78,9 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
 
   assert.equal(registrations.length, 1)
   assert.equal(registrations[0].options.name, 'XplatListViewabilityContentOffsetObserver')
+
   const selector = 'observeValueForKeyPath:ofObject:change:context:'
+
   assert.equal(typeof registrations[0].methods[selector], 'function')
   assert.equal(registrations[0].options.exposedMethods[selector].params.length, 4)
   assert.deepEqual(
@@ -86,7 +89,9 @@ test('iOS list viewability observer registers lazily without NativeClass', () =>
   )
 
   scheduled.shift()()
+
   const observer = observed[0].observer
+
   observer[selector]('contentOffset', table, {}, null)
   scheduled.shift()()
   assert.equal(updates.length, 2)

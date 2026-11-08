@@ -101,7 +101,9 @@ export function createInternalConfig(config: PowerSearchConfig): PowerSearchInte
 
   for (const field of config.fields) {
     fieldMap.set(field.key, field)
+
     const opMap = new Map<string, PowerSearchOperator>()
+
     for (const op of field.operators) {
       opMap.set(op.key, op)
     }
@@ -115,6 +117,7 @@ export function createInternalConfig(config: PowerSearchConfig): PowerSearchInte
     getOperator: (fieldKey, operatorKey) => operatorMap.get(fieldKey)?.get(operatorKey),
     getDefaultOperator: (fieldKey) => {
       const field = fieldMap.get(fieldKey)
+
       if (!field) {
         return undefined
       }
@@ -141,11 +144,13 @@ export function useInternalConfig(config: PowerSearchConfig): PowerSearchInterna
 function truncate(str: string, maxLength: number): string {
   // Code-point aware truncation (upstream counts in characters).
   const chars = [...str]
+
   if (chars.length <= maxLength) {
     return str
   }
 
   const keep = Math.max(maxLength - 1, 0)
+
   return chars.slice(0, keep).join('') + '\u2026'
 }
 
@@ -155,6 +160,7 @@ function formatEnumLabel(value: string, enumValues: ReadonlyArray<EnumItem>): st
 
 function formatNumber(value: number, locale?: string, units?: string): string {
   const formatted = new Intl.NumberFormat(locale).format(value)
+
   return units ? `${formatted} ${units}` : formatted
 }
 
@@ -221,6 +227,7 @@ export function formatFilterValue(
       return truncate(filterValue.value, maxLength)
     case 'string_list': {
       const items = filterValue.value
+
       if (items.length === 0) {
         return ''
       }
@@ -230,6 +237,7 @@ export function formatFilterValue(
       }
 
       const joined = items.join(', ')
+
       if (joined.length <= maxLength) {
         return joined
       }
@@ -238,17 +246,20 @@ export function formatFilterValue(
     }
     case 'enum_list': {
       const items = filterValue.value
+
       if (items.length === 0) {
         return ''
       }
 
       if (operatorValue.type === 'enum_list') {
         const labels = items.map((v) => formatEnumLabel(v, operatorValue.values))
+
         if (labels.length === 1) {
           return truncate(labels[0], maxLength)
         }
 
         const joined = labels.join(', ')
+
         if (joined.length <= maxLength) {
           return joined
         }
@@ -264,6 +275,7 @@ export function formatFilterValue(
     }
     case 'entity_list': {
       const entities = filterValue.value
+
       if (entities.length === 0) {
         return ''
       }
@@ -273,6 +285,7 @@ export function formatFilterValue(
       }
 
       const joined = entities.map((e) => e.label).join(', ')
+
       if (joined.length <= maxLength) {
         return joined
       }
@@ -295,6 +308,7 @@ export function formatFilterValue(
       return filterValue.value
     case 'nested': {
       const count = filterValue.value.length
+
       return t('@astryx.powersearch.valueEditor.filtersCount', { count })
     }
     default:
@@ -315,6 +329,7 @@ interface ValueMatch {
 
 function resolveValueMatches(op: PowerSearchOperator, rawValue: string): ValueMatch[] {
   const opType = op.value.type
+
   if (opType === 'string') {
     return [
       { displayValue: rawValue, filterValue: { type: 'string', value: rawValue }, quoted: true },
@@ -333,6 +348,7 @@ function resolveValueMatches(op: PowerSearchOperator, rawValue: string): ValueMa
 
   if (opType === 'enum') {
     const lower = rawValue.toLowerCase()
+
     return op.value.values
       .filter((item) => item.label.toLowerCase().includes(lower))
       .map((item) => ({
@@ -344,6 +360,7 @@ function resolveValueMatches(op: PowerSearchOperator, rawValue: string): ValueMa
 
   if (opType === 'enum_list') {
     const lower = rawValue.toLowerCase()
+
     return op.value.values
       .filter((item) => item.label.toLowerCase().includes(lower))
       .map((item) => ({
@@ -359,6 +376,7 @@ function resolveValueMatches(op: PowerSearchOperator, rawValue: string): ValueMa
 function buildFieldItems(config: PowerSearchInternalConfig): PowerSearchItem[] {
   const ungrouped: PowerSearchItem[] = []
   const groups = new Map<string, PowerSearchItem[]>()
+
   for (const field of config.getVisibleFields()) {
     const defaultOp = config.getDefaultOperator(field.key)
     const item: PowerSearchItem = {
@@ -396,6 +414,7 @@ export function createPowerSearchSource(
   return {
     search(query: string): PowerSearchItem[] {
       const lower = query.toLowerCase().trim()
+
       if (lower === '') {
         return allItems
       }
@@ -414,6 +433,7 @@ export function createPowerSearchSource(
 
         if (fieldMatches) {
           const defaultOp = config.getDefaultOperator(field.key)
+
           if (!seen.has(field.key)) {
             seen.add(field.key)
             results.push({
@@ -426,8 +446,10 @@ export function createPowerSearchSource(
 
         for (const op of field.operators) {
           const combinedLabel = `${field.label} ${opLabel(op)}`.toLowerCase()
+
           if (combinedLabel.includes(lower)) {
             const id = `${field.key}:${op.key}`
+
             if (!seen.has(id)) {
               seen.add(id)
               results.push({
@@ -450,17 +472,21 @@ export function createPowerSearchSource(
         const fieldLabel = field.label.toLowerCase()
 
         let hasExactOperatorMatch = false
+
         for (const op of field.operators) {
           const prefix = `${fieldLabel} ${opLabel(op).toLowerCase()} `
+
           if (lower.startsWith(prefix) && lower.length > prefix.length) {
             const rawValue = query.slice(prefix.length)
             const matches = resolveValueMatches(op, rawValue)
+
             if (matches.length > 0) {
               hasExactOperatorMatch = true
             }
 
             for (const match of matches) {
               const id = `${field.key}:${op.key}:value:${match.displayValue}`
+
               if (!seen.has(id)) {
                 seen.add(id)
                 results.push({
@@ -478,6 +504,7 @@ export function createPowerSearchSource(
         }
 
         const fieldPrefix = `${fieldLabel} `
+
         if (
           !hasExactOperatorMatch &&
           lower.startsWith(fieldPrefix) &&
@@ -490,9 +517,11 @@ export function createPowerSearchSource(
 
           if (!isOperatorPrefix) {
             const rawValue = query.slice(fieldPrefix.length)
+
             for (const op of field.operators) {
               for (const match of resolveValueMatches(op, rawValue)) {
                 const id = `${field.key}:${op.key}:value:${match.displayValue}`
+
                 if (!seen.has(id)) {
                   seen.add(id)
                   results.push({
@@ -524,6 +553,7 @@ export function createPowerSearchSource(
       if (contentFieldKey && !hasExactMatch) {
         const contentField = config.getField(contentFieldKey)
         const contentOp = config.getDefaultOperator(contentFieldKey)
+
         if (contentField && contentOp) {
           results.unshift({
             id: `__content_search__:${query}`,
@@ -593,6 +623,7 @@ const op = (key: string, i18nKey: string, value: OperatorValue): PowerSearchOper
 
 function buildField(def: FieldDefinition): PowerSearchField {
   const label = def.label ?? def.key
+
   switch (def.type) {
     case 'string':
       return {
@@ -657,6 +688,7 @@ function buildField(def: FieldDefinition): PowerSearchField {
       }
     case 'enum': {
       const values = def.enumValues ?? []
+
       return {
         key: def.key,
         label,
@@ -669,6 +701,7 @@ function buildField(def: FieldDefinition): PowerSearchField {
     }
     case 'enum_list': {
       const values = def.enumValues ?? []
+
       return {
         key: def.key,
         label,
@@ -759,6 +792,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
       }
 
       const handler = stringOpHandlers[operator]
+
       if (handler) {
         return handler(fieldValue.toLowerCase(), filterValue.value.toLowerCase())
       }
@@ -772,6 +806,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
       }
 
       const handler = numberOpHandlers[operator]
+
       if (handler) {
         return handler(fieldValue, filterValue.value)
       }
@@ -784,6 +819,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
       }
 
       const ts = toUnixSeconds(fieldValue)
+
       if (operator === DateOps.BEFORE) {
         return ts < filterValue.unixSeconds
       }
@@ -800,10 +836,12 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
       }
 
       const ts = toUnixSeconds(fieldValue)
+
       if (operator === DateOps.BETWEEN) {
         const nowSeconds = Date.now() / 1000
         const start = resolveDateTimeRangePart(filterValue.value.start, nowSeconds)
         const end = resolveDateTimeRangePart(filterValue.value.end, nowSeconds)
+
         return ts >= start && ts <= end
       }
 
@@ -827,6 +865,7 @@ export function matchesFilter(row: Record<string, unknown>, filter: PowerSearchF
     case 'enum_list':
     case 'string_list': {
       const values = toStringValues(fieldValue)
+
       if (values == null) {
         return false
       }

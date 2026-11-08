@@ -3,16 +3,20 @@
 export function installDevInspector(inspectDOM) {
   const scope = globalThis as unknown as Record<string, any>
   const key = 'octane-xplat.dev-inspector'
+
   if (!scope.document || scope[key]) {
     return
   }
+
   const documentId = `doc_${scope.crypto.randomUUID()}`
+
   scope[key] = {
     version: 1,
     documentId,
 
     interact(args) {
       const control = args?.control
+
       if (
         !args ||
         Object.keys(args).some(
@@ -31,30 +35,37 @@ export function installDevInspector(inspectDOM) {
           outcome: 'not-run',
         }
       }
+
       if (args.documentId !== documentId) {
         return {
           error: { code: 'stale_identity', message: 'The document changed; inspect again.' },
           outcome: 'not-run',
         }
       }
+
       if (Date.now() >= args.expiresAt) {
         return {
           error: { code: 'unavailable', message: 'Interaction delivery expired before dispatch.' },
           outcome: 'not-run',
         }
       }
+
       const select = () =>
         [...scope.document.querySelectorAll('[id],[data-testid]')].filter(
           (element) =>
             (control.kind === 'id' ? element.id : element.getAttribute('data-testid')) ===
             control.name,
         )
+
       const selected = select()
       const before = inspectDOM({ control, offset: 0, limit: 1, focus: false })
+
       if (before.error) {
         return { ...before, outcome: 'not-run' }
       }
+
       const host = before.controls[0]
+
       if (!host || host.hidden || host.disabled || host.sensitive || !host.hitTarget) {
         return {
           error: {
@@ -64,7 +75,9 @@ export function installDevInspector(inspectDOM) {
           outcome: 'not-run',
         }
       }
+
       const current = select()
+
       if (
         selected.length !== 1 ||
         current.length !== 1 ||
@@ -79,6 +92,7 @@ export function installDevInspector(inspectDOM) {
           outcome: 'not-run',
         }
       }
+
       if (!(current[0] instanceof scope.HTMLElement)) {
         return {
           error: {
@@ -88,12 +102,14 @@ export function installDevInspector(inspectDOM) {
           outcome: 'not-run',
         }
       }
+
       if (Date.now() >= args.expiresAt) {
         return {
           error: { code: 'unavailable', message: 'Interaction delivery expired before dispatch.' },
           outcome: 'not-run',
         }
       }
+
       try {
         scope.HTMLElement.prototype.click.call(current[0])
       } catch {
@@ -105,6 +121,7 @@ export function installDevInspector(inspectDOM) {
           outcome: 'unknown',
         }
       }
+
       return {
         documentId,
         ...before,
@@ -119,6 +136,7 @@ export function installDevInspector(inspectDOM) {
       const offset = args?.offset ?? 0
       const limit = args?.limit ?? 20
       const control = args?.control
+
       if (
         !args ||
         Object.keys(args).some((key) => !['offset', 'limit', 'control'].includes(key)) ||
@@ -138,8 +156,10 @@ export function installDevInspector(inspectDOM) {
           error: { code: 'invalid_selection', message: 'Invalid named-host inspection request.' },
         }
       }
+
       // Inspection never focuses a control or dispatches input.
       const result = inspectDOM({ control, offset, limit, focus: false })
+
       return result.error ? result : { documentId, ...result }
     },
   }

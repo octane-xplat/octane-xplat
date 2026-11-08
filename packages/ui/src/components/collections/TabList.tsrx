@@ -62,6 +62,7 @@ export function TabList(props: TabListProps): unknown @{
   useEffect(() => {
     const sv = scroller.current
     const view = views.get(props.value)
+
     if (!sv || !view) {
       return
     }
@@ -70,6 +71,7 @@ export function TabList(props: TabListProps): unknown @{
     const offset = sv.scrollLeft ?? 0
     const start = view.originX ?? 0
     const end = start + (view.getMeasuredWidth?.() ?? 0)
+
     if (start < offset) {
       sv.scrollTo?.({ left: start, behavior: 'smooth' })
     } else if (vp > 0 && end > offset + vp) {
@@ -131,11 +133,13 @@ export function Tab<
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('Tab must be used within a TabList.')
   }
 
   const isTabs = ctx.pattern === 'tabs'
+
   if (isTabs && props.to !== undefined) {
     throw new TypeError(
       'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',
@@ -210,6 +214,7 @@ export function Tab(props: NavigationItemImplementation<TabProps>) @{
  *  shared anchored Popover with menuitemradio-style rows. */
 export function TabMenu(props: TabMenuProps): unknown @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('TabMenu must be used within a TabList.')
   }

@@ -12,6 +12,7 @@ const temporary = await mkdtemp(join(tmpdir(), 'xplat-print-consumer-'))
 
 function run(command, args, cwd) {
   const result = spawnSync(command, args, { cwd, encoding: 'utf8', maxBuffer: 4 * 1024 * 1024 })
+
   assert.equal(result.status, 0, `${result.stdout ?? ''}${result.stderr ?? ''}`)
 }
 
@@ -20,22 +21,32 @@ const chunks = (result) =>
 
 try {
   const packed = join(temporary, 'packed')
+
   await mkdir(packed)
   run('bun', ['pm', 'pack', '--ignore-scripts', '--destination', packed], packageRoot)
+
   const tarballs = (await readdir(packed)).filter((name) => name.endsWith('.tgz'))
+
   assert.equal(tarballs.length, 1)
+
   const modules = join(temporary, 'node_modules')
   const scoped = join(modules, '@octane-xplat')
+
   await mkdir(scoped, { recursive: true })
   run('tar', ['-xzf', join(packed, tarballs[0]), '-C', packed], temporary)
+
   const unpacked = join(packed, 'package')
+
   await symlink(unpacked, join(scoped, 'print'), 'dir')
+
   const manifest = JSON.parse(await readFile(join(unpacked, 'package.json'), 'utf8'))
+
   for (const dependency of Object.keys({
     ...manifest.dependencies,
     ...manifest.peerDependencies,
   })) {
     const target = join(modules, dependency)
+
     await mkdir(dirname(target), { recursive: true })
     await symlink(join(packageRoot, 'node_modules', dependency), target, 'dir')
   }
@@ -83,6 +94,7 @@ printAsync({ html: 'Document', orientation: 'sideways' })
     ['native', ['native'], ['ESNext']],
   ]) {
     const config = join(temporary, `${name}.json`)
+
     await writeFile(
       config,
       JSON.stringify({

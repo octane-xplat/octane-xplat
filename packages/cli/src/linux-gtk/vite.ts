@@ -24,9 +24,11 @@ export function xplatGtkSlotDedupe() {
       if (!/\.(tsrx|tsx|ts|mts|js|mjs)$/.test(id)) {
         return
       }
+
       if (!code.includes('withSlot as _') && !code.includes('hookSlots as _')) {
         return
       }
+
       const firstLocal = new Map()
       const firstSpec = new Map()
       const fold = new Map()
@@ -35,9 +37,11 @@ export function xplatGtkSlotDedupe() {
         /import\s*\{([^}]*)\}\s*from\s*['"]([^'"]+)['"];?/g,
         (stmt, names, spec) => {
           const kept = []
+
           for (const raw of names.split(',')) {
             const part = raw.trim()
             const m = part.match(/^(withSlot|hookSlots) as (_\$[A-Za-z0-9_$]+)$/)
+
             if (!m) {
               if (part) {
                 kept.push(part)
@@ -48,6 +52,7 @@ export function xplatGtkSlotDedupe() {
 
             const [, kind, local] = m
             const prev = firstSpec.get(kind)
+
             if (prev !== undefined && prev !== spec) {
               throw new Error(
                 `xplat-gtk-slot-dedupe: ${kind} imported from '${prev}' and '${spec}' in ${id}`,
@@ -67,22 +72,27 @@ export function xplatGtkSlotDedupe() {
             firstSpec.set(kind, spec)
             kept.push(part)
           }
+
           if (!kept.length) {
             changed = true
             return ''
           }
+
           return `import { ${kept.join(', ')} } from '${spec}';`
         },
       )
+
       for (const [from, to] of fold) {
         // `\b` is wrong here: `$` is not a word char, so `_$hookSlots` would
         // match the prefix of `_$hookSlots$1`. Refuse any name continuation.
         const rx = new RegExp(from.replace(/\$/g, '\\$') + '(?![\\w$])', 'g')
+
         if (rx.test(out)) {
           changed = true
           out = out.replace(rx, to)
         }
       }
+
       return changed ? { code: out } : undefined
     },
   }
@@ -106,15 +116,21 @@ export function xplatGtkLeafResolve() {
         if (!importer || !/^\.{1,2}\//.test(source)) {
           return null
         }
+
         const match = source.match(/\.(tsrx|tsx|ts|mts|mjs|jsx|js)$/)
+
         if (!match || source.includes('.gtk.') || source.includes('.d.')) {
           return null
         }
+
         const stem = source.slice(0, -match[0].length)
+
         if (stem.endsWith('.gtk')) {
           return null
         }
+
         const candidate = join(importer, '..', stem + '.gtk' + match[0])
+
         return existsSync(candidate) ? candidate : null
       },
     },
@@ -128,6 +144,7 @@ export async function xplatLinuxGtk(env, options = {}) {
   const { octane } = await import(
     pathToFileURL(realpathSync(appRequire.resolve('@octanejs/vite-plugin'))).href
   )
+
   const resolveApp = (name) => realpathSync(appRequire.resolve(name))
   const rendererEntry = resolveApp(renderer)
   // The universal runtime must be the same module the bundler reaches —

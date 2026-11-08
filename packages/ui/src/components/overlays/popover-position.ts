@@ -74,6 +74,7 @@ export function positionPopover(
   const raw = placement === requested ? preferred : at(placement)
   const maxLeft = Math.max(viewport.left, viewport.left + viewport.width - panel.width)
   const maxTop = Math.max(viewport.top, viewport.top + viewport.height - panel.height)
+
   return {
     left: Math.min(maxLeft, Math.max(viewport.left, raw.left)),
     top: Math.min(maxTop, Math.max(viewport.top, raw.top)),
@@ -116,6 +117,7 @@ export function layerOffset(offset: number | string | undefined): number {
   }
 
   const value = typeof offset === 'number' ? offset : parseFloat(offset)
+
   return Number.isFinite(value) ? Math.max(0, value) : 0
 }
 
@@ -148,6 +150,7 @@ export function nativeLayerRTL(view: any): boolean {
 
   for (let current = view; current; current = current.parent ?? current.superview) {
     const direction = current.direction ?? current.style?.direction
+
     if (direction === 'rtl' || direction === 'ltr') {
       return direction === 'rtl'
     }

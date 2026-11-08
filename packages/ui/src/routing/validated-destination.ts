@@ -17,12 +17,15 @@ function entry(value: unknown) {
   if (!value || typeof value !== 'object' || !(marker in value)) {
     return undefined
   }
+
   const result = destinations.get(value)
+
   if (!result) {
     throw new TypeError(
       'Use the original validated destination; copies and serialized values have no validation proof',
     )
   }
+
   return result
 }
 
@@ -37,12 +40,15 @@ export function createValidatedDestination(
       Array.isArray(value) ? Object.freeze([...value]) : value,
     ]),
   )
+
   const snapshot = Object.freeze({
     ...destination,
     params: Object.freeze({ ...destination.params }),
     search: Object.freeze(search),
   })
+
   const handle = Object.freeze({ [marker]: true })
+
   destinations.set(handle, { owner, destination: snapshot })
   return handle as unknown as ValidatedDestination
 }
@@ -51,12 +57,15 @@ export function createValidatedDestination(
  * current matching, validation and guards; this is no authorization/cache token. */
 export function resolveValidatedDestination(value: unknown, owner?: object): unknown {
   const checked = entry(value)
+
   if (!checked) {
     return value
   }
+
   if (checked.owner !== owner) {
     throw new TypeError('Validated destination belongs to a different router instance')
   }
+
   return checked.destination
 }
 
@@ -68,15 +77,19 @@ export function validatedDestinationHref(
   options: { stack: string; base?: string },
 ): string | undefined {
   const checked = entry(value)
+
   if (!checked) {
     return undefined
   }
+
   if (checked.owner !== owner) {
     throw new TypeError('Validated destination belongs to a different router instance')
   }
+
   const destination = checked.destination
   const segments = routePatternSegments(destination.to)
   const stack = destination.stack ?? options.stack
+
   return buildRouteLocation(
     segments,
     destination.params,

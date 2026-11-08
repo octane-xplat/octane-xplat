@@ -25,24 +25,32 @@ export function observeNativeImage(
     if (!active || host.src !== source) {
       return
     }
+
     started ||= host.isLoading
+
     const width = host.imageSource?.width ?? 0
     const height = host.imageSource?.height ?? 0
     const valid = width > 0 && height > 0 && Number.isFinite(width) && Number.isFinite(height)
+
     if (!valid && (!started || host.isLoading)) {
       return
     }
+
     const result = { width: valid ? width : 0, height: valid ? height : 0, failed: !valid }
     const key = `${result.width}/${result.height}/${result.failed}`
+
     if (key === previous) {
       return
     }
+
     previous = key
     changed(result)
   }
+
   for (const event of ['imageSourceChange', 'isLoadingChange', 'loaded']) {
     host.on(event, read)
   }
+
   read()
   return (): void => {
     active = false

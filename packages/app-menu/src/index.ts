@@ -1,6 +1,7 @@
 import { createAppMenuService } from './controller.js'
 import { host } from './host.js'
 import type { AppMenuService } from './shared.js'
+
 export * from './shared.js'
 
 /** The application menu service — install at most one menu bar per process.

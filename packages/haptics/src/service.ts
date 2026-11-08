@@ -26,6 +26,7 @@ const available = (): boolean => haptics.supported
 
 const withEngine = (run: (engine: Haptics) => boolean | void) => {
   const engine = getEngine()
+
   if (!engine?.capabilities().supported) {
     throw new UnavailabilityError('haptics')
   }

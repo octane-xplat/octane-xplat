@@ -34,6 +34,7 @@ export class ProjectionRoot {
       now: options.clock.now,
       request: (tick) => {
         const id = ++this.nextTickId
+
         this.queuedTicks.set(id, tick)
         this.ensureFrame()
         return id
@@ -50,14 +51,18 @@ export class ProjectionRoot {
 
   add(node: ProjectionNode): void {
     node.root = this
+
     let index = this.nodes.length
+
     while (index > 0 && this.nodes[index - 1].depth > node.depth) {
       index--
     }
+
     this.nodes.splice(index, 0, node)
     if (node.options.layoutId !== undefined) {
       const key = node.options.layoutId
       let stack = this.sharedStacks.get(key)
+
       if (!stack) {
         stack = new SharedStack()
         this.sharedStacks.set(key, stack)
@@ -65,6 +70,7 @@ export class ProjectionRoot {
 
       stack.add(node)
     }
+
     if (this.nodes.length === 1) {
       this.observeStop = this.options.barrier.observe(this)
     }
@@ -72,9 +78,11 @@ export class ProjectionRoot {
 
   remove(node: ProjectionNode): void {
     const index = this.nodes.indexOf(node)
+
     if (index === -1) {
       return
     }
+
     this.nodes.splice(index, 1)
     node.shared?.remove(node)
     node.detach()
@@ -95,6 +103,7 @@ export class ProjectionRoot {
     if (this.passScheduled || (!this.nodes.length && !this.sharedStacks.size)) {
       return
     }
+
     this.passScheduled = true
     this.options.barrier.schedule(() => {
       this.passScheduled = false
@@ -116,6 +125,7 @@ export class ProjectionRoot {
     if (this.frameScheduled) {
       return
     }
+
     this.frameScheduled = true
     this.options.clock.request(() => this.runFrame())
   }
@@ -130,6 +140,7 @@ export class ProjectionRoot {
     }
 
     const ticks = [...this.queuedTicks.values()]
+
     this.queuedTicks.clear()
     for (const tick of ticks) {
       tick()
@@ -150,8 +161,10 @@ export class ProjectionRoot {
 
     for (const node of this.nodes) {
       const measurement = node.hooks?.measureLayout()
+
       if (measurement) {
         const previous = node.layout
+
         node.layout = measurement
         node.rebaseDrag(previous)
         if (!previous || !boxEqualsRounded(previous.layoutBox, measurement.layoutBox)) {
@@ -173,9 +186,11 @@ export class ProjectionRoot {
     for (const stack of this.sharedStacks.values()) {
       stack.prepare()
     }
+
     for (const node of this.nodes) {
       node.notifyLayoutUpdate()
     }
+
     this.updateProjection()
     for (const [key, stack] of this.sharedStacks) {
       stack.settleExits()
@@ -198,6 +213,7 @@ export class ProjectionRoot {
     for (const stack of this.sharedStacks.values()) {
       stack.complete()
     }
+
     this.updateProjection()
   }
 
@@ -206,6 +222,7 @@ export class ProjectionRoot {
     for (const node of this.nodes) {
       propagateDirtyNodes(node)
     }
+
     for (const node of this.nodes) {
       if (node.shared?.lead && node.shared.lead !== node) {
         node.shared.follow(node)
@@ -213,18 +230,23 @@ export class ProjectionRoot {
         node.resolveTargetDelta()
       }
     }
+
     for (const node of this.nodes) {
       node.calcProjection()
     }
+
     for (const node of this.nodes) {
       node.render()
     }
+
     for (const node of this.nodes) {
       node.renderOpacity()
     }
+
     for (const node of this.nodes) {
       node.refreshPresented()
     }
+
     for (const node of this.nodes) {
       cleanDirtyNodes(node)
     }

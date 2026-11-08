@@ -13,6 +13,7 @@ function makeFixture(): { path: string; width: number; height: number } {
   const w = 360
   const h = 640
   const source = new ImageSource()
+
   if (isAndroid) {
     const bmp = (globalThis as any).android.graphics.Bitmap.createBitmap(
       w,
@@ -30,6 +31,7 @@ function makeFixture(): { path: string; width: number; height: number } {
     ;(globalThis as any).UIColor.redColor.setFill()
 
     ;(globalThis as any).UIRectFill((globalThis as any).CGRectMake(0, 0, w, h))
+
     const img = (globalThis as any).UIGraphicsGetImageFromCurrentImageContext()
 
     ;(globalThis as any).UIGraphicsEndImageContext()
@@ -37,11 +39,13 @@ function makeFixture(): { path: string; width: number; height: number } {
   }
 
   const file = nsPath.join(knownFolders.temp().path, `issue41-${w}x${h}.png`)
+
   if (!source.saveToFile(file, 'png')) {
     throw new Error('failed to write fixture PNG')
   }
 
   const check = ImageSource.fromFileSync(file)
+
   expect(check?.width).toBe(w)
   expect(check?.height).toBe(h)
   return { path: file, width: check?.width ?? -1, height: check?.height ?? -1 }
@@ -60,12 +64,14 @@ async function settle(view: any, grid: any, ids: string[]) {
   await waitUntil(
     () => {
       const g = grid?.getActualSize?.().width > 0
+
       if (!g) {
         return false
       }
 
       return ids.every((id) => {
         const el: any = view.getViewById(id)
+
         return el && !el.isLoading && el.imageSource && el.getActualSize().width > 0
       })
     },
@@ -167,11 +173,13 @@ function ImageItems() @{
 async function runCase(component: any, tileIds: string[]) {
   const { view } = await mountXplat(component)
   const grid: any = view.getViewById('grid')
+
   await settle(view, grid, ['img-0', 'img-1'])
   await waitUntil(
     () =>
       tileIds.every((id) => {
         const tile: any = view.getViewById(id)
+
         return tile && Math.abs(tile.getActualSize().width - 201) <= 1
       }),
     { message: 'percentage images inflated the two 201-point tracks' },
@@ -179,6 +187,7 @@ async function runCase(component: any, tileIds: string[]) {
 
   for (const [index, id] of tileIds.entries()) {
     const tile: any = view.getViewById(id)
+
     expect(tile).toBeDefined()
     expect(tile.getActualSize().width).toBeCloseTo(201, 0)
     expect(tile.getLocationRelativeTo(grid).x).toBeCloseTo(index * 201, 0)
@@ -186,6 +195,7 @@ async function runCase(component: any, tileIds: string[]) {
 
   for (const id of ['img-0', 'img-1']) {
     const image: any = view.getViewById(id)
+
     expect(image.getActualSize().width).toBeCloseTo(201, 0)
     expect(image.getActualSize().height).toBeCloseTo(402, 0)
   }

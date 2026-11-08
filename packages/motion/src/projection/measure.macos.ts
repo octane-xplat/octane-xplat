@@ -5,14 +5,17 @@ export function measureNativeBox(view: any, viewport = false): Box | null {
   if (!view?.superview) {
     return null
   }
+
   let x = 0
   let y = 0
   const width = view.bounds.size.width
   const height = view.bounds.size.height
+
   for (let current = view; current.superview; current = current.superview) {
     const parent = current.superview
     const frame = current.frame
     const flipped = typeof parent.isFlipped === 'function' ? parent.isFlipped() : parent.isFlipped
+
     x += frame.origin.x
     y += flipped ? frame.origin.y : parent.bounds.size.height - frame.origin.y - frame.size.height
     if (viewport) {
@@ -20,5 +23,6 @@ export function measureNativeBox(view: any, viewport = false): Box | null {
       y += (flipped ? -1 : 1) * (parent.bounds.origin?.y ?? 0)
     }
   }
+
   return { x: { min: x, max: x + width }, y: { min: y, max: y + height } }
 }

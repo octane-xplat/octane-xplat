@@ -38,18 +38,23 @@ const browser = await chromium.launch()
 
 try {
   await server.listen()
+
   const address = server.httpServer.address()
+
   if (!address || typeof address === 'string') {
     throw new Error('Vite did not expose a TCP port')
   }
 
   const page = await browser.newPage()
   const pageErrors = []
+
   page.on('pageerror', (error) => pageErrors.push(error.message))
   await page.goto(`http://127.0.0.1:${address.port}/`)
   await page.waitForFunction(() => window.__lexicalSmoke?.ready === 1, { timeout: 30000 })
   await page.waitForFunction(() => window.__lexicalSmoke?.jsonReady.length === 1)
+
   const input = page.locator('#lexical-input')
+
   if ((await input.getAttribute('contenteditable')) !== 'true') {
     throw new Error('Editor did not mount editable')
   }

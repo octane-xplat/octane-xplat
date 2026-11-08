@@ -18,7 +18,9 @@ const catalog = defineRoutes([
 
 const platform = createBrowserRouterHost()
 const navigation = createRouter({ catalog, host: platform.host, stacks: ['catalog'] })
+
 platform.attach(navigation)
+
 let cancel = false
 let disabledPresses = 0
 function Links() {
@@ -67,8 +69,11 @@ function Links() {
 
 it('keeps anchor behavior and routes ordinary activation within the owning pane', async () => {
   history.replaceState(null, '', '/')
+
   const container = document.createElement('div')
+
   document.body.append(container)
+
   const root = createRoot(container)
   // Observe the component's decision, then suppress jsdom's external navigation.
   let intercepted = false
@@ -78,8 +83,10 @@ it('keeps anchor behavior and routes ordinary activation within the owning pane'
   }
 
   document.addEventListener('click', observe)
+
   const click = (id: string, init: MouseEventInit = {}) => {
     const event = new MouseEvent('click', { bubbles: true, cancelable: true, ...init })
+
     act(() => container.querySelector('#' + id)!.dispatchEvent(event))
     return intercepted
   }
@@ -142,7 +149,9 @@ it('matches path segments and explicitly selected search/hash values', () => {
   ).toBe(true)
 
   expect(navLinkIsActive('/items#old', '/items#new', { matchHash: true })).toBe(false)
+
   const event = navLinkActivation()
+
   event.preventDefault()
   expect(event.defaultPrevented).toBe(true)
 })

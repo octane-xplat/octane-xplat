@@ -80,9 +80,11 @@ function PopoverLayer(props: PopoverInternalProps & { anchorView: any }) @{
   }
 
   const latest = useRef(options)
+
   latest.current = options
   useEffect(() => {
     const instance = props.anchorView.createPopover(latest.current)
+
     live.current = instance
     setSession(instance)
     return () => {
@@ -125,9 +127,11 @@ export function Popover(props: PopoverProps): unknown @{
   const [internal, setInternal] = useState(props.defaultOpen ?? false)
   const [anchor, setAnchor] = useState<any>(null)
   const open = props.open ?? internal
+
   useEffect(() => {
     const raw = props.anchor?.current ?? null
     const next = (raw as any)?.native !== undefined ? (raw as any).native : raw
+
     if (next !== anchor) {
       setAnchor(next)
     }

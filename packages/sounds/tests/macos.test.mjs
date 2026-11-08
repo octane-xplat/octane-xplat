@@ -19,6 +19,7 @@ function fixture({ absent = false } = {}) {
     exports: {},
     setInterval(callback) {
       const id = ++nextTimer
+
       timers.set(id, callback)
       return id
     },
@@ -111,6 +112,7 @@ function fixture({ absent = false } = {}) {
 
 test('constructs safely without AppKit and normalizes limits', async () => {
   const f = fixture({ absent: true })
+
   for (const [input, limit] of [
     [0, 1],
     [2.9, 2],
@@ -118,6 +120,7 @@ test('constructs safely without AppKit and normalizes limits', async () => {
     [Infinity, 6],
   ]) {
     const bank = f.create({ maxVoices: input })
+
     assert.equal(bank.capabilities().maxVoices, limit)
     assert.equal(bank.capabilities().supported, false)
     assert.equal(bank.capabilities().userGestureRequired, false)
@@ -130,16 +133,21 @@ test('constructs safely without AppKit and normalizes limits', async () => {
 test('overlap, oldest eviction, volume and targeted/global stop', async () => {
   const f = fixture()
   const bank = f.create({ maxVoices: 2 })
+
   assert.equal(await bank.play('missing'), false)
   await bank.load('one', { uri: '/one' })
   await bank.load('two', '/two')
   assert.equal(await bank.play('one', { volume: 0.25 }), true)
   assert.equal(await bank.play('one', { volume: 0.75 }), true)
+
   const [first, second] = f.players.slice(-2)
+
   assert.equal(first.playing && second.playing, true)
   assert.deepEqual([first.volume, second.volume], [0.25, 0.75])
   assert.equal(await bank.play('two', { volume: 5 }), true)
+
   const third = f.players.at(-1)
+
   assert.equal(first.playing, false)
   assert.equal(second.playing && third.playing, true)
   assert.equal(third.volume, 1)
@@ -173,9 +181,12 @@ test('overlap, oldest eviction, volume and targeted/global stop', async () => {
 test('completion frees voices and stops the owned timer', async () => {
   const f = fixture()
   const bank = f.create({ maxVoices: 1 })
+
   await bank.load('one', '/one')
   await bank.play('one')
+
   const finished = f.players.at(-1)
+
   finished.playing = false
   f.tick()
   assert.equal(f.timers.size, 0)
@@ -188,12 +199,15 @@ test('completion frees voices and stops the owned timer', async () => {
 test('reload stops all matching voices while preserving other sounds', async () => {
   const f = fixture()
   const bank = f.create()
+
   await bank.load('one', '/one')
   await bank.load('two', '/two')
   await bank.play('one')
   await bank.play('one')
   await bank.play('two')
+
   const [first, second, other] = f.players.slice(-3)
+
   await bank.load('one', '/new')
   assert.equal(first.playing || second.playing, false)
   assert.equal(other.playing, true)
@@ -205,6 +219,7 @@ test('reload stops all matching voices while preserving other sounds', async () 
 test('load failure rejects; unprepared or refused playback never leaks a voice', async () => {
   const f = fixture()
   const bank = f.create()
+
   for (const uri of ['/missing', '/malformed', '/prepare-failure']) {
     await assert.rejects(bank.load('one', uri))
     assert.equal(await bank.play('one'), false)
@@ -220,6 +235,7 @@ test('load failure rejects; unprepared or refused playback never leaks a voice',
 test('remote load checks HTTP failure and validates downloaded bytes', async () => {
   const f = fixture()
   const bank = f.create()
+
   for (const [bytes, status, error] of [
     ['/one', 404, null],
     [null, 200, null],
@@ -228,12 +244,14 @@ test('remote load checks HTTP failure and validates downloaded bytes', async () 
   ]) {
     const loading = bank.load('one', 'https://example.test/one')
     const rejected = assert.rejects(loading)
+
     assert.equal(f.tasks.at(-1).resumed, true)
     f.tasks.at(-1).callback(bytes, { statusCode: status }, error)
     await rejected
   }
 
   const loading = bank.load('one', 'https://example.test/one')
+
   f.tasks.at(-1).callback('/one', { statusCode: 200 }, null)
   await loading
   assert.equal(await bank.play('one'), true)
@@ -245,6 +263,7 @@ test('dispose cancels pending load, rejects promptly, and ignores late callbacks
   const bank = f.create()
   const loading = bank.load('one', 'https://example.test/one')
   const rejected = assert.rejects(loading, /cancelled/)
+
   bank.dispose()
   assert.equal(f.tasks[0].cancelled, true)
   await rejected
@@ -259,6 +278,7 @@ test('replacement cancels previous load and late callbacks cannot replace it', a
   const bank = f.create()
   const pending = bank.load('one', 'https://example.test/one')
   const rejected = assert.rejects(pending, /cancelled/)
+
   await bank.load('one', '/replacement')
   await rejected
   f.tasks[0].callback('/stale', { statusCode: 200 }, null)

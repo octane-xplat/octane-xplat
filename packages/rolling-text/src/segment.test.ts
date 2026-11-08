@@ -15,8 +15,11 @@ describe('segmentUnits (grapheme)', () => {
 
   it('keeps combining marks and joined emoji whole', () => {
     const composed = segmentUnits('é') // e + combining acute
+
     expect(composed).toEqual(['é'])
+
     const family = segmentUnits('👨‍👩‍👧')
+
     expect(family).toEqual(['👨‍👩‍👧'])
   })
 

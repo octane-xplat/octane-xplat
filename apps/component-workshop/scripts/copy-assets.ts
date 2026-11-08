@@ -13,11 +13,15 @@ function inspect(file: string) {
   if (seen.has(file) || !existsSync(file)) {
     return
   }
+
   seen.add(file)
+
   const source = readFileSync(file, 'utf8')
+
   for (const match of source.matchAll(/['"]\/template-assets\/([^'"`]+)['"]/g)) {
     assets.add(match[1])
   }
+
   for (const match of source.matchAll(/from\s*['"](\.[^'"]+)['"]/g)) {
     const base = resolve(dirname(file), match[1])
     const dependency = [
@@ -55,6 +59,7 @@ for (const asset of assets) {
 
   const source = resolve(root, '../astryx-sandbox/public/template-assets', asset)
   const destination = resolve(root, 'dist/template-assets', asset)
+
   if (!existsSync(source)) {
     throw new Error(`Missing showcase asset ${asset}`)
   }

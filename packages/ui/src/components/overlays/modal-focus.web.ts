@@ -1,6 +1,7 @@
 import './layer-keys.web'
 import { isTopLayer, layerContains, registerLayer } from './layer-stack'
 import { focusBrowserTarget } from '../../internal/accessibility/focus-target.web'
+
 type Scope = {
   layer: HTMLElement
   panel: HTMLElement
@@ -26,12 +27,15 @@ function topScope(): Scope | undefined {
 export function modalPortalOwner(anchor: HTMLElement): { target: HTMLElement; depth?: number } {
   const target =
     anchor.closest<HTMLElement>('dialog[open],[data-vx-modal-layer]') ?? anchor.ownerDocument.body
+
   const scope = [...scopes].reverse().find((scope) => scope.layer.contains(anchor))
+
   return { target, depth: scope === undefined ? undefined : scope.depth + 1 }
 }
 
 function updateIsolation(): void {
   const top = topScope()
+
   if (!top) {
     for (const [element, inert] of originalInert) {
       if (!inert) {
@@ -49,6 +53,7 @@ function updateIsolation(): void {
     }
 
     const inert = originalInert.get(element) || !element.contains(top.layer)
+
     element.toggleAttribute('inert', inert)
   }
 }
@@ -60,6 +65,7 @@ function isTabStop(element: HTMLElement): boolean {
 
   for (let parent: HTMLElement | null = element; parent; parent = parent.parentElement) {
     const style = getComputedStyle(parent)
+
     if (style.display === 'none' || style.visibility === 'hidden') {
       return false
     }
@@ -95,6 +101,7 @@ function captureClickTargets(document: Document): void {
         }
 
         const element = target as HTMLElement
+
         if (element.matches(TAB_STOP_SELECTOR) && isTabStop(element)) {
           recentClickTargets.set(document, { element, at: Date.now() })
           return
@@ -121,7 +128,9 @@ export function isolateModalFocus(
   resolveReturnTarget?: (trigger: HTMLElement | null) => HTMLElement | null,
 ): () => void {
   const document = layer.ownerDocument
+
   captureClickTargets(document)
+
   const recentClick = recentClickTargets.get(document)
   const clickTrigger =
     recentClick && Date.now() - recentClick.at <= CLICK_TRIGGER_MAX_AGE_MS
@@ -129,6 +138,7 @@ export function isolateModalFocus(
       : null
 
   recentClickTargets.delete(document)
+
   const scope: Scope = {
     layer,
     panel,
@@ -137,6 +147,7 @@ export function isolateModalFocus(
   }
 
   const tabIndex = panel.getAttribute('tabindex')
+
   if (tabIndex === null) {
     panel.tabIndex = -1
   }
@@ -180,6 +191,7 @@ export function isolateModalFocus(
     if (event.key === 'Tab') {
       const stops = tabStops(panel)
       const index = stops.indexOf(document.activeElement as HTMLElement)
+
       if (
         !stops.length ||
         index < 0 ||
@@ -199,6 +211,7 @@ export function isolateModalFocus(
   return () => {
     const wasTop = topScope() === scope
     const index = scopes.indexOf(scope)
+
     if (index < 0) {
       return
     }
@@ -226,10 +239,12 @@ export function isolateModalFocus(
 
     if (wasTop) {
       const trigger = resolveReturnTarget?.(scope.trigger) ?? scope.trigger
+
       if (trigger?.isConnected && !trigger.closest('[inert]')) {
         focusBrowserTarget(trigger)
       } else {
         const remaining = topScope()
+
         if (remaining) {
           ;(tabStops(remaining.panel)[0] ?? remaining.panel).focus({ preventScroll: true })
         }

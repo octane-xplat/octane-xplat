@@ -25,6 +25,7 @@ test('AppKit query storage persists through the host defaults bridge', async () 
   // A Map stands in for NSUserDefaults — it outlives each module instance,
   // which is what a process restart looks like to the adapter.
   const backing = new Map()
+
   globalThis.__xplatAppKit = {
     storageGet: (key) => backing.get(key) ?? null,
     storageSet: (key, value) => void backing.set(key, value),
@@ -33,11 +34,13 @@ test('AppKit query storage persists through the host defaults bridge', async () 
 
   const first = (await importStorage()).platformQueryStorage
   const envelope = '{"v":1,"t":0,"d":{"name":"ada"}}'
+
   first.set('xplat:query:app:user', envelope)
   assert.equal(first.get('xplat:query:app:user'), envelope)
 
   // A recreated adapter instance reads the same durable snapshot.
   const second = (await importStorage()).platformQueryStorage
+
   assert.equal(second.get('xplat:query:app:user'), envelope)
 
   second.remove('xplat:query:app:user')
@@ -47,7 +50,9 @@ test('AppKit query storage persists through the host defaults bridge', async () 
 
 test('AppKit query storage falls back to process memory without a bridge', async () => {
   delete globalThis.__xplatAppKit
+
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('xplat:query:app:user', '{}')
   assert.equal(storage.get('xplat:query:app:user'), '{}')
   storage.remove('xplat:query:app:user')
@@ -68,6 +73,7 @@ test('AppKit query storage keeps writes best-effort and exposes failed reads and
   }
 
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('xplat:query:app:user', '{}')
   assert.throws(() => storage.remove('xplat:query:app:user'), /AppKit query storage removal failed/)
   assert.throws(() => storage.get('xplat:query:app:user'), /AppKit query storage read failed/)
@@ -75,12 +81,14 @@ test('AppKit query storage keeps writes best-effort and exposes failed reads and
 
 test('AppKit query storage never promotes pre-host memory or revives it after host loss', async () => {
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('record', 'old')
   globalThis.__xplatAppKit = {
     storageGet: () => null,
     storageSet() {},
     storageRemove() {},
   }
+
   assert.equal(storage.get('record'), null)
   storage.remove('record')
   delete globalThis.__xplatAppKit
@@ -95,8 +103,11 @@ test('AppKit query storage isolates partial bridges and refuses an unconfirmed d
       return 'native'
     },
   }
+
   globalThis.__xplatAppKit = first
+
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('record', 'memory')
   assert.equal(storage.get('record'), 'memory')
   assert.equal(nativeReads, 0)
@@ -109,8 +120,11 @@ test('AppKit query storage isolates partial bridges and refuses an unconfirmed d
 
 test('AppKit query storage discards partial-cache mirrors when a complete bridge appears', async () => {
   const owner = {}
+
   globalThis.__xplatAppKit = owner
+
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('record', 'old')
   owner.storageGet = () => null
   owner.storageSet = () => {}
@@ -133,8 +147,11 @@ test('AppKit query storage preserves hook receivers and attempts partial removal
       this.data.delete(key)
     },
   }
+
   globalThis.__xplatAppKit = owner
+
   const storage = (await importStorage()).platformQueryStorage
+
   storage.set('record', 'native')
   assert.equal(storage.get('record'), 'native')
   delete owner.storageSet
@@ -148,7 +165,9 @@ test('AppKit query storage refuses a durable purge after a previously observed b
     storageSet() {},
     storageRemove() {},
   }
+
   const storage = (await importStorage()).platformQueryStorage
+
   assert.equal(storage.get('record'), 'native')
   delete globalThis.__xplatAppKit
   assert.throws(() => storage.remove('record'), /incomplete bridge/)

@@ -7,10 +7,12 @@ function model() {
   const callbacks: (() => void)[] = [],
     tokens: object[] = [],
     removed: object[] = []
+
   const effects: { add?: () => void; remove?: (token: object) => void } = {}
   const view = {},
     clip: any = {},
     viewport = { contentView: clip, documentView: view }
+
   const node: any = { view, textViewport: viewport }
   const center: any = {
     addObserverForNameObjectQueueUsingBlock(
@@ -23,7 +25,9 @@ function model() {
       assert.equal(name, 'frame')
       assert.equal(target, clip)
       assert.equal(queue, null)
+
       const token = {}
+
       tokens.push(token)
       callbacks.push(callback)
       callback() // Registration may invoke a callback before returning its handle.
@@ -36,10 +40,12 @@ function model() {
       effects.remove?.(token)
     },
   }
+
   const host = {
     NSNotificationCenter: { defaultCenter: center },
     NSViewFrameDidChangeNotification: 'frame',
   }
+
   return { node, view, clip, viewport, center, host, callbacks, tokens, removed, effects }
 }
 
@@ -53,6 +59,7 @@ test('observation captures its center and cleanup, suppresses setup and retires 
     },
     () => f.host,
   )!
+
   assert.equal(fits, 0)
   assert.equal(f.clip.postsFrameChangedNotifications, true)
   f.callbacks[0]()
@@ -61,6 +68,7 @@ test('observation captures its center and cleanup, suppresses setup and retires 
   f.center.removeObserver = () => {
     throw Error('replacement remover must not run')
   }
+
   stop()
   stop()
   retireTextViewLayout(f.node)
@@ -73,7 +81,9 @@ test('observation captures its center and cleanup, suppresses setup and retires 
 test('retirement during registration releases the late token and prevents resurrection', () => {
   const f = model()
   let fits = 0
+
   f.effects.add = () => retireTextViewLayout(f.node)
+
   const stop = observeTextViewLayout(
     f.node,
     () => {
@@ -81,6 +91,7 @@ test('retirement during registration releases the late token and prevents resurr
     },
     () => f.host,
   )
+
   stop?.()
   f.callbacks[0]()
   assert.equal(fits, 0)
@@ -96,18 +107,22 @@ test('retirement during registration releases the late token and prevents resurr
     ),
     undefined,
   )
+
   assert.equal(f.tokens.length, 1)
 })
 
 test('old cleanup cannot replace a newer observer admitted during replacement', () => {
   const f = model(),
     fits: string[] = []
+
   observeTextViewLayout(
     f.node,
     () => fits.push('old'),
     () => f.host,
   )
+
   let newest: (() => void) | undefined
+
   f.effects.remove = (token) => {
     if (token === f.tokens[0]) {
       newest = observeTextViewLayout(
@@ -117,11 +132,13 @@ test('old cleanup cannot replace a newer observer admitted during replacement', 
       )
     }
   }
+
   const superseded = observeTextViewLayout(
     f.node,
     () => fits.push('superseded'),
     () => f.host,
   )
+
   assert.equal(f.tokens.length, 2)
   assert.equal(f.node.textLayoutDetach, newest)
   superseded?.()
@@ -167,6 +184,7 @@ test('a replaced editor, viewport, clip or document ends the old scope without f
 test('missing bridge, flag and acquisition failures clear ownership with fixed errors', () => {
   for (const phase of ['bridge', 'flag', 'add', 'empty']) {
     const f = model()
+
     if (phase === 'bridge') {
       f.center.removeObserver = undefined
     } else if (phase === 'flag') {
@@ -206,10 +224,13 @@ test('fit and removal faults retire before reentry and never log native payloads
   const f = model(),
     warnings: unknown[][] = [],
     warn = console.warn
+
   let fits = 0
+
   console.warn = (...args) => {
     warnings.push(args)
   }
+
   try {
     f.effects.remove = () => {
       f.callbacks[0]()
@@ -242,12 +263,14 @@ test('fit and removal faults retire before reentry and never log native payloads
 
 test('a scope getter failure after acquisition releases the already returned handle', () => {
   const f = model()
+
   f.effects.add = () =>
     Object.defineProperty(f.viewport, 'documentView', {
       get() {
         throw Error('private-native-payload')
       },
     })
+
   assert.throws(
     () =>
       observeTextViewLayout(
@@ -257,6 +280,7 @@ test('a scope getter failure after acquisition releases the already returned han
       ),
     { message: 'AppKit TextArea layout observation failed' },
   )
+
   assert.deepEqual(f.removed, f.tokens)
   assert.equal(f.node.textLayoutDetach, undefined)
 })

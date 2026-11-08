@@ -4,6 +4,7 @@ import { BottomSheet, Button, Heading, HStack, Section, Text, VStack } from '@oc
 
 export function BottomSheetSwitcherReviewFlow() @{
   const [activeSheet, setActiveSheet] = useState<string | null>(null)
+
   return (
     <>
       <Button label="Review settings" clickAction={() => setActiveSheet('review')} />

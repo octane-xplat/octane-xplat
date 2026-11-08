@@ -33,6 +33,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
 
   root.render(TimePicker, {})
   await settle()
+
   const first = timeRef.current,
     left = debug.findId('time-left'),
     tail = debug.findId('time-tail')
@@ -53,6 +54,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   )
 
   const range = debug.findId('range-check')
+
   check(
     minutes(value(range)) === 555 &&
       bound(range, 'minDate') === 555 &&
@@ -140,6 +142,7 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   )
 
   const count = timeChanges.length
+
   first.dateValue = NSDate.dateWithTimeIntervalSince1970(
     new Date(0, 0, 0, 14, 25, 42).getTime() / 1000,
   )
@@ -156,7 +159,9 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   first.target.controlChanged(first)
   check(timeChanges.length === count + 1, 'TimePicker unchanged action emitted duplicate event')
   await advance()
+
   const moved = timeRef.current
+
   check(
     moved &&
       moved !== first &&
@@ -173,7 +178,9 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const returned = timeRef.current
+
   check(
     returned &&
       returned !== moved &&
@@ -184,7 +191,9 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replacement = timeRef.current
+
   check(
     replacement &&
       replacement !== returned &&
@@ -204,7 +213,9 @@ export async function checkTimeLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const retained = timeRef.current
+
   check(retained && retained.superview === left, 'TimePicker reinsertion failed')
   root.unmount()
   check(

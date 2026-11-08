@@ -15,6 +15,7 @@ import { compatibility } from '../packages/create/compatibility.ts'
 import { syncCompatibility } from './sync-compatibility.ts'
 
 const version = process.argv[2]?.replace(/^v/, '')
+
 if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
   console.error('usage: node scripts/bump-versions.ts <semver>')
   process.exit(1)
@@ -22,6 +23,7 @@ if (!version || !/^\d+\.\d+\.\d+(?:-[0-9A-Za-z.-]+)?$/.test(version)) {
 
 const setKey = (raw, key, value) => {
   const next = raw.replace(new RegExp(`"${key}":\\s*"[^"]*"`), `"${key}": "${value}"`)
+
   if (next === raw) {
     throw new Error(`"${key}" not found`)
   }
@@ -31,6 +33,7 @@ const setKey = (raw, key, value) => {
 
 for (const { name, dir } of lockstepPackages()) {
   const file = `${dir}/package.json`
+
   writeFileSync(file, setKey(readFileSync(file, 'utf8'), 'version', version))
   console.log(`${name} -> ${version}`)
 }
@@ -39,6 +42,7 @@ for (const { name, dir } of lockstepPackages()) {
 // reports it.
 const catalogFile = 'packages/cli/go/internal/assets/catalog.json'
 const catalog = JSON.parse(readFileSync(catalogFile, 'utf8'))
+
 catalog.catalog.cli.version = version
 catalog.version = version
 catalog.frameworkVersion = version
@@ -54,6 +58,7 @@ const typegenVersion = JSON.parse(
 ).version
 
 let published: string | undefined
+
 try {
   published = JSON.parse(
     execFileSync('npm', ['view', `tsrx-typegen@${typegenVersion}`, 'version', '--json'], {

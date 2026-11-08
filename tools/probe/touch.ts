@@ -9,6 +9,7 @@ export function dispatchScrub(view, points, touchType) {
   }
 
   const observers = view.getGestureObservers?.(touchType) ?? []
+
   if (!view.isLoaded || !observers.length) {
     throw new Error('Probe view has no loaded touch observer: ' + view.id)
   }

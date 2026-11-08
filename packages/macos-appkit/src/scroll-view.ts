@@ -8,6 +8,7 @@ import {
 
 export function scrollAxes(props: Record<string, any>) {
   const orientation = props.orientation ?? (props.horizontal === true ? 'horizontal' : 'vertical')
+
   return { inline: orientation !== 'vertical', block: orientation !== 'horizontal' }
 }
 
@@ -15,6 +16,7 @@ export function configureScrollAxes(node: any) {
   const { inline, block } = scrollAxes(node.props)
   const indicators = node.props.scrollBarIndicatorVisible !== false
   const axisKey = `${inline}:${block}:${indicators}`
+
   if (node.scrollAxisKey === axisKey) {
     return
   }
@@ -27,6 +29,7 @@ export function configureScrollAxes(node: any) {
   const scroll = node.view
   const document = scroll.documentView
   const clip = scroll.contentView
+
   scroll.hasHorizontalScroller = inline && indicators
   scroll.hasVerticalScroller = block && indicators
   document.orientation =
@@ -70,6 +73,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
   let scroll: any, clip: any, document: any, center: any, removeObserver: any
   const isCurrent = () =>
     !disposed && node.scrollGeometryDetach === detach && node.scrollGeometrySchedule === schedule
+
   const remove = (observer: any) => {
     try {
       removeObserver.call(center, observer)
@@ -77,42 +81,53 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
       reportScrollGeometryFailure('[macos-scroll] Geometry observer cleanup failed')
     }
   }
+
   const detach = () => {
     if (disposed) {
       return
     }
+
     disposed = true
     queued = null
     if (node.scrollGeometryDetach === detach) {
       node.scrollGeometryDetach = null
     }
+
     if (node.scrollGeometrySchedule === schedule) {
       node.scrollGeometrySchedule = null
     }
+
     // Tombstone every handle before native removal can reenter.
     for (const observer of observers.splice(0)) {
       remove(observer)
     }
   }
+
   const hasCurrentViews = () => {
     if (!isCurrent()) {
       return false
     }
+
     if (node.view === scroll && scroll.contentView === clip && scroll.documentView === document) {
       return true
     }
+
     detach()
     return false
   }
+
   const schedule = () => {
     if (queued || !isCurrent()) {
       return
     }
+
     const task = (queued = {})
+
     queueMicrotask(() => {
       if (!isCurrent() || queued !== task) {
         return
       }
+
       try {
         if (!hasCurrentViews()) {
           return
@@ -126,6 +141,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
         // Notifications during the solve coalesce here. Later consumer work
         // may schedule another task without this task clearing its lease.
         queued = null
+
         const { inline, block } = scrollAxes(node.props)
         const bounds = clip.bounds,
           size = document.frame.size
@@ -159,6 +175,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
         const x = inline ? clamp(originX, maxX) : 0
         const initial = node.props.orientation != null && !node.scrollInitialPositioned
         const y = !block || initial ? (flipped ? 0 : maxY) : clamp(originY, maxY)
+
         if (!hasCurrentViews()) {
           return
         }
@@ -193,6 +210,7 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
       }
     })
   }
+
   // Claim both markers before cleanup/registration side effects can reenter.
   node.scrollGeometryDetach = detach
   node.scrollGeometrySchedule = schedule
@@ -210,7 +228,9 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
     }
 
     center = NSNotificationCenter.defaultCenter
+
     const addObserver = center.addObserverForNameObjectQueueUsingBlock
+
     removeObserver = center.removeObserver
     if (typeof addObserver !== 'function' || typeof removeObserver !== 'function') {
       throw new Error('AppKit scroll geometry observation is unavailable')
@@ -247,5 +267,6 @@ export function observeScrollGeometry(node: any, target: any, notify: () => void
     detach()
     throw error
   }
+
   return detach
 }

@@ -32,6 +32,7 @@ export const backend: CaptureBackend = createAppleBackend({
     if (!(target instanceof NSView)) {
       throw new TypeError('AppKit capture requires a mounted native NSView')
     }
+
     return target
   },
   renderInContext: false,
@@ -42,6 +43,7 @@ export const backend: CaptureBackend = createAppleBackend({
   protectedLayer: ['AVPlayerLayer', 'CAMetalLayer', 'CAOpenGLLayer'],
   scale: (view) => {
     const window = view.window
+
     return window !== null &&
       window !== undefined &&
       'backingScaleFactor' in window &&
@@ -53,10 +55,13 @@ export const backend: CaptureBackend = createAppleBackend({
   render(value, width, height, options): NativeData {
     const view = value as unknown as NSView
     const source = view.bitmapImageRepForCachingDisplayInRect(view.bounds)
+
     if (!source) {
       throw new Error('AppKit could not allocate the view cache')
     }
+
     view.cacheDisplayInRectToBitmapImageRep(view.bounds, source)
+
     const output =
       NSBitmapImageRep.alloc().initWithBitmapDataPlanesPixelsWidePixelsHighBitsPerSampleSamplesPerPixelHasAlphaIsPlanarColorSpaceNameBytesPerRowBitsPerPixel(
         null,
@@ -70,16 +75,22 @@ export const backend: CaptureBackend = createAppleBackend({
         0,
         0,
       )
+
     const context = output ? NSGraphicsContext.graphicsContextWithBitmapImageRep(output) : null
+
     if (!output || !context) {
       throw new Error('AppKit could not allocate the output bitmap')
     }
+
     const image = NSImage.alloc().initWithSize(view.bounds.size)
+
     image.addRepresentation(source)
     NSGraphicsContext.saveGraphicsState()
     NSGraphicsContext.currentContext = context
     context.imageInterpolation = NSImageInterpolation.High
+
     const target = NSMakeRect(0, 0, width, height)
+
     ;(options.format === 'jpg' ? NSColor.whiteColor : NSColor.clearColor).setFill()
     NSRectFill(target)
     image.drawInRectFromRectOperationFractionRespectFlippedHints(
@@ -90,8 +101,10 @@ export const backend: CaptureBackend = createAppleBackend({
       true,
       null,
     )
+
     context.flushGraphics()
     NSGraphicsContext.restoreGraphicsState()
+
     const encoded = output.representationUsingTypeProperties(
       options.format === 'png' ? NSBitmapImageFileType.PNG : NSBitmapImageFileType.JPEG,
       NSDictionary.dictionaryWithObjectForKey(
@@ -99,9 +112,11 @@ export const backend: CaptureBackend = createAppleBackend({
         NSImageCompressionFactor as unknown as NSCopying,
       ),
     )
+
     if (!encoded) {
       throw new Error('AppKit could not encode the capture')
     }
+
     return encoded
   },
 })

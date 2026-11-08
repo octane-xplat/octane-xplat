@@ -6,6 +6,7 @@ export function createStillPhotoAction(show: (image: PickedImage) => void) {
   let disposed = false
   let pending = false
   let current: PickedImage | null = null
+
   return {
     async capture() {
       if (disposed || pending) {
@@ -15,6 +16,7 @@ export function createStillPhotoAction(show: (image: PickedImage) => void) {
       pending = true
       try {
         const next = await media.capturePhoto({ saveToGallery: false })
+
         if (!next) {
           return
         } // Cancel or failure keeps the current preview.

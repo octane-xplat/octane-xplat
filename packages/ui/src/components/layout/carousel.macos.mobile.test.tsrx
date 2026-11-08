@@ -8,6 +8,7 @@ import {
 } from 'octane/universal/native'
 
 import { Carousel } from './Carousel.macos.tsrx'
+
 afterEach(() => {
   vi.useRealTimers()
   vi.unstubAllGlobals()
@@ -27,6 +28,7 @@ function mount(extra: any = {}) {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(name: string, object: any, _: any, callback: any) {
         const token = {}
+
         observers.set(token, { name, object, callback })
         return token
       },
@@ -62,6 +64,7 @@ function mount(extra: any = {}) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -92,6 +95,7 @@ function mount(extra: any = {}) {
     }
 
     const scroll = one('vx-carousel-viewport')
+
     if (!scroll) {
       return
     }
@@ -161,6 +165,7 @@ function mount(extra: any = {}) {
 
 it('delivers the handle and buttons, measures proportional slides, and updates enabled state after native scroll events', async () => {
   const f = mount()
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -193,6 +198,7 @@ it('delivers the handle and buttons, measures proportional slides, and updates e
 
 it('current loop/children metadata controls wrapping and disables navigation when empty', async () => {
   const f = mount({ hasLoop: true })
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -223,6 +229,7 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
     next = { current: null as any }
 
   let held: any
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -245,6 +252,7 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
     })
 
     const before = f.animated.length
+
     held.scrollNext()
     f.flush()
     expect(f.animated).toHaveLength(before)
@@ -257,6 +265,7 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
   }
 
   const before = f.writes.length
+
   held.scrollNext()
   held.scrollPrev()
   held.scrollTo(0)
@@ -267,6 +276,7 @@ it('resize/ref replacement and reduced-motion requests use current hosts; observ
 
 it('hasSnap waits for native user tracking to finish and settle while ordinary scroll/animation callbacks do not schedule it', async () => {
   const f = mount({ hasSnap: true })
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -290,7 +300,9 @@ it('hasSnap waits for native user tracking to finish and settle while ordinary s
     await vi.advanceTimersByTimeAsync(1)
     f.flush()
     expect(f.clip.bounds.origin).toEqual({ x: 216, y: 37 })
+
     const writes = f.writes.length
+
     await vi.advanceTimersByTimeAsync(300)
     expect(f.writes).toHaveLength(writes)
   } finally {
@@ -300,6 +312,7 @@ it('hasSnap waits for native user tracking to finish and settle while ordinary s
 
 it('programmatic moves, current hasSnap changes and unmount cancel pending native snap work and observer ownership', async () => {
   const f = mount({ hasSnap: true })
+
   try {
     await vi.waitFor(() => {
       f.flush()
@@ -321,7 +334,9 @@ it('programmatic moves, current hasSnap changes and unmount cancel pending nativ
     f.render(f.base)
     f.user('DidLiveScroll')
     f.root.unmount()
+
     const before = f.writes.length
+
     await vi.advanceTimersByTimeAsync(200)
     expect(f.writes).toHaveLength(before)
     expect(f.observers.size).toBe(0)

@@ -10,6 +10,7 @@ export const CHECKS: ParityCheck[] = [
     check: (m) => {
       const anchor = m('anchor')
       const panel = m('panel')
+
       return [
         dims(anchor, 24, 20),
         dims(panel, 48, 32),

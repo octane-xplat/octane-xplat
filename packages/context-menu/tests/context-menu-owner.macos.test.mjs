@@ -13,10 +13,13 @@ function fixture(initial = {}) {
     available = true,
     fail = false,
     nullHandle = false
+
   const entries = [],
     selected = [],
     statuses = []
+
   props = { onItemSelected: (id) => selected.push(id), ...props }
+
   const owner = createContextMenuOwner({
     props: () => props,
     status: (status) => statuses.push(status),
@@ -26,10 +29,13 @@ function fixture(initial = {}) {
             if (fail) {
               throw Error('private native details')
             }
+
             if (nullHandle) {
               return null
             }
+
             const entry = { view, items: options.items, callback, detached: 0 }
+
             entries.push(entry)
             callback('rename') // Construction is not a user selection.
             return () => {
@@ -39,6 +45,7 @@ function fixture(initial = {}) {
           }
         : undefined,
   })
+
   owner.bind({})
   return {
     owner,
@@ -64,6 +71,7 @@ function fixture(initial = {}) {
 test('callback changes and semantically equal item arrays preserve the mounted native menu', () => {
   const f = fixture(),
     latest = []
+
   f.set({ items: items(), onItemSelected: (id) => latest.push(id) })
   f.owner.update()
   assert.equal(f.entries.length, 1)
@@ -76,6 +84,7 @@ test('callback changes and semantically equal item arrays preserve the mounted n
 test('primitive snapshots detect in-place changes, close old content and block newly disabled selections', () => {
   const f = fixture(),
     first = f.entries[0]
+
   f.props().items[0].title = 'Rename file'
   f.owner.update()
   assert.equal(first.detached, 1)
@@ -94,6 +103,7 @@ test('primitive snapshots detect in-place changes, close old content and block n
 test('record scope changes retire an open menu before reaching a new handler, with reentry suppression', () => {
   const f = fixture({ id: 'record-a' }),
     first = f.entries[0]
+
   f.set({
     id: 'record-b',
     onItemSelected: (id) => {
@@ -101,6 +111,7 @@ test('record scope changes retire an open menu before reaching a new handler, wi
       f.entries.at(-1).callback(id)
     },
   })
+
   first.callback('rename')
   assert.deepEqual(f.selected, [])
   assert.equal(first.detached, 1)
@@ -113,6 +124,7 @@ test('record scope changes retire an open menu before reaching a new handler, wi
 
 test('empty content detaches, duplicate/invalid data is rejected, repair works and an empty string ID is valid', () => {
   const f = fixture({ items: [] })
+
   assert.equal(f.owner.getStatus(), 'empty')
   assert.equal(f.entries.length, 0)
   f.set({
@@ -121,6 +133,7 @@ test('empty content detaches, duplicate/invalid data is rejected, repair works a
       { id: 'same', title: 'Two' },
     ],
   })
+
   f.owner.update()
   assert.equal(f.owner.getStatus(), 'invalid')
   f.set({ items: [{ id: 'bad', title: 4 }] })
@@ -140,6 +153,7 @@ test('empty content detaches, duplicate/invalid data is rejected, repair works a
 test('removed, unknown and undefined IDs cannot reach current consumers', () => {
   const f = fixture(),
     first = f.entries[0]
+
   first.callback(undefined)
   first.callback('missing')
   first.callback('blocked')
@@ -156,11 +170,14 @@ test('removed, unknown and undefined IDs cannot reach current consumers', () => 
 test('view replacement/disposal retires callbacks before cleanup and teardown is idempotent', () => {
   const f = fixture(),
     first = f.entries[0]
+
   f.owner.bind({})
   assert.equal(first.detached, 1)
   first.callback('rename')
   assert.deepEqual(f.selected, [])
+
   const last = f.entries[1]
+
   f.owner.bind(null)
   assert.equal(last.detached, 1)
   last.callback('rename')
@@ -174,6 +191,7 @@ test('view replacement/disposal retires callbacks before cleanup and teardown is
 
 test('unavailable/null/throwing bridges recover, and consumer errors release the selection guard', () => {
   const f = fixture()
+
   f.available(false)
   f.owner.bind({})
   assert.equal(f.owner.getStatus(), 'unavailable')
@@ -188,12 +206,15 @@ test('unavailable/null/throwing bridges recover, and consumer errors release the
   f.fail(false)
   f.owner.update()
   assert.equal(f.owner.getStatus(), 'ready')
+
   const entry = f.entries.at(-1)
+
   f.set({
     onItemSelected: () => {
       throw Error('consumer failed')
     },
   })
+
   assert.throws(() => entry.callback('rename'), /consumer failed/)
   f.set({ onItemSelected: (id) => f.selected.push(id) })
   entry.callback('rename')
@@ -205,6 +226,7 @@ test('a reentrant view replacement during attach cleans only the obsolete return
   const entries = [],
     selected = [],
     replacement = {}
+
   let first = true
   const owner = createContextMenuOwner({
     props: () => ({
@@ -214,17 +236,20 @@ test('a reentrant view replacement during attach cleans only the obsolete return
     }),
     attach: () => (view, options, callback) => {
       const entry = { view, callback, detached: 0 }
+
       entries.push(entry)
       if (first) {
         first = false
         owner.bind(replacement)
       }
+
       return () => {
         entry.detached++
         callback('rename')
       }
     },
   })
+
   owner.bind({})
   assert.equal(entries[0].detached, 1)
   assert.equal(entries[1].detached, 0)

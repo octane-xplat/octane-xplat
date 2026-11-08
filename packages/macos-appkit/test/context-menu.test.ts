@@ -16,12 +16,15 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
     items: any[] = [],
     logs: any[] = [],
     held = new Map<number, () => void>()
+
   const actions = new Map<number, () => void>()
   const set = actions.set.bind(actions)
+
   actions.set = (id, fn) => {
     held.set(id, fn)
     return set(id, fn)
   }
+
   const context = runSlice(slice + '\n({ attachContextMenu })', {
     NSMenu: Object.assign(function NSMenu() {}, {
       alloc: () => ({
@@ -29,6 +32,7 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
           if (failure.init) {
             throw Error('private construction details')
           }
+
           const menu: any = {
             items: [],
             cancelled: 0,
@@ -36,6 +40,7 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
               if (failure.add === this.items.length) {
                 throw Error('private item details')
               }
+
               this.items.push(item)
             },
             cancelTracking() {
@@ -43,6 +48,7 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
               this.onCancel?.()
             },
           }
+
           menus.push(menu)
           return menu
         },
@@ -59,6 +65,7 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
               return this.enabled
             },
           }
+
           items.push(item)
           return item
         },
@@ -69,6 +76,7 @@ function fixture(failure: { init?: boolean; add?: number } = {}) {
     actionHandlers: actions,
     console: { error: (...args: any[]) => logs.push(args) },
   })
+
   return { attach: context.attachContextMenu, menus, items, actions, held, logs }
 }
 
@@ -81,19 +89,24 @@ test('attaches only at the wrapper, preserves descendant menus and restores the 
     child = root(editing),
     view = root(previous),
     selected: string[] = []
+
   Object.defineProperty(view, 'subviews', {
     get() {
       throw Error('Do not overwrite descendant menu slots')
     },
   })
+
   const detach = f.attach(
     view,
     { items: [{ id: 'rename', title: 'Rename', divider: true }] },
     (id: string) => selected.push(id),
   )
+
   assert.equal(view.menu, f.menus[0])
   assert.equal(child.menu, editing)
+
   const lateChild = root()
+
   assert.equal(lateChild.menu, null) // Responder behavior is native qualification, not simulated here.
   assert.equal(f.menus[0].autoenablesItems, false)
   assert.equal(f.menus[0].items.length, 2)
@@ -115,6 +128,7 @@ test('disabled/native-disabled, unattached-window and superseded menu actions do
   const f = fixture(),
     view = root(),
     selected: string[] = []
+
   const detach = f.attach(
     view,
     {
@@ -125,9 +139,11 @@ test('disabled/native-disabled, unattached-window and superseded menu actions do
     },
     (id: string) => selected.push(id),
   )
+
   const enabled = f.items[0],
     disabled = f.items[1],
     select = f.held.get(enabled.tag)!
+
   disabled.enabled = true
   f.held.get(disabled.tag)!()
   assert.deepEqual(selected, [])
@@ -139,7 +155,9 @@ test('disabled/native-disabled, unattached-window and superseded menu actions do
   select()
   assert.deepEqual(selected, [])
   view.window = {}
+
   const menu = view.menu
+
   view.menu = {}
   select()
   assert.deepEqual(selected, [])
@@ -191,12 +209,16 @@ test('nested wrappers and foreign replacements retain their own menu slots durin
     parent = root(),
     childPrior = {},
     child = root(childPrior)
+
   const outer = f.attach(parent, { items: [{ id: 'outer', title: 'Outer' }] }, () => {})
   const inner = f.attach(child, { items: [{ id: 'inner', title: 'Inner' }] }, () => {})
+
   outer()
   assert.equal(child.menu, f.menus[1])
   assert.equal(parent.menu, null)
+
   const foreign = {}
+
   child.menu = foreign
   inner()
   assert.equal(child.menu, foreign)
@@ -239,8 +261,10 @@ test('partial construction/item failures remove registered actions without chang
 test('selection reentry is suppressed, consumer errors are generic, and cancel callbacks are retired first', () => {
   const f = fixture(),
     view = root()
+
   let count = 0,
     select!: () => void
+
   const detach = f.attach(view, { items: [{ id: 'rename', title: 'Rename' }] }, () => {
     count++
     select()
@@ -248,6 +272,7 @@ test('selection reentry is suppressed, consumer errors are generic, and cancel c
       throw Error('private consumer details')
     }
   })
+
   select = f.held.get(f.items[0].tag)!
   select()
   select()
@@ -262,8 +287,10 @@ test('selection reentry is suppressed, consumer errors are generic, and cancel c
 test('a slot setter failing after assignment is rolled back and all held actions become inert', () => {
   const f = fixture(),
     previous = {}
+
   let menu = previous,
     fail = true
+
   const view = {
     window: {},
     get menu() {
@@ -277,12 +304,14 @@ test('a slot setter failing after assignment is rolled back and all held actions
       }
     },
   }
+
   assert.equal(
     f.attach(view, { items: [{ id: 'rename', title: 'Rename' }] }, () =>
       assert.fail('failed attachment'),
     ),
     null,
   )
+
   assert.equal(view.menu, previous)
   assert.equal(f.actions.size, 0)
   assert.equal(f.menus[0].cancelled, 1)

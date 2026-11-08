@@ -5,11 +5,15 @@ import { join, resolve } from 'node:path'
 import { stageHostCli, repairPackedCli } from '../../../tools/cli-go/stage-fixture.mjs'
 
 const repo = resolve(import.meta.dirname, '../../..')
+
 await mkdir(join(repo, 'research'), { recursive: true })
+
 const app = await mkdtemp(join(repo, 'research/editor-consumer-'))
 const packs = join(app, 'packs')
+
 await mkdir(packs)
 await mkdir(join(app, 'src'))
+
 function run(command, args, cwd = app) {
   return execFileSync(command, args, {
     cwd,
@@ -41,13 +45,16 @@ for (const name of [
 ]) {
   const dir = join(repo, 'packages', name)
   const manifest = JSON.parse(await readFile(join(dir, 'package.json'), 'utf8'))
+
   run('bun', ['pm', 'pack', '--destination', packs], dir)
   dependencies[manifest.name] =
     `file:${join(packs, `${manifest.name.replace('@', '').replace('/', '-')}-${manifest.version}.tgz`)}`
 }
 
 const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
+
 dependencies['@octane-xplat/cli'] = `file:${stagedCli.cli.archive}`
+
 const nativeOverrides = Object.fromEntries(
   stagedCli.payloads.map((payload) => [payload.manifest.name, `file:${payload.archive}`]),
 )
@@ -81,6 +88,7 @@ await writeFile(
 
 const consumerFile = join(app, 'package.json')
 const consumerConfig = JSON.parse(await readFile(consumerFile, 'utf8'))
+
 consumerConfig.overrides = {
   ...dependencies,
   ...nativeOverrides,
@@ -193,6 +201,7 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 
 run('bun', ['run', 'xplat', 'build', '--targets', 'macos'])
 console.log('[packed editors] production AppKit build and native metadata pass')
+
 const executable = join(
   app,
   'artifacts/macos-universal/EditorConsumer.app/Contents/MacOS/EditorConsumer',
@@ -200,6 +209,7 @@ const executable = join(
 
 const result = spawnSync(executable, [], { cwd: app, encoding: 'utf8', timeout: 25_000 })
 const output = result.stdout + result.stderr
+
 assert.equal(result.status, 0, output)
 assert.match(output, /PACKED_EDITORS_READY/)
 assert.doesNotMatch(output, /PACKED_EDITORS_TIMEOUT|uncaught render error|command .*failed/)

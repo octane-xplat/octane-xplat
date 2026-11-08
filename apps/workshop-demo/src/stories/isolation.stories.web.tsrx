@@ -17,6 +17,7 @@ function AccountProvider(props: { fixture: Fixture; children?: unknown }) {
 function Overlay() {
   const fixture = useContext(Account)!
   const account = useStore(fixture.account)
+
   return (
     <div role="dialog" aria-label="Story account overlay">
       <p>{account.name}</p>
@@ -28,6 +29,7 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
   const fixture = useContext(Account)!
   const account = useStore(fixture.account)
   const [local, setLocal] = useState(0)
+
   return (
     <section>
       <p data-isolation-value>
@@ -45,8 +47,11 @@ function Isolated(props: { label?: string; fixture: Fixture }) {
       <button
         onClick={() => {
           const element = document.createElement('div')
+
           document.body.append(element)
+
           const root = createRoot(element)
+
           fixture.own(() => {
             root.unmount()
             element.remove()

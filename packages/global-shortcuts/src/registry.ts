@@ -51,6 +51,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
   const processAccelerators = new Map<string, symbol>()
   const instances = new Set<Instance>()
   let nextKey = 1
+
   backend.onExit(() => {
     for (const instance of [...instances]) {
       void instance.dispose()
@@ -73,6 +74,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
         return
       }
+
       // Rethrown asynchronously; works in hosts without timers (GJS workers).
       void Promise.reject(error)
     }
@@ -86,12 +88,14 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
         return disposePromise ?? (disposePromise = doDispose())
       },
     }
+
     let disposePromise: Promise<void> | null = null
     let cleanup: Promise<void> | null = null
     const doDispose = (): Promise<void> => {
       if (instance.disposed) {
         return cleanup ?? Promise.resolve()
       }
+
       instance.disposed = true
       // Release records outside the serialized chain: a register call may be
       // parked inside a slow OS bind, and disposal must not wait on it.
@@ -99,6 +103,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
       // records, and queued unregisters find their record already gone.
       cleanup = (async () => {
         const releases: Promise<void>[] = []
+
         for (const record of records.values()) {
           records.delete(record.id)
           if (processAccelerators.get(record.accelerator.text) === record.token) {
@@ -107,9 +112,11 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
           releases.push(record.release().catch(report))
         }
+
         await Promise.all(releases)
         instances.delete(instance)
       })()
+
       return cleanup
     }
 
@@ -120,13 +127,16 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
         if (records.get(record.id) !== record) {
           return false
         }
+
         records.delete(record.id)
         if (processAccelerators.get(record.accelerator.text) === record.token) {
           processAccelerators.delete(record.accelerator.text)
         }
+
         await record.release().catch(report)
         return true
       })
+
       instance.chain = result
       return result
     }
@@ -140,17 +150,21 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           accelerator: options.accelerator,
         })
       }
+
       const parsed = parseAccelerator(options.accelerator, {
         platform: backend.platform ?? undefined,
       })
+
       if (!parsed.ok) {
         return invalidResult({ ...parsed.error, id: options.id, accelerator: options.accelerator })
       }
+
       const accelerator = parsed.accelerator
       const reserved =
         (backend.platform ? staticallyReserved(backend.platform, accelerator) : null) ??
         backend.reserved?.(accelerator) ??
         null
+
       if (reserved !== null) {
         return invalidResult({
           code: 'reserved',
@@ -159,6 +173,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           accelerator: accelerator.text,
         })
       }
+
       if (records.has(options.id)) {
         return invalidResult({
           code: 'duplicate-id',
@@ -167,6 +182,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           accelerator: accelerator.text,
         })
       }
+
       if (processAccelerators.has(accelerator.text)) {
         return invalidResult({
           code: 'conflict',
@@ -181,12 +197,14 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
         if (records.get(options.id)?.token !== token) {
           return
         }
+
         try {
           options.onPress({ id: options.id, accelerator: accelerator.text, timestamp: Date.now() })
         } catch (error) {
           report(error)
         }
       }
+
       const outcome = await backend.bind(
         {
           key: nextKey++,
@@ -197,6 +215,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
         },
         deliver,
       )
+
       if (!outcome.ok) {
         return invalidResult({
           ...outcome.error,
@@ -204,6 +223,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           accelerator: outcome.error.accelerator ?? accelerator.text,
         })
       }
+
       // Dispose may have run while the OS bind was in flight: release the
       // fresh binding immediately and report the registration as disposed.
       if (instance.disposed) {
@@ -215,6 +235,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           accelerator: accelerator.text,
         })
       }
+
       const record: Registration = {
         token,
         id: options.id,
@@ -230,6 +251,7 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
           },
         },
       }
+
       records.set(options.id, record)
       processAccelerators.set(accelerator.text, token)
       return { ok: true, shortcut: record.shortcut }
@@ -239,31 +261,39 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
       if (typeof options !== 'object' || options === null) {
         throw new TypeError('register options must be an object')
       }
+
       if (typeof options.id !== 'string' || options.id === '') {
         throw new TypeError('register requires a non-empty string id')
       }
+
       if (typeof options.accelerator !== 'string') {
         throw new TypeError('register requires a string accelerator')
       }
+
       if (typeof options.onPress !== 'function') {
         throw new TypeError('register requires an onPress function')
       }
+
       const result = instance.chain.then(() => doRegister(options))
+
       instance.chain = result
       return result
     }
 
     const unregister = (id: string): Promise<boolean> => {
       const record = records.get(id)
+
       if (!record) {
         return Promise.resolve(false)
       }
+
       return releaseRecord(record)
     }
 
     const unregisterAll = async (): Promise<void> => {
       enqueue(instance, async () => {
         const releases: Promise<void>[] = []
+
         for (const record of records.values()) {
           records.delete(record.id)
           if (processAccelerators.get(record.accelerator.text) === record.token) {
@@ -272,8 +302,10 @@ export function createRegistry(backend: HotkeyBackend): RegistryApi {
 
           releases.push(record.release().catch(report))
         }
+
         await Promise.all(releases)
       })
+
       await instance.chain.then(
         () => undefined,
         () => undefined,

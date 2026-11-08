@@ -5,6 +5,7 @@ import { platformOutput } from './platform-output.ts'
 
 function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
   const hook = plugin?.generateBundle
+
   if (plugin && typeof hook === 'function') {
     plugin.generateBundle = { order: 'pre', handler: hook }
   } else if (hook && typeof hook === 'object' && typeof hook.handler === 'function') {
@@ -37,6 +38,7 @@ export function xplatBamboo({
   ...options
 }: XplatBambooOptions = {}) {
   const plugins = bamboocss(options)
+
   if (buildEnvironments) {
     adaptBuildEnvironments(plugins, buildEnvironments)
   }
@@ -45,9 +47,11 @@ export function xplatBamboo({
     // Let Bamboo prune and validate the emitted asset before NativeScript's
     // main-entry hook serializes it into the native bootstrap and removes it.
     const cssPlugin = plugins.find((plugin) => plugin.name === 'bamboocss:css')
+
     runBeforeNativeCss(cssPlugin, 'bamboocss:css')
 
     let isBuild = false
+
     plugins.push({
       name: 'xplat-bamboo:nativescript-entry-graph',
       enforce: 'post',

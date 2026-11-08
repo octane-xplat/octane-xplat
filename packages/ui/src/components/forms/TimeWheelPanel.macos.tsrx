@@ -29,6 +29,7 @@ export function TimeWheelPanel(props: TimeWheelProps): unknown @{
 
   const hourChoices = useMemo(() => {
     const list: { value: number; label: string }[] = []
+
     for (let h = 0; h < 24; h++) {
       list.push({ value: h, label: is12 ? String(h % 12 || 12) : String(h).padStart(2, '0') })
     }
@@ -38,6 +39,7 @@ export function TimeWheelPanel(props: TimeWheelProps): unknown @{
 
   const minuteChoices = useMemo(() => {
     const list: { value: number; label: string }[] = []
+
     for (let m = 0; m < 60; m++) {
       list.push({ value: m, label: String(m).padStart(2, '0') })
     }

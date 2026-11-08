@@ -43,6 +43,7 @@ export function WebView(props: WebViewProps): JSX.Element @{
 
   useEffect(() => {
     const el = frame.current
+
     if (!el) {
       return
     }
@@ -54,6 +55,7 @@ export function WebView(props: WebViewProps): JSX.Element @{
         const doc = el.contentDocument
         const body = doc?.body
         const root = doc?.documentElement
+
         if (!doc || !body || !root) {
           return
         }
@@ -97,6 +99,7 @@ export function WebView(props: WebViewProps): JSX.Element @{
   useEffect(() => {
     const el = frame.current
     const onMessage = props.onMessage
+
     if (!el || !onMessage) {
       return
     }

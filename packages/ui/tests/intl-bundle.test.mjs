@@ -23,16 +23,20 @@ for (const symbol of ['Text', 'Table', 'Timestamp']) {
       },
       build: { write: false, minify: true, lib: { entry, formats: ['es'] } },
     })
+
     const chunks = [result]
       .flat()
       .flatMap((output) => output.output)
       .filter((item) => item.type === 'chunk')
+
     const modules = chunks.flatMap((chunk) => Object.keys(chunk.modules))
+
     assert.ok(modules.length)
     assert.equal(
       modules.some((id) => /formatjs|lingui\/dist\/polyfills/.test(id)),
       false,
     )
+
     console.log(
       `${symbol}: ${chunks.reduce((sum, chunk) => sum + Buffer.byteLength(chunk.code), 0)} JS bytes; no FormatJS modules`,
     )

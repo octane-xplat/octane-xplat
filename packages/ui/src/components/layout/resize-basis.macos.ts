@@ -8,12 +8,15 @@ export const macosBasisSource: ResizableBasisSource = {
   measure: (containerRef, direction) => {
     const view = containerRef?.current
     const frame = view?.frame
+
     if (frame) {
       const v = direction === 'horizontal' ? frame.size?.width : frame.size?.height
+
       return v != null && v > 0 ? v : null
     }
 
     const host = appKitHost()?.getWindowSize?.()
+
     if (host) {
       return direction === 'horizontal' ? host.width : host.height
     }
@@ -22,6 +25,7 @@ export const macosBasisSource: ResizableBasisSource = {
   },
   observe: (containerRef, _direction, cb) => {
     const view = containerRef?.current
+
     if (view?.on) {
       view.on('layoutChanged', cb)
       return () => view.off?.('layoutChanged', cb)

@@ -6,9 +6,12 @@ import { ChatLayoutScrollButton } from './ChatLayoutScrollButton.web.tsrx'
 
 it('removes hidden buttons from interaction and supports visibility changes', () => {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
   const press = vi.fn()
+
   try {
     act(() => root.render(<ChatLayoutScrollButton isVisible={false} onPress={press} />))
     expect(el.querySelector<HTMLElement>('[role="button"]')).toBeNull()

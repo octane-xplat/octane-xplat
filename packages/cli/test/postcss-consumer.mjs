@@ -31,6 +31,7 @@ try {
   // Install only the shipped CSS type surface and its dependencies. Copy the
   // actual public declaration entry, not a synthetic signature of xplatCss.
   const fixture = join(root, 'cli')
+
   mkdirSync(join(fixture, 'src'), { recursive: true })
   for (const file of ['vite.d.ts', 'css-platform.types.ts', 'css-platform.ts']) {
     copyFileSync(join(cli, 'src', file), join(fixture, 'src', file))
@@ -61,10 +62,12 @@ try {
 
   writeFileSync(join(root, 'bunfig.toml'), '[install]\nlinker = "isolated"\n')
   run('bun', ['install', '--ignore-scripts'])
+
   const consumer = createRequire(join(root, 'package.json'))
   const vite = createRequire(consumer.resolve('vite'))
   const installedCli = realpathSync(join(root, 'node_modules/@octane-xplat/cli'))
   const cliRequire = createRequire(join(installedCli, 'src/css-platform.ts'))
+
   assert.equal(cliRequire('postcss/package.json').version, manifest.dependencies.postcss)
   assert.equal(vite('postcss/package.json').version, '8.5.31')
   assert.notEqual(cliRequire.resolve('postcss'), vite.resolve('postcss'))
@@ -101,6 +104,7 @@ export default defineConfig({
   })
 
   const tsc = join(dirname(consumer.resolve('typescript/package.json')), 'bin/tsc')
+
   // Negative control: the former public source re-export must expose the
   // reported comparison failure in this exact split-version installation.
   writeFileSync(
@@ -124,7 +128,9 @@ export default defineConfig({
 
   console.log('Former source re-export reproduces TS2321/TS2322')
   run(process.execPath, [tsc, '-p', 'tsconfig.json'])
+
   const files = run(process.execPath, [tsc, '-p', 'tsconfig.json', '--listFilesOnly']).toString()
+
   assert.match(files, /cli\/src\/vite\.d\.ts/)
   assert.doesNotMatch(files, /cli\/src\/css-platform\.ts/)
   console.log(

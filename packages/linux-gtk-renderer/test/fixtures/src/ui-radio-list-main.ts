@@ -12,6 +12,7 @@ import {
 } from './ui-radio-list.gtk.tsrx'
 
 Gtk.init()
+
 const window = new Gtk.Window({
   title: 'Octane GTK radio test',
   default_width: 400,
@@ -20,7 +21,9 @@ const window = new Gtk.Window({
 })
 
 const host = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL })
+
 window.set_child(host)
+
 const errors: unknown[] = []
 const { root, container } = createGtkRoot(host, { onUncaughtError: (error) => errors.push(error) })
 const loop = GLib.MainLoop.new(null, false)
@@ -55,6 +58,7 @@ const descendant = (parent: any, child: any) => {
       return true
     }
   }
+
   return false
 }
 
@@ -66,18 +70,22 @@ const rows = (parent: any) =>
 let ack = 0
 let osInput = false
 const keys = new Gtk.EventControllerKey()
+
 keys.set_propagation_phase(Gtk.PropagationPhase.CAPTURE)
 keys.connect('key-pressed', (_: any, key: number) => {
   if (key === Gdk.KEY_F12) {
     ack++
     return true
   }
+
   return false
 })
 
 window.add_controller(keys)
+
 async function phase(key: string) {
   const next = ack + 1
+
   print('GTK_RADIO_READY ' + JSON.stringify({ key }))
   for (let i = 0; i < 250 && ack < next; i++) {
     await new Promise<void>((resolve) =>
@@ -87,6 +95,7 @@ async function phase(key: string) {
       }),
     )
   }
+
   check('OS phase acknowledged: ' + key, ack >= next)
   await pause()
 }
@@ -94,6 +103,7 @@ async function phase(key: string) {
 async function point(view: any) {
   const bounds = view.getBounds()
   const next = ack + 1
+
   print(
     'GTK_RADIO_READY ' +
       JSON.stringify({
@@ -103,6 +113,7 @@ async function point(view: any) {
         },
       }),
   )
+
   for (let i = 0; i < 250 && ack < next; i++) {
     await new Promise<void>((resolve) =>
       GLib.timeout_add(GLib.PRIORITY_DEFAULT, 20, () => {
@@ -111,6 +122,7 @@ async function point(view: any) {
       }),
     )
   }
+
   check('OS pointer phase acknowledged', ack >= next)
   await pause()
 }
@@ -123,6 +135,7 @@ const selected = (id: string, label: string) =>
 
 const ownsFocus = (view: any) => {
   const focused = window.get_focus()
+
   return focused === view || !!focused?.is_ancestor(view)
 }
 
@@ -130,7 +143,9 @@ async function run() {
   root.render(RadioScene, { readOnly: true, loading: true })
   window.present()
   await pause()
+
   const native = fallback ? null : (globalThis as any).imports.gi.XplatMason
+
   for (const id of ['radio-options', 'radio-children']) {
     const group = node(id),
       view = group.view!
@@ -165,6 +180,7 @@ async function run() {
     }
 
     const options = rows(group)
+
     check(id + ' renders all three options', options.length === 3)
     check(
       id + ' exposes radio option roles',
@@ -205,14 +221,18 @@ async function run() {
 
   root.render(RadioScene, {})
   await pause()
+
   const first = rows(node('radio-options'))[0].view!
+
   check('enabled radio accepts native keyboard focus', first.get_focusable() && first.focus())
   await pause()
   check('native focus belongs to the radio option', window.get_focus() === first)
   if (GLib.getenv('GTK_RADIO_OS') === '1') {
     osInput = true
+
     const options = rows(node('radio-options'))
     const children = rows(node('radio-children'))
+
     node('radio-before').view!.focus()
     await phase('Tab')
     check('Tab enters selected first group option', window.get_focus() === options[0].view)
@@ -323,6 +343,7 @@ async function run() {
         rows(node('radio-children'))[2].view === children[2].view,
     )
   }
+
   if (osInput) {
     const before = changes.length
     const gamma = namedRow('radio-options', 'Gamma')
@@ -363,7 +384,9 @@ async function run() {
     )
 
     node('radio-before').view!.focus()
+
     const alpha = namedRow('radio-options', 'Alpha').view!
+
     alpha.set_focus_on_click(false)
     await point(alpha)
     check(
@@ -375,6 +398,7 @@ async function run() {
     root.render(RadioScene, {})
     await pause()
   }
+
   if (!fallback) {
     let props: Parameters<typeof RadioScene>[0] = {}
     const render = async (next: Partial<typeof props>) => {
@@ -388,6 +412,7 @@ async function run() {
 
     const walletBefore = node('radio-wallet').view!
     const before = changes.length
+
     await render({
       value: 'alpha',
       childValue: 'card',
@@ -436,6 +461,7 @@ async function run() {
     }
 
     const afterInput = changes.length
+
     await render({ value: 'beta', childValue: 'cash' })
     check(
       'controlled updates reach option and child-part indicators',
@@ -496,6 +522,7 @@ async function run() {
 
     const retired = namedRow('radio-options', 'Alpha').pressKeys!
     const beforeEmpty = changes.length
+
     await render({ empty: true })
     check(
       'empty groups retain their native hosts without options',
@@ -518,6 +545,7 @@ async function run() {
     )
 
     const focused = namedRow('radio-options', 'Alpha').view!
+
     focused.focus()
     await render({ hidden: true, width: '50%', optional: true, size: 'sm', opacity: 0.6 })
     check(
@@ -621,6 +649,7 @@ async function run() {
 
     root.render(RadioContextScene, { active: true })
     await pause()
+
     const group = node('radio-context'),
       groupView = group.view!
 
@@ -695,7 +724,9 @@ async function run() {
 
     root.render(RadioStandaloneScene, {})
     await pause()
+
     const standalone = node('radio-presentational')
+
     check(
       'standalone child part stays presentational',
       standalone.view!.get_accessible_role() !== Gtk.AccessibleRole.RADIO &&
@@ -712,17 +743,20 @@ async function run() {
       )
     }
   }
+
   check('rendering completes without effect errors', errors.length === 0)
   root.unmount()
   check(
     'unmount clears native nodes and host',
     host.get_first_child() == null && container.nodes.size === 0,
   )
+
   window.destroy()
   print('GTK_RADIO_RESULTS ' + JSON.stringify({ checks, failures, osInput, fallback }))
   if (failures.length) {
     throw new Error(failures.join('; '))
   }
+
   print(
     'GTK_RADIO ' +
       JSON.stringify({
@@ -732,10 +766,12 @@ async function run() {
         gtk: [Gtk.get_major_version(), Gtk.get_minor_version(), Gtk.get_micro_version()].join('.'),
       }),
   )
+
   loop.quit()
 }
 
 let failed = false
+
 run().catch((error) => {
   failed = true
   print('GTK_RADIO_FAILURES ' + JSON.stringify({ checks, failures, osInput, fallback }))

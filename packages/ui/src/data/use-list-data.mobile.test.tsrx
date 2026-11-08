@@ -39,6 +39,7 @@ describe('useListData (universal renderer)', () => {
   it('re-renders on mutator commits', () => {
     const container = createObjectContainer()
     const root = createUniversalRoot(container, createObjectDriver())
+
     root.render(Reader, {})
     expect(container.children[0].props.value).toBe('a,b')
 

@@ -7,6 +7,7 @@ const platform = globalThis as any
 
 function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): DelegatedRun | null {
   const view = node.ios ?? node.nativeViewProtected
+
   if (!view?.layer || !platform.UIViewPropertyAnimator) {
     return null
   }
@@ -39,6 +40,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
   const sample = (): Target => {
     const layer = view.layer.presentationLayer?.() ?? view.layer
     const tr = layer.transform
+
     return {
       opacity: layer.opacity,
       x: tr.m41,
@@ -99,6 +101,7 @@ function iosRun(node: any, req: DelegatedRequest, write: (t: Target) => void): D
     sample,
     cancel() {
       const current = sample()
+
       animator.stopAnimation(true)
       write({
         opacity: current.opacity,
@@ -122,6 +125,7 @@ function androidRun(
   const view = node.nativeViewProtected ?? node.android
   const android = platform.android
   const androidx = platform.androidx
+
   if (
     !view?.animate ||
     !android?.animation ||
@@ -133,6 +137,7 @@ function androidRun(
   const { eff, target, transition: t } = req
   const animator = view.animate()
   const [x1, y1, x2, y2] = bezierPoints(t.ease)
+
   animator.setInterpolator(
     androidx.core.view.animation.PathInterpolatorCompat.create(x1, y1, x2, y2),
   )
@@ -179,6 +184,7 @@ function androidRun(
   // onAnimationCancel is always followed by onAnimationEnd — track it so the
   // end callback only commits the destination for a run that truly finished.
   let cancelled = false
+
   animator.setListener(
     new android.animation.Animator.AnimatorListener({
       onAnimationCancel() {

@@ -23,6 +23,7 @@ function mount() {
   const container = createObjectContainer('nativescript')
   const driver = createObjectDriver('nativescript')
   const root = createUniversalRoot(container, driver)
+
   return {
     container,
     root,
@@ -35,11 +36,14 @@ describe('native pager', () => {
   it('mutes delayed programmatic echoes and reports subsequent user pages once', async () => {
     const { root, container, render } = mount()
     const onPageChange = vi.fn()
+
     try {
       render({ page: 0, onPageChange })
       render({ page: 2, onPageChange })
       await vi.waitFor(() => expect((container.children[0] as any).selectedIndex).toBe(2))
+
       const host = container.children[0]
+
       container.dispatchEvent(host, 'selectedIndexChange', { value: 2 })
       expect(onPageChange).not.toHaveBeenCalled()
       container.dispatchEvent(host, 'selectedIndexChange', { value: 1 })
@@ -61,9 +65,11 @@ describe('native pager', () => {
     ['accessibilityLiveRegion', 'polite'],
   ])('forwards and refreshes %s without another prop changing', (key, value) => {
     const { root, container, render } = mount()
+
     try {
       render()
       render({ [key]: value })
+
       // `row` is layout sugar — it lands as `gridRow` in the style bag, not
       // as an element prop.
       const childProps = container.children[0].props
@@ -79,7 +85,9 @@ describe('native pager', () => {
 
       expect(got).toEqual(expected)
       render()
+
       const afterProps = container.children[0].props
+
       expect(key === 'row' ? afterProps.style?.gridRow : afterProps[key]).toBeUndefined()
     } finally {
       root.unmount()

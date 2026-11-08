@@ -44,6 +44,7 @@ function loadBundledGeistFonts() {
     ? Buffer.from(injectedGeistFontBase64, 'base64')
     : (() => {
         const path = sourceFontPath('Geist-Variable.ttf')
+
         return path ? readFileSync(path) : null
       })()
 
@@ -55,6 +56,7 @@ function loadBundledGeistFonts() {
     injectedGeistLicense ??
     (() => {
       const path = sourceFontPath('OFL.txt')
+
       if (!path) {
         throw new Error('Could not find the Geist font license')
       }
@@ -66,6 +68,7 @@ function loadBundledGeistFonts() {
   const fontDirectory = join(homedir(), 'Library', 'Caches', 'octane-xplat', 'macos', 'fonts')
   const fontPath = join(fontDirectory, `Geist-Variable-${digest}.ttf`)
   const licensePath = join(fontDirectory, 'Geist-OFL.txt')
+
   mkdirSync(fontDirectory, { recursive: true })
   if (!existsSync(fontPath)) {
     writeFileSync(fontPath, fontBytes)
@@ -76,10 +79,12 @@ function loadBundledGeistFonts() {
   }
 
   const descriptors = CTFontManagerCreateFontDescriptorsFromURL(NSURL.fileURLWithPath(fontPath))
+
   for (let index = 0; index < Number(descriptors?.count ?? 0); index++) {
     const descriptor = descriptors.objectAtIndex(index)
     const postScriptName = String(descriptor.postscriptName ?? '')
     const descriptorURL = CTFontDescriptorCopyAttribute(descriptor, kCTFontURLAttribute)
+
     if (postScriptName.startsWith('Geist-') && descriptorURL?.path === fontPath) {
       geistFontDescriptors.set(postScriptName, descriptor)
     }

@@ -7,6 +7,7 @@ const model = vi.hoisted(() => {
     },
     objectAtIndex: (index: number) => entries[index],
   })
+
   const devices = [1, 2].map((position) => ({
     uniqueID: position === 1 ? 'back' : 'front',
     localizedName: String(position),
@@ -21,6 +22,7 @@ const model = vi.hoisted(() => {
     },
     unlockForConfiguration() {},
   }))
+
   class Input {
     device: any
     constructor(device: any) {
@@ -30,6 +32,7 @@ const model = vi.hoisted(() => {
       return new Input(device)
     }
   }
+
   class Session {
     entries: any[] = []
     inputs = array(this.entries)
@@ -57,6 +60,7 @@ const model = vi.hoisted(() => {
     startRunning() {}
     stopRunning() {}
   }
+
   const bridge = () => ({
     target: undefined as Session | undefined,
     ready: undefined as ((ready: boolean) => void) | undefined,
@@ -89,12 +93,14 @@ const model = vi.hoisted(() => {
       this.flip = (problem: string | null) => {
         if (!problem) {
           const previous = this.target.entries.find((entry: any) => entry.device.position)
+
           if (previous) {
             this.target.removeInput(previous)
           }
 
           this.target.addInput(new Input(devices.find((device) => device.uniqueID === id)))
         }
+
         callback(problem)
       }
     }),
@@ -106,6 +112,7 @@ const model = vi.hoisted(() => {
       callback()
     },
   })
+
   const audioSession = {
     allowHapticsAndSystemSoundsDuringRecording: false,
     setAllowHapticsAndSystemSoundsDuringRecordingError: vi.fn(function (this: any, value: boolean) {
@@ -113,6 +120,7 @@ const model = vi.hoisted(() => {
       return true
     }),
   }
+
   return {
     array,
     devices,
@@ -171,6 +179,7 @@ vi.mock('@octane-xplat/platform/ios', () => ({
         },
         removeFromSuperlayer() {},
       }
+
       model.layers.push(layer)
       return layer
     },
@@ -238,6 +247,7 @@ beforeEach(() => {
   ]) {
     vi.stubGlobal(name, name)
   }
+
   vi.stubGlobal('AVMediaTypeVideo', 'video')
   vi.stubGlobal('AVMediaTypeAudio', 'audio')
   vi.stubGlobal('CMTimeGetSeconds', (time: number) => time)
@@ -247,26 +257,34 @@ afterEach(() => vi.unstubAllGlobals())
 
 function setup(config: import('../src/types').CameraSessionConfig = { audio: true }) {
   const native = model.bridge()
+
   vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
+
   const backend = createSessionBackend(config)
   const session = new SharedCameraSession(backend, config)
   const onReady = vi.fn()
   const detach = session.attach({ ios: { layer: { addSublayer() {} }, bounds: {} } }, { onReady })
   const start = () => {
     const take = session.startRecording({ destinationFileUrl: 'file:///docs/take.mov' })
+
     native.events.at(-1)!('started', '{"width":720,"height":1280}')
     return take
   }
+
   const finish = (warning = '') =>
     native.events.at(-1)!('finished', JSON.stringify({ path: '/docs/take.mov', warning }))
+
   return { native, backend, session, onReady, start, finish, detach }
 }
 
 describe('iOS sample writer adapter', () => {
   it('retains the native duration limit cause through finishing', async () => {
     const h = setup()
+
     h.native.ready!(true)
+
     const take = h.start()
+
     h.native.events.at(-1)!('limit', '')
     h.native.events.at(-1)!('finishing', '')
     h.finish()
@@ -274,16 +292,20 @@ describe('iOS sample writer adapter', () => {
       kind: 'clip',
       endReason: 'maximumDuration',
     })
+
     await h.session.dispose()
   })
 
   it('keeps microphone ownership outside the video session and reports effective audio', async () => {
     const h = setup()
+
     expect(h.native.configureAudio).toHaveBeenCalledWith(true)
     expect(h.native.target!.entries).toHaveLength(1)
     expect(h.native.target!.entries[0].device.hasMediaType('video')).toBe(true)
     h.native.ready!(true)
+
     const take = h.start()
+
     expect(h.session.snapshot().attempt?.configuration?.audio).toBe(true)
     h.finish()
     await take.completion
@@ -294,9 +316,12 @@ describe('iOS sample writer adapter', () => {
 
   it('fails preparation when independent microphone capture is unavailable', async () => {
     const h = setup()
+
     h.native.configureAudio.mockReturnValue('Microphone capture interrupted')
     h.native.ready!(true)
+
     const take = h.session.startRecording()
+
     await expect(take.completion).resolves.toMatchObject({ kind: 'failed', stage: 'preparation' })
     expect(h.native.events).toHaveLength(0)
     await h.session.dispose()
@@ -311,6 +336,7 @@ describe('iOS sample writer adapter', () => {
 
   it('reports a missing native writer with rebuild guidance', async () => {
     const backend = createSessionBackend({})
+
     expect(await backend.getCapabilities()).toMatchObject({
       supported: false,
       cameraSwitchDuringRecording: false,
@@ -320,12 +346,15 @@ describe('iOS sample writer adapter', () => {
 
   it('waits for native frames and does not rearm onReady when a switch becomes ready', async () => {
     const h = setup()
+
     expect(h.backend.previewReady()).toBe(false)
     expect(() => h.start()).toThrow()
     h.native.ready!(true)
     expect(h.onReady).toHaveBeenCalledOnce()
+
     const take = h.start()
     const flip = h.session.switchCamera('front')
+
     await vi.waitFor(() => expect(h.native.switchToReply).toHaveBeenCalledOnce())
     h.native.ready!(false)
     h.native.ready!(true)
@@ -338,6 +367,7 @@ describe('iOS sample writer adapter', () => {
       activeCamera: { id: 'front' },
       attempt: { configuration: { cameraId: 'back', width: 720, height: 1280 } },
     })
+
     expect(take.stop()).toBe(take.completion)
     h.finish()
     await expect(take.completion).resolves.toMatchObject({ kind: 'clip', clip: { hasAudio: true } })
@@ -346,8 +376,11 @@ describe('iOS sample writer adapter', () => {
 
   it('preserves a usable partial clip when source recovery fails', async () => {
     const h = setup()
+
     h.native.ready!(true)
+
     const take = h.start()
+
     h.native.events[0]!('sourceLost', 'Rollback failed')
     h.native.events[0]!('finishing', 'captureError')
     h.finish('Rollback failed')
@@ -357,15 +390,19 @@ describe('iOS sample writer adapter', () => {
       partial: true,
       warning: { kind: 'captureFailed' },
     })
+
     await h.session.dispose()
   })
 
   it('joins stop, cancels selection and ignores late native success', async () => {
     const h = setup()
+
     h.native.ready!(true)
+
     const take = h.start()
     const flip = h.session.switchCamera('front')
     const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
     await vi.waitFor(() => expect(h.native.switchToReply).toHaveBeenCalledOnce())
     take.stop()
     await rejected
@@ -381,20 +418,28 @@ describe('iOS sample writer adapter', () => {
 describe('writer completion recovery', () => {
   it('verifies the file when native completion metadata is malformed', async () => {
     const h = setup()
+
     h.native.ready!(true)
+
     const take = h.start()
+
     take.stop()
     h.native.events[0]!('finished', 'not JSON')
     await expect(take.completion).resolves.toMatchObject({
       kind: 'clip',
       warning: { operation: 'finalize' },
     })
+
     await h.session.dispose()
   })
+
   it('returns a verified partial clip when a failed writer owns playable output', async () => {
     const h = setup()
+
     h.native.ready!(true)
+
     const take = h.start()
+
     h.native.events[0]!(
       'failed',
       JSON.stringify({
@@ -404,12 +449,14 @@ describe('writer completion recovery', () => {
         message: 'Encoder reported failure',
       }),
     )
+
     await expect(take.completion).resolves.toMatchObject({
       kind: 'clip',
       partial: true,
       endReason: 'captureError',
       warning: { kind: 'captureFailed' },
     })
+
     await h.session.dispose()
   })
 })
@@ -417,10 +464,13 @@ describe('writer completion recovery', () => {
 it('retracts source readiness while native teardown is still pending', async () => {
   const h = setup()
   let release: (() => void) | undefined
+
   h.native.releaseWithReply = (callback) => {
     release = callback
   }
+
   const disposal = h.session.dispose()
+
   await vi.waitFor(() => expect(release).toBeTypeOf('function'))
   h.native.ready!(true)
   expect(h.backend.previewReady()).toBe(false)
@@ -431,12 +481,15 @@ it('retracts source readiness while native teardown is still pending', async () 
 
 it('retracts admission until an idle camera replacement supplies fresh frames', async () => {
   const h = setup()
+
   h.native.ready!(true)
   await h.session.configure({ camera: 'front' })
   expect(h.backend.previewReady()).toBe(false)
   expect(() => h.start()).toThrow()
   h.native.ready!(true)
+
   const take = h.start()
+
   expect(h.session.snapshot().activeCamera?.id).toBe('front')
   take.stop()
   h.finish()
@@ -446,14 +499,19 @@ it('retracts admission until an idle camera replacement supplies fresh frames', 
 
 it('rebinds an absent input when retrying the same idle selection', async () => {
   const h = setup()
+
   h.native.ready!(true)
+
   const target = h.native.target!
+
   target.entries.splice(0, 1)
   await h.session.configure({ camera: 'back' })
   expect(target.entries.some((entry) => entry.device.uniqueID === 'back')).toBe(true)
   expect(h.backend.previewReady()).toBe(false)
   h.native.ready!(true)
+
   const take = h.start()
+
   take.stop()
   h.finish()
   await take.completion
@@ -462,20 +520,27 @@ it('rebinds an absent input when retrying the same idle selection', async () => 
 
 it('does not return an audio-only writer result as a captured movie', async () => {
   const h = setup()
+
   h.native.ready!(true)
+
   const take = h.start()
+
   h.native.events[0]!(
     'failed',
     JSON.stringify({ ownsOutput: true, hasVideo: false, message: 'No video frames were captured' }),
   )
+
   await expect(take.completion).resolves.toMatchObject({ kind: 'failed' })
   await h.session.dispose()
 })
 
 it('joins finalization and retains verified media after malformed start metadata', async () => {
   const h = setup()
+
   h.native.ready!(true)
+
   const take = h.session.startRecording({ destinationFileUrl: 'file:///docs/take.mov' })
+
   h.native.events[0]!('started', 'not JSON')
   expect(h.native.stop).toHaveBeenCalledOnce()
   h.finish()
@@ -485,13 +550,17 @@ it('joins finalization and retains verified media after malformed start metadata
     endReason: 'captureError',
     warning: { kind: 'captureFailed' },
   })
+
   await h.session.dispose()
 })
 
 it('reports incomplete output without treating a timed-out writer as finalized media', async () => {
   const h = setup()
+
   h.native.ready!(true)
+
   const take = h.start()
+
   h.native.events[0]!(
     'failed',
     JSON.stringify({
@@ -501,19 +570,24 @@ it('reports incomplete output without treating a timed-out writer as finalized m
       message: 'Finalization timed out',
     }),
   )
+
   await expect(take.completion).resolves.toMatchObject({
     kind: 'failed',
     error: { cause: { candidateFileUrl: 'file:///docs/take.mov' } },
   })
+
   await h.session.dispose()
 })
 
 it('does not acknowledge a physical swap when stop wins before the JS commit', async () => {
   const h = setup()
+
   h.native.ready!(true)
+
   const take = h.start()
   const flip = h.session.switchCamera('front')
   const rejected = expect(flip).rejects.toMatchObject({ kind: 'invalidState' })
+
   await vi.waitFor(() => expect(h.native.switchToReply).toHaveBeenCalledOnce())
   // Native has accepted the new source, but promise continuations have not run.
   h.native.flip!(null)
@@ -528,26 +602,33 @@ it('does not acknowledge a physical swap when stop wins before the JS commit', a
 
 describe('iOS recording haptics policy', () => {
   const config = { audio: true, ios: { allowHapticsAndSystemSoundsDuringRecording: true } }
+
   it('leaves default and silent sessions alone', async () => {
     for (const config of [
       { audio: true },
       { audio: false, ios: { allowHapticsAndSystemSoundsDuringRecording: true } },
     ]) {
       const h = setup(config)
+
       await h.session.dispose()
     }
+
     expect(
       model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError,
     ).not.toHaveBeenCalled()
   })
+
   it('sets policy before microphone activation and restores it after the last microphone owner releases', async () => {
     const a = setup(config)
+
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
     expect(
       model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mock
         .invocationCallOrder[0],
     ).toBeLessThan(a.native.configureAudio.mock.invocationCallOrder[0])
+
     const b = setup(config)
+
     await a.session.dispose()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
     await b.session.dispose()
@@ -558,17 +639,22 @@ describe('iOS recording haptics policy', () => {
       ),
     ).toEqual([true, false])
   })
+
   it('preserves an existing app opt-in', async () => {
     model.audioSession.allowHapticsAndSystemSoundsDuringRecording = true
+
     const h = setup(config)
+
     await h.session.dispose()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
     expect(
       model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError,
     ).not.toHaveBeenCalled()
   })
+
   it('restores policy when audio or the opt-in is disabled and reacquires on reconfiguration', async () => {
     const h = setup(config)
+
     await h.session.configure({ audio: false })
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
     await h.session.configure({ audio: true })
@@ -577,20 +663,25 @@ describe('iOS recording haptics policy', () => {
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
     await h.session.dispose()
   })
+
   it('waits for native microphone release before restoring after preview detachment', async () => {
     const h = setup(config)
     let reply: (() => void) | undefined
+
     h.native.releaseWithReply = (callback) => {
       reply = callback
     }
+
     h.detach()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
     reply!()
     await h.session.dispose()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
   })
+
   it('does not leak an owner when the OS refuses the policy', async () => {
     const h = setup({ audio: false })
+
     model.audioSession.setAllowHapticsAndSystemSoundsDuringRecordingError.mockReturnValueOnce(false)
     await expect(h.session.configure(config)).rejects.toThrow('Could not allow haptics')
     expect(h.native.configureAudio).not.toHaveBeenCalled()
@@ -599,16 +690,20 @@ describe('iOS recording haptics policy', () => {
     await h.session.dispose()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
   })
+
   it('retains the policy if native audio shutdown fails', async () => {
     const h = setup(config)
+
     h.native.configureAudio.mockReturnValue('Audio configuration requires an idle writer')
     await expect(h.session.configure({ audio: false })).rejects.toThrow('idle writer')
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(true)
     await h.session.dispose()
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
   })
+
   it('releases a newly acquired policy when microphone configuration fails', async () => {
     const h = setup({ audio: false })
+
     h.native.configureAudio.mockReturnValue('Microphone capture interrupted')
     await h.session.configure(config)
     expect(model.audioSession.allowHapticsAndSystemSoundsDuringRecording).toBe(false)
@@ -619,7 +714,9 @@ describe('iOS recording haptics policy', () => {
 describe('iOS displayed-preview readiness', () => {
   function setupDisplay() {
     const native = model.bridge()
+
     vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
+
     const backend = createSessionBackend({ audio: true })
     const session = new SharedCameraSession(backend, { audio: true })
     const onReady = vi.fn()
@@ -628,12 +725,14 @@ describe('iOS displayed-preview readiness', () => {
       { ios: { layer: { addSublayer() {} }, bounds: {} } },
       { onReady, onDisplayReady },
     )
+
     return { native, backend, session, onReady, onDisplayReady, detach }
   }
 
   it('fires onDisplayReady when the layer previews into non-empty bounds', () => {
     const { onReady, onDisplayReady } = setupDisplay()
     const layer = model.layers.at(-1)!
+
     expect(onReady).not.toHaveBeenCalled()
     expect(onDisplayReady).not.toHaveBeenCalled()
 
@@ -663,6 +762,7 @@ describe('iOS displayed-preview readiness', () => {
   it('refires when a displayed preview resumes rendering', () => {
     const { onDisplayReady } = setupDisplay()
     const layer = model.layers.at(-1)!
+
     layer.bounds.size = { width: 640, height: 480 }
     layer.previewing = true
     layer.emitKey('previewing')
@@ -676,6 +776,7 @@ describe('iOS displayed-preview readiness', () => {
   it('stops observing on detach', () => {
     const { onDisplayReady, detach } = setupDisplay()
     const layer = model.layers.at(-1)!
+
     detach()
 
     expect(layer.observers).toHaveLength(0)
@@ -687,6 +788,7 @@ describe('iOS displayed-preview readiness', () => {
 
   it('reports no display signal on a runtime without previewing', () => {
     model.noPreviewing = true
+
     const { onDisplayReady } = setupDisplay()
     const layer = model.layers.at(-1)!
 
@@ -698,9 +800,12 @@ describe('iOS displayed-preview readiness', () => {
 describe('iOS zoom control', () => {
   function setupZoom() {
     const native = model.bridge()
+
     vi.stubGlobal('XplatSwitchingMovieWriter', { new: () => native })
+
     const backend = createSessionBackend({ audio: true })
     const session = new SharedCameraSession(backend, { audio: true })
+
     session.attach({ ios: { layer: { addSublayer() {} }, bounds: {} } }, {})
     return { native, backend, session }
   }
@@ -708,6 +813,7 @@ describe('iOS zoom control', () => {
   it('reports live zoom state from the bound device', async () => {
     const { session } = setupZoom()
     const state = session.zoomState()
+
     expect(state).toEqual({ zoom: 1, minZoom: 1, maxZoom: 4 })
     expect((await session.capabilities()).zoom).toBe(true)
   })
@@ -727,6 +833,7 @@ describe('iOS zoom control', () => {
   it('reports no zoom control before a device is bound', () => {
     const backend = createSessionBackend({ audio: true })
     const session = new SharedCameraSession(backend, { audio: true })
+
     expect(session.zoomState()).toBeUndefined()
     session.setZoom(2)
   })

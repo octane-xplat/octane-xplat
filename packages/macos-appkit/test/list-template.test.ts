@@ -13,9 +13,11 @@ test('string template prop inventory matches every canonical shared tag and attr
   const source = program.getSourceFile(file)!
   const def: any = source.statements.find((node: any) => node.name?.text === 'NativeElements')
   const tags = checker.getTypeAtLocation(def).getProperties()
+
   assert.deepEqual(Object.keys(templateProps).sort(), tags.map((tag) => tag.name).sort())
   for (const tag of tags) {
     const type = checker.getTypeOfSymbolAtLocation(tag, def)
+
     assert.deepEqual(
       Object.keys(templateProps[tag.name]).sort(),
       type
@@ -36,6 +38,7 @@ test('Builder XML nested tags, case, namespaces, entities and numeric/boolean/st
   )
 
   const tags: any[] = []
+
   template.validate(
     (tag, props) => tags.push([tag, props]),
     () => {},
@@ -56,6 +59,7 @@ test('Builder binding options preserve path, $value, expressions, named and posi
     '<MasonView><Label text="{{ person.name }}"/><Label text="{{ $value }}"/><Label text="{{ count + 2 }}"/><Label text="{{ sourceProperty=count, expression=count * 3, twoWay=false }}"/><Label text="{{ count, count * 4, false }}"/></MasonView>'
 
   const first = values(markup, { person: { name: 'A' }, count: 2 })
+
   assert.equal(first[1].text, 'A')
   assert.equal(first[2].text.count, 2)
   assert.deepEqual(
@@ -111,7 +115,9 @@ test('template failures are descriptive TypeErrors at the prop boundary, includi
   assert.throws(() => validateListProps({ items: {} }), /ItemsSource/)
   assert.throws(() => validateListProps({ items: { length: -1, getItem() {} } }), /ItemsSource/)
   validateListProps({ items: { length: 2, getItem: (index: number) => index } })
+
   const factory = () => ({})
+
   assert.equal(
     listFactory({
       itemTemplate: factory,

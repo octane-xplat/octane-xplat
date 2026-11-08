@@ -7,6 +7,7 @@ import {
 } from 'octane/universal/native'
 
 import { expect, it, vi } from 'vitest'
+
 vi.mock('@nativescript/core', () => ({
   // ui-svg's index.common.ts evaluates NS decorators at import.
   Property: class {
@@ -31,6 +32,7 @@ vi.mock('../layout/pan', () => ({ usePan: () => undefined }))
 vi.mock('../overlays/Popover', () => ({ Popover: () => null }))
 // Keep pure source conversion while skipping the SDK's SVGView registration.
 vi.mock('../media/svg', async () => await import('../media/svg-source'))
+
 import {
   NavigationChrome,
   type NavigationChromeKind,

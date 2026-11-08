@@ -79,6 +79,7 @@ function fakeCALayer() {
     removeFromSuperlayer() {
       if (this.superlayer) {
         const i = this.superlayer.sublayers.indexOf(this)
+
         if (i >= 0) {
           this.superlayer.sublayers.splice(i, 1)
         }
@@ -130,18 +131,22 @@ function view({ orientation } = {}) {
     },
     removeArrangedSubview(v) {
       const index = this.arranged.indexOf(v)
+
       if (index >= 0) {
         this.arranged.splice(index, 1)
       }
     },
     insertViewAtIndexInGravity(v, index, gravity) {
       v.gravity = gravity
+
       const group = this.arranged.filter((entry) => entry.gravity === gravity)
       const before = group[index]
+
       this.arranged.splice(before ? this.arranged.indexOf(before) : this.arranged.length, 0, v)
     },
     viewsInGravity(gravity) {
       const group = this.arranged.filter((entry) => entry.gravity === gravity)
+
       return { count: group.length, objectAtIndex: (index) => group[index] }
     },
     removed: false,
@@ -171,10 +176,12 @@ const masonProp = (_node: any, name: string, value: any) => {
     hooks.applyStyle?.(_node, value)
     return true
   }
+
   if (name === 'className') {
     hooks.applyClassName?.(_node, value)
     return true
   }
+
   return true
 }
 
@@ -256,6 +263,7 @@ const sandbox = {
   NSColorSpace: { sRGBColorSpace: 'srgb' },
   srgbComponents: (color: any, appearance: any) => {
     const c = color?.colorUsingColorSpace?.(appearance ?? 'srgb')
+
     return c
       ? {
           red: c.redComponent,
@@ -315,6 +323,7 @@ const sandbox = {
       },
       removeObserver: (o) => {
         const i = frameObservers.indexOf(o)
+
         if (i >= 0) {
           frameObservers.splice(i, 1)
         }
@@ -430,6 +439,7 @@ function classes(item) {
 
 test('removed style keys reset alpha, input transparency, and size constraints', () => {
   const item = node('masonview', { orientation: 1 })
+
   setStyle(item, { width: 100, opacity: 0.2, pointerEvents: 'none' })
 
   assert.equal(item.view.alphaValue, 0.2)
@@ -446,6 +456,7 @@ test('removed style keys reset alpha, input transparency, and size constraints',
 
 test('style keys nulled in place reset the same as absent keys', () => {
   const item = node('masonview', { orientation: 1 })
+
   setStyle(item, { opacity: 0.2, width: 40 })
   setStyle(item, { opacity: undefined })
 
@@ -455,6 +466,7 @@ test('style keys nulled in place reset the same as absent keys', () => {
 
 test('removed backgroundColor clears the layer when no class slot applies', () => {
   const item = node('masonview', { orientation: 1 })
+
   setStyle(item, { backgroundColor: '#ff0000' })
   assert.deepEqual({ ...item.view.layer.backgroundColor }, { r: 1, g: 0, b: 0, a: 1 })
 
@@ -481,7 +493,9 @@ test('removed classes restore spacing, orientation, background, and insets', () 
     'sr-containers',
     '.gap-2 { row-gap: 8px; column-gap: 8px } .bg-primary { background-color: blue; padding: 6px 10px } .flex-col { flex-direction: column }',
   )
+
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, 'gap-2 bg-primary flex-col')
 
   assert.equal(item.computedStyle.rowGap, 8)
@@ -504,7 +518,9 @@ test('removed classes restore spacing, orientation, background, and insets', () 
 
 test('removed rounded class restores corner radius and masksToBounds', () => {
   registerStylesheet('sr-radius', '.rounded-full { border-radius: 12px }')
+
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, 'rounded-full')
   assert.equal(item.view.layer.cornerRadius, 12)
   assert.equal(item.view.layer.masksToBounds, true)
@@ -516,7 +532,9 @@ test('removed rounded class restores corner radius and masksToBounds', () => {
 
 test('style padding wins over class insets and removal restores them', () => {
   registerStylesheet('sr-toast', '.vx-toast { padding: 12px }')
+
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, 'vx-toast')
   setStyle(item, { padding: 20 })
 
@@ -529,7 +547,9 @@ test('style padding wins over class insets and removal restores them', () => {
 
 test('font sources resolve style > class > default as each is removed', () => {
   registerStylesheet('sr-fonts', '.font-bold { font-weight: 700 }')
+
   const item = node('label')
+
   setClass(item, 'font-bold')
   setStyle(item, { fontSize: 20 })
 
@@ -549,7 +569,9 @@ test('font sources resolve style > class > default as each is removed', () => {
 
 test('grabber class removal returns label alignment to textAlign or left', () => {
   registerStylesheet('sr-grabber', '.vx-sheet-grabber { text-align: center; height: 24px }')
+
   const item = node('label')
+
   setClass(item, 'vx-sheet-grabber')
   assert.equal(item.view.alignment, 1)
   assert.equal(item.sizeConstraintSpecs.height.points, 24)
@@ -568,8 +590,10 @@ test('logical label alignment follows inherited CSS direction and local physical
     'sr-label-alignment',
     '.sr-label-end { text-align: end } .sr-label-rtl { direction: rtl }',
   )
+
   const parent = node('masonview'),
     item = node('label', { parent })
+
   setClass(parent, 'sr-label-end')
   assert.equal(item.view.alignment, 2)
   setClass(parent, 'sr-label-end sr-label-rtl')
@@ -586,6 +610,7 @@ test('logical label alignment follows inherited CSS direction and local physical
 
 test('label alignment uses the final style pair independent of declaration order and clears on removal', () => {
   const item = node('label')
+
   setStyle(item, { direction: 'rtl', textAlign: 'end' })
   assert.equal(item.view.alignment, 0)
   setStyle(item, { textAlign: 'end', direction: 'rtl' })
@@ -645,6 +670,7 @@ for (const type of ['masonview', 'scrollview']) {
 
 test('layout prop/style updates re-queue the mason container pass', () => {
   const item = node('masonview', { orientation: 1 })
+
   node('label', { parent: item })
 
   reconciles.length = 0
@@ -661,6 +687,7 @@ test('layout prop/style updates re-queue the mason container pass', () => {
 // array into one token that matches nothing.
 test('array className values tokenize like strings', () => {
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, ['gap-2', 'bg-primary', 'items-center'])
 
   assert.deepEqual(classes(item), ['gap-2', 'bg-primary', 'items-center'])
@@ -670,6 +697,7 @@ test('array className values tokenize like strings', () => {
 
 test('nested arrays flatten and falsy entries drop out', () => {
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, ['gap-2', ['items-center', null, false], undefined, ''])
 
   assert.deepEqual(classes(item), ['gap-2', 'items-center'])
@@ -678,6 +706,7 @@ test('nested arrays flatten and falsy entries drop out', () => {
 
 test('object className values keep only truthy keys', () => {
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, { 'gap-2': true, 'items-center': 1, 'bg-primary': false, hidden: 0 })
 
   assert.deepEqual(classes(item), ['gap-2', 'items-center'])
@@ -687,6 +716,7 @@ test('object className values keep only truthy keys', () => {
 
 test('class effects still reset when an array input goes empty', () => {
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, ['gap-2', 'bg-primary'])
   setClass(item, [])
 
@@ -698,6 +728,7 @@ test('class effects still reset when an array input goes empty', () => {
 test('unsupported layout styles on a leaf keep useful diagnostics', () => {
   const warnings = []
   const original = console.warn
+
   console.warn = (message) => warnings.push(message)
   try {
     setStyle(node('label'), { flexDirection: 'row', gap: 12, flexGrow: 1 })
@@ -715,6 +746,7 @@ test('unsupported layout styles on a leaf keep useful diagnostics', () => {
 
 test('scrollview orientation props queue the mason pass', () => {
   const stack = node('scrollview', { orientation: 1 })
+
   reconciles.length = 0
   applyProps(stack, { orientation: 'horizontal' })
   assert.equal(stack.props.orientation, 'horizontal')
@@ -723,16 +755,19 @@ test('scrollview orientation props queue the mason pass', () => {
 
 test('masonview edge padding updates queue the container pass', () => {
   const stack = node('masonview', { orientation: 1 })
+
   node('label', { parent: stack })
 
   applyProps(stack, {
     style: { paddingTop: 3, paddingBottom: 7, paddingLeft: 4, paddingRight: 10 },
   })
+
   flushStyleDirty(stack.container)
   assert.ok(
     stack.stylePaddingEdges?.top === 3 && stack.stylePaddingEdges?.right === 10,
     'edge padding parses for the engine',
   )
+
   assert.deepEqual(
     insets(stack.dockInsets),
     { top: 3, right: 10, bottom: 7, left: 4 },
@@ -742,6 +777,7 @@ test('masonview edge padding updates queue the container pass', () => {
 
 test('an unstyled masonview queues a reconcile without crashing', () => {
   const stack = node('masonview', { orientation: 1 })
+
   reconciles.length = 0
   applyProps(stack, {})
   assert.ok(reconciles.length >= 0)
@@ -749,6 +785,7 @@ test('an unstyled masonview queues a reconcile without crashing', () => {
 
 test('percent borderRadius resolves against min(width, height) and re-resolves on frame change', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { borderRadius: '50%' })
@@ -759,6 +796,7 @@ test('percent borderRadius resolves against min(width, height) and re-resolves o
   for (const cb of [...frameObservers]) {
     cb()
   }
+
   assert.equal(item.view.layer.cornerRadius, 20)
 
   setStyle(item, {})
@@ -768,6 +806,7 @@ test('percent borderRadius resolves against min(width, height) and re-resolves o
 
 test('numeric borderRadius is unchanged by percent handling', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { borderRadius: 7 })
@@ -777,6 +816,7 @@ test('numeric borderRadius is unchanged by percent handling', () => {
 
 test('cornerShape squircle maps to a continuous corner curve; reset restores circular', () => {
   const item = node('masonview', { orientation: 1 })
+
   setStyle(item, { cornerShape: 'squircle' })
   assert.equal(item.view.layer.cornerCurve, 'continuous')
 
@@ -789,7 +829,9 @@ test('cornerShape squircle maps to a continuous corner curve; reset restores cir
 
 test('placeholderColor styles textfield placeholder and textview placeholderView; reset restores semantic default', () => {
   placeholderCalls.length = 0
+
   const field = node('textfield', { props: { placeholder: 'e' } })
+
   setStyle(field, { placeholderColor: 'red' })
   assert.equal(placeholderCalls.at(-1)?.override, 'red')
 
@@ -797,6 +839,7 @@ test('placeholderColor styles textfield placeholder and textview placeholderView
   assert.equal(placeholderCalls.at(-1)?.override, undefined)
 
   const area = node('textview', { props: {} })
+
   area.placeholderView = { textColor: null }
   setStyle(area, { placeholderColor: 'blue' })
   assert.deepEqual({ ...area.placeholderView.textColor.CGColor }, { r: 0, g: 0, b: 1, a: 1 })
@@ -807,6 +850,7 @@ test('placeholderColor styles textfield placeholder and textview placeholderView
 
 test('textDecoration underline/line-through reach the label attributed string; reset clears them', () => {
   const item = node('label', { props: { text: 'hi' } })
+
   item.view.attributedStringValue = null
   setStyle(item, { textDecoration: 'underline' })
   assert.equal(item.view.attributedStringValue.attrs.NSUnderline, 1)
@@ -832,24 +876,29 @@ test('effectiveStyle tolerates a missing node (empty actionbar intrinsicContentS
     ) + '\n({ effectiveStyle })',
     {},
   )
+
   assert.deepEqual({ ...effectiveStyle(undefined) }, {})
   assert.deepEqual({ ...effectiveStyle(null) }, {})
 })
 
 test('per-side borders draw through masked shape layers and reset cleanly', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 40
   setStyle(item, { borderTopWidth: 2, borderBottomWidth: 4, borderColor: '#ff0000' })
 
   assert.equal(item.view.layer.borderWidth, 0, 'per-side widths leave the collapsed slot alone')
+
   const box = paintState(item).borderLayer
+
   assert.ok(box, 'border layer installed under the sublayers')
   assert.equal(box.sublayers.length, 4)
   assert.equal(item.view.layer.sublayers[0], box)
   assert.equal(item.view.postsFrameChangedNotifications, true)
 
   const top = paintState(item).borderSides.top
+
   assert.deepEqual(top.path.ops, [
     ['M', 0, 40],
     ['L', 100, 40],
@@ -857,6 +906,7 @@ test('per-side borders draw through masked shape layers and reset cleanly', () =
     ['L', 0, 38],
     ['Z'],
   ])
+
   assert.deepEqual({ ...top.fillColor }, { r: 1, g: 0, b: 0, a: 1 })
   assert.equal(paintState(item).borderSides.left.hidden, true)
   assert.equal(paintState(item).borderSides.bottom.hidden, false)
@@ -869,6 +919,7 @@ test('per-side borders draw through masked shape layers and reset cleanly', () =
 
 test('uniform borders keep the single CALayer fast path', () => {
   const item = node('masonview', { orientation: 1 })
+
   setStyle(item, { borderWidth: 2, borderColor: '#ff0000' })
 
   assert.equal(item.view.layer.borderWidth, 2)
@@ -879,13 +930,16 @@ test('uniform borders keep the single CALayer fast path', () => {
 
 test('per-corner radii clip through a mask path and restore the fast path', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { borderTopLeftRadius: 10, borderTopRightRadius: 30 })
 
   assert.equal(item.view.layer.cornerRadius, 0)
   assert.equal(item.view.layer.masksToBounds, true)
+
   const mask = item.view.layer.mask
+
   assert.deepEqual(mask?.path?.ops, [
     ['M', 10, 50],
     ['A', 100, 50, 100, 20, 30],
@@ -905,6 +959,7 @@ test('per-corner radii clip through a mask path and restore the fast path', () =
 
 test('border shorthand feeds width and color slots', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { border: '1px solid #00ff00' })
@@ -914,7 +969,9 @@ test('border shorthand feeds width and color slots', () => {
 
   setStyle(item, { border: '1px solid #00ff00', borderRight: '2px dashed #0000ff' })
   assert.equal(item.view.layer.borderWidth, 0, 'non-uniform sides go through layers')
+
   const right = paintState(item).borderSides.right
+
   assert.deepEqual(right.mask.path.ops, [
     ['M', 100, 50],
     ['L', 100, 0],
@@ -922,6 +979,7 @@ test('border shorthand feeds width and color slots', () => {
     ['L', 98, 49],
     ['Z'],
   ])
+
   assert.equal(right.fillColor, null)
   assert.deepEqual({ ...right.strokeColor }, { r: 0, g: 0, b: 1, a: 1 })
   assert.deepEqual([...right.lineDashPattern], [6, 6])
@@ -933,10 +991,13 @@ test('border shorthand feeds width and color slots', () => {
 
 test('inset borders paint shaded fill bands per side without a solid fallback warning', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 40
+
   const warnings = []
   const original = console.warn
+
   console.warn = (message) => warnings.push(message)
   try {
     setStyle(item, { borderWidth: 3, borderColor: '#ff0000', borderStyle: 'inset' })
@@ -954,6 +1015,7 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
       `no extra band shapes on ${side}`,
     )
   }
+
   assert.deepEqual(paintState(item).borderSides.top.path.ops, [
     ['M', 0, 40],
     ['L', 100, 40],
@@ -961,20 +1023,24 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
     ['L', 3, 37],
     ['Z'],
   ])
+
   assert.ok(
     Math.abs(paintState(item).borderSides.top.fillColor.r - 0.67) < 1e-9 &&
       paintState(item).borderSides.top.fillColor.g === 0,
     'top shades dark',
   )
+
   assert.ok(
     Math.abs(paintState(item).borderSides.left.fillColor.r - 0.67) < 1e-9,
     'left shades dark',
   )
+
   assert.deepEqual(
     { ...paintState(item).borderSides.bottom.fillColor },
     { r: 1, g: 0, b: 0, a: 1 },
     'bottom keeps the base color',
   )
+
   assert.deepEqual(
     { ...paintState(item).borderSides.right.fillColor },
     { r: 1, g: 0, b: 0, a: 1 },
@@ -984,6 +1050,7 @@ test('inset borders paint shaded fill bands per side without a solid fallback wa
 
 test('double borders paint two bands per side and retire the extras with the style', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 40
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
@@ -997,13 +1064,16 @@ test('double borders paint two bands per side and retire the extras with the sty
   assert.equal(paintState(item).borderBandShapes, undefined)
 
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
+
   const extras = paintState(item).borderBandShapes
+
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'dashed' })
   assert.equal(
     paintState(item).borderStroke.hidden,
     false,
     'uniform dashed strokes through borderStroke',
   )
+
   for (const side of ['top', 'right', 'bottom', 'left']) {
     assert.equal(extras[side][0].hidden, true)
   }
@@ -1013,6 +1083,7 @@ test('an unknown decorative border style warns once and paints solid', () => {
   const item = node('masonview', { orientation: 1 })
   const warnings = []
   const original = console.warn
+
   console.warn = (message) => warnings.push(message)
   try {
     setStyle(item, { borderWidth: 2, borderColor: '#0000ff', borderStyle: 'wavy' })
@@ -1025,6 +1096,7 @@ test('an unknown decorative border style warns once and paints solid', () => {
     warnings.filter((m) => String(m).includes('Unsupported decorative border style')).length,
     1,
   )
+
   assert.equal(item.view.layer.borderWidth, 2, 'uniform fallback paints through the CALayer slot')
   assert.equal(paintState(item).borderLayer, null)
   assert.deepEqual({ ...item.view.layer.borderColor }, { r: 1, g: 0, b: 0, a: 1 })
@@ -1032,6 +1104,7 @@ test('an unknown decorative border style warns once and paints solid', () => {
 
 test('clearing a banded border removes the extra band shapes', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 40
   setStyle(item, { borderWidth: 6, borderColor: '#00ff00', borderStyle: 'double' })
@@ -1046,7 +1119,9 @@ test('CSS border-radius and border-width arrive as per-corner and per-side longh
     'sr-borders',
     '.card { border-radius: 4px 8px; border-width: 1px 2px; border-color: #ff0000 }',
   )
+
   const item = node('masonview', { orientation: 1 })
+
   setClass(item, 'card')
 
   assert.equal(item.computedStyle.borderTopLeftRadius, 4)
@@ -1059,6 +1134,7 @@ test('CSS border-radius and border-width arrive as per-corner and per-side longh
 
 test('box-shadow paints layer shadow and trades the corner clip for it', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { borderRadius: 8, boxShadow: '0 4px 12px rgba(0, 0, 0, 0.25)' })
@@ -1077,13 +1153,17 @@ test('box-shadow paints layer shadow and trades the corner clip for it', () => {
 
 test('inset box-shadow paints a wall-hole shape carrying real blur', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { boxShadow: 'inset 0 0 6px 2px rgba(0, 0, 0, 0.3)' })
 
   const host = paintState(item).insetShadowHost
+
   assert.ok(host, 'inset shadow host installed')
+
   const shape = paintState(item).insetShadowShapes?.[0]
+
   assert.ok(shape, 'one shape per inset shadow')
   assert.equal(shape.fillRule, 'even-odd')
   assert.ok(shape.path.ops.length > 9, 'outer wall + inner hole recorded')
@@ -1097,16 +1177,19 @@ test('inset box-shadow paints a wall-hole shape carrying real blur', () => {
 
 test('transform shorthand composes translate/rotate/scale onto the layer', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 100
   item.view.frame.size.height = 50
   setStyle(item, { transform: 'translateX(-50%) rotate(180deg)' })
 
   const ops = transformCalls
+
   assert.deepEqual(
     ops.filter((o) => o[0] === 'T').map((o) => o.slice(1)),
     [[-50, 0, 0]],
     'percent translate resolves against the box and y stays up',
   )
+
   assert.deepEqual(ops.filter((o) => o[0] === 'R').length, 1, 'one z rotation applied')
   assert.equal(item.view.postsFrameChangedNotifications, true, 'percent translate resyncs')
 
@@ -1117,6 +1200,7 @@ test('transform shorthand composes translate/rotate/scale onto the layer', () =>
 
 test('projection scales authored radii and shadows without overwriting style reconciliation', () => {
   const item = node('masonview', { orientation: 1 })
+
   item.view.frame.size.width = 200
   item.view.frame.size.height = 100
   paintNodes.set(item.view, item)
@@ -1135,12 +1219,14 @@ test('projection scales authored radii and shadows without overwriting style rec
 
 test('image fit/position styles reach native drawing state and dropped keys reset it', () => {
   const image = node('image')
+
   imageStyleCalls.length = 0
   setStyle(image, { objectFit: 'cover', objectPosition: 'right 10px bottom 20px' })
   assert.deepEqual(imageStyleCalls, [
     [image.view, 'objectFit', 'cover'],
     [image.view, 'objectPosition', 'right 10px bottom 20px'],
   ])
+
   setStyle(image, {})
   assert.deepEqual(imageStyleCalls.slice(2), [
     [image.view, 'objectFit', undefined],
@@ -1151,6 +1237,7 @@ test('image fit/position styles reach native drawing state and dropped keys rese
 test('overflow hidden and clip set the native view clip and removal restores both OS defaults', () => {
   for (const original of [false, true]) {
     const item = node('masonview')
+
     item.view.clipsToBounds = original
     setStyle(item, { overflow: 'hidden' })
     assert.equal(item.view.clipsToBounds, true)
@@ -1163,6 +1250,7 @@ test('overflow hidden and clip set the native view clip and removal restores bot
 
 test('overflow visible overrides a native clip, and null restores the original baseline', () => {
   const item = node('masonview')
+
   item.view.clipsToBounds = true
   setStyle(item, { overflow: 'visible' })
   assert.equal(item.view.clipsToBounds, false)
@@ -1175,7 +1263,9 @@ test('overflow classes and inline overrides reconcile independently of rounded l
     'sr-overflow-clip',
     '.sr-overflow-clip { overflow: hidden; border-radius: 12px }',
   )
+
   const item = node('masonview')
+
   item.view.clipsToBounds = false
   setClass(item, 'sr-overflow-clip')
   assert.equal(item.view.clipsToBounds, true)
@@ -1192,6 +1282,7 @@ test('overflow classes and inline overrides reconcile independently of rounded l
 
 test('matching explicit axes clip; a mixed-axis override restores the native baseline', () => {
   const item = node('masonview')
+
   item.view.clipsToBounds = false
   setStyle(item, { overflowX: 'hidden', overflowY: 'clip' })
   assert.equal(item.view.clipsToBounds, true)
@@ -1205,9 +1296,12 @@ test('matching explicit axes clip; a mixed-axis override restores the native bas
 
 test('a replacement native view captures its own clipping baseline and releases the previous view', () => {
   const item = node('masonview')
+
   item.view.clipsToBounds = false
   setStyle(item, { overflow: 'hidden' })
+
   const previous = item.view
+
   item.view = view()
   item.view.clipsToBounds = true
   setStyle(item, { overflow: 'visible' })
@@ -1219,6 +1313,7 @@ test('a replacement native view captures its own clipping baseline and releases 
 
 test('unowned native clipping survives unrelated style application', () => {
   const item = node('masonview')
+
   item.view.clipsToBounds = true
   setStyle(item, { opacity: 0.5 })
   assert.equal(item.view.clipsToBounds, true)
@@ -1228,11 +1323,14 @@ test('unowned native clipping survives unrelated style application', () => {
 
 test('uniform dashed borders use one rounded stroke, resize and release back to the solid fast path', () => {
   const item = node('masonview')
+
   item.view.frame.size = { width: 120, height: 60 }
   setStyle(item, { borderWidth: 2, borderColor: '#ff0000', borderRadius: 8, borderStyle: 'dashed' })
+
   const shape = paintState(item).borderStroke,
     box = paintState(item).borderLayer,
     frame = paintState(item).frame?.token ?? null
+
   assert.equal(item.view.layer.borderWidth, 0)
   assert.equal(paintState(item).borderSides, undefined)
   assert.equal(shape.lineWidth, 2)
@@ -1255,6 +1353,7 @@ test('uniform dashed borders use one rounded stroke, resize and release back to 
 
 test('mixed dotted/solid edges keep separate colors, width-scaled caps and side clipping', () => {
   const item = node('masonview')
+
   item.view.frame.size = { width: 100, height: 60 }
   setStyle(item, {
     borderWidth: 2,
@@ -1263,8 +1362,10 @@ test('mixed dotted/solid edges keep separate colors, width-scaled caps and side 
     borderRightWidth: 4,
     borderRightColor: '#0000ff',
   })
+
   const top = paintState(item).borderSides.top,
     right = paintState(item).borderSides.right
+
   assert.deepEqual([...top.lineDashPattern], [0, 4])
   assert.equal(top.lineCap, 'round')
   assert.ok(top.mask)
@@ -1277,6 +1378,7 @@ test('mixed dotted/solid edges keep separate colors, width-scaled caps and side 
     borderStyle: 'solid',
     borderRightWidth: 4,
   })
+
   assert.equal(top.lineDashPattern, null)
   assert.equal(top.strokeColor, null)
   assert.equal(top.mask, null)
@@ -1285,6 +1387,7 @@ test('mixed dotted/solid edges keep separate colors, width-scaled caps and side 
 
 test('explicit none/hidden styles hide sides and restore width-only native borders on removal', () => {
   const item = node('masonview')
+
   item.view.frame.size = { width: 100, height: 60 }
   setStyle(item, { borderWidth: 2, borderStyle: 'none' })
   assert.equal(item.view.layer.borderWidth, 0)
@@ -1300,8 +1403,11 @@ test('explicit none/hidden styles hide sides and restore width-only native borde
 test('the maintained FileInput dropzone CSS reaches native dash painting and clears with its class', () => {
   const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
   const rule = css.match(/\.vx-fileinput--dropzone\s*\{[^}]+\}/)![0]
+
   registerStylesheet('sr-fileinput-dash', rule)
+
   const item = node('masonview')
+
   item.view.frame.size = { width: 200, height: 80 }
   setStyle(item, { '--color-border': '#334455', '--radius-sm': '6px' })
   setClass(item, 'vx-fileinput--dropzone')
@@ -1315,11 +1421,14 @@ test('the maintained FileInput dropzone CSS reaches native dash painting and cle
 
 test('the maintained table truncation rule reaches a label and releases its native mode with its class', () => {
   const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
+
   registerStylesheet(
     'sr-label-table-overflow',
     css.match(/\.vx-table-cell--truncate\s*\{[^}]+\}/)![0],
   )
+
   const item = node('label', { props: { text: 'A complete long table title' } })
+
   item.view.stringValue = item.props.text
   setClass(item, 'vx-table-cell--truncate')
   assert.equal(item.view.maximumNumberOfLines, 1)
@@ -1336,12 +1445,15 @@ test('the maintained table truncation rule reaches a label and releases its nati
 
 test('table descendants inherit whitespace without inheriting non-inherited text-overflow', () => {
   const css = readFileSync(new URL('../../ui/src/theme/chrome.css', import.meta.url), 'utf8')
+
   registerStylesheet(
     'sr-table-overflow-inherited',
     css.match(/\.vx-table-cell--truncate\s*\{[^}]+\}/)![0],
   )
+
   const parent = node('masonview'),
     item = node('label', { parent })
+
   setClass(parent, 'vx-table-cell--truncate')
   assert.equal(item.computedStyle.whiteSpace, 'nowrap')
   assert.equal(item.computedStyle.textOverflow, undefined)
@@ -1351,6 +1463,7 @@ test('table descendants inherit whitespace without inheriting non-inherited text
     2,
     'ellipsis requires a declaration or host prop on the label',
   )
+
   setStyle(item, { whiteSpace: 'normal', textOverflow: 'ellipsis' })
   assert.equal(item.view.maximumNumberOfLines, 0)
   assert.equal(item.view.cell.truncatesLastVisibleLine, true)
@@ -1365,6 +1478,7 @@ test('table descendants inherit whitespace without inheriting non-inherited text
 test('style application queues both a manual child and its physical outer layout owner', () => {
   const parent = node('masonview')
   const child = node('contentview', { parent })
+
   reconciles.length = 0
   applyStyle(child, { gridRow: '2', gridColumn: '2' })
   assert.ok(reconciles.includes(child), 'content layout must reconcile its own child')

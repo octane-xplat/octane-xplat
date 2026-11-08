@@ -14,6 +14,7 @@ export interface AppKitBrowserFactory {
 export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | undefined): WebBrowser {
   let active: AppKitBrowserNative | undefined,
     revision = 0
+
   const close = (view: AppKitBrowserNative | undefined) => {
     try {
       view?.close()
@@ -21,10 +22,12 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
       console.warn('[macos-web-browser] native close failed')
     }
   }
+
   return {
     get supported() {
       try {
         const factory = bridge()
+
         return typeof factory?.create === 'function' && typeof factory.accepts === 'function'
       } catch {
         return false
@@ -33,8 +36,10 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
     async openBrowser(address, _options) {
       let candidate: AppKitBrowserNative | undefined
       const own = ++revision
+
       try {
         const factory = bridge()
+
         if (
           !factory ||
           typeof factory.create !== 'function' ||
@@ -44,6 +49,7 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
         }
 
         const valid = factory.accepts(address)
+
         if ((valid !== true && valid !== 1) || revision !== own) {
           return { type: 'cancel' }
         }
@@ -55,6 +61,7 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
         }
 
         const previous = active
+
         active = candidate
         close(previous)
         if (revision !== own || active !== candidate) {
@@ -63,6 +70,7 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
         }
 
         const shown = candidate.open(address)
+
         if (revision !== own || active !== candidate) {
           close(candidate)
           return { type: 'cancel' }
@@ -86,7 +94,9 @@ export function createAppKitWebBrowser(bridge: () => AppKitBrowserFactory | unde
     },
     dismissBrowser() {
       revision++
+
       const previous = active
+
       active = undefined
       close(previous)
     },

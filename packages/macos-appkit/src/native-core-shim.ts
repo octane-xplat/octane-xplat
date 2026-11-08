@@ -16,6 +16,7 @@ export const Utils = {
 // NativeScript application services have explicit AppKit leaves or render
 // an unsupported state.
 let addCssSeq = 0
+
 export const Application = {
   ios: null,
   android: null,

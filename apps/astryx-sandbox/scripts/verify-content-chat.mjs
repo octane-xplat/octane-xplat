@@ -15,30 +15,39 @@ function selectorFor(row) {
   if (row.family.startsWith('ChatComposer') || row.family === 'ChatDictationButton') {
     return '.vx-chatcomposer'
   }
+
   if (row.family === 'ChatDictation') {
     return '.vx-chatdict'
   }
+
   if (row.family === 'ChatLayoutScrollButton') {
     return '.vx-chatscroll-wrap'
   }
+
   if (row.family === 'ChatSendButton') {
     return row.name.endsWith('InComposer') ? '.vx-chatcomposer' : '.vx-chatsend'
   }
+
   if (row.family === 'ChatToolCalls') {
     return '.vx-chattools-row'
   }
+
   if (row.family.startsWith('Chat')) {
     return '.vx-chatlist'
   }
+
   if (row.family === 'CodeBlock' || row.family === 'SyntaxTheme') {
     return '.vx-codeblock'
   }
+
   if (row.name === 'MarkdownDataTable') {
     return 'table'
   }
+
   if (row.name === 'MarkdownCitedContent') {
     return 'a.vx-citation'
   }
+
   return 'body'
 }
 
@@ -46,12 +55,16 @@ export async function verifyContentChat(page, baseUrl, check) {
   const go = async (name) => {
     await page.goto(`${baseUrl}/templates/${name}/?embed=1`, { waitUntil: 'networkidle' })
   }
+
   assert.equal(contentChatRoutes.length, 75, 'pinned unit-10 route count')
   for (const row of contentChatRoutes) {
     await go(row.name)
     await page.locator(selectorFor(row)).first().waitFor({ state: 'attached' })
+
     const text = await page.locator('body').innerText()
+
     assert(!text.includes('Not ported yet'), row.name)
+
     const sourcePath = new URL(
       `../src/examples/${row.family.toLowerCase()}/${row.name}.tsrx`,
       import.meta.url,
@@ -59,6 +72,7 @@ export async function verifyContentChat(page, baseUrl, check) {
 
     const webPath = new URL(sourcePath.href.replace('.tsrx', '.web.tsrx'))
     const source = readFileSync(existsSync(sourcePath) ? sourcePath : webPath, 'utf8')
+
     assert(
       source.includes(
         `export function ${row.name === 'useStreamingTextHookUsage' ? 'UseStreamingTextHookUsage' : row.name}`,
@@ -85,6 +99,7 @@ export async function verifyContentChat(page, baseUrl, check) {
     await page.locator('a.vx-citation').first().getAttribute('href'),
     'https://en.wikipedia.org/wiki/Tokyo',
   )
+
   assert(!(await page.locator('body').innerText()).includes('[abc1]'))
   await go('MarkdownCompactAIResponse')
   assert.equal(await page.locator('.vx-codeblock').count(), 1)
@@ -101,6 +116,7 @@ export async function verifyContentChat(page, baseUrl, check) {
       },
     })
   })
+
   await go('CodeBlockShowcase')
   await page.getByRole('button', { name: 'Copy code', exact: true }).click()
   await page.getByRole('button', { name: 'Copied', exact: true }).waitFor()
@@ -119,6 +135,7 @@ export async function verifyContentChat(page, baseUrl, check) {
     await page.locator('.vx-codeblock-body').evaluate((el) => getComputedStyle(el).maxHeight),
     '280px',
   )
+
   check('unit-10 CodeBlock highlighted lines, line numbers and scroll height', true)
 
   for (const [name, color] of [
@@ -127,16 +144,20 @@ export async function verifyContentChat(page, baseUrl, check) {
     ['SyntaxThemeShowcase', '#c678dd'],
   ]) {
     await go(name)
+
     const keyword = await page
       .locator('.vx-codeblock')
       .evaluate((el) => getComputedStyle(el).getPropertyValue('--color-syntax-keyword').trim())
 
     assert.equal(keyword, color)
   }
+
   check('unit-10 syntax preset token scopes', true)
 
   await go('ChatComposerInputControlledInput')
+
   const field = page.locator('[contenteditable="true"]')
+
   await field.fill('Hello Octane')
   await page.waitForFunction(() => document.body.textContent.includes('Value: "Hello Octane"'))
   await field.press('Enter')
@@ -151,6 +172,7 @@ export async function verifyContentChat(page, baseUrl, check) {
   assert(
     (await page.locator('body').innerText()).includes('Failed to send message. Please try again.'),
   )
+
   assert((await page.locator('body').innerText()).includes('Context window is 90% full.'))
   check('unit-10 disabled composer and error/warning strips', true)
 
@@ -160,7 +182,9 @@ export async function verifyContentChat(page, baseUrl, check) {
     ['ChatComposerInputSlashCommands', '/sum', '/summarize'],
   ]) {
     await go(name)
+
     const input = page.locator('[contenteditable="true"]')
+
     await input.fill(query)
     await page.getByRole('option').first().waitFor()
     await input.press('ArrowDown')
@@ -184,7 +208,9 @@ export async function verifyContentChat(page, baseUrl, check) {
   check('unit-10 streaming send/stop state transition', true)
 
   await go('ChatComposerDrawerCollapsible')
+
   const drawerToggle = page.getByRole('button', { name: 'Collapse Files', exact: true })
+
   await drawerToggle.click()
   assert.equal(
     await page
@@ -192,6 +218,7 @@ export async function verifyContentChat(page, baseUrl, check) {
       .getAttribute('aria-expanded'),
     'false',
   )
+
   await page.getByRole('button', { name: 'Expand Files', exact: true }).press('Enter')
   assert.equal(
     await page
@@ -199,6 +226,7 @@ export async function verifyContentChat(page, baseUrl, check) {
       .getAttribute('aria-expanded'),
     'true',
   )
+
   await go('ChatComposerDrawerFeedback')
   await page.getByText('No, and tell me what to do differently', { exact: true }).click()
   assert.equal(await page.locator('.vx-listitem--selected').count(), 1)
@@ -215,7 +243,9 @@ export async function verifyContentChat(page, baseUrl, check) {
   )
 
   await go('ChatToolCallsInteractiveToolCalls')
+
   const detail = page.locator('.vx-chattools-row[role="button"]').first()
+
   await detail.click()
   assert.equal(await detail.getAttribute('aria-expanded'), 'true')
   assert((await page.locator('.vx-codeblock').first().innerText()).includes('formatDate'))
@@ -225,10 +255,12 @@ export async function verifyContentChat(page, baseUrl, check) {
   for (const status of ['pending', 'running', 'complete', 'error']) {
     assert.equal(await page.locator(`.vx-chattools-status--${status}`).count(), 1)
   }
+
   assert.equal(
     await page.locator('.vx-chattools-status--error').getAttribute('aria-label'),
     'Error: 3 lint errors found',
   )
+
   await go('ChatMessageListFullFeatured')
   assert((await page.locator('.vx-chatlist-empty').innerText()).includes('No messages yet'))
   check('unit-10 tool detail expansion, pending/running/error states and empty messages', true)
@@ -238,10 +270,12 @@ export async function verifyContentChat(page, baseUrl, check) {
     await page.getByRole('button', { name: 'Send', exact: true }).first().isDisabled(),
     true,
   )
+
   assert.equal(
     await page.getByRole('button', { name: 'Send', exact: true }).nth(1).isDisabled(),
     false,
   )
+
   assert.equal(await page.getByRole('button', { name: 'Stop', exact: true }).isDisabled(), false)
   await go('ChatTokenizedTextColors')
   assert.equal(await page.locator('.vx-chattext-token').count(), 3)
@@ -261,6 +295,7 @@ export async function verifyContentChat(page, baseUrl, check) {
   // A separate page forces unsupported capability deterministically. This
   // is an API-capability mock, not speech permission/service evidence.
   const unsupported = await page.context().newPage()
+
   try {
     await unsupported.addInitScript(() => {
       window.SpeechRecognition = undefined
@@ -289,6 +324,7 @@ export async function verifyContentChat(page, baseUrl, check) {
 
   const supported = await page.context().newPage()
   const speechErrors = []
+
   supported.on('pageerror', (error) => speechErrors.push(String(error)))
   try {
     await supported.addInitScript(() => {
@@ -300,6 +336,7 @@ export async function verifyContentChat(page, baseUrl, check) {
           },
         },
       })
+
       window.SpeechRecognition = class {
         start() {
           window.__unit10Speech = this
@@ -312,6 +349,7 @@ export async function verifyContentChat(page, baseUrl, check) {
           this.onend?.()
         }
       }
+
       window.webkitSpeechRecognition = undefined
     })
 
@@ -323,6 +361,7 @@ export async function verifyContentChat(page, baseUrl, check) {
     await supported.getByRole('button', { name: 'Stop dictation', exact: true }).waitFor()
     await supported.evaluate(() => {
       const result = [{ transcript: 'Mock dictated text' }]
+
       result.isFinal = true
       window.__unit10Speech.onresult({ resultIndex: 0, results: [result] })
     })
@@ -352,6 +391,7 @@ export async function verifyContentChat(page, baseUrl, check) {
       'Astryx hooks keep behavior reusable while components keep visuals consistent.',
     ),
   )
+
   await page.getByRole('button', { name: 'Reset', exact: true }).click()
   assert((await page.locator('body').innerText()).includes('No response yet'))
   await page.getByRole('button', { name: 'Start streaming', exact: true }).click()
@@ -362,11 +402,13 @@ export async function verifyContentChat(page, baseUrl, check) {
         'Astryx hooks keep behavior reusable while components keep visuals consistent.',
       ),
   )
+
   check(
     'unit-10 streaming text empty, progressive start and completion',
     true,
     'browser input; hook timer rendering',
   )
+
   await page.goto(`${baseUrl}/templates/ChatComposerStreaming/`, { waitUntil: 'networkidle' })
   await page.getByRole('radio', { name: 'Code', exact: true }).click()
   assert((await page.locator('.vx-codeblock').innerText()).includes("from '@octane-xplat/ui/chat'"))

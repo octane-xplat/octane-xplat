@@ -25,16 +25,19 @@ export function projectToolFixture(
   // while another task is reading its recorded bytes/hash. Portable snapshots
   // instead consume their already-frozen read-only fixture archives.
   let fixtureWork = work
+
   if (canPrepareFixtures(root)) {
     fixtureWork = join(scratch, 'worker-packages')
     mkdirSync(fixtureWork)
     prepareFixtures(root, fixtureWork, { linter, packageManagement, creator })
   }
+
   const flavor = creator
     ? 'scaffold-packages'
     : packageManagement
       ? 'management-packages'
       : 'project-packages'
+
   const packages = JSON.parse(readFileSync(join(fixtureWork, flavor + '.json')))
   const deps = Object.fromEntries(
     packages.packages
@@ -42,12 +45,15 @@ export function projectToolFixture(
       .map((item) => {
         const file = join(fixtureWork, flavor, item.file),
           bytes = readFileSync(file)
+
         assert.equal(createHash('sha256').update(bytes).digest('hex'), item.sha256)
         assert.equal(bytes.length, item.bytes)
         return [item.name, `file:${file.replaceAll('\\', '/')}`]
       }),
   )
+
   const installed = join(scratch, 'installed')
+
   mkdirSync(installed)
   writeFileSync(
     join(installed, 'package.json'),
@@ -72,11 +78,13 @@ export function projectToolFixture(
       overrides: { '@octane-xplat/lib': deps['@octane-xplat/lib'] },
     }),
   )
+
   const result = spawnSync('bun', ['install', '--ignore-scripts', '--linker', 'isolated'], {
     cwd: installed,
     encoding: 'utf8',
     timeout: 120000,
   })
+
   assert.equal(result.status, 0, result.stderr)
   return {
     archiveDirectory: join(fixtureWork, flavor),

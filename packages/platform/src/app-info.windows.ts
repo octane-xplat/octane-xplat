@@ -7,15 +7,18 @@ function read(): AppInfo {
   try {
     const id = Windows?.ApplicationModel?.Package?.Current?.Id
     const name = id?.Name
+
     if (typeof name !== 'string' || !name.trim()) {
       return unavailable
     }
 
     let version: string | null = null
     let build: string | null = null
+
     try {
       const value = id.Version
       const parts = [value.Major, value.Minor, value.Build, value.Revision]
+
       if (parts.every((part) => Number.isInteger(part) && part >= 0 && part <= 65535)) {
         version = parts.join('.')
         build = String(parts[2])

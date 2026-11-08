@@ -38,6 +38,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 
   root.render(Tabs, {})
   await settle()
+
   const windowHeight = Number(nativeWindow.frame.size.height)
   const tabs = tabRef.current,
     item = itemRef.current,
@@ -66,6 +67,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
   )
 
   const bounds = tabs.alignmentRectForFrame(tabs.frame)
+
   check(
     Number(bounds.size.width) === 240 && Number(bounds.size.height) === 100,
     'TabView nesting/layout failed',
@@ -90,6 +92,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
   )
 
   const before = tabEvents.length
+
   tabs.selectTabViewItemAtIndex(0)
   await settle()
   check(
@@ -109,6 +112,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
     Math.abs(Number(nativeWindow.frame.size.height) - windowHeight) < 1,
     'TabView reorder changed the host window height',
   )
+
   check(
     tabRef.current === tabs &&
       itemRef.current === item &&
@@ -145,7 +149,9 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const moved = tabRef.current
+
   check(
     moved !== tabs &&
       !tabs.superview &&
@@ -157,6 +163,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const replaced = tabRef.current,
     replacedItem = itemRef.current
 
@@ -179,6 +186,7 @@ export async function checkTabLifecycle(root: any, nativeWindow: any) {
 
   await advance()
   check(tabRef.current && itemRef.current && childRef.current, 'TabView reinsertion failed')
+
   const last = tabRef.current,
     lastItem = itemRef.current
 
@@ -214,6 +222,7 @@ export async function checkImperativeTabLifecycle(root: any, nativeWindow: any) 
 
   root.render(ImperativeTabs, {})
   await settle()
+
   const left = root.__macosDebug.findId('tabs-imperative-left'),
     right = root.__macosDebug.findId('tabs-imperative-right')
 
@@ -227,6 +236,7 @@ export async function checkImperativeTabLifecycle(root: any, nativeWindow: any) 
 
   updateTabArrays([a, b], [])
   await settle()
+
   const native = a.tabNativeItem,
     child = imperativeRefs.child.current,
     contentRoot = a.contentRoot
@@ -260,6 +270,7 @@ export async function checkImperativeTabLifecycle(root: any, nativeWindow: any) 
   )
 
   let rejected = false
+
   try {
     a.contentRoot = {}
   } catch (error) {

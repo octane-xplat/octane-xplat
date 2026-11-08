@@ -31,8 +31,10 @@ const HTML_IN =
 
 function chainDesc(proto: object, key: string): PropertyDescriptor | undefined {
   let o: object | null = proto
+
   while (o && o !== Object.prototype) {
     const d = Object.getOwnPropertyDescriptor(o, key)
+
     if (d) {
       return d
     }
@@ -82,7 +84,9 @@ function writeStyleProp(el: any, key: string, value: string): void {
  *  constants global ($setTextContent reads `Node.TEXT_NODE`). */
 function installLexicalDomShim(zeed: any): void {
   const bootDoc = zeed.createHTMLDocument()
+
   bootDoc.body.innerHTML = '<p>x</p>'
+
   const elProto = Object.getPrototypeOf(bootDoc.body.childNodes[0])
   const textProto = Object.getPrototypeOf(bootDoc.body.childNodes[0].childNodes[0])
 
@@ -92,6 +96,7 @@ function installLexicalDomShim(zeed: any): void {
         configurable: true,
         get(this: any) {
           const par = this.parentNode
+
           return par && par.nodeType === 1 ? par : null
         },
       })
@@ -99,10 +104,12 @@ function installLexicalDomShim(zeed: any): void {
 
     for (const k of ['firstChild', 'lastChild', 'nextSibling', 'previousSibling']) {
       const d = chainDesc(p, k)
+
       Object.defineProperty(p, k, {
         configurable: true,
         get(this: any) {
           const v = d?.get ? d.get.call(this) : undefined
+
           return v ?? null
         },
         set: d?.set,
@@ -111,12 +118,15 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const styleCache = new WeakMap()
+
   Object.defineProperty(elProto, 'style', {
     configurable: true,
     get(this: any) {
       let proxy = styleCache.get(this)
+
       if (!proxy) {
         const el = this
+
         proxy = new Proxy(
           {},
           {
@@ -177,6 +187,7 @@ function installLexicalDomShim(zeed: any): void {
 
   for (const attr of ['href', 'target', 'rel', 'title']) {
     const d = chainDesc(elProto, attr)
+
     if (!d?.get && !d?.set) {
       Object.defineProperty(elProto, attr, {
         configurable: true,
@@ -191,11 +202,13 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const clDesc = chainDesc(elProto, 'classList')
+
   if (clDesc?.get) {
     Object.defineProperty(elProto, 'classList', {
       configurable: true,
       get(this: any) {
         const cl = clDesc.get!.call(this)
+
         if (cl && typeof cl[Symbol.iterator] !== 'function') {
           const tokens = String(this.getAttribute('class') ?? '')
             .split(/\s+/)
@@ -211,10 +224,12 @@ function installLexicalDomShim(zeed: any): void {
   }
 
   const g = globalThis as any
+
   if (!g.window?.DOMParser) {
     class ZeedDOMParser {
       parseFromString(html: string) {
         const doc = zeed.createHTMLDocument()
+
         doc.body.innerHTML = html
         return doc
       }
@@ -247,6 +262,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
   const tryImport = async (id: string, label: string, load: () => Promise<any>) => {
     try {
       const m = await load()
+
       step(id, `import ${label}`, true)
       return m
     } catch (e) {
@@ -301,6 +317,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
   ]
 
   let editor: any
+
   try {
     // createEditor without setRootElement is the headless path — no
     // @lexical/headless (it pulls happy-dom onto the runtime).
@@ -317,10 +334,12 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
   }
 
   let docJSON: string | undefined
+
   try {
     editor.update(
       () => {
         const dom = new (globalThis as any).window.DOMParser().parseFromString(HTML_IN, 'text/html')
+
         lexical
           .$getRoot()
           .clear()
@@ -330,7 +349,9 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
     )
 
     const st = editor.getEditorState().toJSON()
+
     docJSON = JSON.stringify(st)
+
     const types = st.root.children.map((c: any) => c.type).join(',')
     const linkNode = st.root.children
       .flatMap((c: any) => c.children ?? [])
@@ -348,6 +369,7 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
   }
 
   let outHtml = ''
+
   try {
     editor.read(() => {
       outHtml = html.$generateHtmlFromNodes(editor)
@@ -373,7 +395,9 @@ export async function runLexicalProbe(): Promise<ProbeStep[]> {
       })
 
       editor2.setEditorState(editor2.parseEditorState(docJSON))
+
       let html2 = ''
+
       editor2.read(() => {
         html2 = html.$generateHtmlFromNodes(editor2)
       })

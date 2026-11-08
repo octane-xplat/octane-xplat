@@ -2,7 +2,9 @@
 // @vitest-environment jsdom
 import { act, createRoot } from 'octane'
 import { describe, expect, it, vi } from 'vitest'
+
 vi.mock('../../theme/theme-scheme', () => ({ useThemeScheme: () => 'light' }))
+
 import { useLayer } from './use-layer.tsrx'
 import { ownAnchorName } from './layer-position.web'
 
@@ -32,6 +34,7 @@ describe('useLayer ownership', () => {
       b = document.createElement('div')
 
     a.style.setProperty('anchor-name', '--consumer')
+
     const releaseFirst = ownAnchorName(a, '--first'),
       releaseSecond = ownAnchorName(a, '--second')
 
@@ -39,7 +42,9 @@ describe('useLayer ownership', () => {
     a.style.setProperty('anchor-name', a.style.getPropertyValue('anchor-name') + ', --later')
     releaseFirst()
     expect(a.style.getPropertyValue('anchor-name')).toBe('--consumer, --second, --later')
+
     const releaseB = ownAnchorName(b, '--first')
+
     releaseSecond()
     releaseB()
     expect(a.style.getPropertyValue('anchor-name')).toBe('--consumer, --later')
@@ -48,11 +53,14 @@ describe('useLayer ownership', () => {
 
   it('cleans its anchor on unmount and keeps rejected controlled dismissal mounted', () => {
     const container = document.createElement('div')
+
     document.body.append(container)
+
     const root = createRoot(container),
       hide = vi.fn()
 
     act(() => root.render(Probe, { open: true, hide, custom: true }))
+
     const anchor = container.querySelector('button')!,
       panel = document.querySelector('[role="dialog"]') as HTMLElement
 
@@ -90,10 +98,14 @@ describe('useLayer anchor replacement ownership', () => {
 
     next.style.setProperty('anchor-name', '--consumer')
     document.body.append(container, next)
+
     const root = createRoot(container)
+
     try {
       act(() => root.render(ExternalProbe, {}))
+
       const previous = document.createElement('button')
+
       container.append(previous)
       act(() => layer.ref(previous))
       act(() => layer.ref(next))

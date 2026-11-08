@@ -36,8 +36,10 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
 
   const apply = useCallback(() => {
     const s = state.current
+
     if (s.inner) {
       const style = s.inner.style
+
       applyClip(
         s.inner,
         { ...s.props, border: undefined, shadow: undefined },
@@ -58,6 +60,7 @@ export function SmoothCorners(props: SmoothCornersProps): unknown @{
     (which: 'inner' | 'surface' | 'outer') => (view: SmoothNativeView | null) => {
       const s = state.current
       const prev = s[which]
+
       if (prev && prev !== view) {
         prev.off?.('loaded', apply)
         prev.off?.('layoutChanged', apply)

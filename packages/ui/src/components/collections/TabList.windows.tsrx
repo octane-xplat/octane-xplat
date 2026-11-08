@@ -84,11 +84,13 @@ export function Tab<
 
 export function Tab(props: NavigationItemImplementation<TabProps>) @{
   const ctx = useContext(TabListContext)
+
   if (ctx == null) {
     throw new Error('Tab must be used within a TabList.')
   }
 
   const isTabs = ctx.pattern === 'tabs'
+
   if (isTabs && props.to !== undefined) {
     throw new TypeError(
       'Typed route destinations belong in the navigation TabList pattern, not role="tablist"',

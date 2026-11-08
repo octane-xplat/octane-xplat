@@ -10,8 +10,11 @@ const roots: ReturnType<typeof createRoot>[] = []
 
 function mount(node: any) {
   const el = document.createElement('div')
+
   document.body.append(el)
+
   const root = createRoot(el)
+
   roots.push(root)
   act(() => root.render(node))
   return { el, root }
@@ -29,6 +32,7 @@ describe('IconRegistryProvider (web)', () => {
   it('keeps custom glyphs local while preserving built-ins in every registry', () => {
     const first = createIconRegistry()
     const second = createIconRegistry()
+
     first.registerIcon('scoped-test-icon', { svg: 'M1 1h2v2H1z' })
 
     expect(first.getIcon('xplat-search')).toBeDefined()
@@ -44,6 +48,7 @@ describe('IconRegistryProvider (web)', () => {
     expect(el.querySelector('path')?.getAttribute('d')).toBe('M1 1h2v2H1z')
 
     const direct = mount(<Icon name="scoped-test-icon" registry={first} />)
+
     expect(direct.el.querySelector('path')?.getAttribute('d')).toBe('M1 1h2v2H1z')
   })
 

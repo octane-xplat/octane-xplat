@@ -34,6 +34,7 @@ export const createAudioRecorder: () => AudioRecorder = (): AudioRecorder => {
 // for the platform permissions dispatcher. 'unavailable' maps onto 'denied'
 // because the shared PermissionResponse union has no device-absence value.
 const permissionOwners = ((globalThis as any).__xplatPermissionOwners ??= {})
+
 permissionOwners.microphone = async () => {
   const state = Application.android
     ? await requestAndroidPermission()

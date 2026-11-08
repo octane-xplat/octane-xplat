@@ -21,6 +21,7 @@ const root = resolve(import.meta.dirname, '../..'),
   work = join(root, 'research/go-cli')
 
 const routesOnly = process.argv.includes('--routes')
+
 assert.ok(
   existsSync(join(root, 'packages/build/dist/build-worker.js')),
   'Build the canonical project worker before preparing a snapshot',
@@ -29,13 +30,16 @@ assert.ok(
 prepareFixtures(root, work, { linter: true })
 prepareFixtures(root, work, { packageManagement: true })
 prepareFixtures(root, work, { packageManagement: true, creator: true })
+
 const sha = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const stage = mkdtempSync(join(work, 'snapshot-')),
   source = join(stage, 'source')
 
 mkdirSync(source)
+
 function copy(file) {
   const to = join(source, file)
+
   mkdirSync(dirname(to), { recursive: true })
   cpSync(join(root, file), to, { recursive: true })
 }
@@ -50,7 +54,9 @@ try {
   copy('packages/workshop/dist')
   copy('packages/workshop/src')
   copy('packages/build/dist')
+
   const plugins = JSON.parse(readFileSync(join(root, 'packages/build/package.json')))
+
   for (const [name, range] of Object.entries({
     ...plugins.dependencies,
     ...plugins.peerDependencies,
@@ -62,10 +68,13 @@ try {
 
   copy('packages/cli/go')
   copy('research/go-cli/release-worker')
+
   const inputs = new Set()
+
   for (const target of ['linux-amd64', 'windows-amd64']) {
     const unit = `go-tests-${target}`
     const unitRecord = JSON.parse(readFileSync(join(work, unit + '.json')))
+
     for (const [file, info] of Object.entries(unitRecord.binaries)) {
       assert.equal(
         sha(readFileSync(join(work, unit, file))),
@@ -84,6 +93,7 @@ try {
     for (const onnx of routesOnly ? [false] : [false, true]) {
       const file = `xplat-go-${target}${onnx ? '-onnx' : ''}${target.startsWith('windows') ? '.exe' : ''}`
       const record = JSON.parse(readFileSync(join(work, file + '.json')))
+
       assert.equal(sha(readFileSync(join(work, file))), record.sha256)
       for (const [input, hash] of Object.entries(record.inputs)) {
         assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale snapshot source: ' + input)
@@ -100,6 +110,7 @@ try {
     for (const variant of routesOnly ? [''] : ['', '-onnx']) {
       const cli = `xplat-go-${target}-cli${variant}${target.startsWith('windows') ? '.exe' : ''}`
       const cliRecord = JSON.parse(readFileSync(join(work, cli + '.json')))
+
       assert.equal(sha(readFileSync(join(work, cli))), cliRecord.sha256)
       for (const [input, hash] of Object.entries(cliRecord.inputs)) {
         assert.equal(
@@ -132,6 +143,7 @@ try {
   if (!routesOnly) {
     const mac = 'research/go-cli/xplat-go-darwin-arm64-cli-onnx'
     const record = JSON.parse(readFileSync(join(root, mac + '.json')))
+
     assert.equal(sha(readFileSync(join(root, mac))), record.sha256)
     for (const [input, hash] of Object.entries(record.inputs)) {
       assert.equal(sha(readFileSync(join(root, input))), hash, 'Stale registry source: ' + input)
@@ -179,6 +191,7 @@ try {
 
   // Runtime tasks belong at the disposable root; hashed source stays unchanged.
   const manifest = JSON.parse(readFileSync(join(source, 'package.json')))
+
   manifest.scripts = {
     'test:go-dev-server:portable': 'node --test tools/cli-go/dev-server.test.mjs',
     'test:go-dev:portable': 'node --test tools/cli-go/dev.test.mjs',
@@ -257,6 +270,7 @@ try {
   })
 
   assert.equal(packed.status, 0, packed.stderr)
+
   const bytes = readFileSync(archive),
     record = {
       archive,

@@ -1,4 +1,5 @@
 import type { NSScrollView, NSView, NSWindow } from '@octane-xplat/platform/macos'
+
 export type AppKitCarouselSnap = {
   bind: (view: NSScrollView | null) => void
   invalidate: () => void
@@ -20,6 +21,7 @@ const QUIET_MS = 140
 function visible(view: NSView): boolean {
   return !['hidden', 'hiddenOrHasHiddenAncestor'].some((name) => {
     const value = Reflect.get(view, name)
+
     return Boolean(typeof value === 'function' ? value.call(view) : value)
   })
 }
@@ -40,21 +42,27 @@ export function createAppKitCarouselSnap(
     timer: unknown = null,
     version = 0,
     bindingVersion = 0
+
   let tracking: { view: NSScrollView; window: NSWindow; active: boolean; dirty: boolean } | null =
     null
+
   const scope = () => {
     const view = options.view()
+
     return view && view === attached && view.window && visible(view)
       ? { view, window: view.window }
       : null
   }
+
   const cancelTimer = () => {
     version++
     if (timer != null) {
       timers.clear(timer)
     }
+
     timer = null
   }
+
   const invalidate = (): void => {
     cancelTimer()
     if (tracking?.active) {
@@ -63,8 +71,10 @@ export function createAppKitCarouselSnap(
       tracking = null
     }
   }
+
   const validate = (): void => {
     const current = scope()
+
     if (
       !current ||
       (tracking && (tracking.view !== current.view || tracking.window !== current.window))
@@ -75,19 +85,25 @@ export function createAppKitCarouselSnap(
       invalidate()
     }
   }
+
   const schedule = () => {
     cancelTimer()
     if (!tracking?.dirty || tracking.active || !options.enabled()) {
       return
     }
+
     const captured = tracking,
       request = version
+
     timer = timers.set(() => {
       if (request !== version) {
         return
       }
+
       timer = null
+
       const current = scope()
+
       if (
         !current ||
         tracking !== captured ||
@@ -100,6 +116,7 @@ export function createAppKitCarouselSnap(
         validate()
         return
       }
+
       tracking = null // Claim before native writes can synchronously dispatch more notifications.
       try {
         options.snap()
@@ -108,36 +125,45 @@ export function createAppKitCarouselSnap(
       }
     }, QUIET_MS)
   }
+
   const start = () => {
     const current = scope()
+
     if (!current) {
       validate()
       return
     }
+
     cancelTimer()
     tracking = { ...current, active: true, dirty: false }
     options.interaction()
   }
+
   const scrolled = () => {
     const current = scope()
+
     if (!current) {
       validate()
       return
     }
+
     if (!tracking || tracking.view !== current.view || tracking.window !== current.window) {
       tracking = { ...current, active: false, dirty: false }
     }
+
     tracking.dirty = options.enabled()
     options.interaction()
     if (!tracking.active) {
       schedule()
     }
   }
+
   const end = () => {
     validate()
     if (!tracking) {
       return
     }
+
     tracking.active = false
     if (tracking.dirty) {
       schedule()
@@ -145,11 +171,14 @@ export function createAppKitCarouselSnap(
       tracking = null
     }
   }
+
   const bind = (view: NSScrollView | null): void => {
     if (view === attached && releases.length === 3) {
       return
     }
+
     const binding = ++bindingVersion
+
     attached = null
     invalidate()
     tracking = null
@@ -160,15 +189,19 @@ export function createAppKitCarouselSnap(
         console.warn('[macos-carousel] snap observation cleanup failed', error)
       }
     }
+
     attached = view
     if (!view) {
       return
     }
+
     const host = native(),
       center = host.NSNotificationCenter?.defaultCenter
+
     if (!center?.addObserverForNameObjectQueueUsingBlock || !center?.removeObserver) {
       return
     }
+
     try {
       for (const [name, callback] of [
         ['NSScrollViewWillStartLiveScrollNotification', start],
@@ -202,5 +235,6 @@ export function createAppKitCarouselSnap(
       console.warn('[macos-carousel] snap observation unavailable', error)
     }
   }
+
   return { bind, invalidate, validate, dispose: (): void => bind(null) }
 }

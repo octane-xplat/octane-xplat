@@ -29,6 +29,7 @@ let backdrop: any
 let reloaded = false
 function reload() {
   const loaded = __hostRunFile(process.env.OCTANE_MACOS_DEV_BUNDLE!)
+
   if (!live) {
     live = native.hmrUniversalComponent('macos', loaded.default ?? loaded)
     root.render(live, {})

@@ -4,9 +4,12 @@ import { Page, StackLayout, TextField } from '@nativescript/core'
 import { FocusedInputController } from '../../src/index'
 import type { ProbeContext } from '../../../../tools/probe/context'
 import './focus.css'
+
 let removeArea = () => {}
+
 export default function FocusProbe() @{
   const [showArea, setShowArea] = useState(true)
+
   removeArea = () => setShowArea(false)
 
   <scrollview id="focus-root">
@@ -34,6 +37,7 @@ export async function run(ctx: ProbeContext) {
 
   const snapshots: any[] = []
   const off = FocusedInputController.subscribe(root, (value) => snapshots.push(value))
+
   ctx.onCleanup(off)
   if (field.android) {
     await ctx.waitFor(() => field.android.hasWindowFocus())
@@ -43,6 +47,7 @@ export async function run(ctx: ProbeContext) {
   await ctx.waitFor(() => snapshots.at(-1)?.input === nativeField)
   if (field.ios) {
     const begin = nativeField.beginningOfDocument
+
     nativeField.selectedTextRange = nativeField.textRangeFromPositionToPosition(
       nativeField.positionFromPositionOffset(begin, 1),
       nativeField.positionFromPositionOffset(begin, 3),
@@ -52,7 +57,9 @@ export async function run(ctx: ProbeContext) {
   }
 
   await ctx.waitFor(() => snapshots.at(-1)?.selection?.end === 3)
+
   const first = snapshots.at(-1)
+
   ctx.assert('native focus identity is the actual editing view', first.input === nativeField, true)
   ctx.assert('selection offsets preserve UTF16 positions', first.selection.end, 3)
   ctx.assert('native caret geometry has positive height', first.caretRect?.height > 0, true)
@@ -64,6 +71,7 @@ export async function run(ctx: ProbeContext) {
 
   if (field.ios) {
     const actual = nativeField.convertRectToView(nativeField.bounds, nativeField.window)
+
     ctx.assert(
       'input rectangle uses window coordinates',
       Math.abs(first.inputRect.y - actual.origin.y) < 1,
@@ -81,7 +89,9 @@ export async function run(ctx: ProbeContext) {
 
     nativeField.getRootView().getLocationOnScreen(origin)
     nativeField.getLocationOnScreen(point)
+
     const density = nativeField.getResources().getDisplayMetrics().density
+
     ctx.assert(
       'input rectangle uses decor coordinates',
       Math.abs(first.inputRect.y - (point[1] - origin[1]) / density) < 1,
@@ -96,6 +106,7 @@ export async function run(ctx: ProbeContext) {
   }
 
   const before = first.inputRect.y
+
   ctx.find('focus-validation').height = 40
   await ctx.waitFor(() => Math.abs(snapshots.at(-1).inputRect.y - before - 40) < 1)
   ctx.assert(
@@ -150,10 +161,14 @@ export async function run(ctx: ProbeContext) {
   }
 
   modalField.focus()
+
   const modalNative = modalField.ios ?? modalField.android
+
   await ctx.waitFor(() => (modalField.ios ? modalNative.isFirstResponder : modalNative.hasFocus()))
+
   const modalSamples: any[] = []
   const offModal = FocusedInputController.subscribe(modalField, (state) => modalSamples.push(state))
+
   ctx.onCleanup(offModal)
   await ctx.waitFor(() => modalSamples.at(-1)?.input === modalNative)
   ctx.assert(

@@ -73,6 +73,7 @@ export function ToastViewportSurface(props: {
   // own classes ride along as its base.
   useEffect(() => {
     const el = viewport.current
+
     if (!el) {
       return
     }
@@ -84,6 +85,7 @@ export function ToastViewportSurface(props: {
   // Top-layer promotion (above <dialog> modals) via popover=manual.
   useEffect(() => {
     const el = viewport.current
+
     if (!el || props.isTopLayer === false) {
       return
     }
@@ -104,12 +106,15 @@ export function ToastViewportSurface(props: {
   // content does not (documented).
   useEffect(() => {
     const newest = mine[mine.length - 1]
+
     if (!newest || newest.id === announced.current) {
       return
     }
 
     announced.current = newest.id
+
     const body = newest.options.body
+
     if (typeof body !== 'string' || !body) {
       return
     }
@@ -125,6 +130,7 @@ export function ToastViewportSurface(props: {
       const prev = prevFocus.current
       const el = viewport.current
       const active = document.activeElement as HTMLElement | null
+
       if (prev && el && active && el.contains(active)) {
         prevFocus.current = null
         if (prev.isConnected) {
@@ -141,11 +147,13 @@ export function ToastViewportSurface(props: {
       }
 
       const el = viewport.current
+
       if (!el) {
         return
       }
 
       const active = document.activeElement
+
       if (active instanceof Node && el.contains(active)) {
         return
       }
@@ -176,6 +184,7 @@ export function ToastViewportSurface(props: {
   // The viewport box anchors to the stack's block edge; `inset` also feeds
   // the fixed corner stacks through custom properties.
   const insetStyle: Record<string, any> = {}
+
   if (props.inset?.top != null) {
     insetStyle.top = props.inset.top
     insetStyle['--vx-toast-inset-block-start'] = `${props.inset.top}px`
@@ -208,6 +217,7 @@ export function ToastViewportSurface(props: {
     >
       {POSITIONS.map((pos, i) => {
         const list = buckets[i]
+
         if (!list.length) {
           return null
         }
@@ -224,6 +234,7 @@ export function ToastViewportSurface(props: {
             {list.map((entry) => {
               const o = entry.options
               const timing = toastTiming(o)
+
               return (
                 <div
                   key={entry.id}
@@ -249,6 +260,7 @@ export function ToastViewportSurface(props: {
       {anchored.map((entry) => {
         const o = entry.options
         const timing = toastTiming(o)
+
         return (
           <Popover
             key={entry.id}

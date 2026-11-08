@@ -5,6 +5,7 @@ import type { Target } from './types'
 import { attachPan } from './pan'
 import { delegatedRun } from './driver'
 import { measureNativeBox } from './projection/measure'
+
 // The retained NativeScript View exposes direct transform channels in DIP.
 export function attachHost(node: any): HostAdapter {
   const original = {
@@ -63,25 +64,32 @@ export function attachHost(node: any): HostAdapter {
     if (!paintSaved || !paintStyle) {
       return
     }
+
     for (const key of paintKeys) {
       if (paintStyle[key] === paintApplied[key]) {
         paintStyle[key] = paintSaved[key]
       }
     }
+
     paintSaved = undefined
   }
+
   const correctPaint = (projection: import('./projection/types').ProjectionWrite) => {
     restorePaint()
     if (!paintStyle) {
       return
     }
+
     paintSaved = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
+
     const corrected = correctNativePaint(paintSaved, projection)
+
     for (const key of Object.keys(corrected)) {
       if (corrected[key] !== undefined) {
         paintStyle[key] = corrected[key]
       }
     }
+
     paintApplied = Object.fromEntries(paintKeys.map((key) => [key, paintStyle[key]]))
   }
 
@@ -89,6 +97,7 @@ export function attachHost(node: any): HostAdapter {
     pan: (axis, callbacks) => attachPan(node, axis, callbacks),
     measureLayout() {
       const box = measureNativeBox(node)
+
       return box
         ? {
             layoutBox: box,
@@ -108,6 +117,7 @@ export function attachHost(node: any): HostAdapter {
         write(latestValues)
         return
       }
+
       correctPaint(projection)
       // Channel writes reach the node, not this adapter, while projecting.
       latestValues = { ...latestValues, ...projection.latest }
@@ -146,6 +156,7 @@ export function attachHost(node: any): HostAdapter {
       // focus/blur exist only on focusable hosts (editable text, buttons).
       const onFocus = () => callbacks.start()
       const onBlur = () => callbacks.end()
+
       node.on('focus', onFocus)
       node.on('blur', onBlur)
       return () => {

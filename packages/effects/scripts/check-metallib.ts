@@ -24,8 +24,10 @@ const resources = join(pkgRoot, 'platforms/ios/Resources')
 // Each `[[ stitchable ]] ret name(` declaration — the function name is the
 // identifier immediately before the first '(' following the attribute.
 const declared = new Map()
+
 for (const file of globSync(join(pkgRoot, 'metal/*.metal'))) {
   const source = readFileSync(file, 'utf8')
+
   for (const match of source.matchAll(/\[\[\s*stitchable\s*\]\]/g)) {
     const rest = source.slice(match.index)
     const name = rest.slice(0, rest.indexOf('(')).match(/([A-Za-z_]\w*)\s*$/)?.[1]

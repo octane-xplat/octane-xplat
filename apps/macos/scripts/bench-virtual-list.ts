@@ -56,12 +56,17 @@ function runSample(size, mode) {
     const onData = (chunk) => {
       output += chunk.toString()
       lineBuffer += chunk.toString()
+
       let newline
+
       while ((newline = lineBuffer.indexOf('\n')) >= 0) {
         const line = lineBuffer.slice(0, newline)
+
         lineBuffer = lineBuffer.slice(newline + 1)
+
         const marker = '[macos-vlist-bench] '
         const markerIndex = line.indexOf(marker)
+
         if (markerIndex < 0) {
           continue
         }
@@ -128,8 +133,10 @@ function assertSample(result, size, mode) {
   }
 
   const maxMountedRows = 32
+
   for (const phase of ['initial', 'afterScroll']) {
     const metrics = result[phase]
+
     if (
       !metrics ||
       metrics.mountedRowCount > maxMountedRows ||
@@ -150,6 +157,7 @@ function assertSample(result, size, mode) {
   const expectedContentHeight = size * 44
   const initialScrollView = result.initial.scrollViews?.find((view) => view.id === 'vlist-bench')
   const finalScrollView = result.afterScroll.scrollViews?.find((view) => view.id === 'vlist-bench')
+
   if (
     !initialScrollView ||
     !finalScrollView ||
@@ -179,6 +187,7 @@ console.log(
 for (const mode of requestedModes) {
   for (const size of requestedSizes) {
     const result = await runSample(size, mode)
+
     assertSample(result, size, mode)
     console.log(JSON.stringify({ ...result, check: result.status ?? 'passed' }))
   }

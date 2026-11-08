@@ -4,10 +4,12 @@
 // leaf without host typelib metadata.
 declare module 'gi://Gtk?version=4.0' {
   const Gtk: any
+
   export default Gtk
 }
 
 declare module 'gi://Gdk?version=4.0' {
   const Gdk: any
+
   export default Gdk
 }

@@ -1,19 +1,23 @@
 import { expect, it, vi } from 'vitest'
 import { createAppKitTypeaheadAccessibility } from './typeahead-accessibility.macos'
+
 function fixture() {
   const window: any = { firstResponder: {}, makeFirstResponder: vi.fn() },
     label = {},
     previous = {}
+
   const input: any = {
     window,
     accessibilityLinkedUIElements: [label],
     accessibilitySelectedChildren: [previous],
   }
+
   const list: any = { window, accessibilityLinkedUIElements: [], accessibilitySelectedChildren: [] }
   const row: any = { window, isDescendantOf: (view: unknown) => view === list }
   const state: any = { input, list, active: row, open: true, blocked: false },
     observers = new Map<object, any>(),
     notifications = vi.fn()
+
   const host = {
     NSAccessibilityPostNotification: notifications,
     NSNotificationCenter: {
@@ -25,6 +29,7 @@ function fixture() {
           callback: any,
         ) {
           const token = {}
+
           observers.set(token, callback)
           return token
         },
@@ -34,6 +39,7 @@ function fixture() {
       },
     },
   }
+
   const controller = createAppKitTypeaheadAccessibility(
       () => state,
       () => host,
@@ -42,11 +48,13 @@ function fixture() {
       controller.update()
       await Promise.resolve()
     }
+
   const notify = (object = window) => {
     for (const callback of [...observers.values()]) {
       callback({ object })
     }
   }
+
   return {
     window,
     label,
@@ -66,6 +74,7 @@ function fixture() {
 it('links current native input/list, preserves unrelated links and exposes pending selection without moving focus', async () => {
   const f = fixture(),
     responder = f.window.firstResponder
+
   try {
     await f.flush()
     expect(f.input.accessibilityLinkedUIElements).toEqual([f.label, f.list])
@@ -85,6 +94,7 @@ it('links current native input/list, preserves unrelated links and exposes pendi
 it('current active-row replacement and removal update native selection once each', async () => {
   const f = fixture(),
     row = { window: f.window, isDescendantOf: (view: unknown) => view === f.list }
+
   try {
     await f.flush()
     f.state.active = row
@@ -104,6 +114,7 @@ it('current active-row replacement and removal update native selection once each
 it('closed or blocked lists restore native baselines and release attachment observation', async () => {
   for (const key of ['open', 'blocked']) {
     const f = fixture()
+
     try {
       await f.flush()
       f.state[key] = key === 'blocked'
@@ -120,6 +131,7 @@ it('closed or blocked lists restore native baselines and release attachment obse
 
 it('late attachment observes the current window and foreign notifications do not bind stale views', async () => {
   const f = fixture()
+
   f.input.window = null
   f.list.window = null
   try {
@@ -141,6 +153,7 @@ it('late attachment observes the current window and foreign notifications do not
 
 it('foreign/hidden rows and lists cannot publish pending native selection', async () => {
   const f = fixture()
+
   try {
     await f.flush()
     f.row.window = {}
@@ -170,6 +183,7 @@ it('replacement native owners restore old metadata and bind the current owner ba
       accessibilityLinkedUIElements: [label],
       accessibilitySelectedChildren: [],
     }
+
   try {
     await f.flush()
     f.state.input = input
@@ -186,6 +200,7 @@ it('replacement native owners restore old metadata and bind the current owner ba
 
 it('old-window notification releases detached metadata and current reattachment can bind again', async () => {
   const f = fixture()
+
   try {
     await f.flush()
     f.input.window = null
@@ -193,7 +208,9 @@ it('old-window notification releases detached metadata and current reattachment 
     f.notify()
     await Promise.resolve()
     expect(f.input.accessibilityLinkedUIElements).toEqual([f.label])
+
     const window = {}
+
     f.input.window = window
     f.list.window = window
     f.row.window = window
@@ -208,25 +225,31 @@ it('old-window notification releases detached metadata and current reattachment 
 it('native NSArray baselines preserve order and deduplicate the owned relationship', async () => {
   const f = fixture(),
     links = [f.label, f.list]
+
   f.input.accessibilityLinkedUIElements = {
     count: links.length,
     objectAtIndex: (index: number) => links[index],
   }
+
   try {
     await f.flush()
     expect(f.input.accessibilityLinkedUIElements).toEqual(links)
   } finally {
     f.controller.dispose()
   }
+
   expect(f.input.accessibilityLinkedUIElements.objectAtIndex(0)).toBe(f.label)
 })
 
 it('dispose retires queued work and held native observers without republishing relationships', async () => {
   const f = fixture()
+
   await f.flush()
   f.notifications.mockClear()
   f.controller.update()
+
   const callbacks = [...f.observers.values()]
+
   f.controller.dispose()
   await Promise.resolve()
   callbacks.forEach((callback) => callback({ object: f.window }))
@@ -239,8 +262,10 @@ it('dispose retires queued work and held native observers without republishing r
 it('a failed native relationship write restores partial ownership and can retry on a new update', async () => {
   const f = fixture(),
     warn = vi.spyOn(console, 'warn').mockImplementation(() => {})
+
   let links: any[] = [],
     fail = true
+
   Object.defineProperty(f.list, 'accessibilityLinkedUIElements', {
     configurable: true,
     get: () => links,
@@ -249,9 +274,11 @@ it('a failed native relationship write restores partial ownership and can retry 
         fail = false
         throw Error('native write refused')
       }
+
       links = value
     },
   })
+
   try {
     await f.flush()
     expect(f.input.accessibilityLinkedUIElements).toEqual([f.label])

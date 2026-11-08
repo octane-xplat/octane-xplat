@@ -57,8 +57,10 @@ function webKit(): any {
   if (webkit !== null || webkitFailed) {
     return webkit
   }
+
   try {
     const gi = (globalThis as any).imports?.gi
+
     if (gi?.versions) {
       gi.versions.WebKit = '6.0'
     }
@@ -67,6 +69,7 @@ function webKit(): any {
   } catch {
     webkit = null
   }
+
   webkitFailed = webkit === null
   return webkit
 }
@@ -104,12 +107,14 @@ const MESSAGE_POLL_MS = 200
 
 export function makeWebView(): any {
   const WebKit = webKit()
+
   if (WebKit === null) {
     throw new Error(
       'linux-gtk: <webview> requires the WebKitGTK 6.0 typelib ' +
         '(gir1.2-webkit-6.0 / WebKit-6.0) — it is not installed on this host.',
     )
   }
+
   return new WebKit.WebView()
 }
 
@@ -119,11 +124,14 @@ export function updateWebView(
   resize: (height: number) => void,
 ) {
   const view = node.view
+
   if (view === null) {
     return
   }
+
   const WebKit = webKit()
   let state = states.get(view)
+
   if (!state) {
     const created: WebViewState = {
       props: node.props,
@@ -138,11 +146,14 @@ export function updateWebView(
       draining: false,
       emit(name: string, payload: any) {
         const handler = created.props[name]
+
         if (typeof handler !== 'function') {
           return
         }
+
         const event = { eventName: name, object: view, ...payload }
         const root = node.container.root
+
         try {
           if (root) {
             root.eventScope('discrete', () => handler(event))
@@ -157,14 +168,18 @@ export function updateWebView(
         if (!created.loaded || created.draining || typeof created.props.onMessage !== 'function') {
           return
         }
+
         created.draining = true
+
         const generation = created.generation
         const epoch = created.messageEpoch
         const url = created.inline ? undefined : view.get_uri()
+
         try {
           view.evaluate_javascript(drainScript, -1, null, null, null, (wv: any, result: any) => {
             try {
               const value = wv.evaluate_javascript_finish(result)
+
               if (
                 states.get(view) !== created ||
                 generation !== created.generation ||
@@ -174,6 +189,7 @@ export function updateWebView(
               }
 
               const batch = JSON.parse(String(value?.to_string?.() ?? 'null'))
+
               if (!Array.isArray(batch)) {
                 return
               }
@@ -201,6 +217,7 @@ export function updateWebView(
       },
       measure() {
         const generation = created.generation
+
         // GJS binding: (script, length, world_name, source_uri,
         // cancellable, callback) — six args, no user_data slot.
         view.evaluate_javascript(
@@ -224,6 +241,7 @@ export function updateWebView(
 
             const value = wv.evaluate_javascript_finish(res)
             const size = JSON.parse(String(value?.to_string?.() ?? ''))
+
             if (
               !size ||
               !Number.isFinite(size.width) ||
@@ -242,6 +260,7 @@ export function updateWebView(
           } catch {
             // Navigation raced the eval — the next measure reports.
           }
+
           return GLib.SOURCE_REMOVE
         })
       },
@@ -271,7 +290,9 @@ export function updateWebView(
           created.loaded = true
           created.measure()
           created.drainMessages()
+
           const url = created.inline ? undefined : wv.get_uri()
+
           created.emit('onLoadFinished', { url })
           created.emit('onLoad', { url })
         }
@@ -279,12 +300,14 @@ export function updateWebView(
       view.connect('load-failed', (_wv: any, _event: number, uri: string, error: any) => {
         created.loaded = false
         created.loading = false
+
         // stop_loading (handle or source supersede) reports as a
         // cancelled network error — a requester-chosen abort is not a
         // document failure (matches NS, which reports nothing).
         const cancelled =
           created.expectCancel ||
           error?.matches?.(WebKit.network_error_quark?.(), WebKit.NetworkError?.CANCELLED) === true
+
         if (cancelled) {
           created.expectCancel = false
           // The error page's own load cycle still reaches FINISHED —
@@ -292,11 +315,14 @@ export function updateWebView(
           created.failed = true
           return true
         }
+
         created.failed = true
+
         const payload = {
           url: created.inline ? undefined : (uri ?? created.props.src ?? view.get_uri()),
           error: String(error?.message ?? error),
         }
+
         created.emit('onLoadError', payload)
         created.emit('onError', payload)
         return true
@@ -305,10 +331,12 @@ export function updateWebView(
         'load-failed-with-tls-errors',
         (_wv: any, uri: string, _cert: any, _errors: any) => {
           created.loaded = false
+
           const payload = {
             url: uri ?? created.props.src ?? view.get_uri(),
             error: 'TLS certificate verification failed',
           }
+
           created.emit('onLoadError', payload)
           created.emit('onError', payload)
           return true
@@ -330,6 +358,7 @@ export function updateWebView(
   state.props = node.props
   if (typeof state.props.onMessage === 'function' && state.messageTimer === null) {
     const current = state
+
     state.messageTimer = GLib.timeout_add(GLib.PRIORITY_DEFAULT, MESSAGE_POLL_MS, () => {
       current.drainMessages()
       return GLib.SOURCE_CONTINUE
@@ -340,8 +369,10 @@ export function updateWebView(
     // An eval started for an old subscription must not reach a later one.
     state.messageEpoch++
   }
+
   const inline = state.props.html !== undefined
   const source = inline ? state.props.html : state.props.src
+
   if (state.inline !== inline || state.source !== source) {
     state.inline = inline
     state.source = source
@@ -360,11 +391,13 @@ export function updateWebView(
       view.load_html(String(source ?? ''), null)
     } else {
       const src = String(source)
+
       if (src.startsWith('~/')) {
         // Bundle-relative path — the app bundle URL is import.meta.url's
         // directory (same convention as style-css's url() resolution).
         const base = String(import.meta.url ?? '')
         const dir = base.slice(0, base.lastIndexOf('/') + 1)
+
         view.load_uri(dir + src.slice(2).split('/').map(encodeURIComponent).join('/'))
       } else if (src.startsWith('/')) {
         view.load_uri('file://' + src.split('/').map(encodeURIComponent).join('/'))
@@ -382,6 +415,7 @@ export function updateWebView(
 
 export function disposeWebView(view: any) {
   const state = states.get(view)
+
   if (state) {
     if (state.messageTimer !== null) {
       GLib.source_remove(state.messageTimer)
@@ -395,6 +429,7 @@ export function disposeWebView(view: any) {
       }
     }
   }
+
   states.delete(view)
   try {
     view.stop_loading()

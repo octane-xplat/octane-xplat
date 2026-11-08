@@ -3,6 +3,7 @@ import { useState } from 'octane'
 import { Button, Text, TextInput, Tokenizer, VStack, createStaticSource } from '@octane-xplat/ui'
 import type { SearchableItem, TokenizerOverflowBehavior } from '@octane-xplat/ui'
 import type { ProbeContext } from '../../tools/probe/context'
+
 const people = [
   { id: 'ada', label: 'Ada Lovelace' },
   { id: 'grace', label: 'Grace Hopper' },
@@ -10,6 +11,7 @@ const people = [
 ]
 
 const source = createStaticSource(people)
+
 export default function TokenizerOverflowProbe() {
   const [tags, setTags] = useState<SearchableItem[]>(people),
     [width, setWidth] = useState(240),

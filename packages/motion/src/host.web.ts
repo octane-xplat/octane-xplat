@@ -22,6 +22,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
   const transformOrigin = node.style.transformOrigin
   const opacity = node.style.opacity
   const computed = getComputedStyle(node)
+
   if (computed.transform && computed.transform !== 'none') {
     throw new Error('motion: put existing CSS transforms on an outer container')
   }
@@ -37,16 +38,20 @@ export function attachHost(node: HTMLElement): HostAdapter {
     if (!paintSaved) {
       return
     }
+
     for (const key of paintKeys) {
       if (node.style[key] === paintApplied[key]) {
         node.style[key] = paintSaved[key]
       }
     }
+
     paintSaved = undefined
   }
+
   const correctPaint = (projection: ProjectionWrite) => {
     restorePaint()
     paintSaved = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
+
     const baseline = getComputedStyle(node)
     const values = Object.fromEntries(paintKeys.map((key) => [key, baseline[key]]))
     const context = {
@@ -54,12 +59,15 @@ export function attachHost(node: HTMLElement): HostAdapter {
       treeScale: projection.treeScale,
       projectionDelta: projection.layoutDelta ?? projection.delta,
     }
+
     for (const key of radiusKeys) {
       node.style[key] = String(correctBorderRadius.correct(values[key], context as any))
     }
+
     if (values.boxShadow && values.boxShadow !== 'none') {
       node.style.boxShadow = String(correctBoxShadow.correct(values.boxShadow, context as any))
     }
+
     paintApplied = Object.fromEntries(paintKeys.map((key) => [key, node.style[key]]))
   }
 
@@ -107,6 +115,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
       const offset = viewportOffset()
       const scrollX = -offset.x,
         scrollY = -offset.y
+
       const layoutBox = toBox({
         left: measuredBox.x.min + scrollX,
         top: measuredBox.y.min + scrollY,
@@ -120,6 +129,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
         removeBoxTransforms(layoutBox, latestValues)
         removeBoxTransforms(measuredBox, latestValues)
       }
+
       return { layoutBox, measuredBox, viewportOffset }
     },
     resetProjection() {
@@ -144,6 +154,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
       node.style.transform = buildProjectionTransform(write.delta, write.treeScale, {
         rotate: write.latest.rotate ?? 0,
       })
+
       node.style.transformOrigin = `${write.delta.x.origin * 100}% ${write.delta.y.origin * 100}% 0`
     },
     gesture(kind, callbacks) {
@@ -163,6 +174,7 @@ export function attachHost(node: HTMLElement): HostAdapter {
         }
 
         const end = () => callbacks.end()
+
         node.addEventListener('pointerdown', down)
         node.addEventListener('pointerup', end)
         node.addEventListener('pointercancel', end)

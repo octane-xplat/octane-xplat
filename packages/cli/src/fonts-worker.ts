@@ -14,10 +14,13 @@ export async function fontOperation(request: Record<string, any>, requestFile: s
   ) {
     throw new Error('Provide 1–128 font files or Fontsource packages')
   }
+
   const options = request.options
+
   if (!options || typeof options !== 'object' || typeof options.install !== 'boolean') {
     throw new Error('Invalid font options')
   }
+
   for (const key of ['name', 'token', 'subset']) {
     if (
       options[key] !== undefined &&
@@ -26,6 +29,7 @@ export async function fontOperation(request: Record<string, any>, requestFile: s
       throw new Error(`Invalid font ${key}`)
     }
   }
+
   if (
     options.weights !== undefined &&
     (!Array.isArray(options.weights) ||
@@ -34,13 +38,17 @@ export async function fontOperation(request: Record<string, any>, requestFile: s
   ) {
     throw new Error('Invalid font weights')
   }
+
   // Existing converters stage beneath os.tmpdir(). All staging, including library
   // scratch and inherited children, belongs to this managed request lifetime.
   const temporary = realpathSync(dirname(requestFile))
+
   process.env.TMPDIR = temporary
   process.env.TEMP = temporary
   process.env.TMP = temporary
+
   const project = realpathSync(process.cwd())
+
   try {
     return { version: 1, project, plan: await planFontInputs(project, request.inputs, options) }
   } catch (error) {

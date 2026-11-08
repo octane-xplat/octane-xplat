@@ -5,6 +5,7 @@ export function dispatchPress(view: any) {
   }
 
   const observers = view.getGestureObservers?.(1) ?? []
+
   if (observers.length) {
     for (const observer of observers) {
       observer.callback.call(observer.context, { eventName: 'tap', object: view })

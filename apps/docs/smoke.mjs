@@ -15,10 +15,13 @@ const dom = new JSDOM(readFileSync('dist/index.html', 'utf8'), {
 
 const { window } = dom
 const keyDiagnostics = []
+
 for (const level of ['warn', 'error']) {
   const report = console[level].bind(console)
+
   console[level] = (...args) => {
     const message = args.map(String).join(' ')
+
     if (
       message.includes('each element in an array child') ||
       message.includes('two children with the same key')
@@ -62,8 +65,10 @@ const watchdog = setTimeout(() => {
 
 window.eval(readFileSync(js, 'utf8'))
 clearTimeout(watchdog)
+
 async function waitFor(name, predicate) {
   const deadline = Date.now() + 5000
+
   while (!predicate()) {
     if (Date.now() >= deadline) {
       throw new Error('Timed out: ' + name)
@@ -99,6 +104,7 @@ const checks = [
 ]
 
 let fail = 0
+
 for (const [name, ok] of checks) {
   console.log((ok ? 'PASS' : 'FAIL') + ' ' + name)
   if (!ok) {
@@ -114,6 +120,7 @@ const assert = (name, ok) => {
 }
 
 const promptCard = root.querySelector('.agent-prompt')
+
 assert(
   'front page includes one agent prompt after the introduction',
   root.querySelectorAll('.agent-prompt').length === 1 &&
@@ -122,6 +129,7 @@ assert(
 
 const promptText = promptCard?.querySelector('.agent-prompt-copy')?.textContent
 const expandPrompt = promptCard?.querySelector('.agent-prompt-expand')
+
 expandPrompt?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert(
@@ -133,7 +141,9 @@ assert(
 expandPrompt?.click()
 await new Promise((r) => setTimeout(r, 30))
 assert('agent prompt collapses', expandPrompt?.getAttribute('aria-expanded') === 'false')
+
 let copiedPrompt
+
 Object.defineProperty(window.navigator, 'clipboard', {
   configurable: true,
   value: {
@@ -153,6 +163,7 @@ assert(
 )
 
 const promptActions = promptCard?.querySelector('[aria-label="Open prompt actions"]')
+
 promptActions.click()
 await waitFor('prompt actions open', () => window.document.querySelector('.agent-prompt-menu a'))
 assert(
@@ -181,6 +192,7 @@ assert(
 
 const highlights = [...root.querySelectorAll('.doc .highlight')]
 const promptHighlight = highlights.find((h) => h.textContent === 'Create your first app')
+
 assert(
   'Xplat page renders its highlights',
   highlights.some((h) => h.textContent === 'one project') && !!promptHighlight,
@@ -192,6 +204,7 @@ assert(
 )
 
 const mixedHighlight = inlineSpans('before ==**bold** *italic* `code` [link](spec.md)== after')
+
 assert(
   'highlight composes with inline formatting',
   mixedHighlight[0].text === 'before ' &&
@@ -237,6 +250,7 @@ assert(
 )
 
 const table = parseMd('| value | meaning |\n| --- | --- |\n| `ready \\| error` | status |')[0]
+
 assert(
   'escaped table pipe stays in its cell',
   table?.kind === 'table' && table.rows[1].length === 2 && table.rows[1][0] === '`ready | error`',
@@ -245,6 +259,7 @@ assert(
 // Sidebar navs hold the route change for the 200ms content fade-out.
 const settle = () => new Promise((resolve) => setTimeout(resolve, 280))
 let scrolledTo
+
 window.HTMLElement.prototype.scrollIntoView = function () {
   scrolledTo = this.id
 }
@@ -266,6 +281,7 @@ assert('setup card stays on the front page', !root.querySelector('.agent-prompt'
 function* walkDocs(dir) {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
     const path = join(dir, entry.name)
+
     if (entry.isDirectory() && entry.name !== 'evidence') {
       yield* walkDocs(path)
     } else if (entry.isFile() && entry.name.endsWith('.md')) {
@@ -289,6 +305,7 @@ for (const path of walkDocs('../../docs')) {
   const dir = dirname(rel) === '.' ? '' : dirname(rel)
   const slug = slugFor(dir, basename(rel, '.md'))
   const title = titleOf(slug, readFileSync(path, 'utf8'))
+
   sideItem(title)?.click()
   await waitFor(
     'page ' + slug,
@@ -304,11 +321,13 @@ for (const path of walkDocs('../../docs')) {
   )
 
   const headings = parseMd(readFileSync(path, 'utf8')).filter((block) => block.kind === 'h')
+
   assert(
     `page ${slug} uses semantic headings with section anchors`,
     headings.length > 0 &&
       headings.every((heading) => {
         const element = window.document.getElementById(heading.id)
+
         return (
           element?.tagName === `H${heading.level}` &&
           root.querySelector('.doc')?.contains(element) &&
@@ -324,7 +343,9 @@ for (const path of walkDocs('../../docs')) {
 // of this flow's acceptance.
 window.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'k', metaKey: true }))
 await settle()
+
 const paletteInput = window.document.getElementById('palette-query')
+
 assert('palette opens on cmd-k', Boolean(paletteInput))
 
 assert(
@@ -344,13 +365,17 @@ assert(
 paletteInput.value = 'useRouter'
 paletteInput.dispatchEvent(new window.Event('input', { bubbles: true }))
 await settle()
+
 const topHit = window.document.querySelector('.vx-cmdk-layer [role="option"]')
+
 assert('search finds api symbols', topHit?.textContent?.includes('useRouter'))
 
 // Arrow keys highlight via aria-activedescendant; Enter commits.
 paletteInput.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'ArrowDown', bubbles: true }))
 await settle()
+
 const activeDesc = paletteInput.getAttribute('aria-activedescendant')
+
 assert(
   'arrow keys drive active-descendant',
   Boolean(activeDesc) && window.document.getElementById(activeDesc) === topHit,

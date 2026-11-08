@@ -30,6 +30,7 @@ export function themeScopeClasses(): string {
  *  unmount or when the theme object changes. */
 export function setRootThemeScope(theme: DefinedTheme): () => void {
   const prev = rootScope
+
   rootScope = theme
   emit()
   return () => {

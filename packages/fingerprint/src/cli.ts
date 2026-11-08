@@ -10,6 +10,7 @@ import {
 } from './index.ts'
 
 import type { Fingerprint, Options, Platform } from './types.ts'
+
 const { values } = parseArgs({
   options: {
     dir: { type: 'string' },
@@ -28,8 +29,10 @@ if (values.help) {
   try {
     const root = resolve(values.dir ?? '.')
     const options: Options = values.platform ? { platforms: [values.platform as Platform] } : {}
+
     if (values['build-record']) {
       const record = JSON.parse(await readFile(resolve(values['build-record']), 'utf8'))
+
       if (
         !record ||
         record.format !== NATIVE_FINGERPRINT_FORMAT ||

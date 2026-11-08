@@ -33,6 +33,7 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
 
   root.render(Search, {})
   await settle()
+
   const a = debug.findId('search-a'),
     b = debug.findId('search-b'),
     parent = debug.findId('search-parent')
@@ -71,7 +72,9 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
   )
 
   check(nativeWindow.makeFirstResponder(a), 'Search could not become first responder')
+
   const editor = a.currentEditor()
+
   check(editor != null, 'Search field editor missing')
   editor.doCommandBySelector('insertNewline:')
   check(searchEvents.length === 2, 'AppKit field-editor Return did not submit once')
@@ -125,6 +128,7 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
   )
 
   const eventCount = searchEvents.length
+
   edit(a, 'Unbound')
   submit(a)
   check(searchEvents.length === eventCount, 'Removed Search handlers still fire')
@@ -135,6 +139,7 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
   )
 
   const delegate = a.delegate
+
   await advance()
   check(
     debug.findId('search-a') !== a &&
@@ -150,14 +155,18 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
   delegate.controlTextViewDoCommandBySelector(a, null, 'insertNewline:')
   check(searchEvents.length === eventCount, 'Disposed Search dispatch still fires')
   await advance()
+
   const first = debug.findId('search-moving')
+
   check(
     first.superview === debug.findId('search-other') && searchRefs.secondary.current === first,
     'Search ContentView nesting failed',
   )
 
   await advance()
+
   const second = debug.findId('search-moving')
+
   check(
     second.superview === parent &&
       !first.superview &&
@@ -167,7 +176,9 @@ export async function checkSearchLifecycle(root: any, nativeWindow: any) {
   )
 
   await advance()
+
   const third = debug.findId('search-moving')
+
   check(
     third.superview === debug.findId('search-other') &&
       !second.superview &&

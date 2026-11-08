@@ -57,6 +57,7 @@ export function Tooltip(props: TooltipProps): unknown @{
 
     const view = anchor.current
     const show = host().showAnchoredPopup
+
     if (!view || typeof show !== 'function') {
       return
     }
@@ -109,6 +110,7 @@ export function Tooltip(props: TooltipProps): unknown @{
     }
 
     const observe = host().observeHover
+
     if (typeof observe !== 'function') {
       return
     }

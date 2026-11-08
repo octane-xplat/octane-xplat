@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { afterEach, expect, it, vi } from 'vitest'
+
 // State/key fixtures use an explicit inline test host; floating ownership has separate cases.
 vi.mock('./TypeaheadResults.macos.tsrx', () => ({
   TypeaheadResults: (props: any) => (props.open ? (props.children ?? null) : null),
@@ -13,7 +14,9 @@ import {
 } from 'octane/universal/native'
 
 import { BaseTypeahead } from './BaseTypeahead.macos.tsrx'
+
 afterEach(() => vi.unstubAllGlobals())
+
 const people = [
   { id: 'a', label: 'Ada' },
   { id: 'g', label: 'Grace' },
@@ -21,6 +24,7 @@ const people = [
 
 function mount(attached = true) {
   const observers = new Map<object, any>()
+
   vi.stubGlobal('NSNotificationCenter', {
     defaultCenter: {
       addObserverForNameObjectQueueUsingBlock(
@@ -30,6 +34,7 @@ function mount(attached = true) {
         callback: any,
       ) {
         const token = {}
+
         observers.set(token, { name, callback })
         return token
       },
@@ -40,6 +45,7 @@ function mount(attached = true) {
   })
 
   vi.stubGlobal('NSAccessibilityPostNotification', vi.fn())
+
   const window: any = { firstResponder: null },
     container = createObjectContainer('nativescript'),
     root = createUniversalRoot(container, createObjectDriver('nativescript'))
@@ -55,6 +61,7 @@ function mount(attached = true) {
 
   const all = (): any[] => {
     const walk = (node: any): any[] => [node, ...(node.children?.flatMap(walk) ?? [])]
+
     return container.children.flatMap(walk)
   }
 
@@ -136,6 +143,7 @@ function mount(attached = true) {
 
 it('the actual view exposes combo/list/option roles, names, expanded state and pending highlighted selection', async () => {
   const f = mount()
+
   try {
     expect(f.input().props.accessibilityRole).toBe('combobox')
     expect(f.input().props.accessibilityState.expanded).toBe(false)
@@ -157,6 +165,7 @@ it('the actual view exposes combo/list/option roles, names, expanded state and p
 
 it('native pending selection follows keys while physical input focus and controlled commit ownership stay distinct', async () => {
   const f = mount()
+
   try {
     f.focus()
     await f.settle()
@@ -184,7 +193,9 @@ it('replacement/empty results release retired row links and reflect current keye
   try {
     f.focus()
     await f.settle()
+
     const retired = f.rows()[0]
+
     f.render({ ...f.base, searchSource: { bootstrap: () => [item], search: async () => [item] } })
     f.focus()
     await f.settle()
@@ -204,10 +215,13 @@ it('replacement/empty results release retired row links and reflect current keye
 it('current readonly/disabled state collapses exposed links and retired option actions cannot commit', async () => {
   for (const state of [{ isReadOnly: true }, { isDisabled: true }]) {
     const f = mount()
+
     try {
       f.focus()
       await f.settle()
+
       const press = f.rows()[0].props.onTap
+
       f.render({ ...f.base, ...state })
       await f.settle()
       press()
@@ -222,6 +236,7 @@ it('current readonly/disabled state collapses exposed links and retired option a
 
 it('late attachment binds the current native owners and teardown retires held observers/queued work', async () => {
   const f = mount(false)
+
   try {
     f.focus()
     await f.settle()
@@ -229,9 +244,13 @@ it('late attachment binds the current native owners and teardown retires held ob
     expect(f.observers.size).toBeGreaterThan(0)
     f.attach()
     await f.settle()
+
     const input = f.input()
+
     expect(input.accessibilitySelectedChildren).toEqual([f.rows()[0]])
+
     const callbacks = [...f.observers.values()]
+
     f.root.unmount()
     callbacks.forEach((observer) => observer.callback({ object: f.window }))
     await f.settle()

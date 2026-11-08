@@ -65,9 +65,11 @@ export function createPaneRouterHost(): PaneRouterHost {
       if (!routerUsesHost(router, platform.host)) {
         throw new Error('Attach the instance created with this pane host')
       }
+
       platform.attach(router)
     },
   }) as PaneRouterHost
+
   hosts.set(host, platform)
   return host
 }
@@ -75,8 +77,10 @@ export function createPaneRouterHost(): PaneRouterHost {
 /** @internal Only original pane bindings may provide renderer ownership. */
 export function resolvePaneRouterHost(host: PaneRouterHost): PaneRouterClient {
   const platform = hosts.get(host)
+
   if (!platform) {
     throw new TypeError('Use an original host from createPaneRouterHost')
   }
+
   return platform
 }

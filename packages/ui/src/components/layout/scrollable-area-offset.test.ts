@@ -9,6 +9,7 @@ const variants = { ios, android, windows }
 for (const [name, scrollableAreaOffset] of Object.entries(variants)) {
   it(`${name}: seeks through the Mason scrollTo surface`, () => {
     const view = { scrollTo: vi.fn() }
+
     scrollableAreaOffset(view, { block: 120 }, true)
     expect(view.scrollTo).toHaveBeenCalledWith({ top: 120, behavior: 'smooth' })
     scrollableAreaOffset(view, { inline: -20 })

@@ -14,6 +14,7 @@ export function viewPoint(
 
   const point = view.convertPointFromView(windowPoint, null)
   const bounds = view.bounds
+
   if (!point || !bounds) {
     return null
   }
@@ -22,6 +23,7 @@ export function viewPoint(
   const y = view.flipped
     ? Number(point.y) - Number(bounds.origin?.y ?? 0)
     : Number(bounds.origin?.y ?? 0) + Number(bounds.size?.height ?? 0) - Number(point.y)
+
   return Number.isFinite(x) && Number.isFinite(y) ? { x, y } : null
 }
 
@@ -35,8 +37,10 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
 
   const trackingOpt = (value: number | undefined, fallback: number) =>
     typeof value === 'number' && Number.isFinite(value) ? value : fallback
+
   const options = () => {
     const flags = (native().NSTrackingAreaOptions ?? {}) as Record<string, number>
+
     return (
       trackingOpt(flags.MouseEnteredAndExited, 0x01) |
       trackingOpt(flags.MouseMoved, 0x02) |
@@ -52,6 +56,7 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
 
     observe(view: any, handlers: PointerMotionHandlers, target: unknown): () => void {
       const events = native()
+
       if (
         !view ||
         !handlers ||
@@ -68,13 +73,16 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
         target,
         null,
       )
+
       if (!area) {
         return () => {}
       }
 
       view.addTrackingArea(area)
       records.set(area, { view, handlers })
+
       let active = true
+
       return () => {
         if (!active) {
           return
@@ -92,6 +100,7 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
 
     dispatch(area: unknown, phase: 'enter' | 'move' | 'exit', event: any): boolean {
       const record = records.get(area as object)
+
       if (!record) {
         return false
       }
@@ -101,6 +110,7 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
           record.handlers.exit()
         } else {
           const point = viewPoint(record.view, event?.locationInWindow)
+
           if (point) {
             record.handlers.move(point.x, point.y)
           }
@@ -116,6 +126,7 @@ export function createAppKitPointerMotion(native: () => Record<string, any> = ()
      *  is dispatching that event (e.g. inside a tap recognizer callback). */
     locate(view: any): { x: number; y: number } | null {
       const event = native().NSApplication?.sharedApplication?.currentEvent
+
       if (!view || !event || !MOUSE_TYPES.has(Number(event.type)) || event.window !== view.window) {
         return null
       }

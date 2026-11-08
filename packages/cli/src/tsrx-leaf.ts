@@ -19,13 +19,17 @@ export function isTsrxContract(source: string, file: string): boolean {
   if (source.startsWith('// Type contract only.')) {
     return true
   }
+
   if (!/\bdeclare\b/.test(source)) {
     return false
   }
+
   const { body } = parseModule(source, file) as { body: Statement[] }
   const declared = new Set<string>()
+
   for (const statement of body) {
     const node = statement.declaration ?? statement
+
     if (!node.declare) {
       continue
     }
@@ -40,6 +44,7 @@ export function isTsrxContract(source: string, file: string): boolean {
       }
     }
   }
+
   const typeOnly = (node: Statement): boolean => {
     if (
       node.declare ||
@@ -49,12 +54,15 @@ export function isTsrxContract(source: string, file: string): boolean {
     ) {
       return true
     }
+
     if (node.type === 'ImportDeclaration' || node.type === 'EmptyStatement') {
       return true
     }
+
     if (node.type === 'ExportDefaultDeclaration') {
       return node.declaration?.type === 'Identifier' && declared.has(node.declaration.name ?? '')
     }
+
     if (node.type === 'ExportNamedDeclaration') {
       if (node.exportKind === 'type') {
         return true
@@ -71,8 +79,10 @@ export function isTsrxContract(source: string, file: string): boolean {
         )
       )
     }
+
     return false
   }
+
   return declared.size > 0 && body.every(typeOnly)
 }
 
@@ -97,18 +107,22 @@ export function resolveTsrxLeaf(
   if (!importer || (!source.startsWith('.') && !isAbsolute(source))) {
     return null
   }
+
   const [file] = source.split(/[?#]/, 1)
+
   if (
     !file.endsWith('.tsrx') ||
     /\.(web|ios|android|mobile|macos|windows|linux|gtk)\.tsrx$/.test(file)
   ) {
     return null
   }
+
   const query = source.slice(file.length)
   const base = resolve(
     dirname(importer.split(/[?#]/, 1)[0].replace(/^\/@fs\//, '/')),
     file.slice(0, -5),
   )
+
   const fallback = `${base}.tsrx`
   // A platform implementation may delegate to its own unsuffixed base.
   // Redirecting that import back to the importer would create a module cycle.
@@ -118,22 +132,28 @@ export function resolveTsrxLeaf(
     .split(/[?#]/, 1)[0]
     .replace(/^\/@fs\//, '/')
     .replaceAll('\\', '/')
+
   const delegatesToBase =
     importerFile.replace(/\.(web|ios|android|mobile|macos|windows|linux|gtk)\.tsrx$/, '.tsrx') ===
     fallback.replaceAll('\\', '/')
+
   if (delegatesToBase) {
     return existsSync(fallback) ? fallback.replaceAll('\\', '/') + query : null
   }
+
   for (const suffix of suffixes[platform] ?? []) {
     const candidate = `${base}.${suffix}.tsrx`
+
     if (existsSync(candidate)) {
       return candidate.replaceAll('\\', '/') + query
     }
   }
+
   if (existsSync(fallback) && isTsrxContract(readFileSync(fallback, 'utf8'), fallback)) {
     throw new Error(
       `No ${platform} implementation for ${file}; its unsuffixed TSRX module is a declaration-only contract.`,
     )
   }
+
   return null
 }

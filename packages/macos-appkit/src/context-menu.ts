@@ -57,22 +57,28 @@ export function createContextMenu(deps: Dependencies) {
     }
 
     let menu: NSMenu
+
     try {
       menu = NSMenu.alloc().init()
     } catch {
       return null
     }
+
     if (!menu) {
       return null
     }
+
     const state = { active: true, previous: null as NSMenu | null }
+
     contextMenuAttachments.set(menu, state)
+
     const created: { action: ActionRegistration; item: NSMenuItem }[] = []
     let selecting = false
     const detach = () => {
       if (!state.active) {
         return
       }
+
       state.active = false
       for (const { action, item } of created) {
         action.release()
@@ -81,14 +87,18 @@ export function createContextMenu(deps: Dependencies) {
           item.action = null as unknown as string
         } catch {}
       }
+
       try {
         menu.cancelTracking()
       } catch {}
+
       try {
         if (view.menu === menu) {
           let previous = state.previous
+
           while (previous) {
             const prior = contextMenuAttachments.get(previous)
+
             if (!prior || prior.active) {
               break
             }
@@ -100,6 +110,7 @@ export function createContextMenu(deps: Dependencies) {
         }
       } catch {}
     }
+
     try {
       menu.autoenablesItems = false
       state.previous = view.menu ?? null
@@ -117,22 +128,30 @@ export function createContextMenu(deps: Dependencies) {
         )
 
         menuItem.target = menuActionTarget
+
         const disabled = !!item?.disabled
+
         menuItem.enabled = !disabled
 
         const action = deps.actions.allocate()
+
         created.push({ action, item: menuItem })
         menuItem.tag = action.id
+
         const id = item?.id
+
         action.setHandler(() => {
           if (!state.active || selecting || disabled || view.menu !== menu || !view.window) {
             return
           }
+
           const enabled = (menuItem as any).isEnabled
           const nativeEnabled = typeof enabled === 'function' ? enabled.call(menuItem) : enabled
+
           if (nativeEnabled === false || nativeEnabled === 0) {
             return
           }
+
           selecting = true
           try {
             onSelect?.(id)
@@ -153,6 +172,7 @@ export function createContextMenu(deps: Dependencies) {
       return null
     }
   }
+
   return {
     attachContextMenu,
   }

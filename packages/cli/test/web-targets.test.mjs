@@ -10,6 +10,7 @@ import { detectPlatforms, discoverWorkspace } from '../dist/mcp/discovery.js'
 for (const extension of ['js', 'mjs', 'ts', 'cjs', 'mts', 'cts']) {
   test(`CLI and agent discovery recognize Vite's ${extension} config`, async () => {
     const root = await realpath(await mkdtemp(join(tmpdir(), 'xplat-web-target-')))
+
     try {
       await writeFile(
         join(root, 'package.json'),
@@ -22,6 +23,7 @@ for (const extension of ['js', 'mjs', 'ts', 'cjs', 'mts', 'cts']) {
       )
 
       const configFile = join(root, `vite.config.${extension}`)
+
       await writeFile(
         configFile,
         `${extension.startsWith('c') ? 'module.exports =' : 'export default'} { define: { __CONFIG_KIND__: ${JSON.stringify(extension)} } }`,
@@ -62,6 +64,7 @@ for (const extension of ['js', 'mjs', 'ts', 'cjs', 'mts', 'cts']) {
 
 test('an app without a conventional Vite config does not advertise a web target', async () => {
   const root = await mkdtemp(join(tmpdir(), 'xplat-no-web-target-'))
+
   try {
     await writeFile(
       join(root, 'package.json'),

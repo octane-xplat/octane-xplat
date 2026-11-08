@@ -12,6 +12,7 @@ export async function macOSExecutable(appRoot, relativePath) {
   const manifest = JSON.parse(readFileSync(join(prebuiltRoot, 'manifest.json'), 'utf8'))
   const expected = manifest.sha256[relativePath]
   const bytes = await readFile(join(prebuiltRoot, relativePath))
+
   if (!expected || hash(bytes) !== expected) {
     throw new Error(`macOS executable checksum differs: ${relativePath}`)
   }
@@ -19,6 +20,7 @@ export async function macOSExecutable(appRoot, relativePath) {
   const cache = join(appRoot, 'node_modules/.cache/xplat/macos-tools')
   const directory = join(cache, expected)
   const executable = join(directory, 'tool')
+
   try {
     if (hash(await readFile(executable)) === expected) {
       await chmod(executable, 0o755)
@@ -29,7 +31,9 @@ export async function macOSExecutable(appRoot, relativePath) {
   }
 
   await mkdir(cache, { recursive: true })
+
   const staging = await mkdtemp(join(cache, '.tool-'))
+
   try {
     await writeFile(join(staging, 'tool'), bytes, { mode: 0o755 })
     try {

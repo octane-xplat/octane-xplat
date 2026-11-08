@@ -9,16 +9,20 @@ function installed(fromDir: string, name: string, manifest: boolean): string | n
   ) {
     return null
   }
+
   let current = resolve(fromDir)
+
   for (;;) {
     if (basename(current) !== 'node_modules') {
       const candidate = join(current, 'node_modules', name)
+
       if (existsSync(manifest ? join(candidate, 'package.json') : candidate)) {
         return realpathSync(candidate)
       }
     }
 
     const parent = dirname(current)
+
     if (parent === current) {
       return null
     }

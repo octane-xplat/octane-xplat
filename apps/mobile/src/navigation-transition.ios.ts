@@ -1,5 +1,6 @@
 import { FadeTransition } from '@nativescript/core'
 import { nativeMotion } from './navigation-motion'
+
 class FixtureTransition extends FadeTransition {
   override iosNavigatedController(controller: any, operation: number, from: any, to: any): any {
     nativeMotion.events.push('ios:' + operation)

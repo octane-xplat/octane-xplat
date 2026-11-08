@@ -6,6 +6,7 @@ import type { RouteOutletProps } from '../props'
 
 export function RouteOutlet(props: RouteOutletProps): any {
   const { host, flow } = useRouteOutletScope(props.stack, defaultRouterRuntime)
+
   return (
     <ClientRouteOutlet
       host={host}

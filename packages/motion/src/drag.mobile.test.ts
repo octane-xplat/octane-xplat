@@ -16,6 +16,7 @@ describe('native handler drag surface', () => {
     const node = {}
     const off = attachPan(node, 'x', { start, move, end })
     const h = handlers.at(-1)
+
     expect(h.node).toBe(node)
     expect(h.options).toMatchObject({
       activeOffsetXStart: -8,
@@ -59,16 +60,23 @@ describe('native handler drag surface', () => {
   it('uses minDist for both axes and fails perpendicular movement for vertical drag', () => {
     const callbacks = { start() {}, move() {}, end() {} }
     const both = attachPan({}, true, callbacks)
+
     expect(handlers.at(-1).options.minDist).toBe(8)
     both()
+
     const vertical = attachPan({}, 'y', callbacks)
+
     expect(handlers.at(-1).options).toMatchObject({ activeOffsetYEnd: 8, failOffsetXStart: -8 })
     vertical()
     vi.stubGlobal('android', {})
+
     const density = attachPan({}, true, callbacks)
+
     expect(handlers.at(-1).options.minDist).toBe(16)
     density()
+
     const directional = attachPan({}, 'x', callbacks)
+
     expect(handlers.at(-1).options).toMatchObject({
       minDist: 1e9,
       activeOffsetXEnd: 16,

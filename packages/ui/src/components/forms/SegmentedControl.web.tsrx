@@ -63,6 +63,7 @@ export function SegmentedControl(inputProps: SegmentedControlProps): JSX.Element
       const selected = current === opt.value
       const disabled = props.isDisabled || opt.isDisabled
       const blocked = disabled || isBlocked
+
       return (
         <div
           key={opt.value}

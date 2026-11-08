@@ -94,9 +94,11 @@ const native = () => globalThis
 
 function cg(name) {
   const fn = native()[name]
+
   if (typeof fn !== 'function') {
     throw new Error('AppKit OS input requires the bridged global ' + name)
   }
+
   return fn
 }
 
@@ -109,9 +111,11 @@ export const postToHid = (event) => cg('CGEventPost')(0 /* kCGHIDEventTap */, ev
 /** Post one keyboard event through the real event queue. */
 export function postKeyEvent(keyCode, down, flags = 0, mode = 'pid') {
   const event = cg('CGEventCreateKeyboardEvent')(null, keyCode, down)
+
   if (flags) {
     cg('CGEventSetFlags')(event, flags)
   }
+
   ;(mode === 'hid' ? postToHid : postToPid)(event)
 }
 
@@ -132,11 +136,14 @@ export async function postKeys(list, { interval = 60, mode = 'pid' } = {}) {
 /** Screen coordinates (Quartz top-left origin) for a view's center. */
 export function screenPointOfViewCenter(view) {
   const window = view.window
+
   if (!window) {
     throw new Error('view is not attached to a window')
   }
+
   const rect = window.convertRectToScreen(view.convertRectToView(view.bounds, null))
   const primary = native().NSScreen.screens.objectAtIndex(0)
+
   return {
     x: Number(rect.origin.x) + Number(rect.size.width) / 2,
     y: Number(primary.frame.size.height) - (Number(rect.origin.y) + Number(rect.size.height) / 2),
@@ -153,21 +160,26 @@ export async function postClick(view, { button = 'left', mode = 'pid' } = {}) {
   const downType = right ? 3 : 1 // RightMouseDown / LeftMouseDown
   const upType = right ? 4 : 2
   const post = mode === 'hid' ? postToHid : postToPid
+
   for (const type of [5, downType, upType]) {
     // move, down, up
     post(cg('CGEventCreateMouseEvent')(null, type, point, right ? 1 : 0))
     await sleep(40)
   }
+
   return point
 }
 
 /** The view whose field editor (or itself) is first responder, or null. */
 export function focusedOwner(window) {
   const responder = window?.firstResponder
+
   if (!responder) {
     return null
   }
+
   const delegate = responder.delegate
+
   if (delegate?.window === window) {
     const editor =
       typeof delegate.currentEditor === 'function'
@@ -178,6 +190,7 @@ export function focusedOwner(window) {
       return delegate
     }
   }
+
   return responder
 }
 
@@ -185,14 +198,17 @@ export function focusedOwner(window) {
  *  methods while stock controls expose them as properties. */
 export function axAttr(view: any, name: string) {
   const value = view?.[name]
+
   return typeof value === 'function' ? value.call(view) : value
 }
 
 /** True when the given view owns first responder, counting field editors. */
 export function hasFocus(view) {
   const window = view?.window
+
   if (!window) {
     return false
   }
+
   return focusedOwner(window) === view
 }

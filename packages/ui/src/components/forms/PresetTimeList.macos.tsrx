@@ -5,6 +5,7 @@ import { useCallback, useLayoutEffect, useMemo, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import { createAppKitTimeListFocus, type AppKitTimeOption } from './time-list-focus.macos'
 import type { ISOTimeString } from '../../props'
+
 interface Props {
   options: readonly AppKitTimeOption[]
   seed?: ISOTimeString
@@ -31,6 +32,7 @@ function TimeRow(props: RowProps) @{
     release = useRef<(() => void) | null>(null)
 
   live.current = props
+
   const bind = useCallback((next: NSView | null) => {
     release.current?.()
     release.current = null
@@ -68,7 +70,9 @@ function TimeRow(props: RowProps) @{
 
 export function AppKitPresetTimeList(props: Props): unknown @{
   const live = useRef(props)
+
   live.current = props
+
   const [highlighted, setHighlighted] = useState<string | undefined>(undefined)
   const focus = useMemo(
     () =>
@@ -84,6 +88,7 @@ export function AppKitPresetTimeList(props: Props): unknown @{
   )
 
   const bind = useCallback((view: NSView | null) => focus.bind(view), [])
+
   useLayoutEffect(() => {
     focus.update()
   }, [props.options, props.seed, props.blocked])

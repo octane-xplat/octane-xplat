@@ -25,6 +25,7 @@ export const storeReview: StoreReview = {
     if (!native()?.isAvailable()) {
       throw new Error('unsupported: SKStoreReviewController is not available')
     }
+
     native()!.requestReview()
   },
 

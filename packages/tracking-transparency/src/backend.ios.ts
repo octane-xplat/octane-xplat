@@ -31,6 +31,7 @@ function manager(): typeof ATTrackingManager {
   if (!loadFramework('/System/Library/Frameworks/AppTrackingTransparency.framework')) {
     return undefined
   }
+
   return typeof ATTrackingManager === 'undefined' ? undefined : ATTrackingManager
 }
 
@@ -38,6 +39,7 @@ function identifiers(): typeof ASIdentifierManager | undefined {
   if (!loadFramework('/System/Library/Frameworks/AdSupport.framework')) {
     return undefined
   }
+
   return typeof ASIdentifierManager === 'undefined' ? undefined : ASIdentifierManager
 }
 
@@ -51,6 +53,7 @@ export const backend: TrackingBackend = {
   }),
   read: () => {
     const tracking = manager()
+
     return tracking ? Number(tracking.trackingAuthorizationStatus) : -1
   },
   request: () =>
@@ -59,18 +62,23 @@ export const backend: TrackingBackend = {
         reject(new Error('Tracking requests require the main thread'))
         return
       }
+
       if (String(NSBundle.mainBundle.bundlePath).endsWith('.appex')) {
         reject(new Error('Tracking prompts are unavailable in app extensions'))
         return
       }
+
       const tracking = manager()
+
       if (!tracking) {
         resolve(-1)
         return
       }
+
       const purpose = NSBundle.mainBundle.objectForInfoDictionaryKey(
         'NSUserTrackingUsageDescription',
       )
+
       if (typeof purpose !== 'string' || !purpose.trim()) {
         reject(
           new Error(
@@ -80,19 +88,24 @@ export const backend: TrackingBackend = {
 
         return
       }
+
       if (Number(UIApplication.sharedApplication.applicationState) !== applicationStateActive) {
         reject(new Error('Request tracking only from an active foreground app action'))
         return
       }
+
       const status = Number(tracking.trackingAuthorizationStatus)
+
       if (status !== statusNotDetermined) {
         resolve(status)
         return
       }
+
       if (requesting) {
         reject(new Error('A native tracking request is already pending'))
         return
       }
+
       requesting = true
       tracking.requestTrackingAuthorizationWithCompletionHandler((next) => {
         NSOperationQueue.mainQueue.addOperationWithBlock(() => {
@@ -104,6 +117,7 @@ export const backend: TrackingBackend = {
   advertisingId: () => {
     const tracking = manager()
     const shared = identifiers()?.sharedManager()
+
     if (tracking) {
       if (Number(tracking.trackingAuthorizationStatus) !== statusAuthorized) {
         return null
@@ -111,7 +125,9 @@ export const backend: TrackingBackend = {
     } else if (!shared?.advertisingTrackingEnabled) {
       return null
     }
+
     const identifier = shared?.advertisingIdentifier.UUIDString
+
     return !identifier || identifier === zeroIdentifier ? null : identifier
   },
   async advertisingIdAsync() {

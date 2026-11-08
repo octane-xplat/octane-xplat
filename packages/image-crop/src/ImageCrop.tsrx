@@ -52,6 +52,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
     }
 
     const active = gesture.current
+
     if (!active || active.handle !== handle) {
       return
     }
@@ -81,6 +82,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
     )
 
     const percent = convertToPercentCrop(next, frame)
+
     props.onChange(next, percent)
     if (event.state === 'ended') {
       gesture.current = null
@@ -149,6 +151,7 @@ export function ImageCrop(props: ImageCropProps): JSX.Element @{
         // Keep hit regions inside the image, including at image edges.
         const x = Math.max(frame.x, Math.min(left + hx - 12, frame.x + frame.width - 24))
         const y = Math.max(frame.y, Math.min(top + hy - 12, frame.y + frame.height - 24))
+
         <Gesture
           id={props.id ? props.id + '-' + handle : undefined}
           left={x}

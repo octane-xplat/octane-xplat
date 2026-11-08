@@ -92,6 +92,7 @@ export function Tree<T extends TreeListNode = TreeListNode>(
 
   const toggle = (node: TreeListNode) => {
     const next = new Set(open)
+
     if (next.has(node.key)) {
       next.delete(node.key)
     } else {

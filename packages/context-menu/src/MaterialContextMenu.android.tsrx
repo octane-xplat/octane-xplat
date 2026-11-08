@@ -54,6 +54,7 @@ function createPortal(children: unknown, target: unknown) {
  *  trigger subtree portaled from the declaring Octane tree. */
 export function MaterialContextMenu(props: MaterialContextMenuProps): unknown @{
   const triggerId = useRef<string>('')
+
   if (!triggerId.current) {
     triggerId.current = `ctxmenu${++seq}`
   }
@@ -98,12 +99,14 @@ export function MaterialContextMenu(props: MaterialContextMenuProps): unknown @{
   // activation prop or the mounted host changes.
   useEffect(() => {
     const host = mounted.current?.host
+
     if (!portalHost || !host) {
       return
     }
 
     const open = () => setExpanded(true)
     const event = (props.activation ?? 'longPress') === 'singlePress' ? 'tap' : 'longPress'
+
     host.on(event, open)
     return () => host.off(event, open)
   }, [portalHost, props.activation])
@@ -136,6 +139,7 @@ export function MaterialContextMenu(props: MaterialContextMenuProps): unknown @{
         }
 
         const item = event.data?.item
+
         if (typeof item === 'string' && item) {
           setExpanded(false)
           props.onItemSelected?.(item)

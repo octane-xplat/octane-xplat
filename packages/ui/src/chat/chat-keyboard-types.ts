@@ -14,5 +14,6 @@ export function checkChatPanelHeight(value = 0): number {
   if (!Number.isFinite(value) || value < 0) {
     throw new RangeError('Chat bottomPanelHeight must be finite and nonnegative')
   }
+
   return value
 }

@@ -11,6 +11,7 @@ const view = () => ({
 test('image geometry coalesces, deduplicates and uses its own window density', async () => {
   const host = view(),
     events: unknown[] = []
+
   setImageGeometryHandler(host, (event) => events.push(event))
   host.bounds.size.width = 100
   notifyImageGeometry(host)
@@ -29,6 +30,7 @@ test('image geometry coalesces, deduplicates and uses its own window density', a
 test('rebind uses the latest handler; teardown cancels scheduled delivery', async () => {
   const host = view(),
     events: string[] = []
+
   setImageGeometryHandler(host, () => events.push('old'))
   setImageGeometryHandler(host, () => events.push('new'))
   await tick()
@@ -43,6 +45,7 @@ test('rebind uses the latest handler; teardown cancels scheduled delivery', asyn
 test('detached views wait for a window and invalid numeric metrics are bounded', async () => {
   const host = view(),
     events: unknown[] = []
+
   host.window = null
   setImageGeometryHandler(host, (event) => events.push(event))
   await tick()

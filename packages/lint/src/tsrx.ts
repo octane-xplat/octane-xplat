@@ -15,6 +15,7 @@ import { XPLAT_CHECKS } from './xplat-rules.ts'
 
 function lineNumberAt(source, offset) {
   let line = 1
+
   for (let index = 0; index < offset; index++) {
     if (source[index] === '\n') {
       line++
@@ -37,6 +38,7 @@ function disabledLines(source) {
 
   const lines = new Set()
   const raw = source.split('\n')
+
   for (let i = 0; i < raw.length; i++) {
     // 1-based line numbers: xplat-disable-line suppresses its own line,
     // xplat-disable-next-line the following one.
@@ -56,6 +58,7 @@ export async function lintTsrxFiles(
   root: string,
 ) {
   let failed = false
+
   for (const filename of files) {
     const source = await readFile(filename, 'utf8')
     const rel = relative(root, filename)
@@ -69,6 +72,7 @@ export async function lintTsrxFiles(
     try {
       const ast = parseModule(source, filename)
       const { fileDisabled, lines: disabled } = disabledLines(source)
+
       for (const { name, check, config: cfg } of configured) {
         if (!cfg || fileDisabled) {
           continue
@@ -76,11 +80,13 @@ export async function lintTsrxFiles(
 
         for (const v of check(ast, source, filename, cfg.options)) {
           const line = lineNumberAt(source, v.node?.start ?? 0)
+
           if (disabled.has(line)) {
             continue
           }
 
           const tag = cfg.severity === 'warn' ? 'warn' : 'error'
+
           if (tag === 'error') {
             failed = true
           }

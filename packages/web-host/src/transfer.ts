@@ -6,21 +6,29 @@ export function serializePublic(value: unknown): string {
     if (value === null || typeof value === 'string' || typeof value === 'boolean') {
       return
     }
+
     if (typeof value === 'number' && Number.isFinite(value)) {
       return
     }
+
     if (typeof value !== 'object' || ancestors.has(value)) {
       throw new TypeError('Web transfer requires finite, acyclic JSON data')
     }
+
     const proto = Object.getPrototypeOf(value)
+
     if (!Array.isArray(value) && proto !== Object.prototype && proto !== null) {
       throw new TypeError('Web transfer requires plain JSON objects')
     }
+
     ancestors.add(value)
+
     const descriptors = Object.getOwnPropertyDescriptors(value)
+
     if (Reflect.ownKeys(value).some((key) => typeof key === 'symbol')) {
       throw new TypeError('Web transfer cannot contain symbol keys')
     }
+
     if (
       Array.isArray(value) &&
       (Object.keys(value).length !== value.length ||
@@ -30,6 +38,7 @@ export function serializePublic(value: unknown): string {
     ) {
       throw new TypeError('Web transfer requires dense arrays without extra properties')
     }
+
     for (const [key, descriptor] of Object.entries(descriptors)) {
       if (Array.isArray(value) && key === 'length') {
         continue
@@ -41,8 +50,10 @@ export function serializePublic(value: unknown): string {
 
       visit(descriptor.value)
     }
+
     ancestors.delete(value)
   }
+
   visit(value)
   return JSON.stringify(value).replace(
     /[<>&\u2028\u2029]/g,

@@ -25,8 +25,10 @@ function fixture(Component: any, props: any, peer = geometry()) {
   const container = createObjectContainer('nativescript')
   const driver = createObjectDriver('nativescript')
   const instance = driver.getPublicInstance.bind(driver)
+
   driver.getPublicInstance = (container, id) => {
     const host: any = instance(container, id)
+
     if (host.type === 'scrollview') {
       Object.assign(host, peer)
     }
@@ -36,6 +38,7 @@ function fixture(Component: any, props: any, peer = geometry()) {
 
   const root = createUniversalRoot(container, driver)
   const render = (props: any) => flushUniversalSync(() => root.render(Component, props))
+
   render(props)
   return { root, container, render, peer, host: container.children[0] }
 }
@@ -55,6 +58,7 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
 
     try {
       const host = fx.host
+
       expect(host.props.testID).toBe('notes-test')
       expect(host.props.accessible).toBe(false)
       expect(host.props.accessibilityLabel).toBe('Trip notes')
@@ -142,6 +146,7 @@ describe('AppKit ScrollableArea viewport contract (object driver)', () => {
     const callback = vi.fn(() => cleanup)
     const next = vi.fn()
     const fx = fixture(ScrollableArea, { ref: callback })
+
     fx.render({ ref: next })
     expect(cleanup).toHaveBeenCalledTimes(1)
     expect(callback).toHaveBeenCalledTimes(1)
@@ -172,6 +177,7 @@ function Headless(props: any) @{
 describe('AppKit headless scroll geometry and event composition', () => {
   it('measures initial layout, viewport/content resizing and axis changes without scroll input', () => {
     const fx = fixture(Headless, {})
+
     try {
       expect(area.state.inline).toEqual({ isScrollable: false, atStart: true, atEnd: true })
       expect(area.state.block).toEqual({ isScrollable: true, atStart: true, atEnd: false })
@@ -217,12 +223,16 @@ describe('AppKit headless scroll geometry and event composition', () => {
 
     const layout = vi.fn()
     const fx = fixture(Headless, { axis: 'both', onScroll: first })
+
     try {
       const handler = fx.host.props.onScroll
+
       fx.render({ axis: 'both', onScroll: latest, onLayoutChanged: layout })
       expect(fx.host.props.onScroll).toBe(handler)
       fx.peer.contentView.bounds.origin = { x: 200, y: 0 }
+
       const event = { verticalOffset: 0, viewportHeight: 100, contentHeight: 400 }
+
       flushUniversalSync(() => fx.container.dispatchEvent(fx.host, 'scroll', event))
       expect(first).not.toHaveBeenCalled()
       expect(latest).toHaveBeenCalledExactlyOnceWith(event)
@@ -243,8 +253,11 @@ describe('AppKit headless scroll geometry and event composition', () => {
 
   it('normalizes flipped documents and elastic offsets in points', () => {
     const peer = geometry(true)
+
     peer.contentView.bounds.origin = { x: -20, y: -25 }
+
     const fx = fixture(Headless, { axis: 'both' }, peer)
+
     try {
       expect(area.state.inline.atStart).toBe(true)
       expect(area.state.block.atStart).toBe(true)
@@ -260,6 +273,7 @@ describe('AppKit headless scroll geometry and event composition', () => {
   it('treats empty, fitting, sub-unit and invalid ranges as both edges', () => {
     for (const max of [0, -1, 0.75, Number.NaN, Infinity]) {
       const state = scrollableAreaState('both', max, 20, max, -20)
+
       expect(state.inline).toEqual({ isScrollable: false, atStart: true, atEnd: true })
       expect(state.block).toEqual(state.inline)
     }
@@ -285,8 +299,11 @@ it('reads RTL start/end edges and updates direction without a scroll event', () 
   }
 
   const peer = geometry(true)
+
   peer.contentView.bounds.origin = { x: 200, y: 0 }
+
   const fx = fixture(Localized, { dir: 'rtl' }, peer)
+
   try {
     expect(area.state.inline.atStart).toBe(true)
     expect(area.state.inline.atEnd).toBe(false)
@@ -315,14 +332,20 @@ it('keeps a stable logical handle across direction changes and mirrors inline pa
   }
 
   const peer = geometry(true)
+
   Object.assign(peer.contentView, { scrollToPoint: (point: any) => calls.push(point) })
   Object.assign(peer, { reflectScrolledClipView() {} })
+
   const fx = fixture(Localized, { dir: 'rtl' }, peer)
+
   try {
     const current = handle.current
+
     current.scrollToOffset({ inline: 40 })
     expect(calls).toEqual([{ x: 160, y: 300 }])
+
     const content = fx.host.children[0]
+
     expect(content.props.style).toMatchObject({ paddingLeft: 24, paddingRight: 8 })
     fx.render({ dir: 'ltr' })
     expect(handle.current).toBe(current)

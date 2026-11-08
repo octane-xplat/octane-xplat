@@ -24,8 +24,11 @@ export function useHoverCard(options: HoverCardOptions = {}): HoverCardReturn @{
   const interactionEl = useRef<any>(null)
 
   const onShow = useRef(options.onShow)
+
   onShow.current = options.onShow
+
   const onHide = useRef(options.onHide)
+
   onHide.current = options.onHide
 
   const show = useCallback(() => {

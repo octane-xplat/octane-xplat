@@ -68,16 +68,20 @@ let logLines = ''
 const marker = { speakNow: false, result: false, done: false }
 const scan = (chunk) => {
   const text = String(chunk)
+
   logLines += text
   if (logLines.length > 512_000) {
     logLines = logLines.slice(-256_000)
   }
+
   if (text.includes('SPEAK_NOW')) {
     marker.speakNow = true
   }
+
   if (text.includes('SPEECH_RESULT')) {
     marker.result = true
   }
+
   if (text.includes('SPEECH_DONE')) {
     marker.done = true
   }
@@ -90,8 +94,10 @@ const granted = new Set()
 const grantPoll = setInterval(() => {
   try {
     const apps = run('xcrun', ['simctl', 'listapps', UDID])
+
     for (const line of apps.split('\n')) {
       const match = /"(org\.octanexplat\.probe\.[^"]+)"/.exec(line)
+
       if (match && !granted.has(match[1])) {
         granted.add(match[1])
         try {
@@ -125,8 +131,10 @@ const probeArgs = [
 ]
 
 note(`probe: bun ${probeArgs.join(' ')}`)
+
 const probe = spawn('bun', probeArgs, { cwd: REPO, stdio: ['ignore', 'pipe', 'inherit'] })
 let probeOut = ''
+
 probe.stdout.on('data', (chunk) => {
   probeOut += String(chunk)
   process.stdout.write(chunk)
@@ -141,8 +149,10 @@ const speakLoop = (async () => {
   while (!marker.speakNow && probe.exitCode === null) {
     await sleep(500)
   }
+
   while (!marker.done && probe.exitCode === null && said < 8) {
     const res = spawnSync('say', ['-a', 'BoomAudio', PHRASE])
+
     said++
     if (res.status !== 0) {
       note(`say exited ${res.status} — BoomAudio device missing?`)
@@ -158,12 +168,14 @@ const speakLoop = (async () => {
 })()
 
 const probeExit = await new Promise((resolve) => probe.on('exit', resolve))
+
 clearInterval(grantPoll)
 logStream.kill()
 await speakLoop.catch(() => {})
 
 // --- evidence -----------------------------------------------------------------
 mkdirSync(SCRATCH, { recursive: true })
+
 const evidencePath = join(SCRATCH, `ios-proof-${Date.now()}.json`)
 const jsonLine = probeOut
   .split('\n')
@@ -171,6 +183,7 @@ const jsonLine = probeOut
   .pop()
 
 let report = { probeExit, said, markers: marker, granted: [...granted] }
+
 try {
   report.probe = JSON.parse(jsonLine ?? 'null')
 } catch {
@@ -187,6 +200,7 @@ note(`evidence: ${evidencePath}`)
 const results = report.probe?.results ?? []
 const session = results.find((r) => r.name === 'session1.result')?.value
 const transcript = session?.transcript ?? ''
+
 note(`transcript: ${JSON.stringify(transcript)}`)
 note(`session1 result: ${JSON.stringify(session)}`)
 if (probeExit !== 0) {
