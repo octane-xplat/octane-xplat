@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useMemo } from 'octane'
 import { styleRecord } from '../../internal/layout/style-merge'
+import { layoutChildProps } from '../layout/layout-child'
 import { hashToPngBase64 } from './hash-image'
 import type { ImageProps } from '../../props'
 
@@ -53,7 +54,7 @@ export function Image(props: ImageProps): unknown @{
     placeholder={placeholder}
     stretch={stretch}
     className={props.className}
-    style={styleRecord(props.style)}
+    {...layoutChildProps(props, styleRecord(props.style))}
     accessible={props.alt != null}
     accessibilityLabel={props.alt}
   />
