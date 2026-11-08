@@ -97,11 +97,10 @@ export function Image(props: ImageProps): JSX.Element @{
     }}
     id={props.id}
     className={props.className}
-    {...layoutChildProps(props)}
+    {...layoutChildProps(props, style)}
     src={selected.src}
     srcSet={selected.srcSet}
     decoding={props.decoding ?? 'async'}
     alt={props.alt}
-    style={style}
   />
 }
