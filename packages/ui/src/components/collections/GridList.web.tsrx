@@ -6,6 +6,7 @@ import type { GridListProps } from '../../props'
 import { defaultItemKey, type Key, type Selection } from '../../data/list-data'
 import { gridListPress, isGridListKeySelected, normalizeSelection } from './grid-list-selection'
 import { applyEscapeProps } from '../overlays/escape-props'
+import { layoutChildProps } from '../layout/layout-child.web'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
 import { useGridList } from './use-grid-list.tsrx'
 import type { JSX } from 'octane/jsx-runtime'
@@ -94,10 +95,10 @@ export function GridList<T = any>(props: GridListProps<T>): JSX.Element @{
     className={['vx-gridlist', props.layout === 'stack' && 'vx-gridlist--stack', props.className]
       .filter(Boolean)
       .join(' ')}
-    style={{
+    {...layoutChildProps(props, {
       ...(props.columns ? { gridTemplateColumns: `repeat(${props.columns}, minmax(0, 1fr))` } : {}),
       ...styleRecord(props.style),
-    }}
+    })}
     role="grid"
     aria-label={props.accessibilityLabel}
     aria-hidden={props.accessible === false ? true : undefined}

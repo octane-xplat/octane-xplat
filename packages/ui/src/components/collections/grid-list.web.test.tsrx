@@ -204,6 +204,15 @@ describe('GridList (DOM renderer)', () => {
     el.remove()
   })
 
+  it('forwards layout-child placement to the grid host', () => {
+    const { el, root } = render({ row: 1, col: 2, rowSpan: 2 })
+    const host = el.firstElementChild as HTMLElement
+    expect(host.style.gridRow).toBe('2 / span 2')
+    expect(host.style.gridColumn).toBe('3 / span 1')
+    root.unmount()
+    el.remove()
+  })
+
   it('renders the empty state and stacks under layout="stack"', () => {
     const { el, root } = render({ items: [], renderEmpty: () => <em>Nothing here</em> })
     expect(el.querySelector('[role="row"]')).toBeNull()
