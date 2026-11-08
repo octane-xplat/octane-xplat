@@ -1182,8 +1182,11 @@ export function createSessionBackend(
 
         // Out-of-range writes raise NSRangeException — clamp against the
         // live device bounds even though the shared session already did.
-        captureDevice.videoZoomFactor = Math.min(max, Math.max(min, ratio))
-        captureDevice.unlockForConfiguration()
+        try {
+          captureDevice.videoZoomFactor = Math.min(max, Math.max(min, ratio))
+        } finally {
+          captureDevice.unlockForConfiguration()
+        }
       } catch {
         // A refused zoom write must not fault the session.
       }
