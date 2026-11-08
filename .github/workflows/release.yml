@@ -533,7 +533,7 @@ jobs:
         run: |
           set -euo pipefail
           for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
-            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" node tools/cli-go/build.mjs --cli
+            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" bun run turbo run build:go --filter=@octane-xplat/cli
           done
 
       - name: Tag the release
@@ -725,7 +725,7 @@ jobs:
         run: |
           set -euo pipefail
           for target in darwin-arm64 darwin-amd64 linux-amd64 linux-arm64 windows-amd64; do
-            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" node tools/cli-go/build.mjs --cli
+            GOOS="${target%%-*}" GOARCH="${target##*-}" XPLAT_GO_VERSION="$VERSION" bun run turbo run build:go --filter=@octane-xplat/cli
           done
 
       - name: Publish nightly to npm

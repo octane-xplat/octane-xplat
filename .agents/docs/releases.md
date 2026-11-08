@@ -184,11 +184,16 @@ version like every other package.
 
 The publish jobs build the five core (CGO-off) binaries after versions are
 final: `setup-go` reads `packages/cli/go/go.mod`, then
-`GOOS=<os> GOARCH=<arch> XPLAT_GO_VERSION=<version> node tools/cli-go/build.mjs --cli`
+`GOOS=<os> GOARCH=<arch> XPLAT_GO_VERSION=<version> bun run turbo run build:go --filter=@octane-xplat/cli`
 for each target into `research/go-cli`. `scripts/publish-release.ts
 --native-dir research/go-cli` stages the layout through
 `tools/cli-go/stage-release.mjs` (the same implementation the packaging gates
 use), publishes the payloads first, then the CLI, then the rest.
+
+Use the Turbo task for cross-builds too: its dependency on
+`create-octane-xplat#build` prepares the Node compatibility export bundled by
+the release-owned upgrade worker. A fresh install alone does not produce that
+export.
 
 Before the first automated release, create a minimal `0.0.1` stub and
 configure the `release.yml` trusted publisher for each of the five payload
