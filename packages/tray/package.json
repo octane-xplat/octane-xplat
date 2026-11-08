@@ -1,0 +1,57 @@
+{
+	"name": "@octane-xplat/tray",
+	"version": "0.20.0",
+	"description": "System tray status items, menus and app residency for native desktop apps",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/tray"
+	},
+	"files": [
+		"types/generated",
+		"dist"
+	],
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"macos": "./dist/index.macos.js",
+			"gtk": "./dist/index.gtk.js",
+			"windows": "./dist/index.windows.js",
+			"web": "./dist/index.web.js",
+			"browser": "./dist/index.web.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc --runExternalCode -p tsconfig.build.json --declaration false",
+		"typegen": "tsrx-typegen --target tray",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"pack:check": "tsrx-typegen --pack-check",
+		"prepack": "bun run build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:macos-runtime": "node tests/appkit-runtime.mjs",
+		"test:macos-packaged": "node tests/macos-packaged.mjs",
+		"test:gtk-runtime": "node tests/gtk-runtime.mjs",
+		"test:windows-runtime": "node tests/windows-runtime.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
+	},
+	"devDependencies": {
+		"@octane-xplat/ui": "workspace:*",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
+	},
+	"types": "./types/generated/index.d.ts"
+}

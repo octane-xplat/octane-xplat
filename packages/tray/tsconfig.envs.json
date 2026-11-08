@@ -1,0 +1,45 @@
+{
+	"contentMappers": [
+		{
+			"package": "@tsrx/content-mapper",
+			"extensions": [
+				".tsrx"
+			]
+		}
+	],
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"include": [
+				"src/**/*.ts",
+				"tests/menu-compat.ts"
+			]
+		},
+		"macos": {
+			"files": [
+				"src/index.macos.ts",
+				"src/types.ts",
+				"src/errors.ts",
+				"src/menu.ts"
+			]
+		},
+		"gtk": {
+			"files": [
+				"../linux-gtk-renderer/src/gi.d.ts",
+				"../linux-gtk-renderer/src/host-globals.d.ts",
+				"src/index.gtk.ts",
+				"src/types.ts",
+				"src/errors.ts",
+				"src/menu.ts"
+			]
+		},
+		"windows": {
+			"files": [
+				"src/index.windows.ts",
+				"src/types.ts",
+				"src/errors.ts",
+				"src/menu.ts"
+			]
+		}
+	}
+}

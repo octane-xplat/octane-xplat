@@ -1,0 +1,34 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["dist/**/*.d.ts"]
+		},
+		"build": {
+			"outputs": ["dist/**/*.js"]
+		},
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test:packed": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false
+		},
+		"test:macos-runtime": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false
+		},
+		"test:macos-packaged": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false
+		},
+		"test:gtk-runtime": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false,
+			"env": ["TRAY_GTK_HOST", "TRAY_GTK_VM"]
+		}
+	}
+}

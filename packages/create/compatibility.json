@@ -92,6 +92,7 @@
 		"@octane-xplat/table",
 		"@octane-xplat/tiptap",
 		"@octane-xplat/tracking-transparency",
+		"@octane-xplat/tray",
 		"@octane-xplat/ui",
 		"@octane-xplat/updates",
 		"@octane-xplat/video",
