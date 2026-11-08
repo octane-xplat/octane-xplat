@@ -20,8 +20,10 @@ The shared target is an opaque host object, and callbacks expose a structural
 event without DOM types. An optional `platform` override makes `Mod` resolution
 deterministic without changing defaults. Explicit physical codes must not fall
 back to a logical match on a different position. Application commands, menu
-presentation, settings persistence and global OS hotkeys remain app/service
-concerns.
+presentation and settings persistence remain app concerns. System-wide OS
+hotkeys are owned by `@octane-xplat/global-shortcuts` (Carbon /
+`RegisterHotKey` worker / XDG GlobalShortcuts portal); do not extend this
+package for unfocused delivery.
 
 ## Desktop host constraints
 

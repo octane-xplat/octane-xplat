@@ -1,0 +1,38 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"extends": "../../tsconfig.base.json",
+	"compilerOptions": {
+		"declaration": true,
+		"isolatedDeclarations": true,
+		"emitDeclarationOnly": true,
+		"noEmit": false,
+		"noEmitOnError": true,
+		"rootDir": "src",
+		"outDir": "types/generated",
+		"lib": [
+			"ESNext",
+			"DOM",
+			"DOM.Iterable"
+		],
+		"allowImportingTsExtensions": true,
+		"moduleSuffixes": [
+			"",
+			".web",
+			".ios",
+			".android",
+			".mobile",
+			".native",
+			".macos",
+			".linux",
+			".gtk",
+			".windows"
+		]
+	},
+	"include": [
+		"src/**/*.ts"
+	],
+	"exclude": [
+		"src/**/*.test.*",
+		"src/**/*.spec.*"
+	]
+}

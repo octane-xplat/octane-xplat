@@ -130,6 +130,7 @@ export const GROUPS = [
       'package-geofencing',
       'package-geolocation',
       'package-gif',
+      'package-global-shortcuts',
       'package-haptics',
       'package-icons',
       'package-image',

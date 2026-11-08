@@ -65,6 +65,7 @@ Pick a guide when you need it. You don't need to read them all before you start.
 | Validate and save form values | [Forms with validation](packages/package-form.md) |
 | Let someone type into a form                    | [Enter and submit text](app/text-entry.md)             |
 | Add scoped keyboard commands | [Keyboard shortcuts](app/keyboard-shortcuts.md); [API reference](app/keyboard-shortcuts-api.md) |
+| Fire a command while the app is unfocused | [Global shortcuts](packages/package-global-shortcuts.md) |
 | Migrate changed UI value and unit props         | [UI API migrations](app/ui-api-migrations.md)          |
 | Move between screens                            | [Moving between screens](app/navigation.md)            |
 | Run a deferrable refresh                        | [Background work](platform/background-work.md)       |

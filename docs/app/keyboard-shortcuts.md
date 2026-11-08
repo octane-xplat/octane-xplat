@@ -4,7 +4,8 @@
 
 Start with a running web app. The optional `@octane-xplat/shortcuts` package
 also has adapters for experimental AppKit, GTK4, and WinUI hosts. It handles
-input inside your app; operating-system global hotkeys require a separate service.
+input inside your app; for system-wide hotkeys that fire while the app is
+unfocused, use [`@octane-xplat/global-shortcuts`](../packages/package-global-shortcuts.md).
 
 For exact signatures, defaults, result fields and lifecycle rules, see the
 [keyboard shortcuts API reference](keyboard-shortcuts-api.md).

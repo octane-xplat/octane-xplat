@@ -1,0 +1,64 @@
+{
+	"name": "@octane-xplat/global-shortcuts",
+	"version": "0.20.0",
+	"description": "System-wide global keyboard shortcuts for desktop apps",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/octane-xplat/octane-xplat",
+		"directory": "packages/global-shortcuts"
+	},
+	"files": [
+		"types/generated",
+		"dist"
+	],
+	"type": "module",
+	"sideEffects": false,
+	"exports": {
+		".": {
+			"types": "./types/generated/index.d.ts",
+			"macos": "./dist/index.macos.js",
+			"gtk": "./dist/index.gtk.js",
+			"windows": "./dist/index.windows.js",
+			"web": "./dist/index.web.js",
+			"browser": "./dist/index.web.js",
+			"default": "./dist/index.js"
+		}
+	},
+	"publishConfig": {
+		"access": "public"
+	},
+	"scripts": {
+		"build": "tsc --runExternalCode -p tsconfig.build.json --declaration false",
+		"typegen": "tsrx-typegen --target global-shortcuts",
+		"typecheck": "node ../../scripts/typecheck.ts",
+		"test": "vitest run",
+		"pack:check": "tsrx-typegen --pack-check",
+		"prepack": "bun run build && tsrx-typegen --pack-check",
+		"test:packed": "node tests/packed-consumer.mjs",
+		"test:macos-runtime": "node tests/macos-runtime.mjs",
+		"test:gtk-runtime": "node tests/gtk-runtime.mjs",
+		"test:windows-runtime": "node tests/windows-runtime.mjs"
+	},
+	"dependencies": {
+		"@octane-xplat/platform": "workspace:*"
+	},
+	"devDependencies": {
+		"@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
+		"tsrx-typegen": "workspace:*",
+		"typescript": "catalog:",
+		"vite": "catalog:",
+		"vitest": "catalog:",
+		"@tsrx/content-mapper": "catalog:",
+		"typescript-classic": "catalog:"
+	},
+	"peerDependencies": {
+		"@nativescript/core": ">=9.1.4-0 <10"
+	},
+	"peerDependenciesMeta": {
+		"@nativescript/core": {
+			"optional": true
+		}
+	},
+	"types": "./types/generated/index.d.ts"
+}

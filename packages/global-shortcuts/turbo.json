@@ -1,0 +1,28 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"typegen": {
+			"outputs": ["dist/**/*.d.ts"]
+		},
+		"build": {
+			"outputs": ["dist/**/*.js"]
+		},
+		"typecheck": {
+			"dependsOn": ["typegen", "^typegen"]
+		},
+		"test:windows-runtime": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"env": ["GLOBAL_SHORTCUTS_WINDOWS_HOST", "GLOBAL_SHORTCUTS_WINDOWS_RUNTIME"]
+		},
+		"test:macos-runtime": {
+			"dependsOn": ["typegen", "build"],
+			"cache": false
+		},
+		"test:gtk-runtime": {
+			"dependsOn": ["build"],
+			"cache": false,
+			"env": ["GLOBAL_SHORTCUTS_LINUX_HOST"]
+		}
+	}
+}

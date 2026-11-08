@@ -92,6 +92,7 @@ Workflows:
 - [Compose a shared screen layout](shared-layout.md)
 - [Handle keys and copy text](keyboard-clipboard.md)
 - [Add configurable workspace shortcuts](keyboard-shortcuts.md)
+- [Add a system-wide hotkey for a background action](global-shortcuts.md)
 - [Enter and submit text reliably](text-entry.md)
 - [Validate and save a shared form](validated-forms.md)
 - [Search and enter selected values](search-and-token-entry.md)
