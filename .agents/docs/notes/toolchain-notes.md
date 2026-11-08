@@ -529,6 +529,22 @@ ship secrets into either bundle (native bundles are inspectable like web).
   original text) and fixes `maskJsComments`' latent template `${}` desync
   (nested literals flipped string state and masked real code). CJS files
   embedding ESM-looking text stay CJS.
+- **Upstream gap — cancelled dynamic imports surface as fatal unhandled
+  rejections** (octane-xplat#188). `ns:module` `invalidateModules` deliberately
+  rejects every pending dynamic `import()` waiter of an evicted module with a
+  plain `Error` reading `Module invalidated during dev reload: <url>` (iOS
+  `RejectResolversForInvalidation`; Android shares the path). A whole-graph
+  eviction — `requestFullReload`/`jsFullReload` in `hot-context.js`, which the
+  vite-octane strategy reaches via `requestGraphReload`/`applyUnqueuedChanges`
+  — orphans every in-flight app `import()`: an entry's `void import(...)`
+  issued after `Application.run` has no catch site, so the runtime's
+  unhandled-rejection pipeline reports the deliberate cancellation as fatal.
+  The runtime dispatches a cancelable `unhandledrejection` event on
+  `globalThis` (docs/error-handling.md), so our patch has `installNsHotRegistry`
+  install a filter that `preventDefault()`s only that exact reason —
+  deliberate machinery cancellations — while fetch errors, evaluation throws,
+  and missing modules report unchanged. Runtimes without the event skip the
+  install and keep prior behavior.
 - **Limitation — first boot serves vendored packages per-module and
   rewrites their vendor imports into runtime registry requires.** With no
   boot recording there is no deps bundle, so `/ns/m/node_modules/<pkg>`

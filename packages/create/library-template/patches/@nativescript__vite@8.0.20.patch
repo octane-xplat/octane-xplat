@@ -261,6 +261,69 @@ index fe9c9fe948862def734df7bc5b817a9989155019..8d6b16a7043be959afaa0c1e16aefb09
  let warned = false;
  /**
   * Logged once per process. A `@NativeClass` source that is not downleveled
+diff --git a/hmr/client/hot-context.js b/hmr/client/hot-context.js
+index 120bc26fec96d1056701e4c3eb7b78987b40ab8f..f17cea64a1f0f8f87f4c0df856080789ddfa3c14 100644
+--- a/hmr/client/hot-context.js
++++ b/hmr/client/hot-context.js
+@@ -74,6 +74,47 @@ const VERBOSE = (() => {
+         return false;
+     }
+ })();
++/**
++ * Dev-reload cancellation contract for dynamic imports.
++ *
++ * `ns:module` `invalidateModules` deliberately rejects every pending dynamic
++ * `import()` whose target was evicted, with a plain `Error` reading
++ * `Module invalidated during dev reload: <url>` (iOS
++ * `RejectResolversForInvalidation`, Android likewise). A whole-graph eviction
++ * (`jsFullReload` below) orphans every in-flight app `import()` (most
++ * visibly an entry's `void import(...)` issued after application start), and
++ * a targeted HMR eviction can orphan one too; nothing else owns those
++ * rejections, so each surfaces as a fatal unhandled rejection.
++ *
++ * The cancellation is issued by the dev machinery itself, so an *unhandled*
++ * one is owned here: `preventDefault()` suppresses only the fatal report. A
++ * call site that attached `.catch` still observes the rejection normally,
++ * and every other failure — fetch errors, evaluation throws, missing
++ * modules — reports exactly as before.
++ */
++const DEV_RELOAD_CANCELLATION_PREFIX = 'Module invalidated during dev reload:';
++// Duck-typed rather than `instanceof Error`: the rejected value can cross
++// module realms on device.
++function isDevReloadCancellation(reason) {
++    return (typeof reason === 'object' && reason !== null && typeof reason.message === 'string' &&
++        reason.message.startsWith(DEV_RELOAD_CANCELLATION_PREFIX));
++}
++function installDevReloadRejectionFilter(g) {
++    try {
++        if (typeof g.addEventListener !== 'function' || g.__NS_DEV_RELOAD_REJECTION_FILTER__)
++            return;
++        g.__NS_DEV_RELOAD_REJECTION_FILTER__ = true;
++        g.addEventListener('unhandledrejection', (event) => {
++            const reason = event?.reason;
++            if (!isDevReloadCancellation(reason))
++                return;
++            if (VERBOSE)
++                console.info('[ns-hot] dev reload cancelled an in-flight import:', reason.message);
++            event.preventDefault();
++        });
++    }
++    catch { }
++}
+ function createRegistry() {
+     const modules = new Map();
+     const eventListeners = new Map();
+@@ -384,6 +425,10 @@ function createRegistry() {
+  */
+ export function installNsHotRegistry() {
+     const g = globalThis;
++    // The dev machinery owns the deliberate `invalidateModules` cancellation
++    // regardless of which copy installs the registry — install the filter
++    // even when another realm already seeded `__NS_HOT_REGISTRY__`.
++    installDevReloadRejectionFilter(g);
+     if (g.__NS_HOT_REGISTRY__ && typeof g.__NS_HOT_REGISTRY__.createHotContext === 'function') {
+         return g.__NS_HOT_REGISTRY__;
+     }
 diff --git a/hmr/helpers/ast-normalizer.js b/hmr/helpers/ast-normalizer.js
 index 77f5533a289902b644f2dba4c8a558f5a00c8314..5c1d57f34a5e863ae3e684012a99f9bb8796e974 100644
 --- a/hmr/helpers/ast-normalizer.js
