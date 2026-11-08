@@ -77,7 +77,7 @@
 		"@nativescript/core": "catalog:xplat",
 		"@nativescript/types": "catalog:xplat",
 		"@octane-xplat/cli": "catalog:xplat",
-		"@octane-xplat/fmt": "0.2.0",
+		"@octane-xplat/fmt": "0.3.0",
 		"@octane-xplat/jsx": "catalog:xplat",
 		"@octane-xplat/lint": "catalog:xplat",
 		"@octane-xplat/ui": "catalog:xplat",

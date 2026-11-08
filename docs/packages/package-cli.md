@@ -237,14 +237,14 @@ xplat lint --fix src
 ```
 
 Native formatting on macOS Apple Silicon uses the project's installed
-`@octane-xplat/fmt@0.2.0` and Node ^20.19.0 || >=22.12.0. Run from your app or library folder.
+`@octane-xplat/fmt@0.3.0` and Node ^20.19.0 || >=22.12.0. Run from your app or library folder.
 Check mode reports differences without writes; ordinary formatting updates the
 selected files. Configuration or parse errors leave the entire batch unchanged.
 Help works without Node, and the native download includes neither Node nor the
 formatter engine:
 
 ```sh
-bun add --dev @octane-xplat/fmt@0.2.0
+bun add --dev @octane-xplat/fmt@0.3.0
 xplat fmt --help
 xplat fmt src --check
 xplat fmt src
