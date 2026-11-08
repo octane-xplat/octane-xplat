@@ -5,12 +5,12 @@ import { assertSwitchGeometry } from '../src/geometry.ts'
 function geometry(checked = false, displacement = 0) {
   return {
     stage: { x: 0, y: 0, width: 96, height: 64 },
-    track: { x: 24 + displacement, y: 18, width: 48, height: 28 },
+    track: { x: 28 + displacement, y: 20, width: 40, height: 24 },
     thumb: {
-      x: (checked ? 47 : 27) + displacement,
-      y: 21,
-      width: 22,
-      height: 22,
+      x: (checked ? 46 : 32) + displacement,
+      y: checked ? 22 : 24,
+      width: checked ? 20 : 16,
+      height: checked ? 20 : 16,
     },
   }
 }
