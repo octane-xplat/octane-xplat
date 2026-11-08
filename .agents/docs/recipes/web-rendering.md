@@ -27,6 +27,8 @@ The app owner can compile and deploy separate server and browser entries.
 
 - AC6: The reader enumerates parameterized static paths, sets complete cache invalidation inputs, refreshes build assets, and preserves previous output on failure.
 
+- AC7: The reader links the current build's hashed scripts and CSS from the Vite manifest and serves a rendered not-found page from both the request handler and static output, knowing when the fallback document hydrates or is replaced.
+
 ## Documentation
 
 - AC1: [Web rendering guide](../../../docs/platform/web-rendering.md#try-the-maintained-example), [build example](../../../packages/web-host/example/build.mjs), [srvx server](../../../packages/web-host/example/serve.mjs).
@@ -37,3 +39,5 @@ The app owner can compile and deploy separate server and browser entries.
 - AC5: [Keep server code out of clients](../../../docs/platform/web-rendering.md#keep-server-code-out-of-clients), maintained `example/context.server.ts`, and `test/server-boundary.test.mjs`.
 
 - AC6: [Generate static pages](../../../docs/platform/web-rendering.md#generate-static-pages), maintained `example/build.mjs` and `example/serve.mjs`, `test/host.test.mjs` and `test/prerender.test.mjs`.
+
+- AC7: [Hashed manifest assets](../../../docs/platform/web-rendering.md#try-the-maintained-example), [show a not-found page](../../../docs/platform/web-rendering.md#show-a-not-found-page), maintained `example/`, `test/assets.test.mjs` and `test/packed-consumer.web.mjs` via `test:packed`.

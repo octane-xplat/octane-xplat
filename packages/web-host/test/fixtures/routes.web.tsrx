@@ -28,6 +28,18 @@ export function Item(props: any): any {
   )
 }
 
+export function Missing(props: any): any {
+  const [count, setCount] = useState(0)
+  return (
+    <main>
+      <p id="missing">Nothing at {props.data.path}</p>
+      <button id="item" onClick={() => setCount(count + 1)}>
+        missing:{count}
+      </button>
+    </main>
+  )
+}
+
 const eagerCatalog = defineRoutes([
   defineRoute({
     path: '/items/:id',
@@ -44,6 +56,14 @@ const eagerCatalog = defineRoutes([
     },
     head: ({ data }: any) => ({ title: data.label, meta: { description: data.label } }),
   }).screen(Item),
+  defineRoute({
+    path: '*',
+    loader: ({ params }: any) => {
+      loads++
+      return { label: 'missing', path: params['*'] }
+    },
+    head: () => ({ title: 'Missing' }),
+  }).screen(Missing),
   defineRoute({
     path: '/redirect',
     beforeLoad: () => {

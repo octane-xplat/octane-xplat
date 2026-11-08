@@ -2,7 +2,9 @@ import { build } from 'vite'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { octane } from 'octane/compiler/vite'
-import { webHost } from '../src/build/vite.ts'
+import { xplatCss } from '@octane-xplat/build/vite'
+import { webHost } from '@octane-xplat/web-host/vite'
+import { prerender } from '@octane-xplat/web-host/prerender'
 const root = new URL('..', import.meta.url).pathname
 const common = {
   root,
@@ -11,13 +13,15 @@ const common = {
   resolve: { conditions: ['web'], extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.js'] },
 }
 
+// A normal browser build emits hashed assets and the manifest the server reads.
 await build({
   ...common,
-  plugins: [webHost(), octane()],
+  plugins: [xplatCss('web'), webHost(), octane()],
   build: {
     outDir: 'example/dist/client',
     emptyOutDir: true,
-    lib: { entry: root + '/example/client.web.ts', formats: ['es'], fileName: () => 'client.js' },
+    manifest: true,
+    rollupOptions: { input: root + '/example/client.web.ts' },
   },
 })
 
@@ -36,7 +40,6 @@ await build({
 })
 
 // Keep static HTML separate from client assets so only owned pages are replaced.
-const { prerender } = await import('../src/build/prerender.ts')
 const { staticRenderer } = await import('./dist/server/server.web.js')
 console.log(
   await prerender(staticRenderer, {
@@ -46,10 +49,13 @@ console.log(
     revision: createHash('sha256')
       .update(await readFile(new URL('./dist/server/server.web.js', import.meta.url)))
       .digest('hex'),
-    paths: async () =>
-      ['coat', 'hat'].map((id) => ({
+    paths: [
+      { destination: { to: '/' }, key: 'home-v1' },
+      ...['coat', 'hat'].map((id) => ({
         destination: { to: '/products/:id', params: { id } },
         key: `product-${id}-v1`,
       })),
+    ],
+    notFound: { destination: { to: '/*', params: { '*': '404' } }, key: 'not-found-v1' },
   }),
 )

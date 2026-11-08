@@ -5,7 +5,8 @@
 Optional Web rendering over Xplat's existing route catalog. See
 [the Web rendering guide](https://octane-xplat.goddardai.org/web-rendering) for the Fetch
 handler, explicit public data transfer, component-authored documents, HTML
-templates and browser startup.
+templates, browser startup, incremental static output and rendered not-found
+pages.
 
 In an existing Xplat app, install the package, then follow the guide to add
 server rendering:

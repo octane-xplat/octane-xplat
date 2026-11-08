@@ -1,0 +1,18 @@
+main {
+	font-family: system-ui, sans-serif;
+	margin: 0 auto;
+	max-width: 40rem;
+}
+
+h1 {
+	color: rgb(20, 90, 50);
+}
+
+a {
+	color: rgb(20, 90, 50);
+}
+
+button {
+	font: inherit;
+	padding: 0.5em 1em;
+}

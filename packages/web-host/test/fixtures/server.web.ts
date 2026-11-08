@@ -12,6 +12,7 @@ export function handler(overrides: Record<string, unknown> = {}) {
       service: () => {},
     }),
     transfer: (match) => ({ data: match.data as any, context: {} }),
+    response: (match) => (match.to === '/*' ? { status: 404 } : {}),
     ...overrides,
   })
 }
@@ -23,7 +24,10 @@ export function renderer(overrides: Record<string, unknown> = {}) {
     assets: { scripts: ['/client.js'] },
     context: () => ({ viewer: 'static', secret: 'private-secret' }),
     transfer: (match) => ({ data: match.data as any, context: {} }),
-    response: () => ({ headers: { 'Cache-Control': 'public, max-age=60' } }),
+    response: (match) => ({
+      ...(match.to === '/*' ? { status: 404 } : {}),
+      headers: { 'Cache-Control': 'public, max-age=60' },
+    }),
     ...overrides,
   })
 }

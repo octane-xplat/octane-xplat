@@ -22,12 +22,15 @@ import { AppContainer, DefaultDocument, DocumentHead, DocumentScripts } from './
 import { identifierPrefix, serializePublic } from './transfer'
 import type { WebBootstrap, WebHandlerOptions, WebRenderedPage } from './props'
 
+export { manifestAssets } from './assets'
 export type {
   WebHandlerOptions,
   WebRenderedPage,
   WebDocumentProps,
   PublicRouteData,
   WebAssets,
+  WebAssetManifest,
+  WebAssetManifestChunk,
   WebAppProps,
   WebRenderMode,
 } from './props'
@@ -65,8 +68,13 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
 ): {
   /** Render page content for a request — redirects and error statuses return a Response directly. */
   render: (request: Request) => Promise<WebRenderedPage | Response>
-  /** Assemble the final HTML document Response for a rendered page; verifies the page matches the request URL. */
-  document: (page: WebRenderedPage, request: Request) => Promise<Response>
+  /** Assemble the final HTML document Response for a rendered page; verifies the page matches the request URL.
+   * `fallback` marks a document served for other URLs (a static host's not-found page); the client prepares the real URL instead of hydrating. */
+  document: (
+    page: WebRenderedPage,
+    request: Request,
+    options?: { fallback?: boolean },
+  ) => Promise<Response>
   /** Resolve a route destination to its public pathname. */
   href(
     destination: DestinationFor<ContractsOf<Catalog>, keyof ContractsOf<Catalog> & string, string>,
@@ -248,7 +256,11 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
     }
   }
 
-  const document = async (page: WebRenderedPage, request: Request): Promise<Response> => {
+  const document = async (
+    page: WebRenderedPage,
+    request: Request,
+    documentOptions?: { fallback?: boolean },
+  ): Promise<Response> => {
     if (
       page.version !== 1 ||
       page.url !== new URL(request.url).pathname + new URL(request.url).search
@@ -263,6 +275,7 @@ export function createWebRenderer<const Catalog extends ContractRouteManifest>(
       url: page.url,
       mode,
       ...(match ? { match } : {}),
+      ...(documentOptions?.fallback ? { fallback: true as const } : {}),
     }
 
     const assets = await untilAborted(

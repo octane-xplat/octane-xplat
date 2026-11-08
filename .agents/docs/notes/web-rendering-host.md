@@ -139,3 +139,40 @@ assembly, invalidation, removal, failures, cache corruption and output ownership
 Flamefront's `src/lifecycle.ts` and `src/prerender.ts` informed the content/artifact
 split. No implementation was copied. HTTP serving remains srvx; no provider-specific
 adapter or automatic runtime revalidation is introduced.
+
+
+## Manifest assets and not-found output
+
+`manifestAssets` maps a Vite `build.manifest` entry to the renderer's
+`{ scripts, styles }`: the entry becomes the module script, statically imported
+chunks contribute their CSS depth-first, and the entry's own CSS appends last —
+deduplicated, cycle-safe and base-prefixed. It is pure: no Node, DOM or Vite
+imports, so it runs in any Fetch runtime.
+
+`prerender` renders `notFound` through the same renderer into `<outDir>/404.html`,
+requires status 404 plus explicit public caching, reserves `404.html` against
+normal paths, and marks its bootstrap `fallback: true` (a `document` options
+bag, additive on `createWebRenderer().document`). The static cache discriminates
+not-found entries from the same-path page.
+
+## Fallback activation
+
+A static host serves `404.html` for any unmatched URL, so the fallback document's
+saved URL rarely equals the browser's. On a `fallback` payload with a different
+URL, `startWebApp` prepares the real location and swaps the page through
+`createRoot` rather than hydrating: hydration would mismatch markup rendered for
+another route, and Octane 0.16.3 `createRoot` clears the container on first
+render, so the replacement is one synchronous render with no blank gap. History
+is untouched until preparation succeeds; a failed preparation throws and leaves
+the readable server page and payload intact. Same-URL fallback documents hydrate
+normally.
+
+## Evidence scope
+
+Unit and jsdom tests cover manifest ordering/cycles, request and static 404s, and
+all three fallback outcomes. `test:packed` packs the workspace closure, builds the
+example verbatim outside the repo, and drives Chromium, Firefox and WebKit
+(`XPLAT_WEB_BROWSERS`) against SSR and static-only servers: raw HTTP, JavaScript-
+disabled styling, hydration node identity, single-handler interaction, client
+navigation and not-found activation. Streaming, dev-server SSR and provider
+adapters remain unqualified.

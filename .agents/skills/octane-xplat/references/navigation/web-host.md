@@ -25,12 +25,27 @@ A component `Document` is a server-only shell; only its app container hydrates.
 Place interactive persistent UI in the same `App` supplied on both sides.
 `mode: 'client'` skips server preparation, whereas `live`/`baked` still describes
 portable data provenance. This package provides neither remote loaders nor
-server-import stripping, streaming, or static-path enumeration.
+streaming.
 
 ```ts
 import { startWebApp } from '@octane-xplat/web-host/client'
 await startWebApp({ catalog, buildId: 'store-v1' })
 ```
+
+Link the current build's hashed files through `build.manifest: true` and
+`manifestAssets` rather than fixed asset paths; the entry's stylesheets become
+no-JavaScript-visible `<link>` tags. `prerender` enumerates static paths and
+`notFound` writes a rendered `404.html`; its `fallback` document hydrates at
+its own URL and replaces itself elsewhere.
+
+```ts
+import { manifestAssets } from '@octane-xplat/web-host/server'
+const assets = manifestAssets(manifest, 'src/client.web.ts')
+```
+
+Screens link with the request-local router `App` receives — supply it through
+context and pass `router` to `NavLink`; the shared default client router is not
+installed under this host.
 
 Use `srvx` for the listening server instead of implementing Node HTTP conversion.
 Serve built browser assets with `srvx/static` on Node-compatible runtimes. A

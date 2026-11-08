@@ -37,3 +37,6 @@ for (const browser of browsers) {
 
 run(['check:optional-services', '--browser'])
 run(['check:consumer', '--smoke', 'web'], { XPLAT_WEB_BROWSERS: browsers.join(',') })
+run(['turbo', 'run', 'test:packed', '--filter=@octane-xplat/web-host'], {
+  XPLAT_WEB_BROWSERS: browsers.join(','),
+})

@@ -1,4 +1,13 @@
 import { startWebApp } from '@octane-xplat/web-host/client'
-import { catalog } from './routes.web.tsrx'
+import { App, catalog } from './routes.web.tsrx'
+import '@octane-xplat/ui/theme/tokens.css'
+import './app.css'
 
-void startWebApp({ catalog, buildId: 'example-v1' })
+await startWebApp({
+  catalog,
+  buildId: 'example-v1',
+  App,
+  onRecoverableError: (error) => console.error('Page hydration failed', error),
+})
+// Readiness marker for browser checks: startup finished without throwing.
+document.documentElement.dataset.webApp = 'started'

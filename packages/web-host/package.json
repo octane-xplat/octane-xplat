@@ -42,6 +42,7 @@
 		"test": "node --test test/*.test.mjs",
 		"prepack": "bun run build && bun run typegen && tsrx-typegen --pack-check",
 		"build:example": "node example/build.mjs",
+		"test:packed": "node test/packed-consumer.web.mjs",
 		"build": "tsc --runExternalCode -p tsconfig.node.json",
 		"pack:check": "tsrx-typegen --pack-check"
 	},

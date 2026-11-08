@@ -135,6 +135,96 @@ test('serializes concurrent builds and releases the lock after failures', () =>
     assert.equal((await prerender(renderer, options)).reused, 1)
   }))
 
+test('writes a marked not-found page to 404.html and reuses it like other pages', () =>
+  fixture(async (_, options) => {
+    const notFound = { destination: '/oops', key: 'nf-v1' }
+    const renderer = {
+      href: (path) => path,
+      render: async (request) => {
+        const url = new URL(request.url).pathname
+        return {
+          version: 1,
+          url,
+          status: url === '/oops' ? 404 : 200,
+          headers: [
+            ['cache-control', 'public'],
+            ['content-type', 'text/html'],
+          ],
+          html: url === '/oops' ? 'missing' : 'page',
+        }
+      },
+      document: async (page, request, documentOptions) =>
+        new Response(page.html + (documentOptions?.fallback ? '|fallback' : ''), {
+          status: page.status,
+          headers: page.headers,
+        }),
+    }
+    const settings = { ...options, notFound }
+    assert.deepEqual(await prerender(renderer, settings), {
+      rendered: 2,
+      reused: 0,
+      paths: ['/'],
+      notFound: '/oops',
+    })
+    assert.equal(await readFile(join(options.outDir, '404.html'), 'utf8'), 'missing|fallback')
+    assert.equal(await readFile(join(options.outDir, 'index.html'), 'utf8'), 'page')
+    assert.deepEqual(await prerender(renderer, settings), {
+      rendered: 0,
+      reused: 2,
+      paths: ['/'],
+      notFound: '/oops',
+    })
+  }))
+
+test('requires a public 404 page for the not-found output and reserves 404.html', () =>
+  fixture(async (_, options) => {
+    const notFound = { destination: '/oops', key: null }
+    const notFoundRenderer = {
+      ...renderer,
+      render: async (request) => {
+        const page = await renderer.render(request)
+        if (new URL(request.url).pathname === '/oops') {
+          page.status = 404
+        }
+        return page
+      },
+    }
+    // A 200 page is rejected before the document is assembled.
+    await assert.rejects(prerender(renderer, { ...options, notFound }), /404 page/)
+    // The document response itself must also carry the 404.
+    await assert.rejects(
+      prerender(
+        {
+          ...notFoundRenderer,
+          document: async (page) =>
+            new Response(page.html, { status: 200, headers: page.headers }),
+        },
+        { ...options, notFound },
+      ),
+      /404 page/,
+    )
+    assert.equal(
+      (
+        await prerender(
+          {
+            ...notFoundRenderer,
+            document: async (page) =>
+              new Response(page.html, { status: page.status, headers: page.headers }),
+          },
+          { ...options, notFound },
+        )
+      ).notFound,
+      '/oops',
+    )
+    for (const destination of ['/404.html', '/404.HTML', '/404.html/nested']) {
+      await assert.rejects(
+        prerender(renderer, { ...options, paths: [{ destination, key: null }] }),
+        /collision/,
+        destination,
+      )
+    }
+  }))
+
 test('corrupt cache entries rerender and encoded paths map to decoded static files', () =>
   fixture(async (_, options) => {
     const settings = { ...options, paths: [{ destination: '/caf%C3%A9', key: 'v1' }] }

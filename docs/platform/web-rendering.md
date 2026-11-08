@@ -34,17 +34,39 @@ node packages/web-host/example/serve.mjs
 ```
 
 The [example's build script](../../packages/web-host/example/build.mjs) compiles
-both entry points with Octane's Vite plugin. Its fixed `client.js` filename is
-for a local example. For deployment, supply the current build's asset URLs,
-change `buildId` with every deployment, and retain assets used by open tabs.
+both entry points with Octane's Vite plugin. The browser build is an ordinary
+Vite app build with `build.manifest: true`, which emits hashed files plus a
+manifest mapping the entry to them. Change `buildId` with every deployment and
+retain assets used by open tabs.
+
+```js
+// Browser build — a normal app build, not a library build:
+await build({
+  plugins: [xplatCss('web'), webHost(), octane()],
+  build: {
+    manifest: true,
+    rollupOptions: { input: 'src/client.web.ts' },
+  },
+})
+```
+
+`manifestAssets` reads that manifest and produces the `assets` the renderer
+needs: the entry becomes the page's module script, and every stylesheet the
+entry graph generates becomes a `<link>` — so a page read without JavaScript
+still arrives styled. The example imports `app.css` and Octane Xplat's theme
+tokens from its client entry, and its server entry reads the manifest beside
+the compiled bundle.
 
 ```ts
-// Use the same buildId in server.web.ts and client.web.ts.
-const buildId = 'release-2026-10-23'
-const assets = {
-  scripts: ['/assets/client.abc123.js'],
-  styles: ['/assets/app.def456.css'],
-}
+// server.web.ts — compiled for the server, manifest path relative to it.
+import { readFileSync } from 'node:fs'
+import { manifestAssets, type WebAssetManifest } from '@octane-xplat/web-host/server'
+
+const manifest: WebAssetManifest = JSON.parse(
+  readFileSync(new URL('../client/.vite/manifest.json', import.meta.url), 'utf8'),
+)
+const assets = manifestAssets(manifest, 'src/client.web.ts')
+// Pass assets to createWebHandler or createWebRenderer.
 ```
 
 Use `webHost()` alongside `octane()` in both Vite builds. It selects Web source
@@ -272,6 +294,34 @@ export function App(props: WebAppProps) {
 }
 ```
 
+Typed links and routing hooks need to know which router to use, and this host
+renders with a request-local router rather than the shared default client.
+`App` receives that instance as a prop; pass it to `NavLink` as `router`, and
+carry it to screens with a small context, as the example does.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+import { createContext, useContext } from 'octane'
+import { NavLink, RouteOutlet } from '@octane-xplat/ui'
+import type { RouterInstance } from '@octane-xplat/ui/routing/core'
+import type { WebAppProps } from '@octane-xplat/web-host/server'
+
+const AppRouter = createContext<RouterInstance | null>(null)
+
+export function App(props: WebAppProps) {
+  return (
+    <AppRouter value={props.router}>
+      <RouteOutlet />
+    </AppRouter>
+  )
+}
+
+function Product() {
+  const router = useContext(AppRouter)!
+  return <NavLink router={router} to="/">All products</NavLink>
+}
+```
+
 ## Mix server and client rendering
 
 Select `mode` by request to serve product pages as HTML and start a workspace
@@ -299,13 +349,52 @@ const response = () => ({ headers: { 'Cache-Control': 'public, max-age=60' } })
 
 Baked route data alone does not produce HTML files; use the prerendering workflow
 below for that. These checks qualify buffered rendering, hydration in a DOM
-harness, and local HTTP through srvx. Streaming and hosting-provider deployments
-need separate qualification:
+harness, local HTTP through srvx, and real-browser checks in Chromium, Firefox
+and WebKit — all exercised by `test:packed` against the packed example. There is
+no streaming, no Vite dev-server SSR (development uses client rendering), and no
+hosting-provider adapters:
 
 ```sh
 bun run turbo run test typecheck --filter=@octane-xplat/web-host
+XPLAT_WEB_BROWSERS=chromium,firefox,webkit \
+  bun run turbo run test:packed --filter=@octane-xplat/web-host
 ```
 
+## Show a not-found page
+
+Give the catalog a root catch-all route for addresses nothing else claims, and
+mark that match as a 404 in `response`. The request handler then sends a
+rendered, hydratable not-found page instead of a plain-text one.
+
+```ts
+// routes.web.tsrx — splat route for unmatched URLs.
+defineRoute({ path: '*', head: () => ({ title: 'Not found' }) }).screen(NotFound)
+
+// server.web.ts — the splat match reports 404 in both createWebHandler
+// and createWebRenderer.
+const response = (match: { to: string }) => (match.to === '/*' ? { status: 404 } : {})
+```
+
+For static output, name the same route in `notFound`: it must render a public
+404 page, and the build writes it to `404.html` at the output root — the
+filename static hosts serve for unmatched URLs.
+
+```js
+await prerender(renderer, {
+  // ...origin, outDir, revision, paths
+  notFound: {
+    destination: { to: '/*', params: { '*': '404' } },
+    key: 'not-found-v1',
+  },
+})
+```
+
+Configure the static host to answer unmatched requests with `404.html` and
+status 404 — the example's `STATIC=1` mode does exactly that. That file is a
+fallback document: when a browser opens it at the address it was rendered
+for, startup hydrates as usual; at any other address it quietly prepares the
+real page and swaps it in, and if that preparation fails the readable 404
+simply stays on screen.
 
 ## Generate static pages
 
@@ -360,7 +449,7 @@ const result = await prerender(renderer, {
     { destination: { to: '/products/:id', params: { id: 'hat' } }, key: 'hat-v2' },
   ],
 })
-console.log(result) // { rendered: 2, reused: 0, paths: [...] } on the first build
+console.log(result) // { rendered: 2, reused: 0, paths: [...], notFound: null } on the first build
 ```
 
 Reuse skips preparation, guards, loaders and app rendering. Include every data

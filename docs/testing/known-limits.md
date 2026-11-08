@@ -304,7 +304,7 @@ if (result.status === 'committed') await result.finished
 | Errors | Guard/loader failure returns a structured result and keeps committed content. Render errors use a route boundary. Dedicated loader-error screen policy remains in the refinement plan. |
 | Scroll and head | Browser per-entry scroll, fragments, modal preservation, title and named metadata have current jsdom coverage. Native Page titles are applied; AppKit window metadata remains unfinished. |
 | Motion | Navigation commitment and transition completion are distinct. Browser View Transitions support presets and registered CSS types, with reduced-motion/unsupported skips and separate completion. Registered NativeScript Frame effects execute through native instances and reverse on Back. Custom native modal/pane effects remain unsupported by that adapter. |
-| SSR | The installed renderer has feasibility evidence; Xplat has no qualified HTTP/hydration host. Default client state must never hold request-local accounts. |
+| SSR | `@octane-xplat/web-host` renders requests, hydrates, and writes static output with a rendered `404.html`. Evidence covers unit tests, jsdom hydration, a packed example outside the workspace, and real-browser checks in Chromium, Firefox and WebKit through `test:packed`. Streaming, Vite dev-server SSR and hosting-provider adapters remain unqualified. Default client state must never hold request-local accounts. |
 | Windows | No Windows VM is available for this task. Type/build checks cannot establish Windows runtime behavior. |
 | Linux | The actual WebKitGTK host passed 16 handler-driven checks under Xvfb with a production bundle, including unsaved-edit confirmation, refusal and approval. OS input and the separate native GTK renderer remain unqualified. |
 

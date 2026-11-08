@@ -8,10 +8,24 @@
 		},
 		"build:example": {
 			"dependsOn": [
+				"build",
+				"^build",
 				"^typegen"
 			],
 			"outputs": [
 				"example/dist/**"
+			]
+		},
+		"test:packed": {
+			"dependsOn": [
+				"typegen",
+				"build",
+				"^build",
+				"^typegen"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"XPLAT_WEB_BROWSERS"
 			]
 		},
 		"typecheck": {

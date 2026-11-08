@@ -8,7 +8,7 @@ export interface StaticPage {
 	version: 1
 	/** Pathname + search the page was rendered for. */
 	url: string
-	/** HTTP status the rendered document carried; prerender only keeps 200. */
+	/** HTTP status the rendered document carried; pages keep 200, the not-found page 404. */
 	status: number
 	/** Response headers as name/value pairs; only content-type and cache-control survive static hosting. */
 	headers: [string, string][]
@@ -28,8 +28,21 @@ export interface StaticRenderer<Destination, Page extends StaticPage> {
 	href(destination: Destination): string
 	/** Render page content for a request; may return a Response for redirects/errors. */
 	render(request: Request): Promise<Page | Response>
-	/** Assemble the final HTML document for a rendered page. */
-	document(page: Page, request: Request): Promise<Response>
+	/** Assemble the final HTML document for a rendered page; `fallback` marks a document served for other URLs. */
+	document(page: Page, request: Request, options?: { fallback?: boolean }): Promise<Response>
+}
+
+/** Enumerated output counts; `notFound` is the rendered pathname or null when
+ * no not-found page was configured. */
+export interface PrerenderResult {
+	/** Pages whose content was rendered this run. */
+	rendered: number
+	/** Pages whose content was reused from the cache. */
+	reused: number
+	/** Public pathnames of enumerated pages (excludes the not-found page). */
+	paths: string[]
+	/** Pathname the not-found page rendered for, or null without `notFound`. */
+	notFound: string | null
 }
 
 /** Node build options. outDir is exclusively owned; cacheFile must live outside it.
@@ -48,6 +61,10 @@ export interface PrerenderOptions<Destination> {
 	paths:
 		| Iterable<StaticPath<Destination>>
 		| (() => Iterable<StaticPath<Destination>> | Promise<Iterable<StaticPath<Destination>>>)
+	/** Route rendered into outDir/404.html for a static host's not-found fallback.
+	 * It must render a public 404 page; its document activates the real URL in
+	 * the browser instead of hydrating the served markup. */
+	notFound?: StaticPath<Destination>
 }
 
 const marker = '.xplat-prerender'
@@ -85,17 +102,17 @@ function outputPath(path: string): string {
 	return [...segments.map(decodeURIComponent), 'index.html'].join('/')
 }
 
-function assertPublic(page: StaticPage) {
+function assertPublic(page: StaticPage, status = 200) {
 	const headers = new Headers(page.headers)
 	const cache = headers.get('cache-control') ?? ''
 	if (
 		page.version !== 1 ||
-		page.status !== 200 ||
+		page.status !== status ||
 		!/(?:^|,)\s*public(?:\s*,|\s*$)/i.test(cache) ||
 		/(?:private|no-store)/i.test(cache)
 	) {
 		throw new Error(
-			`Prerender requires a 200 page explicitly marked Cache-Control: public (${page.url})`,
+			`Prerender requires a ${status} page explicitly marked Cache-Control: public (${page.url})`,
 		)
 	}
 	headers.forEach((_, name) => {
@@ -120,7 +137,7 @@ function assertPublic(page: StaticPage) {
 export async function prerender<Destination, Page extends StaticPage>(
 	renderer: StaticRenderer<Destination, Page>,
 	options: PrerenderOptions<NoInfer<Destination>>,
-): Promise<{ rendered: number; reused: number; paths: string[] }> {
+): Promise<PrerenderResult> {
 	if (!options.revision) {
 		throw new TypeError('A renderer revision is required')
 	}
@@ -170,8 +187,10 @@ export async function prerender<Destination, Page extends StaticPage>(
 		}
 
 		const entries = typeof options.paths === 'function' ? await options.paths() : options.paths
-		const pages = []
-		const outputs = new Set<string>()
+		const pages: { path: string; file: string; key: string | null; notFound: boolean }[] = []
+		// A static host serves outDir/404.html for unmatched URLs; no page may
+		// claim that filename even without a configured not-found route.
+		const outputs = new Set<string>(['404.html'])
 		for (const entry of entries) {
 			if (entry.key !== null && typeof entry.key !== 'string') {
 				throw new TypeError('Every static path needs a string content key or null')
@@ -193,10 +212,32 @@ export async function prerender<Destination, Page extends StaticPage>(
 			pages.push({
 				path,
 				file,
+				notFound: false,
 				key:
 					entry.key === null
 						? null
 						: hash(JSON.stringify([1, origin.origin, path, options.revision, entry.key])),
+			})
+		}
+
+		if (options.notFound) {
+			const entry = options.notFound
+			if (entry.key !== null && typeof entry.key !== 'string') {
+				throw new TypeError('Every static path needs a string content key or null')
+			}
+
+			const path = renderer.href(entry.destination)
+			outputPath(path)
+			pages.push({
+				path,
+				file: '404.html',
+				notFound: true,
+				key:
+					entry.key === null
+						? null
+						: hash(
+								JSON.stringify([1, origin.origin, path, options.revision, entry.key, 'not-found']),
+							),
 			})
 		}
 
@@ -221,8 +262,14 @@ export async function prerender<Destination, Page extends StaticPage>(
 
 		stage = await mkdtemp(outDir + '.stage-')
 		const next: typeof previous = {}
-		const result = { rendered: 0, reused: 0, paths: pages.map((page) => page.path) }
-		for (const { path, file, key } of pages) {
+		const result: PrerenderResult = {
+			rendered: 0,
+			reused: 0,
+			paths: pages.filter((page) => !page.notFound).map((page) => page.path),
+			notFound: null,
+		}
+		for (const { path, file, key, notFound } of pages) {
+			const status = notFound ? 404 : 200
 			const request = new Request(new URL(path, origin))
 			let page: Page | undefined
 			const cached = key ? previous[key] : undefined
@@ -233,7 +280,7 @@ export async function prerender<Destination, Page extends StaticPage>(
 			) {
 				try {
 					const candidate = JSON.parse(cached.content)
-					assertPublic(candidate)
+					assertPublic(candidate, status)
 					if (candidate.url === path) {
 						page = candidate
 					}
@@ -251,7 +298,7 @@ export async function prerender<Destination, Page extends StaticPage>(
 				}
 
 				page = rendered
-				assertPublic(page)
+				assertPublic(page, status)
 				if (page.url !== path) {
 					throw new Error(`Rendered URL differs from enumerated path: ${path}`)
 				}
@@ -259,15 +306,26 @@ export async function prerender<Destination, Page extends StaticPage>(
 				result.rendered++
 			}
 
+			if (notFound) {
+				result.notFound = path
+			}
+
 			if (key) {
 				const content = JSON.stringify(page)
 				next[key] = { content, checksum: hash(content) }
 			}
 
-			const response = await renderer.document(page, request)
+			const response = await renderer.document(
+				page,
+				request,
+				notFound ? { fallback: true } : undefined,
+			)
 			const responseHeaders: [string, string][] = []
 			response.headers.forEach((value, name) => responseHeaders.push([name, value]))
-			assertPublic({ version: 1, url: path, status: response.status, headers: responseHeaders })
+			assertPublic(
+				{ version: 1, url: path, status: response.status, headers: responseHeaders },
+				status,
+			)
 			const output = join(stage, file)
 			await mkdir(dirname(output), { recursive: true })
 			await writeFile(output, await response.text())

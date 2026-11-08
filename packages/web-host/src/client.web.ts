@@ -42,16 +42,19 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
   }
   const payload = JSON.parse(script.textContent ?? '') as WebBootstrap
   serializePublic(payload)
+  const currentUrl = location.pathname + location.search
+  const urlMatches = payload.url === currentUrl
   if (
     payload.version !== 1 ||
     payload.buildId !== options.buildId ||
-    payload.url !== location.pathname + location.search ||
+    (!urlMatches && payload.fallback !== true) ||
     !['server', 'client'].includes(payload.mode)
   ) {
     throw new Error('Xplat document does not match this URL or client build; reload the page')
   }
   let match: PreparedRouteMatch | undefined
-  if (payload.mode === 'server') {
+  let startup: 'hydrate' | 'replace' | 'navigate' = 'navigate'
+  if (urlMatches && payload.mode === 'server') {
     const candidate = payload.match
     if (
       !candidate ||
@@ -91,6 +94,31 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
     }
 
     match = candidate
+    startup = 'hydrate'
+  } else if (!urlMatches) {
+    // A fallback document was rendered for a different URL, so its markup
+    // cannot hydrate; prepare the real URL and replace it in one render.
+    const engine = createRoutePreparation({
+      catalog: options.catalog,
+      base: options.base,
+      stacks: options.stacks,
+      context: options.context ?? {},
+      createCancellationController: () => new AbortController(),
+    })
+
+    let result: Awaited<ReturnType<typeof engine.prepare>>
+    try {
+      result = await engine.prepare(currentUrl, { redirects: 'return' })
+    } finally {
+      engine.dispose()
+    }
+
+    if (result.status !== 'ready') {
+      throw new Error(`Initial client navigation failed: ${result.status}`)
+    }
+
+    match = result.match
+    startup = 'replace'
   }
   const platform = createBrowserRouterHost()
   const router = createRouter({
@@ -108,19 +136,20 @@ export async function startWebApp<const Catalog extends ContractRouteManifest>(
     }
 
     const props = { host: platform, router, App: options.App }
-    const root = match
-      ? hydrateRoot(container, WebRouterRoot, props, {
-          identifierPrefix,
-          onRecoverableError: options.onRecoverableError,
-        })
-      : createRoot(container, { identifierPrefix })
+    const root =
+      startup === 'hydrate'
+        ? hydrateRoot(container, WebRouterRoot, props, {
+            identifierPrefix,
+            onRecoverableError: options.onRecoverableError,
+          })
+        : createRoot(container, { identifierPrefix })
 
-    if (!match) {
+    if (startup !== 'hydrate') {
       flushSync(() => root.render(WebRouterRoot, props))
     }
 
     script.remove()
-    if (!match) {
+    if (startup === 'navigate') {
       const result = await router.navigateUrl(location.pathname + location.search + location.hash, {
         replace: true,
       })
