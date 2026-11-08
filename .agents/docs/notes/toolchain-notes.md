@@ -515,7 +515,8 @@ ship secrets into either bundle (native bundles are inspectable like web).
   host declares only mason-core). Windows stays on full MasonKit via the
   8.0.21 pin and is untouched.
 - **Upstream gap — deps-bundle ESM classification is line-anchored**
-  (octane-xplat#181). `ESM_SYNTAX_RE` required `import`/`export` at a line
+  (octane-xplat#181, reported: NativeScript#11621). `ESM_SYNTAX_RE`
+  required `import`/`export` at a line
   start, so a minified `.js` chunk (`...;export{mt as g};`) classified as
   opaque CJS and the `/ns/m` shim dropped every named export — startup died
   in the host ESM linker before App mounted. `export * from`/`export * as`
