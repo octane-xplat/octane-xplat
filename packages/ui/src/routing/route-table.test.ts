@@ -452,6 +452,30 @@ describe('optional segments and catch-alls', () => {
     })
   })
 
+  it('an index route outranks a root catch-all, and a literal its same-prefix catch-all', () => {
+    for (const path of ['', '/', 'index']) {
+      const m = defineRoutes({
+        routes: [
+          { path: '*', screen: C('NotFound') },
+          { path, screen: C('Home') },
+        ],
+      })
+
+      expect(resolveRoute(m.routes, '/')?.name, path).toBe('index')
+      expect(resolveRoute(m.routes, '/x/y')?.name, path).toBe('*')
+    }
+
+    const docs = defineRoutes({
+      routes: [
+        { path: 'docs/*', screen: C('Splat') },
+        { path: 'docs', screen: C('Docs') },
+      ],
+    })
+
+    expect(resolveRoute(docs.routes, '/docs')?.name).toBe('docs')
+    expect(resolveRoute(docs.routes, '/docs/a')?.name).toBe('docs/*')
+  })
+
   it('types: optional and splat params are optional keys', () => {
     const m = defineRoutes({
       routes: [

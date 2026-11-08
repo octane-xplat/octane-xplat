@@ -482,14 +482,17 @@ export function deriveRouteManifest(
 
 /** Match-order comparator: static (3) outranks a required param (2),
  *  which outranks an optional param (1), which outranks a catch-all (0).
- *  Ties break alphabetically so ordering is total and stable across
- *  merges. */
+ *  Equal sums rank a route without a catch-all segment first — a splat may
+ *  match an empty remainder, but never ahead of a literal — then break
+ *  alphabetically so ordering is total and stable across merges. */
 function bySpecificity(a: RouteMeta, b: RouteMeta): number {
   const weight = (s: string) =>
     s.startsWith('*') ? 0 : s.startsWith(':') ? (s.endsWith('?') ? 1 : 2) : 3
+  const catchAll = (meta: RouteMeta) => (meta.segments.some((s) => s.startsWith('*')) ? 0 : 1)
 
   return (
     b.segments.reduce((n, s) => n + weight(s), 0) - a.segments.reduce((n, s) => n + weight(s), 0) ||
+    catchAll(b) - catchAll(a) ||
     a.name.localeCompare(b.name)
   )
 }
