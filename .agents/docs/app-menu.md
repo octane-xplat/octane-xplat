@@ -56,30 +56,45 @@ headless rig — the GMenu model is verified structurally instead.
 
 ## Windows
 
-`src/host.windows.ts` reports unsupported — proven, not merely unqualified.
-An interactive fixture on windy (AppX + UIA + SendInput, run under
-`goddard-agent resource run`) showed `MenuFlyoutItem`,
-`KeyboardAccelerator`, and click handlers all work on the pinned
-NativeScript Windows host, but `Microsoft.UI.Xaml.Controls.MenuBar` and
-`MenuBarItem` fail `ActivateInstance` with `Not implemented` — the pinned
-WinRT projection does not ship the in-window menu bar control, and Windows
-has no global menubar alternative. Raw Win32 also works on this host —
-the tray task proved `Shell_NotifyIconW`/`TrackPopupMenu` end-to-end.
+`host.windows.ts` uses the pinned NativeScript core's `findCurrentWindow`
+resolver (the same resolver used by `Application.run`). The distributed leaf
+owns attachment; never ask consumers to expose a window through a custom global
+or import from the app harness. The optional core peer is needed only on Windows.
+Install after the primary window has content and dispose before root replacement
+or window closure. The handle captures one window; additional windows do not
+inherit the bar.
 
-A second probe proved the custom-menu-bar idiom viable: a `StackPanel`
-row of `Button`s, each with a `MenuFlyout` via
-`Controls.Primitives.FlyoutBase.SetAttachedFlyout`/`ShowAttachedFlyout`
-(detached `ShowAt` previously crashed this projection). UIA sees the
-flyout items with correct enabled state, pointer activation dispatches
-`Click`, `ToggleMenuFlyoutItem`/`MenuFlyoutSubItem`/`MenuFlyoutSeparator`
-all construct, and updates/removal work. Two gaps remain before a real
-leaf: (1) item-level `KeyboardAccelerator`s only fire while the flyout is
-open — app-level accelerators need `UIElement.KeyboardAccelerators` on the
-content root or the `__xplatWindowsEvents.subscribe` key path shortcuts
-uses; (2) the leaf needs a renderer-side bridge to reach the app's
-`Window.Content` (no `__xplatAppKit`-equivalent exists on Windows today —
-the probe owns its window, a real app needs the host to hand over the
-content root). Probe artifacts live in `research/app-menu-windows-probe/`
-(bundle.mjs exercises the full custom-bar build; run.mjs handles the
-interactive scheduled-task dance — session-1 process init needs a healthy
-interactive session and `< NUL` on the action's stdin).
+The pinned WinRT projection cannot activate `MenuBar`/`MenuBarItem`. Use a
+horizontal native `StackPanel` of `Button`s and attached `MenuFlyout`s, via
+`Controls.Primitives.FlyoutBase.SetAttachedFlyout`/`ShowAttachedFlyout`.
+Detached `ShowAt` crashed the earlier probe. A two-row grid wraps the original
+window content without changing its attached Grid.Row; disposal restores content
+only if our wrapper still owns the window. Whole-tree updates replace only the
+bar child, retaining the content subtree and its focus.
+
+Register `KeyboardAccelerator`s on the content wrapper so commands work with
+flyouts closed; item accelerators provide native labels and open-flyout behavior.
+`Invoked` is the generic delegate
+``Windows.Foundation.TypedEventHandler`2<Microsoft.UI.Xaml.Input.KeyboardAccelerator,Microsoft.UI.Xaml.Input.KeyboardAcceleratorInvokedEventArgs>``
+(the backtick before 2 is part of its WinRT name), not a named
+`KeyboardAcceleratorInvokedEventHandler`. Mark handled only on accepted dispatch.
+Every callback checks tree activity, window ownership and controller generation.
+Retirement hides flyouts, removes delegates and detaches attached flyouts;
+disposal clears root shortcuts. Native toggles reset to their controlled value
+before reporting intent.
+
+Windows rejects all role entries during model validation, before a native write
+or logical tree replacement. The projection has no responder-chain equivalent,
+and older host builds crash on application Exit; do not invent role support.
+Apps provide their own action callbacks. Alt/F10 menu-bar semantics and automatic
+multi-window propagation are not implemented.
+
+Use the maintained packed-package driver in
+`packages/app-menu/tests/windows-runtime.mjs` with the runtime path and SSH host
+shown in its public guide. It uses UI Automation text/structure and native
+SendInput; it neither captures nor analyzes images. The driver uses right Control
+for ordinary chords and left Control for Control+Alt chords: the pinned host's
+injected key path did not dispatch ordinary left-Control chords or right-Control
++Alt consistently. Keep that limitation visible; this is not qualification of
+physical keyboards or other layouts. Investigate the upstream input path before
+broadening the keyboard claim. Runtime results belong in Silo and local reports.

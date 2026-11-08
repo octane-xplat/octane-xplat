@@ -1,6 +1,7 @@
 /**
  * Native desktop application menu bar API — the top-level menu owned by the
- * application (NSApp.mainMenu on macOS, the GApplication menubar on GTK4).
+ * application (NSApp.mainMenu on macOS, the GApplication menubar on GTK4,
+ * native buttons and MenuFlyouts above Windows window content).
  * Distinct from in-window DropdownMenu/ContextMenu surfaces and from
  * tray/status-bar icons.
  *
@@ -21,7 +22,8 @@
 
 /** Standard item behavior the platform menu engine already owns — no
  *  callback, no custom accelerator. `quit` only appears inside the automatic
- *  macOS application menu; elsewhere it is omitted and separators collapse. */
+ *  macOS application menu; GTK supplies its application action. Windows
+ *  explicitly rejects every role; use action callbacks on that host. */
 export type AppMenuRole =
   | 'undo'
   | 'redo'

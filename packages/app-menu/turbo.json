@@ -1,23 +1,54 @@
 {
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"typegen": {
-			"outputs": ["dist/**/*.d.ts"]
+			"outputs": [
+				"dist/**/*.d.ts"
+			]
 		},
 		"build": {
-			"outputs": ["dist/**/*.js"]
+			"outputs": [
+				"dist/**/*.js"
+			]
 		},
 		"typecheck": {
-			"dependsOn": ["typegen", "^typegen"]
+			"dependsOn": [
+				"typegen",
+				"^typegen"
+			]
 		},
 		"test:packed": {
-			"dependsOn": ["typegen", "build", "@octane-xplat/lib#typegen"],
+			"dependsOn": [
+				"typegen",
+				"build",
+				"@octane-xplat/lib#typegen"
+			],
 			"cache": false
 		},
 		"test:gtk-runtime": {
-			"dependsOn": ["typegen", "build"],
+			"dependsOn": [
+				"typegen",
+				"build"
+			],
 			"cache": false,
-			"env": ["APP_MENU_GTK_HOST", "APP_MENU_GTK_VM"]
+			"env": [
+				"APP_MENU_GTK_HOST",
+				"APP_MENU_GTK_VM"
+			]
+		},
+		"test:windows-runtime": {
+			"dependsOn": [
+				"typegen",
+				"build",
+				"@octane-xplat/lib#build"
+			],
+			"cache": false,
+			"env": [
+				"APP_MENU_WINDOWS_HOST",
+				"APP_MENU_WINDOWS_RUNTIME"
+			]
 		}
 	}
 }

@@ -93,7 +93,7 @@ export const ROLE_DEFAULT_LABELS: Record<AppMenuRole, string> = {
  *  platform. macOS registers native key equivalents for every role except
  *  quit (the application menu owns Quit ⌘Q). GTK registers close/quit only —
  *  edit-role accelerators stay widget-owned and are only displayed via the
- *  menu item `accel` attribute. Windows is pending a feasibility probe. */
+ *  menu item `accel` attribute. Windows role entries are explicitly unsupported. */
 const ROLE_ACCELERATORS: Record<
   'macos' | 'linux' | 'windows',
   Partial<Record<AppMenuRole, string>>
@@ -261,6 +261,9 @@ function normalizeChildren(
         break
       }
       case 'role': {
+        if (context.platform === 'windows') {
+          fail(itemPath, 'standard app menu roles are unsupported on Windows; use an action callback')
+        }
         const role = record.role
         if (typeof role !== 'string' || !ROLES.has(role as AppMenuRole)) {
           fail(itemPath, `unknown role ${JSON.stringify(role)}`)

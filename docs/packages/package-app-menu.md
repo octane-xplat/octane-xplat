@@ -2,16 +2,15 @@
 
 > The native menu bar your desktop app owns — File, Edit, and your own menus
 
-Every desktop app has a menu bar at the top of the screen (macOS) or the top
-of its window (Linux). It holds commands like New, Save, and Quit, plus
-standard editing items such as Copy and Paste that work in your text fields
-for free.
+Give your desktop app a menu bar at the top of the screen (macOS) or its
+window (Linux and Windows). Put commands like New and Save within reach,
+with keyboard shortcuts and nested menus.
 
-`@octane-xplat/app-menu` installs that menu bar on macOS and Linux. It is a
+`@octane-xplat/app-menu` installs that menu bar on macOS, Linux, and Windows. It is a
 different thing from `DropdownMenu` and `ContextMenu` in
 [`@octane-xplat/ui`](package-ui.md): those draw menus inside your app's
-window, while this package drives the real OS menu bar. It is also different
-from a tray or status-bar icon, which lives beside the clock and is owned by
+window, while this package owns the application menu bar with native controls.
+It is also different from a tray or status-bar icon, which lives beside the clock and is owned by
 `@octane-xplat/tray`.
 
 [Generated API reference](https://octane-xplat.goddardai.org/api-app-menu).
@@ -25,8 +24,8 @@ Keep its version aligned with your other Xplat packages.
 bun add @octane-xplat/app-menu
 ```
 
-Install a menu bar once, when your app starts. Menu-bar entries are always
-submenus — the bar itself only holds menu titles like File and Edit.
+Install a menu bar once, after your desktop window has mounted.
+Menu-bar entries are always submenus — the bar itself only holds menu titles like File and Edit.
 
 ```ts
 import { appMenu } from '@octane-xplat/app-menu'
@@ -44,19 +43,17 @@ const handle = appMenu.install([
         accelerator: 'Mod+N',
         onSelect: () => createDocument(),
       },
-      { type: 'separator', key: 'after-new' },
-      { type: 'role', key: 'quit', role: 'quit' },
     ],
   },
 ])
 ```
 
-Press Command+N on macOS or Control+N on Linux and `createDocument` runs.
+Press Command+N on macOS or Control+N on Linux or Windows and `createDocument` runs.
 
 ## Check support first
 
-Only desktop apps have an application menu bar. On web, iOS, Android, and
-Windows the package still imports, reports `supported: false`, and `install`
+Only desktop apps have an application menu bar. On web, iOS, and Android
+the package still imports, reports `supported: false`, and `install`
 throws an `UnavailabilityError` you can catch — it never silently does
 nothing.
 
@@ -136,7 +133,8 @@ A `role` entry is a standard item the platform already knows how to perform:
 `undo`, `redo`, `cut`, `copy`, `paste`, `selectAll`, `minimize`, `close`,
 and `quit`. Roles carry the native label and accelerator, need no callback,
 and reach the focused text field through the platform's own dispatch — so
-Copy really copies on both hosts.
+Copy really copies on AppKit and GTK. Windows rejects role entries with an
+explicit error; use action callbacks for your own commands there.
 
 ```ts
 const editMenu = {
@@ -158,7 +156,7 @@ const editMenu = {
 ## Choose the keys
 
 An `accelerator` names modifiers and one key joined by `+`, such as
-`Mod+Shift+Z`. `Mod` means Command on macOS and Control on Linux.
+`Mod+Shift+Z`. `Mod` means Command on macOS and Control on Linux and Windows.
 `Ctrl`/`Control`, `Alt`/`Option`, `Shift`, and `Meta`/`Cmd`/`Command`/`Super`
 name the rest, case-insensitively. Keys are `A`–`Z`, `0`–`9`, `F1`–`F24`,
 `Enter`, `Escape`, `Tab`, `Space`, `Backspace`, `Delete`,
@@ -179,8 +177,8 @@ macOS application-menu keys (Command+H, Option+Command+H, Command+Q).
 
 ## Update and clean up
 
-`update` swaps the whole menu tree atomically — the new native menu installs
-before the old one's callbacks retire, so the bar is never empty in between.
+`update` replaces the whole menu tree and retires callbacks from the previous
+version.
 Call it whenever the enabled/checked state or the item set should change.
 
 ```ts
@@ -240,7 +238,8 @@ what it needs from you.
 | --- | --- | --- |
 | macOS (AppKit host) | `NSApplication.mainMenu` built from `NSMenu`/`NSMenuItem`. | The automatic application menu (About/Hide/Quit) is always present. Roles dispatch through the responder chain, so edit roles act on the focused field. Keyboard matching is AppKit's own; a plain-Command event can also reach a Command+Shift item on this build. |
 | Linux (GTK4/GJS host) | `Gio.Menu` menubar on the default `Gtk.Application`, driven by `Gio.SimpleAction`s. | Requires a running `Gtk.Application`. Separators become GMenu sections. `_` in labels is escaped (`Save_As` shows as `Save_As`, not a mnemonic) — mnemonic labels are unsupported. Edit roles forward to the focused widget's built-in actions and only show their accelerator; close/quit register real app-level Ctrl+W/Ctrl+Q. |
-| Windows, web, iOS, Android | None. | `supported: false`; `install` throws `UnavailabilityError('appMenu')`. Windows has no global menu bar; the honest mapping would be an in-window `MenuBar`, but the pinned NativeScript Windows host cannot create one (`Microsoft.UI.Xaml.Controls.MenuBar` fails activation with `Not implemented`). |
+| Windows (pinned NativeScript WinUI host) | Native buttons with attached `MenuFlyout`s above the existing window content; content-root `KeyboardAccelerator`s. | Requires the pinned core preview from [Windows setup](../platform/windows-setup.md) and a mounted primary window. All role entries throw; use actions. One window is captured at install; dispose before replacing its root or closing it, and reinstall for another window. Standard menu-bar Alt/F10 navigation and automatic multi-window propagation are not provided. |
+| Web, iOS, Android | None. | `supported: false`; `install` throws `UnavailabilityError('appMenu')`. |
 
 Submenus cannot be disabled on any host — GMenu has no concept for it.
 Checkbox state is controlled everywhere: the native check mark changes only
@@ -264,12 +263,24 @@ Verified on this release:
   input inert, and dispose restoring the prior menubar. Opening the menubar
   with F10 or a pointer is not yet proven on the headless qualification rig,
   though the installed model verifies structurally.
-- **Windows (WinUI host):** an interactive fixture on the pinned NativeScript
-  runtime confirmed the window, `MenuFlyoutItem`, `KeyboardAccelerator`, and
-  click handlers all project correctly, but `Microsoft.UI.Xaml.Controls.MenuBar`
-  and `MenuBarItem` fail `ActivateInstance` with `Not implemented` — so no
-  app-menu surface exists on this host and the package reports unsupported.
+- **Windows (WinUI host):** the maintained packed-package fixture exercises
+  pointer activation, root shortcuts while flyouts are closed, nested shortcuts,
+  disabled actions, controlled checkbox updates, shortcut replacement and
+  disposal on Windy. UI Automation confirmed the updated label and checkbox
+  state. Keyboard input used injected right-Control chords and left-Control+Alt;
+  physical keyboards and other layouts remain unqualified. Alt/F10 menu-bar
+  navigation is not implemented.
+
+Run the Windows fixture on a signed-in Windows test host with the pinned
+NativeScript runtime already built. It registers a temporary app, drives native
+input and checks UI Automation text and enabled state, then removes its app.
+
+```sh
+APP_MENU_WINDOWS_HOST=windy \
+APP_MENU_WINDOWS_RUNTIME='C:\path\to\windows\bin' \
+bun run turbo run test:windows-runtime --filter=@octane-xplat/app-menu
+```
 
 Unit tests cover tree validation, separator collapse, the accelerator
-grammar and duplicate detection, dispatch generation gating, and both host
+grammar and duplicate detection, dispatch generation gating, and all three host
 adapters' construction and teardown.
