@@ -178,6 +178,7 @@ export const GROUPS = [
       'package-shortcuts',
       'package-smooth-corners',
       'package-sounds',
+      'package-speech-recognition',
       'package-splash-screen',
       'package-sqlite',
       'package-store-review',

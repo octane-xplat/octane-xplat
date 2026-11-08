@@ -10,6 +10,7 @@ to an app, rather than independently runnable projects.
 | `keep-awake/` | [Keep a screen awake](../docs/platform/keep-awake.md) |
 | `media/` | [Platform services](../docs/platform/platform-services.md) |
 | `recorder/` | [Media services](../docs/platform/media-services.md) |
+| `dictation/` | [Media services](../docs/platform/media-services.md) |
 | `updates/` | [App updates](../docs/app/updates.md) |
 | `automation/` | [Argent checks](../.agents/docs/argent.md) |
 

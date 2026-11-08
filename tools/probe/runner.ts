@@ -366,6 +366,8 @@ export async function runTarget(target, args, onResult, signal) {
                     'The isolated probe exercises camera preview and movie recording.',
                   NSMicrophoneUsageDescription:
                     'The isolated probe exercises microphone audio during movie recording.',
+                  NSSpeechRecognitionUsageDescription:
+                    'The isolated probe exercises speech-to-text dictation.',
                 },
               },
             },

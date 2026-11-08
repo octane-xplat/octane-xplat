@@ -22,6 +22,7 @@ From your app folder, install the package for the feature you need:
 | Short sound effects                | `bun add @octane-xplat/sounds`   |
 | Audio tracks and playback controls | `bun add @octane-xplat/audio`    |
 | Microphone recording to WAV        | `bun add @octane-xplat/recorder` |
+| Speech-to-text dictation           | `bun add @octane-xplat/speech-recognition` |
 
 The packages include their JavaScript and Android plugin dependencies.
 Advanced haptics on iOS also needs the Pulsar Swift package and source

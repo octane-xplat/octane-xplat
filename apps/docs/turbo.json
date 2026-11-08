@@ -106,6 +106,7 @@
 				"@octane-xplat/shortcuts#typegen",
 				"@octane-xplat/shortcuts#build",
 				"@octane-xplat/smooth-corners#typegen",
+				"@octane-xplat/speech-recognition#typegen",
 				"@octane-xplat/sounds#typegen",
 				"@octane-xplat/splash-screen#typegen",
 				"@octane-xplat/sqlite#typegen",

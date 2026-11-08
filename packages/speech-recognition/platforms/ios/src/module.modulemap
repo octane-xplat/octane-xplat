@@ -1,0 +1,4 @@
+module XplatSpeech {
+  header "XplatSpeechRecognizer.h"
+  export *
+}

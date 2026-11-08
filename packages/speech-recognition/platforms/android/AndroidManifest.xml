@@ -1,0 +1,13 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+	<uses-feature android:name="android.hardware.microphone" android:required="false" />
+	<uses-permission android:name="android.permission.RECORD_AUDIO" />
+	<!-- API 30+ package visibility: SpeechRecognizer.isRecognitionAvailable
+	     and createSpeechRecognizer both resolve the RecognitionService under
+	     the app's package-visibility filter — without this query the probe
+	     reports unavailable even when a recognition service is installed. -->
+	<queries>
+		<intent>
+			<action android:name="android.speech.RecognitionService" />
+		</intent>
+	</queries>
+</manifest>

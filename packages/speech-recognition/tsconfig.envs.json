@@ -1,0 +1,32 @@
+{
+	"contentMappers": [{ "package": "@tsrx/content-mapper", "extensions": [".tsrx"] }],
+	"extends": "../../tsconfig.base.json",
+	"environments": {
+		"web": {
+			"include": ["src/**/*.ts"],
+			"exclude": [
+				"src/**/*.ios.ts",
+				"src/**/*.android.ts",
+				"src/**/*.mobile.ts",
+				"src/**/*.native.ts",
+				"src/**/*.macos.ts",
+				"src/**/*.linux.ts",
+				"src/**/*.gtk.ts",
+				"src/**/*.windows.ts"
+			]
+		},
+		"native": {
+			"include": [
+				"src/index.ts",
+				"src/speech-recognition.ts",
+				"src/speech-recognition.ios.ts",
+				"src/speech-recognition.android.ts"
+			],
+			"compilerOptions": { "types": ["@nativescript/types"] }
+		},
+		"macos": { "include": ["src/index.macos.ts", "src/**/*.macos.ts"] },
+		"linux": { "include": ["src/index.linux.ts"] },
+		"gtk": { "include": ["src/index.gtk.ts"] },
+		"windows": { "include": ["src/index.windows.ts", "src/**/*.windows.ts"] }
+	}
+}

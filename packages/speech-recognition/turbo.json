@@ -1,0 +1,11 @@
+{
+	"extends": ["//"],
+	"tasks": {
+		"test:packed": {
+			"dependsOn": ["typegen"]
+		},
+		"test:web-runtime": {
+			"cache": false
+		}
+	}
+}
