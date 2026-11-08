@@ -609,11 +609,6 @@
     "module": "@xplat/astryx-sandbox/examples/bottomsheet/BottomSheetShowcase.tsrx",
     "export": "BottomSheetShowcase"
   },
-  "BottomSheetSwitcher": {
-    "package": "@octane-xplat/ui",
-    "module": "@xplat/astryx-sandbox/examples/bottomsheet/BottomSheetSwitcherReviewFlow.tsrx",
-    "export": "BottomSheetSwitcherReviewFlow"
-  },
   "Blockquote": {
     "package": "@octane-xplat/ui",
     "module": "@xplat/astryx-sandbox/examples/blockquote/BlockquoteShowcase.tsrx",

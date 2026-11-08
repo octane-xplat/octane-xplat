@@ -81,6 +81,35 @@ export default defineConfig({
       enabled: true,
       headless: true,
       viewport: { width: 640, height: 420 },
+      commands: {
+        // Trusted pointer input for gesture regression tests. Runs on the
+        // server where the playwright provider exposes the raw page; points
+        // are relative to the test iframe's viewport.
+        realPointer: async (
+          context,
+          actions: Array<
+            { type: 'move'; x: number; y: number } | { type: 'down' } | { type: 'up' }
+          >,
+        ) => {
+          const provider = context.provider as unknown as {
+            getPage(sessionId: string): import('playwright').Page
+          }
+          const page = provider.getPage(context.sessionId)
+          const frameBox = await page.locator('iframe[data-vitest]').boundingBox()
+
+          if (!frameBox) {
+            throw new Error('vitest iframe not found for realPointer')
+          }
+
+          for (const action of actions) {
+            if (action.type === 'move') {
+              await page.mouse.move(frameBox.x + action.x, frameBox.y + action.y)
+            } else {
+              await page.mouse[action.type]()
+            }
+          }
+        },
+      },
       provider: playwright({
         contextOptions: {
           viewport: { width: 800, height: 600 },
