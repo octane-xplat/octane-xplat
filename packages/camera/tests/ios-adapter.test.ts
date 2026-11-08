@@ -830,6 +830,31 @@ describe('iOS zoom control', () => {
     expect(device.videoZoomFactor).toBe(1)
   })
 
+  it('releases the device lock when a zoom assignment throws', () => {
+    const { session } = setupZoom()
+    const device = model.devices[0]
+    const original = Object.getOwnPropertyDescriptor(device, 'videoZoomFactor')!
+    const unlock = vi.spyOn(device, 'unlockForConfiguration')
+
+    Object.defineProperty(device, 'videoZoomFactor', {
+      configurable: true,
+      get() {
+        return original.value
+      },
+      set() {
+        throw new Error('device unavailable')
+      },
+    })
+
+    try {
+      expect(() => session.setZoom(2)).not.toThrow()
+      expect(unlock).toHaveBeenCalledOnce()
+    } finally {
+      Object.defineProperty(device, 'videoZoomFactor', original)
+      unlock.mockRestore()
+    }
+  })
+
   it('reports no zoom control before a device is bound', () => {
     const backend = createSessionBackend({ audio: true })
     const session = new SharedCameraSession(backend, { audio: true })
