@@ -1,8 +1,10 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
-import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
+import { spawnSync } from 'node:child_process'
+import { fileURLToPath } from 'node:url'
 import test from 'node:test'
 import { preparePulsar, silenceAudioSimulator } from '../scripts/prepare-ios.mjs'
 
@@ -42,8 +44,21 @@ test('preparation reuses a validated offline cache and refuses to overwrite modi
     )
 
     assert.equal(preparePulsar(target), target)
+
+    const executable = join(target, 'prepare-link.mjs')
+
+    symlinkSync(fileURLToPath(new URL('../scripts/prepare-ios.mjs', import.meta.url)), executable)
+
+    const linked = spawnSync(process.execPath, [executable, target], { encoding: 'utf8' })
+
+    assert.equal(linked.status, 0, linked.stderr)
+    assert.equal(linked.stdout.trim(), target)
     writeFileSync(file, 'local work')
     assert.throws(() => preparePulsar(target), /Choose a fresh destination/)
+    const rejected = spawnSync(process.execPath, [executable, target], { encoding: 'utf8' })
+
+    assert.equal(rejected.status, 1)
+    assert.match(rejected.stderr, /Choose a fresh destination/)
     assert.equal(readFileSync(file, 'utf8'), 'local work')
   } finally {
     rmSync(target, { recursive: true, force: true })
