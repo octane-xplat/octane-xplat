@@ -140,7 +140,7 @@ index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640f
          const basePath = `${fullPath}${ext}`;
          if (fs.existsSync(basePath)) {
 diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
-index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4ef9570f67 100644
+index a05696b679b3feecd1bafa267de44b59db559162..e909d6e25b3142f48d13cae2f2c4c8c0dced36e7 100644
 --- a/helpers/typescript-check.js
 +++ b/helpers/typescript-check.js
 @@ -7,14 +7,16 @@ import { getProjectRootPath, getProjectTSConfigPath } from './project.js';
@@ -163,7 +163,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4e
      }
      return ['.native', ''];
  }
-@@ -29,13 +29,14 @@
+@@ -29,13 +31,14 @@ function getVueTscBinPath() {
      const pkgPath = require.resolve('vue-tsc/package.json');
      return path.resolve(path.dirname(pkgPath), 'bin/vue-tsc.js');
  }
@@ -182,7 +182,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4e
      }
      catch {
          return undefined;
-@@ -92,7 +93,7 @@
+@@ -92,7 +95,7 @@ function runTsrxTypeCheck(binPath, opts, tsConfigPath, parsedConfig, rootNames,
      try {
          const configPath = path.join(tempDir, 'tsconfig.json');
          fs.writeFileSync(configPath, JSON.stringify(createTsrxCheckConfig(tsConfigPath, parsedConfig, rootNames, opts.platform)));
@@ -191,7 +191,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4e
      }
      finally {
          fs.rmSync(tempDir, { recursive: true, force: true });
-@@ -304,9 +305,9 @@
+@@ -304,9 +307,9 @@ export function typescriptCheckPlugin(opts) {
              const parsedConfig = getParsedConfig(ts, tsConfigPath, opts.platform);
              const failOnError = shouldFailOnTypeCheckError(opts, parsedConfig);
              const rootNames = parsedConfig.fileNames.filter((fileName) => !shouldSkipFileForPlatform(fileName, opts.platform));
@@ -204,7 +204,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4e
                  return;
              }
              const program = ts.createProgram({
-@@ -323,7 +324,7 @@
+@@ -323,7 +326,7 @@ export function typescriptCheckPlugin(opts) {
              }
              if (opts.logDiagnostics !== false) {
                  if (hasUnresolvedTsrxImport(ts, diagnostics)) {
@@ -214,7 +214,7 @@ index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4e
                  const output = ts.formatDiagnosticsWithColorAndContext(diagnostics, getFormatHost(ts));
                  (failOnError ? console.error : console.warn)(output);
 diff --git a/helpers/typescript.js b/helpers/typescript.js
-index fe9c9fe948862def734df7bc5b817a9989155019..c1b23e10c64669cc0354364713ca6a57e1b81d55 100644
+index fe9c9fe948862def734df7bc5b817a9989155019..8d6b16a7043be959afaa0c1e16aefb09fbf2f142 100644
 --- a/helpers/typescript.js
 +++ b/helpers/typescript.js
 @@ -6,23 +6,33 @@ let loaded;
@@ -299,10 +299,10 @@ index 0d7cd968eac690a85411cf3d6a24323a3d3a3992..98094d6ccfb918d00249d8087aebdd99
  //# sourceMappingURL=css-device-module.js.map
 \ No newline at end of file
 diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
-index 395c29e9b9b552fbf30c4a7131121a0d841df116..78d0bef8eeeaa2a55eec461adb6b1ac999da8c58 100644
+index 395c29e9b9b552fbf30c4a7131121a0d841df116..e2523548534dda72042efe318beeeb05c05f73e5 100644
 --- a/hmr/server/deps-bundle.js
 +++ b/hmr/server/deps-bundle.js
-@@ -53,15 +53,16 @@
+@@ -53,21 +53,22 @@
  import { existsSync, mkdirSync, readdirSync, readFileSync, realpathSync, statSync, unlinkSync, writeFileSync } from 'node:fs';
  import * as path from 'node:path';
  import { createHash } from 'node:crypto';
@@ -321,6 +321,13 @@ index 395c29e9b9b552fbf30c4a7131121a0d841df116..78d0bef8eeeaa2a55eec461adb6b1ac9
  import { getVendorManifest, setVendorRuntimeModuleProvider } from '../shared/vendor/registry.js';
  import { collectVendorModules } from '../shared/vendor/manifest-collect.js';
  import { generatePlatformPolyfills } from '../shared/runtime/platform-polyfills.js';
+ import { getAngularLinkerFactory, runAngularLinker } from '../frameworks/angular/build/shared-linker.js';
+ import { getBlockedDeviceNodeModulesReason, isFlavorClientPackageSpecifier, resolveCandidateFilePath } from './websocket-module-specifiers.js';
+-import { extractDirectExportedNames, JS_IDENTIFIER_RE, parseExportSpecList } from './websocket-core-bridge.js';
++import { extractDirectExportedNames, JS_IDENTIFIER_RE, maskJsComments, parseExportSpecList } from './websocket-core-bridge.js';
+ import { hasExistingDefaultExport } from './ns-core-cjs-shape.js';
+ import { getCjsNamedExports } from '../helpers/cjs-named-exports.js';
+ import { loadPersistedBootRecording } from './boot-recording.js';
 @@ -537,6 +538,7 @@ export function computeDepsBundleCacheKey(input) {
          defines: input.defines,
          entryKeys: input.entryKeys,
@@ -379,6 +386,68 @@ index 395c29e9b9b552fbf30c4a7131121a0d841df116..78d0bef8eeeaa2a55eec461adb6b1ac9
          createOptionalDependencyStubEsbuildPlugin(projectRoot),
          createNativeAddonStubEsbuildPlugin(),
      ];
+@@ -793,7 +824,15 @@ export async function generateDepsBundle(options) {
+     }
+     return state;
+ }
+-const ESM_SYNTAX_RE = /^[ \t]*(?:import[\s{"'*]|export[\s{*])/m;
++// ESM markers can sit anywhere on a line — minified chunks emit
++// `...;export{mt as g};` after other statements, and a line-anchored check
++// misclassifies them as opaque CJS (the served shim then drops every named
++// export). The pattern runs against a copy with comments and string/template/
++// regex literal interiors blanked (positions preserved), so look-alike text
++// inside literals can never match. The lookbehind keeps `$export`-style
++// identifiers and `obj.import`/`obj.export` member access from matching.
++const ESM_PREFIX = '(?<![.$\\u200c\\u200d\\p{ID_Continue}])';
++const ESM_SYNTAX_RE = new RegExp(ESM_PREFIX + String.raw`(?:import[\s{"'*]|export[\s{*])`, 'u');
+ function resolveLocalReExportTarget(spec, importerPath, platform) {
+     const base = path.resolve(path.dirname(importerPath), spec);
+     if (existsSync(base) && statSync(base).isFile())
+@@ -881,23 +920,35 @@ export function collectDepsModuleExportInfo(absPath, platform, seen = new Set())
+     catch {
+         return { names: null, hasDefault: false };
+     }
+-    if (!/\.mjs$/i.test(absPath) && !ESM_SYNTAX_RE.test(code))
++    const maskedCode = maskJsComments(code, true);
++    if (!/\.mjs$/i.test(absPath) && !ESM_SYNTAX_RE.test(maskedCode))
+         return collectCjsExportInfo(code);
+-    const names = new Set(extractDirectExportedNames(code));
++    const names = new Set(extractDirectExportedNames(maskedCode));
+     let match;
+-    const starAsRe = /\bexport\s+\*\s+as\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)\s+from\s+["'][^"']+["']/gu;
+-    while ((match = starAsRe.exec(code)) !== null) {
++    // Minifiers drop the spaces `export * as ns from "x"` keeps — allow none.
++    const starAsRe = new RegExp(ESM_PREFIX + String.raw`export\s*\*\s*as\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)\s+from\s*["'][^"']*["']`, 'gu');
++    while ((match = starAsRe.exec(maskedCode)) !== null) {
+         names.add(match[1]);
+     }
+-    const braceRe = /\bexport\s*\{([^}]+)\}/g;
+-    while ((match = braceRe.exec(code)) !== null) {
++    const braceRe = new RegExp(ESM_PREFIX + String.raw`export\s*\{([^}]+)\}`, 'gu');
++    while ((match = braceRe.exec(maskedCode)) !== null) {
+         for (const { exportedName } of parseExportSpecList(match[1])) {
+             names.add(exportedName);
+         }
+     }
+-    const starRe = /^[ \t]*export\s+\*\s+from\s+["']([^"']+)["']/gm;
+-    while ((match = starRe.exec(code)) !== null) {
+-        const spec = match[1];
++    // `export * from` carries the same mid-line minification hazard — find it
++    // on the masked copy, then read the specifier literal from the original
++    // code at the same offset (masked interiors are blanked).
++    const starRe = new RegExp(ESM_PREFIX + String.raw`export\s*\*\s*from\s*(["'])`, 'gu');
++    while ((match = starRe.exec(maskedCode)) !== null) {
++        const quoteIndex = match.index + match[0].length - 1;
++        const quote = match[1];
++        let specEnd = quoteIndex + 1;
++        while (specEnd < code.length && code[specEnd] !== quote)
++            specEnd += code[specEnd] === '\\' ? 2 : 1;
++        if (specEnd >= code.length)
++            return { names: null, hasDefault: false };
++        const spec = code.slice(quoteIndex + 1, specEnd);
+         const target = spec.startsWith('.') ? resolveLocalReExportTarget(spec, absPath, platform) : resolveBareReExportTarget(spec, absPath, platform);
+         if (!target)
+             return { names: null, hasDefault: false };
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
 index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
 --- a/hmr/server/device-transform-helpers.js
@@ -771,7 +840,7 @@ index c4ee7fbd75d8e630e1702b08f4c1b6f7fc4f27bd..27a2e64215c592eec176fe9fdc6f5cca
  import { isRuntimeGraphExcludedPath, normalizeRuntimeGraphPath } from './runtime-graph-filter.js';
  // Framework-agnostic transform-cache-invalidation primitives shared by the
  // per-flavor `handleHotUpdate` tails (Angular + Solid today). They live in this
-@@ -153,4 +154,36 @@
+@@ -153,4 +154,36 @@ export function collectTransitiveImportersForInvalidation(options) {
      }
      return Array.from(collected.values());
  }
@@ -832,6 +901,148 @@ index 15c6c7293826767ce7fd45feb6b03cb64a4bdbb5..1f66ca8ae896fad9ee21eabdf3bb75f6
          },
          resolveId(id) {
              if (id === VIRTUAL_ID)
+diff --git a/hmr/server/websocket-core-bridge.js b/hmr/server/websocket-core-bridge.js
+index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e345c64de 100644
+--- a/hmr/server/websocket-core-bridge.js
++++ b/hmr/server/websocket-core-bridge.js
+@@ -12,10 +12,12 @@ const REGEX_PRECEDING_KEYWORD_RE = /(?:^|[^$\w])(?:return|typeof|instanceof|in|o
+ /**
+  * Blank line and block comments (preserving newlines) so the regex export
+  * scanners never see a commented-out `export` declaration. String, template
+- * and regex literals are skipped so their contents are left intact.
++ * and regex literals are skipped so their contents are left intact — pass
++ * `literals` to blank their interiors too (keeping quotes/positions) so the
++ * scanners can also trust keyword matches as real syntax.
+  */
+-export function maskJsComments(code) {
+-    if (!code || (code.indexOf('//') === -1 && code.indexOf('/*') === -1)) {
++export function maskJsComments(code, literals = false) {
++    if (!code || (!literals && code.indexOf('//') === -1 && code.indexOf('/*') === -1)) {
+         return code;
+     }
+     const chars = code.split('');
+@@ -38,6 +40,82 @@ export function maskJsComments(code) {
+             return true;
+         return REGEX_PRECEDING_KEYWORD_RE.test(code.slice(Math.max(0, j - 10), j + 1));
+     };
++    // Skip a regex literal starting at `at`; returns the index just past it.
++    const skipRegex = (at) => {
++        let j = at + 1;
++        let inClass = false;
++        while (j < n && code[j] !== '\n') {
++            const r = code[j];
++            if (r === '\\') {
++                j += 2;
++                continue;
++            }
++            if (r === '[')
++                inClass = true;
++            else if (r === ']')
++                inClass = false;
++            else if (r === '/' && !inClass)
++                break;
++            j++;
++        }
++        return j + 1;
++    };
++    // Skip a string/template literal starting at `at`; returns the index just
++    // past it. Template `${}` expressions may hold nested literals, comments
++    // and regexes — a naive next-backtick scan closes early and desyncs every
++    // later literal (`...it's...` inside a template opened a fake string).
++    const skipQuoted = (at) => {
++        const quote = code[at];
++        let j = at + 1;
++        if (quote !== '`') {
++            while (j < n && code[j] !== quote)
++                j += code[j] === '\\' ? 2 : 1;
++            return j + 1;
++        }
++        while (j < n) {
++            const t = code[j];
++            if (t === '\\') {
++                j += 2;
++                continue;
++            }
++            if (t === '`')
++                return j + 1;
++            if (t === '$' && code[j + 1] === '{') {
++                j += 2;
++                let depth = 1;
++                while (j < n && depth) {
++                    const e = code[j];
++                    const e2 = code[j + 1];
++                    if (e === "'" || e === '"' || e === '`') {
++                        j = skipQuoted(j);
++                        continue;
++                    }
++                    if (e === '/' && e2 === '/') {
++                        const eol = code.indexOf('\n', j);
++                        j = eol === -1 ? n : eol;
++                        continue;
++                    }
++                    if (e === '/' && e2 === '*') {
++                        const close = code.indexOf('*/', j + 2);
++                        j = close === -1 ? n : close + 2;
++                        continue;
++                    }
++                    if (e === '/' && slashStartsRegex(j)) {
++                        j = skipRegex(j);
++                        continue;
++                    }
++                    if (e === '{')
++                        depth++;
++                    else if (e === '}')
++                        depth--;
++                    j++;
++                }
++                continue;
++            }
++            j++;
++        }
++        return j;
++    };
+     let i = 0;
+     while (i < n) {
+         const c = code[i];
+@@ -55,30 +133,16 @@ export function maskJsComments(code) {
+             i = stop;
+         }
+         else if (c === "'" || c === '"' || c === '`') {
+-            i++;
+-            while (i < n && code[i] !== c) {
+-                i += code[i] === '\\' ? 2 : 1;
+-            }
+-            i++;
++            const start = i;
++            i = skipQuoted(i);
++            if (literals)
++                blank(start + 1, i - 1);
+         }
+         else if (c === '/' && slashStartsRegex(i)) {
+-            i++;
+-            let inClass = false;
+-            while (i < n && code[i] !== '\n') {
+-                const r = code[i];
+-                if (r === '\\') {
+-                    i += 2;
+-                    continue;
+-                }
+-                if (r === '[')
+-                    inClass = true;
+-                else if (r === ']')
+-                    inClass = false;
+-                else if (r === '/' && !inClass)
+-                    break;
+-                i++;
+-            }
+-            i++;
++            const start = i;
++            i = skipRegex(i);
++            if (literals)
++                blank(start, i);
+         }
+         else {
+             i++;
 diff --git a/hmr/server/websocket-module-bindings.js b/hmr/server/websocket-module-bindings.js
 index 00b89ff3ae13b1c2b219a4c35c0450f97ac5ffc9..54c8716bfc5c9a6e2cd9cbee7bbbe9c7fb971943 100644
 --- a/hmr/server/websocket-module-bindings.js
@@ -1076,7 +1287,7 @@ diff --git a/hmr/server/websocket-ns-m-request.js b/hmr/server/websocket-ns-m-re
 index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a095cb4610 100644
 --- a/hmr/server/websocket-ns-m-request.js
 +++ b/hmr/server/websocket-ns-m-request.js
-@@ -27,10 +27,15 @@
+@@ -27,10 +27,15 @@ const MODULE_CANDIDATE_EXTS = ['ts', 'js', 'tsx', 'jsx', 'mjs', 'mts', 'cts', 'v
   */
  function expandModuleCandidates(spec, hasExt, baseNoExt) {
      const platform = resolvePlatform();
@@ -1094,7 +1305,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
          }
          candidates.push(...MODULE_CANDIDATE_EXTS.map((ext) => `${base}.${ext}`));
      }
-@@ -163,6 +168,24 @@
+@@ -163,6 +168,24 @@ export function resolveFsAnchoredSpec(spec, serverRoot, workspaceRoot) {
  export async function resolveNsMTransformedModule(options) {
      const { context, transformRequest, resolveId, loadVirtualId, timeoutMs = 120000 } = options;
      const { spec, serverRoot, workspaceRoot, transformCandidates } = context;
@@ -1119,7 +1330,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
      let transformed = null;
      let resolvedCandidate = null;
      if (spec.startsWith('/@id/')) {
-@@ -190,6 +213,7 @@
+@@ -190,6 +213,7 @@ export async function resolveNsMTransformedModule(options) {
          };
      }
      for (const candidate of transformCandidates) {
@@ -1127,7 +1338,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
          transformed = await tryTransformRequest(transformRequest, candidate, timeoutMs);
          if (transformed?.code) {
              resolvedCandidate = candidate;
-@@ -198,6 +222,7 @@
+@@ -198,6 +222,7 @@ export async function resolveNsMTransformedModule(options) {
      }
      const resolvedId = await resolveId(spec);
      if (resolvedId) {
@@ -1135,7 +1346,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
          transformed = await tryTransformRequest(transformRequest, resolvedId, timeoutMs);
          if (transformed?.code) {
              return { transformed, resolvedCandidate: resolvedId };
-@@ -209,6 +234,7 @@
+@@ -209,6 +234,7 @@ export async function resolveNsMTransformedModule(options) {
          if (bareSpecifier && !bareSpecifier.startsWith('.')) {
              const resolvedBareId = await resolveId(bareSpecifier);
              if (resolvedBareId) {
@@ -1143,7 +1354,7 @@ index 0879633dc5ee172f16de82d5d24bebe2f6f7878f..2c3a7476b1fda40bb454aca5041829a0
                  transformed = await tryTransformRequest(transformRequest, resolvedBareId, timeoutMs);
                  if (transformed?.code) {
                      return { transformed, resolvedCandidate: resolvedBareId };
-@@ -216,14 +242,19 @@
+@@ -216,14 +242,19 @@ export async function resolveNsMTransformedModule(options) {
              }
          }
      }
@@ -1169,7 +1380,7 @@ diff --git a/hmr/server/websocket-ns-m.js b/hmr/server/websocket-ns-m.js
 index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7855d2a7f 100644
 --- a/hmr/server/websocket-ns-m.js
 +++ b/hmr/server/websocket-ns-m.js
-@@ -6,6 +6,7 @@
+@@ -6,6 +6,7 @@ import { isRuntimeGraphExcludedPath } from './runtime-graph-filter.js';
  import { buildPiniaVendorShim, buildVueVendorShim } from './vendor-bare-module-shims.js';
  import { collapseLegacyNsMTags } from './websocket-ns-m-paths.js';
  import { createNsMRequestContext, resolveFsAnchoredSpec, resolveNsMTransformedModule } from './websocket-ns-m-request.js';
@@ -1177,7 +1388,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
  import { setDeviceModuleHeaders } from './route-helpers.js';
  import { RAW_QUERY_PATTERN } from './constants.js';
  import { CSS_MODULE_RE, buildCssRegisterSnippetFromVar, normalizeCssForDevice } from './css-device-module.js';
-@@ -98,7 +99,7 @@
+@@ -98,7 +99,7 @@ export function registerNsModuleServerRoute(server, options) {
              // internal virtual modules (e.g., \0nsvite:nsconfig-json for
              // ~/package.json) that don't exist on disk and must NOT run
              // through the device post-processing pipeline below.
@@ -1186,7 +1397,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
                  try {
                      // First try Vite's transform pipeline directly
                      const vr = await sharedTransformRequest(spec);
-@@ -167,8 +168,21 @@
+@@ -167,8 +168,21 @@ export function registerNsModuleServerRoute(server, options) {
                      // Workspace css outside the vite root must be anchored to /@fs or
                      // `?inline` is denied and the DOM css module (__vite__updateStyle)
                      // is served instead.
@@ -1210,7 +1421,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
                      const inlineCode = inlineRes?.code || '';
                      // `?inline` output is `export default "<compiled css>"`.
                      const m = inlineCode.match(/export\s+default\s+("(?:[^"\\]|\\.)*")\s*;?/s);
-@@ -178,7 +192,14 @@
+@@ -178,7 +192,14 @@ export function registerNsModuleServerRoute(server, options) {
                              css = JSON.parse(m[1]);
                          }
                          catch { }
@@ -1226,7 +1437,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
                          const out = `// [ns:m][css] ${spec}\n` + `const __ns_css_text__ = ${JSON.stringify(css)};\n` + buildCssRegisterSnippetFromVar(spec, '__ns_css_text__') + `export default __ns_css_text__;\n`;
                          res.statusCode = 200;
                          res.end(out);
-@@ -191,12 +212,27 @@
+@@ -191,12 +212,27 @@ export function registerNsModuleServerRoute(server, options) {
                      if (verbose)
                          console.warn('[ns:m][css] inline compile failed', spec, cssErr?.message);
                  }
@@ -1255,7 +1466,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
              const transformWithTimeout = async (url, timeoutMs = 120000) => {
                  const r = await sharedTransformRequest(url, timeoutMs);
                  // A type-only .ts module legitimately transforms to EMPTY code
-@@ -230,6 +266,7 @@
+@@ -230,6 +266,7 @@ export function registerNsModuleServerRoute(server, options) {
                  transformRequest: transformWithTimeout,
                  resolveId: resolvePluginContainerId,
                  loadVirtualId,
@@ -1263,7 +1474,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
              });
              let transformed = resolution.transformed;
              const resolvedCandidate = resolution.resolvedCandidate;
-@@ -513,6 +550,8 @@
+@@ -513,6 +550,8 @@ export function registerNsModuleServerRoute(server, options) {
                                      continue;
                                  }
                                  else if (u.pathname.startsWith('/ns/m')) {
@@ -1272,7 +1483,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
                                      // Resolve the import target through the SAME
                                      // canonical pipeline the /ns/m route itself uses
                                      // (websocket-ns-m-request.ts) instead of a third
-@@ -532,6 +571,7 @@
+@@ -532,6 +571,7 @@ export function registerNsModuleServerRoute(server, options) {
                                                  },
                                                  resolveId: resolvePluginContainerId,
                                                  loadVirtualId,
@@ -1280,7 +1491,7 @@ index fcdcd69776b3f82d3fc7d8dd26e03856177c933e..ec7c439dcd29af5c341b0bc0146243b7
                                              });
                                              targetCode = targetResolution.transformed?.code || '';
                                          }
-@@ -546,7 +586,17 @@
+@@ -546,7 +586,17 @@ export function registerNsModuleServerRoute(server, options) {
                              catch { }
                              if (!targetCode)
                                  continue;

@@ -514,6 +514,20 @@ ship secrets into either bundle (native bundles are inspectable like web).
   (`org.nativescript.mason.masonkit.*` classes are absent by design — the
   host declares only mason-core). Windows stays on full MasonKit via the
   8.0.21 pin and is untouched.
+- **Upstream gap — deps-bundle ESM classification is line-anchored**
+  (octane-xplat#181). `ESM_SYNTAX_RE` required `import`/`export` at a line
+  start, so a minified `.js` chunk (`...;export{mt as g};`) classified as
+  opaque CJS and the `/ns/m` shim dropped every named export — startup died
+  in the host ESM linker before App mounted. `export * from`/`export * as`
+  scanning carried the same line-start assumption, and the naive unanchored
+  fix would false-positive on `export`/`import` text inside strings,
+  comments, regexes, `$export` identifiers, and `obj.import`/`obj.export`
+  members. Our patch runs all export detection on a `maskJsComments(code,
+  true)` copy that blanks comment and string/template/regex interiors
+  (positions preserved — the star-re-export specifier is read back from the
+  original text) and fixes `maskJsComments`' latent template `${}` desync
+  (nested literals flipped string state and masked real code). CJS files
+  embedding ESM-looking text stay CJS.
 - **Limitation — first boot serves vendored packages per-module and
   rewrites their vendor imports into runtime registry requires.** With no
   boot recording there is no deps bundle, so `/ns/m/node_modules/<pkg>`

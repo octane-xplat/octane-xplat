@@ -1,5 +1,5 @@
 diff --git a/helpers/ts-config-paths.js b/helpers/ts-config-paths.js
-index 27013b5c8..53a2e7d48 100644
+index 27013b5c8f78a72b6e6df903ac36f72fc0d75c1a..53a2e7d489ab91593cbec47ee6fb640fc56c786f 100644
 --- a/helpers/ts-config-paths.js
 +++ b/helpers/ts-config-paths.js
 @@ -113,15 +113,20 @@ function resolveTsConfigPath(fullPath, platform, verbose, debugId) {
@@ -50,8 +50,185 @@ index 27013b5c8..53a2e7d48 100644
          }
          const basePath = `${fullPath}${ext}`;
          if (fs.existsSync(basePath)) {
+diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
+index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4ef9570f67 100644
+--- a/helpers/typescript-check.js
++++ b/helpers/typescript-check.js
+@@ -29,13 +29,14 @@ function getVueTscBinPath() {
+     const pkgPath = require.resolve('vue-tsc/package.json');
+     return path.resolve(path.dirname(pkgPath), 'bin/vue-tsc.js');
+ }
+-function getTsrxTscBinPath() {
++function getTscBinPath() {
+     try {
+         const projectRequire = createRequire(path.join(getProjectRootPath(), 'package.json'));
+-        const pkgPath = projectRequire.resolve('@tsrx/typescript-plugin/package.json');
++        const pkgPath = projectRequire.resolve('typescript/package.json');
+         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
+-        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsrx-tsc'];
+-        return bin ? path.resolve(path.dirname(pkgPath), bin) : undefined;
++        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsc'];
++        const major = Number.parseInt(String(pkg.version ?? ''), 10);
++        return bin && major >= 7 ? path.resolve(path.dirname(pkgPath), bin) : undefined;
+     }
+     catch {
+         return undefined;
+@@ -92,7 +93,7 @@ function runTsrxTypeCheck(binPath, opts, tsConfigPath, parsedConfig, rootNames,
+     try {
+         const configPath = path.join(tempDir, 'tsconfig.json');
+         fs.writeFileSync(configPath, JSON.stringify(createTsrxCheckConfig(tsConfigPath, parsedConfig, rootNames, opts.platform)));
+-        runTscBinary('tsrx-tsc', [binPath, '--pretty', '-p', configPath], opts, failOnError);
++        runTscBinary('tsc', [binPath, '--runExternalCode', '--pretty', '-p', configPath], opts, failOnError);
+     }
+     finally {
+         fs.rmSync(tempDir, { recursive: true, force: true });
+@@ -304,9 +305,9 @@ export function typescriptCheckPlugin(opts) {
+             const parsedConfig = getParsedConfig(ts, tsConfigPath, opts.platform);
+             const failOnError = shouldFailOnTypeCheckError(opts, parsedConfig);
+             const rootNames = parsedConfig.fileNames.filter((fileName) => !shouldSkipFileForPlatform(fileName, opts.platform));
+-            const tsrxTscBinPath = getTsrxTscBinPath();
+-            if (tsrxTscBinPath && hasTsrxImports(ts, rootNames)) {
+-                runTsrxTypeCheck(tsrxTscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
++            const tscBinPath = getTscBinPath();
++            if (tscBinPath && hasTsrxImports(ts, rootNames)) {
++                runTsrxTypeCheck(tscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
+                 return;
+             }
+             const program = ts.createProgram({
+@@ -323,7 +324,7 @@ export function typescriptCheckPlugin(opts) {
+             }
+             if (opts.logDiagnostics !== false) {
+                 if (hasUnresolvedTsrxImport(ts, diagnostics)) {
+-                    console.warn('[ns-vite] Unresolved .tsrx imports: install @tsrx/typescript-plugin so the type check can run through tsrx-tsc.');
++                    console.warn('[ns-vite] Unresolved .tsrx imports: install TypeScript 7.1 or newer so .tsrx files are checked through tsc --runExternalCode.');
+                 }
+                 const output = ts.formatDiagnosticsWithColorAndContext(diagnostics, getFormatHost(ts));
+                 (failOnError ? console.error : console.warn)(output);
+diff --git a/helpers/typescript.js b/helpers/typescript.js
+index fe9c9fe948862def734df7bc5b817a9989155019..8d6b16a7043be959afaa0c1e16aefb09fbf2f142 100644
+--- a/helpers/typescript.js
++++ b/helpers/typescript.js
+@@ -6,23 +6,33 @@ let loaded;
+  * The compiler API backs the NativeClass ES5 downlevel and build-time type
+  * checking, but a plain JavaScript app has no reason to install `typescript`.
+  * Loading it on demand keeps every config helper importable without it; each
+- * call site decides what to do when it is absent. The project's own copy is
+- * preferred over one reachable from this package so type checking runs on the
+- * version the app was written against.
++ * call site decides what to do when it is absent. Prefer the project's
++ * explicit classic API alias; a native TypeScript launcher is not an API.
++ * TSRX checking still delegates to the project's tsc --runExternalCode.
+  */
+ export function loadTypeScript() {
+-    if (loaded !== undefined)
+-        return loaded;
+-    loaded = null;
++    if (loaded !== undefined) return loaded;
++    let incompatible = false;
+     for (const paths of [[getProjectRootPath()], undefined]) {
+-        try {
+-            loaded = require(require.resolve('typescript', paths ? { paths } : undefined));
+-            break;
++        for (const name of ['typescript-classic', 'typescript']) {
++            let candidate;
++            try {
++                candidate = require(require.resolve(name, paths ? { paths } : undefined));
++            } catch { continue; }
++            if (typeof candidate.transpileModule === 'function' && typeof candidate.getParsedCommandLineOfConfigFile === 'function') {
++                loaded = candidate;
++                return loaded;
++            }
++            incompatible = true;
+         }
+-        catch { }
+     }
++    if (incompatible) {
++        throw new Error('[ns-vite] Native TypeScript does not provide the classic compiler API used by NativeClass and config parsing. Install typescript-classic@npm:typescript@5.9.3; project typechecks can keep native TypeScript.');
++    }
++    loaded = null;
+     return loaded;
+ }
++
+ let warned = false;
+ /**
+  * Logged once per process. A `@NativeClass` source that is not downleveled
+diff --git a/hmr/server/deps-bundle.js b/hmr/server/deps-bundle.js
+index 395c29e9b9b552fbf30c4a7131121a0d841df116..fc4cecb19baf14f00ea9082284f78a5f064ba2cb 100644
+--- a/hmr/server/deps-bundle.js
++++ b/hmr/server/deps-bundle.js
+@@ -67,7 +67,7 @@ import { collectVendorModules } from '../shared/vendor/manifest-collect.js';
+ import { generatePlatformPolyfills } from '../shared/runtime/platform-polyfills.js';
+ import { getAngularLinkerFactory, runAngularLinker } from '../frameworks/angular/build/shared-linker.js';
+ import { getBlockedDeviceNodeModulesReason, isFlavorClientPackageSpecifier, resolveCandidateFilePath } from './websocket-module-specifiers.js';
+-import { extractDirectExportedNames, JS_IDENTIFIER_RE, parseExportSpecList } from './websocket-core-bridge.js';
++import { extractDirectExportedNames, JS_IDENTIFIER_RE, maskJsComments, parseExportSpecList } from './websocket-core-bridge.js';
+ import { hasExistingDefaultExport } from './ns-core-cjs-shape.js';
+ import { getCjsNamedExports } from '../helpers/cjs-named-exports.js';
+ import { loadPersistedBootRecording } from './boot-recording.js';
+@@ -793,7 +793,15 @@ export async function generateDepsBundle(options) {
+     }
+     return state;
+ }
+-const ESM_SYNTAX_RE = /^[ \t]*(?:import[\s{"'*]|export[\s{*])/m;
++// ESM markers can sit anywhere on a line — minified chunks emit
++// `...;export{mt as g};` after other statements, and a line-anchored check
++// misclassifies them as opaque CJS (the served shim then drops every named
++// export). The pattern runs against a copy with comments and string/template/
++// regex literal interiors blanked (positions preserved), so look-alike text
++// inside literals can never match. The lookbehind keeps `$export`-style
++// identifiers and `obj.import`/`obj.export` member access from matching.
++const ESM_PREFIX = '(?<![.$\\u200c\\u200d\\p{ID_Continue}])';
++const ESM_SYNTAX_RE = new RegExp(ESM_PREFIX + String.raw`(?:import[\s{"'*]|export[\s{*])`, 'u');
+ function resolveLocalReExportTarget(spec, importerPath, platform) {
+     const base = path.resolve(path.dirname(importerPath), spec);
+     if (existsSync(base) && statSync(base).isFile())
+@@ -881,23 +889,35 @@ export function collectDepsModuleExportInfo(absPath, platform, seen = new Set())
+     catch {
+         return { names: null, hasDefault: false };
+     }
+-    if (!/\.mjs$/i.test(absPath) && !ESM_SYNTAX_RE.test(code))
++    const maskedCode = maskJsComments(code, true);
++    if (!/\.mjs$/i.test(absPath) && !ESM_SYNTAX_RE.test(maskedCode))
+         return collectCjsExportInfo(code);
+-    const names = new Set(extractDirectExportedNames(code));
++    const names = new Set(extractDirectExportedNames(maskedCode));
+     let match;
+-    const starAsRe = /\bexport\s+\*\s+as\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)\s+from\s+["'][^"']+["']/gu;
+-    while ((match = starAsRe.exec(code)) !== null) {
++    // Minifiers drop the spaces `export * as ns from "x"` keeps — allow none.
++    const starAsRe = new RegExp(ESM_PREFIX + String.raw`export\s*\*\s*as\s+([$_\p{ID_Start}][$\p{ID_Continue}]*)\s+from\s*["'][^"']*["']`, 'gu');
++    while ((match = starAsRe.exec(maskedCode)) !== null) {
+         names.add(match[1]);
+     }
+-    const braceRe = /\bexport\s*\{([^}]+)\}/g;
+-    while ((match = braceRe.exec(code)) !== null) {
++    const braceRe = new RegExp(ESM_PREFIX + String.raw`export\s*\{([^}]+)\}`, 'gu');
++    while ((match = braceRe.exec(maskedCode)) !== null) {
+         for (const { exportedName } of parseExportSpecList(match[1])) {
+             names.add(exportedName);
+         }
+     }
+-    const starRe = /^[ \t]*export\s+\*\s+from\s+["']([^"']+)["']/gm;
+-    while ((match = starRe.exec(code)) !== null) {
+-        const spec = match[1];
++    // `export * from` carries the same mid-line minification hazard — find it
++    // on the masked copy, then read the specifier literal from the original
++    // code at the same offset (masked interiors are blanked).
++    const starRe = new RegExp(ESM_PREFIX + String.raw`export\s*\*\s*from\s*(["'])`, 'gu');
++    while ((match = starRe.exec(maskedCode)) !== null) {
++        const quoteIndex = match.index + match[0].length - 1;
++        const quote = match[1];
++        let specEnd = quoteIndex + 1;
++        while (specEnd < code.length && code[specEnd] !== quote)
++            specEnd += code[specEnd] === '\\' ? 2 : 1;
++        if (specEnd >= code.length)
++            return { names: null, hasDefault: false };
++        const spec = code.slice(quoteIndex + 1, specEnd);
+         const target = spec.startsWith('.') ? resolveLocalReExportTarget(spec, absPath, platform) : resolveBareReExportTarget(spec, absPath, platform);
+         if (!target)
+             return { names: null, hasDefault: false };
 diff --git a/hmr/server/device-transform-helpers.js b/hmr/server/device-transform-helpers.js
-index c4e160808..7215bf88e 100644
+index 71574c48f655183af0c9601b020fd1febd63ccb3..0061d9c9e9fe9c6034576eae8449831d19f8ace7 100644
 --- a/hmr/server/device-transform-helpers.js
 +++ b/hmr/server/device-transform-helpers.js
 @@ -79,7 +79,11 @@ function bareSpecifierFromFlatDepPath(depPath) {
@@ -68,10 +245,10 @@ index c4e160808..7215bf88e 100644
          return code;
      }
 diff --git a/hmr/server/rewrite-imports.js b/hmr/server/rewrite-imports.js
-index 82275377e..5bbbf6d93 100644
+index 51ad398cefe75c918e887bd9506d9152259b957e..1d978e4875b7e102e5aed8fa51438c1d8f0a3d93 100644
 --- a/hmr/server/rewrite-imports.js
 +++ b/hmr/server/rewrite-imports.js
-@@ -257,11 +257,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
+@@ -256,11 +256,29 @@ export function rewriteImports(code, importerPath, sfcFileMap, depFileMap, proje
                  }
                  return `${prefix}${rewritten}${suffix}`;
              }
@@ -106,8 +283,150 @@ index 82275377e..5bbbf6d93 100644
          }
          // Vite 8 oxc runtime helpers (decorators etc.) — emitted as
          // `/@id/__x00__@oxc-project+runtime@<ver>/helpers/<name>.js`. These are
+diff --git a/hmr/server/websocket-core-bridge.js b/hmr/server/websocket-core-bridge.js
+index 0d58dfc3e2254656cd910ddf2dde7845dd1cf595..8d57de97e60bbab854737f33391c2c6e345c64de 100644
+--- a/hmr/server/websocket-core-bridge.js
++++ b/hmr/server/websocket-core-bridge.js
+@@ -12,10 +12,12 @@ const REGEX_PRECEDING_KEYWORD_RE = /(?:^|[^$\w])(?:return|typeof|instanceof|in|o
+ /**
+  * Blank line and block comments (preserving newlines) so the regex export
+  * scanners never see a commented-out `export` declaration. String, template
+- * and regex literals are skipped so their contents are left intact.
++ * and regex literals are skipped so their contents are left intact — pass
++ * `literals` to blank their interiors too (keeping quotes/positions) so the
++ * scanners can also trust keyword matches as real syntax.
+  */
+-export function maskJsComments(code) {
+-    if (!code || (code.indexOf('//') === -1 && code.indexOf('/*') === -1)) {
++export function maskJsComments(code, literals = false) {
++    if (!code || (!literals && code.indexOf('//') === -1 && code.indexOf('/*') === -1)) {
+         return code;
+     }
+     const chars = code.split('');
+@@ -38,6 +40,82 @@ export function maskJsComments(code) {
+             return true;
+         return REGEX_PRECEDING_KEYWORD_RE.test(code.slice(Math.max(0, j - 10), j + 1));
+     };
++    // Skip a regex literal starting at `at`; returns the index just past it.
++    const skipRegex = (at) => {
++        let j = at + 1;
++        let inClass = false;
++        while (j < n && code[j] !== '\n') {
++            const r = code[j];
++            if (r === '\\') {
++                j += 2;
++                continue;
++            }
++            if (r === '[')
++                inClass = true;
++            else if (r === ']')
++                inClass = false;
++            else if (r === '/' && !inClass)
++                break;
++            j++;
++        }
++        return j + 1;
++    };
++    // Skip a string/template literal starting at `at`; returns the index just
++    // past it. Template `${}` expressions may hold nested literals, comments
++    // and regexes — a naive next-backtick scan closes early and desyncs every
++    // later literal (`...it's...` inside a template opened a fake string).
++    const skipQuoted = (at) => {
++        const quote = code[at];
++        let j = at + 1;
++        if (quote !== '`') {
++            while (j < n && code[j] !== quote)
++                j += code[j] === '\\' ? 2 : 1;
++            return j + 1;
++        }
++        while (j < n) {
++            const t = code[j];
++            if (t === '\\') {
++                j += 2;
++                continue;
++            }
++            if (t === '`')
++                return j + 1;
++            if (t === '$' && code[j + 1] === '{') {
++                j += 2;
++                let depth = 1;
++                while (j < n && depth) {
++                    const e = code[j];
++                    const e2 = code[j + 1];
++                    if (e === "'" || e === '"' || e === '`') {
++                        j = skipQuoted(j);
++                        continue;
++                    }
++                    if (e === '/' && e2 === '/') {
++                        const eol = code.indexOf('\n', j);
++                        j = eol === -1 ? n : eol;
++                        continue;
++                    }
++                    if (e === '/' && e2 === '*') {
++                        const close = code.indexOf('*/', j + 2);
++                        j = close === -1 ? n : close + 2;
++                        continue;
++                    }
++                    if (e === '/' && slashStartsRegex(j)) {
++                        j = skipRegex(j);
++                        continue;
++                    }
++                    if (e === '{')
++                        depth++;
++                    else if (e === '}')
++                        depth--;
++                    j++;
++                }
++                continue;
++            }
++            j++;
++        }
++        return j;
++    };
+     let i = 0;
+     while (i < n) {
+         const c = code[i];
+@@ -55,30 +133,16 @@ export function maskJsComments(code) {
+             i = stop;
+         }
+         else if (c === "'" || c === '"' || c === '`') {
+-            i++;
+-            while (i < n && code[i] !== c) {
+-                i += code[i] === '\\' ? 2 : 1;
+-            }
+-            i++;
++            const start = i;
++            i = skipQuoted(i);
++            if (literals)
++                blank(start + 1, i - 1);
+         }
+         else if (c === '/' && slashStartsRegex(i)) {
+-            i++;
+-            let inClass = false;
+-            while (i < n && code[i] !== '\n') {
+-                const r = code[i];
+-                if (r === '\\') {
+-                    i += 2;
+-                    continue;
+-                }
+-                if (r === '[')
+-                    inClass = true;
+-                else if (r === ']')
+-                    inClass = false;
+-                else if (r === '/' && !inClass)
+-                    break;
+-                i++;
+-            }
+-            i++;
++            const start = i;
++            i = skipRegex(i);
++            if (literals)
++                blank(start, i);
+         }
+         else {
+             i++;
 diff --git a/hmr/server/websocket-served-module-helpers.js b/hmr/server/websocket-served-module-helpers.js
-index 6004d307b..9798d184b 100644
+index 6004d307bcbcc48da887fb2177642c83e9eb89b7..9798d184bf6cb4762ed801ebf658c575d34f669e 100644
 --- a/hmr/server/websocket-served-module-helpers.js
 +++ b/hmr/server/websocket-served-module-helpers.js
 @@ -122,8 +122,8 @@ export function hasEsmDefaultExport(code) {
@@ -131,10 +450,10 @@ index 6004d307b..9798d184b 100644
              start: node.start,
              end: node.end,
 diff --git a/hmr/shared/vendor/manifest-collect.js b/hmr/shared/vendor/manifest-collect.js
-index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d632a9efb 100644
+index 7b3afd4af098cc8587851b04188f6b1c3d5541bc..854530f1b5c65e41e47b61b50cb1d21c43c48144 100644
 --- a/hmr/shared/vendor/manifest-collect.js
 +++ b/hmr/shared/vendor/manifest-collect.js
-@@ -529,7 +529,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+@@ -527,7 +527,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
                  if (!deps)
                      return;
                  for (const [name, spec] of Object.entries(deps)) {
@@ -143,7 +462,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
                          continue;
                      // Policy exclusions match PACKAGE NAMES (`@prisma/client` in
                      // ALWAYS_EXCLUDE / NS_VENDOR_EXCLUDE); check here so subpath specs
-@@ -555,7 +555,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+@@ -553,7 +553,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
                                  console.log(`[vendor] skipping root dependency ${name} (no resolvable bare entry)`);
                              continue;
                          }
@@ -153,7 +472,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
                          continue;
                      }
                      // Subpath-only evidence: the app never imports the package ROOT, and
-@@ -575,7 +576,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+@@ -573,7 +574,8 @@ export function collectVendorModules(projectRoot, platform, flavor) {
                          }
                          if (debug)
                              console.log(`[vendor] vendoring subpath ${subpath} (root ${name} has subpath-only evidence)`);
@@ -163,7 +482,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
                      }
                  }
              };
-@@ -644,7 +646,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
+@@ -642,7 +644,7 @@ export function collectVendorModules(projectRoot, platform, flavor) {
          }
          const peerDependencies = Object.keys(dependencyPkg.peerDependencies ?? {});
          for (const peer of peerDependencies) {
@@ -172,7 +491,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
                  continue;
              }
              if (projectDeps.dependencies.has(peer) || projectDeps.optional.has(peer) || projectDeps.dev.has(peer)) {
-@@ -803,6 +805,48 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
+@@ -798,6 +800,48 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
          return true;
      return false;
  }
@@ -221,7 +540,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
  /**
   * Classify an installed package's entry point:
   *  - `'compiled'` — a `.js`/`.mjs`/`.cjs` entry file (or its platform
-@@ -815,16 +859,20 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
+@@ -810,16 +854,20 @@ function isUnvendorableLocalSource(name, spec, projectRequire, platform) {
   *    its subpaths may still be vendored as monorepo root deps.
   */
  function classifyPackageEntry(name, projectRequire, platform) {
@@ -245,7 +564,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
              if (fs.existsSync(candidate)) {
                  pkgJsonPath = candidate;
                  break;
-@@ -846,35 +894,23 @@ function classifyPackageEntry(name, projectRequire, platform) {
+@@ -841,35 +889,23 @@ function classifyPackageEntry(name, projectRequire, platform) {
          if (typeof value === 'string' && value)
              candidates.push(value);
      };
@@ -296,7 +615,7 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
      for (const cand of candidates) {
          const abs = path.resolve(pkgDir, cand);
          const ext = path.extname(cand);
-@@ -894,25 +930,26 @@ function classifyPackageEntry(name, projectRequire, platform) {
+@@ -889,25 +925,26 @@ function classifyPackageEntry(name, projectRequire, platform) {
              continue;
          }
          if (!ext) {
@@ -334,111 +653,10 @@ index d35132291253572e7b13e270033621d13a0887ed..0e922b515ef130397536f1bb7841340d
  }
  function canResolveDependencyPackageJson(specifier, projectRequire) {
      try {
-@@ -944,4 +981,3 @@ function parseEnvList(value) {
+@@ -939,4 +976,3 @@ function parseEnvList(value) {
          .map((token) => token.trim())
          .filter(Boolean);
  }
 \ No newline at end of file
 -//# sourceMappingURL=manifest-collect.js.map
-diff --git a/helpers/typescript-check.js b/helpers/typescript-check.js
-index a05696b679b3feecd1bafa267de44b59db559162..6f5ed4c8557fa1e093e2a8e76f833e4ef9570f67 100644
---- a/helpers/typescript-check.js
-+++ b/helpers/typescript-check.js
-@@ -29,13 +29,14 @@
-     const pkgPath = require.resolve('vue-tsc/package.json');
-     return path.resolve(path.dirname(pkgPath), 'bin/vue-tsc.js');
- }
--function getTsrxTscBinPath() {
-+function getTscBinPath() {
-     try {
-         const projectRequire = createRequire(path.join(getProjectRootPath(), 'package.json'));
--        const pkgPath = projectRequire.resolve('@tsrx/typescript-plugin/package.json');
-+        const pkgPath = projectRequire.resolve('typescript/package.json');
-         const pkg = JSON.parse(fs.readFileSync(pkgPath, 'utf8'));
--        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsrx-tsc'];
--        return bin ? path.resolve(path.dirname(pkgPath), bin) : undefined;
-+        const bin = typeof pkg.bin === 'string' ? pkg.bin : pkg.bin?.['tsc'];
-+        const major = Number.parseInt(String(pkg.version ?? ''), 10);
-+        return bin && major >= 7 ? path.resolve(path.dirname(pkgPath), bin) : undefined;
-     }
-     catch {
-         return undefined;
-@@ -92,7 +93,7 @@
-     try {
-         const configPath = path.join(tempDir, 'tsconfig.json');
-         fs.writeFileSync(configPath, JSON.stringify(createTsrxCheckConfig(tsConfigPath, parsedConfig, rootNames, opts.platform)));
--        runTscBinary('tsrx-tsc', [binPath, '--pretty', '-p', configPath], opts, failOnError);
-+        runTscBinary('tsc', [binPath, '--runExternalCode', '--pretty', '-p', configPath], opts, failOnError);
-     }
-     finally {
-         fs.rmSync(tempDir, { recursive: true, force: true });
-@@ -304,9 +305,9 @@
-             const parsedConfig = getParsedConfig(ts, tsConfigPath, opts.platform);
-             const failOnError = shouldFailOnTypeCheckError(opts, parsedConfig);
-             const rootNames = parsedConfig.fileNames.filter((fileName) => !shouldSkipFileForPlatform(fileName, opts.platform));
--            const tsrxTscBinPath = getTsrxTscBinPath();
--            if (tsrxTscBinPath && hasTsrxImports(ts, rootNames)) {
--                runTsrxTypeCheck(tsrxTscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
-+            const tscBinPath = getTscBinPath();
-+            if (tscBinPath && hasTsrxImports(ts, rootNames)) {
-+                runTsrxTypeCheck(tscBinPath, opts, tsConfigPath, parsedConfig, rootNames, failOnError);
-                 return;
-             }
-             const program = ts.createProgram({
-@@ -323,7 +324,7 @@
-             }
-             if (opts.logDiagnostics !== false) {
-                 if (hasUnresolvedTsrxImport(ts, diagnostics)) {
--                    console.warn('[ns-vite] Unresolved .tsrx imports: install @tsrx/typescript-plugin so the type check can run through tsrx-tsc.');
-+                    console.warn('[ns-vite] Unresolved .tsrx imports: install TypeScript 7.1 or newer so .tsrx files are checked through tsc --runExternalCode.');
-                 }
-                 const output = ts.formatDiagnosticsWithColorAndContext(diagnostics, getFormatHost(ts));
-                 (failOnError ? console.error : console.warn)(output);
-diff --git a/helpers/typescript.js b/helpers/typescript.js
-index fe9c9fe948862def734df7bc5b817a9989155019..c1b23e10c64669cc0354364713ca6a57e1b81d55 100644
---- a/helpers/typescript.js
-+++ b/helpers/typescript.js
-@@ -6,23 +6,33 @@ let loaded;
-  * The compiler API backs the NativeClass ES5 downlevel and build-time type
-  * checking, but a plain JavaScript app has no reason to install `typescript`.
-  * Loading it on demand keeps every config helper importable without it; each
-- * call site decides what to do when it is absent. The project's own copy is
-- * preferred over one reachable from this package so type checking runs on the
-- * version the app was written against.
-+ * call site decides what to do when it is absent. Prefer the project's
-+ * explicit classic API alias; a native TypeScript launcher is not an API.
-+ * TSRX checking still delegates to the project's tsc --runExternalCode.
-  */
- export function loadTypeScript() {
--    if (loaded !== undefined)
--        return loaded;
--    loaded = null;
-+    if (loaded !== undefined) return loaded;
-+    let incompatible = false;
-     for (const paths of [[getProjectRootPath()], undefined]) {
--        try {
--            loaded = require(require.resolve('typescript', paths ? { paths } : undefined));
--            break;
-+        for (const name of ['typescript-classic', 'typescript']) {
-+            let candidate;
-+            try {
-+                candidate = require(require.resolve(name, paths ? { paths } : undefined));
-+            } catch { continue; }
-+            if (typeof candidate.transpileModule === 'function' && typeof candidate.getParsedCommandLineOfConfigFile === 'function') {
-+                loaded = candidate;
-+                return loaded;
-+            }
-+            incompatible = true;
-         }
--        catch { }
-     }
-+    if (incompatible) {
-+        throw new Error('[ns-vite] Native TypeScript does not provide the classic compiler API used by NativeClass and config parsing. Install typescript-classic@npm:typescript@5.9.3; project typechecks can keep native TypeScript.');
-+    }
-+    loaded = null;
-     return loaded;
- }
-+
- let warned = false;
- /**
-  * Logged once per process. A `@NativeClass` source that is not downleveled
+\ No newline at end of file
