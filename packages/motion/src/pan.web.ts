@@ -23,7 +23,10 @@ export function attachPan(
     const elapsed = event.timeStamp - time
 
     if (elapsed > 0 && (delta.x || delta.y)) {
-      velocity = { x: (delta.x * 1000) / elapsed, y: (delta.y * 1000) / elapsed }
+      velocity = {
+        x: (delta.x * 1000) / elapsed,
+        y: (delta.y * 1000) / elapsed,
+      }
       velocityTime = event.timeStamp
     } else if (event.timeStamp - velocityTime > 100) {
       velocity = { x: 0, y: 0 }
@@ -49,14 +52,6 @@ export function attachPan(
     start = last = { x: event.clientX, y: event.clientY }
     time = velocityTime = event.timeStamp
     velocity = { x: 0, y: 0 }
-    try {
-      node.setPointerCapture?.(event.pointerId)
-    } catch (error) {
-      // Synthetic pointer dispatch has no active browser pointer.
-      if (event.isTrusted || (error as Error).name !== 'NotFoundError') {
-        throw error
-      }
-    }
   }
 
   const move = (event: PointerEvent) => {
@@ -75,10 +70,20 @@ export function attachPan(
         return
       }
 
-      if ((axis === true ? Math.hypot(info.offset.x, info.offset.y) : Math.abs(primary)) <= 8) {
+      if (
+        (axis === true ? Math.hypot(info.offset.x, info.offset.y) : Math.abs(primary)) <= 8
+      ) {
         return
       }
 
+      try {
+        node.setPointerCapture?.(event.pointerId)
+      } catch (error) {
+        // Synthetic pointer dispatch has no active browser pointer.
+        if (event.isTrusted || (error as Error).name !== 'NotFoundError') {
+          throw error
+        }
+      }
       active = true
       callbacks.start(event, info)
     }
@@ -108,15 +113,15 @@ export function attachPan(
   const cancel = (event: PointerEvent) => finish(event, true)
 
   node.addEventListener('pointerdown', down)
-  node.addEventListener('pointermove', move)
-  node.addEventListener('pointerup', up)
-  node.addEventListener('pointercancel', cancel)
+  node.ownerDocument.addEventListener('pointermove', move)
+  node.ownerDocument.addEventListener('pointerup', up)
+  node.ownerDocument.addEventListener('pointercancel', cancel)
   node.addEventListener('lostpointercapture', cancel)
   return () => {
     node.removeEventListener('pointerdown', down)
-    node.removeEventListener('pointermove', move)
-    node.removeEventListener('pointerup', up)
-    node.removeEventListener('pointercancel', cancel)
+    node.ownerDocument.removeEventListener('pointermove', move)
+    node.ownerDocument.removeEventListener('pointerup', up)
+    node.ownerDocument.removeEventListener('pointercancel', cancel)
     node.removeEventListener('lostpointercapture', cancel)
     if (pointer !== undefined && node.hasPointerCapture?.(pointer)) {
       node.releasePointerCapture(pointer)
