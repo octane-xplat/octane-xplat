@@ -50,7 +50,7 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
-		"@nativescript/canvas": "3.0.0-beta.6",
+		"@nativescript/canvas": "3.0.1",
 		"@octane-xplat/jsx": "workspace:*"
 	},
 	"devDependencies": {

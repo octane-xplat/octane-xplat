@@ -187,7 +187,7 @@
         "@nativescript-community/observable": "2.0.11",
         "@nativescript-community/octane": "catalog:",
         "@nativescript-community/perms": "3.0.12",
-        "@nativescript/canvas": "3.0.0-beta.6",
+        "@nativescript/canvas": "3.0.1",
         "@nativescript/core": "catalog:",
         "@nativescript/font-manager": "1.0.20",
         "@octane-xplat/auth": "workspace:*",
@@ -272,7 +272,7 @@
         "@nativescript-community/observable": "2.0.11",
         "@nativescript-community/octane": "catalog:",
         "@nativescript-community/perms": "3.0.12",
-        "@nativescript/canvas": "3.0.0-beta.6",
+        "@nativescript/canvas": "3.0.1",
         "@nativescript/core": "https://pkg.pr.new/@nativescript/core@abae298",
         "@nativescript/font-manager": "1.0.18",
         "@octane-xplat/biometrics": "workspace:*",
@@ -708,7 +708,7 @@
       "name": "@octane-xplat/canvas",
       "version": "0.20.0",
       "dependencies": {
-        "@nativescript/canvas": "3.0.0-beta.6",
+        "@nativescript/canvas": "3.0.1",
         "@octane-xplat/jsx": "workspace:*",
       },
       "devDependencies": {
@@ -4014,7 +4014,7 @@
 
     "@nativescript/camera": ["@nativescript/camera@7.0.0", "", { "dependencies": { "@nativescript-community/perms": "2.3.6" } }, "sha512-QyKvRqLnchWPV1T+s1Qx0rscnj03G7AK0kSLWW8dwDKXzFdc/EJUmp3nVaLuTxnphiaoUxqWp+o1FCV1TW64vQ=="],
 
-    "@nativescript/canvas": ["@nativescript/canvas@3.0.0-beta.6", "", { "dependencies": { "@nativescript/font-manager": "1.0.20" } }, "sha512-6BiIh8yQKKIMa1pNz7aeIseztAieBETPSivTcFwRdJQW5g7ZXmt0lwdNk7nN8zYuM1tGq6TcSZ+ZxFiHehhU0g=="],
+    "@nativescript/canvas": ["@nativescript/canvas@3.0.1", "", { "dependencies": { "@nativescript/font-manager": "*" } }, "sha512-pbLsbCRroxpZl1/M3UGFXwwmOIzBgu7p2xUb+5QhQetg/m9wrRXCRDJZVVDJM3i8VRJx3Dqfd2Lw4uxQFMwEYg=="],
 
     "@nativescript/contacts": ["@nativescript/contacts@3.0.0", "", { "dependencies": { "@nativescript-community/perms": "2.3.6" } }, "sha512-gBOx3db0gJYaQnc4H/hwLxApEA0w5rsGz/nWk9aqmNnxfkyXUNNpWNaxqiplnPrIo9MCOEVVnbhXwm4GohvVLA=="],
 
