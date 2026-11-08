@@ -9,6 +9,7 @@ import {
   Pressable,
   TextArea,
   TextInput,
+  View,
 } from '@octane-xplat/ui'
 
 import { motion, Presence } from '../../../packages/motion/src/index.web'
@@ -40,6 +41,10 @@ function InputReadiness() @{
   const [overlay, setOverlay] = useState(false)
   const [commandPalette, setCommandPalette] = useState(false)
   const [present, setPresent] = useState(true)
+  const [panLog, setPanLog] = useState<string[]>([])
+  const [panPresses, setPanPresses] = useState(0)
+  const [panSelfLog, setPanSelfLog] = useState<string[]>([])
+  const [panSelfPresses, setPanSelfPresses] = useState(0)
   const change = (text: string) => {
     setChanges(changes + 1)
     setValue(text)
@@ -113,6 +118,22 @@ function InputReadiness() @{
     <button id="slider-after" tabIndex={0}>
       After volume
     </button>
+    <View id="pan-host" onPan={(e) => setPanLog([...panLog, e.state])} style={{ padding: 24 }}>
+      <Pressable id="pan-nested" onPress={() => setPanPresses(panPresses + 1)}>
+        Nested action
+      </Pressable>
+    </View>
+    <output id="pan-log">{panLog.join(',')}</output>
+    <output id="pan-presses">{panPresses}</output>
+    <Pressable
+      id="pan-self"
+      onPan={(e) => setPanSelfLog([...panSelfLog, e.state])}
+      onPress={() => setPanSelfPresses(panSelfPresses + 1)}
+    >
+      Pan pressable
+    </Pressable>
+    <output id="pan-self-log">{panSelfLog.join(',')}</output>
+    <output id="pan-self-presses">{panSelfPresses}</output>
     <button id="exit" onClick={() => setPresent(false)}>
       Exit
     </button>

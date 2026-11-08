@@ -256,6 +256,73 @@ try {
   await page.keyboard.press('Tab')
   assert.equal(await focused(), 'slider-after')
 
+  // An ancestor onPan observes the drag but must not claim the pointer before
+  // the pan slop is crossed — a stationary click on a nested control still
+  // activates it, while a real drag produces pan events and no click.
+  const nested = page.locator('#pan-nested')
+  const nestedBox = await nested.boundingBox()
+
+  assert.ok(nestedBox)
+
+  const nestedX = nestedBox.x + nestedBox.width / 2
+  const nestedY = nestedBox.y + nestedBox.height / 2
+
+  await nested.click()
+  assert.equal(await page.locator('#pan-presses').textContent(), '1')
+
+  // Sub-slop jitter between down and up is still a click.
+  await page.mouse.move(nestedX, nestedY)
+  await page.mouse.down()
+  await page.mouse.move(nestedX + 3, nestedY)
+  await page.mouse.up()
+  assert.equal(await page.locator('#pan-presses').textContent(), '2')
+
+  await page.mouse.move(nestedX, nestedY)
+  await page.mouse.down()
+  await page.mouse.move(nestedX + 40, nestedY, { steps: 4 })
+  await page.mouse.up()
+  assert.equal(await page.locator('#pan-presses').textContent(), '2')
+
+  const panStates = (await page.locator('#pan-log').textContent())?.split(',') ?? []
+  const lastBegan = panStates.lastIndexOf('began')
+
+  assert.ok(lastBegan >= 0)
+  assert.deepEqual(
+    panStates.slice(lastBegan).filter((state) => state !== 'moved'),
+    ['began', 'ended'],
+  )
+
+  assert.ok(panStates.slice(lastBegan).includes('moved'))
+
+  // A drag on a Pressable that owns the pan itself is not an activation.
+  const self = page.locator('#pan-self')
+  const selfBox = await self.boundingBox()
+
+  assert.ok(selfBox)
+
+  const selfX = selfBox.x + selfBox.width / 2
+  const selfY = selfBox.y + selfBox.height / 2
+
+  await self.click()
+  assert.equal(await page.locator('#pan-self-presses').textContent(), '1')
+
+  await page.mouse.move(selfX, selfY)
+  await page.mouse.down()
+  await page.mouse.move(selfX + 40, selfY, { steps: 4 })
+  await page.mouse.up()
+  assert.equal(await page.locator('#pan-self-presses').textContent(), '1')
+
+  const selfStates = (await page.locator('#pan-self-log').textContent())?.split(',') ?? []
+  const lastSelfBegan = selfStates.lastIndexOf('began')
+
+  assert.ok(lastSelfBegan >= 0)
+  assert.deepEqual(
+    selfStates.slice(lastSelfBegan).filter((state) => state !== 'moved'),
+    ['began', 'ended'],
+  )
+
+  assert.ok(selfStates.slice(lastSelfBegan).includes('moved'))
+
   assert.deepEqual(errors, [])
   console.log(
     `Input readiness: ${browserName} keyboard, selection, controlled writes, modal focus/accessibility isolation, and Presence reversal passed. IME and screen readers were not exercised.`,
