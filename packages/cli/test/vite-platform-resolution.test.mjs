@@ -137,6 +137,23 @@ describe('nativeRelativeResolution', () => {
       )
     }))
 
+  // A platform leaf delegating to its own unsuffixed base
+  // (`VirtualList.ios.tsrx` re-exporting `./VirtualList.tsrx`) must land on
+  // the literal file — probing the chain picks the importer itself, and
+  // rolldown reports the self re-export as CIRCULAR_REEXPORT.
+  it('lands a platform leaf delegating to its own base on the literal file', () => {
+    const dir = makeDir(['VirtualList.tsrx', 'VirtualList.ios.tsrx', 'VirtualList.android.tsrx'])
+
+    assert.equal(
+      handler('./VirtualList.tsrx', join(dir, 'VirtualList.ios.tsrx'), {}),
+      vitePath(join(dir, 'VirtualList.tsrx')),
+    )
+    assert.equal(
+      handler('./VirtualList.tsrx', join(dir, 'VirtualList.android.tsrx'), {}),
+      vitePath(join(dir, 'VirtualList.tsrx')),
+    )
+  })
+
   it('leaves platform-tagged and non-script specifiers to literal resolution', () =>
     withWindowsEnv((resolve) => {
       const dir = makeDir(['screen.ios.tsrx', 'theme.css'])

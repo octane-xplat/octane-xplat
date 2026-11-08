@@ -329,6 +329,20 @@ export function nativeRelativeResolution() {
           ? base
           : base.replace(/\.(tsrx|tsx|ts|mts|jsx|js|json)$/, '')
 
+        // A platform leaf may delegate to its own unsuffixed base —
+        // `VirtualList.ios.tsrx` re-exporting `./VirtualList.tsrx` names the
+        // literal file. Probing the chain on that specifier selects the
+        // importer itself (self re-export) or a foreign-platform sibling.
+        // Same delegation rule as resolveTsrxLeaf's delegatesToBase.
+        if (
+          importerFile.replace(
+            /\.(web|mobile|ios|android|macos|windows|linux|gtk)(\.[^./\\]+)$/,
+            '$2',
+          ) === base
+        ) {
+          return existsSync(base) ? base.replaceAll('\\', '/') : null
+        }
+
         for (const ext of exts) {
           if (existsSync(stem + ext)) {
             // Vite module IDs use forward slashes, including on Windows.
