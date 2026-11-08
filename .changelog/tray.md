@@ -26,8 +26,8 @@ if ((await getTrayAvailability()).available) {
 }
 ```
 
-Menus support actions, checkboxes, radio groups, submenus, sections, separators, and disabled items. Linux requires a StatusNotifier host (KDE, GNOME with the AppIndicator extension, or similar); desktops without one report `no-status-notifier-host`. Web, iOS, Android, and Windows report explicit unsupported states — the Windows runtime's tray primitives (Shell_NotifyIcon, message-window callbacks) are proven feasible on the packaged host but the leaf is not implemented yet.
+Menus support actions, checkboxes, radio groups, submenus, sections, separators, and disabled items. Linux requires a StatusNotifier host (KDE, GNOME with the AppIndicator extension, or similar); desktops without one report `no-status-notifier-host`. Windows uses `Shell_NotifyIconW` with `TrackPopupMenu` menus; file icons must be `.ico`, named icons map to stock icon ids. Web, iOS, and Android report explicit unsupported states.
 
-Verified on a real packaged macOS `.app`, the NativeScript macOS JSC host, and a live D-Bus session with an external StatusNotifier watcher.
+Verified on a real packaged macOS `.app`, the NativeScript macOS JSC host, a live D-Bus session with an external StatusNotifier watcher, and the packaged Windows host (real notification-area rect, activation, menu selection, and removal end to end).
 
 See [Tray](https://octane-xplat.goddardai.org/package-tray).

@@ -8,7 +8,6 @@ import * as windows from '../src/index.windows'
 const variants = [
 	{ name: 'native default', api: native, reason: 'unsupported-platform' },
 	{ name: 'web', api: web, reason: 'unsupported-platform' },
-	{ name: 'windows', api: windows, reason: 'unsupported-runtime' },
 ] as const
 
 describe('unsupported variants', () => {
@@ -43,20 +42,45 @@ describe('unsupported variants', () => {
 		})
 	}
 
-	it('windows explains the preview FFI limitation', async () => {
-		const availability = await windows.getTrayAvailability()
-		expect(availability.available).toBe(false)
-		if (!availability.available) {
-			expect(availability.message).toMatch(/Windows preview/)
-		}
-	})
-
 	it('web explains it needs a native desktop runtime', async () => {
 		const availability = await web.getTrayAvailability()
 		expect(availability.available).toBe(false)
 		if (!availability.available) {
 			expect(availability.message).toMatch(/native desktop runtime/)
 			expect(availability.message).toMatch(/WebView/)
+		}
+	})
+})
+
+// The windows leaf is real, but on a host without the packaged runtime's
+// Win32 projection it still reports and throws the same explicit unsupported
+// state instead of crashing on a missing global.
+describe('windows leaf without the Win32 projection', () => {
+	it('reports unsupported-runtime', async () => {
+		const availability = await windows.getTrayAvailability()
+		expect(availability.available).toBe(false)
+		if (!availability.available) {
+			expect(availability.reason).toBe('unsupported-runtime')
+			expect(availability.message).toMatch(/Win32 FFI/)
+		}
+	})
+
+	it('rejects createTray with TrayError(unsupported-runtime)', async () => {
+		await expect(
+			windows.createTray({ id: 't', icon: { type: 'named', name: 'application' } }),
+		).rejects.toMatchObject({ name: 'TrayError', code: 'unsupported-runtime' })
+	})
+
+	it('throws TrayError(unsupported-runtime) from window and residency helpers', () => {
+		for (const call of [
+			() => windows.showAppWindows(),
+			() => windows.hideAppWindows(),
+			() => windows.toggleAppWindows(),
+			() => windows.areAppWindowsVisible(),
+			() => windows.keepAppResident(),
+		]) {
+			expect(call).toThrowError(TrayError)
+			expect(call).toThrowError(expect.objectContaining({ code: 'unsupported-runtime' }))
 		}
 	})
 })

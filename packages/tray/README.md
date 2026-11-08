@@ -6,9 +6,13 @@ menus, plus window visibility and residency helpers for tray-style apps.
 - macOS AppKit: `NSStatusBar` status items with `NSMenu` menus.
 - Linux GTK: StatusNotifierItem + `com.canonical.dbusmenu` over the D-Bus
   session bus in pure Gio — no appindicator typelibs required.
-- Windows preview, browsers, WebView frontends and mobile report
-  `unsupported-platform`/`unsupported-runtime` from `getTrayAvailability()`
-  and reject `createTray` with `TrayError`.
+- Windows preview: `Shell_NotifyIconW` notification-area icons with
+  `TrackPopupMenu` context menus via a message-only window on a dedicated
+  worker thread. File icons must be `.ico`/`.cur`/`.ani`; named icons map to
+  stock `LoadIconW` ids (`application`, `info`, `warning`, `error`,
+  `question`, `winlogo`, `shield` or a numeric id).
+- Browsers, WebView frontends and mobile report `unsupported-platform` from
+  `getTrayAvailability()` and reject `createTray` with `TrayError`.
 
 ```ts
 import { createTray, getTrayAvailability, keepAppResident } from '@octane-xplat/tray'
