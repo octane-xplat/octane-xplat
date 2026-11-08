@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { appKitLayout, appKitScroll } from '../../internal/platform/appkit-events.macos'
 import { mergeStyle } from '../../internal/layout/style-merge'
+import { layoutChildProps } from '../layout/layout-child'
 import { useImperativeHandle, useMemo, useRef, useState } from 'octane'
 import type { Key, VirtualListProps, VirtualListScrollOptions } from '../../props'
 import { defaultItemKey } from '../../data/list-data'
@@ -500,7 +501,7 @@ export function VirtualList<T = any>(props: VirtualListProps<T>): unknown @{
     id={props.id}
     testID={props.testID ?? ''}
     className={cx('vx-virtual-list', props.className)}
-    style={props.style}
+    {...layoutChildProps(props, props.style)}
     accessibilityLabel={props.accessibilityLabel}
     onScroll={appKitScroll<AppKitScrollEvent>(onScroll)}
     onLayoutChanged={appKitLayout<AppKitLayoutEvent>(() => onScrollViewLayout())}
