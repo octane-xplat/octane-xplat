@@ -91,7 +91,10 @@ here, separately from root/web Vitest 5. The plugin uses its manual public
 matcher with raw PNG base64, zero pixel tolerance and antialias differences
 included. The local Vite dependency optimization explicitly includes the
 plugin's CommonJS `ssim.js` dependency so its manual preset can load in
-Browser Mode.
+Browser Mode. Test files run serially (`browser.fileParallelism` off) so the
+trusted-pointer motion tests never share the single Chromium's input pipeline
+with the capture lanes — re-enabling file parallelism reintroduces the flake
+that parallelism plus ordinary turbo load caused.
 
 ## Qualify iOS and common-reference parity
 

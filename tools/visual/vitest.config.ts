@@ -80,6 +80,13 @@ export default defineConfig({
     browser: {
       enabled: true,
       headless: true,
+      // Vitest 4 runs test files in parallel browser pages inside the single
+      // Chromium instance. Those lanes share the browser's input/compositor
+      // pipeline and this command server; under a parallel turbo run the
+      // capture lanes can starve the trusted-pointer motion tests (real
+      // CDP input is the suite's most timing-sensitive surface). Serialize
+      // the files so no sibling lane runs alongside trusted input.
+      fileParallelism: false,
       viewport: { width: 640, height: 420 },
       commands: {
         // Trusted pointer input for gesture regression tests. Runs on the
