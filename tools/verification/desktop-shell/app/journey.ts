@@ -35,12 +35,12 @@ export function marker(text: string) {
 export function submitName(name: string) {
   name$.set(name)
   submitted$.set(true)
-  submitCount$.set(submitCount$.get() + 1)
+  submitCount$.set(submitCount$.getSnapshot() + 1)
   marker(`SUBMITTED name=${name}`)
 }
 
 export function statusText() {
-  const name = name$.get()
+  const name = name$.getSnapshot()
 
   return name ? `Submitted: ${name}` : 'Waiting for a name'
 }

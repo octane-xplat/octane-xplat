@@ -48,7 +48,7 @@ function openInspector() {
   }
 
   setInspectorHandle(handle)
-  inspectorCount$.set(inspectorCount$.get() + 1)
+  inspectorCount$.set(inspectorCount$.getSnapshot() + 1)
   inspectorOpen$.set(true)
   marker(`INSPECTOR_OPENED id=${handle.id}`)
 
@@ -90,7 +90,7 @@ runMacOSApp(
             items: menu.items.map((item) => ({
               ...item,
               onSelect: () => {
-                const count = menuCount$.get() + 1
+                const count = menuCount$.getSnapshot() + 1
 
                 menuCount$.set(count)
                 marker(`MENU action=${item.key} count=${count}`)

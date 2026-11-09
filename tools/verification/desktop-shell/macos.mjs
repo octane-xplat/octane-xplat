@@ -191,6 +191,7 @@ async function buildPhase() {
   const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
   const cli = `file:${stagedCli.cli.archive}`
   const macosBuild = await packOne(join(repo, 'packages/macos-build'), packs)
+  const toolchain = await packOne(join(repo, 'packages/toolchain'), packs)
   const docsSearch = await packOne(join(repo, 'packages/docs-search'), packs)
   const lib = await packOne(join(repo, 'packages/lib'), packs)
   const lint = await packOne(join(repo, 'packages/lint'), packs)
@@ -219,10 +220,10 @@ async function buildPhase() {
       octane: compatibility.packages.octane.version,
     },
     devDependencies: {
+      'octane-xplat': toolchain,
       '@octane-xplat/cli': cli,
       '@octane-xplat/macos-build': macosBuild,
-      '@octanejs/vite-plugin': compatibility.packages['@octanejs/vite-plugin'].version,
-      '@tsrx/oxc': compatibility.packages['@tsrx/oxc'].version,
+      '@nativescript/types': compatibility.packages['@nativescript/types'].version,
       vite: compatibility.packages.vite.version,
       typescript: compatibility.packages.typescript.version,
     },
@@ -266,25 +267,34 @@ async function buildPhase() {
     join(consumer, 'tsconfig.json'),
     JSON.stringify(
       {
+        contentMappers: [
+          { package: 'octane-xplat', extensions: ['.tsrx'] },
+        ],
         compilerOptions: {
+          strict: true,
           target: 'ESNext',
           module: 'ESNext',
-          moduleResolution: 'Bundler',
-          jsx: 'react-jsx',
+          moduleResolution: 'bundler',
+          jsx: 'preserve',
           jsxImportSource: '@octane-xplat/jsx',
-          customConditions: ['macos'],
-          moduleSuffixes: ['.macos', ''],
-          lib: ['ESNext'],
-          types: [],
-          strict: true,
-          skipLibCheck: true,
+          moduleSuffixes: ['', '.macos'],
+          lib: ['ESNext', 'DOM', 'DOM.Iterable'],
+          types: ['vite/client', '@nativescript/types'],
           noEmit: true,
+          skipLibCheck: true,
+          allowImportingTsExtensions: true,
         },
-        include: ['src/**/*.ts', 'src/**/*.tsx', 'src/**/*.tsrx'],
+        include: ['src/**/*'],
+        exclude: ['node_modules'],
+        files: ['references.d.ts'],
       },
       null,
       2,
     ),
+  )
+  await writeFile(
+    join(consumer, 'references.d.ts'),
+    '/// <reference types="@nativescript/types" />\n/// <reference types="vite/client" />\n',
   )
 
   const srcDir = join(consumer, 'src')
@@ -316,7 +326,7 @@ async function buildPhase() {
     ['install', '--ignore-scripts', '--no-frozen-lockfile'],
     consumer,
   )
-  await execAsync('bun', ['run', 'tsc', '--noEmit'], consumer)
+  await execAsync('bun', ['run', 'xplat', 'typecheck'], consumer, { timeout: 300000 })
   log('consumer typecheck passed')
 
   const artifactsDir = join(consumer, 'artifacts/macos-universal')

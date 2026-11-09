@@ -24,7 +24,6 @@
 		},
 		"test:desktop-shell:macos": {
 			"dependsOn": [
-				"//:submodules",
 				"@octane-xplat/cli#build",
 				"@octane-xplat/cli#build:go",
 				"@octane-xplat/macos-build#build",
