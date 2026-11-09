@@ -3417,7 +3417,10 @@
     "tools/linux-runtime-eval": {
       "name": "@xplat/linux-runtime-eval",
       "devDependencies": {
+        "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/linux-gtk": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "octane": "catalog:",
         "typescript": "catalog:",

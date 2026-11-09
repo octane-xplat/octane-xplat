@@ -5,10 +5,16 @@
   "scripts": {
     "build": "node build.mjs",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
-    "test:runtime": "node run.mjs"
+    "test:runtime": "node run.mjs",
+    "test:port": "LINUX_RUNTIME_EVAL_SLICE=port node run.mjs",
+    "build:port": "node port/build.mjs",
+    "dev:port": "node port/build.mjs --watch"
   },
   "devDependencies": {
+    "@octane-xplat/cli": "workspace:*",
     "@octane-xplat/jsx": "workspace:*",
+    "@octane-xplat/linux-gtk": "workspace:*",
+    "@octane-xplat/ui": "workspace:*",
     "@octanejs/vite-plugin": "catalog:",
     "octane": "catalog:",
     "typescript": "catalog:",

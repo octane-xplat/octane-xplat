@@ -5,23 +5,33 @@ const engine = process.env.LINUX_RUNTIME_EVAL_ENGINE ?? 'native'
 if (!['native', 'gjs'].includes(engine)) {
   throw Error('LINUX_RUNTIME_EVAL_ENGINE must be native or gjs')
 }
+const slice = process.env.LINUX_RUNTIME_EVAL_SLICE ?? 'slice'
+if (!['slice', 'port'].includes(slice)) {
+  throw Error('LINUX_RUNTIME_EVAL_SLICE must be slice or port')
+}
 const executable = process.env.LINUX_RUNTIME_EVAL_EXECUTABLE
 if (engine === 'native' && !executable) {
   throw Error('Set LINUX_RUNTIME_EVAL_EXECUTABLE to the prepared Linux ns-linux binary')
 }
+const entry =
+  slice === 'port' ? `dist/port-${engine}/app.js` : `dist/${engine}/slice.js`
+const masonDir = process.env.LINUX_RUNTIME_EVAL_MASON_DIR
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const runtime = engine === 'gjs' ? ['gjs', '-m'] : [executable]
 const command = [
   'timeout',
-  '40s',
+  '60s',
   'dbus-run-session',
   '--',
   'xvfb-run',
   '-a',
+  ...(masonDir
+    ? ['env', `XPLAT_MASON_TYPELIB=${masonDir}`, `LD_LIBRARY_PATH=${masonDir}`]
+    : []),
   'python3',
   resolve(import.meta.dirname, 'input.py'),
   ...runtime,
-  resolve(import.meta.dirname, `dist/${engine}/slice.js`),
+  resolve(import.meta.dirname, entry),
 ]
 const vm = process.env.LINUX_RUNTIME_EVAL_VM
 if (vm) {

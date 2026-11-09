@@ -57,13 +57,20 @@ def inject(record):
     click('increment')
     time.sleep(.08)
     click('entry')
-    for char in 'abc':
-        code = x.XKeysymToKeycode(display,ord(char))
-        xt.XTestFakeKeyEvent(display,code,1,0)
-        xt.XTestFakeKeyEvent(display,code,0,0)
-        x.XFlush(display)
-        time.sleep(.05)
-    print(json.dumps({'inputClass':'os','mechanism':'XTest','keys':'abc','click':'increment'}),flush=True)
+    def type_keys(text):
+        for char in text:
+            code = x.XKeysymToKeycode(display,ord(char))
+            xt.XTestFakeKeyEvent(display,code,1,0)
+            xt.XTestFakeKeyEvent(display,code,0,0)
+            x.XFlush(display)
+            time.sleep(.05)
+    type_keys('abc')
+    keys='abc'
+    if 'multiline' in frames:
+        click('multiline')
+        type_keys('de')
+        keys='abc|de'
+    print(json.dumps({'inputClass':'os','mechanism':'XTest','keys':keys,'click':'increment'}),flush=True)
 
 process = subprocess.Popen(sys.argv[1:],stdout=subprocess.PIPE,stderr=subprocess.STDOUT,text=True,bufsize=1)
 lines = queue.Queue()
@@ -82,7 +89,7 @@ try:
             continue
         if line is None: break
         print(line,end='',flush=True)
-        if any(marker in line for marker in ['Gtk-WARNING', 'Gtk-CRITICAL', 'Gjs-CRITICAL', 'Gjs-Console-CRITICAL']): diagnostic = True
+        if any(marker in line for marker in ['Gtk-WARNING', 'Gtk-CRITICAL', 'Gjs-CRITICAL', 'Gjs-Console-CRITICAL', 'GTK_BINDING_ERROR', 'GLib-GObject-CRITICAL', 'GLib-CRITICAL', 'GObject-CRITICAL']): diagnostic = True
         try: record = json.loads(line[line.index('{'):])
         except ValueError: continue
         if record.get('ready'): inject(record)
