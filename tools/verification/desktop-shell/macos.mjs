@@ -66,8 +66,10 @@ function shellQuote(s) {
   return `'${String(s).replace(/'/g, `'\\''`)}'`
 }
 
-function remote(cmdline) {
-  return exec('ssh', [...SSH, REMOTE, cmdline + ' 2>&1'], WORK)
+function remote(cmdline, opts = {}) {
+  return exec('ssh', [...SSH, REMOTE, cmdline + ' 2>&1'], WORK, {
+    timeout: opts.timeout ?? 300000,
+  })
 }
 
 function remoteWrite(path, content) {
@@ -83,6 +85,66 @@ function host(cmd, argv, opts = {}) {
     return remote([cmd, ...argv.map(shellQuote)].join(' '))
   }
   return exec(cmd, argv, WORK, opts)
+}
+
+// The remote input lane is an ephemeral `codex exec` per step: its bundled
+// computer-use tools (get_app_state, click, press_key, type_text, scroll,
+// drag) are backed by a trusted service even though ssh shell children are
+// AXIsProcessTrusted=0. Each step gets one precise prompt; the final answer
+// must be a JSON line the runner parses.
+const OS_INPUT_CLASS = REMOTE ? 'os-input-codex-cua' : 'os-input'
+
+function codexAvailable() {
+  try {
+    remote('test -x /opt/homebrew/bin/codex')
+    return true
+  } catch {
+    return false
+  }
+}
+
+function codexJson(out) {
+  for (const line of out.trim().split('\n').reverse()) {
+    const t = line.trim()
+    if (t.startsWith('{') && t.endsWith('}')) {
+      try {
+        return JSON.parse(t)
+      } catch {
+        // keep scanning upward
+      }
+    }
+  }
+  return null
+}
+
+function codexExec(tag, task) {
+  const prompt = [
+    `You are driving the macOS app "${PRODUCT}" on this machine for automated verification.`,
+    'Use get_app_state to read the app accessibility tree as TEXT only.',
+    'Never save, describe, or return any screenshot or image content.',
+    'Do nothing else beyond the numbered instructions, then stop.',
+    task,
+    'End with one final line containing ONLY JSON like {"done":true,"observed":{...},"error":null} with no prose after it.',
+  ].join(' ')
+  const out = remote(
+    `cd $HOME && /opt/homebrew/bin/codex exec --skip-git-repo-check --ephemeral ${shellQuote(prompt)} < /dev/null`,
+  )
+  writeFileSync(join(WORK, `codex-${tag}.log`), out.split('\n').slice(-250).join('\n'))
+  const json = codexJson(out)
+  if (!json) {
+    throw new Error(`codex returned no JSON (see codex-${tag}.log)`)
+  }
+  if (json.error) {
+    throw new Error(`codex ${tag}: ${json.error}`)
+  }
+  if (!json.done) {
+    throw new Error(`codex ${tag} reported done=false (see codex-${tag}.log)`)
+  }
+  return json
+}
+
+function remotePid() {
+  return remote(`pgrep -f ${shellQuote(`${PRODUCT}.app/Contents/MacOS`)} | tail -1`)
 }
 
 const evidence = {
@@ -609,21 +671,26 @@ async function journeyPhase() {
     })
   }
 
-  const trusted = (() => {
-    try {
-      return input('trusted')
-    } catch {
-      return null
-    }
-  })()
-
-  if (!trusted || !(trusted.includes('ax=true') && trusted.includes('post=true'))) {
-    evidence.inputLane = REMOTE
-      ? 'blocked: skymac SSH session lacks Accessibility/PostEvent permission'
-      : 'blocked: accessibility/post-event permission'
-    log(`input lane ${evidence.inputLane} (trusted: ${trusted})`)
+  if (REMOTE && codexAvailable()) {
+    log('input lane: codex computer-use (ephemeral codex exec per step)')
+    evidence.inputBackend = 'codex-cua'
   } else {
-    log('input trusted: ' + trusted)
+    const trusted = (() => {
+      try {
+        return input('trusted')
+      } catch {
+        return null
+      }
+    })()
+
+    if (!trusted || !(trusted.includes('ax=true') && trusted.includes('post=true'))) {
+      evidence.inputLane = REMOTE
+        ? 'blocked: skymac SSH session lacks Accessibility/PostEvent permission'
+        : 'blocked: accessibility/post-event permission'
+      log(`input lane ${evidence.inputLane} (trusted: ${trusted})`)
+    } else {
+      log('input trusted: ' + trusted)
+    }
   }
 
   const appTarget = REMOTE
@@ -682,7 +749,22 @@ async function journeyPhase() {
       return 'exact register + conflict + reserved'
     })
 
-    await step('form: type name and submit', 'os-input', async () => {
+    await step('form: type name and submit', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        const json = codexExec(
+          'form',
+          [
+            '1. get_app_state for the app named "ShellJourney"; find the element with accessibility identifier "journey-name" and click its center; click it once more so the field takes focus.',
+            '2. type_text "Ada".',
+            '3. Find the element with identifier "journey-submit"; click its center.',
+            '4. get_app_state; put {"nameValue":<value of journey-name>,"submitRole":<role of journey-submit>,"statusValue":<value of journey-status>} in observed.',
+          ].join(' '),
+        )
+        await app.wait('JOURNEY SUBMITTED name=Ada', 30000)
+        const status = String(json.observed?.statusValue ?? '')
+        if (!status.includes('Ada')) throw new Error(`status text "${status}"`)
+        return 'SUBMITTED + status shows Ada'
+      }
       // The first click may only activate the freshly spawned app; a second
       // click lands inside the field so it takes first responder.
       const field = findEl(pid, 'journey-name')
@@ -707,7 +789,18 @@ async function journeyPhase() {
       return 'SUBMITTED + status shows Ada'
     })
 
-    await step('AX roles: submit is a button, status is static text', 'ax-action', async () => {
+    await step('AX roles: submit is a button, status is static text', REMOTE ? OS_INPUT_CLASS : 'ax-action', async () => {
+      if (REMOTE) {
+        const json = codexExec(
+          'ax-roles',
+          '1. get_app_state for the app named "ShellJourney"; put {"submitRole":<role of element with identifier "journey-submit">,"statusRole":<role of element with identifier "journey-status">,"statusValue":<its value>} in observed.',
+        )
+        const submitRole = String(json.observed?.submitRole ?? '')
+        const statusRole = String(json.observed?.statusRole ?? '')
+        if (submitRole !== 'AXButton') throw new Error(`journey-submit role: ${submitRole}`)
+        if (statusRole !== 'AXStaticText') throw new Error(`journey-status role: ${statusRole}`)
+        return `submit=${submitRole} status=${statusRole}`
+      }
       const submit = findEl(pid, 'journey-submit')
       const status = findEl(pid, 'journey-status')
       if (submit.role !== 'AXButton') {
@@ -719,7 +812,23 @@ async function journeyPhase() {
       return `submit=${submit.role} status=${status.role}`
     })
 
-    await step('keyboard: Tab + Space activate submit', 'os-input', async () => {
+    await step('keyboard: Tab + Space activate submit', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        const json = codexExec(
+          'keyboard',
+          [
+            '1. get_app_state for the app named "ShellJourney"; click the center of the element with identifier "journey-name".',
+            '2. press_key Tab.',
+            '3. get_app_state; put {"focusedAfterTab":<identifier of the focused element>} in observed.',
+            '4. press_key Space.',
+          ].join(' '),
+        )
+        if (String(json.observed?.focusedAfterTab) !== 'journey-submit') {
+          throw new Error(`submit not focused after Tab: ${json.observed?.focusedAfterTab}`)
+        }
+        await app.wait('JOURNEY SUBMITTED name=Ada', 15000)
+        return 'Tab focus + Space activation'
+      }
       clickCenter(findEl(pid, 'journey-name'))
       await sleep(300)
       input('key', 48)
@@ -731,13 +840,26 @@ async function journeyPhase() {
       return 'Tab focus + Space activation'
     })
 
-    await step('app menu: accelerator increments', 'os-input', async () => {
+    await step('app menu: accelerator increments', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        codexExec('menu-key', '1. press_key with modifiers cmd+shift+i (the app menu accelerator).')
+        await app.wait('JOURNEY MENU action=increment count=1', 15000)
+        return 'Cmd+Shift+I'
+      }
       input('key', 34, 'cmd,shift')
       await app.wait('JOURNEY MENU action=increment count=1', 15000)
       return 'Cmd+Shift+I'
     })
 
-    await step('app menu: mouse selection increments', 'os-input', async () => {
+    await step('app menu: mouse selection increments', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        codexExec(
+          'menu-mouse',
+          '1. get_app_state for the app named "ShellJourney"; click the "Journey" title in the app menu bar. 2. Click the menu item titled "Increment Counter" in the opened menu.',
+        )
+        await app.wait('JOURNEY MENU action=increment count=2', 15000)
+        return 'mouse menu selection'
+      }
       const bar = JSON.parse(input('menubar', pid))
       const journey = bar.find((b) => b.title === 'Journey')
       if (!journey) throw new Error('no Journey menu in menubar: ' + JSON.stringify(bar))
@@ -751,8 +873,19 @@ async function journeyPhase() {
       return 'mouse menu selection'
     })
 
-    let trayInputClass = 'os-input'
-    await step('tray: open inspector via status item', 'os-input', async () => {
+    let trayInputClass = OS_INPUT_CLASS
+    await step('tray: open inspector via status item', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        const json = codexExec(
+          'tray',
+          '1. get_app_state for the app named "ShellJourney"; find the menu-bar-extra status item (titled "J" or with identifier "desktop-shell-journey"); click it. 2. Click the menu item "Open Inspector" in the opened menu. 3. get_app_state; put {"inspectorTitleRole":<role of element with identifier "inspector-title", or null>} in observed.',
+        )
+        await app.wait('JOURNEY INSPECTOR_OPENED', 15000)
+        if (!json.observed?.inspectorTitleRole) {
+          throw new Error('inspector-title not visible in AX tree')
+        }
+        return 'open via os-input-codex-cua'
+      }
       const extras = JSON.parse(input('extras', pid))
       if (!extras.length) throw new Error('no AXExtrasMenuBar items')
       let opened = false
@@ -782,7 +915,7 @@ async function journeyPhase() {
     })
     evidence.steps[evidence.steps.length - 1].inputClass = trayInputClass
 
-    await step('background activation via global hotkey', 'os-input', async () => {
+    await step('background activation via global hotkey', OS_INPUT_CLASS, async () => {
       try {
         host('open', ['-a', 'Calculator'])
         launchedCalculator = true
@@ -801,12 +934,34 @@ async function journeyPhase() {
         evidence.steps[evidence.steps.length - 1].detail =
           'calculator not confirmed frontmost: ' + front
       }
-      input('key', 38, 'ctrl,alt,shift')
+      if (REMOTE) {
+        codexExec('hotkey', '1. press_key with modifiers ctrl+alt+shift+j (global hotkey).')
+      } else {
+        input('key', 38, 'ctrl,alt,shift')
+      }
       await app.wait('JOURNEY HOTKEY_FOCUS active=true', 15000)
       return 'hotkey while Calculator frontmost'
     })
 
-    await step('window lifecycle: Cmd+W, reopen, button close', 'os-input', async () => {
+    await step('window lifecycle: Cmd+W, reopen, button close', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        codexExec(
+          'lifecycle',
+          [
+            '1. get_app_state for the app named "ShellJourney"; click the element with identifier "inspector-title" to focus the inspector window.',
+            '2. press_key with modifiers cmd+w to close the inspector.',
+            '3. Wait one second, then click the menu-bar-extra status item titled "J" (or identifier "desktop-shell-journey"), then click the "Open Inspector" menu item.',
+            '4. Wait one second, then click the element with identifier "inspector-close" in the inspector window.',
+          ].join(' '),
+        )
+        await app.wait('JOURNEY INSPECTOR_CLOSED', 15000)
+        const opens = app.count('JOURNEY INSPECTOR_OPENED')
+        const closes = app.count('JOURNEY INSPECTOR_CLOSED')
+        if (opens < 2 || closes < 2) {
+          throw new Error(`lifecycle markers: opened=${opens} closed=${closes}`)
+        }
+        return `reopened (${opens} inspectors total)`
+      }
       clickCenter(findEl(pid, 'inspector-title'))
       await sleep(400)
       input('key', 13, 'cmd')
@@ -826,8 +981,12 @@ async function journeyPhase() {
       return `reopened (${firstId + 1} inspectors total)`
     })
 
-    await step('exit: Cmd+Q runs mount cleanup once', 'os-input', async () => {
-      input('key', 12, 'cmd')
+    await step('exit: Cmd+Q runs mount cleanup once', OS_INPUT_CLASS, async () => {
+      if (REMOTE) {
+        codexExec('quit', '1. press_key with modifiers cmd+q to quit the app named "ShellJourney".')
+      } else {
+        input('key', 12, 'cmd')
+      }
       await app.wait('JOURNEY CLEANUP menu=1 shortcuts=1 tray=1 residency=1', 15000)
       const { code } = await Promise.race([app.exit, sleep(15000).then(() => ({}))])
       if (code !== 0) throw new Error(`app exit code ${JSON.stringify(code)}`)
