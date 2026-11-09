@@ -51,7 +51,7 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 
 # --- launch through the installed Exec line ---
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
-DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 GSK_RENDERER=cairo $EXEC >"$LOG" 2>&1 &
+DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
@@ -134,6 +134,7 @@ fi
 # --- app menu accelerator (in-window menubar) + AT-SPI menu activation ---
 if [ "$READY" = yes ]; then
   BEFORE=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  xdotool windowactivate --sync "$WIN" 2>/dev/null
   xdotool key ctrl+shift+i; sleep 0.5
   AFTER=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
   [ "$AFTER" -gt "$BEFORE" ] && step "app menu: accelerator" os-input-x11-xtest pass "count $BEFORE->$AFTER" || step "app menu: accelerator" os-input-x11-xtest fail "count $BEFORE->$AFTER"
@@ -218,6 +219,7 @@ fi
 
 # --- quit through the app's own Quit accelerator ---
 if [ "$READY" = yes ]; then
+  xdotool windowactivate --sync "$WIN" 2>/dev/null
   xdotool key ctrl+q; sleep 1
   grep -q 'JOURNEY CLEANUP menu=1 shortcuts=1 tray=1 residency=1' "$LOG" && step "quit: cleanup once" in-process pass "" || step "quit: cleanup once" in-process fail "no CLEANUP"
   sleep 0.5
