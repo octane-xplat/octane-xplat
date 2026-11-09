@@ -53,6 +53,7 @@
 		"typecheck": "tsc --runExternalCode --noEmit -p tsconfig.types.json"
 	},
 	"dependencies": {
+		"@octane-xplat/lib": "workspace:*",
 		"@octane-xplat/platform": "workspace:*"
 	},
 	"devDependencies": {

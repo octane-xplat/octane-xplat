@@ -12,7 +12,7 @@ export interface Storage {
 }
 
 export interface Environment {
-  platform: 'ios' | 'android'
+  platform: 'ios' | 'android' | 'windows'
   nativeFingerprint: string
   storage: Storage
   releaseBuild?: boolean

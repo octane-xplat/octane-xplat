@@ -1,6 +1,6 @@
 import type { UpdatesClient, UpdatesOptions } from './types'
 import { createClient } from './client'
-import { nativeEnvironment } from './native.mobile'
+import { nativeEnvironment } from './native'
 import { unsupportedClient } from './unsupported'
 
 export type {

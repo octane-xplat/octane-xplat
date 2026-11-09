@@ -59,6 +59,7 @@
 		"@nativescript/camera": "7.0.0",
 		"@nativescript/imagepicker": "5.0.0",
 		"@octane-xplat/camera": "workspace:*",
+		"@octane-xplat/files": "workspace:*",
 		"@octane-xplat/platform": "workspace:*",
 		"@octane-xplat/lib": "workspace:*"
 	},

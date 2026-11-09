@@ -21,7 +21,7 @@ import {
   applyEscapeProps,
   nativeAccessibilityRole,
   nativeAccessibilityState,
-} from './escape-props.mobile'
+} from './escape-props'
 
 import { layoutChildProps } from './layout-child'
 
