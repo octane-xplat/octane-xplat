@@ -120,11 +120,12 @@ function loadKeyFile() {
       const [groups] = kf.get_groups()
       for (const grp of groups ?? []) {
         const [names0] = kf.get_keys(grp)
-        for (const hex of names0 ?? []) {
+        for (const hex0 of names0 ?? []) {
+          const hex = String(hex0)
           const real = new TextDecoder().decode(
             Uint8Array.from(hex.slice(1).match(/../g) ?? [], (h) => parseInt(h, 16)),
           )
-          const raw = kf.get_string(grp, hex)
+          const raw = String(kf.get_string(grp, hex))
           const t = raw[0]
           const v = raw.slice(1)
           keys.set(
