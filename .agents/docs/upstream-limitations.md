@@ -590,7 +590,7 @@ and `File.writeTextSync` reports success without performing IO. Confirmed on
 packaged MSIX 1.0.0.243 via write instrumentation (writeCount incremented,
 writeError null, file unchanged). Any app relying on synchronous file reads or
 writes — e.g. preferences persistence through `File.writeTextSync` — silently
-loses data. Workaround in `storage.windows.ts`: async `readText`/`writeText`
+loses data (tracked upstream as NativeScript/NativeScript#11630). Workaround in `storage.windows.ts`: async `readText`/`writeText`
 with snapshot writes enqueued at call time. Real-world impact: a packaged
 qualification app's storage-persist spec read `null` for values written the
 previous launch.
