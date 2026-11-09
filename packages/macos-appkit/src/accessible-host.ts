@@ -361,21 +361,16 @@ export function createAccessibleHost(deps: Dependencies) {
 
   // The bridged class resolves NSAccessibility property accessors against
   // native storage, so the JS methods above only answer in-process callers —
-  // KVC and the AX server see NSView's defaults. Push each computed value
-  // through the matching setAccessibility* setter, which does reach ObjC.
-  interface AccessibilitySetters {
-    setAccessibilityElement?(value: boolean): void
-    setAccessibilityRole?(value: string): void
-    setAccessibilityLabel?(value: string): void
-    setAccessibilityTitle?(value: string): void
-    setAccessibilityValue?(value: unknown): void
-    setAccessibilityValueDescription?(value: string): void
-    setAccessibilityMinValue?(value: unknown): void
-    setAccessibilityMaxValue?(value: unknown): void
-    setAccessibilityHelp?(value: string): void
-    setAccessibilityEnabled?(value: boolean): void
-    setAccessibilitySelected?(value: boolean): void
-    setAccessibilityExpanded?(value: boolean): void
+  // KVC and the AX server see NSView's defaults. Property writes whose name
+  // does not collide with a JS member reach the ObjC setter directly; names
+  // that do collide must go through KVC setValue:forKey: — a bare assignment
+  // would shadow the prototype method on the JS wrapper instead.
+  interface AccessibilityStorage {
+    accessibilityElement?: boolean
+    accessibilityEnabled?: boolean
+    accessibilitySelected?: boolean
+    accessibilityExpanded?: boolean
+    setValueForKey?(value: unknown, key: string): void
   }
 
   function syncNativeAccessibility(view: object) {
@@ -383,7 +378,7 @@ export function createAccessibleHost(deps: Dependencies) {
       return
     }
 
-    const setters = view as unknown as AccessibilitySetters
+    const storage = view as unknown as AccessibilityStorage
     // Each push computes and sets together: a getter that needs a native
     // helper absent from a partial shim (NSNumber in test boundaries) must
     // not take the rest of the sync down with it.
@@ -394,26 +389,34 @@ export function createAccessibleHost(deps: Dependencies) {
         // best-effort under partial native shims
       }
     }
+    const pushKey = (key: string, compute: () => unknown) =>
+      push(() => storage.setValueForKey?.(compute(), key))
 
-    push(() => setters.setAccessibilityElement?.(view.isAccessibilityElement()))
-    push(() => setters.setAccessibilityRole?.(view.accessibilityRole()))
-    push(() => setters.setAccessibilityLabel?.(view.accessibilityLabel()))
-    push(() => setters.setAccessibilityTitle?.(view.accessibilityTitle()))
-    push(() => setters.setAccessibilityValue?.(view.accessibilityValue()))
-    push(() =>
-      setters.setAccessibilityValueDescription?.(view.accessibilityValueDescription()),
-    )
+    push(() => {
+      storage.accessibilityElement = view.isAccessibilityElement()
+    })
+    pushKey('accessibilityRole', () => view.accessibilityRole())
+    pushKey('accessibilityLabel', () => view.accessibilityLabel())
+    pushKey('accessibilityTitle', () => view.accessibilityTitle())
+    pushKey('accessibilityValue', () => view.accessibilityValue())
+    pushKey('accessibilityValueDescription', () => view.accessibilityValueDescription())
     const props = deps.state.get(view)
     if (props?.accessibilityMinValue !== undefined) {
-      push(() => setters.setAccessibilityMinValue?.(view.accessibilityMinValue()))
+      pushKey('accessibilityMinValue', () => view.accessibilityMinValue())
     }
     if (props?.accessibilityMaxValue !== undefined) {
-      push(() => setters.setAccessibilityMaxValue?.(view.accessibilityMaxValue()))
+      pushKey('accessibilityMaxValue', () => view.accessibilityMaxValue())
     }
-    push(() => setters.setAccessibilityHelp?.(view.accessibilityHelp()))
-    push(() => setters.setAccessibilityEnabled?.(view.isAccessibilityEnabled()))
-    push(() => setters.setAccessibilitySelected?.(view.isAccessibilitySelected()))
-    push(() => setters.setAccessibilityExpanded?.(view.isAccessibilityExpanded()))
+    pushKey('accessibilityHelp', () => view.accessibilityHelp())
+    push(() => {
+      storage.accessibilityEnabled = view.isAccessibilityEnabled()
+    })
+    push(() => {
+      storage.accessibilitySelected = view.isAccessibilitySelected()
+    })
+    push(() => {
+      storage.accessibilityExpanded = view.isAccessibilityExpanded()
+    })
   }
 
   return {

@@ -48,22 +48,7 @@ function fixture() {
   })
 
   const view = new host.AccessibleHostView() as any
-  for (const name of [
-    'setAccessibilityElement',
-    'setAccessibilityRole',
-    'setAccessibilityLabel',
-    'setAccessibilityTitle',
-    'setAccessibilityValue',
-    'setAccessibilityValueDescription',
-    'setAccessibilityMinValue',
-    'setAccessibilityMaxValue',
-    'setAccessibilityHelp',
-    'setAccessibilityEnabled',
-    'setAccessibilitySelected',
-    'setAccessibilityExpanded',
-  ]) {
-    view[name] = (value: unknown) => calls.push([name, value])
-  }
+  view.setValueForKey = (value: unknown, key: string) => calls.push([key, value])
 
   const accessibility = createAccessibility({ accessibleHost: host, state })
 
@@ -96,9 +81,9 @@ test('applyAccessibility pushes semantics through the native setAccessibility* s
   f.accessibility.applyAccessibility(n, 'accessibilityRole', 'button')
   f.accessibility.applyAccessibility(n, 'accessibilityLabel', 'Submit')
 
-  assert.equal(f.last('setAccessibilityRole'), 'AXButton')
-  assert.equal(f.last('setAccessibilityLabel'), 'Submit')
-  assert.equal(f.last('setAccessibilityElement'), true)
+  assert.equal(f.last('accessibilityRole'), 'AXButton')
+  assert.equal(f.last('accessibilityLabel'), 'Submit')
+  assert.equal(f.view.accessibilityElement, true)
 })
 
 test('applyAccessibility pushes accessible=false as a non-element', () => {
@@ -108,7 +93,7 @@ test('applyAccessibility pushes accessible=false as a non-element', () => {
   f.accessibility.applyAccessibility(n, 'accessibilityRole', 'button')
   f.accessibility.applyAccessibility(n, 'accessible', false)
 
-  assert.equal(f.last('setAccessibilityElement'), false)
+  assert.equal(f.view.accessibilityElement, false)
 })
 
 test('a handler attach re-pushes element-ness through the actions dep', () => {
@@ -116,12 +101,12 @@ test('a handler attach re-pushes element-ness through the actions dep', () => {
   const n = f.node()
 
   f.accessibility.applyAccessibility(n, 'accessibilityRole', 'button')
-  assert.deepEqual(f.pushed('setAccessibilityElement'), [true])
+  assert.equal(f.view.accessibilityElement, true)
 
   f.actions.acquireAction(n, f.view)
   f.actions.setNodeHandler(n, () => {})
 
-  assert.deepEqual(f.pushed('setAccessibilityElement'), [true, true, true])
+  assert.equal(f.view.accessibilityElement, true)
 })
 
 test('a bare interactive view becomes an element once a handler lands', () => {
@@ -131,8 +116,8 @@ test('a bare interactive view becomes an element once a handler lands', () => {
   // No accessibility props at all: ignored while it has neither state nor a
   // handler, an element once the action's handler attaches.
   f.actions.acquireAction(n, f.view)
-  assert.deepEqual(f.pushed('setAccessibilityElement'), [false])
+  assert.equal(f.view.accessibilityElement, false)
 
   f.actions.setNodeHandler(n, () => {})
-  assert.deepEqual(f.pushed('setAccessibilityElement'), [false, true])
+  assert.equal(f.view.accessibilityElement, true)
 })
