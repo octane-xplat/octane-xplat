@@ -1,5 +1,6 @@
 import { createStore } from '@octane-xplat/ui/data'
 import type { WindowHandle } from '@octane-xplat/ui'
+import { storage } from '@octane-xplat/platform'
 
 /** Shared business state for the desktop-shell journey app. Platform-agnostic:
  *  the macOS entry wires these stores and menu definitions to AppKit services;
@@ -34,6 +35,9 @@ export function marker(text: string) {
 
 export function submitName(name: string) {
   name$.set(name)
+  // Persisted via the platform settings backend (defaults on macOS, the GLib
+  // KeyFile on GTK) — v2's RESTORED marker proves cross-launch persistence.
+  storage.setString(STORAGE_KEY, name)
   submitted$.set(true)
   submitCount$.set(submitCount$.getSnapshot() + 1)
   marker(`SUBMITTED name=${name}`)
