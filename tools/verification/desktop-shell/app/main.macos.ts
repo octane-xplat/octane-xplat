@@ -74,7 +74,7 @@ runMacOSApp(
     size: { width: 420, height: 240 },
     terminateAfterLastWindowClosed: false,
   },
-  ({ app, root }) => {
+  ({ app, root, window }) => {
     root.render(App as any, {})
     statusSuffix$.set(STATUS_SUFFIX)
     const restored = storage.getString(STORAGE_KEY)
@@ -162,6 +162,10 @@ runMacOSApp(
       }
 
       marker('READY')
+
+      if (process.env.DESKTOP_SHELL_SELFTEST === '1') {
+        void runSelftest(app, window)
+      }
     })()
 
     return () => {
@@ -189,3 +193,134 @@ runMacOSApp(
 )
 
 
+
+// Native-dispatch self-check for hosts where OS input is untrusted (skymac
+// SSH): with DESKTOP_SHELL_SELFTEST=1 the app exercises the same integration
+// seams a real input path hits — first-responder chain, NSMenu item actions,
+// tray menu actions, window close, terminate — and reports SELFTEST markers.
+// It performs no CGEvent/AX reads and changes nothing without the env var.
+
+function findById(view: any, id: string, depth = 0): any {
+  if (!view || depth > 8) return null
+  if (String(view.accessibilityIdentifier ?? '') === id) return view
+  const kids = view.subviews
+  const n = kids?.count ?? kids?.length ?? 0
+  for (let i = 0; i < n; i++) {
+    const hit = findById(
+      kids?.objectAtIndex ? kids.objectAtIndex(i) : kids?.[i],
+      id,
+      depth + 1,
+    )
+    if (hit) return hit
+  }
+  return null
+}
+
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms))
+
+async function runSelftest(app: any, window: any) {
+  await sleep(800)
+  const content = window?.contentView
+  const nameField = findById(content, 'journey-name')
+  const submit = findById(content, 'journey-submit')
+  const status = findById(content, 'journey-status')
+
+  marker(
+    `SELFTEST roles submit=${submit?.valueForKey?.('accessibilityRole')}` +
+      ` status=${status?.valueForKey?.('accessibilityRole')}`,
+  )
+
+  // Tab path: native first-responder chain, minus the keyboard event.
+  window.makeFirstResponder(nameField)
+  window.selectNextKeyView(null)
+  const fr = window.firstResponder
+  marker(`SELFTEST focus=${fr?.accessibilityIdentifier ?? 'none'}`)
+
+  // AXPress path: ObjC dispatch of accessibilityPerformPress.
+  marker(
+    `SELFTEST pressSel=${submit?.respondsToSelector?.('accessibilityPerformPress')}`,
+  )
+  try {
+    submit?.performSelector?.('accessibilityPerformPress')
+    await sleep(300)
+    marker('SELFTEST pressDispatched=true')
+  } catch (e) {
+    marker(`SELFTEST pressDispatched=false ${String(e)}`)
+  }
+
+  // App-menu path: invoke each menu item via NSMenu, as a real click would.
+  try {
+    const mainMenu = NSApplication.sharedApplication.mainMenu
+    for (let i = 0; i < (mainMenu?.itemArray?.count ?? 0); i++) {
+      const top = mainMenu.itemArray.objectAtIndex(i)
+      const sub = top?.submenu
+      if (!sub) continue
+      for (let j = 0; j < (sub.itemArray?.count ?? 0); j++) {
+        const it = sub.itemArray.objectAtIndex(j)
+        if (String(it?.title) === 'Increment Counter') {
+          sub.performActionForItemAtIndex(j)
+          await sleep(200)
+          sub.performActionForItemAtIndex(j)
+          await sleep(200)
+          marker('SELFTEST menu=invoked')
+        }
+      }
+    }
+  } catch (e) {
+    marker(`SELFTEST menu=fail ${String(e)}`)
+  }
+
+  // Tray path: invoke the status item's menu like a real status-bar click.
+  try {
+    const item = (tray as any)?.item ?? (tray as any)?.statusItem
+    const menu = item?.menu
+    for (let j = 0; j < (menu?.itemArray?.count ?? 0); j++) {
+      const it = menu.itemArray.objectAtIndex(j)
+      if (String(it?.title) === 'Open Inspector') {
+        menu.performActionForItemAtIndex(j)
+        marker('SELFTEST tray=invoked')
+      }
+    }
+  } catch (e) {
+    marker(`SELFTEST tray=fail ${String(e)}`)
+  }
+  await sleep(600)
+
+  // Window lifecycle: close the inspector with performClose:, reopen via the
+  // tray menu, then press the inspector's close button.
+  try {
+    const wins = NSApplication.sharedApplication.windows
+    const n = wins?.count ?? wins?.length ?? 0
+    for (let i = 0; i < n; i++) {
+      const w = wins?.objectAtIndex ? wins.objectAtIndex(i) : wins?.[i]
+      if (String(w?.title) === 'Inspector') {
+        w.performClose?.(w)
+        marker('SELFTEST lifecycle=closed')
+      }
+    }
+    await sleep(500)
+    const item2 = (tray as any)?.item ?? (tray as any)?.statusItem
+    const menu2 = item2?.menu
+    for (let j = 0; j < (menu2?.itemArray?.count ?? 0); j++) {
+      if (String(menu2.itemArray.objectAtIndex(j)?.title) === 'Open Inspector') {
+        menu2.performActionForItemAtIndex(j)
+      }
+    }
+    await sleep(600)
+    const wins2 = NSApplication.sharedApplication.windows
+    for (let i = 0; i < (wins2?.count ?? wins2?.length ?? 0); i++) {
+      const w = wins2?.objectAtIndex ? wins2.objectAtIndex(i) : wins2?.[i]
+      if (String(w?.title) === 'Inspector') {
+        const closeBtn = findById(w.contentView, 'inspector-close')
+        closeBtn?.performSelector?.('accessibilityPerformPress')
+        marker('SELFTEST lifecycle=reclosed')
+      }
+    }
+  } catch (e) {
+    marker(`SELFTEST lifecycle=fail ${String(e)}`)
+  }
+  await sleep(400)
+
+  marker('SELFTEST quit=terminating')
+  NSApplication.sharedApplication.terminate(null)
+}
