@@ -191,6 +191,42 @@ static int cmdDump(const char *pidStr) {
   return 0;
 }
 
+static void treeWalk(AXUIElementRef el, int depth) {
+  if (!el || depth > 16) return;
+  NSString *role = cfToNS(copyAttr(el, kAXRoleAttribute));
+  if ([role isEqualToString:@"AXMenuBar"]) return;
+  NSString *sub = cfToNS(copyAttr(el, (__bridge CFStringRef)@"AXSubrole"));
+  NSString *idv = cfToNS(copyAttr(el, (__bridge CFStringRef)@"AXIdentifier"));
+  NSString *title = cfToNS(copyAttr(el, kAXTitleAttribute));
+  NSString *desc = cfToNS(copyAttr(el, kAXDescriptionAttribute));
+  NSString *value = @"";
+  CFTypeRef vv = copyAny(el, kAXValueAttribute);
+  if (vv) {
+    CFTypeID t = CFGetTypeID(vv);
+    if (t == CFStringGetTypeID() || t == CFNumberGetTypeID() || t == CFBooleanGetTypeID())
+      value = [[(__bridge id)vv description] substringToIndex:
+                  MIN(30, [(__bridge id)vv description].length)];
+    CFRelease(vv);
+  }
+  CGPoint p = elementPosition(el);
+  CGSize s = elementSize(el);
+  printf("%*s%s sub=%s id=%s title=%s desc=%s val=%s pos=%.0f,%.0f size=%.0fx%.0f\n",
+         depth * 2, "", [role UTF8String], [sub UTF8String], [idv UTF8String],
+         [title UTF8String], [desc UTF8String], [value UTF8String],
+         p.x, p.y, s.width, s.height);
+  CFArrayRef kids = (CFArrayRef)copyAny(el, kAXChildrenAttribute);
+  if (!kids) return;
+  for (CFIndex i = 0; i < CFArrayGetCount(kids); i++) {
+    treeWalk((AXUIElementRef)CFArrayGetValueAtIndex(kids, i), depth + 1);
+  }
+  CFRelease(kids);
+}
+
+static int cmdTree(const char *pidStr) {
+  treeWalk(AXUIElementCreateApplication((pid_t)atoi(pidStr)), 0);
+  return 0;
+}
+
 static int cmdProbe(const char *pidStr) {
   pid_t pid = (pid_t)atoi(pidStr);
   AXUIElementRef app = AXUIElementCreateApplication(pid);
@@ -325,6 +361,7 @@ int main(int argc, const char *argv[]) {
     if (!strcmp(cmd, "menubar") && argc == 3) return cmdList(argv[2], 1);
     if (!strcmp(cmd, "dump") && argc == 3) return cmdDump(argv[2]);
     if (!strcmp(cmd, "probe") && argc == 3) return cmdProbe(argv[2]);
+    if (!strcmp(cmd, "tree") && argc == 3) return cmdTree(argv[2]);
     if (!strcmp(cmd, "menuitems") && argc == 3) return cmdList(argv[2], 2);
     if (!strcmp(cmd, "press") && argc == 4) return cmdPress(argv[2], argv[3]);
     if (!strcmp(cmd, "click") && argc == 4)

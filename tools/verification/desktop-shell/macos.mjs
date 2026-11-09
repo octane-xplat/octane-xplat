@@ -501,6 +501,12 @@ async function installDmg(dmg, target) {
     rmSync(target, { recursive: true, force: true })
     // ditto preserves the framework symlinks a plain copy flattens.
     exec('ditto', [join(mnt, `${PRODUCT}.app`), target])
+    const base = dmg.split('/').pop().replace(/\.dmg$/, '')
+    evidence.artifacts[`${base}Dmg`] = { path: dmg, sha256: sha256(dmg) }
+    const exePath = join(target, 'Contents/MacOS', PRODUCT)
+    if (existsSync(exePath)) {
+      evidence.artifacts[`${base}AppExe`] = { path: exePath, sha256: sha256(exePath) }
+    }
   } finally {
     exec('hdiutil', ['detach', mnt, '-force'])
     rmSync(mnt, { recursive: true, force: true })
@@ -591,6 +597,18 @@ async function journeyPhase() {
       const status = input('value', pid, 'journey-status')
       if (!status.includes('Ada')) throw new Error(`status text "${status}"`)
       return 'SUBMITTED + status shows Ada'
+    })
+
+    await step('AX roles: submit is a button, status is static text', 'ax-action', async () => {
+      const submit = findEl(pid, 'journey-submit')
+      const status = findEl(pid, 'journey-status')
+      if (submit.role !== 'AXButton') {
+        throw new Error(`journey-submit role: ${submit.role}`)
+      }
+      if (status.role !== 'AXStaticText') {
+        throw new Error(`journey-status role: ${status.role}`)
+      }
+      return `submit=${submit.role} status=${status.role}`
     })
 
     await step('keyboard: Tab + Space activate submit', 'os-input', async () => {
@@ -768,7 +786,7 @@ try {
     macos: exec('sw_vers', ['-productVersion'], WORK, { timeout: 5000 }),
     xcode: (() => {
       try {
-        return exec('xcrun', ['clang', '--version'], WORK, { timeout: 5000 }).split('\n')[0]
+        return exec('xcodebuild', ['-version'], WORK, { timeout: 5000 }).split('\n').slice(0, 2).join(' ')
       } catch {
         return 'unavailable'
       }
