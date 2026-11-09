@@ -21,12 +21,14 @@ import {
   cpSync,
   existsSync,
   mkdirSync,
+  mkdtempSync,
   readdirSync,
   readFileSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
+import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
@@ -491,8 +493,9 @@ class AppProcess {
 }
 
 async function installDmg(dmg, target) {
-  const mnt = join(WORK, 'mnt')
-  mkdirSync(mnt, { recursive: true })
+  // diskimages-helper may be denied mount points inside protected user
+  // folders (observed under ~/dev); a private temporary directory works.
+  const mnt = mkdtempSync(join(tmpdir(), 'xplat-shell-journey-mnt-'))
   exec('hdiutil', ['attach', '-nobrowse', '-readonly', '-mountpoint', mnt, dmg])
   try {
     rmSync(target, { recursive: true, force: true })
@@ -500,6 +503,7 @@ async function installDmg(dmg, target) {
     exec('ditto', [join(mnt, `${PRODUCT}.app`), target])
   } finally {
     exec('hdiutil', ['detach', mnt, '-force'])
+    rmSync(mnt, { recursive: true, force: true })
   }
 }
 
