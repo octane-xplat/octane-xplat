@@ -19,7 +19,7 @@
 			"types": "./types/generated/index.d.ts",
 			"macos": "./dist/index.macos.js",
 			"gtk": "./dist/index.gtk.js",
-			"windows": "./dist/index.windows.js",
+			"windows": "./src/index.windows.ts",
 			"web": "./dist/index.web.js",
 			"browser": "./dist/index.web.js",
 			"default": "./dist/index.js"
