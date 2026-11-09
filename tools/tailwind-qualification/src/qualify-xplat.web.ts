@@ -9,6 +9,7 @@ import { chromium, type Browser } from 'playwright'
 
 interface Observation {
   name: string
+  origin: 'generated' | 'reference'
   actual: unknown
   expected: unknown
   passed: boolean
@@ -47,8 +48,19 @@ if (packed.status !== 0) {
 async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<BrowserQualification> {
   const css = await readFile(resolve(output, `compiled-${target}.css`), 'utf8')
   const observations: Observation[] = []
-  const check = (name: string, actual: unknown, expected: unknown) => {
-    observations.push({ name, actual, expected, passed: isDeepStrictEqual(actual, expected) })
+  const check = (
+    name: string,
+    actual: unknown,
+    expected: unknown,
+    origin: Observation['origin'] = 'generated',
+  ) => {
+    observations.push({
+      name,
+      origin,
+      actual,
+      expected,
+      passed: isDeepStrictEqual(actual, expected),
+    })
   }
   const page = await browser.newPage({
     viewport: { width: 639, height: 800 },
@@ -75,6 +87,10 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
 <div id="mode" class="dark:bg-primary"></div>
 <div id="dynamic" class="opacity-50"></div>
 <div id="hover" class="hover:opacity-55" style="width: 20px; height: 20px"></div>
+<div style="line-height: 28px; --leading: 36px"><div id="ref-initial" style="--leading: initial; line-height: var(--leading, 20px)"></div></div>
+<div id="ref-color" style="color: var(--missing-color, rgb(17, 34, 51))"></div>
+<div id="ref-width" style="width: 24px; width: calc(var(--missing-size) * 2)"></div>
+<div id="ref-padding" style="padding: 4px; padding: var(--missing-padding)"></div>
 </body></html>`)
     await page.addStyleTag({ content: css })
 
@@ -113,6 +129,10 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
         belowBreakpoint: style('responsive').opacity,
         lightModeColor: style('mode').backgroundColor,
         hoverAvailable: matchMedia('(hover: hover)').matches,
+        referenceInitialFallback: style('ref-initial').lineHeight,
+        referenceColorFallback: style('ref-color').color,
+        referenceInvalidWidthUsesAuto: bounds('ref-width').width === document.body.clientWidth,
+        referenceInvalidPadding: style('ref-padding').paddingTop,
       }
     })
 
@@ -136,6 +156,20 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
     check('below breakpoint', initial.belowBreakpoint, '0.5')
     check('light mode', initial.lightModeColor, 'rgba(0, 0, 0, 0)')
     check('desktop hover capability', initial.hoverAvailable, true)
+    check('initial variable fallback', initial.referenceInitialFallback, '20px', 'reference')
+    check('complete color fallback', initial.referenceColorFallback, 'rgb(17, 34, 51)', 'reference')
+    check(
+      'invalid variable width restores auto',
+      initial.referenceInvalidWidthUsesAuto,
+      true,
+      'reference',
+    )
+    check(
+      'invalid variable shorthand restores defaults',
+      initial.referenceInvalidPadding,
+      '0px',
+      'reference',
+    )
 
     await page.setViewportSize({ width: 640, height: 800 })
     check(

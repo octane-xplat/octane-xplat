@@ -51,6 +51,11 @@ It captures no images. Chromium results establish no Linux webview session,
 NativeScript/Mason runtime, OS input or painting parity. Keep this opt-in task
 outside PR checks alongside the upstream comparison command.
 
+Each browser observation identifies generated CSS or a hand-authored reference
+case. The reference cases establish variable fallback and invalidation behavior
+for comparison with the desktop engine's Node regressions; they are not extra
+Tailwind features or native runtime results.
+
 The qualification command writes the official/generated stylesheet, the adapted
 stylesheet, and `comparison.json` to the specified local directory. It exits 1
 when the browser comparison finds semantic differences. Treat that as a failed

@@ -156,6 +156,63 @@ test('same-node --c + var(--c) resolves (bug C)', () => {
   assert.equal(node('label', { classes: ['x'] }).computedStyle.color, 'red')
 })
 
+test('an initial custom property blocks inheritance and selects its consuming fallback', () => {
+  registerStylesheet(
+    'variable-initial',
+    '.initial-variable { --leading: initial; line-height: var(--leading, 20px) }',
+  )
+  const parent = node('label', { style: { '--leading': '36px', lineHeight: 28 } })
+  const child = node('label', { classes: ['initial-variable'], parent })
+
+  assert.equal(child.computedStyle.lineHeight, 20)
+})
+
+test('variable fallbacks preserve comma values and balanced function arguments', () => {
+  registerStylesheet(
+    'variable-functions',
+    '.function-fallback { color: var(--missing-color, rgb(17, 34, 51)); padding: var(--missing-space, calc(4px * 2)) }',
+  )
+  const computed = node('label', { classes: ['function-fallback'] }).computedStyle
+
+  assert.equal(computed.color, 'rgb(17, 34, 51)')
+  assert.equal(computed.paddingLeft, 8)
+  assert.equal(computed.paddingTop, 8)
+})
+
+test('an unused unresolved fallback does not invalidate a resolved variable', () => {
+  registerStylesheet(
+    'variable-unused-fallback',
+    '.unused-fallback { --known: #123456; color: var(--known, var(--missing-color)) }',
+  )
+
+  assert.equal(node('label', { classes: ['unused-fallback'] }).computedStyle.color, '#123456')
+})
+
+test('an unresolved variable invalidates its entire value rather than becoming zero in calc', () => {
+  registerStylesheet(
+    'variable-invalid-calc',
+    '.invalid-calc { width: 24px; width: calc(var(--missing-size) * 2) }',
+  )
+
+  const computed = node('masonview', { classes: ['invalid-calc'] })
+
+  assert.equal(computed.computedStyle.width, undefined)
+  assert.equal(computed.cssOriginKeys.has('width'), false)
+})
+
+test('an invalid variable shorthand clears every earlier longhand', () => {
+  registerStylesheet(
+    'variable-invalid-shorthand',
+    '.invalid-padding { padding: 4px; padding: var(--missing-padding) }',
+  )
+  const computed = node('masonview', { classes: ['invalid-padding'] })
+
+  for (const key of ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft']) {
+    assert.equal(computed.computedStyle[key], undefined, key)
+    assert.equal(computed.cssOriginKeys.has(key), false, key)
+  }
+})
+
 test('descendant/child combinators; reparenting drops the match', () => {
   registerStylesheet('t7', '.p .k { color: red } .p > .y { color: blue }')
 

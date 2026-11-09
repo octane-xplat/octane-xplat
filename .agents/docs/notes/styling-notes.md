@@ -161,6 +161,20 @@ directive arguments, quoted text, URLs, and media-query preludes.
 The desktop cascade's parser does not preserve declaration importance, and
 its custom-property map inherits ancestor values without `@property` metadata.
 Keeping layers alone therefore does not establish full Tailwind semantics.
+
+The desktop `var()` resolver preserves guaranteed-invalid `initial`, complete
+fallback arguments, and whole-value invalidation.
+Do not split fallback colors/functions at commas or turn unresolved variables
+inside `calc()` into zero. The owning cascade tests preserve those cases;
+[#203](https://github.com/octane-xplat/octane-xplat/issues/203) tracks the shared
+fallback bug inherited from NativeScript. Released
+[Core 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/ui/core/properties/index.ts#L183)
+still truncates fallback functions and substitutes `unset` inside expressions;
+the current Xplat native patch does not repair it. Verify release-tag or
+installed-patch identity before treating a cached dependency source as upstream
+evidence. The desktop repair fixes variable consumption, not `@property`
+registration or non-inherited defaults; those still require host qualification.
+
 The selected iOS simulator probe confirmed that distinction: a loaded Label's
 normal layered/unlayered opacity resolved to `.75` as expected; two important
 layer rules resolved to `.75` instead of the expected `.25`. This is native

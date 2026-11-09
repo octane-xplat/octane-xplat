@@ -128,9 +128,27 @@ const cssVarGetter =
     return null
   }
 
+const UNRESOLVED_CSS_VARIABLE = '\u0000'
+
+function closingFunctionParen(value: string, open: number): number {
+  let depth = 0
+
+  for (let index = open; index < value.length; index++) {
+    if (value[index] === '(') {
+      depth++
+    } else if (value[index] === ')' && --depth === 0) {
+      return index
+    }
+  }
+
+  return -1
+}
+
 /** Port of upstream `_evaluateCssVariableExpression` against our custom-prop
  *  map instead of `view.style.getCssVariable`. Nested var() resolve by the
- *  same lastIndexOf('var(') innermost-first loop. */
+ *  same lastIndexOf('var(') innermost-first loop. The desktop repair preserves
+ *  complete fallbacks and guaranteed-invalid initial; released Core 9.1.3 still
+ *  has the older fallback behavior tracked in #203. */
 export function evaluateCssVariables(node: CssHostNode, value: string): string {
   if (typeof value !== 'string' || !value.includes('var(--')) {
     return value
@@ -149,34 +167,38 @@ export function evaluateCssVariables(node: CssHostNode, value: string): string {
       continue
     }
 
-    const endIdx = output.indexOf(')', idx)
+    const endIdx = closingFunctionParen(output, idx + 3)
 
     if (endIdx === -1) {
       continue
     }
 
-    const matched = output
-      .substring(idx + 4, endIdx)
-      .split(',')
-      .map((v) => v.trim())
-      .filter((v) => !!v)
-
-    const name = matched.shift()!
+    const argumentsText = output.substring(idx + 4, endIdx)
+    const comma = argumentsText.indexOf(',')
+    const name = (comma === -1 ? argumentsText : argumentsText.slice(0, comma)).trim()
+    const fallback = comma === -1 ? '' : argumentsText.slice(comma + 1).trim()
     let resolved = getVar(name)
 
-    if (resolved === null && matched.length) {
-      // Fallback list may itself contain var() — resolve against the node.
-      resolved = evaluateCssVariables(node, matched.join(', ')).split(',')[0]
+    if (resolved?.trim() === 'initial') {
+      resolved = null
     }
 
-    if (!resolved) {
-      resolved = 'unset'
+    if (resolved === null && fallback) {
+      // Fallback list may itself contain var() — resolve against the node.
+      resolved = evaluateCssVariables(node, fallback)
+    }
+
+    if (!resolved || resolved === 'unset') {
+      resolved = UNRESOLVED_CSS_VARIABLE
     }
 
     output = `${output.substring(0, idx)}${resolved}${output.substring(endIdx + 1)}`
   }
 
-  return output
+  // The marker may disappear when an outer var() selects its existing value
+  // instead of an invalid fallback. Any marker still in use invalidates the
+  // whole declaration; calc must not reinterpret it as a numeric zero.
+  return output.includes(UNRESOLVED_CSS_VARIABLE) ? 'unset' : output
 }
 
 const DIP_RE = /([0-9]+(\.[0-9]+)?)dip\b/g
@@ -294,6 +316,21 @@ function pushStyleDecl(
   // inherit → parent computed; initial/default → drop (back to default).
   if (typeof value === 'string') {
     const kw = value.trim()
+
+    if (
+      kw === CSS_INHERIT ||
+      CSS_UNSET_RE.test(kw) ||
+      CSS_INITIAL_RE.test(kw) ||
+      CSS_REVERT_RE.test(kw)
+    ) {
+      // A later reset wins the cascade too. Dropping only this write would
+      // expose an earlier declaration instead of restoring the default.
+      for (let index = out.length - 1; index >= 0; index--) {
+        if (out[index][0] === name) {
+          out.splice(index, 1)
+        }
+      }
+    }
 
     if (kw === CSS_INHERIT) {
       const parent = cssParent(node)
@@ -498,12 +535,13 @@ export function computeCascade(
       continue
     }
 
-    const before = cssOut.length
-
     resolveDeclaration(varScope, property, value, cssOut, borderLonghands)
-    for (let i = before; i < cssOut.length; i++) {
-      cssKeys.add(cssOut[i][0])
-    }
+  }
+
+  // Resets can remove an earlier value, including all pending shorthand
+  // longhands. Origin keys describe the final declarations only.
+  for (const [name] of cssOut) {
+    cssKeys.add(name)
   }
 
   const style: PropBag = {}
