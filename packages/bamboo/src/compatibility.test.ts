@@ -18,7 +18,7 @@ vi.mock('@bamboocss/preset-base', async (importOriginal) => {
   }
 })
 
-import { xplatBamboo } from './vite'
+import { bamboo } from './vite'
 
 function cssPlugin(generateBundle: any = { order: 'post', handler() {} }) {
   return { name: 'bamboocss:css', generateBundle }
@@ -26,7 +26,7 @@ function cssPlugin(generateBundle: any = { order: 'post', handler() {} }) {
 
 function nativeAdapter() {
   upstream.plugins = [cssPlugin()]
-  return xplatBamboo({ native: true }).find(
+  return bamboo({ native: true }).find(
     (plugin) => plugin.name === 'xplat-bamboo:nativescript-output',
   ) as any
 }
@@ -55,16 +55,16 @@ describe('portable config compatibility', () => {
 
 describe('native plugin compatibility', () => {
   it('leaves web plugins alone when native anchors are absent', () => {
-    // platform-output ships unconditionally — inert without the xplatCss
+    // platform-output ships unconditionally — inert without the css
     // platform compiler; no NativeScript adapters land on a web build.
-    expect(xplatBamboo().map((plugin) => plugin.name)).toEqual(['xplat-bamboo:platform-output'])
+    expect(bamboo().map((plugin) => plugin.name)).toEqual(['xplat-bamboo:platform-output'])
   })
 
   it.each([undefined, null, {}, { order: 'post' }])(
     'rejects missing or unusable CSS hooks: %j',
     (hook) => {
       upstream.plugins = hook === undefined ? [] : [cssPlugin(hook)]
-      expect(() => xplatBamboo({ native: true })).toThrow('requires bamboocss:css')
+      expect(() => bamboo({ native: true })).toThrow('requires bamboocss:css')
     },
   )
 
@@ -73,9 +73,9 @@ describe('native plugin compatibility', () => {
     const objectHook = { order: 'post', sequential: true, handler }
 
     upstream.plugins = [cssPlugin(handler)]
-    expect(xplatBamboo({ native: true })[0].generateBundle).toEqual({ order: 'pre', handler })
+    expect(bamboo({ native: true })[0].generateBundle).toEqual({ order: 'pre', handler })
     upstream.plugins = [cssPlugin(objectHook)]
-    xplatBamboo({ native: true })
+    bamboo({ native: true })
     expect(objectHook).toEqual({ order: 'pre', sequential: true, handler })
   })
 
@@ -128,7 +128,7 @@ describe('native plugin compatibility', () => {
   it('injects the generated entry once and accepts cached or custom stylesheet graphs', () => {
     upstream.plugins = [cssPlugin()]
 
-    const entry = xplatBamboo({ native: true }).find(
+    const entry = bamboo({ native: true }).find(
       (plugin) => plugin.name === 'xplat-bamboo:nativescript-entry-graph',
     ) as any
 
@@ -162,9 +162,9 @@ describe('native plugin compatibility', () => {
 
 describe('build participation compatibility', () => {
   it('requires the pinned Bamboo accounting hooks and a nonempty plan', () => {
-    expect(() => xplatBamboo({ buildEnvironments: [] })).toThrow('must contain environment names')
+    expect(() => bamboo({ buildEnvironments: [] })).toThrow('must contain environment names')
     upstream.plugins = [cssPlugin()]
-    expect(() => xplatBamboo({ buildEnvironments: ['client'] })).toThrow(
+    expect(() => bamboo({ buildEnvironments: ['client'] })).toThrow(
       'requires Bamboo CSS configResolved and buildApp hooks',
     )
   })
@@ -179,7 +179,7 @@ describe('build participation compatibility', () => {
     }
 
     upstream.plugins = [css]
-    xplatBamboo({ buildEnvironments: ['client'] })
+    bamboo({ buildEnvironments: ['client'] })
 
     const environments = { client: {}, ssr: {} }
     const config = { command: 'build', environments }

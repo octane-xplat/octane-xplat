@@ -14,7 +14,7 @@
 
 import { processNativeCss } from './vite.ts'
 
-export function xplatInlineStylesheets() {
+export function inlineStylesheets() {
   const warned = new Set<string>()
   let preserveLayers = false
 
@@ -92,3 +92,6 @@ export function xplatInlineStylesheets() {
     },
   }
 }
+
+/** @deprecated Use {@link inlineStylesheets}. */
+export const xplatInlineStylesheets: typeof inlineStylesheets = inlineStylesheets

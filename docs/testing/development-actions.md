@@ -282,18 +282,18 @@ device through `xplat dev` — the dev server is reached via adb reverse. iOS an
 Windows dev servers share the bridge machinery but are not yet runtime-qualified;
 macOS AppKit and Linux need their own adapters and report unavailable.
 
-The web starter already includes `xplatDevBridge()` in its Vite plugins, and the
-`xplatNative` preset includes it for NativeScript. For an existing web config,
+The web starter already includes `devBridge()` in its Vite plugins, and the
+`native` preset includes it for NativeScript. For an existing web config,
 import it from `@octane-xplat/cli/vite` and add it once to the existing plugin
 array. This example shows the relevant plugins; retain your app's other settings.
 
 ```ts
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary, xplatCss, xplatDevBridge } from '@octane-xplat/cli/vite'
+import { boundary, css, devBridge } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-  plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
+  plugins: [css('web'), ...octane(), boundary('web'), devBridge()],
 })
 ```
 

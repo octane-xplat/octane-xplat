@@ -1,6 +1,6 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
 /**
- * xplatWorkshop — the workshop dev-server plugin.
+ * workshop — the workshop dev-server plugin.
  *
  * Emits a virtual catalog module whose metadata comes from static discovery
  * (never module evaluation), a virtual entry that boots the adaptive shell,
@@ -159,7 +159,7 @@ const WORKSHOP_HTML = `<!doctype html>
  * @param {string} [options.story] - initial stable story id
  */
 /** Vite plugin wiring the workshop into a web app. */
-export function xplatWorkshop(options = {}) {
+export function workshop(options = {}) {
 	const target = options.target ?? 'web'
 	const story = options.story ?? null
 	const resolution = TARGET_RESOLUTION[target] ?? TARGET_RESOLUTION.web
@@ -311,3 +311,6 @@ function serveAsset(config, root, url, res, next) {
 	res.statusCode = content === undefined ? 404 : 200
 	res.end(content ?? 'not found')
 }
+
+/** @deprecated Use {@link workshop}. */
+export const xplatWorkshop: typeof workshop = workshop

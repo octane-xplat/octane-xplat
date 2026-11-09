@@ -1,8 +1,8 @@
 import { fileURLToPath } from 'node:url'
-import { xplatLinuxGtk } from '../../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../../cli/src/linux-gtk/vite.ts'
 
 export default async (env) =>
-  xplatLinuxGtk(env, {
+  linuxGtk(env, {
     root: fileURLToPath(new URL('.', import.meta.url)),
     entry: 'src/routing-main.ts',
     outDir: 'dist/routing',

@@ -13,18 +13,24 @@ compatible Vite 8 release:
 bun add --dev @octane-xplat/build vite@^8.3.0
 ```
 
-For a web app, replace the Xplat plugin import in its existing `vite.config.ts`.
-Keep every other import and the configuration body, including the Octane compiler,
-the plugin options and PostCSS configuration:
+For a web app, update the plugin import and matching calls in its existing
+`vite.config.ts` to the shorter names below. Keep the Octane compiler, other
+plugins, options and PostCSS configuration:
 
 ```ts
 import {
-  xplatCss,
-  xplatBoundary,
-  xplatDevBridge,
-  xplatNodeEnvDefine,
+  css,
+  boundary,
+  devBridge,
+  nodeEnvDefine,
 } from '@octane-xplat/build/vite'
+
+const platformPlugins = [css('web'), boundary('web'), devBridge()]
+const define = nodeEnvDefine('production')
 ```
+
+The previous `xplat`-prefixed exports remain compatibility aliases. New configurations
+and examples use the shorter names shown above.
 
 Run the app's production build. For a project that invokes Vite directly, this
 command uses the installed tool and writes the output to `dist/`. A module
@@ -38,10 +44,13 @@ bun run vite build
 
 For an existing NativeScript iOS/Android app, keep its NativeScript and Octane
 compiler dependencies. In `vite.config.native.mts`, change the preset import
-to the build package. Keep the existing preset call and options:
+to the build package and call `native()`. Keep the existing preset options:
 
 ```ts
-import { xplatNative } from '@octane-xplat/build/vite'
+import { defineConfig } from 'vite'
+import { native } from '@octane-xplat/build/vite'
+
+export default defineConfig(({ mode }) => native(mode))
 ```
 
 Experimental desktop apps have separate presets. Use the one belonging to your
@@ -51,8 +60,8 @@ The [macOS setup](https://octane-xplat.goddardai.org/toolchain#experimental-appk
 those prerequisites. Their Vite config imports are:
 
 ```ts
-import { xplatMacOS } from '@octane-xplat/build/macos/vite'
-import { xplatLinuxGtk } from '@octane-xplat/build/linux-gtk/vite'
+import { macos } from '@octane-xplat/build/macos/vite'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 ```
 
 When migrating an existing config, replace only the package prefix in its plugin
@@ -60,7 +69,7 @@ imports. Keep the selected preset, options, app entry and other plugins:
 
 ```ts
 // Previous import: '@octane-xplat/cli/vite'
-import { xplatCss } from '@octane-xplat/build/vite'
+import { css } from '@octane-xplat/build/vite'
 ```
 
 The TypeScript CLI continues to expose its existing plugin paths during the

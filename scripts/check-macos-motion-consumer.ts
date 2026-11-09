@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { readFileSync, realpathSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { xplatBoundary } from '../packages/cli/src/vite.ts'
+import { boundary } from '../packages/cli/src/vite.ts'
 
 // Package acceptance only: real core shim + universal object driver. This does
 // not load AppKit or qualify transforms, clipping, input, or OS preferences.
@@ -42,7 +42,7 @@ export async function checkMacOSMotionConsumer({
     root: consumerRoot,
     logLevel: 'warn',
     plugins: [
-      xplatBoundary('macos'),
+      boundary('macos'),
       {
         name: 'macos-package-boundary',
         generateBundle() {

@@ -138,7 +138,7 @@ bun run --filter @xplat/mobile test:android -- --device DEVICE_ID
   Keep the glob and `vitest.config.mts` `include` in sync — a spec the glob
   misses cannot load on device (the host reports "was not bundled").
   Rolldown's glob has no extglob `@(a|b)` support — use brace `{a,b}`.
-- The `xplatNative` preset handles `--env.unitTesting`: it swaps the bundle
+- The `native` preset handles `--env.unitTesting`: it swaps the bundle
   entry to `src/test.ts` (the vite counterpart of the upstream webpack
   helper), aliases `vitest` imports to the device-safe shim, and injects
   `__NS_TEST_CONFIG__` (runner port). No per-app wiring is needed.
@@ -210,7 +210,7 @@ physical Android device (OnePlus CPH2551, `xplat dev`):
   device even though the define is configured. Local workaround:
   `packages/platform/src/dev-bridge.ts` reads the bare identifier first.
 - Dev-action failure stacks report `/ns/m/...` positions that no source map
-  can resolve directly. Local workaround: `xplatDevBridge` (cli) fetches the
+  can resolve directly. Local workaround: `devBridge` (cli) fetches the
   device module, matches the frame line to the transformed code by trimmed
   line text (device uses spaces, Vite tabs), then applies Vite's map — an
   occasional ambiguous or short line stays raw. Workspace packages outside the

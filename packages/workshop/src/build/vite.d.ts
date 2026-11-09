@@ -1,7 +1,7 @@
 import type { Plugin } from 'vite'
 import type { WorkshopConfig } from '../../types/generated/contract.js'
 
-/** Options for the xplatWorkshop Vite plugin set. */
+/** Options for the workshop Vite plugin set. */
 export interface XplatWorkshopOptions {
 	/** Consumer package root; defaults to process.cwd(). */
 	cwd?: string
@@ -14,4 +14,7 @@ export interface XplatWorkshopOptions {
 }
 
 /** Vite plugins wiring the workshop catalog, HMR and story discovery into a consumer app. */
-export function xplatWorkshop(options?: XplatWorkshopOptions): Plugin[]
+export function workshop(options?: XplatWorkshopOptions): Plugin[]
+
+/** @deprecated Use {@link workshop}. */
+export const xplatWorkshop: typeof workshop

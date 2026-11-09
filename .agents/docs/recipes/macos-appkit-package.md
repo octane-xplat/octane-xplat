@@ -2,7 +2,7 @@
 
 ID: macos-appkit-package
 Targets: macos
-Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api, @octane-xplat/macos-appkit, xplatMacOS
+Related APIs: xplat dev, xplat build, xplat doctor, xplat.targets.macos.package, @nativescript/macos-node-api, @octane-xplat/macos-appkit, macos
 
 ## Starting point
 

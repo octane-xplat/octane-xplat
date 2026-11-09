@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { xplatBambooConfig } from '@octane-xplat/bamboo'
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 
 describe('Bamboo xplat defaults', () => {
   it('keeps generated styles in the portable utility layer without preflight', () => {
@@ -17,7 +17,7 @@ describe('Bamboo xplat defaults', () => {
   })
 
   it('runs Bamboo CSS finalizers before NativeScript consumes the CSS asset', () => {
-    const plugins = xplatBamboo({ native: true })
+    const plugins = bamboo({ native: true })
     const cssPlugin = plugins.find((plugin) => plugin.name === 'bamboocss:css') as any
     const outputAdapter = plugins.find(
       (plugin) => plugin.name === 'xplat-bamboo:nativescript-output',
@@ -34,7 +34,7 @@ describe('Bamboo xplat defaults', () => {
   })
 
   it('adapts the finalizers installed by the pinned Bamboo compiler for multiple outputs', () => {
-    const plugins = xplatBamboo({ native: true })
+    const plugins = bamboo({ native: true })
     const compiler = plugins.find((plugin) => plugin.name === 'bamboocss:compiler') as any
     const adapter = plugins.find(
       (plugin) => plugin.name === 'xplat-bamboo:nativescript-output',

@@ -4,11 +4,26 @@ import { existsSync, readFileSync, readdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { createServer, build } from 'vite'
 import * as plugins from '@octane-xplat/build/vite'
-import { xplatMacOS } from '@octane-xplat/build/macos/vite'
-import { xplatLinuxGtk } from '@octane-xplat/build/linux-gtk/vite'
+import { macos } from '@octane-xplat/build/macos/vite'
+import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 
-assert.equal(typeof xplatMacOS, 'function')
-assert.equal(typeof xplatLinuxGtk, 'function')
+assert.equal(typeof macos, 'function')
+assert.equal(typeof linuxGtk, 'function')
+const legacyMacOS = await import('@octane-xplat/build/macos/vite')
+const legacyGtk = await import('@octane-xplat/build/linux-gtk/vite')
+assert.equal(macos, legacyMacOS.xplatMacOS)
+assert.equal(linuxGtk, legacyGtk.xplatLinuxGtk)
+for (const [current, legacy] of Object.entries({
+  css: 'xplatCss',
+  boundary: 'xplatBoundary',
+  tsrx: 'xplatTsrx',
+  devBridge: 'xplatDevBridge',
+  native: 'xplatNative',
+  nodeEnvDefine: 'xplatNodeEnvDefine',
+})) {
+  assert.equal(typeof plugins[current], 'function')
+  assert.equal(plugins[current], plugins[legacy], `${legacy} must preserve function identity`)
+}
 try {
   await import('@octane-xplat/cli/vite')
   assert.fail('Unexpected CLI installation in plugin-only fixture')
@@ -22,7 +37,7 @@ const root = process.cwd(),
 const result = {
   exports: Object.keys(plugins).sort(),
   nativeExtensions: plugins.nativeExtensions,
-  nodeEnv: ['development', 'production', 'test'].map((mode) => plugins.xplatNodeEnvDefine(mode)),
+  nodeEnv: ['development', 'production', 'test'].map((mode) => plugins.nodeEnvDefine(mode)),
 }
 
 // Test the shipped helper as an internal implementation probe, without adding

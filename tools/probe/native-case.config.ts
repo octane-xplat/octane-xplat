@@ -8,26 +8,23 @@ export default async function nativeCaseConfig(project, target) {
   const load = async (name) =>
     import(pathToFileURL(createRequire(join(project, 'package.json')).resolve(name)).href)
 
-  const [
-    { octane },
-    { nativeScriptRenderer },
-    { xplatCss, xplatBoundary, xplatNative, xplatNodeEnvDefine },
-  ] = await Promise.all([
-    load('octane/compiler/vite'),
-    load('@nativescript-community/octane/config'),
-    load('@octane-xplat/cli/vite'),
-  ])
+  const [{ octane }, { nativeScriptRenderer }, { css, boundary, native, nodeEnvDefine }] =
+    await Promise.all([
+      load('octane/compiler/vite'),
+      load('@nativescript-community/octane/config'),
+      load('@octane-xplat/cli/vite'),
+    ])
 
   const previousDirectory = process.cwd()
-  let css
+  let nativeCss
 
   try {
     process.chdir(project)
 
-    const preset = await xplatNative('production')
+    const preset = await native('production')
 
-    css = preset.plugins.flat(Infinity).find((plugin) => plugin?.name === 'xplat-native-css')
-    if (!css) {
+    nativeCss = preset.plugins.flat(Infinity).find((plugin) => plugin?.name === 'xplat-native-css')
+    if (!nativeCss) {
       throw new Error('NativeScript preset is missing its CSS normalization plugin')
     }
   } finally {
@@ -40,7 +37,7 @@ export default async function nativeCaseConfig(project, target) {
     // (lexical among them) read it bare; the NS runtime has no `process`,
     // so unrewritten reads throw at module eval.
     define: {
-      ...xplatNodeEnvDefine('production'),
+      ...nodeEnvDefine('production'),
       // The isolated case is a standalone Vite library, not the NativeScript
       // host bundle, so it needs the same target globals for native plugins.
       __ANDROID__: JSON.stringify(target === 'android'),
@@ -54,9 +51,9 @@ export default async function nativeCaseConfig(project, target) {
     },
     plugins: [
       scratchResolver(project),
-      xplatCss(target),
-      css,
-      xplatBoundary(target),
+      css(target),
+      nativeCss,
+      boundary(target),
       octane({
         renderers: {
           registry: { nativescript: nativeScriptRenderer },

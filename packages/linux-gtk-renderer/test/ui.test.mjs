@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
@@ -20,7 +20,7 @@ test('curated UI primitives compile and dispatch through real GTK controllers', 
 
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/ui-primitives-main.ts',
       outDir,

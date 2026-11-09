@@ -1,4 +1,4 @@
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vitest/config'
 import { readFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
@@ -25,7 +25,7 @@ const driver = resolve(
 
 export default defineConfig({
 	plugins: [
-		xplatTsrx('windows'),
+		tsrx('windows'),
 		{
 			name: 'rich-text-octane-deps',
 			resolveId(id) {

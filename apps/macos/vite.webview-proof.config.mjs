@@ -1,4 +1,4 @@
-import { xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { boundary, nodeEnvDefine } from '@octane-xplat/cli/vite'
 import { octane } from '@octanejs/vite-plugin'
 import { defineConfig } from 'vite'
 import { dirname, resolve } from 'node:path'
@@ -9,8 +9,8 @@ const appRoot = dirname(fileURLToPath(import.meta.url))
 export default defineConfig(({ mode }) => ({
   root: resolve(appRoot, 'webview-proof'),
   base: './',
-  plugins: [...octane(), xplatBoundary('web')],
-  define: xplatNodeEnvDefine(mode),
+  plugins: [...octane(), boundary('web')],
+  define: nodeEnvDefine(mode),
   server: {
     host: '127.0.0.1',
     port: 0,

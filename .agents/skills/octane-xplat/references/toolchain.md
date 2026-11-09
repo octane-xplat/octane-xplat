@@ -54,8 +54,8 @@ Bun. See
 [project build plugins](../../../../docs/packages/package-build.md).
 
 ```ts
-import { xplatNative } from '@octane-xplat/cli/vite'
-// Optional separate package: import { xplatNative } from '@octane-xplat/build/vite'
+import { native } from '@octane-xplat/cli/vite'
+// Optional separate package: import { native } from '@octane-xplat/build/vite'
 // Desktop presets use the corresponding /macos/vite or /linux-gtk/vite subpath.
 ```
 
@@ -67,7 +67,7 @@ bunx @octane-xplat/cli@latest upgrade --check
 Mason core is the only supported iOS/Android layout engine. Scaffolded apps
 declare the core beta through `catalog:xplat`; `xplat upgrade` replaces full
 MasonKit and legacy `@triniwiz` pins, and doctor rejects them until it runs.
-`xplatNative` resolves the canonical renderer's unchanged `nativescript-masonkit`
+`native` resolves the canonical renderer's unchanged `nativescript-masonkit`
 imports, including /style, to the app's declared engine under the isolated
 linker: core on mobile, full MasonKit in the Windows preview. The private
 Windows harness pins full MasonKit 1.0.0-beta.129 for foreign-text wrapping and

@@ -174,7 +174,7 @@ bun install
 ```
 
 `@lexical/link`'s ICU-dependent URL-matcher literal is compiled away at bundle
-time by the `xplatNative` unicode-regex transform. See
+time by the `native` unicode-regex transform. See
 [`docs/app/rich-text.md`](https://octane-xplat.goddardai.org/rich-text) for the shared contract,
 format vocabulary, and known limits.
 

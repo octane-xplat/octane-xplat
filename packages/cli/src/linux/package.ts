@@ -23,7 +23,7 @@ const defaultHostRoot = fileURLToPath(srcUrl(import.meta.url, 'host/'))
 const quote = (value) => `'${value.replaceAll("'", "'\\''")}'`
 const desktopString = (value) => value.replaceAll('\\', '\\\\').replaceAll('\t', '\\t')
 
-/** The one ESM file `gjs -m` executes. xplatLinuxGtk emits `app.js` by
+/** The one ESM file `gjs -m` executes. linuxGtk emits `app.js` by
  *  default; accept any single top-level bundle so an app may rename it. */
 const findGtkBundle = (appDir) => {
   if (existsSync(join(appDir, 'app.js'))) {

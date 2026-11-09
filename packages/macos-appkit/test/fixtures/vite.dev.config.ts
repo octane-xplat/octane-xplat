@@ -1,8 +1,8 @@
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
 export default defineConfig(async ({ mode }) => {
-  const config = await xplatMacOS(mode, {
+  const config = await macos(mode, {
     packaged: false,
     hmr: true,
     entry: 'src/App.macos.tsx',

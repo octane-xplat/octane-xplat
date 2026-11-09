@@ -1,19 +1,19 @@
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatCss, xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { css, boundary, nodeEnvDefine } from '@octane-xplat/cli/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 import { fileURLToPath } from 'node:url'
 
 const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url))
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    xplatCss('web'),
+    css('web'),
     ...octane(),
-    xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts` }),
-    xplatBoundary('linux'),
+    bamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts` }),
+    boundary('linux'),
   ],
-  define: xplatNodeEnvDefine(mode),
+  define: nodeEnvDefine(mode),
   // Distinct from web's 5200 and the native dev server's 5173 so the WK/GTK
   // host can pin its URL while all three dev servers coexist.
   server: { port: 5201 },

@@ -24,7 +24,7 @@ engine and host assets stay in this optional project package. Keep the macOS
 preset import in your app's Vite configuration:
 
 ```ts
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 ```
 
 Run the native `xplat` executable from the app directory. A foreground build

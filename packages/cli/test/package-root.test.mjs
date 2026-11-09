@@ -13,7 +13,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, describe, it } from 'node:test'
 import { appCliFile, installedPackageRoot, installedToolPackageRoot } from '../dist/package-root.js'
-import { sourceOnlyDeps, xplatNative } from '../dist/vite.js'
+import { sourceOnlyDeps, native } from '../dist/vite.js'
 import { inspectMacOSRuntimePackage } from '../dist/macos/runtime-package.js'
 
 const dirs = []
@@ -160,7 +160,7 @@ describe('hoisted workspace node_modules reads', () => {
     assert.deepEqual(sourceOnlyDeps(app), ['rootless-dep'])
   })
 
-  it('xplatNative sees hoisted deps: rootless in NS_VENDOR_EXCLUDE, nativescript deps excluded', async () => {
+  it('native sees hoisted deps: rootless in NS_VENDOR_EXCLUDE, nativescript deps excluded', async () => {
     const { ws, app } = makeHoistedApp()
 
     makePkg(join(ws, 'node_modules/rootless-dep'), {
@@ -183,7 +183,7 @@ describe('hoisted workspace node_modules reads', () => {
       nativescript: { platforms: { ios: '9.0.0' } },
     })
 
-    // xplatNative's own boundary deps must resolve from the app.
+    // native's own boundary deps must resolve from the app.
     for (const name of ['@octane-xplat/nativescript-mason-core', 'octane']) {
       makePkg(
         join(ws, 'node_modules', name),
@@ -215,7 +215,7 @@ describe('hoisted workspace node_modules reads', () => {
       },
     )
 
-    // vite must resolve for xplatNative's own imports — symlink the real
+    // vite must resolve for native's own imports — symlink the real
     // installed package into the hoisted workspace root.
     const { createRequire } = await import('node:module')
     const { dirname } = await import('node:path')
@@ -230,7 +230,7 @@ describe('hoisted workspace node_modules reads', () => {
     try {
       process.chdir(app)
 
-      const config = await xplatNative('development')
+      const config = await native('development')
       const excluded = process.env.NS_VENDOR_EXCLUDE ?? ''
 
       assert.ok(

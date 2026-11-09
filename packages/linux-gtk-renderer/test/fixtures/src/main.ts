@@ -1,4 +1,4 @@
-// GTK app entry — bundled by xplatLinuxGtk into one ESM file; `gjs -m`
+// GTK app entry — bundled by linuxGtk into one ESM file; `gjs -m`
 // executes it. `runGtkApp` owns the GtkApplication, window, content box, and
 // the mounted universal root.
 import { runGtkApp } from '@octane-xplat/linux-gtk/host'

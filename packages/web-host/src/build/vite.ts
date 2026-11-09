@@ -1,5 +1,5 @@
 import { serverBoundary } from '@octane-xplat/lib/server-boundary'
-import { xplatTsrx } from '@octane-xplat/build/vite'
+import { tsrx } from '@octane-xplat/build/vite'
 import { fileURLToPath } from 'node:url'
 import { normalizePath, type Plugin } from 'vite'
 
@@ -10,41 +10,45 @@ export function webHost(): Plugin[] {
 	const entry = import.meta.resolve('@octane-xplat/ui/routing/web-host')
 	const browserRoot = normalizePath(fileURLToPath(new URL('./browser-root.web.ts', entry)))
 	const serverRoot = fileURLToPath(new URL('./browser-root.server.web.ts', entry))
-	return [serverBoundary(), xplatTsrx('web'), {
-		name: 'xplat-web-host',
-		enforce: 'pre',
-		config: () => ({
-			resolve: {
-				conditions: ['web'],
-				extensions: [
-					'.web.tsrx',
-					'.web.tsx',
-					'.web.ts',
-					'.tsrx',
-					'.tsx',
-					'.ts',
-					'.mjs',
-					'.js',
-					'.json',
-				],
+	return [
+		serverBoundary(),
+		tsrx('web'),
+		{
+			name: 'xplat-web-host',
+			enforce: 'pre',
+			config: () => ({
+				resolve: {
+					conditions: ['web'],
+					extensions: [
+						'.web.tsrx',
+						'.web.tsx',
+						'.web.ts',
+						'.tsrx',
+						'.tsx',
+						'.ts',
+						'.mjs',
+						'.js',
+						'.json',
+					],
+				},
+				ssr: {
+					noExternal: [
+						'@octane-xplat/web-host',
+						'@octane-xplat/ui',
+						'@octane-xplat/lib',
+						'@octane-xplat/platform',
+					],
+				},
+			}),
+			async resolveId(source, importer, options) {
+				if (!options.ssr || !source.endsWith('/browser-root.web')) {
+					return null
+				}
+				const resolved = await this.resolve(source, importer, { skipSelf: true })
+				return resolved && normalizePath(resolved.id) === browserRoot ? serverRoot : null
 			},
-			ssr: {
-				noExternal: [
-					'@octane-xplat/web-host',
-					'@octane-xplat/ui',
-					'@octane-xplat/lib',
-					'@octane-xplat/platform',
-				],
-			},
-		}),
-		async resolveId(source, importer, options) {
-			if (!options.ssr || !source.endsWith('/browser-root.web')) {
-				return null
-			}
-			const resolved = await this.resolve(source, importer, { skipSelf: true })
-			return resolved && normalizePath(resolved.id) === browserRoot ? serverRoot : null
 		},
-	}]
+	]
 }
 
 /** Add to custom non-SSR builds to enforce the same boundary as Xplat presets. */

@@ -48,7 +48,7 @@ export async function workshopMacOSDev({
 	const bundle = join(directory, 'stories.cjs')
 	const shellBundle = join(directory, 'shell.cjs')
 	const catalogFile = join(directory, 'catalog.gen.ts')
-	const common = `import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+	const common = `import { macos } from '@octane-xplat/cli/macos/vite'
 import { nativeCatalogPlugin } from ${JSON.stringify(catalogPlugin)}
 const root = ${JSON.stringify(root)}
 `
@@ -58,7 +58,7 @@ const root = ${JSON.stringify(root)}
 		common +
 			`
 export default async ({ mode }) => {
- const settings = await xplatMacOS(mode, { root, packaged: false, hmr: false })
+ const settings = await macos(mode, { root, packaged: false, hmr: false })
  return { ...settings, plugins: [nativeCatalogPlugin({ root, config: ${JSON.stringify(config)}, catalogFile: ${JSON.stringify(catalogFile)} }), ...settings.plugins],
   build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
    lib: { entry: ${JSON.stringify(catalogFile)}, formats: ['cjs'], fileName: () => 'stories.cjs' } } }
@@ -82,7 +82,7 @@ startMacOSWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JS
 		common +
 			`
 export default async ({ mode }) => {
- const settings = await xplatMacOS(mode, { root, packaged: true, entry: ${JSON.stringify(join(directory, 'entry.ts'))} })
+ const settings = await macos(mode, { root, packaged: true, entry: ${JSON.stringify(join(directory, 'entry.ts'))} })
  return { ...settings, build: { ...settings.build, outDir: ${JSON.stringify(directory)}, emptyOutDir: false,
   lib: { entry: ${JSON.stringify(join(directory, 'entry.ts'))}, formats: ['cjs'], fileName: () => 'shell.cjs' } } }
 }

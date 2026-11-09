@@ -8,14 +8,14 @@ import http from 'node:http'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { xplatDevBridge } from '../dist/mcp/dev-bridge.js'
+import { devBridge } from '../dist/mcp/dev-bridge.js'
 
 async function makeBridge(t, serverOverrides = {}) {
   const appRoot = mkdtempSync(join(tmpdir(), 'xplat-bridge-app-'))
 
   t.after(() => rmSync(appRoot, { recursive: true, force: true }))
 
-  const plugin = xplatDevBridge({ appRoot })
+  const plugin = devBridge({ appRoot })
   const token = JSON.parse(plugin.config().define.__XPLAT_DEV_BRIDGE__).token
 
   let middleware

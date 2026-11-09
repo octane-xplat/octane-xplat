@@ -16,8 +16,8 @@ const { createServer } = await import(req.resolve('vite'))
 process.chdir(resolve(root, 'apps/windows'))
 process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
 
-const { xplatNative } = await import(pathToFileURL(resolve(root, 'packages/cli/src/vite.ts')))
-const config = await xplatNative('production')
+const { native } = await import(pathToFileURL(resolve(root, 'packages/cli/src/vite.ts')))
+const config = await native('production')
 const server = await createServer({
   configFile: false,
   root: process.cwd(),

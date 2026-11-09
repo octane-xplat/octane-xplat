@@ -55,7 +55,7 @@ and host separate Vite builds. Paths are relative to the app root:
 ```
 
 The web Vite config should use the `web` condition, the `.web` suffix chain,
-and `xplatBoundary('web')`, as the [macOS app example](../../apps/macos/vite.webview-app.config.mjs)
+and `boundary('web')`, as the [macOS app example](../../apps/macos/vite.webview-app.config.mjs)
 does. The frontend HTML loads the DOM app entry. The host Vite config bundles
 the NativeScript/JavaScriptCore entry as CommonJS and leaves
 `@nativescript/macos-node-api` external, following the

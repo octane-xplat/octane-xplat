@@ -3,7 +3,7 @@ import type { AppDebugSocket } from './dev-bridge-socket'
 // Dev-bridge endpoint discovery — web. The app is served by the vite dev
 // server that hosts the bridge middleware, so the endpoint is same-origin.
 // The token arrives through the dev-only __XPLAT_DEV_BRIDGE__ define injected
-// by xplatDevBridge(); production builds inject nothing and this stays inert.
+// by devBridge(); production builds inject nothing and this stays inert.
 declare const __XPLAT_DEV_BRIDGE__:
   | { token?: string; socket?: string; instanceId?: string; targetId?: string }
   | undefined

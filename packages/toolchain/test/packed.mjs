@@ -170,8 +170,8 @@ createRoot(document.getElementById('root')!).render(<App />)
 
   writeFileSync(
     join(app, 'vite.config.ts'),
-    `import { defineConfig, octane, xplatCss, xplatBoundary } from 'octane-xplat/vite'
-export default defineConfig({ plugins: [xplatCss('web'), ...octane(), xplatBoundary('web')] })
+    `import { defineConfig, octane, css, boundary } from 'octane-xplat/vite'
+export default defineConfig({ plugins: [css('web'), ...octane(), boundary('web')] })
 `,
   )
 

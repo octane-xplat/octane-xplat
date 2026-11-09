@@ -29,7 +29,7 @@ export function tailwindCompiler({
       root.walkComments((comment) => {
         if (comment.text.trim() === '@xplat-curated-utilities') {
           throw comment.error(
-            'Remove @octane-xplat/ui/theme/utilities.css when using xplatTailwind(); choose one utility stylesheet',
+            'Remove @octane-xplat/ui/theme/utilities.css when using tailwind(); choose one utility stylesheet',
             { plugin: 'xplat-tailwind' },
           )
         }

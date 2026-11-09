@@ -50,18 +50,18 @@ layers, which is what lets app CSS stay unlayered on top.
 
 ```ts
 // Add this plugin alongside your app's existing renderer plugins.
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 
-const webPlugins = xplatBamboo()
-const nativePlugins = xplatBamboo({ native: true })
+const webPlugins = bamboo()
+const nativePlugins = bamboo({ native: true })
 ```
 
 `native: true` covers NativeScript (iOS/Android), the AppKit renderer, and
 the GTK renderer — both desktop presets consume the same finalized
-`virtual:bamboo.css` asset through `xplatInlineStylesheets`.
+`virtual:bamboo.css` asset through `inlineStylesheets`.
 
 Platform conditions use the same build-time compiler as ordinary CSS. Add
-`xplatCss('web')` from `@octane-xplat/cli/vite` to web plugins; native presets
+`css('web')` from `@octane-xplat/cli/vite` to web plugins; native presets
 include it. Keep the portable utility subset unless you explicitly extend it.
 SSR generation with platform conditions is currently unsupported.
 
@@ -88,9 +88,9 @@ A Vite environment is a named build target. Some Cloudflare setups configure
 an incorrect incomplete-run warning. Use your Worker's environment name:
 
 ```ts
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 
-const plugins = xplatBamboo({
+const plugins = bamboo({
   buildEnvironments: ['api', 'client'],
 })
 ```
@@ -102,7 +102,7 @@ never completes still triggers Bamboo's warning. Omit the option for builders
 that build all configured environments. Pruning stays enabled.
 
 ```ts
-const plugins = xplatBamboo({ buildEnvironments: ['client', 'ssr'] })
+const plugins = bamboo({ buildEnvironments: ['client', 'ssr'] })
 ```
 
 This option declares participation; it does not schedule builds. It adapts

@@ -506,7 +506,7 @@ The development bundle is removed when the command exits and is not installed
 for Spotlight. Use the packaged `.app` for a lasting installation.
 
 For AppKit rendering, install `@octane-xplat/macos-appkit` and use
-`xplatMacOS` from `@octane-xplat/cli/macos/vite` to register the compiler,
+`macos` from `@octane-xplat/cli/macos/vite` to register the compiler,
 platform resolution, and compatibility aliases. The app owns its windows,
 startup, and custom fonts; the renderer defaults to Apple's system font.
 See the [renderer setup](../packages/package-macos-appkit.md) for dependencies,
@@ -515,9 +515,9 @@ Vite and TypeScript configuration, and the root lifecycle.
 ```js
 // vite.package.config.mjs — AppKit build.
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig((env) => xplatMacOS(env, { entry: 'src/main.mjs' }))
+export default defineConfig((env) => macos(env, { entry: 'src/main.mjs' }))
 ```
 
 Leaf packages can also ship `platforms/macos/` sources in C, ObjC, Swift, or

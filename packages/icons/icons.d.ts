@@ -1,5 +1,5 @@
 // Ambient typing floor for `icons:*` virtual modules resolved by the
-// `xplatIcons` Vite plugin (@octane-xplat/icons/vite) — the opt-in fallback
+// `icons` Vite plugin (@octane-xplat/icons/vite) — the opt-in fallback
 // for consumers that cannot run the `.icon` content mapper (classic
 // TypeScript 5/6, or typecheck flows that never sync the .icons stub tree).
 // Every `icons:<prefix>/<name>` specifier default-imports an IconifyIcon

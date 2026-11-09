@@ -585,8 +585,8 @@ test(
     put(
       f.app,
       'vite.config.mjs',
-      `import {xplatDevBridge} from '@octane-xplat/cli/vite';
- export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'real-app-debug',configureServer(server){let app;
+      `import {devBridge} from '@octane-xplat/cli/vite';
+ export default {server:{host:'127.0.0.1',port:0},plugins:[devBridge(),{name:'real-app-debug',configureServer(server){let app;
  server.httpServer.once('listening',()=>{app=server.ssrLoadModule('/app-debug.ts');app.then(value=>value.setOrigin('http://127.0.0.1:'+server.httpServer.address().port+'/')).catch(error=>console.error(error.message))});
  server.middlewares.use(async(req,res,next)=>{const operation={'/fixture/count':'count','/fixture/clear':'clear','/fixture/stop':'stop','/fixture/reconnect':'reconnect'}[req.url];if(!operation)return next();try{const value=(await app)[operation]();res.end(value===undefined?'ok':JSON.stringify(value))}catch(error){res.statusCode=500;res.end(error.message)}})
  }}]}
@@ -989,7 +989,7 @@ test(
     put(
       f.app,
       'vite.config.mjs',
-      `import {xplatDevBridge} from '@octane-xplat/cli/vite';export default{server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge()]}`,
+      `import {devBridge} from '@octane-xplat/cli/vite';export default{server:{host:'127.0.0.1',port:0},plugins:[devBridge()]}`,
     )
 
     const owned = start(f)
@@ -1348,9 +1348,9 @@ stream.subscribe((message) => {
     put(
       f.app,
       'vite.config.mjs',
-      `import {xplatDevBridge} from '@octane-xplat/cli/vite';
+      `import {devBridge} from '@octane-xplat/cli/vite';
 import {connectDevBackend} from '${pathToFileURL(join(root, 'packages/devtools/src/backend.ts')).href}';
-export default {server:{host:'127.0.0.1',port:0},plugins:[xplatDevBridge(),{name:'devtools-backend-fixture',configureServer(server){
+export default {server:{host:'127.0.0.1',port:0},plugins:[devBridge(),{name:'devtools-backend-fixture',configureServer(server){
 let backend, app;
 server.httpServer.once('listening',()=>{
   backend = connectDevBackend('probe');

@@ -1,8 +1,8 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { xplatGtkSlotDedupe } from '../src/linux-gtk/vite.ts'
+import { gtkSlotDedupe } from '../src/linux-gtk/vite.ts'
 
-const transform = (code, id = '/pkg/ui/src/Widget.tsrx') => xplatGtkSlotDedupe().transform(code, id)
+const transform = (code, id = '/pkg/ui/src/Widget.tsrx') => gtkSlotDedupe().transform(code, id)
 
 test('dedupes a repeated withSlot binding inside one module', () => {
   const code = [

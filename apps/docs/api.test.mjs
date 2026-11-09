@@ -108,7 +108,7 @@ test('source-only tooling exports retain inferred signatures and list JavaScript
 
   writeFileSync(
     join(root, 'src/index.ts'),
-    '/** Format a visible greeting. */\nexport function greet(name: string) { return `Hello ${name}` }\n',
+    '/** Format a visible greeting. */\nexport function greet(name: string) { return `Hello ${name}` }\n/** @deprecated Use greet. */\nexport const legacyGreet: typeof greet = greet\n',
   )
 
   writeFileSync(join(root, 'bin/run.mjs'), 'console.log("Run the command")\n')
@@ -117,6 +117,9 @@ test('source-only tooling exports retain inferred signatures and list JavaScript
 
   assert.match(markdown, /Format a visible greeting/)
   assert.match(markdown, /greet\(name: string\): string/)
+  assert.match(markdown, /^#{2,4} `greet`/m)
+  assert.match(markdown, /^#{2,4} `legacyGreet`/m)
+  assert.match(markdown, /Use greet/)
   assert.match(markdown, /JavaScript-only entry points[^\n]+source-widget\/bin/)
 })
 

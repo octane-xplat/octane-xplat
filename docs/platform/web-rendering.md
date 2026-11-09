@@ -42,7 +42,7 @@ retain assets used by open tabs.
 ```js
 // Browser build — a normal app build, not a library build:
 await build({
-  plugins: [xplatCss('web'), webHost(), octane()],
+  plugins: [css('web'), webHost(), octane()],
   build: {
     manifest: true,
     rollupOptions: { input: 'src/client.web.ts' },
@@ -120,7 +120,7 @@ export const findProduct = (id: string) => database.products.find(id)
 export { findProduct } from './products.server'
 ```
 
-The same boundary is included in `xplatBoundary` and the native presets. Custom
+The same boundary is included in `boundary` and the native presets. Custom
 client builds can add `serverBoundary()`. Build source maps omit authored source
 text, and transformed development maps do not retain removed re-exports. Keep
 secrets in server modules rather than comments or unrelated shared declarations.

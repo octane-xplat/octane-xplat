@@ -8,9 +8,9 @@ import { test, type TestContext } from 'node:test'
 import postcss, { type ChildNode } from 'postcss'
 import officialTailwind from '@tailwindcss/postcss'
 import { build, createServer, resolveConfig } from 'vite'
-import { pxToDip, xplatCss } from '@octane-xplat/build/vite'
+import { pxToDip, css as platformCss } from '@octane-xplat/build/vite'
 import { tailwindCompiler } from '../src/compiler.ts'
-import { xplatTailwind } from '../src/vite.ts'
+import { tailwind } from '../src/vite.ts'
 
 const packageRoot = fileURLToPath(new URL('..', import.meta.url))
 
@@ -102,7 +102,7 @@ async function buildCss(
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss(target), xplatTailwind(), ...(target === 'ios' ? [pxToDip()] : [])],
+    plugins: [platformCss(target), tailwind(), ...(target === 'ios' ? [pxToDip()] : [])],
     resolve: { conditions },
     build: {
       write: false,
@@ -193,13 +193,13 @@ test('platform ownership and duplicate compiler configuration fail explicitly', 
   const root = await fixture(t)
 
   await assert.rejects(
-    resolveConfig({ configFile: false, root, plugins: [xplatTailwind()] }, 'build'),
+    resolveConfig({ configFile: false, root, plugins: [tailwind()] }, 'build'),
     /exactly one Xplat/,
   )
 
   await assert.rejects(
     resolveConfig(
-      { configFile: false, root, plugins: [xplatCss('web'), xplatTailwind(), xplatTailwind()] },
+      { configFile: false, root, plugins: [platformCss('web'), tailwind(), tailwind()] },
       'build',
     ),
     /once/,
@@ -210,7 +210,7 @@ test('platform ownership and duplicate compiler configuration fail explicitly', 
       {
         configFile: false,
         root,
-        plugins: [xplatCss('web'), xplatTailwind()],
+        plugins: [platformCss('web'), tailwind()],
         css: { postcss: { plugins: [officialTailwind()] } },
       },
       'build',
@@ -223,7 +223,7 @@ test('platform ownership and duplicate compiler configuration fail explicitly', 
       {
         configFile: false,
         root,
-        plugins: [xplatCss('web'), xplatTailwind()],
+        plugins: [platformCss('web'), tailwind()],
         css: { postcss: { plugins: [officialTailwind] } },
       },
       'build',
@@ -288,7 +288,7 @@ test('Vite development output retains CSS maps and watches source additions', as
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web'), xplatTailwind()],
+    plugins: [platformCss('web'), tailwind()],
     css: { devSourcemap: true },
     optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0 },
@@ -474,7 +474,7 @@ test('native development recovers after an unsupported utility is removed', asyn
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('ios'), xplatTailwind()],
+    plugins: [platformCss('ios'), tailwind()],
     optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0 },
   })
@@ -576,7 +576,7 @@ test('Vite development restores fallback classes after a preferred leaf is delet
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web'), xplatTailwind()],
+    plugins: [platformCss('web'), tailwind()],
     optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0 },
   })
@@ -691,7 +691,7 @@ test('client CSS and SSR inline styles stay isolated across concurrent projects'
         configFile: false,
         root,
         logLevel: 'silent',
-        plugins: [xplatCss('web'), xplatTailwind()],
+        plugins: [platformCss('web'), tailwind()],
         css: { devSourcemap: true },
         optimizeDeps: { noDiscovery: true },
         server: { host: '127.0.0.1', port: 0 },

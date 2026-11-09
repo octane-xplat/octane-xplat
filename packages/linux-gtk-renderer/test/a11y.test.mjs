@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable } from './gjs-availability.mjs'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
@@ -25,7 +25,7 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
   rmSync(outDir, { recursive: true, force: true })
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/a11y-smoke.ts',
       outDir,
@@ -34,7 +34,7 @@ test('accessible labels and widget names land on real GJS+GTK', async (t) => {
 
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/atspi-probe.ts',
       outDir: join(fixture, 'dist-atspi'),

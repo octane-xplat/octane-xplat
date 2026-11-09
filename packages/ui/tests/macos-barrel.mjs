@@ -2,14 +2,14 @@ import assert from 'node:assert/strict'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.ts'
+import { macos } from '../../cli/src/macos/vite.ts'
 
 export async function buildMacOSBarrel(
   root = resolve(dirname(fileURLToPath(import.meta.url)), '../../../apps/macos'),
   specifier = '@octane-xplat/ui',
 ) {
   const entry = resolve(root, 'ui-macos-barrel-fixture.ts')
-  const config = await xplatMacOS('production', { root, packaged: false, entry })
+  const config = await macos('production', { root, packaged: false, entry })
   const result = await build({
     ...config,
     configFile: false,

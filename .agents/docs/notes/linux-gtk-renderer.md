@@ -83,7 +83,7 @@ A first native slice of the GTK4/GJS renderer:
   `inspectLinuxPackageConfig` validates it (identity fields as before;
   `host.scheme` optional — the GTK host has no URI handling; `viteConfig`
   defaults to `vite.gtk.config.ts`), and `packageLinux` branches: the GTK
-  path runs the app's `xplatLinuxGtk` Vite config into the staged app
+  path runs the app's `linuxGtk` Vite config into the staged app
   directory and emits `app.js` (or any single top-level ESM file), an
   executable `gjs -m` launcher, `app.json`, `README.txt`, and the usual tar
   archive. **No host script, desktop entry, or installer ships** — bundle +
@@ -118,7 +118,7 @@ suffix:
   and the `.gtk.tsrx` pragma rule expecting
   `/** @jsxImportSource @octane-xplat/linux-gtk */`
 - `packages/cli/src/linux-gtk/vite.mjs` (`@octane-xplat/cli/linux-gtk/vite`):
-  `xplatLinuxGtk` preset — `gtk` renderer registry, `.gtk` extension chain,
+  `linuxGtk` preset — `gtk` renderer registry, `.gtk` extension chain,
   `gi://` externals, `octane` → `octane/universal/native` retarget, one
   resolved universal-native instance for app + renderer
 
@@ -139,7 +139,7 @@ adapter those runs proved is the direct ancestor of `src/index.ts`.
 - `pnpm --filter @octane-xplat/linux-gtk typecheck` — clean
 - `pnpm --filter @octane-xplat/jsx typecheck` — clean (`gtk.d.ts` compiles)
 - `node --test test/build.test.mjs` (in the package) — 2 tests pass on macOS:
-  1. `xplatLinuxGtk` compiles `test/fixtures` into one ESM bundle with
+  1. `linuxGtk` compiles `test/fixtures` into one ESM bundle with
      `gi://` imports external, `universalPlan` emitted, no DOM globals;
   2. a `.linux.ts` leaf reachable in a GTK bundle fails with the
      `xplat boundary` error.
@@ -233,8 +233,8 @@ unqualified gaps).
 The renderer applies stylesheets through the same vendored NativeScript
 selector engine and renderer-owned cascade the AppKit renderer uses —
 consumed from `@octane-xplat/css-engine`, not copied
-(decision #124). `xplatLinuxGtk` installs the shared
-`xplatInlineStylesheets` plugin (renamed from `xplatMacOSStylesheets`),
+(decision #124). `linuxGtk` installs the shared
+`inlineStylesheets` plugin (renamed from `xplatMacOSStylesheets`),
 which processes each emitted `.css` asset and prepends one
 `__xplatStylesheets.push(...)` statement to `app.js` — valid before ESM
 imports and it runs before bundled module bodies, so the engine's
@@ -331,7 +331,7 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 - GJS 1.82.3 exposes no `queueMicrotask`, `process`, `performance`, or
   `fetch` (verified by the feasibility proof's globals inventory; upstream
   is GJS itself, not Octane). The driver bridges microtask scheduling via
-  `Promise.resolve().then`; `xplatLinuxGtk` inlines
+  `Promise.resolve().then`; `linuxGtk` inlines
   `process.env.NODE_ENV` at build. These are load-bearing workarounds —
   do not remove them if a future GJS adds the globals without re-checking
   flush ordering.
@@ -379,7 +379,7 @@ it, each with GJS 1.90.1 / GTK 4.24.1 headless evidence in
 The canonical routing barrel now selects GTK platform leaves for its default
 client, stack registry, Back interception and route shells. The default client
 uses the renderer-neutral pane host; it does not import NativeScript Frame,
-Page or modal hosts. `xplatLinuxGtk` resolves both compiler-generated GTK imports
+Page or modal hosts. `linuxGtk` resolves both compiler-generated GTK imports
 and retargeted NativeScript-renderer imports to the application's renderer entry.
 UI takes no GTK dependency. The experimental GTK renderer declares UI as a workspace
 dev dependency for its public-consumer fixture.
@@ -3305,7 +3305,7 @@ Compiler-side findings recorded in upstream-limitations: universal
 compiler emits `__methodDep` for member calls inside hook callbacks but
 0.16.3's UNIVERSAL_RUNTIME_IMPORTS lacks it (patched); plain .ts helper
 files fall to the 'dom' renderer default unless renderers.default is
-set — xplatLinuxGtk now sets `default: 'gtk'` so universal slotting
+set — linuxGtk now sets `default: 'gtk'` so universal slotting
 emits `useMemo(fn, deps, sym)` instead of native memoSlot/memoPublish.
 
 ## Unmount/GC lifecycle (slice I)

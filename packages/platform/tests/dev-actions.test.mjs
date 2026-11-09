@@ -8,7 +8,7 @@ import { readFile } from 'node:fs/promises'
 import test from 'node:test'
 import vm from 'node:vm'
 import ts from 'typescript-classic'
-import { xplatDevBridge } from '../../cli/src/mcp/dev-bridge.ts'
+import { devBridge } from '../../cli/src/mcp/dev-bridge.ts'
 
 // Compile a src module to CJS and evaluate it with a sibling-file resolver,
 // so dev-actions.ts loads dev-bridge.web.ts + dev-actions-schema.ts the way a
@@ -88,7 +88,7 @@ async function loadDevActions(globals = {}) {
 }
 
 async function makeBridge(t) {
-  const plugin = xplatDevBridge({ appRoot: '/tmp' })
+  const plugin = devBridge({ appRoot: '/tmp' })
   const token = JSON.parse(plugin.config().define.__XPLAT_DEV_BRIDGE__).token
   let middleware
   const server = http.createServer((req, res) =>

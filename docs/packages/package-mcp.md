@@ -193,8 +193,8 @@ carry the runtime values and stores (re-exported from `@octane-xplat/cli`).
   policy), `DevActionRegistryAnnouncement` (instance identity + revision +
   declarations), invocation request/outcome types, and the field-subset
   validators both sides share. The app announces its registry through a
-  dev-bridge (`xplatDevBridge` vite middleware in `@octane-xplat/cli`, included
-  in the `xplatNative` preset); the server scans the app's bridge session
+  dev-bridge (`devBridge` vite middleware in `@octane-xplat/cli`, included
+  in the `native` preset); the server scans the app's bridge session
   files under `node_modules/.cache/xplat/dev-bridge/` and polls live
   announcements — an empty registry is never confused with a disconnected app.
 

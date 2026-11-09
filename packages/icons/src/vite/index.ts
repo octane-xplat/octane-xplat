@@ -41,7 +41,7 @@ export interface XplatIconsOptions {
  * needs the app's tsconfig `paths` + `contentMappers` entries (see
  * package-icons docs).
  */
-export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
+export function icons(options: XplatIconsOptions = {}): Plugin {
   let root = ''
   const resolved = new Map<string, VirtualIcon>()
 
@@ -57,7 +57,7 @@ export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
           })
         } catch (error) {
           this.warn(
-            `xplatIcons: icon type stubs failed to sync — ${error instanceof Error ? error.message : String(error)}`,
+            `icons: icon type stubs failed to sync — ${error instanceof Error ? error.message : String(error)}`,
           )
         }
       }
@@ -129,3 +129,6 @@ export function xplatIcons(options: XplatIconsOptions = {}): Plugin {
 
 export { discoverIconifyCollections, syncIconStubs } from './stubs'
 export type { SyncIconStubsOptions, SyncIconStubsResult } from './stubs'
+
+/** @deprecated Use {@link icons}. */
+export const xplatIcons: typeof icons = icons

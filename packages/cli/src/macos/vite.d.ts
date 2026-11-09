@@ -15,7 +15,10 @@ export interface XplatMacOSOptions {
 }
 
 /** Configure the experimental AppKit renderer using the app's installed toolchain. */
-export function xplatMacOS(
+export function macos(
   env: { mode: string } | string,
   options?: XplatMacOSOptions,
 ): Promise<UserConfig>
+
+/** @deprecated Use {@link macos}. */
+export const xplatMacOS: typeof macos

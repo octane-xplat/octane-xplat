@@ -3,7 +3,11 @@ import { createServer } from 'node:http'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { expect, it } from 'vitest'
-import { xplatWorkshop } from '../dist/build/vite.js'
+import { workshop, xplatWorkshop } from '../dist/build/vite.js'
+
+it('retains the compatibility factory identity', () => {
+  expect(workshop).toBe(xplatWorkshop)
+})
 
 async function withAssetServer(run) {
   const root = mkdtempSync(join(tmpdir(), 'workshop-assets-'))
@@ -11,7 +15,7 @@ async function withAssetServer(run) {
 
   mkdirSync(join(app, 'public'), { recursive: true })
 
-  const [, shell] = xplatWorkshop({ cwd: app, config: { assets: { pictures: 'public' } } })
+  const [, shell] = workshop({ cwd: app, config: { assets: { pictures: 'public' } } })
   let middleware
 
   shell.configureServer({

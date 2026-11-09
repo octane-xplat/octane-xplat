@@ -180,8 +180,8 @@ setTimeout(() => { console.error('PACKED_EDITORS_TIMEOUT'); globalThis.__finishE
 
 await writeFile(
   join(app, 'vite.config.mjs'),
-  `import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
-export default async ({mode}) => { const config = await xplatMacOS(mode, {root: import.meta.dirname, entry: 'src/main.mjs'}); config.build.outDir='dist'; return config }
+  `import { macos } from '@octane-xplat/cli/macos/vite'
+export default async ({mode}) => { const config = await macos(mode, {root: import.meta.dirname, entry: 'src/main.mjs'}); config.build.outDir='dist'; return config }
 `,
 )
 

@@ -136,7 +136,7 @@ pnpm probe run packages/ui/tests/fixtures/fixed-layer.ios.tsrx --target ios --de
 The standard macOS compiler rewrites raw `tabviewitem` and `listview` tags to
 internal source-owned wrappers. Tab refs still expose logical item handles;
 list refs still expose native list views. Props, keys, children, and refs pass
-through. Keep the standard `xplatMacOS` compiler setup when using raw controls.
+through. Keep the standard `macos` compiler setup when using raw controls.
 Tab content mounts on assignment, retains identity during reorder/transfer,
 and releases on unassignment. List slots follow physical cells with binding
 generations so old release events cannot remove a newer portal. Generations

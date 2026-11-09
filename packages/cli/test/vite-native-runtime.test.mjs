@@ -4,7 +4,7 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { xplatNative } from '../dist/vite.js'
+import { native } from '../dist/vite.js'
 
 test('native preset loads without alien-signals in the app or Octane dependency graph', async (t) => {
   const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-native-runtime-')))
@@ -73,7 +73,7 @@ test('native preset loads without alien-signals in the app or Octane dependency 
     for (const env of ['development', { mode: 'production' }]) {
       process.env.NS_VENDOR_EXCLUDE = 'app-owned'
 
-      const config = await xplatNative(env, { deps: ['app-extra'] })
+      const config = await native(env, { deps: ['app-extra'] })
 
       assert.equal(process.env.NS_VENDOR_EXCLUDE, 'app-owned')
       assert.deepEqual(config.optimizeDeps.exclude, ['app-extra'])
@@ -100,7 +100,7 @@ test('native preset loads without alien-signals in the app or Octane dependency 
       })
 
       try {
-        const config = await xplatNative('development')
+        const config = await native('development')
         const bridge = config.plugins
           .flat(Infinity)
           .find((plugin) => plugin?.name === 'xplat-native-app-debug')
@@ -181,7 +181,7 @@ export { View, Style }
         for (const platform of ['ios', 'android']) {
           process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform })
 
-          const config = await xplatNative('production')
+          const config = await native('production')
           const result = await build({
             ...config,
             configFile: false,
@@ -216,14 +216,14 @@ export { View, Style }
           }),
         )
 
-        await assert.rejects(xplatNative('production'), /native classes and libraries overlap/)
+        await assert.rejects(native('production'), /native classes and libraries overlap/)
         writeFileSync(
           join(root, 'package.json'),
           JSON.stringify({ dependencies: { [core]: 'file:./core.tgz' } }),
         )
 
         process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
-        await assert.rejects(xplatNative('production'), /Windows is unqualified/)
+        await assert.rejects(native('production'), /Windows is unqualified/)
       },
     )
 
@@ -260,7 +260,7 @@ export { View, Style }`,
 
         process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
 
-        const config = await xplatNative('production')
+        const config = await native('production')
         const { build } = await import('vite')
         const result = await build({
           ...config,
@@ -294,7 +294,7 @@ export { View, Style }`,
         writeFileSync(join(root, 'package.json'), JSON.stringify({ name: 'windows-app' }))
         process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'windows' })
 
-        const config = await xplatNative('production')
+        const config = await native('production')
 
         assert.deepEqual(config.resolve.conditions, ['windows', 'native'])
         makePackage(

@@ -1,4 +1,4 @@
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 import { defineConfig } from 'vitest/config'
 import { URL } from 'node:url'
 import { octane } from 'octane/compiler/vite'
@@ -34,7 +34,7 @@ const NATIVE_EXTS = [
 
 export default defineConfig({
   plugins: [
-    xplatTsrx('ios'),
+    tsrx('ios'),
     octane({
       ssr: false,
       renderers: {

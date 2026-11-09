@@ -110,7 +110,7 @@ retain screens and providers without changing browser URLs, creating native
 Frames or presenting modals. Motion reports skipped. OS Back and window-close
 integration belong to the enclosing host. Typed hooks take the explicit instance.
 The experimental native GTK renderer supports this explicit pane workflow through
-`xplatLinuxGtk`. Keep its screens in `.gtk` leaves and use the GTK preset's
+`linuxGtk`. Keep its screens in `.gtk` leaves and use the GTK preset's
 renderer resolution. Its modal presentation, OS Back, generated startup and
 full shared-control support are outside this measured subset. See the
 [GTK pane example](../../../../../docs/platform/linux-gtk.md#add-retained-route-panes)

@@ -288,9 +288,9 @@ they emit no CSS. See the [participation example](../../../../docs/packages/pack
 and [upstream limitation](../../../docs/bamboo-build-environments.md).
 
 ```ts
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 
-const plugins = xplatBamboo({ buildEnvironments: ['api', 'client'] })
+const plugins = bamboo({ buildEnvironments: ['api', 'client'] })
 ```
 
 Bamboo token names mirror the ui theme variables — every `--color-*`,

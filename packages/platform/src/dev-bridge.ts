@@ -2,7 +2,7 @@ import type { AppDebugSocket } from './dev-bridge-socket'
 // Dev-bridge endpoint discovery — iOS/Android/Windows (the unsuffixed native
 // default). The NativeScript dev runtime exposes the dev server origin it is
 // loading modules from as __NS_HTTP_ORIGIN__; the bridge token arrives through
-// the dev-only __XPLAT_DEV_BRIDGE__ define injected by the xplatNative bridge
+// the dev-only __XPLAT_DEV_BRIDGE__ define injected by the native bridge
 // plugin. Go foreground dev supplies a relay path on that same origin. The
 // NativeScript device transform
 // injects that define as a module-scope const — unlike the web client it does

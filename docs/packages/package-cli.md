@@ -208,9 +208,9 @@ Keep the existing Vite import when using the native package. The large macOS hos
 assets remain a separate optional installation:
 
 ```ts
-import { xplatCss } from '@octane-xplat/cli/vite'
+import { css } from '@octane-xplat/cli/vite'
 
-const cssPlugin = xplatCss('web')
+const cssPlugin = css('web')
 ```
 
 Native `status` discovers apps, installed framework versions, project guidance,
@@ -836,9 +836,9 @@ deps):
 ```ts
 // vite.config.native.mts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 
-export default defineConfig(({ mode }) => xplatNative(mode))
+export default defineConfig(({ mode }) => native(mode))
 ```
 
 The preset resolves the canonical renderer patch's MasonKit imports through
@@ -852,9 +852,9 @@ before choosing Windows; a downstream Windows setup is not documented yet.
 ```ts
 // With the core dependency shown under Compatible versions:
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 
-export default defineConfig(({ mode }) => xplatNative(mode))
+export default defineConfig(({ mode }) => native(mode))
 ```
 
 ## macOS AppKit preset
@@ -864,9 +864,9 @@ The experimental AppKit preset is exported separately from
 
 ```js
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig(({ mode }) => xplatMacOS(mode))
+export default defineConfig(({ mode }) => macos(mode))
 ```
 
 It resolves the app's `@octane-xplat/macos-appkit` package and installed
@@ -874,7 +874,7 @@ Octane compiler. See [AppKit renderer setup](https://octane-xplat.goddardai.org/
 application dependencies, root ownership, fonts, and development bundles.
 
 ```js
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default await xplatMacOS('production', { entry: 'src/main.mjs' })
+export default await macos('production', { entry: 'src/main.mjs' })
 ```

@@ -73,10 +73,10 @@ Production builds alone do not exercise this step. The
 includes the extension order:
 
 ```ts
-import { xplatBoundary } from 'octane-xplat/vite'
+import { boundary } from 'octane-xplat/vite'
 
 // Keep this plugin in your existing Vite plugins array:
-const platformResolver = xplatBoundary('web')
+const platformResolver = boundary('web')
 ```
 
 ## CSS file variants
@@ -92,15 +92,15 @@ import './card.css'
 ```
 
 Native Vite presets include CSS selection. For a browser or DOM webview,
-add `xplatCss('web')` to the app's existing Vite plugins. A browser running
+add `css('web')` to the app's existing Vite plugins. A browser running
 on iOS still uses `web`. DOM webviews, including the legacy Linux
 WebKitGTK host, select `.web.css`.
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatCss } from '@octane-xplat/cli/vite'
+import { css } from '@octane-xplat/cli/vite'
 
-export default defineConfig({ plugins: [xplatCss('web')] })
+export default defineConfig({ plugins: [css('web')] })
 ```
 
 Keep common rules in a separately named file when a platform needs additions.
@@ -309,16 +309,16 @@ bun add -D typescript-classic@npm:typescript@5.9.3
 ```
 
 A custom compiler or test configuration needs the same platform selection.
-Add `xplatTsrx` when configuring Octane directly. Standard platform presets and
-`xplatBoundary` already include it.
+Add `tsrx` when configuring Octane directly. Standard platform presets and
+`boundary` already include it.
 
 ```ts
 import { defineConfig } from 'vitest/config'
 import { octane } from 'octane/compiler/vite'
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-  plugins: [xplatTsrx('web'), octane({ ssr: false })],
+  plugins: [tsrx('web'), octane({ ssr: false })],
   test: { environment: 'jsdom' },
 })
 ```

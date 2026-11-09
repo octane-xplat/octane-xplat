@@ -23,10 +23,10 @@ edit `vite.config.native.mts` like this; retain your app-specific options:
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 import { withWorkshopMobile } from '@octane-xplat/workshop/vite-mobile'
 
-export default defineConfig(async ({ mode }) => withWorkshopMobile(await xplatNative(mode)))
+export default defineConfig(async ({ mode }) => withWorkshopMobile(await native(mode)))
 ```
 
 Your ordinary app entry remains the production entry. The wrapper does nothing
@@ -99,11 +99,11 @@ the consumer's matching NativeScript compiler rules. Collections outside
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 import { withWorkshopMobile } from '@octane-xplat/workshop/vite-mobile'
 export default defineConfig(async ({ mode }) =>
   withWorkshopMobile(
-    await xplatNative(mode, {
+    await native(mode, {
       rules: [
         { include: 'src/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },
         { include: 'stories/**/*.{ts,tsx,tsrx}', exclude: '**/*.web.*', renderer: 'nativescript' },

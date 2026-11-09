@@ -16,8 +16,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import { build, createLogger } from 'vite'
-import { xplatBamboo } from '../src/vite.ts'
-import { xplatCss } from '@octane-xplat/cli/vite'
+import { bamboo, xplatBamboo } from '../src/vite.ts'
+import { css as platformCss } from '@octane-xplat/cli/vite'
+assert.equal(bamboo, xplatBamboo, 'Compatibility exports must share one factory')
 
 const configSource = fileURLToPath(new URL('../src/config.ts', import.meta.url))
 const codegen = fileURLToPath(new URL('../node_modules/@bamboocss/dev/bin.js', import.meta.url))
@@ -53,8 +54,8 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
         root,
         logLevel: 'silent',
         plugins: [
-          xplatCss(target),
-          xplatBamboo({
+          platformCss(target),
+          bamboo({
             native: target !== 'web',
             cwd: root,
             configPath: join(root, 'bamboo.config.ts'),
@@ -121,8 +122,8 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
       root,
       customLogger: logger,
       plugins: [
-        xplatCss('web'),
-        xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
+        platformCss('web'),
+        bamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
       ],
       build: {
         outDir: 'dist',
@@ -162,10 +163,10 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
         configFile: false,
         root,
         logLevel: 'silent',
-        plugins: [xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') })],
+        plugins: [bamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') })],
         build: { write: false, lib: { entry: main, formats: ['es'], cssFileName: 'styles' } },
       }),
-      /platform conditions require xplatCss/,
+      /platform conditions require css/,
     )
 
     await assert.rejects(
@@ -174,8 +175,8 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
         root,
         logLevel: 'silent',
         plugins: [
-          xplatCss('web'),
-          xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
+          platformCss('web'),
+          bamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
         ],
         build: { write: false, ssr: main },
       }),
@@ -188,8 +189,8 @@ export const card = css({ padding: '4', _web: { color: 'primary' }, _ios: { colo
       root,
       logLevel: 'silent',
       plugins: [
-        xplatCss('web'),
-        xplatBamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
+        platformCss('web'),
+        bamboo({ cwd: root, configPath: join(root, 'bamboo.config.ts') }),
         {
           name: 'test-written-css',
           writeBundle(_options, bundle) {

@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, masonTypelibPresent } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
@@ -24,7 +24,7 @@ test(
 
     await build({
       logLevel: 'error',
-      ...(await xplatLinuxGtk('production', {
+      ...(await linuxGtk('production', {
         root: fixture,
         entry: 'src/ui-text-entry-main.ts',
         outDir,

@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { afterEach, test } from 'node:test'
 import { build, createLogger, createServer } from 'vite'
-import { xplatCss } from '../dist/css-platform.js'
+import { css as platformCss } from '../dist/css-platform.js'
 
 const temporary = []
 function fixture(files) {
@@ -28,7 +28,7 @@ async function bundle(root, platform) {
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss(platform)],
+    plugins: [platformCss(platform)],
     build: {
       write: false,
       minify: false,
@@ -104,7 +104,7 @@ test('dev serving selects siblings and preserves inline query imports', async ()
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web')],
+    plugins: [platformCss('web')],
     server: { middlewareMode: true },
   })
 
@@ -191,7 +191,7 @@ test('honors user aliases before CSS sibling selection', async () => {
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web')],
+    plugins: [platformCss('web')],
     resolve: { alias: { '@styles': join(root, 'styles') } },
     build: {
       write: false,
@@ -215,7 +215,7 @@ test('adding and removing a sibling reselects the dev import', async () => {
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web')],
+    plugins: [platformCss('web')],
     server: { middlewareMode: true },
   })
 
@@ -240,7 +240,7 @@ test('raw CSS imports keep raw text while selecting a platform sibling', async (
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss('web')],
+    plugins: [platformCss('web')],
     server: { middlewareMode: true },
   })
 
@@ -342,7 +342,7 @@ for (const mode of ['inline', 'discovered', 'directory']) {
 
     const config = { root, css: { postcss: configured } }
 
-    await xplatCss('web').config(config)
+    await platformCss('web').config(config)
 
     const { plugins, ...actualOptions } = config.css.postcss
 
@@ -373,7 +373,7 @@ for (const mode of ['inline', 'discovered', 'directory']) {
 
 for (const cssMinify of ['esbuild', 'lightningcss']) {
   test(`deferred sheets encode platform blocks as layers for ${cssMinify} minify`, async () => {
-    const plugin = xplatCss('web')
+    const plugin = platformCss('web')
 
     plugin.api.defer('deferred.css')
 

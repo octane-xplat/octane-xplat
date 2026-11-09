@@ -155,8 +155,8 @@ export function App() {
 
   write(
     'vite.gtk.config.mjs',
-    `import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
-export default env => xplatLinuxGtk(env, { entry: 'src/gtk-entry.ts', outDir: 'dist-gtk' })
+    `import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+export default env => linuxGtk(env, { entry: 'src/gtk-entry.ts', outDir: 'dist-gtk' })
 `,
   )
 

@@ -36,7 +36,7 @@ describe('unwrapCssLayers', () => {
 
 // Compilers using the patched native cascade retain layer metadata through
 // both serving and asset serialization; ordinary projects keep their path.
-import { processNativeCss, pxToDip, xplatCss } from '../dist/vite.js'
+import { processNativeCss, pxToDip, css } from '../dist/vite.js'
 
 it('retains layers and native units when the platform compiler opts in', () => {
   const source = '@layer utilities { .a.b { width: 12px; opacity: .25 } } .b { opacity: .75 }'
@@ -49,7 +49,7 @@ it('retains layers and native units when the platform compiler opts in', () => {
     /@layer/,
   )
 
-  const platform = xplatCss('ios')
+  const platform = css('ios')
 
   platform.api.preserveLayers = true
 

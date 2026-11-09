@@ -3,17 +3,17 @@ import { createRequire } from 'node:module'
 import { realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
+import { boundary, nodeEnvDefine, css } from '../vite.ts'
 
 import { nativeDevSocketPlugin } from '../mcp/dev-socket.ts'
 import { tabItemContentRoots } from './tab-item.ts'
-import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
+import { inlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/macos-appkit'
 const runtime = '@nativescript/macos-node-api'
 
 /** AppKit compiler and bundle setup; the consuming app owns the toolchain. */
-export async function xplatMacOS(env, options = {}) {
+export async function macos(env, options = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const root = resolve(options.root ?? process.cwd())
   const appRequire = createRequire(join(root, 'package.json'))
@@ -26,12 +26,12 @@ export async function xplatMacOS(env, options = {}) {
 
   return {
     root,
-    define: xplatNodeEnvDefine(mode),
+    define: nodeEnvDefine(mode),
     plugins: [
       ...(mode === 'development' ? [nativeDevSocketPlugin()].filter(Boolean) : []),
-      xplatCss('macos'),
-      xplatInlineStylesheets(),
-      xplatBoundary('macos'),
+      css('macos'),
+      inlineStylesheets(),
+      boundary('macos'),
       tabItemContentRoots(),
       octane({
         hmr: options.hmr ?? false,
@@ -107,3 +107,6 @@ export async function xplatMacOS(env, options = {}) {
     },
   }
 }
+
+/** @deprecated Use {@link macos}. */
+export const xplatMacOS: typeof macos = macos

@@ -3,8 +3,8 @@ import { createRequire } from 'node:module'
 import { existsSync, realpathSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
-import { xplatBoundary, xplatNodeEnvDefine, xplatCss } from '../vite.ts'
-import { xplatInlineStylesheets } from '../inline-stylesheets.ts'
+import { boundary, nodeEnvDefine, css } from '../vite.ts'
+import { inlineStylesheets } from '../inline-stylesheets.ts'
 
 const renderer = '@octane-xplat/linux-gtk'
 
@@ -17,7 +17,7 @@ const renderer = '@octane-xplat/linux-gtk'
  *  redeclaration error in the merged chunk. Keep the first binding per
  *  export and fold later local names into it. Different specifiers are a
  *  real conflict — bail. */
-export function xplatGtkSlotDedupe() {
+export function gtkSlotDedupe() {
   return {
     name: 'xplat-gtk-slot-dedupe',
     transform(code, id) {
@@ -107,7 +107,7 @@ export function xplatGtkSlotDedupe() {
  *  skips platform resolution. A GTK bundle redirects to the .gtk sibling
  *  when one exists, restoring what extension probing did when the same
  *  imports were extensionless. */
-export function xplatGtkLeafResolve() {
+export function gtkLeafResolve() {
   return {
     name: 'xplat-gtk-leaf-resolve',
     resolveId: {
@@ -137,7 +137,7 @@ export function xplatGtkLeafResolve() {
   }
 }
 
-export async function xplatLinuxGtk(env, options = {}) {
+export async function linuxGtk(env, options = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const root = resolve(options.root ?? process.cwd())
   const appRequire = createRequire(join(root, 'package.json'))
@@ -153,13 +153,13 @@ export async function xplatLinuxGtk(env, options = {}) {
 
   return {
     root,
-    define: xplatNodeEnvDefine(mode),
+    define: nodeEnvDefine(mode),
     plugins: [
-      xplatGtkLeafResolve(),
-      xplatGtkSlotDedupe(),
-      xplatCss('gtk'),
-      xplatInlineStylesheets(),
-      xplatBoundary('gtk'),
+      gtkLeafResolve(),
+      gtkSlotDedupe(),
+      css('gtk'),
+      inlineStylesheets(),
+      boundary('gtk'),
       octane({
         hmr: options.hmr ?? false,
         exclude: options.exclude,
@@ -256,3 +256,12 @@ export async function xplatLinuxGtk(env, options = {}) {
     },
   }
 }
+
+/** @deprecated Use {@link linuxGtk}. */
+export const xplatLinuxGtk: typeof linuxGtk = linuxGtk
+
+/** @deprecated Use {@link gtkSlotDedupe}. */
+export const xplatGtkSlotDedupe: typeof gtkSlotDedupe = gtkSlotDedupe
+
+/** @deprecated Use {@link gtkLeafResolve}. */
+export const xplatGtkLeafResolve: typeof gtkLeafResolve = gtkLeafResolve

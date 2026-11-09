@@ -1694,7 +1694,7 @@ hide/show, column resize+sticky config accepted, filter popover
 open/type/apply/reset narrows rows. `useGridList` is an inert native
 leaf (`isSupported: false`), matching other native platforms.
 Compiler fixes this slice: `renderers.default: 'gtk'` in
-`xplatLinuxGtk` (plain .ts hook files previously fell to the dom default
+`linuxGtk` (plain .ts hook files previously fell to the dom default
 and emitted native-only memoSlot/memoTake/memoPublish helpers); the GTK
 slot dedupe plugin now covers .ts/.mts/.js emitted duplicates and uses a
 name-continuation-safe fold regex. Octane patch gains `__methodDep` in

@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 import { after, test } from 'node:test'
 import { build } from 'vite'
 import ts from 'typescript-classic'
-import { xplatBoundary } from '../dist/vite.js'
+import { boundary } from '../dist/vite.js'
 
 const require = createRequire(import.meta.url)
 const dir = mkdtempSync(join(tmpdir(), 'xplat-native-ts-'))
@@ -97,7 +97,7 @@ for (const platform of platforms) {
       root: dir,
       logLevel: 'silent',
       plugins: [
-        xplatBoundary(platform),
+        boundary(platform),
         {
           name: 'plain-typescript-fixture',
           transform(source, id) {

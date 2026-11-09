@@ -269,8 +269,8 @@ try {
   writeFileSync(
     join(consumer, 'types.ts'),
     `import type { Plugin } from 'vite'
-import { xplatTailwind } from '@octane-xplat/tailwind/vite'
-const plugin: Plugin = xplatTailwind()
+import { tailwind } from '@octane-xplat/tailwind/vite'
+const plugin: Plugin = tailwind()
 void plugin
 `,
   )

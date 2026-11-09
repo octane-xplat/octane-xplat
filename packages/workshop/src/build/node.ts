@@ -14,9 +14,9 @@ import { pathToFileURL } from 'node:url'
 import { realpathSync } from 'node:fs'
 import { discoverStories } from './discover.ts'
 import { windowsPreflight, windowsLaunchBlocker } from './windows/preflight.ts'
-import { xplatWorkshop } from './vite.ts'
+import { workshop } from './vite.ts'
 import { launchMobile, mobilePrerequisites } from './mobile-node.ts'
-import { xplatBoundary, xplatCss, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { boundary, css, devBridge, nodeEnvDefine } from '@octane-xplat/cli/vite'
 
 const CONFIG_NAMES = [
 	'workshop.config.ts',
@@ -413,16 +413,16 @@ export async function startWorkshopServer({ root, config, target, story, port } 
 		mode: 'development',
 		logLevel: 'info',
 		plugins: [
-			xplatCss('web'),
+			css('web'),
 			// The workshop's 'pre' hotUpdate must run before the octane plugin's
 			// own 'pre' hook, so the story catalog answers edits before octane
 			// can force a full page reload.
-			...xplatWorkshop({ cwd: root, config, target, story }),
+			...workshop({ cwd: root, config, target, story }),
 			...octane(),
-			xplatBoundary(target),
-			xplatDevBridge(),
+			boundary(target),
+			devBridge(),
 		],
-		define: xplatNodeEnvDefine('development'),
+		define: nodeEnvDefine('development'),
 		server: {
 			...(port ? { port, strictPort: true } : {}),
 			fs: {

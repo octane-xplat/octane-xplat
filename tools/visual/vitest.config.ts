@@ -1,4 +1,4 @@
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 import { sourceIdentity } from './scripts/capture-manifest.ts'
 import { dirname, join } from 'node:path'
 import { validateCapture } from './scripts/parity.ts'
@@ -29,7 +29,7 @@ function iosCapture() {
 export default defineConfig({
   optimizeDeps: { include: ['vitest-plugin-vis > ssim.js'] },
   plugins: [
-    xplatTsrx('web'),
+    tsrx('web'),
     ...octane(),
     vis({
       preset: 'manual',

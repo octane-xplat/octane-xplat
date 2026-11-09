@@ -117,7 +117,7 @@ added.
 
 ## Boundary audit (§3 last row)
 
-macOS bundle conditions are `['macos','native']` and `xplatBoundary('macos')`
+macOS bundle conditions are `['macos','native']` and `boundary('macos')`
 fails the build when `.web`/`.android`-tagged files enter the graph
 (`cli/src/vite.ts`). Full inventory of `.macos.*` leaves importing other
 platform tags: only `ads/src/ads.macos.ts` (`./ads.web`) and

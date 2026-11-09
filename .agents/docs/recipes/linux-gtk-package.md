@@ -2,7 +2,7 @@
 
 ID: linux-gtk-package
 Targets: linux
-Related APIs: xplat build, xplat dev, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, @octane-xplat/cli/linux-gtk/vite, xplatLinuxGtk, @octane-xplat/linux-gtk/host, runGtkApp
+Related APIs: xplat build, xplat dev, xplat doctor, xplat.targets.linux.runtime, xplat.targets.linux.package, @octane-xplat/cli/linux-gtk/vite, linuxGtk, @octane-xplat/linux-gtk/host, runGtkApp
 
 ## Starting point
 
@@ -13,7 +13,7 @@ on Linux instead of a WebKitGTK webview.
 
 - Declare the linux target with the `gtk` runtime and an independent app
   identity.
-- Bundle through the `xplatLinuxGtk` Vite preset and package a relocatable
+- Bundle through the `linuxGtk` Vite preset and package a relocatable
   `gjs -m` app directory plus archive.
 - Understand the artifact boundary: no desktop entry, installer, URI
   handling, or broad runtime qualification. Named widget/history checks do not
@@ -23,7 +23,7 @@ on Linux instead of a WebKitGTK webview.
 
 - AC1: The reader can install matching published packages, choose the Box fallback
   or an explicit native Mason build, and declare `runtime: "gtk"`, the required package identity
-  fields, and a `vite.gtk.config.ts` that applies the `xplatLinuxGtk` preset.
+  fields, and a `vite.gtk.config.ts` that applies the `linuxGtk` preset.
 - AC2: `xplat build --targets linux` emits a relocatable directory holding the
   single-file ESM bundle, an executable `gjs -m` launcher, `app.json`, and a
   `README.txt`, plus a tar archive; a failed build preserves the prior app.

@@ -4,8 +4,8 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { after, it } from 'node:test'
 import { build } from 'vite'
-import { xplatCss } from '../src/css-platform.ts'
-import { xplatInlineStylesheets } from '../src/inline-stylesheets.ts'
+import { css as platformCss } from '../src/css-platform.ts'
+import { inlineStylesheets } from '../src/inline-stylesheets.ts'
 
 const dir = mkdtempSync(join(tmpdir(), 'xplat-inline-css-'))
 
@@ -32,7 +32,7 @@ it('collects .css assets, processes them, and prepends one push line to the entr
   await build({
     root: dir,
     logLevel: 'silent',
-    plugins: [xplatCss('macos'), xplatInlineStylesheets()],
+    plugins: [platformCss('macos'), inlineStylesheets()],
     build: {
       cssCodeSplit: true,
       outDir: out,
@@ -72,7 +72,7 @@ it('prepends the push before ESM imports for the GTK host', async () => {
   await build({
     root: dir,
     logLevel: 'silent',
-    plugins: [xplatCss('gtk'), xplatInlineStylesheets()],
+    plugins: [platformCss('gtk'), inlineStylesheets()],
     build: {
       cssCodeSplit: true,
       outDir: out,
@@ -119,7 +119,7 @@ it('prepends the push before ESM imports for the GTK host', async () => {
 })
 
 it('preserves opted-in cascade layers through desktop per-file and emitted CSS delivery', async () => {
-  const platform = xplatCss('macos')
+  const platform = platformCss('macos')
 
   platform.api.preserveLayers = true
 
@@ -128,7 +128,7 @@ it('preserves opted-in cascade layers through desktop per-file and emitted CSS d
   await build({
     root: dir,
     logLevel: 'silent',
-    plugins: [platform, xplatInlineStylesheets()],
+    plugins: [platform, inlineStylesheets()],
     build: {
       cssCodeSplit: true,
       cssMinify: false,

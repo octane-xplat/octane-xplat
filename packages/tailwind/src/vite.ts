@@ -63,12 +63,12 @@ function hasTailwindCompiler(plugin: unknown): boolean {
   )
 }
 
-/** Vite plugin returned by {@link xplatTailwind}. */
+/** Vite plugin returned by {@link tailwind}. */
 export type XplatTailwindPlugin = Plugin
 
 /**
  * Add the official Tailwind v4 compiler to the configured Xplat CSS pipeline.
- * The target comes from the owning Xplat preset (or `xplatCss('web')`).
+ * The target comes from the owning Xplat preset (or `css('web')`).
  * Import `@octane-xplat/tailwind` from an app stylesheet to opt that sheet in.
  * Other stylesheets bypass this compiler. Preflight is not included.
  *
@@ -76,12 +76,12 @@ export type XplatTailwindPlugin = Plugin
  * compiler is already configured. Native output is not qualified yet.
  * @example
  * ```ts
- * import { xplatCss } from '@octane-xplat/build/vite'
- * import { xplatTailwind } from '@octane-xplat/tailwind/vite'
- * const plugins = [xplatCss('web'), xplatTailwind()]
+ * import { css } from '@octane-xplat/build/vite'
+ * import { tailwind } from '@octane-xplat/tailwind/vite'
+ * const plugins = [css('web'), tailwind()]
  * ```
  */
-export function xplatTailwind(): XplatTailwindPlugin {
+export function tailwind(): XplatTailwindPlugin {
   const entries = new Map<string, { files: string[]; directories: string[] }>()
 
   return {
@@ -92,32 +92,32 @@ export function xplatTailwind(): XplatTailwindPlugin {
       const platforms = plugins.filter((plugin) => plugin.name === 'xplat-platform-css')
 
       if (platforms.length !== 1) {
-        throw new Error('xplatTailwind requires exactly one Xplat platform CSS preset')
+        throw new Error('tailwind requires exactly one Xplat platform CSS preset')
       }
 
       const target = targetFromApi(platforms[0].api)
 
       if (!target) {
-        throw new Error('xplatTailwind could not determine the Xplat CSS target')
+        throw new Error('tailwind could not determine the Xplat CSS target')
       }
 
       if (
         plugins.filter((plugin) => plugin.name === 'xplat-tailwind').length !== 1 ||
         plugins.some((plugin) => plugin.name.startsWith('@tailwindcss/'))
       ) {
-        throw new Error('Configure xplatTailwind once, without another Tailwind Vite plugin')
+        throw new Error('Configure tailwind once, without another Tailwind Vite plugin')
       }
 
       const settings = config.css?.postcss
 
       if (!settings || typeof settings !== 'object') {
-        throw new Error('xplatTailwind requires the PostCSS configuration supplied by xplatCss')
+        throw new Error('tailwind requires the PostCSS configuration supplied by css')
       }
 
       const configuredPlugins = postcss(settings.plugins ?? []).plugins
 
       if (configuredPlugins.some(hasTailwindCompiler)) {
-        throw new Error('Remove the separate Tailwind PostCSS compiler when using xplatTailwind')
+        throw new Error('Remove the separate Tailwind PostCSS compiler when using tailwind')
       }
 
       if (!isBrowserTarget(target)) {
@@ -142,7 +142,7 @@ export function xplatTailwind(): XplatTailwindPlugin {
         tailwindCompiler({
           root: resolve(config.root ?? '.'),
           target,
-          // The Linux webview uses xplatCss('web') with Linux/web module
+          // The Linux webview uses css('web') with Linux/web module
           // conditions. Its JS leaves differ while its CSS remains browser CSS.
           sourceTarget:
             target === 'web' && config.resolve?.conditions?.includes('linux') ? 'linux' : target,
@@ -190,3 +190,6 @@ export function xplatTailwind(): XplatTailwindPlugin {
     },
   }
 }
+
+/** @deprecated Use {@link tailwind}. */
+export const xplatTailwind: typeof tailwind = tailwind

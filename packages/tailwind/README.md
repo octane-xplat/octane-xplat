@@ -12,7 +12,7 @@ theme scopes and mode changes. The app must supply those values through UI
 chrome, a `Theme`, or its own CSS. This entry replaces the plain Tailwind import:
 
 ```css
-/* app.css — processed by xplatTailwind() */
+/* app.css — processed by tailwind() */
 @import '@octane-xplat/tailwind/ui.css';
 ```
 
@@ -85,11 +85,11 @@ adapter. Keep the Linux webview's existing browser CSS preset and conditions:
 
 ```ts
 // Existing Linux webview configuration
-import { xplatCss } from '@octane-xplat/build/vite'
-import { xplatTailwind } from '@octane-xplat/tailwind/vite'
+import { css } from '@octane-xplat/build/vite'
+import { tailwind } from '@octane-xplat/tailwind/vite'
 
 const config = {
-  plugins: [xplatCss('web'), xplatTailwind()],
+  plugins: [css('web'), tailwind()],
   resolve: { conditions: ['linux', 'web'] },
 }
 ```

@@ -5,7 +5,7 @@ import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gjsAvailable, gtkOsInputReady } from './gjs-availability.mjs'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
@@ -20,7 +20,7 @@ test('GTK Pressable receives X11 pointer press and pan through OS hit-testing', 
 
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/ui-input-main.ts',
       outDir,

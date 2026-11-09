@@ -240,7 +240,7 @@ bun run --filter @xplat/visual capture:ios --web-only
 bun run --filter @xplat/visual test:comparator
 ```
 
-The private iOS build relies on the `xplatNative` preset's Unicode-property
+The private iOS build relies on the `native` preset's Unicode-property
 regex transform (`@octane-xplat/cli` `src/native-regex.ts`) because the
 harness runtime rejects `\p{…}` escapes before startup. It preserves
 constant-constructor and literal matching without patching runtime globals.

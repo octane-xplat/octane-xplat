@@ -29,8 +29,8 @@ test('native preset folds the Windows branch in host builds', async () => {
     process.chdir(appFor('ios'))
 
     const require = createRequire(join(process.cwd(), 'package.json'))
-    const { xplatNative } = await import(require.resolve('@octane-xplat/cli/vite'))
-    const config = await xplatNative('production')
+    const { native } = await import(require.resolve('@octane-xplat/cli/vite'))
+    const config = await native('production')
 
     assert.equal(config.define.__WINDOWS__, 'false')
   } finally {

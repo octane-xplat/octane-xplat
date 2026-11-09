@@ -484,7 +484,7 @@ createRoot(stage).render(createElement(WorkshopCounter, { step: 1, state: create
   assert.match(built, /production-only/)
   assert.doesNotMatch(
     built,
-    /xplatWorkshop|__xplatWorkshop|story account overlay|AsyncAccount|counter\/basic|storybook/,
+    /workshop|__xplatWorkshop|story account overlay|AsyncAccount|counter\/basic|storybook/,
   )
 
   console.log(

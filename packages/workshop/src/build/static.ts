@@ -5,9 +5,9 @@ import { join, resolve, relative, isAbsolute, sep } from 'node:path'
 import { createRequire } from 'node:module'
 import { pathToFileURL } from 'node:url'
 import { discoverStories } from './discover.ts'
-import { xplatWorkshop } from './vite.ts'
+import { workshop } from './vite.ts'
 import { galleryEntries } from '../gallery.ts'
-import { xplatBoundary, xplatCss, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { boundary, css as platformCss, nodeEnvDefine } from '@octane-xplat/cli/vite'
 
 const escape = (value) =>
   String(value).replace(
@@ -108,10 +108,10 @@ export async function buildStaticWorkshop({
     base,
     mode: 'production',
     plugins: [
-      xplatCss('web'),
-      ...xplatWorkshop({ cwd: root, config, target }),
+      platformCss('web'),
+      ...workshop({ cwd: root, config, target }),
       ...octane(),
-      xplatBoundary('web'),
+      boundary('web'),
       {
         name: 'workshop-static-document',
         generateBundle(_options, bundle) {
@@ -151,7 +151,7 @@ export async function buildStaticWorkshop({
         },
       },
     ],
-    define: xplatNodeEnvDefine('production'),
+    define: nodeEnvDefine('production'),
     build: {
       outDir: destination,
       emptyOutDir: true,

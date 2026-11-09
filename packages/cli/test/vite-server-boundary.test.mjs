@@ -4,9 +4,9 @@ import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import { test } from 'node:test'
-import { xplatNative } from '../dist/vite.js'
-import { xplatMacOS } from '../dist/macos/vite.js'
-import { xplatLinuxGtk } from '../dist/linux-gtk/vite.js'
+import { native } from '../dist/vite.js'
+import { macos } from '../dist/macos/vite.js'
+import { linuxGtk } from '../dist/linux-gtk/vite.js'
 
 // The .server boundary must hold inside every app-facing preset, not only in
 // custom pipelines that add serverBoundary() by hand. These builds run the
@@ -130,14 +130,14 @@ test('native presets reject .server imports and erase named re-exports', async (
     process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ platform: 'ios' })
     delete process.env.NS_VENDOR_EXCLUDE
 
-    const native = await xplatNative('production')
+    const nativeConfig = await native('production')
     const nativeBuild = (entry) =>
       build({
-        ...native,
+        ...nativeConfig,
         configFile: false,
         logLevel: 'silent',
         build: {
-          ...native.build,
+          ...nativeConfig.build,
           write: false,
           minify: false,
           sourcemap: true,
@@ -158,8 +158,8 @@ test('native presets reject .server imports and erase named re-exports', async (
     assert.ok(chunks.every((entry) => !entry.exports.includes('context')))
 
     for (const preset of [
-      () => xplatMacOS('production', { root, packaged: false, entry: join(root, 'entry-leak.ts') }),
-      () => xplatLinuxGtk('production', { root, entry: join(root, 'entry-leak.ts') }),
+      () => macos('production', { root, packaged: false, entry: join(root, 'entry-leak.ts') }),
+      () => linuxGtk('production', { root, entry: join(root, 'entry-leak.ts') }),
     ]) {
       const config = await preset()
 

@@ -1,11 +1,11 @@
 import { defineConfig } from 'vite'
 import { octane } from 'octane/compiler/vite'
-import { xplatCss, xplatBoundary, xplatNodeEnvDefine } from '@octane-xplat/build/vite'
-import { xplatTailwind } from '@octane-xplat/tailwind/vite'
+import { css, boundary, nodeEnvDefine } from '@octane-xplat/build/vite'
+import { tailwind } from '@octane-xplat/tailwind/vite'
 
 export default defineConfig(({ mode }) => ({
-  plugins: [xplatCss('web'), octane(), xplatTailwind(), xplatBoundary('web')],
-  define: xplatNodeEnvDefine(mode),
+  plugins: [css('web'), octane(), tailwind(), boundary('web')],
+  define: nodeEnvDefine(mode),
   resolve: {
     conditions: ['web'],
     dedupe: ['octane'],

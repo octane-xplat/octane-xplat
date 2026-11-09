@@ -634,11 +634,11 @@ the CSS environment draft's available-value/fallback distinction:
 ## Mason core mobile cutover (2026-10-23)
 
 Engine selection was removed entirely — there is no opt-in. iOS/Android always
-builds with core: `xplatNative` resolves the canonical renderer's unchanged
+builds with core: `native` resolves the canonical renderer's unchanged
 `nativescript-masonkit` imports to the app's core installation without an
 installed-capability probe, and doctor/upgrade treat the full and legacy
 packages as replaced engines. `xplat upgrade` migrates their pins to the core
-catalog entry; `xplatNative`, doctor, and the probe runner reject them until
+catalog entry; `native`, doctor, and the probe runner reject them until
 it runs. New scaffolds declare the core beta through `catalog:xplat`.
 
 The Windows preview is a platform constraint, not an engine choice: the pinned

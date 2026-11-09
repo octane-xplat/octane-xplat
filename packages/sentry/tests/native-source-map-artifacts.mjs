@@ -15,10 +15,10 @@ import { spawnSync } from 'node:child_process'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 
 // Build-side artifact check for the starter's native bundler path
-// (`xplatNative` in vite.config.native.mts): a production iOS build must emit
+// (`native` in vite.config.native.mts): a production iOS build must emit
 // JavaScript source maps that accept Debug ID injection and resolve back to
 // the app's TypeScript. No upload, no device, no native archive.
 const root = dirname(dirname(fileURLToPath(import.meta.url)))
@@ -31,7 +31,7 @@ const previousVendorExclude = process.env.NS_VENDOR_EXCLUDE
 
 try {
   // Upstream @nativescript/vite resolves platform and output dir from these
-  // environment variables at module evaluation — set them before xplatNative
+  // environment variables at module evaluation — set them before native
   // pulls the nativescript config in.
   process.env.NATIVESCRIPT_BUNDLER_ENV = JSON.stringify({ ios: true })
   process.env.NS_VITE_DIST_DIR = output
@@ -87,7 +87,7 @@ try {
   process.chdir(fixture)
 
   // The documented integration: the starter preset plus a release-map opt-in.
-  const config = await xplatNative('production', {
+  const config = await native('production', {
     extra: { build: { sourcemap: 'hidden' }, logLevel: 'error' },
   })
 
@@ -157,7 +157,7 @@ try {
   assert.equal(help.status, 0, help.stderr)
   assert.ok(help.stdout.includes('--release') && help.stdout.includes('--dist'))
   console.log(
-    `Built the xplatNative iOS production pipeline with hidden maps; Debug ID ${map.debugId} joins bundle.mjs to its map and the stack resolves to reporting.mobile.ts. Upload, archive dSYMs and Android mapping remain external credential/target steps.`,
+    `Built the native iOS production pipeline with hidden maps; Debug ID ${map.debugId} joins bundle.mjs to its map and the stack resolves to reporting.mobile.ts. Upload, archive dSYMs and Android mapping remain external credential/target steps.`,
   )
 } finally {
   process.chdir(previousCwd)

@@ -150,7 +150,7 @@ export async function workshopGtkDev({ root, config, story, profileRoot, onStart
 		)
 	}
 
-	const { xplatLinuxGtk } = await import(
+	const { linuxGtk } = await import(
 		pathToFileURL(require.resolve('@octane-xplat/cli/linux-gtk/vite')).href
 	)
 
@@ -166,7 +166,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 	)
 
 	const { build } = await import(pathToFileURL(require.resolve('vite')).href)
-	const shellSettings = await xplatLinuxGtk('production', { root })
+	const shellSettings = await linuxGtk('production', { root })
 	await build({
 		logLevel: 'error',
 		configFile: false,
@@ -189,7 +189,7 @@ startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON
 		'octane/internal/client',
 		'@octane-xplat/linux-gtk',
 	]
-	const storySettings = await xplatLinuxGtk('production', { root })
+	const storySettings = await linuxGtk('production', { root })
 	// The preset aliases runtime specifiers to absolute paths — externals must
 	// match the resolved paths too or a second octane bundles into stories.
 	const resolvedSingletons = new Set()

@@ -17,14 +17,14 @@ sudo apt install gjs gir1.2-gtk-4.0
 
 GTK 4.10 or later is required by the CLI runtime check. The package ships
 JavaScript in `dist/` and TypeScript declarations. Bundle your application with
-`xplatLinuxGtk`; GJS loads the resulting app, not Node. Follow the
+`linuxGtk`; GJS loads the resulting app, not Node. Follow the
 [Linux GTK app guide](https://octane-xplat.goddardai.org/linux-gtk)
 for an entry point and packaging commands.
 
 ```ts
 // vite.gtk.config.ts
-import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
-export default async (env: { mode: string }) => xplatLinuxGtk(env)
+import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
 
@@ -388,7 +388,7 @@ the renderer reports that limit once when returnKeyType is supplied.
 ## Apply stylesheets
 
 Import CSS files from your entry module, the same way the iOS and Android
-apps do. `xplatLinuxGtk` compiles them like the other presets (it drops
+apps do. `linuxGtk` compiles them like the other presets (it drops
 `@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
 points) and injects them into `app.js`. The renderer then matches
 `className`, `id`, and element-type selectors against your widgets with the
@@ -541,7 +541,7 @@ GTK host element type. There is no renderer-owned `jsx-runtime` export.
 
 ## Bundle + run
 
-`@octane-xplat/cli` ships `xplatLinuxGtk` (`@octane-xplat/cli/linux-gtk/vite`)
+`@octane-xplat/cli` ships `linuxGtk` (`@octane-xplat/cli/linux-gtk/vite`)
 which wires the Octane compiler's `gtk` renderer, `gi://` externals, the
 `.gtk` extension chain, and the `octane` → `octane/universal/native` retarget.
 The output is one ESM file run with `gjs -m`.

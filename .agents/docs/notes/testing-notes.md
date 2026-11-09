@@ -32,7 +32,7 @@ The renderer config accepts `forbiddenGlobals`, `forbiddenImports`,
 `textHosts`, `textParents`, `hostProps` — enforced at compile time on owned
 files. Plain `.ts` helpers also need the lint/typecheck backstop described
 below. The following is an early configuration sketch, not a complete preset.
-Use `xplatNative` from `@octane-xplat/cli/vite` for app setup. Declare on the nativescript
+Use `native` from `@octane-xplat/cli/vite` for app setup. Declare on the nativescript
 registry entry (or wrap `nativeScriptRenderers` in our own config helper):
 
 ```ts

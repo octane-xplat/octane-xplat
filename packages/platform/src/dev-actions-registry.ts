@@ -9,7 +9,7 @@
 // Lifetime and trust boundaries:
 // - This module never runs the bridge in production: the endpoint requires
 //   the dev-only __XPLAT_DEV_BRIDGE__ token define, which only the
-//   xplatDevBridge dev-server plugin injects. Declare actions behind
+//   devBridge dev-server plugin injects. Declare actions behind
 //   `import.meta.env.DEV` (or your bundler's dev gate) so handlers and test
 //   credentials tree-shake out of production artifacts.
 // - The registry is a realm singleton — it survives hot reload, so a reload

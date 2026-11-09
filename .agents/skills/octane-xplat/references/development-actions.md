@@ -123,17 +123,17 @@ failures reuse the router's `navigation_blocked`/`navigation_failed` codes.
 
 Registration automatically starts the app-side bridge; a separate startup call
 is unnecessary for registered actions. The dev server still needs
-`xplatDevBridge` from `@octane-xplat/cli/vite`: the web starter includes it, and
+`devBridge` from `@octane-xplat/cli/vite`: the web starter includes it, and
 the NativeScript preset includes it. Follow the guide's
 [bridge setup](../../../../docs/testing/development-actions.md#connect-the-running-app)
 when configuring an existing app.
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatDevBridge } from '@octane-xplat/cli/vite'
+import { devBridge } from '@octane-xplat/cli/vite'
 
 // Merge into the existing config, preserving its other plugins and settings.
-export default defineConfig({ plugins: [xplatDevBridge()] })
+export default defineConfig({ plugins: [devBridge()] })
 ```
 
 The Go CLI has actual macOS Chromium and headless

@@ -333,7 +333,7 @@ void NoSuchWorkshopExport
   )
 
   // An ordinary production AppKit bundle built through the consumer's own
-  // xplatMacOS pipeline excludes stories, fixture data and workshop tooling.
+  // macos pipeline excludes stories, fixture data and workshop tooling.
   write(
     'src/main.ts',
     `import '@nativescript/macos-node-api'
@@ -347,10 +347,10 @@ export default marker
 
   write(
     'prod-build.mjs',
-    `import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+    `import { macos } from '@octane-xplat/cli/macos/vite'
 import { build } from 'vite'
 const root = ${JSON.stringify(consumer)}
-const settings = await xplatMacOS('production', { root, packaged: true, entry: 'src/main.ts' })
+const settings = await macos('production', { root, packaged: true, entry: 'src/main.ts' })
 await build({ ...settings, configFile: false })
 `,
   )
@@ -369,11 +369,11 @@ await build({ ...settings, configFile: false })
   assert.match(built, /production-only/)
   assert.doesNotMatch(
     built,
-    /__xplatWorkshop|xplatWorkshop|AsyncAccount|counter\/basic|Isolation and overlay|storybook/,
+    /__xplatWorkshop|workshop|AsyncAccount|counter\/basic|Isolation and overlay|storybook/,
   )
 
   console.log(
-    'PASS packed macOS production bundle compiles through xplatMacOS and excludes workshop tooling',
+    'PASS packed macOS production bundle compiles through macos and excludes workshop tooling',
   )
 
   if (!onDarwinMac) {

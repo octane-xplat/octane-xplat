@@ -37,7 +37,7 @@ artifacts and project-delivery checks. The Sentry wrapper exposes typed
 `beforeSend`/`beforeBreadcrumb` and `enabled`/`setEnabled`/`flush`/`close`
 controls; a native crash report invokes `beforeSend` but ignores its result —
 only the collection controls stop crash capture. Android `flush` covers the
-JS queue only. Native release maps are qualified at build level — `xplatNative`
+JS queue only. Native release maps are qualified at build level — `native`
 plus `extra.build.sourcemap` emits Debug-ID-ready maps — while credentialed
 upload, installed-artifact delivery, dSYM/Android symbols and crash/relaunch
 stay external (#74).

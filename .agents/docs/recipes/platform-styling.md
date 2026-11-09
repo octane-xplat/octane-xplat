@@ -2,7 +2,7 @@
 
 ID: platform-styling
 Targets: web, ios, android
-Related APIs: xplatCss, @platform, .web.css, .mobile.css, .ios.css, .android.css
+Related APIs: css, @platform, .web.css, .mobile.css, .ios.css, .android.css
 
 ## Starting point
 

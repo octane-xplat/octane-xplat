@@ -182,7 +182,7 @@ if (!values.variant) {
       'Build samples use fresh Node processes, not cold OS caches; module loading is included in processWallMs only.',
       'Watch latency includes filesystem notification, Vite invalidation, compiler work and 20ms polling resolution.',
       'Both pipelines use the same Xplat pixel theme and source corpus without Preflight; this is not a stock theme comparison.',
-      'The upstream iOS variant composes the official PostCSS compiler and released NativeScript adapter with xplatCss; it does not repair adapter losses.',
+      'The upstream iOS variant composes the official PostCSS compiler and released NativeScript adapter with css; it does not repair adapter losses.',
       'Dependency sizes are logical unpacked installed-file bytes, not compressed downloads or deduplicated disk usage. Dev dependencies and peer edges are excluded.',
     ],
     corpus: classes,
@@ -216,12 +216,12 @@ if (!values.variant) {
   )
 
   const { build, createServer } = await import('vite')
-  const { xplatCss } = await import('@octane-xplat/build/vite')
-  const plugins = [xplatCss(target)]
+  const { css: platformCss } = await import('@octane-xplat/build/vite')
+  const plugins = [platformCss(target)]
   const config = { configFile: false, root, logLevel: 'silent', plugins }
   if (variant.startsWith('xplat-')) {
-    const { xplatTailwind } = await import('@octane-xplat/tailwind/vite')
-    plugins.push(xplatTailwind())
+    const { tailwind } = await import('@octane-xplat/tailwind/vite')
+    plugins.push(tailwind())
   } else {
     const { default: tailwindcss } = await import('@tailwindcss/postcss')
     const processors = [tailwindcss({ base: root, optimize: false })]

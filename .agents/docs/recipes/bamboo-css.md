@@ -2,13 +2,13 @@
 
 ID: bamboo-css
 Targets: web, ios, android
-Related APIs: `@octane-xplat/bamboo`, `xplatBamboo`, `xplatBambooConfig`, `xplatPortablePreset`, `virtual:bamboo.css`, `className`
+Related APIs: `@octane-xplat/bamboo`, `bamboo`, `xplatBambooConfig`, `xplatPortablePreset`, `virtual:bamboo.css`, `className`
 
 ## Starting point
 
 The app uses the xplat Vite presets and shares component code across web and
 NativeScript. The AppKit and GTK renderers also apply the generated
-stylesheet through the shared `xplatInlineStylesheets` plugin, but this
+stylesheet through the shared `inlineStylesheets` plugin, but this
 recipe has not been verified on either desktop target. Bamboo `css()` calls
 stay in `.ts` modules until the Vite plugin release includes [TSRX](https://tsrx.dev/)
 support ([upstream PR](https://github.com/gajus/bamboocss/pull/125)).

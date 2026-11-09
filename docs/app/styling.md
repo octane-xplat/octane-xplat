@@ -333,15 +333,15 @@ contents are removed during the build.
 ```
 
 The native Vite presets enable this automatically. Browser and DOM webview
-configs add `xplatCss('web')` alongside their existing renderer plugins;
+configs add `css('web')` alongside their existing renderer plugins;
 new starters already include it. Keep Vite's default PostCSS transformer.
 Existing PostCSS config plugins still run.
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatCss } from '@octane-xplat/cli/vite'
+import { css } from '@octane-xplat/cli/vite'
 
-export default defineConfig({ plugins: [xplatCss('web')] })
+export default defineConfig({ plugins: [css('web')] })
 ```
 
 Available targets are `web`, `ios`, `android`, `visionos`, `macos`,
@@ -438,8 +438,8 @@ export default defineConfig({
 })
 ```
 
-Add `xplatBamboo()` from `@octane-xplat/bamboo/vite` to the web Vite plugins
-and to `xplatNative(mode, { extra: { plugins: [...] } })`. Import
+Add `bamboo()` from `@octane-xplat/bamboo/vite` to the web Vite plugins
+and to `native(mode, { extra: { plugins: [...] } })`. Import
 `virtual:bamboo.css` immediately after the UI token stylesheet in both app
 entries. The UI stylesheet orders its `xplat-structure` and `xplat-chrome`
 layers, which carry the `vx-*` component rules; importing
@@ -450,11 +450,11 @@ Unlayered app CSS still takes precedence over every layer.
 ```ts
 // vite.config.native.ts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { native } from '@octane-xplat/cli/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 
 export default defineConfig(({ mode }) =>
-  xplatNative(mode, { extra: { plugins: xplatBamboo({ native: true }) } }),
+  native(mode, { extra: { plugins: bamboo({ native: true }) } }),
 )
 ```
 
@@ -498,7 +498,7 @@ export const badgeClass = css({ color: 'warning', borderRadius: 'md' })
 
 Use Bamboo's `_web`, `_mobile`, `_native`, or individual target conditions
 for the same build-time selection. These use the `@platform` compiler above;
-keep `xplatCss('web')` in the web Vite config. The portable utility subset
+keep `css('web')` in the web Vite config. The portable utility subset
 still applies inside conditions. Bamboo platform conditions currently support
 single renderer builds, not SSR generation.
 

@@ -36,7 +36,7 @@ export function platformOutput(): Plugin {
 
         if (!compiler) {
           this.error(
-            '@octane-xplat/bamboo: platform conditions require xplatCss(target) from @octane-xplat/cli/vite',
+            '@octane-xplat/bamboo: platform conditions require css(target) from @octane-xplat/cli/vite',
           )
         }
 

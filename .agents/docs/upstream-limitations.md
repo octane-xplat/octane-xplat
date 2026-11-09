@@ -53,7 +53,7 @@ lowers useMemo/useCallback to the native-only `memoSlot`/`memoTake`/
 `memoPublish` helpers imported from 'octane/internal/client' — those
 read CURRENT_SCOPE (render.js), which is null on universal targets, so
 the first useMemo inside a shared .ts hook throws at render
-('r is null'). Fix at our layer: xplatLinuxGtk sets
+('r is null'). Fix at our layer: linuxGtk sets
 `renderers.default: 'gtk'` so every unmatched file gets universal
 slotting (`useMemo(fn, deps, sym)`). Long-term, upstream could treat
 non-component helper files as renderer-agnostic or honor the app-level
@@ -435,12 +435,12 @@ Verified from plugin source at 4.6.49 (`wrapper.ios.js`, `wrapper.android.js`,
 
 ## @nativescript/vite: release source maps and the rolldown runtime chunk (8.0.20)
 
-Verified from `configuration/base.js` at 8.0.20 and a production `xplatNative`
+Verified from `configuration/base.js` at 8.0.20 and a production `native`
 fixture build (packages/sentry `test:artifacts:native`) — build evidence, not
 runtime behavior:
 
 - `build.sourcemap` defaults to `debug`, so a release bundling emits no maps.
-  Xplat stance: the starter opts in through `xplatNative(mode, { extra: {
+  Xplat stance: the starter opts in through `native(mode, { extra: {
   build: { sourcemap: 'hidden' } } })`; the last `extra` merge wins over the
   upstream default.
 - The emitted `rolldown-runtime-*.mjs` helper chunk receives a Debug ID from

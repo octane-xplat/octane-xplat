@@ -1,4 +1,4 @@
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig(({ mode }) => xplatMacOS(mode, { entry: 'src/main.ts' }))
+export default defineConfig(({ mode }) => macos(mode, { entry: 'src/main.ts' }))

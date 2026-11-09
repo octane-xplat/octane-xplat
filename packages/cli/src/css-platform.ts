@@ -166,9 +166,9 @@ export function filterPlatformCss(css: string, platform: CssPlatform, from?: str
  * Select platform CSS siblings and compile build-time `@platform` blocks.
  * CSS suffixes replace the unsuffixed file; they never append to it. Explicit
  * platform filenames stay exact. Native presets include this automatically;
- * web apps add `xplatCss('web')` to their Vite plugins.
+ * web apps add `css('web')` to their Vite plugins.
  */
-export function xplatCss(platform: CssPlatform = 'web'): Plugin {
+export function css(platform: CssPlatform = 'web'): Plugin {
   if (!buildTargets.has(platform)) {
     throw new Error(`Unknown CSS build target: ${platform}`)
   }
@@ -220,7 +220,7 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
     async config(userConfig): Promise<UserConfig> {
       if (userConfig.css?.transformer === 'lightningcss') {
         throw new Error(
-          'xplatCss requires the PostCSS transformer; use Lightning CSS for minification instead',
+          'css requires the PostCSS transformer; use Lightning CSS for minification instead',
         )
       }
 
@@ -368,3 +368,6 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
     },
   }
 }
+
+/** @deprecated Use {@link css}. */
+export const xplatCss: typeof css = css

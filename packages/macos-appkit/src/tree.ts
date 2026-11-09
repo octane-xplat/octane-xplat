@@ -118,7 +118,7 @@ export function createTree(deps: Dependencies) {
     }
 
     if (parentType === 'tabviewitem') {
-      throw new TypeError('AppKit <tabviewitem> content requires the xplatMacOS compiler adapter')
+      throw new TypeError('AppKit <tabviewitem> content requires the macos compiler adapter')
     }
 
     if (parentType === 'segmentedbaritem') {

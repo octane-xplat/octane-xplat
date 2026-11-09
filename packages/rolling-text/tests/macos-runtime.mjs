@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.ts'
+import { macos } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 import { buildMacOSNative, writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import {
@@ -30,7 +30,7 @@ try {
     `import { ${runName} } from ${JSON.stringify(join(packageRoot, 'tests', fixture))}\nNSApplication.sharedApplication\nvoid ${runName}()\n`,
   )
 
-  const config = await xplatMacOS('development', {
+  const config = await macos('development', {
     root: appRoot,
     entry,
     outDir: directory,

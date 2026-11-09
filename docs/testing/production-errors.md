@@ -164,15 +164,15 @@ Add `build: { sourcemap: 'hidden' }` to the object returned by your existing
 ```ts
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/cli/vite'
+import { css, boundary, devBridge, nodeEnvDefine } from '@octane-xplat/cli/vite'
 
 // The web build. For native (iOS/Android), the same source runs through
 // @nativescript-community/vite-octane with `conditions: ['native']`, the
 // .ios/.android/.mobile suffix chain, and the unsuffixed native default — see
 // the octane-xplat repo's apps/mobile/vite.config.mts.
 export default defineConfig(({ mode }) => ({
-  plugins: [xplatCss('web'), ...octane(), xplatBoundary('web'), xplatDevBridge()],
-  define: xplatNodeEnvDefine(mode),
+  plugins: [css('web'), ...octane(), boundary('web'), devBridge()],
+  define: nodeEnvDefine(mode),
   build: { sourcemap: 'hidden' },
   server: { port: 5200 },
   resolve: {
@@ -277,14 +277,14 @@ For readable native reports, the installed build must carry the same Debug IDs
 as the uploaded maps.
 
 **JavaScript maps.** The starter's `vite.config.native.mts` builds through
-`xplatNative`; release builds emit no maps by default. Opt in through the
+`native`; release builds emit no maps by default. Opt in through the
 preset's `extra` merge, which overrides the upstream `build.sourcemap` default:
 
 ```ts
-import { defineConfig, xplatNative } from 'octane-xplat/vite'
+import { defineConfig, native } from 'octane-xplat/vite'
 
 export default defineConfig(({ mode }) =>
-  xplatNative(mode, { extra: { build: { sourcemap: 'hidden' } } }),
+  native(mode, { extra: { build: { sourcemap: 'hidden' } } }),
 )
 ```
 
@@ -392,7 +392,7 @@ in an owned test build, then relaunch and inspect the correctly identified repor
 
 The maintained checks exercise the browser filter and collection lifecycle with
 controlled SDK calls. The artifact checks build the web example and the
-`xplatNative` iOS pipeline, inject Debug IDs and confirm the maps resolve to
+`native` iOS pipeline, inject Debug IDs and confirm the maps resolve to
 the app's TypeScript. They make no credentialed upload and establish no project
 delivery, deployed/installed source resolution, Android artifact, dSYM or
 other native symbol upload, or crash/relaunch result. Run the external checks

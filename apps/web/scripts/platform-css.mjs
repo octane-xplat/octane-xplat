@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { createServer } from 'vite'
-import { xplatCss } from '@octane-xplat/cli/vite'
+import { css } from '@octane-xplat/cli/vite'
 import { chromium } from 'playwright'
 
 const root = mkdtempSync(join(tmpdir(), 'xplat-css-browser-'))
@@ -24,7 +24,7 @@ const server = await createServer({
   configFile: false,
   root,
   logLevel: 'silent',
-  plugins: [xplatCss('web')],
+  plugins: [css('web')],
   server: { host: '127.0.0.1', port: 0 },
 })
 

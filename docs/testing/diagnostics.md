@@ -102,9 +102,9 @@ the addition; retain your app's other plugins and settings:
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatDevBridge } from '@octane-xplat/cli/vite'
+import { devBridge } from '@octane-xplat/cli/vite'
 
-export default defineConfig({ plugins: [xplatDevBridge()] })
+export default defineConfig({ plugins: [devBridge()] })
 ```
 
 Browser forwarding is installed only while Vite serves the development app.

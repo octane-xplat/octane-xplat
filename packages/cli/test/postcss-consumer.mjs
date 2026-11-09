@@ -29,7 +29,7 @@ const run = (command, args) =>
 
 try {
   // Install only the shipped CSS type surface and its dependencies. Copy the
-  // actual public declaration entry, not a synthetic signature of xplatCss.
+  // actual public declaration entry, not a synthetic signature of css.
   const fixture = join(root, 'cli')
 
   mkdirSync(join(fixture, 'src'), { recursive: true })
@@ -75,13 +75,13 @@ try {
     join(root, 'consumer.ts'),
     `
 import { defineConfig } from 'vite'
-import { xplatCss, type CssPlatform } from '@octane-xplat/cli/vite'
+import { css, type CssPlatform } from '@octane-xplat/cli/vite'
 const target: CssPlatform = 'web'
-xplatCss()
+css()
 // @ts-expect-error invalid build targets must still be rejected
-xplatCss('typo')
+css('typo')
 export default defineConfig({
-  plugins: [xplatCss(target)],
+  plugins: [css(target)],
   css: { postcss: { map: { inline: false, annotation: false }, plugins: [
     { postcssPlugin: 'consumer', Declaration(decl) { decl.value = decl.value.trim() } }
   ] } }
@@ -109,7 +109,7 @@ export default defineConfig({
   // reported comparison failure in this exact split-version installation.
   writeFileSync(
     join(root, 'source-reexport.ts'),
-    `export { xplatCss } from ${JSON.stringify(join(installedCli, 'src/css-platform.ts'))}\n`,
+    `export { css } from ${JSON.stringify(join(installedCli, 'src/css-platform.ts'))}\n`,
   )
 
   writeJson(join(root, 'tsconfig.source-reexport.json'), {

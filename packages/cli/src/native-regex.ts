@@ -1,6 +1,6 @@
 // Babel pass that compiles \p{…}/\P{…} Unicode property escapes away for
 // NativeScript's ICU-less V8 (see .agents/docs/notes/nativescript-no-icu.md).
-// Registered by xplatNative so every transformed module is covered. Upstream
+// Registered by native so every transformed module is covered. Upstream
 // @nativescript/vite runs the equivalent ns-vendor-unicode-regex esbuild
 // plugin over node_modules *.[mc]js in its dev-server esbuild passes (core,
 // deps and vendor bundles); this plugin fills the gaps upstream leaves —

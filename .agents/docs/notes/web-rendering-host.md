@@ -102,7 +102,7 @@ performed for this feature.
 ## Explicit server-code boundary
 
 The shared build utility `@octane-xplat/lib/server-boundary` runs after source
-compilation in `webHost()` and `xplatBoundary()`. It removes named re-exports whose
+compilation in `webHost()` and `boundary()`. It removes named re-exports whose
 resolved source is a `.server` module/directory. Direct or dynamic imports and
 export-star paths fail closed in clients, while SSR preserves the module graph.
 This explicit syntax avoids treating Xplat's ordinary cross-platform loaders as

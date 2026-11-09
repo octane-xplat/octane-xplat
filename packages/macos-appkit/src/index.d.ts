@@ -21,7 +21,7 @@ export declare function createMacOSRoot(
   options?: MacOSRootOptions,
 ): import('octane/universal/native').UniversalRoot
 
-/** @internal Compiler ABI for tabviewitem JSX spreads in xplatMacOS builds. */
+/** @internal Compiler ABI for tabviewitem JSX spreads in macos builds. */
 export declare function __tabItemProps(props: any): any
 
 /** @internal Compiler-owned portal wrapper for raw AppKit tab items. */

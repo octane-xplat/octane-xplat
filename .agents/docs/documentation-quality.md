@@ -170,6 +170,18 @@ and [declaration indexing](https://github.com/aleclarson/exports-md/blob/main/sr
   for every entry point. Packages using only `tsconfig.envs.json` trigger repeated
   scans. The generator renders temporary package copies with a local resolver
   config, retaining package-relative paths and dependency resolution.
+- When callable compatibility aliases are explicitly requested, declare each as
+  an independent constant. A renamed re-export can replace the canonical
+  function's heading with its legacy name in the renderer. Preserve runtime
+  identity and check both headings; the source-only tooling regression in
+  `apps/docs/api.test.mjs` covers this boundary.
+
+  ```ts
+  export function current() {}
+  /** @deprecated Use current. */
+  export const previous: typeof current = current
+  ```
+
 - Only the first variable in a declaration list is indexed. Named re-exports of
   later variables fail. The generator splits these lists in temporary declarations;
   it preserves the types and comments and leaves source declarations unchanged.

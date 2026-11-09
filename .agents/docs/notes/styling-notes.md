@@ -155,7 +155,7 @@ and receive the selected target's generated-output validation. This is source
 selection, not a replacement parser or module-graph tree shaking.
 
 CSS vocabulary alone does not identify the source platform: the Linux webview
-configures `xplatCss('web')` and `resolve.conditions: ['linux', 'web']`. Infer its
+configures `css('web')` and `resolve.conditions: ['linux', 'web']`. Infer its
 Linux source preference from those module conditions while retaining browser
 CSS (including modern colors and browser selectors). A direct `linux` CSS
 target also denotes that browser host. Keep GTK's `gtk` target on the separate
@@ -169,7 +169,7 @@ the extraction path supplies them; see
 and [Tailwind's optimizer branch](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.5/packages/@tailwindcss-postcss/src/index.ts).
 
 The default native build still unwraps layers. Optional compilers can set
-`xplatCss`'s `preserveLayers` coordination flag; both the mobile normalizer and
+`css`'s `preserveLayers` coordination flag; both the mobile normalizer and
 desktop stylesheet serializer read it before transforming files or assets. The
 private Tailwind adapter enables it for the entire project, so generated and
 framework styles retain their relative layers. Keeping only the generated
@@ -486,7 +486,7 @@ export function Example() {
 
 ## Platform CSS compilation
 
-`xplatCss(target)` selects one platform stylesheet sibling and compiles
+`css(target)` selects one platform stylesheet sibling and compiles
 `@platform target { ... }` blocks. Native presets install it before native
 CSS rewriting; browser configs install it explicitly. The PostCSS pass also
 handles rules loaded by CSS `@import`. AppKit applies the result through its
@@ -530,7 +530,7 @@ finalizer runs, and minifiers warn on the unknown `@platform` at-rule — one
 emits that warning through `config.logger.warn`, outside Rollup `onLog`, and
 explicitly clears `customAtRules`/`visitor` in the minify call, so the at-rule
 cannot be declared or the warning filtered by a plugin hook. Instead
-`xplat-platform-defer`, a second PostCSS plugin registered by `xplatCss`,
+`xplat-platform-defer`, a second PostCSS plugin registered by `css`,
 rewrites deferred `@platform` blocks as `@layer xplat-platform-<targets>`
 wrappers during module processing. Layers are standard CSS: they minify
 silently, cannot merge or reorder across layer boundaries, and keep every

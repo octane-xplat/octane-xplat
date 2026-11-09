@@ -1,5 +1,5 @@
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 import { fileURLToPath } from 'node:url'
 import { execFileSync } from 'node:child_process'
 import { verifyWindowsLayoutRepair } from './scripts/verify-layout-repair'
@@ -20,7 +20,7 @@ const qualificationSource = qualificationEnabled
 // and the px→dip CSS rewrite. App-specific additions go through the second
 // argument's `extra` (or mergeConfig).
 export default defineConfig(({ mode }) =>
-  xplatNative(mode, {
+  native(mode, {
     extra: {
       define: qualificationSource
         ? { __WINDOWS_QUALIFICATION_SOURCE__: JSON.stringify(qualificationSource) }

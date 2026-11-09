@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import { createInterface } from 'node:readline'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 import { gtkRuntimeReady, gtkOsInputReady } from './gjs-availability.mjs'
 
 /** Build one maintained UI fixture and drive its optional F12 input protocol.
@@ -20,7 +20,7 @@ export async function runGtkUiFixture(t, { stem, title, marker, minChecks, input
 
   const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
   const outDir = join(fixture, 'dist-' + stem)
-  const preset = await xplatLinuxGtk('production', {
+  const preset = await linuxGtk('production', {
     root: fixture,
     entry: 'src/' + stem + '-main.ts',
     outDir,

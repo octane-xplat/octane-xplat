@@ -10,8 +10,8 @@
 // Apps now write:
 //
 //   import { defineConfig } from 'vite'
-//   import { xplatNative } from '@octane-xplat/cli/vite'
-//   export default defineConfig(({ mode }) => xplatNative(mode))
+//   import { native } from '@octane-xplat/cli/vite'
+//   export default defineConfig(({ mode }) => native(mode))
 //
 // The preset calls octaneConfig itself — consumers only merge in
 // app-specific extras via the `extra` option or a vite mergeConfig wrapper.
@@ -25,18 +25,18 @@ import { pathToFileURL } from 'node:url'
 import postcss from 'postcss'
 import valueParser from 'postcss-value-parser'
 import { unwrapCssLayers } from './css-layers.ts'
-import { xplatCss } from './css-platform.ts'
-import { xplatDevBridge } from './mcp/dev-bridge.ts'
+import { css } from './css-platform.ts'
+import { devBridge } from './mcp/dev-bridge.ts'
 import { nativeDevSocketPlugin } from './mcp/dev-socket.ts'
 import { masonCorePackage, masonEngine } from './mason-engine.ts'
 import { nativeUnicodeRegex } from './native-regex.ts'
 import { resolveTsrxLeaf } from './tsrx-leaf.ts'
 
-export { xplatCss } from './css-platform.ts'
-export { xplatDevBridge } from './mcp/dev-bridge.ts'
+export { css } from './css-platform.ts'
+export { devBridge } from './mcp/dev-bridge.ts'
 
 /** Select platform TSRX implementations in custom Vite and Vitest setups. */
-export function xplatTsrx(platform = 'native') {
+export function tsrx(platform = 'native') {
   return {
     name: 'xplat-tsrx-resolution',
     enforce: 'post',
@@ -648,8 +648,8 @@ function platformTag(id) {
  *
  *  `platform` names the bundle target — 'web' | 'ios' | 'android' |
  *  'macos' | 'windows' | 'linux' | 'native' (generic: any native tag ok). */
-export function xplatBoundary(platform = 'native') {
-  const resolver = xplatTsrx(platform)
+export function boundary(platform = 'native') {
+  const resolver = tsrx(platform)
   const allowed = boundaryAllowed[platform] ?? boundaryAllowed.native
   let command = 'build'
   let root = ''
@@ -956,7 +956,7 @@ function unitTestingOverlay(projectRoot, appRequire, env) {
  *  still crash on native. The NS dev server's per-module `globalThis.process`
  *  shim picks the value up too (it captures `process.env.*` define entries
  *  from the resolved config). */
-export const xplatNodeEnvDefine = (mode) => ({
+export const nodeEnvDefine = (mode) => ({
   'process.env.NODE_ENV': JSON.stringify(mode === 'production' ? 'production' : 'development'),
 })
 
@@ -971,7 +971,7 @@ export const xplatNodeEnvDefine = (mode) => ({
  *     stay per-module in dev (e.g. a plugin missed by the scan)
  *   - rules: renderer rules override (defaults cover src + packages source)
  */
-export async function xplatNative(env, opts = {}) {
+export async function native(env, opts = {}) {
   const mode = typeof env === 'string' ? env : env.mode
   const pkg = JSON.parse(readFileSync(join(process.cwd(), 'package.json'), 'utf8'))
   const declared = Object.assign(
@@ -1046,7 +1046,7 @@ export async function xplatNative(env, opts = {}) {
       // disagree with its replace()/optimizeDeps substitutions on the
       // same key.
       define: {
-        ...xplatNodeEnvDefine(process.env.DEBUG ? 'development' : mode),
+        ...nodeEnvDefine(process.env.DEBUG ? 'development' : mode),
         // @octane-xplat/nativescript-masonkit reads __WINDOWS__ at module
         // scope; upstream's vite define set covers __IOS__/__ANDROID__/
         // __VISIONOS__/__APPLE__ but not __WINDOWS__, so the bare read
@@ -1065,15 +1065,15 @@ export async function xplatNative(env, opts = {}) {
         // dev-server esbuild passes (core/deps/vendor bundles); production
         // rolldown chunks and per-module /ns/m serving are ours.
         nativeUnicodeRegex(),
-        xplatCss(nativePlatform() ?? 'native'),
+        css(nativePlatform() ?? 'native'),
         pxToDip({ masonSafeAreaEnvironment: engine === masonCorePackage }),
         nsHmrClientWatchdog(),
-        xplatBoundary(nativePlatform() ?? 'native'),
+        boundary(nativePlatform() ?? 'native'),
         nativeExtensionOrder(),
         nativeRelativeResolution(),
         // Dev-action registry bridge (MCP package G): dev-server-only —
         // apply:'serve' keeps it and the token define out of builds.
-        nativeDevSocketPlugin({ deviceRelay: true }) ?? xplatDevBridge(),
+        nativeDevSocketPlugin({ deviceRelay: true }) ?? devBridge(),
       ],
       server: {
         fs: {
@@ -1169,3 +1169,21 @@ export async function xplatNative(env, opts = {}) {
 
   return mergeConfig(config, opts.extra ?? {})
 }
+
+/** @deprecated Use {@link css}. */
+export const xplatCss: typeof css = css
+
+/** @deprecated Use {@link devBridge}. */
+export const xplatDevBridge: typeof devBridge = devBridge
+
+/** @deprecated Use {@link tsrx}. */
+export const xplatTsrx: typeof tsrx = tsrx
+
+/** @deprecated Use {@link boundary}. */
+export const xplatBoundary: typeof boundary = boundary
+
+/** @deprecated Use {@link native}. */
+export const xplatNative: typeof native = native
+
+/** @deprecated Use {@link nodeEnvDefine}. */
+export const xplatNodeEnvDefine: typeof nodeEnvDefine = nodeEnvDefine

@@ -24,10 +24,10 @@ Vite's `defineConfig` and `mergeConfig`, Octane's compiler plugin, and the
 For example, a web app's `vite.config.ts` can contain:
 
 ```ts
-import { defineConfig, octane, xplatCss, xplatBoundary } from 'octane-xplat/vite'
+import { defineConfig, octane, css, boundary } from 'octane-xplat/vite'
 
 export default defineConfig({
-  plugins: [xplatCss('web'), ...octane(), xplatBoundary('web')],
+  plugins: [css('web'), ...octane(), boundary('web')],
   resolve: {
     conditions: ['web'],
     extensions: [
@@ -38,7 +38,7 @@ export default defineConfig({
 })
 ```
 
-The platform resolver included by `xplatBoundary('web')` also applies this
+The platform resolver included by `boundary('web')` also applies this
 extension order when Vite prepares dependencies for development. This keeps
 a dependency's browser file ahead of its native sibling. Custom optimizer
 extension lists take precedence; only set one when you need a different order:

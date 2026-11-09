@@ -71,10 +71,10 @@ Create `vite.linux.config.mjs`:
 ```js
 import { defineConfig } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatBoundary } from '@octane-xplat/cli/vite'
+import { boundary } from '@octane-xplat/cli/vite'
 
 export default defineConfig({
-  plugins: [...octane(), xplatBoundary('linux')],
+  plugins: [...octane(), boundary('linux')],
   resolve: {
     conditions: ['linux', 'web'],
     extensions: [

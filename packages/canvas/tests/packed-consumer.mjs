@@ -16,7 +16,7 @@ import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.ts'
+import { macos } from '../../cli/src/macos/vite.ts'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const repoRoot = resolve(packageRoot, '../..')
@@ -212,7 +212,7 @@ export { getGPU }
   )
 
   // Use the actual CLI preset: `macos` must beat the mobile `native` export.
-  const config = await xplatMacOS(
+  const config = await macos(
     { mode: 'production' },
     {
       root,

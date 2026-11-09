@@ -4,7 +4,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { test } from 'node:test'
 import { build } from 'vite'
-import { pxToDip, xplatCss } from '../dist/vite.js'
+import { pxToDip, css } from '../dist/vite.js'
 
 for (const edge of ['top', 'right', 'bottom', 'left']) {
   test(`warns about ${edge} safe-area functions in native dev CSS`, () => {
@@ -30,7 +30,7 @@ for (const edge of ['top', 'right', 'bottom', 'left']) {
 test('warns on emitted Bamboo assets after deferred build conversion', () => {
   const plugin = pxToDip()
 
-  plugin.configResolved({ command: 'build' })
+  plugin.configResolved({ command: 'build', plugins: [] })
 
   const warnings = []
   const context = { warn: (message) => warnings.push(message) }
@@ -84,7 +84,7 @@ test('native Vite builds warn for shared CSS while web-only rules and web builds
           root,
           configFile: false,
           logLevel: 'silent',
-          plugins: [xplatCss(platform), ...(platform === 'web' ? [] : [pxToDip()])],
+          plugins: [css(platform), ...(platform === 'web' ? [] : [pxToDip()])],
           build: {
             write: false,
             minify: false,

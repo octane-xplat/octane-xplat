@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs'
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { native } from '@octane-xplat/cli/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 import { fileURLToPath } from 'node:url'
 
 const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url))
@@ -11,7 +11,7 @@ const bambooRoot = fileURLToPath(new URL('../../packages/app/', import.meta.url)
 // and the px→dip CSS rewrite. Bamboo uses the extra plugin slot so native
 // CSS reaches its bundle adapter before NativeScript consumes the asset.
 export default defineConfig(({ mode }) =>
-  xplatNative(mode, {
+  native(mode, {
     extra: {
       define: {
         __VISUAL_CAPTURE__: JSON.stringify(
@@ -58,7 +58,7 @@ export default defineConfig(({ mode }) =>
               },
             ]
           : []),
-        xplatBamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts`, native: true }),
+        bamboo({ cwd: bambooRoot, configPath: `${bambooRoot}bamboo.config.ts`, native: true }),
       ],
     },
   }),

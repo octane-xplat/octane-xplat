@@ -65,9 +65,9 @@ incoming-link handling yet.
 Create `vite.gtk.config.ts` using the CLI's GTK preset:
 
 ```ts
-import { xplatLinuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
+import { linuxGtk } from '@octane-xplat/cli/linux-gtk/vite'
 
-export default async (env: { mode: string }) => xplatLinuxGtk(env)
+export default async (env: { mode: string }) => linuxGtk(env)
 ```
 
 The preset registers the `gtk` renderer, resolves `.gtk` files before

@@ -38,7 +38,7 @@ preserved; ordinary object payloads are omitted.
   selection. No agent runtime host, running app response, or app inspection
   channel is required. Agent launches use the same retained session record; standalone jobs retain
   their bounded service log path.
-- `xplatDevBridge` authenticates browser batches using its existing server
+- `devBridge` authenticates browser batches using its existing server
   token. Its serve-only HTML hook installs the browser collector; production
   builds receive neither the collector nor endpoint.
 

@@ -18,7 +18,7 @@ import { build } from 'vite'
 import { octane } from 'octane/compiler/vite'
 // oxlint-disable-next-line xplat/no-nativescript-import -- Node test reads compiler metadata; it does not load a native UI runtime.
 import { nativeScriptRenderer } from '@nativescript-community/octane/config'
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..')
 const scratch = join(homedir(), 'agent-scratch/octane-xplat/tanstack-form')
@@ -107,7 +107,7 @@ try {
       root: temporary,
       logLevel: 'error',
       plugins: [
-        xplatTsrx(target),
+        tsrx(target),
         octane({
           ssr: false,
           ...(target === 'ios'

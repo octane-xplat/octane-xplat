@@ -1,4 +1,4 @@
-// Build-level smoke: the xplatLinuxGtk helper must produce one ESM bundle
+// Build-level smoke: the linuxGtk helper must produce one ESM bundle
 // that keeps `gi://` imports external and never references DOM APIs. This
 // proves bundling and compilation only. The proxy fixture additionally
 // queries real native widget order when GJS is available, without a window.
@@ -11,12 +11,12 @@ import test from 'node:test'
 import { build } from 'vite'
 // Source import — the published export is '@octane-xplat/cli/linux-gtk/vite'
 // (built dist); the test must not depend on the cli package's build state.
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 
 const fixture = fileURLToPath(new URL('./fixtures/', import.meta.url))
 const outDir = join(fixture, 'dist')
 
-test('xplatLinuxGtk compiles the fixture app into a single ESM bundle', async () => {
+test('linuxGtk compiles the fixture app into a single ESM bundle', async () => {
   rmSync(outDir, { recursive: true, force: true })
 
   await build({
@@ -49,7 +49,7 @@ test('the gtk boundary rejects a .linux leaf reachable in the bundle', async () 
   await assert.rejects(
     build({
       logLevel: 'silent',
-      ...(await xplatLinuxGtk('production', {
+      ...(await linuxGtk('production', {
         root: fixture,
         entry: 'src/leak-main.ts',
         outDir,
@@ -113,7 +113,7 @@ test('the proxy ordering fixture builds and exercises real GTK when available', 
 
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/proxy-order.ts',
       outDir: proxyOut,

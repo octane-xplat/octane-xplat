@@ -77,7 +77,7 @@
 - `className` swap can leave stale backgrounds → `''`-then-set workaround.
 - `!important` support unverified — don't rely on it; use specificity/cascade.
 
-## The preset's css transform (`xplatNative`)
+## The preset's css transform (`native`)
 
 The native Vite preset (`@octane-xplat/cli/vite`) owns three css passes —
 they run per-module in dev and on the emitted `.css` asset in build
@@ -85,9 +85,9 @@ they run per-module in dev and on the emitted `.css` asset in build
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 
-export default defineConfig(({ mode }) => xplatNative(mode))
+export default defineConfig(({ mode }) => native(mode))
 ```
 
 1. **px → dip rewrite.** Shared stylesheets are authored in web px; NS reads
@@ -236,8 +236,8 @@ sources for custom presentation viewports.
 Engine selection was removed: iOS/Android always builds with core and the
 `nativescript-masonkit` renderer imports alias to it unconditionally. Full and
 legacy MasonKit pins are replaced by `xplat upgrade`, rejected by doctor, and
-rejected by `xplatNative` and the probe runner. The Windows preview keeps full
-MasonKit (core ships no Windows artifacts); `xplatNative` derives the engine
+rejected by `native` and the probe runner. The Windows preview keeps full
+MasonKit (core ships no Windows artifacts); `native` derives the engine
 from platform alone — there is no installed-capability probe. Mobile builds
 keep the headless-qualification `env()` warning; Windows keeps the
 unresolved-value warning.

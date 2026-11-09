@@ -1,5 +1,5 @@
 // Test bundle entry — `ns test` builds with --env.unitTesting, and the
-// xplatNative preset swaps the app entry (src/main.ts) for this file, so the
+// native preset swaps the app entry (src/main.ts) for this file, so the
 // device boots the Vitest coordinator instead of the app.
 import '@valor/nativescript-websockets'
 import { Application } from '@nativescript/core'

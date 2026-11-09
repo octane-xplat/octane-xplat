@@ -12,7 +12,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { createBuilder } from 'vite'
-import { xplatBamboo } from '../src/vite.ts'
+import { bamboo } from '../src/vite.ts'
 
 const mode = process.argv[2]
 const root = realpathSync(mkdtempSync(join(tmpdir(), 'xplat-bamboo-environments-')))
@@ -69,7 +69,7 @@ globalThis.${name} = css({ color: 'red', padding: '${padding}' });`,
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatBamboo({ cwd: root, buildEnvironments: names })],
+    plugins: [bamboo({ cwd: root, buildEnvironments: names })],
     builder: {
       sharedPlugins: true,
       async buildApp(builder) {

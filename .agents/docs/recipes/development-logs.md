@@ -2,7 +2,7 @@
 
 ID: development-logs
 Targets: web, ios, android, macos, linux, windows
-Related APIs: xplat dev, xplat diagnostics, xplatDevBridge
+Related APIs: xplat dev, xplat diagnostics, devBridge
 
 ## Starting point
 

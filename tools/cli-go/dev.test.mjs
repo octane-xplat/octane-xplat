@@ -380,7 +380,7 @@ test(
     put(
       f.app,
       'vite.config.mjs',
-      `import {xplatDevBridge} from '@octane-xplat/cli/vite';export default {plugins:[xplatDevBridge()],build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
+      `import {devBridge} from '@octane-xplat/cli/vite';export default {plugins:[devBridge()],build:{outDir:'dist',lib:{entry:'main.js',formats:['cjs'],fileName:()=> 'main.cjs'},rollupOptions:{external:['@nativescript/macos-node-api',/^node:/]}}}`,
     )
 
     for (const name of [

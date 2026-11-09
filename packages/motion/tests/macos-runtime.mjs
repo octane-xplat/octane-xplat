@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { build } from 'vite'
-import { xplatMacOS } from '../../cli/src/macos/vite.ts'
+import { macos } from '../../cli/src/macos/vite.ts'
 import { macOSExecutable } from '../../cli/src/macos/executables.ts'
 import { writeNativeBootstrap } from '../../cli/src/macos/native.ts'
 import {
@@ -26,7 +26,7 @@ try {
     `import { runChannels } from ${JSON.stringify(join(packageRoot, 'tests/channels.macos.tsx'))}\nimport { runLayout, runSharedLayout, runDragLayout, runContainers } from ${JSON.stringify(join(packageRoot, 'tests/layout.macos.tsx'))}\nNSApplication.sharedApplication\nvoid runChannels().then(runLayout).then(runSharedLayout).then(runDragLayout).then(runContainers).catch(error => { console.error("MOTION_LAYOUT_FAIL", error.message, error.stack); }).finally(() => (globalThis as any).__xplatStopHost())\n`,
   )
 
-  const config = await xplatMacOS('development', {
+  const config = await macos('development', {
     root: appRoot,
     entry,
     outDir: directory,

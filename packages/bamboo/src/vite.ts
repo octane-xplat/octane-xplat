@@ -19,7 +19,7 @@ function runBeforeNativeCss(plugin: Plugin | undefined, anchor: string) {
 
 export interface XplatBambooOptions extends BambooVitePluginOptions {
   /** Native CSS delivery — NativeScript's generateBundle serializer and the
-   *  desktop `xplatInlineStylesheets` plugin both consume the finalized assets
+   *  desktop `inlineStylesheets` plugin both consume the finalized assets
    *  after this 'pre' finalizer. */
   native?: boolean
   /** All environments the custom Vite builder will run, including real SSR targets. */
@@ -32,11 +32,7 @@ export interface XplatBambooOptions extends BambooVitePluginOptions {
  * Pass `cwd` and `configPath` when Bamboo's source/config root differs from
  * Vite's app root, as it does in the shared harness.
  */
-export function xplatBamboo({
-  native = false,
-  buildEnvironments,
-  ...options
-}: XplatBambooOptions = {}) {
+export function bamboo({ native = false, buildEnvironments, ...options }: XplatBambooOptions = {}) {
   const plugins = bamboocss(options)
 
   if (buildEnvironments) {
@@ -132,3 +128,6 @@ export function xplatBamboo({
   plugins.push(platformOutput())
   return plugins
 }
+
+/** @deprecated Use {@link bamboo}. */
+export const xplatBamboo: typeof bamboo = bamboo

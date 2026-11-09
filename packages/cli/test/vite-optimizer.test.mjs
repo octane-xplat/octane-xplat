@@ -14,9 +14,9 @@ import { join } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { test } from 'node:test'
 import { createServer, loadConfigFromFile, resolveConfig } from 'vite'
-import { xplatBoundary, xplatTsrx } from '../dist/vite.js'
+import { boundary, tsrx } from '../dist/vite.js'
 
-for (const plugin of [xplatTsrx, xplatBoundary]) {
+for (const plugin of [tsrx, boundary]) {
   test(`${plugin.name} defaults optimizer extensions after platform ordering hooks`, async () => {
     const config = await resolveConfig(
       {
@@ -48,7 +48,7 @@ for (const extensions of [[], ['.custom.ts', '.ts']]) {
     const config = await resolveConfig(
       {
         configFile: false,
-        plugins: [xplatBoundary('web')],
+        plugins: [boundary('web')],
         optimizeDeps: {
           exclude: ['untouched'],
           rolldownOptions: { resolve: { extensions, mainFields: ['module'] } },
@@ -67,7 +67,7 @@ test('environment-specific optimizer overrides stay independent', async () => {
   const config = await resolveConfig(
     {
       configFile: false,
-      plugins: [xplatBoundary('web')],
+      plugins: [boundary('web')],
       resolve: { extensions: ['.web.ts', '.ts'] },
       environments: {
         ssr: {

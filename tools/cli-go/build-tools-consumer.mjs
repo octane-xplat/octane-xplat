@@ -295,7 +295,7 @@ try {
 
   writeFileSync(
     join(consumer, 'vite.config.mjs'),
-    "import { defineConfig } from 'vite'\nimport { xplatCss, xplatBoundary, xplatDevBridge, xplatNodeEnvDefine } from '@octane-xplat/build/vite'\nexport default defineConfig(({ mode }) => ({ define: xplatNodeEnvDefine(mode), plugins: [xplatCss('web'), xplatBoundary('web'), xplatDevBridge()], server: { host: '127.0.0.1', port: 0 } }))\n",
+    "import { defineConfig } from 'vite'\nimport { css, boundary, devBridge, nodeEnvDefine } from '@octane-xplat/build/vite'\nexport default defineConfig(({ mode }) => ({ define: nodeEnvDefine(mode), plugins: [css('web'), boundary('web'), devBridge()], server: { host: '127.0.0.1', port: 0 } }))\n",
   )
 
   writeFileSync(
@@ -311,7 +311,7 @@ try {
   assert.deepEqual(live.nativeExtensions, original.nativeExtensions)
   assert.deepEqual(
     live.nodeEnv,
-    ['development', 'production', 'test'].map((mode) => original.xplatNodeEnvDefine(mode)),
+    ['development', 'production', 'test'].map((mode) => original.nodeEnvDefine(mode)),
   )
 
   assert.equal(live.productionCssFiltered, true)

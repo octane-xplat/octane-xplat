@@ -5,7 +5,7 @@ import { promisify } from 'node:util'
 import { fileURLToPath } from 'node:url'
 import { createServer } from 'vite'
 import { octane } from '@octanejs/vite-plugin'
-import { xplatDevBridge } from '@octane-xplat/cli/vite'
+import { devBridge } from '@octane-xplat/cli/vite'
 import { chromium } from 'playwright'
 import type { QueryInspectionSnapshot } from '@octane-xplat/ui/data/dev'
 
@@ -20,7 +20,7 @@ const platform =
 const server = await createServer({
   root,
   configFile: false,
-  plugins: [...octane(), xplatDevBridge({ appRoot })],
+  plugins: [...octane(), devBridge({ appRoot })],
   resolve: {
     conditions: ['web'],
     extensions: ['.web.tsrx', '.tsrx', '.web.ts', '.ts', '.mjs', '.js', '.json'],

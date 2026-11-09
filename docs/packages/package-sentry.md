@@ -46,7 +46,7 @@ crash report invokes `beforeSend` but ignores its result — collection
 controls, not the filter, stop crash capture. Source maps and native
 symbols need separate build/upload configuration to make production traces
 readable. The native JavaScript-map pipeline is qualified at build level —
-the `xplatNative` preset plus `extra.build.sourcemap` emits maps that take
+the `native` preset plus `extra.build.sourcemap` emits maps that take
 Debug ID injection — while the credentialed upload, installed-artifact
 delivery, dSYM/Android symbol uploads and crash/relaunch checks remain
 external target steps ([#74](https://github.com/octane-xplat/octane-xplat/issues/74)). See the

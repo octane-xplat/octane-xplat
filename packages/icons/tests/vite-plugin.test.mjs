@@ -5,7 +5,11 @@ import { existsSync, mkdtempSync, mkdirSync, rmSync, symlinkSync, writeFileSync 
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const { xplatIcons } = await loadSource(new URL('../src/vite/index.ts', import.meta.url))
+const { icons, xplatIcons } = await loadSource(new URL('../src/vite/index.ts', import.meta.url))
+
+test('compatibility export retains the icons factory identity', () => {
+  assert.equal(icons, xplatIcons)
+})
 
 const root = mkdtempSync(join(tmpdir(), 'xplat-icons-plugin-'))
 const importer = join(root, 'src/App.ts')
@@ -24,7 +28,7 @@ writeFileSync(
 
 writeFileSync(join(root, 'package.json'), '{"type":"module"}')
 
-const plugin = xplatIcons()
+const plugin = icons()
 
 plugin.configResolved({ root })
 
@@ -37,7 +41,7 @@ const context = (watched = []) => ({
   },
 })
 
-test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', () => {
+test('icons resolves icons: specifiers to per-icon IconifyIcon modules', () => {
   const watched = []
   const ctx = context(watched)
   const id = plugin.resolveId.call(ctx, 'icons:mini/wide', importer)
@@ -57,7 +61,7 @@ test('xplatIcons resolves icons: specifiers to per-icon IconifyIcon modules', ()
   assert.equal(plugin.load.call(ctx, '\0icons:unknown'), null)
 })
 
-test('xplatIcons syncs the .icon type-stub tree at config time', () => {
+test('icons syncs the .icon type-stub tree at config time', () => {
   const synced = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-sync-'))
 
   mkdirSync(join(synced, 'node_modules/@iconify-json'), { recursive: true })
@@ -67,7 +71,7 @@ test('xplatIcons syncs the .icon type-stub tree at config time', () => {
   )
 
   try {
-    xplatIcons().configResolved({ root: synced })
+    icons().configResolved({ root: synced })
     assert.ok(existsSync(join(synced, '.icons/mini/wide.icon')))
 
     const bare = mkdtempSync(join(tmpdir(), 'xplat-icons-stub-off-'))
@@ -79,7 +83,7 @@ test('xplatIcons syncs the .icon type-stub tree at config time', () => {
     )
 
     try {
-      xplatIcons({ stubs: false }).configResolved({ root: bare })
+      icons({ stubs: false }).configResolved({ root: bare })
       assert.ok(!existsSync(join(bare, '.icons')))
     } finally {
       rmSync(bare, { recursive: true, force: true })
@@ -89,8 +93,8 @@ test('xplatIcons syncs the .icon type-stub tree at config time', () => {
   }
 })
 
-test('xplatIcons register mode self-registers each module', () => {
-  const registering = xplatIcons({ register: true })
+test('icons register mode self-registers each module', () => {
+  const registering = icons({ register: true })
 
   registering.configResolved({ root })
 
@@ -103,7 +107,7 @@ test('xplatIcons register mode self-registers each module', () => {
   assert.match(code, /export default icon/)
 })
 
-test('xplatIcons rejects bad specifiers, missing collections, and missing icons', () => {
+test('icons rejects bad specifiers, missing collections, and missing icons', () => {
   const ctx = context()
 
   assert.equal(plugin.resolveId.call(ctx, './local.js', importer), null)

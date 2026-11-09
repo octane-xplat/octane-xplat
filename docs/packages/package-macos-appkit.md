@@ -41,9 +41,9 @@ Use this production Vite config:
 
 ```js
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig(({ mode }) => xplatMacOS(mode))
+export default defineConfig(({ mode }) => macos(mode))
 ```
 
 The async preset bundles the packaged entry (`src/main.mjs` by default) into `dist/package-build/main.cjs`,
@@ -53,9 +53,9 @@ and `node:` host imports. Unsupported host imports still fail CLI packaging.
 No repository paths or harness fonts are needed.
 
 ```js
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default await xplatMacOS('production', { entry: 'src/main.ts' })
+export default await macos('production', { entry: 'src/main.ts' })
 ```
 
 Set these TypeScript options:
@@ -85,9 +85,9 @@ compiler to produce runnable code. The preset compiles reachable TSX/TSRX
 source by default. `rules` can override that selection.
 
 ```js
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default await xplatMacOS('production', {
+export default await macos('production', {
   rules: [{ include: '**/*.tsx', renderer: 'macos' }],
 })
 ```
@@ -115,7 +115,7 @@ re-exports Octane's universal native runtime for compiler and hook imports.
 ## Apply stylesheets
 
 Import CSS files from your entry module, the same way the iOS and Android
-apps do. `xplatMacOS` compiles them like the native preset (it drops
+apps do. `macos` compiles them like the native preset (it drops
 `@platform` blocks for other targets, unwraps `@layer`, and treats `px` as
 points) and bundles them into `main.cjs`. The renderer then matches
 `className`, `id`, and element-type selectors against your views. (The
@@ -379,7 +379,7 @@ archive yet — see `.agents/docs/notes/macos-mason-engine.md`.
 
 ## Development bundles
 
-Call `xplatMacOS(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
+Call `macos(mode, { packaged: false, hmr: true, entry: 'src/App.macos.tsx' })`
 for the component bundle. It retains renderer and Octane imports so the
 CLI-managed shell can share their live instances across edits. Build the
 shell with `packaged: true`, and populate `__xplatDevModules` with the renderer
@@ -388,9 +388,9 @@ shows the module mapping and retained-root HMR lifecycle.
 
 ```js
 // vite.component.config.mjs
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default await xplatMacOS('development', {
+export default await macos('development', {
   packaged: false,
   hmr: true,
   entry: 'src/App.macos.tsx',
@@ -405,9 +405,9 @@ directory when used for development. Applications may override the component for
 the CLI watcher, as the maintained fixture does.
 
 ```js
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-const config = await xplatMacOS('development', {
+const config = await macos('development', {
   root: process.cwd(),
   entry: 'src/App.macos.tsx',
   outDir: 'dist/dev',

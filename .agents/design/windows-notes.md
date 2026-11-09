@@ -53,7 +53,7 @@ derisks how much of A we could self-host if upstream stalls.
 
 | Layer                | Change                                                                                                                                                                                                                                                                                                                         |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Suffix lattice       | `.windows.*` joins the extension chain ahead of the unsuffixed native default in `packages/cli/src/vite.ts` (`xplatNative` gains a `windows` platform branch — `.mobile` stays ios/android-only); `./windows` subpath on `@octane-xplat/ui`; `moduleSuffixes` in app tsconfigs                                                |
+| Suffix lattice       | `.windows.*` joins the extension chain ahead of the unsuffixed native default in `packages/cli/src/vite.ts` (`native` gains a `windows` platform branch — `.mobile` stays ios/android-only); `./windows` subpath on `@octane-xplat/ui`; `moduleSuffixes` in app tsconfigs                                                |
 | App shell            | `@nativescript/windows` devDep + `windows` block in `nativescript.config.ts`; `App_Resources/Windows` scaffold (Package.appxmanifest, assets, `app.csproj` — upstream ships the template)                                                                                                                                      |
 | Leaves               | Unsuffixed (native-default) files compile for Windows by default; `.windows` overrides only where behavior diverges. NS plugins we depend on have no windows impl — leaf packages need `.windows` `Unsupported` fallbacks, same pattern as `.macos`                                                                            |
 | CLI                  | `targets.mjs`: `windows` kind — `ns run windows` already works on the dev-tag CLI (`nativescript@9.1.2-dev.*`, proven by upstream's starter); released CLI waits on cli#6065. `doctor`: `win32` host, Windows 10 1809+, .NET 10 SDK, Developer Mode enabled, `@nativescript/windows` exact pin — mirroring `ns doctor windows` |
@@ -84,7 +84,7 @@ derisks how much of A we could self-host if upstream stalls.
 These are the parts landed and verified on the macOS host before the Windows
 run below:
 
-- `apps/windows` scaffold: nativescript.config, `xplatNative` vite config with
+- `apps/windows` scaffold: nativescript.config, `native` vite config with
   `resolve.dedupe` on `@nativescript/core` (workspace packages' 9.1.2 devDeps
   otherwise resolve a second core copy from inside `packages/*`), tsconfig
   `paths` pinning the app core for the same reason, the harness entry from
@@ -97,7 +97,7 @@ run below:
   subset of the core patch (`@nativescript__core@9.1.3-next.2.patch` — @layer
   CSS machinery, #11446 frame/tab-view common, flexbox common); the
   iOS/Android impl hunks are dead code on windows and were not ported.
-- `xplatNative` extension chain + flag detection gained `windows`;
+- `native` extension chain + flag detection gained `windows`;
   `xplat routes` emits `routes.gen.windows.ts` (prefer `['windows']`, with unsuffixed fallback);
   `xplat dev`/`build`/`doctor` discover the target via the declared
   `@nativescript/windows` devDep.

@@ -246,9 +246,9 @@ reports partial Android and iOS attachment/actions.
 
 ```ts
 import { defineConfig } from 'vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { native } from '@octane-xplat/cli/vite'
 
-export default defineConfig((environment) => xplatNative(environment))
+export default defineConfig((environment) => native(environment))
 ```
 
 Browser inspection attaches through the existing app socket

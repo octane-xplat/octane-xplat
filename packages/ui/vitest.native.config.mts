@@ -1,4 +1,4 @@
-import { xplatTsrx } from '@octane-xplat/cli/vite'
+import { tsrx } from '@octane-xplat/cli/vite'
 import { configDefaults, defineConfig } from 'vitest/config'
 import { APPKIT_EXTENSIONS, APPKIT_TESTS } from './vitest.appkit-options.mts'
 import { URL } from 'node:url'
@@ -43,7 +43,7 @@ const NATIVE_EXTS = [
 
 export default defineConfig({
   plugins: [
-    xplatTsrx(appkit ? 'macos' : 'ios'),
+    tsrx(appkit ? 'macos' : 'ios'),
     octane({
       ssr: false,
       renderers: {

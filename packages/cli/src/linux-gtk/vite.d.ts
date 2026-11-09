@@ -17,7 +17,10 @@ export interface XplatLinuxGtkOptions {
 }
 
 /** Configure the experimental GTK4/GJS renderer using the app's installed toolchain. */
-export function xplatLinuxGtk(
+export function linuxGtk(
   env: { mode: string } | string,
   options?: XplatLinuxGtkOptions,
 ): Promise<UserConfig>
+
+/** @deprecated Use {@link linuxGtk}. */
+export const xplatLinuxGtk: typeof linuxGtk

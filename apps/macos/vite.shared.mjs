@@ -1,5 +1,5 @@
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
 import { defineConfig } from 'vite'
 import { readFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
@@ -20,7 +20,12 @@ export function bundledFontDefines() {
   }
 }
 
-export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo = true } = {}) {
+export function createMacOSConfig({
+  packaged = false,
+  hmr = false,
+  rules,
+  bamboo: useBamboo = true,
+} = {}) {
   const virtualListBench = hmr && process.env.OCTANE_MACOS_VLIST_BENCH === '1'
   const mode = process.env.OCTANE_MACOS_VLIST_MODE
   const entry = packaged
@@ -34,16 +39,16 @@ export function createMacOSConfig({ packaged = false, hmr = false, rules, bamboo
       : 'src/App.tsx'
 
   return defineConfig(async ({ mode }) => {
-    const config = await xplatMacOS(mode, { root: appRoot, packaged, hmr, rules, entry })
+    const config = await macos(mode, { root: appRoot, packaged, hmr, rules, entry })
 
     return {
       ...config,
       define: { ...config.define, ...(packaged ? bundledFontDefines() : {}) },
       // The dev shell hosts the renderer only; the app bundle owns the stylesheet.
-      plugins: bamboo
+      plugins: useBamboo
         ? [
             ...(config.plugins ?? []),
-            xplatBamboo({
+            bamboo({
               cwd: bambooRoot,
               configPath: `${bambooRoot}/bamboo.config.ts`,
               native: true,

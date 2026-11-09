@@ -216,7 +216,7 @@ put(
 
 put(
   join(app, 'vite.config.mts'),
-  `import {defineConfig} from 'vite';import {xplatNative} from '@octane-xplat/cli/vite';export default defineConfig(env=>xplatNative(env,{extra:{server:{host:'127.0.0.1'}}}))\n`,
+  `import {defineConfig} from 'vite';import {native} from '@octane-xplat/cli/vite';export default defineConfig(env=>native(env,{extra:{server:{host:'127.0.0.1'}}}))\n`,
 )
 
 put(join(app, 'tsconfig.json'), {

@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url'
 import { runInNewContext } from 'node:vm'
 import { it } from 'node:test'
 import { createServer } from 'vite'
-import { pxToDip, xplatCss } from '../dist/vite.js'
+import { pxToDip, css as platformCss } from '../dist/vite.js'
 
 const ns = pathToFileURL(createRequire(import.meta.url).resolve('@nativescript/vite'))
 const { astNormalizeModuleImportsAndHelpers: normalize } = await import(
@@ -72,7 +72,7 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
     optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0, watch: null },
     plugins: [
-      xplatCss('android'),
+      platformCss('android'),
       pxToDip(),
       {
         name: 'fixture-virtual-stylesheet',
@@ -262,7 +262,7 @@ it('serves virtual and file CSS through real native HTTP registration and HMR te
 it('defers Bamboo build adaptation until emitted assets, after validation', () => {
   const plugin = pxToDip()
 
-  plugin.configResolved({ command: 'build' })
+  plugin.configResolved({ command: 'build', plugins: [] })
 
   const css = '@layer utilities { .fixed { width: 31px; } }'
   const context = { warn: (message) => assert.fail(message) }

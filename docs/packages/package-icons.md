@@ -40,13 +40,13 @@ export function Close() {
 aliases are baked in at resolve time. `name` (below) stays for dynamic
 lookups; passing `icon` skips the registry entirely.
 
-The `icons:` specifier is resolved by the `xplatIcons` Vite plugin.
+The `icons:` specifier is resolved by the `icons` Vite plugin.
 Register it in the app's Vite config, before the Octane plugins:
 
 ```ts
-import { xplatIcons } from '@octane-xplat/icons/vite'
+import { icons } from '@octane-xplat/icons/vite'
 
-// vite.config.ts — plugins: [xplatIcons(), ...octane(), ...]
+// vite.config.ts — plugins: [icons(), ...octane(), ...]
 ```
 
 Type checking comes from the package's TypeScript content mapper plus a
@@ -69,7 +69,7 @@ import then type-checks against the collection's real `icons.json`: a
 specifier with no stub fails as `TS2307 Cannot find module`, and the import's
 type is the icon's own normalized `IconifyIcon` literal. The tree is
 regenerable build output — add `.icons/` to `.gitignore`. Disable plugin
-sync with `xplatIcons({ stubs: false })`, or steer it with a
+sync with `icons({ stubs: false })`, or steer it with a
 `stubs: { outDir, collections }` object; `syncIconStubs` is also exported
 from `@octane-xplat/icons/vite` for non-Vite typecheck flows.
 
@@ -139,7 +139,7 @@ dynamic lookups or shared components — enable `register` on the plugin; each
 virtual module then self-registers on import:
 
 ```ts
-// vite.config.ts — plugins: [xplatIcons({ register: true }), ...]
+// vite.config.ts — plugins: [icons({ register: true }), ...]
 ```
 
 ```ts

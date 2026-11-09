@@ -46,7 +46,7 @@ await writeFile(
 
 await writeFile(
   resolve(output, 'vite.config.mts'),
-  "import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nexport default defineConfig(({ mode }) => xplatNative(mode))\n",
+  "import { defineConfig } from 'vite'\nimport { native } from '@octane-xplat/cli/vite'\nexport default defineConfig(({ mode }) => native(mode))\n",
 )
 
 await writeFile(

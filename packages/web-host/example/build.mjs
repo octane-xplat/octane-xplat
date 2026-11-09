@@ -2,7 +2,7 @@ import { build } from 'vite'
 import { createHash } from 'node:crypto'
 import { readFile } from 'node:fs/promises'
 import { octane } from 'octane/compiler/vite'
-import { xplatCss } from '@octane-xplat/build/vite'
+import { css } from '@octane-xplat/build/vite'
 import { webHost } from '@octane-xplat/web-host/vite'
 import { prerender } from '@octane-xplat/web-host/prerender'
 
@@ -17,7 +17,7 @@ const common = {
 // A normal browser build emits hashed assets and the manifest the server reads.
 await build({
   ...common,
-  plugins: [xplatCss('web'), webHost(), octane()],
+  plugins: [css('web'), webHost(), octane()],
   build: {
     outDir: 'example/dist/client',
     emptyOutDir: true,

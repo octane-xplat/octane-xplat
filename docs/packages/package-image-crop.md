@@ -19,7 +19,7 @@ Use the existing Octane Xplat renderer setup; no extra NativeScript plugin or
 CSS pipeline is required. Supply the source's decoded, oriented natural size
 and a viewport in CSS pixels (web), DIPs (iOS/Android), or points (AppKit).
 
-For AppKit, use the existing `xplatMacOS` compiler setup; the `macos` package
+For AppKit, use the existing `macos` compiler setup; the `macos` package
 condition supplies source for that renderer. macOS image sources support base64
 data URIs and local paths/file URLs. Remote URLs are not loaded by the AppKit
 renderer; download them separately and supply a local source. Desktop WebView

@@ -348,7 +348,7 @@ the Image slice supplies a host decode path.
 ('nativescript' / 'gtk') — the nativescript leaf stamps a foreign marker the
 GTK owner rejects; the shared leaf now stamps the resolved target. All other
 B1 leaves reuse their shared `.tsrx` — Button-family and display
-components compose qualified Pressable/View/Text/masonview paths. `xplatGtkSlotDedupe` in the GTK vite config is a build-level workaround
+components compose qualified Pressable/View/Text/masonview paths. `gtkSlotDedupe` in the GTK vite config is a build-level workaround
 for an octane 0.16.3 emission bug (`withSlot` emitted twice intra-module;
 rolldown dedupes cross-module but not intra-file) — applies to every GTK
 bundle, not per-leaf. macOS shares the path.
@@ -412,13 +412,13 @@ software-keyboard overlay to host.
 
 
 Custom compiler and Vitest configurations that bypass a platform preset need
-`xplatTsrx(target)` from `@octane-xplat/cli/vite`; a Vite `resolve.extensions`
+`tsrx(target)` from `@octane-xplat/cli/vite`; a Vite `resolve.extensions`
 list alone does not redirect explicit TSRX paths. Standard presets and
-`xplatBoundary` already perform that resolution. Declaration-only defaults do
+`boundary` already perform that resolution. Declaration-only defaults do
 not count as implementations during route discovery.
 
 
-The platform resolver (`xplatTsrx`, also included by `xplatBoundary`) defaults
+The platform resolver (`tsrx`, also included by `boundary`) defaults
 Vite 8's `optimizeDeps.rolldownOptions.resolve.extensions` from each environment's
 resolved extension order. Keep it in custom web configs; an explicit optimizer
 extension list, including an empty list, takes precedence. Test dependency

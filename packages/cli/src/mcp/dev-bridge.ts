@@ -1,5 +1,5 @@
 // @ts-nocheck — .mjs→.ts port: annotations pending (transitional)
-// xplatDevBridge — development-action bridge, a dev-server middleware plugin.
+// devBridge — development-action bridge, a dev-server middleware plugin.
 //
 // This is the rendezvous between a running dev app and the MCP server
 // (package G of the MCP design). The app pushes registry announcements and
@@ -78,7 +78,7 @@ const readBody = (req) =>
  * always lands under <app>/node_modules/.cache/xplat/dev-bridge/ where the
  * MCP server scans the bound app.
  */
-export function xplatDevBridge(options = {}) {
+export function devBridge(options = {}) {
   const native = nativeDevSocketPlugin()
 
   if (native) {
@@ -551,3 +551,6 @@ export function xplatDevBridge(options = {}) {
     },
   }
 }
+
+/** @deprecated Use {@link devBridge}. */
+export const xplatDevBridge: typeof devBridge = devBridge

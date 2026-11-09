@@ -27,7 +27,7 @@ writeFileSync(
     'export const probe = [appleAuth.supported, AppleSignInButton]\n',
 )
 
-// Mirrors the native extension chain in @octane-xplat/cli xplatNative:
+// Mirrors the native extension chain in @octane-xplat/cli native:
 // platform leaf → .mobile → unsuffixed default, with platform .js ahead of
 // the shared default so plugin stubs (index.android.js) win.
 const extensions = (target) => [

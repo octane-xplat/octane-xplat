@@ -8,7 +8,7 @@
 // libraries are the platform. GJS 1.82 exposes no queueMicrotask and no
 // `process` global: createGtkRoot installs the Promise-based microtask bridge
 // the universal runtime requires, and the bundle's `process.env.NODE_ENV`
-// reads must be inlined by the build (xplatLinuxGtk does).
+// reads must be inlined by the build (linuxGtk does).
 import Gtk from 'gi://Gtk?version=4.0'
 import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'

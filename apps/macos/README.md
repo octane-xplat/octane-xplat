@@ -139,9 +139,9 @@ TypeScript selects the matching declarations.
 ```js
 // vite.config.mjs
 import { defineConfig } from 'vite'
-import { xplatMacOS } from '@octane-xplat/cli/macos/vite'
+import { macos } from '@octane-xplat/cli/macos/vite'
 
-export default defineConfig(({ mode }) => xplatMacOS(mode))
+export default defineConfig(({ mode }) => macos(mode))
 ```
 
 In development, Node runs Vite's bundle watcher and launches the same

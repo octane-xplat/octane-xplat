@@ -4,8 +4,9 @@ import { mkdir, realpath, writeFile } from 'node:fs/promises'
 import { createRequire } from 'node:module'
 import { join, relative } from 'node:path'
 import { build, createServer } from 'vite'
-import { pxToDip, xplatCss } from '@octane-xplat/build/vite'
-import { xplatTailwind } from '@octane-xplat/tailwind/vite'
+import { pxToDip, css as platformCss } from '@octane-xplat/build/vite'
+import { tailwind, xplatTailwind } from '@octane-xplat/tailwind/vite'
+assert.equal(tailwind, xplatTailwind, 'The compatibility name must preserve compiler identity')
 
 const root = process.cwd()
 const require = createRequire(import.meta.url)
@@ -36,8 +37,8 @@ await writeFile(
 
 function plugins(target) {
   return [
-    xplatCss(target === 'linux' ? 'web' : target),
-    xplatTailwind(),
+    platformCss(target === 'linux' ? 'web' : target),
+    tailwind(),
     ...(target === 'ios' ? [pxToDip()] : []),
   ]
 }

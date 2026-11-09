@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url'
 import { join } from 'node:path'
 import test from 'node:test'
 import { build } from 'vite'
-import { xplatLinuxGtk } from '../../cli/src/linux-gtk/vite.ts'
+import { linuxGtk } from '../../cli/src/linux-gtk/vite.ts'
 
 const pkg = fileURLToPath(new URL('..', import.meta.url))
 const fixture = join(pkg, 'test', 'fixtures')
@@ -34,7 +34,7 @@ test('stylesheets cascade through the GTK driver under real GJS+GTK', async (t) 
   rmSync(outDir, { recursive: true, force: true })
   await build({
     logLevel: 'error',
-    ...(await xplatLinuxGtk('production', {
+    ...(await linuxGtk('production', {
       root: fixture,
       entry: 'src/css-smoke.ts',
       outDir,

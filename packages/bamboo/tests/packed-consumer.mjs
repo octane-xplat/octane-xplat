@@ -73,10 +73,12 @@ try {
     writeFileSync(
       join(app, 'consumer.ts'),
       `import { xplatBambooConfig } from '@octane-xplat/bamboo'
-import { xplatBamboo, type XplatBambooOptions } from '@octane-xplat/bamboo/vite'
+import { bamboo, xplatBamboo, type XplatBambooOptions } from '@octane-xplat/bamboo/vite'
 
 const options: XplatBambooOptions = { native: true }
-const plugins = xplatBamboo(options)
+const legacy: typeof bamboo = xplatBamboo
+const plugins = bamboo(options)
+void legacy
 const layers: Record<string, string> = xplatBambooConfig.layers
 void plugins; void layers
 `,
@@ -143,14 +145,14 @@ void plugins; void layers
   writeFileSync(
     join(app, 'vite.config.native.mts'),
     `
-import { xplatBamboo } from '@octane-xplat/bamboo/vite'
-import { xplatNative } from '@octane-xplat/cli/vite'
+import { bamboo } from '@octane-xplat/bamboo/vite'
+import { native } from '@octane-xplat/cli/vite'
 import { xplatBambooConfig } from '@octane-xplat/bamboo'
 import { xplatPortablePreset } from '@octane-xplat/bamboo/config'
 export default {
-  plugins: xplatBamboo({ native: true }),
+  plugins: bamboo({ native: true }),
   define: {
-    __packedNativePreset__: JSON.stringify(typeof xplatNative),
+    __packedNativePreset__: JSON.stringify(typeof native),
     __packedLayer__: JSON.stringify(xplatBambooConfig.layers.utilities),
     __packedPortable__: JSON.stringify(xplatPortablePreset.name),
   },

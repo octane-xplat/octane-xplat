@@ -130,7 +130,7 @@ do reach mapped extensions, but a missing target file is TS2307.
 `@octane-xplat/icons` ships the `.icon` mapper (its own
 `typescript.contentMapper` manifest, `dist/mapper/server.js`) plus
 `syncIconStubs`, which writes one stub per collection icon under `.icons/`;
-`xplatIcons` syncs at `configResolved` unless `stubs: false`. Consumers wire
+`icons` syncs at `configResolved` unless `stubs: false`. Consumers wire
 `"paths": { "icons:*": ["./.icons/*.icon"] }` and register `.icon` in
 `contentMappers`; each stub's transform emits the icon's `IconifyIcon`
 literal, so names compile-check per specifier. The ambient `icons.d.ts`
@@ -385,7 +385,7 @@ experience of agents writing Octane-xplat code effectively.
   for this release contract. See [Bun publishing](https://bun.com/docs/pm/cli/publish).
 - Keep the CLI's public Vite declarations independent of its PostCSS
   implementation. With TypeScript 5.9.3, CLI PostCSS 8.5.28 and Vite 8.3.0
-  resolving PostCSS 8.5.31, re-exporting `xplatCss` from `css-platform.ts`
+  resolving PostCSS 8.5.31, re-exporting `css` from `css-platform.ts`
   causes TS2321/TS2322 while comparing recursive PostCSS types. This is
   consumer typecheck evidence, not evidence of a runtime API difference.
   `src/vite.d.ts` declares the public function and shares only `CssPlatform`
@@ -496,7 +496,7 @@ experience of agents writing Octane-xplat code effectively.
   has lost the importing core package's location. The HTTP route returns
   404 in both `apps/mobile` and a small linked fixture, and an actual Android
   app fails before its entry runs. The file exists and resolves from core's
-  canonical package path. `xplatNative` narrowly aliases this SDK-emitted
+  canonical package path. `native` narrowly aliases this SDK-emitted
   HTTP prefix to core's installed dependency; ordinary bare app imports are
   unchanged. The host regression is `test:go-dev-android-http`, with the
   selected project in `XPLAT_GO_ANDROID_HTTP_APP`; device qualification is a
