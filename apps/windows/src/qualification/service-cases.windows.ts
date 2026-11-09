@@ -11,8 +11,24 @@ import {
   webAuthn,
 } from '@octane-xplat/platform'
 
+import { appleAuth, googleAuth } from '@octane-xplat/auth'
+import { biometrics } from '@octane-xplat/biometrics'
+import { getGPU } from '@octane-xplat/canvas'
 import { files } from '@octane-xplat/files'
+import { media } from '@octane-xplat/media'
+import { notifications } from '@octane-xplat/notifications'
+import { push } from '@octane-xplat/push'
+import { createAudioRecorder } from '@octane-xplat/recorder'
 import { secureStorage } from '@octane-xplat/secure-storage'
+import { share } from '@octane-xplat/share'
+import { createSoundBank } from '@octane-xplat/sounds'
+import { createUpdates } from '@octane-xplat/updates'
+import { createHaptics } from '@octane-xplat/haptics'
+import { motion } from '@octane-xplat/motion'
+import { requestStream } from '@octane-xplat/network'
+import { Pager } from '@octane-xplat/pager'
+import { RollingText } from '@octane-xplat/rolling-text'
+import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 import { Application, Screen } from '@nativescript/core'
 
@@ -1443,6 +1459,100 @@ async function mediaDepthSpec(): Promise<Record<string, unknown>> {
   }
 }
 
+/** Bounded-behavior evidence for the windows service leaves added in the
+ *  API-surface pass: each import itself proves the module resolves without a
+ *  foreign-platform leaf, and each call must report its contract's explicit
+ *  unsupported shape — never a silent mobile fallback. */
+async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
+  const out: Record<string, unknown> = {}
+
+  out.shareText = await share.text('leaf-surface')
+  out.shareFile = await share.file('C:\\leaf-surface.txt')
+  out.pushSupported = push.supported
+  out.pushConfigured = push.configured
+  out.pushToken = await push.getToken()
+
+  let pushConfigure = ''
+  try {
+    await push.configure()
+  } catch (error) {
+    pushConfigure = String((error as Error)?.message ?? error)
+  }
+  out.pushConfigure = pushConfigure
+
+  out.notificationsSupported = notifications.supported
+  out.notificationsPermissions = (await notifications.getPermissions()).status
+
+  const bank = createSoundBank()
+  const caps = bank.capabilities()
+  await bank.load('clip', 'leaf-surface.wav')
+  out.soundSupported = caps.supported
+  out.soundPlay = await bank.play('clip')
+  out.soundMaxVoices = caps.maxVoices
+  bank.dispose()
+
+  out.gpu = getGPU() === null ? 'null' : 'present'
+  out.appleSupported = appleAuth.supported
+  out.appleSignIn = (await appleAuth.signIn()).status
+  out.googleSupported = googleAuth.supported
+  out.googleSignIn = (await googleAuth.signIn()).status
+
+  let recorderError = ''
+  try {
+    createAudioRecorder()
+  } catch (error) {
+    recorderError = (error as Error)?.name ?? String(error)
+  }
+  out.recorderError = recorderError
+
+  const updates = createUpdates({
+    endpoint: 'https://leaf-surface.invalid',
+    embeddedVersion: '1.0.0',
+  })
+  out.updatesSupported = updates.supported
+  const updateCheck = await updates.check()
+  out.updatesCheck = updateCheck.available ? 'available' : updateCheck.reason
+
+  out.biometricsSupported = biometrics.supported
+  out.biometricsAvailable = await biometrics.isAvailable()
+  out.biometricsPermissions = (await biometrics.getPermissions()).status
+
+  out.mediaSupported = media.supported
+  out.mediaAvailable = await media.isAvailable()
+  out.mediaCapture = await media.capturePhoto()
+  out.mediaPhotosPermission = (await media.getPermissions('photos')).status
+
+  // Import-presence evidence: these packages resolve on the windows chain
+  // (.windows → unsuffixed) without a foreign-suffix leak — the bundle fails
+  // to build if any leaf literal-imports a mobile file.
+  out.pagerComponent = typeof Pager
+  out.rollingTextComponent = typeof RollingText
+  out.smoothCornersComponent = typeof SmoothCorners
+  out.motionCreate = typeof motion?.create
+
+  try {
+    createHaptics().capabilities()
+    out.hapticsSupported = true
+  } catch {
+    out.hapticsSupported = false
+  }
+
+  try {
+    out.hapticsCaps = createHaptics().capabilities().supported
+  } catch (error) {
+    out.hapticsCaps = `throw:${(error as Error)?.name ?? 'Error'}`
+  }
+
+  try {
+    await requestStream('https://leaf-surface.invalid/')
+    out.networkStream = 'resolved'
+  } catch (error) {
+    out.networkStream = String((error as Error)?.message ?? error)
+  }
+
+  return out
+}
+
 export async function runServiceSpec(spec: string, record: Emit): Promise<void> {
   try {
     let result: Record<string, unknown>
@@ -1552,6 +1662,9 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         break
       case 'media-depth':
         result = await mediaDepthSpec()
+        break
+      case 'leaf-surface':
+        result = await leafSurfaceSpec()
         break
       default:
         record('service-error', { spec, message: 'Unknown service spec' })

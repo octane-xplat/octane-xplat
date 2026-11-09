@@ -1644,7 +1644,7 @@ function Check-ServiceActions{
  try{
  Command 'scene' 'service'|Out-Null
  Status-Contains 'Core20 service '
- $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-select','picker-save','picker-multi','picker-invoke')
+ $specs=@('clipboard','random','storage','keepawake','connectivity','device','appinfo','files','files-chunk','files-stream','auth','window-metrics','clipboard-nontext','secure-storage','secure-persist','secure-depth','files-pickers','files-identity','media-depth','keepawake-depth','corefs-depth','connectivity-depth','storage-depth','clipboard-depth','media-live-start','media-live-read','corefs','storage-persist','picker-probe','picker-select','picker-save','picker-multi','picker-invoke','leaf-surface')
  $serviceFilter=@($ServiceSpecs|Where-Object {$_})
  if($serviceFilter.Count){$specs=@($specs+'storage-verify','secure-verify'|Where-Object {$_ -cin $serviceFilter})}
  foreach($spec in $specs){
@@ -1896,6 +1896,25 @@ function Check-ServiceActions{
     Assert ($result.multiSelected -ceq 'ok:2') 'files.pickMultiple completes a quoted-path multi-selection' $result
     Assert ($result.multiNames -contains 'core20-pick-target.txt' -and $result.multiNames -contains 'core20-pick-second.txt') 'Multi-select returns both picked names' $result
     Assert ($result.firstReadBack -ceq 'core20-pick-content') 'First multi-picked file reads through its token' $result
+   }
+   'leaf-surface' {
+    Assert ($result.shareText -ceq 'unavailable' -and $result.shareFile -ceq 'unavailable') 'share reports resolved unavailability' $result
+    Assert ($result.pushSupported -eq $false -and $result.pushConfigured -eq $false -and $null -eq $result.pushToken) 'push reports its inert contract' $result
+    Assert ($result.pushConfigure -like '*not supported on windows*') 'push.configure rejects with the explicit unsupported error' $result
+    Assert ($result.notificationsSupported -eq $false -and $result.notificationsPermissions -ceq 'unsupported') 'notifications report bounded unavailability' $result
+    Assert ($result.soundSupported -eq $false -and $result.soundPlay -eq $false -and $result.soundMaxVoices -eq 0) 'sound banks report no voices' $result
+    Assert ($result.gpu -ceq 'null') 'getGPU returns null on windows' $result
+    Assert ($result.appleSupported -eq $false -and $result.appleSignIn -ceq 'error') 'appleAuth reports provider unsupported' $result
+    Assert ($result.googleSupported -eq $false -and $result.googleSignIn -ceq 'error') 'googleAuth reports provider unsupported' $result
+    Assert ($result.recorderError -ceq 'UnavailabilityError') 'createAudioRecorder rejects with UnavailabilityError' $result
+    Assert ($result.updatesSupported -eq $false -and $result.updatesCheck -ceq 'unsupported') 'updates selects the unsupported client' $result
+    Assert ($null -ne $result.biometricsSupported -and $null -ne $result.biometricsAvailable) 'biometrics reports projection-backed availability' $result
+    Assert ($result.mediaSupported -eq $true -and $result.mediaAvailable -eq $true) 'media reports the picker-backed surface' $result
+    Assert ($null -eq $result.mediaCapture -and $result.mediaPhotosPermission -ceq 'unsupported') 'media camera and photos permission stay bounded' $result
+    Assert ($result.pagerComponent -ceq 'function' -and $result.rollingTextComponent -ceq 'function' -and $result.smoothCornersComponent -ceq 'function') 'UI package components resolve on the windows chain' $result
+    Assert ($result.motionCreate -ceq 'function') 'motion exports resolve on the windows chain' $result
+    Assert ($result.hapticsCaps -eq $false) 'haptics reports no engine on windows' $result
+    Assert ($result.networkStream -like '*unsupported*') 'network requestStream rejects explicitly on windows' $result
    }
   }
   }catch{
