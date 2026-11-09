@@ -1,4 +1,3 @@
-import '@nativescript/macos-node-api'
 import { checkHostedLifecycle } from './hosted-lifecycle'
 import { checkActionOwnershipLifecycle } from './action-ownership-lifecycle'
 import { checkRootDirectoryLifecycle } from './root-directory-lifecycle'
@@ -15,9 +14,9 @@ import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
 import { checkPickerBridgeLifecycle } from './picker-bridge-lifecycle'
+import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
 import {
-  runMacOSApp,
   setWindowContentResolver,
   type MacOSAppMount,
 } from '@octane-xplat/macos-appkit/host'
@@ -32,24 +31,39 @@ import { checkPlaceholderLifecycle } from './placeholder-lifecycle'
 import { checkLiquidGlassLifecycle } from './liquidglass-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
 import SecondaryWindow, { windowRefEvents } from './WindowContent'
-import { NSFont } from '@octane-xplat/platform/macos'
+import {
+  NSApplication,
+  NSApplicationActivationPolicy,
+  NSFont,
+  NSWindow,
+  NSWindowStyleMask,
+} from '@octane-xplat/platform/macos'
 
-runMacOSApp(
-  {
-    title: 'Renderer consumer',
-    size: { width: 400, height: 200 },
-    terminateAfterLastWindowClosed: true,
-  },
-  ({ app, window: nativeWindow, root }: MacOSAppMount) => {
-    root.render(App as any, {})
+const app = NSApplication.sharedApplication
 
-    if (process.env.XPLAT_RENDERER_CONSUMER_TEST !== '1') {
-      return
-    }
+app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
-    const debug = (root as any).__macosDebug
+const windowStyle = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
+const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
+  { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
+  windowStyle,
+  2,
+  false,
+)
 
-    setTimeout(() => {
+nativeWindow.title = 'Renderer consumer'
+nativeWindow.releasedWhenClosed = false
+
+const root = createMacOSRoot(nativeWindow.contentView)
+
+root.render(App as any, {})
+nativeWindow.makeKeyAndOrderFront(app)
+app.finishLaunching()
+
+if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
+  const debug = (root as any).__macosDebug
+
+  setTimeout(() => {
     try {
       const font = debug.findId('count').font
 
@@ -387,6 +401,13 @@ runMacOSApp(
               await checkActionOwnershipLifecycle(nativeWindow)
               await checkRootDirectoryLifecycle(nativeWindow)
 
+              const mountShape: Pick<MacOSAppMount, 'root'> = { root }
+
+              check(
+                mountShape.root === root,
+                'Embedding root does not satisfy the host mount type',
+              )
+
               const bridge: any = Reflect.get(globalThis, '__xplatAppKit')
 
               check(
@@ -425,8 +446,7 @@ runMacOSApp(
               })
 
               check(
-                resolverCalls.length === 1 &&
-                  (resolverCalls[0] as any)?.marker === 'secondary',
+                resolverCalls.length === 1 && (resolverCalls[0] as any)?.marker === 'secondary',
                 'Window resolver did not receive request data',
               )
               check(
@@ -463,8 +483,10 @@ runMacOSApp(
       console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)
       globalThis.__xplatStopHost()
     }
-    }, 80)
+  }, 80)
+}
 
-    return () => console.log('PACKED_HOST_CLEANUP')
-  },
-)
+// Embedding apps own window-close delegates and root disposal.
+if (process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP !== '1') {
+  app.run()
+}

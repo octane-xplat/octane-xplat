@@ -339,7 +339,6 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
   assert.equal(result.status, 0, output)
   assert.match(output, /PACKED_HOST_OK/)
   assert.match(output, /PACKED_RENDERER_OK/)
-  assert.match(output, /PACKED_HOST_CLEANUP/)
   if (actionBarOnly) {
     assert.match(output, /PACKED_ACTIONBAR_OK/)
   } else if (liquidGlassOnly) {
