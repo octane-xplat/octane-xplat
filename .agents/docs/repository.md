@@ -55,6 +55,10 @@ SDK interop remain separate features.
 
 ## Layout
 
+For the isolated NativeScript Linux runtime comparison, see
+[`tools/linux-runtime-eval/README.md`](../../tools/linux-runtime-eval/README.md).
+It is a feasibility probe, separate from the shipping GJS renderer.
+
 | Path                                                                                       | What it is                                                                                                                                                                                        |
 | ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `docs/`                                                                                    | Reader-facing app-building guides grouped in `start/`, `app/`, `platform/`, and `testing/`. Begin at `docs/README.md`.                                                                             |

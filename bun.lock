@@ -3414,6 +3414,16 @@
         "wrangler": "4.136.3",
       },
     },
+    "tools/linux-runtime-eval": {
+      "name": "@xplat/linux-runtime-eval",
+      "devDependencies": {
+        "@octane-xplat/jsx": "workspace:*",
+        "@octanejs/vite-plugin": "catalog:",
+        "octane": "catalog:",
+        "typescript": "catalog:",
+        "vite": "catalog:",
+      },
+    },
     "tools/native-readiness": {
       "name": "@xplat/native-readiness",
       "version": "0.0.0",
@@ -5463,6 +5473,8 @@
     "@xplat/docs": ["@xplat/docs@workspace:apps/docs"],
 
     "@xplat/feedback-worker": ["@xplat/feedback-worker@workspace:tools/feedback-worker"],
+
+    "@xplat/linux-runtime-eval": ["@xplat/linux-runtime-eval@workspace:tools/linux-runtime-eval"],
 
     "@xplat/macos": ["@xplat/macos@workspace:apps/macos"],
 

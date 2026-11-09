@@ -1,0 +1,14 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "test:runtime": {
+      "dependsOn": ["build"],
+      "cache": false,
+      "passThroughEnv": [
+        "LINUX_RUNTIME_EVAL_VM",
+        "LINUX_RUNTIME_EVAL_ENGINE",
+        "LINUX_RUNTIME_EVAL_EXECUTABLE"
+      ]
+    }
+  }
+}

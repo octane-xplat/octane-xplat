@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "jsx": "preserve",
+    "jsxImportSource": "@octane-xplat/jsx",
+    "strict": true,
+    "skipLibCheck": true,
+    "allowJs": true,
+    "customConditions": ["gtk", "native"]
+  },
+  "include": ["screen.gtk.tsx"]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@xplat/linux-runtime-eval",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "test:runtime": "node run.mjs"
+  },
+  "devDependencies": {
+    "@octane-xplat/jsx": "workspace:*",
+    "@octanejs/vite-plugin": "catalog:",
+    "octane": "catalog:",
+    "typescript": "catalog:",
+    "vite": "catalog:"
+  }
+}
