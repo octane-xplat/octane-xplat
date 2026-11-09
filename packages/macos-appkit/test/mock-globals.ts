@@ -65,6 +65,8 @@ const SLICE_BASE = {
   // assembled runtime; sliced evals run without that dep and exercise the
   // JS getters directly.
   syncNativeAccessibility: () => {},
+  isAccessibleHostView: (view: { xplatAccessibleHost?: () => boolean }) =>
+    view?.xplatAccessibleHost?.() === true,
   createPilotAdapters,
   createControlAdapters,
   createContainerAdapters,

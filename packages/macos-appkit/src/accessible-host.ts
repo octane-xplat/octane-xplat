@@ -108,6 +108,10 @@ export function createAccessibleHost(deps: Dependencies) {
       isAccessibilityExpanded: { params: [], returns: interop.types.bool },
       accessibilityIsIgnored: { params: [], returns: interop.types.bool },
       isAccessibilityElement: { params: [], returns: interop.types.bool },
+      // Unique selector that only this class (and subclasses) registers —
+      // instanceof cannot be trusted on bridged NativeClass instances, so
+      // callers identify accessible hosts through ObjC dispatch instead.
+      xplatAccessibleHost: { params: [], returns: interop.types.bool },
     }
 
     static {
@@ -347,6 +351,10 @@ export function createAccessibleHost(deps: Dependencies) {
       return !this.accessibilityIsIgnored()
     }
 
+    xplatAccessibleHost() {
+      return true
+    }
+
     accessibilityIsIgnored() {
       const props = deps.state.get(this)
 
@@ -373,8 +381,12 @@ export function createAccessibleHost(deps: Dependencies) {
     setValueForKey?(value: unknown, key: string): void
   }
 
+  function isAccessibleHostView(view: object): view is InstanceType<typeof AccessibleHostView> {
+    return (view as { xplatAccessibleHost?: () => boolean }).xplatAccessibleHost?.() === true
+  }
+
   function syncNativeAccessibility(view: object) {
-    if (!(view instanceof AccessibleHostView)) {
+    if (!isAccessibleHostView(view)) {
       return
     }
 
@@ -425,6 +437,7 @@ export function createAccessibleHost(deps: Dependencies) {
     tabStopSuppression,
     disabledFocusTargets,
     AccessibleHostView,
+    isAccessibleHostView,
     syncNativeAccessibility,
   }
 }

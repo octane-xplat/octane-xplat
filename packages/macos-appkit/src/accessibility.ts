@@ -10,7 +10,10 @@ import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 
 interface Dependencies {
-  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView' | 'syncNativeAccessibility'>
+  accessibleHost: Pick<
+    AccessibleHost,
+    'AccessibleHostView' | 'isAccessibleHostView' | 'syncNativeAccessibility'
+  >
   state: AccessibilityState
 }
 
@@ -43,7 +46,7 @@ export function createAccessibility(deps: Dependencies) {
   function applyAccessibility(node: ElementNode, name: string, value: any) {
     // Every mason-backed container hosts AccessibleHostView, so AX props apply
     // to any interactive container — not just the old stack/flex hosts.
-    if (node.view instanceof deps.accessibleHost.AccessibleHostView) {
+    if (node.view && deps.accessibleHost.isAccessibleHostView?.(node.view)) {
       const lease = accessibilityLease(node)
       const props = deps.state.get(node.view!) ?? {}
 
