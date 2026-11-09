@@ -448,3 +448,22 @@ pickMultiple` (multi-select), `files.export` (typed-destination save
 commit verified on disk), dialog display, cancel path, and the `fail:busy`
 guard. Service suite: 113/113 assertions (launch `mw2x5hw4`);
 files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
+
+## Bounded leaf surface qualified: every gapped package explicit (1.0.0.234)
+
+On `org.octanexplat.windows61` 1.0.0.234 (source `15322774b`, bounded): the
+`leaf-surface` service spec ran every previously foreign-leaf package on
+the packaged runtime — share resolves `unavailable`, push/notifications/
+sounds report `supported=false`, `getGPU()` is null, apple/google auth
+return `error`, `createAudioRecorder()` rejects `UnavailabilityError`,
+updates report `unsupported`, `requestStream` rejects explicitly, and the
+`Pager`/`RollingText`/`SmoothCorners`/`motion.create` imports resolve as
+functions (no foreign-suffix module reaches the windows bundle — the
+boundary plugin is active in build:windows). `media` is picker-backed
+(`supported`/`available` true, capture null, photos permission
+`unsupported`); `biometrics` runs real Windows Hello through the managed
+`ServiceInterop` helper (`supported` true; the Windy box has no Hello
+enrollment so availability reports `denied` — the managed bridge is
+required because the projected `toPromise` await panics the isolate, see
+upstream-limitations). Drivers: files-identity 12, service 130,
+storage-verify 8, secure-verify 9 (159 assertions, launch `mw9qbl3z`).

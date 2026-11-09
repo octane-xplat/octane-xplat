@@ -564,3 +564,19 @@ compiled Chromium mounting. Keep the original case visible in
 [issue #176](https://github.com/octane-xplat/octane-xplat/issues/176); remove this
 qualification only after the maintained demo itself passes. The isolated
 browser fixtures intentionally do not import the failing demo as a workaround.
+
+## NativeScript Windows: UserConsentVerifier await panics the isolate
+
+Awaiting `Windows.Security.Credentials.UI.UserConsentVerifier.CheckAvailabilityAsync`
+(or `RequestVerificationAsync`) through `NSWinRT.toPromise` from a JS
+service/command context panics the process in the Windows preview runtime:
+
+`v8::scope::PinnedRef<'_, v8::scope::HandleScope<'_, ()>> and Context do not
+belong to the same Isolate` (nativescript-crash.log, packaged MSIX
+1.0.0.233, source `c28d5b489`). The panic is process-fatal — no JS
+try/catch intercepts it — while other WinRT asyncs (StorageFile,
+PasswordVault) complete through `toPromise` in the same context. The
+`OctaneXplat.Interop.ServiceInterop` managed helper runs the calls on the
+captured dispatcher and returns polled string state; `biometrics.windows`
+uses that bridge (packaged evidence 1.0.0.234). Keep the managed route
+until an upstream release makes this class's completions isolate-safe.
