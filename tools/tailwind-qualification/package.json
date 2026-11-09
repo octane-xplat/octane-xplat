@@ -5,6 +5,7 @@
   "scripts": {
     "test": "node --test src/*.test.ts",
     "qualify": "node src/qualify.ts",
+    "qualify:xplat": "node src/qualify-xplat.ts",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "prepare:browser": "playwright install chromium"
   },

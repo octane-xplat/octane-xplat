@@ -1,5 +1,7 @@
 import postcss from 'postcss'
 import tailwindcss from '@tailwindcss/postcss'
+// This Node-only comparison loads the adapter's PostCSS compiler, not a native UI module.
+// oxlint-disable-next-line xplat/no-nativescript-import
 import nativeAdapter from '@nativescript/tailwind'
 import { fileURLToPath } from 'node:url'
 

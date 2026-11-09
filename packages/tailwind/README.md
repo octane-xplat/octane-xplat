@@ -83,3 +83,7 @@ it does not establish native runtime or rendering support:
 ```sh
 bun run turbo run test:packed --filter=@octane-xplat/tailwind
 ```
+
+For Chromium computed-style and layout checks using that installed CSS, follow
+the separate [browser qualification workflow](../../tools/tailwind-qualification/README.md).
+It remains opt-in and establishes no native runtime or painting behavior.

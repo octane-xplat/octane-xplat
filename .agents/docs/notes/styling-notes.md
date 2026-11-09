@@ -104,7 +104,9 @@ surface. With the official Tailwind 4.3.5 compiler it removes `display` and
 blocks and removes `@property` registration. The maintained
 [qualification runner](../../../tools/tailwind-qualification/README.md)
 compares emitted declarations and browser CSS behavior before/after adaptation;
-it does not substitute a browser for a native renderer. The adapter emits no
+its separate `qualify:xplat` task measures production CSS from fresh Xplat
+tarball consumers in Chromium. Neither substitutes a browser for a native
+renderer or a Linux webview session. The adapter emits no
 warnings for the isolated precedence, feature-gate and variable-inheritance
 mismatches in that corpus. Its transformation source matches upstream main at
 `6e6be375a93fcf60f57fb7ccf14d39381fc2d5cc`.

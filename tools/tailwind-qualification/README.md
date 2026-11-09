@@ -1,8 +1,8 @@
 # Tailwind integration qualification
 
 This private tool compares the official Tailwind compiler with NativeScript's
-released CSS adapter. It does not install Tailwind into apps or publish an
-integration. Dependency versions are pinned in this workspace's manifest.
+released CSS adapter and checks Xplat's integration in disposable consumers.
+Dependency versions are pinned in the workspace manifests.
 
 Run from the repository root with Bun 1.4.4:
 
@@ -30,6 +30,26 @@ a passing package check does not qualify production maps, native runtime
 behavior, Mason layout, input or painting. Failed disposable consumers remain
 under `~/agent-scratch/octane-xplat/tailwind-consumer-*` for inspection; successful
 runs remove their temporary installation.
+
+The separate Xplat browser gate installs those same fresh tarballs, preserves
+their production CSS, and checks it in Chromium. It measures flex/grid layout,
+absolute edges, runtime and scoped theme colors, text/radius values, per-element
+variable defaults, nested transforms, responsive/dark variants, class removal,
+inline precedence and synthesized browser hover. Choose a new output directory
+for each run; existing evidence files are never overwritten:
+
+```sh
+bun run turbo run prepare:browser --filter=@xplat/tailwind-qualification
+bun run turbo run qualify:xplat --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-browser/my-run"
+```
+
+This writes `compiled-web.css`, `compiled-ios.css`, `compiled-linux.css`,
+`consumer.json` and `browser.json`. The browser uses the web and Linux-webview
+CSS; the iOS file remains compilation evidence. The command fails on a missing
+browser, invalid fixture, failed package check or computed-style/layout mismatch.
+It captures no images. Chromium results establish no Linux webview session,
+NativeScript/Mason runtime, OS input or painting parity. Keep this opt-in task
+outside PR checks alongside the upstream comparison command.
 
 The qualification command writes the official/generated stylesheet, the adapted
 stylesheet, and `comparison.json` to the specified local directory. It exits 1

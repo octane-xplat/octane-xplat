@@ -2,6 +2,7 @@ import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import {
+  constants,
   copyFileSync,
   existsSync,
   mkdirSync,
@@ -12,6 +13,9 @@ import {
 } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
+import { parseArgs } from 'node:util'
+
+const { values } = parseArgs({ options: { output: { type: 'string' } } })
 
 const repository = resolve(import.meta.dirname, '../..')
 const workspaceKey = createHash('sha256').update(repository).digest('hex').slice(0, 8)
@@ -174,6 +178,18 @@ void plugin
     join(consumer, 'verify.mjs'),
   )
   const verification = run(process.execPath, ['verify.mjs'])
+
+  if (values.output) {
+    const output = resolve(values.output)
+
+    mkdirSync(output, { recursive: true })
+    for (const target of ['web', 'ios', 'linux']) {
+      const file = `compiled-${target}.css`
+
+      copyFileSync(join(consumer, file), join(output, file), constants.COPYFILE_EXCL)
+    }
+    writeFileSync(join(output, 'consumer.json'), verification, { flag: 'wx' })
+  }
 
   console.log(verification.trim())
   console.log(

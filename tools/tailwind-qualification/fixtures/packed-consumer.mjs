@@ -26,8 +26,12 @@ await writeFile(
   join(root, 'app.css'),
   `@import "@octane-xplat/tailwind/ui.css" source(none);
 @source "./src";
-:root, .ns-root { --color-primary: #112233 }
+:root, .ns-root { --color-primary: #112233; --radius-lg: 12px }
 `,
+)
+await writeFile(
+  join(root, 'src/Browser.web.tsrx'),
+  'export const classes = "flex flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[200px] h-[80px] w-6 w-8 h-5 shrink-0 text-sm text-base rounded-lg opacity-50 opacity-75 sm:opacity-75 dark:bg-primary hover:opacity-55 leading-6 font-bold border translate-x-4 translate-y-2 scale-50"',
 )
 
 function plugins(target) {
@@ -89,6 +93,7 @@ for (const target of ['web', 'ios', 'linux']) {
     .join('\n')
 
   verifyCss(css, target)
+  await writeFile(join(root, `compiled-${target}.css`), css)
   const server = await createServer({
     configFile: false,
     root,
