@@ -82,7 +82,8 @@ export const INTERACTIVE_FOCUS_ROLES = [
 /** Focus a focusable, interactive masonview itself on Tab entry. GTK's default
  * GtkWidget.focus vfunc only moves focus into children — a composite widget
  * like our Button (view + label child) never focuses itself, so Tab skipped
- * it entirely. grab_focus on the view focuses the view, not a child. */
+ * it entirely. Mirrors gtk_widget_real_focus: assign focus at the root —
+ * grab_focus() would re-enter vfunc_focus and recurse. */
 export function focusSelf(widget: any, direction: number): boolean | undefined {
   if (
     (direction !== Gtk.DirectionType.TAB_FORWARD &&
@@ -94,7 +95,14 @@ export function focusSelf(widget: any, direction: number): boolean | undefined {
   }
 
   if (!widget.has_focus && !widget.get_focus_child()) {
-    return widget.grab_focus()
+    const root = widget.get_root?.()
+
+    if (root?.set_focus) {
+      root.set_focus(widget)
+      return true
+    }
+
+    return false
   }
 
   return undefined

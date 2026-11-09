@@ -112,21 +112,21 @@ export function FocusProbe() {
         id="focus-btn"
         testID="focus-btn"
         label="Focus Me"
-        clickAction={() => events.push('btn:press')}
+        clickAction={() => { events.push('btn:press') }}
       />
       <Button
         id="focus-btn-disabled"
         testID="focus-btn-disabled"
         label="Skip Me"
         isDisabled
-        clickAction={() => events.push('btn:press-disabled')}
+        clickAction={() => { events.push('btn:press-disabled') }}
       />
       <Button
         id="focus-btn-ina11y"
         testID="focus-btn-ina11y"
         label="Skip A11y"
         accessible={false}
-        clickAction={() => events.push('btn:press-ina11y')}
+        clickAction={() => { events.push('btn:press-ina11y') }}
       />
       <textfield id="tf-ring" text="" style={{ width: 320, height: 30 }} {...ring.focusProps} />
       <masonview
