@@ -214,6 +214,19 @@ runGtkApp(
       marker('READY')
       bounds('journey-name')
       bounds('journey-submit')
+
+      // DESKTOP_SHELL_DIAG_OPEN=timeout opens the Inspector from a GLib
+      // timeout instead of inside the dbusmenu Event handler — bisects the
+      // BadDrawable crash between the D-Bus-callback context and openWindow.
+      if (
+        (globalThis as any).imports?.gi?.GLib?.getenv?.('DESKTOP_SHELL_DIAG_OPEN') === 'timeout'
+      ) {
+        const GLib = (globalThis as any).imports.gi.GLib
+        GLib.timeout_add(GLib.PRIORITY_DEFAULT, 3000, () => {
+          openInspector()
+          return false
+        })
+      }
     })()
 
     return () => {
