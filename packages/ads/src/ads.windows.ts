@@ -1,1 +1,2 @@
-export { ads } from './ads.web'
+// Windows leaf — bounded unsupported.
+export { ads } from './ads.unsupported'
