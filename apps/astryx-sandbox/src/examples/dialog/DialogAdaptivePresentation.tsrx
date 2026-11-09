@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream Dialog/DialogAdaptivePresentation.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
 import {
@@ -9,7 +10,7 @@ import {
   HStack,
   TextArea,
   TextInput,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   Text,
 } from '@octane-xplat/ui'
@@ -33,7 +34,7 @@ function AdaptiveDialog(props: {
   presentation?: AdaptivePresentation
   bottomSheetHeight?: 'hug' | 'capped' | 'tall' | number | string
 }) @{
-  const isTouch = useMediaQuery(TOUCH_ORIENTED_LG_QUERY)
+  const isTouch = useMediaQuery$(TOUCH_ORIENTED_LG_QUERY).get()
   const resolved =
     props.presentation ?? (isTouch ? (props.touchPresentation ?? 'dialog') : 'dialog')
 

@@ -61,9 +61,10 @@ function fixture(options) {
               },
             }
           : {
-              useState: () => [
-                bounds,
-                (next) => {
+              derived$: (read) => ({ get: read }),
+              useSignal$: () => ({
+                get: () => bounds,
+                set: (next) => {
                   const value = typeof next === 'function' ? next(bounds) : next
 
                   if (value !== bounds) {
@@ -72,11 +73,10 @@ function fixture(options) {
 
                   bounds = value
                 },
-                () => bounds,
-              ],
+              }),
               useRef: (current) => ({ current }),
               useCallback: (callback) => callback,
-              useEffect: (effect) => cleanups.push(effect()),
+              useLayoutEffect: (effect) => cleanups.push(effect()),
             },
     setTimeout: (callback, delay) => {
       assert.equal(delay, 0)
@@ -90,8 +90,8 @@ function fixture(options) {
   })
 
   return {
-    ...exports.useMeasure(options),
-    additionalHook: (options) => exports.useMeasure(options),
+    ...exports.useMeasure$(options),
+    additionalHook: (options) => exports.useMeasure$(options),
     get bounds() {
       return bounds && JSON.parse(JSON.stringify(bounds))
     },

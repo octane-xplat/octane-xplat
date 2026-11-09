@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/incident-console/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/incident-console/.
 // GAPS: `usePowerSearchConfig` → public `createPowerSearchConfig` (same
@@ -29,7 +30,7 @@ import {
   Text,
   Timestamp,
   Token,
-  useMediaQuery,
+  useMediaQuery$,
   useResizable,
   VStack,
 } from '@octane-xplat/ui'
@@ -379,7 +380,7 @@ export function IncidentConsoleTemplate() @{
   const [filters, setFilters] = useState<ReadonlyArray<PowerSearchFilterFor<typeof config>>>([])
   const [selectedId, setSelectedId] = useState<string | null>(INCIDENTS[0].id)
 
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
 
   const inspectorPanel = useResizable({
     defaultSize: 380,

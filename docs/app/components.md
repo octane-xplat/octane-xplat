@@ -827,8 +827,9 @@ export function MailboxFilter() {
 
 ### Responsive AppKit layout
 
-In an experimental native macOS app, `useMediaQuery` follows the primary host
-window's content dimensions in dips and updates on resize. AppKit reports a
+In an experimental native macOS app, `useMediaQuery$` follows the primary host
+window's content dimensions in dips and updates its read-only signal on resize.
+Read the current match with `.get()`. AppKit reports a
 fine pointer and hover support. The native subset accepts min/max width/height
 in `px`, `pointer`, `any-pointer`, `hover`, `any-hover`, `orientation`, term
 negation, `and`, `or` and comma alternatives. A missing host returns false.
@@ -837,11 +838,12 @@ reduced-motion queries are outside this subset. Actual resize/rendering and
 packaged-app qualification remain pending.
 
 ```tsx
-import { Text, useMediaQuery } from '@octane-xplat/ui'
+import 'octane/signals'
+import { Text, useMediaQuery$ } from '@octane-xplat/ui'
 
 export function LayoutHint() {
-  const wide = useMediaQuery('(min-width: 800px)')
-  const hover = useMediaQuery('(pointer: fine) and (hover: hover)')
+  const wide = useMediaQuery$('(min-width: 800px)').get()
+  const hover = useMediaQuery$('(pointer: fine) and (hover: hover)').get()
   return <Text>{wide ? 'Wide layout' : 'Compact layout'}{hover ? ' with pointer actions' : ''}</Text>
 }
 ```

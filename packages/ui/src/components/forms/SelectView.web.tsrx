@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import { useTranslator } from '../../internal/platform/internationalization'
 import { useEffect, useId, useRef } from 'octane'
 import type { SelectViewProps } from './select-view'
 import { Icon } from '../media/Icon.web.tsrx'
 import { Popover } from '../overlays/Popover.web.tsrx'
 import { BottomSheet } from '../overlays/BottomSheet.web.tsrx'
-import { useMediaQuery } from '../../internal/platform/use-media-query.web.tsrx'
+import { useMediaQuery$ } from '../../internal/platform/use-media-query.web.tsrx'
 import { CheckIndicator, CheckboxIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
 import { cx } from '@octane-xplat/lib'
@@ -23,7 +24,7 @@ export function SelectView(props: SelectViewProps): JSX.Element @{
   const match = useRef({ text: '', at: 0 })
   const focusSearch = useRef(true)
   const CheckInd = useIndicator('check') ?? CheckIndicator
-  const coarse = useMediaQuery('(pointer: coarse)')
+  const coarse = useMediaQuery$('(pointer: coarse)').get()
   const asSheet =
     props.presentation === 'bottom-sheet' || (props.presentation === 'adaptive' && coarse)
 

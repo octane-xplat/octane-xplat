@@ -730,14 +730,14 @@ try {
   await page.waitForSelector('.guide-layout-banner', { timeout: 5000 })
   ok('deep link → dynamic route', true)
 
-  // Overlay demo: useMeasure readout, HoverCard on hover-intent,
+  // Overlay demo: useMeasure$ readout, HoverCard on hover-intent,
   // positional + anchored toasts.
   await page.goto(BASE + '/@test/demo/overlay', { waitUntil: 'networkidle' })
   await page.waitForSelector('text=Overlay primitives', { timeout: 5000 })
 
   const echo = await page.locator('#measure-echo').innerText()
 
-  ok('useMeasure reports bounds', /^Bounds \d+×\d+ @ \d+,\d+$/.test(echo), echo)
+  ok('useMeasure$ reports bounds', /^Bounds \d+×\d+ @ \d+,\d+$/.test(echo), echo)
   await page.hover('text=HoverCard trigger')
   await page.waitForSelector('text=Hint card text', { timeout: 3000 })
   ok('HoverCard opens on hover intent', true)

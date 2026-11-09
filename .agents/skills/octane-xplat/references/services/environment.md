@@ -36,11 +36,12 @@ runtime leaves and generated declarations. Packed source/type checks are authore
 not proof until run through Turbo after authorization.
 
 ```tsx
-import { useAppState, useWindowSize } from '@octane-xplat/platform'
+import 'octane/signals'
+import { useAppState, useWindowSize$ } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function HostStatus() {
-  const size = useWindowSize(), state = useAppState()
+  const size = useWindowSize$().get(), state = useAppState()
   return <Text>{`${state}: ${size.width}×${size.height}`}</Text>
 }
 ```

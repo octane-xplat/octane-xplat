@@ -1,4 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { derived$ } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
 import { useCallback, useEffect, useState } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../props'
 
@@ -10,9 +12,9 @@ function readBounds(element: HTMLElement): MeasureBounds {
 
 /** Binds to a web element and observes app-surface (viewport-relative) px
  *  bounds by default — the shared `MeasureBounds` coordinate space. */
-export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
+export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
   const [element, setElement] = useState<HTMLElement | null>(null)
-  const [bounds, setBounds] = useState<MeasureBounds | null>(null)
+  const bounds$ = useSignal$<MeasureBounds | null>(null)
   const observe = options.observe ?? true
   const ref = useCallback((next: any) => {
     setElement((current) => (current === next ? current : next))
@@ -20,11 +22,28 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
 
   useEffect(() => {
     if (!element) {
-      setBounds(null)
+      bounds$.set(null)
       return
     }
 
-    const update = () => setBounds(readBounds(element))
+    let active = true
+    const update = () => {
+      if (!active) {
+        return
+      }
+
+      const next = readBounds(element)
+
+      bounds$.set((previous) =>
+        previous &&
+        previous.x === next.x &&
+        previous.y === next.y &&
+        previous.width === next.width &&
+        previous.height === next.height
+          ? previous
+          : next,
+      )
+    }
 
     update()
     if (!observe) {
@@ -37,11 +56,12 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     window.addEventListener('resize', update)
     window.addEventListener('scroll', update, true)
     return () => {
+      active = false
       resizeObserver?.disconnect()
       window.removeEventListener('resize', update)
       window.removeEventListener('scroll', update, true)
     }
   }, [element, observe])
 
-  return { ref, bounds }
+  return { ref, bounds$: derived$(() => bounds$.get()) }
 }

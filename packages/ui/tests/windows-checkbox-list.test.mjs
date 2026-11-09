@@ -39,6 +39,11 @@ function compiled(name, source, imports = {}) {
     return target ? 'from ' + JSON.stringify(target) : match
   })
 
+  code = code.replace(
+    /import ['"]octane\/signals['"]/g,
+    'import ' + JSON.stringify(pathToFileURL(require.resolve('octane/signals')).href),
+  )
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -60,7 +65,7 @@ export const nativeAccessibilityState=state=>state?.disabled?'disabled':undefine
 export const cx=(...values)=>values.flat(Infinity).filter(Boolean).join(' ');
 export const mergeStyle=(base,style)=>({...base,...style});
 export const useIndicator=()=>null;
-export const useMeasure=()=>({ref:()=>{},bounds:{width:100,height:24}});
+export const useMeasure$=()=>({ref:()=>{},bounds$:{get:()=> ({width:100,height:24})}});
 export const indicatorScope='vx-indicator-scope';`,
 )
 

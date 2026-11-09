@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/form-wizard-vertical/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/form-wizard-vertical/.
 // GAPS: `FileInput` is not exported from the public package (recorded finding
@@ -44,7 +45,7 @@ import {
   TextArea,
   TextInput,
   Thumbnail,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -213,7 +214,7 @@ export function FormWizardVerticalTemplate() @{
   const [isConfirmed, setIsConfirmed] = useState(false)
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
 
   const errorsByStep = useMemo<Array<Record<string, string>>>(() => {
     const profile: Record<string, string> = {}

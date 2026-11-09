@@ -1,5 +1,7 @@
+import { derived$, type DerivedSignal } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
 import { Application, Device, Screen, Utils } from '@nativescript/core'
-import { useEffect, useState } from 'octane'
+import { useLayoutEffect } from 'octane'
 
 import { evaluateNativeMediaQuery } from './media-query-native'
 
@@ -61,18 +63,18 @@ function evaluate(query: string): boolean {
   })
 }
 
-/** `useMediaQuery` (Astryx), iOS/Android leaf — evaluates a restricted
+/** `useMediaQuery$` (Astryx), iOS/Android leaf — evaluates a restricted
  *  media-query grammar (`(max|min)-(width|height)`, `pointer`, `any-pointer`,
  *  `hover`, `any-hover`, `orientation`, `prefers-reduced-motion`,
  *  `and`/`or`/`,`/`not`) against the main screen, fixed touch traits, and the
  *  OS reduce-motion preference, re-evaluating on orientation change,
  *  resume, and (iOS) reduce-motion changes. Unsupported features evaluate
  *  to `false` — record gaps, don't guess. */
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() => evaluate(query))
+export function useMediaQuery$(query: string): DerivedSignal<boolean> {
+  const matches$ = useSignal$(() => evaluate(query))
 
-  useEffect(() => {
-    const update = () => setMatches(evaluate(query))
+  useLayoutEffect(() => {
+    const update = () => matches$.set(evaluate(query))
 
     update()
     Application.on('orientationChanged', update)
@@ -85,5 +87,5 @@ export function useMediaQuery(query: string): boolean {
     }
   }, [query])
 
-  return matches
+  return derived$(() => matches$.get())
 }

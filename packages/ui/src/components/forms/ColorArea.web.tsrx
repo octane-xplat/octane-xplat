@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import { useRef } from 'octane'
 import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
-import { useMeasure } from '../layout/useMeasure.web.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.web.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
@@ -18,11 +19,11 @@ const THUMB = 16
  *  Drag is delta-based from the value at pointerdown (no tap-to-position v1). */
 export function ColorAreaView(props: ColorAreaViewProps): JSX.Element {
   const host = useRef<HTMLElement | null>(null)
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const drag = useRef<Hsb | null>(null)
 
-  const w = measure.bounds?.width ?? 0
-  const h = measure.bounds?.height ?? 0
+  const w = measure.bounds$.get()?.width ?? 0
+  const h = measure.bounds$.get()?.height ?? 0
   const { s, b } = props.hsb
 
   const onKeyDown = (event: KeyboardEvent) => {

@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/documentation-technical/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/documentation-technical/.
 // GAPS: DropdownMenu items take {type:'action',key,label,onSelect} (upstream
@@ -23,7 +24,7 @@ import {
   Selector,
   StackItem,
   Text,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -53,7 +54,7 @@ const AI_PROMPT =
 
 export function DocumentationTechnicalTemplate() @{
   const [activeId, setActiveId] = useState<string | undefined>(OUTLINE_ITEMS[0]?.id)
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery$('(max-width: 768px)').get()
 
   const scrollToId = useCallback((id: string) => {
     setActiveId(id)

@@ -711,7 +711,7 @@ export { Popover } from './components/overlays/Popover.web.tsrx'
 export { useLayer } from './components/overlays/use-layer.web.tsrx'
 export { usePopover } from './components/overlays/use-popover.tsrx'
 export { useTooltip } from './components/overlays/use-tooltip.web.tsrx'
-export { useMediaQuery } from './internal/platform/use-media-query.web.tsrx'
+export { useMediaQuery$ } from './internal/platform/use-media-query.web.tsrx'
 export {
   LayerProvider,
   LayerContext,
@@ -875,7 +875,7 @@ export { SafeArea } from './components/layout/SafeArea.web.tsrx'
 export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding.web.tsrx'
 export { useSafeAreaInsets } from './components/layout/safeAreaInsets.web.tsrx'
 export type { SafeAreaInsets } from './components/layout/safeAreaInsets.web.tsrx'
-export { useMeasure } from './components/layout/useMeasure.web.tsrx'
+export { useMeasure$ } from './components/layout/useMeasure.web.tsrx'
 export type {
   MeasureBounds,
   MeasureResult,

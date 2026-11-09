@@ -1,3 +1,4 @@
+import 'octane/signals'
 import {
   createContext,
   useContext,
@@ -7,7 +8,7 @@ import {
   useSyncExternalStore,
 } from 'octane'
 
-import { View, useMeasure } from '@octane-xplat/ui'
+import { View, useMeasure$ } from '@octane-xplat/ui'
 import { DndController } from './controller'
 import { dragStyle } from './geometry'
 import { arrayMove } from './sort'
@@ -73,7 +74,7 @@ export function useDraggable(options: DraggableOptions): DraggableResult {
 
   latest.current = options
 
-  const measurement = useMeasure()
+  const measurement = useMeasure$()
 
   useEffect(() => {
     const registered = controller.registerDraggable(latest.current)
@@ -147,7 +148,7 @@ export function useDroppable(options: DroppableOptions): DroppableResult {
 
   latest.current = options
 
-  const measurement = useMeasure()
+  const measurement = useMeasure$()
 
   useEffect(() => {
     const registered = controller.registerDroppable(latest.current)
@@ -184,7 +185,7 @@ export function useDroppable(options: DroppableOptions): DroppableResult {
     options.disabled,
     options.accept,
     controller.options.collisionDetection,
-    measurement.bounds,
+    measurement.bounds$.get(),
   ])
 
   const ref = useCallback(

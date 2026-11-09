@@ -36,7 +36,19 @@ function load(owner) {
 
   function require(name) {
     if (name === 'octane') {
-      return { useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() }
+      return {
+        useMemo: (read) => read(),
+        useLayoutEffect: () => {},
+        useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot(),
+      }
+    }
+
+    if (name === 'octane/signals/client') {
+      return { useSignal$: (read) => ({ get: () => (typeof read === 'function' ? read() : read) }) }
+    }
+
+    if (name === 'octane/signals') {
+      return { derived$: (read) => ({ get: read }) }
     }
 
     const base = name.replace('./', '').replace(/\.(ts|tsrx)$/, ''),
@@ -305,7 +317,7 @@ test('AppKit root and purpose hooks use identical implementations and neutral de
     root = h.require('./index.macos')
 
   for (const [module, names] of [
-    ['screen', ['useWindowSize']],
+    ['screen', ['useWindowSize$']],
     ['lifecycle', ['useAppState', 'useBackHandler']],
     ['safe-area', ['useSafeAreaInsets']],
     ['breakpoints', ['useBreakpoints$']],
@@ -315,9 +327,9 @@ test('AppKit root and purpose hooks use identical implementations and neutral de
     }
   }
 
-  assert.equal(root.useWindowSize().width, 800)
+  assert.equal(root.useWindowSize$().get().width, 800)
   assert.equal(root.useAppState(), 'active')
-  assert.deepEqual(plain(root.useBreakpoints$({ compact: 0, wide: 900 })), {
+  assert.deepEqual(plain(root.useBreakpoints$({ compact: 0, wide: 900 }).get()), {
     compact: true,
     wide: false,
   })

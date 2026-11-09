@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useRef } from 'octane'
 import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
@@ -21,7 +22,7 @@ const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00
  *  Drag is delta-based (no tap-to-position v1); arrows step 1° (Shift 10°),
  *  assistive increment/decrement steps 10°. */
 export function ColorSliderView(props: ColorSliderViewProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const drag = useRef<number | null>(null)
   const host = useRef<any>(null)
   const latest = useRef(props)
@@ -29,13 +30,13 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   latest.current = props
 
   // Stable ref identity: a fresh callback each render would rebind
-  // useMeasure (null → el), reset bounds, and re-render forever.
+  // useMeasure$ (null → el), reset bounds, and re-render forever.
   const bindHost = useCallback((el: any) => {
     host.current = el
     measure.ref(el)
   }, [])
 
-  const w = measure.bounds?.width ?? 0
+  const w = measure.bounds$.get()?.width ?? 0
   const hue = props.hsb.h
 
   const focusHost = () => {

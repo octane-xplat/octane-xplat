@@ -8,7 +8,7 @@ import { FancyComponents } from './FancyComponents.tsrx'
 // (jsdom) renderer. Fake timers drive the motion clock (rAF) and the
 // typewriter/scramble/caret intervals; a matchMedia stub owns the system
 // preference so the preview-only path stays honest. The marquee segment is
-// measured through useMeasure — getBoundingClientRect is stubbed to a fixed
+// measured through useMeasure$ — getBoundingClientRect is stubbed to a fixed
 // segment width so the loop can start under jsdom's layout-free DOM.
 
 let systemReduced = false

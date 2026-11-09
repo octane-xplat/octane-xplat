@@ -80,7 +80,7 @@ variants in `.gtk.tsrx`/`.gtk.tsx` files.
 `@octane-xplat/ui` resolves a curated `gtk` export condition. It includes
 `Text`, `Pressable`, the `View`/`Stack` family, `Grid`/`GridSpan`, `Center`,
 `Section`, `Layout` regions, `Absolute`, `Spacer`, `Badge`, `Divider`,
-`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, Popover, Selector and MultiSelector. Pure-utility exports — pixel/percent/proportional,
+`ColorSwatch`, the shared size context, `AspectRatio`, `useMeasure$`, `setTranslate`, `useAnimation`, `ScrollableArea`, `Spinner`, `useScrollableArea`, `Icon`, icon registries, `Tooltip`, `TextInput`, `TextArea`, `SearchInput`, `Field`, `FormLayout`, `InputGroup`, `InputGroupText`, `FieldGroup`, `useFieldControl`, the selection indicators, indicator registries, CheckboxInput, Switch, RadioList, RadioListItem, NumberInput, CheckboxList, CheckboxListItem, SegmentedControl, SegmentedControlItem, PinInput, Slider, InputRating, SelectorOption, Popover, Selector and MultiSelector. Pure-utility exports — pixel/percent/proportional,
 table helpers (generateColumns, resolveColumnWidths, defaultCellRenderer,
 capitalize, paginateData, sortTableData, toSearchFilters), ThumbHash
 encoders (rgbaToThumbHash/rgbaToThumbHashUri), the theme registry
@@ -112,7 +112,7 @@ openBottomSheet, closeBottomSheet, useImperativeBottomSheet), and the
 theme/environment surface (Theme, useTheme, useThemeName,
 useThemeScheme, getThemeScheme, useThemePreference, setThemePreference,
 getThemePreference, onThemeSchemeChange, themeSchemeClasses,
-applyThemeClasses, useColorScheme, getColorScheme, useMediaQuery,
+applyThemeClasses, useColorScheme, getColorScheme, useMediaQuery$,
 useClipboard, copyText, useAnnounce), focus/keyboard hooks
 (useFocus, useFocusRing, useFocusVisible, isFocusVisible,
 useFocusWithin, useLandmark, useKeyboard, useGridFocus), the
@@ -665,17 +665,19 @@ export function SearchEntry(props: { search: () => void }) {
 ```
 
 Use `AspectRatio` to derive a container's height from its allocated width.
-`useMeasure` reports a widget's position and size relative to the app content
+`useMeasure$` reports a widget's position and size relative to the app content
 surface, including movement when an ancestor scrolls. Set `observe: false`
 when you only need a snapshot. Same-root portal content in native GTK popups
 keeps these app-relative coordinates, including nested popup surfaces. An
 unrelated top-level window has no bounds in this coordinate space.
 
 ```tsx
-import { AspectRatio, Text, View, useMeasure } from '@octane-xplat/ui'
+import 'octane/signals'
+import { AspectRatio, Text, View, useMeasure$ } from '@octane-xplat/ui'
 
 export function Preview() {
-  const { ref, bounds } = useMeasure()
+  const { ref, bounds$ } = useMeasure$()
+  const bounds = bounds$.get()
   return (
     <View ref={ref}>
       <AspectRatio ratio={16 / 9}>

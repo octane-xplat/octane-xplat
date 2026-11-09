@@ -791,11 +791,12 @@ points with the platform hook. Treat the returned snapshot as read-only. See
 for subpaths, fallbacks and qualification limits:
 
 ```tsx
-import { useWindowSize } from '@octane-xplat/platform'
+import 'octane/signals'
+import { useWindowSize$ } from '@octane-xplat/platform'
 import { Text } from '@octane-xplat/ui'
 
 export function WindowStatus() {
-  const size = useWindowSize()
+  const size = useWindowSize$().get()
   return <Text>{size.width >= 900 ? 'Wide layout' : 'Compact layout'}</Text>
 }
 ```

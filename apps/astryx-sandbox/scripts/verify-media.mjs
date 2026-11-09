@@ -361,7 +361,7 @@ export async function verifyMedia(page, baseUrl, check, browser) {
 
   await page.unroute('https://picsum.photos/**')
 
-  // Same public useMediaQuery consumer already delivered in unit 4. A coarse
+  // Same public useMediaQuery$ consumer already delivered in unit 4. A coarse
   // pointer stays constant while a browser viewport resize crosses the query.
   const touch = await browser.newContext({
     hasTouch: true,

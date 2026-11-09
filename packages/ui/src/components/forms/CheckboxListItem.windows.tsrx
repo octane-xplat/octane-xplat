@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
@@ -8,7 +9,7 @@ import { CheckboxListContext } from './option-list-contexts'
 import { CheckboxIndicator, indicatorScope } from '../feedback/indicators'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import './checkbox-control'
 import './Checkbox.windows.css'
 
@@ -25,7 +26,7 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
   const disabled = Boolean(ctx?.isDisabled || props.isDisabled)
   const readOnly = Boolean(ctx?.isReadOnly)
   const Ind = useIndicator('checkbox') ?? CheckboxIndicator
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const rowView = useRef<View | null>(null)
   const bindRow = useCallback(
     (view: View | null) => {
@@ -88,8 +89,8 @@ export function CheckboxListItem(props: CheckboxListItemProps): unknown @{
       className="vx-checkbox-input-windows"
       style={{
         position: 'absolute',
-        width: measured.bounds?.width ?? 0,
-        height: measured.bounds?.height ?? 0,
+        width: measured.bounds$.get()?.width ?? 0,
+        height: measured.bounds$.get()?.height ?? 0,
       }}
       checked={checked}
       readOnly={readOnly}

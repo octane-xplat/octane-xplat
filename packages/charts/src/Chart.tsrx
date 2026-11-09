@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle } from './style-merge'
 import { useMemo, useRef, useState } from 'octane'
 import { AccessibilityRole, Color, type View } from '@nativescript/core'
-import { useMeasure } from '@octane-xplat/ui'
+import { useMeasure$ } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
 import { computeScene } from './core/scene'
 import type { ChartScene } from './core/scene'
@@ -30,14 +31,14 @@ const safeColor = (value: string | undefined, fallback: string): Color => {
  *  the overlay reports view-relative dips (`e.getX()/getY()`), matching the
  *  markup's coordinate space. */
 export function Chart(props: ChartProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
 
   propsRef.current = props
 
-  const bounds = measure.bounds
+  const bounds = measure.bounds$.get()
   const w = props.width ?? bounds?.width ?? 0
   const h =
     props.height ??

@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import type { JSX } from 'octane/jsx-runtime'
 import { useEffect, useMemo, useRef, useState } from 'octane'
-import { useMeasure } from '@octane-xplat/ui'
+import { useMeasure$ } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
 import { computeScene } from './core/scene'
 import type { ChartScene } from './core/scene'
@@ -17,7 +18,7 @@ const TIP_ESTIMATE_CHAR = 6.2
  *  the markup. Pointer handlers attach to the plot host so chart coords are
  *  client-minus-rect, matching the markup's coordinate space. */
 export function Chart(props: ChartProps): JSX.Element @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
@@ -26,7 +27,7 @@ export function Chart(props: ChartProps): JSX.Element @{
 
   const hostRef = useRef<HTMLElement | null>(null)
 
-  const bounds = measure.bounds
+  const bounds = measure.bounds$.get()
   const w = props.width ?? bounds?.width ?? 0
   const h =
     props.height ??

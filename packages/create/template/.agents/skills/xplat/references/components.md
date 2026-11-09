@@ -29,7 +29,7 @@ export function Welcome() {
 | Feedback              | `Spinner`, `Meter`, `showToast`                                               |
 | Overlays              | `BottomSheet`, `Overlay`, `Popover`, `Drawer`, `HoverCard`, `Tooltip`         |
 | Shells                | `Screen`, `Tabs`                                                              |
-| Theme and measurement | `useColorScheme`, `useSafeAreaInsets`, `useMeasure`                           |
+| Theme and measurement | `useColorScheme`, `useSafeAreaInsets`, `useMeasure$`                           |
 
 Native pages start full-screen: app content extends under the status bar
 and home indicator, and `SafeArea` is the only source of safe-area padding —

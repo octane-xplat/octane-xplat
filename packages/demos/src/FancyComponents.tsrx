@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { Children, descriptorChildren, useEffect, useRef, useState } from 'octane'
 import {
   Absolute,
@@ -11,7 +12,7 @@ import {
   Switch,
   Text,
   View,
-  useMeasure,
+  useMeasure$,
 } from '@octane-xplat/ui'
 
 import {
@@ -68,8 +69,8 @@ function Marquee(props: {
   reduced?: boolean
 }) @{
   const x = useMotionValue(0)
-  const measure = useMeasure()
-  const span = measure.bounds?.width ?? 0
+  const measure = useMeasure$()
+  const span = measure.bounds$.get()?.width ?? 0
   const direction = props.direction ?? 'left'
   const speed = props.speed ?? 48
   const repeat = props.repeat ?? 4

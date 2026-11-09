@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useRef, useState } from 'octane'
 import {
   Dialog,
@@ -13,7 +14,7 @@ import {
   Tooltip,
   View,
   showToast,
-  useMeasure,
+  useMeasure$,
 } from '@octane-xplat/ui'
 
 export function OverlayDemo() @{
@@ -22,7 +23,8 @@ export function OverlayDemo() @{
   const [overlayOpen, setOverlayOpen] = useState(false)
   const [popoverOpen, setPopoverOpen] = useState(false)
   const anchor = useRef<any>(null)
-  const measured = useMeasure()
+  const measured = useMeasure$()
+  const measuredBounds = measured.bounds$.get()
 
   <Screen className="vx-app flex-1 gap-6">
     <Text className="text-xl font-semibold">Overlay primitives</Text>
@@ -87,15 +89,15 @@ export function OverlayDemo() @{
         <Text>Measured box</Text>
       </View>
       <Text id="measure-echo" className="text-sm text-muted">
-        {measured.bounds
+        {measuredBounds
           ? 'Bounds ' +
-            Math.round(measured.bounds.width) +
+            Math.round(measuredBounds.width) +
             '×' +
-            Math.round(measured.bounds.height) +
+            Math.round(measuredBounds.height) +
             ' @ ' +
-            Math.round(measured.bounds.x) +
+            Math.round(measuredBounds.x) +
             ',' +
-            Math.round(measured.bounds.y)
+            Math.round(measuredBounds.y)
           : 'Bounds pending'}
       </Text>
     </View>

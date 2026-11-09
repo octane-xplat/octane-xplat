@@ -47,7 +47,7 @@ export { authSession } from './auth-session.web'
 export { onDeepLink, consumeInitialUrl } from './deep-links.web'
 export { useAppState, useBackHandler } from './lifecycle.web.tsrx'
 export { useSafeAreaInsets } from './safe-area.web.tsrx'
-export { useWindowSize } from './screen.web.tsrx'
+export { useWindowSize$ } from './screen.web.tsrx'
 export { useBreakpoints$ } from './breakpoints.web.tsrx'
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 

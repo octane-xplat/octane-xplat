@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useRef } from 'octane'
 import type { View } from '@nativescript/core'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import './pressable-control.windows'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { PressableProps } from '../../props'
@@ -23,7 +24,7 @@ import { dispatchWindowsActivation } from '../../gestures/input.windows'
  * focus and native activation provenance. Pointer eligibility belongs to the
  * shared owner; native Click retains keyboard and virtual activation. */
 export function Pressable(props: PressableProps): unknown @{
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const disabled = Boolean(props.disabled || props.accessibilityState?.disabled)
   const bindInput = useInteractionHost({ ...props, press: pressOptions(props) })
   const host = useRef<View | null>(null)
@@ -46,8 +47,8 @@ export function Pressable(props: PressableProps): unknown @{
       // Auto offsets use the padded content's static position.
       left: 0,
       top: 0,
-      width: measured.bounds?.width ?? 0,
-      height: measured.bounds?.height ?? 0,
+      width: measured.bounds$.get()?.width ?? 0,
+      height: measured.bounds$.get()?.height ?? 0,
     },
     settings: {
       label: props.accessibilityLabel,

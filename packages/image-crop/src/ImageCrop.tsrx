@@ -1,5 +1,6 @@
+import 'octane/signals'
 import { useRef } from 'octane'
-import { Absolute, View, useMeasure } from '@octane-xplat/ui'
+import { Absolute, View, useMeasure$ } from '@octane-xplat/ui'
 import type { PanNotification } from '@octane-xplat/ui'
 import type { CropHandle, ImageCropProps, PixelCrop, Size } from './props'
 import { constrainCrop, containFrame, convertToPercentCrop, dragCrop } from './geometry'
@@ -12,11 +13,11 @@ const handles = ['nw', 'n', 'ne', 'e', 'se', 's', 'sw', 'w'] as const
 
 /** Inline controlled selection. View.onPan shares input ownership with nested controls. */
 export function ImageCrop(props: ImageCropProps): JSX.Element @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   // Root hosts may offer more space than the explicitly sized image viewport.
   const viewport = {
-    width: Math.min(props.width, measure.bounds?.width ?? props.width),
-    height: Math.min(props.height, measure.bounds?.height ?? props.height),
+    width: Math.min(props.width, measure.bounds$.get()?.width ?? props.width),
+    height: Math.min(props.height, measure.bounds$.get()?.height ?? props.height),
   }
 
   const frame = containFrame(viewport, { width: props.imageWidth, height: props.imageHeight })

@@ -2,7 +2,7 @@
 
 ID: appkit-responsive-layout
 Targets: macos
-Related APIs: useMediaQuery, useWindowSize, useAppState, useSafeAreaInsets, useBreakpoints$, useBackHandler
+Related APIs: useMediaQuery$, useWindowSize$, useAppState, useSafeAreaInsets, useBreakpoints$, useBackHandler
 
 ## Starting point
 
@@ -20,10 +20,12 @@ assuming a phone screen or a touch pointer.
 - AC2: Pointer and hover queries report fine pointer/hover on AppKit, without changing the touch traits of iOS/Android. Orientation uses the queried dimensions.
 - AC3: Document the exact native query subset and separate source/bridge evidence from real resize, rendering and packaged-consumer qualification. Do not imply secondary-window ownership or reduced-motion query support.
 
-- AC4: Give screen/lifecycle/safe-area/breakpoints canonical and existing explicit .ts/.tsrx subpaths AppKit runtime/type conditions. Move root hook calls into TSX/TSRX leaves matching the actual preset include and share implementations with the root. Keep non-AppKit fallback resolution and existing public exports/types, except the explicit alpha correction of AppKit useBackHandler to shared void.
+- AC4: Give screen/lifecycle/safe-area/breakpoints canonical and existing explicit .ts/.tsrx subpaths AppKit runtime/type conditions. Move root hook calls into TSX/TSRX leaves matching the actual preset include and share implementations with the root. Keep non-AppKit fallback resolution and matching public contracts across targets. The alpha signal cutover uses useWindowSize$/useMediaQuery$ and read-only breakpoint handles; AppKit useBackHandler retains shared void.
 - AC5: Keep immutable stable copied/validated primary-window snapshots, existing zero-size/active fallbacks, current activity vocabulary and stable host/method subscriptions with independent cleanup. Reject retired callbacks, coalesce synchronous acquisition notifications, isolate native delivery errors, handle cleanup failure and allow a subsequent render to retry failed registration/select late or replaced hosts. No polling or secondary-window claim.
 - AC6: Extend real packed source/type lanes to include previously skipped AppKit purpose entries and explicit spellings, matching the actual TSX/TSRX compiler include and checking selected/excluded source paths. Author eight source models and a manual reader fixture; reconcile guide/README/skill/breaking note and exact deferred commands without claiming native/compiler/runtime proof.
 - AC7: Stylesheet `@media` width/height rules re-evaluate when a host window resizes, coalesced into one restyle. Document that every window shares one viewport (the largest host window content area) and that native resize delivery is unqualified.
+
+- AC8: Window dimensions, media matches, and named breakpoint matches expose read-only signals that compose through derived reads, accept inline thresholds without render loops, and release subscriptions when their hook owner unmounts. Keep native OS resize qualification separate from object-driver notification checks.
 
 ## Documentation
 
@@ -35,3 +37,5 @@ assuming a phone screen or a touch pointer.
 - AC5: The same [window/activity guide](../../../docs/platform/platform-services.md#read-appkit-window-and-activity-state), [source models](../../../packages/platform/tests/appkit-state.test.mjs), [manual readers](../../../examples/probes/platform-state.macos.tsrx) and [target note](../exploration.md#operational-evidence). All models, native resize/activity/subscription memory and installed consumers require separate execution evidence/unqualified.
 - AC6: The same [window/activity guide](../../../docs/platform/platform-services.md#read-appkit-window-and-activity-state), [styling entry](../../../docs/app/styling.md#native-appkit-window-width), [conditional exports](../../../packages/platform/package.json), [packed source lane](../../../packages/platform/tests/packed-consumer.mjs), [packed declarations](../../../packages/platform/tests/packed-macos.test.mjs), [manual readers](../../../examples/probes/platform-state.macos.tsrx) and [target note](../exploration.md#operational-evidence). Actual compiler selection/type generation and installed consumers require separate execution evidence/unqualified.
 - AC7: [Renderer stylesheet limits](../../../docs/packages/package-macos-appkit.md#apply-stylesheets), [known limits](../../../docs/testing/known-limits.md) and [target note](../exploration.md#operational-evidence). Gap: no maintained test drives the resize observer or per-window media; actual window resize, restyle timing and secondary-window behavior require execution evidence.
+
+- AC8: [Window signals](../../../docs/platform/platform-services.md#read-appkit-window-and-activity-state), [responsive layout](../../../docs/app/components.md#responsive-appkit-layout), and [compiled AppKit signal readers](../../../packages/ui/src/internal/platform/responsive-signals.macos.mobile.test.tsrx). The object driver checks composition and subscription cleanup; native OS resize and installed-app behavior remain unqualified.

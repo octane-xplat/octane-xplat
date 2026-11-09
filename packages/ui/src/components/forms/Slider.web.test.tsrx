@@ -5,7 +5,10 @@ import { Slider } from './Slider.web.tsrx'
 import type { SliderProps } from '../../props'
 
 vi.mock('../layout/useMeasure.web.tsrx', () => ({
-  useMeasure: () => ({ bounds: { x: 0, y: 0, width: 200, height: 28 }, ref() {} }),
+  useMeasure$: () => ({
+    bounds$: { get: () => ({ x: 0, y: 0, width: 200, height: 28 }) },
+    ref() {},
+  }),
 }))
 
 const cleanups: (() => void)[] = []

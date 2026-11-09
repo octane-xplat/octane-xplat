@@ -1,12 +1,13 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { Text, VStack, useMediaQuery } from '@octane-xplat/ui'
-import { useWindowSize } from '@octane-xplat/platform'
+import 'octane/signals'
+import { Text, VStack, useMediaQuery$ } from '@octane-xplat/ui'
+import { useWindowSize$ } from '@octane-xplat/platform'
 import type { ProbeContext } from '../../tools/probe/context'
 
 export default function ResponsiveLayoutProbe() {
-  const wide = useMediaQuery('(min-width: 800px)')
-  const desktop = useMediaQuery('(pointer: fine) and (hover: hover)')
-  const size = useWindowSize()
+  const wide = useMediaQuery$('(min-width: 800px)').get()
+  const desktop = useMediaQuery$('(pointer: fine) and (hover: hover)').get()
+  const size = useWindowSize$().get()
 
   return (
     <VStack id="responsive-root" gap={2}>

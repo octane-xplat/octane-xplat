@@ -1,24 +1,35 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useEffect, useRef, useState } from 'octane'
+import { derived$ } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { useCallback, useLayoutEffect, useRef } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../props'
 import { readBounds } from './measure-bounds.macos'
 
 /** Observe app-surface (window-content-relative) layout and ancestor
  *  scrolling — the shared `MeasureBounds` coordinate space; release all
  *  observers on rebind/unmount. */
-export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
-  const [bounds, setBounds] = useState<MeasureBounds | null>(null)
+export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
+  const bounds$ = useSignal$<MeasureBounds | null>(null)
   const detach = useRef<(() => void) | null>(null)
+  const disposed = useRef(false)
   const observe = options.observe ?? true
   const ref = useCallback(
     (view: any) => {
       detach.current?.()
       detach.current = null
+      // Universal roots retire hook signals before delivering null refs.
+      if (disposed.current) {
+        return
+      }
 
       const update = () => {
+        if (disposed.current) {
+          return
+        }
+
         const next = readBounds(view)
 
-        setBounds((previous: MeasureBounds | null) =>
+        bounds$.set((previous: MeasureBounds | null) =>
           previous &&
           next &&
           previous.x === next.x &&
@@ -64,6 +75,14 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     [observe],
   )
 
-  useEffect(() => () => detach.current?.(), [])
-  return { ref, bounds }
+  useLayoutEffect(() => {
+    disposed.current = false
+    return () => {
+      disposed.current = true
+      detach.current?.()
+      detach.current = null
+    }
+  }, [])
+
+  return { ref, bounds$: derived$(() => bounds$.get()) }
 }

@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
@@ -10,7 +11,7 @@ import {
   nativeAccessibilityState,
 } from '../overlays/escape-props'
 
-import { useMeasure } from './useMeasure.tsrx'
+import { useMeasure$ } from './useMeasure.tsrx'
 
 /** AspectRatio — native has no aspect-ratio layout property, so the box
  *  measures its laid-out width and derives `height = width / ratio`
@@ -20,7 +21,8 @@ import { useMeasure } from './useMeasure.tsrx'
  *  (e.g. an Image's own scale mode). `shape="ellipse"` rounds the box to
  *  50% radius; child clipping depends on the platform view. */
 export function AspectRatio(props: AspectRatioProps): unknown @{
-  const { ref, bounds } = useMeasure()
+  const { ref, bounds$ } = useMeasure$()
+  const bounds = bounds$.get()
   const fit = props.fit ?? 'cover'
   const ellipse = props.shape === 'ellipse'
   const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined

@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/messaging-shell/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/messaging-shell/.
 // GAPS: IconButton `onClick` → `onPress`; TextInput `startIcon` takes
@@ -24,7 +25,7 @@ import {
   Text,
   TextInput,
   Timestamp,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -279,8 +280,8 @@ export function MessagingShellTemplate() @{
 
   // Responsive contract: >1024px four columns; <=1024 thread hidden;
   // <=768 sidebar also hidden.
-  const isThreadHidden = useMediaQuery('(max-width: 1024px)')
-  const isSidebarHidden = useMediaQuery('(max-width: 768px)')
+  const isThreadHidden = useMediaQuery$('(max-width: 1024px)').get()
+  const isSidebarHidden = useMediaQuery$('(max-width: 768px)').get()
 
   const selectedChannel = CHANNELS.find((c) => c.id === selectedChannelId) ?? CHANNELS[0]
   const messages = MESSAGES_BY_CHANNEL[selectedChannel.id] ?? []

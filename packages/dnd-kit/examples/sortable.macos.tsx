@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useCallback, useRef, useState } from 'octane'
-import { Text, View, useMeasure } from '@octane-xplat/ui'
+import { Text, View, useMeasure$ } from '@octane-xplat/ui'
 import { SortableList } from '../src/index'
 
 /** AppKit scroll ownership stays explicit; all geometry and offsets use top-down points. */
@@ -9,7 +10,8 @@ export default function SortableExample(): unknown {
   const scrollRef = useRef<any>(null)
   const offsetRef = useRef(0)
   const initialized = useRef(false)
-  const measure = useMeasure()
+  const measure = useMeasure$()
+  const measuredBounds = measure.bounds$.get()
   const bindScroll = useCallback(
     (view: any) => {
       scrollRef.current = view
@@ -87,7 +89,7 @@ export default function SortableExample(): unknown {
             onReorder={setItems}
             dnd={{
               autoScroll: {
-                bounds: () => measure.bounds,
+                bounds: () => measuredBounds,
                 offsetRef,
                 maxOffset: () => {
                   const scroll = scrollRef.current

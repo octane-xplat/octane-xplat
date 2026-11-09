@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/dashboard-progress/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/dashboard-progress/.
 // GAPS: recharts (PieChart donut, gantt-shaped BarChart, burndown LineChart)
@@ -18,7 +19,7 @@ import {
   ProgressBar,
   Table,
   Text,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   pixel,
 } from '@octane-xplat/ui'
@@ -499,7 +500,7 @@ function RiskCard(props: { risk: Risk }) @{
 
 export function DashboardProgressTemplate() @{
   const [phase] = useState<ReleasePhase>('beta')
-  const isNarrow = useMediaQuery('(max-width: 900px)')
+  const isNarrow = useMediaQuery$('(max-width: 900px)').get()
 
   <Layout
     height="fill"

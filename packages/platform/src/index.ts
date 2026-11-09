@@ -49,7 +49,7 @@ export { authSession } from './auth-session'
 export { onDeepLink, consumeInitialUrl } from './deep-links'
 export { useAppState, useBackHandler } from './lifecycle.tsrx'
 export { useSafeAreaInsets } from './safe-area.tsrx'
-export { useWindowSize } from './screen.tsrx'
+export { useWindowSize$ } from './screen.tsrx'
 export { useBreakpoints$ } from './breakpoints.tsrx'
 export type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
 

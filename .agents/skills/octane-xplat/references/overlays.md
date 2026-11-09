@@ -309,7 +309,7 @@ components don't expose:
   `describedBy` for `aria-describedby`, and `renderTooltip(children)`. On
   iOS/Android the refs bind but no hint mounts, matching `Tooltip`.
 
-`useMediaQuery(query)` reports live matches — full `matchMedia` on web; a
+`useMediaQuery$(query).get()` reads live matches — full `matchMedia` on web; a
 restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`,
 `orientation`, `and`/`or`/`,`/`not`) evaluated against the main screen on
 iOS/Android.

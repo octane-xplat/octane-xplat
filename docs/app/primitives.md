@@ -1229,27 +1229,47 @@ export function Example() {
 }
 ```
 
-Use `useMeasure()` when a screen needs live element bounds:
-`const { ref, bounds } = useMeasure()`, then pass `ref` to a primitive's
-`ref` prop. Bounds are observed by default and are `null` before the element
-has a usable layout — that `null` is the readiness signal, so render
-fallbacks while it holds. `x` and `y` are dips from the top-left of the
-app surface — the web viewport, the macOS window's content area, or the
-app's root surface on iOS/Android — the same coordinate space on every
-target. Set `{ observe: false }` for a
-single read after binding.
+Use `useMeasure$()` when a screen needs live element bounds. Pass its `ref`
+to the element and read `bounds$.get()` for its current position and size.
+The read-only signal starts at `null` until the host has a usable layout.
+Positions use the app surface's top-left corner: the browser viewport,
+macOS window content area, or app root on iOS/Android. Sizes and positions
+use CSS pixels on web and device-independent pixels on native targets.
 
 ```tsx
-import { View, Text, useMeasure } from '@octane-xplat/ui'
+import 'octane/signals'
+import { View, Text, useMeasure$ } from '@octane-xplat/ui'
 
-export function Example() {
-  const { ref, bounds } = useMeasure({ observe: false })
+export function MeasuredCard() {
+  const { ref, bounds$ } = useMeasure$()
+  const bounds = bounds$.get()
 
   return (
     <View ref={ref}>
-      <Text>Width: {bounds?.width ?? 0}</Text>
+      <Text>{bounds ? `Width: ${bounds.width}` : 'Measuring…'}</Text>
     </View>
   )
+}
+```
+
+Keep the handle when another calculation or child needs to follow the bounds.
+A derived signal recalculates when a signal it reads changes. The measurement
+belongs to the component that called the hook; its observers are released when
+that component unmounts. Set `{ observe: false }` to take one measurement after
+binding instead of following later changes.
+
+```tsx
+import { derived$ } from 'octane/signals'
+import { View, Text, useMeasure$ } from '@octane-xplat/ui'
+
+export function CardArea() {
+  const { ref, bounds$ } = useMeasure$()
+  const area$ = derived$(() => {
+    const bounds = bounds$.get()
+    return bounds ? bounds.width * bounds.height : 0
+  })
+
+  return <View ref={ref}><Text>Area: {area$.get()}</Text></View>
 }
 ```
 
@@ -1866,13 +1886,13 @@ host API calls in a platform file.
 
 ```tsx
 import { useMemo, useRef } from 'octane'
-import { Pressable, Text, TextInput, View, useMeasure } from '@octane-xplat/ui'
+import { Pressable, Text, TextInput, View, useMeasure$ } from '@octane-xplat/ui'
 import type { TextInputHandle } from '@octane-xplat/ui'
 
 export function FocusField() {
   const input = useRef<TextInputHandle | null>(null)
   const host = useRef<any>(null)
-  const measurement = useMeasure()
+  const measurement = useMeasure$()
   const refs = useMemo(() => [host, measurement.ref], [host, measurement.ref])
 
   return (
@@ -1893,7 +1913,7 @@ instead. Replacing a ref detaches the previous owner before attaching the new
 one. Read handles from events or effects after mount, and handle `null` during
 cleanup.
 
-Hooks that attach to a host use the same prop: `useMeasure().ref`,
+Hooks that attach to a host use the same prop: `useMeasure$().ref`,
 `useAnimation().ref`, intersection observation's `ref` and `rootRef`, and drag
 and drop's `ref`. Combine them with an array when they need the same host. Keep
 composed refs stable with `useMemo` when their callbacks update state, so a

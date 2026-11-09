@@ -1,9 +1,10 @@
+import 'octane/signals'
 // Port of upstream templates/pages/ai-chat/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/ai-chat/.
 // GAPS: chat primitives via `@octane-xplat/ui/chat`, Markdown via
 // `@octane-xplat/ui/markdown` (subpath exports, recorded finding); the
 // upstream container-query CSS that hides the resize handle on narrow hosts
-// is approximated with useMediaQuery at the same 768px breakpoint.
+// is approximated with useMediaQuery$ at the same 768px breakpoint.
 import { useRef, useState } from 'octane'
 import {
   Avatar,
@@ -25,7 +26,7 @@ import {
   Timestamp,
   Toolbar,
   Token,
-  useMediaQuery,
+  useMediaQuery$,
   useResizable,
   VStack,
 } from '@octane-xplat/ui'
@@ -187,7 +188,7 @@ export function AIChatTemplate() @{
   const [isArtifactDialogOpen, setIsArtifactDialogOpen] = useState(false)
   const [isArtifactOpen, setIsArtifactOpen] = useState(true)
 
-  const isNarrow = useMediaQuery(`(max-width: ${MOBILE_MAX_WIDTH}px)`)
+  const isNarrow = useMediaQuery$(`(max-width: ${MOBILE_MAX_WIDTH}px)`).get()
   const artifactResize = useResizable({
     defaultSize: 640,
     minSize: 480,

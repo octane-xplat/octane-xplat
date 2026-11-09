@@ -1,5 +1,5 @@
 // App-surface DIP rect for a native view — same getLocationOnScreen approach
-// `useMeasure` uses (Phase 0 verified to 0.00002 DIP through the safe area).
+// `useMeasure$` uses (Phase 0 verified to 0.00002 DIP through the safe area).
 import type { Rect } from './math'
 
 function surfaceOrigin(view: any): { x: number; y: number } {

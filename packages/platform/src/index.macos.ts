@@ -89,7 +89,7 @@ export function announce(text: string): void {
 }
 
 export { useAppState, useBackHandler } from './lifecycle.macos.tsrx'
-export { useWindowSize } from './screen.macos.tsrx'
+export { useWindowSize$ } from './screen.macos.tsrx'
 export { useSafeAreaInsets } from './safe-area.macos.tsrx'
 export { useBreakpoints$ } from './breakpoints.macos.tsrx'
 

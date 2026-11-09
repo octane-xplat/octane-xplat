@@ -214,11 +214,11 @@ The Windows group imports Checkbox through its unsuffixed basename, so option
 rows select the native input leaf. Child items use the same input and observe
 context changes. For standalone isChecked/onCheck and select-all, use the
 [complete group example](../../../../../docs/platform/windows-setup.md#checkbox-lists).
-Windows useMeasure waits for native LayoutUpdated after same-size reattachment.
+Windows useMeasure$ waits for native LayoutUpdated after same-size reattachment.
 NativeScript load can report transient zero bounds without a later SizeChanged. A timer queued
 only by load failed repeated native pointer trials. Keep the typed WinRT
 delegate, deferred reads and shared-reader cleanup. The preview has one JS
-handler slot per native event; useMeasure owns LayoutUpdated on measured views
+handler slot per native event; useMeasure$ owns LayoutUpdated on measured views
 and rejects an existing unmanaged JS handler instead of replacing it.
 
 Packaged x64 pointer/Tab/Space, TogglePattern, group/default/mixed select-all,

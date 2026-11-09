@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/settings-sidebar/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/settings-sidebar/.
 // GAPS: none — nav↔detail two-view mobile pattern, ExpandableRow edit
@@ -27,7 +28,7 @@ import {
   TabList,
   Text,
   TextInput,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -162,7 +163,7 @@ function ExpandableRow(props: {
 }
 
 export function SettingsSidebarTemplate() @{
-  const isNarrow = useMediaQuery('(max-width: 768px)')
+  const isNarrow = useMediaQuery$('(max-width: 768px)').get()
   const [mobileView, setMobileView] = useState<'nav' | 'detail'>('nav')
   const [activeNav, setActiveNav] = useState('Personal information')
   const [activeTab, setActiveTab] = useState('login')

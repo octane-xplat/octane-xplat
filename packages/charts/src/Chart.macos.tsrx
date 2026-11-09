@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle } from './style-merge'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'octane'
 import { appKitImageSource } from './svg-image.macos'
-import { useMeasure } from '@octane-xplat/ui'
+import { useMeasure$ } from '@octane-xplat/ui'
 import type { ChartProps } from './props'
 import { computeScene } from './core/scene'
 import type { ChartScene } from './core/scene'
@@ -19,14 +20,14 @@ const TIP_ESTIMATE_CHAR = 6.2
  * unqualified. AppKit does not deliver onTouch, so touch scrubbing is
  * unavailable. */
 export function Chart(props: ChartProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const [cursor, setCursor] = useState<SceneHit | null>(null)
   const sceneRef = useRef<ChartScene | null>(null)
   const propsRef = useRef(props)
 
   propsRef.current = props
 
-  const bounds = measure.bounds
+  const bounds = measure.bounds$.get()
   const w = props.width ?? bounds?.width ?? 0
   const h =
     props.height ??

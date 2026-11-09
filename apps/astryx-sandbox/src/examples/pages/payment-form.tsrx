@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/payment-form/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/payment-form/.
 // GAPS: upstream renders custom PayPal/Google-Pay brand buttons via inline
@@ -27,7 +28,7 @@ import {
   TextArea,
   TextInput,
   Thumbnail,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   pixel,
 } from '@octane-xplat/ui'
@@ -88,7 +89,7 @@ const TAX_RATE = 0.08
 const fmt = (n: number) => `$${n.toFixed(2)}`
 
 export function PaymentFormTemplate() @{
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery$('(max-width: 768px)').get()
 
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')

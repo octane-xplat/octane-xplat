@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { cx } from '@octane-xplat/lib'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { CheckIndicator } from '../feedback/indicators'
 import { useIndicator } from '../feedback/use-indicator.tsrx'
@@ -12,7 +13,7 @@ import './select-control.windows'
 /** Single finite selection uses genuine WinUI ComboBox/option peers. Other
  * presentations retain the shared view and its existing qualification limits. */
 export function SelectView(props: SelectViewProps): unknown @{
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const CheckInd = useIndicator('check') ?? CheckIndicator
   const busy = Boolean(props.isLoading || props.pending)
   const blocked = Boolean(props.isDisabled || props.isReadOnly || props.pending)
@@ -81,8 +82,8 @@ export function SelectView(props: SelectViewProps): unknown @{
           position: 'absolute',
           left: 0,
           top: 0,
-          width: measured.bounds?.width ?? 0,
-          height: measured.bounds?.height ?? 0,
+          width: measured.bounds$.get()?.width ?? 0,
+          height: measured.bounds$.get()?.height ?? 0,
         }}
       >
         @for (const option of props.shown; key option.value) {

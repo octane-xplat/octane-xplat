@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
@@ -6,7 +7,7 @@ import type { SwitchProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { FieldContext, useFieldControlProps } from './field-context'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import './switch-control'
 import './Switch.windows.css'
 
@@ -16,7 +17,7 @@ export function Switch(inputProps: SwitchProps): unknown @{
   const inField = useContext(FieldContext) != null
   const [internal, setInternal] = useState(props.defaultValue ?? false)
   const [pending, setPending] = useState(false)
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const trackView = useRef<View | null>(null)
   const bindTrack = useCallback(
     (view: View | null) => {
@@ -86,8 +87,8 @@ export function Switch(inputProps: SwitchProps): unknown @{
         className="vx-switch-input-windows"
         style={{
           position: 'absolute',
-          width: measured.bounds?.width ?? 0,
-          height: measured.bounds?.height ?? 0,
+          width: measured.bounds$.get()?.width ?? 0,
+          height: measured.bounds$.get()?.height ?? 0,
         }}
         testID={props.testID ?? ''}
         checked={checked}

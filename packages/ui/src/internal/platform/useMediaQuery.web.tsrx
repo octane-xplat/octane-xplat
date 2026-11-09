@@ -1,34 +1,42 @@
-import { useCallback, useSyncExternalStore } from 'octane'
+import { derived$, type DerivedSignal } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { useLayoutEffect } from 'octane'
 
 export interface UseMediaQueryOptions {
-  /** Initial match before the media query can be read (SSR/first paint). */
+  /** Initial match when matchMedia is unavailable. */
   defaultIsMobile?: boolean
 }
 
-/** useMediaQuery — width/media-condition subscription for web leaves. */
-export function useMediaQuery(query: string, options?: UseMediaQueryOptions): boolean {
-  const subscribe = useCallback(
-    (cb: () => void) => {
-      if (typeof matchMedia !== 'function') {
-        return () => {}
-      }
-
-      const mq = matchMedia(query)
-
-      if (mq.addEventListener) {
-        mq.addEventListener('change', cb)
-        return () => mq.removeEventListener('change', cb)
-      }
-
-      mq.addListener?.(cb)
-      return () => mq.removeListener?.(cb)
-    },
-    [query],
-  )
-
-  return useSyncExternalStore(subscribe, () =>
+/** Private AppShell query with its configured no-matchMedia fallback. */
+export function useMediaQuery$(
+  query: string,
+  options?: UseMediaQueryOptions,
+): DerivedSignal<boolean> {
+  const read = () =>
     typeof matchMedia === 'function'
       ? matchMedia(query).matches
-      : (options?.defaultIsMobile ?? false),
-  )
+      : (options?.defaultIsMobile ?? false)
+
+  const matches$ = useSignal$(read)
+
+  useLayoutEffect(() => {
+    if (typeof matchMedia !== 'function') {
+      matches$.set(read())
+      return
+    }
+
+    const mq = matchMedia(query)
+    const update = () => matches$.set(mq.matches)
+
+    update()
+    if (mq.addEventListener) {
+      mq.addEventListener('change', update)
+      return () => mq.removeEventListener('change', update)
+    }
+
+    mq.addListener?.(update)
+    return () => mq.removeListener?.(update)
+  }, [query, options?.defaultIsMobile])
+
+  return derived$(() => matches$.get())
 }

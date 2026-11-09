@@ -34,7 +34,7 @@ function mount<P extends object>(component: (p: P) => any, props: P) {
   return { render, host }
 }
 
-// jsdom has no layout; useMeasure reads getBoundingClientRect once at
+// jsdom has no layout; useMeasure$ reads getBoundingClientRect once at
 // mount, so stub it on the prototype before mounting.
 const realGBCR = Element.prototype.getBoundingClientRect
 

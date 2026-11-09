@@ -94,7 +94,7 @@ supplies runtime metadata. Do not cast app components to Octane's
 compiler-facing `UniversalComponent` to work around opaque JSX declarations.
 GTK refs remain Gtk.Widget instances. Measurement uses the renderer's
 `getBounds()` app-content coordinates; do not infer global screen coordinates
-or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure` leaf
+or call NativeScript's `getLocationOnScreen()`. The GTK `useMeasure$` leaf
 subscribes through `on/off('layoutChanged')`, which also observes movement
 from ancestor scrolling. The current imperative subscription vocabulary is
 `loaded`, `unloaded`, `layoutChanged`, `scroll`, and `pan`; other names throw until qualified.
@@ -424,3 +424,10 @@ resolved extension order. Keep it in custom web configs; an explicit optimizer
 extension list, including an empty list, takes precedence. Test dependency
 prebundling with a dev server and fetch worker URLs when relevant: production
 builds bypass this path. See [web setup](../../../../docs/packages/package-toolchain.md#configure-a-web-app).
+
+Measurement and responsive hooks expose read-only signals: `useMeasure$` returns
+`{ ref, bounds$ }`; `useMediaQuery$`, platform `useWindowSize$`, and
+`useBreakpoints$` return handles. Read `.get()` where the value is consumed.
+Each consuming renderer module needs a runtime `octane/signals` import, even
+when the handle arrived through props. Hooks retain ownership of their listeners;
+passing a handle does not extend its lifetime beyond the hook owner.

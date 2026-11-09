@@ -196,7 +196,7 @@ AppKit ScrollableArea. Set an explicit size; all pages render eagerly. Requires
 UI >=0.18.0 <1. defaultPage seeds once; page owns controlled state. User changes
 report only after native position settles on a page boundary; programmatic
 writes do not echo. Direction uses UI context and motion reads NSWorkspace's
-native preference directly (AppKit useMediaQuery does not support a
+native preference directly (AppKit useMediaQuery$ does not support a
 prefers-reduced-motion query). Source/state/event/object-driver cases and the
 manual fixture are authored. Native sizing/RTL, scroll/momentum,
 ref/context ordering, focus/AX and packaged resolution require separate target qualification.

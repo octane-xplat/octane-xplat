@@ -2,7 +2,7 @@
 
 ID: fancy-components
 Targets: web, ios, android
-Related APIs: @octane-xplat/motion, motion.View, motion.Row, useMotionValue, useMotionValueEvent, useTransform, useMeasure, MotionConfig, useReducedMotion, SegmentedControl, Switch, Absolute, descriptorChildren
+Related APIs: @octane-xplat/motion, motion.View, motion.Row, useMotionValue, useMotionValueEvent, useTransform, useMeasure$, MotionConfig, useReducedMotion, SegmentedControl, Switch, Absolute, descriptorChildren
 
 ## Starting point
 

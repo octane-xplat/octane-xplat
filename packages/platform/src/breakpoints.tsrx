@@ -1,78 +1,30 @@
-/** @jsxImportSource @octane-xplat/jsx */
-// Named responsive thresholds — NativeScript leaf.
-import { useEffect } from 'octane'
-import { useSignal$ } from 'octane/signals/client'
-import { Application, Screen } from '@nativescript/core'
+import { useMemo } from 'octane'
+import { derived$, type DerivedSignal } from 'octane/signals'
 import type { BreakpointMap, BreakpointMatches } from './breakpoints.types'
+import { useWindowSize$ } from './screen.tsrx'
 
-const listeners = new Set<() => void>()
+/** Read-only named minimum-width matches in CSS px/DIPs. Uses the same
+ * host dimensions and lifetime as useWindowSize$; mobile measures the main
+ * screen. Dispose the hook owner to release its dimension subscription.
+ * @example
+ * import { useBreakpoints$ } from '@octane-xplat/platform'
+ * const matches$ = useBreakpoints$({ compact: 0, wide: 900 })
+ * const wide = matches$.get().wide
+ */
+export function useBreakpoints$<T extends BreakpointMap>(
+  thresholds: T,
+): DerivedSignal<BreakpointMatches<T>> {
+  const size$ = useWindowSize$()
+  // Callers commonly pass inline maps. Equal thresholds must not redeclare
+  // an object-valued derived result on each reader render.
+  const entries = useMemo(() => Object.entries(thresholds), Object.entries(thresholds).flat())
 
-function publish() {
-  for (const listener of listeners) {
-    listener()
-  }
-}
+  return derived$(() => {
+    const width = size$.get().width
 
-function subscribe(listener: () => void): () => void {
-  if (listeners.size === 0) {
-    Application.on(Application.orientationChangedEvent, publish)
-  }
-
-  listeners.add(listener)
-  return () => {
-    listeners.delete(listener)
-    if (listeners.size === 0) {
-      Application.off(Application.orientationChangedEvent, publish)
-    }
-  }
-}
-
-function matchesAt<T extends BreakpointMap>(width: number, breakpoints: T): BreakpointMatches<T> {
-  const matches: Record<string, boolean> = {}
-
-  for (const name in breakpoints) {
-    matches[name] = width >= breakpoints[name]
-  }
-
-  return matches as BreakpointMatches<T>
-}
-
-function sameMatches(a: Record<string, boolean>, b: Record<string, boolean>): boolean {
-  for (const name in a) {
-    if (!(name in b)) {
-      return false
-    }
-  }
-
-  for (const name in b) {
-    if (a[name] !== b[name]) {
-      return false
-    }
-  }
-
-  return true
-}
-
-/** Signal of matched breakpoints for the window size. */
-export function useBreakpoints$<T extends BreakpointMap>(breakpoints: T): BreakpointMatches<T> {
-  const matches$ = useSignal$<BreakpointMatches<T>>(
-    matchesAt(Screen.mainScreen.widthDIPs, breakpoints),
-  )
-
-  useEffect(() => {
-    const update = () => {
-      const next = matchesAt(Screen.mainScreen.widthDIPs, breakpoints)
-
-      if (!sameMatches(matches$.get(), next)) {
-        matches$.set(next)
-      }
-    }
-
-    const unsubscribe = subscribe(update)
-
-    update()
-    return unsubscribe
-  }, [breakpoints])
-
-  return matches$.get()
+    // Object.fromEntries cannot preserve the generic threshold keys.
+    return Object.fromEntries(
+      entries.map(([name, threshold]) => [name, width >= threshold]),
+    ) as BreakpointMatches<T>
+  })
 }

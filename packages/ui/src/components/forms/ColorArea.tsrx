@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useEffect, useRef } from 'octane'
 import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyNativeProps } from '../../internal/platform/platformProps'
@@ -19,7 +20,8 @@ const THUMB = 16
 /** Internal 2D area view — saturation left→right, brightness top→bottom.
  *  Drag adjusts by delta from the value at `began` (no tap-to-position v1). */
 export function ColorAreaView(props: ColorAreaViewProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
+  const measuredBounds = measure.bounds$.get()
   const drag = useRef<Hsb | null>(null)
   const host = useRef<any>(null)
   const lastTarget = useRef<any>(null)
@@ -53,11 +55,11 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   const targetSize = () => {
     const size = lastTarget.current?.getActualSize?.()
 
-    return size && size.width > 0 ? size : measure.bounds
+    return size && size.width > 0 ? size : measuredBounds
   }
 
-  const w = measure.bounds?.width ?? 0
-  const h = measure.bounds?.height ?? 0
+  const w = measuredBounds?.width ?? 0
+  const h = measuredBounds?.height ?? 0
   const { s, b } = props.hsb
 
   const input = useControlPan(

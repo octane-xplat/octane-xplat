@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useEffect, useRef, useState } from 'octane'
 import { StorageControls } from './Storage.tsrx'
 import { secureStorage } from '@octane-xplat/secure-storage'
@@ -15,7 +16,7 @@ import {
   locale,
   openSettings,
   useAppState,
-  useWindowSize,
+  useWindowSize$,
   type ConnectivityState,
 } from '@octane-xplat/platform'
 
@@ -71,7 +72,7 @@ export function Services() @{
   useEffect(() => connectivity.subscribe(setConn), [])
 
   const appState = useAppState()
-  const size = useWindowSize()
+  const size = useWindowSize$().get()
   async function shareAction(kind: 'text' | 'url') {
     const generation = ++shareGeneration.current
 

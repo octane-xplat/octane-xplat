@@ -1,4 +1,6 @@
-import { useEffect, useState } from 'octane'
+import { derived$, type DerivedSignal } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { useLayoutEffect } from 'octane'
 import {
   matchesWindowsMediaQuery,
   observeWindowsMediaTraits,
@@ -14,23 +16,21 @@ import {
  *
  * @example
  * // In a compiled .tsx/.tsrx module:
- * import { useMediaQuery } from '@octane-xplat/ui'
- * export function useCompactTouchLayout() {
- *   return useMediaQuery('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
+ * import { useMediaQuery$ } from '@octane-xplat/ui'
+ * export function useCompactTouchLayout$() {
+ *   return useMediaQuery$('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
  * }
  */
-export function useMediaQuery(query: string): boolean {
-  const [matches, setMatches] = useState(() =>
-    matchesWindowsMediaQuery(query, readWindowsMediaTraits()),
-  )
+export function useMediaQuery$(query: string): DerivedSignal<boolean> {
+  const matches$ = useSignal$(() => matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
 
-  useEffect(() => {
-    const update = () => setMatches(matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
+  useLayoutEffect(() => {
+    const update = () => matches$.set(matchesWindowsMediaQuery(query, readWindowsMediaTraits()))
     const release = observeWindowsMediaTraits(update)
 
     update()
     return release
   }, [query])
 
-  return matches
+  return derived$(() => matches$.get())
 }

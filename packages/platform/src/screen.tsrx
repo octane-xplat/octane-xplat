@@ -1,7 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import { derived$, type DerivedSignal } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
 // Window size + orientation — native leaf. Screen.mainScreen gives DIPs;
 // Application.orientationChangedEvent drives updates.
-import { useEffect, useState } from 'octane'
+import { useLayoutEffect } from 'octane'
 import type { WindowSize } from './types'
 import { Application, Screen } from '@nativescript/core'
 
@@ -15,17 +17,22 @@ function read(): WindowSize {
   }
 }
 
-/** Main-screen size in DIPs plus derived orientation; re-renders on
- *  orientation changes. */
-export function useWindowSize(): WindowSize {
-  const [size, setSize] = useState<WindowSize>(read)
+/** Read-only signal of main-screen size in DIPs and orientation; updates on
+ *  orientation changes.
+ * @example
+ * import { useWindowSize$ } from '@octane-xplat/platform'
+ * const size$ = useWindowSize$()
+ * const width = size$.get().width
+ */
+export function useWindowSize$(): DerivedSignal<WindowSize> {
+  const size$ = useSignal$<WindowSize>(read)
 
-  useEffect(() => {
-    const update = () => setSize(read())
+  useLayoutEffect(() => {
+    const update = () => size$.set(read())
 
     Application.on(Application.orientationChangedEvent, update)
     return () => Application.off(Application.orientationChangedEvent, update)
   }, [])
 
-  return size
+  return derived$(() => size$.get())
 }

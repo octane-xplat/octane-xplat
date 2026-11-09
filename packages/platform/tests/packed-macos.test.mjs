@@ -1,6 +1,14 @@
 import assert from 'node:assert/strict'
 import { spawnSync } from 'node:child_process'
-import { mkdtempSync, mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs'
+import {
+  mkdtempSync,
+  mkdirSync,
+  readFileSync,
+  realpathSync,
+  symlinkSync,
+  writeFileSync,
+} from 'node:fs'
+
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -69,16 +77,24 @@ test('packed macOS consumer resolves generated declarations and platform contrac
     /nw_path_monitor_start/,
   )
 
+  // Public observation handles reference Octane's signal types. Supply the
+  // package's required peer just as an installed app does.
+  symlinkSync(
+    realpathSync(join(root, 'node_modules/octane')),
+    join(directory, 'node_modules/octane'),
+    'dir',
+  )
+
   const entry = join(directory, 'consumer.ts')
 
   writeFileSync(
     entry,
     `import { announce, random, connectivity, keepAwake, useKeepAwake, type KeepAwakeOptions, type ConnectivityState, type WindowSize, device, locale, type DeviceInfo, type Locale, systemBars } from '@octane-xplat/platform'
-import { useWindowSize } from '@octane-xplat/platform/screen'
+import { useWindowSize$ } from '@octane-xplat/platform/screen'
 import { useAppState, useBackHandler } from '@octane-xplat/platform/lifecycle'
 import { useSafeAreaInsets } from '@octane-xplat/platform/safe-area'
 import { useBreakpoints$ } from '@octane-xplat/platform/breakpoints'
-import { useWindowSize as explicitWindow } from '@octane-xplat/platform/screen.ts'
+import { useWindowSize$ as explicitWindow } from '@octane-xplat/platform/screen.ts'
 import { device as directDevice } from '@octane-xplat/platform/device'
 import { locale as directLocale } from '@octane-xplat/platform/locale'
 import { device as explicitDevice } from '@octane-xplat/platform/device.ts'
@@ -92,11 +108,18 @@ systemBars.setStatusBarStyle('automatic')
 directBars.setColor(42)
 const devices: DeviceInfo[] = [device, directDevice, explicitDevice]
 const locales: Locale[] = [locale, directLocale, explicitLocale]
-const windowHook: () => WindowSize = useWindowSize
-const explicitWindowHook: typeof useWindowSize = explicitWindow
+const windowHook: () => import('octane/signals').DerivedSignal<WindowSize> = useWindowSize$
+const explicitWindowHook: typeof useWindowSize$ = explicitWindow
 const activityHook: () => 'active' | 'inactive' | 'background' = useAppState
 const insetHook: () => { top: number; right: number; bottom: number; left: number } = useSafeAreaInsets
-const breakpoints: { compact: boolean; wide: boolean } = useBreakpoints$({ compact: 0, wide: 900 })
+const breakpoints: { compact: boolean; wide: boolean } = useBreakpoints$({ compact: 0, wide: 900 }).get()
+const size$ = useWindowSize$()
+const sampledSize: WindowSize = size$.get()
+// @ts-expect-error observed dimensions cannot be set by callers
+size$.set(sampledSize)
+const matches$ = useBreakpoints$({ wide: 900 })
+// @ts-expect-error observed breakpoint matches cannot be set by callers
+matches$.set({ wide: true })
 const neutralBack: void = useBackHandler(() => false)
 // @ts-expect-error the Android-only hook does not return a cleanup function
 const backCleanup: () => void = useBackHandler(() => false)

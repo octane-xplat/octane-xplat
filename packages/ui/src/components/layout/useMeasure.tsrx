@@ -1,5 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useEffect, useRef, useState } from 'octane'
+import { derived$ } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { useCallback, useLayoutEffect, useRef } from 'octane'
 import type { MeasureBounds, MeasureResult, UseMeasureOptions } from '../../props'
 
 /** Screen position of the app surface's top-left — the topmost attached
@@ -38,25 +40,35 @@ function readBounds(view: any): MeasureBounds | null {
 }
 
 /** Binds to a NativeScript view and observes app-surface DIP bounds by default. */
-export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
-  const [bounds, setBounds] = useState<MeasureBounds | null>(null)
+export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
+  const bounds$ = useSignal$<MeasureBounds | null>(null)
   const detach = useRef<(() => void) | null>(null)
+  const disposed = useRef(false)
   const observe = options.observe ?? true
   const ref = useCallback(
     (view: any) => {
       detach.current?.()
       detach.current = null
+      // Universal roots retire hook signals before delivering null refs.
+      if (disposed.current) {
+        return
+      }
+
       if (!view) {
-        setBounds(null)
+        bounds$.set(null)
         return
       }
 
       const update = () => {
+        if (disposed.current) {
+          return
+        }
+
         const next = readBounds(view)
 
-        // Fresh object each read — skip the setState when nothing moved
+        // Fresh object each read — skip publication when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
-        setBounds((prev: MeasureBounds | null) => {
+        bounds$.set((prev: MeasureBounds | null) => {
           return prev &&
             next &&
             prev.x === next.x &&
@@ -98,7 +110,14 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     [observe],
   )
 
-  useEffect(() => () => detach.current?.(), [])
+  useLayoutEffect(() => {
+    disposed.current = false
+    return () => {
+      disposed.current = true
+      detach.current?.()
+      detach.current = null
+    }
+  }, [])
 
-  return { ref, bounds }
+  return { ref, bounds$: derived$(() => bounds$.get()) }
 }

@@ -1,5 +1,6 @@
+import 'octane/signals'
 import { useEffect, useMemo, useState } from 'octane'
-import { useMediaQuery } from '../internal/platform/use-media-query.tsrx'
+import { useMediaQuery$ } from '../internal/platform/use-media-query.tsrx'
 import { hostGlobal } from '../internal/platform/host-bridge'
 import { useTheme } from '../theme/use-theme.tsrx'
 import { parseCssDuration } from '../components/content/use-streaming-text.tsrx'
@@ -160,7 +161,7 @@ const DEFAULT_RUN_COLOR = '--color-text-primary'
  */
 export function useFadeRunColor(runColor?: string): string | null {
   const { token } = useTheme()
-  const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+  const reducedMotion = useMediaQuery$('(prefers-reduced-motion: reduce)').get()
   const durationMs = parseCssDuration(token('--duration-medium')) ?? 410
   const easing = useMemo(() => parseEasing(token('--ease-standard')), [token])
   const base = token(runColor ?? DEFAULT_RUN_COLOR)

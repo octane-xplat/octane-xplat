@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/detail-page/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/detail-page/.
 // GAPS: Button `onClick` → `onPress`; TabMenu options keep upstream's
@@ -32,7 +33,7 @@ import {
   TabMenu,
   Text,
   Thumbnail,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -491,7 +492,7 @@ function RightPanel() @{
 
 export function DetailPageTemplate() @{
   const [activeTab, setActiveTab] = useState('details')
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
   // Desktop: a fixed-width `end`-slot side panel that can be hidden.
   const [showSidePanel, setShowSidePanel] = useState(true)
   // Mobile: the panel opens as a full-screen dialog (the side slot would

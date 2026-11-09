@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/settings-dialog/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/settings-dialog/.
 // CONDENSED PORT: upstream ships ~2600 lines with per-panel row inventories;
@@ -43,7 +44,7 @@ import {
   TabList,
   Text,
   TextInput,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -1101,7 +1102,7 @@ export function SettingsDialogTemplate() @{
   const [settings, setSettings] = useState<SettingsState>(INITIAL_SETTINGS)
   const titleId = useId()
 
-  const isNarrow = useMediaQuery(NARROW_VIEWPORT)
+  const isNarrow = useMediaQuery$(NARROW_VIEWPORT).get()
 
   const update: UpdateSetting = (key, value) => {
     setSettings((current) => ({ ...current, [key]: value }))

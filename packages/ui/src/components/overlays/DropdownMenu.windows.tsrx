@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useEffect, useRef, useState } from 'octane'
 import { cx } from '@octane-xplat/lib'
 import type {
@@ -14,7 +15,7 @@ import { Button } from '../actions/Button.tsrx'
 import { useButtonGroup } from '../actions/button-group-context'
 import { Text } from '../content/Text.tsrx'
 import { View } from '../layout/View.tsrx'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { Icon } from '../media/Icon.tsrx'
 import { DropdownMenu as SharedDropdownMenu } from './DropdownMenu.tsrx'
 import './menu-control.windows'
@@ -33,7 +34,7 @@ export function DropdownMenu<
 /** Finite action menus use native MenuItem peers over shared row content.
  * Other presentations retain the shared implementation and its input limits. */
 export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuProps>) @{
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const group = useButtonGroup()
   const button = props.button ?? { label: 'Menu' }
   const disabled = !!(props.isDisabled || group?.isDisabled || button.isDisabled)
@@ -126,8 +127,8 @@ export function DropdownMenu(props: NavigationMenuImplementation<DropdownMenuPro
           position: 'absolute',
           left: 0,
           top: 0,
-          width: measured.bounds?.width ?? 0,
-          height: measured.bounds?.height ?? 0,
+          width: measured.bounds$.get()?.width ?? 0,
+          height: measured.bounds$.get()?.height ?? 0,
         }}
       >
         @for (const item of nativeItems; key item.key) {

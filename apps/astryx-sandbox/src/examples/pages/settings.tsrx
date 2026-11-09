@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/settings/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/settings/.
 // GAPS: Typeahead `startIcon` takes rendered icon content (upstream icon
@@ -24,7 +25,7 @@ import {
   Text,
   TextInput,
   Typeahead,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -44,7 +45,7 @@ const SETTINGS_ITEMS = [
 const settingsSearchSource = createStaticSource(SETTINGS_ITEMS)
 
 export function SettingsTemplate() @{
-  const isNarrow = useMediaQuery('(max-width: 768px)')
+  const isNarrow = useMediaQuery$('(max-width: 768px)').get()
   const [activeNav, setActiveNav] = useState('Profile')
   const [username, setUsername] = useState('nicol43')
   const [firstName, setFirstName] = useState('Stephanie')

@@ -69,7 +69,7 @@ export function EmptyTasks() {
 Use `DndContext` around cooperating children. A draggable attaches `ref` and
 `style` to the measured, translated View; attach `onPan` to that View or to a
 separate descendant handle. `ref` is the Xplat View binding callback, not a DOM
-ref prop. `useMeasure` observes layout; live geometry is read again during drag
+ref prop. `useMeasure$` observes layout; live geometry is read again during drag
 and auto-scroll. Set `activationDistance` to delay drag start until the pan has
 moved that far in platform logical units (web CSS pixels, native DIPs, or
 AppKit points). It defaults to `0`, preserving immediate activation.
@@ -275,7 +275,7 @@ export function scrollAdapter(owner: {
 `offsetRef` is the scroll owner's `{ current: number }`. `owner.scrollTo`
 stands for the owner's existing scroll method. Read current offsets into the
 ref on ordinary scroll events, following VirtualList's scrollOffsetRef pattern.
-On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure`
+On native, use a View's `getLocationOnScreen` and `getActualSize` or `useMeasure$`
 for viewport bounds; on web use the corresponding measured viewport bounds.
 Keep bounds and offsets in the same coordinate units: native DIPs, web CSS pixels,
 and AppKit points. AppKit geometry uses top-left window-content coordinates.

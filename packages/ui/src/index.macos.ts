@@ -237,7 +237,7 @@ export { useHoverCard } from './components/overlays/use-hover-card.tsrx'
 export { useLayer } from './components/overlays/use-layer.tsrx'
 export { usePopover } from './components/overlays/use-popover.tsrx'
 export { useTooltip } from './components/overlays/use-tooltip.tsrx'
-export { useMediaQuery } from './internal/platform/use-media-query.macos.tsrx'
+export { useMediaQuery$ } from './internal/platform/use-media-query.macos.tsrx'
 export {
   LayerProvider,
   LayerContext,
@@ -309,7 +309,7 @@ export { Tabs } from './components/collections/Tabs.macos.tsrx'
 export { SafeArea } from './components/layout/layout-shells.macos.tsrx'
 export { KeyboardAvoiding } from './components/layout/KeyboardAvoiding.macos.tsrx'
 export { useSafeAreaInsets } from './components/layout/safeAreaInsets.macos.tsrx'
-export { useMeasure } from './components/layout/useMeasure.macos.tsrx'
+export { useMeasure$ } from './components/layout/useMeasure.macos.tsrx'
 export { Meter } from './components/feedback/Meter.macos.tsrx'
 export { Heading } from './components/content/Heading.macos.tsrx'
 export { Icon } from './components/media/Icon.macos.tsrx'

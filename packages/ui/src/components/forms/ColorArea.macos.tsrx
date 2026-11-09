@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useRef } from 'octane'
 import type { ColorAreaProps } from '../../props'
 import type { ColorAreaViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
@@ -21,7 +22,7 @@ const THUMB = 16
  *  on the matching channel, assistive increment/decrement steps brightness
  *  by 0.05. */
 export function ColorAreaView(props: ColorAreaViewProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const drag = useRef<Hsb | null>(null)
   const host = useRef<any>(null)
   const latest = useRef(props)
@@ -29,14 +30,14 @@ export function ColorAreaView(props: ColorAreaViewProps): unknown @{
   latest.current = props
 
   // Stable ref identity: a fresh callback each render would rebind
-  // useMeasure (null → el), reset bounds, and re-render forever.
+  // useMeasure$ (null → el), reset bounds, and re-render forever.
   const bindHost = useCallback((el: any) => {
     host.current = el
     measure.ref(el)
   }, [])
 
-  const w = measure.bounds?.width ?? 0
-  const h = measure.bounds?.height ?? 0
+  const w = measure.bounds$.get()?.width ?? 0
+  const h = measure.bounds$.get()?.height ?? 0
   const { s, b } = props.hsb
 
   const focusHost = () => {

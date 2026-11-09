@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/ide/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/ide/.
 // GAPS: upstream TreeListItemData carries startContent per node — the public
@@ -28,7 +29,7 @@ import {
   Text,
   TextInput,
   TreeList,
-  useMediaQuery,
+  useMediaQuery$,
   useResizable,
 } from '@octane-xplat/ui'
 
@@ -194,7 +195,7 @@ export function IdeTemplate() @{
     collapsedSize: 40,
   })
 
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery$('(max-width: 768px)').get()
 
   <Layout
     height="fill"

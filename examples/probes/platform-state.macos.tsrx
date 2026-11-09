@@ -1,14 +1,15 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useState } from 'octane'
 import {
   useAppState,
   useBackHandler,
   useBreakpoints$,
   useSafeAreaInsets,
-  useWindowSize,
+  useWindowSize$,
 } from '@octane-xplat/platform'
 
-import { useWindowSize as usePurposeSize } from '@octane-xplat/platform/screen'
+import { useWindowSize$ as usePurposeSize$ } from '@octane-xplat/platform/screen'
 import { useAppState as usePurposeActivity } from '@octane-xplat/platform/lifecycle'
 import { useSafeAreaInsets as usePurposeInsets } from '@octane-xplat/platform/safe-area'
 import { useBreakpoints$ as usePurposeBreakpoints$ } from '@octane-xplat/platform/breakpoints'
@@ -17,16 +18,16 @@ import type { ProbeContext } from '../../tools/probe/context'
 
 const thresholds = { wide: 900 }
 function Readers() @{
-  const root = useWindowSize(),
-    purpose = usePurposeSize(),
+  const root = useWindowSize$().get(),
+    purpose = usePurposeSize$().get(),
     state = useAppState(),
     purposeState = usePurposeActivity()
 
   const insets = useSafeAreaInsets(),
     purposeInsets = usePurposeInsets()
 
-  const matches = useBreakpoints$(thresholds),
-    purposeMatches = usePurposeBreakpoints$(thresholds)
+  const matches = useBreakpoints$(thresholds).get(),
+    purposeMatches = usePurposeBreakpoints$(thresholds).get()
 
   useBackHandler(() => false)
 

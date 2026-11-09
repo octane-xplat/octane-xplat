@@ -1,3 +1,4 @@
+import type { DerivedSignal } from 'octane/signals'
 import type { ClassValue, CSSProperties, Octane } from 'octane/jsx-runtime'
 import type { GestureHostProps, ActivationEvent, GestureSample } from './gestures/types'
 
@@ -3522,7 +3523,7 @@ export interface UsePopoverReturn {
   render: (children: Renderable, props?: ContextRenderProps) => Renderable
 }
 
-/** Options for `useMediaQuery` — none; the query string is the input. */
+/** Options for `useMediaQuery$` — none; the query string is the input. */
 
 /** Focus trigger behavior for `useTooltip` — `'auto'` attaches only to
  *  naturally focusable triggers, `'always'`/`'never'` override. */
@@ -4004,7 +4005,7 @@ export interface MeasureBounds {
   height: number
 }
 
-/** Options for `useMeasure` — `observe` (default true) re-measures on layout/resize/scroll/content-size changes; `false` takes a single read once the host lays out.
+/** Options for `useMeasure$` — `observe` (default true) re-measures on layout/resize/scroll/content-size changes; `false` takes a single read once the host lays out.
  */
 export interface UseMeasureOptions {
   /** Re-measure on layout, resize, ancestor scroll, and content-size
@@ -4013,14 +4014,18 @@ export interface UseMeasureOptions {
   observe?: boolean
 }
 
-/** `useMeasure` result — `ref` attaches to a leaf's `ref` prop; `bounds` is the latest `MeasureBounds` in app-surface dips, or `null` until the host reports a usable layout (the readiness signal).
+/** `useMeasure$` result — `ref` attaches to a leaf's `ref` prop; `bounds$` reads the latest `MeasureBounds` in app-surface dips, or `null` until the host reports a usable layout (the readiness signal).
  *
  * @example
  * ```tsx
- * import { useMeasure, View } from '@octane-xplat/ui'
+ * import 'octane/signals'
+ * import { useMeasure$, View, Text } from '@octane-xplat/ui'
  *
- * const { ref, bounds } = useMeasure()
- * const measuredView = <View ref={ref}>{bounds ? `${bounds.width}×${bounds.height}` : 'measuring…'}</View>
+ * export function MeasuredView() {
+ *   const { ref, bounds$ } = useMeasure$()
+ *   const bounds = bounds$.get()
+ *   return <View ref={ref}><Text>{bounds ? `${bounds.width}×${bounds.height}` : 'Measuring…'}</Text></View>
+ * }
  * ```
  */
 export interface MeasureResult {
@@ -4029,9 +4034,9 @@ export interface MeasureResult {
    *  view elsewhere) or `null` on detach. */
   ref: (element: HostElement) => void
   /** Latest bounds, or `null` until the attached host reports a usable
-   *  layout. `bounds === null` is the readiness signal — render
+   *  layout. `bounds$.get() === null` is the readiness signal — render
    *  fallbacks while it holds. */
-  bounds: MeasureBounds | null
+  bounds$: DerivedSignal<MeasureBounds | null>
 }
 
 /** Native modal sheet/dialog — the contract shared by `UIModal` (`@octane-xplat/ui/ios`), `MaterialDialog` (`@octane-xplat/ui/android`), and `openModal`. `open`/`defaultOpen`/`onClose` own visibility; `presentation` picks sheet/fullscreen/dialog chrome; `component`+`params` render a hosted component on the modal's own root (context/theme do not cross) — `component` beats `children` when both are set. `onClose` reports the result value.

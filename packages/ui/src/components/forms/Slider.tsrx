@@ -1,10 +1,11 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useContext, useEffect, useRef, useState } from 'octane'
 import type { SliderProps } from '../../props'
 import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
@@ -32,8 +33,8 @@ function SliderControl(inputProps: SliderProps) @{
   const ratio = (value: number) => (max === min ? 0 : (value - min) / (max - min))
   const isDisabled = Boolean(props.disabled || props.isDisabled)
   const blocked = isDisabled || props.isReadOnly
-  const measure = useMeasure()
-  const width = measure.bounds?.width ?? 0
+  const measure = useMeasure$()
+  const width = measure.bounds$.get()?.width ?? 0
   const tooltip = useTooltip({
     isEnabled: props.valueDisplay === 'tooltip' && !isDisabled,
     delay: 0,

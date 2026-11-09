@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/work-item-detail/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/work-item-detail/.
 // GAPS: `SearchableSelector` (labels) → `MultiSelector`; details panel uses
@@ -37,7 +38,7 @@ import {
   TextArea,
   Timestamp,
   Token,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   pixel,
 } from '@octane-xplat/ui'
@@ -249,7 +250,7 @@ export function WorkItemDetailTemplate() @{
   const [subtasks, setSubtasks] = useState(SUBTASKS)
   const [comment, setComment] = useState('')
 
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
   const [isRailOpen, setRailOpen] = useState(true)
   const [isDialogOpen, setDialogOpen] = useState(false)
   const isDetailsOpen = isNarrow ? isDialogOpen : isRailOpen

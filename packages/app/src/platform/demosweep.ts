@@ -1066,7 +1066,7 @@ const STEPS: Step[] = [
       },
       {
         at: 500,
-        run: () => assertMatch('useMeasure bounds', /Bounds \d+×\d+ @ \d+,\d+/),
+        run: () => assertMatch('useMeasure$ bounds', /Bounds \d+×\d+ @ \d+,\d+/),
       },
       {
         at: 900,

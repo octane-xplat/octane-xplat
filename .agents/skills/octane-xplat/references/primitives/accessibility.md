@@ -101,17 +101,18 @@ export function InputStatus() {
 }
 ```
 
-For AppKit responsive choices, use `useMediaQuery`'s
+For AppKit responsive choices, use `useMediaQuery$`'s
 [documented native subset](../../../../../docs/app/components.md#responsive-appkit-layout).
 It observes the primary host window and desktop pointer/hover traits; it does
 not provide secondary-window ownership or reduced-motion queries. Actual native
 resize/rendering requires separate target qualification.
 
 ```tsx
-import { Text, useMediaQuery } from '@octane-xplat/ui'
+import 'octane/signals'
+import { Text, useMediaQuery$ } from '@octane-xplat/ui'
 
 export function LayoutHint() {
-  const wide = useMediaQuery('(min-width: 800px)')
+  const wide = useMediaQuery$('(min-width: 800px)').get()
   return <Text>{wide ? 'Wide' : 'Compact'}</Text>
 }
 ```

@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import type { JSX } from 'octane/jsx-runtime'
 import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { useMediaQuery } from '../../internal/platform/useMediaQuery.web.tsrx'
+import { useMediaQuery$ } from '../../internal/platform/useMediaQuery.web.tsrx'
 import { layoutChildProps } from './layout-child.web'
 import { MobileNavToggle } from '../navigation/MobileNav.web.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
@@ -58,9 +59,9 @@ export function AppShell(props: AppShellProps): JSX.Element @{
 
   // Hooks are unconditional — a disabled breakpoint subscribes to a
   // never-matching query so the slot count stays fixed.
-  const mediaMatch = useMediaQuery(query ?? '(width < 0px)', {
+  const mediaMatch = useMediaQuery$(query ?? '(width < 0px)', {
     defaultIsMobile: mobileNavConfig?.defaultIsMobile,
-  })
+  }).get()
 
   const isBelowBreakpoint = query == null ? false : mediaMatch
 

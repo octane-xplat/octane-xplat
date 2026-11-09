@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/dashboard-alert-rail/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/dashboard-alert-rail/.
 // GAPS: recharts (latency/volume LineCharts + sparklines) → app-local helpers
@@ -28,7 +29,7 @@ import {
   Text,
   Timestamp,
   Token,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -842,7 +843,7 @@ export function DashboardAlertRailTemplate() @{
   const [environment, setEnvironment] = useState<Environment>('production')
   const [region, setRegion] = useState('all')
 
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
 
   const kpis = KPI_BY_ENV[environment]
   const sparkLen = SPARK_LEN[timeWindow]

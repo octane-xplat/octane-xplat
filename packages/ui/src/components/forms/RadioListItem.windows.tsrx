@@ -1,8 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useCallback, useContext, useEffect, useRef } from 'octane'
 import type { View } from '@nativescript/core'
 import { WindowsRadioContext } from './radio-context.windows'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import './radio-control.windows'
 import './RadioGroup.windows.css'
 import { mergeStyle } from '../../internal/layout/style-merge'
@@ -20,7 +21,7 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
   const selected = typeof ctx?.selected === 'string' && ctx.selected === props.value
   const disabled = Boolean(ctx?.isDisabled || props.isDisabled)
   const group = useContext(WindowsRadioContext)
-  const measured = useMeasure()
+  const measured = useMeasure$()
   const row = useRef<View | null>(null)
   const bindRow = useCallback(
     (view: View | null) => {
@@ -70,8 +71,8 @@ export function RadioListItem(props: RadioListItemProps): unknown @{
         className="vx-radio-input-windows"
         style={{
           position: 'absolute',
-          width: measured.bounds?.width ?? 0,
-          height: measured.bounds?.height ?? 0,
+          width: measured.bounds$.get()?.width ?? 0,
+          height: measured.bounds$.get()?.height ?? 0,
         }}
         settings={{ group, value: props.value }}
         isEnabled={!disabled}

@@ -1,7 +1,9 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import { derived$, type DerivedSignal } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
 // Window size + orientation — desktop webviews follow the owning native window;
 // browsers use window geometry and DOM resize events.
-import { useEffect, useState } from 'octane'
+import { useLayoutEffect } from 'octane'
 import type { WindowSize } from './types'
 import { desktopHostBootstrap, desktopHostClient } from './host-runtime.web'
 
@@ -13,21 +15,26 @@ function read(): WindowSize {
   }
 }
 
-/** Window size in CSS px plus derived orientation; re-renders on change.
+/** Read-only signal of window size in CSS px and derived orientation.
  *  Inside a desktop webview this follows host `window.resize` events; in a
- *  browser it listens for window resize/orientationchange. */
-export function useWindowSize(): WindowSize {
+ *  browser it listens for window resize/orientationchange.
+ * @example
+ * import { useWindowSize$ } from '@octane-xplat/platform'
+ * const size$ = useWindowSize$()
+ * const width = size$.get().width
+ */
+export function useWindowSize$(): DerivedSignal<WindowSize> {
   const bootstrap = desktopHostBootstrap()
-  const [size, setSize] = useState<WindowSize>(bootstrap?.windowSize ?? read)
+  const size$ = useSignal$<WindowSize>(bootstrap?.windowSize ?? read)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const host = desktopHostClient()
 
     if (host) {
-      return host.on('window.resize', setSize)
+      return host.on('window.resize', (size) => size$.set(size))
     }
 
-    const update = () => setSize(read())
+    const update = () => size$.set(read())
 
     window.addEventListener('resize', update)
     window.addEventListener('orientationchange', update)
@@ -37,5 +44,5 @@ export function useWindowSize(): WindowSize {
     }
   }, [])
 
-  return size
+  return derived$(() => size$.get())
 }

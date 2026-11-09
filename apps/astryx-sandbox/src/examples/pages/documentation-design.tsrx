@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/documentation-design/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/documentation-design/.
 // The upstream page statically renders the Button component's detail view;
@@ -31,7 +32,7 @@ import {
   Text,
   Token,
   Tooltip,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   pixel,
 } from '@octane-xplat/ui'
@@ -113,7 +114,7 @@ const COMPONENT_PREVIEW = (
 export function DocumentationDesignTemplate() @{
   const [exampleTabs, setExampleTabs] = useState<Record<string, string>>({})
   const [activeId, setActiveId] = useState<string | undefined>(COMPONENT_OUTLINE_ITEMS[0]?.id)
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery$('(max-width: 768px)').get()
 
   const scrollToId = (id: string) => {
     setActiveId(id)

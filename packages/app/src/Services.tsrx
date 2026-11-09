@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useState, useEffect } from 'octane'
 import { View, HStack, Text, Pressable, Image } from '@octane-xplat/ui'
 import {
@@ -13,7 +14,7 @@ import {
   openUrl,
   openSettings,
   useAppState,
-  useWindowSize,
+  useWindowSize$,
   useSafeAreaInsets,
   onDeepLink,
   consumeInitialUrl,
@@ -41,7 +42,7 @@ export function Services() @{
   const [link, setLink] = useState('—')
   const [picked, setPicked] = useState<{ name: string; uri: string } | null>(null)
   const appState = useAppState()
-  const win = useWindowSize()
+  const win = useWindowSize$().get()
   const insets = useSafeAreaInsets()
 
   const say = (key: string, value: string) => setEcho({ ...echo, [key]: value })

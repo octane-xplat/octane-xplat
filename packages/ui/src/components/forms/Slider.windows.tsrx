@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { View } from '@nativescript/core'
 import { cx } from '@octane-xplat/lib'
@@ -7,7 +8,7 @@ import { useFieldControl } from './field-context'
 import { FormField } from './FormField.tsrx'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { mergeStyle } from '../../internal/layout/style-merge'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.windows.tsrx'
 import {
   moveSliderThumb,
@@ -36,8 +37,8 @@ export function Slider(inputProps: SliderProps): unknown @{
   const upper = Array.isArray(value) ? value[1] : value
   const disabled = Boolean(props.disabled || props.isDisabled)
   const blocked = disabled || Boolean(props.isReadOnly)
-  const measured = useMeasure()
-  const width = measured.bounds?.width ?? 0
+  const measured = useMeasure$()
+  const width = measured.bounds$.get()?.width ?? 0
   const host = useRef<View | null>(null)
   const lowerPeer = useRef<View | null>(null)
   const upperPeer = useRef<View | null>(null)
@@ -230,7 +231,7 @@ export function Slider(inputProps: SliderProps): unknown @{
             <xplatwindowsslider
               ref={lowerPeer}
               className="vx-slider-input-windows"
-              style={{ position: 'absolute', width, height: measured.bounds?.height ?? 0 }}
+              style={{ position: 'absolute', width, height: measured.bounds$.get()?.height ?? 0 }}
               settings={{
                 value: lower,
                 min,
@@ -248,7 +249,7 @@ export function Slider(inputProps: SliderProps): unknown @{
           <xplatwindowsslider
             ref={upperPeer}
             className="vx-slider-input-windows"
-            style={{ position: 'absolute', width, height: measured.bounds?.height ?? 0 }}
+            style={{ position: 'absolute', width, height: measured.bounds$.get()?.height ?? 0 }}
             settings={{
               value: upper,
               min: range ? lower : min,

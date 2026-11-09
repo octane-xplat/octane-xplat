@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/editor/page.tsx (Astryx 0.6.4, MIT) —
 // route /templates/editor/.
 // GAPS: block add/move/delete/select preserved; mobile dock → Dialog keeps
@@ -28,7 +29,7 @@ import {
   TabList,
   Text,
   TextInput,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -560,7 +561,7 @@ export function EditorTemplate() @{
   const [viewport, setViewport] = useState<ViewportSize>('desktop')
   const [isCustomizeOpen, setIsCustomizeOpen] = useState(false)
 
-  const isMobile = useMediaQuery('(max-width: 768px)')
+  const isMobile = useMediaQuery$('(max-width: 768px)').get()
   const selectedBlock = blocks.find((b) => b.id === selectedId) ?? null
 
   const updateBlockProp = useCallback((id: string, key: string, value: unknown) => {

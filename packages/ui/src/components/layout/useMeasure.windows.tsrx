@@ -1,5 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useEffect, useRef, useState } from 'octane'
+import { derived$ } from 'octane/signals'
+import { useSignal$ } from 'octane/signals/client'
+import { useCallback, useLayoutEffect, useRef } from 'octane'
 import { View } from '@nativescript/core'
 import type { ViewBase } from '@nativescript/core'
 import { NSWinRT } from '@octane-xplat/platform/windows'
@@ -44,13 +46,13 @@ function observeLayout(view: View, callback: () => void): () => void {
 
         if (native.LayoutUpdated != null) {
           throw new Error(
-            'Windows useMeasure requires ownership of the native LayoutUpdated handler',
+            'Windows useMeasure$ requires ownership of the native LayoutUpdated handler',
           )
         }
 
         if (native.LayoutUpdated != null) {
           throw new Error(
-            'Windows useMeasure requires ownership of the native LayoutUpdated handler',
+            'Windows useMeasure$ requires ownership of the native LayoutUpdated handler',
           )
         }
 
@@ -142,8 +144,8 @@ function readBounds(view: View): MeasureBounds | null {
 }
 
 /** Observe Windows layout, including same-size native views reattached by keyed moves. */
-export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
-  const [bounds, setBounds, getBounds] = useState<MeasureBounds | null>(null)
+export function useMeasure$(options: UseMeasureOptions = {}): MeasureResult {
+  const bounds$ = useSignal$<MeasureBounds | null>(null)
   const detach = useRef<(() => void) | null>(null)
   const pendingClear = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const disposed = useRef(false)
@@ -161,10 +163,10 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
         // A replaced callback ref is cleared and rebound in one commit.
         // Clearing bounds synchronously makes that commit schedule another
         // render even when the same view still has identical bounds.
-        if (!disposed.current && getBounds() !== null) {
+        if (!disposed.current && bounds$.get() !== null) {
           pendingClear.current = setTimeout(() => {
             pendingClear.current = undefined
-            setBounds(null)
+            bounds$.set(null)
           }, 0)
         }
 
@@ -175,9 +177,9 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
       const update = () => {
         const next = readBounds(view)
 
-        // Fresh object each read — skip the setState when nothing moved
+        // Fresh object each read — skip publication when nothing moved
         // or the re-render → layoutChanged → update loop never ends.
-        setBounds((prev: MeasureBounds | null) => {
+        bounds$.set((prev: MeasureBounds | null) => {
           return prev &&
             next &&
             prev.x === next.x &&
@@ -250,7 +252,7 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     [observe],
   )
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     disposed.current = false
     return () => {
       disposed.current = true
@@ -263,5 +265,5 @@ export function useMeasure(options: UseMeasureOptions = {}): MeasureResult {
     }
   }, [])
 
-  return { ref, bounds }
+  return { ref, bounds$: derived$(() => bounds$.get()) }
 }

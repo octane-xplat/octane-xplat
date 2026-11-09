@@ -1063,15 +1063,16 @@ playing.
 
 A marquee is one segment of content repeated side by side inside a clipped
 viewport, while a `MotionValue` walks the track left one segment-width and
-wraps. Measure the first copy with `useMeasure` — that width is the wrap
+wraps. Measure the first copy with `useMeasure$` — that width is the wrap
 period — then run a linear animation from `0` to `−span` on
 `repeat: Infinity`. When the value completes a leg, the next copy sits
 exactly where the first one did, so the jump back is invisible.
 
 ```tsx
+import 'octane/signals'
 const x = useMotionValue(0)
-const measure = useMeasure()
-const span = measure.bounds?.width ?? 0
+const measure = useMeasure$()
+const span = measure.bounds$.get()?.width ?? 0
 
 useEffect(() => {
   if (!span || reduced) return

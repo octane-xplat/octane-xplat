@@ -58,7 +58,7 @@ is a client-routed SPA — adaptation recorded.
 | `LayerProvider` + `LayerContext` + toast config | `LayerProvider`/`LayerContext`/`useLayerContext`/`LayerToastConfig` in `@octane-xplat/ui` (new public API) | **ported** — provider mounts the configured `ToastViewport`; nested providers pass through; sandbox `App` mounts it at root |
 | `usePopover` | `usePopover` in `@octane-xplat/ui` (new public API, built on `useLayer`) | **ported** — `triggerRef`/`triggerProps`/`toggle`/`render` contract; upstream's `hasAutoFocus`/`hasCloseButton`/`isModal`/`role`/`hasSurface`/`padding`/`surfaceTarget` options out of scope (PopoverHookUsage exercises `dialogLabel` only) |
 | `useTooltip` | `useTooltip` in `@octane-xplat/ui` (new public API) | **ported** — web leaf mirrors `useHoverCard` machinery (hover/focus intent, delays, scroll/Escape dismiss, `aria-describedby` on the resolved focusable trigger, `role="tooltip"` surface with pointer-events off); AppKit leaf hosts the anchored popup through `appKitHost`; iOS/Android leaf binds refs but never mounts (matches `Tooltip`) |
-| `useMediaQuery` | `useMediaQuery` in `@octane-xplat/ui` (new public API) | **ported** — web `matchMedia`; iOS/Android evaluate a restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`, `orientation`, `and`/`or`/`,`/`not`) against `Screen.mainScreen` — screen, not window, is the documented approximation |
+| `useMediaQuery` | `useMediaQuery$` in `@octane-xplat/ui` (new public API) | **ported** — web `matchMedia`; iOS/Android evaluate a restricted grammar (`(max|min)-(width|height)`, `pointer`, `hover`, `orientation`, `and`/`or`/`,`/`not`) against `Screen.mainScreen` — screen, not window, is the documented approximation |
 | `DropdownMenu`/`ContextMenu` `presentation="bottom-sheet"\|"adaptive"`, `label` | same props added to `DropdownMenu`/`ContextMenu` | **ported** — sheets mount `MenuData` rows inside `BottomSheet` under a `MenuProvider`; adaptive resolves via `(max-width: 768px) and (pointer: coarse)` on web and always-sheet on mobile (same predicate as `MoreMenu`) |
 | Menu item `description`, `variant="destructive"` | `MenuItemData.description`/`variant` + `MenuItemProps.variant` | **ported** — rows paint `.vx-menu-item--destructive` (error text color) |
 | `useImperativeDialog(defaults)` | `useImperativeDialog(defaults?: DialogOptions)` | **ported** — defaults merge under per-`show` options |
@@ -111,7 +111,7 @@ is a client-routed SPA — adaptation recorded.
   unit 4** by `LayerProvider`/`LayerContext`/`useLayerContext`/
   `LayerToastConfig` in `packages/ui/src/components/overlays/layer-provider.tsrx`; the provider
   mounts a `ToastViewport` configured by `toast` and nested providers pass
-  through. Also landed: `usePopover`, `useTooltip`, `useMediaQuery`,
+  through. Also landed: `usePopover`, `useTooltip`, `useMediaQuery$`,
   menu `presentation`/`label`, menu item `description`/`variant`, and
   `useImperativeDialog(defaults)` — see unit-4 mapping table.
 - `F-5` Full `useTable*`/Table parts + column DSL surface — exercised by 21
@@ -227,7 +227,7 @@ New/extended contracts on existing components:
 - `RadioGroup`/`CheckboxGroup`/`SegmentedControl`: `children` alongside
   `options`; `CheckboxGroup.hasDividers`; `SegmentedControl.layout="fill"`.
 - `Select`/`MultiSelector`: `presentation` (`popover`/`bottom-sheet`/
-  `adaptive` — adaptive resolves per pointer via `useMediaQuery`),
+  `adaptive` — adaptive resolves per pointer via `useMediaQuery$`),
   `variant="ghost"`, `renderOption`, `renderValue`, `SelectOption.icon`,
   multi `triggerDisplay="badges"`.
 - `Stepper`: `activeStep`/`onStepClick`/`orientation`/`indicatorPosition`/
@@ -308,7 +308,7 @@ reported at handoff. Oracle revision:
 | `AspectRatio*` | Ratio reservation and fitted media across resize | Public AspectRatio + Image; numeric Grid columns become track strings and CSS gaps | Chromium found missing shared web fill-layer styles; fixed in shared `tokens.css`. Silo observation `7300c40c-0e76-472f-afa6-61e24a523235`. |
 | `ThumbnailGallery`, `ThumbnailDisabled`, `ThumbnailStates` | Independent preview/remove, disabled controls, placeholder/skeleton/upload/loaded states | Public Thumbnail; shared web fix replaces invalid nested button markup, resets errors on source change, and samples remove contrast | Focused regression test + Chromium pointer/keyboard/state checks; Silo `9dc53782-f90d-4f07-86e4-0dd3d5abb902`. Native implementations unchanged. |
 | Four `Lightbox*` blocks | Open/close, gallery navigation, zoom/pan and video | Public Lightbox/useLightbox; single upstream media objects become one-item arrays; shared click-to-zoom replaces the upstream double-click instruction | Chromium input and DOM state; video metadata/controls and keyboard play/pause checked; audio output remains unqualified. Post-drag clicks no longer discard the pan, and gallery navigation retains the original focus lease; Silo `35c51c5d-b9d3-4398-9407-19ede7670e9d` and `854a2bb6-963e-458c-8d31-1edf7007d2ba`. No audio-output or native player claim. |
-| Adaptive dialog (already owned by unit 4) | Query updates after resize on a coarse pointer | Existing public `useMediaQuery`, exercised through its existing sandbox consumer | Chromium compact sheet → wide dialog. No new unit-8 route claimed for this check. |
+| Adaptive dialog (already owned by unit 4) | Query updates after resize on a coarse pointer | Existing public `useMediaQuery$`, exercised through its existing sandbox consumer | Chromium compact sheet → wide dialog. No new unit-8 route claimed for this check. |
 | `/pages/media-mode/` | Three selectable algorithms, 16 solid swatches and 8 regional image samples | Upstream app-owned comparison hook re-authored in Octane; APCA overlay uses public useImageMode. Canvas/fetch work stays in a web leaf; source view maps the actual page | Browser-only lab. Remote Picsum URLs retained; deterministic verification substitutes their HTTP response bytes. CORS/network failures retain the upstream `detecting…` fallback. |
 
 Assets are copied unchanged from the pinned docsite with its MIT license.
@@ -372,7 +372,7 @@ explicit. Compilation and handler tests are separate from browser input.
 | LightboxZoom | Unzoomed · browser image click twice | Shared zoom applies, pointer drag pans and stays zoomed, then a separate click resets | pass |
 | LightboxVideo | Open video · browser media load | Positive duration, metadata, controls and browser-keyboard play/pause; audio output not qualified | pass |
 | media-mode | APCA · algorithm-button clicks; deterministic image HTTP responses | Gamma/WCAG explanations switch and APCA regional loads settle | pass |
-| DialogAdaptivePresentation | Coarse pointer at 390px · open/cancel, resize to 1300px, reopen | Sheet becomes dialog via shared useMediaQuery subscription | pass |
+| DialogAdaptivePresentation | Coarse pointer at 390px · open/cancel, resize to 1300px, reopen | Sheet becomes dialog via shared useMediaQuery$ subscription | pass |
 | Public image hook | Deferred loads · mocked fetch/bitmap/canvas in jsdom | Loading/failure fallback, source/options reset, cancelled stale result discarded, bitmap closes | pass — unit test; not browser/OS input |
 | Shared thumbnail | Mounted interactive item · dispatched click/keydown in jsdom | Remove and preview remain independent | pass — handler test; not browser/OS input |
 | All unit-8 routes | Firefox/WebKit, iOS/Android, AppKit/WebView, Linux/Windows | No host journeys run | not-run |

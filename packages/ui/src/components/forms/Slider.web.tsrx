@@ -1,7 +1,8 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import { useEffect, useRef, useState } from 'octane'
 import type { SliderProps } from '../../props'
-import { useMeasure } from '../layout/useMeasure.web.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.web.tsrx'
 import { useTooltip } from '../overlays/use-tooltip.web.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
@@ -19,7 +20,7 @@ import type { JSX } from 'octane/jsx-runtime'
 export function Slider(inputProps: SliderProps): JSX.Element @{
   const props = useFieldControlProps(inputProps)
   const host = useRef<HTMLElement | null>(null)
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const drag = useRef<{ lo0: number; hi0: number; which: 'lo' | 'hi' } | null>(null)
   const [internal, setInternal] = useState(props.defaultValue ?? props.min ?? props.minValue ?? 0)
   const tooltip = useTooltip({
@@ -41,7 +42,7 @@ export function Slider(inputProps: SliderProps): JSX.Element @{
   const hi = Array.isArray(raw) ? Math.min(max, Math.max(min, raw[1])) : lo
   const disabled = Boolean(props.disabled || props.isDisabled)
   const blocked = disabled || props.isReadOnly
-  const width = measure.bounds?.width ?? 0
+  const width = measure.bounds$.get()?.width ?? 0
   const step = props.step ?? 0
   const snap = (n: number) =>
     n <= min ? min : n >= max ? max : step > 0 ? min + Math.round((n - min) / step) * step : n

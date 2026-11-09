@@ -59,7 +59,7 @@ export const cx=(...values)=>values.flat(Infinity).filter(Boolean).join(' ');
 export const mergeStyle=(base,style)=>({...base,...style});
 export const applyEscapeProps=()=>{};
 export const nativeAccessibilityState=value=>value;
-export const useMeasure=()=>({ref:()=>{},bounds:{width:96,height:28}});
+export const useMeasure$=()=>({ref:()=>{},bounds$:{get:()=> ({width:96,height:28})}});
 export class WindowsRadioGroup {
  update(selected, disabled, readOnly, requestChange) {Object.assign(this,{selected,disabled,readOnly,requestChange});}
  restore() {} cancelFocusReset() {}

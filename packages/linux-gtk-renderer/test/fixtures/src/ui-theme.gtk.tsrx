@@ -1,4 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { useEffect, useState } from 'octane'
 import {
   Button,
@@ -13,7 +14,7 @@ import {
   useColorScheme,
   useTheme,
   useThemeName,
-  useMediaQuery,
+  useMediaQuery$,
   useClipboard,
   useAnnounce,
   onThemeSchemeChange,
@@ -47,9 +48,9 @@ export function ThemeProbe() @{
   const system = useColorScheme()
   const scheme = useThemeScheme()
   const pref = useThemePreference()
-  const mqWidth = useMediaQuery('(max-width: 500px)')
-  const mqOrient = useMediaQuery('(orientation: landscape)')
-  const mqScheme = useMediaQuery('(prefers-color-scheme: dark)')
+  const mqWidth = useMediaQuery$('(max-width: 500px)').get()
+  const mqOrient = useMediaQuery$('(orientation: landscape)').get()
+  const mqScheme = useMediaQuery$('(prefers-color-scheme: dark)').get()
   const [events, setEvents] = useState(0)
   const [copyOk, setCopyOk] = useState('')
   const clip = useClipboard({

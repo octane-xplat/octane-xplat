@@ -198,19 +198,20 @@ are satisfied on the core-20 gate. A final core-20 gate qualified all 20 compone
 
 ## Media-query candidate
 
-The repository has an experimental Windows `useMediaQuery` leaf for DIP
+The repository has an experimental Windows `useMediaQuery$` leaf for DIP
 window dimensions, orientation, pointer/hover capabilities and reduced motion.
 It prefers mouse, then pen, then touch as the primary pointer; a hybrid device
 can match both fine and coarse `any-pointer` queries. Unknown capabilities and
 unsupported features do not match, including under `not`.
 
 ```tsx
-import { Text, useMediaQuery } from '@octane-xplat/ui'
+import 'octane/signals'
+import { Text, useMediaQuery$ } from '@octane-xplat/ui'
 
 export function InputLayout() {
-  const compactTouch = useMediaQuery(
+  const compactTouch = useMediaQuery$(
     '(max-width: 1024px) and (pointer: coarse) and (hover: none)',
-  )
+  ).get()
   return <Text>{compactTouch ? 'Compact touch layout' : 'Standard layout'}</Text>
 }
 ```

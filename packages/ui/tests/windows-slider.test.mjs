@@ -41,6 +41,11 @@ function compiled(name, source, imports = {}, template = true) {
     return target ? 'from ' + JSON.stringify(target) : match
   })
 
+  code = code.replace(
+    /import ['"]octane\/signals['"]/g,
+    'import ' + JSON.stringify(pathToFileURL(require.resolve('octane/signals')).href),
+  )
+
   return moduleFile(
     name,
     ts.transpileModule(code, {
@@ -62,7 +67,7 @@ export const applyEscapeProps=()=>{};
 export const focused=[];
 export const focusSliderInput=view=>{focused.push(view);return view!=null;};
 export const queueSliderInputFocus=()=>()=>{};
-export const useMeasure=()=>({ref:()=>{},bounds:{width:300,height:28}});
+export const useMeasure$=()=>({ref:()=>{},bounds$:{get:()=> ({width:300,height:28})}});
 // Value-policy fixture: native pointer recognition is qualified separately.
 export const useControlPan=(options,callback)=>({ref:()=>{},nativeControl:true,onPan:event=>{
  if(!options.enabled)return;

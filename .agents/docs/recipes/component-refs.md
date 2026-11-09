@@ -2,7 +2,7 @@
 
 ID: component-refs
 Targets: web, ios, android, macos
-Related APIs: ref, useRef, useImperativeHandle, View, Pressable, TextInputHandle, CalendarHandle, WebViewHandle, useMeasure, useAnimation, useIntersectionObserver, rootRef, useDraggable, useDroppable
+Related APIs: ref, useRef, useImperativeHandle, View, Pressable, TextInputHandle, CalendarHandle, WebViewHandle, useMeasure$, useAnimation, useIntersectionObserver, rootRef, useDraggable, useDroppable
 
 ## Starting point
 
@@ -18,7 +18,7 @@ hooks, and release ref ownership correctly. Migrate existing Xplat bind usage.
 
 - AC1: A developer can attach callback, object, and nested array refs to a shared host primitive or documented control handle, and distinguish portable handle methods from platform-specific host APIs.
 - AC2: Ref replacement and unmount detach the previous owner, clear object refs, and invoke callback cleanup or null delivery.
-- AC3: Host attachment hooks compose through the same ref prop, and existing bind/bindRoot call sites can be migrated without another attachment convention.
+- AC3: Host attachment hooks compose through the same ref prop, and existing bind/bindRoot call sites can be migrated without another attachment convention. Measurement exposes a read-only bounds$ handle; readers can compose it and detach/rebind without leaking observations.
 
 - AC4: AppKit date-family controls deliver existing TextInputHandle refs through normal object/callback/list replacement and teardown ownership. Focus resolves the current attached/visible/enabled/unblocked primary host; blur preserves unrelated responders and handles current owned field editors, including the date-time secondary segment. Keep source/object-driver evidence distinct from native ref/responder/editor/IME/popup/AX qualification and autofocus timing.
 

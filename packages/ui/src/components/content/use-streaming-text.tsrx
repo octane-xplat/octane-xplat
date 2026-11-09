@@ -1,5 +1,6 @@
+import 'octane/signals'
 import { useEffect, useMemo, useRef, useState } from 'octane'
-import { useMediaQuery } from '../../internal/platform/use-media-query.tsrx'
+import { useMediaQuery$ } from '../../internal/platform/use-media-query.tsrx'
 import { hostGlobal } from '../../internal/platform/host-bridge'
 import { useTheme } from '../../theme/use-theme.tsrx'
 
@@ -180,7 +181,7 @@ export function useStreamingText(
     }
   }
 
-  const prefersReducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
+  const prefersReducedMotion = useMediaQuery$('(prefers-reduced-motion: reduce)').get()
 
   useEffect(() => {
     if (!isStreaming || speed === 'instant' || prefersReducedMotion) {

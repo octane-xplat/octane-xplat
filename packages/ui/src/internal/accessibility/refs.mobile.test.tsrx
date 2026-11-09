@@ -1,4 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
+
 vi.mock('../../components/media/svg', () => ({
   glyphSvgMarkup: () => null,
   isSvgSrc: () => false,
@@ -12,7 +14,7 @@ import {
 } from '../../components/overlays/escape-props'
 
 import { useImperativeHandle, useMemo, useRef } from 'octane'
-import { useMeasure } from '../../components/layout/useMeasure.tsrx'
+import { useMeasure$ } from '../../components/layout/useMeasure.tsrx'
 import {
   createObjectContainer,
   createObjectDriver,
@@ -62,10 +64,10 @@ function ImperativeFixture(props: { ref?: Octane.Ref<{ ready: boolean }> }) @{
 }
 
 function MeasuredFixture() @{
-  const measurement = useMeasure()
+  const measurement = useMeasure$()
 
   <View ref={measurement.ref}>
-    <label text={measurement.bounds?.width} />
+    <label text={measurement.bounds$.get()?.width} />
   </View>
 }
 

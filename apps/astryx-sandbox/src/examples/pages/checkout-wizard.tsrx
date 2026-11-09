@@ -1,7 +1,8 @@
+import 'octane/signals'
 // Port of upstream templates/pages/checkout-wizard/page.tsx (Astryx 0.6.4,
 // MIT) — route /templates/checkout-wizard/.
 // GAPS: upstream sizes the summary column off a host ResizeObserver;
-// useMediaQuery approximates at the same 900px breakpoint. Collapsible order
+// useMediaQuery$ approximates at the same 900px breakpoint. Collapsible order
 // summary on narrow keeps the same trigger contract.
 import { useMemo, useState } from 'octane'
 import {
@@ -31,7 +32,7 @@ import {
   TextArea,
   TextInput,
   Thumbnail,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
   pixel,
 } from '@octane-xplat/ui'
@@ -126,7 +127,7 @@ const blockedMessage = (count: number) =>
 const money = (n: number) => `$${n.toFixed(2)}`
 
 export function CheckoutWizardTemplate() @{
-  const isNarrow = useMediaQuery('(max-width: 900px)')
+  const isNarrow = useMediaQuery$('(max-width: 900px)').get()
 
   const [step, setStep] = useState(0)
   const [attempted, setAttempted] = useState<ReadonlySet<number>>(new Set())

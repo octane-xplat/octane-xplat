@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Astryx 0.6.4 support inbox (MIT). Public Table selection and detail composition.
 import { useState } from 'octane'
 import {
@@ -6,7 +7,7 @@ import {
   createStaticSource,
   ResizeHandle,
   useResizable,
-  useMediaQuery,
+  useMediaQuery$,
   Thumbnail,
   useLightbox,
   Collapsible,
@@ -60,7 +61,7 @@ function AttachmentStrip(props: {
 }
 
 export function TableInboxTemplate() @{
-  const narrow = useMediaQuery('(max-width: 899px)')
+  const narrow = useMediaQuery$('(max-width: 899px)').get()
   const pane = useResizable({ defaultSize: pixel(440), minSize: pixel(300), maxSize: pixel(800) })
   const [category, setCategory] = useState<Category>('inbox')
   const [chosenId, setChosenId] = useState<string | null | undefined>(undefined)

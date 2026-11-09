@@ -1,11 +1,12 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo, useCallback, useEffect, useRef } from 'octane'
 import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
 import { refList } from '../../internal/accessibility/ref-list'
 import { cx } from '@octane-xplat/lib'
-import { useMeasure } from '../layout/useMeasure.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyNativeProps } from '../../internal/platform/platformProps'
@@ -21,7 +22,8 @@ const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00
 /** Internal hue slider view — 7-stop rainbow track, thumb filled with the
  *  current hue. Drag adjusts hue by delta (no tap-to-position v1). */
 export function ColorSliderView(props: ColorSliderViewProps): unknown @{
-  const measure = useMeasure()
+  const measure = useMeasure$()
+  const measuredBounds = measure.bounds$.get()
   const drag = useRef<number | null>(null)
   const host = useRef<any>(null)
   const lastTarget = useRef<any>(null)
@@ -55,10 +57,10 @@ export function ColorSliderView(props: ColorSliderViewProps): unknown @{
   const targetSize = () => {
     const size = lastTarget.current?.getActualSize?.()
 
-    return size && size.width > 0 ? size : measure.bounds
+    return size && size.width > 0 ? size : measuredBounds
   }
 
-  const w = measure.bounds?.width ?? 0
+  const w = measuredBounds?.width ?? 0
   const hue = props.hsb.h
 
   const input = useControlPan(

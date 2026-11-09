@@ -9,7 +9,7 @@ import {
   styled,
   useThemeScheme,
   Meter,
-  useMeasure,
+  useMeasure$,
   openWindow,
   HoverCard,
   Tooltip,
@@ -32,7 +32,8 @@ export function Probes() @{
   // multi-indicator proves a child mounted post-commit lands inside the
   // host — it mounts when the effective scheme flips dark.
   const dark = useThemeScheme() === 'dark'
-  const bounds = useMeasure()
+  const bounds = useMeasure$()
+  const measuredBounds = bounds.bounds$.get()
   const state = useRouterState()
 
   <View className="gap-6">
@@ -112,14 +113,14 @@ export function Probes() @{
       </HStack>
     </View>
 
-    {/* useMeasure seam: ref reports live bounds (ResizeObserver on web,
+    {/* useMeasure$ seam: ref reports live bounds (ResizeObserver on web,
 		    layout listener on native). */}
     <View className="sink-section">
       <Text className="section-label">Measure</Text>
       <View ref={bounds.ref} className="panbox" style={{ padding: 12 }}>
         <Text className="text-sm text-muted">
-          {bounds.bounds
-            ? Math.round(bounds.bounds.width) + '×' + Math.round(bounds.bounds.height)
+          {measuredBounds
+            ? Math.round(measuredBounds.width) + '×' + Math.round(measuredBounds.height)
             : 'unmeasured'}
         </Text>
       </View>

@@ -1,9 +1,10 @@
 /** @jsxImportSource @octane-xplat/jsx/dom */
+import 'octane/signals'
 import type { JSX } from 'octane/jsx-runtime'
 import { useRef } from 'octane'
 import type { ColorSliderProps } from '../../props'
 import type { ColorSliderViewProps } from '../../internal-props'
-import { useMeasure } from '../layout/useMeasure.web.tsrx'
+import { useMeasure$ } from '../layout/useMeasure.web.tsrx'
 import { useControlPan } from '../../gestures/control.tsrx'
 import type { ControlPanNotification } from '../../gestures/control-types'
 import { applyWebProps } from '../../internal/platform/platformProps.web'
@@ -18,10 +19,10 @@ const HUE_STOPS = ['#ff0000', '#ffff00', '#00ff00', '#00ffff', '#0000ff', '#ff00
  *  Drag is delta-based (no tap-to-position v1); arrows step 1°, Shift 10°. */
 export function ColorSliderView(props: ColorSliderViewProps): JSX.Element {
   const host = useRef<HTMLElement | null>(null)
-  const measure = useMeasure()
+  const measure = useMeasure$()
   const drag = useRef<number | null>(null)
 
-  const w = measure.bounds?.width ?? 0
+  const w = measure.bounds$.get()?.width ?? 0
   const hue = props.hsb.h
 
   const onKeyDown = (event: KeyboardEvent) => {

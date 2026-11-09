@@ -1,3 +1,4 @@
+import 'octane/signals'
 // Port of upstream templates/pages/dashboard-scorecard/page.tsx (Astryx
 // 0.6.4, MIT) — route /templates/dashboard-scorecard/.
 // GAPS: recharts (AreaChart/LineChart/ResponsiveContainer) → app-local SVG
@@ -25,7 +26,7 @@ import {
   StackItem,
   Text,
   Timestamp,
-  useMediaQuery,
+  useMediaQuery$,
   VStack,
 } from '@octane-xplat/ui'
 
@@ -464,7 +465,7 @@ function SectionHeading(props: { title: string; hint?: string }) @{
 export function DashboardScorecardTemplate() @{
   const [period, setPeriod] = useState<Period>('WoW')
   // The narrative rail needs ~400px of its own; below that it folds inline.
-  const isNarrow = useMediaQuery('(max-width: 1024px)')
+  const isNarrow = useMediaQuery$('(max-width: 1024px)').get()
 
   const okrSummary = useMemo(() => {
     const pcts = OKRS.map((o) => (o.actual / o.target) * 100)

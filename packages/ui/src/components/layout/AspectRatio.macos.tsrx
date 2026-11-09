@@ -1,17 +1,19 @@
 /** @jsxImportSource @octane-xplat/jsx */
+import 'octane/signals'
 import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useMemo } from 'octane'
 import { refList } from '../../internal/accessibility/ref-list'
 import type { AspectRatioProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
-import { useMeasure } from './useMeasure.macos.tsrx'
+import { useMeasure$ } from './useMeasure.macos.tsrx'
 
 /** AspectRatio — derives `height = measured width / ratio` like the
  *  NativeScript leaf. `contain`/`center` center the child; media-level
  *  letterboxing belongs to the child's own sizing. */
 export function AspectRatio(props: AspectRatioProps): unknown @{
-  const { ref, bounds } = useMeasure()
+  const { ref, bounds$ } = useMeasure$()
+  const bounds = bounds$.get()
   const fit = props.fit ?? 'cover'
   const ellipse = props.shape === 'ellipse'
   const derivedHeight = bounds != null && bounds.width > 0 ? bounds.width / props.ratio : undefined

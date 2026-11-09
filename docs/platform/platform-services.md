@@ -288,19 +288,21 @@ remain unqualified. This import repair does not add desktop chrome styling.
 ## Read AppKit window and activity state
 
 In a native macOS screen, use the primary window's content size to choose a
-layout. `useWindowSize()` returns an immutable snapshot in points;
-`useBreakpoints$` compares its width with named thresholds. The platform root and
+layout. `useWindowSize$()` returns a read-only signal of immutable sizes in points;
+`useBreakpoints$` returns a read-only signal of named minimum-width matches.
+Read their current values with `.get()`. The platform root and
 its screen, lifecycle, safe-area and breakpoint subpaths select the same AppKit
 implementations. Keep reads inside a screen component:
 
 ```tsx
-import { useWindowSize, useBreakpoints$ } from '@octane-xplat/platform'
+import 'octane/signals'
+import { useWindowSize$, useBreakpoints$ } from '@octane-xplat/platform'
 import { Text, View } from '@octane-xplat/ui'
 
 const thresholds = { wide: 900 }
 export function ResponsiveScreen() {
-  const size = useWindowSize()
-  const matches = useBreakpoints$(thresholds)
+  const size = useWindowSize$().get()
+  const matches = useBreakpoints$(thresholds).get()
   return <View><Text>{`${size.width}×${size.height}: ${matches.wide ? 'Wide' : 'Compact'}`}</Text></View>
 }
 ```

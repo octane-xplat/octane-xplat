@@ -67,7 +67,7 @@ export {refList} from ${JSON.stringify(refs)};
 export const applyEscapeProps=()=>{};
 export const nativeAccessibilityRole=value=>value;
 export const nativeAccessibilityState=value=>value?.disabled?'disabled':undefined;
-export const useMeasure=()=>({ref:()=>{},bounds:{width:120,height:32}});
+export const useMeasure$=()=>({ref:()=>{},bounds$:{get:()=> ({width:120,height:32})}});
 // Action/layout fixture only: OS gesture attachment has its own adapter tests.
 const presses=new WeakMap();
 export const useInteractionHost=options=>host=>{if(host) presses.set(host,options.press)};

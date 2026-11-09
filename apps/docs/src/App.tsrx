@@ -1,3 +1,4 @@
+import 'octane/signals'
 import { useState, useEffect, useRef } from 'octane'
 import {
   View,
@@ -5,7 +6,7 @@ import {
   Link,
   Theme,
   IconRegistryProvider,
-  useMediaQuery,
+  useMediaQuery$,
   setThemePreference,
   HStack,
   Text,
@@ -85,7 +86,7 @@ export function App() @{
   const menuTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
   const scheme = useColorScheme()
   const dark = override ?? scheme === 'dark'
-  const compact = useMediaQuery('(max-width: 1100px)')
+  const compact = useMediaQuery$('(max-width: 1100px)').get()
 
   useEffect(() => {
     setThemePreference(override === null ? 'system' : override ? 'dark' : 'light')

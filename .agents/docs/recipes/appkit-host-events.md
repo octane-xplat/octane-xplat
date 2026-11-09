@@ -2,7 +2,7 @@
 
 ID: appkit-host-events
 Targets: macos
-Related APIs: onDeepLink, consumeInitialUrl, useAppState, useWindowSize
+Related APIs: onDeepLink, consumeInitialUrl, useAppState, useWindowSize$
 
 ## Starting point
 

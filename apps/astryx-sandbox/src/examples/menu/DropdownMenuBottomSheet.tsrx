@@ -1,6 +1,7 @@
+import 'octane/signals'
 // Port of upstream DropdownMenu/DropdownMenuBottomSheet.tsx (Astryx 0.6.4, MIT).
 import { useState } from 'octane'
-import { DropdownMenu, Text, useMediaQuery, VStack } from '@octane-xplat/ui'
+import { DropdownMenu, Text, useMediaQuery$, VStack } from '@octane-xplat/ui'
 import { menuItems } from './helpers'
 
 const COMPACT_TOUCH_QUERY = '(max-width: 639px) and (pointer: coarse) and (hover: none)'
@@ -14,7 +15,7 @@ const ACTIONS = [
 
 export function DropdownMenuBottomSheet() @{
   const [lastAction, setLastAction] = useState<string | null>(null)
-  const isCompactTouch = useMediaQuery(COMPACT_TOUCH_QUERY)
+  const isCompactTouch = useMediaQuery$(COMPACT_TOUCH_QUERY).get()
 
   return (
     <VStack gap={3} align="start">

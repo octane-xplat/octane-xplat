@@ -416,10 +416,11 @@ Updates follow root layout and app resize/launch/resume; hotplug/settings events
 secondary windows and actual NativeScript execution remain unqualified.
 
 ```tsx
-import { useMediaQuery } from '@octane-xplat/ui'
+import 'octane/signals'
+import { useMediaQuery$ } from '@octane-xplat/ui'
 
-export function useCompactTouchLayout() {
-  return useMediaQuery('(max-width: 1024px) and (pointer: coarse) and (hover: none)')
+export function useCompactTouchLayout$() {
+  return useMediaQuery$('(max-width: 1024px) and (pointer: coarse) and (hover: none)').get()
 }
 ```
 
