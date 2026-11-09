@@ -468,3 +468,16 @@ enrollment so availability reports `denied` — the managed bridge is
 required because the projected `toPromise` await panics the isolate, see
 upstream-limitations). Drivers: files-identity 12, service 130,
 storage-verify 8, secure-verify 9 (159 assertions, launch `mw9qbl3z`).
+
+### leaf-surface-2 qualified (b561f5716, MSIX 1.0.0.244)
+
+bounded-service-pass — 159 assertions across 4 drivers on the packaged app:
+files-identity 12, service 130, storage-verify 8, secure-verify 9. The
+leaf-surface spec now covers every bounded Windows leaf in the publishable
+surface: share/push/notifications/sounds/gpu/auth/recorder/updates/biometrics/
+media/pager/rolling-text/smooth-corners/motion/haptics/network plus
+ads/audio/background-tasks/barcode/billing/calendar/contacts/firebase-analytics/
+firebase-crashlytics/maps/media-converter/media-library/posthog/sentry/
+orientation/splash/sqlite/store-review/view-shot/web-browser/richtext.
+shortcuts and global-shortcuts remain pending (dist-only export maps cannot
+resolve in the ^typegen bundler pipeline).
