@@ -11,6 +11,15 @@
       "cache": false,
       "outputs": []
     },
+    "measure:cost": {
+      "dependsOn": [
+        "@octane-xplat/tailwind#typegen",
+        "@octane-xplat/build#build",
+        "@octane-xplat/lib#typegen"
+      ],
+      "cache": false,
+      "outputs": []
+    },
     "prepare:browser": { "cache": false, "outputs": [] }
   }
 }

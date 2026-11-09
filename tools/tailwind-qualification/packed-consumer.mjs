@@ -15,7 +15,16 @@ import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
-const { values } = parseArgs({ options: { output: { type: 'string' } } })
+const { values } = parseArgs({
+  options: { output: { type: 'string' }, 'measure-cost': { type: 'boolean' } },
+})
+
+if (values['measure-cost'] && !values.output) {
+  throw new Error('--measure-cost requires --output for retained measurements')
+}
+if (values['measure-cost'] && existsSync(resolve(values.output))) {
+  throw new Error('Choose a new --output directory for cost measurements')
+}
 
 const repository = resolve(import.meta.dirname, '../..')
 const workspaceKey = createHash('sha256').update(repository).digest('hex').slice(0, 8)
@@ -37,12 +46,12 @@ delete environment.NODE_OPTIONS
 mkdirSync(packs)
 mkdirSync(consumer)
 
-function run(command, args, cwd = consumer) {
+function run(command, args, cwd = consumer, timeout = 180000) {
   const result = spawnSync(command, args, {
     cwd,
     env: environment,
     encoding: 'utf8',
-    timeout: 180000,
+    timeout,
     maxBuffer: 8 * 1024 * 1024,
   })
 
@@ -115,6 +124,7 @@ try {
   )
 
   const workspace = JSON.parse(readFileSync(join(repository, 'package.json'), 'utf8'))
+  const qualification = JSON.parse(readFileSync(join(import.meta.dirname, 'package.json'), 'utf8'))
 
   writeFileSync(
     join(consumer, 'package.json'),
@@ -132,6 +142,13 @@ try {
           '',
         ),
         '@types/node': '26.6.6',
+        ...(values['measure-cost']
+          ? {
+              '@tailwindcss/postcss': qualification.devDependencies['@tailwindcss/postcss'],
+              '@nativescript/tailwind': qualification.devDependencies['@nativescript/tailwind'],
+              postcss: qualification.devDependencies.postcss,
+            }
+          : {}),
       },
       overrides: { '@octane-xplat/lib': `file:${lib}` },
     }),
@@ -178,6 +195,20 @@ void plugin
     join(consumer, 'verify.mjs'),
   )
   const verification = run(process.execPath, ['verify.mjs'])
+
+  if (values['measure-cost']) {
+    copyFileSync(
+      join(import.meta.dirname, 'fixtures/cost-consumer.mjs'),
+      join(consumer, 'cost-consumer.mjs'),
+    )
+    run(
+      process.execPath,
+      ['cost-consumer.mjs', '--output', resolve(values.output)],
+      consumer,
+      540000,
+    )
+    console.log(`Cost measurements written to ${join(resolve(values.output), 'cost.json')}`)
+  }
 
   if (values.output) {
     const output = resolve(values.output)

@@ -127,6 +127,16 @@ original sources instead of serializing/reparsing CSS; let the owning build
 pipeline perform final minification. See the
 [private integration boundary](../../../packages/tailwind/README.md).
 
+Evaluate integration cost with isolated installed packages, not generated CSS
+byte counts. The qualification tool's `measure:cost` task compares the official
+PostCSS compiler, a direct composition with NativeScript's adapter, and Xplat's
+integration using the same pixel theme. Keep emitted rule inventories and
+source-removal behavior beside build/watch timings: removing required layout
+rules is not an optimization. Package bytes describe the installed dependency
+closure; shared peers, download compression and disk deduplication are separate
+costs. The [qualification workflow](../../../tools/tailwind-qualification/README.md)
+documents the measurement boundaries. Runtime support remains a separate gate.
+
 Use the official scanner's file inventory to select Xplat's platform leaves
 before extracting candidates. Exclude foreign-platform siblings and shadowed
 fallbacks of the same source extension; otherwise browser-only utilities in a

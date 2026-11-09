@@ -31,6 +31,35 @@ behavior, Mason layout, input or painting. Failed disposable consumers remain
 under `~/agent-scratch/octane-xplat/tailwind-consumer-*` for inspection; successful
 runs remove their temporary installation.
 
+Measure dependency and compilation costs in an isolated consumer with a new
+output directory. This also runs the normal packed-consumer verification:
+
+```sh
+bun run turbo run measure:cost --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-cost/my-run"
+```
+
+`cost.json` records installed package versions and dependency inventories, three
+fresh-process Vite build samples per pipeline, development startup and one
+source edit. It compares the official PostCSS compiler and Xplat on web, and
+the official compiler plus NativeScript's adapter against Xplat on iOS-target
+CSS. All use the same pixel theme and source corpus without Preflight. The
+upstream composition only connects the existing plugins; it does not repair
+their behavior. Rule inventories and retention of a removed candidate are
+reported alongside timings, so a fast transformation cannot hide missing rules.
+Retaining an unused rule is normal for Tailwind's incremental compiler; this
+field matters here because a removed unsupported candidate must also stop
+failing Xplat's native diagnostics. It is not evidence of a browser class-removal
+bug or of native style removal.
+
+Dependency sizes count logical unpacked files in the selected roots' installed
+dependency closure. Traversal skips those packages' dev dependencies and peer
+edges, including the app's existing Vite installation. These are build-tool
+costs, not runtime app or native bundle sizes. They are not compressed downloads
+or deduplicated disk use. Build timings distinguish compilation from whole-process time;
+filesystem caches and shared-host load remain uncontrolled. Edit timings include
+20ms polling resolution. Treat these as measurements, not performance budgets
+or native qualification. This task installs no browser and runs no native app.
+
 The separate Xplat browser gate installs those same fresh tarballs, preserves
 their production CSS, and checks it in Chromium. It measures flex/grid layout,
 absolute edges, runtime and scoped theme colors, text/radius values, per-element
