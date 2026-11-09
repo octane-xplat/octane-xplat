@@ -21,7 +21,10 @@ const PAN_SLOP_PX = 8
 export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) => void): void {
   const callback = useRef(cb)
 
-  callback.current = cb
+  // Retain the last observer so disabling can deliver its terminal event.
+  if (cb) {
+    callback.current = cb
+  }
 
   const enabled = Boolean(cb)
 
@@ -49,7 +52,7 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
       vy = 0,
       velocityAt = 0
 
-    const emit = (e: PointerEvent, state: PanState) => {
+    const emit = (e: Pick<PointerEvent, 'clientX' | 'clientY'>, state: PanState) => {
       const now = performance.now()
       const dt = Math.max(now - t0, 1) / 1000
       const dx = e.clientX - lx
@@ -90,6 +93,10 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
     }
 
     const down = (e: PointerEvent) => {
+      if (active || e.isPrimary === false || e.button !== 0) {
+        return
+      }
+
       active = true
       captured = false
       clickGuard = false
@@ -110,6 +117,13 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
         return
       }
 
+      // A nested recognizer can replace pending capture before the browser
+      // ever delivers got/lostpointercapture to this node.
+      if (captured && node.hasPointerCapture && !node.hasPointerCapture(pointer)) {
+        finishAtLast('cancelled')
+        return
+      }
+
       if (!captured && Math.hypot(e.clientX - sx, e.clientY - sy) > PAN_SLOP_PX) {
         try {
           node.setPointerCapture?.(e.pointerId)
@@ -126,21 +140,48 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
       emit(e, 'moved')
     }
 
+    const terminate = (
+      e: Pick<PointerEvent, 'clientX' | 'clientY'>,
+      state: 'ended' | 'cancelled',
+    ) => {
+      active = false
+      detach()
+
+      const wasCaptured = captured
+
+      captured = false
+      clickGuard = wasCaptured && state === 'ended'
+      // Clear ownership before release or user code can reenter this adapter.
+      if (wasCaptured && node.hasPointerCapture?.(pointer)) {
+        node.releasePointerCapture(pointer)
+      }
+
+      emit(e, state)
+    }
+
+    const finishAtLast = (state: 'cancelled') => {
+      if (active) {
+        terminate({ clientX: lx, clientY: last }, state)
+      }
+    }
+
     const finish = (e: PointerEvent, state: 'ended' | 'cancelled') => {
       if (!active || e.pointerId !== pointer) {
         return
       }
 
-      active = false
-      detach()
-
-      if (captured) {
-        // The trailing click retargets to this element; it is drag fallout,
-        // not a press. Cleared by the click handler or the next pointerdown.
-        clickGuard = true
+      if (captured && node.hasPointerCapture && !node.hasPointerCapture(pointer)) {
+        finishAtLast('cancelled')
+        return
       }
 
-      emit(e, state)
+      terminate(e, state)
+    }
+
+    const lost = (e: PointerEvent) => {
+      if (e.target === node && e.pointerId === pointer) {
+        finishAtLast('cancelled')
+      }
     }
 
     const up = (e: PointerEvent) => finish(e, 'ended')
@@ -158,14 +199,13 @@ export function usePan(el: { current: HTMLElement | null }, cb?: (e: PanEvent) =
 
     node.addEventListener('pointerdown', down)
     node.addEventListener('click', click, true)
+    node.addEventListener('lostpointercapture', lost)
     return () => {
       node.removeEventListener('pointerdown', down)
       node.removeEventListener('click', click, true)
+      node.removeEventListener('lostpointercapture', lost)
+      finishAtLast('cancelled')
       detach()
-
-      if (captured && node.hasPointerCapture?.(pointer)) {
-        node.releasePointerCapture(pointer)
-      }
     }
   }, [el, enabled])
 }

@@ -15,7 +15,12 @@ and durable state, rather than publishing a render update for every frame.
 Normalize pan coordinates and velocity to DIP and use began/moved/ended/cancelled
 states. Native gesture observers and Observable notifications are different
 mechanisms. On web, pointer-move handlers need owned raw listeners and cleanup;
-they are not supplied by the ordinary delegated event path.
+they are not supplied by the ordinary delegated event path. Shared web pan
+owns one primary contact until end or cancellation. Check both capture-loss
+events and capture ownership on later input: nested observers can replace
+pending capture before a browser sends got/lost events. Clear active ownership
+before releasing capture or calling user code. Ignore bubbled capture loss from
+children; teardown cancels through the last available observer.
 
 ## AppKit imperative animation
 

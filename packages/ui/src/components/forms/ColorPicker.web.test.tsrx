@@ -63,7 +63,15 @@ function pan(el: Element, steps: [number, number, 'began' | 'moved' | 'ended'][]
 
     act(() =>
       el.dispatchEvent(
-        new PointerEvent(type, { clientX: x, clientY: y, bubbles: true, cancelable: true }),
+        new PointerEvent(type, {
+          clientX: x,
+          clientY: y,
+          pointerId: 1,
+          isPrimary: true,
+          button: 0,
+          bubbles: true,
+          cancelable: true,
+        }),
       ),
     )
   }

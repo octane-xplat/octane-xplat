@@ -127,7 +127,10 @@ Normalized payloads (primitives.md). Pan on web uses raw pointer listeners
 (`pointermove` isn't delegated); native uses the
 NS `pan` recognizer. Both map to `{x,y,dx,dy,vx,vy,state,target}`. Native
 velocity comes from iOS `velocityInView` or Android `VelocityTracker`, in
-dips per second.
+dips per second. Web keeps one initiating primary contact and cancels once on
+capture loss, callback removal, or unmount. Handle `cancelled` as a return or
+recovery path, never as a successful dismissal. Callback replacement continues
+the contact; nested controls keep taps below capture slop.
 
 ```tsx
 import { View, Text } from '@octane-xplat/ui'

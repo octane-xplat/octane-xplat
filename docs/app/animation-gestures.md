@@ -348,7 +348,12 @@ export function DerivedValue() {
 
 Use shared `onPan` events to stop playback on begin, set displacement during
 movement, and spring with release velocity on end. Treat cancellation separately
-and commit product state once the interaction outcome is known. Native velocity
+and commit product state once the interaction outcome is known. On web, one
+primary contact owns each interaction; extra contacts and nonprimary mouse
+buttons are ignored. Losing pointer capture, removing the callback, or unmounting
+cancels the contact once. Replacing the callback keeps the same contact and
+sends subsequent events to the new callback. Nested buttons still receive taps
+below the capture threshold. Native velocity
 is DIP/second; web velocity is CSS pixels/second. Web pointer-up carries the
 last movement sample for up to 100 ms, so a pointer-up at the same coordinates
 as the final move retains its velocity; older samples resolve to zero. For declarative bounded dragging, use the surface below. Raw `onPan` keeps its

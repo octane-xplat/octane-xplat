@@ -19,9 +19,11 @@ playback safely when replacing it or removing the screen.
 - AC2: Replace playback from the current sample, freeze it with stop, and cancel owned work on ref detachment or component disposal.
 - AC4: Await finished/cancelled/failed run outcomes, including replacement, detachment, reduced motion, and host write failure.
 - AC3: Understand reduced-motion behavior on AppKit and distinguish timer/property evidence from OS input or frame-pacing verification.
+- AC5: Raw web pan retains one primary contact, cancels capture loss or teardown once, and preserves nested taps and release velocity.
 
 ## Documentation
 
+- AC5: [Pan recovery](../../../docs/app/animation-gestures.md#observe-imperative-animation-results), [compiled shared pan tests](../../../packages/ui/src/components/layout/pan.web.test.tsrx), and [trusted browser input](../../../tools/visual/src/ui-pan.web.test.tsrx).
 - AC1: [Imperative animation](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [maintained example](../../../packages/ui/examples/AnimationDemo.tsrx).
 - AC2: [Controller lifecycle](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [AppKit fixture](../../../apps/macos/test/animation-fixture.macos.tsx).
 - AC3: [AppKit behavior](../../../docs/app/animation-gestures.md#existing-imperative-animation) and [verification limits](../notes/animation-notes.md#appkit-imperative-animation).

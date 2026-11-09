@@ -72,7 +72,7 @@ export default defineConfig({
     ],
   },
   test: {
-    include: ['src/*.test.web.ts'],
+    include: ['src/*.test.web.ts', 'src/*.web.test.tsrx'],
     exclude:
       process.argv.some((arg) => arg.includes('ios-regression')) || process.env.VIS_IOS_CAPTURE
         ? []
