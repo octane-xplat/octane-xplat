@@ -85,9 +85,12 @@ const CALLOUTS = new Set(['note', 'tip', 'important', 'warning', 'caution'])
 const METAPARA = /^\*\*(Owns|Status):\*\*/
 
 // A line that starts a block — must mirror the branch tests exactly: a
-// false positive (e.g. `**bold**` at line start matching `[-*]`) starves the
-// paragraph collector and loops forever.
-const BLOCKSTART = /^#{1,4}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\||^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/
+// false positive (e.g. `**bold**` at line start matching `[-*]`, or a lone
+// `| ...` line the table branch refuses) would split a paragraph for a
+// block nothing consumes. The collector below still forces progress on any
+// residual mismatch, but keeping this exact avoids bogus paragraph breaks.
+const BLOCKSTART =
+  /^#{1,4}\s|^\s*(?:[-*]|\d+[.)])\s|^\s*\|.*\|\s*$|^\s*>|^\s*```|^\s*(-{3,}|\*{3,})\s*$/
 
 export function parseMd(md: string): Block[] {
   const blocks: Block[] = []
@@ -246,14 +249,14 @@ export function parseMd(md: string): Block[] {
 
     const buf: string[] = []
 
-    while (i < lines.length && lines[i].trim() !== '' && !BLOCKSTART.test(lines[i])) {
+    // The first line always joins: every block branch above declined it, so
+    // a BLOCKSTART false positive is paragraph text — never stall on it.
+    do {
       buf.push(lines[i])
       i++
-    }
+    } while (i < lines.length && lines[i].trim() !== '' && !BLOCKSTART.test(lines[i]))
 
-    if (buf.length) {
-      blocks.push({ kind: 'p', spans: inlineSpans(buf.join(' ')) })
-    }
+    blocks.push({ kind: 'p', spans: inlineSpans(buf.join(' ')) })
   }
 
   return blocks

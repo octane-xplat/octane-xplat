@@ -6228,10 +6228,10 @@ Everything added, changed, and fixed since 0.3.0.
 
 ### Theming
 
-- **App-wide light/dark control.** `setThemePreference('light' | 'dark'
-| 'system')` and `useThemeScheme()` manage the theme. Overlays,
-  popovers, toasts, sheets, modals, and web portals now follow it —
-  previously only the app root did.
+- **App-wide light/dark control.** `setThemePreference('light' | 'dark' | 'system')`
+  and `useThemeScheme()` manage the theme. Overlays, popovers, toasts,
+  sheets, modals, and web portals now follow it — previously only the app
+  root did.
 
 ### Platform services (`@octane-xplat/platform`)
 

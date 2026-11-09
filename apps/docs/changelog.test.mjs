@@ -107,3 +107,22 @@ test('explicit {#anchor} headings parse without the marker in the text', () => {
   assert.equal(h.id, 'custom-anchor')
   assert.equal(h.text, 'Some release')
 })
+
+test('a lone pipe-starting line stays paragraph text', () => {
+  // Regression: the real changelog wraps `'light' | 'dark' | 'system'` so a
+  // line begins with `|`. BLOCKSTART's `^\s*\|` matched lines the table
+  // branch refuses (no trailing pipe), starving the paragraph collector —
+  // parseMd looped forever and the changelog page froze.
+  const blocks = parseMd(
+    "- item\n\n| 'system')` and the rest\nkeep flowing\n\n| a | b |\n| - | - |\n| 1 | 2 |\n",
+  )
+
+  const paragraphs = blocks.filter((b) => b.kind === 'p')
+
+  assert.equal(paragraphs.length, 1)
+  assert.equal(
+    paragraphs[0].spans.map((s) => s.text).join(''),
+    "| 'system')` and the rest keep flowing",
+  )
+  assert.equal(blocks.at(-1).kind, 'table')
+})
