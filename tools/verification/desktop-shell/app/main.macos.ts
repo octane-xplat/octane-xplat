@@ -1,6 +1,6 @@
 import '@nativescript/macos-node-api'
 import { runMacOSApp, setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
-import { NSApplication } from '@octane-xplat/platform/macos'
+import { NSApplication, NSProcessInfo } from '@octane-xplat/platform/macos'
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'
 import { appMenu } from '@octane-xplat/app-menu'
@@ -163,7 +163,8 @@ runMacOSApp(
 
       marker('READY')
 
-      if (process.env.DESKTOP_SHELL_SELFTEST === '1') {
+      const env = NSProcessInfo.processInfo?.environment
+      if (String(env?.objectForKey?.('DESKTOP_SHELL_SELFTEST') ?? '') === '1') {
         void runSelftest(app, window)
       }
     })()
@@ -289,10 +290,9 @@ async function runSelftest(app: any, window: any) {
   // Window lifecycle: close the inspector with performClose:, reopen via the
   // tray menu, then press the inspector's close button.
   try {
-    const wins = NSApplication.sharedApplication.windows
-    const n = wins?.count ?? wins?.length ?? 0
-    for (let i = 0; i < n; i++) {
-      const w = wins?.objectAtIndex ? wins.objectAtIndex(i) : wins?.[i]
+    const wins: any = NSApplication.sharedApplication.windows
+    for (let i = 0; i < (wins?.count ?? 0); i++) {
+      const w = wins?.objectAtIndex?.(i)
       if (String(w?.title) === 'Inspector') {
         w.performClose?.(w)
         marker('SELFTEST lifecycle=closed')
@@ -307,9 +307,9 @@ async function runSelftest(app: any, window: any) {
       }
     }
     await sleep(600)
-    const wins2 = NSApplication.sharedApplication.windows
-    for (let i = 0; i < (wins2?.count ?? wins2?.length ?? 0); i++) {
-      const w = wins2?.objectAtIndex ? wins2.objectAtIndex(i) : wins2?.[i]
+    const wins2: any = NSApplication.sharedApplication.windows
+    for (let i = 0; i < (wins2?.count ?? 0); i++) {
+      const w = wins2?.objectAtIndex?.(i)
       if (String(w?.title) === 'Inspector') {
         const closeBtn = findById(w.contentView, 'inspector-close')
         closeBtn?.performSelector?.('accessibilityPerformPress')
