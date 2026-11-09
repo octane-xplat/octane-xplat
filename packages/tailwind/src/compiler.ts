@@ -1,5 +1,5 @@
-import postcss, { type AtRule, type Plugin } from 'postcss'
-import tailwindcss from '@tailwindcss/postcss'
+import type { AtRule, Plugin } from 'postcss'
+import { compileStylesheet } from './compile.ts'
 
 import { adaptNativeStylesheet } from './native.ts'
 import type { TailwindTarget } from './target.ts'
@@ -20,18 +20,19 @@ export function tailwindCompiler({
   target,
   onCompile,
 }: TailwindCompilerOptions): TailwindCompilerPlugin {
-  // Tailwind's optimize pass reparses generated CSS and loses original source
-  // locations. Vite owns final minification; keep the compiler AST here.
-  const compiler = tailwindcss({ base: projectRoot, optimize: false })
-
   return {
     postcssPlugin: 'xplat-tailwind',
     async Once(root, { result }) {
       const markers: AtRule[] = []
+
       root.walkAtRules('xplat-tailwind', (rule) => {
         markers.push(rule)
       })
-      if (markers.length === 0) return
+
+      if (markers.length === 0) {
+        return
+      }
+
       if (markers.length !== 1) {
         throw root.error('Import @octane-xplat/tailwind once per stylesheet', {
           plugin: 'xplat-tailwind',
@@ -39,33 +40,41 @@ export function tailwindCompiler({
       }
 
       const input = root.clone()
+
       input.walkAtRules('xplat-tailwind', (rule) => {
         rule.remove()
       })
-      const compiled = await postcss([compiler]).process(input, {
-        ...result.opts,
-        from: result.opts.from ?? root.source?.input.file,
-      })
-      if (compiled.root.type !== 'root') {
-        throw root.error('Tailwind returned a document instead of a stylesheet')
-      }
 
       const entry = result.opts.from ?? root.source?.input.file
+      const compiled = await compileStylesheet(input, projectRoot, entry)
+
       if (entry && onCompile) {
-        const files: string[] = []
-        const directories = [projectRoot]
-        for (const message of compiled.messages) {
-          if (message.type === 'dependency' && typeof message.file === 'string')
-            files.push(message.file)
-          if (message.type === 'dir-dependency' && typeof message.dir === 'string')
-            directories.push(message.dir)
-        }
-        onCompile(entry, { files, directories })
+        onCompile(entry, {
+          files: compiled.files,
+          directories: [projectRoot, ...compiled.directories.map(({ dir }) => dir)],
+        })
       }
+
       // Forward dependency and directory-dependency messages to Vite, which
       // owns watching imported CSS and original source files in development.
-      result.messages.push(...compiled.messages)
-      if (target !== 'web') adaptNativeStylesheet(compiled.root, target)
+      for (const file of compiled.files) {
+        result.messages.push({ type: 'dependency', plugin: 'xplat-tailwind', file, parent: entry })
+      }
+
+      for (const { dir, glob } of compiled.directories) {
+        result.messages.push({
+          type: 'dir-dependency',
+          plugin: 'xplat-tailwind',
+          dir,
+          glob,
+          parent: entry,
+        })
+      }
+
+      if (target !== 'web') {
+        await adaptNativeStylesheet(compiled.root, target)
+      }
+
       root.removeAll().append(compiled.root.nodes)
       root.raws.indent = compiled.root.raws.indent
     },

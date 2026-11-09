@@ -14,6 +14,7 @@
     "types",
     "src/*.css",
     "LICENSE",
+    "THIRD_PARTY_NOTICES",
     "README.md"
   ],
   "type": "module",
@@ -30,15 +31,20 @@
     "test": "node --test test/*.test.ts"
   },
   "dependencies": {
-    "@tailwindcss/postcss": "4.3.5",
+    "@tailwindcss/node": "4.3.5",
+    "@tailwindcss/oxide": "4.3.5",
     "postcss": "8.5.32",
-    "tailwindcss": "4.3.5"
+    "tailwindcss": "4.3.5",
+    "postcss-nesting": "13.0.2",
+    "postcss-value-parser": "4.2.0"
   },
   "devDependencies": {
+    "@tailwindcss/postcss": "4.3.5",
     "@octane-xplat/build": "workspace:*",
     "@tsrx/content-mapper": "catalog:",
     "@types/node": "26.6.6",
-    "typescript": "catalog:"
+    "typescript": "catalog:",
+    "@octane-xplat/css-engine": "workspace:*"
   },
   "peerDependencies": {
     "vite": "^8.3.0"

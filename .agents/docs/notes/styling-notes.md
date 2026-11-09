@@ -101,10 +101,12 @@ outside UI and the CLI runtime.
 
 Compiler integration belongs in Vite's `config` hook after platform CSS setup,
 not in `configResolved`: resolved environments already carry their own CSS
-configuration. Keep the official Tailwind PostCSS compiler's `optimize` option
-false when retaining source maps; its optimization branch reparses generated
-CSS and loses original authored positions. Let the owning build pipeline perform
-final minification instead. See the
+configuration. The private integration uses the public Tailwind node compiler
+and oxide scanner with fresh state for each source snapshot: the PostCSS
+wrapper retains removed utilities in its cache, so native validation errors
+otherwise survive removing the rejected class. Preserve the compiler AST and
+original sources instead of serializing/reparsing CSS; let the owning build
+pipeline perform final minification. See the
 [private integration boundary](../../../packages/tailwind/README.md).
 
 Vite 8.3.6's production CSS extraction emits CSS text assets without a CSS map
@@ -114,9 +116,14 @@ the extraction path supplies them; see
 [Vite's CSS plugin](https://github.com/vitejs/vite/blob/v8.3.6/packages/vite/src/node/plugins/css.ts)
 and [Tailwind's optimizer branch](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.5/packages/@tailwindcss-postcss/src/index.ts).
 
-There are local prerequisites as well: the native build still calls
-`unwrapCssLayers`, although our patched selector engine and the desktop engine
-implement ordinary layer precedence. Removing layers loses that information.
+The default native build still unwraps layers. Optional compilers can set
+`xplatCss`'s `preserveLayers` coordination flag; both the mobile normalizer and
+desktop stylesheet serializer read it before transforming files or assets. The
+private Tailwind adapter enables it for the entire project, so generated and
+framework styles retain their relative layers. Keeping only the generated
+sheet's layers while flattening framework sheets would change precedence.
+Native pixel normalization walks declaration values, preserving selectors,
+directive arguments, quoted text, URLs, and media-query preludes.
 The desktop cascade's parser does not preserve declaration importance, and
 its custom-property map inherits ancestor values without `@property` metadata.
 Keeping layers alone therefore does not establish full Tailwind semantics.
