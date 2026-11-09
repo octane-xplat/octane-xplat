@@ -1,4 +1,4 @@
-import { useStore } from '@octane-xplat/ui'
+import { useStore } from '@octane-xplat/ui/data'
 import { Button } from '@octane-xplat/ui'
 import { Text } from '@octane-xplat/ui'
 import { TextInput } from '@octane-xplat/ui'
@@ -19,7 +19,7 @@ export default function App() {
         value={name}
         onChange={(value: string) => name$.set(value)}
       />
-      <Button testID="journey-submit" onPress={() => submitName(name)}>
+      <Button testID="journey-submit" clickAction={() => submitName(name)}>
         Submit
       </Button>
       <Text testID="journey-status">

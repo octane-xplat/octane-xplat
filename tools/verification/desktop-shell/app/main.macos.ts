@@ -9,8 +9,8 @@ import {
   createGlobalShortcuts,
   type GlobalShortcuts,
 } from '@octane-xplat/global-shortcuts'
-import App from './App'
-import Inspector from './Inspector'
+import App from './App.tsrx'
+import Inspector from './Inspector.tsrx'
 import {
   HOTKEY,
   HOTKEY_CONFLICT,
