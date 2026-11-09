@@ -1,14 +1,19 @@
 import type { Clock } from './clock-types.js'
 import type { Transition } from './types.js'
-import { runAnimation, validateTransition, type AnimationControls } from './engine.js'
+import {
+  runAnimation,
+  validateTransition,
+  type AnimationControls,
+  type AnimationResult,
+} from './engine.js'
 
 /** Events supported by numeric motion values. */
 export interface MotionValueEvents {
   /** Subscribe to value changes. */
   change: (value: number) => void
-  /** Fires when an animation on this value starts. */
+  /** Fires before playback starts; listeners may stop, destroy, or replace it. */
   animationStart: () => void
-  /** Fires when an animation settles. */
+  /** Fires when the current animation finishes successfully. */
   animationComplete: () => void
   /** Fires when an animation is interrupted. */
   animationCancel: () => void
@@ -134,22 +139,42 @@ export class MotionValue {
 
     const velocity = transition.velocity ?? this.getVelocity()
 
+    // Cancellation listeners can replace playback before this call starts.
+    const generation = this.generation + 1
+
     this.stop('replaced')
+    if (this.disposed || generation !== this.generation) {
+      return { finished: Promise.resolve(this.disposed ? 'cancelled' : 'replaced'), stop() {} }
+    }
 
-    const generation = ++this.generation
+    let playback: AnimationControls | undefined
+    let result: AnimationResult | undefined
+    let resolve!: (result: AnimationResult) => void
+    const finished = new Promise<AnimationResult>((done) => {
+      resolve = done
+    })
 
-    this.emit('animationStart')
+    const settle = (next: AnimationResult) => {
+      if (result !== undefined) {
+        return
+      }
 
-    const controls = runAnimation(
-      this.clock,
-      this.current,
-      target,
-      { ...transition, velocity },
-      (value) => this.write(clampSample ? clampSample(value) : value),
-    )
+      result = next
+      resolve(next)
+    }
+
+    // Publish cancellable ownership before calling subscribers, including the
+    // synchronous change callback of a zero-duration run.
+    const controls: AnimationControls = {
+      finished,
+      stop: (reason = 'cancelled') => {
+        settle(reason)
+        playback?.stop(reason)
+      },
+    }
 
     this.controls = controls
-    void controls.finished.then((result) => {
+    void finished.then((result) => {
       if (generation !== this.generation || this.disposed) {
         return
       }
@@ -160,24 +185,54 @@ export class MotionValue {
       }
     })
 
+    this.emit('animationStart')
+    if (generation !== this.generation || this.disposed || result !== undefined) {
+      return controls
+    }
+
+    playback = runAnimation(
+      this.clock,
+      this.current,
+      target,
+      { ...transition, velocity },
+      (value) => {
+        if (generation === this.generation && !this.disposed) {
+          this.write(clampSample ? clampSample(value) : value)
+        }
+      },
+      () => settle('finished'),
+    )
+
+    if (result !== undefined) {
+      playback.stop(result)
+    }
+
+    void playback.finished.then(settle)
+
     return controls
   }
   /** Stop playback at its current value. */
   stop(reason: 'cancelled' | 'replaced' = 'cancelled'): void {
     ++this.generation
     if (this.controls) {
-      this.controls.stop(reason)
+      const controls = this.controls
+
       this.controls = undefined
+      controls.stop(reason)
       this.emit('animationCancel')
     }
   }
   /** Release playback and listeners when the owning component unmounts. */
   destroy(): void {
+    if (this.disposed) {
+      return
+    }
+
+    this.disposed = true
     this.stop()
     this.emit('destroy')
     this.listeners.clear()
     this.passive = undefined
-    this.disposed = true
   }
   /** @internal Install the useSpring setter interception. */
   attach(setter: (value: number) => void) {

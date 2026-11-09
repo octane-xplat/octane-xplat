@@ -317,6 +317,20 @@ export function ValueControls() {
 }
 ```
 
+A value listener can stop or replace playback, including inside
+`animationStart`. Stopping resolves that run as `cancelled`; replacement resolves
+it as `replaced`. Destroying a value cancels playback and prevents later starts.
+Only the run that still owns the value can emit `animationComplete`.
+This continuation of `ValueControls` shows a start listener cancelling a run;
+remove the listener when it is no longer needed.
+
+```tsx
+const unsubscribe = x.on('animationStart', () => x.stop())
+const job = x.animate(80, { duration: 0.2 })
+void job.finished.then((result) => console.log(result)) // cancelled
+unsubscribe()
+```
+
 For a velocity-driven release — the value keeps moving and decays, optionally
 bouncing off `min`/`max` bounds — animate with `type: 'inertia'`. The
 destination argument is ignored, so pass the current value.

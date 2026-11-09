@@ -53,6 +53,20 @@ import { motion } from '@octane-xplat/motion'
 <motion.View animate={{ x: 100 }} transition={{ duration: 0.3 }} />
 ```
 
+MotionValue lifecycle listeners may stop, destroy or replace playback synchronously.
+Use the returned result to distinguish cancellation from completion; do not add
+app timers to clean up an obsolete run. Disposal prevents further starts.
+
+```tsx
+const unsubscribe = x.on('animationStart', () => x.stop())
+const job = x.animate(80, { duration: 0.2 })
+void job.finished.then((result) => console.log(result)) // cancelled
+unsubscribe()
+```
+
+Here `x` is an owned value from `useMotionValue(0)`; see the
+[value example](../../../../../docs/app/animation-gestures.md#bind-values-and-gestures).
+
 For Motion springs, `duration` is completion time in seconds, not
 `visualDuration` (not exposed). Duration/bounce mode ignores velocity. Any
 explicit stiffness, damping or mass selects physical mode and overrides both

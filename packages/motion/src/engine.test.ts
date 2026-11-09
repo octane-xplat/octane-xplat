@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { inertia, spring } from 'motion-dom'
-import { runAnimation } from './engine'
+import { runAnimation, type AnimationControls } from './engine'
 import { MotionValue } from './value'
 import { Controller } from './controller'
 import type { Clock } from './clock-types'
@@ -640,5 +640,141 @@ describe('spring mode routing (#208)', () => {
     expect(controller.snapshot()).toEqual({ x: 100, opacity: 0 })
     expect(time.count()).toBe(0)
     controller.destroy()
+  })
+})
+
+describe('MotionValue lifecycle reentrancy (#212)', () => {
+  it.each([0, 1, Infinity])(
+    'destroy during start schedules no frames (repeat %s)',
+    async (repeat) => {
+      const time = fakeClock()
+      const value = new MotionValue(0, time.clock)
+      let completes = 0
+
+      value.on('animationComplete', () => completes++)
+      value.on('animationStart', () => value.destroy())
+
+      const run = value.animate(100, { duration: 1, repeat })
+
+      expect(time.count()).toBe(0)
+      for (let i = 0; i < 10; i++) {
+        time.advance(1000)
+      }
+
+      expect(time.count()).toBe(0)
+      expect(await run.finished).toBe('cancelled')
+      expect(value.get()).toBe(0)
+      expect(completes).toBe(0)
+    },
+  )
+
+  it('stop during start cancels once without completing', async () => {
+    const time = fakeClock()
+    const value = new MotionValue(0, time.clock)
+    const events: string[] = []
+
+    value.on('animationStart', () => value.stop())
+    value.on('animationCancel', () => events.push('cancel'))
+    value.on('animationComplete', () => events.push('complete'))
+
+    const run = value.animate(100, { duration: 1 })
+    const results: string[] = []
+
+    void run.finished.then((result) => results.push(result))
+    run.stop()
+    value.stop()
+    time.advance(1000)
+    expect(await run.finished).toBe('cancelled')
+    expect(results).toEqual(['cancelled'])
+    expect(events).toEqual(['cancel'])
+    expect(value.get()).toBe(0)
+    expect(time.count()).toBe(0)
+  })
+
+  it.each(['animationStart', 'animationCancel', 'change'] as const)(
+    'replacement from %s is the sole playback owner',
+    async (event) => {
+      const time = fakeClock()
+      const value = new MotionValue(0, time.clock)
+      let replacement: AnimationControls | undefined
+      let completes = 0
+
+      value.on('animationComplete', () => completes++)
+
+      const off = value.on(event, () => {
+        off()
+        replacement = value.animate(200, { duration: 1 })
+      })
+
+      const first = value.animate(100, { duration: event === 'change' ? 0 : 1 })
+      const interrupted = event === 'animationCancel' ? value.animate(300) : first
+
+      expect(replacement).toBeDefined()
+      expect(time.count()).toBe(1)
+      expect(await first.finished).toBe('replaced')
+      expect(await interrupted.finished).toBe('replaced')
+      time.advance(500)
+      expect(value.get()).toBeLessThan(200)
+      time.advance(500)
+      expect(await replacement!.finished).toBe('finished')
+      expect(completes).toBe(1)
+      expect(value.get()).toBe(200)
+      expect(time.count()).toBe(0)
+    },
+  )
+
+  it.each(['animationCancel', 'destroy'] as const)(
+    'destroy blocks playback from %s',
+    async (event) => {
+      const time = fakeClock()
+      const value = new MotionValue(0, time.clock)
+      const first = value.animate(100)
+      let replacement: AnimationControls | undefined
+
+      value.on(event, () => {
+        replacement = value.animate(200, { repeat: Infinity })
+      })
+
+      value.destroy()
+      expect(await first.finished).toBe('cancelled')
+      expect(await replacement!.finished).toBe('cancelled')
+      expect(time.count()).toBe(0)
+    },
+  )
+
+  it('completion may start a new run without obsolete completion or ownership loss', async () => {
+    const time = fakeClock()
+    const value = new MotionValue(0, time.clock)
+    let completes = 0
+    let replacement: AnimationControls | undefined
+
+    value.on('animationComplete', () => {
+      completes++
+      if (completes === 1) {
+        replacement = value.animate(200, { repeat: Infinity })
+      }
+    })
+
+    const first = value.animate(100, { duration: 0 })
+
+    expect(await first.finished).toBe('finished')
+    expect(time.count()).toBe(1)
+    value.stop()
+    expect(await replacement!.finished).toBe('cancelled')
+    expect(time.count()).toBe(0)
+    expect(completes).toBe(1)
+  })
+
+  it('cancellation from a repeat endpoint leaves no queued frame', async () => {
+    const time = fakeClock()
+    const value = new MotionValue(0, time.clock)
+
+    value.on('change', () => value.stop())
+
+    const run = value.animate(100, { duration: 1, repeat: Infinity })
+
+    time.advance(1000)
+    expect(await run.finished).toBe('cancelled')
+    expect(time.count()).toBe(0)
   })
 })

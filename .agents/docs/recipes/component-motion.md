@@ -16,7 +16,7 @@ behavior, and respect reduced motion and component disposal.
 ## Acceptance criteria
 
 - AC1: Install the leaf and animate supported numeric channels on mount and prop changes using documented units.
-- AC2: Bind numeric values without per-frame renders and stop owned playback/subscriptions on disposal.
+- AC2: Bind numeric values without per-frame renders and stop owned playback/subscriptions on disposal. Lifecycle callbacks may stop, destroy, or replace playback without reviving obsolete work.
 - AC3: Configure reduced motion and recognize unsupported capabilities and platform verification limits.
 
 - AC4: Retain live component state during exit, reverse without remounting, disable exiting input, and distinguish boundary disposal from completed exit.
@@ -30,7 +30,7 @@ behavior, and respect reduced motion and component disposal.
 ## Documentation
 
 - AC1: [Component motion](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [Android translation boundary regression](../../../packages/motion/tests/android-translation.ts) (native density, cancellation, replacement and spring handoff; no OS input). [Combined-scale interruption](../../../packages/motion/src/delegation.test.ts), [web handoff](../../../packages/motion/src/delegation.web.test.ts), and [native property handoff](../../../packages/motion/src/scale-handoff.mobile.test.ts) preserve independent factors; the [Chromium probe](../../../packages/motion/tests/scale-interruption.web.ts) checks actual WAAPI handoffs without images. Host doubles do not qualify devices.
-- AC2: [Value lifecycle](../../../docs/app/animation-gestures.md#bind-values-and-gestures).
+- AC2: [Value lifecycle](../../../docs/app/animation-gestures.md#bind-values-and-gestures), [maintained value example](../../../packages/motion/examples/MotionDemo.tsrx), and [deterministic lifecycle regressions](../../../packages/motion/src/engine.test.ts) cover callback cancellation, destruction, replacement, promise settlement and repeat cleanup. These tests do not establish device frame pacing.
 - AC3: [Reduced motion](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../../../docs/testing/known-limits.md#motion-leaf).
 
 - AC4: [Retained exit lifecycle](../../../docs/app/animation-gestures.md#retain-content-through-exit), [PresenceDemo](../../../packages/motion/examples/PresenceDemo.tsrx), and [nonvisual input qualification](../notes/input-readiness-notes.md#completed-checks).

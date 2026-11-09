@@ -330,6 +330,11 @@ export function runAnimation(
           : from
 
     update(state.done ? legEnd : state.value)
+    // An update subscriber may cancel or replace this run at a repeat boundary.
+    if (settled) {
+      return
+    }
+
     if (state.done) {
       if (leg < repeat) {
         leg++
