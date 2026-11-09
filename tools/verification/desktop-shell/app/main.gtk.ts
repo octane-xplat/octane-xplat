@@ -75,6 +75,44 @@ runGtkApp(
   ({ app, root, window }) => {
     root.render(App as any, {})
     statusSuffix$.set(STATUS_SUFFIX)
+
+    // Input diagnostics for the journey runner behind DESKTOP_SHELL_DIAG=1:
+    // real widget bounds in window coords + surface transform, and Tab
+    // traversal visibility. Read-back markers only — no behavior change.
+    const DIAG =
+      (globalThis as any).imports?.gi?.GLib?.getenv?.('DESKTOP_SHELL_DIAG') === '1' ||
+      (globalThis as { process?: { env?: Record<string, string | undefined> } }).process?.env
+        ?.DESKTOP_SHELL_DIAG === '1'
+    const findWidget = (node: any, name: string): any | null => {
+      if (!node) return null
+      if (node.get_name?.() === name) return node
+      let c = node.get_first_child?.()
+      while (c) {
+        const hit = findWidget(c, name)
+        if (hit) return hit
+        c = c.get_next_sibling?.()
+      }
+      return null
+    }
+    const bounds = (id: string) => {
+      if (!DIAG) return
+      try {
+        const w = findWidget(window, id)
+        if (!w) return marker(`BOUNDS ${id} missing`)
+        const [ok, rect] = w.compute_bounds(window)
+        const t = window.get_native?.().get_surface_transform?.()
+        const g = ok ? `${rect.origin.x},${rect.origin.y} ${rect.size.width}x${rect.size.height}` : 'no-bounds'
+        marker(`BOUNDS ${id} ${g} xf=${t?.x ?? '?'},${t?.y ?? '?'}`)
+      } catch (error) {
+        marker(`BOUNDS ${id} error ${error}`)
+      }
+    }
+    if (DIAG) {
+      window.connect?.('notify::focus-widget', () => {
+        const fw = (window as any).get_focus?.()
+        marker(`FOCUS ${fw ? (fw.get_name?.() || fw.constructor?.name || 'widget') : 'none'}`)
+      })
+    }
     const restored = storage.getString(STORAGE_KEY)
 
     if (restored) {
@@ -174,6 +212,8 @@ runGtkApp(
       }
 
       marker('READY')
+      bounds('journey-name')
+      bounds('journey-submit')
     })()
 
     return () => {

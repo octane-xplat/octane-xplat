@@ -230,7 +230,7 @@ async function buildPhase() {
 
 async function journeyPhase() {
   const remoteHome = ssh('printf %s "$HOME"').trim()
-  const remoteDir = `${remoteHome}/agent-scratch/octane-xplat/hushed-dew/linux-run-1`
+  const remoteDir = `${remoteHome}/agent-scratch/octane-xplat/hushed-dew/${WORK.split('/').pop()}`
   ssh(`mkdir -p ${remoteDir}`)
   remoteWrite(`${remoteDir}/README.md`, 'Everything in this folder is disposable.\n')
   const v1 = join(WORK, `${APP_NAME}-v1.tar.gz`)
@@ -255,7 +255,7 @@ async function journeyPhase() {
       }
     }
   } finally {
-    try { ssh(`docker rmi ${image} >/dev/null 2>&1 || true; rm -rf ${remoteDir}`) } catch {}
+    try { ssh(`docker rmi ${image} >/dev/null 2>&1 || true`) } catch {} // scratch kept
   }
 
   if (evidence.steps.some((s) => s.result === 'fail')) evidence.result = 'fail'

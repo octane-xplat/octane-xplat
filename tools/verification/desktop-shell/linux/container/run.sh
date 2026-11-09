@@ -51,7 +51,7 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 
 # --- launch through the installed Exec line ---
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
-GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
+DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
@@ -79,15 +79,35 @@ if [ "$READY" = yes ]; then
   else
     step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
   fi
-  B=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null || python3 ax.py find "$APP_NAME" "button" "Submit" 2>/dev/null)
-  if [ -n "$B" ]; then
-    BX=$(echo "$B" | cut -d, -f1); BY=$(echo "$B" | cut -d, -f2)
-    BW=$(echo "$B" | cut -d, -f3); BH=$(echo "$B" | cut -d, -f4)
-    xdotool mousemove $((BX+BW/2)) $((BY+BH/2)) click 1
+  # Two coordinate sources: AT-SPI extents, then the widget's own
+  # compute_bounds + surface transform + X window geometry (CSD shadow
+  # margins make AT-SPI extents unreliable under a bare X server).
+  GEO=$(xdotool search --name "Desktop Shell Journey" getwindowgeometry 2>/dev/null | grep Position | grep -o '[0-9-]*,[0-9-]*' | head -1)
+  BND=$(grep -o 'JOURNEY BOUNDS journey-submit [0-9.-]*,[0-9.-]* [0-9.]*x[0-9.]*' "$LOG" | tail -1 | sed 's/.*submit //;s/x/,/;s/ /,/')
+  XF=$(grep -o 'xf=[0-9.-]*,[0-9.-]*' "$LOG" | tail -1 | sed 's/xf=//')
+  AX=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null || python3 ax.py find "$APP_NAME" "button" "Submit" 2>/dev/null)
+  TARGET=""
+  SRC=""
+  if [ -n "$GEO" ] && [ -n "$BND" ]; then
+    GX=$(echo "$GEO" | cut -d, -f1); GY=$(echo "$GEO" | cut -d, -f2)
+    BX=$(echo "$BND" | cut -d, -f1); BY=$(echo "$BND" | cut -d, -f2)
+    BW=$(echo "$BND" | cut -d, -f3); BH=$(echo "$BND" | cut -d, -f4)
+    XFX=$(echo "$XF" | cut -d, -f1); XFY=$(echo "$XF" | cut -d, -f2); XFX=${XFX:-0}; XFY=${XFY:-0}
+    TARGET="$((GX + XFX + BX + BW/2)),$((GY + XFY + BY + BH/2))"
+    SRC="widget-bounds+geometry (atspi=$AX)"
+  elif [ -n "$AX" ]; then
+    BX=$(echo "$AX" | cut -d, -f1); BY=$(echo "$AX" | cut -d, -f2)
+    BW=$(echo "$AX" | cut -d, -f3); BH=$(echo "$AX" | cut -d, -f4)
+    TARGET="$((BX+BW/2)),$((BY+BH/2))"
+    SRC="atspi-extents"
+  fi
+  if [ -n "$TARGET" ]; then
+    TX=${TARGET%%,*}; TY=${TARGET##*,}
+    xdotool mousemove "$TX" "$TY" click 1
     for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
-    grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "" || step "form: submit" os-input-x11-xtest fail "no SUBMITTED"
+    grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "target=$TARGET via $SRC" || step "form: submit" os-input-x11-xtest fail "click at $TARGET via $SRC, no SUBMITTED"
   else
-    step "form: submit" os-input-x11-xtest fail "Submit not in AT-SPI"
+    step "form: submit" os-input-x11-xtest fail "no coordinates (bounds=$BND geo=$GEO ax=$AX)"
   fi
 else
   step "form: type name" os-input-x11-xtest blocked "launch"
@@ -145,6 +165,14 @@ elif [ "$READY" != yes ]; then
   step "tray: open inspector" dbus-shell-protocol blocked "launch"
 else
   step "tray: open inspector" dbus-shell-protocol blocked "no SNI registered"
+fi
+
+# --- crash bisect: does the second window survive with no external pokes? ---
+sleep 3
+if kill -0 $APP_PID 2>/dev/null; then
+  step "second window: survives no-poke" in-process pass ""
+else
+  step "second window: survives no-poke" in-process fail "app died within 3s of INSPECTOR_OPENED, no input sent"
 fi
 
 # --- inspector window visible to AT-SPI ---
