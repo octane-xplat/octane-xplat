@@ -69,6 +69,13 @@ export function Controls() {
 
 ## Contracts that differ from DOM/React habits
 
+- **Web `View` is not a flex container.** Native `View` is a flex column via
+  Mason; the web leaf renders a plain block div, so `alignItems`/
+  `justifyContent` stay inert until `display: 'flex'` is set. `Center`,
+  `HStack`, and `VStack` establish flex on every target. `LiquidGlass`
+  children use core `GridLayout`, not flex — give content a `Center` child
+  or keep glass childless beside a sized sibling (see the
+  [liquid-glass guide](../../../../../docs/app/liquid-glass.md#lay-out-centered-content)).
 - **Removing a prop restores its default.** A prop that disappears between
   renders — or is passed `undefined`/`null` — resets to the value it holds
   when never supplied (per-key inside `style` too), on web, iOS, Android,

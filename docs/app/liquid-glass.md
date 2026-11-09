@@ -71,6 +71,86 @@ export function MaterialCard() {
 }
 ```
 
+## Lay out centered content
+
+`LiquidGlass` lays its children out with the native `GridLayout`, not the
+flex layout engine that `View`, `HStack`, and `Center` use. Children land in
+a single grid cell, and flex styles such as `display: 'flex'`, `alignItems`,
+and `justifyContent` on the glass element itself do not position them. Give
+the content its own flex container inside the glass instead: a lone `Center`
+child stretches to fill the glass and centers whatever it holds on both
+axes. When the content's size changes — an icon that finishes loading, a
+label that changes length, content hidden and shown again — the inner flex
+layout re-runs inside the unchanged glass bounds, so the content stays
+centered.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Center, Image } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function GlassIcon() {
+  return (
+    <LiquidGlass style={{ width: 72, height: 48, borderRadius: 12 }}>
+      <Center>
+        <Image src="~/icon.png" alt="" style={{ width: 24, height: 24 }} />
+      </Center>
+    </LiquidGlass>
+  )
+}
+```
+
+When the glass only backs the content rather than wrapping it — for example
+a sized icon surface — render it childless as a positioned sibling instead.
+The content then has a single layout owner and never crosses the glass
+layout boundary. The maintained [Glass demo](../../packages/demos/src/GlassDemo.ios.tsrx)
+centers a glyph both ways and resizes and re-shows it on press.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx */
+import { Absolute, Center, Image } from '@octane-xplat/ui'
+import { LiquidGlass } from '@octane-xplat/ui/ios'
+
+export function GlassBackedIcon() {
+  return (
+    <Absolute style={{ width: 72, height: 48 }}>
+      <LiquidGlass style={{ width: 72, height: 48, borderRadius: 12 }} />
+      <Center style={{ width: 72, height: 48 }}>
+        <Image src="~/icon.png" alt="" style={{ width: 24, height: 24 }} />
+      </Center>
+    </Absolute>
+  )
+}
+```
+
+`@octane-xplat/ui/ios` has no web export, so apps that render a plain
+container in place of glass on web need one more detail: `View` is a flex
+column on native but a plain block element on web. Alignment styles such as
+`alignItems` and `justifyContent` stay inert on a web `View` until
+`display: 'flex'` is set — or use `Center`, which establishes flex on every
+target.
+
+```tsx
+/** @jsxImportSource @octane-xplat/jsx/dom */
+import { Image, View } from '@octane-xplat/ui'
+
+export function WebGlassFallback() {
+  return (
+    <View
+      style={{
+        width: 72,
+        height: 48,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Image src="/icon.png" alt="" style={{ width: 24, height: 24 }} />
+    </View>
+  )
+}
+```
+
 ## Acceptance on a device
 
 The maintained [Glass demo](../../packages/demos/src/GlassDemo.ios.tsrx) includes

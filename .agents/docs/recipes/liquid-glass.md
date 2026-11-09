@@ -21,6 +21,7 @@ this recipe does not claim shared glass parity.
 - AC2: On iOS 26+, default glass preserves child press delivery through real OS input after mount and remount.
 - AC3: On iOS 26+, explicit interactive glass also preserves child press delivery through real OS input. Until qualified, documentation identifies that gap and the supported default.
 - AC4: The reader can use the iOS-only import and distinguish older-iOS blur from native glass and container merging.
+- AC5: The reader can keep centered, size-changing content stable by giving it a single flex layout owner — a `Center` inside the glass or a sized sibling beside childless glass — instead of flex styles on the glass element.
 
 ## Documentation
 
@@ -28,3 +29,4 @@ this recipe does not claim shared glass parity.
 - AC2: [Default interaction and device acceptance](../../../docs/app/liquid-glass.md) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx).
 - AC3: [Explicit interaction limit and device acceptance](../../../docs/app/liquid-glass.md) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx). Real OS touch delivery requires separate target qualification.
 - AC4: [iOS imports and container fallback](../../../docs/app/liquid-glass.md).
+- AC5: [Centered content layout boundary](../../../docs/app/liquid-glass.md#lay-out-centered-content) and [Glass demo](../../../packages/demos/src/GlassDemo.ios.tsrx).
