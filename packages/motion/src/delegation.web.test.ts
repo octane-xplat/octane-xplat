@@ -261,6 +261,32 @@ describe('web WAAPI delegation', () => {
     )
   })
 
+  it('hands combined scale JS state to an eligible tween without changing either axis (#207)', async () => {
+    const { el, animations } = fakeWebElement()
+    const time = fakeClock()
+    const controller = new Controller(time.clock)
+    controller.attach(attachHost(el))
+    controller.seed({ scale: 1, scaleX: 1, scaleY: 1 })
+    const first = controller.animate(
+      { scale: 2, scaleX: 2 },
+      { duration: 1, ease: 'linear' },
+      false,
+    )
+    time.advance(500)
+    expect(animations).toHaveLength(0)
+    expect(styleToMatrix(el.style.transform)).toBe('matrix(2.25, 0, 0, 1.5, 0, 0)')
+    const next = controller.animate({ scaleX: 3, scaleY: 2 }, { duration: 1 }, false)
+    expect(await first).toBe('replaced')
+    expect(animations).toHaveLength(1)
+    expect(animations[0].keyframes[0].transform).toContain('scaleX(2.25) scaleY(1.5)')
+    animations[0].present('matrix(3, 0, 0, 2.25, 0, 0)')
+    time.advance(16)
+    controller.stop()
+    await next
+    controller.set('opacity', 0.5)
+    expect(styleToMatrix(el.style.transform)).toBe('matrix(3, 0, 0, 2.25, 0, 0)')
+  })
+
   it.each([
     ['a spring', { type: 'spring', stiffness: 100, damping: 10 }, false],
     ['a non-bezier ease', { duration: 0.5, ease: 'backOut' as const }, false],

@@ -165,3 +165,15 @@ export function MouseDrag() {
   return <View onPan={({ state, dx, dy }) => console.log(state, dx, dy)} />
 }
 ```
+
+For declarative Motion, combined `scale` plus `scaleX`/`scaleY` tweens use
+per-frame JS writes on web/native to preserve independent factors during
+interruption. Noninvertible zero retained factors also fall back; ordinary
+eligible tweens remain accelerated. Do not add app-side scale decomposition.
+See the [combined-scale example](../../../../../docs/app/animation-gestures.md#animate-a-component).
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ scale: 2, scaleX: 2 }} transition={{ duration: 1 }} />
+```

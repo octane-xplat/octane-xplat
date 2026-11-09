@@ -79,6 +79,24 @@ export function Example() {
 }
 ```
 
+Combining `scale` with `scaleX` or `scaleY` multiplies their values: scale 1.5
+and scaleX 1.5 produce an X size of 2.25. Motion keeps these combined tweens
+on its JavaScript engine so stopping or replacing them preserves each factor,
+including zero and negative values. This costs a JavaScript update each frame
+for the whole tween on web and native. Ordinary eligible tweens still use the
+platform animator; a zero retained factor also requires JavaScript when it
+hides the animated scale entirely.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View
+  initial={{ scale: 1, scaleX: 1 }}
+  animate={{ scale: 2, scaleX: 2 }}
+  transition={{ duration: 1, ease: 'linear' }}
+/>
+```
+
 [MotionDemo](../../packages/motion/examples/MotionDemo.tsrx) is the maintained
 example for changing destinations and gesture settling. A signal read in the
 component's `animate` expression subscribes that component normally; equal

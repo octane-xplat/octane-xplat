@@ -89,7 +89,18 @@ export class Controller {
       value.stop('replaced')
     }
 
+    const dest: Target = { ...this.snapshot(), ...target }
+    // Effective axes cannot identify two changing logical factors. A zero
+    // retained factor also hides its animated partner entirely.
+    const scaleIsRecoverable =
+      target.scale !== undefined
+        ? target.scaleX === undefined &&
+          target.scaleY === undefined &&
+          ((dest.scaleX ?? 1) !== 0 || (dest.scaleY ?? 1) !== 0)
+        : (target.scaleX === undefined && target.scaleY === undefined) || (dest.scale ?? 1) !== 0
+
     if (
+      scaleIsRecoverable &&
       !reduced &&
       !isOrchestrated(transition) &&
       (transition.type ?? 'tween') === 'tween' &&
@@ -98,7 +109,6 @@ export class Controller {
       isBezierEase(transition.ease) &&
       this.adapter?.delegate
     ) {
-      const dest: Target = { ...this.snapshot(), ...target }
       const run = this.adapter.delegate({
         target,
         dest,
@@ -125,11 +135,14 @@ export class Controller {
             let next: number | undefined
 
             if (key === 'scale') {
-              next = (eff.scaleX ?? 1) / (dest.scaleX || 1)
+              next =
+                (dest.scaleX ?? 1) !== 0
+                  ? (eff.scaleX ?? 1) / (dest.scaleX ?? 1)
+                  : (eff.scaleY ?? 1) / (dest.scaleY ?? 1)
             } else if (key === 'scaleX') {
-              next = (eff.scaleX ?? 1) / (dest.scale || 1)
+              next = (eff.scaleX ?? 1) / (dest.scale ?? 1)
             } else if (key === 'scaleY') {
-              next = (eff.scaleY ?? 1) / (dest.scale || 1)
+              next = (eff.scaleY ?? 1) / (dest.scale ?? 1)
             } else {
               next = eff[key]
             }

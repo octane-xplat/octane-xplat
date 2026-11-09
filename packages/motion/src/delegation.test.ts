@@ -280,3 +280,84 @@ describe('delegated runs', () => {
     expect(controller.values.get('x')?.get()).toBe(100)
   })
 })
+
+describe('combined scale interruption (#207)', () => {
+  it.each([
+    [{ scale: 2, scaleX: 2 }, 2.25, 1.5],
+    [{ scale: 2, scaleY: 2 }, 1.5, 2.25],
+    [{ scale: 2, scaleX: 2, scaleY: 3 }, 2.25, 3],
+    [{ scale: 0, scaleX: 0, scaleY: -3 }, 0.25, -0.5],
+    [{ scale: -3, scaleX: 3, scaleY: 0 }, -2, -0.5],
+  ] as const)(
+    'preserves independent factors for %j on stop, next write and replacement',
+    async (target, x, y) => {
+      const time = fakeClock()
+      const controller = new Controller(time.clock)
+      let calls = 0
+      const { adapter, written } = stubHost(() => {
+        calls++
+        return fakeRun({ scaleX: x, scaleY: y })
+      })
+      controller.attach(adapter)
+      controller.seed({ scale: 1, scaleX: 1, scaleY: 1 })
+      const done = controller.animate(target, { duration: 1, ease: 'linear' }, false)
+      time.advance(500)
+      const pose = controller.snapshot()
+      expect(pose.scale! * pose.scaleX!).toBeCloseTo(x)
+      expect(pose.scale! * pose.scaleY!).toBeCloseTo(y)
+      expect(calls).toBe(0)
+      controller.stop()
+      await done
+      controller.set('opacity', 0.5)
+      expect(written.at(-1)).toMatchObject(pose)
+      const replacement = controller.animate(
+        { ...target, scale: 1 },
+        { duration: 1, ease: 'linear' },
+        false,
+      )
+      expect(controller.snapshot()).toMatchObject(pose)
+      time.advance(1)
+      const next = controller.snapshot()
+      expect(Math.abs(next.scale! * next.scaleX! - x)).toBeLessThan(0.05)
+      expect(Object.values(next).every(Number.isFinite)).toBe(true)
+      time.advance(999)
+      expect(await replacement).toBe('finished')
+      expect(time.count()).toBe(0)
+    },
+  )
+
+  it.each([
+    [{ scale: 1, scaleX: 0, scaleY: -2 }, { scale: 3 }, { scaleX: 0, scaleY: -4 }, 2],
+    [{ scale: 0, scaleX: 1, scaleY: 1 }, { scaleX: 2 }, { scaleX: 0, scaleY: 0 }, undefined],
+    [{ scale: 1, scaleX: 0, scaleY: 0 }, { scale: 2 }, { scaleX: 0, scaleY: 0 }, undefined],
+  ] as const)(
+    'handles zero retained factors without division by zero: %j',
+    async (seed, target, sample, logicalScale) => {
+      const time = fakeClock()
+      const controller = new Controller(time.clock)
+      let calls = 0
+      const { adapter } = stubHost(() => {
+        calls++
+        return fakeRun(sample)
+      })
+      controller.attach(adapter)
+      controller.seed(seed)
+      const done = controller.animate(target, { duration: 1, ease: 'linear' }, false)
+      time.advance(500)
+      controller.stop()
+      await done
+      expect(Object.values(controller.snapshot()).every(Number.isFinite)).toBe(true)
+      if (logicalScale !== undefined) {
+        expect(controller.snapshot().scale).toBe(logicalScale)
+        expect(calls).toBe(1)
+      } else {
+        expect(calls).toBe(0)
+        for (const [key, value] of Object.entries(target)) {
+          expect(controller.snapshot()[key as keyof Target]).toBe(
+            (seed[key as keyof typeof seed] + value) / 2,
+          )
+        }
+      }
+    },
+  )
+})

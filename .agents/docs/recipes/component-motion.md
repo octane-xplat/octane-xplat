@@ -25,7 +25,7 @@ behavior, and respect reduced motion and component disposal.
 
 ## Documentation
 
-- AC1: [Component motion](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [Android translation boundary regression](../../../packages/motion/tests/android-translation.ts) (native density, cancellation, replacement and spring handoff; no OS input).
+- AC1: [Component motion](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [Android translation boundary regression](../../../packages/motion/tests/android-translation.ts) (native density, cancellation, replacement and spring handoff; no OS input). [Combined-scale interruption](../../../packages/motion/src/delegation.test.ts), [web handoff](../../../packages/motion/src/delegation.web.test.ts), and [native property handoff](../../../packages/motion/src/scale-handoff.mobile.test.ts) preserve independent factors; the [Chromium probe](../../../packages/motion/tests/scale-interruption.web.ts) checks actual WAAPI handoffs without images. Host doubles do not qualify devices.
 - AC2: [Value lifecycle](../../../docs/app/animation-gestures.md#bind-values-and-gestures).
 - AC3: [Reduced motion](../../../docs/app/animation-gestures.md#reduced-motion-and-lifecycle), [known limits](../../../docs/testing/known-limits.md#motion-leaf).
 
