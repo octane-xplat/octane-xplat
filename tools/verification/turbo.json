@@ -1,26 +1,52 @@
 {
 	"$schema": "https://turborepo.dev/schema.json",
-	"extends": ["//"],
+	"extends": [
+		"//"
+	],
 	"tasks": {
 		"parity:coverage": {
 			"dependsOn": [],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"parity": {
 			"dependsOn": [],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"parity:macos": {
 			"dependsOn": [],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"smoke:macos": {
 			"dependsOn": [],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"test:desktop-shell:macos": {
 			"dependsOn": [
@@ -42,16 +68,58 @@
 				"create-octane-xplat#build"
 			],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "DESKTOP_SHELL_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"DESKTOP_SHELL_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"test:e2e": {
 			"dependsOn": [],
 			"cache": false,
-			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		},
 		"test": {
 			"dependsOn": [],
 			"outputs": []
+		},
+		"test:desktop-shell:linux": {
+			"dependsOn": [
+				"@octane-xplat/cli#build",
+				"@octane-xplat/cli#build:go",
+				"@octane-xplat/linux-gtk#build",
+				"@octane-xplat/app-menu#build",
+				"@octane-xplat/app-menu#typegen",
+				"@octane-xplat/tray#build",
+				"@octane-xplat/tray#typegen",
+				"@octane-xplat/global-shortcuts#build",
+				"@octane-xplat/global-shortcuts#typegen",
+				"@octane-xplat/ui#build",
+				"@octane-xplat/ui#typegen",
+				"@octane-xplat/platform#typegen",
+				"@octane-xplat/lib#typegen",
+				"@octane-xplat/docs-search#build",
+				"@octane-xplat/lint#build",
+				"create-octane-xplat#build"
+			],
+			"cache": false,
+			"passThroughEnv": [
+				"GODDARD_*",
+				"XPLAT_*",
+				"DESKTOP_SHELL_*",
+				"ANDROID_*",
+				"JAVA_HOME",
+				"DEVELOPER_DIR"
+			]
 		}
 	}
 }
