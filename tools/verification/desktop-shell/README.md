@@ -34,6 +34,32 @@ goddard-agent resource run --json '{"resources":{"desktop_input":1},"purpose":"d
   -- node tools/verification/desktop-shell/macos.mjs --phase journey
 ```
 
+### Remote journey host (`DESKTOP_SHELL_MACOS_HOST`)
+
+The journey phase can run against another Mac over SSH (passwordless,
+`ssh -o BatchMode=yes`). The build phase always stays local; the journey
+scp's the DMGs and the `macos-input` binary into
+`~/agent-scratch/octane-xplat/hushed-dew/<run>/` on the host, runs every
+host command (install, codesign, launch, `defaults`, input helper) over
+ssh, and streams app markers back locally. The remote folder starts with
+a README declaring everything in it disposable.
+
+```sh
+DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
+DESKTOP_SHELL_MACOS_HOST=skymac.local \
+goddard-agent resource run --json '{"resources":{"exclusive":["device:skymac"],"desktop_input":1},"purpose":"desktop-shell journey (skymac)"}' \
+  -- node tools/verification/desktop-shell/macos.mjs --phase journey
+```
+
+On an SSH session host, `macos-input trusted` reports
+`ax=false post=false` — the runner then records each `os-input`/`ax-action`
+step as `blocked: skymac SSH session lacks Accessibility/PostEvent
+permission` and still runs the in-process steps (install, launch, markers,
+v2 restore, uninstall, defaults). It never falls back to local input, and
+it never uses `osascript`/System Events on the remote host (that hangs on
+a TCC prompt). Local execution remains the default when the env var is
+unset.
+
 ## What each input class proves
 
 - **`os-input`** — a CGEvent posted at `kCGHIDEventTap` from a separate process
@@ -47,8 +73,8 @@ goddard-agent resource run --json '{"resources":{"desktop_input":1},"purpose":"d
 ## Limits
 
 - If `macos-input trusted` reports no accessibility/post-event access, the
-  journey lane records `blocked` in `evidence.json` and stops — it never
-  simulates input.
+  input-dependent steps record `blocked` in `evidence.json`; in-process
+  steps still run. It never simulates input.
 - v2 installs over v1 to prove defaults persistence (`RESTORED name=Ada`);
   the test's own defaults domain is deleted at the end.
 - Per-step results, artifact SHA-256s, and platform versions land in

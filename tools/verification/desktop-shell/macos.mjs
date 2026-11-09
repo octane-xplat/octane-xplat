@@ -29,7 +29,7 @@ import {
 } from 'node:fs'
 import { readFile, writeFile } from 'node:fs/promises'
 import { tmpdir } from 'node:os'
-import { dirname, join, resolve } from 'node:path'
+import { basename, dirname, join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { promisify } from 'node:util'
 import { stageHostCli, repairPackedCli } from '../../cli-go/stage-fixture.mjs'
@@ -50,6 +50,41 @@ const PRODUCT = 'ShellJourney'
 
 mkdirSync(WORK, { recursive: true })
 
+// When DESKTOP_SHELL_MACOS_HOST is set, the journey phase runs against that
+// SSH host (e.g. skymac.local): artifacts are scp'd into
+// ~/agent-scratch/octane-xplat/hushed-dew/<run>/, every host command goes
+// through `ssh -o BatchMode=yes`, and the app is spawned over ssh so its
+// markers stream back locally. The build phase always stays local.
+const REMOTE = process.env.DESKTOP_SHELL_MACOS_HOST || ''
+// Resolved from the remote $HOME at journey start — a literal ~ inside a
+// quoted ssh argument would not expand.
+let REMOTE_WORK = ''
+let REMOTE_INPUT = ''
+const SSH = ['-o', 'BatchMode=yes', '-o', 'ConnectTimeout=5']
+
+function shellQuote(s) {
+  return `'${String(s).replace(/'/g, `'\\''`)}'`
+}
+
+function remote(cmdline) {
+  return exec('ssh', [...SSH, REMOTE, cmdline + ' 2>&1'], WORK)
+}
+
+function remoteWrite(path, content) {
+  execFileSync('ssh', [...SSH, REMOTE, `cat > ${shellQuote(path)}`], {
+    input: content,
+    encoding: 'utf8',
+  })
+}
+
+/** Run a command on the machine hosting the app (local or REMOTE). */
+function host(cmd, argv, opts = {}) {
+  if (REMOTE) {
+    return remote([cmd, ...argv.map(shellQuote)].join(' '))
+  }
+  return exec(cmd, argv, WORK, opts)
+}
+
 const evidence = {
   sourceCommit: exec('git', ['rev-parse', 'HEAD'], repo),
   workDir: WORK,
@@ -62,6 +97,12 @@ const evidence = {
 function step(name, inputClass, fn) {
   evidence.steps.push({ step: name, inputClass, result: 'pending' })
   const entry = evidence.steps[evidence.steps.length - 1]
+  if (evidence.inputLane && inputClass !== 'in-process') {
+    entry.result = 'blocked'
+    entry.detail = evidence.inputLane
+    log(`  ⊘ ${name}: ${entry.detail}`)
+    return Promise.resolve()
+  }
   return Promise.resolve()
     .then(fn)
     .then((detail) => {
@@ -420,7 +461,11 @@ function ensureInput() {
 }
 
 function input(...argv) {
-  return exec(INPUT, argv.map(String), WORK)
+  const args = argv.map(String)
+  if (REMOTE) {
+    return remote(`${REMOTE_INPUT} ${args.map(shellQuote).join(' ')}`)
+  }
+  return exec(INPUT, args, WORK)
 }
 
 function findEl(pid, id) {
@@ -437,10 +482,16 @@ class AppProcess {
     this.output = ''
     this.seen = new Set()
     this.waiters = []
-    this.proc = spawn(exe, [], {
-      env: { ...process.env },
-      stdio: ['ignore', 'pipe', 'pipe'],
-    })
+    // Remote: `exec` replaces the remote shell so stdout/stderr stream back
+    // through the ssh pipe; killing the local ssh ends the remote process.
+    this.proc = REMOTE
+      ? spawn('ssh', [...SSH, REMOTE, `exec ${shellQuote(exe)}`], {
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
+      : spawn(exe, [], {
+          env: { ...process.env },
+          stdio: ['ignore', 'pipe', 'pipe'],
+        })
     this.proc.stdout.on('data', (d) => this.feed(d.toString()))
     this.proc.stderr.on('data', (d) => this.feed(d.toString()))
     this.exit = new Promise((resolve) => {
@@ -493,6 +544,23 @@ class AppProcess {
 }
 
 async function installDmg(dmg, target) {
+  const base = dmg.split('/').pop().replace(/\.dmg$/, '')
+  // The DMG exists locally (build phase); its sha is recorded once here.
+  if (!evidence.artifacts[`${base}Dmg`]) {
+    evidence.artifacts[`${base}Dmg`] = { path: dmg, sha256: sha256(dmg) }
+  }
+  if (REMOTE) {
+    const remoteDmg = `${REMOTE_WORK}/${basename(dmg)}`
+    const mnt = `${REMOTE_WORK}/mnt-${base}`
+    remote(`mkdir -p ${shellQuote(mnt)} && rm -rf ${shellQuote(target)}`)
+    remote(`hdiutil attach -nobrowse -readonly -mountpoint ${shellQuote(mnt)} ${shellQuote(remoteDmg)}`)
+    try {
+      remote(`ditto ${shellQuote(`${mnt}/${PRODUCT}.app`)} ${shellQuote(target)}`)
+    } finally {
+      remote(`hdiutil detach ${shellQuote(mnt)} -force; rmdir ${shellQuote(mnt)}`)
+    }
+    return
+  }
   // diskimages-helper may be denied mount points inside protected user
   // folders (observed under ~/dev); a private temporary directory works.
   const mnt = mkdtempSync(join(tmpdir(), 'xplat-shell-journey-mnt-'))
@@ -501,8 +569,6 @@ async function installDmg(dmg, target) {
     rmSync(target, { recursive: true, force: true })
     // ditto preserves the framework symlinks a plain copy flattens.
     exec('ditto', [join(mnt, `${PRODUCT}.app`), target])
-    const base = dmg.split('/').pop().replace(/\.dmg$/, '')
-    evidence.artifacts[`${base}Dmg`] = { path: dmg, sha256: sha256(dmg) }
     const exePath = join(target, 'Contents/MacOS', PRODUCT)
     if (existsSync(exePath)) {
       evidence.artifacts[`${base}AppExe`] = { path: exePath, sha256: sha256(exePath) }
@@ -516,6 +582,33 @@ async function installDmg(dmg, target) {
 async function journeyPhase() {
   ensureInput()
 
+  const v1 = join(WORK, `${PRODUCT}-v1.dmg`)
+  const v2 = join(WORK, `${PRODUCT}-v2.dmg`)
+
+  if (REMOTE) {
+    await step('stage artifacts on ' + REMOTE, 'in-process', async () => {
+      const home = remote('printf %s "$HOME"').trim()
+      REMOTE_WORK = `${home}/agent-scratch/octane-xplat/hushed-dew/${basename(WORK)}`
+      REMOTE_INPUT = `${REMOTE_WORK}/macos-input`
+      remote(`mkdir -p ${shellQuote(REMOTE_WORK)}`)
+      remoteWrite(
+        `${REMOTE_WORK}/README.md`,
+        'Everything in this folder is disposable.\n\n' +
+          `Desktop-shell macOS journey artifacts for ${basename(WORK)} ` +
+          `(source work dir ${WORK}, commit ${evidence.sourceCommit}).\n` +
+          'The runner installs the DMGs below into Applications/, launches them, ' +
+          'and removes the app afterwards; nothing here is needed after the run.\n',
+      )
+      execFileSync(
+        'scp',
+        [...SSH, INPUT, v1, v2, `${REMOTE}:${REMOTE_WORK}/`],
+        { encoding: 'utf8', stdio: 'pipe' },
+      )
+      remote(`chmod +x ${shellQuote(REMOTE_INPUT)}`)
+      return `${REMOTE}:${REMOTE_WORK}`
+    })
+  }
+
   const trusted = (() => {
     try {
       return input('trusted')
@@ -524,26 +617,41 @@ async function journeyPhase() {
     }
   })()
 
-  if (!trusted) {
-    evidence.inputLane = 'blocked: accessibility/post-event permission'
-    log('input lane blocked: macos-input lacks accessibility/post-event trust')
-    const err = new Error(evidence.inputLane)
-    err.noThrow = true
-    throw err
+  if (!trusted || !(trusted.includes('ax=true') && trusted.includes('post=true'))) {
+    evidence.inputLane = REMOTE
+      ? 'blocked: skymac SSH session lacks Accessibility/PostEvent permission'
+      : 'blocked: accessibility/post-event permission'
+    log(`input lane ${evidence.inputLane} (trusted: ${trusted})`)
+  } else {
+    log('input trusted: ' + trusted)
   }
-  log('input trusted: ' + trusted)
 
-  const v1 = join(WORK, `${PRODUCT}-v1.dmg`)
-  const v2 = join(WORK, `${PRODUCT}-v2.dmg`)
-  const appTarget = join(WORK, 'Applications', PRODUCT + '.app')
-  mkdirSync(dirname(appTarget), { recursive: true })
-  const exe = join(appTarget, 'Contents/MacOS', PRODUCT)
+  const appTarget = REMOTE
+    ? `${REMOTE_WORK}/Applications/${PRODUCT}.app`
+    : join(WORK, 'Applications', PRODUCT + '.app')
+  const exe = `${appTarget}/Contents/MacOS/${PRODUCT}`
+  if (!REMOTE) {
+    mkdirSync(dirname(appTarget), { recursive: true })
+  }
 
   let app = null
   let launchedCalculator = false
 
   const cleanup = async () => {
     app?.kill()
+    if (REMOTE) {
+      try {
+        remote(`pkill -f ${shellQuote(`${PRODUCT}.app`)} || true`)
+      } catch {}
+      if (launchedCalculator) {
+        // Never osascript/System Events on the SSH host — it hangs on a TCC
+        // prompt. pkill is sufficient for a runner-launched Calculator.
+        try {
+          remote('pkill -x Calculator || true')
+        } catch {}
+      }
+      return
+    }
     if (launchedCalculator) {
       try {
         exec('osascript', ['-e', 'quit app "Calculator"'])
@@ -554,7 +662,7 @@ async function journeyPhase() {
   try {
     await step('install v1 from DMG', 'in-process', async () => {
       await installDmg(v1, appTarget)
-      exec('codesign', ['--verify', '--deep', '--strict', appTarget])
+      host('codesign', ['--verify', '--deep', '--strict', appTarget])
       return 'codesign ok'
     })
 
@@ -676,7 +784,7 @@ async function journeyPhase() {
 
     await step('background activation via global hotkey', 'os-input', async () => {
       try {
-        exec('open', ['-a', 'Calculator'])
+        host('open', ['-a', 'Calculator'])
         launchedCalculator = true
       } catch (e) {
         throw new Error('cannot launch Calculator: ' + e.message)
@@ -684,7 +792,7 @@ async function journeyPhase() {
       await sleep(1500)
       const front = (() => {
         try {
-          return exec('lsappinfo', ['front'])
+          return host('lsappinfo', ['front'])
         } catch {
           return ''
         }
@@ -727,22 +835,35 @@ async function journeyPhase() {
     })
 
     await step('install v2 over v1, restore persisted state', 'in-process', async () => {
+      if (evidence.inputLane) {
+        // The form step that would write 'Ada' is input-blocked; seed the
+        // app's defaults domain directly so the restore path still runs.
+        host('defaults', ['write', BUNDLE_ID, 'desktop-shell.name', 'Ada'])
+      }
       await installDmg(v2, appTarget)
       app = new AppProcess(exe)
       await app.wait('JOURNEY RESTORED name=Ada', 90000)
       await app.wait('JOURNEY READY', 30000)
-      const status = input('value', app.pid, 'journey-status')
-      if (!status.includes('(v2)')) throw new Error(`no v2 suffix in "${status}"`)
-      input('key', 12, 'cmd')
-      await Promise.race([app.exit, sleep(15000)])
+      if (evidence.inputLane) {
+        app.kill()
+      } else {
+        const status = input('value', app.pid, 'journey-status')
+        if (!status.includes('(v2)')) throw new Error(`no v2 suffix in "${status}"`)
+        input('key', 12, 'cmd')
+        await Promise.race([app.exit, sleep(15000)])
+      }
       return 'RESTORED + v2 text'
     })
 
     await step('uninstall; defaults domain intact then cleaned', 'in-process', async () => {
-      rmSync(appTarget, { recursive: true, force: true })
+      if (REMOTE) {
+        remote(`rm -rf ${shellQuote(appTarget)}`)
+      } else {
+        rmSync(appTarget, { recursive: true, force: true })
+      }
       const defs = (() => {
         try {
-          return exec('defaults', ['read', BUNDLE_ID])
+          return host('defaults', ['read', BUNDLE_ID])
         } catch {
           return ''
         }
@@ -750,7 +871,7 @@ async function journeyPhase() {
       if (!defs.includes('Ada')) {
         throw new Error('defaults domain lost the name: ' + defs.slice(0, 300))
       }
-      exec('defaults', ['delete', BUNDLE_ID])
+      host('defaults', ['delete', BUNDLE_ID])
       return 'name persisted in defaults; domain removed'
     })
   } finally {
@@ -776,21 +897,28 @@ try {
     }
   }
   if (evidence.result !== 'blocked') {
-    evidence.result = evidence.steps.every((s) => s.result === 'pass') ? 'pass' : 'fail'
+    if (evidence.steps.some((s) => s.result === 'fail')) {
+      evidence.result = 'fail'
+    } else if (evidence.steps.some((s) => s.result === 'blocked')) {
+      evidence.result = 'blocked'
+    } else {
+      evidence.result = 'pass'
+    }
   }
 } catch (e) {
   evidence.result = 'fail'
   evidence.error = String(e && e.message ? e.message : e)
 } finally {
   evidence.environment = {
-    macos: exec('sw_vers', ['-productVersion'], WORK, { timeout: 5000 }),
+    macos: host('sw_vers', ['-productVersion'], { timeout: 5000 }),
     xcode: (() => {
       try {
-        return exec('xcodebuild', ['-version'], WORK, { timeout: 5000 }).split('\n').slice(0, 2).join(' ')
+        return host('xcodebuild', ['-version'], { timeout: 5000 }).split('\n').slice(0, 2).join(' ')
       } catch {
         return 'unavailable'
       }
     })(),
+    ...(REMOTE ? { journeyHost: REMOTE } : {}),
   }
   await writeFile(join(WORK, 'evidence.json'), JSON.stringify(evidence, null, 2))
   log(`evidence: ${join(WORK, 'evidence.json')}`)
