@@ -1463,13 +1463,15 @@ async function mediaDepthSpec(): Promise<Record<string, unknown>> {
  *  API-surface pass: each import itself proves the module resolves without a
  *  foreign-platform leaf, and each call must report its contract's explicit
  *  unsupported shape — never a silent mobile fallback. */
-async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
+async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   const out: Record<string, unknown> = {}
+  const step = (name: string) => record('service-progress', { spec: 'leaf-surface', step: name })
 
   out.shareText = await share.text('leaf-surface')
   out.shareFile = await share.file('C:\\leaf-surface.txt')
   out.pushSupported = push.supported
   out.pushConfigured = push.configured
+  step('share')
   out.pushToken = await push.getToken()
 
   let pushConfigure = ''
@@ -1479,9 +1481,11 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
     pushConfigure = String((error as Error)?.message ?? error)
   }
   out.pushConfigure = pushConfigure
+  step('push')
 
   out.notificationsSupported = notifications.supported
   out.notificationsPermissions = (await notifications.getPermissions()).status
+  step('notifications')
 
   const bank = createSoundBank()
   const caps = bank.capabilities()
@@ -1490,12 +1494,14 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
   out.soundPlay = await bank.play('clip')
   out.soundMaxVoices = caps.maxVoices
   bank.dispose()
+  step('sounds')
 
   out.gpu = getGPU() === null ? 'null' : 'present'
   out.appleSupported = appleAuth.supported
   out.appleSignIn = (await appleAuth.signIn()).status
   out.googleSupported = googleAuth.supported
   out.googleSignIn = (await googleAuth.signIn()).status
+  step('auth')
 
   let recorderError = ''
   try {
@@ -1504,6 +1510,7 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
     recorderError = (error as Error)?.name ?? String(error)
   }
   out.recorderError = recorderError
+  step('recorder')
 
   const updates = createUpdates({
     endpoint: 'https://leaf-surface.invalid',
@@ -1512,15 +1519,18 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
   out.updatesSupported = updates.supported
   const updateCheck = await updates.check()
   out.updatesCheck = updateCheck.available ? 'available' : updateCheck.reason
+  step('updates')
 
   out.biometricsSupported = biometrics.supported
   out.biometricsAvailable = await biometrics.isAvailable()
   out.biometricsPermissions = (await biometrics.getPermissions()).status
+  step('biometrics')
 
   out.mediaSupported = media.supported
   out.mediaAvailable = await media.isAvailable()
   out.mediaCapture = await media.capturePhoto()
   out.mediaPhotosPermission = (await media.getPermissions('photos')).status
+  step('media')
 
   // Import-presence evidence: these packages resolve on the windows chain
   // (.windows → unsuffixed) without a foreign-suffix leak — the bundle fails
@@ -1529,6 +1539,7 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
   out.rollingTextComponent = typeof RollingText
   out.smoothCornersComponent = typeof SmoothCorners
   out.motionCreate = typeof motion?.create
+  step('components')
 
   try {
     createHaptics().capabilities()
@@ -1543,6 +1554,7 @@ async function leafSurfaceSpec(): Promise<Record<string, unknown>> {
     out.hapticsCaps = `throw:${(error as Error)?.name ?? 'Error'}`
   }
 
+  step('haptics')
   try {
     await requestStream('https://leaf-surface.invalid/')
     out.networkStream = 'resolved'
@@ -1664,7 +1676,7 @@ export async function runServiceSpec(spec: string, record: Emit): Promise<void> 
         result = await mediaDepthSpec()
         break
       case 'leaf-surface':
-        result = await leafSurfaceSpec()
+        result = await leafSurfaceSpec(record)
         break
       default:
         record('service-error', { spec, message: 'Unknown service spec' })
