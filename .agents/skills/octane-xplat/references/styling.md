@@ -27,7 +27,8 @@ component layer; design tokens are CSS custom properties.
    are accepted; truthy numbers stringify, while `0` and `NaN` drop out.
 4. **Utility classes are a shared vocabulary** (`flex-1`, `gap-4`,
    `bg-primary`, `text-onprimary`...) — the curated shared set lives in
-   `packages/ui/src/theme/tokens.css`; app-only selectors live in
+   `packages/ui/src/theme/utilities.css` as an optional import; required
+   structure stays in `tokens.css`. App-only selectors live in
    `packages/app/src/app.css`. Read the [styling guide](../../../../docs/app/styling.md) for supported
    composition and the [CSS notes](../../../docs/notes/css-support-notes.md)
    when investigating native property support.
