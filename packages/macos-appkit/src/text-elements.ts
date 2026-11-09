@@ -663,6 +663,8 @@ export function createTextElements(deps: Dependencies) {
     label.translatesAutoresizingMaskIntoConstraints = false
     label.font = deps.nativeStyle.fontForStyle(16)
     label.textColor = NSColor.labelColor
+    // A disabled NSTextField reports AXUnknown; a label is static text.
+    label.accessibilityRole = 'AXStaticText'
     return label
   }
 

@@ -61,6 +61,10 @@ export function sourceWithoutImports(url: URL) {
 }
 
 const SLICE_BASE = {
+  // applyAccessibility pushes AX state through setAccessibility* in the
+  // assembled runtime; sliced evals run without that dep and exercise the
+  // JS getters directly.
+  syncNativeAccessibility: () => {},
   createPilotAdapters,
   createControlAdapters,
   createContainerAdapters,

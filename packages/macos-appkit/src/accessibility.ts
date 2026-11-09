@@ -10,7 +10,7 @@ import { NSAccessibilityPostNotification } from '@octane-xplat/platform/macos'
 import { syncHeadingAccessibility } from './heading-accessibility.ts'
 
 interface Dependencies {
-  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView'>
+  accessibleHost: Pick<AccessibleHost, 'AccessibleHostView' | 'syncNativeAccessibility'>
   state: AccessibilityState
 }
 
@@ -125,6 +125,7 @@ export function createAccessibility(deps: Dependencies) {
       }
 
       lease.update(patch)
+      deps.accessibleHost.syncNativeAccessibility?.(node.view!)
 
       const changed =
         name === 'accessibilityValue'

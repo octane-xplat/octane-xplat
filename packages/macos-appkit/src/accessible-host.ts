@@ -107,6 +107,7 @@ export function createAccessibleHost(deps: Dependencies) {
       isAccessibilitySelected: { params: [], returns: interop.types.bool },
       isAccessibilityExpanded: { params: [], returns: interop.types.bool },
       accessibilityIsIgnored: { params: [], returns: interop.types.bool },
+      isAccessibilityElement: { params: [], returns: interop.types.bool },
     }
 
     static {
@@ -339,6 +340,13 @@ export function createAccessibleHost(deps: Dependencies) {
       return deps.state.get(this)?.accessibilityState?.expanded === true
     }
 
+    // NSAccessibility clients read isAccessibilityElement; plain NSView
+    // answers NO, so the legacy accessibilityIsIgnored override alone left
+    // interactive hosts out of the tree that VoiceOver and automation walk.
+    isAccessibilityElement() {
+      return !this.accessibilityIsIgnored()
+    }
+
     accessibilityIsIgnored() {
       const props = deps.state.get(this)
 
@@ -351,11 +359,69 @@ export function createAccessibleHost(deps: Dependencies) {
     }
   }
 
+  // The bridged class resolves NSAccessibility property accessors against
+  // native storage, so the JS methods above only answer in-process callers —
+  // KVC and the AX server see NSView's defaults. Push each computed value
+  // through the matching setAccessibility* setter, which does reach ObjC.
+  interface AccessibilitySetters {
+    setAccessibilityElement?(value: boolean): void
+    setAccessibilityRole?(value: string): void
+    setAccessibilityLabel?(value: string): void
+    setAccessibilityTitle?(value: string): void
+    setAccessibilityValue?(value: unknown): void
+    setAccessibilityValueDescription?(value: string): void
+    setAccessibilityMinValue?(value: unknown): void
+    setAccessibilityMaxValue?(value: unknown): void
+    setAccessibilityHelp?(value: string): void
+    setAccessibilityEnabled?(value: boolean): void
+    setAccessibilitySelected?(value: boolean): void
+    setAccessibilityExpanded?(value: boolean): void
+  }
+
+  function syncNativeAccessibility(view: object) {
+    if (!(view instanceof AccessibleHostView)) {
+      return
+    }
+
+    const setters = view as unknown as AccessibilitySetters
+    // Each push computes and sets together: a getter that needs a native
+    // helper absent from a partial shim (NSNumber in test boundaries) must
+    // not take the rest of the sync down with it.
+    const push = (apply: () => void) => {
+      try {
+        apply()
+      } catch {
+        // best-effort under partial native shims
+      }
+    }
+
+    push(() => setters.setAccessibilityElement?.(view.isAccessibilityElement()))
+    push(() => setters.setAccessibilityRole?.(view.accessibilityRole()))
+    push(() => setters.setAccessibilityLabel?.(view.accessibilityLabel()))
+    push(() => setters.setAccessibilityTitle?.(view.accessibilityTitle()))
+    push(() => setters.setAccessibilityValue?.(view.accessibilityValue()))
+    push(() =>
+      setters.setAccessibilityValueDescription?.(view.accessibilityValueDescription()),
+    )
+    const props = deps.state.get(view)
+    if (props?.accessibilityMinValue !== undefined) {
+      push(() => setters.setAccessibilityMinValue?.(view.accessibilityMinValue()))
+    }
+    if (props?.accessibilityMaxValue !== undefined) {
+      push(() => setters.setAccessibilityMaxValue?.(view.accessibilityMaxValue()))
+    }
+    push(() => setters.setAccessibilityHelp?.(view.accessibilityHelp()))
+    push(() => setters.setAccessibilityEnabled?.(view.isAccessibilityEnabled()))
+    push(() => setters.setAccessibilitySelected?.(view.isAccessibilitySelected()))
+    push(() => setters.setAccessibilityExpanded?.(view.isAccessibilityExpanded()))
+  }
+
   return {
     inputTransparentViews,
     scopeFocusTargets,
     tabStopSuppression,
     disabledFocusTargets,
     AccessibleHostView,
+    syncNativeAccessibility,
   }
 }

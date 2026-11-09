@@ -43,6 +43,9 @@ interface Dependencies {
     | 'fitTextView'
     | 'dispatchTextEvent'
   >
+  /** Re-push a view's AX properties after a handler lands — element-ness
+   *  depends on hasHandler. Optional for test fixtures. */
+  syncViewAccessibility?: (view: object) => void
 }
 
 export type Actions = ReturnType<typeof createActions>
@@ -71,6 +74,9 @@ export function createActions(deps: Dependencies) {
     nodeActions.get(node)?.action.release()
     nodeActions.set(node, { action, view })
     node.actionId = action.id
+    if (view) {
+      deps.syncViewAccessibility?.(view)
+    }
     return action.id
   }
 
@@ -112,6 +118,10 @@ export function createActions(deps: Dependencies) {
           }
         : undefined,
     )
+
+    if (view) {
+      deps.syncViewAccessibility?.(view)
+    }
   }
 
   class ButtonActionTarget extends NSObject {

@@ -158,6 +158,9 @@ const actions = createActions({
       return cssPseudoState.syncPseudoState(...args)
     },
   },
+  syncViewAccessibility(view) {
+    accessibleHost.syncNativeAccessibility(view)
+  },
   inputElements,
 })
 
