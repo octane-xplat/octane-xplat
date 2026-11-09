@@ -39,6 +39,56 @@ export const Application = {
 
 export const isAndroid = false
 export const isIOS = false
+
+// platform/system-bars constructs a Color before its Android gate; on GTK it
+// is inert but must stay constructable.
+export class Color {
+  readonly argb = 0
+  readonly android = 0
+  readonly ios = null
+  constructor(readonly value?: string | number) {}
+}
+
+// NS `Screen.mainScreen` reports the primary display in DIPs. GTK4 window
+// coordinates are already DIPs; the monitor scale factor is the pixel ratio.
+// Gdk is read lazily so unit tests without GI imports keep 0×0 / scale 1.
+function primaryMonitor(): { w: number; h: number; scale: number } {
+  try {
+    const Gdk = (globalThis as unknown as { imports?: { gi?: { Gdk?: any } } })
+      .imports?.gi?.Gdk
+    const mon =
+      Gdk?.Display?.get_default?.()?.get_monitors?.()?.get_item?.(0) ??
+      Gdk?.Display?.get_default?.()?.get_primary_monitor?.()
+    const geo = mon?.get_geometry?.()
+    return {
+      w: Number(geo?.width ?? 0),
+      h: Number(geo?.height ?? 0),
+      scale: Number(mon?.get_scale_factor?.() ?? 1) || 1,
+    }
+  } catch {
+    return { w: 0, h: 0, scale: 1 }
+  }
+}
+
+export const Screen = {
+  mainScreen: {
+    get widthDIPs() {
+      return primaryMonitor().w
+    },
+    get heightDIPs() {
+      return primaryMonitor().h
+    },
+    get scale() {
+      return primaryMonitor().scale
+    },
+    get widthPixels() {
+      return this.widthDIPs * this.scale
+    },
+    get heightPixels() {
+      return this.heightDIPs * this.scale
+    },
+  },
+}
 export const AccessibilityRole = {
   button: 'button',
   link: 'link',
