@@ -117,7 +117,7 @@ Contributor implementation details and qualification evidence live in the
 | Export                  | Contents                                                                                                   |
 | ----------------------- | ---------------------------------------------------------------------------------------------------------- |
 | `.`                     | `gtkDriver`, `createGtkRoot`, `GTK_RENDERER_ID`, `registerStylesheet`, `octane/universal/native` re-export |
-| `./host`                | `runGtkApp` — GtkApplication + window + content box + mounted root                                         |
+| `./host`                | `runGtkApp` — GtkApplication + window + content box + mounted root; `setWindowContentResolver` — app-level `openWindow` content seam (the macOS host's counterpart). `runGtkApp`'s `mount` may return a cleanup invoked once on Gtk.Application `shutdown` before the root unmounts |
 | `./compat/native-core`  | `@nativescript/core` shim for leaves evaluated in a GTK bundle                                             |
 | `./compat/escape-props` | escape-props shim                                                                                          |
 

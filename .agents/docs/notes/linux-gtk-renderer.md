@@ -417,7 +417,7 @@ Runtime-verified on Homebrew gjs 1.90.1 + GTK4 (`xplat workshop dev --target lin
   now sets AT-visible labels; widget names remain solely for automation. See the
   [release audit](linux-gtk-release.md).
 - `queueMicrotask` is absent in GJS — the workshop shell installs a `Promise.resolve().then` polyfill on the global before octane's universal runtime loads.
-- The compat shim `native-core-shim.ts` now carries honest stand-ins: `ApplicationSettings` is an in-process map (no persistence), `Connectivity` reports `connectionType.unknown` and monitoring is a no-op, `Device` reports static desktop values.
+- The compat shim `native-core-shim.ts` now carries honest stand-ins: `ApplicationSettings` persists through a GLib.KeyFile at `${XDG_CONFIG_HOME:-~/.config}/<applicationId>/settings.ini` (type-tagged values, lazy load, write-through; falls back to an in-process map when GLib/Gio are absent, e.g. unit tests), `Connectivity` reports `connectionType.unknown` and monitoring is a no-op, `Device` reports static desktop values.
 - `xplat workshop dev --target linux`: the GJS shell reads the stdin line protocol through a `GLib.IOChannel` watch; blocking `read_line` inside the callback must not loop — read one line per `IN` dispatch or microtasks starve.
 
 ## GTK icon and picture sources

@@ -15,8 +15,9 @@ on Linux instead of a WebKitGTK webview.
   identity.
 - Bundle through the `linuxGtk` Vite preset and package a relocatable
   `gjs -m` app directory plus archive.
-- Understand the artifact boundary: no desktop entry, installer, URI
-  handling, or broad runtime qualification. Named widget/history checks do not
+- Understand the artifact boundary: the archive ships a `.desktop` entry and
+  `install.sh`/`uninstall.sh`, but URI handling and broad runtime
+  qualification are still open. Named widget/history checks do not
   establish packaging, OS input or visual parity.
 
 ## Acceptance criteria
@@ -25,10 +26,12 @@ on Linux instead of a WebKitGTK webview.
   or an explicit native Mason build, and declare `runtime: "gtk"`, the required package identity
   fields, and a `vite.gtk.config.ts` that applies the `linuxGtk` preset.
 - AC2: `xplat build --targets linux` emits a relocatable directory holding the
-  single-file ESM bundle, an executable `gjs -m` launcher, `app.json`, and a
-  `README.txt`, plus a tar archive; a failed build preserves the prior app.
-- AC3: The reader can tell which pieces are absent (installer, desktop entry,
-  URI handling, device services) and distinguish actual GJS widget/history checks
+  single-file ESM bundle, an executable `gjs -m` launcher, `app.json`, a
+  `README.txt`, a `.desktop` entry and `install.sh`/`uninstall.sh`, plus a tar
+  archive; a failed build preserves the prior app.
+- AC3: The reader can tell which pieces are absent (URI handling, device
+  services) from the shipped install surface (desktop entry, install.sh,
+  uninstall.sh), and distinguish actual GJS widget/history checks
   from unqualified packaging, OS input and layout behavior.
 
 ## Documentation

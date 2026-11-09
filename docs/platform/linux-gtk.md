@@ -1121,10 +1121,26 @@ tar -xzf my-app-1.0.0.tar.gz
 The launcher checks that `gjs` is installed and execs the bundled app, so
 it works from any directory without a source checkout, Node, or pnpm.
 
+The app directory also ships a `.desktop` entry, `install.sh` and
+`uninstall.sh`. `./install.sh` copies the app into
+`${XDG_DATA_HOME:-~/.local/share}/<applicationId>` — replacing any previous
+install so files removed between versions do not linger — writes the
+per-user desktop entry with the absolute `Exec` path, and refreshes the
+desktop database. `./uninstall.sh` removes only the installed app directory
+and desktop entry; settings under
+`${XDG_CONFIG_HOME:-~/.config}/<applicationId>` are kept.
+
+```sh
+./my-app/install.sh     # per-user install + desktop entry
+./my-app/uninstall.sh   # removes the install; keeps ~/.config/<applicationId>
+```
+
 ## What this target does not have yet
 
-- No desktop entry, per-user installer, or URI scheme handling — those are
-  features of the WebKitGTK host, and they land with runtime qualification.
+- URI scheme handling stays on the WebKitGTK runtime — the GTK desktop entry
+  declares no MimeType, and `x-scheme-handler` links do not reach the GTK
+  host. The install scripts themselves are not yet qualified on a real
+  Linux host.
 - Clipboard coverage is text-only writes (`copyText`/`useClipboard`
   claim the display clipboard); reads and other formats are not exposed.
   Secure storage, notifications and files remain unqualified — the GTK
