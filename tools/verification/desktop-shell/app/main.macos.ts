@@ -75,7 +75,7 @@ runMacOSApp(
     terminateAfterLastWindowClosed: false,
   },
   ({ app, root }) => {
-    root.render(App as Parameters<typeof root.render>[0])
+    root.render(App as any, {})
     statusSuffix$.set(STATUS_SUFFIX)
     const restored = storage.getString(STORAGE_KEY)
 
