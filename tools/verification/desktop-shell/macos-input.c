@@ -47,14 +47,24 @@ static CFTypeRef copyAny(AXUIElementRef el, CFStringRef name) {
 static CGPoint elementPosition(AXUIElementRef el) {
   CGPoint p = CGPointZero;
   CFTypeRef v = copyAny(el, kAXPositionAttribute);
-  if (v) { AXValueGetValue((AXValueRef)v, kAXValueTypeCGPoint, &p); CFRelease(v); }
+  if (v) {
+    if (CFGetTypeID(v) == AXValueGetTypeID() &&
+        AXValueGetType((AXValueRef)v) == kAXValueTypeCGPoint)
+      AXValueGetValue((AXValueRef)v, kAXValueTypeCGPoint, &p);
+    CFRelease(v);
+  }
   return p;
 }
 
 static CGSize elementSize(AXUIElementRef el) {
   CGSize s = CGSizeZero;
   CFTypeRef v = copyAny(el, kAXSizeAttribute);
-  if (v) { AXValueGetValue((AXValueRef)v, kAXValueTypeCGSize, &s); CFRelease(v); }
+  if (v) {
+    if (CFGetTypeID(v) == AXValueGetTypeID() &&
+        AXValueGetType((AXValueRef)v) == kAXValueTypeCGSize)
+      AXValueGetValue((AXValueRef)v, kAXValueTypeCGSize, &s);
+    CFRelease(v);
+  }
   return s;
 }
 
@@ -72,11 +82,22 @@ static NSString *elementJSON(AXUIElementRef el, const char *extraKey, NSString *
   NSString *role = cfToNS(copyAttr(el, kAXRoleAttribute));
   NSString *title = cfToNS(copyAttr(el, kAXTitleAttribute));
   CFTypeRef val = copyAny(el, kAXValueAttribute);
-  NSString *value = val ? [(__bridge id)val description] : @"";
-  if (val) CFRelease(val);
+  NSString *value = @"";
+  if (val) {
+    CFTypeID tid = CFGetTypeID(val);
+    if (tid == CFStringGetTypeID() || tid == CFNumberGetTypeID() ||
+        tid == CFBooleanGetTypeID()) {
+      value = [(__bridge id)val description];
+    }
+    CFRelease(val);
+  }
   Boolean focused = false;
   CFTypeRef fv = copyAny(el, kAXFocusedAttribute);
-  if (fv) { focused = CFBooleanGetValue((CFBooleanRef)fv); CFRelease(fv); }
+  if (fv) {
+    if (CFGetTypeID(fv) == CFBooleanGetTypeID())
+      focused = CFBooleanGetValue((CFBooleanRef)fv);
+    CFRelease(fv);
+  }
   NSMutableString *out = [NSMutableString stringWithFormat:
     @"{\"x\":%.1f,\"y\":%.1f,\"w\":%.1f,\"h\":%.1f,\"role\":\"%@\",\"title\":\"%@\",\"value\":\"%@\",\"focused\":%s",
     p.x, p.y, s.width, s.height, jsonEscape(role), jsonEscape(title),
@@ -145,6 +166,47 @@ static int cmdFind(const char *pidStr, const char *axid, int printValueOnly) {
     printf("%s\n", [(v.length ? v : t) UTF8String]);
   } else {
     printf("%s\n", [elementJSON(el, "identifier", target) UTF8String]);
+  }
+  return 0;
+}
+
+static int cmdDump(const char *pidStr) {
+  pid_t pid = (pid_t)atoi(pidStr);
+  AXUIElementRef app = AXUIElementCreateApplication(pid);
+  NSMutableArray *all = [NSMutableArray array];
+  collect(app, all, 0);
+  fprintf(stderr, "dump collected %lu elements\n", (unsigned long)[all count]);
+  NSUInteger i = 0;
+  for (id item in all) {
+    AXUIElementRef el = (__bridge AXUIElementRef)item;
+    NSString *idv = cfToNS(copyAttr(el, (__bridge CFStringRef)@"AXIdentifier"));
+    NSString *role = cfToNS(copyAttr(el, kAXRoleAttribute));
+    NSString *title = cfToNS(copyAttr(el, kAXTitleAttribute));
+    fprintf(stderr, "[%lu] role=%s id=%s\n", (unsigned long)i++,
+            [role UTF8String], [idv UTF8String]);
+    printf("%s\n", [[NSString stringWithFormat:
+      @"{\"role\":\"%@\",\"title\":\"%@\",\"identifier\":\"%@\"}",
+      jsonEscape(role), jsonEscape(title), jsonEscape(idv)] UTF8String]);
+  }
+  return 0;
+}
+
+static int cmdProbe(const char *pidStr) {
+  pid_t pid = (pid_t)atoi(pidStr);
+  AXUIElementRef app = AXUIElementCreateApplication(pid);
+  for (NSString *attr in @[
+       @"AXChildren", @"AXWindows", @"AXVisibleChildren", @"AXMenuBar",
+       @"AXExtrasMenuBar", @"AXMainWindow", @"AXFocusedWindow",
+       @"AXRole", @"AXTitle", @"AXFrontmost", @"AXHidden",
+     ]) {
+    CFTypeRef v = NULL;
+    AXError err = AXUIElementCopyAttributeValue(app, (__bridge CFStringRef)attr, &v);
+    long count = (v && CFGetTypeID(v) == CFArrayGetTypeID())
+                     ? CFArrayGetCount((CFArrayRef)v)
+                     : -1;
+    printf("%s err=%d count=%ld%s\n", [attr UTF8String], (int)err, count,
+           v && count < 0 ? " (non-array)" : "");
+    if (v) CFRelease(v);
   }
   return 0;
 }
@@ -261,6 +323,8 @@ int main(int argc, const char *argv[]) {
     if (!strcmp(cmd, "value") && argc == 4) return cmdFind(argv[2], argv[3], 1);
     if (!strcmp(cmd, "extras") && argc == 3) return cmdList(argv[2], 0);
     if (!strcmp(cmd, "menubar") && argc == 3) return cmdList(argv[2], 1);
+    if (!strcmp(cmd, "dump") && argc == 3) return cmdDump(argv[2]);
+    if (!strcmp(cmd, "probe") && argc == 3) return cmdProbe(argv[2]);
     if (!strcmp(cmd, "menuitems") && argc == 3) return cmdList(argv[2], 2);
     if (!strcmp(cmd, "press") && argc == 4) return cmdPress(argv[2], argv[3]);
     if (!strcmp(cmd, "click") && argc == 4)

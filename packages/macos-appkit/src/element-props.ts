@@ -61,6 +61,10 @@ export function createElementProps(deps: Dependencies) {
     node.props = { ...node.props, ...props }
     if ('testID' in props && node.view) {
       node.view.accessibilityIdentifier = String(props.testID ?? '')
+      // testID exists for automation discovery; AppKit only exposes views
+      // that opt in to accessibility, so the identifier would otherwise be
+      // unreachable in the AX tree.
+      node.view.accessibilityElement = props.testID !== undefined
     }
 
     if ('disabled' in props && node.clickGestureRecognizer) {
