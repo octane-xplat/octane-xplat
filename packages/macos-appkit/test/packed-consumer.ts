@@ -125,6 +125,7 @@ for (const file of [
   'wrap-lifecycle.ts',
   'dock-lifecycle.ts',
   'content-lifecycle.ts',
+  'WindowContent.macos.tsx',
   'main.ts',
   'dev-shell.ts',
   'types.ts',
@@ -336,7 +337,9 @@ if (process.platform !== 'darwin' || (process.arch !== 'arm64' && process.arch !
 
   await writeFile(join(directory, 'appkit-runtime.log'), output)
   assert.equal(result.status, 0, output)
+  assert.match(output, /PACKED_HOST_OK/)
   assert.match(output, /PACKED_RENDERER_OK/)
+  assert.match(output, /PACKED_HOST_CLEANUP/)
   if (actionBarOnly) {
     assert.match(output, /PACKED_ACTIONBAR_OK/)
   } else if (liquidGlassOnly) {

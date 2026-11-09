@@ -7,12 +7,15 @@
 `@nativescript/macos-node-api` runtime and the CLI's JavaScriptCore host.
 The supported packaging target is Apple Silicon with macOS 13.5 or later.
 
-Your application owns startup, windows, menus, host services, and custom font
-assets. The renderer owns views, layout, events, accessibility, and its hosted
-popups and sheets. It applies your stylesheets with the same selector engine
-iOS and Android use, but does not implement every NativeScript widget or CSS
-property. See the [macOS harness](../../apps/macos/README.md) for the current
-component and service limits.
+The package's `host` entry runs the AppKit application for you: it creates
+`NSApplication`, the main window, its universal root, the platform services
+`@octane-xplat/platform` reads, and the window service behind `openWindow`.
+Your application still owns menus, custom font assets, and the components each
+window renders. The renderer owns views, layout, events, accessibility, and its
+hosted popups and sheets. It applies your stylesheets with the same selector
+engine iOS and Android use, but does not implement every NativeScript widget or
+CSS property. See the [macOS harness](../../apps/macos/README.md) for the
+current component and service limits.
 
 The independent packed consumer checks native selector dispatch, geometry,
 element and nested-root cleanup, and retained-root HMR. These are programmatic
@@ -92,9 +95,73 @@ export default await macos('production', {
 })
 ```
 
+## Start an app
+
+`runMacOSApp` from `@octane-xplat/macos-appkit/host` is your packaged entry
+point. It creates the main window, mounts a universal root in its content
+view, calls your `mount` callback, presents the window, and runs the AppKit
+event loop. Your `mount` receives `{ app, window, contentView, root }`; render
+your component there and optionally return a cleanup function the host calls
+exactly once when the app closes.
+
+```ts
+// src/main.ts — the packaged entry named by your Vite config
+import { runMacOSApp } from '@octane-xplat/macos-appkit/host'
+import App from './App.macos'
+
+runMacOSApp({ title: 'Notes' }, ({ root, window }) => {
+  root.render(App, { parentWindow: window })
+  return () => console.log('app is closing')
+})
+```
+
+Options are `title` (default `'Octane App'`), `size` in points (default
+`640×420`), `terminateAfterLastWindowClosed` (default `true`), and
+`rootOptions` — root options such as `{ fontFamily: 'Acme Sans' }` applied to
+the main root and to every `openWindow` root.
+
+Importing `host` also installs the `__xplatAppKit` platform services
+(clipboard, storage, `openUrl`, app state, window size, `announce`, and deep
+links) that `@octane-xplat/platform` reads on macOS, plus the window service
+`openWindow` from `@octane-xplat/ui` calls.
+
+To open a secondary window, first teach the host which component a request
+maps to with `setWindowContentResolver`, then call `openWindow` with `data`,
+`title`, `size`, `kind`, and `parent`:
+
+```ts
+import { setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
+import { openWindow } from '@octane-xplat/ui'
+
+setWindowContentResolver((data) =>
+  data?.kind === 'preview' ? PreviewWindow : null,
+)
+
+const win = openWindow({ data: { kind: 'preview' }, title: 'Preview', size: { width: 480, height: 640 } })
+await win?.closed
+```
+
+Each window mounts its own Octane root using your `rootOptions`. `kind` is a
+behavior contract: `'regular'` opens an independent window, `'dialog'`
+presents as a sheet on its parent, and `'popup'` is a non-activating child
+panel. The returned handle exposes `close()`, `setTitle()`, `setSize()`,
+`closed`, `isClosed`, and `onCloseRequested`. `createHostedWindow` opens the
+same window without a universal root for non-Octane native views such as a
+`WKWebView`.
+
+```ts
+import { createHostedWindow } from '@octane-xplat/macos-appkit/host'
+
+const hosted = createHostedWindow({ title: 'Browser', size: { width: 800, height: 600 } })
+// hosted.contentView is the NSView to install your native view into.
+await hosted.closed
+```
+
 ## Mount and dispose a root
 
-In your existing host bootstrap, pass its content view to the renderer:
+When you embed Octane into an `NSView` you already own — for example inside
+a `createHostedWindow` content view or an existing AppKit app — pass that
+view to the renderer instead of using `runMacOSApp`:
 
 ```js
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'

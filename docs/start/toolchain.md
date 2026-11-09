@@ -507,8 +507,10 @@ for Spotlight. Use the packaged `.app` for a lasting installation.
 
 For AppKit rendering, install `@octane-xplat/macos-appkit` and use
 `macos` from `@octane-xplat/cli/macos/vite` to register the compiler,
-platform resolution, and compatibility aliases. The app owns its windows,
-startup, and custom fonts; the renderer defaults to Apple's system font.
+platform resolution, and compatibility aliases. `runMacOSApp` from
+`@octane-xplat/macos-appkit/host` runs the app for you — startup, the main
+window, and platform services; the app owns its custom fonts, and the
+renderer defaults to Apple's system font.
 See the [renderer setup](../packages/package-macos-appkit.md) for dependencies,
 Vite and TypeScript configuration, and the root lifecycle.
 

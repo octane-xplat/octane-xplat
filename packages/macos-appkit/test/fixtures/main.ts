@@ -1,3 +1,4 @@
+import '@nativescript/macos-node-api'
 import { checkHostedLifecycle } from './hosted-lifecycle'
 import { checkActionOwnershipLifecycle } from './action-ownership-lifecycle'
 import { checkRootDirectoryLifecycle } from './root-directory-lifecycle'
@@ -14,8 +15,8 @@ import { checkDateLifecycle } from './date-lifecycle'
 import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
 import { checkPickerBridgeLifecycle } from './picker-bridge-lifecycle'
-import '@nativescript/macos-node-api'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
+import { runMacOSApp, setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import { checkSearchLifecycle } from './search-lifecycle'
 import { checkRootLifecycle } from './root-lifecycle'
@@ -26,39 +27,25 @@ import { checkContentLifecycle } from './content-lifecycle'
 import { checkPlaceholderLifecycle } from './placeholder-lifecycle'
 import { checkLiquidGlassLifecycle } from './liquidglass-lifecycle'
 import App, { childRefs, stackRefs, refEvents, tapEvents } from './App'
-import {
-  NSApplication,
-  NSApplicationActivationPolicy,
-  NSFont,
-  NSWindow,
-  NSWindowStyleMask,
-} from '@octane-xplat/platform/macos'
+import SecondaryWindow, { windowRefEvents } from './WindowContent'
+import { NSFont } from '@octane-xplat/platform/macos'
 
-const app = NSApplication.sharedApplication
+runMacOSApp(
+  {
+    title: 'Renderer consumer',
+    size: { width: 400, height: 200 },
+    terminateAfterLastWindowClosed: true,
+  },
+  ({ app, window: nativeWindow, root }) => {
+    root.render(App as any, {})
 
-app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
+    if (process.env.XPLAT_RENDERER_CONSUMER_TEST !== '1') {
+      return
+    }
 
-const windowStyle = NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
-const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-  { origin: { x: 0, y: 0 }, size: { width: 400, height: 200 } },
-  windowStyle,
-  2,
-  false,
-)
+    const debug = (root as any).__macosDebug
 
-nativeWindow.title = 'Renderer consumer'
-nativeWindow.releasedWhenClosed = false
-
-const root = createMacOSRoot(nativeWindow.contentView)
-
-root.render(App as any, {})
-nativeWindow.makeKeyAndOrderFront(app)
-app.finishLaunching()
-
-if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
-  const debug = (root as any).__macosDebug
-
-  setTimeout(() => {
+    setTimeout(() => {
     try {
       const font = debug.findId('count').font
 
@@ -395,6 +382,63 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
 
               await checkActionOwnershipLifecycle(nativeWindow)
               await checkRootDirectoryLifecycle(nativeWindow)
+
+              const bridge: any = Reflect.get(globalThis, '__xplatAppKit')
+
+              check(
+                bridge &&
+                  typeof bridge.storageSet === 'function' &&
+                  typeof bridge.storageGet === 'function',
+                'Packed host storage service is unavailable',
+              )
+
+              bridge.storageSet('packed-host-key', 'packed-value')
+              check(
+                bridge.storageGet('packed-host-key') === 'packed-value',
+                'Packed host storage round-trip failed',
+              )
+              bridge.storageRemove('packed-host-key')
+              check(
+                bridge.storageGet('packed-host-key') === null,
+                'Packed host storage remove failed',
+              )
+
+              const resolverCalls: unknown[] = []
+
+              setWindowContentResolver((data) => {
+                resolverCalls.push(data)
+                return SecondaryWindow
+              })
+
+              const openSecondary: any = Reflect.get(globalThis, '__xplatAppKitOpenWindow')
+
+              check(typeof openSecondary === 'function', 'Packed host window service unavailable')
+
+              const secondary = openSecondary({
+                data: { marker: 'secondary' },
+                title: 'Packed secondary window',
+                size: { width: 240, height: 160 },
+              })
+
+              check(
+                resolverCalls.length === 1 &&
+                  (resolverCalls[0] as any)?.marker === 'secondary',
+                'Window resolver did not receive request data',
+              )
+              check(
+                secondary.isClosed === false && secondary.root !== null,
+                'Secondary window did not mount its root',
+              )
+
+              secondary.close()
+              await secondary.closed
+              check(secondary.isClosed === true, 'Secondary window did not report closed')
+              check(secondary.root === null, 'Secondary window root was not released')
+              check(
+                windowRefEvents.join(',') === 'attach,cleanup',
+                'Secondary window root did not unmount: ' + windowRefEvents.join(','),
+              )
+              console.log('PACKED_HOST_OK')
               console.log('PACKED_RENDERER_OK')
             } catch (error) {
               console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)
@@ -415,10 +459,8 @@ if (process.env.XPLAT_RENDERER_CONSUMER_TEST === '1') {
       console.error('PACKED_RENDERER_FAIL: ' + (error as Error).message)
       globalThis.__xplatStopHost()
     }
-  }, 80)
-}
+    }, 80)
 
-// Embedding apps own window-close delegates and root disposal.
-if (process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP !== '1') {
-  app.run()
-}
+    return () => console.log('PACKED_HOST_CLEANUP')
+  },
+)

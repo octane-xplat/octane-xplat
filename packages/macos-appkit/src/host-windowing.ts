@@ -1,9 +1,14 @@
-import { harnessFontOptions } from './fonts'
-import { announceAppKit } from './accessibility'
-import { notifyAppKitListeners, subscribeAppKitEvent } from './platform-events'
+// AppKit windowing machinery shared by `runMacOSApp` and embedding hosts.
+// Importing this module installs the host seams other packages read:
+// `globalThis.__xplatAppKit` platform services, `__xplatAppKitOpenWindow`
+// (the `openWindow` backend for @octane-xplat/ui), `__xplatAppKitMountSheet`,
+// and the `__xplatMacosWindowing` state every loaded copy shares.
 import '@nativescript/macos-node-api'
-import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import type { UniversalComponent, UniversalRoot } from '@octane-xplat/macos-appkit'
+import { createMacOSRoot } from './runtime'
+import type { MacOSRootOptions } from './runtime'
+import { announceAppKit } from './host-announce'
+import { notifyAppKitListeners, subscribeAppKitEvent } from './host-events'
+import type { UniversalComponent, UniversalRoot } from 'octane/universal/native'
 import {
   NSApplication,
   NSApplicationActivationPolicy,
@@ -32,25 +37,113 @@ import type { NSClass } from '@octane-xplat/platform/macos'
 
 const app = NSApplication.sharedApplication
 
-const externalRunLoop = () =>
+/** True when the embedding host owns the AppKit event loop (dev and packaged
+ *  runs set OCTANE_MACOS_EXTERNAL_RUNLOOP); then startup finishes launching
+ *  instead of calling `app.run()` and no JS event pump runs. */
+export const externalRunLoopMode = () =>
   (
     globalThis as typeof globalThis & {
       process?: { env?: Record<string, string | undefined> }
     }
   ).process?.env?.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
 
-// The dev harness and the bundled app import this module as separate
+// The dev shell and the bundled app import this module as separate
 // instances; windowing state is shared through globalThis so delegates
 // registered by one copy see windows created by the other.
 
-type WindowKind = 'regular' | 'dialog' | 'popup'
+/** Presentation behavior of an AppKit window opened through `openWindow`. */
+export type MacOSWindowKind = 'regular' | 'dialog' | 'popup'
 
-interface WindowSize {
+/** A window or content size in points. */
+export interface MacOSWindowSize {
+  /** Horizontal extent in points. */
   width: number
+  /** Vertical extent in points. */
   height: number
 }
 
-type MacOSRoot = UniversalRoot & { __macosDebug?: { [key: string]: any } }
+/** Controller for a window `openWindow` created — the object `openWindow`
+ *  callers and `WindowContentResolver`s receive. */
+export interface AppKitWindowController {
+  /** Behavior contract this window was opened with. */
+  kind: MacOSWindowKind
+  /** The backing AppKit window. */
+  window: NSWindow
+  /** The `data` option `openWindow` received, or `null`. */
+  data: unknown
+  /** The Octane root mounted in `window`'s content view; `null` after close. */
+  root: UniversalRoot | null
+  /** Read-only for callers; the host flips it when the window finishes closing. */
+  isClosed: boolean
+  /** Resolves when the window closes for any reason. */
+  closed: Promise<void>
+  /** App-assigned close veto — returning `false` cancels a user close request. */
+  onCloseRequested?: (() => boolean | void) | null
+  /** Retitle the window. */
+  setTitle(title: string): void
+  /** Resize the window's content area. */
+  setSize(next: MacOSWindowSize): void
+  /** Close the window now, skipping the `onCloseRequested` veto. */
+  close(): void
+}
+
+/** Controller for a `createHostedWindow` window hosting a non-Octane native
+ *  view (for example a WKWebView) instead of a universal root. */
+export interface HostedWindowController {
+  /** The backing AppKit window. */
+  window: NSWindow
+  /** The window's content view to install the hosted view into. */
+  contentView: NSView
+  /** Resolves when the window closes for any reason. */
+  closed: Promise<void>
+  /** Read-only for callers; the host flips it when the window finishes closing. */
+  readonly isClosed: boolean
+  /** Retitle the window. */
+  setTitle(title: string): void
+  /** Close the window now. */
+  close(): void
+}
+
+/**
+ * Maps `openWindow({ data })` requests to the component a new window mounts.
+ * Install it with `setWindowContentResolver` before calling `openWindow`
+ * without an explicit `component`.
+ *
+ * @example
+ * ```ts
+ * setWindowContentResolver((data) => {
+ *   if (data && typeof data === 'object' && 'docId' in data) return DocumentWindow
+ *   return null
+ * })
+ * ```
+ */
+export type WindowContentResolver = (
+  data: unknown,
+  controller: AppKitWindowController,
+) => unknown
+
+/** Options accepted by the host's `openWindow` (the `__xplatAppKitOpenWindow`
+ *  global `openWindow` from @octane-xplat/ui calls through). */
+export interface MacOSOpenWindowOptions {
+  /** Presentation behavior: `'regular'` independent window, `'dialog'` sheet
+   *  on the parent, `'popup'` non-activating child panel. @default 'regular' */
+  kind?: MacOSWindowKind
+  /** Owning window for `'dialog'`/`'popup'` kinds — an `NSWindow` or a
+   *  controller returned by `openWindow`/`createHostedWindow`.
+   *  @default the key window */
+  parent?: NSWindow | AppKitWindowController | HostedWindowController | null
+  /** Requested window title. @default 'Octane window' */
+  title?: string
+  /** Requested content size in points. */
+  size?: MacOSWindowSize
+  /** Data handed to the installed `WindowContentResolver`. */
+  data?: unknown
+  /** Explicit component to mount, bypassing the resolver. */
+  component?: UniversalComponent
+  /** Props for `component`; defaults to `{ data, controller }` when omitted. */
+  props?: unknown
+  [key: string]: unknown
+}
 
 interface WindowControllerBase {
   window: NSWindow
@@ -63,12 +156,14 @@ interface WindowControllerBase {
   __didClose(): void
 }
 
-interface AppKitWindowController extends WindowControllerBase {
-  kind: WindowKind
+interface ManagedAppKitWindowController extends AppKitWindowController, WindowControllerBase {
+  kind: MacOSWindowKind
   data: unknown
   root: MacOSRoot | null
-  setSize(next: WindowSize): void
+  setSize(next: MacOSWindowSize): void
 }
+
+type MacOSRoot = UniversalRoot & { __macosDebug?: { [key: string]: any } }
 
 interface PlatformServices {
   appState: 'active' | 'inactive' | string
@@ -80,7 +175,7 @@ interface PlatformServices {
 }
 
 interface MacosWindowingShared {
-  resolver: ((data: unknown, controller: AppKitWindowController) => unknown) | null
+  resolver: WindowContentResolver | null
   appDelegate: AppDelegate | null
   byNative: Map<NSWindow, WindowControllerBase>
   terminateAfterLastWindowClosed: boolean
@@ -91,28 +186,21 @@ interface MacosWindowingShared {
   applicationClosed: Promise<void>
   resolveApplicationClosed?: (value: void | PromiseLike<void>) => void
   platformServices: PlatformServices
-}
-
-interface OpenWindowOptions {
-  kind?: string
-  parent?: NSWindow | WindowControllerBase | null
-  title?: string
-  size?: WindowSize
-  data?: unknown
-  component?: UniversalComponent
-  props?: unknown
-  [key: string]: any
+  rootOptions?: MacOSRootOptions
+  terminating?: Set<() => void>
 }
 
 declare global {
   var __xplatMacosWindowing: MacosWindowingShared | undefined
-  var __xplatAppKitOpenWindow: ((options: OpenWindowOptions) => AppKitWindowController) | undefined
+  var __xplatAppKitOpenWindow:
+    | ((options: MacOSOpenWindowOptions) => AppKitWindowController)
+    | undefined
 
   var __xplatAppKitMountSheet:
     | ((
         component: UniversalComponent,
         props: unknown,
-        options?: OpenWindowOptions,
+        options?: MacOSOpenWindowOptions,
       ) => AppKitWindowController)
     | undefined
 }
@@ -235,7 +323,7 @@ class AppDelegate extends NSObject {
     // ES class methods are non-enumerable, and the runtime only exports
     // enumerable prototype members as new ObjC methods — without this,
     // every delegate selector is invisible to AppKit. Same contract as
-    // registerGestureClass in @octane-xplat/macos-appkit.
+    // registerGestureClass in this package's gesture support.
     for (const name of Object.getOwnPropertyNames(this.prototype)) {
       if (name === 'constructor') {
         continue
@@ -254,7 +342,7 @@ class AppDelegate extends NSObject {
     // Under OCTANE_MACOS_EXTERNAL_RUNLOOP the host owns the event loop;
     // -stop: would terminate it and a JS pump would double-dispatch.
     // The stop+manual-pump handoff applies only to the stock app.run() path.
-    if (externalRunLoop()) {
+    if (externalRunLoopMode()) {
       return
     }
 
@@ -340,6 +428,9 @@ class AppDelegate extends NSObject {
     }
 
     shared.windowCloseHandlers.clear()
+    // Synchronous teardown seam for runMacOSApp — mount cleanup must run
+    // before the root unmount queued by the close handlers above.
+    notifyAppKitListeners(shared.terminating ?? new Set(), (handler) => handler())
     shared.resolveApplicationClosed?.()
   }
 
@@ -382,6 +473,14 @@ function appDelegate(): AppDelegate {
   return shared.appDelegate
 }
 
+// Internal hook for runMacOSApp — the handler runs synchronously inside
+// applicationWillTerminate, before applicationClosed resolves and before the
+// unmount queued by windowClosed settles.
+export function onApplicationTerminating(handler: () => void) {
+  shared.terminating ??= new Set()
+  shared.terminating.add(handler)
+}
+
 // Platform services seam — @octane-xplat/platform's macOS index reads
 // `globalThis.__xplatAppKit` for anything the JS side cannot reach.
 function installPlatformServices() {
@@ -390,7 +489,7 @@ function installPlatformServices() {
   const bridge = ((globalThis as any).__xplatAppKit ??= {})
   const services = shared.platformServices
   const info = NSBundle.mainBundle.infoDictionary ?? {}
-  let windowSizeSnapshot: (WindowSize & { orientation: 'portrait' | 'landscape' }) | undefined
+  let windowSizeSnapshot: (MacOSWindowSize & { orientation: 'portrait' | 'landscape' }) | undefined
 
   // Assigning would evaluate accessors once and freeze these live values.
   Object.defineProperties(
@@ -586,13 +685,16 @@ const REGULAR_STYLE =
   NSWindowStyleMask.Miniaturizable |
   NSWindowStyleMask.Resizable
 
-function makeContentView(size: WindowSize): NSView {
+function makeContentView(size: MacOSWindowSize): NSView {
   return NSView.alloc().initWithFrame({ origin: { x: 0, y: 0 }, size })
 }
 
 const WINDOW_KINDS = new Set(['regular', 'dialog', 'popup'])
 
-function normalizeWindowSize(size: WindowSize | undefined, source = 'openWindow'): WindowSize {
+function normalizeWindowSize(
+  size: MacOSWindowSize | undefined,
+  source = 'openWindow',
+): MacOSWindowSize {
   if (
     !size ||
     typeof size !== 'object' ||
@@ -608,7 +710,7 @@ function normalizeWindowSize(size: WindowSize | undefined, source = 'openWindow'
 }
 
 function resolveParentWindow(
-  parentOption: NSWindow | WindowControllerBase | null | undefined,
+  parentOption: NSWindow | AppKitWindowController | HostedWindowController | null | undefined,
   kind: string,
 ): NSWindow | null {
   if (
@@ -619,7 +721,7 @@ function resolveParentWindow(
     throw new TypeError('openWindow parent must be an AppKit window or window controller')
   }
 
-  if ((parentOption as any)?.isClosed) {
+  if ((parentOption as { isClosed?: unknown } | null | undefined)?.isClosed) {
     throw new Error('openWindow cannot use a closed parent window')
   }
 
@@ -647,7 +749,61 @@ function resolveParentWindow(
   return parentWindow
 }
 
-export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: boolean } = {}) {
+/** The application-level window resources `createAppKitWindow` returns — the
+ *  shared `NSApplication`, the main window and its content view, the two
+ *  lifecycle promises, and the shared delegate to detach on teardown. */
+export interface AppKitWindow {
+  /** The shared `NSApplication`. */
+  app: NSApplication
+  /** The main window this call created. */
+  window: NSWindow
+  /** The window's pinned content view — mount a root or hosted view here. */
+  contentView: NSView
+  /** Resolves once `applicationWillTerminate` runs. */
+  applicationClosed: Promise<void>
+  /** Resolves once `windowWillClose` runs for `window`. */
+  windowClosed: Promise<void>
+  /** The shared AppKit delegate installed on the app and host windows.
+   *  Detach by assigning `null` during teardown. */
+  delegate: AppKitHostDelegate | null
+}
+
+/** The shared AppKit application/window delegate the host installs. */
+export interface AppKitHostDelegate extends NSObject {}
+
+/** Options for `createAppKitWindow`. */
+export interface CreateAppKitWindowOptions {
+  /** Main window title. @default 'Octane App' */
+  title?: string
+  /** Main window content size in points. @default { width: 640, height: 420 } */
+  size?: MacOSWindowSize
+  /** End the application when its last window closes.
+   *  @default false — AppKit's keep-running behavior */
+  terminateAfterLastWindowClosed?: boolean
+  /** Options for every Octane root `openWindow` creates (for example
+   *  `{ fontFamily }`); `runMacOSApp` applies it to its main root too. */
+  rootOptions?: MacOSRootOptions
+}
+
+/**
+ * Create the application's main AppKit window, install the shared application
+ * and window delegate, and return the mount target plus lifecycle promises.
+ * Lower-level than `runMacOSApp` — use it for hosts that mount a non-Octane
+ * view (for example a WKWebView) instead of a universal root.
+ *
+ * @example
+ * ```ts
+ * import { createAppKitWindow } from '@octane-xplat/macos-appkit/host'
+ *
+ * const host = createAppKitWindow({ title: 'Notes', terminateAfterLastWindowClosed: true })
+ * // host.contentView is the NSView your content mounts into.
+ * host.windowClosed.then(() => {
+ *   host.window.delegate = null
+ *   host.app.delegate = null
+ * })
+ * ```
+ */
+export function createAppKitWindow(options: CreateAppKitWindowOptions = {}): AppKitWindow {
   if (options === null || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('createAppKitWindow options must be an object')
   }
@@ -658,17 +814,30 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
     throw new TypeError('createAppKitWindow terminateAfterLastWindowClosed must be a boolean')
   }
 
+  const size = normalizeWindowSize(
+    options.size ?? { width: 640, height: 420 },
+    'createAppKitWindow',
+  )
+
+  if (options.rootOptions !== undefined) {
+    if (options.rootOptions === null || typeof options.rootOptions !== 'object') {
+      throw new TypeError('createAppKitWindow rootOptions must be an object')
+    }
+
+    shared.rootOptions = options.rootOptions
+  }
+
   shared.terminateAfterLastWindowClosed = terminateAfterLastWindowClosed
   app.setActivationPolicy(NSApplicationActivationPolicy.Regular)
 
   const nativeWindow = NSWindow.alloc().initWithContentRectStyleMaskBackingDefer(
-    { origin: { x: 0, y: 0 }, size: { width: 640, height: 420 } },
+    { origin: { x: 0, y: 0 }, size },
     REGULAR_STYLE,
     2,
     false,
   )
 
-  nativeWindow.title = 'Octane macOS spike'
+  nativeWindow.title = String(options.title ?? 'Octane App')
   nativeWindow.releasedWhenClosed = false
 
   nativeWindow.center()
@@ -676,16 +845,16 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
   app.delegate = shared.appDelegate as unknown as NSApplicationDelegate
   shared.platformServices.primaryWindow ??= nativeWindow
 
-  const contentView = makeContentView({ width: 640, height: 420 })
+  const contentView = makeContentView(size)
   // Pin the content size as a required constraint. Without it, every
   // required child-pin chain hands the solver a path where a nested
   // view's hugging priority (750) outranks the window↔content constraint
   // (WindowSizeStayPut, 500) — and AppKit resizes the window to the
   // content's fitting size. The pins track the last applied size so
   // explicit/user resizes still take: a fixed constant would lock the
-  // window at 640x420 forever.
-  const widthPin = contentView.widthAnchor.constraintEqualToConstant(640)
-  const heightPin = contentView.heightAnchor.constraintEqualToConstant(420)
+  // window at its initial size forever.
+  const widthPin = contentView.widthAnchor.constraintEqualToConstant(size.width)
+  const heightPin = contentView.heightAnchor.constraintEqualToConstant(size.height)
 
   widthPin.active = true
   heightPin.active = true
@@ -694,14 +863,14 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
       return
     }
 
-    const size = nativeWindow.contentView?.bounds?.size
+    const bounds = nativeWindow.contentView?.bounds?.size
 
-    if (!size) {
+    if (!bounds) {
       return
     }
 
-    widthPin.constant = Number(size.width)
-    heightPin.constant = Number(size.height)
+    widthPin.constant = Number(bounds.width)
+    heightPin.constant = Number(bounds.height)
   })
 
   nativeWindow.contentView = contentView
@@ -726,9 +895,15 @@ export function createAppKitWindow(options: { terminateAfterLastWindowClosed?: b
 
 /**
  * Resize a window once to its content's fitting size — call after the first
- * render. Floored at the default content size (scroll views report no
- * intrinsic size, so an unclamped fitting can collapse) and capped at the
- * screen's visible height. One-shot: the window stays resizable afterwards.
+ * render. Floored at the given size (scroll views report no intrinsic size,
+ * so an unclamped fitting can collapse) and capped at the screen's visible
+ * height. One-shot: the window stays resizable afterwards.
+ *
+ * @example
+ * ```ts
+ * root.render(App, {})
+ * fitWindowToContent(window)
+ * ```
  */
 export function fitWindowToContent(
   nativeWindow: NSWindow | null | undefined,
@@ -758,10 +933,20 @@ export function fitWindowToContent(
   })
 }
 
-/** Install the app-owned resolver that maps openWindow data to a component. */
-export function setWindowContentResolver(
-  resolve: ((data: unknown, controller: AppKitWindowController) => unknown) | null,
-) {
+/**
+ * Install the app-owned resolver that maps `openWindow({ data })` requests to
+ * the component each new window mounts. Pass `null` to remove it.
+ *
+ * @example
+ * ```ts
+ * import { setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
+ * import { openWindow } from '@octane-xplat/ui'
+ *
+ * setWindowContentResolver((data) => (data?.kind === 'preview' ? PreviewWindow : null))
+ * const win = openWindow({ data: { kind: 'preview' }, title: 'Preview' })
+ * ```
+ */
+export function setWindowContentResolver(resolve: WindowContentResolver | null) {
   if (resolve !== null && typeof resolve !== 'function') {
     throw new TypeError('setWindowContentResolver expects a function or null')
   }
@@ -774,8 +959,22 @@ export function setWindowContentResolver(
  * contract: 'regular' opens an independent window, 'dialog' presents as a
  * sheet on the parent (default: key window), 'popup' is a non-activating
  * child panel. Requested size and title are hints.
+ *
+ * The `openWindow` API in @octane-xplat/ui reaches this through the installed
+ * `__xplatAppKitOpenWindow` global; call it directly only when mounting
+ * AppKit windows without the shared UI package.
+ *
+ * @example
+ * ```ts
+ * const controller = openWindow({
+ *   component: InspectorWindow,
+ *   title: 'Inspector',
+ *   size: { width: 360, height: 480 },
+ * })
+ * await controller.closed
+ * ```
  */
-export function openWindow(options: OpenWindowOptions = {}): AppKitWindowController {
+export function openWindow(options: MacOSOpenWindowOptions = {}): AppKitWindowController {
   if (options === null || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('openWindow options must be an object')
   }
@@ -806,7 +1005,7 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
         : NSWindowStyleMask.Titled | NSWindowStyleMask.Closable
 
   let nativeWindow: NSWindow | undefined
-  let controller: AppKitWindowController | undefined
+  let controller: ManagedAppKitWindowController | undefined
 
   try {
     nativeWindow = ((kind === 'popup' ? NSPanel : NSWindow) as NSClass<NSWindow>)
@@ -830,7 +1029,7 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
     let resolveWindowClosed!: () => void
 
     controller = {
-      kind: kind as WindowKind,
+      kind,
       window: nativeWindow,
       data: options.data ?? null,
       root: null,
@@ -842,7 +1041,7 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
       setTitle(title: string) {
         nativeWindow!.title = String(title)
       },
-      setSize(next: WindowSize) {
+      setSize(next: MacOSWindowSize) {
         nativeWindow!.setContentSize(normalizeWindowSize(next, 'setSize'))
       },
       // Explicit close is a command; NSWindow.close() skips windowShouldClose,
@@ -906,7 +1105,7 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
       )
     }
 
-    controller.root = createMacOSRoot(nativeWindow.contentView, harnessFontOptions) as MacOSRoot
+    controller.root = createMacOSRoot(nativeWindow.contentView, shared.rootOptions) as MacOSRoot
     controller.root.render(
       component as UniversalComponent,
       options.props ?? { data: controller.data, controller },
@@ -944,10 +1143,18 @@ export function openWindow(options: OpenWindowOptions = {}): AppKitWindowControl
 }
 
 /**
- * Create a bare AppKit window for a non-Octane host view (currently the desktop
- * WKWebView bridge). Unlike openWindow, this does not create a universal root.
+ * Create a bare AppKit window for a non-Octane host view (for example a
+ * desktop WKWebView). Unlike `openWindow`, this does not create a universal
+ * root — callers install their own view into `contentView`.
+ *
+ * @example
+ * ```ts
+ * const controller = createHostedWindow({ title: 'Browser', size: { width: 800, height: 600 } })
+ * const webView = createMacOSWebView(controller.contentView)
+ * await controller.closed
+ * ```
  */
-export function createHostedWindow(options: OpenWindowOptions = {}) {
+export function createHostedWindow(options: MacOSOpenWindowOptions = {}): HostedWindowController {
   if (options === null || typeof options !== 'object' || Array.isArray(options)) {
     throw new TypeError('createHostedWindow options must be an object')
   }
@@ -1001,7 +1208,7 @@ export function createHostedWindow(options: OpenWindowOptions = {}) {
     resolveWindowClosed()
   }
 
-  const controller = {
+  const controller: HostedWindowController & WindowControllerBase = {
     window: nativeWindow,
     contentView: nativeWindow.contentView,
     closed,
@@ -1044,10 +1251,21 @@ export function createHostedWindow(options: OpenWindowOptions = {}) {
   return controller
 }
 
-/** Snapshot/press handles for every secondary window, used by dev automation. */
-export function debugWindows() {
+/**
+ * Snapshot/press handles for every secondary window, used by dev automation.
+ * Each entry carries the window title and its Octane root's `__macosDebug`
+ * surface when the root exposes one.
+ *
+ * @example
+ * ```ts
+ * for (const entry of debugWindows()) {
+ *   console.log(entry.title, entry.debug?.snapshot())
+ * }
+ * ```
+ */
+export function debugWindows(): { title: string; debug: { [key: string]: any } | null }[] {
   return [...shared.byNative.entries()].map(([nativeWindow, controller]) => ({
     title: String(nativeWindow.title ?? ''),
-    debug: (controller as AppKitWindowController).root?.__macosDebug ?? null,
+    debug: (controller as ManagedAppKitWindowController).root?.__macosDebug ?? null,
   }))
 }
