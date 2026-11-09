@@ -31,6 +31,28 @@ import { RollingText } from '@octane-xplat/rolling-text'
 import { SmoothCorners } from '@octane-xplat/smooth-corners'
 import { Windows, NSWinRT } from '@octane-xplat/platform/windows'
 import { Application, Screen } from '@nativescript/core'
+import { ads } from '@octane-xplat/ads'
+import { createAudioPlayer } from '@octane-xplat/audio'
+import { backgroundTasks } from '@octane-xplat/background-tasks'
+import { barcodeScanner } from '@octane-xplat/barcode-scanner'
+import { billing } from '@octane-xplat/billing'
+import { calendar } from '@octane-xplat/calendar'
+import { contacts } from '@octane-xplat/contacts'
+import { firebaseAnalytics } from '@octane-xplat/firebase-analytics'
+import { crashlytics } from '@octane-xplat/firebase-crashlytics'
+import { getGlobalShortcutSupport } from '@octane-xplat/global-shortcuts'
+import { maps } from '@octane-xplat/maps'
+import { isAvailable as mediaConverterAvailable } from '@octane-xplat/media-converter'
+import { usePermissions as mediaLibraryUsePermissions } from '@octane-xplat/media-library'
+import { posthog } from '@octane-xplat/posthog'
+import { sentry } from '@octane-xplat/sentry'
+import { getOrientationLockAsync } from '@octane-xplat/screen-orientation'
+import { hideAsync as splashHideAsync } from '@octane-xplat/splash-screen'
+import { openDatabase as sqliteOpen, supported as sqliteSupported } from '@octane-xplat/sqlite'
+import { storeReview } from '@octane-xplat/store-review'
+import { captureScreen as viewShotCapture } from '@octane-xplat/view-shot'
+import { webBrowser } from '@octane-xplat/web-browser'
+import { supported as richTextSupported } from '@octane-xplat/richtext'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
 
@@ -1569,6 +1591,44 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   } catch (error) {
     out.networkStream = String((error as Error)?.message ?? error)
   }
+
+  // leaf-surface-2: remaining bounded leaves — each must report its
+  // explicit unsupported shape, never a silent mobile fallback.
+  const settle = async (fn: () => unknown): Promise<unknown> => {
+    try {
+      return (await fn()) as unknown
+    } catch (error) {
+      return (error as Error)?.name ?? String(error)
+    }
+  }
+
+  out.adsSupported = ads?.supported
+  out.audioPlayer = typeof createAudioPlayer === 'function' ? 'function' : typeof createAudioPlayer
+  out.audioCreate = await settle(async () => createAudioPlayer())
+  out.backgroundTasksSupported = backgroundTasks.supported
+  out.barcodeSupported = barcodeScanner.supported
+  out.barcodeEnsure = await barcodeScanner.ensure()
+  out.billingSupported = billing.supported
+  out.calendarSupported = calendar.supported
+  out.contactsSupported = contacts.supported
+  out.contactsEnsure = await contacts.ensure()
+  out.firebaseAnalyticsSupported = firebaseAnalytics?.supported
+  out.crashlyticsSupported = crashlytics?.supported
+  out.globalShortcutsSupport = await getGlobalShortcutSupport()
+  out.mapsSupported = maps.supported
+  out.mediaConverterAvailable = await mediaConverterAvailable()
+  out.mediaLibraryUsePermissions = typeof mediaLibraryUsePermissions
+  out.posthogSupported = posthog?.supported
+  out.sentrySupported = sentry?.supported
+  out.orientationLock = await settle(async () => getOrientationLockAsync())
+  out.splashHide = await settle(async () => splashHideAsync())
+  out.sqliteSupported = sqliteSupported
+  out.sqliteOpen = await settle(async () => sqliteOpen('leaf-surface'))
+  out.storeReviewSupported = storeReview?.supported
+  out.storeReviewRequest = await settle(async () => storeReview.requestReview())
+  out.viewShotCapture = await settle(async () => viewShotCapture())
+  out.webBrowserSupported = webBrowser.supported
+  out.richTextSupported = richTextSupported
 
   return out
 }
