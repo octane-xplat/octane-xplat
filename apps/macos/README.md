@@ -9,8 +9,8 @@ packaged app set it to `true`; `createAppKitWindow` defaults to AppKit's
 keep-running behavior.
 
 ```js
-// In apps/macos/src/main.ts, using this harness's host helper.
-import { createAppKitWindow } from './appkit'
+// In apps/macos/src/dev-shell.mjs, through the packaged AppKit host.
+import { createAppKitWindow } from '@octane-xplat/macos-appkit/host'
 
 const host = createAppKitWindow({ terminateAfterLastWindowClosed: true })
 // host.contentView is the NSView passed to createMacOSRoot below.
@@ -50,8 +50,9 @@ public framework API.
 
 ## Fonts
 
-`@octane-xplat/macos-appkit` owns the AppKit driver and JSX declarations.
-The app owns startup, windows, and host services. See the [renderer package](../../docs/packages/package-macos-appkit.md)
+`@octane-xplat/macos-appkit` owns the AppKit driver and JSX declarations, and
+its `host` entry owns startup, windows, and host services. See the
+[renderer package](../../docs/packages/package-macos-appkit.md)
 for an independent consumer setup.
 
 The renderer defaults to Apple's system font. This harness explicitly registers

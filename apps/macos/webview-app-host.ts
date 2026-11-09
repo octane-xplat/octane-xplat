@@ -5,7 +5,7 @@ import type {
   FrameworkHostServices,
 } from '@octane-xplat/platform/host/services'
 
-import { createAppKitWindow } from './src/appkit'
+import { createAppKitWindow } from '@octane-xplat/macos-appkit/host'
 import { createDesktopWebViewHost, type AppKitHostServices } from './src/desktop-webview-host'
 
 const hostServices = (globalThis as typeof globalThis & { __xplatAppKit: AppKitHostServices })

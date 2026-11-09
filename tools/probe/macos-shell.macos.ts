@@ -9,7 +9,7 @@ import * as signals from 'octane/signals'
 import * as signalsClient from 'octane/signals/client'
 import * as internal from 'octane/internal/client'
 import * as renderer from '@octane-xplat/macos-appkit'
-import { createAppKitWindow, fitWindowToContent } from '../../apps/macos/src/appkit.ts'
+import { createAppKitWindow, fitWindowToContent } from '@octane-xplat/macos-appkit/host'
 
 globalThis.__xplatDevModules = {
   'octane/universal/native': native,
@@ -19,7 +19,11 @@ globalThis.__xplatDevModules = {
   '@octane-xplat/macos-appkit': renderer,
 }
 
-const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
+const appKit = createAppKitWindow({
+	title: 'Octane macOS spike',
+	terminateAfterLastWindowClosed: true,
+	rootOptions: harnessFontOptions,
+})
 let running = Promise.resolve()
 
 function adapter() {

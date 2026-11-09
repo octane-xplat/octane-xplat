@@ -1,60 +1,17 @@
 import './styles'
 import { harnessFontOptions } from './fonts'
-import { createAppKitWindow, fitWindowToContent } from './appkit'
+import { fitWindowToContent, runMacOSApp } from '@octane-xplat/macos-appkit/host'
 import App from './App'
-import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import type { NSApplicationDelegate, NSWindowDelegate } from '@octane-xplat/platform/macos'
 
-const appKit = createAppKitWindow({ terminateAfterLastWindowClosed: true })
-const { app, window: mainWindow, contentView, applicationClosed, windowClosed } = appKit
-const root = createMacOSRoot(contentView, harnessFontOptions)
-let rootUnmounted = false
-
-function unmountMainRoot() {
-  if (rootUnmounted) {
-    return
-  }
-
-  rootUnmounted = true
-  try {
-    root.unmount()
-  } catch (error) {
-    console.error('[macos] main window root unmount failed', error)
-  }
-}
-
-root.render(App as any, { parentWindow: mainWindow })
-fitWindowToContent(mainWindow)
-console.log('[macos-bundle] component rendered')
-
-// The host installs `__xplatStopHost` on globalThis; no ambient declaration
-// covers it, so the contract is named here.
-interface HostGlobals {
-  __xplatStopHost?: () => void
-}
-
-void windowClosed.then(unmountMainRoot)
-void applicationClosed.then(() => {
-  unmountMainRoot()
-  mainWindow.delegate = null as unknown as NSWindowDelegate
-  mainWindow.close()
-  app.delegate = null as unknown as NSApplicationDelegate
-  appKit.delegate = null
-
-  const stopHost = (globalThis as HostGlobals).__xplatStopHost
-
-  if (typeof stopHost === 'function') {
-    stopHost()
-  }
-})
-
-const externalRunLoop =
-  (globalThis as typeof globalThis & { process: { env: Record<string, string | undefined> } })
-    .process.env.OCTANE_MACOS_EXTERNAL_RUNLOOP === '1'
-
-if (externalRunLoop) {
-  app.finishLaunching()
-  app.activateIgnoringOtherApps(true)
-} else {
-  app.run()
-}
+runMacOSApp(
+  {
+    title: 'Octane macOS spike',
+    terminateAfterLastWindowClosed: true,
+    rootOptions: harnessFontOptions,
+  },
+  ({ root, window }) => {
+    root.render(App as any, { parentWindow: window })
+    fitWindowToContent(window)
+    console.log('[macos-bundle] component rendered')
+  },
+)

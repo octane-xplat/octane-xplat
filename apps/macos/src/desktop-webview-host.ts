@@ -16,7 +16,7 @@ type AppState = ReturnType<FrameworkHostServices['app']['getState']>
 type WindowSize = ReturnType<FrameworkHostServices['app']['getWindowSize']>
 type PermissionResult = Awaited<ReturnType<FrameworkHostServices['notifications']['ensure']>>
 
-import { createHostedWindow } from './appkit'
+import { createHostedWindow } from '@octane-xplat/macos-appkit/host'
 
 export interface AppKitHostServices {
   appInfo: AppInfo

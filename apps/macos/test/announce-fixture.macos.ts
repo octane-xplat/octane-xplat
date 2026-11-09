@@ -1,4 +1,4 @@
-import '../src/appkit'
+import '@octane-xplat/macos-appkit/host'
 import { announce } from '@octane-xplat/platform'
 
 declare const NSApplication: any
