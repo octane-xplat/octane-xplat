@@ -358,7 +358,11 @@ async function buildPhase() {
       join(consumer, 'dist/package-build/main.cjs'),
       'utf8',
     )
-    if (/vite\.dev|hmr|__vite|localhost:\d|127\.0\.0\.1:\d/.test(bundled)) {
+    if (
+      /https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|::1)/.test(bundled) ||
+      /wss?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|::1)/.test(bundled) ||
+      /__vite[_a-z]*dev|\/@vite\/client|vite\.dev\./i.test(bundled)
+    ) {
       throw new Error('packaged bundle carries dev-server/HMR client URLs')
     }
 
