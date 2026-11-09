@@ -496,7 +496,8 @@ async function installDmg(dmg, target) {
   exec('hdiutil', ['attach', '-nobrowse', '-readonly', '-mountpoint', mnt, dmg])
   try {
     rmSync(target, { recursive: true, force: true })
-    cpSync(join(mnt, `${PRODUCT}.app`), target, { recursive: true })
+    // ditto preserves the framework symlinks a plain copy flattens.
+    exec('ditto', [join(mnt, `${PRODUCT}.app`), target])
   } finally {
     exec('hdiutil', ['detach', mnt, '-force'])
   }
