@@ -43,6 +43,16 @@ export function MovingCard() {
   [animation and gestures](../../../../../docs/app/animation-gestures.md) for the
   current contract rather than treating a historical harness assert as a guarantee.
 
+Motion `x`/`y` targets, samples, and velocities use logical DIP on Android.
+Do not multiply by display density in app code; the native driver converts
+only at the Android pixel boundary. Keep conversion out of shared controllers.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ x: 100 }} transition={{ duration: 0.3 }} />
+```
+
 For moves and resizes caused by layout, use the motion package's `layout`
 prop on web, iOS, Android, and the experimental macOS host. A nested
 `layout="position"` host keeps its size while its parent scales. Browser

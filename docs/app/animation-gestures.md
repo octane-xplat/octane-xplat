@@ -60,7 +60,8 @@ export function Example() {
 
 Supported channels are `opacity`, `x`, `y`, `scale`, `scaleX`, `scaleY`, and
 `rotate`. Translation uses DIP on native and CSS pixels on web; rotation uses
-degrees. Transition duration and delay use **seconds**. Choose a tween with
+degrees. On Android, pass logical DIP values directly; Motion handles display
+density for native tweens and interrupted samples. Transition duration and delay use **seconds**. Choose a tween with
 `duration`/`ease`, or `type: 'spring'` with stiffness, damping, mass, velocity,
 and rest thresholds. Springs preserve velocity on retarget. The default is a
 0.3-second easeInOut tween.

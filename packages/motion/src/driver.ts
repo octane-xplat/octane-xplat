@@ -135,6 +135,8 @@ function androidRun(
   }
 
   const { eff, target, transition: t } = req
+  // Android View transforms use physical pixels; public channels use DIP.
+  const density = view.getResources().getDisplayMetrics().density
   const animator = view.animate()
   const [x1, y1, x2, y2] = bezierPoints(t.ease)
 
@@ -145,11 +147,11 @@ function androidRun(
   animator.setDuration(Math.round((t.duration ?? 0.3) * 1000))
   animator.setStartDelay(Math.round((t.delay ?? 0) * 1000))
   if (target.x !== undefined) {
-    animator.translationX(eff.x)
+    animator.translationX((eff.x ?? target.x) * density)
   }
 
   if (target.y !== undefined) {
-    animator.translationY(eff.y)
+    animator.translationY((eff.y ?? target.y) * density)
   }
 
   if (target.scale !== undefined || target.scaleX !== undefined) {
@@ -181,6 +183,15 @@ function androidRun(
     }
   }
 
+  const sample = (): Target => ({
+    opacity: view.getAlpha(),
+    x: view.getTranslationX() / density,
+    y: view.getTranslationY() / density,
+    scaleX: view.getScaleX(),
+    scaleY: view.getScaleY(),
+    rotate: view.getRotation(),
+  })
+
   // onAnimationCancel is always followed by onAnimationEnd — track it so the
   // end callback only commits the destination for a run that truly finished.
   let cancelled = false
@@ -188,6 +199,13 @@ function androidRun(
   animator.setListener(
     new android.animation.Animator.AnimatorListener({
       onAnimationCancel() {
+        if (settled) {
+          return
+        }
+
+        // Freeze NativeScript's DIP property cache as well as native presentation.
+        // Otherwise a later write equal to the old cached value can be skipped.
+        write(sample())
         cancelled = true
         settle('cancelled')
       },
@@ -209,16 +227,11 @@ function androidRun(
 
   return {
     finished,
-    sample: () => ({
-      opacity: view.getAlpha(),
-      x: view.getTranslationX(),
-      y: view.getTranslationY(),
-      scaleX: view.getScaleX(),
-      scaleY: view.getScaleY(),
-      rotate: view.getRotation(),
-    }),
+    sample,
     cancel() {
-      animator.cancel()
+      if (!settled) {
+        animator.cancel()
+      }
     },
   }
 }
