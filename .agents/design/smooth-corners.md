@@ -65,7 +65,6 @@ src/
   SmoothCorners.macos.tsrx    AppKit surface/content layout and overflow
   apply.macos.ts              NSBezierPath → CAShapeLayer paint/content masks and shadowPath
   surface.ts                  shared decorative-surface layout and overflow predicate
-  smooth-corners.css          visible-overflow default, overridable by authored classes
 ```
 
 ```tsx
@@ -144,6 +143,13 @@ belong to the outer host (SVG shadow-only filter on web, native shadow path or
 elevation on native) so content clipping does not cut them off. Keep the
 painting surface out of layout, accessibility, and input. The generated curve
 remains shared; native overflow/hit-testing still needs target qualification.
+
+The visible default is the platform initial value — the package ships no
+stylesheet rule for it. An earlier unlayered `.vx-smooth-corners { overflow:
+visible }` outranked every layered authored utility on web and the desktop
+cascade, and settled only by registration order once the native transform
+flattened layers (issue #204). Authored classes — layered or not — must always
+decide the content clip; explicit authored `visible` still suppresses it.
 
 ```tsx
 import { SmoothCorners } from '@octane-xplat/smooth-corners'

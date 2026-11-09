@@ -1,8 +1,9 @@
 import assert from 'node:assert/strict'
-import { readFileSync } from 'node:fs'
+import { readdirSync, readFileSync } from 'node:fs'
 import { stripTypeScriptTypes } from 'node:module'
 import { runInNewContext } from 'node:vm'
 import { test } from 'node:test'
+import { computeCascade, registerStylesheet, stylesheetScope } from '@octane-xplat/css-engine'
 import { commandsToD, flipCommandsY, generateCommands } from '../src/path.ts'
 import { clipsChildren } from '../src/surface.ts'
 
@@ -218,6 +219,95 @@ test('overflow defaults to visible and only hidden on both axes requests a curve
   assert.equal(clipsChildren('visible'), false)
   assert.equal(clipsChildren('hidden'), true)
   assert.equal(clipsChildren('hidden', 'visible'), false)
+})
+
+// ---- Class cascade → clipsChildren seam (issue #204) ----------------------
+//
+// Authored overflow must always win on a SmoothCorners content host. Browsers
+// and the desktop engine rank unlayered rules above every @layer, and the
+// native transform flattens layers so equal-specificity classes follow
+// registration order. A package stylesheet pinning `overflow` therefore broke
+// either authored shape; the visible default instead relies on the platform's
+// initial value, so authored classes govern unconditionally.
+
+// Whatever stylesheets the package ships right now — registered after the
+// authored sheet so a competing default loses only when it actually
+// outranks authored rules (the failure order the issue observed).
+const packageSheets = readdirSync(new URL('../src', import.meta.url))
+  .filter((name) => name.endsWith('.css'))
+  .sort()
+  .map((name) => readFileSync(new URL(`../src/${name}`, import.meta.url), 'utf8'))
+
+let sheetSeq = 0
+
+function registerAuthored(css) {
+  const id = `smooth-cascade-${sheetSeq++}`
+
+  registerStylesheet(id, css)
+  for (const [index, sheet] of packageSheets.entries()) {
+    registerStylesheet(`${id}-pkg-${index}`, sheet)
+  }
+}
+
+function smoothHost(classes, style) {
+  const n = {
+    id: 'smooth-host',
+    type: 'masonview',
+    cssType: 'masonview',
+    cssClasses: new Set(classes),
+    cssPseudoClasses: new Set(),
+    parent: null,
+    children: [],
+    props: { className: classes.join(' '), style },
+  }
+
+  n.getChildIndex = (child) => n.children.indexOf(child)
+  n.getChildAt = (index) => n.children[index]
+  n.getChildrenCount = () => n.children.length
+  return n
+}
+
+// Mason expands `overflow` into per-axis longhands; engines that keep the
+// shorthand feed both axes from the one key, matching style.overflow reads.
+function resolvedClip(node) {
+  const { style } = computeCascade(node, stylesheetScope())
+
+  return clipsChildren(style.overflowX ?? style.overflow, style.overflowY ?? style.overflow)
+}
+
+test('authored classes govern content clipping through the class cascade', () => {
+  // Bamboo utilities land inside a named layer — an unlayered package rule
+  // outranks them in browsers and the desktop engine alike.
+  registerAuthored('@layer utilities { .clip-utility { overflow: hidden } }')
+  assert.equal(resolvedClip(smoothHost(['vx-smooth-corners', 'clip-utility'])), true)
+
+  // Equal-specificity unlayered classes resolve by registration order after
+  // the native transform flattens layers — package sheets registered last.
+  registerAuthored('.clip-plain { overflow: hidden }')
+  assert.equal(resolvedClip(smoothHost(['vx-smooth-corners', 'clip-plain'])), true)
+
+  // Explicit authored visible still suppresses the clip.
+  registerAuthored('.keep-open { overflow: visible }')
+  assert.equal(resolvedClip(smoothHost(['vx-smooth-corners', 'keep-open'])), false)
+
+  // No authored overflow: the platform initial is visible — no clip.
+  assert.equal(resolvedClip(smoothHost(['vx-smooth-corners'])), false)
+
+  // An inline style still outranks every class.
+  assert.equal(resolvedClip(smoothHost(['vx-smooth-corners'], { overflow: 'hidden' })), true)
+
+  // The resolved flag drives the iOS clip write Mason turns into a mask.
+  const view = iosView()
+
+  ios.applySmoothClip(
+    view,
+    props,
+    resolvedClip(smoothHost(['vx-smooth-corners', 'clip-utility'])),
+  )
+  assert.equal(
+    view.style.clipPath,
+    `path("${commandsToD(generateCommands(200, 120, props.corners))}")`,
+  )
 })
 
 test('Android: the outer shadow remains unclipped and clears when removed', () => {

@@ -6,6 +6,7 @@ import './style.css'
 function App() @{
   const [overflow, setOverflow] = useState<'visible' | 'hidden' | undefined>()
   const [classClip, setClassClip] = useState(false)
+  const [layeredClip, setLayeredClip] = useState(false)
   const [wide, setWide] = useState(false)
   const [clicks, setClicks] = useState(0)
 
@@ -26,10 +27,13 @@ function App() @{
       <button id="class-clip" onClick={() => setClassClip(!classClip)}>
         Toggle class
       </button>
+      <button id="class-clip-layered" onClick={() => setLayeredClip(!layeredClip)}>
+        Toggle layered class
+      </button>
       <output id="clicks">{clicks}</output>
       <SmoothCorners
         id="panel"
-        className={['panel', classClip && 'clip-children']}
+        className={['panel', classClip && 'clip-children', layeredClip && 'clip-layered']}
         corners={{ radius: 24 }}
         border={{ width: 3, color: 'blue' }}
         shadow={{ blur: 8, color: 'black' }}

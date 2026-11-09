@@ -30,6 +30,13 @@ import '@octane-xplat/ui/theme/tokens.css'
 import './app.css'
 ```
 
+Package stylesheets must never ship an unlayered rule that competes with
+authored classes for the same property: it outranks every `@layer` block on
+web and the desktop engine, and survives only by registration order once the
+native transform flattens layers. Keep defaults inside an early declared
+layer, or rely on the platform's initial value when no declaration is needed
+(smooth-corners overflow, issue #204).
+
 ## Shared class value types
 
 UI and the shared JSX facade re-export Octane's `ClassValue` unchanged.

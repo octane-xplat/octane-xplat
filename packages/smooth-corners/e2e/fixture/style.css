@@ -18,3 +18,9 @@ body {
 .clip-children {
   overflow: hidden;
 }
+/* Bamboo output is layered; authored layered overflow must still win. */
+@layer authored {
+  .clip-layered {
+    overflow: hidden;
+  }
+}

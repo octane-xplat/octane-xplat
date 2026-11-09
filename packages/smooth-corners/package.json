@@ -53,6 +53,7 @@
 	"devDependencies": {
 		"@nativescript-community/octane": "catalog:",
 		"@nativescript/core": "catalog:",
+		"@octane-xplat/css-engine": "workspace:*",
 		"@octane-xplat/macos-appkit": "workspace:*",
 		"@octanejs/vite-plugin": "catalog:",
 		"octane": "catalog:",

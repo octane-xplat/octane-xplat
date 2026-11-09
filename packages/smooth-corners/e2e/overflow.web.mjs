@@ -108,9 +108,23 @@ try {
     () => getComputedStyle(document.getElementById('panel')).clipPath === 'none',
   )
 
+  // Bamboo emits layered utilities — a framework overflow default must not
+  // outrank an authored layered class in the browser cascade (issue #204).
+  await page.locator('#class-clip-layered').click()
+  await page.waitForFunction(
+    () =>
+      getComputedStyle(document.getElementById('panel')).overflow === 'hidden' &&
+      document.getElementById('panel').style.clipPath.startsWith('path('),
+  )
+
+  await page.locator('#class-clip-layered').click()
+  await page.waitForFunction(
+    () => getComputedStyle(document.getElementById('panel')).clipPath === 'none',
+  )
+
   assert.deepEqual(errors, [])
   console.log(
-    'SmoothCorners web: default visibility, child hit-testing, hidden clip, class removal, resize and shadow separation passed.',
+    'SmoothCorners web: default visibility, child hit-testing, hidden clip, unlayered and layered class removal, resize and shadow separation passed.',
   )
 } finally {
   await browser?.close()
