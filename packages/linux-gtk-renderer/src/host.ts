@@ -91,6 +91,10 @@ export function runGtkApp(
       default_width: options.defaultWidth ?? 560,
       default_height: options.defaultHeight ?? 420,
     })
+    // Gtk4 only renders the app menubar when asked — without this,
+    // GApplication.set_menubar builds a model nothing displays and the
+    // menu is invisible to users and AT-SPI.
+    window.set_show_menubar(true)
 
     const content = new Gtk.Box({ orientation: Gtk.Orientation.VERTICAL, spacing: 0 })
 
