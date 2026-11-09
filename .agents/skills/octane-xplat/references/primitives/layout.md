@@ -119,3 +119,20 @@ export function Notes({ count }: { count: number }) {
   </ScrollableArea>
 }
 ```
+
+## iOS subtree input suspension
+
+For an ancestor drag, use `suspendScrollInput` from `@octane-xplat/ui/ios` on
+a loaded content host, before moving the ancestor. Retain its idempotent
+release through cancel/close/unmount; overlapping owners all release before
+restoring prior native flags. It snapshots mounted descendants; release and
+reacquire around subtree replacement. Never use overflow hidden as a temporary
+iOS input lock (it clamps offsets), or treat touchAction as momentum
+cancellation. Ancestor and unrelated recognizers remain independent.
+
+Requires the locally built Mason core native setter from revision
+`915996706008351bf949b6d8ac040864d9619dc8`; registry beta.7 lacks it. Missing
+or unloaded Mason support throws, rather than silently claiming suspension.
+A fresh native build is required. No registry publication is implied.
+See [iOS input suspension](../../../../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag)
+for usage and runtime qualification limits.

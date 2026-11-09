@@ -594,3 +594,21 @@ loses data (tracked upstream as NativeScript/NativeScript#11630). Workaround in 
 with snapshot writes enqueued at call time. Real-world impact: a packaged
 qualification app's storage-persist spec read `null` for values written the
 previous launch.
+
+## Mason iOS input suspension requires a local native build
+
+For Xplat #221, Mason source revision `915996706008351bf949b6d8ac040864d9619dc8`
+adds the per-viewport `MasonUIView.userScrollEnabled` setter. Registry
+`@octane-xplat/nativescript-mason-core@1.0.0-beta.7` does not contain it; the
+local build retains that version. Check native capability rather than trusting
+the package version, and rebuild the native app after installing a compatible
+local artifact. Do not change registry pins to imply the API is published.
+
+The native setter cancels user pans and momentum without assigning offsets;
+programmatic seeks remain available. Overflow hidden is not a substitute:
+Mason clamps hidden-axis offsets to zero. `suspendScrollInput` on Xplat's iOS
+entry point owns a snapshot of mounted descendant viewports with overlapping
+leases; native subtree replacement requires release and reacquisition. Other
+platforms have no equivalent contract in this API. Host tests establish
+ownership, not real-touch qualification. See the
+[public usage and limits](../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag).

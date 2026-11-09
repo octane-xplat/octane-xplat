@@ -1657,6 +1657,72 @@ export function LongNotes() {
 }
 ```
 
+## Pause iOS user scrolling during an ancestor drag
+
+This iOS-only API requires a locally built Mason core containing native
+`MasonUIView.userScrollEnabled` (source revision
+`915996706008351bf949b6d8ac040864d9619dc8` or later). Registry core beta.7
+lacks that setter. Install the compatible local plugin tarball through your
+app's dependency manager and rebuild the native app; a JavaScript reload is
+insufficient. Other platforms are not supported by this iOS entry point.
+
+Call `suspendScrollInput` on a loaded content host before moving its ancestor.
+It stops active user scrolling and momentum without assigning an offset or
+changing overflow. It covers the host and its currently mounted Mason
+descendants, including both scroll axes. Ancestor pans, unrelated gestures,
+and programmatic seeks remain available. The returned function releases the
+lock; overlapping locks resume only after every owner releases, restoring
+previously disabled flags too.
+
+```tsx
+// Content.ios.tsrx — call beginDrag/endDrag from the ancestor's pan lifecycle.
+import { useEffect, useRef } from 'octane'
+import { ScrollableArea, Text, View, type ScrollableAreaHandle } from '@octane-xplat/ui'
+import { suspendScrollInput } from '@octane-xplat/ui/ios'
+
+export function Content() {
+  const area = useRef<ScrollableAreaHandle | null>(null)
+  const release = useRef<(() => void) | null>(null)
+  const beginDrag = () => {
+    if (area.current && !release.current) {
+      release.current = suspendScrollInput(area.current.native)
+    }
+  }
+  const endDrag = () => {
+    release.current?.()
+    release.current = null
+  }
+  useEffect(() => endDrag, [])
+
+  return <View onPan={event => {
+    if (event.state === 'began') beginDrag()
+    if (event.state === 'ended' || event.state === 'cancelled') endDrag()
+  }}>
+    <ScrollableArea ref={area} height={200}>
+      <Text>Drag lifecycle example</Text>
+    </ScrollableArea>
+  </View>
+}
+```
+
+The lock snapshots native views. Release before removing or replacing the
+content, then acquire again after new descendants load. Keep the release
+function for cancellation and unmount. Do not write the native flag directly
+while a lock owns it. Missing or unloaded Mason APIs throw before any viewport
+is changed. This is an input lock, not an axis-recognition policy: decide when
+the ancestor wins the drag separately. Host regression tests do not establish
+real touch delivery or OS gesture behavior.
+
+```ts
+// Continue in an iOS drag controller with a loaded `contentHost` object.
+import { suspendScrollInput } from '@octane-xplat/ui/ios'
+
+export function lockContent(contentHost: object) {
+  const release = suspendScrollInput(contentHost)
+  return () => release() // Call on cancel, close, or before detaching content.
+}
+```
+
 ## macOS scrolling and refresh
 
 Give scrolling content a bounded viewport. `ScrollableArea` scrolls vertically
