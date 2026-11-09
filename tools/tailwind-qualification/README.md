@@ -17,8 +17,8 @@ The Xplat integration has a separate packed-consumer check, implemented here
 and owned by the leaf package's task. It packs Tailwind, build tooling and the
 shared build library, then installs those tarballs with isolated dependencies
 outside the repository. It checks exported files, JavaScript execution,
-NodeNext/Bundler declarations, web/iOS CSS compilation in development and
-production, development maps, platform-file selection, and web SSR inline CSS:
+NodeNext/Bundler declarations, web/iOS/Linux-webview CSS compilation in development
+and production, development maps, platform-file selection, and browser SSR inline CSS:
 
 ```sh
 bun run turbo run test:packed --filter=@octane-xplat/tailwind

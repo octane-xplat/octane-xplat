@@ -19,6 +19,10 @@ await writeFile(join(root, 'src/Shared.tsrx'), 'export const classes = "p-4 bg-p
 await writeFile(join(root, 'src/Screen.tsx'), 'export const classes = "flex w-[12px] opacity-35"')
 await writeFile(join(root, 'src/Screen.web.tsx'), 'export const classes = "hover:opacity-65"')
 await writeFile(
+  join(root, 'src/Screen.linux.tsx'),
+  'export const classes = "fixed bg-red-500 opacity-75"',
+)
+await writeFile(
   join(root, 'app.css'),
   `@import "@octane-xplat/tailwind/ui.css" source(none);
 @source "./src";
@@ -27,7 +31,11 @@ await writeFile(
 )
 
 function plugins(target) {
-  return [xplatCss(target), xplatTailwind(), ...(target === 'web' ? [] : [pxToDip()])]
+  return [
+    xplatCss(target === 'linux' ? 'web' : target),
+    xplatTailwind(),
+    ...(target === 'ios' ? [pxToDip()] : []),
+  ]
 }
 
 function verifyCss(css, target) {
@@ -38,6 +46,12 @@ function verifyCss(css, target) {
   if (target === 'web') {
     assert.ok(css.includes(String.raw`.hover\:opacity-65`))
     assert.doesNotMatch(css, /\.opacity-35\s*\{/)
+  } else if (target === 'linux') {
+    assert.match(css, /\.fixed\s*\{\s*position:\s*fixed/)
+    assert.match(css, /\.opacity-75\s*\{/)
+    assert.match(css, /oklch\(/)
+    assert.match(css, /:root,\s*:host/)
+    assert.doesNotMatch(css, /opacity-35|opacity-65|\.ns-root,\s*\.ns-modal|dip/)
   } else {
     assert.match(css, /\.opacity-35\s*\{/)
     assert.doesNotMatch(css, /opacity-65/)
@@ -50,16 +64,17 @@ function verifyCss(css, target) {
 
 const results = []
 
-for (const target of ['web', 'ios']) {
+for (const target of ['web', 'ios', 'linux']) {
   const built = await build({
     configFile: false,
     root,
     logLevel: 'silent',
     plugins: plugins(target),
+    resolve: { conditions: target === 'linux' ? ['linux', 'web'] : undefined },
     build: {
       write: false,
       sourcemap: true,
-      cssMinify: target === 'web',
+      cssMinify: target !== 'ios',
       rollupOptions: { input: join(root, 'main.js') },
     },
   })
@@ -79,6 +94,7 @@ for (const target of ['web', 'ios']) {
     root,
     logLevel: 'silent',
     plugins: plugins(target),
+    resolve: { conditions: target === 'linux' ? ['linux', 'web'] : undefined },
     css: { devSourcemap: true },
     optimizeDeps: { noDiscovery: true },
     server: { host: '127.0.0.1', port: 0 },
@@ -91,7 +107,7 @@ for (const target of ['web', 'ios']) {
     assert.ok(dev)
     assert.ok(dev.map?.mappings, 'Development CSS must retain its map')
     verifyCss(dev.code, target)
-    if (target === 'web') {
+    if (target !== 'ios') {
       const ssr = await server.ssrLoadModule('/app.css?inline')
 
       assert.equal(typeof ssr.default, 'string')
@@ -106,7 +122,7 @@ for (const target of ['web', 'ios']) {
     developmentCss: true,
     developmentMap: true,
     productionMap: assets.some((file) => file.fileName.endsWith('.css.map')),
-    ssrInlineCss: target === 'web',
+    ssrInlineCss: target === 'ios' ? 'not-run' : 'passed',
   })
 }
 

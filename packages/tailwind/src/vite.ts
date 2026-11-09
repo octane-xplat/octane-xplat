@@ -2,7 +2,7 @@ import { isAbsolute, relative, resolve } from 'node:path'
 import type { Plugin, PluginOption } from 'vite'
 import postcss from 'postcss'
 import { tailwindCompiler } from './compiler.ts'
-import type { TailwindTarget } from './target.ts'
+import { isBrowserTarget, type TailwindTarget } from './target.ts'
 
 const targets = new Set<TailwindTarget>([
   'web',
@@ -120,7 +120,7 @@ export function xplatTailwind(): XplatTailwindPlugin {
         throw new Error('Remove the separate Tailwind PostCSS compiler when using xplatTailwind')
       }
 
-      if (target !== 'web') {
+      if (!isBrowserTarget(target)) {
         const api: unknown = platforms[0].api
 
         if (
@@ -142,6 +142,10 @@ export function xplatTailwind(): XplatTailwindPlugin {
         tailwindCompiler({
           root: resolve(config.root ?? '.'),
           target,
+          // The Linux webview uses xplatCss('web') with Linux/web module
+          // conditions. Its JS leaves differ while its CSS remains browser CSS.
+          sourceTarget:
+            target === 'web' && config.resolve?.conditions?.includes('linux') ? 'linux' : target,
           onCompile(entry, dependencies) {
             entries.set(entry.replaceAll('\\', '/'), dependencies)
           },

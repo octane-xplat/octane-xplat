@@ -9,3 +9,8 @@ export type TailwindTarget =
   | 'linux'
   | 'gtk'
   | 'native'
+
+/** Linux's DOM/webview host consumes browser CSS; GTK is a separate target. */
+export function isBrowserTarget(target: TailwindTarget): target is 'web' | 'linux' {
+  return target === 'web' || target === 'linux'
+}

@@ -3,7 +3,7 @@ import nesting from 'postcss-nesting'
 import valueParser from 'postcss-value-parser'
 import type { TailwindTarget } from './target.ts'
 
-type NativeTarget = Exclude<TailwindTarget, 'web'>
+type NativeTarget = Exclude<TailwindTarget, 'web' | 'linux'>
 
 // This is the candidate compiler surface, not a filter over app CSS. Unknown
 // generated properties fail rather than disappear. Grow it with host evidence.

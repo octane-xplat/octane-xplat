@@ -2,12 +2,14 @@ import type { AtRule, Plugin } from 'postcss'
 import { compileStylesheet } from './compile.ts'
 
 import { adaptNativeStylesheet } from './native.ts'
-import type { TailwindTarget } from './target.ts'
+import { isBrowserTarget, type TailwindTarget } from './target.ts'
 
 /** Configuration bound to one Vite project and renderer. */
 export interface TailwindCompilerOptions {
   root: string
   target: TailwindTarget
+  /** Source leaf selection can differ from CSS vocabulary (Linux's webview). */
+  sourceTarget?: TailwindTarget
   onCompile?: (entry: string, dependencies: { files: string[]; directories: string[] }) => void
 }
 
@@ -18,6 +20,7 @@ export type TailwindCompilerPlugin = Plugin
 export function tailwindCompiler({
   root: projectRoot,
   target,
+  sourceTarget = target,
   onCompile,
 }: TailwindCompilerOptions): TailwindCompilerPlugin {
   return {
@@ -55,7 +58,7 @@ export function tailwindCompiler({
       })
 
       const entry = result.opts.from ?? root.source?.input.file
-      const compiled = await compileStylesheet(input, projectRoot, target, entry)
+      const compiled = await compileStylesheet(input, projectRoot, sourceTarget, entry)
 
       if (entry && onCompile) {
         onCompile(entry, {
@@ -80,7 +83,7 @@ export function tailwindCompiler({
         })
       }
 
-      if (target !== 'web') {
+      if (!isBrowserTarget(target)) {
         await adaptNativeStylesheet(compiled.root, target)
       }
 

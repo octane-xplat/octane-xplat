@@ -58,6 +58,21 @@ Preferred-file additions and deletions invalidate the stylesheet in development,
 including restoration of fallback classes. This selection does not tree-shake
 the module graph or evaluate dynamic class strings.
 
+The Linux webview uses browser CSS and selects Linux source leaves from the
+project's module conditions. GTK uses the separate `gtk` target and the native
+adapter. Keep the Linux webview's existing browser CSS preset and conditions:
+
+```ts
+// Existing Linux webview configuration
+import { xplatCss } from '@octane-xplat/build/vite'
+import { xplatTailwind } from '@octane-xplat/tailwind/vite'
+
+const config = {
+  plugins: [xplatCss('web'), xplatTailwind()],
+  resolve: { conditions: ['linux', 'web'] },
+}
+```
+
 Vite's production CSS extraction does not emit a CSS source-map asset; do not
 claim production CSS maps from compiler or development-map evidence.
 

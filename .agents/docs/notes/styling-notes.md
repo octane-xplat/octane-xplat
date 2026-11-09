@@ -134,6 +134,13 @@ must restore its fallback's classes. Explicit inline candidates remain shared
 and receive the selected target's generated-output validation. This is source
 selection, not a replacement parser or module-graph tree shaking.
 
+CSS vocabulary alone does not identify the source platform: the Linux webview
+configures `xplatCss('web')` and `resolve.conditions: ['linux', 'web']`. Infer its
+Linux source preference from those module conditions while retaining browser
+CSS (including modern colors and browser selectors). A direct `linux` CSS
+target also denotes that browser host. Keep GTK's `gtk` target on the separate
+native adaptation path. Do not infer native CSS consumption from an OS name.
+
 Vite 8.3.6's production CSS extraction emits CSS text assets without a CSS map
 asset from PostCSS output. Compiler maps and development CSS maps therefore do
 not establish production CSS-map support. Keep that limitation explicit until

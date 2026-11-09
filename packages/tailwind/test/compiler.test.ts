@@ -93,12 +93,17 @@ async function fixture(t: TestContext, shutdowns: Array<() => Promise<void>> = [
   return root
 }
 
-async function buildCss(root: string, target: 'web' | 'ios' = 'web') {
+async function buildCss(
+  root: string,
+  target: 'web' | 'ios' | 'linux' = 'web',
+  conditions?: string[],
+) {
   const built = await build({
     configFile: false,
     root,
     logLevel: 'silent',
-    plugins: [xplatCss(target), xplatTailwind(), ...(target === 'web' ? [] : [pxToDip()])],
+    plugins: [xplatCss(target), xplatTailwind(), ...(target === 'ios' ? [pxToDip()] : [])],
+    resolve: { conditions },
     build: {
       write: false,
       sourcemap: true,
@@ -647,7 +652,10 @@ test('explicit sources include installed and workspace packages with platform se
   const installed = join(root, 'node_modules/@fixture/components')
 
   await mkdir(installed, { recursive: true })
-  await writeFile(join(installed, 'package.json'), '{"name":"@fixture/components","version":"1.0.0"}')
+  await writeFile(
+    join(installed, 'package.json'),
+    '{"name":"@fixture/components","version":"1.0.0"}',
+  )
   await writeFile(join(installed, 'Card.tsx'), 'export const classes = "opacity-15"')
   await writeFile(join(installed, 'Card.web.tsx'), 'export const classes = "hover:opacity-45"')
   await writeFile(join(workspace, 'Shared.tsrx'), 'export const classes = "opacity-85"')
@@ -670,37 +678,44 @@ test('explicit sources include installed and workspace packages with platform se
 test('client CSS and SSR inline styles stay isolated across concurrent projects', async (t) => {
   const shutdowns: Array<() => Promise<void>> = []
   const projects = await Promise.all([fixture(t, shutdowns), fixture(t, shutdowns)])
-  const servers = await Promise.all(projects.map(async (root, index) => {
-    await writeFile(join(root, 'main.js'), 'import "./styles.css"')
-    await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind";')
-    await writeFile(join(root, 'Screen.tsx'), `export const classes = "opacity-${index ? 35 : 65}"`)
+  const servers = await Promise.all(
+    projects.map(async (root, index) => {
+      await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+      await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind";')
+      await writeFile(
+        join(root, 'Screen.tsx'),
+        `export const classes = "opacity-${index ? 35 : 65}"`,
+      )
 
-    const server = await createServer({
-      configFile: false,
-      root,
-      logLevel: 'silent',
-      plugins: [xplatCss('web'), xplatTailwind()],
-      css: { devSourcemap: true },
-      optimizeDeps: { noDiscovery: true },
-      server: { host: '127.0.0.1', port: 0 },
-    })
+      const server = await createServer({
+        configFile: false,
+        root,
+        logLevel: 'silent',
+        plugins: [xplatCss('web'), xplatTailwind()],
+        css: { devSourcemap: true },
+        optimizeDeps: { noDiscovery: true },
+        server: { host: '127.0.0.1', port: 0 },
+      })
 
-    shutdowns.push(() => server.close())
-    await server.listen()
-    return server
-  }))
+      shutdowns.push(() => server.close())
+      await server.listen()
+      return server
+    }),
+  )
 
-  const outputs = await Promise.all(servers.map(async (server) => {
-    const [client, ssr] = await Promise.all([
-      server.transformRequest('/styles.css?direct'),
-      server.ssrLoadModule('/styles.css?inline'),
-    ])
+  const outputs = await Promise.all(
+    servers.map(async (server) => {
+      const [client, ssr] = await Promise.all([
+        server.transformRequest('/styles.css?direct'),
+        server.ssrLoadModule('/styles.css?inline'),
+      ])
 
-    assert.ok(client)
-    assert.ok(client.map?.mappings, 'client CSS map missing')
-    assert.equal(typeof ssr.default, 'string', 'SSR inline CSS missing')
-    return [client.code, ssr.default]
-  }))
+      assert.ok(client)
+      assert.ok(client.map?.mappings, 'client CSS map missing')
+      assert.equal(typeof ssr.default, 'string', 'SSR inline CSS missing')
+      return [client.code, ssr.default]
+    }),
+  )
 
   for (const [index, environments] of outputs.entries()) {
     for (const css of environments) {
@@ -708,4 +723,34 @@ test('client CSS and SSR inline styles stay isolated across concurrent projects'
       assert.doesNotMatch(css, index === 0 ? /\.opacity-35\s*\{/ : /\.opacity-65\s*\{/)
     }
   }
+})
+
+test('Linux webview conditions select Linux leaves while retaining browser CSS semantics', async (t) => {
+  const root = await fixture(t)
+
+  await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+  await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind";')
+  await writeFile(join(root, 'Screen.tsx'), 'export const classes = "opacity-15"')
+  await writeFile(join(root, 'Screen.web.tsx'), 'export const classes = "hover:opacity-25"')
+  await writeFile(join(root, 'Screen.linux.tsx'), 'export const classes = "fixed bg-red-500"')
+
+  for (const target of ['web', 'linux'] as const) {
+    const css = (await buildCss(root, target, ['linux', 'web']))
+      .map((asset) => asset.source)
+      .join('\n')
+
+    assert.match(css, /\.fixed\s*\{\s*position:\s*fixed/)
+    assert.match(css, /\.bg-red-500\s*\{/)
+    assert.match(css, /oklch\(/)
+    assert.doesNotMatch(css, /opacity-15|opacity-25|\.ns-root|dip/)
+  }
+
+  await rm(join(root, 'Screen.linux.tsx'))
+
+  const fallback = (await buildCss(root, 'web', ['linux', 'web']))
+    .map((asset) => asset.source)
+    .join('\n')
+
+  assert.ok(fallback.includes(String.raw`.hover\:opacity-25`))
+  assert.doesNotMatch(fallback, /\.fixed\s*\{|\.bg-red-500\s*\{/)
 })
