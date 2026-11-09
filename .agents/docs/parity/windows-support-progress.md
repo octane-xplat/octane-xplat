@@ -451,7 +451,8 @@ files-identity 12/12, storage-verify 8/8, secure-verify 9/9.
 
 ## Bounded leaf surface qualified: every gapped package explicit (1.0.0.234)
 
-On `org.octanexplat.windows61` 1.0.0.234 (source `15322774b`, bounded): the
+On `org.octanexplat.windows61` 1.0.0.234 (source `15322774b`, rebased to
+`d27613691` on `main`, bounded): the
 `leaf-surface` service spec ran every previously foreign-leaf package on
 the packaged runtime — share resolves `unavailable`, push/notifications/
 sounds report `supported=false`, `getGPU()` is null, apple/google auth
