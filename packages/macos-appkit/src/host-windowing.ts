@@ -431,7 +431,7 @@ class AppDelegate extends NSObject {
     shared.windowCloseHandlers.clear()
     // Synchronous teardown seam for runMacOSApp — mount cleanup must run
     // before the root unmount queued by the close handlers above.
-    notifyAppKitListeners(shared.terminating ?? new Set(), (handler) => handler())
+    notifyAppKitListeners(shared.terminating ?? new Set<() => void>(), (handler) => handler())
     shared.resolveApplicationClosed?.()
   }
 
