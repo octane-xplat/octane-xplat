@@ -188,3 +188,15 @@ import { motion } from '@octane-xplat/motion'
 
 <motion.Pressable animate={{ scale: 1 }} whileFocus={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} />
 ```
+
+For web Motion drag, keep nested controls clickable before the 8px activation threshold.
+An active drag consumes only its trailing pointer click; keyboard activation and
+the next independent press remain available. Do not add app-side click guards.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+import { Button } from '@octane-xplat/ui'
+
+<motion.View drag="x"><Button clickAction={() => console.log('Open')}>Open</Button></motion.View>
+```

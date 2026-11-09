@@ -175,29 +175,34 @@ it('releases capture when the pan detaches mid-drag', async () => {
   }
 })
 
-it('suppresses the drag-tail click on nested controls and recovers', async () => {
+it.each([110, 210])('suppresses the drag-tail click starting at %i and recovers', async (origin) => {
   const rig = panRig()
   let buttonClicks = 0
   let hostClicks = 0
   rig.button.addEventListener('click', () => buttonClicks++)
   rig.host.addEventListener('click', () => hostClicks++)
   try {
-    // Press clear of the button, drag past the threshold onto it, release.
+    // Start on the nested button or host, cross slop, and return to the button.
     await realPointer([
-      { type: 'move', x: 210, y: 210 },
+      { type: 'move', x: origin, y: origin },
       { type: 'down' },
+      { type: 'move', x: 180, y: 180 },
       { type: 'move', x: 110, y: 110 },
       { type: 'up' },
     ])
     await new Promise((resolve) => setTimeout(resolve, 50))
 
-    expect(rig.calls).toEqual(['start', 'move', 'end'])
+    expect(rig.calls).toEqual(['start', 'move', 'move', 'end'])
     expect(buttonClicks).toBe(0)
-    // The captured tail retargets the trailing click to the host.
-    expect(hostClicks).toBe(1)
+    // Capture retargets the tail to the host; neither action should run.
+    expect(hostClicks).toBe(0)
 
-    await userEvent.click(rig.button)
+    rig.button.focus()
+    await userEvent.keyboard('{Enter}')
     expect(buttonClicks).toBe(1)
+    await userEvent.click(rig.button)
+    expect(buttonClicks).toBe(2)
+    expect(hostClicks).toBe(2)
   } finally {
     rig.off()
     rig.host.remove()
@@ -232,6 +237,34 @@ it('abandons an off-axis press on a single-axis host and resets cleanly', async 
     ])
     expect(rig.calls).toEqual(['start', 'move', 'end'])
     expect(rig.cancelled).toBe(false)
+  } finally {
+    rig.off()
+    rig.host.remove()
+  }
+})
+
+
+it('keeps a real nested tap below slop after a cancelled drag', async () => {
+  const rig = panRig()
+  let clicks = 0
+  rig.button.addEventListener('click', () => clicks++)
+  try {
+    await realPointer([
+      { type: 'move', x: 160, y: 160 }, { type: 'down' },
+      { type: 'move', x: 180, y: 160 },
+    ])
+    rig.host.dispatchEvent(new PointerEvent('pointercancel', {
+      pointerId: rig.pointerId, bubbles: true,
+    }))
+    await realPointer([{ type: 'up' }])
+    expect(rig.calls).toEqual(['start', 'move', 'end'])
+    expect(rig.cancelled).toBe(true)
+    await realPointer([
+      { type: 'move', x: 110, y: 110 }, { type: 'down' },
+      { type: 'move', x: 114, y: 110 }, { type: 'up' },
+    ])
+    expect(clicks).toBe(1)
+    expect(rig.calls).toEqual(['start', 'move', 'end'])
   } finally {
     rig.off()
     rig.host.remove()

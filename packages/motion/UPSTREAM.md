@@ -83,6 +83,8 @@ export function DraggableCard() {
 viewport/screen coordinates. Offset and delta describe pointer movement before
 constraints. Start fires on activation after an 8-unit threshold, rather than
 on pointer-down; unsuccessful pre-activation gestures emit no drag callbacks.
+On web, an active drag consumes its trailing pointer click before host or nested
+actions run; below-threshold taps, keyboard clicks, and later presses remain usable.
 Cancellation emits one end callback and suppresses momentum. Disposal removes
 input handlers and stops settlement without emitting an end callback.
 

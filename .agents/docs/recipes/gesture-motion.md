@@ -18,7 +18,7 @@ platform-specific transforms in the screen.
 - AC1: Stop prior playback on begin and update bounded displacement during movement without per-frame screen state writes.
 - AC2: Distinguish release from cancellation and use normalized velocity to settle; honor reduced motion.
 - AC3: Dispose owned animation work and understand the limits of native drag/scroll arbitration.
-- AC4: Configure declarative axis drag with numeric constraints, elasticity, momentum, and callbacks; install the native handler peer before root creation.
+- AC4: Configure declarative axis drag with numeric constraints, elasticity, momentum, and callbacks; install the native handler peer before root creation. On web, preserve nested taps and keyboard activation while suppressing only the active drag's trailing pointer click.
 
 ## Documentation
 

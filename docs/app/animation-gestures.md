@@ -398,7 +398,10 @@ export function FeedbackCard(props: { selected: boolean }) {
 
 ## Drag a component
 
-Use `drag="x"` to move horizontally while allowing vertical scrolling:
+Use `drag="x"` to move horizontally while allowing vertical scrolling. On web,
+movement must exceed 8 pixels to start dragging. Releasing an active drag blocks
+its trailing pointer click on the host and nested controls. Taps below that
+threshold, keyboard activation, and the next independent click still work:
 
 ```tsx
 import { motion } from '@octane-xplat/motion'

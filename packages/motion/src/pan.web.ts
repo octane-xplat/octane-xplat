@@ -12,6 +12,24 @@ export function attachPan(
 
   let pointer: number | undefined
   let active = false
+  let clickPointer: number | undefined
+  // A new contact anywhere starts an independent interaction, even if the
+  // previous drag never produced a click. Keyboard clicks do not consume it.
+  const clearClick = () => {
+    clickPointer = undefined
+  }
+  const click = (event: MouseEvent) => {
+    if (clickPointer === undefined || event.detail === 0) {
+      return
+    }
+    if ('pointerId' in event && event.pointerId !== clickPointer) {
+      return
+    }
+
+    clearClick()
+    event.preventDefault()
+    event.stopImmediatePropagation()
+  }
   let start = { x: 0, y: 0 }
   let last = start
   let time = 0
@@ -98,6 +116,7 @@ export function attachPan(
 
     const id = pointer
 
+    clickPointer = active && !cancelled ? id : undefined
     pointer = undefined
     if (active) {
       active = false
@@ -112,12 +131,17 @@ export function attachPan(
   const up = (event: PointerEvent) => finish(event, false)
   const cancel = (event: PointerEvent) => finish(event, true)
 
+  node.ownerDocument.addEventListener('pointerdown', clearClick, true)
+  node.addEventListener('click', click, true)
   node.addEventListener('pointerdown', down)
   node.ownerDocument.addEventListener('pointermove', move)
   node.ownerDocument.addEventListener('pointerup', up)
   node.ownerDocument.addEventListener('pointercancel', cancel)
   node.addEventListener('lostpointercapture', cancel)
   return () => {
+    clearClick()
+    node.ownerDocument.removeEventListener('pointerdown', clearClick, true)
+    node.removeEventListener('click', click, true)
     node.removeEventListener('pointerdown', down)
     node.ownerDocument.removeEventListener('pointermove', move)
     node.ownerDocument.removeEventListener('pointerup', up)
