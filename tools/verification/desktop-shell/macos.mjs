@@ -373,6 +373,7 @@ async function buildPhase() {
   const srcDir = join(consumer, 'src')
   mkdirSync(srcDir, { recursive: true })
   for (const file of readdirSync(join(here, 'app'))) {
+    if (file === 'main.gtk.ts') continue
     cpSync(join(here, 'app', file), join(srcDir, file))
   }
   await writeFile(
