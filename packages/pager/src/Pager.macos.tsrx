@@ -4,7 +4,6 @@ import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } fr
 import { ScrollableArea, useDirection, type ScrollableAreaHandle } from '@octane-xplat/ui'
 import { cx } from '@octane-xplat/lib'
 import type { PagerProps } from './props'
-import { mergeStyle } from './style-merge'
 import { layoutChildProps } from './layout-child'
 import { createAppKitPagerState, type AppKitPagerFrame } from './pager-state.macos'
 import { createAppKitPagerEvents } from './pager-scroll-events.macos'
@@ -201,13 +200,13 @@ export function Pager(props: PagerProps): unknown @{
     }
   }, [])
 
-  const layout = layoutChildProps({ ...props, style: undefined })
+  const layout = layoutChildProps(props)
 
   @if (props.items.length) {
     <masonview
       id={props.id}
       className={cx('vx-pager', 'vx-pager--appkit', props.className)}
-      style={mergeStyle(typeof layout.style === 'object' ? layout.style : {}, props.style)}
+      style={layout.style}
       onLayoutChanged={queueMeasure}
       accessible={props.accessible}
       accessibilityRole={props.accessibilityRole ?? 'group'}

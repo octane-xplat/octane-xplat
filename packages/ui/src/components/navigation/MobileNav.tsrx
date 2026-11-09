@@ -10,6 +10,7 @@ import { Text } from '../content/Text.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts'
 import { SizeProvider } from '../layout/size-context'
+import { layoutChildProps } from '../layout/layout-child'
 
 export { AppShellMobileContext, useAppShellMobile }
 
@@ -54,7 +55,7 @@ export function MobileNav(props: MobileNavProps): unknown @{
       ref={(v: any) => applyEscapeProps(v, props)}
       id={id}
       className={cx('vx-mobilenav', 'vx-mobilenav--' + side, 'vx-mobilenav--open', props.className)}
-      style={mergeStyle({ display: 'grid' }, props.style)}
+      {...layoutChildProps(props, mergeStyle({ display: 'grid' }, props.style))}
       accessibilityLabel={
         props.label ?? (typeof props.header === 'string' ? props.header : 'Navigation')
       }

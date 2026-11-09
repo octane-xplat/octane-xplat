@@ -4,6 +4,7 @@ import type { NavIconProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
+import { layoutChildProps } from '../layout/layout-child'
 
 /** Circular icon container for navigation headers (TopNavHeading,
  *  SideNavHeading). Display-only — the `icon` prop takes an element or a
@@ -13,7 +14,7 @@ export function NavIcon(props: NavIconProps): unknown @{
     ref={(v: any) => applyEscapeProps(v, props)}
     id={props.id}
     className={cx('vx-navicon', props.className)}
-    style={mergeStyle({ display: 'flex' }, props.style)}
+    {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
   >
     {typeof props.icon === 'string' ? <Icon name={props.icon} size={16} /> : props.icon}
   </masonview>

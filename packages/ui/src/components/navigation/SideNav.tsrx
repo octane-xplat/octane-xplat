@@ -21,6 +21,7 @@ import { Text } from '../content/Text.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { Popover } from '../overlays/Popover.tsrx'
 import { MobileNav } from './MobileNav.tsrx'
+import { layoutChildProps } from '../layout/layout-child'
 import { ResizeHandle } from '../layout/ResizeHandle.tsrx'
 import { useResizable } from '../layout/useResizable.tsrx'
 import { followHref } from './nav-href'
@@ -98,7 +99,7 @@ export function SideNav(props: SideNavProps): unknown @{
       ref={(v: any) => applyEscapeProps(v, props)}
       id={props.id}
       className={cx('vx-sidenav', 'vx-sidenav--topbar', props.className)}
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
     >
       {props.header}
       <masonview
@@ -114,10 +115,8 @@ export function SideNav(props: SideNavProps): unknown @{
   } @else {
     @if (renderMode === 'drawer') {
       <MobileNav
-        header={props.header}
-        id={props.id}
+        {...props}
         className={cx('vx-sidenav', 'vx-sidenav--drawer', props.className)}
-        style={props.style}
       >
         {props.topContent}
         {props.children}
@@ -162,17 +161,23 @@ export function SideNav(props: SideNavProps): unknown @{
         </>
       } @else {
         <SideNavCollapseProvider value={isCollapsible ? collapseState : null}>
+          {/* The shell is the parent-facing box (resize wrapper around the
+              nav) — layout-child placement lands on it; authored `style`
+              stays on `.vx-sidenav`. */}
           <masonview
             className="vx-sidenav-shell"
-            style={mergeStyle(
-              { display: 'grid' },
-              {
-                width: collapsed
-                  ? COLLAPSED_RAIL_WIDTH
-                  : resizeConfig
-                    ? resizableHook.size
-                    : undefined,
-              },
+            {...layoutChildProps(
+              props,
+              mergeStyle(
+                { display: 'grid' },
+                {
+                  width: collapsed
+                    ? COLLAPSED_RAIL_WIDTH
+                    : resizeConfig
+                      ? resizableHook.size
+                      : undefined,
+                },
+              ),
             )}
           >
             <masonview

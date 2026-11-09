@@ -247,6 +247,32 @@ it('current direction, resize and reduced motion update logical placement and em
   }
 })
 
+it('explicit layout props win over authored object style; string style stays verbatim', async () => {
+  // Regression: mergeStyle(layout.style, props.style) let an authored
+  // style.gridRow beat explicit row/col (issue #182).
+  const object = mount({ style: { gridRow: '9 / span 9', width: 40 }, row: 1 })
+
+  try {
+    const style = object.one('vx-pager').props.style
+
+    expect(style.gridRow).toBe('2 / span 1')
+    expect(style.width).toBe(40)
+  } finally {
+    object.root.unmount()
+  }
+
+  const string = mount({ style: 'width: 100', row: 1 })
+
+  try {
+    const style = string.one('vx-pager').props.style
+
+    expect(style).toContain('grid-row:2 / span 1')
+    expect(style).toContain('width: 100')
+  } finally {
+    string.root.unmount()
+  }
+})
+
 it('unmount cancels queued user work and old viewport callbacks', async () => {
   const f = mount()
 

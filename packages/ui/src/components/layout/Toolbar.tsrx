@@ -4,6 +4,7 @@ import type { ToolbarProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { SizeProvider } from './size-context'
+import { layoutChildProps } from './layout-child'
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
@@ -28,7 +29,10 @@ export function Toolbar(props: ToolbarProps): unknown @{
         dividerCls,
         props.className,
       )}
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      {...layoutChildProps(
+        { ...props, gap: undefined },
+        mergeStyle({ display: 'flex' }, props.style),
+      )}
       accessibilityLabel={props.label}
     >
       @if (hasCenter && !vertical) {

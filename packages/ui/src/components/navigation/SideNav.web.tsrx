@@ -20,6 +20,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
 import { Popover } from '../overlays/Popover.web.tsrx'
 import { MobileNav } from './MobileNav.web.tsrx'
+import { layoutChildProps } from '../layout/layout-child.web'
 import { ResizeHandle } from '../layout/ResizeHandle.web.tsrx'
 import { useResizable } from '../layout/useResizable.web.tsrx'
 import { regionConfigFrom } from '../layout/resize-state'
@@ -129,7 +130,7 @@ export function SideNav(props: SideNavProps): JSX.Element @{
       ref={(el: any) => applyEscapeProps(el, props)}
       id={props.id}
       className={['vx-sidenav', 'vx-sidenav--topbar', props.className]}
-      style={props.style}
+      {...layoutChildProps(props, props.style)}
     >
       {props.header}
       <div className="vx-sidenav-topbar-icons">{props.footerIcons}</div>
@@ -137,10 +138,8 @@ export function SideNav(props: SideNavProps): JSX.Element @{
   } @else {
     @if (renderMode === 'drawer') {
       <MobileNav
-        header={props.header}
-        id={props.id}
+        {...props}
         className={['vx-sidenav', 'vx-sidenav--drawer', props.className]}
-        style={props.style}
       >
         {props.topContent}
         {props.children}
@@ -170,15 +169,19 @@ export function SideNav(props: SideNavProps): JSX.Element @{
       } @else {
         <>
           <SideNavCollapseProvider value={isCollapsible ? collapseState : null}>
+            {/* The shell is the parent-facing box (resize wrapper around the
+                nav) — layout-child placement lands on it; authored `style`
+                stays on `.vx-sidenav`. */}
             <div
               className="vx-sidenav-shell"
-              style={
+              {...layoutChildProps(
+                props,
                 resizeConfig
                   ? { width: collapsed ? COLLAPSED_RAIL_WIDTH : resizableHook.size }
                   : collapsed
                     ? { width: COLLAPSED_RAIL_WIDTH }
-                    : undefined
-              }
+                    : undefined,
+              )}
             >
               <nav
                 ref={(el: any) => applyEscapeProps(el, props)}

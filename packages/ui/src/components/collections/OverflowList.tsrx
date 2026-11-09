@@ -5,6 +5,7 @@ import type { OverflowItem, OverflowListProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { computeOverflow } from './overflow-math'
+import { layoutChildProps } from '../layout/layout-child'
 
 import { toChildArray } from '../../internal/rendering/child-array'
 
@@ -163,13 +164,16 @@ export function OverflowList(props: OverflowListProps): unknown @{
       }}
       id={props.id}
       className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
-      style={mergeStyle(
-        {
-          flexWrap: isMultiRow ? 'wrap' : 'nowrap',
-          rowGap: isMultiRow ? gap : undefined,
-          gap: gap,
-        },
-        mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), height: containerHeight }),
+      {...layoutChildProps(
+        { ...props, gap: undefined },
+        mergeStyle(
+          {
+            flexWrap: isMultiRow ? 'wrap' : 'nowrap',
+            rowGap: isMultiRow ? gap : undefined,
+            gap: gap,
+          },
+          mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), height: containerHeight }),
+        ),
       )}
       onLayoutChanged={calculate}
     >

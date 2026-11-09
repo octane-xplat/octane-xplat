@@ -13,6 +13,7 @@ import { Popover } from '../overlays/Popover.web.tsrx'
 import { followHref } from '../navigation/nav-href.web'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
 import { useListFocus } from './list-focus.web.tsrx'
+import { layoutChildProps } from '../layout/layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 
 export { TabListContext }
@@ -231,7 +232,7 @@ export function TabList(props: TabListProps): JSX.Element @{
         ref={attachRoot}
         id={props.id}
         className={cls}
-        style={props.style}
+        {...layoutChildProps(props, props.style)}
         role="presentation"
         onKeyDown={handleKeyDown}
         onFocus={handleFocus}
@@ -243,7 +244,7 @@ export function TabList(props: TabListProps): JSX.Element @{
         ref={attachRoot}
         id={props.id}
         className={cls}
-        style={props.style}
+        {...layoutChildProps(props, props.style)}
         role={props.role}
         aria-label={props.role ? undefined : label}
         onKeyDown={handleKeyDown}

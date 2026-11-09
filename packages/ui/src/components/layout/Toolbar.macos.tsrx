@@ -6,6 +6,7 @@ import { useLayoutEffect, useMemo, useRef } from 'octane'
 import { createAppKitToolbarFocus } from './toolbar-focus.macos'
 import { useKeyboard } from '../../internal/keyboard/use-keyboard.macos'
 import { SizeProvider } from './size-context'
+import { layoutChildProps } from './layout-child'
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
 
@@ -46,7 +47,10 @@ export function Toolbar(props: ToolbarProps): unknown @{
         dividerCls,
         props.className,
       )}
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      {...layoutChildProps(
+        { ...props, gap: undefined },
+        mergeStyle({ display: 'flex' }, props.style),
+      )}
       accessibilityRole="toolbar"
       accessibilityLabel={props.label}
       accessibilityOrientation={vertical ? 'vertical' : 'horizontal'}

@@ -1,4 +1,5 @@
 import type { LayoutChildProps, FlexContainerProps } from '../../props'
+import { mergeStyle } from '../../internal/layout/style-merge'
 
 /** The shared contract is "numbers are dips" (RN semantics), but octane's DOM
  *  renderer keeps React's unitless list — lineHeight is unitless there, so
@@ -33,7 +34,8 @@ export function layoutChildProps(
 ): {
   style: any
 } {
-  const style = { ...normStyle(baseStyle) }
+  const base = normStyle(baseStyle)
+  const style: Record<string, any> = { ...(typeof base === 'object' ? base : {}) }
 
   if (props.row !== undefined) {
     style.gridRow = `${props.row + 1} / span ${props.rowSpan ?? 1}`
@@ -107,5 +109,7 @@ export function layoutChildProps(
     style.lineHeight = style.lineHeight + 'px'
   }
 
-  return { style }
+  // A string base is inline CSS — serialize the emitted keys under it so the
+  // authored declarations still win.
+  return { style: typeof base === 'string' ? mergeStyle(style, base) : style }
 }

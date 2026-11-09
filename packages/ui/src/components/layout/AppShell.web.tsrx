@@ -4,6 +4,7 @@ import { useCallback, useId, useMemo, useState } from 'octane'
 import type { AppShellProps, MobileNavConfig } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useMediaQuery } from '../../internal/platform/useMediaQuery.web.tsrx'
+import { layoutChildProps } from './layout-child.web'
 import { MobileNavToggle } from '../navigation/MobileNav.web.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
 import {
@@ -166,7 +167,7 @@ export function AppShell(props: AppShellProps): JSX.Element @{
         isFill ? 'vx-appshell--fill' : 'vx-appshell--auto',
         props.className,
       ]}
-      style={props.style}
+      {...layoutChildProps(props, props.style)}
     >
       <a href={'#' + MAIN_CONTENT_ID} className="vx-appshell-skiplink">
         Skip to content

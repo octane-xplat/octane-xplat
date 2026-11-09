@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { computeOverflow } from './overflow-math'
+import { layoutChildProps } from '../layout/layout-child.web'
 
 import { toChildArray } from '../../internal/rendering/child-array'
 
@@ -182,7 +183,10 @@ function OverflowListImpl(props: OverflowListProps): JSX.Element @{
         observeParent && hasOverflow && 'vx-overflowlist--fill-parent',
         props.className,
       ]}
-      style={mergeStyle({ gap, maxHeight: containerHeight }, props.style)}
+      {...layoutChildProps(
+        { ...props, gap: undefined },
+        mergeStyle({ gap, maxHeight: containerHeight }, props.style),
+      )}
       data-rows={isMultiRow ? rows : undefined}
     >
       {collapseFrom === 'start' && hasOverflow ? props.overflowRenderer?.(overflowItems) : null}

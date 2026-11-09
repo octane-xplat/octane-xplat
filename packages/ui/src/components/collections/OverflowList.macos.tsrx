@@ -3,6 +3,7 @@ import { mergeStyle, styleRecord } from '../../internal/layout/style-merge'
 import { useCallback, useEffect, useRef, useState } from 'octane'
 import type { OverflowItem, OverflowListProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
+import { layoutChildProps } from '../layout/layout-child'
 
 import { computeOverflow } from './overflow-math'
 
@@ -162,15 +163,18 @@ export function OverflowList(props: OverflowListProps): unknown @{
       }}
       id={props.id}
       className={cx('vx-overflowlist', isMultiRow && 'vx-overflowlist--multirow', props.className)}
-      style={mergeStyle(
-        {
-          flexDirection: 'row',
-          flexWrap: isMultiRow ? 'wrap' : 'nowrap',
-          alignItems: 'flex-start',
-          rowGap: isMultiRow ? gap : undefined,
-          gap: gap,
-        },
-        mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), height: containerHeight }),
+      {...layoutChildProps(
+        { ...props, gap: undefined },
+        mergeStyle(
+          {
+            flexDirection: 'row',
+            flexWrap: isMultiRow ? 'wrap' : 'nowrap',
+            alignItems: 'flex-start',
+            rowGap: isMultiRow ? gap : undefined,
+            gap: gap,
+          },
+          mergeStyle({ display: 'flex' }, { ...styleRecord(props.style), height: containerHeight }),
+        ),
       )}
       onLayoutChanged={calculate}
     >

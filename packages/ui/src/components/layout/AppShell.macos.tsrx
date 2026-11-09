@@ -5,6 +5,7 @@ import type { AppShellProps, MobileNavConfig } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { MobileNavToggle } from '../navigation/MobileNav.macos.tsrx'
 import { isMobileNavConfig } from './app-shell-config'
+import { layoutChildProps } from './layout-child'
 import {
   AppShellMobileContext,
   SideNavRenderContext,
@@ -131,7 +132,10 @@ export function AppShell(props: AppShellProps): unknown @{
         isFill ? 'vx-appshell--fill' : 'vx-appshell--auto',
         props.className,
       )}
-      style={mergeStyle({ display: 'grid', gridTemplateRows: 'auto 1fr' }, props.style)}
+      {...layoutChildProps(
+        props,
+        mergeStyle({ display: 'grid', gridTemplateRows: 'auto 1fr' }, props.style),
+      )}
       onLayoutChanged={onShellLayout}
     >
       <masonview

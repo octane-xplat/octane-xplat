@@ -17,6 +17,7 @@ import {
 
 import type { TabListProps, TabProps, TabMenuProps, TabMenuOption } from '../../props'
 import { useSize } from '../layout/size-context'
+import { layoutChildProps } from '../layout/layout-child'
 import { cx } from '@octane-xplat/lib'
 
 import { Icon } from '../media/Icon.macos.tsrx'
@@ -193,7 +194,7 @@ export function TabList(props: TabListProps): unknown @{
       accessibilityLabel={
         props.role === 'tablist' ? String(props.web?.['aria-label'] ?? 'Tabs') : undefined
       }
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
     >
       @if (hasScroll) {
         <scrollview

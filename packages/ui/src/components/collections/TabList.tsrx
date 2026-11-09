@@ -19,6 +19,7 @@ import { Popover } from '../overlays/Popover.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { followHref } from '../navigation/nav-href'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
+import { layoutChildProps } from '../layout/layout-child'
 
 export { TabListContext }
 export { useTabListContext } from '../navigation/nav-contexts'
@@ -102,7 +103,7 @@ export function TabList(props: TabListProps): unknown @{
       id={props.id}
       ref={(v: any) => applyEscapeProps(v, props)}
       className={cls}
-      style={mergeStyle({ display: 'flex' }, props.style)}
+      {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
     >
       @if (hasScroll) {
         <scrollview

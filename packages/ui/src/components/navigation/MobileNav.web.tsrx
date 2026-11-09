@@ -8,6 +8,7 @@ import { Icon } from '../media/Icon.web.tsrx'
 import { Text } from '../content/Text.web.tsrx'
 import { AppShellMobileContext, useAppShellMobile } from './nav-contexts'
 import { SizeProvider } from '../layout/size-context'
+import { layoutChildProps } from '../layout/layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 
 export { AppShellMobileContext, useAppShellMobile }
@@ -162,7 +163,7 @@ export function MobileNav(props: MobileNavProps): JSX.Element @{
       isOpen && 'vx-mobilenav--open',
       props.className,
     ]}
-    style={mergeStyle({ width: props.width ?? 320 }, props.style)}
+    {...layoutChildProps(props, mergeStyle({ width: props.width ?? 320 }, props.style))}
     aria-label={ariaLabel}
     onClick={handleDialogClick}
     onCancel={handleCancel}

@@ -18,6 +18,7 @@ import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
 import { TabListContext, TabListProvider } from '../navigation/nav-contexts'
 import { TabList as NavigationTabList, Tab as NavigationTab } from './TabList.tsrx'
+import { layoutChildProps } from '../layout/layout-child'
 import './tab-control.windows'
 
 export { TabListContext }
@@ -63,7 +64,7 @@ export function TabList(props: TabListProps): unknown @{
           props.isFullBleed && 'vx-tablist--bleed',
           props.className,
         )}
-        style={mergeStyle({ display: 'flex' }, props.style)}
+        {...layoutChildProps(props, mergeStyle({ display: 'flex' }, props.style))}
       >
         <xplatwindowstabstrip
           settings={{ value: props.value, layout, label: props.id }}

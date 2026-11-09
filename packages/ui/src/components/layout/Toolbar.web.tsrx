@@ -4,6 +4,7 @@ import type { ToolbarProps } from '../../props'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { useListFocus } from '../collections/list-focus.web.tsrx'
 import { SizeProvider } from './size-context'
+import { layoutChildProps } from './layout-child.web'
 import type { JSX } from 'octane/jsx-runtime'
 
 const SIZE_MIN: Record<string, number> = { sm: 28, md: 32, lg: 36 }
@@ -43,7 +44,7 @@ export function Toolbar(props: ToolbarProps): JSX.Element @{
         ...dividerCls,
         props.className,
       ]}
-      style={props.style}
+      {...layoutChildProps({ ...props, gap: undefined }, props.style)}
     >
       <div
         ref={attach}
