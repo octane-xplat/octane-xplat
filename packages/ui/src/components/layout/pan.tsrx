@@ -1,5 +1,5 @@
 /** @jsxImportSource @octane-xplat/jsx */
-import { useCallback, useRef } from 'octane'
+import { useEffectEvent, useRef } from 'octane'
 import { Utils } from '@nativescript/core'
 import type { PanEvent } from '../../props'
 import { hostGlobal } from '../../internal/platform/host-bridge'
@@ -79,9 +79,9 @@ function nativePanState(e: any): number {
 
 export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefined {
   const velocityTracker = useRef<any>(null)
-  // Memoized so the driver's observer doesn't churn per render — each
-  // re-subscribe would re-attach a UIPanGestureRecognizer.
-  const handler = useCallback(
+  // Retain the native observer through state/callback updates while reading
+  // the latest committed callback. Removing the prop still removes the listener.
+  const handler = useEffectEvent(
     (e: any) => {
       const nativeState = nativePanState(e)
       const state = PAN_STATE[nativeState] ?? 'moved'
@@ -98,7 +98,6 @@ export function usePan(cb?: (e: PanEvent) => void): ((e: any) => void) | undefin
         target: e.view ?? e.object,
       })
     },
-    [cb],
   )
 
   return cb ? handler : undefined

@@ -136,3 +136,23 @@ or unloaded Mason support throws, rather than silently claiming suspension.
 A fresh native build is required. No registry publication is implied.
 See [iOS input suspension](../../../../../docs/app/primitives.md#pause-ios-user-scrolling-during-an-ancestor-drag)
 for usage and runtime qualification limits.
+
+## Native pan callback updates
+
+Native `onPan` props retain their normalized callback across state and callback
+updates while reading the latest committed handler. Inline handlers can update
+state without an app-owned recognizer workaround. Removing the prop or unmounting
+still removes the listener. Host regressions qualify callback ownership, not OS
+touch delivery or native recognizer continuity under real input.
+
+```tsx
+import { useState } from 'octane'
+import { View } from '@octane-xplat/ui'
+
+export function DragSurface() {
+  const [dragging, setDragging] = useState(false)
+  return <View onPan={event => setDragging(event.state === 'moved')}>
+    {dragging ? 'Dragging' : 'Ready'}
+  </View>
+}
+```

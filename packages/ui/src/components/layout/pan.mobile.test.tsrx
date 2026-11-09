@@ -9,10 +9,12 @@ import {
   createObjectContainer,
   createObjectDriver,
   createUniversalRoot,
+  flushUniversalSync,
 } from 'octane/universal/native'
 
 import { usePan } from './pan.tsrx'
 import type { PanEvent } from '../../props'
+import { useState } from 'octane'
 
 const events: PanEvent[] = []
 
@@ -118,4 +120,61 @@ describe('native pan normalization', () => {
     expect(velocityTracker.recycle).toHaveBeenCalledOnce()
     root.unmount()
   })
+})
+
+
+const panReads: Array<{ label: string; moves: number; state: PanEvent['state'] }> = []
+let renderedPan: unknown
+
+function StatefulPanHost(props: { label: string; enabled: boolean }) @{
+  const [moves, setMoves] = useState(0)
+  const callback = (event: PanEvent) => {
+    panReads.push({ label: props.label, moves, state: event.state })
+    if (event.state === 'moved') {
+      setMoves(moves + 1)
+    }
+  }
+  const onPan = usePan(props.enabled ? callback : undefined)
+  renderedPan = onPan
+
+  <masonview id="stateful-pan" onPan={onPan} style={{ display: 'flex' }} />
+}
+
+it('retains the pan bridge through its own movement rerender and reads committed callbacks', () => {
+  panReads.length = 0
+  const container = createObjectContainer('nativescript')
+  const root = createUniversalRoot(container, createObjectDriver('nativescript'))
+  let dispatchRetired: (() => void) | undefined
+  try {
+    flushUniversalSync(() => root.render(StatefulPanHost, { label: 'first', enabled: true }))
+    const host = container.children[0]
+    const original = renderedPan
+    dispatchRetired = () => container.dispatchEvent(host, 'pan', { state: 2, deltaX: 30 })
+    const dispatch = (state: number) => flushUniversalSync(() => {
+      container.dispatchEvent(host, 'pan', { state, deltaX: 25, deltaY: 0, view: host })
+    })
+    dispatch(1)
+    dispatch(2)
+    expect(renderedPan).toBe(original)
+    dispatch(2)
+    expect(panReads.at(-1)).toMatchObject({ label: 'first', moves: 1, state: 'moved' })
+    flushUniversalSync(() => root.render(StatefulPanHost, { label: 'latest', enabled: true }))
+    expect(renderedPan).toBe(original)
+    dispatch(3)
+    expect(panReads.at(-1)).toMatchObject({ label: 'latest', moves: 2, state: 'ended' })
+
+    flushUniversalSync(() => root.render(StatefulPanHost, { label: 'removed', enabled: false }))
+    expect(renderedPan).toBeUndefined()
+    expect(() => dispatch(2)).toThrow(/no "pan" listener/)
+    flushUniversalSync(() => root.render(StatefulPanHost, { label: 'restored', enabled: true }))
+    expect(renderedPan).toBe(original)
+    dispatch(0)
+    expect(panReads.at(-1)).toMatchObject({ label: 'restored', state: 'cancelled' })
+  } finally {
+    root.unmount()
+  }
+  expect(container.children).toHaveLength(0)
+  const finalReads = panReads.length
+  expect(dispatchRetired).toThrow()
+  expect(panReads).toHaveLength(finalReads)
 })
