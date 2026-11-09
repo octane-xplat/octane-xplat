@@ -49,7 +49,7 @@ export function MotionDemo() @{
           scale: expanded ? 1.2 : 1,
           scaleX: expanded ? 1.1 : 1,
         }}
-        transition={{ duration: 0.25 }}
+        transition={{ type: 'spring', duration: 0.6, bounce: 0.3 }}
       >
         <Text>Animated destination</Text>
       </motion.View>

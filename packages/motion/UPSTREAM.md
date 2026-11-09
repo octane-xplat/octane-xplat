@@ -53,7 +53,12 @@ Source links: [Octane motion](https://github.com/octanejs/octane/tree/main/packa
   keyframe plus `opacity`; sampled matrices decompose back to channels with
   rotate read modulo ±180° and scale signs folded per the matrix.
 - Springs accept both the physical spec (stiffness/damping/mass/velocity) and
-  upstream's duration/bounce spec. Transitions support `repeat`/`repeatType`
+  upstream's duration/bounce spec. `duration` is full completion time in seconds
+  (clamped 0.01–10), not `visualDuration`; bounce alone uses 0.8 seconds. Any
+  explicit stiffness/damping/mass wins over duration/bounce. With no spring
+  options, physics remain 100/10/1. Time mode ignores velocity; physical mode
+  preserves it. `engine.test.ts` pins timing, overshoot and mixed precedence
+  against motion-dom 14.7.1. Transitions support `repeat`/`repeatType`
   (`loop`/`reverse`/`mirror`)/`repeatDelay` and per-channel overrides in the
   `{x: {…}, default: {…}}` form. Default declarative transition is a 0.3-second
   easeInOut tween. Targets are absolute; scale multiplies scaleX/scaleY.

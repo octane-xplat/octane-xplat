@@ -53,6 +53,16 @@ import { motion } from '@octane-xplat/motion'
 <motion.View animate={{ x: 100 }} transition={{ duration: 0.3 }} />
 ```
 
+For Motion springs, `duration` is completion time in seconds, not
+`visualDuration` (not exposed). Duration/bounce mode ignores velocity. Any
+explicit stiffness, damping or mass selects physical mode and overrides both
+time options; use physical mode for velocity-preserving gesture releases.
+Do not supply physical defaults when forwarding a duration/bounce request.
+
+```tsx
+<motion.View animate={{ x: 100 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.3 }} />
+```
+
 For moves and resizes caused by layout, use the motion package's `layout`
 prop on web, iOS, Android, and the experimental macOS host. A nested
 `layout="position"` host keeps its size while its parent scales. Browser

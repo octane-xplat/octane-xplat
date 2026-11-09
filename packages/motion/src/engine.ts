@@ -286,14 +286,15 @@ export function runAnimation(
       : transition.type === 'spring'
         ? spring({
             keyframes: [legFrom, legTo],
-            stiffness: transition.stiffness ?? 100,
-            damping: transition.damping ?? 10,
-            mass: transition.mass ?? 1,
+            stiffness: transition.stiffness,
+            damping: transition.damping,
+            mass: transition.mass,
             velocity: transition.velocity ?? 0,
             restSpeed: transition.restSpeed,
             restDelta: transition.restDelta,
-            // Visual-duration spring spec — duration/bounce instead of
-            // stiffness/damping; motion-dom takes milliseconds.
+            // Let the pinned generator select duration mode only when no physical
+            // input is present. Its duration is completion time in milliseconds,
+            // distinct from visualDuration (which this API does not expose).
             duration: transition.duration !== undefined ? duration * 1000 : undefined,
             bounce: transition.bounce,
           })

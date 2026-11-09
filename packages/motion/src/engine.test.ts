@@ -4,6 +4,7 @@ import { runAnimation } from './engine'
 import { MotionValue } from './value'
 import { Controller } from './controller'
 import type { Clock } from './clock-types'
+import type { Transition } from './types'
 
 function fakeClock() {
   let time = 0,
@@ -434,5 +435,210 @@ describe('inertia transitions', () => {
     const time = fakeClock()
 
     expect(() => runAnimation(time.clock, 0, 1, transition as any, () => {})).toThrow(pattern)
+  })
+})
+
+describe('spring mode routing (#208)', () => {
+  function playback(spec: Transition) {
+    const time = fakeClock()
+    let value = 0
+    let completions = 0
+    const controls = runAnimation(
+      time.clock,
+      0,
+      100,
+      { type: 'spring', ...spec },
+      (next) => {
+        value = next
+      },
+      () => {
+        completions++
+      },
+    )
+
+    return { time, controls, value: () => value, completions: () => completions }
+  }
+
+  it.each([0.1, 2])(
+    'finishes at duration %s seconds, rather than at visual arrival',
+    async (duration) => {
+      const run = playback({ duration, bounce: 0 })
+
+      run.time.advance(duration * 500)
+      expect(run.value()).toBeGreaterThan(90)
+      expect(run.value()).toBeLessThan(100)
+      run.time.advance(duration * 500 - 1)
+      expect(run.time.count()).toBe(1)
+      expect(run.completions()).toBe(0)
+      run.time.advance(1)
+      expect(run.value()).toBe(100)
+      expect(run.time.count()).toBe(0)
+      expect(run.completions()).toBe(1)
+      expect(await run.controls.finished).toBe('finished')
+    },
+  )
+
+  it('bounce controls overshoot, with the same completion time', async () => {
+    const calm = playback({ duration: 1, bounce: 0 })
+    const bouncy = playback({ duration: 1, bounce: 0.7 })
+    let peak = 0
+
+    for (let i = 0; i < 99; i++) {
+      calm.time.advance(10)
+      bouncy.time.advance(10)
+      expect(calm.value()).toBeLessThan(100)
+      peak = Math.max(peak, bouncy.value())
+    }
+
+    expect(peak).toBeGreaterThan(130)
+    expect(calm.time.count()).toBe(1)
+    expect(bouncy.time.count()).toBe(1)
+    for (const run of [calm, bouncy]) {
+      run.time.advance(10)
+      expect(await run.controls.finished).toBe('finished')
+      expect(run.value()).toBe(100)
+    }
+  })
+
+  it.each([{ duration: 0.4 }, { bounce: 0.6 }])(
+    'uses upstream time-mode defaults for %o',
+    async (spec) => {
+      const run = playback(spec)
+      const reference = spring({
+        keyframes: [0, 100],
+        ...spec,
+        duration: 'duration' in spec ? spec.duration! * 1000 : undefined,
+      })
+
+      let elapsed = 0
+
+      for (const dt of [13, 87, 199, 100, 1, 399, 1]) {
+        elapsed += dt
+        run.time.advance(dt)
+        expect(run.value()).toBeCloseTo(reference.next(elapsed).value, 8)
+      }
+
+      expect(await run.controls.finished).toBe('finished')
+    },
+  )
+
+  it.each([{}, { stiffness: 180 }, { damping: 22 }, { mass: 2 }])(
+    'preserves physical defaults and physical precedence for %o',
+    (spec) => {
+      const options = { ...spec, velocity: 90 }
+      const physical = playback(options)
+      const mixed = playback({
+        ...options,
+        ...('stiffness' in spec || 'damping' in spec || 'mass' in spec
+          ? { duration: 0.1, bounce: 0.9 }
+          : {}),
+      })
+
+      const reference = spring({ keyframes: [0, 100], ...options })
+      let elapsed = 0
+
+      for (const dt of [8, 16, 91, 127, 8000]) {
+        elapsed += dt
+        physical.time.advance(dt)
+        mixed.time.advance(dt)
+
+        const expected = reference.next(elapsed).value
+
+        expect(physical.value()).toBeCloseTo(expected, 8)
+        expect(mixed.value()).toBeCloseTo(expected, 8)
+      }
+    },
+  )
+
+  it('time mode ignores inherited velocity on retarget, while physical mode preserves it', async () => {
+    for (const spec of [
+      { duration: 0.4, bounce: 0.3 },
+      { stiffness: 150, damping: 12 },
+    ]) {
+      const time = fakeClock()
+      const value = new MotionValue(0, time.clock)
+      const first = value.animate(100, { type: 'spring', ...spec })
+
+      time.advance(30)
+
+      const origin = value.get()
+      const velocity = value.getVelocity()
+
+      expect(velocity).toBeGreaterThan(0)
+
+      const second = value.animate(0, { type: 'spring', ...spec })
+
+      expect(await first.finished).toBe('replaced')
+
+      const reference = spring({
+        keyframes: [origin, 0],
+        ...spec,
+        duration: 'duration' in spec ? spec.duration! * 1000 : undefined,
+        velocity,
+      })
+
+      time.advance(20)
+      expect(value.get()).toBeCloseTo(reference.next(20).value, 8)
+      second.stop()
+      expect(await second.finished).toBe('cancelled')
+      expect(time.count()).toBe(0)
+    }
+  })
+
+  it.each(['loop', 'reverse', 'mirror'] as const)(
+    'times repeated %s spring legs, delay and cancellation',
+    async (repeatType) => {
+      const run = playback({
+        duration: 0.1,
+        bounce: 0.4,
+        delay: 0.05,
+        repeat: 1,
+        repeatDelay: 0.02,
+        repeatType,
+      })
+
+      run.time.advance(49)
+      expect(run.value()).toBe(0)
+      run.time.advance(101)
+      expect(run.value()).toBe(100)
+      run.time.advance(19)
+      expect(run.value()).toBe(100)
+      run.time.advance(101)
+      expect(run.value()).toBe(repeatType === 'loop' ? 100 : 0)
+      expect(await run.controls.finished).toBe('finished')
+      expect(run.completions()).toBe(1)
+
+      const cancelled = playback({ duration: 2, bounce: 0.9, repeat: Infinity })
+
+      cancelled.time.advance(40)
+
+      const frozen = cancelled.value()
+
+      cancelled.controls.stop()
+      cancelled.time.advance(10000)
+      expect(cancelled.value()).toBe(frozen)
+      expect(await cancelled.controls.finished).toBe('cancelled')
+      expect(cancelled.completions()).toBe(0)
+      expect(cancelled.time.count()).toBe(0)
+    },
+  )
+
+  it('settles reduced transforms immediately while opacity keeps duration timing', async () => {
+    const time = fakeClock()
+    const controller = new Controller(time.clock)
+    const finished = controller.animate(
+      { x: 100, opacity: 0 },
+      { type: 'spring', duration: 0.4, bounce: 0.3 },
+      true,
+    )
+
+    expect(controller.snapshot()).toEqual({ x: 100, opacity: 1 })
+    time.advance(399)
+    expect(time.count()).toBe(1)
+    time.advance(1)
+    expect(await finished).toBe('finished')
+    expect(controller.snapshot()).toEqual({ x: 100, opacity: 0 })
+    expect(time.count()).toBe(0)
+    controller.destroy()
   })
 })

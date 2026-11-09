@@ -41,7 +41,9 @@ export interface ChildOrchestration {
 export interface Transition extends ChildOrchestration {
   /** Animation kind (spring/tween/inertia). */
   type?: 'tween' | 'spring' | 'inertia'
-  /** Tween duration; on springs this is the visual duration (combine with bounce). */
+  /** Seconds to complete a tween or duration-based spring (not visualDuration).
+   * Spring duration is clamped to 0.01–10 seconds; default 0.8 when only bounce
+   * is set. Any stiffness, damping or mass overrides duration and bounce. */
   duration?: number
   /** Seconds before the animation starts. */
   delay?: number
@@ -53,7 +55,8 @@ export interface Transition extends ChildOrchestration {
   repeatType?: RepeatType
   /** Seconds between repeats. */
   repeatDelay?: number
-  /** Spring bounciness 0–1; pairs with duration instead of stiffness/damping. */
+  /** Spring bounciness 0–1 (default 0.3 in time mode); pairs with duration.
+   * Without physical inputs, bounce alone selects time mode (0.8 seconds). */
   bounce?: number
   /** Spring stiffness (higher = faster). */
   stiffness?: number
@@ -61,7 +64,8 @@ export interface Transition extends ChildOrchestration {
   damping?: number
   /** Spring mass. */
   mass?: number
-  /** Initial velocity (units per second). */
+  /** Initial velocity (units per second). Physical springs preserve it on retarget;
+   * duration/bounce springs ignore it, matching the pinned generator. */
   velocity?: number
   /** Speed below which the spring settles. */
   restSpeed?: number

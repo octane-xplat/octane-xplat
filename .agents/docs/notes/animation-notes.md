@@ -22,6 +22,18 @@ pending capture before a browser sends got/lost events. Clear active ownership
 before releasing capture or calling user code. Ignore bubbled capture loss from
 children; teardown cancels through the last available observer.
 
+## Motion spring modes
+
+The pinned `motion-dom@14.7.1` generator (`spring.ts`, upstream tag `v14.7.1`,
+commit `9ba8846b6819172cb829e65a9f46433a4de377ab`) owns spring mode selection.
+Forward optional physics unchanged: injecting 100/10/1 selects physical mode
+and silently disables duration/bounce. Upstream applies those same defaults
+when neither mode is requested. Any explicit physical input wins mixed inputs.
+`duration` is milliseconds at generator ingress and determines completion;
+`visualDuration` is a separate upstream option, not part of our public API.
+Time-defined springs ignore velocity, including inherited retarget velocity.
+The maintained engine regressions check timing and trajectory independently.
+
 ## AppKit imperative animation
 
 AppKit owns alpha through NSView and transforms through Core Animation. Explicit

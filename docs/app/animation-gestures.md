@@ -79,6 +79,29 @@ export function Example() {
 }
 ```
 
+For a spring with a set completion time, use `duration` and `bounce`. Duration
+is the full run time, not the time when most movement looks complete. The engine
+clamps it to 0.01–10 seconds; bounce alone uses 0.8 seconds, and duration alone
+uses bounce 0.3. Bounce 0 avoids overshoot; larger values add oscillation.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ x: 100 }} transition={{ type: 'spring', duration: 0.6, bounce: 0.3 }} />
+```
+
+Any explicit `stiffness`, `damping`, or `mass` selects a physical spring and
+ignores both duration and bounce. Physical defaults are stiffness 100, damping
+10, and mass 1. Physical springs preserve velocity on retarget; duration/bounce
+springs ignore initial and inherited velocity. Choose physical inputs for a
+release that should continue with the user's drag speed.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.View animate={{ x: 100 }} transition={{ type: 'spring', stiffness: 180, damping: 20 }} />
+```
+
 Combining `scale` with `scaleX` or `scaleY` multiplies their values: scale 1.5
 and scaleX 1.5 produce an X size of 2.25. Motion keeps these combined tweens
 on its JavaScript engine so stopping or replacing them preserves each factor,

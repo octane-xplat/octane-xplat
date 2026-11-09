@@ -25,6 +25,8 @@ behavior, and respect reduced motion and component disposal.
 
 - AC6: Compose active focus and press per channel (press wins shared channels), return to the current base in either release order, and preserve independent playback, cancellation, prop removal and disposal under reduced motion.
 
+- AC7: Choose duration/bounce springs with documented completion timing, or physical springs for velocity continuity; understand physical-input precedence and preserve repeats, cancellation and reduced motion.
+
 ## Documentation
 
 - AC1: [Component motion](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [Android translation boundary regression](../../../packages/motion/tests/android-translation.ts) (native density, cancellation, replacement and spring handoff; no OS input). [Combined-scale interruption](../../../packages/motion/src/delegation.test.ts), [web handoff](../../../packages/motion/src/delegation.web.test.ts), and [native property handoff](../../../packages/motion/src/scale-handoff.mobile.test.ts) preserve independent factors; the [Chromium probe](../../../packages/motion/tests/scale-interruption.web.ts) checks actual WAAPI handoffs without images. Host doubles do not qualify devices.
@@ -36,3 +38,5 @@ behavior, and respect reduced motion and component disposal.
 - AC5: [Coordinate variants](../../../docs/app/animation-gestures.md#coordinate-variants), [compatibility boundaries](../../../packages/motion/UPSTREAM.md#variants-decision-93), and [maintained motion probe](../../../examples/probes/motion.tsrx).
 
 - AC6: [Compose feedback](../../../docs/app/animation-gestures.md#combine-press-and-focus-feedback), [shared conformance](../../../packages/motion/test/gesture-contract.ts), [compiled web](../../../packages/motion/src/gesture-composition.web.test.tsrx), and [compiled native](../../../packages/motion/src/gesture-composition.mobile.test.tsrx). Native object-driver tests establish policy and adapter dispatch, not OS input.
+
+- AC7: [Spring modes](../../../docs/app/animation-gestures.md#animate-a-component), [maintained example](../../../packages/motion/examples/MotionDemo.tsrx), and [timing/trajectory regressions](../../../packages/motion/src/engine.test.ts). Pure clock tests establish generator contracts, not device frame pacing.
