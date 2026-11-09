@@ -183,8 +183,8 @@ const DIP_RE = /([0-9]+(\.[0-9]+)?)dip\b/g
 const UNSET_RE = /unset/g
 const INFINITY_RE = /infinity/g
 
-/** Port of upstream `_evaluateCssCalcExpression` — `calc()` returns a number
- *  (dips) when it resolves, else the string stays for downstream handling. */
+/** Resolve CSS math to numeric lengths/numbers when possible; percentages
+ *  and contextual expressions stay CSS text for the owning renderer. */
 export function evaluateCssCalc(value: any): any {
   if (typeof value !== 'string' || !value.includes('calc(')) {
     return value
@@ -201,7 +201,7 @@ export function evaluateCssCalc(value: any): any {
   }
 
   try {
-    return calc(cssValue)
+    return cssValueToStyle(calc(cssValue))
   } catch {
     return value
   }
@@ -222,8 +222,7 @@ function resolveDeclaration(
     const sub = value as CssPendingSubstitution
     let resolved = evaluateCssVariables(node, sub.value)
 
-    resolved =
-      typeof evaluateCssCalc(resolved) === 'number' ? String(evaluateCssCalc(resolved)) : resolved
+    resolved = String(evaluateCssCalc(resolved))
 
     const expanded = _expandCssShorthand(sub.shorthand, resolved)
 
@@ -246,9 +245,7 @@ function resolveDeclaration(
     }
 
     if (value.includes('calc(')) {
-      const c = evaluateCssCalc(value)
-
-      value = typeof c === 'number' ? c : value
+      value = evaluateCssCalc(value)
     }
   }
 

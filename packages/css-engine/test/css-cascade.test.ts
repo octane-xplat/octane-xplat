@@ -365,3 +365,30 @@ test('desktop CSS id lookup supports compound selectors and does not duplicate n
     1,
   )
 })
+
+test('calc resolves generated variable arithmetic and pending shorthand values', () => {
+  registerStylesheet(
+    'utility-calc',
+    '.utility-calc { --step: 4dip; width: calc(var(--step) * 8); padding: calc(var(--step) * 2) }',
+  )
+
+  const target = node('masonview', { classes: ['utility-calc'] })
+
+  assert.equal(target.computedStyle.width, 32)
+  assert.equal(target.computedStyle.paddingTop, 8)
+  assert.equal(target.computedStyle.paddingRight, 8)
+  assert.equal(target.computedStyle.paddingBottom, 8)
+  assert.equal(target.computedStyle.paddingLeft, 8)
+})
+
+test('calc keeps resolved percentages and leaves contextual expressions intact', () => {
+  registerStylesheet(
+    'utility-calc-percent',
+    '.utility-calc-percent { width: calc(25% * 2); height: calc(50% - 10px) }',
+  )
+
+  const target = node('masonview', { classes: ['utility-calc-percent'] })
+
+  assert.equal(target.computedStyle.width, '50%')
+  assert.equal(target.computedStyle.height, 'calc(50% - 10px)')
+})
