@@ -9,15 +9,20 @@ import { nativeOpacity } from './native-engine.ts'
 import { adapt, compileTailwind, declarations, scenarios } from './compare.ts'
 
 const args = process.argv.slice(2)
+
 if (args.length !== 2 || args[0] !== '--output') {
   throw new Error('Usage: qualify --output /absolute/local/evidence-directory')
 }
+
 const output = resolve(args[1])
+
 await mkdir(output, { recursive: true })
+
 const compiled = await compileTailwind()
 const adaptationStarted = performance.now()
 const adapted = await adapt(compiled.css)
 const adaptationMs = performance.now() - adaptationStarted
+
 await writeFile(join(output, 'official.css'), compiled.css)
 await writeFile(join(output, 'adapter.css'), adapted.css)
 
@@ -53,8 +58,10 @@ const results: {
   matches: boolean
   warnings: string[]
 }[] = []
+
 try {
   const page = await browser.newPage({ viewport: { width: 800, height: 600 } })
+
   for (const scenario of scenarios) {
     const transformed = await adapt(scenario.css)
     // A new document for every observation prevents @property registrations
@@ -69,9 +76,13 @@ try {
           scenario.property,
         )
     }
+
     const official = await observe(scenario.css)
+
     assert.equal(official, scenario.expected, `invalid browser oracle: ${scenario.name}`)
+
     const after = await observe(transformed.css)
+
     results.push({
       name: scenario.name,
       official,
@@ -98,6 +109,7 @@ const nativeEngine = scenarios.slice(0, 4).map((scenario, index) => ({
   ),
   evidence: 'desktop CSS engine in Node, no native host',
 }))
+
 const lostRules = inventory.filter((rule) => rule.official.length > 0 && rule.adapted.length === 0)
 const adapterMatches = results.every((result) => result.matches) && lostRules.length === 0
 const engineMatches = nativeEngine.every((result) => result.expected === result.actual)
@@ -106,6 +118,7 @@ const adoption = !adapterMatches
   : !engineMatches
     ? 'blocked-native-engine'
     : 'requires-native-qualification'
+
 const report = {
   schema: 1,
   evidence:
@@ -128,6 +141,7 @@ const report = {
   warnings: adapted.warnings,
   adoption,
 }
+
 await writeFile(join(output, 'comparison.json'), JSON.stringify(report, null, 2) + '\n')
 console.log(
   JSON.stringify(
@@ -142,6 +156,7 @@ console.log(
     2,
   ),
 )
+
 if (report.adoption !== 'requires-native-qualification') {
   process.exitCode = 1
 }

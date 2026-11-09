@@ -55,6 +55,7 @@ test('preparation reuses a validated offline cache and refuses to overwrite modi
     assert.equal(linked.stdout.trim(), target)
     writeFileSync(file, 'local work')
     assert.throws(() => preparePulsar(target), /Choose a fresh destination/)
+
     const rejected = spawnSync(process.execPath, [executable, target], { encoding: 'utf8' })
 
     assert.equal(rejected.status, 1)

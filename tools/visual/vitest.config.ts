@@ -101,6 +101,7 @@ export default defineConfig({
           const provider = context.provider as unknown as {
             getPage(sessionId: string): import('playwright').Page
           }
+
           const page = provider.getPage(context.sessionId)
           const frameBox = await page.locator('iframe[data-vitest]').boundingBox()
 

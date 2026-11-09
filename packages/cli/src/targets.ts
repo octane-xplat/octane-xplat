@@ -145,6 +145,7 @@ export function iosTargets() {
           device: id,
           physical: true,
         }
+
         let unblocked = true
 
         if (connection.pairingState !== 'paired') {

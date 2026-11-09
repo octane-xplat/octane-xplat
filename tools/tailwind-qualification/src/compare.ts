@@ -69,6 +69,7 @@ export const scenarios: Scenario[] = [
 
 export async function adapt(css: string, from = 'qualification.css') {
   const result = await postcss([nativeAdapter]).process(css, { from, map: false })
+
   return { css: result.css, warnings: result.warnings().map((warning) => warning.toString()) }
 }
 
@@ -79,16 +80,19 @@ export async function compileTailwind() {
 @import "tailwindcss/utilities.css" layer(utilities) source(none);
 @source inline("flex grid absolute gap-4 p-4 px-4 w-32 max-w-32 min-w-0 flex-1 items-center bg-red-500 text-sm rounded-lg invisible translate-x-4 scale-50 sm:opacity-50 dark:opacity-50 opacity-50!");
 `
+
   const started = performance.now()
   const result = await postcss([tailwindcss({ optimize: true })]).process(source, {
     from: fileURLToPath(new URL('./corpus.css', import.meta.url)),
     map: false,
   })
+
   return { css: result.css, durationMs: performance.now() - started }
 }
 
 export function declarations(css: string, selector: string) {
   const found: string[] = []
+
   postcss.parse(css).walkRules((rule) => {
     if (rule.selector === selector) {
       rule.walkDecls((decl) => {
@@ -96,5 +100,6 @@ export function declarations(css: string, selector: string) {
       })
     }
   })
+
   return found
 }

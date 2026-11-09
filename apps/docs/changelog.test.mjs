@@ -124,5 +124,6 @@ test('a lone pipe-starting line stays paragraph text', () => {
     paragraphs[0].spans.map((s) => s.text).join(''),
     "| 'system')` and the rest keep flowing",
   )
+
   assert.equal(blocks.at(-1).kind, 'table')
 })

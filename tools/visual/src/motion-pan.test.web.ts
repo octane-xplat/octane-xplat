@@ -14,6 +14,7 @@ const realPointer = (steps: PointerStep[]) =>
 const panRig = (axis: true | 'x' | 'y' = true) => {
   const host = document.createElement('div')
   const button = document.createElement('button')
+
   host.style.cssText = 'position:fixed;left:100px;top:100px;width:120px;height:120px'
   button.style.cssText = 'position:absolute;left:0;top:0;width:40px;height:40px'
   button.textContent = 'nested'
@@ -53,17 +54,22 @@ it('preserves real nested button and input clicks before the drag threshold', as
   const host = document.createElement('div')
   const button = document.createElement('button')
   const input = document.createElement('input')
+
   button.textContent = 'Nested motion action'
   host.append(button, input)
   document.body.append(host)
+
   let clicks = 0
   let starts = 0
+
   button.addEventListener('click', () => clicks++)
+
   const off = attachPan(host, true, {
     start: () => starts++,
     move() {},
     end() {},
   })
+
   try {
     await userEvent.click(button)
     expect(clicks).toBe(1)
@@ -78,12 +84,14 @@ it('preserves real nested button and input clicks before the drag threshold', as
 
 it('defers capture until the 8px threshold and releases it at pointerup', async () => {
   const rig = panRig()
+
   try {
     await realPointer([
       { type: 'move', x: 160, y: 160 },
       { type: 'down' },
       { type: 'move', x: 164, y: 160 },
     ])
+
     expect(rig.calls).toEqual([])
 
     await realPointer([{ type: 'move', x: 176, y: 160 }])
@@ -106,12 +114,14 @@ it('defers capture until the 8px threshold and releases it at pointerup', async 
 
 it('keeps tracking a drag that exits the host bounds', async () => {
   const rig = panRig()
+
   try {
     await realPointer([
       { type: 'move', x: 160, y: 160 },
       { type: 'down' },
       { type: 'move', x: 60, y: 160 },
     ])
+
     expect(rig.calls).toEqual(['start', 'move'])
     expect(rig.host.hasPointerCapture(rig.pointerId)).toBe(true)
 
@@ -130,12 +140,14 @@ it('keeps tracking a drag that exits the host bounds', async () => {
 
 it('ends an active drag as cancelled on pointercancel and releases capture', async () => {
   const rig = panRig()
+
   try {
     await realPointer([
       { type: 'move', x: 160, y: 160 },
       { type: 'down' },
       { type: 'move', x: 176, y: 160 },
     ])
+
     expect(rig.calls).toEqual(['start', 'move'])
     expect(rig.host.hasPointerCapture(rig.pointerId)).toBe(true)
 
@@ -158,12 +170,14 @@ it('ends an active drag as cancelled on pointercancel and releases capture', asy
 
 it('releases capture when the pan detaches mid-drag', async () => {
   const rig = panRig()
+
   try {
     await realPointer([
       { type: 'move', x: 160, y: 160 },
       { type: 'down' },
       { type: 'move', x: 176, y: 160 },
     ])
+
     expect(rig.calls).toEqual(['start', 'move'])
     expect(rig.host.hasPointerCapture(rig.pointerId)).toBe(true)
 
@@ -175,43 +189,49 @@ it('releases capture when the pan detaches mid-drag', async () => {
   }
 })
 
-it.each([110, 210])('suppresses the drag-tail click starting at %i and recovers', async (origin) => {
-  const rig = panRig()
-  let buttonClicks = 0
-  let hostClicks = 0
-  rig.button.addEventListener('click', () => buttonClicks++)
-  rig.host.addEventListener('click', () => hostClicks++)
-  try {
-    // Start on the nested button or host, cross slop, and return to the button.
-    await realPointer([
-      { type: 'move', x: origin, y: origin },
-      { type: 'down' },
-      { type: 'move', x: 180, y: 180 },
-      { type: 'move', x: 110, y: 110 },
-      { type: 'up' },
-    ])
-    await new Promise((resolve) => setTimeout(resolve, 50))
+it.each([110, 210])(
+  'suppresses the drag-tail click starting at %i and recovers',
+  async (origin) => {
+    const rig = panRig()
+    let buttonClicks = 0
+    let hostClicks = 0
 
-    expect(rig.calls).toEqual(['start', 'move', 'move', 'end'])
-    expect(buttonClicks).toBe(0)
-    // Capture retargets the tail to the host; neither action should run.
-    expect(hostClicks).toBe(0)
+    rig.button.addEventListener('click', () => buttonClicks++)
+    rig.host.addEventListener('click', () => hostClicks++)
+    try {
+      // Start on the nested button or host, cross slop, and return to the button.
+      await realPointer([
+        { type: 'move', x: origin, y: origin },
+        { type: 'down' },
+        { type: 'move', x: 180, y: 180 },
+        { type: 'move', x: 110, y: 110 },
+        { type: 'up' },
+      ])
 
-    rig.button.focus()
-    await userEvent.keyboard('{Enter}')
-    expect(buttonClicks).toBe(1)
-    await userEvent.click(rig.button)
-    expect(buttonClicks).toBe(2)
-    expect(hostClicks).toBe(2)
-  } finally {
-    rig.off()
-    rig.host.remove()
-  }
-})
+      await new Promise((resolve) => setTimeout(resolve, 50))
+
+      expect(rig.calls).toEqual(['start', 'move', 'move', 'end'])
+      expect(buttonClicks).toBe(0)
+      // Capture retargets the tail to the host; neither action should run.
+      expect(hostClicks).toBe(0)
+
+      rig.button.focus()
+      await userEvent.keyboard('{Enter}')
+      expect(buttonClicks).toBe(1)
+      await userEvent.click(rig.button)
+      expect(buttonClicks).toBe(2)
+      expect(hostClicks).toBe(2)
+    } finally {
+      rig.off()
+      rig.host.remove()
+    }
+  },
+)
 
 it('abandons an off-axis press on a single-axis host and resets cleanly', async () => {
   const rig = panRig('x')
   let buttonClicks = 0
+
   rig.button.addEventListener('click', () => buttonClicks++)
   try {
     await realPointer([
@@ -221,6 +241,7 @@ it('abandons an off-axis press on a single-axis host and resets cleanly', async 
       { type: 'move', x: 180, y: 180 },
       { type: 'up' },
     ])
+
     // The vertical exit abandons the gesture before activation: no start, no
     // end, and the rest of the press is ignored.
     expect(rig.calls).toEqual([])
@@ -235,6 +256,7 @@ it('abandons an off-axis press on a single-axis host and resets cleanly', async 
       { type: 'move', x: 180, y: 160 },
       { type: 'up' },
     ])
+
     expect(rig.calls).toEqual(['start', 'move', 'end'])
     expect(rig.cancelled).toBe(false)
   } finally {
@@ -243,26 +265,35 @@ it('abandons an off-axis press on a single-axis host and resets cleanly', async 
   }
 })
 
-
 it('keeps a real nested tap below slop after a cancelled drag', async () => {
   const rig = panRig()
   let clicks = 0
+
   rig.button.addEventListener('click', () => clicks++)
   try {
     await realPointer([
-      { type: 'move', x: 160, y: 160 }, { type: 'down' },
+      { type: 'move', x: 160, y: 160 },
+      { type: 'down' },
       { type: 'move', x: 180, y: 160 },
     ])
-    rig.host.dispatchEvent(new PointerEvent('pointercancel', {
-      pointerId: rig.pointerId, bubbles: true,
-    }))
+
+    rig.host.dispatchEvent(
+      new PointerEvent('pointercancel', {
+        pointerId: rig.pointerId,
+        bubbles: true,
+      }),
+    )
+
     await realPointer([{ type: 'up' }])
     expect(rig.calls).toEqual(['start', 'move', 'end'])
     expect(rig.cancelled).toBe(true)
     await realPointer([
-      { type: 'move', x: 110, y: 110 }, { type: 'down' },
-      { type: 'move', x: 114, y: 110 }, { type: 'up' },
+      { type: 'move', x: 110, y: 110 },
+      { type: 'down' },
+      { type: 'move', x: 114, y: 110 },
+      { type: 'up' },
     ])
+
     expect(clicks).toBe(1)
     expect(rig.calls).toEqual(['start', 'move', 'end'])
   } finally {

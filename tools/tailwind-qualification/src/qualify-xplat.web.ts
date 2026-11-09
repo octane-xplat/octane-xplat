@@ -62,6 +62,7 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
       passed: isDeepStrictEqual(actual, expected),
     })
   }
+
   const page = await browser.newPage({
     viewport: { width: 639, height: 800 },
     colorScheme: 'light',
@@ -92,18 +93,23 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
 <div id="ref-width" style="width: 24px; width: calc(var(--missing-size) * 2)"></div>
 <div id="ref-padding" style="padding: 4px; padding: var(--missing-padding)"></div>
 </body></html>`)
+
     await page.addStyleTag({ content: css })
 
     const initial = await page.evaluate(() => {
       const element = (id: string) => {
         const found = document.getElementById(id)
+
         if (!found) {
           throw new Error(`Missing fixture element ${id}`)
         }
+
         return found
       }
+
       const style = (id: string) => getComputedStyle(element(id))
       const bounds = (id: string) => element(id).getBoundingClientRect()
+
       return {
         padding: style('spacing').paddingTop,
         radius: style('spacing').borderTopLeftRadius,
@@ -164,6 +170,7 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
       true,
       'reference',
     )
+
     check(
       'invalid variable shorthand restores defaults',
       initial.referenceInvalidPadding,
@@ -177,20 +184,24 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
       await page.locator('#responsive').evaluate((node) => getComputedStyle(node).opacity),
       '0.75',
     )
+
     await page.emulateMedia({ colorScheme: 'dark' })
     check(
       'dark mode variant',
       await page.locator('#mode').evaluate((node) => getComputedStyle(node).backgroundColor),
       'rgb(17, 34, 51)',
     )
+
     await page.evaluate(() =>
       document.documentElement.style.setProperty('--color-primary', '#335577'),
     )
+
     check(
       'runtime token change',
       await page.locator('#spacing').evaluate((node) => getComputedStyle(node).backgroundColor),
       'rgb(51, 85, 119)',
     )
+
     check(
       'scoped token remains local',
       await page
@@ -200,6 +211,7 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
     )
 
     const dynamic = page.locator('#dynamic')
+
     await dynamic.evaluate((node) => node.setAttribute('class', ''))
     check('class removal', await dynamic.evaluate((node) => getComputedStyle(node).opacity), '1')
     await dynamic.evaluate((node) => node.setAttribute('class', 'opacity-50'))
@@ -208,6 +220,7 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
       await dynamic.evaluate((node) => getComputedStyle(node).opacity),
       '0.5',
     )
+
     await dynamic.evaluate((node) => node.setAttribute('style', 'opacity: .9'))
     await dynamic.evaluate((node) => node.setAttribute('class', 'opacity-75'))
     check(
@@ -215,12 +228,14 @@ async function qualify(browser: Browser, target: 'web' | 'linux'): Promise<Brows
       await dynamic.evaluate((node) => getComputedStyle(node).opacity),
       '0.9',
     )
+
     await dynamic.evaluate((node) => node.removeAttribute('style'))
     check(
       'inline removal',
       await dynamic.evaluate((node) => getComputedStyle(node).opacity),
       '0.75',
     )
+
     await page.locator('#hover').hover()
     check(
       'browser hover variant',
@@ -246,6 +261,7 @@ try {
   for (const target of ['web', 'linux'] as const) {
     results.push(await qualify(browser, target))
   }
+
   await writeFile(
     resolve(output, 'browser.json'),
     JSON.stringify(

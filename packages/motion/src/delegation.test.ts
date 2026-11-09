@@ -298,11 +298,16 @@ describe('combined scale interruption (#207)', () => {
         calls++
         return fakeRun({ scaleX: x, scaleY: y })
       })
+
       controller.attach(adapter)
       controller.seed({ scale: 1, scaleX: 1, scaleY: 1 })
+
       const done = controller.animate(target, { duration: 1, ease: 'linear' }, false)
+
       time.advance(500)
+
       const pose = controller.snapshot()
+
       expect(pose.scale! * pose.scaleX!).toBeCloseTo(x)
       expect(pose.scale! * pose.scaleY!).toBeCloseTo(y)
       expect(calls).toBe(0)
@@ -310,14 +315,18 @@ describe('combined scale interruption (#207)', () => {
       await done
       controller.set('opacity', 0.5)
       expect(written.at(-1)).toMatchObject(pose)
+
       const replacement = controller.animate(
         { ...target, scale: 1 },
         { duration: 1, ease: 'linear' },
         false,
       )
+
       expect(controller.snapshot()).toMatchObject(pose)
       time.advance(1)
+
       const next = controller.snapshot()
+
       expect(Math.abs(next.scale! * next.scaleX! - x)).toBeLessThan(0.05)
       expect(Object.values(next).every(Number.isFinite)).toBe(true)
       time.advance(999)
@@ -340,9 +349,12 @@ describe('combined scale interruption (#207)', () => {
         calls++
         return fakeRun(sample)
       })
+
       controller.attach(adapter)
       controller.seed(seed)
+
       const done = controller.animate(target, { duration: 1, ease: 'linear' }, false)
+
       time.advance(500)
       controller.stop()
       await done

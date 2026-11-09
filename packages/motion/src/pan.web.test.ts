@@ -2,38 +2,61 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { attachPan } from './pan.web'
 
 const cleanups: (() => void)[] = []
+
 afterEach(() => cleanups.splice(0).forEach((off) => off()))
 
 function rig() {
   const host = document.createElement('div')
   const button = document.createElement('button')
+
   host.append(button)
   document.body.append(host)
+
   const clicked = vi.fn()
   const nested = vi.fn()
+
   host.addEventListener('click', clicked)
   button.addEventListener('click', nested)
+
   const callbacks = { start: vi.fn(), move: vi.fn(), end: vi.fn() }
   const off = attachPan(host, 'x', callbacks)
-  cleanups.push(() => { off(); host.remove() })
+
+  cleanups.push(() => {
+    off()
+    host.remove()
+  })
+
   const pointer = (type: string, x = 0, pointerId = 1, target = button) => {
-    target.dispatchEvent(Object.assign(new Event(type, { bubbles: true }), {
-      pointerId, clientX: x, clientY: 0, button: 0, isPrimary: true,
-    }))
+    target.dispatchEvent(
+      Object.assign(new Event(type, { bubbles: true }), {
+        pointerId,
+        clientX: x,
+        clientY: 0,
+        button: 0,
+        isPrimary: true,
+      }),
+    )
   }
-  const click = (detail = 1, pointerId = 1) => button.dispatchEvent(
-    Object.assign(new MouseEvent('click', { bubbles: true, cancelable: true, detail }), { pointerId }),
-  )
+
+  const click = (detail = 1, pointerId = 1) =>
+    button.dispatchEvent(
+      Object.assign(new MouseEvent('click', { bubbles: true, cancelable: true, detail }), {
+        pointerId,
+      }),
+    )
+
   const drag = () => {
     pointer('pointerdown')
     pointer('pointermove', 40)
     pointer('pointerup', 40)
   }
+
   return { host, button, clicked, nested, callbacks, pointer, click, drag, off }
 }
 
 it('consumes only the completed drag pointer click before nested and host actions (#211)', () => {
   const f = rig()
+
   f.drag()
   expect(f.callbacks.end).toHaveBeenCalledOnce()
   expect(f.click()).toBe(false)
@@ -44,6 +67,7 @@ it('consumes only the completed drag pointer click before nested and host action
 
 it('preserves nested taps at and below slop separately from the drag tail (#192)', () => {
   const f = rig()
+
   f.pointer('pointerdown')
   f.pointer('pointermove', 8)
   f.pointer('pointerup', 8)
@@ -54,6 +78,7 @@ it('preserves nested taps at and below slop separately from the drag tail (#192)
 
 it('preserves keyboard clicks and clicks from another pointer without consuming the tail guard', () => {
   const f = rig()
+
   f.drag()
   expect(f.click(0, -1)).toBe(true)
   expect(f.click(1, 2)).toBe(true)
@@ -63,6 +88,7 @@ it('preserves keyboard clicks and clicks from another pointer without consuming 
 
 it('clears a missing tail on the next independent press, even outside the host', () => {
   const f = rig()
+
   f.drag()
   document.body.dispatchEvent(new Event('pointerdown', { bubbles: true }))
   expect(f.click()).toBe(true)
@@ -70,6 +96,7 @@ it('clears a missing tail on the next independent press, even outside the host',
 
 it.each(['pointercancel', 'lostpointercapture'])('%s leaves no stale guard', (terminal) => {
   const f = rig()
+
   f.pointer('pointerdown')
   f.pointer('pointermove', 40)
   f.pointer(terminal, 40)
@@ -81,6 +108,7 @@ it.each(['pointercancel', 'lostpointercapture'])('%s leaves no stale guard', (te
 
 it('removes the tail guard on teardown', () => {
   const f = rig()
+
   f.drag()
   f.off()
   expect(f.click()).toBe(true)

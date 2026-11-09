@@ -35,8 +35,8 @@ export function selectSourceFiles(files: readonly string[], target: TailwindTarg
 
     // Keep other source extensions independent: explicit .tsrx imports and
     // .tsx imports may coexist, and scanning is not module-graph tree shaking.
-    return !preference.slice(0, tier).some((higher) =>
-      available.has(`${base}${higher ? `.${higher}` : ''}${extension}`),
-    )
+    return !preference
+      .slice(0, tier)
+      .some((higher) => available.has(`${base}${higher ? `.${higher}` : ''}${extension}`))
   })
 }

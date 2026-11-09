@@ -137,10 +137,7 @@ export function SideNav(props: SideNavProps): JSX.Element @{
     </div>
   } @else {
     @if (renderMode === 'drawer') {
-      <MobileNav
-        {...props}
-        className={['vx-sidenav', 'vx-sidenav--drawer', props.className]}
-      >
+      <MobileNav {...props} className={['vx-sidenav', 'vx-sidenav--drawer', props.className]}>
         {props.topContent}
         {props.children}
         {props.footer != null || props.footerIcons != null ? (

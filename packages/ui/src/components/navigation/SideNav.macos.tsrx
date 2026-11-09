@@ -118,10 +118,7 @@ export function SideNav(props: SideNavProps): unknown @{
     </masonview>
   } @else {
     @if (renderMode === 'drawer') {
-      <MobileNav
-        {...props}
-        className={cx('vx-sidenav', 'vx-sidenav--drawer', props.className)}
-      >
+      <MobileNav {...props} className={cx('vx-sidenav', 'vx-sidenav--drawer', props.className)}>
         {props.topContent}
         {props.children}
         {drawerFooter ? (

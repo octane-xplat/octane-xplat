@@ -547,6 +547,7 @@ test('official scanning selects Xplat platform leaves before generating native u
     const result = await postcss([tailwindCompiler({ root, target })]).process(source, {
       from: join(root, 'styles.css'),
     })
+
     const selectors: string[] = []
 
     result.root.walkRules((rule) => {
@@ -560,6 +561,7 @@ test('official scanning selects Xplat platform leaves before generating native u
       selectors.includes(expected),
       `${target}: selected leaf; got ${JSON.stringify(selectors)}`,
     )
+
     assert.equal(selectors.length, 2, `${target}: foreign and shadowed leaves must be absent`)
   }
 })
@@ -602,6 +604,7 @@ test('Vite development restores fallback classes after a preferred leaf is delet
         server.watcher.off(event, listener)
         reject(new Error(`Vite did not observe ${event}: ${preferred}`))
       }, 5000)
+
       const listener = (file: string) => {
         if (file === preferred) {
           clearTimeout(timer)
@@ -624,6 +627,7 @@ test('Vite development restores fallback classes after a preferred leaf is delet
       if (css.includes(present) && !css.includes(absent)) {
         break
       }
+
       await new Promise((resolve) => setTimeout(resolve, 20))
     }
 
@@ -637,12 +641,14 @@ test('Vite development restores fallback classes after a preferred leaf is delet
     '.opacity-65',
     '.opacity-35',
   )
+
   await change(
     'change',
     () => writeFile(preferred, 'export const classes = "opacity-75"'),
     '.opacity-75',
     '.opacity-65',
   )
+
   await change('unlink', () => rm(preferred), '.opacity-35', '.opacity-75')
 })
 
@@ -656,6 +662,7 @@ test('explicit sources include installed and workspace packages with platform se
     join(installed, 'package.json'),
     '{"name":"@fixture/components","version":"1.0.0"}',
   )
+
   await writeFile(join(installed, 'Card.tsx'), 'export const classes = "opacity-15"')
   await writeFile(join(installed, 'Card.web.tsx'), 'export const classes = "hover:opacity-45"')
   await writeFile(join(workspace, 'Shared.tsrx'), 'export const classes = "opacity-85"')

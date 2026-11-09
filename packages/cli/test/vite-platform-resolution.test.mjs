@@ -148,6 +148,7 @@ describe('nativeRelativeResolution', () => {
       handler('./VirtualList.tsrx', join(dir, 'VirtualList.ios.tsrx'), {}),
       vitePath(join(dir, 'VirtualList.tsrx')),
     )
+
     assert.equal(
       handler('./VirtualList.tsrx', join(dir, 'VirtualList.android.tsrx'), {}),
       vitePath(join(dir, 'VirtualList.tsrx')),

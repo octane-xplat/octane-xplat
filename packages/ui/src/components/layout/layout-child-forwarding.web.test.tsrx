@@ -141,6 +141,7 @@ describe('LayoutChildProps forwarding (web leaves)', () => {
         <i />
       </OverflowList>,
     )
+
     const list = el.querySelector('.vx-overflowlist') as HTMLElement
 
     expectPlacement(list.style)

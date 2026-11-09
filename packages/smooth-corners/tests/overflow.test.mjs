@@ -299,11 +299,7 @@ test('authored classes govern content clipping through the class cascade', () =>
   // The resolved flag drives the iOS clip write Mason turns into a mask.
   const view = iosView()
 
-  ios.applySmoothClip(
-    view,
-    props,
-    resolvedClip(smoothHost(['vx-smooth-corners', 'clip-utility'])),
-  )
+  ios.applySmoothClip(view, props, resolvedClip(smoothHost(['vx-smooth-corners', 'clip-utility'])))
   assert.equal(
     view.style.clipPath,
     `path("${commandsToD(generateCommands(200, 120, props.corners))}")`,

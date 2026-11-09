@@ -38,10 +38,7 @@ import { AppShell } from './AppShell.tsrx'
 import { SideNav } from '../navigation/SideNav.tsrx'
 import { MobileNav } from '../navigation/MobileNav.tsrx'
 import { OverflowList } from '../collections/OverflowList.tsrx'
-import {
-  SideNavRenderProvider,
-  AppShellMobileProvider,
-} from '../navigation/nav-contexts'
+import { SideNavRenderProvider, AppShellMobileProvider } from '../navigation/nav-contexts'
 
 const PLACEMENT = { row: 0, col: 1, flexGrow: 2, alignSelf: 'center', order: 3 }
 
@@ -62,9 +59,7 @@ function nodes(node: any): any[] {
 }
 
 function find(container: any, cls: string) {
-  return nodes(container).find((node) =>
-    String(node.props?.className).split(' ').includes(cls),
-  )
+  return nodes(container).find((node) => String(node.props?.className).split(' ').includes(cls))
 }
 
 // The seven components declare LayoutChildProps; every leaf must fold them

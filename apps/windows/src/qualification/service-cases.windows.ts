@@ -1475,11 +1475,13 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   out.pushToken = await push.getToken()
 
   let pushConfigure = ''
+
   try {
     await push.configure()
   } catch (error) {
     pushConfigure = String((error as Error)?.message ?? error)
   }
+
   out.pushConfigure = pushConfigure
   step('push')
 
@@ -1489,6 +1491,7 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
 
   const bank = createSoundBank()
   const caps = bank.capabilities()
+
   await bank.load('clip', 'leaf-surface.wav')
   out.soundSupported = caps.supported
   out.soundPlay = await bank.play('clip')
@@ -1504,11 +1507,13 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   step('auth')
 
   let recorderError = ''
+
   try {
     createAudioRecorder()
   } catch (error) {
     recorderError = (error as Error)?.name ?? String(error)
   }
+
   out.recorderError = recorderError
   step('recorder')
 
@@ -1516,8 +1521,11 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
     endpoint: 'https://leaf-surface.invalid',
     embeddedVersion: '1.0.0',
   })
+
   out.updatesSupported = updates.supported
+
   const updateCheck = await updates.check()
+
   out.updatesCheck = updateCheck.available ? 'available' : updateCheck.reason
   step('updates')
 

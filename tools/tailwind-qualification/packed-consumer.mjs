@@ -14,6 +14,7 @@ import {
   rmSync,
   writeFileSync,
 } from 'node:fs'
+
 import { homedir } from 'node:os'
 import { createRequire } from 'node:module'
 import { dirname, join, resolve } from 'node:path'
@@ -30,12 +31,15 @@ const { values } = parseArgs({
 if (values['measure-cost'] && !values.output) {
   throw new Error('--measure-cost requires --output for retained measurements')
 }
+
 if (values['measure-cost'] && existsSync(resolve(values.output))) {
   throw new Error('Choose a new --output directory for cost measurements')
 }
+
 if (values.app && (!values.output || existsSync(resolve(values.output)))) {
   throw new Error('--app requires a new --output directory')
 }
+
 if (values.app && values['measure-cost']) {
   throw new Error('Run app qualification and cost measurement separately')
 }
@@ -74,6 +78,7 @@ function run(command, args, cwd = consumer, timeout = 180000) {
     0,
     `${command} failed (${result.status ?? result.signal}):\n${result.stdout}\n${result.stderr}`,
   )
+
   return result.stdout
 }
 
@@ -120,6 +125,7 @@ try {
   for (const value of Object.values(manifest.exports)) {
     checkExport(value)
   }
+
   for (const file of [
     'LICENSE',
     'THIRD_PARTY_NOTICES',
@@ -129,6 +135,7 @@ try {
   ]) {
     assert.ok(inventory.includes(`package/${file}`), `Missing packed file: ${file}`)
   }
+
   assert.ok(
     inventory.every(
       (file) =>
@@ -157,16 +164,19 @@ try {
     }
 
     const queue = ['@octane-xplat/ui']
+
     while (queue.length > 0) {
       const name = queue.shift()
 
       if (archives[name]) {
         continue
       }
+
       const directory = workspaces.get(name)
 
       assert.ok(directory, `Missing workspace: ${name}`)
       archives[name] = `file:${pack(directory)}`
+
       const dependency = JSON.parse(
         readFileSync(join(repository, 'packages', directory, 'package.json'), 'utf8'),
       )
@@ -180,6 +190,7 @@ try {
         }
       }
     }
+
     copyFileSync(
       join(
         repository,
@@ -237,6 +248,7 @@ try {
       overrides: values.app ? archives : { '@octane-xplat/lib': `file:${lib}` },
     }),
   )
+
   run('bun', [
     'install',
     '--ignore-scripts',
@@ -257,6 +269,7 @@ try {
       assert.ok(installed.startsWith(consumer), `Expected an isolated installed tarball: ${name}`)
       assert.ok(!installed.startsWith(repository), `Workspace link leaked into app: ${name}`)
     }
+
     const fromApp = createRequire(join(consumer, 'package.json'))
 
     assert.equal(
@@ -274,6 +287,7 @@ const plugin: Plugin = tailwind()
 void plugin
 `,
   )
+
   writeFileSync(
     join(consumer, 'tsconfig.json'),
     JSON.stringify({
@@ -289,6 +303,7 @@ void plugin
       include: ['types.ts'],
     }),
   )
+
   const tsc = join(consumer, 'node_modules/typescript/bin/tsc')
 
   run(process.execPath, [tsc, '-p', 'tsconfig.json'])
@@ -301,10 +316,12 @@ void plugin
     '--moduleResolution',
     'Bundler',
   ])
+
   copyFileSync(
     join(import.meta.dirname, 'fixtures/packed-consumer.mjs'),
     join(consumer, 'verify.mjs'),
   )
+
   const verification = run(process.execPath, ['verify.mjs'])
 
   if (values.app) {
@@ -313,29 +330,39 @@ void plugin
       join(import.meta.dirname, 'fixtures/verify-app.web.mjs'),
       join(consumer, 'verify-app.web.mjs'),
     )
+
     const output = resolve(values.output)
+
     mkdirSync(output, { recursive: true })
     cpSync(join(consumer, 'app'), join(output, 'app-source'), { recursive: true })
+
     const installed = Object.keys(archives).map((name) => {
       const direct = join(consumer, 'node_modules', name)
       const fromUI = createRequire(
         realpathSync(join(consumer, 'node_modules/@octane-xplat/ui/package.json')),
       )
+
       let resolved = existsSync(direct) ? realpathSync(direct) : dirname(fromUI.resolve(name))
+
       while (!existsSync(join(resolved, 'package.json'))) {
         const parent = dirname(resolved)
+
         assert.notEqual(parent, resolved, `Missing installed manifest: ${name}`)
         resolved = parent
       }
+
       resolved = join(resolved, 'package.json')
+
       const metadata = JSON.parse(readFileSync(resolved, 'utf8'))
       const archive = archives[name].slice('file:'.length)
+
       return {
         name,
         version: metadata.version,
         archiveSha256: createHash('sha256').update(readFileSync(archive)).digest('hex'),
       }
     })
+
     writeFileSync(
       join(output, 'app-packages.json'),
       JSON.stringify(
@@ -351,6 +378,7 @@ void plugin
       ) + '\n',
       { flag: 'wx' },
     )
+
     console.log(
       run(
         process.execPath,
@@ -366,12 +394,14 @@ void plugin
       join(import.meta.dirname, 'fixtures/cost-consumer.mjs'),
       join(consumer, 'cost-consumer.mjs'),
     )
+
     run(
       process.execPath,
       ['cost-consumer.mjs', '--output', resolve(values.output)],
       consumer,
       540000,
     )
+
     console.log(`Cost measurements written to ${join(resolve(values.output), 'cost.json')}`)
   }
 
@@ -384,6 +414,7 @@ void plugin
 
       copyFileSync(join(consumer, file), join(output, file), constants.COPYFILE_EXCL)
     }
+
     writeFileSync(join(output, 'consumer.json'), verification, { flag: 'wx' })
   }
 
@@ -391,6 +422,7 @@ void plugin
   console.log(
     'Packed Tailwind consumer passed with isolated dependencies and NodeNext/Bundler declarations.',
   )
+
   passed = true
 } finally {
   if (passed) {

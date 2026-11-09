@@ -35,9 +35,11 @@ const dispatchUnhandledRejection = (reason) => {
       this.prevented = true
     },
   }
+
   for (const cb of listeners.get('unhandledrejection') ?? []) {
     cb(event)
   }
+
   dispatched.push(event)
   return event
 }
@@ -49,14 +51,17 @@ beforeEach(() => {
     savedGlobals.set(key, globalThis[key])
     delete globalThis[key]
   }
+
   listeners.clear()
   dispatched.length = 0
   globalThis.addEventListener = (type, cb) => {
     let set = listeners.get(type)
+
     if (!set) {
       set = new Set()
       listeners.set(type, set)
     }
+
     set.add(cb)
   }
 })
@@ -101,6 +106,7 @@ describe('dev-reload import cancellation filter (octane-xplat#188)', () => {
 
     for (const reason of reasons) {
       const event = dispatchUnhandledRejection(reason)
+
       assert.equal(event.prevented, false, JSON.stringify(reason))
     }
   })
@@ -115,6 +121,7 @@ describe('dev-reload import cancellation filter (octane-xplat#188)', () => {
     const event = dispatchUnhandledRejection(
       new Error('Module invalidated during dev reload: http://dev-host:5173/ns/m/src/entry.ts'),
     )
+
     assert.equal(event.prevented, true)
   })
 
@@ -125,6 +132,7 @@ describe('dev-reload import cancellation filter (octane-xplat#188)', () => {
     const hot = registry.createHotContext('/src/index')
 
     const calls = []
+
     hot.on('vite:beforeFullReload', () => calls.push('beforeFullReload'))
     hot.on('ns:full-reload-failed', (p) => calls.push(`failed:${p?.message ?? ''}`))
     hot.dispose(() => calls.push('disposed'))
@@ -139,6 +147,7 @@ describe('dev-reload import cancellation filter (octane-xplat#188)', () => {
         'Module invalidated during dev reload: http://dev-host:5173/ns/m/src/dev-smoke.mobile',
       ),
     )
+
     const genuine = dispatchUnhandledRejection(new Error('evaluation blew up'))
 
     assert.equal(cancelled.prevented, true)

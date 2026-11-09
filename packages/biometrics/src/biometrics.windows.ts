@@ -102,6 +102,7 @@ const UNSUPPORTED: PermissionResponse = {
   granted: false,
   canAskAgain: false,
 }
+
 const DENIED: PermissionResponse = { status: 'denied', granted: false, canAskAgain: false }
 
 let verifying = false

@@ -81,6 +81,7 @@ export async function compileStylesheet(
   const candidates = scanner.scanFiles(
     selectedFiles.map((file) => ({ file, extension: extname(file).slice(1) })),
   )
+
   const ast = compiler.build(candidates)
 
   // Watch shadowed leaves too: adding/removing a preferred leaf must restore

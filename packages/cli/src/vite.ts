@@ -151,7 +151,7 @@ const CSS_DIVERGENCES = [
   [/\bfloat\s*:/, 'float is unsupported on native — use flex rows'],
   [
     /\bbox-shadow\s*:/,
-    'box-shadow renders on both platforms — on Mason elements the iOS shadow is a sibling layer that only re-syncs on layout, so animating the element\'s own transform (translateX/view.animate) leaves it behind; animate position or transform an ancestor instead',
+    "box-shadow renders on both platforms — on Mason elements the iOS shadow is a sibling layer that only re-syncs on layout, so animating the element's own transform (translateX/view.animate) leaves it behind; animate position or transform an ancestor instead",
   ],
   [
     /white-space\s*:\s*pre-wrap\b/,

@@ -161,6 +161,7 @@ function checkValue(root: Root, declaration: Declaration, target: NativeTarget) 
         if (part.type !== 'word') {
           return
         }
+
         const dimension = valueParser.unit(part.value)
 
         if (dimension) {

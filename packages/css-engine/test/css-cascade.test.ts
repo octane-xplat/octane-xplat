@@ -161,6 +161,7 @@ test('an initial custom property blocks inheritance and selects its consuming fa
     'variable-initial',
     '.initial-variable { --leading: initial; line-height: var(--leading, 20px) }',
   )
+
   const parent = node('label', { style: { '--leading': '36px', lineHeight: 28 } })
   const child = node('label', { classes: ['initial-variable'], parent })
 
@@ -172,6 +173,7 @@ test('variable fallbacks preserve comma values and balanced function arguments',
     'variable-functions',
     '.function-fallback { color: var(--missing-color, rgb(17, 34, 51)); padding: var(--missing-space, calc(4px * 2)) }',
   )
+
   const computed = node('label', { classes: ['function-fallback'] }).computedStyle
 
   assert.equal(computed.color, 'rgb(17, 34, 51)')
@@ -205,6 +207,7 @@ test('an invalid variable shorthand clears every earlier longhand', () => {
     'variable-invalid-shorthand',
     '.invalid-padding { padding: 4px; padding: var(--missing-padding) }',
   )
+
   const computed = node('masonview', { classes: ['invalid-padding'] })
 
   for (const key of ['paddingTop', 'paddingRight', 'paddingBottom', 'paddingLeft']) {

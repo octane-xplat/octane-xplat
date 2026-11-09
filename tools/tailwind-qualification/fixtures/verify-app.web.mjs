@@ -8,10 +8,14 @@ import { build, createServer, preview } from 'vite'
 import { chromium } from 'playwright'
 
 const { values } = parseArgs({ options: { output: { type: 'string' } } })
+
 assert.ok(values.output, 'Pass --output for retained app evidence')
+
 const output = resolve(values.output)
 const root = process.cwd()
+
 await mkdir(output, { recursive: true })
+
 const observations = []
 const errors = []
 const assets = []
@@ -35,13 +39,17 @@ async function snapshot(page) {
   return page.evaluate(() => {
     const element = (id) => {
       const found = document.querySelector(`[data-testid="${id}"]`)
+
       if (!found) {
         throw new Error(`Missing UI host ${id}`)
       }
+
       return found
     }
+
     const bounds = (id) => element(id).getBoundingClientRect()
     const style = (id) => getComputedStyle(element(id))
+
     return {
       padding: style('spacing').paddingTop,
       radius: style('spacing').borderTopLeftRadius,
@@ -79,15 +87,19 @@ async function snapshot(page) {
 
 async function waitValue(page, key, expected) {
   const deadline = performance.now() + 10000
+
   while (true) {
     const current = await snapshot(page)
+
     if (isDeepStrictEqual(current[key], expected)) {
       return current
     }
+
     assert.ok(
       performance.now() < deadline,
       `${key}: ${JSON.stringify(current[key])}, expected ${JSON.stringify(expected)}`,
     )
+
     await new Promise((resolve) => setTimeout(resolve, 25))
   }
 }
@@ -97,7 +109,9 @@ async function qualify(phase, url, hmr = false) {
     viewport: { width: 639, height: 800 },
     colorScheme: 'light',
   })
+
   const page = await context.newPage()
+
   page.setDefaultTimeout(15000)
   page.setDefaultNavigationTimeout(15000)
   progress(`${phase}: navigate`)
@@ -107,11 +121,14 @@ async function qualify(phase, url, hmr = false) {
       errors.push({ phase, message: message.text() })
     }
   })
+
   try {
     await page.goto(url)
     await page.getByTestId('dynamic').waitFor()
     progress(`${phase}: mounted`)
+
     const initial = await waitValue(page, 'color', 'rgb(18, 52, 86)')
+
     check(phase, 'UI padding uses generated spacing', initial.padding, '16px')
     check(phase, 'UI radius uses runtime theme token', initial.radius, '12px')
     check(phase, 'UI typography uses generated values', initial.font, ['20px', '24px', '700'])
@@ -125,15 +142,20 @@ async function qualify(phase, url, hmr = false) {
       (await waitValue(page, 'rootTheme', 'tailwind-app-proof')).rootTheme,
       'tailwind-app-proof',
     )
+
     check(phase, 'breakpoint below 640', initial.responsive, '0.5')
     check(phase, 'nested theme token', initial.nested, 'rgb(171, 205, 239)')
 
     await page.getByTestId('toggle-width').click()
+
     const added = await waitValue(page, 'width', 48)
+
     check(phase, 'component adds class', added.width, 48)
     check(phase, 'old class is removed from host', added.widthClasses, ['w-12'])
     await page.getByTestId('toggle-width').click()
+
     const removed = await waitValue(page, 'width', 32)
+
     check(phase, 'component removes class', removed.width, 32)
     check(phase, 'replacement class is removed from host', removed.widthClasses, ['w-8'])
     await page.getByTestId('toggle-inline').click()
@@ -147,6 +169,7 @@ async function qualify(phase, url, hmr = false) {
       (await waitValue(page, 'width', 48)).width,
       48,
     )
+
     check(phase, 'inline width property is removed', (await snapshot(page)).inlineWidth, '')
     await page.getByTestId('toggle-width').click()
     await waitValue(page, 'width', 32)
@@ -158,10 +181,13 @@ async function qualify(phase, url, hmr = false) {
       (await waitValue(page, 'responsive', '0.75')).responsive,
       '0.75',
     )
+
     await page.setViewportSize({ width: 639, height: 800 })
     await waitValue(page, 'responsive', '0.5')
     await page.getByTestId('toggle-mode').click()
+
     const dark = await waitValue(page, 'color', 'rgb(101, 67, 33)')
+
     check(phase, 'Theme mode changes generated color', dark.color, 'rgb(101, 67, 33)')
     check(phase, 'nested light Theme remains light', dark.nested, 'rgb(171, 205, 239)')
     check(
@@ -170,18 +196,21 @@ async function qualify(phase, url, hmr = false) {
       (await waitValue(page, 'rootMode', 'dark')).rootMode,
       'dark',
     )
+
     await page.getByTestId('toggle-mode').click()
     await waitValue(page, 'color', 'rgb(18, 52, 86)')
 
     if (hmr) {
       const source = join(root, 'App.web.tsrx')
       const original = await readFile(source, 'utf8')
+
       assert.ok(original.includes('p-4 bg-primary rounded-lg'))
       try {
         await writeFile(
           source,
           original.replace('p-4 bg-primary rounded-lg', 'p-6 bg-primary rounded-lg'),
         )
+
         check(
           phase,
           'source edit reaches renderer and CSS',
@@ -191,6 +220,7 @@ async function qualify(phase, url, hmr = false) {
       } finally {
         await writeFile(source, original)
       }
+
       check(
         phase,
         'source restoration reaches renderer and CSS',
@@ -210,14 +240,18 @@ try {
   progress('launch browser')
   browser = await chromium.launch({ headless: true })
   browserVersion = browser.version()
+
   const dev = await createServer({
     root,
     logLevel: 'silent',
     server: { host: '127.0.0.1', port: 0 },
   })
+
   try {
     await dev.listen()
+
     const address = dev.httpServer.address()
+
     assert.ok(address && typeof address === 'object')
     await qualify('development', `http://127.0.0.1:${address.port}/`, true)
   } finally {
@@ -225,14 +259,19 @@ try {
     await dev.close()
     progress('development: server closed')
   }
+
   progress('production: build')
+
   const built = await build({ root, logLevel: 'silent' })
+
   for (const bundle of Array.isArray(built) ? built : [built]) {
     for (const asset of bundle.output) {
       if (asset.type !== 'asset' || !asset.fileName.endsWith('.css')) {
         continue
       }
+
       const path = join(output, 'app-assets', asset.fileName)
+
       await mkdir(dirname(path), { recursive: true })
       await writeFile(path, asset.source, { flag: 'wx' })
       assets.push({
@@ -242,14 +281,18 @@ try {
       })
     }
   }
+
   assert.ok(assets.length > 0, 'Production app must emit CSS')
+
   const production = await preview({
     root,
     logLevel: 'silent',
     preview: { host: '127.0.0.1', port: 0 },
   })
+
   try {
     const address = production.httpServer.address()
+
     assert.ok(address && typeof address === 'object')
     await qualify('production', `http://127.0.0.1:${address.port}/`)
   } finally {
@@ -262,7 +305,9 @@ try {
     await browser.close()
   }
 }
+
 check('all', 'browser reports no runtime errors', errors, [])
+
 const report = {
   schema: 1,
   evidence:
@@ -273,6 +318,7 @@ const report = {
   failure,
   passed: !failure && observations.every((item) => item.passed),
 }
+
 await writeFile(join(output, 'app.json'), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' })
 assert.ok(report.passed, failure ?? JSON.stringify(observations.filter((item) => !item.passed)))
 console.log(

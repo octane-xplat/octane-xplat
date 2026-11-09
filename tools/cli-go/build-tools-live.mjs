@@ -9,8 +9,10 @@ import { linuxGtk } from '@octane-xplat/build/linux-gtk/vite'
 
 assert.equal(typeof macos, 'function')
 assert.equal(typeof linuxGtk, 'function')
+
 const legacyMacOS = await import('@octane-xplat/build/macos/vite')
 const legacyGtk = await import('@octane-xplat/build/linux-gtk/vite')
+
 assert.equal(macos, legacyMacOS.xplatMacOS)
 assert.equal(linuxGtk, legacyGtk.xplatLinuxGtk)
 for (const [current, legacy] of Object.entries({
@@ -24,6 +26,7 @@ for (const [current, legacy] of Object.entries({
   assert.equal(typeof plugins[current], 'function')
   assert.equal(plugins[current], plugins[legacy], `${legacy} must preserve function identity`)
 }
+
 try {
   await import('@octane-xplat/cli/vite')
   assert.fail('Unexpected CLI installation in plugin-only fixture')

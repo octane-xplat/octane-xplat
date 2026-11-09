@@ -31,6 +31,7 @@ try {
     .filter((entry) => entry.isDirectory())
     .map((entry) => entry.name)
     .sort()
+
   async function generate(entry) {
     const manifestPath = join(root, 'packages', entry, 'package.json')
     let manifest

@@ -18,10 +18,12 @@ export function attachPan(
   const clearClick = () => {
     clickPointer = undefined
   }
+
   const click = (event: MouseEvent) => {
     if (clickPointer === undefined || event.detail === 0) {
       return
     }
+
     if ('pointerId' in event && event.pointerId !== clickPointer) {
       return
     }
@@ -30,6 +32,7 @@ export function attachPan(
     event.preventDefault()
     event.stopImmediatePropagation()
   }
+
   let start = { x: 0, y: 0 }
   let last = start
   let time = 0
@@ -45,6 +48,7 @@ export function attachPan(
         x: (delta.x * 1000) / elapsed,
         y: (delta.y * 1000) / elapsed,
       }
+
       velocityTime = event.timeStamp
     } else if (event.timeStamp - velocityTime > 100) {
       velocity = { x: 0, y: 0 }
@@ -88,9 +92,7 @@ export function attachPan(
         return
       }
 
-      if (
-        (axis === true ? Math.hypot(info.offset.x, info.offset.y) : Math.abs(primary)) <= 8
-      ) {
+      if ((axis === true ? Math.hypot(info.offset.x, info.offset.y) : Math.abs(primary)) <= 8) {
         return
       }
 
@@ -102,6 +104,7 @@ export function attachPan(
           throw error
         }
       }
+
       active = true
       callbacks.start(event, info)
     }

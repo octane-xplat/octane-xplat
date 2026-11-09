@@ -15,14 +15,18 @@ export function nativeOpacity(css: string, childClasses: string[], parentClasses
     parent,
     props: {},
   })
+
   registerStylesheet(id, css)
   try {
     const parent = parentClasses ? node(parentClasses) : undefined
+
     if (parent) {
       const computed = computeCascade(parent)
+
       parent.computedStyle = computed.style
       parent.computedCustomProps = computed.customProps
     }
+
     return String(computeCascade(node(childClasses, parent)).style.opacity)
   } finally {
     unregisterStylesheet(id)

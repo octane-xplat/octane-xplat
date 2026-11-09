@@ -18,6 +18,7 @@ import { test } from 'node:test'
 import { build, createLogger } from 'vite'
 import { bamboo, xplatBamboo } from '../src/vite.ts'
 import { css as platformCss } from '@octane-xplat/cli/vite'
+
 assert.equal(bamboo, xplatBamboo, 'Compatibility exports must share one factory')
 
 const configSource = fileURLToPath(new URL('../src/config.ts', import.meta.url))

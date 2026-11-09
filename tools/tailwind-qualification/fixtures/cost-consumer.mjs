@@ -13,6 +13,7 @@ const { values } = parseArgs({
     phase: { type: 'string' },
   },
 })
+
 const consumer = process.cwd()
 const variants = ['official-web', 'xplat-web', 'upstream-ios', 'xplat-ios']
 const classes =
@@ -33,6 +34,7 @@ async function packageRoot(name, from) {
   while (true) {
     try {
       const manifest = JSON.parse(await readFile(join(directory, 'package.json'), 'utf8'))
+
       if (manifest.name) {
         return { directory, manifest }
       }
@@ -41,7 +43,9 @@ async function packageRoot(name, from) {
         throw error
       }
     }
+
     const parent = dirname(directory)
+
     assert.notEqual(parent, directory, `No manifest for ${name}`)
     directory = parent
   }
@@ -49,17 +53,21 @@ async function packageRoot(name, from) {
 
 async function bytes(directory) {
   let total = 0
+
   for (const entry of await readdir(directory, { withFileTypes: true })) {
     if (entry.name === 'node_modules' || entry.name.startsWith('.bun-tag')) {
       continue
     }
+
     const path = join(directory, entry.name)
+
     if (entry.isDirectory()) {
       total += await bytes(path)
     } else if (entry.isFile()) {
       total += (await stat(path)).size
     }
   }
+
   return total
 }
 
@@ -69,26 +77,33 @@ async function dependencyCost(roots) {
 
   async function visit(name, from, optional = false) {
     let found
+
     try {
       found = await packageRoot(name, from)
     } catch (error) {
       if (!optional || !['MODULE_NOT_FOUND', 'ERR_MODULE_NOT_FOUND'].includes(error.code)) {
         throw error
       }
+
       missingOptional.add(name)
       return
     }
+
     const { directory, manifest } = found
+
     if (packages.has(directory)) {
       return
     }
+
     packages.set(directory, {
       name: manifest.name,
       version: manifest.version,
       logicalBytes: await bytes(directory),
       excludedPeers: manifest.peerDependencies ?? {},
     })
+
     const optionalDependencies = manifest.optionalDependencies ?? {}
+
     for (const child of Object.keys({ ...manifest.dependencies, ...optionalDependencies }).sort()) {
       await visit(child, directory, Object.hasOwn(optionalDependencies, child))
     }
@@ -97,7 +112,9 @@ async function dependencyCost(roots) {
   for (const name of roots) {
     await visit(name, consumer)
   }
+
   const inventory = [...packages.values()].sort((a, b) => a.name.localeCompare(b.name))
+
   return {
     roots,
     installedPackages: inventory.length,
@@ -109,6 +126,7 @@ async function dependencyCost(roots) {
 
 function summary(samples) {
   const sorted = [...samples].sort((a, b) => a - b)
+
   return {
     samples,
     medianMs: sorted[Math.floor(sorted.length / 2)],
@@ -119,11 +137,15 @@ function summary(samples) {
 
 if (!values.variant) {
   assert.ok(values.output, 'Choose a new --output evidence directory')
+
   const output = resolve(values.output)
+
   await mkdir(output, { recursive: true })
+
   const samples = Object.fromEntries(
     variants.map((variant) => [variant, { build: [], development: null }]),
   )
+
   const xplat = await packageRoot('@octane-xplat/tailwind', consumer)
   const versions = Object.fromEntries(
     await Promise.all(
@@ -140,6 +162,7 @@ if (!values.variant) {
       ]),
     ),
   )
+
   const dependencies = {
     xplat: await dependencyCost(['@octane-xplat/tailwind']),
     officialWeb: await dependencyCost(['@tailwindcss/postcss']),
@@ -158,6 +181,7 @@ if (!values.variant) {
         maxBuffer: 2 * 1024 * 1024,
       },
     )
+
     assert.equal(child.status, 0, `${variant}/${phase}: ${child.stdout}\n${child.stderr}`)
     return { ...JSON.parse(child.stdout), processWallMs: performance.now() - started }
   }
@@ -168,9 +192,11 @@ if (!values.variant) {
       samples[variant].build.push(run(variant, 'build'))
     }
   }
+
   for (const variant of variants) {
     samples[variant].development = run(variant, 'development')
   }
+
   const report = {
     schema: 1,
     evidence:
@@ -198,16 +224,21 @@ if (!values.variant) {
       ]),
     ),
   }
+
   await writeFile(join(output, 'cost.json'), JSON.stringify(report, null, 2) + '\n', { flag: 'wx' })
   console.log(JSON.stringify({ output: join(output, 'cost.json'), evidence: report.evidence }))
 } else {
   assert.ok(variants.includes(values.variant), 'Unknown pipeline')
   assert.ok(['build', 'development'].includes(values.phase), 'Unknown phase')
+
   const variant = values.variant
   const target = variant.endsWith('ios') ? 'ios' : 'web'
   const root = join(consumer, 'cost-projects', variant, values.phase)
+
   await mkdir(root, { recursive: true })
+
   const source = join(root, 'App.tsrx')
+
   await writeFile(source, `export const classes = ${JSON.stringify(classes)}\n`)
   await writeFile(join(root, 'main.js'), "import './app.css'\n")
   await writeFile(
@@ -219,17 +250,22 @@ if (!values.variant) {
   const { css: platformCss } = await import('@octane-xplat/build/vite')
   const plugins = [platformCss(target)]
   const config = { configFile: false, root, logLevel: 'silent', plugins }
+
   if (variant.startsWith('xplat-')) {
     const { tailwind } = await import('@octane-xplat/tailwind/vite')
+
     plugins.push(tailwind())
   } else {
     const { default: tailwindcss } = await import('@tailwindcss/postcss')
     const processors = [tailwindcss({ base: root, optimize: false })]
+
     if (target === 'ios') {
       // Node-only PostCSS adapter comparison; this imports no native UI runtime.
       const { default: adapter } = await import('@nativescript/tailwind')
+
       processors.push(adapter)
     }
+
     plugins.push({
       name: 'comparison-postcss-composition',
       config(settings) {
@@ -238,14 +274,18 @@ if (!values.variant) {
       },
     })
   }
+
   const { default: postcss } = await import('postcss')
   function inventory(css) {
     const rules = new Map()
+
     postcss.parse(css).walkRules((rule) => {
       const declarations = []
+
       rule.walkDecls((decl) => declarations.push(`${decl.prop}:${decl.value}`))
       rules.set(rule.selector, declarations)
     })
+
     return Object.fromEntries(
       ['.flex', '.grid', '.absolute', '.w-8', '.w-12'].map((selector) => [
         selector,
@@ -253,29 +293,36 @@ if (!values.variant) {
       ]),
     )
   }
+
   if (values.phase === 'build') {
     const started = performance.now()
     const built = await build({
       ...config,
       build: { write: false, cssMinify: false, rollupOptions: { input: join(root, 'main.js') } },
     })
+
     const durationMs = performance.now() - started
+
     assert.ok(!Array.isArray(built) && 'output' in built)
+
     const css = built.output
       .filter((file) => file.type === 'asset' && file.fileName.endsWith('.css'))
       .map((file) =>
         typeof file.source === 'string' ? file.source : new TextDecoder().decode(file.source),
       )
       .join('\n')
+
     assert.ok(css.length > 0, 'Build must emit CSS')
     if (variant !== 'upstream-ios') {
       const generated = inventory(css)
+
       assert.deepEqual(generated['.flex'], ['display:flex'])
       assert.deepEqual(generated['.grid'], ['display:grid'])
       assert.deepEqual(generated['.absolute'], ['position:absolute'])
       assert.ok(generated['.w-8'].length > 0)
       assert.equal(generated['.w-12'].length, 0)
     }
+
     console.log(
       JSON.stringify({
         durationMs,
@@ -291,33 +338,44 @@ if (!values.variant) {
       optimizeDeps: { noDiscovery: true },
       server: { host: '127.0.0.1', port: 0 },
     })
+
     try {
       await server.listen()
+
       const initial = await server.transformRequest('/app.css?direct')
+
       assert.ok(initial)
       assert.ok(inventory(initial.code)['.w-8'].length > 0)
       assert.equal(inventory(initial.code)['.w-12'].length, 0)
+
       const initialMs = performance.now() - started
       const deadline = performance.now() + 5000
+
       while (!server.watcher.getWatched()[root]?.includes('App.tsrx')) {
         assert.ok(performance.now() < deadline, 'Source watcher did not become ready')
         await new Promise((resolve) => setTimeout(resolve, 20))
       }
+
       const editStarted = performance.now()
+
       await writeFile(
         source,
         `export const classes = ${JSON.stringify(classes.replace('w-8', 'w-12'))}\n`,
       )
+
       let changed
+
       while (true) {
         changed = await server.transformRequest('/app.css?direct')
         assert.ok(changed)
         if (inventory(changed.code)['.w-12'].length > 0) {
           break
         }
+
         assert.ok(performance.now() - editStarted < 10000, 'Source edit did not invalidate CSS')
         await new Promise((resolve) => setTimeout(resolve, 20))
       }
+
       console.log(
         JSON.stringify({
           initialMs,

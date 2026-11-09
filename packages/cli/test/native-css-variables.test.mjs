@@ -48,6 +48,7 @@ function declarations(file, names, assignments) {
       while (ts.isPropertyAccessExpression(owner)) {
         owner = owner.expression
       }
+
       if (ts.isIdentifier(owner) && assignments.has(owner.text)) {
         selected.push(node.getText(source))
       }
@@ -83,6 +84,7 @@ function loadCore(root) {
       },
     },
   }
+
   const properties = declarations(
     join(root, 'ui/core/properties/index.js'),
     new Set([
@@ -105,17 +107,20 @@ function loadCore(root) {
       '_isCssPendingSubstitution',
     ]),
   )
+
   const propertyApi = runInNewContext(properties + '\nexports', { ...globals, exports: {} })
   const lengthCode = declarations(
     join(root, 'ui/styling/length-shared.js'),
     new Set(['PercentLength', 'equalsCommon', 'toDevicePixelsCommon', 'convertToStringCommon']),
   )
+
   const { PercentLength } = runInNewContext(lengthCode + '\nexports', { exports: {} })
   const styleCode = declarations(
     join(root, 'ui/styling/style/index.js'),
     new Set(['Style']),
     new Set(['Style']),
   )
+
   const { Style } = runInNewContext(styleCode + '\nexports', { ...globals, exports: {} })
   const scopeCode = declarations(
     join(root, 'ui/styling/style-scope.js'),
@@ -130,6 +135,7 @@ function loadCore(root) {
     ]),
     new Set(['CssState']),
   )
+
   const { CssState } = runInNewContext(scopeCode + '\nexports', {
     ...globals,
     ...propertyApi,
@@ -148,6 +154,7 @@ function loadCore(root) {
           if (typeof property !== 'string' || !property.startsWith('css:')) {
             return Reflect.set(target, property, value)
           }
+
           const name = property.slice(4)
 
           this.writes.push([name, value])
@@ -156,14 +163,17 @@ function loadCore(root) {
           if (name === 'color' && value === 'not-a-color') {
             throw new Error('Invalid color: ' + value)
           }
+
           if (value === unsetValue) {
             this.values.delete(name)
           } else {
             this.values.set(name, name === 'width' ? PercentLength.parse(value) : value)
           }
+
           return true
         },
       })
+
       this.state = new CssState({ get: () => this })
     }
     apply(properties) {
@@ -198,6 +208,7 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: Core preserves complete variable fallbacks and invalidates whole values`, () => {
     const view = new api.HostView()
+
     view.style.setScopedCssVariable('--known', 'blue')
     view.style.setScopedCssVariable('--initial', 'initial')
 
@@ -217,6 +228,7 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: Core settles forward custom-property references before consumers`, () => {
     const view = new api.HostView()
+
     view.apply({ color: 'var(--a)', '--a': 'var(--b, blue)', '--b': 'var(--c)', '--c': 'red' })
 
     assert.equal(view.values.get('color'), 'red')
@@ -225,6 +237,7 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: Core treats cyclic custom properties as invalid and uses a fallback`, () => {
     const view = new api.HostView()
+
     view.apply({ '--a': 'var(--b)', '--b': 'var(--a)', color: 'var(--a, blue)' })
 
     assert.equal(view.values.get('color'), 'blue')
@@ -233,8 +246,11 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: a locally invalid custom property blocks inherited values`, () => {
     const parent = new api.HostView()
+
     parent.apply({ '--a': 'green' })
+
     const child = new api.HostView(parent)
+
     child.apply({ '--a': 'var(--missing)', color: 'var(--a, blue)' })
 
     assert.equal(child.values.get('color'), 'blue')
@@ -242,6 +258,7 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: unresolved variable updates remove prior values and preserve siblings`, () => {
     const view = new api.HostView()
+
     view.apply({ width: '24px', opacity: 0.5 })
     view.apply({ width: 'calc(var(--missing) * 2)', opacity: 0.5 })
 
@@ -252,6 +269,7 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: rejected native conversions clear prior styles and are not cached`, () => {
     const view = new api.HostView()
+
     view.apply({ color: 'red' })
     view.apply({ '--color': 'not-a-color', color: 'var(--color)', opacity: 0.5 })
 
@@ -264,12 +282,14 @@ for (const [variant, root] of variants) {
 
   test(`${variant}: Core resolves scalar percentage math but cannot consume contextual width math`, () => {
     const view = new api.HostView()
+
     view.apply({ '--step': '4dip', width: 'calc(var(--step) * 2)' })
     assert.equal(view.values.get('width'), 8)
     view.apply({ width: 'calc(25% * 2)' })
 
     assert.equal(view.values.get('width').unit, '%')
     assert.equal(view.values.get('width').value, 0.5)
+
     const unresolved = api._evaluateCssCalcExpression('calc(100% - 8dip)')
 
     assert.throws(() => api.PercentLength.parse(unresolved), /Invalid value/)

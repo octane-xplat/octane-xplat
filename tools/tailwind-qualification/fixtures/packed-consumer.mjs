@@ -6,6 +6,7 @@ import { join, relative } from 'node:path'
 import { build, createServer } from 'vite'
 import { pxToDip, css as platformCss } from '@octane-xplat/build/vite'
 import { tailwind, xplatTailwind } from '@octane-xplat/tailwind/vite'
+
 assert.equal(tailwind, xplatTailwind, 'The compatibility name must preserve compiler identity')
 
 const root = process.cwd()
@@ -23,6 +24,7 @@ await writeFile(
   join(root, 'src/Screen.linux.tsx'),
   'export const classes = "fixed bg-red-500 opacity-75"',
 )
+
 await writeFile(
   join(root, 'app.css'),
   `@import "@octane-xplat/tailwind/ui.css" source(none);
@@ -30,6 +32,7 @@ await writeFile(
 :root, .ns-root { --color-primary: #112233; --radius-lg: 12px }
 `,
 )
+
 await writeFile(
   join(root, 'src/Browser.web.tsrx'),
   'export const classes = "flex flex-row grid grid-cols-[40px_60px] grid-rows-[20px] gap-2 relative absolute left-3 top-4 w-[200px] h-[80px] w-6 w-8 h-5 shrink-0 text-sm text-base rounded-lg opacity-50 opacity-75 sm:opacity-75 dark:bg-primary hover:opacity-55 leading-6 font-bold border translate-x-4 translate-y-2 scale-50"',
@@ -85,6 +88,7 @@ for (const target of ['web', 'ios', 'linux']) {
   })
 
   assert.ok(!Array.isArray(built) && 'output' in built)
+
   const assets = built.output.filter((file) => file.type === 'asset')
   const css = assets
     .filter((file) => file.fileName.endsWith('.css'))
@@ -95,6 +99,7 @@ for (const target of ['web', 'ios', 'linux']) {
 
   verifyCss(css, target)
   await writeFile(join(root, `compiled-${target}.css`), css)
+
   const server = await createServer({
     configFile: false,
     root,
@@ -108,6 +113,7 @@ for (const target of ['web', 'ios', 'linux']) {
 
   try {
     await server.listen()
+
     const dev = await server.transformRequest('/app.css?direct')
 
     assert.ok(dev)
@@ -122,6 +128,7 @@ for (const target of ['web', 'ios', 'linux']) {
   } finally {
     await server.close()
   }
+
   results.push({
     target,
     productionCss: true,
