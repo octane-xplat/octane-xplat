@@ -80,6 +80,31 @@ It captures no images. Chromium results establish no Linux webview session,
 NativeScript/Mason runtime, OS input or painting parity. Keep this opt-in task
 outside PR checks alongside the upstream comparison command.
 
+The app gate adds packed UI and its workspace dependency closure, the patched
+Octane runtime, and the Octane compiler to a fresh installation. It checks one
+physical Octane runtime before mounting actual UI components. Run it separately
+with Chromium already installed and a new output directory:
+
+```sh
+bun run turbo run qualify:app --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-app/my-run"
+```
+
+This exercises component class replacement, inline-width removal and precedence,
+flex/grid/absolute layout, typography, responsive styles, root and nested theme
+scopes in development and production, plus a development source edit and restore.
+It waits for theme effects independently of scoped color updates. The verifier
+lives outside the scanned app directory so expected class strings cannot create
+missing utilities accidentally. A progress file survives an outer process timeout;
+it is partial evidence, never a passing result.
+
+`app.json` records observations, browser version, and hashes of the preserved
+production app CSS under `app-assets/`. `app-source/` and `app-packages.json`
+retain the source fixture and packed-package versions and hashes. The separate
+`compiled-*.css` and `consumer.json` files still describe the base CSS consumer,
+not this app's output. The app gate uses browser actions and numeric DOM/style/
+layout evidence without images; it does not qualify SSR/hydration, portals,
+OS input, native layout or a Linux webview session. Keep it outside PR checks.
+
 Each browser observation identifies generated CSS or a hand-authored reference
 case. The reference cases establish variable fallback and invalidation behavior
 for comparison with the desktop engine's Node regressions; they are not extra

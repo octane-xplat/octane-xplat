@@ -137,6 +137,14 @@ closure; shared peers, download compression and disk deduplication are separate
 costs. The [qualification workflow](../../../tools/tailwind-qualification/README.md)
 documents the measurement boundaries. Runtime support remains a separate gate.
 
+Qualify generated CSS in both a plain CSS consumer and an installed UI app.
+The opt-in `qualify:app` task packs UI's workspace closure and checks that the
+app and UI resolve one Octane runtime. Keep the verifier outside scanned source:
+expected class names in test code must not generate the utilities being tested.
+Wait for document-theme effects separately from scoped color changes. Preserve
+actual emitted app CSS separately from the base consumer's stylesheets; neither
+browser gate establishes native layout or SSR/hydration support.
+
 Use the official scanner's file inventory to select Xplat's platform leaves
 before extracting candidates. Exclude foreign-platform siblings and shadowed
 fallbacks of the same source extension; otherwise browser-only utilities in a

@@ -20,6 +20,16 @@
       "cache": false,
       "outputs": []
     },
+    "qualify:app": {
+      "dependsOn": [
+        "@octane-xplat/tailwind#typegen",
+        "@octane-xplat/build#build",
+        "@octane-xplat/ui#typegen",
+        "@octane-xplat/ui#build"
+      ],
+      "cache": false,
+      "outputs": []
+    },
     "prepare:browser": { "cache": false, "outputs": [] }
   }
 }

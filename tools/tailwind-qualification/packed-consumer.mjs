@@ -4,19 +4,27 @@ import { createHash } from 'node:crypto'
 import {
   constants,
   copyFileSync,
+  cpSync,
   existsSync,
   mkdirSync,
   mkdtempSync,
   readFileSync,
+  readdirSync,
+  realpathSync,
   rmSync,
   writeFileSync,
 } from 'node:fs'
 import { homedir } from 'node:os'
-import { join, resolve } from 'node:path'
+import { createRequire } from 'node:module'
+import { dirname, join, resolve } from 'node:path'
 import { parseArgs } from 'node:util'
 
 const { values } = parseArgs({
-  options: { output: { type: 'string' }, 'measure-cost': { type: 'boolean' } },
+  options: {
+    output: { type: 'string' },
+    'measure-cost': { type: 'boolean' },
+    app: { type: 'boolean' },
+  },
 })
 
 if (values['measure-cost'] && !values.output) {
@@ -24,6 +32,12 @@ if (values['measure-cost'] && !values.output) {
 }
 if (values['measure-cost'] && existsSync(resolve(values.output))) {
   throw new Error('Choose a new --output directory for cost measurements')
+}
+if (values.app && (!values.output || existsSync(resolve(values.output)))) {
+  throw new Error('--app requires a new --output directory')
+}
+if (values.app && values['measure-cost']) {
+  throw new Error('Run app qualification and cost measurement separately')
 }
 
 const repository = resolve(import.meta.dirname, '../..')
@@ -125,6 +139,56 @@ try {
 
   const workspace = JSON.parse(readFileSync(join(repository, 'package.json'), 'utf8'))
   const qualification = JSON.parse(readFileSync(join(import.meta.dirname, 'package.json'), 'utf8'))
+  const archives = {
+    '@octane-xplat/tailwind': `file:${tailwind}`,
+    '@octane-xplat/build': `file:${build}`,
+    '@octane-xplat/lib': `file:${lib}`,
+  }
+
+  if (values.app) {
+    const workspaces = new Map()
+
+    for (const directory of readdirSync(join(repository, 'packages'))) {
+      const file = join(repository, 'packages', directory, 'package.json')
+
+      if (existsSync(file)) {
+        workspaces.set(JSON.parse(readFileSync(file, 'utf8')).name, directory)
+      }
+    }
+
+    const queue = ['@octane-xplat/ui']
+    while (queue.length > 0) {
+      const name = queue.shift()
+
+      if (archives[name]) {
+        continue
+      }
+      const directory = workspaces.get(name)
+
+      assert.ok(directory, `Missing workspace: ${name}`)
+      archives[name] = `file:${pack(directory)}`
+      const dependency = JSON.parse(
+        readFileSync(join(repository, 'packages', directory, 'package.json'), 'utf8'),
+      )
+
+      for (const [child, range] of Object.entries({
+        ...dependency.dependencies,
+        ...dependency.peerDependencies,
+      })) {
+        if (range.startsWith('workspace:')) {
+          queue.push(child)
+        }
+      }
+    }
+    copyFileSync(
+      join(
+        repository,
+        'packages/cli/patches',
+        `octane@${workspace.workspaces.catalog.octane}.patch`,
+      ),
+      join(consumer, 'octane.patch'),
+    )
+  }
 
   writeFileSync(
     join(consumer, 'package.json'),
@@ -132,6 +196,17 @@ try {
       name: 'packed-tailwind-consumer',
       private: true,
       type: 'module',
+      ...(values.app
+        ? {
+            dependencies: {
+              '@octane-xplat/ui': archives['@octane-xplat/ui'],
+              octane: workspace.workspaces.catalog.octane,
+            },
+            patchedDependencies: {
+              [`octane@${workspace.workspaces.catalog.octane}`]: 'octane.patch',
+            },
+          }
+        : {}),
       devDependencies: {
         '@octane-xplat/tailwind': `file:${tailwind}`,
         '@octane-xplat/build': `file:${build}`,
@@ -142,6 +217,15 @@ try {
           '',
         ),
         '@types/node': '26.6.6',
+        ...(values.app
+          ? {
+              '@octane-xplat/jsx': archives['@octane-xplat/jsx'],
+              '@tsrx/oxc': JSON.parse(
+                readFileSync(join(repository, 'packages/create/template/package.json'), 'utf8'),
+              ).workspaces.catalogs.xplat['@tsrx/oxc'],
+              playwright: qualification.devDependencies.playwright,
+            }
+          : {}),
         ...(values['measure-cost']
           ? {
               '@tailwindcss/postcss': qualification.devDependencies['@tailwindcss/postcss'],
@@ -150,10 +234,37 @@ try {
             }
           : {}),
       },
-      overrides: { '@octane-xplat/lib': `file:${lib}` },
+      overrides: values.app ? archives : { '@octane-xplat/lib': `file:${lib}` },
     }),
   )
-  run('bun', ['install', '--ignore-scripts', '--linker', 'isolated'])
+  run('bun', [
+    'install',
+    '--ignore-scripts',
+    '--linker',
+    'isolated',
+    ...(values.app ? ['--prefer-offline'] : []),
+  ])
+
+  if (values.app) {
+    const fromUI = createRequire(
+      realpathSync(join(consumer, 'node_modules/@octane-xplat/ui/package.json')),
+    )
+
+    for (const name of Object.keys(archives)) {
+      const direct = join(consumer, 'node_modules', name)
+      const installed = realpathSync(existsSync(direct) ? direct : fromUI.resolve(name))
+
+      assert.ok(installed.startsWith(consumer), `Expected an isolated installed tarball: ${name}`)
+      assert.ok(!installed.startsWith(repository), `Workspace link leaked into app: ${name}`)
+    }
+    const fromApp = createRequire(join(consumer, 'package.json'))
+
+    assert.equal(
+      realpathSync(fromUI.resolve('octane')),
+      realpathSync(fromApp.resolve('octane')),
+      'UI and app must share one Octane runtime',
+    )
+  }
 
   writeFileSync(
     join(consumer, 'types.ts'),
@@ -195,6 +306,60 @@ void plugin
     join(consumer, 'verify.mjs'),
   )
   const verification = run(process.execPath, ['verify.mjs'])
+
+  if (values.app) {
+    cpSync(join(import.meta.dirname, 'fixtures/app'), join(consumer, 'app'), { recursive: true })
+    copyFileSync(
+      join(import.meta.dirname, 'fixtures/verify-app.web.mjs'),
+      join(consumer, 'verify-app.web.mjs'),
+    )
+    const output = resolve(values.output)
+    mkdirSync(output, { recursive: true })
+    cpSync(join(consumer, 'app'), join(output, 'app-source'), { recursive: true })
+    const installed = Object.keys(archives).map((name) => {
+      const direct = join(consumer, 'node_modules', name)
+      const fromUI = createRequire(
+        realpathSync(join(consumer, 'node_modules/@octane-xplat/ui/package.json')),
+      )
+      let resolved = existsSync(direct) ? realpathSync(direct) : dirname(fromUI.resolve(name))
+      while (!existsSync(join(resolved, 'package.json'))) {
+        const parent = dirname(resolved)
+        assert.notEqual(parent, resolved, `Missing installed manifest: ${name}`)
+        resolved = parent
+      }
+      resolved = join(resolved, 'package.json')
+      const metadata = JSON.parse(readFileSync(resolved, 'utf8'))
+      const archive = archives[name].slice('file:'.length)
+      return {
+        name,
+        version: metadata.version,
+        archiveSha256: createHash('sha256').update(readFileSync(archive)).digest('hex'),
+      }
+    })
+    writeFileSync(
+      join(output, 'app-packages.json'),
+      JSON.stringify(
+        {
+          node: process.version,
+          octane: JSON.parse(
+            readFileSync(join(consumer, 'node_modules/octane/package.json'), 'utf8'),
+          ).version,
+          packages: installed,
+        },
+        null,
+        2,
+      ) + '\n',
+      { flag: 'wx' },
+    )
+    console.log(
+      run(
+        process.execPath,
+        ['../verify-app.web.mjs', '--output', output],
+        join(consumer, 'app'),
+        240000,
+      ).trim(),
+    )
+  }
 
   if (values['measure-cost']) {
     copyFileSync(
