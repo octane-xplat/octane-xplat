@@ -81,35 +81,11 @@ if [ "$READY" = yes ]; then
   else
     step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
   fi
-  # Two coordinate sources: AT-SPI extents, then the widget's own
-  # compute_bounds + surface transform + X window geometry (CSD shadow
-  # margins make AT-SPI extents unreliable under a bare X server).
-  GEO=$(xdotool search --name "Desktop Shell Journey" getwindowgeometry 2>/dev/null | grep Position | grep -o '[0-9-]*,[0-9-]*' | head -1)
-  BND=$(grep -o 'JOURNEY BOUNDS journey-submit [0-9.-]*,[0-9.-]* [0-9.]*x[0-9.]*' "$LOG" | tail -1 | sed 's/.*submit //;s/x/,/;s/ /,/')
-  XF=$(grep -o 'xf=[0-9.-]*,[0-9.-]*' "$LOG" | tail -1 | sed 's/xf=//')
-  AX=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null || python3 ax.py find "$APP_NAME" "button" "Submit" 2>/dev/null)
-  TARGET=""
-  SRC=""
-  if [ -n "$GEO" ] && [ -n "$BND" ]; then
-    GX=$(echo "$GEO" | cut -d, -f1); GY=$(echo "$GEO" | cut -d, -f2)
-    BX=$(echo "$BND" | cut -d, -f1); BY=$(echo "$BND" | cut -d, -f2)
-    BW=$(echo "$BND" | cut -d, -f3); BH=$(echo "$BND" | cut -d, -f4)
-    XFX=$(echo "$XF" | cut -d, -f1); XFY=$(echo "$XF" | cut -d, -f2); XFX=${XFX:-0}; XFY=${XFY:-0}
-    TARGET="$((GX + XFX + BX + BW/2)),$((GY + XFY + BY + BH/2))"
-    SRC="widget-bounds+geometry (atspi=$AX)"
-  elif [ -n "$AX" ]; then
-    BX=$(echo "$AX" | cut -d, -f1); BY=$(echo "$AX" | cut -d, -f2)
-    BW=$(echo "$AX" | cut -d, -f3); BH=$(echo "$AX" | cut -d, -f4)
-    TARGET="$((BX+BW/2)),$((BY+BH/2))"
-    SRC="atspi-extents"
-  fi
-  if [ -n "$TARGET" ]; then
-    TX=${TARGET%%,*}; TY=${TARGET##*,}
-    xdotool mousemove "$TX" "$TY" click 1
+  if click_bounds journey-submit; then
     for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
-    grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "target=$TARGET via $SRC" || step "form: submit" os-input-x11-xtest fail "click at $TARGET via $SRC, no SUBMITTED"
+    grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "bounds+geometry" || step "form: submit" os-input-x11-xtest fail "bounds+geometry click, no SUBMITTED"
   else
-    step "form: submit" os-input-x11-xtest fail "no coordinates (bounds=$BND geo=$GEO ax=$AX)"
+    step "form: submit" os-input-x11-xtest fail "no bounds/geometry"
   fi
 else
   step "form: type name" os-input-x11-xtest blocked "launch"
@@ -138,6 +114,7 @@ if [ "$READY" = yes ]; then
   BEFORE=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
   xdotool windowactivate --sync "$WIN" 2>/dev/null
   xdotool key ctrl+shift+i; sleep 0.5
+  C1=$(grep -o 'JOURNEY MENU action=increment count=[0-9]*' "$LOG" | tail -1)
   AFTER=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
   [ "$AFTER" -gt "$BEFORE" ] && step "app menu: accelerator" os-input-x11-xtest pass "count $BEFORE->$AFTER" || step "app menu: accelerator" os-input-x11-xtest fail "count $BEFORE->$AFTER"
   # AT-SPI path: activate the Journey menubar item, then its Increment action.
@@ -145,8 +122,20 @@ if [ "$READY" = yes ]; then
   sleep 0.4
   AFTER2=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
   [ "$AFTER2" -gt "$AFTER" ] && step "app menu: AT-SPI activation" atspi pass "$MOUT" || step "app menu: AT-SPI activation" atspi fail "$MOUT"
-  # Dismiss any popup grab the accelerator left open before the next window.
-  xdotool key Escape; sleep 0.4
+  # Menubar widget presence in AT-SPI (requires show_menubar).
+  MB=$(python3 ax.py find "$APP_NAME" "menu bar" "" 2>/dev/null || true)
+  MI=$(python3 ax.py find "$APP_NAME" "menu item" "" 2>/dev/null || true)
+  [ -n "$MB" ] && [ -n "$MI" ] && step "app menu: menubar in AT-SPI" atspi pass "menu bar + items" || step "app menu: menubar in AT-SPI" atspi fail "mb='${MB:-none}' mi='${MI:-none}'"
+  # Activate Increment through the rendered menubar: F10 grabs the menu bar,
+  # Return opens the first submenu, Return activates the item.
+  MBM=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  xdotool windowactivate --sync "$WIN" 2>/dev/null
+  xdotool key F10; sleep 0.6
+  xdotool key Return; sleep 0.6
+  xdotool key Return; sleep 0.8
+  xdotool key Escape; sleep 0.3
+  MBM2=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  [ "$MBM2" -gt "$MBM" ] && step "app menu: menubar activation" os-input-x11-xtest pass "count $MBM->$MBM2" || step "app menu: menubar activation" os-input-x11-xtest fail "count $MBM->$MBM2"
 else
   step "app menu: accelerator" os-input-x11-xtest blocked "launch"
   step "app menu: AT-SPI activation" atspi blocked "launch"

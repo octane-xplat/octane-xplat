@@ -214,6 +214,15 @@ runGtkApp(
       marker('READY')
       bounds('journey-name')
       bounds('journey-submit')
+      if (DIAG) {
+        let painted = false
+        window.get_frame_clock?.().connect?.('after-paint', () => {
+          if (painted) return
+          painted = true
+          bounds('journey-name')
+          bounds('journey-submit')
+        })
+      }
 
       // DESKTOP_SHELL_DIAG_OPEN=timeout opens the Inspector from a GLib
       // timeout instead of inside the dbusmenu Event handler — bisects the
