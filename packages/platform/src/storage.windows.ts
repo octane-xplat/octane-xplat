@@ -7,10 +7,10 @@ import { File, knownFolders, path as nsPath } from '@nativescript/core'
  * as an opaque handle — none of IMap's members (HasKey, Lookup, Insert,
  * Remove, First) are callable, so every read/write through it is a no-op.
  *
- * Reads are synchronous from an in-memory snapshot; writes persist
- * synchronously at call time so a killed process cannot lose them, and
- * the initial disk load converges the file once it resolves. `flush`
- * stays false: the contract exposes no blocking commit confirmation.
+ * The snapshot loads synchronously at module init and every write
+ * persists synchronously at call time, so no read or write can race
+ * an in-flight disk operation. `flush` stays false: the contract
+ * exposes no blocking commit confirmation.
  *
  * @example
  * import { storage } from '@octane-xplat/platform'
@@ -28,21 +28,17 @@ const writeFile = (): void => {
   } catch {}
 }
 
-void (async () => {
-  try {
-    const path = storePath()
+try {
+  const path = storePath()
 
-    if (File.exists(path)) {
-      const text = await File.fromPath(path).readText()
+  if (File.exists(path)) {
+    const text = File.fromPath(path).readTextSync()
 
-      for (const pair of JSON.parse(text) as [string, string][]) {
-        entries.set(pair[0], String(pair[1]))
-      }
+    for (const pair of JSON.parse(text) as [string, string][]) {
+      entries.set(pair[0], String(pair[1]))
     }
-  } catch {}
-
-  writeFile()
-})()
+  }
+} catch {}
 
 const persist = (): void => {
   writeFile()
