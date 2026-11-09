@@ -40,7 +40,6 @@ import { calendar } from '@octane-xplat/calendar'
 import { contacts } from '@octane-xplat/contacts'
 import { firebaseAnalytics } from '@octane-xplat/firebase-analytics'
 import { crashlytics } from '@octane-xplat/firebase-crashlytics'
-import { getGlobalShortcutSupport } from '@octane-xplat/global-shortcuts'
 import { maps } from '@octane-xplat/maps'
 import { isAvailable as mediaConverterAvailable } from '@octane-xplat/media-converter'
 import { usePermissions as mediaLibraryUsePermissions } from '@octane-xplat/media-library'
@@ -1614,7 +1613,6 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   out.contactsEnsure = await contacts.ensure()
   out.firebaseAnalyticsSupported = firebaseAnalytics?.supported
   out.crashlyticsSupported = crashlytics?.supported
-  out.globalShortcutsSupport = await getGlobalShortcutSupport()
   out.mapsSupported = maps.supported
   out.mediaConverterAvailable = await mediaConverterAvailable()
   out.mediaLibraryUsePermissions = typeof mediaLibraryUsePermissions
