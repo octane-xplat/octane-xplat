@@ -121,3 +121,9 @@ test('a bare interactive view becomes an element once a handler lands', () => {
   f.actions.setNodeHandler(n, () => {})
   assert.equal(f.view.accessibilityElement, true)
 })
+
+test('AccessibleHostView declares the NSAccessibility action protocols', () => {
+  const f = fixture()
+  const protocols = (f.host.AccessibleHostView as any).ObjCProtocols ?? []
+  assert.ok(protocols.length >= 1, 'expected at least one accessibility protocol')
+})

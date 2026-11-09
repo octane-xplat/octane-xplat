@@ -36,6 +36,7 @@ export class CGPathCloseSubpath extends NativeObject {}
 export class CGPathCreateMutable extends NativeObject {}
 export class CGPathMoveToPoint extends NativeObject {}
 export function CMTimeMakeWithSeconds(seconds, scale) { return { value: Math.trunc(seconds * scale), timescale: scale } }
+export function NSProtocolFromString(name) { return { protocolName: name } }
 export class NSAccessibilityCustomAction extends NativeObject {}
 export class NSAccessibilityPostNotification extends NativeObject {}
 export class NSAppearance extends NativeObject {}

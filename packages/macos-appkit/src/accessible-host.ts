@@ -3,7 +3,7 @@ import type { Subscriptions } from './subscriptions'
 import type { AccessibilityState } from './accessibility-state'
 import { createTabStopSuppression } from './tab-stop'
 import { createDisabledFocusTargets } from './disabled-focus'
-import { NSNumber, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
+import { NSNumber, NSProtocolFromString, NSView, NativeClass, interop } from '@octane-xplat/platform/macos'
 
 interface Dependencies {
   actions: Pick<Actions, 'hasHandler' | 'idForView' | 'invokeAction'>
@@ -113,6 +113,17 @@ export function createAccessibleHost(deps: Dependencies) {
       // callers identify accessible hosts through ObjC dispatch instead.
       xplatAccessibleHost: { params: [], returns: interop.types.bool },
     }
+
+    // ObjCExposedMethods only binds selectors NSView already implements;
+    // protocol conformance is what registers action selectors like
+    // accessibilityPerformPress/-Increment/-Decrement on the ObjC side.
+    static ObjCProtocols = [
+      'NSAccessibilityButton',
+      'NSAccessibilitySlider',
+      'NSAccessibilityStepper',
+    ]
+      .map((name) => (typeof NSProtocolFromString === 'function' ? NSProtocolFromString(name) : null))
+      .filter(Boolean)
 
     static {
       NativeClass(this)
