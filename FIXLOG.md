@@ -461,6 +461,77 @@ See [camera switching during a take](https://octane-xplat.goddardai.org/movie-ca
 
 The Go `interact` contract mandates `--request-key` for every dispatch — it is the dedupe and receipt identity for a mutation whose outcome can outlive the caller. The MCP tool schema marked `requestKey` optional, so a schema-valid call deterministically failed downstream. The schema now requires the key and says what it buys: reuse an identical key to read the same receipt without dispatching again.
 
+### Match the index route beside a root catch-all
+
+A route declared with `path: '/'` (or the `index` name) now wins over a root catch-all `path: '*'`, instead of the splat swallowing `/` and making the index route unreachable — requests and typed destinations to `/` hit the catch-all instead. The same precedence now keeps a literal like `docs` ahead of `docs/*`.
+
+```ts
+defineRoutes([
+  defineRoute({ path: '/' }).screen(Home),
+  defineRoute({ path: '*' }).screen(NotFound),
+])
+// '/' renders Home; '/anything/else' renders NotFound.
+```
+
+A catch-all still matches an empty remainder when nothing more specific exists, so a catalog without an index route keeps showing its not-found screen at `/`.
+
+See [author routes](https://octane-xplat.goddardai.org/navigation).
+
+### Nested presses work inside a web pan host
+
+On web, a `View` or `Pressable` with `onPan` no longer swallows clicks on controls nested inside it. The gesture previously captured the pointer on `pointerdown`, which retargeted the trailing `click` to the pan host — a plain click on a nested `Pressable` never fired `onPress`. The pointer is now captured only after it travels past the drag slop, so stationary clicks activate nested controls while real drags still report `began`/`moved`/`ended` and do not activate anything.
+
+```tsx
+<View onPan={(event) => console.log(event.state, event.dx)}>
+  <Pressable onPress={() => setSearching(true)}>
+    <Text>Search</Text>
+  </Pressable>
+</View>
+// Clicking Search now fires onPress; dragging fires onPan.
+```
+
+### Web Switch reports its state to assistive technology
+
+On web, `Switch` renders `role="switch"` but emitted no `aria-checked`, so
+screen readers could not determine whether the control was on or off — the
+switch role requires the attribute. The control now reflects its checked
+state through `aria-checked`, matching the other checkable controls.
+
+```tsx
+// The rendered input now carries aria-checked="true" when on.
+<Switch value={enabled} onChange={setEnabled} />
+```
+
+### Apply platform styles in browser Workshop previews
+
+Browser Workshop previews now compile platform-specific CSS blocks instead of leaving them for the browser to ignore. Explicit static Workshop builds use the same style processing.
+
+```sh
+bun run xplat workshop dev --target web
+```
+
+See the [Workshop guide](https://octane-xplat.goddardai.org/component-workshop) for the isolated component workflow.
+
+### Respect platform suffixes on TypeScript and JSX stories
+
+Workshop discovery now recognizes platform suffixes on `.ts`, `.tsx`, `.js`, and `.jsx` stories as well as `.tsrx` stories. A browser-only story such as `button.stories.web.ts` stays out of native loaders even when its declared targets are `all`.
+
+```ts
+import { Button } from '@octane-xplat/ui'
+import { defineStory } from '@octane-xplat/workshop'
+
+// Save as button.stories.web.ts to limit this story to the browser.
+export const Basic = defineStory({
+  id: 'button/basic',
+  title: 'Button / Basic',
+  targets: 'all',
+  component: Button,
+  args: { label: 'Save' },
+})
+```
+
+See [story authoring and platform applicability](https://octane-xplat.goddardai.org/component-workshop#declaring-stories).
+
 ## [Octane Xplat 0.19.0](https://github.com/octane-xplat/octane-xplat/releases/tag/v0.19.0) - 2026-10-31
 
 ### Keep Apple sign-in attached to its macOS window

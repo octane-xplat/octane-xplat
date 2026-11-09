@@ -848,6 +848,166 @@ Use the documented spelling instead:
 bun create octane-xplat my-app --targets web
 ```
 
+### Register system-wide hotkeys on desktop
+
+New `@octane-xplat/global-shortcuts` package registers OS-level keyboard shortcuts that fire while your app is unfocused or backgrounded — the missing piece for quick-entry windows and push-to-talk actions. It complements `@octane-xplat/shortcuts`, which only handles keys inside a focused app.
+
+```ts
+const shortcuts = createGlobalShortcuts()
+const result = await shortcuts.register({
+  id: 'quick-entry',
+  accelerator: 'Mod+Shift+Space',
+  onPress: () => showQuickEntry(),
+})
+if (!result.ok) console.warn(result.error.message)
+```
+
+Registrations use a shared accelerator grammar (`Ctrl+Alt+KeyK` physical codes, `Mod` resolves per platform), report conflicts, reservations, and denials as structured errors, and clean up on unregister, dispose, and app exit. macOS uses Carbon event hotkeys, Windows uses `RegisterHotKey` on a package-owned thread, and Linux uses the XDG GlobalShortcuts portal where the desktop supports it. Web, iOS, and Android report explicit unsupported results.
+
+See [Global shortcuts](https://octane-xplat.goddardai.org/package-global-shortcuts).
+
+### Install a native application menu bar on desktop
+
+New `@octane-xplat/app-menu` package installs the native application menu bar — `NSApplication.mainMenu` on macOS the `Gtk.Application` menubar on Linux, and native buttons with attached `MenuFlyout`s on Windows — with action items, nested submenus, separators, disabled and controlled checkbox state, keyboard accelerators, and platform role items such as Copy and Quit on AppKit and GTK.
+
+```ts
+import { appMenu } from '@octane-xplat/app-menu'
+
+const handle = appMenu.install([
+  { type: 'submenu', key: 'file', label: 'File', items: [
+    { type: 'action', key: 'new', label: 'New', accelerator: 'Mod+N', onSelect: createDocument },
+  ]},
+])
+
+handle.update(nextMenus)
+handle.dispose()
+```
+
+Updates replace the whole tree and retire stale callbacks, `dispose` restores the previous menu bar, and one owner is allowed per process. This is separate from in-window `DropdownMenu`/`ContextMenu` surfaces and from tray/status-bar icons. Web, iOS, and Android report `supported: false` and throw `UnavailabilityError` on install. Windows requires the pinned NativeScript host and a mounted primary window; dispose before root replacement or window closure. Windows rejects standard role entries; supply action callbacks instead. Alt/F10 menu-bar navigation and automatic propagation to additional windows are not provided.
+
+See [Application menu](https://octane-xplat.goddardai.org/package-app-menu).
+
+### Keep a native app alive in the system tray
+
+New `@octane-xplat/tray` package creates a persistent status-bar item on macOS (`NSStatusItem`) and a StatusNotifierItem on Linux over D-Bus, with icons, tooltip/title, activation events, context menus, and resident-app helpers to hide, show, or toggle the app windows.
+
+```ts
+import { createTray, getTrayAvailability, keepAppResident } from '@octane-xplat/tray'
+
+if ((await getTrayAvailability()).available) {
+	const release = await keepAppResident()
+	const tray = await createTray({
+		id: 'my-app',
+		icon: { type: 'file', path: 'assets/tray.png', isTemplate: true },
+		tooltip: 'My App',
+		onActivate: () => toggleAppWindows(),
+		menu: [
+			{ type: 'action', key: 'open', label: 'Open', onSelect: () => showAppWindows() },
+			{ type: 'separator', key: 'sep' },
+			{ type: 'action', key: 'quit', label: 'Quit', onSelect: () => process.exit(0) },
+		],
+	})
+	// later: tray.update({ title: '2' }); tray.destroy(); release()
+}
+```
+
+Menus support actions, checkboxes, radio groups, submenus, sections, separators, and disabled items. Linux requires a StatusNotifier host (KDE, GNOME with the AppIndicator extension, or similar); desktops without one report `no-status-notifier-host`. Windows uses `Shell_NotifyIconW` with `TrackPopupMenu` menus; file icons must be `.ico`, named icons map to stock icon ids. Web, iOS, and Android report explicit unsupported states.
+
+Verified on a real packaged macOS `.app`, the NativeScript macOS JSC host, a live D-Bus session with an external StatusNotifier watcher, and the packaged Windows host (real notification-area rect, activation, menu selection, and removal end to end).
+
+See [Tray](https://octane-xplat.goddardai.org/package-tray).
+
+### Link hashed build assets and render a not-found page on the web host
+
+`@octane-xplat/web-host` gains `manifestAssets`, which turns a Vite `build.manifest` entry into the renderer's script and stylesheet list — hashed files change URL with each build, and CSS imported by the client entry reaches pages read without JavaScript.
+
+```ts
+const assets = manifestAssets(manifest, 'src/client.web.ts')
+```
+
+`prerender` gains `notFound`, which renders a public 404 page into `404.html` — the file static hosts serve for unmatched URLs — and marks it as a fallback document; `startWebApp` hydrates it at its own URL and swaps in the real page everywhere else.
+
+The `document` assembly hook takes an optional `{ fallback: true }` and the `prerender` result reports `notFound` — both additions to existing signatures, not breaking changes.
+
+See [Web rendering](https://octane-xplat.goddardai.org/web-rendering).
+
+### Dictate text with the OS speech service
+
+New `@octane-xplat/speech-recognition` package transcribes spoken audio into text through the platform's own recognizer — Web Speech API in the browser, `SFSpeechRecognizer` on iOS and macOS, `SpeechRecognizer` on Android, and the WinRT dictation recognizer on Windows.
+
+```ts
+import { speechRecognition } from '@octane-xplat/speech-recognition'
+
+const session = speechRecognition.start({ lang: 'en-US' })
+session.subscribe((event) => {
+  if (event.type === 'transcript') field.value = event.transcript
+})
+const result = await session.stop() // { transcript, reason, error }
+```
+
+Sessions emit interim and final cumulative transcripts, choose a BCP-47 language, stop gracefully or abort immediately, and report typed errors (`permission-denied`, `network`, `audio-capture`, `no-speech`, `interrupted`, `busy`, `unsupported-option`). `getAvailability()` reports whether recognition may use the network so apps can disclose it — no platform promises offline dictation. Linux and GTK report `supported: false` because no OS speech-recognition service exists there.
+
+See [`@octane-xplat/speech-recognition`](https://octane-xplat.goddardai.org/package-speech-recognition).
+
+### Use controlled sheets for multi-step flows
+
+**Breaking change:** `BottomSheetSwitcher`, `BottomSheetSwitcherProps`, and `BottomSheet.sheetId` have been removed. Control each `BottomSheet` with `isOpen` and `onOpenChange`. Put drafts in the parent screen so they survive switching sheets. Each sheet owns its presentation; this change does not add Astryx’s animated sheet handoff.
+
+```tsx
+import { useState } from 'octane'
+import { BottomSheet, Button } from '@octane-xplat/ui'
+
+export function ShippingFlow() {
+  const [step, setStep] = useState<string | null>(null)
+  const closeStep = (id: string) => (open: boolean) => {
+    if (!open) setStep(current => current === id ? null : current)
+  }
+
+  return <>
+    <Button clickAction={() => setStep('shipping')}>Start</Button>
+    <BottomSheet label="Shipping" isOpen={step === 'shipping'} onOpenChange={closeStep('shipping')}>
+      <Button clickAction={() => setStep('payment')}>Continue</Button>
+    </BottomSheet>
+    <BottomSheet label="Payment" isOpen={step === 'payment'} onOpenChange={closeStep('payment')}>
+      <Button clickAction={() => setStep(null)}>Done</Button>
+    </BottomSheet>
+  </>
+}
+```
+
+[Bottom sheet examples](https://octane-xplat.goddardai.org/primitives#keep-drafts-when-switching-panels)
+
+### Browse and publish component workshops
+
+New web-capable app and library starters include Workshop with a working example. The new Gallery shows story components on one page and loads interactive previews as you scroll. The default Components tab leads with compositions; put basic building blocks in Primitives with `gallery.group`. Give variants the same `componentId` to group them and set `gallery.primary` to choose the first preview.
+
+```tsx
+import { Button } from '@octane-xplat/ui'
+import { defineStory } from '@octane-xplat/workshop'
+
+export const Basic = defineStory({
+  id: 'save/basic',
+  title: 'Save button / Basic',
+  componentId: 'app/SaveButton',
+  gallery: { primary: true, height: 160, group: 'primitives' },
+  targets: ['web'],
+  component: Button,
+  args: { label: 'Save' },
+})
+```
+
+Publish a separate static workshop with `bun run xplat workshop build --target web --out-dir dist/workshop --base /workshop/`. Ordinary app builds continue excluding stories. See the [Workshop guide](https://octane-xplat.goddardai.org/component-workshop) and [interactive component gallery](https://octane-xplat.goddardai.org/workshop/).
+
+### Separate declaration groups with blank lines
+
+`xplat fmt` now adds blank lines around groups of declarations, including inside function bodies, using `@octane-xplat/fmt` 0.3.0. Consecutive declarations stay together.
+
+```sh
+bun xplat fmt src
+```
+
+[Formatter release](https://github.com/octane-xplat/fmt/releases/tag/v0.3.0)
+
 ## [tsrx-typegen 0.6.0](https://github.com/octane-xplat/octane-xplat/releases/tag/tsrx-typegen-v0.6.0) - 2026-11-07
 
 ### `tsrx-typegen` emits with native TypeScript 7.1
