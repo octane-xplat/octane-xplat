@@ -6,6 +6,8 @@ import Gio from 'gi://Gio'
 import { createGtkRoot } from './index.js'
 import type { GtkContainer, GtkRoot, GtkView } from './index.js'
 
+export { setWindowContentResolver } from './index.js'
+
 export interface GtkAppOptions {
   /** Reverse-DNS app id, e.g. `dev.xplat.demo`. */
   applicationId: string
@@ -29,8 +31,29 @@ export interface GtkAppMount {
 /** Create the application window, mount a universal root on a vertical
  *  Gtk.Box content widget, and hand both to `mount` before presenting.
  *  Returns GtkApplication.run's exit status — call it as the app entry's
- *  last expression. */
-export function runGtkApp(options: GtkAppOptions, mount: (target: GtkAppMount) => void): number {
+ *  last expression.
+ *
+ *  `mount` may return a cleanup function; the host calls it exactly once,
+ *  synchronously on the Gtk.Application `shutdown` signal, before the
+ *  mounted root is released — matching the macOS host's
+ *  `runMacOSApp` mount-cleanup contract.
+ *
+ *  @example
+ *  ```ts
+ *  import { runGtkApp, setWindowContentResolver } from '@octane-xplat/linux-gtk/host'
+ *
+ *  setWindowContentResolver((data) => (data as { win?: string })?.win === 'inspector'
+ *    ? Inspector : null)
+ *
+ *  runGtkApp({ applicationId: 'dev.xplat.demo', title: 'Demo' }, ({ root }) => {
+ *    root.render(App, {})
+ *    return () => tray?.destroy()
+ *  })
+ *  ``` */
+export function runGtkApp(
+  options: GtkAppOptions,
+  mount: (target: GtkAppMount) => void | (() => void),
+): number {
   const app = new Gtk.Application({
     application_id: options.applicationId,
     flags: options.flags ?? Gio.ApplicationFlags.FLAGS_NONE,
@@ -61,7 +84,13 @@ export function runGtkApp(options: GtkAppOptions, mount: (target: GtkAppMount) =
     const { root, container } = createGtkRoot(content)
 
     mounted = { app, window, content, container, root }
-    mount(mounted)
+    const cleanup = mount(mounted) ?? undefined
+    if (cleanup) {
+      app.connect('shutdown', () => {
+        // Release mount-owned resources before the root/window teardown.
+        cleanup()
+      })
+    }
     window.present()
   })
 

@@ -1487,6 +1487,14 @@ function windowService(): GtkWindowService {
   return gtkWindowService
 }
 
+/** Install the app-level content resolver for `openWindow` windows —
+ *  public entry to the same seam the `__octaneGtkHost` bridge exposes,
+ *  re-exported from `@octane-xplat/linux-gtk/host` (the macOS host's
+ *  `setWindowContentResolver` counterpart). */
+export function setWindowContentResolver(resolve: ((data: unknown, controller: any) => unknown) | null): void {
+  windowService().setWindowContentResolver(resolve)
+}
+
 function restyleAllContainers() {
   for (const container of liveGtkContainers) {
     for (const child of container.children) {
