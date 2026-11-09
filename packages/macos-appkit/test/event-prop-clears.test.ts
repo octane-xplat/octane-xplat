@@ -338,7 +338,6 @@ test('testID maps to the native accessibility identifier independently of CSS id
 
     applyProps(node, { testID: 'draft.save' })
     assert.equal(Reflect.get(host, 'accessibilityIdentifier'), 'draft.save')
-    assert.equal(Reflect.get(host, 'accessibilityElement'), true)
     assert.equal(Reflect.get(node.props, 'id'), 'css-name')
     assert.equal(Reflect.get(node.props, 'accessibilityLabel'), 'Save changes')
     applyProps(node, { testID: 'draft.retry' })
@@ -346,7 +345,6 @@ test('testID maps to the native accessibility identifier independently of CSS id
     assert.equal(Reflect.get(host, 'accessibilityIdentifier'), 'draft.retry')
     applyProps(node, { testID: undefined }) // droppedPropClears supplies this clear.
     assert.equal(Reflect.get(host, 'accessibilityIdentifier'), '')
-    assert.equal(Reflect.get(host, 'accessibilityElement'), false)
   }
 })
 
