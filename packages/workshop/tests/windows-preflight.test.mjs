@@ -13,7 +13,7 @@ afterEach(() => {
   }
 })
 
-function consumer({ complete = false, runtime = '1.0.0-beta.20' } = {}) {
+function consumer({ complete = false, runtime = '1.0.0-beta.24' } = {}) {
   const root = mkdtempSync(join(tmpdir(), 'workshop-windows-'))
 
   roots.push(root)
@@ -100,7 +100,7 @@ describe('Windows setup evidence (simulated prerequisites, no WinUI runtime)', (
     expect(report.status).toBe('missing-prerequisites')
   })
 
-  it.each(['^1.0.0-beta.20', '~1.0.0-beta.20', 'latest', 'workspace:*'])(
+  it.each(['^1.0.0-beta.24', '~1.0.0-beta.24', 'latest', 'workspace:*'])(
     'rejects a non-exact runtime declaration %s',
     (runtime) => {
       const report = windowsPreflight(consumer({ complete: true, runtime }), {

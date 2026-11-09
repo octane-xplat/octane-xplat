@@ -90,7 +90,7 @@ run below:
   `paths` pinning the app core for the same reason, the harness entry from
   `apps/mobile`, and `App_Resources/Windows` from upstream's starter.
 - `@nativescript/core` + `@nativescript/vite` pinned to pkg.pr.new `@11468`
-  builds; `@nativescript/windows` exact `1.0.0-beta.20`; dev-tag CLI
+  builds; `@nativescript/windows` exact `1.0.0-beta.24`; dev-tag CLI
   `nativescript@9.1.2-dev.2026-09-24-*`. Preview-version patch twins carry
   the dev-serving fixes (`@nativescript__vite@8.0.13.patch` — /ns/m re-export
   records, vendor-manifest gating, specifier decoding) and the shared-file

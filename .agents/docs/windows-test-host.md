@@ -162,9 +162,9 @@ installed-package Windows pointer, input, and percentage-layout regressions. The
 contact-only touch movement from upstream. These exercise JavaScript with host
 fixtures, not WinUI hit testing or OS input.
 
-## Windows runtime 1.0.0-beta.20
+## Windows runtime beta pin
 
-The Windows runtime pin moved to `@nativescript/windows@1.0.0-beta.20` while
+The Windows runtime pin is `@nativescript/windows@1.0.0-beta.24` while
 core and Vite stay on `abae298` and the `nativescript` CLI dev pin is
 unchanged, superseding the interim alpha.146 bump (a small maintenance delta
 over alpha.144: nullable annotations, a `SupportedOSPlatform` attribute,
@@ -175,10 +175,11 @@ a per-build key, moves devtools to port 43000, and drops
 `privateNetworkClientServer` from its template manifest (the app's own
 manifest is unaffected). Its storage projection fixes pair with later core
 PR #11272 commits that are not in `abae298`; with `abae298` the service,
-storage and secure-storage drivers still pass on this runtime. Beta.18+
+storage and secure-storage drivers passed on beta.20. Beta.18+
 adds `JsTypedArray` marshaling that targets the Mason `byte[]` gap below.
 
-A packaged x64 build of the pin (MSIX 1.0.0.229) passed the layout,
+The last qualified runtime was beta.20. Its packaged x64 build
+(MSIX 1.0.0.229) passed the layout,
 text-input, scroll and service drivers. The action, structure, tab,
 selector, menu, table and layer drivers fail because xplat action controls
 report a generic `NamedContainerAutomationPeer` (`ControlType.Group`)
@@ -190,8 +191,13 @@ correct UIA peers. A same-source alpha.144 build of the parent commit
 [#163](https://github.com/octane-xplat/octane-xplat/issues/163), not a
 beta-line defect — alpha-line pins fail identically. Look up Silo
 `scenario:windows-runtime-1.0.0-beta.20` for the artifacts and per-mode
-results. Action-peer behavior stays unqualified on every runtime until #163
-is fixed.
+results. The platform-resolution fix for #163 is in current source, but the
+packaged action-peer drivers still need a rerun before claiming recovery.
+
+Beta.24 has the same published template and managed bridge payload as beta.20;
+the native runtime and build-tool binaries changed. Beta.20 results above do
+not qualify beta.24. Keep the early MSIX content declarations: its template
+still stages bridge files after Build or during Publish.
 
 The bridge now passes WinRT objects to .NET as projected objects. The Mason
 `byte[]` and Label `UIElement` workarounds below still need a targeted check
