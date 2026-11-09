@@ -115,6 +115,7 @@ export interface HostedWindowController {
  *   if (data && typeof data === 'object' && 'docId' in data) return DocumentWindow
  *   return null
  * })
+ * // openWindow({ data: { docId: 1 } }) now mounts DocumentWindow.
  * ```
  */
 export type WindowContentResolver = (
@@ -942,7 +943,11 @@ export function fitWindowToContent(
  * import { setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
  * import { openWindow } from '@octane-xplat/ui'
  *
- * setWindowContentResolver((data) => (data?.kind === 'preview' ? PreviewWindow : null))
+ * setWindowContentResolver((data) =>
+ *   data && typeof data === 'object' && 'kind' in data && data.kind === 'preview'
+ *     ? PreviewWindow
+ *     : null,
+ * )
  * const win = openWindow({ data: { kind: 'preview' }, title: 'Preview' })
  * ```
  */
@@ -1263,7 +1268,7 @@ export function createHostedWindow(options: MacOSOpenWindowOptions = {}): Hosted
  * }
  * ```
  */
-export function debugWindows(): { title: string; debug: { [key: string]: any } | null }[] {
+export function debugWindows(): { title: string; debug: Record<string, unknown> | null }[] {
   return [...shared.byNative.entries()].map(([nativeWindow, controller]) => ({
     title: String(nativeWindow.title ?? ''),
     debug: (controller as ManagedAppKitWindowController).root?.__macosDebug ?? null,

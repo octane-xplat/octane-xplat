@@ -134,7 +134,9 @@ import { setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
 import { openWindow } from '@octane-xplat/ui'
 
 setWindowContentResolver((data) =>
-  data?.kind === 'preview' ? PreviewWindow : null,
+  data && typeof data === 'object' && 'kind' in data && data.kind === 'preview'
+    ? PreviewWindow
+    : null,
 )
 
 const win = openWindow({ data: { kind: 'preview' }, title: 'Preview', size: { width: 480, height: 640 } })
