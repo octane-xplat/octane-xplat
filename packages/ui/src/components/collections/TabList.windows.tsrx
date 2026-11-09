@@ -22,7 +22,7 @@ import { layoutChildProps } from '../layout/layout-child'
 import './tab-control.windows'
 
 export { TabListContext }
-export { TabMenu } from './TabList.tsrx'
+export { TabMenu } from './tab-menu.tsrx'
 export { useTabListContext } from '../navigation/nav-contexts'
 
 const SIZE_HEIGHT = { sm: 28, md: 32, lg: 36 }
