@@ -11,7 +11,8 @@ const unsupported = (): Error =>
   new Error('unsupported: shaders is not available on windows')
 
 export async function createShader(
-  _target: unknown,
+  _canvas: unknown,
+  _preset: import('shaders/js').PresetConfig,
   _options?: CreateShaderOptions,
 ): Promise<ShaderInstance> {
   throw unsupported()

@@ -52,6 +52,12 @@ import { storeReview } from '@octane-xplat/store-review'
 import { captureScreen as viewShotCapture } from '@octane-xplat/view-shot'
 import { webBrowser } from '@octane-xplat/web-browser'
 import { supported as richTextSupported } from '@octane-xplat/richtext'
+import { Image as XplatImage, prefetch as imagePrefetch, isImageCached } from '@octane-xplat/image'
+import { Video } from '@octane-xplat/video'
+import { Lottie } from '@octane-xplat/lottie'
+import { IntersectionObserver, supported as intersectionSupported } from '@octane-xplat/intersection-observer'
+import { Chart } from '@octane-xplat/charts'
+import { createShader, isWebGPUSupported } from '@octane-xplat/shaders'
 
 type Emit = (event: string, data?: Record<string, unknown>) => void
 
@@ -1630,6 +1636,17 @@ async function leafSurfaceSpec(record: Emit): Promise<Record<string, unknown>> {
   out.viewShotCapture = await settle(async () => viewShotCapture())
   out.webBrowserSupported = webBrowser.supported
   out.richTextSupported = richTextSupported
+
+  out.imageComponent = typeof XplatImage
+  out.imagePrefetch = await settle(async () => imagePrefetch('leaf-surface://probe'))
+  out.imageCacheState = await settle(async () => isImageCached('leaf-surface://probe'))
+  out.videoComponent = typeof Video
+  out.lottieComponent = typeof Lottie
+  out.intersectionSupported = intersectionSupported
+  out.intersectionObserver = typeof IntersectionObserver
+  out.chartComponent = typeof Chart
+  out.webgpuSupported = isWebGPUSupported()
+  out.shaderCreate = await settle(async () => createShader(null, { components: [] }))
 
   return out
 }

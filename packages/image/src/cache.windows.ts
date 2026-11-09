@@ -21,9 +21,18 @@ export function clearImageCaches(): Promise<void> {
   return Promise.resolve()
 }
 
+/** Always 'none' — no pipeline exists on Windows. Returns the same
+ *  `Record` shape as the other leaves, keyed by each requested URL. */
 export function isImageCached(
-  _src: string,
+  srcs: string | readonly string[],
   _options?: ImageCacheQueryOptions,
-): Promise<ImageCacheState> {
-  return Promise.resolve({ memory: false, disk: false })
+): Promise<Record<string, ImageCacheState>> {
+  const list = typeof srcs === 'string' ? [srcs] : srcs
+  const states: Record<string, ImageCacheState> = {}
+
+  for (const src of list) {
+    states[src] = 'none'
+  }
+
+  return Promise.resolve(states)
 }
