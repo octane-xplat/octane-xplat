@@ -60,8 +60,12 @@ jobs:
       - name: Build the host native CLI
         run: bun run turbo run build:go --filter=@octane-xplat/cli
       - run: bun run build:packages
-      # Workshop's Playwright journey remains local; no browser installation.
-      - name: Check declared non-browser packed consumer suites
+      # Web Host's packed suite exercises Chromium. Workshop's broader
+      # Playwright journey remains local; ordinary PR CI stays browser-free.
+      - name: Install Chromium for the packed Web Host suite
+        working-directory: apps/web
+        run: bun x --no-install playwright install --with-deps chromium
+      - name: Check declared packed consumer suites
         run: bun run turbo run test:packed --filter='./packages/*' --filter='!@octane-xplat/workshop' --concurrency=2
       - name: Verify complete packed app and library starter workflows
         run: bun run check:consumer --no-build

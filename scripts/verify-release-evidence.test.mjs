@@ -476,6 +476,18 @@ test('workflow dependencies keep ci independent and stable bound to the release 
   assert.deepEqual(release.on.workflow_run.workflows, [ci.name])
   assert.equal(ci.jobs['repo-hygiene'].if, "github.event_name == 'pull_request'")
 
+  const stableSteps = stable.jobs['stable-checks'].steps
+  const browserInstall = stableSteps.findIndex((step) =>
+    step.run?.includes('playwright install --with-deps chromium'),
+  )
+
+  const packedSuites = stableSteps.findIndex((step) => step.run?.includes('turbo run test:packed'))
+
+  assert.ok(browserInstall >= 0 && packedSuites > browserInstall)
+  assert.equal(stableSteps[browserInstall]['working-directory'], 'apps/web')
+  assert.ok(!stableSteps[packedSuites].run.includes('!@octane-xplat/web-host'))
+  assert.ok(!ci.jobs.checks.steps.some((step) => step.run?.includes('playwright install')))
+
   const commands = ci.jobs.checks.steps.map((step) => step.run ?? '')
   const prepared = commands.indexOf('bun run build:packages')
   const checked = commands.indexOf('bun run check:pack')
