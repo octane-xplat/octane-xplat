@@ -116,6 +116,9 @@ If you want to understand how screens and device features connect, read
 reference material to give your coding agent, see
 [Agent context and versions](start/toolchain.md#agent-context-and-versions).
 
+For a deeper look at the runtime beneath the phone targets, read
+[NativeScript and React Native at the engine level](blog/nativescript-react-native-engines.md).
+
 If you're extending or debugging the framework itself, open the
 [design notes](../.agents/design/README.md). They collect decisions, proposals,
 and design research; you can leave that detail until you need it. Framework

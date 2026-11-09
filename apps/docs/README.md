@@ -8,7 +8,8 @@ bun run --filter @xplat/docs dev
 ```
 
 Guides live in `docs/start/`, `docs/app/`, `docs/platform/`, and
-`docs/testing/`. Internal implementation notes, design decisions, and workflow
+`docs/testing/`. Architecture articles live in `docs/blog/` and appear in the
+Blog sidebar section. Internal implementation notes, design decisions, and workflow
 recipes live under `.agents/` and are not part of the docs-site corpus. Page
 URLs stay independent of guide folders, so moving a guide keeps its existing URL.
 

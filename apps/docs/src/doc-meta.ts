@@ -198,6 +198,11 @@ export const GROUPS = [
       'package-workshop',
     ],
   },
+  {
+    dir: 'blog',
+    label: 'Blog',
+    slugs: ['nativescript-react-native-engines'],
+  },
   { dir: 'api', label: 'API reference', slugs: [] },
   // No docs/ directory — the changelog page is generated from the repo's
   // root logs (apps/docs/src/changelog.ts), so the group holds its slug.
