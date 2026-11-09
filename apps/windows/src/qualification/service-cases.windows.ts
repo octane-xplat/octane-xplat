@@ -196,6 +196,9 @@ async function storageSpec(persistValue?: string): Promise<Record<string, unknow
     persistRead,
     persistWrote: persistValue ?? null,
     flush: storage.flush(),
+    writeCount: (globalThis as Record<string, unknown>).__xplatStorageWriteCount ?? 0,
+    writeError: (globalThis as Record<string, unknown>).__xplatStorageWriteError ?? null,
+    loadError: (globalThis as Record<string, unknown>).__xplatStorageLoadError ?? null,
     probe: storageProbe(),
   }
 }

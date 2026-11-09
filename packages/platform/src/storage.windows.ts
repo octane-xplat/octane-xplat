@@ -25,7 +25,12 @@ const storePath = (): string =>
 const writeFile = (): void => {
   try {
     File.fromPath(storePath()).writeTextSync(JSON.stringify([...entries]))
-  } catch {}
+    ;(globalThis as Record<string, unknown>).__xplatStorageWriteCount =
+      ((globalThis as Record<string, unknown>).__xplatStorageWriteCount as number ?? 0) + 1
+  } catch (error) {
+    ;(globalThis as Record<string, unknown>).__xplatStorageWriteError =
+      error instanceof Error ? error.message : String(error)
+  }
 }
 
 try {
@@ -38,7 +43,10 @@ try {
       entries.set(pair[0], String(pair[1]))
     }
   }
-} catch {}
+} catch (error) {
+  ;(globalThis as Record<string, unknown>).__xplatStorageLoadError =
+    error instanceof Error ? error.message : String(error)
+}
 
 const persist = (): void => {
   writeFile()
