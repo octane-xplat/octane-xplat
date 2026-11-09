@@ -116,7 +116,12 @@ export function publishRelease({
       if (pkg.name === cliPackage && nativeDir) {
         // The staged tarball carries the native payload inventory; the five
         // payload tarballs publish alongside it at the same version.
-        const staged = stager({ root, version: pkg.version, nativeDir, outputDir: work })
+        const staged = stager({
+          root,
+          version: pkg.version,
+          nativeDir,
+          outputDir: join(work, 'native'),
+        })
 
         tarball = staged.cli.archive
         for (const payload of staged.payloads) {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs'
+import { existsSync, mkdtempSync, mkdirSync, readdirSync, writeFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
-import { join } from 'node:path'
+import { dirname, join } from 'node:path'
 import test from 'node:test'
 import { publishRelease } from './publish-release.ts'
 
@@ -25,23 +25,31 @@ function registry(code = 'E404') {
 }
 
 const nativeDir = 'research/go-cli'
-const staged = ({ outputDir }) => ({
-  cli: { archive: join(outputDir, 'cli.tgz') },
-  payloads: [
-    '@octane-xplat/cli-native-darwin-arm64',
-    '@octane-xplat/cli-native-darwin-x64',
-    '@octane-xplat/cli-native-linux-x64',
-    '@octane-xplat/cli-native-linux-arm64',
-    '@octane-xplat/cli-native-win32-x64',
-  ].map((name) => ({
-    manifest: { name },
-    archive: join(outputDir, name.split('-').pop() + '.tgz'),
-  })),
-})
+const staged = ({ outputDir }) => {
+  // Match the real stager's empty-directory contract, including when ordinary
+  // package tarballs have already been packed by the publisher.
+  mkdirSync(outputDir, { recursive: true })
+  assert.deepEqual(readdirSync(outputDir), [])
+
+  return {
+    cli: { archive: join(outputDir, 'cli.tgz') },
+    payloads: [
+      '@octane-xplat/cli-native-darwin-arm64',
+      '@octane-xplat/cli-native-darwin-x64',
+      '@octane-xplat/cli-native-linux-x64',
+      '@octane-xplat/cli-native-linux-arm64',
+      '@octane-xplat/cli-native-win32-x64',
+    ].map((name) => ({
+      manifest: { name },
+      archive: join(outputDir, name.split('-').pop() + '.tgz'),
+    })),
+  }
+}
 
 test('packs all pending packages before npm publication and skips existing versions', (t) => {
   const root = fixture(t)
   const calls = []
+  let work
   const run = (command, args, options) => {
     calls.push([command, ...args])
     if (args[0] === 'view') {
@@ -55,7 +63,13 @@ test('packs all pending packages before npm publication and skips existing versi
     return { status: 0, stdout: '', stderr: '' }
   }
 
-  assert.deepEqual(publishRelease({ root, tag: 'nightly', nativeDir, stager: staged, run }), [
+  const stager = (options) => {
+    work = dirname(options.outputDir)
+    assert.deepEqual(readdirSync(work).sort(), ['a.tgz', 'b.tgz'])
+    return staged(options)
+  }
+
+  assert.deepEqual(publishRelease({ root, tag: 'nightly', nativeDir, stager, run }), [
     '@octane-xplat/cli-native-darwin-arm64@1.0.0',
     '@octane-xplat/cli-native-darwin-x64@1.0.0',
     '@octane-xplat/cli-native-linux-x64@1.0.0',
@@ -65,6 +79,8 @@ test('packs all pending packages before npm publication and skips existing versi
     'a@1.0.0',
     'b@1.0.0',
   ])
+
+  assert.equal(existsSync(work), false, 'removes ordinary and native staging output')
 
   const published = calls.filter((c) => c[1] === 'publish').map((c) => c[2])
 

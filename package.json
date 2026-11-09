@@ -31,7 +31,7 @@
 		"validate": "bun run check && bun run typecheck && bun run test",
 		"test:packed": "turbo run test:packed --filter='./packages/*' --concurrency=2",
 		"test:scripts": "node --test --test-concurrency=2 scripts/*.test.mjs",
-		"test:release": "node --test scripts/release-*.test.mjs scripts/verify-release-evidence.test.mjs",
+		"test:release": "node --test scripts/release-*.test.mjs scripts/publish-release.test.mjs scripts/verify-release-evidence.test.mjs",
 		"check:optional-services": "node scripts/check-optional-services.ts",
 		"check:pack": "turbo run pack:check --filter='./packages/*' --concurrency=2",
 		"typecheck:scripts": "tsc --runExternalCode -p scripts/tsconfig.json",
