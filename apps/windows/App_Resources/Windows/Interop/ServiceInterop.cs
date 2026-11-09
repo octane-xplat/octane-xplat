@@ -92,8 +92,7 @@ namespace OctaneXplat.Interop
             {
                 try
                 {
-                    var api = Windows.Security.Credentials.UI.UserConsentVerifier;
-                    var availability = await api.CheckAvailabilityAsync();
+                    var availability = await Windows.Security.Credentials.UI.UserConsentVerifier.CheckAvailabilityAsync();
                     if (string.IsNullOrEmpty(reason))
                     {
                         s_helloState = "ok:avail:" + (int)availability;
@@ -104,7 +103,7 @@ namespace OctaneXplat.Interop
                         s_helloState = "ok:unavailable:" + (int)availability;
                         return;
                     }
-                    var result = await api.RequestVerificationAsync(reason);
+                    var result = await Windows.Security.Credentials.UI.UserConsentVerifier.RequestVerificationAsync(reason);
                     s_helloState = "ok:verify:" + (int)result;
                 }
                 catch (Exception e)
