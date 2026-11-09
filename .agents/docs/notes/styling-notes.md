@@ -71,27 +71,43 @@ packages/ui/theme/
   tokens.css        — required structure and cross-platform normalization
   chrome.css        — optional default colors, spacing, radii, and typography
   base.css          — element-type defaults per vocabulary (Label vs span…)
-  utilities         — hand-curated subset today; Tailwind v4 later (blocked)
+  utilities         — hand-curated subset today; Tailwind v4 integration awaits qualification
 apps/*/app.css      — per-app layer importing the shared sheets
 ```
 
-**Do not adopt Tailwind yet.** The plan was one PostCSS/Tailwind toolchain,
-two output targets (Tailwind v4 on web, `@nativescript/tailwind` on native —
-ns-octane proves it runs, auto PostCSS, **skip preflight**). But auditing the
-plugin against `@nativescript/core` 9.x found parity gaps we consider
-blocking, tracked upstream as
-[NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226):
-a stale property allowlist silently strips utilities core supports (all
-`gap-*`, `whitespace-*`, `max-w-*`…, applied to _all_ app CSS, not just
-Tailwind output), every `@media` rule is deleted (no `sm:`–`2xl:`, no
-media-`dark:`), `invisible` is rewritten to `collapse` so it removes from
-layout unlike the web, and `translate-*`/`scale-*` die on a shorthand the
-plugin doesn't map to core's `transform`. Until those land, the curated
-utility subset in `tokens.css` is the supported vocabulary — it keeps every
-class inside the NS-supported CSS intersection. The fixes are pending
-upstream in [NativeScript/tailwind#227](https://github.com/NativeScript/tailwind/pull/227)
-(our fork `aleclarson/tailwind`, branch `fix/tw-parity-gaps`); revisit
-adoption when it merges or if we decide to consume the fork directly.
+**Tailwind is not a qualified shared workflow yet.** The previous upstream
+blocker [NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226)
+was fixed by [#227](https://github.com/NativeScript/tailwind/pull/227), merged
+October 6, 2026. The released adapter 4.1.0 retains gap/max-width/nowrap,
+visibility:hidden and supported media queries. Do not repeat the earlier claim
+that these fixes remain pending.
+
+The adapter still targets NativeScript core rather than Xplat's Mason property
+surface. With the official Tailwind 4.3.5 compiler it removes `display` and
+`position` utilities. It also flattens cascade layers and arbitrary `@supports`
+blocks and removes `@property` registration. The maintained
+[qualification runner](../../../tools/tailwind-qualification/README.md)
+compares emitted declarations and browser CSS behavior before/after adaptation;
+it does not substitute a browser for a native renderer. The adapter emits no
+warnings for the isolated precedence, feature-gate and variable-inheritance
+mismatches in that corpus. Its transformation source matches upstream main at
+`6e6be375a93fcf60f57fb7ccf14d39381fc2d5cc`.
+
+Prefer an optional Xplat-owned adapter around the official compiler if these
+contracts can be qualified. Do not introduce a second utility generator or a
+runtime styling system. Preserve user-authored CSS and report unsupported
+generated output instead of silently stripping it. Keep Tailwind dependencies
+outside UI and the CLI runtime.
+
+There are local prerequisites as well: the native build still calls
+`unwrapCssLayers`, although our patched selector engine and the desktop engine
+implement ordinary layer precedence. Removing layers loses that information.
+The desktop cascade's parser does not preserve declaration importance, and
+its custom-property map inherits ancestor values without `@property` metadata.
+Keeping layers alone therefore does not establish full Tailwind semantics.
+Resolve those contracts, or reject unsupported combinations explicitly, before
+shipping native support. The current curated classes and restricted Bamboo
+workflow remain the supported choices; this investigation changes no app setup.
 
 ### Tailwind-replaceability audit (2026-09-25)
 

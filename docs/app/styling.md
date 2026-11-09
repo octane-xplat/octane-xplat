@@ -803,13 +803,13 @@ wrapping, but does not preserve repeated spaces and newlines like web
 
 ## Tailwind and native
 
-Do not add `tailwindcss`/`@nativescript/tailwind` to an app. The native
-plugin currently diverges from web Tailwind in ways that fail silently
-(blocked upstream:
-[NativeScript/tailwind#226](https://github.com/NativeScript/tailwind/issues/226)).
-For utility classes across web and NativeScript, use the restricted
-[Bamboo integration](#use-bamboo-css-utilities) and keep its declarations in
-the shared CSS subset.
+Tailwind is not yet a supported shared styling workflow. NativeScript's earlier
+adapter fixes [have merged](https://github.com/NativeScript/tailwind/pull/227),
+but its current output still needs Xplat-specific layout and CSS behavior
+qualification. Do not add `tailwindcss` or `@nativescript/tailwind` to a shared
+app on the assumption that matching class names guarantee matching behavior.
+Use the restricted [Bamboo integration](#use-bamboo-css-utilities) or the
+existing shared utility classes, and keep declarations in the shared CSS subset.
 
 For theme propagation, supported CSS differences, and the cases where a
 platform leaf is necessary, see the [styling notes](../../.agents/docs/notes/styling-notes.md) and the

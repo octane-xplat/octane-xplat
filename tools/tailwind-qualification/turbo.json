@@ -1,0 +1,7 @@
+{
+  "extends": ["//"],
+  "tasks": {
+    "qualify": { "cache": false, "outputs": [] },
+    "prepare:browser": { "cache": false, "outputs": [] }
+  }
+}

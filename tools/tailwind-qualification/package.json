@@ -1,0 +1,22 @@
+{
+  "name": "@xplat/tailwind-qualification",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test src/*.test.ts",
+    "qualify": "node src/qualify.ts",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "prepare:browser": "playwright install chromium"
+  },
+  "devDependencies": {
+    "@nativescript/tailwind": "4.1.0",
+    "@octane-xplat/css-engine": "workspace:*",
+    "@tailwindcss/postcss": "4.3.5",
+    "@tsrx/content-mapper": "catalog:",
+    "@types/node": "26.6.6",
+    "playwright": "1.63.0",
+    "postcss": "8.5.32",
+    "tailwindcss": "4.3.5",
+    "typescript": "catalog:"
+  }
+}

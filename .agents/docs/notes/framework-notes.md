@@ -140,8 +140,8 @@ export function Home() {
 - Native: `Column`→`flexboxlayout`, `Text`→`label` (text fold),
   `Pressable`→`flexboxlayout`+`tap` (multi-child — `contentview` drops
   siblings; TouchManager gives the press-scale); same utility classes live.
-  (Real Tailwind is blocked upstream — NativeScript/tailwind#226; we ship a
-  curated subset instead.)
+  (Tailwind awaits Xplat-specific qualification; see the current
+  [adapter constraints](styling-notes.md#original-shared-pipeline).)
 - One save → hot-updates web tab and device simultaneously.
 
 ## Known leaks (the seams we consciously ship)

@@ -67,6 +67,16 @@ import { css } from './styled-system/css'
 export const warningText = css({ color: 'warning' })
 ```
 
+## Tailwind qualification boundary
+
+Tailwind is not a supported shared app workflow yet. The historical upstream
+parity fixes merged, but the released NativeScript adapter strips Xplat layout
+utilities and loses some CSS semantics. Do not install it as a shortcut around
+our curated classes or Bamboo. See the
+[current constraints](../../../docs/notes/styling-notes.md#original-shared-pipeline)
+before investigating a first-party integration. A successful compiler build is
+not evidence of native layout or cascade parity.
+
 ## Native layout styles
 
 Raw native layout uses `masonview`. Put CSS layout keys in its style bag or
@@ -89,10 +99,10 @@ export function Columns() {
 For driver work and the distinction between JSX tags and imperative native
 hosts, read [driver semantics](primitives/driver-semantics.md#leaf-shape).
 
-Mason's layout mode and overlay offsets use the element style channel: the
-NativeScript stylesheet registry cannot carry `display` or `position`. Use
-explicit edge offsets; AppKit ignores the `inset` shorthand. Keep supported static
-declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)
+Mason core beta.7 registers `display` and `position` as CSS properties;
+do not assume those keys must be inline-only. Class delivery still needs
+qualification in the selected host. Use explicit edge offsets; AppKit ignores
+the `inset` shorthand. Keep supported static declarations in CSS. The [workshop chrome](../../../docs/workshop-chrome.md)
 is a maintained example of this boundary.
 
 ```tsx
