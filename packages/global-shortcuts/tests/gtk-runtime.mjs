@@ -71,7 +71,7 @@ try {
       .join('\n'),
   )
 } finally {
-  if (remote && /^\/tmp\/xplat-ghk-/.test(remote)) {
+  if (remote && remote.startsWith('/tmp/xplat-ghk-')) {
     try {
       run(`rm -rf ${quote(remote)}`)
     } catch {

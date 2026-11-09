@@ -2,6 +2,7 @@
 import { useRef } from 'octane'
 import type { PagerProps } from './props'
 import { layoutChildProps } from './layout-child'
+import { mergeStyle } from './style-merge'
 
 // Windows leaf — @nativescript-community/ui-pager has no windows target.
 // Bounded degrade: pages render in a horizontally scrolling container so all
@@ -14,7 +15,7 @@ export function Pager(props: PagerProps): unknown @{
       ref={host}
       id={props.id}
       className={props.className}
-      style={{ orientation: 'horizontal', ...layoutChildProps(props).style }}
+      style={mergeStyle({ orientation: 'horizontal' }, layoutChildProps(props).style)}
       orientation="horizontal"
     >
       <masonview style={{ display: 'flex', flexDirection: 'row' }}>

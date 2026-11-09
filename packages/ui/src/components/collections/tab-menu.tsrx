@@ -6,6 +6,7 @@ import { cx } from '@octane-xplat/lib'
 import { applyEscapeProps } from '../overlays/escape-props'
 import { Icon } from '../media/Icon.tsrx'
 import { Text } from '../content/Text.tsrx'
+import { View } from '../layout/View.tsrx'
 import { Popover } from '../overlays/Popover.tsrx'
 import { Pressable } from '../actions/Pressable.tsrx'
 import { TabListContext } from '../navigation/nav-contexts'
@@ -48,14 +49,14 @@ export function TabMenu(props: TabMenuProps): unknown @{
       accessibilityHint={props.label}
       onPress={() => setOpen(!open)}
     >
-      <masonview
+      <View
         className="vx-tab-content"
         style={mergeStyle(
           { flexDirection: 'column', justifyContent: 'flex-end', alignItems: 'center' },
           { display: 'flex' },
         )}
       >
-        <masonview
+        <View
           style={mergeStyle(
             { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 4 },
             { display: 'flex' },
@@ -63,12 +64,12 @@ export function TabMenu(props: TabMenuProps): unknown @{
         >
           <Text className="vx-tab-label">{triggerLabel}</Text>
           <Icon name={open ? 'xplat-chevron-up' : 'xplat-chevron-down'} size={16} />
-        </masonview>
-        <masonview
+        </View>
+        <View
           className={cx('vx-tab-indicator', selected && 'vx-tab-indicator--on')}
           style={{ display: 'flex' }}
         />
-      </masonview>
+      </View>
     </Pressable>
     <Popover
       anchor={anchor}
@@ -77,7 +78,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
       onDismiss={() => setOpen(false)}
       className="vx-tabmenu-pop"
     >
-      <masonview
+      <View
         className="vx-tabmenu"
         style={mergeStyle({ flexDirection: 'column' }, { display: 'flex' })}
       >
@@ -91,7 +92,7 @@ export function TabMenu(props: TabMenuProps): unknown @{
             accessibilityState={{ selected: ctx.value === option.value }}
             onPress={() => pick(option.value)}
           >
-            <masonview
+            <View
               style={mergeStyle(
                 { flexDirection: 'row', alignItems: 'center', gap: 8 },
                 { display: 'flex' },
@@ -100,10 +101,10 @@ export function TabMenu(props: TabMenuProps): unknown @{
               {option.icon != null ? navIcon(option.icon, 16) : null}
               <Text className="vx-tabmenu-itemcontent">{option.label}</Text>
               {ctx.value === option.value ? <Icon name="xplat-check" size={16} /> : null}
-            </masonview>
+            </View>
           </Pressable>
         }
-      </masonview>
+      </View>
     </Popover>
   </>
 }

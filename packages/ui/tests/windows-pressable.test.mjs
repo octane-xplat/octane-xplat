@@ -290,7 +290,25 @@ const tabPopover = moduleFile(
   `export {Collapsible as Popover} from ${JSON.stringify(collapsible)};`,
 )
 
+const tabView = compiled(
+  'tab-view',
+  'export function View(props) @{ <masonview className={props.className} style={props.style}>{props.children}</masonview> }',
+)
+
+const tabMenu = compiled('tab-menu', read('collections/tab-menu.tsrx'), {
+  '../../internal/layout/style-merge': support,
+  '@octane-xplat/lib': support,
+  '../overlays/escape-props': support,
+  '../navigation/nav-contexts': navContexts,
+  '../media/Icon.tsrx': icon,
+  '../content/Text.tsrx': tabText,
+  '../layout/View.tsrx': tabView,
+  '../overlays/Popover.tsrx': tabPopover,
+  '../actions/Pressable.tsrx': pressable,
+})
+
 const tabs = compiled('tab-list', read('collections/TabList.tsrx'), {
+  './tab-menu.tsrx': tabMenu,
   '../../internal/layout/style-merge': support,
   '@octane-xplat/lib': support,
   '../overlays/escape-props': support,
@@ -324,6 +342,7 @@ const windowsTabs = compiled(
   'windows-tab-list',
   read('collections/TabList.windows.tsrx').replace(/^import ['"].*['"]\s*;?$/gm, ''),
   {
+    './tab-menu.tsrx': tabMenu,
     '../../internal/layout/style-merge': support,
     '@octane-xplat/lib': support,
     '../overlays/escape-props': support,

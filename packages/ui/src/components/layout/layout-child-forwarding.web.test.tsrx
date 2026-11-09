@@ -164,6 +164,8 @@ describe('LayoutChildProps forwarding (web leaves)', () => {
   })
 
   it('preserves a string style alongside placement', () => {
+    // Deliberately exercise legacy string-style merging at the component boundary.
+    // xplat-disable-next-line
     const el = mount(<NavIcon icon={<i />} row={0} style="width: 24px" />)
     const host = el.querySelector('.vx-navicon') as HTMLElement
 

@@ -13,7 +13,7 @@ export function NativeSheetDemo() @{
     <Pressable
       id="native-sheet-open"
       ref={trigger}
-      className="rounded-lg border border-slate-300 p-4"
+      className="overlay-demo-card"
       onPress={() => setOpen(true)}
     >
       <Text>Open the More sheet</Text>
@@ -29,7 +29,7 @@ export function NativeSheetDemo() @{
         <View className="gap-3 p-5">
           <Heading>More</Heading>
           <Pressable
-            className="rounded-lg border border-slate-300 p-3"
+            className="overlay-demo-card"
             onPress={() => setOpen(false)}
           >
             <Text>Close from inside</Text>

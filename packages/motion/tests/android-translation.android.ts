@@ -1,4 +1,4 @@
-// Maintained nonvisual device regression: bun run probe run packages/motion/tests/android-translation.ts --target android
+// Maintained nonvisual device regression: bun run probe run packages/motion/tests/android-translation.android.ts --target android
 import { Label, Page, isAndroid } from '@nativescript/core'
 import { delegatedRun } from '../src/driver'
 import { Controller } from '../src/controller'

@@ -23,7 +23,7 @@ export function NativeContextMenuDemo() @{
       items={ITEMS}
       onItemSelected={setLast}
       trigger={() => (
-        <View className="rounded-lg border border-slate-300 p-4">
+        <View className="overlay-demo-card">
           <Text>Post card — hold for actions</Text>
         </View>
       )}

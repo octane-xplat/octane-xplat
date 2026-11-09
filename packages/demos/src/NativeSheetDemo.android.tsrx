@@ -18,7 +18,7 @@ export function NativeSheetDemo() @{
     <TextInput ref={editing} placeholder="Draft outside the sheet" />
     <Pressable
       id="native-sheet-open"
-      className="rounded-lg border border-slate-300 p-4"
+      className="overlay-demo-card"
       onPress={() => setOpen(true)}
     >
       <Text>Open the More sheet</Text>
@@ -33,7 +33,7 @@ export function NativeSheetDemo() @{
         <View className="gap-3 p-5">
           <Heading>More</Heading>
           <TextInput placeholder="Message in the sheet" />
-          <Pressable className="rounded-lg border border-slate-300 p-3" onPress={close}>
+          <Pressable className="overlay-demo-card" onPress={close}>
             <Text>Close from inside</Text>
           </Pressable>
           <View className="h-6" />
