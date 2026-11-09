@@ -51,7 +51,7 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 
 # --- launch through the installed Exec line ---
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
-DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
+DESKTOP_SHELL_DIAG=1 GDK_SYNCHRONIZE=1 GSK_RENDERER=cairo $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done

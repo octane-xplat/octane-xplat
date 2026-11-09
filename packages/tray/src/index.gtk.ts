@@ -547,7 +547,13 @@ class GtkTray implements Tray {
       },
       Activate(_x: number, _y: number) {
         if (tray.state.onActivate) {
-          safeCall(tray.state.onActivate)
+          // Defer out of the D-Bus method call — creating/presenting a window
+          // from inside the handler leaves a half-realized GdkSurface that X
+          // errors on (BadDrawable under X11).
+          glib.idle_add(glib.PRIORITY_DEFAULT, () => {
+            safeCall(tray.state.onActivate!)
+            return glib.SOURCE_REMOVE
+          })
         }
       },
       SecondaryActivate(_x: number, _y: number) {},
@@ -630,7 +636,10 @@ class GtkTray implements Tray {
         const node = tray.nodesById.get(id)
 
         if (node?.item) {
-          dispatchTraySelect(node.item, node.option)
+          glib.idle_add(glib.PRIORITY_DEFAULT, () => {
+            dispatchTraySelect(node.item!, node.option)
+            return glib.SOURCE_REMOVE
+          })
         }
       },
       EventGroup(events: [number, string, unknown, number][]) {
@@ -642,7 +651,10 @@ class GtkTray implements Tray {
           const node = tray.nodesById.get(id)
 
           if (node?.item) {
-            dispatchTraySelect(node.item, node.option)
+            glib.idle_add(glib.PRIORITY_DEFAULT, () => {
+              dispatchTraySelect(node.item!, node.option)
+              return glib.SOURCE_REMOVE
+            })
           }
         }
 
