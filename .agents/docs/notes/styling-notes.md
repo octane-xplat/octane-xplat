@@ -169,11 +169,24 @@ inside `calc()` into zero. The owning cascade tests preserve those cases;
 [#203](https://github.com/octane-xplat/octane-xplat/issues/203) tracks the shared
 fallback bug inherited from NativeScript. Released
 [Core 9.1.3](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/ui/core/properties/index.ts#L183)
-still truncates fallback functions and substitutes `unset` inside expressions;
-the current Xplat native patch does not repair it. Verify release-tag or
+still truncates fallback functions and substitutes `unset` inside expressions.
+Xplat's registry and pinned Windows-preview patches now backport the relevant
+[variable settling/fallback repair](https://github.com/NativeScript/NativeScript/commit/104483872bf3114978f4b1cef4aeac92ca4ef3d1)
+and [whole-value invalidation](https://github.com/NativeScript/NativeScript/commit/c7f905d03c054b2b43ac1419a489d5fa2282a3d6).
+They preserve complete fallbacks, evaluate forward custom-property references
+before consumers, store invalid variables as `null`, and clear failed setter
+updates instead of retaining or caching the preceding style. The Windows preview
+already contains part of that work; its patch completes the missing behavior.
+The separate invalid `color-mix()` converter repair in the latter upstream commit
+is not included. Generated modern colors remain rejected by the native adapter.
+
+`packages/cli/test/native-css-variables.test.mjs` executes the installed Core
+evaluator, Style variable maps, and CssState against modeled platform boundaries.
+Those checks establish the listed substitution and update cases, not native
+layout, painting, or full CSS dependency-cycle semantics. Verify release-tag or
 installed-patch identity before treating a cached dependency source as upstream
-evidence. The desktop repair fixes variable consumption, not `@property`
-registration or non-inherited defaults; those still require host qualification.
+evidence. These repairs do not add `@property` registration or non-inherited
+defaults; those still require host qualification.
 
 The selected iOS simulator probe confirmed that distinction: a loaded Label's
 normal layered/unlayered opacity resolved to `.75` as expected; two important

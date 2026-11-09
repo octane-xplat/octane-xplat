@@ -15,6 +15,12 @@
 			"dependsOn": ["build"],
 			"outputs": []
 		},
+		// Executes installed patched Core source outside Turbo's source inputs.
+		"test:css-variables": {
+			"dependsOn": [],
+			"cache": false,
+			"outputs": []
+		},
 		"test:css-platform": {
 			"dependsOn": ["build"],
 			"outputs": []
