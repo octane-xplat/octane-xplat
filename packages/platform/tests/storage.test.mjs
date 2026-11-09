@@ -435,7 +435,7 @@ test('macOS lifecycle follows replaced hooks and keeps flush errors explicit', (
 
 test('AppKit host storage seam delegates to NSUserDefaults and flush reports synchronize', async () => {
   const source = ts.transpile(
-    await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),
+    await readFile(new URL('../../macos-appkit/src/host-windowing.ts', import.meta.url), 'utf8'),
     { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   )
 

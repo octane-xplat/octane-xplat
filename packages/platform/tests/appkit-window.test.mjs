@@ -9,7 +9,7 @@ const eventContext = { exports: {} }
 
 vm.runInNewContext(
   ts.transpile(
-    await readFile(new URL('../../../apps/macos/src/platform-events.ts', import.meta.url), 'utf8'),
+    await readFile(new URL('../../macos-appkit/src/host-events.ts', import.meta.url), 'utf8'),
     { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 },
   ),
   eventContext,
@@ -17,7 +17,7 @@ vm.runInNewContext(
 
 async function installedHost() {
   const source = ts.transpile(
-    await readFile(new URL('../../../apps/macos/src/appkit.ts', import.meta.url), 'utf8'),
+    await readFile(new URL('../../macos-appkit/src/host-windowing.ts', import.meta.url), 'utf8'),
     { module: ts.ModuleKind.ESNext, target: ts.ScriptTarget.ES2022 },
   )
 

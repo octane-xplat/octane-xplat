@@ -21,7 +21,7 @@ produced this round (see "Remaining" at the end).
 3. **JS class methods were never registered as ObjC methods.** The pinned
    NativeScript runtime only exports *enumerable* prototype members as new
    methods; ES class methods are non-enumerable. Proven live:
-   - `AppDelegate` (`apps/macos/src/appkit.ts`) used bare `NativeClass(this)`:
+   - `AppDelegate` (`packages/macos-appkit/src/host-windowing.ts`) used bare `NativeClass(this)`:
      `instancesRespondToSelector('windowDidResize:')` returned false and bridge
      `onWindowResize` listeners received **0 calls** on a real resize while the
      raw `NSWindowDidResizeNotification` observer saw 2. Every delegate

@@ -1,5 +1,5 @@
 // Noninteractive native bridge check. Authentication prompts require the manual plan.
-import '../../../apps/macos/src/appkit'
+import '@octane-xplat/macos-appkit/host'
 import { biometrics } from '../src/biometrics.macos'
 
 declare const LAContext: any
