@@ -56,6 +56,8 @@ APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
 [ "$READY" = yes ] && step "launch via installed Exec" in-process pass "" || { step "launch via installed Exec" in-process fail "no READY"; tail -5 "$LOG"; }
+WIN=$(xdotool search --name "Desktop Shell Journey" | head -1)
+xdotool windowactivate --sync "$WIN" 2>/dev/null || true
 
 # --- AT-SPI role/name assertions (independent of READY? needs the app) ---
 python3 ax.py tree "$APP_NAME" > ax-tree.txt 2>/dev/null
