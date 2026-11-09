@@ -75,6 +75,51 @@ namespace OctaneXplat.Interop
             return s_pickState;
         }
 
+        // Windows Hello (UserConsentVerifier): the WinRT async projection
+        // panics the JS isolate when awaited across NSWinRT.toPromise from
+        // the command-poll context, so availability/verification run on the
+        // captured dispatcher exactly like the pickers and only strings
+        // cross back. kind: 'avail' or 'verify:<reason>'.
+        private static volatile string s_helloState = "idle";
+
+        public static string HelloStart(long hwnd, string reason)
+        {
+            var dispatcher = Microsoft.UI.Dispatching.DispatcherQueue.GetForCurrentThread();
+            if (dispatcher == null) return "fail:no-dispatcher";
+            if (s_helloState == "pending") return "fail:busy";
+            s_helloState = "pending";
+            dispatcher.TryEnqueue(async () =>
+            {
+                try
+                {
+                    var api = Windows.Security.Credentials.UI.UserConsentVerifier;
+                    var availability = await api.CheckAvailabilityAsync();
+                    if (string.IsNullOrEmpty(reason))
+                    {
+                        s_helloState = "ok:avail:" + (int)availability;
+                        return;
+                    }
+                    if (availability != Windows.Security.Credentials.UI.UserConsentVerifierAvailability.Available)
+                    {
+                        s_helloState = "ok:unavailable:" + (int)availability;
+                        return;
+                    }
+                    var result = await api.RequestVerificationAsync(reason);
+                    s_helloState = "ok:verify:" + (int)result;
+                }
+                catch (Exception e)
+                {
+                    s_helloState = "fail:" + e.GetType().Name + ":" + e.Message;
+                }
+            });
+            return "started";
+        }
+
+        public static string HelloState()
+        {
+            return s_helloState;
+        }
+
         private static async System.Threading.Tasks.Task<string> DoPick(
             string kind, long hwnd, string filter, string suggestedName)
         {
