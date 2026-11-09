@@ -84,7 +84,7 @@
 		"test:markdown": "node --test test/markdown-rich.test.ts",
 		"test:typecheck-envs": "node --test test/tsconfig-envs.test.mjs",
 		"test:routes": "node --test --test-concurrency=2 test/route-*.test.mjs",
-		"test:css-platform": "node --test test/css-platform.test.mjs",
+		"test:css-platform": "node --test test/css-platform.test.mjs test/css-layers.test.mjs test/vite-inline-stylesheets.test.mjs",
 		"test:updates": "node --test test/updates.test.mjs",
 		"test:postcss-consumer": "node test/postcss-consumer.mjs",
 		"typecheck": "tsc --runExternalCode -p tsconfig.json",
@@ -153,6 +153,7 @@
 		"marked": "18.1.2",
 		"postcss": "8.5.32",
 		"postcss-load-config": "6.0.1",
+		"postcss-value-parser": "4.2.0",
 		"wawoff2": "2.0.1",
 		"yaml": "2.9.1"
 	},

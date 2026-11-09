@@ -201,6 +201,8 @@ export function xplatCss(platform: CssPlatform = 'web'): Plugin {
     name: 'xplat-platform-css',
     api: {
       platform,
+      // Optional compilers enable this for hosts using the patched cascade.
+      preserveLayers: false,
       defer: (id: string) => deferred.add(id),
       filter: (css: string, from?: string) => filterPlatformCss(css, platform, from),
       hasPlatformConditions,

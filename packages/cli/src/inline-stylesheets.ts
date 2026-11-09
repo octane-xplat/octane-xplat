@@ -16,9 +16,15 @@ import { processNativeCss } from './vite.ts'
 
 export function xplatInlineStylesheets() {
   const warned = new Set<string>()
+  let preserveLayers = false
 
   return {
     name: 'xplat-inline-stylesheets',
+    configResolved(config) {
+      preserveLayers = config.plugins.some(
+        (plugin) => plugin.name === 'xplat-platform-css' && plugin.api?.preserveLayers === true,
+      )
+    },
     // Per-file processing — identical to mobile: xplat-web-only strip,
     // @layer unwrap, px→dip, letter-spacing em strip, divergence warns.
     transform: {
@@ -34,7 +40,7 @@ export function xplatInlineStylesheets() {
           return
         }
 
-        return processNativeCss(code, id, (m) => this.warn(m), { warned })
+        return processNativeCss(code, id, (m) => this.warn(m), { warned, preserveLayers })
       },
     },
     generateBundle: {
@@ -54,7 +60,7 @@ export function xplatInlineStylesheets() {
           // Bamboo's finalized sheet) — process here too.
           sheets.push([
             file.fileName,
-            processNativeCss(src, file.fileName, (m) => this.warn(m), { warned }),
+            processNativeCss(src, file.fileName, (m) => this.warn(m), { warned, preserveLayers }),
           ])
 
           // Bamboo's survival check ran at 'pre'; nothing else consumes

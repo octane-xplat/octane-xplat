@@ -625,6 +625,7 @@
         "marked": "18.1.2",
         "postcss": "8.5.32",
         "postcss-load-config": "6.0.1",
+        "postcss-value-parser": "4.2.0",
         "yaml": "2.9.1",
       },
       "devDependencies": {
@@ -796,6 +797,7 @@
         "marked": "18.1.2",
         "postcss": "8.5.32",
         "postcss-load-config": "6.0.1",
+        "postcss-value-parser": "4.2.0",
         "wawoff2": "2.0.1",
         "yaml": "2.9.1",
       },

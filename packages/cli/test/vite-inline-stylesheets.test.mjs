@@ -118,6 +118,37 @@ it('prepends the push before ESM imports for the GTK host', async () => {
   assert.ok(cssQ.includes('width:10dip'), 'media body still px→dip')
 })
 
+it('preserves opted-in cascade layers through desktop per-file and emitted CSS delivery', async () => {
+  const platform = xplatCss('macos')
+
+  platform.api.preserveLayers = true
+
+  const out = join(dir, 'out-layered')
+
+  await build({
+    root: dir,
+    logLevel: 'silent',
+    plugins: [platform, xplatInlineStylesheets()],
+    build: {
+      cssCodeSplit: true,
+      cssMinify: false,
+      outDir: out,
+      lib: { entry: 'src/entry.ts', formats: ['cjs'], fileName: 'main' },
+      rollupOptions: { output: { codeSplitting: false } },
+    },
+  })
+
+  const js = readdirSync(out).find((file) => file.endsWith('.js') || file.endsWith('.cjs'))
+  const line = readFileSync(join(out, js), 'utf8').split('\n')[0]
+  const payload = JSON.parse('[' + line.match(/\(\["[\s\S]+"\]\);/)[0].slice(1, -2) + ']')
+  const css = payload.map(([, text]) => text).join('\n')
+
+  assert.match(css, /@layer base/)
+  assert.match(css, /width: 12dip/)
+  assert.match(css, /300px/)
+  assert.doesNotMatch(css, /300dip/)
+})
+
 after(() => {
   rmSync(dir, { recursive: true, force: true })
 })

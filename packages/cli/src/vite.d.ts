@@ -12,6 +12,12 @@ import type { Plugin, UserConfig } from 'vite'
  * `xplatCss('web')` to their Vite plugins. Defaults to `web`. */
 export function xplatCss(platform?: CssPlatform): Plugin
 
+/** @internal Native CSS normalization used by the platform presets. */
+export type NativeCssPlugin = Plugin
+
+/** @internal Native CSS normalization used by the platform presets. */
+export function pxToDip(options?: { masonSafeAreaEnvironment?: boolean }): NativeCssPlugin
+
 /** Select platform implementations for explicit TSRX paths in a custom
  * compiler or test setup. Standard platform presets and xplatBoundary include it.
  * Vite 8 dependency optimization defaults to each environment's resolved extension

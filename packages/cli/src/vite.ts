@@ -22,6 +22,8 @@ import { createRequire } from 'node:module'
 import { existsSync, readFileSync, realpathSync, statSync } from 'node:fs'
 import { dirname, join, relative, resolve } from 'node:path'
 import { pathToFileURL } from 'node:url'
+import postcss from 'postcss'
+import valueParser from 'postcss-value-parser'
 import { unwrapCssLayers } from './css-layers.ts'
 import { xplatCss } from './css-platform.ts'
 import { xplatDevBridge } from './mcp/dev-bridge.ts'
@@ -173,7 +175,11 @@ export function processNativeCss(
   code: string,
   id: string,
   warn: (msg: string) => void,
-  options: { masonSafeAreaEnvironment?: boolean; warned?: Set<string> } = {},
+  options: {
+    masonSafeAreaEnvironment?: boolean
+    warned?: Set<string>
+    preserveLayers?: boolean
+  } = {},
 ): string {
   const warned = options.warned ?? new Set()
 
@@ -186,7 +192,9 @@ export function processNativeCss(
     '',
   )
 
-  code = unwrapCssLayers(code)
+  if (!options.preserveLayers) {
+    code = unwrapCssLayers(code)
+  }
 
   // `@import` inlining reads the target file's raw text — it never
   // reaches this hook, so inlined css ships px units AND un-stripped
@@ -230,24 +238,51 @@ export function processNativeCss(
   // authors at em.
   code = code.replace(/(letter-spacing\s*:\s*-?\d+(?:\.\d+)?)em\b/g, '$1')
 
-  // At-rule preludes (@media/@supports/@keyframes/@layer) keep px — media
-  // features are evaluated against dips anyway (evalMediaQuery parses the
-  // number) and `300dip` is not valid in a minified query prelude.
-  return code.replace(/@[\w-]+[^{}]*\{|-?\d+(?:\.\d+)?px\b/g, (m) =>
-    m.endsWith('{') ? m : m.slice(0, -2) + 'dip',
-  )
+  // Convert declaration dimensions only. Selectors (including arbitrary
+  // utility names), directive arguments, quoted content and URLs retain text.
+  // Media preludes keep CSS px; native query evaluation uses logical lengths.
+  const stylesheet = postcss.parse(code, { from: id })
+
+  stylesheet.walkDecls((declaration) => {
+    const value = valueParser(declaration.value)
+
+    value.walk((node) => {
+      if (node.type === 'function' && node.value.toLowerCase() === 'url') {
+        return false
+      }
+
+      if (node.type !== 'word') {
+        return
+      }
+
+      const dimension = valueParser.unit(node.value)
+
+      if (dimension && dimension.unit.toLowerCase() === 'px') {
+        node.value = dimension.number + 'dip'
+      }
+    })
+
+    declaration.value = value.toString()
+  })
+
+  return stylesheet.toString()
 }
 
 export function pxToDip(options: { masonSafeAreaEnvironment?: boolean } = {}) {
   const warned = new Set()
   let isBuild = false
-  const process = (code, id, warn) => processNativeCss(code, id, warn, { ...options, warned })
+  let preserveLayers = false
+  const process = (code, id, warn) =>
+    processNativeCss(code, id, warn, { ...options, warned, preserveLayers })
 
   return {
     name: 'xplat-native-css',
     enforce: 'pre',
     configResolved(config) {
       isBuild = config.command === 'build'
+      preserveLayers = config.plugins.some(
+        (plugin) => plugin.name === 'xplat-platform-css' && plugin.api?.preserveLayers === true,
+      )
     },
     // Per-file pass — covers dev serving where css is transformed
     // per module (the /ns/m bridge path).
