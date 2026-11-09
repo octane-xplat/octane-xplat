@@ -147,6 +147,7 @@
       "devDependencies": {
         "@octane-xplat/cli": "workspace:*",
         "@octane-xplat/jsx": "workspace:*",
+        "@octane-xplat/macos-build": "workspace:*",
         "@octanejs/vite-plugin": "catalog:",
         "typescript": "catalog:",
         "vite": "catalog:",

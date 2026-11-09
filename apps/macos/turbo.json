@@ -21,7 +21,14 @@
 			"env": ["APP_MENU_MACOS_HOST"]
 		},
 		"test:text-controls": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"cache": false
 		},
 		"test:camera-webview": {
@@ -29,7 +36,14 @@
 			"cache": false
 		},
 		"smoke": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"passThroughEnv": ["XPLAT_MACOS_SMOKE_TIMEOUT_MS", "XPLAT_MACOS_SDK", "XPLAT_MACOS_SWIFTC"],
 			"cache": false
 		},
@@ -59,15 +73,36 @@
 			"outputs": ["dist/**", "types/**"]
 		},
 		"test:animation": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"cache": false
 		},
 		"test:layout-placement": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"cache": false
 		},
 		"parity": {
-			"dependsOn": ["^typegen", "^build", "@xplat/app#gen"],
+			"dependsOn": [
+				"^typegen",
+				"^build",
+				"@octane-xplat/lexical#build:assets",
+				"@octane-xplat/richtext#build:assets",
+				"@octane-xplat/tiptap#build:assets",
+				"@xplat/app#gen"
+			],
 			"cache": false
 		}
 	}
