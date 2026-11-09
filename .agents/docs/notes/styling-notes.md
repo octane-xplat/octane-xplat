@@ -125,6 +125,15 @@ original sources instead of serializing/reparsing CSS; let the owning build
 pipeline perform final minification. See the
 [private integration boundary](../../../packages/tailwind/README.md).
 
+Use the official scanner's file inventory to select Xplat's platform leaves
+before extracting candidates. Exclude foreign-platform siblings and shadowed
+fallbacks of the same source extension; otherwise browser-only utilities in a
+`.web` file can fail native compilation. Keep all discovered files and source
+directories watched, including shadowed fallbacks: deleting the preferred leaf
+must restore its fallback's classes. Explicit inline candidates remain shared
+and receive the selected target's generated-output validation. This is source
+selection, not a replacement parser or module-graph tree shaking.
+
 Vite 8.3.6's production CSS extraction emits CSS text assets without a CSS map
 asset from PostCSS output. Compiler maps and development CSS maps therefore do
 not establish production CSS-map support. Keep that limitation explicit until

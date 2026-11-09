@@ -1,9 +1,11 @@
-import { dirname, isAbsolute, relative, resolve, sep } from 'node:path'
+import { dirname, extname, isAbsolute, relative, resolve, sep } from 'node:path'
 import { compileAst } from '@tailwindcss/node'
 import { Scanner } from '@tailwindcss/oxide'
 import valueParser from 'postcss-value-parser'
 import type { Root } from 'postcss'
 import { fromTailwindAst, toTailwindAst } from './ast.ts'
+import { selectSourceFiles } from './sources.ts'
+import type { TailwindTarget } from './target.ts'
 
 export interface CompiledStylesheet {
   root: Root
@@ -15,6 +17,7 @@ export interface CompiledStylesheet {
 export async function compileStylesheet(
   input: Root,
   projectRoot: string,
+  target: TailwindTarget,
   entry?: string,
 ): Promise<CompiledStylesheet> {
   if (entry?.endsWith('.module.css')) {
@@ -35,6 +38,12 @@ export async function compileStylesheet(
     const parsed = valueParser(rule.params)
 
     parsed.walk((node) => {
+      // inline() contains class names, not filesystem paths. In particular an
+      // arbitrary candidate may itself begin with ./ or ../.
+      if (node.type === 'function' && node.value === 'inline') {
+        return false
+      }
+
       if (node.type !== 'string' || !/^\.\.?\//.test(node.value)) {
         return
       }
@@ -67,10 +76,16 @@ export async function compileStylesheet(
         ]
 
   const scanner = new Scanner({ sources: [...sources, ...compiler.sources] })
-  const candidates = scanner.scan()
+  const discoveredFiles = scanner.files
+  const selectedFiles = selectSourceFiles(discoveredFiles, target)
+  const candidates = scanner.scanFiles(
+    selectedFiles.map((file) => ({ file, extension: extname(file).slice(1) })),
+  )
   const ast = compiler.build(candidates)
 
-  for (const file of scanner.files) {
+  // Watch shadowed leaves too: adding/removing a preferred leaf must restore
+  // the fallback's candidates on the next complete snapshot.
+  for (const file of discoveredFiles) {
     const path = isAbsolute(file) ? file : resolve(file)
 
     if (path !== entry) {

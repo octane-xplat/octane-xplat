@@ -506,3 +506,206 @@ test('native development recovers after an unsupported utility is removed', asyn
   assert.match(recovered.code, /display:\s*flex/)
   assert.doesNotMatch(recovered.code, /position:\s*fixed/)
 })
+
+test('official scanning selects Xplat platform leaves before generating native utilities', async (t) => {
+  const root = await fixture(t)
+  const leaves = join(root, 'leaves')
+
+  await mkdir(leaves)
+  for (const [suffix, classes] of [
+    ['', 'opacity-10'],
+    ['.web', 'hover:opacity-20'],
+    ['.mobile', 'opacity-30'],
+    ['.ios', 'opacity-40'],
+    ['.android', 'opacity-50'],
+    ['.macos', 'opacity-60'],
+    ['.gtk', 'opacity-70'],
+    ['.linux', 'opacity-80'],
+    ['.windows', 'opacity-90'],
+  ]) {
+    await writeFile(join(leaves, `Screen${suffix}.tsx`), `export const classes = "${classes}"`)
+  }
+
+  await writeFile(join(leaves, 'Shared.tsrx'), 'export const classes = "opacity-25"')
+
+  const source = '@xplat-tailwind; @tailwind utilities source(none); @source "./leaves";'
+
+  for (const [target, expected] of [
+    ['web', String.raw`.hover\:opacity-20:hover`],
+    ['ios', '.opacity-40'],
+    ['android', '.opacity-50'],
+    ['visionos', '.opacity-40'],
+    ['macos', '.opacity-60'],
+    ['gtk', '.opacity-70'],
+    ['linux', '.opacity-80'],
+  ] as const) {
+    const result = await postcss([tailwindCompiler({ root, target })]).process(source, {
+      from: join(root, 'styles.css'),
+    })
+    const selectors: string[] = []
+
+    result.root.walkRules((rule) => {
+      if (rule.selector.startsWith('.')) {
+        selectors.push(rule.selector)
+      }
+    })
+
+    assert.ok(selectors.includes('.opacity-25'), `${target}: shared source`)
+    assert.ok(
+      selectors.includes(expected),
+      `${target}: selected leaf; got ${JSON.stringify(selectors)}`,
+    )
+    assert.equal(selectors.length, 2, `${target}: foreign and shadowed leaves must be absent`)
+  }
+})
+
+test('Vite development restores fallback classes after a preferred leaf is deleted', async (t) => {
+  const shutdowns: Array<() => Promise<void>> = []
+  const root = await fixture(t, shutdowns)
+
+  await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+  await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind";')
+  await writeFile(join(root, 'Screen.tsx'), 'export const classes = "opacity-35"')
+
+  const server = await createServer({
+    configFile: false,
+    root,
+    logLevel: 'silent',
+    plugins: [xplatCss('web'), xplatTailwind()],
+    optimizeDeps: { noDiscovery: true },
+    server: { host: '127.0.0.1', port: 0 },
+  })
+
+  shutdowns.push(() => server.close())
+  await server.listen()
+
+  const initial = (await server.transformRequest('/styles.css?direct'))?.code ?? ''
+
+  assert.match(initial, /\.opacity-35\s*\{/)
+  assert.doesNotMatch(initial, /\.opacity-65\s*\{/)
+
+  const preferred = join(root, 'Screen.web.tsx')
+
+  async function change(
+    event: 'add' | 'change' | 'unlink',
+    action: () => Promise<void>,
+    present: string,
+    absent: string,
+  ) {
+    const observed = new Promise<void>((resolve, reject) => {
+      const timer = setTimeout(() => {
+        server.watcher.off(event, listener)
+        reject(new Error(`Vite did not observe ${event}: ${preferred}`))
+      }, 5000)
+      const listener = (file: string) => {
+        if (file === preferred) {
+          clearTimeout(timer)
+          server.watcher.off(event, listener)
+          resolve()
+        }
+      }
+
+      server.watcher.on(event, listener)
+    })
+
+    await action()
+    await observed
+
+    const deadline = Date.now() + 5000
+    let css = ''
+
+    while (Date.now() < deadline) {
+      css = (await server.transformRequest('/styles.css?direct'))?.code ?? ''
+      if (css.includes(present) && !css.includes(absent)) {
+        break
+      }
+      await new Promise((resolve) => setTimeout(resolve, 20))
+    }
+
+    assert.ok(css.includes(present), `${event}: selected class missing`)
+    assert.ok(!css.includes(absent), `${event}: old class survived`)
+  }
+
+  await change(
+    'add',
+    () => writeFile(preferred, 'export const classes = "opacity-65"'),
+    '.opacity-65',
+    '.opacity-35',
+  )
+  await change(
+    'change',
+    () => writeFile(preferred, 'export const classes = "opacity-75"'),
+    '.opacity-75',
+    '.opacity-65',
+  )
+  await change('unlink', () => rm(preferred), '.opacity-35', '.opacity-75')
+})
+
+test('explicit sources include installed and workspace packages with platform selection', async (t) => {
+  const root = await fixture(t)
+  const workspace = await fixture(t)
+  const installed = join(root, 'node_modules/@fixture/components')
+
+  await mkdir(installed, { recursive: true })
+  await writeFile(join(installed, 'package.json'), '{"name":"@fixture/components","version":"1.0.0"}')
+  await writeFile(join(installed, 'Card.tsx'), 'export const classes = "opacity-15"')
+  await writeFile(join(installed, 'Card.web.tsx'), 'export const classes = "hover:opacity-45"')
+  await writeFile(join(workspace, 'Shared.tsrx'), 'export const classes = "opacity-85"')
+  await writeFile(join(root, 'Screen.tsx'), 'export const classes = "opacity-95"')
+  await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+  await writeFile(
+    join(root, 'styles.css'),
+    `@import "@octane-xplat/tailwind" source(none);
+@source "./node_modules/@fixture/components";
+@source ${JSON.stringify(workspace.replaceAll('\\', '/'))};`,
+  )
+
+  const css = (await buildCss(root, 'ios')).map((asset) => asset.source).join('\n')
+
+  assert.match(css, /\.opacity-15\s*\{/)
+  assert.match(css, /\.opacity-85\s*\{/)
+  assert.doesNotMatch(css, /opacity-45|opacity-95/)
+})
+
+test('client CSS and SSR inline styles stay isolated across concurrent projects', async (t) => {
+  const shutdowns: Array<() => Promise<void>> = []
+  const projects = await Promise.all([fixture(t, shutdowns), fixture(t, shutdowns)])
+  const servers = await Promise.all(projects.map(async (root, index) => {
+    await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+    await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind";')
+    await writeFile(join(root, 'Screen.tsx'), `export const classes = "opacity-${index ? 35 : 65}"`)
+
+    const server = await createServer({
+      configFile: false,
+      root,
+      logLevel: 'silent',
+      plugins: [xplatCss('web'), xplatTailwind()],
+      css: { devSourcemap: true },
+      optimizeDeps: { noDiscovery: true },
+      server: { host: '127.0.0.1', port: 0 },
+    })
+
+    shutdowns.push(() => server.close())
+    await server.listen()
+    return server
+  }))
+
+  const outputs = await Promise.all(servers.map(async (server) => {
+    const [client, ssr] = await Promise.all([
+      server.transformRequest('/styles.css?direct'),
+      server.ssrLoadModule('/styles.css?inline'),
+    ])
+
+    assert.ok(client)
+    assert.ok(client.map?.mappings, 'client CSS map missing')
+    assert.equal(typeof ssr.default, 'string', 'SSR inline CSS missing')
+    return [client.code, ssr.default]
+  }))
+
+  for (const [index, environments] of outputs.entries()) {
+    for (const css of environments) {
+      assert.match(css, index === 0 ? /\.opacity-65\s*\{/ : /\.opacity-35\s*\{/)
+      assert.doesNotMatch(css, index === 0 ? /\.opacity-35\s*\{/ : /\.opacity-65\s*\{/)
+    }
+  }
+})

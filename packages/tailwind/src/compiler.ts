@@ -55,7 +55,7 @@ export function tailwindCompiler({
       })
 
       const entry = result.opts.from ?? root.source?.input.file
-      const compiled = await compileStylesheet(input, projectRoot, entry)
+      const compiled = await compileStylesheet(input, projectRoot, target, entry)
 
       if (entry && onCompile) {
         onCompile(entry, {
