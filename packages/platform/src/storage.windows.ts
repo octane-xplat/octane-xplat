@@ -7,10 +7,10 @@ import { File, knownFolders, path as nsPath } from '@nativescript/core'
  * as an opaque handle — none of IMap's members (HasKey, Lookup, Insert,
  * Remove, First) are callable, so every read/write through it is a no-op.
  *
- * Reads are synchronous from an in-memory snapshot; writes update the
- * snapshot and persist synchronously once the initial load has resolved —
- * pre-load writes queue behind the load. `flush` stays false: the contract
- * exposes no blocking commit confirmation.
+ * Reads are synchronous from an in-memory snapshot; writes persist
+ * synchronously at call time so a killed process cannot lose them, and
+ * the initial disk load converges the file once it resolves. `flush`
+ * stays false: the contract exposes no blocking commit confirmation.
  *
  * @example
  * import { storage } from '@octane-xplat/platform'
@@ -18,19 +18,17 @@ import { File, knownFolders, path as nsPath } from '@nativescript/core'
  * const draft = storage.getString('draft')
  */
 const entries = new Map<string, string>()
-let writeTail: Promise<unknown> = Promise.resolve()
-let loaded = false
 
 const storePath = (): string =>
   nsPath.join(knownFolders.documents().path, 'octane-preferences.json')
 
-const writeFile = (snapshot: string): void => {
+const writeFile = (): void => {
   try {
-    File.fromPath(storePath()).writeTextSync(snapshot)
+    File.fromPath(storePath()).writeTextSync(JSON.stringify([...entries]))
   } catch {}
 }
 
-const load: Promise<unknown> = (async () => {
+void (async () => {
   try {
     const path = storePath()
 
@@ -43,18 +41,11 @@ const load: Promise<unknown> = (async () => {
     }
   } catch {}
 
-  loaded = true
+  writeFile()
 })()
 
 const persist = (): void => {
-  const snapshot = JSON.stringify([...entries])
-
-  if (loaded) {
-    writeFile(snapshot)
-    return
-  }
-
-  writeTail = load.then(() => writeFile(snapshot))
+  writeFile()
 }
 
 export const storage = {
