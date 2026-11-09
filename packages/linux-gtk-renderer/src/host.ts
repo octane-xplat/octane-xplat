@@ -63,6 +63,21 @@ export function runGtkApp(
   // `activate` on the running app. Only mount once; later activations just
   // re-present the existing window.
   let mounted: GtkAppMount | null = null
+  let shutdownRan = false
+  let mountCleanup: (() => void) | undefined
+
+  // runMacOSApp parity: on shutdown run the mount's cleanup exactly once,
+  // then release the mounted root. Connected once — the cleanup guard does
+  // not depend on mount returning a function.
+  app.connect('shutdown', () => {
+    if (shutdownRan) return
+    shutdownRan = true
+    try {
+      mountCleanup?.()
+    } finally {
+      mounted?.root.unmount()
+    }
+  })
 
   app.connect('activate', () => {
     if (mounted !== null) {
@@ -84,13 +99,7 @@ export function runGtkApp(
     const { root, container } = createGtkRoot(content)
 
     mounted = { app, window, content, container, root }
-    const cleanup = mount(mounted) ?? undefined
-    if (cleanup) {
-      app.connect('shutdown', () => {
-        // Release mount-owned resources before the root/window teardown.
-        cleanup()
-      })
-    }
+    mountCleanup = mount(mounted) ?? undefined
     window.present()
   })
 

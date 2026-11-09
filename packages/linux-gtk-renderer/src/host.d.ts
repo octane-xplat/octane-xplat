@@ -20,9 +20,36 @@ export interface GtkAppMount {
   root: GtkRoot
 }
 
+/** Install the app-level content resolver for `openWindow` windows —
+ *  the macOS host's `setWindowContentResolver` counterpart.
+ *
+ *  @example
+ *  ```ts
+ *  import { setWindowContentResolver } from '@octane-xplat/linux-gtk/host'
+ *
+ *  setWindowContentResolver((data) =>
+ *    (data as { win?: string })?.win === 'inspector' ? Inspector : null)
+ *  ``` */
+export declare function setWindowContentResolver(
+  resolve: ((data: unknown, controller: unknown) => unknown) | null,
+): void
+
 /** Create the application window, mount a universal root on a vertical
- *  Gtk.Box content widget, and hand both to `mount` before presenting. */
+ *  Gtk.Box content widget, and hand both to `mount` before presenting.
+ *  `mount` may return a cleanup function called exactly once,
+ *  synchronously on the Gtk.Application `shutdown` signal, before the
+ *  mounted root is released.
+ *
+ *  @example
+ *  ```ts
+ *  import { runGtkApp } from '@octane-xplat/linux-gtk/host'
+ *
+ *  runGtkApp({ applicationId: 'dev.xplat.demo', title: 'Demo' }, ({ root }) => {
+ *    root.render(App, {})
+ *    return () => tray?.destroy()
+ *  })
+ *  ``` */
 export declare function runGtkApp(
   options: GtkAppOptions,
-  mount: (target: GtkAppMount) => void,
+  mount: (target: GtkAppMount) => void | (() => void),
 ): number
