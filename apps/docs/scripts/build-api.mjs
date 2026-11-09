@@ -27,7 +27,10 @@ const pages = []
 const controller = new AbortController()
 
 try {
-  const entries = readdirSync(join(root, 'packages')).sort()
+  const entries = readdirSync(join(root, 'packages'), { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .map((entry) => entry.name)
+    .sort()
   async function generate(entry) {
     const manifestPath = join(root, 'packages', entry, 'package.json')
     let manifest
