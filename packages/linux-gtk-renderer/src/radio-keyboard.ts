@@ -67,6 +67,39 @@ function radioOptions(group: ElementNode): ElementNode[] {
   return options
 }
 
+/** Accessible roles a focusable masonview may focus itself on during Tab
+ * traversal — shared with the set_focusable call in index.ts so a disabled or
+ * non-interactive view never enters the chain. */
+export const INTERACTIVE_FOCUS_ROLES = [
+  Gtk.AccessibleRole.BUTTON,
+  Gtk.AccessibleRole.LINK,
+  Gtk.AccessibleRole.CHECKBOX,
+  Gtk.AccessibleRole.SWITCH,
+  Gtk.AccessibleRole.RADIO,
+  Gtk.AccessibleRole.SLIDER,
+]
+
+/** Focus a focusable, interactive masonview itself on Tab entry. GTK's default
+ * GtkWidget.focus vfunc only moves focus into children — a composite widget
+ * like our Button (view + label child) never focuses itself, so Tab skipped
+ * it entirely. grab_focus on the view focuses the view, not a child. */
+export function focusSelf(widget: any, direction: number): boolean | undefined {
+  if (
+    (direction !== Gtk.DirectionType.TAB_FORWARD &&
+      direction !== Gtk.DirectionType.TAB_BACKWARD) ||
+    !widget.get_focusable() ||
+    !INTERACTIVE_FOCUS_ROLES.includes(widget.get_accessible_role())
+  ) {
+    return undefined
+  }
+
+  if (!widget.has_focus && !widget.get_focus_child()) {
+    return widget.grab_focus()
+  }
+
+  return undefined
+}
+
 /** Let GTK traverse between groups while every radio remains imperatively
  * focusable. A group contributes its selected/first enabled row on Tab entry. */
 export function focusRadioGroup(widget: any, direction: number): boolean | undefined {

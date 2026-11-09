@@ -228,6 +228,8 @@ async function run() {
   const tfFocus = findView('tf-focus')
   const fwA = findView('fw-a')
   const fwB = findView('fw-b')
+  const focusBtn = findView('focus-btn')
+  const focusBtnDisabled = findView('focus-btn-disabled')
   const tfRing = findView('tf-ring')
   const kbField = findView('kb-field')
   const cells = [0, 1, 2, 3, 4, 5].map((i) => findView('cell-' + i))
@@ -364,8 +366,16 @@ async function run() {
     )
 
     await keyPhase('tab5', 'Tab')
-    check('Tab out of subtree', hasFocus(tfRing))
-    check('within exit on boundary leave', since('tab5').includes('within:off'))
+    check('Tab focuses the ui Button itself', hasFocus(focusBtn))
+    await keyPhase('btn-space', 'space')
+    check('Space activates ui Button once', events.filter((e) => e === 'btn:press').length === 1)
+    await keyPhase('btn-return', 'Return')
+    check('Return activates ui Button once', events.filter((e) => e === 'btn:press').length === 2)
+    check('disabled ui Button pressable only via input', !events.includes('btn:press-disabled'))
+
+    await keyPhase('tab5b', 'Tab')
+    check('Tab skips disabled + inaccessible buttons to next field', hasFocus(tfRing))
+    check('within exit on boundary leave', since('tab5b').includes('within:off'))
 
     // Keyboard focus + keyboard modality → ring shows.
     await pump(80)

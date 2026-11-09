@@ -14,6 +14,7 @@ import GLib from 'gi://GLib'
 import Gdk from 'gi://Gdk?version=4.0'
 import { bindAccessibilityMapping, syncAccessibilityState } from './accessibility.js'
 import { bindPressKeys } from './press-keyboard.js'
+import { INTERACTIVE_FOCUS_ROLES } from './radio-keyboard.js'
 import {
   bindMasonView,
   isMasonHostView,
@@ -2326,15 +2327,7 @@ function setAccessibleRole(node: ElementNode, value: unknown) {
 
   if (node.type === 'masonview') {
     view.set_focusable(
-      node.props.accessible !== false &&
-        [
-          Gtk.AccessibleRole.BUTTON,
-          Gtk.AccessibleRole.LINK,
-          Gtk.AccessibleRole.CHECKBOX,
-          Gtk.AccessibleRole.SWITCH,
-          Gtk.AccessibleRole.RADIO,
-          Gtk.AccessibleRole.SLIDER,
-        ].includes(role),
+      node.props.accessible !== false && INTERACTIVE_FOCUS_ROLES.includes(role),
     )
   }
 

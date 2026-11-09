@@ -21,7 +21,7 @@ import GObject from 'gi://GObject'
 import Gsk from 'gi://Gsk?version=4.0'
 import Graphene from 'gi://Graphene'
 import { physicalView } from './physical-view.js'
-import { focusRadioGroup } from './radio-keyboard.js'
+import { focusRadioGroup, focusSelf } from './radio-keyboard.js'
 import { resolveClipPath, type ClipPath } from '@octane-xplat/css-engine'
 import { paintOrder, resolveTransform, transformSteps, zIndexOf } from './transform-style.ts'
 
@@ -842,7 +842,9 @@ const MasonView = GObject.registerClass(
   { GTypeName: 'XplatMasonView' },
   class XplatMasonView extends (Gtk as any).Widget {
     vfunc_focus(direction: number) {
-      return focusRadioGroup(this, direction) ?? super.vfunc_focus(direction)
+      return (
+        focusRadioGroup(this, direction) ?? focusSelf(this, direction) ?? super.vfunc_focus(direction)
+      )
     }
     vfunc_snapshot(snapshot: any) {
       snapshotChildren(this, snapshot)
@@ -854,7 +856,9 @@ const MasonFallbackView = GObject.registerClass(
   { GTypeName: 'XplatMasonFallbackView' },
   class XplatMasonFallbackView extends (Gtk as any).Box {
     vfunc_focus(direction: number) {
-      return focusRadioGroup(this, direction) ?? super.vfunc_focus(direction)
+      return (
+        focusRadioGroup(this, direction) ?? focusSelf(this, direction) ?? super.vfunc_focus(direction)
+      )
     }
   },
 )
