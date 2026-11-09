@@ -22,6 +22,29 @@
 			"cache": false,
 			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
 		},
+		"test:desktop-shell:macos": {
+			"dependsOn": [
+				"//:submodules",
+				"@octane-xplat/cli#build",
+				"@octane-xplat/cli#build:go",
+				"@octane-xplat/macos-build#build",
+				"@octane-xplat/app-menu#build",
+				"@octane-xplat/app-menu#typegen",
+				"@octane-xplat/tray#build",
+				"@octane-xplat/tray#typegen",
+				"@octane-xplat/global-shortcuts#build",
+				"@octane-xplat/global-shortcuts#typegen",
+				"@octane-xplat/ui#build",
+				"@octane-xplat/ui#typegen",
+				"@octane-xplat/platform#typegen",
+				"@octane-xplat/lib#typegen",
+				"@octane-xplat/docs-search#build",
+				"@octane-xplat/lint#build",
+				"create-octane-xplat#build"
+			],
+			"cache": false,
+			"passThroughEnv": ["GODDARD_*", "XPLAT_*", "DESKTOP_SHELL_*", "ANDROID_*", "JAVA_HOME", "DEVELOPER_DIR"]
+		},
 		"test:e2e": {
 			"dependsOn": [],
 			"cache": false,
