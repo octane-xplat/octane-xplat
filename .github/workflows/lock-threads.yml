@@ -1,0 +1,30 @@
+name: Lock closed threads
+
+on:
+  schedule:
+    - cron: '23 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  pull-requests: write
+
+concurrency:
+  group: lock-threads
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    if: github.repository == 'octane-xplat/octane-xplat'
+    timeout-minutes: 15
+    steps:
+      - name: Lock closed issues and pull requests
+        uses: dessant/lock-threads@89ae32b08ed1a541efecbab17912962a5e38981c # v6
+        with:
+          process-only: issues, prs
+          # No grace period: each sweep includes all closed, unlocked threads.
+          issue-inactive-days: '0'
+          pr-inactive-days: '0'
+          # Closed does not always mean resolved (for example, declined PRs).
+          issue-lock-reason: ''
+          pr-lock-reason: ''
