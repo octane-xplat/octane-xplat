@@ -157,8 +157,8 @@ height. The renderer patch bridges resolved leaf layout styles. See the
 
 ## Tokens
 
-CSS vars (`--color-primary` etc.) in `packages/ui/src/theme/tokens.css` —
-imported once by the app entry. Load the required structural stylesheet in each app entry. Read
+Default CSS vars (`--color-primary` etc.) live in optional
+`packages/ui/src/theme/chrome.css`. Load the required structural stylesheet in each app entry. Read
 [token definitions](styling/tokens.md) when adding or overriding tokens; native
 host classes still need separate application across host boundaries.
 
@@ -171,6 +171,12 @@ import '@octane-xplat/ui/theme/tokens.css'
   normalization and layout rules components rely on, and omitting it breaks
   geometry. `chrome.css` is the optional decoration layer (default colors,
   borders, fonts); import it after `tokens.css`, before the app's own CSS.
+- **Curated helpers are optional.** Import `@octane-xplat/ui/theme/utilities.css`
+  when an app uses `gap-4`, `text-sm`, `rounded-lg` and the other curated
+  classes. Component-owned styles do not depend on that sheet. Curated helpers
+  retain their existing Xplat sizing and squircle treatment; do not assume
+  they have stock Tailwind semantics. The private Tailwind integration rejects
+  loading the curated sheet alongside generated utilities.
 - **Prefer JS stylesheet imports.** Platform CSS selection and build-time
   conditions belong to the configured preset. See
   [CSS variants](../../../../docs/platform/module-resolution.md#css-file-variants)

@@ -35,7 +35,7 @@ export function Blockquote(props: BlockquoteProps): unknown @{
       )}
     >
       {typeof props.children === 'string' || typeof props.children === 'number' ? (
-        <label className="vx-blockquote-text text-muted" whiteSpace="normal">
+        <label className="vx-blockquote-text vx-ink-muted" whiteSpace="normal">
           {props.children}
         </label>
       ) : (
@@ -43,7 +43,7 @@ export function Blockquote(props: BlockquoteProps): unknown @{
       )}
       {props.cite != null && props.cite !== false ? (
         typeof props.cite === 'string' || typeof props.cite === 'number' ? (
-          <label className="vx-blockquote-cite text-sm text-muted" whiteSpace="normal">
+          <label className="vx-blockquote-cite vx-type-small vx-ink-muted" whiteSpace="normal">
             {props.cite}
           </label>
         ) : (

@@ -1,6 +1,13 @@
 {
   "extends": ["//"],
   "tasks": {
-    "typecheck": { "dependsOn": ["^typegen", "^build"] }
+    "typecheck": { "dependsOn": ["^typegen", "^build"] },
+    "test": {
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        "$TURBO_ROOT$/packages/ui/src/theme/**",
+        "$TURBO_ROOT$/packages/ui/package.json"
+      ]
+    }
   }
 }

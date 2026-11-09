@@ -58,6 +58,7 @@ async function caseConfig(project, target, options) {
     `import * as probe from ${relative}`,
     `import { executeCase } from ${runtime}`,
     `import '@octane-xplat/ui/theme/tokens.css'`,
+    `import '@octane-xplat/ui/theme/utilities.css'`,
   ]
 
   if (native) {

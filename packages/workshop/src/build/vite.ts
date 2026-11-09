@@ -118,6 +118,7 @@ function entryCode(config, target, story, packageDir, root) {
 	return `import { catalog, loadStory, diagnostics } from ${JSON.stringify(CATALOG_ID)}
 import { bootWorkshop } from '@octane-xplat/workshop/web'
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import ${JSON.stringify(shellCss)}
 import ${JSON.stringify(galleryCss)}
 ${imports}

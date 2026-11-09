@@ -6,6 +6,7 @@ import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import LightboxGallery from './LightboxGallery.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import './app.css'
 
 installGestureHandler()

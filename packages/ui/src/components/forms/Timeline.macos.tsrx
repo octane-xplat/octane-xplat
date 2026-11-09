@@ -36,7 +36,7 @@ export function Timeline(props: TimelineProps): unknown @{
           </masonview>
           {e.i < props.items.length - 1 ? (
             <masonview
-              className="vx-timeline-line flex-1"
+              className="vx-timeline-line"
               style={mergeStyle(
                 { display: 'flex' },
                 { width: 1, backgroundColor: '#d4d4d4' },

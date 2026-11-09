@@ -158,6 +158,7 @@ export async function workshopGtkDev({ root, config, story, profileRoot, onStart
 	await writeFile(
 		join(directory, 'entry.ts'),
 		`import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import ${JSON.stringify(chromeCss)}
 import { startGtkWorkshop } from ${JSON.stringify(shell)}
 startGtkWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON.stringify(story ?? null)} })

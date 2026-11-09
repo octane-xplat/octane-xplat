@@ -1,6 +1,7 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import { useState } from 'octane'
 import { CommandPalette } from '../../src/components/overlays/CommandPalette.tsrx'
 import type { ProbeContext } from '../../../../tools/probe/context'

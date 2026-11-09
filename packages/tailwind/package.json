@@ -20,12 +20,14 @@
   "type": "module",
   "exports": {
     ".": "./src/index.css",
+    "./ui.css": "./src/ui.css",
     "./vite": {
       "types": "./types/generated/vite.d.ts",
       "default": "./dist/vite.js"
     }
   },
   "scripts": {
+    "sync:ui-theme": "node scripts/sync-ui-theme.ts",
     "typegen": "tsc --runExternalCode -p tsconfig.build.json",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
     "test": "node --test test/*.test.ts"
@@ -39,6 +41,7 @@
     "postcss-value-parser": "4.2.0"
   },
   "devDependencies": {
+    "@octane-xplat/ui": "workspace:*",
     "@tailwindcss/postcss": "4.3.5",
     "@octane-xplat/build": "workspace:*",
     "@tsrx/content-mapper": "catalog:",

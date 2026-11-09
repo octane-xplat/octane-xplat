@@ -13,6 +13,7 @@ small platform differences or a separate stylesheet without runtime branches.
 
 - Keep portable declarations shared and isolate platform-specific declarations.
 - Choose replacement or explicit composition for whole stylesheets.
+- Keep required component structure separate from optional chrome and utility classes; import curated helpers explicitly when used.
 - Diagnose invalid conditions and preserve normal CSS cascade behavior.
 
 ## Acceptance criteria
@@ -21,6 +22,7 @@ small platform differences or a separate stylesheet without runtime branches.
 - AC2: CSS imports select one platform sibling with fallback; explicitly composed shared and platform styles remain separate imports.
 - AC3: Comma-separated targets match any listed target; nested blocks require both conditions. Media queries, keyframes, and layers retain normal ordering and specificity; invalid targets and empty list entries fail with a source diagnostic.
 - AC4: Setup preserves existing PostCSS plugins and explains renderer support boundaries.
+- AC5: Components retain their required styles without the curated utility sheet; apps using curated helpers import `@octane-xplat/ui/theme/utilities.css` explicitly. The stylesheet layer order is declared consistently, and choosing a utility compiler does not load a second set of the same classes.
 
 ## Documentation
 
@@ -28,3 +30,4 @@ small platform differences or a separate stylesheet without runtime branches.
 - AC2: [CSS file variants](../../../docs/platform/module-resolution.md#css-file-variants).
 - AC3: [Style one platform](../../../docs/app/styling.md#style-one-platform).
 - AC4: [Style one platform](../../../docs/app/styling.md#style-one-platform); [separate project build plugins](../../../docs/packages/package-build.md) preserves the app's other plugins and PostCSS configuration when migrating imports. The [packed plugin consumer](../../../tools/cli-go/build-tools-consumer.mjs) checks this boundary without claiming renderer/device behavior.
+- AC5: [Required structure and optional chrome](../../../docs/app/styling.md#required-structure-and-optional-chrome); [composition and duplicate-import cases](../../../packages/tailwind/test/compiler.test.ts) and the maintained app/preview/probe entries. Compiler tests are build evidence; they do not qualify native rendering.

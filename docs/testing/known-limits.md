@@ -470,9 +470,9 @@ if (result === 'unavailable') console.log('Sharing unavailable')
   `@octane-xplat/ui/nativescript` (iOS/Android) and `@octane-xplat/ui/macos`;
   macOS-only `bottomSheetHost` and the unsupported `CameraView` leaf moved to
   `@octane-xplat/ui/macos`; `LinuxWindowHandle` moved to
-  `@octane-xplat/ui/linux`. The published CSS paths are unchanged:
-  `@octane-xplat/ui/theme/tokens.css` and `chrome.css` are now the only
-  `ui/theme/*` specifiers, matching the published export map. — post-0.14.0·desk.
+  `@octane-xplat/ui/linux`. Published theme paths are
+  `@octane-xplat/ui/theme/tokens.css`, `chrome.css`, and optional
+  `utilities.css`; see the [stylesheet setup](../app/styling.md#required-structure-and-optional-chrome).
 - **Imperative overlay services return typed handles** — `showToast`/`useToast`
   now return `ToastHandle | null` (`{ id, dismiss(), update(options) }`) instead
   of a bare dismiss function — call `toast?.dismiss()`, and note `null` when a

@@ -4,6 +4,7 @@ import { DataScreen, DataSharedReader, DataRetained } from '@xplat/app/data-prob
 import { runDataTrace } from '@xplat/app/data-trace'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 
 const ids = ['first', 'second', 'sheet', 'modal']
 const hosts = ids.map((id) => document.getElementById(id)!)

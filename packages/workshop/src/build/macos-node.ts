@@ -69,6 +69,7 @@ export default async ({ mode }) => {
 	await writeFile(
 		join(directory, 'entry.ts'),
 		`import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import ${JSON.stringify(chromeCss)}
 import { startMacOSWorkshop } from ${JSON.stringify(shell)}
 startMacOSWorkshop({ bundleFile: ${JSON.stringify(bundle)}, initialStoryId: ${JSON.stringify(story ?? null)},

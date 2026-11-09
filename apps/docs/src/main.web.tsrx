@@ -5,6 +5,7 @@ import './routes.gen'
 import { RouterProvider, router } from '@octane-xplat/ui/routing'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import './style.css'
 
 createRoot(document.getElementById('root')!).render(

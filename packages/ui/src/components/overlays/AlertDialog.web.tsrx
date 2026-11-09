@@ -8,10 +8,10 @@ import { cx } from '@octane-xplat/lib'
 import type { JSX } from 'octane/jsx-runtime'
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
-  primary: 'bg-primary text-onprimary',
+  primary: 'vx-alertdialog-action--primary',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
-  destructive: 'bg-danger text-onprimary',
+  destructive: 'vx-alertdialog-action--destructive',
 }
 
 /** Confirmation dialog (Astryx `AlertDialog`) — a `required`-purpose

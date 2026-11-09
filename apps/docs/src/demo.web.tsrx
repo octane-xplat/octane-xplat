@@ -5,6 +5,7 @@ import { GoalCounter } from '@xplat/demos/GoalCounter.tsrx'
 import { PackingList } from '@xplat/demos/PackingList.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import './demo.css'
 
 const packing = new URLSearchParams(location.search).get('demo') === 'packing-list'

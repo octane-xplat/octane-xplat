@@ -4,12 +4,12 @@ import type { CodeProps } from '../../props'
 import { cx } from '@octane-xplat/lib'
 import { Text } from './Text.macos.tsrx'
 
-/** Code — macOS leaf. The AppKit host resolves `text-muted` for the
+/** Code — macOS leaf. The AppKit host resolves `vx-ink-muted` for the
  *  secondary color; `size="inherit"`/`color="inherit"` are inert here. */
 export function Code(props: CodeProps): unknown @{
   <Text
     id={props.id}
-    className={cx('vx-code', props.color === 'secondary' && 'text-muted', props.className)}
+    className={cx('vx-code', props.color === 'secondary' && 'vx-ink-muted', props.className)}
     style={mergeStyle({ fontFamily: 'ui-monospace' }, props.style)}
   >
     {props.children}

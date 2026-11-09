@@ -1,0 +1,127 @@
+/* @xplat-curated-utilities */
+/* Optional curated utilities. Choose these or @octane-xplat/tailwind; do not load both.
+Legacy text sizing and squircle radii are retained for this separate workflow. */
+@layer theme, xplat-structure, xplat-chrome, utilities;
+@layer utilities {
+	.flex-1 {
+		flex: 1 1 0%;
+	}
+	.min-w-0 {
+		min-width: 0;
+	}
+	.min-h-0 {
+		min-height: 0;
+	}
+	.shrink {
+		flex-shrink: 1;
+	}
+	.shrink-0 {
+		flex-shrink: 0;
+	}
+	.grow {
+		flex-grow: 1;
+	}
+	.items-center {
+		align-items: center;
+	}
+	.items-baseline {
+		align-items: baseline;
+	}
+	.items-start {
+		align-items: flex-start;
+	}
+	.justify-center {
+		justify-content: center;
+	}
+	.justify-between {
+		justify-content: space-between;
+	}
+	.flex-wrap {
+		flex-wrap: wrap;
+	}
+	.gap-4 {
+		gap: 16px;
+	}
+	.gap-3 {
+		gap: 12px;
+	}
+	.gap-6 {
+		gap: 24px;
+	}
+	.text-2xl {
+		min-height: 36px;
+		font-size: 28px;
+		line-height: 36px;
+	}
+	.text-xl {
+		min-height: 28px;
+		font-size: 20px;
+		line-height: 28px;
+	}
+	.text-lg {
+		min-height: 28px;
+		font-size: 18px;
+		line-height: 28px;
+	}
+	.text-sm {
+		min-height: 20px;
+		font-size: 13px;
+		line-height: 20px;
+	}
+
+	.gap-2 {
+		gap: 8px;
+	}
+	.font-bold {
+		font-weight: bold;
+	}
+	.font-semibold {
+		font-weight: 600;
+	}
+	.text-muted {
+		color: var(--color-text-secondary);
+	}
+	.rounded-sm {
+		border-radius: var(--radius-sm);
+		corner-shape: squircle;
+	}
+	.rounded-md {
+		border-radius: var(--radius-md);
+		corner-shape: squircle;
+	}
+	.rounded-lg {
+		border-radius: var(--radius-lg);
+		corner-shape: squircle;
+	}
+	.rounded-xl {
+		border-radius: var(--radius-xl);
+		corner-shape: squircle;
+	}
+	.rounded-full {
+		border-radius: 9999px;
+	}
+
+	.bg-primary {
+		background-color: var(--color-primary);
+	}
+	.text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.bg-danger {
+		background-color: var(--color-danger);
+	}
+
+	.vx-app .text-xl {
+		color: var(--color-text);
+	}
+	.vx-app .text-onprimary {
+		color: var(--color-onprimary);
+	}
+	.vx-app .text-muted {
+		color: var(--color-text-secondary);
+	}
+	/* Danger surfaces retain white text even when the on-primary token changes. */
+	.bg-danger .text-onprimary {
+		color: #ffffff;
+	}
+}

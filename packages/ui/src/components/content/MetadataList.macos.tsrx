@@ -79,7 +79,10 @@ export function MetadataList(props: MetadataListProps): unknown @{
           accessibilityLabel={isShowAll ? 'Show less' : 'Show more'}
           onPress={() => setIsShowAll((prev) => !prev)}
         >
-          <label className="text-sm" style={{ paddingTop: 8, paddingBottom: 8, color: '#2563eb' }}>
+          <label
+            className="vx-type-small"
+            style={{ paddingTop: 8, paddingBottom: 8, color: '#2563eb' }}
+          >
             {isShowAll ? 'Show less' : 'Show more'}
           </label>
         </Pressable>

@@ -1,5 +1,5 @@
 /* Required shared structure and web normalization. Import in every app before user CSS. */
-@layer xplat-structure, xplat-chrome;
+@layer theme, xplat-structure, xplat-chrome, utilities;
 
 @layer xplat-structure {
 	/* xplat-web-only:start — DOM normalization. NativeScript is the reference
@@ -2007,7 +2007,7 @@
 	}
 	.vx-timeline-line {
 		width: 1px;
-		flex: 1;
+		flex: 1 1 0%;
 	}
 	.vx-timeline-body {
 		flex-direction: column;
@@ -2156,91 +2156,7 @@
 	.vx-heading {
 		margin: 0;
 	}
-	/* NativeScript reads the numeric prefix of font-size; keep this scale in px. */
 
-	/* utilities (hand-written subset — do NOT adopt Tailwind until
-   NativeScript/tailwind#226 is resolved; the plugin strips core-supported
-   props incl. gap, drops all @media, and rewrites invisible→collapse) */
-
-	/* flex-1 keeps Tailwind v4's exact emission (`flex: 1 1 0%`) — web gets
-   identical semantics, NS parses grow/shrink out of the shorthand and
-   ignores the basis token it can't model. */
-	.flex-1 {
-		flex: 1 1 0%;
-	}
-	/* Flex divergence guards — NS FlexboxLayout diverges from web flexbox on
- * shrinkability: grow children never shrink below intrinsic width, fixed
- * children get crushed, and auto-height rows re-measure grow children at
- * zero height. The shared `* { flex-shrink: 0 }` default (RN semantics)
- * makes .shrink the opt-in for a shrinkable child; min-w-0/min-h-0 lower
- * the min-content floor so it can actually shrink, and shrink-0 remains
- * for local overrides. All four are plain CSS on web. */
-	.min-w-0 {
-		min-width: 0;
-	}
-	.min-h-0 {
-		min-height: 0;
-	}
-	.shrink {
-		flex-shrink: 1;
-	}
-	.shrink-0 {
-		flex-shrink: 0;
-	}
-	.grow {
-		flex-grow: 1;
-	}
-	.items-center {
-		align-items: center;
-	}
-	.items-baseline {
-		align-items: baseline;
-	}
-	.items-start {
-		align-items: flex-start;
-	}
-	.justify-center {
-		justify-content: center;
-	}
-	.justify-between {
-		justify-content: space-between;
-	}
-	.flex-wrap {
-		flex-wrap: wrap;
-	}
-	.gap-4 {
-		gap: 16px;
-	}
-	.gap-3 {
-		gap: 12px;
-	}
-	.gap-6 {
-		gap: 24px;
-	}
-
-	/* Native Labels keep their natural font height even with line-height set, so
-   min-height aligns utilities whose natural metrics fall below their leading.
-   Tailwind pairs every text-* size with a leading, same here. */
-	.text-2xl {
-		min-height: 36px;
-	}
-	.text-xl {
-		min-height: 28px;
-	}
-	.text-lg {
-		min-height: 28px;
-	}
-	.text-sm {
-		min-height: 20px;
-	}
-
-	/* Corner utilities — consume the --radius-* scale and carry the smooth
-   (squircle) corner treatment. Circles stay circular: .rounded-full omits
-   corner-shape deliberately (squircle at full radius = a squircle disk,
-   not a circle). Opt out per element with `corner-shape: round`. */
-	/* xplat-web-only:start — box-shadow is inert on native (elevation is
-   Android-only; no shared mapping yet) */
-	/* xplat-web-only:end */
 
 	.btn {
 		padding-top: 10px;
@@ -2348,10 +2264,6 @@
 
 	.cell {
 		padding: 12px;
-	}
-
-	.gap-2 {
-		gap: 8px;
 	}
 
 	/* In-window sheet — bottom-anchored panel (matches the native RootLayout
@@ -4874,10 +4786,6 @@
 		padding: 12px;
 	}
 
-	.gap-2 {
-		gap: 8px;
-	}
-
 	/* In-window sheet — bottom-anchored panel (matches the native RootLayout
    sheet). Layer is pointer-events:none; backdrop + panel re-enable. */
 	.vx-sheet-layer {
@@ -5288,3 +5196,13 @@
 .vx-aspectratio-fit-center > .vx-aspectratio-content > img,
 .vx-aspectratio-fit-center > .vx-aspectratio-content > video { width: auto; height: auto; max-width: 100%; max-height: 100%; }
 /* xplat-web-only:end */
+
+/* Component-owned helper styles do not depend on an app's utility compiler. */
+@layer xplat-structure {
+	.vx-spacer--fill {
+		flex: 1 1 0%;
+	}
+	.vx-type-small {
+		min-height: 20px;
+	}
+}

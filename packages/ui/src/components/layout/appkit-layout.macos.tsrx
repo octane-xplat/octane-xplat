@@ -202,7 +202,7 @@ export function Absolute(props: AbsoluteProps): unknown @{
 
 export function Spacer(props: SpacerProps): unknown @{
   <masonview
-    className={cx('vx-spacer flex-1', props.className)}
+    className={cx('vx-spacer vx-spacer--fill', props.className)}
     style={mergeStyle({ display: 'flex' }, props.style)}
   />
 }

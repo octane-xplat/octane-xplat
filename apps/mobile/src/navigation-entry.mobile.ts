@@ -31,6 +31,7 @@ import {
 
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 
 const results: { name: string; pass: boolean; detail?: string }[] = []
 const frame = new Frame()

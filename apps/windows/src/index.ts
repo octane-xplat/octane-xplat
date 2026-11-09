@@ -18,6 +18,7 @@ import 'octane/signals'
 // the slider's web-only translate() leaked onto native views.
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import '@xplat/demos/demo.css'
 import '@xplat/app/app.css'
 

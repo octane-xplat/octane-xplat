@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import { Grid, SafeArea, Screen, Text, VStack } from '@octane-xplat/ui'
 import { prepareFullScreenPage } from '@octane-xplat/ui/nativescript'
 import type { View } from '@nativescript/core'

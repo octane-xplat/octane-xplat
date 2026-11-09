@@ -1,5 +1,6 @@
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import { Application, Page } from '@nativescript/core'
 import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { WindowsUICase } from './windows-ui-case.tsrx'

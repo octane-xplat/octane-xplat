@@ -1,5 +1,5 @@
 /* Framework normalization remains owned by @octane-xplat/ui. No Preflight. */
-@layer theme, utilities;
+@layer theme, xplat-structure, xplat-chrome, utilities;
 @import 'tailwindcss/theme.css' layer(theme);
 @import './theme.css';
 @import 'tailwindcss/utilities.css' layer(utilities);

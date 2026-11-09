@@ -39,7 +39,7 @@ export function MetadataListItem(props: MetadataListItemProps): unknown @{
       )}
     >
       {isRenderable(props.icon) ? props.icon : null}
-      <label className="vx-metadatalist-label-text text-sm text-muted" whiteSpace="normal">
+      <label className="vx-metadatalist-label-text vx-type-small vx-ink-muted" whiteSpace="normal">
         {props.label}
       </label>
     </masonview>

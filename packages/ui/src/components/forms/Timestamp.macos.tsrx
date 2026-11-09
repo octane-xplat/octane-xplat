@@ -125,9 +125,9 @@ export function Timestamp(props: TimestampProps): unknown @{
               )}
             >
               {line.label != null ? (
-                <label className="text-sm text-muted" text={line.label} />
+                <label className="vx-type-small vx-ink-muted" text={line.label} />
               ) : null}
-              <label className="text-sm" text={line.value} />
+              <label className="vx-type-small" text={line.value} />
             </masonview>
           ))}
         </masonview>

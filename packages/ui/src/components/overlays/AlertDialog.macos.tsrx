@@ -7,10 +7,10 @@ import { Button } from '../actions/controls.macos.tsrx'
 import { cx } from '@octane-xplat/lib'
 
 const ACTION_VARIANT_CLASS: Record<string, string> = {
-  primary: 'bg-primary text-onprimary',
+  primary: 'vx-alertdialog-action--primary',
   secondary: 'btn-secondary',
   ghost: 'btn-ghost',
-  destructive: 'bg-danger text-onprimary',
+  destructive: 'vx-alertdialog-action--destructive',
 }
 
 /** Required decisions share Dialog presentation and block passive dismissal. */

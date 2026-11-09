@@ -111,6 +111,7 @@
 		},
 		"./theme/tokens.css": "./src/theme/tokens.css",
 		"./theme/chrome.css": "./src/theme/chrome.css",
+		"./theme/utilities.css": "./src/theme/utilities.css",
 		"./parity": {
 			"types": "./types/generated/parity/index.d.ts",
 			"default": "./dist/parity/index.js"

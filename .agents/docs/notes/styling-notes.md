@@ -10,20 +10,36 @@
 The required `tokens.css` contains unstyled layout and browser normalization in
 `@layer xplat-structure`. The optional `chrome.css` adds default colors,
 typography, borders, and state treatments in the later `xplat-chrome` layer.
-Import both as JavaScript modules so NativeScript receives px-to-DIP conversion
-and web-only stripping. Native builds unwrap the layer blocks because
-NativeScript's CSS parser does not implement CSS cascade layers. On the web,
+The optional `utilities.css` owns the curated helper classes in `utilities`;
+components keep private helper styles in structure/chrome and do not require it.
+Import selected sheets as JavaScript modules so NativeScript receives px-to-DIP conversion
+and web-only stripping. Default native builds unwrap the layer blocks. On the web,
 unlayered app CSS remains higher priority than package layers. Native builds
 preserve import order after unwrapping, so app styles follow the package rules.
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css' // Choose curated helpers or a compiler.
 import './app.css'
 ```
 
 The generated starter imports `tokens.css` only and owns any palette it wants
-in its app stylesheet. Demos and probes opt into `chrome.css`.
+in its app stylesheet. Demos opt into default chrome; maintained app, preview,
+and probe entries select curated helpers explicitly.
+
+All entries declare the order `theme, xplat-structure, xplat-chrome, utilities`.
+This lets the optional compiler and UI agree on precedence regardless of which
+entry reaches the stylesheet first. The curated sheet retains its legacy text
+sizes and squircle radii; it is a separate workflow from Tailwind. The Tailwind
+plugin rejects its marker even when imported as a separate CSS module.
+
+The private Tailwind `ui.css` entry registers UI color/radius names using
+`@theme reference inline`. It emits references to runtime-owned variables,
+never a frozen copy or self-referencing root declarations. Regenerate its
+inventory with the Tailwind workspace's `sync:ui-theme` script after UI token
+names change. The shared `--spacing` is a 4px base for generated utilities;
+legacy `--space-*` component variables do not redefine that scale.
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
@@ -71,7 +87,7 @@ packages/ui/theme/
   tokens.css        — required structure and cross-platform normalization
   chrome.css        — optional default colors, spacing, radii, and typography
   base.css          — element-type defaults per vocabulary (Label vs span…)
-  utilities         — hand-curated subset today; Tailwind v4 integration awaits qualification
+  utilities.css     — optional curated helpers; Tailwind v4 integration awaits qualification
 apps/*/app.css      — per-app layer importing the shared sheets
 ```
 
@@ -127,41 +143,34 @@ directive arguments, quoted text, URLs, and media-query preludes.
 The desktop cascade's parser does not preserve declaration importance, and
 its custom-property map inherits ancestor values without `@property` metadata.
 Keeping layers alone therefore does not establish full Tailwind semantics.
+The selected iOS simulator probe confirmed that distinction: a loaded Label's
+normal layered/unlayered opacity resolved to `.75` as expected; two important
+layer rules resolved to `.75` instead of the expected `.25`. This is native
+runtime CSS-state evidence, not native painting or OS input evidence. Locate
+the raw case and results through Silo's `tailwind-ios-cascade` artifact keys.
 Resolve those contracts, or reject unsupported combinations explicitly, before
-shipping native support. The current curated classes and restricted Bamboo
-workflow remain the supported choices; this investigation changes no app setup.
+shipping native support. Tailwind remains private; the explicit curated helper
+and restricted Bamboo workflows remain the supported choices.
 
-### Tailwind-replaceability audit (2026-09-25)
+### Curated utilities and generated utilities
 
-The curated subset is kept **drop-in replaceable** by Tailwind v4 so adoption
-later is a toolchain swap, not a refactor. Audited every Tailwind-vocabulary
-class we ship/use against v4's emission:
+The curated stylesheet is a separate opt-in workflow, not a stock Tailwind
+implementation. It retains the established Xplat text sizing (for example,
+`text-sm` is 13px/20px and `text-2xl` is 28px/36px), extra text minimum heights,
+and squircle radius treatment. Moving those definitions out of structure and
+chrome removes competing definitions from a Tailwind app. Do not import both
+utility sheets or add compatibility aliases between them.
 
-- **Aligned already:** `grow`, `shrink`, `shrink-0`, `min-w-0`, `min-h-0`,
-  `items-center`, `justify-center`, `gap-2`/`gap-4` (values match v4's
-  `--spacing` math), `font-bold` (`bold`≡`700`), `bg-primary` (v4 resolves
-  `--color-primary`), `rounded-full` (9999px ≈ `calc(infinity*1px)`),
-  `rounded-*` (consume `--radius-*` — same var names v4 uses; our scale
-  becomes `@theme` overrides), `vx-*`/`btn`/`chip`/`input` (custom, unaffected).
-- **Fixed in the audit:** `.flex-1` now emits `flex: 1 1 0%` (v4's exact
-  declaration — web identical, NS parses grow/shrink from the shorthand and
-  ignores the basis token); added missing `.items-start` (was a dead class in
-  Divergence.tsrx); `--color-on-primary`→`--color-onprimary` (v4 maps
-  `text-onprimary`→`--color-onprimary` — token and class names must share
-  segments); `--color-danger` token added, `.bg-danger`/`.layout-badge`
-  consume it.
-- **Residual deltas to handle at adoption time:** `text-*` — v4 also emits
-  `line-height` (additive on NS; plan `--text-*--line-height: normal` in
-  `@theme` or keep own `text-*` classes); `rounded-*` carry our
-  `corner-shape: squircle` (not expressible in Tailwind — keep the classes or
-  accept round corners); `--space-*` vs v4's single `--spacing` base unit;
-  `shadow-2`/`btn`/`chip` are custom names that simply coexist.
+Generated utilities follow the official compiler with the shared pixel theme:
+`text-sm` is 14px/20px, `text-2xl` is 24px/32px, and radius classes do not add
+squircle treatment. The `ui.css` entry binds color/radius variables to UI's
+runtime values. Component-specific `vx-*`, `btn`, `chip`, and `input` rules
+remain owned by structure/chrome, independent of the utility workflow.
 
-**Authoring rule going forward:** a Tailwind-vocabulary class must match
-v4's semantics exactly, and a `--color-<key>` token must be named after the
-class segment that consumes it (`bg-onprimary`↔`--color-onprimary`). If a
-needed utility can't match v4 semantics inside the NS intersection, give it
-a non-Tailwind name (`vx-*` or descriptive) instead.
+A `--color-<key>` token and generated class segment share the same name:
+`text-onprimary` reads `--color-onprimary`; `bg-danger` reads `--color-danger`.
+Use explicit theme declarations for additional app tokens, and let the official
+compiler own the resulting class vocabulary and ordering.
 
 ```css
 :root,

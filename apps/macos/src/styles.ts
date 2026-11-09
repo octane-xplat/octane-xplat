@@ -4,6 +4,7 @@
 // bundle's __xplatStylesheets seed. Bench entries skip it on purpose.
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import 'virtual:bamboo.css'
 import '@xplat/demos/demo.css'
 import '@xplat/app/app.css'

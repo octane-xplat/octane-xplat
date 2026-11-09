@@ -9,6 +9,7 @@ import { CAPTURE_PROFILE } from '../../../../../tools/visual/src/scenario'
 import { assertSwitchGeometry } from '../../../../../tools/visual/src/geometry'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import {
   NSLocale,
   NSTimeZone,

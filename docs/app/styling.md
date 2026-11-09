@@ -73,13 +73,35 @@ const card = <View className={classes} style={style} />
 
 ## Required structure and optional chrome
 
-Xplat has two stylesheets. `tokens.css` provides layout rules the components
+`tokens.css` provides layout rules the components
 need; `chrome.css` adds optional default colors, borders, and fonts. “Chrome”
 means that visible decoration. The starter already imports `tokens.css`.
 
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css' // Optional default decoration.
+```
+
+Curated helper classes such as `gap-4`, `text-sm`, and `rounded-lg` live in a
+separate optional stylesheet. Import it when you use those helpers. Components
+keep their own required styles and do not need this utility sheet.
+
+```ts
+import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/chrome.css' // Optional default decoration.
+import '@octane-xplat/ui/theme/utilities.css' // Optional curated helpers.
+import './style.css'
+```
+
+These curated helpers retain Xplat's existing text sizes and squircle corners.
+For example, curated `text-sm` uses 13px text with a 20px line height. Importing
+the utility sheet is an explicit choice; it is separate from compiler-generated
+utilities such as Bamboo's.
+
+```tsx
+import { Text, View } from '@octane-xplat/ui'
+
+const summary = <View className="gap-4"><Text className="text-sm">Packed and ready</Text></View>
 ```
 
 Import `@octane-xplat/ui/theme/tokens.css` in every web and native app. It
@@ -94,7 +116,7 @@ import '@octane-xplat/ui/theme/tokens.css'
 `@octane-xplat/ui/theme/chrome.css` is optional. It adds the package's default
 colors, borders, typography, and control states in `xplat-chrome`, above the
 structure layer. The starter template imports only `tokens.css`; demo and probe
-apps import both. On the web, unlayered app CSS overrides both layers, and app
+apps also select default chrome and curated helpers. On the web, unlayered app CSS overrides the package layers, and app
 layers declared after these imports override the package layers. NativeScript
 does not support cascade layers; the CLI unwraps them and preserves import
 order, so keep app styles after these imports on native too.

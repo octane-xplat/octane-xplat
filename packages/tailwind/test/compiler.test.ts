@@ -83,6 +83,12 @@ async function fixture(t: TestContext, shutdowns: Array<() => Promise<void>> = [
     process.platform === 'win32' ? 'junction' : 'dir',
   )
 
+  await symlink(
+    fileURLToPath(new URL('../../ui', import.meta.url)),
+    join(root, 'node_modules/@octane-xplat/ui'),
+    process.platform === 'win32' ? 'junction' : 'dir',
+  )
+
   await writeFile(join(root, 'package.json'), '{"type":"module"}')
   return root
 }
@@ -349,6 +355,72 @@ test('Vite native compilation retains coordinated layers and normalizes generate
   assert.doesNotMatch(css, /640dip|dipdip|0\.25rem/)
   assert.ok(css.includes(String.raw`.w-\[12px\]`))
   assert.match(css, /width:\s*12dip/)
+})
+
+test('the packaged UI CSS entry composes its compiler entry and runtime token registrations', async (t) => {
+  const root = await fixture(t)
+
+  await writeFile(join(root, 'main.js'), 'import "./styles.css"')
+  await writeFile(
+    join(root, 'styles.css'),
+    '@import "@octane-xplat/tailwind/ui.css";\n:root, .ns-root { --color-primary: #112233; --radius-container: 18px }',
+  )
+
+  await writeFile(
+    join(root, 'Screen.tsrx'),
+    'export const classes = "bg-primary rounded-container"',
+  )
+
+  for (const target of ['web', 'ios'] as const) {
+    const css = (await buildCss(root, target)).map((asset) => asset.source).join('\n')
+
+    assert.match(css, /background-color:\s*var\(--color-primary\)/)
+    assert.match(css, /border-radius:\s*var\(--radius-container\)/)
+    assert.doesNotMatch(css, /--color-primary:\s*var\(--color-primary\)/)
+    assert.doesNotMatch(css, /@theme|@xplat-tailwind/)
+  }
+})
+
+test('curated utility imports are rejected even when they are separate CSS modules', async (t) => {
+  const root = await fixture(t)
+
+  await writeFile(
+    join(root, 'main.js'),
+    'import "@octane-xplat/ui/theme/utilities.css"; import "./styles.css"',
+  )
+
+  await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind/ui.css";')
+  await assert.rejects(buildCss(root), /Remove @octane-xplat\/ui\/theme\/utilities.css/)
+})
+
+test('UI structure and chrome compose with generated utilities without duplicate class rules', async (t) => {
+  const root = await fixture(t)
+
+  await writeFile(
+    join(root, 'main.js'),
+    'import "@octane-xplat/ui/theme/tokens.css"; import "@octane-xplat/ui/theme/chrome.css"; import "./styles.css"',
+  )
+
+  await writeFile(join(root, 'styles.css'), '@import "@octane-xplat/tailwind/ui.css";')
+  await writeFile(
+    join(root, 'Screen.tsx'),
+    'export const classes = "gap-4 text-sm bg-primary rounded-lg"',
+  )
+
+  const css = (await buildCss(root)).map((asset) => asset.source).join('\n')
+  const stylesheet = postcss.parse(css)
+  const counts = new Map<string, number>()
+
+  stylesheet.walkRules((rule) => {
+    counts.set(rule.selector, (counts.get(rule.selector) ?? 0) + 1)
+  })
+
+  for (const name of ['gap-4', 'text-sm', 'bg-primary', 'rounded-lg']) {
+    assert.equal(counts.get(`.${name}`), 1, name)
+  }
+
+  assert.match(css, /font-size:\s*var\(--text-sm\)/)
+  assert.doesNotMatch(css, /\.text-sm\s*\{[^}]*min-height/)
 })
 
 test('inlined source directives resolve relative to their original stylesheet', async (t) => {

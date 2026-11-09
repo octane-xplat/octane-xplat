@@ -4,6 +4,7 @@ import { renderNativeScriptApp } from '@nativescript-community/octane'
 import { Qualification } from './layout-cases.windows.tsrx'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import './layouts.css'
 
 const roots = new Set<ReturnType<typeof renderNativeScriptApp>>()

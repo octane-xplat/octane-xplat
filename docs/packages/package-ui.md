@@ -28,6 +28,7 @@ imports it; the second import adds the optional default appearance:
 ```ts
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css' // Optional curated helpers.
 ```
 
 Put this component in a `.tsx` or `.tsrx` screen and render it from your app.

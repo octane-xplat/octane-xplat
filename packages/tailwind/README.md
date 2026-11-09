@@ -6,6 +6,24 @@ Xplat's platform CSS preset. It is not ready to publish: native adaptation,
 framework utility separation, consumer qualification and release setup remain
 required by the [styling constraints](../../.agents/docs/notes/styling-notes.md#original-shared-pipeline).
 
+The private `ui.css` entry registers UI's color and radius token names with the
+compiler. Values remain in UI's runtime styles, so generated utilities follow
+theme scopes and mode changes. The app must supply those values through UI
+chrome, a `Theme`, or its own CSS. This entry replaces the plain Tailwind import:
+
+```css
+/* app.css — processed by xplatTailwind() */
+@import '@octane-xplat/tailwind/ui.css';
+```
+
+The bridge is generated from UI's default token names and chrome declarations.
+After changing that inventory, regenerate it with:
+
+```sh
+cd packages/tailwind
+bun run sync:ui-theme
+```
+
 The native adapter is a candidate for host qualification. It checks generated
 utilities, preserves normal cascade layers through the owning build preset,
 and reports unsupported output instead of stripping it. Ordinary app CSS is

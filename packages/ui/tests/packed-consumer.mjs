@@ -746,6 +746,12 @@ assert.equal(dims({ box: { w: 10, h: 20 } }, 10, 20)[1], true)
   const packedManifest = JSON.parse(readFileSync(join(packedRoot, 'package.json'), 'utf8'))
   const workspaceManifest = JSON.parse(readFileSync(join(packageRoot, 'package.json'), 'utf8'))
 
+  for (const [specifier, target] of Object.entries(packedManifest.exports)) {
+    if (specifier.endsWith('.css') && typeof target === 'string') {
+      assert.ok(existsSync(resolve(packedRoot, target)), `Missing packed stylesheet: ${specifier}`)
+    }
+  }
+
   assert.deepEqual(
     packedManifest.exports,
     workspaceManifest.exports,

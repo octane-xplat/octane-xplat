@@ -23,6 +23,15 @@ export function tailwindCompiler({
   return {
     postcssPlugin: 'xplat-tailwind',
     async Once(root, { result }) {
+      root.walkComments((comment) => {
+        if (comment.text.trim() === '@xplat-curated-utilities') {
+          throw comment.error(
+            'Remove @octane-xplat/ui/theme/utilities.css when using xplatTailwind(); choose one utility stylesheet',
+            { plugin: 'xplat-tailwind' },
+          )
+        }
+      })
+
       const markers: AtRule[] = []
 
       root.walkAtRules('xplat-tailwind', (rule) => {

@@ -40,6 +40,7 @@ import {
 
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import '../shared/stage.css'
 
 declare global {

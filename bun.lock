@@ -2830,6 +2830,7 @@
       "devDependencies": {
         "@octane-xplat/build": "workspace:*",
         "@octane-xplat/css-engine": "workspace:*",
+        "@octane-xplat/ui": "workspace:*",
         "@tailwindcss/postcss": "4.3.5",
         "@tsrx/content-mapper": "catalog:",
         "@types/node": "26.6.6",

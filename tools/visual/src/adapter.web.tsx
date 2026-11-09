@@ -4,6 +4,7 @@ import meta, { CheckedLight, UncheckedLight } from './Switch.stories.web.tsrx'
 import './stage.web.css'
 import '@octane-xplat/ui/theme/tokens.css'
 import '@octane-xplat/ui/theme/chrome.css'
+import '@octane-xplat/ui/theme/utilities.css'
 
 const catalog = {
   'switch--unchecked-light': { story: UncheckedLight, exportName: 'UncheckedLight' },

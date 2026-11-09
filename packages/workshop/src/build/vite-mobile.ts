@@ -69,6 +69,7 @@ export function withWorkshopMobile(config, options = {}) {
 			return `import { startWorkshop } from '@octane-xplat/workshop/mobile'
 import { catalog, diagnostics } from ${JSON.stringify(MOBILE_CATALOG_ID)}
 import '@octane-xplat/ui/theme/tokens.css'
+import '@octane-xplat/ui/theme/utilities.css'
 import ${JSON.stringify(CHROME_CSS)}
 ${presets.map((p, i) => `import * as preset${i} from ${JSON.stringify(fsUrl(resolve(root, p)))}`).join('\n')}
 const workshopRuntime = startWorkshop({catalog, diagnostics, target: ${JSON.stringify(target)}, initialStoryId: ${JSON.stringify(options.story ?? process.env.XPLAT_WORKSHOP_STORY ?? null)}, globalProviders: [${presets.map((_, i) => `...(preset${i}.providers ?? preset${i}.default ?? [])`).join(',')}]})

@@ -1,5 +1,4 @@
 import { isAbsolute, relative, resolve } from 'node:path'
-import { cwd } from 'node:process'
 import type { Plugin, PluginOption } from 'vite'
 import postcss from 'postcss'
 import { tailwindCompiler } from './compiler.ts'
@@ -141,7 +140,7 @@ export function xplatTailwind(): XplatTailwindPlugin {
       settings.plugins = [
         ...configuredPlugins,
         tailwindCompiler({
-          root: resolve(config.root ?? cwd()),
+          root: resolve(config.root ?? '.'),
           target,
           onCompile(entry, dependencies) {
             entries.set(entry.replaceAll('\\', '/'), dependencies)
