@@ -232,12 +232,7 @@ async function runSelftest(app: any, window: any) {
   )
 
   // Tab path: native first-responder chain, minus the keyboard event.
-  const mfr = window.makeFirstResponder(nameField)
-  marker(
-    `SELFTEST keyWin=${window.isKeyWindow} active=${NSApplication.sharedApplication.isActive} ` +
-      `mfr=${mfr} frAfterMfr=${window.firstResponder?.accessibilityIdentifier ?? 'none'} ` +
-      `nameCanKV=${nameField?.valueForKey?.('canBecomeKeyView')} submitCanKV=${submit?.valueForKey?.('canBecomeKeyView')}`,
-  )
+  window.makeFirstResponder(nameField)
   window.selectNextKeyView(null)
   const fr = window.firstResponder
   marker(`SELFTEST focus=${fr?.accessibilityIdentifier ?? 'none'}`)
@@ -247,8 +242,7 @@ async function runSelftest(app: any, window: any) {
     `SELFTEST pressSel=${submit?.respondsToSelector?.('accessibilityPerformPress')}`,
   )
   try {
-    marker(`SELFTEST pressRet=${submit?.performSelector?.('accessibilityPerformPress')}`)
-    marker(`SELFTEST dbg=${(globalThis as any).__axdbg ?? 'none'} dbg2=${(globalThis as any).__axdbg2 ?? 'none'}`)
+    submit?.performSelector?.('accessibilityPerformPress')
     await sleep(300)
     marker('SELFTEST pressDispatched=true')
   } catch (e) {

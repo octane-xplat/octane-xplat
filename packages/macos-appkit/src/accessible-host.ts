@@ -35,36 +35,21 @@ export function createAccessibleHost(deps: Dependencies) {
     // keyboard as well as accessibility actions.
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     acceptsFirstResponder() {
-      const h = deps.actions.hasHandler(this)
-      const s = scopeFocusTargets.get(this) ?? 0
-      const d = disabledFocusTargets.allows(this)
-      try {
-        ;(globalThis as { __axdbg?: string }).__axdbg =
-          `acceptsFR id=${this.accessibilityIdentifier} h=${h} scope=${s} dis=${d}`
-      } catch (e) {
-        ;(globalThis as { __axdbg?: string }).__axdbg = `acceptsFR debugErr ${String(e)}`
-      }
-      return h || s > 0 || d
+      return (
+        deps.actions.hasHandler(this) ||
+        (scopeFocusTargets.get(this) ?? 0) > 0 ||
+        disabledFocusTargets.allows(this)
+      )
     }
     // Scope fallback boxes accept programmatic focus but are not Tab stops.
     // @ts-ignore ObjC accessor methods satisfy the generated @property member.
     canBecomeKeyView() {
-      const sup = tabStopSuppression.isSuppressed(this)
-      const afr = this.acceptsFirstResponder()
-      const en = this.isAccessibilityEnabled()
-      const hid = this.hiddenOrHasHiddenAncestor
-      try {
-        ;(globalThis as { __axdbg2?: string }).__axdbg2 =
-          `canBecomeKV id=${this.accessibilityIdentifier} sup=${sup} afr=${afr} en=${en} hid=${hid}`
-      } catch (e) {
-        ;(globalThis as { __axdbg2?: string }).__axdbg2 = `canBecomeKV debugErr ${String(e)}`
-      }
       return (
         !scopeFocusTargets.has(this) &&
-        !sup &&
-        afr &&
-        (en || disabledFocusTargets.allows(this)) &&
-        !hid
+        !tabStopSuppression.isSuppressed(this) &&
+        this.acceptsFirstResponder() &&
+        (this.isAccessibilityEnabled() || disabledFocusTargets.allows(this)) &&
+        !this.hiddenOrHasHiddenAncestor
       )
     }
 
@@ -107,12 +92,22 @@ export function createAccessibleHost(deps: Dependencies) {
       draggingUpdated: { params: [interop.types.id], returns: interop.types.uint64 },
       prepareForDragOperation: { params: [interop.types.id], returns: interop.types.bool },
       performDragOperation: { params: [interop.types.id], returns: interop.types.bool },
-      // NSAccessibility members are intentionally absent: listing them bound
-      // protocol-named accessors to native storage (KVC saw AXUnknown while
-      // the JS method returned AXButton), and removing them did not change
-      // ObjC dispatch — performSelector still returns nil and the JS impl is
-      // never entered. Method dispatch to JS for this class remains
-      // unresolved upstream; semantics are pushed via native storage instead.
+      accessibilityPerformPress: { params: [], returns: interop.types.bool },
+      accessibilityPerformIncrement: { params: [], returns: interop.types.bool },
+      accessibilityPerformDecrement: { params: [], returns: interop.types.bool },
+      accessibilityRole: { params: [], returns: interop.types.id },
+      accessibilityLabel: { params: [], returns: interop.types.id },
+      accessibilityTitle: { params: [], returns: interop.types.id },
+      accessibilityValue: { params: [], returns: interop.types.id },
+      accessibilityMinValue: { params: [], returns: interop.types.id },
+      accessibilityMaxValue: { params: [], returns: interop.types.id },
+      accessibilityValueDescription: { params: [], returns: interop.types.id },
+      accessibilityHelp: { params: [], returns: interop.types.id },
+      isAccessibilityEnabled: { params: [], returns: interop.types.bool },
+      isAccessibilitySelected: { params: [], returns: interop.types.bool },
+      isAccessibilityExpanded: { params: [], returns: interop.types.bool },
+      accessibilityIsIgnored: { params: [], returns: interop.types.bool },
+      isAccessibilityElement: { params: [], returns: interop.types.bool },
       // Unique selector that only this class (and subclasses) registers —
       // instanceof cannot be trusted on bridged NativeClass instances, so
       // callers identify accessible hosts through ObjC dispatch instead.
@@ -136,14 +131,6 @@ export function createAccessibleHost(deps: Dependencies) {
 
     accessibilityPerformPress() {
       const actionId = deps.actions.idForView(this)
-      try {
-        ;(globalThis as { __axdbg?: string }).__axdbg =
-          `press state=${!!deps.state.get(this)} actionId=${actionId ?? 'null'} ` +
-          `handler=${deps.actions.hasHandler(this)} ignored=${this.accessibilityIsIgnored()} ` +
-          `enabled=${this.isAccessibilityEnabled()} readonly=${deps.state.get(this)?.accessibilityState?.readonly}`
-      } catch (e) {
-        ;(globalThis as { __axdbg?: string }).__axdbg = `press debugErr ${String(e)}`
-      }
 
       if (
         actionId === undefined ||
