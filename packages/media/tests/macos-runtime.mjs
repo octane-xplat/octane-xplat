@@ -79,7 +79,7 @@ try {
     [
       ['media', 'photo-capture.macos'],
       ['media', 'media.macos'],
-      ['files', 'file-types.macos'],
+      ['files', 'mime-extensions'],
       ['files', 'file-pick-filter.macos'],
       ['files', 'file-bytes'],
       ['files', 'files.macos'],

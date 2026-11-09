@@ -8,7 +8,7 @@ import {
   throwIfAborted,
 } from './file-bytes'
 
-import { MIME_EXTENSIONS } from './file-types'
+import { MIME_EXTENSIONS } from './mime-extensions'
 import type { FileExportResult, FileReadBytesOptions, FileRef, Files } from './types'
 
 const CHUNK_SIZE = 64 * 1024

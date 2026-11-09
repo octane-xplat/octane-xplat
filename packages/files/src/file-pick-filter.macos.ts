@@ -1,4 +1,4 @@
-import { MIME_EXTENSIONS } from './file-types.macos'
+import { MIME_EXTENSIONS } from './mime-extensions'
 
 const framework =
   '/System/Library/Frameworks/UniformTypeIdentifiers.framework/UniformTypeIdentifiers'

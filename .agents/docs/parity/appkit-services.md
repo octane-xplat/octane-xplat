@@ -93,7 +93,7 @@ comment updated.
 Also repaired a stale portion of
 `media/tests/photo-capture.macos.test.mjs`: its `requireShim` predated the
 files-package refactor (`files.macos.ts` now imports
-`./file-pick-filter.macos`, `./file-types.macos`, `./file-bytes`) — added
+`./file-pick-filter.macos`, `./mime-extensions`, `./file-bytes`) — added
 stubs; the suite was broken on main before this task.
 
 Tests: 9/9 pass including a new saveToGallery case asserting the add-only

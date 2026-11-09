@@ -1,5 +1,5 @@
 import type { FileInputFile } from './props'
-import { MIME_EXTENSIONS } from './file-types.macos'
+import { MIME_EXTENSIONS } from './mime-extensions'
 import {
   appKitFileTypeClass,
   appKitTypeForExtension,

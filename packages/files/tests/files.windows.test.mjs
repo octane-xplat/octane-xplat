@@ -13,7 +13,7 @@ const compile = (name) =>
 
 const source = compile('files.windows')
 const helpers = compile('file-bytes')
-const fileTypes = compile('file-types')
+const fileTypes = compile('mime-extensions')
 class UnavailabilityError extends Error {}
 
 function fixture(bytes = new Uint8Array([1, 2, 3])) {
@@ -155,7 +155,7 @@ function fixture(bytes = new Uint8Array([1, 2, 3])) {
         return helperExports
       }
 
-      if (id === './file-types') {
+      if (id === './mime-extensions') {
         return fileTypeExports
       }
 
