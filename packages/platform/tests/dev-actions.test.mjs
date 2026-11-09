@@ -1592,6 +1592,9 @@ test('dev channels join the announcement, gate sends on hub capability, and rout
 test('dev channels report unavailable on the HTTP polling fallback bridge', async (t) => {
   const bridge = await makeBridge(t)
   const { exports: api } = await loadDevActions({ origin: bridge.origin, token: bridge.token })
+
+  t.after(() => api.startDevActionBridge().stop())
+
   const states = []
   const channel = api.registerDevChannel('fallback', 1, {
     message() {},
