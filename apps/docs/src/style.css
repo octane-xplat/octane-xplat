@@ -1154,6 +1154,7 @@ body {
 .doc-actions {
 	position: relative;
 	display: flex;
+	flex-direction: row;
 	justify-content: flex-end;
 	margin-bottom: 24px;
 	z-index: 2;
@@ -1162,6 +1163,7 @@ body {
 .doc-actions-bar {
 	position: relative;
 	display: flex;
+	flex-direction: row;
 	width: 162px;
 	height: 30px;
 }
@@ -1185,6 +1187,7 @@ body {
 	position: relative;
 	box-sizing: border-box;
 	display: flex;
+	flex-direction: row;
 	align-items: center;
 	justify-content: center;
 	border: 0;
