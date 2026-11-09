@@ -116,7 +116,12 @@ const evidence = {
   environment: {},
 }
 
-function step(name, inputClass, fn) {
+// Steps record their own result and do not abort the journey — later steps
+// only need the launched app, not the earlier step's outcome (run-7 showed
+// menu/tray/window/quit still succeeding after the form step failed). Steps
+// whose failure makes the rest meaningless (staging, install, launch) pass
+// `required` and rethrow.
+function step(name, inputClass, fn, { required = false } = {}) {
   evidence.steps.push({ step: name, inputClass, result: 'pending' })
   const entry = evidence.steps[evidence.steps.length - 1]
   if (evidence.inputLane && !inputClass.startsWith('in-process')) {
@@ -136,7 +141,7 @@ function step(name, inputClass, fn) {
       entry.result = 'fail'
       entry.detail = String(error && error.message ? error.message : error)
       log(`  ✖ ${name}: ${entry.detail}`)
-      throw error
+      if (required) throw error
     })
 }
 
@@ -629,7 +634,7 @@ async function journeyPhase() {
       )
       remote(`chmod +x ${shellQuote(REMOTE_INPUT)}`)
       return `${REMOTE}:${REMOTE_WORK}`
-    })
+    }, { required: true })
   }
 
   if (REMOTE) {
@@ -692,14 +697,14 @@ async function journeyPhase() {
       await installDmg(v1, appTarget)
       host('codesign', ['--verify', '--deep', '--strict', appTarget])
       return 'codesign ok'
-    })
+    }, { required: true })
 
     await step('launch v1 and reach READY', 'in-process', async () => {
       app = new AppProcess(exe)
       await app.wait('JOURNEY READY', 90000)
       await app.wait('JOURNEY TRAY_OK|JOURNEY TRAY_ERROR', 5000)
       return app.output.match(/JOURNEY READY/) ? 'READY' : 'no marker'
-    })
+    }, { required: true })
 
     const pid = app.pid
 
