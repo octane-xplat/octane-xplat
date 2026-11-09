@@ -565,10 +565,23 @@ async function journeyPhase() {
     })
 
     await step('form: type name and submit', 'os-input', async () => {
-      clickCenter(findEl(pid, 'journey-name'))
-      await sleep(400)
+      // The first click may only activate the freshly spawned app; a second
+      // click lands inside the field so it takes first responder.
+      const field = findEl(pid, 'journey-name')
+      clickCenter(field)
+      await sleep(500)
+      clickCenter(field)
+      await sleep(500)
+      const focused = findEl(pid, 'journey-name')
+      if (!focused.focused) {
+        throw new Error(`journey-name not focused: ${JSON.stringify(focused)}`)
+      }
       input('type', 'Ada')
-      await sleep(400)
+      await sleep(500)
+      const filled = JSON.parse(input('find', pid, 'journey-name'))
+      if (!String(filled.value).includes('Ada')) {
+        throw new Error(`journey-name after typing: ${JSON.stringify(filled)}`)
+      }
       clickCenter(findEl(pid, 'journey-submit'))
       await app.wait('JOURNEY SUBMITTED name=Ada', 15000)
       const status = input('value', pid, 'journey-status')

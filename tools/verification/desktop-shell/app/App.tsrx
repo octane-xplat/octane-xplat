@@ -16,6 +16,7 @@ export default function App() {
       <TextInput
         testID="journey-name"
         placeholder="Type a name"
+        style={{ width: 320 }}
         value={name}
         onChange={(value: string) => name$.set(value)}
       />
