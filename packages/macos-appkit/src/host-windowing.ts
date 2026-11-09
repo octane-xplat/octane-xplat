@@ -840,6 +840,7 @@ export function createAppKitWindow(options: CreateAppKitWindowOptions = {}): App
 
   nativeWindow.title = String(options.title ?? 'Octane App')
   nativeWindow.releasedWhenClosed = false
+  nativeWindow.autorecalculatesKeyViewLoop = true
 
   nativeWindow.center()
   nativeWindow.delegate = appDelegate()
@@ -1028,6 +1029,7 @@ export function openWindow(options: MacOSOpenWindowOptions = {}): AppKitWindowCo
 
     nativeWindow.title = String(options.title ?? 'Octane window')
     nativeWindow.releasedWhenClosed = false
+    nativeWindow.autorecalculatesKeyViewLoop = true
     nativeWindow.delegate = appDelegate()
     nativeWindow.contentView = makeContentView(size)
 
@@ -1189,6 +1191,7 @@ export function createHostedWindow(options: MacOSOpenWindowOptions = {}): Hosted
 
   nativeWindow.title = String(options.title ?? 'Octane window')
   nativeWindow.releasedWhenClosed = false
+  nativeWindow.autorecalculatesKeyViewLoop = true
   nativeWindow.delegate = appDelegate()
   nativeWindow.contentView = makeContentView(size)
   if (parentWindow) {
