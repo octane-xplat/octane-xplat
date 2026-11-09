@@ -99,6 +99,21 @@ runtime styling system. Preserve user-authored CSS and report unsupported
 generated output instead of silently stripping it. Keep Tailwind dependencies
 outside UI and the CLI runtime.
 
+Compiler integration belongs in Vite's `config` hook after platform CSS setup,
+not in `configResolved`: resolved environments already carry their own CSS
+configuration. Keep the official Tailwind PostCSS compiler's `optimize` option
+false when retaining source maps; its optimization branch reparses generated
+CSS and loses original authored positions. Let the owning build pipeline perform
+final minification instead. See the
+[private integration boundary](../../../packages/tailwind/README.md).
+
+Vite 8.3.6's production CSS extraction emits CSS text assets without a CSS map
+asset from PostCSS output. Compiler maps and development CSS maps therefore do
+not establish production CSS-map support. Keep that limitation explicit until
+the extraction path supplies them; see
+[Vite's CSS plugin](https://github.com/vitejs/vite/blob/v8.3.6/packages/vite/src/node/plugins/css.ts)
+and [Tailwind's optimizer branch](https://github.com/tailwindlabs/tailwindcss/blob/v4.3.5/packages/@tailwindcss-postcss/src/index.ts).
+
 There are local prerequisites as well: the native build still calls
 `unwrapCssLayers`, although our patched selector engine and the desktop engine
 implement ordinary layer precedence. Removing layers loses that information.

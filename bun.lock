@@ -2814,6 +2814,24 @@
         "@nativescript/core",
       ],
     },
+    "packages/tailwind": {
+      "name": "@octane-xplat/tailwind",
+      "version": "0.20.0",
+      "dependencies": {
+        "@tailwindcss/postcss": "4.3.5",
+        "postcss": "8.5.32",
+        "tailwindcss": "4.3.5",
+      },
+      "devDependencies": {
+        "@octane-xplat/build": "workspace:*",
+        "@tsrx/content-mapper": "catalog:",
+        "@types/node": "26.6.6",
+        "typescript": "catalog:",
+      },
+      "peerDependencies": {
+        "vite": "^8.3.0",
+      },
+    },
     "packages/tiptap": {
       "name": "@octane-xplat/tiptap",
       "version": "0.20.0",
@@ -4424,6 +4442,8 @@
     "@octane-xplat/stripe": ["@octane-xplat/stripe@workspace:packages/stripe"],
 
     "@octane-xplat/table": ["@octane-xplat/table@workspace:packages/table"],
+
+    "@octane-xplat/tailwind": ["@octane-xplat/tailwind@workspace:packages/tailwind"],
 
     "@octane-xplat/tiptap": ["@octane-xplat/tiptap@workspace:packages/tiptap"],
 

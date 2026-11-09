@@ -1,0 +1,46 @@
+{
+  "name": "@octane-xplat/tailwind",
+  "version": "0.20.0",
+  "private": true,
+  "description": "Optional Tailwind compiler integration for Octane Xplat",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/octane-xplat/octane-xplat",
+    "directory": "packages/tailwind"
+  },
+  "files": [
+    "dist",
+    "types",
+    "src/*.css",
+    "LICENSE",
+    "README.md"
+  ],
+  "type": "module",
+  "exports": {
+    ".": "./src/index.css",
+    "./vite": {
+      "types": "./types/generated/vite.d.ts",
+      "default": "./dist/vite.js"
+    }
+  },
+  "scripts": {
+    "typegen": "tsc --runExternalCode -p tsconfig.build.json",
+    "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
+    "test": "node --test test/*.test.ts"
+  },
+  "dependencies": {
+    "@tailwindcss/postcss": "4.3.5",
+    "postcss": "8.5.32",
+    "tailwindcss": "4.3.5"
+  },
+  "devDependencies": {
+    "@octane-xplat/build": "workspace:*",
+    "@tsrx/content-mapper": "catalog:",
+    "@types/node": "26.6.6",
+    "typescript": "catalog:"
+  },
+  "peerDependencies": {
+    "vite": "^8.3.0"
+  }
+}
