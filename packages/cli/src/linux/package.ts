@@ -42,12 +42,83 @@ const findGtkBundle = (appDir) => {
   return entries[0]
 }
 
+/** Shared XDG install surface for both GJS runtimes: a `.desktop` entry,
+ *  `install.sh` (replaces any previous install cleanly, then writes the
+ *  absolute Exec path), and `uninstall.sh` (removes only the installed app
+ *  directory and desktop entry — user settings under XDG_CONFIG_HOME stay).
+ *  `execArgs` is the desktop Exec argument tail: ' %u' for the WebKitGTK URI
+ *  handler, '' for the GTK runtime which registers no scheme. */
+function writeDesktopInstall(config, appDir, { scheme, execArgs }) {
+  const execLine = `Exec=${config.executableName}${execArgs}`
+
+  writeFileSync(
+    join(appDir, `${config.applicationId}.desktop`),
+    `[Desktop Entry]
+Type=Application
+Name=${desktopString(config.productName)}
+${execLine}
+Icon=application-x-executable
+Terminal=false
+Categories=Utility;
+${scheme ? `MimeType=x-scheme-handler/${scheme};\n` : ''}StartupWMClass=${config.applicationId}
+DBusActivatable=false
+`,
+  )
+
+  // Installation generates absolute paths at the destination; no build paths
+  // are embedded in the distributable desktop entry or executable. A reinstall
+  // empties the destination first so files removed between versions do not
+  // linger; XDG_CONFIG_HOME settings are never touched.
+  writeFileSync(
+    join(appDir, 'install.sh'),
+    `#!/bin/sh
+set -eu
+APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+DATA_DIR="\${XDG_DATA_HOME:-$HOME/.local/share}"
+DEST="$DATA_DIR/${config.applicationId}"
+mkdir -p "$DATA_DIR/applications"
+if [ "$APP_DIR" != "$DEST" ]; then
+  rm -rf -- "$DEST"
+  mkdir -p "$DEST"
+  cp -R "$APP_DIR/." "$DEST/"
+fi
+python3 - "$DEST" "$DATA_DIR/applications/${config.applicationId}.desktop" <<'PY'
+import pathlib, sys
+root = pathlib.Path(sys.argv[1])
+entry = (root / ${quote(`${config.applicationId}.desktop`)}).read_text()
+# Desktop Exec quoting has two layers: string escapes, then argument escapes.
+executable = str(root / ${quote(config.executableName)})
+executable = executable.replace('\\\\', '\\\\\\\\\\\\\\\\').replace('"', '\\\\\\\\"').replace('\\x60', '\\\\\\\\x60').replace('$', '\\\\\\\\$').replace('%', '%%')
+entry = entry.replace(${quote(execLine)}, 'Exec="' + executable + '"${execArgs}')
+pathlib.Path(sys.argv[2]).write_text(entry)
+PY
+command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DATA_DIR/applications" || true
+printf 'Installed to %s\\n' "$DEST"
+`,
+  )
+  chmodSync(join(appDir, 'install.sh'), 0o755)
+
+  writeFileSync(
+    join(appDir, 'uninstall.sh'),
+    `#!/bin/sh
+set -eu
+DATA_DIR="\${XDG_DATA_HOME:-$HOME/.local/share}"
+DEST="$DATA_DIR/${config.applicationId}"
+rm -rf -- "$DEST"
+rm -f -- "$DATA_DIR/applications/${config.applicationId}.desktop"
+command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DATA_DIR/applications" || true
+printf 'Removed %s and its desktop entry.\\n' "$DEST"
+printf 'Settings kept under %s\\n' "\${XDG_CONFIG_HOME:-$HOME/.config}/${config.applicationId}"
+`,
+  )
+  chmodSync(join(appDir, 'uninstall.sh'), 0o755)
+}
+
 /** GTK4/GJS runtime: a single-file ESM bundle plus an executable `gjs -m`
  *  launcher. GJS produces no binary, so the relocatable app directory and
- *  tar archive are the distributable artifacts. No host script, desktop
- *  entry, or installer ships yet — the runtime is not qualified on a real
- *  Linux host, and URI handling/window services do not exist in the GTK
- *  host. Those pieces land with runtime qualification. */
+ *  tar archive are the distributable artifacts. Ships the shared XDG
+ *  desktop entry/installer like the WebKitGTK runtime; URI scheme handling
+ *  stays out until the GTK host grows URI services. */
 function buildGtkApp(config, vite, appRoot, appDir) {
   execFileSync(
     process.execPath,
@@ -81,9 +152,11 @@ exec gjs -m "$APP_DIR/${bundle}" "$@"
     ) + '\n',
   )
 
+  writeDesktopInstall(config, appDir, { scheme: null, execArgs: '' })
+
   writeFileSync(
     join(appDir, 'README.txt'),
-    `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory; it executes the bundled app with gjs -m.\nRequires GJS and GTK4 introspection data plus a graphical session.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0\nThere is no desktop entry or installer yet — copy the directory where you want it.\n`,
+    `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory; it executes the bundled app with gjs -m, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS and GTK4 introspection data plus a graphical session for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 python3 desktop-file-utils\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
   )
 }
 
@@ -173,51 +246,11 @@ exec gjs "$APP_DIR/host/gjs-host.js" --bundle "$APP_DIR/bundle" "$@"
       )
 
       chmodSync(join(appDir, config.executableName), 0o755)
-      writeFileSync(
-        join(appDir, `${config.applicationId}.desktop`),
-        `[Desktop Entry]
-Type=Application
-Name=${desktopString(config.productName)}
-Exec=${config.executableName} %u
-Icon=application-x-executable
-Terminal=false
-Categories=Utility;
-MimeType=x-scheme-handler/${config.scheme};
-StartupWMClass=${config.applicationId}
-DBusActivatable=false
-`,
-      )
+      writeDesktopInstall(config, appDir, { scheme: config.scheme, execArgs: ' %u' })
 
-      // Installation generates absolute paths at the destination; no build paths
-      // are embedded in the distributable desktop entry or executable.
-      writeFileSync(
-        join(appDir, 'install.sh'),
-        `#!/bin/sh
-set -eu
-APP_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
-DATA_DIR="\${XDG_DATA_HOME:-$HOME/.local/share}"
-DEST="$DATA_DIR/${config.applicationId}"
-mkdir -p "$DEST" "$DATA_DIR/applications"
-if [ "$APP_DIR" != "$DEST" ]; then cp -R "$APP_DIR/." "$DEST/"; fi
-python3 - "$DEST" "$DATA_DIR/applications/${config.applicationId}.desktop" <<'PY'
-import pathlib, sys
-root = pathlib.Path(sys.argv[1])
-entry = (root / ${quote(`${config.applicationId}.desktop`)}).read_text()
-# Desktop Exec quoting has two layers: string escapes, then argument escapes.
-executable = str(root / ${quote(config.executableName)})
-executable = executable.replace('\\\\', '\\\\\\\\\\\\\\\\').replace('"', '\\\\\\\\"').replace('\\x60', '\\\\\\\\x60').replace('$', '\\\\\\\\$').replace('%', '%%')
-entry = entry.replace(${quote(`Exec=${config.executableName} %u`)}, 'Exec="' + executable + '" %u')
-pathlib.Path(sys.argv[2]).write_text(entry)
-PY
-command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DATA_DIR/applications" || true
-printf 'Installed to %s\\n' "$DEST"
-`,
-      )
-
-      chmodSync(join(appDir, 'install.sh'), 0o755)
       writeFileSync(
         join(appDir, 'README.txt'),
-        `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS, GTK4 (4.10+), libadwaita, WebKitGTK 6.0, libsecret, a graphical session, and D-Bus for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 python3 desktop-file-utils xdg-utils\nSecret storage needs an unlocked Secret Service keyring. Notifications need a desktop notification service.\nRegister incoming links with: xdg-mime default ${config.applicationId}.desktop x-scheme-handler/${config.scheme}\nRemove the installed application directory and ${config.applicationId}.desktop from XDG_DATA_HOME/applications to uninstall.\n`,
+        `${config.productName} ${config.version}\nRun ./${config.executableName} from any directory, or ./install.sh to copy into XDG_DATA_HOME and install the desktop entry.\nRequires Python 3 for installation; GJS, GTK4 (4.10+), libadwaita, WebKitGTK 6.0, libsecret, a graphical session, and D-Bus for execution.\nUbuntu 24.04: sudo apt install gjs gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-webkit-6.0 gir1.2-secret-1 python3 desktop-file-utils xdg-utils\nSecret storage needs an unlocked Secret Service keyring. Notifications need a desktop notification service.\nRegister incoming links with: xdg-mime default ${config.applicationId}.desktop x-scheme-handler/${config.scheme}\n./uninstall.sh removes the installed application directory and desktop entry; settings under XDG_CONFIG_HOME are kept.\n`,
       )
     }
 

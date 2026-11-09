@@ -110,6 +110,55 @@ test('Linux packaging creates relocatable app, metadata, archive and per-user de
   assert.ok(!desktop.includes(root + '/dist'))
 })
 
+test('GTK archive ships desktop entry and install/uninstall; install→reinstall→uninstall keeps settings', async (t) => {
+  const { root } = gtkProject(t)
+  const { appDir } = await packageLinux(root)
+
+  const relocated = join(root, 'relocated app')
+  cpSync(appDir, relocated, { recursive: true })
+
+  const dataHome = join(root, 'data home')
+  const configHome = join(root, 'config home')
+  const env = {
+    ...process.env,
+    XDG_DATA_HOME: dataHome,
+    XDG_CONFIG_HOME: configHome,
+  }
+  const installed = join(dataHome, 'org.example.Sample')
+
+  execFileSync('sh', [join(relocated, 'install.sh')], { env })
+  assert.ok(existsSync(join(installed, 'app.js')))
+  assert.ok(existsSync(join(dataHome, 'applications/org.example.Sample.desktop')))
+
+  const desktop = readFileSync(
+    join(dataHome, 'applications/org.example.Sample.desktop'),
+    'utf8',
+  )
+  assert.match(desktop, /Exec="[^"]+data home\/org\.example\.Sample\/sample-app"/)
+
+  // Settings a run wrote survive every later step.
+  mkdirSync(join(configHome, 'org.example.Sample'), { recursive: true })
+  writeFileSync(join(configHome, 'org.example.Sample/settings.ini'), '[settings]\nname=sAda\n')
+
+  // Reinstall cleans the install dir but not the config dir.
+  writeFileSync(join(installed, 'stale.txt'), 'removed between versions')
+  execFileSync('sh', [join(relocated, 'install.sh')], { env })
+  assert.ok(!existsSync(join(installed, 'stale.txt')))
+  assert.ok(existsSync(join(installed, 'app.js')))
+  assert.equal(
+    readFileSync(join(configHome, 'org.example.Sample/settings.ini'), 'utf8'),
+    '[settings]\nname=sAda\n',
+  )
+
+  execFileSync('sh', [join(relocated, 'uninstall.sh')], { env })
+  assert.ok(!existsSync(installed))
+  assert.ok(!existsSync(join(dataHome, 'applications/org.example.Sample.desktop')))
+  assert.equal(
+    readFileSync(join(configHome, 'org.example.Sample/settings.ini'), 'utf8'),
+    '[settings]\nname=sAda\n',
+  )
+})
+
 test('Linux packaging rejects invalid identities, injection and config traversal before building', () => {
   const t = { after: () => {} }
   const { root, manifest } = project(t)
@@ -203,9 +252,17 @@ test('GTK packaging produces the ESM bundle, gjs -m launcher, and archive', asyn
 
   assert.ok(listing.includes('sample-app/app.js'))
   assert.ok(listing.includes('sample-app/sample-app'))
+  assert.ok(listing.includes('sample-app/org.example.Sample.desktop'))
+  assert.ok(listing.includes('sample-app/install.sh'))
+  assert.ok(listing.includes('sample-app/uninstall.sh'))
   assert.ok(!existsSync(join(appDir, 'bundle')))
   assert.ok(!existsSync(join(appDir, 'host')))
-  assert.ok(!existsSync(join(appDir, 'install.sh')))
+
+  const desktop = readFileSync(join(appDir, 'org.example.Sample.desktop'), 'utf8')
+
+  assert.ok(desktop.includes(`Exec=sample-app\n`))
+  assert.ok(desktop.includes('StartupWMClass=org.example.Sample'))
+  assert.ok(!desktop.includes('MimeType'))
 })
 
 test('GTK packaging rejects a build that emits no single ESM bundle', async (t) => {
