@@ -1,10 +1,13 @@
-import { useFocusWithin as useFocusWithinShared } from './use-focus-within.tsrx'
-import type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within.tsrx'
+import { useFocusWithinState } from './focus-within-state.tsrx'
+import type { UseFocusWithinOptions, UseFocusWithinResult } from './focus-within-state.tsrx'
 
 export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-within.tsrx'
 
 /**
- * GTK leaf — real subtree tracking. The renderer binds `onFocus`/`onBlur`
+ * GTK leaf — imports the shared state module directly; importing
+ * `use-focus-within.tsrx` here would self-resolve to this file under
+ * platform-variant bundling and recurse (same split as the macOS leaf).
+ * — real subtree tracking. The renderer binds `onFocus`/`onBlur`
  * to `Gtk.EventControllerFocus` enter/leave, which have true boundary
  * semantics on containers: `enter` fires once when focus crosses into
  * the element's subtree, `leave` once when it exits, with no toggles
@@ -13,5 +16,5 @@ export type { UseFocusWithinOptions, UseFocusWithinResult } from './use-focus-wi
  * callbacks; only the capability flag differs.
  */
 export function useFocusWithin(options: UseFocusWithinOptions = {}): UseFocusWithinResult {
-  return { ...useFocusWithinShared(options), isSubtreeTrackingSupported: true }
+  return { ...useFocusWithinState(options), isSubtreeTrackingSupported: true }
 }
