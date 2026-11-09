@@ -229,7 +229,8 @@ async function buildPhase() {
 }
 
 async function journeyPhase() {
-  const remoteDir = `~/agent-scratch/octane-xplat/hushed-dew/linux-run-1`
+  const remoteHome = ssh('printf %s "$HOME"').trim()
+  const remoteDir = `${remoteHome}/agent-scratch/octane-xplat/hushed-dew/linux-run-1`
   ssh(`mkdir -p ${remoteDir}`)
   remoteWrite(`${remoteDir}/README.md`, 'Everything in this folder is disposable.\n')
   const v1 = join(WORK, `${APP_NAME}-v1.tar.gz`)

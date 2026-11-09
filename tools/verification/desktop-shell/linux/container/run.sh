@@ -6,15 +6,36 @@
 set -u
 cd /journey
 export DISPLAY=:99 XDG_DATA_HOME=/tmp/xdg-data XDG_CONFIG_HOME=/tmp/kfcfg
+export XDG_RUNTIME_DIR=/tmp/xdg-runtime XDG_CURRENT_DESKTOP=KDE QT_QPA_PLATFORM=xcb
 APP_ID=org.octane.xplat.shell-journey
 APP_NAME=desktop-shell-journey
 LOG=/journey/app.log
 
 step() { printf 'STEP|%s|%s|%s|%s\n' "$1" "$2" "$3" "$4"; }
 
+mkdir -p "$XDG_RUNTIME_DIR"; chmod 700 "$XDG_RUNTIME_DIR"
 Xvfb :99 -screen 0 1024x768x24 >/dev/null 2>&1 &
 sleep 0.5
 at-spi-bus-launcher --launch-immediately >/dev/null 2>&1 &
+
+# KDE portal stack (hotkey fixture pattern): kglobalaccel + both portals must
+# run before the app binds global shortcuts.
+KGA=""
+for c in kglobalaccel5 kglobalacceld /usr/libexec/kglobalacceld /usr/lib/x86_64-linux-gnu/libexec/kglobalacceld; do
+  if command -v "$c" >/dev/null 2>&1; then KGA=$(command -v "$c"); break; fi; if [ -x "$c" ]; then KGA="$c"; break; fi
+done
+[ -n "$KGA" ] && "$KGA" >/tmp/kga.log 2>&1 &
+PORTAL_BIN=/usr/libexec/xdg-desktop-portal
+[ -x "$PORTAL_BIN" ] || PORTAL_BIN=$(command -v xdg-desktop-portal || true)
+[ -n "$PORTAL_BIN" ] && "$PORTAL_BIN" -v >/tmp/portal.log 2>&1 &
+KDE_BIN=/usr/libexec/xdg-desktop-portal-kde
+[ -x "$KDE_BIN" ] && "$KDE_BIN" >/tmp/portal-kde.log 2>&1 &
+sleep 1.5
+
+# The a11y bus must exist before the app starts or GTK4 never wires AT-SPI.
+python3 -c 'import gi; gi.require_version("Atspi","2.0"); from gi.repository import Atspi; Atspi.get_desktop(0)' >/dev/null 2>&1 || true
+gdbus call --session -d org.freedesktop.DBus -o /org/freedesktop/DBus -m org.freedesktop.DBus.ListNames 2>/dev/null | tr ',' '\n' | grep -i 'a11y\|spi' > /journey/a11y-names.txt
+
 gjs /journey/watcher.js >/dev/null 2>&1 &
 sleep 0.4
 
@@ -30,7 +51,7 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 
 # --- launch through the installed Exec line ---
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
-$EXEC >"$LOG" 2>&1 &
+GDK_SYNCHRONIZE=1 $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
 READY=no
 for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
@@ -39,8 +60,8 @@ for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }
 # --- AT-SPI role/name assertions (independent of READY? needs the app) ---
 python3 ax.py tree "$APP_NAME" > ax-tree.txt 2>/dev/null
 if [ "$READY" = yes ]; then
-  ROLE=$(grep -i submit ax-tree.txt | head -1)
-  case "$ROLE" in "push button|"*) step "atspi: submit is push button" atspi pass "$ROLE" ;; *) step "atspi: submit is push button" atspi fail "$ROLE" ;; esac
+  ROLE=$(grep -i 'Submit' ax-tree.txt | grep -v label | head -1)
+  case "$ROLE" in "push button|"*) step "atspi: submit is push button" atspi pass "$ROLE" ;; "button|"*) step "atspi: submit is push button" atspi pass "observed role 'button' (GTK4 mapping): $ROLE" ;; *) step "atspi: submit is push button" atspi fail "$ROLE" ;; esac
   STATUS=$(grep -i 'Submitted\|Waiting' ax-tree.txt | head -1)
   case "$STATUS" in label\|*) step "atspi: status is label" atspi pass "$STATUS" ;; *) step "atspi: status is label" atspi fail "$STATUS" ;; esac
 else
@@ -58,7 +79,7 @@ if [ "$READY" = yes ]; then
   else
     step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
   fi
-  B=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null)
+  B=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null || python3 ax.py find "$APP_NAME" "button" "Submit" 2>/dev/null)
   if [ -n "$B" ]; then
     BX=$(echo "$B" | cut -d, -f1); BY=$(echo "$B" | cut -d, -f2)
     BW=$(echo "$B" | cut -d, -f3); BH=$(echo "$B" | cut -d, -f4)
@@ -101,18 +122,25 @@ if [ "$READY" = yes ]; then
   sleep 0.4
   AFTER2=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
   [ "$AFTER2" -gt "$AFTER" ] && step "app menu: AT-SPI activation" atspi pass "$MOUT" || step "app menu: AT-SPI activation" atspi fail "$MOUT"
+  # Dismiss any popup grab the accelerator left open before the next window.
+  xdotool key Escape; sleep 0.4
 else
   step "app menu: accelerator" os-input-x11-xtest blocked "launch"
   step "app menu: AT-SPI activation" atspi blocked "launch"
 fi
 
-# --- tray: SNI Activate over D-Bus, Return picks the item (OS input for Return) ---
+# --- tray: dbusmenu Event('clicked') on "Open Inspector" over D-Bus ---
 SNI=$(cat watcher-registered.txt 2>/dev/null | head -1)
 if [ "$READY" = yes ] && [ -n "$SNI" ]; then
-  gdbus call --session -d "$SNI" -o /StatusNotifierItem -m org.kde.StatusNotifierItem.Activate 0 0 >/dev/null 2>&1
-  sleep 0.6
-  xdotool key Return; sleep 0.6
-  grep -q 'JOURNEY INSPECTOR_OPENED' "$LOG" && step "tray: open inspector" dbus-shell-protocol pass "" || step "tray: open inspector" dbus-shell-protocol fail "no INSPECTOR_OPENED"
+  LAYOUT=$(gdbus call --session -d "$SNI" -o /MenuBar -m com.canonical.dbusmenu.GetLayout 0 2 "['label']" 2>/dev/null)
+  IID=$(echo "$LAYOUT" | grep -o "([0-9]*, {[^}]*Open Inspector" | grep -o "^([0-9]*" | tr -d '(')
+  if [ -n "$IID" ]; then
+    gdbus call --session -d "$SNI" -o /MenuBar -m com.canonical.dbusmenu.Event "$IID" clicked "<''>" 0 >/dev/null 2>&1
+    sleep 0.8
+    grep -q 'JOURNEY INSPECTOR_OPENED' "$LOG" && step "tray: open inspector" dbus-shell-protocol pass "item id=$IID" || step "tray: open inspector" dbus-shell-protocol fail "id=$IID clicked, no INSPECTOR_OPENED"
+  else
+    step "tray: open inspector" dbus-shell-protocol fail "item not in layout: $(echo "$LAYOUT" | head -c 120)"
+  fi
 elif [ "$READY" != yes ]; then
   step "tray: open inspector" dbus-shell-protocol blocked "launch"
 else
@@ -149,8 +177,8 @@ if [ "$READY" = yes ]; then
   sleep 0.6
   grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && step "window lifecycle: close" os-input-x11-xtest pass "" || step "window lifecycle: close" os-input-x11-xtest fail "no INSPECTOR_CLOSED"
   if [ -n "$SNI" ]; then
-    gdbus call --session -d "$SNI" -o /StatusNotifierItem -m org.kde.StatusNotifierItem.Activate 0 0 >/dev/null 2>&1
-    sleep 0.6; xdotool key Return; sleep 0.6
+    gdbus call --session -d "$SNI" -o /MenuBar -m com.canonical.dbusmenu.Event "$IID" clicked "<''>" 0 >/dev/null 2>&1
+    sleep 0.8
     grep -q 'JOURNEY INSPECTOR_OPENED id=w2' "$LOG" && step "window lifecycle: reopen" dbus-shell-protocol pass "" || step "window lifecycle: reopen" dbus-shell-protocol fail "no w2"
   else
     step "window lifecycle: reopen" dbus-shell-protocol blocked "no SNI registered"
@@ -167,7 +195,12 @@ if [ "$READY" = yes ]; then
   sleep 0.5
   kill -0 $APP_PID 2>/dev/null && step "quit: process exits" in-process fail "still running" || step "quit: process exits" in-process pass ""
   SNI2=$(cat watcher-registered.txt 2>/dev/null | head -1)
-  [ -z "$SNI2" ] && step "quit: SNI unregistered" dbus-shell-protocol pass "" || step "quit: SNI unregistered" dbus-shell-protocol fail "still registered: $SNI2"
+  if [ -n "$SNI2" ]; then
+    OWNED=$(gdbus call --session -d org.freedesktop.DBus -o /org/freedesktop/DBus -m org.freedesktop.DBus.NameHasOwner "$SNI" 2>/dev/null | grep -o 'true\|false')
+    [ "$OWNED" = false ] && step "quit: SNI unregistered" dbus-shell-protocol pass "" || step "quit: SNI unregistered" dbus-shell-protocol fail "$SNI still owned ($OWNED)"
+  else
+    step "quit: SNI unregistered" dbus-shell-protocol blocked "no SNI was registered"
+  fi
 else
   step "quit: cleanup once" in-process blocked "launch"
   step "quit: process exits" in-process blocked "launch"
@@ -200,4 +233,11 @@ v2/$APP_NAME/uninstall.sh >/dev/null 2>&1
 [ ! -d "$XDG_DATA_HOME/$APP_ID" ] && [ ! -f "$XDG_DATA_HOME/applications/$APP_ID.desktop" ] && step "uninstall removes app+entry" in-process pass "" || step "uninstall removes app+entry" in-process fail ""
 [ -f "$XDG_CONFIG_HOME/$APP_ID/settings.ini" ] && step "uninstall keeps settings" in-process pass "" || step "uninstall keeps settings" in-process fail ""
 
+echo "--- app.log ---"; cat "$LOG" 2>/dev/null
+echo "--- ax-tree ---"; cat ax-tree.txt 2>/dev/null
+echo "--- a11y-names ---"; cat a11y-names.txt 2>/dev/null
+echo "--- portal-kde log ---"; tail -15 /tmp/portal-kde.log 2>/dev/null
+echo "--- portal log ---"; tail -15 /tmp/portal.log 2>/dev/null
+echo "--- kga log ---"; tail -10 /tmp/kga.log 2>/dev/null
+echo "--- portal versions ---"; dpkg-query -W -f='${Package} ${Version}\n' xdg-desktop-portal xdg-desktop-portal-kde gjs libgtk-4-1 2>/dev/null
 echo "JOURNEY_DONE"

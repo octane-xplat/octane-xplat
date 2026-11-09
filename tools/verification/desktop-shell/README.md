@@ -79,3 +79,59 @@ unset.
   the test's own defaults domain is deleted at the end.
 - Per-step results, artifact SHA-256s, and platform versions land in
   `<work>/evidence.json`.
+
+# Desktop-shell journey (Linux GTK)
+
+Same observable contract from packed tarballs in an external consumer, on
+GTK4 via `@octane-xplat/linux-gtk/host`. The build phase runs on the Mac
+(`xplat build --targets linux` produces two `.tar.gz` app archives); the
+journey phase runs in a disposable Docker container on `andromeda.local`
+under `~/agent-scratch/octane-xplat/hushed-dew/linux-run-N/` (kept for
+evidence; README declares it disposable — remove manually when done).
+
+- `app/main.gtk.ts` — the GTK entry: `runGtkApp` + `setWindowContentResolver`
+  (`@octane-xplat/linux-gtk/host`), `openWindow`, `appMenu`, `createTray` +
+  `keepAppResident`, `createGlobalShortcuts({ appId })`, platform `storage`.
+  `journey.ts`/`App.tsrx`/`Inspector.tsrx` are shared unchanged with macOS.
+- `linux.mjs` — the runner (`--phase build|journey|all`).
+- `linux/container/` — Dockerfile (Debian trixie: gjs, GTK4, Xvfb, xdotool,
+  pyatspi, at-spi2, KDE portal + kglobalacceld), `run.sh` (emits
+  `STEP|name|inputClass|result|detail`), `ax.py` (pyatspi helper),
+  `watcher.js` (test-owned StatusNotifierWatcher — no Plasma shell exists).
+
+```sh
+goddard-agent resource run --json '{"resources":{"native_builds":1},"purpose":"desktop-shell linux build"}' \
+  -- bunx turbo run test:desktop-shell:linux --filter=@xplat/verification -- --phase build
+
+DESKTOP_SHELL_WORK=research/desktop-shell/<same-dir> \
+goddard-agent resource run --json '{"resources":{"exclusive":["device:andromeda"]},"purpose":"desktop-shell linux journey"}' \
+  -- node tools/verification/desktop-shell/linux.mjs --phase journey
+```
+
+## Linux input classes
+
+- **`os-input-x11-xtest`** — `xdotool` against Xvfb: clicks at AT-SPI-reported
+  coordinates, typing, Tab/Space, in-window menu accelerators, window close.
+- **`os-input-x11-xtest-via-portal`** — xdotool presses the portal-assigned
+  trigger while a foreign X client (xeyes) is focused; proves the KDE
+  portal + kglobalacceld delivered the global shortcut in the background.
+- **`atspi`** — pyatspi reads/asserts roles, names, focused state and window
+  presence. Observation only — never activation counted as OS input.
+- **`dbus-shell-protocol`** — a separate `gdbus` process drives the SNI /
+  `com.canonical.dbusmenu` protocol surface (`GetLayout`, `Event clicked`,
+  `NameHasOwner`). It exercises the real shell contract but is not OS input.
+- **`in-process`** — install/uninstall/desktop-entry assertions and stdout
+  markers only.
+
+## Known capability differences vs macOS
+
+- GTK has no global menubar — the app menu is in-window; both the accelerator
+  path and the AT-SPI activation path are recorded separately.
+- There is no system tray host in the container — `watcher.js` plays the
+  StatusNotifierWatcher role so `createTray` exercises the real SNI/dbusmenu
+  protocol surface.
+- Global shortcuts go through the XDG portal + KDE backend; when the portal
+  cannot bind non-interactively the step records `blocked` with the exact
+  error, never an in-process fallback.
+- Steps that depend on an earlier step record `blocked: <dependency>` so a
+  single failure cannot mask independent results.

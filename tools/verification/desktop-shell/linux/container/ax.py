@@ -23,14 +23,25 @@ def walk(node, out):
             walk(child, out)
 
 
+def _norm(s):
+    return ''.join(c for c in (s or '').lower() if c.isalnum())
+
+
 def app_nodes(app_name):
     desktop = Atspi.get_desktop(0)
     out = []
+    want = _norm(app_name)
     for i in range(desktop.get_child_count()):
         app = desktop.get_child_at_index(i)
         try:
-            if app_name.lower() in (app.get_name() or '').lower():
-                walk(app, out)
+            nodes = []
+            walk(app, nodes)
+            # Identity: the AT-SPI app name (prgname, desktop name, or the
+            # application-id tail) OR any descendant window titled after the
+            # app — same approach as the renderer's atspi-check fixture.
+            names = {_norm(n.get_name()) for n in nodes if n is not None}
+            if any(want in n or n in want for n in names if n):
+                out.extend(nodes)
         except Exception:
             pass
     return out
