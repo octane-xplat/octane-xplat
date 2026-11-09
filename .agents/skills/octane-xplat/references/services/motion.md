@@ -177,3 +177,11 @@ import { motion } from '@octane-xplat/motion'
 
 <motion.View animate={{ scale: 2, scaleX: 2 }} transition={{ duration: 1 }} />
 ```
+
+For overlapping press/focus feedback, use declarative gesture props rather than saving and restoring controller snapshots. Press wins shared properties; release returns to active focus or the latest base. Gesture-enabled hosts use per-channel JavaScript playback. See [compose feedback](../../../../../docs/app/animation-gestures.md#combine-press-and-focus-feedback).
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+<motion.Pressable animate={{ scale: 1 }} whileFocus={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} />
+```

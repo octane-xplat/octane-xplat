@@ -374,6 +374,23 @@ export function PanCard() {
 }
 ```
 
+## Combine press and focus feedback
+
+Press takes priority over focus for each property they share. Other properties keep animating. Ending or cancelling press reveals active focus; ending both returns to the current `animate` target, numeric `style`, or host default. Updating those targets while held changes the eventual return destination. Removing a gesture prop clears that gesture. Gesture-enabled hosts use per-frame JavaScript animation so each property can keep its own playback on web and native.
+
+```tsx
+import { motion } from '@octane-xplat/motion'
+
+export function FeedbackCard(props: { selected: boolean }) {
+  return <motion.Pressable
+    animate={{ scale: props.selected ? 1.2 : 1 }}
+    whileFocus={{ scale: 1.05, opacity: 0.8 }}
+    whileTap={{ scale: 0.95 }}
+    transition={{ duration: 0.15 }}
+  />
+}
+```
+
 ## Drag a component
 
 Use `drag="x"` to move horizontally while allowing vertical scrolling:

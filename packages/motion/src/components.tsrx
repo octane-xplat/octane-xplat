@@ -163,18 +163,27 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     initialized: boolean
     gestureOff?: () => void
     dragOff?: () => void
-    preGesture?: Record<GestureKind, Target | undefined>
+    active: Record<GestureKind, boolean>
+    base: Target
+    gestureTarget: Target
+    channelsOnly: boolean
   } | null>(null)
 
   if (!state.current) {
     state.current = {
       controller: new Controller(clock),
       initialized: false,
-      preGesture: { press: undefined, focus: undefined },
+      active: { press: false, focus: false },
+      base: {},
+      gestureTarget: {},
+      channelsOnly: false,
     }
   }
 
   const current = state.current
+
+  current.channelsOnly ||= Boolean(props.whileTap || props.whileFocus)
+
   const style: Record<string, unknown> = {}
   const bindings: [MotionKey, number | MotionValue][] = []
 
@@ -224,47 +233,68 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
   current.controller.onUpdate = (snapshot) => latest.current.onUpdate?.(snapshot)
 
-  const gesture = (kind: GestureKind, phase: 'start' | 'end') => {
-    const shape = GESTURE_PROPS[kind]
-    const definition = latest.current[shape.target]
+  const animateTarget = useRef(resolvedAnimate.target)
 
-    if (!definition) {
+  animateTarget.current = resolvedAnimate.target
+
+  // Resolve every channel from its owner, never from an in-flight gesture pose.
+  const composed = (base: Target) => {
+    const target = { ...base }
+
+    for (const kind of ['focus', 'press'] as const) {
+      if (current.active[kind]) {
+        Object.assign(
+          target,
+          resolve(latest.current[GESTURE_PROPS[kind].target], latest.current).target,
+        )
+      }
+    }
+
+    return target
+  }
+
+  const reconcileGestures = (timing = playbackTransition(playback.current.transition)) => {
+    const base = { ...current.base }
+
+    for (const [key, value] of previous.current) {
+      base[key] = value instanceof MotionValue ? value.get() : value
+    }
+
+    Object.assign(base, animateTarget.current)
+
+    const overlay = composed({})
+    const target: Target = {}
+
+    for (const key of keys) {
+      const next = overlay[key] ?? base[key] ?? defaults[key]
+      const before = current.gestureTarget[key]
+
+      if ((overlay[key] !== undefined || before !== undefined) && next !== before) {
+        target[key] = next
+      }
+    }
+
+    current.gestureTarget = overlay
+    if (Object.keys(target).length) {
+      void current.controller.animate(target, timing, playback.current.reduced, true)
+    }
+  }
+
+  const gesture = (kind: GestureKind, phase: 'start' | 'end') => {
+    if (!current.host || (phase === 'start' && !latest.current[GESTURE_PROPS[kind].target])) {
       return
     }
 
-    const { target, transition: override } = resolve(definition, latest.current)
-    const gestureTransition = playbackTransition(
-      override ?? latest.current[shape.transition] ?? playback.current.transition,
+    current.active[kind] = phase === 'start'
+
+    const shape = GESTURE_PROPS[kind]
+    const resolved = resolve(latest.current[shape.target], latest.current)
+
+    reconcileGestures(
+      playbackTransition(
+        resolved.transition ?? latest.current[shape.transition] ?? playback.current.transition,
+      ),
     )
-
-    if (phase === 'start') {
-      // Snapshot the gesture's keys so release returns to where they were.
-      const snapshot = current.controller.snapshot()
-      const rest: Target = {}
-
-      for (const key of Object.keys(target) as MotionKey[]) {
-        rest[key] = snapshot[key]
-      }
-
-      current.preGesture![kind] = rest
-      void current.controller.animate(target, gestureTransition, playback.current.reduced)
-    } else {
-      const snap = current.preGesture![kind] ?? {}
-
-      current.preGesture![kind] = undefined
-
-      // The declarative animate prop wins over the pre-gesture snapshot.
-      const rest: Target = {}
-
-      for (const key of Object.keys(target) as MotionKey[]) {
-        rest[key] =
-          resolve(latest.current.animate ?? parentVariant?.animate, latest.current).target[key] ??
-          snap[key] ??
-          defaults[key]
-      }
-
-      void current.controller.animate(rest, gestureTransition, playback.current.reduced)
-    }
   }
 
   const ref = useRef<(host: any) => void>(() => {})
@@ -287,6 +317,8 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
 
       if (!current.initialized) {
         const baseline = current.adapter.read()
+
+        current.base = { ...baseline }
 
         for (const [key, value] of previous.current) {
           baseline[key] = value instanceof MotionValue ? value.get() : value
@@ -349,7 +381,29 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
   node.play = async (definition, target, timing) => {
     latest.current.onAnimationStart?.(definition)
 
-    const result = await current.controller.animate(target, timing, playback.current.reduced)
+    const rest = { ...target }
+
+    for (const key of keys) {
+      if (current.gestureTarget[key] !== undefined && rest[key] === undefined) {
+        const binding = previous.current.find(([name]) => name === key)?.[1]
+
+        rest[key] =
+          binding instanceof MotionValue
+            ? binding.get()
+            : (binding ?? current.base[key] ?? defaults[key])
+      }
+    }
+
+    const destination = composed(rest)
+
+    current.gestureTarget = composed({})
+
+    const result = await current.controller.animate(
+      destination,
+      timing,
+      playback.current.reduced,
+      current.channelsOnly,
+    )
 
     if (result === 'finished' && current.host) {
       latest.current.onAnimationComplete?.()
@@ -483,14 +537,17 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     const off: (() => void)[] = []
 
     for (const key of boundKeys.current) {
-      if (!previous.current.some(([next]) => key === next)) {
+      if (
+        !previous.current.some(([next]) => key === next) &&
+        current.gestureTarget[key] === undefined
+      ) {
         current.controller.set(key, defaults[key])
       }
     }
 
     boundKeys.current = previous.current.map(([key]) => key)
     for (const [key, value] of previous.current) {
-      if (!firstBinding.current) {
+      if (!firstBinding.current && current.gestureTarget[key] === undefined) {
         current.controller.set(key, value instanceof MotionValue ? value.get() : value)
       }
 
@@ -574,7 +631,24 @@ function useMotion(props: MotionProps & Pick<MotionViewProps, 'ref'>) {
     JSON.stringify(animateDefinition),
     JSON.stringify(transition),
     reduced,
+    current.channelsOnly,
     inherits,
+  ])
+
+  useLayoutEffect(() => {
+    for (const kind of ['focus', 'press'] as const) {
+      if (!props[GESTURE_PROPS[kind].target]) {
+        current.active[kind] = false
+      }
+    }
+
+    reconcileGestures()
+  }, [
+    JSON.stringify(resolve(props.whileTap)),
+    JSON.stringify(resolve(props.whileFocus)),
+    JSON.stringify(resolvedAnimate),
+    previous.current,
+    reduced,
   ])
 
   const {

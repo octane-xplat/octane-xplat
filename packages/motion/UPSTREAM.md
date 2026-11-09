@@ -17,7 +17,7 @@ The adapter is original code; it does not copy upstream's DOM host factory.
 | Exit lifecycle                                   | src/index.ts; tests/conformance/exit.test.ts                      | Deliberate live-subtree retention on both leaves; presence.web.test.tsrx and native presence test                                                                    |
 | Retained hosts on native                         | Not a DOM binding concern                                         | components.mobile.test.tsrx uses the universal object driver                                                                                                         |
 | Bounded drag                                     | src/index.ts pointer-drag binding; upstream/src/gestures/drag     | Numeric constraints, scalar elasticity, callbacks, JS velocity spring; drag.test.ts and web/native handler tests                                                     |
-| Interaction targets                              | whileTap/whileFocus gesture bindings                              | Host-level gesture seam (PointerEvents/touch/focus); snapshot + restore; components.web.test.tsrx, motion probe                                                      |
+| Interaction targets                              | whileTap/whileFocus gesture bindings                              | Active press > focus > current base per channel; compiled web/native gesture-composition tests                                                      |
 | Variant labels and bounded orchestration         | src/context.ts; src/index.ts variant inheritance/stagger          | variants.test.ts, web/native compiled host tests; numeric resolution before Controller                                                                               |
 | Scoped imperative runs                           | useAnimate                                                        | Controller registry keyed on host nodes; `ref` accepts callback refs and `{current}` scopes                                                                          |
 | Inertia                                           | `type: 'inertia'` imperative transition (drag release); motion-dom's `inertia` generator | `type: 'inertia'` on `MotionValue.animate`/`runAnimation` — target ignored; `power`/`timeConstant`/`min`/`max`/`bounceStiffness`/`bounceDamping`; engine.test.ts        |
@@ -247,9 +247,11 @@ or child timing. Presence continues waiting for each registered host's explicit
 exit; specify `exit` on children that need one. Callback completion remains
 per-host playback, rather than a tree completion event. Unsupported upstream
 semantics include `inherit={false}`, dynamic delay functions, `staggerDirection`,
-`stagger()` helpers, gesture priority blending, `transitionEnd`, resolver chains,
-and inheritance across separate renderer roots. Resolved targets and ordinary
-transitions enter Controller unchanged, retaining existing delegation gates.
+`stagger()` helpers, generalized gesture priority blending, `transitionEnd`, resolver chains,
+and inheritance across separate renderer roots. Active interaction targets resolve
+per channel with press above focus above the current base. Hosts that use
+interaction props retain JavaScript channel playback until unmount, so one
+gesture cannot cancel an unrelated channel. Other hosts retain existing delegation gates.
 
 ```tsx
 import { Presence, motion } from '@octane-xplat/motion'

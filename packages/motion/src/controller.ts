@@ -78,15 +78,20 @@ export class Controller {
     target: Target,
     transition: TransitionInput,
     reduced: boolean,
+    // Gesture hosts keep channel ownership in JS; whole-host delegation cannot
+    // cancel one property without also freezing the others.
+    channelsOnly = false,
   ): Promise<AnimationResult> {
     validateTarget(target)
 
-    const generation = ++this.generation
+    const generation = channelsOnly ? this.generation : ++this.generation
 
     this.cancelDelegated()
-    // A new destination owns the entire declarative animation, including removed keys.
-    for (const value of this.values.values()) {
-      value.stop('replaced')
+    // Ordinary declarative destinations own the whole run, including removed keys.
+    if (!channelsOnly) {
+      for (const value of this.values.values()) {
+        value.stop('replaced')
+      }
     }
 
     const dest: Target = { ...this.snapshot(), ...target }
@@ -100,6 +105,7 @@ export class Controller {
         : (target.scaleX === undefined && target.scaleY === undefined) || (dest.scale ?? 1) !== 0
 
     if (
+      !channelsOnly &&
       scaleIsRecoverable &&
       !reduced &&
       !isOrchestrated(transition) &&

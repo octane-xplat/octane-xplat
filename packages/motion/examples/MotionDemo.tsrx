@@ -41,7 +41,14 @@ export function MotionDemo() @{
       </Pressable>
       <motion.View
         initial={{ opacity: 0 }}
-        animate={{ opacity: 1, x: expanded ? 80 : 0, scale: expanded ? 1.2 : 1, scaleX: expanded ? 1.1 : 1 }}
+        whileFocus={{ scale: 1.05 }}
+        whileTap={{ scale: 0.95 }}
+        animate={{
+          opacity: 1,
+          x: expanded ? 80 : 0,
+          scale: expanded ? 1.2 : 1,
+          scaleX: expanded ? 1.1 : 1,
+        }}
         transition={{ duration: 0.25 }}
       >
         <Text>Animated destination</Text>
