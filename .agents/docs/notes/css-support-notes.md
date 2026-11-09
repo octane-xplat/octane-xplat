@@ -31,7 +31,7 @@
 | `border-*` (width/color/radius/style) | ✅     | ✅  |                                                                                                                                                                                                                                                                                                                                                                                       |
 | `corner-shape: squircle`              | ⚠️ iOS | ⚠️  | Default corner treatment on the `--radius-*` scale (decision #38). iOS: uniform radii → `cornerCurve` (9.1 ships it), non-uniform → patched superellipse paths. Android ignores; web = Chrome ≥139, other browsers degrade to round. Exact cross-target match + caller-controlled smoothing → `@octane-xplat/smooth-corners` (decision #88, [design](../../design/smooth-corners.md)) |
 | `background-color`/image/gradient     | ✅     | ✅  |                                                                                                                                                                                                                                                                                                                                                                                       |
-| `box-shadow`                          | ⚠️     | ✅  | iOS shadow props / Android `elevation` — `shadow-{n}` utility                                                                                                                                                                                                                                                                                                                         |
+| `box-shadow`                          | ✅     | ✅  | Renders on both platforms. NS views: iOS draws a sibling `outerShadowContainerLayer` that also tracks `translateX`/`view.animate`/`layout`/`zIndex`; Android draws a `BoxShadowDrawable` background. Mason views: iOS `MasonShadowLayer` re-syncs **only on `layoutSubviews`** — transform-only moves (`translateX`, `view.animate`) leave it behind; move by layout (position/frame) or transform an ancestor. NS iOS draws `inset` shadows as outset; Mason iOS and Android honor `inset`                                                                                                                                                                                                                                                                                  |
 | `opacity`                             | ✅     | ✅  | animatable                                                                                                                                                                                                                                                                                                                                                                            |
 
 ## Typography
@@ -98,9 +98,12 @@ export default defineConfig(({ mode }) => xplatNative(mode))
    the native bundle — web-only machinery (portals, dialog modals, spinners)
    shouldn't ship dead rules or trip the warnings.
 3. **Divergence warnings.** Once per file, loud `this.warn` on declarations
-   NS silently ignores: `margin-*:auto`, `position:fixed|sticky`,
-   `float`, `box-shadow`, `white-space:pre-wrap` — each message names the
-   portable alternative.
+   NS silently ignores or diverges on: `margin-*:auto`, `position:fixed|sticky`,
+   `float`, `white-space:pre-wrap` — each message names the
+   portable alternative. `box-shadow` warns too: it *does* render, but on Mason
+   elements the iOS shadow layer only re-syncs on layout, so transform-driven
+   moves (`translateX`/`view.animate`) leave it behind — the message points at
+   animating position or transforming an ancestor.
 
 **`@import` bypasses the plugin transform.** The transform sees each css
 _module's_ raw text; `@import` chains are inlined by vite's own css pass, so

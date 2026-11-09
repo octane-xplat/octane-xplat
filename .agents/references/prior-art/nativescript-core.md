@@ -41,7 +41,10 @@ Real CSS parser + cascade, applied onto view properties. Supported:
 - Tailwind v4 via `@nativescript/tailwind` (works today; skip preflight)
 
 Not supported / traps: no `position`, no `display:none` (use `visibility:
-collapse`), no `box-shadow` (Android `elevation`, iOS shadow props differ),
+collapse`), `box-shadow` renders on both platforms (verified 9.1.3 source +
+consumer iOS runtime evidence — see css-support-notes) — iOS draws a sibling
+shadow layer synced on layout/transform/animate paths, Android a
+`BoxShadowDrawable`; iOS treats `inset` as outset,
 silent drops on unknown property names (`vertical-align` not
 `vertical-alignment`), units are dip by default (`px` exists), percentages exist
 but measure differently, limited pseudo-classes (no `:hover`/`:focus` as on web —

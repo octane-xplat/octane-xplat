@@ -244,8 +244,8 @@ export function Example() {
    - `vertical-align` (not `-alignment`); unknown props **drop silently** — and
      NS recovers _per declaration_, so a rule can half-apply. The preset's css
      pass now warns on the confirmed-silent set (margin-auto,
-     position fixed/sticky, float, box-shadow, pre-wrap); a fuller
-     property allowlist is enforced by `pnpm check:css`
+     position fixed/sticky, float, pre-wrap) plus box-shadow's layout-sync
+     limit; a fuller property allowlist is enforced by `pnpm check:css`
    - no `position` CSS natively → `Absolute`/`Grid` primitives instead
    - no `display:none` → `visibility: collapse` (removes from layout too)
    - **no `transition` property** — animations are `@keyframes`/`animation-*`
@@ -254,8 +254,15 @@ export function Example() {
      `animation-play-state`; `direction` accepts only `reverse`; unitless
      `animation-delay` is seconds; no `fill-mode` → values snap back.
      → state-transition animations need the JS facade or keyframe classes
-   - `box-shadow`: web has it; native = iOS shadow props / Android `elevation`
-     → wrap in a `shadow-{n}` utility class per platform
+   - `box-shadow` **renders natively** (issue #190 corrected the "inert"
+     diagnostic): iOS draws a sibling shadow layer, Android a
+     `BoxShadowDrawable` background. On standard NS views it tracks
+     `translateX`/`view.animate`; on Mason elements it re-syncs **only on
+     layout** — transform-only moves leave the shadow behind (verified from
+     the Mason iOS `syncShadowLayer` call graph + consumer runtime evidence).
+     For sliding Mason surfaces, animate position/frame or transform an
+     ancestor so the shadow stays with the moving layer. NS iOS renders
+     `inset` as outset; Mason iOS and Android honor `inset`
    - units: stylesheet `px` is rewritten to `dip` by the preset's css
      transform (NS `px` = device pixels, ~1/3 on a 3x device — silent
      miniaturization without it); inline `style` numbers are already dips;

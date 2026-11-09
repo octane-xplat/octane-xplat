@@ -368,6 +368,28 @@ block braces fail the build. For a whole stylesheet that differs, use
 }
 ```
 
+## Shadows on native
+
+`box-shadow` works on web, iOS, and Android — the same declaration draws a
+shadow everywhere, so you do not need a platform-specific utility.
+
+```css
+.floating-card {
+  box-shadow: 0 2px 10px #00000029;
+}
+```
+
+There is one native limit to know when a shadowed surface moves. On iOS the
+shadow is drawn by a separate layer next to the view, and on Mason elements it
+only catches up when the view is laid out again. Animating the element's own
+`translateX`, scale, or rotate — including through `view.animate` — can leave
+the shadow where it was. The build prints a warning when a stylesheet contains
+`box-shadow`, so this stays visible instead of surprising you later.
+
+To keep the shadow attached while a surface slides, move it by layout — animate
+a position property such as `left` — or wrap the shadowed element and translate
+the wrapper. Both keep the shadow owned by the moving layer.
+
 ## Use Bamboo CSS utilities
 
 This is optional; you can keep writing ordinary CSS. **Utilities** are small
