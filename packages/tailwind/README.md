@@ -44,6 +44,14 @@ container units such as `cqw`. These candidates pass the unit boundary:
 This unit check does not validate every property's value grammar or values hidden
 behind runtime variables. Those contracts still require separate qualification.
 
+Generated `calc()` expressions containing both percentage and pixel/DIP literals
+fail explicitly. Core's width converter cannot consume the unresolved contextual
+result. These resolvable calculations remain accepted:
+
+```css
+@source inline("w-[calc(25%*2)] h-[calc(4px*2)]");
+```
+
 Compilation is configured during Vite's `config` hook after platform CSS setup.
 Changing PostCSS in `configResolved` misses the per-environment configuration.
 The compiler preserves its AST for source maps and leaves minification to Vite;

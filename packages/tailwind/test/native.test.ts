@@ -131,3 +131,17 @@ test('native unit diagnostics cover physical and container lengths and misplaced
   assert.match(css, /width: 50%/)
   assert.match(css, /width: 10pt/)
 })
+
+test('native contextual math fails instead of reaching a rejecting length converter', async () => {
+  for (const classes of ['w-[calc(100%_-_8px)]', 'grid-cols-[calc(100%_-_8px)]']) {
+    await assert.rejects(compile(classes), /contextual|mixed/)
+  }
+  const css = await compile(
+    'w-[calc(25%*2)] h-[calc(4px*2)]',
+    '.authored { width: calc(100% - 8px) }',
+  )
+
+  assert.equal(computed(css, ['w-[calc(25%*2)]']).width, '50%')
+  assert.equal(computed(css, ['h-[calc(4px*2)]']).height, 8)
+  assert.match(css, /width: calc\(100% - 8dip\)/)
+})

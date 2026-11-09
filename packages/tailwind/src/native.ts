@@ -153,6 +153,34 @@ function checkValue(root: Root, declaration: Declaration, target: NativeTarget) 
   const parsed = valueParser(declaration.value)
 
   parsed.walk((node) => {
+    if (node.type === 'function' && node.value.toLowerCase() === 'calc') {
+      let percentage = false
+      let length = false
+
+      valueParser.walk(node.nodes, (part) => {
+        if (part.type !== 'word') {
+          return
+        }
+        const dimension = valueParser.unit(part.value)
+
+        if (dimension) {
+          const unit = dimension.unit.toLowerCase()
+
+          percentage ||= unit === '%'
+          length ||= unit === 'px' || unit === 'dip'
+        }
+      })
+
+      if (percentage && length) {
+        fail(
+          root,
+          declaration,
+          target,
+          `${declaration.prop}: ${declaration.value} uses mixed percentage/length math requiring unsupported native layout context`,
+        )
+      }
+    }
+
     if (
       node.type === 'function' &&
       !['var', 'calc', 'repeat', 'minmax', 'rgb', 'rgba', 'hsl', 'hsla'].includes(

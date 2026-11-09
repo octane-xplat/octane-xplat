@@ -198,7 +198,22 @@ installed-patch identity before treating a cached dependency source as upstream
 evidence. These repairs do not add `@property` registration or non-inherited
 defaults; those still require host qualification.
 
-The selected iOS simulator probe confirmed that distinction: a loaded Label's
+Mixed percentage/length calculations are another native boundary. Core 9.1.3's
+[`PercentLength.parse`](https://github.com/NativeScript/NativeScript/blob/9.1.3-core/packages/core/ui/styling/length-shared.ts#L81)
+rejects an unresolved contextual width calculation after CSS evaluation. Mason
+core beta.7's
+[`cssLengthToDip`](https://github.com/octane-xplat/nativescript-mason/blob/core-v1.0.0-beta.7/packages/nativescript-mason-core/style.ts#L645)
+leaves mixed results unresolved and its width accessor falls through to Core.
+The private adapter rejects generated `calc()` expressions containing both `%`
+and pixel/DIP literals; this conservative syntax check leaves authored CSS
+unchanged and does not infer types for runtime variables. Installed-source
+contracts preserve scalar percentage arithmetic and demonstrate the failed mixed
+conversion. This is source/Node evidence, not layout evidence. Track the owning
+gap in [#213](https://github.com/octane-xplat/octane-xplat/issues/213). Relax the
+boundary only after the owning host can carry contextual lengths through sizing
+and real layout checks confirm the result.
+
+An earlier iOS simulator probe measured layer precedence: a loaded Label's
 normal layered/unlayered opacity resolved to `.75` as expected; two important
 layer rules resolved to `.75` instead of the expected `.25`. This is native
 runtime CSS-state evidence, not native painting or OS input evidence. Locate

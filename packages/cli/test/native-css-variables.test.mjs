@@ -6,9 +6,9 @@ import { test } from 'node:test'
 import { runInNewContext } from 'node:vm'
 import ts from 'typescript-classic'
 
-// Run the installed Core evaluator, Style variable maps and CssState, without
-// loading platform UI bindings. Selector matching and native property setters
-// are boundaries here; device layout/input/painting require separate probes.
+// Run the installed Core evaluator, Style variable maps, CssState and width
+// converter without loading platform UI bindings. Selector matching and native
+// setters remain boundaries; device layout/input/painting need separate probes.
 function declarations(file, names, assignments) {
   const code = readFileSync(file, 'utf8')
   const source = ts.createSourceFile(file, code, ts.ScriptTarget.ESNext, true, ts.ScriptKind.JS)
@@ -27,6 +27,16 @@ function declarations(file, names, assignments) {
         (entry) => ts.isIdentifier(entry.name) && names.has(entry.name.text),
       )
     ) {
+      selected.push(node.getText(source))
+    } else if (
+      ts.isExpressionStatement(node) &&
+      ts.isCallExpression(node.expression) &&
+      node.expression.arguments[0] &&
+      ts.isBinaryExpression(node.expression.arguments[0]) &&
+      ts.isIdentifier(node.expression.arguments[0].left) &&
+      names.has(node.expression.arguments[0].left.text)
+    ) {
+      // Core emits its public length namespaces as immediately invoked functions.
       selected.push(node.getText(source))
     } else if (
       assignments &&
@@ -96,6 +106,11 @@ function loadCore(root) {
     ]),
   )
   const propertyApi = runInNewContext(properties + '\nexports', { ...globals, exports: {} })
+  const lengthCode = declarations(
+    join(root, 'ui/styling/length-shared.js'),
+    new Set(['PercentLength', 'equalsCommon', 'toDevicePixelsCommon', 'convertToStringCommon']),
+  )
+  const { PercentLength } = runInNewContext(lengthCode + '\nexports', { exports: {} })
   const styleCode = declarations(
     join(root, 'ui/styling/style/index.js'),
     new Set(['Style']),
@@ -144,7 +159,7 @@ function loadCore(root) {
           if (value === unsetValue) {
             this.values.delete(name)
           } else {
-            this.values.set(name, value)
+            this.values.set(name, name === 'width' ? PercentLength.parse(value) : value)
           }
           return true
         },
@@ -168,7 +183,7 @@ function loadCore(root) {
     }
   }
 
-  return { ...propertyApi, HostView, messages, unsetValue }
+  return { ...propertyApi, PercentLength, HostView, messages, unsetValue }
 }
 
 const local = createRequire(import.meta.url)
@@ -245,5 +260,21 @@ for (const [variant, root] of variants) {
     assert.equal(Object.hasOwn(view.state._appliedPropertyValues, 'color'), false)
     view.apply({ '--color': 'blue', color: 'var(--color)' })
     assert.equal(view.values.get('color'), 'blue')
+  })
+
+  test(`${variant}: Core resolves scalar percentage math but cannot consume contextual width math`, () => {
+    const view = new api.HostView()
+    view.apply({ '--step': '4dip', width: 'calc(var(--step) * 2)' })
+    assert.equal(view.values.get('width'), 8)
+    view.apply({ width: 'calc(25% * 2)' })
+
+    assert.equal(view.values.get('width').unit, '%')
+    assert.equal(view.values.get('width').value, 0.5)
+    const unresolved = api._evaluateCssCalcExpression('calc(100% - 8dip)')
+
+    assert.throws(() => api.PercentLength.parse(unresolved), /Invalid value/)
+    view.apply({ width: 'calc(100% - 8dip)' })
+    assert.equal(view.values.get('width'), undefined)
+    assert.equal(Object.hasOwn(view.state._appliedPropertyValues, 'width'), false)
   })
 }
