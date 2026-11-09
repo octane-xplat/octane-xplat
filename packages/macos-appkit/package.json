@@ -31,7 +31,7 @@
 			"default": "./src/index.ts"
 		},
 		"./host": {
-			"types": "./src/host.ts",
+			"types": "./src/host.d.ts",
 			"import": "./src/host.ts",
 			"default": "./src/host.ts"
 		},

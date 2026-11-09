@@ -16,7 +16,11 @@ import { checkActivityLifecycle } from './activity-lifecycle'
 import { checkHtmlLifecycle } from './html-lifecycle'
 import { checkPickerBridgeLifecycle } from './picker-bridge-lifecycle'
 import { createMacOSRoot } from '@octane-xplat/macos-appkit'
-import { runMacOSApp, setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
+import {
+  runMacOSApp,
+  setWindowContentResolver,
+  type MacOSAppMount,
+} from '@octane-xplat/macos-appkit/host'
 import { checkFormattedLifecycle } from './formatted-lifecycle'
 import { checkSearchLifecycle } from './search-lifecycle'
 import { checkRootLifecycle } from './root-lifecycle'
@@ -36,7 +40,7 @@ runMacOSApp(
     size: { width: 400, height: 200 },
     terminateAfterLastWindowClosed: true,
   },
-  ({ app, window: nativeWindow, root }) => {
+  ({ app, window: nativeWindow, root }: MacOSAppMount) => {
     root.render(App as any, {})
 
     if (process.env.XPLAT_RENDERER_CONSUMER_TEST !== '1') {
