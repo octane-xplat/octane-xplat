@@ -74,12 +74,26 @@ export function cancelAnimationFrame(id: number) {
 // through ApplicationSettings on native. Persisted with a GLib.KeyFile at
 // `${XDG_CONFIG_HOME:-~/.config}/<applicationId>/settings.ini`, resolved
 // lazily on first access so unit tests (no GLib) keep in-memory behavior.
+// GLib key names allow only [A-Za-z0-9-], so each storage key is stored under
+// group 'settings' as 'k' + lowercase hex of its UTF-8 bytes; the decoded
+// name map is rebuilt on load so getAllKeys still returns the real keys.
 let keyFileStore: {
   dir: string
   path: string
   keys: Map<string, { t: string; v: unknown }>
+  names: Map<string, string>
   write(): void
 } | null = null
+
+const hexName = (key: string) =>
+  'k' + Array.from(new TextEncoder().encode(key), (b) => b.toString(16).padStart(2, '0')).join('')
+
+const warnedPaths = new Set<string>()
+function warnOnce(path: string, error: unknown) {
+  if (warnedPaths.has(path)) return
+  warnedPaths.add(path)
+  console.warn('[linux-gtk] settings write failed', path, error)
+}
 
 function loadKeyFile() {
   if (keyFileStore !== null) return keyFileStore
@@ -98,25 +112,30 @@ function loadKeyFile() {
     const dir = GLib.build_filenamev([GLib.get_user_config_dir(), String(appId)])
     const path = GLib.build_filenamev([dir, 'settings.ini'])
     const keys = new Map<string, { t: string; v: unknown }>()
+    const names = new Map<string, string>()
 
     const kf = new GLib.KeyFile()
     try {
-      kf.load_from_file(path, GLib.KeyFileFlags.KEEP_COMMENTS)
+      kf.load_from_file(path, GLib.KeyFileFlags.NONE)
       const [groups] = kf.get_groups()
       for (const grp of groups ?? []) {
-        const [names] = kf.get_keys(grp)
-        for (const name of names ?? []) {
-          const raw = String(kf.get_value(grp, name))
+        const [names0] = kf.get_keys(grp)
+        for (const hex of names0 ?? []) {
+          const real = new TextDecoder().decode(
+            Uint8Array.from(hex.slice(1).match(/../g) ?? [], (h) => parseInt(h, 16)),
+          )
+          const raw = kf.get_string(grp, hex)
           const t = raw[0]
           const v = raw.slice(1)
           keys.set(
-            `${grp}/${name}`,
+            real,
             t === 's'
               ? { t, v }
               : t === 'n'
                 ? { t, v: Number(v) }
                 : { t: 'b', v: v === 'true' },
           )
+          names.set(real, hex)
         }
       }
     } catch {
@@ -127,11 +146,11 @@ function loadKeyFile() {
       dir,
       path,
       keys,
+      names,
       write() {
         const kf2 = new GLib.KeyFile()
-        for (const [compound, e] of this.keys) {
-          const i = compound.lastIndexOf('/')
-          kf2.set_value(compound.slice(0, i), compound.slice(i + 1), `${e.t}${e.v}`)
+        for (const [key, e] of this.keys) {
+          kf2.set_string('settings', this.names.get(key) ?? hexName(key), `${e.t}${e.v}`)
         }
         GLib.mkdir_with_parents(this.dir, 0o700)
         // Atomic write: temp file + rename, so a crash mid-flush cannot
@@ -143,17 +162,17 @@ function loadKeyFile() {
       },
     }
   } catch {
-    keyFileStore = { dir: '', path: '', keys: new Map(), write() {} }
+    keyFileStore = { dir: '', path: '', keys: new Map(), names: new Map(), write() {} }
   }
   return keyFileStore
 }
 
-function persist(store: { keys: Map<string, { t: string; v: unknown }>; write(): void; dir: string }) {
+function persist(store: { write(): void; dir: string; path: string }) {
   if (!store.dir) return
   try {
     store.write()
-  } catch {
-    // Persistence is best-effort; the in-memory value still applied.
+  } catch (error) {
+    warnOnce(store.path, error)
   }
 }
 
@@ -162,7 +181,7 @@ const settingsStore = new Map<string, unknown>()
 function getEntry(key: string): unknown {
   const store = loadKeyFile()
   if (store.dir) {
-    const e = store.keys.get(`settings/${key}`)
+    const e = store.keys.get(key)
     return e === undefined ? undefined : e.v
   }
   return settingsStore.get(key)
@@ -171,7 +190,8 @@ function getEntry(key: string): unknown {
 function setEntry(key: string, t: string, v: unknown) {
   const store = loadKeyFile()
   if (store.dir) {
-    store.keys.set(`settings/${key}`, { t, v })
+    store.keys.set(key, { t, v })
+    store.names.set(key, store.names.get(key) ?? hexName(key))
     persist(store)
     return
   }
@@ -196,18 +216,11 @@ export const ApplicationSettings = {
   },
   getAllKeys(): string[] {
     const store = loadKeyFile()
-    if (store.dir) {
-      return [...store.keys.keys()]
-        .filter((k) => k.startsWith('settings/'))
-        .map((k) => k.slice('settings/'.length))
-    }
-    return [...settingsStore.keys()]
+    return store.dir ? [...store.keys.keys()] : [...settingsStore.keys()]
   },
   hasKey(key: string): boolean {
     const store = loadKeyFile()
-    return store.dir
-      ? store.keys.has(`settings/${key}`)
-      : settingsStore.has(key)
+    return store.dir ? store.keys.has(key) : settingsStore.has(key)
   },
   setString(key: string, value: string) {
     setEntry(key, 's', value)
@@ -221,7 +234,8 @@ export const ApplicationSettings = {
   remove(key: string) {
     const store = loadKeyFile()
     if (store.dir) {
-      store.keys.delete(`settings/${key}`)
+      store.keys.delete(key)
+      store.names.delete(key)
       persist(store)
       return
     }
@@ -230,9 +244,7 @@ export const ApplicationSettings = {
   clear() {
     const store = loadKeyFile()
     if (store.dir) {
-      for (const k of [...store.keys.keys()]) {
-        if (k.startsWith('settings/')) store.keys.delete(k)
-      }
+      store.keys.clear()
       persist(store)
       return
     }
