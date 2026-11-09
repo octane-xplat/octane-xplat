@@ -12,5 +12,5 @@ export function BannerAd(props: BannerAdProps): unknown @{
     })
   }, [])
 
-  <masonview id={props.id} className={props.className} style={props.style} />
+  <masonview className={props.className} style={props.style} />
 }

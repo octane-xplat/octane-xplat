@@ -5,7 +5,7 @@
 // 'unsupported'.
 import { files } from '@octane-xplat/files'
 import { NSWinRT } from '@octane-xplat/platform/windows'
-import type { Permissioned, PermissionResponse } from '@octane-xplat/lib/capability'
+import type { PermissionResponse, Service } from '@octane-xplat/lib/capability'
 import type { MediaImpl, MediaPermissionKind, PickedImage } from './types'
 
 const UNSUPPORTED: PermissionResponse = {
@@ -25,7 +25,7 @@ function pickerAvailable(): boolean {
 }
 
 /** Media service — gallery pick via the file picker; camera capture bounded. */
-export const media: Permissioned<MediaImpl> = {
+export const media: Service<MediaImpl> = {
   get supported() {
     return pickerAvailable()
   },

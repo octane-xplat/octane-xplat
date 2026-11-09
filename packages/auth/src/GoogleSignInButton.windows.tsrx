@@ -17,7 +17,7 @@ export function GoogleSignInButton(props: GoogleSignInButtonProps): unknown @{
     id={props.id}
     className={props.className}
     style={props.style}
-    text={props.type === 'signUp' ? 'Sign up with Google' : 'Sign in with Google'}
+    text="Sign in with Google"
     isEnabled={props.disabled !== true}
     onTap={run}
   />
