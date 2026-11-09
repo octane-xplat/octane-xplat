@@ -86,3 +86,62 @@ elif cmd == 'value':
         print(text.get_text(0, -1))
     except Exception:
         print(node.get_name() or '')
+elif cmd == 'focused':
+    # Print "role|name" of the currently focused node under the app.
+    for node in app_nodes(sys.argv[2]):
+        try:
+            if node.get_state_set().contains(Atspi.StateType.FOCUSED):
+                print(f'{node.get_role_name()}|{node.get_name() or ""}')
+                sys.exit(0)
+        except Exception:
+            pass
+    sys.exit('NONE')
+elif cmd == 'windows':
+    # One "role|name" line per window/frames the app exposes.
+    for node in app_nodes(sys.argv[2]):
+        try:
+            if node.get_role_name() in ('frame', 'window', 'dialog'):
+                print(f'{node.get_role_name()}|{node.get_name() or ""}')
+        except Exception:
+            pass
+elif cmd == 'menu':
+    # menu <app> <top-name> <item-name>: activate a menubar entry then its item.
+    top = find(sys.argv[2], None, sys.argv[3], timeout=5)
+    if top is None:
+        sys.exit('NO_TOP')
+    for action_name in ('click', 'press', 'activate'):
+        action = top.get_action_iface()
+        for i in range(action.get_n_actions()):
+            if action.get_action_name(i) == action_name:
+                action.do_action(i)
+                break
+        else:
+            continue
+        break
+    time.sleep(0.4)
+    item = find(sys.argv[2], 'menu item', sys.argv[4], timeout=5) or find(sys.argv[2], None, sys.argv[4], timeout=3)
+    if item is None:
+        sys.exit('NO_ITEM')
+    action = item.get_action_iface()
+    for i in range(action.get_n_actions()):
+        if action.get_action_name(i) in ('click', 'press', 'activate'):
+            action.do_action(i)
+            print('ACTIVATED')
+            sys.exit(0)
+    sys.exit('NO_ACTION')
+elif cmd == 'accel':
+    # accel <trigger> — map a GTK accelerator like 'Ctrl+Alt+Shift+KeyJ' or
+    # '<Control><Alt><Shift>j' to an xdotool key spec.
+    trig = sys.argv[2]
+    mods = []
+    low = trig.lower()
+    for token, mod in [('ctrl', 'ctrl'), ('control', 'ctrl'), ('alt', 'alt'),
+                       ('shift', 'shift'), ('meta', 'super'), ('super', 'super')]:
+        if token in low:
+            mods.append(mod)
+    # the key name is the last + or > segment, KeyX strips its prefix
+    import re
+    m = re.findall(r'(?:Key)?([A-Za-z0-9]+)>?$', trig) or re.findall(r'([A-Za-z0-9]+)$', trig)
+    key = (m[-1] if m else 'j').lower()
+    mods.append(key)
+    print('+'.join(dict.fromkeys(mods)))

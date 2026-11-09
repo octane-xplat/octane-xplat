@@ -6,7 +6,6 @@
 set -u
 cd /journey
 export DISPLAY=:99 XDG_DATA_HOME=/tmp/xdg-data XDG_CONFIG_HOME=/tmp/kfcfg
-at-spi-bus-launcher --launch-immediately >/dev/null 2>&1 &
 APP_ID=org.octane.xplat.shell-journey
 APP_NAME=desktop-shell-journey
 LOG=/journey/app.log
@@ -15,8 +14,10 @@ step() { printf 'STEP|%s|%s|%s|%s\n' "$1" "$2" "$3" "$4"; }
 
 Xvfb :99 -screen 0 1024x768x24 >/dev/null 2>&1 &
 sleep 0.5
+at-spi-bus-launcher --launch-immediately >/dev/null 2>&1 &
 gjs /journey/watcher.js >/dev/null 2>&1 &
 sleep 0.4
+
 mkdir -p v1 v2
 tar -xzf app-v1.tar.gz -C v1
 tar -xzf app-v2.tar.gz -C v2
@@ -31,91 +32,172 @@ desktop-file-validate "$XDG_DATA_HOME/applications/$APP_ID.desktop" && step "des
 EXEC=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
 $EXEC >"$LOG" 2>&1 &
 APP_PID=$!
-for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && break; sleep 0.25; done
-grep -q 'JOURNEY READY' "$LOG" && step "launch via installed Exec" in-process pass "" || { step "launch via installed Exec" in-process fail "no READY"; tail -5 "$LOG"; }
+READY=no
+for i in $(seq 1 80); do grep -q 'JOURNEY READY' "$LOG" && { READY=yes; break; }; sleep 0.25; done
+[ "$READY" = yes ] && step "launch via installed Exec" in-process pass "" || { step "launch via installed Exec" in-process fail "no READY"; tail -5 "$LOG"; }
 
-# --- form: focus field, type, submit via xdotool at AT-SPI coords ---
-R=$(python3 ax.py find "$APP_NAME" entry "" 2>/dev/null || python3 ax.py find "$APP_NAME" text "" 2>/dev/null)
-if [ -n "$R" ]; then
-  X=$(echo "$R" | cut -d, -f1); Y=$(echo "$R" | cut -d, -f2)
-  xdotool mousemove $((X+5)) $((Y+5)) click 1 type "Ada"
-  step "form: type name" os-input-x11-xtest pass "atspi coords $X,$Y"
-else
-  step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
-fi
-B=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null)
-if [ -n "$B" ]; then
-  BX=$(echo "$B" | cut -d, -f1); BY=$(echo "$B" | cut -d, -f2)
-  BW=$(echo "$B" | cut -d, -f3); BH=$(echo "$B" | cut -d, -f4)
-  xdotool mousemove $((BX+BW/2)) $((BY+BH/2)) click 1
-  for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
-  grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "" || step "form: submit" os-input-x11-xtest fail "no SUBMITTED"
-else
-  step "form: submit" os-input-x11-xtest fail "Submit not in AT-SPI"
-fi
-
-# --- AT-SPI role assertions ---
+# --- AT-SPI role/name assertions (independent of READY? needs the app) ---
 python3 ax.py tree "$APP_NAME" > ax-tree.txt 2>/dev/null
-ROLE=$(grep -i submit ax-tree.txt | head -1)
-case "$ROLE" in "push button|"*) step "atspi: submit is push button" atspi pass "$ROLE" ;; *) step "atspi: submit is push button" atspi fail "$ROLE" ;; esac
-STATUS=$(grep -i 'Submitted\|Waiting' ax-tree.txt | head -1)
-case "$STATUS" in label\|*) step "atspi: status is label" atspi pass "$STATUS" ;; *) step "atspi: status is label" atspi fail "$STATUS" ;; esac
+if [ "$READY" = yes ]; then
+  ROLE=$(grep -i submit ax-tree.txt | head -1)
+  case "$ROLE" in "push button|"*) step "atspi: submit is push button" atspi pass "$ROLE" ;; *) step "atspi: submit is push button" atspi fail "$ROLE" ;; esac
+  STATUS=$(grep -i 'Submitted\|Waiting' ax-tree.txt | head -1)
+  case "$STATUS" in label\|*) step "atspi: status is label" atspi pass "$STATUS" ;; *) step "atspi: status is label" atspi fail "$STATUS" ;; esac
+else
+  step "atspi: submit is push button" atspi blocked "launch"
+  step "atspi: status is label" atspi blocked "launch"
+fi
 
-# --- Tab/Space keyboard path ---
-xdotool key Tab; sleep 0.3; xdotool key space; sleep 0.4
-grep -q 'JOURNEY SUBMITTED' "$LOG" && step "keyboard: Tab+Space activates" os-input-x11-xtest pass "" || step "keyboard: Tab+Space activates" os-input-x11-xtest fail "no submit after Space"
+# --- form: type into the entry at AT-SPI coords, click Submit ---
+if [ "$READY" = yes ]; then
+  R=$(python3 ax.py find "$APP_NAME" entry "" 2>/dev/null || python3 ax.py find "$APP_NAME" text "" 2>/dev/null)
+  if [ -n "$R" ]; then
+    X=$(echo "$R" | cut -d, -f1); Y=$(echo "$R" | cut -d, -f2)
+    xdotool mousemove $((X+5)) $((Y+5)) click 1 type "Ada"
+    step "form: type name" os-input-x11-xtest pass "atspi coords $X,$Y"
+  else
+    step "form: type name" os-input-x11-xtest fail "name field not in AT-SPI"
+  fi
+  B=$(python3 ax.py find "$APP_NAME" "push button" "Submit" 2>/dev/null)
+  if [ -n "$B" ]; then
+    BX=$(echo "$B" | cut -d, -f1); BY=$(echo "$B" | cut -d, -f2)
+    BW=$(echo "$B" | cut -d, -f3); BH=$(echo "$B" | cut -d, -f4)
+    xdotool mousemove $((BX+BW/2)) $((BY+BH/2)) click 1
+    for i in $(seq 1 40); do grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && break; sleep 0.25; done
+    grep -q 'JOURNEY SUBMITTED name=Ada' "$LOG" && step "form: submit" os-input-x11-xtest pass "" || step "form: submit" os-input-x11-xtest fail "no SUBMITTED"
+  else
+    step "form: submit" os-input-x11-xtest fail "Submit not in AT-SPI"
+  fi
+else
+  step "form: type name" os-input-x11-xtest blocked "launch"
+  step "form: submit" os-input-x11-xtest blocked "launch"
+fi
 
-# --- app menu accelerator (in-window menubar) ---
-xdotool key ctrl+shift+i; sleep 0.4
-grep -q 'JOURNEY MENU action=increment' "$LOG" && step "app menu: accelerator" os-input-x11-xtest pass "" || step "app menu: accelerator" os-input-x11-xtest fail "no MENU marker"
+# --- Tab focus traversal reaching Submit, verified via AT-SPI focused state ---
+if [ "$READY" = yes ]; then
+  R2=$(python3 ax.py find "$APP_NAME" entry "" 2>/dev/null || python3 ax.py find "$APP_NAME" text "" 2>/dev/null)
+  [ -n "$R2" ] && xdotool mousemove $(($(echo "$R2" | cut -d, -f1)+5)) $(($(echo "$R2" | cut -d, -f2)+5)) click 1
+  sleep 0.3
+  xdotool key Tab; sleep 0.5
+  FOC=$(python3 ax.py focused "$APP_NAME" 2>/dev/null || true)
+  case "$FOC" in *Submit*|*submit*)
+    xdotool key space; sleep 0.5
+    grep -q 'JOURNEY SUBMITTED' "$LOG" && step "keyboard: Tab→Submit, Space activates" os-input-x11-xtest pass "focused=$FOC" || step "keyboard: Tab→Submit, Space activates" os-input-x11-xtest fail "focused=$FOC no submit"
+    ;;
+  *) step "keyboard: Tab→Submit, Space activates" os-input-x11-xtest fail "Tab focused '$FOC' not Submit" ;;
+  esac
+else
+  step "keyboard: Tab→Submit, Space activates" os-input-x11-xtest blocked "launch"
+fi
 
-# --- tray: SNI Activate shows the menu window; Return picks the first item ---
+# --- app menu accelerator (in-window menubar) + AT-SPI menu activation ---
+if [ "$READY" = yes ]; then
+  BEFORE=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  xdotool key ctrl+shift+i; sleep 0.5
+  AFTER=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  [ "$AFTER" -gt "$BEFORE" ] && step "app menu: accelerator" os-input-x11-xtest pass "count $BEFORE->$AFTER" || step "app menu: accelerator" os-input-x11-xtest fail "count $BEFORE->$AFTER"
+  # AT-SPI path: activate the Journey menubar item, then its Increment action.
+  MOUT=$(python3 ax.py menu "$APP_NAME" Journey Increment 2>/dev/null || true)
+  sleep 0.4
+  AFTER2=$(grep -c 'JOURNEY MENU action=increment' "$LOG" || true)
+  [ "$AFTER2" -gt "$AFTER" ] && step "app menu: AT-SPI activation" atspi pass "$MOUT" || step "app menu: AT-SPI activation" atspi fail "$MOUT"
+else
+  step "app menu: accelerator" os-input-x11-xtest blocked "launch"
+  step "app menu: AT-SPI activation" atspi blocked "launch"
+fi
+
+# --- tray: SNI Activate over D-Bus, Return picks the item (OS input for Return) ---
 SNI=$(cat watcher-registered.txt 2>/dev/null | head -1)
-if [ -n "$SNI" ]; then
+if [ "$READY" = yes ] && [ -n "$SNI" ]; then
   gdbus call --session -d "$SNI" -o /StatusNotifierItem -m org.kde.StatusNotifierItem.Activate 0 0 >/dev/null 2>&1
   sleep 0.6
-  xdotool key Return; sleep 0.5
+  xdotool key Return; sleep 0.6
   grep -q 'JOURNEY INSPECTOR_OPENED' "$LOG" && step "tray: open inspector" dbus-shell-protocol pass "" || step "tray: open inspector" dbus-shell-protocol fail "no INSPECTOR_OPENED"
+elif [ "$READY" != yes ]; then
+  step "tray: open inspector" dbus-shell-protocol blocked "launch"
 else
   step "tray: open inspector" dbus-shell-protocol blocked "no SNI registered"
 fi
 
-# --- global shortcut: focus a foreign client, press the assigned trigger ---
-xeyes >/dev/null 2>&1 &
-sleep 0.5
-xdotool search --name 'xeyes' windowactivate 2>/dev/null || true
-xdotool key ctrl+alt+shift+j; sleep 0.6
-grep -q 'JOURNEY HOTKEY_FOCUS' "$LOG" && step "global shortcut focus" os-input-x11-xtest pass "" || step "global shortcut focus" os-input-x11-xtest blocked "portal bound nothing"
+# --- inspector window visible to AT-SPI ---
+WINS=$(python3 ax.py windows "$APP_NAME" 2>/dev/null || true)
+echo "$WINS" | grep -qi 'Inspector' && step "atspi: inspector window present" atspi pass "$WINS" || step "atspi: inspector window present" atspi fail "$WINS"
 
-# --- window lifecycle: close inspector, reopen via tray Activate+Return ---
-xdotool search --name 'Inspector' windowclose 2>/dev/null || python3 ax.py press "$APP_NAME" "Close" >/dev/null 2>&1
-sleep 0.5
-grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && step "window lifecycle: close" os-input-x11-xtest pass "" || step "window lifecycle: close" os-input-x11-xtest fail "no INSPECTOR_CLOSED"
-if [ -n "$SNI" ]; then
-  gdbus call --session -d "$SNI" -o /StatusNotifierItem -m org.kde.StatusNotifierItem.Activate 0 0 >/dev/null 2>&1
-  sleep 0.6; xdotool key Return; sleep 0.5
-  grep -q 'JOURNEY INSPECTOR_OPENED id=w2' "$LOG" && step "window lifecycle: reopen" dbus-shell-protocol pass "" || step "window lifecycle: reopen" dbus-shell-protocol fail "no w2"
+# --- global shortcut via portal: focus foreign client, press assigned trigger ---
+if [ "$READY" = yes ]; then
+  TRIG=$(grep -o 'HOTKEY_REGISTERED focus-app [^ ]*' "$LOG" | awk '{print $3}')
+  if [ -n "$TRIG" ]; then
+    KEY=$(python3 ax.py accel "$TRIG" 2>/dev/null || true)
+    [ -z "$KEY" ] && KEY="ctrl+alt+shift+j"
+    xeyes >/dev/null 2>&1 &
+    sleep 0.5
+    xdotool search --name 'xeyes' windowactivate 2>/dev/null || true
+    sleep 0.3
+    xdotool key "$KEY"; sleep 0.8
+    grep -q 'JOURNEY HOTKEY_FOCUS' "$LOG" && step "global shortcut: portal trigger" os-input-x11-xtest-via-portal pass "trigger=$TRIG" || step "global shortcut: portal trigger" os-input-x11-xtest-via-portal fail "trigger=$TRIG no HOTKEY_FOCUS"
+  else
+    DENIED=$(grep -o 'HOTKEY_ERROR [^ ]* [^ ]*' "$LOG" | head -1)
+    step "global shortcut: portal trigger" os-input-x11-xtest-via-portal blocked "no bound trigger${DENIED:+ ($DENIED)}"
+  fi
 else
-  step "window lifecycle: reopen" dbus-shell-protocol blocked "no SNI registered"
+  step "global shortcut: portal trigger" os-input-x11-xtest-via-portal blocked "launch"
 fi
 
-# --- quit via the app's own Quit accelerator ---
-xdotool key ctrl+q; sleep 0.8
-grep -q 'JOURNEY CLEANUP menu=1 shortcuts=1 tray=1 residency=1' "$LOG" && step "quit: cleanup once" in-process pass "" || step "quit: cleanup once" in-process fail "no CLEANUP"
+# --- window lifecycle: close Inspector, reopen via tray ---
+if [ "$READY" = yes ]; then
+  xdotool search --name 'Inspector' windowclose 2>/dev/null || python3 ax.py press "$APP_NAME" "Close" >/dev/null 2>&1
+  sleep 0.6
+  grep -q 'JOURNEY INSPECTOR_CLOSED' "$LOG" && step "window lifecycle: close" os-input-x11-xtest pass "" || step "window lifecycle: close" os-input-x11-xtest fail "no INSPECTOR_CLOSED"
+  if [ -n "$SNI" ]; then
+    gdbus call --session -d "$SNI" -o /StatusNotifierItem -m org.kde.StatusNotifierItem.Activate 0 0 >/dev/null 2>&1
+    sleep 0.6; xdotool key Return; sleep 0.6
+    grep -q 'JOURNEY INSPECTOR_OPENED id=w2' "$LOG" && step "window lifecycle: reopen" dbus-shell-protocol pass "" || step "window lifecycle: reopen" dbus-shell-protocol fail "no w2"
+  else
+    step "window lifecycle: reopen" dbus-shell-protocol blocked "no SNI registered"
+  fi
+else
+  step "window lifecycle: close" os-input-x11-xtest blocked "launch"
+  step "window lifecycle: reopen" dbus-shell-protocol blocked "launch"
+fi
+
+# --- quit through the app's own Quit accelerator ---
+if [ "$READY" = yes ]; then
+  xdotool key ctrl+q; sleep 1
+  grep -q 'JOURNEY CLEANUP menu=1 shortcuts=1 tray=1 residency=1' "$LOG" && step "quit: cleanup once" in-process pass "" || step "quit: cleanup once" in-process fail "no CLEANUP"
+  sleep 0.5
+  kill -0 $APP_PID 2>/dev/null && step "quit: process exits" in-process fail "still running" || step "quit: process exits" in-process pass ""
+  SNI2=$(cat watcher-registered.txt 2>/dev/null | head -1)
+  [ -z "$SNI2" ] && step "quit: SNI unregistered" dbus-shell-protocol pass "" || step "quit: SNI unregistered" dbus-shell-protocol fail "still registered: $SNI2"
+else
+  step "quit: cleanup once" in-process blocked "launch"
+  step "quit: process exits" in-process blocked "launch"
+  step "quit: SNI unregistered" dbus-shell-protocol blocked "launch"
+fi
 kill $APP_PID 2>/dev/null
 
-# --- v2 overlay: settings persist, reinstall, RESTORED ---
-[ -f "$XDG_CONFIG_HOME/$APP_ID/settings.ini" ] && step "settings persisted" in-process pass "" || step "settings persisted" in-process fail "no settings.ini"
-v2/$APP_NAME/install.sh >install2.log 2>&1
-$EXEC >"$LOG.v2" 2>&1 &
-APP2=$!
-for i in $(seq 1 60); do grep -q 'JOURNEY RESTORED' "$LOG.v2" && break; sleep 0.25; done
-grep -q 'JOURNEY RESTORED name=Ada' "$LOG.v2" && step "v2 restores name" in-process pass "" || step "v2 restores name" in-process fail "$(tail -2 $LOG.v2 | tr '\n' ' ')"
-kill $APP2 2>/dev/null
+# --- settings file written by the app before v2 ---
+[ -f "$XDG_CONFIG_HOME/$APP_ID/settings.ini" ] && step "settings persisted by app" in-process pass "" || step "settings persisted by app" in-process fail "no settings.ini"
 
-# --- uninstall keeps settings ---
+# --- stale-file check: plant a file in the v1 install, v2 install must remove it ---
+STALE="$XDG_DATA_HOME/$APP_ID/stale-marker.txt"
+mkdir -p "$XDG_DATA_HOME/$APP_ID" 2>/dev/null
+touch "$STALE"
+v2/$APP_NAME/install.sh >install2.log 2>&1 && step "install v2 over v1" in-process pass "" || step "install v2 over v1" in-process fail "$(tail -1 install2.log)"
+[ ! -f "$STALE" ] && step "install v2 removes stale files" in-process pass "" || step "install v2 removes stale files" in-process fail "stale file kept"
+
+# --- v2 relaunch: version + RESTORED name (KeyFile persistence end to end) ---
+EXEC2=$(grep '^Exec=' "$XDG_DATA_HOME/applications/$APP_ID.desktop" | sed 's/^Exec=//;s/"//g')
+$EXEC2 >"$LOG.v2" 2>&1 &
+APP2=$!
+for i in $(seq 1 60); do grep -q 'JOURNEY READY' "$LOG.v2" && break; sleep 0.25; done
+grep -q 'JOURNEY RESTORED name=Ada' "$LOG.v2" && step "v2 restores name" in-process pass "" || step "v2 restores name" in-process fail "$(tail -2 $LOG.v2 2>/dev/null | tr '\n' ' ')"
+python3 ax.py tree "$APP_NAME" > ax-tree-v2.txt 2>/dev/null
+grep -qi '0\.2\.0\|v2' ax-tree-v2.txt && step "v2 version visible" atspi pass "" || step "v2 version visible" atspi fail "no version in AT-SPI tree"
+kill $APP2 2>/dev/null; sleep 0.3
+
+# --- uninstall removes app dir + entry, keeps settings ---
 v2/$APP_NAME/uninstall.sh >/dev/null 2>&1
-[ ! -d "$XDG_DATA_HOME/$APP_ID" ] && [ ! -f "$XDG_DATA_HOME/applications/$APP_ID.desktop" ] && [ -f "$XDG_CONFIG_HOME/$APP_ID/settings.ini" ] \
-  && step "uninstall keeps settings" in-process pass "" || step "uninstall keeps settings" in-process fail ""
+[ ! -d "$XDG_DATA_HOME/$APP_ID" ] && [ ! -f "$XDG_DATA_HOME/applications/$APP_ID.desktop" ] && step "uninstall removes app+entry" in-process pass "" || step "uninstall removes app+entry" in-process fail ""
+[ -f "$XDG_CONFIG_HOME/$APP_ID/settings.ini" ] && step "uninstall keeps settings" in-process pass "" || step "uninstall keeps settings" in-process fail ""
 
 echo "JOURNEY_DONE"

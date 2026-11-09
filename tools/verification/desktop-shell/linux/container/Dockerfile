@@ -7,7 +7,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     desktop-file-utils libglib2.0-bin \
     xdg-desktop-portal xdg-desktop-portal-kde kglobalacceld \
  && rm -rf /var/lib/apt/lists/*
-COPY app.tar.gz watcher.js ax.py run.sh /journey/
+COPY app-v1.tar.gz app-v2.tar.gz watcher.js ax.py run.sh /journey/
 RUN chmod +x /journey/run.sh
 WORKDIR /journey
-ENTRYPOINT ["/journey/run.sh"]
+ENTRYPOINT ["/usr/bin/dbus-run-session", "--", "/journey/run.sh"]

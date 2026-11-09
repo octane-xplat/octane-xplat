@@ -101,6 +101,9 @@ async function buildPhase() {
   }
   const compatibility = JSON.parse(await readFile(join(repo, 'packages/create/compatibility.json'), 'utf8'))
 
+  // Tarball deps keep the same version across runs — a stale lockfile or
+  // node_modules would keep serving the previous pack. Start clean.
+  rmSync(consumer, { recursive: true, force: true })
   mkdirSync(consumer, { recursive: true })
   const consumerPkg = {
     name: 'desktop-shell-consumer',
@@ -204,12 +207,9 @@ async function buildPhase() {
     log(`xplat build --targets linux (${label} ${version})`)
     await execAsync('bun', ['run', 'xplat', 'build', '--targets', 'linux'], { cwd: consumer, timeout: 600000 })
 
-    const bundle = readdirSync(join(consumer, 'dist/package-build')).find((f) => /\.(c?js|mjs)$/.test(f))
-    if (bundle) {
-      const bundled = readFileSync(join(consumer, 'dist/package-build', bundle), 'utf8')
-      if (/https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|::1)/.test(bundled) || /\/@vite\/client|vite\.dev\./i.test(bundled)) {
-        throw new Error('packaged bundle carries dev-server/HMR client URLs')
-      }
+    const bundled = readFileSync(join(outDir, APP_NAME, 'app.js'), 'utf8')
+    if (/https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0|::1)/.test(bundled) || /\/@vite\/client|vite\.dev\./i.test(bundled)) {
+      throw new Error('packaged bundle carries dev-server/HMR client URLs')
     }
 
     const archive = readdirSync(outDir).find((f) => f.endsWith('.tar.gz'))
@@ -266,6 +266,7 @@ mkdirSync(WORK, { recursive: true })
 try {
   if (PHASE === 'build' || PHASE === 'all') await buildPhase()
   if (PHASE === 'journey' || PHASE === 'all') await journeyPhase()
+  if (PHASE === 'build' && evidence.result === 'fail' && !evidence.error) evidence.result = 'pass'
 } catch (e) {
   evidence.result = 'fail'
   evidence.error = String(e && e.message ? e.message : e)
