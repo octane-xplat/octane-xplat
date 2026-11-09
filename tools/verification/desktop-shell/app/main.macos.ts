@@ -1,6 +1,13 @@
 import '@nativescript/macos-node-api'
 import { runMacOSApp, setWindowContentResolver } from '@octane-xplat/macos-appkit/host'
-import { NSApplication, NSProcessInfo } from '@octane-xplat/platform/macos'
+import {
+  NSApplication,
+  NSProcessInfo,
+  NSProtocolFromString,
+  NSView,
+  NativeClass,
+  interop,
+} from '@octane-xplat/platform/macos'
 import { storage } from '@octane-xplat/platform'
 import { openWindow } from '@octane-xplat/ui'
 import { appMenu } from '@octane-xplat/app-menu'
@@ -230,6 +237,93 @@ async function runSelftest(app: any, window: any) {
     `SELFTEST roles submit=${submit?.valueForKey?.('accessibilityRole')}` +
       ` status=${status?.valueForKey?.('accessibilityRole')}`,
   )
+
+  // Class/identity discrimination: the ObjC class name tells whether the live
+  // view is a JS-subclass instance (bridged/registered name) or a native view;
+  // a second traversal tests whether wrappers are memoized per native object.
+  const submit2 = findById(content, 'journey-submit')
+  const chain: string[] = []
+  for (let c: any = submit; c && chain.length < 8; c = c.superclass) {
+    chain.push(String(c.className ?? c.name ?? c))
+  }
+  marker(
+    `SELFTEST cls=${String(submit?.className ?? submit?.class?.() ?? '?')} ` +
+      `ctor=${submit?.constructor?.name} same=${submit === submit2} ` +
+      `eq=${submit?.isEqual?.(submit2)} chain=${chain.join('<')} ` +
+      `xplatSel=${submit?.respondsToSelector?.('xplatAccessibleHost')} ` +
+      `kvcRole=${submit?.valueForKey?.('accessibilityRole')}`,
+  )
+
+  // Dispatch discrimination: the imported NSView may be a lazy _bind Proxy
+  // when this module evaluates; classes extending it register anonymous ObjC
+  // classes with a bogus superclass and no JS dispatch. Compare the three
+  // shapes side by side.
+  try {
+    const gNSView = (globalThis as any).NSView
+    marker(
+      `SELFTEST importedEqGlobal=${NSView === gNSView} gNSViewIsFn=${typeof gNSView}`,
+    )
+
+    class P1 extends NSView {
+      // @ts-ignore ObjC accessor methods satisfy the generated @property member.
+      accessibilityRole() {
+        return 'AXButton'
+      }
+      static ObjCExposedMethods = {
+        xplatProbeMarker: { params: [], returns: interop.types.bool },
+      }
+      static {
+        NativeClass(this)
+      }
+    }
+    class P2 extends (globalThis as any).NSView {
+      // @ts-ignore ObjC accessor methods satisfy the generated @property member.
+      accessibilityRole() {
+        return 'AXButton'
+      }
+      static ObjCExposedMethods = {
+        xplatProbeMarker: { params: [], returns: interop.types.bool },
+      }
+      static {
+        NativeClass(this)
+      }
+    }
+    const makeP3Base = () =>
+      class extends (globalThis as any).NSView {
+        // @ts-ignore ObjC accessor methods satisfy the generated @property member.
+        accessibilityRole() {
+          return 'AXButton'
+        }
+        static ObjCExposedMethods = {
+          xplatProbeMarker: { params: [], returns: interop.types.bool },
+        }
+        static ObjCProtocols = [NSProtocolFromString?.('NSAccessibilityButton')].filter(Boolean)
+        static {
+          NativeClass(this)
+        }
+      }
+    const P3 = class extends makeP3Base() {
+      static {
+        NativeClass(this)
+      }
+    }
+
+    for (const [label, C] of [
+      ['P1', P1],
+      ['P2', P2],
+      ['P3', P3],
+    ] as const) {
+      const v: any = (C as any).alloc().init()
+      marker(
+        `SELFTEST ${label} cls=${String(v.className)} ` +
+          `kvcRole=${v.valueForKey?.('accessibilityRole')} ` +
+          `probeSel=${v.respondsToSelector?.('xplatProbeMarker')} ` +
+          `jsRole=${v.accessibilityRole?.()}`,
+      )
+    }
+  } catch (e) {
+    marker(`SELFTEST probes fail ${String(e)}`)
+  }
 
   // Tab path: native first-responder chain, minus the keyboard event.
   window.makeFirstResponder(nameField)
