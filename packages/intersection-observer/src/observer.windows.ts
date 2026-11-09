@@ -29,6 +29,10 @@ export class IntersectionObserver implements IntersectionObserverShape {
 
   observe(_target: unknown): void {}
 
+  takeRecords(): [] {
+    return []
+  }
+
   unobserve(_target: unknown): void {}
 
   disconnect(): void {}
