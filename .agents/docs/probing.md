@@ -148,6 +148,15 @@ available in the isolated project:
 bun run probe run examples/probes/signals.ts --target android --deps @octane-xplat/platform
 ```
 
+Isolated mobile cases reuse the host's Core and Mason namespaces rather than
+loading another runtime or engine. Keep the Mason entry external in the case
+bundle and mapped in `tools/probe/mobile-host.mobile.ts`: inlining it registers
+its CSS properties twice against the host's Core Style object. The generated
+host also aliases the core package to its canonical installed directory so
+renderer aliases and bare engine imports cannot vendor two symlink identities. A missing
+namespace or duplicate registration fails before case assertions and does not
+establish a layout failure. Verify changes on an actual mobile host.
+
 Mobile probes always build against `@octane-xplat/nativescript-mason-core` —
 the only supported mobile engine. The generated host fingerprints core's
 native files and rejects full or legacy MasonKit anywhere in that runtime

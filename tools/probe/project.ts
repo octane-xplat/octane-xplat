@@ -321,9 +321,12 @@ export async function prepare(target, caseFile, extra = [], resources) {
       })}\n`,
     )
 
+    // The renderer aliases the engine's legacy name to its real directory.
+    // Resolve bare core imports there too, or the vendor bundle includes both
+    // symlink and realpath copies and registers the same CSS properties twice.
     await writeFile(
       join(root, 'vite.host.config.mts'),
-      `import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nimport { scratchResolver } from ${JSON.stringify(join(directory, 'project.ts'))}\nexport default defineConfig(({mode}) => xplatNative(mode, {rules: [{include: '**/*.{tsx,tsrx}', renderer: 'nativescript'}], extra: {plugins: [scratchResolver(${JSON.stringify(root)})]}}))\n`,
+      `import { defineConfig } from 'vite'\nimport { xplatNative } from '@octane-xplat/cli/vite'\nimport { scratchResolver } from ${JSON.stringify(join(directory, 'project.ts'))}\nexport default defineConfig(({mode}) => xplatNative(mode, {rules: [{include: '**/*.{tsx,tsrx}', renderer: 'nativescript'}], extra: {resolve: {alias: [{find: '@octane-xplat/nativescript-mason-core', replacement: ${JSON.stringify(deps.resolved.get(masonCorePackage))}}]}, plugins: [scratchResolver(${JSON.stringify(root)})]}}))\n`,
     )
 
     // `<case>.fonts/` beside the case file is installed into the app's

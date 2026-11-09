@@ -98,6 +98,7 @@ export default async function nativeCaseConfig(project, target) {
         external: (id) =>
           id === '@nativescript/core' ||
           id.startsWith('@nativescript/core/') ||
+          id === '@octane-xplat/nativescript-mason-core' ||
           id === '@nativescript-community/octane' ||
           id === '@nativescript-community/gesturehandler' ||
           id.startsWith('octane/'),

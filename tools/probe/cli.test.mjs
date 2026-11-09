@@ -315,7 +315,7 @@ test('an explicit core probe excludes the default full engine and fingerprints i
   )
 })
 
-test('native cases reuse host Core for external style property imports', async () => {
+test('native cases reuse host Core properties and Mason engine', async () => {
   const { mkdtemp, writeFile, rm } = await import('node:fs/promises')
   const { tmpdir } = await import('node:os')
   const { join } = await import('node:path')
@@ -333,6 +333,7 @@ test('native cases reuse host Core for external style property imports', async (
       [
         "export { paddingTopProperty } from '@nativescript/core/ui/styling/style-properties'",
         "export { View } from '@nativescript/core'",
+        "export { View as MasonView } from '@octane-xplat/nativescript-mason-core'",
       ].join('\n'),
     )
 
@@ -349,18 +350,21 @@ test('native cases reuse host Core for external style property imports', async (
       .find((output) => output.type === 'chunk')
 
     const core = { paddingTopProperty: {}, View: class View {} }
+    const mason = { View: class MasonView {} }
     const required = []
     const module = { exports: {} }
 
     new Function('module', 'exports', 'require', chunk.code)(module, module.exports, (id) => {
       required.push(id)
-      assert.equal(id, '@nativescript/core')
-      return core
+      assert.ok(['@nativescript/core', '@octane-xplat/nativescript-mason-core'].includes(id))
+      return id === '@nativescript/core' ? core : mason
     })
 
     assert.ok(required.length > 0)
     assert.equal(module.exports.paddingTopProperty, core.paddingTopProperty)
     assert.equal(module.exports.View, core.View)
+    assert.equal(module.exports.MasonView, mason.View)
+    assert.ok(required.includes('@octane-xplat/nativescript-mason-core'))
   } finally {
     await rm(work, { recursive: true })
   }
