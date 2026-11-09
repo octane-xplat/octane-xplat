@@ -119,3 +119,15 @@ test('arbitrary variables keep identifier text and resolve authored pixel values
 
   assert.equal(computed(css, ['w-[var(--offset-1rem)]']).width, 24)
 })
+
+test('native unit diagnostics cover physical and container lengths and misplaced grid fractions', async () => {
+  for (const classes of ['w-[10pt]', 'w-[10cqw]', 'w-[1fr]']) {
+    await assert.rejects(compile(classes), /unit|fraction/, classes)
+  }
+
+  const css = await compile('grid grid-cols-[1fr_2fr] w-[50%]', '.authored { width: 10pt }')
+
+  assert.match(css, /grid-template-columns: 1fr 2fr/)
+  assert.match(css, /width: 50%/)
+  assert.match(css, /width: 10pt/)
+})

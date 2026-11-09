@@ -31,6 +31,19 @@ not filtered by a Tailwind property allowlist. The shared theme uses pixel-based
 spacing, text sizes, radii and breakpoints on every target; native output converts
 those lengths to DIP. This does not qualify the hosts' rendering behavior.
 
+Generated dimensions are checked with the existing value parser. The unit check
+recognizes unitless numbers, `px`, `dip` and `%`; `fr` is limited to grid tracks
+and custom-property definitions. Other units fail explicitly, including `pt` and
+container units such as `cqw`. These candidates pass the unit boundary:
+
+```css
+@import '@octane-xplat/tailwind';
+@source inline("grid grid-cols-[1fr_2fr] w-[50%]");
+```
+
+This unit check does not validate every property's value grammar or values hidden
+behind runtime variables. Those contracts still require separate qualification.
+
 Compilation is configured during Vite's `config` hook after platform CSS setup.
 Changing PostCSS in `configResolved` misses the per-environment configuration.
 The compiler preserves its AST for source maps and leaves minification to Vite;

@@ -91,6 +91,13 @@ const symmetricLogical = new Map([
   ['margin-block', ['margin-top', 'margin-bottom']],
 ])
 
+const gridTracks = new Set([
+  'grid-template-columns',
+  'grid-template-rows',
+  'grid-auto-columns',
+  'grid-auto-rows',
+])
+
 function selector(node: Node): string {
   for (let cursor: Node | undefined = node; cursor; cursor = cursor.parent) {
     if ('selector' in cursor && typeof cursor.selector === 'string') {
@@ -180,6 +187,27 @@ function checkValue(root: Root, declaration: Declaration, target: NativeTarget) 
         target,
         `${declaration.prop}: ${declaration.value} needs native infinite-length support`,
       )
+    }
+
+    if (node.type === 'word') {
+      const dimension = valueParser.unit(node.value)
+
+      if (!dimension) {
+        return
+      }
+
+      const unit = dimension.unit.toLowerCase()
+      const gridFraction =
+        unit === 'fr' && (gridTracks.has(declaration.prop) || declaration.prop.startsWith('--'))
+
+      if (!['', 'px', 'dip', '%'].includes(unit) && !gridFraction) {
+        fail(
+          root,
+          declaration,
+          target,
+          `${declaration.prop}: ${declaration.value} uses unit ${unit} outside the native utility contract`,
+        )
+      }
     }
   })
 }
