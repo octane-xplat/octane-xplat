@@ -30,24 +30,25 @@
     "sync:ui-theme": "node scripts/sync-ui-theme.ts",
     "typegen": "tsc --runExternalCode -p tsconfig.build.json",
     "typecheck": "tsc --runExternalCode --noEmit -p tsconfig.json",
-    "test": "node --test test/*.test.ts"
+    "test": "node --test test/*.test.ts",
+    "test:packed": "node ../../tools/tailwind-qualification/packed-consumer.mjs"
   },
   "dependencies": {
     "@tailwindcss/node": "4.3.5",
     "@tailwindcss/oxide": "4.3.5",
     "postcss": "8.5.32",
-    "tailwindcss": "4.3.5",
     "postcss-nesting": "13.0.2",
-    "postcss-value-parser": "4.2.0"
+    "postcss-value-parser": "4.2.0",
+    "tailwindcss": "4.3.5"
   },
   "devDependencies": {
+    "@octane-xplat/build": "workspace:*",
+    "@octane-xplat/css-engine": "workspace:*",
     "@octane-xplat/ui": "workspace:*",
     "@tailwindcss/postcss": "4.3.5",
-    "@octane-xplat/build": "workspace:*",
     "@tsrx/content-mapper": "catalog:",
     "@types/node": "26.6.6",
-    "typescript": "catalog:",
-    "@octane-xplat/css-engine": "workspace:*"
+    "typescript": "catalog:"
   },
   "peerDependencies": {
     "vite": "^8.3.0"

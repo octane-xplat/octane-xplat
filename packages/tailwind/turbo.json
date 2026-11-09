@@ -2,6 +2,10 @@
   "extends": ["//"],
   "tasks": {
     "typecheck": { "dependsOn": ["^typegen", "^build"] },
+    "test:packed": {
+      "dependsOn": ["typegen", "@octane-xplat/build#build", "@octane-xplat/lib#typegen"],
+      "cache": false
+    },
     "test": {
       "inputs": [
         "$TURBO_DEFAULT$",

@@ -60,3 +60,11 @@ the module graph or evaluate dynamic class strings.
 
 Vite's production CSS extraction does not emit a CSS source-map asset; do not
 claim production CSS maps from compiler or development-map evidence.
+
+Check an isolated tarball installation through the package's Turbo task. This
+exercises CSS compilation and declaration resolution outside the workspace;
+it does not establish native runtime or rendering support:
+
+```sh
+bun run turbo run test:packed --filter=@octane-xplat/tailwind
+```

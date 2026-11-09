@@ -13,6 +13,24 @@ bun run turbo run prepare:browser --filter=@xplat/tailwind-qualification
 bun run turbo run qualify --filter=@xplat/tailwind-qualification -- --output "$HOME/dev/reports/octane-xplat/tailwind-feasibility"
 ```
 
+The Xplat integration has a separate packed-consumer check, implemented here
+and owned by the leaf package's task. It packs Tailwind, build tooling and the
+shared build library, then installs those tarballs with isolated dependencies
+outside the repository. It checks exported files, JavaScript execution,
+NodeNext/Bundler declarations, web/iOS CSS compilation in development and
+production, development maps, platform-file selection, and web SSR inline CSS:
+
+```sh
+bun run turbo run test:packed --filter=@octane-xplat/tailwind
+```
+
+This check uses real Vite builds and development servers without a browser or
+device. Its JSON output reports production CSS-map availability separately;
+a passing package check does not qualify production maps, native runtime
+behavior, Mason layout, input or painting. Failed disposable consumers remain
+under `~/agent-scratch/octane-xplat/tailwind-consumer-*` for inspection; successful
+runs remove their temporary installation.
+
 The qualification command writes the official/generated stylesheet, the adapted
 stylesheet, and `comparison.json` to the specified local directory. It exits 1
 when the browser comparison finds semantic differences. Treat that as a failed
