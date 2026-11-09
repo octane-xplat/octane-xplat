@@ -188,6 +188,7 @@ async function buildPhase() {
   }
   log('tray/app-menu/global-shortcuts tarballs ship dist/')
 
+  rmSync(join(packs, 'native-cli'), { recursive: true, force: true })
   const stagedCli = stageHostCli(repo, join(packs, 'native-cli'))
   const cli = `file:${stagedCli.cli.archive}`
   const macosBuild = await packOne(join(repo, 'packages/macos-build'), packs)
@@ -224,6 +225,8 @@ async function buildPhase() {
       '@octane-xplat/cli': cli,
       '@octane-xplat/macos-build': macosBuild,
       '@nativescript/types': compatibility.packages['@nativescript/types'].version,
+      '@octanejs/vite-plugin': compatibility.packages['@octanejs/vite-plugin'].version,
+      '@tsrx/oxc': compatibility.packages['@tsrx/oxc'].version,
       vite: compatibility.packages.vite.version,
       typescript: compatibility.packages.typescript.version,
     },
