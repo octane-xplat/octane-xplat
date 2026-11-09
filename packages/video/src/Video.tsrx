@@ -1,5 +1,6 @@
 /** @jsxImportSource @octane-xplat/jsx */
 import { useImperativeHandle, useCallback, useEffect, useRef, useState } from 'octane'
+import { Image } from '@octane-xplat/ui'
 import { registerElement } from '@nativescript-community/octane'
 import { isAndroid } from '@nativescript/core'
 import { Video as NSVideo, VideoFill } from '@nstudio/nativescript-exoplayer'
@@ -36,7 +37,8 @@ const platform = isAndroid ? 'android' : 'ios'
 export function Video(props: VideoProps): unknown @{
   const host = useRef<any>(null)
   const [playing, setPlaying] = useState(props.playing ?? props.autoPlay ?? false)
-  const [started, setStarted] = useState(false)
+  const [startedSrc, setStartedSrc] = useState<string | undefined>(undefined)
+  const started = startedSrc === props.src
   const [position, setPosition] = useState(0)
   const [duration, setDuration] = useState(0)
   const [internalMuted, setInternalMuted] = useState(false)
@@ -84,6 +86,8 @@ export function Video(props: VideoProps): unknown @{
       return
     }
 
+    // Retire the outgoing clip before the plugin opens the next source.
+    setStartedSrc(undefined)
     appliedSrc.current = props.src
     v.src = props.src
   }, [props.src])
@@ -159,7 +163,7 @@ export function Video(props: VideoProps): unknown @{
         setDuration(ms)
         props.onReady?.({ duration: ms })
       }}
-      onPlaybackStart={() => setStarted(true)}
+      onPlaybackStart={() => setStartedSrc(props.src)}
       onCurrentTimeUpdated={(e: any) => setPosition(e.position ?? 0)}
     />
     @if (props.controls !== false) {
@@ -188,6 +192,8 @@ export function Video(props: VideoProps): unknown @{
           }
         }}
       />
+    } @else if (props.poster && !started) {
+      <Image className="vx-video-poster" src={props.poster} contentFit="cover" />
     }
   </masonview>
 }

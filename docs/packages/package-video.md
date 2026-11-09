@@ -29,6 +29,16 @@ export function Preview() {
 }
 ```
 
+Use `poster` for a still image until each clip starts, including when controls are hidden. When changing clips, update `src` and `poster` together.
+
+```tsx
+import { Video } from '@octane-xplat/video'
+
+export function Clip({ uri, thumbnail }: { uri: string; thumbnail: string }) {
+  return <Video src={uri} poster={thumbnail} controls={false} autoPlay />
+}
+```
+
 All times are milliseconds on every platform. `onError` is available on web
 and the experimental AppKit path; iOS/Android plugin players surface no error event. `handle.native` is the
 platform surface for anything the shared props don't cover, and the
