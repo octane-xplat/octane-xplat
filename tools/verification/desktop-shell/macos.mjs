@@ -399,6 +399,8 @@ function ensureInput() {
       'xcrun',
       [
         'clang',
+        '-x',
+        'objective-c',
         '-O2',
         '-o',
         INPUT,
